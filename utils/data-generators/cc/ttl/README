@@ -1,0 +1,4 @@
+The turtle files are created in this directory. For importing them into
+tracker use:
+
+tracker-import *.ttl

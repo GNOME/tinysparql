@@ -1,0 +1,11 @@
+<${call_uri}> a nmo:Call;
+  nie:subject                "${call_subject}";
+  nie:informationElementDate "${call_date}";
+  nie:contentLastModified    "${call_modified}";
+  nmo:from                   <${call_from}>  ;
+  nmo:to                     <${call_to}>  ;
+  nmo:isRead                 "${call_read}" ;
+  nmo:isSent                 "${call_sent}" ;
+  nmo:receivedDate           "${call_received}" ;
+  nmo:sentDate               "${call_sent_date}" ;
+  nmo:duration               "${call_duration}" .

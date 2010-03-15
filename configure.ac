@@ -207,7 +207,7 @@ AC_SUBST(UUID_LIBS)
 
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
-            AS_HELP_STRING([--with-enca], 
+            AS_HELP_STRING([--with-enca],
                            [enable libenca for Cyrillic language detection in MP3s [[default=auto]]]),,
             [enable_enca=auto])
 

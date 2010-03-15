@@ -1,0 +1,205 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+
+import string
+import time
+import sys
+import ConfigParser
+
+import ontology_prefixes
+import tools
+
+# all ontology modules
+import ncal
+import nmm
+import nco
+import nfo
+import mfo
+import mto
+import nmo
+import tracker
+
+
+####################################################################################
+
+# we need a count
+if len(sys.argv) != 2:
+  print "Usage: %s config-file" % sys.argv[0]
+  sys.exit()
+
+config = ConfigParser.RawConfigParser()
+try:
+  config.read(sys.argv[1])
+except:
+  print "Failed to read configuration file %s", sys.argv[1]
+
+# set up all known types
+tools.addType( 'nco#EmailAddress', 10 )
+tools.addType( 'nco#PostalAddress', 11 )
+tools.addType( 'nco#PhoneNumber', 12 )
+tools.addType( 'nco#PersonContact', 13 )
+tools.addType( 'nmm#Photo', 20 )
+tools.addType( 'nmo#MailAccount', 30 )
+tools.addType( 'nmo#MailFolder', 31 )
+tools.addType( 'nmo#Email', 32 )
+tools.addType( 'nmo#CommunicationChannel', 35 )
+tools.addType( 'nmo#IMMessage', 36 )
+tools.addType( 'nmo#SMSMessage', 37 )
+tools.addType( 'nmo#Call', 38 )
+tools.addType( 'nmm#Artist', 40 )
+tools.addType( 'nmm#MusicAlbum', 41 )
+tools.addType( 'nmm#MusicPiece', 42 )
+tools.addType( 'tracker#Volume', 50 )
+tools.addType( 'nfo#PlainTextDocument', 51 )
+tools.addType( 'nfo#SoftwareCategory', 60 )
+tools.addType( 'nfo#SoftwareApplication', 61 )
+tools.addType( 'nfo#WebHistory', 65 )
+tools.addType( 'ncal#Alarm', 70 )
+tools.addType( 'ncal#Calendar', 71 )
+tools.addType( 'ncal#Event', 72 )
+tools.addType( 'ncal#Todo', 73 )
+tools.addType( 'mfo#FeedChannel', 80 )
+tools.addType( 'mfo#FeedMessage', 81 )
+tools.addType( 'mto#TransferElement', 90 )
+tools.addType( 'mto#UploadTransfer', 91 )
+
+# first load all templates
+templates_count = tools.loadTemplates()
+print "Loaded", templates_count, "templates"
+
+print "Generating Contacts",
+count_contacts = config.getint('counts','contacts')
+for contact in range(1, count_contacts):
+  if (contact % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  nco.generateEmailAddress( contact )
+  nco.generatePostalAddress( contact )
+  nco.generatePhoneNumber( contact )
+  nco.generatePersonContact( contact )
+print "Done"
+
+print "Generate Emails",
+count_accounts = config.getint('counts','accounts')
+count_folders = config.getint('counts','folders')
+count_emails = config.getint('counts','emails')
+for account in range(1, count_accounts):
+  sys.stdout.write('.')
+  sys.stdout.flush()
+  nmo.generateMailAccount( account*count_folders*count_emails )
+  for folder in range(1, count_folders):
+    nmo.generateMailFolder( account*count_folders*count_emails+folder*count_emails )
+    for email in range(1, count_emails):
+      nmo.generateEmail( account*count_folders*count_emails+folder*count_emails+email )
+print "Done"
+
+print "Generate IM messages",
+count_comchans = config.getint('counts','comchans')
+count_ims = config.getint('counts','ims')
+for comchannel in range(1, count_comchans):
+  sys.stdout.write('.')
+  sys.stdout.flush()
+  nmo.generateCommunicationChannel( comchannel*count_ims )
+  for im in range(1, count_ims):
+    nmo.generateIMMessage( comchannel*count_ims+im )
+print "Done"
+
+print "Generate SMS messages",
+count_sms = config.getint('counts','sms')
+for sms in range(1, count_sms):
+  if (sms % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  nmo.generateSMSMessage( sms )
+print "Done"
+
+print "Generate calls",
+count_calls = config.getint('counts','calls')
+for call in range(1, count_calls):
+  if (call % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  nmo.generateCall( call )
+print "Done"
+
+print "* Starting with file system based content"
+
+print "Generate volumes",
+count_volumes = config.getint('counts','volumes')
+for volume in range(1, count_volumes):
+  sys.stdout.write('.')
+  sys.stdout.flush()
+  tracker.generateVolume( volume )
+print "Done"
+
+print "Generating Music",
+count_artists = config.getint('counts','artists')
+count_albums = config.getint('counts','albums')
+count_songs = config.getint('counts','songs')
+for artist in range(1, count_artists):
+  sys.stdout.write('.')
+  sys.stdout.flush()
+  nmm.generateArtist( artist*count_albums*count_songs )
+  for album in range(1, count_albums):
+    nmm.generateAlbum( artist*count_albums*count_songs+album )
+    for song in range(1, count_songs):
+      nmm.generateMusicPiece( artist*count_albums*count_songs+album*count_songs+song )
+print "Done"
+
+print "Generate Photos",
+count_images = config.getint('counts','images')
+for photo in range(1, count_images):
+  if (photo % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  nmm.generatePhoto( photo )
+print "Done"
+
+print "Generate plain text documents",
+count_docs = config.getint('counts','docs')
+for doc in range(1, count_docs):
+  if (doc % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  nfo.generatePlainTextDocument( doc )
+print "Done"
+
+print "Generate feeds",
+count_fchans = config.getint('counts','fchans')
+count_fms = config.getint('counts','fms')
+for fchan in range(1, count_fchans):
+  sys.stdout.write('.')
+  sys.stdout.flush()
+  mfo.generateFeedChannel( fchan*count_fms )
+  for fm in range(1, count_fms):
+    mfo.generateFeedMessage( fchan*count_fms+fm )
+print "Done"
+
+print "Generate software",
+count_softcats = config.getint('counts','softcats')
+count_softapps = config.getint('counts','softapps')
+for softcat in range(1, count_softcats):
+  sys.stdout.write('.')
+  sys.stdout.flush()
+  nfo.generateSoftwareCategory( softcat*count_softapps )
+  for softapp in range(1, count_softapps):
+    nfo.generateSoftwareApplication( softcat*count_softapps+softapp )
+print "Done"
+
+print "Generate something for the rest",
+count_others = config.getint('counts','others')
+for index in range(1,count_others):
+  if (index % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  nfo.generateWebHistory( index )
+  ncal.generateAlarm( index )
+  ncal.generateCalendar( index )
+  ncal.generateEvent( index )
+  ncal.generateTodo( index )
+  mto.generateTransferElement( index )
+  mto.generateUploadTransfer( index )
+print "Done"
+
+# dump all files
+tools.saveResult()

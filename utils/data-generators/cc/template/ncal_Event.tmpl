@@ -1,0 +1,20 @@
+<${event_uri}> a ncal:Event, nie:DataObject;
+  ncal:uid      "${event_uid}";
+  ncal:dtstart [ a ncal:NcalDateTime;
+    ncal:dateTime "${event_start}";
+    ncal:ncalTimezone <urn:x-ical:timezone:Europe/Helsinki> ]; 
+  ncal:dtend [ a ncal:NcalDateTime;
+    ncal:dateTime "${event_end}";
+    ncal:ncalTimezone <urn:x-ical:timezone:Europe/Helsinki> ]; 
+  ncal:transp        ncal:opaqueTransparency; 
+  ncal:summary       "${event_summary}"; 
+  ncal:class         ncal:publicClassification; 
+  ncal:eventStatus   ncal:; 
+  ncal:priority      0; 
+  ncal:dtstamp       "${event_created}"; 
+  ncal:created       "${event_created}";
+  ncal:lastModified  "${event_modified}";
+  ncal:sequence       0; 
+  ncal:url            <${event_uri}>;
+  ncal:hasAlarm       <${alarm_uri}> ; 
+  nie:isLogicalPartOf <${calendar_uri}> .

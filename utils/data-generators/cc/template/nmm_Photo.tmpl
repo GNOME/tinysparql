@@ -1,0 +1,18 @@
+<${photo_uri}> a nie:DataObject, nfo:FileDataObject, nfo:Media, nfo:Visual, nfo:Image, nmm:Photo ;
+    nie:url              "${photo_url}";
+    nie:byteSize         "${photo_size}";
+    nie:contentCreated   "${photo_date}";
+    nie:mimeType         "image/jpeg";
+    nfo:width            "100";
+    nfo:height           "100";
+    nfo:fileLastModified "${photo_date}";
+    nfo:fileLastAccessed "${photo_date}";
+    nfo:fileSize         "${photo_size}";
+    nfo:fileName         "${photo_filename}" ;
+    nmm:camera           "${photo_camera}";
+    nmm:exposureTime     "${photo_exposure}";
+    nmm:fnumber          "${photo_fnumber}";
+    nmm:focalLength      "${photo_focal_length}";
+    nmm:flash            <http://www.tracker-project.org/temp/nmm#flash-off> ;
+    nmm:meteringMode     <http://www.tracker-project.org/temp/nmm#meteringMode-pattern> ;
+    nmm:whiteBalance     <http://www.tracker-project.org/temp/nmm#whiteBalance-auto> .

@@ -1,0 +1,15 @@
+<${smsmessage_uri}> a nmo:SMSMessage;
+  nmo:smsId                  "${smsmessage_id}" ;
+  nie:plainTextContent       "${smsmessage_content}";
+  nie:informationElementDate "${smsmessage_date}";
+  nie:contentLastModified    "${smsmessage_modified}";
+  nie:plainTextContent       "${smsmessage_content}" ;
+  nmo:from                   <${smsmessage_from}>  ;
+  nmo:to                     <${smsmessage_to}>  ;
+  nmo:isDraft                "${smsmessage_draft}" ;
+  nmo:isRead                 "${smsmessage_read}" ;
+  nmo:isSent                 "${smsmessage_sent}" ;
+  nmo:messageId              "${smsmessage_message_id}" ;
+  nmo:receivedDate           "${smsmessage_received}" ;
+  nmo:sentDate               "${smsmessage_sent_date}" ;
+  nmo:communicationChannel   <${smsmessage_channel_uri}> .
