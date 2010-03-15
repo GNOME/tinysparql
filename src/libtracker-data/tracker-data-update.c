@@ -1278,8 +1278,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 static void
 cache_delete_resource_type (TrackerClass *class,
                             const gchar  *graph,
-                            gint          graph_id,
-                            gboolean      do_callback)
+                            gint          graph_id)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -1320,7 +1319,7 @@ cache_delete_resource_type (TrackerClass *class,
 
 			tracker_db_result_set_get (result_set, 0, &class_uri, -1);
 			cache_delete_resource_type (tracker_ontologies_get_class_by_uri (class_uri),
-			                            graph, graph_id, do_callback);
+			                            graph, graph_id);
 			g_free (class_uri);
 		} while (tracker_db_result_set_iter_next (result_set));
 
@@ -1368,7 +1367,7 @@ cache_delete_resource_type (TrackerClass *class,
 
 	cache_delete_row (class);
 
-	if (do_callback && delete_callbacks) {
+	if (!in_journal_replay && delete_callbacks) {
 		guint n;
 		for (n = 0; n < delete_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
@@ -1482,7 +1481,7 @@ tracker_data_delete_statement (const gchar  *graph,
 					query_resource_id (object));
 			}
 
-			cache_delete_resource_type (class, graph, 0, TRUE);
+			cache_delete_resource_type (class, graph, 0);
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object);
@@ -2546,7 +2545,7 @@ tracker_data_replay_journal (GHashTable *classes,
 
 					class = tracker_ontologies_get_class_by_uri (object);
 					if (class != NULL) {
-						cache_delete_resource_type (class, NULL, graph_id, FALSE);
+						cache_delete_resource_type (class, NULL, graph_id);
 					} else {
 						g_warning ("Journal replay error: 'class with '%s' not found in the ontology'", object);
 					}
