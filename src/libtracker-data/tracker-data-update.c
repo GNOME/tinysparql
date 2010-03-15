@@ -1268,7 +1268,9 @@ delete_metadata_decomposed (TrackerProperty  *property,
 
 static void
 cache_delete_resource_type (TrackerClass *class,
-                            const gchar  *graph)
+                            const gchar  *graph,
+                            gint          graph_id,
+                            gboolean      do_callback)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -1308,7 +1310,8 @@ cache_delete_resource_type (TrackerClass *class,
 			gchar *class_uri;
 
 			tracker_db_result_set_get (result_set, 0, &class_uri, -1);
-			cache_delete_resource_type (tracker_ontologies_get_class_by_uri (class_uri), graph);
+			cache_delete_resource_type (tracker_ontologies_get_class_by_uri (class_uri),
+			                            graph, graph_id, do_callback);
 			g_free (class_uri);
 		} while (tracker_db_result_set_iter_next (result_set));
 
@@ -1356,7 +1359,7 @@ cache_delete_resource_type (TrackerClass *class,
 
 	cache_delete_row (class);
 
-	if (delete_callbacks) {
+	if (do_callback && delete_callbacks) {
 		guint n;
 		for (n = 0; n < delete_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
@@ -1470,7 +1473,7 @@ tracker_data_delete_statement (const gchar  *graph,
 					query_resource_id (object));
 			}
 
-			cache_delete_resource_type (class, graph);
+			cache_delete_resource_type (class, graph, 0, TRUE);
 		} else {
 			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object);
@@ -2424,6 +2427,7 @@ tracker_data_replay_journal (GHashTable *classes,
 
 		type = tracker_db_journal_reader_get_type ();
 		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
+			GError *new_error = NULL;
 			TrackerDBInterface *iface;
 			TrackerDBStatement *stmt;
 			gint id;
@@ -2440,7 +2444,13 @@ tracker_data_replay_journal (GHashTable *classes,
 					                              "VALUES (?, ?)");
 			tracker_db_statement_bind_int (stmt, 0, id);
 			tracker_db_statement_bind_text (stmt, 1, uri);
-			tracker_db_statement_execute (stmt, &error);
+			tracker_db_statement_execute (stmt, &new_error);
+
+			if (new_error) {
+				g_warning ("Journal replay error: '%s'", new_error->message);
+				g_error_free (new_error);
+			}
+
 		} else if (type == TRACKER_DB_JOURNAL_START_TRANSACTION) {
 			tracker_data_begin_replay_transaction (tracker_db_journal_reader_get_time ());
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
@@ -2460,12 +2470,12 @@ tracker_data_replay_journal (GHashTable *classes,
 				cache_set_metadata_decomposed (property, object, 0, NULL, graph_id, &new_error);
 
 				if (new_error) {
-					g_warning ("TODO: handle %s", new_error->message);
+					g_warning ("Journal replay error: '%s'", new_error->message);
 					g_error_free (new_error);
 				}
 
 			} else {
-				g_warning ("TODO: handle property not in ontology anymore");
+				g_warning ("Journal replay error: 'property with ID %d doesn't exist'", predicate_id);
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
@@ -2482,17 +2492,45 @@ tracker_data_replay_journal (GHashTable *classes,
 
 			tracker_data_insert_statement_with_uri (graph, subject, predicate, object, &error);
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT) {
+			TrackerProperty *property;
+
 			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
-			if (graph_id > 0) {
-				graph = query_resource_by_id (graph_id);
-			} else {
-				graph = NULL;
-			}
-			subject = query_resource_by_id (subject_id);
-			predicate = query_resource_by_id (predicate_id);
+			resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
-			tracker_data_delete_statement (graph, subject, predicate, object, &error);
+			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
+
+			if (property) {
+				GError *new_error = NULL;
+				static TrackerProperty *rdf_type = NULL;
+
+				if (!rdf_type) {
+					rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
+				}
+
+				if (object && rdf_type == property) {
+					TrackerClass *class;
+
+					class = tracker_ontologies_get_class_by_uri (object);
+					if (class != NULL) {
+						cache_delete_resource_type (class, NULL, graph_id, FALSE);
+					} else {
+						g_set_error (&new_error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
+						             "Class '%s' not found in the ontology", object);
+					}
+				} else {
+					delete_metadata_decomposed (property, object, &new_error);
+				}
+
+				if (new_error) {
+					g_warning ("Journal replay error: '%s'", new_error->message);
+					g_error_free (new_error);
+				}
+
+			} else {
+				g_warning ("Journal replay error: 'property with ID %d doesn't exist'", predicate_id);
+			}
+
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID) {
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
