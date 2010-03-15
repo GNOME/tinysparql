@@ -72,7 +72,7 @@ test_sparql_query (gconstpointer test_data)
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           data_prefix,
-	                           NULL);
+	                           NULL, FALSE);
 
 	/* load data / perform updates */
 

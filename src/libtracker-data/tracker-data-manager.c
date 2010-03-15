@@ -1557,7 +1557,8 @@ get_new_service_id (TrackerDBInterface *iface)
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            const gchar           *test_schema,
-                           gboolean              *first_time)
+                           gboolean              *first_time,
+                           gboolean               journal_check)
 {
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index, read_journal, check_ontology;
@@ -1594,7 +1595,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	if (is_first_time_index && !test_schema) {
+	if (journal_check && is_first_time_index && !test_schema) {
 		if (tracker_db_journal_reader_init (NULL)) {
 			if (tracker_db_journal_reader_next (NULL)) {
 				/* journal with at least one valid transaction
