@@ -74,7 +74,7 @@ check_content_in_db (gint expected_instances, gint expected_relations)
  * Load ontology a few instances
  * Run a couple of queries to check it is ok
  * Back-up. 
- * Nuke the DB.
+ * Remove the DB.
  * Restore
  * Run again the queries
  */
@@ -124,6 +124,14 @@ test_backup_and_restore (void)
 	tracker_data_manager_shutdown ();
 
         meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "meta.db", NULL);
+        g_unlink (meta_db);
+        g_free (meta_db);
+
+        meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", "tracker-store.journal", NULL);
+        g_unlink (meta_db);
+        g_free (meta_db);
+
+        meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", ".meta.isrunning", NULL);
         g_unlink (meta_db);
         g_free (meta_db);
 
