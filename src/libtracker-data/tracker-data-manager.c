@@ -1692,7 +1692,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	/* ensure FTS is fully initialized */
 	tracker_db_interface_execute_query (iface, NULL, "SELECT 1 FROM fulltext.fts WHERE rowid = 0");
 
-	if (check_ontology) {
+	if (check_ontology && !test_schema) {
 		GList *to_reload = NULL;
 
 		sorted = get_ontologies (test_schema != NULL, ontologies_dir);
