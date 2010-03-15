@@ -70,6 +70,11 @@
 
 #include <libedataserver/e-account.h>
 #include <libedataserver/e-account-list.h>
+#include <libedataserver/eds-version.h>
+
+#if EDS_CHECK_VERSION (2, 29, 1)
+#include <e-util/e-account-utils.h>
+#endif
 
 #include <libtracker-client/tracker.h>
 #include <libtracker-client/tracker-sparql-builder.h>
@@ -2284,7 +2289,11 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 	                         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
 	                         G_TYPE_INVALID);
 
+#if EDS_CHECK_VERSION (2, 29, 1)
+	priv->accounts = g_object_ref (e_get_account_list ());
+#else
 	priv->accounts = g_object_ref (mail_config_get_accounts ());
+#endif
 
 	for (it = e_list_get_iterator (E_LIST (priv->accounts)); e_iterator_is_valid (it); e_iterator_next (it)) {
 		register_account (plugin, (EAccount *) e_iterator_get (it));
