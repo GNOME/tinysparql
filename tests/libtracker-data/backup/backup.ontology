@@ -1,0 +1,16 @@
+# this is a complete turtle document
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix foo: <http://example.org/ns#> .
+
+foo: a tracker:Namespace ;
+	tracker:prefix "foo" .
+
+foo:class1 a rdfs:Class .
+foo:class2 a rdfs:Class .
+
+foo:propertyX a rdf:Property ;
+    rdfs:domain foo:class1 ;
+    rdfs:range  foo:class2 .
+

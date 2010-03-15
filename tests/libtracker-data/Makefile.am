@@ -16,6 +16,7 @@ SUBDIRS = 			\
 	sort			\
 	subqueries		\
 	error			\
+	backup			\
 	turtle
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -23,7 +24,8 @@ noinst_PROGRAMS = $(TEST_PROGS)
 TEST_PROGS += 								\
 	tracker-sparql							\
 	tracker-sparql-blank						\
-	tracker-ontology
+	tracker-ontology						\
+	tracker-backup
 
 INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
@@ -64,5 +66,10 @@ tracker_ontology_SOURCES =						\
 	tracker-ontology-test.c
 
 tracker_ontology_LDADD = $(common_ldadd)
+
+tracker_backup_SOURCES = 						\
+	tracker-backup-test.c
+
+tracker_backup_LDADD = $(common_ldadd)
 
 EXTRA_DIST = dawg-testcases
