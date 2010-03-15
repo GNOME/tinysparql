@@ -2489,18 +2489,46 @@ tracker_data_replay_journal (GHashTable *classes,
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
+			TrackerClass *class = NULL;
+			TrackerProperty *property;
+
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
-			if (graph_id > 0) {
-				graph = query_resource_by_id (graph_id);
-			} else {
-				graph = NULL;
-			}
-			subject = query_resource_by_id (subject_id);
-			predicate = query_resource_by_id (predicate_id);
-			object = query_resource_by_id (object_id);
+			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
+			class = g_hash_table_lookup (classes, GINT_TO_POINTER (object_id));
 
-			tracker_data_insert_statement_with_uri (graph, subject, predicate, object, &error);
+			if (property && class) {
+				if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
+					g_warning ("Journal replay error: 'property with ID %d does not account URIs'", predicate_id);
+				} else {
+					resource_buffer_switch (NULL, graph_id, NULL, subject_id);
+
+					if (!rdf_type) {
+						rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
+					}
+
+					if (property == rdf_type) {
+						cache_create_service_decomposed (class, NULL, graph_id, FALSE);
+					} else {
+						GError *new_error = NULL;
+
+						/* add value to metadata database */
+						cache_set_metadata_decomposed (property, NULL, object_id, NULL, graph_id, &new_error);
+
+						if (new_error) {
+							tracker_data_update_buffer_clear ();
+							g_warning ("Journal replay error: '%s'", new_error->message);
+							g_error_free (new_error);
+						}
+					}
+				}
+			} else {
+				if (!class)
+					g_warning ("Journal replay error: 'class with ID %d not found in the ontology'", object_id);
+				if (!property)
+					g_warning ("Journal replay error: 'property with ID %d doesn't exist'", predicate_id);
+			}
+
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT) {
 			TrackerProperty *property;
 
@@ -2524,8 +2552,7 @@ tracker_data_replay_journal (GHashTable *classes,
 					if (class != NULL) {
 						cache_delete_resource_type (class, NULL, graph_id, FALSE);
 					} else {
-						g_set_error (&new_error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
-						             "Class '%s' not found in the ontology", object);
+						g_warning ("Journal replay error: 'class with '%s' not found in the ontology'", object);
 					}
 				} else {
 					delete_metadata_decomposed (property, object, &new_error);
