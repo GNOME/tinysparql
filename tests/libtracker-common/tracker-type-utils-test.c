@@ -102,7 +102,11 @@ test_date_to_string (void)
 	original->tm_year = 108;
 	original->tm_isdst = 0;
 
+#if !(defined(__FreeBSD__) || defined(__OpenBSD__))
 	input = mktime (original) - timezone;
+#else
+	input = timegm (original);
+#endif
 
 	result = tracker_date_to_string (input);
 

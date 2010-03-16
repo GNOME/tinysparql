@@ -111,8 +111,12 @@ tracker_string_to_date (const gchar *date_string,
 		/* mktime() always assumes that "tm" is in locale time but we
 		 * want to keep control on time, so we go to UTC
 		 */
-		t  = mktime (&tm);
-		t -= timezone;
+#if !(defined(__FreeBSD__) || defined(__OpenBSD__))
+                t  = mktime (&tm);
+                t -= timezone;
+#else
+                t = timegm (&tm);
+#endif
 
 		offset = 0;
 
@@ -149,7 +153,12 @@ tracker_string_to_date (const gchar *date_string,
 	} else {
 		/* local time */
 		tm.tm_isdst = -1;
-		t = mktime (&tm);
+
+#if !(defined(__FreeBSD__) || defined(__OpenBSD__))
+                t = mktime (&tm);
+#else
+                t = timegm (&tm);
+#endif
 
 		offset = -timezone + (tm.tm_isdst > 0 ? 3600 : 0);
 	}
