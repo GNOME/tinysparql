@@ -2476,16 +2476,20 @@ tracker_data_replay_journal (GHashTable *classes,
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
 			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
-			class = g_hash_table_lookup (classes, GINT_TO_POINTER (object_id));
 
-			if (property && class) {
+			if (property) {
 				if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
 					g_warning ("Journal replay error: 'property with ID %d does not account URIs'", predicate_id);
 				} else {
 					resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
 					if (property == rdf_type) {
-						cache_create_service_decomposed (class, NULL, graph_id);
+						class = g_hash_table_lookup (classes, GINT_TO_POINTER (object_id));
+						if (class) {
+							cache_create_service_decomposed (class, NULL, graph_id);
+						} else {
+							g_warning ("Journal replay error: 'class with ID %d not found in the ontology'", object_id);
+						}
 					} else {
 						GError *new_error = NULL;
 
@@ -2500,10 +2504,7 @@ tracker_data_replay_journal (GHashTable *classes,
 					}
 				}
 			} else {
-				if (!class)
-					g_warning ("Journal replay error: 'class with ID %d not found in the ontology'", object_id);
-				if (!property)
-					g_warning ("Journal replay error: 'property with ID %d doesn't exist'", predicate_id);
+				g_warning ("Journal replay error: 'property with ID %d doesn't exist'", predicate_id);
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT) {
