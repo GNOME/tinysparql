@@ -36,6 +36,7 @@
     <property name="width_request">500</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Tracker Preferences</property>
+    <property name="icon_name">system-search</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <signal name="close" handler="gtk_main_quit"/>
@@ -1315,8 +1316,8 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
   </object>
   <object class="GtkSizeGroup" id="sizegroup_indexing">
     <widgets>
-      <widget name="label_disk_space_limit"/>
       <widget name="label_throttle"/>
+      <widget name="label_disk_space_limit"/>
     </widgets>
   </object>
 </interface>
