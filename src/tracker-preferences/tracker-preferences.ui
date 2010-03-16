@@ -59,7 +59,7 @@
                 <property name="spacing">18</property>
                 <child>
                   <object class="GtkFrame" id="frame_general">
-                    <property name="visible">True</property>
+                    <property name="no_show_all">True</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">none</property>
                     <child>
@@ -166,6 +166,7 @@
                                 <property name="label" translatable="yes">_Never display icon</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="has_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_underline">True</property>
                                 <property name="draw_indicator">True</property>
@@ -1316,8 +1317,8 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
   </object>
   <object class="GtkSizeGroup" id="sizegroup_indexing">
     <widgets>
-      <widget name="label_disk_space_limit"/>
       <widget name="label_throttle"/>
+      <widget name="label_disk_space_limit"/>
     </widgets>
   </object>
 </interface>
