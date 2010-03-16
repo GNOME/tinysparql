@@ -56,6 +56,12 @@ libtracker-client.vala.stamp: $(libtracker_client_@TRACKER_API_VERSION@_la_VALAS
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
 	$(AM_V_GEN)touch $@
 
+vapidir = $(datadir)/vala/vapi
+
+dist_vapi_DATA = 			\
+	tracker-client-0.7.vapi \
+	$(NULL)
+
 BUILT_SOURCES = 					\
 	$(dbus_sources)					\
 	libtracker-client.vala.stamp
