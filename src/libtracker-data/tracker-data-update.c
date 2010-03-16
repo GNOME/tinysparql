@@ -2423,8 +2423,17 @@ tracker_data_replay_journal (GHashTable *classes,
 			TrackerDBStatement *stmt;
 			gint id;
 			const gchar *uri;
+			TrackerProperty *property = NULL;
+			TrackerClass *class;
 
 			tracker_db_journal_reader_get_resource (&id, &uri);
+
+			class = g_hash_table_lookup (classes, GINT_TO_POINTER (id));
+			if (!class)
+				property = g_hash_table_lookup (properties, GINT_TO_POINTER (id));
+
+			if (property || class)
+				continue;
 
 			iface = tracker_db_manager_get_db_interface ();
 
