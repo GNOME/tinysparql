@@ -317,6 +317,7 @@ nmm:ImageList a rdfs:Class ;
 nmm:Photo a rdfs:Class ;
 	rdfs:subClassOf nfo:Image ;
 	rdfs:label "Photo" ;
+	tracker:notify true ;
 	rdfs:comment "A photo" .
 
 # Properties
