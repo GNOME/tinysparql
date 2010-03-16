@@ -1183,14 +1183,12 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	/* read existing property values */
 	old_values = get_old_property_values (property, &new_error);
 	if (new_error) {
-		g_free (table_name);
 		g_propagate_error (error, new_error);
 		return FALSE;
 	}
 
 	string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
 	if (new_error) {
-		g_free (table_name);
 		g_propagate_error (error, new_error);
 		return FALSE;
 	}
