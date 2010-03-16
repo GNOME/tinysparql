@@ -266,7 +266,7 @@
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkCheckButton" id="checkbutton_enable_monitoring">
-                                <property name="label" translatable="yes">Enable _monitoring</property>
+                                <property name="label" translatable="yes">_Monitor file and directory changes</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
@@ -1317,8 +1317,8 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
   </object>
   <object class="GtkSizeGroup" id="sizegroup_indexing">
     <widgets>
-      <widget name="label_throttle"/>
       <widget name="label_disk_space_limit"/>
+      <widget name="label_throttle"/>
     </widgets>
   </object>
 </interface>
