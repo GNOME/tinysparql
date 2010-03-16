@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-03-10 11:36+0000\n"
-"PO-Revision-Date: 2010-03-14 23:11+0100\n"
+"POT-Creation-Date: 2010-03-16 14:20+0000\n"
+"PO-Revision-Date: 2010-03-16 18:14+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -180,27 +180,27 @@ msgstr ""
 msgid "Cookie not recognized to resume paused miner"
 msgstr "No se reconoce la «cookie» para resumir el minero pausado"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:715
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2339
+#: ../src/libtracker-miner/tracker-miner-fs.c:721
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2348
 msgid "Initializing"
 msgstr "Inicializando"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:726
-#: ../src/libtracker-miner/tracker-miner-fs.c:868
+#: ../src/libtracker-miner/tracker-miner-fs.c:732
+#: ../src/libtracker-miner/tracker-miner-fs.c:886
 msgid "Idle"
 msgstr "Ocioso"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:1972
-#: ../src/libtracker-miner/tracker-miner-fs.c:1975
+#: ../src/libtracker-miner/tracker-miner-fs.c:2007
+#: ../src/libtracker-miner/tracker-miner-fs.c:2010
 msgid "Processing files"
 msgstr "Procesando archivos"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2517
+#: ../src/libtracker-miner/tracker-miner-fs.c:2560
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Arrastrándose recursivamente por el directorio «%s»"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2519
+#: ../src/libtracker-miner/tracker-miner-fs.c:2562
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Arrastrándose sólo por el directorio «%s»"
@@ -368,7 +368,7 @@ msgstr "Meter los datos en Tracker para poder solicitarlos."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2431
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2440
 msgid "Resuming"
 msgstr "Resumiendo"
 
@@ -489,91 +489,91 @@ msgstr ""
 msgid "Forces the insertion of FILE into the store"
 msgstr "Fuerza la inserción del ARCHIVO en el almacén"
 
-#: ../src/tracker-miner-fs/tracker-main.c:365
+#: ../src/tracker-miner-fs/tracker-main.c:364
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "El objeto de datos «%s» ya existe"
 
-#: ../src/tracker-miner-fs/tracker-main.c:366
+#: ../src/tracker-miner-fs/tracker-main.c:365
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "El objeto de datos «%s» no existe"
 
-#: ../src/tracker-miner-fs/tracker-main.c:381
+#: ../src/tracker-miner-fs/tracker-main.c:380
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "El directorio es elegible para ser escrutado (según las reglas)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:382
+#: ../src/tracker-miner-fs/tracker-main.c:381
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "El directorio NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:402
+#: ../src/tracker-miner-fs/tracker-main.c:401
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "El directorio es elegible para ser escrutado (según el contenido)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:403
+#: ../src/tracker-miner-fs/tracker-main.c:402
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "El directorio NO es elegible para ser escrutado (según el contenido)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:450
+#: ../src/tracker-miner-fs/tracker-main.c:449
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "El directorio es elegible para ser escrutado (según la configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:451
+#: ../src/tracker-miner-fs/tracker-main.c:450
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El directorio NO es elegible para ser escrutado (según la configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:455
+#: ../src/tracker-miner-fs/tracker-main.c:454
 msgid "File is eligible to be monitored (based on config)"
 msgstr "El archivo es elegible para ser escrutado (según la configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:456
+#: ../src/tracker-miner-fs/tracker-main.c:455
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "El archivo NO es elegible para ser escrutado (según la configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:460
+#: ../src/tracker-miner-fs/tracker-main.c:459
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o directorio es elegible para ser monitorizado (según la "
 "configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:461
+#: ../src/tracker-miner-fs/tracker-main.c:460
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o directorio NO es elegible para ser monitorizado (según la "
 "configuración)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:476
+#: ../src/tracker-miner-fs/tracker-main.c:475
 msgid "File is eligible to be mined (based on rules)"
 msgstr "El archivo es elegible para ser escrutado (según las reglas)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:477
+#: ../src/tracker-miner-fs/tracker-main.c:476
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "El archivo NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:486
+#: ../src/tracker-miner-fs/tracker-main.c:485
 msgid "Would be indexed"
 msgstr "Se indexará"
 
-#: ../src/tracker-miner-fs/tracker-main.c:487
-#: ../src/tracker-miner-fs/tracker-main.c:489
+#: ../src/tracker-miner-fs/tracker-main.c:486
+#: ../src/tracker-miner-fs/tracker-main.c:488
 msgid "Yes"
 msgstr "Sí"
 
-#: ../src/tracker-miner-fs/tracker-main.c:487
-#: ../src/tracker-miner-fs/tracker-main.c:489
+#: ../src/tracker-miner-fs/tracker-main.c:486
+#: ../src/tracker-miner-fs/tracker-main.c:488
 msgid "No"
 msgstr "No"
 
-#: ../src/tracker-miner-fs/tracker-main.c:488
+#: ../src/tracker-miner-fs/tracker-main.c:487
 msgid "Would be monitored"
 msgstr "Se monitorizará"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-miner-fs/tracker-main.c:529
+#: ../src/tracker-miner-fs/tracker-main.c:528
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
@@ -647,34 +647,30 @@ msgid "Directories:"
 msgstr "Directorios:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:6
-msgid "Enable _monitoring"
-msgstr "Activar _monitorización"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Enable for _first time"
 msgstr "Activar por p_rimera vez"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Enable when running on _battery"
 msgstr "Activar al funcionar con _batería"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
 msgid "Faster"
 msgstr "Más rápido"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:10
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
 msgid "Files"
 msgstr "Archivos"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:11
+#: ../src/tracker-preferences/tracker-preferences.ui.h:10
 msgid "General"
 msgstr "General"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:12
+#: ../src/tracker-preferences/tracker-preferences.ui.h:11
 msgid "Glob patterns to ignore:"
 msgstr "Patrones de coincidencias que ignorar:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:13
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
 msgid ""
 "Globbing patterns can be used here, for example: \"*bar*\".\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
@@ -682,25 +678,30 @@ msgstr ""
 "Aquí se pueden usar patrones de coincidencia, por ejemplo: «*bar*».\n"
 "Esto se suele usar para ignorar directorios como *~, *.o, *.la, etc"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:15
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
 msgid "Ignored Content"
 msgstr "Contenido ignorado"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+#: ../src/tracker-preferences/tracker-preferences.ui.h:15
 msgid "Include _removable media"
 msgstr "Incluir dispositivos _extraíbles"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:17
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
 msgid "Include mou_nted directories"
 msgstr "Incluir directorios mon_tados"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "Include optical di_scs"
 msgstr "Incluir di_scos ópticos"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid "Indexing"
 msgstr "Indexando"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+#| msgid "_Indexer Preferences"
+msgid "Indexing Preferences"
+msgstr "Preferencias del indexado"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:20
 msgid "Limitations"
@@ -740,27 +741,27 @@ msgid "Thr_ottle:"
 msgstr "_Umbral:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:29
-msgid "Tracker Preferences"
-msgstr "Preferencias de Tracker"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid ""
 "When toggled, this makes sure your home directory is included in the list."
 msgstr ""
 "Cuando está conmutado se asegura de que se incluya su carpeta personal en la "
 "lista."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "With specific files:"
 msgstr "Con los archivos específicos:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "_Delay"
 msgstr "_Retardo"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "_Disk space:"
 msgstr "Espacio en _disco:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+msgid "_Monitor file and directory changes"
+msgstr "_Monitorizar cambios en archivos y carpetas"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "_Never display icon"
@@ -1260,7 +1261,7 @@ msgstr "No se especificó uno o más archivos"
 
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:135
-#: ../src/tracker-utils/tracker-sparql.c:245
+#: ../src/tracker-utils/tracker-sparql.c:244
 #: ../src/tracker-utils/tracker-stats.c:106
 #: ../src/tracker-utils/tracker-status.c:419
 #: ../src/tracker-utils/tracker-tag.c:855
@@ -1514,96 +1515,92 @@ msgstr "No se pudieron obtener los prefijos de espacios de nombres"
 msgid "No namespace prefixes were found"
 msgstr "No se encontró ningún prefijo de espacio de nombres"
 
-#: ../src/tracker-utils/tracker-sparql.c:203
+#: ../src/tracker-utils/tracker-sparql.c:204
 msgid "- Query or update using SPARQL"
 msgstr "- Consulta o actualización usando SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:219
-#| msgid "No arguments were provided"
+#: ../src/tracker-utils/tracker-sparql.c:218
 msgid "An argument must be supplied"
 msgstr "Se debe proporcionar un argumento"
 
-#: ../src/tracker-utils/tracker-sparql.c:221
-#| msgid "Add and delete actions can not be used together"
+#: ../src/tracker-utils/tracker-sparql.c:220
 msgid "File and query can not be used together"
 msgstr "No se pueden usar conjuntamente el archivo y la consulta"
 
-#: ../src/tracker-utils/tracker-sparql.c:257
+#: ../src/tracker-utils/tracker-sparql.c:256
 msgid "Could not list classes"
 msgstr "No se pudieron listar las clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:267
+#: ../src/tracker-utils/tracker-sparql.c:266
 msgid "No classes were found"
 msgstr "No se encontró ninguna clase"
 
-#: ../src/tracker-utils/tracker-sparql.c:295
+#: ../src/tracker-utils/tracker-sparql.c:294
 msgid "Could not list class prefixes"
 msgstr "No se pudieron listar los prefijos de clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:305
+#: ../src/tracker-utils/tracker-sparql.c:304
 msgid "No class prefixes were found"
 msgstr "No se encontró ningún prefijo de clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:337
+#: ../src/tracker-utils/tracker-sparql.c:336
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "No se pudo encontrar la propiedad para la clase del prefijo, ej. #Recurso en "
 "«rdfs:Recurso»"
 
-#: ../src/tracker-utils/tracker-sparql.c:376
+#: ../src/tracker-utils/tracker-sparql.c:375
 msgid "Could not list properties"
 msgstr "No se pudieron listar las propiedades"
 
-#: ../src/tracker-utils/tracker-sparql.c:386
+#: ../src/tracker-utils/tracker-sparql.c:385
 msgid "No properties were found"
 msgstr "No se encontró ninguna propiedad"
 
-#: ../src/tracker-utils/tracker-sparql.c:426
-#| msgid "Could not list classes"
+#: ../src/tracker-utils/tracker-sparql.c:425
 msgid "Could not find notify classes"
 msgstr "No se pudo encontrar las clases de notificación"
 
-#: ../src/tracker-utils/tracker-sparql.c:432
-#| msgid "No files were found"
+#: ../src/tracker-utils/tracker-sparql.c:431
 msgid "No notifies were found"
 msgstr "No se encontró ninguna notificación"
 
-#: ../src/tracker-utils/tracker-sparql.c:463
+#: ../src/tracker-utils/tracker-sparql.c:462
 msgid "Could not search classes"
 msgstr "No se pudieron buscar clases"
 
-#: ../src/tracker-utils/tracker-sparql.c:469
+#: ../src/tracker-utils/tracker-sparql.c:468
 msgid "No classes were found to match search term"
 msgstr ""
 "No se encontró ninguna clase que coincidiera con el término de búsqueda"
 
-#: ../src/tracker-utils/tracker-sparql.c:497
+#: ../src/tracker-utils/tracker-sparql.c:496
 msgid "Could not search properties"
 msgstr "No se pudieron buscar propiedades"
 
-#: ../src/tracker-utils/tracker-sparql.c:503
+#: ../src/tracker-utils/tracker-sparql.c:502
 msgid "No properties were found to match search term"
 msgstr ""
 "No se encontró ninguna propiedad que coincidiera con el término de búsqueda"
 
-#: ../src/tracker-utils/tracker-sparql.c:526
+#: ../src/tracker-utils/tracker-sparql.c:525
 msgid "Could not get UTF-8 path from path"
 msgstr "No se pudo obtener la ruta UTF-8 de la ruta"
 
-#: ../src/tracker-utils/tracker-sparql.c:538
+#: ../src/tracker-utils/tracker-sparql.c:537
 msgid "Could not read file"
 msgstr "No se pudo leer el archivo"
 
-#: ../src/tracker-utils/tracker-sparql.c:557
+#: ../src/tracker-utils/tracker-sparql.c:556
 msgid "Could not run update"
 msgstr "No se pudo ejecutar la actualización"
 
-#: ../src/tracker-utils/tracker-sparql.c:595
+#: ../src/tracker-utils/tracker-sparql.c:594
 msgid "Could not run query"
 msgstr "No se pudo ejecutar la consulta"
 
-#: ../src/tracker-utils/tracker-sparql.c:604
+#: ../src/tracker-utils/tracker-sparql.c:603
 msgid "No results found matching your query"
 msgstr "No se encontraron resultados coincidentes con su consulta"
 
@@ -1883,6 +1880,12 @@ msgstr "- iniciar el servicio de escritura en diferido"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Consultas guardadas"
+
+#~ msgid "Enable _monitoring"
+#~ msgstr "Activar _monitorización"
+
+#~ msgid "Tracker Preferences"
+#~ msgstr "Preferencias de Tracker"
 
 #~ msgid "Either a file or query needs to be specified"
 #~ msgstr "Se debe especificar un archivo o la consulta"
@@ -2662,9 +2665,6 @@ msgstr "Consultas guardadas"
 
 #~ msgid "_Re-index"
 #~ msgstr "_Reindexar"
-
-#~ msgid "_Indexer Preferences"
-#~ msgstr "Preferencias del _indexado"
 
 #~ msgid "S_tatistics"
 #~ msgstr "Es_tadísticas"
