@@ -540,7 +540,7 @@ initialize_miners_data (TrackerMinerManager *manager)
 	GMainLoop *main_loop;
 	GFile *file;
 	TrackerCrawler *crawler;
-
+        const gchar    *miners_dir;
 	crawler = tracker_crawler_new ();
 	main_loop = g_main_loop_new (NULL, FALSE);
 
@@ -552,7 +552,14 @@ initialize_miners_data (TrackerMinerManager *manager)
 	                  main_loop);
 
 	/* Go through service files */
-	file = g_file_new_for_path (TRACKER_MINERS_DIR);
+        miners_dir = g_getenv ("TRACKER_MINERS_DIR");
+        if (G_LIKELY (miners_dir == NULL)) {
+                miners_dir = TRACKER_MINERS_DIR ;
+        } else {
+                g_message ("Crawling miners in '%s' (set in env)", miners_dir);
+        }
+
+	file = g_file_new_for_path (miners_dir);
 	tracker_crawler_start (crawler, file, TRUE);
 	g_object_unref (file);
 
