@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2010-02-16T11:00:00Z" .
+	nao:lastModified "2010-03-16T14:49:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -596,13 +596,13 @@ nfo:containsBookmarkFolder a rdf:Property ;
 	rdfs:domain nfo:BookmarkFolder ;
 	rdfs:range nfo:BookmarkFolder .
 
-# FIXME it could be xsd:string
+# FIXME request range fix to upstream Nepomuk
 nfo:codec a rdf:Property ;
 	rdfs:label "codec" ;
 	rdfs:comment "The name of the codec necessary to decode a piece of media." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
-	rdfs:range rdfs:Literal .
+	rdfs:range xsd:string .
 
 nfo:fontFamily a rdf:Property ;
 	rdfs:label "fontFamily" ;
