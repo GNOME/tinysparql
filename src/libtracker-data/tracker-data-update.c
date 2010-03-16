@@ -1272,7 +1272,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	/* also delete super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		delete_metadata_decomposed (*super_properties, value, 0, error);
+		delete_metadata_decomposed (*super_properties, value, value_id, error);
 		super_properties++;
 	}
 
