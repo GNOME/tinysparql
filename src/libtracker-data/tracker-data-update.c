@@ -1163,7 +1163,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	/* also insert super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		cache_set_metadata_decomposed (*super_properties, value, value_id,
+		change |= cache_set_metadata_decomposed (*super_properties, value, value_id,
 		                               graph, graph_id, &new_error);
 		if (new_error) {
 			g_propagate_error (error, new_error);
@@ -1272,7 +1272,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	/* also delete super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		delete_metadata_decomposed (*super_properties, value, value_id, error);
+		change |= delete_metadata_decomposed (*super_properties, value, value_id, error);
 		super_properties++;
 	}
 
