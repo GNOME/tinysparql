@@ -2404,6 +2404,7 @@ tracker_data_replay_journal (GHashTable *classes,
 {
 	GError *journal_error = NULL;
 	static TrackerProperty *rdf_type = NULL;
+	gint last_operation_type = 0;
 
 	if (!rdf_type) {
 		rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
@@ -2456,22 +2457,30 @@ tracker_data_replay_journal (GHashTable *classes,
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
 			tracker_data_commit_transaction ();
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
+			GError *new_error = NULL;
 			TrackerProperty *property;
+
+			if (last_operation_type == -1) {
+				tracker_data_update_buffer_flush (&new_error);
+				if (new_error) {
+					g_warning ("Journal replay error: '%s'", new_error->message);
+					g_clear_error (&new_error);
+				}
+			}
+			last_operation_type = 1;
 
 			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
 			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
 
 			if (property) {
-				GError *new_error = NULL;
-
 				resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
 				cache_set_metadata_decomposed (property, object, 0, NULL, graph_id, &new_error);
 
 				if (new_error) {
 					g_warning ("Journal replay error: '%s'", new_error->message);
-					g_error_free (new_error);
+					g_clear_error (&new_error);
 				}
 
 			} else {
@@ -2479,8 +2488,18 @@ tracker_data_replay_journal (GHashTable *classes,
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
+			GError *new_error = NULL;
 			TrackerClass *class = NULL;
 			TrackerProperty *property;
+
+			if (last_operation_type == -1) {
+				tracker_data_update_buffer_flush (&new_error);
+				if (new_error) {
+					g_warning ("Journal replay error: '%s'", new_error->message);
+					g_clear_error (&new_error);
+				}
+			}
+			last_operation_type = 1;
 
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
@@ -2517,7 +2536,17 @@ tracker_data_replay_journal (GHashTable *classes,
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT) {
+			GError *new_error = NULL;
 			TrackerProperty *property;
+
+			if (last_operation_type == 1) {
+				tracker_data_update_buffer_flush (&new_error);
+				if (new_error) {
+					g_warning ("Journal replay error: '%s'", new_error->message);
+					g_clear_error (&new_error);
+				}
+			}
+			last_operation_type = -1;
 
 			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
@@ -2551,8 +2580,18 @@ tracker_data_replay_journal (GHashTable *classes,
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID) {
+			GError *new_error = NULL;
 			TrackerClass *class = NULL;
 			TrackerProperty *property;
+
+			if (last_operation_type == 1) {
+				tracker_data_update_buffer_flush (&new_error);
+				if (new_error) {
+					g_warning ("Journal replay error: '%s'", new_error->message);
+					g_clear_error (&new_error);
+				}
+			}
+			last_operation_type = -1;
 
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
