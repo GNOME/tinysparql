@@ -27,26 +27,27 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include <libtracker-extract/tracker-extract.h>
-
-static const gchar *tags[][2] = {
-	{ "TOTEM_INFO_VIDEO_HEIGHT",            "nfo:height"    },
-	{ "TOTEM_INFO_VIDEO_WIDTH",             "nfo:width"     },
-	{ "TOTEM_INFO_FPS",                     "nfo:frameRate"         },
-	{ "TOTEM_INFO_VIDEO_CODEC",             "nfo:codec"     },
-	{ "TOTEM_INFO_VIDEO_BITRATE",           "nfo:averageBitrate"    },
-	{ "TOTEM_INFO_TITLE",                   "nie:title"     },
-	{ "TOTEM_INFO_ARTIST",                  "nco:creator"   },
-	{ "TOTEM_INFO_ALBUM",                   "nmm:musicAlbum"        },
-	{ "TOTEM_INFO_AUDIO_BITRATE",           "nmm:averageBitrate"    },
-	{ "TOTEM_INFO_AUDIO_SAMPLE_RATE",       "nfo:sampleRate"                },
-	{ "TOTEM_INFO_AUDIO_CODEC",             "nfo:codec"             },
-	{ "TOTEM_INFO_AUDIO_CHANNELS",          "nfo:channels"          },
-	{ NULL,                                         NULL                    }
-};
+#include <libtracker-client/tracker.h>
 
 static void extract_totem (const gchar          *uri,
                            TrackerSparqlBuilder *preupdate,
                            TrackerSparqlBuilder *metadata);
+
+static const gchar *tags[][2] = {
+	{ "TOTEM_INFO_VIDEO_HEIGHT",      "nfo:height"         },
+	{ "TOTEM_INFO_VIDEO_WIDTH",       "nfo:width"          },
+	{ "TOTEM_INFO_FPS",               "nfo:frameRate"      },
+	{ "TOTEM_INFO_VIDEO_CODEC",       "nfo:codec"          },
+	{ "TOTEM_INFO_VIDEO_BITRATE",     "nfo:averageBitrate" },
+	{ "TOTEM_INFO_TITLE",             "nie:title"          },
+	{ "TOTEM_INFO_ARTIST",            "nco:creator"        },
+	{ "TOTEM_INFO_ALBUM",             "nmm:musicAlbum"     },
+	{ "TOTEM_INFO_AUDIO_BITRATE",     "nfo:averageBitrate" },
+	{ "TOTEM_INFO_AUDIO_SAMPLE_RATE", "nfo:sampleRate"     },
+	{ "TOTEM_INFO_AUDIO_CODEC",       "nfo:codec"          },
+	{ "TOTEM_INFO_AUDIO_CHANNELS",    "nfo:channels"       },
+	{ NULL, NULL }
+};
 
 static TrackerExtractData data[] = {
 	{ "audio/*", extract_totem },
