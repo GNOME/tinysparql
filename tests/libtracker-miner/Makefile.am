@@ -2,7 +2,8 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-TEST_PROGS += tracker-crawler tracker-thumbnailer-test tracker-miner-manager
+TEST_PROGS += tracker-crawler tracker-thumbnailer-test
+# TEST_PPROGS += tracker-miner-manager
 
 INCLUDES = 									\
 	-DTEST									\
