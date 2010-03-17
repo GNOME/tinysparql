@@ -1,2 +1,4 @@
 tracker-crawler
+tracker-miner-manager
+tracker-miner-mock.[ch]
 tracker-thumbnailer-test
