@@ -2,7 +2,11 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-TEST_PROGS += tracker-crawler tracker-thumbnailer-test tracker-miner-manager
+TEST_PROGS += 									\
+	tracker-crawler 							\
+	tracker-miner-manager							\
+	tracker-password-provider-test						\
+	tracker-thumbnailer-test
 
 INCLUDES = 									\
 	-DTEST									\
@@ -64,6 +68,17 @@ tracker_miner_manager_SOURCES = 						\
 tracker_miner_manager_LDADD = 							\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-0.7.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
+	$(DBUS_LIBS)								\
+	$(GCOV_LIBS)								\
+	$(GMODULE_LIBS)								\
+	$(GTHREAD_LIBS)								\
+	$(GLIB2_LIBS)
+
+tracker_password_provider_test_SOURCES =      					\
+	tracker-password-provider-test.c
+
+tracker_password_provider_test_LDADD =        					\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(DBUS_LIBS)								\
 	$(GCOV_LIBS)								\
 	$(GMODULE_LIBS)								\
