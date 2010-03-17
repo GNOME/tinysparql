@@ -19,8 +19,8 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_MINER_FS_THUMBNAILER_H__
-#define __TRACKER_MINER_FS_THUMBNAILER_H__
+#ifndef __LIBTRACKER_MINER_THUMBNAILER_H__
+#define __LIBTRACKER_MINER_THUMBNAILER_H__
 
 G_BEGIN_DECLS
 
@@ -36,4 +36,4 @@ gboolean tracker_thumbnailer_cleanup    (const gchar *uri_prefix);
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_FS_THUMBNAILER_H__ */
+#endif /* __LIBTRACKER_MINER_THUMBNAILER_H__ */

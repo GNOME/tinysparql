@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKERMINER_MONITOR_H__
-#define __LIBTRACKERMINER_MONITOR_H__
+#ifndef __LIBTRACKER_MINER_MONITOR_H__
+#define __LIBTRACKER_MINER_MONITOR_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -73,4 +73,4 @@ guint           tracker_monitor_get_ignored          (TrackerMonitor *monitor);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKERMINER_MONITOR_H__ */
+#endif /* __LIBTRACKER_MINER_MONITOR_H__ */

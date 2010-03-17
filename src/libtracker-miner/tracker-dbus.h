@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_DBUS_HELPER_H__
-#define __TRACKER_MINER_DBUS_HELPER_H__
+#ifndef __LIBTRACKER_MINER_DBUS_H__
+#define __LIBTRACKER_MINER_DBUS_H__
 
 #include <libtracker-common/tracker-dbus.h>
 #include "tracker-miner.h"
@@ -35,4 +35,4 @@ void tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
                                         const gchar              *name,
                                         TrackerMinerDBusNameFunc  func);
 
-#endif /* __TRACKER_MINER_DBUS_HELPER_H__ */
+#endif /* __LIBTRACKER_MINER_DBUS_H__ */

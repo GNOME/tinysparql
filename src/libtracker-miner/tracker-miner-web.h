@@ -18,8 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_WEB_H__
-#define __TRACKER_MINER_WEB_H__
+#ifndef __LIBTRACKER_MINER_WEB_H__
+#define __LIBTRACKER_MINER_WEB_H__
 
 #include <libtracker-miner/tracker-miner.h>
 
@@ -59,6 +59,7 @@ typedef enum {
 	TRACKER_MINER_WEB_ERROR_SERVICE,
 	TRACKER_MINER_WEB_ERROR_TRACKER
 } TrackerMinerWebError;
+
 #define TRACKER_MINER_WEB_ERROR        tracker_miner_web_error_quark ()
 #define TRACKER_MINER_WEB_ERROR_DOMAIN "TrackerMinerWeb"
 
@@ -133,4 +134,4 @@ void         tracker_miner_web_dissociate            (TrackerMinerWeb     *miner
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_WEB_H__ */
+#endif /* __LIBTRACKER_MINER_WEB_H__ */

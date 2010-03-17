@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKERMINER_MINER_H__
-#define __LIBTRACKERMINER_MINER_H__
+#ifndef __LIBTRACKER_MINER_MINER_H__
+#define __LIBTRACKER_MINER_MINER_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -131,4 +131,4 @@ void             tracker_miner_commit_finish               (TrackerMiner        
 
 G_END_DECLS
 
-#endif /* __LIBTRACKERMINER_MINER_H__ */
+#endif /* __LIBTRACKER_MINER_MINER_H__ */

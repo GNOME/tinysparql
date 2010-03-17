@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKERMINER_MINER_FS_H__
-#define __LIBTRACKERMINER_MINER_FS_H__
+#ifndef __LIBTRACKER_MINER_MINER_FS_H__
+#define __LIBTRACKER_MINER_MINER_FS_H__
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -88,30 +88,26 @@ typedef struct {
 	void     (* finished)                 (TrackerMinerFS       *fs);
 } TrackerMinerFSClass;
 
-GType    tracker_miner_fs_get_type         (void) G_GNUC_CONST;
-
-void     tracker_miner_fs_directory_add    (TrackerMinerFS *fs,
-                                            GFile          *file,
-                                            gboolean        recurse);
-gboolean tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
-                                            GFile          *file);
-void     tracker_miner_fs_file_add         (TrackerMinerFS *fs,
-                                            GFile          *file);
-void     tracker_miner_fs_file_notify      (TrackerMinerFS *fs,
-                                            GFile          *file,
-                                            const GError   *error);
-void     tracker_miner_fs_set_throttle     (TrackerMinerFS *fs,
-                                            gdouble         throttle);
-gdouble  tracker_miner_fs_get_throttle     (TrackerMinerFS *fs);
-
-G_CONST_RETURN gchar * tracker_miner_fs_get_urn        (TrackerMinerFS *fs,
-							GFile          *file);
-G_CONST_RETURN gchar * tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
-							GFile          *file);
-
-void     tracker_miner_fs_force_recheck    (TrackerMinerFS *fs);
-
+GType                 tracker_miner_fs_get_type         (void) G_GNUC_CONST;
+void                  tracker_miner_fs_directory_add    (TrackerMinerFS *fs,
+                                                         GFile          *file,
+                                                         gboolean        recurse);
+gboolean              tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
+                                                         GFile          *file);
+void                  tracker_miner_fs_file_add         (TrackerMinerFS *fs,
+                                                         GFile          *file);
+void                  tracker_miner_fs_file_notify      (TrackerMinerFS *fs,
+                                                         GFile          *file,
+                                                         const GError   *error);
+void                  tracker_miner_fs_set_throttle     (TrackerMinerFS *fs,
+                                                         gdouble         throttle);
+gdouble               tracker_miner_fs_get_throttle     (TrackerMinerFS *fs);
+G_CONST_RETURN gchar *tracker_miner_fs_get_urn          (TrackerMinerFS *fs,
+                                                         GFile          *file);
+G_CONST_RETURN gchar *tracker_miner_fs_get_parent_urn   (TrackerMinerFS *fs,
+                                                         GFile          *file);
+void                  tracker_miner_fs_force_recheck    (TrackerMinerFS *fs);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKERMINER_MINER_FS_H__ */
+#endif /* __LIBTRACKER_MINER_MINER_FS_H__ */

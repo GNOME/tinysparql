@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_PASSWORD_PROVIDER_H__
-#define __TRACKER_PASSWORD_PROVIDER_H__
+#ifndef __LIBTRACKER_MINER_PASSWORD_PROVIDER_H__
+#define __LIBTRACKER_MINER_PASSWORD_PROVIDER_H__
 
 #include <glib-object.h>
 
@@ -85,4 +85,4 @@ gchar* tracker_password_provider_strdup_mlock    (const gchar              *sour
 
 G_END_DECLS
 
-#endif
+#endif /* __LIBTRACKER_MINER_PASSWORD_PROVIDER_H__ */

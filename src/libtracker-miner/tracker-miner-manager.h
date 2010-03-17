@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKERMINER_MANAGER_H__
-#define __LIBTRACKERMINER_MANAGER_H__
+#ifndef __LIBTRACKER_MINER_MANAGER_H__
+#define __LIBTRACKER_MINER_MANAGER_H__
 
 #include <glib-object.h>
 
@@ -100,7 +100,6 @@ const gchar * tracker_miner_manager_get_display_name (TrackerMinerManager *manag
 const gchar * tracker_miner_manager_get_description  (TrackerMinerManager *manager,
                                                       const gchar         *miner);
 
-
 G_END_DECLS
 
-#endif /* __LIBTRACKERMINER_MANAGER_H__ */
+#endif /* __LIBTRACKER_MINER_MANAGER_H__ */
