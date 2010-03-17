@@ -2314,53 +2314,36 @@ tracker_data_delete_resource_description (const gchar *graph,
 	g_free (urn);
 }
 
-
-static GPtrArray *
-update_sparql (const gchar  *update,
-               gboolean      blank,
-               GError      **error)
+void
+tracker_data_begin_transaction (GError **error)
 {
-	GError *actual_error = NULL;
 	TrackerDBInterface *iface;
-	TrackerSparqlQuery *sparql_query;
-	GPtrArray *blank_nodes;
-
-	g_return_val_if_fail (update != NULL, NULL);
 
 	if (!tracker_db_manager_has_enough_space ()) {
 		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_NO_SPACE,
 			"There is not enough space on the file system for update operations");
-		return NULL;
+		return;
 	}
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	sparql_query = tracker_sparql_query_new_update (update);
-
 	resource_time = time (NULL);
 	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
 	tracker_db_journal_start_transaction (resource_time);
+}
 
-	blank_nodes = tracker_sparql_query_execute_update (sparql_query, blank, &actual_error);
+void
+tracker_data_commit_transaction (GError **error)
+{
+	TrackerDBInterface *iface;
+	GError *actual_error = NULL;
 
+	iface = tracker_db_manager_get_db_interface ();
+
+	tracker_data_update_buffer_flush (&actual_error);
 	if (actual_error) {
-		tracker_data_update_buffer_clear ();
-		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
-		tracker_db_journal_rollback_transaction ();
-
-		if (rollback_callbacks) {
-			guint n;
-			for (n = 0; n < rollback_callbacks->len; n++) {
-				TrackerCommitDelegate *delegate;
-				delegate = g_ptr_array_index (rollback_callbacks, n);
-				delegate->callback (delegate->user_data);
-			}
-		}
-
 		g_propagate_error (error, actual_error);
-
-		g_object_unref (sparql_query);
-		return NULL;
+		return;
 	}
 
 	tracker_db_journal_commit_db_transaction ();
@@ -2372,8 +2355,62 @@ update_sparql (const gchar  *update,
 		   so remove them */
 		g_hash_table_remove_all (update_buffer.class_counts);
 	}
+}
 
+void
+tracker_data_rollback_transaction (void)
+{
+	TrackerDBInterface *iface;
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	tracker_data_update_buffer_clear ();
+	tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
+	tracker_db_journal_rollback_transaction ();
+
+	if (rollback_callbacks) {
+		guint n;
+		for (n = 0; n < rollback_callbacks->len; n++) {
+			TrackerCommitDelegate *delegate;
+			delegate = g_ptr_array_index (rollback_callbacks, n);
+			delegate->callback (delegate->user_data);
+		}
+	}
+}
+
+static GPtrArray *
+update_sparql (const gchar  *update,
+               gboolean      blank,
+               GError      **error)
+{
+	GError *actual_error = NULL;
+	TrackerSparqlQuery *sparql_query;
+	GPtrArray *blank_nodes;
+
+	g_return_val_if_fail (update != NULL, NULL);
+
+	tracker_data_begin_transaction (&actual_error);
+	if (actual_error) {
+		g_propagate_error (error, actual_error);
+		return NULL;
+	}
+
+	sparql_query = tracker_sparql_query_new_update (update);
+	blank_nodes = tracker_sparql_query_execute_update (sparql_query, blank, &actual_error);
 	g_object_unref (sparql_query);
+
+	if (actual_error) {
+		tracker_data_rollback_transaction ();
+		g_propagate_error (error, actual_error);
+		return NULL;
+	}
+
+	tracker_data_commit_transaction (&actual_error);
+	if (actual_error) {
+		tracker_data_rollback_transaction ();
+		g_propagate_error (error, actual_error);
+		return NULL;
+	}
 
 	return blank_nodes;
 }
