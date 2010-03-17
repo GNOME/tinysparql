@@ -58,7 +58,7 @@ tracker_miner_manager_VALASOURCES =						\
 tracker_miner_manager_SOURCES = 						\
 	tracker-miner-manager-test.c						\
 	miners-mock.c								\
-	$(tracker_miner_manager_VALASOURCES)					\
+	$(tracker_miner_manager_VALASOURCES:.vala=.c)				\
 	empty-gobject.c
 
 tracker_miner_manager_LDADD = 							\
