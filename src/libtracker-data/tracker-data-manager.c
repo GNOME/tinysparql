@@ -1518,9 +1518,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* load ontology from journal into memory */
 		load_ontology_from_journal (&classes, &properties);
 
-		tracker_data_begin_replay_transaction (tracker_db_journal_reader_get_time ());
+		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
 		import_ontology_into_db (FALSE);
-		tracker_data_commit_transaction ();
+		tracker_data_commit_db_transaction ();
 
 		tracker_db_journal_reader_shutdown ();
 
@@ -1556,7 +1556,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			load_ontology_file_from_path (test_schema_path, &max_id, FALSE);
 		}
 
-		tracker_data_begin_transaction ();
+		tracker_data_begin_db_transaction ();
 		tracker_db_journal_start_transaction (time (NULL));
 
 		import_ontology_into_db (FALSE);
@@ -1570,8 +1570,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			g_free (test_schema_path);
 		}
 
-		tracker_db_journal_commit_transaction ();
-		tracker_data_commit_transaction ();
+		tracker_db_journal_commit_db_transaction ();
+		tracker_data_commit_db_transaction ();
 
 		g_list_foreach (sorted, (GFunc) g_free, NULL);
 		g_list_free (sorted);
@@ -1595,7 +1595,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		sorted = get_ontologies (test_schema != NULL, ontologies_dir);
 
 		/* check ontology against database */
-		tracker_data_begin_transaction ();
+		tracker_data_begin_db_transaction ();
 
 		stmt = tracker_db_interface_create_statement (iface,
 		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\""
@@ -1690,7 +1690,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			g_list_free (to_reload);
 		}
 
-		tracker_data_commit_transaction ();
+		tracker_data_commit_db_transaction ();
 
 		g_hash_table_unref (ontos_table);
 

@@ -2016,7 +2016,7 @@ tracker_data_update_disable_all_volumes (void)
 }
 
 void
-tracker_data_begin_transaction (void)
+tracker_data_begin_db_transaction (void)
 {
 	TrackerDBInterface *iface;
 
@@ -2045,15 +2045,15 @@ tracker_data_begin_transaction (void)
 }
 
 void
-tracker_data_begin_replay_transaction (time_t time)
+tracker_data_begin_db_transaction_for_replay (time_t time)
 {
 	in_journal_replay = TRUE;
-	tracker_data_begin_transaction ();
+	tracker_data_begin_db_transaction ();
 	resource_time = time;
 }
 
 void
-tracker_data_commit_transaction (void)
+tracker_data_commit_db_transaction (void)
 {
 	TrackerDBInterface *iface;
 
@@ -2076,7 +2076,7 @@ tracker_data_commit_transaction (void)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	tracker_db_interface_end_transaction (iface);
+	tracker_db_interface_end_db_transaction (iface);
 
 	g_hash_table_remove_all (update_buffer.resources);
 	g_hash_table_remove_all (update_buffer.resources_by_id);
@@ -2363,7 +2363,7 @@ update_sparql (const gchar  *update,
 		return NULL;
 	}
 
-	tracker_db_journal_commit_transaction ();
+	tracker_db_journal_commit_db_transaction ();
 	resource_time = 0;
 	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
 
@@ -2406,7 +2406,7 @@ tracker_data_replay_journal (GHashTable *classes,
 	static TrackerProperty *rdf_type = NULL;
 	gint last_operation_type = 0;
 
-	tracker_data_begin_replay_transaction (0);
+	tracker_data_begin_db_transaction_for_replay (0);
 
 	if (!rdf_type) {
 		rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
@@ -2647,6 +2647,6 @@ tracker_data_replay_journal (GHashTable *classes,
 		tracker_db_journal_reader_shutdown ();
 	}
 
-	tracker_data_commit_transaction ();
+	tracker_data_commit_db_transaction ();
 
 }

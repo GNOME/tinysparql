@@ -77,9 +77,9 @@ void     tracker_data_insert_statement_with_string  (const gchar               *
                                                      const gchar               *predicate,
                                                      const gchar               *object,
                                                      GError                   **error);
-void     tracker_data_begin_transaction             (void);
-void     tracker_data_begin_replay_transaction      (time_t                     time);
-void     tracker_data_commit_transaction            (void);
+void     tracker_data_begin_db_transaction          (void);
+void     tracker_data_begin_db_transaction_for_replay (time_t                   time);
+void     tracker_data_commit_db_transaction         (void);
 void     tracker_data_update_sparql                 (const gchar               *update,
                                                      GError                   **error);
 GPtrArray *

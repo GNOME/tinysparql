@@ -364,7 +364,7 @@ tracker_db_interface_start_transaction (TrackerDBInterface *interface)
 }
 
 gboolean
-tracker_db_interface_end_transaction (TrackerDBInterface *interface)
+tracker_db_interface_end_db_transaction (TrackerDBInterface *interface)
 {
 	gboolean in_transaction;
 	GError *error = NULL;

@@ -332,7 +332,7 @@ tracker_db_journal_start_transaction (time_t time)
 
 	/* Leave space for size, amount and crc
 	 * Check and keep in sync the offset variable at
-	 * tracker_db_journal_commit_transaction too */
+	 * tracker_db_journal_commit_db_transaction too */
 
 	memset (writer.cur_block, 0, size);
 
@@ -552,7 +552,7 @@ tracker_db_journal_truncate (gsize new_size)
 }
 
 gboolean
-tracker_db_journal_commit_transaction (void)
+tracker_db_journal_commit_db_transaction (void)
 {
 	guint32 crc;
 	guint begin_pos;

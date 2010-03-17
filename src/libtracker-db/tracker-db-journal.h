@@ -73,7 +73,7 @@ gboolean     tracker_db_journal_append_resource              (gint         s_id,
                                                               const gchar *uri);
 
 gboolean     tracker_db_journal_rollback_transaction         (void);
-gboolean     tracker_db_journal_commit_transaction           (void);
+gboolean     tracker_db_journal_commit_db_transaction           (void);
 
 gboolean     tracker_db_journal_fsync                        (void);
 gboolean     tracker_db_journal_truncate                     (gsize new_size);

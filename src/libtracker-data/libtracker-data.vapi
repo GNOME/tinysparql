@@ -75,8 +75,8 @@ namespace Tracker {
 	[CCode (cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h")]
 	namespace Data {
 		public int query_resource_id (string uri);
-		public void begin_transaction ();
-		public void commit_transaction ();
+		public void begin_db_transaction ();
+		public void commit_db_transaction ();
 		public void delete_statement (string graph, string subject, string predicate, string object) throws DataError;
 		public void insert_statement (string graph, string subject, string predicate, string object) throws DataError;
 		public void insert_statement_with_uri (string graph, string subject, string predicate, string object) throws DataError;

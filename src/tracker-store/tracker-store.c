@@ -142,7 +142,7 @@ begin_batch (TrackerStorePrivate *private)
 	if (!private->batch_mode) {
 		/* switch to batch mode
 		   delays database commits to improve performance */
-		tracker_data_begin_transaction ();
+		tracker_data_begin_db_transaction ();
 		private->batch_mode = TRUE;
 		private->batch_count = 0;
 	}
@@ -153,7 +153,7 @@ end_batch (TrackerStorePrivate *private)
 {
 	if (private->batch_mode) {
 		/* commit pending batch items */
-		tracker_data_commit_transaction ();
+		tracker_data_commit_db_transaction ();
 
 		private->batch_mode = FALSE;
 		private->batch_count = 0;
@@ -413,14 +413,14 @@ tracker_store_sparql_update (const gchar *sparql,
 
 	if (private->batch_mode) {
 		/* commit pending batch items */
-		tracker_data_commit_transaction ();
+		tracker_data_commit_db_transaction ();
 		private->batch_mode = FALSE;
 		private->batch_count = 0;
 	}
 
-	tracker_data_begin_transaction ();
+	tracker_data_begin_db_transaction ();
 	tracker_data_update_sparql (sparql, error);
-	tracker_data_commit_transaction ();
+	tracker_data_commit_db_transaction ();
 
 }
 
@@ -438,14 +438,14 @@ tracker_store_sparql_update_blank (const gchar *sparql,
 
 	if (private->batch_mode) {
 		/* commit pending batch items */
-		tracker_data_commit_transaction ();
+		tracker_data_commit_db_transaction ();
 		private->batch_mode = FALSE;
 		private->batch_count = 0;
 	}
 
-	tracker_data_begin_transaction ();
+	tracker_data_begin_db_transaction ();
 	blank_nodes = tracker_data_update_sparql_blank (sparql, error);
-	tracker_data_commit_transaction ();
+	tracker_data_commit_db_transaction ();
 
 	return blank_nodes;
 }

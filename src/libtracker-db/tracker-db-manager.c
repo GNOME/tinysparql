@@ -971,7 +971,7 @@ db_interface_get_contents (void)
 	if (create) {
 		tracker_db_interface_start_transaction (iface);
 		load_sql_file (iface, "sqlite-contents.sql", NULL);
-		tracker_db_interface_end_transaction (iface);
+		tracker_db_interface_end_db_transaction (iface);
 	}
 
 	tracker_db_interface_sqlite_create_function (iface,
@@ -1002,7 +1002,7 @@ db_interface_get_metadata (void)
 		/* Create tables */
 		load_sql_file (iface, "sqlite-tracker.sql", NULL);
 
-		tracker_db_interface_end_transaction (iface);
+		tracker_db_interface_end_db_transaction (iface);
 	}
 
 	return iface;

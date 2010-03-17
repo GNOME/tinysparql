@@ -89,7 +89,7 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_delete_statement_id (0, 12, 13, 14);
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_transaction ();
+	result = tracker_db_journal_commit_db_transaction ();
 	g_assert_cmpint (result, ==, TRUE);
 	actual_size = tracker_db_journal_get_size ();
 	g_assert_cmpint (initial_size, !=, actual_size);
@@ -103,7 +103,7 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_insert_statement (0, 15, 16, "test");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_transaction ();
+	result = tracker_db_journal_commit_db_transaction ();
 	g_assert_cmpint (result, ==, TRUE);
 
 	/* Test insert id */
@@ -117,7 +117,7 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_insert_statement_id (0, 17, 18, 19);
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_transaction ();
+	result = tracker_db_journal_commit_db_transaction ();
 	g_assert_cmpint (result, ==, TRUE);
 
 	/* Test fsync */

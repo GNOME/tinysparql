@@ -100,9 +100,9 @@ test_query (gconstpointer test_data)
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
-	tracker_data_begin_transaction ();
+	tracker_data_begin_db_transaction ();
 	tracker_turtle_reader_load (data_filename, &error);
-	tracker_data_commit_transaction ();
+	tracker_data_commit_db_transaction ();
 	g_assert_no_error (error);
 
 	query_filename = g_strconcat (test_prefix, ".rq", NULL);
