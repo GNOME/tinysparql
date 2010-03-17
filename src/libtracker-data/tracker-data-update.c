@@ -2406,6 +2406,8 @@ tracker_data_replay_journal (GHashTable *classes,
 	static TrackerProperty *rdf_type = NULL;
 	gint last_operation_type = 0;
 
+	tracker_data_begin_replay_transaction (0);
+
 	if (!rdf_type) {
 		rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
 	}
@@ -2453,9 +2455,7 @@ tracker_data_replay_journal (GHashTable *classes,
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_START_TRANSACTION) {
-			tracker_data_begin_replay_transaction (tracker_db_journal_reader_get_time ());
-		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
-			tracker_data_commit_transaction ();
+			resource_time = tracker_db_journal_reader_get_time ();
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
 			GError *new_error = NULL;
 			TrackerProperty *property;
@@ -2639,4 +2639,7 @@ tracker_data_replay_journal (GHashTable *classes,
 	} else {
 		tracker_db_journal_reader_shutdown ();
 	}
+
+	tracker_data_commit_transaction ();
+
 }
