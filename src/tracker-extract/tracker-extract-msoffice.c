@@ -1703,10 +1703,15 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 		tracker_sparql_builder_object_unvalidated (info->metadata, text);
 		break;
 
-	case MS_OFFICE_XML_TAG_CREATED:
+	case MS_OFFICE_XML_TAG_CREATED: {
+		gchar *date;
+
+		date = tracker_date_guess (text);
 		tracker_sparql_builder_predicate (info->metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (info->metadata, tracker_date_guess (text));
+		tracker_sparql_builder_object_unvalidated (info->metadata, date);
+		g_free (date);
 		break;
+	}
 
 	case MS_OFFICE_XML_TAG_GENERATOR:
 		if (!added) {
@@ -1723,10 +1728,15 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 		 */
 		break;
 
-	case MS_OFFICE_XML_TAG_MODIFIED:
+	case MS_OFFICE_XML_TAG_MODIFIED: {
+		gchar *date;
+
+                date = tracker_date_guess (text);
 		tracker_sparql_builder_predicate (info->metadata, "nie:contentLastModified");
-		tracker_sparql_builder_object_unvalidated (info->metadata, tracker_date_guess (text));
+		tracker_sparql_builder_object_unvalidated (info->metadata, date);
+                g_free (date);
 		break;
+	}
 
 	case MS_OFFICE_XML_TAG_NUM_OF_PAGES:
 		tracker_sparql_builder_predicate (info->metadata, "nfo:pageCount");
