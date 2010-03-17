@@ -80,7 +80,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 
 if HAVE_GNOME_KEYRING
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
-	tracker-gnome-password-provider.c
+	tracker-password-provider-gnome.c
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
 	$(GNOME_KEYRING_LIBS)
@@ -89,7 +89,7 @@ INCLUDES +=						\
 	$(GNOME_KEYRING_CFLAGS)
 else
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
-	tracker-keyfile-password-provider.c
+	tracker-password-provider-keyfile.c
 endif
 
 vapidir=$(datadir)/vala/vapi
