@@ -1,0 +1,6 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Yet another mock miner
+Comment=Stupid and tedious test for the comment
+DBusName=org.freedesktop.Tracker1.Miner.Mock2
+DBusPath=/org/freedesktop/Tracker1/Miner/Mock2
