@@ -18,8 +18,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-miner-web.h"
+#include "config.h"
+
 #include "tracker-dbus.h"
+#include "tracker-miner-web.h"
 #include "tracker-miner-web-dbus.h"
 #include "tracker-miner-web-glue.h"
 

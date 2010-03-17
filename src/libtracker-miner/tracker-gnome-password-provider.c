@@ -18,7 +18,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <glib-object.h>
+
 #include <gnome-keyring.h>
 
 #include "tracker-password-provider.h"

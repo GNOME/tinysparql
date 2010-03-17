@@ -18,11 +18,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <stdlib.h>
+
+#include <dbus/dbus-glib-bindings.h>
 
 #include "tracker-dbus.h"
 #include "tracker-miner-dbus.h"
-#include <dbus/dbus-glib-bindings.h>
 
 typedef struct {
         DBusGConnection *connection;

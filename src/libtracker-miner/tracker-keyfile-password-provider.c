@@ -18,9 +18,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <glib-object.h>
+#include "config.h"
 
 #include <sys/mman.h>
+
+#include <glib-object.h>
 
 #include "tracker-password-provider.h"
 

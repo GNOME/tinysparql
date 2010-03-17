@@ -22,6 +22,7 @@
 #define __LIBTRACKER_MINER_DBUS_H__
 
 #include <libtracker-common/tracker-dbus.h>
+
 #include "tracker-miner.h"
 
 typedef void (* TrackerMinerDBusNameFunc) (TrackerMiner *miner,

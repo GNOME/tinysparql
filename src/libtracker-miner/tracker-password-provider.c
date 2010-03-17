@@ -17,12 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-password-provider.h"
-
-#include <sys/mman.h>
-#include <string.h>
-
 #include "config.h"
+
+#include <string.h>
+#include <sys/mman.h>
+
+#include "tracker-password-provider.h"
 
 static void
 tracker_password_provider_init (gpointer object_class)
