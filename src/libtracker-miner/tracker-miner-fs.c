@@ -1270,7 +1270,7 @@ item_remove (TrackerMinerFS *fs,
 	                        "  ?child a rdfs:Resource "
 	                        "} WHERE {"
 	                        "  ?child nie:url ?u . "
-	                        "  FILTER (fn:starts-with (?u, '%s')) "
+	                        "  FILTER (fn:starts-with (?u, \"%s\")) "
 	                        "}",
 	                        slash_uri);
 
@@ -1279,7 +1279,7 @@ item_remove (TrackerMinerFS *fs,
 	                        "DELETE { "
 	                        "  ?u a rdfs:Resource "
 	                        "} WHERE { "
-	                        "  ?u nie:url '%s' "
+	                        "  ?u nie:url \"%s\" "
 	                        "}",
 	                        uri);
 
@@ -1366,7 +1366,7 @@ item_ignore_next_update (TrackerMinerFS *fs,
 		                         "     nfo:fileLastModified ?unknown2 ; "
 		                         "     nfo:fileLastAccessed ?unknown3 ; "
 		                         "     nie:mimeType ?unknown4 ; "
-		                         "     nie:url '%s' "
+		                         "     nie:url \"%s\" "
 		                         "} %s",
 		                         uri, tracker_sparql_builder_get_result (sparql));
 
@@ -1433,7 +1433,7 @@ item_update_children_uri_cb (GObject      *object,
 
 			g_string_append_printf (data->sparql,
 			                        "INSERT INTO <%s> {"
-			                        "  <%s> nie:url '%s' "
+			                        "  <%s> nie:url \"%s\" "
 			                        "} ",
 			                        child_urn, child_urn, child_uri);
 
@@ -1572,8 +1572,8 @@ item_move (TrackerMinerFS *fs,
 
 	g_string_append_printf (sparql,
 	                        "INSERT INTO <%s> {"
-	                        "  <%s> nfo:fileName '%s' ; "
-	                        "       nie:url '%s' ; "
+	                        "  <%s> nfo:fileName \"%s\" ; "
+	                        "       nie:url \"%s\" ; "
 	                        "       nie:isStoredAs <%s> "
 	                        "} ",
 	                        source_iri, source_iri,
