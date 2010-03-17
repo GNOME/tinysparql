@@ -104,32 +104,31 @@ struct TrackerMinerWeb {
  * @dissociate          : called when the miner is told to forget any user credentials it has stored
  **/
 typedef struct {
-    TrackerMinerClass parent_class;
+	TrackerMinerClass parent_class;
 
-    /* vmethods */
-	void        (* authenticate)         (TrackerMinerWeb     *miner,
-	                                      GError             **error);
-	GHashTable* (* get_association_data) (TrackerMinerWeb     *miner,
-	                                      GError             **error);
-	void        (* associate)            (TrackerMinerWeb     *miner,
-	                                      const GHashTable    *association_data,
-	                                      GError             **error);
-	void        (* dissociate)           (TrackerMinerWeb     *miner,
-	                                                           GError             **error);
+	/* vmethods */
+	void        (* authenticate)         (TrackerMinerWeb   *miner,
+	                                      GError           **error);
+	GHashTable* (* get_association_data) (TrackerMinerWeb   *miner,
+	                                      GError           **error);
+	void        (* associate)            (TrackerMinerWeb   *miner,
+	                                      const GHashTable  *association_data,
+	                                      GError           **error);
+	void        (* dissociate)           (TrackerMinerWeb   *miner,
+	                                      GError           **error);
 } TrackerMinerWebClass;
 
-GType        tracker_miner_web_get_type              (void) G_GNUC_CONST;
-GQuark       tracker_miner_web_error_quark           (void);
-
-void         tracker_miner_web_authenticate          (TrackerMinerWeb     *miner,
-                                                      GError             **error);
-GHashTable*  tracker_miner_web_get_association_data  (TrackerMinerWeb     *miner,
-                                                      GError             **error);
-void         tracker_miner_web_associate             (TrackerMinerWeb     *miner,
-                                                      const GHashTable    *association_data,
-                                                      GError             **error);
-void         tracker_miner_web_dissociate            (TrackerMinerWeb     *miner,
-                                                      GError             **error);
+GType       tracker_miner_web_get_type             (void) G_GNUC_CONST;
+GQuark      tracker_miner_web_error_quark          (void);
+void        tracker_miner_web_authenticate         (TrackerMinerWeb  *miner,
+                                                    GError          **error);
+GHashTable *tracker_miner_web_get_association_data (TrackerMinerWeb  *miner,
+                                                    GError          **error);
+void        tracker_miner_web_associate            (TrackerMinerWeb  *miner,
+                                                    GHashTable       *association_data,
+                                                    GError          **error);
+void        tracker_miner_web_dissociate           (TrackerMinerWeb  *miner,
+                                                    GError          **error);
 
 G_END_DECLS
 

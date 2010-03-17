@@ -34,7 +34,7 @@ void tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
                                                   DBusGMethodInvocation  *context,
                                                   GError                **error);
 void tracker_miner_web_dbus_associate            (TrackerMinerWeb        *miner,
-                                                  const GHashTable       *association_data,
+                                                  GHashTable             *association_data,
                                                   DBusGMethodInvocation  *context,
                                                   GError                **error);
 void tracker_miner_web_dbus_dissociate           (TrackerMinerWeb        *miner,

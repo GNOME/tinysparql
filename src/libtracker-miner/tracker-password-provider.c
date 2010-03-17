@@ -40,7 +40,7 @@ tracker_password_provider_init (gpointer object_class)
 	}
 }
 
-/* That would be better done with G_DECLARE_INTERFACE, but it's GLib 2.24 */
+/* That would be better done with G_DECLARE_INTERFACE, but it's GLib 2.24. */
 GType
 tracker_password_provider_get_type (void)
 {
@@ -68,12 +68,13 @@ tracker_password_provider_error_quark (void)
 	return g_quark_from_static_string (TRACKER_PASSWORD_PROVIDER_ERROR_DOMAIN);
 }
 
-gchar*
+gchar *
 tracker_password_provider_get_name (TrackerPasswordProvider *provider)
 {
-	g_assert (TRACKER_IS_PASSWORD_PROVIDER (provider));
-
 	gchar *name;
+
+	g_return_val_if_fail (TRACKER_IS_PASSWORD_PROVIDER (provider), NULL);
+
 	g_object_get (provider, "name", &name, NULL);
 
 	return name;
@@ -87,47 +88,68 @@ tracker_password_provider_store_password (TrackerPasswordProvider  *provider,
                                           const gchar              *password,
                                           GError                  **error)
 {
-	g_assert (TRACKER_IS_PASSWORD_PROVIDER (provider));
+	TrackerPasswordProviderIface *iface;
 
-	return TRACKER_PASSWORD_PROVIDER_GET_INTERFACE (provider)->store_password (provider,
-	                                                                    service,
-	                                                                    description,
-	                                                                    username,
-	                                                                    password,
-	                                                                    error);
+	g_return_val_if_fail (TRACKER_IS_PASSWORD_PROVIDER (provider), FALSE);
+	g_return_val_if_fail (service != NULL, FALSE);
+	g_return_val_if_fail (description != NULL, FALSE);
+	g_return_val_if_fail (password != NULL, FALSE);
+
+	iface = TRACKER_PASSWORD_PROVIDER_GET_INTERFACE (provider);
+
+	if (!iface || !iface->store_password) {
+		return FALSE;
+	}
+
+	return iface->store_password (provider, service, description, username, password, error);
 }
 
-gchar*
-tracker_password_provider_get_password (TrackerPasswordProvider   *provider,
-                                        const gchar               *service,
-                                        gchar                    **username,
-                                        GError                   **error)
+gchar *
+tracker_password_provider_get_password (TrackerPasswordProvider  *provider,
+                                        const gchar              *service,
+                                        gchar                   **username,
+                                        GError                  **error)
 {
-	g_assert (TRACKER_IS_PASSWORD_PROVIDER (provider));
+	TrackerPasswordProviderIface *iface;
 
-	gchar *password = TRACKER_PASSWORD_PROVIDER_GET_INTERFACE (provider)->get_password (provider,
-	                                                                                    service,
-	                                                                                    username,
-	                                                                                    error);
-	return password;
+	g_return_val_if_fail (TRACKER_IS_PASSWORD_PROVIDER (provider), NULL);
+	g_return_val_if_fail (service != NULL, NULL);
+
+	iface = TRACKER_PASSWORD_PROVIDER_GET_INTERFACE (provider);
+
+	if (!iface || !iface->get_password) {
+		return NULL;
+	}
+
+	return iface->get_password (provider, service, username, error);
 }
 
 void
-tracker_password_provider_forget_password (TrackerPasswordProvider   *provider,
-                                           const gchar               *service,
-                                           GError                   **error)
+tracker_password_provider_forget_password (TrackerPasswordProvider  *provider,
+                                           const gchar              *service,
+                                           GError                  **error)
 {
-	g_assert (TRACKER_IS_PASSWORD_PROVIDER (provider));
+	TrackerPasswordProviderIface *iface;
 
-	TRACKER_PASSWORD_PROVIDER_GET_INTERFACE (provider)->forget_password (provider,
-	                                                                     service,
-	                                                                     error);
+	g_return_if_fail (TRACKER_IS_PASSWORD_PROVIDER (provider));
+	g_return_if_fail (service != NULL);
+
+	iface = TRACKER_PASSWORD_PROVIDER_GET_INTERFACE (provider);
+
+	if (!iface || !iface->forget_password) {
+		return;
+	}
+
+	iface->forget_password (provider, service, error);
 }
 
-gchar*
+gchar *
 tracker_password_provider_strdup_mlock (const gchar *source)
 {
 	gchar *dest;
+
+	g_return_val_if_fail (source != NULL, NULL);
+
 	dest = malloc (1 + strlen (source));
 	dest = memset (dest, 0, 1 + strlen (source));
 	mlock (dest, sizeof (dest));

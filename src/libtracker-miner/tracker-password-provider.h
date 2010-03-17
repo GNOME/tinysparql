@@ -40,49 +40,47 @@ typedef enum {
 	TRACKER_PASSWORD_PROVIDER_ERROR_NOTFOUND
 } TrackerPasswordProviderError;
 
-struct TrackerPasswordProviderIface
-{
+struct TrackerPasswordProviderIface {
 	GTypeInterface parent_iface;
 
-	gboolean (* store_password)        (TrackerPasswordProvider  *provider,
-	                                    const gchar              *service,
-	                                    const gchar              *description,
-	                                    const gchar              *username,
-	                                    const gchar              *password,
-	                                    GError                  **error);
-	gchar*   (* get_password)          (TrackerPasswordProvider  *provider,
-	                                    const gchar              *service,
-	                                    gchar                   **username,
-	                                    GError                  **error);
-	void     (* forget_password)       (TrackerPasswordProvider  *provider,
-	                                    const gchar              *service,
-	                                    GError                  **error);
+	gboolean (* store_password)  (TrackerPasswordProvider  *provider,
+	                              const gchar              *service,
+	                              const gchar              *description,
+	                              const gchar              *username,
+	                              const gchar              *password,
+	                              GError                  **error);
+	gchar *  (* get_password)    (TrackerPasswordProvider  *provider,
+	                              const gchar              *service,
+	                              gchar                   **username,
+	                              GError                  **error);
+	gboolean (* forget_password) (TrackerPasswordProvider  *provider,
+	                              const gchar              *service,
+	                              GError                  **error);
 };
 
-GType  tracker_password_provider_get_type        (void) G_GNUC_CONST;
-GQuark tracker_password_provider_error_quark     (void);
+GType  tracker_password_provider_get_type          (void) G_GNUC_CONST;
+GQuark tracker_password_provider_error_quark       (void);
 
-gchar* tracker_password_provider_get_name        (TrackerPasswordProvider   *provider);
+gchar* tracker_password_provider_get_name          (TrackerPasswordProvider  *provider);
 
 /* Must be defined by the selected implementation */
 TrackerPasswordProvider*
-       tracker_password_provider_get             (void);
-gboolean tracker_password_provider_store_password  (TrackerPasswordProvider   *provider,
-                                                  const gchar              *service,
-                                                  const gchar              *description,
-                                                  const gchar              *username,
-                                                  const gchar              *password,
-                                                  GError                  **error);
+         tracker_password_provider_get             (void);
+gboolean tracker_password_provider_store_password  (TrackerPasswordProvider  *provider,
+                                                    const gchar              *service,
+                                                    const gchar              *description,
+                                                    const gchar              *username,
+                                                    const gchar              *password,
+                                                    GError                  **error);
+gchar*   tracker_password_provider_get_password    (TrackerPasswordProvider  *provider,
+                                                    const gchar              *service,
+                                                    gchar                   **username,
+                                                    GError                  **error);
+void     tracker_password_provider_forget_password (TrackerPasswordProvider  *provider,
+                                                    const gchar              *service,
+                                                    GError                  **error);
+gchar*   tracker_password_provider_strdup_mlock    (const gchar              *source);
 
-gchar* tracker_password_provider_get_password    (TrackerPasswordProvider   *provider,
-                                                  const gchar              *service,
-                                                  gchar                   **username,
-                                                  GError                  **error);
-void   tracker_password_provider_forget_password (TrackerPasswordProvider   *provider,
-                                                  const gchar              *service,
-                                                  GError                  **error);
-
-gchar* tracker_password_provider_strdup_mlock    (const gchar              *source);
 
 G_END_DECLS
 

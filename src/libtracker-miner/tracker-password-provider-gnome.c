@@ -34,9 +34,7 @@
 
 #define TRACKER_PASSWORD_PROVIDER_GNOME_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_PASSWORD_PROVIDER_GNOME, TrackerPasswordProviderGnomePrivate))
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_PASSWORD_PROVIDER_GNOME, TrackerPasswordProviderGnomePrivate))
-
-#define PASSWORD_PROVIDER_GNOME_NAME "Gnome keyring"
+#define PASSWORD_PROVIDER_GNOME_NAME "GNOME Keyring"
 
 typedef struct TrackerPasswordProviderGnome TrackerPasswordProviderGnome;
 typedef struct TrackerPasswordProviderGnomeClass TrackerPasswordProviderGnomeClass;
@@ -51,14 +49,38 @@ struct TrackerPasswordProviderGnomeClass {
 };
 
 struct TrackerPasswordProviderGnomePrivate {
-	gchar    *name;
+	gchar *name;
 };
 
+GType           tracker_password_provider_gnome_get_type (void) G_GNUC_CONST;
+static void     tracker_password_provider_iface_init     (TrackerPasswordProviderIface  *iface);
+static void     password_provider_set_property           (GObject                       *object,
+                                                          guint                          prop_id,
+                                                          const GValue                  *value,
+                                                          GParamSpec                    *pspec);
+static void     password_provider_get_property           (GObject                       *object,
+                                                          guint                          prop_id,
+                                                          GValue                        *value,
+                                                          GParamSpec                    *pspec);
+static gboolean password_provider_gnome_store            (TrackerPasswordProvider       *provider,
+                                                          const gchar                   *service,
+                                                          const gchar                   *description,
+                                                          const gchar                   *username,
+                                                          const gchar                   *password,
+                                                          GError                       **error);
+static gchar*   password_provider_gnome_get              (TrackerPasswordProvider       *provider,
+                                                          const gchar                   *service,
+                                                          gchar                        **username,
+                                                          GError                       **error);
+static gboolean password_provider_gnome_forget           (TrackerPasswordProvider       *provider,
+                                                          const gchar                   *service,
+                                                          GError                       **error);
+
 const GnomeKeyringPasswordSchema password_schema = {
-	GNOME_KEYRING_ITEM_GENERIC_SECRET, {
-		{ "service", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
-		{ "username", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
-		{ NULL, 0 }
+	GNOME_KEYRING_ITEM_GENERIC_SECRET,
+	{ { "service",  GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
+	  { "username", GNOME_KEYRING_ATTRIBUTE_TYPE_STRING },
+	  { NULL, 0 }
 	}
 };
 
@@ -66,33 +88,6 @@ enum {
 	PROP_0,
 	PROP_NAME
 };
-
-GType           tracker_password_provider_gnome_get_type (void) G_GNUC_CONST;
-
-static void     tracker_password_provider_iface_init (TrackerPasswordProviderIface  *iface);
-static void     password_provider_gnome_finalize     (GObject                       *object);
-static void     password_provider_set_property       (GObject                       *object,
-                                                      guint                          prop_id,
-                                                      const GValue                  *value,
-                                                      GParamSpec                    *pspec);
-static void     password_provider_get_property       (GObject                       *object,
-                                                      guint                          prop_id,
-                                                      GValue                        *value,
-                                                      GParamSpec                    *pspec);
-
-static gboolean password_provider_gnome_store        (TrackerPasswordProvider       *provider,
-                                                      const gchar                   *service,
-                                                      const gchar                   *description,
-                                                      const gchar                   *username,
-                                                      const gchar                   *password,
-                                                      GError                       **error);
-static gchar*   password_provider_gnome_get          (TrackerPasswordProvider       *provider,
-                                                      const gchar                   *service,
-                                                      gchar                        **username,
-                                                      GError                       **error);
-static void     password_provider_gnome_forget       (TrackerPasswordProvider       *provider,
-                                                      const gchar                   *service,
-                                                      GError                       **error);
 
 G_DEFINE_TYPE_WITH_CODE (TrackerPasswordProviderGnome,
                          tracker_password_provider_gnome,
@@ -105,15 +100,12 @@ tracker_password_provider_gnome_class_init (TrackerPasswordProviderGnomeClass *k
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize     = password_provider_gnome_finalize;
 	object_class->set_property = password_provider_set_property;
 	object_class->get_property = password_provider_get_property;
 
-	g_object_class_override_property (object_class,
-	                                  PROP_NAME,
-	                                  "name");
-	g_type_class_add_private (object_class,
-	                          sizeof (TrackerPasswordProviderGnomePrivate));
+	g_object_class_override_property (object_class, PROP_NAME, "name");
+
+	g_type_class_add_private (object_class, sizeof (TrackerPasswordProviderGnomePrivate));
 }
 
 static void
@@ -124,15 +116,9 @@ tracker_password_provider_gnome_init (TrackerPasswordProviderGnome *provider)
 static void
 tracker_password_provider_iface_init (TrackerPasswordProviderIface *iface)
 {
-	iface->store_password = password_provider_gnome_store;
-	iface->get_password = password_provider_gnome_get;
+	iface->store_password  = password_provider_gnome_store;
+	iface->get_password    = password_provider_gnome_get;
 	iface->forget_password = password_provider_gnome_forget;
-}
-
-static void
-password_provider_gnome_finalize (GObject *object)
-{
-	G_OBJECT_CLASS (tracker_password_provider_gnome_parent_class)->finalize (object);
 }
 
 static void
@@ -141,13 +127,17 @@ password_provider_set_property (GObject      *object,
                                 const GValue *value,
                                 GParamSpec   *pspec)
 {
-	TrackerPasswordProviderGnomePrivate *priv = GET_PRIV (object);
+	TrackerPasswordProviderGnomePrivate *priv;
+
+	priv = TRACKER_PASSWORD_PROVIDER_GNOME_GET_PRIVATE (object);
 
 	switch (prop_id) {
 	case PROP_NAME:
 		g_free (priv->name);
 		priv->name = g_value_dup_string (value);
+		g_object_notify (object, "name");
 		break;
+
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -155,17 +145,20 @@ password_provider_set_property (GObject      *object,
 }
 
 static void
-password_provider_get_property (GObject      *object,
-                                guint         prop_id,
-                                GValue       *value,
-                                GParamSpec   *pspec)
+password_provider_get_property (GObject    *object,
+                                guint       prop_id,
+                                GValue     *value,
+                                GParamSpec *pspec)
 {
-	TrackerPasswordProviderGnomePrivate *priv = GET_PRIV (object);
+	TrackerPasswordProviderGnomePrivate *priv;
+
+	priv = TRACKER_PASSWORD_PROVIDER_GNOME_GET_PRIVATE (object);
 
 	switch (prop_id) {
 	case PROP_NAME:
 		g_value_set_string (value, priv->name);
 		break;
+
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -180,73 +173,87 @@ password_provider_gnome_store (TrackerPasswordProvider  *provider,
                                const gchar              *password,
                                GError                  **error)
 {
-	GnomeKeyringResult r = gnome_keyring_store_password_sync (&password_schema,
-	                                                          NULL,
-	                                                          description,
-	                                                          password,
-	                                                          "service", service,
-	                                                          "username", username,
-	                                                          NULL);
-	if (r != GNOME_KEYRING_RESULT_OK) {
+	GnomeKeyringResult result;
+
+	result = gnome_keyring_store_password_sync (&password_schema,
+	                                            NULL,
+	                                            description,
+	                                            password,
+	                                            "service", service,
+	                                            "username", username,
+	                                            NULL);
+
+	if (result != GNOME_KEYRING_RESULT_OK) {
 		g_set_error (error,
 		             TRACKER_PASSWORD_PROVIDER_ERROR,
 		             TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
-		             "Cannot store password: %s",
-		             gnome_keyring_result_to_message (r));
+		             "Could not store GNOME keyring password, %s",
+		             gnome_keyring_result_to_message (result));
+
 		return FALSE;
 	}
 
 	return TRUE;
 }
 
-static gchar*
+static gchar *
 password_provider_gnome_get (TrackerPasswordProvider  *provider,
                              const gchar              *service,
                              gchar                   **username,
                              GError                  **error)
 {
-	gchar *password;
 	GnomeKeyringAttributeList *search_attributes;
-	GList *found_items = NULL;
 	GnomeKeyringFound *found;
-	GnomeKeyringResult r;
+	GnomeKeyringResult result;
+	GList *found_items = NULL;
+	gchar *password;
 	gint i;
 
 	search_attributes = gnome_keyring_attribute_list_new ();
 	gnome_keyring_attribute_list_append_string (search_attributes,
-	                                            "service", service);
+	                                            "service",
+	                                            service);
 
-	r = gnome_keyring_find_items_sync (GNOME_KEYRING_ITEM_GENERIC_SECRET,
-	                                   search_attributes,
-	                                   &found_items);
+	result = gnome_keyring_find_items_sync (GNOME_KEYRING_ITEM_GENERIC_SECRET,
+	                                        search_attributes,
+	                                        &found_items);
 
 	gnome_keyring_attribute_list_free (search_attributes);
 
-	if (r != GNOME_KEYRING_RESULT_OK) {
-		if (r == GNOME_KEYRING_RESULT_NO_MATCH) {
+	if (result != GNOME_KEYRING_RESULT_OK) {
+		if (result == GNOME_KEYRING_RESULT_NO_MATCH) {
 			g_set_error_literal (error,
 			                     TRACKER_PASSWORD_PROVIDER_ERROR,
 			                     TRACKER_PASSWORD_PROVIDER_ERROR_NOTFOUND,
-			                     "Password not found");
+			                     "Could not find GNOME keyring password");
 		} else {
 			g_set_error (error,
 			             TRACKER_PASSWORD_PROVIDER_ERROR,
 			             TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
-			             "Keyring error: %s",
-			             gnome_keyring_result_to_message (r));
+			             "Could not fetch GNOME keyring password, %s",
+			             gnome_keyring_result_to_message (result));
 		}
 
 		gnome_keyring_found_list_free (found_items);
+
 		return NULL;
 	}
 
 	found = found_items->data;
 
-	/* Walk through all attributes and select the ones we're interested in */
-	for (i = 0 ; i < found->attributes->len ; ++i) {
-		GnomeKeyringAttribute *attr = &gnome_keyring_attribute_list_index (found->attributes, i);
-		if (username && !g_strcmp0 (attr->name, "username")) {
-			*username = g_strdup (attr->value.string);
+	/* Find username if we asked for it */
+	if (username) {
+		/* Make sure it is always set */
+		*username = NULL;
+
+		for (i = 0; i < found->attributes->len; ++i) {
+			GnomeKeyringAttribute *attr;
+
+			attr = &gnome_keyring_attribute_list_index (found->attributes, i);
+
+			if (g_ascii_strcasecmp (attr->name, "username") == 0) {
+				*username = g_strdup (attr->value.string);
+			}
 		}
 	}
 
@@ -257,22 +264,27 @@ password_provider_gnome_get (TrackerPasswordProvider  *provider,
 	return password;
 }
 
-static void
+static gboolean
 password_provider_gnome_forget (TrackerPasswordProvider  *provider,
                                 const gchar              *service,
                                 GError                  **error)
 {
-	GnomeKeyringResult r = gnome_keyring_delete_password_sync (&password_schema,
-	                                                           "service", service,
-	                                                           NULL);
+	GnomeKeyringResult result;
 
-	if (r != GNOME_KEYRING_RESULT_OK) {
+	result = gnome_keyring_delete_password_sync (&password_schema,
+	                                             "service", service,
+	                                             NULL);
+
+	if (result != GNOME_KEYRING_RESULT_OK) {
 		g_set_error (error,
 		             TRACKER_PASSWORD_PROVIDER_ERROR,
 		             TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
-		             "Cannot delete password: %s",
-		             gnome_keyring_result_to_message (r));
+		             "Coult not delete GNOME keyring password, %s",
+		             gnome_keyring_result_to_message (result));
+		return FALSE;
 	}
+
+	return TRUE;
 }
 
 TrackerPasswordProvider *
@@ -282,14 +294,14 @@ tracker_password_provider_get (void)
 	static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 
 	g_static_mutex_lock (&mutex);
-	if (instance == NULL) {
+
+	if (!instance) {
 		instance = g_object_new (TRACKER_TYPE_PASSWORD_PROVIDER_GNOME,
 		                         "name", PASSWORD_PROVIDER_GNOME_NAME,
 		                         NULL);
 	}
-	g_static_mutex_unlock (&mutex);
 
-	g_assert (instance != NULL);
+	g_static_mutex_unlock (&mutex);
 
 	return instance;
 }

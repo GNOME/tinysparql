@@ -46,16 +46,15 @@ enum {
 	PROP_ASSOCIATION_STATUS
 };
 
-static void miner_web_set_property (GObject *     object,
+static void miner_web_set_property (GObject      *object,
                                     guint         param_id,
                                     const GValue *value,
                                     GParamSpec   *pspec);
-static void miner_web_get_property (GObject *     object,
+static void miner_web_get_property (GObject      *object,
                                     guint         param_id,
                                     GValue       *value,
                                     GParamSpec   *pspec);
-static void miner_web_constructed  (GObject *object);
-static void miner_web_finalize     (GObject *object);
+static void miner_web_constructed  (GObject      *object);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMinerWeb, tracker_miner_web, TRACKER_TYPE_MINER)
 
@@ -67,7 +66,6 @@ tracker_miner_web_class_init (TrackerMinerWebClass *klass)
 	object_class->set_property = miner_web_set_property;
 	object_class->get_property = miner_web_get_property;
 	object_class->constructed  = miner_web_constructed;
-	object_class->finalize     = miner_web_finalize;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_ASSOCIATION_STATUS,
@@ -86,7 +84,9 @@ static void
 tracker_miner_web_init (TrackerMinerWeb *miner)
 {
 	TrackerMinerWebPrivate *priv;
+
 	priv = TRACKER_MINER_WEB_GET_PRIVATE (miner);
+
 	priv->association_status = TRACKER_MINER_WEB_UNASSOCIATED;
 }
 
@@ -96,8 +96,8 @@ miner_web_set_property (GObject      *object,
                         const GValue *value,
                         GParamSpec   *pspec)
 {
-	TrackerMinerWeb *miner = TRACKER_MINER_WEB (object);
 	TrackerMinerWebPrivate *priv;
+
 	priv = TRACKER_MINER_WEB_GET_PRIVATE (object);
 
 	switch (param_id) {
@@ -111,13 +111,13 @@ miner_web_set_property (GObject      *object,
 }
 
 static void
-miner_web_get_property (GObject      *object,
-                        guint         param_id,
-                        GValue       *value,
-                        GParamSpec   *pspec)
+miner_web_get_property (GObject    *object,
+                        guint       param_id,
+                        GValue     *value,
+                        GParamSpec *pspec)
 {
-	TrackerMinerWeb *miner = TRACKER_MINER_WEB (object);
 	TrackerMinerWebPrivate *priv;
+
 	priv = TRACKER_MINER_WEB_GET_PRIVATE (object);
 
 	switch (param_id) {
@@ -139,14 +139,6 @@ miner_web_constructed (GObject *object)
 	G_OBJECT_CLASS (tracker_miner_web_parent_class)->constructed (object);
 }
 
-static void
-miner_web_finalize (GObject *object)
-{
-	/* TrackerMinerWeb *miner = TRACKER_MINER_WEB (object); */
-
-	G_OBJECT_CLASS (tracker_miner_web_parent_class)->finalize (object);
-}
-
 GQuark
 tracker_miner_web_error_quark (void)
 {
@@ -160,7 +152,7 @@ tracker_miner_web_dbus_authenticate (TrackerMinerWeb        *miner,
 {
 	GError *local_error = NULL;
 
-	g_assert (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (TRACKER_IS_MINER_WEB (miner));
 
 	TRACKER_MINER_WEB_GET_CLASS (miner)->authenticate (miner, &local_error);
 
@@ -177,29 +169,32 @@ tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
                                              DBusGMethodInvocation  *context,
                                              GError                **error)
 {
+	GHashTable *association_data;
 	GError *local_error = NULL;
 
-	g_assert (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (TRACKER_IS_MINER_WEB (miner));
 
-	GHashTable *association_data = TRACKER_MINER_WEB_GET_CLASS (miner)->get_association_data (miner, &local_error);
+	association_data = TRACKER_MINER_WEB_GET_CLASS (miner)->get_association_data (miner, &local_error);
 
 	if (local_error != NULL) {
 		dbus_g_method_return_error (context, local_error);
 		g_error_free (local_error);
 	} else {
 		dbus_g_method_return (context, association_data);
+		/* g_hash_table_unref (association_data); */
 	}
 }
 
 void
 tracker_miner_web_dbus_associate (TrackerMinerWeb        *miner,
-                                  const GHashTable       *association_data,
+                                  GHashTable             *association_data,
                                   DBusGMethodInvocation  *context,
                                   GError                **error)
 {
 	GError *local_error = NULL;
 
-	g_assert (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (association_data != NULL);
 
 	TRACKER_MINER_WEB_GET_CLASS (miner)->associate (miner, association_data, &local_error);
 
@@ -218,7 +213,7 @@ tracker_miner_web_dbus_dissociate (TrackerMinerWeb        *miner,
 {
 	GError *local_error = NULL;
 
-	g_assert (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (TRACKER_IS_MINER_WEB (miner));
 
 	TRACKER_MINER_WEB_GET_CLASS (miner)->dissociate (miner, &local_error);
 
@@ -231,27 +226,31 @@ tracker_miner_web_dbus_dissociate (TrackerMinerWeb        *miner,
 }
 
 void
-tracker_miner_web_authenticate (TrackerMinerWeb     *miner,
-                                GError             **error)
+tracker_miner_web_authenticate (TrackerMinerWeb  *miner,
+                                GError          **error)
 {
-	g_assert (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (TRACKER_IS_MINER_WEB (miner));
+
 	TRACKER_MINER_WEB_GET_CLASS (miner)->authenticate (miner, error);
 }
 
-GHashTable*
-tracker_miner_web_get_association_data (TrackerMinerWeb     *miner,
-                                        GError             **error)
+GHashTable *
+tracker_miner_web_get_association_data (TrackerMinerWeb  *miner,
+                                        GError          **error)
 {
-	g_assert (TRACKER_IS_MINER_WEB (miner));
+	g_return_val_if_fail (TRACKER_IS_MINER_WEB (miner), NULL);
+
 	return TRACKER_MINER_WEB_GET_CLASS (miner)->get_association_data (miner, error);
 }
 
 void
-tracker_miner_web_associate (TrackerMinerWeb   *miner,
-                             const GHashTable  *association_data,
-                             GError           **error)
+tracker_miner_web_associate (TrackerMinerWeb  *miner,
+                             GHashTable       *association_data,
+                             GError          **error)
 {
-	g_assert (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (association_data != NULL);
+
 	TRACKER_MINER_WEB_GET_CLASS (miner)->associate (miner, association_data, error);
 }
 
@@ -259,6 +258,7 @@ void
 tracker_miner_web_dissociate (TrackerMinerWeb   *miner,
                               GError           **error)
 {
-	g_assert (TRACKER_IS_MINER_WEB (miner));
+	g_return_if_fail (TRACKER_IS_MINER_WEB (miner));
+
 	TRACKER_MINER_WEB_GET_CLASS (miner)->dissociate (miner, error);
 }
