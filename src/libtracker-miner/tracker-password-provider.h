@@ -44,7 +44,7 @@ struct TrackerPasswordProviderIface
 {
 	GTypeInterface parent_iface;
 
-	void     (* store_password)        (TrackerPasswordProvider  *provider,
+	gboolean (* store_password)        (TrackerPasswordProvider  *provider,
 	                                    const gchar              *service,
 	                                    const gchar              *description,
 	                                    const gchar              *username,
@@ -67,7 +67,7 @@ gchar* tracker_password_provider_get_name        (TrackerPasswordProvider   *pro
 /* Must be defined by the selected implementation */
 TrackerPasswordProvider*
        tracker_password_provider_get             (void);
-void   tracker_password_provider_store_password  (TrackerPasswordProvider   *provider,
+gboolean tracker_password_provider_store_password  (TrackerPasswordProvider   *provider,
                                                   const gchar              *service,
                                                   const gchar              *description,
                                                   const gchar              *username,

@@ -79,17 +79,17 @@ tracker_password_provider_get_name (TrackerPasswordProvider *provider)
 	return name;
 }
 
-void
-tracker_password_provider_store_password (TrackerPasswordProvider   *provider,
-                                           const gchar               *service,
-                                           const gchar               *description,
-                                           const gchar               *username,
-                                           const gchar               *password,
-                                           GError                   **error)
+gboolean
+tracker_password_provider_store_password (TrackerPasswordProvider  *provider,
+                                          const gchar              *service,
+                                          const gchar              *description,
+                                          const gchar              *username,
+                                          const gchar              *password,
+                                          GError                  **error)
 {
 	g_assert (TRACKER_IS_PASSWORD_PROVIDER (provider));
 
-	TRACKER_PASSWORD_PROVIDER_GET_INTERFACE (provider)->store_password (provider,
+	return TRACKER_PASSWORD_PROVIDER_GET_INTERFACE (provider)->store_password (provider,
 	                                                                    service,
 	                                                                    description,
 	                                                                    username,

@@ -81,7 +81,7 @@ static void     password_provider_get_property       (GObject                   
                                                       GValue                        *value,
                                                       GParamSpec                    *pspec);
 
-static void     password_provider_gnome_store        (TrackerPasswordProvider       *provider,
+static gboolean password_provider_gnome_store        (TrackerPasswordProvider       *provider,
                                                       const gchar                   *service,
                                                       const gchar                   *description,
                                                       const gchar                   *username,
@@ -173,7 +173,7 @@ password_provider_get_property (GObject      *object,
 	};
 }
 
-static void
+static gboolean
 password_provider_gnome_store (TrackerPasswordProvider  *provider,
                                const gchar              *service,
                                const gchar              *description,
@@ -194,7 +194,10 @@ password_provider_gnome_store (TrackerPasswordProvider  *provider,
 		             TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
 		             "Cannot store password: %s",
 		             gnome_keyring_result_to_message (r));
+		return FALSE;
 	}
+
+	return TRUE;
 }
 
 static gchar*
