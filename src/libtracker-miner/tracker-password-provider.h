@@ -63,8 +63,9 @@ GType  tracker_password_provider_get_type        (void) G_GNUC_CONST;
 GQuark tracker_password_provider_error_quark     (void);
 
 gchar* tracker_password_provider_get_name        (TrackerPasswordProvider   *provider);
+
 /* Must be defined by the selected implementation */
-const TrackerPasswordProvider*
+TrackerPasswordProvider*
        tracker_password_provider_get             (void);
 void   tracker_password_provider_store_password  (TrackerPasswordProvider   *provider,
                                                   const gchar              *service,

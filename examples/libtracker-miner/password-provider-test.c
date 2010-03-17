@@ -18,12 +18,19 @@
  */
 
 #include "config.h"
+
+#include <stdlib.h>
+
 #include <libtracker-miner/tracker-password-provider.h>
 
-#define SERVICE_NAME "TestService"
+#define SERVICE_NAME  "TestService"
+#define TEST_USERNAME "test-user"
+#define TEST_PASSWORD "s3cr3t"
 
-int main (int argc, char **argv)
+int 
+main (int argc, char **argv)
 {
+	TrackerPasswordProvider *provider;
 	gchar *username = NULL;
 	gchar *password = NULL;
 	GError *error = NULL;
@@ -31,20 +38,28 @@ int main (int argc, char **argv)
 	g_type_init ();
 	g_set_application_name ("PasswordBackendTest");
 
-	TrackerPasswordProvider *provider = tracker_password_provider_get ();
+	g_print ("Testing TrackerPasswordProvider...\n");
+
+	provider = tracker_password_provider_get ();
+
+	g_print ("Storing password '%s' for user '%s'\n",
+	         TEST_PASSWORD,
+	         TEST_USERNAME);
 
 	tracker_password_provider_store_password (provider,
 	                                          SERVICE_NAME,
 	                                          "This is the test service",
-	                                          "testUser",
-	                                          "testPass",
+	                                          TEST_USERNAME,
+	                                          TEST_PASSWORD,
 	                                          &error);
 
 	if (error) {
-		g_critical ("tracker_password_provider_store: %s", error->message);
+		g_printerr ("Calliung tracker_password_provider_store_password() failed, %s", 
+		            error->message);
 		g_error_free (error);
+		g_object_unref (provider);
 
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	password = tracker_password_provider_get_password (provider,
@@ -53,36 +68,45 @@ int main (int argc, char **argv)
 	                                                   &error);
 
 	if (error) {
-		g_critical ("tracker_password_provider_get: %s", error->message);
+		g_printerr ("Calling tracker_password_provider_get_password() failed, %s", 
+		            error->message);
 		g_error_free (error);
 		g_free (username);
 		g_free (password);
+		g_object_unref (provider);
 
-		return 1;
-	} else {
-		g_message ("Username: %s , Password:%s", username, password);
+		return EXIT_FAILURE;
 	}
+
+	g_print ("Found password is '%s' for username '%s'\n", 
+	         password,
+	         username);
 
 	g_free (username);
 	g_free (password);
 
-	// Also test without getting the username
+	/* Also test without getting the username */
 	password = tracker_password_provider_get_password (provider,
 	                                                   SERVICE_NAME,
 	                                                   NULL,
 	                                                   &error);
 
 	if (error) {
-		g_critical ("tracker_password_provider_get: %s", error->message);
+		g_printerr ("Calling tracker_password_provider_get_password() failed, %s", 
+		            error->message);
 		g_error_free (error);
 		g_free (password);
+		g_object_unref (provider);
 
-		return 1;
-	} else {
-		g_message ("Password:%s", password);
+		return EXIT_SUCCESS;
 	}
+
+	g_print ("Found password is '%s' for NULL username\n", password);
 
 	g_free (password);
 	g_object_unref (provider);
-	return 0;
+
+	g_print ("Done\n");
+
+	return EXIT_SUCCESS;
 }

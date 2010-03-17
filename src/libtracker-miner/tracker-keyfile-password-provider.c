@@ -284,7 +284,7 @@ password_provider_keyfile_forget (TrackerPasswordProvider  *provider,
 	}
 }
 
-const TrackerPasswordProvider*
+TrackerPasswordProvider *
 tracker_password_provider_get (void)
 {
 	static TrackerPasswordProvider *instance = NULL;

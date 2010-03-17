@@ -238,7 +238,7 @@ password_provider_gnome_get (TrackerPasswordProvider  *provider,
 		return NULL;
 	}
 
-	found = (GnomeKeyringFound *)(found_items->data);
+	found = found_items->data;
 
 	/* Walk through all attributes and select the ones we're interested in */
 	for (i = 0 ; i < found->attributes->len ; ++i) {
@@ -273,7 +273,7 @@ password_provider_gnome_forget (TrackerPasswordProvider  *provider,
 	}
 }
 
-const TrackerPasswordProvider*
+TrackerPasswordProvider *
 tracker_password_provider_get (void)
 {
 	static TrackerPasswordProvider *instance = NULL;
