@@ -17,7 +17,7 @@ INCLUDES =							\
 	$(DBUS_CFLAGS)						\
 	$(UNAC_CFLAGS)
 
-noinst_PROGRAMS = tracker-miner-test password-provider-test
+noinst_PROGRAMS = tracker-miner-test
 
 tracker_miner_test_SOURCES =   					\
 	tracker-miner-test.c    				\
