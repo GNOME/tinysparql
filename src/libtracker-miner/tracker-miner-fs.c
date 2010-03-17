@@ -1456,11 +1456,8 @@ item_update_children_uri (TrackerMinerFS    *fs,
 
 	slash_uri = g_strconcat (source_uri, "/", NULL);
 
-	sparql = g_strdup_printf ("SELECT ?child ?url ?m WHERE { "
+	sparql = g_strdup_printf ("SELECT ?child ?url nie:mimeType(?child) WHERE { "
 				  "  ?child nie:url ?url . "
-				  "  OPTIONAL { "
-				  "    ?child nie:mimeType ?m "
-				  "  } . "
 				  "  FILTER (fn:starts-with (?url, \"%s\")) "
 				  "}",
 				  slash_uri);
