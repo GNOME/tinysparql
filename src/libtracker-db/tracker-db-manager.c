@@ -94,10 +94,6 @@ typedef struct {
 	guint64             mtime;
 } TrackerDBDefinition;
 
-typedef struct {
-	GString *string;     /* The string we are accumulating */
-} AggregateData;
-
 static TrackerDBDefinition dbs[] = {
 	{ TRACKER_DB_UNKNOWN,
 	  TRACKER_DB_LOCATION_USER_DATA_DIR,
@@ -418,46 +414,6 @@ function_sparql_haversine_distance (TrackerDBInterface *interface,
 	return result;
 }
 
-static void
-function_group_concat_step (TrackerDBInterface *interface,
-                            void               *aggregate_context,
-                            gint                argc,
-                            GValue              values[])
-{
-	AggregateData *p;
-
-	g_return_if_fail (argc == 1);
-
-	p = aggregate_context;
-
-	if (!p->string) {
-		p->string = g_string_new ("");
-	} else {
-		p->string = g_string_append (p->string, "|");
-	}
-
-	if (G_VALUE_HOLDS_STRING (&values[0])) {
-		p->string = g_string_append (p->string, g_value_get_string (&values[0]));
-	}
-}
-
-static GValue
-function_group_concat_final (TrackerDBInterface *interface,
-                             void               *aggregate_context)
-{
-	GValue result = { 0, };
-	AggregateData *p;
-
-	p = aggregate_context;
-
-	g_value_init (&result, G_TYPE_STRING);
-	g_value_set_string (&result, p->string->str);
-
-	g_string_free (p->string, TRUE);
-
-	return result;
-}
-
 static GValue
 function_sparql_regex (TrackerDBInterface *interface,
                        gint                  argc,
@@ -551,13 +507,6 @@ db_set_params (TrackerDBInterface *iface,
 		                                             "SparqlHaversineDistance",
 		                                             function_sparql_haversine_distance,
 		                                             4);
-
-		tracker_db_interface_sqlite_create_aggregate (iface,
-		                                              "group_concat",
-		                                              function_group_concat_step,
-		                                              1,
-		                                              function_group_concat_final,
-		                                              sizeof(AggregateData));
 	}
 }
 
