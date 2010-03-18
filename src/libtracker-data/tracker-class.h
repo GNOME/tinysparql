@@ -60,8 +60,6 @@ void            tracker_class_set_uri           (TrackerClass  *service,
                                                  const gchar   *value);
 void            tracker_class_set_count         (TrackerClass  *service,
                                                  gint           value);
-void            tracker_class_set_super_classes (TrackerClass  *self,
-                                                 TrackerClass **super_classes);
 void            tracker_class_add_super_class   (TrackerClass  *self,
                                                  TrackerClass  *value);
 void            tracker_class_set_id            (TrackerClass  *service,

@@ -679,25 +679,6 @@ tracker_property_set_is_inverse_functional_property (TrackerProperty *property,
 }
 
 void
-tracker_property_set_super_properties (TrackerProperty  *property,
-                                       TrackerProperty **value)
-{
-	TrackerPropertyPriv *priv;
-	TrackerProperty **super_property;
-
-	g_return_if_fail (TRACKER_IS_PROPERTY (property));
-
-	priv = GET_PRIV (property);
-
-	g_array_free (priv->super_properties, TRUE);
-
-	priv->super_properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
-	for (super_property = value; *super_property; super_property++) {
-		g_array_append_val (priv->super_properties, *super_property);
-	}
-}
-
-void
 tracker_property_add_super_property (TrackerProperty *property,
                                      TrackerProperty *value)
 {

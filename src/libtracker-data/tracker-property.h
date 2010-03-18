@@ -120,8 +120,6 @@ void                tracker_property_set_is_new           (TrackerProperty      
 void                tracker_property_set_is_inverse_functional_property
 (TrackerProperty      *property,
  gboolean              value);
-void                tracker_property_set_super_properties (TrackerProperty      *property,
-                                                           TrackerProperty     **super_properties);
 void                tracker_property_add_super_property   (TrackerProperty      *property,
                                                            TrackerProperty      *value);
 

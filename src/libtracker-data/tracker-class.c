@@ -235,25 +235,6 @@ tracker_class_set_id (TrackerClass *service,
 
 
 void
-tracker_class_set_super_classes (TrackerClass  *service,
-                                 TrackerClass **value)
-{
-	TrackerClassPriv *priv;
-	TrackerClass     **super_class;
-
-	g_return_if_fail (TRACKER_IS_CLASS (service));
-
-	priv = GET_PRIV (service);
-
-	g_array_free (priv->super_classes, TRUE);
-
-	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
-	for (super_class = value; *super_class; super_class++) {
-		g_array_append_val (priv->super_classes, *super_class);
-	}
-}
-
-void
 tracker_class_add_super_class (TrackerClass *service,
                                TrackerClass *value)
 {
