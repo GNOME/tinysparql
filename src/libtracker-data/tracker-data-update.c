@@ -364,7 +364,7 @@ cache_delete_value (const gchar            *table_name,
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property;
 
-	property.name = g_strdup (field_name);
+	property.name = field_name;
 	property.value = *value;
 	property.graph = 0;
 	property.fts = fts;
