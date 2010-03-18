@@ -18,7 +18,7 @@
  */
 
 public class Tracker.SparqlBuilder : Object {
-	enum State {
+	public enum State {
 		UPDATE,
 		INSERT,
 		DELETE,
@@ -39,7 +39,7 @@ public class Tracker.SparqlBuilder : Object {
 
 	public int length { get; private set; }
 
-	State state {
+	public State state {
 		get { return states[states.length - 1]; }
 	}
 
