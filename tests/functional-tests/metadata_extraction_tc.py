@@ -34,9 +34,11 @@ RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 
 if target == '2':
 	"""target is device """
+	IMAGE_FILE_PATH = configuration.URL_PREFIX + configuration.MYDOCS_IMAGES
 	MUSIC_FILE_PATH = configuration.URL_PREFIX + configuration.MYDOCS_MUSIC 
 else:
 	"""target is SBOX """
+	IMAGE_FILE_PATH = configuration.URL_PREFIX + configuration.TEST_DATA_IMAGES
 	MUSIC_FILE_PATH = configuration.URL_PREFIX + configuration.TEST_DATA_MUSIC 
 
 print "MUSIC_FILE_PATH is %s" %(MUSIC_FILE_PATH)
@@ -75,39 +77,557 @@ class mydict:
     return self.nested_dict[key].keys ()
 
 
-#class images(TrackerHelpers):
+class images(TrackerHelpers):
 
-	#def test_get_images_height_1(self):
-		#dictList = self.de_pickle('pickled_Images')
-		#print dictList
-		#item = 'Image Height'
-		#flag = False
-                #for adict in dictList:
-		#	# adict is a file
-                #        testFile = adict['FILENAME']
-		#	file_uri = "file://" + testFile
-		#	#file_uri = MUSIC_FILE_PATH + testFile
-		#	print 'testfile is %s' %file_uri
-                #        for parm, expRes in adict.iteritems():
-		#		# iterate thro the dictaionary, file's fields
-		##		if re.compile('^'+item+'$',re.M).search(parm):
-		#			print 'parm val is %s' %parm
-		#			query = "SELECT ?height WHERE { \
-		#			<%s> a nfo:FileDataObject; \
-		#			nfo:height ?height.}" %(file_uri)
-		#			print query
-		#			results = self.query (query)
-		#			print results
-		##
-		#			print 'height of image retrieved is %d' (results[0][0])
-		#			print 'value in dic %s' %(expRes.strip())
-		#			if  not expRes.strip() == height:
-		#				flag = False
-		#				print 'Failed to get correct height of image %s' %testFile
-		#			else:
-		#				flag = True
+	def test_get_images_height_1(self):
+		"""
+		get the height of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for height """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Image Height':
+					query = "SELECT ?height WHERE { \
+					?uid nie:url <%s>; \
+					nfo:height ?height.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Actual = ' + results[0][0]
+					print  'Expected = ' + expRes.strip()
+					if  not expRes.strip() == results[0][0]:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct height for file %s' %testFile
+					else:
+						flag = True
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
 
-		#self.assert_(flag, "Get metadata for Images failed." )
+	def test_get_images_width_1(self):
+		"""
+		get the width of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for width """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Image Width':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nfo:width ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Actual = ' + results[0][0]
+					print  'Expected = ' + expRes.strip()
+					if  not expRes.strip() == results[0][0]:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct width for file %s' %testFile
+					else:
+						flag = True
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+
+	def test_get_images_title_1(self):
+		"""
+		get the title of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for title """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Title':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nie:title ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Actual = ' + results[0][0]
+					print  'Expected = ' + expRes.strip()
+					if  not expRes.strip() == results[0][0]:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct title for file %s' %testFile
+					else:
+						flag = True
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+
+	def test_get_images_creator_1(self):
+		"""
+		get the creator of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for creator"""
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Creator':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nco:creator ?urn. \
+					?urn nco:fullname ?value}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Actual = ' + results[0][0]
+					print  'Expected = ' + expRes.strip()
+					if  not expRes.strip() == results[0][0]:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct creator for file %s' %testFile
+					else:
+						flag = True
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_mime_1(self):
+		"""
+		get the mime of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for mime"""
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'MIME Type':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nie:mimeType ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Actual = ' + results[0][0]
+					print  'Expected = ' + expRes.strip()
+					if  not expRes.strip() == results[0][0]:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct mime for file %s' %testFile
+					else:
+						flag = True
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+
+	def test_get_images_country_1(self):
+		"""
+		get the country of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for country"""
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Country':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					mlo:location ?urn. \
+					?urn mlo:country ?value}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Actual = ' + results[0][0]
+					print  'Expected = ' + expRes.strip()
+					if  not expRes.strip() == results[0][0]:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct country for file %s' %testFile
+					else:
+						flag = True
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_city_1(self):
+		"""
+		get the city of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for city"""
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'City':
+					print "amit"
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					mlo:location ?urn. \
+					?urn mlo:city ?value}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Actual = ' + results[0][0]
+					print  'Expected = ' + expRes.strip()
+					if  not expRes.strip() == results[0][0]:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct city for file %s' %testFile
+					else:
+						flag = True
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+
+
+	def test_get_images_res_1(self):
+		"""
+		get the X Resolution of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for X Resolution """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'X Resolution':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nfo:horizontalResolution ?value}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Expected = ' + expRes.strip()
+					if len(results) > 0 and expRes.strip() == results[0][0]:
+						print  'Actual = ' + results[0][0]
+						flag = True
+					else:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct X Resolution  for file %s' %testFile
+
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_res_2(self):
+		"""
+		get the Y Resolution of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for Y Resolution """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Y Resolution':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nfo:verticalResolution ?value}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Expected = ' + expRes.strip()
+					if len(results) > 0 and expRes.strip() == results[0][0]:
+						print  'Actual = ' + results[0][0]
+						flag = True
+					else:
+						Results[testFile]=parm
+						flag = False
+						print 'Failed to get correct Y Resolution  for file %s' %testFile
+
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_copyright_1(self):
+		"""
+		get the copyright of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for copyright """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Copyright':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nie:copyright ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Expected = ' + expRes.strip()
+					if len(results) > 0 and expRes.strip() == results[0][0]:
+						print  'Actual = ' + results[0][0]
+					else:
+						Results[testFile]=parm
+						print 'Failed to get correct copyright  for file %s' %testFile
+
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_fnumber_1(self):
+		"""
+		get the fnumber of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for fnumber """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'F Number':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nmm:fnumber ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Expected = ' + expRes.strip()
+					if len(results) > 0 and expRes.strip() == results[0][0]:
+						print  'Actual = ' + results[0][0]
+					else:
+						Results[testFile]=parm
+						print 'Failed to get correct fnumber  for file %s' %testFile
+
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_focal_length_1(self):
+		"""
+		get the focal_length of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for focal_length """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Focal Length':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nmm:focalLength ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Expected = ' + expRes.strip()
+					if len(results) > 0 and expRes.strip() == results[0][0]:
+						print  'Actual = ' + results[0][0]
+					else:
+						Results[testFile]=parm
+						print 'Failed to get correct focal_length  for file %s' %testFile
+
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_keyword_1(self):
+		"""
+		get the keyword of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for keyword """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Keyword':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nie:keyword ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Expected = ' + expRes.strip()
+					if len(results) > 0 and expRes.strip() == results[0][0]:
+						print  'Actual = ' + results[0][0]
+					else:
+						Results[testFile]=parm
+						print 'Failed to get correct keyword  for file %s' %testFile
+
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_comment_1(self):
+		"""
+		get the comment of the image files
+		and verify them with that present in the earlier created dictionary
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for comment """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'comment':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nie:comment ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Expected = ' + expRes.strip()
+					if len(results) > 0 and expRes.strip() == results[0][0]:
+						print  'Actual = ' + results[0][0]
+					else:
+						Results[testFile]=parm
+						print 'Failed to get correct comment  for file %s' %testFile
+
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+	def test_get_images_camera_1(self):
+		"""
+		get the camera of the image files
+		and verify them with that present in the earlier created dictionary
+		TODO: Have a image file with camera property.
+		"""
+		dictList = self.de_pickle('pickled_Images')
+		overallRes = []
+                for adict in dictList:
+			"""adict is a file"""
+			Results = {}
+                        testFile = adict['FILENAME']
+			print 'testfile is %s' %testFile
+			file_uri = IMAGE_FILE_PATH + testFile
+			"""browse the file's metadata list in dictionary for camera """
+                        for parm, expRes in adict.iteritems():
+				print parm
+                                if parm.rstrip() == 'Camera':
+					query = "SELECT ?value WHERE { \
+					?uid nie:url <%s>; \
+					nmm:camera ?value.}" %(file_uri)
+					print query
+					results = self.query (query)
+					print results
+					print  'Expected = ' + expRes.strip()
+					if len(results) > 0 and expRes.strip() == results[0][0]:
+						print  'Actual = ' + results[0][0]
+					else:
+						Results[testFile]=parm
+						print 'Failed to get correct camera  for file %s' %testFile
+
+			overallRes.append(Results)
+		for Result_dict in overallRes:
+			for k in Result_dict:
+				self.assert_(not k,'Get Metadata failed for following Image files %s\n\n' % (str(overallRes)) )
+
+
+
+
 
 class music(TrackerHelpers):
 

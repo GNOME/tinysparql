@@ -37,7 +37,6 @@ for pid in commands.getoutput("ps -ef| grep tracker-writeback | awk '{print $1}'
     os.kill(int(pid), signal.SIGKILL)
   except OSError, e:
     if not e.errno == 3 : raise e # error 3 is for noscuh process
-os.system('/usr/lib/tracker/tracker-writeback -v 3 &')
 os.system(configuration.TRACKER_WRITEBACK + ' -v 3 &')
 time.sleep(5)
 

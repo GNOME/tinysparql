@@ -1,86 +1,15 @@
 <testdefinition version="0.1">
   <suite name="tracker">
     <description />
-    <set name="_usr_share_tracker-tests_03-fts-functions.py">
-      <description>tracker:03-fts-functions.py</description>
-      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_offsets">
-        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_offsets</description>
-        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_offsets</step>
+    <set name="_usr_share_tracker-tests_virtual-files-tc.py">
+      <description>tracker:virtual-files-tc.py</description>
+      <case name="virtual-files-tc.py-virtual_files.test_Virttual_01">
+        <description>tracker:virtual-files-tc.py:virtual_files.test_Virttual_01</description>
+        <step>/usr/share/tracker-tests/virtual-files-tc.py virtual_files.test_Virttual_01</step>
       </case>
-      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_rank">
-        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_rank</description>
-        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_rank</step>
-      </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_01-insertion.py">
-      <description>tracker:01-insertion.py</description>
-      <case name="01-insertion.py-s_batch_update.test_batch_insert_01">
-        <description>tracker:01-insertion.py:s_batch_update.test_batch_insert_01</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_batch_update.test_batch_insert_01</step>
-      </case>
-      <case name="01-insertion.py-s_delete.test_delete_01">
-        <description>tracker:01-insertion.py:s_delete.test_delete_01</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_delete.test_delete_01</step>
-      </case>
-      <case name="01-insertion.py-s_delete.test_delete_02">
-        <description>tracker:01-insertion.py:s_delete.test_delete_02</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_delete.test_delete_02</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_01">
-        <description>tracker:01-insertion.py:s_insert.test_insert_01</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_01</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_02">
-        <description>tracker:01-insertion.py:s_insert.test_insert_02</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_02</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_03">
-        <description>tracker:01-insertion.py:s_insert.test_insert_03</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_03</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_04">
-        <description>tracker:01-insertion.py:s_insert.test_insert_04</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_04</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_01">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_01</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_01</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_02">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_02</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_02</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_03">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_03</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_03</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_04">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_04</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_04</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_05">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_05</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_05</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_06">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_06</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_06</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_07">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_07</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_07</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_08">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_08</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_08</step>
-      </case>
-      <case name="01-insertion.py-s_insert.test_insert_date_09">
-        <description>tracker:01-insertion.py:s_insert.test_insert_date_09</description>
-        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_09</step>
+      <case name="virtual-files-tc.py-virtual_files.test_Virtual_02">
+        <description>tracker:virtual-files-tc.py:virtual_files.test_Virtual_02</description>
+        <step>/usr/share/tracker-tests/virtual-files-tc.py virtual_files.test_Virtual_02</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
@@ -89,94 +18,120 @@
     </set>
     <set name="_usr_share_tracker-tests_metadata_extraction_tc.py">
       <description>tracker:metadata_extraction_tc.py</description>
-      <case name="metadata_extraction_tc.py-music.test_get_music_title_1">
-        <description>tracker:metadata_extraction_tc.py:music.test_get_music_title_1</description>
-        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_title_1</step>
+      <case name="metadata_extraction_tc.py-images.test_get_images_camera_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_camera_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_camera_1</step>
       </case>
-      <case name="metadata_extraction_tc.py-music.test_get_music_composer_1">
-        <description>tracker:metadata_extraction_tc.py:music.test_get_music_composer_1</description>
-        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_composer_1</step>
+      <case name="metadata_extraction_tc.py-images.test_get_images_city_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_city_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_city_1</step>
       </case>
-      <case name="metadata_extraction_tc.py-music.test_get_music_genre_1">
-        <description>tracker:metadata_extraction_tc.py:music.test_get_music_genre_1</description>
-        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_genre_1</step>
+      <case name="metadata_extraction_tc.py-images.test_get_images_comment_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_comment_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_comment_1</step>
       </case>
-      <case name="metadata_extraction_tc.py-music.test_get_music_performer_1">
-        <description>tracker:metadata_extraction_tc.py:music.test_get_music_performer_1</description>
-        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_performer_1</step>
+      <case name="metadata_extraction_tc.py-images.test_get_images_copyright_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_copyright_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_copyright_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_country_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_country_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_country_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_creator_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_creator_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_creator_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_fnumber_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_fnumber_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_fnumber_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_focal_length_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_focal_length_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_focal_length_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_height_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_height_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_height_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_keyword_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_keyword_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_keyword_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_mime_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_mime_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_mime_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_res_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_res_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_res_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_res_2">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_res_2</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_res_2</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_title_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_title_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_title_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-images.test_get_images_width_1">
+        <description>tracker:metadata_extraction_tc.py:images.test_get_images_width_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py images.test_get_images_width_1</step>
       </case>
       <case name="metadata_extraction_tc.py-music.test_get_music_album_1">
         <description>tracker:metadata_extraction_tc.py:music.test_get_music_album_1</description>
         <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_album_1</step>
       </case>
-      <case name="metadata_extraction_tc.py-music.test_get_music_copyright_1">
-        <description>tracker:metadata_extraction_tc.py:music.test_get_music_copyright_1</description>
-        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_copyright_1</step>
+      <case name="metadata_extraction_tc.py-music.test_get_music_comment_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_comment_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_comment_1</step>
       </case>
-      <case name="metadata_extraction_tc.py-music.test_get_music_track_1">
-        <description>tracker:metadata_extraction_tc.py:music.test_get_music_track_1</description>
-        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_track_1</step>
-      </case>
-      <case name="metadata_extraction_tc.py-music.test_get_music_mime_1">
-        <description>tracker:metadata_extraction_tc.py:music.test_get_music_mime_1</description>
-        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_mime_1</step>
+      <case name="metadata_extraction_tc.py-music.test_get_music_composer_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_composer_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_composer_1</step>
       </case>
       <case name="metadata_extraction_tc.py-music.test_get_music_contributor_1">
         <description>tracker:metadata_extraction_tc.py:music.test_get_music_contributor_1</description>
         <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_contributor_1</step>
       </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_copyright_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_copyright_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_copyright_1</step>
+      </case>
       <case name="metadata_extraction_tc.py-music.test_get_music_duration_1">
         <description>tracker:metadata_extraction_tc.py:music.test_get_music_duration_1</description>
         <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_duration_1</step>
       </case>
-      <case name="metadata_extraction_tc.py-music.test_get_music_comment_1">
-        <description>tracker:metadata_extraction_tc.py:music.test_get_music_comment_1</description>
-        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_comment_1</step>
+      <case name="metadata_extraction_tc.py-music.test_get_music_genre_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_genre_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_genre_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_mime_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_mime_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_mime_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_performer_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_performer_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_performer_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_title_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_title_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_title_1</step>
+      </case>
+      <case name="metadata_extraction_tc.py-music.test_get_music_track_1">
+        <description>tracker:metadata_extraction_tc.py:music.test_get_music_track_1</description>
+        <step>/usr/share/tracker-tests/metadata_extraction_tc.py music.test_get_music_track_1</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
         <hardware>true</hardware>
       </environments>
     </set>
-    <set name="_usr_share_tracker-tests_04-group-concat.py">
-      <description>tracker:04-group-concat.py</description>
-      <case name="04-group-concat.py-TestGroupConcat.test_group_concat">
-        <description>tracker:04-group-concat.py:TestGroupConcat.test_group_concat</description>
-        <step>/usr/share/tracker-tests/04-group-concat.py TestGroupConcat.test_group_concat</step>
-      </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_05-coalesce.py">
-      <description>tracker:05-coalesce.py</description>
-      <case name="05-coalesce.py-TestCoalesce.test_coalesce_first_fine">
-        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_first_fine</description>
-        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_first_fine</step>
-      </case>
-      <case name="05-coalesce.py-TestCoalesce.test_coalesce_second_fine">
-        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_second_fine</description>
-        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_second_fine</step>
-      </case>
-      <case name="05-coalesce.py-TestCoalesce.test_coalesce_none_fine_default">
-        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_none_fine_default</description>
-        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_none_fine_default</step>
-      </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_virtual-files-tc.py">
-      <description>tracker:virtual-files-tc.py</description>
-      <case name="virtual-files-tc.py-virtual_files.test_Virttual_01">
-        <description>tracker:virtual-files-tc.py:virtual_files.test_Virttual_01</description>
-        <step>/usr/share/tracker-tests/virtual-files-tc.py virtual_files.test_Virttual_01</step>
-      </case>
-      <case name="virtual-files-tc.py-virtual_files.test_Virttual_02">
-        <description>tracker:virtual-files-tc.py:virtual_files.test_Virttual_02</description>
-        <step>/usr/share/tracker-tests/virtual-files-tc.py virtual_files.test_Virttual_02</step>
+    <set name="_usr_share_tracker-tests_08-unique-insertions.py">
+      <description>tracker:08-unique-insertions.py</description>
+      <case name="08-unique-insertions.py-TestFTSFunctions.test_unique_insertion">
+        <description>tracker:08-unique-insertions.py:TestFTSFunctions.test_unique_insertion</description>
+        <step>/usr/share/tracker-tests/08-unique-insertions.py TestFTSFunctions.test_unique_insertion</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
@@ -185,25 +140,40 @@
     </set>
     <set name="_usr_share_tracker-tests_06-distance.py">
       <description>tracker:06-distance.py</description>
+      <case name="06-distance.py-TestCoalesce.test_distance_cartesian_proportion">
+        <description>tracker:06-distance.py:TestCoalesce.test_distance_cartesian_proportion</description>
+        <step>/usr/share/tracker-tests/06-distance.py TestCoalesce.test_distance_cartesian_proportion</step>
+      </case>
       <case name="06-distance.py-TestCoalesce.test_distance_cartesian_symmetry">
         <description>tracker:06-distance.py:TestCoalesce.test_distance_cartesian_symmetry</description>
         <step>/usr/share/tracker-tests/06-distance.py TestCoalesce.test_distance_cartesian_symmetry</step>
       </case>
-      <case name="06-distance.py-TestCoalesce.test_distance_haversine_symmetry">
-        <description>tracker:06-distance.py:TestCoalesce.test_distance_haversine_symmetry</description>
-        <step>/usr/share/tracker-tests/06-distance.py TestCoalesce.test_distance_haversine_symmetry</step>
-      </case>
-      <case name="06-distance.py-TestCoalesce.test_distance_cartesian_proportion">
-        <description>tracker:06-distance.py:TestCoalesce.test_distance_cartesian_proportion</description>
-        <step>/usr/share/tracker-tests/06-distance.py TestCoalesce.test_distance_cartesian_proportion</step>
+      <case name="06-distance.py-TestCoalesce.test_distance_different">
+        <description>tracker:06-distance.py:TestCoalesce.test_distance_different</description>
+        <step>/usr/share/tracker-tests/06-distance.py TestCoalesce.test_distance_different</step>
       </case>
       <case name="06-distance.py-TestCoalesce.test_distance_haversine_proportion">
         <description>tracker:06-distance.py:TestCoalesce.test_distance_haversine_proportion</description>
         <step>/usr/share/tracker-tests/06-distance.py TestCoalesce.test_distance_haversine_proportion</step>
       </case>
-      <case name="06-distance.py-TestCoalesce.test_distance_different">
-        <description>tracker:06-distance.py:TestCoalesce.test_distance_different</description>
-        <step>/usr/share/tracker-tests/06-distance.py TestCoalesce.test_distance_different</step>
+      <case name="06-distance.py-TestCoalesce.test_distance_haversine_symmetry">
+        <description>tracker:06-distance.py:TestCoalesce.test_distance_haversine_symmetry</description>
+        <step>/usr/share/tracker-tests/06-distance.py TestCoalesce.test_distance_haversine_symmetry</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_02-metacontacts.py">
+      <description>tracker:02-metacontacts.py</description>
+      <case name="02-metacontacts.py-TestMetacontacts.test_metacontact_merge">
+        <description>tracker:02-metacontacts.py:TestMetacontacts.test_metacontact_merge</description>
+        <step>/usr/share/tracker-tests/02-metacontacts.py TestMetacontacts.test_metacontact_merge</step>
+      </case>
+      <case name="02-metacontacts.py-TestMetacontacts.test_metacontact_usage">
+        <description>tracker:02-metacontacts.py:TestMetacontacts.test_metacontact_usage</description>
+        <step>/usr/share/tracker-tests/02-metacontacts.py TestMetacontacts.test_metacontact_usage</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
@@ -294,6 +264,140 @@
       <case name="07-graph.py-TestFTSFunctions.test_graph_insert_multiple">
         <description>tracker:07-graph.py:TestFTSFunctions.test_graph_insert_multiple</description>
         <step>/usr/share/tracker-tests/07-graph.py TestFTSFunctions.test_graph_insert_multiple</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_04-group-concat.py">
+      <description>tracker:04-group-concat.py</description>
+      <case name="04-group-concat.py-TestGroupConcat.test_group_concat">
+        <description>tracker:04-group-concat.py:TestGroupConcat.test_group_concat</description>
+        <step>/usr/share/tracker-tests/04-group-concat.py TestGroupConcat.test_group_concat</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_03-fts-functions.py">
+      <description>tracker:03-fts-functions.py</description>
+      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_offsets">
+        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_offsets</description>
+        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_offsets</step>
+      </case>
+      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_rank">
+        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_rank</description>
+        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_rank</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_configuration.py">
+      <description>tracker:configuration.py</description>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_01-writeback.py">
+      <description>tracker:01-writeback.py</description>
+      <case name="01-writeback.py-TestInsertion.test_simple_insertion">
+        <description>tracker:01-writeback.py:TestInsertion.test_simple_insertion</description>
+        <step>/usr/share/tracker-tests/01-writeback.py TestInsertion.test_simple_insertion</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_01-insertion.py">
+      <description>tracker:01-insertion.py</description>
+      <case name="01-insertion.py-s_batch_update.test_batch_insert_01">
+        <description>tracker:01-insertion.py:s_batch_update.test_batch_insert_01</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_batch_update.test_batch_insert_01</step>
+      </case>
+      <case name="01-insertion.py-s_delete.test_delete_01">
+        <description>tracker:01-insertion.py:s_delete.test_delete_01</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_delete.test_delete_01</step>
+      </case>
+      <case name="01-insertion.py-s_delete.test_delete_02">
+        <description>tracker:01-insertion.py:s_delete.test_delete_02</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_delete.test_delete_02</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_01">
+        <description>tracker:01-insertion.py:s_insert.test_insert_01</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_01</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_02">
+        <description>tracker:01-insertion.py:s_insert.test_insert_02</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_02</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_03">
+        <description>tracker:01-insertion.py:s_insert.test_insert_03</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_03</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_04">
+        <description>tracker:01-insertion.py:s_insert.test_insert_04</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_04</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_01">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_01</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_01</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_02">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_02</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_02</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_03">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_03</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_03</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_04">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_04</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_04</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_05">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_05</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_05</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_06">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_06</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_06</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_07">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_07</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_07</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_08">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_08</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_08</step>
+      </case>
+      <case name="01-insertion.py-s_insert.test_insert_date_09">
+        <description>tracker:01-insertion.py:s_insert.test_insert_date_09</description>
+        <step>/usr/share/tracker-tests/01-insertion.py s_insert.test_insert_date_09</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_05-coalesce.py">
+      <description>tracker:05-coalesce.py</description>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_first_fine">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_first_fine</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_first_fine</step>
+      </case>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_none_fine_default">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_none_fine_default</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_none_fine_default</step>
+      </case>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_second_fine">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_second_fine</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_second_fine</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
