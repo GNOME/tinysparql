@@ -45,6 +45,23 @@ void     tracker_data_manager_shutdown            (void);
 gint64   tracker_data_manager_get_db_option_int64 (const gchar           *option);
 void     tracker_data_manager_set_db_option_int64 (const gchar           *option,
                                                    gint64                 value);
+void     tracker_data_ontology_load_statement     (const gchar           *ontology_file,
+                                                   gint                   subject_id,
+                                                   const gchar           *subject,
+                                                   const gchar           *predicate,
+                                                   const gchar           *object,
+                                                   gint                  *max_id,
+                                                   gboolean               is_new,
+                                                   GHashTable            *classes,
+                                                   GHashTable            *properties);
+void     tracker_data_ontology_import_into_db     (gboolean               is_new);
+void     tracker_data_ontology_process_statement  (const gchar           *graph,
+                                                   const gchar           *subject,
+                                                   const gchar           *predicate,
+                                                   const gchar           *object,
+                                                   gboolean               is_uri,
+                                                   gboolean               is_new,
+                                                   gboolean               ignore_nao_last_modified);
 
 G_END_DECLS
 

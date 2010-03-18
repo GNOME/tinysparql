@@ -73,16 +73,16 @@ static gchar              *ontologies_dir;
 static gboolean            initialized;
 static gboolean            in_journal_replay;
 
-static void
-load_ontology_statement (const gchar *ontology_file,
-                         gint         subject_id,
-                         const gchar *subject,
-                         const gchar *predicate,
-                         const gchar *object,
-                         gint        *max_id,
-                         gboolean    is_new,
-                         GHashTable *classes,
-                         GHashTable *properties)
+void
+tracker_data_ontology_load_statement (const gchar *ontology_file,
+                                      gint         subject_id,
+                                      const gchar *subject,
+                                      const gchar *predicate,
+                                      const gchar *object,
+                                      gint        *max_id,
+                                      gboolean    is_new,
+                                      GHashTable *classes,
+                                      GHashTable *properties)
 {
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -406,8 +406,8 @@ load_ontology_file_from_path (const gchar        *ontology_file,
 		predicate = tracker_turtle_reader_get_predicate (reader);
 		object = tracker_turtle_reader_get_object (reader);
 
-		load_ontology_statement (ontology_file, 0, subject, predicate, object,
-		                         max_id, is_new, NULL, NULL);
+		tracker_data_ontology_load_statement (ontology_file, 0, subject, predicate, object,
+		                                      max_id, is_new, NULL, NULL);
 	}
 
 	g_object_unref (reader);
@@ -553,8 +553,8 @@ load_ontology_from_journal (GHashTable **classes_out,
 			subject = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (subject_id));
 			predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
 
-			load_ontology_statement ("journal", subject_id, subject, predicate, 
-			                         object, NULL, FALSE, classes, properties);
+			tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate, 
+			                                      object, NULL, FALSE, classes, properties);
 		}
 	}
 
@@ -564,6 +564,119 @@ load_ontology_from_journal (GHashTable **classes_out,
 	g_hash_table_unref (id_uri_map);
 }
 
+void
+tracker_data_ontology_process_statement (const gchar *graph,
+                                         const gchar *subject,
+                                         const gchar *predicate,
+                                         const gchar *object,
+                                         gboolean     is_uri,
+                                         gboolean     is_new,
+                                         gboolean     ignore_nao_last_modified)
+{
+	GError *error = NULL;
+
+	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
+		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
+			TrackerClass *class;
+
+			class = tracker_ontologies_get_class_by_uri (subject);
+
+			if (class && tracker_class_get_is_new (class) != is_new) {
+				return;
+			}
+		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
+			TrackerProperty *prop;
+
+			prop = tracker_ontologies_get_property_by_uri (subject);
+
+			if (prop && tracker_property_get_is_new (prop) != is_new) {
+				return;
+			}
+		} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
+			TrackerNamespace *namespace;
+
+			namespace = tracker_ontologies_get_namespace_by_uri (subject);
+
+			if (namespace && tracker_namespace_get_is_new (namespace) != is_new) {
+				return;
+			}
+		} else if (g_strcmp0 (object, TRACKER_PREFIX "Ontology") == 0) {
+			TrackerOntology *ontology;
+
+			ontology = tracker_ontologies_get_ontology_by_uri (subject);
+
+			if (ontology && tracker_ontology_get_is_new (ontology) != is_new) {
+				return;
+			}
+		}
+	} else if (g_strcmp0 (predicate, RDFS_SUB_CLASS_OF) == 0) {
+		TrackerClass *class;
+
+		class = tracker_ontologies_get_class_by_uri (subject);
+
+		if (class && tracker_class_get_is_new (class) != is_new) {
+			return;
+		}
+	} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0          ||
+	           g_strcmp0 (predicate, RDFS_DOMAIN) == 0                   ||
+	           g_strcmp0 (predicate, RDFS_RANGE) == 0                    ||
+	           g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0           ||
+	           g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0      ||
+	           g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0    ||
+	           g_strcmp0 (predicate, TRACKER_PREFIX "isAnnotation") == 0 ||
+	           g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
+		TrackerProperty *prop;
+
+		prop = tracker_ontologies_get_property_by_uri (subject);
+
+		if (prop && tracker_property_get_is_new (prop) != is_new) {
+			return;
+		}
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
+		TrackerNamespace *namespace;
+
+		namespace = tracker_ontologies_get_namespace_by_uri (subject);
+
+		if (namespace && tracker_namespace_get_is_new (namespace) != is_new) {
+			return;
+		}
+	} else if (g_strcmp0 (predicate, NAO_LAST_MODIFIED) == 0) {
+		TrackerOntology *ontology;
+
+		ontology = tracker_ontologies_get_ontology_by_uri (subject);
+
+		if (ontology && tracker_ontology_get_is_new (ontology) != is_new) {
+			return;
+		}
+
+		if (ignore_nao_last_modified) {
+			return;
+		}
+	}
+
+	if (is_uri) {
+		tracker_data_insert_statement_with_uri (graph, subject,
+												predicate, object,
+												&error);
+
+		if (error != NULL) {
+			g_critical ("%s", error->message);
+			g_error_free (error);
+			return;
+		}
+
+	} else {
+		tracker_data_insert_statement_with_string (graph, subject,
+												   predicate, object,
+												   &error);
+
+		if (error != NULL) {
+			g_critical ("%s", error->message);
+			g_error_free (error);
+			return;
+		}
+	}
+}
 
 static void
 load_turtle_file (const gchar* path,
@@ -588,107 +701,10 @@ load_turtle_file (const gchar* path,
 		const gchar *predicate = tracker_turtle_reader_get_predicate (reader);
 		const gchar *object  = tracker_turtle_reader_get_object (reader);
 
-		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
-			if (g_strcmp0 (object, RDFS_CLASS) == 0) {
-				TrackerClass *class;
+		tracker_data_ontology_process_statement (graph, subject, predicate, object,
+		                                         tracker_turtle_reader_get_object_is_uri (reader),
+		                                         is_new, ignore_nao_last_modified);
 
-				class = tracker_ontologies_get_class_by_uri (subject);
-
-				if (class && tracker_class_get_is_new (class) != is_new) {
-					continue;
-				}
-			} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
-				TrackerProperty *prop;
-
-				prop = tracker_ontologies_get_property_by_uri (subject);
-
-				if (prop && tracker_property_get_is_new (prop) != is_new) {
-					continue;
-				}
-			} else if (g_strcmp0 (object, TRACKER_PREFIX "Namespace") == 0) {
-				TrackerNamespace *namespace;
-
-				namespace = tracker_ontologies_get_namespace_by_uri (subject);
-
-				if (namespace && tracker_namespace_get_is_new (namespace) != is_new) {
-					continue;
-				}
-			} else if (g_strcmp0 (object, TRACKER_PREFIX "Ontology") == 0) {
-				TrackerOntology *ontology;
-
-				ontology = tracker_ontologies_get_ontology_by_uri (subject);
-
-				if (ontology && tracker_ontology_get_is_new (ontology) != is_new) {
-					continue;
-				}
-			}
-		} else if (g_strcmp0 (predicate, RDFS_SUB_CLASS_OF) == 0) {
-			TrackerClass *class;
-
-			class = tracker_ontologies_get_class_by_uri (subject);
-
-			if (class && tracker_class_get_is_new (class) != is_new) {
-				continue;
-			}
-		} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0          ||
-		           g_strcmp0 (predicate, RDFS_DOMAIN) == 0                   ||
-		           g_strcmp0 (predicate, RDFS_RANGE) == 0                    ||
-		           g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0           ||
-		           g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0      ||
-		           g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0    ||
-		           g_strcmp0 (predicate, TRACKER_PREFIX "isAnnotation") == 0 ||
-		           g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
-			TrackerProperty *prop;
-
-			prop = tracker_ontologies_get_property_by_uri (subject);
-
-			if (prop && tracker_property_get_is_new (prop) != is_new) {
-				continue;
-			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
-			TrackerNamespace *namespace;
-
-			namespace = tracker_ontologies_get_namespace_by_uri (subject);
-
-			if (namespace && tracker_namespace_get_is_new (namespace) != is_new) {
-				continue;
-			}
-		} else if (g_strcmp0 (predicate, NAO_LAST_MODIFIED) == 0) {
-			TrackerOntology *ontology;
-
-			ontology = tracker_ontologies_get_ontology_by_uri (subject);
-
-			if (ontology && tracker_ontology_get_is_new (ontology) != is_new) {
-				continue;
-			}
-
-			if (ignore_nao_last_modified) {
-				continue;
-			}
-		}
-
-		if (tracker_turtle_reader_get_object_is_uri (reader)) {
-			tracker_data_insert_statement_with_uri (graph, subject,
-			                                        predicate, object,
-			                                        &error);
-
-			if (error != NULL) {
-				g_critical ("%s", error->message);
-				g_error_free (error);
-				return;
-			}
-
-		} else {
-			tracker_data_insert_statement_with_string (graph, subject,
-			                                           predicate, object,
-			                                           &error);
-
-			if (error != NULL) {
-				g_critical ("%s", error->message);
-				g_error_free (error);
-				return;
-			}
-		}
 	}
 
 	g_object_unref (reader);
@@ -1330,8 +1346,8 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 	}
 }
 
-static void
-import_ontology_into_db (gboolean is_new)
+void
+tracker_data_ontology_import_into_db (gboolean is_new)
 {
 	TrackerDBInterface *iface;
 
@@ -1350,20 +1366,22 @@ import_ontology_into_db (gboolean is_new)
 		create_decomposed_metadata_tables (iface, classes[i], is_new);
 	}
 
-	/* insert classes into rdfs:Resource table */
+	/* insert classes into rdfs:Resource table and set all classes to not new */
 	for (i = 0; i < n_classes; i++) {
 		if (tracker_class_get_is_new (classes[i]) == is_new) {
 			insert_uri_in_resource_table (iface, tracker_class_get_uri (classes[i]),
 			                              tracker_class_get_id (classes[i]));
 		}
+		tracker_class_set_is_new (classes[i], FALSE);
 	}
 
-	/* insert properties into rdfs:Resource table */
+	/* insert properties into rdfs:Resource table and set all properties to not new */
 	for (i = 0; i < n_props; i++) {
 		if (tracker_property_get_is_new (properties[i]) == is_new) {
 			insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
 			                              tracker_property_get_id (properties[i]));
 		}
+		tracker_property_set_is_new (properties[i], FALSE);
 	}
 }
 
@@ -1507,7 +1525,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
 		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
-		import_ontology_into_db (FALSE);
+		tracker_data_ontology_import_into_db (FALSE);
 		tracker_data_commit_db_transaction ();
 
 		tracker_db_journal_reader_shutdown ();
@@ -1518,6 +1536,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* open journal for writing */
 		tracker_db_journal_init (NULL, FALSE);
+
 		check_ontology = TRUE;
 
 		g_hash_table_unref (classes);
@@ -1547,10 +1566,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		}
 
 		tracker_data_begin_db_transaction ();
+		/* Not an ontology transaction: this is the first ontology */
 		tracker_db_journal_start_transaction (time (NULL));
 
 		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
-		import_ontology_into_db (FALSE);
+		tracker_data_ontology_import_into_db (FALSE);
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
@@ -1586,6 +1606,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* check ontology against database */
 		tracker_data_begin_db_transaction ();
+		/* This _is_ an ontology transaction, it represents a change to the ontology */
+		tracker_db_journal_start_ontology_transaction (time (NULL));
 
 		stmt = tracker_db_interface_create_statement (iface,
 		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\""
@@ -1672,7 +1694,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		}
 
 		if (to_reload) {
-			import_ontology_into_db (TRUE);
+			tracker_data_ontology_import_into_db (TRUE);
 			for (l = to_reload; l; l = l->next) {
 				const gchar *ontology_file = l->data;
 				import_ontology_file (ontology_file, TRUE, test_schema != NULL);
@@ -1680,6 +1702,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			g_list_free (to_reload);
 		}
 
+		tracker_db_journal_commit_db_transaction ();
 		tracker_data_commit_db_transaction ();
 
 		g_hash_table_unref (ontos_table);
