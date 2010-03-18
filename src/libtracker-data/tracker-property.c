@@ -56,7 +56,6 @@ struct _TrackerPropertyPriv {
 	gboolean       fulltext_no_limit;
 	gboolean       embedded;
 	gboolean       multiple_values;
-	gboolean       filtered;
 	gboolean       transient;
 	gboolean       is_inverse_functional_property;
 	gboolean       is_new;
@@ -88,7 +87,6 @@ enum {
 	PROP_FULLTEXT_NO_LIMIT,
 	PROP_EMBEDDED,
 	PROP_MULTIPLE_VALUES,
-	PROP_FILTERED,
 	PROP_TRANSIENT,
 	PROP_IS_INVERSE_FUNCTIONAL_PROPERTY,
 	PROP_ID,
@@ -261,13 +259,6 @@ tracker_property_class_init (TrackerPropertyClass *klass)
 	                                                       TRUE,
 	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-	                                 PROP_FILTERED,
-	                                 g_param_spec_boolean ("filtered",
-	                                                       "filtered",
-	                                                       "Filtered",
-	                                                       TRUE,
-	                                                       G_PARAM_READWRITE));
-	g_object_class_install_property (object_class,
 	                                 PROP_TRANSIENT,
 	                                 g_param_spec_boolean ("transient",
 	                                                       "transient",
@@ -303,7 +294,6 @@ tracker_property_init (TrackerProperty *field)
 	priv->id = 0;
 	priv->weight = 1;
 	priv->embedded = TRUE;
-	priv->filtered = TRUE;
 	priv->transient = FALSE;
 	priv->multiple_values = TRUE;
 	priv->super_properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
@@ -386,9 +376,6 @@ property_get_property (GObject    *object,
 	case PROP_MULTIPLE_VALUES:
 		g_value_set_boolean (value, priv->multiple_values);
 		break;
-	case PROP_FILTERED:
-		g_value_set_boolean (value, priv->filtered);
-		break;
 	case PROP_TRANSIENT:
 		g_value_set_boolean (value, priv->transient);
 		break;
@@ -455,10 +442,6 @@ property_set_property (GObject      *object,
 	case PROP_MULTIPLE_VALUES:
 		tracker_property_set_multiple_values (TRACKER_PROPERTY (object),
 		                                      g_value_get_boolean (value));
-		break;
-	case PROP_FILTERED:
-		tracker_property_set_filtered (TRACKER_PROPERTY (object),
-		                               g_value_get_boolean (value));
 		break;
 	case PROP_TRANSIENT:
 		tracker_property_set_transient (TRACKER_PROPERTY (object),
@@ -704,18 +687,6 @@ tracker_property_get_multiple_values (TrackerProperty *field)
 	priv = GET_PRIV (field);
 
 	return priv->multiple_values;
-}
-
-gboolean
-tracker_property_get_filtered (TrackerProperty *field)
-{
-	TrackerPropertyPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
-
-	priv = GET_PRIV (field);
-
-	return priv->filtered;
 }
 
 gboolean
@@ -992,20 +963,6 @@ tracker_property_set_multiple_values (TrackerProperty *field,
 	}
 
 	g_object_notify (G_OBJECT (field), "multiple-values");
-}
-
-void
-tracker_property_set_filtered (TrackerProperty *field,
-                               gboolean                 value)
-{
-	TrackerPropertyPriv *priv;
-
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
-
-	priv = GET_PRIV (field);
-
-	priv->filtered = value;
-	g_object_notify (G_OBJECT (field), "filtered");
 }
 
 void
