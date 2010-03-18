@@ -73,6 +73,26 @@ const TestInfo nmo_tests[] = {
 };
 
 static void
+test_ontology_init (void)
+{
+	/* first-time initialization */
+	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           NULL,
+	                           NULL,
+	                           FALSE);
+
+	tracker_data_manager_shutdown ();
+
+	/* initialization from existing database */
+	tracker_data_manager_init (0,
+	                           NULL,
+	                           NULL,
+	                           FALSE);
+
+	tracker_data_manager_shutdown ();
+}
+
+static void
 test_query (gconstpointer test_data)
 {
 	TrackerDBResultSet *result_set;
@@ -225,6 +245,8 @@ main (int argc, char **argv)
 	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
 
 	/* add test cases */
+
+	g_test_add_func ("/libtracker-data/ontology-init", test_ontology_init);
 
 	for (i = 0; nie_tests[i].test_name; i++) {
 		gchar *testpath;
