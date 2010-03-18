@@ -44,7 +44,9 @@ tracker_crawler_LDADD = 							\
 
 tracker_thumbnailer_test_SOURCES = 						\
 	tracker-thumbnailer-test.c						\
+	thumbnailer-mock.h							\
 	thumbnailer-mock.c							\
+	empty-gobject.h								\
 	empty-gobject.c
 
 tracker_thumbnailer_test_LDADD = 						\
@@ -62,7 +64,10 @@ tracker_miner_manager_VALASOURCES =						\
 tracker_miner_manager_SOURCES = 						\
 	tracker-miner-manager-test.c						\
 	miners-mock.c								\
+	miners-mock.h								\
 	$(tracker_miner_manager_VALASOURCES:.vala=.c)				\
+	$(tracker_miner_manager_VALASOURCES:.vala=.h)				\
+	empty-gobject.h								\
 	empty-gobject.c
 
 tracker_miner_manager_LDADD = 							\
