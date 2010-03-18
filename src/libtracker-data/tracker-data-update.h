@@ -95,13 +95,6 @@ void     tracker_data_sync                          (void);
 void     tracker_data_replay_journal                (GHashTable                *classes,
                                                      GHashTable                *properties);
 
-/* Volume handling */
-void     tracker_data_update_enable_volume          (const gchar               *udi,
-                                                     const gchar               *mount_path);
-void     tracker_data_update_disable_volume         (const gchar               *udi);
-void     tracker_data_update_disable_all_volumes    (void);
-void     tracker_data_update_reset_volume           (const gchar               *uri);
-
 /* Calling back */
 void     tracker_data_add_insert_statement_callback   (TrackerStatementCallback   callback,
                                                        gpointer                   user_data);
