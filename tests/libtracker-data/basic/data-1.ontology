@@ -1,0 +1,34 @@
+@prefix ns: <http://example.org/ns#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix x:  <http://example.org/x/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix z:  <http://example.org/x/#> .
+
+ns: a tracker:Namespace ;
+	tracker:prefix "ns" .
+
+x: a tracker:Namespace ;
+	tracker:prefix "x" .
+
+z: a tracker:Namespace ;
+	tracker:prefix "z" .
+
+x:A a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+z:A a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+ns:p a rdf:Property ;
+	rdfs:domain x:A ;
+	rdfs:range xsd:string .
+
+x:p a rdf:Property ;
+	rdfs:domain x:A ;
+	rdfs:range xsd:string .
+
+z:p a rdf:Property ;
+	rdfs:domain z:A ;
+	rdfs:range xsd:string .

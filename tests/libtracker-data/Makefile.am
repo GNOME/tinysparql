@@ -4,6 +4,7 @@ SUBDIRS = 			\
 	aggregates		\
 	algebra			\
 	anon			\
+	basic			\
 	bnode-coreference	\
 	bound 			\
 	datetime		\
