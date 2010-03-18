@@ -158,6 +158,7 @@ LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
 ID3LIB_REQUIRED=3.8.3
 GNOME_KEYRING_REQUIRED=2.26
+LIBGRSS_REQUIRED=0.3
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -809,6 +810,43 @@ AC_ARG_ENABLE([kmail_miner],
               [enable_kmail_miner=yes])
 
 AM_CONDITIONAL(USING_KMAIL_MINER, test "x$enable_kmail_miner" = "xyes")
+
+##################################################################
+# Miner RSS
+##################################################################
+
+AC_ARG_ENABLE([miner_rss],
+              AS_HELP_STRING([--enable-miner-rss],
+                             [enable miner rss [[default=auto]]]),,
+              [enable_miner_rss=auto])
+
+if test "x$enable_miner_rss" != "xno" ; then
+   PKG_CHECK_MODULES(LIBGRSS,
+                     [libgrss-0 >= $LIBGRSS_REQUIRED],
+                     [have_libgrss=yes],
+                     [have_libgrss=no])
+
+   AC_SUBST(LIBGRSS_CFLAGS)
+   AC_SUBST(LIBGRSS_LIBS)
+
+   if test "x$enable_miner_rss" = "xauto"; then
+      if  test "x$have_libgrss" = "xyes"; then
+          enable_miner_rss="yes"
+      else
+        enable_miner_rss="no"
+      fi
+   fi
+
+   if test "x$enable_miner_rss" = "xyes"; then
+      if test "x$have_libgrss" != "xyes"; then
+         AC_MSG_ERROR([Couldn't find libgrss >= $LIBGRSS_REQUIRED. and miner rss requested])
+      fi
+   fi
+else
+   enable_miner_rss="no  (disabled)"
+fi
+
+AM_CONDITIONAL(USING_MINER_RSS, test "x$enable_miner_rss" = "xyes")
 
 ####################################################################
 # Deskbar Applet Handler/Module
@@ -1678,6 +1716,7 @@ AC_CONFIG_FILES([
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
 	src/tracker-miner-fs/Makefile
+	src/tracker-miner-rss/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-bar/Makefile
@@ -1797,6 +1836,7 @@ Plugins/Extensions:
 	Nautilus            (tagging widget)    $have_nautilus_extension
 	Evolution plugin    (data-push):	$enable_evolution_miner
 	KMail plugin        (data-push):	$enable_kmail_miner
+	Miner RSS:          (data-push):	$enable_miner_rss
 
 Writeback:
 

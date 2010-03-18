@@ -15,16 +15,30 @@ tracker-miner-fs.desktop.in: tracker-miner-fs.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" 	\
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
+if USING_MINER_RSS
+tracker-miner-rss.desktop.in: tracker-miner-rss.desktop.in.in
+	@$(SED) -e "s|@libexecdir[@]|${libexecdir}|" 	\
+	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
+endif
+
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_in_in_files = 				\
 	tracker-status-icon.desktop.in.in		\
 	tracker-store.desktop.in.in			\
 	tracker-miner-fs.desktop.in.in
 
+if USING_MINER_RSS
+autostart_in_in_files += tracker-miner-rss.desktop.in.in
+endif
+
 autostart_in_files = 					\
 	tracker-status-icon.desktop.in			\
 	tracker-store.desktop.in			\
 	tracker-miner-fs.desktop.in
+
+if USING_MINER_RSS
+autostart_in_files += tracker-miner-rss.desktop.in
+endif
 
 autostart_DATA = 					\
 	tracker-store.desktop				\
@@ -32,6 +46,10 @@ autostart_DATA = 					\
 
 if HAVE_TRACKER_STATUS_ICON
 autostart_DATA += tracker-status-icon.desktop
+endif
+
+if USING_MINER_RSS
+autostart_DATA += tracker-miner-rss.desktop
 endif
 
 @INTLTOOL_DESKTOP_RULE@
