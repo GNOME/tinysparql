@@ -5,7 +5,8 @@ noinst_PROGRAMS = $(TEST_PROGS)
 TEST_PROGS += 								\
 	tracker-dbus 							\
 	tracker-type-utils 						\
-	tracker-file-utils
+	tracker-file-utils						\
+	tracker-utils
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
@@ -53,6 +54,17 @@ tracker_file_utils_LDADD =						\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GIO_LIBS)							\
+	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)
+
+tracker_utils_SOURCES = 						\
+	tracker-utils-test.c
+
+tracker_utils_LDADD =							\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(DBUS_LIBS)							\
+	$(GMODULE_LIBS)							\
+	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GCOV_LIBS)
 
