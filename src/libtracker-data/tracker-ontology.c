@@ -39,21 +39,6 @@ struct _TrackerOntologyPrivate {
 };
 
 static void ontology_finalize     (GObject      *object);
-static void ontology_get_property (GObject      *object,
-                                   guint         param_id,
-                                   GValue       *value,
-                                   GParamSpec   *pspec);
-static void ontology_set_property (GObject      *object,
-                                   guint         param_id,
-                                   const GValue *value,
-                                   GParamSpec   *pspec);
-
-enum {
-	PROP_0,
-	PROP_URI,
-	PROP_LAST_MODIFIED,
-	PROP_IS_NEW
-};
 
 G_DEFINE_TYPE (TrackerOntology, tracker_ontology, G_TYPE_OBJECT);
 
@@ -63,32 +48,6 @@ tracker_ontology_class_init (TrackerOntologyClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize     = ontology_finalize;
-	object_class->get_property = ontology_get_property;
-	object_class->set_property = ontology_set_property;
-
-	g_object_class_install_property (object_class,
-	                                 PROP_URI,
-	                                 g_param_spec_string ("uri",
-	                                                      "uri",
-	                                                      "URI",
-	                                                      NULL,
-	                                                      G_PARAM_READWRITE));
-	g_object_class_install_property (object_class,
-	                                 PROP_LAST_MODIFIED,
-	                                 g_param_spec_int64  ("last-modified",
-	                                                      "last-modified",
-	                                                      "Last modified",
-	                                                      G_MININT64,
-	                                                      G_MAXINT64,
-	                                                      0,
-	                                                      G_PARAM_READWRITE));
-	g_object_class_install_property (object_class,
-	                                 PROP_IS_NEW,
-	                                 g_param_spec_boolean ("is-new",
-	                                                       "is-new",
-	                                                       "Set to TRUE when a new class or property is to be added to the database ontology",
-	                                                       FALSE,
-	                                                       G_PARAM_READWRITE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerOntologyPrivate));
 }
@@ -108,61 +67,6 @@ ontology_finalize (GObject *object)
 	g_free (priv->uri);
 
 	(G_OBJECT_CLASS (tracker_ontology_parent_class)->finalize) (object);
-}
-
-static void
-ontology_get_property (GObject    *object,
-                       guint       param_id,
-                       GValue     *value,
-                       GParamSpec *pspec)
-{
-	TrackerOntologyPrivate *priv;
-
-	priv = GET_PRIV (object);
-
-	switch (param_id) {
-	case PROP_URI:
-		g_value_set_string (value, priv->uri);
-		break;
-	case PROP_LAST_MODIFIED:
-		g_value_set_int64 (value, priv->last_modified);
-		break;
-	case PROP_IS_NEW:
-		g_value_set_boolean (value, priv->is_new);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
-		break;
-	};
-}
-
-static void
-ontology_set_property (GObject      *object,
-                       guint         param_id,
-                       const GValue *value,
-                       GParamSpec   *pspec)
-{
-	TrackerOntologyPrivate *priv;
-
-	priv = GET_PRIV (object);
-
-	switch (param_id) {
-	case PROP_URI:
-		tracker_ontology_set_uri (TRACKER_ONTOLOGY (object),
-		                          g_value_get_string (value));
-		break;
-	case PROP_LAST_MODIFIED:
-		tracker_ontology_set_last_modified (TRACKER_ONTOLOGY (object),
-		                                    g_value_get_int64 (value));
-		break;
-	case PROP_IS_NEW:
-		tracker_ontology_set_is_new (TRACKER_ONTOLOGY (object),
-		                             g_value_get_boolean (value));
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
-		break;
-	};
 }
 
 TrackerOntology *
@@ -211,8 +115,6 @@ tracker_ontology_set_last_modified (TrackerOntology *ontology,
 	priv = GET_PRIV (ontology);
 
 	priv->last_modified = value;
-
-	g_object_notify (G_OBJECT (ontology), "last-modified");
 }
 
 
@@ -246,8 +148,6 @@ tracker_ontology_set_uri (TrackerOntology *ontology,
 	} else {
 		priv->uri = NULL;
 	}
-
-	g_object_notify (G_OBJECT (ontology), "uri");
 }
 
 void
@@ -261,5 +161,4 @@ tracker_ontology_set_is_new (TrackerOntology *ontology,
 	priv = GET_PRIV (ontology);
 
 	priv->is_new = value;
-	g_object_notify (G_OBJECT (ontology), "is-new");
 }
