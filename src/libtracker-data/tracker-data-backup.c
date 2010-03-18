@@ -171,6 +171,6 @@ tracker_data_backup_restore (GFile *journal,
 		             "Backup file doesn't exist");
 	}
 
-	g_idle_add (on_restore_done, info);
+	on_restore_done (info);
 }
 
