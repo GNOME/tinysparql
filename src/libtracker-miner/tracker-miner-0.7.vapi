@@ -55,7 +55,6 @@ namespace Tracker {
 		public void set_throttle (double throttle);
 		public signal void finished (double elapsed, uint directories_found, uint directories_ignored, uint files_found, uint files_ignored);
 	}
-	[Compact]
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner-manager.h")]
 	public class MinerManager {
 		[CCode (has_construct_function = false)]
