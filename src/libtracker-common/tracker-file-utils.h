@@ -42,10 +42,8 @@ gchar *  tracker_file_get_mime_type                (GFile        *file);
 gboolean tracker_file_system_has_enough_space      (const gchar  *path,
                                                     gulong        required_bytes,
                                                     gboolean      creating_db);
-void     tracker_path_remove                       (const gchar  *uri);
 gboolean tracker_path_is_in_path                   (const gchar  *path,
                                                     const gchar  *in_path);
-void     tracker_path_hash_table_filter_duplicates (GHashTable   *roots);
 GSList * tracker_path_list_filter_duplicates       (GSList       *roots,
                                                     const gchar  *basename_exception_prefix,
                                                     gboolean      is_recursive);

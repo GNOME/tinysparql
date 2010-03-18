@@ -227,53 +227,6 @@ tracker_file_system_has_enough_space (const gchar *path,
 	return enough;
 }
 
-void
-tracker_path_remove (const gchar *path)
-{
-	GQueue *dirs;
-	GSList *dirs_to_remove = NULL;
-
-	g_return_if_fail (path != NULL);
-
-	dirs = g_queue_new ();
-
-	g_queue_push_tail (dirs, g_strdup (path));
-
-	while (!g_queue_is_empty (dirs)) {
-		GDir  *p;
-		gchar *dir;
-
-		dir = g_queue_pop_head (dirs);
-		dirs_to_remove = g_slist_prepend (dirs_to_remove, dir);
-
-		if ((p = g_dir_open (dir, 0, NULL))) {
-			const gchar *file;
-
-			while ((file = g_dir_read_name (p))) {
-				gchar *full_filename;
-
-				full_filename = g_build_filename (dir, file, NULL);
-
-				if (g_file_test (full_filename, G_FILE_TEST_IS_DIR)) {
-					g_queue_push_tail (dirs, full_filename);
-				} else {
-					g_unlink (full_filename);
-					g_free (full_filename);
-				}
-			}
-
-			g_dir_close (p);
-		}
-	}
-
-	g_queue_free (dirs);
-
-	/* Remove directories (now they are empty) */
-	g_slist_foreach (dirs_to_remove, (GFunc) g_remove, NULL);
-	g_slist_foreach (dirs_to_remove, (GFunc) g_free, NULL);
-	g_slist_free (dirs_to_remove);
-}
-
 gboolean
 tracker_path_is_in_path (const gchar *path,
                          const gchar *in_path)
@@ -305,73 +258,6 @@ tracker_path_is_in_path (const gchar *path,
 	g_free (new_path);
 
 	return is_in_path;
-}
-
-void
-tracker_path_hash_table_filter_duplicates (GHashTable *roots)
-{
-	GHashTableIter iter1, iter2;
-	gpointer       key;
-
-	g_hash_table_iter_init (&iter1, roots);
-	while (g_hash_table_iter_next (&iter1, &key, NULL)) {
-		const gchar *path;
-		gchar       *p;
-
-		path = key;
-
-		g_hash_table_iter_init (&iter2, roots);
-		while (g_hash_table_iter_next (&iter2, &key, NULL)) {
-			const gchar *in_path;
-
-			in_path = key;
-
-			if (path == in_path) {
-				continue;
-			}
-
-			if (tracker_path_is_in_path (path, in_path)) {
-				g_debug ("Removing path:'%s', it is in path:'%s'",
-				         path, in_path);
-
-				g_hash_table_iter_remove (&iter1);
-				g_hash_table_iter_init (&iter1, roots);
-				break;
-			} else if (tracker_path_is_in_path (in_path, path)) {
-				g_debug ("Removing path:'%s', it is in path:'%s'",
-				         in_path, path);
-
-				g_hash_table_iter_remove (&iter2);
-				g_hash_table_iter_init (&iter1, roots);
-				break;
-			}
-		}
-
-		/* Make sure the path doesn't have the '/' suffix. */
-		p = strrchr (path, G_DIR_SEPARATOR);
-
-		if (p) {
-			if (*(p + 1) == '\0') {
-				*p = '\0';
-			}
-		}
-	}
-
-#ifdef TESTING
-	g_debug ("Hash table paths were filtered down to:");
-
-	if (TRUE) {
-		GList *keys, *l;
-
-		keys = g_hash_table_get_keys (roots);
-
-		for (l = keys; l; l = l->next) {
-			g_debug ("  %s", (gchar*) l->data);
-		}
-
-		g_list_free (keys);
-	}
-#endif /* TESTING */
 }
 
 GSList *
