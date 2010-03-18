@@ -154,7 +154,7 @@ tracker_data_backup_restore (GFile *journal,
 		             &info->error);
 
 		tracker_db_manager_init_locations ();
-		tracker_db_journal_init (NULL);
+		tracker_db_journal_init (NULL, FALSE);
 
 		if (info->error) {
 			tracker_db_manager_restore_from_temp ();

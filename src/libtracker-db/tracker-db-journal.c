@@ -193,7 +193,7 @@ tracker_db_journal_error_quark (void)
 }
 
 gboolean
-tracker_db_journal_init (const gchar *filename)
+tracker_db_journal_init (const gchar *filename, gboolean truncate)
 {
 	gchar *directory;
 	struct stat st;
@@ -238,6 +238,14 @@ tracker_db_journal_init (const gchar *filename)
 
 	mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 	flags = O_WRONLY | O_APPEND | O_CREAT;
+	if (truncate) {
+		/* existing journal contents are invalid: reindex where journal
+		 * does not even contain a single valid entry
+		 *
+		 * or should be ignored: only for test cases
+		 */
+		flags |= O_TRUNC;
+	}
 	writer.journal = g_open (writer.journal_filename, flags, mode);
 
 	if (writer.journal == -1) {

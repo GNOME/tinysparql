@@ -2675,7 +2675,7 @@ tracker_data_replay_journal (GHashTable *classes,
 		size = tracker_db_journal_reader_get_size_of_correct ();
 		tracker_db_journal_reader_shutdown ();
 
-		tracker_db_journal_init (NULL);
+		tracker_db_journal_init (NULL, FALSE);
 		tracker_db_journal_truncate (size);
 		tracker_db_journal_shutdown ();
 

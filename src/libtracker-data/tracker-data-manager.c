@@ -1529,7 +1529,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		in_journal_replay = FALSE;
 
 		/* open journal for writing */
-		tracker_db_journal_init (NULL);
+		tracker_db_journal_init (NULL, FALSE);
 		check_ontology = TRUE;
 
 		g_hash_table_unref (classes);
@@ -1539,7 +1539,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		sorted = get_ontologies (test_schema != NULL, ontologies_dir);
 
-		tracker_db_journal_init (NULL);
+		/* truncate journal as it does not even contain a single valid transaction
+		 * or is explicitly ignored (journal_check == FALSE, only for test cases) */
+		tracker_db_journal_init (NULL, TRUE);
 
 		/* load ontology from files into memory (max_id starts at zero: first-time) */
 
@@ -1578,7 +1580,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		sorted = NULL;
 		check_ontology = FALSE;
 	} else {
-		tracker_db_journal_init (NULL);
+		tracker_db_journal_init (NULL, FALSE);
 
 		/* load ontology from database into memory */
 		db_get_static_data (iface);

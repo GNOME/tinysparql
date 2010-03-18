@@ -46,7 +46,8 @@ GQuark       tracker_db_journal_error_quark                  (void);
 /*
  * Writer API
  */
-gboolean     tracker_db_journal_init                         (const gchar *filename);
+gboolean     tracker_db_journal_init                         (const gchar *filename,
+                                                              gboolean     truncate);
 gboolean     tracker_db_journal_shutdown                     (void);
 
 const gchar* tracker_db_journal_get_filename                 (void);
