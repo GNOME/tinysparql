@@ -104,6 +104,18 @@ process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 
 	i = 0;
 
+	/* There is no logical structure in turtle files, so we have no choice
+	 * but fallback to fixed number of statements per transaction to avoid
+	 * blocking tracker-store.
+	 * Real applications should all use SPARQL update instead of turtle
+	 * import to avoid this issue.
+	 */
+	tracker_data_begin_transaction (&new_error);
+	if (new_error) {
+		g_propagate_error (error, new_error);
+		return FALSE;
+	}
+
 	while (new_error == NULL && tracker_turtle_reader_next (reader, &new_error)) {
 		/* insert statement */
 		if (tracker_turtle_reader_get_object_is_uri (reader)) {
@@ -130,7 +142,16 @@ process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 	}
 
 	if (new_error) {
+		tracker_data_rollback_transaction ();
 		g_propagate_error (error, new_error);
+		return FALSE;
+	}
+
+	tracker_data_commit_transaction (&new_error);
+	if (new_error) {
+		tracker_data_rollback_transaction ();
+		g_propagate_error (error, new_error);
+		return FALSE;
 	}
 
 	return FALSE;
