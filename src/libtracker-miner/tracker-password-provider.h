@@ -24,9 +24,9 @@
 
 G_BEGIN_DECLS
 
-#define TRACKER_TYPE_PASSWORD_PROVIDER         (tracker_password_provider_get_type())
-#define TRACKER_PASSWORD_PROVIDER(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_PASSWORD_PROVIDER, TrackerPasswordProvider))
-#define TRACKER_IS_PASSWORD_PROVIDER(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_PASSWORD_PROVIDER))
+#define TRACKER_TYPE_PASSWORD_PROVIDER             (tracker_password_provider_get_type())
+#define TRACKER_PASSWORD_PROVIDER(o)               (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_PASSWORD_PROVIDER, TrackerPasswordProvider))
+#define TRACKER_IS_PASSWORD_PROVIDER(o)            (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_PASSWORD_PROVIDER))
 #define TRACKER_PASSWORD_PROVIDER_GET_INTERFACE(o) (G_TYPE_INSTANCE_GET_INTERFACE ((o),  TRACKER_TYPE_PASSWORD_PROVIDER, TrackerPasswordProviderIface))
 
 #define TRACKER_PASSWORD_PROVIDER_ERROR_DOMAIN  "TrackerPasswordProvider"
@@ -58,10 +58,10 @@ struct TrackerPasswordProviderIface {
 	                              GError                  **error);
 };
 
-GType  tracker_password_provider_get_type          (void) G_GNUC_CONST;
-GQuark tracker_password_provider_error_quark       (void);
+GType    tracker_password_provider_get_type        (void) G_GNUC_CONST;
+GQuark   tracker_password_provider_error_quark     (void);
 
-gchar* tracker_password_provider_get_name          (TrackerPasswordProvider  *provider);
+gchar*   tracker_password_provider_get_name        (TrackerPasswordProvider  *provider);
 
 /* Must be defined by the selected implementation */
 TrackerPasswordProvider*
@@ -80,7 +80,6 @@ void     tracker_password_provider_forget_password (TrackerPasswordProvider  *pr
                                                     const gchar              *service,
                                                     GError                  **error);
 gchar*   tracker_password_provider_strdup_mlock    (const gchar              *source);
-
 
 G_END_DECLS
 
