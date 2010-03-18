@@ -18,7 +18,10 @@
         <doc:description>
           <doc:para>
             Returns a hash containing the information necessary to know how to
-            associate the miner to its web service.
+            associate the miner to its web service. Association is the action
+            of "binding" the miner and the web service, that is asking user
+            approval to be granted the right to access the data.
+            A miner must be associated before being able to download data.
           </doc:para>
         </doc:description>
       </doc:doc>
@@ -30,7 +33,12 @@
               the type of association.
               For a token based association, the following keys are always
               defined:
-              * url: A url where the user can follow the association procedure
+              * url: A url where the user can follow the association procedure.
+                     The page at this URL generally checks the user's
+                     credentials, and asks him to approve the service.
+                     When the user is done with the procedure, he has to notify
+                     the miner manager, which will then call the Associate
+                     method.
               For a token based association, the following keys might be
               defined:
               * post_message: A message to display after he returns from the
@@ -40,7 +48,7 @@
               If both post_message and post_url are defined, the message will
               shown to the user before he is pointer to post_url.
               For a user/pass based based association, the hash table should be
-              empty.
+              empty, real association is done using the Associate method.
             </doc:para>
           </doc:summary>
         </doc:doc>
@@ -51,7 +59,9 @@
       <doc:doc>
         <doc:description>
           <doc:para>
-            Associates the miner with its web service.
+            Associates the miner with its web service using the provided
+            association data. After this step (if successful), the miner
+            should be able to access the online data.
           </doc:para>
         </doc:description>
       </doc:doc>
@@ -61,14 +71,16 @@
             <doc:para>
               A hash containing the association information. Its keys depend on
               the type of association.
-              For a token based association, the hash should be empty.
+              For a token based association, the hash should be empty. The miner
+              should get the definitive token from the remote web service, and
+              store it using the password provider.
               For a user/pass based based association, the following keys
               should be defined:
-              * url: A url where the user can follow the association procedure
-              For a token based association, the following keys might be
-              defined:
               * username: The username provided by the user
               * password: The password provided by the user
+              In the case of a user/pass association, the miner should use the
+              provided credentials to check the login against the remote web
+              service, and store them if successful.
             </doc:para>
           </doc:summary>
         </doc:doc>
@@ -79,7 +91,10 @@
       <doc:doc>
         <doc:description>
           <doc:para>
-            Dissociates the miner from its web service.
+            Dissociates the miner from its web service. When called, the miner
+            should delete any credentials it has guarded using the password
+            provider, and if possible revoke the authorization from the remote
+            service.
           </doc:para>
         </doc:description>
       </doc:doc>
