@@ -92,8 +92,6 @@ gboolean            tracker_property_get_is_inverse_functional_property
 TrackerProperty **  tracker_property_get_super_properties (TrackerProperty      *property);
 void                tracker_property_set_uri              (TrackerProperty      *property,
                                                            const gchar          *value);
-void                tracker_property_set_data_type        (TrackerProperty      *property,
-                                                           TrackerPropertyType   value);
 void                tracker_property_set_domain           (TrackerProperty      *property,
                                                            TrackerClass         *value);
 void                tracker_property_set_range            (TrackerProperty      *property,

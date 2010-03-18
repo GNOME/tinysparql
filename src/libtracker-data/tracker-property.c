@@ -444,19 +444,6 @@ tracker_property_set_transient (TrackerProperty *field,
 }
 
 void
-tracker_property_set_data_type (TrackerProperty     *field,
-                                TrackerPropertyType  value)
-{
-	TrackerPropertyPriv *priv;
-
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
-
-	priv = GET_PRIV (field);
-
-	priv->data_type = value;
-}
-
-void
 tracker_property_set_domain (TrackerProperty *field,
                              TrackerClass    *value)
 {
