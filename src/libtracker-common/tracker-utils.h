@@ -31,11 +31,6 @@ G_BEGIN_DECLS
 
 gboolean tracker_is_empty_string            (const char  *str);
 gboolean tracker_is_blank_string            (const char  *str);
-gchar *  tracker_string_replace             (const gchar *haystack,
-                                             const gchar *needle,
-                                             const gchar *replacement);
-gchar *  tracker_string_remove              (gchar       *haystack,
-                                             const gchar *needle);
 gchar *  tracker_seconds_estimate_to_string (gdouble      seconds_elapsed,
                                              gboolean     short_string,
                                              guint        items_done,
