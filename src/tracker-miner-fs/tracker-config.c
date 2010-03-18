@@ -871,6 +871,7 @@ config_load (TrackerConfig *config,
 		case G_TYPE_POINTER: {
 			GSList *new_dirs, *old_dirs, *l;
 			gboolean check_for_duplicates = FALSE;
+                        gboolean is_recursive = TRUE;
                         gboolean equal;
 
 			is_directory_list = TRUE;
@@ -882,18 +883,18 @@ config_load (TrackerConfig *config,
                                                                          file->key_file,
                                                                          conversions[i].group,
                                                                          conversions[i].key,
-                                                                         is_directory_list,
                                                                          NULL);
                                 continue;
 			}
 
-                        tracker_keyfile_object_load_string_list (G_OBJECT (file),
-                                                                 conversions[i].property,
-                                                                 file->key_file,
-                                                                 conversions[i].group,
-                                                                 conversions[i].key,
-                                                                 is_directory_list,
-                                                                 &new_dirs);
+                        is_recursive = strcmp (conversions[i].property, "index-recursive-directories") == 0;
+                        tracker_keyfile_object_load_directory_list (G_OBJECT (file),
+                                                                    conversions[i].property,
+                                                                    file->key_file,
+                                                                    conversions[i].group,
+                                                                    conversions[i].key,
+                                                                    is_recursive,
+                                                                    &new_dirs);
                         g_object_get (config, conversions[i].property, &old_dirs, NULL);
 
 			for (l = new_dirs; l; l = l->next) {
@@ -930,7 +931,7 @@ config_load (TrackerConfig *config,
 			if (check_for_duplicates) {
 				GSList *filtered;
 
-				filtered = tracker_path_list_filter_duplicates (new_dirs, ".");
+				filtered = tracker_path_list_filter_duplicates (new_dirs, ".", is_recursive);
 				g_slist_foreach (new_dirs, (GFunc) g_free, NULL);
 				g_slist_free (new_dirs);
 

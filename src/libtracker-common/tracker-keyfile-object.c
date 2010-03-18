@@ -227,7 +227,6 @@ tracker_keyfile_object_load_string_list (gpointer      object,
                                          GKeyFile     *key_file,
                                          const gchar  *group,
                                          const gchar  *key,
-                                         gboolean      is_directory_list,
                                          GSList      **return_instead)
 {
 	GSList *l;
@@ -240,26 +239,55 @@ tracker_keyfile_object_load_string_list (gpointer      object,
 	g_return_if_fail (key != NULL);
 
 	value = g_key_file_get_string_list (key_file, group, key, NULL, NULL);
-	if (is_directory_list) {
-		l = directory_string_list_to_gslist ((const gchar **) value);
-
-		if (l) {
-			GSList *filtered;
-
-			/* Should we make the basename (2nd argument) here
-			 * part of this function's API?
-			 */
-			filtered = tracker_path_list_filter_duplicates (l, ".");
-
-			g_slist_foreach (l, (GFunc) g_free, NULL);
-			g_slist_free (l);
-
-			l = filtered;
-		}
-	} else {
-		l = tracker_string_list_to_gslist (value, -1);
-	}
+        l = tracker_string_list_to_gslist (value, -1);
 	g_strfreev (value);
+
+        if (G_LIKELY (!return_instead)) {
+                g_object_set (G_OBJECT (object), property, l, NULL);
+
+                /* List is copied internally */
+                g_slist_foreach (l, (GFunc) g_free, NULL);
+                g_slist_free (l);
+        } else {
+                *return_instead = l;
+        }
+}
+
+void
+tracker_keyfile_object_load_directory_list (gpointer      object,
+                                            const gchar  *property,
+                                            GKeyFile     *key_file,
+                                            const gchar  *group,
+                                            const gchar  *key,
+                                            gboolean      is_recursive,
+                                            GSList      **return_instead)
+{
+	GSList *l;
+	gchar **value;
+
+	g_return_if_fail (G_IS_OBJECT (object));
+	g_return_if_fail (property != NULL);
+	g_return_if_fail (key_file != NULL);
+	g_return_if_fail (group != NULL);
+	g_return_if_fail (key != NULL);
+
+	value = g_key_file_get_string_list (key_file, group, key, NULL, NULL);
+        l = directory_string_list_to_gslist ((const gchar **) value);
+	g_strfreev (value);
+
+        if (l) {
+                GSList *filtered;
+
+                /* Should we make the basename (2nd argument) here
+                 * part of this function's API?
+                 */
+                filtered = tracker_path_list_filter_duplicates (l, ".", is_recursive);
+
+                g_slist_foreach (l, (GFunc) g_free, NULL);
+                g_slist_free (l);
+
+                l = filtered;
+        }
 
         if (G_LIKELY (!return_instead)) {
                 g_object_set (G_OBJECT (object), property, l, NULL);
@@ -357,3 +385,29 @@ tracker_keyfile_object_save_string_list (gpointer     object,
 	g_strfreev (value);
 }
 
+void
+tracker_keyfile_object_save_directory_list (gpointer     object,
+                                            const gchar *property,
+                                            GKeyFile    *key_file,
+                                            const gchar *group,
+                                            const gchar *key)
+{
+	GSList *list;
+	gchar **value;
+
+	g_return_if_fail (G_IS_OBJECT (object));
+	g_return_if_fail (property != NULL);
+	g_return_if_fail (key_file != NULL);
+	g_return_if_fail (group != NULL);
+	g_return_if_fail (key != NULL);
+
+	g_object_get (G_OBJECT (object), property, &list, NULL);
+
+	value = tracker_gslist_to_string_list (list);
+	g_key_file_set_string_list (key_file,
+	                            group,
+	                            key,
+	                            (const gchar * const *) value,
+	                            (gsize) g_slist_length (list));
+	g_strfreev (value);
+}

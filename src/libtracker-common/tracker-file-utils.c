@@ -376,7 +376,8 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 
 GSList *
 tracker_path_list_filter_duplicates (GSList      *roots,
-                                     const gchar *basename_exception_prefix)
+                                     const gchar *basename_exception_prefix,
+                                     gboolean     is_recursive)
 {
 	GSList *l1, *l2;
 	GSList *new_list;
@@ -431,7 +432,7 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 				}
 			}
 
-			if (tracker_path_is_in_path (path, in_path)) {
+			if (is_recursive && tracker_path_is_in_path (path, in_path)) {
 				g_debug ("Removing path:'%s', it is in path:'%s'",
 				         path, in_path);
 
@@ -443,7 +444,7 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 
 				continue;
 			}
-			else if (tracker_path_is_in_path (in_path, path)) {
+			else if (is_recursive && tracker_path_is_in_path (in_path, path)) {
 				g_debug ("Removing path:'%s', it is in path:'%s'",
 				         in_path, path);
 

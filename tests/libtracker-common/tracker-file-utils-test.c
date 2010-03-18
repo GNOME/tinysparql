@@ -62,7 +62,7 @@ test_path_list_filter_duplicates (void)
 
 	input_as_list = array_as_list (input_roots);
 
-	result = tracker_path_list_filter_duplicates (input_as_list, ".");
+	result = tracker_path_list_filter_duplicates (input_as_list, ".", TRUE);
 	g_assert_cmpint (3, ==, g_slist_length (result));
 
 	g_assert (string_in_list (result, "/home"));

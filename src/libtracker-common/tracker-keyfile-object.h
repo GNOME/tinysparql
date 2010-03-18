@@ -57,8 +57,15 @@ void         tracker_keyfile_object_load_string_list (gpointer      object,
                                                       GKeyFile     *key_file,
                                                       const gchar  *group,
                                                       const gchar  *key,
-                                                      gboolean      is_directory_list,
                                                       GSList      **return_instead);
+void         tracker_keyfile_object_load_directory_list (gpointer      object,
+                                                         const gchar  *property,
+                                                         GKeyFile     *key_file,
+                                                         const gchar  *group,
+                                                         const gchar  *key,
+                                                         gboolean      is_recursive,
+                                                         GSList      **return_instead);
+
 void         tracker_keyfile_object_save_int         (gpointer      object,
                                                       const gchar  *property,
                                                       GKeyFile     *key_file,
@@ -79,6 +86,11 @@ void         tracker_keyfile_object_save_string_list (gpointer      object,
                                                       GKeyFile     *key_file,
                                                       const gchar  *group,
                                                       const gchar  *key);
+void         tracker_keyfile_object_save_directory_list (gpointer     object,
+                                                         const gchar *property,
+                                                         GKeyFile    *key_file,
+                                                         const gchar *group,
+                                                         const gchar *key);
 
 G_END_DECLS
 
