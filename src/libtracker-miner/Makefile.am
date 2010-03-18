@@ -122,11 +122,11 @@ dbus_sources = 						\
 # on the command line (though the man page says it supports it)
 # This bug is reported at https://bugs.freedesktop.org/show_bug.cgi?id=25056
 tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_srcdir)/data/dbus/tracker-miner.xml
-	echo '<?xml version="1.0" encoding="UTF-8"?>'        > $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
-	echo '<node name="/">'                              >> $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
-	cat $^ | grep -v -e '<node' -e '<?xml' -e '</node>' >> $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
-	echo '</node>'                                      >> $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=tracker_miner_web_dbus $(top_srcdir)/src/libtracker-miner/tracker-miner-web-full.xml
+	echo '<?xml version="1.0" encoding="UTF-8"?>'        > $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
+	echo '<node name="/">'                              >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
+	cat $^ | grep -v -e '<node' -e '<?xml' -e '</node>' >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
+	echo '</node>'                                      >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=tracker_miner_web_dbus $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
