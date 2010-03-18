@@ -29,6 +29,8 @@
 #define TRACKER_IS_MINER_WEB_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_MINER_WEB))
 #define TRACKER_MINER_WEB_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_MINER_WEB, TrackerMinerWebClass))
 
+#define TRACKER_MINER_WEB_ASSOCIATION_TYPE_DB (tracker_miner_web_association_get_type ())
+
 G_BEGIN_DECLS
 
 typedef struct TrackerMinerWeb TrackerMinerWeb;
@@ -72,7 +74,7 @@ typedef enum {
 typedef enum {
 	TRACKER_MINER_WEB_UNASSOCIATED,
 	TRACKER_MINER_WEB_ASSOCIATED
-} TrackerMinerWebAssociationStatus;
+} TrackerMinerWebAssociationType;
 
 struct TrackerMinerWeb {
 	TrackerMiner            parent_instance;
@@ -119,6 +121,7 @@ typedef struct {
 } TrackerMinerWebClass;
 
 GType       tracker_miner_web_get_type             (void) G_GNUC_CONST;
+GType       tracker_miner_web_association_get_type (void) G_GNUC_CONST;
 GQuark      tracker_miner_web_error_quark          (void);
 void        tracker_miner_web_authenticate         (TrackerMinerWeb  *miner,
                                                     GError          **error);

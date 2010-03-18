@@ -38,12 +38,12 @@
 #define TRACKER_MINER_WEB_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_WEB, TrackerMinerWebPrivate))
 
 struct TrackerMinerWebPrivate {
-	TrackerMinerWebAssociationStatus association_status;
+	TrackerMinerWebAssociationType association;
 };
 
 enum {
 	PROP_0,
-	PROP_ASSOCIATION_STATUS
+	PROP_ASSOCIATION
 };
 
 static void miner_web_set_property (GObject      *object,
@@ -68,14 +68,13 @@ tracker_miner_web_class_init (TrackerMinerWebClass *klass)
 	object_class->constructed  = miner_web_constructed;
 
 	g_object_class_install_property (object_class,
-	                                 PROP_ASSOCIATION_STATUS,
-	                                 g_param_spec_uint ("association-status",
-	                                                    "Association status",
+	                                 PROP_ASSOCIATION,
+	                                 g_param_spec_enum ("association",
+	                                                    "Association",
 	                                                    "Tells if the miner is associated with the remote service",
-	                                                    TRACKER_MINER_WEB_UNASSOCIATED, /* min value */
-	                                                    TRACKER_MINER_WEB_ASSOCIATED,   /* max value */
-	                                                    TRACKER_MINER_WEB_UNASSOCIATED, /* default value */
-	                                                    G_PARAM_READWRITE));
+	                                                    tracker_miner_web_association_get_type (),
+	                                                    TRACKER_MINER_WEB_UNASSOCIATED,
+	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerWebPrivate));
 }
@@ -83,11 +82,6 @@ tracker_miner_web_class_init (TrackerMinerWebClass *klass)
 static void
 tracker_miner_web_init (TrackerMinerWeb *miner)
 {
-	TrackerMinerWebPrivate *priv;
-
-	priv = TRACKER_MINER_WEB_GET_PRIVATE (miner);
-
-	priv->association_status = TRACKER_MINER_WEB_UNASSOCIATED;
 }
 
 static void
@@ -101,8 +95,9 @@ miner_web_set_property (GObject      *object,
 	priv = TRACKER_MINER_WEB_GET_PRIVATE (object);
 
 	switch (param_id) {
-	case PROP_ASSOCIATION_STATUS:
-		priv->association_status = g_value_get_uint (value);
+	case PROP_ASSOCIATION:
+		priv->association = g_value_get_enum (value);
+		g_object_notify (object, "association");
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -121,8 +116,8 @@ miner_web_get_property (GObject    *object,
 	priv = TRACKER_MINER_WEB_GET_PRIVATE (object);
 
 	switch (param_id) {
-	case PROP_ASSOCIATION_STATUS:
-		g_value_set_uint (value, priv->association_status);
+	case PROP_ASSOCIATION:
+		g_value_set_enum (value, priv->association);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -137,6 +132,28 @@ miner_web_constructed (GObject *object)
 	                         &dbus_glib_tracker_miner_web_dbus_object_info);
 
 	G_OBJECT_CLASS (tracker_miner_web_parent_class)->constructed (object);
+}
+
+GType
+tracker_miner_web_association_get_type (void)
+{
+	static GType etype = 0;
+
+	if (etype == 0) {
+		static const GEnumValue values[] = {
+			{ TRACKER_MINER_WEB_UNASSOCIATED,
+			  "TRACKER_MINER_WEB_UNASSOCIATED",
+			  "unassociated" },
+			{ TRACKER_MINER_WEB_ASSOCIATED,
+			  "TRACKER_MINER_WEB_ASSOCIATED",
+			  "associated" },
+			{ 0, NULL, NULL }
+		};
+
+		etype = g_enum_register_static ("TrackerMinerWebAssociation", values);
+	}
+
+	return etype;
 }
 
 GQuark
