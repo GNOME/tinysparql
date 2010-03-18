@@ -41,9 +41,6 @@ power_sources =						\
 endif
 endif
 
-libtracker_common_la_VALASOURCES =			\
-	tracker-turtle-writer.vala
-
 libtracker_common_la_SOURCES =	 			\
 	$(marshal_sources)				\
 	$(os_sources)					\
@@ -58,9 +55,7 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-log.c	 				\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
-	tracker-crc32.c					\
-	libtracker-common.vala.stamp			\
-	$(libtracker_common_la_VALASOURCES:.vala=.c)
+	tracker-crc32.c
 
 noinst_HEADERS =					\
 	$(power_headers)				\
@@ -75,18 +70,9 @@ noinst_HEADERS =					\
 	tracker-keyfile-object.h			\
 	tracker-language.h				\
 	tracker-ontologies.h				\
-	tracker-turtle-writer.h				\
 	tracker-type-utils.h				\
 	tracker-utils.h					\
 	tracker-crc32.h
-
-vapi_sources =						\
-	$(top_srcdir)/src/vapi/posix.vapi		\
-	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
-
-libtracker-common.vala.stamp: $(libtracker_common_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-turtle-writer.h $^
-	$(AM_V_GEN)touch $@
 
 libtracker_common_la_LDFLAGS = 				\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
@@ -115,18 +101,11 @@ tracker-marshal.c: tracker-marshal.list
 		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
 BUILT_SOURCES =						\
-	$(marshal_sources)				\
-	libtracker-common.vala.stamp
+	$(marshal_sources)
 
 CLEANFILES = $(marshal_sources)
 
-MAINTAINERCLEANFILES =					\
-	libtracker-common.vala.stamp			\
-	$(libtracker_common_la_VALASOURCES:.vala=.c)
-
 EXTRA_DIST = 						\
 	tracker-marshal.list				\
-	$(libtracker_common_la_VALASOURCES)		\
-	libtracker-common.vala.stamp			\
 	libtracker-common.vapi
 
