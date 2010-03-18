@@ -4,5 +4,7 @@ EXTRA_DIST = 	 	\
 	base-prefix-3.out	\
 	base-prefix-3.rq	\
 	data-1.ontology	\
-	data-1.ttl
+	data-1.ttl	\
+	predicate-variable.out	\
+	predicate-variable.rq
 
