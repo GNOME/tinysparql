@@ -206,17 +206,72 @@ tracker_password_provider_forget_password (TrackerPasswordProvider  *provider,
 	iface->forget_password (provider, service, error);
 }
 
+/**
+ * tracker_password_provider_lock_password:
+ * @password: a string pointer
+ *
+ * This function calls mlock() to secure a memory region newly
+ * allocated and @password is copied using memcpy() into the new
+ * address.
+ * 
+ * Password can not be %NULL or an empty string ("").
+ *
+ * Returns: a newly allocated string which <emphasis>MUST</emphasis>
+ * be freed with tracker_password_provider_unlock_password(). On
+ * failure %NULL is returned.
+ **/
 gchar *
-tracker_password_provider_strdup_mlock (const gchar *source)
+tracker_password_provider_lock_password (const gchar *password)
 {
 	gchar *dest;
+	int retval;
 
-	g_return_val_if_fail (source != NULL, NULL);
+	g_return_val_if_fail (password != NULL, NULL);
+	g_return_val_if_fail (password[0] != '\0', NULL);
 
-	dest = malloc (1 + strlen (source));
-	dest = memset (dest, 0, 1 + strlen (source));
-	mlock (dest, sizeof (dest));
-	memcpy (dest, source, strlen (source));
+	dest = g_malloc0 (strlen (password) + 1);
+	retval = mlock (dest, sizeof (dest));
+
+	if (retval != 0) {
+		g_free (dest);
+		return NULL;
+	}
+
+	memcpy (dest, password, strlen (password));
 
 	return dest;
+}
+
+/**
+ * tracker_password_provider_unlock_password:
+ * @password: a string pointer
+ *
+ * This function calls munlock() on @password which should be a
+ * secured memory region. The @password is zeroed first with bzero()
+ * and once unlocked it is freed with g_free(). 
+ *
+ * The @password can not be %NULL or an empty string (""). In
+ * addition, @password <emphasis>MUST</emphasis> be a string created
+ * with tracker_password_provider_lock_password().
+ *
+ * Returns: %TRUE if munlock() succeeded, otherwise %FALSE is returned.
+ **/
+gboolean
+tracker_password_provider_unlock_password (gchar *password)
+{
+	int retval;
+
+	g_return_val_if_fail (password != NULL, FALSE);
+	g_return_val_if_fail (password[0] != '\0', FALSE);
+	
+	bzero (password, strlen (password));
+	retval = munlock (password, sizeof (password));
+	g_free (password);
+
+	if (retval != 0) {
+		/* FIXME: Handle errors? */
+		return FALSE;
+	}
+
+	return TRUE;
 }

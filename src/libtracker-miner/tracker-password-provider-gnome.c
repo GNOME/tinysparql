@@ -257,7 +257,7 @@ password_provider_gnome_get (TrackerPasswordProvider  *provider,
 		}
 	}
 
-	password = tracker_password_provider_strdup_mlock (found->secret);
+	password = tracker_password_provider_lock_password (found->secret);
 
 	gnome_keyring_found_list_free (found_items);
 

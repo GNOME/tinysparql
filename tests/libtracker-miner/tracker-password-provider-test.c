@@ -54,6 +54,7 @@ test_password_provider_getting (void)
 {
 	gchar *username = NULL;
 	gchar *password = NULL;
+	gboolean success;
 	GError *error = NULL;
 
 	password = tracker_password_provider_get_password (provider,
@@ -69,7 +70,9 @@ test_password_provider_getting (void)
 	         username);
 
 	g_free (username);
-	g_free (password);
+
+	success = tracker_password_provider_unlock_password (password);
+	g_assert_cmpint (success, ==, TRUE);
 
 	/* Also test without getting the username */
 	password = tracker_password_provider_get_password (provider,
@@ -81,7 +84,8 @@ test_password_provider_getting (void)
 
 	g_print ("Found password is '%s' for NULL username\n", password);
 
-	g_free (password);
+	success = tracker_password_provider_unlock_password (password);
+	g_assert_cmpint (success, ==, TRUE);
 }
 
 int 
