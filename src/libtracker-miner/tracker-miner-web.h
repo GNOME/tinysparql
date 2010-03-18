@@ -72,7 +72,7 @@ typedef enum {
 #define TRACKER_MINER_WEB_ERROR_DOMAIN "TrackerMinerWeb"
 
 /**
- * TrackerMinerWebAssociationStatus:
+ * TrackerMinerWebAssociationType:
  * @TRACKER_MINER_WEB_UNASSOCIATED: The miner is currently
  * not associated with the remote service. This means it needs to
  * authenticate to be able to use any data from a remote service.
