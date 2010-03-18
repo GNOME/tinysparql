@@ -23,8 +23,6 @@ tracker_status_icon_LDADD = 						\
 	-lX11
 
 tracker_status_icon_SOURCES =						\
-	eggaccelerators.c						\
-	eggaccelerators.h						\
 	tomboykeybinder.c						\
 	tomboykeybinder.h						\
 	tracker-icon-config.c						\

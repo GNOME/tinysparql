@@ -1,11 +1,9 @@
 #include <config.h>
 #include <string.h>
-#include <gdk/gdk.h>
-#include <gdk/gdkwindow.h>
+#include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 #include <X11/Xlib.h>
 
-#include "eggaccelerators.h"
 #include "tomboykeybinder.h"
 
 /* Uncomment the next line to print a debug trace. */
@@ -29,24 +27,6 @@ static GSList *bindings = NULL;
 static guint32 last_event_time = 0;
 static gboolean processing_event = FALSE;
 
-static guint num_lock_mask, caps_lock_mask, scroll_lock_mask;
-
-static void
-lookup_ignorable_modifiers (GdkKeymap *keymap)
-{
-	egg_keymap_resolve_virtual_modifiers (keymap,
-	                                      EGG_VIRTUAL_LOCK_MASK,
-	                                      &caps_lock_mask);
-
-	egg_keymap_resolve_virtual_modifiers (keymap,
-	                                      EGG_VIRTUAL_NUM_LOCK_MASK,
-	                                      &num_lock_mask);
-
-	egg_keymap_resolve_virtual_modifiers (keymap,
-	                                      EGG_VIRTUAL_SCROLL_LOCK_MASK,
-	                                      &scroll_lock_mask);
-}
-
 static void
 grab_ungrab_with_ignorable_modifiers (GdkWindow *rootwin,
                                       Binding   *binding,
@@ -54,13 +34,9 @@ grab_ungrab_with_ignorable_modifiers (GdkWindow *rootwin,
 {
 	guint mod_masks [] = {
 		0, /* modifier only */
-		num_lock_mask,
-		caps_lock_mask,
-		scroll_lock_mask,
-		num_lock_mask  | caps_lock_mask,
-		num_lock_mask  | scroll_lock_mask,
-		caps_lock_mask | scroll_lock_mask,
-		num_lock_mask  | caps_lock_mask | scroll_lock_mask,
+                GDK_MOD2_MASK,
+                GDK_LOCK_MASK,
+                GDK_MOD2_MASK | GDK_LOCK_MASK
 	};
 	int i;
 
@@ -87,32 +63,27 @@ do_grab_key (Binding *binding)
 {
 	GdkKeymap *keymap = gdk_keymap_get_default ();
 	GdkWindow *rootwin = gdk_get_default_root_window ();
-
-	EggVirtualModifierType virtual_mods = 0;
+        GdkModifierType modifiers;
 	guint keysym = 0;
 
 	if (keymap == NULL || rootwin == NULL)
 		return FALSE;
 
-	if (!egg_accelerator_parse_virtual (binding->keystring,
-	                                    &keysym,
-	                                    &virtual_mods))
-		return FALSE;
+        gtk_accelerator_parse (binding->keystring,
+                               &keysym, &modifiers);
 
-	TRACE (g_print ("Got accel %d, %d\n", keysym, virtual_mods));
+        if (keysym == 0)
+                return FALSE;
 
+	TRACE (g_print ("Got accel %d, %d\n", keysym, modifiers));
+
+        binding->modifiers = modifiers;
 	binding->keycode = XKeysymToKeycode (GDK_WINDOW_XDISPLAY (rootwin),
 	                                     keysym);
 	if (binding->keycode == 0)
 		return FALSE;
 
 	TRACE (g_print ("Got keycode %d\n", binding->keycode));
-
-	egg_keymap_resolve_virtual_modifiers (keymap,
-	                                      virtual_mods,
-	                                      &binding->modifiers);
-
-	TRACE (g_print ("Got modmask %d\n", binding->modifiers));
 
 	gdk_error_trap_push ();
 
@@ -167,9 +138,7 @@ filter_func (GdkXEvent *gdk_xevent, GdkEvent *event, gpointer data)
 		processing_event = TRUE;
 		last_event_time = xevent->xkey.time;
 
-		event_mods = xevent->xkey.state & ~(num_lock_mask  |
-		                                    caps_lock_mask |
-		                                    scroll_lock_mask);
+		event_mods = xevent->xkey.state & ~(GDK_MOD2_MASK | GDK_LOCK_MASK);
 
 		for (iter = bindings; iter != NULL; iter = iter->next) {
 			Binding *binding = (Binding *) iter->data;
@@ -198,7 +167,6 @@ filter_func (GdkXEvent *gdk_xevent, GdkEvent *event, gpointer data)
 static void
 keymap_changed (GdkKeymap *map)
 {
-	GdkKeymap *keymap = gdk_keymap_get_default ();
 	GSList *iter;
 
 	TRACE (g_print ("Keymap changed! Regrabbing keys..."));
@@ -207,8 +175,6 @@ keymap_changed (GdkKeymap *map)
 		Binding *binding = (Binding *) iter->data;
 		do_ungrab_key (binding);
 	}
-
-	lookup_ignorable_modifiers (keymap);
 
 	for (iter = bindings; iter != NULL; iter = iter->next) {
 		Binding *binding = (Binding *) iter->data;
@@ -221,8 +187,6 @@ tomboy_keybinder_init (void)
 {
 	GdkKeymap *keymap = gdk_keymap_get_default ();
 	GdkWindow *rootwin = gdk_get_default_root_window ();
-
-	lookup_ignorable_modifiers (keymap);
 
 	gdk_window_add_filter (rootwin,
 	                       filter_func,
@@ -279,35 +243,6 @@ tomboy_keybinder_unbind (const char           *keystring,
 		g_free (binding);
 		break;
 	}
-}
-
-/*
- * From eggcellrenderkeys.c.
- */
-gboolean
-tomboy_keybinder_is_modifier (guint keycode)
-{
-	gint i;
-	gint map_size;
-	XModifierKeymap *mod_keymap;
-	gboolean retval = FALSE;
-
-	mod_keymap = XGetModifierMapping (gdk_display);
-
-	map_size = 8 * mod_keymap->max_keypermod;
-
-	i = 0;
-	while (i < map_size) {
-		if (keycode == mod_keymap->modifiermap[i]) {
-			retval = TRUE;
-			break;
-		}
-		++i;
-	}
-
-	XFreeModifiermap (mod_keymap);
-
-	return retval;
 }
 
 guint32
