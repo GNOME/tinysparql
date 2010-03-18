@@ -1487,7 +1487,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	if (journal_check && is_first_time_index && !test_schema) {
+	if (journal_check && is_first_time_index) {
 		if (tracker_db_journal_reader_init (NULL)) {
 			if (tracker_db_journal_reader_next (NULL)) {
 				/* journal with at least one valid transaction
