@@ -1126,11 +1126,7 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 			do_process_file (fs, data);
 		} else {
-			if (error->code == G_IO_ERROR_NOT_FOUND) {
-				g_message ("Could not process '%s': %s", uri, error->message);
-			} else {
-				g_critical ("Could not process '%s': %s", uri, error->message);
-			}
+                        g_message ("Could not process '%s': %s", uri, error->message);
 
 			fs->private->total_files_notified_error++;
 			fs->private->processing_pool =
