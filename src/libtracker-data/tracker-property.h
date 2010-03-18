@@ -47,7 +47,6 @@ typedef enum {
 } TrackerPropertyType;
 
 GType        tracker_property_type_get_type  (void) G_GNUC_CONST;
-const gchar *tracker_property_type_to_string (TrackerPropertyType fieldtype);
 
 /*
  * TrackerProperty

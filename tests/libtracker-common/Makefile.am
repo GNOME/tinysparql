@@ -2,17 +2,6 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-#
-# NOTE: Some of these tests have been disabled (by Martyn) temporarily
-# 	because make distcheck fails. The reason for this is that it
-# 	depends files being installed to $prefix/share which have not
-# 	been installed at this point.
-#
-#       These tests include:
-#
-#	  tracker-field
-#
-
 TEST_PROGS += 								\
 	tracker-dbus 							\
 	tracker-type-utils 						\
@@ -66,17 +55,5 @@ tracker_file_utils_LDADD =						\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GCOV_LIBS)
-
-# tracker_property_SOURCES = 						\
-# 	tracker-field-test.c
-#
-# tracker_property_LDADD =							\
-# 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-# 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-# 	$(PANGO_LIBS)							\
-# 	$(GMODULE_LIBS)							\
-# 	$(GTHREAD_LIBS)							\
-# 	$(GLIB2_LIBS)							\
-#	$(GCOV_LIBS)
 
 EXTRA_DIST = non-utf8.txt

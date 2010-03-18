@@ -107,24 +107,6 @@ tracker_property_type_get_type (void)
 
 G_DEFINE_TYPE (TrackerProperty, tracker_property, G_TYPE_OBJECT);
 
-const gchar *
-tracker_property_type_to_string (TrackerPropertyType fieldtype)
-{
-	GType type;
-	GEnumClass *enum_class;
-	GEnumValue *enum_value;
-
-	type = tracker_property_type_get_type ();
-	enum_class = G_ENUM_CLASS (g_type_class_peek (type));
-	enum_value = g_enum_get_value (enum_class, fieldtype);
-
-	if (!enum_value) {
-		return NULL;
-	}
-
-	return enum_value->value_nick;
-}
-
 static void
 tracker_property_class_init (TrackerPropertyClass *klass)
 {
@@ -172,30 +154,6 @@ property_finalize (GObject *object)
 	g_array_free (priv->super_properties, TRUE);
 
 	(G_OBJECT_CLASS (tracker_property_parent_class)->finalize) (object);
-}
-
-static gboolean
-field_int_validate (TrackerProperty *field,
-                    const gchar     *property,
-                    gint             value)
-{
-#ifdef G_DISABLE_CHECKS
-	GParamSpec *spec;
-	GValue value = { 0 };
-	gboolean valid;
-
-	spec = g_object_class_find_property (G_OBJECT_CLASS (field), property);
-	g_return_val_if_fail (spec != NULL, FALSE);
-
-	g_value_init (&value, spec->value_type);
-	g_value_set_int (&value, verbosity);
-	valid = g_param_value_validate (spec, &value);
-	g_value_unset (&value);
-
-	g_return_val_if_fail (valid != TRUE, FALSE);
-#endif
-
-	return TRUE;
 }
 
 /**
@@ -560,10 +518,6 @@ tracker_property_set_weight (TrackerProperty *field,
 {
 	TrackerPropertyPriv *priv;
 	g_return_if_fail (TRACKER_IS_PROPERTY (field));
-
-	if (!field_int_validate (field, "weight", value)) {
-		return;
-	}
 
 	priv = GET_PRIV (field);
 
