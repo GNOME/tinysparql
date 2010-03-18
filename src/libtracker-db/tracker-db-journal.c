@@ -790,8 +790,9 @@ tracker_db_journal_reader_next (GError **error)
 
 		/* Check the end is not before where we currently are */
 		if (reader.current >= reader.end) {
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
-			             "End of journal reached");
+			/* Return FALSE as there is no further entry but
+			 * do not set error as it's not an error case.
+			 */
 			return FALSE;
 		}
 
