@@ -34,12 +34,18 @@
 #include <libtracker-data/tracker-data-backup.h>
 
 static gint backup_calls = 0;
+static GMainLoop *loop = NULL;
 
 static void
 backup_finished_cb (GError *error, gpointer user_data)
 {
         g_assert (TRUE);
         backup_calls += 1;
+
+	if (loop != NULL) {
+		/* backup callback, quit main loop */
+		g_main_loop_quit (loop);
+	}
 }
 
 static gboolean
@@ -122,6 +128,13 @@ test_backup_and_restore (void)
                                   backup_finished_cb,
                                   NULL,
                                   NULL);
+
+	/* Backup is asynchronous, wait until it is finished */
+	loop = g_main_loop_new (NULL, FALSE);
+	g_main_loop_run (loop);
+	g_main_loop_unref (loop);
+	loop = NULL;
+
 	tracker_data_manager_shutdown ();
 
         meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "meta.db", NULL);
