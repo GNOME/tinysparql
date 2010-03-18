@@ -50,8 +50,6 @@ G_BEGIN_DECLS
 #define TRACKER_IS_DB_RESULT_SET_CLASS(c)   (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_RESULT_SET))
 #define TRACKER_DB_RESULT_SET_GET_CLASS(o)  (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_RESULT_SET, TrackerDbResultSetClass))
 
-#define TRACKER_TYPE_DB_BLOB                (tracker_db_blob_get_type ())
-
 #define TRACKER_DB_INTERFACE_ERROR          (tracker_db_interface_error_quark ())
 
 typedef enum {
@@ -133,7 +131,6 @@ GType               tracker_db_interface_get_type          (void);
 GType               tracker_db_statement_get_type          (void);
 GType               tracker_db_cursor_get_type             (void);
 GType               tracker_db_result_set_get_type         (void);
-GType               tracker_db_blob_get_type               (void);
 
 /* Functions to create queries/procedures */
 TrackerDBStatement *tracker_db_interface_create_statement  (TrackerDBInterface   *interface,

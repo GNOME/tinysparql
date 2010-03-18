@@ -113,42 +113,6 @@ tracker_db_cursor_get_type (void)
 }
 
 
-/* Boxed type for blobs */
-static gpointer
-blob_copy (gpointer boxed)
-{
-	GByteArray *array, *copy;
-
-	array = (GByteArray *) boxed;
-	copy = g_byte_array_sized_new (array->len);
-	g_byte_array_append (copy, array->data, array->len);
-
-	return copy;
-}
-
-static void
-blob_free (gpointer boxed)
-{
-	GByteArray *array;
-
-	array = (GByteArray *) boxed;
-	g_byte_array_free (array, TRUE);
-}
-
-GType
-tracker_db_blob_get_type (void)
-{
-	static GType type = 0;
-
-	if (G_UNLIKELY (type == 0)) {
-		type = g_boxed_type_register_static ("TrackerDBBlob",
-		                                     blob_copy,
-		                                     blob_free);
-	}
-
-	return type;
-}
-
 /* TrackerDBResultSet */
 static void
 tracker_db_result_set_set_property (GObject       *object,

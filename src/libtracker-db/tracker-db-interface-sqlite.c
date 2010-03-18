@@ -396,7 +396,6 @@ internal_sqlite3_function (sqlite3_context *context,
 {
 	SqliteFunctionData *data;
 	GValue *values, result;
-	GByteArray *blob_array;
 	gint i;
 
 	data = (SqliteFunctionData *) sqlite3_user_data (context);
@@ -417,21 +416,6 @@ internal_sqlite3_function (sqlite3_context *context,
 			g_value_init (&values[i], G_TYPE_DOUBLE);
 			g_value_set_double (&values[i], sqlite3_value_double (argv[i]));
 			break;
-		case SQLITE_BLOB: {
-			gconstpointer blob;
-			gint size;
-
-			blob = sqlite3_value_blob (argv[i]);
-			size = sqlite3_value_bytes (argv[i]);
-
-			blob_array = g_byte_array_sized_new (size);
-			g_byte_array_append (blob_array, blob, size);
-
-			g_value_init (&values[i], TRACKER_TYPE_DB_BLOB);
-			g_value_take_boxed (&values[i], blob_array);
-
-			break;
-		}
 		case SQLITE_NULL:
 			/* Unset GValues as NULLs */
 			break;
@@ -453,12 +437,6 @@ internal_sqlite3_function (sqlite3_context *context,
 		sqlite3_result_text (context,
 		                     g_value_dup_string (&result),
 		                     -1, g_free);
-	} else if (G_VALUE_HOLDS (&result, TRACKER_TYPE_DB_BLOB)) {
-		blob_array = g_value_get_boxed (&result);
-		sqlite3_result_blob (context,
-		                     g_memdup (blob_array->data, blob_array->len),
-		                     blob_array->len,
-		                     g_free);
 	} else if (G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
 		sqlite3_result_null (context);
 	} else {
@@ -519,7 +497,6 @@ internal_sqlite3_aggregate_step (sqlite3_context *context,
 	SqliteAggregateData *data;
 	void *aggregate_context;
 	GValue *values;
-	GByteArray *blob_array;
 	gint i;
 
 	data = (SqliteAggregateData *) sqlite3_user_data (context);
@@ -540,25 +517,9 @@ internal_sqlite3_aggregate_step (sqlite3_context *context,
 			g_value_init (&values[i], G_TYPE_DOUBLE);
 			g_value_set_double (&values[i], sqlite3_value_double (argv[i]));
 			break;
-		case SQLITE_BLOB: {
-			gconstpointer blob;
-			gint size;
-
-			blob = sqlite3_value_blob (argv[i]);
-			size = sqlite3_value_bytes (argv[i]);
-
-			blob_array = g_byte_array_sized_new (size);
-			g_byte_array_append (blob_array, blob, size);
-
-			g_value_init (&values[i], TRACKER_TYPE_DB_BLOB);
-			g_value_take_boxed (&values[i], blob_array);
-
-			break;
-		}
-		case SQLITE_NULL: {
+		case SQLITE_NULL:
 			/* Ignore NULLs and let the function handle missing values */
 			break;
-		}
 		default:
 			g_critical ("Unknown sqlite3 database value type:%d",
 			            sqlite3_value_type (argv[i]));
@@ -587,7 +548,6 @@ internal_sqlite3_aggregate_final (sqlite3_context *context)
 	SqliteAggregateData *data;
 	void *aggregate_context;
 	GValue result;
-	GByteArray *blob_array;
 
 	data = (SqliteAggregateData *) sqlite3_user_data (context);
 
@@ -605,12 +565,6 @@ internal_sqlite3_aggregate_final (sqlite3_context *context)
 		sqlite3_result_text (context,
 		                     g_value_dup_string (&result),
 		                     -1, g_free);
-	} else if (G_VALUE_HOLDS (&result, TRACKER_TYPE_DB_BLOB)) {
-		blob_array = g_value_get_boxed (&result);
-		sqlite3_result_blob (context,
-		                     g_memdup (blob_array->data, blob_array->len),
-		                     blob_array->len,
-		                     g_free);
 	} else if (G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
 		sqlite3_result_null (context);
 	} else {
