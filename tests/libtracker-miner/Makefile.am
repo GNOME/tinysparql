@@ -15,6 +15,7 @@ INCLUDES = 									\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\
 	-DTRACKER_COMPILATION							\
 	-DTEST_DATA_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/data"\"	\
+	-DTEST_MINERS_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/mock-miners"\"	\
 	-I$(top_srcdir)/src							\
 	-I$(top_srcdir)/tests/common						\
 	-I$(top_builddir)/src/tracker-store					\

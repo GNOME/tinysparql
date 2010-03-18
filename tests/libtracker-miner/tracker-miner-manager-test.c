@@ -138,7 +138,7 @@ main (int    argc,
 	g_test_message ("Testing miner manager");
 
         miners_mock_init ();
-        g_setenv ("TRACKER_MINERS_DIR", "./mock-miners", TRUE);
+        g_setenv ("TRACKER_MINERS_DIR", TEST_MINERS_DIR, TRUE);
         manager = tracker_miner_manager_new ();
 
 	g_test_add_func ("/libtracker-miner/tracker-miner-manager/get_running",
