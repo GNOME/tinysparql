@@ -219,7 +219,7 @@ client_data_new (gchar *sender)
 			           error ? error->message : "no error given");
 			g_clear_error (&error);
 			g_free (filename);
-			return FALSE;
+			return cd;
 		}
 
 		g_free (filename);
