@@ -252,56 +252,6 @@ db_exec_no_reply (TrackerDBInterface *iface,
 	return TRUE;
 }
 
-/* Converts date/time in UTC format to ISO 8160 standardised format for display */
-static GValue
-function_date_to_str (TrackerDBInterface *interface,
-                      gint                argc,
-                      GValue              values[])
-{
-	GValue  result = { 0, };
-	gchar  *str;
-
-	str = tracker_date_to_string (g_value_get_double (&values[0]));
-	g_value_init (&result, G_TYPE_STRING);
-	g_value_take_string (&result, str);
-
-	return result;
-}
-
-static GValue
-function_regexp (TrackerDBInterface *interface,
-                 gint                argc,
-                 GValue                      values[])
-{
-	GValue  result = { 0, };
-	regex_t         regex;
-	int     ret;
-
-	if (argc != 2) {
-		g_critical ("Invalid argument count");
-		return result;
-	}
-
-	ret = regcomp (&regex,
-	               g_value_get_string (&values[0]),
-	               REG_EXTENDED | REG_NOSUB);
-
-	if (ret != 0) {
-		g_critical ("Error compiling regular expression");
-		return result;
-	}
-
-	ret = regexec (&regex,
-	               g_value_get_string (&values[1]),
-	               0, NULL, 0);
-
-	g_value_init (&result, G_TYPE_INT);
-	g_value_set_int (&result, (ret == REG_NOMATCH) ? 0 : 1);
-	regfree (&regex);
-
-	return result;
-}
-
 TrackerDBManagerFlags
 tracker_db_manager_get_flags (void)
 {
@@ -557,270 +507,6 @@ function_sparql_regex (TrackerDBInterface *interface,
 	return result;
 }
 
-static gchar *
-function_uncompress_string (const gchar *ptr,
-                            gint         size,
-                            gint        *uncompressed_size)
-{
-	z_stream       zs;
-	gchar         *buf, *swap;
-	unsigned char  obuf[ZLIB_BUF_SIZE];
-	gint           rv, asiz, bsiz, osiz;
-
-	zs.zalloc = Z_NULL;
-	zs.zfree = Z_NULL;
-	zs.opaque = Z_NULL;
-
-	if (inflateInit2 (&zs, 15) != Z_OK) {
-		return NULL;
-	}
-
-	asiz = size * 2 + 16;
-
-	if (asiz < ZLIB_BUF_SIZE) {
-		asiz = ZLIB_BUF_SIZE;
-	}
-
-	if (!(buf = malloc (asiz))) {
-		inflateEnd (&zs);
-		return NULL;
-	}
-
-	bsiz = 0;
-	zs.next_in = (unsigned char *)ptr;
-	zs.avail_in = size;
-	zs.next_out = obuf;
-	zs.avail_out = ZLIB_BUF_SIZE;
-
-	while ((rv = inflate (&zs, Z_NO_FLUSH)) == Z_OK) {
-		osiz = ZLIB_BUF_SIZE - zs.avail_out;
-
-		if (bsiz + osiz >= asiz) {
-			asiz = asiz * 2 + osiz;
-
-			if (!(swap = realloc (buf, asiz))) {
-				free (buf);
-				inflateEnd (&zs);
-				return NULL;
-			}
-
-			buf = swap;
-		}
-
-		memcpy (buf + bsiz, obuf, osiz);
-		bsiz += osiz;
-		zs.next_out = obuf;
-		zs.avail_out = ZLIB_BUF_SIZE;
-	}
-
-	if (rv != Z_STREAM_END) {
-		free (buf);
-		inflateEnd (&zs);
-		return NULL;
-	}
-	osiz = ZLIB_BUF_SIZE - zs.avail_out;
-
-	if (bsiz + osiz >= asiz) {
-		asiz = asiz * 2 + osiz;
-
-		if (!(swap = realloc (buf, asiz))) {
-			free (buf);
-			inflateEnd (&zs);
-			return NULL;
-		}
-
-		buf = swap;
-	}
-
-	memcpy (buf + bsiz, obuf, osiz);
-	bsiz += osiz;
-	buf[bsiz] = '\0';
-	*uncompressed_size = bsiz;
-	inflateEnd (&zs);
-
-	return buf;
-}
-
-static GByteArray *
-function_compress_string (const gchar *text)
-{
-	GByteArray *array;
-	z_stream zs;
-	gchar *buf, *swap;
-	guchar obuf[ZLIB_BUF_SIZE];
-	gint rv, asiz, bsiz, osiz, size;
-
-	size = strlen (text);
-
-	zs.zalloc = Z_NULL;
-	zs.zfree = Z_NULL;
-	zs.opaque = Z_NULL;
-
-	if (deflateInit2 (&zs, 6, Z_DEFLATED, 15, 6, Z_DEFAULT_STRATEGY) != Z_OK) {
-		return NULL;
-	}
-
-	asiz = size + 16;
-
-	if (asiz < ZLIB_BUF_SIZE) {
-		asiz = ZLIB_BUF_SIZE;
-	}
-
-	if (!(buf = malloc (asiz))) {
-		deflateEnd (&zs);
-		return NULL;
-	}
-
-	bsiz = 0;
-	zs.next_in = (unsigned char *) text;
-	zs.avail_in = size;
-	zs.next_out = obuf;
-	zs.avail_out = ZLIB_BUF_SIZE;
-
-	while ((rv = deflate (&zs, Z_FINISH)) == Z_OK) {
-		osiz = ZLIB_BUF_SIZE - zs.avail_out;
-
-		if (bsiz + osiz > asiz) {
-			asiz = asiz * 2 + osiz;
-
-			if (!(swap = realloc (buf, asiz))) {
-				free (buf);
-				deflateEnd (&zs);
-				return NULL;
-			}
-
-			buf = swap;
-		}
-
-		memcpy (buf + bsiz, obuf, osiz);
-		bsiz += osiz;
-		zs.next_out = obuf;
-		zs.avail_out = ZLIB_BUF_SIZE;
-	}
-
-	if (rv != Z_STREAM_END) {
-		free (buf);
-		deflateEnd (&zs);
-		return NULL;
-	}
-
-	osiz = ZLIB_BUF_SIZE - zs.avail_out;
-
-	if (bsiz + osiz + 1 > asiz) {
-		asiz = asiz * 2 + osiz;
-
-		if (!(swap = realloc (buf, asiz))) {
-			free (buf);
-			deflateEnd (&zs);
-			return NULL;
-		}
-
-		buf = swap;
-	}
-
-	memcpy (buf + bsiz, obuf, osiz);
-	bsiz += osiz;
-	buf[bsiz] = '\0';
-
-	array = g_byte_array_new ();
-	g_byte_array_append (array, (const guint8 *) buf, bsiz);
-
-	g_free (buf);
-
-	deflateEnd (&zs);
-
-	return array;
-}
-
-static GValue
-function_uncompress (TrackerDBInterface *interface,
-                     gint                argc,
-                     GValue              values[])
-{
-	GByteArray *array;
-	GValue      result = { 0, };
-	gchar      *output;
-	gint        len;
-
-	array = g_value_get_boxed (&values[0]);
-
-	if (!array) {
-		return result;
-	}
-
-	output = function_uncompress_string ((const gchar *) array->data,
-	                                     array->len,
-	                                     &len);
-
-	if (!output) {
-		g_warning ("Uncompress failed");
-		return result;
-	}
-
-	g_value_init (&result, G_TYPE_STRING);
-	g_value_take_string (&result, output);
-
-	return result;
-}
-
-static GValue
-function_compress (TrackerDBInterface *interface,
-                   gint                        argc,
-                   GValue              values[])
-{
-	GByteArray *array;
-	GValue result = { 0, };
-	const gchar *text;
-
-	text = g_value_get_string (&values[0]);
-
-	array = function_compress_string (text);
-
-	if (!array) {
-		g_warning ("Compress failed");
-		return result;
-	}
-
-	g_value_init (&result, TRACKER_TYPE_DB_BLOB);
-	g_value_take_boxed (&result, array);
-
-	return result;
-}
-
-static GValue
-function_replace (TrackerDBInterface *interface,
-                  gint                argc,
-                  GValue              values[])
-{
-	GValue result = { 0, };
-	gchar *str;
-
-	str = tracker_string_replace (g_value_get_string (&values[0]),
-	                              g_value_get_string (&values[1]),
-	                              g_value_get_string (&values[2]));
-
-	g_value_init (&result, G_TYPE_STRING);
-	g_value_take_string (&result, str);
-
-	return result;
-}
-
-static GValue
-function_collate_key (TrackerDBInterface *interface,
-                      gint                argc,
-                      GValue              values[])
-{
-	GValue result = { 0 };
-	gchar *collate_key;
-
-	collate_key = g_utf8_collate_key (g_value_get_string (&values[0]), -1);
-
-	g_value_init (&result, G_TYPE_STRING);
-	g_value_take_string (&result, collate_key);
-
-	return result;
-}
-
 static void
 db_set_params (TrackerDBInterface *iface,
                gint                cache_size,
@@ -842,17 +528,9 @@ db_set_params (TrackerDBInterface *iface,
 	g_message ("  Setting cache size to %d", cache_size);
 
 	if (add_functions) {
-		g_message ("  Adding functions (FormatDate, etc)");
+		g_message ("  Adding functions");
 
 		/* Create user defined functions that can be used in sql */
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "FormatDate",
-		                                             function_date_to_str,
-		                                             1);
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "REGEXP",
-		                                             function_regexp,
-		                                             2);
 		tracker_db_interface_sqlite_create_function (iface,
 		                                             "SparqlRegex",
 		                                             function_sparql_regex,
@@ -873,18 +551,6 @@ db_set_params (TrackerDBInterface *iface,
 		                                             "SparqlHaversineDistance",
 		                                             function_sparql_haversine_distance,
 		                                             4);
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "uncompress",
-		                                             function_uncompress,
-		                                             1);
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "compress",
-		                                             function_compress,
-		                                             1);
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "replace",
-		                                             function_replace,
-		                                             3);
 
 		tracker_db_interface_sqlite_create_aggregate (iface,
 		                                              "group_concat",
@@ -892,11 +558,6 @@ db_set_params (TrackerDBInterface *iface,
 		                                              1,
 		                                              function_group_concat_final,
 		                                              sizeof(AggregateData));
-
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "CollateKey",
-		                                             function_collate_key,
-		                                             1);
 	}
 }
 
@@ -973,15 +634,6 @@ db_interface_get_contents (void)
 		load_sql_file (iface, "sqlite-contents.sql", NULL);
 		tracker_db_interface_end_db_transaction (iface);
 	}
-
-	tracker_db_interface_sqlite_create_function (iface,
-	                                             "uncompress",
-	                                             function_uncompress,
-	                                             1);
-	tracker_db_interface_sqlite_create_function (iface,
-	                                             "compress",
-	                                             function_compress,
-	                                             1);
 
 	return iface;
 }
