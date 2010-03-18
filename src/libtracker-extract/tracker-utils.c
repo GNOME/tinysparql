@@ -222,6 +222,10 @@ tracker_text_normalize (const gchar *text,
 	}
 
 	if (n_words) {
+                if (!in_break) {
+                        /* Count the last word */
+                        words += 1;
+                }
 		*n_words = words;
 	}
 
