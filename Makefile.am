@@ -21,7 +21,8 @@ coverage-report: coverage
 		tracker-turtle-reader.c \
 		tracker-turtle-writer.c \
 		"*.vapi" \
-		"*-glue.h"
+		"*-glue.h" \
+		"tracker-marshal.*"
 	rm -rf $(top_builddir)/coverage
 	$(mkdir_p) $(top_builddir)/coverage
 	genhtml --title "@PACKAGE_STRING@" --output-directory $(top_builddir)/coverage $(top_builddir)/lcov.info
