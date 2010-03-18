@@ -1,3 +1,104 @@
+NEW in 0.7.26 - 2010-03-18
+==========================
+
+Improvements / New:
+
+  General:
+  * Ignore -glue.h D-Bus generated files for coverage-report
+  * Ignore tracker-marshal.* generated files in coverage-report
+  * Added new functional tests for metadata extraction of images
+
+  Ontology:
+  * Updated nco:hasIMAddress to be a sub-property of nco:hasContactMedium
+  * Updated nfo:codec range to be xsd:string, was rdfs:Literal
+  * Added tracker:notify for nmm:Photo
+  * Removed nrl:InverseFunctionalProperty from nco:imID property
+
+  libtracker-common:
+  * Removed unused file utility functions
+  * Removed unused string utility functions
+  * Removed unused TurtleWriter
+
+  libtracker-db:
+  * Don't initialize ontologies here, do it in libtracker-data
+  * Removed unused D-Bus functions
+  * Removed unused user-defined SQLite functions
+  * Removed unused user-defined aggregate SQLite functions
+  * Removed unused support for blobs
+
+  libtracker-data:
+  * Improve journal replay time from 1050s to 58s for 25249 resources 
+  * Move internal ontology API from libtracker-common to libtracker-data
+  * Added tests for backup/restore
+  * Added tests for anonymous blank nodes
+  * Added tests for predicate variables
+  * Do not check for ontology updates in test schema
+  * Do not register properties with GObject for TrackerProperty
+  * Make sure we journal super-property changes
+  * Keep VmRSS under control during journal replay
+  * Journal imported TTL files
+  * Removed the last part of tracker:uri
+  * Removed unused volume handling functions
+  * Removed unused "filtered" property from TrackerProperty
+  * Removed unused set_super_ functions
+  * Removed unused TrackerProperty functions
+
+  libtracker-fts:
+  * Removed unused functions
+
+  libtracker-miner:
+  * Added tracker-miner-web API thanks to the work from Adrien Bustany
+  * Added tests for thumbnailer API
+  * Added tests for tracker-miner-manager API
+  * Added tests for mock miner desktop files
+  * Added TRACKER_MINERS_DIR env variable to support test cases,
+    points to XML files installed by miners
+  * Fixed single quote instances for SPARQL queries
+  * Fixed tests, don't include specific files, link against lib instead
+  * Fixed "Could not process" warnings, use g_message() instead
+
+  libtracker-client:
+  * Install Vala bindings
+
+  tracker-extract:
+  * Cleaned up oasis (OpenOffice) extractor
+  * Fixes totem AUDIO_BITRATE to use nfo:averageBitrate not nmm:averageBitrate
+
+  tracker-miner-fs:
+  * Improve performance on MOVE operations, now 1s, was 9m for linux kernel
+  * Don't recurse dirs from inotify if dir matches single index config
+
+  tracker-miner-rss:
+  * Added new RSS feed miner thanks to the work from Michele Tameni & Roberto Guido
+
+Bugs:
+
+  * GB#609607, Make tracker build without assuming implicit DSO linking
+  * GB#612749, Fix include of libtracker-client/tracker-client.h in libtracker-miner/tracker-miner.h
+  * GB#612873, tracker cannot extract oasis files if the filename has spaces in it.
+  * GB#612744, cannot activate evolution plugin
+  * GB#494441, Lack of icon for "Indexing Preferences" in Launch menu on Solaris
+  * GB#494438, tracker-preferences title should be "Indexing Preferences"
+  * GB#497670, Remove "startup delay" hack from the prefs
+  * GB#579062, mktime() related error
+  * GB#612966, Non-Recursively Indexed Directories behavior
+  * GB#606443, Help kill libegg
+  * GB#613114, Date string is leaked in MSOffice extractor
+
+Translations:
+
+  * Updated sv: Daniel Nylander
+  * Updated sl: Andrej Žnidaršič
+  * Updated es: Jorge González
+  * Updated lt: Gintautas Miliauskas
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+
 NEW in 0.7.25 - 2010-03-11
 ==========================
 
