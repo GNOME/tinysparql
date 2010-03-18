@@ -91,11 +91,6 @@ namespace Tracker {
 		public string get_password (string service, out string username) throws GLib.Error;
 		public void store_password (string service, string description, string username, string password) throws GLib.Error;
 	}
-	[CCode (cprefix = "TRACKER_MINER_WEB_", has_type_id = false, cheader_filename = "libtracker-miner/tracker-miner-web.h")]
-	public enum MinerWebAssociationType {
-		UNASSOCIATED,
-		ASSOCIATED
-	}
 	[CCode (cprefix = "TRACKER_MINER_WEB_ERROR_", cheader_filename = "libtracker-miner/tracker-miner-web.h")]
 	public errordomain MinerWebError {
 		WRONG_CREDENTIALS,

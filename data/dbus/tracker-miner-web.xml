@@ -99,7 +99,7 @@
         </doc:description>
       </doc:doc>
     </method>
-    <property name="Association" type="u" access="read">
+    <property name="Associated" type="b" access="read">
       <doc:doc>
         <doc:description>
           <doc:para>
