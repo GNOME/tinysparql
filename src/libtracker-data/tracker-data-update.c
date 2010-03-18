@@ -1603,8 +1603,6 @@ tracker_data_insert_statement (const gchar            *graph,
 		} else {
 			tracker_data_insert_statement_with_string (graph, subject, predicate, object, error);
 		}
-	} else if (strcmp (predicate, TRACKER_PREFIX "uri") == 0) {
-		tracker_data_insert_statement_with_uri (graph, subject, predicate, object, error);
 	} else {
 		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology", predicate);
