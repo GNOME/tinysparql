@@ -139,4 +139,5 @@ BUILT_SOURCES = $(dbus_sources) $(marshal_sources)
 CLEANFILES = $(BUILT_SOURCES)
 
 EXTRA_DIST = tracker-marshal.list	\
+	$(vapi_DATA)			\
 	tracker-miner-web-full.xml
