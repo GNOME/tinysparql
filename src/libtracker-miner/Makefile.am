@@ -36,10 +36,11 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-miner-dbus.h				\
 	tracker-miner-fs.c				\
 	tracker-miner-fs.h				\
-	tracker-miner-web.c				\
-	tracker-miner-web.h				\
 	tracker-miner-manager.c				\
 	tracker-miner-manager.h				\
+	tracker-miner-web.c				\
+	tracker-miner-web.h				\
+	tracker-miner-web-dbus.h			\
 	tracker-monitor.c				\
 	tracker-monitor.h				\
 	tracker-storage.c				\
@@ -55,10 +56,10 @@ libtracker_minerinclude_HEADERS = 			\
 	tracker-miner-dbus.h 				\
 	tracker-miner-fs.h				\
 	tracker-miner-manager.h				\
-	tracker-storage.h				\
-	tracker-thumbnailer.h				\
 	tracker-miner-web.h				\
-	tracker-password-provider.h
+	tracker-password-provider.h			\
+	tracker-storage.h				\
+	tracker-thumbnailer.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \

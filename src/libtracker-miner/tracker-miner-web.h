@@ -43,14 +43,21 @@ typedef struct TrackerMinerWebPrivate TrackerMinerWebPrivate;
 
 /**
  * TrackerMinerWebError:
- * @TRACKER_MINER_WEB_ERROR_WRONG_CREDENTIALS: The stored credentials are refused by the remote service
- * @TRACKER_MINER_WEB_ERROR_TOKEN_EXPIRED    : The service says the stored token has expired
- * @TRACKER_MINER_WEB_ERROR_NO_CREDENTIALS   : There are currenty no credentials stored for this service
- * @TRACKER_MINER_WEB_ERROR_KEYRING          : Error while contacting the credentials storage
- * @TRACKER_MINER_WEB_ERROR_SERVICE          : Error while contacting the remote service
- * @TRACKER_MINER_WEB_ERROR_TRACKER          : Error while contacting Tracker
+ * @TRACKER_MINER_WEB_ERROR_WRONG_CREDENTIALS: The credentials were
+ * refused by the remote service
+ * @TRACKER_MINER_WEB_ERROR_TOKEN_EXPIRED: The remote service
+ * token has expired
+ * @TRACKER_MINER_WEB_ERROR_NO_CREDENTIALS: There are currenty no
+ * credentials stored for this service
+ * @TRACKER_MINER_WEB_ERROR_KEYRING: The credential storage failed to
+ * retrieve the relevant information. See <classname>TrackerPasswordProvider</classname>
+ * @TRACKER_MINER_WEB_ERROR_SERVICE: Could not contact the remote service
+ * @TRACKER_MINER_WEB_ERROR_TRACKER: Could not contact the Tracker service
  *
- * Describes the different errors that can occur while operating with the remote service.
+ * The following errors are possible during any of the performed
+ * actions with a remote service.
+ *
+ * Since: 0.8
  **/
 typedef enum {
 	TRACKER_MINER_WEB_ERROR_WRONG_CREDENTIALS,
@@ -66,10 +73,17 @@ typedef enum {
 
 /**
  * TrackerMinerWebAssociationStatus:
- * @TRACKER_MINER_WEB_UNASSOCIATED : The miner is currently unassociated with the remote service
- * @TRACKER_MINER_WEB_ASSOCIATED   : The miner is currently associated with the remote service
+ * @TRACKER_MINER_WEB_UNASSOCIATED: The miner is currently
+ * not associated with the remote service. This means it needs to
+ * authenticate to be able to use any data from a remote service.
+ * @TRACKER_MINER_WEB_ASSOCIATED: The miner is currently associated
+ * with the remote service. This means that the miner can obtain
+ * remote data from the service.
  *
- * Describes if the miner can currently communicate (import data) with the web service.
+ * Describes if the current state of the miner's ability to retrieve
+ * data from the remote service.
+ *
+ * Since: 0.8
  **/
 typedef enum {
 	TRACKER_MINER_WEB_UNASSOCIATED,
@@ -82,28 +96,78 @@ struct TrackerMinerWeb {
 
 /**
  * TrackerMinerWebClass
- * @parent_class        : parent object class
- * @authenticate        : called when the miner is told to authenticate against the remote service
- * @get_association_data: called when one requests the miner's association data.
- *                        In the case of a user/pass based authentication, this should return
- *                        an empty hash table.
- *                        In the case of a token based authentication, the following keys must
- *                        be defined in the returned hash table:
- *                        - url: the url to point the user too
- *                        Additionally, the miner can define the following keys :
- *                        - post_message: a message to display after the user completes the
- *                                        association process
- *                        - post_url: a url to point the user after he completes the association
+ * @parent_class: parent object class
+ * @authenticate: called when a miner must authenticate against a
+ * remote service
+ * @get_association_data: called when one requests the miner's
+ * associated data
+ * @associate: called when the miner is asked to associate a remote
+ * service
+ * @dissociate: called when the miner is asked to revoke an
+ * association with a remote service
  *
- *                        If both post_message and post_url are defined, the message will be
- *                        displayed before the url is opened.
- * @associate           : called when the miner is told to associate with the web service.
- *                        In the case of a user/pass based authentication, the following keys must be defined
- *                        - username: the provided username
- *                        - password: the provided password
- *                        In the case of a token based authentication, the hash table can be ignored
- *                        since it will be empty.
- * @dissociate          : called when the miner is told to forget any user credentials it has stored
+ * For the @authenticate function, a username/password can be used and
+ * this should return an empty %GHashTable. If the authentication is
+ * based on a token, the following keys <emphasis>must</emphasis> be
+ * returned in the %GHashTable:
+ *
+ * <itemizedlist>
+ *   <listitem>
+ *     <para>
+ *       <emphasis>url</emphasis>: the url to point the user to.
+ *     </para>
+ *   </listitem>
+ * </itemizedlist>
+ *
+ * Additionally, the miner <emphasis>may</emphasis> define the
+ * following keys:
+ *
+ * <itemizedlist>
+ *   <listitem>
+ *     <para>
+ *       <emphasis>post_message</emphasis>: a message to display after
+ *       the user completes the association process.
+ *     </para>
+ *   </listitem>
+ *   <listitem>
+ *     <para>
+ *       <emphasis>post_url</emphasis>: a url to point the user to
+ *       after they have completed the association.
+ *     </para>
+ *   </listitem>
+ * </itemizedlist>
+ *
+ * <note>
+ *   <para>
+ *      If both <emphasis>post_message</emphasis> and
+ *      <emphasis>post_url</emphasis> are defined, the message will be
+ *      displayed before the url is opened.
+ *   </para>
+ * </note>
+ *
+ * For the @associate function, in the case of a username/password
+ * based authentication, the following keys must be defined:
+ *
+ * <itemizedlist>
+ *   <listitem>
+ *     <para>
+ *       <emphasis>username</emphasis>: the username.
+ *     </para>
+ *   </listitem>
+ *   <listitem>
+ *     <para>
+ *       <emphasis>password</emphasis>: the password.
+ *     </para>
+ *   </listitem>
+ * </itemizedlist>
+ *
+ * In the case of a token based authentication, the %GHashTable can be
+ * ignored since it will be empty.
+ *
+ * For the @dissociate function, miners <emphasis>must</emphasis>
+ * forget any user credentials stored.
+ *
+ * Since: 0.8.
  **/
 typedef struct {
 	TrackerMinerClass parent_class;

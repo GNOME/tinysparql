@@ -134,6 +134,11 @@ miner_web_constructed (GObject *object)
 	G_OBJECT_CLASS (tracker_miner_web_parent_class)->constructed (object);
 }
 
+/**
+ * tracker_miner_web_association_get_type:
+ *
+ * Returns: a #GType enumeration for all association types.
+ **/
 GType
 tracker_miner_web_association_get_type (void)
 {
@@ -156,12 +161,19 @@ tracker_miner_web_association_get_type (void)
 	return etype;
 }
 
+/**
+ * tracker_miner_web_error_quark:
+ *
+ * Returns: the #GQuark used to identify miner web errors in GError
+ * structures.
+ **/
 GQuark
 tracker_miner_web_error_quark (void)
 {
 	return g_quark_from_static_string (TRACKER_MINER_WEB_ERROR_DOMAIN);
 }
 
+/* DBus methods */
 void
 tracker_miner_web_dbus_authenticate (TrackerMinerWeb        *miner,
                                      DBusGMethodInvocation  *context,
@@ -242,6 +254,14 @@ tracker_miner_web_dbus_dissociate (TrackerMinerWeb        *miner,
 	}
 }
 
+/**
+ * tracker_miner_web_authenticate:
+ * @miner: a #TrackerMinerWeb
+ * @error: return location for errors
+ *
+ * Asks @miner to authenticate with a remote service. On failure
+ * @error will be set.
+ **/
 void
 tracker_miner_web_authenticate (TrackerMinerWeb  *miner,
                                 GError          **error)
@@ -251,6 +271,19 @@ tracker_miner_web_authenticate (TrackerMinerWeb  *miner,
 	TRACKER_MINER_WEB_GET_CLASS (miner)->authenticate (miner, error);
 }
 
+/**
+ * tracker_miner_web_get_association_data:
+ * @miner: a #TrackerMinerWeb
+ * @error: return location for errors
+ *
+ * Asks @miner to retrieve association_data for. The data returned in
+ * the %GHashTable depends on the @miner implementation and the type
+ * of authentication. See <classname>TrackerMinerWebClass</classname>
+ * for more information.
+ *
+ * Returns: a %GHashTable with the data. On failure @error will be set
+ * and %NULL will be returned.
+ **/
 GHashTable *
 tracker_miner_web_get_association_data (TrackerMinerWeb  *miner,
                                         GError          **error)
@@ -260,6 +293,20 @@ tracker_miner_web_get_association_data (TrackerMinerWeb  *miner,
 	return TRACKER_MINER_WEB_GET_CLASS (miner)->get_association_data (miner, error);
 }
 
+/**
+ * tracker_miner_web_associate:
+ * @miner: a #TrackerMinerWeb
+ * @association_data: a %GHashTable with the data to use for
+ * associating with a remote service.
+ * @error: return location for errors
+ *
+ * Asks @miner to associate with a remote service using
+ * @association_data. To know what data to put into @association_data,
+ * see <classname>TrackerMinerWebClass</classname> for more
+ * information.
+ *
+ * On failure @error will be set.
+ **/
 void
 tracker_miner_web_associate (TrackerMinerWeb  *miner,
                              GHashTable       *association_data,
@@ -271,6 +318,17 @@ tracker_miner_web_associate (TrackerMinerWeb  *miner,
 	TRACKER_MINER_WEB_GET_CLASS (miner)->associate (miner, association_data, error);
 }
 
+/**
+ * tracker_miner_web_dissociate:
+ * @miner: a #TrackerMinerWeb
+ * @error: return location for errors
+ *
+ * Asks @miner to dissociate from a remote service. At this point, the
+ * miner should stop storing any credentials or sensitive information
+ * which could be used to authenticate with the remote service.
+ *
+ * On failure @error will be set.
+ **/
 void
 tracker_miner_web_dissociate (TrackerMinerWeb   *miner,
                               GError           **error)

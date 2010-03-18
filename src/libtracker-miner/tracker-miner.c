@@ -875,7 +875,7 @@ tracker_miner_execute_sparql (TrackerMiner        *miner,
  * Finishes the async operation and returns the query results. If an error
  * occured during the query, @error will be set.
  *
-* Returns: a #GPtrArray with the sparql results which should not be freed.
+ * Returns: a #GPtrArray with the sparql results which should not be freed.
  **/
 const GPtrArray *
 tracker_miner_execute_sparql_finish (TrackerMiner  *miner,

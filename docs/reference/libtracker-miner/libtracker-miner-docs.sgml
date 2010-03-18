@@ -4,7 +4,10 @@
 <!ENTITY tracker-miner SYSTEM "xml/tracker-miner.xml">
 <!ENTITY tracker-miner-fs SYSTEM "xml/tracker-miner-fs.xml">
 <!ENTITY tracker-miner-manager SYSTEM "xml/tracker-miner-manager.xml">
+<!ENTITY tracker-miner-web SYSTEM "xml/tracker-miner-web.xml">
+<!ENTITY tracker-password-provider SYSTEM "xml/tracker-password-provider.xml">
 <!ENTITY tracker-storage SYSTEM "xml/tracker-storage.xml">
+<!ENTITY tracker-thumbnailer SYSTEM "xml/tracker-thumbnailer.xml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
@@ -29,6 +32,8 @@
     <chapter>
       <title>Base abstract miner class</title>
       &tracker-miner;
+      &tracker-miner-web;
+      &tracker-password-provider;
     </chapter>
 
     <chapter>
@@ -44,5 +49,6 @@
     <chapter>
       <title>Utilities</title>
       &tracker-storage;
+      &tracker-thumbnailer;
     </chapter>
 </book>

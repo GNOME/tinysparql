@@ -22,12 +22,13 @@ HFILE_GLOB=$(top_srcdir)/src/libtracker-miner/*.h
 CFILE_GLOB=$(top_srcdir)/src/libtracker-miner/*.c
 
 # Header files to ignore when scanning
-IGNORE_HFILES=	\
-	tracker-crawler.h	\
-	tracker-marshal.h	\
-	tracker-miner-client.h	\
-	tracker-miner-glue.h	\
-	tracker-monitor.h	\
+IGNORE_HFILES=								\
+	tracker-crawler.h						\
+	tracker-marshal.h						\
+	tracker-miner-client.h						\
+	tracker-miner-glue.h						\
+	tracker-miner-web-glue.h					\
+	tracker-monitor.h						\
 	tracker-utils.h
 
 # CFLAGS and LDFLAGS for compiling scan program. Only needed

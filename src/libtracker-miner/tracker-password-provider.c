@@ -41,6 +41,11 @@ tracker_password_provider_init (gpointer object_class)
 }
 
 /* That would be better done with G_DECLARE_INTERFACE, but it's GLib 2.24. */
+/**
+ * tracker_password_provider_get_type:
+ *
+ * Returns: a #GType representing a %TrackerPasswordProvider.
+ **/
 GType
 tracker_password_provider_get_type (void)
 {
@@ -62,12 +67,29 @@ tracker_password_provider_get_type (void)
 	return iface_type;
 }
 
+/**
+ * tracker_password_provider_error_quark:
+ *
+ * Returns: the #GQuark used to identify password provider errors in
+ * GError structures.
+ **/
 GQuark
 tracker_password_provider_error_quark (void)
 {
 	return g_quark_from_static_string (TRACKER_PASSWORD_PROVIDER_ERROR_DOMAIN);
 }
 
+/**
+ * tracker_password_provider_get_name:
+ * @provider: a TrackerPasswordProvider
+ *
+ * At the moment there are only two providers, "GNOME Keyring" and
+ * "GKeyFile". Either of these is what will be returned unless new
+ * providers are written.
+ *
+ * Returns: a newly allocated string representing the #Object:name
+ * which must be freed with g_free().
+ **/
 gchar *
 tracker_password_provider_get_name (TrackerPasswordProvider *provider)
 {
@@ -80,6 +102,22 @@ tracker_password_provider_get_name (TrackerPasswordProvider *provider)
 	return name;
 }
 
+/**
+ * tracker_password_provider_store_password:
+ * @provider: a TrackerPasswordProvider
+ * @service: the name of the remote service associated with @username
+ * and @password
+ * @description: the description for @service
+ * @username: the username to store
+ * @password: the password to store
+ * @error: return location for errors
+ *
+ * This function calls the password provider's "store_password"
+ * implementation with @service, @description, @username and @password.
+ *
+ * Returns: %TRUE if the password was saved, otherwise %FALSE is
+ * returned and @error will be set.
+ **/
 gboolean
 tracker_password_provider_store_password (TrackerPasswordProvider  *provider,
                                           const gchar              *service,
@@ -104,6 +142,20 @@ tracker_password_provider_store_password (TrackerPasswordProvider  *provider,
 	return iface->store_password (provider, service, description, username, password, error);
 }
 
+/**
+ * tracker_password_provider_get_password:
+ * @provider: a TrackerPasswordProvider
+ * @service: the name of the remote service associated with @username
+ * @username: the username associated with the password we are returning
+ * @error: return location for errors
+ *
+ * This function calls the password provider's "get_password"
+ * implementation with @service and @username.
+ *
+ * Returns: a newly allocated string representing a password which
+ * must be freed with g_free(), otherwise %NULL is returned and @error
+ * will be set.
+ **/
 gchar *
 tracker_password_provider_get_password (TrackerPasswordProvider  *provider,
                                         const gchar              *service,
@@ -124,6 +176,17 @@ tracker_password_provider_get_password (TrackerPasswordProvider  *provider,
 	return iface->get_password (provider, service, username, error);
 }
 
+/**
+ * tracker_password_provider_forget_password:
+ * @provider: a TrackerPasswordProvider
+ * @service: the name of the remote service associated with @username
+ * @error: return location for errors
+ *
+ * This function calls the password provider's "forget_password"
+ * implementation with @service.
+ *
+ * On failure @error will be set.
+ **/
 void
 tracker_password_provider_forget_password (TrackerPasswordProvider  *provider,
                                            const gchar              *service,

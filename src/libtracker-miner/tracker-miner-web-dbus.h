@@ -43,4 +43,4 @@ void tracker_miner_web_dbus_dissociate           (TrackerMinerWeb        *miner,
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_MINER_DBUS_H__ */
+#endif /* __LIBTRACKER_MINER_WEB_DBUS_H__ */

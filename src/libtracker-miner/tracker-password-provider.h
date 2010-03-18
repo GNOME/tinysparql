@@ -35,11 +35,34 @@ G_BEGIN_DECLS
 typedef struct TrackerPasswordProvider TrackerPasswordProvider;
 typedef struct TrackerPasswordProviderIface TrackerPasswordProviderIface;
 
+/**
+ * TrackerPasswordProviderError:
+ * @TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE: An internal error
+ * occurred which meant the operation failed.
+ * @TRACKER_PASSWORD_PROVIDER_ERROR_NOTFOUND: No password provider was
+ * found to store/retrieve the remote service's authentication
+ * credentials
+ *
+ * The following errors are possible during any of the performed
+ * actions with a password provider.
+ *
+ * Since: 0.8
+ **/
 typedef enum {
 	TRACKER_PASSWORD_PROVIDER_ERROR_SERVICE,
 	TRACKER_PASSWORD_PROVIDER_ERROR_NOTFOUND
 } TrackerPasswordProviderError;
 
+/**
+ * TrackerPasswordProviderIface
+ * @parent_iface: parent object interface
+ * @store_password: save the service, username and password
+ * @get_password: get a password for a given service
+ * @forget_password: forget any password associated with a given
+ * service
+ *
+ * Since: 0.8.
+ **/
 struct TrackerPasswordProviderIface {
 	GTypeInterface parent_iface;
 
@@ -63,9 +86,6 @@ GQuark   tracker_password_provider_error_quark     (void);
 
 gchar*   tracker_password_provider_get_name        (TrackerPasswordProvider  *provider);
 
-/* Must be defined by the selected implementation */
-TrackerPasswordProvider*
-         tracker_password_provider_get             (void);
 gboolean tracker_password_provider_store_password  (TrackerPasswordProvider  *provider,
                                                     const gchar              *service,
                                                     const gchar              *description,
@@ -80,6 +100,23 @@ void     tracker_password_provider_forget_password (TrackerPasswordProvider  *pr
                                                     const gchar              *service,
                                                     GError                  **error);
 gchar*   tracker_password_provider_strdup_mlock    (const gchar              *source);
+
+/* Must be defined by the selected implementation */
+/**
+ * tracker_password_provider_get:
+ *
+ * This function <emphasis>MUST</emphasis> be defined by the
+ * implementation of TrackerPasswordProvider.
+ *
+ * For example, tracker-password-provider-gnome.c should include this
+ * function for a GNOME Keyring implementation.
+ *
+ * Only one implementation can exist at once.
+ *
+ * Returns: a %TrackerPasswordProvider.
+ **/
+TrackerPasswordProvider *
+         tracker_password_provider_get             (void);
 
 G_END_DECLS
 
