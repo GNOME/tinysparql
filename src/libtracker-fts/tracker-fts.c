@@ -2243,10 +2243,12 @@ typedef enum QueryType {
 } QueryType;
 
 typedef enum fulltext_statement {
+#if 0
   CONTENT_INSERT_STMT,
   CONTENT_SELECT_STMT,
   CONTENT_DELETE_STMT,
   CONTENT_EXISTS_STMT,
+#endif
 
   BLOCK_INSERT_STMT,
   BLOCK_SELECT_STMT,
@@ -2272,10 +2274,12 @@ typedef enum fulltext_statement {
 ** If so perhaps we should move some of these to the cursor object.
 */
 static const char *const fulltext_zStatement[MAX_STMT] = {
+#if 0
   /* CONTENT_INSERT */ NULL,  /* generated in contentInsertStatement() */
   /* CONTENT_SELECT */ NULL,  /* generated in contentSelectStatement() */
   /* CONTENT_DELETE */ "delete from %_content where docid = ?",
   /* CONTENT_EXISTS */ "select docid from %_content limit 1",
+#endif
 
   /* BLOCK_INSERT */
   "insert into %_segments (blockid, block) values (null, ?)",
@@ -2382,6 +2386,7 @@ static struct fulltext_vtab *cursor_vtab(fulltext_cursor *c){
 
 static const sqlite3_module fts3Module;   /* forward declaration */
 
+#if 0
 /* Return a dynamically generated statement of the form
  *   insert into %_content (docid, ...) values (?, ...)
  */
@@ -2392,6 +2397,7 @@ static const char *contentInsertStatement(fulltext_vtab *v){
   append(&sb, "insert into %_content (docid) values (?)");
   return stringBufferData(&sb);
 }
+#endif
 
 
 /* Functions from Tracker */
@@ -2429,6 +2435,7 @@ get_metadata_weight (int id)
 }
 
 
+#if 0
 /* Return a dynamically generated statement of the form
  *   select <content columns> from %_content where docid = ?
  */
@@ -2448,6 +2455,7 @@ static const char *contentSelectStatement(fulltext_vtab *v){
 
   return stringBufferData(&sb);
 }
+#endif
 
 /* Puts a freshly-prepared statement determined by iStmt in *ppStmt.
 ** If the indicated statement has never been prepared, it is prepared
@@ -2460,10 +2468,12 @@ static int sql_get_statement(fulltext_vtab *v, fulltext_statement iStmt,
     const char *zStmt;
     int rc;
     switch( iStmt ){
+#if 0
       case CONTENT_INSERT_STMT:
         zStmt = contentInsertStatement(v); break;
       case CONTENT_SELECT_STMT:
         zStmt = contentSelectStatement(v); break;
+#endif
       default:
         zStmt = fulltext_zStatement[iStmt];
     }
@@ -2514,6 +2524,7 @@ static int sql_get_leaf_statement(fulltext_vtab *v, int idx,
   return SQLITE_OK;
 }
 
+#if 0
 /* insert into %_content (docid, ...) values ([docid], [pValues])
 ** If the docid contains SQL NULL, then a unique docid will be
 ** generated.
@@ -2531,7 +2542,6 @@ static int content_insert(fulltext_vtab *v, sqlite3_value *docid,
   return sql_single_step(s);
 }
 
-#if 0
 static void freeStringArray(int nString, const char **pString){
   int i;
 
@@ -2585,7 +2595,6 @@ static int content_select(fulltext_vtab *v, sqlite_int64 iDocid,
   freeStringArray(v->nColumn, values);
   return rc;
 }
-#endif
 
 /* delete from %_content where docid = [iDocid ] */
 static int content_delete(fulltext_vtab *v, sqlite_int64 iDocid){
@@ -2617,6 +2626,7 @@ static int content_exists(fulltext_vtab *v){
   if( rc==SQLITE_ROW ) return SQLITE_ERROR;
   return rc;
 }
+#endif
 
 /* insert into %_segments values ([pData])
 **   returns assigned blockid in *piBlockid
@@ -2792,6 +2802,7 @@ static int segdir_delete(fulltext_vtab *v, int iLevel){
   return sql_single_step(s);
 }
 
+#if 0
 /* Delete entire fts index, SQLITE_OK on success, relevant error on
 ** failure.
 */
@@ -2808,6 +2819,7 @@ static int segdir_delete_all(fulltext_vtab *v){
 
   return sql_single_step(s);
 }
+#endif
 
 /* Returns SQLITE_OK with *pnSegments set to the number of entries in
 ** %_segdir and *piMaxLevel set to the highest level which has a
@@ -4917,6 +4929,7 @@ static int deleteTerms(fulltext_vtab *v, sqlite_int64 iDocid){
 /* TODO(shess) Refactor the code to remove this forward decl. */
 static int initPendingTerms(fulltext_vtab *v, sqlite_int64 iDocid);
 
+#if 0
 /* Insert a row into the %_content table; set *piDocid to be the ID of the
 ** new row.  Add doclists for terms to pendingTerms.
 */
@@ -4972,6 +4985,7 @@ static int index_update(fulltext_vtab *v, sqlite_int64 iRow,
 
   return SQLITE_OK;
 }
+#endif
 
 /*******************************************************************/
 /* InteriorWriter is used to collect terms and block references into
@@ -6808,6 +6822,7 @@ static int initPendingTerms(fulltext_vtab *v, sqlite_int64 iDocid){
   return SQLITE_OK;
 }
 
+#if 0
 /* This function implements the xUpdate callback; it is the top-level entry
  * point for inserting, deleting or updating a row in a full-text table. */
 static int fulltextUpdate(sqlite3_vtab *pVtab, int nArg, sqlite3_value **ppArg,
@@ -6884,6 +6899,7 @@ static int fulltextUpdate(sqlite3_vtab *pVtab, int nArg, sqlite3_value **ppArg,
 
   return rc;
 }
+#endif
 
 static int fulltextSync(sqlite3_vtab *pVtab){
   FTSTRACE(("FTS3 xSync()\n"));
@@ -7735,7 +7751,7 @@ static const sqlite3_module fts3Module = {
   /* xEof          */ fulltextEof,
   /* xColumn       */ fulltextColumn,
   /* xRowid        */ fulltextRowid,
-  /* xUpdate       */ fulltextUpdate,
+  /* xUpdate       */ NULL,
   /* xBegin        */ fulltextBegin,
   /* xSync         */ fulltextSync,
   /* xCommit       */ fulltextCommit,
