@@ -3,7 +3,8 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
-	tracker-utils 							
+	tracker-utils 							\
+	tracker-xmp
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
@@ -32,3 +33,16 @@ tracker_utils_LDADD =							\
 	$(GLIB2_LIBS)							\
 	$(GCOV_LIBS)
 
+tracker_xmp_SOURCES = \
+	tracker-xmp-test.c
+
+tracker_xmp_LDADD =							\
+	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la   \
+	$(GMODULE_LIBS)							\
+	$(GTHREAD_LIBS)							\
+	$(GOBJECT_LIBS)							\
+	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)
