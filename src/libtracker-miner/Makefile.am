@@ -134,8 +134,9 @@ tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_sr
 %-client.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
-BUILT_SOURCES = $(dbus_sources) $(marshal_sources) tracker-miner-web-full.xml
+BUILT_SOURCES = $(dbus_sources) $(marshal_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
 
-EXTRA_DIST = tracker-marshal.list
+EXTRA_DIST = tracker-marshal.list	\
+	tracker-miner-web-full.xml
