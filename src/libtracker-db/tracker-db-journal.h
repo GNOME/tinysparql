@@ -33,12 +33,13 @@ G_BEGIN_DECLS
 typedef enum {
 	TRACKER_DB_JOURNAL_START,
 	TRACKER_DB_JOURNAL_START_TRANSACTION,
+	TRACKER_DB_JOURNAL_START_ONTOLOGY_TRANSACTION,
 	TRACKER_DB_JOURNAL_END_TRANSACTION,
 	TRACKER_DB_JOURNAL_RESOURCE,
 	TRACKER_DB_JOURNAL_INSERT_STATEMENT,
 	TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID,
 	TRACKER_DB_JOURNAL_DELETE_STATEMENT,
-	TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID
+	TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID,
 } TrackerDBJournalEntryType;
 
 GQuark       tracker_db_journal_error_quark                  (void);
@@ -54,6 +55,8 @@ const gchar* tracker_db_journal_get_filename                 (void);
 gsize        tracker_db_journal_get_size                     (void);
 
 gboolean     tracker_db_journal_start_transaction            (time_t       time);
+gboolean     tracker_db_journal_start_ontology_transaction   (time_t       time);
+
 gboolean     tracker_db_journal_append_delete_statement      (gint         g_id,
                                                               gint         s_id,
                                                               gint         p_id,

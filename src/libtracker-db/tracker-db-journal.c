@@ -57,6 +57,11 @@ typedef enum {
 	DATA_FORMAT_GRAPH            = 1 << 3
 } DataFormat;
 
+typedef enum {
+	TRANSACTION_FORMAT_DATA      = 1 << 0,
+	TRANSACTION_FORMAT_ONTOLOGY  = 1 << 1,
+} TransactionFormat;
+
 static struct {
 	gchar *filename;
 	GMappedFile *file;
@@ -276,7 +281,7 @@ tracker_db_journal_init (const gchar *filename, gboolean truncate)
 		writer.cur_block[4] = 'g';
 		writer.cur_block[5] = '\0';
 		writer.cur_block[6] = '0';
-		writer.cur_block[7] = '1';
+		writer.cur_block[7] = '2';
 
 		if (!write_all_data (writer.journal, writer.cur_block, 8)) {
 			g_free (writer.journal_filename);
@@ -350,6 +355,44 @@ tracker_db_journal_start_transaction (time_t time)
 	/* add timestamp */
 	cur_block_maybe_expand (sizeof (gint32));
 	cur_setnum (writer.cur_block, &writer.cur_pos, time);
+	writer.cur_block_len += sizeof (gint32);
+
+	/* Add format */
+	cur_block_maybe_expand (sizeof (gint32));
+	cur_setnum (writer.cur_block, &writer.cur_pos, TRANSACTION_FORMAT_DATA);
+	writer.cur_block_len += sizeof (gint32);
+
+	return TRUE;
+}
+
+
+gboolean
+tracker_db_journal_start_ontology_transaction (time_t time)
+{
+	guint size;
+
+	g_return_val_if_fail (writer.journal > 0, FALSE);
+
+	size = sizeof (guint32) * 3;
+	cur_block_maybe_expand (size);
+
+	/* Leave space for size, amount and crc
+	 * Check and keep in sync the offset variable at
+	 * tracker_db_journal_commit_db_transaction too */
+
+	memset (writer.cur_block, 0, size);
+
+	writer.cur_pos = writer.cur_block_len = size;
+	writer.cur_entry_amount = 0;
+
+	/* add timestamp */
+	cur_block_maybe_expand (sizeof (gint32));
+	cur_setnum (writer.cur_block, &writer.cur_pos, time);
+	writer.cur_block_len += sizeof (gint32);
+
+	/* Add format */
+	cur_block_maybe_expand (sizeof (gint32));
+	cur_setnum (writer.cur_block, &writer.cur_pos, TRANSACTION_FORMAT_ONTOLOGY);
 	writer.cur_block_len += sizeof (gint32);
 
 	return TRUE;
@@ -666,7 +709,7 @@ tracker_db_journal_reader_init (const gchar *filename)
 		return FALSE;
 	}
 
-	if (memcmp (reader.current, "trlog\00001", 8)) {
+	if (memcmp (reader.current, "trlog\00002", 8)) {
 		tracker_db_journal_reader_shutdown ();
 		return FALSE;
 	}
@@ -787,6 +830,7 @@ tracker_db_journal_reader_next (GError **error)
 		guint32 entry_size_check;
 		guint32 crc;
 		guint32 crc_check;
+		TransactionFormat t_kind;
 
 		/* Check the end is not before where we currently are */
 		if (reader.current >= reader.end) {
@@ -872,7 +916,14 @@ tracker_db_journal_reader_next (GError **error)
 		reader.time = read_uint32 (reader.current);
 		reader.current += 4;
 
-		reader.type = TRACKER_DB_JOURNAL_START_TRANSACTION;
+		t_kind = read_uint32 (reader.current);
+		reader.current += 4;
+
+		if (t_kind == TRANSACTION_FORMAT_DATA)
+			reader.type = TRACKER_DB_JOURNAL_START_TRANSACTION;
+		else
+			reader.type = TRACKER_DB_JOURNAL_START_ONTOLOGY_TRANSACTION;
+
 		return TRUE;
 	} else if (reader.amount_of_triples == 0) {
 		/* end of transaction */
