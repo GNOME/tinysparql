@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS = 			\
 	aggregates		\
 	algebra			\
+	anon			\
 	bnode-coreference	\
 	bound 			\
 	datetime		\
