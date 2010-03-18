@@ -378,7 +378,6 @@ nco:department a rdf:Property ;
 	tracker:weight 4 .
 
 nco:imID a rdf:Property ;
-	a nrl:InverseFunctionalProperty ;
 	rdfs:label "imID" ;
 	rdfs:comment "Identifier of the IM account. Examples of such identifier might include ICQ UINs, Jabber IDs, Skype names etc." ;
 	rdfs:subPropertyOf nao:identifier ;
