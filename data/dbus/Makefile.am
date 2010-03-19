@@ -6,6 +6,7 @@ config_DATA =							\
 	tracker-backup.xml					\
 	tracker-extract.xml					\
 	tracker-miner.xml					\
+	tracker-miner-web.xml					\
 	tracker-resources.xml					\
 	tracker-resources-class.xml				\
 	tracker-statistics.xml					\
