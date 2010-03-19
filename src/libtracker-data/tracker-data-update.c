@@ -2233,30 +2233,6 @@ tracker_data_sync (void)
 	tracker_db_journal_fsync ();
 }
 
-static gchar *
-query_resource_by_id (gint id)
-{
-	TrackerDBCursor *cursor;
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	gchar *uri;
-
-	g_return_val_if_fail (id > 0, NULL);
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	stmt = tracker_db_interface_create_statement (iface,
-	                                              "SELECT Uri FROM Resource WHERE ID = ?");
-	tracker_db_statement_bind_int (stmt, 0, id);
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
-	g_object_unref (stmt);
-
-	tracker_db_cursor_iter_next (cursor);
-	uri = g_strdup (tracker_db_cursor_get_string (cursor, 0));
-	g_object_unref (cursor);
-
-	return uri;
-}
 static void
 free_queued_statement (QueuedStatement *queued)
 {
@@ -2349,34 +2325,32 @@ ontology_statement_insert (GList       *ontology_queue,
                            gint         predicate_id,
                            const gchar *object,
                            GHashTable  *classes,
-                           GHashTable  *properties)
+                           GHashTable  *properties,
+                           GHashTable  *id_uri_map)
 {
-	gchar *graph, *subject, *predicate;
+	const gchar *graph, *subject, *predicate;
 
 	if (graph_id > 0) {
-		graph = query_resource_by_id (graph_id);
+		graph = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (graph_id));
 	} else {
 		graph = NULL;
 	}
 
-	subject = query_resource_by_id (subject_id);
-	predicate = query_resource_by_id (predicate_id);
+	subject = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (subject_id));
+	predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
 
 	tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate, 
 	                                      object, NULL, FALSE, classes, properties);
 
 	ontology_queue = queue_statement (ontology_queue, graph, subject, predicate, object, FALSE);
 
-	g_free (graph);
-	g_free (subject);
-	g_free (predicate);
-
 	return ontology_queue;
 }
 
 void
 tracker_data_replay_journal (GHashTable *classes,
-                             GHashTable *properties)
+                             GHashTable *properties,
+                             GHashTable *id_uri_map)
 {
 	GError *journal_error = NULL;
 	static TrackerProperty *rdf_type = NULL;
@@ -2410,6 +2384,7 @@ tracker_data_replay_journal (GHashTable *classes,
 			tracker_db_journal_reader_get_resource (&id, &uri);
 
 			if (in_ontology) {
+				g_hash_table_insert (id_uri_map, GINT_TO_POINTER (id), (gpointer) uri);
 				continue;
 			}
 
@@ -2468,7 +2443,8 @@ tracker_data_replay_journal (GHashTable *classes,
 				                                            predicate_id,
 				                                            object,
 				                                            classes,
-				                                            properties);
+				                                            properties,
+				                                            id_uri_map);
 				continue;
 			}
 
@@ -2505,16 +2481,16 @@ tracker_data_replay_journal (GHashTable *classes,
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
 			if (in_ontology) {
-				gchar *object_n;
-				object_n = query_resource_by_id (object_id);
+				const gchar *object_n;
+				object_n = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (object_id));
 				ontology_queue = ontology_statement_insert (ontology_queue,
 				                                            graph_id,
 				                                            subject_id,
 				                                            predicate_id,
 				                                            object_n,
 				                                            classes,
-				                                            properties);
-				g_free (object_n);
+				                                            properties,
+				                                            id_uri_map);
 				continue;
 			}
 

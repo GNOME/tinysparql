@@ -93,7 +93,8 @@ void     tracker_data_update_buffer_might_flush     (GError                   **
 
 void     tracker_data_sync                          (void);
 void     tracker_data_replay_journal                (GHashTable                *classes,
-                                                     GHashTable                *properties);
+                                                     GHashTable                *properties,
+                                                     GHashTable                *id_uri_map);
 
 /* Calling back */
 void     tracker_data_add_insert_statement_callback   (TrackerStatementCallback   callback,

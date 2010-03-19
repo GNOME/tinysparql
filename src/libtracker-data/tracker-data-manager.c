@@ -510,7 +510,8 @@ load_ontology_file (const gchar               *filename,
 
 static void
 load_ontology_from_journal (GHashTable **classes_out,
-                            GHashTable **properties_out)
+                            GHashTable **properties_out,
+                            GHashTable **id_uri_map_out)
 {
 	GHashTable *id_uri_map;
 	GHashTable *classes, *properties;
@@ -560,8 +561,7 @@ load_ontology_from_journal (GHashTable **classes_out,
 
 	*classes_out = classes;
 	*properties_out = properties;
-
-	g_hash_table_unref (id_uri_map);
+	*id_uri_map_out = id_uri_map;
 }
 
 void
@@ -1517,11 +1517,12 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	if (read_journal) {
 		GHashTable *classes = NULL, *properties = NULL;
+		GHashTable *id_uri_map = NULL;
 
 		in_journal_replay = TRUE;
 
 		/* load ontology from journal into memory */
-		load_ontology_from_journal (&classes, &properties);
+		load_ontology_from_journal (&classes, &properties, &id_uri_map);
 
 		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
 		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
@@ -1530,7 +1531,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		tracker_db_journal_reader_shutdown ();
 
-		tracker_data_replay_journal (classes, properties);
+		tracker_data_replay_journal (classes, properties, id_uri_map);
 
 		in_journal_replay = FALSE;
 
@@ -1541,6 +1542,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		g_hash_table_unref (classes);
 		g_hash_table_unref (properties);
+		g_hash_table_unref (id_uri_map);
+
 	} else if (is_first_time_index) {
 		gchar *test_schema_path = NULL;
 
