@@ -8,6 +8,17 @@ TEST_PROGS += 									\
 	tracker-password-provider-test						\
 	tracker-thumbnailer-test
 
+commonlibs = 									\
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-0.7.la		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la		\
+	$(DBUS_LIBS)                                                            \
+	$(GCOV_LIBS)                                                            \
+	$(GMODULE_LIBS)                                                         \
+	$(GTHREAD_LIBS)                                                         \
+	$(GIO_LIBS)                                                             \
+	$(GLIB2_LIBS)
+
 INCLUDES = 									\
 	-DTEST									\
 	-DG_LOG_DOMAIN=\"Tracker\"						\
@@ -33,15 +44,7 @@ BUILT_SOURCES = libtracker-miner-testing.vala.stamp
 tracker_crawler_SOURCES = 							\
 	tracker-crawler-test.c
 
-tracker_crawler_LDADD = 							\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner-0.7.la 		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
-	$(DBUS_LIBS)								\
-	$(GCOV_LIBS)								\
-	$(GMODULE_LIBS)								\
-	$(GTHREAD_LIBS)								\
-	$(GIO_LIBS)								\
-	$(GLIB2_LIBS)
+tracker_crawler_LDADD = $(commonlibs)	
 
 tracker_thumbnailer_test_SOURCES = 						\
 	tracker-thumbnailer-test.c						\
@@ -50,14 +53,7 @@ tracker_thumbnailer_test_SOURCES = 						\
 	empty-gobject.h								\
 	empty-gobject.c
 
-tracker_thumbnailer_test_LDADD = 						\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner-0.7.la 		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
-	$(DBUS_LIBS)								\
-	$(GCOV_LIBS)								\
-	$(GMODULE_LIBS)								\
-	$(GTHREAD_LIBS)								\
-	$(GLIB2_LIBS)
+tracker_thumbnailer_test_LDADD = $(commonlibs)	
 
 tracker_miner_manager_VALASOURCES =						\
 	tracker-miner-mock.vala
@@ -71,25 +67,12 @@ tracker_miner_manager_SOURCES = 						\
 	empty-gobject.h								\
 	empty-gobject.c
 
-tracker_miner_manager_LDADD = 							\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner-0.7.la 		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
-	$(DBUS_LIBS)								\
-	$(GCOV_LIBS)								\
-	$(GMODULE_LIBS)								\
-	$(GTHREAD_LIBS)								\
-	$(GLIB2_LIBS)
+tracker_miner_manager_LDADD = $(commonlibs)	
 
 tracker_password_provider_test_SOURCES =      					\
 	tracker-password-provider-test.c
 
-tracker_password_provider_test_LDADD =        					\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
-	$(DBUS_LIBS)								\
-	$(GCOV_LIBS)								\
-	$(GMODULE_LIBS)								\
-	$(GTHREAD_LIBS)								\
-	$(GLIB2_LIBS)
+tracker_password_provider_test_LDADD = $(commonlibs)
 
 libtracker-miner-testing.vala.stamp: $(tracker_miner_manager_VALASOURCES)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) --pkg glib-2.0 -C $(VALAFLAGS) -H $(<:.vala=.h) $<
