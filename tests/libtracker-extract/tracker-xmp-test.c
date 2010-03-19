@@ -310,6 +310,7 @@ main (int    argc,
         
 	g_test_message ("Testing XMP");
 
+#ifdef HAVE_EXEMPI
 	g_test_add_func ("/libtracker-extract/tracker-xmp/parsing_xmp",
                          test_parsing_xmp);
 
@@ -322,9 +323,9 @@ main (int    argc,
         g_test_add_func ("/libtracker-extract/tracker-xmp/sparql_translation",
                          test_xmp_apply);
 
+#endif
         g_test_add_func ("/libtracker-extract/tracker-xmp/sparql_translation_location",
                          test_xmp_apply_location);
-
 
         result = g_test_run ();
         
