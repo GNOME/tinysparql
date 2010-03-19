@@ -33,6 +33,7 @@ mfo:FeedMessage a rdfs:Class ;
 mfo:Enclosure a rdfs:Class ;
 	rdfs:label "Message enclosure" ;
 	rdfs:comment "Represents an enclosure of a feed message" ;
+        tracker:notify true ;
 	rdfs:subClassOf mfo:FeedElement .
 
 mfo:FeedSettings a rdfs:Class ;
