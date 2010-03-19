@@ -160,7 +160,6 @@ test_parsing_xmp ()
                 /* Catch io and check error message ("XML parsing failure") */
         }
         g_test_trap_assert_stderr ("*parsing failure*");
-        g_assert (result);
 
         result = tracker_xmp_read (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "test://file", &data);
         /* NS_DC */
