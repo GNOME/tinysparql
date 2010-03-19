@@ -3,6 +3,36 @@ NEW in 0.7.26 - 2010-03-18
 
 Improvements / New:
 
+  libtracker-common:
+  * Added tests for utils, tracker_seconds_to_string(), etc.
+
+  libtracker-extract:
+  * Added tests for utils, tracker_text_normalize(), etc.
+  * Added tests for xmp
+
+  libtracker-miner:
+  * Fixed miner-web introspection, "association" was enum, now bool
+  * Renamed "association" to "associated"
+
+Bugs:
+
+  * GB#613268, missing file in tarball
+
+Translations:
+
+  None
+
+Notes:
+
+  The Deskbar applet packaged with Tracker is currently out of date
+  and needs some love to get it working with the new APIs. It is in
+  the same state as it was for 0.6. As such it isn't expected to work.
+
+NEW in 0.7.26 - 2010-03-18
+==========================
+
+Improvements / New:
+
   General:
   * Ignore -glue.h D-Bus generated files for coverage-report
   * Ignore tracker-marshal.* generated files in coverage-report
