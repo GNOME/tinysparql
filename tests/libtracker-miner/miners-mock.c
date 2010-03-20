@@ -18,11 +18,11 @@ miners_mock_init ()
 
         miner = tracker_miner_mock_new (MOCK_MINER_1);
         tracker_miner_mock_set_paused (miner, FALSE);
-        g_hash_table_insert (miners, MOCK_MINER_1, miner);
+        g_hash_table_insert (miners, g_strdup (MOCK_MINER_1), miner);
 
         miner = tracker_miner_mock_new (MOCK_MINER_2);
         tracker_miner_mock_set_paused (miner, TRUE);
-        g_hash_table_insert (miners, MOCK_MINER_2, miner);
+        g_hash_table_insert (miners, g_strdup (MOCK_MINER_2), miner);
 }
 
 /*
@@ -82,7 +82,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 {
         va_list args;
         GType   arg_type;
-        GError *local_error = NULL;
+        gchar *local_error = NULL;
         const gchar *running_services[] = { "org.gnome.Tomboy",
                                             "org.gnome.GConf",
                                             MOCK_MINER_1, 
@@ -223,7 +223,6 @@ dbus_g_proxy_call (DBusGProxy *proxy,
         }
         
         va_end (args);
-        *error == NULL;
         return TRUE;
 }
 

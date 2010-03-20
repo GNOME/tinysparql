@@ -56,6 +56,10 @@ get_mock_tracker_db_result (gint results, gint columns, gboolean set_null) {
 
 }
 
+/*
+ * Unused at the moment
+ */
+#if 0 
 static TrackerDBResultSet *
 get_mock_tracker_db_multi_result (gint results, gint columns, gboolean set_null) {
 
@@ -100,7 +104,7 @@ get_mock_tracker_db_multi_result (gint results, gint columns, gboolean set_null)
 	return mock;
 
 }
-
+#endif
 /*
  * Returns this result set:
  * -----------------
@@ -108,6 +112,9 @@ get_mock_tracker_db_multi_result (gint results, gint columns, gboolean set_null)
  * value 0 | NULL
  * -----------------
  */
+
+/* Unused at the moment */
+#if 0
 static TrackerDBResultSet *
 get_custom_mock_tracker_db_result ()
 {
@@ -141,7 +148,7 @@ get_custom_mock_tracker_db_result ()
 
 	return mock;
 }
-
+#endif
 static void
 test_dbus_query_result_to_strv ()
 {

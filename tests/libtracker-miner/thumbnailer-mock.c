@@ -58,7 +58,8 @@ dbus_g_proxy_call (DBusGProxy *proxy,
         va_list args;
         GType arg_type;
         const gchar *supported_mimes[] = { "mock/one", "mock/two", NULL};
-        GError *local_error = NULL;
+        gchar *local_error = NULL;
+        int     counter;
 
         g_assert (g_strcmp0 (function_name, "GetSupported") == 0);
         
@@ -74,7 +75,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
         va_start (args, first_arg_type);
         arg_type = va_arg (args, GType);
 
-        int counter = 1;
+        counter = 1;
         while (arg_type != G_TYPE_INVALID) {
                 
                 if (arg_type == G_TYPE_STRV && counter == 2) {
@@ -94,8 +95,6 @@ dbus_g_proxy_call (DBusGProxy *proxy,
         }
 
         va_end (args);
-
-        *error == NULL;
         return TRUE;
 }
 

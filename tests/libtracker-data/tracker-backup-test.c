@@ -52,8 +52,8 @@ static gboolean
 check_content_in_db (gint expected_instances, gint expected_relations)
 {
         GError *error = NULL;
-        gchar  *query_instances_1 = "SELECT ?u WHERE { ?u a foo:class1. }";
-        gchar  *query_relation = "SELECT ?a ?b WHERE { ?a foo:propertyX ?b }";
+        const gchar  *query_instances_1 = "SELECT ?u WHERE { ?u a foo:class1. }";
+        const gchar  *query_relation = "SELECT ?a ?b WHERE { ?a foo:propertyX ?b }";
         TrackerDBResultSet *result_set;
 
         result_set = tracker_data_query_sparql (query_instances_1, &error);

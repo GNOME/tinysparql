@@ -92,8 +92,8 @@ test_text_normalize ()
         gint i, n_words;
         gchar *result;
         struct {
-                gchar *input_text;
-                gchar *expected_output;
+                const gchar *input_text;
+                const gchar *expected_output;
                 gint   n_words;
         } TEST_BATTERY [] = {
                 { "this is the basic test", "this is the basic test", 5 },

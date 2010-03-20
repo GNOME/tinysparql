@@ -21,6 +21,8 @@
 #include <libtracker-extract/tracker-xmp.h>
 #include <libtracker-client/tracker-sparql-builder.h>
 
+#include <config.h>
+
 #define BROKEN_XMP "This is not even XML"
 #define EXAMPLE_XMP   \
 "   <x:xmpmeta   " \
@@ -65,59 +67,87 @@
 "     </rdf:RDF> " \
 "   </x:xmpmeta>"
 
-TrackerXmpData EXAMPLE_EXPECTED = {
+#define METERING_MODE_XMP \
+        "   <x:xmpmeta   "                            \
+        "      xmlns:x=\'adobe:ns:meta/\'"                              \
+        "      xmlns:exif=\"http://ns.adobe.com/exif/1.0/\">"           \
+        "     <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">" \
+        "        <rdf:Description rdf:about=\"\">"                      \
+        "         <exif:MeteringMode>%d</exif:MeteringMode>"            \
+        "        </rdf:Description>"                                    \
+        "     </rdf:RDF></x:xmpmeta> " 
+
+#define ORIENTATION_XMP \
+        "   <x:xmpmeta   "                            \
+        "      xmlns:x=\'adobe:ns:meta/\'"                              \
+        "      xmlns:exif=\"http://ns.adobe.com/exif/1.0/\">"           \
+        "     <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">" \
+        "        <rdf:Description rdf:about=\"\">"                      \
+        "         <exif:Orientation>%s</exif:Orientation>"              \
+        "        </rdf:Description>"                                    \
+        "     </rdf:RDF></x:xmpmeta> " 
+
+static TrackerXmpData *
+get_example_expected ()
+{
+        TrackerXmpData *data;
+
+        data = g_new0 (TrackerXmpData, 1);
+
         /* NS_DC */
-        "Title of the content",
-        "CC share alike",
-        "The ultimate creator",
-        "Description of the content",
-        "2010-03-18T15:17:04Z",
-        "test, data, xmp",
-        "Subject of the content",
+        data->title = g_strdup ("Title of the content");
+        data->rights = g_strdup ("CC share alike");
+        data->creator = g_strdup ("The ultimate creator");
+        data->description = g_strdup ("Description of the content");
+        data->date = g_strdup ("2010-03-18T15:17:04Z");
+        data->keywords = g_strdup ("test, data, xmp");
+        data->subject = g_strdup ("Subject of the content");
 
-        "A honest developer",     /* publisher */
-        "A honest contributor",
-        NULL,                     /* type ? */
-        "application/pdf",
-        "12345",
-        "My dirty mind",
-        "Spanglish",
-        "Single",
-        "Pretty high after this test",
-
+        data->publisher = g_strdup ("A honest developer");     /* publisher */
+        data->contributor = g_strdup ("A honest contributor");
+        data->type = NULL ;
+        data->format = g_strdup ("application/pdf");
+        data->identifier = g_strdup ("12345");
+        data->source = g_strdup ("My dirty mind");
+        data->language = g_strdup ("Spanglish");
+        data->relation = g_strdup ("Single");
+        data->coverage = g_strdup ("Pretty high after this test");
+        
         /* NS_CC */
-        NULL,                     /* license */
-          
+        data->license = NULL;
+
         /* NS_PDF */
-        NULL,                     /* pdf_title */
-        NULL,                     /* pdf_keywords */
+        data->pdf_title = NULL;
+        data->pdf_keywords = NULL;
 
         /* NS_EXIF*/
-        "Title in exif",
-        "2010-03-18T15:17:04Z",   
-        "Artist in exif",
-        "Make in exif",
-        "Model in exif",
-        "nfo:orientation-top",
-        "nmm:flash-off",
-        "nmm:metering-mode-spot",
-        "1000",                  /* exposure time */
-        "12",                    /* fnumber */
-        "50",                    /* focal length */
-          
-        "400",                   /* iso speed rating */
-        "nmm:white-balance-manual",
-        "Copyright in exif",
+        data->title2 = g_strdup ("Title in exif");
+        data->time_original = g_strdup ("2010-03-18T15:17:04Z");   
+        data->artist = g_strdup ("Artist in exif");
+        data->make = g_strdup ("Make in exif");
+        data->model = g_strdup ("Model in exif");
+        data->orientation = g_strdup ("nfo:orientation-top");
+        data->flash = g_strdup ("nmm:flash-off");
+        data->metering_mode = g_strdup ("nmm:metering-mode-spot");
+        data->exposure_time = g_strdup ("1000");                  /* exposure time */
+        data->fnumber = g_strdup ("12");                    /* fnumber */
+        data->focal_length = g_strdup ("50");                    /* focal length */
+
+        data->iso_speed_ratings = g_strdup ("400");                   /* iso speed rating */
+        data->white_balance = g_strdup ("nmm:white-balance-manual");
+        data->copyright = g_strdup ("Copyright in exif");
 
         /* NS_XAP */
-        NULL,
+        data->rating = NULL;
 
         /* NS_IPTC4XMP */
         /* NS_PHOTOSHOP */
-        NULL,                    /* address */
-        NULL,                    /* country */
-        NULL,                    /* state */
-        NULL                    /* city */
+        data->address = NULL;                    /* address */
+        data->country = NULL;                    /* country */
+        data->state = NULL;                    /* state */
+        data->city = NULL;                   /* city */
+        
+        return data;
 };
 
 
@@ -152,7 +182,8 @@ ExifNepomuk ORIENTATIONS [] = {
 static void
 test_parsing_xmp ()
 {
-        TrackerXmpData data;
+        TrackerXmpData  data;
+        TrackerXmpData *expected;
         gboolean       result;
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
@@ -162,41 +193,44 @@ test_parsing_xmp ()
         g_test_trap_assert_stderr ("*parsing failure*");
 
         result = tracker_xmp_read (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "test://file", &data);
+
+        expected = get_example_expected ();
         /* NS_DC */
-        g_assert_cmpstr (data.format, ==, EXAMPLE_EXPECTED.format);
-        g_assert_cmpstr (data.title, ==, EXAMPLE_EXPECTED.title);
-        g_assert_cmpstr (data.rights, ==, EXAMPLE_EXPECTED.rights);
-        g_assert_cmpstr (data.description, ==, EXAMPLE_EXPECTED.description);
-        g_assert_cmpstr (data.date, ==, EXAMPLE_EXPECTED.date);
-        g_assert_cmpstr (data.keywords, ==, EXAMPLE_EXPECTED.keywords);
-        g_assert_cmpstr (data.subject, ==, EXAMPLE_EXPECTED.subject); 
-        g_assert_cmpstr (data.publisher, ==, EXAMPLE_EXPECTED.publisher);
-        g_assert_cmpstr (data.contributor, ==, EXAMPLE_EXPECTED.contributor);
-        g_assert_cmpstr (data.identifier, ==, EXAMPLE_EXPECTED.identifier);
-        g_assert_cmpstr (data.source, ==, EXAMPLE_EXPECTED.source);
-        g_assert_cmpstr (data.language, ==, EXAMPLE_EXPECTED.language);
-        g_assert_cmpstr (data.relation, ==, EXAMPLE_EXPECTED.relation);
-        g_assert_cmpstr (data.coverage, ==, EXAMPLE_EXPECTED.coverage);
-        g_assert_cmpstr (data.creator, ==, EXAMPLE_EXPECTED.creator);
+        g_assert_cmpstr (data.format, ==, expected->format);
+        g_assert_cmpstr (data.title, ==, expected->title);
+        g_assert_cmpstr (data.rights, ==, expected->rights);
+        g_assert_cmpstr (data.description, ==, expected->description);
+        g_assert_cmpstr (data.date, ==, expected->date);
+        g_assert_cmpstr (data.keywords, ==, expected->keywords);
+        g_assert_cmpstr (data.subject, ==, expected->subject); 
+        g_assert_cmpstr (data.publisher, ==, expected->publisher);
+        g_assert_cmpstr (data.contributor, ==, expected->contributor);
+        g_assert_cmpstr (data.identifier, ==, expected->identifier);
+        g_assert_cmpstr (data.source, ==, expected->source);
+        g_assert_cmpstr (data.language, ==, expected->language);
+        g_assert_cmpstr (data.relation, ==, expected->relation);
+        g_assert_cmpstr (data.coverage, ==, expected->coverage);
+        g_assert_cmpstr (data.creator, ==, expected->creator);
 
         /* NS_EXIF*/
-        g_assert_cmpstr (data.title2, ==, EXAMPLE_EXPECTED.title2);
-	g_assert_cmpstr (data.time_original, ==, EXAMPLE_EXPECTED.time_original);
-	g_assert_cmpstr (data.artist, ==, EXAMPLE_EXPECTED.artist);
-	g_assert_cmpstr (data.make, ==, EXAMPLE_EXPECTED.make);
-	g_assert_cmpstr (data.model, ==, EXAMPLE_EXPECTED.model);
-	g_assert_cmpstr (data.orientation, ==, EXAMPLE_EXPECTED.orientation);
-	g_assert_cmpstr (data.flash, ==, EXAMPLE_EXPECTED.flash);
-	g_assert_cmpstr (data.metering_mode, ==, EXAMPLE_EXPECTED.metering_mode);
-	g_assert_cmpstr (data.exposure_time, ==, EXAMPLE_EXPECTED.exposure_time);
-	g_assert_cmpstr (data.fnumber, ==, EXAMPLE_EXPECTED.fnumber);
-	g_assert_cmpstr (data.focal_length, ==, EXAMPLE_EXPECTED.focal_length);
+        g_assert_cmpstr (data.title2, ==, expected->title2);
+	g_assert_cmpstr (data.time_original, ==, expected->time_original);
+	g_assert_cmpstr (data.artist, ==, expected->artist);
+	g_assert_cmpstr (data.make, ==, expected->make);
+	g_assert_cmpstr (data.model, ==, expected->model);
+	g_assert_cmpstr (data.orientation, ==, expected->orientation);
+	g_assert_cmpstr (data.flash, ==, expected->flash);
+	g_assert_cmpstr (data.metering_mode, ==, expected->metering_mode);
+	g_assert_cmpstr (data.exposure_time, ==, expected->exposure_time);
+	g_assert_cmpstr (data.fnumber, ==, expected->fnumber);
+	g_assert_cmpstr (data.focal_length, ==, expected->focal_length);
 
-	g_assert_cmpstr (data.iso_speed_ratings, ==, EXAMPLE_EXPECTED.iso_speed_ratings);
-	g_assert_cmpstr (data.white_balance, ==, EXAMPLE_EXPECTED.white_balance);
-	g_assert_cmpstr (data.copyright, ==, EXAMPLE_EXPECTED.copyright);
+	g_assert_cmpstr (data.iso_speed_ratings, ==, expected->iso_speed_ratings);
+	g_assert_cmpstr (data.white_balance, ==, expected->white_balance);
+	g_assert_cmpstr (data.copyright, ==, expected->copyright);
 
         g_assert (result);
+        g_free (expected);
 }
 
 static void
@@ -206,18 +240,8 @@ test_xmp_metering_mode (void)
         gchar *xmp;
         TrackerXmpData data;
 
-        const gchar *xmp_template = "" \
-                "   <x:xmpmeta   "                    \
-                "      xmlns:x=\'adobe:ns:meta/\'"    \
-                "      xmlns:exif=\"http://ns.adobe.com/exif/1.0/\">"   \
-                "     <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">" \
-                "        <rdf:Description rdf:about=\"\">"              \
-                "         <exif:MeteringMode>%d</exif:MeteringMode>"     \
-                "        </rdf:Description>" \
-                "     </rdf:RDF></x:xmpmeta> " ;
-
         for (i = 0; METERING_MODES[i].exif_value != NULL; i++) {
-                xmp = g_strdup_printf (xmp_template, i);
+                xmp = g_strdup_printf (METERING_MODE_XMP, i);
                 tracker_xmp_read (xmp, strlen (xmp), "local://file", &data);
                 
                 g_assert_cmpstr (data.metering_mode, ==, METERING_MODES[i].nepomuk_translation);
@@ -233,18 +257,8 @@ test_xmp_orientation (void)
         gchar *xmp;
         TrackerXmpData data;
 
-        const gchar *xmp_template = "" \
-                "   <x:xmpmeta   "                    \
-                "      xmlns:x=\'adobe:ns:meta/\'"    \
-                "      xmlns:exif=\"http://ns.adobe.com/exif/1.0/\">"   \
-                "     <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">" \
-                "        <rdf:Description rdf:about=\"\">"              \
-                "         <exif:Orientation>%s</exif:Orientation>"     \
-                "        </rdf:Description>" \
-                "     </rdf:RDF></x:xmpmeta> " ;
-
         for (i = 0; ORIENTATIONS[i].exif_value != NULL; i++) {
-                xmp = g_strdup_printf (xmp_template, ORIENTATIONS[i].exif_value);
+                xmp = g_strdup_printf (ORIENTATION_XMP, ORIENTATIONS[i].exif_value);
                 tracker_xmp_read (xmp, strlen (xmp), "local://file", &data);
                 
                 g_assert_cmpstr (data.orientation, ==, ORIENTATIONS[i].nepomuk_translation);
