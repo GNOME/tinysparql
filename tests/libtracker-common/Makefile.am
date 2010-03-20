@@ -22,7 +22,9 @@ INCLUDES = 								\
 	$(DBUS_CFLAGS)
 
 tracker_dbus_SOURCES = 							\
-	tracker-dbus-test.c
+	tracker-dbus-test.c						\
+	mock-dbus.c							\
+	mock-dbus-gproxy.c
 
 tracker_dbus_LDADD =							\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
