@@ -876,7 +876,7 @@ public enum Tracker.SparqlTokenType {
 	WHERE,
 	WITH;
 
-	public weak string to_string () {
+	public unowned string to_string () {
 		switch (this) {
 		case A: return "`a'";
 		case AS: return "`AS'";

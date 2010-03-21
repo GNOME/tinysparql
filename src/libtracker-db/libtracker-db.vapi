@@ -41,7 +41,7 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-db/tracker-db-manager.h")]
 	namespace DBManager {
-		public weak DBInterface get_db_interface ();
+		public unowned DBInterface get_db_interface ();
 	}
 
 	[CCode (cheader_filename = "libtracker-db/tracker-db-interface.h")]

@@ -464,7 +464,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
-	public DBResultSet? execute () throws DBInterfaceError, SparqlError {
+	public DBResultSet? execute () throws DBInterfaceError, SparqlError, DateError {
 		assert (!update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -1253,13 +1253,13 @@ public class Tracker.SparqlQuery : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
-	void append_expression_as_string (StringBuilder sql, string expression, PropertyType type) {
+	static void append_expression_as_string (StringBuilder sql, string expression, PropertyType type) {
 		long begin = sql.len;
 		sql.append (expression);
 		convert_expression_to_string (sql, type, begin);
 	}
 
-	void convert_expression_to_string (StringBuilder sql, PropertyType type, long begin) {
+	static void convert_expression_to_string (StringBuilder sql, PropertyType type, long begin) {
 		switch (type) {
 		case PropertyType.STRING:
 		case PropertyType.INTEGER:

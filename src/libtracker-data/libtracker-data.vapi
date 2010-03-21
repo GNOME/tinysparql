@@ -58,11 +58,11 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-ontologies.h")]
 	namespace Ontologies {
-		public weak Class get_class_by_uri (string class_uri);
-		public weak Property get_property_by_uri (string property_uri);
-		public weak Namespace[] get_namespaces ();
-		public weak Class[] get_classes ();
-		public weak Property[] get_properties ();
+		public unowned Class get_class_by_uri (string class_uri);
+		public unowned Property get_property_by_uri (string property_uri);
+		public unowned Namespace[] get_namespaces ();
+		public unowned Class[] get_classes ();
+		public unowned Property[] get_properties ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
