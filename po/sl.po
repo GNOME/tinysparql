@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2010-03-12 16:16+0000\n"
-"PO-Revision-Date: 2010-03-12 18:47+0100\n"
+"POT-Creation-Date: 2010-03-20 10:01+0000\n"
+"PO-Revision-Date: 2010-03-20 17:46+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -107,41 +107,41 @@ msgstr "Oznaka ene ali več datotek"
 msgid "No error given"
 msgstr "Ni določene napake"
 
-#: ../src/libtracker-common/tracker-utils.c:137
-#: ../src/libtracker-common/tracker-utils.c:144
+#: ../src/libtracker-common/tracker-utils.c:68
+#: ../src/libtracker-common/tracker-utils.c:75
 msgid "unknown time"
 msgstr "neznan čas"
 
-#: ../src/libtracker-common/tracker-utils.c:162
-#: ../src/libtracker-common/tracker-utils.c:213
+#: ../src/libtracker-common/tracker-utils.c:93
+#: ../src/libtracker-common/tracker-utils.c:144
 msgid "less than one second"
 msgstr "manj kot eno sekundo"
 
 #. Translators: this is %d days
-#: ../src/libtracker-common/tracker-utils.c:177
+#: ../src/libtracker-common/tracker-utils.c:108
 #, c-format
 msgid " %dd"
 msgstr " %dd"
 
 #. Translators: this is %2.2d hours
-#: ../src/libtracker-common/tracker-utils.c:181
+#: ../src/libtracker-common/tracker-utils.c:112
 #, c-format
 msgid " %2.2dh"
 msgstr " %2.2du"
 
 #. Translators: this is %2.2d minutes
-#: ../src/libtracker-common/tracker-utils.c:185
+#: ../src/libtracker-common/tracker-utils.c:116
 #, c-format
 msgid " %2.2dm"
 msgstr " %2.2dm"
 
 #. Translators: this is %2.2d seconds
-#: ../src/libtracker-common/tracker-utils.c:189
+#: ../src/libtracker-common/tracker-utils.c:120
 #, c-format
 msgid " %2.2ds"
 msgstr " %2.2ds"
 
-#: ../src/libtracker-common/tracker-utils.c:193
+#: ../src/libtracker-common/tracker-utils.c:124
 #, c-format
 msgid " %d day"
 msgid_plural " %d days"
@@ -150,7 +150,7 @@ msgstr[1] " %d dan"
 msgstr[2] " %d dneva"
 msgstr[3] " %d dnevi"
 
-#: ../src/libtracker-common/tracker-utils.c:197
+#: ../src/libtracker-common/tracker-utils.c:128
 #, c-format
 msgid " %2.2d hour"
 msgid_plural " %2.2d hours"
@@ -159,7 +159,7 @@ msgstr[1] " %2.2d ura"
 msgstr[2] " %2.2d uri"
 msgstr[3] " %2.2d ure"
 
-#: ../src/libtracker-common/tracker-utils.c:201
+#: ../src/libtracker-common/tracker-utils.c:132
 #, c-format
 msgid " %2.2d minute"
 msgid_plural " %2.2d minutes"
@@ -168,7 +168,7 @@ msgstr[1] " %2.2d minuta"
 msgstr[2] " %2.2d minuti"
 msgstr[3] " %2.2d minute"
 
-#: ../src/libtracker-common/tracker-utils.c:205
+#: ../src/libtracker-common/tracker-utils.c:136
 #, c-format
 msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
@@ -190,7 +190,8 @@ msgid "Cookie not recognized to resume paused miner"
 msgstr "Piškotek za nadaljevanje podatkovnega kopalnika v premoru ni prepoznan"
 
 #: ../src/libtracker-miner/tracker-miner-fs.c:721
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2339
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2348
+#: ../src/tracker-miner-rss/tracker-miner-rss.c:135
 msgid "Initializing"
 msgstr "Zaganjanje"
 
@@ -199,17 +200,17 @@ msgstr "Zaganjanje"
 msgid "Idle"
 msgstr "Nedejavno"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2007
-#: ../src/libtracker-miner/tracker-miner-fs.c:2010
+#: ../src/libtracker-miner/tracker-miner-fs.c:2000
+#: ../src/libtracker-miner/tracker-miner-fs.c:2003
 msgid "Processing files"
 msgstr "Obdelovanje datotek"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2560
+#: ../src/libtracker-miner/tracker-miner-fs.c:2553
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Rekurzivno kopanje po mapi '%s'"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:2562
+#: ../src/libtracker-miner/tracker-miner-fs.c:2555
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Kopanje po eni mapi '%s'"
@@ -377,7 +378,7 @@ msgstr "Potisk podatkov v Tracker omogoči poizvedbo po podatkih. "
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2431
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2440
 msgid "Resuming"
 msgstr "Nadaljevanje"
 
@@ -469,6 +470,7 @@ msgid "Options --force-internal-extractors and --force-module can't be used toge
 msgstr "Možnosti --force-internal-extractors in --force-module ni mogoče uporabiti skupaj"
 
 #: ../src/tracker-miner-fs/tracker-main.c:79
+#: ../src/tracker-miner-rss/tracker-main.c:37
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
 msgstr "Beleženje, 0 = samo napake, 1 = najmanjše, 2 = podrobno in 3 = razhroščevanje (privzeto=0)"
@@ -485,86 +487,86 @@ msgstr "Preveri, če je DATOTEKA primerna za kopiranje na osnovi nastavitev"
 msgid "Forces the insertion of FILE into the store"
 msgstr "Prisili vstavitev DATOTEKE v trgovino"
 
-#: ../src/tracker-miner-fs/tracker-main.c:365
+#: ../src/tracker-miner-fs/tracker-main.c:364
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Podatkovni predmet '%s' trenutno obstaja"
 
-#: ../src/tracker-miner-fs/tracker-main.c:366
+#: ../src/tracker-miner-fs/tracker-main.c:365
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Podatkovni predmet '%s' trenutno ne obstaja"
 
-#: ../src/tracker-miner-fs/tracker-main.c:381
+#: ../src/tracker-miner-fs/tracker-main.c:380
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "Datoteka je primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:382
+#: ../src/tracker-miner-fs/tracker-main.c:381
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:402
+#: ../src/tracker-miner-fs/tracker-main.c:401
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "Datoteka je primerna za kopanje (osnovano na vsebini)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:403
+#: ../src/tracker-miner-fs/tracker-main.c:402
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na vsebini)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:450
+#: ../src/tracker-miner-fs/tracker-main.c:449
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Datoteka je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:451
+#: ../src/tracker-miner-fs/tracker-main.c:450
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:455
+#: ../src/tracker-miner-fs/tracker-main.c:454
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Datoteka je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:456
+#: ../src/tracker-miner-fs/tracker-main.c:455
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:460
+#: ../src/tracker-miner-fs/tracker-main.c:459
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "Datoteka ali mapa je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:461
+#: ../src/tracker-miner-fs/tracker-main.c:460
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka ali mapa NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:476
+#: ../src/tracker-miner-fs/tracker-main.c:475
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Datoteka je primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:477
+#: ../src/tracker-miner-fs/tracker-main.c:476
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/tracker-miner-fs/tracker-main.c:486
+#: ../src/tracker-miner-fs/tracker-main.c:485
 msgid "Would be indexed"
 msgstr "Bi bilo pripravljeno kazalo"
 
-#: ../src/tracker-miner-fs/tracker-main.c:487
-#: ../src/tracker-miner-fs/tracker-main.c:489
+#: ../src/tracker-miner-fs/tracker-main.c:486
+#: ../src/tracker-miner-fs/tracker-main.c:488
 msgid "Yes"
 msgstr "Da"
 
-#: ../src/tracker-miner-fs/tracker-main.c:487
-#: ../src/tracker-miner-fs/tracker-main.c:489
+#: ../src/tracker-miner-fs/tracker-main.c:486
+#: ../src/tracker-miner-fs/tracker-main.c:488
 msgid "No"
 msgstr "Ne"
 
-#: ../src/tracker-miner-fs/tracker-main.c:488
+#: ../src/tracker-miner-fs/tracker-main.c:487
 msgid "Would be monitored"
 msgstr "Bi bilo nadzirano"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-miner-fs/tracker-main.c:529
+#: ../src/tracker-miner-fs/tracker-main.c:528
 msgid "- start the tracker indexer"
 msgstr "- začne pripravljalnik kazala trackerja"
 
@@ -575,6 +577,17 @@ msgstr "Nizka napetost baterije"
 #: ../src/tracker-miner-fs/tracker-miner-files.c:978
 msgid "Low disk space"
 msgstr "Malo prostora na disku"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-miner-rss/tracker-main.c:64
+msgid "- start the feeds indexer"
+msgstr "- začne pripravljalnik kazala virov"
+
+#: ../src/tracker-miner-rss/tracker-miner-rss.c:218
+msgid "Fetching..."
+msgstr "Pridobivanje"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -638,34 +651,30 @@ msgid "Directories:"
 msgstr "Mape:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:6
-msgid "Enable _monitoring"
-msgstr "Omogoči _nadziranje"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Enable for _first time"
 msgstr "Omogoči za _prvič"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
 msgid "Enable when running on _battery"
 msgstr "Omogoči med delovanjem na _bateriji"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
 msgid "Faster"
 msgstr "Hitreje"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:10
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
 msgid "Files"
 msgstr "Datotek"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:11
+#: ../src/tracker-preferences/tracker-preferences.ui.h:10
 msgid "General"
 msgstr "Splošno"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:12
+#: ../src/tracker-preferences/tracker-preferences.ui.h:11
 msgid "Glob patterns to ignore:"
 msgstr "Splošni prezrti vzorci: "
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:13
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
 msgid ""
 "Globbing patterns can be used here, for example: \"*bar*\".\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
@@ -673,25 +682,29 @@ msgstr ""
 "Mogoče je uporabiti globalne vzorce kot na primer: \"*bar*\".\n"
 "To je najpogosteje uporabljeno za prezrtje map kot *~, *.o, *.la, itd "
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:15
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
 msgid "Ignored Content"
 msgstr "Prezrta vsebina"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+#: ../src/tracker-preferences/tracker-preferences.ui.h:15
 msgid "Include _removable media"
 msgstr "Vključi _odstranljive medije"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:17
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
 msgid "Include mou_nted directories"
 msgstr "Vključi p_riklopljene mape"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "Include optical di_scs"
 msgstr "Vključi _optične diske"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid "Indexing"
 msgstr "Priprava kazala"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+msgid "Indexing Preferences"
+msgstr "Možnosti priprave kazala"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:20
 msgid "Limitations"
@@ -730,24 +743,24 @@ msgid "Thr_ottle:"
 msgstr "Omejitev hitrosti:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:29
-msgid "Tracker Preferences"
-msgstr "Možnosti Tracker"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "When toggled, this makes sure your home directory is included in the list."
 msgstr "Preklopljena možnost zagotovi, da je domača mapa vključena v seznam."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "With specific files:"
 msgstr "Z določenimi datotekami:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "_Delay"
 msgstr "_Zakasnitev"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "_Disk space:"
 msgstr "Prostor na _disku:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+msgid "_Monitor file and directory changes"
+msgstr "_Nadziraj spremembe datotek in map"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "_Never display icon"
@@ -1772,6 +1785,10 @@ msgstr "- zaženi program s podporo zamika zapisovanja"
 msgid "Saved queries"
 msgstr "Shranjene poizvedbe"
 
+#~ msgid "Enable _monitoring"
+#~ msgstr "Omogoči _nadziranje"
+#~ msgid "Tracker Preferences"
+#~ msgstr "Možnosti Tracker"
 #~ msgid "Either a file or query needs to be specified"
 #~ msgstr "Datoteka ali poizvedba mora biti določena"
 #~ msgid "Path : <b>%s</b>"
