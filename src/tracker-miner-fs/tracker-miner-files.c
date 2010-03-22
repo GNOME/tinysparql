@@ -33,8 +33,6 @@
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
-
-#include <libtracker-miner/tracker-miner.h>
 #include <libtracker-miner/tracker-storage.h>
 
 #include "tracker-miner-files.h"
