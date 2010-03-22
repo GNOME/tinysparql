@@ -490,7 +490,6 @@ nco:websiteUrl a rdf:Property ;
 	rdfs:label "websiteUrl" ;
 	rdfs:comment "A url of a website." ;
 	rdfs:subPropertyOf nco:url ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Role ;
 	rdfs:range rdfs:Resource ;
 	tracker:weight 5 .
@@ -573,7 +572,6 @@ nco:foafUrl a rdf:Property ;
 	rdfs:label "foafUrl" ;
 	rdfs:comment "The URL of the FOAF file." ;
 	rdfs:subPropertyOf nco:url ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Role ;
 	rdfs:range rdfs:Resource .
 
@@ -633,7 +631,6 @@ nco:blogUrl a rdf:Property ;
 	rdfs:label "blogUrl" ;
 	rdfs:comment "A Blog url." ;
 	rdfs:subPropertyOf nco:url ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Role ;
 	rdfs:range rdfs:Resource .
 
