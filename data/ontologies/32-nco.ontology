@@ -203,7 +203,6 @@ nco:hasContactMedium a rdf:Property ;
 nco:url a rdf:Property ;
 	rdfs:label "url" ;
 	rdfs:comment "A uniform resource locator associated with the given role of a Contact. Inspired by the 'URL' property defined in RFC 2426 Sec. 3.6.8." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Role ;
 	rdfs:range rdfs:Resource ;
 	tracker:weight 4 .
