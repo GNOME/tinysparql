@@ -1541,9 +1541,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* load ontology from journal into memory */
 		load_ontology_from_journal (&classes, &properties, &id_uri_map);
 
-		/* ensure FTS is fully initialized */
-		tracker_db_interface_execute_query (iface, NULL, "SELECT 1 FROM fulltext.fts WHERE rowid = 0");
-
 		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
 		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
 		tracker_data_ontology_import_into_db (FALSE);

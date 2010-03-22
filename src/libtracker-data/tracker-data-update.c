@@ -2286,7 +2286,7 @@ ontology_transaction_end (GList *ontology_queue)
 		                                         queued->predicate, 
 		                                         queued->object, 
 		                                         queued->is_uri, 
-		                                         FALSE, TRUE);
+		                                         TRUE, TRUE);
 
 	}
 
