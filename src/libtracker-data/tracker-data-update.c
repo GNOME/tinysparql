@@ -2328,7 +2328,8 @@ ontology_statement_insert (GList       *ontology_queue,
                            const gchar *object,
                            GHashTable  *classes,
                            GHashTable  *properties,
-                           GHashTable  *id_uri_map)
+                           GHashTable  *id_uri_map,
+                           gboolean     is_uri)
 {
 	const gchar *graph, *subject, *predicate;
 
@@ -2344,7 +2345,7 @@ ontology_statement_insert (GList       *ontology_queue,
 	tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate, 
 	                                      object, NULL, FALSE, classes, properties);
 
-	ontology_queue = queue_statement (ontology_queue, graph, subject, predicate, object, FALSE);
+	ontology_queue = queue_statement (ontology_queue, graph, subject, predicate, object, is_uri);
 
 	return ontology_queue;
 }
@@ -2446,7 +2447,8 @@ tracker_data_replay_journal (GHashTable *classes,
 				                                            object,
 				                                            classes,
 				                                            properties,
-				                                            id_uri_map);
+				                                            id_uri_map,
+				                                            FALSE);
 				continue;
 			}
 
@@ -2492,7 +2494,8 @@ tracker_data_replay_journal (GHashTable *classes,
 				                                            object_n,
 				                                            classes,
 				                                            properties,
-				                                            id_uri_map);
+				                                            id_uri_map,
+				                                            TRUE);
 				continue;
 			}
 
