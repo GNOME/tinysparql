@@ -1281,9 +1281,9 @@ get_id3v24_tags (const gchar          *data,
 				parts = g_strsplit (word, "/", 2);
 				if (parts[0]) {
 					tag->track_number = atoi (parts[0]);
-				}
-				if (parts[1]) {
-					tag->track_count = atoi (parts[1]);
+					if (parts[1]) {
+						tag->track_count = atoi (parts[1]);
+					}
 				}
 				g_strfreev (parts);
 				g_free (word);
@@ -1298,7 +1298,6 @@ get_id3v24_tags (const gchar          *data,
 				break;
 			default:
 				g_free (word);
-				g_warn_if_reached ();
 			}
 		}
 		}
@@ -1424,6 +1423,7 @@ get_id3v23_tags (const gchar          *data,
 
 			/* text frames */
 			word = id3v2_text_to_utf8 (data[pos], &data[pos + 1], csize - 1);
+
 			if (!tracker_is_empty_string (word)) {
 				g_strstrip (word);
 			}
@@ -1483,9 +1483,9 @@ get_id3v23_tags (const gchar          *data,
 				parts = g_strsplit (word, "/", 2);
 				if (parts[0]) {
 					tag->track_number = atoi (parts[0]);
-				}
-				if (parts[1]) {
-					tag->track_count = atoi (parts[1]);
+					if (parts[1]) {
+						tag->track_count = atoi (parts[1]);
+					}
 				}
 				g_strfreev (parts);
 				g_free (word);
@@ -1500,7 +1500,6 @@ get_id3v23_tags (const gchar          *data,
 				break;
 			default:
 				g_free (word);
-				g_warn_if_reached ();
 			}
 		}
 		}
@@ -1635,7 +1634,6 @@ get_id3v20_tags (const gchar          *data,
 				break;
 			default:
 				g_free (word);
-				g_warn_if_reached ();
 			}
 		}
 
