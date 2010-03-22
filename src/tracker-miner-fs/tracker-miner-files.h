@@ -20,7 +20,7 @@
 #ifndef __TRACKER_MINER_FS_FILES_H__
 #define __TRACKER_MINER_FS_FILES_H__
 
-#include <libtracker-miner/tracker-miner-fs.h>
+#include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-config.h"
 

@@ -19,6 +19,10 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
+#if !defined (__TRACKER_MINER_H_INSIDE__) && !defined (TRACKER_MINER_COMPILATION)
+#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
+#endif
+
 #ifndef __LIBTRACKER_MINER_THUMBNAILER_H__
 #define __LIBTRACKER_MINER_THUMBNAILER_H__
 

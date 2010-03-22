@@ -26,7 +26,7 @@
 #include <dbus/dbus-glib-bindings.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include <libtracker-miner/tracker-miner-object.h>
+#include <libtracker-miner/tracker-miner.h>
 
 #define TRACKER_TYPE_EVOLUTION_PLUGIN          (tracker_evolution_plugin_get_type())
 #define TRACKER_EVOLUTION_PLUGIN(o)            (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_EVOLUTION_PLUGIN, TrackerEvolutionPlugin))

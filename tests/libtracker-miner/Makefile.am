@@ -21,6 +21,7 @@ commonlibs = 									\
 
 INCLUDES = 									\
 	-DTEST									\
+	-DTRACKER_MINER_COMPILATION						\
 	-DG_LOG_DOMAIN=\"Tracker\"						\
 	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"		\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\

@@ -24,7 +24,7 @@
 
 #include <glib/gi18n.h>
 
-#include <libtracker-miner/tracker-miner-manager.h>
+#include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-status-icon.h"
 #include "tracker-icon-config.h"

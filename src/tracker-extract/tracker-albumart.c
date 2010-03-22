@@ -33,7 +33,7 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
-#include <libtracker-miner/tracker-storage.h>
+#include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-albumart.h"
 #include "tracker-dbus.h"

@@ -2,6 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
+	-DTRACKER_MINER_COMPILATION			\
 	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
@@ -52,6 +53,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-crawler.h				\
+	tracker-miner.h					\
 	tracker-miner-object.h 				\
 	tracker-miner-dbus.h 				\
 	tracker-miner-fs.h				\

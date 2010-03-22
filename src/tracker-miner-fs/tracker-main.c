@@ -40,7 +40,7 @@
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-file-utils.h>
 
-#include <libtracker-miner/tracker-thumbnailer.h>
+#include <libtracker-miner/tracker-miner.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>

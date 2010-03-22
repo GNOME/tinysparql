@@ -20,7 +20,7 @@
 #ifndef __TRACKER_MINER_FS_APPLICATIONS_H__
 #define __TRACKER_MINER_FS_APPLICATIONS_H__
 
-#include <libtracker-miner/tracker-miner-fs.h>
+#include <libtracker-miner/tracker-miner.h>
 
 G_BEGIN_DECLS
 

@@ -30,7 +30,7 @@
 
 #include <libtracker-client/tracker.h>
 #include <libtracker-common/tracker-type-utils.h>
-#include <libtracker-miner/tracker-miner-manager.h>
+#include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-miner-client.h"
 
