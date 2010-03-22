@@ -2343,7 +2343,7 @@ ontology_statement_insert (GList       *ontology_queue,
 	predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
 
 	tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate, 
-	                                      object, NULL, FALSE, classes, properties);
+	                                      object, NULL, TRUE, classes, properties);
 
 	ontology_queue = queue_statement (ontology_queue, graph, subject, predicate, object, is_uri);
 
