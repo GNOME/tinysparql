@@ -1385,7 +1385,7 @@ tracker_data_ontology_import_into_db (gboolean is_new)
 		create_decomposed_metadata_tables (iface, classes[i], is_new);
 	}
 
-	/* insert classes into rdfs:Resource table and set all classes to not new */
+	/* insert classes into rdfs:Resource table */
 	for (i = 0; i < n_classes; i++) {
 		if (tracker_class_get_is_new (classes[i]) == is_new) {
 			insert_uri_in_resource_table (iface, tracker_class_get_uri (classes[i]),
@@ -1393,7 +1393,7 @@ tracker_data_ontology_import_into_db (gboolean is_new)
 		}
 	}
 
-	/* insert properties into rdfs:Resource table and set all properties to not new */
+	/* insert properties into rdfs:Resource table */
 	for (i = 0; i < n_props; i++) {
 		if (tracker_property_get_is_new (properties[i]) == is_new) {
 			insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
@@ -1538,15 +1538,17 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		in_journal_replay = TRUE;
 
-		/* load ontology from journal into memory */
+		/* Load ontology from journal into memory and cache ID v. uri mappings */
 		load_ontology_from_journal (&classes, &properties, &id_uri_map);
 
+		/* Read first ontology and commit it into the DB */
 		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
 		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
 		tracker_data_ontology_import_into_db (FALSE);
 		tracker_data_commit_db_transaction ();
-
 		tracker_db_journal_reader_shutdown ();
+
+		/* Start replay. Ontology changes might happen during replay of the journal. */
 
 		tracker_data_replay_journal (classes, properties, id_uri_map);
 
@@ -1566,7 +1568,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		sorted = get_ontologies (test_schema != NULL, ontologies_dir);
 
-		/* truncate journal as it does not even contain a single valid transaction
+		/* Truncate journal as it does not even contain a single valid transaction
 		 * or is explicitly ignored (journal_check == FALSE, only for test cases) */
 		tracker_db_journal_init (NULL, TRUE);
 
@@ -1586,6 +1588,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		}
 
 		tracker_data_begin_db_transaction ();
+
 		/* Not an ontology transaction: this is the first ontology */
 		tracker_db_journal_start_transaction (time (NULL));
 
@@ -1596,6 +1599,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		for (l = sorted; l; l = l->next) {
 			import_ontology_file (l->data, FALSE, test_schema != NULL);
 		}
+
 		if (test_schema) {
 			load_turtle_file (test_schema_path, FALSE, TRUE);
 			g_free (test_schema_path);
@@ -1607,11 +1611,13 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		g_list_foreach (sorted, (GFunc) g_free, NULL);
 		g_list_free (sorted);
 		sorted = NULL;
+
+		/* First time, no need to check ontology */
 		check_ontology = FALSE;
 	} else {
 		tracker_db_journal_init (NULL, FALSE);
 
-		/* load ontology from database into memory */
+		/* Load ontology from database into memory */
 		db_get_static_data (iface);
 		create_decomposed_transient_metadata_tables (iface);
 		check_ontology = TRUE;
@@ -1622,12 +1628,22 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	if (check_ontology && !test_schema) {
 		GList *to_reload = NULL;
 
+		/* Get all the ontology files from ontologies_dir */
 		sorted = get_ontologies (test_schema != NULL, ontologies_dir);
 
 		/* check ontology against database */
+
 		tracker_data_begin_db_transaction ();
-		/* This _is_ an ontology transaction, it represents a change to the ontology */
+
+		/* This _is_ an ontology transaction, it represents a change to the
+		 * ontology. We mark it up as such in the journal, so that replay_journal
+		 * can recognize it and deal with it properly. */
+
 		tracker_db_journal_start_ontology_transaction (time (NULL));
+
+		/* Get a map of tracker:Ontology v. nao:lastModified so that we can test
+		 * for all the ontology files in ontologies_dir whether the last-modified
+		 * has changed since we dealt with the file last time. */
 
 		stmt = tracker_db_interface_create_statement (iface,
 		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\""
@@ -1661,9 +1677,13 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			gboolean found;
 			gpointer value;
 
+			/* Parse a TrackerOntology from ontology_file */
 			ontology = get_ontology_from_file (ontology_file);
 
 			if (!ontology) {
+				/* TODO: cope with full custom .ontology files: deal with this
+				 * error gracefully. App devs might install wrong ontology files
+				 * and we shouldn't critical() due to this. */
 				g_critical ("Can't get ontology from file: %s", ontology_file);
 				continue;
 			}
@@ -1682,6 +1702,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				last_mod = (gint) tracker_ontology_get_last_modified (ontology);
 				val = GPOINTER_TO_INT (value);
 
+				/* When the last-modified in our database isn't the same as the last
+				 * modified in the latest version of the file, deal with changes. */
+
 				if (val != last_mod) {
 
 					g_debug ("Ontology file '%s' needs update", ontology_file);
@@ -1691,9 +1714,14 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 						max_id = get_new_service_id (iface);
 					}
 
+					/* load ontology from files into memory, set all new's 
+					 * is_new to TRUE */
+
 					load_ontology_file (ontology_file, &max_id, TRUE);
+
 					to_reload = g_list_prepend (to_reload, l->data);
 
+					/* Update the nao:lastModified in the database */
 					stmt = tracker_db_interface_create_statement (iface,
 					        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
 					        "WHERE \"rdfs:Resource\".ID = "
@@ -1709,19 +1737,26 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 				}
 
-			}
+			} /* else { 
+			   * TODO: cope with full new .ontology files, handle this.
+			   * } */
+
 			g_object_unref (ontology);
 		}
 
 		if (to_reload) {
+			/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
 			tracker_data_ontology_import_into_db (TRUE);
+
 			for (l = to_reload; l; l = l->next) {
 				const gchar *ontology_file = l->data;
+				/* store ontology in database */
 				import_ontology_file (ontology_file, TRUE, test_schema != NULL);
 			}
 			g_list_free (to_reload);
 		}
 
+		/* Reset the is_new flag for all classes and properties */
 		tracker_data_ontology_import_finished ();
 
 		tracker_db_journal_commit_db_transaction ();

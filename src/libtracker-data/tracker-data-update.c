@@ -2270,6 +2270,7 @@ ontology_transaction_end (GList *ontology_queue)
 	GList *l;
 	const gchar *ontology_uri = NULL;
 
+	/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
 	tracker_data_ontology_import_into_db (TRUE);
 
 	for (l = ontology_queue; l; l = l->next) {
@@ -2281,6 +2282,7 @@ ontology_transaction_end (GList *ontology_queue)
 			}
 		}
 
+		/* store ontology in database */
 		tracker_data_ontology_process_statement (queued->graph,
 		                                         queued->subject, 
 		                                         queued->predicate, 
@@ -2290,6 +2292,7 @@ ontology_transaction_end (GList *ontology_queue)
 
 	}
 
+	/* Update the nao:lastModified in the database */
 	if (ontology_uri) {
 		TrackerOntology *ontology;
 		ontology = tracker_ontologies_get_ontology_by_uri (ontology_uri);
@@ -2317,6 +2320,7 @@ ontology_transaction_end (GList *ontology_queue)
 		}
 	}
 
+	/* Reset the is_new flag for all classes and properties */
 	tracker_data_ontology_import_finished ();
 }
 
@@ -2342,9 +2346,11 @@ ontology_statement_insert (GList       *ontology_queue,
 	subject = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (subject_id));
 	predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
 
+	/* load ontology from journal into memory, set all new's is_new to TRUE */
 	tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate, 
 	                                      object, NULL, TRUE, classes, properties);
 
+	/* Queue the statement for processing after ALTER in ontology_transaction_end */
 	ontology_queue = queue_statement (ontology_queue, graph, subject, predicate, object, is_uri);
 
 	return ontology_queue;
