@@ -99,7 +99,7 @@
 	"OFFSET 0 LIMIT %d"
 #define APP_QUERY	  \
 	"SELECT" \
-	"  ?urn ?title ?tooltip ?link fts:rank(?urn) " \
+	"  ?urn ?title ?tooltip ?link fts:rank(?urn) nfo:softwareIcon(?urn)" \
 	"WHERE {" \
 	"  ?urn a nfo:Software ;" \
 	"  nie:title ?title ;" \
@@ -210,6 +210,7 @@ typedef struct {
 	gchar *title;
 	gchar *tooltip;
 	gchar *link;
+	gchar *icon_name;
 	TrackerCategory category;
 } ItemData;
 
@@ -257,6 +258,7 @@ enum {
 	COL_TITLE,
 	COL_TOOLTIP,
 	COL_LINK,
+	COL_ICON_NAME,
 	COL_COUNT
 };
 
@@ -589,6 +591,7 @@ item_data_new (const gchar     *urn,
                const gchar     *title,
                const gchar     *tooltip,
                const gchar     *link,
+               const gchar     *icon_name,
                TrackerCategory  category)
 {
 	ItemData *id;
@@ -599,6 +602,7 @@ item_data_new (const gchar     *urn,
 	id->title = g_strdup (title);
 	id->tooltip = g_strdup (tooltip);
 	id->link = g_strdup (link);
+	id->icon_name = g_strdup (icon_name);
 	id->category = category;
 
 	return id;
@@ -611,6 +615,7 @@ item_data_free (ItemData *id)
 	g_free (id->title);
 	g_free (id->tooltip);
 	g_free (id->link);
+	g_free (id->icon_name);
 
 	g_slice_free (ItemData, id);
 }
@@ -726,6 +731,7 @@ category_from_string (const gchar *type,
 static GdkPixbuf *
 pixbuf_get (TrackerResultsWindow *window,
             const gchar          *uri,
+            const gchar          *icon_name,
             TrackerCategory       category)
 {
 	TrackerResultsWindowPrivate *priv;
@@ -739,7 +745,33 @@ pixbuf_get (TrackerResultsWindow *window,
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	file = g_file_new_for_uri (uri);
 
-	if (category & CATEGORY_IMAGE) {
+	if (icon_name) {
+		if (strrchr (icon_name, '.') == NULL) {
+			pixbuf = gtk_icon_theme_load_icon (priv->icon_theme,
+			                                   icon_name, 24,
+			                                   GTK_ICON_LOOKUP_USE_BUILTIN,
+			                                   &error);
+
+			if (error) {
+				g_printerr ("Couldn't get icon name '%s': %s\n",
+				            icon_name, error->message);
+				g_error_free (error);
+			}
+		} else {
+			const gchar * const *xdg_dirs;
+			gchar *path;
+			gint i;
+
+			/* Icon name is actually some filename in $(sharedir)/icons */
+			xdg_dirs = g_get_system_data_dirs ();
+
+			for (i = 0; !pixbuf && xdg_dirs[i]; i++) {
+				path = g_build_filename (xdg_dirs[i], "icons", icon_name, NULL);
+				pixbuf = gdk_pixbuf_new_from_file_at_size (path, 24, 24, NULL);
+				g_free (path);
+			}
+		}
+        } else if (category & CATEGORY_IMAGE) {
 		gchar *path;
 
 		path = g_file_get_path (file);
@@ -864,17 +896,19 @@ model_pixbuf_cell_data_func (GtkTreeViewColumn    *tree_column,
 
 	if (!requested) {
 		TrackerCategory category = CATEGORY_NONE;
-		gchar *urn;
+		gchar *urn, *icon_name;
 
 		gtk_tree_model_get (model, iter,
 		                    COL_CATEGORY_ID, &category,
 		                    COL_URN, &urn,
+				    COL_ICON_NAME, &icon_name,
 		                    -1);
 
 		if (urn) {
 			/* FIXME: Should use category */
-			pixbuf = pixbuf_get (window, urn, category);
+			pixbuf = pixbuf_get (window, urn, icon_name, category);
 			g_free (urn);
+			g_free (icon_name);
 		}
 
 		/* Cache it in the store */
@@ -968,7 +1002,8 @@ model_set_up (TrackerResultsWindow *window)
 	                            G_TYPE_STRING,         /* URN */
 	                            G_TYPE_STRING,         /* Title */
 	                            G_TYPE_STRING,         /* Tooltip */
-	                            G_TYPE_STRING);        /* Link */
+	                            G_TYPE_STRING,         /* Link */
+				    G_TYPE_STRING);	   /* Icon name */
 
 	gtk_tree_view_set_model (view, GTK_TREE_MODEL (store));
 
@@ -1044,7 +1079,8 @@ model_add (TrackerResultsWindow *window,
            const gchar          *urn,
            const gchar          *title,
            const gchar          *tooltip,
-           const gchar          *link)
+           const gchar          *link,
+           const gchar          *icon_name)
 {
 	TrackerResultsWindowPrivate *priv;
 	GtkTreeIter iter;
@@ -1061,6 +1097,7 @@ model_add (TrackerResultsWindow *window,
 	                    COL_TITLE, title,
 	                    COL_TOOLTIP, tooltip,
 	                    COL_LINK, link,
+			    COL_ICON_NAME, icon_name,
 	                    -1);
 
 	/* path = gtk_tree_model_get_path (GTK_TREE_MODEL (window->store), &iter); */
@@ -1104,7 +1141,7 @@ search_get_foreach (gpointer value,
 	SearchQuery *sq;
 	ItemData *id;
 	gchar **metadata;
-	const gchar *urn, *title, *tooltip, *link, *rank;
+	const gchar *urn, *title, *tooltip, *link, *rank, *icon_name;
 
 	sq = user_data;
 	metadata = value;
@@ -1114,10 +1151,15 @@ search_get_foreach (gpointer value,
 	tooltip = metadata[2];
 	link = metadata[3];
 	rank = metadata[4];
+	icon_name = metadata[5];
 
 	/* App queries don't return rank or belongs */
 	if (!rank) {
 		rank = "0.0";
+	}
+
+	if (icon_name && g_str_has_prefix (icon_name, "urn:theme-icon:")) {
+		icon_name += strlen ("urn:theme-icon:");
 	}
 
 	g_print ("urn:'%s' found (rank:'%s')\n", urn, rank);
@@ -1125,7 +1167,7 @@ search_get_foreach (gpointer value,
 	g_print ("  tooltip:'%s'\n", tooltip);
 	g_print ("  link:'%s'\n", link);
 
-	id = item_data_new (urn, title, tooltip, link, sq->category);
+	id = item_data_new (urn, title, tooltip, link, icon_name, sq->category);
 	sq->results = g_slist_append (sq->results, id);
 
 	/* category_from_string (type, &id->categories); */
@@ -1186,7 +1228,7 @@ search_get_cb (GPtrArray *results,
 
 			/* Add separator */
 			if (priv->first_category_populated) {
-				model_add (window, CATEGORY_NONE, NULL, NULL, NULL, NULL);
+				model_add (window, CATEGORY_NONE, NULL, NULL, NULL, NULL, NULL);
 			}
 
 			for (l = sq->results; l; l = l->next) {
@@ -1197,7 +1239,8 @@ search_get_cb (GPtrArray *results,
 				           id->urn,
 				           id->title,
 				           id->tooltip,
-				           id->link);
+				           id->link,
+					   id->icon_name);
 			}
 
 			priv->first_category_populated = TRUE;
