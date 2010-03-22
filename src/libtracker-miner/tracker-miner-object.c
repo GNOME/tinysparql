@@ -23,7 +23,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 
 #include "tracker-marshal.h"
-#include "tracker-miner.h"
+#include "tracker-miner-object.h"
 #include "tracker-miner-dbus.h"
 #include "tracker-miner-glue.h"
 #include "tracker-dbus.h"

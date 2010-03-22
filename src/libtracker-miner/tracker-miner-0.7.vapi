@@ -19,7 +19,7 @@
 
 [CCode (cprefix = "Tracker", lower_case_cprefix = "tracker_")]
 namespace Tracker {
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner-object.h")]
 	public class Miner : GLib.Object {
 		public async void commit (GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public static GLib.Quark error_quark ();
@@ -105,7 +105,7 @@ namespace Tracker {
 		SERVICE,
 		NOTFOUND,
 	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner-object.h")]
 	public const string MINER_WEB_DBUS_INTERFACE;
 	[CCode (cheader_filename = "libtracker-miner/tracker-thumbnailer.h")]
 	public static bool thumbnailer_cleanup (string uri_prefix);

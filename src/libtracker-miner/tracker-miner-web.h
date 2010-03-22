@@ -20,7 +20,7 @@
 #ifndef __LIBTRACKER_MINER_WEB_H__
 #define __LIBTRACKER_MINER_WEB_H__
 
-#include <libtracker-miner/tracker-miner.h>
+#include <libtracker-miner/tracker-miner-object.h>
 
 #define TRACKER_TYPE_MINER_WEB         (tracker_miner_web_get_type())
 #define TRACKER_MINER_WEB(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_WEB, TrackerMinerWeb))

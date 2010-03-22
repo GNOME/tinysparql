@@ -25,7 +25,7 @@
 
 #include <libtracker-client/tracker-sparql-builder.h>
 
-#include "tracker-miner.h"
+#include "tracker-miner-object.h"
 
 G_BEGIN_DECLS
 

@@ -23,7 +23,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 
 #include "tracker-crawler.h"
-#include "tracker-miner.h"
+#include "tracker-miner-object.h"
 #include "tracker-miner-manager.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-client.h"

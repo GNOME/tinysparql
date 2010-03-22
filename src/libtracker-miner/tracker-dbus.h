@@ -22,7 +22,7 @@
 
 #include <libtracker-common/tracker-dbus.h>
 
-#include "tracker-miner.h"
+#include "tracker-miner-object.h"
 
 typedef void (* TrackerMinerDBusNameFunc) (TrackerMiner *miner,
                                            const gchar  *name,

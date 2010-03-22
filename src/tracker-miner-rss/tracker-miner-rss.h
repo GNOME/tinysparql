@@ -21,7 +21,7 @@
 #ifndef __TRACKER_MINER_RSS_H__
 #define __TRACKER_MINER_RSS_H__
 
-#include <libtracker-miner/tracker-miner.h>
+#include <libtracker-miner/tracker-miner-object.h>
 
 G_BEGIN_DECLS
 
