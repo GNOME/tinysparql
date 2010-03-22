@@ -86,14 +86,13 @@ applet_entry_start_search (TrackerApplet *applet)
 	g_print ("Searching for: '%s'\n", text);
 
 	if (!applet->results) {
-		/* gtk_widget_destroy (applet->results); */
-		/* applet->results = NULL; */
-
 		applet->results = tracker_results_window_new (applet->parent, text);
-
-		tracker_results_window_popup (TRACKER_RESULTS_WINDOW (applet->results));
 	} else {
 		g_object_set (applet->results, "query", text, NULL);
+	}
+
+	if (!GTK_WIDGET_VISIBLE (applet->results)) {
+		tracker_results_window_popup (TRACKER_RESULTS_WINDOW (applet->results));
 	}
 }
 

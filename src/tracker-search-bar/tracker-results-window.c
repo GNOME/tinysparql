@@ -1341,8 +1341,6 @@ search_start (TrackerResultsWindow *window)
 		return;
 	}
 
-	gtk_widget_show (GTK_WIDGET (window));
-
 	priv->first_category_populated = FALSE;
 
 	/* SPARQL requests */
@@ -1411,7 +1409,5 @@ tracker_results_window_popup (TrackerResultsWindow *window)
 	gtk_widget_realize (GTK_WIDGET (window));
 	gtk_widget_show (GTK_WIDGET (window));
 
-	if (0) {
-		g_idle_add ((GSourceFunc) grab_popup_window, window);
-	}
+        g_idle_add ((GSourceFunc) grab_popup_window, window);
 }
