@@ -8,23 +8,17 @@ tracker-search \- Search all content for keywords
 
 .SH DESCRIPTION
 .B tracker-search
-searches all indexed content for \fIEXPRESSION\fR.
+searches all indexed content for \fIEXPRESSION\fR. The resource in
+which \fIEXPRESSION\fR matches must exist (see 
+.B \-\-all
+for more information). All results are returned in ascending order. In
+all cases, if no \fIEXPRESSION\fR is given for an argument (like 
+.B \-\-folders
+for example) then ALL items in that category are returned instead.
 .TP
 \fIEXPRESSION\fR
 One or more terms to search. The default operation is a logical AND.
 For logical OR operations, see -r.
-
-The search terms can also be applied to the following options:
-.B \-\-files,
-.B \-\-folders,
-.B \-\-music-albums,
-.B \-\-music-artists,
-.B \-\-music,
-.B \-\-images,
-.B \-\-videos
-and
-.B \-\-documents.
-
 .SH OPTIONS
 .TP
 .B \-?, \-\-help
@@ -43,30 +37,38 @@ Use OR for search terms instead of AND (the default)
 .B \-d, \-\-detailed
 Show more detailed results (only applies to general search)
 .TP
-.B \-f, \-\-files
-Search for files in ascending order.
+.B \-a, \-\-all
+Show results which might not be available. This might bebecause a
+removable media is not mounted for example. Without this option,
+resources are only shown if they exist. This option applies to all
+command line switches except
+.B \-\-music-albums
+and
+.B \-\-music-artists.
 .TP
-.B \-e, \-\-folders
-Search for folders in ascending order.
+.B \-f, \-\-files=EXPRESSION
+Search for files of any type matching \fIEXPRESSION\fR (optional).
 .TP
-.B \-a, \-\-music-albums
-Search for music albums. This also lists the song count and the sum of
-the duration of all songs associated with each album.
+.B \-e, \-\-folders=EXPRESSION
+Search for folders matching \fIEXPRESSION\fR (optional).
 .TP
-.B \-s, \-\-music-artists
-Search for music artists.
+.B \-b, \-\-music-albums=ALBUM
+Search for music albums matching \fIALBUM\fR (optional).
 .TP
-.B \-u, \-\-music
-Search for music in ascending order. This returns a list of files.
+.B \-s, \-\-music-artists=ARTIST
+Search for music artists matching \fIARTIST\fR (optional).
 .TP
-.B \-l, \-\-images
-Search for images in ascending order. This returns a list of files.
+.B \-m, \-\-music=EXPRESSION
+Search for music files matching \fIEXPRESSION\fR (optional).
 .TP
-.B \-v, \-\-videos
-Search for videos in ascending order. This returns a list of files.
+.B \-l, \-\-images=EXPRESSION
+Search for images matching \fIEXPRESSION\fR (optional).
 .TP
-.B \-u, \-\-documents
-Search for documents in ascending order. This returns a list of files.
+.B \-v, \-\-videos=EXPRESSION
+Search for videos matching \fIEXPRESSION\fR (optional).
+.TP
+.B \-t, \-\-documents=EXPRESSION
+Search for documents matching \fIEXPRESSION\fR (optional).
 .TP
 .B \-V, \-\-version
 Print version.
