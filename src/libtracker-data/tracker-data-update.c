@@ -2316,6 +2316,8 @@ ontology_transaction_end (GList *ontology_queue)
 			tracker_db_statement_execute (stmt, NULL);
 		}
 	}
+
+	tracker_data_ontology_import_finished ();
 }
 
 static GList*
@@ -2631,7 +2633,6 @@ tracker_data_replay_journal (GHashTable *classes,
 			}
 		}
 	}
-
 
 	if (journal_error) {
 		gsize size;

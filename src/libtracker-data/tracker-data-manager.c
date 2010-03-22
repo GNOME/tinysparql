@@ -1346,6 +1346,25 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 	}
 }
 
+void 
+tracker_data_ontology_import_finished (void)
+{
+	TrackerClass **classes;
+	TrackerProperty **properties;
+	gint i, n_props, n_classes;
+
+	classes = tracker_ontologies_get_classes (&n_classes);
+	properties = tracker_ontologies_get_properties (&n_props);
+
+	for (i = 0; i < n_classes; i++) {
+		tracker_class_set_is_new (classes[i], FALSE);
+	}
+
+	for (i = 0; i < n_props; i++) {
+		tracker_property_set_is_new (properties[i], FALSE);
+	}
+}
+
 void
 tracker_data_ontology_import_into_db (gboolean is_new)
 {
@@ -1372,7 +1391,6 @@ tracker_data_ontology_import_into_db (gboolean is_new)
 			insert_uri_in_resource_table (iface, tracker_class_get_uri (classes[i]),
 			                              tracker_class_get_id (classes[i]));
 		}
-		tracker_class_set_is_new (classes[i], FALSE);
 	}
 
 	/* insert properties into rdfs:Resource table and set all properties to not new */
@@ -1381,7 +1399,6 @@ tracker_data_ontology_import_into_db (gboolean is_new)
 			insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
 			                              tracker_property_get_id (properties[i]));
 		}
-		tracker_property_set_is_new (properties[i], FALSE);
 	}
 }
 
@@ -1704,6 +1721,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			}
 			g_list_free (to_reload);
 		}
+
+		tracker_data_ontology_import_finished ();
 
 		tracker_db_journal_commit_db_transaction ();
 		tracker_data_commit_db_transaction ();

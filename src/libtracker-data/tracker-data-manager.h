@@ -62,6 +62,7 @@ void     tracker_data_ontology_process_statement  (const gchar           *graph,
                                                    gboolean               is_uri,
                                                    gboolean               is_new,
                                                    gboolean               ignore_nao_last_modified);
+void    tracker_data_ontology_import_finished     (void);
 
 G_END_DECLS
 
