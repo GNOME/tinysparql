@@ -1331,16 +1331,6 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 }
 
 static void
-create_fts_table (TrackerDBInterface *iface)
-{
-	gchar *query = tracker_fts_get_create_fts_table_query ();
-
-	tracker_db_interface_execute_query (iface, NULL, "%s", query);
-
-	g_free (query);
-}
-
-static void
 import_ontology_into_db (gboolean is_new)
 {
 	TrackerDBInterface *iface;
@@ -1359,9 +1349,6 @@ import_ontology_into_db (gboolean is_new)
 		/* Also !is_new classes are processed, they might have new properties */
 		create_decomposed_metadata_tables (iface, classes[i], is_new);
 	}
-
-	if (!is_new)
-		create_fts_table (iface);
 
 	/* insert classes into rdfs:Resource table */
 	for (i = 0; i < n_classes; i++) {
@@ -1519,6 +1506,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		load_ontology_from_journal (&classes, &properties);
 
 		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
+		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
 		import_ontology_into_db (FALSE);
 		tracker_data_commit_db_transaction ();
 
@@ -1561,6 +1549,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		tracker_data_begin_db_transaction ();
 		tracker_db_journal_start_transaction (time (NULL));
 
+		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
 		import_ontology_into_db (FALSE);
 
 		/* store ontology in database */
@@ -1586,10 +1575,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		db_get_static_data (iface);
 		create_decomposed_transient_metadata_tables (iface);
 		check_ontology = TRUE;
-	}
 
-	/* ensure FTS is fully initialized */
-	tracker_db_interface_execute_query (iface, NULL, "SELECT 1 FROM fulltext.fts WHERE rowid = 0");
+		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), FALSE);
+	}
 
 	if (check_ontology && !test_schema) {
 		GList *to_reload = NULL;

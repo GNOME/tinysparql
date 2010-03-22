@@ -328,12 +328,14 @@ static int default_column = 0;
 static int safe_isspace(char c){
   return (c&0x80)==0 ? isspace(c) : 0;
 }
+#if 0
 static int safe_tolower(char c){
   return (c&0x80)==0 ? tolower(c) : c;
 }
 static int safe_isalnum(char c){
   return (c&0x80)==0 ? isalnum(c) : 0;
 }
+#endif
 
 
 typedef enum DocListType {
@@ -2318,13 +2320,10 @@ static const char *const fulltext_zStatement[MAX_STMT] = {
 ** arguments.
 */
 struct fulltext_vtab {
-  sqlite3_vtab base;		   /* Base class used by SQLite core */
   sqlite3 *db;			   /* The database connection */
   const char *zDb;		   /* logical database name */
   const char *zName;		   /* virtual table name */
   int nColumn;			   /* number of columns in virtual table */
-  char **azColumn;		   /* column names.  malloced */
-  char **azContentColumn;	   /* column names in content table; malloced */
   TrackerParser *parser;	   /* tokenizer for inserts and queries */
   gboolean stop_words;
   int max_words;
@@ -2888,14 +2887,10 @@ static void fulltext_vtab_destroy(fulltext_vtab *v){
 
   clearPendingTerms(v);
 
-  sqlite3_free(v->azColumn);
-  for(i = 0; i < v->nColumn; ++i) {
-    sqlite3_free(v->azContentColumn[i]);
-  }
-  sqlite3_free(v->azContentColumn);
   sqlite3_free(v);
 }
 
+#if 0
 /*
 ** Token types for parsing the arguments to xConnect or xCreate.
 */
@@ -3272,6 +3267,7 @@ static int parseSpec(TableSpec *pSpec, int argc, const char *const*argv,
 
   return SQLITE_OK;
 }
+#endif
 
 /*
 ** Generate a CREATE TABLE statement that describes the schema of
@@ -3295,7 +3291,7 @@ static char *fulltextSchema(
     zSchema = zNext;
     zSep = ",";
   }
-  zNext = sqlite3_mprintf("%s,%Q HIDDEN", zSchema, zTableName);
+  zNext = sqlite3_mprintf("%s%s%Q HIDDEN", zSchema, zSep, zTableName);
   sqlite3_free(zSchema);
   zSchema = zNext;
   zNext = sqlite3_mprintf("%s,docid HIDDEN)", zSchema);
@@ -3309,13 +3305,11 @@ static char *fulltextSchema(
 */
 static int constructVtab(
   sqlite3 *db,		    /* The SQLite database connection */
-  TableSpec *spec,	    /* Parsed spec information from parseSpec() */
-  sqlite3_vtab **ppVTab,    /* Write the resulting vtab structure here */
+  const char *zDb,
+  const char *zName,
   char **pzErr              /* Write any error message here */
 ){
-  int rc;
   fulltext_vtab *v = 0;
-  char *schema;
   TrackerFTSConfig *config;
   TrackerLanguage *language;
   int min_len, max_len;
@@ -3325,13 +3319,9 @@ static int constructVtab(
   CLEAR(v);
   /* sqlite will initialize v->base */
   v->db = db;
-  v->zDb = spec->zDb;       /* Freed when azColumn is freed */
-  v->zName = spec->zName;   /* Freed when azColumn is freed */
-  v->nColumn = spec->nColumn;
-  v->azContentColumn = spec->azContentColumn;
-  spec->azContentColumn = 0;
-  v->azColumn = spec->azColumn;
-  spec->azColumn = 0;
+  v->zDb = zDb;
+  v->zName = zName;
+  v->nColumn = 0;
 
 /* comment out tokenizer stuff
   if( spec->azTokenizer==0 ){
@@ -3381,28 +3371,46 @@ static int constructVtab(
   g_object_unref (language);
 
 
-  /* TODO: verify the existence of backing tables foo_content, foo_term */
-
-  schema = fulltextSchema(v->nColumn, (const char*const*)v->azColumn,
-                          spec->zName);
-  rc = sqlite3_declare_vtab(db, schema);
-  sqlite3_free(schema);
-  if( rc!=SQLITE_OK ) goto err;
-
   memset(v->pFulltextStatements, 0, sizeof(v->pFulltextStatements));
 
   /* Indicate that the buffer is not live. */
   v->nPendingData = -1;
 
-  *ppVTab = &v->base;
   FTSTRACE(("FTS3 Connect %p\n", v));
 
   tracker_fts_vtab = v;
 
+  return SQLITE_OK;
+}
+
+static int constructSqliteVtab(
+  sqlite3 *db,		    /* The SQLite database connection */
+  const char *zDb,
+  const char *zName,
+  sqlite3_vtab **ppVTab,    /* Write the resulting vtab structure here */
+  char **pzErr              /* Write any error message here */
+){
+  int rc;
+  sqlite3_vtab *v = 0;
+  char *schema;
+
+  v = sqlite3_malloc(sizeof(sqlite3_vtab));
+  if( v==0 ) return SQLITE_NOMEM;
+  CLEAR(v);
+
+  schema = fulltextSchema(0, NULL,
+                          zName);
+  rc = sqlite3_declare_vtab(db, schema);
+  sqlite3_free(schema);
+  if( rc!=SQLITE_OK ) goto err;
+
+  *ppVTab = v;
+  FTSTRACE(("FTS3 Connect %p\n", v));
+
   return rc;
 
 err:
-  fulltext_vtab_destroy(v);
+  sqlite3_free(v);
   return rc;
 }
 
@@ -3413,13 +3421,12 @@ static int fulltextConnect(
   sqlite3_vtab **ppVTab,
   char **pzErr
 ){
-  TableSpec spec;
-  int rc = parseSpec(&spec, argc, argv, pzErr);
-  if( rc!=SQLITE_OK ) return rc;
+  const char *zDb, *zName;
 
-  rc = constructVtab(db,  &spec, ppVTab, pzErr);
-  clearTableSpec(&spec);
-  return rc;
+  zDb = argv[1];
+  zName = argv[2];
+
+  return constructSqliteVtab(db, zDb, zName, ppVTab, pzErr);
 }
 
 /* The %_content table holds the text of each document, with
@@ -3428,26 +3435,20 @@ static int fulltextConnect(
 /* TODO(shess) This comment needs elaboration to match the updated
 ** code.  Work it into the top-of-file comment at that time.
 */
-static int fulltextCreate(sqlite3 *db, void *pAux,
-                          int argc, const char * const *argv,
-                          sqlite3_vtab **ppVTab, char **pzErr){
+static int createTables(sqlite3 *db, const char *zDb, const char *zName) {
   int rc;
-  TableSpec spec;
   StringBuffer schema;
   FTSTRACE(("FTS3 Create\n"));
-
-  rc = parseSpec(&spec, argc, argv, pzErr);
-  if( rc!=SQLITE_OK ) return rc;
 
   initStringBuffer(&schema);
   append(&schema, "CREATE TABLE %_content(");
   append(&schema, "  docid INTEGER PRIMARY KEY");
   append(&schema, ")");
-  rc = sql_exec(db, spec.zDb, spec.zName, stringBufferData(&schema));
+  rc = sql_exec(db, zDb, zName, stringBufferData(&schema));
   stringBufferDestroy(&schema);
   if( rc!=SQLITE_OK ) goto out;
 
-  rc = sql_exec(db, spec.zDb, spec.zName,
+  rc = sql_exec(db, zDb, zName,
                 "create table %_segments("
                 "  blockid INTEGER PRIMARY KEY,"
                 "  block blob"
@@ -3455,7 +3456,7 @@ static int fulltextCreate(sqlite3 *db, void *pAux,
                 );
   if( rc!=SQLITE_OK ) goto out;
 
-  rc = sql_exec(db, spec.zDb, spec.zName,
+  rc = sql_exec(db, zDb, zName,
                 "create table %_segdir("
                 "  level integer,"
                 "  idx integer,"
@@ -3467,16 +3468,25 @@ static int fulltextCreate(sqlite3 *db, void *pAux,
                 ");");
   if( rc!=SQLITE_OK ) goto out;
 
-  rc = constructVtab(db, &spec, ppVTab, pzErr);
-
 out:
-  clearTableSpec(&spec);
   return rc;
+}
+
+static int fulltextCreate(sqlite3 *db, void *pAux,
+                          int argc, const char * const *argv,
+                          sqlite3_vtab **ppVTab, char **pzErr){
+  const char *zDb, *zName;
+  FTSTRACE(("FTS3 Create\n"));
+
+  zDb = argv[1];
+  zName = argv[2];
+
+  return constructSqliteVtab(db, zDb, zName, ppVTab, pzErr);
 }
 
 /* Decide how to handle an SQL query. */
 static int fulltextBestIndex(sqlite3_vtab *pVTab, sqlite3_index_info *pInfo){
-  fulltext_vtab *v = (fulltext_vtab *)pVTab;
+  fulltext_vtab *v = tracker_fts_vtab;
   int i;
   FTSTRACE(("FTS3 BestIndex\n"));
 
@@ -3512,12 +3522,12 @@ static int fulltextBestIndex(sqlite3_vtab *pVTab, sqlite3_index_info *pInfo){
 
 static int fulltextDisconnect(sqlite3_vtab *pVTab){
   FTSTRACE(("FTS3 Disconnect %p\n", pVTab));
-  fulltext_vtab_destroy((fulltext_vtab *)pVTab);
+  sqlite3_free (pVTab);
   return SQLITE_OK;
 }
 
 static int fulltextDestroy(sqlite3_vtab *pVTab){
-  fulltext_vtab *v = (fulltext_vtab *)pVTab;
+  fulltext_vtab *v = tracker_fts_vtab;
   int rc;
 
   FTSTRACE(("FTS3 Destroy %p\n", pVTab));
@@ -3528,7 +3538,7 @@ static int fulltextDestroy(sqlite3_vtab *pVTab){
                 );
   if( rc!=SQLITE_OK ) return rc;
 
-  fulltext_vtab_destroy((fulltext_vtab *)pVTab);
+  sqlite3_free (pVTab);
   return SQLITE_OK;
 }
 
@@ -4297,6 +4307,7 @@ static void queryAdd(Query *q, const char *pTerm, int nTerm){
   q->nextColumn = q->dfltColumn;
 }
 
+#if 0
 /*
 ** Check to see if the string zToken[0...nToken-1] matches any
 ** column name in the virtual table.   If it does,
@@ -4316,6 +4327,7 @@ static int checkColumnSpecifier(
   }
   return -1;
 }
+#endif
 
 /*
 ** Parse the text at pSegment[0..nSegment-1].  Add additional terms
@@ -4335,7 +4347,6 @@ static int tokenizeSegment(
 ){
   TrackerParser *parser = v->parser;
   int firstIndex = pQuery->nTerms;
-  int iCol;
   int nTerm = 1;
 
   tracker_parser_reset (parser, pSegment, nSegment, FALSE, TRUE, v->stop_words, TRUE);
@@ -4356,6 +4367,7 @@ static int tokenizeSegment(
 
 //   printf("token being indexed  is %s, pos is %d, begin is %d, end is %d and length is %d\n", pToken, iPos, iBegin, iEnd, nToken);
 
+#if 0
     if( !inPhrase &&
 	pSegment[iEnd]==':') {
 
@@ -4370,6 +4382,7 @@ static int tokenizeSegment(
 	   continue;
 	}
     }
+#endif
     if( !inPhrase && pQuery->nTerms>0 && nToken==2
      && pToken[0] == 'o' && pToken[1] == 'r'
     ){
@@ -4649,7 +4662,7 @@ static int fulltextFilter(
   int argc, sqlite3_value **argv    /* Arguments for the indexing scheme */
 ){
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
-  fulltext_vtab *v = cursor_vtab(c);
+  fulltext_vtab *v = tracker_fts_vtab;
   int rc;
   int i;
   StringBuffer sb;
@@ -4730,7 +4743,7 @@ static int fulltextEof(sqlite3_vtab_cursor *pCursor){
 static int fulltextColumn(sqlite3_vtab_cursor *pCursor,
                           sqlite3_context *pContext, int idxCol){
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
-  fulltext_vtab *v = cursor_vtab(c);
+  fulltext_vtab *v = tracker_fts_vtab;
 
 #ifdef STORE_CATEGORY
   if (idxCol == 0) {
@@ -6903,11 +6916,11 @@ static int fulltextUpdate(sqlite3_vtab *pVtab, int nArg, sqlite3_value **ppArg,
 
 static int fulltextSync(sqlite3_vtab *pVtab){
   FTSTRACE(("FTS3 xSync()\n"));
-  return flushPendingTerms((fulltext_vtab *)pVtab);
+  return flushPendingTerms(tracker_fts_vtab);
 }
 
 static int fulltextBegin(sqlite3_vtab *pVtab){
-  fulltext_vtab *v = (fulltext_vtab *) pVtab;
+  fulltext_vtab *v = tracker_fts_vtab;
   FTSTRACE(("FTS3 xBegin()\n"));
 
   /* Any buffered updates should have been cleared by the previous
@@ -6918,7 +6931,7 @@ static int fulltextBegin(sqlite3_vtab *pVtab){
 }
 
 static int fulltextCommit(sqlite3_vtab *pVtab){
-  fulltext_vtab *v = (fulltext_vtab *) pVtab;
+  fulltext_vtab *v = tracker_fts_vtab;
   FTSTRACE(("FTS3 xCommit()\n"));
 
   /* Buffered updates should have been cleared by fulltextSync(). */
@@ -6928,7 +6941,7 @@ static int fulltextCommit(sqlite3_vtab *pVtab){
 
 static int fulltextRollback(sqlite3_vtab *pVtab){
   FTSTRACE(("FTS3 xRollback()\n"));
-  return clearPendingTerms((fulltext_vtab *)pVtab);
+  return clearPendingTerms(tracker_fts_vtab);
 }
 
 /*
@@ -7720,7 +7733,7 @@ static int fulltextRename(
   sqlite3_vtab *pVtab,
   const char *zName
 ){
-  fulltext_vtab *p = (fulltext_vtab *)pVtab;
+  fulltext_vtab *p = tracker_fts_vtab;
   int rc = SQLITE_NOMEM;
   char *zSql = sqlite3_mprintf(
     "ALTER TABLE %Q.'%q_content'  RENAME TO '%q_content';"
@@ -7768,8 +7781,14 @@ int sqlite3Fts3InitHashTable(sqlite3 *, fts3Hash *, const char *);
 ** SQLite. If fts3 is built as a dynamically loadable extension, this
 ** function is called by the sqlite3_extension_init() entry point.
 */
-int tracker_fts_init(sqlite3 *db){
+int tracker_fts_init(sqlite3 *db, int create){
   int rc = SQLITE_OK;
+
+  if (create){
+    createTables (db, "fulltext", "fts");
+  }
+
+  constructVtab(db, "fulltext", "fts", NULL);
 
   /* Create the virtual table wrapper around the hash-table and overload
   ** the two scalar functions. If this is successful, register the
@@ -7785,15 +7804,22 @@ int tracker_fts_init(sqlite3 *db){
    && SQLITE_OK==(rc = sqlite3_overload_function(db, "dump_doclist", -1))
 #endif
   ){
-    return sqlite3_create_module_v2(
+    rc = sqlite3_create_module_v2(
 	db, "trackerfts", &fts3Module, 0, 0
     );
+    if (SQLITE_OK != rc)
+      return rc;
+
+    if (create){
+        rc = sqlite3_exec(db, "CREATE VIRTUAL TABLE fulltext.fts USING trackerfts", NULL, 0, NULL);
+    }
   }
 
-  /* An error has occured. Delete the hash table and return the error code. */
-  assert( rc!=SQLITE_OK );
-
   return rc;
+}
+
+void tracker_fts_shutdown (void){
+  fulltext_vtab_destroy(tracker_fts_vtab);
 }
 
 void tracker_fts_set_map_function(TrackerFtsMapFunc map_func){
@@ -7819,14 +7845,3 @@ void tracker_fts_update_rollback(void){
   fulltextRollback((sqlite3_vtab *) tracker_fts_vtab);
 }
 
-gchar *
-tracker_fts_get_drop_fts_table_query (void)
-{
-	return g_strdup ("DROP TABLE fulltext.fts");
-}
-
-gchar *
-tracker_fts_get_create_fts_table_query (void)
-{
-	return g_strdup ("CREATE VIRTUAL TABLE fulltext.fts USING trackerfts");
-}

@@ -168,12 +168,6 @@ open_database (TrackerDBInterfaceSqlitePrivate *priv)
 
 	sqlite3_extended_result_codes (priv->db, 0);
 	sqlite3_busy_timeout (priv->db, 100000);
-
-	if (tracker_fts_init (priv->db) != SQLITE_OK) {
-		g_critical ("Could not initialize tracker-fts extension");
-	} else {
-		g_message ("Initialized tracker fts extension");
-	}
 }
 
 static GObject *
@@ -258,6 +252,17 @@ close_database (TrackerDBInterfaceSqlitePrivate *priv)
 	priv->function_data = NULL;
 
 	sqlite3_close (priv->db);
+}
+
+void
+tracker_db_interface_sqlite_fts_init (TrackerDBInterfaceSqlite *interface,
+                                      gboolean                  create)
+{
+	TrackerDBInterfaceSqlitePrivate *priv;
+
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (interface);
+
+	tracker_fts_init (priv->db, create);
 }
 
 static void
