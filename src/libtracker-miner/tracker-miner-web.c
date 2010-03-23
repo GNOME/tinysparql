@@ -27,7 +27,7 @@
 /**
  * SECTION:tracker-miner-web
  * @short_description: Abstract base class for miners using web services
- * @include: libtracker-miner/tracker-miner-web.h
+ * @include: libtracker-miner/tracker-miner.h
  *
  * #TrackerMinerWeb is an abstract base class for miners retrieving data
  * from web services. It's a very thin layer above #TrackerMiner, only

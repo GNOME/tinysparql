@@ -37,7 +37,7 @@
 /**
  * SECTION:tracker-miner-fs
  * @short_description: Abstract base class for filesystem miners
- * @include: libtracker-miner/tracker-miner-fs.h
+ * @include: libtracker-miner/tracker-miner.h
  *
  * #TrackerMinerFS is an abstract base class for miners that collect data
  * from the filesystem, all the filesystem crawling and monitoring is
