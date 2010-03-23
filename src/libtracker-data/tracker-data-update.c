@@ -149,6 +149,8 @@ static GPtrArray *insert_callbacks = NULL;
 static GPtrArray *delete_callbacks = NULL;
 static GPtrArray *commit_callbacks = NULL;
 static GPtrArray *rollback_callbacks = NULL;
+static gint max_service_id = 0;
+static gint max_modseq = 0;
 
 static gint ensure_resource_id (const gchar *uri, gboolean    *create);
 
@@ -227,10 +229,8 @@ tracker_data_update_get_new_service_id (void)
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 
-	static gint         max = 0;
-
-	if (G_LIKELY (max != 0)) {
-		return ++max;
+	if (G_LIKELY (max_service_id != 0)) {
+		return ++max_service_id;
 	}
 
 	iface = tracker_db_manager_get_db_interface ();
@@ -242,11 +242,18 @@ tracker_data_update_get_new_service_id (void)
 
 	if (cursor) {
 		tracker_db_cursor_iter_next (cursor);
-		max = MAX (tracker_db_cursor_get_int (cursor, 0), max);
+		max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), max_service_id);
 		g_object_unref (cursor);
 	}
 
-	return ++max;
+	return ++max_service_id;
+}
+
+void
+tracker_data_update_shutdown (void)
+{
+	max_service_id = 0;
+	max_modseq = 0;
 }
 
 static gint
@@ -255,10 +262,9 @@ tracker_data_update_get_next_modseq (void)
 	TrackerDBCursor    *cursor;
 	TrackerDBInterface *temp_iface;
 	TrackerDBStatement *stmt;
-	static gint         max = 0;
 
-	if (G_LIKELY (max != 0)) {
-		return ++max;
+	if (G_LIKELY (max_modseq != 0)) {
+		return ++max_modseq;
 	}
 
 	temp_iface = tracker_db_manager_get_db_interface ();
@@ -270,11 +276,11 @@ tracker_data_update_get_next_modseq (void)
 
 	if (cursor) {
 		tracker_db_cursor_iter_next (cursor);
-		max = MAX (tracker_db_cursor_get_int (cursor, 0), max);
+		max_modseq = MAX (tracker_db_cursor_get_int (cursor, 0), max_modseq);
 		g_object_unref (cursor);
 	}
 
-	return ++max;
+	return ++max_modseq;
 }
 
 

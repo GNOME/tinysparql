@@ -1,0 +1,1 @@
+select ?a ?b { <a01> example:i2 ?a ; example:i1 ?b }

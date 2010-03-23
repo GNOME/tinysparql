@@ -60,6 +60,7 @@ test_sparql_query (gconstpointer test_data)
 	gchar *results, *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
 	gint i;
+	const gchar *test_schemas[2] = { NULL, NULL };
 
 	error = NULL;
 	test_info = test_data;
@@ -70,8 +71,9 @@ test_sparql_query (gconstpointer test_data)
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
 
+	test_schemas[0] = data_prefix;
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           data_prefix,
+	                           test_schemas,
 	                           NULL, FALSE);
 
 	/* load data / perform updates */

@@ -23,6 +23,7 @@
 
 #include <glib.h>
 #include <gio/gio.h>
+#include <glib/gstdio.h>
 
 #include <libtracker-db/tracker-db.h>
 
@@ -36,6 +37,13 @@ typedef struct _TestInfo TestInfo;
 struct _TestInfo {
 	const gchar *test_name;
 	const gchar *data;
+};
+
+typedef struct _ChangeInfo ChangeInfo;
+
+struct _ChangeInfo {
+	const gchar *ontology;
+	const gchar *update;
 };
 
 const TestInfo nie_tests[] = {
@@ -72,69 +80,59 @@ const TestInfo nmo_tests[] = {
 	{ NULL }
 };
 
+
+const TestInfo change_tests[] = {
+	{ "change/test-1", "change/data-1" },
+	{ "change/test-2", "change/data-2" },
+	{ "change/test-3", "change/data-3" },
+	{ NULL }
+};
+
+const ChangeInfo changes[] = {
+	{ "99-example.ontology.v1", "99-example.queries.v1" },
+	{ "99-example.ontology.v2", "99-example.queries.v2" },
+	{ "99-example.ontology.v3", "99-example.queries.v3" },
+	{ "99-example.ontology.v4", "99-example.queries.v4" },
+	{ NULL }
+};
+
 static void
-test_ontology_init (void)
+delete_db (gboolean del_journal)
 {
-	/* first-time initialization */
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL,
-	                           NULL,
-	                           FALSE);
+	gchar *meta_db, *db_location;
 
-	tracker_data_manager_shutdown ();
+	db_location = g_build_path (G_DIR_SEPARATOR_S, g_get_current_dir (), "tracker", NULL);
+	meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "meta.db", NULL);
+	g_unlink (meta_db);
+	g_free (meta_db);
 
-	/* initialization from existing database */
-	tracker_data_manager_init (0,
-	                           NULL,
-	                           NULL,
-	                           FALSE);
+	if (del_journal) {
+		meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", "tracker-store.journal", NULL);
+		g_unlink (meta_db);
+		g_free (meta_db);
+	}
 
-	tracker_data_manager_shutdown ();
+	meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", ".meta.isrunning", NULL);
+	g_unlink (meta_db);
+	g_free (meta_db);
+
+	g_free (db_location);
 }
 
 static void
-test_query (gconstpointer test_data)
+query_helper (const gchar *query_filename, const gchar *results_filename)
 {
 	TrackerDBResultSet *result_set;
-	const TestInfo *test_info;
-	GError *error;
+	GError *error = NULL;
+	gchar *query = NULL;
+	gchar *results = NULL;
 	GString *test_results;
-	gchar *data_filename;
-	gchar *query, *query_filename;
-	gchar *results, *results_filename;
-	gchar *prefix, *data_prefix, *test_prefix;
 
-	error = NULL;
-	test_info = test_data;
-
-	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
-	data_prefix = g_build_filename (prefix, test_info->data, NULL);
-	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
-	g_free (prefix);
-
-	/* initialization */
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL,
-	                           NULL, 
-	                           FALSE);
-
-	/* load data set */
-	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
-	tracker_data_begin_db_transaction ();
-	tracker_turtle_reader_load (data_filename, &error);
-	tracker_data_commit_db_transaction ();
-	g_assert_no_error (error);
-
-	query_filename = g_strconcat (test_prefix, ".rq", NULL);
 	g_file_get_contents (query_filename, &query, NULL, &error);
 	g_assert_no_error (error);
 
-	results_filename = g_strconcat (test_prefix, ".out", NULL);
 	g_file_get_contents (results_filename, &results, NULL, &error);
 	g_assert_no_error (error);
-
-	g_free (data_prefix);
-	g_free (test_prefix);
 
 	/* perform actual query */
 
@@ -210,14 +208,170 @@ test_query (gconstpointer test_data)
 		g_free (diff);
 	}
 
+	g_string_free (test_results, TRUE);
+	g_free (results);
+	g_free (query);
+}
+
+static void
+test_ontology_change (void)
+{
+	gchar *ontology_file;
+	GFile *file2;
+	gchar *prefix;
+	guint i;
+	GError *error = NULL;
+	gchar *test_schemas[4] = { NULL, NULL, NULL, NULL };
+
+	delete_db (TRUE);
+
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+
+	test_schemas[0] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "20-dc", NULL);
+	test_schemas[1] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "31-nao", NULL);
+	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "ontologies", "99-example", NULL);
+
+	ontology_file = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "ontologies", "99-example.ontology", NULL);
+
+	file2 = g_file_new_for_path (ontology_file);
+
+	g_file_delete (file2, NULL, NULL);
+
+	for (i = 0; changes[i].ontology; i++) {
+		GFile *file1;
+		gchar *queries = NULL;
+		gchar *source = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "source", changes[i].ontology, NULL);
+		gchar *update = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "updates", changes[i].update, NULL);
+		gchar *from, *to;
+
+		file1 = g_file_new_for_path (source);
+
+		from = g_file_get_path (file1);
+		to = g_file_get_path (file2);
+		g_debug ("copy %s to %s", from, to);
+		g_free (from);
+		g_free (to);
+
+		g_file_copy (file1, file2, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, NULL);
+
+		tracker_data_manager_init (0, (const gchar **) test_schemas,
+		                           NULL, FALSE);
+
+		if (g_file_get_contents (update, &queries, NULL, NULL)) {
+			gchar *query = strtok (queries, "\n");
+			while (query) {
+
+				tracker_data_begin_db_transaction ();
+				tracker_data_update_sparql (query, &error);
+				tracker_data_commit_db_transaction ();
+
+				g_assert_no_error (error);
+				query = strtok (NULL, "\n");
+			}
+			g_free (queries);
+		}
+
+		g_free (update);
+		g_free (source);
+		g_object_unref (file1);
+
+		tracker_data_manager_shutdown ();
+	}
+
+	delete_db (FALSE);
+
+	tracker_data_manager_init (0, (const gchar **) test_schemas,
+	                           NULL, TRUE);
+
+	for (i = 0; change_tests[i].test_name != NULL; i++) {
+		gchar *query_filename;
+		gchar *results_filename;
+		gchar *test_prefix;
+
+		test_prefix = g_build_filename (prefix, change_tests[i].test_name, NULL);
+		query_filename = g_strconcat (test_prefix, ".rq", NULL);
+		results_filename = g_strconcat (test_prefix, ".out", NULL);
+
+		query_helper (query_filename, results_filename);
+
+		g_free (test_prefix);
+		g_free (query_filename);
+		g_free (results_filename);
+	}
+
+	tracker_data_manager_shutdown ();
+
+	g_object_unref (file2);
+	g_free (test_schemas[0]);
+	g_free (test_schemas[1]);
+	g_free (test_schemas[2]);
+	g_free (prefix);
+}
+
+static void
+test_ontology_init (void)
+{
+	/* first-time initialization */
+	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           NULL,
+	                           NULL,
+	                           FALSE);
+
+	tracker_data_manager_shutdown ();
+
+	/* initialization from existing database */
+	tracker_data_manager_init (0,
+	                           NULL,
+	                           NULL,
+	                           FALSE);
+
+	tracker_data_manager_shutdown ();
+}
+
+static void
+test_query (gconstpointer test_data)
+{
+	const TestInfo *test_info;
+	GError *error;
+	gchar *data_filename;
+	gchar *query_filename;
+	gchar *results_filename;
+	gchar *prefix, *data_prefix, *test_prefix;
+
+	error = NULL;
+	test_info = test_data;
+
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+	data_prefix = g_build_filename (prefix, test_info->data, NULL);
+	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
+	g_free (prefix);
+
+	/* initialization */
+	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           NULL,
+	                           NULL, 
+	                           FALSE);
+
+	/* load data set */
+	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
+	tracker_data_begin_db_transaction ();
+	tracker_turtle_reader_load (data_filename, &error);
+	tracker_data_commit_db_transaction ();
+	g_assert_no_error (error);
+
+	query_filename = g_strconcat (test_prefix, ".rq", NULL);
+	results_filename = g_strconcat (test_prefix, ".out", NULL);
+
+	g_free (data_prefix);
+	g_free (test_prefix);
+
+	query_helper (query_filename, results_filename);
+
 	/* cleanup */
 
 	g_free (data_filename);
 	g_free (query_filename);
-	g_free (query);
 	g_free (results_filename);
-	g_free (results);
-	g_string_free (test_results, TRUE);
 
 	tracker_data_manager_shutdown ();
 }
@@ -245,6 +399,8 @@ main (int argc, char **argv)
 	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
 
 	/* add test cases */
+
+	g_test_add_func ("/libtracker-data/ontology-change", test_ontology_change);
 
 	g_test_add_func ("/libtracker-data/ontology-init", test_ontology_init);
 

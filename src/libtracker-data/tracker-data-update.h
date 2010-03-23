@@ -106,6 +106,9 @@ void     tracker_data_add_commit_statement_callback   (TrackerCommitCallback    
 void     tracker_data_add_rollback_statement_callback (TrackerCommitCallback      callback,
                                                        gpointer                   user_data);
 
+void     tracker_data_update_shutdown                 (void);
+#define  tracker_data_update_init                     tracker_data_update_shutdown
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_UPDATE_H__ */

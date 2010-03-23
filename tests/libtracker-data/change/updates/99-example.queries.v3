@@ -1,0 +1,6 @@
+insert { <a01> example:i1 1 }
+delete { <a01> example:i1 1 }
+insert { <a01> example:i1 2 }
+insert { <a01> example:i2 1 }
+delete { <a01> example:i2 1 }
+insert { <a01> example:i2 2 }
