@@ -1697,7 +1697,7 @@ AC_CONFIG_FILES([
 	docs/reference/libtracker-miner/version.xml
 	docs/reference/ontology/Makefile
 	docs/reference/ontology/version.xml
-        docs/tools/Makefile
+	docs/tools/Makefile
 	Makefile
 	po/Makefile.in
 	src/libinotify/Makefile
@@ -1708,10 +1708,10 @@ AC_CONFIG_FILES([
 	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile
 	src/libtracker-client/Makefile
-        src/libtracker-miner/Makefile
+	src/libtracker-miner/Makefile
 	src/Makefile
-        src/tracker-status-icon/Makefile
-        src/tracker-status-icon/tracker-status-icon.desktop.in
+	src/tracker-status-icon/Makefile
+	src/tracker-status-icon/tracker-status-icon.desktop.in
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
@@ -1724,7 +1724,7 @@ AC_CONFIG_FILES([
 	src/tracker-search-tool/tracker-search-tool.desktop.in
 	src/tracker-explorer/Makefile
 	src/tracker-utils/Makefile
-        src/tracker-writeback/Makefile
+	src/tracker-writeback/Makefile
 	src/plugins/Makefile
 	src/plugins/deskbar/Makefile
 	src/plugins/evolution/Makefile
@@ -1752,7 +1752,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/sort/Makefile
 	tests/libtracker-data/subqueries/Makefile
 	tests/libtracker-data/error/Makefile
-        tests/libtracker-data/backup/Makefile
+	tests/libtracker-data/backup/Makefile
 	tests/libtracker-data/turtle/Makefile
 	tests/libtracker-miner/Makefile
 	tests/libtracker-db/Makefile
@@ -1773,10 +1773,10 @@ AC_CONFIG_FILES([
 	utils/lyrics/Makefile
 	utils/playlists/Makefile
 	utils/tracker-fts/Makefile
-        utils/services/Makefile
+	utils/services/Makefile
 	examples/Makefile
-        examples/libtracker-extract/Makefile
-        examples/libtracker-miner/Makefile
+	examples/libtracker-extract/Makefile
+	examples/libtracker-miner/Makefile
 	examples/rss-reader/Makefile
 ])
 
