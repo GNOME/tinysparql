@@ -18,7 +18,7 @@
             <property name="visible">True</property>
             <property name="spacing">12</property>
             <child>
-              <object class="GtkLabel" id="label1">
+              <object class="GtkLabel" id="SearchLabel">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Search:</property>
                 <property name="use_underline">True</property>

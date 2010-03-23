@@ -132,8 +132,10 @@ init
         grid_box = builder.get_object ("GridBox") as Container
         category_box = builder.get_object ("CategoryBox") as Container
         main_box = builder.get_object ("MainBox") as VBox
+        search_label = builder.get_object ("SearchLabel") as Label
 
     window.add_accel_group (accel_group)
+    search_label.set_mnemonic_widget (entry)
 
     query.Connect ()
     entry.Query = query
