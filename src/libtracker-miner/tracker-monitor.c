@@ -119,11 +119,7 @@ static void           tracker_monitor_get_property (GObject        *object,
                                                     guint           prop_id,
                                                     GValue         *value,
                                                     GParamSpec     *pspec);
-
-#ifndef HAVE_LIBINOTIFY
 static guint          get_inotify_limit            (void);
-#endif /* !HAVE_LIBINOTIFY */
-
 static DirMonitor *   directory_monitor_new        (TrackerMonitor *monitor,
 						    GFile          *file);
 static void           directory_monitor_cancel     (DirMonitor     *dir_monitor);
@@ -266,6 +262,10 @@ tracker_monitor_init (TrackerMonitor *object)
 		                       (GEqualFunc) g_file_equal,
 		                       g_object_unref,
 		                       event_data_free);
+
+	g_message ("Monitor backend is libinotify");
+
+	priv->monitor_limit = get_inotify_limit ();
 #else /* HAVE_LIBINOTIFY */
 	priv->event_pairs =
 		g_hash_table_new_full (g_file_hash,
@@ -293,7 +293,7 @@ tracker_monitor_init (TrackerMonitor *object)
 		/* Set limits based on backend... */
 		if (strcmp (name, "GInotifyDirectoryMonitor") == 0) {
 			/* Using inotify */
-			g_message ("Monitor backend is INotify");
+			g_message ("Monitor backend is Inotify");
 
 			/* Setting limit based on kernel
 			 * settings in /proc...
@@ -348,12 +348,12 @@ tracker_monitor_init (TrackerMonitor *object)
 		}
 	}
 
-	g_message ("Monitor limit is %d", priv->monitor_limit);
-
 	g_file_monitor_cancel (monitor);
 	g_object_unref (monitor);
 	g_object_unref (file);
 #endif /* !HAVE_LIBINOTIFY */
+
+	g_message ("Monitor limit is %d", priv->monitor_limit);
 }
 
 static void
@@ -438,8 +438,6 @@ tracker_monitor_get_property (GObject      *object,
 	}
 }
 
-#ifndef HAVE_LIBINOTIFY
-
 static guint
 get_inotify_limit (void)
 {
@@ -468,8 +466,6 @@ get_inotify_limit (void)
 
 	return limit;
 }
-
-#endif /* !HAVE_LIBINOTIFY */
 
 #ifdef PAUSE_ON_IO
 
