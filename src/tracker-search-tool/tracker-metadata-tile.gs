@@ -156,7 +156,7 @@ class TrackerMetadataTile : EventBox
         var cr = Gdk.cairo_create (self.window)
 
         var style = self.get_style ()
-        var step1 = style.base [StateType.NORMAL]
+        var step1 = style.bg [StateType.NORMAL]
         var step2 = style.bg [StateType.SELECTED]
         
         w,h : double
