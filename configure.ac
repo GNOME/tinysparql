@@ -716,29 +716,29 @@ fi
 #  libinotify
 ####################################################################
 
-AC_ARG_ENABLE(inotify,
-	      AS_HELP_STRING([--enable-inotify],
-			     [Enables inotify for the filesystem monitoring [[default=no]]]),,
-	      [enable_inotify=no])
+AC_ARG_ENABLE(libinotify,
+	      AS_HELP_STRING([--enable-libinotify],
+			     [Enables libinotify for the filesystem monitoring [[default=yes]]]),,
+	      [enable_libinotify=yes])
 
-if test "x$enable_inotify" != "xno"; then
-  AC_CHECK_HEADERS([sys/inotify.h],[have_inotify=yes],[have_inotify=no])
+if test "x$enable_libinotify" != "xno"; then
+   AC_CHECK_HEADERS([sys/inotify.h],[have_libinotify=yes],[have_libinotify=no])
 
-  AM_CONDITIONAL(HAVE_INOTIFY, test "$have_inotify" = "yes")
+   AM_CONDITIONAL(HAVE_LIBINOTIFY, test "$have_libinotify" = "yes")
 
-  if test "$have_inotify" = "yes" ; then
-    AC_DEFINE(HAVE_INOTIFY, 1, [Have inotify])
-  fi
+   if test "$have_libinotify" = "yes" ; then
+      AC_DEFINE(HAVE_LIBINOTIFY, 1, [Have libinotify])
+   fi
 else
-   have_inotify="no"
+   have_libinotify="no  (disabled)"
 fi
 
-AM_CONDITIONAL(HAVE_INOTIFY, test "$have_inotify" = "yes")
+AM_CONDITIONAL(HAVE_LIBINOTIFY, test "$have_libinotify" = "yes")
 
-if test "$have_inotify" = "yes" ; then
-  file_monitor="inotify"
+if test "$have_libinotify" = "yes" ; then
+  have_file_monitor="libinotify"
 else
-  file_monitor="gio"
+  have_file_monitor="gio"
 fi
 
 ####################################################################
@@ -1820,7 +1820,7 @@ Build Configuration:
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$have_unac
 
-	Support for file monitoring:            $file_monitor
+	Support for file monitoring:            $have_file_monitor
 	Support for ioprio:			$have_ioprio
 	Support for HAL:                    	$have_hal
 	Support for DeviceKit-power:           	$have_devkit_power

@@ -22,12 +22,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_INOTIFY
+#ifdef HAVE_LIBINOTIFY
 #  include <sys/inotify.h>
 #  include <libinotify/libinotify.h>
 #else
 #  include <gio/gio.h>
-#endif /* HAVE_INOTIFY */
+#endif /* HAVE_LIBINOTIFY */
 
 #include <libtracker-common/tracker-keyfile-object.h>
 
@@ -76,17 +76,17 @@ struct TrackerMonitorPrivate {
 	GHashTable    *event_pairs;
 	guint          event_pairs_timeout_id;
 
-#ifdef HAVE_INOTIFY
+#ifdef HAVE_LIBINOTIFY
 	GHashTable    *cached_events;
 	guint          cached_events_timeout_id;
-#endif /* HAVE_INOTIFY */
+#endif /* HAVE_LIBINOTIFY */
 };
 
-#ifdef HAVE_INOTIFY
+#ifdef HAVE_LIBINOTIFY
 typedef INotifyHandle DirMonitor;
 #else
 typedef GFileMonitor DirMonitor;
-#endif /* HAVE_INOTIFY */
+#endif /* HAVE_LIBINOTIFY */
 
 typedef struct {
 	GFile    *file;
@@ -119,15 +119,15 @@ static void           tracker_monitor_get_property (GObject        *object,
                                                     guint           prop_id,
                                                     GValue         *value,
                                                     GParamSpec     *pspec);
+
+#ifndef HAVE_LIBINOTIFY
 static guint          get_inotify_limit            (void);
+#endif /* !HAVE_LIBINOTIFY */
 
 static DirMonitor *   directory_monitor_new        (TrackerMonitor *monitor,
 						    GFile          *file);
 static void           directory_monitor_cancel     (DirMonitor     *dir_monitor);
 
-static gboolean       monitor_move                 (TrackerMonitor *monitor,
-                                                    GFile          *old_file,
-                                                    GFile          *new_file);
 
 static void           event_data_free              (gpointer        data);
 
@@ -227,9 +227,11 @@ static void
 tracker_monitor_init (TrackerMonitor *object)
 {
 	TrackerMonitorPrivate *priv;
+#ifndef HAVE_LIBINOTIFY
 	GFile                 *file;
 	GFileMonitor          *monitor;
 	const gchar           *name;
+#endif /* HAVE_LIBINOTIFY */
 
 	object->private = TRACKER_MONITOR_GET_PRIVATE (object);
 
@@ -245,7 +247,7 @@ tracker_monitor_init (TrackerMonitor *object)
 		                       (GDestroyNotify) g_object_unref,
 		                       (GDestroyNotify) directory_monitor_cancel);
 
-#ifdef HAVE_INOTIFY
+#ifdef HAVE_LIBINOTIFY
 	/* We have a hash table with cookies so we can pair up move
 	 * events.
 	 */
@@ -264,7 +266,7 @@ tracker_monitor_init (TrackerMonitor *object)
 		                       (GEqualFunc) g_file_equal,
 		                       g_object_unref,
 		                       event_data_free);
-#else /* HAVE_INOTIFY */
+#else /* HAVE_LIBINOTIFY */
 	priv->event_pairs =
 		g_hash_table_new_full (g_file_hash,
 				       (GEqualFunc) g_file_equal,
@@ -351,7 +353,7 @@ tracker_monitor_init (TrackerMonitor *object)
 	g_file_monitor_cancel (monitor);
 	g_object_unref (monitor);
 	g_object_unref (file);
-#endif /* !HAVE_INOTIFY */
+#endif /* !HAVE_LIBINOTIFY */
 }
 
 static void
@@ -367,7 +369,7 @@ tracker_monitor_finalize (GObject *object)
 	}
 #endif /* PAUSE_ON_IO */
 
-#ifdef HAVE_INOTIFY
+#ifdef HAVE_LIBINOTIFY
 	if (priv->cached_events_timeout_id) {
 		g_source_remove (priv->cached_events_timeout_id);
 	}
@@ -377,7 +379,7 @@ tracker_monitor_finalize (GObject *object)
 	}
 
 	g_hash_table_unref (priv->cached_events);
-#endif /* HAVE_INOTIFY */
+#endif /* HAVE_LIBINOTIFY */
 
 	g_hash_table_unref (priv->event_pairs);
 	g_hash_table_unref (priv->monitors);
@@ -436,6 +438,8 @@ tracker_monitor_get_property (GObject      *object,
 	}
 }
 
+#ifndef HAVE_LIBINOTIFY
+
 static guint
 get_inotify_limit (void)
 {
@@ -464,6 +468,8 @@ get_inotify_limit (void)
 
 	return limit;
 }
+
+#endif /* !HAVE_LIBINOTIFY */
 
 #ifdef PAUSE_ON_IO
 
@@ -538,7 +544,7 @@ event_data_free (gpointer data)
 	g_slice_free (EventData, data);
 }
 
-#ifdef HAVE_INOTIFY
+#ifdef HAVE_LIBINOTIFY
 
 static void
 event_data_update (EventData *event)
@@ -548,6 +554,99 @@ event_data_update (EventData *event)
 	g_get_current_time (&now);
 
 	event->last_time = now;
+}
+
+static gboolean
+libinotify_monitor_move (TrackerMonitor *monitor,
+                         GFile          *old_file,
+                         GFile          *new_file)
+{
+	GHashTableIter iter;
+	GHashTable *new_monitors;
+	gchar *old_prefix;
+	gpointer iter_file, iter_file_monitor;
+	guint items_moved = 0;
+
+	/* So this is tricky. What we have to do is:
+	 *
+	 * 1) Add all monitors for the new_file directory hierarchy
+	 * 2) Then remove the monitors for old_file
+	 *
+	 * This order is necessary because inotify can reuse watch
+	 * descriptors, and libinotify will remove handles
+	 * asynchronously on IN_IGNORE, so the opposite sequence
+	 * may possibly remove valid, just added, monitors.
+	 */
+	new_monitors = g_hash_table_new_full (g_file_hash,
+	                                      (GEqualFunc) g_file_equal,
+	                                      (GDestroyNotify) g_object_unref,
+	                                      NULL);
+	old_prefix = g_file_get_path (old_file);
+
+	/* Find out which subdirectories should have a file monitor added */
+	g_hash_table_iter_init (&iter, monitor->private->monitors);
+	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
+		GFile *f;
+		gchar *old_path, *new_path;
+		gchar *new_prefix;
+		gchar *p;
+
+		if (!g_file_has_prefix (iter_file, old_file) &&
+		    !g_file_equal (iter_file, old_file)) {
+			continue;
+		}
+
+		old_path = g_file_get_path (iter_file);
+		p = strstr (old_path, old_prefix);
+
+		if (!p || strcmp (p, old_prefix) == 0) {
+			g_free (old_path);
+			continue;
+		}
+
+		/* Move to end of prefix */
+		p += strlen (old_prefix) + 1;
+
+		/* Check this is not the end of the string */
+		if (*p == '\0') {
+			g_free (old_path);
+			continue;
+		}
+
+		new_prefix = g_file_get_path (new_file);
+		new_path = g_build_path (G_DIR_SEPARATOR_S, new_prefix, p, NULL);
+		g_free (new_prefix);
+
+		f = g_file_new_for_path (new_path);
+		g_free (new_path);
+
+		if (!g_hash_table_lookup (new_monitors, f)) {
+			g_hash_table_insert (new_monitors, f, GINT_TO_POINTER (1));
+		} else {
+			g_object_unref (f);
+		}
+
+		g_free (old_path);
+		items_moved++;
+	}
+
+	/* Add a new monitor for the top level directory */
+	tracker_monitor_add (monitor, new_file);
+
+	/* Add a new monitor for all subdirectories */
+	g_hash_table_iter_init (&iter, new_monitors);
+	while (g_hash_table_iter_next (&iter, &iter_file, NULL)) {
+		tracker_monitor_add (monitor, iter_file);
+		g_hash_table_iter_remove (&iter);
+	}
+
+	/* Remove the monitor for the old top level directory hierarchy */
+	tracker_monitor_remove_recursively (monitor, old_file);
+
+	g_hash_table_unref (new_monitors);
+	g_free (old_prefix);
+
+	return items_moved > 0;
 }
 
 static gchar *
@@ -1129,7 +1228,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			               TRUE);
 
 			if (is_directory) {
-				monitor_move (monitor, file, other_file);
+				libinotify_monitor_move (monitor, file, other_file);
 			}
 
 			g_hash_table_remove (monitor->private->event_pairs,
@@ -1194,7 +1293,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			               is_source_indexed);
 
 			if (is_directory) {
-				monitor_move (monitor, other_file, file);
+				libinotify_monitor_move (monitor, other_file, file);
 			}
 
 			g_hash_table_remove (monitor->private->event_pairs,
@@ -1276,14 +1375,14 @@ directory_monitor_new (TrackerMonitor *monitor,
 }
 
 static void
-directory_monitor_cancel (gpointer data)
+directory_monitor_cancel (DirMonitor *dir_monitor)
 {
-	if (data) {
-		inotify_monitor_remove (data);
+	if (dir_monitor) {
+		inotify_monitor_remove (dir_monitor);
 	}
 }
 
-#else /* HAVE_INOTIFY */
+#else /* HAVE_LIBINOTIFY */
 
 static const gchar *
 monitor_event_to_string (GFileMonitorEvent event_type)
@@ -1306,7 +1405,7 @@ monitor_event_to_string (GFileMonitorEvent event_type)
 #if GLIB_CHECK_VERSION (2, 23, 6)
 	case G_FILE_MONITOR_EVENT_MOVED:
 		return "G_FILE_MONITOR_EVENT_MOVED";
-#endif
+#endif /* GLIB_CHECK_VERSION */
 	}
 
 	return "unknown";
@@ -1485,11 +1584,11 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 			       TRUE);
 
 		if (is_directory) {
-			monitor_move (monitor, file, other_file);
+			libinotify_monitor_move (monitor, file, other_file);
 		}
 
 		break;
-#endif
+#endif /* GLIB_CHECK_VERSION */
 
 	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
 	case G_FILE_MONITOR_EVENT_UNMOUNTED:
@@ -1527,7 +1626,7 @@ directory_monitor_new (TrackerMonitor *monitor,
 	file_monitor = g_file_monitor_directory (file,
 #if GLIB_CHECK_VERSION (2, 23, 6)
 						 G_FILE_MONITOR_SEND_MOVED |
-#endif
+#endif /* GLIB_CHECK_VERSION */
 						 G_FILE_MONITOR_WATCH_MOUNTS,
 						 NULL,
 						 &error);
@@ -1561,100 +1660,7 @@ directory_monitor_cancel (DirMonitor *monitor)
 	}
 }
 
-#endif /* HAVE_INOTIFY */
-
-static gboolean
-monitor_move (TrackerMonitor *monitor,
-              GFile          *old_file,
-              GFile          *new_file)
-{
-	GHashTableIter iter;
-	GHashTable *new_monitors;
-	gchar *old_prefix;
-	gpointer iter_file, iter_file_monitor;
-	guint items_moved = 0;
-
-	/* So this is tricky. What we have to do is:
-	 *
-	 * 1) Add all monitors for the new_file directory hierarchy
-	 * 2) Then remove the monitors for old_file
-	 *
-	 * This order is necessary because inotify can reuse watch
-	 * descriptors, and libinotify will remove handles
-	 * asynchronously on IN_IGNORE, so the opposite sequence
-	 * may possibly remove valid, just added, monitors.
-	 */
-	new_monitors = g_hash_table_new_full (g_file_hash,
-	                                      (GEqualFunc) g_file_equal,
-	                                      (GDestroyNotify) g_object_unref,
-	                                      NULL);
-	old_prefix = g_file_get_path (old_file);
-
-	/* Find out which subdirectories should have a file monitor added */
-	g_hash_table_iter_init (&iter, monitor->private->monitors);
-	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
-		GFile *f;
-		gchar *old_path, *new_path;
-		gchar *new_prefix;
-		gchar *p;
-
-		if (!g_file_has_prefix (iter_file, old_file) &&
-		    !g_file_equal (iter_file, old_file)) {
-			continue;
-		}
-
-		old_path = g_file_get_path (iter_file);
-		p = strstr (old_path, old_prefix);
-
-		if (!p || strcmp (p, old_prefix) == 0) {
-			g_free (old_path);
-			continue;
-		}
-
-		/* Move to end of prefix */
-		p += strlen (old_prefix) + 1;
-
-		/* Check this is not the end of the string */
-		if (*p == '\0') {
-			g_free (old_path);
-			continue;
-		}
-
-		new_prefix = g_file_get_path (new_file);
-		new_path = g_build_path (G_DIR_SEPARATOR_S, new_prefix, p, NULL);
-		g_free (new_prefix);
-
-		f = g_file_new_for_path (new_path);
-		g_free (new_path);
-
-		if (!g_hash_table_lookup (new_monitors, f)) {
-			g_hash_table_insert (new_monitors, f, GINT_TO_POINTER (1));
-		} else {
-			g_object_unref (f);
-		}
-
-		g_free (old_path);
-		items_moved++;
-	}
-
-	/* Add a new monitor for the top level directory */
-	tracker_monitor_add (monitor, new_file);
-
-	/* Add a new monitor for all subdirectories */
-	g_hash_table_iter_init (&iter, new_monitors);
-	while (g_hash_table_iter_next (&iter, &iter_file, NULL)) {
-		tracker_monitor_add (monitor, iter_file);
-		g_hash_table_iter_remove (&iter);
-	}
-
-	/* Remove the monitor for the old top level directory hierarchy */
-	tracker_monitor_remove_recursively (monitor, old_file);
-
-	g_hash_table_unref (new_monitors);
-	g_free (old_prefix);
-
-	return items_moved > 0;
-}
+#endif /* HAVE_LIBINOTIFY */
 
 TrackerMonitor *
 tracker_monitor_new (void)

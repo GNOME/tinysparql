@@ -1,12 +1,12 @@
 include $(top_srcdir)/Makefile.decl
 
-if HAVE_INOTIFY
-inotify_dir = libinotify
+if HAVE_LIBINOTIFY
+libinotify_dir = libinotify
 endif
 
 SUBDIRS = 					\
 	libstemmer				\
-	$(inotify_dir)				\
+	$(libinotify_dir)			\
 	libtracker-common 			\
 	libtracker-client			\
 	libtracker-fts				\

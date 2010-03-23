@@ -80,7 +80,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(GLIB2_LIBS)					\
 	$(GDKPIXBUF_LIBS)
 
-if HAVE_INOTIFY
+if HAVE_LIBINOTIFY
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
 	$(top_builddir)/src/libinotify/libinotify.la
 endif
