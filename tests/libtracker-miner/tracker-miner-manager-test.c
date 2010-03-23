@@ -18,7 +18,7 @@
  */
 #include <glib.h>
 #include <glib-object.h>
-#include <libtracker-miner/tracker-miner-manager.h>
+#include <libtracker-miner/tracker-miner.h>
 #include "miners-mock.h"
 
 

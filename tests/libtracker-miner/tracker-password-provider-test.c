@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-#include <libtracker-miner/tracker-password-provider.h>
+#include <libtracker-miner/tracker-miner.h>
 
 #define SERVICE_NAME  "TestService"
 #define TEST_USERNAME "test-user"

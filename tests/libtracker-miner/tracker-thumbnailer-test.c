@@ -18,7 +18,7 @@
  */
 #include <glib.h>
 #include <glib-object.h>
-#include <libtracker-miner/tracker-thumbnailer.h>
+#include <libtracker-miner/tracker-miner.h>
 #include "thumbnailer-mock.h"
 
 

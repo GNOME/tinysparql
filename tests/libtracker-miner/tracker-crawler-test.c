@@ -17,7 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <libtracker-miner/tracker-crawler.h>
+#include <libtracker-miner/tracker-miner.h>
 
 typedef struct CrawlerTest CrawlerTest;
 
