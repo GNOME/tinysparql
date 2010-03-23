@@ -29,7 +29,6 @@ nmo:partBoundary a rdf:Property ;
 
 nmo:Message a rdfs:Class ;
 	rdfs:comment "A message. Could be an email, instant messanging message, SMS message etc." ;
-	rdfs:subClassOf nie:InformationElement ;
 	rdfs:subClassOf nfo:TextDocument ;
 	tracker:notify true .
 
