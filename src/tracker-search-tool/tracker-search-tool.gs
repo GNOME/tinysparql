@@ -116,12 +116,14 @@ init
 
     window = builder.get_object ("window") as Window
     window.destroy += Gtk.main_quit
-    
+
     window.set_app_paintable (true)
 
     /* create tracker widgets */
 
     var
+        accel_group = new AccelGroup
+
         query = new TrackerQuery
         entry = new TrackerSearchEntry ()
         grid = new TrackerResultGrid ()
@@ -133,10 +135,16 @@ init
         category_box = builder.get_object ("CategoryBox") as Container
         main_box = builder.get_object ("MainBox") as VBox
 
+    window.add_accel_group (accel_group)
 
     query.Connect ()
     entry.Query = query
     entry_box.add (entry)
+
+    keyval : uint
+    mods : Gdk.ModifierType
+    accelerator_parse ("<Ctrl>s", out keyval, out mods)
+    entry.add_accelerator ("activate", accel_group, keyval, mods, AccelFlags.VISIBLE | AccelFlags.LOCKED)
 
     grid.Query = query
     grid_box.add (grid)

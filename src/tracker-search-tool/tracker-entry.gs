@@ -27,16 +27,17 @@ uses
     
 const static RUN_DELAY : int = 500
     
-class TrackerSearchEntry  : Gtk.Entry
+class TrackerSearchEntry  : Gtk.Entry implements Gtk.Activatable
     id_invoker : uint = 0
 
-    prop Query : TrackerQuery 
+    prop Query : TrackerQuery
 
     init
         set_icon_from_stock (EntryIconPosition.SECONDARY, STOCK_CLEAR)
         set_icon_sensitive (EntryIconPosition.PRIMARY, false)
         set_icon_sensitive (EntryIconPosition.SECONDARY, false)
         set_icon_tooltip_text (EntryIconPosition.SECONDARY, _("Clear the search text"))
+        activate += entry_activate
         changed += entry_changed
         icon_press += def (p0, p1)
             if p0 is EntryIconPosition.SECONDARY
@@ -55,7 +56,10 @@ class TrackerSearchEntry  : Gtk.Entry
                 if id_invoker != 0
                     Source.remove (id_invoker)
                 id_invoker = Timeout.add (RUN_DELAY, run_query)
-        
+
+    def private entry_activate (entry : TrackerSearchEntry)
+        entry.grab_focus ()
+
     def private run_query () : bool
         if Query is not null
             if (text is null) or (text is "")
@@ -65,4 +69,9 @@ class TrackerSearchEntry  : Gtk.Entry
                 set_icon_sensitive (EntryIconPosition.SECONDARY, true)
                 Query.SearchTerms = EscapeSparql (text, true)
         return false
-    
+
+    def sync_action_properties (action : Action)
+        return
+
+    def update (action : Action, prop : string)
+        return
