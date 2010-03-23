@@ -132,6 +132,20 @@ applet_entry_button_press_event_cb (GtkWidget      *widget,
 	return FALSE;
 }
 
+static void
+applet_entry_editable_changed_cb (GtkWidget     *widget,
+                                  TrackerApplet *applet)
+{
+        if (applet->new_search_id) {
+                g_source_remove (applet->new_search_id);
+        }
+
+        applet->new_search_id =
+                g_timeout_add (300,
+                               applet_entry_start_search_cb,
+                               applet);
+}
+
 static gboolean
 applet_entry_key_press_event_cb (GtkWidget     *widget,
                                  GdkEventKey   *event,
@@ -150,15 +164,6 @@ applet_entry_key_press_event_cb (GtkWidget     *widget,
 		}
 
 		gtk_widget_grab_focus (applet->results);
-	} else {
-		if (applet->new_search_id) {
-			g_source_remove (applet->new_search_id);
-		}
-
-		applet->new_search_id =
-			g_timeout_add (300,
-			               applet_entry_start_search_cb,
-			               applet);
 	}
 
 	return FALSE;
@@ -215,6 +220,9 @@ applet_draw (gpointer user_data)
 	g_signal_connect (applet->entry,
 	                  "button_press_event",
 	                  G_CALLBACK (applet_entry_button_press_event_cb), applet);
+        g_signal_connect (applet->entry,
+                          "changed",
+                          G_CALLBACK (applet_entry_editable_changed_cb), applet);
 	g_signal_connect (applet->entry,
 	                  "key_press_event",
 	                  G_CALLBACK (applet_entry_key_press_event_cb), applet);
