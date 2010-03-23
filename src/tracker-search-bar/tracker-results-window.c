@@ -1424,10 +1424,22 @@ tracker_results_window_new (GtkWidget   *parent,
 void
 tracker_results_window_popup (TrackerResultsWindow *window)
 {
-	g_return_if_fail (TRACKER_IS_RESULTS_WINDOW (window));
+        TrackerResultsWindowPrivate *priv;
+        GtkAdjustment *vadj, *hadj;
+
+        g_return_if_fail (TRACKER_IS_RESULTS_WINDOW (window));
+
+	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
 	gtk_widget_realize (GTK_WIDGET (window));
 	gtk_widget_show (GTK_WIDGET (window));
+
+        /* Force scroll to top-left */
+        vadj = gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (priv->scrolled_window));
+        gtk_adjustment_set_value (vadj, vadj->lower);
+
+        hadj = gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (priv->scrolled_window));
+        gtk_adjustment_set_value (hadj, hadj->lower);
 
         g_idle_add ((GSourceFunc) grab_popup_window, window);
 }
