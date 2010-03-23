@@ -1821,7 +1821,7 @@ Build Configuration:
 	Enable unac accent stripper:	  	$have_unac
 
 	Support for file monitoring:            $have_file_monitor
-	Support for ioprio:			$have_ioprio
+	Support for ioprio:			$tracker_cv_have_ioprio
 	Support for HAL:                    	$have_hal
 	Support for DeviceKit-power:           	$have_devkit_power
 
