@@ -745,6 +745,12 @@ pixbuf_get (TrackerResultsWindow *window,
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	file = g_file_new_for_uri (uri);
 
+        if (category & CATEGORY_TAG) {
+                icon_name = GTK_STOCK_INDEX;
+        } else if (category & CATEGORY_BOOKMARK) {
+                icon_name = "user-bookmarks";
+        }
+
 	if (icon_name) {
 		if (strrchr (icon_name, '.') == NULL) {
 			pixbuf = gtk_icon_theme_load_icon (priv->icon_theme,
