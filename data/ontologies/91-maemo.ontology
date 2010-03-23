@@ -3,6 +3,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> .
 @prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
 @prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
 @prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
@@ -11,7 +12,7 @@
 
 maemo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "maemo" ;
-	nao:lastModified "2010-02-16T11:00:00Z" .
+	nao:lastModified "2010-03-23T14:30:00Z" .
 
 maemo:SoftwareWidget a rdfs:Class ;
 	rdfs:label "Widget" ;
@@ -52,3 +53,10 @@ maemo:remoteMediaArt a rdf:Property ;
 	rdfs:range nfo:Image ;
 	rdfs:domain nfo:Media .
 
+# Used for phone number matching (mixed international and local phone numbers)
+maemo:localPhoneNumber a rdf:Property ;
+	rdfs:label "local phone number (last N digits)" ;
+	tracker:indexed true ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:PhoneNumber ;
+	rdfs:range xsd:string .
