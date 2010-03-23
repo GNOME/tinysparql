@@ -4,5 +4,4 @@ SUBDIRS = 			\
 	gtk-sparql		\
 	lyrics			\
 	services		\
-	playlists		\
-	tracker-fts
+	playlists
