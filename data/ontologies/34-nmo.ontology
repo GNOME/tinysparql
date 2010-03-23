@@ -458,3 +458,10 @@ nmo:reportDelivery a rdf:Property ;
          nrl:maxCardinality 1 ;
          rdfs:domain nmo:Message ;
          rdfs:range xsd:boolean .
+
+# MMS support
+nmo:MMSMessage a rdfs:Class;
+         rdfs:label "MMS Message";
+         rdfs:comment "An MMS message is basically a Email with different envelop. It inherits also from SMS the folders and delivery status";
+         rdfs:subClassOf nmo:Email;
+         rdfs:subClassOf nmo:SMSMessage.
