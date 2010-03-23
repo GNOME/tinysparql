@@ -508,6 +508,16 @@ results_window_key_press_event (GtkWidget   *widget,
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (widget);
 
+        if (event->keyval != GDK_Return &&
+            (*event->string != '\0' ||
+             event->keyval == GDK_BackSpace)) {
+                GtkWidget *entry;
+
+                entry = tracker_aligned_window_get_widget (TRACKER_ALIGNED_WINDOW (widget));
+                gtk_propagate_event (entry, (GdkEvent *) event);
+                return TRUE;
+        }
+
 	if (GTK_WIDGET_CLASS (tracker_results_window_parent_class)->key_press_event (widget, event)) {
 		return TRUE;
 	}
