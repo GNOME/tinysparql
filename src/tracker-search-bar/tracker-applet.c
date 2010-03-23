@@ -83,6 +83,11 @@ applet_entry_start_search (TrackerApplet *applet)
 
 	text = gtk_entry_get_text (GTK_ENTRY (applet->entry));
 
+        if (!text || !*text) {
+                gtk_widget_hide (applet->results);
+                return;
+        }
+
 	g_print ("Searching for: '%s'\n", text);
 
 	if (!applet->results) {
