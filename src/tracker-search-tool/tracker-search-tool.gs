@@ -117,8 +117,6 @@ init
     window = builder.get_object ("window") as Window
     window.destroy += Gtk.main_quit
 
-    window.set_app_paintable (true)
-
     /* create tracker widgets */
 
     var
