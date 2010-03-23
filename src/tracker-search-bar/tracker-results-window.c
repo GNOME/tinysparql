@@ -1052,6 +1052,10 @@ model_set_up (TrackerResultsWindow *window)
 	                                         model_pixbuf_cell_data_func,
 	                                         window,
 	                                         NULL);
+        g_object_set (cell,
+                      "height", 24,
+                      "width", 24,
+                      NULL);
 
 	cell = gtk_cell_renderer_text_new ();
 	g_object_set (cell,
