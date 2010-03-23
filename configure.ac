@@ -205,19 +205,22 @@ AC_SUBST(UUID_CFLAGS)
 AC_SUBST(UUID_LIBS)
 
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
-AC_ARG_WITH([enca],
-            AS_HELP_STRING([--with-enca], [build with enca]),[with_enca=no],
-            [with_enca=yes])
+AC_ARG_WITH(enca,
+            AS_HELP_STRING([--with-enca], 
+                           [enable libenca for Cyrillic language detection in MP3s [[default=auto]]]),,
+            [enable_enca=auto])
 
-if test x$with_enca = xyes ; then
+if test "x$enable_enca" != "xno" ; then
    PKG_CHECK_MODULES(ENCA, [enca >= 1.9], have_enca=yes, have_enca=no)
 
    AC_SUBST(ENCA_CFLAGS)
    AC_SUBST(ENCA_LIBS)
 
-   if test x$have_enca = "xyes"; then
+   if test "x$have_enca" = "xyes"; then
      AC_DEFINE(HAVE_ENCA, [], [Enca language detection aid])
    fi
+else
+   have_enca="no  (disabled)"
 fi
 
 AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
@@ -1817,26 +1820,25 @@ Build Configuration:
 
         Enable gtk doc (for documentation):     $enable_gtk_doc
 
+	Enable functional tests:		$enable_functional_tests
 	Enable unit tests:			$have_unit_tests
-	Enable unac accent stripper:	  	$have_unac
 
-	Support for file monitoring:            $have_file_monitor
 	Support for ioprio:			$tracker_cv_have_ioprio
 	Support for HAL:                    	$have_hal
 	Support for DeviceKit-power:           	$have_devkit_power
+	Support for file monitoring:            $have_file_monitor
+	Support for accent stripping (unac):  	$have_unac
+	Support for Cyrillic languages (enca): 	$have_enca
 
 Applications:
 
 	Build with SQLite FTS support:		yes
 
-	Build deskbar-applet:			$have_deskbar_applet
 	Build tracker-search-tool:	        $have_tracker_search_tool
 	Build tracker-preferences:		$have_tracker_preferences
 	Build tracker-status-icon:              $have_tracker_status_icon
 	Build tracker-explorer:                 $have_tracker_explorer
 	Build tracker-search-bar:               $have_tracker_search_bar
-
-	Functional tests:			$enable_functional_tests
 
 Metadata Extractors:
 
@@ -1855,17 +1857,21 @@ Metadata Extractors:
 	Support MP3 album art:                  $selected_for_albumart
 	Support playlists (w/ Totem):           $have_playlist
 
-Plugins/Extensions:
+Data Miners:
 
-	Nautilus            (tagging widget)    $have_nautilus_extension
-	Evolution plugin    (data-push):	$enable_evolution_miner
-	KMail plugin        (data-push):	$enable_kmail_miner
-	Miner RSS:          (data-push):	$enable_miner_rss
+        RSS:                                    $enable_miner_rss
+        Evolution:                              $enable_evolution_miner
+        KMail:                                  $enable_kmail_miner
+
+Plugins:
+
+        Nautilus: (tagging widget)              $have_nautilus_extension
+        Deskbar:                                $have_deskbar_applet
 
 Writeback:
 
-	MP3 writeback:                          $have_id3lib
-	XMP writeback:                          $have_exempi
+	MP3:                                    $have_id3lib
+	XMP:                                    $have_exempi
 
 Warning:
 
