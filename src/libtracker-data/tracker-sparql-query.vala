@@ -229,9 +229,45 @@ public class Tracker.SparqlQuery : Object {
 		// value is VariableState
 		public HashTable<Variable,int> var_set;
 
+		public HashTable<string,Variable> var_map;
+		// All selected SPARQL variables (used by compositional subqueries)
+		public HashTable<Variable,int> select_var_set;
+
+		// Variables used as predicates
+		public HashTable<Variable,PredicateVariable> predicate_variable_map;
+
+		// Keep track of used sql identifiers to avoid using the same for multiple SPARQL variables
+		public HashTable<string,bool> used_sql_identifiers;
+
+		public bool in_scalar_subquery;
+
 		public Context (Context? parent_context = null) {
 			this.parent_context = parent_context;
 			this.var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+
+			if (parent_context == null) {
+				select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+				var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
+				predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+				used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+			} else {
+				select_var_set = parent_context.select_var_set;
+				var_map = parent_context.var_map;
+				predicate_variable_map = parent_context.predicate_variable_map;
+				used_sql_identifiers = parent_context.used_sql_identifiers;
+				in_scalar_subquery = parent_context.in_scalar_subquery;
+			}
+		}
+
+		public Context.subquery (Context parent_context) {
+			this.parent_context = parent_context;
+			this.var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+
+			select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+			var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
+			predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+			used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
+			in_scalar_subquery = true;
 		}
 	}
 
@@ -295,22 +331,8 @@ public class Tracker.SparqlQuery : Object {
 	// All SPARQL literals
 	List<LiteralBinding> bindings;
 
-	// All SPARQL variables
-	HashTable<string,Variable> var_map;
-
-	List<unowned HashTable<string,Variable>> outer_var_maps;
-
-	Context context = new Context ();
+	Context context;
 	TripleContext? triple_context;
-
-	// All selected SPARQL variables (used by compositional subqueries)
-	HashTable<Variable,int> select_var_set;
-
-	// Variables used as predicates
-	HashTable<Variable,PredicateVariable> predicate_variable_map;
-
-	// Keep track of used sql identifiers to avoid using the same for multiple SPARQL variables
-	HashTable<string,bool> used_sql_identifiers;
 
 	bool delete_statements;
 
@@ -455,20 +477,20 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	unowned Variable get_variable (string name) {
-		unowned Variable result = var_map.lookup (name);
+		unowned Variable result = context.var_map.lookup (name);
 		if (result == null) {
 			// use lowercase as SQLite is never case sensitive (not conforming to SQL)
 			string sql_identifier = "%s_u".printf (name).down ();
 
 			// ensure SQL identifier is unique to avoid conflicts between
 			// case sensitive SPARQL and case insensitive SQLite
-			for (int i = 1; used_sql_identifiers.lookup (sql_identifier); i++) {
+			for (int i = 1; context.used_sql_identifiers.lookup (sql_identifier); i++) {
 				sql_identifier = "%s_%d_u".printf (name, i).down ();
 			}
-			used_sql_identifiers.insert (sql_identifier, true);
+			context.used_sql_identifiers.insert (sql_identifier, true);
 
 			var variable = new Variable (name, sql_identifier);
-			var_map.insert (name, variable);
+			context.var_map.insert (name, variable);
 
 			result = variable;
 		}
@@ -726,26 +748,16 @@ public class Tracker.SparqlQuery : Object {
 			if (state == 0) {
 				state = VariableState.BOUND;
 			}
-			select_var_set.insert (variable, state);
+			context.select_var_set.insert (variable, state);
 		}
 
 		return type;
 	}
 
-	void begin_query () {
-		context = new Context (context);
-
-		select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
-
-		var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
-		predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
-		used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
-	}
-
 	DBResultSet? execute_select () throws DBInterfaceError, SparqlError, DateError {
 		// SELECT query
 
-		begin_query ();
+		context = new Context ();
 
 		// build SQL
 		var sql = new StringBuilder ();
@@ -790,7 +802,7 @@ public class Tracker.SparqlQuery : Object {
 		set_location (select_variables_location);
 
 		// report use of undefined variables
-		foreach (var variable in var_map.get_values ()) {
+		foreach (var variable in context.var_map.get_values ()) {
 			if (variable.binding == null) {
 				throw get_error ("use of undefined variable `%s'".printf (variable.name));
 			}
@@ -798,7 +810,7 @@ public class Tracker.SparqlQuery : Object {
 
 		bool first = true;
 		if (accept (SparqlTokenType.STAR)) {
-			foreach (var variable in var_map.get_values ()) {
+			foreach (var variable in context.var_map.get_values ()) {
 				if (!first) {
 					sql.append (", ");
 				} else {
@@ -953,7 +965,7 @@ public class Tracker.SparqlQuery : Object {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
-		begin_query ();
+		context = new Context ();
 
 		// build SQL
 		var sql = new StringBuilder ();
@@ -1018,7 +1030,7 @@ public class Tracker.SparqlQuery : Object {
 		}
 
 		var pattern_sql = new StringBuilder ();
-		begin_query ();
+		context = new Context ();
 
 		var sql = new StringBuilder ();
 
@@ -1040,7 +1052,7 @@ public class Tracker.SparqlQuery : Object {
 		// build SQL
 		sql.append ("SELECT ");
 		bool first = true;
-		foreach (var variable in var_map.get_values ()) {
+		foreach (var variable in context.var_map.get_values ()) {
 			if (!first) {
 				sql.append (", ");
 			} else {
@@ -1083,7 +1095,7 @@ public class Tracker.SparqlQuery : Object {
 				// get values of all variables to be bound
 				var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 				int var_idx = 0;
-				foreach (string var_name in var_map.get_keys ()) {
+				foreach (string var_name in context.var_map.get_keys ()) {
 					Value value;
 					result_set._get_value (var_idx++, out value);
 					var_value_map.insert (var_name, get_string_for_value (value));
@@ -2062,21 +2074,13 @@ public class Tracker.SparqlQuery : Object {
 		if (current () == SparqlTokenType.SELECT) {
 			// scalar subquery
 
-			outer_var_maps.prepend (var_map);
-			var outer_var_map = var_map;
-			var outer_predicate_variable_map = predicate_variable_map;
-			var outer_used_sql_identifiers = used_sql_identifiers;
-			begin_query ();
+			context = new Context.subquery (context);
 
 			sql.append ("(");
 			var type = translate_select (sql, true);
 			sql.append (")");
 
 			context = context.parent_context;
-			outer_var_maps.remove (var_map);
-			var_map = outer_var_map;
-			predicate_variable_map = outer_predicate_variable_map;
-			used_sql_identifiers = outer_used_sql_identifiers;
 
 			expect (SparqlTokenType.CLOSE_PARENS);
 			return type;
@@ -2591,8 +2595,8 @@ public class Tracker.SparqlQuery : Object {
 			translate_select (sql, true);
 
 			// only export selected variables
-			context.var_set = select_var_set;
-			select_var_set = select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+			context.var_set = context.select_var_set;
+			context.select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 			expect (SparqlTokenType.CLOSE_BRACE);
 			return;
@@ -2861,10 +2865,11 @@ public class Tracker.SparqlQuery : Object {
 
 	VariableBindingList? get_variable_binding_list (Variable variable) {
 		var binding_list = triple_context.var_map.lookup (variable);
-		if (binding_list == null && outer_var_maps != null) {
+		if (binding_list == null && context.in_scalar_subquery) {
 			// in scalar subquery: check variables of outer queries
-			foreach (unowned HashTable<string,Variable> outer_var_map in outer_var_maps) {
-				var outer_var = outer_var_map.lookup (variable.name);
+			var parent_context = context.parent_context;
+			while (parent_context != null) {
+				var outer_var = parent_context.var_map.lookup (variable.name);
 				if (outer_var != null && outer_var.binding != null) {
 					// capture outer variable
 					var binding = new VariableBinding ();
@@ -2881,6 +2886,7 @@ public class Tracker.SparqlQuery : Object {
 					binding.variable.binding = binding;
 					break;
 				}
+				parent_context = parent_context.parent_context;
 			}
 		}
 		return binding_list;
@@ -2960,10 +2966,10 @@ public class Tracker.SparqlQuery : Object {
 					if (domain == null) {
 						throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 					}
-					var pv = predicate_variable_map.lookup (get_variable (current_subject));
+					var pv = context.predicate_variable_map.lookup (get_variable (current_subject));
 					if (pv == null) {
 						pv = new PredicateVariable ();
-						predicate_variable_map.insert (get_variable (current_subject), pv);
+						context.predicate_variable_map.insert (get_variable (current_subject), pv);
 					}
 					pv.domain = domain;
 				}
@@ -3011,10 +3017,10 @@ public class Tracker.SparqlQuery : Object {
 			// variable in predicate
 			newtable = true;
 			table = new DataTable ();
-			table.predicate_variable = predicate_variable_map.lookup (get_variable (current_predicate));
+			table.predicate_variable = context.predicate_variable_map.lookup (get_variable (current_predicate));
 			if (table.predicate_variable == null) {
 				table.predicate_variable = new PredicateVariable ();
-				predicate_variable_map.insert (get_variable (current_predicate), table.predicate_variable);
+				context.predicate_variable_map.insert (get_variable (current_predicate), table.predicate_variable);
 			}
 			if (!current_subject_is_var) {
 				// single subject
