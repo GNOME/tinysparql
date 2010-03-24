@@ -150,6 +150,8 @@ class TrackerMetadataTile : EventBox
         
         sparql = "SELECT ?mimetype WHERE {<%s> nie:mimeType ?mimetype.}"
 
+        ClearLabels ()
+
 
     def private expose (e : Gdk.EventExpose) : bool
     
@@ -230,7 +232,9 @@ class TrackerMetadataTile : EventBox
         path_link.uri = ""
         path_link.label = ""
 
-     
+        name_link.set_sensitive (false)
+        path_link.set_sensitive (false);
+
     def SetLabelValue (label : Label, val : string)
         var val1 = "<b>%s</b>".printf (val)
         label.set_markup (val1)
@@ -370,6 +374,9 @@ class TrackerMetadataTile : EventBox
         if path is null
             image.set_from_icon_name ("text-x-generic", IconSize.DIALOG)
             return
+
+        name_link.set_sensitive (true)
+        path_link.set_sensitive (true);
 
         iter : TreeIter
         id, uri, mime: weak string
