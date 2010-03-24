@@ -235,6 +235,27 @@ public class Tracker.SparqlQuery : Object {
 		}
 	}
 
+	class TripleContext {
+		// SQL tables
+		public List<DataTable> tables;
+		public HashTable<string,DataTable> table_map;
+		// SPARQL literals
+		public List<LiteralBinding> bindings;
+		// SPARQL variables
+		public List<Variable> variables;
+		public HashTable<Variable,VariableBindingList> var_map;
+
+		public TripleContext () {
+			tables = new List<DataTable> ();
+			table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
+
+			variables = new List<Variable> ();
+			var_map = new HashTable<Variable,VariableBindingList>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+
+			bindings = new List<LiteralBinding> ();
+		}
+	}
+
 	SparqlScanner scanner;
 
 	// token buffer
@@ -271,22 +292,16 @@ public class Tracker.SparqlQuery : Object {
 
 	HashTable<string,string> prefix_map;
 
-	// All SQL tables
-	List<DataTable> tables;
-	HashTable<string,DataTable> table_map;
-
 	// All SPARQL literals
 	List<LiteralBinding> bindings;
-	List<LiteralBinding> pattern_bindings;
 
 	// All SPARQL variables
 	HashTable<string,Variable> var_map;
-	List<Variable> pattern_variables;
-	HashTable<Variable,VariableBindingList> pattern_var_map;
 
 	List<unowned HashTable<string,Variable>> outer_var_maps;
 
 	Context context = new Context ();
+	TripleContext? triple_context;
 
 	// All selected SPARQL variables (used by compositional subqueries)
 	HashTable<Variable,int> select_var_set;
@@ -2341,13 +2356,7 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	void start_triples_block (StringBuilder sql) throws SparqlError {
-		tables = new List<DataTable> ();
-		table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
-
-		pattern_variables = new List<Variable> ();
-		pattern_var_map = new HashTable<Variable,VariableBindingList>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
-
-		pattern_bindings = new List<LiteralBinding> ();
+		triple_context = new TripleContext ();
 
 		sql.append ("SELECT ");
 	}
@@ -2358,7 +2367,7 @@ public class Tracker.SparqlQuery : Object {
 
 		sql.append (" FROM ");
 		bool first = true;
-		foreach (DataTable table in tables) {
+		foreach (DataTable table in triple_context.tables) {
 			if (!first) {
 				sql.append (", ");
 			} else {
@@ -2372,11 +2381,11 @@ public class Tracker.SparqlQuery : Object {
 			sql.append_printf (" AS \"%s\"", table.sql_query_tablename);
 		}
 
-		foreach (var variable in pattern_variables) {
+		foreach (var variable in triple_context.variables) {
 			bool maybe_null = true;
 			bool in_simple_optional = false;
 			string last_name = null;
-			foreach (VariableBinding binding in pattern_var_map.lookup (variable).list) {
+			foreach (VariableBinding binding in triple_context.var_map.lookup (variable).list) {
 				string name;
 				if (binding.table != null) {
 					name = binding.sql_expression;
@@ -2415,7 +2424,7 @@ public class Tracker.SparqlQuery : Object {
 				sql.append_printf ("%s IS NOT NULL", variable.sql_expression);
 			}
 		}
-		foreach (LiteralBinding binding in pattern_bindings) {
+		foreach (LiteralBinding binding in triple_context.bindings) {
 			if (!first_where) {
 				sql.append (" AND ");
 			} else {
@@ -2442,11 +2451,7 @@ public class Tracker.SparqlQuery : Object {
 			sql.append (")");
 		}
 
-		tables = null;
-		table_map = null;
-		pattern_variables = null;
-		pattern_var_map = null;
-		pattern_bindings = null;
+		triple_context = null;
 	}
 
 	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws SparqlError {
@@ -2553,7 +2558,7 @@ public class Tracker.SparqlQuery : Object {
 
 			if (left_variable_state == VariableState.BOUND && !prop.multiple_values && right_variable_state == 0) {
 				bool in_domain = false;
-				foreach (VariableBinding binding in pattern_var_map.lookup (left_variable).list) {
+				foreach (VariableBinding binding in triple_context.var_map.lookup (left_variable).list) {
 					if (binding.type != null && is_subclass (binding.type, prop.domain)) {
 						in_domain = true;
 						break;
@@ -2855,7 +2860,7 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	VariableBindingList? get_variable_binding_list (Variable variable) {
-		var binding_list = pattern_var_map.lookup (variable);
+		var binding_list = triple_context.var_map.lookup (variable);
 		if (binding_list == null && outer_var_maps != null) {
 			// in scalar subquery: check variables of outer queries
 			foreach (unowned HashTable<string,Variable> outer_var_map in outer_var_maps) {
@@ -2868,8 +2873,8 @@ public class Tracker.SparqlQuery : Object {
 					binding.type = outer_var.binding.type;
 					binding.sql_expression = outer_var.sql_expression;
 					binding_list = new VariableBindingList ();
-					pattern_variables.append (binding.variable);
-					pattern_var_map.insert (binding.variable, binding_list);
+					triple_context.variables.append (binding.variable);
+					triple_context.var_map.insert (binding.variable, binding_list);
 
 					context.var_set.insert (binding.variable, VariableState.BOUND);
 					binding_list.list.append (binding);
@@ -2885,8 +2890,8 @@ public class Tracker.SparqlQuery : Object {
 		var binding_list = get_variable_binding_list (binding.variable);
 		if (binding_list == null) {
 			binding_list = new VariableBindingList ();
-			pattern_variables.append (binding.variable);
-			pattern_var_map.insert (binding.variable, binding_list);
+			triple_context.variables.append (binding.variable);
+			triple_context.var_map.insert (binding.variable, binding_list);
 
 			sql.append_printf ("%s AS %s, ",
 				binding.sql_expression,
@@ -2978,13 +2983,13 @@ public class Tracker.SparqlQuery : Object {
 					binding.data_type = PropertyType.RESOURCE;
 					binding.variable = get_variable (current_subject);
 
-					assert (pattern_var_map.lookup (binding.variable) == null);
+					assert (triple_context.var_map.lookup (binding.variable) == null);
 					var binding_list = new VariableBindingList ();
-					pattern_variables.append (binding.variable);
-					pattern_var_map.insert (binding.variable, binding_list);
+					triple_context.variables.append (binding.variable);
+					triple_context.var_map.insert (binding.variable, binding_list);
 
 					// need to use table and column name for object, can't refer to variable in nested select
-					var object_binding = pattern_var_map.lookup (get_variable (object)).list.data;
+					var object_binding = triple_context.var_map.lookup (get_variable (object)).list.data;
 
 					sql.append_printf ("(SELECT ID FROM \"%s\" WHERE \"%s\" = %s) AS %s, ",
 						db_table,
@@ -3020,7 +3025,7 @@ public class Tracker.SparqlQuery : Object {
 				table.predicate_variable.object = object;
 			}
 			table.sql_query_tablename = current_predicate + (++counter).to_string ();
-			tables.append (table);
+			triple_context.tables.append (table);
 
 			// add to variable list
 			var binding = new VariableBinding ();
@@ -3053,7 +3058,7 @@ public class Tracker.SparqlQuery : Object {
 				// binding.data_type = triple.subject.type;
 				binding.table = table;
 				binding.sql_db_column_name = "ID";
-				pattern_bindings.append (binding);
+				triple_context.bindings.append (binding);
 			}
 		}
 
@@ -3095,7 +3100,7 @@ public class Tracker.SparqlQuery : Object {
 				// binding.data_type = triple.object.type;
 				binding.table = table;
 				binding.sql_db_column_name = "fts";
-				pattern_bindings.append (binding);
+				triple_context.bindings.append (binding);
 
 				sql.append_printf ("rank(\"%s\".\"fts\") AS \"%s_u_rank\", ",
 					binding.table.sql_query_tablename,
@@ -3115,7 +3120,7 @@ public class Tracker.SparqlQuery : Object {
 					// variable as predicate
 					binding.sql_db_column_name = "object";
 				}
-				pattern_bindings.append (binding);
+				triple_context.bindings.append (binding);
 			}
 
 			if (current_graph != null && prop != null) {
@@ -3144,7 +3149,7 @@ public class Tracker.SparqlQuery : Object {
 
 					binding.data_type = PropertyType.RESOURCE;
 					binding.sql_db_column_name = prop.name + ":graph";
-					pattern_bindings.append (binding);
+					triple_context.bindings.append (binding);
 				}
 			}
 		}
@@ -3162,15 +3167,15 @@ public class Tracker.SparqlQuery : Object {
 		DataTable table = null;
 		newtable = false;
 		if (share_table) {
-			table = table_map.lookup (tablestring);
+			table = triple_context.table_map.lookup (tablestring);
 		}
 		if (table == null) {
 			newtable = true;
 			table = new DataTable ();
 			table.sql_db_tablename = db_table;
 			table.sql_query_tablename = db_table + (++counter).to_string ();
-			tables.append (table);
-			table_map.insert (tablestring, table);
+			triple_context.tables.append (table);
+			triple_context.table_map.insert (tablestring, table);
 		}
 		return table;
 	}
