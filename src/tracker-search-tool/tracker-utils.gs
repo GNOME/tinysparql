@@ -85,7 +85,6 @@ class TrackerUtils
 
 
     def static OpenUri (uri : string, is_dir :bool) : bool
-        command : string
         app_info : AppInfo
 
         var file = File.new_for_uri (uri)
@@ -98,19 +97,15 @@ class TrackerUtils
             msg.run ();
             return false
 
-        if is_dir is true  and app_info.get_executable() is "nautilus"
-            command = "nautilus --sm-disable --no-desktop --no-default-window '" + uri + "'"
-        else
-            command = app_info.get_executable () + " '" + uri + "'"
-
         try
-            Process.spawn_command_line_async (command)
-            return true
+            app_info.launch_default_for_uri (uri, null)
         except e: Error
             var msg = new MessageDialog (null, DialogFlags.MODAL, MessageType.ERROR, ButtonsType.OK, \
                                          N_("Could not lauch %s\nError: %s\n"), uri, e.message)
             msg.run ();
             return false
+
+        return true
 
 
     def static inline GetThemePixbufByName (icon_name : string, size : int, screen : Gdk.Screen) :  Gdk.Pixbuf?
