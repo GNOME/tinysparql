@@ -331,7 +331,9 @@ main (int argc, char **argv)
 				gchar *basename;
 
 				basename = g_path_get_basename (strv[0]);
-				if (g_str_has_prefix (basename, "tracker") == TRUE &&
+
+				if ((g_str_has_prefix (basename, "tracker") == TRUE ||
+				     g_str_has_prefix (basename, "lt-tracker") == TRUE) &&
 				    g_str_has_suffix (basename, "-control") == FALSE) {
 					pid_t pid;
 
