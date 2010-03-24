@@ -771,6 +771,7 @@ public class Tracker.SparqlQuery : Object {
 		var type = PropertyType.UNKNOWN;
 
 		var pattern_sql = new StringBuilder ();
+		var old_bindings = (owned) bindings;
 
 		sql.append ("SELECT ");
 
@@ -805,6 +806,9 @@ public class Tracker.SparqlQuery : Object {
 			}
 		}
 
+		var where_bindings = (owned) bindings;
+		bindings = (owned) old_bindings;
+
 		bool first = true;
 		if (accept (SparqlTokenType.STAR)) {
 			foreach (var variable in context.var_map.get_values ()) {
@@ -821,8 +825,6 @@ public class Tracker.SparqlQuery : Object {
 				}
 			}
 		} else {
-			var old_bindings = (owned) bindings;
-
 			while (true) {
 				if (!first) {
 					sql.append (", ");
@@ -847,11 +849,11 @@ public class Tracker.SparqlQuery : Object {
 				}
 				break;
 			}
+		}
 
-			// literals in select expressions need to be bound before literals in the where clause
-			foreach (var binding in old_bindings) {
-				bindings.append (binding);
-			}
+		// literals in select expressions need to be bound before literals in the where clause
+		foreach (var binding in where_bindings) {
+			bindings.append (binding);
 		}
 
 		// select from results of WHERE clause
