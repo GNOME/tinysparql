@@ -23,6 +23,7 @@
 uses
     Gtk
     Cairo
+    Pango
     TrackerUtils
 
 
@@ -105,7 +106,7 @@ class TrackerMetadataTile : EventBox
         name_label = CreateLabel (N_("Name:"), false)
         AttachToTable (name_label, 1, 2, 0, 1, false)
         table.attach (name_link, 2, 3, 0, 1, AttachOptions.FILL, AttachOptions.FILL, 0, 0)
-        
+
         path_link = new LinkButton ("")
         path_link.xalign = 0
         path_label = CreateLabel (N_("Folder:"), false)
@@ -292,8 +293,14 @@ class TrackerMetadataTile : EventBox
         name_link.label = filepath
         path_link.uri = displaypath.get_uri ()
         path_link.label = displaypath.get_path ()
-        
-        
+
+        link_label : Label
+        link_label = (Label) path_link.get_child ()
+        link_label.set_ellipsize (EllipsizeMode.MIDDLE)
+
+        link_label = (Label) name_link.get_child ()
+        link_label.set_ellipsize (EllipsizeMode.MIDDLE)
+
         SetLabelValue (info_value1, mime)
 
         try
