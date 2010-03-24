@@ -732,14 +732,11 @@ public class Tracker.SparqlQuery : Object {
 			sql.append_printf (" AS %s", variable.sql_expression);
 
 			if (subquery) {
-				if (variable.binding != null) {
-					throw get_error ("redefining variable `?%s'".printf (variable.name));
-				}
-
-				variable.binding = new VariableBinding ();
-				variable.binding.data_type = type;
-				variable.binding.variable = variable;
-				variable.binding.sql_expression = variable.sql_expression;
+				var binding = new VariableBinding ();
+				binding.data_type = type;
+				binding.variable = variable;
+				binding.sql_expression = variable.sql_expression;
+				add_variable_binding (new StringBuilder (), binding, VariableState.BOUND);
 			}
 		}
 
@@ -2864,7 +2861,10 @@ public class Tracker.SparqlQuery : Object {
 	}
 
 	VariableBindingList? get_variable_binding_list (Variable variable) {
-		var binding_list = triple_context.var_map.lookup (variable);
+		VariableBindingList binding_list = null;
+		if (triple_context != null) {
+			binding_list = triple_context.var_map.lookup (variable);
+		}
 		if (binding_list == null && context.in_scalar_subquery) {
 			// in scalar subquery: check variables of outer queries
 			var parent_context = context.parent_context;
@@ -2878,8 +2878,10 @@ public class Tracker.SparqlQuery : Object {
 					binding.type = outer_var.binding.type;
 					binding.sql_expression = outer_var.sql_expression;
 					binding_list = new VariableBindingList ();
-					triple_context.variables.append (binding.variable);
-					triple_context.var_map.insert (binding.variable, binding_list);
+					if (triple_context != null) {
+						triple_context.variables.append (binding.variable);
+						triple_context.var_map.insert (binding.variable, binding_list);
+					}
 
 					context.var_set.insert (binding.variable, VariableState.BOUND);
 					binding_list.list.append (binding);
@@ -2896,8 +2898,10 @@ public class Tracker.SparqlQuery : Object {
 		var binding_list = get_variable_binding_list (binding.variable);
 		if (binding_list == null) {
 			binding_list = new VariableBindingList ();
-			triple_context.variables.append (binding.variable);
-			triple_context.var_map.insert (binding.variable, binding_list);
+			if (triple_context != null) {
+				triple_context.variables.append (binding.variable);
+				triple_context.var_map.insert (binding.variable, binding_list);
+			}
 
 			sql.append_printf ("%s AS %s, ",
 				binding.sql_expression,
