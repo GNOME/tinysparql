@@ -16,17 +16,21 @@ lists all tracker related processes when no
 .B \-?, \-\-help
 Show summary of options.
 .TP
-.B \-k, \-\-kill
-This uses SIGKILL to stop all Tracker processes found. This is not
-advised unless you are having problems stopping Tracker in the first
-place. This
+.B \-k, \-\-kill [all|store|miners]
+This uses SIGKILL to stop all Tracker processes found matching the
+parameter, if no extra parameter is passed,
+.B all
+will be assumed. This is not advised unless you are having problems
+stopping Tracker in the first place. This
 .B GUARANTEES
 death.
 .TP
-.B \-t, \-\-terminate
-This uses SIGTERM to stop all Tracker processes found. This is
-recommended over \-\-kill because it gives the processes time to
-shutdown cleanly.
+.B \-t, \-\-terminate [all|store|miners]
+This uses SIGTERM to stop all Tracker processes found matching the
+parameter, if no extra parameter is passed,
+.B all
+will be assumed. This is recommended over \-\-kill because it gives
+the processes time to shutdown cleanly.
 .TP
 .B \-r, \-\-hard-reset
 This kills all processes in the same way that
