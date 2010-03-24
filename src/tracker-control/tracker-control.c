@@ -48,8 +48,19 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static gboolean should_kill;
-static gboolean should_terminate;
+#define OPTION_TERM_ALL "all"
+#define OPTION_TERM_STORE "store"
+#define OPTION_TERM_MINERS "miners"
+
+typedef enum {
+	TERM_NONE,
+	TERM_ALL,
+	TERM_STORE,
+	TERM_MINERS
+} TermOption;
+
+static TermOption kill_option = TERM_NONE;
+static TermOption terminate_option = TERM_NONE;
 static gboolean hard_reset;
 static gboolean soft_reset;
 static gboolean remove_config;
@@ -57,14 +68,18 @@ static gboolean start;
 static const gchar **reindex_mime_types;
 static gboolean print_version;
 
+static gboolean term_option_arg_func (const gchar  *option_value,
+                                      const gchar  *value,
+                                      gpointer      data,
+                                      GError      **error);
+
 static GOptionEntry entries[] = {
-	{ "kill", 'k', 0, G_OPTION_ARG_NONE, &should_kill,
-	  N_("Use SIGKILL to stop all tracker processes found - guarantees death :)"),
-	  NULL },
-	{ "terminate", 't', 0, G_OPTION_ARG_NONE, &should_terminate,
-	  N_("Use SIGTERM to stop all tracker processes found"),
-	  NULL
-	},
+	{ "kill", 'k', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, term_option_arg_func,
+	  N_("Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""),
+	  N_("APPS") },
+	{ "terminate", 't', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, term_option_arg_func,
+	  N_("Use SIGTERM to stop all matrhing processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""),
+	  N_("APPS") },
 	{ "hard-reset", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
 	  N_("Kill all Tracker processes and remove all databases"),
 	  NULL },
@@ -190,6 +205,41 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	g_main_loop_quit (user_data);
 }
 
+static gboolean
+term_option_arg_func (const gchar  *option_value,
+                      const gchar  *value,
+                      gpointer      data,
+                      GError      **error)
+{
+	TermOption option;
+
+	if (!value) {
+		value = OPTION_TERM_ALL;
+	}
+
+	if (strcmp (value, OPTION_TERM_ALL) == 0) {
+		option = TERM_ALL;
+	} else if (strcmp (value, OPTION_TERM_STORE) == 0) {
+		option = TERM_STORE;
+	} else if (strcmp (value, OPTION_TERM_MINERS) == 0) {
+		option = TERM_MINERS;
+	} else {
+		g_set_error_literal (error, G_OPTION_ERROR, G_OPTION_ERROR_FAILED,
+		                     "Only one of 'all', 'store' and 'miners' are allowed");
+		return FALSE;
+	}
+
+	if (strcmp (option_value, "-k") == 0 ||
+	    strcmp (option_value, "--kill") == 0) {
+		kill_option = option;
+	} else if (strcmp (option_value, "-t") == 0 ||
+	           strcmp (option_value, "--terminate") == 0) {
+		terminate_option = option;
+	}
+
+	return TRUE;
+}
+
 int
 main (int argc, char **argv)
 {
@@ -223,11 +273,11 @@ main (int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
-	if (should_kill && should_terminate) {
+	if (kill_option != TERM_NONE && terminate_option != TERM_NONE) {
 		g_printerr ("%s\n",
 		            _("You can not use the --kill and --terminate arguments together"));
 		return EXIT_FAILURE;
-	} else if ((hard_reset || soft_reset) && should_terminate) {
+	} else if ((hard_reset || soft_reset) && terminate_option != TERM_NONE) {
 		g_printerr ("%s\n",
 		            _("You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"));
 		return EXIT_FAILURE;
@@ -239,13 +289,14 @@ main (int argc, char **argv)
 
 	if (hard_reset || soft_reset) {
 		/* Imply --kill */
-		should_kill = TRUE;
+		kill_option = TERM_ALL;
 	}
 
 	/* Unless we are stopping processes or listing processes,
 	 * don't iterate them.
 	 */
-	if (should_kill || should_terminate ||
+	if (kill_option != TERM_NONE ||
+	    terminate_option != TERM_NONE ||
 	    (!start && !remove_config)) {
 		pids = get_pids ();
 		str = g_strdup_printf (g_dngettext (NULL,
@@ -289,7 +340,14 @@ main (int argc, char **argv)
 					g_print ("%s\n", str);
 					g_free (str);
 
-					if (should_terminate) {
+					if (terminate_option != TERM_NONE) {
+						if ((terminate_option == TERM_STORE &&
+						     !g_str_has_suffix (basename, "tracker-store")) ||
+						    (terminate_option == TERM_MINERS &&
+						     !strstr (basename, "tracker-miner"))) {
+							continue;
+						}
+
 						if (kill (pid, SIGTERM) == -1) {
 							const gchar *errstr = g_strerror (errno);
 
@@ -303,7 +361,14 @@ main (int argc, char **argv)
 							g_print ("  %s\n", str);
 							g_free (str);
 						}
-					} else if (should_kill) {
+					} else if (kill_option != TERM_NONE) {
+						if ((kill_option == TERM_STORE &&
+						     !g_str_has_suffix (basename, "tracker-store")) ||
+						    (kill_option == TERM_MINERS &&
+						     !strstr (basename, "tracker-miner"))) {
+							continue;
+						}
+
 						if (kill (pid, SIGKILL) == -1) {
 							const gchar *errstr = g_strerror (errno);
 
