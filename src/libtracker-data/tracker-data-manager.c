@@ -1678,8 +1678,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			TrackerOntology *ontology;
 			const gchar *ontology_path = l->data;
 			const gchar *ontology_uri;
-			gboolean found;
+			gboolean found, update_nao = FALSE;
 			gpointer value;
+			gint last_mod;
 
 			/* Parse a TrackerOntology from ontology_file */
 			ontology = get_ontology_from_path (ontology_path);
@@ -1693,57 +1694,57 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			}
 
 			ontology_uri = tracker_ontology_get_uri (ontology);
+			/* We can't do better than this cast, it's stored as an int in the
+			 * db. See above comment for more info. */
+			last_mod = (gint) tracker_ontology_get_last_modified (ontology);
 
 			found = g_hash_table_lookup_extended (ontos_table,
 			                                      ontology_uri,
 			                                      NULL, &value);
 
 			if (found) {
-				gint val, last_mod;
-
-				/* We can't do better than this cast, it's stored as an int in the
-				 * db. See above comment for more info. */
-				last_mod = (gint) tracker_ontology_get_last_modified (ontology);
-				val = GPOINTER_TO_INT (value);
-
+				gint val = GPOINTER_TO_INT (value);
 				/* When the last-modified in our database isn't the same as the last
 				 * modified in the latest version of the file, deal with changes. */
-
 				if (val != last_mod) {
-
 					g_debug ("Ontology file '%s' needs update", ontology_path);
-
 					if (max_id == 0) {
 						/* In case of first-time, this wont start at zero */
 						max_id = get_new_service_id (iface);
 					}
-
 					/* load ontology from files into memory, set all new's 
 					 * is_new to TRUE */
-
 					load_ontology_file_from_path (ontology_path, &max_id, TRUE);
-
 					to_reload = g_list_prepend (to_reload, l->data);
-
-					/* Update the nao:lastModified in the database */
-					stmt = tracker_db_interface_create_statement (iface,
-					        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
-					        "WHERE \"rdfs:Resource\".ID = "
-					        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
-					        "ON \"rdfs:Resource\".ID = Resource.ID WHERE "
-					        "Resource.Uri = ?)");
-
-					tracker_db_statement_bind_int (stmt, 0, last_mod);
-					tracker_db_statement_bind_text (stmt, 1, ontology_uri);
-					tracker_db_statement_execute (stmt, NULL);
-
-					g_object_unref (stmt);
-
+					update_nao = TRUE;
 				}
+			} else {
+				g_debug ("Ontology file '%s' got added", ontology_path);
+				if (max_id == 0) {
+					/* In case of first-time, this wont start at zero */
+					max_id = get_new_service_id (iface);
+				}
+				/* load ontology from files into memory, set all new's 
+				 * is_new to TRUE */
+				load_ontology_file_from_path (ontology_path, &max_id, TRUE);
+				to_reload = g_list_prepend (to_reload, l->data);
+				update_nao = TRUE;
+			}
 
-			} /* else { 
-			   * TODO: cope with full new .ontology files, handle this.
-			   * } */
+			if (update_nao) {
+				/* Update the nao:lastModified in the database */
+				stmt = tracker_db_interface_create_statement (iface,
+				        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
+				        "WHERE \"rdfs:Resource\".ID = "
+				        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
+				        "ON \"rdfs:Resource\".ID = Resource.ID WHERE "
+				        "Resource.Uri = ?)");
+
+				tracker_db_statement_bind_int (stmt, 0, last_mod);
+				tracker_db_statement_bind_text (stmt, 1, ontology_uri);
+				tracker_db_statement_execute (stmt, NULL);
+				g_object_unref (stmt);
+			}
 
 			g_object_unref (ontology);
 		}
