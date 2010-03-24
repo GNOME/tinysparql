@@ -219,6 +219,7 @@ test_ontology_change (void)
 	gchar *ontology_file;
 	GFile *file2;
 	gchar *prefix;
+	gchar *ontology_dir;
 	guint i;
 	GError *error = NULL;
 	gchar *test_schemas[4] = { NULL, NULL, NULL, NULL };
@@ -236,6 +237,10 @@ test_ontology_change (void)
 	file2 = g_file_new_for_path (ontology_file);
 
 	g_file_delete (file2, NULL, NULL);
+
+	ontology_dir = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "ontologies", NULL);
+	g_mkdir (ontology_dir, 0777);
+	g_free (ontology_dir);
 
 	for (i = 0; changes[i].ontology; i++) {
 		GFile *file1;
