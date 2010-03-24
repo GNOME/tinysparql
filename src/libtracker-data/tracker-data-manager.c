@@ -72,7 +72,6 @@
 static gchar              *ontologies_dir;
 static gboolean            initialized;
 static gboolean            in_journal_replay;
-static gint                max_service_id = 0;
 
 void
 tracker_data_ontology_load_statement (const gchar *ontology_path,
@@ -1412,13 +1411,10 @@ get_new_service_id (TrackerDBInterface *iface)
 {
 	TrackerDBCursor    *cursor;
 	TrackerDBStatement *stmt;
+	gint max_service_id;
 
 	/* Don't intermix this thing with tracker_data_update_get_new_service_id,
 	 * if you use this, know what you are doing! */
-
-	if (G_LIKELY (max_service_id != 0)) {
-		return ++max_service_id;
-	}
 
 	iface = tracker_db_manager_get_db_interface ();
 
@@ -1429,7 +1425,7 @@ get_new_service_id (TrackerDBInterface *iface)
 
 	if (cursor) {
 		tracker_db_cursor_iter_next (cursor);
-		max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), max_service_id);
+		max_service_id = tracker_db_cursor_get_int (cursor, 0);
 		g_object_unref (cursor);
 	}
 
@@ -1452,7 +1448,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	gint max_id = 0;
 
 	tracker_data_update_init ();
-	max_service_id = 0;
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -1789,7 +1784,6 @@ tracker_data_manager_shutdown (void)
 	/* Make sure we shutdown all other modules we depend on */
 	tracker_db_journal_shutdown ();
 	tracker_db_manager_shutdown ();
-	max_service_id = 0;
 	tracker_ontologies_shutdown ();
 	tracker_data_update_shutdown ();
 
