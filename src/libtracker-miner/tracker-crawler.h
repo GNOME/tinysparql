@@ -17,12 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#if !defined (__TRACKER_MINER_H_INSIDE__) && !defined (TRACKER_MINER_COMPILATION)
-#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
-#endif
-
 #ifndef __LIBTRACKER_MINER_CRAWLER_H__
 #define __LIBTRACKER_MINER_CRAWLER_H__
+
+#if !defined (__LIBTRACKER_MINER_H_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
+#endif
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -51,33 +51,32 @@ struct TrackerCrawler {
 struct TrackerCrawlerClass {
 	GObjectClass parent;
 
-	gboolean (* check_directory)     (TrackerCrawler *crawler,
-	                                  GFile          *file);
-	gboolean (* check_file)          (TrackerCrawler *crawler,
-	                                  GFile          *file);
+	gboolean (* check_directory)          (TrackerCrawler *crawler,
+	                                       GFile          *file);
+	gboolean (* check_file)               (TrackerCrawler *crawler,
+	                                       GFile          *file);
 	gboolean (* check_directory_contents) (TrackerCrawler *crawler,
 	                                       GFile          *file,
 	                                       GList          *contents);
-	void     (* directory_crawled)   (TrackerCrawler *crawler,
-					  GFile          *directory,
-					  GNode          *tree,
-					  guint           directories_found,
-					  guint           directories_ignored,
-					  guint           files_found,
-					  guint           files_ignored);
-	void     (* finished)            (TrackerCrawler *crawler,
-	                                  gboolean        interrupted);
+	void     (* directory_crawled)        (TrackerCrawler *crawler,
+	                                       GFile          *directory,
+	                                       GNode          *tree,
+	                                       guint           directories_found,
+	                                       guint           directories_ignored,
+	                                       guint           files_found,
+	                                       guint           files_ignored);
+	void     (* finished)                 (TrackerCrawler *crawler,
+	                                       gboolean        interrupted);
 };
 
-GType           tracker_crawler_get_type (void);
-TrackerCrawler *tracker_crawler_new      (void);
-gboolean        tracker_crawler_start    (TrackerCrawler *crawler,
-                                          GFile          *file,
-                                          gboolean        recurse);
-void            tracker_crawler_stop     (TrackerCrawler *crawler);
-void            tracker_crawler_pause    (TrackerCrawler *crawler);
-void            tracker_crawler_resume   (TrackerCrawler *crawler);
-
+GType           tracker_crawler_get_type     (void);
+TrackerCrawler *tracker_crawler_new          (void);
+gboolean        tracker_crawler_start        (TrackerCrawler *crawler,
+                                              GFile          *file,
+                                              gboolean        recurse);
+void            tracker_crawler_stop         (TrackerCrawler *crawler);
+void            tracker_crawler_pause        (TrackerCrawler *crawler);
+void            tracker_crawler_resume       (TrackerCrawler *crawler);
 void            tracker_crawler_set_throttle (TrackerCrawler *crawler,
                                               gdouble         throttle);
 

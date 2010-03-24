@@ -17,12 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#if !defined (__TRACKER_MINER_H_INSIDE__) && !defined (TRACKER_MINER_COMPILATION)
-#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
-#endif
-
 #ifndef __LIBTRACKER_MINER_WEB_H__
 #define __LIBTRACKER_MINER_WEB_H__
+
+#if !defined (__LIBTRACKER_MINER_H_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
+#endif
 
 #include <libtracker-miner/tracker-miner-object.h>
 

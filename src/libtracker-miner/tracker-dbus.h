@@ -20,6 +20,10 @@
 #ifndef __LIBTRACKER_MINER_DBUS_H__
 #define __LIBTRACKER_MINER_DBUS_H__
 
+#if !defined (__LIBTRACKER_MINER_H_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
+#endif
+
 #include <libtracker-common/tracker-dbus.h>
 
 #include "tracker-miner-object.h"

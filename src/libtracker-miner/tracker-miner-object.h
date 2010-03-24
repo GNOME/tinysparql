@@ -17,12 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#if !defined (__TRACKER_MINER_H_INSIDE__) && !defined (TRACKER_MINER_COMPILATION)
-#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
-#endif
-
 #ifndef __LIBTRACKER_MINER_OBJECT_H__
 #define __LIBTRACKER_MINER_OBJECT_H__
+
+#if !defined (__LIBTRACKER_MINER_H_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
+#endif
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -37,8 +37,8 @@ G_BEGIN_DECLS
 #define TRACKER_IS_MINER_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_MINER))
 #define TRACKER_MINER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_MINER, TrackerMinerClass))
 
-#define TRACKER_MINER_ERROR_DOMAIN     "TrackerMiner"
-#define TRACKER_MINER_ERROR            tracker_miner_error_quark()
+#define TRACKER_MINER_ERROR_DOMAIN "TrackerMiner"
+#define TRACKER_MINER_ERROR        tracker_miner_error_quark()
 
 typedef struct TrackerMiner TrackerMiner;
 typedef struct TrackerMinerPrivate TrackerMinerPrivate;
@@ -70,21 +70,21 @@ typedef struct {
 	GObjectClass parent_class;
 
 	/* signals */
-	void (* started)    (TrackerMiner *miner);
-	void (* stopped)    (TrackerMiner *miner);
+	void (* started)            (TrackerMiner *miner);
+	void (* stopped)            (TrackerMiner *miner);
 
-	void (* paused)     (TrackerMiner *miner);
-	void (* resumed)    (TrackerMiner *miner);
+	void (* paused)             (TrackerMiner *miner);
+	void (* resumed)            (TrackerMiner *miner);
 
-	void (* progress)   (TrackerMiner *miner,
-	                     const gchar  *status,
-	                     gdouble       progress);
+	void (* progress)           (TrackerMiner *miner,
+	                             const gchar  *status,
+	                             gdouble       progress);
 
-	void (* error)      (TrackerMiner *miner,
-	                     GError       *error);
-	void (* ignore_next_update)
-	                    (TrackerMiner *miner,
-	                     const GStrv   urls);
+	void (* error)              (TrackerMiner *miner,
+	                             GError       *error);
+
+	void (* ignore_next_update) (TrackerMiner *miner,
+	                             const GStrv   urls);
 } TrackerMinerClass;
 
 GType            tracker_miner_get_type                    (void) G_GNUC_CONST;

@@ -17,10 +17,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_H__
-#define __TRACKER_MINER_H__
+#ifndef __LIBTRACKER_MINER_H__
+#define __LIBTRACKER_MINER_H__
 
-#define __TRACKER_MINER_H_INSIDE__
+#define __LIBTRACKER_MINER_H_INSIDE__
 
 #include <libtracker-miner/tracker-crawler.h>
 #include <libtracker-miner/tracker-storage.h>
@@ -32,6 +32,6 @@
 #include <libtracker-miner/tracker-miner-dbus.h>
 #include <libtracker-miner/tracker-miner-manager.h>
 
-#undef __TRACKER_MINER_H_INSIDE__
+#undef __LIBTRACKER_MINER_H_INSIDE__
 
-#endif /* __TRACKER_MINER_H__ */
+#endif /* __LIBTRACKER_MINER_H__ */

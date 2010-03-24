@@ -2,7 +2,6 @@ include $(top_srcdir)/Makefile.decl
 
 INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
-	-DTRACKER_MINER_COMPILATION			\
 	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
