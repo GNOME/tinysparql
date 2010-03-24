@@ -1133,9 +1133,7 @@ AC_ARG_ENABLE(poppler-glib,
 
 if test "x$enable_poppler_glib" != "xno" ; then
    PKG_CHECK_MODULES(POPPLER_GLIB,
-   		     [poppler-glib >= $POPPLER_GLIB_REQUIRED
-		      cairo >= $CAIRO_REQUIRED
-		      gdk-2.0 >= $GDK_REQUIRED],
+   		     [poppler-glib >= $POPPLER_GLIB_REQUIRED],
 		     [have_poppler_glib=yes],
 		     [have_poppler_glib=no])
 
