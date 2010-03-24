@@ -4,6 +4,7 @@
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
 
 example: a tracker:Namespace, tracker:Ontology ;
 	nao:lastModified "2010-03-23T11:00:03Z" ;
@@ -27,3 +28,7 @@ example:i2 a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range xsd:integer .
 
+example:single1 a rdf:Property ;
+	rdfs:domain example:A ;
+	rdfs:range xsd:integer ;
+	nrl:maxCardinality 1 .
