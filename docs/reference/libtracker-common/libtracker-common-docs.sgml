@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
-<!ENTITY tracker-class SYSTEM "xml/tracker-class.xml">
 <!ENTITY tracker-config-file SYSTEM "xml/tracker-config-file.xml">
 <!ENTITY tracker-crc SYSTEM "xml/tracker-crc.xml">
 <!ENTITY tracker-date-time-utils SYSTEM "xml/tracker-date-time-utils.xml">
@@ -11,12 +10,9 @@
 <!ENTITY tracker-keyfile-object SYSTEM "xml/tracker-keyfile-object.xml">
 <!ENTITY tracker-language SYSTEM "xml/tracker-language.xml">
 <!ENTITY tracker-log SYSTEM "xml/tracker-log.xml">
-<!ENTITY tracker-namespace SYSTEM "xml/tracker-namespace.xml">
-<!ENTITY tracker-ontology SYSTEM "xml/tracker-ontology.xml">
 <!ENTITY tracker-ontologies SYSTEM "xml/tracker-ontologies.xml">
 <!ENTITY tracker-os-dependant SYSTEM "xml/tracker-os-dependant.xml">
 <!ENTITY tracker-power SYSTEM "xml/tracker-power.xml">
-<!ENTITY tracker-property SYSTEM "xml/tracker-property.xml">
 <!ENTITY tracker-type-utils SYSTEM "xml/tracker-type-utils.xml">
 <!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
 <!ENTITY version SYSTEM "version.xml">
@@ -42,10 +38,6 @@
 
     <chapter>
       <title>Ontology</title>
-      &tracker-class;
-      &tracker-property;
-      &tracker-ontology;
-      &tracker-namespace;
       &tracker-ontologies;
     </chapter>
 

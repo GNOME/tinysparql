@@ -114,10 +114,8 @@ TrackerMinerWebPrivate
 TrackerMinerWeb
 TrackerMinerWebClass
 tracker_miner_web_error_quark
-TrackerMinerWebAssociationType
 TrackerMinerWebError
 tracker_miner_web_associate
-tracker_miner_web_association_get_type
 tracker_miner_web_authenticate
 tracker_miner_web_dissociate
 tracker_miner_web_get_association_data
@@ -129,7 +127,6 @@ tracker_miner_web_get_type
 TRACKER_MINER_WEB_CLASS
 TRACKER_IS_MINER_WEB_CLASS
 TRACKER_MINER_WEB_GET_CLASS
-TRACKER_MINER_WEB_ASSOCIATION_TYPE_DB
 </SECTION>
 
 <SECTION>

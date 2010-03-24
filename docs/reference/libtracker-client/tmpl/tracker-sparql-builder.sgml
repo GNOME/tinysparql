@@ -77,6 +77,21 @@ insertion/update SparQL query.
 </para>
 
 
+<!-- ##### ENUM TrackerSparqlBuilderState ##### -->
+<para>
+
+</para>
+
+@TRACKER_SPARQL_BUILDER_STATE_UPDATE: 
+@TRACKER_SPARQL_BUILDER_STATE_INSERT: 
+@TRACKER_SPARQL_BUILDER_STATE_DELETE: 
+@TRACKER_SPARQL_BUILDER_STATE_SUBJECT: 
+@TRACKER_SPARQL_BUILDER_STATE_PREDICATE: 
+@TRACKER_SPARQL_BUILDER_STATE_OBJECT: 
+@TRACKER_SPARQL_BUILDER_STATE_BLANK: 
+@TRACKER_SPARQL_BUILDER_STATE_WHERE: 
+@TRACKER_SPARQL_BUILDER_STATE_EMBEDDED_INSERT: 
+
 <!-- ##### FUNCTION tracker_sparql_builder_new ##### -->
 <para>
 Creates a stateless #TrackerSparqlBuilder.
@@ -127,6 +142,15 @@ Creates an empty #TrackerSparqlBuilder for an update query.
 </para>
 
 @object_type: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_sparql_builder_get_state ##### -->
+<para>
+
+</para>
+
+@self: 
 @Returns: 
 
 
