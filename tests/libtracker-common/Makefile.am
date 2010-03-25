@@ -24,6 +24,7 @@ INCLUDES = 								\
 tracker_dbus_SOURCES = 							\
 	tracker-dbus-test.c						\
 	mock-dbus.c							\
+	mock-dbus-gproxy.h						\
 	mock-dbus-gproxy.c
 
 tracker_dbus_LDADD =							\
