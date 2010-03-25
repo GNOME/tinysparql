@@ -218,7 +218,7 @@ test_ontology_change (void)
 {
 	gchar *ontology_file;
 	GFile *file2;
-	gchar *prefix;
+	gchar *prefix, *build_prefix;
 	gchar *ontology_dir;
 	guint i;
 	GError *error = NULL;
@@ -227,19 +227,20 @@ test_ontology_change (void)
 	delete_db (TRUE);
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "libtracker-data", NULL);
 
 	test_schemas[0] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "20-dc", NULL);
 	test_schemas[1] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "31-nao", NULL);
-	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "ontologies", "99-example", NULL);
+	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example", NULL);
 
-	ontology_file = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "ontologies", "99-example.ontology", NULL);
+	ontology_file = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example.ontology", NULL);
 
 	file2 = g_file_new_for_path (ontology_file);
 
 	g_file_delete (file2, NULL, NULL);
 
-	ontology_dir = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "ontologies", NULL);
-	g_mkdir (ontology_dir, 0777);
+	ontology_dir = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", NULL);
+	g_mkdir_with_parents (ontology_dir, 0777);
 	g_free (ontology_dir);
 
 	for (i = 0; changes[i].ontology; i++) {
@@ -257,7 +258,10 @@ test_ontology_change (void)
 		g_free (from);
 		g_free (to);
 
-		g_file_copy (file1, file2, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, NULL);
+		g_file_copy (file1, file2, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
+                g_assert_no_error (error);
+
+                g_chmod (ontology_file, 0666);
 
 		tracker_data_manager_init (0, (const gchar **) test_schemas,
 		                           NULL, FALSE);
@@ -310,6 +314,7 @@ test_ontology_change (void)
 	g_free (test_schemas[0]);
 	g_free (test_schemas[1]);
 	g_free (test_schemas[2]);
+        g_free (build_prefix);
 	g_free (prefix);
 }
 
@@ -347,6 +352,7 @@ test_query (gconstpointer test_data)
 	test_info = test_data;
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+
 	data_prefix = g_build_filename (prefix, test_info->data, NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);

@@ -31,8 +31,8 @@ TEST_PROGS += 								\
 
 INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
-	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
-	-DTOP_BUILDDIR=\"$(top_builddir)\"				\
+	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"				\
+	-DTOP_BUILDDIR=\"$(abs_top_builddir)\"				\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
@@ -74,4 +74,20 @@ tracker_backup_SOURCES = 						\
 
 tracker_backup_LDADD = $(common_ldadd)
 
-EXTRA_DIST = dawg-testcases
+EXTRA_DIST = \
+	dawg-testcases				\
+	change/source/99-example.ontology.v1	\
+	change/source/99-example.ontology.v2	\
+	change/source/99-example.ontology.v3	\
+	change/source/99-example.ontology.v4	\
+	change/test-1.out			\
+	change/test-1.rq			\
+	change/test-2.out			\
+	change/test-2.rq			\
+	change/test-3.out			\
+	change/test-3.rq			\
+	change/updates/99-example.queries.v2	\
+	change/updates/99-example.queries.v3	\
+	change/updates/99-example.queries.v4	\
+	ontologies/20-dc.ontology		\
+	ontologies/31-nao.ontology
