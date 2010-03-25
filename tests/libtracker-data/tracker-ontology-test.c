@@ -310,6 +310,8 @@ test_ontology_change (void)
 
 	tracker_data_manager_shutdown ();
 
+	g_file_delete (file2, NULL, NULL);
+
 	g_object_unref (file2);
 	g_free (test_schemas[0]);
 	g_free (test_schemas[1]);
