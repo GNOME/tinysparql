@@ -875,65 +875,6 @@ fi
 AM_CONDITIONAL(USING_MINER_RSS, test "x$enable_miner_rss" = "xyes")
 
 ####################################################################
-# Deskbar Applet Handler/Module
-####################################################################
-
-AC_ARG_ENABLE([deskbar_applet],
-              AS_HELP_STRING([--enable-deskbar-applet],
-	      		     [enable support for Deskbar applet [[default=auto]]]),,
-              [enable_deskbar_applet=auto])
-
-if test "x$enable_deskbar_applet" != "xno" ; then
-   if pkg-config --atleast-version=2.19 deskbar-applet ; then
-      have_deskbar_applet="module"
-   elif pkg-config --atleast-version=2.16 deskbar-applet ; then
-      have_deskbar_applet="handler"
-   else
-      have_deskbar_applet="no"
-   fi
-fi
-
-if test "x$enable_deskbar_applet" = "xyes"; then
-   if test "x$have_deskbar_applet" = "xno"; then
-      AC_MSG_ERROR([Couldn't find deskbar-applet >= 2.16.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_DESKBAR_APPLET_HANDLER, test "x$have_deskbar_applet" = "xhandler")
-AM_CONDITIONAL(HAVE_DESKBAR_APPLET_MODULE, test "x$have_deskbar_applet" = "xmodule")
-
-AC_ARG_WITH([deskbar_applet_dir],
-            AS_HELP_STRING([--with-deskbar-applet-dir],
-	    		   [Path to Deskbar handler/module directory [[default=pkgconfig]]]))
-
-if test "x$have_deskbar_applet" = "xhandler"; then
-   if test -z "x$with_deskbar_applet_dir"; then
-      deskbar_applet_dir="`pkg-config --variable handlersdir deskbar-applet`"
-   else
-      deskbar_applet_dir="$with_deskbar_applet_dir"
-   fi
-
-   if test -z "$deskbar_applet_dir"; then
-      deskbar_applet_dir="\$(libdir)/deskbar-applet/handlers"
-   fi
-fi
-
-if test "x$have_deskbar_applet" = "xmodule"; then
-   if test -z "$with_deskbar_applet_dir"; then
-       deskbar_applet_dir="`pkg-config --variable modulesdir deskbar-applet`"
-   else
-       deskbar_applet_dir="$with_deskbar_applet_dir"
-   fi
-
-   if test -z "$deskbar_applet_dir"; then
-      deskbar_applet_dir="\$(libdir)/deskbar-applet/modules-2.20-compatible"
-   fi
-fi
-
-DESKBAR_APPLET_DIR="$deskbar_applet_dir"
-AC_SUBST(DESKBAR_APPLET_DIR)
-
-####################################################################
 # Application and Vala requirements
 ####################################################################
 
@@ -1750,7 +1691,6 @@ AC_CONFIG_FILES([
 	src/tracker-utils/Makefile
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
-	src/plugins/deskbar/Makefile
 	src/plugins/evolution/Makefile
 	src/plugins/kmail/Makefile
 	src/plugins/nautilus/Makefile
@@ -1863,7 +1803,6 @@ Data Miners:
 Plugins:
 
         Nautilus: (tagging widget)              $have_nautilus_extension
-        Deskbar:                                $have_deskbar_applet
 
 Writeback:
 
