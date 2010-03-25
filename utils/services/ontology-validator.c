@@ -30,6 +30,8 @@ static GOptionEntry   entries[] = {
 static GList *unknown_items = NULL;
 static GList *known_items = NULL;
 static GList *unknown_predicates = NULL;
+static GList *namespaces = NULL;
+static GList *ontologies = NULL;
 
 static gboolean
 exists_or_already_reported (const gchar *item)
@@ -58,7 +60,28 @@ turtle_load_ontology (const gchar *turtle_subject,
 	if (!g_strcmp0 (turtle_predicate, RDFS_TYPE)) {
 
 		if (!g_strcmp0 (turtle_object, TRACKER_NS)) {
-			/* Ignore the internal tracker namespace definitions */
+			/* Check there is no Namespace redefinition */
+                        if (g_list_find_custom (namespaces, 
+                                                turtle_subject, 
+                                                (GCompareFunc) g_strcmp0)) {
+                                g_error ("Redefining Tracker:Namespace '%s'",
+                                         turtle_subject);
+                        } else {
+                                namespaces = g_list_prepend (namespaces, g_strdup (turtle_subject));
+                        }
+			return;
+		}
+
+		if (!g_strcmp0 (turtle_object, TRACKER_ONTO)) {
+			/* Check there is no Ontology redefinition */
+                        if (g_list_find_custom (ontologies, 
+                                                turtle_subject, 
+                                                (GCompareFunc) g_strcmp0)) {
+                                g_error ("Redefining Tracker:Ontology '%s'",
+                                         turtle_subject);
+                        } else {
+                                ontologies = g_list_prepend (ontologies, g_strdup (turtle_subject));
+                        }
 			return;
 		}
 
@@ -196,9 +219,33 @@ load_ontology_files (const gchar *services_dir)
 static void
 load_basic_classes ()
 {
-	known_items = g_list_prepend (known_items, (gpointer) RDFS_CLASS);
-	known_items = g_list_prepend (known_items, (gpointer) RDF_PROPERTY);
-        known_items = g_list_prepend (known_items, (gpointer) TRACKER_ONTO);
+	known_items = g_list_prepend (known_items, g_strdup (RDFS_CLASS));
+	known_items = g_list_prepend (known_items, g_strdup (RDF_PROPERTY));
+        known_items = g_list_prepend (known_items, g_strdup (TRACKER_ONTO));
+}
+
+static void
+clean_lists ()
+{
+        if (unknown_items) {
+                g_list_foreach (unknown_items, (GFunc)g_free, NULL);
+                unknown_items = NULL;
+        }
+
+        if (known_items) {
+                g_list_foreach (known_items, (GFunc)g_free, NULL);
+                known_items = NULL;
+        }
+
+        if (unknown_predicates) {
+                g_list_foreach (unknown_predicates, (GFunc)g_free, NULL);
+                unknown_predicates = NULL;
+        }
+
+        if (ontologies) {
+                g_list_foreach (ontologies, (GFunc)g_free, NULL);
+                ontologies = NULL;
+        }
 }
 
 gint
@@ -242,6 +289,8 @@ main (gint argc, gchar **argv)
 		g_error ("Predicate '%s' is used in the ontology, but it is not defined\n",
 		         (gchar *)it->data);
 	}
+
+        clean_lists ();
 
 	return 0;
 }
