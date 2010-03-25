@@ -26,6 +26,8 @@
 #include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-glib-bindings.h>
 
+#include <libtracker-common/tracker-dbus.h>
+
 #include "tracker.h"
 
 #include "tracker-resources-glue.h"
@@ -99,6 +101,8 @@ typedef struct {
 	gint timeout;
 	gboolean enable_warnings;
 
+	GList *writeback_callbacks;
+
 	gboolean is_constructed;
 } TrackerClientPrivate;
 
@@ -120,6 +124,12 @@ typedef struct {
 	TrackerClient *client;
 	guint id;
 } CallbackVoid;
+
+typedef struct {
+	guint id;
+	TrackerWritebackCallback func;
+	gpointer data;
+} WritebackCallback;
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 
@@ -152,6 +162,7 @@ enum {
 };
 
 static guint pending_call_id = 0;
+static guint writeback_callback_id = 0;
 
 G_DEFINE_TYPE(TrackerClient, tracker_client, G_TYPE_OBJECT)
 
@@ -187,6 +198,28 @@ pending_call_new (TrackerClient  *client,
 	private->last_call = id;
 
 	return id;
+}
+
+static void
+writeback_cb (DBusGProxy       *proxy,
+              const GHashTable *resources,
+              gpointer          user_data)
+{
+	TrackerClientPrivate *private;
+	WritebackCallback *cb;
+	GList *current_callback;
+
+	g_return_if_fail (resources != NULL);
+	g_return_if_fail (user_data != NULL);
+
+	private = user_data;
+
+	for (current_callback = private->writeback_callbacks;
+	     current_callback;
+	     current_callback = g_list_next (current_callback)) {
+		cb = current_callback->data;
+		cb->func (resources, cb->data);
+	}
 }
 
 static void
@@ -344,6 +377,11 @@ client_constructed (GObject *object)
 	 */
 	dbus_g_proxy_set_default_timeout (private->proxy_resources, 
 	                                  private->timeout);
+
+	dbus_g_proxy_add_signal (private->proxy_resources,
+	                         "Writeback",
+	                         TRACKER_TYPE_STR_STRV_MAP,
+	                         G_TYPE_INVALID);
 
 	private->is_constructed = TRUE;
 }
@@ -1394,6 +1432,93 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
 	cb->id = pending_call_new (client, private->proxy_resources, call);
 
 	return cb->id;
+}
+
+/**
+ * tracker_resources_writeback_connect:
+ * @callback: a #TrackerWritebackCallback to call when the writeback signal is
+ *            emitted
+ *
+ * Registers a callback to be called when the writeback signal is emitted by
+ * the store.
+ *
+ * The writeback signal is emitted by the store everytime a property annotated
+ * with tracker:writeback is changed. This annotation means that whenever
+ * possible the changes in the RDF store should be reflected in the metadata of
+ * the original file.
+ *
+ * Returns a handle that can be used to disconnect the signal later using
+ * tracker_resources_writeback_disconnect. The handle will always be greater
+ * than 0 on success.
+ */
+guint
+tracker_resources_writeback_connect (TrackerClient            *client,
+                                     TrackerWritebackCallback  callback,
+                                     gpointer                  user_data)
+{
+	TrackerClientPrivate *private;
+	WritebackCallback *cb;
+
+	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
+	g_return_val_if_fail (callback != NULL, 0);
+
+	private = TRACKER_CLIENT_GET_PRIVATE (client);
+
+	/* Connect the DBus signal if needed */
+	if (g_list_length (private->writeback_callbacks) == 0) {
+		dbus_g_proxy_connect_signal (private->proxy_resources,
+		                             "Writeback",
+		                             G_CALLBACK (writeback_cb),
+		                             private,
+		                             NULL);
+	}
+
+	cb = g_slice_new0 (WritebackCallback);
+	cb->id = ++writeback_callback_id;
+	cb->func = callback;
+	cb->data = user_data;
+
+	private->writeback_callbacks = g_list_prepend (private->writeback_callbacks,
+	                                               cb);
+
+	return cb->id;
+}
+
+/**
+ * tracker_resources_writeback_disconnect:
+ * @callback: the #TrackerWritebackCallback to disconnect
+ *
+ * Removes @callback from the writeback callbacks
+ */
+void
+tracker_resources_writeback_disconnect (TrackerClient            *client,
+                                        guint                     handle)
+{
+	TrackerClientPrivate *private;
+	GList *current_callback;
+
+	g_return_if_fail (TRACKER_IS_CLIENT (client));
+
+	private = TRACKER_CLIENT_GET_PRIVATE (client);
+
+	for (current_callback = private->writeback_callbacks;
+	     current_callback;
+	     current_callback = g_list_next (current_callback)) {
+		if (((WritebackCallback*) current_callback->data)->id == handle) {
+			g_slice_free (WritebackCallback, current_callback->data);
+			private->writeback_callbacks = g_list_remove (private->writeback_callbacks,
+			                                              current_callback);
+			break;
+		}
+	}
+
+	/* Disconnect the DBus signal if not needed anymore */
+	if (!private->writeback_callbacks) {
+		dbus_g_proxy_disconnect_signal (private->proxy_resources,
+		                                "Writeback",
+		                                G_CALLBACK (writeback_cb),
+		                                private);
+	}
 }
 
 /* tracker_search_metadata_by_text_async is used by GTK+ */

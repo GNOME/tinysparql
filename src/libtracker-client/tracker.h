@@ -85,6 +85,18 @@ typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
 typedef void (*TrackerReplyVoid)      (GError    *error,
                                        gpointer   user_data);
 
+/**
+ * TrackerWritebackCallback:
+ * @resources: a hash table where each key is the uri of a resources which
+ *             was modified. To each key is associated an array of strings,
+ *             which are the various RDF classes the uri belongs to.
+ *
+ * The callback is called everytime a property annotated with tracker:writeback
+ * is modified in the store.
+ */
+typedef void (*TrackerWritebackCallback) (const GHashTable *resources,
+                                          gpointer          user_data);
+
 GType          tracker_client_get_type                     (void) G_GNUC_CONST;
 TrackerClient *tracker_client_new                          (TrackerClientFlags      flags,
                                                             gint                    timeout);
@@ -148,6 +160,13 @@ guint          tracker_resources_batch_sparql_update_async (TrackerClient       
 guint          tracker_resources_batch_commit_async        (TrackerClient          *client,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
+
+/* Store signals */
+guint          tracker_resources_writeback_connect         (TrackerClient            *client,
+                                                            TrackerWritebackCallback  callback,
+                                                            gpointer                  user_data);
+void           tracker_resources_writeback_disconnect      (TrackerClient            *client,
+                                                            guint handle);
 
 #ifndef TRACKER_DISABLE_DEPRECATED
 
