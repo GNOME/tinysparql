@@ -1,4 +1,107 @@
-NEW in 0.7.26 - 2010-03-19
+NEW in 0.7.28 - 2010-03-25
+==========================
+
+Improvements / New:
+
+  General:
+  * Fixed po/POTFILES.in, tracker-miner-rss.desktop.in was missing
+  * Fixed a number of reference documentation breakages
+  * Fixed some build warnings when running configure
+  * Don't require Cairo and GDK for libpoppler-glib directly (they are deps)
+
+  Ontology:
+  * Added tracker:notify for mfo:Enclosure
+  * Added maemo:localPhoneNumber property
+  * Added nmo:MMSMessage class
+  * Removed nie:InformationElement as sub-class for nmo:Message (already the case with nfo:TextDocument)
+  * Removed nrl:maxCardinality for nco:url
+  * Removed nrl:maxCardinality for nco:websiteUrl
+  * Removed nrl:maxCardinality for nco:blogUrl
+  * Removed nrl:maxCardinality for nco:foafUrl
+  * Removed mto:state-user-paused
+  * Removed mto:state-user-cancelled
+  * Removed mto:state-user-started
+
+  Functional Tests:
+  * Writeback test cases updated for changes in sources
+
+  ontology-validator:
+  * Check for Namespace and Ontology re-definition
+
+  libtracker-common:
+  * Added tests for tracker-dbus module
+  * Added tests for tracker-type-utils module (to complete tests)
+
+  libtracker-data:
+  * Added tests for journal replay
+  * Added tests for ontology change coping
+  * Improve journal replay time to 58s for ~53k resources (twice 0.7.26 speed)
+  * Fixed warnings and errors found by vala master
+  * Support journal replay of modest ontology changes
+
+  libtracker-extract:
+  * Fixed xmp tests to run only when EXEMPI is available
+
+  libtracker-miner:
+  * Fixed tests for more recent ld versions
+  * Fixed includes so we only use <libtracker-miner/tracker-miner.h>
+  * Added support for GIO and GIO's MOVE event.
+  * Added tests for tracker-monitor module
+
+  libtracker-fts:
+  * Disable old test utils/tracker-fts/tracker-fts-test.c
+  * Separate FTS index from virtual table initialization
+
+  tracker-extract:
+  * Fixed TRCK handling in MP3 extraction, don't assume they are valid
+  * Removed dummy.c example, it was out of date (use examples/libtracker-extract instead)
+
+  tracker-miner-fs:
+  * Added icon for files/applications miner desktop files
+
+  tracker-control:
+  * Added pass optional all/store/miners arguments for --kill and --terminate
+  * Handle binaries starting with "lt-" for testing inside src dir 
+
+  tracker-search-bar:
+  * Show application's icon next to listed applications
+  * Hide the results window when clicking outside it
+  * Hide the results window when search entry is empty
+  * Added icons for bookmark and tag results
+  * Do not trigger the window popup on every key press
+  * Make pixbuf size 24² to make all rows in the results the same height
+
+  tracker-search-tool:
+  * Fixed background gradient for metadata to use BG color
+  * Fixed Ctrl+S so it now focuses on the search entry widget
+  * Fixed metadata link buttons to be insensitive with no selection
+  * Fixed metadata link buttons to ellipsize
+  * Use GAppInfo to launch default applications
+  * Set search entry's label mnemonic to focus search entry
+
+Bugs:
+
+  * GB#613562, tracker-search displays results for unavailable data
+
+Translations:
+
+  * Updated de: Mario Blättermann
+  * Updated sl: Andrej Žnidaršič
+  * Updated es: Jorge González
+
+Notes:
+
+  This release is considered a Release Candidate for 0.8. Assuming no
+  major regressions are found with it, the next release is likely to
+  be 0.8.0.
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+  The Deskbar applet has now been removed from Tracker.
+
+
+NEW in 0.7.27 - 2010-03-19
 ==========================
 
 Improvements / New:
