@@ -58,10 +58,6 @@ GType               tracker_db_interface_sqlite_get_type               (void);
 
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename);
 TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gchar              *filename);
-void                tracker_db_interface_sqlite_create_function        (TrackerDBInterface       *interface,
-                                                                        const gchar              *name,
-                                                                        TrackerDBFunc             func,
-                                                                        gint                      n_args);
 gboolean            tracker_db_interface_sqlite_set_collation_function (TrackerDBInterfaceSqlite *interface,
                                                                         const gchar              *name,
                                                                         TrackerDBCollationFunc    func);

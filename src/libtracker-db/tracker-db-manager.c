@@ -29,7 +29,6 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <math.h>
 
 #include <glib/gstdio.h>
 
@@ -89,7 +88,6 @@ typedef struct {
 	gchar              *abs_filename;
 	gint                cache_size;
 	gint                page_size;
-	gboolean            add_functions;
 	gboolean            attached;
 	gboolean            is_index;
 	guint64             mtime;
@@ -106,7 +104,6 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  FALSE,
 	  FALSE,
-	  FALSE,
 	  0 },
 	{ TRACKER_DB_METADATA,
 	  TRACKER_DB_LOCATION_DATA_DIR,
@@ -116,7 +113,6 @@ static TrackerDBDefinition dbs[] = {
 	  NULL,
 	  2000,
 	  TRACKER_DB_PAGE_SIZE_DONT_SET,
-	  TRUE,
 	  FALSE,
 	  FALSE,
 	  0 },
@@ -130,7 +126,6 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  FALSE,
 	  FALSE,
-	  FALSE,
 	  0 },
 	{ TRACKER_DB_FULLTEXT,
 	  TRACKER_DB_LOCATION_DATA_DIR,
@@ -140,7 +135,6 @@ static TrackerDBDefinition dbs[] = {
 	  NULL,
 	  512,
 	  TRACKER_DB_PAGE_SIZE_DONT_SET,
-	  TRUE,
 	  FALSE,
 	  TRUE,
 	  0 },
@@ -255,220 +249,10 @@ tracker_db_manager_get_flags (void)
 	return old_flags;
 }
 
-static GValue
-function_sparql_string_join (TrackerDBInterface *interface,
-			     gint                argc,
-			     GValue              values[])
-{
-	GValue result = { 0, };
-	GString *str = NULL;
-	const gchar *separator;
-	gint i;
-
-	/* fn:string-join (str1, str2, ..., separator) */
-
-	if (!G_VALUE_HOLDS_STRING (&values[argc-1])) {
-		/* Fail */
-		return result;
-	}
-
-	separator = g_value_get_string (&values[argc-1]);
-
-	for (i = 0;i < argc-1; i++) {
-		if (G_VALUE_HOLDS_STRING (&values[i])) {
-			if (!str) {
-				str = g_string_new (g_value_get_string (&values[i]));
-			} else {
-				g_string_append_printf (str, "%s%s",
-							separator,
-							g_value_get_string (&values[i]));
-			}
-		}
-	}
-
-	if (str) {
-		g_value_init (&result, G_TYPE_STRING);
-		g_value_set_string (&result, str->str);
-
-		g_string_free (str, TRUE);
-	}
-
-	return result;
-}
-
-/* Create a title-type string from the filename for replacing missing ones */
-static GValue
-function_sparql_string_from_filename (TrackerDBInterface *interface,
-				      gint                argc,
-				      GValue              values[])
-{
-	GValue  result = { 0, };
-	gchar  *name = NULL;
-	gchar  *suffix = NULL;
-
-	if (argc != 1) {
-		g_critical ("Invalid argument count");
-		return result;
-	}
-
-	/* "/home/user/path/title_of_the_movie.movie" -> "title of the movie"
-	   Only for local files currently, do we need to change? */
-
-	name = g_filename_display_basename (g_value_get_string (&values[0]));
-	if (!name) {
-		return result;
-	}
-
-	suffix = g_strrstr (name, ".");
-
-	if (suffix) {
-		*suffix = '\0';
-	}
-
-	g_strdelimit (name, "._", ' ');
-
-	g_value_init (&result, G_TYPE_STRING);
-	g_value_set_string (&result, name);
-
-	g_free (name);
-
-	return result;
-}
-
-static GValue
-function_sparql_cartesian_distance (TrackerDBInterface *interface,
-				    gint                argc,
-				    GValue              values[])
-{
-	GValue result = { 0, };
-	gdouble lat1;
-	gdouble lat2;
-	gdouble lon1;
-	gdouble lon2;
-
-	gdouble R;
-	gdouble a;
-	gdouble b;
-	gdouble c;
-	gdouble d;
-
-	if (argc != 4) {
-		g_critical ("Invalid argument count");
-		return result;
-	}
-
-	lat1 = g_value_get_double (&values[0])*M_PI/180;
-	lat2 = g_value_get_double (&values[1])*M_PI/180;
-	lon1 = g_value_get_double (&values[2])*M_PI/180;
-	lon2 = g_value_get_double (&values[3])*M_PI/180;
-
-	R = 6371000;
-	a = M_PI/2 - lat1;
-	b = M_PI/2 - lat2;
-	c = sqrt(a*a + b*b - 2*a*b*cos(lon2 - lon1));
-	d = R*c;
-
-	g_value_init (&result, G_TYPE_DOUBLE);
-	g_value_set_double (&result, d);
-
-	return result;
-}
-
-static GValue
-function_sparql_haversine_distance (TrackerDBInterface *interface,
-				    gint                argc,
-				    GValue              values[])
-{
-	GValue result = { 0, };
-	gdouble lat1;
-	gdouble lat2;
-	gdouble lon1;
-	gdouble lon2;
-
-	gdouble R;
-	gdouble dLat;
-	gdouble dLon;
-	gdouble a;
-	gdouble c;
-	gdouble d;
-
-	if (argc != 4) {
-		g_critical ("Invalid argument count");
-		return result;
-	}
-
-	lat1 = g_value_get_double (&values[0])*M_PI/180;
-	lat2 = g_value_get_double (&values[1])*M_PI/180;
-	lon1 = g_value_get_double (&values[2])*M_PI/180;
-	lon2 = g_value_get_double (&values[3])*M_PI/180;
-
-	R = 6371000;
-	dLat = (lat2-lat1);
-	dLon = (lon2-lon1);
-	a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) *  sin(dLon/2) * sin(dLon/2);
-	c = 2 * atan2(sqrt(a), sqrt(1-a));
-	d = R * c;
-
-	g_value_init (&result, G_TYPE_DOUBLE);
-	g_value_set_double (&result, d);
-
-	return result;
-}
-
-static GValue
-function_sparql_regex (TrackerDBInterface *interface,
-                       gint                  argc,
-                       GValue                values[])
-{
-	GValue  result = { 0, };
-	gboolean        ret;
-	const gchar *text, *pattern, *flags;
-	GRegexCompileFlags regex_flags;
-
-	if (argc != 3) {
-		g_critical ("Invalid argument count");
-		return result;
-	}
-
-	text = g_value_get_string (&values[0]);
-	pattern = g_value_get_string (&values[1]);
-	flags = g_value_get_string (&values[2]);
-
-	regex_flags = 0;
-	while (*flags) {
-		switch (*flags) {
-		case 's':
-			regex_flags |= G_REGEX_DOTALL;
-			break;
-		case 'm':
-			regex_flags |= G_REGEX_MULTILINE;
-			break;
-		case 'i':
-			regex_flags |= G_REGEX_CASELESS;
-			break;
-		case 'x':
-			regex_flags |= G_REGEX_EXTENDED;
-			break;
-		default:
-			g_critical ("Invalid SPARQL regex flag '%c'", *flags);
-			return result;
-		}
-		flags++;
-	}
-
-	ret = g_regex_match_simple (pattern, text, regex_flags, 0);
-
-	g_value_init (&result, G_TYPE_INT);
-	g_value_set_int (&result, ret);
-
-	return result;
-}
-
 static void
 db_set_params (TrackerDBInterface *iface,
                gint                cache_size,
-               gint                page_size,
-               gboolean                    add_functions)
+               gint                page_size)
 {
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
@@ -484,31 +268,6 @@ db_set_params (TrackerDBInterface *iface,
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", cache_size);
 	g_message ("  Setting cache size to %d", cache_size);
 
-	if (add_functions) {
-		g_message ("  Adding functions");
-
-		/* Create user defined functions that can be used in sql */
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "SparqlRegex",
-		                                             function_sparql_regex,
-		                                             3);
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "SparqlStringJoin",
-		                                             function_sparql_string_join,
-		                                             -1);
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "SparqlStringFromFilename",
-		                                             function_sparql_string_from_filename,
-		                                             1);
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "SparqlCartesianDistance",
-		                                             function_sparql_cartesian_distance,
-		                                             4);
-		tracker_db_interface_sqlite_create_function (iface,
-		                                             "SparqlHaversineDistance",
-		                                             function_sparql_haversine_distance,
-		                                             4);
-	}
 }
 
 
@@ -554,8 +313,7 @@ db_interface_get (TrackerDB  type,
 
 	db_set_params (iface,
 	               dbs[type].cache_size,
-	               dbs[type].page_size,
-	               dbs[type].add_functions);
+	               dbs[type].page_size);
 
 	return iface;
 }
@@ -1365,8 +1123,7 @@ tracker_db_manager_get_db_interfaces (gint num, ...)
 
 			db_set_params (connection,
 			               dbs[db].cache_size,
-			               dbs[db].page_size,
-			               TRUE);
+			               dbs[db].page_size);
 
 		} else {
 			db_exec_no_reply (connection,
@@ -1398,8 +1155,7 @@ tracker_db_manager_get_db_interfaces_ro (gint num, ...)
 			connection = tracker_db_interface_sqlite_new_ro (dbs[db].abs_filename);
 			db_set_params (connection,
 			               dbs[db].cache_size,
-			               dbs[db].page_size,
-			               TRUE);
+			               dbs[db].page_size);
 		} else {
 			db_exec_no_reply (connection,
 			                  "ATTACH '%s' as '%s'",

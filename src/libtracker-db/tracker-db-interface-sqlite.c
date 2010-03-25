@@ -23,6 +23,7 @@
 
 #include <sqlite3.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-fts/tracker-fts.h>
@@ -148,6 +149,215 @@ tracker_db_interface_sqlite_enable_shared_cache (void)
 }
 
 static void
+function_sparql_string_join (sqlite3_context *context,
+                             int              argc,
+                             sqlite3_value   *argv[])
+{
+	GString *str = NULL;
+	const gchar *separator;
+	gint i;
+
+	/* fn:string-join (str1, str2, ..., separator) */
+
+	if (sqlite3_value_type (argv[argc-1]) != SQLITE_TEXT) {
+		/* Fail */
+		sqlite3_result_null (context);
+		return;
+	}
+
+	separator = sqlite3_value_text (argv[argc-1]);
+
+	for (i = 0;i < argc-1; i++) {
+		if (sqlite3_value_type (argv[argc-1]) == SQLITE_TEXT) {
+			const gchar *text = sqlite3_value_text (argv[i]);
+			
+			if (text != NULL) {
+				if (!str) {
+					str = g_string_new (text);
+				} else {
+					g_string_append_printf (str, "%s%s", separator, text);
+				}
+			}
+		}
+	}
+
+	if (str) {
+		sqlite3_result_text (context, str->str, str->len, g_free);
+		g_string_free (str, FALSE);
+	} else {
+		sqlite3_result_null (context);
+	}
+
+	return;
+}
+
+/* Create a title-type string from the filename for replacing missing ones */
+static void
+function_sparql_string_from_filename (sqlite3_context *context,
+                                      int              argc,
+                                      sqlite3_value   *argv[])
+{
+	gchar  *name = NULL;
+	gchar  *suffix = NULL;
+
+	if (argc != 1) {
+		g_critical ("Invalid argument count");
+		sqlite3_result_null (context);
+		return;
+	}
+
+	/* "/home/user/path/title_of_the_movie.movie" -> "title of the movie"
+	 * Only for local files currently, do we need to change? */
+
+	name = g_filename_display_basename (sqlite3_value_text (argv[0]));
+
+	if (!name) {
+		sqlite3_result_null (context);
+		return;
+	}
+
+	suffix = g_strrstr (name, ".");
+
+	if (suffix) {
+		*suffix = '\0';
+	}
+
+	g_strdelimit (name, "._", ' ');
+
+	sqlite3_result_text (context, name, -1, g_free);
+
+	return;
+}
+
+static void
+function_sparql_cartesian_distance (sqlite3_context *context,
+                                    int              argc,
+                                    sqlite3_value   *argv[])
+{
+	gdouble lat1;
+	gdouble lat2;
+	gdouble lon1;
+	gdouble lon2;
+
+	gdouble R;
+	gdouble a;
+	gdouble b;
+	gdouble c;
+	gdouble d;
+
+	if (argc != 4) {
+		g_critical ("Invalid argument count");
+		sqlite3_result_null (context);
+		return;
+	}
+
+	lat1 = sqlite3_value_double (argv[0])*M_PI/180;
+	lat2 = sqlite3_value_double (argv[1])*M_PI/180;
+	lon1 = sqlite3_value_double (argv[2])*M_PI/180;
+	lon2 = sqlite3_value_double (argv[3])*M_PI/180;
+
+	R = 6371000;
+	a = M_PI/2 - lat1;
+	b = M_PI/2 - lat2;
+	c = sqrt(a*a + b*b - 2*a*b*cos(lon2 - lon1));
+	d = R*c;
+
+	sqlite3_result_double (context, d);
+
+	return;
+}
+
+static void
+function_sparql_haversine_distance (sqlite3_context *context,
+                                    int              argc,
+                                    sqlite3_value   *argv[])
+{
+	gdouble lat1;
+	gdouble lat2;
+	gdouble lon1;
+	gdouble lon2;
+
+	gdouble R;
+	gdouble dLat;
+	gdouble dLon;
+	gdouble a;
+	gdouble c;
+	gdouble d;
+
+	if (argc != 4) {
+		g_critical ("Invalid argument count");
+		sqlite3_result_null (context);
+		return;
+	}
+
+	lat1 = sqlite3_value_double (argv[0])*M_PI/180;
+	lat2 = sqlite3_value_double (argv[1])*M_PI/180;
+	lon1 = sqlite3_value_double (argv[2])*M_PI/180;
+	lon2 = sqlite3_value_double (argv[3])*M_PI/180;
+
+	R = 6371000;
+	dLat = (lat2-lat1);
+	dLon = (lon2-lon1);
+	a = sin(dLat/2) * sin(dLat/2) + cos(lat1) * cos(lat2) *  sin(dLon/2) * sin(dLon/2);
+	c = 2 * atan2(sqrt(a), sqrt(1-a));
+	d = R * c;
+
+	sqlite3_result_double (context, d);
+
+	return;
+}
+
+static void
+function_sparql_regex (sqlite3_context *context,
+                       int              argc,
+                       sqlite3_value   *argv[])
+{
+	gboolean ret;
+	const gchar *text, *pattern, *flags;
+	GRegexCompileFlags regex_flags;
+
+	if (argc != 3) {
+		g_critical ("Invalid argument count");
+		sqlite3_result_null (context);
+		return;
+	}
+
+	text = sqlite3_value_text (argv[0]);
+	pattern = sqlite3_value_text (argv[1]);
+	flags = sqlite3_value_text (argv[2]);
+
+	regex_flags = 0;
+	while (*flags) {
+		switch (*flags) {
+		case 's':
+			regex_flags |= G_REGEX_DOTALL;
+			break;
+		case 'm':
+			regex_flags |= G_REGEX_MULTILINE;
+			break;
+		case 'i':
+			regex_flags |= G_REGEX_CASELESS;
+			break;
+		case 'x':
+			regex_flags |= G_REGEX_EXTENDED;
+			break;
+		default:
+			g_critical ("Invalid SPARQL regex flag '%c'", *flags);
+			sqlite3_result_null (context);
+			return;
+		}
+		flags++;
+	}
+
+	ret = g_regex_match_simple (pattern, text, regex_flags, 0);
+
+	sqlite3_result_int (context, ret);
+
+	return;
+}
+
+
+static void
 open_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
 	g_assert (priv->filename != NULL);
@@ -165,6 +375,26 @@ open_database (TrackerDBInterfaceSqlitePrivate *priv)
 			g_message ("Opened sqlite3 database:'%s'", priv->filename);
 		}
 	}
+
+	sqlite3_create_function (priv->db, "SparqlRegex", 3, SQLITE_ANY,
+	                         priv, &function_sparql_regex, 
+	                         NULL, NULL);
+
+	sqlite3_create_function (priv->db, "SparqlHaversineDistance", 4, SQLITE_ANY,
+	                         priv, &function_sparql_haversine_distance,
+	                         NULL, NULL);
+
+	sqlite3_create_function (priv->db, "SparqlCartesianDistance", 4, SQLITE_ANY,
+	                         priv, &function_sparql_cartesian_distance,
+	                         NULL, NULL);
+
+	sqlite3_create_function (priv->db, "SparqlStringFromFilename", 1, SQLITE_ANY,
+	                         priv, &function_sparql_string_from_filename,
+	                         NULL, NULL);
+
+	sqlite3_create_function (priv->db, "SparqlStringJoin", -1, SQLITE_ANY,
+	                         priv, &function_sparql_string_join,
+	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (priv->db, 0);
 	sqlite3_busy_timeout (priv->db, 100000);
@@ -380,75 +610,6 @@ add_row (TrackerDBResultSet *result_set,
 	}
 }
 
-static void
-internal_sqlite3_function (sqlite3_context *context,
-                           int              argc,
-                           sqlite3_value   *argv[])
-{
-	SqliteFunctionData *data;
-	GValue *values, result;
-	gint i;
-
-	data = (SqliteFunctionData *) sqlite3_user_data (context);
-	values = g_new0 (GValue, argc);
-
-	/* Transform the arguments */
-	for (i = 0; i < argc; i++) {
-		switch (sqlite3_value_type (argv[i])) {
-		case SQLITE_TEXT:
-			g_value_init (&values[i], G_TYPE_STRING);
-			g_value_set_string (&values[i], (gchar *) sqlite3_value_text (argv[i]));
-			break;
-		case SQLITE_INTEGER:
-			g_value_init (&values[i], G_TYPE_INT);
-			g_value_set_int (&values[i], sqlite3_value_int (argv[i]));
-			break;
-		case SQLITE_FLOAT:
-			g_value_init (&values[i], G_TYPE_DOUBLE);
-			g_value_set_double (&values[i], sqlite3_value_double (argv[i]));
-			break;
-		case SQLITE_NULL:
-			/* Unset GValues as NULLs */
-			break;
-		default:
-			g_critical ("Unknown sqlite3 database value type:%d",
-			            sqlite3_value_type (argv[i]));
-		}
-	}
-
-	/* Call the function */
-	result = data->func (data->interface, argc, values);
-
-	/* And return something appropriate to the context */
-	if (G_VALUE_HOLDS_INT (&result)) {
-		sqlite3_result_int (context, g_value_get_int (&result));
-	} else if (G_VALUE_HOLDS_DOUBLE (&result)) {
-		sqlite3_result_double (context, g_value_get_double (&result));
-	} else if (G_VALUE_HOLDS_STRING (&result)) {
-		sqlite3_result_text (context,
-		                     g_value_dup_string (&result),
-		                     -1, g_free);
-	} else if (G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
-		sqlite3_result_null (context);
-	} else {
-		g_critical ("Sqlite3 returned type not managed:'%s'",
-		            G_VALUE_TYPE_NAME (&result));
-		sqlite3_result_null (context);
-	}
-
-	/* Now free all this mess */
-	for (i = 0; i < argc; i++) {
-		if (G_IS_VALUE (&values[i])) {
-			g_value_unset (&values[i]);
-		}
-	}
-
-	if (! G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
-		g_value_unset (&result);
-	}
-
-	g_free (values);
-}
 
 static TrackerDBStatement *
 tracker_db_interface_sqlite_create_statement (TrackerDBInterface *db_interface,
@@ -642,26 +803,6 @@ collation_function (gpointer      data,
 	func = (TrackerDBCollationFunc) data;
 
 	return (func) ((gchar *) str1, len1, (gchar *) str2, len2);
-}
-
-void
-tracker_db_interface_sqlite_create_function (TrackerDBInterface *interface,
-                                             const gchar        *name,
-                                             TrackerDBFunc       func,
-                                             gint                n_args)
-{
-	SqliteFunctionData *data;
-	TrackerDBInterfaceSqlitePrivate *priv;
-
-	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (interface);
-
-	data = g_new0 (SqliteFunctionData, 1);
-	data->interface = interface;
-	data->func = func;
-
-	priv->function_data = g_slist_prepend (priv->function_data, data);
-
-	sqlite3_create_function (priv->db, name, n_args, SQLITE_ANY, data, &internal_sqlite3_function, NULL, NULL);
 }
 
 gboolean
