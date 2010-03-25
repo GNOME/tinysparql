@@ -36,7 +36,6 @@ namespace Tracker {
 		public virtual void started ();
 		public void stop ();
 		public virtual void stopped ();
-		public virtual void writeback ([CCode (array_length = false)] string[] subjects);
 		public signal void error (GLib.Error e);
 	}
 	[CCode (ref_function = "tracker_miner_fs_ref", unref_function = "tracker_miner_fs_unref", cheader_filename = "libtracker-miner/tracker-miner-fs.h")]
