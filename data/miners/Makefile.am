@@ -1,12 +1,9 @@
 include $(top_srcdir)/Makefile.decl
 
 desktop_in_files = \
-	tracker-miner-applications.desktop.in \
-	tracker-miner-files.desktop.in
-
-if USING_MINER_RSS
-desktop_in_files +=	tracker-miner-rss.desktop.in
-endif
+	tracker-miner-applications.desktop.in	\
+	tracker-miner-files.desktop.in		\
+	tracker-miner-rss.desktop.in
 
 tracker_minersdir = $(datadir)/tracker/miners
 
