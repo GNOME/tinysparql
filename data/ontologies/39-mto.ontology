@@ -64,7 +64,7 @@ mto:startedTime a rdf:Property ;
 
 mto:completedTime a rdf:Property ;
     rdfs:label "Completed" ;
-    rdfs:comment "Captures the date and time when the transfer ended" ;
+    rdfs:comment "Captures the date and time when the transfer ended. It must be set only when the trasfer element is completed succesfully" ;
     nrl:maxCardinality 1 ;
     rdfs:domain mto:TransferElement ;
     rdfs:range xsd:dateTime .
@@ -80,9 +80,6 @@ mto:state-cancelled a mto:State .
 mto:state-done a mto:State .
 mto:state-pending a mto:State .
 mto:state-error a mto:State .
-mto:state-user-paused a mto:State .
-mto:state-user-cancelled a mto:State .
-mto:state-user-started a mto:State .
 
 mto:state a rdf:Property ;
     rdfs:label "State" ;
