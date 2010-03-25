@@ -394,7 +394,7 @@ main (int argc, char **argv)
 {
 	gint result;
 	gint i;
-	gchar *current_dir;
+	gchar *data_dir;
 
 	g_type_init ();
 
@@ -404,10 +404,10 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	current_dir = g_get_current_dir ();
+        data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
 
-	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
-	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
+	g_setenv ("XDG_DATA_HOME", data_dir, TRUE);
+	g_setenv ("XDG_CACHE_HOME", data_dir, TRUE);
 	g_setenv ("TRACKER_DB_SQL_DIR", TOP_SRCDIR "/data/db/", TRUE);
 	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/data/ontologies/", TRUE);
 
@@ -444,6 +444,9 @@ main (int argc, char **argv)
 	/* clean up */
 	g_print ("Removing temporary data\n");
 	g_spawn_command_line_async ("rm -R tracker/", NULL);
+	g_spawn_command_line_async ("rm -R test-cache/", NULL);
+
+        g_free (data_dir);
 
 	return result;
 }
