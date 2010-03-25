@@ -33,6 +33,7 @@ tracker_dbus_LDADD =							\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
+	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GCOV_LIBS)
 
