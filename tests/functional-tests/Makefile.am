@@ -18,7 +18,8 @@ config_SCRIPTS =		\
 	06-distance.py		\
 	07-graph.py		\
 	08-unique-insertions.py \
-	virtual-files-tc.py
+	virtual-files-tc.py	\
+	performance-tc.py
 
 EXTRA_DIST = $(config_SCRIPTS)
 endif
