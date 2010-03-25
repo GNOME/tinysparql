@@ -160,8 +160,7 @@ function_sparql_string_join (sqlite3_context *context,
 	/* fn:string-join (str1, str2, ..., separator) */
 
 	if (sqlite3_value_type (argv[argc-1]) != SQLITE_TEXT) {
-		/* Fail */
-		sqlite3_result_null (context);
+		sqlite3_result_error (context, "Invalid separator", 0);
 		return;
 	}
 
@@ -285,8 +284,7 @@ function_sparql_haversine_distance (sqlite3_context *context,
 	gdouble d;
 
 	if (argc != 4) {
-		g_critical ("Invalid argument count");
-		sqlite3_result_null (context);
+		sqlite3_result_error (context, "Invalid argument count", 0);
 		return;
 	}
 
@@ -315,41 +313,60 @@ function_sparql_regex (sqlite3_context *context,
 	gboolean ret;
 	const gchar *text, *pattern, *flags;
 	GRegexCompileFlags regex_flags;
+	GRegex *regex;
 
 	if (argc != 3) {
-		g_critical ("Invalid argument count");
-		sqlite3_result_null (context);
+		sqlite3_result_error (context, "Invalid argument count", 0);
 		return;
 	}
 
+	regex = sqlite3_get_auxdata (context, 1);
+
 	text = sqlite3_value_text (argv[0]);
-	pattern = sqlite3_value_text (argv[1]);
 	flags = sqlite3_value_text (argv[2]);
 
-	regex_flags = 0;
-	while (*flags) {
-		switch (*flags) {
-		case 's':
-			regex_flags |= G_REGEX_DOTALL;
-			break;
-		case 'm':
-			regex_flags |= G_REGEX_MULTILINE;
-			break;
-		case 'i':
-			regex_flags |= G_REGEX_CASELESS;
-			break;
-		case 'x':
-			regex_flags |= G_REGEX_EXTENDED;
-			break;
-		default:
-			g_critical ("Invalid SPARQL regex flag '%c'", *flags);
-			sqlite3_result_null (context);
+	if (regex == NULL) {
+		gchar *err_str;
+		GError *error = NULL;
+
+		pattern = sqlite3_value_text (argv[1]);
+
+		regex_flags = 0;
+		while (*flags) {
+			switch (*flags) {
+			case 's':
+				regex_flags |= G_REGEX_DOTALL;
+				break;
+			case 'm':
+				regex_flags |= G_REGEX_MULTILINE;
+				break;
+			case 'i':
+				regex_flags |= G_REGEX_CASELESS;
+				break;
+			case 'x':
+				regex_flags |= G_REGEX_EXTENDED;
+				break;
+			default:
+				err_str = g_strdup_printf ("Invalid SPARQL regex flag '%c'", *flags);
+				sqlite3_result_error (context, err_str, 0);
+				g_free (err_str);
+				return;
+			}
+			flags++;
+		}
+
+		regex = g_regex_new (pattern, regex_flags, 0, &error);
+
+		if (error) {
+			sqlite3_result_error (context, error->message, error->code);
+			g_clear_error (&error);
 			return;
 		}
-		flags++;
+
+		sqlite3_set_auxdata (context, 1, regex, (void (*) (void*)) g_regex_unref);
 	}
 
-	ret = g_regex_match_simple (pattern, text, regex_flags, 0);
+	ret = g_regex_match (regex, text, 0, NULL);
 
 	sqlite3_result_int (context, ret);
 
