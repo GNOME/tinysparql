@@ -25,8 +25,8 @@ BUILT_SOURCES = 							\
 	tracker-preferences.vala.stamp
 
 config_class_sources = \
-	$(top_srcdir)/src/tracker-miner-fs/tracker-config.h		\
-	$(top_srcdir)/src/tracker-miner-fs/tracker-config.c		\
+	$(top_srcdir)/src/miners/fs/tracker-config.h			\
+	$(top_srcdir)/src/miners/fs/tracker-config.c			\
 	$(top_srcdir)/src/tracker-status-icon/tracker-icon-config.h	\
 	$(top_srcdir)/src/tracker-status-icon/tracker-icon-config.c
 

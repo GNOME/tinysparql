@@ -20,7 +20,7 @@
  */
 
 namespace Tracker {
-	[CCode (cheader_filename = "tracker-miner-fs/tracker-config.h")]
+	[CCode (cheader_filename = "miners/fs/tracker-config.h")]
 	public class Config : GLib.Object {
 		public Config.with_domain (string domain);
 

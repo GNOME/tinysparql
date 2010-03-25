@@ -14,7 +14,7 @@ INCLUDES = 									\
 	-I$(top_srcdir)/src							\
 	-I$(top_srcdir)/tests/common						\
 	-I$(top_builddir)/src/tracker-store					\
-	-I$(top_builddir)/src/tracker-miner-fs					\
+	-I$(top_builddir)/src/miners/fs						\
 	$(WARN_CFLAGS)								\
 	$(GLIB2_CFLAGS)								\
 	$(GCOV_CFLAGS)								\
@@ -24,8 +24,8 @@ INCLUDES = 									\
 	$(DBUS_CFLAGS)
 
 tracker_metadata_utils_SOURCES = 						\
-	$(top_srcdir)/src/tracker-miner-fs/tracker-config.c			\
-	$(top_srcdir)/src/tracker-miner-fs/tracker-marshal.c			\
+	$(top_srcdir)/src/miners/fs/tracker-config.c				\
+	$(top_srcdir)/src/miners/fs/tracker-marshal.c				\
 	tracker-metadata-utils-test.c
 
 tracker_metadata_utils_LDADD =	                                        	\

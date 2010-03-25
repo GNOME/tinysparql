@@ -26,7 +26,7 @@
 #define TRACKER_MINER_FILES_REINDEX_PATH            "/org/freedesktop/Tracker1/Miner/Files/Reindex"
 #define TRACKER_MINER_FILES_REINDEX_INTERFACE       "org.freedesktop.Tracker1.Miner.Files.Reindex"
 
-#include <tracker-miner-fs/tracker-miner-files.h>
+#include "tracker-miner-files.h"
 
 G_BEGIN_DECLS
 

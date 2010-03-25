@@ -1676,13 +1676,14 @@ AC_CONFIG_FILES([
 	src/libtracker-client/Makefile
 	src/libtracker-miner/Makefile
 	src/Makefile
+	src/miners/Makefile
+	src/miners/fs/Makefile
+	src/miners/rss/Makefile
 	src/tracker-status-icon/Makefile
 	src/tracker-status-icon/tracker-status-icon.desktop.in
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
-	src/tracker-miner-fs/Makefile
-	src/tracker-miner-rss/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-bar/Makefile
