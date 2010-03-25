@@ -5,7 +5,8 @@ SUBDIRS =                                              \
 	lyrics                                         \
 	services                                       \
 	data-generators                                \
-	mtp
+	mtp                                            \
+	tracker-sql
 
 if HAVE_TOTEM_PL_PARSER
 SUBDIRS += playlists
