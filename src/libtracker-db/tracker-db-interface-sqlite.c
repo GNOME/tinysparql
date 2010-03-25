@@ -160,7 +160,7 @@ function_sparql_string_join (sqlite3_context *context,
 	/* fn:string-join (str1, str2, ..., separator) */
 
 	if (sqlite3_value_type (argv[argc-1]) != SQLITE_TEXT) {
-		sqlite3_result_error (context, "Invalid separator", 0);
+		sqlite3_result_error (context, "Invalid separator", -1);
 		return;
 	}
 
@@ -200,8 +200,7 @@ function_sparql_string_from_filename (sqlite3_context *context,
 	gchar  *suffix = NULL;
 
 	if (argc != 1) {
-		g_critical ("Invalid argument count");
-		sqlite3_result_null (context);
+		sqlite3_result_error (context, "Invalid argument count", -1);
 		return;
 	}
 
@@ -245,8 +244,7 @@ function_sparql_cartesian_distance (sqlite3_context *context,
 	gdouble d;
 
 	if (argc != 4) {
-		g_critical ("Invalid argument count");
-		sqlite3_result_null (context);
+		sqlite3_result_error (context, "Invalid argument count", -1);
 		return;
 	}
 
@@ -284,7 +282,7 @@ function_sparql_haversine_distance (sqlite3_context *context,
 	gdouble d;
 
 	if (argc != 4) {
-		sqlite3_result_error (context, "Invalid argument count", 0);
+		sqlite3_result_error (context, "Invalid argument count", -1);
 		return;
 	}
 
@@ -316,7 +314,7 @@ function_sparql_regex (sqlite3_context *context,
 	GRegex *regex;
 
 	if (argc != 3) {
-		sqlite3_result_error (context, "Invalid argument count", 0);
+		sqlite3_result_error (context, "Invalid argument count", -1);
 		return;
 	}
 
@@ -348,7 +346,7 @@ function_sparql_regex (sqlite3_context *context,
 				break;
 			default:
 				err_str = g_strdup_printf ("Invalid SPARQL regex flag '%c'", *flags);
-				sqlite3_result_error (context, err_str, 0);
+				sqlite3_result_error (context, err_str, -1);
 				g_free (err_str);
 				return;
 			}
@@ -358,7 +356,7 @@ function_sparql_regex (sqlite3_context *context,
 		regex = g_regex_new (pattern, regex_flags, 0, &error);
 
 		if (error) {
-			sqlite3_result_error (context, error->message, error->code);
+			sqlite3_result_error (context, error->message, -1);
 			g_clear_error (&error);
 			return;
 		}
