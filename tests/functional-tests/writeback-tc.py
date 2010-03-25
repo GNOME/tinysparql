@@ -31,32 +31,22 @@ TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
 RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 
 """ run the tracker-writeback """
-for pid in commands.getoutput("ps -ef| grep tracker-writeback | awk '{print $1}'").split() :
-  try:
-    print "Killing tracker-writeback process"
-    os.kill(int(pid), signal.SIGKILL)
-  except OSError, e:
-    if not e.errno == 3 : raise e # error 3 is for noscuh process
-os.system(configuration.TRACKER_WRITEBACK + ' -v 3 &')
-time.sleep(5)
+pid = commands.getoutput("ps -ef| grep tracker-writeback | awk '{print $3}'").split()
+if configuration.TRACKER_WRITEBACK not in pid:
+	os.system(configuration.TRACKER_WRITEBACK + ' -v 3 &')
+	time.sleep(5)
 
 EXTRACT = configuration.TRACKER_EXTRACT
 
 target = configuration.check_target()
 if target == '2' :
 	dir_path = configuration.WB_TEST_DIR_DEVICE
-	"""
-	dir_path = '/home/user/MyDocs/.images'
-	"""
 else :
 	dir_path = configuration.WB_TEST_DIR_HOST
 print dir_path
 
 def copy_file():
-	"""
 	src = configuration.TEST_DATA_IMAGES
-	"""
-	src = configuration.MYDOCS_IMAGES
 	dest = dir_path
 	print 'Copying '+src+' to '+dest
 	commands.getoutput('cp '+src +'/*'+ ' '+dest)
@@ -273,7 +263,7 @@ class writeback(TestWriteback):
                 	insert = """
 				DELETE {?file nie:contentCreated ?val }
 				WHERE { ?file nie:contentCreated ?val ;nie:url <%s> } 
-				INSERT {?file nie:contentCreated 'testcontentCreated' } 
+				INSERT {?file nie:contentCreated '2004-05-06T13:14:15Z' } 
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
@@ -283,7 +273,8 @@ class writeback(TestWriteback):
 			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:contentCreated')
 			print result
                 	value=result.split()
-			if (result.find('nie:contentCreated')!=-1)  and (value[1]=='"testcontentCreated"') :
+			print value
+			if (result.find('nie:contentCreated')!=-1)  and (value[1] == '2004-05-06T13:14:15Z') :
 				print "property is set"
                 	else:
 				print "property is NOT set"
@@ -326,10 +317,10 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:keyword')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nao:prefLabel')
 			print result
                 	value=result.split()
-			if (result.find('nie:keyword')!=-1)  and (value[1]=='"testkeyword"') :
+			if (result.find('nao:prefLabel')!=-1)  and ( '"testkeyword"' in value[1]) :
 				print "property is set"
                 	else:
 				print "property is NOT set"
@@ -365,17 +356,16 @@ class writeback(TestWriteback):
                 	insert = """
 				DELETE {?file nco:contributor ?val }
 				WHERE { ?file nco:contributor ?val ;nie:url <%s> } 
-				INSERT {?file nco:contributor 'testcontributor' } 
+				INSERT {?file nco:contributor [a nco:Contact ; nco:fullname 'testcontributor' ] } 
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nco:contributor')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nco:fullname')
 			print result
-                	value=result.split()
-			if (result.find('nco:contributor')!=-1)  and (value[1]=='"testcontributor"') :
+			if '"testcontributor"' in result:
 				print "property is set"
                 	else:
 				print "property is NOT set"
@@ -410,17 +400,16 @@ class writeback(TestWriteback):
                 	insert = """
 				DELETE {?file nco:creator ?val }
 				WHERE { ?file nco:creator ?val ;nie:url <%s> } 
-				INSERT {?file nco:creator 'testcreator' } 
+				INSERT {?file nco:creator [a nco:Contact ; nco:fullname 'testcreator' ] } 
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nco:creator')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nco:fullname')
 			print result
-                	value=result.split()
-			if (result.find('nco:creator')!=-1)  and (value[1]=='"testcreator"') :
+			if '"testcreator"' in result:
 				print "property is set"
                 	else:
 				print "property is NOT set"
@@ -869,10 +858,10 @@ class writeback(TestWriteback):
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep mlo:location')
+			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep mlo:*')
 			print result
                 	value=result.split()
-			if (result.find('mlo:location')!=-1)  and (value[1]=='"clevland"') :
+			if (result.find('mlo:address')!=-1)  and (value[value.index('mlo:address') + 1] == '"doorno-32"') and (result.find('mlo:city')!=-1)  and (value[value.index('mlo:city') + 1] == '"test_city"') and (result.find('mlo:country')!=-1)  and ('"clevland"' in value[value.index('mlo:country') + 1]) :
 				print "property is set"
                 	else:
 				print "property is NOT set"
