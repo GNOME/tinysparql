@@ -15,9 +15,6 @@ src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-miner/tracker-miner-object.c
 src/libtracker-miner/tracker-miner-fs.c
-src/plugins/deskbar/tracker-handler.py
-src/plugins/deskbar/tracker-handler-static.py
-src/plugins/deskbar/tracker-module.py
 src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
 src/plugins/evolution/tracker-evolution-plugin.c
 src/plugins/evolution/tracker-miner-emails.desktop.in
