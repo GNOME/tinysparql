@@ -22,14 +22,14 @@ INCLUDES = 									\
 	$(PANGO_CFLAGS)								\
 	$(DBUS_CFLAGS)
 
-tracker_events_SOURCES = 							\
-	$(top_srcdir)/src/tracker-store/tracker-events.c			\
-	tracker-events-test.c
+# tracker_events_SOURCES = 							\
+# 	$(top_srcdir)/src/tracker-store/tracker-events.c			\
+# 	tracker-events-test.c
 
-tracker_events_LDADD = 								\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
-	$(DBUS_LIBS)								\
-	$(GCOV_LIBS)								\
-	$(GMODULE_LIBS)								\
-	$(GTHREAD_LIBS)								\
-	$(GLIB2_LIBS)							
+# tracker_events_LDADD = 							\
+# 	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
+# 	$(DBUS_LIBS)								\
+# 	$(GCOV_LIBS)								\
+# 	$(GMODULE_LIBS)								\
+# 	$(GTHREAD_LIBS)								\
+# 	$(GLIB2_LIBS)							
