@@ -150,6 +150,9 @@ static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *f
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
                                                          GCancellable         *cancellable);
+static void      extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
+                                                         ProcessFileData *data);
+
 
 G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
 
@@ -1313,6 +1316,10 @@ miner_files_add_to_datasource (TrackerMinerFiles    *mf,
 static void
 process_file_data_free (ProcessFileData *data)
 {
+	g_signal_handlers_disconnect_by_func (data->cancellable,
+	                                      extractor_get_embedded_metadata_cancel,
+	                                      data);
+
 	g_object_unref (data->miner);
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
