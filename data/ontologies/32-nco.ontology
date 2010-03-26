@@ -53,6 +53,7 @@ nco:EmailAddress a rdfs:Class ;
 nco:IMAddress a rdfs:Class ;
 	rdfs:label "IM Address" ;
 	rdfs:comment "An instant messaging address such as xmpp:foo@bar.com." ;
+	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 # switch to rdfs:subClassOf nie:InformationElement
