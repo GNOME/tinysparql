@@ -3488,8 +3488,11 @@ static int fulltextCreate(sqlite3 *db, void *pAux,
 static int fulltextBestIndex(sqlite3_vtab *pVTab, sqlite3_index_info *pInfo){
   fulltext_vtab *v = tracker_fts_vtab;
   int i;
+  int iCons = -1;                 /* Index of constraint to use */
   FTSTRACE(("FTS3 BestIndex\n"));
 
+  pInfo->idxNum = QUERY_GENERIC;
+  pInfo->estimatedCost = 500000;
   for(i=0; i<pInfo->nConstraint; ++i){
     const struct sqlite3_index_constraint *pConstraint;
     pConstraint = &pInfo->aConstraint[i];
@@ -3497,26 +3500,25 @@ static int fulltextBestIndex(sqlite3_vtab *pVTab, sqlite3_index_info *pInfo){
       if( (pConstraint->iColumn==-1 || pConstraint->iColumn==v->nColumn+1) &&
           pConstraint->op==SQLITE_INDEX_CONSTRAINT_EQ ){
         pInfo->idxNum = QUERY_DOCID;      /* lookup by docid */
+        pInfo->estimatedCost = 1.0;
+        iCons = i;
         FTSTRACE(("FTS3 QUERY_DOCID\n"));
       } else if( pConstraint->iColumn>=0 && pConstraint->iColumn<=v->nColumn &&
                  pConstraint->op==SQLITE_INDEX_CONSTRAINT_MATCH ){
         /* full-text search */
         pInfo->idxNum = QUERY_FULLTEXT + pConstraint->iColumn;
+        pInfo->estimatedCost = 2.0;
+        iCons = i;
         FTSTRACE(("FTS3 QUERY_FULLTEXT %d\n", pConstraint->iColumn));
-      } else continue;
-
-      pInfo->aConstraintUsage[i].argvIndex = 1;
-      pInfo->aConstraintUsage[i].omit = 1;
-
-      /* An arbitrary value for now.
-       * TODO: Perhaps docid matches should be considered cheaper than
-       * full-text searches. */
-      pInfo->estimatedCost = 1.0;
-
-      return SQLITE_OK;
+        break;
+      }
     }
   }
-  pInfo->idxNum = QUERY_GENERIC;
+
+  if( iCons>=0 ){
+    pInfo->aConstraintUsage[iCons].argvIndex = 1;
+    pInfo->aConstraintUsage[iCons].omit = 1;
+  }
   return SQLITE_OK;
 }
 
