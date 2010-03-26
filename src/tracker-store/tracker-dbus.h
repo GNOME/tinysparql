@@ -25,12 +25,15 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
+#include "tracker-busy-notifier.h"
+
 G_BEGIN_DECLS
 
-gboolean    tracker_dbus_init                    (void);
-void        tracker_dbus_shutdown                (void);
-gboolean    tracker_dbus_register_objects        (void);
-GObject    *tracker_dbus_get_object              (GType type);
+gboolean             tracker_dbus_init                    (void);
+void                 tracker_dbus_shutdown                (void);
+gboolean             tracker_dbus_register_objects        (void);
+GObject             *tracker_dbus_get_object              (GType type);
+TrackerBusyNotifier *tracker_dbus_register_busy_notifier  (void);
 
 G_END_DECLS
 

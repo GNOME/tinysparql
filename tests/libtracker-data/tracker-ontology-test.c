@@ -264,7 +264,7 @@ test_ontology_change (void)
                 g_chmod (ontology_file, 0666);
 
 		tracker_data_manager_init (0, (const gchar **) test_schemas,
-		                           NULL, FALSE, NULL, NULL);
+		                           NULL, FALSE, NULL, NULL, NULL);
 
 		if (g_file_get_contents (update, &queries, NULL, NULL)) {
 			gchar *query = strtok (queries, "\n");
@@ -290,7 +290,7 @@ test_ontology_change (void)
 	delete_db (FALSE);
 
 	tracker_data_manager_init (0, (const gchar **) test_schemas,
-	                           NULL, TRUE, NULL, NULL);
+	                           NULL, TRUE, NULL, NULL, NULL);
 
 	for (i = 0; change_tests[i].test_name != NULL; i++) {
 		gchar *query_filename;
@@ -329,6 +329,7 @@ test_ontology_init (void)
 	                           NULL,
 	                           FALSE,
 	                           NULL,
+	                           NULL,
 	                           NULL);
 
 	tracker_data_manager_shutdown ();
@@ -338,6 +339,7 @@ test_ontology_init (void)
 	                           NULL,
 	                           NULL,
 	                           FALSE,
+	                           NULL,
 	                           NULL,
 	                           NULL);
 
@@ -368,6 +370,7 @@ test_query (gconstpointer test_data)
 	                           NULL,
 	                           NULL, 
 	                           FALSE,
+	                           NULL,
 	                           NULL,
 	                           NULL);
 

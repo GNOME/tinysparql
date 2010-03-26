@@ -1438,7 +1438,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            gboolean              *first_time,
                            gboolean               journal_check,
                            TrackerBusyCallback    busy_callback,
-                           gpointer               busy_user_data)
+                           gpointer               busy_user_data,
+                           const gchar           *busy_status)
 {
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index, read_journal, check_ontology;
@@ -1519,7 +1520,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* Start replay. Ontology changes might happen during replay of the journal. */
 
 		tracker_data_replay_journal (classes, properties, id_uri_map, 
-		                             busy_callback, busy_user_data);
+		                             busy_callback, busy_user_data, busy_status);
 
 		in_journal_replay = FALSE;
 

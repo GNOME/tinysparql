@@ -35,6 +35,8 @@
 #include "tracker-resources-glue.h"
 #include "tracker-resource-class.h"
 #include "tracker-resources-class-glue.h"
+#include "tracker-busy-notifier.h"
+#include "tracker-busy-notifier-glue.h"
 #include "tracker-statistics.h"
 #include "tracker-statistics-glue.h"
 #include "tracker-backup.h"
@@ -183,6 +185,33 @@ static void
 name_owner_changed_closure (gpointer  data,
                             GClosure *closure)
 {
+}
+
+TrackerBusyNotifier*
+tracker_dbus_register_busy_notifier (void)
+{
+	gpointer object;
+
+	if (!connection || !gproxy) {
+		g_critical ("D-Bus support must be initialized before registering objects!");
+		return FALSE;
+	}
+
+	/* Add org.freedesktop.Tracker */
+	object = tracker_busy_notifier_new ();
+	if (!object) {
+		g_critical ("Could not create TrackerBusyNotifier object to register");
+		return FALSE;
+	}
+
+	dbus_register_object (connection,
+	                      gproxy,
+	                      G_OBJECT (object),
+	                      &dbus_glib_tracker_busy_notifier_object_info,
+	                      TRACKER_BUSY_NOTIFIER_PATH);
+	objects = g_slist_prepend (objects, object);
+
+	return g_object_ref (object);
 }
 
 gboolean

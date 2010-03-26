@@ -46,6 +46,7 @@ test_blank (void)
 	                           NULL,
 	                           FALSE,
 	                           NULL,
+	                           NULL,
 	                           NULL);
 
 	/* perform update in transaction */

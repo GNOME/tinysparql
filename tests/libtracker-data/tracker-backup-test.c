@@ -106,7 +106,7 @@ test_backup_and_restore (void)
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           (const gchar **) test_schemas,
-	                           NULL, FALSE, NULL, NULL);
+	                           NULL, FALSE, NULL, NULL, NULL);
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".data", NULL);
@@ -156,7 +156,7 @@ test_backup_and_restore (void)
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           (const gchar **) test_schemas,
-	                           NULL, FALSE, NULL, NULL);
+	                           NULL, FALSE, NULL, NULL, NULL);
 	check_content_in_db (0, 0);
 
 	test_schemas[0] = data_prefix;

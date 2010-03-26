@@ -10,7 +10,8 @@ config_DATA =							\
 	tracker-resources.xml					\
 	tracker-resources-class.xml				\
 	tracker-statistics.xml					\
-	tracker-writeback.xml
+	tracker-writeback.xml					\
+	tracker-busy-notifier.xml
 
 config_noinst = 						\
 	tracker-miner-files-reindex.xml

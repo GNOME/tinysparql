@@ -2367,7 +2367,8 @@ tracker_data_replay_journal (GHashTable          *classes,
                              GHashTable          *properties,
                              GHashTable          *id_uri_map,
                              TrackerBusyCallback  busy_callback,
-                             gpointer             busy_user_data)
+                             gpointer             busy_user_data,
+                             const gchar         *busy_status)
 {
 	GError *journal_error = NULL;
 	static TrackerProperty *rdf_type = NULL;
@@ -2387,11 +2388,6 @@ tracker_data_replay_journal (GHashTable          *classes,
 		TrackerDBJournalEntryType type;
 		const gchar *object;
 		gint graph_id, subject_id, predicate_id, object_id;
-
-		if (busy_callback) {
-			busy_callback (tracker_db_journal_reader_get_progress (),
-			               busy_user_data);
-		}
 
 		type = tracker_db_journal_reader_get_type ();
 		if (type == TRACKER_DB_JOURNAL_RESOURCE) {
@@ -2653,6 +2649,12 @@ tracker_data_replay_journal (GHashTable          *classes,
 			} else {
 				g_warning ("Journal replay error: 'property with ID %d doesn't exist'", predicate_id);
 			}
+		}
+
+		if (busy_callback) {
+			busy_callback (busy_status,
+			               tracker_db_journal_reader_get_progress (),
+			               busy_user_data);
 		}
 	}
 

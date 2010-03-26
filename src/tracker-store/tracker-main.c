@@ -336,6 +336,9 @@ main (gint argc, gchar *argv[])
 	TrackerConfig *config;
 	TrackerDBManagerFlags flags = 0;
 	gboolean is_first_time_index;
+	TrackerBusyNotifier *notifier;
+	gpointer busy_user_data;
+	TrackerBusyCallback busy_callback;
 
 	g_type_init ();
 
@@ -444,14 +447,23 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
+	notifier = tracker_dbus_register_busy_notifier ();
+	busy_callback = tracker_busy_notifier_get_callback (notifier, 
+	                                                    &busy_user_data);
+
 	if (!tracker_data_manager_init (flags,
 	                                NULL,
 	                                &is_first_time_index,
 	                                TRUE,
-	                                NULL,
-	                                NULL)) {
+	                                busy_callback,
+	                                busy_user_data,
+	                                "Journal replaying")) {
+
+		g_object_unref (notifier);
 		return EXIT_FAILURE;
 	}
+
+	g_object_unref (notifier);
 
 	tracker_store_init ();
 

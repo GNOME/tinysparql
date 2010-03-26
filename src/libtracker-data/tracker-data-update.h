@@ -50,7 +50,8 @@ typedef void (*TrackerStatementCallback) (const gchar *graph,
                                           GPtrArray   *rdf_types,
                                           gpointer     user_data);
 typedef void (*TrackerCommitCallback)    (gpointer     user_data);
-typedef void (*TrackerBusyCallback)      (gdouble      progress,
+typedef void (*TrackerBusyCallback)      (const gchar *status,
+                                          gdouble      progress,
                                           gpointer     user_data);
 
 GQuark   tracker_data_error_quark                   (void);
@@ -98,7 +99,8 @@ void     tracker_data_replay_journal                (GHashTable                *
                                                      GHashTable                *properties,
                                                      GHashTable                *id_uri_map,
                                                      TrackerBusyCallback        busy_callback,
-                                                     gpointer                   busy_user_data);
+                                                     gpointer                   busy_user_data,
+                                                     const gchar               *busy_status);
 
 /* Calling back */
 void     tracker_data_add_insert_statement_callback   (TrackerStatementCallback   callback,
