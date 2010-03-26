@@ -16,6 +16,8 @@ coverage-report: coverage
 	lcov --directory $(top_srcdir)/src --capture --output-file $(top_builddir)/lcov.info
 	lcov --directory $(top_srcdir)/src --output-file $(top_builddir)/lcov.info --remove $(top_builddir)/lcov.info \
 		tracker-sparql-builder.c \
+		tracker-sparql-expression.c \
+		tracker-sparql-pattern.c \
 		tracker-sparql-query.c \
 		tracker-sparql-scanner.c \
 		tracker-turtle-reader.c \

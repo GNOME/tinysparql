@@ -1,3 +1,5 @@
+tracker-sparql-expression.c
+tracker-sparql-pattern.c
 tracker-sparql-query.c
 tracker-sparql-query.h
 tracker-sparql-scanner.c
