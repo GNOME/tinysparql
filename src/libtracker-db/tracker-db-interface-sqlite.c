@@ -55,7 +55,6 @@
 typedef struct TrackerDBInterfaceSqlitePrivate TrackerDBInterfaceSqlitePrivate;
 typedef struct TrackerDBStatementSqlitePrivate TrackerDBStatementSqlitePrivate;
 typedef struct TrackerDBCursorSqlitePrivate TrackerDBCursorSqlitePrivate;
-typedef struct SqliteFunctionData SqliteFunctionData;
 typedef struct TrackerDBCursorSqlite TrackerDBCursorSqlite;
 typedef struct TrackerDBCursorSqliteClass TrackerDBCursorSqliteClass;
 typedef struct TrackerDBStatementSqlite      TrackerDBStatementSqlite;
@@ -95,12 +94,6 @@ struct TrackerDBCursorSqlitePrivate {
 	TrackerDBStatementSqlite *ref_stmt;
 	gboolean finished;
 };
-
-struct SqliteFunctionData {
-	TrackerDBInterface *interface;
-	TrackerDBFunc func;
-};
-
 
 struct TrackerDBStatementSqlite {
 	GObject parent_instance;
@@ -169,7 +162,7 @@ function_sparql_string_join (sqlite3_context *context,
 	for (i = 0;i < argc-1; i++) {
 		if (sqlite3_value_type (argv[argc-1]) == SQLITE_TEXT) {
 			const gchar *text = sqlite3_value_text (argv[i]);
-			
+
 			if (text != NULL) {
 				if (!str) {
 					str = g_string_new (text);
@@ -223,8 +216,6 @@ function_sparql_string_from_filename (sqlite3_context *context,
 	g_strdelimit (name, "._", ' ');
 
 	sqlite3_result_text (context, name, -1, g_free);
-
-	return;
 }
 
 static void
@@ -260,8 +251,6 @@ function_sparql_cartesian_distance (sqlite3_context *context,
 	d = R*c;
 
 	sqlite3_result_double (context, d);
-
-	return;
 }
 
 static void
@@ -299,8 +288,6 @@ function_sparql_haversine_distance (sqlite3_context *context,
 	d = R * c;
 
 	sqlite3_result_double (context, d);
-
-	return;
 }
 
 static void
@@ -367,8 +354,6 @@ function_sparql_regex (sqlite3_context *context,
 	ret = g_regex_match (regex, text, 0, NULL);
 
 	sqlite3_result_int (context, ret);
-
-	return;
 }
 
 

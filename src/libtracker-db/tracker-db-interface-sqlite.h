@@ -42,9 +42,6 @@ typedef gint (* TrackerDBCollationFunc) (gchar *str1,
                                          gint   len1,
                                          gchar *str2,
                                          gint   len2);
-typedef GValue (* TrackerDBFunc) (TrackerDBInterface *interface,
-                                  gint                argc,
-                                  GValue              argv[]);
 
 struct TrackerDBInterfaceSqlite {
 	GObject parent_instance;
