@@ -20,7 +20,7 @@
 [CCode (cprefix = "Tracker", lower_case_cprefix = "tracker_")]
 namespace Tracker {
 	[Compact]
-	[CCode (cheader_filename = "libtracker-client/tracker.h")]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h")]
 	public class Client {
 		[CCode (has_construct_function = false)]
 		public Client (Tracker.ClientFlags flags, int timeout);
@@ -98,27 +98,27 @@ namespace Tracker {
 		public void where_close ();
 		public void where_open ();
 	}
-	[CCode (cprefix = "TRACKER_CLIENT_ENABLE_", has_type_id = false, cheader_filename = "libtracker-client/tracker.h")]
+	[CCode (cprefix = "TRACKER_CLIENT_ENABLE_", has_type_id = false, cheader_filename = "libtracker-client/tracker-client.h")]
 	public enum ClientFlags {
 		WARNINGS
 	}
 
-	[CCode (cheader_filename = "libtracker-client/tracker.h", instance_pos = -2)]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h", instance_pos = -2)]
 	public delegate void ReplyArray (string result, GLib.Error error);
-	[CCode (cheader_filename = "libtracker-client/tracker.h", instance_pos = -2)]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h", instance_pos = -2)]
 	public delegate void ReplyGPtrArray (GLib.PtrArray result, GLib.Error error);
-	[CCode (cheader_filename = "libtracker-client/tracker.h", instance_pos = -2)]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h", instance_pos = -2)]
 	public delegate void ReplyVoid (GLib.Error error);
 
-	[CCode (cheader_filename = "libtracker-client/tracker.h")]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h")]
 	public const string DBUS_INTERFACE_RESOURCES;
-	[CCode (cheader_filename = "libtracker-client/tracker.h")]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h")]
 	public const string DBUS_INTERFACE_STATISTICS;
-	[CCode (cheader_filename = "libtracker-client/tracker.h")]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h")]
 	public const string DBUS_OBJECT;
-	[CCode (cheader_filename = "libtracker-client/tracker.h")]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h")]
 	public const string DBUS_SERVICE;
 
-	[CCode (cheader_filename = "libtracker-client/tracker.h")]
+	[CCode (cheader_filename = "libtracker-client/tracker-client.h")]
 	public static string sparql_escape (string str);
 }
