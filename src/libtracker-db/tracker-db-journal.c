@@ -1144,3 +1144,11 @@ tracker_db_journal_reader_get_statement_id (gint *g_id,
 
 	return TRUE;
 }
+
+gdouble
+tracker_db_journal_reader_get_progress (void)
+{
+	gdouble percent = ((gdouble)(reader.end - reader.start));
+	return ((gdouble)(reader.current - reader.start)) / percent;
+}
+

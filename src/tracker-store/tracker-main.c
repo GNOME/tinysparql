@@ -447,7 +447,9 @@ main (gint argc, gchar *argv[])
 	if (!tracker_data_manager_init (flags,
 	                                NULL,
 	                                &is_first_time_index,
-	                                TRUE)) {
+	                                TRUE,
+	                                NULL,
+	                                NULL)) {
 		return EXIT_FAILURE;
 	}
 

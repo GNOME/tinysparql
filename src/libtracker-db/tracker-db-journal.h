@@ -103,6 +103,8 @@ gboolean     tracker_db_journal_reader_get_statement_id      (gint         *g_id
                                                               gint         *p_id,
                                                               gint         *o_id);
 gsize        tracker_db_journal_reader_get_size_of_correct   (void);
+gdouble      tracker_db_journal_reader_get_progress          (void);
+
 gboolean     tracker_db_journal_reader_verify_last           (GError **error);
 
 G_END_DECLS

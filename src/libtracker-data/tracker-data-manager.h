@@ -28,6 +28,8 @@
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-ontologies.h>
 
+#include <libtracker-data/tracker-data-update.h>
+
 #include <libtracker-db/tracker-db-interface.h>
 #include <libtracker-db/tracker-db-manager.h>
 
@@ -40,7 +42,9 @@ G_BEGIN_DECLS
 gboolean tracker_data_manager_init                (TrackerDBManagerFlags  flags,
                                                    const gchar          **test_schema,
                                                    gboolean              *first_time,
-                                                   gboolean               journal_check);
+                                                   gboolean               journal_check,
+                                                   TrackerBusyCallback    busy_callback,
+                                                   gpointer               busy_user_data);
 void     tracker_data_manager_shutdown            (void);
 gint64   tracker_data_manager_get_db_option_int64 (const gchar           *option);
 void     tracker_data_manager_set_db_option_int64 (const gchar           *option,

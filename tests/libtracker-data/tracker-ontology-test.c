@@ -264,7 +264,7 @@ test_ontology_change (void)
                 g_chmod (ontology_file, 0666);
 
 		tracker_data_manager_init (0, (const gchar **) test_schemas,
-		                           NULL, FALSE);
+		                           NULL, FALSE, NULL, NULL);
 
 		if (g_file_get_contents (update, &queries, NULL, NULL)) {
 			gchar *query = strtok (queries, "\n");
@@ -290,7 +290,7 @@ test_ontology_change (void)
 	delete_db (FALSE);
 
 	tracker_data_manager_init (0, (const gchar **) test_schemas,
-	                           NULL, TRUE);
+	                           NULL, TRUE, NULL, NULL);
 
 	for (i = 0; change_tests[i].test_name != NULL; i++) {
 		gchar *query_filename;
@@ -327,7 +327,9 @@ test_ontology_init (void)
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           NULL,
 	                           NULL,
-	                           FALSE);
+	                           FALSE,
+	                           NULL,
+	                           NULL);
 
 	tracker_data_manager_shutdown ();
 
@@ -335,7 +337,9 @@ test_ontology_init (void)
 	tracker_data_manager_init (0,
 	                           NULL,
 	                           NULL,
-	                           FALSE);
+	                           FALSE,
+	                           NULL,
+	                           NULL);
 
 	tracker_data_manager_shutdown ();
 }
@@ -363,7 +367,9 @@ test_query (gconstpointer test_data)
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           NULL,
 	                           NULL, 
-	                           FALSE);
+	                           FALSE,
+	                           NULL,
+	                           NULL);
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);

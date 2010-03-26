@@ -44,7 +44,9 @@ test_blank (void)
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           NULL,
 	                           NULL,
-	                           FALSE);
+	                           FALSE,
+	                           NULL,
+	                           NULL);
 
 	/* perform update in transaction */
 
