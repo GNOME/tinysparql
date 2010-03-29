@@ -4,13 +4,47 @@
   <sect2 id="nmo-introduction">
     <title>Introduction</title>
     <para>NEPOMUK Message Ontology extends the NEPOMUK Information Element framework into the domain of messages. This ontology has been heavily extended by Tracker team to include real support for Emails, IM Accounts, SMS and Calls relevant in environments like <ulink url="http://maemo.nokia.com">Maemo</ulink>.</para>
+    <para>The messaging domain is too wide to be explained in one shot. For that reason, the diagram explanation has been splitted in few smaller pieces easier to grasp: the <link linkend="nmm-message-core-class">Message</link> class (the core of the whole representation), the <link linkend="nmo-conversation-representation">conversation representation</link>, the translation of an <link linkend="nmo-email-domain">email</link> to Nepomuk terms, and finally SMS and MMS representation.</para>
+  </sect2>
+
+  <sect2 id="nmo-message-core-class">
+    <title>The Message class</title>
+
+    <para>The message class is the common superclass for Emails, SMS, IM Messages, MMS (in NMO domain) and even Feed messages (defined in <link linkend="mfo-explanation">MFO ontology</link>). As such, it has the common properties for a 'Message' as an meaningful item in a communication: sender and receiver of the message, sent/received time, status of the message (read, answered and so on). It is a subclass of <link linkend="nie-InformationElement">nie:InformationElement</link> and from there inherits the <link linkend="nie-plainTextContent">nie:plainTextContent</link> property (which, as its name states, contains the text of the message).
+    </para>
+
+    <para>Few considerations from practical point of view:</para>
+    <orderedlist>
+      <listitem><para> <link linkend="nmo-to">nmo:to</link> and <link linkend="nmo-from">nmo:from</link> should be set always, and there is a predefined instance in NCO for the "me" contact.</para></listitem>
+      <listitem><para> <link linkend="nmo-isSent">nmo:isSent</link> should be used to indicate the direction of the message. This helps with the performance of queries to build a conversation view.</para></listitem>
+    </orderedlist>
+
+    <figure id="nmo-message-graph">
+      <title>Graphical Overview (Message class)</title>
+      <graphic fileref="message-class-overview.png" format="PNG"></graphic>
+      <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
+    </figure>
+
+  </sect2>
+
+  <sect2 id="nmo-conversation-representation">
+    <title>Conversations</title>
   </sect2>
 
   <sect2 id="nmo-email-domain">
     <title>Email domain</title>
-    <para>This complex issues is explained in great details in <ulink url="http://live.gnome.org/Tracker/Documentation/EmailSparql">this wiki page</ulink></para>
+    <para>The users usually see an Email as a flat Message, with some thread information and maybe 'attachments' in it, but in fact internally an Email message is a tree with a special root node (the envelope) that links to other nodes called MIME parts. This MIME parts can be plain text (for instance the content of the email that the user read) or binary blobs (like a document attached to the message). When a message is forwarded, the previous envelope (the root node of the original message) becomes just a mime part of the forwarded email.</para>
 
-    <para>FIXME add a diagram of the Email classes and main properties</para>
+    <para>The ontology represents completely that email tree. The Envelope, root node or more external representation of the Email is the basic <link linkend="nmo-Email">nmo:Email</link> class, subclass of Message. Every node in the tree is always a <link linkend="nmo-MimePart">nmo:MimePart</link> with the required properties to decode the content (mimetype, encoding, boundaries). When the node is internal, then it is also instance of <link linkend="nmo-MultiPart">nmo:MultiPart</link> so it can use the <link linkend="nie-hasPart">nie:hasPart</link> property to link other nodes. The leaf nodes can be instances of specific content classes (besides <link linkend="nmo-MimePart">nmo:MimePart</link>). For example, an MP3 embedded in an Email, will be represented as an instance nmo:MimePart <strong>and</strong> <link linkend="nmm-MusicPiece">nmm:MusicPiece</link>. </para>
+
+    <para>For more detailed (and highly technical) explanation of the email representation in general and this example in concrete, please check <ulink url="http://live.gnome.org/Tracker/Documentation/Examples/SPARQL/Email">this wiki page</ulink></para>
+
+    <para>FIXME add a diagram of the Mimeparts and multiparts</para>
+  </sect2>
+
+  <sect2 id="nmo-accounts-representation">
+    <title>Email accounts</title>
+    <para>Explain here MailAccount and MailFolder</para>
   </sect2>
 
   <sect2 id="nmo-sms-domain">
@@ -25,7 +59,7 @@
       <listitem><link linkend="nmo-to">nmo:to</link> and <link linkend="nmo-from">nmo:from</link> linking the contacts (one of them "me", the other a nco:Contact or even a nco:PersonContact if the software is able to identify him).</listitem>
       <listitem>For some implementations, is usefull to save the original vcards. For that <link linkend="nmo-fromVCard">nmo:fromVCard</link> and <link linkend="nmo-toVCard">nmo:toVCard</link> properties can be used. Those properties point to files in the file system with the vcards</listitem>
       <listitem><link linkend="nmo-plainTextMessageContent">nmo:plainTextMessageContent</link> inherited from <link linkend="nmo-Message.">nmo:Message for the content.</link></listitem>
-      <listitem><link linkend="nmo-containsSMS">nmo:containsSMS</link> property will link the message with the relevant nmo:SMSFolder.</listitem>
+      <listitem><link linkend="nmo-containsSMS">nmo:containsSMS</link> property will link the message with the relevant <link linkend="nmo-SMSFolder">nmo:SMSFolder</link>.</listitem>
       <listitem>If needed, language and characterSet are inherited from NIE (<link linkend="nie-language">nie:language</link>, <link linkend="nie-characterSet">nie:characterSet</link>), but there is a specific <link linkend="nmo-encoding">nmo:encoding</link> property.</listitem>
       <listitem>Note that nmo:SMSMessage is a subclass of <link linkend="nmo-Message">nmo:Message</link> and inherits all its properties, including <link linkend="nmo-isDeleted">nmo:isDeleted</link></listitem>
     </itemizedlist>
@@ -52,6 +86,11 @@
  &lt;nmo:default-sms-folder-inbox&gt; nmo:containsSMS  &lt;test://1&gt;
 
     </programlisting>
+  </sect2>
+
+  <sect2 id="nmo-mms-domain">
+    <title>MMS Messages</title>
+    <para>Bascially MMS messages has the structure of Email messages with an SMS envelope. This is exactly how they are represented in the ontology, with an specific class nmo_MMSMessage that inherits from SMS (to get the folders properties) and from nmo_Email (to use the Multipart/MimePart structure). Please refer to the SMS and Email documentation for more details.</para>
   </sect2>
 
   <sect2 id="nmo-call-domain">
