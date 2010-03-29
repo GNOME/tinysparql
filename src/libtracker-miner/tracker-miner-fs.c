@@ -2333,21 +2333,24 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 	gboolean should_check, should_change_index;
 
 	should_check = should_check_file (fs, file, TRUE);
-	should_change_index = should_change_index_for_file (fs, file);
-
-	if (!should_change_index) {
-		/* Mark the file as ignored, we still want the crawler
-		 * to iterate over its contents, but the directory hasn't
-		 * actually changed, hence this flag.
-		 */
-		g_object_set_qdata (G_OBJECT (file),
-		                    fs->private->quark_ignore_file,
-		                    GINT_TO_POINTER (TRUE));
-	}
 
 	if (!should_check) {
 		/* Remove monitors if any */
 		tracker_monitor_remove (fs->private->monitor, file);
+	} else {
+                gboolean should_change_index;
+
+		should_change_index = should_change_index_for_file (fs, file);
+
+		if (!should_change_index) {
+			/* Mark the file as ignored, we still want the crawler
+			 * to iterate over its contents, but the directory hasn't
+			 * actually changed, hence this flag.
+			 */
+			g_object_set_qdata (G_OBJECT (file),
+			                    fs->private->quark_ignore_file,
+			                    GINT_TO_POINTER (TRUE));
+		}
 	}
 
 	/* We _HAVE_ to check ALL directories because mtime updates
