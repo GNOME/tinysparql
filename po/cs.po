@@ -1,18 +1,15 @@
 # Czech translation of tracker.
 # Copyright (C) 2008, 2009, 2010 the author(s) of tracker.
 # This file is distributed under the same license as the tracker package.
-#
 # Kamil Páral <ripper42@gmail.com>, 2008.
 # Petr Kovar <pknbe@volny.cz>, 2010.
 # Marek Černocký <marek@manet.cz>, 2009, 2010.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&component=general\n"
-"POT-Creation-Date: 2010-03-26 12:33+0000\n"
-"PO-Revision-Date: 2010-03-20 08:57+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-29 17:44+0200\n"
+"PO-Revision-Date: 2010-03-29 08:12+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +18,6 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Poedit-Language: Czech\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Lokalize 1.0\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.h:1
 #: ../src/tracker-search-bar/tracker-results-window.c:668
@@ -43,11 +39,11 @@ msgstr "Démon na získávání dat ze souborového systému"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.h:1
 msgid "Fetch RSS/ATOM Feeds"
-msgstr ""
+msgstr "Stáhnout kanál RSS/ATOM"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.h:2
 msgid "RSS/ATOM Feeds"
-msgstr ""
+msgstr "Kanál RSS/ATOM"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Crawls and processes files on the file system"
@@ -1003,17 +999,21 @@ msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
+"Použít SIGKILL k zastavení všech odpovídajících procesů. Zadat můžete buď "
+"„store“, „miners“ nebo „all“, když nezadáte nic, použije se „all“"
 
 #: ../src/tracker-control/tracker-control.c:79
 #: ../src/tracker-control/tracker-control.c:82
 msgid "APPS"
-msgstr ""
+msgstr "APPS"
 
 #: ../src/tracker-control/tracker-control.c:81
 msgid ""
 "Use SIGTERM to stop all matrhing processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
+"Použít SIGTERM k zastavení všech odpovídajících procesů. Zadat můžete buď "
+"„store“, „miners“ nebo „all“, když nezadáte nic, použije se „all“"
 
 #: ../src/tracker-control/tracker-control.c:84
 msgid "Kill all Tracker processes and remove all databases"
@@ -1216,6 +1216,8 @@ msgstr "Zobrazit podrobnější výsledky (použije se pouze pro obecné hledán
 #: ../src/tracker-utils/tracker-search.c:77
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
+"Vrátit i nalezené, které zrovna neexistují (např. jsou na nepřipojeném "
+"svazku)"
 
 #: ../src/tracker-utils/tracker-search.c:81
 msgid "Search for files"
@@ -1226,16 +1228,12 @@ msgid "Search for folders"
 msgstr "Hledat složky"
 
 #: ../src/tracker-utils/tracker-search.c:89
-#, fuzzy
-#| msgid "Search for music albums (includes song count and duration sum)"
 msgid "Search for music albums (--all has no effect on this)"
-msgstr "Hledat hudební alba (včetně počtu skladeb a celkové délky)"
+msgstr "Hledat hudební alba  (přepínač --all nemá u tohoto vliv)"
 
 #: ../src/tracker-utils/tracker-search.c:93
-#, fuzzy
-#| msgid "Search for music artists"
 msgid "Search for music artists (--all has no effect on this) "
-msgstr "Hledat hudební umělce"
+msgstr "Hledat hudební umělce (přepínač --all nemá u tohoto vliv)"
 
 #: ../src/tracker-utils/tracker-search.c:97
 msgid "Search for music files"
@@ -1773,4 +1771,3 @@ msgstr "- spustí službu zpětného zápisu pro tracker"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Uložené dotazy"
-
