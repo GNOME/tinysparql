@@ -345,8 +345,6 @@ item_verify_reply_cb (GObject      *source_object,
 	tracker_sparql_builder_predicate (sparql, "nmo:communicationChannel");
 	tracker_sparql_builder_object_iri (sparql, uri);
 
-	g_free (uri);
-
 	tracker_sparql_builder_insert_close (sparql);
 
 	tracker_miner_execute_update (TRACKER_MINER (miner),
