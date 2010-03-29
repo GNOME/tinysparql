@@ -1,16 +1,23 @@
 #!/usr/bin/python2.5
-## Generate a human readable 'random' password
-## password  will be generated in the form 'word'+digits+'word'
-## eg.,nice137pass
-## parameters: number of 'characters' , number of 'digits'
-## Pradeep Kishore Gowda <pradeep at btbytes.com >
-## License : GPL
-## Date : 2005.April.15
-## Revision 1.2
-## ChangeLog:
-## 1.1 - fixed typos
-## 1.2 - renamed functions _apart & _npart to a_part & n_part as zope does not allow functions to
-## start with _
+#
+# Random password generator in the form of 'word'+digits+'word'
+# Copyright (C) 2005, Pradeep Kishore Gowda <pradeep at btbytes.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
 
 def nicepass(alpha=6,numeric=2):
     """
