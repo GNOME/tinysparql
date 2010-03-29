@@ -14,6 +14,14 @@
 
   <!-- Content -->
 
+  <!-- list of terms -->
+  <variablelist>
+    <varlistentry>
+      <term>item name</term>
+      <listitem><para>description</para></listitem>
+    </varlistentry>
+   </variablelist>
+
  </sect2>
 
 
@@ -47,4 +55,5 @@
   </figure>
   <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
  </refsect2>
+
 </section>
