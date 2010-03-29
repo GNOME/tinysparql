@@ -30,6 +30,7 @@
 #include "tracker-dbus.h"
 #include "tracker-backup.h"
 #include "tracker-store.h"
+#include "tracker-resources.h"
 
 typedef struct {
 	DBusGMethodInvocation *context;
@@ -114,6 +115,9 @@ tracker_backup_restore (TrackerBackup          *object,
 	guint request_id;
 	TrackerDBusMethodInfo *info;
 	GFile *journal;
+	TrackerBusyNotifier *notifier;
+	TrackerBusyCallback busy_callback;
+	gpointer busy_user_data;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -127,11 +131,22 @@ tracker_backup_restore (TrackerBackup          *object,
 	info->context = context;
 	journal = g_file_new_for_uri (journal_uri);
 
+	tracker_dbus_set_available (FALSE);
+
+	notifier = TRACKER_BUSY_NOTIFIER (tracker_dbus_get_object (TRACKER_TYPE_BUSY_NOTIFIER));
+
+	busy_callback = tracker_busy_notifier_get_callback (notifier, 
+	                                                    &busy_user_data);
+
 	tracker_data_backup_restore (journal,
 	                             backup_callback,
 	                             info, 
 	                             (GDestroyNotify) g_free,
-	                             NULL);
+	                             NULL,
+	                             busy_callback,
+	                             busy_user_data);
+
+	tracker_dbus_set_available (TRUE);
 
 	g_object_unref (journal);
 }

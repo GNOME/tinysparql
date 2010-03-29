@@ -103,14 +103,22 @@ void     tracker_data_replay_journal                (GHashTable                *
                                                      const gchar               *busy_status);
 
 /* Calling back */
-void     tracker_data_add_insert_statement_callback   (TrackerStatementCallback   callback,
-                                                       gpointer                   user_data);
-void     tracker_data_add_delete_statement_callback   (TrackerStatementCallback   callback,
-                                                       gpointer                   user_data);
-void     tracker_data_add_commit_statement_callback   (TrackerCommitCallback      callback,
-                                                       gpointer                   user_data);
-void     tracker_data_add_rollback_statement_callback (TrackerCommitCallback      callback,
-                                                       gpointer                   user_data);
+void     tracker_data_add_insert_statement_callback      (TrackerStatementCallback   callback,
+                                                          gpointer                   user_data);
+void     tracker_data_add_delete_statement_callback      (TrackerStatementCallback   callback,
+                                                          gpointer                   user_data);
+void     tracker_data_add_commit_statement_callback      (TrackerCommitCallback      callback,
+                                                          gpointer                   user_data);
+void     tracker_data_add_rollback_statement_callback    (TrackerCommitCallback      callback,
+                                                          gpointer                   user_data);
+void     tracker_data_remove_insert_statement_callback   (TrackerStatementCallback   callback,
+                                                          gpointer                   user_data);
+void     tracker_data_remove_delete_statement_callback   (TrackerStatementCallback   callback,
+                                                          gpointer                   user_data);
+void     tracker_data_remove_commit_statement_callback   (TrackerCommitCallback      callback,
+                                                          gpointer                   user_data);
+void     tracker_data_remove_rollback_statement_callback (TrackerCommitCallback      callback,
+                                                          gpointer                   user_data);
 
 void     tracker_data_update_shutdown                 (void);
 #define  tracker_data_update_init                     tracker_data_update_shutdown

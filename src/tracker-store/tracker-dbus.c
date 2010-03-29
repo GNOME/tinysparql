@@ -46,6 +46,8 @@
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
 static GSList          *objects;
+TrackerBusyNotifier    *notifier = NULL;
+TrackerBackup          *backup = NULL;
 
 static gboolean
 dbus_register_service (DBusGProxy  *proxy,
@@ -148,16 +150,26 @@ tracker_dbus_init (void)
 		return FALSE;
 	}
 
+	dbus_g_proxy_add_signal (gproxy, "NameOwnerChanged",
+	                         G_TYPE_STRING,
+	                         G_TYPE_STRING,
+	                         G_TYPE_STRING,
+	                         G_TYPE_INVALID);
+
 	return TRUE;
 }
 
 void
 tracker_dbus_shutdown (void)
 {
-	if (objects) {
-		g_slist_foreach (objects, (GFunc) g_object_unref, NULL);
-		g_slist_free (objects);
-		objects = NULL;
+	tracker_dbus_set_available (FALSE);
+
+	if (backup) {
+		g_object_unref (backup);
+	}
+
+	if (notifier) {
+		g_object_unref (notifier);
 	}
 
 	if (gproxy) {
@@ -181,6 +193,26 @@ name_owner_changed_cb (DBusGProxy *proxy,
 	}
 }
 
+void
+tracker_dbus_set_available (gboolean available)
+{
+	if (available) {
+		if (!objects) {
+			tracker_dbus_register_objects ();
+		}
+	} else {
+		if (objects) {
+			dbus_g_proxy_disconnect_signal (gproxy,
+			                                "NameOwnerChanged",
+			                                G_CALLBACK (name_owner_changed_cb),
+			                                tracker_dbus_get_object (TRACKER_TYPE_RESOURCES));
+			g_slist_foreach (objects, (GFunc) g_object_unref, NULL);
+			g_slist_free (objects);
+			objects = NULL;
+		}
+	}
+}
+
 static void
 name_owner_changed_closure (gpointer  data,
                             GClosure *closure)
@@ -190,28 +222,25 @@ name_owner_changed_closure (gpointer  data,
 TrackerBusyNotifier*
 tracker_dbus_register_busy_notifier (void)
 {
-	gpointer object;
-
 	if (!connection || !gproxy) {
 		g_critical ("D-Bus support must be initialized before registering objects!");
 		return FALSE;
 	}
 
 	/* Add org.freedesktop.Tracker */
-	object = tracker_busy_notifier_new ();
-	if (!object) {
+	notifier = tracker_busy_notifier_new ();
+	if (!notifier) {
 		g_critical ("Could not create TrackerBusyNotifier object to register");
 		return FALSE;
 	}
 
 	dbus_register_object (connection,
 	                      gproxy,
-	                      G_OBJECT (object),
+	                      G_OBJECT (notifier),
 	                      &dbus_glib_tracker_busy_notifier_object_info,
 	                      TRACKER_BUSY_NOTIFIER_PATH);
-	objects = g_slist_prepend (objects, object);
 
-	return g_object_ref (object);
+	return g_object_ref (notifier);
 }
 
 gboolean
@@ -248,12 +277,6 @@ tracker_dbus_register_objects (void)
 		return FALSE;
 	}
 
-	dbus_g_proxy_add_signal (gproxy, "NameOwnerChanged",
-	                         G_TYPE_STRING,
-	                         G_TYPE_STRING,
-	                         G_TYPE_STRING,
-	                         G_TYPE_INVALID);
-
 	dbus_g_proxy_connect_signal (gproxy, "NameOwnerChanged",
 	                             G_CALLBACK (name_owner_changed_cb),
 	                             object,
@@ -266,22 +289,26 @@ tracker_dbus_register_objects (void)
 	                      TRACKER_RESOURCES_PATH);
 	objects = g_slist_prepend (objects, object);
 
-	/* Add org.freedesktop.Tracker1.Backup */
-	object = tracker_backup_new ();
-	if (!object) {
-		g_critical ("Could not create TrackerBackup object to register");
-		return FALSE;
-	}
-
-	dbus_register_object (connection,
-	                      gproxy,
-	                      G_OBJECT (object),
-	                      &dbus_glib_tracker_backup_object_info,
-	                      TRACKER_BACKUP_PATH);
-	objects = g_slist_prepend (objects, object);
-
 	/* Reverse list since we added objects at the top each time */
 	objects = g_slist_reverse (objects);
+
+	if (backup == NULL) {
+		/* Add org.freedesktop.Tracker1.Backup */
+		backup = tracker_backup_new ();
+
+		if (!object) {
+			g_critical ("Could not create TrackerBackup object to register");
+			return FALSE;
+		}
+
+		dbus_register_object (connection,
+		                      gproxy,
+		                      G_OBJECT (backup),
+		                      &dbus_glib_tracker_backup_object_info,
+		                      TRACKER_BACKUP_PATH);
+		/* Backup object isn't part of the linked list, set_available wouldn't
+		 * work correctly from the dbus call otherwise */
+	}
 
 	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
 
@@ -378,6 +405,14 @@ tracker_dbus_get_object (GType type)
 		if (G_OBJECT_TYPE (l->data) == type) {
 			return l->data;
 		}
+	}
+
+	if (notifier && type == TRACKER_TYPE_BUSY_NOTIFIER) {
+		return G_OBJECT (notifier);
+	}
+
+	if (backup && type == TRACKER_TYPE_BACKUP) {
+		return G_OBJECT (backup);
 	}
 
 	return NULL;

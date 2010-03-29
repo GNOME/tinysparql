@@ -171,6 +171,32 @@ tracker_data_add_commit_statement_callback (TrackerCommitCallback    callback,
 }
 
 void
+tracker_data_remove_commit_statement_callback (TrackerCommitCallback callback,
+                                               gpointer              user_data)
+{
+	TrackerCommitDelegate *delegate;
+	guint i;
+	gboolean found = FALSE;
+
+	if (!commit_callbacks) {
+		return;
+	}
+
+	for (i = 0; i < commit_callbacks->len; i++) {
+		delegate = g_ptr_array_index (commit_callbacks, i);
+		if (delegate->callback == callback && delegate->user_data == user_data) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (found) {
+		g_free (delegate);
+		g_ptr_array_remove_index (commit_callbacks, i);
+	}
+}
+
+void
 tracker_data_add_rollback_statement_callback (TrackerCommitCallback    callback,
                                               gpointer                 user_data)
 {
@@ -184,6 +210,33 @@ tracker_data_add_rollback_statement_callback (TrackerCommitCallback    callback,
 	delegate->user_data = user_data;
 
 	g_ptr_array_add (rollback_callbacks, delegate);
+}
+
+
+void
+tracker_data_remove_rollback_statement_callback (TrackerCommitCallback callback,
+                                                 gpointer              user_data)
+{
+	TrackerCommitDelegate *delegate;
+	guint i;
+	gboolean found = FALSE;
+
+	if (!rollback_callbacks) {
+		return;
+	}
+
+	for (i = 0; i < rollback_callbacks->len; i++) {
+		delegate = g_ptr_array_index (rollback_callbacks, i);
+		if (delegate->callback == callback && delegate->user_data == user_data) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (found) {
+		g_free (delegate);
+		g_ptr_array_remove_index (rollback_callbacks, i);
+	}
 }
 
 void
@@ -203,6 +256,32 @@ tracker_data_add_insert_statement_callback (TrackerStatementCallback callback,
 }
 
 void
+tracker_data_remove_insert_statement_callback (TrackerStatementCallback callback,
+                                               gpointer                 user_data)
+{
+	TrackerStatementDelegate *delegate;
+	guint i;
+	gboolean found = FALSE;
+
+	if (!insert_callbacks) {
+		return;
+	}
+
+	for (i = 0; i < insert_callbacks->len; i++) {
+		delegate = g_ptr_array_index (insert_callbacks, i);
+		if (delegate->callback == callback && delegate->user_data == user_data) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (found) {
+		g_free (delegate);
+		g_ptr_array_remove_index (insert_callbacks, i);
+	}
+}
+
+void
 tracker_data_add_delete_statement_callback (TrackerStatementCallback callback,
                                             gpointer                 user_data)
 {
@@ -216,6 +295,32 @@ tracker_data_add_delete_statement_callback (TrackerStatementCallback callback,
 	delegate->user_data = user_data;
 
 	g_ptr_array_add (delete_callbacks, delegate);
+}
+
+void
+tracker_data_remove_delete_statement_callback (TrackerStatementCallback callback,
+                                               gpointer                 user_data)
+{
+	TrackerStatementDelegate *delegate;
+	guint i;
+	gboolean found = FALSE;
+
+	if (!delete_callbacks) {
+		return;
+	}
+
+	for (i = 0; i < delete_callbacks->len; i++) {
+		delegate = g_ptr_array_index (delete_callbacks, i);
+		if (delegate->callback == callback && delegate->user_data == user_data) {
+			found = TRUE;
+			break;
+		}
+	}
+
+	if (found) {
+		g_free (delegate);
+		g_ptr_array_remove_index (delete_callbacks, i);
+	}
 }
 
 GQuark tracker_data_error_quark (void) {

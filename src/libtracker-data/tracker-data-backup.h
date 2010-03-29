@@ -24,6 +24,8 @@
 #include <glib.h>
 #include <gio/gio.h>
 
+#include <libtracker-data/tracker-data-update.h>
+
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
@@ -44,7 +46,9 @@ void   tracker_data_backup_restore     (GFile                     *journal,
                                         TrackerDataBackupFinished  callback,
                                         gpointer                   user_data,
                                         GDestroyNotify             destroy,
-                                        const gchar              **test_schema);
+                                        const gchar              **test_schema,
+                                        TrackerBusyCallback        busy_callback,
+                                        gpointer                   busy_user_data);
 
 G_END_DECLS
 

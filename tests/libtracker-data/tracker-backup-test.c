@@ -160,7 +160,7 @@ test_backup_and_restore (void)
 	check_content_in_db (0, 0);
 
 	test_schemas[0] = data_prefix;
-	tracker_data_backup_restore (backup_file, backup_finished_cb, NULL, NULL, (const gchar **) test_schemas);
+	tracker_data_backup_restore (backup_file, backup_finished_cb, NULL, NULL, (const gchar **) test_schemas, NULL, NULL);
 	check_content_in_db (3, 1);
 
 	g_free (test_schemas[0]);
