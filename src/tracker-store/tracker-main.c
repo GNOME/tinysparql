@@ -58,12 +58,6 @@
 #include "tracker-store.h"
 #include "tracker-statistics.h"
 
-#ifdef G_OS_WIN32
-#include <windows.h>
-#include <pthread.h>
-#include "mingw-compat.h"
-#endif
-
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
 
