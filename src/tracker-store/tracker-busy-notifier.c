@@ -98,7 +98,8 @@ static void
 tracker_busy_notifier_finalize (GObject *object)
 {
 	TrackerBusyNotifierPrivate *priv = TRACKER_BUSY_NOTIFIER_GET_PRIVATE (object);
-	g_source_remove (priv->timer_id);
+	if (priv->timer_id != 0)
+		g_source_remove (priv->timer_id);
 	g_free (priv->status);
 }
 
@@ -162,7 +163,8 @@ tracker_busy_notifier_callback (const gchar *status,
 		}
 	}
 
-	g_main_context_iteration (NULL, FALSE);
+	while (g_main_context_iteration (NULL, FALSE))
+		;
 }
 
 TrackerBusyCallback

@@ -35,6 +35,7 @@
 typedef struct {
 	DBusGMethodInvocation *context;
 	guint request_id;
+	gchar *journal_uri;
 } TrackerDBusMethodInfo;
 
 G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)
@@ -106,30 +107,16 @@ tracker_backup_save (TrackerBackup          *object,
 	g_object_unref (destination);
 }
 
-void
-tracker_backup_restore (TrackerBackup          *object,
-                        const gchar            *journal_uri,
-                        DBusGMethodInvocation  *context,
-                        GError                **error)
+static gboolean
+backup_idle (gpointer user_data)
 {
-	guint request_id;
-	TrackerDBusMethodInfo *info;
+	TrackerDBusMethodInfo *info = user_data;
 	GFile *journal;
 	TrackerBusyNotifier *notifier;
 	TrackerBusyCallback busy_callback;
 	gpointer busy_user_data;
 
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id,
-	                          context,
-	                          "D-Bus request to restore backup from '%s'",
-	                          journal_uri);
-
-	info = g_new0 (TrackerDBusMethodInfo, 1);
-	info->request_id = request_id;
-	info->context = context;
-	journal = g_file_new_for_uri (journal_uri);
+	journal = g_file_new_for_uri (info->journal_uri);
 
 	tracker_dbus_set_available (FALSE);
 
@@ -137,6 +124,8 @@ tracker_backup_restore (TrackerBackup          *object,
 
 	busy_callback = tracker_busy_notifier_get_callback (notifier, 
 	                                                    &busy_user_data);
+
+	g_free (info->journal_uri);
 
 	tracker_data_backup_restore (journal,
 	                             backup_callback,
@@ -149,5 +138,32 @@ tracker_backup_restore (TrackerBackup          *object,
 	tracker_dbus_set_available (TRUE);
 
 	g_object_unref (journal);
+
+	return FALSE;
+}
+
+void
+tracker_backup_restore (TrackerBackup          *object,
+                        const gchar            *journal_uri,
+                        DBusGMethodInvocation  *context,
+                        GError                **error)
+{
+	guint request_id;
+	TrackerDBusMethodInfo *info;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+	                          context,
+	                          "D-Bus request to restore backup from '%s'",
+	                          journal_uri);
+
+	info = g_new0 (TrackerDBusMethodInfo, 1);
+	info->request_id = request_id;
+	info->context = context;
+	info->journal_uri = g_strdup (journal_uri);
+
+	g_idle_add (backup_idle, info);
+
 }
 
