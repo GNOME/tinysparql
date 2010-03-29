@@ -48,6 +48,8 @@ dbus_sources = 						\
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
+vapidir = $(datadir)/vala/vapi
+
 vapi_sources =						\
 	$(top_srcdir)/src/vapi/posix.vapi		\
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
@@ -56,17 +58,18 @@ libtracker-client.vala.stamp: $(libtracker_client_@TRACKER_API_VERSION@_la_VALAS
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
 	$(AM_V_GEN)touch $@
 
-vapidir = $(datadir)/vala/vapi
+dist_vapi_DATA = 					\
+	tracker-client-$(TRACKER_API_VERSION).vapi
 
-dist_vapi_DATA = 			\
-	tracker-client-0.7.vapi \
-	$(NULL)
+tracker-client-$(TRACKER_API_VERSION).vapi: tracker-client.vapi
+	cp $< $@
 
 BUILT_SOURCES = 					\
 	$(dbus_sources)					\
 	libtracker-client.vala.stamp
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES)				\
+	tracker-client-$(TRACKER_API_VERSION).vapi
 
 MAINTAINERCLEANFILES =					\
 	libtracker-client.vala.stamp			\
