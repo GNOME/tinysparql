@@ -26,29 +26,22 @@ libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtrack
 
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-crawler.c				\
-	tracker-crawler.h				\
 	tracker-dbus.c					\
 	tracker-dbus.h					\
 	tracker-marshal.c				\
 	tracker-marshal.h				\
 	tracker-miner-object.c				\
-	tracker-miner-object.h				\
-	tracker-miner-dbus.h				\
 	tracker-miner-fs.c				\
-	tracker-miner-fs.h				\
 	tracker-miner-manager.c				\
-	tracker-miner-manager.h				\
 	tracker-miner-web.c				\
-	tracker-miner-web.h				\
 	tracker-miner-web-dbus.h			\
 	tracker-monitor.c				\
 	tracker-monitor.h				\
+	tracker-password-provider.c			\
 	tracker-storage.c				\
-	tracker-storage.h				\
-	tracker-utils.c					\
 	tracker-thumbnailer.c				\
-	tracker-utils.h					\
-	tracker-password-provider.c
+	tracker-utils.c					\
+	tracker-utils.h
 
 libtracker_minerinclude_HEADERS = 			\
 	tracker-crawler.h				\
