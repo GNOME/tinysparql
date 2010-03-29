@@ -20,4 +20,6 @@
       dsc:baseUrl "http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#" ;
       dsc:relativePath "./34-nmo.ontology" ;
 
+      dsc:upstream "http://www.semanticdesktop.org/ontologies/nmo/";
+
       dsc:copyright "&copy; 2007 <ulink url=\"http://www.dfki.de/\">DFKI</ulink> &copy; 2009 <ulink url=\"http://www.nokia.com/\">Nokia</ulink>. The ontologies are made available under the terms of NEPOMUK <ulink url=\"http://www.semanticdesktop.org/ontologies/nfo/LICENSE.txt\">software license</ulink> (FIXME verify)".
