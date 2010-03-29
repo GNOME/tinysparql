@@ -33,6 +33,7 @@
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-miner-client.h"
+#include "tracker-busy-notifier-client.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -43,6 +44,9 @@
 	"License which can be viewed at:\n" \
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
+
+static DBusGConnection *connection = NULL;
+static DBusGProxy *proxy = NULL;
 
 static GMainLoop *main_loop;
 static GHashTable *miners_progress;
@@ -270,6 +274,51 @@ miner_print_state (TrackerMinerManager *manager,
 }
 
 static void
+store_print_state (void)
+{
+	GError *error = NULL;
+	gdouble progress;
+	gchar *status;
+	gchar time_str[64];
+
+	org_freedesktop_Tracker1_BusyNotifier_get_progress (proxy, &progress, &error);
+
+	if (error) {
+		g_critical ("Couldn't retrieve tracker-store progress: %s\n", error->message);
+		return;
+	}
+
+	org_freedesktop_Tracker1_BusyNotifier_get_status (proxy, &status, &error);
+
+	if (error) {
+		g_critical ("Couldn't retrieve tracker-store status: %s\n", error->message);
+		return;
+	}
+
+	if (detailed) {
+		struct tm *local_time;
+		time_t now;
+		size_t len;
+
+		now = time ((time_t *) NULL);
+		local_time = localtime (&now);
+		len = strftime (time_str,
+		                sizeof (time_str) - 1,
+		                "%d %b %Y, %H:%M:%S:",
+		                local_time);
+		time_str[len] = '\0';
+	} else {
+		time_str[0] = '\0';
+	}
+
+	g_print ("%s: %s  %3.0f%%  %s\n",
+	         _("Store"),
+	         time_str,
+	         progress * 100,
+	         status ? status : "");
+}
+
+static void
 manager_miner_progress_cb (TrackerMinerManager *manager,
                            const gchar         *miner_name,
                            const gchar         *status,
@@ -291,6 +340,15 @@ manager_miner_progress_cb (TrackerMinerManager *manager,
 	                      g_strdup (miner_name),
 	                      gvalue);
 }
+
+static void
+store_progress_cb (TrackerMinerManager *manager,
+                   const gchar         *status,
+                   gdouble              progress)
+{
+	store_print_state ();
+}
+
 
 static void
 manager_miner_paused_cb (TrackerMinerManager *manager,
@@ -330,6 +388,37 @@ miners_progress_destroy_notify (gpointer data)
 	value = data;
 	g_value_unset (value);
 	g_slice_free (GValue, value);
+}
+
+static gboolean
+init_store_proxy (void)
+{
+	GError *error = NULL;
+
+	if (connection && proxy) {
+		return TRUE;
+	}
+
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (error) {
+		g_critical ("Could not connect to the D-Bus session bus, %s",
+		            error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	proxy = dbus_g_proxy_new_for_name (connection,
+	                                   "org.freedesktop.Tracker1",
+	                                   "/org/freedesktop/Tracker1/BusyNotifier",
+	                                   "org.freedesktop.Tracker1.BusyNotifier");
+
+	dbus_g_proxy_add_signal (proxy,
+	                         "Progress",
+	                         G_TYPE_STRING,
+	                         G_TYPE_DOUBLE,
+	                         G_TYPE_INVALID);
+	return TRUE;
 }
 
 gint
@@ -589,6 +678,9 @@ main (gint argc, gchar *argv[])
 		}
 	}
 
+	init_store_proxy ();
+	store_print_state ();
+
 	g_slist_foreach (miners_available, (GFunc) g_free, NULL);
 	g_slist_free (miners_available);
 
@@ -609,6 +701,9 @@ main (gint argc, gchar *argv[])
 	                  G_CALLBACK (manager_miner_paused_cb), NULL);
 	g_signal_connect (manager, "miner-resumed",
 	                  G_CALLBACK (manager_miner_resumed_cb), NULL);
+	dbus_g_proxy_connect_signal (proxy, "Progress",
+	                             G_CALLBACK (store_progress_cb),
+	                             NULL, NULL);
 
 	initialize_signal_handler ();
 
