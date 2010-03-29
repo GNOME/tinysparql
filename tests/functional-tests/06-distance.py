@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 #
-# Copyright (C) 2010, Nokia
+# Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
