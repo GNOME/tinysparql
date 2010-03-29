@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2006, Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008-2009, Nokia
  * Copyright (C) 2010, Amit Aggarwal (amitcs06@gmail.com)
  *

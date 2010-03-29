@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2007, Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
