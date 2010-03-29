@@ -1,5 +1,5 @@
 /* Tracker - audio/video metadata extraction based on Xine
- * Copyright (C) 2006, Laurent Aguerreche (laurent.aguerreche@free.fr)
+ * Copyright (C) 2006, Laurent Aguerreche <laurent.aguerreche@free.fr>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
