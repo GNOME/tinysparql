@@ -111,6 +111,8 @@ tracker_status_init (TrackerStatus *object)
 
 	priv->object = object;
 	priv->timer_id = 0;
+	priv->progress = 1;
+	priv->status = g_strdup ("Idle");
 }
 
 static gboolean
@@ -130,9 +132,21 @@ busy_notification_destroy (gpointer user_data)
 {
 	TrackerStatusPrivate *priv = user_data;
 
+	if (priv->status) {
+		g_free (priv->status);
+	}
+	priv->status = g_strdup ("Idle");
+	priv->progress = 1;
 	priv->timer_id = 0;
 }
 
+static void
+busy_notification_idle_destroy (gpointer user_data)
+{
+	TrackerStatusPrivate *priv = user_data;
+
+	priv->timer_id = 0;
+}
 
 static void
 tracker_status_callback (const gchar *status,
@@ -153,7 +167,7 @@ tracker_status_callback (const gchar *status,
 			priv->timer_id = g_idle_add_full (G_PRIORITY_DEFAULT,
 			                                  busy_notification_timeout,
 			                                  priv,
-			                                  busy_notification_destroy);
+			                                  busy_notification_idle_destroy);
 			first_time = FALSE;
 		} else {
 			priv->timer_id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, PROGRESS_TIMEOUT_S,
