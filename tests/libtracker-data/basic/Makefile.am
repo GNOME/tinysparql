@@ -10,5 +10,7 @@ EXTRA_DIST =                     \
 	predicate-variable-2.out \
 	predicate-variable-2.rq  \
 	predicate-variable-3.out \
-	predicate-variable-3.rq
+	predicate-variable-3.rq  \
+	predicate-variable-4.out \
+	predicate-variable-4.rq
 
