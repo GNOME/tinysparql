@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
+ * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -57,12 +57,6 @@
 #include "tracker-backup.h"
 #include "tracker-store.h"
 #include "tracker-statistics.h"
-
-#ifdef G_OS_WIN32
-#include <windows.h>
-#include <pthread.h>
-#include "mingw-compat.h"
-#endif
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"

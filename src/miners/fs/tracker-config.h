@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009%, Nokia (urho.konttori@nokia.com)
+ * Copyright (C) 2009%, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public

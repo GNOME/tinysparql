@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2005, Novell, Inc.
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
  * Copyright (C) 2006, Anders Aagaard
  *
  * Based mostly on code by Robert Love <rml@novell.com>

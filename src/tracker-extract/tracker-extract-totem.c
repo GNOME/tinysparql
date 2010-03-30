@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2006, Edward Duffy (eduffy@gmail.com)
- * Copyright (C) 2008, Nokia
+ * Copyright (C) 2006, Edward Duffy <eduffy@gmail.com>
+ * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public

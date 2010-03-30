@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2007,      Jason Kivlighn (jkivlighn@gmail.com)
- * Copyright (C) 2008-2009, Nokia
+ * Copyright (C) 2007, Jason Kivlighn <jkivlighn@gmail.com>
+ * Copyright (C) 2008-2009, Nokia <ivan.frade@nokia.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
