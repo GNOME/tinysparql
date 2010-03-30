@@ -32,8 +32,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-miner/tracker-miner.h>
 
-#include "tracker-miner-client.h"
-#include "tracker-busy-notifier-client.h"
+#include "tracker-status-client.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -281,14 +280,14 @@ store_print_state (void)
 	gchar *status;
 	gchar time_str[64];
 
-	org_freedesktop_Tracker1_BusyNotifier_get_progress (proxy, &progress, &error);
+	org_freedesktop_Tracker1_Status_get_progress (proxy, &progress, &error);
 
 	if (error) {
 		g_critical ("Couldn't retrieve tracker-store progress: %s\n", error->message);
 		return;
 	}
 
-	org_freedesktop_Tracker1_BusyNotifier_get_status (proxy, &status, &error);
+	org_freedesktop_Tracker1_Status_get_status (proxy, &status, &error);
 
 	if (error) {
 		g_critical ("Couldn't retrieve tracker-store status: %s\n", error->message);
@@ -410,8 +409,8 @@ init_store_proxy (void)
 
 	proxy = dbus_g_proxy_new_for_name (connection,
 	                                   "org.freedesktop.Tracker1",
-	                                   "/org/freedesktop/Tracker1/BusyNotifier",
-	                                   "org.freedesktop.Tracker1.BusyNotifier");
+	                                   "/org/freedesktop/Tracker1/Status",
+	                                   "org.freedesktop.Tracker1.Status");
 
 	dbus_g_proxy_add_signal (proxy,
 	                         "Progress",

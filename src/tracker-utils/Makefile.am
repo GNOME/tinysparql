@@ -54,7 +54,7 @@ tracker_import_SOURCES = tracker-import.c
 tracker_import_LDADD = $(libs)
 
 dbus_sources = 								\
-	tracker-busy-notifier-client.h
+	tracker-status-client.h
 
 %-client.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
