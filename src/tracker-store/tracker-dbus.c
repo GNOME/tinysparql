@@ -35,8 +35,8 @@
 #include "tracker-resources-glue.h"
 #include "tracker-resource-class.h"
 #include "tracker-resources-class-glue.h"
-#include "tracker-busy-notifier.h"
-#include "tracker-busy-notifier-glue.h"
+#include "tracker-status.h"
+#include "tracker-status-glue.h"
 #include "tracker-statistics.h"
 #include "tracker-statistics-glue.h"
 #include "tracker-backup.h"
@@ -46,7 +46,7 @@
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
 static GSList          *objects;
-TrackerBusyNotifier    *notifier = NULL;
+TrackerStatus          *notifier = NULL;
 TrackerBackup          *backup = NULL;
 
 static gboolean
@@ -219,8 +219,8 @@ name_owner_changed_closure (gpointer  data,
 {
 }
 
-TrackerBusyNotifier*
-tracker_dbus_register_busy_notifier (void)
+TrackerStatus*
+tracker_dbus_register_notifier (void)
 {
 	if (!connection || !gproxy) {
 		g_critical ("D-Bus support must be initialized before registering objects!");
@@ -228,17 +228,17 @@ tracker_dbus_register_busy_notifier (void)
 	}
 
 	/* Add org.freedesktop.Tracker */
-	notifier = tracker_busy_notifier_new ();
+	notifier = tracker_status_new ();
 	if (!notifier) {
-		g_critical ("Could not create TrackerBusyNotifier object to register");
+		g_critical ("Could not create TrackerStatus object to register");
 		return FALSE;
 	}
 
 	dbus_register_object (connection,
 	                      gproxy,
 	                      G_OBJECT (notifier),
-	                      &dbus_glib_tracker_busy_notifier_object_info,
-	                      TRACKER_BUSY_NOTIFIER_PATH);
+	                      &dbus_glib_tracker_status_object_info,
+	                      TRACKER_STATUS_PATH);
 
 	return g_object_ref (notifier);
 }
@@ -407,7 +407,7 @@ tracker_dbus_get_object (GType type)
 		}
 	}
 
-	if (notifier && type == TRACKER_TYPE_BUSY_NOTIFIER) {
+	if (notifier && type == TRACKER_TYPE_STATUS) {
 		return G_OBJECT (notifier);
 	}
 

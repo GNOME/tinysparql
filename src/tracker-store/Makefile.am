@@ -50,8 +50,8 @@ tracker_store_SOURCES =							\
 	tracker-statistics.h						\
 	tracker-store.c							\
 	tracker-store.h							\
-	tracker-busy-notifier.c						\
-	tracker-busy-notifier.h
+	tracker-status.c						\
+	tracker-status.h
 
 if OS_WIN32
 tracker_store_win_libs = -lws2_32 -lkernel32
@@ -84,7 +84,7 @@ dbus_sources = 								\
 	tracker-resources-glue.h					\
 	tracker-statistics-glue.h					\
 	tracker-resources-class-glue.h					\
-	tracker-busy-notifier-glue.h
+	tracker-status-glue.h
 
 tracker-marshal.h: tracker-marshal.list
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@

@@ -112,7 +112,7 @@ backup_idle (gpointer user_data)
 {
 	TrackerDBusMethodInfo *info = user_data;
 	GFile *journal;
-	TrackerBusyNotifier *notifier;
+	TrackerStatus *notifier;
 	TrackerBusyCallback busy_callback;
 	gpointer busy_user_data;
 
@@ -120,10 +120,10 @@ backup_idle (gpointer user_data)
 
 	tracker_dbus_set_available (FALSE);
 
-	notifier = TRACKER_BUSY_NOTIFIER (tracker_dbus_get_object (TRACKER_TYPE_BUSY_NOTIFIER));
+	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
 
-	busy_callback = tracker_busy_notifier_get_callback (notifier, 
-	                                                    &busy_user_data);
+	busy_callback = tracker_status_get_callback (notifier, 
+	                                            &busy_user_data);
 
 	g_free (info->journal_uri);
 

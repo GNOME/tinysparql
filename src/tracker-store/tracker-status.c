@@ -27,10 +27,10 @@
 #include <libtracker-common/tracker-dbus.h>
 
 #include "tracker-dbus.h"
-#include "tracker-busy-notifier.h"
+#include "tracker-status.h"
 #include "tracker-marshal.h"
 
-#define TRACKER_BUSY_NOTIFIER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_BUSY_NOTIFIER, TrackerBusyNotifierPrivate))
+#define TRACKER_STATUS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_STATUS, TrackerStatusPrivate))
 
 #define PROGRESS_TIMEOUT_S 5
 
@@ -38,43 +38,43 @@ typedef struct {
 	gdouble progress;
 	gchar *status;
 	guint timer_id;
-	TrackerBusyNotifier *object;
-} TrackerBusyNotifierPrivate;
+	TrackerStatus *object;
+} TrackerStatusPrivate;
 
 enum {
 	PROGRESS,
 	LAST_SIGNAL
 };
 
-static void tracker_busy_notifier_finalize (GObject *object);
+static void tracker_status_finalize (GObject *object);
 
-G_DEFINE_TYPE(TrackerBusyNotifier, tracker_busy_notifier, G_TYPE_OBJECT)
+G_DEFINE_TYPE(TrackerStatus, tracker_status, G_TYPE_OBJECT)
 
 static guint signals[LAST_SIGNAL] = {0};
 
 
-TrackerBusyNotifier *
-tracker_busy_notifier_new (void)
+TrackerStatus *
+tracker_status_new (void)
 {
-	return g_object_new (TRACKER_TYPE_BUSY_NOTIFIER, NULL);
+	return g_object_new (TRACKER_TYPE_STATUS, NULL);
 }
 
 static void
-tracker_busy_notifier_class_init (TrackerBusyNotifierClass *klass)
+tracker_status_class_init (TrackerStatusClass *klass)
 {
 	GObjectClass *object_class;
 
 	object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize = tracker_busy_notifier_finalize;
+	object_class->finalize = tracker_status_finalize;
 
 	/**
-	 * TrackerBusyNotifier::progress:
-	 * @notifier: the TrackerBusyNotifier
+	 * TrackerStatus::progress:
+	 * @notifier: the TrackerStatus
 	 * @status: store status
 	 * @progress: a #gdouble indicating store progress, from 0 to 1.
 	 *
-	 * the ::progress signal will be emitted by TrackerBusyNotifier
+	 * the ::progress signal will be emitted by TrackerStatus
 	 * to indicate progress about the store process. @status will
 	 * contain a translated string with the current status and @progress
 	 * will indicate how much has been processed so far.
@@ -83,21 +83,21 @@ tracker_busy_notifier_class_init (TrackerBusyNotifierClass *klass)
 		g_signal_new ("progress",
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerBusyNotifierClass, progress),
+		              G_STRUCT_OFFSET (TrackerStatusClass, progress),
 		              NULL, NULL,
 		              tracker_marshal_VOID__STRING_DOUBLE,
 		              G_TYPE_NONE, 2,
 		              G_TYPE_STRING,
 		              G_TYPE_DOUBLE);
 
-	g_type_class_add_private (object_class, sizeof (TrackerBusyNotifierPrivate));
+	g_type_class_add_private (object_class, sizeof (TrackerStatusPrivate));
 }
 
 
 static void
-tracker_busy_notifier_finalize (GObject *object)
+tracker_status_finalize (GObject *object)
 {
-	TrackerBusyNotifierPrivate *priv = TRACKER_BUSY_NOTIFIER_GET_PRIVATE (object);
+	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
 	if (priv->timer_id != 0)
 		g_source_remove (priv->timer_id);
 	g_free (priv->status);
@@ -105,9 +105,9 @@ tracker_busy_notifier_finalize (GObject *object)
 
 
 static void
-tracker_busy_notifier_init (TrackerBusyNotifier *object)
+tracker_status_init (TrackerStatus *object)
 {
-	TrackerBusyNotifierPrivate *priv = TRACKER_BUSY_NOTIFIER_GET_PRIVATE (object);
+	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
 
 	priv->object = object;
 	priv->timer_id = 0;
@@ -116,7 +116,7 @@ tracker_busy_notifier_init (TrackerBusyNotifier *object)
 static gboolean
 busy_notification_timeout (gpointer user_data)
 {
-	TrackerBusyNotifierPrivate *priv = user_data;
+	TrackerStatusPrivate *priv = user_data;
 
 	g_signal_emit (priv->object, signals[PROGRESS], 0,
 	               priv->status,
@@ -128,19 +128,19 @@ busy_notification_timeout (gpointer user_data)
 static void
 busy_notification_destroy (gpointer user_data)
 {
-	TrackerBusyNotifierPrivate *priv = user_data;
+	TrackerStatusPrivate *priv = user_data;
 
 	priv->timer_id = 0;
 }
 
 
 static void
-tracker_busy_notifier_callback (const gchar *status,
-                                gdouble progress,
-                                gpointer user_data)
+tracker_status_callback (const gchar *status,
+                         gdouble progress,
+                         gpointer user_data)
 {
 	static gboolean first_time = TRUE;
-	TrackerBusyNotifierPrivate *priv = user_data;
+	TrackerStatusPrivate *priv = user_data;
 	priv->progress = progress;
 
 	if (g_strcmp0 (status, priv->status) != 0) {
@@ -168,19 +168,19 @@ tracker_busy_notifier_callback (const gchar *status,
 }
 
 TrackerBusyCallback
-tracker_busy_notifier_get_callback (TrackerBusyNotifier *object, gpointer *user_data)
+tracker_status_get_callback (TrackerStatus *object, gpointer *user_data)
 {
-	TrackerBusyNotifierPrivate *priv = TRACKER_BUSY_NOTIFIER_GET_PRIVATE (object);
+	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
 	*user_data = priv;
-	return tracker_busy_notifier_callback;
+	return tracker_status_callback;
 }
 
 void 
-tracker_busy_notifier_get_progress  (TrackerBusyNotifier    *object,
-                                     DBusGMethodInvocation  *context,
-                                     GError                **error)
+tracker_status_get_progress  (TrackerStatus    *object,
+                              DBusGMethodInvocation  *context,
+                              GError                **error)
 {
-	TrackerBusyNotifierPrivate *priv = TRACKER_BUSY_NOTIFIER_GET_PRIVATE (object);
+	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
 	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -192,11 +192,11 @@ tracker_busy_notifier_get_progress  (TrackerBusyNotifier    *object,
 
 
 void 
-tracker_busy_notifier_get_status  (TrackerBusyNotifier    *object,
-                                   DBusGMethodInvocation  *context,
-                                   GError                **error)
+tracker_status_get_status  (TrackerStatus    *object,
+                            DBusGMethodInvocation  *context,
+                            GError                **error)
 {
-	TrackerBusyNotifierPrivate *priv = TRACKER_BUSY_NOTIFIER_GET_PRIVATE (object);
+	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
 	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();

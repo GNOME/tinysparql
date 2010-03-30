@@ -11,7 +11,7 @@ config_DATA =							\
 	tracker-resources-class.xml				\
 	tracker-statistics.xml					\
 	tracker-writeback.xml					\
-	tracker-busy-notifier.xml
+	tracker-status.xml
 
 config_noinst = 						\
 	tracker-miner-files-reindex.xml

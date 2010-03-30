@@ -336,7 +336,7 @@ main (gint argc, gchar *argv[])
 	TrackerConfig *config;
 	TrackerDBManagerFlags flags = 0;
 	gboolean is_first_time_index;
-	TrackerBusyNotifier *notifier;
+	TrackerStatus *notifier;
 	gpointer busy_user_data;
 	TrackerBusyCallback busy_callback;
 
@@ -447,9 +447,9 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	notifier = tracker_dbus_register_busy_notifier ();
-	busy_callback = tracker_busy_notifier_get_callback (notifier, 
-	                                                    &busy_user_data);
+	notifier = tracker_dbus_register_notifier ();
+	busy_callback = tracker_status_get_callback (notifier, 
+	                                            &busy_user_data);
 
 	if (!tracker_data_manager_init (flags,
 	                                NULL,

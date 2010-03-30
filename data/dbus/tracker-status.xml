@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <node name="/">
-  <interface name="org.freedesktop.Tracker1.BusyNotifier">
+  <interface name="org.freedesktop.Tracker1.Status">
 
    <method name="GetStatus">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
