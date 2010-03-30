@@ -35,10 +35,11 @@
 #define PROGRESS_TIMEOUT_S 5
 
 typedef struct {
-	gdouble progress, last;
+	gdouble progress;
 	gchar *status;
 	guint timer_id;
 	TrackerStatus *object;
+	gboolean last;
 } TrackerStatusPrivate;
 
 enum {
