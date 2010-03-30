@@ -2,7 +2,7 @@
 
 <node name="/">
   <interface name="org.freedesktop.Tracker1.Miner">
-    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_miner_dbus"/>
+    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="_tracker_miner_dbus"/>
     <method name="GetStatus">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="status" direction="out" />

@@ -217,8 +217,8 @@ dbus_data_create (TrackerMiner          *miner,
 }
 
 void
-tracker_miner_dbus_init (TrackerMiner          *miner,
-                         const DBusGObjectInfo *info)
+_tracker_miner_dbus_init (TrackerMiner          *miner,
+                          const DBusGObjectInfo *info)
 {
 	DBusData *data;
         gchar *name;
@@ -261,7 +261,7 @@ tracker_miner_dbus_init (TrackerMiner          *miner,
 }
 
 void
-tracker_miner_dbus_shutdown (TrackerMiner *miner)
+_tracker_miner_dbus_shutdown (TrackerMiner *miner)
 {
 	g_return_if_fail (TRACKER_IS_MINER (miner));
 
@@ -273,9 +273,9 @@ tracker_miner_dbus_shutdown (TrackerMiner *miner)
 }
 
 void
-tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
-                                   const gchar              *name,
-                                   TrackerMinerDBusNameFunc  func)
+_tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
+                                    const gchar              *name,
+                                    TrackerMinerDBusNameFunc  func)
 {
         DBusData *data;
 

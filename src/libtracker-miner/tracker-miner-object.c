@@ -418,7 +418,7 @@ miner_finalize (GObject *object)
 	g_hash_table_unref (miner->private->pauses);
 	g_ptr_array_free (miner->private->async_calls, TRUE);
 
-	tracker_miner_dbus_shutdown (miner);
+	_tracker_miner_dbus_shutdown (miner);
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
 }
@@ -428,9 +428,9 @@ miner_constructed (GObject *object)
 {
 	TrackerMiner *miner = TRACKER_MINER (object);
 
-	tracker_miner_dbus_init (miner, &dbus_glib_tracker_miner_object_info);
-	tracker_miner_dbus_add_name_watch (miner, "org.freedesktop.Tracker1",
-                                       store_name_monitor_cb);
+	_tracker_miner_dbus_init (miner, &dbus_glib__tracker_miner_object_info);
+	_tracker_miner_dbus_add_name_watch (miner, "org.freedesktop.Tracker1",
+                                            store_name_monitor_cb);
 }
 
 static void
@@ -1116,9 +1116,9 @@ tracker_miner_resume (TrackerMiner  *miner,
 
 /* DBus methods */
 void
-tracker_miner_dbus_get_status (TrackerMiner           *miner,
-                               DBusGMethodInvocation  *context,
-                               GError                **error)
+_tracker_miner_dbus_get_status (TrackerMiner           *miner,
+                                DBusGMethodInvocation  *context,
+                                GError                **error)
 {
 	guint request_id;
 
@@ -1133,9 +1133,9 @@ tracker_miner_dbus_get_status (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_dbus_get_progress (TrackerMiner           *miner,
-                                 DBusGMethodInvocation  *context,
-                                 GError                **error)
+_tracker_miner_dbus_get_progress (TrackerMiner           *miner,
+                                  DBusGMethodInvocation  *context,
+                                  GError                **error)
 {
 	guint request_id;
 
@@ -1151,9 +1151,9 @@ tracker_miner_dbus_get_progress (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
-                                      DBusGMethodInvocation  *context,
-                                      GError                **error)
+_tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
+                                       DBusGMethodInvocation  *context,
+                                       GError                **error)
 {
 	GSList *applications, *reasons;
 	GStrv applications_strv, reasons_strv;
@@ -1195,11 +1195,11 @@ tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_dbus_pause (TrackerMiner           *miner,
-                          const gchar            *application,
-                          const gchar            *reason,
-                          DBusGMethodInvocation  *context,
-                          GError                **error)
+_tracker_miner_dbus_pause (TrackerMiner           *miner,
+                           const gchar            *application,
+                           const gchar            *reason,
+                           DBusGMethodInvocation  *context,
+                           GError                **error)
 {
 	GError *local_error = NULL;
 	guint request_id;
@@ -1238,10 +1238,10 @@ tracker_miner_dbus_pause (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_dbus_resume (TrackerMiner           *miner,
-                           gint                    cookie,
-                           DBusGMethodInvocation  *context,
-                           GError                **error)
+_tracker_miner_dbus_resume (TrackerMiner           *miner,
+                            gint                    cookie,
+                            DBusGMethodInvocation  *context,
+                            GError                **error)
 {
 	GError *local_error = NULL;
 	guint request_id;
@@ -1276,10 +1276,10 @@ tracker_miner_dbus_resume (TrackerMiner           *miner,
 }
 
 void
-tracker_miner_dbus_ignore_next_update (TrackerMiner           *miner,
-                                       const GStrv             urls,
-                                       DBusGMethodInvocation  *context,
-                                       GError                **error)
+_tracker_miner_dbus_ignore_next_update (TrackerMiner           *miner,
+                                        const GStrv             urls,
+                                        DBusGMethodInvocation  *context,
+                                        GError                **error)
 {
 	guint request_id;
 

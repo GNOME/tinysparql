@@ -31,19 +31,19 @@
 
 G_BEGIN_DECLS
 
-void tracker_miner_web_dbus_authenticate         (TrackerMinerWeb        *miner,
-                                                  DBusGMethodInvocation  *context,
-                                                  GError                **error);
-void tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
-                                                  DBusGMethodInvocation  *context,
-                                                  GError                **error);
-void tracker_miner_web_dbus_associate            (TrackerMinerWeb        *miner,
-                                                  GHashTable             *association_data,
-                                                  DBusGMethodInvocation  *context,
-                                                  GError                **error);
-void tracker_miner_web_dbus_dissociate           (TrackerMinerWeb        *miner,
-                                                  DBusGMethodInvocation  *context,
-                                                  GError                **error);
+void _tracker_miner_web_dbus_authenticate         (TrackerMinerWeb        *miner,
+                                                   DBusGMethodInvocation  *context,
+                                                   GError                **error);
+void _tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
+                                                   DBusGMethodInvocation  *context,
+                                                   GError                **error);
+void _tracker_miner_web_dbus_associate            (TrackerMinerWeb        *miner,
+                                                   GHashTable             *association_data,
+                                                   DBusGMethodInvocation  *context,
+                                                   GError                **error);
+void _tracker_miner_web_dbus_dissociate           (TrackerMinerWeb        *miner,
+                                                   DBusGMethodInvocation  *context,
+                                                   GError                **error);
 
 G_END_DECLS
 

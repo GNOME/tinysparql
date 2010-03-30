@@ -127,8 +127,8 @@ miner_web_get_property (GObject    *object,
 static void
 miner_web_constructed (GObject *object)
 {
-	tracker_miner_dbus_init (TRACKER_MINER (object),
-	                         &dbus_glib_tracker_miner_web_dbus_object_info);
+	_tracker_miner_dbus_init (TRACKER_MINER (object),
+	                          &dbus_glib__tracker_miner_web_dbus_object_info);
 
 	G_OBJECT_CLASS (tracker_miner_web_parent_class)->constructed (object);
 }
@@ -147,9 +147,9 @@ tracker_miner_web_error_quark (void)
 
 /* DBus methods */
 void
-tracker_miner_web_dbus_authenticate (TrackerMinerWeb        *miner,
-                                     DBusGMethodInvocation  *context,
-                                     GError                **error)
+_tracker_miner_web_dbus_authenticate (TrackerMinerWeb        *miner,
+                                      DBusGMethodInvocation  *context,
+                                      GError                **error)
 {
 	GError *local_error = NULL;
 
@@ -166,9 +166,9 @@ tracker_miner_web_dbus_authenticate (TrackerMinerWeb        *miner,
 }
 
 void
-tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error)
+_tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
+                                              DBusGMethodInvocation  *context,
+                                              GError                **error)
 {
 	GHashTable *association_data;
 	GError *local_error = NULL;
@@ -187,10 +187,10 @@ tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
 }
 
 void
-tracker_miner_web_dbus_associate (TrackerMinerWeb        *miner,
-                                  GHashTable             *association_data,
-                                  DBusGMethodInvocation  *context,
-                                  GError                **error)
+_tracker_miner_web_dbus_associate (TrackerMinerWeb        *miner,
+                                   GHashTable             *association_data,
+                                   DBusGMethodInvocation  *context,
+                                   GError                **error)
 {
 	GError *local_error = NULL;
 
@@ -208,9 +208,9 @@ tracker_miner_web_dbus_associate (TrackerMinerWeb        *miner,
 }
 
 void
-tracker_miner_web_dbus_dissociate (TrackerMinerWeb        *miner,
-                                   DBusGMethodInvocation  *context,
-                                   GError                **error)
+_tracker_miner_web_dbus_dissociate (TrackerMinerWeb        *miner,
+                                    DBusGMethodInvocation  *context,
+                                    GError                **error)
 {
 	GError *local_error = NULL;
 

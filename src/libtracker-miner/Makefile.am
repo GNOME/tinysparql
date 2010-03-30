@@ -124,13 +124,13 @@ tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_sr
 	echo '<node name="/">'                              >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
 	cat $^ | grep -v -e '<node' -e '<?xml' -e '</node>' >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
 	echo '</node>'                                      >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=tracker_miner_web_dbus $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_tracker_miner_web_dbus $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_$(subst -,_,$*) $^
 
 %-client.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=_$(subst -,_,$*) $^
 
 BUILT_SOURCES = $(dbus_sources) $(marshal_sources)
 
