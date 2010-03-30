@@ -280,7 +280,7 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                                      0.0,
 	                                                      1.0,
 	                                                      0.0,
-	                                                      G_PARAM_READWRITE));
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerPrivate));
 
