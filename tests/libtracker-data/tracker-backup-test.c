@@ -85,7 +85,7 @@ check_content_in_db (gint expected_instances, gint expected_relations)
  * Run again the queries
  */
 static void
-test_backup_and_restore (void)
+test_backup_and_restore_helper (gboolean journal)
 {
 	gchar  *data_prefix, *data_filename, *backup_filename, *db_location, *meta_db;
 	GError *error = NULL;
@@ -146,9 +146,11 @@ test_backup_and_restore (void)
 	g_unlink (meta_db);
 	g_free (meta_db);
 
-	meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", "tracker-store.journal", NULL);
-	g_unlink (meta_db);
-	g_free (meta_db);
+	if (!journal) {
+		meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", "tracker-store.journal", NULL);
+		g_unlink (meta_db);
+		g_free (meta_db);
+	}
 
 	meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", ".meta.isrunning", NULL);
 	g_unlink (meta_db);
@@ -168,6 +170,21 @@ test_backup_and_restore (void)
 
 	g_assert_cmpint (backup_calls, ==, 2);
 }
+
+static void
+test_backup_and_restore (void)
+{
+	test_backup_and_restore_helper (FALSE);
+}
+
+#ifdef FAILING_UNIT_TEST
+static void
+test_journal_then_backup_and_restore (void)
+{
+	test_backup_and_restore_helper (TRUE);
+}
+#endif
+
 
 int
 main (int argc, char **argv)
@@ -194,6 +211,13 @@ main (int argc, char **argv)
 
 	g_test_add_func ("/tracker/libtracker-data/backup/save_and_restore",
 	                 test_backup_and_restore);
+
+#ifdef FAILING_UNIT_TEST
+	/* This test fails atm, disabled it while I'm fixing this in master */
+	g_test_add_func ("/tracker/libtracker-data/backup/journal_then_save_and_restore",
+	                 test_journal_then_backup_and_restore);
+#endif
+
 	/* run tests */
 	result = g_test_run ();
 
