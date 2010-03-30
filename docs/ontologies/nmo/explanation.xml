@@ -4,19 +4,20 @@
   <sect2 id="nmo-introduction">
     <title>Introduction</title>
     <para>NEPOMUK Message Ontology extends the NEPOMUK Information Element framework into the domain of messages. This ontology has been heavily extended by Tracker team to include real support for Emails, IM Accounts, SMS and Calls relevant in environments like <ulink url="http://maemo.nokia.com">Maemo</ulink>.</para>
-    <para>The messaging domain is too wide to be explained in one shot. For that reason, the diagram explanation has been splitted in few smaller pieces easier to grasp: the <link linkend="nmm-message-core-class">Message</link> class (the core of the whole representation), the <link linkend="nmo-conversation-representation">conversation representation</link>, the translation of an <link linkend="nmo-email-domain">email</link> to Nepomuk terms, and finally SMS and MMS representation.</para>
+    <para>The messaging domain is too wide to be explained in one shot. For that reason, it has been splitted in few smaller pieces easier to grasp: the <link linkend="nmm-message-core-class">Message</link> class (the core of the whole representation), the <link linkend="nmo-conversation-representation">conversation representation</link>, the translation of an <link linkend="nmo-email-domain">email</link> to Nepomuk terms, and finally <link linkend="nmo-sms-domain">SMS</link> and <link linkend="nmo-mms-domain">MMS</link> representation.</para>
   </sect2>
 
   <sect2 id="nmo-message-core-class">
     <title>The Message class</title>
 
-    <para>The message class is the common superclass for Emails, SMS, IM Messages, MMS (in NMO domain) and even Feed messages (defined in <link linkend="mfo-explanation">MFO ontology</link>). As such, it has the common properties for a 'Message' as an meaningful item in a communication: sender and receiver of the message, sent/received time, status of the message (read, answered and so on). It is a subclass of <link linkend="nie-InformationElement">nie:InformationElement</link> and from there inherits the <link linkend="nie-plainTextContent">nie:plainTextContent</link> property (which, as its name states, contains the text of the message).
+    <para>The <link linkend="nmo-Message">nmo:Message</link> class is the common superclass for Emails, SMS, IM Messages, MMS (in NMO domain) and even Feed messages (defined in <link linkend="mfo-explanation">MFO ontology</link>). As such, it has the common properties for a 'Message' as an meaningful item in a communication: sender and receiver of the message, sent/received time, status of the message (read, answered and so on). It is a subclass of <link linkend="nie-InformationElement">nie:InformationElement</link> and from there inherits the <link linkend="nie-plainTextContent">nie:plainTextContent</link> property (which, as its name states, contains the text of the message).
     </para>
 
     <para>Few considerations from practical point of view:</para>
     <orderedlist>
       <listitem><para> <link linkend="nmo-to">nmo:to</link> and <link linkend="nmo-from">nmo:from</link> should be set always, and there is a predefined instance in NCO for the "me" contact.</para></listitem>
       <listitem><para> <link linkend="nmo-isSent">nmo:isSent</link> should be used to indicate the direction of the message. This helps with the performance of queries to build a conversation view.</para></listitem>
+      <listitem><para> Even when there is a <link linkend="nmo-MessageHeader">nmo:MessageHeader</link> class that can store any arbitrary pair of key-values, its use must be as limited as possible. It is there to store the specific headers in the messages (mainly email) that cannot be completely represented in the ontology. Handle those headers in queries is a performance bottleneck that should be avoided in general.</para></listitem>
     </orderedlist>
 
     <figure id="nmo-message-graph">
@@ -29,22 +30,31 @@
 
   <sect2 id="nmo-conversation-representation">
     <title>Conversations</title>
+    <para>The dialog between two contacts could be considered a list of messages sorted by time, but that representation is too simplistic. Two contacts can keep a simultaneous communication in two channels (e.g. IM and IRC), and the concept of conversation, a communication with a beggining and end is also important to sort the information in the UI.</para>
+    <para>The ontology provides a <link linkend="nmo-CommunicationChannel">nmo:CommunicationChannel</link> class, which groups all messages between a certain set of contacts (linked via <link linkend="nmo-hasParticipant">nmo:hasParticipant</link> property). The communication channel can be transient (an ad-hoc conversation in IM represented in the subclass <link linkend="nmo-TransientChannel">nmo:TransientChannel</link>) or permanent (a well-known IRC channel would be an instance of <link linkend="nmo-PermanentChannel">nmo:PermanentChannel</link> ). Every time 'me' talks with an specific contact, the communication channel should be the same. It identifies somehow the whole list of messages between a set of participants.</para>
+    <para>There is a second important class, <link linkend="nmo-Conversation">nmo:Conversation</link> to group messages delimited in a time frame. Every time a IM dialog is open (e.g. a window talking with a certain contact) a new instance of <link linkend="nmo-Conversation">nmo:Conversation</link> is created.</para>
   </sect2>
 
   <sect2 id="nmo-email-domain">
     <title>Email domain</title>
     <para>The users usually see an Email as a flat Message, with some thread information and maybe 'attachments' in it, but in fact internally an Email message is a tree with a special root node (the envelope) that links to other nodes called MIME parts. This MIME parts can be plain text (for instance the content of the email that the user read) or binary blobs (like a document attached to the message). When a message is forwarded, the previous envelope (the root node of the original message) becomes just a mime part of the forwarded email.</para>
 
-    <para>The ontology represents completely that email tree. The Envelope, root node or more external representation of the Email is the basic <link linkend="nmo-Email">nmo:Email</link> class, subclass of Message. Every node in the tree is always a <link linkend="nmo-MimePart">nmo:MimePart</link> with the required properties to decode the content (mimetype, encoding, boundaries). When the node is internal, then it is also instance of <link linkend="nmo-MultiPart">nmo:MultiPart</link> so it can use the <link linkend="nie-hasPart">nie:hasPart</link> property to link other nodes. The leaf nodes can be instances of specific content classes (besides <link linkend="nmo-MimePart">nmo:MimePart</link>). For example, an MP3 embedded in an Email, will be represented as an instance nmo:MimePart <strong>and</strong> <link linkend="nmm-MusicPiece">nmm:MusicPiece</link>. </para>
+    <para>The ontology represents completely that email tree. The Envelope, root node or more external representation of the Email is the basic <link linkend="nmo-Email">nmo:Email</link> class, subclass of Message. Every node in the tree is always a <link linkend="nmo-MimePart">nmo:MimePart</link> with the required properties to decode the content (mimetype, encoding, boundaries). When the node is internal, then it is also instance of <link linkend="nmo-MultiPart">nmo:MultiPart</link> so it can use the <link linkend="nie-hasPart">nie:hasPart</link> property to link other nodes. The leaf nodes can be instances of specific content classes (besides <link linkend="nmo-MimePart">nmo:MimePart</link>). For example, an MP3 embedded in an Email, will be represented as an instance nmo:MimePart <emphasis>and</emphasis> <link linkend="nmm-MusicPiece">nmm:MusicPiece</link>. </para>
 
     <para>For more detailed (and highly technical) explanation of the email representation in general and this example in concrete, please check <ulink url="http://live.gnome.org/Tracker/Documentation/Examples/SPARQL/Email">this wiki page</ulink></para>
 
-    <para>FIXME add a diagram of the Mimeparts and multiparts</para>
+    <figure id="nmo-message-graph">
+      <title>Graphical Overview (Email related classes)</title>
+      <graphic fileref="email-mimeparts-overview.png" format="PNG"></graphic>
+      <para>Notation defined <link linkend="ontology-notation">in this page</link></para>
+    </figure>
+
   </sect2>
 
   <sect2 id="nmo-accounts-representation">
     <title>Email accounts</title>
     <para>Explain here MailAccount and MailFolder</para>
+    <!-- FIXME complete -->
   </sect2>
 
   <sect2 id="nmo-sms-domain">
@@ -90,12 +100,12 @@
 
   <sect2 id="nmo-mms-domain">
     <title>MMS Messages</title>
-    <para>Bascially MMS messages has the structure of Email messages with an SMS envelope. This is exactly how they are represented in the ontology, with an specific class nmo_MMSMessage that inherits from SMS (to get the folders properties) and from nmo_Email (to use the Multipart/MimePart structure). Please refer to the SMS and Email documentation for more details.</para>
+    <para>Bascially MMS messages has the structure of Email messages with an SMS envelope. This is exactly how they are represented in the ontology, with an specific class <link linkend="nmo-MMSMessage">nmo:MMSMessage</link> that inherits from SMS (to get the folders properties) and from <link linkend="nmo-Email">nmo:Email</link> (to use the Multipart/MimePart structure). Please refer to the SMS and Email documentation for more details.</para>
   </sect2>
 
   <sect2 id="nmo-call-domain">
     <title>Call domain</title>
-    <para>FIXME Explain call and VoIP call classes</para>
+    <para>Voice calls are considered messages in the ontology. A call is a communication item between two contacts (therefore a Message with to/from properties) with an extra property <link linkend="nmo-duration">nmo:duration</link>. Each call is represented as an instance of <link linkend="nmo-Call">nmo:Call</link> class. There is also a <link linkend="nmo-VOIPCall">nmo:VOIPCall</link> class (subclass of <link linkend="nmo-Call">nmo:Call</link>) for VOIP communications (e.g. Skype, GTalk,...). </para>
   </sect2>
 
 </section>
