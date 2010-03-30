@@ -2330,7 +2330,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
                             gpointer        user_data)
 {
 	TrackerMinerFS *fs = user_data;
-	gboolean should_check, should_change_index;
+	gboolean should_check;
 
 	should_check = should_check_file (fs, file, TRUE);
 
