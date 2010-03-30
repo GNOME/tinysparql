@@ -58,6 +58,7 @@ const TestInfo tests[] = {
 	{ "basic/base-prefix-3", "basic/data-1", FALSE },
 	{ "basic/predicate-variable", "basic/data-1", FALSE },
 	{ "basic/predicate-variable-2", "basic/data-1", FALSE },
+	{ "basic/predicate-variable-3", "basic/data-1", FALSE },
 	{ "bnode-coreference/query", "bnode-coreference/data", FALSE },
 	{ "bound/bound1", "bound/data", FALSE },
 	{ "datetime/delete-1", "datetime/data-3", FALSE },

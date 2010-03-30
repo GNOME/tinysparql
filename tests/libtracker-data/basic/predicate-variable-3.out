@@ -1,0 +1,2 @@
+"http://example.org/x/x"	"http://example.org/ns#p"	"d:x ns:p"
+"http://example.org/x/x"	"http://example.org/x/p"	"42"
