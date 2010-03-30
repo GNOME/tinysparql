@@ -1,0 +1,9 @@
+SELECT ?s ?type WHERE {
+	{
+		SELECT ?s "message" AS ?type
+		WHERE { ?s a example:Message }
+	} UNION {
+		SELECT ?s "group" AS ?type
+		WHERE { ?s a example:Group }
+	}
+} ORDER BY ?s ?type
