@@ -501,15 +501,12 @@ main (int argc, char **argv)
 			display_name = tracker_miner_manager_get_display_name (manager, l->data);
 
 			if (!tracker_miner_manager_get_status (manager, l->data, NULL, &progress)) {
-				g_printerr ("  %s: %s (%s)\n",
-				            _("Failed"),
+				g_printerr ("  ✗ %s (%s)\n",
 				            display_name,
-				            _("Could not get miner status"));
+				            _("perhaps a disabled plugin?"));
 			} else {
-				g_print ("  %s: %s (%3.0f%%)\n",
-				         _("Done"),
-				         display_name,
-				         progress * 100);
+				g_print ("  ✓ %s\n",
+				         display_name);
 			}
 
 			g_free (l->data);
