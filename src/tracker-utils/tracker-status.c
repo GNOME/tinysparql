@@ -51,16 +51,17 @@ static GMainLoop *main_loop;
 static GHashTable *miners_progress;
 static GHashTable *miners_status;
 static gint longest_miner_name_length = 0;
+static gint paused_length = 0;
 
-static gboolean   list_miners_running;
-static gboolean   list_miners_available;
-static gboolean   pause_details;
-static gchar     *miner_name;
-static gchar     *pause_reason;
-static gint       resume_cookie = -1;
-static gboolean   follow;
-static gboolean   detailed;
-static gboolean   print_version;
+static gboolean list_miners_running;
+static gboolean list_miners_available;
+static gboolean pause_details;
+static gchar *miner_name;
+static gchar *pause_reason;
+static gint resume_cookie = -1;
+static gboolean follow;
+static gboolean detailed;
+static gboolean print_version;
 
 static GOptionEntry entries[] = {
 	{ "follow", 'f', 0, G_OPTION_ARG_NONE, &follow,
@@ -230,6 +231,7 @@ miner_print_state (TrackerMinerManager *manager,
 	gchar time_str[64];
 	size_t len;
 	struct tm *local_time;
+	gchar *progress_str;
 
 	if (detailed) {
 		now = time ((time_t *) NULL);
@@ -245,31 +247,42 @@ miner_print_state (TrackerMinerManager *manager,
 
 	name = tracker_miner_manager_get_display_name (manager, miner_name);
 
+	if (!is_running) {
+		progress_str = g_strdup_printf ("✗   ");
+	} else if (progress > 0.0 && progress < 1.0) {
+		progress_str = g_strdup_printf ("%-3.0f%%", progress * 100);
+	} else {
+		progress_str = g_strdup_printf ("✓   ");
+	}
+
 	if (is_running) {
-		const gchar *paused;
-		gint paused_len;
-
-		paused = _("PAUSED");
-		paused_len = strlen (paused);
-
-		g_print ("%s  %3.0f%%  %-*.*s %s%-*.*s%s %s %s\n",
+		g_print ("%s  %s  %-*.*s %s%-*.*s%s %s %s\n",
 		         time_str,
-		         progress * 100,
+		         progress_str,
 		         longest_miner_name_length,
 		         longest_miner_name_length,
 		         name,
 		         is_paused ? "(" : " ",
-		         paused_len,
-		         paused_len,
-		         is_paused ? paused : " ",
+		         paused_length,
+		         paused_length,
+		         is_paused ? _("PAUSED") : " ",
 		         is_paused ? ")" : " ",
 		         status ? "-" : "",
 		         status ? status : "");
 	} else {
-		g_print ("%s  ---   %s\n",
+		g_print ("%s  %s  %-*.*s  %-*.*s  - %s\n",
 		         time_str,
-		         name);
+		         progress_str,
+		         longest_miner_name_length,
+		         longest_miner_name_length,
+		         name,
+		         paused_length,
+		         paused_length,
+		         " ",
+		         _("Not running or is a disabled plugin"));
 	}
+
+	g_free (progress_str);
 }
 
 static void
@@ -279,18 +292,19 @@ store_print_state (void)
 	gdouble progress;
 	gchar *status;
 	gchar time_str[64];
+	gchar *progress_str;
 
 	org_freedesktop_Tracker1_Status_get_progress (proxy, &progress, &error);
 
 	if (error) {
-		g_critical ("Couldn't retrieve tracker-store progress: %s\n", error->message);
+		g_critical ("Could not retrieve tracker-store progress: %s", error->message);
 		return;
 	}
 
 	org_freedesktop_Tracker1_Status_get_status (proxy, &status, &error);
 
 	if (error) {
-		g_critical ("Couldn't retrieve tracker-store status: %s\n", error->message);
+		g_critical ("Could not retrieve tracker-store status: %s", error->message);
 		return;
 	}
 
@@ -310,10 +324,19 @@ store_print_state (void)
 		time_str[0] = '\0';
 	}
 
-	g_print ("%s: %s  %3.0f%%  %s\n",
-	         _("Store"),
+	if (progress > 0.0 && progress < 1.0) {
+		progress_str = g_strdup_printf ("%-3.0f%%", progress * 100);
+	} else {
+		progress_str = g_strdup_printf ("✓   ");
+	}
+	
+	g_print ("%s  %s  %-*.*s    %s %s\n",
 	         time_str,
-	         progress * 100,
+	         progress_str,
+	         longest_miner_name_length + paused_length,
+	         longest_miner_name_length + paused_length,
+	         _("Journal replay"),
+	         status ? "-" : "",
 	         status ? status : "");
 }
 
@@ -628,7 +651,8 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	g_print ("%s:\n", _("Miners"));
+	/* Work out lengths for output spacing */
+	paused_length = strlen (_("PAUSED"));
 
 	for (l = miners_available; l; l = l->next) {
 		const gchar *name;
@@ -636,6 +660,15 @@ main (gint argc, gchar *argv[])
 		name = tracker_miner_manager_get_display_name (manager, l->data);
 		longest_miner_name_length = MAX (longest_miner_name_length, strlen (name));
 	}
+
+	/* Display states */
+	g_print ("%s:\n", _("Store"));
+	init_store_proxy ();
+	store_print_state ();
+
+	g_print ("\n");
+
+	g_print ("%s:\n", _("Miners"));
 
 	for (l = miners_available; l; l = l->next) {
 		const gchar *name;
@@ -677,9 +710,6 @@ main (gint argc, gchar *argv[])
 		}
 	}
 
-	init_store_proxy ();
-	store_print_state ();
-
 	g_slist_foreach (miners_available, (GFunc) g_free, NULL);
 	g_slist_free (miners_available);
 
@@ -689,6 +719,7 @@ main (gint argc, gchar *argv[])
 	if (!follow) {
 		/* Do nothing further */
 		g_object_unref (client);
+		g_print ("\n");
 		return EXIT_SUCCESS;
 	}
 
