@@ -175,16 +175,15 @@ static void
 test_backup_and_restore (void)
 {
 	test_backup_and_restore_helper (FALSE);
+	backup_calls = 0;
 }
 
-#ifdef FAILING_UNIT_TEST
 static void
 test_journal_then_backup_and_restore (void)
 {
 	test_backup_and_restore_helper (TRUE);
+	backup_calls = 0;
 }
-#endif
-
 
 int
 main (int argc, char **argv)
@@ -209,14 +208,11 @@ main (int argc, char **argv)
 
 	g_free (current_dir);
 
-	g_test_add_func ("/tracker/libtracker-data/backup/save_and_restore",
-	                 test_backup_and_restore);
-
-#ifdef FAILING_UNIT_TEST
-	/* This test fails atm, disabled it while I'm fixing this in master */
 	g_test_add_func ("/tracker/libtracker-data/backup/journal_then_save_and_restore",
 	                 test_journal_then_backup_and_restore);
-#endif
+
+	g_test_add_func ("/tracker/libtracker-data/backup/save_and_restore",
+	                 test_backup_and_restore);
 
 	/* run tests */
 	result = g_test_run ();

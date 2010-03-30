@@ -2476,16 +2476,14 @@ tracker_data_replay_journal (GHashTable          *classes,
                              const gchar         *busy_status)
 {
 	GError *journal_error = NULL;
-	static TrackerProperty *rdf_type = NULL;
+	TrackerProperty *rdf_type = NULL;
 	gint last_operation_type = 0;
 	gboolean in_ontology = FALSE;
 	GList *ontology_queue = NULL;
 
 	tracker_data_begin_db_transaction_for_replay (0);
 
-	if (!rdf_type) {
-		rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
-	}
+	rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
 
 	tracker_db_journal_reader_init (NULL);
 
@@ -2779,5 +2777,4 @@ tracker_data_replay_journal (GHashTable          *classes,
 	}
 
 	tracker_data_commit_db_transaction ();
-
 }
