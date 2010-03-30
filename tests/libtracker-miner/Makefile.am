@@ -3,11 +3,13 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS +=									\
-	tracker-monitor-test							\
 	tracker-crawler-test							\
 	tracker-miner-manager-test						\
 	tracker-password-provider-test						\
 	tracker-thumbnailer-test
+
+# Disabled for now because it requires symbols NOT exported
+# tracker-monitor-test							
 
 INCLUDES =									\
 	-DTEST									\
