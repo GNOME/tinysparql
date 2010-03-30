@@ -1233,7 +1233,7 @@ class Tracker.Sparql.Pattern : Object {
 				// single subject
 				table.predicate_variable.subject = current_subject;
 			}
-			if (!current_subject_is_var) {
+			if (!object_is_var) {
 				// single object
 				table.predicate_variable.object = object;
 			}
