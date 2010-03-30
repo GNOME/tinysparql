@@ -19,9 +19,8 @@
 
 [CCode (cprefix = "Tracker", lower_case_cprefix = "tracker_")]
 namespace Tracker {
-	[Compact]
 	[CCode (cheader_filename = "libtracker-client/tracker-client.h")]
-	public class Client {
+	public class Client : GLib.Object {
 		[CCode (has_construct_function = false)]
 		public Client (Tracker.ClientFlags flags, int timeout);
 
