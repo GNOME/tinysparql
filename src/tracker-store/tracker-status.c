@@ -35,7 +35,7 @@
 #define PROGRESS_TIMEOUT_S 5
 
 typedef struct {
-	gdouble progress;
+	gdouble progress, last;
 	gchar *status;
 	guint timer_id;
 	TrackerStatus *object;
@@ -124,6 +124,8 @@ busy_notification_timeout (gpointer user_data)
 	               priv->status,
 	               priv->progress);
 
+	priv->last = TRUE;
+
 	return FALSE;
 }
 
@@ -132,10 +134,11 @@ busy_notification_destroy (gpointer user_data)
 {
 	TrackerStatusPrivate *priv = user_data;
 
-	if (priv->status) {
+	if (priv->last) {
 		g_free (priv->status);
+		priv->status = g_strdup ("Idle");
 	}
-	priv->status = g_strdup ("Idle");
+
 	priv->progress = 1;
 	priv->timer_id = 0;
 }
@@ -155,7 +158,9 @@ tracker_status_callback (const gchar *status,
 {
 	static gboolean first_time = TRUE;
 	TrackerStatusPrivate *priv = user_data;
+
 	priv->progress = progress;
+	priv->last = FALSE;
 
 	if (g_strcmp0 (status, priv->status) != 0) {
 		g_free (priv->status);
