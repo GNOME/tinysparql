@@ -61,7 +61,9 @@ ONTOLOGY_DIAGRAMS=							\
 	../ontologies/nmm/radio-overview.png				\
 	../ontologies/nmm/images-overview.png				\
 	../ontologies/mlo/location-overview.png				\
-	../ontologies/nie/overview.png
+	../ontologies/nie/overview.png					\
+	../ontologies/nmo/message-class-overview.png			\
+	../ontologies/nmo/email-mimeparts-overview.png
 
 .dia.png:
 	dia -t png $<

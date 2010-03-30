@@ -41,7 +41,9 @@ ONTOLOGY_DIAGRAMS = 					\
 	radio-overview.png				\
 	images-overview.png				\
 	location-overview.png				\
-	overview.png
+	overview.png					\
+	message-class-overview.png			\
+	email-mimeparts-overview.png
 
 # Images to copy into HTML directory
 HTML_IMAGES = ontology.png notation.png $(ONTOLOGY_DIAGRAMS)
