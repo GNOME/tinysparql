@@ -27,7 +27,7 @@ ns:p a rdf:Property ;
 
 x:p a rdf:Property ;
 	rdfs:domain x:A ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:integer .
 
 z:p a rdf:Property ;
 	rdfs:domain z:A ;

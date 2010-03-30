@@ -1,0 +1,4 @@
+PREFIX ns: <http://example.org/ns#>
+PREFIX x:  <http://example.org/x/>
+
+SELECT ?p ?v WHERE { x:x ?p ?v . ?p rdfs:range xsd:string } ORDER BY ?p ?v

@@ -1,10 +1,12 @@
 include $(top_srcdir)/Makefile.decl
 
-EXTRA_DIST = 	 	\
-	base-prefix-3.out	\
-	base-prefix-3.rq	\
-	data-1.ontology	\
-	data-1.ttl	\
-	predicate-variable.out	\
-	predicate-variable.rq
+EXTRA_DIST =                     \
+	base-prefix-3.out        \
+	base-prefix-3.rq         \
+	data-1.ontology          \
+	data-1.ttl               \
+	predicate-variable.out   \
+	predicate-variable.rq    \
+	predicate-variable-2.out \
+	predicate-variable-2.rq
 
