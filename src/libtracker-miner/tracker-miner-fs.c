@@ -2560,7 +2560,11 @@ crawl_directories_cb (gpointer user_data)
 
 	g_message ("%s", str);
 
-	g_object_set (fs, "status", str, NULL);
+	/* Always set the progress here to at least 1% */
+	g_object_set (fs,
+	              "progress", 0.01,
+	              "status", str,
+	              NULL);
 	g_free (str);
 	g_free (path);
 
