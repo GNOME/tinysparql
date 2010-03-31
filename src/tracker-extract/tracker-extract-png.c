@@ -24,20 +24,10 @@
 #define _GNU_SOURCE
 #endif
 
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
 #include <png.h>
 
-#include <glib.h>
-#include <glib/gstdio.h>
-
 #include <libtracker-common/tracker-file-utils.h>
-
+#include <libtracker-client/tracker-client.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
@@ -134,10 +124,11 @@ insert_keywords (TrackerSparqlBuilder *metadata,
 }
 
 static void
-read_metadata (png_structp           png_ptr, 
-               png_infop             info_ptr, 
-               const gchar          *uri, 
-               TrackerSparqlBuilder *metadata)
+read_metadata (TrackerSparqlBuilder *preupdate,
+               TrackerSparqlBuilder *metadata,
+               png_structp           png_ptr,
+               png_infop             info_ptr,
+               const gchar          *uri)
 {
 	MergeData md = { 0 };
 	PngData pd = { 0 };
@@ -146,9 +137,10 @@ read_metadata (png_structp           png_ptr,
 	png_textp text_ptr;
 	gint num_text;
 	gint i;
+	gint found;
 
-	if (png_get_text (png_ptr, info_ptr, &text_ptr, &num_text) < 1) {
-		g_warning ("Calling png_get_text() returned < 1");
+	if ((found = png_get_text (png_ptr, info_ptr, &text_ptr, &num_text)) < 1) {
+		g_debug ("Calling png_get_text() returned %d (< 1)", found);
 		return;
 	}
 
@@ -166,7 +158,8 @@ read_metadata (png_structp           png_ptr,
 			 */
 			tracker_extract_xmp_read (text_ptr[i].text,
 			                          text_ptr[i].itxt_length,
-			                          uri, &xd);
+			                          uri, 
+			                          &xd);
 
 			continue;
 		}
@@ -180,7 +173,8 @@ read_metadata (png_structp           png_ptr,
 		if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
 			tracker_extract_exif_read (text_ptr[i].text,
 			                           text_ptr[i].itxt_length, 
-			                           uri, &ed);
+			                           uri, 
+			                           &ed);
 			continue;
 		}
 #endif /* HAVE_LIBEXIF */
@@ -287,16 +281,20 @@ read_metadata (png_structp           png_ptr,
 	g_free (ed.image_width);
 
 	if (md.creator) {
-		tracker_sparql_builder_predicate (metadata, "nco:creator");
+		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", md.creator);
 
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Contact");
-
-		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, md.creator);
-		tracker_sparql_builder_object_blank_close (metadata);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nco:Contact");
+		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (preupdate, md.creator);
+		tracker_sparql_builder_insert_close (preupdate);
 		g_free (md.creator);
+
+		tracker_sparql_builder_predicate (metadata, "nco:creator");
+		tracker_sparql_builder_object_iri (metadata, uri);
+		g_free (uri);
 	}
 
 	if (md.date) {
@@ -330,16 +328,20 @@ read_metadata (png_structp           png_ptr,
 	}
 
 	if (md.artist) {
-		tracker_sparql_builder_predicate (metadata, "nco:contributor");
+		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", md.artist);
 
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Contact");
-
-		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, md.artist);
-		tracker_sparql_builder_object_blank_close (metadata);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nco:Contact");
+		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (preupdate, md.artist);
+		tracker_sparql_builder_insert_close (preupdate);
 		g_free (md.artist);
+
+		tracker_sparql_builder_predicate (metadata, "nco:contributor");
+		tracker_sparql_builder_object_iri (metadata, uri);
+		g_free (uri);
 	}
 
 	if (md.orientation) {
@@ -413,16 +415,20 @@ read_metadata (png_structp           png_ptr,
 	}
 
 	if (xd.publisher) {
-		tracker_sparql_builder_predicate (metadata, "nco:publisher");
+		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", xd.publisher);
 
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Contact");
-
-		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.publisher);
-		tracker_sparql_builder_object_blank_close (metadata);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nco:Contact");
+		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (preupdate, xd.publisher);
+		tracker_sparql_builder_insert_close (preupdate);
 		g_free (xd.publisher);
+
+		tracker_sparql_builder_predicate (metadata, "nco:creator");
+		tracker_sparql_builder_object_iri (metadata, uri);
+		g_free (uri);
 	}
 
 	if (xd.type) {
@@ -529,89 +535,91 @@ extract_png (const gchar          *uri,
 	f = tracker_file_open (filename, "r", FALSE);
 	g_free (filename);
 
-	if (f) {
-		png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
-		                                  NULL,
-		                                  NULL,
-		                                  NULL);
-		if (!png_ptr) {
-			tracker_file_close (f, FALSE);
-			return;
-		}
+	if (!f) {
+		return;
+	}
 
-		info_ptr = png_create_info_struct (png_ptr);
-		if (!info_ptr) {
-			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-			tracker_file_close (f, FALSE);
-			return;
-		}
+	png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
+	                                  NULL,
+	                                  NULL,
+	                                  NULL);
+	if (!png_ptr) {
+		tracker_file_close (f, FALSE);
+		return;
+	}
 
-		end_ptr = png_create_info_struct (png_ptr);
-		if (!end_ptr) {
-			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-			tracker_file_close (f, FALSE);
-			return;
-		}
+	info_ptr = png_create_info_struct (png_ptr);
+	if (!info_ptr) {
+		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
+		tracker_file_close (f, FALSE);
+		return;
+	}
 
-		if (setjmp (png_jmpbuf (png_ptr))) {
-			png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
-			tracker_file_close (f, FALSE);
-			return;
-		}
+	end_ptr = png_create_info_struct (png_ptr);
+	if (!end_ptr) {
+		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
+		tracker_file_close (f, FALSE);
+		return;
+	}
 
-		png_init_io (png_ptr, f);
-		png_read_info (png_ptr, info_ptr);
-
-		if (!png_get_IHDR (png_ptr,
-		                   info_ptr,
-		                   &width,
-		                   &height,
-		                   &bit_depth,
-		                   &color_type,
-		                   &interlace_type,
-		                   &compression_type,
-		                   &filter_type)) {
-			png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
-			tracker_file_close (f, FALSE);
-			return;
-		}
-
-		/* Read the image. FIXME We should be able to skip this step and
-		 * just get the info from the end. This causes some errors atm.
-		 */
-		row_pointers = g_new0 (png_bytep, height);
-
-		for (row = 0; row < height; row++) {
-			row_pointers[row] = png_malloc (png_ptr,
-			                                png_get_rowbytes (png_ptr,info_ptr));
-		}
-
-		png_read_image (png_ptr, row_pointers);
-
-		for (row = 0; row < height; row++) {
-			png_free (png_ptr, row_pointers[row]);
-		}
-
-		g_free (row_pointers);
-
-		png_read_end (png_ptr, end_ptr);
-
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nfo:Image");
-		tracker_sparql_builder_object (metadata, "nmm:Photo");
-
-		read_metadata (png_ptr, info_ptr, uri, metadata);
-		read_metadata (png_ptr, end_ptr, uri, metadata);
-
-		tracker_sparql_builder_predicate (metadata, "nfo:width");
-		tracker_sparql_builder_object_int64 (metadata, width);
-
-		tracker_sparql_builder_predicate (metadata, "nfo:height");
-		tracker_sparql_builder_object_int64 (metadata, height);
-
+	if (setjmp (png_jmpbuf (png_ptr))) {
 		png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 		tracker_file_close (f, FALSE);
+		return;
 	}
+
+	png_init_io (png_ptr, f);
+	png_read_info (png_ptr, info_ptr);
+
+	if (!png_get_IHDR (png_ptr,
+	                   info_ptr,
+	                   &width,
+	                   &height,
+	                   &bit_depth,
+	                   &color_type,
+	                   &interlace_type,
+	                   &compression_type,
+	                   &filter_type)) {
+		png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
+		tracker_file_close (f, FALSE);
+		return;
+	}
+
+	/* Read the image. FIXME We should be able to skip this step and
+	 * just get the info from the end. This causes some errors atm.
+	 */
+	row_pointers = g_new0 (png_bytep, height);
+
+	for (row = 0; row < height; row++) {
+		row_pointers[row] = png_malloc (png_ptr,
+		                                png_get_rowbytes (png_ptr,info_ptr));
+	}
+
+	png_read_image (png_ptr, row_pointers);
+
+	for (row = 0; row < height; row++) {
+		png_free (png_ptr, row_pointers[row]);
+	}
+
+	g_free (row_pointers);
+
+	png_read_end (png_ptr, end_ptr);
+
+	tracker_sparql_builder_predicate (metadata, "a");
+	tracker_sparql_builder_object (metadata, "nfo:Image");
+	tracker_sparql_builder_object (metadata, "nmm:Photo");
+
+	read_metadata (preupdate, metadata, png_ptr, info_ptr, uri);
+	read_metadata (preupdate, metadata, png_ptr, end_ptr, uri);
+
+	tracker_sparql_builder_predicate (metadata, "nfo:width");
+	tracker_sparql_builder_object_int64 (metadata, width);
+
+	tracker_sparql_builder_predicate (metadata, "nfo:height");
+	tracker_sparql_builder_object_int64 (metadata, height);
+
+	png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
+	tracker_file_close (f, FALSE);
 }
 
 TrackerExtractData *
