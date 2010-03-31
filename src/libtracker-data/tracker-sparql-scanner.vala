@@ -779,12 +779,6 @@ public struct Tracker.SourceLocation {
 	public char* pos;
 	public int line;
 	public int column;
-
-	public SourceLocation (char* _pos, int _line, int _column) {
-		pos = _pos;
-		line = _line;
-		column = _column;
-	}
 }
 
 public enum Tracker.SparqlTokenType {
