@@ -2376,10 +2376,12 @@ queue_statement (GList *queue,
 }
 
 static void
-ontology_transaction_end (GList *ontology_queue)
+ontology_transaction_end (GList *ontology_queue, GPtrArray *seen_classes, GPtrArray *seen_properties)
 {
 	GList *l;
 	const gchar *ontology_uri = NULL;
+
+	tracker_data_ontology_post_check (seen_classes, seen_properties);
 
 	/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
 	tracker_data_ontology_import_into_db (TRUE);
@@ -2444,7 +2446,9 @@ ontology_statement_insert (GList       *ontology_queue,
                            GHashTable  *classes,
                            GHashTable  *properties,
                            GHashTable  *id_uri_map,
-                           gboolean     is_uri)
+                           gboolean     is_uri,
+                           GPtrArray   *seen_classes,
+                           GPtrArray   *seen_properties)
 {
 	const gchar *graph, *subject, *predicate;
 
@@ -2458,8 +2462,9 @@ ontology_statement_insert (GList       *ontology_queue,
 	predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
 
 	/* load ontology from journal into memory, set all new's is_new to TRUE */
-	tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate, 
-	                                      object, NULL, TRUE, classes, properties);
+	tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate,
+	                                      object, NULL, TRUE, classes, properties,
+	                                      seen_classes, seen_properties);
 
 	/* Queue the statement for processing after ALTER in ontology_transaction_end */
 	ontology_queue = queue_statement (ontology_queue, graph, subject, predicate, object, is_uri);
@@ -2480,6 +2485,8 @@ tracker_data_replay_journal (GHashTable          *classes,
 	gint last_operation_type = 0;
 	gboolean in_ontology = FALSE;
 	GList *ontology_queue = NULL;
+	GPtrArray *seen_classes = NULL;
+	GPtrArray *seen_properties = NULL;
 
 	tracker_data_begin_db_transaction_for_replay (0);
 
@@ -2538,11 +2545,15 @@ tracker_data_replay_journal (GHashTable          *classes,
 			resource_time = tracker_db_journal_reader_get_time ();
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
 			if (in_ontology) {
-				ontology_transaction_end (ontology_queue);
+				ontology_transaction_end (ontology_queue, seen_classes, seen_properties);
 				g_list_foreach (ontology_queue, (GFunc) free_queued_statement, NULL);
 				g_list_free (ontology_queue);
 				ontology_queue = NULL;
 				in_ontology = FALSE;
+				tracker_data_ontology_free_seen (seen_classes);
+				seen_classes = NULL;
+				tracker_data_ontology_free_seen (seen_properties);
+				seen_properties = NULL;
 			} else {
 				GError *new_error = NULL;
 				tracker_data_update_buffer_might_flush (&new_error);
@@ -2558,6 +2569,12 @@ tracker_data_replay_journal (GHashTable          *classes,
 			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
 			if (in_ontology) {
+
+				if (!seen_classes)
+					seen_classes = g_ptr_array_new ();
+				if (!seen_properties)
+					seen_properties = g_ptr_array_new ();
+
 				ontology_queue = ontology_statement_insert (ontology_queue,
 				                                            graph_id,
 				                                            subject_id,
@@ -2566,7 +2583,9 @@ tracker_data_replay_journal (GHashTable          *classes,
 				                                            classes,
 				                                            properties,
 				                                            id_uri_map,
-				                                            FALSE);
+				                                            FALSE,
+				                                            seen_classes,
+				                                            seen_properties);
 				continue;
 			}
 
@@ -2605,6 +2624,12 @@ tracker_data_replay_journal (GHashTable          *classes,
 			if (in_ontology) {
 				const gchar *object_n;
 				object_n = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (object_id));
+
+				if (!seen_classes)
+					seen_classes = g_ptr_array_new ();
+				if (!seen_properties)
+					seen_properties = g_ptr_array_new ();
+
 				ontology_queue = ontology_statement_insert (ontology_queue,
 				                                            graph_id,
 				                                            subject_id,
@@ -2613,7 +2638,9 @@ tracker_data_replay_journal (GHashTable          *classes,
 				                                            classes,
 				                                            properties,
 				                                            id_uri_map,
-				                                            TRUE);
+				                                            TRUE,
+				                                            seen_classes,
+				                                            seen_properties);
 				continue;
 			}
 

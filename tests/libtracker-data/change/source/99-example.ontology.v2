@@ -17,5 +17,6 @@ example:B a rdfs:Class ;
 
 example:b a rdf:Property ;
 	rdfs:domain example:A ;
-	rdfs:range example:B .
+	rdfs:range example:B ;
+	tracker:indexed true .
 

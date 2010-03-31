@@ -87,6 +87,8 @@ gboolean            tracker_property_get_embedded         (TrackerProperty      
 gboolean            tracker_property_get_multiple_values  (TrackerProperty      *property);
 gboolean            tracker_property_get_transient        (TrackerProperty      *property);
 gboolean            tracker_property_get_is_new           (TrackerProperty      *property);
+gboolean            tracker_property_get_writeback        (TrackerProperty      *property);
+gboolean            tracker_property_get_need_recreate    (TrackerProperty      *property);
 gboolean            tracker_property_get_is_inverse_functional_property
 (TrackerProperty      *property);
 TrackerProperty **  tracker_property_get_super_properties (TrackerProperty      *property);
@@ -113,6 +115,10 @@ void                tracker_property_set_multiple_values  (TrackerProperty      
 void                tracker_property_set_transient        (TrackerProperty      *property,
                                                            gboolean              value);
 void                tracker_property_set_is_new           (TrackerProperty      *property,
+                                                           gboolean              value);
+void                tracker_property_set_writeback        (TrackerProperty      *property,
+                                                           gboolean              value);
+void                tracker_property_set_need_recreate    (TrackerProperty      *property,
                                                            gboolean              value);
 void                tracker_property_set_is_inverse_functional_property
 (TrackerProperty      *property,

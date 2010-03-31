@@ -46,6 +46,7 @@
 #include "tracker-ontology.h"
 #include "tracker-property.h"
 #include "tracker-sparql-query.h"
+#include "tracker-data-query.h"
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_PROPERTY RDF_PREFIX "Property"
@@ -69,9 +70,147 @@
 
 #define ZLIBBUFSIZ 8192
 
-static gchar              *ontologies_dir;
-static gboolean            initialized;
-static gboolean            in_journal_replay;
+static gchar    *ontologies_dir;
+static gboolean  initialized;
+static gboolean  in_journal_replay;
+
+static void
+set_index_for_single_value_property (TrackerDBInterface *iface,
+                                     const gchar *service_name,
+                                     const gchar *field_name,
+                                     gboolean enabled)
+{
+	if (enabled) {
+		tracker_db_interface_execute_query (iface, NULL,
+		                                    "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
+		                                    service_name,
+		                                    field_name,
+		                                    service_name,
+		                                    field_name);
+	} else {
+		tracker_db_interface_execute_query (iface, NULL,
+		                                    "DROP INDEX IF EXISTS \"%s_%s\"",
+		                                    service_name,
+		                                    field_name);
+	}
+}
+
+static void
+set_index_for_multi_value_property (TrackerDBInterface *iface,
+                                    const gchar *service_name,
+                                    const gchar *field_name,
+                                    gboolean enabled)
+{
+	tracker_db_interface_execute_query (iface, NULL,
+	                                    "DROP INDEX IF EXISTS \"%s_%s_ID_ID\"",
+	                                    service_name,
+	                                    field_name);
+
+	if (enabled) {
+		tracker_db_interface_execute_query (iface, NULL,
+		                                    "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
+		                                    service_name,
+		                                    field_name,
+		                                    service_name,
+		                                    field_name);
+		tracker_db_interface_execute_query (iface, NULL,
+		                                    "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (\"%s\", ID)",
+		                                    service_name,
+		                                    field_name,
+		                                    service_name,
+		                                    field_name,
+		                                    field_name);
+	} else {
+		tracker_db_interface_execute_query (iface, NULL,
+		                                    "DROP INDEX IF EXISTS \"%s_%s_ID\"",
+		                                    service_name,
+		                                    field_name);
+		tracker_db_interface_execute_query (iface, NULL,
+		                                    "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (ID, \"%s\")",
+		                                    service_name,
+		                                    field_name,
+		                                    service_name,
+		                                    field_name,
+		                                    field_name);
+	}
+}
+
+static gboolean
+update_property_value (const gchar *kind,
+                       const gchar *subject,
+                       const gchar *predicate,
+                       const gchar *object)
+{
+	GError *error = NULL;
+	TrackerDBResultSet *result_set;
+	gchar *query;
+	gboolean needed = TRUE;
+
+	query = g_strdup_printf ("SELECT ?old_value WHERE { "
+	                           "<%s> %s ?old_value "
+	                         "}", subject, kind);
+
+	result_set = tracker_data_query_sparql (query, &error);
+
+	g_free (query);
+
+	if (!error && result_set) {
+		gchar *str = NULL;
+
+		tracker_db_result_set_get (result_set, 0, &str, -1);
+
+		if (g_strcmp0 (object, str) == 0) {
+			needed = FALSE;
+		} else {
+			tracker_data_delete_statement (NULL, subject, predicate, str, &error);
+			if (!error)
+				tracker_data_update_buffer_flush (&error);
+		}
+
+		g_free (str);
+	}
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+
+	if (!error && needed) {
+		tracker_data_insert_statement (NULL, subject,
+		                               predicate, object,
+		                               &error);
+		if (!error)
+			tracker_data_update_buffer_flush (&error);
+	}
+
+	if (error) {
+		g_critical ("Ontology change: %s", error->message);
+		g_clear_error (&error);
+	}
+
+	return needed;
+}
+
+
+static void
+fix_indexed (TrackerProperty *property, gboolean enabled)
+{
+	TrackerDBInterface *iface;
+	TrackerClass *class;
+	const gchar *service_name;
+	const gchar *field_name;
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	class = tracker_property_get_domain (property);
+	field_name = tracker_property_get_name (property);
+	service_name = tracker_class_get_name (class);
+
+	if (tracker_property_get_multiple_values (property)) {
+		set_index_for_multi_value_property (iface, service_name, field_name, enabled);
+	} else {
+		set_index_for_single_value_property (iface, service_name, field_name, enabled);
+	}
+}
 
 void
 tracker_data_ontology_load_statement (const gchar *ontology_path,
@@ -82,15 +221,24 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
                                       gint        *max_id,
                                       gboolean    in_update,
                                       GHashTable *classes,
-                                      GHashTable *properties)
+                                      GHashTable *properties,
+                                      GPtrArray  *seen_classes,
+                                      GPtrArray  *seen_properties)
 {
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
+			class = tracker_ontologies_get_class_by_uri (subject);
 
-			if (tracker_ontologies_get_class_by_uri (subject) != NULL) {
-				if (!in_update)
+			if (class != NULL) {
+				if (seen_classes)
+					g_ptr_array_add (seen_classes, g_object_ref (class));
+				if (!in_update) {
 					g_critical ("%s: Duplicate definition of class %s", ontology_path, subject);
+				} else {
+					/* Reset for a correct post-check */
+					tracker_class_set_notify (class, FALSE);
+				}
 				return;
 			}
 
@@ -105,6 +253,9 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			tracker_ontologies_add_class (class);
 			tracker_ontologies_add_id_uri_pair (subject_id, subject);
 
+			if (seen_classes)
+				g_ptr_array_add (seen_classes, g_object_ref (class));
+
 			if (classes) {
 				g_hash_table_insert (classes, GINT_TO_POINTER (subject_id), class);
 			} else {
@@ -114,9 +265,17 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
 
-			if (tracker_ontologies_get_property_by_uri (subject) != NULL) {
-				if (!in_update)
+			property = tracker_ontologies_get_property_by_uri (subject);
+			if (property != NULL) {
+				if (seen_properties)
+					g_ptr_array_add (seen_properties, g_object_ref (property));
+				if (!in_update) {
 					g_critical ("%s: Duplicate definition of property %s", ontology_path, subject);
+				} else {
+					/* Reset for a correct post-check */
+					tracker_property_set_indexed (property, FALSE);
+					tracker_property_set_writeback (property, FALSE);
+				}
 				return;
 			}
 
@@ -130,6 +289,9 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			tracker_property_set_id (property, subject_id);
 			tracker_ontologies_add_property (property);
 			tracker_ontologies_add_id_uri_pair (subject_id, subject);
+
+			if (seen_properties)
+				g_ptr_array_add (seen_properties, g_object_ref (property));
 
 			if (properties) {
 				g_hash_table_insert (properties, GINT_TO_POINTER (subject_id), property);
@@ -198,6 +360,29 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_class_add_super_class (class, super_class);
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "notify") == 0) {
+		TrackerClass *class;
+
+		class = tracker_ontologies_get_class_by_uri (subject);
+
+		if (class == NULL) {
+			g_critical ("%s: Unknown class %s", ontology_path, subject);
+			return;
+		}
+
+		tracker_class_set_notify (class, (strcmp (object, "true") == 0));
+
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "writeback") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontologies_get_property_by_uri (subject);
+
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			return;
+		}
+
+		tracker_property_set_writeback (property, (strcmp (object, "true") == 0));
 	} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0) {
 		TrackerProperty *property, *super_property;
 
@@ -285,13 +470,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		if (tracker_property_get_is_new (property) != in_update) {
-			return;
-		}
-
-		if (strcmp (object, "true") == 0) {
-			tracker_property_set_indexed (property, TRUE);
-		}
+		tracker_property_set_indexed (property, (strcmp (object, "true") == 0));
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0) {
 		TrackerProperty *property;
 
@@ -349,6 +528,10 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
+		if (tracker_property_get_is_new (property) != in_update) {
+			return;
+		}
+
 		if (strcmp (object, "true") == 0) {
 			tracker_property_set_fulltext_no_limit (property, TRUE);
 		}
@@ -381,13 +564,82 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 		tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL, NULL));
 	}
+}
 
+void
+tracker_data_ontology_post_check (GPtrArray *seen_classes,
+                                  GPtrArray *seen_properties)
+{
+	gint i;
+
+	/* This checks for properties of classes being removed from the ontology.
+	 * For example when going from: prefix:A rdfs:Class ; tracker:notify true .
+	 * to prefix:A rdfs:Class . */
+
+	for (i = 0; i < seen_classes->len; i++) {
+		TrackerClass *class = g_ptr_array_index (seen_classes, i);
+		const gchar *subject;
+		subject = tracker_class_get_uri (class);
+		if (tracker_class_get_notify (class)) {
+			update_property_value ("tracker:notify",
+			                       subject,
+			                       TRACKER_PREFIX "notify",
+			                       "true");
+		} else {
+			update_property_value ("tracker:notify",
+			                       subject,
+			                       TRACKER_PREFIX "notify",
+			                       "false");
+		}
+	}
+
+	for (i = 0; i < seen_properties->len; i++) {
+		TrackerProperty *property = g_ptr_array_index (seen_properties, i);
+		const gchar *subject;
+		subject = tracker_property_get_uri (property);
+		if (tracker_property_get_writeback (property)) {
+			update_property_value ("tracker:writeback",
+			                       subject,
+			                       TRACKER_PREFIX "writeback",
+			                       "true");
+		} else {
+			update_property_value ("tracker:writeback",
+			                       subject,
+			                       TRACKER_PREFIX "writeback",
+			                       "false");
+		}
+
+		if (tracker_property_get_indexed (property)) {
+			if (update_property_value ("tracker:indexed",
+			                           subject,
+			                           TRACKER_PREFIX "indexed",
+			                           "true")) {
+				fix_indexed (property, TRUE);
+			}
+		} else {
+			if (update_property_value ("tracker:indexed",
+			                           subject,
+			                           TRACKER_PREFIX "indexed",
+			                           "false")) {
+				fix_indexed (property, FALSE);
+			}
+		}
+	}
+}
+
+void
+tracker_data_ontology_free_seen (GPtrArray *seen)
+{
+	g_ptr_array_foreach (seen, (GFunc) g_object_unref, NULL);
+	g_ptr_array_free (seen, TRUE);
 }
 
 static void
 load_ontology_file_from_path (const gchar        *ontology_path,
                               gint               *max_id,
-                              gboolean            in_update)
+                              gboolean            in_update,
+                              GPtrArray          *seen_classes,
+                              GPtrArray          *seen_properties)
 {
 	TrackerTurtleReader *reader;
 	GError              *error = NULL;
@@ -399,6 +651,9 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 		return;
 	}
 
+	/* Post checks are only needed for ontology updates, not the initial
+	 * ontology */
+
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		const gchar *subject, *predicate, *object;
 
@@ -407,7 +662,8 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 		object = tracker_turtle_reader_get_object (reader);
 
 		tracker_data_ontology_load_statement (ontology_path, 0, subject, predicate, object,
-		                                      max_id, in_update, NULL, NULL);
+		                                      max_id, in_update, NULL, NULL,
+		                                      seen_classes, seen_properties);
 	}
 
 	g_object_unref (reader);
@@ -505,7 +761,6 @@ load_ontology_from_journal (GHashTable **classes_out,
 
 	id_uri_map = g_hash_table_new (g_direct_hash, g_direct_equal);
 
-
 	while (tracker_db_journal_reader_next (NULL)) {
 		TrackerDBJournalEntryType type;
 
@@ -535,8 +790,12 @@ load_ontology_from_journal (GHashTable **classes_out,
 			subject = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (subject_id));
 			predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
 
-			tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate, 
-			                                      object, NULL, FALSE, classes, properties);
+			/* Post checks are only needed for ontology updates, not the initial
+			 * ontology */
+
+			tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate,
+			                                      object, NULL, FALSE, classes, properties,
+			                                      NULL, NULL);
 		}
 	}
 
@@ -1094,30 +1353,18 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				                        tracker_property_get_name (property));
 			}
 
+			tracker_db_interface_execute_query (iface, NULL,
+			                                    "%s)", sql->str);
+
 			/* multiple values */
 			if (tracker_property_get_indexed (property)) {
 				/* use different UNIQUE index for properties whose
 				 * value should be indexed to minimize index size */
-				tracker_db_interface_execute_query (iface, NULL,
-				                                    "%s, "
-				                                    "UNIQUE (\"%s\", ID))",
-				                                    sql->str,
-				                                    field_name);
-
-				tracker_db_interface_execute_query (iface, NULL,
-				                                    "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
-				                                    service_name,
-				                                    field_name,
-				                                    service_name,
-				                                    field_name);
+				set_index_for_multi_value_property (iface, service_name, field_name, TRUE);
 			} else {
+				set_index_for_multi_value_property (iface, service_name, field_name, FALSE);
 				/* we still have to include the property value in
 				 * the unique index for proper constraints */
-				tracker_db_interface_execute_query (iface, NULL,
-				                                    "%s, "
-				                                    "UNIQUE (ID, \"%s\"))",
-				                                    sql->str,
-				                                    field_name);
 			}
 
 			g_string_free (sql, TRUE);
@@ -1271,12 +1518,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		if (!tracker_property_get_multiple_values (field)
 		    && tracker_property_get_indexed (field)) {
 			field_name = tracker_property_get_name (field);
-			tracker_db_interface_execute_query (iface, NULL,
-			                                    "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
-			                                    service_name,
-			                                    field_name,
-			                                    service_name,
-			                                    field_name);
+			set_index_for_single_value_property (iface, service_name, field_name, TRUE);
 		}
 	}
 
@@ -1546,7 +1788,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			gchar *ontology_path;
 			g_debug ("Loading ontology %s", (char *) l->data);
 			ontology_path = g_build_filename (ontologies_dir, l->data, NULL);
-			load_ontology_file_from_path (ontology_path, &max_id, FALSE);
+			load_ontology_file_from_path (ontology_path, &max_id, FALSE, NULL, NULL);
 			g_free (ontology_path);
 		}
 
@@ -1558,7 +1800,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 				g_debug ("Loading ontology:'%s' (TEST ONTOLOGY)", test_schema_path);
 
-				load_ontology_file_from_path (test_schema_path, &max_id, FALSE);
+				load_ontology_file_from_path (test_schema_path, &max_id, FALSE, NULL, NULL);
 				g_free (test_schema_path);
 			}
 		}
@@ -1613,6 +1855,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		GList *to_reload = NULL;
 		GList *ontos = NULL;
 		guint p;
+		GPtrArray *seen_classes;
+		GPtrArray *seen_properties;
+
+		seen_classes = g_ptr_array_new ();
+		seen_properties = g_ptr_array_new ();
 
 		/* Get all the ontology files from ontologies_dir */
 		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
@@ -1711,9 +1958,10 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 						/* In case of first-time, this wont start at zero */
 						max_id = get_new_service_id (iface);
 					}
-					/* load ontology from files into memory, set all new's 
+					/* load ontology from files into memory, set all new's
 					 * is_new to TRUE */
-					load_ontology_file_from_path (ontology_path, &max_id, TRUE);
+					load_ontology_file_from_path (ontology_path, &max_id, TRUE,
+					                              seen_classes, seen_properties);
 					to_reload = g_list_prepend (to_reload, l->data);
 					update_nao = TRUE;
 				}
@@ -1723,9 +1971,10 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					/* In case of first-time, this wont start at zero */
 					max_id = get_new_service_id (iface);
 				}
-				/* load ontology from files into memory, set all new's 
+				/* load ontology from files into memory, set all new's
 				 * is_new to TRUE */
-				load_ontology_file_from_path (ontology_path, &max_id, TRUE);
+				load_ontology_file_from_path (ontology_path, &max_id, TRUE,
+				                              seen_classes, seen_properties);
 				to_reload = g_list_prepend (to_reload, l->data);
 				update_nao = TRUE;
 			}
@@ -1759,6 +2008,10 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			}
 			g_list_free (to_reload);
 		}
+
+		tracker_data_ontology_post_check (seen_classes, seen_properties);
+		tracker_data_ontology_free_seen (seen_classes);
+		tracker_data_ontology_free_seen (seen_properties);
 
 		/* Reset the is_new flag for all classes and properties */
 		tracker_data_ontology_import_finished ();

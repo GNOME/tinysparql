@@ -39,6 +39,8 @@ struct _TrackerClassPriv {
 	gint count;
 	gint id;
 	gboolean is_new;
+	gboolean need_recreate;
+	gboolean notify;
 
 	GArray *super_classes;
 };
@@ -165,6 +167,30 @@ tracker_class_get_is_new (TrackerClass *service)
 	return priv->is_new;
 }
 
+gboolean
+tracker_class_get_notify (TrackerClass *service)
+{
+	TrackerClassPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
+
+	priv = GET_PRIV (service);
+
+	return priv->notify;
+}
+
+gboolean
+tracker_class_get_need_recreate (TrackerClass *service)
+{
+	TrackerClassPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
+
+	priv = GET_PRIV (service);
+
+	return priv->need_recreate;
+}
+
 void
 tracker_class_set_uri (TrackerClass *service,
                        const gchar  *value)
@@ -260,3 +286,30 @@ tracker_class_set_is_new (TrackerClass *service,
 
 	priv->is_new = value;
 }
+
+void
+tracker_class_set_notify (TrackerClass *service,
+                          gboolean         value)
+{
+	TrackerClassPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = GET_PRIV (service);
+
+	priv->notify = value;
+}
+
+void
+tracker_class_set_need_recreate (TrackerClass *service,
+                                 gboolean         value)
+{
+	TrackerClassPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = GET_PRIV (service);
+
+	priv->need_recreate = value;
+}
+
