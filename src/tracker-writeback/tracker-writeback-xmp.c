@@ -240,6 +240,8 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "contentCreated") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "Date");
 			xmp_set_property (xmp, NS_EXIF, "Date", row[3], 0);
+			xmp_delete_property (xmp,  NS_DC, "date");
+			xmp_set_property (xmp,  NS_DC, "date", row[3], 0);
 		}
 
 		if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "orientation") == 0) {
