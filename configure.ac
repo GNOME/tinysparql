@@ -1704,6 +1704,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-data/aggregates/Makefile
 	tests/libtracker-data/algebra/Makefile
 	tests/libtracker-data/anon/Makefile
+	tests/libtracker-data/ask/Makefile
 	tests/libtracker-data/basic/Makefile
 	tests/libtracker-data/bnode-coreference/Makefile
 	tests/libtracker-data/bound/Makefile

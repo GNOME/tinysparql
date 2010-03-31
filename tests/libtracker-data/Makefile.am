@@ -4,6 +4,7 @@ SUBDIRS = 			\
 	aggregates		\
 	algebra			\
 	anon			\
+	ask			\
 	basic			\
 	bnode-coreference	\
 	bound 			\

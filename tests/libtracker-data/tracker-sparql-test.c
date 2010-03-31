@@ -55,6 +55,7 @@ const TestInfo tests[] = {
 	{ "algebra/filter-scope-1", "algebra/data-2", FALSE },
 	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", FALSE },
 	{ "anon/query", "anon/data", FALSE },
+	{ "ask/ask-1", "ask/data", FALSE },
 	{ "basic/base-prefix-3", "basic/data-1", FALSE },
 	{ "basic/predicate-variable", "basic/data-1", FALSE },
 	{ "basic/predicate-variable-2", "basic/data-1", FALSE },
