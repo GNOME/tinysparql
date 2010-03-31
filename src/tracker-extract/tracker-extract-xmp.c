@@ -133,26 +133,30 @@ extract_xmp (const gchar          *uri,
              TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
+	TrackerXmpData xd = { 0 };
+	GError *error;
+	gchar *filename;
 	gchar *contents;
 	gsize length;
-	GError *error;
-	gchar *filename = g_filename_from_uri (uri, NULL, NULL);
-	TrackerXmpData xmp_data = { 0 };
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
 
 	if (g_file_get_contents (filename, &contents, &length, &error)) {
-		gchar *orig_uri = find_orig_uri (filename);
+		gchar *original_uri;
+
+		original_uri = find_orig_uri (filename);
 
 		/* If no orig file is found for the sidekick, we use the sidekick to
-		 * describe itself instead, falling back to uri */
-
+		 * describe itself instead, falling back to uri 
+		 */
 		tracker_xmp_read (contents,
 		                  length,
-		                  orig_uri ? orig_uri : uri,
-		                  &xmp_data);
+		                  original_uri ? original_uri : uri,
+		                  &xd);
 
-		tracker_xmp_apply (metadata, uri, &xmp_data);
+		tracker_xmp_apply (metadata, uri, &xd);
 
-		g_free (orig_uri);
+		g_free (original_uri);
 	}
 
 	g_free (filename);

@@ -43,7 +43,12 @@
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
 
 typedef struct {
-	gchar *title, *copyright, *creator, *description, *date, *license;
+	gchar *title;
+	gchar *copyright;
+	gchar *creator;
+	gchar *description;
+	gchar *date;
+	gchar *license;
 	gchar *artist;
 	gchar *camera;
 	gchar *orientation;
@@ -59,17 +64,22 @@ typedef struct {
 	gchar *state;
 	gchar *address;
 	gchar *country;
-} PngNeedsMergeData;
+} MergeData;
 
 typedef struct {
-	gchar *author, *creator, *description, *comment, *copyright,
-		*creation_time, *title, *disclaimer;
+	gchar *author;
+	gchar *creator;
+	gchar *description;
+	gchar *comment;
+	gchar *copyright;
+	gchar *creation_time;
+	gchar *title;
+	gchar *disclaimer;
 } PngData;
 
-static gchar *rfc1123_to_iso8601_date (gchar                *rfc_date);
-static void   extract_png             (const gchar          *filename,
-                                       TrackerSparqlBuilder *preupdate,
-                                       TrackerSparqlBuilder *metadata);
+static void extract_png (const gchar          *filename,
+                         TrackerSparqlBuilder *preupdate,
+                         TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
 	{ "image/png", extract_png },
@@ -78,7 +88,7 @@ static TrackerExtractData data[] = {
 };
 
 static gchar *
-rfc1123_to_iso8601_date (gchar *date)
+rfc1123_to_iso8601_date (const gchar *date)
 {
 	/* From: ex. RFC1123 date: "22 May 1997 18:07:10 -0600"
 	 * To  : ex. ISO8601 date: "2007-05-22T18:07:10-0600"
@@ -87,23 +97,28 @@ rfc1123_to_iso8601_date (gchar *date)
 }
 
 static void
-insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywords)
+insert_keywords (TrackerSparqlBuilder *metadata, 
+                 const gchar          *uri, 
+                 gchar                *keywords)
 {
 	char *lasts, *keyw;
 	size_t len;
 
 	keyw = keywords;
 	keywords = strchr (keywords, '"');
-	if (keywords)
+	if (keywords) {
 		keywords++;
-	else
+	} else {
 		keywords = keyw;
+	}
 
 	len = strlen (keywords);
-	if (keywords[len - 1] == '"')
+	if (keywords[len - 1] == '"') {
 		keywords[len - 1] = '\0';
+	}
 
-	for (keyw = strtok_r (keywords, ",; ", &lasts); keyw;
+	for (keyw = strtok_r (keywords, ",; ", &lasts); 
+	     keyw;
 	     keyw = strtok_r (NULL, ",; ", &lasts)) {
 		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
 
@@ -119,411 +134,371 @@ insert_keywords (TrackerSparqlBuilder *metadata, const gchar *uri, gchar *keywor
 }
 
 static void
-read_metadata (png_structp png_ptr, png_infop info_ptr, const gchar *uri, TrackerSparqlBuilder *metadata)
+read_metadata (png_structp           png_ptr, 
+               png_infop             info_ptr, 
+               const gchar          *uri, 
+               TrackerSparqlBuilder *metadata)
 {
-	gint         num_text;
-	png_textp    text_ptr;
-	PngNeedsMergeData merge_data = { 0 };
-	PngData png_data = { 0 };
-	TrackerExifData exif_data = { 0 };
-	TrackerXmpData xmp_data = { 0 };
+	MergeData md = { 0 };
+	PngData pd = { 0 };
+	TrackerExifData ed = { 0 };
+	TrackerXmpData xd = { 0 };
+	png_textp text_ptr;
+	gint num_text;
+	gint i;
 
-	if (png_get_text (png_ptr, info_ptr, &text_ptr, &num_text) > 0) {
-		gint i;
+	if (png_get_text (png_ptr, info_ptr, &text_ptr, &num_text) < 1) {
+		g_warning ("Calling png_get_text() returned < 1");
+		return;
+	}
 
-		for (i = 0; i < num_text; i++) {
-
-			if (!text_ptr[i].key || !text_ptr[i].text || text_ptr[i].text[0] == '\0') {
-				continue;
-			}
-
+	for (i = 0; i < num_text; i++) {
+		if (!text_ptr[i].key || !text_ptr[i].text || text_ptr[i].text[0] == '\0') {
+			continue;
+		}
+		
 #if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
+		if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
+			/* ATM tracker_extract_xmp_read supports setting xd
+			 * multiple times, keep it that way as here it's
+			 * theoretically possible that the function gets
+			 * called multiple times 
+			 */
+			tracker_extract_xmp_read (text_ptr[i].text,
+			                          text_ptr[i].itxt_length,
+			                          uri, &xd);
 
-			if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
-
-				/* ATM tracker_extract_xmp_read supports setting xmp_data
-				 * multiple times, keep it that way as here it's
-				 * theoretically possible that the function gets
-				 * called multiple times */
-
-				tracker_extract_xmp_read (text_ptr[i].text,
-				                          text_ptr[i].itxt_length,
-				                          uri, &xmp_data);
-
-				continue;
-			}
+			continue;
+		}
 #endif
 
 #if defined(HAVE_LIBEXIF) && defined(PNG_iTXt_SUPPORTED)
-
-			/* I'm not certain this is the key for EXIF. Using key according to
-			 * this document about exiftool:
-			 * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData */
-
-			if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
-				tracker_extract_exif_read (text_ptr[i].text,
-				                           text_ptr[i].itxt_length, 
-				                           uri, &exif_data);
-				continue;
-			}
+		/* I'm not certain this is the key for EXIF. Using key according to
+		 * this document about exiftool:
+		 * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData 
+		 */
+		if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
+			tracker_extract_exif_read (text_ptr[i].text,
+			                           text_ptr[i].itxt_length, 
+			                           uri, &ed);
+			continue;
+		}
 #endif /* HAVE_LIBEXIF */
 
-			if (g_strcmp0 (text_ptr[i].key, "Author") == 0) {
-				png_data.author = g_strdup (text_ptr[i].text);
-				continue;
-			}
-
-			if (g_strcmp0 (text_ptr[i].key, "Creator") == 0) {
-				png_data.creator = g_strdup (text_ptr[i].text);
-				continue;
-			}
-
-			if (g_strcmp0 (text_ptr[i].key, "Description") == 0) {
-				png_data.description = g_strdup (text_ptr[i].text);
-				continue;
-			}
-
-			if (g_strcmp0 (text_ptr[i].key, "Comment") == 0) {
-				png_data.comment = g_strdup (text_ptr[i].text);
-				continue;
-			}
-
-			if (g_strcmp0 (text_ptr[i].key, "Copyright") == 0) {
-				png_data.copyright = g_strdup (text_ptr[i].text);
-				continue;
-			}
-
-			if (g_strcmp0 (text_ptr[i].key, "Creation Time") == 0) {
-				png_data.creation_time = rfc1123_to_iso8601_date (text_ptr[i].text);
-				continue;
-			}
-
-			if (g_strcmp0 (text_ptr[i].key, "Title") == 0) {
-				png_data.title = g_strdup (text_ptr[i].text);
-				continue;
-			}
-
-			if (g_strcmp0 (text_ptr[i].key, "Disclaimer") == 0) {
-				png_data.disclaimer = g_strdup (text_ptr[i].text);
-				continue;
-			}
+		if (g_strcmp0 (text_ptr[i].key, "Author") == 0) {
+			pd.author = g_strdup (text_ptr[i].text);
+			continue;
 		}
 
-		/* Don't merge if the make is in the model */
-		if ((xmp_data.make == NULL || xmp_data.model == NULL) ||
-		    (xmp_data.make && xmp_data.model && strstr (xmp_data.model, xmp_data.make) == NULL)) {
-			merge_data.camera = tracker_merge (" ", 2, xmp_data.make, xmp_data.model);
+		if (g_strcmp0 (text_ptr[i].key, "Creator") == 0) {
+			pd.creator = g_strdup (text_ptr[i].text);
+			continue;
+		}
+
+		if (g_strcmp0 (text_ptr[i].key, "Description") == 0) {
+			pd.description = g_strdup (text_ptr[i].text);
+			continue;
+		}
+
+		if (g_strcmp0 (text_ptr[i].key, "Comment") == 0) {
+			pd.comment = g_strdup (text_ptr[i].text);
+			continue;
+		}
+
+		if (g_strcmp0 (text_ptr[i].key, "Copyright") == 0) {
+			pd.copyright = g_strdup (text_ptr[i].text);
+			continue;
+		}
+
+		if (g_strcmp0 (text_ptr[i].key, "Creation Time") == 0) {
+			pd.creation_time = rfc1123_to_iso8601_date (text_ptr[i].text);
+			continue;
+		}
+
+		if (g_strcmp0 (text_ptr[i].key, "Title") == 0) {
+			pd.title = g_strdup (text_ptr[i].text);
+			continue;
+		}
+
+		if (g_strcmp0 (text_ptr[i].key, "Disclaimer") == 0) {
+			pd.disclaimer = g_strdup (text_ptr[i].text);
+			continue;
+		}
+	}
+
+	/* Don't merge if the make is in the model */
+	if ((xd.make == NULL || xd.model == NULL) ||
+	    (xd.make && xd.model && strstr (xd.model, xd.make) == NULL)) {
+		md.camera = tracker_merge (" ", 2, xd.make, xd.model);
+	} else {
+		md.camera = g_strdup (xd.model);
+		g_free (xd.model);
+		g_free (xd.make);
+	}
+
+	if (!md.camera) {
+		if ((ed.make == NULL || ed.model == NULL) ||
+		    (ed.make && ed.model && strstr (ed.model, ed.make) == NULL)) {
+			md.camera = tracker_merge (" ", 2, ed.make, ed.model);
 		} else {
-			merge_data.camera = g_strdup (xmp_data.model);
-			g_free (xmp_data.model);
-			g_free (xmp_data.make);
+			md.camera = g_strdup (ed.model);
+			g_free (ed.model);
+			g_free (ed.make);
 		}
+	} else {
+		g_free (ed.model);
+		g_free (ed.make);
+	}
 
-		if (!merge_data.camera) {
-			if ((exif_data.make == NULL || exif_data.model == NULL) ||
-			    (exif_data.make && exif_data.model && strstr (exif_data.model, exif_data.make) == NULL)) {
-				merge_data.camera = tracker_merge (" ", 2, exif_data.make, exif_data.model);
-			} else {
-				merge_data.camera = g_strdup (exif_data.model);
-				g_free (exif_data.model);
-				g_free (exif_data.make);
-			}
-		} else {
-			g_free (exif_data.model);
-			g_free (exif_data.make);
-		}
+	md.creator = tracker_coalesce (3, xd.creator, pd.creator, pd.author);
+	md.title = tracker_coalesce (5, xd.title, pd.title, ed.document_name, xd.title2, xd.pdf_title);
+	md.copyright = tracker_coalesce (3, xd.rights, pd.copyright, ed.copyright);
+	md.license = tracker_coalesce (2, xd.license, pd.disclaimer);
+	md.description = tracker_coalesce (3, xd.description, pd.description, ed.description);
+	md.date = tracker_coalesce (5, xd.date, xd.time_original, pd.creation_time, ed.time, ed.time_original);
+	md.comment = tracker_coalesce (2, pd.comment, ed.user_comment);
+	md.artist = tracker_coalesce (3, xd.artist, ed.artist, xd.contributor);
+	md.orientation = tracker_coalesce (2, xd.orientation, ed.orientation);
+	md.exposure_time = tracker_coalesce (2, xd.exposure_time, ed.exposure_time);
+	md.iso_speed_ratings = tracker_coalesce (2, xd.iso_speed_ratings, ed.iso_speed_ratings);
+	md.fnumber = tracker_coalesce (2, xd.fnumber, ed.fnumber);
+	md.flash = tracker_coalesce (2, xd.flash, ed.flash);
+	md.focal_length = tracker_coalesce (2, xd.focal_length, ed.focal_length);
+	md.metering_mode = tracker_coalesce (2, xd.metering_mode, ed.metering_mode);
+	md.white_balance = tracker_coalesce (2, xd.white_balance, ed.white_balance);
 
-		merge_data.creator = tracker_coalesce (3, xmp_data.creator, 
-		                                       png_data.creator,
-		                                       png_data.author);
+	if (md.comment) {
+		tracker_sparql_builder_predicate (metadata, "nie:comment");
+		tracker_sparql_builder_object_unvalidated (metadata, md.comment);
+		g_free (md.comment);
+	}
 
-		merge_data.title = tracker_coalesce (5, xmp_data.title, 
-		                                     png_data.title,
-		                                     exif_data.document_name,
-		                                     xmp_data.title2,
-		                                     xmp_data.pdf_title);
+	if (md.license) {
+		tracker_sparql_builder_predicate (metadata, "nie:license");
+		tracker_sparql_builder_object_unvalidated (metadata, md.license);
+		g_free (md.license);
+	}
 
-		merge_data.copyright = tracker_coalesce (3, xmp_data.rights, 
-		                                         png_data.copyright,
-		                                         exif_data.copyright);
+	/* TODO: add ontology and store this */
+	g_free (ed.software);
 
-		merge_data.license = tracker_coalesce (2, xmp_data.license, 
-		                                       png_data.disclaimer);
+	g_free (ed.x_dimension);
+	g_free (ed.y_dimension);
+	g_free (ed.image_width);
 
-		merge_data.description = tracker_coalesce (3, xmp_data.description,
-		                                           png_data.description,
-		                                           exif_data.description);
+	if (md.creator) {
+		tracker_sparql_builder_predicate (metadata, "nco:creator");
 
-		merge_data.date = tracker_coalesce (5, xmp_data.date,
-		                                    xmp_data.time_original,
-		                                    png_data.creation_time,
-		                                    exif_data.time,
-		                                    exif_data.time_original);
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Contact");
 
-		merge_data.comment = tracker_coalesce (2, png_data.comment,
-		                                       exif_data.user_comment);
+		tracker_sparql_builder_predicate (metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (metadata, md.creator);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (md.creator);
+	}
 
-		merge_data.artist = tracker_coalesce (3, xmp_data.artist,
-		                                      exif_data.artist,
-		                                      xmp_data.contributor);
+	if (md.date) {
+		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
+		tracker_sparql_builder_object_unvalidated (metadata, md.date);
+		g_free (md.date);
+	}
 
-		merge_data.orientation = tracker_coalesce (2, xmp_data.orientation, 
-		                                           exif_data.orientation);
+	if (md.description) {
+		tracker_sparql_builder_predicate (metadata, "nie:description");
+		tracker_sparql_builder_object_unvalidated (metadata, md.description);
+		g_free (md.description);
+	}
 
-		merge_data.exposure_time = tracker_coalesce (2, xmp_data.exposure_time, 
-		                                             exif_data.exposure_time);
+	if (md.copyright) {
+		tracker_sparql_builder_predicate (metadata, "nie:copyright");
+		tracker_sparql_builder_object_unvalidated (metadata, md.copyright);
+		g_free (md.copyright);
+	}
 
-		merge_data.iso_speed_ratings = tracker_coalesce (2, xmp_data.iso_speed_ratings, 
-		                                                 exif_data.iso_speed_ratings);
+	if (md.title) {
+		tracker_sparql_builder_predicate (metadata, "nie:title");
+		tracker_sparql_builder_object_unvalidated (metadata, md.title);
+		g_free (md.title);
+	}
 
-		merge_data.fnumber = tracker_coalesce (2, xmp_data.fnumber, 
-		                                       exif_data.fnumber);
+	if (md.camera) {
+		tracker_sparql_builder_predicate (metadata, "nmm:camera");
+		tracker_sparql_builder_object_unvalidated (metadata, md.camera);
+		g_free (md.camera);
+	}
 
-		merge_data.flash = tracker_coalesce (2, xmp_data.flash, 
-		                                     exif_data.flash);
+	if (md.artist) {
+		tracker_sparql_builder_predicate (metadata, "nco:contributor");
 
-		merge_data.focal_length = tracker_coalesce (2, xmp_data.focal_length, 
-		                                            exif_data.focal_length);
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Contact");
 
-		merge_data.metering_mode = tracker_coalesce (2, xmp_data.metering_mode, 
-		                                             exif_data.metering_mode);
+		tracker_sparql_builder_predicate (metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (metadata, md.artist);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (md.artist);
+	}
 
-		merge_data.white_balance = tracker_coalesce (2, xmp_data.white_balance, 
-		                                             exif_data.white_balance);
+	if (md.orientation) {
+		tracker_sparql_builder_predicate (metadata, "nfo:orientation");
+		tracker_sparql_builder_object_unvalidated (metadata, md.orientation);
+		g_free (md.orientation);
+	}
 
-		if (merge_data.comment) {
-			tracker_sparql_builder_predicate (metadata, "nie:comment");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.comment);
-			g_free (merge_data.comment);
-		}
+	if (md.exposure_time) {
+		tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
+		tracker_sparql_builder_object_unvalidated (metadata, md.exposure_time);
+		g_free (md.exposure_time);
+	}
 
-		if (merge_data.license) {
-			tracker_sparql_builder_predicate (metadata, "nie:license");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.license);
-			g_free (merge_data.license);
-		}
+	if (md.iso_speed_ratings) {
+		tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
+		tracker_sparql_builder_object_unvalidated (metadata, md.iso_speed_ratings);
+		g_free (md.iso_speed_ratings);
+	}
 
-		/* TODO: add ontology and store this */
-		g_free (exif_data.software);
+	if (md.white_balance) {
+		tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
+		tracker_sparql_builder_object_unvalidated (metadata, md.white_balance);
+		g_free (md.white_balance);
+	}
 
-		g_free (exif_data.x_dimension);
-		g_free (exif_data.y_dimension);
-		g_free (exif_data.image_width);
+	if (md.fnumber) {
+		tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
+		tracker_sparql_builder_object_unvalidated (metadata, md.fnumber);
+		g_free (md.fnumber);
+	}
 
-		if (merge_data.creator) {
-			tracker_sparql_builder_predicate (metadata, "nco:creator");
+	if (md.flash) {
+		tracker_sparql_builder_predicate (metadata, "nmm:flash");
+		tracker_sparql_builder_object_unvalidated (metadata, md.flash);
+		g_free (md.flash);
+	}
 
-			tracker_sparql_builder_object_blank_open (metadata);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:Contact");
+	if (md.focal_length) {
+		tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
+		tracker_sparql_builder_object_unvalidated (metadata, md.focal_length);
+		g_free (md.focal_length);
+	}
 
-			tracker_sparql_builder_predicate (metadata, "nco:fullname");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.creator);
-			tracker_sparql_builder_object_blank_close (metadata);
-			g_free (merge_data.creator);
-		}
-
-		if (merge_data.date) {
-			tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.date);
-			g_free (merge_data.date);
-		}
-
-		if (merge_data.description) {
-			tracker_sparql_builder_predicate (metadata, "nie:description");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.description);
-			g_free (merge_data.description);
-		}
-
-		if (merge_data.copyright) {
-			tracker_sparql_builder_predicate (metadata, "nie:copyright");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.copyright);
-			g_free (merge_data.copyright);
-		}
-
-		if (merge_data.title) {
-			tracker_sparql_builder_predicate (metadata, "nie:title");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.title);
-			g_free (merge_data.title);
-		}
-
-		if (merge_data.camera) {
-			tracker_sparql_builder_predicate (metadata, "nmm:camera");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.camera);
-			g_free (merge_data.camera);
-		}
-
-		if (merge_data.artist) {
-			tracker_sparql_builder_predicate (metadata, "nco:contributor");
-
-			tracker_sparql_builder_object_blank_open (metadata);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:Contact");
-
-			tracker_sparql_builder_predicate (metadata, "nco:fullname");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.artist);
-			tracker_sparql_builder_object_blank_close (metadata);
-			g_free (merge_data.artist);
-		}
-
-		if (merge_data.orientation) {
-			tracker_sparql_builder_predicate (metadata, "nfo:orientation");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.orientation);
-			g_free (merge_data.orientation);
-		}
-
-		if (merge_data.exposure_time) {
-			tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.exposure_time);
-			g_free (merge_data.exposure_time);
-		}
-
-		if (merge_data.iso_speed_ratings) {
-			tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.iso_speed_ratings);
-			g_free (merge_data.iso_speed_ratings);
-		}
-
-		if (merge_data.white_balance) {
-			tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.white_balance);
-			g_free (merge_data.white_balance);
-		}
-
-		if (merge_data.fnumber) {
-			tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.fnumber);
-			g_free (merge_data.fnumber);
-		}
-
-		if (merge_data.flash) {
-			tracker_sparql_builder_predicate (metadata, "nmm:flash");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.flash);
-			g_free (merge_data.flash);
-		}
-
-		if (merge_data.focal_length) {
-			tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.focal_length);
-			g_free (merge_data.focal_length);
-		}
-
-		if (merge_data.metering_mode) {
-			tracker_sparql_builder_predicate (metadata, "nmm:meteringMode");
-			tracker_sparql_builder_object_unvalidated (metadata, merge_data.metering_mode);
-			g_free (merge_data.metering_mode);
-		}
+	if (md.metering_mode) {
+		tracker_sparql_builder_predicate (metadata, "nmm:meteringMode");
+		tracker_sparql_builder_object_unvalidated (metadata, md.metering_mode);
+		g_free (md.metering_mode);
+	}
 
 
-		if (xmp_data.keywords) {
-			insert_keywords (metadata, uri, xmp_data.keywords);
-			g_free (xmp_data.keywords);
-		}
+	if (xd.keywords) {
+		insert_keywords (metadata, uri, xd.keywords);
+		g_free (xd.keywords);
+	}
 
-		if (xmp_data.pdf_keywords) {
-			insert_keywords (metadata, uri, xmp_data.pdf_keywords);
-			g_free (xmp_data.pdf_keywords);
-		}
+	if (xd.pdf_keywords) {
+		insert_keywords (metadata, uri, xd.pdf_keywords);
+		g_free (xd.pdf_keywords);
+	}
 
-		if (xmp_data.rating) {
-			tracker_sparql_builder_predicate (metadata, "nao:numericRating");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.rating);
-			g_free (xmp_data.rating);
-		}
+	if (xd.rating) {
+		tracker_sparql_builder_predicate (metadata, "nao:numericRating");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.rating);
+		g_free (xd.rating);
+	}
 
-		if (xmp_data.subject) {
-			insert_keywords (metadata, uri, xmp_data.subject);
-			g_free (xmp_data.subject);
-		}
+	if (xd.subject) {
+		insert_keywords (metadata, uri, xd.subject);
+		g_free (xd.subject);
+	}
 
-		if (xmp_data.publisher) {
-			tracker_sparql_builder_predicate (metadata, "nco:publisher");
+	if (xd.publisher) {
+		tracker_sparql_builder_predicate (metadata, "nco:publisher");
 
-			tracker_sparql_builder_object_blank_open (metadata);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:Contact");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Contact");
 
-			tracker_sparql_builder_predicate (metadata, "nco:fullname");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.publisher);
-			tracker_sparql_builder_object_blank_close (metadata);
-			g_free (xmp_data.publisher);
-		}
+		tracker_sparql_builder_predicate (metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.publisher);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (xd.publisher);
+	}
 
-		if (xmp_data.type) {
-			tracker_sparql_builder_predicate (metadata, "dc:type");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.type);
-			g_free (xmp_data.type);
-		}
+	if (xd.type) {
+		tracker_sparql_builder_predicate (metadata, "dc:type");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.type);
+		g_free (xd.type);
+	}
 
-		if (xmp_data.format) {
-			tracker_sparql_builder_predicate (metadata, "dc:format");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.format);
-			g_free (xmp_data.format);
-		}
+	if (xd.format) {
+		tracker_sparql_builder_predicate (metadata, "dc:format");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.format);
+		g_free (xd.format);
+	}
 
-		if (xmp_data.identifier) {
-			tracker_sparql_builder_predicate (metadata, "dc:identifier");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.identifier);
-			g_free (xmp_data.identifier);
-		}
+	if (xd.identifier) {
+		tracker_sparql_builder_predicate (metadata, "dc:identifier");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.identifier);
+		g_free (xd.identifier);
+	}
 
-		if (xmp_data.source) {
-			tracker_sparql_builder_predicate (metadata, "dc:source");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.source);
-			g_free (xmp_data.source);
-		}
+	if (xd.source) {
+		tracker_sparql_builder_predicate (metadata, "dc:source");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.source);
+		g_free (xd.source);
+	}
 
-		if (xmp_data.language) {
-			tracker_sparql_builder_predicate (metadata, "dc:language");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.language);
-			g_free (xmp_data.language);
-		}
+	if (xd.language) {
+		tracker_sparql_builder_predicate (metadata, "dc:language");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.language);
+		g_free (xd.language);
+	}
 
-		if (xmp_data.relation) {
-			tracker_sparql_builder_predicate (metadata, "dc:relation");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.relation);
-			g_free (xmp_data.relation);
-		}
+	if (xd.relation) {
+		tracker_sparql_builder_predicate (metadata, "dc:relation");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.relation);
+		g_free (xd.relation);
+	}
 
-		if (xmp_data.coverage) {
-			tracker_sparql_builder_predicate (metadata, "dc:coverage");
-			tracker_sparql_builder_object_unvalidated (metadata, xmp_data.coverage);
-			g_free (xmp_data.coverage);
-		}
+	if (xd.coverage) {
+		tracker_sparql_builder_predicate (metadata, "dc:coverage");
+		tracker_sparql_builder_object_unvalidated (metadata, xd.coverage);
+		g_free (xd.coverage);
+	}
 
-		if (xmp_data.address || xmp_data.country || xmp_data.city) {
-			tracker_sparql_builder_predicate (metadata, "mlo:location");
+	if (xd.address || xd.country || xd.city) {
+		tracker_sparql_builder_predicate (metadata, "mlo:location");
 	
-			tracker_sparql_builder_object_blank_open (metadata);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
 	
-			if (xmp_data.address) {
-				tracker_sparql_builder_predicate (metadata, "mlo:address");
-				tracker_sparql_builder_object_unvalidated (metadata, xmp_data.address);
-				g_free (xmp_data.address);
-			}
+		if (xd.address) {
+			tracker_sparql_builder_predicate (metadata, "mlo:address");
+			tracker_sparql_builder_object_unvalidated (metadata, xd.address);
+			g_free (xd.address);
+		}
 	
-			if (xmp_data.state) {
-				tracker_sparql_builder_predicate (metadata, "mlo:state");
-				tracker_sparql_builder_object_unvalidated (metadata, xmp_data.state);
-				g_free (xmp_data.state);
-			}
+		if (xd.state) {
+			tracker_sparql_builder_predicate (metadata, "mlo:state");
+			tracker_sparql_builder_object_unvalidated (metadata, xd.state);
+			g_free (xd.state);
+		}
 	
-			if (xmp_data.city) {
-				tracker_sparql_builder_predicate (metadata, "mlo:city");
-				tracker_sparql_builder_object_unvalidated (metadata, xmp_data.city);
-				g_free (xmp_data.city);
-			}
+		if (xd.city) {
+			tracker_sparql_builder_predicate (metadata, "mlo:city");
+			tracker_sparql_builder_object_unvalidated (metadata, xd.city);
+			g_free (xd.city);
+		}
 	
-			if (xmp_data.country) {
-				tracker_sparql_builder_predicate (metadata, "mlo:country");
-				tracker_sparql_builder_object_unvalidated (metadata, xmp_data.country);
-				g_free (xmp_data.country);
-			}
+		if (xd.country) {
+			tracker_sparql_builder_predicate (metadata, "mlo:country");
+			tracker_sparql_builder_object_unvalidated (metadata, xd.country);
+			g_free (xd.country);
+		}
 		
-			tracker_sparql_builder_object_blank_close (metadata);
-		}
+		tracker_sparql_builder_object_blank_close (metadata);
 	}
 }
 
@@ -532,18 +507,19 @@ extract_png (const gchar          *uri,
              TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
-	goffset      size;
-	FILE        *f;
-	png_structp  png_ptr;
-	png_infop    info_ptr;
-	png_infop    end_ptr;
-	png_bytepp   row_pointers;
-	guint        row;
-	png_uint_32  width, height;
-	gint         bit_depth, color_type;
-	gint         interlace_type, compression_type, filter_type;
-	gchar       *filename = g_filename_from_uri (uri, NULL, NULL);
+	goffset size;
+	FILE *f;
+	png_structp png_ptr;
+	png_infop info_ptr;
+	png_infop end_ptr;
+	png_bytepp row_pointers;
+	guint row;
+	png_uint_32 width, height;
+	gint bit_depth, color_type;
+	gint interlace_type, compression_type, filter_type;
+	gchar *filename;
 
+	filename = g_filename_from_uri (uri, NULL, NULL);
 	size = tracker_file_get_size (filename);
 
 	if (size < 64) {
@@ -551,6 +527,7 @@ extract_png (const gchar          *uri,
 	}
 
 	f = tracker_file_open (filename, "r", FALSE);
+	g_free (filename);
 
 	if (f) {
 		png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
@@ -559,7 +536,6 @@ extract_png (const gchar          *uri,
 		                                  NULL);
 		if (!png_ptr) {
 			tracker_file_close (f, FALSE);
-			g_free (filename);
 			return;
 		}
 
@@ -567,7 +543,6 @@ extract_png (const gchar          *uri,
 		if (!info_ptr) {
 			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
 			tracker_file_close (f, FALSE);
-			g_free (filename);
 			return;
 		}
 
@@ -575,7 +550,6 @@ extract_png (const gchar          *uri,
 		if (!end_ptr) {
 			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
 			tracker_file_close (f, FALSE);
-			g_free (filename);
 			return;
 		}
 
@@ -599,7 +573,6 @@ extract_png (const gchar          *uri,
 		                   &filter_type)) {
 			png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 			tracker_file_close (f, FALSE);
-			g_free (filename);
 			return;
 		}
 
@@ -639,8 +612,6 @@ extract_png (const gchar          *uri,
 		png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 		tracker_file_close (f, FALSE);
 	}
-
-	g_free (filename);
 }
 
 TrackerExtractData *
