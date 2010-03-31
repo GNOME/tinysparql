@@ -5,7 +5,7 @@ modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
 INCLUDES = 								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
-	-DMODULESDIR=\"$(modulesdir)\"					\
+	-DTRACKER_EXTRACTORS_DIR=\"$(modulesdir)\"			\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src 						\

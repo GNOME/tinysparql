@@ -72,6 +72,14 @@ Using a specific module to extract metadata from a file:
 .BR 
 $ tracker-extract -v 3 -f /path/to/some/file.mp3 -m mymodule
 
+.SH ENVIRONMENT
+.TP
+.B TRACKER_EXTRACTORS_DIR
+This is the directory which tracker uses to load the shared libraries
+from (used for extracting metadata for specific file types). These are
+needed on each invocation of tracker-store. If unset it will default
+to the correct place. This is used mainly for testing purposes.
+
 .SH FILES
 .I $HOME/.config/tracker/tracker-extract.cfg
 

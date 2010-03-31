@@ -113,8 +113,16 @@ load_modules (const gchar  *force_module,
 	const gchar *name;
 	gchar *force_module_checked;
 	gboolean success;
+	const gchar *extractors_dir;
 
-	dir = g_dir_open (MODULESDIR, 0, &error);
+        extractors_dir = g_getenv ("TRACKER_EXTRACTORS_DIR");
+        if (G_LIKELY (extractors_dir == NULL)) {
+                extractors_dir = TRACKER_EXTRACTORS_DIR;
+        } else {
+                g_message ("Extractor modules directory is '%s' (set in env)", extractors_dir);
+        }
+
+	dir = g_dir_open (extractors_dir, 0, &error);
 
 	if (!dir) {
 		g_error ("Error opening modules directory: %s", error->message);
@@ -166,7 +174,7 @@ load_modules (const gchar  *force_module,
 			continue;
 		}
 
-		module_path = g_build_filename (MODULESDIR, name, NULL);
+		module_path = g_build_filename (extractors_dir, name, NULL);
 
 		module = g_module_open (module_path, G_MODULE_BIND_LOCAL);
 
