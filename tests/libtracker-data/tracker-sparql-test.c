@@ -37,7 +37,8 @@ typedef struct _TestInfo TestInfo;
 struct _TestInfo {
 	const gchar *test_name;
 	const gchar *data;
-	gboolean expect_error;
+	gboolean expect_query_error;
+	gboolean expect_update_error;
 };
 
 const TestInfo tests[] = {
@@ -95,9 +96,10 @@ const TestInfo tests[] = {
 	{ "subqueries/subqueries-1", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-union-1", "subqueries/data-1", FALSE },
 	/* Bracket error after WHERE */
-	{ "error/query-error-1", "error/query-error-1", TRUE },
+	{ "error/query-error-1", "error/query-error-1", TRUE, FALSE },
 	/* Unknown property */
-	{ "error/query-error-2", "error/query-error-2", TRUE },
+	{ "error/query-error-2", "error/query-error-2", TRUE, FALSE },
+	{ "error/update-error-query-1", "error/update-error-1", FALSE, TRUE },
 
 	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
 	{ "turtle/turtle-query-002", "turtle/turtle-data-002", FALSE },
@@ -160,7 +162,12 @@ test_sparql_query (gconstpointer test_data)
 		tracker_data_begin_db_transaction ();
 		tracker_data_update_sparql (data, &error);
 		tracker_data_commit_db_transaction ();
-		g_assert_no_error (error);
+		if (test_info->expect_update_error) {
+			g_assert (error != NULL);
+			g_clear_error (&error);
+		} else {
+			g_assert_no_error (error);
+		}
 
 		g_free (data);
 	}
@@ -180,7 +187,7 @@ test_sparql_query (gconstpointer test_data)
 
 	result_set = tracker_data_query_sparql (query, &error);
 
-	if (test_info->expect_error) {
+	if (test_info->expect_query_error) {
 		comparer = strstr_i;
 		g_assert (error != NULL);
 	} else {
@@ -231,7 +238,7 @@ test_sparql_query (gconstpointer test_data)
 		}
 
 		g_object_unref (result_set);
-	} else if (test_info->expect_error) {
+	} else if (test_info->expect_query_error) {
 		g_string_append (test_results, error->message);
 		g_clear_error (&error);
 	}

@@ -1,0 +1,5 @@
+INSERT {
+	example:foo a example:A .
+	example:foo rdf:value "foo" .
+	example:foo rdf:nonexisting "bar" .
+}
