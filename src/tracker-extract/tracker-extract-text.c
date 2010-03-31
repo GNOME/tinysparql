@@ -36,13 +36,7 @@ static void extract_text (const gchar          *uri,
                           TrackerSparqlBuilder *metadata);
 
 static TrackerExtractData data[] = {
-	{ "text/plain",       extract_text },
-	{ "text/x-authors",   extract_text },
-	{ "text/x-changelog", extract_text },
-	{ "text/x-copying",   extract_text },
-	{ "text/x-credits",   extract_text },
-	{ "text/x-install",   extract_text },
-	{ "text/x-readme",    extract_text },
+	{ "text/*", extract_text },
 	{ NULL, NULL }
 };
 
