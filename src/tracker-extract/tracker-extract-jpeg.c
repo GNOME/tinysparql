@@ -533,7 +533,7 @@ extract_jpeg (const gchar          *uri,
 	}
 
 	if (md.creator) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:author:%s", md.creator);
+		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", md.creator);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
