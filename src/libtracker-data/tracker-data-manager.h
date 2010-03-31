@@ -56,7 +56,7 @@ void     tracker_data_ontology_load_statement     (const gchar           *ontolo
                                                    const gchar           *predicate,
                                                    const gchar           *object,
                                                    gint                  *max_id,
-                                                   gboolean               is_new,
+                                                   gboolean               in_update,
                                                    GHashTable            *classes,
                                                    GHashTable            *properties);
 void     tracker_data_ontology_import_into_db     (gboolean               is_new);
@@ -65,7 +65,7 @@ void     tracker_data_ontology_process_statement  (const gchar           *graph,
                                                    const gchar           *predicate,
                                                    const gchar           *object,
                                                    gboolean               is_uri,
-                                                   gboolean               is_new,
+                                                   gboolean               in_update,
                                                    gboolean               ignore_nao_last_modified);
 void    tracker_data_ontology_import_finished     (void);
 
