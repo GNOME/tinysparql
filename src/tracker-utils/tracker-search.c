@@ -247,7 +247,7 @@ get_document_files (TrackerClient *client,
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?document) "
+		                         "ORDER BY ASC(nie:url(?document)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         fts,
@@ -260,7 +260,7 @@ get_document_files (TrackerClient *client,
 		                         "  ?document a nfo:Document ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?document) "
+		                         "ORDER BY ASC(nie:url(?document)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         show_all_str,
@@ -298,7 +298,7 @@ get_video_files (TrackerClient *client,
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?video) "
+		                         "ORDER BY ASC(nie:url(?video)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         fts,
@@ -311,7 +311,7 @@ get_video_files (TrackerClient *client,
 		                         "  ?video a nfo:Video ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?video) "
+		                         "ORDER BY ASC(nie:url(?video)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         show_all_str,
@@ -349,7 +349,7 @@ get_image_files (TrackerClient *client,
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?image) "
+		                         "ORDER BY ASC(nie:url(?image)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         fts,
@@ -362,7 +362,7 @@ get_image_files (TrackerClient *client,
 		                         "  ?image a nfo:Image ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?image) "
+		                         "ORDER BY ASC(nie:url(?image)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         show_all_str,
@@ -400,7 +400,7 @@ get_music_files (TrackerClient *client,
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?song) "
+		                         "ORDER BY ASC(nie:url(?song)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         fts,
@@ -413,7 +413,7 @@ get_music_files (TrackerClient *client,
 		                         "  ?song a nmm:MusicPiece ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?song) "
+		                         "ORDER BY ASC(nie:url(?song)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         show_all_str,
@@ -618,7 +618,7 @@ get_files (TrackerClient *client,
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?u) "
+		                         "ORDER BY ASC(nie:url(?u)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         fts,
@@ -631,7 +631,7 @@ get_files (TrackerClient *client,
 		                         "  ?u a nie:InformationElement ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?u) "
+		                         "ORDER BY ASC(nie:url(?u)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         show_all_str,
@@ -669,7 +669,7 @@ get_folders (TrackerClient *client,
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?u) "
+		                         "ORDER BY ASC(nie:url(?u)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         fts,
@@ -682,7 +682,7 @@ get_folders (TrackerClient *client,
 		                         "  ?u a nfo:Folder ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(?u) "
+		                         "ORDER BY ASC(nie:url(?u)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         show_all_str,
@@ -780,8 +780,8 @@ get_all_by_search (TrackerClient *client,
 		                         "  rdf:type ?type ."
 		                         "  %s"
 		                         "} "
-		                         "GROUP BY nie:url (?s) "
-		                         "ORDER BY nie:url (?s) "
+		                         "GROUP BY nie:url(?s) "
+		                         "ORDER BY nie:url(?s) "
 		                         "OFFSET %d LIMIT %d",
 		                         fts,
 		                         show_all_str,
@@ -793,7 +793,7 @@ get_all_by_search (TrackerClient *client,
 		                         "  ?s fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY nie:url (?s) "
+		                         "ORDER BY nie:url(?s) "
 		                         "OFFSET %d LIMIT %d",
 		                         fts,
 		                         show_all_str,
