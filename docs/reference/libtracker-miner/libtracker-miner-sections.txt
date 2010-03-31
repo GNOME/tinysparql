@@ -87,28 +87,10 @@ TRACKER_MINER_FS_GET_CLASS
 </SECTION>
 
 <SECTION>
-<FILE>tracker-miner-dbus</FILE>
-TRACKER_MINER_DBUS_INTERFACE
-TRACKER_MINER_DBUS_NAME_PREFIX
-TRACKER_MINER_DBUS_PATH_PREFIX
-tracker_miner_dbus_init
-tracker_miner_dbus_shutdown
-TrackerMinerDBusNameFunc
-tracker_miner_dbus_add_name_watch
-tracker_miner_dbus_get_name
-tracker_miner_dbus_get_description
-tracker_miner_dbus_get_status
-tracker_miner_dbus_get_progress
-tracker_miner_dbus_get_pause_details
-tracker_miner_dbus_pause
-tracker_miner_dbus_resume
-tracker_miner_dbus_ignore_next_update
-</SECTION>
-
-<SECTION>
 <FILE>tracker-miner-web</FILE>
 TRACKER_MINER_WEB_ERROR_DOMAIN
 TRACKER_MINER_WEB_ERROR
+TRACKER_MINER_WEB_DBUS_INTERFACE
 TrackerMinerWebPrivate
 <TITLE>TrackerMinerWeb</TITLE>
 TrackerMinerWeb
@@ -127,15 +109,6 @@ tracker_miner_web_get_type
 TRACKER_MINER_WEB_CLASS
 TRACKER_IS_MINER_WEB_CLASS
 TRACKER_MINER_WEB_GET_CLASS
-</SECTION>
-
-<SECTION>
-<FILE>tracker-miner-web-dbus</FILE>
-TRACKER_MINER_WEB_DBUS_INTERFACE
-tracker_miner_web_dbus_associate
-tracker_miner_web_dbus_dissociate
-tracker_miner_web_dbus_authenticate
-tracker_miner_web_dbus_get_association_data
 </SECTION>
 
 <SECTION>

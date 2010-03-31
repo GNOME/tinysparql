@@ -24,6 +24,18 @@
 
 #include "tracker-password-provider.h"
 
+/**
+ * SECTION:tracker-password-provider
+ * @short_description: Password storage interface for cross platform backends
+ * @include: libtracker-miner/tracker-miner.h
+ *
+ * The #TrackerPasswordProvider allows different backends to be
+ * written for storing sensitive information about web services which
+ * are needed to authenticate and mine data. Currently, there are two
+ * implementations. One for GNOME Keyring and one using #GKeyFile (as a
+ * fallback if GNOME Keyring is installed).
+ **/
+
 static void
 tracker_password_provider_init (gpointer object_class)
 {

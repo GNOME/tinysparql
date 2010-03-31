@@ -29,6 +29,16 @@
 #include "tracker-utils.h"
 #include "tracker-marshal.h"
 
+/**
+ * SECTION:tracker-storage
+ * @short_description: Removable storage and mount point convenience API
+ * @include: libtracker-miner/tracker-miner.h
+ *
+ * This API is a convenience to to be able to keep track of volumes
+ * which are mounted and also the type of removable media available.
+ * The API is built upon the top of GIO's #GMount, #GDrive and #GVolume API.
+ **/
+
 #define TRACKER_STORAGE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_STORAGE, TrackerStoragePrivate))
 
 typedef struct {

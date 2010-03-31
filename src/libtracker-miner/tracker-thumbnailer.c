@@ -25,6 +25,20 @@
 
 #include "tracker-thumbnailer.h"
 
+/**
+ * SECTION:tracker-thumbnailer
+ * @short_description: Request the thumbnailer service creates or
+ * updates thumbnails.
+ * @include: libtracker-miner/tracker-miner.h
+ *
+ * This is a convenience API using D-Bus for creating and updating
+ * thumbnails for files being mined. It is also used to create
+ * thumbnails for album art found embedded in some medias.
+ *
+ * This follows the thumbnailer specification:
+ * http://live.gnome.org/ThumbnailerSpec
+ **/
+
 #define THUMBCACHE_SERVICE      "org.freedesktop.thumbnails.Cache1"
 #define THUMBCACHE_PATH         "/org/freedesktop/thumbnails/Cache1"
 #define THUMBCACHE_INTERFACE    "org.freedesktop.thumbnails.Cache1"

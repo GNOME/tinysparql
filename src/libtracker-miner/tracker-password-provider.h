@@ -37,7 +37,6 @@ G_BEGIN_DECLS
 #define TRACKER_PASSWORD_PROVIDER_ERROR         tracker_password_provider_error_quark()
 
 typedef struct TrackerPasswordProvider TrackerPasswordProvider;
-typedef struct TrackerPasswordProviderIface TrackerPasswordProviderIface;
 
 /**
  * TrackerPasswordProviderError:
@@ -67,7 +66,7 @@ typedef enum {
  *
  * Since: 0.8.
  **/
-struct TrackerPasswordProviderIface {
+typedef struct {
 	GTypeInterface parent_iface;
 
 	gboolean (* store_password)  (TrackerPasswordProvider  *provider,
@@ -83,7 +82,7 @@ struct TrackerPasswordProviderIface {
 	gboolean (* forget_password) (TrackerPasswordProvider  *provider,
 	                              const gchar              *service,
 	                              GError                  **error);
-};
+} TrackerPasswordProviderIface;
 
 GType    tracker_password_provider_get_type         (void) G_GNUC_CONST;
 GQuark   tracker_password_provider_error_quark      (void);
