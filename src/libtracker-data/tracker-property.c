@@ -58,6 +58,8 @@ struct _TrackerPropertyPrivate {
 	gboolean       transient;
 	gboolean       is_inverse_functional_property;
 	gboolean       is_new;
+	gboolean       need_recreate;
+	gboolean       writeback;
 
 	GArray        *super_properties;
 };
@@ -349,6 +351,30 @@ tracker_property_get_is_new (TrackerProperty *property)
 }
 
 gboolean
+tracker_property_get_writeback (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = GET_PRIV (property);
+
+	return priv->writeback;
+}
+
+gboolean
+tracker_property_get_need_recreate (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = GET_PRIV (property);
+
+	return priv->need_recreate;
+}
+
+gboolean
 tracker_property_get_embedded (TrackerProperty *property)
 {
 	TrackerPropertyPrivate *priv;
@@ -556,6 +582,32 @@ tracker_property_set_is_new (TrackerProperty *property,
 	priv = GET_PRIV (property);
 
 	priv->is_new = value;
+}
+
+void
+tracker_property_set_writeback (TrackerProperty *property,
+				gboolean         value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	priv->writeback = value;
+}
+
+void
+tracker_property_set_need_recreate (TrackerProperty *property,
+                                    gboolean         value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	priv->need_recreate = value;
 }
 
 void
