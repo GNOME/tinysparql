@@ -705,13 +705,19 @@ extract_tiff (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (metadata, merge_data.creator);
 
-		if (iptc_data.byline_title) {
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:PersonContact");
-			tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
-			tracker_sparql_builder_object (metadata, "_:affiliation_by_line");
-		}
-
+                /*
+                 * This must be a Contact, not a PersonContact. But hasAffiliation
+                 * is property of PersonContact. 
+                 * Commented out the code while figuring out a solution (most
+                 * probably to drop the property).
+                 *
+                 * if (iptc_data.byline_title) {
+                 *  tracker_sparql_builder_predicate (metadata, "a");
+                 *  tracker_sparql_builder_object (metadata, "nco:PersonContact");
+                 *  tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
+                 *  tracker_sparql_builder_object (metadata, "_:affiliation_by_line");
+                 * }
+                 */
 		tracker_sparql_builder_object_blank_close (metadata);
 		g_free (merge_data.creator);
 	}
