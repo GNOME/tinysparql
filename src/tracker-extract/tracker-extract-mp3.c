@@ -1944,7 +1944,7 @@ extract_mp3 (const gchar          *uri,
 	audio_offset = parse_id3v2 (buffer, buffer_size, &md.id3v1, uri, metadata, &md);
 
 	md.title = tracker_coalesce (4, md.id3v24.title2, md.id3v23.title2, md.id3v22.title2, md.id3v1.title);
-	md.lyricist = tracker_coalesce (2, md.id3v24.text, md.id3v23.toly);
+	md.lyricist = tracker_coalesce (4, md.id3v24.text, md.id3v23.toly, md.id3v23.text, md.id3v22.text);
 
 	md.composer = tracker_coalesce (3,
 	                                md.id3v24.composer,
@@ -1968,7 +1968,6 @@ extract_mp3 (const gchar          *uri,
 	                                      md.id3v22.recording_time, md.id3v22.release_time,
 	                                      md.id3v1.recording_time);
 	md.publisher = tracker_coalesce (3, md.id3v24.publisher, md.id3v23.publisher, md.id3v22.publisher);
-	md.text = tracker_coalesce (3, md.id3v24.text, md.id3v23.text, md.id3v22.text);
 	md.copyright = tracker_coalesce (3, md.id3v24.copyright, md.id3v23.copyright, md.id3v22.copyright);
 	md.comment = tracker_coalesce (7,
 	                               md.id3v24.title3, md.id3v24.comment,
