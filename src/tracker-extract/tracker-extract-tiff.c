@@ -24,6 +24,7 @@
 
 #include <tiffio.h>
 
+#include <libtracker-client/tracker-client.h>
 #include <libtracker-extract/tracker-extract.h>
 
 typedef enum {
@@ -433,28 +434,21 @@ extract_tiff (const gchar          *uri,
 		g_free (xd.subject);
 	}
 
-	if (id.contact) {
-		tracker_sparql_builder_predicate (metadata, "nco:representative");
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Contact");
-		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, id.contact);
-		tracker_sparql_builder_object_blank_close (metadata);
-		g_free (id.contact);
-	}
-
 	if (xd.publisher) {
-		tracker_sparql_builder_predicate (metadata, "nco:publisher");
+		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", xd.publisher);
 
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Contact");
-
-		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.publisher);
-		tracker_sparql_builder_object_blank_close (metadata);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nco:Contact");
+		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (preupdate, xd.publisher);
+		tracker_sparql_builder_insert_close (preupdate);
 		g_free (xd.publisher);
+
+		tracker_sparql_builder_predicate (metadata, "nco:publisher");
+		tracker_sparql_builder_object_iri (metadata, uri);
+		g_free (uri);
 	}
 
 	if (xd.type) {
@@ -545,6 +539,23 @@ extract_tiff (const gchar          *uri,
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
+	if (id.contact) {
+		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", id.contact);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nco:Contact");
+		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (preupdate, id.contact);
+		tracker_sparql_builder_insert_close (preupdate);
+		g_free (id.contact);
+
+		tracker_sparql_builder_predicate (metadata, "nco:representative");
+		tracker_sparql_builder_object_iri (metadata, uri);
+		g_free (uri);
+	}
+
 	if (id.keywords) {
 		insert_keywords (metadata, uri, id.keywords);
 		g_free (id.keywords);
@@ -599,16 +610,20 @@ extract_tiff (const gchar          *uri,
 	}
 
 	if (md.artist) {
-		tracker_sparql_builder_predicate (metadata, "nco:contributor");
+		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", md.artist);
 
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Contact");
-
-		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, md.artist);
-		tracker_sparql_builder_object_blank_close (metadata);
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nco:Contact");
+		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (preupdate, uri);
+		tracker_sparql_builder_insert_close (preupdate);
 		g_free (md.artist);
+
+		tracker_sparql_builder_predicate (metadata, "nco:contributor");
+		tracker_sparql_builder_object_iri (metadata, uri);
+		g_free (uri);
 	}
 
 	if (md.exposure_time) {
@@ -642,41 +657,43 @@ extract_tiff (const gchar          *uri,
 	}
 
 	if (md.creator) {
-		if (id.byline_title) {
-			tracker_sparql_builder_insert_open (preupdate, NULL);
+		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", md.creator);
 
-			tracker_sparql_builder_subject (preupdate, "_:affiliation_by_line");
-			tracker_sparql_builder_predicate (preupdate, "a");
-			tracker_sparql_builder_object (preupdate, "nco:Affiliation");
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nco:Contact");
+		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (preupdate, md.creator);
+		tracker_sparql_builder_insert_close (preupdate);
+		g_free (md.creator);
 
-			tracker_sparql_builder_predicate (preupdate, "nco:title");
-			tracker_sparql_builder_object_unvalidated (preupdate, id.byline_title);
+		/* NOTE: We only have affiliation with
+		 * nco:PersonContact and we are using
+		 * nco:Contact here.
+		 */
 
-			tracker_sparql_builder_insert_close (preupdate);
-		}
+		/* if (id.byline_title) { */
+		/* 	tracker_sparql_builder_insert_open (preupdate, NULL); */
+
+		/* 	tracker_sparql_builder_subject (preupdate, "_:affiliation_by_line"); */
+		/* 	tracker_sparql_builder_predicate (preupdate, "a"); */
+		/* 	tracker_sparql_builder_object (preupdate, "nco:Affiliation"); */
+
+		/* 	tracker_sparql_builder_predicate (preupdate, "nco:title"); */
+		/* 	tracker_sparql_builder_object_unvalidated (preupdate, id.byline_title); */
+
+		/* 	tracker_sparql_builder_insert_close (preupdate); */
+
+		/* 	tracker_sparql_builder_predicate (metadata, "a"); */
+		/* 	tracker_sparql_builder_object (metadata, "nco:PersonContact"); */
+		/* 	tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation"); */
+		/* 	tracker_sparql_builder_object (metadata, "_:affiliation_by_line"); */
+		/* } */
 
 		tracker_sparql_builder_predicate (metadata, "nco:creator");
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Contact");
-		tracker_sparql_builder_predicate (metadata, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (metadata, md.creator);
-
-                /*
-                 * This must be a Contact, not a PersonContact. But hasAffiliation
-                 * is property of PersonContact. 
-                 * Commented out the code while figuring out a solution (most
-                 * probably to drop the property).
-                 *
-                 * if (id.byline_title) {
-                 *  tracker_sparql_builder_predicate (metadata, "a");
-                 *  tracker_sparql_builder_object (metadata, "nco:PersonContact");
-                 *  tracker_sparql_builder_predicate (metadata, "nco:hasAffiliation");
-                 *  tracker_sparql_builder_object (metadata, "_:affiliation_by_line");
-                 * }
-                 */
-		tracker_sparql_builder_object_blank_close (metadata);
-		g_free (md.creator);
+		tracker_sparql_builder_object_iri (metadata, uri);
+		g_free (uri);
 	}
 
 	g_free (id.byline_title);
