@@ -56,6 +56,7 @@ gint            tracker_class_get_id            (TrackerClass  *service);
 gboolean        tracker_class_get_is_new        (TrackerClass  *service);
 gboolean        tracker_class_get_need_recreate (TrackerClass  *service);
 gboolean        tracker_class_get_notify        (TrackerClass  *service);
+
 TrackerClass  **tracker_class_get_super_classes (TrackerClass  *service);
 
 void            tracker_class_set_uri           (TrackerClass  *service,

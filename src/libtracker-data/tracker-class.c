@@ -312,4 +312,3 @@ tracker_class_set_need_recreate (TrackerClass *service,
 
 	priv->need_recreate = value;
 }
-
