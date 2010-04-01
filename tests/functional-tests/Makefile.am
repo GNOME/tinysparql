@@ -19,7 +19,8 @@ config_SCRIPTS =		\
 	07-graph.py		\
 	08-unique-insertions.py \
 	virtual-files-tc.py	\
-	performance-tc.py
+	performance-tc.py	\
+	bootup-tc.py
 
 EXTRA_DIST = $(config_SCRIPTS)
 endif

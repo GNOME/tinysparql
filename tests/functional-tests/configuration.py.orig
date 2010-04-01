@@ -19,7 +19,8 @@
 #
 
 # This is the configuration file for tracker testcases.
-# It has many common utility defined.
+# Define the location of the test data in testDataDir
+# This also checks if the program is running in target or in host and return the column of pid
 
 import os, sys
 
@@ -34,10 +35,8 @@ TEST_DATA_IMAGES = prefix + '/share/tracker-tests/data/Images/'
 """
 dir_path = os.environ['HOME']
 """
-MYDOCS = '/home/user/MyDocs/'
 MYDOCS_MUSIC = '/home/user/MyDocs/.sounds/'
 MYDOCS_IMAGES = '/home/user/MyDocs/.images/'
-MYDOCS_VIDEOS = '/home/user/MyDocs/.videos/'
 WB_TEST_DIR_DEVICE = '/home/user/MyDocs/tracker-wb-test'
 WB_TEST_DIR_HOST = prefix + '/share/tracker-tests/data/tracker-wb-test'
 
@@ -46,13 +45,11 @@ URL_PREFIX = 'file://'
 """processes """
 TRACKER_WRITEBACK = prefix + '/lib/tracker/tracker-writeback'
 TRACKER_EXTRACT = prefix + '/lib/tracker/tracker-extract'
-TRACKER_MINER = prefix + '/lib/tracker/tracker-miner-fs'
-TRACKER_STORE = prefix + '/lib/tracker/tracker-store'
 
-'''
 def dir_path():
         return testDataDir
 
+'''
 def check_target():
         on_target = 'OSSO_PRODUCT_NAME'
         try :
