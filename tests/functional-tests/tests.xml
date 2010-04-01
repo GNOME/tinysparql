@@ -1,6 +1,33 @@
 <testdefinition version="0.1">
   <suite name="tracker">
     <description />
+    <set name="_usr_share_tracker-tests_bootup-tc.py">
+      <description>tracker:bootup-tc.py</description>
+      <case name="bootup-tc.py-default_content.test_Video_03">
+        <description>tracker:bootup-tc.py:default_content.test_Video_03</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_Video_03</step>
+      </case>
+      <case name="bootup-tc.py-default_content.test_images_01">
+        <description>tracker:bootup-tc.py:default_content.test_images_01</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_images_01</step>
+      </case>
+      <case name="bootup-tc.py-default_content.test_music_02">
+        <description>tracker:bootup-tc.py:default_content.test_music_02</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_music_02</step>
+      </case>
+      <case name="bootup-tc.py-tracker_daemon.test_miner_01">
+        <description>tracker:bootup-tc.py:tracker_daemon.test_miner_01</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py tracker_daemon.test_miner_01</step>
+      </case>
+      <case name="bootup-tc.py-tracker_daemon.test_store_02">
+        <description>tracker:bootup-tc.py:tracker_daemon.test_store_02</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py tracker_daemon.test_store_02</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
     <set name="_usr_share_tracker-tests_virtual-files-tc.py">
       <description>tracker:virtual-files-tc.py</description>
       <case name="virtual-files-tc.py-virtual_files.test_Virttual_01">
@@ -316,6 +343,14 @@
     </set>
     <set name="_usr_share_tracker-tests_01-insertion.py">
       <description>tracker:01-insertion.py</description>
+      <case name="01-insertion.py-phone_no.test_phone_01">
+        <description>tracker:01-insertion.py:phone_no.test_phone_01</description>
+        <step>/usr/share/tracker-tests/01-insertion.py phone_no.test_phone_01</step>
+      </case>
+      <case name="01-insertion.py-phone_no.test_phone_02">
+        <description>tracker:01-insertion.py:phone_no.test_phone_02</description>
+        <step>/usr/share/tracker-tests/01-insertion.py phone_no.test_phone_02</step>
+      </case>
       <case name="01-insertion.py-s_batch_update.test_batch_insert_01">
         <description>tracker:01-insertion.py:s_batch_update.test_batch_insert_01</description>
         <step>/usr/share/tracker-tests/01-insertion.py s_batch_update.test_batch_insert_01</step>
