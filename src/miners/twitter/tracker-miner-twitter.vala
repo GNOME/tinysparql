@@ -55,7 +55,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 			assert_not_reached ();
 		}
 
-		set ("association-status", MinerWebAssociationStatus.UNASSOCIATED);
+		set ("associated", false);
 
 		service = new Twitter.Client.full (provider, null, null, null);
 		service.status_received.connect (status_received_cb);
@@ -65,7 +65,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 		load_state_file ();
 
 		pull_timeout_handle = 0;
-		this.notify["association-status"].connect (association_status_changed);
+		this.notify["associated"].connect (association_status_changed);
 
 		query_queue = new QueryQueue (this);
 
@@ -73,7 +73,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 	}
 
 	public void shutdown () {
-		set ("association-status", MinerWebAssociationStatus.UNASSOCIATED);
+		set ("associated", false);
 		save_state_file ();
 	}
 
@@ -202,25 +202,22 @@ public class MinerTwitter : Tracker.MinerWeb {
 	}
 
 	private void association_status_changed (Object source, ParamSpec pspec) {
-		MinerWebAssociationStatus status;
+		bool associated;
 
-		get ("association-status", out status);
+		get ("associated", out associated);
 
-		switch (status) {
-			case MinerWebAssociationStatus.ASSOCIATED:
-				if (pull_timeout_handle != 0)
-					return;
+		if (associated) {
+			if (pull_timeout_handle != 0)
+				return;
 
-				message ("Miner is now associated. Initiating periodic pull.");
-				pull_timeout_handle = Timeout.add_seconds (PULL_INTERVAL, pull_timeout_cb);
-				Idle.add ( () => { pull_timeout_cb (); return false; });
-				break;
-			case MinerWebAssociationStatus.UNASSOCIATED:
-				if (pull_timeout_handle == 0)
-					return;
+			message ("Miner is now associated. Initiating periodic pull.");
+			pull_timeout_handle = Timeout.add_seconds (PULL_INTERVAL, pull_timeout_cb);
+			Idle.add ( () => { pull_timeout_cb (); return false; });
+		} else {
+			if (pull_timeout_handle == 0)
+				return;
 
-				Source.remove (pull_timeout_handle);
-				break;
+			Source.remove (pull_timeout_handle);
 		}
 	}
 
@@ -300,7 +297,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 		password_provider = PasswordProvider.get ();
 		get ("name", out name);
 
-		set ("association-status", MinerWebAssociationStatus.UNASSOCIATED);
+		set ("associated", false);
 
 		try {
 			password = password_provider.get_password (name, out username);
@@ -321,12 +318,9 @@ public class MinerTwitter : Tracker.MinerWeb {
 		service.set_user (username, password);
 		service.verify_user ();
 
-		var wait_loop = new MainLoop (null, false);
-		service.user_verified.connect ( (h, v, e) => {
-				verified = v;
-				twitter_error = e;
-				wait_loop.quit (); });
-		wait_loop.run ();
+		// This function works around a vala bug where the data block would
+		// be freed twice
+		wait_for_verification (out verified, out twitter_error);
 		authenticate_mutex.unlock ();
 
 		if (twitter_error != null) {
@@ -337,7 +331,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 			throw new MinerWebError.WRONG_CREDENTIALS ("Wrong username and/or password");
 		} else {
 			message ("Authentication sucessful");
-			set ("association-status", MinerWebAssociationStatus.ASSOCIATED);
+			set ("associated", true);
 		}
 
 		return;
@@ -359,7 +353,22 @@ public class MinerTwitter : Tracker.MinerWeb {
 			return;
 		}
 
-		set ("association-status", MinerWebAssociationStatus.UNASSOCIATED);
+		set ("associated", false);
+	}
+
+	private void wait_for_verification (out bool verified, out Error twitter_error) {
+		bool _verified = false;
+		Error _twitter_error = null;
+		var wait_loop = new MainLoop (null, false);
+
+		service.user_verified.connect ( (h, v, e) => {
+				_verified = v;
+				_twitter_error = e;
+				wait_loop.quit (); });
+		wait_loop.run ();
+
+		verified = _verified;
+		twitter_error = _twitter_error;
 	}
 
 	public override void associate (HashTable<string, string> association_data) throws Tracker.MinerWebError {
@@ -384,7 +393,7 @@ public class MinerTwitter : Tracker.MinerWeb {
 		}
 	}
 
-	public GLib.HashTable get_association_data () throws Tracker.MinerWebError {
+	public override GLib.HashTable get_association_data () throws Tracker.MinerWebError {
 		return new HashTable<string, string>(str_hash, str_equal);
 	}
 
