@@ -1,6 +1,7 @@
 30-nie:
 * nie:url:
-  - ?
+  - For looking up the URN or other properties of a file where we already know
+  the URL/path. Used by tracker-miner-fs, for example.
 
 31-nao:
 * nao:hasTag:
@@ -25,19 +26,21 @@
   - ?
 
 * nmo:sentDate:
-  - ?
+  - Used for sorting messages when displaying all messages (or rather the last N).
 
 * nmo:conversation:
-  - ?
+  - Used for retrieving all messages of a specific conversation.
 
 * nmo:communicationChannel:
-  - ?
+  - Used for displaying all conversations on a specific channel (for example,
+  all conversations with a specific contact).
 
 * nmo:lastMessageDate:
-  - ?
+  - Used for sorting the list of all channels by time of last message.
 
 * nmo:hasParticipant:
-  - ?
+  - Used for retrieving the communication channel for a specific contact. Used
+  when inserting new messages, for example.
 
 * maemo:localPhoneNumber:
   - For matching against the local part of the phone number
