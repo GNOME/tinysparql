@@ -22,6 +22,8 @@ import sys,os,dbus
 import unittest
 import time
 import random
+import string
+import datetime
 
 TRACKER = 'org.freedesktop.Tracker1'
 TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
@@ -688,8 +690,86 @@ class s_batch_update(TestUpdate):
                 		self.fail('batch insertion failed')
 			
 
+class phone_no (TestUpdate):
+	def test_phone_01 (self):
+		"""1. Setting the maemo:localPhoneNumber property to last 7 digits of phone number.
+		   2. Receiving a message  from a contact whose localPhoneNumber is saved.
+		   3. Querying for the local phone number.
+		"""   
+		PhoneNumber = str(random.randint (0, sys.maxint))
+		UUID	    = str(time.time())
+		UUID1	    = str(random.randint (0, sys.maxint))
+		UUID2	    = str(random.randint (0, sys.maxint))
+		localNumber = PhoneNumber[-7:]
+		d=datetime.datetime.now()
+	        Received=d.isoformat()
+		ID	    = int(time.time())%1000
+		Given_Name  = 'test_GN_' + `ID`
+		Family_Name = 'test_FN_' + `ID`
+
+		INSERT_SPARQL = """ INSERT { 
+				<tel:%s> a nco:PhoneNumber ; 
+				nco:phoneNumber  '%s' .
+				<urn:uuid:%s> a nco:PersonContact;
+				nco:contactUID <contact:test_%s>;
+				nco:nameFamily '%s'  ; 
+				nco:nameGiven '%s'.  
+				<urn:uuid:%s>  nco:hasPhoneNumber <tel:%s>. 
+				<tel:%s> maemo:localPhoneNumber '%s' 
+				}"""
+		sparql_insert = INSERT_SPARQL % (PhoneNumber,PhoneNumber,UUID,UUID1,Given_Name,Family_Name,UUID,PhoneNumber,PhoneNumber,localNumber)               
+		try :
+	            self.resources.SparqlUpdate(sparql_insert)
+		except :
+		    self.fail('Insertion is not successful')			
+
+		INSERT_SPARQL1 = """ INSERT { 
+				 <urn:uuid:%s> a nmo:Message ; 
+				 nmo:from [a nco:Contact ; 
+				 nco:hasPhoneNumber <tel:%s>];
+			 	 nmo:receivedDate '%s' ; 
+				 nmo:plainTextMessageContent 'hello' }"""
+
+		sparql_insert = INSERT_SPARQL1 % ( UUID2,PhoneNumber,Received)
+		try :
+	            self.resources.SparqlUpdate(sparql_insert)
+		except :
+		    self.fail('Insertion is not successful')			
+
+		QUERY_SPARQL = """ SELECT  ?local 
+				WHERE { ?msg a nmo:Message .
+				?c a nco:Contact;
+				nco:hasPhoneNumber <tel:%s>.
+				<tel:%s> maemo:localPhoneNumber ?local
+
+				} """
+		QUERY= QUERY_SPARQL %(PhoneNumber,PhoneNumber)
+                result = self.resources.SparqlQuery(QUERY) 
+		self.assert_(result[0][0].find(localNumber)!=-1 , 'Query is not succesful')
+
+	def test_phone_02 (self):
+
+		""" Inserting a local phone number which have spaces """
+
+		INSERT_SPARQL = """ INSERT { 
+				<tel+3333333333> a nco:PhoneNumber ; 
+				nco:phoneNumber  <tel+3333333333> . 
+				<urn:uuid:9876> a nco:PersonContact;
+				nco:nameFamily 'test_name_01' ; 
+				nco:nameGiven 'test_name_02'.  
+				<urn:uuid:98765>  nco:hasPhoneNumber <tel+3333333333>. 
+				<tel+3333333333> maemo:localPhoneNumber <333 333> }"""
+
+		try:
+		  self.resources.SparqlUpdate(INSERT_SPARQL)
+                except :                                                                                                     
+                   print "error in query execution"                                                                     
+                   self.assert_(True,'error in query execution')                                                        
+                else:                                                                                                        
+                    self.fail('Query successfully executed')
 
 
 
+	
 if __name__ == "__main__":
 	unittest.main()
