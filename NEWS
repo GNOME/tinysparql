@@ -36,7 +36,7 @@ Improvements / New:
   * Fixed memory leak when loading GKeyFile TrackerPasswordProviders
 
   libtracker-db:
-  * Removed db layer abstraction since we will only use SQLite
+  * Removed GValue abstraction for custom SQLite functions
 
   libtracker-data:
   * Added test cases for update error handling
