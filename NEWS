@@ -1,3 +1,111 @@
+NEW in 0.8.0 - 2010-04-01
+=========================
+
+Improvements / New:
+
+  General:
+  * Added data/ontologies/Indicies.list for db index reasoning
+  * Added full content data generator for testing
+  * Fixed ALL license headers using Debian licensecheck.pl script
+
+  Ontology:
+  * Set tracker:indexed to true for nco:hasIMAccount
+  * Set tracker:indexed to true for nco:hasEmailAddress
+  * Set tracker:indexed to true for nco:hasPostalAddress
+  * Updated documentation for nmo, explain conversations and email
+  * Added diagram to explain email classes
+  * Added upstream link for nmo (semanticdesktop.org)
+
+  Functional Tests:
+  * Added new test data
+  * Added test cases to verify setting localPhoneNumber
+  * Added test cases for boot up scenarios
+  * Updated writeback test
+
+  libtracker-client:
+  * Create vapi files with $version in the name, was static 0.7
+  * Fixed vapi bindings, make Tracker.Client a Glib.Object subclass
+
+  libtracker-miner:
+  * Create vapi files with $version in the name, was static 0.7
+  * Don't install tracker-miner-dbus.h, it is internal
+  * Prefixed internal APIs with _ to avoid exporting unwanted symbols
+  * Make sure "progress" property is set to 0.0 initially
+  * Make sure we have progress >= 0.0 when crawling, using 1% for now
+  * Disable monitor test case, requires unavailable internal symbols
+  * Fixed memory leak when loading GKeyFile TrackerPasswordProviders
+
+  libtracker-db:
+  * Removed db layer abstraction since we will only use SQLite
+
+  libtracker-data:
+  * Added test cases for update error handling
+  * Added test cases for ASK queries
+  * Added test cases for 2nd 3rd and 4th predicate variables
+  * Added test cases for subquery unions
+  * Added test cases for restoring after journal replay
+  * Refactored code for simpler subgraph contexts
+  * Fixed literal binding in subqueries
+  * Fixed variable binding with subqueries
+
+  libtracker-fts:
+  * Backport changes from FTS3 upstream. This fixes filtering with both, ID and MATCH constraints, which can happen when joining with unions
+
+  tracker-store:
+  * Added status notifications during journal replay
+  * Removed mingw-compat.h, completely unused
+
+  tracker-extract:
+  * Don't use urn:author for nco:Contact as creator for JPEGs
+  * Don't use urn:artist for nco:Contact, use urn:contact
+  * Fixed OGG contact SPARQL generation, use preupdate
+  * Fixed PNG contact SPARQL generation, use preupdate
+  * Fixed TIF contact SPARQL generation, use preupdate
+  * Cleaned up PNG, TIFF, JPEG and XMP source
+
+  tracker-miner-fs:
+  * Do not check tracker-store for ignored directories
+  * Fixed potential crash when cancelling extraction
+
+  tracker-miner-rss:
+  * Removed unrequired g_free()
+
+  tracker-control:
+  * Improve output for --start so it is clearer
+
+  tracker-status:
+  * Added tracker-store journal replay status
+  * Improve output so it is simpler
+
+  tracker-search:
+  * Sort results for documents, images, videos, files and folders
+
+Bugs:
+
+  * GB#613819, Indexing Limitations section is confusing
+  * GB#613977, many text mime types are not fully extracted
+  * GB#614449, tracker-extract module directory should be environment configurable
+  * NB#162585, tracker-extract is crashing for mp3s with id3v24 tags
+  * NB#161457, nco:creator for JPEGs has multiple dummy contacts shown in CM
+  * NB#162394, We need signals for nco:IMAddress
+  * NB#162028, writeback not done for nie:contentCreated
+  * GB#613792, tracker-miner-fs critical log messages for jpeg extraction 
+
+Translations:
+
+  * Updated lt: Aurimas Černius, Gintautas Miliauskas
+  * Updated de: Mario Blättermann
+  * Updated sl: Andrej Žnidaršič
+  * Updated pl: Piotr Drąg
+  * Updated es: Jorge González
+  * Updated cs: Marek Černocký
+
+Notes:
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.7.28 - 2010-03-25
 ==========================
 
