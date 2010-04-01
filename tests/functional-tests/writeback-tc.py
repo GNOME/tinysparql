@@ -489,7 +489,7 @@ class writeback(TestWriteback):
                 	insert = """
 				DELETE {?file nmm:exposureTime ?val }
 				WHERE { ?file nmm:exposureTime ?val ;nie:url <%s> } 
-				INSERT {?file nmm:exposureTime '1.44' } 
+				INSERT {?file nmm:exposureTime '44' } 
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
@@ -499,7 +499,7 @@ class writeback(TestWriteback):
 			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:exposureTime')
 			print result
                 	value=result.split()
-			if (result.find('nmm:exposureTime')!=-1)  and (value[1]=='1.44') :
+			if (result.find('nmm:exposureTime')!=-1)  and (value[1]=='44') :
 				print "property is set"
                 	else:
 				print "property is NOT set"
@@ -671,7 +671,7 @@ class writeback(TestWriteback):
                 	insert = """
 				DELETE {?file nmm:focalLength ?val }
 				WHERE { ?file nmm:focalLength ?val ;nie:url <%s> } 
-				INSERT {?file nmm:focalLength '1.44' } 
+				INSERT {?file nmm:focalLength '44' } 
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
@@ -681,7 +681,7 @@ class writeback(TestWriteback):
 			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:focalLength')
 			print result
                 	value=result.split()
-			if (result.find('nmm:focalLength')!=-1)  and (value[1]=='1.44') :
+			if (result.find('nmm:focalLength')!=-1)  and (value[1]=='44') :
 				print "property is set"
                 	else:
 				print "property is NOT set"
@@ -716,7 +716,7 @@ class writeback(TestWriteback):
                 	insert = """
 				DELETE {?file nmm:isoSpeed ?val }
 				WHERE { ?file nmm:isoSpeed ?val ;nie:url <%s> } 
-				INSERT {?file nmm:isoSpeed '1.44' } 
+				INSERT {?file nmm:isoSpeed '44' } 
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
@@ -726,7 +726,7 @@ class writeback(TestWriteback):
 			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:isoSpeed')
 			print result
                 	value=result.split()
-			if (result.find('nmm:isoSpeed')!=-1)  and (value[1]=='1.44') :
+			if (result.find('nmm:isoSpeed')!=-1)  and (value[1]=='44') :
 				print "property is set"
                 	else:
 				print "property is NOT set"
