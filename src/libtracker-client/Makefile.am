@@ -1,13 +1,13 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES = 					\
-	-DLOCALEDIR=\""$(localedir)"\" 		\
-	-DG_LOG_DOMAIN=\"Tracker\"		\
-	-DTRACKER_COMPILATION			\
-	-I$(top_srcdir)/src			\
-	$(WARN_CFLAGS)				\
-	$(GLIB2_CFLAGS)				\
-	$(GCOV_CFLAGS)				\
+INCLUDES = 						\
+	-DLOCALEDIR=\""$(localedir)"\" 			\
+	-DG_LOG_DOMAIN=\"Tracker\"			\
+	-DTRACKER_COMPILATION				\
+	-I$(top_srcdir)/src				\
+	$(WARN_CFLAGS)					\
+	$(GLIB2_CFLAGS)					\
+	$(GCOV_CFLAGS)					\
 	$(DBUS_CFLAGS)			
 
 lib_LTLIBRARIES = libtracker-client-@TRACKER_API_VERSION@.la
@@ -48,8 +48,15 @@ dbus_sources = 						\
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
+# Vala bindings
 vapidir = $(datadir)/vala/vapi
+vapi_DATA =                     			\
+	tracker-client-$(TRACKER_API_VERSION).vapi
 
+tracker-client-$(TRACKER_API_VERSION).vapi: tracker-client.vapi
+	cp $< $@
+
+# Vala sources
 vapi_sources =						\
 	$(top_srcdir)/src/vapi/posix.vapi		\
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
@@ -58,25 +65,20 @@ libtracker-client.vala.stamp: $(libtracker_client_@TRACKER_API_VERSION@_la_VALAS
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
 	$(AM_V_GEN)touch $@
 
-dist_vapi_DATA = 					\
-	tracker-client-$(TRACKER_API_VERSION).vapi
-
-tracker-client-$(TRACKER_API_VERSION).vapi: tracker-client.vapi
-	cp $< $@
-
 BUILT_SOURCES = 					\
 	$(dbus_sources)					\
 	libtracker-client.vala.stamp
 
-CLEANFILES = $(BUILT_SOURCES)				\
-	tracker-client-$(TRACKER_API_VERSION).vapi
+CLEANFILES = 						\
+	$(BUILT_SOURCES)				\
+	$(vapi_DATA)
 
 MAINTAINERCLEANFILES =					\
-	libtracker-client.vala.stamp			\
 	$(libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES:.vala=.c) \
+	libtracker-client.vala.stamp			\
 	tracker-sparql-builder.h
 
 EXTRA_DIST = 						\
 	$(libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES) \
+	tracker-client.vapi				\
 	libtracker-client.vala.stamp
-

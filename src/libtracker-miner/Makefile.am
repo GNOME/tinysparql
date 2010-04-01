@@ -91,14 +91,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
 	tracker-password-provider-keyfile.c
 endif
 
-vapidir=$(datadir)/vala/vapi
-vapi_DATA =                     \
-	tracker-miner-$(TRACKER_API_VERSION).vapi
-
-tracker-miner-web-$(TRACKER_API_VERSION).deps: tracker-miner-web.deps.in
-	$(SED) -e "s|@VERSION[@]|${TRACKER_API_VERSION}|" $< > $@
-
-
 tracker-marshal.h: tracker-marshal.list
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
@@ -110,21 +102,11 @@ marshal_sources = 					\
 	tracker-marshal.c				\
 	tracker-marshal.h
 
+# Generate DBus files from XML data.
 dbus_sources = 						\
 	tracker-miner-glue.h				\
 	tracker-miner-web-glue.h			\
 	tracker-miner-client.h
-
-# Custom rule to avoid API duplication. There is also a workaround for bug
-# in dbus-binding-tool where it generates bad code when two files are passed
-# on the command line (though the man page says it supports it)
-# This bug is reported at https://bugs.freedesktop.org/show_bug.cgi?id=25056
-tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_srcdir)/data/dbus/tracker-miner.xml
-	echo '<?xml version="1.0" encoding="UTF-8"?>'        > $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
-	echo '<node name="/">'                              >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
-	cat $^ | grep -v -e '<node' -e '<?xml' -e '</node>' >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
-	echo '</node>'                                      >> $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_tracker_miner_web_dbus $(top_builddir)/src/libtracker-miner/tracker-miner-web-full.xml
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_$(subst -,_,$*) $^
@@ -132,12 +114,38 @@ tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_sr
 %-client.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=_$(subst -,_,$*) $^
 
-BUILT_SOURCES = $(dbus_sources) $(marshal_sources)
+# Vala bindings
+vapidir = $(datadir)/vala/vapi
+vapi_DATA =                     			\
+	tracker-miner-$(TRACKER_API_VERSION).vapi
+
+tracker-miner-$(TRACKER_API_VERSION).vapi: tracker-miner.vapi
+	cp $< $@
+
+# Web details
+tracker-miner-web-$(TRACKER_API_VERSION).deps: tracker-miner-web.deps.in
+	$(SED) -e "s|@VERSION[@]|${TRACKER_API_VERSION}|" $< > $@
+
+# Custom rule to avoid API duplication. There is also a workaround for bug
+# in dbus-binding-tool where it generates bad code when two files are passed
+# on the command line (though the man page says it supports it)
+# This bug is reported at https://bugs.freedesktop.org/show_bug.cgi?id=25056
+tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_srcdir)/data/dbus/tracker-miner.xml
+	echo '<?xml version="1.0" encoding="UTF-8"?>'        > tracker-miner-web-full.xml
+	echo '<node name="/">'                              >> tracker-miner-web-full.xml
+	cat $^ | grep -v -e '<node' -e '<?xml' -e '</node>' >> tracker-miner-web-full.xml
+	echo '</node>'                                      >> tracker-miner-web-full.xml
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_tracker_miner_web_dbus $(builddir)/tracker-miner-web-full.xml
+
+tracker-miner-web-full.xml: tracker-miner-web-glue.h
+
+BUILT_SOURCES = $(dbus_sources) $(marshal_sources) $(vapi_DATA)
 
 CLEANFILES = $(BUILT_SOURCES)
 
 DISTCLEANFILES = tracker-miner-web-full.xml
 
-EXTRA_DIST = tracker-marshal.list	\
-	$(vapi_DATA)			\
+EXTRA_DIST = 				\
+	tracker-marshal.list		\
+	tracker-miner.vapi		\
 	tracker-miner-web-full.xml
