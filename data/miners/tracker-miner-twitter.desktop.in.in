@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+_Name=Twitter
+_Comment=Index your tweets
+Icon=@datadir@/tracker/icons/tracker-miner-twitter.svg
+DBusName=org.freedesktop.Tracker1.Miner.Twitter
+DBusPath=/org/freedesktop/Tracker1/Miner/Twitter
+AuthenticationMethod=Token

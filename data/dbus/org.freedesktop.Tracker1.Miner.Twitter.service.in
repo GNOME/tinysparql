@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.freedesktop.Tracker1.Miner.Twitter
+Exec=@libexecdir@/tracker-miner-twitter

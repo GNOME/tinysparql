@@ -23,6 +23,13 @@ service_in_files =						\
 	org.freedesktop.Tracker1.Miner.Applications.service.in	\
 	org.freedesktop.Tracker1.Miner.Files.service.in		\
 	org.freedesktop.Tracker1.Extract.service.in
+
+if HAVE_MINER_TWITTER
+service_in_files += \
+	org.freedesktop.Tracker1.Miner.Twitter.service.in \
+	org.freedesktop.Tracker1.Miner.Identica.service.in
+endif
+
 service_DATA = $(service_in_files:.service.in=.service)
 
 %.service: %.service.in

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+_Name=Identi.ca
+_Comment=Index your Identi.ca messages
+Icon=@datadir@/tracker/icons/tracker-miner-identica.svg
+DBusName=org.freedesktop.Tracker1.Miner.Identica
+DBusPath=/org/freedesktop/Tracker1/Miner/Identica
+AuthenticationMethod=Token

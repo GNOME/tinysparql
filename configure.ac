@@ -1707,12 +1707,12 @@ AC_CONFIG_FILES([
 	src/miners/Makefile
 	src/miners/fs/Makefile
 	src/miners/rss/Makefile
+	src/miners/twitter/Makefile
 	src/tracker-status-icon/Makefile
 	src/tracker-status-icon/tracker-status-icon.desktop.in
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
-	src/tracker-miner-twitter/Makefile
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-bar/Makefile

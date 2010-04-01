@@ -5,6 +5,12 @@ desktop_in_files = \
 	tracker-miner-files.desktop.in		\
 	tracker-miner-rss.desktop.in
 
+if HAVE_MINER_TWITTER
+desktop_in_files += \
+	tracker-miner-twitter.desktop.in.in \
+	tracker-miner-identica.desktop.in.in
+endif
+
 tracker_minersdir = $(datadir)/tracker/miners
 
 tracker_miners_DATA = \
@@ -15,7 +21,16 @@ if USING_MINER_RSS
 tracker_miners_DATA += 	tracker-miner-rss.desktop
 endif
 
+if HAVE_MINER_TWITTER
+tracker_miners_DATA += \
+	tracker-miner-twitter.desktop \
+	tracker-miner-identica.desktop
+endif
+
 @INTLTOOL_DESKTOP_RULE@
+
+%.desktop.in: %.desktop.in.in
+	@sed -e "s|@datadir[@]|$(datadir)|" $< > $@
 
 EXTRA_DIST = $(desktop_in_files)
 CLEANFILES = $(tracker_miners_DATA)

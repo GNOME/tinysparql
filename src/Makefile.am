@@ -42,7 +42,3 @@ endif
 if HAVE_TRACKER_EXPLORER
 SUBDIRS += tracker-explorer
 endif
-
-if HAVE_MINER_TWITTER
-SUBDIRS += tracker-miner-twitter
-endif
