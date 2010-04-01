@@ -318,7 +318,8 @@ nco:hasIMAccount a rdf:Property ;
 	rdfs:comment "Indicates that an Instant Messaging account owned by an entity represented by this contact." ;
 	nao:deprecated true ;
 	rdfs:domain nco:PersonContact ;
-	rdfs:range nco:IMAccount .
+	rdfs:range nco:IMAccount ;
+	tracker:indexed true .
 
 nco:fromIMAccount a rdf:Property ;
 	rdfs:label "hasIMAccount" ;
@@ -509,7 +510,8 @@ nco:hasEmailAddress a rdf:Property ;
 	rdfs:comment "An address for electronic mail communication with the object specified by this contact. An equivalent of the 'EMAIL' property as defined in RFC 2426 Sec. 3.3.1." ;
 	rdfs:subPropertyOf nco:hasContactMedium ;
 	rdfs:domain nco:Role ;
-	rdfs:range nco:EmailAddress .
+	rdfs:range nco:EmailAddress ;
+	tracker:indexed true .
 
 nco:postalcode a rdf:Property ;
 	rdfs:label "postalcode" ;
@@ -648,7 +650,8 @@ nco:hasPostalAddress a rdf:Property ;
 	rdfs:comment "The default Address for a Contact. An equivalent of the 'ADR' property as defined in RFC 2426 Sec. 3.2.1." ;
 	rdfs:subPropertyOf nco:hasContactMedium ;
 	rdfs:domain nco:Role ;
-	rdfs:range nco:PostalAddress .
+	rdfs:range nco:PostalAddress ;
+	tracker:indexed true .
 
 nco:imAccountType a rdf:Property ;
 	rdfs:label "imAccountType" ;

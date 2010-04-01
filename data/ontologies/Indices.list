@@ -1,0 +1,43 @@
+30-nie:
+* nie:url:
+  - ?
+
+31-nao:
+* nao:hasTag:
+  - For use cases where fts:match needs to be done against tags in addition to
+  the class itself
+
+32-nco:
+* nco:hasIMAccount:
+  - For use cases where fts:match needs to be done against the account in
+  addition to the class itself
+
+* nco:hasEmailAddress:
+  - For use cases where fts:match needs to be done against the email account
+  in addition to the class itself
+
+* nco:hasPostalAddress:
+  - For use cases where fts:match needs to be done against the postal address
+  in addition to the class itself
+
+34-nmo:
+* nmo:sender:
+  - ?
+
+* nmo:sentDate:
+  - ?
+
+* nmo:conversation:
+  - ?
+
+* nmo:communicationChannel:
+  - ?
+
+* nmo:lastMessageDate:
+  - ?
+
+* nmo:hasParticipant:
+  - ?
+
+* maemo:localPhoneNumber:
+  - For matching against the local part of the phone number
