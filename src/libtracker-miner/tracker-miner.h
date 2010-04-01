@@ -29,7 +29,6 @@
 #include <libtracker-miner/tracker-miner-object.h>
 #include <libtracker-miner/tracker-miner-fs.h>
 #include <libtracker-miner/tracker-miner-web.h>
-#include <libtracker-miner/tracker-miner-dbus.h>
 #include <libtracker-miner/tracker-miner-manager.h>
 
 #undef __LIBTRACKER_MINER_H_INSIDE__

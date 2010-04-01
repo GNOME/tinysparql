@@ -30,6 +30,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-dbus.h					\
 	tracker-marshal.c				\
 	tracker-marshal.h				\
+	tracker-miner-dbus.h 				\
 	tracker-miner-object.c				\
 	tracker-miner-fs.c				\
 	tracker-miner-manager.c				\
@@ -47,7 +48,6 @@ libtracker_minerinclude_HEADERS = 			\
 	tracker-crawler.h				\
 	tracker-miner.h					\
 	tracker-miner-object.h 				\
-	tracker-miner-dbus.h 				\
 	tracker-miner-fs.h				\
 	tracker-miner-manager.h				\
 	tracker-miner-web.h				\
