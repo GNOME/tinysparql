@@ -142,8 +142,8 @@ namespace Tracker.Sparql {
 }
 
 class Tracker.Sparql.Pattern : Object {
-	Query query;
-	Expression expression;
+	weak Query query;
+	weak Expression expression;
 
 	int counter;
 

@@ -18,7 +18,7 @@
  */
 
 class Tracker.Sparql.Expression : Object {
-	Query query;
+	weak Query query;
 
 	const string XSD_NS = "http://www.w3.org/2001/XMLSchema#";
 	const string FN_NS = "http://www.w3.org/2005/xpath-functions#";
