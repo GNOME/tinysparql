@@ -1389,6 +1389,10 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				tracker_db_interface_execute_query (iface, &error,
 				                                    "ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
 				                                    service_name, field_name, service_name, field_name);
+				if (error) {
+					g_critical ("Ontology change: Renaming SQL table: %s", error->message);
+					g_clear_error (&error);
+				}
 			}
 
 			sql = g_string_new ("");
@@ -1420,8 +1424,13 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				                        tracker_property_get_name (property));
 			}
 
-			tracker_db_interface_execute_query (iface, NULL,
+			tracker_db_interface_execute_query (iface, &error,
 			                                    "%s)", sql->str);
+
+			if (error) {
+				g_critical ("Creating SQL table: %s", error->message);
+				g_clear_error (&error);
+			}
 
 			/* multiple values */
 			if (tracker_property_get_indexed (property)) {
@@ -1444,10 +1453,22 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				                         service_name, field_name, in_col_sql->str,
 				                         sel_col_sql->str, service_name, field_name);
 
-				tracker_db_interface_execute_query (iface, NULL, "%s", query);
+				tracker_db_interface_execute_query (iface, &error, "%s", query);
+
+				if (error) {
+					g_critical ("Ontology change: Merging data of SQL table: %s", error->message);
+					g_clear_error (&error);
+				}
+
 				g_free (query);
-				tracker_db_interface_execute_query (iface, NULL, "DROP TABLE \"%s_%s_TEMP\"",
+				tracker_db_interface_execute_query (iface, &error, "DROP TABLE \"%s_%s_TEMP\"",
 				                                    service_name, field_name);
+
+				if (error) {
+					g_critical ("Ontology change: Dropping SQL table: %s", error->message);
+					g_clear_error (&error);
+				}
+
 			}
 
 			if (sel_col_sql)
@@ -1490,6 +1511,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	gboolean          main_class;
 	gint              i, n_props;
 	gboolean          in_alter = in_update;
+	GError           *error = NULL;
 
 	service_name = tracker_class_get_name (service);
 	main_class = (strcmp (service_name, "rdfs:Resource") == 0);
@@ -1500,12 +1522,11 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	}
 
 	if (in_change) {
-		GError *error = NULL;
 		tracker_db_interface_execute_query (iface, &error, "ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
 		in_col_sql = g_string_new ("ID");
 		sel_col_sql = g_string_new ("ID");
 		if (error) {
-			g_critical ("Ontology change: %s", error->message);
+			g_critical ("Ontology change: Renaming SQL table: %s", error->message);
 			g_error_free (error);
 		}
 	}
@@ -1517,7 +1538,11 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		create_sql = g_string_new ("");
 		g_string_append_printf (create_sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
 		if (main_class) {
-			tracker_db_interface_execute_query (iface, NULL, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri Text NOT NULL, UNIQUE (Uri))");
+			tracker_db_interface_execute_query (iface, &error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri Text NOT NULL, UNIQUE (Uri))");
+			if (error) {
+				g_critical ("Creating Resource SQL table: %s", error->message);
+				g_clear_error (&error);
+			}
 			g_string_append (create_sql, ", Available INTEGER NOT NULL");
 		}
 	}
@@ -1588,14 +1613,22 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					if (tracker_property_get_is_inverse_functional_property (property)) {
 						g_string_append (alter_sql, " UNIQUE");
 					}
-					tracker_db_interface_execute_query (iface, NULL, "%s", alter_sql->str);
+					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
+					if (error) {
+						g_critical ("Ontology change: altering SQL table: %s", error->message);
+						g_clear_error (&error);
+					}
 					g_string_free (alter_sql, TRUE);
 
 					alter_sql = g_string_new ("ALTER TABLE ");
 					g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:graph\" INTEGER",
 					                        service_name,
 					                        field_name);
-					tracker_db_interface_execute_query (iface, NULL, "%s", alter_sql->str);
+					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
+					if (error) {
+						g_critical ("Ontology change: altering SQL table: %s", error->message);
+						g_clear_error (&error);
+					}
 					g_string_free (alter_sql, TRUE);
 
 					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
@@ -1603,14 +1636,22 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:localDate\" INTEGER",
 						                        service_name,
 						                        field_name);
-						tracker_db_interface_execute_query (iface, NULL, "%s", alter_sql->str);
+						tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
+						if (error) {
+							g_critical ("Ontology change: altering SQL table: %s", error->message);
+							g_clear_error (&error);
+						}
 						g_string_free (alter_sql, TRUE);
 
 						alter_sql = g_string_new ("ALTER TABLE ");
 						g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:localTime\" INTEGER",
 						                        service_name,
 						                        field_name);
-						tracker_db_interface_execute_query (iface, NULL, "%s", alter_sql->str);
+						tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
+						if (error) {
+							g_critical ("Ontology change: altering SQL table: %s", error->message);
+							g_clear_error (&error);
+						}
 						g_string_free (alter_sql, TRUE);
 
 					}
@@ -1659,17 +1700,15 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 		tracker_db_interface_execute_query (iface, &error, "%s", query);
 		if (error) {
-			g_critical ("Ontology change: %s", error->message);
+			g_critical ("Ontology change: Merging SQL table data: %s", error->message);
 			g_clear_error (&error);
 		}
-
 		g_free (query);
 		tracker_db_interface_execute_query (iface, &error, "DROP TABLE \"%s_TEMP\"", service_name);
 		if (error) {
-			g_critical ("Ontology change: %s", error->message);
+			g_critical ("Ontology change: Dropping SQL table: %s", error->message);
 			g_error_free (error);
 		}
-
 	}
 
 	if (in_col_sql)
