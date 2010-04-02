@@ -1,4 +1,5 @@
 *~
+.*.sw[op]
 *.desktop
 *.la
 *.lo
