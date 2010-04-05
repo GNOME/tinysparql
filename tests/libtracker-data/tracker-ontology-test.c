@@ -222,7 +222,7 @@ test_ontology_change (void)
 	gchar *ontology_dir;
 	guint i;
 	GError *error = NULL;
-	gchar *test_schemas[4] = { NULL, NULL, NULL, NULL };
+	gchar *test_schemas[5] = { NULL, NULL, NULL, NULL, NULL };
 
 	delete_db (TRUE);
 
@@ -231,7 +231,8 @@ test_ontology_change (void)
 
 	test_schemas[0] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "20-dc", NULL);
 	test_schemas[1] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "31-nao", NULL);
-	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example", NULL);
+	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "90-tracker", NULL);
+	test_schemas[3] = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example", NULL);
 
 	ontology_file = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example.ontology", NULL);
 

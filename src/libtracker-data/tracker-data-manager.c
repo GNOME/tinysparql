@@ -75,6 +75,33 @@ static gchar    *ontologies_dir;
 static gboolean  initialized;
 static gboolean  in_journal_replay;
 
+
+typedef struct {
+	const gchar *from, *to;
+} Conversion;
+
+static Conversion allowed_boolean_conversions[] = {
+	{ "false", "true" },
+	{ "true", "false" },
+	{ NULL, NULL }
+};
+
+static Conversion allowed_range_conversions[] = {
+	{ XSD_PREFIX "integer", XSD_PREFIX "string" },
+	{ XSD_PREFIX "integer", XSD_PREFIX "double" },
+	{ XSD_PREFIX "integer", XSD_PREFIX "boolean" },
+
+	{ XSD_PREFIX "string", XSD_PREFIX "integer" },
+	{ XSD_PREFIX "string", XSD_PREFIX "double" },
+	{ XSD_PREFIX "string", XSD_PREFIX "boolean" },
+
+	{ XSD_PREFIX "double", XSD_PREFIX "integer" },
+	{ XSD_PREFIX "double", XSD_PREFIX "string" },
+	{ XSD_PREFIX "double", XSD_PREFIX "boolean" },
+
+	{ NULL, NULL }
+};
+
 static void
 set_index_for_single_value_property (TrackerDBInterface *iface,
                                      const gchar *service_name,
@@ -137,10 +164,29 @@ set_index_for_multi_value_property (TrackerDBInterface *iface,
 }
 
 static gboolean
+is_allowed_conversion (const gchar *oldv,
+                       const gchar *newv,
+                       Conversion allowed[])
+{
+	guint i;
+
+	for (i = 0; allowed[i].from != NULL; i++) {
+		if (g_strcmp0 (allowed[i].from, oldv) == 0) {
+			if (g_strcmp0 (allowed[i].to, newv) == 0) {
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+static gboolean
 update_property_value (const gchar *kind,
                        const gchar *subject,
                        const gchar *predicate,
-                       const gchar *object)
+                       const gchar *object,
+                       Conversion allowed[])
 {
 	GError *error = NULL;
 	TrackerDBResultSet *result_set;
@@ -163,6 +209,12 @@ update_property_value (const gchar *kind,
 		if (g_strcmp0 (object, str) == 0) {
 			needed = FALSE;
 		} else {
+
+			if (!is_allowed_conversion (str, object, allowed)) {
+				g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
+				         str, object, predicate, subject);
+			}
+
 			tracker_data_delete_statement (NULL, subject, predicate, str, &error);
 			if (!error)
 				tracker_data_update_buffer_flush (&error);
@@ -443,7 +495,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 		if (tracker_property_get_is_new (property) != in_update) {
 			TrackerClass *class;
-			if (update_property_value ("rdfs:range", subject, predicate, object)) {
+			if (update_property_value ("rdfs:range", subject, predicate, object, allowed_range_conversions)) {
 				class = tracker_property_get_domain (property);
 				tracker_class_set_need_recreate (class, TRUE);
 				tracker_property_set_need_recreate (property, TRUE);
@@ -590,12 +642,12 @@ tracker_data_ontology_post_check (GPtrArray *seen_classes,
 			update_property_value ("tracker:notify",
 			                       subject,
 			                       TRACKER_PREFIX "notify",
-			                       "true");
+			                       "true", allowed_boolean_conversions);
 		} else {
 			update_property_value ("tracker:notify",
 			                       subject,
 			                       TRACKER_PREFIX "notify",
-			                       "false");
+			                       "false", allowed_boolean_conversions);
 		}
 	}
 
@@ -607,26 +659,26 @@ tracker_data_ontology_post_check (GPtrArray *seen_classes,
 			update_property_value ("tracker:writeback",
 			                       subject,
 			                       TRACKER_PREFIX "writeback",
-			                       "true");
+			                       "true", allowed_boolean_conversions);
 		} else {
 			update_property_value ("tracker:writeback",
 			                       subject,
 			                       TRACKER_PREFIX "writeback",
-			                       "false");
+			                       "false", allowed_boolean_conversions);
 		}
 
 		if (tracker_property_get_indexed (property)) {
 			if (update_property_value ("tracker:indexed",
 			                           subject,
 			                           TRACKER_PREFIX "indexed",
-			                           "true")) {
+			                           "true", allowed_boolean_conversions)) {
 				fix_indexed (property, TRUE);
 			}
 		} else {
 			if (update_property_value ("tracker:indexed",
 			                           subject,
 			                           TRACKER_PREFIX "indexed",
-			                           "false")) {
+			                           "false", allowed_boolean_conversions)) {
 				fix_indexed (property, FALSE);
 			}
 		}
