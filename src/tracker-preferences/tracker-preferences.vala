@@ -205,8 +205,12 @@ public static void button_index_single_add_clicked_cb (Button source) {
 	add_dir (liststore_index_single);
 }
 
-public static void button_ignored_directories_add_clicked_cb (Button source) {
+public static void button_ignored_directories_globs_add_clicked_cb (Button source) {
 	add_freevalue (liststore_ignored_directories);
+}
+
+public static void button_ignored_directories_add_clicked_cb (Button source) {
+	add_dir (liststore_ignored_directories);
 }
 
 public static void button_ignored_directories_remove_clicked_cb (Button source) {
