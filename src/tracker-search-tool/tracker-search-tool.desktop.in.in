@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 _Name=Tracker Search Tool
 _Comment=Locate documents and folders on this computer by name or content using Tracker
 Exec=tracker-search-tool

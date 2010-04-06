@@ -1,5 +1,4 @@
 [Desktop Entry]
-Encoding=UTF-8
 Name=Mock miner for testing
 Comment=Comment in the mock miner
 DBusName=org.freedesktop.Tracker1.Miner.Mock1
