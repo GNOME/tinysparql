@@ -493,15 +493,6 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		if (tracker_property_get_is_new (property) != in_update) {
-			TrackerClass *class;
-			if (update_property_value ("rdfs:range", subject, predicate, object, allowed_range_conversions)) {
-				class = tracker_property_get_domain (property);
-				tracker_class_set_need_recreate (class, TRUE);
-				tracker_property_set_need_recreate (property, TRUE);
-			}
-		}
-
 		tracker_property_set_range (property, range);
 	} else if (g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0) {
 		TrackerProperty *property;
@@ -681,6 +672,16 @@ tracker_data_ontology_post_check (GPtrArray *seen_classes,
 			                           "false", allowed_boolean_conversions)) {
 				fix_indexed (property, FALSE);
 			}
+		}
+
+		if (update_property_value ("rdfs:range", subject, RDFS_PREFIX "range",
+		                           tracker_class_get_uri (tracker_property_get_range (property)), 
+		                           allowed_range_conversions)) {
+			TrackerClass *class;
+
+			class = tracker_property_get_domain (property);
+			tracker_class_set_need_recreate (class, TRUE);
+			tracker_property_set_need_recreate (property, TRUE);
 		}
 	}
 }
@@ -2244,6 +2245,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		if (to_reload) {
 			/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
+			tracker_data_ontology_post_check (seen_classes, seen_properties);
+
 			tracker_data_ontology_import_into_db (TRUE);
 
 			for (l = to_reload; l; l = l->next) {
@@ -2254,7 +2257,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			g_list_free (to_reload);
 		}
 
-		tracker_data_ontology_post_check (seen_classes, seen_properties);
 		tracker_data_ontology_free_seen (seen_classes);
 		tracker_data_ontology_free_seen (seen_properties);
 
