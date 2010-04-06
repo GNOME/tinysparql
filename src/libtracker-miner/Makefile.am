@@ -135,7 +135,7 @@ tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_sr
 	echo '<node name="/">'                              >> tracker-miner-web-full.xml
 	cat $^ | grep -v -e '<node' -e '<?xml' -e '</node>' >> tracker-miner-web-full.xml
 	echo '</node>'                                      >> tracker-miner-web-full.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_tracker_miner_web_dbus $(builddir)/tracker-miner-web-full.xml
+	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_tracker_miner_web_dbus tracker-miner-web-full.xml
 
 tracker-miner-web-full.xml: tracker-miner-web-glue.h
 
