@@ -71,7 +71,7 @@
 #include <libedataserver/e-account.h>
 #include <libedataserver/e-account-list.h>
 
-#if HAVE_EDS_2_29_1
+#ifdef HAVE_EDS_2_29_1
 #include <e-util/e-account-utils.h>
 #endif
 
@@ -2288,7 +2288,7 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 	                         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
 	                         G_TYPE_INVALID);
 
-#if HAVE_EDS_2_29_1
+#ifdef HAVE_EDS_2_29_1
 	priv->accounts = g_object_ref (e_get_account_list ());
 #else
 	priv->accounts = g_object_ref (mail_config_get_accounts ());
