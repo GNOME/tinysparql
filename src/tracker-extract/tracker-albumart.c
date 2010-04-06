@@ -61,36 +61,6 @@ static TrackerStorage *albumart_storage;
 static GHashTable *albumart_cache;
 static DBusGProxy *albumart_proxy;
 
-#ifndef HAVE_STRCASESTR
-
-static gchar *
-strcasestr (const gchar *haystack,
-            const gchar *needle)
-{
-	gchar *p;
-	gchar *startn = NULL;
-	gchar *np = NULL;
-
-	for (p = (gchar *) haystack; *p; p++) {
-		if (np) {
-			if (toupper (*p) == toupper (*np)) {
-				if (!*++np) {
-					return startn;
-				}
-			} else {
-				np = 0;
-			}
-		} else if (toupper (*p) == toupper (*needle)) {
-			np = (gchar *) needle + 1;
-			startn = p;
-		}
-	}
-
-	return NULL;
-}
-
-#endif /* HAVE_STRCASESTR */
-
 static gboolean
 albumart_strip_find_next_block (const gchar    *original,
                                 const gunichar  open_char,
@@ -356,6 +326,7 @@ albumart_heuristic (const gchar *artist,
 	gint count;
 	gchar *artist_stripped = NULL;
 	gchar *album_stripped = NULL;
+	gchar *artist_strdown, *album_strdown;
 
 	if (copied) {
 		*copied = FALSE;
@@ -438,21 +409,35 @@ albumart_heuristic (const gchar *artist,
 	}
 
 	file = NULL;
+	artist_strdown = g_utf8_strdown (artist_stripped, -1);
+	album_strdown = g_utf8_strdown (album_stripped, -1);
 
 	/* Try to find cover art in the directory */
 	for (name = g_dir_read_name (dir), count = 0, retval = FALSE;
 	     name != NULL && !retval && count < 50;
 	     name = g_dir_read_name (dir), count++) {
-            /* Accept cover, front, folder, AlbumArt_{GUID}_Large
-               reject AlbumArt_{GUID}_Small and AlbumArtSmall */
-		if ((artist_stripped && strcasestr (name, artist_stripped)) ||
-		    (album_stripped && strcasestr (name, album_stripped)) ||
-		    (strcasestr (name, "cover")) ||
-                    (strcasestr (name, "front")) ||
-                    (strcasestr (name, "folder")) ||
-                    ((strcasestr (name, "albumart") && strcasestr (name, "large")))) {
-			if (g_str_has_suffix (name, "jpeg") ||
-			    g_str_has_suffix (name, "jpg")) {
+		gchar *name_utf8, *name_strdown;
+
+		name_utf8 = g_filename_to_utf8 (name, -1, NULL, NULL, NULL);
+
+		if (!name_utf8) {
+			g_debug ("Could not convert filename '%s' to UTF-8", name);
+			continue;
+		}
+
+		name_strdown = g_utf8_strdown (name_utf8, -1);
+
+		/* Accept cover, front, folder, AlbumArt_{GUID}_Large
+		 * reject AlbumArt_{GUID}_Small and AlbumArtSmall
+		 */
+		if ((artist_strdown && strstr (name_strdown, artist_strdown)) ||
+		    (album_strdown && strstr (name_strdown, album_strdown)) ||
+		    (strstr (name_strdown, "cover")) ||
+		    (strstr (name_strdown, "front")) ||
+		    (strstr (name_strdown, "folder")) ||
+		    ((strstr (name_strdown, "albumart") && strstr (name_strdown, "large")))) {
+			if (g_str_has_suffix (name_strdown, "jpeg") ||
+			    g_str_has_suffix (name_strdown, "jpg")) {
 				if (!target) {
 					albumart_get_path (artist_stripped,
 					                   album_stripped,
@@ -482,7 +467,7 @@ albumart_heuristic (const gchar *artist,
 					retval = error != NULL;
 					g_clear_error (&error);
 				}
-			} else if (g_str_has_suffix (name, "png")) {
+			} else if (g_str_has_suffix (name_strdown, "png")) {
 				gchar *found;
 
 				if (!target) {
@@ -500,6 +485,9 @@ albumart_heuristic (const gchar *artist,
 				g_free (found);
 			}
 		}
+
+                g_free (name_utf8);
+                g_free (name_strdown);
 	}
 
 	if (count >= 50) {
@@ -507,6 +495,9 @@ albumart_heuristic (const gchar *artist,
 	} else if (!retval) {
 		g_debug ("Album art NOT found in same directory");
 	}
+
+	g_free (artist_strdown);
+	g_free (album_strdown);
 
 	g_dir_close (dir);
 
