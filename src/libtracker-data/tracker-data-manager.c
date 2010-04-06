@@ -245,6 +245,40 @@ update_property_value (const gchar *kind,
 
 
 static void
+check_range_conversion_is_allowed (const gchar *subject,
+                                   const gchar *predicate,
+                                   const gchar *object)
+{
+	TrackerDBResultSet *result_set;
+	gchar *query;
+
+	query = g_strdup_printf ("SELECT ?old_value WHERE { "
+	                           "<%s> rdfs:range ?old_value "
+	                         "}", subject);
+
+	result_set = tracker_data_query_sparql (query, NULL);
+
+	g_free (query);
+
+	if (result_set) {
+		gchar *str = NULL;
+		tracker_db_result_set_get (result_set, 0, &str, -1);
+
+		if (g_strcmp0 (object, str) != 0) {
+			if (!is_allowed_conversion (str, object, allowed_range_conversions)) {
+				g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
+				         str, object, predicate, subject);
+			}
+		}
+		g_free (str);
+	}
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+}
+
+static void
 fix_indexed (TrackerProperty *property, gboolean enabled)
 {
 	TrackerDBInterface *iface;
@@ -485,6 +519,10 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		if (property == NULL) {
 			g_critical ("%s: Unknown property %s", ontology_path, subject);
 			return;
+		}
+
+		if (tracker_property_get_is_new (property) != in_update) {
+			check_range_conversion_is_allowed (subject, predicate, object);
 		}
 
 		range = tracker_ontologies_get_class_by_uri (object);
