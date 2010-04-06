@@ -540,22 +540,12 @@ event_data_free (gpointer data)
 	g_slice_free (EventData, data);
 }
 
-#ifdef HAVE_LIBINOTIFY
 
-static void
-event_data_update (EventData *event)
-{
-	GTimeVal now;
-
-	g_get_current_time (&now);
-
-	event->last_time = now;
-}
-
+/* Note: used both when compiling with and without libinotify support */
 static gboolean
-libinotify_monitor_move (TrackerMonitor *monitor,
-                         GFile          *old_file,
-                         GFile          *new_file)
+tracker_monitor_move (TrackerMonitor *monitor,
+                      GFile          *old_file,
+                      GFile          *new_file)
 {
 	GHashTableIter iter;
 	GHashTable *new_monitors;
@@ -643,6 +633,18 @@ libinotify_monitor_move (TrackerMonitor *monitor,
 	g_free (old_prefix);
 
 	return items_moved > 0;
+}
+
+#ifdef HAVE_LIBINOTIFY
+
+static void
+event_data_update (EventData *event)
+{
+	GTimeVal now;
+
+	g_get_current_time (&now);
+
+	event->last_time = now;
 }
 
 static gchar *
@@ -1224,7 +1226,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			               TRUE);
 
 			if (is_directory) {
-				libinotify_monitor_move (monitor, file, other_file);
+				tracker_monitor_move (monitor, file, other_file);
 			}
 
 			g_hash_table_remove (monitor->private->event_pairs,
@@ -1289,7 +1291,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			               is_source_indexed);
 
 			if (is_directory) {
-				libinotify_monitor_move (monitor, other_file, file);
+				tracker_monitor_move (monitor, other_file, file);
 			}
 
 			g_hash_table_remove (monitor->private->event_pairs,
@@ -1580,7 +1582,7 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 			       TRUE);
 
 		if (is_directory) {
-			libinotify_monitor_move (monitor, file, other_file);
+			tracker_monitor_move (monitor, file, other_file);
 		}
 
 		break;
