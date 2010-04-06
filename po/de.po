@@ -16,8 +16,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-03-30 14:12+0000\n"
-"PO-Revision-Date: 2010-03-31 23:17+0100\n"
+"POT-Creation-Date: 2010-04-05 12:11+0000\n"
+"PO-Revision-Date: 2010-04-06 22:51+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -467,36 +467,36 @@ msgstr "Indizierungseinstellungen von Tracker einstellen"
 msgid "Search and Indexing"
 msgstr "Suche und Indizierung"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:111
+#: ../src/tracker-preferences/tracker-preferences.vala:109
 msgid "Disabled"
 msgstr "Ausgeschaltet"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:114
+#: ../src/tracker-preferences/tracker-preferences.vala:112
 #, c-format
 msgid "%d%%"
 msgstr "%d%%"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:119
+#: ../src/tracker-preferences/tracker-preferences.vala:116
 #, c-format
 msgid "%d/20"
 msgstr "%d/20"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:127
+#: ../src/tracker-preferences/tracker-preferences.vala:124
 msgid "Enter value"
 msgstr "Wert eingeben"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:156
+#: ../src/tracker-preferences/tracker-preferences.vala:153
 msgid "Select directory"
 msgstr "Ordner auswählen"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:376
-#: ../src/tracker-preferences/tracker-preferences.vala:377
-#: ../src/tracker-preferences/tracker-preferences.vala:378
-#: ../src/tracker-preferences/tracker-preferences.vala:379
+#: ../src/tracker-preferences/tracker-preferences.vala:380
+#: ../src/tracker-preferences/tracker-preferences.vala:381
+#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:383
 msgid "Directory"
 msgstr "Ordner"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:380
+#: ../src/tracker-preferences/tracker-preferences.vala:384
 msgid "File"
 msgstr "Datei"
 
@@ -594,57 +594,65 @@ msgid "Non-Recursively Indexed"
 msgstr "Nicht rekursiv indiziert"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:24
+msgid "Opens text entry for glob patterns"
+msgstr "Öffnet das Texteingabefeld für Mustervergleiche"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+msgid "Opens the filechooser dialogue"
+msgstr "Öffnet den Dateiauswahldialog"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
 msgid "Recursively Indexed"
 msgstr "Rekursiv indiziert"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
 msgid "Semantics"
 msgstr "Semantik"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:26
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Slower"
 msgstr "langsamer"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Start up"
 msgstr "Programmstart"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "Stop indexing when _disk space is below:"
 msgstr "In_dizierung anhalten, wenn Plattenplatz kleiner als:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr "Dies deckt ALLE Wechseldatenträger, Speicherkarten, CDs, DVDs usw. ab"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid ""
 "When toggled, this makes sure your home directory is included in the list."
 msgstr ""
 "Stellt bei Ankreuzen sicher, dass der persönliche Ordner in der Liste "
 "enthalten ist"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "With specific files:"
 msgstr "Mit angegebenen Dateien:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "_Delay"
 msgstr "_Verzögerung"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
 msgid "_Monitor file and directory changes"
 msgstr "_Änderungen an Dateien und Ordnern überwachen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
 msgid "_Never display icon"
 msgstr "Symbol _niemals anzeigen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "_Only display when indexing content"
 msgstr "Nur _beim Indizieren von Inhalten anzeigen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "seconds"
 msgstr "Sekunden"
 
