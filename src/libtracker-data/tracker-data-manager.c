@@ -199,8 +199,6 @@ update_property_value (const gchar *kind,
 
 	result_set = tracker_data_query_sparql (query, &error);
 
-	g_free (query);
-
 	if (!error && result_set) {
 		gchar *str = NULL;
 
@@ -221,6 +219,8 @@ update_property_value (const gchar *kind,
 		}
 
 		g_free (str);
+	} else {
+		needed = (g_strcmp0 (object, "true") == 0);
 	}
 
 	if (result_set) {
@@ -239,6 +239,8 @@ update_property_value (const gchar *kind,
 		g_critical ("Ontology change: %s", error->message);
 		g_clear_error (&error);
 	}
+
+	g_free (query);
 
 	return needed;
 }
@@ -663,63 +665,67 @@ tracker_data_ontology_post_check (GPtrArray *seen_classes,
 	 * For example when going from: prefix:A rdfs:Class ; tracker:notify true .
 	 * to prefix:A rdfs:Class . */
 
-	for (i = 0; i < seen_classes->len; i++) {
-		TrackerClass *class = g_ptr_array_index (seen_classes, i);
-		const gchar *subject;
-		subject = tracker_class_get_uri (class);
-		if (tracker_class_get_notify (class)) {
-			update_property_value ("tracker:notify",
-			                       subject,
-			                       TRACKER_PREFIX "notify",
-			                       "true", allowed_boolean_conversions);
-		} else {
-			update_property_value ("tracker:notify",
-			                       subject,
-			                       TRACKER_PREFIX "notify",
-			                       "false", allowed_boolean_conversions);
+	if (seen_classes) {
+		for (i = 0; i < seen_classes->len; i++) {
+			TrackerClass *class = g_ptr_array_index (seen_classes, i);
+			const gchar *subject;
+			subject = tracker_class_get_uri (class);
+			if (tracker_class_get_notify (class)) {
+				update_property_value ("tracker:notify",
+				                       subject,
+				                       TRACKER_PREFIX "notify",
+				                       "true", allowed_boolean_conversions);
+			} else {
+				update_property_value ("tracker:notify",
+				                       subject,
+				                       TRACKER_PREFIX "notify",
+				                       "false", allowed_boolean_conversions);
+			}
 		}
 	}
 
-	for (i = 0; i < seen_properties->len; i++) {
-		TrackerProperty *property = g_ptr_array_index (seen_properties, i);
-		const gchar *subject;
-		subject = tracker_property_get_uri (property);
-		if (tracker_property_get_writeback (property)) {
-			update_property_value ("tracker:writeback",
-			                       subject,
-			                       TRACKER_PREFIX "writeback",
-			                       "true", allowed_boolean_conversions);
-		} else {
-			update_property_value ("tracker:writeback",
-			                       subject,
-			                       TRACKER_PREFIX "writeback",
-			                       "false", allowed_boolean_conversions);
-		}
-
-		if (tracker_property_get_indexed (property)) {
-			if (update_property_value ("tracker:indexed",
-			                           subject,
-			                           TRACKER_PREFIX "indexed",
-			                           "true", allowed_boolean_conversions)) {
-				fix_indexed (property, TRUE);
+	if (seen_properties) {
+		for (i = 0; i < seen_properties->len; i++) {
+			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
+			const gchar *subject;
+			subject = tracker_property_get_uri (property);
+			if (tracker_property_get_writeback (property)) {
+				update_property_value ("tracker:writeback",
+				                       subject,
+				                       TRACKER_PREFIX "writeback",
+				                       "true", allowed_boolean_conversions);
+			} else {
+				update_property_value ("tracker:writeback",
+				                       subject,
+				                       TRACKER_PREFIX "writeback",
+				                       "false", allowed_boolean_conversions);
 			}
-		} else {
-			if (update_property_value ("tracker:indexed",
-			                           subject,
-			                           TRACKER_PREFIX "indexed",
-			                           "false", allowed_boolean_conversions)) {
-				fix_indexed (property, FALSE);
+
+			if (tracker_property_get_indexed (property)) {
+				if (update_property_value ("tracker:indexed",
+				                           subject,
+				                           TRACKER_PREFIX "indexed",
+				                           "true", allowed_boolean_conversions)) {
+					fix_indexed (property, TRUE);
+				}
+			} else {
+				if (update_property_value ("tracker:indexed",
+				                           subject,
+				                           TRACKER_PREFIX "indexed",
+				                           "false", allowed_boolean_conversions)) {
+					fix_indexed (property, FALSE);
+				}
 			}
-		}
 
-		if (update_property_value ("rdfs:range", subject, RDFS_PREFIX "range",
-		                           tracker_class_get_uri (tracker_property_get_range (property)), 
-		                           allowed_range_conversions)) {
-			TrackerClass *class;
+			if (update_property_value ("rdfs:range", subject, RDFS_PREFIX "range",
+			                           tracker_class_get_uri (tracker_property_get_range (property)), 
+			                           allowed_range_conversions)) {
+				TrackerClass *class;
 
-			class = tracker_property_get_domain (property);
-			tracker_class_set_need_recreate (class, TRUE);
-			tracker_property_set_need_recreate (property, TRUE);
+				class = tracker_property_get_domain (property);
+				tracker_class_set_need_recreate (class, TRUE);
+				tracker_property_set_need_recreate (property, TRUE);
+			}
 		}
 	}
 }
@@ -727,8 +733,10 @@ tracker_data_ontology_post_check (GPtrArray *seen_classes,
 void
 tracker_data_ontology_free_seen (GPtrArray *seen)
 {
-	g_ptr_array_foreach (seen, (GFunc) g_object_unref, NULL);
-	g_ptr_array_free (seen, TRUE);
+	if (seen) {
+		g_ptr_array_foreach (seen, (GFunc) g_object_unref, NULL);
+		g_ptr_array_free (seen, TRUE);
+	}
 }
 
 static void
