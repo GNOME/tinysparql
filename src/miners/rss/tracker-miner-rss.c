@@ -18,15 +18,19 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <stdio.h>
+
 #include <libgrss.h>
+
 #include <dbus/dbus-glib.h>
 
 #include <glib/gi18n.h>
 
 #include "tracker-miner-rss.h"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MINER_RSS, TrackerMinerRSSPrivate))
+#define TRACKER_MINER_RSS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MINER_RSS, TrackerMinerRSSPrivate))
 
 typedef struct _TrackerMinerRSSPrivate TrackerMinerRSSPrivate;
 
@@ -38,19 +42,19 @@ struct _TrackerMinerRSSPrivate {
 	gint now_fetching;
 };
 
-static void        tracker_miner_rss_started   (TrackerMiner    *miner);
-static void        tracker_miner_rss_stopped   (TrackerMiner    *miner);
-static void        tracker_miner_rss_paused    (TrackerMiner    *miner);
-static void        tracker_miner_rss_resumed   (TrackerMiner    *miner);
-static void        retrieve_and_schedule_feeds (TrackerMinerRSS *miner);
-static void        change_status               (FeedsPool       *pool,
-                                                FeedChannel     *feed,
-                                                gpointer         user_data);
-static void        feed_fetched                (FeedsPool       *pool,
-                                                FeedChannel     *feed,
-                                                GList           *items,
-                                                gpointer         user_data);
-static const gchar *get_message_url            (FeedItem        *item);
+static void         miner_started               (TrackerMiner    *miner);
+static void         miner_stopped               (TrackerMiner    *miner);
+static void         miner_paused                (TrackerMiner    *miner);
+static void         miner_resumed               (TrackerMiner    *miner);
+static void         retrieve_and_schedule_feeds (TrackerMinerRSS *miner);
+static void         change_status               (FeedsPool       *pool,
+                                                 FeedChannel     *feed,
+                                                 gpointer         user_data);
+static void         feed_fetched                (FeedsPool       *pool,
+                                                 FeedChannel     *feed,
+                                                 GList           *items,
+                                                 gpointer         user_data);
+static const gchar *get_message_url             (FeedItem        *item);
 
 G_DEFINE_TYPE (TrackerMinerRSS, tracker_miner_rss, TRACKER_TYPE_MINER)
 
@@ -59,7 +63,7 @@ tracker_miner_rss_finalize (GObject *object)
 {
 	TrackerMinerRSSPrivate *priv;
 
-	priv = GET_PRIV (object);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (object);
 
 	priv->stopped = TRUE;
 	g_object_unref (priv->pool);
@@ -75,10 +79,10 @@ tracker_miner_rss_class_init (TrackerMinerRSSClass *klass)
 
 	object_class->finalize = tracker_miner_rss_finalize;
 
-	miner_class->started = tracker_miner_rss_started;
-	miner_class->stopped = tracker_miner_rss_stopped;
-	miner_class->paused  = tracker_miner_rss_paused;
-	miner_class->resumed = tracker_miner_rss_resumed;
+	miner_class->started = miner_started;
+	miner_class->stopped = miner_stopped;
+	miner_class->paused  = miner_paused;
+	miner_class->resumed = miner_resumed;
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerRSSPrivate));
 }
@@ -125,7 +129,7 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 		return;
 	}
 
-	priv = GET_PRIV (object);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (object);
 
 	priv->pool = feeds_pool_new ();
 	g_signal_connect (priv->pool, "feed-fetching", G_CALLBACK (change_status), object);
@@ -207,7 +211,7 @@ change_status (FeedsPool   *pool,
 	g_message ("Fetching %s", feed_channel_get_source (feed));
 
 	miner = TRACKER_MINER_RSS (user_data);
-	priv = GET_PRIV (miner);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	avail = feeds_pool_get_listened_num (priv->pool);
 
 	priv->now_fetching++;
@@ -396,7 +400,7 @@ feed_fetched (FeedsPool   *pool,
 	TrackerMinerRSSPrivate *priv;
 
 	miner = TRACKER_MINER_RSS (user_data);
-	priv = GET_PRIV (miner);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 
 	priv->now_fetching--;
 	if (priv->now_fetching <= 0) {
@@ -466,7 +470,7 @@ feeds_retrieve_cb (GObject      *source_object,
 		channels = g_list_prepend (channels, chan);
 	}
 
-	priv = GET_PRIV (source_object);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (source_object);
 	feeds_pool_listen (priv->pool, channels);
 }
 
@@ -489,8 +493,7 @@ retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
 
 }
 
-static
-const gchar *
+static const gchar *
 get_message_url (FeedItem *item)
 {
 	const gchar *url;
@@ -502,13 +505,13 @@ get_message_url (FeedItem *item)
 }
 
 static void
-tracker_miner_rss_started (TrackerMiner *miner)
+miner_started (TrackerMiner *miner)
 {
 	TrackerMinerRSSPrivate *priv;
 
 	g_object_set (miner, "progress", 0.0, "status", "Initializing", NULL);
 
-	priv = GET_PRIV (miner);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	retrieve_and_schedule_feeds (TRACKER_MINER_RSS (miner));
 	feeds_pool_switch (priv->pool, TRUE);
 
@@ -516,31 +519,31 @@ tracker_miner_rss_started (TrackerMiner *miner)
 }
 
 static void
-tracker_miner_rss_stopped (TrackerMiner *miner)
+miner_stopped (TrackerMiner *miner)
 {
 	TrackerMinerRSSPrivate *priv;
 
-	priv = GET_PRIV (miner);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	feeds_pool_switch (priv->pool, FALSE);
 	g_object_set (miner, "progress", 1.0, "status", "Idle", NULL);
 }
 
 static void
-tracker_miner_rss_paused (TrackerMiner *miner)
+miner_paused (TrackerMiner *miner)
 {
 	TrackerMinerRSSPrivate *priv;
 
-	priv = GET_PRIV (miner);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	feeds_pool_switch (priv->pool, FALSE);
 	g_object_set (miner, "status", "Paused", NULL);
 }
 
 static void
-tracker_miner_rss_resumed (TrackerMiner *miner)
+miner_resumed (TrackerMiner *miner)
 {
 	TrackerMinerRSSPrivate *priv;
 
-	priv = GET_PRIV (miner);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	feeds_pool_switch (priv->pool, TRUE);
 	g_object_set (miner, "status", "Idle", NULL);
 }
