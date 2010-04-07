@@ -29,6 +29,12 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+	TRACKER_STORE_PRIORITY_HIGH,
+	TRACKER_STORE_PRIORITY_LOW,
+	TRACKER_STORE_N_PRIORITIES
+} TrackerStorePriority;
+
 typedef void (* TrackerStoreSparqlUpdateCallback) (GError          *error,
                                                    gpointer         user_data);
 typedef void (* TrackerStoreCommitCallback)       (gpointer         user_data);
