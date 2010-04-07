@@ -48,36 +48,6 @@
  * using these standards.
  **/
 
-#ifndef HAVE_STRCASESTR
-
-static gchar *
-strcasestr (const gchar *haystack,
-            const gchar *needle)
-{
-	gchar *p;
-	gchar *startn = NULL;
-	gchar *np = NULL;
-
-	for (p = (gchar *) haystack; *p; p++) {
-		if (np) {
-			if (toupper (*p) == toupper (*np)) {
-				if (!*++np) {
-					return startn;
-				}
-			} else {
-				np = 0;
-			}
-		} else if (toupper (*p) == toupper (*needle)) {
-			np = (gchar *) needle + 1;
-			startn = p;
-		}
-	}
-
-	return NULL;
-}
-
-#endif /* HAVE_STRCASESTR */
-
 static gchar *
 get_date (ExifData *exif, 
           ExifTag   tag)
@@ -118,21 +88,29 @@ get_focal_length (ExifData *exif,
 }
 
 static gchar *
-get_flash (ExifData *exif, 
+get_flash (ExifData *exif,
            ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
 	if (entry) {
-		gchar buf[1024];
+		ExifByteOrder order;
+		gushort flash;
 
-		exif_entry_get_value (entry, buf, 1024);
+		order = exif_data_get_byte_order (exif);
+		flash = exif_get_short (entry->data, order);
 
-		if (strcasestr (buf, "flash fired")) {
+		switch (flash) {
+		case 0x0000: /* No flash */
+		case 0x0005: /* Without strobe */
+		case 0x0008: /* Flash did not fire */
+		case 0x0010: /* Flash in compulsory mode, did not fire */
+		case 0x0018: /* Flash in auto mode, did not fire */
+		case 0x0058: /* Only red-eye reduction mode */
+			return g_strdup ("nmm:flash-off");
+		default:
 			return g_strdup ("nmm:flash-on");
 		}
-
-		return g_strdup ("nmm:flash-off");
 	}
 
 	return NULL;
@@ -211,28 +189,32 @@ get_orientation (ExifData *exif,
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
 	if (entry) {
-		gchar buf[1024];
+		ExifByteOrder order;
+		gushort orientation;
 
-		exif_entry_get_value (entry, buf, 1024);
+		order = exif_data_get_byte_order (exif);
+		orientation = exif_get_short (entry->data, order);
 
-		if (g_ascii_strcasecmp (buf, "top - left") == 0)
+		switch (orientation) {
+		case 1:
 			return g_strdup ("nfo:orientation-top");
-		else if (g_ascii_strcasecmp (buf, "top - right") == 0)
+		case 2:
 			return g_strdup ("nfo:orientation-top-mirror");
-		else if (g_ascii_strcasecmp (buf, "bottom - right") == 0)
+		case 3:
 			return g_strdup ("nfo:orientation-bottom");
-		else if (g_ascii_strcasecmp (buf, "bottom - left") == 0)
+		case 4:
 			return g_strdup ("nfo:orientation-bottom-mirror");
-		else if (g_ascii_strcasecmp (buf, "left - top") == 0)
+		case 5:
 			return g_strdup ("nfo:orientation-left-mirror");
-		else if (g_ascii_strcasecmp (buf, "right - top") == 0)
+		case 6:
 			return g_strdup ("nfo:orientation-right");
-		else if (g_ascii_strcasecmp (buf, "right - bottom") == 0)
+		case 7:
 			return g_strdup ("nfo:orientation-right-mirror");
-		else if (g_ascii_strcasecmp (buf, "left - bottom") == 0)
+		case 8:
 			return g_strdup ("nfo:orientation-left");
-
-		return g_strdup ("nfo:orientation-top");
+		default:
+			return g_strdup ("nfo:orientation-top");
+		}
 	}
 
 	return NULL;
@@ -245,24 +227,28 @@ get_metering_mode (ExifData *exif,
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
 	if (entry) {
-		gchar buf[1024];
+		ExifByteOrder order;
+		gushort metering;
 
-		exif_entry_get_value (entry, buf, 1024);
+		order = exif_data_get_byte_order (exif);
+		metering = exif_get_short (entry->data, order);
 
-		if (strcasestr (buf, "center"))
-			return g_strdup ("nmm:metering-mode-center-weighted-average");
-		else if (strcasestr (buf, "average"))
+		switch (metering) {
+		case 1:
 			return g_strdup ("nmm:metering-mode-average");
-		else if (strcasestr (buf, "spot"))
+		case 2:
+			return g_strdup ("nmm:metering-mode-center-weighted-average");
+		case 3:
 			return g_strdup ("nmm:metering-mode-spot");
-		else if (strcasestr (buf, "multispot"))
+		case 4:
 			return g_strdup ("nmm:metering-mode-multispot");
-		else if (strcasestr (buf, "pattern"))
+		case 5:
 			return g_strdup ("nmm:metering-mode-pattern");
-		else if (strcasestr (buf, "partial"))
+		case 6:
 			return g_strdup ("nmm:metering-mode-partial");
-		else
+		default:
 			return g_strdup ("nmm:metering-mode-other");
+		}
 	}
 
 	return NULL;
@@ -275,16 +261,17 @@ get_white_balance (ExifData *exif,
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
 
 	if (entry) {
-		gchar buf[1024];
+		ExifByteOrder order;
+		gushort white_balance;
 
-		exif_entry_get_value (entry, buf, 1024);
+		order = exif_data_get_byte_order (exif);
+		white_balance = exif_get_short (entry->data, order);
 
-		if (strcasestr (buf, "auto"))
+                if (white_balance == 0)
 			return g_strdup ("nmm:white-balance-auto");
 
 		/* Found in the field: sunny, fluorescent, incandescent, cloudy.
 		 * These will this way also yield as manual. */
-
 		return g_strdup ("nmm:white-balance-manual");
 	}
 
