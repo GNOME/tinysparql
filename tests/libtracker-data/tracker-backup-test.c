@@ -209,12 +209,8 @@ main (int argc, char **argv)
 
 	g_free (current_dir);
 
-// Inexplicable error happens with this enabled:
-// Tracker-CRITICAL **: Subject `http://www.w3.org/2001/XMLSchema#string' is not in domain `rdfs:Class' of property `tracker:notify'
-// I have no idea atm :-\
-
-//	g_test_add_func ("/tracker/libtracker-data/backup/journal_then_save_and_restore",
-//	                 test_journal_then_backup_and_restore);
+	g_test_add_func ("/tracker/libtracker-data/backup/journal_then_save_and_restore",
+	                 test_journal_then_backup_and_restore);
 
 	g_test_add_func ("/tracker/libtracker-data/backup/save_and_restore",
 	                 test_backup_and_restore);
