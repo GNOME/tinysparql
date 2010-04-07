@@ -35,11 +35,17 @@ typedef enum {
 	TRACKER_STORE_N_PRIORITIES
 } TrackerStorePriority;
 
-typedef void (* TrackerStoreSparqlUpdateCallback) (GError          *error,
-                                                   gpointer         user_data);
-typedef void (* TrackerStoreCommitCallback)       (gpointer         user_data);
-typedef void (* TrackerStoreTurtleCallback)       (GError          *error,
-                                                   gpointer         user_data);
+typedef void (* TrackerStoreSparqlQueryCallback)       (TrackerDBResultSet *result_set,
+                                                        GError          *error,
+                                                        gpointer         user_data);
+typedef void (* TrackerStoreSparqlUpdateCallback)      (GError          *error,
+                                                        gpointer         user_data);
+typedef void (* TrackerStoreSparqlUpdateBlankCallback) (GPtrArray       *blank_nodes,
+                                                        GError          *error,
+                                                        gpointer         user_data);
+typedef void (* TrackerStoreCommitCallback)            (gpointer         user_data);
+typedef void (* TrackerStoreTurtleCallback)            (GError          *error,
+                                                        gpointer         user_data);
 
 void         tracker_store_init                   (void);
 void         tracker_store_shutdown               (void);
@@ -47,8 +53,22 @@ void         tracker_store_queue_commit           (TrackerStoreCommitCallback ca
                                                    const gchar   *client_id,
                                                    gpointer       user_data,
                                                    GDestroyNotify destroy);
-void         tracker_store_queue_sparql_update    (const gchar   *sparql,
+void         tracker_store_sparql_query           (const gchar   *sparql,
+                                                   TrackerStorePriority priority,
+                                                   TrackerStoreSparqlQueryCallback callback,
+                                                   const gchar   *client_id,
+                                                   gpointer       user_data,
+                                                   GDestroyNotify destroy);
+void         tracker_store_sparql_update          (const gchar   *sparql,
+                                                   TrackerStorePriority priority,
+                                                   gboolean       batch,
                                                    TrackerStoreSparqlUpdateCallback callback,
+                                                   const gchar   *client_id,
+                                                   gpointer       user_data,
+                                                   GDestroyNotify destroy);
+void         tracker_store_sparql_update_blank    (const gchar   *sparql,
+                                                   TrackerStorePriority priority,
+                                                   TrackerStoreSparqlUpdateBlankCallback callback,
                                                    const gchar   *client_id,
                                                    gpointer       user_data,
                                                    GDestroyNotify destroy);
@@ -56,13 +76,6 @@ void         tracker_store_queue_turtle_import    (GFile         *file,
                                                    TrackerStoreTurtleCallback callback,
                                                    gpointer       user_data,
                                                    GDestroyNotify destroy);
-void         tracker_store_sparql_update          (const gchar   *sparql,
-                                                   GError       **error);
-GPtrArray *  tracker_store_sparql_update_blank    (const gchar   *sparql,
-                                                   GError       **error);
-TrackerDBResultSet*
-tracker_store_sparql_query           (const gchar   *sparql,
-                                      GError       **error);
 
 guint        tracker_store_get_queue_size         (void);
 

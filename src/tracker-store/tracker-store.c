@@ -45,9 +45,11 @@ typedef struct {
 } TrackerStorePrivate;
 
 typedef enum {
-	TRACKER_STORE_TASK_TYPE_UPDATE = 0,
-	TRACKER_STORE_TASK_TYPE_COMMIT = 1,
-	TRACKER_STORE_TASK_TYPE_TURTLE = 2,
+	TRACKER_STORE_TASK_TYPE_QUERY,
+	TRACKER_STORE_TASK_TYPE_UPDATE,
+	TRACKER_STORE_TASK_TYPE_UPDATE_BLANK,
+	TRACKER_STORE_TASK_TYPE_COMMIT,
+	TRACKER_STORE_TASK_TYPE_TURTLE,
 } TrackerStoreTaskType;
 
 typedef struct {
@@ -55,6 +57,10 @@ typedef struct {
 	union {
 		struct {
 			gchar                   *query;
+		} query;
+		struct {
+			gchar                   *query;
+			gboolean                 batch;
 			gchar                   *client_id;
 		} update;
 		struct {
@@ -65,9 +71,11 @@ typedef struct {
 	gpointer                   user_data;
 	GDestroyNotify             destroy;
 	union {
-		TrackerStoreSparqlUpdateCallback update_callback;
-		TrackerStoreCommitCallback       commit_callback;
-		TrackerStoreTurtleCallback       turtle_callback;
+		TrackerStoreSparqlQueryCallback       query_callback;
+		TrackerStoreSparqlUpdateCallback      update_callback;
+		TrackerStoreSparqlUpdateBlankCallback update_blank_callback;
+		TrackerStoreCommitCallback            commit_callback;
+		TrackerStoreTurtleCallback            turtle_callback;
 	} callback;
 } TrackerStoreTask;
 
@@ -199,22 +207,94 @@ queue_idle_handler (gpointer user_data)
 	}
 	g_return_val_if_fail (task != NULL, FALSE);
 
-	if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
+	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
+		GError *error = NULL;
+		TrackerDBResultSet *result_set;
+
+		result_set = tracker_data_query_sparql (task->data.query.query, &error);
+
+		if (task->callback.query_callback) {
+			task->callback.query_callback (result_set, error, task->user_data);
+		}
+
+		if (result_set) {
+			g_object_unref (result_set);
+		}
+
+		if (error) {
+			g_clear_error (&error);
+		}
+	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		GError *error = NULL;
 
-		begin_batch (private);
+		if (task->data.update.batch) {
+			begin_batch (private);
+		} else {
+			end_batch (private);
+			tracker_data_begin_db_transaction ();
+		}
 
 		tracker_data_update_sparql (task->data.update.query, &error);
 
-		if (!error) {
-			private->batch_count++;
-			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
-				end_batch (private);
+		if (task->data.update.batch) {
+			if (!error) {
+				private->batch_count++;
+				if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
+					end_batch (private);
+				}
 			}
+		} else {
+			tracker_data_commit_db_transaction ();
 		}
 
 		if (task->callback.update_callback) {
 			task->callback.update_callback (error, task->user_data);
+		}
+
+		if (error) {
+			g_clear_error (&error);
+		}
+	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
+		GError *error = NULL;
+		GPtrArray *blank_nodes;
+
+		if (task->data.update.batch) {
+			begin_batch (private);
+		} else {
+			end_batch (private);
+			tracker_data_begin_db_transaction ();
+		}
+
+		blank_nodes = tracker_data_update_sparql_blank (task->data.update.query, &error);
+
+		if (task->data.update.batch) {
+			if (!error) {
+				private->batch_count++;
+				if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
+					end_batch (private);
+				}
+			}
+		} else {
+			tracker_data_commit_db_transaction ();
+		}
+
+		if (task->callback.update_blank_callback) {
+			if (!blank_nodes) {
+				/* Create empty GPtrArray for dbus-glib to be happy */
+				blank_nodes = g_ptr_array_new ();
+			}
+
+			task->callback.update_blank_callback (blank_nodes, error, task->user_data);
+		}
+
+		if (blank_nodes) {
+			gint i;
+
+			for (i = 0; i < blank_nodes->len; i++) {
+				g_ptr_array_foreach (blank_nodes->pdata[i], (GFunc) g_hash_table_unref, NULL);
+				g_ptr_array_free (blank_nodes->pdata[i], TRUE);
+			}
+			g_ptr_array_free (blank_nodes, TRUE);
 		}
 
 		if (error) {
@@ -379,10 +459,74 @@ tracker_store_queue_commit (TrackerStoreCommitCallback callback,
 	}
 }
 
+void
+tracker_store_sparql_query (const gchar *sparql,
+                            TrackerStorePriority priority,
+                            TrackerStoreSparqlQueryCallback callback,
+                            const gchar *client_id,
+                            gpointer user_data,
+                            GDestroyNotify destroy)
+{
+	TrackerStorePrivate *private;
+	TrackerStoreTask    *task;
+
+	g_return_if_fail (sparql != NULL);
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	task = g_slice_new0 (TrackerStoreTask);
+	task->type = TRACKER_STORE_TASK_TYPE_QUERY;
+	task->data.update.query = g_strdup (sparql);
+	task->user_data = user_data;
+	task->callback.query_callback = callback;
+	task->destroy = destroy;
+	task->data.update.client_id = g_strdup (client_id);
+
+	g_queue_push_tail (private->queues[priority], task);
+
+	if (!private->have_handler) {
+		start_handler (private);
+	}
+}
 
 void
-tracker_store_queue_sparql_update (const gchar *sparql,
-                                   TrackerStoreSparqlUpdateCallback callback,
+tracker_store_sparql_update (const gchar *sparql,
+                             TrackerStorePriority priority,
+                             gboolean batch,
+                             TrackerStoreSparqlUpdateCallback callback,
+                             const gchar *client_id,
+                             gpointer user_data,
+                             GDestroyNotify destroy)
+{
+	TrackerStorePrivate *private;
+	TrackerStoreTask    *task;
+
+	g_return_if_fail (sparql != NULL);
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	task = g_slice_new0 (TrackerStoreTask);
+	task->type = TRACKER_STORE_TASK_TYPE_UPDATE;
+	task->data.update.query = g_strdup (sparql);
+	task->data.update.batch = batch;
+	task->user_data = user_data;
+	task->callback.update_callback = callback;
+	task->destroy = destroy;
+	task->data.update.client_id = g_strdup (client_id);
+
+	g_queue_push_tail (private->queues[priority], task);
+
+	if (!private->have_handler) {
+		start_handler (private);
+	}
+}
+
+void
+tracker_store_sparql_update_blank (const gchar *sparql,
+                                   TrackerStorePriority priority,
+                                   TrackerStoreSparqlUpdateBlankCallback callback,
                                    const gchar *client_id,
                                    gpointer user_data,
                                    GDestroyNotify destroy)
@@ -396,14 +540,14 @@ tracker_store_queue_sparql_update (const gchar *sparql,
 	g_return_if_fail (private != NULL);
 
 	task = g_slice_new0 (TrackerStoreTask);
-	task->type = TRACKER_STORE_TASK_TYPE_UPDATE;
+	task->type = TRACKER_STORE_TASK_TYPE_UPDATE_BLANK;
 	task->data.update.query = g_strdup (sparql);
 	task->user_data = user_data;
-	task->callback.update_callback = callback;
+	task->callback.update_blank_callback = callback;
 	task->destroy = destroy;
 	task->data.update.client_id = g_strdup (client_id);
 
-	g_queue_push_tail (private->queues[TRACKER_STORE_PRIORITY_LOW], task);
+	g_queue_push_tail (private->queues[priority], task);
 
 	if (!private->have_handler) {
 		start_handler (private);
@@ -436,63 +580,6 @@ tracker_store_queue_turtle_import (GFile                      *file,
 	if (!private->have_handler) {
 		start_handler (private);
 	}
-}
-
-void
-tracker_store_sparql_update (const gchar *sparql,
-                             GError     **error)
-{
-	TrackerStorePrivate *private;
-
-	g_return_if_fail (sparql != NULL);
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (private->batch_mode) {
-		/* commit pending batch items */
-		tracker_data_commit_db_transaction ();
-		private->batch_mode = FALSE;
-		private->batch_count = 0;
-	}
-
-	tracker_data_begin_db_transaction ();
-	tracker_data_update_sparql (sparql, error);
-	tracker_data_commit_db_transaction ();
-
-}
-
-GPtrArray *
-tracker_store_sparql_update_blank (const gchar *sparql,
-                                   GError     **error)
-{
-	TrackerStorePrivate *private;
-	GPtrArray *blank_nodes;
-
-	g_return_val_if_fail (sparql != NULL, NULL);
-
-	private = g_static_private_get (&private_key);
-	g_return_val_if_fail (private != NULL, NULL);
-
-	if (private->batch_mode) {
-		/* commit pending batch items */
-		tracker_data_commit_db_transaction ();
-		private->batch_mode = FALSE;
-		private->batch_count = 0;
-	}
-
-	tracker_data_begin_db_transaction ();
-	blank_nodes = tracker_data_update_sparql_blank (sparql, error);
-	tracker_data_commit_db_transaction ();
-
-	return blank_nodes;
-}
-
-TrackerDBResultSet*
-tracker_store_sparql_query (const gchar *sparql,
-                            GError     **error)
-{
-	return tracker_data_query_sparql (sparql, error);
 }
 
 guint
