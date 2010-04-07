@@ -34,7 +34,6 @@ tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(tracker_store_win_libs)					\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
