@@ -9,10 +9,11 @@ INCLUDES =								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
+	$(WARN_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(DBUS_CFLAGS)							\
-	$(WARN_CFLAGS)							\
-	$(LIBGRSS_CFLAGS)
+	$(LIBGRSS_CFLAGS)						\
+	$(GCOV_CFLAGS)
 
 libexec_PROGRAMS = tracker-miner-rss
 
@@ -23,8 +24,7 @@ tracker_miner_rss_SOURCES =						\
 
 tracker_miner_rss_LDADD =						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
-	$(GLIB2_LIBS)						\
-	$(DBUS_LIBS)						\
-	$(LIBGRSS_LIBS)
-
-CLEANFILES = $(BUILT_SOURCES)
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(LIBGRSS_LIBS)							\
+	$(DBUS_LIBS)							\
+	$(GLIB2_LIBS)
