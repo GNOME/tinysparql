@@ -113,16 +113,111 @@ strstr_i (const char *a, const char *b)
 }
 
 static void
-test_sparql_query (gconstpointer test_data)
+check_result (TrackerDBResultSet *result_set,
+              const TestInfo *test_info,
+              const gchar *results_filename,
+              GError *error)
 {
 	int (*comparer) (const char *a, const char *b);
+	GString *test_results;
+	gchar *results;
+	GError *nerror = NULL;
+
+	if (test_info->expect_query_error) {
+		comparer = strstr_i;
+		g_assert (error != NULL);
+	} else {
+		comparer = strcmp;
+		g_assert_no_error (error);
+	}
+
+	g_file_get_contents (results_filename, &results, NULL, &nerror);
+	g_assert_no_error (nerror);
+	g_clear_error (&nerror);
+
+	/* compare results with reference output */
+
+	test_results = g_string_new ("");
+
+	if (result_set) {
+		gboolean valid = TRUE;
+		guint col_count;
+		gint col;
+
+		col_count = tracker_db_result_set_get_n_columns (result_set);
+
+		while (valid) {
+			for (col = 0; col < col_count; col++) {
+				GValue value = { 0 };
+
+				_tracker_db_result_set_get_value (result_set, col, &value);
+
+				switch (G_VALUE_TYPE (&value)) {
+				case G_TYPE_INT:
+					g_string_append_printf (test_results, "\"%d\"", g_value_get_int (&value));
+					break;
+				case G_TYPE_DOUBLE:
+					g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
+					break;
+				case G_TYPE_STRING:
+					g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
+					break;
+				default:
+					/* unbound variable */
+					break;
+				}
+
+				if (col < col_count - 1) {
+					g_string_append (test_results, "\t");
+				}
+			}
+
+			g_string_append (test_results, "\n");
+
+			valid = tracker_db_result_set_iter_next (result_set);
+		}
+	} else if (test_info->expect_query_error) {
+		g_string_append (test_results, error->message);
+		g_clear_error (&error);
+	}
+
+	if (comparer (results, test_results->str)) {
+		/* print result difference */
+		gchar *quoted_results;
+		gchar *command_line;
+		gchar *quoted_command_line;
+		gchar *shell;
+		gchar *diff;
+
+		quoted_results = g_shell_quote (test_results->str);
+		command_line = g_strdup_printf ("echo -n %s | diff -u %s -", quoted_results, results_filename);
+		quoted_command_line = g_shell_quote (command_line);
+		shell = g_strdup_printf ("sh -c %s", quoted_command_line);
+		g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
+		g_assert_no_error (error);
+
+		g_error ("%s", diff);
+
+		g_free (quoted_results);
+		g_free (command_line);
+		g_free (quoted_command_line);
+		g_free (shell);
+		g_free (diff);
+	}
+
+	g_string_free (test_results, TRUE);
+	g_free (results);
+}
+
+static void
+test_sparql_query (gconstpointer test_data)
+{
 	TrackerDBResultSet *result_set;
 	const TestInfo *test_info;
 	GError *error;
-	GString *test_results;
 	gchar *data_filename;
 	gchar *query, *query_filename;
-	gchar *results, *results_filename;
+	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
 	const gchar *test_schemas[2] = { NULL, NULL };
 
@@ -177,94 +272,31 @@ test_sparql_query (gconstpointer test_data)
 	g_assert_no_error (error);
 
 	results_filename = g_strconcat (test_prefix, ".out", NULL);
-	g_file_get_contents (results_filename, &results, NULL, &error);
-	g_assert_no_error (error);
-
-	g_free (data_prefix);
-	g_free (test_prefix);
 
 	/* perform actual query */
 
 	result_set = tracker_data_query_sparql (query, &error);
 
-	if (test_info->expect_query_error) {
-		comparer = strstr_i;
-		g_assert (error != NULL);
-	} else {
-		comparer = strcmp;
+	check_result (result_set, test_info, results_filename, error);
+
+	g_free (query_filename);
+	g_free (query);
+
+	query_filename = g_strconcat (test_prefix, ".extra.rq", NULL);
+	if (g_file_get_contents (query_filename, &query, NULL, NULL)) {
+		g_object_unref (result_set);
+		result_set = tracker_data_query_sparql (query, &error);
 		g_assert_no_error (error);
+		g_free (results_filename);
+		results_filename = g_strconcat (test_prefix, ".extra.out", NULL);
+		check_result (result_set, test_info, results_filename, error);
 	}
 
-	/* compare results with reference output */
-
-	test_results = g_string_new ("");
+	g_free (data_prefix);
+	g_free (test_prefix);
 
 	if (result_set) {
-		gboolean valid = TRUE;
-		guint col_count;
-		gint col;
-
-		col_count = tracker_db_result_set_get_n_columns (result_set);
-
-		while (valid) {
-			for (col = 0; col < col_count; col++) {
-				GValue value = { 0 };
-
-				_tracker_db_result_set_get_value (result_set, col, &value);
-
-				switch (G_VALUE_TYPE (&value)) {
-				case G_TYPE_INT:
-					g_string_append_printf (test_results, "\"%d\"", g_value_get_int (&value));
-					break;
-				case G_TYPE_DOUBLE:
-					g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
-					break;
-				case G_TYPE_STRING:
-					g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
-					break;
-				default:
-					/* unbound variable */
-					break;
-				}
-
-				if (col < col_count - 1) {
-					g_string_append (test_results, "\t");
-				}
-			}
-
-			g_string_append (test_results, "\n");
-
-			valid = tracker_db_result_set_iter_next (result_set);
-		}
-
 		g_object_unref (result_set);
-	} else if (test_info->expect_query_error) {
-		g_string_append (test_results, error->message);
-		g_clear_error (&error);
-	}
-
-	if (comparer (results, test_results->str)) {
-		/* print result difference */
-		gchar *quoted_results;
-		gchar *command_line;
-		gchar *quoted_command_line;
-		gchar *shell;
-		gchar *diff;
-
-		quoted_results = g_shell_quote (test_results->str);
-		command_line = g_strdup_printf ("echo -n %s | diff -u %s -", quoted_results, results_filename);
-		quoted_command_line = g_shell_quote (command_line);
-		shell = g_strdup_printf ("sh -c %s", quoted_command_line);
-		g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
-		g_assert_no_error (error);
-
-		g_error ("%s", diff);
-
-		g_free (quoted_results);
-		g_free (command_line);
-		g_free (quoted_command_line);
-		g_free (shell);
-		g_free (diff);
 	}
 
 	/* cleanup */
@@ -273,8 +305,6 @@ test_sparql_query (gconstpointer test_data)
 	g_free (query_filename);
 	g_free (query);
 	g_free (results_filename);
-	g_free (results);
-	g_string_free (test_results, TRUE);
 
 	tracker_data_manager_shutdown ();
 }

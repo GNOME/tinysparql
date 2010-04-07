@@ -4,5 +4,10 @@
 
 ex:foo a example:A .
 
+ex:bar a example:A .
+
 ex:foo rdf:value "abcDEFghiJKL" , "ABCdefGHIjkl", "0123456789",
+	"http://example.com/literal" .
+
+ex:bar rdf:value "abcDRFghiJKL" , "ABCdrfGHIjkl", "0123456789",
 	"http://example.com/literal" .
