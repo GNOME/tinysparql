@@ -24,11 +24,6 @@
 
 #include "tracker-miner-applications.h"
 
-#define RDF_TYPE                     TRACKER_RDF_PREFIX "type"
-#define NFO_PREFIX                   TRACKER_NFO_PREFIX
-#define NIE_PREFIX                   TRACKER_NIE_PREFIX
-#define MAEMO_PREFIX                 TRACKER_MAEMO_PREFIX
-
 #define GROUP_DESKTOP_ENTRY          "Desktop Entry"
 
 #define APPLICATION_DATASOURCE_URN   "urn:nepomuk:datasource:84f20000-1241-11de-8c30-0800200c9a66"
@@ -322,6 +317,24 @@ miner_applications_process_file_cb (gpointer user_data)
 
 		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 		tracker_sparql_builder_object_iri (sparql, APPLET_DATASOURCE_URN);
+	} else {
+		/* Invalid type, all valid types are already listed above */
+		uri = g_file_get_uri (data->file);
+		tracker_sparql_builder_insert_open (sparql, uri);
+
+		tracker_sparql_builder_subject_iri (sparql, APPLICATION_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nie:DataSource");
+
+		tracker_sparql_builder_subject_iri (sparql, uri);
+
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplication");
+		tracker_sparql_builder_object (sparql, "nie:DataObject");
+
+		g_debug ("Invalid desktop file:'%s'", uri);
+		g_debug ("  Type '%s' is not part of the desktop file specification (expected 'Application', 'Link' or 'Directory')", type);
+		g_debug ("  Defaulting to 'Application'");
 	}
 
 	if (sparql && uri) {
@@ -346,8 +359,12 @@ miner_applications_process_file_cb (gpointer user_data)
 		if (is_software) {
 			gchar *icon;
 
-			insert_data_from_desktop_file (sparql, uri, NIE_PREFIX "comment", key_file, "Comment", TRUE);
-			insert_data_from_desktop_file (sparql, uri, NFO_PREFIX "softwareCmdLine", key_file, "Exec", TRUE);
+			insert_data_from_desktop_file (sparql, uri, 
+			                               TRACKER_NIE_PREFIX "comment", key_file, 
+			                               "Comment", TRUE);
+			insert_data_from_desktop_file (sparql, uri, 
+			                               TRACKER_NFO_PREFIX "softwareCmdLine", key_file, 
+			                               "Exec", TRUE);
 
 			icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
