@@ -301,7 +301,7 @@ extract_pdf (const gchar          *uri,
 	TrackerFTSConfig *fts_config;
 	GTime creation_date;
 	GError *error = NULL;
-	TrackerXmpData xd = { 0 };
+	TrackerXmpData *xd = NULL;
 	PDFData pd = { 0 }; /* actual data */
 	PDFData md = { 0 }; /* for merging */
 	PopplerDocument *document;
@@ -350,96 +350,101 @@ extract_pdf (const gchar          *uri,
 	}
 
 	if (xml) {
-		tracker_xmp_read (xml, strlen (xml), uri, &xd);
-		g_free (xml);
+		xd = tracker_xmp_new (xml, strlen (xml), uri);
+
+                if (!xd) {
+                        xd = g_new0 (TrackerXmpData, 1);
+                }
+
+                g_free (xml);
 		xml = NULL;
 
-		md.title = tracker_coalesce (3, pd.title, xd.title, xd.title2, xd.pdf_title);
-		md.subject = tracker_coalesce (2, pd.subject, xd.subject);
-		md.date = tracker_coalesce (3, pd.creation_date, xd.date, xd.time_original);
-		md.author = tracker_coalesce (2, pd.author, xd.creator);
+		md.title = tracker_coalesce (3, pd.title, xd->title, xd->title2, xd->pdf_title);
+		md.subject = tracker_coalesce (2, pd.subject, xd->subject);
+		md.date = tracker_coalesce (3, pd.creation_date, xd->date, xd->time_original);
+		md.author = tracker_coalesce (2, pd.author, xd->creator);
 
 		write_pdf_data (md, metadata);
 
-		if (xd.keywords) {
-			insert_keywords (metadata, xd.keywords);
-			g_free (xd.keywords);
+		if (xd->keywords) {
+			insert_keywords (metadata, xd->keywords);
+			g_free (xd->keywords);
 		}
 
-		if (xd.pdf_keywords) {
-			insert_keywords (metadata, xd.pdf_keywords);
-			g_free (xd.pdf_keywords);
+		if (xd->pdf_keywords) {
+			insert_keywords (metadata, xd->pdf_keywords);
+			g_free (xd->pdf_keywords);
 		}
 
-		if (xd.publisher) {
+		if (xd->publisher) {
 			tracker_sparql_builder_predicate (metadata, "nco:publisher");
 			tracker_sparql_builder_object_blank_open (metadata);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "nco:Contact");
 			tracker_sparql_builder_predicate (metadata, "nco:fullname");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.publisher);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->publisher);
 			tracker_sparql_builder_object_blank_close (metadata);
-			g_free (xd.publisher);
+			g_free (xd->publisher);
 		}
 
-		if (xd.type) {
+		if (xd->type) {
 			tracker_sparql_builder_predicate (metadata, "dc:type");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.type);
-			g_free (xd.type);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->type);
+			g_free (xd->type);
 		}
 
-		if (xd.format) {
+		if (xd->format) {
 			tracker_sparql_builder_predicate (metadata, "dc:format");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.format);
-			g_free (xd.format);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->format);
+			g_free (xd->format);
 		}
 
-		if (xd.identifier) {
+		if (xd->identifier) {
 			tracker_sparql_builder_predicate (metadata, "dc:identifier");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.identifier);
-			g_free (xd.identifier);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->identifier);
+			g_free (xd->identifier);
 		}
 
-		if (xd.source) {
+		if (xd->source) {
 			tracker_sparql_builder_predicate (metadata, "dc:source");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.source);
-			g_free (xd.source);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->source);
+			g_free (xd->source);
 		}
 
-		if (xd.language) {
+		if (xd->language) {
 			tracker_sparql_builder_predicate (metadata, "dc:language");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.language);
-			g_free (xd.language);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->language);
+			g_free (xd->language);
 		}
 
-		if (xd.relation) {
+		if (xd->relation) {
 			tracker_sparql_builder_predicate (metadata, "dc:relation");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.relation);
-			g_free (xd.relation);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->relation);
+			g_free (xd->relation);
 		}
 
-		if (xd.coverage) {
+		if (xd->coverage) {
 			tracker_sparql_builder_predicate (metadata, "dc:coverage");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.coverage);
-			g_free (xd.coverage);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->coverage);
+			g_free (xd->coverage);
 		}
 
-		if (xd.license) {
+		if (xd->license) {
 			tracker_sparql_builder_predicate (metadata, "nie:license");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.license);
-			g_free (xd.license);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->license);
+			g_free (xd->license);
 		}
 
-		if (xd.make || xd.model) {
+		if (xd->make || xd->model) {
 			gchar *camera;
 
-			if ((xd.make == NULL || xd.model == NULL) ||
-			    (xd.make && xd.model && strstr (xd.model, xd.make) == NULL)) {
-				camera = tracker_merge (" ", 2, xd.make, xd.model);
+			if ((xd->make == NULL || xd->model == NULL) ||
+			    (xd->make && xd->model && strstr (xd->model, xd->make) == NULL)) {
+				camera = tracker_merge (" ", 2, xd->make, xd->model);
 			} else {
-				camera = g_strdup (xd.model);
-				g_free (xd.model);
-				g_free (xd.make);
+				camera = g_strdup (xd->model);
+				g_free (xd->model);
+				g_free (xd->make);
 			}
 
 			tracker_sparql_builder_predicate (metadata, "nmm:camera");
@@ -447,54 +452,54 @@ extract_pdf (const gchar          *uri,
 			g_free (camera);
 		}
 
-		if (xd.orientation) {
+		if (xd->orientation) {
 			tracker_sparql_builder_predicate (metadata, "nfo:orientation");
-			tracker_sparql_builder_object (metadata, xd.orientation);
-			g_free (xd.orientation);
+			tracker_sparql_builder_object (metadata, xd->orientation);
+			g_free (xd->orientation);
 		}
 
-		if (xd.rights) {
+		if (xd->rights) {
 			tracker_sparql_builder_predicate (metadata, "nie:copyright");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.rights);
-			g_free (xd.rights);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->rights);
+			g_free (xd->rights);
 		}
 
-		if (xd.white_balance) {
+		if (xd->white_balance) {
 			tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
-			tracker_sparql_builder_object (metadata, xd.white_balance);
-			g_free (xd.white_balance);
+			tracker_sparql_builder_object (metadata, xd->white_balance);
+			g_free (xd->white_balance);
 		}
 
-		if (xd.fnumber) {
+		if (xd->fnumber) {
 			gdouble value;
 
-			value = g_strtod (xd.fnumber, NULL);
+			value = g_strtod (xd->fnumber, NULL);
 			tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
 			tracker_sparql_builder_object_double (metadata, value);
-			g_free (xd.fnumber);
+			g_free (xd->fnumber);
 		}
 
-		if (xd.flash) {
+		if (xd->flash) {
 			tracker_sparql_builder_predicate (metadata, "nmm:flash");
-			tracker_sparql_builder_object (metadata, xd.flash);
-			g_free (xd.flash);
+			tracker_sparql_builder_object (metadata, xd->flash);
+			g_free (xd->flash);
 		}
 
-		if (xd.focal_length) {
+		if (xd->focal_length) {
 			gdouble value;
 
-			value = g_strtod (xd.focal_length, NULL);
+			value = g_strtod (xd->focal_length, NULL);
 			tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
 			tracker_sparql_builder_object_double (metadata, value);
-			g_free (xd.focal_length);
+			g_free (xd->focal_length);
 		}
 
-		/* Question: Shouldn't xd.Artist be merged with md.author instead? */
+		/* Question: Shouldn't xd->Artist be merged with md.author instead? */
 
-		if (xd.artist || xd.contributor) {
+		if (xd->artist || xd->contributor) {
 			gchar *artist;
 
-			artist = tracker_coalesce (2, xd.artist, xd.contributor);
+			artist = tracker_coalesce (2, xd->artist, xd->contributor);
 			tracker_sparql_builder_predicate (metadata, "nco:contributor");
 			tracker_sparql_builder_object_blank_open (metadata);
 			tracker_sparql_builder_predicate (metadata, "a");
@@ -505,65 +510,65 @@ extract_pdf (const gchar          *uri,
 			g_free (artist);
 		}
 
-		if (xd.exposure_time) {
+		if (xd->exposure_time) {
 			gdouble value;
 
-			value = g_strtod (xd.exposure_time, NULL);
+			value = g_strtod (xd->exposure_time, NULL);
 			tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
 			tracker_sparql_builder_object_double (metadata, value);
-			g_free (xd.exposure_time);
+			g_free (xd->exposure_time);
 		}
 
-		if (xd.iso_speed_ratings) {
+		if (xd->iso_speed_ratings) {
 			gdouble value;
 
-			value = g_strtod (xd.iso_speed_ratings, NULL);
+			value = g_strtod (xd->iso_speed_ratings, NULL);
 			tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
 			tracker_sparql_builder_object_double (metadata, value);
-			g_free (xd.iso_speed_ratings);
+			g_free (xd->iso_speed_ratings);
 		}
 
-		if (xd.description) {
+		if (xd->description) {
 			tracker_sparql_builder_predicate (metadata, "nie:description");
-			tracker_sparql_builder_object_unvalidated (metadata, xd.description);
-			g_free (xd.description);
+			tracker_sparql_builder_object_unvalidated (metadata, xd->description);
+			g_free (xd->description);
 		}
 
-		if (xd.metering_mode) {
+		if (xd->metering_mode) {
 			tracker_sparql_builder_predicate (metadata, "nmm:meteringMode");
-			tracker_sparql_builder_object (metadata, xd.metering_mode);
-			g_free (xd.metering_mode);
+			tracker_sparql_builder_object (metadata, xd->metering_mode);
+			g_free (xd->metering_mode);
 		}
 
-		if (xd.address || xd.country || xd.city) {
+		if (xd->address || xd->country || xd->city) {
 			tracker_sparql_builder_predicate (metadata, "mlo:location");
 	
 			tracker_sparql_builder_object_blank_open (metadata);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
 	
-			if (xd.address) {
+			if (xd->address) {
 				tracker_sparql_builder_predicate (metadata, "mlo:address");
-				tracker_sparql_builder_object_unvalidated (metadata, xd.address);
-				g_free (xd.address);
+				tracker_sparql_builder_object_unvalidated (metadata, xd->address);
+				g_free (xd->address);
 			}
 	
-			if (xd.state) {
+			if (xd->state) {
 				tracker_sparql_builder_predicate (metadata, "mlo:state");
-				tracker_sparql_builder_object_unvalidated (metadata, xd.state);
-				g_free (xd.state);
+				tracker_sparql_builder_object_unvalidated (metadata, xd->state);
+				g_free (xd->state);
 			}
 	
-			if (xd.city) {
+			if (xd->city) {
 				tracker_sparql_builder_predicate (metadata, "mlo:city");
-				tracker_sparql_builder_object_unvalidated (metadata, xd.city);
-				g_free (xd.city);
+				tracker_sparql_builder_object_unvalidated (metadata, xd->city);
+				g_free (xd->city);
 			}
 	
-			if (xd.country) {
+			if (xd->country) {
 				tracker_sparql_builder_predicate (metadata, "mlo:country");
-				tracker_sparql_builder_object_unvalidated (metadata, xd.country);
-				g_free (xd.country);
+				tracker_sparql_builder_object_unvalidated (metadata, xd->country);
+				g_free (xd->country);
 			}
 		
 			tracker_sparql_builder_object_blank_close (metadata);
@@ -571,6 +576,8 @@ extract_pdf (const gchar          *uri,
 
 		/* PDF keywords aren't used ATM */
 		g_free (pd.keywords);
+
+		tracker_xmp_free (xd, FALSE);
 	} else {
 		/* So if we are here we have NO XMP data and we just
 		 * write what we know from Poppler.
