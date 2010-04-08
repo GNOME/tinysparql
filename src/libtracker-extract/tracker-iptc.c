@@ -180,36 +180,15 @@ foreach_dataset (IptcDataSet *dataset,
 
 #endif /* HAVE_LIBIPTCDATA */
 
-/**
- * tracker_iptc_read:
- * @buffer: a chunk of data with iptc data in it.
- * @len: the size of @buffer.
- * @uri: the URI this is related to.
- * @data: a pointer to a TrackerIptcData struture to populate.
- *
- * This function takes @len bytes of @buffer and runs it through the
- * IPTC library. The result is that @data is populated with the IPTC
- * data found in @uri.
- *
- * Returns: %TRUE if the @data was populated successfully, otherwise
- * %FALSE is returned.
- *
- * Since: 0.8
- **/
-gboolean
-tracker_iptc_read (const unsigned char *buffer,
-                   size_t               len,
-                   const gchar         *uri,
-                   TrackerIptcData     *data)
+static gboolean
+parse_iptc (const unsigned char *buffer,
+            size_t               len,
+            const gchar         *uri,
+            TrackerIptcData     *data)
 {
 #ifdef HAVE_LIBIPTCDATA
 	IptcData *iptc;
 #endif /* HAVE_LIBIPTCDATA */
-
-	g_return_val_if_fail (buffer != NULL, FALSE);
-	g_return_val_if_fail (len > 0, FALSE);
-	g_return_val_if_fail (uri != NULL, FALSE);
-	g_return_val_if_fail (data != NULL, FALSE);
 
 	memset (data, 0, sizeof (TrackerIptcData));
 
@@ -233,4 +212,107 @@ tracker_iptc_read (const unsigned char *buffer,
 #endif /* HAVE_LIBIPTCDATA */
 
 	return TRUE;
+}
+
+/**
+ * tracker_iptc_read:
+ * @buffer: a chunk of data with iptc data in it.
+ * @len: the size of @buffer.
+ * @uri: the URI this is related to.
+ * @data: a pointer to a TrackerIptcData struture to populate.
+ *
+ * This function takes @len bytes of @buffer and runs it through the
+ * IPTC library. The result is that @data is populated with the IPTC
+ * data found in @uri.
+ *
+ * Returns: %TRUE if the @data was populated successfully, otherwise
+ * %FALSE is returned.
+ *
+ * Since: 0.8
+ *
+ * Deprecated: 0.9. Use tracker_iptc_new() instead.
+ **/
+gboolean
+tracker_iptc_read (const unsigned char *buffer,
+                   size_t               len,
+                   const gchar         *uri,
+                   TrackerIptcData     *data)
+{
+	g_return_val_if_fail (buffer != NULL, FALSE);
+	g_return_val_if_fail (len > 0, FALSE);
+	g_return_val_if_fail (uri != NULL, FALSE);
+	g_return_val_if_fail (data != NULL, FALSE);
+
+	return parse_iptc (buffer, len, uri, data);
+}
+
+/**
+ * tracker_iptc_new:
+ * @buffer: a chunk of data with iptc data in it.
+ * @len: the size of @buffer.
+ * @uri: the URI this is related to.
+ * @data: a pointer to a TrackerIptcData struture to populate.
+ *
+ * This function takes @len bytes of @buffer and runs it through the
+ * IPTC library.
+ *
+ * Returns: a newly allocated #TrackerIptcData struct if IPTC data was
+ *          found, %NULL otherwise. Free the returned struct with
+ *          tracker_iptc_free().
+ *
+ * Since: 0.9
+ **/
+TrackerIptcData *
+tracker_iptc_new (const guchar *buffer,
+                  gsize         len,
+                  const gchar  *uri)
+{
+	TrackerIptcData *data;
+
+	g_return_val_if_fail (buffer != NULL, NULL);
+	g_return_val_if_fail (len > 0, NULL);
+	g_return_val_if_fail (uri != NULL, NULL);
+
+	data = g_new0 (TrackerIptcData, 1);
+
+	if (!parse_iptc (buffer, len, uri, data)) {
+		tracker_iptc_free (data, TRUE);
+		return NULL;
+	}
+
+	return data;
+}
+
+/**
+ * tracker_iptc_free:
+ * @data: a #TrackerIptcData
+ * @free_members: %TRUE to free all struct members.
+ *
+ * Frees @data, and optionally all struct members if @free_members
+ * is %TRUE.
+ *
+ * Since: 0.9
+ **/
+void
+tracker_iptc_free (TrackerIptcData *data,
+                   gboolean         free_members)
+{
+	g_return_if_fail (data != NULL);
+
+	if (free_members) {
+		g_free (data->keywords);
+		g_free (data->date_created);
+		g_free (data->byline);
+		g_free (data->credit);
+		g_free (data->copyright_notice);
+		g_free (data->image_orientation);
+		g_free (data->byline_title);
+		g_free (data->city);
+		g_free (data->state);
+		g_free (data->sublocation);
+		g_free (data->country_name);
+		g_free (data->contact);
+	}
+
+	g_free (data);
 }
