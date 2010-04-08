@@ -790,6 +790,10 @@ tracker_crawler_start (TrackerCrawler *crawler,
 
 	priv->timer = g_timer_new ();
 
+	if (priv->is_paused) {
+		g_timer_stop (priv->timer);
+	}
+
 	/* Set as running now */
 	priv->is_running = TRUE;
 	priv->is_finished = FALSE;
