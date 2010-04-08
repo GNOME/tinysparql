@@ -27,4 +27,5 @@ tracker_miner_rss_LDADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(LIBGRSS_LIBS)							\
 	$(DBUS_LIBS)							\
-	$(GLIB2_LIBS)
+	$(GLIB2_LIBS)							\
+	$(GTHREAD_LIBS)
