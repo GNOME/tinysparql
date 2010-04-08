@@ -1183,7 +1183,9 @@ db_get_static_data (TrackerDBInterface *iface)
 	}
 
 	stmt = tracker_db_interface_create_statement (iface,
-	                                              "SELECT \"rdfs:Class\".ID, (SELECT Uri FROM Resource WHERE ID = \"rdfs:Class\".ID) "
+	                                              "SELECT \"rdfs:Class\".ID, "
+	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:Class\".ID), "
+	                                              "\"tracker:notify\" "
 	                                              "FROM \"rdfs:Class\" ORDER BY ID");
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
@@ -1194,14 +1196,29 @@ db_get_static_data (TrackerDBInterface *iface)
 			const gchar  *uri;
 			gint          id;
 			gint          count;
+			GValue        value = { 0 };
+			gboolean      notify;
 
 			class = tracker_class_new ();
 
 			id = tracker_db_cursor_get_int (cursor, 0);
 			uri = tracker_db_cursor_get_string (cursor, 1);
 
+			tracker_db_cursor_get_value (cursor, 2, &value);
+
+			if (G_VALUE_TYPE (&value) != 0) {
+				notify = (g_value_get_int (&value) == 1);
+				g_value_unset (&value);
+			} else {
+				/* NULL */
+				notify = FALSE;
+			}
+
+			tracker_class_set_need_recreate (class, FALSE);
 			tracker_class_set_is_new (class, FALSE);
 			tracker_class_set_uri (class, uri);
+			tracker_class_set_notify (class, notify);
+
 			class_add_super_classes_from_db (iface, class);
 
 			tracker_ontologies_add_class (class);
@@ -1235,6 +1252,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	                                              "\"tracker:fulltextNoLimit\", "
 	                                              "\"tracker:transient\", "
 	                                              "\"tracker:isAnnotation\", "
+	                                              "\"tracker:writeback\", "
 	                                              "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
 	                                              "\"rdf:type\" = (SELECT ID FROM Resource WHERE Uri = '" NRL_INVERSE_FUNCTIONAL_PROPERTY "')) "
 	                                              "FROM \"rdf:Property\" ORDER BY ID");
@@ -1249,6 +1267,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			const gchar     *uri, *domain_uri, *range_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed, fulltext_no_limit;
 			gboolean         transient, annotation, is_inverse_functional_property;
+			gboolean         writeback;
 			gint             id;
 
 			property = tracker_property_new ();
@@ -1322,6 +1341,16 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 10, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
+				writeback = (g_value_get_int (&value) == 1);
+				g_value_unset (&value);
+			} else {
+				/* NULL */
+				writeback = FALSE;
+			}
+
+			tracker_db_cursor_get_value (cursor, 11, &value);
+
+			if (G_VALUE_TYPE (&value) != 0) {
 				is_inverse_functional_property = TRUE;
 				g_value_unset (&value);
 			} else {
@@ -1337,6 +1366,8 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_range (property, tracker_ontologies_get_class_by_uri (range_uri));
 			tracker_property_set_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
+			tracker_property_set_need_recreate (property, FALSE);
+			tracker_property_set_writeback (property, writeback);
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
 			tracker_property_set_fulltext_no_limit (property, fulltext_no_limit);
 			tracker_property_set_embedded (property, !annotation);
