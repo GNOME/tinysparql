@@ -57,9 +57,25 @@ DISTCLEANFILES = 				\
 DISTCHECK_CONFIGURE_FLAGS =			\
 	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
 	--disable-evolution-miner		\
-	--disable-deskbar-applet		\
 	--disable-nautilus-extension		\
-	--enable-gtk-doc
+	--enable-unit-tests			\
+	--enable-functional-tests		\
+	--enable-gtk-doc			\
+	--enable-miner-rss			\
+	--enable-unac				\
+	--enable-poppler-glib			\
+	--enable-exempi				\
+	--enable-libiptcdata			\
+	--enable-libjpeg			\
+	--enable-libtiff			\
+	--enable-libvorbis			\
+	--enable-libflac			\
+	--enable-libgsf				\
+	--enable-playlist			\
+	--enable-tracker-preferences		\
+	--enable-tracker-search-bar		\
+	--enable-tracker-status-icon		\
+	--with-enca
 
 if OLD_EXEC_REMOVE_ALL
 install-exec-hook:
