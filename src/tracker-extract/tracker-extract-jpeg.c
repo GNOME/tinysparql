@@ -619,6 +619,24 @@ extract_jpeg (const gchar          *uri,
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
+	if (ed->x_resolution) {
+		gdouble value;
+
+		value = g_strtod (ed->x_resolution, NULL);
+		tracker_sparql_builder_predicate (metadata, "nfo:horizontalResolution");
+		tracker_sparql_builder_object_int64 (metadata, (gint64) value);
+		g_free (ed->x_resolution);
+	}
+
+	if (ed->y_resolution) {
+		gdouble value;
+
+		value = g_strtod (ed->y_resolution, NULL);
+		tracker_sparql_builder_predicate (metadata, "nfo:verticalResolution");
+		tracker_sparql_builder_object_int64 (metadata, (gint64) value);
+		g_free (ed->y_resolution);
+	}
+
 	jpeg_destroy_decompress (&cinfo);
 
         tracker_exif_free (ed, FALSE);
