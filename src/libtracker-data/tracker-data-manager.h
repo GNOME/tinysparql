@@ -70,7 +70,7 @@ void     tracker_data_ontology_process_statement  (const gchar           *graph,
                                                    gboolean               in_update,
                                                    gboolean               ignore_nao_last_modified);
 void    tracker_data_ontology_import_finished     (void);
-void    tracker_data_ontology_post_check          (GPtrArray             *seen_classes,
+void    tracker_data_ontology_process_changes     (GPtrArray             *seen_classes,
                                                    GPtrArray             *seen_properties);
 void    tracker_data_ontology_free_seen           (GPtrArray             *seen);
 

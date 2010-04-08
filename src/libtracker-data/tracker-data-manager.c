@@ -669,8 +669,8 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 }
 
 void
-tracker_data_ontology_post_check (GPtrArray *seen_classes,
-                                  GPtrArray *seen_properties)
+tracker_data_ontology_process_changes (GPtrArray *seen_classes,
+                                       GPtrArray *seen_properties)
 {
 	gint i;
 
@@ -2345,7 +2345,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		if (to_reload) {
 			/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
-			tracker_data_ontology_post_check (seen_classes, seen_properties);
+			tracker_data_ontology_process_changes (seen_classes, seen_properties);
 
 			tracker_data_ontology_import_into_db (TRUE);
 
