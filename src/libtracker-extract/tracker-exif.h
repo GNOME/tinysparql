@@ -52,10 +52,21 @@ typedef struct {
 	gchar *software;
 } TrackerExifData;
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
 gboolean tracker_exif_read (const unsigned char *buffer,
                             size_t               len,
                             const gchar         *uri,
-                            TrackerExifData     *data);
+                            TrackerExifData     *data) G_GNUC_DEPRECATED;
+
+#endif /* TRACKER_DISABLE_DEPRECATED */
+
+TrackerExifData * tracker_exif_new (const guchar *buffer,
+                                    size_t        len,
+                                    const gchar  *uri);
+
+void tracker_exif_free (TrackerExifData *data,
+                        gboolean         free_members);
 
 G_END_DECLS
 
