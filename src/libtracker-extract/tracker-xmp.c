@@ -449,35 +449,15 @@ iterate (XmpPtr          xmp,
 
 #endif /* HAVE_EXEMPI */
 
-/**
- * tracker_xmp_read:
- * @buffer: a chunk of data with xmp data in it.
- * @len: the size of @buffer.
- * @uri: the URI this is related to.
- * @data: a pointer to a TrackerXmpData structure to populate.
- *
- * This function takes @len bytes of @buffer and runs it through the
- * XMP library. The result is that @data is populated with the XMP
- * data found in @uri.
- *
- * Returns: %TRUE if the @data was populated successfully, otherwise
- * %FALSE is returned.
- *
- * Since: 0.8
- **/
-gboolean
-tracker_xmp_read (const gchar    *buffer,
-                  size_t          len,
-                  const gchar    *uri,
-                  TrackerXmpData *data)
+static gboolean
+parse_xmp (const gchar    *buffer,
+           size_t          len,
+           const gchar    *uri,
+           TrackerXmpData *data)
 {
 #ifdef HAVE_EXEMPI
 	XmpPtr xmp;
 #endif /* HAVE_EXEMPI */
-	g_return_val_if_fail (buffer != NULL, FALSE);
-	g_return_val_if_fail (len > 0, FALSE);
-	g_return_val_if_fail (uri != NULL, FALSE);
-	g_return_val_if_fail (data != NULL, FALSE);
 
 	memset (data, 0, sizeof (TrackerXmpData));
 
@@ -501,6 +481,134 @@ tracker_xmp_read (const gchar    *buffer,
 #endif /* HAVE_EXEMPI */
 
 	return TRUE;
+}
+
+/**
+ * tracker_xmp_read:
+ * @buffer: a chunk of data with xmp data in it.
+ * @len: the size of @buffer.
+ * @uri: the URI this is related to.
+ * @data: a pointer to a TrackerXmpData structure to populate.
+ *
+ * This function takes @len bytes of @buffer and runs it through the
+ * XMP library. The result is that @data is populated with the XMP
+ * data found in @uri.
+ *
+ * Returns: %TRUE if the @data was populated successfully, otherwise
+ * %FALSE is returned.
+ *
+ * Since: 0.8
+ *
+ * Deprecated: 0.9. Use tracker_xmp_new() instead.
+ **/
+gboolean
+tracker_xmp_read (const gchar    *buffer,
+                  size_t          len,
+                  const gchar    *uri,
+                  TrackerXmpData *data)
+{
+	g_return_val_if_fail (buffer != NULL, FALSE);
+	g_return_val_if_fail (len > 0, FALSE);
+	g_return_val_if_fail (uri != NULL, FALSE);
+	g_return_val_if_fail (data != NULL, FALSE);
+
+	return parse_xmp (buffer, len, uri, data);
+}
+
+/**
+ * tracker_xmp_new:
+ * @buffer: a chunk of data with xmp data in it.
+ * @len: the size of @buffer.
+ * @uri: the URI this is related to.
+ *
+ * This function takes @len bytes of @buffer and runs it through the
+ * XMP library.
+ *
+ * Returns: a newly allocated #TrackerXmpData struct if XMP data was
+ *          found, %NULL otherwise. Free the returned struct with
+ *          tracker_xmp_free().
+ *
+ * Since: 0.9
+ **/
+TrackerXmpData *
+tracker_xmp_new (const gchar *buffer,
+                 gsize        len,
+                 const gchar *uri)
+{
+	TrackerXmpData *data;
+
+	g_return_val_if_fail (buffer != NULL, NULL);
+	g_return_val_if_fail (len > 0, NULL);
+	g_return_val_if_fail (uri != NULL, NULL);
+
+	data = g_new0 (TrackerXmpData, 1);
+
+	if (!parse_xmp (buffer, len, uri, data)) {
+		tracker_xmp_free (data, TRUE);
+		return NULL;
+	}
+
+	return data;
+}
+
+/**
+ * tracker_xmp_free:
+ * @data: a #TrackerXmpData struct
+ * @free_members: %TRUE to free all struct members
+ *
+ * Frees @data, and optionally all struct members if @free_members
+ * is %TRUE.
+ *
+ * Since: 0.9
+ **/
+void
+tracker_xmp_free (TrackerXmpData *data,
+                  gboolean        free_members)
+{
+	g_return_if_fail (data != NULL);
+
+	if (free_members) {
+		g_free (data->title);
+		g_free (data->rights);
+		g_free (data->creator);
+		g_free (data->description);
+		g_free (data->date);
+		g_free (data->keywords);
+		g_free (data->subject);
+		g_free (data->publisher);
+		g_free (data->contributor);
+		g_free (data->type);
+		g_free (data->format);
+		g_free (data->identifier);
+		g_free (data->source);
+		g_free (data->language);
+		g_free (data->relation);
+		g_free (data->coverage);
+		g_free (data->license);
+		g_free (data->pdf_title);
+		g_free (data->pdf_keywords);
+		g_free (data->title2);
+		g_free (data->time_original);
+		g_free (data->artist);
+		g_free (data->make);
+		g_free (data->model);
+		g_free (data->orientation);
+		g_free (data->flash);
+		g_free (data->metering_mode);
+		g_free (data->exposure_time);
+		g_free (data->fnumber);
+		g_free (data->focal_length);
+		g_free (data->iso_speed_ratings);
+		g_free (data->white_balance);
+		g_free (data->copyright);
+		g_free (data->rating);
+		g_free (data->address);
+		g_free (data->country);
+		g_free (data->state);
+		g_free (data->city);
+	}
+
+	g_free (data);
 }
 
 static void

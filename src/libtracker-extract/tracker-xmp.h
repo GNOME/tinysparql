@@ -84,10 +84,22 @@ typedef struct {
 	gchar *city;
 } TrackerXmpData;
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
 gboolean tracker_xmp_read  (const gchar          *buffer,
                             size_t                len,
                             const gchar          *uri,
-                            TrackerXmpData       *data);
+                            TrackerXmpData       *data) G_GNUC_DEPRECATED;
+
+#endif /* TRACKER_DISABLE_DEPRECATED */
+
+TrackerXmpData * tracker_xmp_new (const gchar *buffer,
+                                  gsize        len,
+                                  const gchar *uri);
+
+void tracker_xmp_free (TrackerXmpData *data,
+                       gboolean        free_members);
+
 gboolean tracker_xmp_apply (TrackerSparqlBuilder *metadata,
                             const gchar          *uri,
                             TrackerXmpData       *data);
