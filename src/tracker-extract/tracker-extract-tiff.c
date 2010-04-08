@@ -273,9 +273,9 @@ extract_tiff (const gchar          *uri,
 	      TrackerSparqlBuilder *metadata)
 {
 	TIFF *image;
-	TrackerXmpData xd = { 0 };
-	TrackerIptcData id = { 0 };
-	TrackerExifData ed = { 0 };
+	TrackerXmpData *xd = NULL;
+	TrackerIptcData *id = NULL;
+	TrackerExifData *ed = NULL;
 	MergeData md = { 0 };
 	TiffData td = { 0 };
 	gchar *filename;
@@ -313,17 +313,27 @@ extract_tiff (const gchar          *uri,
 			TIFFSwabArrayOfLong((uint32*) iptc_offset, 
 			                    (unsigned long) iptc_size);
 		}
-		tracker_iptc_read (iptc_offset, 4 * iptc_size, uri, &id);
+		id = tracker_iptc_new (iptc_offset, 4 * iptc_size, uri);
 	}
 #endif /* HAVE_LIBIPTCDATA */
+
+        if (!id) {
+                id = g_new0 (TrackerIptcData, 1);
+        }
 
 	/* FIXME There are problems between XMP data embedded with different tools
 	   due to bugs in the original spec (type) */
 #ifdef HAVE_EXEMPI
 	if (TIFFGetField (image, TIFFTAG_XMLPACKET, &size, &xmp_offset)) {
-		tracker_xmp_read (xmp_offset, size, uri, &xd);
+		xd = tracker_xmp_new (xmp_offset, size, uri);
 	}
 #endif /* HAVE_EXEMPI */
+
+        if (!xd) {
+                xd = g_new0 (TrackerXmpData, 1);
+        }
+
+        ed = g_new0 (TrackerExifData, 1);
 
 	/* Get Tiff specifics */
 	td.width = tag_to_string (image, TIFFTAG_IMAGEWIDTH, TAG_TYPE_UINT32);
@@ -344,67 +354,67 @@ extract_tiff (const gchar          *uri,
 	/* Get Exif specifics */
 	if (TIFFGetField (image, TIFFTAG_EXIFIFD, &exif_offset)) {
 		if (TIFFReadEXIFDirectory (image, exif_offset)) {
-			ed.exposure_time = tag_to_string (image, EXIFTAG_EXPOSURETIME, TAG_TYPE_DOUBLE);
-			ed.fnumber = tag_to_string (image, EXIFTAG_FNUMBER, TAG_TYPE_DOUBLE);
-			ed.iso_speed_ratings = tag_to_string (image, EXIFTAG_ISOSPEEDRATINGS, TAG_TYPE_C16_UINT16);
+			ed->exposure_time = tag_to_string (image, EXIFTAG_EXPOSURETIME, TAG_TYPE_DOUBLE);
+			ed->fnumber = tag_to_string (image, EXIFTAG_FNUMBER, TAG_TYPE_DOUBLE);
+			ed->iso_speed_ratings = tag_to_string (image, EXIFTAG_ISOSPEEDRATINGS, TAG_TYPE_C16_UINT16);
 			date = tag_to_string (image, EXIFTAG_DATETIMEORIGINAL, TAG_TYPE_STRING);
-			ed.time_original = tracker_date_guess (date);
+			ed->time_original = tracker_date_guess (date);
 			g_free (date);
 
-			ed.metering_mode = get_metering_mode (image);
-			ed.flash = get_flash (image);
-			ed.focal_length = tag_to_string (image, EXIFTAG_DATETIMEORIGINAL, TAG_TYPE_DOUBLE);
-			ed.white_balance = get_white_balance (image);
-			/* ed.software = tag_to_string (image, EXIFTAG_SOFTWARE, TAG_TYPE_STRING); */
+			ed->metering_mode = get_metering_mode (image);
+			ed->flash = get_flash (image);
+			ed->focal_length = tag_to_string (image, EXIFTAG_DATETIMEORIGINAL, TAG_TYPE_DOUBLE);
+			ed->white_balance = get_white_balance (image);
+			/* ed->software = tag_to_string (image, EXIFTAG_SOFTWARE, TAG_TYPE_STRING); */
 		}
 	}
 
 	TIFFClose (image);
 	g_free (filename);
 
-	md.camera = tracker_merge (" ", 2, xd.make, xd.model);
+	md.camera = tracker_merge (" ", 2, xd->make, xd->model);
 
 	if (!md.camera) {
 		md.camera = tracker_merge (" ", 2, td.make, td.model);
 
 		if (!md.camera) {
-			md.camera = tracker_merge (" ", 2, ed.make, ed.model);
+			md.camera = tracker_merge (" ", 2, ed->make, ed->model);
 		} else {
-			g_free (ed.model);
-			g_free (ed.make);
+			g_free (ed->model);
+			g_free (ed->make);
 		}
 	} else {
 		g_free (td.model);
 		g_free (td.make);
-		g_free (ed.model);
-		g_free (ed.make);
+		g_free (ed->model);
+		g_free (ed->make);
 	}
 
-	md.title = tracker_coalesce (5, xd.title, xd.pdf_title, td.title, ed.document_name, xd.title2);
-	md.orientation = tracker_coalesce (4, xd.orientation, td.orientation, ed.orientation, id.image_orientation);
-	md.copyright = tracker_coalesce (4, xd.rights, td.copyright, ed.copyright, id.copyright_notice);
-	md.white_balance = tracker_coalesce (2, xd.white_balance, ed.white_balance);
-	md.fnumber = tracker_coalesce (2, xd.fnumber, ed.fnumber);
-	md.flash = tracker_coalesce (2, xd.flash, ed.flash);
-	md.focal_length = tracker_coalesce (2, xd.focal_length, ed.focal_length);
-	md.artist = tracker_coalesce (4, xd.artist, td.artist, ed.artist, xd.contributor);
-	md.exposure_time = tracker_coalesce (2, xd.exposure_time, ed.exposure_time);
-	md.iso_speed_ratings = tracker_coalesce (2, xd.iso_speed_ratings, ed.iso_speed_ratings);
-	md.date = tracker_coalesce (6, xd.date, xd.time_original, td.date, ed.time, id.date_created, ed.time_original);
-	md.description = tracker_coalesce (3, xd.description, td.description, ed.description);
-	md.metering_mode = tracker_coalesce (2, xd.metering_mode, ed.metering_mode);
-	md.city = tracker_coalesce (2, xd.city, id.city);
-	md.state = tracker_coalesce (2, xd.state, id.state);
-	md.address = tracker_coalesce (2, xd.address, id.sublocation);
-	md.country = tracker_coalesce (2, xd.country, id.country_name);
-	md.creator = tracker_coalesce (3, xd.creator, id.byline, id.credit);
-	md.x_dimension = tracker_coalesce (2, td.width, ed.x_dimension);
-	md.y_dimension = tracker_coalesce (2, td.length, ed.y_dimension);
+	md.title = tracker_coalesce (5, xd->title, xd->pdf_title, td.title, ed->document_name, xd->title2);
+	md.orientation = tracker_coalesce (4, xd->orientation, td.orientation, ed->orientation, id->image_orientation);
+	md.copyright = tracker_coalesce (4, xd->rights, td.copyright, ed->copyright, id->copyright_notice);
+	md.white_balance = tracker_coalesce (2, xd->white_balance, ed->white_balance);
+	md.fnumber = tracker_coalesce (2, xd->fnumber, ed->fnumber);
+	md.flash = tracker_coalesce (2, xd->flash, ed->flash);
+	md.focal_length = tracker_coalesce (2, xd->focal_length, ed->focal_length);
+	md.artist = tracker_coalesce (4, xd->artist, td.artist, ed->artist, xd->contributor);
+	md.exposure_time = tracker_coalesce (2, xd->exposure_time, ed->exposure_time);
+	md.iso_speed_ratings = tracker_coalesce (2, xd->iso_speed_ratings, ed->iso_speed_ratings);
+	md.date = tracker_coalesce (6, xd->date, xd->time_original, td.date, ed->time, id->date_created, ed->time_original);
+	md.description = tracker_coalesce (3, xd->description, td.description, ed->description);
+	md.metering_mode = tracker_coalesce (2, xd->metering_mode, ed->metering_mode);
+	md.city = tracker_coalesce (2, xd->city, id->city);
+	md.state = tracker_coalesce (2, xd->state, id->state);
+	md.address = tracker_coalesce (2, xd->address, id->sublocation);
+	md.country = tracker_coalesce (2, xd->country, id->country_name);
+	md.creator = tracker_coalesce (3, xd->creator, id->byline, id->credit);
+	md.x_dimension = tracker_coalesce (2, td.width, ed->x_dimension);
+	md.y_dimension = tracker_coalesce (2, td.length, ed->y_dimension);
 
-	if (ed.user_comment) {
+	if (ed->user_comment) {
 		tracker_sparql_builder_predicate (metadata, "nie:comment");
-		tracker_sparql_builder_object_unvalidated (metadata, ed.user_comment);
-		g_free (ed.user_comment);
+		tracker_sparql_builder_object_unvalidated (metadata, ed->user_comment);
+		g_free (ed->user_comment);
 	}
 
 	if (md.x_dimension) {
@@ -419,90 +429,90 @@ extract_tiff (const gchar          *uri,
 		g_free (md.y_dimension);
 	}
 
-	if (xd.keywords) {
-		insert_keywords (metadata, uri, xd.keywords);
-		g_free (xd.keywords);
+	if (xd->keywords) {
+		insert_keywords (metadata, uri, xd->keywords);
+		g_free (xd->keywords);
 	}
 
-	if (xd.pdf_keywords) {
-		insert_keywords (metadata, uri, xd.pdf_keywords);
-		g_free (xd.pdf_keywords);
+	if (xd->pdf_keywords) {
+		insert_keywords (metadata, uri, xd->pdf_keywords);
+		g_free (xd->pdf_keywords);
 	}
 
-	if (xd.subject) {
-		insert_keywords (metadata, uri, xd.subject);
-		g_free (xd.subject);
+	if (xd->subject) {
+		insert_keywords (metadata, uri, xd->subject);
+		g_free (xd->subject);
 	}
 
-	if (xd.publisher) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", xd.publisher);
+	if (xd->publisher) {
+		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", xd->publisher);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (preupdate, xd.publisher);
+		tracker_sparql_builder_object_unvalidated (preupdate, xd->publisher);
 		tracker_sparql_builder_insert_close (preupdate);
-		g_free (xd.publisher);
+		g_free (xd->publisher);
 
 		tracker_sparql_builder_predicate (metadata, "nco:publisher");
 		tracker_sparql_builder_object_iri (metadata, uri);
 		g_free (uri);
 	}
 
-	if (xd.type) {
+	if (xd->type) {
 		tracker_sparql_builder_predicate (metadata, "dc:type");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.type);
-		g_free (xd.type);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->type);
+		g_free (xd->type);
 	}
 
-	if (xd.format) {
+	if (xd->format) {
 		tracker_sparql_builder_predicate (metadata, "dc:format");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.format);
-		g_free (xd.format);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->format);
+		g_free (xd->format);
 	}
 
-	if (xd.identifier) {
+	if (xd->identifier) {
 		tracker_sparql_builder_predicate (metadata, "dc:identifier");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.identifier);
-		g_free (xd.identifier);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->identifier);
+		g_free (xd->identifier);
 	}
 
-	if (xd.source) {
+	if (xd->source) {
 		tracker_sparql_builder_predicate (metadata, "dc:source");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.source);
-		g_free (xd.source);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->source);
+		g_free (xd->source);
 	}
 
-	if (xd.language) {
+	if (xd->language) {
 		tracker_sparql_builder_predicate (metadata, "dc:language");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.language);
-		g_free (xd.language);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->language);
+		g_free (xd->language);
 	}
 
-	if (xd.relation) {
+	if (xd->relation) {
 		tracker_sparql_builder_predicate (metadata, "dc:relation");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.relation);
-		g_free (xd.relation);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->relation);
+		g_free (xd->relation);
 	}
 
-	if (xd.coverage) {
+	if (xd->coverage) {
 		tracker_sparql_builder_predicate (metadata, "dc:coverage");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.coverage);
-		g_free (xd.coverage);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->coverage);
+		g_free (xd->coverage);
 	}
 
-	if (xd.rating) {
+	if (xd->rating) {
 		tracker_sparql_builder_predicate (metadata, "nao:numericRating");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.rating);
-		g_free (xd.rating);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->rating);
+		g_free (xd->rating);
 	}
 
-	if (xd.license) {
+	if (xd->license) {
 		tracker_sparql_builder_predicate (metadata, "nie:license");
-		tracker_sparql_builder_object_unvalidated (metadata, xd.license);
-		g_free (xd.license);
+		tracker_sparql_builder_object_unvalidated (metadata, xd->license);
+		g_free (xd->license);
 	}
 
 	if (md.city || md.state || md.address || md.country) {
@@ -539,26 +549,26 @@ extract_tiff (const gchar          *uri,
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
-	if (id.contact) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", id.contact);
+	if (id->contact) {
+		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", id->contact);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (preupdate, id.contact);
+		tracker_sparql_builder_object_unvalidated (preupdate, id->contact);
 		tracker_sparql_builder_insert_close (preupdate);
-		g_free (id.contact);
+		g_free (id->contact);
 
 		tracker_sparql_builder_predicate (metadata, "nco:representative");
 		tracker_sparql_builder_object_iri (metadata, uri);
 		g_free (uri);
 	}
 
-	if (id.keywords) {
-		insert_keywords (metadata, uri, id.keywords);
-		g_free (id.keywords);
+	if (id->keywords) {
+		insert_keywords (metadata, uri, id->keywords);
+		g_free (id->keywords);
 	}
 
 	if (md.camera) {
@@ -673,7 +683,7 @@ extract_tiff (const gchar          *uri,
 		 * nco:Contact here.
 		 */
 
-		/* if (id.byline_title) { */
+		/* if (id->byline_title) { */
 		/* 	tracker_sparql_builder_insert_open (preupdate, NULL); */
 
 		/* 	tracker_sparql_builder_subject (preupdate, "_:affiliation_by_line"); */
@@ -681,7 +691,7 @@ extract_tiff (const gchar          *uri,
 		/* 	tracker_sparql_builder_object (preupdate, "nco:Affiliation"); */
 
 		/* 	tracker_sparql_builder_predicate (preupdate, "nco:title"); */
-		/* 	tracker_sparql_builder_object_unvalidated (preupdate, id.byline_title); */
+		/* 	tracker_sparql_builder_object_unvalidated (preupdate, id->byline_title); */
 
 		/* 	tracker_sparql_builder_insert_close (preupdate); */
 
@@ -696,7 +706,10 @@ extract_tiff (const gchar          *uri,
 		g_free (uri);
 	}
 
-	g_free (id.byline_title);
+	g_free (id->byline_title);
+
+        tracker_xmp_free (xd, FALSE);
+        tracker_iptc_free (id, FALSE);
 }
 
 TrackerExtractData *
