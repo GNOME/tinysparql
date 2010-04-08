@@ -1563,8 +1563,8 @@ AM_CONDITIONAL(HAVE_NAUTILUS_EXTENSION, test "$have_nautilus_extension" = "yes")
 ####################################################################
 AC_ARG_ENABLE([functional-tests],
               AS_HELP_STRING([--enable-functional-tests],
-	                     [enable functional tests [[default=no]]]),,
-	     [enable_functional_tests=no])
+	                     [enable functional tests [[default=yes]]]),,
+	     [enable_functional_tests=yes])
 
 if test x$enable_functional_tests != "xno"; then
   AC_DEFINE(DIST_FUNCTIONAL_TESTS, 1, [Include functional tests in the installation])
