@@ -51,7 +51,7 @@
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_14
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_8_0
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 
 #define IN_USE_FILENAME               ".meta.isrunning"
@@ -64,20 +64,21 @@ typedef enum {
 
 typedef enum {
 	TRACKER_DB_VERSION_UNKNOWN, /* Unknown */
-	TRACKER_DB_VERSION_01,      /* Version 0.6.6  (before indexer-split) */
-	TRACKER_DB_VERSION_02,      /* Version 0.6.90 (after  indexer-split) */
-	TRACKER_DB_VERSION_03,      /* Version 0.6.91 (stable release) */
-	TRACKER_DB_VERSION_04,      /* Version 0.6.92 (current TRUNK) */
-	TRACKER_DB_VERSION_05,      /* Version 0.7    (vstore branch) */
-	TRACKER_DB_VERSION_06,      /* Version 0.7.4  (nothing special) */
-	TRACKER_DB_VERSION_07,      /* Version 0.7.12 (nmo ontology) */
-	TRACKER_DB_VERSION_08,      /* Version 0.7.13 (coalesce & writeback) */
-	TRACKER_DB_VERSION_09,      /* Version 0.7.17 (mlo ontology) */
-	TRACKER_DB_VERSION_10,      /* Version 0.7.20 (nco im ontology) */
-	TRACKER_DB_VERSION_11,      /* Version 0.7.21 (named graphs/localtime) */
-	TRACKER_DB_VERSION_12,      /* Version 0.7.22 (fts-limits branch) */
-	TRACKER_DB_VERSION_13,      /* Version 0.7.28 (RC1 + mto + nco:url) */
-	TRACKER_DB_VERSION_14       /* Version 0.8.0  (first stable release)  */
+	TRACKER_DB_VERSION_0_6_6,   /* before indexer-split */
+	TRACKER_DB_VERSION_0_6_90,  /* after  indexer-split */
+	TRACKER_DB_VERSION_0_6_91,  /* stable release */
+	TRACKER_DB_VERSION_0_6_92,  /* current TRUNK */
+	TRACKER_DB_VERSION_0_7_0,   /* vstore branch */
+	TRACKER_DB_VERSION_0_7_4,   /* nothing special */
+	TRACKER_DB_VERSION_0_7_12,  /* nmo ontology */
+	TRACKER_DB_VERSION_0_7_13,  /* coalesce & writeback */
+	TRACKER_DB_VERSION_0_7_17,  /* mlo ontology */
+	TRACKER_DB_VERSION_0_7_20,  /* nco im ontology */
+	TRACKER_DB_VERSION_0_7_21,  /* named graphs/localtime */
+	TRACKER_DB_VERSION_0_7_22,  /* fts-limits branch */
+	TRACKER_DB_VERSION_0_7_28,  /* RC1 + mto + nco:url */
+	TRACKER_DB_VERSION_0_8_0,   /* stable release */
+	TRACKER_DB_VERSION_0_9_0    /* unstable release */
 } TrackerDBVersion;
 
 typedef struct {
