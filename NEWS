@@ -49,11 +49,6 @@ Translations:
   * Updated de: Mario Blättermann
   * Updated es: Jorge González
 
-Notes:
-
-  The database version up has been incremented, this will force a
-  reindex for any existing Tracker installation.
-
 
 NEW in 0.8.0 - 2010-04-01
 =========================
