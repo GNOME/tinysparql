@@ -51,7 +51,7 @@
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_8_0
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_9_0
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 
 #define IN_USE_FILENAME               ".meta.isrunning"
