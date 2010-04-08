@@ -263,8 +263,17 @@ check_file (TrackerCrawler    *crawler,
             GFile             *file)
 {
 	gboolean use = FALSE;
+	TrackerCrawlerPrivate *priv;
+
+	priv = TRACKER_CRAWLER_GET_PRIVATE (crawler);
 
 	g_signal_emit (crawler, signals[CHECK_FILE], 0, file, &use);
+
+	/* Crawler may have been stopped while waiting for the 'use' value,
+	 * and the DirectoryRootInfo already disposed... */
+	if (!priv->is_running) {
+		return FALSE;
+	}
 
 	info->files_found++;
 
@@ -278,11 +287,20 @@ check_file (TrackerCrawler    *crawler,
 static gboolean
 check_directory (TrackerCrawler    *crawler,
 		 DirectoryRootInfo *info,
-                 GFile             *file)
+		 GFile             *file)
 {
 	gboolean use = FALSE;
+	TrackerCrawlerPrivate *priv;
+
+	priv = TRACKER_CRAWLER_GET_PRIVATE (crawler);
 
 	g_signal_emit (crawler, signals[CHECK_DIRECTORY], 0, file, &use);
+
+	/* Crawler may have been stopped while waiting for the 'use' value,
+	 * and the DirectoryRootInfo already disposed... */
+	if (!priv->is_running) {
+		return FALSE;
+	}
 
 	info->directories_found++;
 
@@ -436,7 +454,10 @@ process_func (gpointer data)
 
 			dir_data->was_inspected = TRUE;
 
-			if (iterate) {
+			/* Crawler may have been already stopped while we were waiting for the
+			 *  check_directory return value, and thus we should check if it's
+			 *  running before going on with the iteration */
+			if (priv->is_running && iterate) {
 				/* Directory contents haven't been inspected yet,
 				 * stop this idle function while it's being iterated
 				 */
@@ -456,15 +477,19 @@ process_func (gpointer data)
 			child_data = dir_data->children->data;
 			dir_data->children = g_slist_remove (dir_data->children, child_data);
 
-			if ((child_data->is_dir &&
-			     check_directory (crawler, info, child_data->child)) ||
-			    (!child_data->is_dir &&
-			     check_file (crawler, info, child_data->child))) {
+			if (((child_data->is_dir &&
+			      check_directory (crawler, info, child_data->child)) ||
+			     (!child_data->is_dir &&
+			      check_file (crawler, info, child_data->child))) &&
+			    /* Crawler may have been already stopped while we were waiting for the
+			     *	check_directory or check_file return value, and thus we should
+			     *	 check if it's running before going on */
+			    priv->is_running) {
 				child_node = g_node_prepend_data (dir_data->node,
 								  g_object_ref (child_data->child));
 			}
 
-			if (child_node && child_data->is_dir) {
+			if (priv->is_running && child_node && child_data->is_dir) {
 				DirectoryProcessingData *child_dir_data;
 
 				child_dir_data = directory_processing_data_new (child_node);
@@ -814,6 +839,11 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
 	priv = crawler->private;
+
+	/* If already not running, just ignore */
+	if (!priv->is_running) {
+		return;
+	}
 
 	priv->is_running = FALSE;
 	g_cancellable_cancel (priv->cancellable);
