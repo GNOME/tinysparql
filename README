@@ -33,18 +33,23 @@
 
         irc.gimp.net
 
-  Bugs should be filed at:
+  Bugs and feature requests should be filed at:
 
-        http://bugzilla.gnome.org.
+        http://bugzilla.gnome.org
 
-  More infomation on Tracker can be found at
+  More infomation on Tracker can be found at:
 
         http://tracker-project.org.
 
-  Repository (first is readonly, second is write access)
+  Repository (first is readonly, second is write access):
 
 	git://git.gnome.org/tracker
 	ssh://<user>@git.gnome.org/git/tracker
+
+  The official RoadMap (aka TODO) can be found at:
+
+    http://live.gnome.org/Tracker/Roadmap
+
 
 2 Use Cases
 
@@ -219,7 +224,7 @@
 
   Every config file and every binary has a man page. If you start with
   tracker-store, you should be able to find out about most other
-  commands the SEE ALSO section.
+  commands on the SEE ALSO section.
 
 6.2 Utilities
 
