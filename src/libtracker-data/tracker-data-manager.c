@@ -186,46 +186,61 @@ update_property_value (const gchar *kind,
                        const gchar *subject,
                        const gchar *predicate,
                        const gchar *object,
-                       Conversion allowed[])
+                       Conversion allowed[],
+                       TrackerClass *class,
+                       TrackerProperty *property)
 {
 	GError *error = NULL;
-	TrackerDBResultSet *result_set;
-	gchar *query;
 	gboolean needed = TRUE;
+	gboolean is_new = FALSE;
 
-	query = g_strdup_printf ("SELECT ?old_value WHERE { "
-	                           "<%s> %s ?old_value "
-	                         "}", subject, kind);
+	if (class) {
+		is_new = tracker_class_get_is_new (class);
+	} else if (property) {
+		is_new = tracker_property_get_is_new (property);
+	}
 
-	result_set = tracker_data_query_sparql (query, &error);
+	if (!is_new) {
+		gchar *query = NULL;
+		TrackerDBResultSet *result_set;
 
-	if (!error && result_set) {
-		gchar *str = NULL;
+		query = g_strdup_printf ("SELECT ?old_value WHERE { "
+		                           "<%s> %s ?old_value "
+		                         "}", subject, kind);
 
-		tracker_db_result_set_get (result_set, 0, &str, -1);
+		result_set = tracker_data_query_sparql (query, &error);
 
-		if (g_strcmp0 (object, str) == 0) {
-			needed = FALSE;
-		} else {
+		if (!error && result_set) {
+			gchar *str = NULL;
 
-			if (!is_allowed_conversion (str, object, allowed)) {
-				g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
-				         str, object, predicate, subject);
+			tracker_db_result_set_get (result_set, 0, &str, -1);
+
+			if (g_strcmp0 (object, str) == 0) {
+				needed = FALSE;
+			} else {
+
+				if (!is_allowed_conversion (str, object, allowed)) {
+					g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
+					         str, object, predicate, subject);
+				}
+
+				tracker_data_delete_statement (NULL, subject, predicate, str, &error);
+				if (!error)
+					tracker_data_update_buffer_flush (&error);
 			}
 
-			tracker_data_delete_statement (NULL, subject, predicate, str, &error);
-			if (!error)
-				tracker_data_update_buffer_flush (&error);
+			g_free (str);
+		} else {
+			needed = (g_strcmp0 (object, "true") == 0);
 		}
-
-		g_free (str);
+		g_free (query);
+		if (result_set) {
+			g_object_unref (result_set);
+		}
 	} else {
-		needed = (g_strcmp0 (object, "true") == 0);
+		needed = FALSE;
 	}
 
-	if (result_set) {
-		g_object_unref (result_set);
-	}
 
 	if (!error && needed) {
 		tracker_data_insert_statement (NULL, subject,
@@ -239,8 +254,6 @@ update_property_value (const gchar *kind,
 		g_critical ("Ontology change: %s", error->message);
 		g_clear_error (&error);
 	}
-
-	g_free (query);
 
 	return needed;
 }
@@ -674,12 +687,14 @@ tracker_data_ontology_post_check (GPtrArray *seen_classes,
 				update_property_value ("tracker:notify",
 				                       subject,
 				                       TRACKER_PREFIX "notify",
-				                       "true", allowed_boolean_conversions);
+				                       "true", allowed_boolean_conversions,
+				                       class, NULL);
 			} else {
 				update_property_value ("tracker:notify",
 				                       subject,
 				                       TRACKER_PREFIX "notify",
-				                       "false", allowed_boolean_conversions);
+				                       "false", allowed_boolean_conversions,
+				                       class, NULL);
 			}
 		}
 	}
@@ -693,33 +708,38 @@ tracker_data_ontology_post_check (GPtrArray *seen_classes,
 				update_property_value ("tracker:writeback",
 				                       subject,
 				                       TRACKER_PREFIX "writeback",
-				                       "true", allowed_boolean_conversions);
+				                       "true", allowed_boolean_conversions,
+				                       NULL, property);
 			} else {
 				update_property_value ("tracker:writeback",
 				                       subject,
 				                       TRACKER_PREFIX "writeback",
-				                       "false", allowed_boolean_conversions);
+				                       "false", allowed_boolean_conversions,
+				                       NULL, property);
 			}
 
 			if (tracker_property_get_indexed (property)) {
 				if (update_property_value ("tracker:indexed",
 				                           subject,
 				                           TRACKER_PREFIX "indexed",
-				                           "true", allowed_boolean_conversions)) {
+				                           "true", allowed_boolean_conversions,
+				                           NULL, property)) {
 					fix_indexed (property, TRUE);
 				}
 			} else {
 				if (update_property_value ("tracker:indexed",
 				                           subject,
 				                           TRACKER_PREFIX "indexed",
-				                           "false", allowed_boolean_conversions)) {
+				                           "false", allowed_boolean_conversions,
+				                           NULL, property)) {
 					fix_indexed (property, FALSE);
 				}
 			}
 
 			if (update_property_value ("rdfs:range", subject, RDFS_PREFIX "range",
 			                           tracker_class_get_uri (tracker_property_get_range (property)), 
-			                           allowed_range_conversions)) {
+			                           allowed_range_conversions,
+			                           NULL, property)) {
 				TrackerClass *class;
 
 				class = tracker_property_get_domain (property);
