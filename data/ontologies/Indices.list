@@ -22,15 +22,6 @@
   in addition to the class itself
 
 34-nmo:
-* nmo:from:
-  - For use cases where fts:match needs to be done against the assosiated
-  contacts in addition to the class itself
-
-* nmo:to:
-  - For use cases where fts:match needs to be done against the assosiated
-  contacts in addition to the class itself
-
-
 * nmo:sender:
   - ?
 

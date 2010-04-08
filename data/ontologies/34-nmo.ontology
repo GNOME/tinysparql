@@ -94,7 +94,6 @@ nmo:recipient a rdf:Property ;
 
 nmo:from a rdf:Property ;
 	rdfs:comment "The sender of the message." ;
-	tracker:indexed true ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nco:Contact .
@@ -240,7 +239,6 @@ nmo:sentDate a rdf:Property ;
 
 nmo:to a rdf:Property ;
 	rdfs:domain nmo:Message ;
-	tracker:indexed true ;
 	rdfs:range nco:Contact .
 
 nmo:bcc a rdf:Property ;
