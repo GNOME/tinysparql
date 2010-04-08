@@ -2381,7 +2381,7 @@ ontology_transaction_end (GList *ontology_queue, GPtrArray *seen_classes, GPtrAr
 	GList *l;
 	const gchar *ontology_uri = NULL;
 
-	tracker_data_ontology_post_check (seen_classes, seen_properties);
+	tracker_data_ontology_process_changes (seen_classes, seen_properties);
 
 	/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
 	tracker_data_ontology_import_into_db (TRUE);
