@@ -11,5 +11,8 @@ SUBDIRS = 			\
 	tracker-miner-fs	\
 	tracker-extract		\
 	tracker-store		\
-	functional-tests	\
 	tracker-writeback
+
+if DIST_FUNCTIONAL_TESTS
+SUBDIRS += functional-tests
+endif

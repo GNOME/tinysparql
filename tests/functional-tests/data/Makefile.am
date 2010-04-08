@@ -1,10 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = 		\
-	Music		\
-	Images
+SUBDIRS = Music Images
 
-if DIST_FUNCTIONAL_TESTS
 configdir = $(datadir)/tracker-tests/data
 
 config_DATA =			\
@@ -12,4 +9,3 @@ config_DATA =			\
 	pickled_Images
 
 EXTRA_DIST = $(config_DATA)
-endif
