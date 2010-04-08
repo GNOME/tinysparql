@@ -1,3 +1,64 @@
+NEW in 0.9.0 - 2010-04-08
+=========================
+
+Improvements / New:
+
+  General:
+  * Updated README
+  * Removed TODO
+  * Set functional tests to be enabled by default
+  * Set libunac to be enabled if available by default
+
+  Functional Tests:
+  * Improved performance-tc.py, mostly whitespace changes
+
+  Ontology:
+  * Added tracker:indexed for nmo:from
+  * Added tracker:indexed for nmo:to
+
+  libtracker-data:
+  * Added tests for more than one regex query
+  * Fixed SPARQL regex, don't use bound strings, use literals
+  * Fixed memory leak due to reference cycle
+
+  libtracker-miner:
+  * Fixed debian builds, don't use $(builddir) in Makefile.am
+
+  tracker-miner-rss:
+  * Added missing D-Bus service file
+  * Added logging to show what is going on
+  * Link with libtracker-common
+  * Small code clean ups
+
+  tracker-preferences:
+  * Added file chooser button for ignored directories
+  * Remove separator in patterns dialog
+  * Make OK button default action in patterns dialog
+  * Set throttle/low disk space only when Apply button is clicked
+
+  evolution:
+  * Avoid e-d-s 2.28 #define causing compilation errors, see GB#613199
+
+Bugs:
+
+  * GB#614981, Make distcheck depend on important components
+  * GB#614722, Strcasestr is defined on FreeBSD
+  * GB#614877, Remove deprecated Encoding key from desktop files
+  * GB#614560, Build problems in the gio file monitoring case.
+  * NB#162546, tracker-miner-fs is emitting criticals after resuming...
+  * NB#158962, tracker-miner-fs emits criticals for some desktop files
+
+Translations:
+
+  * Updated de: Mario Blättermann
+  * Updated es: Jorge González
+
+Notes:
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.8.0 - 2010-04-01
 =========================
 
