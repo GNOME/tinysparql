@@ -34,8 +34,8 @@ RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 """
 def stats() :
     a1=commands.getoutput("tracker-stats |grep  %s " %(stats[i]))
-    b1=a1.split()                  
-    after=b1[2]                    
+    b1=a1.split()
+    after=b1[2]
     return after
 
 def import_ttl (music_ttl):
@@ -63,7 +63,7 @@ def import_ttl (music_ttl):
 	   t=stats()
            time.sleep(2)
 
-"""	 
+"""
 
 
 
@@ -329,7 +329,7 @@ class audio(TestUpdate):
 			nie:title ?album. \
 			?mp nmm:musicAlbum ?a;\
 			nie:title ?songs.\
-                        }GROUP BY ?album ORDER BY DESC(?album)" 
+                        }GROUP BY ?album ORDER BY DESC(?album)"
 
 		start=time.time()
 
@@ -361,67 +361,67 @@ class audio(TestUpdate):
         	print "Time taken for querying all songs  = %s " %elapse
 		print "no. of items retrieved: %d" %len(result)
 
-	def p_test_audio_04 (self) :                                                                               
-                """Query all albums """                                                                          
-                                                                                                                 
+	def p_test_audio_04 (self) :
+                """Query all albums """
+
                 query = "SELECT DISTINCT nmm:albumTitle(?album) AS ?Album  ?Artist  COUNT(?Songs)  AS ?Songs  ?album \
 			WHERE { { ?Songs a nmm:MusicPiece .\
 			?Songs nmm:musicAlbum ?album . \
 			OPTIONAL{  \
 			?Songs nmm:performer ?perf .\
 			OPTIONAL{?perf nmm:artistName ?Artist .\
-                        }}}}GROUP BY ?album ORDER BY ?album LIMIT 5000"                                               
+                        }}}}GROUP BY ?album ORDER BY ?album LIMIT 5000"
 
-                start=time.time()                                                                                     
-                                                                                                                      
-                result = self.resources.SparqlQuery(query)                                                            
-                                                                                                                      
-                elapse =time.time()-start                                                                             
-                print "Time taken for querying 15000 albums  = %s " %elapse                                            
-                print "no. of items retrieved: %d" %len(result)  
+                start=time.time()
 
-	def p_test_audio_05 (self):                                                                                     
-                                                                                                                      
-                """ Query all artists """                                                                             
+                result = self.resources.SparqlQuery(query)
+
+                elapse =time.time()-start
+                print "Time taken for querying 15000 albums  = %s " %elapse
+                print "no. of items retrieved: %d" %len(result)
+
+	def p_test_audio_05 (self):
+
+                """ Query all artists """
                 query = " SELECT nmm:artistName(?artist) AS ?artistTitle ?albumTitle COUNT(?album) AS ?album ?artist \
 			WHERE {  \
 			?song a nmm:MusicPiece  .\
 			?song nmm:performer ?artist . \
 			OPTIONAL  { ?song nmm:musicAlbum ?album .\
 			OPTIONAL {?album nmm:albumTitle ?albumTitle .\
-                        } } } GROUP BY ?artist  ORDER BY ?artist LIMIT 5000"                                                     
+                        } } } GROUP BY ?artist  ORDER BY ?artist LIMIT 5000"
 
-                start=time.time()                                                                                            
-                print query                                                                                                  
-                result = self.resources.SparqlQuery(query,timeout= 600)                                                      
-                                                                                                                             
-                elapse =time.time()-start                                                                                    
-                print "Time taken for querying 5000 artists  = %s " %elapse                                                  
+                start=time.time()
+                print query
+                result = self.resources.SparqlQuery(query,timeout= 600)
+
+                elapse =time.time()-start
+                print "Time taken for querying 5000 artists  = %s " %elapse
                 print "no. of items retrieved: %d" %len(result)
 
-	def p_test_audio_06 (self) :                                                                                    
-                """Query 100 albums """                                                                               
-                                                                                                                      
+	def p_test_audio_06 (self) :
+                """Query 100 albums """
+
                 query = "SELECT DISTINCT nmm:albumTitle(?album) AS ?Album  ?Artist  COUNT(?Songs)  AS ?Songs  ?album \
 			WHERE { { ?Songs a nmm:MusicPiece .\
 			?Songs nmm:musicAlbum ?album .\
 			OPTIONAL{ \
 			?Songs nmm:performer ?perf .\
 			OPTIONAL{?perf nmm:artistName ?Artist .\
-			}}}}GROUP BY ?album ORDER BY ?album LIMIT 100"                                                
+			}}}}GROUP BY ?album ORDER BY ?album LIMIT 100"
 
-                start=time.time()                                                                                     
-                                                                                                                      
-                result = self.resources.SparqlQuery(query)                                                            
-                                                                                                                      
-                elapse =time.time()-start                                                                             
-                print "Time taken for querying 100 albums  = %s " %elapse                                             
+                start=time.time()
+
+                result = self.resources.SparqlQuery(query)
+
+                elapse =time.time()-start
+                print "Time taken for querying 100 albums  = %s " %elapse
                 print "no. of items retrieved: %d" %len(result)
 
-	def p_test_audio_07 (self):                                                                                     
-                                                                                                                             
+	def p_test_audio_07 (self):
+
                 """ Query 100 artists """
- 
+
                 query = "SELECT nmm:artistName(?artist) AS ?artistTitle ?albumTitle COUNT(?album) AS\
                            ?album ?artist \
 			   WHERE {  \
@@ -429,14 +429,14 @@ class audio(TestUpdate):
 			   ?song nmm:performer ?artist . \
 			   OPTIONAL  { ?song nmm:musicAlbum ?album.\
                            OPTIONAL {?album nmm:albumTitle ?albumTitle .\
-			   }}} GROUP BY ?artist  ORDER BY ?artist  LIMIT 100"""   
-                                                                                                                             
-                start=time.time()                                                                                            
-                print query                                                                                                  
-                result = self.resources.SparqlQuery(query,timeout=600)                                                       
-                                                                                                                             
-                elapse =time.time()-start                                                                                    
-                print "Time taken for querying 100 artist  = %s " %elapse   
+			   }}} GROUP BY ?artist  ORDER BY ?artist  LIMIT 100"""
+
+                start=time.time()
+                print query
+                result = self.resources.SparqlQuery(query,timeout=600)
+
+                elapse =time.time()-start
+                print "Time taken for querying 100 artist  = %s " %elapse
 
         def p_test_audio_08(self):
 
@@ -457,41 +457,41 @@ class audio(TestUpdate):
         	print "Time taken for querying all albums and count their songs  = %s " %elapse
 		print "no. of items retrieved: %d" %len(result)
 
-	def p_test_audio_09 (self):                                                                                     
-                                                                                                                      
-                """ Query all artists """                                                                             
+	def p_test_audio_09 (self):
+
+                """ Query all artists """
 		"""simplified version of test_audio_05  """
 		query = "SELECT nmm:artistName(?artist) nmm:albumTitle(?album) COUNT(?album) ?artist WHERE { \
 				?song a nmm:MusicPiece . \
 				?song nmm:performer ?artist . \
 				OPTIONAL { ?song nmm:musicAlbum ?album . } } \
 				GROUP BY ?artist ORDER BY ?artist LIMIT 5000"
-		
-                start=time.time()                                                                                            
-                print query                                                                                                  
-                result = self.resources.SparqlQuery(query,timeout= 600)                                                      
-                                                                                                                             
-                elapse =time.time()-start                                                                                    
-                print "Time taken for querying 5000 artists  = %s " %elapse                                                  
+
+                start=time.time()
+                print query
+                result = self.resources.SparqlQuery(query,timeout= 600)
+
+                elapse =time.time()-start
+                print "Time taken for querying 5000 artists  = %s " %elapse
                 print "no. of items retrieved: %d" %len(result)
 
-	def p_test_audio_10 (self):                                                                                     
-                                                                                                                             
+	def p_test_audio_10 (self):
+
                 """ Query 100 artists """
 		"""simplified version of test_audio_07  """
- 
+
 		query = "SELECT nmm:artistName(?artist) nmm:albumTitle(?album) COUNT(?album) ?artist WHERE { \
 			?song a nmm:MusicPiece . \
 			?song nmm:performer ?artist . \
 			OPTIONAL  { ?song nmm:musicAlbum ?album . } } \
 			GROUP BY ?artist ORDER BY ?artist LIMIT 100"
-                                                                                                                             
-                start=time.time()                                                                                            
-                print query                                                                                                  
-                result = self.resources.SparqlQuery(query,timeout=600)                                                       
-                                                                                                                             
-                elapse =time.time()-start                                                                                    
-                print "Time taken for querying 100 artist  = %s " %elapse   
+
+                start=time.time()
+                print query
+                result = self.resources.SparqlQuery(query,timeout=600)
+
+                elapse =time.time()-start
+                print "Time taken for querying 100 artist  = %s " %elapse
 
 
 class gallery(TestUpdate):
@@ -767,122 +767,229 @@ class gallery(TestUpdate):
 
 
 
-class ftsmatch (TestUpdate) :                                                                                         
-                                                                                                                      
-        def p_test_fts_01 (self):                                                                                       
-            """Making a search for artist"""                                                                          
-                                                                                                                             
+class ftsmatch (TestUpdate) :
+
+        def p_test_fts_01 (self):
+            """Making a search for artist"""
+
             query = "  SELECT ?uri WHERE { \
                       ?uri a nie:InformationElement ; \
-                      fts:match 'ArtistName' }"                                                                                                     
-            start=time.time()                                                                                                
-                                                                                                                             
-            result=self.resources.SparqlQuery(query)                                                                         
-                                                                                                                             
-            elapse =time.time()-start                                                                                        
-            print "Time taken for searching an artist in 10000 music files  " %elapse                                 
-            print "no. of items retrieved: %d" %len(result)                                                           
-                                                                                                                             
-                                                                                                                      
-        def p_test_fts_02 (self) :                                                                                             
+                      fts:match 'ArtistName' }"
+            start=time.time()
+
+            result=self.resources.SparqlQuery(query)
+
+            elapse =time.time()-start
+            print "Time taken for searching an artist in 10000 music files  " %elapse
+            print "no. of items retrieved: %d" %len(result)
+
+
+        def p_test_fts_02 (self) :
             """ Searching for a word """
             query = " SELECT ?uri WHERE { \
                      ?uri a nie:InformationElement ; \
-		     fts:match 'WordInPlainText' . } "                                                                                              
+		     fts:match 'WordInPlainText' . } "
 
-            start=time.time()                                                                                               
-                                                                                                                             
-            result=self.resources.SparqlQuery(query)                                                                         
-                                                                                                                             
-            elapse =time.time()-start                                                                                        
-            print "Time taken for searching a word  = %s " %elapse                                                           
-            print "no. of items retrieved: %d" %len(result)                                                                  
-            
-	def p_test_fts_03 (self):                                                                                              
-            """Making a search for artist"""                                                                          
-                                                                                                                      
-            query = "  SELECT ?uri WHERE { \
-                      ?uri a nie:InformationElement ; \
-                      fts:match 'ArtistNa*'}"                                                                                                     
-            start=time.time()                                                                                         
-                                                                                                                             
-            result=self.resources.SparqlQuery(query)                                                                  
-                                                                                                                             
-            elapse =time.time()-start                                                                                        
-            print "Time taken for searching an artist in 10000 music files  " %elapse                                        
-            print "no. of items retrieved: %d" %len(result)                                                                  
-                                                                                                                             
-        def p_test_fts_04 (self):                                                                                              
-            """Making a search for artist"""                                                                                 
-                                                                                                                      
-            query = "  SELECT ?uri WHERE { \
-                      ?uri a nie:InformationElement ; \
-                      fts:match 'Art*' }"                                                                                              
-            start=time.time()                                                                                         
-                                                                                                                             
-            result=self.resources.SparqlQuery(query)                                                                  
-                                                                                                                             
-            elapse =time.time()-start                                                                                 
-            print "Time taken for searching an artist in 10000 music files  " %elapse                                        
-            print "no. of items retrieved: %d" %len(result)                                                                  
-                                                                                   
-	def p_test_fts_05 (self):                                                                                              
-            """Making a search for artist"""                                                                          
-                                                                                                                      
-            query = "  SELECT ?uri WHERE { \
-                      ?uri a nie:InformationElement ; \
-                      fts:match 'Ar*'}"                                                                                                     
-            start=time.time()                                                                                         
-                                                                                                                             
-            result=self.resources.SparqlQuery(query)                                                                  
-                                                                                                                             
-            elapse =time.time()-start                                                                                        
-            print "Time taken for searching an artist in 10000 music files  " %elapse                                        
-            print "no. of items retrieved: %d" %len(result)                                                                  
-                                                                                                                             
-                                                                                                                             
-        def p_test_fts_06 (self):                                                                                              
-            """Making a search for artist"""                                                                          
-                                                                                                                      
-            query = "  SELECT ?uri WHERE { \
-                      ?uri a nie:InformationElement ; \
-                      fts:match 'A*' }"                                                                                              
-            start=time.time()                                                                                                
-                                                                                                                      
-            result=self.resources.SparqlQuery(query)                                                                         
-                                                                                                                      
-            elapse =time.time()-start                                                                                        
-            print "Time taken for searching an artist in 10000 music files  " %elapse                                        
-            print "no.of items retrieved: %d" %len(result)   
+            start=time.time()
 
-	def p_test_fts_07 (self):                                                                                              
+            result=self.resources.SparqlQuery(query)
 
-            """Making a search for artist"""                                                                                 
-                                                                                                                      
+            elapse =time.time()-start
+            print "Time taken for searching a word  = %s " %elapse
+            print "no. of items retrieved: %d" %len(result)
+
+	def p_test_fts_03 (self):
+            """Making a search for artist"""
+
             query = "  SELECT ?uri WHERE { \
                       ?uri a nie:InformationElement ; \
-                      fts:match 'A* p*' }"                                                                                              
-            start=time.time()                                                                                                
-                                                                                                                      
-            result=self.resources.SparqlQuery(query)                                                                         
-                                                                                                                      
-            elapse =time.time()-start                                                                                        
-            print "Time taken for searching an artist in 10000 music files  " %elapse                                        
-            print "no. of items retrieved: %d" %len(result)                                                                  
-                                                                                                                             
-        def p_test_fts_08 (self):                                                                                              
-            """Making a search for artist"""                                                                                 
-                                                                                                                             
+                      fts:match 'ArtistNa*'}"
+            start=time.time()
+
+            result=self.resources.SparqlQuery(query)
+
+            elapse =time.time()-start
+            print "Time taken for searching an artist in 10000 music files  " %elapse
+            print "no. of items retrieved: %d" %len(result)
+
+        def p_test_fts_04 (self):
+            """Making a search for artist"""
+
             query = "  SELECT ?uri WHERE { \
                       ?uri a nie:InformationElement ; \
-                      fts:match 'A* p* k*' }"                                                                                                     
-            start=time.time()                                                                                         
-                                                                                                                      
-            result=self.resources.SparqlQuery(query)                                                                         
-                                                                                                                      
-            elapse =time.time()-start                                                                                        
-            print "Time taken for searching an artist in 10000 music files %s " %elapse                               
-            print "no. of items retrieved: %d" %len(result)  
+                      fts:match 'Art*' }"
+            start=time.time()
+
+            result=self.resources.SparqlQuery(query)
+
+            elapse =time.time()-start
+            print "Time taken for searching an artist in 10000 music files  " %elapse
+            print "no. of items retrieved: %d" %len(result)
+
+	def p_test_fts_05 (self):
+            """Making a search for artist"""
+
+            query = "  SELECT ?uri WHERE { \
+                      ?uri a nie:InformationElement ; \
+                      fts:match 'Ar*'}"
+            start=time.time()
+
+            result=self.resources.SparqlQuery(query)
+
+            elapse =time.time()-start
+            print "Time taken for searching an artist in 10000 music files  " %elapse
+            print "no. of items retrieved: %d" %len(result)
+
+
+        def p_test_fts_06 (self):
+            """Making a search for artist"""
+
+            query = "  SELECT ?uri WHERE { \
+                      ?uri a nie:InformationElement ; \
+                      fts:match 'A*' }"
+            start=time.time()
+
+            result=self.resources.SparqlQuery(query)
+
+            elapse =time.time()-start
+            print "Time taken for searching an artist in 10000 music files  " %elapse
+            print "no.of items retrieved: %d" %len(result)
+
+	def p_test_fts_07 (self):
+
+            """Making a search for artist"""
+
+            query = "  SELECT ?uri WHERE { \
+                      ?uri a nie:InformationElement ; \
+                      fts:match 'A* p*' }"
+            start=time.time()
+
+            result=self.resources.SparqlQuery(query)
+
+            elapse =time.time()-start
+            print "Time taken for searching an artist in 10000 music files  " %elapse
+            print "no. of items retrieved: %d" %len(result)
+
+        def p_test_fts_08 (self):
+            """Making a search for artist"""
+
+            query = "  SELECT ?uri WHERE { \
+                      ?uri a nie:InformationElement ; \
+                      fts:match 'A* p* k*' }"
+            start=time.time()
+
+            result=self.resources.SparqlQuery(query)
+
+            elapse =time.time()-start
+            print "Time taken for searching an artist in 10000 music files %s " %elapse
+            print "no. of items retrieved: %d" %len(result)
+
+
+
+
+class content_manager (TestUpdate) :
+
+        def p_test_cm_01 (self):
+
+
+		"""Get all the contacts that match fts and get relevant UI info for them"""
+
+		query = "SELECT DISTINCT ?url ?photourl ?imstatus tracker:coalesce(?family, ?given, ?orgname, ?nick, ?email, ?phone, ?blog) \
+		WHERE { { ?url a nco:PersonContact.?url fts:match 'fami*'. } \
+		UNION { ?url a nco:PersonContact. ?url nco:hasEmailAddress ?add.?add fts:match 'fami*'. } \
+		UNION { ?url a nco:PersonContact. ?url nco:hasPostalAddress ?post.?post fts:match 'fami*'. } \
+		OPTIONAL { ?url maemo:relevance ?relevance.} \
+		OPTIONAL { ?url nco:photo ?photo. ?photo nie:url ?photourl.} \
+		OPTIONAL { ?url nco:imContactStatusMessage ?imstatus.} \
+		OPTIONAL { ?url nco:nameFamily ?family.} \
+		OPTIONAL { ?url nco:nameFamily ?given.} \
+		OPTIONAL { ?url nco:org ?org. ?org nco:nameGiven ?orgname.} \
+		OPTIONAL { ?url nco:hasIMAccount ?acc. ?acc nco:imNickname ?nick.} \
+		OPTIONAL { ?url nco:hasEmailAddress ?hasemail. ?hasemail nco:emailAddress ?email.} \
+		OPTIONAL { ?url nco:hasPhoneNumber ?hasphone. ?hasphone nco:phoneNumber ?phone.} \
+		OPTIONAL { ?url nco:blogUrl ?blog.}} \
+		ORDER BY ?relevance \
+		LIMIT 100"
+
+
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 100 contacts that match fts and get relevant UI info for them %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+
+        def p_test_cm_02 (self):
+
+
+		"""Get all the contacts that match fts and get relevant UI info for them"""
+
+		query = "SELECT DISTINCT ?url tracker:coalesce(nco:nameFamily(?url), nco:nameGiven(?url), 'unknown') \
+		WHERE { \
+		{ ?url a nco:PersonContact.?url fts:match 'fami*'. } \
+		UNION { ?url a nco:PersonContact. ?url nco:hasEmailAddress ?add.?add fts:match 'fami*'. } \
+		UNION { ?url a nco:PersonContact. ?url nco:hasPostalAddress ?post.?post fts:match 'fami*'. } \
+		} LIMIT 100"
+
+
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 100 contacts that match fts and get relevant UI info for them %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+
+        def p_test_cm_03 (self):
+
+
+		"""Get all the messages """
+
+		query = "SELECT DISTINCT ?url nie:title(?url) \
+		WHERE { \
+		{ ?url a nmo:Message. ?url fts:match 'fami*'. } \
+		UNION { ?url a nmo:Message. ?url nmo:from ?from . ?from fts:match 'fami*'. } \
+		UNION { ?url a nmo:Message. ?url nmo:recipient ?to . ?to fts:match 'fami*'. } \
+		} LIMIT 100"
+
+
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 100 contacts that match fts and get relevant UI info for them %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+
+        def p_test_cm_04 (self):
+
+		"""Get all the messages """
+
+		query = "SELECT ?url ?fileLastModified ?relevance ?fileName ?mimeType ?url2 \
+			WHERE { \
+			?url a nfo:Image .\
+			?url nfo:fileLastModified ?fileLastModified. \
+			?url nfo:fileName ?fileName .\
+			?url nie:mimeType ?mimeType .\
+			?url nie:url ?url2 . \
+			OPTIONAL { ?url maemo:relevance ?relevance. } \
+			} ORDER BY ?_fileName"
+
+
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 100 contacts that match fts and get relevant UI info for them %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+
+
 
 
 
