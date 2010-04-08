@@ -366,7 +366,10 @@ parse_exif (const unsigned char *buffer,
 		data->copyright = get_value (exif, EXIF_TAG_COPYRIGHT);
 	if (!data->software)
 		data->software = get_value (exif, EXIF_TAG_SOFTWARE);
-
+	if (!data->x_resolution)
+		data->x_resolution = get_value (exif, EXIF_TAG_X_RESOLUTION);
+	if (!data->y_resolution)
+		data->y_resolution = get_value (exif, EXIF_TAG_Y_RESOLUTION);
 
 	exif_data_free (exif);
 #endif /* HAVE_LIBEXIF */
@@ -478,6 +481,8 @@ tracker_exif_free (TrackerExifData *data,
 		g_free (data->white_balance);
 		g_free (data->copyright);
 		g_free (data->software);
+		g_free (data->x_resolution);
+		g_free (data->y_resolution);
 	}
 
 	g_free (data);

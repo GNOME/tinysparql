@@ -50,6 +50,8 @@ typedef struct {
 	gchar *white_balance;
 	gchar *copyright;
 	gchar *software;
+	gchar *x_resolution;
+	gchar *y_resolution;
 } TrackerExifData;
 
 #ifndef TRACKER_DISABLE_DEPRECATED
