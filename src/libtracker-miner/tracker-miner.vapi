@@ -21,6 +21,12 @@
 namespace Tracker {
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner-object.h")]
 	public class Miner : GLib.Object {
+		[NoAccessorMethod]
+		public string name { get; construct; }
+		[NoAccessorMethod]
+		public string status { get; set; }
+		[NoAccessorMethod]
+		public double progress { get; set; }
 		public async void commit (GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public static GLib.Quark error_quark ();
 		public async void execute_batch_update (string sparql, GLib.Cancellable? cancellable = null) throws GLib.Error;
@@ -76,6 +82,8 @@ namespace Tracker {
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner-web.h")]
 	public class MinerWeb : Tracker.Miner {
+		[NoAccessorMethod]
+		public bool associated { get; set; }
 		public virtual void associate (GLib.HashTable association_data) throws Tracker.MinerWebError;
 		public virtual void authenticate () throws Tracker.MinerWebError;
 		public virtual void dissociate () throws Tracker.MinerWebError;
