@@ -165,6 +165,17 @@
         <hardware>true</hardware>
       </environments>
     </set>
+    <set name="_usr_share_tracker-tests_09-concurrent-query.py">
+      <description>tracker:09-concurrent-query.py</description>
+      <case name="09-concurrent-query.py-TestConcurrentQuery.test_async_queries">
+        <description>tracker:09-concurrent-query.py:TestConcurrentQuery.test_async_queries</description>
+        <step>/usr/share/tracker-tests/09-concurrent-query.py TestConcurrentQuery.test_async_queries</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
     <set name="_usr_share_tracker-tests_06-distance.py">
       <description>tracker:06-distance.py</description>
       <case name="06-distance.py-TestCoalesce.test_distance_cartesian_proportion">
