@@ -2376,7 +2376,9 @@ queue_statement (GList *queue,
 }
 
 static void
-ontology_transaction_end (GList *ontology_queue, GPtrArray *seen_classes, GPtrArray *seen_properties)
+ontology_transaction_end (GList *ontology_queue,
+                          GPtrArray *seen_classes,
+                          GPtrArray *seen_properties)
 {
 	GList *l;
 	const gchar *ontology_uri = NULL;

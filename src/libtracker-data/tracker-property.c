@@ -59,7 +59,7 @@ struct _TrackerPropertyPriv {
 	gboolean       transient;
 	gboolean       is_inverse_functional_property;
 	gboolean       is_new;
-	gboolean       need_recreate;
+	gboolean       db_schema_changed;
 	gboolean       writeback;
 
 	GArray        *super_properties;
@@ -355,7 +355,7 @@ tracker_property_get_writeback (TrackerProperty *field)
 }
 
 gboolean
-tracker_property_get_need_recreate (TrackerProperty *field)
+tracker_property_get_db_schema_changed (TrackerProperty *field)
 {
 	TrackerPropertyPriv *priv;
 
@@ -363,7 +363,7 @@ tracker_property_get_need_recreate (TrackerProperty *field)
 
 	priv = GET_PRIV (field);
 
-	return priv->need_recreate;
+	return priv->db_schema_changed;
 }
 
 gboolean
@@ -578,7 +578,7 @@ tracker_property_set_is_new (TrackerProperty *field,
 
 void
 tracker_property_set_writeback (TrackerProperty *field,
-                             gboolean         value)
+                                gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -590,8 +590,8 @@ tracker_property_set_writeback (TrackerProperty *field,
 }
 
 void
-tracker_property_set_need_recreate (TrackerProperty *field,
-                                    gboolean         value)
+tracker_property_set_db_schema_changed (TrackerProperty *field,
+                                        gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -599,12 +599,12 @@ tracker_property_set_need_recreate (TrackerProperty *field,
 
 	priv = GET_PRIV (field);
 
-	priv->need_recreate = value;
+	priv->db_schema_changed = value;
 }
 
 void
 tracker_property_set_fulltext_indexed (TrackerProperty *field,
-                                       gboolean                 value)
+                                       gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -617,7 +617,7 @@ tracker_property_set_fulltext_indexed (TrackerProperty *field,
 
 void
 tracker_property_set_fulltext_no_limit (TrackerProperty *field,
-                                       gboolean                 value)
+                                       gboolean          value)
 {
 	TrackerPropertyPriv *priv;
 
@@ -630,7 +630,7 @@ tracker_property_set_fulltext_no_limit (TrackerProperty *field,
 
 void
 tracker_property_set_embedded (TrackerProperty *field,
-                               gboolean                 value)
+                               gboolean         value)
 {
 	TrackerPropertyPriv *priv;
 

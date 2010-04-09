@@ -39,7 +39,7 @@ struct _TrackerClassPriv {
 	gint count;
 	gint id;
 	gboolean is_new;
-	gboolean need_recreate;
+	gboolean db_schema_changed;
 	gboolean notify;
 
 	GArray *super_classes;
@@ -180,7 +180,7 @@ tracker_class_get_notify (TrackerClass *service)
 }
 
 gboolean
-tracker_class_get_need_recreate (TrackerClass *service)
+tracker_class_get_db_schema_changed (TrackerClass *service)
 {
 	TrackerClassPriv *priv;
 
@@ -188,7 +188,7 @@ tracker_class_get_need_recreate (TrackerClass *service)
 
 	priv = GET_PRIV (service);
 
-	return priv->need_recreate;
+	return priv->db_schema_changed;
 }
 
 void
@@ -276,7 +276,7 @@ tracker_class_add_super_class (TrackerClass *service,
 
 void
 tracker_class_set_is_new (TrackerClass *service,
-                          gboolean         value)
+                          gboolean      value)
 {
 	TrackerClassPriv *priv;
 
@@ -289,7 +289,7 @@ tracker_class_set_is_new (TrackerClass *service,
 
 void
 tracker_class_set_notify (TrackerClass *service,
-                          gboolean         value)
+                          gboolean      value)
 {
 	TrackerClassPriv *priv;
 
@@ -301,8 +301,8 @@ tracker_class_set_notify (TrackerClass *service,
 }
 
 void
-tracker_class_set_need_recreate (TrackerClass *service,
-                                 gboolean         value)
+tracker_class_set_db_schema_changed (TrackerClass *service,
+                                     gboolean      value)
 {
 	TrackerClassPriv *priv;
 
@@ -310,5 +310,5 @@ tracker_class_set_need_recreate (TrackerClass *service,
 
 	priv = GET_PRIV (service);
 
-	priv->need_recreate = value;
+	priv->db_schema_changed = value;
 }
