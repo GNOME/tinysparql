@@ -156,10 +156,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			 * theoretically possible that the function gets
 			 * called multiple times 
 			 */
-			tracker_extract_xmp_read (text_ptr[i].text,
-			                          text_ptr[i].itxt_length,
-			                          uri, 
-			                          &xd);
+			tracker_xmp_read (text_ptr[i].text,
+			                  text_ptr[i].itxt_length,
+			                  uri, 
+			                  &xd);
 
 			continue;
 		}
@@ -171,10 +171,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		 * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData 
 		 */
 		if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
-			tracker_extract_exif_read (text_ptr[i].text,
-			                           text_ptr[i].itxt_length, 
-			                           uri, 
-			                           &ed);
+			tracker_exif_read (text_ptr[i].text,
+			                   text_ptr[i].itxt_length, 
+			                   uri, 
+			                   &ed);
 			continue;
 		}
 #endif /* HAVE_LIBEXIF */
