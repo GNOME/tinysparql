@@ -674,9 +674,9 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 {
 	gint i;
 
-	/* This checks for properties of classes being removed from the ontology.
-	 * For example when going from: prefix:A rdfs:Class ; tracker:notify true .
-	 * to prefix:A rdfs:Class . */
+	/* This updates property-property changes and marks classes for necessity
+	 * of having their tables recreated later. There's support for 
+	 * tracker:notify, tracker:writeback and tracker:indexed */
 
 	if (seen_classes) {
 		for (i = 0; i < seen_classes->len; i++) {
