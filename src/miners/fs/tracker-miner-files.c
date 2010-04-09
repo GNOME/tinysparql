@@ -21,8 +21,10 @@
 
 #include <sys/statvfs.h>
 #include <fcntl.h>
+#ifdef __linux__
 #include <sys/ioctl.h>
 #include <linux/msdos_fs.h>
+#endif /* __linux__ */
 #include <unistd.h>
 
 #include <glib/gi18n.h>
@@ -1777,6 +1779,7 @@ tracker_miner_files_check_directory (GFile  *file,
 	 */
 	is_hidden = file_info && g_file_info_get_is_hidden (file_info);
 
+#ifdef __linux__
 	/* Second we check if the file is on FAT and if the hidden
 	 * attribute is set. GIO does this but ONLY on a Windows OS,
 	 * not for Windows files under a Linux OS, so we have to check
@@ -1796,6 +1799,7 @@ tracker_miner_files_check_directory (GFile  *file,
 			close (fd);
 		}
 	}
+#endif /* __linux__ */
 
 	if (is_hidden) {
 		/* FIXME: We need to check if the file is actually a
