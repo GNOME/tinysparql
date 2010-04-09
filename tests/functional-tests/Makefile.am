@@ -13,6 +13,7 @@ config_SCRIPTS =			\
 	06-distance.py			\
 	07-graph.py			\
 	08-unique-insertions.py 	\
+	09-concurrent-query.py		\
 	bootup-tc.py			\
 	configuration.py		\
 	metadata_extraction_tc.py 	\
