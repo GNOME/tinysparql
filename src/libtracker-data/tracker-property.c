@@ -58,7 +58,7 @@ struct _TrackerPropertyPrivate {
 	gboolean       transient;
 	gboolean       is_inverse_functional_property;
 	gboolean       is_new;
-	gboolean       need_recreate;
+	gboolean       db_schema_changed;
 	gboolean       writeback;
 
 	GArray        *super_properties;
@@ -363,7 +363,7 @@ tracker_property_get_writeback (TrackerProperty *property)
 }
 
 gboolean
-tracker_property_get_need_recreate (TrackerProperty *property)
+tracker_property_get_db_schema_changed (TrackerProperty *property)
 {
 	TrackerPropertyPrivate *priv;
 
@@ -371,7 +371,7 @@ tracker_property_get_need_recreate (TrackerProperty *property)
 
 	priv = GET_PRIV (property);
 
-	return priv->need_recreate;
+	return priv->db_schema_changed;
 }
 
 gboolean
@@ -586,7 +586,7 @@ tracker_property_set_is_new (TrackerProperty *property,
 
 void
 tracker_property_set_writeback (TrackerProperty *property,
-				gboolean         value)
+                                gboolean         value)
 {
 	TrackerPropertyPrivate *priv;
 
@@ -598,8 +598,8 @@ tracker_property_set_writeback (TrackerProperty *property,
 }
 
 void
-tracker_property_set_need_recreate (TrackerProperty *property,
-                                    gboolean         value)
+tracker_property_set_db_schema_changed (TrackerProperty *property,
+                                        gboolean         value)
 {
 	TrackerPropertyPrivate *priv;
 
@@ -607,7 +607,7 @@ tracker_property_set_need_recreate (TrackerProperty *property,
 
 	priv = GET_PRIV (property);
 
-	priv->need_recreate = value;
+	priv->db_schema_changed = value;
 }
 
 void
@@ -625,7 +625,7 @@ tracker_property_set_fulltext_indexed (TrackerProperty *property,
 
 void
 tracker_property_set_fulltext_no_limit (TrackerProperty *property,
-                                       gboolean          value)
+					gboolean         value)
 {
 	TrackerPropertyPrivate *priv;
 

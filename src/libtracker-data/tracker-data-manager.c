@@ -77,7 +77,8 @@ static gboolean  in_journal_replay;
 
 
 typedef struct {
-	const gchar *from, *to;
+	const gchar *from;
+	const gchar *to;
 } Conversion;
 
 static Conversion allowed_boolean_conversions[] = {
@@ -104,9 +105,9 @@ static Conversion allowed_range_conversions[] = {
 
 static void
 set_index_for_single_value_property (TrackerDBInterface *iface,
-                                     const gchar *service_name,
-                                     const gchar *field_name,
-                                     gboolean enabled)
+                                     const gchar        *service_name,
+                                     const gchar        *field_name,
+                                     gboolean            enabled)
 {
 	if (enabled) {
 		tracker_db_interface_execute_query (iface, NULL,
@@ -125,9 +126,9 @@ set_index_for_single_value_property (TrackerDBInterface *iface,
 
 static void
 set_index_for_multi_value_property (TrackerDBInterface *iface,
-                                    const gchar *service_name,
-                                    const gchar *field_name,
-                                    gboolean enabled)
+                                    const gchar        *service_name,
+                                    const gchar        *field_name,
+                                    gboolean            enabled)
 {
 	tracker_db_interface_execute_query (iface, NULL,
 	                                    "DROP INDEX IF EXISTS \"%s_%s_ID_ID\"",
@@ -166,7 +167,7 @@ set_index_for_multi_value_property (TrackerDBInterface *iface,
 static gboolean
 is_allowed_conversion (const gchar *oldv,
                        const gchar *newv,
-                       Conversion allowed[])
+                       Conversion   allowed[])
 {
 	guint i;
 
@@ -182,12 +183,12 @@ is_allowed_conversion (const gchar *oldv,
 }
 
 static gboolean
-update_property_value (const gchar *kind,
-                       const gchar *subject,
-                       const gchar *predicate,
-                       const gchar *object,
-                       Conversion allowed[],
-                       TrackerClass *class,
+update_property_value (const gchar     *kind,
+                       const gchar     *subject,
+                       const gchar     *predicate,
+                       const gchar     *object,
+                       Conversion       allowed[],
+                       TrackerClass    *class,
                        TrackerProperty *property)
 {
 	GError *error = NULL;
@@ -251,7 +252,7 @@ update_property_value (const gchar *kind,
 	}
 
 	if (error) {
-		g_critical ("Ontology change: %s", error->message);
+		g_critical ("Ontology change, %s", error->message);
 		g_clear_error (&error);
 	}
 
@@ -294,7 +295,7 @@ check_range_conversion_is_allowed (const gchar *subject,
 }
 
 static void
-fix_indexed (TrackerProperty *property, gboolean enabled)
+fix_indexed (TrackerProperty *property)
 {
 	TrackerDBInterface *iface;
 	TrackerClass *class;
@@ -308,9 +309,11 @@ fix_indexed (TrackerProperty *property, gboolean enabled)
 	service_name = tracker_class_get_name (class);
 
 	if (tracker_property_get_multiple_values (property)) {
-		set_index_for_multi_value_property (iface, service_name, field_name, enabled);
+		set_index_for_multi_value_property (iface, service_name, field_name,
+		                                    tracker_property_get_indexed (property));
 	} else {
-		set_index_for_single_value_property (iface, service_name, field_name, enabled);
+		set_index_for_single_value_property (iface, service_name, field_name,
+		                                     tracker_property_get_indexed (property));
 	}
 }
 
@@ -321,11 +324,11 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
                                       const gchar *predicate,
                                       const gchar *object,
                                       gint        *max_id,
-                                      gboolean    in_update,
-                                      GHashTable *classes,
-                                      GHashTable *properties,
-                                      GPtrArray  *seen_classes,
-                                      GPtrArray  *seen_properties)
+                                      gboolean     in_update,
+                                      GHashTable  *classes,
+                                      GHashTable  *properties,
+                                      GPtrArray   *seen_classes,
+                                      GPtrArray   *seen_properties)
 {
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -473,7 +476,6 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_class_set_notify (class, (strcmp (object, "true") == 0));
-
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "writeback") == 0) {
 		TrackerProperty *property;
 
@@ -682,7 +684,9 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 		for (i = 0; i < seen_classes->len; i++) {
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
 			const gchar *subject;
+
 			subject = tracker_class_get_uri (class);
+
 			if (tracker_class_get_notify (class)) {
 				update_property_value ("tracker:notify",
 				                       subject,
@@ -703,7 +707,9 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 		for (i = 0; i < seen_properties->len; i++) {
 			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
 			const gchar *subject;
+
 			subject = tracker_property_get_uri (property);
+
 			if (tracker_property_get_writeback (property)) {
 				update_property_value ("tracker:writeback",
 				                       subject,
@@ -724,7 +730,7 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 				                           TRACKER_PREFIX "indexed",
 				                           "true", allowed_boolean_conversions,
 				                           NULL, property)) {
-					fix_indexed (property, TRUE);
+					fix_indexed (property);
 				}
 			} else {
 				if (update_property_value ("tracker:indexed",
@@ -732,7 +738,7 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 				                           TRACKER_PREFIX "indexed",
 				                           "false", allowed_boolean_conversions,
 				                           NULL, property)) {
-					fix_indexed (property, FALSE);
+					fix_indexed (property);
 				}
 			}
 
@@ -743,8 +749,8 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 				TrackerClass *class;
 
 				class = tracker_property_get_domain (property);
-				tracker_class_set_need_recreate (class, TRUE);
-				tracker_property_set_need_recreate (property, TRUE);
+				tracker_class_set_db_schema_changed (class, TRUE);
+				tracker_property_set_db_schema_changed (property, TRUE);
 			}
 		}
 	}
@@ -1082,7 +1088,8 @@ import_ontology_path (const gchar *ontology_path,
 }
 
 static void
-class_add_super_classes_from_db (TrackerDBInterface *iface, TrackerClass *class)
+class_add_super_classes_from_db (TrackerDBInterface *iface,
+                                 TrackerClass       *class)
 {
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor;
@@ -1110,7 +1117,8 @@ class_add_super_classes_from_db (TrackerDBInterface *iface, TrackerClass *class)
 }
 
 static void
-property_add_super_properties_from_db (TrackerDBInterface *iface, TrackerProperty *property)
+property_add_super_properties_from_db (TrackerDBInterface *iface,
+                                       TrackerProperty *property)
 {
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor;
@@ -1234,7 +1242,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				notify = FALSE;
 			}
 
-			tracker_class_set_need_recreate (class, FALSE);
+			tracker_class_set_db_schema_changed (class, FALSE);
 			tracker_class_set_is_new (class, FALSE);
 			tracker_class_set_uri (class, uri);
 			tracker_class_set_notify (class, notify);
@@ -1358,6 +1366,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				annotation = FALSE;
 			}
 
+			/* tracker:writeback column */
 			tracker_db_cursor_get_value (cursor, 10, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
@@ -1368,6 +1377,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				writeback = FALSE;
 			}
 
+			/* NRL_INVERSE_FUNCTIONAL_PROPERTY column */
 			tracker_db_cursor_get_value (cursor, 11, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
@@ -1386,7 +1396,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_range (property, tracker_ontologies_get_class_by_uri (range_uri));
 			tracker_property_set_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
-			tracker_property_set_need_recreate (property, FALSE);
+			tracker_property_set_db_schema_changed (property, FALSE);
 			tracker_property_set_writeback (property, writeback);
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
 			tracker_property_set_fulltext_no_limit (property, fulltext_no_limit);
@@ -1438,9 +1448,9 @@ insert_uri_in_resource_table (TrackerDBInterface *iface,
 
 static void
 range_change_for (TrackerProperty *property,
-                  GString *in_col_sql,
-                  GString *sel_col_sql,
-                  const gchar *field_name)
+                  GString         *in_col_sql,
+                  GString         *sel_col_sql,
+                  const gchar     *field_name)
 {
 	/* TODO: TYPE_RESOURCE and TYPE_DATETIME are completely unhandled atm, we
 	 * should forbid conversion from anything to resource or datetime in error
@@ -1517,7 +1527,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	}
 
 	if (!in_update || (in_update && (tracker_property_get_is_new (property) ||
-	                                 tracker_property_get_need_recreate (property)))) {
+	                                 tracker_property_get_db_schema_changed (property)))) {
 		if (transient || tracker_property_get_multiple_values (property)) {
 			GString *sql;
 			GString *in_col_sql = NULL;
@@ -1540,7 +1550,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				                                    "ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
 				                                    service_name, field_name, service_name, field_name);
 				if (error) {
-					g_critical ("Ontology change: Renaming SQL table: %s", error->message);
+					g_critical ("Ontology change failed while renaming SQL table '%s'", error->message);
 					g_clear_error (&error);
 				}
 			}
@@ -1578,7 +1588,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			                                    "%s)", sql->str);
 
 			if (error) {
-				g_critical ("Creating SQL table: %s", error->message);
+				g_critical ("Creating SQL table failed: %s", error->message);
 				g_clear_error (&error);
 			}
 
@@ -1606,7 +1616,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				tracker_db_interface_execute_query (iface, &error, "%s", query);
 
 				if (error) {
-					g_critical ("Ontology change: Merging data of SQL table: %s", error->message);
+					g_critical ("Ontology change failed while merging data of SQL table '%s'", error->message);
 					g_clear_error (&error);
 				}
 
@@ -1615,7 +1625,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				                                    service_name, field_name);
 
 				if (error) {
-					g_critical ("Ontology change: Dropping SQL table: %s", error->message);
+					g_critical ("Ontology change failed while dropping SQL table '%s'", error->message);
 					g_clear_error (&error);
 				}
 
@@ -1676,7 +1686,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		in_col_sql = g_string_new ("ID");
 		sel_col_sql = g_string_new ("ID");
 		if (error) {
-			g_critical ("Ontology change: Renaming SQL table: %s", error->message);
+			g_critical ("Ontology change failed while renaming SQL table '%s'", error->message);
 			g_error_free (error);
 		}
 	}
@@ -1690,7 +1700,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		if (main_class) {
 			tracker_db_interface_execute_query (iface, &error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri Text NOT NULL, UNIQUE (Uri))");
 			if (error) {
-				g_critical ("Creating Resource SQL table: %s", error->message);
+				g_critical ("Failed creating Resource SQL table: %s", error->message);
 				g_clear_error (&error);
 			}
 			g_string_append (create_sql, ", Available INTEGER NOT NULL");
@@ -1765,7 +1775,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					}
 					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 					if (error) {
-						g_critical ("Ontology change: altering SQL table: %s", error->message);
+						g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
 						g_clear_error (&error);
 					}
 					g_string_free (alter_sql, TRUE);
@@ -1776,7 +1786,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					                        field_name);
 					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 					if (error) {
-						g_critical ("Ontology change: altering SQL table: %s", error->message);
+						g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
 						g_clear_error (&error);
 					}
 					g_string_free (alter_sql, TRUE);
@@ -1788,7 +1798,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						                        field_name);
 						tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 						if (error) {
-							g_critical ("Ontology change: altering SQL table: %s", error->message);
+							g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
 							g_clear_error (&error);
 						}
 						g_string_free (alter_sql, TRUE);
@@ -1799,7 +1809,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						                        field_name);
 						tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 						if (error) {
-							g_critical ("Ontology change: altering SQL table: %s", error->message);
+							g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
 							g_clear_error (&error);
 						}
 						g_string_free (alter_sql, TRUE);
@@ -1850,13 +1860,13 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 		tracker_db_interface_execute_query (iface, &error, "%s", query);
 		if (error) {
-			g_critical ("Ontology change: Merging SQL table data: %s", error->message);
+			g_critical ("Ontology change failed while merging SQL table data '%s'", error->message);
 			g_clear_error (&error);
 		}
 		g_free (query);
 		tracker_db_interface_execute_query (iface, &error, "DROP TABLE \"%s_TEMP\"", service_name);
 		if (error) {
-			g_critical ("Ontology change: Dropping SQL table: %s", error->message);
+			g_critical ("Ontology change failed while dropping SQL table '%s'", error->message);
 			g_error_free (error);
 		}
 	}
@@ -1909,12 +1919,12 @@ tracker_data_ontology_import_finished (void)
 
 	for (i = 0; i < n_classes; i++) {
 		tracker_class_set_is_new (classes[i], FALSE);
-		tracker_class_set_need_recreate (classes[i], FALSE);
+		tracker_class_set_db_schema_changed (classes[i], FALSE);
 	}
 
 	for (i = 0; i < n_props; i++) {
 		tracker_property_set_is_new (properties[i], FALSE);
-		tracker_property_set_need_recreate (properties[i], FALSE);
+		tracker_property_set_db_schema_changed (properties[i], FALSE);
 	}
 }
 
@@ -1936,7 +1946,7 @@ tracker_data_ontology_import_into_db (gboolean in_update)
 	for (i = 0; i < n_classes; i++) {
 		/* Also !is_new classes are processed, they might have new properties */
 		create_decomposed_metadata_tables (iface, classes[i], in_update,
-		                                   tracker_class_get_need_recreate (classes[i]));
+		                                   tracker_class_get_db_schema_changed (classes[i]));
 	}
 
 	/* insert classes into rdfs:Resource table */
