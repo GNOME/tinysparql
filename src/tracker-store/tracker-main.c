@@ -85,7 +85,6 @@ static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 /* Private command line parameters */
 static gboolean version;
 static gint verbosity = -1;
-static gboolean low_memory;
 static gboolean force_reindex;
 static gboolean readonly_mode;
 
@@ -99,10 +98,6 @@ static GOptionEntry  entries[] = {
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
 	     "1 = minimal, 2 = detailed and 3 = debug (default = 0)"),
-	  NULL },
-	{ "low-memory", 'm', 0,
-	  G_OPTION_ARG_NONE, &low_memory,
-	  N_("Minimizes the use of memory but may slow indexing down"),
 	  NULL },
 
 	/* Indexer options */
@@ -137,8 +132,6 @@ sanity_check_option_values (TrackerConfig *config)
 	g_message ("General options:");
 	g_message ("  Verbosity  ............................  %d",
 	           tracker_config_get_verbosity (config));
-	g_message ("  Low memory mode  ......................  %s",
-	           tracker_config_get_low_memory_mode (config) ? "yes" : "no");
 
 	g_message ("Store options:");
 	g_message ("  Readonly mode  ........................  %s",
@@ -417,10 +410,6 @@ main (gint argc, gchar *argv[])
 		config_verbosity_changed_cb (G_OBJECT (config), NULL, NULL);
 	}
 
-	if (low_memory) {
-		tracker_config_set_low_memory_mode (config, TRUE);
-	}
-
 	initialize_directories ();
 
 	if (!tracker_dbus_init ()) {
@@ -441,10 +430,6 @@ main (gint argc, gchar *argv[])
 		   backup_user_metadata (config, language); */
 
 		flags |= TRACKER_DB_MANAGER_FORCE_REINDEX;
-	}
-
-	if (tracker_config_get_low_memory_mode (config)) {
-		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
 	notifier = tracker_dbus_register_notifier ();

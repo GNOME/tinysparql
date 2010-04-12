@@ -619,10 +619,6 @@ tracker_db_manager_init_locations (void)
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		dir = location_to_directory (dbs[i].location);
 		dbs[i].abs_filename = g_build_filename (dir, dbs[i].file, NULL);
-
-		if (old_flags & TRACKER_DB_MANAGER_LOW_MEMORY_MODE) {
-			dbs[i].cache_size /= 2;
-		}
 	}
 
 	locations_initialized = TRUE;
@@ -731,10 +727,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		if (dbs[i].abs_filename)
 			g_free (dbs[i].abs_filename);
 		dbs[i].abs_filename = g_build_filename (dir, dbs[i].file, NULL);
-
-		if (flags & TRACKER_DB_MANAGER_LOW_MEMORY_MODE) {
-			dbs[i].cache_size /= 2;
-		}
 
 		/* Check we have each database in place, if one is
 		 * missing, we reindex.

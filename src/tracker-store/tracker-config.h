@@ -49,12 +49,8 @@ GType          tracker_config_get_type               (void) G_GNUC_CONST;
 TrackerConfig *tracker_config_new                    (void);
 gboolean       tracker_config_save                   (TrackerConfig *config);
 gint           tracker_config_get_verbosity          (TrackerConfig *config);
-gboolean       tracker_config_get_low_memory_mode    (TrackerConfig *config);
-
 void           tracker_config_set_verbosity          (TrackerConfig *config,
                                                       gint           value);
-void           tracker_config_set_low_memory_mode    (TrackerConfig *config,
-                                                      gboolean       value);
 
 G_END_DECLS
 
