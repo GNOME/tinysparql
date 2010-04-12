@@ -821,15 +821,65 @@ fi
 AM_CONDITIONAL(HAVE_GNOME_KEYRING, test "x$have_gnome_keyring" = "xyes")
 
 ####################################################################
-# Mail miners
+# Miner Evolution
 ####################################################################
 
 AC_ARG_ENABLE([evolution_miner],
               AS_HELP_STRING([--enable-evolution-miner],
-                             [enable support for Evolution data miner [[default=yes]]]),,
-              [enable_evolution_miner=yes])
+                             [enable support for Evolution data miner [[default=auto]]]),,
+              [enable_evolution_miner=auto])
+
+if test "x$enable_evolution_miner" != "xno"; then
+   PKG_CHECK_MODULES(EVOLUTION_PLUGIN, [
+   		     evolution-plugin >= $EVO_REQUIRED
+		     evolution-data-server-1.2 >= $EDS_REQUIRED],
+		     have_evolution_plugin=yes,
+		     have_evolution_plugin=no)
+
+   PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.29.1],
+		    [AC_DEFINE(HAVE_EDS_2_29_1, 1, [Define if we have eds 2.29.1 or newer])])
+
+   AC_SUBST(EVOLUTION_PLUGIN_CFLAGS)
+   AC_SUBST(EVOLUTION_PLUGIN_LIBS)
+
+   if test "x$have_evolution_plugin" = "xyes"; then
+      dnl Evolution plugin will be compiled
+      enable_evolution_miner=yes
+
+      dnl Evolution plugins dir
+      AC_ARG_WITH([evolution_plugins_dir],
+                  AS_HELP_STRING([--with-evolution-plugins-dir],
+	                         [Path to Evolution plugins directory]))
+      if test "x$with_evolution_plugins_dir" = "x" ; then
+         evolution_plugins_dir=`$PKG_CONFIG evolution-plugin --variable=plugindir`
+      else
+         evolution_plugins_dir="$with_evolution_plugins_dir"
+      fi
+
+      EVOLUTION_PLUGIN_INSTALL_DIR=$evolution_plugins_dir
+   else
+      if test "x$enable_evolution_miner" = "xyes"; then
+        dnl If evolution-miner was explicitly enabled by the user, and
+        dnl  evolution-plugin deps not found, dump error
+        AC_MSG_ERROR([Couldn't find Evolution plugin requirements (evolution-dev, evolution-data-server-dev).])
+      else
+        dnl support 'auto' mode...
+        enable_evolution_miner="no  (disabled)"
+        EVOLUTION_PLUGIN_INSTALL_DIR=/dev/null
+      fi
+   fi
+
+   AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
+else
+   enable_evolution_miner="no  (disabled)"
+fi
 
 AM_CONDITIONAL(USING_EVOLUTION_MINER, test "x$enable_evolution_miner" = "xyes")
+
+
+####################################################################
+# Miner Kmail
+####################################################################
 
 AC_ARG_ENABLE([kmail_miner],
               AS_HELP_STRING([--enable-kmail-miner],
@@ -837,6 +887,7 @@ AC_ARG_ENABLE([kmail_miner],
               [enable_kmail_miner=yes])
 
 AM_CONDITIONAL(USING_KMAIL_MINER, test "x$enable_kmail_miner" = "xyes")
+
 
 ##################################################################
 # Miner RSS
@@ -1457,55 +1508,6 @@ have_mockup="no  (disabled)"
 
 AM_CONDITIONAL(HAVE_MOCKUP, test "x$have_mockup" = "xyes")
 
-##################################################################
-# Enable Evolution plugin support?
-##################################################################
-
-if test "x$enable_evolution_miner" != "xno" ; then
-   PKG_CHECK_MODULES(EVOLUTION_PLUGIN, [
-   		     evolution-plugin >= $EVO_REQUIRED
-		     evolution-data-server-1.2 >= $EDS_REQUIRED],
-		     have_evolution_plugin=yes,
-		     have_evolution_plugin=no)
-
-   PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.29.1],
-		    [AC_DEFINE(HAVE_EDS_2_29_1, 1, [Define if we have eds 2.29.1 or newer])])
-
-   AC_SUBST(EVOLUTION_PLUGIN_CFLAGS)
-   AC_SUBST(EVOLUTION_PLUGIN_LIBS)
-
-   if test x$have_evolution_plugin = "xyes"; then
-      dnl Evolution plugins dir
-      AC_ARG_WITH([evolution_plugins_dir],
-                  AS_HELP_STRING([--with-evolution-plugins-dir],
-	                         [Path to Evolution plugins directory]))
-      if test "x$with_evolution_plugins_dir" = "x" ; then
-         evolution_plugins_dir=`$PKG_CONFIG evolution-plugin --variable=plugindir`
-      else
-         evolution_plugins_dir="$with_evolution_plugins_dir"
-      fi
-
-      EVOLUTION_PLUGIN_INSTALL_DIR=$evolution_plugins_dir
-   else
-      EVOLUTION_PLUGIN_INSTALL_DIR=/dev/null
-   fi
-
-   AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
-
-   if test "x$have_evolution_plugin" = "xyes"; then
-      AC_DEFINE(HAVE_EVOLUTION_PLUGIN, 1, [Define if we have Evolution plugin ])
-   fi
-else
-   have_evolution_plugin="no  (disabled)"
-fi
-
-if test "x$enable_evolution_plugin" = "xyes"; then
-   if test "x$have_evolution_plugin" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Evolution plugin requirements (evolution-dev, evolution-data-server-dev).])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
 
 ####################################################################
 # Enable Nautilus extension support?
