@@ -46,11 +46,17 @@ process_one_event( struct inotify_event *ine )
 
   inotify_debug( "Got one event" );
 
-  for( list = inotify_listhash_get( ine->wd ); list; list = list->next )
+  list = inotify_listhash_get( ine->wd );
+  while (list)
   {
+    GSList *next = list->next;
     inotify_debug( "  dispatch to %p", list->data );
     inotify_handle_invoke_callback( list->data, filename,
 				    ine->mask, ine->cookie );
+    /* Note that AFTER executing the callback, both the list element and the
+     *  INotifyHandle may already be disposed. So, the pointer to the next
+     *  list element should have been stored before calling the callback */
+    list = next;
   }
 
   if( ine->mask & IN_IGNORED )
