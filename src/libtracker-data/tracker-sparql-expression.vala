@@ -447,6 +447,22 @@ class Tracker.Sparql.Expression : Object {
 			sql.append (")");
 
 			return PropertyType.BOOLEAN;
+		} else if (uri == FN_NS + "substring") {
+			sql.append ("substr(");
+			translate_expression_as_string (sql);
+
+			sql.append (", ");
+			expect (SparqlTokenType.COMMA);
+			translate_expression_as_string (sql);
+
+			if (accept (SparqlTokenType.COMMA)) {
+			      sql.append (", ");
+			      translate_expression_as_string (sql);
+			}
+
+			sql.append (")");
+
+			return PropertyType.STRING;
 		} else if (uri == FN_NS + "concat") {
 			translate_expression (sql);
 			sql.append ("||");
