@@ -640,7 +640,51 @@ class Tracker.Sparql.Expression : Object {
 		}
 	}
 
-	internal string parse_string_literal () throws SparqlError {
+	PropertyType parse_type_uri () throws SparqlError {
+		string type_iri;
+		PropertyType type;
+
+		if (accept (SparqlTokenType.IRI_REF)) {
+			type_iri = get_last_string (1);
+		} else if (accept (SparqlTokenType.PN_PREFIX)) {
+			string ns = get_last_string ();
+			expect (SparqlTokenType.COLON);
+			type_iri = query.resolve_prefixed_name (ns, get_last_string ().substring (1));
+		} else {
+			expect (SparqlTokenType.COLON);
+			type_iri = query.resolve_prefixed_name ("", get_last_string ().substring (1));
+		}
+
+		if (type_iri == XSD_NS + "boolean") {
+			type = PropertyType.BOOLEAN;
+		} else if (type_iri == XSD_NS + "integer" ||
+		           type_iri == XSD_NS + "nonPositiveInteger" ||
+		           type_iri == XSD_NS + "negativeInteger" ||
+		           type_iri == XSD_NS + "long" ||
+		           type_iri == XSD_NS + "int" ||
+		           type_iri == XSD_NS + "short" ||
+		           type_iri == XSD_NS + "byte" ||
+		           type_iri == XSD_NS + "nonNegativeInteger" ||
+		           type_iri == XSD_NS + "unsignedLong" ||
+		           type_iri == XSD_NS + "unsignedInt" ||
+		           type_iri == XSD_NS + "unsignedShort" ||
+		           type_iri == XSD_NS + "unsignedByte" ||
+		           type_iri == XSD_NS + "positiveInteger") {
+			type = PropertyType.INTEGER;
+		} else if (type_iri == XSD_NS + "double") {
+			type = PropertyType.DOUBLE;
+		} else if (type_iri == XSD_NS + "date") {
+			type = PropertyType.DATE;
+		} else if (type_iri == XSD_NS + "dateTime") {
+			type = PropertyType.DATETIME;
+		} else {
+			type = PropertyType.STRING;
+		}
+
+		return type;
+	}
+
+	internal string parse_string_literal (out PropertyType type = null) throws SparqlError {
 		next ();
 		switch (last ()) {
 		case SparqlTokenType.STRING_LITERAL1:
@@ -685,9 +729,12 @@ class Tracker.Sparql.Expression : Object {
 			}
 
 			if (accept (SparqlTokenType.DOUBLE_CIRCUMFLEX)) {
-				if (!accept (SparqlTokenType.IRI_REF)) {
-					accept (SparqlTokenType.PN_PREFIX);
-					expect (SparqlTokenType.COLON);
+				// typed literal
+				var parsed_type = parse_type_uri ();
+				if (&type == null) {
+					// caller not interested in type
+				} else {
+					type = parsed_type;
 				}
 			}
 
@@ -697,9 +744,12 @@ class Tracker.Sparql.Expression : Object {
 			string result = get_last_string (3);
 
 			if (accept (SparqlTokenType.DOUBLE_CIRCUMFLEX)) {
-				if (!accept (SparqlTokenType.IRI_REF)) {
-					accept (SparqlTokenType.PN_PREFIX);
-					expect (SparqlTokenType.COLON);
+				// typed literal
+				var parsed_type = parse_type_uri ();
+				if (&type == null) {
+					// caller not interested in type
+				} else {
+					type = parsed_type;
 				}
 			}
 
@@ -769,13 +819,21 @@ class Tracker.Sparql.Expression : Object {
 		case SparqlTokenType.STRING_LITERAL2:
 		case SparqlTokenType.STRING_LITERAL_LONG1:
 		case SparqlTokenType.STRING_LITERAL_LONG2:
-			sql.append ("?");
+			PropertyType type;
 
 			var binding = new LiteralBinding ();
-			binding.literal = parse_string_literal ();
+			binding.literal = parse_string_literal (out type);
 			query.bindings.append (binding);
 
-			return PropertyType.STRING;
+			switch (type) {
+			case PropertyType.INTEGER:
+				sql.append ("?");
+				binding.data_type = type;
+				return type;
+			default:
+				sql.append ("?");
+				return PropertyType.STRING;
+			}
 		case SparqlTokenType.INTEGER:
 			next ();
 
