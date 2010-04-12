@@ -32,23 +32,21 @@
 #define TRACKER_CONFIG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CONFIG, TrackerConfigPrivate))
 
 /* GKeyFile defines */
-#define GROUP_GENERAL               "General"
-#define GROUP_INDEXING              "Indexing"
+#define GROUP_GENERAL     "General"
+#define GROUP_INDEXING    "Indexing"
 
 /* Default values */
-#define DEFAULT_VERBOSITY           2
-#define DEFAULT_LOW_MEMORY_MODE             FALSE
+#define DEFAULT_VERBOSITY 2
 
 /* typedef struct TrackerConfigPrivate TrackerConfigPrivate; */
 
 typedef struct {
 	/* General */
-	gint     verbosity;
-	gboolean low_memory_mode;
+	gint verbosity;
 }  TrackerConfigPrivate;
 
 typedef struct {
-	GType  type;
+	GType type;
 	const gchar *property;
 	const gchar *group;
 	const gchar *key;
@@ -73,13 +71,11 @@ enum {
 	PROP_0,
 
 	/* General */
-	PROP_VERBOSITY,
-	PROP_LOW_MEMORY_MODE,
+	PROP_VERBOSITY
 };
 
 static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_INT,     "verbosity",          GROUP_GENERAL,  "Verbosity"       },
-	{ G_TYPE_BOOLEAN, "low-memory-mode",    GROUP_GENERAL,  "LowMemoryMode"   },
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
@@ -104,13 +100,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   3,
 	                                                   DEFAULT_VERBOSITY,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-	                                 PROP_LOW_MEMORY_MODE,
-	                                 g_param_spec_boolean ("low-memory-mode",
-	                                                       "Use extra memory",
-	                                                       " Minimizes memory use at the expense of indexing speed",
-	                                                       DEFAULT_LOW_MEMORY_MODE,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
@@ -131,10 +120,6 @@ config_set_property (GObject      *object,
 	case PROP_VERBOSITY:
 		tracker_config_set_verbosity (TRACKER_CONFIG (object),
 		                              g_value_get_int (value));
-		break;
-	case PROP_LOW_MEMORY_MODE:
-		tracker_config_set_low_memory_mode (TRACKER_CONFIG (object),
-		                                    g_value_get_boolean (value));
 		break;
 
 	default:
@@ -157,9 +142,6 @@ config_get_property (GObject    *object,
 		/* General */
 	case PROP_VERBOSITY:
 		g_value_set_int (value, priv->verbosity);
-		break;
-	case PROP_LOW_MEMORY_MODE:
-		g_value_set_boolean (value, priv->low_memory_mode);
 		break;
 
 	default:
@@ -351,18 +333,6 @@ tracker_config_get_verbosity (TrackerConfig *config)
 	return priv->verbosity;
 }
 
-gboolean
-tracker_config_get_low_memory_mode (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_LOW_MEMORY_MODE);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->low_memory_mode;
-}
-
 void
 tracker_config_set_verbosity (TrackerConfig *config,
                               gint           value)
@@ -379,18 +349,4 @@ tracker_config_set_verbosity (TrackerConfig *config,
 
 	priv->verbosity = value;
 	g_object_notify (G_OBJECT (config), "verbosity");
-}
-
-void
-tracker_config_set_low_memory_mode (TrackerConfig *config,
-                                    gboolean       value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->low_memory_mode = value;
-	g_object_notify (G_OBJECT (config), "low-memory-mode");
 }

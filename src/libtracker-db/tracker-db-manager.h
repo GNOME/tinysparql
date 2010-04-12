@@ -42,7 +42,7 @@ typedef enum {
 typedef enum {
 	TRACKER_DB_MANAGER_FORCE_REINDEX    = 1 << 1,
 	TRACKER_DB_MANAGER_REMOVE_CACHE     = 1 << 2,
-	TRACKER_DB_MANAGER_LOW_MEMORY_MODE  = 1 << 3,
+	/* 1 << 3 Was low mem mode */
 	TRACKER_DB_MANAGER_REMOVE_ALL       = 1 << 4,
 	TRACKER_DB_MANAGER_READONLY         = 1 << 5
 } TrackerDBManagerFlags;
