@@ -1,0 +1,10 @@
+PREFIX ex: <http://example/>
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT
+  fn:substring(?t,5)
+  fn:substring(?t,4,2)
+
+WHERE {
+  ?_x ex:t ?t .
+}
