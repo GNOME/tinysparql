@@ -356,8 +356,9 @@ perform_set (TrackerKMailRegistrar *object,
 
 	tracker_sparql_builder_insert_close (sparql);
 
-	tracker_store_queue_sparql_update (tracker_sparql_builder_get_result (sparql),
-	                                   NULL, NULL, NULL, NULL);
+	tracker_store_sparql_update (tracker_sparql_builder_get_result (sparql),
+	                             TRACKER_STORE_PRIORITY_LOW,
+	                             TRUE, NULL, "KMail plugin", NULL, NULL);
 
 	g_object_unref (sparql);
 }
@@ -369,7 +370,8 @@ perform_unset (TrackerKMailRegistrar *object,
 	gchar *sparql = g_strdup_printf ("DELETE FROM <%s> { <%s> a rdfs:Resource }",
 	                                 subject, subject);
 
-	tracker_store_queue_sparql_update (sparql, NULL, NULL, NULL, NULL);
+	tracker_store_sparql_update (sparql, TRACKER_STORE_PRIORITY_LOW, TRUE, NULL,
+	                             "KMail plugin", NULL, NULL);
 
 	g_free (sparql);
 }
@@ -377,7 +379,8 @@ perform_unset (TrackerKMailRegistrar *object,
 static void
 perform_cleanup (TrackerKMailRegistrar *object)
 {
-	tracker_store_queue_sparql_update ("DELETE FROM <"DATASOURCE_URN"> { ?s a rdfs:Resource } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL, NULL, NULL, NULL);
+	tracker_store_sparql_update ("DELETE FROM <"DATASOURCE_URN"> { ?s a rdfs:Resource } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }",
+	                             TRACKER_STORE_PRIORITY_LOW, TRUE, NULL, "KMail plugin", NULL, NULL);
 	/* tracker_store_queue_sparql_update ("DELETE FROM <"DATASOURCE_URN"> { ?s ?p ?o } WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", NULL, NULL, NULL, NULL); */
 }
 
