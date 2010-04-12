@@ -179,7 +179,7 @@ initialize_priority (void)
 	 * so complains if we do not check its returned value. But it
 	 * seems that since glibc 2.2.4, nice() can return -1 on a
 	 * successful call so we have to check value of errno too.
-	 * Stupid... 
+	 * Stupid...
 	 */
 	g_message ("Setting process priority");
 
@@ -564,9 +564,6 @@ main (gint argc, gchar *argv[])
 		tracker_config_set_initial_sleep (config, initial_sleep);
 	}
 
-	/* Make sure we initialize DBus, this shows we are started
-	 * successfully when called upon from the daemon.
-	 */
 	tracker_log_init (tracker_config_get_verbosity (config),
 	                  &log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
@@ -574,22 +571,9 @@ main (gint argc, gchar *argv[])
 
 	sanity_check_option_values (config);
 
-	/* Set IO priority */
-	tracker_ioprio_init ();
-
-	/* nice() uses attribute "warn_unused_result" and so complains
-	 * if we do not check its returned value. But it seems that
-	 * since glibc 2.2.4, nice() can return -1 on a successful
-	 * call so we have to check value of errno too. Stupid...
+	/* Make sure we initialize DBus, this shows we are started
+	 * successfully when called upon from the daemon.
 	 */
-	if (nice (19) == -1 && errno) {
-		const gchar *str;
-
-		str = g_strerror (errno);
-		g_message ("Couldn't set nice value to 19, %s",
-		           str ? str : "no error given");
-	}
-
 	if (!tracker_dbus_init ()) {
 		g_object_unref (config);
 		tracker_log_shutdown ();
