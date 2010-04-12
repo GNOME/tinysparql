@@ -83,6 +83,7 @@ const TestInfo tests[] = {
 	{ "functions/functions-xpath-2", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-3", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-4", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-5", "functions/data-1", FALSE },
 	{ "graph/graph-1", "graph/data-1", FALSE },
 	{ "graph/graph-2", "graph/data-2", FALSE },
 	{ "graph/graph-3", "graph/data-3", FALSE },
