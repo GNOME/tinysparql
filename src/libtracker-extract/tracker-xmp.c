@@ -296,8 +296,14 @@ iterate_simple (const gchar    *uri,
 		}
 		/* PDF*/
 	} else if (g_ascii_strcasecmp (schema, NS_PDF) == 0) {
-		if (!data->pdf_keywords && g_ascii_strcasecmp (name, "keywords") == 0) {
-			data->pdf_keywords = g_strdup (value);
+		if (g_ascii_strcasecmp (name, "keywords") == 0) {
+			if (data->pdf_keywords) {
+				gchar *temp = g_strdup_printf ("%s, %s", value, data->pdf_keywords);
+				g_free (data->pdf_keywords);
+				data->pdf_keywords = temp;
+			} else {
+				data->pdf_keywords = g_strdup (value);
+			}
 		} else
 			if (!data->pdf_title && g_ascii_strcasecmp (name, "title") == 0) {
 				data->pdf_title = g_strdup (value);
@@ -314,10 +320,22 @@ iterate_simple (const gchar    *uri,
 			data->description = g_strdup (value);
 		} else if (!data->date && g_ascii_strcasecmp (name, "date") == 0) {
 			data->date = tracker_date_guess (value);
-		} else if (!data->keywords && g_ascii_strcasecmp (name, "keywords") == 0) {
-			data->keywords = g_strdup (value);
-		} else if (!data->subject && g_ascii_strcasecmp (name, "subject") == 0) {
-			data->subject = g_strdup (value);
+		} else if (g_ascii_strcasecmp (name, "keywords") == 0) {
+			if (data->keywords) {
+				gchar *temp = g_strdup_printf ("%s, %s", value, data->keywords);
+				g_free (data->keywords);
+				data->keywords = temp;
+			} else {
+				data->keywords = g_strdup (value);
+			}
+		} else if (g_ascii_strcasecmp (name, "subject") == 0) {
+			if (data->subject) {
+				gchar *temp = g_strdup_printf ("%s, %s", value, data->subject);
+				g_free (data->subject);
+				data->subject = temp;
+			} else {
+				data->subject = g_strdup (value);
+			}
 		} else if (!data->publisher && g_ascii_strcasecmp (name, "publisher") == 0) {
 			data->publisher = g_strdup (value);
 		} else if (!data->contributor && g_ascii_strcasecmp (name, "contributor") == 0) {
