@@ -32,6 +32,7 @@
 #include <gsf/gsf-input-stdio.h>
 #include <gsf/gsf-msole-utils.h>
 #include <gsf/gsf-utils.h>
+#include <gsf/gsf-infile-zip.h>
 
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
@@ -727,6 +728,17 @@ fts_max_words (void)
 {
 	TrackerFTSConfig *fts_config = tracker_main_get_fts_config ();
 	return tracker_fts_config_get_max_words_to_index (fts_config);
+}
+
+/**
+ * @brief get min word length
+ * @return min_word_length
+ */
+static gint
+fts_min_word_length (void)
+{
+	TrackerFTSConfig *fts_config = tracker_main_get_fts_config ();
+	return tracker_fts_config_get_min_word_length (fts_config);
 }
 
 /**
@@ -1629,6 +1641,7 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 	MsOfficeXMLParserInfo *info = user_data;
 	static gboolean found = FALSE;
 	static gboolean added = FALSE;
+	guint min_word_length = fts_min_word_length();
 
 	switch (info->tag_type) {
 	case MS_OFFICE_XML_TAG_WORD_TEXT:
@@ -1640,8 +1653,7 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 
 		if (info->preserve_attribute_present) {
 			gchar *keywords = g_strdup (text);
-
-			if (found && (strlen (keywords) > 3)) {
+			if (found && (strlen (keywords) >= min_word_length)) {
 				g_string_append_printf (info->content, "%s ", text);
 				found = FALSE;
 			} else {
@@ -1665,13 +1677,13 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 		break;
 
 	case MS_OFFICE_XML_TAG_SLIDE_TEXT:
-		if (strlen (text) > 3) {
+		if (strlen (text) > min_word_length) {
 			g_string_append_printf (info->content, "%s ", text);
 		}
 		break;
 
 	case MS_OFFICE_XML_TAG_XLS_SHARED_TEXT:
-		if ((atoi (text) == 0) && (strlen (text) > 4))  {
+		if ((atoi (text) == 0) && (strlen (text) > min_word_length))  {
 			g_string_append_printf (info->content, "%s ", text);
 		}
 		break;
@@ -1773,6 +1785,102 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 	}
 }
 
+/**
+ * based on find_member() from vsd_utils.c:
+ * http://vsdump.sourcearchive.com/documentation/0.0.44/vsd__utils_8c-source.html
+ */
+static GsfInput *
+find_member (GsfInfile *arch,
+	     char const *name)
+{
+	gchar const *slash = strchr (name, '/');
+
+	if (slash) {
+		gchar *dirname = g_strndup (name, slash - name);
+		GsfInput *member;
+
+		if ((member = gsf_infile_child_by_name (arch, dirname)) != NULL) {
+			GsfInfile *dir = GSF_INFILE (member);
+			member = find_member (dir, slash + 1);
+			g_object_unref (dir);
+		}
+
+		g_free (dirname);
+		return member;
+	} else {
+		return gsf_infile_child_by_name (arch, name);
+	}
+}
+
+
+static gchar *
+load_xml_contents (const gchar *file_uri,
+		   const gchar *xml_filename)
+{
+	gchar *filename;
+	gchar *xml = NULL;
+	GError *error = NULL;
+	GsfInfile *infile = NULL;;
+	GsfInput *src = NULL;
+	GsfInput *member = NULL;
+
+	/* Get filename from the given URI */
+	if ((filename = g_filename_from_uri (file_uri,
+					     NULL, &error)) == NULL) {
+		g_warning ("Can't get filename from uri '%s': %s",
+			   file_uri, error ? error->message : NULL);
+	}
+	/* Create a new Input GSF object for the given file */
+	else if ((src = gsf_input_stdio_new (filename, &error)) == NULL) {
+		g_warning ("Failed creating a GSF Input object for '%s': %s",
+			   filename, error ? error->message : NULL);
+	}
+	/* Input object is a Zip file */
+	else if ((infile = gsf_infile_zip_new (src, &error)) == NULL) {
+		g_warning ("'%s' Not a zip file: %s",
+			   filename, error ? error->message : NULL);
+	}
+	/* Look for requested filename inside the ZIP file */
+	else if ((member = find_member (infile, xml_filename)) == NULL) {
+		g_warning ("No member '%s' in zip file '%s'",
+			   xml_filename, filename);
+	}
+	/* Load whole contents of the internal file in the xml buffer */
+	else {
+		size_t size;
+		/* Get whole size of the contents to read */
+		size = (size_t) gsf_input_size (GSF_INPUT (member));
+
+		/* Allocate buffer to return, and make sure it will be
+		 *  NIL-terminated */
+		xml = g_malloc (size + 1);
+		xml [size] = '\0';
+
+		/* And read all the bytes in one operation */
+		if(gsf_input_read (GSF_INPUT (member), size, xml) == NULL) {
+			g_warning ("Couldn't read '%u' bytes from '%s'",
+				   size, xml_filename);
+			g_free (xml);
+			xml = NULL;
+		}
+	}
+
+	/* it's safe to call g_free on NULL pointers */
+	g_free (filename);
+	/* but better don't do it in g_object_unref or g_error_free */
+	if (error)
+		g_error_free (error);
+	if (infile)
+		g_object_unref (infile);
+	if (src)
+		g_object_unref (src);
+	if (member)
+		g_object_unref (member);
+
+	return xml;
+}
+
+
 static gboolean
 xml_read (MsOfficeXMLParserInfo *parser_info,
           const gchar           *xml_filename,
@@ -1780,30 +1888,6 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 {
 	GMarkupParseContext *context;
 	MsOfficeXMLParserInfo info;
-	gchar *xml;
-	gchar *filename;
-	const gchar *argv[5];
-	gboolean success;
-
-	filename = g_filename_from_uri (parser_info->uri, NULL, NULL);
-
-	argv[0] = "unzip";
-	argv[1] = "-p";
-	argv[2] = filename;
-	argv[3] = xml_filename;
-	argv[4] = NULL;
-
-	g_debug ("Reading XML data '%s'", argv[3]);
-
-	xml = NULL;
-
-	success = tracker_spawn ((gchar**) argv, 10, &xml, NULL);
-	g_free (filename);
-
-	if (!success) {
-		g_free (xml);
-		return FALSE;
-	}
 
 	/* FIXME: Can we use the original info here? */
 	info.metadata = parser_info->metadata;
@@ -1853,11 +1937,14 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 	}
 
 	if (context) {
+		gchar *xml = load_xml_contents (parser_info->uri,
+						xml_filename);
+
 		g_markup_parse_context_parse (context, xml, -1, NULL);
 		g_markup_parse_context_free (context);
-	}
 
-	g_free (xml);
+		g_free (xml);
+	}
 
 	return TRUE;
 }
@@ -1943,11 +2030,8 @@ extract_msoffice_xml (const gchar          *uri,
 		NULL,
 		NULL
 	};
-	gchar *filename;
-	gchar *xml;
+	gchar *xml = NULL;
 	const gchar *mime_used;
-	const gchar *argv[5];
-	gboolean success;
 
 	file = g_file_new_for_uri (uri);
 
@@ -1985,28 +2069,11 @@ extract_msoffice_xml (const gchar          *uri,
 
 	g_object_unref (file_info);
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
-
-	argv[0] = "unzip";
-	argv[1] = "-p";
-	argv[2] = filename;
-	argv[3] = "\\[Content_Types\\].xml";
-	argv[4] = NULL;
 
 	g_debug ("Extracting MsOffice XML format...");
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
-
-	xml = NULL;
-
-	success = tracker_spawn ((gchar**) argv, 10, &xml, NULL);
-	g_free (filename);
-
-	if (!success) {
-		g_free (xml);
-		return;
-	}
 
 	info.metadata = metadata;
 	info.file_type = file_type;
@@ -2017,6 +2084,7 @@ extract_msoffice_xml (const gchar          *uri,
 	info.content = g_string_new ("");
 
 	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
+	xml = load_xml_contents (uri, "[Content_Types].xml");
 	g_markup_parse_context_parse (context, xml, -1, NULL);
 	g_free (xml);
 
