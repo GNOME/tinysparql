@@ -31,6 +31,7 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
+#define CM_TO_INCH          0.393700787
 
 typedef struct {
 	const gchar *title;
@@ -468,6 +469,23 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
+	if (ed->x_resolution) {
+		gdouble value;
+
+		value = ed->resolution_unit == 1 ? g_strtod (ed->x_resolution, NULL) : g_strtod (ed->x_resolution, NULL) * CM_TO_INCH;
+		tracker_sparql_builder_predicate (metadata, "nfo:horizontalResolution");
+		tracker_sparql_builder_object_double (metadata, value);
+	}
+
+	if (ed->y_resolution) {
+		gdouble value;
+
+		value = ed->resolution_unit == 1 ? g_strtod (ed->y_resolution, NULL) : g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
+		tracker_sparql_builder_predicate (metadata, "nfo:verticalResolution");
+		tracker_sparql_builder_object_double (metadata, value);
+	}
+
+	tracker_exif_free (ed);
 	tracker_xmp_free (xd);
 	g_free (pd.creation_time);
 	g_free (md.camera);

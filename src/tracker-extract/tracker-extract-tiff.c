@@ -27,6 +27,8 @@
 #include <libtracker-client/tracker-client.h>
 #include <libtracker-extract/tracker-extract.h>
 
+#define CM_TO_INCH          0.393700787
+
 typedef enum {
 	TAG_TYPE_UNDEFINED = 0,
 	TAG_TYPE_STRING,
@@ -674,6 +676,22 @@ extract_tiff (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nco:creator");
 		tracker_sparql_builder_object_iri (metadata, uri);
 		g_free (uri);
+	}
+
+	if (ed->x_resolution) {
+		gdouble value;
+
+		value = ed->resolution_unit == 1 ? g_strtod (ed->x_resolution, NULL) : g_strtod (ed->x_resolution, NULL) * CM_TO_INCH;
+		tracker_sparql_builder_predicate (metadata, "nfo:horizontalResolution");
+		tracker_sparql_builder_object_double (metadata, value);
+	}
+
+	if (ed->y_resolution) {
+		gdouble value;
+
+		value = ed->resolution_unit == 1 ? g_strtod (ed->y_resolution, NULL) : g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
+		tracker_sparql_builder_predicate (metadata, "nfo:verticalResolution");
+		tracker_sparql_builder_object_double (metadata, value);
 	}
 
 	g_free (md.camera);

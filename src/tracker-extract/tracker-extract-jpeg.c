@@ -35,6 +35,8 @@
 
 #include "tracker-main.h"
 
+#define CM_TO_INCH              0.393700787
+
 #ifdef HAVE_LIBEXIF
 #define EXIF_NAMESPACE          "Exif"
 #define EXIF_NAMESPACE_LENGTH   4
@@ -572,20 +574,42 @@ extract_jpeg (const gchar          *uri,
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
-	if (ed->x_resolution) {
+	if (cinfo.density_unit != 0 || ed->x_resolution) {
 		gdouble value;
 
-		value = g_strtod (ed->x_resolution, NULL);
+		if (cinfo.density_unit == 0) {
+			if (ed->resolution_unit == 1)
+				value = g_strtod (ed->x_resolution, NULL);
+			else
+				value = g_strtod (ed->x_resolution, NULL) * CM_TO_INCH;
+		} else {
+			if (cinfo.density_unit == 1)
+				value = cinfo.X_density;
+			else
+				value = cinfo.X_density * CM_TO_INCH;
+		}
+
 		tracker_sparql_builder_predicate (metadata, "nfo:horizontalResolution");
-		tracker_sparql_builder_object_int64 (metadata, (gint64) value);
+		tracker_sparql_builder_object_double (metadata, value);
 	}
 
-	if (ed->y_resolution) {
+	if (cinfo.density_unit != 0 || ed->y_resolution) {
 		gdouble value;
 
-		value = g_strtod (ed->y_resolution, NULL);
+		if (cinfo.density_unit == 0) {
+			if (ed->resolution_unit == 1)
+				value = g_strtod (ed->y_resolution, NULL);
+			else
+				value = g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
+		} else {
+			if (cinfo.density_unit == 1)
+				value = cinfo.Y_density;
+			else
+				value = cinfo.Y_density * CM_TO_INCH;
+		}
+
 		tracker_sparql_builder_predicate (metadata, "nfo:verticalResolution");
-		tracker_sparql_builder_object_int64 (metadata, (gint64) value);
+		tracker_sparql_builder_object_double (metadata, value);
 	}
 
 	jpeg_destroy_decompress (&cinfo);

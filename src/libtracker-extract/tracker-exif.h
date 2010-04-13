@@ -52,6 +52,7 @@ typedef struct {
 	gchar *software;
 	gchar *x_resolution;
 	gchar *y_resolution;
+	gint resolution_unit;
 } TrackerExifData;
 
 #ifndef TRACKER_DISABLE_DEPRECATED

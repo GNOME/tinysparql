@@ -278,6 +278,24 @@ get_white_balance (ExifData *exif,
 	return NULL;
 }
 
+
+static gint
+get_int (ExifData *exif, 
+         ExifTag   tag)
+{
+	ExifEntry *entry = exif_data_get_entry (exif, tag);
+
+	if (entry) {
+		ExifByteOrder order;
+
+		order = exif_data_get_byte_order (exif);
+		return (gint) exif_get_short (entry->data, order);
+	}
+
+	return -1;
+}
+
+
 static gchar *
 get_value (ExifData *exif, 
            ExifTag   tag)
@@ -366,6 +384,9 @@ parse_exif (const unsigned char *buffer,
 		data->copyright = get_value (exif, EXIF_TAG_COPYRIGHT);
 	if (!data->software)
 		data->software = get_value (exif, EXIF_TAG_SOFTWARE);
+
+	if (!data->resolution_unit)
+		data->resolution_unit = get_int (exif, EXIF_TAG_RESOLUTION_UNIT);
 	if (!data->x_resolution)
 		data->x_resolution = get_value (exif, EXIF_TAG_X_RESOLUTION);
 	if (!data->y_resolution)
