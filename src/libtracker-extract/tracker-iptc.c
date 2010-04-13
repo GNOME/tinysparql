@@ -276,7 +276,7 @@ tracker_iptc_new (const guchar *buffer,
 	data = g_new0 (TrackerIptcData, 1);
 
 	if (!parse_iptc (buffer, len, uri, data)) {
-		tracker_iptc_free (data, TRUE);
+		tracker_iptc_free (data);
 		return NULL;
 	}
 
@@ -294,25 +294,22 @@ tracker_iptc_new (const guchar *buffer,
  * Since: 0.9
  **/
 void
-tracker_iptc_free (TrackerIptcData *data,
-                   gboolean         free_members)
+tracker_iptc_free (TrackerIptcData *data)
 {
 	g_return_if_fail (data != NULL);
 
-	if (free_members) {
-		g_free (data->keywords);
-		g_free (data->date_created);
-		g_free (data->byline);
-		g_free (data->credit);
-		g_free (data->copyright_notice);
-		g_free (data->image_orientation);
-		g_free (data->byline_title);
-		g_free (data->city);
-		g_free (data->state);
-		g_free (data->sublocation);
-		g_free (data->country_name);
-		g_free (data->contact);
-	}
+	g_free (data->keywords);
+	g_free (data->date_created);
+	g_free (data->byline);
+	g_free (data->credit);
+	g_free (data->copyright_notice);
+	g_free (data->image_orientation);
+	g_free (data->byline_title);
+	g_free (data->city);
+	g_free (data->state);
+	g_free (data->sublocation);
+	g_free (data->country_name);
+	g_free (data->contact);
 
 	g_free (data);
 }

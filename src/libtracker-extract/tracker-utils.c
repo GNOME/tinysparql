@@ -53,6 +53,49 @@ static const char imonths[] = {
 	'6', '7', '8', '9', '0', '1', '2'
 };
 
+
+/**
+ * tracker_coalesce_strip:
+ * @n_values: the number of @Varargs supplied
+ * @Varargs: the string pointers to coalesce
+ *
+ * This function iterates through a series of string pointers passed
+ * using @Varargs and returns the first which is not %NULL, not empty
+ * (i.e. "") and not comprised of one or more spaces (i.e. " ").
+ *
+ * The returned value is stripped using g_strstrip(). It is MOST
+ * important NOT to pass constant string pointers to this function!
+ *
+ * Returns: the first string pointer from those provided which
+ * matches, otherwise %NULL.
+ *
+ * Since: 0.9
+ **/
+const gchar *
+tracker_coalesce_strip (gint n_values,
+                        ...)
+{
+	va_list args;
+	gint    i;
+	const gchar *result = NULL;
+
+	va_start (args, n_values);
+
+	for (i = 0; i < n_values; i++) {
+		gchar *value;
+
+		value = va_arg (args, gchar *);
+		if (!result && !tracker_is_blank_string (value)) {
+			result = (const gchar *) g_strstrip (value);
+			break;
+		}
+	}
+
+	va_end (args);
+
+	return result;
+}
+
 /**
  * tracker_coalesce:
  * @n_values: the number of @Varargs supplied
@@ -97,6 +140,61 @@ tracker_coalesce (gint n_values,
 	return result;
 }
 
+
+/**
+ * tracker_merge_const:
+ * @delimiter: the delimiter to use when merging
+ * @n_values: the number of @Varargs supplied
+ * @Varargs: the string pointers to merge
+ *
+ * This function iterates through a series of string pointers passed
+ * using @Varargs and returns a newly allocated string of the merged
+ * strings.
+ *
+ * The @delimiter can be %NULL. If specified, it will be used in
+ * between each merged string in the result.
+ *
+ * Returns: a newly-allocated string holding the result which should
+ * be freed with g_free() when finished with, otherwise %NULL.
+ *
+ * Since: 0.9
+ **/
+gchar *
+tracker_merge_const (const gchar *delimiter, 
+                     gint         n_values,
+                     ...)
+{
+	va_list args;
+	gint    i;
+	GString *str = NULL;
+
+	va_start (args, n_values);
+
+	for (i = 0; i < n_values; i++) {
+		gchar *value;
+
+		value = va_arg (args, gchar *);
+		if (value) {
+			if (!str) {
+				str = g_string_new (value);
+			} else {
+				if (delimiter) {
+					g_string_append (str, delimiter);
+				}
+				g_string_append (str, value);
+			}
+		}
+	}
+
+	va_end (args);
+
+	if (!str) {
+		return NULL;
+	}
+
+	return g_string_free (str, FALSE);
+}
+
 /**
  * tracker_merge:
  * @delimiter: the delimiter to use when merging
@@ -105,7 +203,7 @@ tracker_coalesce (gint n_values,
  *
  * This function iterates through a series of string pointers passed
  * using @Varargs and returns a newly allocated string of the merged
- * strings.
+ * strings. All passed strings are freed (don't pass const values)/
  *
  * The @delimiter can be %NULL. If specified, it will be used in
  * between each merged string in the result.

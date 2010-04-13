@@ -26,17 +26,25 @@
 
 G_BEGIN_DECLS
 
-gchar *tracker_coalesce               (gint         n_values,
-                                       ...);
-gchar *tracker_merge                  (const gchar *delimiter,
-                                       gint         n_values,
-                                       ...);
-gchar *tracker_text_normalize         (const gchar *text,
-                                       guint        max_words,
-                                       guint       *n_words);
-gchar *tracker_date_guess             (const gchar *date_string);
-gchar *tracker_date_format_to_iso8601 (const gchar *date_string,
-                                       const gchar *format);
+#ifndef TRACKER_DISABLE_DEPRECATED
+gchar*       tracker_coalesce               (gint         n_values,
+                                                          ...) G_GNUC_DEPRECATED;
+gchar*       tracker_merge                  (const gchar *delimiter,
+                                             gint         n_values,
+                                                          ...) G_GNUC_DEPRECATED;
+#endif /* TRACKER_DISABLE_DEPRECATED */
+
+gchar*       tracker_text_normalize         (const gchar *text,
+                                             guint        max_words,
+                                             guint       *n_words);
+gchar*       tracker_date_guess             (const gchar *date_string);
+gchar*       tracker_date_format_to_iso8601 (const gchar *date_string,
+                                             const gchar *format);
+const gchar* tracker_coalesce_strip         (gint         n_values,
+                                                          ...);
+gchar*       tracker_merge_const            (const gchar *delimiter, 
+                                             gint         n_values,
+                                                          ...);
 
 G_END_DECLS
 

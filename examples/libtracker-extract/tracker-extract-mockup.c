@@ -59,10 +59,10 @@ extract_mockup (const gchar          *uri,
 	gchar *lyricist_unknown;
 
 	/* Coalesced input */
-	gchar *title;
+	const gchar *title;
 	gchar *performer;
 	gchar *performer_uri;
-	gchar *lyricist;
+	const gchar *lyricist;
 	gchar *lyricist_uri;
 	gchar *album;
 	gchar *album_uri;
@@ -132,8 +132,8 @@ extract_mockup (const gchar          *uri,
 	fclose (f);
 
 	/* TODO: Make sure we coalesce duplicate values */
-	title = tracker_coalesce (4, title_tagv1, title_tagv2, title_tagv3, title_unknown);
-	lyricist = tracker_coalesce (2, lyricist_tagv2, lyricist_unknown);
+	title = tracker_coalesce_strip (4, title_tagv1, title_tagv2, title_tagv3, title_unknown);
+	lyricist = tracker_coalesce_strip (2, lyricist_tagv2, lyricist_unknown);
 
 	performer = g_strdup ("Stone Gods");
 	composer = NULL;
@@ -241,7 +241,6 @@ extract_mockup (const gchar          *uri,
 	if (title) {
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, title);
-		g_free (title);
 	}
 
 	if (lyricist_uri) {
@@ -321,6 +320,14 @@ extract_mockup (const gchar          *uri,
 	}
 
 	/* TODO: Clean up */
+	g_free (title_tagv1);
+	g_free (title_tagv2);
+	g_free (title_tagv3);
+	g_free (title_unknown);
+
+	g_free (lyricist_tagv2);
+	g_free (lyricist_unknown);
+
 	g_free (album);
 	g_free (composer);
 	g_free (performer);

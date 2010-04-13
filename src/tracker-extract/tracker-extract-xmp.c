@@ -153,12 +153,12 @@ extract_xmp (const gchar          *uri,
 		                      length,
 		                      original_uri ? original_uri : uri);
 
-                if (xd) {
-                        tracker_xmp_apply (metadata, uri, xd);
-                }
+		if (xd) {
+			tracker_xmp_apply (metadata, uri, xd);
+		}
 
 		g_free (original_uri);
-                tracker_xmp_free (xd, TRUE);
+		tracker_xmp_free (xd);
 	}
 
 	g_free (filename);

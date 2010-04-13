@@ -149,20 +149,20 @@ typedef struct {
 
 	guint32 duration;
 
-	gchar *title;
-	gchar *performer;
+	const gchar *title;
+	const gchar *performer;
 	gchar *performer_uri;
-	gchar *lyricist;
+	const gchar *lyricist;
 	gchar *lyricist_uri;
-	gchar *album;
+	const gchar *album;
 	gchar *album_uri;
-	gchar *genre;
-	gchar *text;
-	gchar *recording_time;
-	gchar *copyright;
-	gchar *publisher;
-	gchar *comment;
-	gchar *composer;
+	const gchar *genre;
+	const gchar *text;
+	const gchar *recording_time;
+	const gchar *copyright;
+	const gchar *publisher;
+	const gchar *comment;
+	const gchar *composer;
 	gchar *composer_uri;
 	gint track_number;
 	gint track_count;
@@ -435,6 +435,40 @@ static TrackerExtractData extract_data[] = {
 	{ "audio/x-mp3", extract_mp3 },
 	{ NULL, NULL }
 };
+
+
+
+static void
+id3tag_free (id3tag *tags)
+{
+	g_free (tags->title);
+	g_free (tags->artist);
+	g_free (tags->album);
+	g_free (tags->recording_time);
+	g_free (tags->comment);
+	g_free (tags->genre);
+	g_free (tags->encoding);
+}
+
+static void
+id3v2tag_free (id3v2tag *tags)
+{
+	g_free (tags->album);
+	g_free (tags->comment);
+	g_free (tags->content_type);
+	g_free (tags->copyright);
+	g_free (tags->performer1);
+	g_free (tags->performer2);
+	g_free (tags->composer);
+	g_free (tags->publisher);
+	g_free (tags->recording_time);
+	g_free (tags->release_time);
+	g_free (tags->text);
+	g_free (tags->toly);
+	g_free (tags->title1);
+	g_free (tags->title2);
+	g_free (tags->title3);
+}
 
 static char *
 read_id3v1_buffer (int     fd,
@@ -1879,9 +1913,7 @@ extract_mp3 (const gchar          *uri,
 	goffset size;
 	goffset  buffer_size;
 	goffset audio_offset;
-	MP3Data md;
-
-	memset (&md, 0, sizeof (MP3Data));
+	MP3Data md = { 0 };
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
@@ -1943,37 +1975,64 @@ extract_mp3 (const gchar          *uri,
 	/* Get other embedded tags */
 	audio_offset = parse_id3v2 (buffer, buffer_size, &md.id3v1, uri, metadata, &md);
 
-	md.title = tracker_coalesce (4, md.id3v24.title2, md.id3v23.title2, md.id3v22.title2, md.id3v1.title);
-	md.lyricist = tracker_coalesce (4, md.id3v24.text, md.id3v23.toly, md.id3v23.text, md.id3v22.text);
+	md.title = tracker_coalesce_strip (4, md.id3v24.title2,
+	                                   md.id3v23.title2,
+	                                   md.id3v22.title2,
+	                                   md.id3v1.title);
 
-	md.composer = tracker_coalesce (3,
-	                                md.id3v24.composer,
-	                                md.id3v23.composer,
-	                                md.id3v22.composer);
+	md.lyricist = tracker_coalesce_strip (4, md.id3v24.text,
+	                                      md.id3v23.toly,
+	                                      md.id3v23.text,
+	                                      md.id3v22.text);
 
-	md.performer = tracker_coalesce (7,
-	                                 md.id3v24.performer1, md.id3v24.performer2,
-	                                 md.id3v23.performer1, md.id3v23.performer2,
-	                                 md.id3v22.performer1, md.id3v22.performer2,
-	                                 md.id3v1.artist);
-	md.album = tracker_coalesce (4, md.id3v24.album, md.id3v23.album, md.id3v22.album, md.id3v1.album);
-	md.genre = tracker_coalesce (7,
-	                             md.id3v24.content_type, md.id3v24.title1,
-	                             md.id3v23.content_type, md.id3v23.title1,
-	                             md.id3v22.content_type, md.id3v22.title1,
-	                             md.id3v1.genre);
-	md.recording_time = tracker_coalesce (7,
-	                                      md.id3v24.recording_time, md.id3v24.release_time,
-	                                      md.id3v23.recording_time, md.id3v23.release_time,
-	                                      md.id3v22.recording_time, md.id3v22.release_time,
-	                                      md.id3v1.recording_time);
-	md.publisher = tracker_coalesce (3, md.id3v24.publisher, md.id3v23.publisher, md.id3v22.publisher);
-	md.copyright = tracker_coalesce (3, md.id3v24.copyright, md.id3v23.copyright, md.id3v22.copyright);
-	md.comment = tracker_coalesce (7,
-	                               md.id3v24.title3, md.id3v24.comment,
-	                               md.id3v23.title3, md.id3v23.comment,
-	                               md.id3v22.title3, md.id3v22.comment,
-	                               md.id3v1.comment);
+	md.composer = tracker_coalesce_strip (3, md.id3v24.composer,
+	                                      md.id3v23.composer,
+	                                      md.id3v22.composer);
+
+	md.performer = tracker_coalesce_strip (7, md.id3v24.performer1,
+	                                       md.id3v24.performer2,
+	                                       md.id3v23.performer1,
+	                                       md.id3v23.performer2,
+	                                       md.id3v22.performer1,
+	                                       md.id3v22.performer2,
+	                                       md.id3v1.artist);
+
+	md.album = tracker_coalesce_strip (4, md.id3v24.album,
+	                                   md.id3v23.album,
+	                                   md.id3v22.album,
+	                                   md.id3v1.album);
+
+	md.genre = tracker_coalesce_strip (7, md.id3v24.content_type,
+	                                   md.id3v24.title1,
+	                                   md.id3v23.content_type,
+	                                   md.id3v23.title1,
+	                                   md.id3v22.content_type,
+	                                   md.id3v22.title1,
+	                                   md.id3v1.genre);
+
+	md.recording_time = tracker_coalesce_strip (7, md.id3v24.recording_time,
+	                                            md.id3v24.release_time,
+	                                            md.id3v23.recording_time,
+	                                            md.id3v23.release_time,
+	                                            md.id3v22.recording_time,
+	                                            md.id3v22.release_time,
+	                                            md.id3v1.recording_time);
+
+	md.publisher = tracker_coalesce_strip (3, md.id3v24.publisher,
+	                                       md.id3v23.publisher,
+	                                       md.id3v22.publisher);
+
+	md.copyright = tracker_coalesce_strip (3, md.id3v24.copyright,
+	                                       md.id3v23.copyright,
+	                                       md.id3v22.copyright);
+
+	md.comment = tracker_coalesce_strip (7, md.id3v24.title3,
+	                                     md.id3v24.comment,
+	                                     md.id3v23.title3,
+	                                     md.id3v23.comment,
+	                                     md.id3v22.title3,
+	                                     md.id3v22.comment,
+	                                     md.id3v1.comment);
 
 	if (md.id3v24.track_number != 0) {
 		md.track_number = md.id3v24.track_number;
@@ -2005,7 +2064,6 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (preupdate, md.performer);
 
 		tracker_sparql_builder_insert_close (preupdate);
-		/* do not delete artist, needed by albumart */
 	}
 
 	if (md.composer) {
@@ -2032,7 +2090,6 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
 		tracker_sparql_builder_object_unvalidated (preupdate, md.lyricist);
 		tracker_sparql_builder_insert_close (preupdate);
-		g_free (md.lyricist);
 	}
 
 	if (md.album) {
@@ -2077,7 +2134,6 @@ extract_mp3 (const gchar          *uri,
 	if (md.title) {
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, md.title);
-		/* do not delete title, needed by albumart */
 	}
 
 
@@ -2108,25 +2164,21 @@ extract_mp3 (const gchar          *uri,
 	if (md.recording_time) {
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, md.recording_time);
-		g_free (md.recording_time);
 	}
 
 	if (md.genre) {
 		tracker_sparql_builder_predicate (metadata, "nfo:genre");
 		tracker_sparql_builder_object_unvalidated (metadata, md.genre);
-		g_free (md.genre);
 	}
 
 	if (md.copyright) {
 		tracker_sparql_builder_predicate (metadata, "nie:copyright");
 		tracker_sparql_builder_object_unvalidated (metadata, md.copyright);
-		g_free (md.copyright);
 	}
 
 	if (md.comment) {
 		tracker_sparql_builder_predicate (metadata, "nie:comment");
 		tracker_sparql_builder_object_unvalidated (metadata, md.comment);
-		g_free (md.comment);
 	}
 
 	if (md.publisher) {
@@ -2137,7 +2189,6 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (metadata, md.publisher);
 		tracker_sparql_builder_object_blank_close (metadata);
-		g_free (md.publisher);
 	}
 
 	if (md.track_number > 0) {
@@ -2155,14 +2206,10 @@ extract_mp3 (const gchar          *uri,
 	                          md.album,
 	                          filename);
 
-	g_free (md.performer);
-	g_free (md.composer);
-	g_free (md.album);
-	g_free (md.title);
-	g_free (md.albumart_data);
-	g_free (md.albumart_mime);
-
-	g_free (md.id3v1.encoding);
+	id3v2tag_free (&md.id3v22);
+	id3v2tag_free (&md.id3v23);
+	id3v2tag_free (&md.id3v24);
+	id3tag_free (&md.id3v1);
 
 #ifndef G_OS_WIN32
 	munmap (buffer, buffer_size);

@@ -170,7 +170,8 @@ extract_flac (const gchar          *uri,
 	FLAC__StreamMetadata *stream = NULL, *vorbis, *picture;
 	FLAC__bool success;
 	FlacData fd = { 0 };
-	gchar *filename, *creator, *artist_uri = NULL, *album_uri = NULL;
+	gchar *filename, *artist_uri = NULL, *album_uri = NULL;
+	const gchar *creator;
 	goffset size;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
@@ -187,37 +188,37 @@ extract_flac (const gchar          *uri,
 	g_free (filename);
 
 	if (!success) {
-			FLAC__metadata_simple_iterator_delete (iter);
-			return;
+		FLAC__metadata_simple_iterator_delete (iter);
+		return;
 	}
 
 	while (!FLAC__metadata_simple_iterator_is_last (iter)) {
-			switch (FLAC__metadata_simple_iterator_get_block_type (iter)) {
-			case FLAC__METADATA_TYPE_STREAMINFO:
-					stream = FLAC__metadata_simple_iterator_get_block (iter);
-					break;
+		switch (FLAC__metadata_simple_iterator_get_block_type (iter)) {
+		case FLAC__METADATA_TYPE_STREAMINFO:
+			stream = FLAC__metadata_simple_iterator_get_block (iter);
+			break;
 
-			case FLAC__METADATA_TYPE_VORBIS_COMMENT:
-					vorbis = FLAC__metadata_simple_iterator_get_block (iter);
-					parse_vorbis_comments (&(vorbis->data.vorbis_comment), &fd);
-					FLAC__metadata_object_delete (vorbis);
-					break;
+		case FLAC__METADATA_TYPE_VORBIS_COMMENT:
+			vorbis = FLAC__metadata_simple_iterator_get_block (iter);
+			parse_vorbis_comments (&(vorbis->data.vorbis_comment), &fd);
+			FLAC__metadata_object_delete (vorbis);
+			break;
 
-			case FLAC__METADATA_TYPE_PICTURE:
-					picture = FLAC__metadata_simple_iterator_get_block (iter);
-					/* Deal with picture */
-					FLAC__metadata_object_delete (picture);
-					break;
+		case FLAC__METADATA_TYPE_PICTURE:
+			picture = FLAC__metadata_simple_iterator_get_block (iter);
+			/* Deal with picture */
+			FLAC__metadata_object_delete (picture);
+			break;
 
-			default:
-					break;
-			}
+		default:
+			break;
+		}
 
-			FLAC__metadata_simple_iterator_next (iter);
+		FLAC__metadata_simple_iterator_next (iter);
 	}
 
-	creator = tracker_coalesce (3, fd.artist, fd.albumartist,
-	                            fd.performer);
+	creator = tracker_coalesce_strip (3, fd.artist, fd.albumartist,
+	                                  fd.performer);
 
 	if (creator) {
 		artist_uri = tracker_uri_printf_escaped ("urn:artist:%s", creator);
@@ -229,8 +230,6 @@ extract_flac (const gchar          *uri,
 		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
 		tracker_sparql_builder_object_unvalidated (preupdate, creator);
 		tracker_sparql_builder_insert_close (preupdate);
-
-		g_free (creator);
 	}
 
 	if (fd.album) {
@@ -371,6 +370,9 @@ extract_flac (const gchar          *uri,
 		                                        stream->data.stream_info.sample_rate);
 	}
 
+	g_free (fd.artist);
+	g_free (fd.albumartist);
+	g_free (fd.performer);
 	g_free (fd.title);
 	g_free (fd.trackcount);
 	g_free (fd.tracknumber);

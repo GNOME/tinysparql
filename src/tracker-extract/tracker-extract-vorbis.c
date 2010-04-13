@@ -169,7 +169,7 @@ extract_vorbis (const char *uri,
 		vorbis_comment_clear (comment);
 	}
 
-	md.creator = tracker_coalesce (3, vd.artist, vd.album_artist, vd.performer);
+	md.creator = tracker_coalesce_strip (3, vd.artist, vd.album_artist, vd.performer);
 
 	if (md.creator) {
 		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", md.creator);
@@ -435,6 +435,10 @@ extract_vorbis (const char *uri,
 		tracker_sparql_builder_predicate (metadata, "nfo:duration");
 		tracker_sparql_builder_object_int64 (metadata, (gint64) time);
 	}
+
+	g_free (vd.artist);
+	g_free (vd.album_artist);
+	g_free (vd.performer);
 
 	/* NOTE: This calls fclose on the file */
 	ov_clear (&vf);

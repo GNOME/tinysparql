@@ -462,6 +462,7 @@ extract_metadata (MetadataExtractor      *extractor,
                   gchar                 **album,
                   gchar                 **scount)
 {
+	const gchar *temp;
 	gchar *s;
 	gboolean ret;
 	gint count;
@@ -499,21 +500,24 @@ extract_metadata (MetadataExtractor      *extractor,
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &performer);
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist_local);
 
-			s = tracker_coalesce (2, performer, artist_local);
+			temp = tracker_coalesce_strip (2, performer, artist_local);
 
-			if (s) {
-				performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
+			if (temp) {
+				performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", temp);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 				tracker_sparql_builder_subject_iri (preupdate, performer_uri);
 				tracker_sparql_builder_predicate (preupdate, "a");
 				tracker_sparql_builder_object (preupdate, "nmm:Artist");
 				tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
-				tracker_sparql_builder_object_unvalidated (preupdate, s);
+				tracker_sparql_builder_object_unvalidated (preupdate, temp);
 				tracker_sparql_builder_insert_close (preupdate);
 
-				*artist = s;
+				*artist = g_strdup (temp);
 			}
+
+			g_free (performer);
+			g_free (artist_local);
 
 			s = NULL;
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_COMPOSER, &s);

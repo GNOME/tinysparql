@@ -55,129 +55,129 @@ static void
 read_toc (PopplerIndexIter  *index,
           GString          **toc)
 {
-        if (!index) {
-	        return;
-        }
+	if (!index) {
+		return;
+	}
 
-        if (!*toc) {
-	        *toc = g_string_new ("");
-        }
+	if (!*toc) {
+		*toc = g_string_new ("");
+	}
 
-        do {
-                PopplerAction *action;
-                PopplerIndexIter *iter;
+	do {
+		PopplerAction *action;
+		PopplerIndexIter *iter;
 
-                action = poppler_index_iter_get_action (index);
+		action = poppler_index_iter_get_action (index);
 
-                if (!action) {
-                        continue;
-                }
+		if (!action) {
+			continue;
+		}
 
-                switch (action->type) {
-                case POPPLER_ACTION_GOTO_DEST: {
-                        PopplerActionGotoDest *ag = (PopplerActionGotoDest*) action;
-                        PopplerDest *agd = ag->dest;
+		switch (action->type) {
+			case POPPLER_ACTION_GOTO_DEST: {
+				PopplerActionGotoDest *ag = (PopplerActionGotoDest*) action;
+				PopplerDest *agd = ag->dest;
 
-                        if (!tracker_is_empty_string (ag->title)) {
-	                        g_string_append_printf (*toc, "%s ", ag->title);
-                        }
+				if (!tracker_is_empty_string (ag->title)) {
+					g_string_append_printf (*toc, "%s ", ag->title);
+				}
 
-                        if (!tracker_is_empty_string (agd->named_dest)) {
-	                        g_string_append_printf (*toc, "%s ", agd->named_dest);
-                        }
+				if (!tracker_is_empty_string (agd->named_dest)) {
+					g_string_append_printf (*toc, "%s ", agd->named_dest);
+				}
 
-                        break;
-                }
+				break;
+			}
 
-                case POPPLER_ACTION_LAUNCH: {
-                        PopplerActionLaunch *al = (PopplerActionLaunch*) action;
+			case POPPLER_ACTION_LAUNCH: {
+				PopplerActionLaunch *al = (PopplerActionLaunch*) action;
 
-                        if (!tracker_is_empty_string (al->title)) {
-	                        g_string_append_printf (*toc, "%s ", al->title);
-                        }
+				if (!tracker_is_empty_string (al->title)) {
+					g_string_append_printf (*toc, "%s ", al->title);
+				}
 
-                        if (!tracker_is_empty_string (al->file_name)) {
-	                        g_string_append_printf (*toc, "%s ", al->file_name);
-                        }
+				if (!tracker_is_empty_string (al->file_name)) {
+					g_string_append_printf (*toc, "%s ", al->file_name);
+				}
 
-                        if (!tracker_is_empty_string (al->params)) {
-	                        g_string_append_printf (*toc, "%s ", al->params);
-                        }
+				if (!tracker_is_empty_string (al->params)) {
+					g_string_append_printf (*toc, "%s ", al->params);
+				}
 
-                        break;
-                }
+				break;
+			}
 
-                case POPPLER_ACTION_URI: {
-                        PopplerActionUri *au = (PopplerActionUri*) action;
+			case POPPLER_ACTION_URI: {
+				PopplerActionUri *au = (PopplerActionUri*) action;
 
-                        if (!tracker_is_empty_string (au->uri)) {
-	                        g_string_append_printf (*toc, "%s ", au->uri);
-                        }
+				if (!tracker_is_empty_string (au->uri)) {
+					g_string_append_printf (*toc, "%s ", au->uri);
+				}
 
-                        break;
-                }
+				break;
+			}
 
-                case POPPLER_ACTION_NAMED: {
-                        PopplerActionNamed *an = (PopplerActionNamed*) action;
+			case POPPLER_ACTION_NAMED: {
+				PopplerActionNamed *an = (PopplerActionNamed*) action;
 
-                        if (!tracker_is_empty_string (an->title)) {
-	                        g_string_append_printf (*toc, "%s, ", an->title);
-                        }
+				if (!tracker_is_empty_string (an->title)) {
+					g_string_append_printf (*toc, "%s, ", an->title);
+				}
 
-                        if (!tracker_is_empty_string (an->named_dest)) {
-                                g_string_append_printf (*toc, "%s ", an->named_dest);
-                        }
+				if (!tracker_is_empty_string (an->named_dest)) {
+					g_string_append_printf (*toc, "%s ", an->named_dest);
+				}
 
-                        break;
-                }
+				break;
+			}
 
-                case POPPLER_ACTION_MOVIE: {
-                        PopplerActionNamed *am = (PopplerActionNamed*) action;
+			case POPPLER_ACTION_MOVIE: {
+				PopplerActionNamed *am = (PopplerActionNamed*) action;
 
-                        if (!tracker_is_empty_string (am->title)) {
-	                        g_string_append_printf (*toc, "%s ", am->title);
-                        }
+				if (!tracker_is_empty_string (am->title)) {
+					g_string_append_printf (*toc, "%s ", am->title);
+				}
 
-                        break;
-                }
+				break;
+			}
 
-                case POPPLER_ACTION_NONE:
-                case POPPLER_ACTION_UNKNOWN:
-                case POPPLER_ACTION_GOTO_REMOTE:
-                        /* Do nothing */
-                        break;
-                }
+			case POPPLER_ACTION_NONE:
+			case POPPLER_ACTION_UNKNOWN:
+			case POPPLER_ACTION_GOTO_REMOTE:
+				/* Do nothing */
+				break;
+		}
 
-                iter = poppler_index_iter_get_child (index);
-                read_toc (iter, toc);
-        } while (poppler_index_iter_next (index));
+		iter = poppler_index_iter_get_child (index);
+		read_toc (iter, toc);
+	} while (poppler_index_iter_next (index));
 
-        poppler_index_iter_free (index);
+	poppler_index_iter_free (index);
 }
 
 static void
 read_outline (PopplerDocument      *document,
               TrackerSparqlBuilder *metadata)
 {
-        PopplerIndexIter *index;
-        GString *toc = NULL;
+	PopplerIndexIter *index;
+	GString *toc = NULL;
 
-        index = poppler_index_iter_new (document);
+	index = poppler_index_iter_new (document);
 
-        if (!index) {
-                return;
-        }
+	if (!index) {
+		return;
+	}
 
-        read_toc (index, &toc);
+	read_toc (index, &toc);
 
-        if (toc) {
-	        if (toc->len > 0) {
-		        tracker_sparql_builder_predicate (metadata, "nfo:tableOfContents");
-		        tracker_sparql_builder_object_unvalidated (metadata, toc->str);
-	        }
+	if (toc) {
+		if (toc->len > 0) {
+			tracker_sparql_builder_predicate (metadata, "nfo:tableOfContents");
+			tracker_sparql_builder_object_unvalidated (metadata, toc->str);
+		}
 
-	        g_string_free (toc, TRUE);
-        }
+		g_string_free (toc, TRUE);
+	}
 }
 
 static void
@@ -261,13 +261,11 @@ write_pdf_data (PDFData               data,
 	if (!tracker_is_empty_string (data.title)) {
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, data.title);
-		g_free (data.title);
 	}
 
 	if (!tracker_is_empty_string (data.subject)) {
 		tracker_sparql_builder_predicate (metadata, "nie:subject");
 		tracker_sparql_builder_object_unvalidated (metadata, data.subject);
-		g_free (data.subject);
 	}
 
 	if (!tracker_is_empty_string (data.author)) {
@@ -278,18 +276,15 @@ write_pdf_data (PDFData               data,
 		tracker_sparql_builder_predicate (metadata, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (metadata, data.author);
 		tracker_sparql_builder_object_blank_close (metadata);
-		g_free (data.author);
 	}
 
 	if (!tracker_is_empty_string (data.date)) {
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, data.date);
-		g_free (data.date);
 	}
 
 	if (!tracker_is_empty_string (data.keywords)) {
 		insert_keywords (metadata, data.keywords);
-		g_free (data.keywords);
 	}
 }
 
@@ -352,28 +347,27 @@ extract_pdf (const gchar          *uri,
 	if (xml) {
 		xd = tracker_xmp_new (xml, strlen (xml), uri);
 
-                if (!xd) {
-                        xd = g_new0 (TrackerXmpData, 1);
-                }
+		if (!xd) {
+			xd = g_new0 (TrackerXmpData, 1);
+		}
 
-                g_free (xml);
+		g_free (xml);
 		xml = NULL;
 
-		md.title = tracker_coalesce (3, pd.title, xd->title, xd->title2, xd->pdf_title);
-		md.subject = tracker_coalesce (2, pd.subject, xd->subject);
-		md.date = tracker_coalesce (3, pd.creation_date, xd->date, xd->time_original);
-		md.author = tracker_coalesce (2, pd.author, xd->creator);
+		/* The casts here are well understood and known */
+		md.title = (gchar *) tracker_coalesce_strip (3, pd.title, xd->title, xd->title2, xd->pdf_title);
+		md.subject = (gchar *) tracker_coalesce_strip (2, pd.subject, xd->subject);
+		md.date = (gchar *) tracker_coalesce_strip (3, pd.creation_date, xd->date, xd->time_original);
+		md.author = (gchar *) tracker_coalesce_strip (2, pd.author, xd->creator);
 
 		write_pdf_data (md, metadata);
 
 		if (xd->keywords) {
 			insert_keywords (metadata, xd->keywords);
-			g_free (xd->keywords);
 		}
 
 		if (xd->pdf_keywords) {
 			insert_keywords (metadata, xd->pdf_keywords);
-			g_free (xd->pdf_keywords);
 		}
 
 		if (xd->publisher) {
@@ -384,55 +378,46 @@ extract_pdf (const gchar          *uri,
 			tracker_sparql_builder_predicate (metadata, "nco:fullname");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->publisher);
 			tracker_sparql_builder_object_blank_close (metadata);
-			g_free (xd->publisher);
 		}
 
 		if (xd->type) {
 			tracker_sparql_builder_predicate (metadata, "dc:type");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->type);
-			g_free (xd->type);
 		}
 
 		if (xd->format) {
 			tracker_sparql_builder_predicate (metadata, "dc:format");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->format);
-			g_free (xd->format);
 		}
 
 		if (xd->identifier) {
 			tracker_sparql_builder_predicate (metadata, "dc:identifier");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->identifier);
-			g_free (xd->identifier);
 		}
 
 		if (xd->source) {
 			tracker_sparql_builder_predicate (metadata, "dc:source");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->source);
-			g_free (xd->source);
 		}
 
 		if (xd->language) {
 			tracker_sparql_builder_predicate (metadata, "dc:language");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->language);
-			g_free (xd->language);
 		}
 
 		if (xd->relation) {
 			tracker_sparql_builder_predicate (metadata, "dc:relation");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->relation);
-			g_free (xd->relation);
 		}
 
 		if (xd->coverage) {
 			tracker_sparql_builder_predicate (metadata, "dc:coverage");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->coverage);
-			g_free (xd->coverage);
 		}
 
 		if (xd->license) {
 			tracker_sparql_builder_predicate (metadata, "nie:license");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->license);
-			g_free (xd->license);
 		}
 
 		if (xd->make || xd->model) {
@@ -440,11 +425,9 @@ extract_pdf (const gchar          *uri,
 
 			if ((xd->make == NULL || xd->model == NULL) ||
 			    (xd->make && xd->model && strstr (xd->model, xd->make) == NULL)) {
-				camera = tracker_merge (" ", 2, xd->make, xd->model);
+				camera = tracker_merge_const (" ", 2, xd->make, xd->model);
 			} else {
 				camera = g_strdup (xd->model);
-				g_free (xd->model);
-				g_free (xd->make);
 			}
 
 			tracker_sparql_builder_predicate (metadata, "nmm:camera");
@@ -455,19 +438,16 @@ extract_pdf (const gchar          *uri,
 		if (xd->orientation) {
 			tracker_sparql_builder_predicate (metadata, "nfo:orientation");
 			tracker_sparql_builder_object (metadata, xd->orientation);
-			g_free (xd->orientation);
 		}
 
 		if (xd->rights) {
 			tracker_sparql_builder_predicate (metadata, "nie:copyright");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->rights);
-			g_free (xd->rights);
 		}
 
 		if (xd->white_balance) {
 			tracker_sparql_builder_predicate (metadata, "nmm:whiteBalance");
 			tracker_sparql_builder_object (metadata, xd->white_balance);
-			g_free (xd->white_balance);
 		}
 
 		if (xd->fnumber) {
@@ -476,13 +456,11 @@ extract_pdf (const gchar          *uri,
 			value = g_strtod (xd->fnumber, NULL);
 			tracker_sparql_builder_predicate (metadata, "nmm:fnumber");
 			tracker_sparql_builder_object_double (metadata, value);
-			g_free (xd->fnumber);
 		}
 
 		if (xd->flash) {
 			tracker_sparql_builder_predicate (metadata, "nmm:flash");
 			tracker_sparql_builder_object (metadata, xd->flash);
-			g_free (xd->flash);
 		}
 
 		if (xd->focal_length) {
@@ -491,15 +469,14 @@ extract_pdf (const gchar          *uri,
 			value = g_strtod (xd->focal_length, NULL);
 			tracker_sparql_builder_predicate (metadata, "nmm:focalLength");
 			tracker_sparql_builder_object_double (metadata, value);
-			g_free (xd->focal_length);
 		}
 
 		/* Question: Shouldn't xd->Artist be merged with md.author instead? */
 
 		if (xd->artist || xd->contributor) {
-			gchar *artist;
+			const gchar *artist;
 
-			artist = tracker_coalesce (2, xd->artist, xd->contributor);
+			artist = tracker_coalesce_strip (2, xd->artist, xd->contributor);
 			tracker_sparql_builder_predicate (metadata, "nco:contributor");
 			tracker_sparql_builder_object_blank_open (metadata);
 			tracker_sparql_builder_predicate (metadata, "a");
@@ -507,7 +484,6 @@ extract_pdf (const gchar          *uri,
 			tracker_sparql_builder_predicate (metadata, "nco:fullname");
 			tracker_sparql_builder_object_unvalidated (metadata, artist);
 			tracker_sparql_builder_object_blank_close (metadata);
-			g_free (artist);
 		}
 
 		if (xd->exposure_time) {
@@ -516,7 +492,6 @@ extract_pdf (const gchar          *uri,
 			value = g_strtod (xd->exposure_time, NULL);
 			tracker_sparql_builder_predicate (metadata, "nmm:exposureTime");
 			tracker_sparql_builder_object_double (metadata, value);
-			g_free (xd->exposure_time);
 		}
 
 		if (xd->iso_speed_ratings) {
@@ -525,59 +500,58 @@ extract_pdf (const gchar          *uri,
 			value = g_strtod (xd->iso_speed_ratings, NULL);
 			tracker_sparql_builder_predicate (metadata, "nmm:isoSpeed");
 			tracker_sparql_builder_object_double (metadata, value);
-			g_free (xd->iso_speed_ratings);
 		}
 
 		if (xd->description) {
 			tracker_sparql_builder_predicate (metadata, "nie:description");
 			tracker_sparql_builder_object_unvalidated (metadata, xd->description);
-			g_free (xd->description);
 		}
 
 		if (xd->metering_mode) {
 			tracker_sparql_builder_predicate (metadata, "nmm:meteringMode");
 			tracker_sparql_builder_object (metadata, xd->metering_mode);
-			g_free (xd->metering_mode);
 		}
 
 		if (xd->address || xd->country || xd->city) {
 			tracker_sparql_builder_predicate (metadata, "mlo:location");
-	
+
 			tracker_sparql_builder_object_blank_open (metadata);
 			tracker_sparql_builder_predicate (metadata, "a");
 			tracker_sparql_builder_object (metadata, "mlo:GeoPoint");
-	
+
 			if (xd->address) {
 				tracker_sparql_builder_predicate (metadata, "mlo:address");
 				tracker_sparql_builder_object_unvalidated (metadata, xd->address);
-				g_free (xd->address);
 			}
-	
+
 			if (xd->state) {
 				tracker_sparql_builder_predicate (metadata, "mlo:state");
 				tracker_sparql_builder_object_unvalidated (metadata, xd->state);
-				g_free (xd->state);
 			}
-	
+
 			if (xd->city) {
 				tracker_sparql_builder_predicate (metadata, "mlo:city");
 				tracker_sparql_builder_object_unvalidated (metadata, xd->city);
-				g_free (xd->city);
 			}
-	
+
 			if (xd->country) {
 				tracker_sparql_builder_predicate (metadata, "mlo:country");
 				tracker_sparql_builder_object_unvalidated (metadata, xd->country);
-				g_free (xd->country);
 			}
-		
+
 			tracker_sparql_builder_object_blank_close (metadata);
 		}
 
-		/* PDF keywords aren't used ATM */
+		/* PDF keywords aren't used ATM (why not?) */
 		g_free (pd.keywords);
 
-		tracker_xmp_free (xd, FALSE);
+		g_free (pd.title);
+		g_free (pd.subject);
+		g_free (pd.creation_date);
+		g_free (pd.author);
+		g_free (pd.date);
+
+		tracker_xmp_free (xd);
 	} else {
 		/* So if we are here we have NO XMP data and we just
 		 * write what we know from Poppler.
@@ -598,7 +572,7 @@ extract_pdf (const gchar          *uri,
 		g_free (content);
 	}
 
-        read_outline (document, metadata);
+	read_outline (document, metadata);
 
 	g_object_unref (document);
 }
