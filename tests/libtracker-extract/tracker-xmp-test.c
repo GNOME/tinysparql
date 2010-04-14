@@ -16,12 +16,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+
+#include "config.h"
+
 #include <glib.h>
 #include <glib-object.h>
+
 #include <libtracker-extract/tracker-xmp.h>
 #include <libtracker-client/tracker-sparql-builder.h>
-
-#include <config.h>
 
 #define BROKEN_XMP "This is not even XML"
 #define EXAMPLE_XMP   \
@@ -75,7 +77,7 @@
         "        <rdf:Description rdf:about=\"\">"                      \
         "         <exif:MeteringMode>%d</exif:MeteringMode>"            \
         "        </rdf:Description>"                                    \
-        "     </rdf:RDF></x:xmpmeta> " 
+        "     </rdf:RDF></x:xmpmeta> "
 
 #define ORIENTATION_XMP \
         "   <x:xmpmeta   "                            \
@@ -85,7 +87,34 @@
         "        <rdf:Description rdf:about=\"\">"                      \
         "         <exif:Orientation>%s</exif:Orientation>"              \
         "        </rdf:Description>"                                    \
-        "     </rdf:RDF></x:xmpmeta> " 
+        "     </rdf:RDF></x:xmpmeta> "
+
+typedef struct {
+        const gchar *exif_value;
+        const gchar *nepomuk_translation;
+} ExifNepomuk;
+
+static ExifNepomuk METERING_MODES [] = {
+        {"0",  "nmm:metering-mode-other"},
+        {"1", "nmm:metering-mode-average"},
+        {"2", "nmm:metering-mode-center-weighted-average"},
+        {"3", "nmm:metering-mode-spot"},
+        {"4", "nmm:metering-mode-multispot"},
+        {"5", "nmm:metering-mode-pattern"},
+        {"6", "nmm:metering-mode-partial"},
+        {NULL, NULL}
+};
+
+static ExifNepomuk ORIENTATIONS [] = {
+        {"top - right", "nfo:orientation-top-mirror"},
+        {"bottom - right", "nfo:orientation-bottom-mirror"},
+        {"bottom - left", "nfo:orientation-bottom"},
+        {"left - top", "nfo:orientation-left-mirror"},
+        {"right - top", "nfo:orientation-right"},
+        {"right - bottom", "nfo:orientation-right-mirror"},
+        {"left - bottom", "nfo:orientation-left"},
+        {"invalid value", "nfo:orientation-top"}
+};
 
 static TrackerXmpData *
 get_example_expected (void)
@@ -112,7 +141,7 @@ get_example_expected (void)
         data->language = g_strdup ("Spanglish");
         data->relation = g_strdup ("Single");
         data->coverage = g_strdup ("Pretty high after this test");
-        
+
         /* NS_CC */
         data->license = NULL;
 
@@ -122,16 +151,16 @@ get_example_expected (void)
 
         /* NS_EXIF*/
         data->title2 = g_strdup ("Title in exif");
-        data->time_original = g_strdup ("2010-03-18T15:17:04Z");   
+        data->time_original = g_strdup ("2010-03-18T15:17:04Z");
         data->artist = g_strdup ("Artist in exif");
         data->make = g_strdup ("Make in exif");
         data->model = g_strdup ("Model in exif");
         data->orientation = g_strdup ("nfo:orientation-top");
         data->flash = g_strdup ("nmm:flash-off");
         data->metering_mode = g_strdup ("nmm:metering-mode-spot");
-        data->exposure_time = g_strdup ("1000");                  /* exposure time */
-        data->fnumber = g_strdup ("12");                    /* fnumber */
-        data->focal_length = g_strdup ("50");                    /* focal length */
+        data->exposure_time = g_strdup ("1000");                      /* exposure time */
+        data->fnumber = g_strdup ("12");                              /* fnumber */
+        data->focal_length = g_strdup ("50");                         /* focal length */
 
         data->iso_speed_ratings = g_strdup ("400");                   /* iso speed rating */
         data->white_balance = g_strdup ("nmm:white-balance-manual");
@@ -142,45 +171,16 @@ get_example_expected (void)
 
         /* NS_IPTC4XMP */
         /* NS_PHOTOSHOP */
-        data->address = NULL;                    /* address */
-        data->country = NULL;                    /* country */
-        data->state = NULL;                    /* state */
+        data->address = NULL;                /* address */
+        data->country = NULL;                /* country */
+        data->state = NULL;                  /* state */
         data->city = NULL;                   /* city */
-        
+
         return data;
 };
 
-
-typedef struct {
-        const gchar *exif_value;
-        const gchar *nepomuk_translation;
-} ExifNepomuk;
-
-
-ExifNepomuk METERING_MODES [] = {
-        {"0",  "nmm:metering-mode-other"},
-        {"1", "nmm:metering-mode-average"},
-        {"2", "nmm:metering-mode-center-weighted-average"},
-        {"3", "nmm:metering-mode-spot"},
-        {"4", "nmm:metering-mode-multispot"},
-        {"5", "nmm:metering-mode-pattern"},
-        {"6", "nmm:metering-mode-partial"},
-        {NULL, NULL}
-};
-
-ExifNepomuk ORIENTATIONS [] = {
-        {"top - right", "nfo:orientation-top-mirror"},
-        {"bottom - right", "nfo:orientation-bottom-mirror"},
-        {"bottom - left", "nfo:orientation-bottom"},
-        {"left - top", "nfo:orientation-left-mirror"},
-        {"right - top", "nfo:orientation-right"},
-        {"right - bottom", "nfo:orientation-right-mirror"},
-        {"left - bottom", "nfo:orientation-left"},
-        {"invalid value", "nfo:orientation-top"}
-};
-
 static void
-test_parsing_xmp ()
+test_parsing_xmp (void)
 {
         TrackerXmpData *data;
         TrackerXmpData *expected;
@@ -188,7 +188,7 @@ test_parsing_xmp ()
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
                 data = tracker_xmp_new (BROKEN_XMP, strlen (BROKEN_XMP), "test://file");
 		g_assert (data != NULL);
-		
+
 		tracker_xmp_free (data);
         }
         g_test_trap_assert_stderr ("*parsing failure*");
@@ -203,7 +203,7 @@ test_parsing_xmp ()
         g_assert_cmpstr (data->description, ==, expected->description);
         g_assert_cmpstr (data->date, ==, expected->date);
         g_assert_cmpstr (data->keywords, ==, expected->keywords);
-        g_assert_cmpstr (data->subject, ==, expected->subject); 
+        g_assert_cmpstr (data->subject, ==, expected->subject);
         g_assert_cmpstr (data->publisher, ==, expected->publisher);
         g_assert_cmpstr (data->contributor, ==, expected->contributor);
         g_assert_cmpstr (data->identifier, ==, expected->identifier);
@@ -235,7 +235,7 @@ test_parsing_xmp ()
 }
 
 static void
-test_xmp_metering_mode (void) 
+test_xmp_metering_mode (void)
 {
         gint i;
 
@@ -246,14 +246,14 @@ test_xmp_metering_mode (void)
                 xmp = g_strdup_printf (METERING_MODE_XMP, i);
                 data = tracker_xmp_new (xmp, strlen (xmp), "local://file");
                 g_free (xmp);
-                
+
                 g_assert_cmpstr (data->metering_mode, ==, METERING_MODES[i].nepomuk_translation);
 		tracker_xmp_free (data);
         }
 }
 
 static void
-test_xmp_orientation (void) 
+test_xmp_orientation (void)
 {
         gint i;
 
@@ -264,14 +264,14 @@ test_xmp_orientation (void)
                 xmp = g_strdup_printf (ORIENTATION_XMP, ORIENTATIONS[i].exif_value);
                 data = tracker_xmp_new (xmp, strlen (xmp), "local://file");
                 g_free (xmp);
-                
+
                 g_assert_cmpstr (data->orientation, ==, ORIENTATIONS[i].nepomuk_translation);
 		tracker_xmp_free (data);
         }
 }
 
 static void
-test_xmp_apply ()
+test_xmp_apply (void)
 {
         TrackerSparqlBuilder *metadata;
         TrackerXmpData *data;
@@ -295,7 +295,7 @@ test_xmp_apply ()
 }
 
 static void
-test_xmp_apply_location ()
+test_xmp_apply_location (void)
 {
         TrackerXmpData data = { 0, };
         TrackerSparqlBuilder *metadata;
@@ -304,7 +304,7 @@ test_xmp_apply_location ()
         data.city = g_strdup ("Helsinki");
         data.state = g_strdup ("N/A");
         data.country = g_strdup ("Findland");
-        
+
         metadata = tracker_sparql_builder_new_update ();
 
         tracker_sparql_builder_insert_open (metadata, NULL);
@@ -327,7 +327,7 @@ main (int    argc,
 	g_type_init ();
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
-        
+
 	g_test_message ("Testing XMP");
 
 #ifdef HAVE_EXEMPI
@@ -348,6 +348,6 @@ main (int    argc,
                          test_xmp_apply_location);
 
         result = g_test_run ();
-        
+
 	return result;
 }
