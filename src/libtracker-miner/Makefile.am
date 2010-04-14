@@ -5,7 +5,6 @@ INCLUDES =						\
 	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
-	-DI_KNOW_THE_DEVICEKIT_POWER_API_IS_SUBJECT_TO_CHANGE	\
 	-DTRACKER_MINERS_DIR=\""$(datadir)/tracker/miners"\" 	\
 	-I$(top_srcdir)/src				\
 	$(WARN_CFLAGS)					\
@@ -14,7 +13,6 @@ INCLUDES =						\
 	$(GDKPIXBUF_CFLAGS)				\
 	$(GIO_CFLAGS)					\
 	$(HAL_CFLAGS)					\
-	$(DEVKIT_POWER_CFLAGS)				\
 	$(DBUS_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
@@ -61,7 +59,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(HAL_LIBS)					\
-	$(DEVKIT_POWER_LIBS)				\
 	$(DBUS_LIBS)					\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\

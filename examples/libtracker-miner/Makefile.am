@@ -4,7 +4,6 @@ INCLUDES =							\
 	-DSHAREDIR=\""$(datadir)"\"				\
 	-DG_LOG_DOMAIN=\"Tracker\"				\
 	-DTRACKER_COMPILATION					\
-	-DI_KNOW_THE_DEVICEKIT_POWER_API_IS_SUBJECT_TO_CHANGE	\
 	-I$(top_srcdir)/src					\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
@@ -12,7 +11,6 @@ INCLUDES =							\
 	$(GDKPIXBUF_CFLAGS)					\
 	$(GIO_CFLAGS)						\
 	$(HAL_CFLAGS)						\
-	$(DEVKIT_POWER_CFLAGS)					\
 	$(DBUS_CFLAGS)						\
 
 noinst_PROGRAMS = tracker-miner-test
