@@ -10,7 +10,6 @@ INCLUDES =						\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\
-	$(GDKPIXBUF_CFLAGS)				\
 	$(GIO_CFLAGS)					\
 	$(DBUS_CFLAGS)
 
@@ -60,8 +59,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(DBUS_LIBS)					\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\
-	$(GLIB2_LIBS)					\
-	$(GDKPIXBUF_LIBS)
+	$(GLIB2_LIBS)
 
 if HAVE_LIBINOTIFY
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
