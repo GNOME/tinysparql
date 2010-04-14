@@ -88,7 +88,7 @@
         "     </rdf:RDF></x:xmpmeta> " 
 
 static TrackerXmpData *
-get_example_expected ()
+get_example_expected (void)
 {
         TrackerXmpData *data;
 
@@ -182,71 +182,73 @@ ExifNepomuk ORIENTATIONS [] = {
 static void
 test_parsing_xmp ()
 {
-        TrackerXmpData  data;
+        TrackerXmpData *data;
         TrackerXmpData *expected;
-        gboolean       result;
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                result = tracker_xmp_read (BROKEN_XMP, strlen (BROKEN_XMP), "test://file", &data);
-                /* Catch io and check error message ("XML parsing failure") */
+                data = tracker_xmp_new (BROKEN_XMP, strlen (BROKEN_XMP), "test://file");
+		g_assert (data != NULL);
+		
+		tracker_xmp_free (data);
         }
         g_test_trap_assert_stderr ("*parsing failure*");
 
-        result = tracker_xmp_read (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "test://file", &data);
-
+        data = tracker_xmp_new (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "test://file");
         expected = get_example_expected ();
+
         /* NS_DC */
-        g_assert_cmpstr (data.format, ==, expected->format);
-        g_assert_cmpstr (data.title, ==, expected->title);
-        g_assert_cmpstr (data.rights, ==, expected->rights);
-        g_assert_cmpstr (data.description, ==, expected->description);
-        g_assert_cmpstr (data.date, ==, expected->date);
-        g_assert_cmpstr (data.keywords, ==, expected->keywords);
-        g_assert_cmpstr (data.subject, ==, expected->subject); 
-        g_assert_cmpstr (data.publisher, ==, expected->publisher);
-        g_assert_cmpstr (data.contributor, ==, expected->contributor);
-        g_assert_cmpstr (data.identifier, ==, expected->identifier);
-        g_assert_cmpstr (data.source, ==, expected->source);
-        g_assert_cmpstr (data.language, ==, expected->language);
-        g_assert_cmpstr (data.relation, ==, expected->relation);
-        g_assert_cmpstr (data.coverage, ==, expected->coverage);
-        g_assert_cmpstr (data.creator, ==, expected->creator);
+        g_assert_cmpstr (data->format, ==, expected->format);
+        g_assert_cmpstr (data->title, ==, expected->title);
+        g_assert_cmpstr (data->rights, ==, expected->rights);
+        g_assert_cmpstr (data->description, ==, expected->description);
+        g_assert_cmpstr (data->date, ==, expected->date);
+        g_assert_cmpstr (data->keywords, ==, expected->keywords);
+        g_assert_cmpstr (data->subject, ==, expected->subject); 
+        g_assert_cmpstr (data->publisher, ==, expected->publisher);
+        g_assert_cmpstr (data->contributor, ==, expected->contributor);
+        g_assert_cmpstr (data->identifier, ==, expected->identifier);
+        g_assert_cmpstr (data->source, ==, expected->source);
+        g_assert_cmpstr (data->language, ==, expected->language);
+        g_assert_cmpstr (data->relation, ==, expected->relation);
+        g_assert_cmpstr (data->coverage, ==, expected->coverage);
+        g_assert_cmpstr (data->creator, ==, expected->creator);
 
         /* NS_EXIF*/
-        g_assert_cmpstr (data.title2, ==, expected->title2);
-	g_assert_cmpstr (data.time_original, ==, expected->time_original);
-	g_assert_cmpstr (data.artist, ==, expected->artist);
-	g_assert_cmpstr (data.make, ==, expected->make);
-	g_assert_cmpstr (data.model, ==, expected->model);
-	g_assert_cmpstr (data.orientation, ==, expected->orientation);
-	g_assert_cmpstr (data.flash, ==, expected->flash);
-	g_assert_cmpstr (data.metering_mode, ==, expected->metering_mode);
-	g_assert_cmpstr (data.exposure_time, ==, expected->exposure_time);
-	g_assert_cmpstr (data.fnumber, ==, expected->fnumber);
-	g_assert_cmpstr (data.focal_length, ==, expected->focal_length);
+        g_assert_cmpstr (data->title2, ==, expected->title2);
+	g_assert_cmpstr (data->time_original, ==, expected->time_original);
+	g_assert_cmpstr (data->artist, ==, expected->artist);
+	g_assert_cmpstr (data->make, ==, expected->make);
+	g_assert_cmpstr (data->model, ==, expected->model);
+	g_assert_cmpstr (data->orientation, ==, expected->orientation);
+	g_assert_cmpstr (data->flash, ==, expected->flash);
+	g_assert_cmpstr (data->metering_mode, ==, expected->metering_mode);
+	g_assert_cmpstr (data->exposure_time, ==, expected->exposure_time);
+	g_assert_cmpstr (data->fnumber, ==, expected->fnumber);
+	g_assert_cmpstr (data->focal_length, ==, expected->focal_length);
 
-	g_assert_cmpstr (data.iso_speed_ratings, ==, expected->iso_speed_ratings);
-	g_assert_cmpstr (data.white_balance, ==, expected->white_balance);
-	g_assert_cmpstr (data.copyright, ==, expected->copyright);
+	g_assert_cmpstr (data->iso_speed_ratings, ==, expected->iso_speed_ratings);
+	g_assert_cmpstr (data->white_balance, ==, expected->white_balance);
+	g_assert_cmpstr (data->copyright, ==, expected->copyright);
 
-        g_assert (result);
-        g_free (expected);
+        tracker_xmp_free (expected);
+	tracker_xmp_free (data);
 }
 
 static void
 test_xmp_metering_mode (void) 
 {
         gint i;
-        gchar *xmp;
-        TrackerXmpData data;
 
         for (i = 0; METERING_MODES[i].exif_value != NULL; i++) {
+		TrackerXmpData *data;
+		gchar *xmp;
+
                 xmp = g_strdup_printf (METERING_MODE_XMP, i);
-                tracker_xmp_read (xmp, strlen (xmp), "local://file", &data);
-                
-                g_assert_cmpstr (data.metering_mode, ==, METERING_MODES[i].nepomuk_translation);
-                
+                data = tracker_xmp_new (xmp, strlen (xmp), "local://file");
                 g_free (xmp);
+                
+                g_assert_cmpstr (data->metering_mode, ==, METERING_MODES[i].nepomuk_translation);
+		tracker_xmp_free (data);
         }
 }
 
@@ -254,16 +256,17 @@ static void
 test_xmp_orientation (void) 
 {
         gint i;
-        gchar *xmp;
-        TrackerXmpData data;
 
         for (i = 0; ORIENTATIONS[i].exif_value != NULL; i++) {
+		TrackerXmpData *data;
+		gchar *xmp;
+
                 xmp = g_strdup_printf (ORIENTATION_XMP, ORIENTATIONS[i].exif_value);
-                tracker_xmp_read (xmp, strlen (xmp), "local://file", &data);
-                
-                g_assert_cmpstr (data.orientation, ==, ORIENTATIONS[i].nepomuk_translation);
-                
+                data = tracker_xmp_new (xmp, strlen (xmp), "local://file");
                 g_free (xmp);
+                
+                g_assert_cmpstr (data->orientation, ==, ORIENTATIONS[i].nepomuk_translation);
+		tracker_xmp_free (data);
         }
 }
 
@@ -271,21 +274,24 @@ static void
 test_xmp_apply ()
 {
         TrackerSparqlBuilder *metadata;
-        TrackerXmpData data;
+        TrackerXmpData *data;
 
         metadata = tracker_sparql_builder_new_update ();;
 
-        g_assert (tracker_xmp_read (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "urn:uuid:test", &data));
+        data = tracker_xmp_new (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "urn:uuid:test");
+	g_assert (data != NULL);
 
         tracker_sparql_builder_insert_open (metadata, NULL);
         tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
 
-        g_assert (tracker_xmp_apply (metadata, "urn:uuid:test", &data));
+        g_assert (tracker_xmp_apply (metadata, "urn:uuid:test", data));
 
         tracker_sparql_builder_insert_close (metadata);
 
         /* This is the only way to check the sparql is kinda correct */
         g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 50);
+
+	tracker_xmp_free (data);
 }
 
 static void

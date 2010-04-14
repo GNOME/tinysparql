@@ -214,6 +214,8 @@ parse_iptc (const unsigned char *buffer,
 	return TRUE;
 }
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
 /**
  * tracker_iptc_read:
  * @buffer: a chunk of data with iptc data in it.
@@ -246,19 +248,20 @@ tracker_iptc_read (const unsigned char *buffer,
 	return parse_iptc (buffer, len, uri, data);
 }
 
+#endif /* TRACKER_DISABLE_DEPRECATED */
+
 /**
  * tracker_iptc_new:
  * @buffer: a chunk of data with iptc data in it.
  * @len: the size of @buffer.
  * @uri: the URI this is related to.
- * @data: a pointer to a TrackerIptcData struture to populate.
  *
  * This function takes @len bytes of @buffer and runs it through the
  * IPTC library.
  *
  * Returns: a newly allocated #TrackerIptcData struct if IPTC data was
- *          found, %NULL otherwise. Free the returned struct with
- *          tracker_iptc_free().
+ * found, %NULL otherwise. Free the returned struct with
+ * tracker_iptc_free().
  *
  * Since: 0.9
  **/
@@ -286,10 +289,9 @@ tracker_iptc_new (const guchar *buffer,
 /**
  * tracker_iptc_free:
  * @data: a #TrackerIptcData
- * @free_members: %TRUE to free all struct members.
  *
- * Frees @data, and optionally all struct members if @free_members
- * is %TRUE.
+ * Frees @data and all #TrackerIptcData members. %NULL will produce a
+ * a warning.
  *
  * Since: 0.9
  **/

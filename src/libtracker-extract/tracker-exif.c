@@ -398,6 +398,8 @@ parse_exif (const unsigned char *buffer,
 	return TRUE;
 }
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
 /**
  * tracker_exif_read:
  * @buffer: a chunk of data with exif data in it.
@@ -430,6 +432,8 @@ tracker_exif_read (const unsigned char *buffer,
 	return parse_exif (buffer, len, uri, data);
 }
 
+#endif /* TRACKER_DISABLE_DEPRECATED */
+
 /**
  * tracker_exif_new:
  * @buffer: a chunk of data with exif data in it.
@@ -440,8 +444,7 @@ tracker_exif_read (const unsigned char *buffer,
  * EXIF library.
  *
  * Returns: a newly allocated #TrackerExifData struct if EXIF data was
- *          found, %NULL otherwise. Free the returned struct with
- *          tracker_exif_free().
+ * found, %NULL otherwise. Free the returned struct with tracker_exif_free().
  *
  * Since: 0.9
  **/
@@ -469,10 +472,9 @@ tracker_exif_new (const guchar *buffer,
 /**
  * tracker_exif_free:
  * @data: a #TrackerExifData
- * @free_members: %TRUE to free all struct members.
  *
- * Frees @data, and optionally all struct members if @free_members
- * is %TRUE.
+ * Frees @data and all #TrackerExifData members. %NULL will produce a
+ * a warning.
  *
  * Since: 0.9
  **/

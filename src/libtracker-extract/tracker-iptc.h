@@ -45,19 +45,19 @@ typedef struct {
 	gchar *contact;
 } TrackerIptcData;
 
+TrackerIptcData *tracker_iptc_new   (const guchar    *buffer,
+				     gsize            len,
+				     const gchar     *uri);
+void             tracker_iptc_free  (TrackerIptcData *data);
+
 #ifndef TRACKER_DISABLE_DEPRECATED
 
-gboolean          tracker_iptc_read  (const unsigned char *buffer,
-                                      size_t               len,
-                                      const gchar         *uri,
-                                      TrackerIptcData     *data) G_GNUC_DEPRECATED;
+gboolean         tracker_iptc_read  (const unsigned char *buffer,
+				     size_t               len,
+				     const gchar         *uri,
+				     TrackerIptcData     *data) G_GNUC_DEPRECATED;
 
 #endif /* TRACKER_DISABLE_DEPRECATED */
-
-TrackerIptcData * tracker_iptc_new   (const guchar *buffer,
-                                      gsize         len,
-                                      const gchar  *uri);
-void              tracker_iptc_free  (TrackerIptcData *data);
 
 G_END_DECLS
 

@@ -483,6 +483,8 @@ parse_xmp (const gchar    *buffer,
 	return TRUE;
 }
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
 /**
  * tracker_xmp_read:
  * @buffer: a chunk of data with xmp data in it.
@@ -515,6 +517,8 @@ tracker_xmp_read (const gchar    *buffer,
 	return parse_xmp (buffer, len, uri, data);
 }
 
+#endif /* TRACKER_DISABLE_DEPRECATED */
+
 /**
  * tracker_xmp_new:
  * @buffer: a chunk of data with xmp data in it.
@@ -525,8 +529,7 @@ tracker_xmp_read (const gchar    *buffer,
  * XMP library.
  *
  * Returns: a newly allocated #TrackerXmpData struct if XMP data was
- *          found, %NULL otherwise. Free the returned struct with
- *          tracker_xmp_free().
+ * found, %NULL otherwise. Free the returned struct with tracker_xmp_free().
  *
  * Since: 0.9
  **/
@@ -554,10 +557,9 @@ tracker_xmp_new (const gchar *buffer,
 /**
  * tracker_xmp_free:
  * @data: a #TrackerXmpData struct
- * @free_members: %TRUE to free all struct members
  *
- * Frees @data, and optionally all struct members if @free_members
- * is %TRUE.
+ * Frees @data and all #TrackerXmpData members. %NULL will produce a
+ * a warning.
  *
  * Since: 0.9
  **/
