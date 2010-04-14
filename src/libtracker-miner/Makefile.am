@@ -12,7 +12,6 @@ INCLUDES =						\
 	$(GCOV_CFLAGS)					\
 	$(GDKPIXBUF_CFLAGS)				\
 	$(GIO_CFLAGS)					\
-	$(HAL_CFLAGS)					\
 	$(DBUS_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
@@ -58,7 +57,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
-	$(HAL_LIBS)					\
 	$(DBUS_LIBS)					\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\

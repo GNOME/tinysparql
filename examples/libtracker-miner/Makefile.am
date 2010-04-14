@@ -10,8 +10,7 @@ INCLUDES =							\
 	$(GCOV_CFLAGS)						\
 	$(GDKPIXBUF_CFLAGS)					\
 	$(GIO_CFLAGS)						\
-	$(HAL_CFLAGS)						\
-	$(DBUS_CFLAGS)						\
+	$(DBUS_CFLAGS)
 
 noinst_PROGRAMS = tracker-miner-test
 

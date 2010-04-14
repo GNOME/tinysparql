@@ -42,14 +42,12 @@ INCLUDES = 								\
 	-I$(top_srcdir)/src						\
 	$(GLIB2_CFLAGS)							\
 	$(GIO_CFLAGS)							\
-	$(HAL_CFLAGS)							\
 	$(DBUS_CFLAGS)
 
 GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	 \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(HAL_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
