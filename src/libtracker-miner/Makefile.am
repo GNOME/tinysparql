@@ -13,7 +13,6 @@ INCLUDES =						\
 	$(GCOV_CFLAGS)					\
 	$(GDKPIXBUF_CFLAGS)				\
 	$(GIO_CFLAGS)					\
-	$(PANGO_CFLAGS)					\
 	$(HAL_CFLAGS)					\
 	$(DEVKIT_POWER_CFLAGS)				\
 	$(DBUS_CFLAGS)
@@ -64,7 +63,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(HAL_LIBS)					\
 	$(DEVKIT_POWER_LIBS)				\
 	$(DBUS_LIBS)					\
-	$(PANGO_LIBS)					\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\
 	$(GLIB2_LIBS)					\

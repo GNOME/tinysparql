@@ -11,7 +11,6 @@ INCLUDES =							\
 	$(GCOV_CFLAGS)						\
 	$(GDKPIXBUF_CFLAGS)					\
 	$(GIO_CFLAGS)						\
-	$(PANGO_CFLAGS)						\
 	$(HAL_CFLAGS)						\
 	$(DEVKIT_POWER_CFLAGS)					\
 	$(DBUS_CFLAGS)						\

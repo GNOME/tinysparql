@@ -8,6 +8,7 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(TRACKER_APPS_CFLAGS)						\
+	$(PANGO_CFLAGS)							\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
@@ -19,6 +20,7 @@ tracker_status_icon_LDADD = 						\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(TRACKER_APPS_LIBS)						\
+	$(PANGO_LIBS)							\
 	$(GCOV_LIBS)							\
 	-lX11
 

@@ -25,6 +25,7 @@ tracker_search_tool_CFLAGS = \
 	-DSRCDIR=\"$(abs_srcdir)/\"				\
 	$(TRACKER_APPS_CFLAGS)					\
 	$(TRACKER_VALA_CFLAGS)					\
+	$(PANGO_CFLAGS)						\
 	$(WARN_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
 	-include$(top_srcdir)/config.h  			\

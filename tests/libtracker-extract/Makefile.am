@@ -16,7 +16,6 @@ INCLUDES = 								\
 	$(GCOV_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
-	$(PANGO_CFLAGS)							\
 	$(DBUS_CFLAGS)
 
 tracker_utils_SOURCES = \

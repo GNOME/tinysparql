@@ -11,7 +11,6 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
-	$(PANGO_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
@@ -37,7 +36,6 @@ tracker_miner_fs_LDADD =						\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(PANGO_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)							\
