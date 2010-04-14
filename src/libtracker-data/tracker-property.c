@@ -253,7 +253,10 @@ tracker_property_get_domain (TrackerProperty *property)
 {
 	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
+	/* Removed for performance:
+	 g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
+
+	g_return_val_if_fail (property != NULL, NULL);
 
 	priv = GET_PRIV (property);
 
@@ -313,7 +316,10 @@ tracker_property_get_fulltext_indexed (TrackerProperty *property)
 {
 	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+	/* Removed for performance:
+	 g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
+
+	g_return_val_if_fail (property != NULL, NULL);
 
 	priv = GET_PRIV (property);
 
