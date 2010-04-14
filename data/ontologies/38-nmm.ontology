@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-02-16T11:00:00Z" .
+	nao:lastModified "2010-04-09T00:00:50Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -63,8 +63,9 @@ nmm:musicAlbum a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
 	rdfs:range nmm:MusicAlbum ;
-	tracker:weight 6 ;
-	tracker:writeback true .
+	tracker:writeback true ;
+	tracker:indexed true ;
+	tracker:weight 6 .
 
 # Cardinality could be > 1 if we create one for album collections
 nmm:albumArtist a rdf:Property ;
@@ -90,7 +91,8 @@ nmm:performer a rdf:Property ;
 	rdfs:domain nmm:MusicPiece ;
 	rdfs:range nmm:Artist ;
 	tracker:weight 4 ;
-	tracker:writeback true .
+	tracker:writeback true ;
+	tracker:indexed true .
 
 nmm:length a rdf:Property ;
 	rdfs:label "Length" ;

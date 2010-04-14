@@ -53,3 +53,16 @@
 
 * maemo:localPhoneNumber:
   - For matching against the local part of the phone number
+
+38-nmm:
+* nmm:musicAlbum:
+  - Used for retrieving songs on an album.
+  - Used in cases where fts:match is done against the album as well as the song
+
+* nmm:performer:
+  - Used for retrieving songs by a performer.
+  - Used in cases where fts:match is done against the performer as well as the song.
+
+40-mlo:
+* mlo:location:
+  - Used for retrieving all content in some specific location

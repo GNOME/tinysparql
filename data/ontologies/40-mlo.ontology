@@ -131,13 +131,13 @@ mlo:bbNorthWest a rdf:Property ;
     rdfs:label "North west corner";
     rdfs:comment "North west corner of a bounding box. The GeoPoint is interpreted in 2D";
     rdfs:domain mlo:GeoBoundingBox ;
-    rdfs:range mlo:GeoPoint . 
+    rdfs:range mlo:GeoPoint .
 
 mlo:bbSouthEast a rdf:Property ;
     rdfs:label "South east corner";
     rdfs:comment "South east corner of a bounding box. The GeoPoint is interpreted in 2D";
     rdfs:domain mlo:GeoBoundingBox ;
-    rdfs:range mlo:GeoPoint . 
+    rdfs:range mlo:GeoPoint .
 
 # Properties of Route
 mlo:startTime a rdf:Property ;
@@ -170,6 +170,7 @@ mlo:location a rdf:Property ;
     rdfs:label "Property linking something to a location" ;
     rdfs:comment "This can be subclassed to add semantics" ;
     rdfs:domain nie:InformationElement ;
+    tracker:indexed true ;
     rdfs:range mlo:GeoLocation .
 
 # Properties of GeoLocation
@@ -229,7 +230,7 @@ mlo:poiLocation a rdf:Property ;
     rdfs:range mlo:GeoPoint .
 
 ###############################################
-#  Predefined categories coming from Symbian 
+#  Predefined categories coming from Symbian
 #    - move to a different file?
 ###############################################
 

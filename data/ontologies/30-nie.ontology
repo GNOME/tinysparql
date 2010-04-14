@@ -45,7 +45,10 @@ nie:subject a rdf:Property ;
 	rdfs:subPropertyOf dc:subject ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
+	tracker:weight 5 .
 
 nie:mimeType a rdf:Property ;
 	rdfs:label "Mime Type" ;
