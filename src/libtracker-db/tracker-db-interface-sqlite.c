@@ -40,7 +40,9 @@
 #define TRACKER_TYPE_DB_STATEMENT_SQLITE         (tracker_db_statement_sqlite_get_type ())
 #define TRACKER_DB_STATEMENT_SQLITE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqlite))
 #define TRACKER_DB_STATEMENT_SQLITE_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqliteClass))
-#define TRACKER_IS_DB_STATEMENT_SQLITE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE))
+#define TRACKER_IS_DB_STATEMENT_SQLITE_O(o)      (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE))
+#define TRACKER_IS_DB_STATEMENT_SQLITE(o)        (((TrackerDBStatementSqlite *)o)->priv)
+
 #define TRACKER_IS_DB_STATEMENT_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_STATEMENT_SQLITE))
 #define TRACKER_DB_STATEMENT_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqliteClass))
 
@@ -97,6 +99,7 @@ struct TrackerDBCursorSqlitePrivate {
 
 struct TrackerDBStatementSqlite {
 	GObject parent_instance;
+	TrackerDBStatementSqlitePrivate *priv;
 };
 
 struct TrackerDBStatementSqliteClass {
@@ -1158,6 +1161,7 @@ tracker_db_cursor_sqlite_iface_init (TrackerDBCursorIface *iface)
 static void
 tracker_db_statement_sqlite_init (TrackerDBStatementSqlite *stmt)
 {
+	stmt->priv = TRACKER_IS_DB_STATEMENT_SQLITE_O(stmt);
 }
 
 static void
