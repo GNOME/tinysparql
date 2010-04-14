@@ -113,6 +113,9 @@ tracker_coalesce_strip (gint n_values,
  * matches, otherwise %NULL.
  *
  * Since: 0.8
+ *
+ * Deprecated: 1.0: Use tracker_coalesce_strip() instead.
+ *
  **/
 gchar *
 tracker_coalesce (gint n_values,
@@ -212,6 +215,8 @@ tracker_merge_const (const gchar *delimiter,
  * be freed with g_free() when finished with, otherwise %NULL.
  *
  * Since: 0.8
+ *
+ * Deprecated: 1.0: Use tracker_merge_const() instead.
  **/
 gchar *
 tracker_merge (const gchar *delimiter, 
