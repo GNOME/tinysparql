@@ -8,7 +8,6 @@ INCLUDES =						\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\
-	$(GDKPIXBUF_CFLAGS)				\
 	$(GIO_CFLAGS)					\
 	$(LIBIPTCDATA_CFLAGS)				\
 	$(LIBEXIF_CFLAGS) 				\
@@ -48,7 +47,6 @@ libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\
 	$(GLIB2_LIBS)					\
-	$(GDKPIXBUF_LIBS)				\
 	$(LIBIPTCDATA_LIBS)				\
 	$(LIBEXIF_LIBS)					\
 	$(EXEMPI_LIBS)

@@ -9,7 +9,6 @@ INCLUDES =						\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\
-	$(GDKPIXBUF_CFLAGS)				\
 	$(GIO_CFLAGS)					\
 	$(HAL_CFLAGS)					\
 	$(DEVKIT_POWER_CFLAGS)				\
@@ -82,8 +81,7 @@ libtracker_common_la_LIBADD = 				\
 	$(DBUS_LIBS)					\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\
-	$(GLIB2_LIBS)					\
-	$(GDKPIXBUF_LIBS)
+	$(GLIB2_LIBS)
 
 marshal_sources =                              		\
         tracker-marshal.h              			\

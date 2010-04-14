@@ -8,7 +8,6 @@ INCLUDES =							\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
-	$(GDKPIXBUF_CFLAGS)					\
 	$(GIO_CFLAGS)						\
 	$(DBUS_CFLAGS)
 
