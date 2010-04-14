@@ -20,8 +20,15 @@
 
 #include "config.h"
 
+/* For timegm usage on __GLIBC__ */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <strings.h>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
 #include <stdlib.h>
 
 #include <glib.h>
@@ -111,11 +118,11 @@ tracker_string_to_date (const gchar *date_string,
 		/* mktime() always assumes that "tm" is in locale time but we
 		 * want to keep control on time, so we go to UTC
 		 */
-#if !(defined(__FreeBSD__) || defined(__OpenBSD__))
-                t  = mktime (&tm);
-                t -= timezone;
+#if !(defined(__FreeBSD__) || defined(__OpenBSD__) || defined (__GLIBC__))
+		t  = mktime (&tm);
+		t -= timezone;
 #else
-                t = timegm (&tm);
+		t = timegm (&tm);
 #endif
 
 		offset = 0;
@@ -154,11 +161,7 @@ tracker_string_to_date (const gchar *date_string,
 		/* local time */
 		tm.tm_isdst = -1;
 
-#if !(defined(__FreeBSD__) || defined(__OpenBSD__))
-                t = mktime (&tm);
-#else
-                t = timegm (&tm);
-#endif
+		t = mktime (&tm);
 
 		offset = -timezone + (tm.tm_isdst > 0 ? 3600 : 0);
 	}
