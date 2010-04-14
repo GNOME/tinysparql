@@ -4,7 +4,7 @@ import tools
 
 ####################################################################################
 def generateFeedChannel(index):
-  feed_channel_uri         = 'http://feed%d.feed.com/feed%d.rss' % (index % 1000, index % 1000)
+  feed_channel_uri         = 'http://feed%d.feed.com/feed%d.rss' % (index % 1000, index)
   feed_channel_title       = 'Feed %d' % index
   feed_channel_description = 'Description %d' % (index % 1000)
 
@@ -22,7 +22,7 @@ def generateFeedChannel(index):
 
 ####################################################################################
 def generateFeedMessage(index):
-  feed_message_uri         = 'http://feed%d.feed.com/message%d.html' % (index % 1000, index % 1000)
+  feed_message_uri         = 'http://feed%d.feed.com/message%d.html' % (index % 1000, index)
   feed_message_title       = 'Message %d' % index
   feed_message_description = 'Description %d' % (index % 1000)
   feed_message_comment     = 'Comment %d' % index
