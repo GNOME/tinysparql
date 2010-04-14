@@ -8,10 +8,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: HEAD\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&component=general\n"
-"POT-Creation-Date: 2010-03-31 19:40+0000\n"
-"PO-Revision-Date: 2010-03-31 22:41+0300\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-04-14 23:39+0300\n"
+"PO-Revision-Date: 2010-04-14 23:39+0300\n"
 "Last-Translator: Žygimantas Beručka <zygis@gnome.org>\n"
 "Language-Team: Lithuanian <gnome-lt@lists.akl.lt>\n"
 "MIME-Version: 1.0\n"
@@ -192,8 +191,8 @@ msgid "Cookie not recognized to resume paused miner"
 msgstr "Neatpažintas slapukas neatpažintas sustabdyto rinkiklio pratęsimui"
 
 #: ../src/libtracker-miner/tracker-miner-fs.c:721
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2348
-#: ../src/miners/rss/tracker-miner-rss.c:135
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2347
+#: ../src/miners/rss/tracker-miner-rss.c:164
 msgid "Initializing"
 msgstr "Inicijuojame"
 
@@ -225,7 +224,7 @@ msgstr "Siųsti duomenis į Tracker kad būtų galimos užklausos"
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2440
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2439
 msgid "Resuming"
 msgstr "Tęsiama"
 
@@ -251,7 +250,7 @@ msgid "_URN:"
 msgstr "_URN:"
 
 #: ../src/tracker-extract/tracker-main.c:84
-#: ../src/tracker-store/tracker-main.c:100
+#: ../src/tracker-store/tracker-main.c:99
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -300,7 +299,7 @@ msgid "MODULE"
 msgstr "MODULIS"
 
 #: ../src/tracker-extract/tracker-main.c:111
-#: ../src/miners/fs/tracker-main.c:97 ../src/tracker-store/tracker-main.c:96
+#: ../src/miners/fs/tracker-main.c:97 ../src/tracker-store/tracker-main.c:95
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Rodo versijos informaciją"
@@ -423,11 +422,11 @@ msgstr "Bus stebimi"
 msgid "- start the tracker indexer"
 msgstr "- paleisti tracker indeksuotoją"
 
-#: ../src/miners/fs/tracker-miner-files.c:895
+#: ../src/miners/fs/tracker-miner-files.c:897
 msgid "Low battery"
 msgstr "Senka baterija"
 
-#: ../src/miners/fs/tracker-miner-files.c:978
+#: ../src/miners/fs/tracker-miner-files.c:980
 msgid "Low disk space"
 msgstr "Mažai vietos diske"
 
@@ -438,7 +437,7 @@ msgstr "Mažai vietos diske"
 msgid "- start the feeds indexer"
 msgstr "- paleisti tracker indeksuotoją"
 
-#: ../src/miners/rss/tracker-miner-rss.c:218
+#: ../src/miners/rss/tracker-miner-rss.c:256
 msgid "Fetching..."
 msgstr "Įkeliama..."
 
@@ -450,36 +449,36 @@ msgstr "Konfigūruoti failų indeksavimą su Tracker"
 msgid "Search and Indexing"
 msgstr "Paieška ir indeksavimas"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:111
+#: ../src/tracker-preferences/tracker-preferences.vala:109
 msgid "Disabled"
 msgstr "Uždrausta"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:114
+#: ../src/tracker-preferences/tracker-preferences.vala:112
 #, c-format
 msgid "%d%%"
 msgstr "%d%%"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:119
+#: ../src/tracker-preferences/tracker-preferences.vala:116
 #, c-format
 msgid "%d/20"
 msgstr "%d/20"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:127
+#: ../src/tracker-preferences/tracker-preferences.vala:124
 msgid "Enter value"
 msgstr "Įveskite reikšmę"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:156
+#: ../src/tracker-preferences/tracker-preferences.vala:155
 msgid "Select directory"
 msgstr "Pasirinkite katalogą"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:376
-#: ../src/tracker-preferences/tracker-preferences.vala:377
-#: ../src/tracker-preferences/tracker-preferences.vala:378
-#: ../src/tracker-preferences/tracker-preferences.vala:379
+#: ../src/tracker-preferences/tracker-preferences.vala:382
+#: ../src/tracker-preferences/tracker-preferences.vala:383
+#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:385
 msgid "Directory"
 msgstr "Katalogas"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:380
+#: ../src/tracker-preferences/tracker-preferences.vala:386
 msgid "File"
 msgstr "Failas"
 
@@ -577,55 +576,63 @@ msgid "Non-Recursively Indexed"
 msgstr "Nerekursiškai indeksuojamas"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:24
+msgid "Opens text entry for glob patterns"
+msgstr "Atveria teksto įvedimo lauką visuotiniems (glob) šablonams"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+msgid "Opens the filechooser dialogue"
+msgstr "Atveria failo pasirinkimo dialogą"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
 msgid "Recursively Indexed"
 msgstr "Rekursiškai indeksuojamas"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
 msgid "Semantics"
 msgstr "Semantika"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:26
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Slower"
 msgstr "Lėčiau"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Start up"
 msgstr "Paleidimas"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "Stop indexing when _disk space is below:"
 msgstr "Nustoti indeksuoti kai _diske lieka mažiau nei:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr "Apima VISAS išimamas laikmenas, atminties korteles, CD, DVD ir kt."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid ""
 "When toggled, this makes sure your home directory is included in the list."
 msgstr "Įjungus užtikrina, kad jūsų namų katalogas būtų įtrauktas į sąrašą."
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "With specific files:"
 msgstr "Su specialiais failais:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "_Delay"
 msgstr "_Delsa"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
 msgid "_Monitor file and directory changes"
 msgstr "_Stebėti failų ir aplankų pasikeitimus"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
 msgid "_Never display icon"
 msgstr "_Niekada nerodyti piktogramos"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "_Only display when indexing content"
 msgstr "R_odyti tik indeksuojant turinį"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "seconds"
 msgstr "sek."
 
@@ -965,22 +972,18 @@ msgstr "Valdyti ir stebėti paieškos ir indeksavimo tarnybą Tracker"
 msgid "Tracker Applet"
 msgstr "Tracker įtaisas"
 
-#: ../src/tracker-store/tracker-main.c:105
-msgid "Minimizes the use of memory but may slow indexing down"
-msgstr "Sumažina atminties naudojimą, tačiau gali sulėtinti indeksavimą"
-
-#: ../src/tracker-store/tracker-main.c:111
+#: ../src/tracker-store/tracker-main.c:106
 msgid "Force a re-index of all content"
 msgstr "Priverstinis viso turinio perindeksavimas"
 
-#: ../src/tracker-store/tracker-main.c:115
+#: ../src/tracker-store/tracker-main.c:110
 msgid "Only allow read based actions on the database"
 msgstr "Leisti tik skaitymo veiksmus duomenų bazėje"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:368
+#: ../src/tracker-store/tracker-main.c:361
 msgid "- start the tracker daemon"
 msgstr "- paleisti tracker posistemę"
 
@@ -1761,6 +1764,9 @@ msgstr "- paleisti tracker rašymo posistemę"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Išsaugotos užklausos"
+
+#~ msgid "Minimizes the use of memory but may slow indexing down"
+#~ msgstr "Sumažina atminties naudojimą, tačiau gali sulėtinti indeksavimą"
 
 #~ msgid "Thr_ottle:"
 #~ msgstr "_Stabdyti:"
