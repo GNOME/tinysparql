@@ -17,6 +17,7 @@ INCLUDES = 								\
 	$(GMODULE_CFLAGS) 						\
 	$(DBUS_CFLAGS)							\
 	$(ID3LIB_CFLAGS)						\
+	$(TAGLIB_CFLAGS)						\
 	$(EXEMPI_CFLAGS)						\
 	$(TOTEM_PL_PARSER_CFLAGS)
 
@@ -29,6 +30,15 @@ modules_LTLIBRARIES =
 #libwriteback_mp3_la_LDFLAGS = $(module_flags)
 #libwriteback_mp3_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(ID3LIB_LIBS)
 #endif
+
+# Audio files (MP3, MPC, FLAC, MP4, ASF, AIFF, WAV, TrueAudio, WavPack,
+# Ogg FLAC, Ogg Vorbis and Speex)
+if HAVE_TAGLIB
+modules_LTLIBRARIES += libwriteback-taglib.la
+libwriteback_taglib_la_SOURCES = tracker-writeback-taglib.c
+libwriteback_taglib_la_LDFLAGS = $(module_flags)
+libwriteback_taglib_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(TAGLIB_LIBS)
+endif
 
 # XMP
 if HAVE_EXEMPI

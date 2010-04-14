@@ -158,6 +158,7 @@ EDS_REQUIRED=2.25.5
 LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
 ID3LIB_REQUIRED=3.8.3
+TAGLIB_REQUIRED=1.6
 GNOME_KEYRING_REQUIRED=2.26
 LIBGRSS_REQUIRED=0.3
 
@@ -281,6 +282,28 @@ AM_CONDITIONAL(HAVE_ID3LIB, test "x$have_id3lib" = "xyes")
 
 CFLAGS="$OLD_CFLAGS"
 LIBS="$OLD_LIBS"
+
+####################################################################
+# Taglib for audio writeback support
+####################################################################
+
+AC_ARG_ENABLE(taglib,
+              AS_HELP_STRING([--enable-taglib],
+                             [enable writeback for audio files [[default=auto]]]),,
+              [enable_taglib=auto])
+
+if test "x$enable_taglib" != "xno" ; then
+	PKG_CHECK_MODULES(TAGLIB,
+	                  [taglib_c >= $TAGLIB_REQUIRED],
+	                  [have_taglib=yes],
+	                  [have_taglib=no])
+	AC_SUBST(TAGLIB_CFLAGS)
+	AC_SUBST(TAGLIB_LIBS)
+else
+	have_taglib="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_TAGLIB, test "x$have_taglib" = "xyes")
 
 ####################################################################
 # Stream Analyzer
@@ -1815,6 +1838,7 @@ Plugins:
 Writeback:
 
 	MP3:                                    $have_id3lib
+	Audio files using Taglib:               $have_taglib
 	XMP:                                    $have_exempi
 
 Warning:
