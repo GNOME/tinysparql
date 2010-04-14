@@ -751,8 +751,9 @@ fi
 
 # 3.6.11 for sqlite_backup API
 # 3.6.16 to fix test failures
+# 3.6.17 for shared cache mode with virtual tables
 
-SQLITE_REQUIRED=3.6.16
+SQLITE_REQUIRED=3.6.17
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
 AC_SUBST(SQLITE3_CFLAGS)
