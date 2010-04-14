@@ -4,14 +4,13 @@ INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
-	-DI_KNOW_THE_DEVICEKIT_POWER_API_IS_SUBJECT_TO_CHANGE	\
 	-I$(top_srcdir)/src				\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\
 	$(GIO_CFLAGS)					\
 	$(HAL_CFLAGS)					\
-	$(DEVKIT_POWER_CFLAGS)				\
+	$(UPOWER_CFLAGS)				\
 	$(DBUS_CFLAGS)
 
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
@@ -23,12 +22,12 @@ else
 os_sources = tracker-os-dependant-unix.c
 endif
 
-# Prefer DeviceKit-power for the power data if it's available, else fall back to HAL
-if HAVE_DEVKIT_POWER
+# Prefer UPower for the power data if it's available, else fall back to HAL
+if HAVE_UPOWER
 power_headers =						\
 	tracker-power.h
 power_sources =						\
-	tracker-power-devicekit.c
+	tracker-power-upower.c
 else
 if HAVE_HAL
 power_headers =						\
@@ -77,7 +76,7 @@ libtracker_common_la_LDFLAGS = 				\
 libtracker_common_la_LIBADD = 				\
 	$(top_builddir)/src/libstemmer/libstemmer.la	\
 	$(HAL_LIBS)					\
-	$(DEVKIT_POWER_LIBS)				\
+	$(UPOWER_LIBS)					\
 	$(DBUS_LIBS)					\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\

@@ -20,16 +20,16 @@
 
 #include "config.h"
 
-#ifdef HAVE_DEVKIT_POWER
+#ifdef HAVE_UPOWER
 
-#include <devkit-power-gobject/devicekit-power.h>
+#include <upower.h>
 
 #include "tracker-power.h"
 
 #define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_POWER, TrackerPowerPriv))
 
 typedef struct {
-	DkpClient *client;
+	UpClient  *client;
 	gboolean   on_battery;
 	gboolean   on_low_battery;
 } TrackerPowerPriv;
@@ -39,7 +39,7 @@ static void     tracker_power_get_property      (GObject         *object,
                                                  guint            param_id,
                                                  GValue                  *value,
                                                  GParamSpec      *pspec);
-static void     tracker_power_client_changed_cb (DkpClient       *client,
+static void     tracker_power_client_changed_cb (UpClient        *client,
                                                  TrackerPower    *power);
 
 enum {
@@ -94,18 +94,18 @@ tracker_power_init (TrackerPower *power)
 {
 	TrackerPowerPriv *priv;
 
-	g_message ("Initializing DeviceKit-power...");
+	g_message ("Initializing UPower...");
 
 	priv = GET_PRIV (power);
 
-	/* connect to a DeviceKit-power instance */
-	priv->client = dkp_client_new ();
+	/* connect to a UPower instance */
+	priv->client = up_client_new ();
 	g_signal_connect (priv->client, "changed",
 	                  G_CALLBACK (tracker_power_client_changed_cb), power);
 
 	/* coldplug */
-	priv->on_battery = dkp_client_on_battery (priv->client);
-	priv->on_low_battery = dkp_client_on_low_battery (priv->client);
+	priv->on_battery = up_client_get_on_battery (priv->client);
+	priv->on_low_battery = up_client_get_on_low_battery (priv->client);
 }
 
 static void
@@ -147,7 +147,7 @@ tracker_power_get_property (GObject    *object,
  * tracker_power_client_changed_cb:
  **/
 static void
-tracker_power_client_changed_cb (DkpClient *client, TrackerPower *power)
+tracker_power_client_changed_cb (UpClient *client, TrackerPower *power)
 {
 	gboolean on_battery;
 	gboolean on_low_battery;
@@ -156,14 +156,14 @@ tracker_power_client_changed_cb (DkpClient *client, TrackerPower *power)
 	priv = GET_PRIV (power);
 
 	/* get the on-battery state */
-	on_battery = dkp_client_on_battery (priv->client);
+	on_battery = up_client_get_on_battery (priv->client);
 	if (on_battery != priv->on_battery) {
 		priv->on_battery = on_battery;
 		g_object_notify (G_OBJECT (power), "on-battery");
 	}
 
 	/* get the on-low-battery state */
-	on_low_battery = dkp_client_on_low_battery (priv->client);
+	on_low_battery = up_client_get_on_low_battery (priv->client);
 	if (on_low_battery != priv->on_low_battery) {
 		priv->on_low_battery = on_low_battery;
 		g_object_notify (G_OBJECT (power), "on-low-battery");
@@ -184,7 +184,7 @@ tracker_power_new ()
 }
 
 /**
- * tracker_hal_get_on_battery:
+ * tracker_power_get_on_battery:
  * @power: A #TrackerPower.
  *
  * Returns whether the computer battery (if any) is currently in use.
@@ -244,4 +244,4 @@ tracker_power_get_battery_percentage (TrackerPower *power)
 	return 0.5;
 }
 
-#endif /* HAVE_DEVKIT_POWER */
+#endif /* HAVE_UPOWER */

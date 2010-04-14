@@ -206,7 +206,7 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	                  G_CALLBACK (mount_point_removed_cb),
 	                  mf);
 
-#if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
+#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 	priv->power = tracker_power_new ();
 
 	g_signal_connect (priv->power, "notify::on-low-battery",
@@ -215,7 +215,7 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	g_signal_connect (priv->power, "notify::on-battery",
 	                  G_CALLBACK (battery_status_cb),
 	                  mf);
-#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
@@ -300,9 +300,9 @@ miner_files_finalize (GObject *object)
                 g_slist_free (priv->index_single_directories);
         }
 
-#if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
+#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 	g_object_unref (priv->power);
-#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 	g_object_unref (priv->storage);
 
@@ -352,9 +352,9 @@ miner_files_constructed (GObject *object)
 
 	mounts = tracker_storage_get_device_roots (mf->private->storage, type, TRUE);
 
-#if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
+#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 	check_battery_status (mf);
-#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 	g_message ("Setting up directories to iterate from config (IndexSingleDirectory)");
 
@@ -851,7 +851,7 @@ mount_point_added_cb (TrackerStorage *storage,
 	g_free (urn);
 }
 
-#if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
+#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 
 static void
 set_up_throttle (TrackerMinerFiles *mf,
@@ -929,7 +929,7 @@ battery_status_cb (GObject    *object,
 	check_battery_status (mf);
 }
 
-#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 static void
 mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,

@@ -139,7 +139,7 @@ GTK_REQUIRED=2.18.0
 LIBXML2_REQUIRED=2.6
 LIBNOTIFY_REQUIRED=0.4.3
 HAL_REQUIRED=0.5
-DEVKIT_POWER_REQUIRED=007
+UPOWER_REQUIRED=0.9.0
 GDKPIXBUF_REQUIRED=2.12.0
 QUILL_REQUIRED=1.0.0
 UNAC_REQUIRED=1.0.0
@@ -398,36 +398,36 @@ fi
 
 
 ##################################################################
-# Check for DeviceKit-power
+# Check for UPower
 ##################################################################
 
-AC_ARG_ENABLE(devkit_power,
-	      AS_HELP_STRING([--disable-devkit-power],
-			     [disable DeviceKit-power support for AC power detection [[default=auto]]]),,
-	      [enable_devkit_power=auto])
+AC_ARG_ENABLE(upower,
+	      AS_HELP_STRING([--disable-upower],
+			     [disable UPower support for AC power detection [[default=auto]]]),,
+	      [enable_upower=auto])
 
-if test "x$enable_devkit_power" != "xno"; then
-   PKG_CHECK_MODULES(DEVKIT_POWER,
-		     [devkit-power-gobject >= $DEVKIT_POWER_REQUIRED],
-		     [have_devkit_power=yes] ,
-		     [have_devkit_power=no])
-   AC_SUBST(DEVKIT_POWER_CFLAGS)
-   AC_SUBST(DEVKIT_POWER_LIBS)
+if test "x$enable_upower" != "xno"; then
+   PKG_CHECK_MODULES(UPOWER,
+		     [upower-glib >= $UPOWER_REQUIRED],
+		     [have_upower=yes] ,
+		     [have_upower=no])
+   AC_SUBST(UPOWER_CFLAGS)
+   AC_SUBST(UPOWER_LIBS)
 
-   if test "x$have_devkit_power" = "xyes"; then
-      AC_DEFINE(HAVE_DEVKIT_POWER, [], [Define if we have DEVKIT_POWER])
+   if test "x$have_upower" = "xyes"; then
+      AC_DEFINE(HAVE_UPOWER, [], [Define if we have UPOWER])
    fi
 else
-   have_devkit_power="no  (disabled)"
+   have_upower="no  (disabled)"
 fi
 
-if test "x$enable_devkit_power" = "xyes"; then
-   if test "x$have_devkit_power" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find devkit_power >= $DEVKIT_POWER_REQUIRED.])
+if test "x$enable_upower" = "xyes"; then
+   if test "x$have_upower" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find upower >= $UPOWER_REQUIRED.])
    fi
 fi
 
-AM_CONDITIONAL(HAVE_DEVKIT_POWER, test "x$have_devkit_power" = "xyes")
+AM_CONDITIONAL(HAVE_UPOWER, test "x$have_upower" = "xyes")
 
 ##################################################################
 # Check for HAL
@@ -438,7 +438,7 @@ AC_ARG_ENABLE(hal,
 			     [disable HAL support for AC power detection [[default=auto]]]),,
 	      [enable_hal=auto])
 
-if test "x$have_devkit_power" != "xyes" && test "x$enable_hal" != "xno"; then
+if test "x$have_upower" != "xyes" && test "x$enable_hal" != "xno"; then
    PKG_CHECK_MODULES(HAL,
                      [hal >= $HAL_REQUIRED],
 		     [have_hal=yes] ,
@@ -454,8 +454,8 @@ else
 fi
 
 if test "x$enable_hal" = "xyes"; then
-   if test "x$have_devkit_power" = "xyes"; then
-      AC_MSG_ERROR([Only one of DeviceKit-power and HAL can be used.])
+   if test "x$have_upower" = "xyes"; then
+      AC_MSG_ERROR([Only one of UPower and HAL can be used.])
    elif test "x$have_hal" != "xyes"; then
       AC_MSG_ERROR([Couldn't find hal >= $HAL_REQUIRED.])
    fi
@@ -1749,8 +1749,8 @@ Build Configuration:
 	Enable unit tests:			$have_unit_tests
 
 	Support for ioprio:			$tracker_cv_have_ioprio
-	Support for HAL:                    	$have_hal
-	Support for DeviceKit-power:           	$have_devkit_power
+	Support for HAL:			$have_hal
+	Support for UPower:			$have_upower
 	Support for file monitoring:            $have_file_monitor
 	Support for accent stripping (unac):  	$have_unac
 	Support for Cyrillic languages (enca): 	$have_enca
