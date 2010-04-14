@@ -243,7 +243,10 @@ tracker_db_interface_create_statement (TrackerDBInterface  *interface,
 	va_list args;
 	gchar *str;
 
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (interface), NULL);
+	/* Removed for performance 
+	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (interface), NULL); */
+
+	g_return_val_if_fail (interface != NULL, NULL);
 	g_return_val_if_fail (query != NULL, NULL);
 
 	va_start (args, query);
@@ -360,7 +363,10 @@ tracker_db_statement_bind_double (TrackerDBStatement    *stmt,
                                   int                    idx,
                                   double                 value)
 {
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+	/* Removed for performance 
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL); */
+
+	g_return_if_fail (stmt != NULL);
 
 	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_double (stmt, idx, value);
 }
@@ -370,7 +376,10 @@ tracker_db_statement_bind_int (TrackerDBStatement       *stmt,
                                int                       idx,
                                int                       value)
 {
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+	/* Removed for performance:
+	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt)); */
+
+	g_return_if_fail (stmt != NULL);
 
 	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int (stmt, idx, value);
 }
@@ -380,7 +389,10 @@ tracker_db_statement_bind_int64 (TrackerDBStatement     *stmt,
                                  int                     idx,
                                  gint64                          value)
 {
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+	/* Removed for performance 
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL); */
+
+	g_return_if_fail (stmt != NULL);
 
 	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int64 (stmt, idx, value);
 }
@@ -389,7 +401,10 @@ void
 tracker_db_statement_bind_null (TrackerDBStatement      *stmt,
                                 int                      idx)
 {
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+	/* Removed for performance 
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL); */
+
+	g_return_if_fail (stmt != NULL);
 
 	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_null (stmt, idx);
 }
@@ -399,7 +414,10 @@ tracker_db_statement_bind_text (TrackerDBStatement      *stmt,
                                 int                      idx,
                                 const gchar             *value)
 {
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+	/* Removed for performance 
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL); */
+
+	g_return_if_fail (stmt != NULL);
 
 	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_text (stmt, idx, value);
 }
@@ -410,7 +428,10 @@ tracker_db_statement_execute (TrackerDBStatement         *stmt,
 {
 	TrackerDBResultSet *result_set;
 
-	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
+	/* Removed for performance 
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL); */
+
+	g_return_val_if_fail (stmt != NULL, NULL); 
 
 	result_set = TRACKER_DB_STATEMENT_GET_IFACE (stmt)->execute (stmt, error);
 
@@ -421,7 +442,10 @@ TrackerDBCursor *
 tracker_db_statement_start_cursor (TrackerDBStatement    *stmt,
                                    GError               **error)
 {
-	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
+	/* Removed for performance
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL); */
+
+	g_return_val_if_fail (stmt != NULL, NULL);
 
 	return TRACKER_DB_STATEMENT_GET_IFACE (stmt)->start_cursor (stmt, error);
 }
@@ -439,7 +463,10 @@ tracker_db_cursor_rewind (TrackerDBCursor *cursor)
 gboolean
 tracker_db_cursor_iter_next (TrackerDBCursor *cursor)
 {
-	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), FALSE);
+	/* Removed for performance 
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), FALSE); */
+
+	g_return_val_if_fail (cursor != NULL, FALSE);
 
 	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->iter_next (cursor);
 }
@@ -455,7 +482,10 @@ tracker_db_cursor_get_n_columns (TrackerDBCursor *cursor)
 void
 tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *value)
 {
-	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+	/* Removed for performance 
+	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor)); */
+
+	g_return_if_fail (cursor != NULL);
 
 	TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_value (cursor, column, value);
 }
@@ -463,7 +493,10 @@ tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *val
 const gchar*
 tracker_db_cursor_get_string (TrackerDBCursor *cursor, guint            column)
 {
-	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), NULL);
+	/* Removed for performance 
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), NULL); */
+
+	g_return_val_if_fail (cursor != NULL, NULL);
 
 	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_string (cursor, column);
 }
@@ -471,7 +504,10 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor, guint            column)
 gint
 tracker_db_cursor_get_int (TrackerDBCursor *cursor, guint            column)
 {
-	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1);
+	/* Removed for performance
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1); */
+
+	g_return_val_if_fail (cursor != NULL, -1);
 
 	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_int (cursor, column);
 }
@@ -479,7 +515,10 @@ tracker_db_cursor_get_int (TrackerDBCursor *cursor, guint            column)
 gdouble
 tracker_db_cursor_get_double (TrackerDBCursor *cursor, guint            column)
 {
-	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1);
+	/* Removed for performance
+	g_return_val_if_fail (TRACKER_IS_DB_CURSOR (cursor), -1); */
+
+	g_return_val_if_fail (cursor != NULL, -1);
 
 	return TRACKER_DB_CURSOR_GET_IFACE (cursor)->get_double (cursor, column);
 }

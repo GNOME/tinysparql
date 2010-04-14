@@ -26,11 +26,10 @@
 
 #include "tracker-namespace.h"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_NAMESPACE, TrackerNamespacePriv))
+#define GET_PRIV(obj) (((TrackerNamespace*)obj)->priv)
+#define TRACKER_NAMESPACE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_NAMESPACE, TrackerNamespacePrivate))
 
-typedef struct _TrackerNamespacePriv TrackerNamespacePriv;
-
-struct _TrackerNamespacePriv {
+struct _TrackerNamespacePrivate {
 	gchar *uri;
 	gchar *prefix;
 	gboolean is_new;
@@ -47,18 +46,19 @@ tracker_namespace_class_init (TrackerNamespaceClass *klass)
 
 	object_class->finalize     = namespace_finalize;
 
-	g_type_class_add_private (object_class, sizeof (TrackerNamespacePriv));
+	g_type_class_add_private (object_class, sizeof (TrackerNamespacePrivate));
 }
 
 static void
 tracker_namespace_init (TrackerNamespace *service)
 {
+	service->priv = TRACKER_NAMESPACE_GET_PRIVATE (service);
 }
 
 static void
 namespace_finalize (GObject *object)
 {
-	TrackerNamespacePriv *priv;
+	TrackerNamespacePrivate *priv;
 
 	priv = GET_PRIV (object);
 
@@ -81,7 +81,7 @@ tracker_namespace_new (void)
 const gchar *
 tracker_namespace_get_uri (TrackerNamespace *namespace)
 {
-	TrackerNamespacePriv *priv;
+	TrackerNamespacePrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), NULL);
 
@@ -93,7 +93,7 @@ tracker_namespace_get_uri (TrackerNamespace *namespace)
 const gchar *
 tracker_namespace_get_prefix (TrackerNamespace *namespace)
 {
-	TrackerNamespacePriv *priv;
+	TrackerNamespacePrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), NULL);
 
@@ -105,7 +105,7 @@ tracker_namespace_get_prefix (TrackerNamespace *namespace)
 gboolean
 tracker_namespace_get_is_new (TrackerNamespace *namespace)
 {
-	TrackerNamespacePriv *priv;
+	TrackerNamespacePrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), FALSE);
 
@@ -118,7 +118,7 @@ void
 tracker_namespace_set_uri (TrackerNamespace *namespace,
                            const gchar    *value)
 {
-	TrackerNamespacePriv *priv;
+	TrackerNamespacePrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 
@@ -137,7 +137,7 @@ void
 tracker_namespace_set_prefix (TrackerNamespace *namespace,
                               const gchar    *value)
 {
-	TrackerNamespacePriv *priv;
+	TrackerNamespacePrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 
@@ -156,7 +156,7 @@ void
 tracker_namespace_set_is_new (TrackerNamespace *namespace,
                               gboolean          value)
 {
-	TrackerNamespacePriv *priv;
+	TrackerNamespacePrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 
