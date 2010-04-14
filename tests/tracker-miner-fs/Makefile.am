@@ -20,7 +20,6 @@ INCLUDES = 									\
 	$(GCOV_CFLAGS)								\
 	$(GMODULE_CFLAGS)							\
 	$(GTHREAD_CFLAGS)							\
-	$(PANGO_CFLAGS)								\
 	$(DBUS_CFLAGS)
 
 tracker_metadata_utils_SOURCES = 						\
@@ -35,7 +34,6 @@ tracker_metadata_utils_LDADD =	                                        	\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/tests/common/libtracker-testcommon.la           	\
 	$(DBUS_LIBS)								\
-	$(PANGO_LIBS)								\
 	$(GMODULE_LIBS)								\
 	$(GTHREAD_LIBS)								\
 	$(GIO_LIBS)								\

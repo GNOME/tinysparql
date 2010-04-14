@@ -15,7 +15,6 @@ INCLUDES =								\
 	$(GIO_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
-	$(PANGO_CFLAGS)							\
 	$(FAM_CFLAGS)							\
 	$(SQLITE3_CFLAGS)
 
@@ -65,7 +64,6 @@ tracker_store_LDADD =							\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
-	$(PANGO_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
