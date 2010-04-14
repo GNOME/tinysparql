@@ -29,11 +29,10 @@
 #include "tracker-namespace.h"
 #include "tracker-ontologies.h"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CLASS, TrackerClassPriv))
+#define GET_PRIV(obj) (((TrackerClass*) obj)->priv)
+#define TRACKER_CLASS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CLASS, TrackerClassPrivate))
 
-typedef struct _TrackerClassPriv TrackerClassPriv;
-
-struct _TrackerClassPriv {
+struct _TrackerClassPrivate {
 	gchar *uri;
 	gchar *name;
 	gint count;
@@ -54,24 +53,27 @@ tracker_class_class_init (TrackerClassClass *klass)
 
 	object_class->finalize     = class_finalize;
 
-	g_type_class_add_private (object_class, sizeof (TrackerClassPriv));
+	g_type_class_add_private (object_class, sizeof (TrackerClassPrivate));
 }
 
 static void
 tracker_class_init (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
-	priv = GET_PRIV (service);
+	priv = TRACKER_CLASS_GET_PRIVATE (service);
 
 	priv->id = 0;
 	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
+
+	/* Make GET_PRIV working */
+	service->priv = priv;
 }
 
 static void
 class_finalize (GObject *object)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	priv = GET_PRIV (object);
 
@@ -96,7 +98,7 @@ tracker_class_new (void)
 const gchar *
 tracker_class_get_uri (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
@@ -108,7 +110,7 @@ tracker_class_get_uri (TrackerClass *service)
 const gchar *
 tracker_class_get_name (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
@@ -120,7 +122,7 @@ tracker_class_get_name (TrackerClass *service)
 gint
 tracker_class_get_count (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), 0);
 
@@ -132,7 +134,7 @@ tracker_class_get_count (TrackerClass *service)
 gint
 tracker_class_get_id (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), 0);
 
@@ -144,7 +146,7 @@ tracker_class_get_id (TrackerClass *service)
 TrackerClass **
 tracker_class_get_super_classes (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
@@ -156,7 +158,7 @@ tracker_class_get_super_classes (TrackerClass *service)
 gboolean
 tracker_class_get_is_new (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
@@ -169,7 +171,7 @@ void
 tracker_class_set_uri (TrackerClass *service,
                        const gchar  *value)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
@@ -210,7 +212,7 @@ void
 tracker_class_set_count (TrackerClass *service,
                          gint          value)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
@@ -224,7 +226,7 @@ void
 tracker_class_set_id (TrackerClass *service,
                       gint          value)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
@@ -238,7 +240,7 @@ void
 tracker_class_add_super_class (TrackerClass *service,
                                TrackerClass *value)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 	g_return_if_fail (TRACKER_IS_CLASS (value));
@@ -252,7 +254,7 @@ void
 tracker_class_set_is_new (TrackerClass *service,
                           gboolean         value)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
