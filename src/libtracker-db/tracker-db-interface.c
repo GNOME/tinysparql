@@ -23,9 +23,8 @@
 
 #include "tracker-db-interface.h"
 
-#define TRACKER_DB_RESULT_SET_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_RESULT_SET, TrackerDBResultSetPrivate))
-
-typedef struct TrackerDBResultSetPrivate TrackerDBResultSetPrivate;
+#define TRACKER_DB_RESULT_SET_GET_PRIVATE_O(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_RESULT_SET, TrackerDBResultSetPrivate))
+#define TRACKER_DB_RESULT_SET_GET_PRIVATE(o) (((TrackerDBResultSet*)o)->priv)
 
 struct TrackerDBResultSetPrivate {
 	GType *col_types;
@@ -214,6 +213,7 @@ tracker_db_result_set_class_init (TrackerDBResultSetClass *class)
 static void
 tracker_db_result_set_init (TrackerDBResultSet *result_set)
 {
+	result_set->priv = TRACKER_DB_RESULT_SET_GET_PRIVATE_O (result_set);
 }
 
 static TrackerDBResultSet *
