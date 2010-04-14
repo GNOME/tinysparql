@@ -15,7 +15,6 @@ INCLUDES =							\
 	$(HAL_CFLAGS)						\
 	$(DEVKIT_POWER_CFLAGS)					\
 	$(DBUS_CFLAGS)						\
-	$(UNAC_CFLAGS)
 
 noinst_PROGRAMS = tracker-miner-test
 

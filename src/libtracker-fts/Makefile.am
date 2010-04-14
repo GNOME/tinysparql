@@ -9,6 +9,7 @@ INCLUDES =								\
 	$(GCOV_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
+	$(UNAC_CFLAGS)							\
 	$(SQLITE3_CFLAGS)
 
 noinst_LTLIBRARIES = libtracker-fts.la
@@ -30,4 +31,5 @@ libtracker_fts_la_LIBADD =						\
 	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(PANGO_LIBS)							\
+	$(UNAC_LIBS)							\
 	$(GLIB2_LIBS)							
