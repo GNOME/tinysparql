@@ -14,8 +14,7 @@ INCLUDES =						\
 	$(PANGO_CFLAGS)					\
 	$(HAL_CFLAGS)					\
 	$(DEVKIT_POWER_CFLAGS)				\
-	$(DBUS_CFLAGS)					\
-	$(UNAC_CFLAGS)
+	$(DBUS_CFLAGS)
 
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_common_LTLIBRARIES = libtracker-common.la
@@ -82,7 +81,6 @@ libtracker_common_la_LIBADD = 				\
 	$(HAL_LIBS)					\
 	$(DEVKIT_POWER_LIBS)				\
 	$(DBUS_LIBS)					\
-	$(UNAC_LIBS)					\
 	$(PANGO_LIBS)					\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\

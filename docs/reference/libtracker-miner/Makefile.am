@@ -44,8 +44,7 @@ INCLUDES = 								\
 	$(GIO_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
 	$(HAL_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(UNAC_CFLAGS)
+	$(DBUS_CFLAGS)
 
 GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	 \
@@ -53,7 +52,6 @@ GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(HAL_LIBS)							\
 	$(DBUS_LIBS)							\
-	$(UNAC_LIBS)							\
 	$(PANGO_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
