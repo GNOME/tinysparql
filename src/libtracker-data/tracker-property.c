@@ -37,11 +37,10 @@
 #define XSD_INTEGER  TRACKER_XSD_PREFIX "integer"
 #define XSD_STRING   TRACKER_XSD_PREFIX "string"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_PROPERTY, TrackerPropertyPriv))
+#define GET_PRIV(obj) (((TrackerProperty*) obj)->priv)
+#define TRACKER_PROPERTY_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_PROPERTY, TrackerPropertyPrivate))
 
-typedef struct _TrackerPropertyPriv TrackerPropertyPriv;
-
-struct _TrackerPropertyPriv {
+struct _TrackerPropertyPrivate {
 	gchar         *uri;
 	gchar         *name;
 	gchar         *table_name;
@@ -116,15 +115,15 @@ tracker_property_class_init (TrackerPropertyClass *klass)
 
 	object_class->finalize     = property_finalize;
 
-	g_type_class_add_private (object_class, sizeof (TrackerPropertyPriv));
+	g_type_class_add_private (object_class, sizeof (TrackerPropertyPrivate));
 }
 
 static void
-tracker_property_init (TrackerProperty *field)
+tracker_property_init (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	priv = GET_PRIV (field);
+	priv = TRACKER_PROPERTY_GET_PRIVATE (property);
 
 	priv->id = 0;
 	priv->weight = 1;
@@ -132,12 +131,15 @@ tracker_property_init (TrackerProperty *field)
 	priv->transient = FALSE;
 	priv->multiple_values = TRUE;
 	priv->super_properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
+
+	/* Make GET_PRIV working */
+	property->priv = priv;
 }
 
 static void
 property_finalize (GObject *object)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
 	priv = GET_PRIV (object);
 
@@ -168,58 +170,58 @@ property_finalize (GObject *object)
 TrackerProperty *
 tracker_property_new (void)
 {
-	TrackerProperty *field;
+	TrackerProperty *property;
 
-	field = g_object_new (TRACKER_TYPE_PROPERTY, NULL);
+	property = g_object_new (TRACKER_TYPE_PROPERTY, NULL);
 
-	return field;
+	return property;
 }
 
 const gchar *
-tracker_property_get_uri (TrackerProperty *field)
+tracker_property_get_uri (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->uri;
 }
 
 gboolean
-tracker_property_get_transient (TrackerProperty *field)
+tracker_property_get_transient (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->transient;
 }
 
 
 const gchar *
-tracker_property_get_name (TrackerProperty *field)
+tracker_property_get_name (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->name;
 }
 
 const gchar *
-tracker_property_get_table_name (TrackerProperty *field)
+tracker_property_get_table_name (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	if (!priv->table_name) {
 		if (priv->multiple_values) {
@@ -235,157 +237,157 @@ tracker_property_get_table_name (TrackerProperty *field)
 }
 
 TrackerPropertyType
-tracker_property_get_data_type (TrackerProperty *field)
+tracker_property_get_data_type (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), TRACKER_PROPERTY_TYPE_STRING); //FIXME
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), TRACKER_PROPERTY_TYPE_STRING); //FIXME
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->data_type;
 }
 
 TrackerClass *
-tracker_property_get_domain (TrackerProperty *field)
+tracker_property_get_domain (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->domain;
 }
 
 TrackerClass *
-tracker_property_get_range (TrackerProperty *field)
+tracker_property_get_range (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), NULL);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->range;
 }
 
 gint
-tracker_property_get_weight (TrackerProperty *field)
+tracker_property_get_weight (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), -1);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), -1);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->weight;
 }
 
 gint
-tracker_property_get_id (TrackerProperty *field)
+tracker_property_get_id (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), 0);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), 0);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->id;
 }
 
 gboolean
-tracker_property_get_indexed (TrackerProperty *field)
+tracker_property_get_indexed (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->indexed;
 }
 
 gboolean
-tracker_property_get_fulltext_indexed (TrackerProperty *field)
+tracker_property_get_fulltext_indexed (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->fulltext_indexed;
 }
 
 gboolean
-tracker_property_get_fulltext_no_limit (TrackerProperty *field)
+tracker_property_get_fulltext_no_limit (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->fulltext_no_limit;
 }
 
 gboolean
-tracker_property_get_is_new (TrackerProperty *field)
+tracker_property_get_is_new (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->is_new;
 }
 
 gboolean
-tracker_property_get_writeback (TrackerProperty *field)
+tracker_property_get_writeback (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->writeback;
 }
 
 gboolean
-tracker_property_get_db_schema_changed (TrackerProperty *field)
+tracker_property_get_db_schema_changed (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->db_schema_changed;
 }
 
 gboolean
-tracker_property_get_embedded (TrackerProperty *field)
+tracker_property_get_embedded (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->embedded;
 }
 
 gboolean
-tracker_property_get_multiple_values (TrackerProperty *field)
+tracker_property_get_multiple_values (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (field), FALSE);
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	return priv->multiple_values;
 }
@@ -393,7 +395,7 @@ tracker_property_get_multiple_values (TrackerProperty *field)
 gboolean
 tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
@@ -405,7 +407,7 @@ tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 TrackerProperty **
 tracker_property_get_super_properties (TrackerProperty *property)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
 
@@ -415,14 +417,14 @@ tracker_property_get_super_properties (TrackerProperty *property)
 }
 
 void
-tracker_property_set_uri (TrackerProperty *field,
+tracker_property_set_uri (TrackerProperty *property,
                           const gchar     *value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	g_free (priv->uri);
 	g_free (priv->name);
@@ -456,28 +458,28 @@ tracker_property_set_uri (TrackerProperty *field,
 }
 
 void
-tracker_property_set_transient (TrackerProperty *field,
+tracker_property_set_transient (TrackerProperty *property,
                                 gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->transient = value;
 	priv->multiple_values = TRUE;
 }
 
 void
-tracker_property_set_domain (TrackerProperty *field,
+tracker_property_set_domain (TrackerProperty *property,
                              TrackerClass    *value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	if (priv->domain) {
 		g_object_unref (priv->domain);
@@ -493,7 +495,7 @@ void
 tracker_property_set_range (TrackerProperty *property,
                             TrackerClass     *value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 	const gchar *range_uri;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (property));
@@ -526,130 +528,130 @@ tracker_property_set_range (TrackerProperty *property,
 }
 
 void
-tracker_property_set_weight (TrackerProperty *field,
+tracker_property_set_weight (TrackerProperty *property,
                              gint             value)
 {
-	TrackerPropertyPriv *priv;
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	TrackerPropertyPrivate *priv;
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->weight = value;
 }
 
 
 void
-tracker_property_set_id (TrackerProperty *field,
+tracker_property_set_id (TrackerProperty *property,
                          gint             value)
 {
-	TrackerPropertyPriv *priv;
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	TrackerPropertyPrivate *priv;
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->id = value;
 }
 
 void
-tracker_property_set_indexed (TrackerProperty *field,
+tracker_property_set_indexed (TrackerProperty *property,
                               gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->indexed = value;
 }
 
 void
-tracker_property_set_is_new (TrackerProperty *field,
+tracker_property_set_is_new (TrackerProperty *property,
                              gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->is_new = value;
 }
 
 void
-tracker_property_set_writeback (TrackerProperty *field,
+tracker_property_set_writeback (TrackerProperty *property,
                                 gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->writeback = value;
 }
 
 void
-tracker_property_set_db_schema_changed (TrackerProperty *field,
+tracker_property_set_db_schema_changed (TrackerProperty *property,
                                         gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->db_schema_changed = value;
 }
 
 void
-tracker_property_set_fulltext_indexed (TrackerProperty *field,
+tracker_property_set_fulltext_indexed (TrackerProperty *property,
                                        gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->fulltext_indexed = value;
 }
 
 void
-tracker_property_set_fulltext_no_limit (TrackerProperty *field,
+tracker_property_set_fulltext_no_limit (TrackerProperty *property,
                                        gboolean          value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->fulltext_no_limit = value;
 }
 
 void
-tracker_property_set_embedded (TrackerProperty *field,
+tracker_property_set_embedded (TrackerProperty *property,
                                gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	priv->embedded = value;
 }
 
 void
-tracker_property_set_multiple_values (TrackerProperty *field,
+tracker_property_set_multiple_values (TrackerProperty *property,
                                       gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
-	g_return_if_fail (TRACKER_IS_PROPERTY (field));
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
-	priv = GET_PRIV (field);
+	priv = GET_PRIV (property);
 
 	if (priv->transient) {
 		priv->multiple_values = TRUE;
@@ -662,7 +664,7 @@ void
 tracker_property_set_is_inverse_functional_property (TrackerProperty *property,
                                                      gboolean         value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
@@ -675,7 +677,7 @@ void
 tracker_property_add_super_property (TrackerProperty *property,
                                      TrackerProperty *value)
 {
-	TrackerPropertyPriv *priv;
+	TrackerPropertyPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 	g_return_if_fail (TRACKER_IS_PROPERTY (value));

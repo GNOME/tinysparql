@@ -61,9 +61,11 @@ GType        tracker_property_type_get_type  (void) G_GNUC_CONST;
 
 typedef struct _TrackerProperty         TrackerProperty;
 typedef struct _TrackerPropertyClass TrackerPropertyClass;
+typedef struct _TrackerPropertyPrivate TrackerPropertyPrivate;
 
 struct _TrackerProperty {
 	GObject parent;
+	TrackerPropertyPrivate *priv;
 };
 
 struct _TrackerPropertyClass {

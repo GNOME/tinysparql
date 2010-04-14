@@ -38,9 +38,11 @@ G_BEGIN_DECLS
 
 typedef struct _TrackerClass TrackerClass;
 typedef struct _TrackerClassClass TrackerClassClass;
+typedef struct _TrackerClassPrivate TrackerClassPrivate;
 
 struct _TrackerClass {
 	GObject parent;
+	TrackerClassPrivate *priv;
 };
 
 struct _TrackerClassClass {
