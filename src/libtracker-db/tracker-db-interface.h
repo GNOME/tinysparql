@@ -65,6 +65,7 @@ typedef struct TrackerDBResultSet      TrackerDBResultSet;
 typedef struct TrackerDBResultSetClass TrackerDBResultSetClass;
 typedef struct TrackerDBCursor         TrackerDBCursor;
 typedef struct TrackerDBCursorIface    TrackerDBCursorIface;
+typedef struct TrackerDBResultSetPrivate TrackerDBResultSetPrivate;
 
 struct TrackerDBInterfaceIface {
 	GTypeInterface iface;
@@ -101,6 +102,7 @@ struct TrackerDBStatementIface {
 
 struct TrackerDBResultSet {
 	GObject parent_class;
+	TrackerDBResultSetPrivate *priv;
 };
 
 struct TrackerDBResultSetClass {
