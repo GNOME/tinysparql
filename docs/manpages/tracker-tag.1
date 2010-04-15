@@ -42,25 +42,21 @@ WITH the
 option.
 .TP
 .B \-a, \-\-add=TAG
-Add a tag with the name
-.B TAG.
-If no
-.B FILE
-arguments are specified, the tag is simply created (if it didn't
-already exist) and no files are associated with it. Multiple
-.B FILE
-arguments can be specified.
+Add a tag with the name \fITAG\fR. If no \fIFILE\fR arguments are
+specified, the tag is simply created (if it didn'talready exist) and
+no files are associated with it. Multiple \fIFILE\fR arguments can be
+specified.
 .TP
 .B \-d, \-\-delete=TAG
-Delete a tag with the name
-.B TAG.
-If no
-.B FILE
-arguments are specified, the tag is deleted for ALL files. If
-.B FILE
-arguments are specified, only those files have the
-.B TAG
-deleted.
+Delete a tag with the name \fITAG\fR. If no \fIFILE\fR arguments are
+specified, the tag is deleted for ALL files. If \fIFILE\fR arguments
+are specified, only those files have the \fITAG\fR deleted.
+.TP
+.B \-e, \-\-description=STRING
+This option ONLY applies when using
+.B \-\-add
+and provides a description to go with the tag label according to
+\fISTRING\fR.
 .TP
 .B \-V, \-\-version
 Print version.
