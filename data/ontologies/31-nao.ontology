@@ -22,6 +22,15 @@ nao:prefLabel a rdf:Property ;
 	tracker:fulltextIndexed true ;
 	tracker:weight 10 .
 
+nao:description a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nao:Tag ;
+	rdfs:range xsd:string ;
+	rdfs:subPropertyOf rdfs:comment ;
+	rdfs:comment "In the context of the social semantic desktop the textual annotation provided via rdfs:comment is meant for technical users, the textual annotation here is aimed at average users and is meant to be used to define custom descriptions of resources on the desktop" ;
+	tracker:fulltextIndexed true ;
+	tracker:weight 3 .
+
 nao:hasTag a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range rdfs:Resource ;
