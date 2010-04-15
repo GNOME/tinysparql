@@ -156,8 +156,9 @@ static gchar                *data_dir = NULL;
 static gchar                *user_data_dir = NULL;
 static gchar                *sys_tmp_dir = NULL;
 static gpointer              db_type_enum_class_pointer;
-static TrackerDBInterface   *resources_iface;
 static TrackerDBManagerFlags old_flags = 0;
+
+static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 
 static const gchar *
 location_to_directory (TrackerDBLocation location)
@@ -639,6 +640,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	gchar              *in_use_filename;
 	int                 in_use_file;
 	gboolean            loaded = FALSE;
+	TrackerDBInterface *resources_iface;
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -891,6 +893,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		                                                        TRACKER_DB_CONTENTS);
 	}
 
+	g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
+
 	return TRUE;
 }
 
@@ -924,10 +928,7 @@ tracker_db_manager_shutdown (void)
 	sys_tmp_dir = NULL;
 	g_free (sql_dir);
 
-	if (resources_iface) {
-		g_object_unref (resources_iface);
-		resources_iface = NULL;
-	}
+	g_static_private_free (&interface_data_key);
 
 
 	/* Since we don't reference this enum anywhere, we do
@@ -1177,9 +1178,26 @@ tracker_db_manager_get_db_interfaces_ro (gint num, ...)
 TrackerDBInterface *
 tracker_db_manager_get_db_interface (void)
 {
-	g_return_val_if_fail (initialized != FALSE, NULL);
+	TrackerDBInterface *interface;
 
-	return resources_iface;
+	g_return_val_if_fail (initialized != FALSE, NULL);
+	interface = g_static_private_get (&interface_data_key);
+
+	/* Ensure the interface is there */
+	if (!interface) {
+		interface = tracker_db_manager_get_db_interfaces (3,
+			                                          TRACKER_DB_METADATA,
+			                                          TRACKER_DB_FULLTEXT,
+			                                          TRACKER_DB_CONTENTS);
+
+		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (interface), FALSE);
+
+		g_static_private_set (&interface_data_key,
+			              interface,
+			              (GDestroyNotify) g_object_unref);
+	}
+
+	return interface;
 }
 
 /**
