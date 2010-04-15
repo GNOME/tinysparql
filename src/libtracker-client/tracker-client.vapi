@@ -56,6 +56,10 @@ namespace Tracker {
 		public GLib.PtrArray statistics_get () throws GLib.Error;
 		[CCode (cname = "tracker_statistics_get_async")]
 		public void statistics_get_async (Tracker.ReplyGPtrArray callback);
+		[CCode (cname = "tracker_resources_writeback_connect")]
+		public void writeback_connect (Tracker.WritebackCallback callback);
+		[CCode (cname = "tracker_resources_writeback_disconnect")]
+		public void writeback_disconnect ();
 	}
 	[Compact]
 	[CCode (free_function = "g_object_unref", cheader_filename = "libtracker-client/tracker-sparql-builder.h")]
@@ -108,6 +112,8 @@ namespace Tracker {
 	public delegate void ReplyGPtrArray (GLib.PtrArray result, GLib.Error error);
 	[CCode (cheader_filename = "libtracker-client/tracker-client.h", instance_pos = -2)]
 	public delegate void ReplyVoid (GLib.Error error);
+	[CCode (cheader_filename = "libtracker-client/tracker.h", instance_pos = -2)]
+	public delegate void WritebackCallback (GLib.HashTable resources);
 
 	[CCode (cheader_filename = "libtracker-client/tracker-client.h")]
 	public const string DBUS_INTERFACE_RESOURCES;
