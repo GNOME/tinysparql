@@ -1465,7 +1465,7 @@ tracker_resources_writeback_connect (TrackerClient            *client,
 	private = TRACKER_CLIENT_GET_PRIVATE (client);
 
 	/* Connect the DBus signal if needed */
-	if (g_list_length (private->writeback_callbacks) == 0) {
+	if (!private->writeback_callbacks) {
 		dbus_g_proxy_connect_signal (private->proxy_resources,
 		                             "Writeback",
 		                             G_CALLBACK (writeback_cb),
