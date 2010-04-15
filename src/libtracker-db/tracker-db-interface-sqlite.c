@@ -83,6 +83,7 @@ struct TrackerDBInterfaceSqlitePrivate {
 
 	guint in_transaction : 1;
 	guint ro : 1;
+	guint fts_initialized : 1;
 };
 
 struct TrackerDBStatementSqlitePrivate {
@@ -474,6 +475,12 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 static void
 close_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
+	gint rc;
+
+	if (priv->fts_initialized) {
+		tracker_fts_shutdown ();
+	}
+
 	g_hash_table_unref (priv->dynamic_statements);
 	priv->dynamic_statements = NULL;
 
@@ -484,7 +491,8 @@ close_database (TrackerDBInterfaceSqlitePrivate *priv)
 	g_slist_free (priv->function_data);
 	priv->function_data = NULL;
 
-	sqlite3_close (priv->db);
+	rc = sqlite3_close (priv->db);
+	g_warn_if_fail (rc == SQLITE_OK);
 }
 
 void
@@ -496,6 +504,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterfaceSqlite *interface,
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (interface);
 
 	tracker_fts_init (priv->db, create);
+	priv->fts_initialized = TRUE;
 }
 
 static void
