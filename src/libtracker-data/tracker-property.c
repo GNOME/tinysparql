@@ -319,7 +319,7 @@ tracker_property_get_fulltext_indexed (TrackerProperty *property)
 	/* Removed for performance:
 	 g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
 
-	g_return_val_if_fail (property != NULL, NULL);
+	g_return_val_if_fail (property != NULL, FALSE);
 
 	priv = GET_PRIV (property);
 
