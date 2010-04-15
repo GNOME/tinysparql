@@ -624,13 +624,18 @@ tracker_store_unreg_batches (const gchar *client_id)
 
 			if (task && task->type != TRACKER_STORE_TASK_TYPE_TURTLE) {
 				if (g_strcmp0 (task->data.update.client_id, client_id) == 0) {
-					if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
-						if (!error) {
-							g_set_error (&error, TRACKER_DBUS_ERROR, 0,
-								     "Client disappeared");
-						}
+					if (!error) {
+						g_set_error (&error, TRACKER_DBUS_ERROR, 0,
+							     "Client disappeared");
+					}
+
+					if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
+						task->callback.query_callback (NULL, error, task->user_data);
+					} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 						task->callback.update_callback (error, task->user_data);
-					} else {
+					} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
+						task->callback.update_blank_callback (NULL, error, task->user_data);
+					} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
 						task->callback.commit_callback (task->user_data);
 					}
 					task->destroy (task->user_data);
