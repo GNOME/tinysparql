@@ -1436,8 +1436,10 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
 
 /**
  * tracker_resources_writeback_connect:
+ * @client: a #TrackerClient
  * @callback: a #TrackerWritebackCallback to call when the writeback signal is
  *            emitted
+ * @user_data: user data to pass to @callback
  *
  * Registers a callback to be called when the writeback signal is emitted by
  * the store.
@@ -1447,9 +1449,9 @@ tracker_resources_batch_commit_async (TrackerClient    *client,
  * possible the changes in the RDF store should be reflected in the metadata of
  * the original file.
  *
- * Returns a handle that can be used to disconnect the signal later using
- * tracker_resources_writeback_disconnect. The handle will always be greater
- * than 0 on success.
+ * Returns: a handle that can be used to disconnect the signal later using
+ *          tracker_resources_writeback_disconnect. The handle will always be
+ *          greater than 0 on success.
  */
 guint
 tracker_resources_writeback_connect (TrackerClient            *client,
@@ -1486,10 +1488,11 @@ tracker_resources_writeback_connect (TrackerClient            *client,
 
 /**
  * tracker_resources_writeback_disconnect:
- * @callback: the #TrackerWritebackCallback to disconnect
+ * @client: a #TrackerClient
+ * @handle: a handle identifying a callback
  *
- * Removes @callback from the writeback callbacks
- */
+ * Removes the callback identified by @handle from the writeback callbacks.
+ **/
 void
 tracker_resources_writeback_disconnect (TrackerClient            *client,
                                         guint                     handle)
