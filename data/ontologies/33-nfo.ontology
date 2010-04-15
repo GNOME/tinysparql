@@ -339,6 +339,20 @@ nfo:aspectRatio a rdf:Property ;
 	rdfs:domain nfo:Visual ;
 	rdfs:range xsd:double .
 
+nfo:heading a rdf:Property ;
+        rdfs:label "Heading" ;
+        rdfs:comment "Specifies the direction of travelling while capturing image/video. The range of values from 0.00 to 359.99 (where 0 is due North, 90 is East, 180 South and 270 is West)";
+        nrl:maxCardinality 1;
+        rdfs:domain nfo:Visual ;
+        rdfs:range xsd:double .
+
+nfo:tilt a rdf:Property ;
+         rdfs:label "Tilt" ;
+         rdfs:comment "Vertical inclination of the camera while capturing the image, in angles starting on 0 as horizontal, positive numbers pointing up, negative angles pointing down" ;
+         nrl:maxCardinality 1 ;
+         rdfs:domain nfo:Visual ;
+         rdfs:range xsd:double .
+
 nfo:fileSize a rdf:Property ;
 	rdfs:label "fileSize" ;
 	rdfs:comment "The size of the file in bytes. For compressed files it means the size of the packed file, not of the contents. For folders it means the aggregated size of all contained files and folders" ;
