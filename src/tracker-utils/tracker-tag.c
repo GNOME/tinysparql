@@ -40,15 +40,16 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static gint          limit = 512;
-static gint          offset;
-static gchar       **files;
-static gboolean      or_operator;
-static gchar        *add_tag;
-static gchar        *remove_tag;
-static gboolean     *list;
-static gboolean      show_files;
-static gboolean      print_version;
+static gint limit = 512;
+static gint offset;
+static gchar **files;
+static gboolean or_operator;
+static gchar *add_tag;
+static gchar *remove_tag;
+static gchar *description;
+static gboolean *list;
+static gboolean show_files;
+static gboolean print_version;
 
 static GOptionEntry entries[] = {
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
@@ -78,6 +79,10 @@ static GOptionEntry entries[] = {
 	{ "delete", 'd', 0, G_OPTION_ARG_STRING, &remove_tag,
 	  N_("Delete a tag (if FILEs are omitted, TAG is removed for all files)"),
 	  N_("TAG")
+	},
+	{ "description", 'e', 0, G_OPTION_ARG_STRING, &description,
+	  N_("Description for a tag (this is only used with --add)"),
+	  N_("STRING")
 	},
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
@@ -333,17 +338,27 @@ get_all_tags_foreach (gpointer value,
 	GStrv data;
 	const gchar *id;
 	const gchar *tag;
+	const gchar *description;
 	gchar *query;
 	gint files, i;
 
 	data = value;
 	client = user_data;
 
-	files = atoi (data[2]);
+	files = atoi (data[3]);
 	id = data[0];
 	tag = data[1];
+	description = data[2];
 
-	g_print ("  %s\n", tag);
+	if (description && *description == '\0') {
+		description = NULL;
+	}
+
+	g_print ("  %s %s%s%s\n", 
+		 tag,
+		 description ? "(" : "",
+		 description ? description : "",
+		 description ? ")" : "");
 
 	g_print ("    %s\n", id);
 
@@ -405,7 +420,7 @@ get_all_tags (TrackerClient *client,
 	fts = get_fts_string (files, use_or_operator, TRUE, FALSE);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT ?tag ?label COUNT(?urns) AS urns "
+		query = g_strdup_printf ("SELECT ?tag ?label nao:description(?tag) COUNT(?urns) AS urns "
 		                         "WHERE {"
 		                         "  ?tag a nao:Tag ;"
 		                         "  nao:prefLabel ?label ."
@@ -422,7 +437,7 @@ get_all_tags (TrackerClient *client,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT ?tag ?label COUNT(?urns) AS urns "
+		query = g_strdup_printf ("SELECT ?tag ?label nao:description(?tag) COUNT(?urns) AS urns "
 		                         "WHERE {"
 		                         "  ?tag a nao:Tag ;"
 		                         "  nao:prefLabel ?label ."
@@ -514,7 +529,8 @@ print_file_report (GPtrArray   *urns,
 static gboolean
 add_tag_for_urns (TrackerClient *client,
                   GStrv          files,
-                  const gchar   *tag)
+                  const gchar   *tag,
+		  const gchar   *description)
 {
 	GPtrArray *urns = NULL;
 	GError *error = NULL;
@@ -524,19 +540,43 @@ add_tag_for_urns (TrackerClient *client,
 
 	tag_escaped = get_escaped_sparql_string (tag);
 
-	query = g_strdup_printf ("INSERT { "
-	                         "  _:tag a nao:Tag;"
-	                         "  nao:prefLabel %s ."
-	                         "} "
-	                         "WHERE {"
-	                         "  OPTIONAL {"
-	                         "     ?tag a nao:Tag ;"
-	                         "     nao:prefLabel %s"
-	                         "  } ."
-	                         "  FILTER (!bound(?tag)) "
-	                         "}",
-	                         tag_escaped,
-	                         tag_escaped);
+	if (description) {
+		gchar *description_escaped;
+
+		description_escaped = get_escaped_sparql_string (description);
+
+		query = g_strdup_printf ("INSERT { "
+					 "  _:tag a nao:Tag;"
+					 "  nao:prefLabel %s ;"
+					 "  nao:description %s ."
+					 "} "
+					 "WHERE {"
+					 "  OPTIONAL {"
+					 "     ?tag a nao:Tag ;"
+					 "     nao:prefLabel %s ."
+					 "  } ."
+					 "  FILTER (!bound(?tag)) "
+					 "}",
+					 tag_escaped,
+					 description_escaped,
+					 tag_escaped);
+
+		g_free (description_escaped);
+	} else {
+		query = g_strdup_printf ("INSERT { "
+					 "  _:tag a nao:Tag;"
+					 "  nao:prefLabel %s ."
+					 "} "
+					 "WHERE {"
+					 "  OPTIONAL {"
+					 "     ?tag a nao:Tag ;"
+					 "     nao:prefLabel %s ."
+					 "  } ."
+					 "  FILTER (!bound(?tag)) "
+					 "}",
+					 tag_escaped,
+					 tag_escaped);
+	}
 
 	tracker_resources_sparql_update (client, query, &error);
 	g_free (query);
@@ -831,6 +871,8 @@ main (int argc, char **argv)
 		failed = _("Add and delete actions can not be used together");
 	} else if (!list && !add_tag && !remove_tag && !files) {
 		failed = _("No arguments were provided");
+	} else if (description && !add_tag) {
+		failed = _("The --description option can only be used with --add");
 	}
 
 	if (failed) {
@@ -868,7 +910,7 @@ main (int argc, char **argv)
 	if (add_tag) {
 		gboolean success;
 
-		success = add_tag_for_urns (client, files, add_tag);
+		success = add_tag_for_urns (client, files, add_tag, description);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
