@@ -257,7 +257,7 @@ test_xmp_orientation (void)
 {
         gint i;
 
-        for (i = 0; ORIENTATIONS[i].exif_value != NULL; i++) {
+        for (i = 0; i < G_N_ELEMENTS (ORIENTATIONS); i++) {
 		TrackerXmpData *data;
 		gchar *xmp;
 
