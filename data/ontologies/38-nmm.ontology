@@ -63,7 +63,8 @@ nmm:musicAlbum a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
 	rdfs:range nmm:MusicAlbum ;
-	tracker:weight 6 .
+	tracker:weight 6 ;
+	tracker:writeback true .
 
 # Cardinality could be > 1 if we create one for album collections
 nmm:albumArtist a rdf:Property ;
@@ -88,7 +89,8 @@ nmm:performer a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
 	rdfs:range nmm:Artist ;
-	tracker:weight 4 .
+	tracker:weight 4 ;
+	tracker:writeback true .
 
 nmm:length a rdf:Property ;
 	rdfs:label "Length" ;
