@@ -2267,6 +2267,8 @@ typedef enum fulltext_statement {
   SEGDIR_DELETE_ALL_STMT,
   SEGDIR_COUNT_STMT,
 
+  PROPERTY_WEIGHT_STMT,
+
   MAX_STMT                     /* Always at end! */
 } fulltext_statement;
 
@@ -2310,6 +2312,8 @@ static const char *const fulltext_zStatement[MAX_STMT] = {
   " order by level desc, idx asc",
   /* SEGDIR_DELETE_ALL */ "delete from %_segdir",
   /* SEGDIR_COUNT */ "select count(*), ifnull(max(level),0) from %_segdir",
+
+  /* PROPERTY_WEIGHT */ "SELECT \"tracker:weight\" FROM \"rdf:Property\" WHERE ID = ?",
 };
 
 /*
@@ -2399,41 +2403,6 @@ static const char *contentInsertStatement(fulltext_vtab *v){
 #endif
 
 
-/* Functions from Tracker */
-static inline int
-get_metadata_weight (int id)
-{
-  static sqlite3_stmt *stmt = NULL;
-
-  int rc;
-  int weight;
-
-  weight = 1;
-
-  /* We may want to cache this if this proofs to be a performance issue */
-
-  if (!stmt) {
-    rc = sqlite3_prepare_v2 (tracker_fts_vtab->db, "SELECT \"tracker:weight\" FROM \"rdf:Property\" WHERE ID = ?", -1, &stmt, NULL);
-    if (rc != SQLITE_OK) return weight;
-  } else {
-    sqlite3_reset (stmt);
-  }
-
-  rc = sqlite3_bind_int (stmt, 1, id);
-  if (rc != SQLITE_OK) return weight;
-
-  rc = sqlite3_step (stmt);
-  if (rc != SQLITE_ROW) return weight;
-
-  weight = sqlite3_column_int (stmt, 0);
-  if (weight == 0) {
-    weight = 1;
-  }
-
-  return weight;
-}
-
-
 #if 0
 /* Return a dynamically generated statement of the form
  *   select <content columns> from %_content where docid = ?
@@ -2487,6 +2456,34 @@ static int sql_get_statement(fulltext_vtab *v, fulltext_statement iStmt,
 
   *ppStmt = v->pFulltextStatements[iStmt];
   return SQLITE_OK;
+}
+
+
+/* Function from Tracker */
+static inline int
+get_metadata_weight (fulltext_vtab *v, int id)
+{
+  sqlite3_stmt *stmt;
+  int rc;
+  int weight;
+
+  weight = 1;
+
+  rc = sql_get_statement(v, PROPERTY_WEIGHT_STMT, &stmt);
+  if (rc != SQLITE_OK) return weight;
+
+  rc = sqlite3_bind_int (stmt, 1, id);
+  if (rc != SQLITE_OK) return weight;
+
+  rc = sqlite3_step (stmt);
+  if (rc != SQLITE_ROW) return weight;
+
+  weight = sqlite3_column_int (stmt, 0);
+  if (weight == 0) {
+    weight = 1;
+  }
+
+  return weight;
 }
 
 /* Like sqlite3_step(), but convert SQLITE_DONE to SQLITE_OK and
@@ -4134,6 +4131,7 @@ static int fulltextClose(sqlite3_vtab_cursor *pCursor){
 
 static int fulltextNext(sqlite3_vtab_cursor *pCursor){
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
+  fulltext_vtab *v = tracker_fts_vtab;
   int rc;
   PLReader plReader;
   gboolean first_pos = TRUE;
@@ -4181,7 +4179,7 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
       int col = plrColumn (&plReader);
 
       uri = map_function (col);
-      c->rank += get_metadata_weight (col);
+      c->rank += get_metadata_weight (v, col);
 
       if (uri && first_pos) {
         g_string_append_printf (c->offsets, "%s,%d", uri, plrPosition (&plReader));
