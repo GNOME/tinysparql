@@ -16,20 +16,11 @@ INCLUDES = 								\
 	$(GCOV_CFLAGS)							\
 	$(GMODULE_CFLAGS) 						\
 	$(DBUS_CFLAGS)							\
-	$(ID3LIB_CFLAGS)						\
 	$(TAGLIB_CFLAGS)						\
 	$(EXEMPI_CFLAGS)						\
 	$(TOTEM_PL_PARSER_CFLAGS)
 
 modules_LTLIBRARIES =
-
-# MP3
-#if HAVE_ID3LIB
-#modules_LTLIBRARIES += libwriteback-mp3.la
-#libwriteback_mp3_la_SOURCES = tracker-writeback-mp3.c
-#libwriteback_mp3_la_LDFLAGS = $(module_flags)
-#libwriteback_mp3_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(ID3LIB_LIBS)
-#endif
 
 # Audio files (MP3, MPC, FLAC, MP4, ASF, AIFF, WAV, TrueAudio, WavPack,
 # Ogg FLAC, Ogg Vorbis and Speex)
