@@ -36,7 +36,7 @@
 #include "tracker-store.h"
 
 #define TRACKER_STORE_TRANSACTION_MAX                   4000
-#define TRACKER_STORE_MAX_CONCURRENT_QUERIES               1
+#define TRACKER_STORE_MAX_CONCURRENT_QUERIES               2
 
 #define TRACKER_STORE_QUERY_WATCHDOG_TIMEOUT 10
 #define TRACKER_STORE_MAX_TASK_TIME          30
