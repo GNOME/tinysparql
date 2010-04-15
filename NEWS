@@ -1,3 +1,53 @@
+NEW in 0.8.2 - 2010-04-15
+=========================
+
+Improvements / New:
+
+  General:
+  * Fixed erroneous linking where GdkPixbuf, HAL, DeviceKit, Pango and UNAC were involved
+
+  libtracker-common:
+  * Fixed use of timegm on BSD and use it for __GLIBC__, it's faster
+
+  libtracker-db:
+  * Avoid type checking for TrackerDBInterface and TrackerDBResultSet
+  
+  libtracker-data:
+  * Avoid type checking for TrackerProperty, TrackerClass and TrackerNamespace
+
+  libtracker-client:
+  * Added properties to Vala bindings (allowing property = value)
+
+  tracker-miner-fs:
+  * Fixed build failures on non-Linux systems (FAT filesystem operations)
+
+  tracker-miner-rss:
+  * Fixed linking to build with GThread
+
+Bugs:
+
+  * GB#615182 - Avoid initializing priorities twice in tracker-miner-fs
+  * GB#615313 - Avoid Invalid Read when iterating INotifyHandle list
+  * GB#615184 - Is the low memory configuration option deprecated?
+  * GB#615563 - Proper handling of --enable-evolution-miner configure option
+  * GB#615178 - Graceful crawling stop
+  * GB#615035 - Removing unzip command dependency from ms-office extractor
+  * NB#161047 - Images resolution is not extracted
+  * NB#163544 - substring function needed
+  * NB#163715 - Tracker doesn't handle e.g. "11"^^<http://www.w3.org/2001/XMLSchema#int> correctly
+  * NB#163480 - Tracker does not seem to be reading all the tags associated with an image
+
+Translations:
+
+  * Updated cs: Petr Kovar
+  * Updated lt: Gintautas Miliauskas
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.8.1 - 2010-04-08
 =========================
 
