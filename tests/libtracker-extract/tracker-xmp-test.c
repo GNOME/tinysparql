@@ -257,7 +257,7 @@ test_xmp_orientation (void)
         gchar *xmp;
         TrackerXmpData data;
 
-        for (i = 0; ORIENTATIONS[i].exif_value != NULL; i++) {
+        for (i = 0; i < G_N_ELEMENTS (ORIENTATIONS); i++) {
                 xmp = g_strdup_printf (ORIENTATION_XMP, ORIENTATIONS[i].exif_value);
                 tracker_xmp_read (xmp, strlen (xmp), "local://file", &data);
                 
