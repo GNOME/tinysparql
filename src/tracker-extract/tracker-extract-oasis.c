@@ -24,6 +24,8 @@
 
 #include "tracker-main.h"
 
+#include <unistd.h>
+
 typedef enum {
 	ODT_TAG_TYPE_UNKNOWN,
 	ODT_TAG_TYPE_TITLE,
@@ -66,29 +68,101 @@ static TrackerExtractData extract_data[] = {
 	{ NULL, NULL }
 };
 
+
+#define ODT_BUFFER_SIZE            8193  /* bytes */
+
 static gchar *
 extract_content (const gchar *path,
-                 guint        n_words)
+                 guint        n_words,
+                 gsize        n_bytes)
 {
-	gchar *command, *output, *text;
+	const gchar *argv[4];
+	gint fdz;
+	FILE *fz;
 	GError *error = NULL;
+	gchar *text = NULL;
 
-	command = g_strdup_printf ("odt2txt --encoding=utf-8 '%s'", path);
-	g_debug ("Executing command:'%s'", command);
 
-	if (!g_spawn_command_line_sync (command, &output, NULL, NULL, &error)) {
-		g_warning ("Could not extract text from '%s': %s", path, error->message);
-		g_error_free (error);
-		g_free (command);
+	/* Setup command to be executed */
+	argv[0] = "odt2txt";
+	argv[1] = "--encoding=utf-8";
+	argv[2] = path;
+	argv[3] = NULL;
 
-		return NULL;
+	g_debug ("Executing command:'%s %s %s' (max words: %u, "
+	         "max_bytes: %" G_GSIZE_FORMAT ")",
+	         argv[0], argv[1], argv[2], n_words, n_bytes);
+
+	/* Fork & spawn */
+	if (!g_spawn_async_with_pipes (g_get_tmp_dir (),
+	                               (gchar **)argv,
+	                               NULL,
+	                               G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+	                               tracker_spawn_child_func,
+	                               GINT_TO_POINTER (10),
+	                               NULL,
+	                               NULL,
+	                               &fdz,
+	                               NULL,
+	                               &error)) {
+		g_warning ("Spawning failed, could not extract text from '%s': %s",
+		           path, error ? error->message : NULL);
+		g_clear_error (&error);
 	}
+	/* Open file descriptor for reading */
+	else if ((fz = fdopen (fdz, "r")) == NULL) {
+		g_warning ("Cannot read child's output... could not extract "
+		           "text from '%s'", path);
+		close (fdz);
+	}
+	/* Start buffered reading... */
+	else {
+		unsigned char buf[ODT_BUFFER_SIZE];
+		size_t r, accum;
+		guint n_words_remaining = n_words;
+		GString *normalized;
 
-	g_debug ("Normalizing output with %d max words", n_words);
-	text = tracker_text_normalize (output, n_words, NULL);
+		accum = 0;
+		normalized = g_string_new ("");
 
-	g_free (command);
-	g_free (output);
+		/* Reading in chunks of ODT_BUFFER_SIZE -1 (8192)
+		 *   Loop is halted whenever one of this conditions is met:
+		 *     a) Read bytes reached the maximum allowed (n_bytes)
+		 *     b) Already read up to the max number of words configured
+		 *     c) No more bytes to read
+		 */
+		while ((accum <= n_bytes) &&
+		       (n_words_remaining > 0) &&
+		       (r = fread (buf, 1, ODT_BUFFER_SIZE-1, fz))) {
+			gchar *normalized_chunk;
+			guint n_words_normalized;
+
+			/* Always make sure that the read string will be
+			 * NIL-terminated  */
+			buf[r] = '\0';
+			/* Get normalized chunk */
+			normalized_chunk = tracker_text_normalize (buf,
+			                                           n_words_remaining,
+			                                           &n_words_normalized);
+			/* Update number of words remaining.
+			 * Note that n_words_normalized should always be less or
+			 * equal than n_words_remaining */
+			n_words_remaining = (n_words_normalized <= n_words_remaining ?
+			                     n_words_remaining - n_words_normalized : 0);
+			/* Update accumulated */
+			accum += r;
+
+			/* Add normalized chunk to the whole normalized string */
+			g_string_append (normalized, normalized_chunk);
+			g_free (normalized_chunk);
+		}
+
+		/* fclose() the stream, no need to close() the original FD */
+		fclose (fz);
+
+		/* Set final normalized contents to return */
+		text = g_string_free (normalized, FALSE);
+	}
 
 	return text;
 }
@@ -104,6 +178,7 @@ extract_oasis (const gchar          *uri,
 	gchar *content;
 	TrackerFTSConfig *fts_config;
 	guint n_words;
+	gsize n_bytes;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
@@ -113,7 +188,8 @@ extract_oasis (const gchar          *uri,
 	argv[3] = g_strdup ("meta.xml");
 	argv[4] = NULL;
 
-	/* Question: shouldn't we g_unlink meta.xml then? */
+	/* No need to unlink meta.xml, as it goes to stdout of the
+	 *  spawned child (-p option in unzip) */
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
@@ -141,8 +217,14 @@ extract_oasis (const gchar          *uri,
 	}
 
 	fts_config = tracker_main_get_fts_config ();
+	/* Set max words to read from content */
 	n_words = tracker_fts_config_get_max_words_to_index (fts_config);
-	content = extract_content (filename, n_words);
+	/* Set max bytes to read from content.
+	 * Assuming 3 bytes per unicode point in UTF-8, as 4-byte UTF-8 unicode
+	 *  points are really pretty rare */
+	n_bytes = 3 * n_words * tracker_fts_config_get_max_word_length(fts_config);
+
+	content = extract_content (filename, n_words, n_bytes);
 
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
@@ -259,7 +341,7 @@ xml_text_handler (GMarkupParseContext  *context,
 
 		keywords = g_strdup (text);
 
-		for (keyw = strtok_r (keywords, ",; ", &lasts); 
+		for (keyw = strtok_r (keywords, ",; ", &lasts);
 		     keyw;
 		     keyw = strtok_r (NULL, ",; ", &lasts)) {
 			tracker_sparql_builder_predicate (metadata, "nie:keyword");
