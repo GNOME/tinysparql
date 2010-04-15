@@ -1991,6 +1991,12 @@ tracker_data_commit_db_transaction (void)
 	g_hash_table_remove_all (update_buffer.resources_by_id);
 	g_hash_table_remove_all (update_buffer.resource_cache);
 
+	in_journal_replay = FALSE;
+}
+
+void
+tracker_data_notify_db_transaction (void)
+{
 	if (commit_callbacks) {
 		guint n;
 		for (n = 0; n < commit_callbacks->len; n++) {
@@ -1999,9 +2005,8 @@ tracker_data_commit_db_transaction (void)
 			delegate->callback (delegate->user_data);
 		}
 	}
-
-	in_journal_replay = FALSE;
 }
+
 
 static void
 format_sql_value_as_string (GString         *sql,
