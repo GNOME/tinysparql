@@ -2526,6 +2526,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 			tracker_db_statement_bind_int (stmt, 0, id);
 			tracker_db_statement_bind_text (stmt, 1, uri);
 			tracker_db_statement_execute (stmt, &new_error);
+			g_object_unref (stmt);
 
 			if (new_error) {
 				g_warning ("Journal replay error: '%s'", new_error->message);
