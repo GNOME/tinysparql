@@ -142,6 +142,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDBCursorSqlite, tracker_db_cursor_sqlite, G_TYPE
 void
 tracker_db_interface_sqlite_enable_shared_cache (void)
 {
+	sqlite3_config (SQLITE_CONFIG_MULTITHREAD);
 	sqlite3_enable_shared_cache (1);
 }
 
