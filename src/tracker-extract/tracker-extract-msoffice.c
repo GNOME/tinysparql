@@ -1791,7 +1791,7 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
  */
 static GsfInput *
 find_member (GsfInfile *arch,
-	     char const *name)
+             char const *name)
 {
 	gchar const *slash = strchr (name, '/');
 
@@ -1815,7 +1815,7 @@ find_member (GsfInfile *arch,
 
 static gchar *
 load_xml_contents (const gchar *file_uri,
-		   const gchar *xml_filename)
+                   const gchar *xml_filename)
 {
 	gchar *filename;
 	gchar *xml = NULL;
@@ -1826,24 +1826,24 @@ load_xml_contents (const gchar *file_uri,
 
 	/* Get filename from the given URI */
 	if ((filename = g_filename_from_uri (file_uri,
-					     NULL, &error)) == NULL) {
+	                                     NULL, &error)) == NULL) {
 		g_warning ("Can't get filename from uri '%s': %s",
-			   file_uri, error ? error->message : NULL);
+		           file_uri, error ? error->message : NULL);
 	}
 	/* Create a new Input GSF object for the given file */
 	else if ((src = gsf_input_stdio_new (filename, &error)) == NULL) {
 		g_warning ("Failed creating a GSF Input object for '%s': %s",
-			   filename, error ? error->message : NULL);
+		           filename, error ? error->message : NULL);
 	}
 	/* Input object is a Zip file */
 	else if ((infile = gsf_infile_zip_new (src, &error)) == NULL) {
 		g_warning ("'%s' Not a zip file: %s",
-			   filename, error ? error->message : NULL);
+		           filename, error ? error->message : NULL);
 	}
 	/* Look for requested filename inside the ZIP file */
 	else if ((member = find_member (infile, xml_filename)) == NULL) {
 		g_warning ("No member '%s' in zip file '%s'",
-			   xml_filename, filename);
+		           xml_filename, filename);
 	}
 	/* Load whole contents of the internal file in the xml buffer */
 	else {
@@ -1859,7 +1859,7 @@ load_xml_contents (const gchar *file_uri,
 		/* And read all the bytes in one operation */
 		if(gsf_input_read (GSF_INPUT (member), size, xml) == NULL) {
 			g_warning ("Couldn't read '%u' bytes from '%s'",
-				   size, xml_filename);
+			           size, xml_filename);
 			g_free (xml);
 			xml = NULL;
 		}
@@ -1938,7 +1938,7 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 
 	if (context) {
 		gchar *xml = load_xml_contents (parser_info->uri,
-						xml_filename);
+		                                xml_filename);
 
 		g_markup_parse_context_parse (context, xml, -1, NULL);
 		g_markup_parse_context_free (context);
