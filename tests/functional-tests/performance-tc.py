@@ -263,15 +263,46 @@ class rtcom(TestUpdate):
 		print "no. of items retrieved: %d" %len(result)
 
 
-        def p_test_rtcom_02(self):
+        def test_rtcom_02(self):
+
+		# A version of the next one that skips the contact parts that are not generated properly
 
 		query = "SELECT ?msg ?date ?text ?contact \
 			WHERE { \
-    			?msg nmo:communicationChannel <urn:channel:1268130692> ; \
+    			?msg nmo:communicationChannel <urn:channel:1> ; \
+        		nmo:sentDate ?date ; \
+        		nie:plainTextContent ?text . \
+    			<urn:channel:1> nmo:hasParticipant ?contact . \
+			} ORDER BY DESC(?date) LIMIT 50"
+
+		#query = "SELECT ?msg ?date ?text ?contact \
+		#	WHERE { \
+    		#	?msg nmo:communicationChannel <urn:uuid:7585395544138154780> ; \
+        	#	nmo:sentDate ?date ; \
+        	#	nie:plainTextContent ?text ; \
+        	#	nmo:from [ nco:hasIMAddress ?fromAddress ] . \
+    		#	<urn:uuid:7585395544138154780> nmo:hasParticipant ?contact . \
+    		#	?contact nco:hasIMAddress ?fromAddress . \
+		#	} ORDER BY DESC(?date) LIMIT 50"
+
+
+        	start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+        	elapse =time.time()-start
+        	print "Time taken for querying conversation view (without contact info)  = %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+        def test_rtcom_03(self):
+
+		query = "SELECT ?msg ?date ?text ?contact \
+			WHERE { \
+    			?msg nmo:communicationChannel <urn:channel:1> ; \
         		nmo:sentDate ?date ; \
         		nie:plainTextContent ?text ; \
         		nmo:from [ nco:hasIMAddress ?fromAddress ] . \
-    			<urn:channel:1268130692> nmo:hasParticipant ?contact . \
+    			<urn:channel:1> nmo:hasParticipant ?contact . \
     			?contact nco:hasIMAddress ?fromAddress . \
 			} ORDER BY DESC(?date) LIMIT 50"
 
@@ -293,7 +324,6 @@ class rtcom(TestUpdate):
         	elapse =time.time()-start
         	print "Time taken for querying conversation view  = %s " %elapse
 		print "no. of items retrieved: %d" %len(result)
-
 
 
 """ Audio, Video, Images  performance  test cases """
@@ -989,9 +1019,155 @@ class content_manager (TestUpdate) :
 		print "no. of items retrieved: %d" %len(result)
 
 
+        def p_test_cm_05 (self):
+
+		"""Get all the matching data """
+
+		query = "SELECT DISTINCT ?glob_url \
+		        WHERE \
+			{ \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nmo:Message . \
+				     ?url fts:match 'fami*' . \
+				     ?url nmo:from ?from . } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nmo:Message . \
+                                     ?url nmo:from ?from . \
+                                     ?from fts:match 'fami*'. } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nmo:Message . \
+				     ?url nmo:to ?to . \
+				     ?to fts:match 'fami*' . } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nmo:Message. \
+				     ?url nmo:communicationChannel ?cha . \
+				     ?cha fts:match 'fami*'. } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nco:PersonContact . \
+				     ?url fts:match 'fami*'. } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nco:PersonContact . \
+				     ?url nco:hasEmailAddress ?email . \
+				     ?email fts:match 'fami*'. } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nco:PersonContact . \
+				     ?url nco:hasPostalAddress ?post . \
+				     ?post fts:match 'fami*'. } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nmm:MusicPiece . \
+				     ?url nmm:performer ?artist . \
+				     ?artist fts:match 'fami*' . } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    WHERE { ?url a nmm:MusicPiece . \
+				     ?url nmm:musicAlbum ?album . \
+				     ?album fts:match 'fami*' . } } \
+			  } \
+			LIMIT 100"
+
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 100 content items that match fts without UI info for them %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
 
 
+	def p_test_cm_06 (self):
 
+		"""Get all the matching data """
+
+		query = "SELECT DISTINCT ?glob_url ?first ?second \
+		        WHERE \
+			{ \
+			  { SELECT ?url as ?glob_url \
+			    nmo:messageSubject(?url) as ?first \
+			    tracker:coalesce(nco:fullname(?from), nco:nameGiven(?from), nco:nameFamily(?from), nco:org(?from),'unknown') as ?second \
+			    WHERE { ?url a nmo:Message . \
+				     ?url fts:match 'fami*' . \
+				     ?url nmo:from ?from . } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    nmo:messageSubject(?url) as ?first \
+			    tracker:coalesce(nco:fullname(?from), nco:nameGiven(?from), nco:nameFamily(?from), nco:org(?from),'unknown') as ?second \
+			    WHERE { ?url a nmo:Message . \
+                                     ?url nmo:from ?from . \
+                                     ?from fts:match 'fami*'. } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    nmo:messageSubject(?url) as ?first \
+			    tracker:coalesce(nco:fullname(?from), nco:nameGiven(?from), nco:nameFamily(?from), nco:org(?from),'unknown') as ?second \
+			    WHERE { ?url a nmo:Message . \
+				     ?url nmo:to ?to . \
+				     ?to fts:match 'fami*' . \
+				     ?url nmo:from ?from . } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    nmo:messageSubject(?url) as ?first \
+			    tracker:coalesce(nco:fullname(?from), nco:nameGiven(?from), nco:nameFamily(?from), nco:org(?from),'unknown') as ?second \
+			    WHERE { ?url a nmo:Message. \
+				     ?url nmo:communicationChannel ?cha . \
+				     ?cha fts:match 'fami*'. \
+				     ?url nmo:from ?from . } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    tracker:coalesce(nco:fullname(?url), nco:nameGiven(?url), nco:nameFamily(?url), nco:org(?url),'unknown') as ?first \
+			    tracker:coalesce(nco:emailAddress(?email), nco:imNickname(?im), 'unknown') as ?second \
+			    WHERE { ?url a nco:PersonContact . \
+				     ?url fts:match 'fami*'. \
+				     { SELECT ?em as ?email WHERE { ?url nco:hasEmailAddress ?em }  LIMIT 1 } \
+				     { SELECT ?imadd as ?im WHERE { ?url nco:hasIMAddress ?imadd }  LIMIT 1 } } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    tracker:coalesce(nco:fullname(?url), nco:nameGiven(?url), nco:nameFamily(?url), nco:org(?url),'unknown') as ?first \
+			    tracker:coalesce(nco:emailAddress(?email), nco:imNickname(?im), 'unknown') as ?second \
+			    WHERE { ?url a nco:PersonContact . \
+				     ?url nco:hasEmailAddress ?email . \
+				     ?email fts:match 'fami*'. \
+				     { SELECT ?imadd as ?im WHERE { ?url nco:hasIMAddress ?imadd }  LIMIT 1 } } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    tracker:coalesce(nco:fullname(?url), nco:nameGiven(?url), nco:nameFamily(?url), nco:org(?url),'unknown') as ?first \
+			    tracker:coalesce(nco:emailAddress(?email), nco:imNickname(?im), 'unknown') as ?second \
+			    WHERE { ?url a nco:PersonContact . \
+				     ?url nco:hasPostalAddress ?post . \
+				     ?post fts:match 'fami*'. \
+				     { SELECT ?em as ?email WHERE { ?url nco:hasEmailAddress ?em }  LIMIT 1 } \
+				     { SELECT ?imadd as ?im WHERE { ?url nco:hasIMAddress ?imadd }  LIMIT 1 } } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    nie:title(?url) as ?first \
+			    fn:concat(nmm:artistName(?artist),'-',nmm:albumTitle(?album)) \
+			    WHERE { ?url a nmm:MusicPiece . \
+				     ?url nmm:performer ?artist . \
+				     ?artist fts:match 'fami*' . \
+				     OPTIONAL { ?url nmm:musicAlbum ?album . } } } \
+			  UNION \
+			  { SELECT ?url as ?glob_url \
+			    nie:title(?url) as ?first \
+			    fn:concat(nmm:artistName(?artist),'-',nmm:albumTitle(?album)) \
+			    WHERE { ?url a nmm:MusicPiece . \
+				     ?url nmm:musicAlbum ?album . \
+				     ?album fts:match 'fami*' . \
+				     OPTIONAL { ?url nmm:performer ?artist }} } \
+			  } \
+			LIMIT 100"
+
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 100 content items that match fts and get relevant UI info for them %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
 
 
 if __name__ == "__main__":

@@ -100,7 +100,7 @@ count_ims = config.getint('counts','ims')
 for comchannel in range(1, count_comchans+1):
   sys.stdout.write('.')
   sys.stdout.flush()
-  nmo.generateCommunicationChannel( comchannel*count_ims )
+  nmo.generateCommunicationChannel( comchannel )
   for im in range(1, count_ims+1):
     nmo.generateIMMessage( comchannel*count_ims+im )
 print "Done"
