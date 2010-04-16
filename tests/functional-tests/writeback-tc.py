@@ -30,38 +30,46 @@ TRACKER = 'org.freedesktop.Tracker1'
 TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
 RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 
-""" run the tracker-writeback """
-pid = commands.getoutput("ps -ef| grep tracker-writeback | awk '{print $3}'").split()
-if configuration.TRACKER_WRITEBACK not in pid:
-	os.system(configuration.TRACKER_WRITEBACK + ' -v 3 &')
-	time.sleep(5)
-
-EXTRACT = configuration.TRACKER_EXTRACT
-
 target = configuration.check_target()
-if target == '2' :
+print target
+
+if target == configuration.MAEMO6_HW:
+	"""target is device """
+	tracker_wb = configuration.TRACKER_WRITEBACK
+	tracker_ext = configuration.TRACKER_EXTRACT
 	dir_path = configuration.WB_TEST_DIR_DEVICE
-else :
+
+elif target == configuration.DESKTOP:
+	tracker_wb = configuration.TRACKER_WRITEBACK_DESKTOP
+	tracker_ext = configuration.TRACKER_EXTRACT_DESKTOP
 	dir_path = configuration.WB_TEST_DIR_HOST
+
 print dir_path
 
+""" run the tracker-writeback """
+pid = int(commands.getoutput('pidof tracker-writeback | wc -w'))
+
+if not pid:
+	os.system(tracker_wb + ' -v 3 &')
+	time.sleep(5)
+
 def copy_file():
-	src = configuration.TEST_DATA_IMAGES
+	src = configuration.VCS_TEST_DATA_IMAGES + configuration.TEST_IMAGE
 	dest = dir_path
 	print 'Copying '+src+' to '+dest
-	commands.getoutput('cp '+src +'/*'+ ' '+dest)
+	commands.getoutput('cp '+src + ' '+dest)
 
 def create_file_list_in_dir() :
 	"""
-	1. create a test directory 
+	1. create a test directory
 	2. copy images to test directory
 	3. list the files present in the test data directory
 	"""
-	
+
 	commands.getoutput('mkdir ' + dir_path)
 
 	copy_file()
-	
+
         fileList = []
         dirpathList = []
         for dirpath,dirNames,fileNames in os.walk(dir_path):
@@ -95,14 +103,14 @@ class TestWriteback (unittest.TestCase):
 class writeback(TestWriteback):
 
 	def test_wb_01(self):
-		""" 
-		Test if the value for Description property is written to the file 
+		"""
+		Test if the value for Description property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -117,15 +125,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nie:description ?val }
-				WHERE { ?file nie:description ?val ;nie:url <%s> } 
-				INSERT {?file nie:description 'testdescription' } 
+				WHERE { ?file nie:description ?val ;nie:url <%s> }
+				INSERT {?file nie:description 'testdescription' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:description')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nie:description')
 			print result
                 	value=result.split()
 			if (result.find('nie:description')!=-1)  and (value[1]=='"testdescription"') :
@@ -148,14 +156,14 @@ class writeback(TestWriteback):
 			"""
 
 	def test_wb_02(self):
-		""" 
-		Test if the value for copyright property is written to the file 
+		"""
+		Test if the value for copyright property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -170,15 +178,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nie:copyright ?val }
-				WHERE { ?file nie:copyright ?val ;nie:url <%s> } 
-				INSERT {?file nie:copyright 'testcopyright' } 
+				WHERE { ?file nie:copyright ?val ;nie:url <%s> }
+				INSERT {?file nie:copyright 'testcopyright' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:copyright')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nie:copyright')
 			print result
                 	value=result.split()
 			if (result.find('nie:copyright')!=-1)  and (value[1]=='"testcopyright"') :
@@ -194,14 +202,14 @@ class writeback(TestWriteback):
 
 
 	def test_wb_03(self):
-		""" 
-		Test if the value for title property is written to the file 
+		"""
+		Test if the value for title property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -216,15 +224,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nie:title ?val }
-				WHERE { ?file nie:title ?val ;nie:url <%s> } 
-				INSERT {?file nie:title 'testtitle' } 
+				WHERE { ?file nie:title ?val ;nie:url <%s> }
+				INSERT {?file nie:title 'testtitle' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:title')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nie:title')
 			print result
                 	value=result.split()
 			if (result.find('nie:title')!=-1)  and (value[1]=='"testtitle"') :
@@ -240,14 +248,14 @@ class writeback(TestWriteback):
 
 
 	def test_wb_04(self):
-		""" 
-		Test if the value for contentCreated property is written to the file 
+		"""
+		Test if the value for contentCreated property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -262,15 +270,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nie:contentCreated ?val }
-				WHERE { ?file nie:contentCreated ?val ;nie:url <%s> } 
-				INSERT {?file nie:contentCreated '2004-05-06T13:14:15Z' } 
+				WHERE { ?file nie:contentCreated ?val ;nie:url <%s> }
+				INSERT {?file nie:contentCreated '2004-05-06T13:14:15Z' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nie:contentCreated')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nie:contentCreated')
 			print result
                 	value=result.split()
 			print value
@@ -287,14 +295,14 @@ class writeback(TestWriteback):
 
 
 	def test_wb_05(self):
-		""" 
-		Test if the value for keyword property is written to the file 
+		"""
+		Test if the value for keyword property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -309,15 +317,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nie:keyword ?val }
-				WHERE { ?file nie:keyword ?val ;nie:url <%s> } 
-				INSERT {?file nie:keyword 'testkeyword' } 
+				WHERE { ?file nie:keyword ?val ;nie:url <%s> }
+				INSERT {?file nie:keyword 'testkeyword' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nao:prefLabel')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nao:prefLabel')
 			print result
                 	value=result.split()
 			if (result.find('nao:prefLabel')!=-1)  and ( '"testkeyword"' in value[1]) :
@@ -333,14 +341,14 @@ class writeback(TestWriteback):
 
 
 	def test_wb_06(self):
-		""" 
-		Test if the value for contributor property is written to the file 
+		"""
+		Test if the value for contributor property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -355,15 +363,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nco:contributor ?val }
-				WHERE { ?file nco:contributor ?val ;nie:url <%s> } 
-				INSERT {?file nco:contributor [a nco:Contact ; nco:fullname 'testcontributor' ] } 
+				WHERE { ?file nco:contributor ?val ;nie:url <%s> }
+				INSERT {?file nco:contributor [a nco:Contact ; nco:fullname 'testcontributor' ] }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nco:fullname')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nco:fullname')
 			print result
 			if '"testcontributor"' in result:
 				print "property is set"
@@ -377,14 +385,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_07(self):
-		""" 
-		Test if the value for creator property is written to the file 
+		"""
+		Test if the value for creator property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -399,15 +407,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nco:creator ?val }
-				WHERE { ?file nco:creator ?val ;nie:url <%s> } 
-				INSERT {?file nco:creator [a nco:Contact ; nco:fullname 'testcreator' ] } 
+				WHERE { ?file nco:creator ?val ;nie:url <%s> }
+				INSERT {?file nco:creator [a nco:Contact ; nco:fullname 'testcreator' ] }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nco:fullname')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nco:fullname')
 			print result
 			if '"testcreator"' in result:
 				print "property is set"
@@ -421,14 +429,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_08(self):
-		""" 
-		Test if the value for camera property is written to the file 
+		"""
+		Test if the value for camera property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -443,15 +451,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:camera ?val }
-				WHERE { ?file nmm:camera ?val ;nie:url <%s> } 
-				INSERT {?file nmm:camera 'test camera' } 
+				WHERE { ?file nmm:camera ?val ;nie:url <%s> }
+				INSERT {?file nmm:camera 'test camera' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:camera')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:camera')
 			print result
                 	value=result.split()
 			if (result.find('nmm:camera')!=-1)  and (value[1]=='"test') and (value[2]=='camera"'):
@@ -466,14 +474,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_09(self):
-		""" 
-		Test if the value for exposureTime property is written to the file 
+		"""
+		Test if the value for exposureTime property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -488,15 +496,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:exposureTime ?val }
-				WHERE { ?file nmm:exposureTime ?val ;nie:url <%s> } 
-				INSERT {?file nmm:exposureTime '44' } 
+				WHERE { ?file nmm:exposureTime ?val ;nie:url <%s> }
+				INSERT {?file nmm:exposureTime '44' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:exposureTime')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:exposureTime')
 			print result
                 	value=result.split()
 			if (result.find('nmm:exposureTime')!=-1)  and (value[1]=='44') :
@@ -511,14 +519,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_10(self):
-		""" 
-		Test if the value for fnumber property is written to the file 
+		"""
+		Test if the value for fnumber property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -533,15 +541,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:fnumber ?val }
-				WHERE { ?file nmm:fnumber ?val ;nie:url <%s> } 
-				INSERT {?file nmm:fnumber '707' } 
+				WHERE { ?file nmm:fnumber ?val ;nie:url <%s> }
+				INSERT {?file nmm:fnumber '707' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:fnumber')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:fnumber')
 			print result
                 	value=result.split()
 			if (result.find('nmm:fnumber')!=-1)  and (value[1]=='707') :
@@ -557,14 +565,14 @@ class writeback(TestWriteback):
 
 
 	def test_wb_11(self):
-		""" 
-		Test if the value for flash property as flash-off is written to the file 
+		"""
+		Test if the value for flash property as flash-off is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -579,15 +587,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:flash ?val }
-				WHERE { ?file nmm:flash ?val ;nie:url <%s> } 
-				INSERT {?file nmm:flash 'nmm:flash-off' } 
+				WHERE { ?file nmm:flash ?val ;nie:url <%s> }
+				INSERT {?file nmm:flash 'nmm:flash-off' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:flash')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:flash')
 			print result
                 	value=result.split()
 			if (result.find('nmm:flash')!=-1)  and (value[1]=='nmm:flash-off') :
@@ -602,14 +610,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_12(self):
-		""" 
-		Test if the value for flash property as flash-on is written to the file 
+		"""
+		Test if the value for flash property as flash-on is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -624,15 +632,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:flash ?val }
-				WHERE { ?file nmm:flash ?val ;nie:url <%s> } 
-				INSERT {?file nmm:flash 'nmm:flash-on' } 
+				WHERE { ?file nmm:flash ?val ;nie:url <%s> }
+				INSERT {?file nmm:flash 'nmm:flash-on' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:flash')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:flash')
 			print result
                 	value=result.split()
 			if (result.find('nmm:flash')!=-1)  and (value[1]=='nmm:flash-on') :
@@ -648,14 +656,14 @@ class writeback(TestWriteback):
 
 
 	def test_wb_13(self):
-		""" 
-		Test if the value for focalLength property is written to the file 
+		"""
+		Test if the value for focalLength property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -670,15 +678,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:focalLength ?val }
-				WHERE { ?file nmm:focalLength ?val ;nie:url <%s> } 
-				INSERT {?file nmm:focalLength '44' } 
+				WHERE { ?file nmm:focalLength ?val ;nie:url <%s> }
+				INSERT {?file nmm:focalLength '44' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:focalLength')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:focalLength')
 			print result
                 	value=result.split()
 			if (result.find('nmm:focalLength')!=-1)  and (value[1]=='44') :
@@ -693,14 +701,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_14(self):
-		""" 
-		Test if the value for isoSpeed property is written to the file 
+		"""
+		Test if the value for isoSpeed property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -715,15 +723,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:isoSpeed ?val }
-				WHERE { ?file nmm:isoSpeed ?val ;nie:url <%s> } 
-				INSERT {?file nmm:isoSpeed '44' } 
+				WHERE { ?file nmm:isoSpeed ?val ;nie:url <%s> }
+				INSERT {?file nmm:isoSpeed '44' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:isoSpeed')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:isoSpeed')
 			print result
                 	value=result.split()
 			if (result.find('nmm:isoSpeed')!=-1)  and (value[1]=='44') :
@@ -738,14 +746,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_15(self):
-		""" 
-		Test if the value for meteringMode property is written to the file 
+		"""
+		Test if the value for meteringMode property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -760,15 +768,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:meteringMode ?val }
-				WHERE { ?file nmm:meteringMode ?val ;nie:url <%s> } 
-				INSERT {?file nmm:meteringMode 'nmm:metering-mode-multispot' } 
+				WHERE { ?file nmm:meteringMode ?val ;nie:url <%s> }
+				INSERT {?file nmm:meteringMode 'nmm:metering-mode-multispot' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:meteringMode')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:meteringMode')
 			print result
                 	value=result.split()
 			if (result.find('nmm:meteringMode')!=-1)  and (value[1]=='nmm:metering-mode-multispot') :
@@ -783,14 +791,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_16(self):
-		""" 
-		Test if the value for whiteBalance property is written to the file 
+		"""
+		Test if the value for whiteBalance property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -805,15 +813,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file nmm:whiteBalance ?val }
-				WHERE { ?file nmm:whiteBalance ?val ;nie:url <%s> } 
-				INSERT {?file nmm:whiteBalance 'nmm:white-balance-auto' } 
+				WHERE { ?file nmm:whiteBalance ?val ;nie:url <%s> }
+				INSERT {?file nmm:whiteBalance 'nmm:white-balance-auto' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep nmm:whiteBalance')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:whiteBalance')
 			print result
                 	value=result.split()
 			if (result.find('nmm:whiteBalance')!=-1)  and (value[1]=='nmm:white-balance-auto') :
@@ -828,14 +836,14 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 	def test_wb_17(self):
-		""" 
-		Test if the value for location property is written to the file 
+		"""
+		Test if the value for location property is written to the file
 		with sparql update with writeback.
-                
+
                 1. Delete the value of the property of the file.
                 2. Insert a new value.
                 3. Verify the value is written to the file.
-                4. Run the instruction in for loop to test for all the files 
+                4. Run the instruction in for loop to test for all the files
                 present in a particular directory.
 		"""
 
@@ -850,15 +858,15 @@ class writeback(TestWriteback):
 
                 	insert = """
 				DELETE {?file mlo:location ?val }
-				WHERE { ?file mlo:location ?val ;nie:url <%s> } 
-				INSERT {?file mlo:location [ a mlo:GeoPoint ;mlo:country "clevland";mlo:city 'test_city';mlo:address 'doorno-32'] } 
+				WHERE { ?file mlo:location ?val ;nie:url <%s> }
+				INSERT {?file mlo:location [ a mlo:GeoPoint ;mlo:country "clevland";mlo:city 'test_city';mlo:address 'doorno-32'] }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
 
                 	""" verify the inserted item """
-			result=commands.getoutput(EXTRACT + ' -f' +' ' + uri +' | grep mlo:*')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep mlo:*')
 			print result
                 	value=result.split()
 			if (result.find('mlo:address')!=-1)  and (value[value.index('mlo:address') + 1] == '"doorno-32"') and (result.find('mlo:city')!=-1)  and (value[value.index('mlo:city') + 1] == '"test_city"') and (result.find('mlo:country')!=-1)  and ('"clevland"' in value[value.index('mlo:country') + 1]) :
@@ -873,7 +881,5 @@ class writeback(TestWriteback):
                                 self.assert_(not k,'Writeback failed for following files for property %s\n\n' % (str(overallRes)) )
 
 
-if __name__ == "__main__":                                                     
-        unittest.main()                      
-
-
+if __name__ == "__main__":
+        unittest.main()
