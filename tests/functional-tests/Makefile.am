@@ -12,11 +12,12 @@ config_SCRIPTS =			\
 	05-coalesce.py			\
 	06-distance.py			\
 	07-graph.py			\
-	08-unique-insertions.py 	\
+	08-unique-insertions.py		\
 	09-concurrent-query.py		\
 	bootup-tc.py			\
 	configuration.py		\
-	metadata_extraction_tc.py 	\
+	metadata_extraction_tc.py	\
+	miner-basic-ops.py		\
 	performance-tc.py		\
 	tests.xml			\
 	virtual-files-tc.py		\

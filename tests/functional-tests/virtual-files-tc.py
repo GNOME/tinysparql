@@ -30,24 +30,31 @@ import string
 TRACKER = "org.freedesktop.Tracker1"
 TRACKER_OBJ = "/org/freedesktop/Tracker1/Resources"
 RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
-MINER="org.freedesktop.Tracker1.Miner.Files"                                            
-MINER_OBJ="/org/freedesktop/Tracker1/Miner/Files"                                            
+MINER="org.freedesktop.Tracker1.Miner.Files"
+MINER_OBJ="/org/freedesktop/Tracker1/Miner/Files"
 MINER_IFACE="org.freedesktop.Tracker1.Miner"
 
 
 target = configuration.check_target()
-if target == '2' :
-        dir_path = '/home/user/MyDocs'
+
+if target == configuration.MAEMO6_HW:
+	"""target is device """
+        dir_path = configuration.MYDOCS
         dir_path_parent = '/home/user'
-else :
-        dir_path = configuration.TEST_DATA_DIR
-        dir_path_parent = configuration.TEST_DIR
+	src = configuration.TEST_DATA_IMAGES + 'test-image-1.jpg'
+
+elif target == configuration.DESKTOP:
+        dir_path = os.path.expanduser("~")
+        dir_path_parent = os.path.expanduser("~") + "/" + "tmp"
+	if (not (os.path.exists(dir_path_parent) and os.path.isdir(dir_path_parent))):
+	    os.mkdir (dir_path_parent)
+	src = configuration.VCS_TEST_DATA_IMAGES + 'test-image-1.jpg'
+
 print dir_path
 
 """ copy the test data to proper location. """
 def copy_file():
 
-        src = configuration.TEST_DATA_IMAGES + 'test-image-1.jpg'
         dest = dir_path
         print 'Copying '+src+' to '+dest
         commands.getoutput('cp '+src+ ' '+dest)
@@ -72,49 +79,49 @@ class TestVirtualFiles (unittest.TestCase):
 
 class virtual_files(TestVirtualFiles):
 
-	def test_Virttual_01(self):                                                      
-                """                                                                      
-                Test if the update is ignored until the creation of the file is completed.      
-                1. Move the file to some other location.                                 
-                2. Create resource in tracker , by making instance of nie:DataObject.    
-                3. IgnoreNextUpdate on the files.                                        
-                4. Copy the original file to the present directory.                  
-                5. Query for the title of the file.                                  
-                """                                                                  
-                                                                                     
+	def test_Virttual_01(self):
+                """
+                Test if the update is ignored until the creation of the file is completed.
+                1. Move the file to some other location.
+                2. Create resource in tracker , by making instance of nie:DataObject.
+                3. IgnoreNextUpdate on the files.
+                4. Copy the original file to the present directory.
+                5. Query for the title of the file.
+                """
+
                 test_file = 'test-image-1.jpg'
                 file= dir_path + '/' + test_file
                 uri='file://' + file
 		print uri
-                
-                commands.getoutput('mv  ' + file + ' ' + dir_path_parent)    
-                                
+
+                commands.getoutput('mv  ' + file + ' ' + dir_path_parent)
+
                 Insert = """
-		INSERT { _:x a nfo:Image, nie:DataObject ; 
-                nie:url <%s> ;                                        
-                nie:title 'title_test'. }""" %(uri)                                     
+		INSERT { _:x a nfo:Image, nie:DataObject ;
+                nie:url <%s> ;
+                nie:title 'title_test'. }""" %(uri)
 		print Insert
 
-                self.sparql_update(Insert)                                           
+                self.sparql_update(Insert)
 		time.sleep(10)
 
-                self.miner.IgnoreNextUpdate([uri])                                   
+                self.miner.IgnoreNextUpdate([uri])
 
-                commands.getoutput('cp ' + dir_path_parent + '/'+ test_file + ' ' + dir_path)             
-                
-                QUERY = """                                                            
-                SELECT ?t WHERE { ?file a nfo:FileDataObject ; 
-                nie:title ?t ;                                   
-                nie:url <%s> .}                                                       
-                """ %(uri)                                                
+                commands.getoutput('cp ' + dir_path_parent + '/'+ test_file + ' ' + dir_path)
+
+                QUERY = """
+                SELECT ?t WHERE { ?file a nfo:FileDataObject ;
+                nie:title ?t ;
+                nie:url <%s> .}
+                """ %(uri)
 		print QUERY
 
-                result=self.query(QUERY)                                
+                result=self.query(QUERY)
 		print result
-                
+
                 self.assert_(result[0][0].find('title_test')!=-1 , "File is not ignored")
 
-		
+
 	def test_Virtual_02(self):
 
 		"""
@@ -128,7 +135,7 @@ class virtual_files(TestVirtualFiles):
                 file= dir_path + '/' + test_file
                 url='file://' + file
 		print url
-                
+
 		insert="""
 		INSERT { _:x a nfo:Image, nie:DataObject ; \
 		nie:url <%s> ; \
@@ -141,21 +148,20 @@ class virtual_files(TestVirtualFiles):
 
 		time.sleep(3)
 
-	        QUERY="""                                                                
+	        QUERY="""
                 SELECT ?label ?content WHERE { ?file a nie:DataObject ;nao:hasTag[a nao:Tag ;nao:prefLabel ?label]; nie:url <%s> ;
 		nie:plainTextContent ?content.
-                }                                                                        
-                """ %url   
+                }
+                """ %url
 
 		result=self.query(QUERY)
 
 		self.assert_(result[0][0].find('Favorite')!=-1 and result[1][1].find("This is script to test virtual file support")!=-1, "File is not monitored by tracker")
 
-		
-
-if __name__ == "__main__":                                                     
-
-        unittest.main()                      
 
 
+if __name__ == "__main__":
 
+        unittest.main()
+	if (os.path.exists(dir_path_parent) and os.path.isdir(dir_path_parent)):
+	    os.rmdir (dir_path_parent)

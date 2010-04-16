@@ -31,16 +31,23 @@ TRACKER = 'org.freedesktop.Tracker1'
 TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
 RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 
-if target == '2':
+if target == configuration.MAEMO6_HW:
 	"""target is device """
 	IMAGE_FILE_PATH = configuration.URL_PREFIX + configuration.MYDOCS_IMAGES
-	MUSIC_FILE_PATH = configuration.URL_PREFIX + configuration.MYDOCS_MUSIC 
-else:
-	"""target is SBOX """
-	IMAGE_FILE_PATH = configuration.URL_PREFIX + configuration.TEST_DATA_IMAGES
-	MUSIC_FILE_PATH = configuration.URL_PREFIX + configuration.TEST_DATA_MUSIC 
+	MUSIC_FILE_PATH = configuration.URL_PREFIX + configuration.MYDOCS_MUSIC
+	PCKL_FILE_PATH = configuration.TEST_DATA_DIR
+
+elif target == configuration.DESKTOP:
+	"""target is DESKTOP """
+	IMAGE_FILE_PATH = configuration.URL_PREFIX + os.path.expanduser("~") + '/'
+	MUSIC_FILE_PATH = configuration.URL_PREFIX + os.path.expanduser("~") + '/'
+	PCKL_FILE_PATH = configuration.VCS_TEST_DATA_DIR
 
 print "MUSIC_FILE_PATH is %s" %(MUSIC_FILE_PATH)
+
+tdcpy = configuration.TDCopy()
+tdcpy.set_test_data(target)
+
 
 class TrackerHelpers(unittest.TestCase):
 	def setUp(self):
@@ -51,7 +58,7 @@ class TrackerHelpers(unittest.TestCase):
 
 
 	def de_pickle(self,pckl_file):
-		pckl_file = configuration.TEST_DATA_DIR + pckl_file
+		pckl_file =  PCKL_FILE_PATH + pckl_file
 		print "pickle file is %s" %(pckl_file)
 		pickf=open(pckl_file, 'rb')
 		dictList=pickle.load(pickf)

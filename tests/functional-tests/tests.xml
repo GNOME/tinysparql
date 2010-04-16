@@ -1,48 +1,6 @@
 <testdefinition version="0.1">
   <suite name="tracker">
     <description />
-    <set name="_usr_share_tracker-tests_bootup-tc.py">
-      <description>tracker:bootup-tc.py</description>
-      <case name="bootup-tc.py-default_content.test_Video_03">
-        <description>tracker:bootup-tc.py:default_content.test_Video_03</description>
-        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_Video_03</step>
-      </case>
-      <case name="bootup-tc.py-default_content.test_images_01">
-        <description>tracker:bootup-tc.py:default_content.test_images_01</description>
-        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_images_01</step>
-      </case>
-      <case name="bootup-tc.py-default_content.test_music_02">
-        <description>tracker:bootup-tc.py:default_content.test_music_02</description>
-        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_music_02</step>
-      </case>
-      <case name="bootup-tc.py-tracker_daemon.test_miner_01">
-        <description>tracker:bootup-tc.py:tracker_daemon.test_miner_01</description>
-        <step>/usr/share/tracker-tests/bootup-tc.py tracker_daemon.test_miner_01</step>
-      </case>
-      <case name="bootup-tc.py-tracker_daemon.test_store_02">
-        <description>tracker:bootup-tc.py:tracker_daemon.test_store_02</description>
-        <step>/usr/share/tracker-tests/bootup-tc.py tracker_daemon.test_store_02</step>
-      </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_virtual-files-tc.py">
-      <description>tracker:virtual-files-tc.py</description>
-      <case name="virtual-files-tc.py-virtual_files.test_Virttual_01">
-        <description>tracker:virtual-files-tc.py:virtual_files.test_Virttual_01</description>
-        <step>/usr/share/tracker-tests/virtual-files-tc.py virtual_files.test_Virttual_01</step>
-      </case>
-      <case name="virtual-files-tc.py-virtual_files.test_Virtual_02">
-        <description>tracker:virtual-files-tc.py:virtual_files.test_Virtual_02</description>
-        <step>/usr/share/tracker-tests/virtual-files-tc.py virtual_files.test_Virtual_02</step>
-      </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
     <set name="_usr_share_tracker-tests_metadata_extraction_tc.py">
       <description>tracker:metadata_extraction_tc.py</description>
       <case name="metadata_extraction_tc.py-images.test_get_images_camera_1">
@@ -154,22 +112,223 @@
         <hardware>true</hardware>
       </environments>
     </set>
-    <set name="_usr_share_tracker-tests_08-unique-insertions.py">
-      <description>tracker:08-unique-insertions.py</description>
-      <case name="08-unique-insertions.py-TestFTSFunctions.test_unique_insertion">
-        <description>tracker:08-unique-insertions.py:TestFTSFunctions.test_unique_insertion</description>
-        <step>/usr/share/tracker-tests/08-unique-insertions.py TestFTSFunctions.test_unique_insertion</step>
+    <set name="_usr_share_tracker-tests_virtual-files-tc.py~">
+      <description>tracker:virtual-files-tc.py~</description>
+      <case name="virtual-files-tc.py~-virtual_files.test_Virttual_01">
+        <description>tracker:virtual-files-tc.py~:virtual_files.test_Virttual_01</description>
+        <step>/usr/share/tracker-tests/virtual-files-tc.py~ virtual_files.test_Virttual_01</step>
+      </case>
+      <case name="virtual-files-tc.py~-virtual_files.test_Virtual_02">
+        <description>tracker:virtual-files-tc.py~:virtual_files.test_Virtual_02</description>
+        <step>/usr/share/tracker-tests/virtual-files-tc.py~ virtual_files.test_Virtual_02</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
         <hardware>true</hardware>
       </environments>
     </set>
-    <set name="_usr_share_tracker-tests_09-concurrent-query.py">
-      <description>tracker:09-concurrent-query.py</description>
-      <case name="09-concurrent-query.py-TestConcurrentQuery.test_async_queries">
-        <description>tracker:09-concurrent-query.py:TestConcurrentQuery.test_async_queries</description>
-        <step>/usr/share/tracker-tests/09-concurrent-query.py TestConcurrentQuery.test_async_queries</step>
+    <set name="_usr_share_tracker-tests_miner-basic-ops.py">
+      <description>tracker:miner-basic-ops.py</description>
+      <case name="miner-basic-ops.py-copy.test_copy_01">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_01</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_01</step>
+      </case>
+      <case name="miner-basic-ops.py-copy.test_copy_02">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_02</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_02</step>
+      </case>
+      <case name="miner-basic-ops.py-copy.test_copy_03">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_03</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_03</step>
+      </case>
+      <case name="miner-basic-ops.py-copy.test_copy_04">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_04</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_04</step>
+      </case>
+      <case name="miner-basic-ops.py-copy.test_copy_05">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_05</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_05</step>
+      </case>
+      <case name="miner-basic-ops.py-copy.test_copy_06">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_06</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_06</step>
+      </case>
+      <case name="miner-basic-ops.py-copy.test_copy_07">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_07</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_07</step>
+      </case>
+      <case name="miner-basic-ops.py-copy.test_copy_08">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_08</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_08</step>
+      </case>
+      <case name="miner-basic-ops.py-copy.test_copy_09">
+        <description>tracker:miner-basic-ops.py:copy.test_copy_09</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py copy.test_copy_09</step>
+      </case>
+      <case name="miner-basic-ops.py-delete.test_delete_01">
+        <description>tracker:miner-basic-ops.py:delete.test_delete_01</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py delete.test_delete_01</step>
+      </case>
+      <case name="miner-basic-ops.py-delete.test_delete_02">
+        <description>tracker:miner-basic-ops.py:delete.test_delete_02</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py delete.test_delete_02</step>
+      </case>
+      <case name="miner-basic-ops.py-delete.test_delete_03">
+        <description>tracker:miner-basic-ops.py:delete.test_delete_03</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py delete.test_delete_03</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_01">
+        <description>tracker:miner-basic-ops.py:move.test_move_01</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_01</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_02">
+        <description>tracker:miner-basic-ops.py:move.test_move_02</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_02</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_03">
+        <description>tracker:miner-basic-ops.py:move.test_move_03</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_03</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_04">
+        <description>tracker:miner-basic-ops.py:move.test_move_04</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_04</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_05">
+        <description>tracker:miner-basic-ops.py:move.test_move_05</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_05</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_06">
+        <description>tracker:miner-basic-ops.py:move.test_move_06</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_06</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_07">
+        <description>tracker:miner-basic-ops.py:move.test_move_07</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_07</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_08">
+        <description>tracker:miner-basic-ops.py:move.test_move_08</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_08</step>
+      </case>
+      <case name="miner-basic-ops.py-move.test_move_09">
+        <description>tracker:miner-basic-ops.py:move.test_move_09</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py move.test_move_09</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_04-group-concat.py">
+      <description>tracker:04-group-concat.py</description>
+      <case name="04-group-concat.py-TestGroupConcat.test_group_concat">
+        <description>tracker:04-group-concat.py:TestGroupConcat.test_group_concat</description>
+        <step>/usr/share/tracker-tests/04-group-concat.py TestGroupConcat.test_group_concat</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_miner-basic-ops.py~">
+      <description>tracker:miner-basic-ops.py~</description>
+      <case name="miner-basic-ops.py~-copy.test_copy_01">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_01</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_01</step>
+      </case>
+      <case name="miner-basic-ops.py~-copy.test_copy_02">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_02</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_02</step>
+      </case>
+      <case name="miner-basic-ops.py~-copy.test_copy_03">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_03</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_03</step>
+      </case>
+      <case name="miner-basic-ops.py~-copy.test_copy_04">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_04</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_04</step>
+      </case>
+      <case name="miner-basic-ops.py~-copy.test_copy_05">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_05</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_05</step>
+      </case>
+      <case name="miner-basic-ops.py~-copy.test_copy_06">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_06</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_06</step>
+      </case>
+      <case name="miner-basic-ops.py~-copy.test_copy_07">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_07</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_07</step>
+      </case>
+      <case name="miner-basic-ops.py~-copy.test_copy_08">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_08</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_08</step>
+      </case>
+      <case name="miner-basic-ops.py~-copy.test_copy_09">
+        <description>tracker:miner-basic-ops.py~:copy.test_copy_09</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ copy.test_copy_09</step>
+      </case>
+      <case name="miner-basic-ops.py~-delete.test_delete_01">
+        <description>tracker:miner-basic-ops.py~:delete.test_delete_01</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ delete.test_delete_01</step>
+      </case>
+      <case name="miner-basic-ops.py~-delete.test_delete_02">
+        <description>tracker:miner-basic-ops.py~:delete.test_delete_02</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ delete.test_delete_02</step>
+      </case>
+      <case name="miner-basic-ops.py~-delete.test_delete_03">
+        <description>tracker:miner-basic-ops.py~:delete.test_delete_03</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ delete.test_delete_03</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_01">
+        <description>tracker:miner-basic-ops.py~:move.test_move_01</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_01</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_02">
+        <description>tracker:miner-basic-ops.py~:move.test_move_02</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_02</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_03">
+        <description>tracker:miner-basic-ops.py~:move.test_move_03</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_03</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_04">
+        <description>tracker:miner-basic-ops.py~:move.test_move_04</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_04</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_05">
+        <description>tracker:miner-basic-ops.py~:move.test_move_05</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_05</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_06">
+        <description>tracker:miner-basic-ops.py~:move.test_move_06</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_06</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_07">
+        <description>tracker:miner-basic-ops.py~:move.test_move_07</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_07</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_08">
+        <description>tracker:miner-basic-ops.py~:move.test_move_08</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_08</step>
+      </case>
+      <case name="miner-basic-ops.py~-move.test_move_09">
+        <description>tracker:miner-basic-ops.py~:move.test_move_09</description>
+        <step>/usr/share/tracker-tests/miner-basic-ops.py~ move.test_move_09</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_03-fts-functions.py">
+      <description>tracker:03-fts-functions.py</description>
+      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_offsets">
+        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_offsets</description>
+        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_offsets</step>
+      </case>
+      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_rank">
+        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_rank</description>
+        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_rank</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
@@ -203,6 +362,155 @@
         <hardware>true</hardware>
       </environments>
     </set>
+    <set name="_usr_share_tracker-tests_09-concurrent-query.py">
+      <description>tracker:09-concurrent-query.py</description>
+      <case name="09-concurrent-query.py-TestConcurrentQuery.test_async_queries">
+        <description>tracker:09-concurrent-query.py:TestConcurrentQuery.test_async_queries</description>
+        <step>/usr/share/tracker-tests/09-concurrent-query.py TestConcurrentQuery.test_async_queries</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_performance-tc.py">
+      <description>tracker:performance-tc.py</description>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_01-writeback.py">
+      <description>tracker:01-writeback.py</description>
+      <case name="01-writeback.py-TestInsertion.test_simple_insertion">
+        <description>tracker:01-writeback.py:TestInsertion.test_simple_insertion</description>
+        <step>/usr/share/tracker-tests/01-writeback.py TestInsertion.test_simple_insertion</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_08-unique-insertions.py">
+      <description>tracker:08-unique-insertions.py</description>
+      <case name="08-unique-insertions.py-TestFTSFunctions.test_unique_insertion">
+        <description>tracker:08-unique-insertions.py:TestFTSFunctions.test_unique_insertion</description>
+        <step>/usr/share/tracker-tests/08-unique-insertions.py TestFTSFunctions.test_unique_insertion</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_07-graph.py">
+      <description>tracker:07-graph.py</description>
+      <case name="07-graph.py-TestFTSFunctions.test_graph_filter">
+        <description>tracker:07-graph.py:TestFTSFunctions.test_graph_filter</description>
+        <step>/usr/share/tracker-tests/07-graph.py TestFTSFunctions.test_graph_filter</step>
+      </case>
+      <case name="07-graph.py-TestFTSFunctions.test_graph_insert_multiple">
+        <description>tracker:07-graph.py:TestFTSFunctions.test_graph_insert_multiple</description>
+        <step>/usr/share/tracker-tests/07-graph.py TestFTSFunctions.test_graph_insert_multiple</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_05-coalesce.py">
+      <description>tracker:05-coalesce.py</description>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_first_fine">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_first_fine</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_first_fine</step>
+      </case>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_none_fine_default">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_none_fine_default</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_none_fine_default</step>
+      </case>
+      <case name="05-coalesce.py-TestCoalesce.test_coalesce_second_fine">
+        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_second_fine</description>
+        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_second_fine</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_writeback-tc.py~">
+      <description>tracker:writeback-tc.py~</description>
+      <case name="writeback-tc.py~-writeback.test_wb_01">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_01</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_01</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_02">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_02</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_02</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_03">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_03</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_03</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_04">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_04</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_04</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_05">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_05</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_05</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_06">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_06</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_06</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_07">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_07</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_07</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_08">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_08</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_08</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_09">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_09</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_09</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_10">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_10</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_10</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_11">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_11</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_11</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_12">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_12</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_12</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_13">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_13</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_13</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_14">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_14</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_14</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_15">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_15</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_15</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_16">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_16</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_16</step>
+      </case>
+      <case name="writeback-tc.py~-writeback.test_wb_17">
+        <description>tracker:writeback-tc.py~:writeback.test_wb_17</description>
+        <step>/usr/share/tracker-tests/writeback-tc.py~ writeback.test_wb_17</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
     <set name="_usr_share_tracker-tests_02-metacontacts.py">
       <description>tracker:02-metacontacts.py</description>
       <case name="02-metacontacts.py-TestMetacontacts.test_metacontact_merge">
@@ -212,6 +520,21 @@
       <case name="02-metacontacts.py-TestMetacontacts.test_metacontact_usage">
         <description>tracker:02-metacontacts.py:TestMetacontacts.test_metacontact_usage</description>
         <step>/usr/share/tracker-tests/02-metacontacts.py TestMetacontacts.test_metacontact_usage</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_virtual-files-tc.py">
+      <description>tracker:virtual-files-tc.py</description>
+      <case name="virtual-files-tc.py-virtual_files.test_Virttual_01">
+        <description>tracker:virtual-files-tc.py:virtual_files.test_Virttual_01</description>
+        <step>/usr/share/tracker-tests/virtual-files-tc.py virtual_files.test_Virttual_01</step>
+      </case>
+      <case name="virtual-files-tc.py-virtual_files.test_Virtual_02">
+        <description>tracker:virtual-files-tc.py:virtual_files.test_Virtual_02</description>
+        <step>/usr/share/tracker-tests/virtual-files-tc.py virtual_files.test_Virtual_02</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
@@ -293,59 +616,27 @@
         <hardware>true</hardware>
       </environments>
     </set>
-    <set name="_usr_share_tracker-tests_07-graph.py">
-      <description>tracker:07-graph.py</description>
-      <case name="07-graph.py-TestFTSFunctions.test_graph_filter">
-        <description>tracker:07-graph.py:TestFTSFunctions.test_graph_filter</description>
-        <step>/usr/share/tracker-tests/07-graph.py TestFTSFunctions.test_graph_filter</step>
+    <set name="_usr_share_tracker-tests_bootup-tc.py">
+      <description>tracker:bootup-tc.py</description>
+      <case name="bootup-tc.py-default_content.test_images_01">
+        <description>tracker:bootup-tc.py:default_content.test_images_01</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_images_01</step>
       </case>
-      <case name="07-graph.py-TestFTSFunctions.test_graph_insert_multiple">
-        <description>tracker:07-graph.py:TestFTSFunctions.test_graph_insert_multiple</description>
-        <step>/usr/share/tracker-tests/07-graph.py TestFTSFunctions.test_graph_insert_multiple</step>
+      <case name="bootup-tc.py-default_content.test_music_02">
+        <description>tracker:bootup-tc.py:default_content.test_music_02</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_music_02</step>
       </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_04-group-concat.py">
-      <description>tracker:04-group-concat.py</description>
-      <case name="04-group-concat.py-TestGroupConcat.test_group_concat">
-        <description>tracker:04-group-concat.py:TestGroupConcat.test_group_concat</description>
-        <step>/usr/share/tracker-tests/04-group-concat.py TestGroupConcat.test_group_concat</step>
+      <case name="bootup-tc.py-default_content.test_video_03">
+        <description>tracker:bootup-tc.py:default_content.test_video_03</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py default_content.test_video_03</step>
       </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_03-fts-functions.py">
-      <description>tracker:03-fts-functions.py</description>
-      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_offsets">
-        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_offsets</description>
-        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_offsets</step>
+      <case name="bootup-tc.py-tracker_daemon.test_miner_01">
+        <description>tracker:bootup-tc.py:tracker_daemon.test_miner_01</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py tracker_daemon.test_miner_01</step>
       </case>
-      <case name="03-fts-functions.py-TestFTSFunctions.test_fts_rank">
-        <description>tracker:03-fts-functions.py:TestFTSFunctions.test_fts_rank</description>
-        <step>/usr/share/tracker-tests/03-fts-functions.py TestFTSFunctions.test_fts_rank</step>
-      </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_configuration.py">
-      <description>tracker:configuration.py</description>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_01-writeback.py">
-      <description>tracker:01-writeback.py</description>
-      <case name="01-writeback.py-TestInsertion.test_simple_insertion">
-        <description>tracker:01-writeback.py:TestInsertion.test_simple_insertion</description>
-        <step>/usr/share/tracker-tests/01-writeback.py TestInsertion.test_simple_insertion</step>
+      <case name="bootup-tc.py-tracker_daemon.test_store_02">
+        <description>tracker:bootup-tc.py:tracker_daemon.test_store_02</description>
+        <step>/usr/share/tracker-tests/bootup-tc.py tracker_daemon.test_store_02</step>
       </case>
       <environments>
         <scratchbox>true</scratchbox>
@@ -431,20 +722,8 @@
         <hardware>true</hardware>
       </environments>
     </set>
-    <set name="_usr_share_tracker-tests_05-coalesce.py">
-      <description>tracker:05-coalesce.py</description>
-      <case name="05-coalesce.py-TestCoalesce.test_coalesce_first_fine">
-        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_first_fine</description>
-        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_first_fine</step>
-      </case>
-      <case name="05-coalesce.py-TestCoalesce.test_coalesce_none_fine_default">
-        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_none_fine_default</description>
-        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_none_fine_default</step>
-      </case>
-      <case name="05-coalesce.py-TestCoalesce.test_coalesce_second_fine">
-        <description>tracker:05-coalesce.py:TestCoalesce.test_coalesce_second_fine</description>
-        <step>/usr/share/tracker-tests/05-coalesce.py TestCoalesce.test_coalesce_second_fine</step>
-      </case>
+    <set name="_usr_share_tracker-tests_configuration.py">
+      <description>tracker:configuration.py</description>
       <environments>
         <scratchbox>true</scratchbox>
         <hardware>true</hardware>
