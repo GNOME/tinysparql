@@ -2458,3 +2458,9 @@ tracker_data_manager_set_db_option_int64 (const gchar *option,
 	tracker_db_statement_execute (stmt, NULL);
 	g_object_unref (stmt);
 }
+
+gboolean
+tracker_data_manager_interrupt_thread (GThread *thread)
+{
+	return tracker_db_manager_interrupt_thread (thread);
+}
