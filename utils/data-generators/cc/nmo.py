@@ -106,7 +106,7 @@ def generateCommunicationChannel(index):
 
 ####################################################################################
 def generateIMMessage(index):
-  immessage_uri         = 'urn:message:%d' % index
+  immessage_uri         = 'urn:immessage:%d' % index
   immessage_content     = 'Lorem IM Ipsum %d' % index
   immessage_date        = tools.getDateNowString()
   immessage_modified    = tools.getDateNowString()
