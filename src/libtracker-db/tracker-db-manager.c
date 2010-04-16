@@ -939,8 +939,10 @@ tracker_db_manager_shutdown (void)
 
 	g_static_private_free (&interface_data_key);
 
-	g_hash_table_destroy (thread_ifaces);
-	thread_ifaces = NULL;
+	if (thread_ifaces) {
+		g_hash_table_destroy (thread_ifaces);
+		thread_ifaces = NULL;
+	}
 
 	/* Since we don't reference this enum anywhere, we do
 	 * it here to make sure it exists when we call
