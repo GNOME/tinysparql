@@ -3381,7 +3381,7 @@ static int constructVtab(
 
   FTSTRACE(("FTS3 Connect %p\n", v));
 
-  g_static_private_set (&tracker_fts_vtab_key, v, NULL);
+  g_static_private_set (&tracker_fts_vtab_key, v, (GDestroyNotify) fulltext_vtab_destroy);
 
   return SQLITE_OK;
 }
@@ -7828,10 +7828,6 @@ int tracker_fts_init(sqlite3 *db, int create){
 }
 
 void tracker_fts_shutdown (void){
-  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
-
-  fulltext_vtab_destroy(v);
-
   g_static_private_set (&tracker_fts_vtab_key, NULL, NULL);
 }
 
