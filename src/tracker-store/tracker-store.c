@@ -38,6 +38,9 @@
 #define TRACKER_STORE_TRANSACTION_MAX                   4000
 #define TRACKER_STORE_MAX_CONCURRENT_QUERIES               1
 
+#define TRACKER_STORE_QUERY_WATCHDOG_TIMEOUT 10
+#define TRACKER_STORE_MAX_TASK_TIME          30
+
 typedef struct {
 	gboolean     have_handler, have_sync_handler;
 	gboolean     batch_mode, start_log;
@@ -49,6 +52,7 @@ typedef struct {
 	GThreadPool *main_pool;
 	GThreadPool *global_pool;
 	GSList	    *running_tasks;
+	guint	     watchdog_id;
 } TrackerStorePrivate;
 
 typedef enum {
@@ -66,6 +70,7 @@ typedef struct {
 			gchar                   *query;
 			TrackerDBResultSet      *result_set;
 			GThread			*running_thread;
+			GTimer			*timer;
 		} query;
 		struct {
 			gchar                   *query;
@@ -111,6 +116,12 @@ store_task_free (TrackerStoreTask *task)
 {
 	if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		g_free (task->data.turtle.path);
+        } else if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
+		g_free (task->data.query.query);
+
+                if (task->data.query.timer) {
+                        g_timer_destroy (task->data.query.timer);
+                }
 	} else {
 		g_free (task->data.update.query);
 		g_free (task->data.update.client_id);
@@ -260,6 +271,55 @@ check_handler (TrackerStorePrivate *private)
 }
 
 static gboolean
+watchdog_cb (gpointer user_data)
+{
+	TrackerStorePrivate *private = user_data;
+	GSList *running;
+
+	private = user_data;
+	running = private->running_tasks;
+
+	if (!running) {
+		private->watchdog_id = 0;
+		return FALSE;
+	}
+
+	while (running) {
+		TrackerStoreTask *task;
+		GThread *thread;
+
+		task = running->data;
+		running = running->next;
+		thread = task->data.query.running_thread;
+
+		if (thread && g_timer_elapsed (task->data.query.timer, NULL) > TRACKER_STORE_MAX_TASK_TIME) {
+			tracker_data_manager_interrupt_thread (task->data.query.running_thread);
+		}
+	}
+
+	return TRUE;
+}
+
+static void
+ensure_running_tasks_watchdog (TrackerStorePrivate *private)
+{
+	if (private->watchdog_id == 0) {
+		private->watchdog_id = g_timeout_add_seconds (TRACKER_STORE_QUERY_WATCHDOG_TIMEOUT,
+		                                              watchdog_cb, private);
+	}
+}
+
+static void
+check_running_tasks_watchdog (TrackerStorePrivate *private)
+{
+	if (private->running_tasks == NULL &&
+	    private->watchdog_id != 0) {
+		g_source_remove (private->watchdog_id);
+		private->watchdog_id = 0;
+	}
+}
+
+static gboolean
 task_finish_cb (gpointer data)
 {
 	TrackerStorePrivate *private;
@@ -283,6 +343,7 @@ task_finish_cb (gpointer data)
 		}
 
 		private->running_tasks = g_slist_remove (private->running_tasks, task);
+		check_running_tasks_watchdog (private);
 		private->n_queries_running--;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (!task->data.update.batch && !task->error) {
@@ -442,7 +503,10 @@ queue_idle_handler (gpointer user_data)
 		g_queue_pop_head (queue);
 
 		private->running_tasks = g_slist_prepend (private->running_tasks, task);
+		ensure_running_tasks_watchdog (private);
 		private->n_queries_running++;
+
+		task->data.query.timer = g_timer_new ();
 
 		task_run_async (private, task);
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE ||
