@@ -7831,6 +7831,10 @@ void tracker_fts_shutdown (void){
   g_static_private_set (&tracker_fts_vtab_key, NULL, NULL);
 }
 
+void tracker_fts_shutdown_all (void){
+  g_static_private_free (&tracker_fts_vtab_key);
+}
+
 void tracker_fts_set_map_function(TrackerFtsMapFunc map_func){
   map_function = map_func;
 }
