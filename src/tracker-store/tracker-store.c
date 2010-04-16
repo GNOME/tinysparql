@@ -633,7 +633,7 @@ tracker_store_sparql_query (const gchar *sparql,
 
 	task = g_slice_new0 (TrackerStoreTask);
 	task->type = TRACKER_STORE_TASK_TYPE_QUERY;
-	task->data.update.query = g_strdup (sparql);
+	task->data.query.query = g_strdup (sparql);
 	task->user_data = user_data;
 	task->callback.query_callback = callback;
 	task->destroy = destroy;
