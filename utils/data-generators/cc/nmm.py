@@ -8,7 +8,10 @@ def generatePhoto(index):
   photo_filename     = 'photo%d.jpg' % index
   photo_url          = 'file:///path/' + photo_filename
   photo_size         = str(1000000 + index)
-  photo_camera       = 'Canikon 1000 Ultra Mega'
+  if (index % 10 == 0):
+    photo_camera     = "NOKIA"
+  else:
+    photo_camera     = 'Canikon 1000 Ultra Mega'
   photo_exposure     = '0.%d' % index
   photo_fnumber      = '%d.0' % (1 + (index % 20))
   photo_focal_length = '%d.0' % (1 + (index % 500))
@@ -31,6 +34,34 @@ def generatePhoto(index):
 
   # save the result
   tools.addResult( 'nmm#Photo', photo )
+
+####################################################################################
+def generateVideo(index):
+  video_uri          = 'urn:video:%d' % index
+  video_filename     = 'video%d.jpg' % index
+  video_url          = 'file:///path/' + video_filename
+  video_size         = str(1000000 + index)
+  video_date         = '%d-%02d-%02dT01:01:01Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
+  video_samplerate   = str(index)
+  video_duration     = str(index)
+  video_tag          = 'TEST%d' % index
+
+  # save the last uri
+  tools.addUri( 'nmm#Video', video_uri )
+
+  # subsitute into template
+  video = tools.getTemplate( 'nmm#Video' )
+  video = video.replace( '${video_uri}', video_uri )
+  video = video.replace( '${video_filename}', video_filename )
+  video = video.replace( '${video_url}', video_url )
+  video = video.replace( '${video_size}',  video_size)
+  video = video.replace( '${video_date}', video_date )
+  video = video.replace( '${video_samplerate}', video_samplerate )
+  video = video.replace( '${video_duration}', video_duration )
+  video = video.replace( '${video_tag}', video_tag )
+
+  # save the result
+  tools.addResult( 'nmm#Video', video )
 
 ####################################################################################
 def generateArtist(index):

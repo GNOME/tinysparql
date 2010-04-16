@@ -39,6 +39,7 @@ tools.addType( 'nco#PostalAddress', 11 )
 tools.addType( 'nco#PhoneNumber', 12 )
 tools.addType( 'nco#PersonContact', 13 )
 tools.addType( 'nmm#Photo', 20 )
+tools.addType( 'nmm#Video', 21 )
 tools.addType( 'nmo#MailAccount', 30 )
 tools.addType( 'nmo#MailFolder', 31 )
 tools.addType( 'nmo#Email', 32 )
@@ -153,6 +154,15 @@ for photo in range(1, count_images+1):
     sys.stdout.write('.')
     sys.stdout.flush()
   nmm.generatePhoto( photo )
+print "Done"
+
+print "Generate Videos",
+count_videos = config.getint('counts','videos')
+for video in range(1, count_videos+1):
+  if (video % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  nmm.generateVideo( video )
 print "Done"
 
 print "Generate plain text documents",
