@@ -159,6 +159,8 @@ static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
 
 static GHashTable           *thread_ifaces = NULL; /* Needed for cross-thread cancellation */
+static GStaticMutex          thread_ifaces_mutex = G_STATIC_MUTEX_INIT;
+
 static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 
 static const gchar *
@@ -897,7 +899,10 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
+
+	g_static_mutex_lock (&thread_ifaces_mutex);
 	g_hash_table_insert (thread_ifaces, g_thread_self (), resources_iface);
+	g_static_mutex_unlock (&thread_ifaces_mutex);
 
 	return TRUE;
 }
@@ -1202,7 +1207,9 @@ tracker_db_manager_get_db_interface (void)
 			              interface,
 			              (GDestroyNotify) g_object_unref);
 
+		g_static_mutex_lock (&thread_ifaces_mutex);
 		g_hash_table_insert (thread_ifaces, g_thread_self (), interface);
+		g_static_mutex_unlock (&thread_ifaces_mutex);
 	}
 
 	return interface;
@@ -1235,7 +1242,9 @@ tracker_db_manager_interrupt_thread (GThread *thread)
 {
 	TrackerDBInterface *interface;
 
+	g_static_mutex_lock (&thread_ifaces_mutex);
 	interface = g_hash_table_lookup (thread_ifaces, thread);
+	g_static_mutex_unlock (&thread_ifaces_mutex);
 
 	if (!interface) {
 		return FALSE;
