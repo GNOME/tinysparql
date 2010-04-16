@@ -780,11 +780,23 @@ tracker_db_interface_sqlite_execute_query (TrackerDBInterface  *db_interface,
 	return result_set;
 }
 
+static gboolean
+tracker_db_interface_sqlite_interrupt (TrackerDBInterface *iface)
+{
+	TrackerDBInterfaceSqlitePrivate *priv;
+
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (iface);
+	sqlite3_interrupt (priv->db);
+
+	return TRUE;
+}
+
 static void
 tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface)
 {
 	iface->create_statement = tracker_db_interface_sqlite_create_statement;
 	iface->execute_query = tracker_db_interface_sqlite_execute_query;
+	iface->interrupt = tracker_db_interface_sqlite_interrupt;
 }
 
 TrackerDBInterface *
