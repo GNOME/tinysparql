@@ -1912,16 +1912,23 @@ find_member (GsfInfile *arch,
 }
 
 
-static gchar *
-load_xml_contents (const gchar *file_uri,
-                   const gchar *xml_filename)
+#define XML_BUFFER_SIZE            8192         /* bytes */
+/* Note: 20 MBytes of max size is really assumed to be a safe limit. */
+#define XML_MAX_BYTES_READ         (20u << 20)  /* bytes */
+
+static void
+parse_xml_contents (const gchar *file_uri,
+                    const gchar *xml_filename,
+                    GMarkupParseContext *context)
 {
 	gchar *filename;
-	gchar *xml = NULL;
 	GError *error = NULL;
 	GsfInfile *infile = NULL;;
 	GsfInput *src = NULL;
 	GsfInput *member = NULL;
+
+	g_debug ("Parsing '%s' XML file from '%s' zip archive...",
+	         xml_filename, file_uri);
 
 	/* Get filename from the given URI */
 	if ((filename = g_filename_from_uri (file_uri,
@@ -1946,21 +1953,30 @@ load_xml_contents (const gchar *file_uri,
 	}
 	/* Load whole contents of the internal file in the xml buffer */
 	else {
-		size_t size;
+		guint8 buf[XML_BUFFER_SIZE];
+		size_t remaining_size, chunk_size, accum;
+
 		/* Get whole size of the contents to read */
-		size = (size_t) gsf_input_size (GSF_INPUT (member));
+		remaining_size = (size_t) gsf_input_size (GSF_INPUT (member));
 
-		/* Allocate buffer to return, and make sure it will be
-		 *  NIL-terminated */
-		xml = g_malloc (size + 1);
-		xml [size] = '\0';
+		/* Note that gsf_input_read() needs to be able to read ALL specified
+		 *  number of bytes, or it will fail */
+		chunk_size = MIN (remaining_size, XML_BUFFER_SIZE);
 
-		/* And read all the bytes in one operation */
-		if(gsf_input_read (GSF_INPUT (member), size, xml) == NULL) {
-			g_warning ("Couldn't read '%u' bytes from '%s'",
-			           size, xml_filename);
-			g_free (xml);
-			xml = NULL;
+		accum = 0;
+		while (accum  <= XML_MAX_BYTES_READ &&
+		       chunk_size > 0 &&
+		       gsf_input_read (GSF_INPUT (member), chunk_size, buf) != NULL) {
+
+			/* update accumulated count */
+			accum += chunk_size;
+
+			/* Pass the read stream to the context parser... */
+			g_markup_parse_context_parse (context, buf, chunk_size, NULL);
+
+			/* update bytes to be read */
+			remaining_size -= chunk_size;
+			chunk_size = MIN (remaining_size, XML_BUFFER_SIZE);
 		}
 	}
 
@@ -1975,8 +1991,6 @@ load_xml_contents (const gchar *file_uri,
 		g_object_unref (src);
 	if (member)
 		g_object_unref (member);
-
-	return xml;
 }
 
 
@@ -2036,13 +2050,10 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 	}
 
 	if (context) {
-		gchar *xml = load_xml_contents (parser_info->uri,
-		                                xml_filename);
-
-		g_markup_parse_context_parse (context, xml, -1, NULL);
+		/* Load the internal XML file from the Zip archive, and parse it
+		 * using the given context */
+		parse_xml_contents (parser_info->uri, xml_filename, context);
 		g_markup_parse_context_free (context);
-
-		g_free (xml);
 	}
 
 	return TRUE;
@@ -2129,7 +2140,6 @@ extract_msoffice_xml (const gchar          *uri,
 		NULL,
 		NULL
 	};
-	gchar *xml = NULL;
 	const gchar *mime_used;
 
 	file = g_file_new_for_uri (uri);
@@ -2183,9 +2193,9 @@ extract_msoffice_xml (const gchar          *uri,
 	info.content = g_string_new ("");
 
 	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
-	xml = load_xml_contents (uri, "[Content_Types].xml");
-	g_markup_parse_context_parse (context, xml, -1, NULL);
-	g_free (xml);
+	/* Load the internal XML file from the Zip archive, and parse it
+	 * using the given context */
+	parse_xml_contents (uri, "[Content_Types].xml", context);
 
 	if (info.content) {
 		gchar *content;
