@@ -75,7 +75,6 @@ typedef struct {
 		struct {
 			gchar                   *query;
 			gboolean                 batch;
-			gchar                   *client_id;
 			GPtrArray               *blank_nodes;
 		} update;
 		struct {
@@ -83,6 +82,7 @@ typedef struct {
 			gchar             *path;
 		} turtle;
 	} data;
+	gchar			  *client_id;
 	GError                    *error;
 	gpointer                   user_data;
 	GDestroyNotify             destroy;
@@ -124,8 +124,9 @@ store_task_free (TrackerStoreTask *task)
                 }
 	} else {
 		g_free (task->data.update.query);
-		g_free (task->data.update.client_id);
 	}
+
+	g_free (task->client_id);
 	g_slice_free (TrackerStoreTask, task);
 }
 
@@ -678,7 +679,7 @@ tracker_store_queue_commit (TrackerStoreCommitCallback callback,
 	task->user_data = user_data;
 	task->callback.commit_callback = callback;
 	task->destroy = destroy;
-	task->data.update.client_id = g_strdup (client_id);
+	task->client_id = g_strdup (client_id);
 	task->data.update.query = NULL;
 
 	g_queue_push_tail (private->queues[TRACKER_STORE_PRIORITY_LOW], task);
@@ -708,7 +709,7 @@ tracker_store_sparql_query (const gchar *sparql,
 	task->user_data = user_data;
 	task->callback.query_callback = callback;
 	task->destroy = destroy;
-	task->data.update.client_id = g_strdup (client_id);
+	task->client_id = g_strdup (client_id);
 
 	g_queue_push_tail (private->queues[priority], task);
 
@@ -739,7 +740,7 @@ tracker_store_sparql_update (const gchar *sparql,
 	task->user_data = user_data;
 	task->callback.update_callback = callback;
 	task->destroy = destroy;
-	task->data.update.client_id = g_strdup (client_id);
+	task->client_id = g_strdup (client_id);
 
 	g_queue_push_tail (private->queues[priority], task);
 
@@ -768,7 +769,7 @@ tracker_store_sparql_update_blank (const gchar *sparql,
 	task->user_data = user_data;
 	task->callback.update_blank_callback = callback;
 	task->destroy = destroy;
-	task->data.update.client_id = g_strdup (client_id);
+	task->client_id = g_strdup (client_id);
 
 	g_queue_push_tail (private->queues[priority], task);
 
@@ -853,7 +854,7 @@ tracker_store_unreg_batches (const gchar *client_id)
 			task = cur->data;
 
 			if (task && task->type != TRACKER_STORE_TASK_TYPE_TURTLE) {
-				if (g_strcmp0 (task->data.update.client_id, client_id) == 0) {
+				if (g_strcmp0 (task->client_id, client_id) == 0) {
 					if (!error) {
 						g_set_error (&error, TRACKER_DBUS_ERROR, 0,
 							     "Client disappeared");
