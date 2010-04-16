@@ -628,6 +628,18 @@ tracker_db_manager_init_locations (void)
 	locations_initialized = TRUE;
 }
 
+static void
+free_thread_interface (gpointer data)
+{
+	TrackerDBInterface *interface = data;
+
+	g_static_mutex_lock (&thread_ifaces_mutex);
+	g_hash_table_remove (thread_ifaces, g_thread_self ());
+	g_static_mutex_unlock (&thread_ifaces_mutex);
+
+	g_object_unref (interface);
+}
+
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
@@ -898,7 +910,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		                                                        TRACKER_DB_CONTENTS);
 	}
 
-	g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
+	g_static_private_set (&interface_data_key, resources_iface, free_thread_interface);
 
 	g_static_mutex_lock (&thread_ifaces_mutex);
 	g_hash_table_insert (thread_ifaces, g_thread_self (), resources_iface);
@@ -1205,9 +1217,7 @@ tracker_db_manager_get_db_interface (void)
 
 		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (interface), FALSE);
 
-		g_static_private_set (&interface_data_key,
-			              interface,
-			              (GDestroyNotify) g_object_unref);
+		g_static_private_set (&interface_data_key, interface, free_thread_interface);
 
 		g_static_mutex_lock (&thread_ifaces_mutex);
 		g_hash_table_insert (thread_ifaces, g_thread_self (), interface);
