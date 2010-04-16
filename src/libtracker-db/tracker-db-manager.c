@@ -35,6 +35,7 @@
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-fts/tracker-fts.h>
 
 #include "tracker-db-journal.h"
 #include "tracker-db-manager.h"
