@@ -47,6 +47,7 @@ typedef struct {
 	gboolean     update_running;
 	GThreadPool *main_pool;
 	GThreadPool *global_pool;
+	GSList	    *running_tasks;
 } TrackerStorePrivate;
 
 typedef enum {
@@ -279,6 +280,7 @@ task_finish_cb (gpointer data)
 			g_clear_error (&task->error);
 		}
 
+		private->running_tasks = g_slist_remove (private->running_tasks, task);
 		private->n_queries_running--;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (!task->data.update.batch && !task->error) {
@@ -435,6 +437,7 @@ queue_idle_handler (gpointer user_data)
 		/* pop task now, otherwise further queries won't be scheduled */
 		g_queue_pop_head (queue);
 
+		private->running_tasks = g_slist_prepend (private->running_tasks, task);
 		private->n_queries_running++;
 
 		task_run_async (private, task);
