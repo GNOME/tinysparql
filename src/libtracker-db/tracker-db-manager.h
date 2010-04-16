@@ -65,6 +65,9 @@ gboolean            tracker_db_manager_has_enough_space  (void);
 TrackerDBManagerFlags
                     tracker_db_manager_get_flags         (void);
 
+gboolean            tracker_db_manager_interrupt_thread  (GThread *thread);
+
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DB_MANAGER_H__ */

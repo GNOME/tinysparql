@@ -158,6 +158,7 @@ static gchar                *sys_tmp_dir = NULL;
 static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
 
+static GHashTable           *thread_ifaces = NULL; /* Needed for cross-thread cancellation */
 static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 
 static const gchar *
@@ -881,6 +882,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 	initialized = TRUE;
 
+	thread_ifaces = g_hash_table_new (NULL, NULL);
+
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
 		resources_iface = tracker_db_manager_get_db_interfaces_ro (3,
 		                                                           TRACKER_DB_METADATA,
@@ -894,6 +897,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
+	g_hash_table_insert (thread_ifaces, g_thread_self (), resources_iface);
 
 	return TRUE;
 }
@@ -930,6 +934,8 @@ tracker_db_manager_shutdown (void)
 
 	g_static_private_free (&interface_data_key);
 
+	g_hash_table_destroy (thread_ifaces);
+	thread_ifaces = NULL;
 
 	/* Since we don't reference this enum anywhere, we do
 	 * it here to make sure it exists when we call
@@ -1195,6 +1201,8 @@ tracker_db_manager_get_db_interface (void)
 		g_static_private_set (&interface_data_key,
 			              interface,
 			              (GDestroyNotify) g_object_unref);
+
+		g_hash_table_insert (thread_ifaces, g_thread_self (), interface);
 	}
 
 	return interface;
@@ -1212,4 +1220,26 @@ gboolean
 tracker_db_manager_has_enough_space  (void)
 {
 	return tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, FALSE);
+}
+
+/**
+ * tracker_db_manager_interrupt_thread:
+ * @thread: a #GThread to be interrupted
+ *
+ * Interrupts any ongoing DB operation going on on @thread.
+ *
+ * Returns: %TRUE if DB operations were interrupted, %FALSE otherwise.
+ **/
+gboolean
+tracker_db_manager_interrupt_thread (GThread *thread)
+{
+	TrackerDBInterface *interface;
+
+	interface = g_hash_table_lookup (thread_ifaces, thread);
+
+	if (!interface) {
+		return FALSE;
+	}
+
+	return tracker_db_interface_interrupt (interface);
 }
