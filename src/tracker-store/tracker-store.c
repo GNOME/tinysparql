@@ -28,6 +28,7 @@
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 
+#include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-sparql-query.h>
@@ -64,6 +65,7 @@ typedef struct {
 		struct {
 			gchar                   *query;
 			TrackerDBResultSet      *result_set;
+			GThread			*running_thread;
 		} query;
 		struct {
 			gchar                   *query;
@@ -357,7 +359,9 @@ pool_dispatch_cb (gpointer data,
 	task = data;
 
 	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
+		task->data.query.running_thread = g_thread_self ();
 		task->data.query.result_set = tracker_data_query_sparql (task->data.query.query, &task->error);
+		task->data.query.running_thread = NULL;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (task->data.update.batch) {
 			begin_batch (private);
@@ -755,11 +759,22 @@ tracker_store_unreg_batches (const gchar *client_id)
 	TrackerStorePrivate *private;
 	static GError *error = NULL;
 	GList *list, *cur;
+	GSList *running;
 	GQueue *queue;
 	gint i;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
+
+	for (running = private->running_tasks; running; running = running->next) {
+		TrackerStoreTask *task;
+
+		task = running->data;
+
+		if (task->data.query.running_thread) {
+			tracker_data_manager_interrupt_thread (task->data.query.running_thread);
+		}
+	}
 
 	for (i = 0; i < TRACKER_STORE_N_PRIORITIES; i++) {
 		queue = private->queues[i];
