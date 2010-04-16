@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-04-05 12:11+0000\n"
-"PO-Revision-Date: 2010-04-06 14:53+0200\n"
+"POT-Creation-Date: 2010-04-15 14:56+0000\n"
+"PO-Revision-Date: 2010-04-16 18:40+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -189,8 +189,8 @@ msgid "Cookie not recognized to resume paused miner"
 msgstr "No se reconoce la «cookie» para resumir el minero pausado"
 
 #: ../src/libtracker-miner/tracker-miner-fs.c:721
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2348
-#: ../src/miners/rss/tracker-miner-rss.c:135
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2347
+#: ../src/miners/rss/tracker-miner-rss.c:164
 msgid "Initializing"
 msgstr "Inicializando"
 
@@ -222,7 +222,7 @@ msgstr "Meter los datos en Tracker para poder solicitarlos."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2440
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2439
 msgid "Resuming"
 msgstr "Resumiendo"
 
@@ -248,7 +248,7 @@ msgid "_URN:"
 msgstr "_URN:"
 
 #: ../src/tracker-extract/tracker-main.c:84
-#: ../src/tracker-store/tracker-main.c:100
+#: ../src/tracker-store/tracker-main.c:99
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -297,7 +297,7 @@ msgid "MODULE"
 msgstr "MÓDULO"
 
 #: ../src/tracker-extract/tracker-main.c:111
-#: ../src/miners/fs/tracker-main.c:97 ../src/tracker-store/tracker-main.c:96
+#: ../src/miners/fs/tracker-main.c:97 ../src/tracker-store/tracker-main.c:95
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Muestra información de la versión"
@@ -426,11 +426,11 @@ msgstr "Se monitorizará"
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:895
+#: ../src/miners/fs/tracker-miner-files.c:897
 msgid "Low battery"
 msgstr "Batería baja"
 
-#: ../src/miners/fs/tracker-miner-files.c:978
+#: ../src/miners/fs/tracker-miner-files.c:980
 msgid "Low disk space"
 msgstr "Espacio en disco bajo"
 
@@ -441,7 +441,7 @@ msgstr "Espacio en disco bajo"
 msgid "- start the feeds indexer"
 msgstr "- iniciar el indexador de proveedores"
 
-#: ../src/miners/rss/tracker-miner-rss.c:218
+#: ../src/miners/rss/tracker-miner-rss.c:256
 msgid "Fetching..."
 msgstr "Obteniendo…"
 
@@ -471,18 +471,18 @@ msgstr "%d/20"
 msgid "Enter value"
 msgstr "Introducir un valor"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:153
+#: ../src/tracker-preferences/tracker-preferences.vala:155
 msgid "Select directory"
 msgstr "Seleccionar directorio"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:380
-#: ../src/tracker-preferences/tracker-preferences.vala:381
 #: ../src/tracker-preferences/tracker-preferences.vala:382
 #: ../src/tracker-preferences/tracker-preferences.vala:383
+#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:385
 msgid "Directory"
 msgstr "Directorio"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:384
+#: ../src/tracker-preferences/tracker-preferences.vala:386
 msgid "File"
 msgstr "Archivo"
 
@@ -897,7 +897,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-sparql.c:93
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:100
-#: ../src/tracker-utils/tracker-tag.c:83
+#: ../src/tracker-utils/tracker-tag.c:88
 msgid "Print version"
 msgstr "Imprimir versión"
 
@@ -982,22 +982,18 @@ msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 msgid "Tracker Applet"
 msgstr "Miniaplicación Tracker"
 
-#: ../src/tracker-store/tracker-main.c:105
-msgid "Minimizes the use of memory but may slow indexing down"
-msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
-
-#: ../src/tracker-store/tracker-main.c:111
+#: ../src/tracker-store/tracker-main.c:106
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/tracker-store/tracker-main.c:115
+#: ../src/tracker-store/tracker-main.c:110
 msgid "Only allow read based actions on the database"
 msgstr "Sólo permitir acciones de lectura en la base de datos"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:368
+#: ../src/tracker-store/tracker-main.c:361
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
@@ -1146,7 +1142,7 @@ msgstr "No se especificó uno o más archivos"
 #: ../src/tracker-utils/tracker-sparql.c:244
 #: ../src/tracker-utils/tracker-stats.c:106
 #: ../src/tracker-utils/tracker-status.c:527
-#: ../src/tracker-utils/tracker-tag.c:855
+#: ../src/tracker-utils/tracker-tag.c:897
 msgid "Could not establish a D-Bus connection to Tracker"
 msgstr "No se pudo establecer una conexión de D-Bus a Tracker"
 
@@ -1186,27 +1182,27 @@ msgid "No metadata available for that URI"
 msgstr "No existen metadatos disponibles para ese URI"
 
 #: ../src/tracker-utils/tracker-search.c:61
-#: ../src/tracker-utils/tracker-tag.c:55
+#: ../src/tracker-utils/tracker-tag.c:56
 msgid "Limit the number of results shown"
 msgstr "Limitar el número de resultados mostrados"
 
 #: ../src/tracker-utils/tracker-search.c:62
-#: ../src/tracker-utils/tracker-tag.c:56
+#: ../src/tracker-utils/tracker-tag.c:57
 msgid "512"
 msgstr "512"
 
 #: ../src/tracker-utils/tracker-search.c:65
-#: ../src/tracker-utils/tracker-tag.c:59
+#: ../src/tracker-utils/tracker-tag.c:60
 msgid "Offset the results"
 msgstr "Compensar los resultados"
 
 #: ../src/tracker-utils/tracker-search.c:66
-#: ../src/tracker-utils/tracker-tag.c:60
+#: ../src/tracker-utils/tracker-tag.c:61
 msgid "0"
 msgstr "0"
 
 #: ../src/tracker-utils/tracker-search.c:69
-#: ../src/tracker-utils/tracker-tag.c:63
+#: ../src/tracker-utils/tracker-tag.c:64
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Use OR para buscar términos en lugar de AND (lo predeterminado)"
 
@@ -1262,7 +1258,7 @@ msgid "EXPRESSION"
 msgstr "EXPRESIÓN"
 
 #: ../src/tracker-utils/tracker-search.c:136
-#: ../src/tracker-utils/tracker-tag.c:106
+#: ../src/tracker-utils/tracker-tag.c:111
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
@@ -1659,123 +1655,136 @@ msgstr "No hay ningún minero pausado"
 msgid "Store"
 msgstr "Almacenar"
 
-#: ../src/tracker-utils/tracker-tag.c:67
+#: ../src/tracker-utils/tracker-tag.c:68
 msgid "List all tags (using FILTER if specified)"
 msgstr "Listar todas las etiquetas (usando FILTRO si se especifica)"
 
-#: ../src/tracker-utils/tracker-tag.c:71
+#: ../src/tracker-utils/tracker-tag.c:72
 msgid "Show files associated with each tag (this is only used with --list)"
 msgstr ""
 "Mostrar los archivos asociados con cada etiqueta (sólo se usa con --list)"
 
-#: ../src/tracker-utils/tracker-tag.c:75
+#: ../src/tracker-utils/tracker-tag.c:76
 msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
 msgstr ""
 "Añadir una etiqueta (si se omiten los ARCHIVOS, la ETIQUETA no se asocia con "
 "ningún archivo)"
 
-#: ../src/tracker-utils/tracker-tag.c:76 ../src/tracker-utils/tracker-tag.c:80
+#: ../src/tracker-utils/tracker-tag.c:77 ../src/tracker-utils/tracker-tag.c:81
 msgid "TAG"
 msgstr "ETIQUETA"
 
-#: ../src/tracker-utils/tracker-tag.c:79
+#: ../src/tracker-utils/tracker-tag.c:80
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr ""
 "Borrar una etiqueta (si se omiten los ARCHIVOS, la ETIQUETA se elimina para "
 "todos los archivos)"
 
-#: ../src/tracker-utils/tracker-tag.c:89
+#: ../src/tracker-utils/tracker-tag.c:84
+#| msgid "Show files associated with each tag (this is only used with --list)"
+msgid "Description for a tag (this is only used with --add)"
+msgstr "Descripción para una etiqueta (sólo se usa con --add)"
+
+#: ../src/tracker-utils/tracker-tag.c:85
+msgid "STRING"
+msgstr "CADENA"
+
+#: ../src/tracker-utils/tracker-tag.c:94
 msgid "FILE…"
 msgstr "ARCHIVO…"
 
-#: ../src/tracker-utils/tracker-tag.c:90
+#: ../src/tracker-utils/tracker-tag.c:95
 msgid "FILE [FILE…]"
 msgstr "ARCHIVO [ARCHIVO…]"
 
-#: ../src/tracker-utils/tracker-tag.c:294
+#: ../src/tracker-utils/tracker-tag.c:299
 msgid "Could not get file URNs"
 msgstr "No se pudieron obtener los URN del archivo"
 
-#: ../src/tracker-utils/tracker-tag.c:375
+#: ../src/tracker-utils/tracker-tag.c:390
 msgid "Could not get files related to tag"
 msgstr "No se pudieron obtener archivos relacionados con la etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:448
-#: ../src/tracker-utils/tracker-tag.c:775
+#: ../src/tracker-utils/tracker-tag.c:463
+#: ../src/tracker-utils/tracker-tag.c:815
 msgid "Could not get all tags"
 msgstr "No se pudieron obtener todas las etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:457
-#: ../src/tracker-utils/tracker-tag.c:784
+#: ../src/tracker-utils/tracker-tag.c:472
+#: ../src/tracker-utils/tracker-tag.c:824
 msgid "No tags were found"
 msgstr "No se encontró ninguna etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:546
+#: ../src/tracker-utils/tracker-tag.c:586
 msgid "Could not add tag"
 msgstr "No se pudo añadir la etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:555
+#: ../src/tracker-utils/tracker-tag.c:595
 msgid "Tag was added successfully"
 msgstr "Etiqueta añadida correctamente"
 
-#: ../src/tracker-utils/tracker-tag.c:596
+#: ../src/tracker-utils/tracker-tag.c:636
 msgid "Could not add tag to files"
 msgstr "No se pudieron añadir las etiquetas a los archivos"
 
-#: ../src/tracker-utils/tracker-tag.c:607
+#: ../src/tracker-utils/tracker-tag.c:647
 msgid "Tagged"
 msgstr "Etiquetado"
 
-#: ../src/tracker-utils/tracker-tag.c:608
+#: ../src/tracker-utils/tracker-tag.c:648
 msgid "Not tagged, file is not indexed"
 msgstr "Sin etiquetar, el archivo no está indexado"
 
-#: ../src/tracker-utils/tracker-tag.c:653
+#: ../src/tracker-utils/tracker-tag.c:693
 msgid "Could not get tag by label"
 msgstr "No se pudo obtener la etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:663
+#: ../src/tracker-utils/tracker-tag.c:703
 msgid "No tags were found by that name"
 msgstr "No se encontró ninguna etiqueta con ese nombre"
 
-#: ../src/tracker-utils/tracker-tag.c:677
+#: ../src/tracker-utils/tracker-tag.c:717
 msgid "None of the files had this tag set"
 msgstr "Ninguno de los archivos tiene este conjunto de etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:719
+#: ../src/tracker-utils/tracker-tag.c:759
 msgid "Could not remove tag"
 msgstr "No se pudo quitar la etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:727
+#: ../src/tracker-utils/tracker-tag.c:767
 msgid "Tag was removed successfully"
 msgstr "Etiqueta quitada correctamente"
 
-#: ../src/tracker-utils/tracker-tag.c:731
+#: ../src/tracker-utils/tracker-tag.c:771
 msgid "Untagged"
 msgstr "Sin etiquetar"
 
-#: ../src/tracker-utils/tracker-tag.c:732
+#: ../src/tracker-utils/tracker-tag.c:772
 msgid "File not indexed or already untagged"
 msgstr "El archivo no está indexado o se ha desetiquetado"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:813
+#: ../src/tracker-utils/tracker-tag.c:853
 msgid "Add, remove or list tags"
 msgstr "Añadir, quitar o listar etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:829
+#: ../src/tracker-utils/tracker-tag.c:869
 msgid "The --list option is required for --show-files"
 msgstr "Se requiere la opción --list para --show-files"
 
-#: ../src/tracker-utils/tracker-tag.c:831
+#: ../src/tracker-utils/tracker-tag.c:871
 msgid "Add and delete actions can not be used together"
 msgstr "Añadir y borrar acciones que no se pueden usar conjuntamente"
 
-#: ../src/tracker-utils/tracker-tag.c:833
+#: ../src/tracker-utils/tracker-tag.c:873
 msgid "No arguments were provided"
 msgstr "No se proporcionó ningún argumento"
+
+#: ../src/tracker-utils/tracker-tag.c:875
+msgid "The --description option can only be used with --add"
+msgstr "La opción --description sólo se puede usar con --add"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -1787,6 +1796,9 @@ msgstr "- iniciar el servicio de escritura en diferido"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Consultas guardadas"
+
+#~ msgid "Minimizes the use of memory but may slow indexing down"
+#~ msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
 #~ msgid "Launch %s (%s)"
 #~ msgstr "Lanzar %s (%s)"
@@ -2867,9 +2879,6 @@ msgstr "Consultas guardadas"
 
 #~ msgid "Index corrupted"
 #~ msgstr "El índice está corrupto"
-
-#~ msgid "STRING"
-#~ msgstr "CADENA"
 
 #~ msgid "Set the total number of displayed results (default 512)"
 #~ msgstr "Establecer el número de resultados mostrados (predeterminado 512)"
