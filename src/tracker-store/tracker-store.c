@@ -836,7 +836,8 @@ tracker_store_unreg_batches (const gchar *client_id)
 
 		task = running->data;
 
-		if (task->data.query.running_thread) {
+		if (task->data.query.running_thread &&
+                    g_strcmp0 (task->client_id, client_id) == 0) {
 			tracker_data_manager_interrupt_thread (task->data.query.running_thread);
 		}
 	}
