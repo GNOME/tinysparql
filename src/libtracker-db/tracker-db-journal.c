@@ -34,6 +34,10 @@
 
 #include <glib/gstdio.h>
 
+#ifndef O_LARGEFILE
+# define O_LARGEFILE 0
+#endif
+
 #include <libtracker-common/tracker-crc32.h>
 
 #include "tracker-db-journal.h"
@@ -242,7 +246,7 @@ tracker_db_journal_init (const gchar *filename, gboolean truncate)
 	g_free (directory);
 
 	mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
-	flags = O_WRONLY | O_APPEND | O_CREAT;
+	flags = O_WRONLY | O_APPEND | O_CREAT | O_LARGEFILE;
 	if (truncate) {
 		/* existing journal contents are invalid: reindex where journal
 		 * does not even contain a single valid entry
