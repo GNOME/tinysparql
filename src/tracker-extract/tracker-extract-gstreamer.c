@@ -79,7 +79,7 @@ typedef enum {
 	EXTRACT_MIME_AUDIO,
 	EXTRACT_MIME_VIDEO,
 	EXTRACT_MIME_IMAGE,
-	EXTRACT_MIME_3GPP,
+	EXTRACT_MIME_GUESS,
 } ExtractMime;
 
 typedef struct {
@@ -124,7 +124,7 @@ static void extract_gstreamer_video (const gchar          *uri,
 static void extract_gstreamer_image (const gchar          *uri,
                                      TrackerSparqlBuilder *preupdate,
                                      TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_3gpp  (const gchar          *uri,
+static void extract_gstreamer_guess (const gchar          *uri,
                                      TrackerSparqlBuilder *preupdate,
                                      TrackerSparqlBuilder *metadata);
 
@@ -132,8 +132,9 @@ static TrackerExtractData data[] = {
 	{ "audio/*", extract_gstreamer_audio },
 	{ "video/*", extract_gstreamer_video },
 	{ "image/*", extract_gstreamer_image },
-	/* mime type guessing returns video/3gpp also for 3gpp audio files */
-	{ "video/3gpp", extract_gstreamer_3gpp },
+	/* mime type guessing returns for instance video/3gpp also for 3gpp audio files */
+	{ "video/3gpp", extract_gstreamer_guess },
+	{ "video/mp4", extract_gstreamer_guess },
 	{ NULL, NULL }
 };
 
@@ -476,7 +477,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		gchar *composer_uri = NULL;
 		gchar *album_uri = NULL;
 
-		if (extractor->mime == EXTRACT_MIME_3GPP) {
+		if (extractor->mime == EXTRACT_MIME_GUESS) {
 			gchar *video_codec = NULL, *audio_codec = NULL;
 
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_VIDEO_CODEC, &video_codec);
@@ -563,8 +564,8 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			tracker_sparql_builder_insert_close (preupdate);
 
-			has_it = gst_tag_list_get_uint (extractor->tagcache, 
-			                                GST_TAG_TRACK_COUNT, 
+			has_it = gst_tag_list_get_uint (extractor->tagcache,
+			                                GST_TAG_TRACK_COUNT,
 			                                &count);
 
 			if (has_it) {
@@ -589,8 +590,8 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
-			has_it = gst_tag_list_get_uint (extractor->tagcache, 
-			                                GST_TAG_ALBUM_VOLUME_NUMBER, 
+			has_it = gst_tag_list_get_uint (extractor->tagcache,
+			                                GST_TAG_ALBUM_VOLUME_NUMBER,
 			                                &count);
 
 			if (has_it) {
@@ -615,8 +616,8 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
-			has_it = gst_tag_list_get_double (extractor->tagcache, 
-			                                  GST_TAG_ALBUM_GAIN, 
+			has_it = gst_tag_list_get_double (extractor->tagcache,
+			                                  GST_TAG_ALBUM_GAIN,
 			                                  &gain);
 
 			if (has_it) {
@@ -641,8 +642,8 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
-			has_it = gst_tag_list_get_double (extractor->tagcache, 
-			                                  GST_TAG_ALBUM_PEAK, 
+			has_it = gst_tag_list_get_double (extractor->tagcache,
+			                                  GST_TAG_ALBUM_PEAK,
 			                                  &gain);
 
 			if (has_it) {
@@ -679,7 +680,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		if (needs_audio) {
 			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 			tracker_sparql_builder_object (metadata, "nfo:Audio");
-		} 
+		}
 
 		if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			tracker_sparql_builder_object (metadata, "nmm:Video");
@@ -763,7 +764,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		if (needs_audio) {
 			tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 			tracker_sparql_builder_object (metadata, "nfo:Audio");
-		} 
+		}
 
 		if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			tracker_sparql_builder_object (metadata, "nmm:Video");
@@ -1199,11 +1200,11 @@ extract_gstreamer_image (const gchar          *uri,
 }
 
 static void
-extract_gstreamer_3gpp (const gchar          *uri,
+extract_gstreamer_guess (const gchar          *uri,
                         TrackerSparqlBuilder *preupdate,
 			TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_3GPP);
+	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS);
 }
 
 TrackerExtractData *
