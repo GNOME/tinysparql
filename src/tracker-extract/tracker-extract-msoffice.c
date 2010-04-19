@@ -726,7 +726,9 @@ extract_powerpoint_content (GsfInfile *infile,
 static gint
 fts_max_words (void)
 {
-	TrackerFTSConfig *fts_config = tracker_main_get_fts_config ();
+	TrackerFTSConfig *fts_config;
+
+	fts_config = tracker_main_get_fts_config ();
 	return tracker_fts_config_get_max_words_to_index (fts_config);
 }
 
@@ -737,8 +739,23 @@ fts_max_words (void)
 static gint
 fts_min_word_length (void)
 {
-	TrackerFTSConfig *fts_config = tracker_main_get_fts_config ();
+	TrackerFTSConfig *fts_config;
+
+	fts_config = tracker_main_get_fts_config ();
 	return tracker_fts_config_get_min_word_length (fts_config);
+}
+
+/**
+ * @brief get max word length
+ * @return max_word_length
+ */
+static gint
+fts_max_word_length (void)
+{
+	TrackerFTSConfig *fts_config;
+
+	fts_config = tracker_main_get_fts_config ();
+	return tracker_fts_config_get_max_word_length (fts_config);
 }
 
 /**
@@ -773,6 +790,7 @@ open_uri (const gchar *uri)
 static gchar *
 extract_msword_content (GsfInfile *infile,
                         gint       n_words,
+                        gsize      n_bytes,
                         gboolean  *is_encrypted)
 {
 	GsfInput *document_stream, *table_stream;
@@ -785,7 +803,10 @@ extract_msword_content (GsfInfile *infile,
 	gint piece_count;
 	gint32 fc;
 	GString *content = NULL;
-	gchar *normalized = NULL;
+	guint8 *text_buffer = NULL;
+	gint text_buffer_size = 0;
+	guint n_words_remaining;
+	gsize n_bytes_remaining;
 
 	document_stream = gsf_infile_child_by_name (infile, "WordDocument");
 	if (document_stream == NULL) {
@@ -857,10 +878,19 @@ extract_msword_content (GsfInfile *infile,
 		}
 	}
 
-	/* iterate over pieces and save text to the content -variable */
-	for (i = 0; i < piece_count; i++) {
+	/* Iterate over pieces...
+	 *   Loop is halted whenever one of this conditions is met:
+	 *     a) Max bytes to be read reached
+	 *     b) Already read up to the max number of words configured
+	 *     c) No more pieces to read
+	 */
+	i = 0;
+	n_words_remaining = n_words;
+	n_bytes_remaining = n_bytes;
+	while (n_words_remaining > 0 &&
+	       n_bytes_remaining > 0 &&
+	       i < piece_count) {
 		gchar *converted_text;
-		guint8 *text_buffer;
 		guint8 *piece_descriptor;
 		gint piece_start;
 		gint piece_end;
@@ -887,53 +917,110 @@ extract_msword_content (GsfInfile *infile,
 			fc = (fc & 0xBFFFFFFF) >> 1;
 		}
 
-		/* unicode uses twice as many bytes as CP1252 */
+
 		piece_size  = piece_end - piece_start;
+
+		/* NOTE: Very very long pieces may appear. In fact, a single
+		 *  piece document seems to be quite normal. Thus, we limit
+		 *  here the number of bytes to read from the stream, based
+		 *  on the maximum number of bytes in UTF-8. Assuming, then
+		 *  that a safe limit is 2*n_bytes_remaining if UTF-16 input,
+		 *  and just n_bytes_remaining in CP1251 input */
+		piece_size = MIN (piece_size, n_bytes_remaining);
+
+		/* UTF-16 uses twice as many bytes as CP1252
+		 *  NOTE: Not quite sure about this. Some unicode points will be
+		 *  encoded using 4 bytes in UTF-16 */
 		if (!is_ansi) {
 			piece_size *= 2;
 		}
 
-		if (piece_size < 1) {
-			continue;
-		}
+		/* Avoid empty pieces */
+		if (piece_size >= 1) {
+			GError *error = NULL;
+			gsize n_bytes_utf8;
+			guint n_words_normalized;
 
-		/* read single text piece from document_stream */
-		text_buffer = g_malloc (piece_size);
-		gsf_input_seek (document_stream, fc, G_SEEK_SET);
-		gsf_input_read (document_stream, piece_size, text_buffer);
-
-		/* pieces can have different encoding */
-		converted_text = g_convert (text_buffer,
-		                            piece_size,
-		                            "UTF-8",
-		                            is_ansi ? "CP1252" : "UTF-16",
-		                            NULL,
-		                            NULL,
-		                            NULL);
-
-		if (converted_text) {
-			if (!content) {
-				content = g_string_new (converted_text);
-			} else {
-				g_string_append (content, converted_text);
+			/* Re-allocate buffer to make it bigger if needed.
+			 *  This text buffer is re-used over and over in each
+			 *  iteration.  */
+			if (piece_size > text_buffer_size) {
+				text_buffer = g_realloc (text_buffer, piece_size);
+				text_buffer_size = piece_size;
 			}
 
-			g_free (converted_text);
+			/* read single text piece from document_stream */
+			gsf_input_seek (document_stream, fc, G_SEEK_SET);
+			gsf_input_read (document_stream, piece_size, text_buffer);
+
+			/* pieces can have different encoding
+			 *  TODO: Using g_iconv, this extra heap allocation could be
+			 *   avoided, re-using over and over again the same output buffer
+			 *   for the UTF-8 encoded string */
+			converted_text = g_convert (text_buffer,
+			                            piece_size,
+			                            "UTF-8",
+			                            is_ansi ? "CP1252" : "UTF-16",
+			                            NULL,
+			                            &n_bytes_utf8,
+			                            &error);
+
+			if (converted_text) {
+				gchar *normalized_chunk;
+
+				/* Get normalized chunk */
+				normalized_chunk = tracker_text_normalize (converted_text,
+				                                           n_words_remaining,
+				                                           &n_words_normalized);
+
+				/* Update number of words remaining.
+				 * Note that n_words_normalized should always be less or
+				 * equal than n_words_remaining */
+				n_words_remaining = (n_words_normalized <= n_words_remaining ?
+				                     n_words_remaining - n_words_normalized : 0);
+
+				/* Update accumulated UTF-8 bytes read */
+				n_bytes_remaining = (n_bytes_utf8 <= n_bytes_remaining ?
+				                     n_bytes_remaining - n_bytes_utf8 : 0);
+
+				g_debug ("(%s) Piece %u; Words normalized: %u (remaining: %u); "
+				         "Bytes read (UTF-8): %" G_GSIZE_FORMAT " bytes "
+				         "(remaining: %" G_GSIZE_FORMAT ")",
+				         __FUNCTION__, i, n_words_normalized, n_words_remaining,
+				         n_bytes_utf8, n_bytes_remaining);
+
+				/* Append normalized chunk to the string to be returned */
+				if (!content) {
+					content = g_string_new (normalized_chunk);
+				} else {
+					g_string_append (content, normalized_chunk);
+				}
+
+				g_free (converted_text);
+				g_free (normalized_chunk);
+			}
+			else {
+				g_warning ("Couldn't convert %d bytes from %s to UTF-8: %s",
+				           piece_size,
+				           is_ansi ? "CP1252" : "UTF-16",
+				           error ? error->message : NULL);
+			}
+
+			/* Note that error may be set even if some converted text is
+			 * available, due to G_CONVERT_ERROR_ILLEGAL_SEQUENCE for example */
+			g_clear_error (&error);
 		}
 
-		g_free (text_buffer);
+		/* Go on to next piece */
+		i++;
 	}
 
+	g_free (text_buffer);
 	g_object_unref (document_stream);
 	g_object_unref (table_stream);
 	g_free (clx);
 
-	if (content) {
-		normalized = tracker_text_normalize (content->str, n_words, NULL);
-		g_string_free (content, TRUE);
-	}
-
-	return normalized;
+	return content ? g_string_free (content, FALSE) : NULL;
 }
 
 
@@ -1410,6 +1497,8 @@ extract_msoffice (const gchar          *uri,
 	GsfInfile *infile = NULL;
 	gchar *content = NULL;
 	gboolean is_encrypted = FALSE;
+	gint max_words;
+	gsize max_bytes;
 
 	file = g_file_new_for_uri (uri);
 
@@ -1444,15 +1533,25 @@ extract_msoffice (const gchar          *uri,
 
 	mime_used = g_file_info_get_content_type (file_info);
 
+	/* Set max words to read from content */
+	max_words = fts_max_words ();
+
+	/* Set max bytes to read from content.
+	 * Assuming 3 bytes per unicode point in UTF-8, as 4-byte UTF-8 unicode
+	 *  points are really pretty rare */
+	max_bytes = 3 * max_words * fts_max_word_length ();
+
 	if (g_ascii_strcasecmp (mime_used, "application/msword") == 0) {
 		/* Word file*/
-		content = extract_msword_content (infile, fts_max_words (), &is_encrypted);
+		content = extract_msword_content (infile, max_words, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-powerpoint") == 0) {
-		/* PowerPoint file */
-		content = extract_powerpoint_content (infile, fts_max_words (), &is_encrypted);
+		/* PowerPoint file
+		 *  TODO: Limit max bytes to read */
+		content = extract_powerpoint_content (infile, max_words, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-excel") == 0) {
-		/* Excel File */
-		content = extract_excel_content (infile, fts_max_words (), &is_encrypted);
+		/* Excel File
+		 *  TODO: Limit max bytes to read */
+		content = extract_excel_content (infile, max_words, &is_encrypted);
 	} else {
 		g_message ("Mime type was not recognised:'%s'", mime_used);
 	}
