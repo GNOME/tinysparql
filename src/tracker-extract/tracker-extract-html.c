@@ -25,17 +25,23 @@
 #include <glib.h>
 
 #include <libxml/HTMLparser.h>
-
+#include <libtracker-common/tracker-utils.h>
 #include <libtracker-extract/tracker-extract.h>
+
+#include "tracker-main.h"
 
 typedef enum {
 	READ_TITLE,
+	READ_IGNORE
 } tag_type;
 
 typedef struct {
 	TrackerSparqlBuilder *metadata;
 	tag_type current;
 	const gchar *uri;
+	guint in_body : 1;
+	GString *plain_text;
+	guint n_words;
 } parser_data;
 
 static void extract_html (const gchar          *filename,
@@ -170,6 +176,11 @@ parser_start_element (void           *data,
 				}
 			}
 		}
+	} else if (g_ascii_strcasecmp (name, "body") == 0) {
+		pd->in_body = TRUE;
+	} else if (g_ascii_strcasecmp (name, "script") == 0) {
+		/* Ignore javascript and such */
+		pd->current = READ_IGNORE;
 	}
 }
 
@@ -185,7 +196,28 @@ parser_characters (void          *data,
 		tracker_sparql_builder_predicate (pd->metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (pd->metadata, ch);
 		break;
+	case READ_IGNORE:
+		break;
 	default:
+		if (pd->in_body && pd->n_words > 0) {
+			gchar *text;
+			guint n_words;
+
+			text = tracker_text_normalize (ch, pd->n_words, &n_words);
+
+			if (text && *text) {
+				g_string_append (pd->plain_text, text);
+				g_string_append_c (pd->plain_text, ' ');
+
+				if (n_words > pd->n_words) {
+					pd->n_words = 0;
+				} else {
+					pd->n_words -= n_words;
+				}
+			}
+
+			g_free (text);
+		}
 		break;
 	}
 
@@ -197,6 +229,7 @@ extract_html (const gchar          *uri,
               TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
 {
+	TrackerFTSConfig *fts_config;
 	htmlDocPtr doc;
 	parser_data pd;
 	gchar *filename;
@@ -240,7 +273,12 @@ extract_html (const gchar          *uri,
 
 	pd.metadata = metadata;
 	pd.current = -1;
+	pd.in_body = FALSE;
 	pd.uri = uri;
+	pd.plain_text = g_string_new (NULL);
+
+	fts_config = tracker_main_get_fts_config ();
+	pd.n_words = tracker_fts_config_get_max_words_to_index (fts_config);
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 	doc = htmlSAXParseFile (filename, NULL, &handler, &pd);
@@ -249,6 +287,15 @@ extract_html (const gchar          *uri,
 	if (doc) {
 		xmlFreeDoc (doc);
 	}
+
+	g_strstrip (pd.plain_text->str);
+
+	if (pd.plain_text->str != '\0') {
+		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+		tracker_sparql_builder_object_unvalidated (metadata, pd.plain_text->str);
+	}
+
+	g_string_free (pd.plain_text, TRUE);
 }
 
 TrackerExtractData *
