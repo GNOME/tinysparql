@@ -204,23 +204,15 @@ date_to_iso8601 (const gchar *date)
 }
 
 static void
-extract_ps (const gchar          *uri,
-            TrackerSparqlBuilder *preupdate,
-            TrackerSparqlBuilder *metadata)
+extract_ps_from_filestream (FILE *f,
+                            TrackerSparqlBuilder *preupdate,
+                            TrackerSparqlBuilder *metadata)
 {
-	FILE *f;
-	gchar *filename;
 	gchar *line;
 	gsize length;
 	gssize read_char;
-
-	filename = g_filename_from_uri (uri, NULL, NULL);
-	f = tracker_file_open (filename, "r", TRUE);
-	g_free (filename);
-
-	if (!f) {
-		return;
-	}
+	gsize accum;
+	gsize max_bytes;
 
 	line = NULL;
 	length = 0;
@@ -228,9 +220,26 @@ extract_ps (const gchar          *uri,
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 
-	while ((read_char = getline (&line, &length, f)) != -1) {
+	/* 20 MiB should be enough! (original safe limit) */
+	accum = 0;
+	max_bytes = 20u << 20;
+
+	/* Reuse the same buffer for all lines. Must be dynamically allocated with
+	 * malloc family methods as getline() may re-size it with realloc() */
+	length = 1024;
+	line = g_malloc (length);
+
+	/* Halt the whole when one of these conditions is met:
+	 *  a) Reached max bytes to read
+	 *  b) No more lines to read
+	 */
+	while ((accum < max_bytes) &&
+	       (read_char = getline (&line, &length, f)) != -1) {
 		gboolean pageno_atend = FALSE;
 		gboolean header_finished = FALSE;
+
+		/* Update accumulated bytes read */
+		accum += read_char;
 
 		line[read_char - 1] = '\0';  /* overwrite '\n' char */
 
@@ -274,15 +283,35 @@ extract_ps (const gchar          *uri,
 				break;
 			}
 		}
-
-		g_free (line);
-		line = NULL;
-		length = 0;
 	}
 
+	/* Deallocate the buffer */
 	if (line) {
 		g_free (line);
 	}
+}
+
+
+
+static void
+extract_ps (const gchar          *uri,
+            TrackerSparqlBuilder *preupdate,
+            TrackerSparqlBuilder *metadata)
+{
+	FILE *f;
+	gchar *filename;
+
+	filename = g_filename_from_uri (uri, NULL, NULL);
+	f = tracker_file_open (filename, "r", TRUE);
+	g_free (filename);
+
+	if (!f) {
+		return;
+	}
+
+	/* Extract from filestream! */
+	g_debug ("Extracting PS '%s'...", uri);
+	extract_ps_from_filestream (f, preupdate, metadata);
 
 	tracker_file_close (f, FALSE);
 }
@@ -294,23 +323,11 @@ extract_ps_gz (const gchar          *uri,
                TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata)
 {
-	FILE *fz, *f;
-	GError *error = NULL;
-	gchar *gunzipped;
+	FILE *fz;
 	gint fdz;
-	gint fd;
-	gboolean ptat;
 	const gchar *argv[4];
 	gchar *filename;
-
-	fd = g_file_open_tmp ("tracker-extract-ps-gunzipped.XXXXXX",
-	                      &gunzipped,
-	                      &error);
-
-	if (error) {
-		g_error_free (error);
-		return;
-	}
+	GError *error = NULL;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
@@ -321,68 +338,35 @@ extract_ps_gz (const gchar          *uri,
 	argv[2] = filename;
 	argv[3] = NULL;
 
-	ptat = g_spawn_async_with_pipes (g_get_tmp_dir (),
-	                                 (gchar **) argv,
-	                                 NULL,
-	                                 G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-	                                 tracker_spawn_child_func,
-	                                 GINT_TO_POINTER (10),
-	                                 NULL,
-	                                 NULL,
-	                                 &fdz,
-	                                 NULL,
-	                                 &error);
-
-	if (!ptat) {
-		g_free (filename);
-		g_unlink (gunzipped);
+	/* Fork & spawn to gunzip the file */
+	if (!g_spawn_async_with_pipes (g_get_tmp_dir (),
+	                               (gchar **) argv,
+	                               NULL,
+	                               G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+	                               tracker_spawn_child_func,
+	                               GINT_TO_POINTER (10),
+	                               NULL,
+	                               NULL,
+	                               &fdz,
+	                               NULL,
+	                               &error)) {
+		g_warning ("Couldn't fork & spawn to gunzip '%s': %s",
+		           uri, error ? error->message : NULL);
 		g_clear_error (&error);
-		close (fd);
-		return;
 	}
-
-	fz = fdopen (fdz, "r");
-
-	if (!fz) {
-		g_unlink (gunzipped);
+	/* Get FILE from FD */
+	else if ((fz = fdopen (fdz, "r")) == NULL) {
+		g_warning ("Couldn't open FILE from FD (%s)...", uri);
 		close (fdz);
-		close (fd);
-		return;
 	}
-
-	f = fdopen (fd, "w");
-
-	if (!f) {
-		g_unlink (gunzipped);
+	/* Extract from filestream! */
+	else
+	{
+		g_debug ("Extracting compressed PS '%s'...", uri);
+		extract_ps_from_filestream (fz, preupdate, metadata);
 		fclose (fz);
-		close (fd);
-		return;
 	}
 
-	if (f && fz) {
-		unsigned char buf[8192];
-		size_t w, b, accum;
-		size_t max;
-
-		/* 20 MiB should be enough! */
-		accum = 0;
-		max = 20u << 20;
-
-		while ((b = fread (buf, 1, 8192, fz)) && accum <= max) {
-			accum += b;
-			w = 0;
-
-			while (w < b) {
-				w += fwrite (buf, 1, b, f);
-			}
-		}
-
-		fclose (fz);
-		fclose (f);
-	}
-
-	extract_ps (gunzipped, preupdate, metadata);
-	g_unlink (gunzipped);
 	g_free (filename);
 }
 
