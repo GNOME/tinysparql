@@ -35,7 +35,7 @@ typedef enum {
 	TRACKER_STORE_N_PRIORITIES
 } TrackerStorePriority;
 
-typedef void (* TrackerStoreSparqlQueryCallback)       (TrackerDBResultSet *result_set,
+typedef void (* TrackerStoreSparqlQueryCallback)       (TrackerDBCursor *cursor,
                                                         GError          *error,
                                                         gpointer         user_data);
 typedef void (* TrackerStoreSparqlUpdateCallback)      (GError          *error,

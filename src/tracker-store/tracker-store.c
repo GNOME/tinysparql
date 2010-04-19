@@ -68,7 +68,7 @@ typedef struct {
 	union {
 		struct {
 			gchar                   *query;
-			TrackerDBResultSet      *result_set;
+			TrackerDBCursor         *cursor;
 			GThread			*running_thread;
 			GTimer			*timer;
 		} query;
@@ -331,12 +331,12 @@ task_finish_cb (gpointer data)
 
 	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
 		if (task->callback.query_callback) {
-			task->callback.query_callback (task->data.query.result_set, task->error, task->user_data);
+			task->callback.query_callback (task->data.query.cursor, task->error, task->user_data);
 		}
 
-		if (task->data.query.result_set) {
-			g_object_unref (task->data.query.result_set);
-			task->data.query.result_set = NULL;
+		if (task->data.query.cursor) {
+			g_object_unref (task->data.query.cursor);
+			task->data.query.cursor = NULL;
 		}
 
 		if (task->error) {
@@ -422,7 +422,7 @@ pool_dispatch_cb (gpointer data,
 
 	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
 		task->data.query.running_thread = g_thread_self ();
-		task->data.query.result_set = tracker_data_query_sparql (task->data.query.query, &task->error);
+		task->data.query.cursor = tracker_data_query_sparql_cursor (task->data.query.query, &task->error);
 		task->data.query.running_thread = NULL;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (task->data.update.batch) {

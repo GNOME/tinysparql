@@ -179,10 +179,12 @@ tracker_resources_load (TrackerResources         *object,
 }
 
 static void
-query_callback (TrackerDBResultSet *result_set, GError *error, gpointer user_data)
+query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 {
 	TrackerDBusMethodInfo *info = user_data;
-	GPtrArray *values;
+	DBusMessage *reply;
+	DBusMessageIter iter, rows_iter;
+	guint cols;
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
@@ -196,11 +198,34 @@ query_callback (TrackerDBResultSet *result_set, GError *error, gpointer user_dat
 	tracker_dbus_request_success (info->request_id,
 	                              info->context);
 
-	values = tracker_dbus_query_result_to_ptr_array (result_set);
+	reply = dbus_g_method_get_reply (info->context);
 
-	dbus_g_method_return (info->context, values);
+	dbus_message_iter_init_append (reply, &iter);
 
-	tracker_dbus_results_ptr_array_free (&values);
+	cols = tracker_db_cursor_get_n_columns (cursor);
+
+	dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, 
+	                                  "as", &rows_iter);
+
+	while (tracker_db_cursor_iter_next (cursor)) {
+		DBusMessageIter cols_iter;
+		guint i;
+
+		dbus_message_iter_open_container (&rows_iter, DBUS_TYPE_ARRAY, 
+		                                  "s", &cols_iter);
+
+		for (i = 0; i < cols; i++) {
+			const gchar *result_str;
+			result_str = tracker_db_cursor_get_string (cursor, i);
+			dbus_message_iter_append_basic (&cols_iter, DBUS_TYPE_STRING, &result_str);
+		}
+
+		dbus_message_iter_close_container (&rows_iter, &cols_iter);
+	}
+
+	dbus_message_iter_close_container (&iter, &rows_iter);
+
+	dbus_g_method_send_reply (info->context, reply);
 }
 
 void
