@@ -185,6 +185,19 @@ parser_start_element (void           *data,
 }
 
 static void
+parser_end_element (void           *data,
+                    const xmlChar  *name_)
+{
+	parser_data *pd = data;
+	const gchar *name = (const gchar*) name_;
+
+        if (g_ascii_strcasecmp (name, "title") == 0 ||
+            g_ascii_strcasecmp (name, "script") == 0) {
+                    pd->current = -1;
+        }
+}
+
+static void
 parser_characters (void          *data,
                    const xmlChar *ch,
                    int            len)
@@ -220,8 +233,6 @@ parser_characters (void          *data,
 		}
 		break;
 	}
-
-	pd->current = -1;
 }
 
 static void
@@ -249,7 +260,7 @@ extract_html (const gchar          *uri,
 		NULL, /* startDocument */
 		NULL, /* endDocument */
 		parser_start_element, /* startElement */
-		NULL, /* endElement */
+		parser_end_element, /* endElement */
 		NULL, /* reference */
 		parser_characters, /* characters */
 		NULL, /* ignorableWhitespace */
