@@ -126,3 +126,22 @@ tracker_data_query_sparql (const gchar  *query,
 	return result_set;
 }
 
+
+TrackerDBCursor *
+tracker_data_query_sparql_cursor (const gchar  *query,
+                                  GError      **error)
+{
+	TrackerSparqlQuery *sparql_query;
+	TrackerDBCursor *cursor;
+
+	g_return_val_if_fail (query != NULL, NULL);
+
+	sparql_query = tracker_sparql_query_new (query);
+
+	cursor = tracker_sparql_query_execute_cursor (sparql_query, error);
+
+	g_object_unref (sparql_query);
+
+	return cursor;
+}
+

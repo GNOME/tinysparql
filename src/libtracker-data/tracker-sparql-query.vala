@@ -361,7 +361,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	public DBResultSet? execute () throws DBInterfaceError, SparqlError, DateError {
+	void prepare_execute () throws DBInterfaceError, SparqlError, DateError {
 		assert (!update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -375,6 +375,11 @@ public class Tracker.Sparql.Query : Object {
 		}
 
 		parse_prologue ();
+	}
+
+	public DBResultSet? execute () throws DBInterfaceError, SparqlError, DateError {
+
+		prepare_execute ();
 
 		switch (current ()) {
 		case SparqlTokenType.SELECT:
@@ -385,6 +390,29 @@ public class Tracker.Sparql.Query : Object {
 			throw get_internal_error ("DESCRIBE is not supported");
 		case SparqlTokenType.ASK:
 			return execute_ask ();
+		case SparqlTokenType.INSERT:
+		case SparqlTokenType.DELETE:
+		case SparqlTokenType.DROP:
+			throw get_error ("INSERT and DELETE are not supported in query mode");
+		default:
+			throw get_error ("expected SELECT or ASK");
+		}
+	}
+
+
+	public DBCursor? execute_cursor () throws DBInterfaceError, SparqlError, DateError {
+
+		prepare_execute ();
+
+		switch (current ()) {
+		case SparqlTokenType.SELECT:
+			return execute_select_cursor ();
+		case SparqlTokenType.CONSTRUCT:
+			throw get_internal_error ("CONSTRUCT is not supported");
+		case SparqlTokenType.DESCRIBE:
+			throw get_internal_error ("DESCRIBE is not supported");
+		case SparqlTokenType.ASK:
+			return execute_ask_cursor ();
 		case SparqlTokenType.INSERT:
 		case SparqlTokenType.DELETE:
 		case SparqlTokenType.DROP:
@@ -442,7 +470,7 @@ public class Tracker.Sparql.Query : Object {
 		return blank_nodes;
 	}
 
-	DBResultSet? exec_sql (string sql) throws DBInterfaceError, SparqlError, DateError {
+	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, SparqlError, DateError {
 		var iface = DBManager.get_db_interface ();
 		var stmt = iface.create_statement ("%s", sql);
 
@@ -467,10 +495,22 @@ public class Tracker.Sparql.Query : Object {
 			i++;
 		}
 
+		return stmt;
+	}
+
+	DBResultSet? exec_sql (string sql) throws DBInterfaceError, SparqlError, DateError {
+		var stmt = prepare_for_exec (sql);
+
 		return stmt.execute ();
 	}
 
-	DBResultSet? execute_select () throws DBInterfaceError, SparqlError, DateError {
+	DBCursor? exec_sql_cursor (string sql) throws DBInterfaceError, SparqlError, DateError {
+		var stmt = prepare_for_exec (sql);
+
+		return stmt.start_cursor ();
+	}
+
+	string get_select_query () throws DBInterfaceError, SparqlError, DateError {
 		// SELECT query
 
 		context = new Context ();
@@ -483,10 +523,18 @@ public class Tracker.Sparql.Query : Object {
 
 		context = context.parent_context;
 
-		return exec_sql (sql.str);
+		return sql.str;
 	}
 
-	DBResultSet? execute_ask () throws DBInterfaceError, SparqlError, DateError {
+	DBResultSet? execute_select () throws DBInterfaceError, SparqlError, DateError {
+		return exec_sql (get_select_query ());
+	}
+
+	DBCursor? execute_select_cursor () throws DBInterfaceError, SparqlError, DateError {
+		return exec_sql_cursor (get_select_query ());
+	}
+
+	string get_ask_query () throws DBInterfaceError, SparqlError, DateError {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
@@ -511,7 +559,15 @@ public class Tracker.Sparql.Query : Object {
 
 		context = context.parent_context;
 
-		return exec_sql (sql.str);
+		return sql.str;
+	}
+
+	DBResultSet? execute_ask () throws DBInterfaceError, SparqlError, DateError {
+		return exec_sql (get_ask_query ());
+	}
+
+	DBCursor? execute_ask_cursor () throws DBInterfaceError, SparqlError, DateError {
+		return exec_sql_cursor (get_ask_query ());
 	}
 
 	private void parse_from_or_into_param () throws SparqlError {
