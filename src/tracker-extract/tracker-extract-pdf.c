@@ -314,11 +314,20 @@ extract_pdf (const gchar          *uri,
 	document = poppler_document_new_from_file (uri, NULL, &error);
 
 	if (error) {
-		g_warning ("Couldn't create PopplerDocument from uri:'%s', %s",
-		           uri,
-		           error->message ? error->message : "no error given");
-		g_error_free (error);
+		if (error->code == POPPLER_ERROR_ENCRYPTED) {
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 
+			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
+			tracker_sparql_builder_object_boolean (metadata, TRUE);
+			return;
+		} else {
+			g_warning ("Couldn't create PopplerDocument from uri:'%s', %s",
+			           uri,
+			           error->message ? error->message : "no error given");
+		}
+
+		g_error_free (error);
 		return;
 	}
 
