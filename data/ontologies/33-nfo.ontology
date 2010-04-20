@@ -902,3 +902,11 @@ nfo:mediaListEntry a rdf:Property ;
 	rdfs:comment "A certain item belongs to a media list. This can reflect that a song is in a playlist, an image or video in an Album" ;
 	rdfs:domain nfo:MediaList ;
 	rdfs:range nie:InformationElement .
+
+# This change must be proposed upstream
+nfo:isContentEncrypted a rdf:Property ;
+	rdfs:label "Is content encrypted" ;
+	rdfs:comment "Might change (IE of DataObject property?)" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:boolean .
