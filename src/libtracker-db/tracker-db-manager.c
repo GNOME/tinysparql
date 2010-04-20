@@ -846,7 +846,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 				g_object_unref (stmt);
 
 				if (cursor) {
-					if (tracker_db_cursor_iter_next (cursor)) {
+					if (tracker_db_cursor_iter_next (cursor, NULL)) {
 						if (g_strcmp0 (tracker_db_cursor_get_string (cursor, 0), "ok") != 0) {
 							must_recreate = TRUE;
 						}

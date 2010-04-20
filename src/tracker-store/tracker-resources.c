@@ -178,6 +178,7 @@ tracker_resources_load (TrackerResources         *object,
 	g_object_unref (file);
 }
 
+
 static void
 query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 {
@@ -185,6 +186,7 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 	DBusMessage *reply;
 	DBusMessageIter iter, rows_iter;
 	guint cols;
+	GError *loop_error = NULL;
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
@@ -207,9 +209,13 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 	dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, 
 	                                  "as", &rows_iter);
 
-	while (tracker_db_cursor_iter_next (cursor)) {
+	while (tracker_db_cursor_iter_next (cursor, &loop_error)) {
 		DBusMessageIter cols_iter;
 		guint i;
+
+		if (error != NULL) {
+			break;
+		}
 
 		dbus_message_iter_open_container (&rows_iter, DBUS_TYPE_ARRAY, 
 		                                  "s", &cols_iter);
@@ -223,9 +229,14 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 		dbus_message_iter_close_container (&rows_iter, &cols_iter);
 	}
 
-	dbus_message_iter_close_container (&iter, &rows_iter);
-
-	dbus_g_method_send_reply (info->context, reply);
+	if (loop_error == NULL) {
+		dbus_message_iter_close_container (&iter, &rows_iter);
+		dbus_g_method_send_reply (info->context, reply);
+	} else {
+		dbus_message_unref (reply);
+		dbus_g_method_return_error (info->context, loop_error);
+		g_error_free (loop_error);
+	}
 }
 
 void

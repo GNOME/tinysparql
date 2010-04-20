@@ -1175,15 +1175,23 @@ tracker_db_cursor_sqlite_rewind (TrackerDBCursor *cursor)
 }
 
 static gboolean
-tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor)
+tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor,
+                                    GError         **error)
 {
 	TrackerDBCursorSqlitePrivate *priv;
 	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
 
 	if (!priv->finished) {
-		guint result;
+		guint result = SQLITE_BUSY;
 
-		result = sqlite3_step (priv->stmt);
+		while (result == SQLITE_BUSY || result == SQLITE_IOERR_BLOCKED) {
+			result = sqlite3_step (priv->stmt);
+		}
+
+		if (result == SQLITE_INTERRUPT) {
+			g_set_error (error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_INTERRUPTED,
+			             "Interrupted");
+		}
 
 		priv->finished = (result != SQLITE_ROW);
 	}

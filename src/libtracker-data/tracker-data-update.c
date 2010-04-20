@@ -346,7 +346,7 @@ tracker_data_update_get_new_service_id (void)
 	g_object_unref (stmt);
 
 	if (cursor) {
-		tracker_db_cursor_iter_next (cursor);
+		tracker_db_cursor_iter_next (cursor, NULL);
 		max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), max_service_id);
 		g_object_unref (cursor);
 	}
@@ -380,7 +380,7 @@ tracker_data_update_get_next_modseq (void)
 	g_object_unref (stmt);
 
 	if (cursor) {
-		tracker_db_cursor_iter_next (cursor);
+		tracker_db_cursor_iter_next (cursor, NULL);
 		max_modseq = MAX (tracker_db_cursor_get_int (cursor, 0), max_modseq);
 		g_object_unref (cursor);
 	}
