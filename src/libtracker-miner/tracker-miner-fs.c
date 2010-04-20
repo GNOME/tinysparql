@@ -76,6 +76,11 @@ typedef struct {
 
 typedef struct {
 	GMainLoop *main_loop;
+	GHashTable *values;
+} CacheQueryData;
+
+typedef struct {
+	GMainLoop *main_loop;
 	GString   *sparql;
 	const gchar *source_uri;
 	const gchar *uri;
@@ -121,6 +126,9 @@ struct TrackerMinerFSPrivate {
 	/* Parent folder URN cache */
 	GFile          *current_parent;
 	gchar          *current_parent_urn;
+
+	/* Folder contents' mtime cache */
+	GHashTable     *mtime_cache;
 
 	/* Status */
 	guint           been_started : 1;
@@ -643,6 +651,10 @@ fs_finalize (GObject *object)
 
 	g_hash_table_unref (priv->items_ignore_next_update);
 
+	if (priv->mtime_cache) {
+		g_hash_table_unref (priv->mtime_cache);
+	}
+
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->finalize (object);
 }
 
@@ -1049,6 +1061,40 @@ item_query_exists (TrackerMinerFS  *miner,
 	g_free (uri);
 
 	return result;
+}
+
+static void
+cache_query_cb (GObject	     *object,
+		GAsyncResult *result,
+		gpointer      user_data)
+{
+	const GPtrArray *query_results;
+	TrackerMiner *miner;
+	CacheQueryData *data;
+	GError *error = NULL;
+	guint i;
+
+	data = user_data;
+	miner = TRACKER_MINER (object);
+	query_results = tracker_miner_execute_sparql_finish (miner, result, &error);
+
+	g_main_loop_quit (data->main_loop);
+
+	if (G_UNLIKELY (error)) {
+		g_critical ("Could not query mtimes: %s\n", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	for (i = 0; i < query_results->len; i++) {
+		GFile *file;
+		GStrv strv;
+
+		strv = g_ptr_array_index (query_results, i);
+		file = g_file_new_for_uri (strv[0]);
+
+		g_hash_table_insert (data->values, file, g_strdup (strv[1]));
+	}
 }
 
 static gboolean
@@ -2011,17 +2057,87 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		                   fs);
 }
 
+static void
+ensure_mtime_cache (TrackerMinerFS *fs,
+                    GFile          *file)
+{
+	gchar *query, *uri, *slash_uri;
+	CacheQueryData data;
+	GFile *parent;
+
+        if (G_UNLIKELY (!fs->private->mtime_cache)) {
+		fs->private->mtime_cache = g_hash_table_new_full (g_file_hash,
+		                                                  (GEqualFunc) g_file_equal,
+		                                                  (GDestroyNotify) g_object_unref,
+		                                                  (GDestroyNotify) g_free);
+	}
+
+	parent = g_file_get_parent (file);
+
+	if (fs->private->current_parent &&
+	    g_file_equal (parent, fs->private->current_parent)) {
+		g_object_unref (parent);
+		return;
+	}
+
+	if (fs->private->current_parent) {
+		g_object_unref (fs->private->current_parent);
+	}
+
+	fs->private->current_parent = parent;
+	g_hash_table_remove_all (fs->private->mtime_cache);
+
+	uri = g_file_get_uri (parent);
+
+	g_debug ("Generating mtime cache for folder: %s\n", uri);
+
+	if (g_str_has_suffix (uri, "/")) {
+		slash_uri = uri;
+	} else {
+		slash_uri = g_strconcat (uri, "/", NULL);
+		g_free (uri);
+	}
+
+	query = g_strdup_printf ("SELECT ?uri ?time { "
+	                         "  ?u nfo:fileLastModified ?time ; "
+	                         "     nie:url ?uri . "
+	                         "  FILTER (fn:starts-with (?uri, \"%s\")) "
+	                         "}",
+	                         slash_uri);
+
+	data.main_loop = g_main_loop_new (NULL, FALSE);
+	data.values = g_hash_table_ref (fs->private->mtime_cache);
+
+	tracker_miner_execute_sparql (TRACKER_MINER (fs),
+	                              query,
+	                              NULL,
+	                              cache_query_cb,
+	                              &data);
+
+	g_main_loop_run (data.main_loop);
+
+	g_main_loop_unref (data.main_loop);
+	g_hash_table_unref (data.values);
+
+	g_free (slash_uri);
+}
+
 static gboolean
 should_change_index_for_file (TrackerMinerFS *fs,
                               GFile          *file)
 {
-	gboolean            uptodate;
 	GFileInfo          *file_info;
 	guint64             time;
 	time_t              mtime;
 	struct tm           t;
-	gchar              *query, *uri;
-	SparqlQueryData     data = { 0 };
+	gchar              *time_str, *lookup_time;
+
+	ensure_mtime_cache (fs, file);
+	lookup_time = g_hash_table_lookup (fs->private->mtime_cache, file);
+
+	if (!lookup_time) {
+		return TRUE;
+	}
 
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_TIME_MODIFIED,
@@ -2039,42 +2155,17 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	mtime = (time_t) time;
 	g_object_unref (file_info);
 
-	uri = g_file_get_uri (file);
-
 	gmtime_r (&mtime, &t);
 
-	query = g_strdup_printf ("SELECT ?file { "
-	                         "  ?file nfo:fileLastModified \"%04d-%02d-%02dT%02d:%02d:%02dZ\" . "
-	                         "  ?file nie:url \"%s\""
-	                         "}",
-	                         t.tm_year + 1900,
-	                         t.tm_mon + 1,
-	                         t.tm_mday,
-	                         t.tm_hour,
-	                         t.tm_min,
-	                         t.tm_sec,
-	                         uri);
+	time_str = g_strdup_printf ("%04d-%02d-%02dT%02d:%02d:%02dZ",
+	                            t.tm_year + 1900,
+	                            t.tm_mon + 1,
+	                            t.tm_mday,
+	                            t.tm_hour,
+	                            t.tm_min,
+	                            t.tm_sec);
 
-	data.get_mime = FALSE;
-	data.main_loop = g_main_loop_new (NULL, FALSE);
-	data.uri = uri;
-
-	tracker_miner_execute_sparql (TRACKER_MINER (fs),
-	                              query,
-	                              NULL,
-	                              sparql_query_cb,
-	                              &data);
-
-	g_main_loop_run (data.main_loop);
-	uptodate = (data.iri != NULL);
-
-	g_main_loop_unref (data.main_loop);
-	g_free (data.iri);
-	g_free (data.mime);
-	g_free (query);
-	g_free (uri);
-
-	if (uptodate) {
+	if (strcmp (time_str, lookup_time) == 0) {
 		/* File already up-to-date in the database */
 		return FALSE;
 	}
