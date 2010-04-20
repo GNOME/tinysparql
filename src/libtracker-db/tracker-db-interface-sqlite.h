@@ -37,6 +37,7 @@ G_BEGIN_DECLS
 
 typedef struct TrackerDBInterfaceSqlite      TrackerDBInterfaceSqlite;
 typedef struct TrackerDBInterfaceSqliteClass TrackerDBInterfaceSqliteClass;
+typedef struct TrackerDBInterfaceSqlitePrivate TrackerDBInterfaceSqlitePrivate;
 
 typedef gint (* TrackerDBCollationFunc) (gchar *str1,
                                          gint   len1,
@@ -45,6 +46,7 @@ typedef gint (* TrackerDBCollationFunc) (gchar *str1,
 
 struct TrackerDBInterfaceSqlite {
 	GObject parent_instance;
+	TrackerDBInterfaceSqlitePrivate *priv;
 };
 
 struct TrackerDBInterfaceSqliteClass {

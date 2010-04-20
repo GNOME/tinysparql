@@ -213,7 +213,7 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 		DBusMessageIter cols_iter;
 		guint i;
 
-		if (error != NULL) {
+		if (loop_error != NULL) {
 			break;
 		}
 

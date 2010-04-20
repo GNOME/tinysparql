@@ -45,8 +45,8 @@
 #define TRACKER_IS_DB_STATEMENT_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_STATEMENT_SQLITE))
 #define TRACKER_DB_STATEMENT_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqliteClass))
 
-
-#define TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlitePrivate))
+#define TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE(o) (((TrackerDBInterfaceSqlite *)o)->priv)
+#define TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE_O(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlitePrivate))
 
 #define TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE(o) (((TrackerDBStatementSqlite *)o)->priv)
 #define TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE_O(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_STATEMENT_SQLITE, TrackerDBStatementSqlitePrivate))
@@ -54,7 +54,6 @@
 #define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE_O(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqlitePrivate))
 #define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE(o) (((TrackerDBCursorSqlite *)o)->priv)
 
-typedef struct TrackerDBInterfaceSqlitePrivate TrackerDBInterfaceSqlitePrivate;
 typedef struct TrackerDBStatementSqlitePrivate TrackerDBStatementSqlitePrivate;
 typedef struct TrackerDBCursorSqlitePrivate TrackerDBCursorSqlitePrivate;
 typedef struct TrackerDBCursorSqlite TrackerDBCursorSqlite;
@@ -706,9 +705,11 @@ tracker_db_interface_sqlite_init (TrackerDBInterfaceSqlite *db_interface)
 {
 	TrackerDBInterfaceSqlitePrivate *priv;
 
-	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE_O (db_interface);
 
 	priv->ro = FALSE;
+	db_interface->priv = priv;
+
 	prepare_database (priv);
 }
 
@@ -1191,6 +1192,9 @@ tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor,
 		if (result == SQLITE_INTERRUPT) {
 			g_set_error (error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_INTERRUPTED,
 			             "Interrupted");
+		} else if (result != SQLITE_ROW && result != SQLITE_DONE) {
+			g_set_error (error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_QUERY_ERROR,
+			             "%s", sqlite3_errmsg (priv->ref_stmt->priv->db_interface->priv->db));
 		}
 
 		priv->finished = (result != SQLITE_ROW);
