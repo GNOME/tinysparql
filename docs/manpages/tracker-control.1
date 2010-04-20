@@ -16,7 +16,7 @@ lists all tracker related processes when no
 .B \-?, \-\-help
 Show summary of options.
 .TP
-.B \-k, \-\-kill [all|store|miners]
+.B \-k, \-\-kill=[all|store|miners]
 This uses SIGKILL to stop all Tracker processes found matching the
 parameter, if no extra parameter is passed,
 .B all
@@ -25,7 +25,7 @@ stopping Tracker in the first place. This
 .B GUARANTEES
 death.
 .TP
-.B \-t, \-\-terminate [all|store|miners]
+.B \-t, \-\-terminate=[all|store|miners]
 This uses SIGTERM to stop all Tracker processes found matching the
 parameter, if no extra parameter is passed,
 .B all
@@ -52,6 +52,18 @@ This removes all config files in $HOME/.config/tracker. All files
 listed are files which were found and successfully removed.
 Restarting the respective processes re-creates the default
 configuration files.
+.TP
+.B \-s, \-\-start
+Starts all miners. This indirectly starts tracker-store too because it
+is needed for miners to operate properly.
+.TP
+.B \-m, \-\-reindex-mime-type=MIME
+Re-index files which match the \fIMIME\fR type supplied. This is
+usually used when installing new extractors which support \fIMIME\fR
+types previously unsupported. This forces Tracker to re-index those
+files. You can use 
+.B \-\-reindex-mime-type
+more than once per \fIMIME\fR type.
 .TP
 .B \-V, \-\-version
 Print version.
