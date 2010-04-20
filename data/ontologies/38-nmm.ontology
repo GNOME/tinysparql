@@ -128,13 +128,6 @@ nmm:trackNumber a rdf:Property ;
 	rdfs:domain nmm:MusicPiece ;
 	rdfs:range xsd:integer .
 
-nfo:isContentEncrypted a rdf:Property ;
-	rdfs:label "Is content encrypted" ;
-	rdfs:comment "Might change (IE of DataObject property?)" ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:boolean .
-
 nmm:isForHearingImpaired a rdf:Property ;
 	rdfs:label "Is for hearing-impaired" ;
 	rdfs:comment "Does text stream contain helper tags for hearing-impaired such as &lt;steps in hallway&gt;" ;
