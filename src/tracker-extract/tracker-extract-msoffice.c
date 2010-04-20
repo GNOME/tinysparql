@@ -114,13 +114,13 @@ typedef enum {
 /* ExcelBiffHeader to read excel spec header */
 typedef struct {
 	ExcelRecordType id;
-	gint length;
+	guint length;
 } ExcelBiffHeader;
 
 /* ExtendendString Record offset in stream and length */
 typedef struct {
-	guint32 offset;
-	guint32	length;
+	gsf_off_t offset; /* 64 bits!! */
+	gsize     length;
 } ExcelExtendedStringRecord;
 
 typedef enum {
@@ -367,7 +367,7 @@ read_8bit (const guint8 *buffer)
  * @param buffer data to read integer from
  * @return 16 bit unsigned integer
  */
-static gint
+static guint16
 read_16bit (const guint8 *buffer)
 {
 	return buffer[0] + (buffer[1] << 8);
@@ -378,7 +378,7 @@ read_16bit (const guint8 *buffer)
  * @param buffer data to read integer from
  * @return 32 bit unsigned integer
  */
-static gint
+static guint32
 read_32bit (const guint8 *buffer)
 {
 	return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
@@ -784,6 +784,91 @@ open_uri (const gchar *uri)
 	return infile;
 }
 
+/* Reads 'chunk_size' bytes from 'stream' into 'buffer', then converts from
+ * UTF-16 or CP1252 to UTF-8, normalizes the string, and limits it to
+ * 'n_words_remaining' max words, updating this value accordingly */
+static void
+read_convert_and_normalize_chunk (guint8    *buffer,
+                                  gsize      chunk_size,
+                                  gboolean   is_ansi,
+                                  gint      *p_words_remaining,
+                                  gsize     *p_bytes_remaining,
+                                  GString  **p_content)
+{
+	gsize n_bytes_utf8;
+	gchar *converted_text;
+	GError *error = NULL;
+
+	g_return_if_fail (buffer != NULL);
+	g_return_if_fail (chunk_size > 0);
+	g_return_if_fail (p_words_remaining != NULL);
+	g_return_if_fail (p_bytes_remaining != NULL);
+	g_return_if_fail (p_content != NULL);
+
+
+	/* chunks can have different encoding
+	 *  TODO: Using g_iconv, this extra heap allocation could be
+	 *   avoided, re-using over and over again the same output buffer
+	 *   for the UTF-8 encoded string */
+	converted_text = g_convert (buffer,
+	                            chunk_size,
+	                            "UTF-8",
+	                            is_ansi ? "CP1252" : "UTF-16",
+	                            NULL,
+	                            &n_bytes_utf8,
+	                            &error);
+
+	if (converted_text) {
+		gchar *normalized_chunk;
+		guint n_words_normalized;
+
+		/* Get normalized chunk */
+		normalized_chunk = tracker_text_normalize (converted_text,
+		                                           *p_words_remaining,
+		                                           &n_words_normalized);
+
+		/* Update number of words remaining.
+		 * Note that n_words_normalized should always be less or
+		 * equal than n_words_remaining */
+		*p_words_remaining = (n_words_normalized <= *p_words_remaining ?
+		                      *p_words_remaining - n_words_normalized : 0);
+
+		/* Update accumulated UTF-8 bytes read */
+		*p_bytes_remaining = (n_bytes_utf8 <= *p_bytes_remaining ?
+		                      *p_bytes_remaining - n_bytes_utf8 : 0);
+
+		/* g_debug ("Words normalized: %u (remaining: %u); " */
+		/*          "Bytes read (UTF-8): %" G_GSIZE_FORMAT " bytes " */
+		/*          "(remaining: %" G_GSIZE_FORMAT ")", */
+		/*          n_words_normalized, *p_words_remaining, */
+		/*          n_bytes_utf8, *p_bytes_remaining); */
+
+		/* Append normalized chunk to the string to be returned */
+		if (*p_content) {
+			g_string_append (*p_content, normalized_chunk);
+		} else {
+			*p_content = g_string_new (normalized_chunk);
+		}
+
+		/* A whitespace is added to separate next strings appended */
+		g_string_append (*p_content, " ");
+
+		g_free (converted_text);
+		g_free (normalized_chunk);
+	} else {
+		g_warning ("Couldn't convert %d bytes from %s to UTF-8: %s",
+		           chunk_size,
+		           is_ansi ? "CP1252" : "UTF-16",
+		           error ? error->message : "no error given");
+	}
+
+	/* Note that error may be set even if some converted text is
+	 * available, due to G_CONVERT_ERROR_ILLEGAL_SEQUENCE for example */
+	g_clear_error (&error);
+}
+
+
+
 /* This function was programmed by using ideas and algorithms from
  * b2xtranslator project (http://b2xtranslator.sourceforge.net/)
  */
@@ -890,7 +975,6 @@ extract_msword_content (GsfInfile *infile,
 	while (n_words_remaining > 0 &&
 	       n_bytes_remaining > 0 &&
 	       i < piece_count) {
-		gchar *converted_text;
 		guint8 *piece_descriptor;
 		gint piece_start;
 		gint piece_end;
@@ -917,7 +1001,6 @@ extract_msword_content (GsfInfile *infile,
 			fc = (fc & 0xBFFFFFFF) >> 1;
 		}
 
-
 		piece_size  = piece_end - piece_start;
 
 		/* NOTE: Very very long pieces may appear. In fact, a single
@@ -937,9 +1020,6 @@ extract_msword_content (GsfInfile *infile,
 
 		/* Avoid empty pieces */
 		if (piece_size >= 1) {
-			GError *error = NULL;
-			gsize n_bytes_utf8;
-			guint n_words_normalized;
 
 			/* Re-allocate buffer to make it bigger if needed.
 			 *  This text buffer is re-used over and over in each
@@ -949,66 +1029,16 @@ extract_msword_content (GsfInfile *infile,
 				text_buffer_size = piece_size;
 			}
 
-			/* read single text piece from document_stream */
+			/* read and parse single text piece from document_stream */
 			gsf_input_seek (document_stream, fc, G_SEEK_SET);
 			gsf_input_read (document_stream, piece_size, text_buffer);
 
-			/* pieces can have different encoding
-			 *  TODO: Using g_iconv, this extra heap allocation could be
-			 *   avoided, re-using over and over again the same output buffer
-			 *   for the UTF-8 encoded string */
-			converted_text = g_convert (text_buffer,
-			                            piece_size,
-			                            "UTF-8",
-			                            is_ansi ? "CP1252" : "UTF-16",
-			                            NULL,
-			                            &n_bytes_utf8,
-			                            &error);
-
-			if (converted_text) {
-				gchar *normalized_chunk;
-
-				/* Get normalized chunk */
-				normalized_chunk = tracker_text_normalize (converted_text,
-				                                           n_words_remaining,
-				                                           &n_words_normalized);
-
-				/* Update number of words remaining.
-				 * Note that n_words_normalized should always be less or
-				 * equal than n_words_remaining */
-				n_words_remaining = (n_words_normalized <= n_words_remaining ?
-				                     n_words_remaining - n_words_normalized : 0);
-
-				/* Update accumulated UTF-8 bytes read */
-				n_bytes_remaining = (n_bytes_utf8 <= n_bytes_remaining ?
-				                     n_bytes_remaining - n_bytes_utf8 : 0);
-
-				g_debug ("(%s) Piece %u; Words normalized: %u (remaining: %u); "
-				         "Bytes read (UTF-8): %" G_GSIZE_FORMAT " bytes "
-				         "(remaining: %" G_GSIZE_FORMAT ")",
-				         __FUNCTION__, i, n_words_normalized, n_words_remaining,
-				         n_bytes_utf8, n_bytes_remaining);
-
-				/* Append normalized chunk to the string to be returned */
-				if (!content) {
-					content = g_string_new (normalized_chunk);
-				} else {
-					g_string_append (content, normalized_chunk);
-				}
-
-				g_free (converted_text);
-				g_free (normalized_chunk);
-			}
-			else {
-				g_warning ("Couldn't convert %d bytes from %s to UTF-8: %s",
-				           piece_size,
-				           is_ansi ? "CP1252" : "UTF-16",
-				           error ? error->message : NULL);
-			}
-
-			/* Note that error may be set even if some converted text is
-			 * available, due to G_CONVERT_ERROR_ILLEGAL_SEQUENCE for example */
-			g_clear_error (&error);
+			read_convert_and_normalize_chunk (text_buffer,
+			                                  piece_size,
+			                                  is_ansi,
+			                                  &n_words_remaining,
+			                                  &n_bytes_remaining,
+			                                  &content);
 		}
 
 		/* Go on to next piece */
@@ -1023,8 +1053,209 @@ extract_msword_content (GsfInfile *infile,
 	return content ? g_string_free (content, FALSE) : NULL;
 }
 
+/* Reads and interprets the flags of a given string. May be
+ *  used just to skip the fields, as when this bitmask-byte
+ *  comes as the first byte of a new record.
+ * NOTE: For a detailed meaning of each field parsed here,
+ *  take a look at the XLUnicodeRichExtendedString format:
+ *  http://msdn.microsoft.com/en-us/library/dd943830.aspx
+ **/
+static void
+read_excel_string_flags (GsfInput *stream,
+                         gboolean *p_is_high_byte,
+                         guint16  *p_c_run,
+                         guint16  *p_cb_ext_rst)
+{
+	guint8 tmp_buffer[4] = { 0 };
+	guint8 bit_mask;
+	gboolean is_ext_string;
+	gboolean is_rich_string;
+
+	/* Note that output arguments may be NULL if we don't need
+	 * their values... */
+
+	/* Reading 1 byte for mask */
+	gsf_input_read (stream, 1, tmp_buffer);
+	bit_mask = read_8bit (tmp_buffer);
+
+	/* Get flags */
+	if (p_is_high_byte) {
+		*p_is_high_byte = (bit_mask & 0x01) == 0x01;
+	}
+	is_ext_string = (bit_mask & 0x04) == 0x04;
+	is_rich_string = (bit_mask & 0x08) == 0x08;
+
+	/* If the c_run value is required as output, read it */
+	if (p_c_run) {
+		if (is_rich_string) {
+			/* Reading 2 Bytes */
+			gsf_input_read (stream, 2, tmp_buffer);
+
+			/* Reading cRun */
+			*p_c_run = read_16bit (tmp_buffer);
+		} else {
+			*p_c_run = 0;
+		}
+	} else if (is_rich_string) {
+		/* If not required, just skip those bytes */
+		gsf_input_seek (stream, 2, G_SEEK_CUR);
+	}
+
+	/* If the cb_ext_rst value is required as output, read it */
+	if (p_cb_ext_rst) {
+		if (is_ext_string) {
+			/* Reading 4 Bytes */
+			gsf_input_read (stream, 4, tmp_buffer);
+
+			/* Reading cRun */
+			*p_cb_ext_rst = read_16bit (tmp_buffer);
+		} else {
+			*p_cb_ext_rst = 0;
+		}
+	} else if (is_ext_string) {
+		/* If not required, just skip those bytes */
+		gsf_input_seek (stream, 4, G_SEEK_CUR);
+	}
+}
+
+/* Returns TRUE if record was changed. BUT, the value of the
+ *  current_record should be checked by the caller to know
+ *  if there are no more records */
+static gboolean
+change_excel_record_if_needed (GsfInput *stream,
+                               GArray   *record_array,
+                               guint    *p_current_record)
+{
+	ExcelExtendedStringRecord *record;
+
+	/* Get current record */
+	record = &g_array_index (record_array,
+	                         ExcelExtendedStringRecord,
+	                         *p_current_record);
+
+	/* We may already have surpassed the record, so adjust if so */
+	if (gsf_input_tell (stream) >= (record->offset + record->length)) {
+		/* Switch records and read from the second one... */
+		(*p_current_record)++;
+
+		if (*p_current_record < record_array->len) {
+			record = &g_array_index (record_array,
+			                         ExcelExtendedStringRecord,
+			                         *p_current_record);
+
+			gsf_input_seek (stream, record->offset, G_SEEK_SET);
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+/* Returns TRUE if correctly read
+ *
+ *  Note that p_current_record may get changed if the required
+ *  bytes to read were split into two different records.
+ */
+static gboolean
+read_excel_string (GsfInput *stream,
+                   guint8   *buffer,
+                   gsize     chunk_size,
+                   GArray   *record_array,
+                   guint    *p_current_record)
+{
+	ExcelExtendedStringRecord *record;
+	gsf_off_t current_position;
+	gsf_off_t current_record_end;
+
+	/* Record may have changed when we want to read the string contents
+	 *  This is a pretty special case, where the new CONTINUE record
+	 * shouldn't start with a bitmask */
+	if (change_excel_record_if_needed (stream, record_array, p_current_record) &&
+	    *p_current_record >= record_array->len) {
+		/* When reached max number of records, just return */
+		return FALSE;
+	}
+
+	/* Get current record */
+	record = &g_array_index (record_array,
+	                         ExcelExtendedStringRecord,
+	                         *p_current_record);
+
+	/* Compute current position in the stream and end of current record*/
+	current_position = gsf_input_tell (stream);
+	current_record_end = record->offset + record->length;
+
+	/* The best case is when the whole number of bytes to read are in the
+	 * current record, as no record switching is therefore needed */
+	if (current_position + chunk_size <= current_record_end) {
+		return gsf_input_read (stream, chunk_size, buffer) != NULL ? TRUE : FALSE;
+	} else if (current_record_end < current_position) {
+		/* Safety check, actually pretty important */
+		return FALSE;
+	} else {
+		/* Read the string in two chunks */
+		gsize chunk_size_first_record;
+		gsize chunk_size_second_record;
+
+		/* Compute how much to read in each record */
+		chunk_size_first_record = current_record_end - current_position;
+		chunk_size_second_record = chunk_size - chunk_size_first_record;
+
+		/* g_debug ("Current position:      %" GSF_OFF_T_FORMAT, current_position); */
+		/* g_debug ("Current record index:  %u", *p_current_record); */
+		/* g_debug ("Current record start:  %" GSF_OFF_T_FORMAT, record->offset); */
+		/* g_debug ("Current record length: %" G_GSIZE_FORMAT, record->length); */
+		/* g_debug ("Current record end:    %" GSF_OFF_T_FORMAT, current_record_end); */
+		/* g_debug ("Bytes to read:         %" G_GSIZE_FORMAT,   chunk_size); */
+		/* g_debug ("Bytes to read (1st):   %" G_GSIZE_FORMAT,   chunk_size_first_record); */
+		/* g_debug ("Bytes to read (2nd):   %" G_GSIZE_FORMAT,   chunk_size_second_record); */
+
+		/* Now, read from first record... */
+		if (gsf_input_read (stream,
+		                    chunk_size_first_record,
+		                    buffer)) {
+			/* Now switch records and read from the second one... */
+			(*p_current_record)++;
+
+			if (*p_current_record < record_array->len) {
+				record = &g_array_index (record_array,
+				                         ExcelExtendedStringRecord,
+				                         *p_current_record);
+
+				/* g_debug ("New record index:  %u", *p_current_record); */
+				/* g_debug ("New record start:  %" GSF_OFF_T_FORMAT, record->offset); */
+				/* g_debug ("New record length: %" G_GSIZE_FORMAT, record->length); */
+
+				/* Move stream pointer to the new location, beginning of next record */
+				gsf_input_seek (stream, record->offset, G_SEEK_SET);
+
+				/* Every CONTINUE records starts with a bitmask + optional fields that
+				 * should be skipped properly */
+				read_excel_string_flags (stream, NULL, NULL, NULL);
+
+				/* And finally, read the second part */
+				if (gsf_input_read (stream,
+				                    chunk_size_second_record,
+				                    &buffer[chunk_size_first_record])) {
+					/* All OK! */
+					return TRUE;
+				}
+			}
+		}
+
+		return FALSE;
+	}
+}
+
+
 
 /**
+ * [MS-XLS] — v20090708
+ * Excel Binary File Format (.xls) Structure Specification
+ * Copyright © 2009 Microsoft Corporation.
+ *  Release: Wednesday, July 8, 2009
+ *
  * 2.5.293 XLUnicodeRichExtendedString
  * This structure specifies a Unicode string, which can contain
  * formatting information and phoneticstring data.
@@ -1040,11 +1271,6 @@ extract_msword_content (GsfInfile *infile,
  *                            cch    A B C D reserved2 cRun (optional)
  *               ...                   cbExtRst (optional)
  *               ...                   rgb (variable)
- *                                                        951 / 1165
- * [MS-XLS] — v20090708
- * Excel Binary File Format (.xls) Structure Specification
- * Copyright © 2009 Microsoft Corporation.
- *  Release: Wednesday, July 8, 2009
  *               ...
  *                         rgRun (variable, optional)
  *               ...
@@ -1094,20 +1320,22 @@ extract_msword_content (GsfInfile *infile,
  * only if fExtSt is 0x1.
  */
 static void
-xls_get_extended_record_string (GsfInput *stream,
-                                GArray   *list,
-                                GString  *content)
+xls_get_extended_record_string (GsfInput  *stream,
+                                GArray    *list,
+                                guint     *p_words_remaining,
+                                gsize     *p_bytes_remaining,
+                                GString  **p_content)
 {
 	ExcelExtendedStringRecord *record;
 	guint32 cst_total;
 	guint32 cst_unique;
-	guint8 parsing_record = 0;
+	guint parsing_record = 0;
 	guint8 tmp_buffer[4] = { 0 };
 	guint i;
+	guint8 *buffer;
+	gsize buffer_size;
 
-	/* g_debug ("#Entering extract_est_string #"); */
-
-	/* Parsing the record from the list*/
+	/* Parsing the record from the list */
 	record = &g_array_index (list, ExcelExtendedStringRecord, parsing_record);
 
 	/* First record parsing */
@@ -1115,7 +1343,15 @@ xls_get_extended_record_string (GsfInput *stream,
 		return;
 	}
 
-	parsing_record++;
+	/* Note: The first record is ALWAYS the SST, so coming with cst_total and
+	 * cst_unique values.
+	 * Some extra background: Records with data longer than 8,224 bytes MUST be
+	 * split into several records, so in this case, if the SST record is big
+	 * enough, it will have one or more CONTINUE records
+	 *
+	 * SST record: http://msdn.microsoft.com/en-us/library/dd773037%28v=office.12%29.aspx
+	 * CONTINUE record: http://msdn.microsoft.com/en-us/library/dd949081%28v=office.12%29.aspx
+	 **/
 
 	/* Reading cst total */
 	gsf_input_read (stream, 4, tmp_buffer);
@@ -1125,118 +1361,107 @@ xls_get_extended_record_string (GsfInput *stream,
 	gsf_input_read (stream, 4, tmp_buffer);
 	cst_unique = read_32bit (tmp_buffer);
 
-	/* g_debug ("cst_total :%d,cst_unique %d ",cst_total,cst_unique); */
-
-	for (i = 0; i < cst_unique; i++) {
+	/* Iterate over chunks...
+	 *   Loop is halted whenever one of this conditions is met:
+	 *     a) Max bytes to be read reached
+	 *     b) Already read up to the max number of words configured
+	 *     c) No more chunks to read
+	 */
+	i = 0;
+	while (*p_words_remaining > 0 &&
+	       *p_bytes_remaining > 0 &&
+	       i < cst_unique) {
 		guint16 cch;
 		guint16 c_run;
 		guint16 cb_ext_rst;
-		guint8 bit_mask;
-		guint char_index;
 		gboolean is_high_byte;
-		gboolean is_ext_string;
-		gboolean is_rich_string;
+		gsize chunk_size;
 
-		/* Switching the stream */
-		if (gsf_input_tell (stream) >= (record->offset + record->length)) {
-			if (parsing_record < list->len) {
-				record = &g_array_index (list, ExcelExtendedStringRecord, parsing_record);
-				gsf_input_seek (stream, record->offset, G_SEEK_SET);
-				parsing_record++;
-			} else {
-				break;
-			}
+		/* RECORD may have been changed here */
+		if (change_excel_record_if_needed (stream, list, &parsing_record) &&
+		    parsing_record >= list->len) {
+			/* When reached max number of records, stop loop */
+			break;
 		}
 
-		/* Resetting record format values */
+		/* Reading 2 bytes for cch */
+		gsf_input_read (stream, 2, tmp_buffer);
 
-		/* Reading 3 Btyes 2 bytes for cch and 1 byte for mask */
-		gsf_input_read (stream, 3, tmp_buffer);
 		/* Reading cch - char count of current string */
 		cch = read_16bit (tmp_buffer);
 
-		/* Get bitMask */
-		bit_mask = read_8bit (tmp_buffer + 2);
-		/* g_debug ("cch: %d, bit_mask: 0x%x", cch, bit_mask); */
+		/* Read string flags */
+		read_excel_string_flags (stream,
+		                         &is_high_byte,
+		                         &c_run,
+		                         &cb_ext_rst);
 
-		/* is big and litte endian problem effect this ? */
-		is_high_byte = (bit_mask & 0x01) == 0x01;
-		is_ext_string = (bit_mask & 0x04) == 0x04;
-		is_rich_string = (bit_mask & 0x08) == 0x08;
+		/* RECORD may have been changed here, but it is managed when reading the
+		 *  string contents */
 
-		if (is_rich_string) {
-			/* Reading 2 Btyes */
-			gsf_input_read (stream, 2, tmp_buffer);
-			/* Reading cRun */
-			c_run = read_16bit (tmp_buffer);
-		} else {
-			c_run = 0;
+
+		/* NOTE: In order to avoid reading unnecessary bytes, limit it based
+		 * on the number of bytes remaining */
+		chunk_size = MIN (cch, *p_bytes_remaining);
+
+		/* If High Byte, chunk size *2 as stream is in UTF-16 */
+		if (is_high_byte) {
+			chunk_size *= 2;
 		}
 
-		if (is_ext_string) {
-			/* Reading 4 Btyes */
-			gsf_input_read (stream, 4, tmp_buffer);
-			/* Reading cRun */
-			cb_ext_rst = read_16bit (tmp_buffer);
-		} else {
-			cb_ext_rst = 0;
+		/* If the new chunk size is longer than our reused buffer,
+		 * make the buffer bigger */
+		if (chunk_size > buffer_size) {
+			buffer = g_realloc (buffer, chunk_size);
+			buffer_size = chunk_size;
 		}
 
-		/* Switching the stream */
-		if (gsf_input_tell (stream) >= (record->offset + record->length)) {
-			if (parsing_record < list->len) {
-				record = &g_array_index (list, ExcelExtendedStringRecord, parsing_record);
-				gsf_input_seek (stream, record->offset, G_SEEK_SET);
-				parsing_record++;
-			} else {
-				break;
-			}
+		/* Read the chunk! NOTE that it may be split in several records... */
+		if (!read_excel_string (stream, buffer, chunk_size, list, &parsing_record)) {
+			break;
 		}
 
-		/* Reading string */
-		for (char_index = 0; char_index < cch; char_index++) {
-			/* Note everytime we need to reset the buffer
-			 * that why declaring inside the for loop
-			 */
-			gchar buffer[4] = { 0 };
-
-			if (is_high_byte) {
-				/* Reading two byte */
-				gsf_input_read (stream, 2, buffer);
-				g_string_append (content, (gchar*) buffer);
-			} else {
-				/* Reading one byte */
-				gsf_input_read (stream, 1, buffer);
-				g_string_append_c (content, (gchar) buffer[0]);
-			}
-		}
-
-		g_string_append (content, " ");
-
-		/* g_debug ("cRun %d cb_ext_rst %d", c_run, cb_ext_rst); */
+		/* Read whole stream in one operation */
+		read_convert_and_normalize_chunk (buffer,
+		                                  chunk_size,
+		                                  !is_high_byte,
+		                                  p_words_remaining,
+		                                  p_bytes_remaining,
+		                                  p_content);
 
 		/* Formatting string */
-		if (is_rich_string) {
+		if (c_run > 0) {
 			/* rgRun (variable): An optional array of
 			 * FormatRun structures that specifies the
 			 * formatting for each ext run. The number of
 			 * elements in the array is cRun. MUST exist
 			 * if and only if fRichSt is 0x1.
 			 *
+			 * Note: As defined in MSDN, a FormatRun structure has a size
+			 *  of 4 bytes, so the size of this rgRun variable is really
+			 *  (4*cRun) bytes.
+			 *  http://msdn.microsoft.com/en-us/library/dd921712.aspx
+			 *
 			 * Skiping this as it will not be useful in
 			 * our case.
 			 */
-			gsf_input_seek (stream, c_run, G_SEEK_CUR);
+			gsf_input_seek (stream, 4 * c_run, G_SEEK_CUR);
+			/* Note that we may be now out of the current record after having
+			 * done this seek operation. */
 		}
 
 		/* ExtString */
-		if (is_ext_string) {
+		if (cb_ext_rst > 0) {
 			/* Again its not so clear may be it will not
 			 * useful in our case.
 			 */
 			gsf_input_seek (stream, cb_ext_rst, G_SEEK_CUR);
-
+			/* Note that we may be now out of the current record after having
+			 * done this seek operation. */
 		}
+
+		/* Go to next chunk */
+		i++;
 	}
 }
 
@@ -1244,6 +1469,7 @@ xls_get_extended_record_string (GsfInput *stream,
  * @brief Extract excel content from specified infile
  * @param infile file to read summary from
  * @param n_words number of max words to extract
+ * @param n_bytes max number of bytes to extract
  * @param is_encrypted
  * @Notes :- About SST record
  *
@@ -1277,13 +1503,15 @@ xls_get_extended_record_string (GsfInput *stream,
 static gchar*
 extract_excel_content (GsfInfile *infile,
                        gint       n_words,
+                       gsize      n_bytes,
                        gboolean  *is_encrypted)
 {
 	ExcelBiffHeader header1;
-	GString *content;
+	GString *content = NULL;
 	GsfInput *stream;
-	gchar *normalized;
 	guint saved_offset;
+	guint n_words_remaining = n_words;
+	gsize n_bytes_remaining = n_bytes;
 
 	stream = gsf_infile_child_by_name (infile, "Workbook");
 
@@ -1291,12 +1519,11 @@ extract_excel_content (GsfInfile *infile,
 		return NULL;
 	}
 
-	content = g_string_new ("");
-
-	/* Read until we reach eof. */
-	while (!gsf_input_eof (stream)) {
+	/* Read until we reach eof or any of our limits reached */
+	while (n_words_remaining > 0 &&
+	       n_bytes_remaining > 0 &&
+	       !gsf_input_eof (stream)) {
 		guint8 tmp_buffer[4] = { 0 };
-		guint8 *data = NULL;
 
 		/* Reading 4 bytes to read header */
 		gsf_input_read (stream, 4, tmp_buffer);
@@ -1341,7 +1568,7 @@ extract_excel_content (GsfInfile *infile,
 			 * Note: we are justing parsing notrequired
 			 * to read data so passing null data
 			 */
-			gsf_input_read (stream, length, data);
+			gsf_input_seek (stream, length, G_SEEK_CUR);
 
 			/* Reading & Assigning biff header 4 bytes */
 			gsf_input_read (stream, 4, tmp_buffer);
@@ -1364,7 +1591,7 @@ extract_excel_content (GsfInfile *infile,
 				/*           record.offset, record.length); */
 
 				/* Then parse the data from the stream */
-				gsf_input_read (stream, header2.length, data);
+				gsf_input_seek (stream, header2.length, G_SEEK_CUR);
 
 				/* Reading and assigning biff header */
 				gsf_input_read (stream, 4, tmp_buffer);
@@ -1375,7 +1602,11 @@ extract_excel_content (GsfInfile *infile,
 			};
 
 			/* Read extended string */
-			xls_get_extended_record_string (stream, list, content);
+			xls_get_extended_record_string (stream,
+			                                list,
+			                                &n_words_remaining,
+			                                &n_bytes_remaining,
+			                                &content);
 
 			g_array_unref (list);
 
@@ -1392,10 +1623,11 @@ extract_excel_content (GsfInfile *infile,
 
 	g_object_unref (stream);
 
-	normalized = tracker_text_normalize (content->str, n_words, NULL);
-	g_string_free (content, TRUE);
+	g_debug ("Words normalized: %u, Bytes: %" G_GSIZE_FORMAT,
+	         n_words - n_words_remaining,
+	         n_bytes - n_bytes_remaining);
 
-	return normalized;
+	return content ? g_string_free (content, FALSE) : NULL;
 }
 
 /**
@@ -1549,9 +1781,8 @@ extract_msoffice (const gchar          *uri,
 		 *  TODO: Limit max bytes to read */
 		content = extract_powerpoint_content (infile, max_words, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-excel") == 0) {
-		/* Excel File
-		 *  TODO: Limit max bytes to read */
-		content = extract_excel_content (infile, max_words, &is_encrypted);
+		/* Excel File */
+		content = extract_excel_content (infile, max_words, max_bytes, &is_encrypted);
 	} else {
 		g_message ("Mime type was not recognised:'%s'", mime_used);
 	}
@@ -1934,17 +2165,17 @@ parse_xml_contents (const gchar *file_uri,
 	if ((filename = g_filename_from_uri (file_uri,
 	                                     NULL, &error)) == NULL) {
 		g_warning ("Can't get filename from uri '%s': %s",
-		           file_uri, error ? error->message : NULL);
+		           file_uri, error ? error->message : "no error given");
 	}
 	/* Create a new Input GSF object for the given file */
 	else if ((src = gsf_input_stdio_new (filename, &error)) == NULL) {
 		g_warning ("Failed creating a GSF Input object for '%s': %s",
-		           filename, error ? error->message : NULL);
+		           filename, error ? error->message : "no error given");
 	}
 	/* Input object is a Zip file */
 	else if ((infile = gsf_infile_zip_new (src, &error)) == NULL) {
 		g_warning ("'%s' Not a zip file: %s",
-		           filename, error ? error->message : NULL);
+		           filename, error ? error->message : "no error given");
 	}
 	/* Look for requested filename inside the ZIP file */
 	else if ((member = find_member (infile, xml_filename)) == NULL) {
