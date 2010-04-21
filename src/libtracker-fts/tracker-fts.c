@@ -2128,7 +2128,7 @@ static int sql_prepare(sqlite3 *db, const char *zDb, const char *zName,
 /* Forward reference */
 typedef struct fulltext_vtab fulltext_vtab;
 
-static fulltext_vtab *tracker_fts_vtab = NULL;
+static GStaticPrivate tracker_fts_vtab_key = G_STATIC_PRIVATE_INIT;
 static TrackerFtsMapFunc map_function = NULL;
 
 /* A single term in a query is represented by an instances of
@@ -2267,6 +2267,8 @@ typedef enum fulltext_statement {
   SEGDIR_DELETE_ALL_STMT,
   SEGDIR_COUNT_STMT,
 
+  PROPERTY_WEIGHT_STMT,
+
   MAX_STMT                     /* Always at end! */
 } fulltext_statement;
 
@@ -2310,6 +2312,8 @@ static const char *const fulltext_zStatement[MAX_STMT] = {
   " order by level desc, idx asc",
   /* SEGDIR_DELETE_ALL */ "delete from %_segdir",
   /* SEGDIR_COUNT */ "select count(*), ifnull(max(level),0) from %_segdir",
+
+  /* PROPERTY_WEIGHT */ "SELECT \"tracker:weight\" FROM \"rdf:Property\" WHERE ID = ?",
 };
 
 /*
@@ -2399,41 +2403,6 @@ static const char *contentInsertStatement(fulltext_vtab *v){
 #endif
 
 
-/* Functions from Tracker */
-static inline int
-get_metadata_weight (int id)
-{
-  static sqlite3_stmt *stmt = NULL;
-
-  int rc;
-  int weight;
-
-  weight = 1;
-
-  /* We may want to cache this if this proofs to be a performance issue */
-
-  if (!stmt) {
-    rc = sqlite3_prepare_v2 (tracker_fts_vtab->db, "SELECT \"tracker:weight\" FROM \"rdf:Property\" WHERE ID = ?", -1, &stmt, NULL);
-    if (rc != SQLITE_OK) return weight;
-  } else {
-    sqlite3_reset (stmt);
-  }
-
-  rc = sqlite3_bind_int (stmt, 1, id);
-  if (rc != SQLITE_OK) return weight;
-
-  rc = sqlite3_step (stmt);
-  if (rc != SQLITE_ROW) return weight;
-
-  weight = sqlite3_column_int (stmt, 0);
-  if (weight == 0) {
-    weight = 1;
-  }
-
-  return weight;
-}
-
-
 #if 0
 /* Return a dynamically generated statement of the form
  *   select <content columns> from %_content where docid = ?
@@ -2487,6 +2456,34 @@ static int sql_get_statement(fulltext_vtab *v, fulltext_statement iStmt,
 
   *ppStmt = v->pFulltextStatements[iStmt];
   return SQLITE_OK;
+}
+
+
+/* Function from Tracker */
+static inline int
+get_metadata_weight (fulltext_vtab *v, int id)
+{
+  sqlite3_stmt *stmt;
+  int rc;
+  int weight;
+
+  weight = 1;
+
+  rc = sql_get_statement(v, PROPERTY_WEIGHT_STMT, &stmt);
+  if (rc != SQLITE_OK) return weight;
+
+  rc = sqlite3_bind_int (stmt, 1, id);
+  if (rc != SQLITE_OK) return weight;
+
+  rc = sqlite3_step (stmt);
+  if (rc != SQLITE_ROW) return weight;
+
+  weight = sqlite3_column_int (stmt, 0);
+  if (weight == 0) {
+    weight = 1;
+  }
+
+  return weight;
 }
 
 /* Like sqlite3_step(), but convert SQLITE_DONE to SQLITE_OK and
@@ -3314,6 +3311,12 @@ static int constructVtab(
   TrackerLanguage *language;
   int min_len, max_len;
 
+  v = g_static_private_get (&tracker_fts_vtab_key);
+
+  if(v) {
+    return SQLITE_OK;
+  }
+
   v = (fulltext_vtab *) sqlite3_malloc(sizeof(fulltext_vtab));
   if( v==0 ) return SQLITE_NOMEM;
   CLEAR(v);
@@ -3378,7 +3381,7 @@ static int constructVtab(
 
   FTSTRACE(("FTS3 Connect %p\n", v));
 
-  tracker_fts_vtab = v;
+  g_static_private_set (&tracker_fts_vtab_key, v, (GDestroyNotify) fulltext_vtab_destroy);
 
   return SQLITE_OK;
 }
@@ -3486,7 +3489,7 @@ static int fulltextCreate(sqlite3 *db, void *pAux,
 
 /* Decide how to handle an SQL query. */
 static int fulltextBestIndex(sqlite3_vtab *pVTab, sqlite3_index_info *pInfo){
-  fulltext_vtab *v = tracker_fts_vtab;
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
   int i;
   int iCons = -1;                 /* Index of constraint to use */
   FTSTRACE(("FTS3 BestIndex\n"));
@@ -3529,7 +3532,7 @@ static int fulltextDisconnect(sqlite3_vtab *pVTab){
 }
 
 static int fulltextDestroy(sqlite3_vtab *pVTab){
-  fulltext_vtab *v = tracker_fts_vtab;
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
   int rc;
 
   FTSTRACE(("FTS3 Destroy %p\n", pVTab));
@@ -4134,6 +4137,7 @@ static int fulltextClose(sqlite3_vtab_cursor *pCursor){
 
 static int fulltextNext(sqlite3_vtab_cursor *pCursor){
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
   int rc;
   PLReader plReader;
   gboolean first_pos = TRUE;
@@ -4181,7 +4185,7 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
       int col = plrColumn (&plReader);
 
       uri = map_function (col);
-      c->rank += get_metadata_weight (col);
+      c->rank += get_metadata_weight (v, col);
 
       if (uri && first_pos) {
         g_string_append_printf (c->offsets, "%s,%d", uri, plrPosition (&plReader));
@@ -4664,7 +4668,7 @@ static int fulltextFilter(
   int argc, sqlite3_value **argv    /* Arguments for the indexing scheme */
 ){
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
-  fulltext_vtab *v = tracker_fts_vtab;
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
   int rc;
   int i;
   StringBuffer sb;
@@ -4745,7 +4749,7 @@ static int fulltextEof(sqlite3_vtab_cursor *pCursor){
 static int fulltextColumn(sqlite3_vtab_cursor *pCursor,
                           sqlite3_context *pContext, int idxCol){
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
-  fulltext_vtab *v = tracker_fts_vtab;
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
 
 #ifdef STORE_CATEGORY
   if (idxCol == 0) {
@@ -6917,12 +6921,14 @@ static int fulltextUpdate(sqlite3_vtab *pVtab, int nArg, sqlite3_value **ppArg,
 #endif
 
 static int fulltextSync(sqlite3_vtab *pVtab){
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
+
   FTSTRACE(("FTS3 xSync()\n"));
-  return flushPendingTerms(tracker_fts_vtab);
+  return flushPendingTerms(v);
 }
 
 static int fulltextBegin(sqlite3_vtab *pVtab){
-  fulltext_vtab *v = tracker_fts_vtab;
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
   FTSTRACE(("FTS3 xBegin()\n"));
 
   /* Any buffered updates should have been cleared by the previous
@@ -6933,7 +6939,7 @@ static int fulltextBegin(sqlite3_vtab *pVtab){
 }
 
 static int fulltextCommit(sqlite3_vtab *pVtab){
-  fulltext_vtab *v = tracker_fts_vtab;
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
   FTSTRACE(("FTS3 xCommit()\n"));
 
   /* Buffered updates should have been cleared by fulltextSync(). */
@@ -6942,8 +6948,9 @@ static int fulltextCommit(sqlite3_vtab *pVtab){
 }
 
 static int fulltextRollback(sqlite3_vtab *pVtab){
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
   FTSTRACE(("FTS3 xRollback()\n"));
-  return clearPendingTerms(tracker_fts_vtab);
+  return clearPendingTerms(v);
 }
 
 /*
@@ -7735,7 +7742,7 @@ static int fulltextRename(
   sqlite3_vtab *pVtab,
   const char *zName
 ){
-  fulltext_vtab *p = tracker_fts_vtab;
+  fulltext_vtab *p = g_static_private_get (&tracker_fts_vtab_key);
   int rc = SQLITE_NOMEM;
   char *zSql = sqlite3_mprintf(
     "ALTER TABLE %Q.'%q_content'  RENAME TO '%q_content';"
@@ -7821,7 +7828,11 @@ int tracker_fts_init(sqlite3 *db, int create){
 }
 
 void tracker_fts_shutdown (void){
-  fulltext_vtab_destroy(tracker_fts_vtab);
+  g_static_private_set (&tracker_fts_vtab_key, NULL, NULL);
+}
+
+void tracker_fts_shutdown_all (void){
+  g_static_private_free (&tracker_fts_vtab_key);
 }
 
 void tracker_fts_set_map_function(TrackerFtsMapFunc map_func){
@@ -7829,21 +7840,28 @@ void tracker_fts_set_map_function(TrackerFtsMapFunc map_func){
 }
 
 int tracker_fts_update_init(int id){
-  return initPendingTerms(tracker_fts_vtab, id);
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
+
+  return initPendingTerms(v, id);
 }
 
 int tracker_fts_update_text(int id, int column_id,
 			    const char *text, gboolean limit_word_length){
-	return buildTerms(tracker_fts_vtab, id, text,
-			  column_id, limit_word_length);
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
+
+  return buildTerms(v, id, text, column_id, limit_word_length);
 }
 
 void tracker_fts_update_commit(void){
-  fulltextSync((sqlite3_vtab *) tracker_fts_vtab);
-  fulltextCommit((sqlite3_vtab *) tracker_fts_vtab);
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
+
+  fulltextSync((sqlite3_vtab *) v);
+  fulltextCommit((sqlite3_vtab *) v);
 }
 
 void tracker_fts_update_rollback(void){
-  fulltextRollback((sqlite3_vtab *) tracker_fts_vtab);
+  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
+
+  fulltextRollback((sqlite3_vtab *) v);
 }
 

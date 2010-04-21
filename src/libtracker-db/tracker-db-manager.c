@@ -35,6 +35,7 @@
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-fts/tracker-fts.h>
 
 #include "tracker-db-journal.h"
 #include "tracker-db-manager.h"
@@ -156,8 +157,12 @@ static gchar                *data_dir = NULL;
 static gchar                *user_data_dir = NULL;
 static gchar                *sys_tmp_dir = NULL;
 static gpointer              db_type_enum_class_pointer;
-static TrackerDBInterface   *resources_iface;
 static TrackerDBManagerFlags old_flags = 0;
+
+static GHashTable           *thread_ifaces = NULL; /* Needed for cross-thread cancellation */
+static GStaticMutex          thread_ifaces_mutex = G_STATIC_MUTEX_INIT;
+
+static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 
 static const gchar *
 location_to_directory (TrackerDBLocation location)
@@ -624,6 +629,18 @@ tracker_db_manager_init_locations (void)
 	locations_initialized = TRUE;
 }
 
+static void
+free_thread_interface (gpointer data)
+{
+	TrackerDBInterface *interface = data;
+
+	g_static_mutex_lock (&thread_ifaces_mutex);
+	g_hash_table_remove (thread_ifaces, g_thread_self ());
+	g_static_mutex_unlock (&thread_ifaces_mutex);
+
+	g_object_unref (interface);
+}
+
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
@@ -639,6 +656,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	gchar              *in_use_filename;
 	int                 in_use_file;
 	gboolean            loaded = FALSE;
+	TrackerDBInterface *resources_iface;
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -879,6 +897,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 	initialized = TRUE;
 
+	thread_ifaces = g_hash_table_new (NULL, NULL);
+
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
 		resources_iface = tracker_db_manager_get_db_interfaces_ro (3,
 		                                                           TRACKER_DB_METADATA,
@@ -890,6 +910,12 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		                                                        TRACKER_DB_FULLTEXT,
 		                                                        TRACKER_DB_CONTENTS);
 	}
+
+	g_static_private_set (&interface_data_key, resources_iface, free_thread_interface);
+
+	g_static_mutex_lock (&thread_ifaces_mutex);
+	g_hash_table_insert (thread_ifaces, g_thread_self (), resources_iface);
+	g_static_mutex_unlock (&thread_ifaces_mutex);
 
 	return TRUE;
 }
@@ -924,11 +950,17 @@ tracker_db_manager_shutdown (void)
 	sys_tmp_dir = NULL;
 	g_free (sql_dir);
 
-	if (resources_iface) {
-		g_object_unref (resources_iface);
-		resources_iface = NULL;
-	}
+	/* shutdown fts in all threads
+	   needs to be done before shutting down all db interfaces as
+	   shutdown does not happen in thread where interface was created */
+	tracker_fts_shutdown_all ();
+	/* shutdown db interfaces in all threads */
+	g_static_private_free (&interface_data_key);
 
+	if (thread_ifaces) {
+		g_hash_table_destroy (thread_ifaces);
+		thread_ifaces = NULL;
+	}
 
 	/* Since we don't reference this enum anywhere, we do
 	 * it here to make sure it exists when we call
@@ -1177,9 +1209,28 @@ tracker_db_manager_get_db_interfaces_ro (gint num, ...)
 TrackerDBInterface *
 tracker_db_manager_get_db_interface (void)
 {
-	g_return_val_if_fail (initialized != FALSE, NULL);
+	TrackerDBInterface *interface;
 
-	return resources_iface;
+	g_return_val_if_fail (initialized != FALSE, NULL);
+	interface = g_static_private_get (&interface_data_key);
+
+	/* Ensure the interface is there */
+	if (!interface) {
+		interface = tracker_db_manager_get_db_interfaces (3,
+			                                          TRACKER_DB_METADATA,
+			                                          TRACKER_DB_FULLTEXT,
+			                                          TRACKER_DB_CONTENTS);
+
+		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (interface), FALSE);
+
+		g_static_private_set (&interface_data_key, interface, free_thread_interface);
+
+		g_static_mutex_lock (&thread_ifaces_mutex);
+		g_hash_table_insert (thread_ifaces, g_thread_self (), interface);
+		g_static_mutex_unlock (&thread_ifaces_mutex);
+	}
+
+	return interface;
 }
 
 /**
@@ -1194,4 +1245,28 @@ gboolean
 tracker_db_manager_has_enough_space  (void)
 {
 	return tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, FALSE);
+}
+
+/**
+ * tracker_db_manager_interrupt_thread:
+ * @thread: a #GThread to be interrupted
+ *
+ * Interrupts any ongoing DB operation going on on @thread.
+ *
+ * Returns: %TRUE if DB operations were interrupted, %FALSE otherwise.
+ **/
+gboolean
+tracker_db_manager_interrupt_thread (GThread *thread)
+{
+	TrackerDBInterface *interface;
+
+	g_static_mutex_lock (&thread_ifaces_mutex);
+	interface = g_hash_table_lookup (thread_ifaces, thread);
+	g_static_mutex_unlock (&thread_ifaces_mutex);
+
+	if (!interface) {
+		return FALSE;
+	}
+
+	return tracker_db_interface_interrupt (interface);
 }

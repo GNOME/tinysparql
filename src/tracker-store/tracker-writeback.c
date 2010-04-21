@@ -31,7 +31,7 @@ typedef struct {
 	GHashTable *events;
 } WritebackPrivate;
 
-static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
+static WritebackPrivate *private;
 
 static GStrv
 copy_rdf_types (GPtrArray *rdf_types)
@@ -55,8 +55,6 @@ tracker_writeback_check (const gchar *graph,
                          const gchar *object,
                          GPtrArray   *rdf_types)
 {
-	WritebackPrivate *private;
-
 	/* When graph is NULL, the graph is the default one. We only do
 	 * writeback reporting in the default graph (update queries that
 	 * aren't coming from the miner)
@@ -67,7 +65,6 @@ tracker_writeback_check (const gchar *graph,
 		return;
 	}
 
-	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
 	if (g_hash_table_lookup (private->allowances, predicate)) {
@@ -86,9 +83,6 @@ tracker_writeback_check (const gchar *graph,
 void
 tracker_writeback_reset (void)
 {
-	WritebackPrivate *private;
-
-	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
 	if (private->events) {
@@ -100,9 +94,6 @@ tracker_writeback_reset (void)
 GHashTable *
 tracker_writeback_get_pending (void)
 {
-	WritebackPrivate *private;
-
-	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, NULL);
 
 	return private->events;
@@ -121,16 +112,12 @@ free_private (gpointer user_data)
 void
 tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 {
-	WritebackPrivate *private;
 	GStrv predicates_to_signal;
 	gint i, count;
 
-	private = g_static_private_get (&private_key);
 	g_return_if_fail (private == NULL);
 
 	private = g_new0 (WritebackPrivate, 1);
-
-	g_static_private_set (&private_key, private, free_private);
 
 	private->allowances = g_hash_table_new_full (g_str_hash,
 	                                             g_str_equal,
@@ -165,11 +152,9 @@ tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 void
 tracker_writeback_shutdown (void)
 {
-	WritebackPrivate *private;
-
-	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
 	tracker_writeback_reset ();
-	g_static_private_set (&private_key, NULL, NULL);
+	free_private (private);
+	private = NULL;
 }

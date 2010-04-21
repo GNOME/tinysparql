@@ -83,6 +83,7 @@ void     tracker_data_insert_statement_with_string  (const gchar               *
 void     tracker_data_begin_db_transaction          (void);
 void     tracker_data_begin_db_transaction_for_replay (time_t                   time);
 void     tracker_data_commit_db_transaction         (void);
+void     tracker_data_notify_db_transaction         (void);
 void     tracker_data_begin_transaction             (GError                   **error);
 void     tracker_data_commit_transaction            (GError                   **error);
 void     tracker_data_rollback_transaction          (void);

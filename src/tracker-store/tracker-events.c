@@ -32,15 +32,13 @@ typedef struct {
 	GArray *events;
 } EventsPrivate;
 
-static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
+static EventsPrivate *private;
 
 static void
 tracker_events_add_allow (const gchar *rdf_class)
 {
-	EventsPrivate *private;
 	TrackerClass *cl;
 
-	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
 	cl = tracker_ontologies_get_class_by_uri (rdf_class);
@@ -87,10 +85,7 @@ tracker_events_insert (const gchar *uri,
                        GPtrArray *rdf_types,
                        TrackerDBusEventsType type)
 {
-	EventsPrivate *private;
-
 	g_return_if_fail (rdf_types || type != TRACKER_DBUS_EVENTS_TYPE_UPDATE);
-	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
 	if (rdf_types && type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
@@ -125,10 +120,8 @@ tracker_event_destroy (TrackerEvent *event)
 void
 tracker_events_reset (void)
 {
-	EventsPrivate *private;
 	guint i;
 
-	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
 	if (private->events) {
@@ -144,9 +137,6 @@ tracker_events_reset (void)
 GArray *
 tracker_events_get_pending (void)
 {
-	EventsPrivate *private;
-
-	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, NULL);
 
 	return private->events;
@@ -162,15 +152,10 @@ free_private (EventsPrivate *private)
 void
 tracker_events_init (TrackerNotifyClassGetter callback)
 {
-	EventsPrivate *private;
 	GStrv          classes_to_signal;
 	gint           i, count;
 
 	private = g_new0 (EventsPrivate, 1);
-
-	g_static_private_set (&private_key,
-	                      private,
-	                      (GDestroyNotify) free_private);
 
 	private->allowances = g_hash_table_new (g_direct_hash, g_direct_equal);
 
@@ -196,12 +181,10 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 void
 tracker_events_shutdown (void)
 {
-	EventsPrivate *private;
-
-	private = g_static_private_get (&private_key);
 	if (private != NULL) {
 		tracker_events_reset ();
-		g_static_private_set (&private_key, NULL, NULL);
+		free_private (private);
+		private = NULL;
 	} else {
 		g_warning ("tracker_events already shutdown");
 	}

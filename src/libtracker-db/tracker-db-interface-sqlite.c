@@ -83,6 +83,7 @@ struct TrackerDBInterfaceSqlitePrivate {
 
 	guint in_transaction : 1;
 	guint ro : 1;
+	guint fts_initialized : 1;
 };
 
 struct TrackerDBStatementSqlitePrivate {
@@ -141,6 +142,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDBCursorSqlite, tracker_db_cursor_sqlite, G_TYPE
 void
 tracker_db_interface_sqlite_enable_shared_cache (void)
 {
+	sqlite3_config (SQLITE_CONFIG_MULTITHREAD);
 	sqlite3_enable_shared_cache (1);
 }
 
@@ -474,6 +476,12 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 static void
 close_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
+	gint rc;
+
+	if (priv->fts_initialized) {
+		tracker_fts_shutdown ();
+	}
+
 	g_hash_table_unref (priv->dynamic_statements);
 	priv->dynamic_statements = NULL;
 
@@ -484,7 +492,8 @@ close_database (TrackerDBInterfaceSqlitePrivate *priv)
 	g_slist_free (priv->function_data);
 	priv->function_data = NULL;
 
-	sqlite3_close (priv->db);
+	rc = sqlite3_close (priv->db);
+	g_warn_if_fail (rc == SQLITE_OK);
 }
 
 void
@@ -496,6 +505,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterfaceSqlite *interface,
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (interface);
 
 	tracker_fts_init (priv->db, create);
+	priv->fts_initialized = TRUE;
 }
 
 static void
@@ -770,11 +780,23 @@ tracker_db_interface_sqlite_execute_query (TrackerDBInterface  *db_interface,
 	return result_set;
 }
 
+static gboolean
+tracker_db_interface_sqlite_interrupt (TrackerDBInterface *iface)
+{
+	TrackerDBInterfaceSqlitePrivate *priv;
+
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (iface);
+	sqlite3_interrupt (priv->db);
+
+	return TRUE;
+}
+
 static void
 tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface)
 {
 	iface->create_statement = tracker_db_interface_sqlite_create_statement;
 	iface->execute_query = tracker_db_interface_sqlite_execute_query;
+	iface->interrupt = tracker_db_interface_sqlite_interrupt;
 }
 
 TrackerDBInterface *
