@@ -224,6 +224,101 @@ function_sparql_string_from_filename (sqlite3_context *context,
 }
 
 static void
+function_sparql_uri_is_parent (sqlite3_context *context,
+                               int              argc,
+                               sqlite3_value   *argv[])
+{
+	const gchar *uri, *parent, *remaining;
+	gboolean match = FALSE;
+	guint parent_len;
+
+	if (argc != 2) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	parent = sqlite3_value_text (argv[0]);
+	uri = sqlite3_value_text (argv[1]);
+
+	if (!parent || !uri) {
+		sqlite3_result_error (context, "Invalid arguments", -1);
+		return;
+	}
+
+	parent_len = strlen (parent);
+
+	/* Remove trailing '/', will
+	 * be checked later on uri.
+	 */
+	while (parent[parent_len - 1] == '/') {
+		parent_len--;
+	}
+
+	if (strncmp (uri, parent, parent_len) == 0 && uri[parent_len] == '/') {
+		while (uri[parent_len] == '/') {
+			parent_len++;
+		}
+
+		remaining = &uri[parent_len];
+
+		if (strchr (remaining, '/') == NULL) {
+			/* Remaining doesn't have uri
+			 * separator, it's a direct child.
+			 */
+			match = TRUE;
+		}
+	}
+
+	sqlite3_result_int (context, match);
+}
+
+static void
+function_sparql_uri_is_descendant (sqlite3_context *context,
+                                   int              argc,
+                                   sqlite3_value   *argv[])
+{
+	const gchar *uri, *parent, *remaining;
+	gboolean match = FALSE;
+	guint parent_len;
+
+	if (argc != 2) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	parent = sqlite3_value_text (argv[0]);
+	uri = sqlite3_value_text (argv[1]);
+
+	if (!parent || !uri) {
+		sqlite3_result_error (context, "Invalid arguments", -1);
+		return;
+	}
+
+	parent_len = strlen (parent);
+
+	/* Remove trailing '/', will
+	 * be checked later on uri.
+	 */
+	while (parent[parent_len - 1] == '/') {
+		parent_len--;
+	}
+
+	if (strncmp (uri, parent, parent_len) == 0 && uri[parent_len] == '/') {
+		while (uri[parent_len] == '/') {
+			parent_len++;
+		}
+
+		remaining = &uri[parent_len];
+
+		if (remaining && *remaining) {
+			match = TRUE;
+		}
+	}
+
+	sqlite3_result_int (context, match);
+}
+
+static void
 function_sparql_cartesian_distance (sqlite3_context *context,
                                     int              argc,
                                     sqlite3_value   *argv[])
@@ -399,6 +494,14 @@ open_database (TrackerDBInterfaceSqlitePrivate *priv)
 
 	sqlite3_create_function (priv->db, "SparqlStringJoin", -1, SQLITE_ANY,
 	                         priv, &function_sparql_string_join,
+	                         NULL, NULL);
+
+	sqlite3_create_function (priv->db, "SparqlUriIsParent", 2, SQLITE_ANY,
+	                         priv, &function_sparql_uri_is_parent,
+	                         NULL, NULL);
+
+	sqlite3_create_function (priv->db, "SparqlUriIsDescendant", 2, SQLITE_ANY,
+	                         priv, &function_sparql_uri_is_descendant,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (priv->db, 0);
