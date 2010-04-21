@@ -130,6 +130,9 @@ struct TrackerMinerFSPrivate {
 	/* Folder contents' mtime cache */
 	GHashTable     *mtime_cache;
 
+	/* File -> iri cache */
+	GHashTable     *iri_cache;
+
 	/* Status */
 	guint           been_started : 1;
 	guint           been_crawled : 1;
@@ -527,6 +530,11 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  object);
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
+
+	priv->iri_cache = g_hash_table_new_full (g_file_hash,
+	                                         (GEqualFunc) g_file_equal,
+	                                         (GDestroyNotify) g_object_unref,
+	                                         (GDestroyNotify) g_free);
 }
 
 static ProcessData *
@@ -966,6 +974,20 @@ sparql_update_cb (GObject      *object,
 			 */
 			tracker_miner_commit (TRACKER_MINER (fs), NULL, commit_cb, NULL);
 		}
+
+		if (fs->private->current_parent) {
+			GFile *parent;
+
+			parent = g_file_get_parent (data->file);
+
+			if (g_file_equal (parent, fs->private->current_parent) &&
+			    g_hash_table_lookup (fs->private->iri_cache, data->file) == NULL) {
+				/* Item is processed, add an empty element for the processed GFile,
+				 * in case it is again processed before the cache expires
+				 */
+				g_hash_table_insert (fs->private->iri_cache, g_object_ref (data->file), NULL);
+			}
+		}
 	}
 
 	priv->processing_pool = g_list_remove (priv->processing_pool, data);
@@ -1097,6 +1119,88 @@ cache_query_cb (GObject	     *object,
 	}
 }
 
+static void
+ensure_iri_cache (TrackerMinerFS *fs,
+                  GFile          *parent)
+{
+	gchar *query, *uri, *slash_uri;
+	CacheQueryData data;
+
+	g_hash_table_remove_all (fs->private->iri_cache);
+
+	uri = g_file_get_uri (parent);
+
+	g_debug ("Generating IRI cache for folder: %s\n", uri);
+
+	if (g_str_has_suffix (uri, "/")) {
+		slash_uri = uri;
+	} else {
+		slash_uri = g_strconcat (uri, "/", NULL);
+		g_free (uri);
+	}
+
+	query = g_strdup_printf ("SELECT ?uri ?u { "
+	                         "  ?u nie:url ?uri . "
+	                         "  FILTER (fn:starts-with (?uri, \"%s\")) "
+	                         "}",
+	                         slash_uri);
+
+	data.main_loop = g_main_loop_new (NULL, FALSE);
+	data.values = g_hash_table_ref (fs->private->iri_cache);
+
+	tracker_miner_execute_sparql (TRACKER_MINER (fs),
+	                              query,
+	                              NULL,
+	                              cache_query_cb,
+	                              &data);
+
+	g_main_loop_run (data.main_loop);
+
+	g_main_loop_unref (data.main_loop);
+	g_hash_table_unref (data.values);
+
+	g_free (slash_uri);
+}
+
+static const gchar *
+iri_cache_lookup (TrackerMinerFS *fs,
+                  GFile          *file)
+{
+	gpointer value;
+	const gchar *iri;
+
+	if (!g_hash_table_lookup_extended (fs->private->iri_cache, file, NULL, &value)) {
+		/* Item doesn't exist in cache */
+		return NULL;
+	}
+
+	iri = value;
+
+	if (!iri) {
+		gchar *query_iri;
+
+		/* Cache miss, this item was added after the last
+		 * iri cache update, so query it independently
+		 */
+		if (item_query_exists (fs, file, &query_iri, NULL)) {
+			g_hash_table_insert (fs->private->iri_cache,
+			                     g_object_ref (file), query_iri);
+		} else {
+			g_hash_table_remove (fs->private->iri_cache, file);
+			iri = NULL;
+		}
+	}
+
+	return iri;
+}
+
+static void
+iri_cache_invalidate (TrackerMinerFS *fs,
+                      GFile          *file)
+{
+	g_hash_table_remove (fs->private->iri_cache, file);
+}
+
 static gboolean
 do_process_file (TrackerMinerFS *fs,
 		 ProcessData    *data)
@@ -1210,7 +1314,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	gboolean retval;
 	ProcessData *data;
 	GFile *parent;
-	gchar *urn;
+	const gchar *urn;
 	const gchar *parent_urn = NULL;
 
 	priv = fs->private;
@@ -1219,8 +1323,6 @@ item_add_or_update (TrackerMinerFS *fs,
 	cancellable = g_cancellable_new ();
 	sparql = tracker_sparql_builder_new_update ();
 	g_object_ref (file);
-
-	item_query_exists (fs, file, &urn, NULL);
 
 	parent = g_file_get_parent (file);
 
@@ -1243,11 +1345,15 @@ item_add_or_update (TrackerMinerFS *fs,
 			if (!item_query_exists (fs, parent, &fs->private->current_parent_urn, NULL)) {
 				fs->private->current_parent_urn = NULL;
 			}
+
+			ensure_iri_cache (fs, parent);
 		}
 
 		parent_urn = fs->private->current_parent_urn;
 		g_object_unref (parent);
 	}
+
+	urn = iri_cache_lookup (fs, file);
 
 	data = process_data_new (file, urn, parent_urn, cancellable, sparql);
 	priv->processing_pool = g_list_prepend (priv->processing_pool, data);
@@ -1267,7 +1373,6 @@ item_add_or_update (TrackerMinerFS *fs,
 	g_object_unref (file);
 	g_object_unref (cancellable);
 	g_object_unref (sparql);
-	g_free (urn);
 
 	return retval;
 }
@@ -1281,6 +1386,7 @@ item_remove (TrackerMinerFS *fs,
 	gchar *mime = NULL;
 	ProcessData *data;
 
+	iri_cache_invalidate (fs, file);
 	uri = g_file_get_uri (file);
 
 	g_debug ("Removing item: '%s' (Deleted from filesystem)",
@@ -1525,6 +1631,9 @@ item_move (TrackerMinerFS *fs,
 	ProcessData *data;
 	gchar *source_iri;
 	gboolean source_exists;
+
+	iri_cache_invalidate (fs, file);
+	iri_cache_invalidate (fs, source_file);
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
