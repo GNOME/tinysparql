@@ -178,7 +178,6 @@ tracker_resources_load (TrackerResources         *object,
 	g_object_unref (file);
 }
 
-
 static void
 query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 {
@@ -187,6 +186,7 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 	DBusMessageIter iter, rows_iter;
 	guint cols;
 	GError *loop_error = NULL;
+	guint length = 0;
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
@@ -196,9 +196,6 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 		dbus_g_method_return_error (info->context, error);
 		return;
 	}
-
-	tracker_dbus_request_success (info->request_id,
-	                              info->context);
 
 	reply = dbus_g_method_get_reply (info->context);
 
@@ -223,18 +220,62 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 		for (i = 0; i < cols; i++) {
 			const gchar *result_str;
 			result_str = tracker_db_cursor_get_string (cursor, i);
+
+			length++;
+
 			dbus_message_iter_append_basic (&cols_iter, DBUS_TYPE_STRING, &result_str);
+
+			/* I *know* that this is some arbitrary number that doesn't seem to
+			 * resemble anything. In fact it's what I experimentally measured to
+			 * be a good value on a default Debian testing which has
+			 * max_message_size set to 1 000 000 000 in session.conf. I didn't have
+			 * the feeling that this value was very much respected, as the size
+			 * of the DBusMessage when libdbus decided to exit() the process was
+			 * around 160 MB, and not ~ 1000 MB. So if you take 160 MB and you
+			 * devide it by 1475760 you have an average string size of ~ 108
+			 * bytes plus DBusMessage's overhead. If that makes this number less
+			 * arbitrary for you, then fine.
+			 *
+			 * I really hope that the libdbus people get to their senses and 
+			 * either stop doing their exit() nonsense in a library, and instead
+			 * return a clean DBusError or something, or create crystal clear
+			 * clarity about the maximum size of a message. And make it both so
+			 * that I can get this length at runtime (without having to parse
+			 * libdbus's own configuration files) and my DBusMessage's current
+			 * total length. As far as I know are both not possible. So that for
+			 * me means that libdbus's exit() is unacceptable.*/
+
+			if (length > 1475760) {
+				g_set_error (&loop_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_INTERRUPTED,
+				             "resultset of the query is too large");
+				dbus_message_iter_close_container (&rows_iter, &cols_iter);
+				goto breakout;
+			}
+
 		}
 
 		dbus_message_iter_close_container (&rows_iter, &cols_iter);
 	}
 
+breakout:
+
+	dbus_message_iter_close_container (&iter, &rows_iter);
+
 	if (loop_error == NULL) {
-		dbus_message_iter_close_container (&iter, &rows_iter);
 		dbus_g_method_send_reply (info->context, reply);
+
+		tracker_dbus_request_success (info->request_id,
+		                              info->context);
+
 	} else {
 		dbus_message_unref (reply);
 		dbus_g_method_return_error (info->context, loop_error);
+
+		tracker_dbus_request_failed (info->request_id,
+		                             info->context,
+		                             &loop_error,
+		                             NULL);
+
 		g_error_free (loop_error);
 	}
 }
