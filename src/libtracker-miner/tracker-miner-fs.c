@@ -1103,7 +1103,7 @@ cache_query_cb (GObject	     *object,
 	g_main_loop_quit (data->main_loop);
 
 	if (G_UNLIKELY (error)) {
-		g_critical ("Could not query mtimes: %s\n", error->message);
+		g_critical ("Could not execute cache query: %s\n", error->message);
 		g_error_free (error);
 		return;
 	}
@@ -1141,7 +1141,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	query = g_strdup_printf ("SELECT ?uri ?u { "
 	                         "  ?u nie:url ?uri . "
-	                         "  FILTER (fn:starts-with (?uri, \"%s\")) "
+	                         "  FILTER (tracker:uri-is-parent (\"%s\", ?uri)) "
 	                         "}",
 	                         slash_uri);
 
@@ -1605,7 +1605,7 @@ item_update_children_uri (TrackerMinerFS    *fs,
 
 	sparql = g_strdup_printf ("SELECT ?child ?url nie:mimeType(?child) WHERE { "
 				  "  ?child nie:url ?url . "
-				  "  FILTER (fn:starts-with (?url, \"%s\")) "
+                                  "  FILTER (tracker:uri-is-descendant (\"%s\", ?uri)) "
 				  "}",
 				  slash_uri);
 
@@ -2209,7 +2209,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	query = g_strdup_printf ("SELECT ?uri ?time { "
 	                         "  ?u nfo:fileLastModified ?time ; "
 	                         "     nie:url ?uri . "
-	                         "  FILTER (fn:starts-with (?uri, \"%s\")) "
+	                         "  FILTER (tracker:uri-is-parent (\"%s\", ?uri)) "
 	                         "}",
 	                         slash_uri);
 
