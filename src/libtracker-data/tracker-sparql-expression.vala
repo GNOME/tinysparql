@@ -623,6 +623,26 @@ class Tracker.Sparql.Expression : Object {
 			sql.append (")");
 
 			return PropertyType.STRING;
+		} else if (uri == TRACKER_NS + "uri-is-parent") {
+			sql.append ("SparqlUriIsParent(");
+			translate_expression_as_string (sql);
+			sql.append (", ");
+			expect (SparqlTokenType.COMMA);
+
+			translate_expression_as_string (sql);
+			sql.append (")");
+
+			return PropertyType.BOOLEAN;
+		} else if (uri == TRACKER_NS + "uri-is-descendant") {
+			sql.append ("SparqlUriIsDescendant(");
+			translate_expression_as_string (sql);
+			sql.append (", ");
+			expect (SparqlTokenType.COMMA);
+
+			translate_expression_as_string (sql);
+			sql.append (")");
+
+			return PropertyType.BOOLEAN;
 		} else if (uri == TRACKER_NS + "string-from-filename") {
 			sql.append ("SparqlStringFromFilename(");
 			translate_expression_as_string (sql);
