@@ -31,6 +31,16 @@ with this.
 For the most part, this purely provides a timestamp with each status
 update to follow WHEN changes happened.
 .TP
+.B \-s, \-\-list-common-statuses
+This will list statuses most commonly produced by miners and the
+store. These statuses are not translated when sent over D-Bus and
+should be translated by each application. These are not considered
+static and are subject to change at any point.
+
+Additionally, these statuses are not the only ones which may be
+reported by a miner. There may be other states pertaining to the
+specific roles of the miner in question.
+.TP
 .B \-l, \-\-list-miners-running
 This will list all miners which have responded to a D-Bus call.
 Sometimes it is helpfult to use this command with

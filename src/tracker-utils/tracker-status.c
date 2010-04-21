@@ -53,6 +53,7 @@ static GHashTable *miners_status;
 static gint longest_miner_name_length = 0;
 static gint paused_length = 0;
 
+static gboolean list_common_statuses;
 static gboolean list_miners_running;
 static gboolean list_miners_available;
 static gboolean pause_details;
@@ -63,6 +64,17 @@ static gboolean follow;
 static gboolean detailed;
 static gboolean print_version;
 
+/* Make sure our statuses are translated (all from libtracker-miner except one) */
+static const gchar *statuses[7] = {
+	N_("Initializing"),
+	N_("Processing…"),
+	N_("Fetching…"), /* miner/rss */
+	N_("Crawling single directory '%s'"),
+	N_("Crawling recursively directory '%s'"),
+	N_("Paused"),
+	N_("Idle")
+};
+
 static GOptionEntry entries[] = {
 	{ "follow", 'f', 0, G_OPTION_ARG_NONE, &follow,
 	  N_("Follow status changes as they happen"),
@@ -70,6 +82,10 @@ static GOptionEntry entries[] = {
 	},
 	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
 	  N_("Include details with state updates (only applies to --follow)"),
+	  NULL
+	},
+	{ "list-common-statuses", 's', 0, G_OPTION_ARG_NONE, &list_common_statuses,
+	  N_("List common statuses for miners and the store"),
 	  NULL
 	},
 	{ "list-miners-running", 'l', 0, G_OPTION_ARG_NONE, &list_miners_running,
@@ -268,7 +284,7 @@ miner_print_state (TrackerMinerManager *manager,
 		         is_paused ? _("PAUSED") : " ",
 		         is_paused ? ")" : " ",
 		         status ? "-" : "",
-		         status ? status : "");
+		         status ? _(status) : "");
 	} else {
 		g_print ("%s  %s  %-*.*s  %-*.*s  - %s\n",
 		         time_str,
@@ -337,7 +353,7 @@ store_print_state (void)
 	         longest_miner_name_length + paused_length,
 	         _("Journal replay"),
 	         status ? "-" : "",
-	         status ? status : "");
+	         status ? _(status) : "");
 }
 
 static void
@@ -532,6 +548,18 @@ main (gint argc, gchar *argv[])
 	manager = tracker_miner_manager_new ();
 	miners_available = tracker_miner_manager_get_available (manager);
 	miners_running = tracker_miner_manager_get_running (manager);
+
+	if (list_common_statuses) {
+		gint i;
+
+		g_print ("%s:\n", _("Common statuses include"));
+
+		for (i = 0; i < G_N_ELEMENTS(statuses); i++) {
+			g_print ("  %s\n", _(statuses[i]));
+		}
+
+		return EXIT_SUCCESS;
+	}
 
 	if (list_miners_available) {
 		gchar *str;

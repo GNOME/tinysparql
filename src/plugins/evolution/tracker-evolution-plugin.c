@@ -2344,7 +2344,7 @@ miner_started (TrackerMiner *miner)
 	                         G_TYPE_INVALID,
 	                         G_TYPE_INVALID);
 
-	g_object_set (miner,  "progress", 0.0,  "status", _("Initializing"), NULL);
+	g_object_set (miner,  "progress", 0.0,  "status", "Initializing", NULL);
 }
 
 static void
@@ -2436,7 +2436,7 @@ miner_resumed (TrackerMiner *miner)
 		priv->client = tracker_client_new (0, G_MAXINT);
 	}
 
-	g_object_set (miner,  "progress", 0.0,  "status", _("Resuming"), NULL);
+	g_object_set (miner,  "progress", 0.0,  "status", _("Processing…"), NULL);
 
 	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
 	                         list_names_reply_cb,
