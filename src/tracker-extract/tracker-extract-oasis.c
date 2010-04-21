@@ -23,6 +23,7 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-main.h"
+#include "tracker-gsf.h"
 
 #include <unistd.h>
 
@@ -72,16 +73,19 @@ static TrackerExtractData extract_data[] = {
 #define ODT_BUFFER_SIZE            8193  /* bytes */
 
 static gchar *
-extract_content (const gchar *path,
-                 guint        n_words,
-                 gsize        n_bytes)
+extract_oasis_content (const gchar *uri,
+                       guint        n_words,
+                       gsize        n_bytes)
 {
 	const gchar *argv[4];
 	gint fdz;
 	FILE *fz;
 	GError *error = NULL;
 	gchar *text = NULL;
+	gchar *path;
 
+	/* Newly allocated string with the file path */
+	path = g_filename_from_uri (uri, NULL, NULL);
 
 	/* Setup command to be executed */
 	argv[0] = "odt2txt";
@@ -164,6 +168,8 @@ extract_content (const gchar *path,
 		text = g_string_free (normalized, FALSE);
 	}
 
+	g_free (path);
+
 	return text;
 }
 
@@ -172,71 +178,60 @@ extract_oasis (const gchar          *uri,
                TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata)
 {
-	gchar *argv[5];
-	gchar *xml;
-	gchar *filename;
 	gchar *content;
 	TrackerFTSConfig *fts_config;
 	guint n_words;
 	gsize n_bytes;
+	ODTParseInfo info;
+	GMarkupParseContext *context;
+	GMarkupParser parser = {
+		xml_start_element_handler,
+		xml_end_element_handler,
+		xml_text_handler,
+		NULL,
+		NULL
+	};
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
+	/* Setup conf */
+	fts_config = tracker_main_get_fts_config ();
 
-	argv[0] = g_strdup ("unzip");
-	argv[1] = g_strdup ("-p");
-	argv[2] = filename;
-	argv[3] = g_strdup ("meta.xml");
-	argv[4] = NULL;
+	g_debug ("Extracting OASIS metadata and contents from '%s'", uri);
 
-	/* No need to unlink meta.xml, as it goes to stdout of the
-	 *  spawned child (-p option in unzip) */
+	/* First, parse metadata */
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
 
-	if (tracker_spawn (argv, 10, &xml, NULL)) {
-		ODTParseInfo info;
-		GMarkupParseContext *context;
-		GMarkupParser parser = {
-			xml_start_element_handler,
-			xml_end_element_handler,
-			xml_text_handler,
-			NULL,
-			NULL
-		};
+	/* Create parse info */
+	info.metadata = metadata;
+	info.current = ODT_TAG_TYPE_UNKNOWN;
+	info.uri = uri;
 
-		info.metadata = metadata;
-		info.current = ODT_TAG_TYPE_UNKNOWN;
-		info.uri = uri;
+	/* Create parsing context */
+	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
 
-		context = g_markup_parse_context_new (&parser, 0, &info, NULL);
-		g_markup_parse_context_parse (context, xml, -1, NULL);
+	/* Load the internal XML file from the Zip archive, and parse it
+	 * using the given context */
+	tracker_gsf_parse_xml_in_zip (uri, "meta.xml", context);
+	g_markup_parse_context_free (context);
 
-		g_markup_parse_context_free (context);
-		g_free (xml);
-	}
+	/* Next, parse contents */
 
-	fts_config = tracker_main_get_fts_config ();
 	/* Set max words to read from content */
 	n_words = tracker_fts_config_get_max_words_to_index (fts_config);
+
 	/* Set max bytes to read from content.
 	 * Assuming 3 bytes per unicode point in UTF-8, as 4-byte UTF-8 unicode
 	 *  points are really pretty rare */
 	n_bytes = 3 * n_words * tracker_fts_config_get_max_word_length(fts_config);
 
-	content = extract_content (filename, n_words, n_bytes);
-
+	/* Extract content with the given limitations */
+	content = extract_oasis_content (uri, n_words, n_bytes);
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (metadata, content);
 		g_free (content);
 	}
-
-	g_free (argv[3]);
-	g_free (argv[1]);
-	g_free (argv[0]);
-
-	g_free (filename);
 }
 
 static void

@@ -33,13 +33,12 @@ if HAVE_ENCA
 INCLUDES += $(ENCA_CFLAGS)
 endif
 
-# NOTE: 
+# NOTE:
 # We don't always link with libtracker-common, we only link
 # against it if we directly use functions in the .so
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\
 	libextract-mp3.la				 		\
-	libextract-oasis.la 						\
 	libextract-png.la 						\
 	libextract-ps.la 						\
 	libextract-text.la
@@ -69,7 +68,9 @@ modules_LTLIBRARIES += libextract-html.la
 endif
 
 if HAVE_LIBGSF
-modules_LTLIBRARIES += libextract-msoffice.la
+modules_LTLIBRARIES += 							\
+	libextract-msoffice.la						\
+	libextract-oasis.la
 endif
 
 if HAVE_POPPLER_GLIB
@@ -82,7 +83,7 @@ endif
 
 if HAVE_GSTREAMER_HELIX
 modules_LTLIBRARIES += libextract-gstreamer-helix.la
-endif 
+endif
 
 if HAVE_LIBXINE
 modules_LTLIBRARIES += libextract-xine.la
@@ -319,6 +320,11 @@ tracker_extract_LDADD = 						\
 	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)
+
+if HAVE_LIBGSF
+tracker_extract_SOURCES += tracker-gsf.c tracker-gsf.h
+tracker_extract_LDADD += $(LIBGSF_LIBS)
+endif
 
 if HAVE_LIBSTREAMANALYZER
 tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
