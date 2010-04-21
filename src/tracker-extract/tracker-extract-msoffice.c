@@ -51,11 +51,14 @@
 
 /* An atom record that specifies Unicode characters with no high byte
  * of a UTF-16 Unicode character. High byte is always 0.
+ * http://msdn.microsoft.com/en-us/library/dd947905%28v=office.12%29.aspx
  */
-#define TEXTBYTESATOM_RECORD_TYPE      0x0FA0
+#define TEXTBYTESATOM_RECORD_TYPE      0x0FA8
 
-/* An atom record that specifies Unicode characters. */
-#define TEXTCHARSATOM_RECORD_TYPE      0x0FA8
+/* An atom record that specifies Unicode characters.
+ * http://msdn.microsoft.com/en-us/library/dd772921%28v=office.12%29.aspx
+ */
+#define TEXTCHARSATOM_RECORD_TYPE      0x0FA0
 
 /* A container record that specifies information about the powerpoint
  * document.
@@ -65,7 +68,6 @@
 /* Variant type of record. Within Powerpoint text extraction we are
  * interested of SlideListWithTextContainer type that contains the
  * textual content of the slide(s).
- *
  */
 #define SLIDELISTWITHTEXT_RECORD_TYPE  0x0FF0
 
@@ -385,6 +387,99 @@ read_32bit (const guint8 *buffer)
 }
 
 /**
+ * @brief Common conversion and normalization method for all msoffice type
+ *  documents.
+ * @param buffer Input buffer with the string contents
+ * @param chunk_size Number of valid bytes in the input buffer
+ * @param is_ansi If %TRUE, input text should be encoded in CP1252, and
+ *  in UTF-16 otherwise.
+ * @param p_words_remaining Pointer to #gint specifying how many words
+ *  should still be considered.
+ * @param p_words_remaining Pointer to #gsize specifying how many bytes
+ *  should still be considered.
+ * @param p_content Pointer to a #GString where the output normalized words
+ *  will be appended.
+ */
+static void
+msoffice_convert_and_normalize_chunk (guint8    *buffer,
+                                      gsize      chunk_size,
+                                      gboolean   is_ansi,
+                                      gint      *p_words_remaining,
+                                      gsize     *p_bytes_remaining,
+                                      GString  **p_content)
+{
+	gsize n_bytes_utf8;
+	gchar *converted_text;
+	GError *error = NULL;
+
+	g_return_if_fail (buffer != NULL);
+	g_return_if_fail (chunk_size > 0);
+	g_return_if_fail (p_words_remaining != NULL);
+	g_return_if_fail (p_bytes_remaining != NULL);
+	g_return_if_fail (p_content != NULL);
+
+	/* chunks can have different encoding
+	 *  TODO: Using g_iconv, this extra heap allocation could be
+	 *   avoided, re-using over and over again the same output buffer
+	 *   for the UTF-8 encoded string */
+	converted_text = g_convert (buffer,
+	                            chunk_size,
+	                            "UTF-8",
+	                            is_ansi ? "CP1252" : "UTF-16",
+	                            NULL,
+	                            &n_bytes_utf8,
+	                            &error);
+
+	if (converted_text) {
+		gchar *normalized_chunk;
+		guint n_words_normalized;
+
+		/* Get normalized chunk */
+		normalized_chunk = tracker_text_normalize (converted_text,
+		                                           *p_words_remaining,
+		                                           &n_words_normalized);
+
+		/* Update number of words remaining.
+		 * Note that n_words_normalized should always be less or
+		 * equal than n_words_remaining */
+		*p_words_remaining = (n_words_normalized <= *p_words_remaining ?
+		                      *p_words_remaining - n_words_normalized : 0);
+
+		/* Update accumulated UTF-8 bytes read */
+		*p_bytes_remaining = (n_bytes_utf8 <= *p_bytes_remaining ?
+		                      *p_bytes_remaining - n_bytes_utf8 : 0);
+
+		/* g_debug ("Words normalized: %u (remaining: %u); " */
+		/*          "Bytes read (UTF-8): %" G_GSIZE_FORMAT " bytes " */
+		/*          "(remaining: %" G_GSIZE_FORMAT ")", */
+		/*          n_words_normalized, *p_words_remaining, */
+		/*          n_bytes_utf8, *p_bytes_remaining); */
+
+		/* Append normalized chunk to the string to be returned */
+		if (*p_content) {
+			g_string_append (*p_content, normalized_chunk);
+		} else {
+			*p_content = g_string_new (normalized_chunk);
+		}
+
+		/* A whitespace is added to separate next strings appended */
+		g_string_append (*p_content, " ");
+
+		g_free (converted_text);
+		g_free (normalized_chunk);
+	} else {
+		g_warning ("Couldn't convert %d bytes from %s to UTF-8: %s",
+		           chunk_size,
+		           is_ansi ? "CP1252" : "UTF-16",
+		           error ? error->message : "no error given");
+	}
+
+	/* Note that error may be set even if some converted text is
+	 * available, due to G_CONVERT_ERROR_ILLEGAL_SEQUENCE for example */
+	g_clear_error (&error);
+}
+
+/**
  * @brief Read header data from given stream
  * @param stream Stream to read header data
  * @param header Pointer to header where to store results
@@ -443,19 +538,24 @@ ppt_read_header (GsfInput               *stream,
  * @param stream Stream to read text bytes/chars atom
  * @return read text or NULL if no text was read. Has to be freed by the caller
  */
-static gchar *
-ppt_read_text (GsfInput *stream)
+static void
+ppt_read_text (GsfInput  *stream,
+               guint8   **p_buffer,
+               gsize     *p_buffer_size,
+               gsize     *p_read_size)
 {
-	gint i = 0;
 	PowerPointRecordHeader header;
-	guint8 *data = NULL;
+	gsize required_size;
 
-	g_return_val_if_fail (stream, NULL);
+	g_return_if_fail (stream);
+	g_return_if_fail (p_buffer);
+	g_return_if_fail (p_buffer_size);
+	g_return_if_fail (p_read_size);
 
 	/* First read the header that describes the structures type
 	 * (TextBytesAtom or TextCharsAtom) and it's length.
 	 */
-	g_return_val_if_fail (ppt_read_header (stream, &header), NULL);
+	g_return_if_fail (ppt_read_header (stream, &header));
 
 	/* We only want header with type either TEXTBYTESATOM_RECORD_TYPE
 	 * (TextBytesAtom) or TEXTCHARSATOM_RECORD_TYPE (TextCharsAtom).
@@ -464,7 +564,7 @@ ppt_read_text (GsfInput *stream)
 	 */
 	if (header.recType != TEXTBYTESATOM_RECORD_TYPE &&
 	    header.recType != TEXTCHARSATOM_RECORD_TYPE) {
-		return NULL;
+		return;
 	}
 
 	/* Then we'll allocate data for the actual texts */
@@ -473,17 +573,20 @@ ppt_read_text (GsfInput *stream)
 		 * save space on the ppt files. We'll have to allocate double the
 		 * size for it to get the high bytes
 		 */
-		data = g_try_new0 (guint8,header.recLen * 2);
+		required_size = header.recLen * 2;
 	} else {
-		data = g_try_new0 (guint8,header.recLen);
+		required_size = header.recLen;
 	}
 
-	g_return_val_if_fail (data, NULL);
+	/* Resize reused buffer if needed */
+	if (required_size > *p_buffer_size) {
+		*p_buffer = g_realloc (*p_buffer, required_size);
+		*p_buffer_size = required_size;
+	}
 
 	/* Then read the textual data from the stream */
-	if (!gsf_input_read (stream, header.recLen, data)) {
-		g_free (data);
-		return NULL;
+	if (!gsf_input_read (stream, header.recLen, *p_buffer)) {
+		return;
 	}
 
 	/* Again if we are reading TextBytesAtom we'll need to add those utf16
@@ -491,25 +594,17 @@ ppt_read_text (GsfInput *stream)
 	 * and this function's comments
 	 */
 	if (header.recType == TEXTBYTESATOM_RECORD_TYPE) {
+		gint i;
+
 		for (i = 0; i < header.recLen; i++) {
-			/* We'll add an empty 0 byte between each byte in the
-			 * array
-			 */
-			data[(header.recLen - i - 1) * 2] = data[header.recLen - i - 1];
-
-			if ((header.recLen - i - 1) % 2) {
-				data[header.recLen - i - 1] = 0;
-			}
+			/* We'll add an empty 0 byte between each byte in the array */
+			(*p_buffer)[(header.recLen - i - 1) * 2] = (*p_buffer)[header.recLen - i - 1];
+			(*p_buffer)[((header.recLen - i - 1) * 2) + 1] = '\0';
 		}
-
-		/* Then double the recLen now that we have the high bytes added
-		 * between read bytes
-		 */
-		header.recLen *= 2;
 	}
 
-	/* Return read text */
-	return data;
+	/* Set read size as output */
+	*p_read_size = required_size;
 }
 
 /**
@@ -561,59 +656,16 @@ ppt_seek_header (GsfInput *stream,
 	return FALSE;
 }
 
-/**
- * @brief Normalize and append given text to all_texts variable
- * @param text text to append
- * @param all_texts GString to append text after normalizing it
- * @param words number of words already in all_texts
- * @param max_words maximum number of words allowed in all_texts
- * @return number of words appended to all_text
- */
-static gint
-ppt_append_text (gchar   *text,
-                 GString *all_texts,
-                 gint     words,
-                 gint     max_words)
-{
-	gchar *normalized_text;
-	guint count = 0;
-
-	g_return_val_if_fail (text, -1);
-	g_return_val_if_fail (all_texts, -1);
-
-	normalized_text = tracker_text_normalize (text,
-	                                          max_words - words,
-	                                          &count);
-
-	if (normalized_text) {
-		/* If the last added text didn't end in a space, we'll
-		 * append a space between this text and previous text
-		 * so the last word of previous text and first word of
-		 * this text don't become one big word.
-		 */
-		if (all_texts->len > 0 &&
-		    all_texts->str[all_texts->len-1] != ' ') {
-			g_string_append_c(all_texts,' ');
-		}
-
-		g_string_append (all_texts,normalized_text);
-		g_free (normalized_text);
-	}
-
-	g_free (text);
-
-	return count;
-}
-
 static gchar *
 extract_powerpoint_content (GsfInfile *infile,
                             gint       max_words,
+                            gsize      max_bytes,
                             gboolean  *is_encrypted)
 {
 	/* Try to find Powerpoint Document stream */
 	GsfInput *stream;
-	GString *all_texts;
-	gsf_off_t last_document_container = -1;
+	GString *all_texts = NULL;
+	gsf_off_t last_document_container;
 
 	stream = gsf_infile_child_by_name (infile, "PowerPoint Document");
 
@@ -624,8 +676,6 @@ extract_powerpoint_content (GsfInfile *infile,
 	if (!stream) {
 		return NULL;
 	}
-
-	all_texts = g_string_new ("");
 
 	/* Powerpoint documents have a "editing history" stored within them.
 	 * There is a structure that defines what changes were made each time
@@ -682,41 +732,48 @@ extract_powerpoint_content (GsfInfile *infile,
 	                     SLIDELISTWITHTEXT_RECORD_TYPE,
 	                     SLIDELISTWITHTEXT_RECORD_TYPE,
 	                     FALSE)) {
-		gint word_count = 0;
+		gint words_remaining = max_words;
+		gsize bytes_remaining = max_bytes;
+		guint8 *buffer = NULL;
+		gsize buffer_size = 0;
 
 		/*
 		 * Read while we have either TextBytesAtom or
 		 * TextCharsAtom and we have read less than max_words
-		 * amount of words
+		 * amount of words and less than max_bytes (in UTF-8)
 		 */
-		while (ppt_seek_header (stream,
+		while (words_remaining > 0 &&
+		       bytes_remaining > 0 &&
+		       ppt_seek_header (stream,
 		                        TEXTBYTESATOM_RECORD_TYPE,
 		                        TEXTCHARSATOM_RECORD_TYPE,
-		                        TRUE) &&
-		       word_count < max_words) {
-			gchar *text = ppt_read_text (stream);
+		                        TRUE)) {
+			gsize read_size = 0;
 
-			if (text) {
-				gint count;
+			/* Read the UTF-16 text in the reused buffer, and also get
+			 *  number of read bytes */
+			ppt_read_text (stream, &buffer, &buffer_size, &read_size);
 
-				count = ppt_append_text (text, all_texts, word_count, max_words);
-				if (count < 0) {
-					break;
-				}
-
-				word_count += count;
+			/* Avoid empty strings */
+			if (read_size > 0) {
+				/* Convert, normalize and limit max words & bytes.
+				 * NOTE: `is_ansi' argument is FALSE, as the string is
+				 *  always in UTF-16 */
+				msoffice_convert_and_normalize_chunk (buffer,
+				                                      read_size,
+				                                      FALSE, /* Always UTF-16 */
+				                                      &words_remaining,
+				                                      &bytes_remaining,
+				                                      &all_texts);
 			}
 		}
 
+		g_free (buffer);
 	}
 
 	g_object_unref (stream);
 
-	if (all_texts->len > 0) {
-		return g_string_free (all_texts, FALSE);
-	} else {
-		return NULL;
-	}
+	return all_texts ? g_string_free (all_texts, FALSE) : NULL;
 }
 
 /**
@@ -783,91 +840,6 @@ open_uri (const gchar *uri)
 
 	return infile;
 }
-
-/* Reads 'chunk_size' bytes from 'stream' into 'buffer', then converts from
- * UTF-16 or CP1252 to UTF-8, normalizes the string, and limits it to
- * 'n_words_remaining' max words, updating this value accordingly */
-static void
-read_convert_and_normalize_chunk (guint8    *buffer,
-                                  gsize      chunk_size,
-                                  gboolean   is_ansi,
-                                  gint      *p_words_remaining,
-                                  gsize     *p_bytes_remaining,
-                                  GString  **p_content)
-{
-	gsize n_bytes_utf8;
-	gchar *converted_text;
-	GError *error = NULL;
-
-	g_return_if_fail (buffer != NULL);
-	g_return_if_fail (chunk_size > 0);
-	g_return_if_fail (p_words_remaining != NULL);
-	g_return_if_fail (p_bytes_remaining != NULL);
-	g_return_if_fail (p_content != NULL);
-
-
-	/* chunks can have different encoding
-	 *  TODO: Using g_iconv, this extra heap allocation could be
-	 *   avoided, re-using over and over again the same output buffer
-	 *   for the UTF-8 encoded string */
-	converted_text = g_convert (buffer,
-	                            chunk_size,
-	                            "UTF-8",
-	                            is_ansi ? "CP1252" : "UTF-16",
-	                            NULL,
-	                            &n_bytes_utf8,
-	                            &error);
-
-	if (converted_text) {
-		gchar *normalized_chunk;
-		guint n_words_normalized;
-
-		/* Get normalized chunk */
-		normalized_chunk = tracker_text_normalize (converted_text,
-		                                           *p_words_remaining,
-		                                           &n_words_normalized);
-
-		/* Update number of words remaining.
-		 * Note that n_words_normalized should always be less or
-		 * equal than n_words_remaining */
-		*p_words_remaining = (n_words_normalized <= *p_words_remaining ?
-		                      *p_words_remaining - n_words_normalized : 0);
-
-		/* Update accumulated UTF-8 bytes read */
-		*p_bytes_remaining = (n_bytes_utf8 <= *p_bytes_remaining ?
-		                      *p_bytes_remaining - n_bytes_utf8 : 0);
-
-		/* g_debug ("Words normalized: %u (remaining: %u); " */
-		/*          "Bytes read (UTF-8): %" G_GSIZE_FORMAT " bytes " */
-		/*          "(remaining: %" G_GSIZE_FORMAT ")", */
-		/*          n_words_normalized, *p_words_remaining, */
-		/*          n_bytes_utf8, *p_bytes_remaining); */
-
-		/* Append normalized chunk to the string to be returned */
-		if (*p_content) {
-			g_string_append (*p_content, normalized_chunk);
-		} else {
-			*p_content = g_string_new (normalized_chunk);
-		}
-
-		/* A whitespace is added to separate next strings appended */
-		g_string_append (*p_content, " ");
-
-		g_free (converted_text);
-		g_free (normalized_chunk);
-	} else {
-		g_warning ("Couldn't convert %d bytes from %s to UTF-8: %s",
-		           chunk_size,
-		           is_ansi ? "CP1252" : "UTF-16",
-		           error ? error->message : "no error given");
-	}
-
-	/* Note that error may be set even if some converted text is
-	 * available, due to G_CONVERT_ERROR_ILLEGAL_SEQUENCE for example */
-	g_clear_error (&error);
-}
-
-
 
 /* This function was programmed by using ideas and algorithms from
  * b2xtranslator project (http://b2xtranslator.sourceforge.net/)
@@ -1033,12 +1005,12 @@ extract_msword_content (GsfInfile *infile,
 			gsf_input_seek (document_stream, fc, G_SEEK_SET);
 			gsf_input_read (document_stream, piece_size, text_buffer);
 
-			read_convert_and_normalize_chunk (text_buffer,
-			                                  piece_size,
-			                                  is_ansi,
-			                                  &n_words_remaining,
-			                                  &n_bytes_remaining,
-			                                  &content);
+			msoffice_convert_and_normalize_chunk (text_buffer,
+			                                      piece_size,
+			                                      is_ansi,
+			                                      &n_words_remaining,
+			                                      &n_bytes_remaining,
+			                                      &content);
 		}
 
 		/* Go on to next piece */
@@ -1422,12 +1394,12 @@ xls_get_extended_record_string (GsfInput  *stream,
 		}
 
 		/* Read whole stream in one operation */
-		read_convert_and_normalize_chunk (buffer,
-		                                  chunk_size,
-		                                  !is_high_byte,
-		                                  p_words_remaining,
-		                                  p_bytes_remaining,
-		                                  p_content);
+		msoffice_convert_and_normalize_chunk (buffer,
+		                                      chunk_size,
+		                                      !is_high_byte,
+		                                      p_words_remaining,
+		                                      p_bytes_remaining,
+		                                      p_content);
 
 		/* Formatting string */
 		if (c_run > 0) {
@@ -1774,12 +1746,11 @@ extract_msoffice (const gchar          *uri,
 	max_bytes = 3 * max_words * fts_max_word_length ();
 
 	if (g_ascii_strcasecmp (mime_used, "application/msword") == 0) {
-		/* Word file*/
+		/* Word file */
 		content = extract_msword_content (infile, max_words, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-powerpoint") == 0) {
-		/* PowerPoint file
-		 *  TODO: Limit max bytes to read */
-		content = extract_powerpoint_content (infile, max_words, &is_encrypted);
+		/* PowerPoint file */
+		content = extract_powerpoint_content (infile, max_words, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-excel") == 0) {
 		/* Excel File */
 		content = extract_excel_content (infile, max_words, max_bytes, &is_encrypted);
