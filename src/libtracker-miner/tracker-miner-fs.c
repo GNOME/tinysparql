@@ -1238,10 +1238,9 @@ item_add_or_update (TrackerMinerFS *fs,
 
 			g_free (fs->private->current_parent_urn);
 
-			if (item_query_exists (fs, parent, &fs->private->current_parent_urn, NULL))
-				fs->private->current_parent = g_object_ref (parent);
-			else {
-				fs->private->current_parent = NULL;
+			fs->private->current_parent = g_object_ref (parent);
+
+			if (!item_query_exists (fs, parent, &fs->private->current_parent_urn, NULL)) {
 				fs->private->current_parent_urn = NULL;
 			}
 		}
