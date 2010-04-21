@@ -46,6 +46,30 @@
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_TYPE RDF_PREFIX "type"
 
+/* I *know* that this is some arbitrary number that doesn't seem to
+ * resemble anything. In fact it's what I experimentally measured to
+ * be a good value on a default Debian testing which has
+ * max_message_size set to 1 000 000 000 in session.conf. I didn't have
+ * the feeling that this value was very much respected, as the size
+ * of the DBusMessage when libdbus decided to exit() the process was
+ * around 160 MB, and not ~ 1000 MB. So if you take 160 MB and you
+ * devide it by 1000000 you have an average string size of ~ 160
+ * bytes plus DBusMessage's overhead. If that makes this number less
+ * arbitrary for you, then fine.
+ *
+ * I really hope that the libdbus people get to their senses and 
+ * either stop doing their exit() nonsense in a library, and instead
+ * return a clean DBusError or something, or create crystal clear
+ * clarity about the maximum size of a message. And make it both so
+ * that I can get this length at runtime (without having to parse
+ * libdbus's own configuration files) and my DBusMessage's current
+ * total length. As far as I know are both not possible. So that for
+ * me means that libdbus's exit() is unacceptable.
+ *
+ * Note for the debugger of the future, the "Disconnected" signal gets
+ * sent to us by the bus, which in turn makes libdbus-glib perform exit(). */
+
+#define DBUS_ARBITRARY_MAX_MSG_SIZE 1000000
 
 G_DEFINE_TYPE(TrackerResources, tracker_resources, G_TYPE_OBJECT)
 
@@ -187,6 +211,7 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 	guint cols;
 	GError *loop_error = NULL;
 	guint length = 0;
+	gboolean cont;
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
@@ -203,10 +228,14 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 
 	cols = tracker_db_cursor_get_n_columns (cursor);
 
-	dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, 
-	                                  "as", &rows_iter);
+	dbus_message_iter_open_container (&iter,
+	                                  DBUS_TYPE_ARRAY,
+	                                  "as",
+	                                  &rows_iter);
 
-	while (tracker_db_cursor_iter_next (cursor, &loop_error)) {
+	cont = TRUE;
+
+	while (tracker_db_cursor_iter_next (cursor, &loop_error) && cont) {
 		DBusMessageIter cols_iter;
 		guint i;
 
@@ -214,50 +243,30 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 			break;
 		}
 
-		dbus_message_iter_open_container (&rows_iter, DBUS_TYPE_ARRAY, 
-		                                  "s", &cols_iter);
+		dbus_message_iter_open_container (&rows_iter,
+		                                  DBUS_TYPE_ARRAY,
+		                                  "s",
+		                                  &cols_iter);
 
-		for (i = 0; i < cols; i++) {
+		for (i = 0; i < cols && cont; i++, length++) {
 			const gchar *result_str;
 			result_str = tracker_db_cursor_get_string (cursor, i);
 
-			length++;
-
 			dbus_message_iter_append_basic (&cols_iter, DBUS_TYPE_STRING, &result_str);
 
-			/* I *know* that this is some arbitrary number that doesn't seem to
-			 * resemble anything. In fact it's what I experimentally measured to
-			 * be a good value on a default Debian testing which has
-			 * max_message_size set to 1 000 000 000 in session.conf. I didn't have
-			 * the feeling that this value was very much respected, as the size
-			 * of the DBusMessage when libdbus decided to exit() the process was
-			 * around 160 MB, and not ~ 1000 MB. So if you take 160 MB and you
-			 * devide it by 1475760 you have an average string size of ~ 108
-			 * bytes plus DBusMessage's overhead. If that makes this number less
-			 * arbitrary for you, then fine.
-			 *
-			 * I really hope that the libdbus people get to their senses and 
-			 * either stop doing their exit() nonsense in a library, and instead
-			 * return a clean DBusError or something, or create crystal clear
-			 * clarity about the maximum size of a message. And make it both so
-			 * that I can get this length at runtime (without having to parse
-			 * libdbus's own configuration files) and my DBusMessage's current
-			 * total length. As far as I know are both not possible. So that for
-			 * me means that libdbus's exit() is unacceptable.*/
+			if (length > DBUS_ARBITRARY_MAX_MSG_SIZE) {
+				g_set_error (&loop_error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_INTERRUPTED,
+				             "result set of the query is too large");
 
-			if (length > 1475760) {
-				g_set_error (&loop_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_INTERRUPTED,
-				             "resultset of the query is too large");
-				dbus_message_iter_close_container (&rows_iter, &cols_iter);
-				goto breakout;
+				cont = FALSE;
 			}
 
 		}
 
 		dbus_message_iter_close_container (&rows_iter, &cols_iter);
 	}
-
-breakout:
 
 	dbus_message_iter_close_container (&iter, &rows_iter);
 

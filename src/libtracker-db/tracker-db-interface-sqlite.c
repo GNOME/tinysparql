@@ -1190,11 +1190,20 @@ tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor,
 		}
 
 		if (result == SQLITE_INTERRUPT) {
-			g_set_error (error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_INTERRUPTED,
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_INTERRUPTED,
 			             "Interrupted");
 		} else if (result != SQLITE_ROW && result != SQLITE_DONE) {
-			g_set_error (error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_QUERY_ERROR,
-			             "%s", sqlite3_errmsg (priv->ref_stmt->priv->db_interface->priv->db));
+			TrackerDBStatementSqlite *stmt = priv->ref_stmt;
+			TrackerDBStatementSqlitePrivate *stmt_priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
+			TrackerDBInterfaceSqlite *iface = stmt_priv->db_interface;
+			TrackerDBInterfaceSqlitePrivate *iface_priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (iface);
+
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_QUERY_ERROR,
+			             "%s", sqlite3_errmsg (iface_priv->db));
 		}
 
 		priv->finished = (result != SQLITE_ROW);
