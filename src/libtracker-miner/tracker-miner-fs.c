@@ -718,7 +718,7 @@ miner_started (TrackerMiner *miner)
 
 	g_object_set (miner,
 	              "progress", 0.0,
-	              "status", _("Initializing"),
+	              "status", "Initializing",
 	              NULL);
 
 	crawl_directories_start (fs);
@@ -729,7 +729,7 @@ miner_stopped (TrackerMiner *miner)
 {
 	g_object_set (miner,
 	              "progress", 1.0,
-	              "status", _("Idle"),
+	              "status", "Idle",
 	              NULL);
 }
 
@@ -883,7 +883,7 @@ process_stop (TrackerMinerFS *fs)
 
 	g_object_set (fs,
 	              "progress", 1.0,
-	              "status", _("Idle"),
+	              "status", "Idle",
 	              NULL);
 
 	g_signal_emit (fs, signals[FINISHED], 0,
@@ -1997,10 +1997,10 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 
 	g_object_get (fs, "status", &status, NULL);
 
-	if (g_strcmp0 (status, _("Processing files")) != 0) {
+	if (g_strcmp0 (status, "Processing…") != 0) {
 		/* Don't spam this */
-		g_message ("Processing files...");
-		g_object_set (fs, "status", _("Processing files"), NULL);
+		g_message ("Processing…");
+		g_object_set (fs, "status", "Processing…", NULL);
 	}
 
 	g_free (status);
@@ -2553,9 +2553,9 @@ crawl_directories_cb (gpointer user_data)
 	path = g_file_get_path (fs->private->current_directory->file);
 
 	if (fs->private->current_directory->recurse) {
-		str = g_strdup_printf (_("Crawling recursively directory '%s'"), path);
+		str = g_strdup_printf ("Crawling recursively directory '%s'", path);
 	} else {
-		str = g_strdup_printf (_("Crawling single directory '%s'"), path);
+		str = g_strdup_printf ("Crawling single directory '%s'", path);
 	}
 
 	g_message ("%s", str);

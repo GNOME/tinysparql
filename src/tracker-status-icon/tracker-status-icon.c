@@ -384,7 +384,7 @@ status_icon_miner_progress_set (MinerMenuEntry *entry)
 	gtk_label_set_text (GTK_LABEL (entry->progress_percentage), progress_str);
 	g_free (progress_str);
 
-	gtk_widget_set_tooltip_text (entry->box, entry->status);
+	gtk_widget_set_tooltip_text (entry->box, _(entry->status));
 }
 
 static void

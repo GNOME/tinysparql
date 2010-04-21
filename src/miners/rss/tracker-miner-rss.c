@@ -253,7 +253,7 @@ change_status (FeedsPool   *pool,
 	           avail);
 
 	prog = ((gdouble) priv->now_fetching) / ((gdouble) avail);
-	g_object_set (miner, "progress", prog, "status", _("Fetching..."), NULL);
+	g_object_set (miner, "progress", prog, "status", "Fetching…", NULL);
 }
 
 static void
