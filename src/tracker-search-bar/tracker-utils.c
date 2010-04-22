@@ -99,7 +99,7 @@ tracker_regex_match (TrackerRegExType  type,
 	gint       offset = 0;
 	gint       i;
 
-	g_return_val_if_fail (type >= 0 || type <= TRACKER_REGEX_ALL, 0);
+	g_return_val_if_fail (type <= TRACKER_REGEX_ALL, 0);
 
 	regex_init ();
 
