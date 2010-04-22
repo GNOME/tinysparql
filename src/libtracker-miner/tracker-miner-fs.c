@@ -1374,7 +1374,7 @@ item_remove (TrackerMinerFS *fs,
              GFile          *file)
 {
 	GString *sparql;
-	gchar *uri, *slash_uri;
+	gchar *uri;
 	gchar *mime = NULL;
 	ProcessData *data;
 
@@ -1395,12 +1395,6 @@ item_remove (TrackerMinerFS *fs,
 
 	g_free (mime);
 
-	if (!g_str_has_suffix (uri, "/")) {
-		slash_uri = g_strconcat (uri, "/", NULL);
-	} else {
-		slash_uri = g_strdup (uri);
-	}
-
 	sparql = g_string_new ("");
 
 	/* Delete all children */
@@ -1409,9 +1403,9 @@ item_remove (TrackerMinerFS *fs,
 	                        "  ?child a rdfs:Resource "
 	                        "} WHERE {"
 	                        "  ?child nie:url ?u . "
-	                        "  FILTER (fn:starts-with (?u, \"%s\")) "
+	                        "  FILTER (tracker:uri-is-descendant (\"%s\", ?u)) "
 	                        "}",
-	                        slash_uri);
+	                        uri);
 
 	/* Delete resource itself */
 	g_string_append_printf (sparql,
@@ -1432,7 +1426,6 @@ item_remove (TrackerMinerFS *fs,
 	                                    data);
 
 	g_string_free (sparql, TRUE);
-	g_free (slash_uri);
 	g_free (uri);
 
 	return FALSE;
