@@ -25,10 +25,18 @@ import random
 import configuration
 import commands
 import signal
+import shutil
+from dbus.mainloop.glib import DBusGMainLoop
+import gobject
 
 TRACKER = 'org.freedesktop.Tracker1'
 TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
 RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
+
+MINER = "org.freedesktop.Tracker1.Miner.Files"
+MINER_OBJ = "/org/freedesktop/Tracker1/Miner/Files"
+MINER_IFACE = "org.freedesktop.Tracker1.Miner"
+
 
 target = configuration.check_target()
 print target
@@ -53,13 +61,49 @@ if not pid:
 	os.system(tracker_wb + ' -v 3 &')
 	time.sleep(5)
 
-def copy_file():
-	src = configuration.VCS_TEST_DATA_IMAGES + configuration.TEST_IMAGE
-	dest = dir_path
-	print 'Copying '+src+' to '+dest
-	commands.getoutput('cp '+src + ' '+dest)
 
-def create_file_list_in_dir() :
+
+class TDCopy():
+
+    def miner_processing_cb (self,status,handle):
+        print "GOT PROGRESS FROM MINER"
+
+        if (status == "Processing Files") :
+            print "Miner started"
+        elif (status == "Idle" ):
+            """if the string is "Idle" quit the loop """
+            print "Miner Idle"
+            self.loop.quit()
+        else :
+            print "No specific Signal"
+
+
+    def set_test_data(self):
+
+        bus = dbus.SessionBus()
+        tracker = bus.get_object(TRACKER, TRACKER_OBJ)
+        self.resources = dbus.Interface (tracker,
+                        dbus_interface=RESOURCES_IFACE)
+
+        miner_obj= bus.get_object(MINER,MINER_OBJ)
+        self.miner=dbus.Interface (miner_obj,dbus_interface=MINER_IFACE)
+
+
+        self.loop = gobject.MainLoop()
+        self.dbus_loop = DBusGMainLoop(set_as_default=True)
+        self.bus = dbus.SessionBus (self.dbus_loop)
+
+	self.bus.add_signal_receiver (self.miner_processing_cb,
+                                  signal_name="Progress",
+                                  dbus_interface=MINER_IFACE,
+                                  path=MINER_OBJ)
+
+
+    def copy_file(src, dest):
+	shutil.copy2( src, dest)
+	self.loop.run()
+
+    def create_file_list_in_dir(self) :
 	"""
 	1. create a test directory
 	2. copy images to test directory
@@ -68,7 +112,14 @@ def create_file_list_in_dir() :
 
 	commands.getoutput('mkdir ' + dir_path)
 
-	copy_file()
+	src = configuration.TEST_DATA_IMAGES + configuration.TEST_IMAGE
+	print src
+
+	self.set_test_data()
+
+	#self.copy_file (src, dir_path)
+        shutil.copy2( src, dir_path)
+        self.loop.run()
 
         fileList = []
         dirpathList = []
@@ -79,8 +130,11 @@ def create_file_list_in_dir() :
 
         return fileList
 
-""" get the list of files present in the test data directory """
-file_list = create_file_list_in_dir()
+
+""" prepare the test data and get the list of files present in the test data directory """
+tdcpy = TDCopy()
+file_list = tdcpy.create_file_list_in_dir()
+
 
 
 class TestWriteback (unittest.TestCase):
@@ -90,6 +144,31 @@ class TestWriteback (unittest.TestCase):
                 tracker = bus.get_object(TRACKER, TRACKER_OBJ)
                 self.resources = dbus.Interface (tracker,
                                                  dbus_interface=RESOURCES_IFACE)
+
+                self.loop = gobject.MainLoop()
+		self.dbus_loop=DBusGMainLoop(set_as_default=True)
+                self.bus = dbus.SessionBus (self.dbus_loop)
+
+                self.bus.add_signal_receiver (self.writeback_started,
+					      signal_name="Writeback",
+					      dbus_interface=RESOURCES_IFACE,
+					      path=TRACKER_OBJ)
+
+                self.bus.add_signal_receiver (self.writeback_ends,
+					      signal_name="Progress",
+					      dbus_interface=MINER_IFACE,
+					      path=MINER_OBJ)
+
+        def writeback_started (self, subject) :
+               print "Writeback is started"
+
+	def writeback_ends (self, status, handle) :
+	       if status == "Processing Files" :
+		   print "Writeback in Process"
+	       elif status == "Idle" :
+                   print "Writeback is Done"
+		   self.loop.quit()
+
 
 
         def sparql_update(self,query):
@@ -130,7 +209,12 @@ class writeback(TestWriteback):
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
+
+			start  = time.time ()
                 	self.sparql_update (insert)
+			self.loop.run()
+			elapse = time.time ()-start
+			print "===== Writeback is completed in %s secs ======== " %elapse
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nie:description')
@@ -184,6 +268,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nie:copyright')
@@ -230,6 +315,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nie:title')
@@ -276,6 +362,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nie:contentCreated')
@@ -323,6 +410,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nao:prefLabel')
@@ -369,6 +457,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nco:fullname')
@@ -413,6 +502,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nco:fullname')
@@ -457,6 +547,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:camera')
@@ -502,6 +593,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:exposureTime')
@@ -547,6 +639,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:fnumber')
@@ -593,6 +686,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:flash')
@@ -638,6 +732,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:flash')
@@ -684,6 +779,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:focalLength')
@@ -729,6 +825,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:isoSpeed')
@@ -774,6 +871,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:meteringMode')
@@ -819,6 +917,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:whiteBalance')
@@ -864,6 +963,7 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
+			self.loop.run()
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep mlo:*')
