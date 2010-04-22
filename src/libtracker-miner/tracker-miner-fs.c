@@ -2169,11 +2169,12 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 			/* Cache is still valid */
 			g_object_unref (parent);
 			return;
-		} else {
-			g_object_unref (fs->private->current_parent);
-			fs->private->current_parent = parent;
 		}
+
+		g_object_unref (fs->private->current_parent);
 	}
+
+	fs->private->current_parent = parent;
 
 	g_hash_table_remove_all (fs->private->mtime_cache);
 
