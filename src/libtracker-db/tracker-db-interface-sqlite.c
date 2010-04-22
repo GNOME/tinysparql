@@ -800,40 +800,17 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 	TrackerDBInterfaceSqlitePrivate *priv;
 	TrackerDBResultSet *result_set = NULL;
 	gint columns, result;
-	gboolean interrupted = FALSE;
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (interface);
 	columns = sqlite3_column_count (stmt);
 	result = SQLITE_OK;
 
 	while (result == SQLITE_OK  ||
-	       result == SQLITE_ROW ||
-	       result == SQLITE_INTERRUPT) {
+	       result == SQLITE_ROW) {
 
 		result = sqlite3_step (stmt);
 
 		switch (result) {
-		case SQLITE_INTERRUPT:
-
-			/* Apparently it's not sufficient that you sqlite3_reset a stmt
-			 * once it got interrupted. Apparently you need to continue reading
-			 * it using sqlite3_step() until that returns SQLITE_OK.
-			 *
-			 * A way to reproduce this issue is by using tracker-search with a
-			 * query that matches at least one resource. Then set a break point
-			 * in gdb on fulltextFilter. When the breakpoint hits, wait for a 
-			 * minute for watchdog_cb to happen. When you cont this case should
-			 * happen here. Without the SQLITE_INTERRUPT in the while expression
-			 * above sqlite3_reset() would be the only thing that happens (like
-			 * the case of SQLITE_ERROR). But then the stmt is left in such a
-			 * state that each subsequent use of it immediately returns the 
-			 * SQLITE_INTERRUPT again. If we "read-away" the stmt with
-			 * sqlite3_step(), then this doesn't happen.
-			 **/
-
-			sqlite3_reset (stmt);
-			interrupted = TRUE;
-			break;
 		case SQLITE_ERROR:
 			sqlite3_reset (stmt);
 			break;
@@ -849,7 +826,7 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 		}
 	}
 
-	if (result != SQLITE_DONE || interrupted) {
+	if (result != SQLITE_DONE) {
 		g_hash_table_foreach (priv->statements, foreach_print_error, stmt);
 
 		/* This is rather fatal */
@@ -881,7 +858,7 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 			             TRACKER_DB_INTERFACE_ERROR,
 			             TRACKER_DB_QUERY_ERROR,
 			             "%s",
-			             interrupted ? "Interrupted" : sqlite3_errmsg (priv->db));
+			             sqlite3_errmsg (priv->db));
 		}
 
 		/* If there was an error, result set may be invalid or incomplete */
