@@ -1,3 +1,67 @@
+NEW in 0.8.3 - 2010-04-22
+=========================
+
+Improvements / New:
+
+  General:
+  * Fix build failures on none Linux platforms
+
+  Ontology:
+  * nfo:isContentEncrypted was defined in nmm, not nfo
+
+  Functional Tests:
+  * Added videos to the data generation
+  * Added test set configuration for maximum values
+  * Added full text queries
+  * Added basic file operations for miner-fs and desktop environments
+
+  libtracker-db:
+  * Support O_LARGEFILE when using g_open for the journal
+
+  libtracker-data:
+  * Fixed memory leak on journal replay
+
+  libtracker-miner:
+  * Don't translate statuses
+
+  libtracker-extract:
+  * Don't run past an array in XMP tests
+
+  tracker-extract:
+  * Set nfo:isContentEncrypted for encrypted docs
+  * Improve <script> bypassing.
+
+  tracker-sparql:
+  * Fixed typo in man page for command line args
+
+  tracker-status:
+  * Added --list-common-statuses option
+
+  tracker-control:
+  * Added --reindex-mime-type and --start options to man page docs
+
+Bugs:
+
+  * GB#615856 - add html content extraction
+  * GB#615868 - Improved OASIS extractor
+  * GB#616165 - Improved reading PS and PS-GZ files
+  * GB#615948 - Improved reading msoffice/xml files
+  * GB#616403 - Improve & fix reading msoffice/powerpoint files
+  * GB#616329 - Improve and fix reading msoffice/excel files
+  * GB#616158 - Improve reading msoffice files
+  * NB#161964 - Some special audio files are not displayed in the Music & Radio application after copying to device using USB networking.
+
+Translations:
+
+  * Updated es: Jorge González
+  * Updated sl: Andrej Žnidaršič
+  * Updated de: Christian Kirbach
+
+Notes:
+
+  None
+
+
 NEW in 0.8.2 - 2010-04-15
 =========================
 
