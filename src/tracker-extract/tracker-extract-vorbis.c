@@ -35,7 +35,7 @@
 #include <libtracker-extract/tracker-extract.h>
 
 typedef struct {
-	gchar *creator;
+	const gchar *creator;
 } MergeData;
 
 typedef struct {
@@ -106,7 +106,7 @@ extract_vorbis (const char *uri,
 	MergeData md = { 0 };
 	FILE *f;
 	gchar *filename;
-	OggVorbis_File  vf;
+	OggVorbis_File vf;
 	vorbis_comment *comment;
 	vorbis_info *vi;
 	unsigned int bitrate;
@@ -181,7 +181,6 @@ extract_vorbis (const char *uri,
 		tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
 		tracker_sparql_builder_object_unvalidated (preupdate, md.creator);
 		tracker_sparql_builder_insert_close (preupdate);
-		g_free (md.creator);
 
 		tracker_sparql_builder_predicate (metadata, "nmm:performer");
 		tracker_sparql_builder_object_iri (metadata, uri);
