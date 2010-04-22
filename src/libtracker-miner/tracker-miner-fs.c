@@ -1123,7 +1123,7 @@ static void
 ensure_iri_cache (TrackerMinerFS *fs,
                   GFile          *parent)
 {
-	gchar *query, *uri, *slash_uri;
+	gchar *query, *uri;
 	CacheQueryData data;
 
 	g_hash_table_remove_all (fs->private->iri_cache);
@@ -1132,18 +1132,12 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	g_debug ("Generating IRI cache for folder: %s", uri);
 
-	if (g_str_has_suffix (uri, "/")) {
-		slash_uri = uri;
-	} else {
-		slash_uri = g_strconcat (uri, "/", NULL);
-		g_free (uri);
-	}
-
 	query = g_strdup_printf ("SELECT ?uri ?u { "
 	                         "  ?u nie:url ?uri . "
 	                         "  FILTER (tracker:uri-is-parent (\"%s\", ?uri)) "
 	                         "}",
-	                         slash_uri);
+	                         uri);
+	g_free (uri);
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.values = g_hash_table_ref (fs->private->iri_cache);
@@ -1158,8 +1152,6 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
-
-	g_free (slash_uri);
 }
 
 static const gchar *
@@ -1599,15 +1591,13 @@ item_update_children_uri (TrackerMinerFS    *fs,
                           const gchar       *source_uri,
                           const gchar       *uri)
 {
-	gchar *slash_uri, *sparql;
-
-	slash_uri = g_strconcat (source_uri, "/", NULL);
+	gchar *sparql;
 
 	sparql = g_strdup_printf ("SELECT ?child ?url nie:mimeType(?child) WHERE { "
 				  "  ?child nie:url ?url . "
                                   "  FILTER (tracker:uri-is-descendant (\"%s\", ?uri)) "
 				  "}",
-				  slash_uri);
+				  uri);
 
 	tracker_miner_execute_sparql (TRACKER_MINER (fs),
 	                              sparql,
@@ -1615,7 +1605,6 @@ item_update_children_uri (TrackerMinerFS    *fs,
 	                              item_update_children_uri_cb,
 	                              move_data);
 
-	g_free (slash_uri);
 	g_free (sparql);
 }
 
@@ -2169,7 +2158,7 @@ static void
 ensure_mtime_cache (TrackerMinerFS *fs,
                     GFile          *file)
 {
-	gchar *query, *uri, *slash_uri;
+	gchar *query, *uri;
 	CacheQueryData data;
 	GFile *parent;
 
@@ -2199,19 +2188,13 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_debug ("Generating mtime cache for folder: %s", uri);
 
-	if (g_str_has_suffix (uri, "/")) {
-		slash_uri = uri;
-	} else {
-		slash_uri = g_strconcat (uri, "/", NULL);
-		g_free (uri);
-	}
-
 	query = g_strdup_printf ("SELECT ?uri ?time { "
 	                         "  ?u nfo:fileLastModified ?time ; "
 	                         "     nie:url ?uri . "
 	                         "  FILTER (tracker:uri-is-parent (\"%s\", ?uri)) "
 	                         "}",
-	                         slash_uri);
+	                         uri);
+	g_free (uri);
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.values = g_hash_table_ref (fs->private->mtime_cache);
@@ -2226,8 +2209,6 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
-
-	g_free (slash_uri);
 }
 
 static gboolean
