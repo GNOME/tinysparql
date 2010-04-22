@@ -2125,7 +2125,7 @@ parse_xml_contents (const gchar *file_uri,
 {
 	gchar *filename;
 	GError *error = NULL;
-	GsfInfile *infile = NULL;;
+	GsfInfile *infile = NULL;
 	GsfInput *src = NULL;
 	GsfInput *member = NULL;
 
