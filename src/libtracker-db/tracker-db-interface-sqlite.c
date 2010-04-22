@@ -253,17 +253,29 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 	}
 
 	if (strncmp (uri, parent, parent_len) == 0 && uri[parent_len] == '/') {
+		const gchar *slash;
+
 		while (uri[parent_len] == '/') {
 			parent_len++;
 		}
 
 		remaining = &uri[parent_len];
 
-		if (strchr (remaining, '/') == NULL) {
+		if (*remaining == '\0') {
+			/* Exact match, not a child */
+			match = FALSE;
+		} else if ((slash = strchr (remaining, '/')) == NULL) {
 			/* Remaining doesn't have uri
 			 * separator, it's a direct child.
 			 */
 			match = TRUE;
+		} else {
+			/* Check it's not trailing slashes */
+			while (*slash == '/') {
+				slash++;
+			}
+
+			match = (*slash == '\0');
 		}
 	}
 
