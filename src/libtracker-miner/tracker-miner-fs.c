@@ -1103,7 +1103,7 @@ cache_query_cb (GObject	     *object,
 	g_main_loop_quit (data->main_loop);
 
 	if (G_UNLIKELY (error)) {
-		g_critical ("Could not execute cache query: %s\n", error->message);
+		g_critical ("Could not execute cache query: %s", error->message);
 		g_error_free (error);
 		return;
 	}
@@ -1130,7 +1130,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	uri = g_file_get_uri (parent);
 
-	g_debug ("Generating IRI cache for folder: %s\n", uri);
+	g_debug ("Generating IRI cache for folder: %s", uri);
 
 	if (g_str_has_suffix (uri, "/")) {
 		slash_uri = uri;
@@ -2197,7 +2197,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	uri = g_file_get_uri (parent);
 
-	g_debug ("Generating mtime cache for folder: %s\n", uri);
+	g_debug ("Generating mtime cache for folder: %s", uri);
 
 	if (g_str_has_suffix (uri, "/")) {
 		slash_uri = uri;
