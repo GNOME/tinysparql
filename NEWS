@@ -48,6 +48,7 @@ Improvements / New:
   tracker-extract:
   * Set nfo:isContentEncrypted for encrypted docs
   * Improve <script> bypassing.
+  * Fixed double free in Vorbis extractor
 
   tracker-sparql:
   * Fixed typo in man page for command line args
