@@ -245,6 +245,14 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 		return;
 	}
 
+	/* Check only one argument, it's going to
+	 * be compared with the other anyway.
+	 */
+	if (strstr (parent, "://") == NULL) {
+		sqlite3_result_int (context, FALSE);
+		return;
+	}
+
 	parent_len = strlen (parent);
 
 	/* Remove trailing '/', will
@@ -303,6 +311,14 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 
 	if (!parent || !uri) {
 		sqlite3_result_error (context, "Invalid arguments", -1);
+		return;
+	}
+
+	/* Check only one argument, it's going to
+	 * be compared with the other anyway.
+	 */
+	if (strstr (parent, "://") == NULL) {
+		sqlite3_result_int (context, FALSE);
 		return;
 	}
 
