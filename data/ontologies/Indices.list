@@ -21,6 +21,10 @@
   - For use cases where fts:match needs to be done against the postal address
   in addition to the class itself
 
+33-nfo:
+* nfo:fileLastModified:
+  - The miner-fs uses this property during crawling a lot
+
 34-nmo:
 * nmo:sender:
   - ?
