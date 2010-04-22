@@ -2182,17 +2182,17 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	parent = g_file_get_parent (file);
 
-	if (fs->private->current_parent &&
-	    g_file_equal (parent, fs->private->current_parent)) {
-		g_object_unref (parent);
-		return;
-	}
-
 	if (fs->private->current_parent) {
-		g_object_unref (fs->private->current_parent);
+		if (g_file_equal (parent, fs->private->current_parent)) {
+			/* Cache is still valid */
+			g_object_unref (parent);
+			return;
+		} else {
+			g_object_unref (fs->private->current_parent);
+			fs->private->current_parent = parent;
+		}
 	}
 
-	fs->private->current_parent = parent;
 	g_hash_table_remove_all (fs->private->mtime_cache);
 
 	uri = g_file_get_uri (parent);
