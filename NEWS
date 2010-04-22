@@ -22,6 +22,8 @@ Improvements / New:
   * Added test set configuration for maximum values
   * Added full text queries
   * Added basic file operations for miner-fs and desktop environments
+  * Added file operation tests for multilevel subfolders
+  * Fixed writeback tests to wait for signal before testing extraction
 
   libtracker-db:
   * Support O_LARGEFILE when using g_open for the journal
@@ -33,6 +35,7 @@ Improvements / New:
 
   libtracker-miner:
   * Don't translate statuses
+  * Improve crawling queries (3693 dirs, 27678 files, was 651s, now 166s)
 
   libtracker-extract:
   * Don't run past an array in XMP tests
