@@ -180,10 +180,10 @@ static symbol s_6_3[5] = { 'i', 'c', 'i', 't', 'i' };
 static symbol s_6_4[4] = { 'i', 'c', 'a', 'l' };
 static symbol s_6_5[6] = { 't', 'i', 'o', 'n', 'a', 'l' };
 static symbol s_6_6[7] = { 'a', 't', 'i', 'o', 'n', 'a', 'l' };
-static symbol s_6_7[3] = { 'f', 'u', 'l' };
+/* static symbol s_6_7[3] = { 'f', 'u', 'l' }; */
 static symbol s_6_8[4] = { 'n', 'e', 's', 's' };
 
-static struct among a_6[9] =
+static struct among a_6[8] =
 {
 /*  0 */ { 5, s_6_0, -1, 4, 0},
 /*  1 */ { 5, s_6_1, -1, 6, 0},
@@ -192,7 +192,9 @@ static struct among a_6[9] =
 /*  4 */ { 4, s_6_4, -1, 4, 0},
 /*  5 */ { 6, s_6_5, -1, 1, 0},
 /*  6 */ { 7, s_6_6, 5, 2, 0},
-/*  7 */ { 3, s_6_7, -1, 5, 0},
+/* I removed this because it was causing a bug on searching for the term
+ * "beautiful" using "beautif*" in tracker-fts.c */
+/* *  7 * { 3, s_6_7, -1, 5, 0}, */
 /*  8 */ { 4, s_6_8, -1, 5, 0}
 };
 
@@ -806,7 +808,7 @@ static int r_Step_2(struct SN_env * z) {
 static int r_Step_3(struct SN_env * z) {
     int among_var;
     z->ket = z->c; /* [, line 126 */
-    among_var = find_among_b(z, a_6, 9); /* substring, line 126 */
+    among_var = find_among_b(z, a_6, 8); /* substring, line 126 */
     if (!(among_var)) return 0;
     z->bra = z->c; /* ], line 126 */
     {	int ret = r_R1(z);
