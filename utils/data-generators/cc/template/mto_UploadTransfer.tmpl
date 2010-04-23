@@ -1,6 +1,6 @@
-<${upload_uri}> a mto:UploadTransfer ;
-  mto:transferState  <${upload_state}> ;
-  mto:method         <${upload_method}> ;
-  mto:created        "${upload_created}" ;
-${upload_transfers}  
-  mto:account        "${upload_account}" .
+<%(upload_uri)s> a mto:UploadTransfer ;
+  mto:transferState  <%(upload_state)s> ;
+  mto:method         <%(upload_method)s> ;
+  mto:created        "%(upload_created)s" ;
+%(upload_transfers)s
+  mto:account        "%(upload_account)s" .

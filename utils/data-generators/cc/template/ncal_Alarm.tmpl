@@ -1,7 +1,7 @@
-<${alarm_uri}> a ncal:Alarm; 
+<%(alarm_uri)s> a ncal:Alarm; 
     ncal:action      ncal:emailAction; 
-    ncal:repeat      "${alarm_repeat}"; 
-    ncal:duration    "${alarm_duration}"; 
-    ncal:trigger [ a ncal:Trigger; ncal:triggerDateTime "${alarm_trigger_date}" ]; 
-    ncal:summary     "${alarm_subject}"; 
-    ncal:description "${alarm_description}" . 
+    ncal:repeat      "%(alarm_repeat)s"; 
+    ncal:duration    "%(alarm_duration)s"; 
+    ncal:trigger [ a ncal:Trigger; ncal:triggerDateTime "%(alarm_trigger_date)s" ]; 
+    ncal:summary     "%(alarm_subject)s"; 
+    ncal:description "%(alarm_description)s" . 

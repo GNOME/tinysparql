@@ -94,23 +94,23 @@ def create_city_state_zip(zip_code=None):
 def create_sentence(min=4, max=15):
     sentence = []
     sentence.append(string.capitalize(random.choice(latin_words)))
-    for word in range(1, random.randint(min, max-1)):
+    for word in xrange(1, random.randint(min, max-1)):
         sentence.append(random.choice(latin_words))
-    return " ".join(sentence) + "."
+    return ' '.join(sentence) + '.'
 
 def create_paragraphs(num=1, min_sentences=4, max_sentences=7):
     paragraphs = []
-    for para in range(0, num):
-        for sentence in range(1, random.randint(min_sentences, max_sentences)):
+    for para in xrange(0, num):
+        for sentence in xrange(1, random.randint(min_sentences, max_sentences)):
             paragraphs.append(create_sentence()+" ")
         paragraphs.append("\n\n")
     return "".join(paragraphs)
 
 def create_text(min_sentences=4, max_sentences=10):
     text = []
-    for sentence in range(1, random.randint(min_sentences, max_sentences)):
-        text.append(create_sentence()+" ")
-    return "".join(text)
+    for sentence in xrange(1, random.randint(min_sentences, max_sentences)):
+        text.append(create_sentence())
+    return ' '.join(text)
 
 def create_date(numeric=True, past=False, max_years_future=10, max_years_past=10):
     """
@@ -151,7 +151,7 @@ def create_company_name(biz_type=None):
                      random.choice(last_names))
         name.append('LLP')
     else:
-        for i in range(1,random.randint(2,4)):
+        for i in xrange(1,random.randint(2,4)):
             rand_name = random.choice(company_names)
             if rand_name not in name:
                 name.append(rand_name)

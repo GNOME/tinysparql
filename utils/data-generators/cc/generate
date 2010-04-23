@@ -70,7 +70,7 @@ print "Loaded", templates_count, "templates"
 
 print "Generating Contacts",
 count_contacts = config.getint('counts','contacts')
-for contact in range(1, count_contacts+1):
+for contact in xrange(1, count_contacts+1):
   if (contact % 10 == 0):
     sys.stdout.write('.')
     sys.stdout.flush()
@@ -84,30 +84,30 @@ print "Generate Emails",
 count_accounts = config.getint('counts','accounts')
 count_folders = config.getint('counts','folders')
 count_emails = config.getint('counts','emails')
-for account in range(1, count_accounts+1):
+for account in xrange(1, count_accounts+1):
   sys.stdout.write('.')
   sys.stdout.flush()
   nmo.generateMailAccount( account*count_folders*count_emails )
-  for folder in range(1, count_folders+1):
+  for folder in xrange(1, count_folders+1):
     nmo.generateMailFolder( account*count_folders*count_emails+folder*count_emails )
-    for email in range(1, count_emails+1):
+    for email in xrange(1, count_emails+1):
       nmo.generateEmail( account*count_folders*count_emails+folder*count_emails+email )
 print "Done"
 
 print "Generate IM messages",
 count_comchans = config.getint('counts','comchans')
 count_ims = config.getint('counts','ims')
-for comchannel in range(1, count_comchans+1):
+for comchannel in xrange(1, count_comchans+1):
   sys.stdout.write('.')
   sys.stdout.flush()
   nmo.generateCommunicationChannel( comchannel )
-  for im in range(1, count_ims+1):
+  for im in xrange(1, count_ims+1):
     nmo.generateIMMessage( comchannel*count_ims+im )
 print "Done"
 
 print "Generate SMS messages",
 count_sms = config.getint('counts','sms')
-for sms in range(1, count_sms+1):
+for sms in xrange(1, count_sms+1):
   if (sms % 10 == 0):
     sys.stdout.write('.')
     sys.stdout.flush()
@@ -116,7 +116,7 @@ print "Done"
 
 print "Generate calls",
 count_calls = config.getint('counts','calls')
-for call in range(1, count_calls+1):
+for call in xrange(1, count_calls+1):
   if (call % 10 == 0):
     sys.stdout.write('.')
     sys.stdout.flush()
@@ -127,7 +127,7 @@ print "* Starting with file system based content"
 
 print "Generate volumes",
 count_volumes = config.getint('counts','volumes')
-for volume in range(1, count_volumes+1):
+for volume in xrange(1, count_volumes+1):
   sys.stdout.write('.')
   sys.stdout.flush()
   tracker.generateVolume( volume )
@@ -137,19 +137,19 @@ print "Generating Music",
 count_artists = config.getint('counts','artists')
 count_albums = config.getint('counts','albums')
 count_songs = config.getint('counts','songs')
-for artist in range(1, count_artists+1):
+for artist in xrange(1, count_artists+1):
   sys.stdout.write('.')
   sys.stdout.flush()
   nmm.generateArtist( artist*count_albums*count_songs )
-  for album in range(1, count_albums+1):
+  for album in xrange(1, count_albums+1):
     nmm.generateAlbum( artist*count_albums*count_songs+album )
-    for song in range(1, count_songs+1):
+    for song in xrange(1, count_songs+1):
       nmm.generateMusicPiece( artist*count_albums*count_songs+album*count_songs+song )
 print "Done"
 
 print "Generate Photos",
 count_images = config.getint('counts','images')
-for photo in range(1, count_images+1):
+for photo in xrange(1, count_images+1):
   if (photo % 10 == 0):
     sys.stdout.write('.')
     sys.stdout.flush()
@@ -158,7 +158,7 @@ print "Done"
 
 print "Generate Videos",
 count_videos = config.getint('counts','videos')
-for video in range(1, count_videos+1):
+for video in xrange(1, count_videos+1):
   if (video % 10 == 0):
     sys.stdout.write('.')
     sys.stdout.flush()
@@ -167,7 +167,7 @@ print "Done"
 
 print "Generate plain text documents",
 count_docs = config.getint('counts','docs')
-for doc in range(1, count_docs+1):
+for doc in xrange(1, count_docs+1):
   if (doc % 10 == 0):
     sys.stdout.write('.')
     sys.stdout.flush()
@@ -177,28 +177,28 @@ print "Done"
 print "Generate feeds",
 count_fchans = config.getint('counts','fchans')
 count_fms = config.getint('counts','fms')
-for fchan in range(1, count_fchans+1):
+for fchan in xrange(1, count_fchans+1):
   sys.stdout.write('.')
   sys.stdout.flush()
   mfo.generateFeedChannel( fchan*count_fms )
-  for fm in range(1, count_fms+1):
+  for fm in xrange(1, count_fms+1):
     mfo.generateFeedMessage( fchan*count_fms+fm )
 print "Done"
 
 print "Generate software",
 count_softcats = config.getint('counts','softcats')
 count_softapps = config.getint('counts','softapps')
-for softcat in range(1, count_softcats+1):
+for softcat in xrange(1, count_softcats+1):
   sys.stdout.write('.')
   sys.stdout.flush()
   nfo.generateSoftwareCategory( softcat*count_softapps )
-  for softapp in range(1, count_softapps+1):
+  for softapp in xrange(1, count_softapps+1):
     nfo.generateSoftwareApplication( softcat*count_softapps+softapp )
 print "Done"
 
 print "Generate something for the rest",
 count_others = config.getint('counts','others')
-for index in range(1,count_others+1):
+for index in xrange(1,count_others+1):
   if (index % 10 == 0):
     sys.stdout.write('.')
     sys.stdout.flush()

@@ -1,8 +1,8 @@
-<${contact_uri}> a nco:PersonContact;
-    nco:fullname         "${contact_name_given} ${contact_name_family}";
-    nco:nameGiven        "${contact_name_given}";
-    nco:nameFamily       "${contact_name_family}";
-    nco:birthDate        "${contact_birth_date}";
-    nco:hasEmailAddress   ${email_address_uri};
-    nco:hasPhoneNumber    ${phonenumber_uri};
-    nco:hasPostalAddress  ${postal_address_uri} .
+<%(contact_uri)s> a nco:PersonContact;
+    nco:fullname         "%(contact_name_given)s %(contact_name_family)s";
+    nco:nameGiven        "%(contact_name_given)s";
+    nco:nameFamily       "%(contact_name_family)s";
+    nco:birthDate        "%(contact_birth_date)s";
+    nco:hasEmailAddress   %(email_address_uri)s;
+    nco:hasPhoneNumber    %(phonenumber_uri)s;
+    nco:hasPostalAddress  %(postal_address_uri)s .

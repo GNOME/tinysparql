@@ -5,45 +5,41 @@ import gen_data as gen
 
 ####################################################################################
 def generateMailAccount(index):
+  me = 'nmo#MailAccount'
   account_uri              = 'qmf://groove.nokia.com/accounts#%d' % index
   account_from_address_uri = '<from:%d>' % index
   account_name             = 'Account %d' % (index % 1000)
   account_signature        = 'Signature %d' % (index % 1000)
 
   # save the last uri
-  tools.addUri( 'nmo#MailAccount', account_uri )
+  tools.addUri( me, account_uri )
 
   # subsitute into template
-  account = tools.getTemplate( 'nmo#MailAccount' )
-  account = account.replace( '${account_uri}', account_uri )
-  account = account.replace( '${account_from_address_uri}', account_from_address_uri )
-  account = account.replace( '${account_name}', account_name )
-  account = account.replace( '${account_signature}', account_signature )
+  account = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmo#MailAccount', account )
+  tools.addResult( me, account % locals() )
 
 
 ####################################################################################
 def generateMailFolder(index):
+  me = 'nmo#MailFolder'
   mailfolder_uri     = 'qmf://groove.nokia.com/folder#%d' % index
   mailfolder_account = '<%s>' % tools.getRandomUri( 'nmo#MailAccount' )
   mailfolder_name    = 'Folder %d' % (index % 1000)
 
   # save the last uri
-  tools.addUri( 'nmo#MailFolder', mailfolder_uri )
+  tools.addUri( me, mailfolder_uri )
 
   # subsitute into template
-  folder = tools.getTemplate( 'nmo#MailFolder' )
-  folder = folder.replace( '${mailfolder_uri}', mailfolder_uri )
-  folder = folder.replace( '${mailfolder_account}', mailfolder_account )
-  folder = folder.replace( '${mailfolder_name}', mailfolder_name )
+  folder = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmo#MailFolder', folder )
+  tools.addResult( me, folder % locals() )
 
 ####################################################################################
 def generateEmail(index):
+  me = 'nmo#Email'
   email_uri       = 'qmf://groove.nokia.com/email%d' % index
   email_mime      = 'multipart/mixed'
   email_stored_as = 'urn:uuid:XX:%d' % index
@@ -59,29 +55,17 @@ def generateEmail(index):
   email_content   = gen.create_text(2,30)
 
   # save the last uri
-  tools.addUri( 'nmo#Email', email_uri )
+  tools.addUri( me, email_uri )
 
   # subsitute into template
-  email = tools.getTemplate( 'nmo#Email' )
-  email = email.replace( '${email_uri}', email_uri )
-  email = email.replace( '${email_mime}', email_mime )
-  email = email.replace( '${email_stored_as}', email_stored_as )
-  email = email.replace( '${email_account}', email_account )
-  email = email.replace( '${email_folder}', email_folder )
-  email = email.replace( '${email_size}', email_size )
-  email = email.replace( '${email_recipient}', email_recipient )
-  email = email.replace( '${email_id}', email_id )
-  email = email.replace( '${email_subject}', email_subject )
-  email = email.replace( '${email_received}', email_received )
-  email = email.replace( '${email_sender}', email_sender )
-  email = email.replace( '${email_sent}', email_sent )
-  email = email.replace( '${email_content}', email_content )
+  email = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmo#Email', email )
+  tools.addResult( me, email % locals() )
 
 ####################################################################################
 def generateCommunicationChannel(index):
+  me = 'nmo#CommunicationChannel'
   channel_uri          = 'urn:channel:%d' % index
   channel_subject      = '/org/freedesktop/Telepathy/Account/gabble/jabber/dut_40localhost0'
   channel_date         = tools.getDateNowString()
@@ -90,22 +74,17 @@ def generateCommunicationChannel(index):
   channel_participiant = tools.getRandomUri( 'nco#PersonContact' )
 
   # save the last uri
-  tools.addUri( 'nmo#CommunicationChannel', channel_uri )
+  tools.addUri( me, channel_uri )
 
   # subsitute into template
-  channel = tools.getTemplate( 'nmo#CommunicationChannel' )
-  channel = channel.replace( '${channel_uri}', channel_uri )
-  channel = channel.replace( '${channel_subject}', channel_subject )
-  channel = channel.replace( '${channel_date}', channel_date )
-  channel = channel.replace( '${channel_modified}', channel_modified )
-  channel = channel.replace( '${channel_last_message}', channel_last_message )
-  channel = channel.replace( '${channel_participiant}', channel_participiant )
+  channel = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmo#CommunicationChannel', channel )
+  tools.addResult( me, channel % locals() )
 
 ####################################################################################
 def generateIMMessage(index):
+  me = 'nmo#IMMessage'
   immessage_uri         = 'urn:immessage:%d' % index
   immessage_content     = 'Lorem IM Ipsum %d' % index
   immessage_date        = tools.getDateNowString()
@@ -122,30 +101,17 @@ def generateIMMessage(index):
   immessage_content     = gen.create_text( 1, 2 )
 
   # save the last uri
-  tools.addUri( 'nmo#IMMessage', immessage_uri )
+  tools.addUri( me, immessage_uri )
 
   # subsitute into template
-  imm = tools.getTemplate( 'nmo#IMMessage' )
-  imm = imm.replace( '${immessage_uri}', immessage_uri )
-  imm = imm.replace( '${immessage_content}', immessage_content )
-  imm = imm.replace( '${immessage_date}', immessage_date )
-  imm = imm.replace( '${immessage_modified}', immessage_modified )
-  imm = imm.replace( '${immessage_from}', immessage_from )
-  imm = imm.replace( '${immessage_to}', immessage_to )
-  imm = imm.replace( '${immessage_draft}', immessage_draft )
-  imm = imm.replace( '${immessage_read}', immessage_read )
-  imm = imm.replace( '${immessage_sent}', immessage_sent )
-  imm = imm.replace( '${immessage_message_id}', immessage_message_id )
-  imm = imm.replace( '${immessage_received}', immessage_received )
-  imm = imm.replace( '${immessage_sent_date}', immessage_sent_date )
-  imm = imm.replace( '${immessage_channel_uri}', immessage_channel_uri )
-  imm = imm.replace( '${immessage_content}', immessage_content )
+  imm = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmo#IMMessage', imm )
+  tools.addResult( me, imm % locals() )
 
 ####################################################################################
 def generateSMSMessage(index):
+  me = 'nmo#SMSMessage'
   smsmessage_uri         = 'urn:sms:%d' % index
   smsmessage_id          = '%d' % index
   smsmessage_content     = 'Lorem SMS Ipsum %d' % index
@@ -163,31 +129,17 @@ def generateSMSMessage(index):
   smsmessage_content     = gen.create_text( 1, 5 )
 
   # save the last uri
-  tools.addUri( 'nmo#SMSMessage', smsmessage_uri )
+  tools.addUri( me, smsmessage_uri )
 
   # subsitute into template
-  sms = tools.getTemplate( 'nmo#SMSMessage' )
-  sms = sms.replace( '${smsmessage_uri}', smsmessage_uri )
-  sms = sms.replace( '${smsmessage_id}', smsmessage_id )
-  sms = sms.replace( '${smsmessage_content}', smsmessage_content )
-  sms = sms.replace( '${smsmessage_date}', smsmessage_date )
-  sms = sms.replace( '${smsmessage_modified}', smsmessage_modified )
-  sms = sms.replace( '${smsmessage_from}', smsmessage_from )
-  sms = sms.replace( '${smsmessage_to}', smsmessage_to )
-  sms = sms.replace( '${smsmessage_draft}', smsmessage_draft )
-  sms = sms.replace( '${smsmessage_read}', smsmessage_read )
-  sms = sms.replace( '${smsmessage_sent}', smsmessage_sent )
-  sms = sms.replace( '${smsmessage_message_id}', smsmessage_message_id )
-  sms = sms.replace( '${smsmessage_received}', smsmessage_received )
-  sms = sms.replace( '${smsmessage_sent_date}', smsmessage_sent_date )
-  sms = sms.replace( '${smsmessage_channel_uri}', smsmessage_channel_uri )
-  sms = sms.replace( '${smsmessage_content}', smsmessage_content )
+  sms = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmo#SMSMessage', sms )
+  tools.addResult( me, sms % locals() )
 
 ####################################################################################
 def generateCall(index):
+  me = 'nmo#Call'
   call_uri         = 'urn:call:%d' % index
   call_subject     = 'Subject %d' % index
   call_date        = tools.getDateNowString()
@@ -201,21 +153,10 @@ def generateCall(index):
   call_duration    = '%d' % ( 10 + (index % 3600) )
 
   # save the last uri
-  tools.addUri( 'nmo#Call', call_uri )
+  tools.addUri( me, call_uri )
 
   # subsitute into template
-  call = tools.getTemplate( 'nmo#Call' )
-  call = call.replace( '${call_uri}', call_uri )
-  call = call.replace( '${call_subject}', call_subject )
-  call = call.replace( '${call_date}', call_date )
-  call = call.replace( '${call_modified}', call_modified )
-  call = call.replace( '${call_from}', call_from )
-  call = call.replace( '${call_to}', call_to )
-  call = call.replace( '${call_read}', call_read )
-  call = call.replace( '${call_sent}', call_sent )
-  call = call.replace( '${call_received}', call_received )
-  call = call.replace( '${call_sent_date}', call_sent_date )
-  call = call.replace( '${call_duration}', call_duration )
+  call = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmo#Call', call )
+  tools.addResult( me, call % locals() )
