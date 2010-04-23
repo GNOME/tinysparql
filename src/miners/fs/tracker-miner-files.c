@@ -552,6 +552,15 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			uri = g_file_get_uri (file);
 
 			g_string_append_printf (queries,
+			                        "DELETE FROM <%s> { "
+			                        "  <%s> tracker:mountPoint ?u "
+			                        "} WHERE { "
+			                        "  ?u a nfo:FileDataObject; "
+			                        "     nie:url \"%s\" "
+			                        "} ",
+			                        removable_device_urn, removable_device_urn, uri);
+
+			g_string_append_printf (queries,
 			                        "DROP GRAPH <%s> "
 			                        "INSERT INTO <%s> { "
 			                        "  <%s> a tracker:Volume; "
@@ -560,7 +569,7 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			                        "  ?u a nfo:FileDataObject; "
 			                        "     nie:url \"%s\" "
 			                        "}",
-						removable_device_urn, removable_device_urn, removable_device_urn, uri);
+			                        removable_device_urn, removable_device_urn, removable_device_urn, uri);
 
 			g_object_unref (file);
 			g_free (uri);
@@ -1433,7 +1442,7 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 		                        "} WHERE { "
 		                        "  ?u a nfo:FileDataObject; "
 		                        "     nie:url \"%s\" "
-		                        "}",
+		                        "} ",
 		                        removable_device_urn, removable_device_urn, uri);
 
 		tracker_sparql_builder_append (data->sparql, queries->str);
