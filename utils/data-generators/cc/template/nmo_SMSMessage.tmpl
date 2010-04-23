@@ -1,15 +1,15 @@
-<${smsmessage_uri}> a nmo:SMSMessage;
-  nmo:smsId                  "${smsmessage_id}" ;
-  nie:plainTextContent       "${smsmessage_content}";
-  nie:informationElementDate "${smsmessage_date}";
-  nie:contentLastModified    "${smsmessage_modified}";
-  nie:plainTextContent       "${smsmessage_content}" ;
-  nmo:from                   <${smsmessage_from}>  ;
-  nmo:to                     <${smsmessage_to}>  ;
-  nmo:isDraft                "${smsmessage_draft}" ;
-  nmo:isRead                 "${smsmessage_read}" ;
-  nmo:isSent                 "${smsmessage_sent}" ;
-  nmo:messageId              "${smsmessage_message_id}" ;
-  nmo:receivedDate           "${smsmessage_received}" ;
-  nmo:sentDate               "${smsmessage_sent_date}" ;
-  nmo:communicationChannel   <${smsmessage_channel_uri}> .
+<%(smsmessage_uri)s> a nmo:SMSMessage;
+  nmo:smsId                  "%(smsmessage_id)s" ;
+  nie:plainTextContent       "%(smsmessage_content)s";
+  nie:informationElementDate "%(smsmessage_date)s";
+  nie:contentLastModified    "%(smsmessage_modified)s";
+  nie:plainTextContent       "%(smsmessage_content)s" ;
+  nmo:from                   <%(smsmessage_from)s>  ;
+  nmo:to                     <%(smsmessage_to)s>  ;
+  nmo:isDraft                "%(smsmessage_draft)s" ;
+  nmo:isRead                 "%(smsmessage_read)s" ;
+  nmo:isSent                 "%(smsmessage_sent)s" ;
+  nmo:messageId              "%(smsmessage_message_id)s" ;
+  nmo:receivedDate           "%(smsmessage_received)s" ;
+  nmo:sentDate               "%(smsmessage_sent_date)s" ;
+  nmo:communicationChannel   <%(smsmessage_channel_uri)s> .

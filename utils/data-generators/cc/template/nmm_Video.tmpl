@@ -1,14 +1,14 @@
-<${video_uri}> a nie:DataObject, nfo:FileDataObject, nfo:Media, nfo:Visual, nfo:Video, nmm:Video ;
-    nie:url              "${video_url}";
-    nie:byteSize         "${video_size}";
-    nie:contentCreated   "${video_date}";
+<%(video_uri)s> a nie:DataObject, nfo:FileDataObject, nfo:Media, nfo:Visual, nfo:Video, nmm:Video ;
+    nie:url              "%(video_url)s";
+    nie:byteSize         "%(video_size)s";
+    nie:contentCreated   "%(video_date)s";
     nie:mimeType         "video/x-msvideo";
     nfo:width            "100";
     nfo:height           "100";
-    nfo:fileLastModified "${video_date}";
-    nfo:fileLastAccessed "${video_date}";
-    nfo:fileSize         "${video_size}";
-    nfo:fileName         "${video_filename}" ;
-    nfo:sampleRate       "${video_samplerate}" ;
-    nfo:duration         "${video_duration}" ;
-    nao:hasTag           [a nao:Tag ; nao:prefLabel "${video_tag}"] .
+    nfo:fileLastModified "%(video_date)s";
+    nfo:fileLastAccessed "%(video_date)s";
+    nfo:fileSize         "%(video_size)s";
+    nfo:fileName         "%(video_filename)s" ;
+    nfo:sampleRate       "%(video_samplerate)s" ;
+    nfo:duration         "%(video_duration)s" ;
+    nao:hasTag           [a nao:Tag ; nao:prefLabel "%(video_tag)s"] .

@@ -1,14 +1,14 @@
-<${todo_uri}> a ncal:Todo, nie:DataObject;
-  ncal:uid           "${todo_uid}";
+<%(todo_uri)s> a ncal:Todo, nie:DataObject;
+  ncal:uid           "%(todo_uid)s";
   ncal:percentComplete 0;
-  ncal:summary       "${todo_summary}";
+  ncal:summary       "%(todo_summary)s";
   ncal:class         ncal:publicClassification;
   ncal:todoStatus    ncal:;
   ncal:priority      0;
-  ncal:dtstamp       "${todo_created}";
-  ncal:created       "${todo_created}";
-  ncal:lastModified  "${todo_modified}";
+  ncal:dtstamp       "%(todo_created)s";
+  ncal:created       "%(todo_created)s";
+  ncal:lastModified  "%(todo_modified)s";
   ncal:sequence       0;
-  ncal:url            <${todo_uri}>;
-  ncal:hasAlarm       <${alarm_uri}> ;
-  nie:isLogicalPartOf <${calendar_uri}> .
+  ncal:url            <%(todo_uri)s>;
+  ncal:hasAlarm       <%(alarm_uri)s> ;
+  nie:isLogicalPartOf <%(calendar_uri)s> .

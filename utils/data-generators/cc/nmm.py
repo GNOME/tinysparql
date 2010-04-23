@@ -4,6 +4,7 @@ import tools
 
 ####################################################################################
 def generatePhoto(index):
+  me = 'nmm#Photo'
   photo_uri          = 'urn:photo:%d' % index
   photo_filename     = 'photo%d.jpg' % index
   photo_url          = 'file:///path/' + photo_filename
@@ -18,25 +19,17 @@ def generatePhoto(index):
   photo_date         = '%d-%02d-%02dT01:01:01Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
 
   # save the last uri
-  tools.addUri( 'nmm#Photo', photo_uri )
+  tools.addUri( me, photo_uri )
 
   # subsitute into template
-  photo = tools.getTemplate( 'nmm#Photo' )
-  photo = photo.replace( '${photo_uri}', photo_uri )
-  photo = photo.replace( '${photo_filename}', photo_filename )
-  photo = photo.replace( '${photo_url}', photo_url )
-  photo = photo.replace( '${photo_size}',  photo_size)
-  photo = photo.replace( '${photo_camera}', photo_camera )
-  photo = photo.replace( '${photo_exposure}', photo_exposure )
-  photo = photo.replace( '${photo_fnumber}', photo_fnumber )
-  photo = photo.replace( '${photo_focal_length}', photo_focal_length )
-  photo = photo.replace( '${photo_date}', photo_date )
+  photo = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmm#Photo', photo )
+  tools.addResult( me, photo % locals() )
 
 ####################################################################################
 def generateVideo(index):
+  me = 'nmm#Video'
   video_uri          = 'urn:video:%d' % index
   video_filename     = 'video%d.jpg' % index
   video_url          = 'file:///path/' + video_filename
@@ -47,56 +40,47 @@ def generateVideo(index):
   video_tag          = 'TEST%d' % index
 
   # save the last uri
-  tools.addUri( 'nmm#Video', video_uri )
+  tools.addUri( me, video_uri )
 
   # subsitute into template
-  video = tools.getTemplate( 'nmm#Video' )
-  video = video.replace( '${video_uri}', video_uri )
-  video = video.replace( '${video_filename}', video_filename )
-  video = video.replace( '${video_url}', video_url )
-  video = video.replace( '${video_size}',  video_size)
-  video = video.replace( '${video_date}', video_date )
-  video = video.replace( '${video_samplerate}', video_samplerate )
-  video = video.replace( '${video_duration}', video_duration )
-  video = video.replace( '${video_tag}', video_tag )
+  video = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmm#Video', video )
+  tools.addResult( me, video % locals() )
 
 ####################################################################################
 def generateArtist(index):
+  me = 'nmm#Artist'
   artist_uri  = 'urn:artist:%d' % index
   artist_name = 'Artist %d' % (index % 1000)
 
   # save the last uri
-  tools.addUri( 'nmm#Artist', artist_uri )
+  tools.addUri( me, artist_uri )
 
   # subsitute into template
-  artist = tools.getTemplate( 'nmm#Artist' )
-  artist = artist.replace( '${artist_uri}', artist_uri )
-  artist = artist.replace( '${artist_name}', artist_name )
+  artist = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmm#Artist', artist )
+  tools.addResult( me, artist % locals() )
 
 ####################################################################################
 def generateAlbum(index):
+  me = 'nmm#MusicAlbum'
   album_uri  = 'urn:album:%d' % index
   album_name = 'Album %d' % (index % 1000)
 
   # save the last uri
-  tools.addUri( 'nmm#MusicAlbum', album_uri )
+  tools.addUri( me, album_uri )
 
   # subsitute into template
-  album = tools.getTemplate( 'nmm#MusicAlbum' )
-  album = album.replace( '${album_uri}', album_uri )
-  album = album.replace( '${album_name}', album_name )
+  album = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmm#MusicAlbum', album )
+  tools.addResult( me, album % locals() )
 
 ####################################################################################
 def generateMusicPiece(index):
+  me = 'nmm#MusicPiece'
   music_piece_uri           = 'urn:music:%d' % index
   music_piece_title         = 'Song %d' % (index % 1000)
   music_piece_size          = str(index)
@@ -118,30 +102,10 @@ def generateMusicPiece(index):
   music_piece_track         = '%d' % (1 + (index % 100))
 
   # save the last uri
-  tools.addUri( 'nmm#MusicPiece', music_piece_uri )
+  tools.addUri( me, music_piece_uri )
 
   # subsitute into template
-  mp = tools.getTemplate( 'nmm#MusicPiece' )
-  mp = mp.replace( '${music_piece_uri}', music_piece_uri )
-  mp = mp.replace( '${music_piece_title}', music_piece_title )
-  mp = mp.replace( '${music_piece_size}', music_piece_size )
-  mp = mp.replace( '${music_piece_container}', music_piece_container )
-  mp = mp.replace( '${music_piece_filename}', music_piece_filename )
-  mp = mp.replace( '${music_piece_url}', music_piece_url )
-  mp = mp.replace( '${music_piece_mime}', music_piece_mime )
-  mp = mp.replace( '${music_piece_date}', music_piece_date )
-  mp = mp.replace( '${music_piece_date}', music_piece_date )
-  mp = mp.replace( '${music_piece_last_accessed}', music_piece_last_accessed )
-  mp = mp.replace( '${music_piece_last_modified}', music_piece_last_modified )
-  mp = mp.replace( '${music_piece_codec}', music_piece_codec )
-  mp = mp.replace( '${music_piece_bitrate}', music_piece_bitrate )
-  mp = mp.replace( '${music_piece_genre}', music_piece_genre )
-  mp = mp.replace( '${music_piece_channels}', music_piece_channels )
-  mp = mp.replace( '${music_piece_sample_rate}', music_piece_sample_rate )
-  mp = mp.replace( '${music_piece_album}', music_piece_album )
-  mp = mp.replace( '${music_piece_artist}', music_piece_artist )
-  mp = mp.replace( '${music_piece_length}', music_piece_length )
-  mp = mp.replace( '${music_piece_track}', music_piece_track )
+  mp = tools.getTemplate( me )
 
   # save the result
-  tools.addResult( 'nmm#MusicPiece', mp )
+  tools.addResult( me, mp % locals() )
