@@ -189,7 +189,6 @@ writeback_taglib_update_file_metadata (TrackerWritebackFile *writeback_file,
 	}
 
 	taglib_file_save (taglib_file);
-	taglib_file_free (taglib_file);
 
 	ret = TRUE;
 
