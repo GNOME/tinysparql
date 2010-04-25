@@ -271,19 +271,17 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 	dbus_message_iter_close_container (&iter, &rows_iter);
 
 	if (loop_error == NULL) {
-		dbus_g_method_send_reply (info->context, reply);
-
 		tracker_dbus_request_success (info->request_id,
 		                              info->context);
 
+		dbus_g_method_send_reply (info->context, reply);
 	} else {
 		dbus_message_unref (reply);
-		dbus_g_method_return_error (info->context, loop_error);
-
 		tracker_dbus_request_failed (info->request_id,
 		                             info->context,
 		                             &loop_error,
 		                             NULL);
+		dbus_g_method_return_error (info->context, loop_error);
 
 		g_error_free (loop_error);
 	}
