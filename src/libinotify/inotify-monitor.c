@@ -23,6 +23,7 @@
 #include <glib.h>
 #include <sys/inotify.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "inotify-handle.h"
 #include "inotify-listhash.h"
