@@ -1588,9 +1588,9 @@ item_update_children_uri (TrackerMinerFS    *fs,
 
 	sparql = g_strdup_printf ("SELECT ?child ?url nie:mimeType(?child) WHERE { "
 				  "  ?child nie:url ?url . "
-                                  "  FILTER (tracker:uri-is-descendant (\"%s\", ?uri)) "
+                                  "  FILTER (tracker:uri-is-descendant (\"%s\", ?url)) "
 				  "}",
-				  uri);
+				  source_uri);
 
 	tracker_miner_execute_sparql (TRACKER_MINER (fs),
 	                              sparql,
