@@ -146,11 +146,17 @@ inotify_monitor_add_raw( INotifyHandle *inh )
 
 #ifdef IN_MASK_ADD
   wd = inotify_add_watch( inotify_monitor_fd, filename, mask | IN_MASK_ADD );
+
+  if( wd < 0 )
+    perror ("Adding INotify watch:");
 #else
   wd = inotify_add_watch( inotify_monitor_fd, filename, mask );
 
   if( wd < 0 )
-    return -1;
+    {
+      perror ("Adding INotify watch:");
+      return -1;
+    }
 
   needmask = mask | inotify_listhash_get_mask( wd );
 
