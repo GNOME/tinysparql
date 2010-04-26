@@ -80,8 +80,7 @@ static void     hal_device_property_modified_cb (LibHalContext   *context,
 enum {
 	PROP_0,
 	PROP_ON_BATTERY,
-	PROP_ON_LOW_BATTERY,
-	PROP_BATTERY_PERCENTAGE
+	PROP_ON_LOW_BATTERY
 };
 
 G_DEFINE_TYPE (TrackerPower, tracker_power, G_TYPE_OBJECT);
@@ -110,15 +109,6 @@ tracker_power_class_init (TrackerPowerClass *klass)
 	                                                       "Whether the battery is low",
 	                                                       FALSE,
 	                                                       G_PARAM_READABLE));
-	g_object_class_install_property (object_class,
-	                                 PROP_BATTERY_PERCENTAGE,
-	                                 g_param_spec_double ("battery-percentage",
-	                                                      "Battery percentage",
-	                                                      "Current battery percentage left",
-	                                                      0.0,
-	                                                      1.0,
-	                                                      0.0,
-	                                                      G_PARAM_READABLE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerPowerPriv));
 }
@@ -237,9 +227,6 @@ hal_get_property (GObject    *object,
 	case PROP_ON_LOW_BATTERY:
 		/* hardcoded to 5% */
 		g_value_set_boolean (value, priv->battery_percentage < BATTERY_LOW_THRESHOLD);
-		break;
-	case PROP_BATTERY_PERCENTAGE:
-		g_value_set_double (value, priv->battery_percentage);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -407,10 +394,6 @@ hal_battery_notify (TrackerPower *power)
 		g_object_notify (G_OBJECT (power), "on-low-battery");
 	}
 
-	if (old_percentage != priv->battery_percentage) {
-		g_object_notify (G_OBJECT (power), "battery-percentage");
-	}
-
 	g_list_free (values);
 }
 
@@ -565,26 +548,6 @@ tracker_power_get_on_low_battery (TrackerPower *power)
 	priv = GET_PRIV (power);
 
 	return (priv->battery_percentage < BATTERY_LOW_THRESHOLD);
-}
-
-/**
- * tracker_power_get_battery_percentage:
- * @power: A #TrackerPower
- *
- * Returns the percentage of battery power available.
- *
- * Returns: #gdouble representing the percentage between 0.0 and 1.0.
- **/
-gdouble
-tracker_power_get_battery_percentage (TrackerPower *power)
-{
-	TrackerPowerPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_POWER (power), TRUE);
-
-	priv = GET_PRIV (power);
-
-	return priv->battery_percentage;
 }
 
 #endif /* HAVE_HAL */

@@ -45,8 +45,7 @@ static void     tracker_power_client_changed_cb (UpClient        *client,
 enum {
 	PROP_0,
 	PROP_ON_BATTERY,
-	PROP_ON_LOW_BATTERY,
-	PROP_BATTERY_PERCENTAGE
+	PROP_ON_LOW_BATTERY
 };
 
 G_DEFINE_TYPE (TrackerPower, tracker_power, G_TYPE_OBJECT);
@@ -76,15 +75,6 @@ tracker_power_class_init (TrackerPowerClass *klass)
 	                                                       "Whether the battery is low",
 	                                                       FALSE,
 	                                                       G_PARAM_READABLE));
-	g_object_class_install_property (object_class,
-	                                 PROP_BATTERY_PERCENTAGE,
-	                                 g_param_spec_double ("battery-percentage",
-	                                                      "Battery percentage",
-	                                                      "Current battery percentage left",
-	                                                      0.0,
-	                                                      1.0,
-	                                                      0.0,
-	                                                      G_PARAM_READABLE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerPowerPriv));
 }
@@ -221,27 +211,6 @@ tracker_power_get_on_low_battery (TrackerPower *power)
 	priv = GET_PRIV (power);
 
 	return priv->on_low_battery;
-}
-
-/**
- * tracker_power_get_battery_percentage:
- * @power: A #TrackerPower
- *
- * Returns the percentage of battery power available.
- *
- * Returns: #gdouble representing the percentage between 0.0 and 1.0.
- **/
-gdouble
-tracker_power_get_battery_percentage (TrackerPower *power)
-{
-	TrackerPowerPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_POWER (power), TRUE);
-
-	priv = GET_PRIV (power);
-
-	/* FIXME: Implement */
-	return 0.5;
 }
 
 #endif /* HAVE_UPOWER */

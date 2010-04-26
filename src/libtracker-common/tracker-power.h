@@ -52,7 +52,6 @@ TrackerPower *tracker_power_new                    (void);
 
 gboolean      tracker_power_get_on_battery         (TrackerPower *power);
 gboolean      tracker_power_get_on_low_battery     (TrackerPower *power);
-gdouble       tracker_power_get_battery_percentage (TrackerPower *power);
 
 G_END_DECLS
 
