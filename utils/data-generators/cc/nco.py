@@ -3,37 +3,38 @@
 import tools
 
 ####################################################################################
+nco_EmailAddress = '''
+<%(email_address_uri)s> a nco:EmailAddress;
+    nco:emailAddress "%(email_address)s".
+'''
 def generateEmailAddress(index):
   me = 'nco#EmailAddress'
   email_address = 'given%d.family%d@domain%d.com' % (index % 1000,index % 1000,index % 1000)
   email_address_uri = 'mailto:' + email_address
 
-  # save the uri
-  tools.addUri( me, email_address_uri )
-
-  # substitute into template
-  email = tools.getTemplate( me )
-
-  # save the result
-  tools.addResult( me, email % locals() )
+  tools.addItem( me, email_address_uri, nco_EmailAddress % locals() )
 
 ####################################################################################
+nco_PhoneNumber = '''
+<%(phonenumber_uri)s> a nco:CellPhoneNumber;
+    nco:phoneNumber "%(phonenumber)s".
+'''
 def generatePhoneNumber(index):
   me = 'nco#PhoneNumber'
   phonenumber = '+%d-555-%08d' %(index, index)
   phonenumber_uri = 'tel:' + phonenumber
 
-  # save the last uri
-  tools.addUri( me, phonenumber_uri )
-
-  # subsitute into template
-  pn = tools.getTemplate( me )
-
-  # save the result
-  tools.addResult( me, pn % locals() )
-
+  tools.addItem( me, phonenumber_uri, nco_PhoneNumber % locals() )
 
 ####################################################################################
+nco_PostalAddress = '''
+<%(postal_address_uri)s> a nco:PostalAddress;
+    nco:country "%(postal_address_country)s" ;
+    nco:region "%(postal_address_region)s" ;
+    nco:postalcode "%(postal_address_postal_code)s" ;
+    nco:locality "%(postal_address_city)s" ;
+    nco:streetAddress "%(postal_address_street)s" .
+'''
 def generatePostalAddress(index):
   me = 'nco#PostalAddress'
   postal_address_uri         = 'urn:pa:%d' % index
@@ -43,16 +44,19 @@ def generatePostalAddress(index):
   postal_address_city        = 'City %d' % (index % 1000)
   postal_address_street      = 'Demo Street %d' % (index % 100)
 
-  # save the last uri
-  tools.addUri( me, postal_address_uri )
-
-  # subsitute into template
-  pa = tools.getTemplate( me )
-
-  # save the result
-  tools.addResult( me, pa % locals() )
+  tools.addItem( me, postal_address_uri, nco_PostalAddress % locals() )
 
 ####################################################################################
+nco_PersonContact = '''
+<%(contact_uri)s> a nco:PersonContact;
+    nco:fullname         "%(contact_name_given)s %(contact_name_family)s";
+    nco:nameGiven        "%(contact_name_given)s";
+    nco:nameFamily       "%(contact_name_family)s";
+    nco:birthDate        "%(contact_birth_date)s";
+    nco:hasEmailAddress   %(email_address_uri)s;
+    nco:hasPhoneNumber    %(phonenumber_uri)s;
+    nco:hasPostalAddress  %(postal_address_uri)s .
+'''
 def generatePersonContact(index):
   me = 'nco#PersonContact'
   contact_uri         = 'urn:uid:%d' % index
@@ -63,11 +67,4 @@ def generatePersonContact(index):
   phonenumber_uri     = '<%s>' % tools.getLastUri( 'nco#PhoneNumber' )
   postal_address_uri  = '<%s>' % tools.getLastUri( 'nco#PostalAddress' )
 
-  # save the uri
-  tools.addUri( me, contact_uri )
-
-  # subsitute into template
-  pc = tools.getTemplate( me )
-
-  # save the result
-  tools.addResult( me, pc % locals() )
+  tools.addItem( me, contact_uri, nco_PersonContact % locals() )

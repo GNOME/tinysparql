@@ -64,10 +64,6 @@ tools.addType( 'mfo#FeedMessage', 81 )
 tools.addType( 'mto#TransferElement', 90 )
 tools.addType( 'mto#UploadTransfer', 91 )
 
-# first load all templates
-templates_count = tools.loadTemplates()
-print "Loaded", templates_count, "templates"
-
 print "Generating Contacts",
 count_contacts = config.getint('counts','contacts')
 for contact in xrange(1, count_contacts+1):

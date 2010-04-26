@@ -3,13 +3,11 @@
 import tools
 
 ####################################################################################
+tracker_Volume = '''
+<%(datasource_uri)s> a tracker:Volume .
+'''
 def generateVolume(index):
   me = 'tracker#Volume'
   datasource_uri  = 'urn:nepomuk:datasource:%d' % index
 
-  # save the last uri
-  tools.addUri( me, datasource_uri )
-
-  # subsitute into template
-  volume = tools.getTemplate( 'tracker#Volume' )
-  tools.addResult(me, volume % locals())
+  tools.addItem( me, datasource_uri, tracker_Volume % locals() )
