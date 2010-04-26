@@ -35,7 +35,11 @@ typedef enum {
 	TRACKER_STORE_N_PRIORITIES
 } TrackerStorePriority;
 
-typedef void (* TrackerStoreSparqlQueryCallback)       (TrackerDBCursor *cursor,
+typedef void (* TrackerStoreSparqlQueryCallback)       (gpointer         data,
+                                                        GError          *error,
+                                                        gpointer         user_data);
+typedef gpointer
+             (* TrackerStoreSparqlQueryInThread)       (TrackerDBCursor *cursor,
                                                         GError          *error,
                                                         gpointer         user_data);
 typedef void (* TrackerStoreSparqlUpdateCallback)      (GError          *error,
@@ -55,6 +59,7 @@ void         tracker_store_queue_commit           (TrackerStoreCommitCallback ca
                                                    GDestroyNotify destroy);
 void         tracker_store_sparql_query           (const gchar   *sparql,
                                                    TrackerStorePriority priority,
+                                                   TrackerStoreSparqlQueryInThread in_thread,
                                                    TrackerStoreSparqlQueryCallback callback,
                                                    const gchar   *client_id,
                                                    gpointer       user_data,

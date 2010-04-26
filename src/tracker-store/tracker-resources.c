@@ -87,8 +87,14 @@ typedef struct {
 typedef struct {
 	DBusGMethodInvocation *context;
 	guint request_id;
+	DBusMessage *reply;
 } TrackerDBusMethodInfo;
 
+typedef struct {
+	DBusMessage *reply;
+	GError *error;
+	gpointer user_data;
+} InThreadPtr;
 
 static void tracker_resources_finalize (GObject *object);
 
@@ -176,7 +182,7 @@ tracker_resources_load (TrackerResources         *object,
                         GError                  **error)
 {
 	TrackerDBusMethodInfo   *info;
-	guint               request_id;
+	guint                    request_id;
 	GFile  *file;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -203,8 +209,33 @@ tracker_resources_load (TrackerResources         *object,
 }
 
 static void
-query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
+query_callback (gpointer inthread_data, GError *error, gpointer user_data)
 {
+	InThreadPtr *ptr = inthread_data;
+	TrackerDBusMethodInfo *info = user_data;
+
+	if (ptr->error) {
+		tracker_dbus_request_failed (info->request_id,
+		                             info->context,
+		                             &ptr->error,
+		                             NULL);
+		dbus_g_method_return_error (info->context, ptr->error);
+		g_error_free (ptr->error);
+	} else {
+
+		tracker_dbus_request_success (info->request_id,
+		                              info->context);
+
+		dbus_g_method_send_reply (info->context, ptr->reply);
+	}
+
+	g_slice_free (InThreadPtr, ptr);
+}
+
+static gpointer
+query_inthread (TrackerDBCursor *cursor, GError *error, gpointer user_data)
+{
+	InThreadPtr *ptr = g_slice_new0 (InThreadPtr);
 	TrackerDBusMethodInfo *info = user_data;
 	DBusMessage *reply;
 	DBusMessageIter iter, rows_iter;
@@ -214,15 +245,11 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 	gboolean cont;
 
 	if (error) {
-		tracker_dbus_request_failed (info->request_id,
-		                             info->context,
-		                             &error,
-		                             NULL);
-		dbus_g_method_return_error (info->context, error);
-		return;
+		ptr->error = g_error_copy (error);
+		return ptr;
 	}
 
-	reply = dbus_g_method_get_reply (info->context);
+	reply = info->reply;
 
 	dbus_message_iter_init_append (reply, &iter);
 
@@ -252,6 +279,9 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 			const gchar *result_str;
 			result_str = tracker_db_cursor_get_string (cursor, i);
 
+			if (result_str == NULL)
+				result_str = "";
+
 			dbus_message_iter_append_basic (&cols_iter, DBUS_TYPE_STRING, &result_str);
 
 			if (length > DBUS_ARBITRARY_MAX_MSG_SIZE) {
@@ -270,21 +300,14 @@ query_callback (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 
 	dbus_message_iter_close_container (&iter, &rows_iter);
 
-	if (loop_error == NULL) {
-		tracker_dbus_request_success (info->request_id,
-		                              info->context);
-
-		dbus_g_method_send_reply (info->context, reply);
+	if (loop_error) {
+		ptr->error = loop_error;
+		ptr->reply = NULL;
 	} else {
-		dbus_message_unref (reply);
-		tracker_dbus_request_failed (info->request_id,
-		                             info->context,
-		                             &loop_error,
-		                             NULL);
-		dbus_g_method_return_error (info->context, loop_error);
-
-		g_error_free (loop_error);
+		ptr->reply = reply;
 	}
+
+	return ptr;
 }
 
 void
@@ -314,11 +337,12 @@ tracker_resources_sparql_query (TrackerResources         *self,
 
 	info->request_id = request_id;
 	info->context = context;
+	info->reply = dbus_g_method_get_reply (context);
 
 	sender = dbus_g_method_get_sender (context);
 
 	tracker_store_sparql_query (query, TRACKER_STORE_PRIORITY_HIGH,
-	                            query_callback, sender,
+	                            query_inthread, query_callback, sender,
 	                            info, destroy_method_info);
 
 	g_free (sender);

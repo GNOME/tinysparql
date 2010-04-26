@@ -67,27 +67,30 @@ typedef struct {
 	TrackerStoreTaskType  type;
 	union {
 		struct {
-			gchar                   *query;
-			TrackerDBCursor         *cursor;
-			GThread			*running_thread;
-			GTimer			*timer;
+			gchar       *query;
+			GThread     *running_thread;
+			GTimer      *timer;
+			gpointer     thread_data;
 		} query;
 		struct {
-			gchar                   *query;
-			gboolean                 batch;
-			GPtrArray               *blank_nodes;
+			gchar        *query;
+			gboolean      batch;
+			GPtrArray    *blank_nodes;
 		} update;
 		struct {
-			gboolean           in_progress;
-			gchar             *path;
+			gboolean      in_progress;
+			gchar        *path;
 		} turtle;
 	} data;
-	gchar			  *client_id;
-	GError                    *error;
-	gpointer                   user_data;
-	GDestroyNotify             destroy;
+	gchar                *client_id;
+	GError               *error;
+	gpointer              user_data;
+	GDestroyNotify        destroy;
 	union {
-		TrackerStoreSparqlQueryCallback       query_callback;
+		struct {
+			TrackerStoreSparqlQueryCallback   query_callback;
+			TrackerStoreSparqlQueryInThread   in_thread;
+		} query;
 		TrackerStoreSparqlUpdateCallback      update_callback;
 		TrackerStoreSparqlUpdateBlankCallback update_blank_callback;
 		TrackerStoreCommitCallback            commit_callback;
@@ -116,12 +119,11 @@ store_task_free (TrackerStoreTask *task)
 {
 	if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		g_free (task->data.turtle.path);
-        } else if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
+	} else if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
 		g_free (task->data.query.query);
-
-                if (task->data.query.timer) {
-                        g_timer_destroy (task->data.query.timer);
-                }
+		if (task->data.query.timer) {
+			g_timer_destroy (task->data.query.timer);
+		}
 	} else {
 		g_free (task->data.update.query);
 	}
@@ -330,13 +332,8 @@ task_finish_cb (gpointer data)
 	task = data;
 
 	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
-		if (task->callback.query_callback) {
-			task->callback.query_callback (task->data.query.cursor, task->error, task->user_data);
-		}
-
-		if (task->data.query.cursor) {
-			g_object_unref (task->data.query.cursor);
-			task->data.query.cursor = NULL;
+		if (task->callback.query.query_callback) {
+			task->callback.query.query_callback (task->data.query.thread_data, task->error, task->user_data);
 		}
 
 		if (task->error) {
@@ -421,9 +418,16 @@ pool_dispatch_cb (gpointer data,
 	task = data;
 
 	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
+		TrackerDBCursor *cursor;
+
 		task->data.query.running_thread = g_thread_self ();
-		task->data.query.cursor = tracker_data_query_sparql_cursor (task->data.query.query, &task->error);
+		cursor = tracker_data_query_sparql_cursor (task->data.query.query, &task->error);
+
+		task->data.query.thread_data = task->callback.query.in_thread (cursor, task->error, task->user_data);
+
+		g_object_unref (cursor);
 		task->data.query.running_thread = NULL;
+
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (task->data.update.batch) {
 			begin_batch (private);
@@ -690,6 +694,7 @@ tracker_store_queue_commit (TrackerStoreCommitCallback callback,
 void
 tracker_store_sparql_query (const gchar *sparql,
                             TrackerStorePriority priority,
+                            TrackerStoreSparqlQueryInThread in_thread,
                             TrackerStoreSparqlQueryCallback callback,
                             const gchar *client_id,
                             gpointer user_data,
@@ -699,6 +704,7 @@ tracker_store_sparql_query (const gchar *sparql,
 	TrackerStoreTask    *task;
 
 	g_return_if_fail (sparql != NULL);
+	g_return_if_fail (in_thread != NULL);
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
@@ -707,7 +713,8 @@ tracker_store_sparql_query (const gchar *sparql,
 	task->type = TRACKER_STORE_TASK_TYPE_QUERY;
 	task->data.query.query = g_strdup (sparql);
 	task->user_data = user_data;
-	task->callback.query_callback = callback;
+	task->callback.query.query_callback = callback;
+	task->callback.query.in_thread = in_thread;
 	task->destroy = destroy;
 	task->client_id = g_strdup (client_id);
 
@@ -862,7 +869,7 @@ tracker_store_unreg_batches (const gchar *client_id)
 					}
 
 					if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
-						task->callback.query_callback (NULL, error, task->user_data);
+						task->callback.query.query_callback (NULL, error, task->user_data);
 					} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 						task->callback.update_callback (error, task->user_data);
 					} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
