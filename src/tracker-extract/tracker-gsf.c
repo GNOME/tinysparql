@@ -83,7 +83,7 @@ tracker_gsf_parse_xml_in_zip (const gchar         *zip_file_uri,
 {
 	gchar *filename;
 	GError *error = NULL;
-	GsfInfile *infile = NULL;;
+	GsfInfile *infile = NULL;
 	GsfInput *src = NULL;
 	GsfInput *member = NULL;
 
