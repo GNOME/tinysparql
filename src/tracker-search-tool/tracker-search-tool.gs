@@ -37,6 +37,7 @@ const static LICENSE : string =\
 window : Window
 service : string?
 terms : array of string?
+search_string : string?
 print_version: bool
 const options : array of OptionEntry = {{"service", 's', 0, OptionArg.STRING, ref service, "Search from a specific service", "SERVICE" }, {"version", 'V', 0, OptionArg.NONE, ref print_version, "Print version", null }, {"", 0, 0, OptionArg.STRING_ARRAY, ref terms, "search terms", null}, { null }}
 
@@ -160,5 +161,9 @@ init
     main_box.pack_end (a, false, false, 0)
 
     window.show_all ()
+
+    if (terms is not null)
+        search_string = string.joinv (" ", terms)
+        entry.set_text (search_string)
 
     Gtk.main ()
