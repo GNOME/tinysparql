@@ -259,11 +259,11 @@ class rtcom(TestUpdate):
 		result=self.resources.SparqlQuery(query)
 
         	elapse =time.time()-start
-        	print "Time taken for querying conversation list view  = %s " %elapse
+        	print "Time taken for querying (old) conversation list view  = %s " %elapse
 		print "no. of items retrieved: %d" %len(result)
 
 
-        def test_rtcom_02(self):
+        def p_test_rtcom_02(self):
 
 		# A version of the next one that skips the contact parts that are not generated properly
 
@@ -291,10 +291,10 @@ class rtcom(TestUpdate):
 		result=self.resources.SparqlQuery(query)
 
         	elapse =time.time()-start
-        	print "Time taken for querying conversation view (without contact info)  = %s " %elapse
+        	print "Time taken for querying (old) conversation view (without contact info)  = %s " %elapse
 		print "no. of items retrieved: %d" %len(result)
 
-        def test_rtcom_03(self):
+        def p_test_rtcom_03(self):
 
 		query = "SELECT ?msg ?date ?text ?contact \
 			WHERE { \
@@ -322,9 +322,193 @@ class rtcom(TestUpdate):
 		result=self.resources.SparqlQuery(query)
 
         	elapse =time.time()-start
+        	print "Time taken for querying (old) conversation view  = %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+        def p_test_rtcom_04(self):
+
+#
+# Current rtcom queries, please do not "quietly optimize".
+#
+
+		query = " \
+SELECT ?message ?date ?from ?to \
+     rdf:type(?message) \
+     tracker:coalesce(fn:concat(nco:nameGiven(?contact), ' ', nco:nameFamily(?contact)), nco:nickname(?contact)) \
+     nco:contactUID(?contact) \
+     nmo:communicationChannel(?message) \
+     nmo:isSent(?message) \
+     nmo:isDraft(?message) \
+     nmo:isRead(?message) \
+     nmo:isAnswered(?message) \
+     nmo:isDeleted(?message) \
+     nmo:messageId(?message) \
+     nmo:smsId(?message) \
+     nmo:sentDate(?message) \
+     nmo:receivedDate(?message) \
+     nie:contentLastModified(?message) \
+     nmo:messageSubject(?message) \
+     nie:plainTextContent(?message) \
+     nmo:deliveryStatus(?message) \
+     nmo:reportDelivery(?message) \
+     nie:url(?message) \
+     nfo:fileName(nmo:fromVCard(?message)) \
+     rdfs:label(nmo:fromVCard(?message)) \
+     nfo:fileName(nmo:toVCard(?message)) \
+     rdfs:label(nmo:toVCard(?message)) \
+     nmo:encoding(?message) \
+     nie:characterSet(?message) \
+     nie:language(?message) \
+WHERE \
+{ \
+  { \
+    ?message a nmo:Message . \
+    ?message nmo:isDraft false . \
+    ?message nmo:isDeleted false . \
+    ?message nmo:receivedDate ?date . \
+    ?message nmo:from ?fromContact . \
+    ?message nmo:to ?toContact . \
+    ?fromContact nco:hasContactMedium ?from . \
+    ?toContact nco:hasContactMedium ?to . \
+    ?message nmo:communicationChannel <urn:channel:1> . \
+    <urn:channel:1> nmo:hasParticipant ?participant . \
+      OPTIONAL \
+      { \
+        ?contact a nco:PersonContact . \
+          { \
+            ?participant nco:hasIMAddress ?imaddress . \
+            ?contact nco:hasIMAddress ?imaddress . \
+          } \
+          UNION \
+          { \
+            ?participant nco:hasPhoneNumber ?participantNumber . \
+            ?participantNumber maemo:localPhoneNumber ?number . \
+            ?contact nco:hasPhoneNumber ?contactNumber . \
+            ?contactNumber maemo:localPhoneNumber ?number . \
+          } \
+      } \
+  } \
+} \
+ORDER BY DESC(?date) LIMIT 50\
+"
+
+        	start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+        	elapse =time.time()-start
         	print "Time taken for querying conversation view  = %s " %elapse
 		print "no. of items retrieved: %d" %len(result)
 
+        def p_test_rtcom_05(self):
+#
+# Current rtcom queries, please do not "quietly optimize".
+#
+		query = " \
+SELECT ?channel ?participant ?subject nie:generator(?channel) ?contactName ?contactUID ?lastDate ?lastMessage nie:plainTextContent(?lastMessage) \
+  nfo:fileName(nmo:fromVCard(?lastMessage)) \
+  rdfs:label(nmo:fromVCard(?lastMessage)) \
+  ( SELECT COUNT(?message) AS ?total_messages WHERE { ?message nmo:communicationChannel ?channel . }) \
+  ( SELECT COUNT(?message) AS ?total_unread   WHERE { ?message nmo:communicationChannel ?channel . ?message nmo:isRead false  .}) \
+  ( SELECT COUNT(?message) AS ?_total_sent    WHERE { ?message nmo:communicationChannel ?channel . ?message nmo:isSent true . }) \
+WHERE { \
+  SELECT ?channel ?participant nco:contactUID(?contact) AS ?contactUID ?subject  ?lastDate \
+         tracker:coalesce(fn:concat(nco:nameGiven(?contact), ' ', nco:nameFamily(?contact)), nco:nickname(?contact)) AS ?contactName \
+         ( SELECT ?message WHERE {?message nmo:communicationChannel ?channel . ?message nmo:sentDate ?sentDate .} ORDER BY DESC(?sentDate) LIMIT 1) AS ?lastMessage \
+  WHERE { \
+      ?channel a nmo:CommunicationChannel . \
+      ?channel nmo:hasParticipant ?participant . \
+      ?channel nie:subject ?subject . \
+      ?channel nmo:lastMessageDate ?lastDate . \
+      OPTIONAL { \
+            ?contact a nco:PersonContact . \
+            { \
+              ?participant nco:hasIMAddress ?imaddress . \
+              ?contact nco:hasIMAddress ?imaddress . \
+            } \
+            UNION \
+            { \
+              ?participant nco:hasPhoneNumber ?participantNumber . \
+              ?number maemo:localPhoneNumber ?localNumber . \
+              ?contact nco:hasPhoneNumber ?contactNumber . \
+              ?contactNumber maemo:localPhoneNumber ?localNumber . \
+            } \
+        } \
+    } \
+} \
+ORDER BY DESC(?lastDate) LIMIT 50\
+"
+
+
+        	start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+        	elapse =time.time()-start
+        	print "Time taken for querying conversation list  = %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+        def p_test_rtcom_06(self):
+#
+# Current rtcom queries, please do not "quietly optimize".
+#
+		query = " \
+SELECT ?call ?date ?from ?to \
+     rdf:type(?call) \
+     tracker:coalesce(fn:concat(nco:nameGiven(?contact), ' ', nco:nameFamily(?contact)), nco:nickname(?contact)) \
+     ?contactId \
+     nmo:isSent(?call) \
+     nmo:isAnswered(?call) \
+     nmo:isRead(?call) \
+     nmo:sentDate(?call) \
+     nmo:receivedDate(?call) \
+     nmo:duration(?call) \
+     nie:contentLastModified(?call) \
+WHERE \
+{ \
+  { \
+    ?call a nmo:Call . \
+    ?call nmo:receivedDate ?date . \
+    ?call nmo:from ?fromContact . \
+    ?call nmo:to ?toContact . \
+    ?fromContact nco:hasContactMedium ?from . \
+    ?toContact nco:hasContactMedium ?to . \
+      OPTIONAL \
+      { \
+        ?contact a nco:PersonContact . \
+        ?contact nco:contactUID ?contactId . \
+          { \
+            ?call nmo:to ?address . \
+          } \
+          UNION \
+          { \
+            ?call nmo:from ?address . \
+          } \
+          { \
+            ?address nco:hasIMAddress ?imaddress . \
+            ?contact nco:hasIMAddress ?imaddress . \
+          } \
+          UNION \
+          { \
+            ?address nco:hasPhoneNumber ?addressNumber . \
+            ?addressNumber maemo:localPhoneNumber ?number . \
+            ?contact nco:hasPhoneNumber ?contactNumber . \
+            ?contactNumber maemo:localPhoneNumber ?number . \
+          } \
+      } \
+  } \
+} \
+ORDER BY DESC(?date) LIMIT 50\
+"
+
+
+        	start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+        	elapse =time.time()-start
+        	print "Time taken for querying call history  = %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
 
 """ Audio, Video, Images  performance  test cases """
 class audio(TestUpdate):

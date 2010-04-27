@@ -48,6 +48,8 @@ nmo_Email = '''
     nmo:receivedDate     "%(email_received)s" ;
     nmo:sender           <%(email_sender)s> ;
     nmo:from             <%(email_sender)s> ;
+    nmo:isDraft          "%(email_draft)s" ;
+    nmo:isDeleted        "%(email_deleted)s" ;
     nmo:sentDate         "%(email_sent)s" .
 '''
 def generateEmail(index):
@@ -65,6 +67,8 @@ def generateEmail(index):
   email_sender    = tools.getRandomUri( 'nco#PersonContact' )
   email_sent      = '%d-%02d-%02dT01:01:02Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
   email_content   = gen.create_text(2,30)
+  email_draft     = 'false'
+  email_deleted   = 'false'
 
   tools.addItem( me, email_uri, nmo_Email % locals() )
 
@@ -103,6 +107,7 @@ nmo_IMMessage = '''
   nmo:messageId              "%(immessage_message_id)s" ;
   nmo:receivedDate           "%(immessage_received)s" ;
   nmo:sentDate               "%(immessage_sent_date)s" ;
+  nmo:isDeleted              "%(immessage_deleted)s" ;
   nmo:communicationChannel   <%(immessage_channel_uri)s> .
 '''
 def generateIMMessage(index):
@@ -116,6 +121,7 @@ def generateIMMessage(index):
   immessage_draft       = ('false', 'true')[index % 2]
   immessage_read        = ('false', 'true')[index % 2]
   immessage_sent        = 'true'
+  immessage_deleted     = 'false'
   immessage_message_id  = '%d' % index
   immessage_received    = tools.now
   immessage_sent_date   = tools.now
@@ -140,6 +146,7 @@ nmo_SMSMessage = '''
   nmo:messageId              "%(smsmessage_message_id)s" ;
   nmo:receivedDate           "%(smsmessage_received)s" ;
   nmo:sentDate               "%(smsmessage_sent_date)s" ;
+  nmo:isDeleted              "%(smsmessage_deleted)s" ;
   nmo:communicationChannel   <%(smsmessage_channel_uri)s> .
 '''
 def generateSMSMessage(index):
@@ -154,6 +161,7 @@ def generateSMSMessage(index):
   smsmessage_draft       = ('false', 'true')[index % 2]
   smsmessage_read        = ('false', 'true')[index % 2]
   smsmessage_sent        = 'true'
+  smsmessage_deleted     = 'false'
   smsmessage_message_id  = '%d' % index
   smsmessage_received    = tools.now
   smsmessage_sent_date   = tools.now
