@@ -44,6 +44,8 @@ PREFIX = sys.prefix
 CWD = os.getcwd()
 
 TEST_IMAGE = "test-image-1.jpg"
+TEST_IMAGE_PNG = "test-image-2.png"
+TEST_IMAGE_TIF = "test-image-3.tif"
 TEST_MUSIC = "tracker-mp3-test.mp3"
 TEST_VIDEO = "test-video.mp4"
 

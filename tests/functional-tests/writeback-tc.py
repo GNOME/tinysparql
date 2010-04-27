@@ -53,6 +53,7 @@ elif target == configuration.DESKTOP:
 	dir_path = configuration.WB_TEST_DIR_HOST
 
 print dir_path
+TARGET_VIDEO = dir_path + "/" + configuration.TEST_VIDEO
 
 """ run the tracker-writeback """
 pid = int(commands.getoutput('pidof tracker-writeback | wc -w'))
@@ -99,7 +100,7 @@ class TDCopy():
                                   path=MINER_OBJ)
 
 
-    def copy_file(src, dest):
+    def copy_file(self, src, dest):
 	shutil.copy2( src, dest)
 	self.loop.run()
 
@@ -112,14 +113,13 @@ class TDCopy():
 
 	commands.getoutput('mkdir ' + dir_path)
 
-	src = configuration.TEST_DATA_IMAGES + configuration.TEST_IMAGE
-	print src
-
 	self.set_test_data()
 
-	#self.copy_file (src, dir_path)
-        shutil.copy2( src, dir_path)
-        self.loop.run()
+	self.copy_file (configuration.TEST_DATA_IMAGES + configuration.TEST_IMAGE, dir_path)
+	self.copy_file (configuration.TEST_DATA_IMAGES + configuration.TEST_IMAGE_PNG, dir_path)
+	self.copy_file (configuration.TEST_DATA_IMAGES + configuration.TEST_IMAGE_TIF, dir_path)
+	#TODO: uncomment once video writeback is supported
+	#self.copy_file (configuration.TEST_DATA_VIDEO + configuration.TEST_VIDEO, dir_path)
 
         fileList = []
         dirpathList = []
@@ -535,6 +535,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -581,6 +585,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -593,17 +601,21 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
-			self.loop.run()
+			time.sleep (2)
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:exposureTime')
 			print result
+			if not (result):
+				print "property is NOT set"
+				continue
+
                 	value=result.split()
 			if (result.find('nmm:exposureTime')!=-1)  and (value[1]=='44') :
 				print "property is set"
+				Results[uri]='nmm:exposureTime'
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:exposureTime'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:
@@ -627,6 +639,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -639,17 +655,21 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
-			self.loop.run()
+			time.sleep (2)
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:fnumber')
 			print result
+			if not (result):
+				print "property is NOT set"
+				continue
+
                 	value=result.split()
 			if (result.find('nmm:fnumber')!=-1)  and (value[1]=='707') :
 				print "property is set"
+				Results[uri]='nmm:fnumber'
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:fnumber'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:
@@ -674,6 +694,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -686,17 +710,21 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
-			self.loop.run()
+			time.sleep (2)
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:flash')
 			print result
+			if not (result):
+				print "property is NOT set"
+				continue
+
                 	value=result.split()
 			if (result.find('nmm:flash')!=-1)  and (value[1]=='nmm:flash-off') :
 				print "property is set"
+				Results[uri]='nmm:flash'
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:flash'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:
@@ -720,6 +748,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -732,17 +764,21 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
-			self.loop.run()
+			time.sleep (2)
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:flash')
 			print result
+			if not (result):
+				print "property is NOT set"
+				continue
+
                 	value=result.split()
 			if (result.find('nmm:flash')!=-1)  and (value[1]=='nmm:flash-on') :
 				print "property is set"
+				Results[uri]='nmm:flash'
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:flash'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:
@@ -767,6 +803,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -779,17 +819,21 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
-			self.loop.run()
+			time.sleep (2)
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:focalLength')
 			print result
+			if not (result):
+				print "property is NOT set"
+				continue
+
                 	value=result.split()
 			if (result.find('nmm:focalLength')!=-1)  and (value[1]=='44') :
 				print "property is set"
+				Results[uri]='nmm:focalLength'
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:focalLength'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:
@@ -813,6 +857,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -825,17 +873,21 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
-			self.loop.run()
+			time.sleep (2)
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:isoSpeed')
 			print result
+			if not (result):
+				print "property is NOT set"
+				continue
+
                 	value=result.split()
 			if (result.find('nmm:isoSpeed')!=-1)  and (value[1]=='44') :
 				print "property is set"
+				Results[uri]='nmm:isoSpeed'
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:isoSpeed'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:
@@ -859,6 +911,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -871,17 +927,21 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
-			self.loop.run()
+			time.sleep (2)
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:meteringMode')
 			print result
+			if not (result):
+				print "property is NOT set"
+				continue
+
                 	value=result.split()
 			if (result.find('nmm:meteringMode')!=-1)  and (value[1]=='nmm:metering-mode-multispot') :
 				print "property is set"
+				Results[uri]='nmm:meteringMode'
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:meteringMode'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:
@@ -905,6 +965,10 @@ class writeback(TestWriteback):
 
 		for i in range(len(file_list)) :
 			"""browse through each file """
+			if (file_list[i] == TARGET_VIDEO) :
+				print "video file detected"
+				continue
+
 			uri = 'file://'+file_list[i]
 			print uri
 			Results = {}
@@ -917,17 +981,21 @@ class writeback(TestWriteback):
                 		""" %(uri, uri)
 			print insert
                 	self.sparql_update (insert)
-			self.loop.run()
+			time.sleep (2)
 
                 	""" verify the inserted item """
 			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:whiteBalance')
 			print result
+			if not (result):
+				print "property is NOT set"
+				continue
+
                 	value=result.split()
 			if (result.find('nmm:whiteBalance')!=-1)  and (value[1]=='nmm:white-balance-auto') :
 				print "property is set"
+				Results[uri]='nmm:whiteBalance'
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:whiteBalance'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:
