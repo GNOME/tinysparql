@@ -4,59 +4,23 @@
 tracker-search-tool \- Gnome Tracker Search Tool
 
 .SH SYNOPSIS
-\fBtracker-search-tool\fR [\fIoptions\fR] [\fIEXPRESSION\fR]
+\fBtracker-search-tool\fR [\fIoptions\fR] [\fITERMS\fR]
 
 .SH DESCRIPTION
 .B tracker-search-tool
-is a graphical search front end for Gnome.
-It uses
-.B tracker-store
-to get instant search results.
+is a graphical search front end for GNOME to Tracker. It is similar to
+the command line tool
+.B tracker-search.
+If \fITERMS\fR are provided, a search is performed using those
+\fITERMS\fR initially when tracker-search-tool is started. They are
+not required to start the application.
 
 .SH OPTIONS
-.SS "Help Options:"
-.TP
-\-?, \fB\-\-help\fR
-Show help options
-.TP
-\fB\-\-help\-all\fR
-Show all help options
-.TP
-\fB\-\-help\-gtk\fR
-Show GTK+ Options
-.TP
-\fB\-\-help\-bonobo\-activation\fR
-Show Bonobo Activation options
-.TP
-\fB\-\-help\-gnome\fR
-Show GNOME options
-.TP
-\fB\-\-help\-gnome\-session\fR
-Show session management options
-.TP
-\fB\-\-help\-gnome\-ui\fR
-Show GNOME GUI options
-.SS "Application Options:"
-.TP
-\fB\-s\fR, \fB\-\-service\fR=\fISERVICE\fR
-Search from a specific service. See
-.BR tracker-services (1)
-for more information.
-.TP
-\fB\-\-display\fR=\fIDISPLAY\fR
-X display to use
 .TP
 \fB\-V, \fB-\-version\fR
 Print version.
 
-
 .SH SEE ALSO
 .BR tracker-search (1),
+.BR tracker-sparql (1),
 .BR tracker-store (1),
-.BR tracker-services (1).
-
-.SH AUTHOR
-tracker-search-tool was written by Jamie McCracken <jamiemcc@gnome.org>.
-.PP
-This manual page was written by Michael Biebl <biebl@debian.org>,
-for the Debian project (but may be used by others).

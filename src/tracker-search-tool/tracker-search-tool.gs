@@ -35,11 +35,10 @@ const static LICENSE : string =\
 "  http://www.gnu.org/licenses/gpl.txt\n"
 
 window : Window
-service : string?
 terms : array of string?
 search_string : string?
 print_version: bool
-const options : array of OptionEntry = {{"service", 's', 0, OptionArg.STRING, ref service, "Search from a specific service", "SERVICE" }, {"version", 'V', 0, OptionArg.NONE, ref print_version, "Print version", null }, {"", 0, 0, OptionArg.STRING_ARRAY, ref terms, "search terms", null}, { null }}
+const options : array of OptionEntry = { {"version", 'V', 0, OptionArg.NONE, ref print_version, "Print version", null }, {"", 0, 0, OptionArg.STRING_ARRAY, ref terms, "search terms", null}, { null }}
 
 [DBus (name = "org.freedesktop.Tracker1.SearchTool")]
 class TrackerSearchToolServer : GLib.Object
