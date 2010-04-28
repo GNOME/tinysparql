@@ -64,8 +64,8 @@ struct TrackerMinerFilesPrivate {
 
 	GVolumeMonitor *volume_monitor;
 
-        GSList *index_recursive_directories;
-        GSList *index_single_directories;
+	GSList *index_recursive_directories;
+	GSList *index_single_directories;
 
 	guint disk_space_check_id;
 	guint disk_space_pause_cookie;
