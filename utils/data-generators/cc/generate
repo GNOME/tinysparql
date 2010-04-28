@@ -37,7 +37,8 @@ except:
 tools.addType( 'nco#EmailAddress', 10 )
 tools.addType( 'nco#PostalAddress', 11 )
 tools.addType( 'nco#PhoneNumber', 12 )
-tools.addType( 'nco#PersonContact', 13 )
+tools.addType( 'nco#IMAddress', 13 )
+tools.addType( 'nco#PersonContact', 18 )
 tools.addType( 'nmm#Photo', 20 )
 tools.addType( 'nmm#Video', 21 )
 tools.addType( 'nmo#MailAccount', 30 )
@@ -73,6 +74,7 @@ for contact in xrange(1, count_contacts+1):
   nco.generateEmailAddress( contact )
   nco.generatePostalAddress( contact )
   nco.generatePhoneNumber( contact )
+  nco.generateIMAddress ( contact )
   nco.generatePersonContact( contact )
 print "Done"
 
