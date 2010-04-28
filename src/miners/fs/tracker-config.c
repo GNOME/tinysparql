@@ -37,6 +37,7 @@
 #define GROUP_GENERAL                            "General"
 #define GROUP_MONITORS                           "Monitors"
 #define GROUP_INDEXING                           "Indexing"
+#define GROUP_CRAWLING                           "Crawling"
 
 /* Default values */
 #define DEFAULT_VERBOSITY                        0
@@ -51,6 +52,7 @@
 #define DEFAULT_INDEX_ON_BATTERY                 FALSE
 #define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
 #define DEFAULT_LOW_DISK_SPACE_LIMIT             1        /* 0->100 / -1 */
+#define DEFAULT_CRAWLING_INTERVAL                0        /* 0->7 / -1 */
 
 typedef struct {
 	/* General */
@@ -77,6 +79,7 @@ typedef struct {
 	GSList   *ignored_directories;
 	GSList   *ignored_directories_with_content;
 	GSList   *ignored_files;
+	gint	  crawling_interval;
 
 	/* Convenience data */
 	GSList   *ignored_directory_patterns;
@@ -135,6 +138,7 @@ enum {
 	PROP_IGNORED_DIRECTORIES,
 	PROP_IGNORED_DIRECTORIES_WITH_CONTENT,
 	PROP_IGNORED_FILES,
+	PROP_CRAWLING_INTERVAL
 };
 
 static ObjectToKeyFile conversions[] = {
@@ -158,6 +162,7 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_POINTER, "ignored-directories",              GROUP_INDEXING, "IgnoredDirectories"        },
 	{ G_TYPE_POINTER, "ignored-directories-with-content", GROUP_INDEXING, "IgnoredDirectoriesWithContent" },
 	{ G_TYPE_POINTER, "ignored-files",                    GROUP_INDEXING, "IgnoredFiles"              },
+	{ G_TYPE_INT,	  "crawling-interval",		      GROUP_INDEXING, "CrawlingInterval"	  }
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
@@ -321,6 +326,29 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                       "Ignored files",
 	                                                       " List of files to NOT index (separator=;)",
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+	                         PROP_CRAWLING_INTERVAL,
+	                                 g_param_spec_int ("crawling-interval",
+	                                                   "Crawling interval",
+                                                           " Interval in days to check the filesystem is up to date in the database."
+                                                           " If set to 0, crawling always occurs on startup, if -1 crawling is"
+                                                           " disabled entirely.",
+	                                                   -1,
+	                                                   G_MAXINT,
+	                                                   DEFAULT_CRAWLING_INTERVAL,
+	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
+        /* Crawling */
+	g_object_class_install_property (object_class,
+	                         PROP_CRAWLING_INTERVAL,
+	                                 g_param_spec_int ("crawling-interval",
+	                                                   "Crawling interval",
+	                                                   " Interval at which startup crawling may happen. 0 is always, -1 is never,"
+	                                                   " and any number > 0 is the crawling interval in number of days.",
+	                                                   -1,
+	                                                   G_MAXINT,
+	                                                   DEFAULT_CRAWLING_INTERVAL,
+	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
@@ -410,6 +438,10 @@ config_set_property (GObject      *object,
 		tracker_config_set_ignored_files (TRACKER_CONFIG (object),
 		                                  g_value_get_pointer (value));
 		break;
+	case PROP_CRAWLING_INTERVAL:
+		tracker_config_set_crawling_interval (TRACKER_CONFIG (object),
+		                                      g_value_get_int (value));
+		break;
 
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -484,7 +516,9 @@ config_get_property (GObject    *object,
 	case PROP_IGNORED_FILES:
 		g_value_set_pointer (value, priv->ignored_files);
 		break;
-
+	case PROP_CRAWLING_INTERVAL:
+		g_value_set_int (value, priv->crawling_interval);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -1302,6 +1336,18 @@ tracker_config_get_ignored_files (TrackerConfig *config)
 	return priv->ignored_files;
 }
 
+gint
+tracker_config_get_crawling_interval (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), 0);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->crawling_interval;
+}
+
 void
 tracker_config_set_verbosity (TrackerConfig *config,
                               gint           value)
@@ -1728,6 +1774,24 @@ tracker_config_set_ignored_files (TrackerConfig *config,
 	config_set_ignored_file_conveniences (config);
 
 	g_object_notify (G_OBJECT (config), "ignored-files");
+}
+
+void
+tracker_config_set_crawling_interval (TrackerConfig *config,
+                                      gint           interval)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	if (!tracker_keyfile_object_validate_int (config, "crawling-interval", interval)) {
+		return;
+	}
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	priv->crawling_interval = interval;
+	g_object_notify (G_OBJECT (config), "crawling-interval");
 }
 
 /*

@@ -139,6 +139,8 @@ struct TrackerMinerFSPrivate {
 	guint           shown_totals : 1;
 	guint           is_paused : 1;
 	guint           is_crawling : 1;
+	guint		mtime_checking : 1;
+	guint		initial_crawling : 1;
 
 	/* Statistics */
 	guint           total_directories_found;
@@ -180,7 +182,9 @@ enum {
 enum {
 	PROP_0,
 	PROP_THROTTLE,
-	PROP_POOL_LIMIT
+	PROP_POOL_LIMIT,
+	PROP_MTIME_CHECKING,
+	PROP_INITIAL_CRAWLING
 };
 
 static void           fs_finalize                         (GObject              *object);
@@ -304,6 +308,21 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                    "Number of files that can be concurrently processed",
 	                                                    1, G_MAXUINT, 1,
 	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+ 	                                 PROP_MTIME_CHECKING,
+	                                 g_param_spec_boolean ("mtime-checking",
+	                                                       "Mtime checking",
+	                                                       "Whether to perform mtime checks during initial crawling or not",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+	                                 PROP_INITIAL_CRAWLING,
+	                                 g_param_spec_boolean ("initial-crawling",
+	                                                       "Initial crawling",
+	                                                       "Whether to perform initial crawling or not",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE));
+
 	/**
 	 * TrackerMinerFS::check-file:
 	 * @miner_fs: the #TrackerMinerFS
@@ -535,6 +554,9 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                                         (GEqualFunc) g_file_equal,
 	                                         (GDestroyNotify) g_object_unref,
 	                                         (GDestroyNotify) g_free);
+
+	priv->mtime_checking = TRUE;
+	priv->initial_crawling = TRUE;
 }
 
 static ProcessData *
@@ -687,6 +709,12 @@ fs_set_property (GObject      *object,
 		fs->private->pool_limit = g_value_get_uint (value);
 		g_message ("Miner process pool limit is set to %d", fs->private->pool_limit);
 		break;
+	case PROP_MTIME_CHECKING:
+		fs->private->mtime_checking = g_value_get_boolean (value);
+                break;
+	case PROP_INITIAL_CRAWLING:
+		fs->private->initial_crawling = g_value_get_boolean (value);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -709,6 +737,12 @@ fs_get_property (GObject    *object,
 		break;
 	case PROP_POOL_LIMIT:
 		g_value_set_uint (value, fs->private->pool_limit);
+		break;
+	case PROP_MTIME_CHECKING:
+		g_value_set_boolean (value, fs->private->mtime_checking);
+                break;
+	case PROP_INITIAL_CRAWLING:
+		g_value_set_boolean (value, fs->private->initial_crawling);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -2566,6 +2600,12 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 {
 	TrackerMinerFS *fs = user_data;
 
+	if (!fs->private->been_crawled &&
+	    (!fs->private->mtime_checking ||
+             !fs->private->initial_crawling)) {
+		return FALSE;
+	}
+
 	return should_process_file (fs, file, FALSE);
 }
 
@@ -2585,7 +2625,13 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 	} else {
                 gboolean should_change_index;
 
-		should_change_index = should_change_index_for_file (fs, file);
+		if (!fs->private->been_crawled &&
+		    (!fs->private->mtime_checking ||
+                     !fs->private->initial_crawling)) {
+			should_change_index = FALSE;
+		} else {
+			should_change_index = should_change_index_for_file (fs, file);
+		}
 
 		if (!should_change_index) {
 			/* Mark the file as ignored, we still want the crawler
@@ -3296,4 +3342,21 @@ tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
 	fs->private->directories = g_list_concat (fs->private->directories, directories);
 
 	crawl_directories_start (fs);
+}
+
+void
+tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
+                                       gboolean        do_initial_crawling)
+{
+        g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+
+        fs->private->initial_crawling = do_initial_crawling;
+}
+
+gboolean
+tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
+{
+        g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
+
+        return fs->private->initial_crawling;
 }

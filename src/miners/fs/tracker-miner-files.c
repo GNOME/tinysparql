@@ -44,6 +44,7 @@
 #include "tracker-marshal.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
+#define SECONDS_PER_DAY 60 * 60 * 24
 
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
 
@@ -95,6 +96,8 @@ enum {
 	PROP_0,
 	PROP_CONFIG
 };
+
+static gchar *crawl_timestamp_file = NULL;
 
 static void        miner_files_set_property             (GObject              *object,
                                                          guint                 param_id,
@@ -160,6 +163,8 @@ static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *f
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
                                                          GCancellable         *cancellable);
+static void        miner_files_finished                 (TrackerMinerFS       *fs);
+
 static void      extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
                                                          ProcessFileData *data);
 
@@ -190,6 +195,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_fs_class->monitor_directory = miner_files_monitor_directory;
 	miner_fs_class->process_file = miner_files_process_file;
 	miner_fs_class->ignore_next_update_file = miner_files_ignore_next_update_file;
+        miner_fs_class->finished = miner_files_finished;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_CONFIG,
@@ -1306,8 +1312,6 @@ miner_files_check_directory (TrackerMinerFS *fs,
 	                                            tracker_config_get_index_single_directories (mf->private->config),
 	                                            tracker_config_get_ignored_directory_paths (mf->private->config),
 	                                            tracker_config_get_ignored_directory_patterns (mf->private->config));
-
-
 }
 
 static gboolean
@@ -1770,6 +1774,73 @@ miner_files_ignore_next_update_file (TrackerMinerFS       *fs,
 	return TRUE;
 }
 
+static gboolean
+should_check_mtime (TrackerConfig *config)
+{
+	gint crawling_interval;
+
+	if (G_UNLIKELY (!crawl_timestamp_file)) {
+		crawl_timestamp_file = g_build_filename (g_get_user_cache_dir (),
+		                                         "tracker",
+		                                         "crawling-timestamp.txt",
+		                                         NULL);
+	}
+
+	crawling_interval = tracker_config_get_crawling_interval (config);
+
+	g_message ("Checking whether to perform mtime checks during crawling:");
+
+	if (crawling_interval == -1) {
+		g_message ("  Disabled");
+		return FALSE;
+	} else if (crawling_interval == 0) {
+		g_message ("  Enabled");
+		return TRUE;
+	} else {
+		guint64 then, now;
+		gchar *content;
+
+		if (!g_file_get_contents (crawl_timestamp_file, &content, NULL, NULL)) {
+			g_message ("  No previous timestamp, crawling forced");
+			return TRUE;
+		}
+
+		now = (guint64) time (NULL);
+
+		then = g_ascii_strtoull (content, NULL, 10);
+		g_free (content);
+
+		if (now < then + (crawling_interval * SECONDS_PER_DAY)) {
+			g_message ("  Postponed");
+			return FALSE;
+		} else {
+			g_message ("Not occurred for %d days, crawling forced", crawling_interval);
+			return FALSE;
+		}
+	}
+}
+
+static void
+save_crawling_time (void)
+{
+	GError *error = NULL;
+	gchar *content;
+
+	content = g_strdup_printf ("%" G_GUINT64_FORMAT, (guint64) time (NULL));
+
+	g_file_set_contents (crawl_timestamp_file, content, -1, &error);
+
+	if (error) {
+		g_critical ("Could not save crawling timestamp: %s", error->message);
+		g_error_free (error);
+	}
+}
+
+static void
+miner_files_finished (TrackerMinerFS *fs)
+{
+        save_crawling_time ();
+}
 
 TrackerMiner *
 tracker_miner_files_new (TrackerConfig *config)
@@ -1778,6 +1849,7 @@ tracker_miner_files_new (TrackerConfig *config)
 	                     "name", "Files",
 	                     "config", config,
 	                     "process-pool-limit", 10,
+	                     "mtime-checking", should_check_mtime (config),
 	                     NULL);
 }
 

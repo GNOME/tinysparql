@@ -112,6 +112,11 @@ G_CONST_RETURN gchar *tracker_miner_fs_get_parent_urn   (TrackerMinerFS *fs,
                                                          GFile          *file);
 void                  tracker_miner_fs_force_recheck    (TrackerMinerFS *fs);
 
+void                  tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
+                                                             gboolean        do_initial_crawling);
+gboolean              tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs);
+
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_MINER_MINER_FS_H__ */

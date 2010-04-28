@@ -70,6 +70,7 @@ GSList *       tracker_config_get_index_single_directories_unfiltered    (Tracke
 GSList *       tracker_config_get_ignored_directories              (TrackerConfig *config);
 GSList *       tracker_config_get_ignored_directories_with_content (TrackerConfig *config);
 GSList *       tracker_config_get_ignored_files                    (TrackerConfig *config);
+gint           tracker_config_get_crawling_interval                (TrackerConfig *config);
 
 void           tracker_config_set_verbosity                        (TrackerConfig *config,
                                                                     gint           value);
@@ -105,6 +106,8 @@ void           tracker_config_set_ignored_directories_with_content (TrackerConfi
                                                                     GSList        *files);
 void           tracker_config_set_ignored_files                    (TrackerConfig *config,
                                                                     GSList        *files);
+void           tracker_config_set_crawling_interval                (TrackerConfig *config,
+                                                                    gint           interval);
 
 /*
  * Convenience functions:

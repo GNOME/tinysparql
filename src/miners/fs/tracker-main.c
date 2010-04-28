@@ -62,6 +62,8 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
+#define SECONDS_PER_DAY 60 * 60 * 24
+
 static GMainLoop *main_loop;
 static GSList *miners;
 static GSList *current_miner;
@@ -72,6 +74,7 @@ static gint initial_sleep = -1;
 static gchar *eligible;
 static gchar *add_file;
 static gboolean version;
+static gchar *crawl_timestamp_file;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -192,6 +195,68 @@ initialize_priority (void)
 	}
 }
 
+static gboolean
+should_crawl (TrackerConfig *config)
+{
+	gint crawling_interval;
+
+	if (G_UNLIKELY (!crawl_timestamp_file)) {
+		crawl_timestamp_file = g_build_filename (g_get_user_cache_dir (),
+		                                         "tracker",
+		                                         "crawling-timestamp.txt",
+		                                         NULL);
+	}
+
+	crawling_interval = tracker_config_get_crawling_interval (config);
+
+	g_message ("Checking whether to perform mtime checks during crawling:");
+
+	if (crawling_interval == -1) {
+		g_message ("  Disabled");
+		return FALSE;
+	} else if (crawling_interval == 0) {
+		g_message ("  Enabled");
+		return TRUE;
+	} else {
+		guint64 then, now;
+		gchar *content;
+
+		if (!g_file_get_contents (crawl_timestamp_file, &content, NULL, NULL)) {
+			g_message ("  No previous timestamp, crawling forced");
+			return TRUE;
+		}
+
+		now = (guint64) time (NULL);
+
+		then = g_ascii_strtoull (content, NULL, 10);
+		g_free (content);
+
+		if (now < then + (crawling_interval * SECONDS_PER_DAY)) {
+			g_message ("  Postponed");
+			return FALSE;
+		} else {
+			g_message ("  (More than) %d days after last crawling, enabled", crawling_interval);
+			return FALSE;
+		}
+	}
+}
+
+static void
+save_crawling_time (void)
+{
+	GError *error = NULL;
+	gchar *content;
+
+	content = g_strdup_printf ("%" G_GUINT64_FORMAT, (guint64) time (NULL));
+
+	g_file_set_contents (crawl_timestamp_file, content, -1, &error);
+
+	if (error) {
+		g_critical ("Could not save crawling timestamp: %s", error->message);
+		g_error_free (error);
+	}
+}
+
 static void
 miner_handle_next (void)
 {
@@ -240,6 +305,11 @@ miner_finished_cb (TrackerMinerFS *fs,
 		GMainLoop *main_loop = user_data;
 		g_main_loop_quit (main_loop);
 		return;
+	}
+
+	if (TRACKER_IS_MINER_FILES (fs) &&
+	    tracker_miner_fs_get_initial_crawling (fs)) {
+		save_crawling_time ();
 	}
 
 	miner_handle_next ();
@@ -586,6 +656,8 @@ main (gint argc, gchar *argv[])
 
 	if (!add_file) {
 		miner_files = tracker_miner_files_new (config);
+		tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files),
+		                                       should_crawl (config));
 	} else {
 		GFile *file;
 
