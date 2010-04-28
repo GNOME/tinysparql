@@ -132,6 +132,8 @@ typedef struct {
 	GMutex *mutex;
 	GCond *cond;
 	gboolean has_happened;
+	gpointer pool;
+	gboolean dont_free;
 } PoolItem;
 
 typedef struct {
@@ -339,6 +341,7 @@ static void
 thread_pool_exec (gpointer data, gpointer user_data)
 {
 	ThreadPool *pool = user_data;
+	PoolItem *item;
 	gboolean dying;
 
 	g_mutex_lock (pool->mutex);
@@ -346,10 +349,13 @@ thread_pool_exec (gpointer data, gpointer user_data)
 	pool->items = g_list_remove (pool->items, data);
 	g_mutex_unlock (pool->mutex);
 
+
 	if (!dying)
 		pool->func (data, pool->cancel);
 
-	pool->freeup (data, pool->cancel);
+	item = data;
+	if (!item->dont_free)
+		pool->freeup (data, pool->cancel);
 }
 
 
@@ -357,6 +363,7 @@ static void
 reply_void (GError *error, gpointer  user_data)
 {
 	PoolItem *item = user_data;
+	ThreadPool *pool = item->pool;
 
 	if (error) {
 		g_debug ("Tracker plugin: Error updating data: %s\n", error->message);
@@ -366,6 +373,9 @@ reply_void (GError *error, gpointer  user_data)
 	g_cond_broadcast (item->cond);
 	item->has_happened = TRUE;
 	g_mutex_unlock (item->mutex);
+
+	if (item->dont_free)
+		pool->freeup (item, pool->cancel);
 }
 
 static void
@@ -395,6 +405,7 @@ exec_update (gpointer data, gpointer user_data)
 		g_get_current_time (&val);
 		g_time_val_add (&val, 5 * 1000000); /* 5 seconds worth of patience */
 		no_patience = g_cond_timed_wait (item->cond, item->mutex, &val);
+		item->dont_free = !no_patience;
 	}
 	g_mutex_unlock (item->mutex);
 
@@ -480,6 +491,8 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql, gint prio
 		if (!sparql_pool)
 			sparql_pool = thread_pool_new (exec_update, free_pool_item, pool_sort_func);
 
+		item->pool = sparql_pool;
+		item->dont_free = FALSE;
 		item->prio = prio;
 		item->commit = FALSE;
 		item->client = g_object_ref (priv->client);
@@ -513,6 +526,8 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 		if (!sparql_pool)
 			sparql_pool = thread_pool_new (exec_update, free_pool_item, pool_sort_func);
 
+		item->pool = sparql_pool;
+		item->dont_free = FALSE;
 		item->prio = 0;
 		item->commit = TRUE;
 		item->client = g_object_ref (priv->client);
