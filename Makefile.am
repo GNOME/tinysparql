@@ -22,9 +22,11 @@ coverage-report: coverage
 		tracker-sparql-scanner.c \
 		tracker-turtle-reader.c \
 		tracker-turtle-writer.c \
+		libtracker-miner/tracker-storage.c \
 		"*.vapi" \
 		"*-glue.h" \
-		"tracker-marshal.*"
+		"tracker-marshal.*" \
+		"inotify-*.*" 
 	rm -rf $(top_builddir)/coverage
 	$(mkdir_p) $(top_builddir)/coverage
 	genhtml --title "@PACKAGE_STRING@" --output-directory $(top_builddir)/coverage $(top_builddir)/lcov.info
