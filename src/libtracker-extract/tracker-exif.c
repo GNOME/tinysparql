@@ -380,8 +380,17 @@ parse_exif (const unsigned char *buffer,
 		data->metering_mode = get_metering_mode (exif, EXIF_TAG_METERING_MODE);
 	if (!data->white_balance)
 		data->white_balance = get_white_balance (exif, EXIF_TAG_WHITE_BALANCE);
-	if (!data->copyright)
+	if (!data->copyright) {
+		gchar *strip_off;
 		data->copyright = get_value (exif, EXIF_TAG_COPYRIGHT);
+		/* exiftool catenates this to the string, so we don't need it */
+		if (data->copyright) {
+			strip_off = strstr (data->copyright, " (Photographer) -  (Editor)");
+			if (strip_off) {
+				*strip_off = '\0';
+			}
+		}
+	}
 	if (!data->software)
 		data->software = get_value (exif, EXIF_TAG_SOFTWARE);
 
