@@ -448,9 +448,11 @@ thread_pool_new (GFunc func, GFunc freeup, GCompareDataFunc sorter)
 static void
 thread_pool_push (ThreadPool *pool, gpointer item, gpointer user_data)
 {
+	g_mutex_lock (pool->mutex);
 	pool->items = g_list_prepend (pool->items, item);
 	if (!pool->dying)
 		g_thread_pool_push (pool->pool, item, user_data);
+	g_mutex_unlock (pool->mutex);
 }
 
 static gpointer
