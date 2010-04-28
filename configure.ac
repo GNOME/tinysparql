@@ -1682,6 +1682,7 @@ AC_CONFIG_FILES([
 	src/plugins/nautilus/Makefile
 	src/vapi/Makefile
 	tests/common/Makefile
+        tests/libtracker-client/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-extract/Makefile
 	tests/libtracker-data/Makefile
