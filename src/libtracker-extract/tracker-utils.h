@@ -17,6 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <stdio.h>
+
 #ifndef __LIBTRACKER_EXTRACT_UTILS_H__
 #define __LIBTRACKER_EXTRACT_UTILS_H__
 
@@ -42,9 +44,12 @@ gchar*       tracker_date_format_to_iso8601 (const gchar *date_string,
                                              const gchar *format);
 const gchar* tracker_coalesce_strip         (gint         n_values,
                                                           ...);
-gchar*       tracker_merge_const            (const gchar *delimiter, 
+gchar*       tracker_merge_const            (const gchar *delimiter,
                                              gint         n_values,
                                                           ...);
+gint         tracker_getline                (gchar      **lineptr,
+                                             guint       *n,
+                                             FILE        *stream);
 
 G_END_DECLS
 

@@ -46,6 +46,7 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
+
 static void
 extract_abw (const gchar          *uri,
              TrackerSparqlBuilder *preupdate,
@@ -69,7 +70,7 @@ extract_abw (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nfo:Document");
 
-		while ((read_char = getline (&line, &length, f)) != -1) {
+		while ((read_char = tracker_getline (&line, &length, f)) != -1) {
 			if (g_str_has_suffix (line, "</m>\n")) {
 				line[read_char - 5] = '\0';
 			}

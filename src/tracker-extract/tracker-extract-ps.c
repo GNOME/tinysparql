@@ -38,20 +38,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#ifndef HAVE_GETLINE
-
-#include <stddef.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <errno.h>
-
-#undef getdelim
-#undef getline
-
-#define GROW_BY 80
-
-#endif /* HAVE_GETLINE */
-
 #ifdef USING_UNZIPPSFILES
 static void extract_ps_gz (const gchar          *uri,
                            TrackerSparqlBuilder *preupdate,
@@ -68,72 +54,6 @@ static TrackerExtractData data[] = {
 	{ "application/postscript",     extract_ps    },
 	{ NULL, NULL }
 };
-
-#ifndef HAVE_GETLINE
-
-static ssize_t
-igetdelim (gchar  **linebuf,
-           size_t  *linebufsz,
-           gint     delimiter,
-           FILE    *file)
-{
-	gint ch;
-	gint idx;
-
-	if ((file == NULL || linebuf == NULL || *linebuf == NULL || *linebufsz == 0) &&
-	    !(*linebuf == NULL && *linebufsz == 0)) {
-		errno = EINVAL;
-		return -1;
-	}
-
-	if (*linebuf == NULL && *linebufsz == 0) {
-		*linebuf = g_malloc (GROW_BY);
-
-		if (!*linebuf) {
-			errno = ENOMEM;
-			return -1;
-		}
-
-		*linebufsz += GROW_BY;
-	}
-
-	idx = 0;
-
-	while ((ch = fgetc (file)) != EOF) {
-		/* Grow the line buffer as necessary */
-		while (idx > *linebufsz - 2) {
-			*linebuf = g_realloc (*linebuf, *linebufsz += GROW_BY);
-
-			if (!*linebuf) {
-				errno = ENOMEM;
-				return -1;
-			}
-		}
-		(*linebuf)[idx++] = (gchar) ch;
-
-		if ((gchar) ch == delimiter) {
-			break;
-		}
-	}
-
-	if (idx != 0) {
-		(*linebuf)[idx] = 0;
-	} else if ( ch == EOF ) {
-		return -1;
-	}
-
-	return idx;
-}
-
-static gint
-getline (gchar **s,
-         guint  *lim,
-         FILE   *stream)
-{
-	return igetdelim (s, lim, '\n', stream);
-}
-
-#endif /* HAVE_GETLINE */
 
 static gchar *
 hour_day_str_day (const gchar *date)
@@ -234,7 +154,7 @@ extract_ps_from_filestream (FILE *f,
 	 *  b) No more lines to read
 	 */
 	while ((accum < max_bytes) &&
-	       (read_char = getline (&line, &length, f)) != -1) {
+	       (read_char = tracker_getline (&line, &length, f)) != -1) {
 		gboolean pageno_atend = FALSE;
 		gboolean header_finished = FALSE;
 

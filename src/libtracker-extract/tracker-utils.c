@@ -20,13 +20,33 @@
 #include "config.h"
 
 #define _XOPEN_SOURCE
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <time.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-date-time.h>
 
 #include "tracker-utils.h"
+
+#ifndef HAVE_GETLINE
+
+#include <stddef.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <errno.h>
+
+#undef getdelim
+#undef getline
+
+#define GROW_BY 80
+
+#endif /* HAVE_GETLINE */
 
 #define DATE_FORMAT_ISO8601 "%Y-%m-%dT%H:%M:%S%z"
 
@@ -752,3 +772,76 @@ tracker_date_guess (const gchar *date_string)
 
 	return g_strdup (date_string);
 }
+
+#ifndef HAVE_GETLINE
+static gint
+my_igetdelim (gchar  **linebuf,
+              guint   *linebufsz,
+              gint     delimiter,
+              FILE    *file)
+{
+	gint ch;
+	gint idx;
+
+	if ((file == NULL || linebuf == NULL || *linebuf == NULL || *linebufsz == 0) &&
+	    !(*linebuf == NULL && *linebufsz == 0)) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	if (*linebuf == NULL && *linebufsz == 0) {
+		*linebuf = g_malloc (GROW_BY);
+
+		if (!*linebuf) {
+			errno = ENOMEM;
+			return -1;
+		}
+
+		*linebufsz += GROW_BY;
+	}
+
+	idx = 0;
+
+	while ((ch = fgetc (file)) != EOF) {
+		/* Grow the line buffer as necessary */
+		while (idx > *linebufsz - 2) {
+			*linebuf = g_realloc (*linebuf, *linebufsz += GROW_BY);
+
+			if (!*linebuf) {
+				errno = ENOMEM;
+				return -1;
+			}
+		}
+		(*linebuf)[idx++] = (gchar) ch;
+
+		if ((gchar) ch == delimiter) {
+			break;
+		}
+	}
+
+	if (idx != 0) {
+		(*linebuf)[idx] = 0;
+	} else if ( ch == EOF ) {
+		return -1;
+	}
+
+	return idx;
+}
+
+gint
+tracker_getline (gchar **lineptr,
+                 guint  *n,
+                 FILE *stream)
+{
+	return my_igetdelim (lineptr, n, '\n', stream);
+}
+
+#else
+gint
+tracker_getline (gchar **lineptr,
+                 guint  *n,
+                 FILE *stream)
+{
+	return getline (lineptr, n, stream);
+}
+#endif /* HAVE_GETLINE */
