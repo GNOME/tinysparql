@@ -1,3 +1,63 @@
+NEW in 0.8.4 - 2010-04-29
+=========================
+
+Improvements / New:
+
+  General:
+  * Fixed miner desktop files so they have trailing ; for Categories
+  * Added structural view design document
+  * Added queries for contact data generation scripts
+  * Added queries for message data generation scripts
+  * Added debugging to libinotify to assist in fixing GB#615965
+  * Updated data generation scripts and templates quite heavily
+
+  Functional Tests:
+  * Fixed query used for getting image metdata
+  * Fixed signal handling in miner file operations test
+  * Fixed performance scripts to not use isStoredAs
+  * Updated contact related performance queries
+  * Updated message related performance queries
+  * Added writeback support for PNG, TIFF, MP4
+
+  libtracker-db:
+  * Added tracker:uri-is-parent SQLite functions (for crawling improvements)
+  * Added tracker:uri-is-descendant SQLite functions (for crawling improvements)
+
+  libtracker-miner:
+  * Improve crawling queries (3693 dirs, 27678 files, was 651s, now 166s)
+
+  libtracker-client:
+  * Added initial test cases
+
+  tracker-extract:
+  * Fixed man page for -d
+  * Fixed double free in Vorbis extractor, caused timeouts in miner-fs logs
+
+  evolution:
+  * Fixed race condition
+
+  tracker-search-tool:
+  * Removed --service (old 0.6 option which is unused)
+  * Added support for starting queries using command line arguments
+
+Bugs:
+
+  * GB#615930 - crash in evolution caused by tracker plugin
+  * GB#616493 - Remove unzip dependency from the OASIS extractor
+  * GB#615836 - tracker:available doesnt work: wrong dataSource for removeable drives
+  * NB#166080 - extraction of copyright for jpg image is partially correct
+  * NB#164958 - tracker-search for a default song doesn't work for "beautif" and "beautifu"
+
+Translations:
+
+  * Updated cs: Petr Kovar
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.8.3 - 2010-04-22
 =========================
 
