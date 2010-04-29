@@ -514,7 +514,8 @@ class images(TrackerHelpers):
 					results = self.query (query)
 					print results
 					print  'Expected = ' + expRes.strip()
-					if len(results) > 0 and expRes.strip() == results[0][0]:
+					exp_val = (expRes.strip()).split(' mm')
+					if len(results) > 0 and exp_val[0] == results[0][0]:
 						print  'Actual = ' + results[0][0]
 					else:
 						Results[testFile]=parm
@@ -543,8 +544,10 @@ class images(TrackerHelpers):
 				print parm
                                 if parm.rstrip() == 'Keyword':
 					query = "SELECT ?value WHERE { \
-					?uid nie:url <%s>; \
-					nie:keyword ?value.}" %(file_uri)
+					?i a nfo:Image .\
+					?i nie:url <%s>.\
+					?i nao:hasTag ?tag.\
+					?tag nao:prefLabel ?value.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results
