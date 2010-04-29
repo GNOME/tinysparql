@@ -243,15 +243,17 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 		return;
 	}
 
+	parent_len = sqlite3_value_bytes (argv[0]);
+
 	/* Check only one argument, it's going to
 	 * be compared with the other anyway.
 	 */
-	if (strstr (parent, "://") == NULL) {
+
+	if (!(parent_len >= 7 && (parent[4] == ':' && parent[5] == '/' && parent[6] == '/')) ||
+	    strstr (parent, "://") == NULL) {
 		sqlite3_result_int (context, FALSE);
 		return;
 	}
-
-	parent_len = strlen (parent);
 
 	/* Remove trailing '/', will
 	 * be checked later on uri.
@@ -312,15 +314,17 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 		return;
 	}
 
+	parent_len = sqlite3_value_bytes (argv[0]);
+
 	/* Check only one argument, it's going to
 	 * be compared with the other anyway.
 	 */
-	if (strstr (parent, "://") == NULL) {
+	if (!(parent_len >= 7 && (parent[4] == ':' && parent[5] == '/' && parent[6] == '/')) ||
+	    strstr (parent, "://") == NULL) {
 		sqlite3_result_int (context, FALSE);
 		return;
 	}
 
-	parent_len = strlen (parent);
 
 	/* Remove trailing '/', will
 	 * be checked later on uri.

@@ -2155,7 +2155,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	CacheQueryData data;
 	GFile *parent;
 
-        if (G_UNLIKELY (!fs->private->mtime_cache)) {
+	if (G_UNLIKELY (!fs->private->mtime_cache)) {
 		fs->private->mtime_cache = g_hash_table_new_full (g_file_hash,
 		                                                  (GEqualFunc) g_file_equal,
 		                                                  (GDestroyNotify) g_object_unref,
@@ -2182,9 +2182,8 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_debug ("Generating mtime cache for folder: %s", uri);
 
-	query = g_strdup_printf ("SELECT ?uri ?time { "
-	                         "  ?u nfo:fileLastModified ?time ; "
-	                         "     nie:url ?uri . "
+	query = g_strdup_printf ("SELECT ?uri nfo:fileLastModified (?u) { "
+	                         "  ?u nie:url ?uri . "
 	                         "  FILTER (tracker:uri-is-parent (\"%s\", ?uri)) "
 	                         "}",
 	                         uri);
