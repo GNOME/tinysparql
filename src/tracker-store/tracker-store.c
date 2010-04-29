@@ -425,7 +425,8 @@ pool_dispatch_cb (gpointer data,
 
 		task->data.query.thread_data = task->callback.query.in_thread (cursor, task->error, task->user_data);
 
-		g_object_unref (cursor);
+		if (cursor)
+			g_object_unref (cursor);
 		task->data.query.running_thread = NULL;
 
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
