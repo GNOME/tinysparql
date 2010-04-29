@@ -773,6 +773,21 @@ tracker_date_guess (const gchar *date_string)
 	return g_strdup (date_string);
 }
 
+/**
+ * tracker_getline:
+ * @linebuf: Buffer to write into
+ * @n: Max bytes of linebuf
+ * @stream: Filestream to read from
+ *
+ * Reads an entire line from stream, storing the address of the buffer
+ * containing  the  text into *lineptr.  The buffer is null-terminated
+ * and includes the newline character, if one was found.
+ *
+ * Read GNU getline()'s manpage for more information
+ *
+ * Since: 0.9
+ **/
+
 #ifndef HAVE_GETLINE
 static gint
 my_igetdelim (gchar  **linebuf,
