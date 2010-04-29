@@ -25,8 +25,8 @@ VALAFLAGS =								\
 libexec_PROGRAMS = tracker-miner-flickr
 
 tracker_miner_flickr_VALASOURCES =					\
-	tracker-miner-flickr.vala					\
-	$(top_srcdir)/src/libtracker-client/tracker-client.vapi
+	$(top_srcdir)/src/libtracker-client/tracker-client.vapi		\
+	tracker-miner-flickr.vala
 
 tracker_miner_flickr_SOURCES =						\
 	$(tracker_miner_flickr_VALASOURCES:.vala=.c)
@@ -49,14 +49,18 @@ vapi_sources =								\
 
 tracker-miner-flickr.vala.stamp: $(tracker_miner_flickr_VALASOURCES) $(vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) $^
-	touch $@
+	$(AM_V_GEN)touch $@
 
 
-BUILT_SOURCES = tracker-miner-flickr.vala.stamp
+BUILT_SOURCES = 							\
+	tracker-miner-flickr.vala.stamp
+
+CLEANFILES =								\
+	$(BUILT_SOURCES)
 
 MAINTAINERCLEANFILES =							\
-	tracker-miner-flickr.vala.stamp					\
-	$(tracker_miner_flickr_VALASOURCES:.vala=.c)
+	$(tracker_miner_flickr_VALASOURCES:.vala=.c)			\
+	tracker-miner-flickr.vala.stamp
 
 EXTRA_DIST =								\
 	$(tracker_miner_flickr_VALASOURCES)				\

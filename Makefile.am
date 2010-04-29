@@ -64,6 +64,7 @@ DISTCHECK_CONFIGURE_FLAGS =			\
 	--enable-functional-tests		\
 	--enable-gtk-doc			\
 	--enable-miner-rss			\
+	--enable-miner-flickr			\
 	--enable-unac				\
 	--enable-poppler-glib			\
 	--enable-exempi				\
