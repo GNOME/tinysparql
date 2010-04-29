@@ -810,18 +810,18 @@ AC_ARG_ENABLE(miner_flickr,
                              [enable_miner_flickr=auto])
 
 if test "x$enable_miner_flickr" != "xno"; then
-	PKG_CHECK_MODULES(MINER_FLICKR,
-	                  [rest-0.6 >= $REST_REQUIRED],
-	                  [have_miner_flickr=yes],
-	                  [have_miner_flickr=no])
-	AC_SUBST(MINER_FLICKR_LIBS)
-	AC_SUBST(MINER_FLICKR_CFLAGS)
+   PKG_CHECK_MODULES(MINER_FLICKR,
+                     [rest >= $REST_REQUIRED],
+                     [have_miner_flickr=yes],
+                     [have_miner_flickr=no])
+   AC_SUBST(MINER_FLICKR_LIBS)
+   AC_SUBST(MINER_FLICKR_CFLAGS)
 fi
 
 if test "x$enable_miner_flickr" = "xyes"; then
-	if test "x$have_miner_flickr" != "xyes"; then
-		AC_MSG_ERROR([Couldn't find the required dependencies for the Flickr miner: rest-0.6 >= $REST_REQUIRED.])
-	fi
+   if test "x$have_miner_flickr" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find the required dependencies for the Flickr miner: rest-0.6 >= $REST_REQUIRED.])
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_MINER_FLICKR, test "x$have_miner_flickr" = "xyes")
