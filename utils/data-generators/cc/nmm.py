@@ -20,7 +20,8 @@ nmm_Photo = '''
     nmm:focalLength      "%(photo_focal_length)s";
     nmm:flash            <http://www.tracker-project.org/temp/nmm#flash-off> ;
     nmm:meteringMode     <http://www.tracker-project.org/temp/nmm#meteringMode-pattern> ;
-    nmm:whiteBalance     <http://www.tracker-project.org/temp/nmm#whiteBalance-auto> .
+    nmm:whiteBalance     <http://www.tracker-project.org/temp/nmm#whiteBalance-auto> ;
+    nao:hasTag           [a nao:Tag ; nao:prefLabel "%(photo_tag)s"] .
 '''
 def generatePhoto(index):
   me = 'nmm#Photo'
@@ -36,6 +37,7 @@ def generatePhoto(index):
   photo_fnumber      = '%d.0' % (1 + (index % 20))
   photo_focal_length = '%d.0' % (1 + (index % 500))
   photo_date         = '%d-%02d-%02dT01:01:01Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
+  photo_tag          = ('TEST', 'nomatch') [index %2]
 
   tools.addItem( me, photo_uri, nmm_Photo % locals() )
 
@@ -65,7 +67,7 @@ def generateVideo(index):
   video_date         = '%d-%02d-%02dT01:01:01Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
   video_samplerate   = str(index)
   video_duration     = str(index)
-  video_tag          = 'TEST%d' % index
+  video_tag          = ('TEST', 'nomatch') [index %2]
 
   tools.addItem( me, video_uri, nmm_Video % locals() )
 
