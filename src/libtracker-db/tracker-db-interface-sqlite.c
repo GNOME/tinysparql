@@ -250,7 +250,7 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 	 * be compared with the other anyway.
 	 */
 
-	if (!(parent_len >= 7 && (parent[4] == ':' || parent[5] == '/' || parent[6] == '/'))) {
+	if (!(parent_len >= 7 && (parent[4] == ':' && parent[5] == '/' && parent[6] == '/'))) {
 		if (strstr (parent, "://") == NULL) {
 			sqlite3_result_int (context, FALSE);
 			return;
@@ -322,7 +322,7 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 	 * be compared with the other anyway.
 	 */
 
-	if (!(parent_len >= 7 && (parent[4] == ':' || parent[5] == '/' || parent[6] == '/'))) {
+	if (!(parent_len >= 7 && (parent[4] == ':' && parent[5] == '/' && parent[6] == '/'))) {
 		if (strstr (parent, "://") == NULL) {
 			sqlite3_result_int (context, FALSE);
 			return;
