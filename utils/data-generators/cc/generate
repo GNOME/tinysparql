@@ -17,6 +17,7 @@ import nfo
 import mfo
 import mto
 import nmo
+import mlo
 import tracker
 
 
@@ -39,8 +40,10 @@ tools.addType( 'nco#PostalAddress', 11 )
 tools.addType( 'nco#PhoneNumber', 12 )
 tools.addType( 'nco#IMAddress', 13 )
 tools.addType( 'nco#PersonContact', 18 )
-tools.addType( 'nmm#Photo', 20 )
-tools.addType( 'nmm#Video', 21 )
+tools.addType( 'mlo#GeoPoint', 20 )
+tools.addType( 'mlo#LocationBoundingBox', 21 )
+tools.addType( 'mlo#GeoLocation', 28 )
+tools.addType( 'mlo#Landmark', 29 )
 tools.addType( 'nmo#MailAccount', 30 )
 tools.addType( 'nmo#MailFolder', 31 )
 tools.addType( 'nmo#Email', 32 )
@@ -51,6 +54,8 @@ tools.addType( 'nmo#Call', 38 )
 tools.addType( 'nmm#Artist', 40 )
 tools.addType( 'nmm#MusicAlbum', 41 )
 tools.addType( 'nmm#MusicPiece', 42 )
+tools.addType( 'nmm#Photo', 45 )
+tools.addType( 'nmm#Video', 46 )
 tools.addType( 'tracker#Volume', 50 )
 tools.addType( 'nfo#PlainTextDocument', 51 )
 tools.addType( 'nfo#SoftwareCategory', 60 )
@@ -76,6 +81,18 @@ for contact in xrange(1, count_contacts+1):
   nco.generatePhoneNumber( contact )
   nco.generateIMAddress ( contact )
   nco.generatePersonContact( contact )
+print "Done"
+
+print "Generating Locations and landmarks",
+count_locations = config.getint('counts','locations')
+for location in xrange(1, count_locations+1):
+  if (location % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  mlo.generateGeoPoint( location )
+  mlo.generateLocationBoundingBox( location )
+  mlo.generateGeoLocation( location )
+  mlo.generateLandmark( location )
 print "Done"
 
 print "Generate Emails",

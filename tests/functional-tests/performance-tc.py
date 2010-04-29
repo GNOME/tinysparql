@@ -1881,6 +1881,525 @@ ORDER BY ?_contact LIMIT 50 \
 		print "Time taken to get 50 contacts phone number information (modified) %s " %elapse
 		print "no. of items retrieved: %d" %len(result)
 
+class location (TestUpdate) :
+
+        def p_test_location_01 (self):
+		query = " \
+SELECT \
+  ?urn \
+  ?cLat ?cLon ?cAlt ?cRad \
+  ?nwLat ?nwLon ?nwAlt \
+  ?seLat ?seLon ?seAlt \
+  ?country ?district ?city ?street ?postalcode \
+  nie:title(?urn) \
+  nie:description(?urn) \
+  mlo:belongsToCategory(?urn) \
+WHERE { \
+  ?urn a mlo:Landmark . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asPostalAddress \
+            [ \
+              a nco:PostalAddress ; \
+              nco:country ?country ; \
+              nco:region ?district ; \
+              nco:locality ?city ; \
+              nco:streetAddress ?street ; \
+              nco:postalcode ?postalcode \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asBoundingBox \
+            [ \
+              a mlo:GeoBoundingBox ; \
+              mlo:bbNorthWest \
+                [ \
+                  a mlo:GeoPoint ; \
+                  mlo:latitude ?nwLat ; \
+                  mlo:longitude ?nwLon ; \
+                  mlo:altitude ?nwAlt \
+                ] ; \
+              mlo:bbSouthEast \
+                [ \
+                  a mlo:GeoPoint ; \
+                  mlo:latitude ?seLat ; \
+                  mlo:longitude ?seLon ; \
+                  mlo:altitude ?seAlt \
+                ] \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:latitude ?cLat ; \
+              mlo:longitude ?cLon \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:altitude ?cAlt \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:radius ?cRad \
+            ] \
+        ] \
+    } \
+} ORDER BY ASC(?name) LIMIT 50 \
+"
+
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 50 landmarks (original) %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+        def p_test_location_02 (self):
+		query = " \
+SELECT \
+  ?urn \
+  ?cLat ?cLon ?cAlt ?cRad \
+  ?nwLat ?nwLon ?nwAlt \
+  ?seLat ?seLon ?seAlt \
+  ?country ?district ?city ?street ?postalcode \
+  nie:title(?urn) \
+  nie:description(?urn) \
+  mlo:belongsToCategory(?urn) \
+WHERE { \
+  ?urn a mlo:Landmark . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asPostalAddress \
+            [ \
+              a nco:PostalAddress ; \
+              nco:country ?country ; \
+              nco:region ?district ; \
+              nco:locality ?city ; \
+              nco:streetAddress ?street ; \
+              nco:postalcode ?postalcode \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asBoundingBox \
+            [ \
+              a mlo:GeoBoundingBox ; \
+              mlo:bbNorthWest \
+                [ \
+                  a mlo:GeoPoint ; \
+                  mlo:latitude ?nwLat ; \
+                  mlo:longitude ?nwLon ; \
+                  mlo:altitude ?nwAlt \
+                ] ; \
+              mlo:bbSouthEast \
+                [ \
+                  a mlo:GeoPoint ; \
+                  mlo:latitude ?seLat ; \
+                  mlo:longitude ?seLon ; \
+                  mlo:altitude ?seAlt \
+                ] \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:latitude ?cLat ; \
+              mlo:longitude ?cLon \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:altitude ?cAlt \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:radius ?cRad \
+            ] \
+        ] \
+    } \
+  FILTER(?cLat >= 39.16 && ?cLat <= 40.17 && ?cLon >= 63.94 && ?cLon <= 64.96) \
+} ORDER BY ASC(?name) LIMIT \
+"
+
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 50 landmarks within coords (original) %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+
+        def p_test_location_03 (self):
+		query = " \
+SELECT \
+  ?urn \
+  ?cLat ?cLon ?cAlt ?cRad \
+  ?nwLat ?nwLon ?nwAlt \
+  ?seLat ?seLon ?seAlt \
+  ?country ?district ?city ?street ?postalcode \
+  nie:title(?urn) \
+  nie:description(?urn) \
+  mlo:belongsToCategory(?urn) \
+  tracker:haversine-distance(xsd:double(?cLat),xsd:double(39.50),xsd:double(?cLon),xsd:double(64.50)) as ?distance \
+WHERE { \
+  ?urn a mlo:Landmark . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asPostalAddress \
+            [ \
+              a nco:PostalAddress ; \
+              nco:country ?country ; \
+              nco:region ?district ; \
+              nco:locality ?city ; \
+              nco:streetAddress ?street ; \
+              nco:postalcode ?postalcode \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asBoundingBox \
+            [ \
+              a mlo:GeoBoundingBox ; \
+              mlo:bbNorthWest \
+                [ \
+                  a mlo:GeoPoint ; \
+                  mlo:latitude ?nwLat ; \
+                  mlo:longitude ?nwLon ; \
+                  mlo:altitude ?nwAlt \
+                ] ; \
+              mlo:bbSouthEast \
+                [ \
+                  a mlo:GeoPoint ; \
+                  mlo:latitude ?seLat ; \
+                  mlo:longitude ?seLon ; \
+                  mlo:altitude ?seAlt \
+                ] \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:latitude ?cLat ; \
+              mlo:longitude ?cLon \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:altitude ?cAlt \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:radius ?cRad \
+            ] \
+        ] \
+    } \
+  FILTER(?cLat >= 39.16 && ?cLat <= 40.17 && \
+         ?cLon >= 63.94 && ?cLon <= 64.96 && \
+  	 tracker:haversine-distance(xsd:double(?cLat),xsd:double(39.50),xsd:double(?cLon),xsd:double(64.50)) <= 25000) \
+} ORDER BY ASC(?distance) LIMIT 50 \
+"
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get max 50 landmarks within certain range with bounding box (original) %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+
+        def p_test_location_04 (self):
+		query = " \
+SELECT \
+  ?urn \
+  ?cLat ?cLon ?cAlt ?cRad \
+  ?nwLat ?nwLon ?nwAlt \
+  ?seLat ?seLon ?seAlt \
+  ?country ?district ?city ?street ?postalcode \
+  nie:title(?urn) \
+  nie:description(?urn) \
+  mlo:belongsToCategory(?urn) \
+  tracker:haversine-distance(xsd:double(?cLat),xsd:double(39.50),xsd:double(?cLon),xsd:double(64.50)) as ?distance \
+WHERE { \
+  ?urn a mlo:Landmark . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asPostalAddress \
+            [ \
+              a nco:PostalAddress ; \
+              nco:country ?country ; \
+              nco:region ?district ; \
+              nco:locality ?city ; \
+              nco:streetAddress ?street ; \
+              nco:postalcode ?postalcode \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asBoundingBox \
+            [ \
+              a mlo:GeoBoundingBox ; \
+              mlo:bbNorthWest \
+                [ \
+                  a mlo:GeoPoint ; \
+                  mlo:latitude ?nwLat ; \
+                  mlo:longitude ?nwLon ; \
+                  mlo:altitude ?nwAlt \
+                ] ; \
+              mlo:bbSouthEast \
+                [ \
+                  a mlo:GeoPoint ; \
+                  mlo:latitude ?seLat ; \
+                  mlo:longitude ?seLon ; \
+                  mlo:altitude ?seAlt \
+                ] \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:latitude ?cLat ; \
+              mlo:longitude ?cLon \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:altitude ?cAlt \
+            ] \
+        ] \
+    } . \
+  OPTIONAL \
+    { \
+      ?urn mlo:location \
+        [ \
+          a mlo:GeoLocation ; \
+          mlo:asGeoPoint \
+            [ \
+              a mlo:GeoPoint ; \
+              mlo:radius ?cRad \
+            ] \
+        ] \
+    } \
+  FILTER(tracker:haversine-distance(xsd:double(?cLat),xsd:double(39.50),xsd:double(?cLon),xsd:double(64.50)) <= 25000) \
+} ORDER BY ASC(?distance) LIMIT 50 \
+"
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get max 50 landmarks within certain range without bounding box (original) %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+        def p_test_location_05 (self):
+		query = " \
+SELECT \
+  ?urn \
+  mlo:latitude(?point) mlo:longitude(?point) mlo:altitude(?point) mlo:radius(?point) \
+  nie:title(?urn) \
+  nie:description(?urn) \
+  mlo:belongsToCategory(?urn) \
+WHERE { \
+  ?urn a mlo:Landmark . \
+  ?urn mlo:location ?location . \
+  ?location mlo:asGeoPoint ?point . \
+} ORDER BY ASC(?name) LIMIT 50 \
+"
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get 50 landmarks (simplified) %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+
+        def p_test_location_06 (self):
+		query = " \
+SELECT \
+  ?urn \
+  ?cLat ?cLon mlo:altitude(?point) mlo:radius(?point) \
+  nie:title(?urn) \
+  nie:description(?urn) \
+  mlo:belongsToCategory(?urn) \
+WHERE { \
+  ?urn a mlo:Landmark . \
+  ?urn mlo:location ?location . \
+  ?location mlo:asGeoPoint ?point . \
+  ?point mlo:latitude ?cLat . \
+  ?point mlo:longitude ?cLon . \
+  FILTER(?cLat >= 39.16 && ?cLat <= 40.17 && ?cLon >= 63.42 && ?cLon <= 64.96) \
+} ORDER BY ASC(?name) LIMIT 50 \
+"
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get max 50 landmarks within coords (simplified) %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+        def p_test_location_07 (self):
+		query = " \
+SELECT \
+  ?urn \
+  ?cLat ?cLon mlo:altitude(?point) mlo:radius(?point) \
+  nie:title(?urn) \
+  nie:description(?urn) \
+  mlo:belongsToCategory(?urn) \
+  tracker:haversine-distance(xsd:double(?cLat),xsd:double(39.50),xsd:double(?cLon),xsd:double(64.50)) as ?distance \
+WHERE { \
+  ?urn a mlo:Landmark . \
+  ?urn mlo:location ?location . \
+  ?location mlo:asGeoPoint ?point . \
+  ?point mlo:latitude ?cLat . \
+  ?point mlo:longitude ?cLon . \
+  FILTER(?cLat >= 39.16 && ?cLat <= 40.17 && \
+         ?cLon >= 63.94 && ?cLon <= 64.96 && \
+  	 tracker:haversine-distance(xsd:double(?cLat),xsd:double(39.50),xsd:double(?cLon),xsd:double(64.50)) <= 25000) \
+} ORDER BY ASC(?distance) LIMIT 50 \
+"
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get max 50 landmarks within range with bounding box (simplified) %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
+        def p_test_location_08 (self):
+		query = " \
+SELECT \
+  ?urn \
+  ?cLat ?cLon mlo:altitude(?point) mlo:radius(?point) \
+  nie:title(?urn) \
+  nie:description(?urn) \
+  mlo:belongsToCategory(?urn) \
+  tracker:haversine-distance(xsd:double(?cLat),xsd:double(39.50),xsd:double(?cLon),xsd:double(64.50)) as ?distance \
+WHERE { \
+  ?urn a mlo:Landmark . \
+  ?urn mlo:location ?location . \
+  ?location mlo:asGeoPoint ?point . \
+  ?point mlo:latitude ?cLat . \
+  ?point mlo:longitude ?cLon . \
+  FILTER(tracker:haversine-distance(xsd:double(?cLat),xsd:double(39.50),xsd:double(?cLon),xsd:double(64.50)) <= 25000) \
+} ORDER BY ASC(?distance) LIMIT 50 \
+"
+		start=time.time()
+
+		result=self.resources.SparqlQuery(query)
+
+		elapse =time.time()-start
+		print "Time taken to get max 50 landmarks within range without bounding box (simplified) %s " %elapse
+		print "no. of items retrieved: %d" %len(result)
+
 if __name__ == "__main__":
         unittest.main()
 

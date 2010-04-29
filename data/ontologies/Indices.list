@@ -70,3 +70,8 @@
 40-mlo:
 * mlo:location:
   - Used for retrieving all content in some specific location
+
+* mlo:asPostalAddress:
+* mlo:asBoundingBox:
+* mlo:asGeoPoint:
+  - For matching location into coordinates

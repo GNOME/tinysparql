@@ -10,7 +10,7 @@
 
 mlo: a tracker:Namespace, tracker:Ontology ;
     tracker:prefix "mlo" ;
-    nao:lastModified "2010-02-16T11:00:00Z" .
+    nao:lastModified "2010-04-28T11:00:00Z" .
 
 mlo:GeoLocation a rdfs:Class ;
     rdfs:label "Location" ;
@@ -177,18 +177,21 @@ mlo:location a rdf:Property ;
 mlo:asBoundingBox a rdf:Property ;
     rdfs:label "As bounding box" ;
     rdfs:comment "Representation of the location as bounding box" ;
+    tracker:indexed true ;
     rdfs:domain mlo:GeoLocation ;
     rdfs:range mlo:GeoBoundingBox .
 
 mlo:asGeoPoint a rdf:Property ;
     rdfs:label "As geo point" ;
     rdfs:comment "Representation of the location as geo point" ;
+    tracker:indexed true ;
     rdfs:domain mlo:GeoLocation ;
     rdfs:range mlo:GeoPoint .
 
 mlo:asPostalAddress a rdf:Property ;
     rdfs:label "As postal address" ;
     rdfs:comment "Representation of the location as text address" ;
+    tracker:indexed true ;
     rdfs:domain mlo:GeoLocation ;
     rdfs:range nco:PostalAddress .
 
