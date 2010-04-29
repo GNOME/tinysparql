@@ -843,18 +843,18 @@ my_igetdelim (gchar  **linebuf,
 	return idx;
 }
 
-gint
+gssize
 tracker_getline (gchar **lineptr,
-                 guint  *n,
+                 gsize  *n,
                  FILE *stream)
 {
 	return my_igetdelim (lineptr, n, '\n', stream);
 }
 
 #else
-gint
+gssize
 tracker_getline (gchar **lineptr,
-                 guint  *n,
+                 gsize  *n,
                  FILE *stream)
 {
 	return getline (lineptr, n, stream);

@@ -47,8 +47,8 @@ const gchar* tracker_coalesce_strip         (gint         n_values,
 gchar*       tracker_merge_const            (const gchar *delimiter,
                                              gint         n_values,
                                                           ...);
-gint         tracker_getline                (gchar      **lineptr,
-                                             guint       *n,
+gssize       tracker_getline                (gchar      **lineptr,
+                                             gsize       *n,
                                              FILE        *stream);
 
 G_END_DECLS
