@@ -4,6 +4,7 @@
 
 data/miners/tracker-miner-applications.desktop.in
 data/miners/tracker-miner-files.desktop.in
+data/miners/tracker-miner-flickr.desktop.in
 data/miners/tracker-miner-rss.desktop.in
 data/tracker-miner-fs.desktop.in.in
 data/tracker-status-icon.desktop.in.in
