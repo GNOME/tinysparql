@@ -15,7 +15,14 @@ if USING_MINER_RSS
 tracker_miners_DATA += 	tracker-miner-rss.desktop
 endif
 
+if HAVE_MINER_FLICKR
+tracker_miners_DATA += tracker-miner-flickr.desktop
+endif
+
 @INTLTOOL_DESKTOP_RULE@
+
+%.desktop.in: %.desktop.in.in
+	@sed -e "s|@datadir[@]|$(datadir)|" $< > $@
 
 EXTRA_DIST = $(desktop_in_files)
 CLEANFILES = $(tracker_miners_DATA)

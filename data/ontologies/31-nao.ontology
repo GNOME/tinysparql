@@ -19,6 +19,7 @@ nao:prefLabel a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nao:Tag ;
 	rdfs:range xsd:string ;
+	tracker:writeback true ;
 	tracker:fulltextIndexed true ;
 	tracker:weight 10 .
 
@@ -34,6 +35,7 @@ nao:description a rdf:Property ;
 nao:hasTag a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range rdfs:Resource ;
+	tracker:writeback true ;
 	tracker:indexed true ;
 	tracker:isAnnotation true .
 
