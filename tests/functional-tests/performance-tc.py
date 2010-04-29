@@ -715,10 +715,9 @@ class gallery(TestUpdate):
 
 		""" Querying for all Images and Videos """
 
-		query = "SELECT ?url ?filename ?modified ?_width ?_height ?is \
+		query = "SELECT ?url ?filename ?modified ?_width ?_height \
                     WHERE { \
                      ?media a nfo:Visual; \
-                     nie:isStoredAs  ?is ;\
                      nie:url ?url;\
                      nfo:fileName ?filename ;\
                      nfo:fileLastModified ?modified .\
@@ -738,10 +737,9 @@ class gallery(TestUpdate):
 
 		""" Querying for all Images and Videos without OPTIONALS"""
 
-		query = "SELECT ?url ?filename ?modified ?is \
+		query = "SELECT ?url ?filename ?modified \
                     WHERE { \
                      ?media a nfo:Visual; \
-                     nie:isStoredAs  ?is ;\
                      nie:url ?url;\
                      nfo:fileName ?filename ;\
                      nfo:fileLastModified ?modified .}\
@@ -759,10 +757,9 @@ class gallery(TestUpdate):
 
 		""" Querying for 500 Images and Videos """
 
-		query = "SELECT ?url ?filename ?modified ?_width ?_height ?is \
+		query = "SELECT ?url ?filename ?modified ?_width ?_height \
                     WHERE { \
                      ?media a nfo:Visual; \
-                     nie:isStoredAs  ?is ;\
                      nie:url ?url;\
                      nfo:fileName ?filename ;\
                      nfo:fileLastModified ?modified .\
@@ -782,10 +779,9 @@ class gallery(TestUpdate):
 
 		""" Querying for 500 Images and Videos without OPTIONALS"""
 
-		query = "SELECT ?url ?filename ?modified ?is \
+		query = "SELECT ?url ?filename ?modified \
                     WHERE { \
                      ?media a nfo:Visual; \
-                     nie:isStoredAs  ?is ;\
                      nie:url ?url;\
                      nfo:fileName ?filename ;\
                      nfo:fileLastModified ?modified .} \
@@ -927,10 +923,9 @@ class gallery(TestUpdate):
 
 		""" Querying for 500 Images and Videos with UNION for them """
 
-		query = "SELECT ?url ?filename ?modified ?_width ?_height ?is \
+		query = "SELECT ?url ?filename ?modified ?_width ?_height \
                     WHERE { \
                      {?media a nmm:Photo.} UNION {?media a nmm:Video.} \
-                     ?media nie:isStoredAs  ?is .\
                      ?media nie:url ?url.\
                      ?media nfo:fileName ?filename .\
                      ?media nfo:fileLastModified ?modified .\
@@ -939,7 +934,7 @@ class gallery(TestUpdate):
                      ORDER BY ?modified LIMIT 500"
 		start=time.time()
 
-            	result=self.resources.SparqlQuery(query, timeout=25)
+            	result=self.resources.SparqlQuery(query,timeout=1000)
 
         	elapse =time.time()-start
         	print "Time taken for querying 500 images and videos  = %s " %elapse
