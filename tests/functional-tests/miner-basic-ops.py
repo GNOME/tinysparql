@@ -26,6 +26,7 @@ import commands
 import configuration
 from dbus.mainloop.glib import DBusGMainLoop
 import gobject
+import shutil
 
 TRACKER = 'org.freedesktop.Tracker1'
 TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources/Classes'
@@ -70,691 +71,724 @@ commands.getoutput('mkdir -p ' + TEST_DIR_3)
 
 class TestUpdate (unittest.TestCase):
 
-	def setUp(self):
-                bus = dbus.SessionBus()
-                tracker = bus.get_object(TRACKER, TRACKER_OBJ)
-                self.resources = dbus.Interface (tracker,
-                                                 dbus_interface=RESOURCES_IFACE)
+    def setUp(self):
+        bus = dbus.SessionBus()
+        tracker = bus.get_object(TRACKER, TRACKER_OBJ)
+        self.resources = dbus.Interface (tracker,
+                                         dbus_interface=RESOURCES_IFACE)
 
-		miner_obj= bus.get_object(MINER,MINER_OBJ)
-                self.miner=dbus.Interface (miner_obj,dbus_interface=MINER_IFACE)
+        miner_obj= bus.get_object(MINER,MINER_OBJ)
+        self.miner=dbus.Interface (miner_obj,dbus_interface=MINER_IFACE)
 
 
-		self.loop = gobject.MainLoop()
-                self.dbus_loop = DBusGMainLoop(set_as_default=True)
-		self.bus = dbus.SessionBus (self.dbus_loop)
+        self.loop = gobject.MainLoop()
+        self.dbus_loop = DBusGMainLoop(set_as_default=True)
+        self.bus = dbus.SessionBus (self.dbus_loop)
 
-		self.bus.add_signal_receiver (self.miner_processing_cb,
-		                              signal_name="Progress",
-                                              dbus_interface=MINER_IFACE,
-                                   	      path=MINER_OBJ)
+        self.bus.add_signal_receiver (self.miner_processing_cb,
+                                      signal_name="Progress",
+                                      dbus_interface=MINER_IFACE,
+                                      path=MINER_OBJ)
 
-	def miner_processing_cb (self,status,handle):
-		print "GOT PROGRESS FROM MINER"
+    def miner_processing_cb (self,status,handle):
+        print "GOT PROGRESS FROM MINER"
 
-		if (status == "Processing Files") :
-			print "Miner started"
-		elif (status == "Idle" ):
-			"""if the string is "Idle" quit the loop """
-			print "Miner Idle"
-		        self.loop.quit()
-		else :
-		       print "No specific Signal"
+        if (status == "Processing Files") :
+            print "Miner started"
+        elif (status == "Idle" ):
+            """if the string is "Idle" quit the loop """
+            print "Miner Idle"
+            self.loop.quit()
+        else :
+            print "No specific Signal"
+
+    def wait_for_fileop (self, cmd, src, dst=''):
+        if (cmd == "rm"):
+            os.remove(src)
+        elif (cmd == "cp"):
+            shutil.copy2(src, dst)
+        else:
+            shutil.move(src,dst)
+        self.loop.run()
 
 """ copy operation and tracker-miner response test cases """
 class copy(TestUpdate):
 
-        def test_copy_01 (self):
+    def test_copy_01 (self):
 
-                """Copy an image file from unmonitored directory to monitored directory
-                and verify if data base is updated accordingly"""
+        """Copy an image file from unmonitored directory to monitored directory
+        and verify if data base is updated accordingly"""
 
 
-		file_path = TEST_DIR_1 + '/test-image-copy-01.jpg'
+        file_path = TEST_DIR_1 + '/test-image-copy-01.jpg'
 
-                """ 1. Copy an image file from unmonitored directory to monitored directory """
-                commands.getoutput('cp '+ SRC_IMAGE_DIR + TEST_IMAGE + ' ' + file_path)
-		self.loop.run()
+        """ 1. Copy an image file from unmonitored directory to monitored directory """
+        self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path)
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
-		print result
-		self.assert_(result == '1' , 'copied file is not shown as indexed')
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        print result
+        self.assert_(result == '1' , 'copied file is not shown as indexed')
 
-                commands.getoutput('rm '+ file_path)
+        self.wait_for_fileop('rm', file_path)
 
-        def test_copy_02 (self):
+    def test_copy_02 (self):
 
-                """Copy a music  file from unmonitored directory to monitored directory
-                and verify if data base is updated accordingly"""
+        """Copy a music  file from unmonitored directory to monitored directory
+        and verify if data base is updated accordingly"""
 
 
-		file_path = TEST_DIR_1 + '/test-music-copy-01.mp3'
+        file_path = TEST_DIR_1 + '/test-music-copy-01.mp3'
 
-                """ 1. Copy file from unmonitored directory to monitored directory """
-                commands.getoutput('cp '+ SRC_MUSIC_DIR + TEST_MUSIC + ' ' + file_path)
-		self.loop.run()
+        """ 1. Copy file from unmonitored directory to monitored directory """
+        self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path)
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
-		print result
-		self.assert_(result == '1' , 'copied file is not shown as indexed')
 
-                commands.getoutput('rm '+ file_path)
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
+        print result
+        self.assert_(result == '1' , 'copied file is not shown as indexed')
 
-        def test_copy_03 (self):
+        self.wait_for_fileop('rm', file_path)
 
-                """Copy a video  file from unmonitored directory to monitored directory
-                and verify if data base is updated accordingly"""
+    def test_copy_03 (self):
 
+        """Copy a video  file from unmonitored directory to monitored directory
+        and verify if data base is updated accordingly"""
 
-		file_path = TEST_DIR_1 + '/test-video-copy-01.mp4'
 
-                """ 1. Copy file from unmonitored directory to monitored directory """
-                commands.getoutput('cp '+ SRC_VIDEO_DIR + TEST_VIDEO + ' ' + file_path)
-		self.loop.run()
+        file_path = TEST_DIR_1 + '/test-video-copy-01.mp4'
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
-		print result
-		self.assert_(result == '1' , 'copied file is not shown as indexed')
+        """ 1. Copy file from unmonitored directory to monitored directory """
+        self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path)
 
-                commands.getoutput('rm '+ file_path)
 
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
+        print result
+        self.assert_(result == '1' , 'copied file is not shown as indexed')
 
-        def test_copy_04 (self):
+        self.wait_for_fileop('rm', file_path)
 
-                """Copy an image file from monitored directory to unmonitored directory
-                and verify if data base is updated accordingly"""
+    def test_copy_04 (self):
 
+        """Copy an image file from monitored directory to unmonitored directory
+        and verify if data base is updated accordingly"""
 
-		file_path_1 = TEST_DIR_1 + '/test-image-copy-01.jpg'
-		file_path_2 = TEST_DIR_3 + '/test-image-copy-01.jpg'
 
-                """ 1. Copy an image file to monitored directory """
-                commands.getoutput('cp '+ SRC_IMAGE_DIR + TEST_IMAGE + ' ' + file_path_1)
-		self.loop.run()
+        file_path_1 = TEST_DIR_1 + '/test-image-copy-01.jpg'
+        file_path_2 = TEST_DIR_3 + '/test-image-copy-01.jpg'
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
+        """ 1. Copy an image file to monitored directory """
+        self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path_1)
 
 
-                """ 3. Copy an image file to unmonitored directory """
-                commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
-		time.sleep(2)
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
 
-		""" 4. verify if miner indexed these files.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '0' , 'copied file is shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '1' , 'source file is not shown as indexed')
 
-                commands.getoutput('rm '+ file_path_1)
-                commands.getoutput('rm '+ file_path_2)
+        """ 3. Copy an image file to unmonitored directory """
+        commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
+        time.sleep(2)
 
-        def test_copy_05 (self):
+        """ 4. verify if miner indexed these files.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '0' , 'copied file is shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '1' , 'source file is not shown as indexed')
 
-                """Copy a music file from monitored directory to unmonitored directory
-                and verify if data base is updated accordingly"""
+        self.wait_for_fileop('rm', file_path_1)
+        os.remove(file_path_2)
 
+    def test_copy_05 (self):
 
-		file_path_1 = TEST_DIR_1 + '/test-music-copy-01.mp3'
-		file_path_2 = TEST_DIR_3 + '/test-music-copy-01.mp3'
+        """Copy a music file from monitored directory to unmonitored directory
+        and verify if data base is updated accordingly"""
 
-                """ 1. Copy file to monitored directory """
-                commands.getoutput('cp '+ SRC_MUSIC_DIR + TEST_MUSIC + ' ' + file_path_1)
-		self.loop.run()
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
+        file_path_1 = TEST_DIR_1 + '/test-music-copy-01.mp3'
+        file_path_2 = TEST_DIR_3 + '/test-music-copy-01.mp3'
 
+        """ 1. Copy file to monitored directory """
+        self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path_1)
 
-                """ 3. Copy file to unmonitored directory """
-                commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
-		time.sleep(2)
 
-		""" 4. verify if miner indexed these files.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '0' , 'copied file is shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '1' , 'source file is not shown as indexed')
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
 
-                commands.getoutput('rm '+ file_path_1)
-                commands.getoutput('rm '+ file_path_2)
 
-        def test_copy_06 (self):
+        """ 3. Copy file to unmonitored directory """
+        commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
+        time.sleep(2)
 
-                """Copy a video file from monitored directory to unmonitored directory
-                and verify if data base is updated accordingly"""
+        """ 4. verify if miner indexed these files.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '0' , 'copied file is shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '1' , 'source file is not shown as indexed')
 
+        self.wait_for_fileop('rm', file_path_1)
+        os.remove(file_path_2)
 
-		file_path_1 = TEST_DIR_1 + '/test-video-copy-01.mp4'
-		file_path_2 = TEST_DIR_3 + '/test-video-copy-01.mp4'
+    def test_copy_06 (self):
 
-                """ 1. Copy file to monitored directory """
-                commands.getoutput('cp '+ SRC_VIDEO_DIR + TEST_VIDEO + ' ' + file_path_1)
-		self.loop.run()
+        """Copy a video file from monitored directory to unmonitored directory
+        and verify if data base is updated accordingly"""
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
 
+        file_path_1 = TEST_DIR_1 + '/test-video-copy-01.mp4'
+        file_path_2 = TEST_DIR_3 + '/test-video-copy-01.mp4'
 
-                """ 3. Copy file to unmonitored directory """
-                commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
-		time.sleep(2)
+        """ 1. Copy file to monitored directory """
+        self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path_1)
 
-		""" 4. verify if miner indexed these files.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '0' , 'copied file is shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '1' , 'source file is not shown as indexed')
 
-                commands.getoutput('rm '+ file_path_1)
-                commands.getoutput('rm '+ file_path_2)
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
 
 
-        def test_copy_07 (self):
+        """ 3. Copy file to unmonitored directory """
+        commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
+        time.sleep(2)
 
-                """Copy an image file from monitored directory to another monitored directory
-                and verify if data base is updated accordingly"""
+        """ 4. verify if miner indexed these files.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '0' , 'copied file is shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '1' , 'source file is not shown as indexed')
 
+        self.wait_for_fileop('rm', file_path_1)
+        os.remove(file_path_2)
 
-		file_path_1 = TEST_DIR_1 + '/test-image-copy-01.jpg'
-		file_path_2 = TEST_DIR_2 + '/test-image-copy-01.jpg'
 
-                """ 1. Copy an image file to monitored directory """
-                commands.getoutput('cp '+ SRC_IMAGE_DIR + TEST_IMAGE + ' ' + file_path_1)
-		self.loop.run()
+    def test_copy_07 (self):
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
+        """Copy an image file from monitored directory to another monitored directory
+        and verify if data base is updated accordingly"""
 
 
-                """ 3. Copy an image file to another monitored directory """
-                commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
+        file_path_1 = TEST_DIR_1 + '/test-image-copy-01.jpg'
+        file_path_2 = TEST_DIR_2 + '/test-image-copy-01.jpg'
 
-		""" 4. verify if miner indexed these files.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '1' , 'copied file is not shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '1' , 'source file is not shown as indexed')
+        """ 1. Copy an image file to monitored directory """
+        self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path_1)
 
-                commands.getoutput('rm '+ file_path_1)
-                commands.getoutput('rm '+ file_path_2)
 
-        def test_copy_08 (self):
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
 
-                """Copy a music file from monitored directory to another monitored directory
-                and verify if data base is updated accordingly"""
 
+        """ 3. Copy an image file to another monitored directory """
+        self.wait_for_fileop('cp', file_path_1, file_path_2)
 
-		file_path_1 = TEST_DIR_1 + '/test-music-copy-01.mp3'
-		file_path_2 = TEST_DIR_2 + '/test-music-copy-01.mp3'
 
-                """ 1. Copy file to monitored directory """
-                commands.getoutput('cp '+ SRC_MUSIC_DIR + TEST_MUSIC + ' ' + file_path_1)
-		self.loop.run()
+        """ 4. verify if miner indexed these files.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '1' , 'copied file is not shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '1' , 'source file is not shown as indexed')
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
+        self.wait_for_fileop('rm', file_path_1)
+        self.wait_for_fileop('rm', file_path_2)
 
+    def test_copy_08 (self):
 
-                """ 3. Copy file to another monitored directory """
-                commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
+        """Copy a music file from monitored directory to another monitored directory
+        and verify if data base is updated accordingly"""
 
-		""" 4. verify if miner indexed both of these file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '1' , 'copied file is not shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '1' , 'source file is not shown as indexed')
 
-                commands.getoutput('rm '+ file_path_1)
-                commands.getoutput('rm '+ file_path_2)
+        file_path_1 = TEST_DIR_1 + '/test-music-copy-01.mp3'
+        file_path_2 = TEST_DIR_2 + '/test-music-copy-01.mp3'
 
+        """ 1. Copy file to monitored directory """
+        self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path_1)
 
-        def test_copy_09 (self):
 
-                """Copy a video file from monitored directory to another monitored directory
-                and verify if data base is updated accordingly"""
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
 
 
-		file_path_1 = TEST_DIR_1 + '/test-video-copy-01.mp4'
-		file_path_2 = TEST_DIR_2 + '/test-video-copy-01.mp4'
+        """ 3. Copy file to another monitored directory """
+        self.wait_for_fileop('cp', file_path_1, file_path_2)
 
-                """ 1. Copy file to monitored directory """
-                commands.getoutput('cp '+ SRC_VIDEO_DIR + TEST_VIDEO + ' ' + file_path_1)
-		self.loop.run()
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
+        """ 4. verify if miner indexed both of these file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '1' , 'copied file is not shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '1' , 'source file is not shown as indexed')
 
+        self.wait_for_fileop('rm', file_path_1)
+        self.wait_for_fileop('rm', file_path_2)
 
-                """ 3. Copy file to another monitored directory """
-                commands.getoutput('cp '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
 
-		""" 4. verify if miner indexed both of these file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '1' , 'copied file is not shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '1' , 'source file is not shown as indexed')
+    def test_copy_09 (self):
 
-                commands.getoutput('rm '+ file_path_1)
-                commands.getoutput('rm '+ file_path_2)
+        """Copy a video file from monitored directory to another monitored directory
+        and verify if data base is updated accordingly"""
 
 
+        file_path_1 = TEST_DIR_1 + '/test-video-copy-01.mp4'
+        file_path_2 = TEST_DIR_2 + '/test-video-copy-01.mp4'
 
+        """ 1. Copy file to monitored directory """
+        self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path_1)
 
 
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
 
+
+        """ 3. Copy file to another monitored directory """
+        self.wait_for_fileop('cp', file_path_1, file_path_2)
+
+
+        """ 4. verify if miner indexed both of these file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '1' , 'copied file is not shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '1' , 'source file is not shown as indexed')
+
+        self.wait_for_fileop('rm', file_path_1)
+        self.wait_for_fileop('rm', file_path_2)
 
 """ move operation and tracker-miner response test cases """
 class move(TestUpdate):
 
 
-        def test_move_01 (self):
+    def test_move_01 (self):
 
-                """move an image file from unmonitored directory to monitored directory
-                and verify if data base is updated accordingly"""
+        """move an image file from unmonitored directory to monitored directory
+        and verify if data base is updated accordingly"""
 
+        file_path_1 = TEST_DIR_3 + '/test-image-move-01.jpg'
+        file_path_2 = TEST_DIR_1 + '/test-image-move-01.jpg'
 
-		file_path_1 = TEST_DIR_3 + '/test-image-move-01.jpg'
-		file_path_2 = TEST_DIR_1 + '/test-image-move-01.jpg'
+        """ 1. Copy an image file to an unmonitored directory """
+        commands.getoutput('cp '+ SRC_IMAGE_DIR + TEST_IMAGE + ' ' + file_path_1)
 
-                """ 1. Copy an image file to an unmonitored directory """
-                commands.getoutput('cp '+ SRC_IMAGE_DIR + TEST_IMAGE + ' ' + file_path_1)
+        """ 1. move an image file from unmonitored directory to monitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
 
-                """ 1. move an image file from unmonitored directory to monitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
-		print result
-		self.assert_(result == '1' , 'moved file is not shown as indexed')
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
+        print result
+        self.assert_(result == '1' , 'moved file is not shown as indexed')
 
-                commands.getoutput('rm '+ file_path_2)
+        self.wait_for_fileop('rm', file_path_2)
 
-        def test_move_02 (self):
 
-                """move a music  file from unmonitored directory to monitored directory
-                and verify if data base is updated accordingly"""
+    def test_move_02 (self):
 
+        """move a music  file from unmonitored directory to monitored directory
+        and verify if data base is updated accordingly"""
 
-		file_path_1 = TEST_DIR_3 + '/test-music-move-01.mp3'
-		file_path_2 = TEST_DIR_1 + '/test-music-move-01.mp3'
 
-                """ 1. Copy file to an unmonitored directory """
-                commands.getoutput('cp '+ SRC_MUSIC_DIR + TEST_MUSIC + ' ' + file_path_1)
+        file_path_1 = TEST_DIR_3 + '/test-music-move-01.mp3'
+        file_path_2 = TEST_DIR_1 + '/test-music-move-01.mp3'
 
-                """ 1. move file from unmonitored directory to monitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
+        """ 1. Copy file to an unmonitored directory """
+        commands.getoutput('cp '+ SRC_MUSIC_DIR + TEST_MUSIC + ' ' + file_path_1)
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
-		print result
-		self.assert_(result == '1' , 'moved file is not shown as indexed')
 
-                commands.getoutput('rm '+ file_path_2)
+        """ 1. move file from unmonitored directory to monitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
 
-        def test_move_03 (self):
 
-                """move a video  file from unmonitored directory to monitored directory
-                and verify if data base is updated accordingly"""
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
+        print result
+        self.assert_(result == '1' , 'moved file is not shown as indexed')
 
+        self.wait_for_fileop('rm', file_path_2)
 
-		file_path_1 = TEST_DIR_3 + '/test-video-move-01.mp4'
-		file_path_2 = TEST_DIR_1 + '/test-video-move-01.mp4'
 
-                """ 1. Copy file to an unmonitored directory """
-                commands.getoutput('cp '+ SRC_VIDEO_DIR + TEST_VIDEO + ' ' + file_path_1)
+    def test_move_03 (self):
 
-                """ 1. move file from unmonitored directory to monitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
+        """move a video  file from unmonitored directory to monitored directory
+        and verify if data base is updated accordingly"""
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
-		print result
-		self.assert_(result == '1' , 'moved file is not shown as indexed')
 
-                commands.getoutput('rm '+ file_path_2)
+        file_path_1 = TEST_DIR_3 + '/test-video-move-01.mp4'
+        file_path_2 = TEST_DIR_1 + '/test-video-move-01.mp4'
 
-        def test_move_04 (self):
+        """ 1. Copy file to an unmonitored directory """
+        commands.getoutput('cp '+ SRC_VIDEO_DIR + TEST_VIDEO + ' ' + file_path_1)
 
-                """move an image file from monitored directory to unmonitored directory
-                and verify if data base is updated accordingly"""
+        """ 1. move file from unmonitored directory to monitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
 
 
-		file_path_1 = TEST_DIR_1 + '/test-image-move-01.jpg'
-		file_path_2 = TEST_DIR_3 + '/test-image-move-01.jpg'
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
+        print result
+        self.assert_(result == '1' , 'moved file is not shown as indexed')
 
-                """ 1. copy an image file to monitored directory """
-                commands.getoutput('cp '+ SRC_IMAGE_DIR + TEST_IMAGE + ' ' + file_path_1)
-		self.loop.run()
+        self.wait_for_fileop('rm', file_path_2)
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file moved and indexed"
-		else :
-			self.fail("file not indexed")
 
+    def test_move_04 (self):
 
-                """ 3. move an image file to unmonitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
+        """move an image file from monitored directory to unmonitored directory
+        and verify if data base is updated accordingly"""
 
-		""" 4. verify if miner indexed these files.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '0' , 'moveed file is shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '0' , 'source file is shown as indexed')
 
-                commands.getoutput('rm '+ file_path_2)
+        file_path_1 = TEST_DIR_1 + '/test-image-move-01.jpg'
+        file_path_2 = TEST_DIR_3 + '/test-image-move-01.jpg'
 
-        def test_move_05 (self):
+        """ 1. copy an image file to monitored directory """
+        self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path_1)
 
-                """move a music file from monitored directory to unmonitored directory
-                and verify if data base is updated accordingly"""
 
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file moved and indexed"
+        else :
+            self.fail("file not indexed")
 
-		file_path_1 = TEST_DIR_1 + '/test-music-move-01.mp3'
-		file_path_2 = TEST_DIR_3 + '/test-music-move-01.mp3'
 
-                """ 1. copy file to monitored directory """
-                commands.getoutput('cp '+ SRC_MUSIC_DIR + TEST_MUSIC + ' ' + file_path_1)
-		self.loop.run()
+        """ 3. move an image file to unmonitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file moved and indexed"
-		else :
-			self.fail("file not indexed")
 
+        """ 4. verify if miner indexed these files.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '0' , 'moveed file is shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '0' , 'source file is shown as indexed')
 
-                """ 3. move file to unmonitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
+        os.remove(file_path_2)
 
-		""" 4. verify if miner indexed these files.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '0' , 'moveed file is shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '0' , 'source file is shown as indexed')
+    def test_move_05 (self):
 
-                commands.getoutput('rm '+ file_path_2)
+        """move a music file from monitored directory to unmonitored directory
+        and verify if data base is updated accordingly"""
 
-        def test_move_06 (self):
 
-                """move a video file from monitored directory to unmonitored directory
-                and verify if data base is updated accordingly"""
+        file_path_1 = TEST_DIR_1 + '/test-music-move-01.mp3'
+        file_path_2 = TEST_DIR_3 + '/test-music-move-01.mp3'
 
+        """ 1. copy file to monitored directory """
+        self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path_1)
 
-		file_path_1 = TEST_DIR_1 + '/test-video-move-01.mp4'
-		file_path_2 = TEST_DIR_3 + '/test-video-move-01.mp4'
 
-                """ 1. copy file to monitored directory """
-                commands.getoutput('cp '+ SRC_VIDEO_DIR + TEST_VIDEO + ' ' + file_path_1)
-		self.loop.run()
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file moved and indexed"
+        else :
+            self.fail("file not indexed")
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file moved and indexed"
-		else :
-			self.fail("file not indexed")
 
+        """ 3. move file to unmonitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
 
-                """ 3. move file to unmonitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
 
-		""" 4. verify if miner indexed these files.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '0' , 'moveed file is shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '0' , 'source file is shown as indexed')
+        """ 4. verify if miner indexed these files.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '0' , 'moveed file is shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '0' , 'source file is shown as indexed')
 
-                commands.getoutput('rm '+ file_path_2)
+        os.remove(file_path_2)
 
-        def test_move_07 (self):
+    def test_move_06 (self):
 
-                """move an image file from monitored directory to another monitored directory
-                and verify if data base is updated accordingly"""
+        """move a video file from monitored directory to unmonitored directory
+        and verify if data base is updated accordingly"""
 
 
-		file_path_1 = TEST_DIR_1 + '/test-image-move-01.jpg'
-		file_path_2 = TEST_DIR_2 + '/test-image-move-01.jpg'
+        file_path_1 = TEST_DIR_1 + '/test-video-move-01.mp4'
+        file_path_2 = TEST_DIR_3 + '/test-video-move-01.mp4'
 
-                """ 1. Copy an image file to monitored directory """
-                commands.getoutput('cp '+ SRC_IMAGE_DIR + TEST_IMAGE + ' ' + file_path_1)
-		self.loop.run()
+        """ 1. copy file to monitored directory """
+        self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path_1)
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
 
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file moved and indexed"
+        else :
+            self.fail("file not indexed")
 
-                """ 3. move an image file to another monitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
 
-		""" 4. verify if miner indexed these files.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '1' , 'moveed file is not shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '0' , 'source file is shown as indexed')
+        """ 3. move file to unmonitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
 
-                commands.getoutput('rm '+ file_path_2)
 
-        def test_move_08 (self):
+        """ 4. verify if miner indexed these files.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '0' , 'moveed file is shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '0' , 'source file is shown as indexed')
 
-                """move a music file from monitored directory to another monitored directory
-                and verify if data base is updated accordingly"""
+        os.remove(file_path_2)
 
+    def test_move_07 (self):
 
-		file_path_1 = TEST_DIR_1 + '/test-music-move-01.mp3'
-		file_path_2 = TEST_DIR_2 + '/test-music-move-01.mp3'
+        """move an image file from monitored directory to another monitored directory
+        and verify if data base is updated accordingly"""
 
-                """ 1. Copy file to monitored directory """
-                commands.getoutput('cp '+ SRC_MUSIC_DIR + TEST_MUSIC + ' ' + file_path_1)
-		self.loop.run()
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
+        file_path_1 = TEST_DIR_1 + '/test-image-move-01.jpg'
+        file_path_2 = TEST_DIR_2 + '/test-image-move-01.jpg'
 
+        """ 1. Copy an image file to monitored directory """
+        self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path_1)
 
-                """ 3. move file to another monitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
 
-		""" 4. verify if miner indexed both of these file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '1' , 'moved file is not shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '0' , 'source file is shown as indexed')
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
 
-                commands.getoutput('rm '+ file_path_2)
 
-        def test_move_09 (self):
+        """ 3. move an image file to another monitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
 
-                """move a video file from monitored directory to another monitored directory
-                and verify if data base is updated accordingly"""
 
+        """ 4. verify if miner indexed these files.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '1' , 'moveed file is not shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '0' , 'source file is shown as indexed')
 
-		file_path_1 = TEST_DIR_1 + '/test-video-move-01.mp4'
-		file_path_2 = TEST_DIR_2 + '/test-video-move-01.mp4'
+        self.wait_for_fileop('rm', file_path_2)
 
-                """ 1. Copy file to monitored directory """
-                commands.getoutput('cp '+ SRC_VIDEO_DIR + TEST_VIDEO + ' ' + file_path_1)
-		self.loop.run()
+    def test_move_08 (self):
 
-		""" 2. verify if miner indexed this file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
+        """move a music file from monitored directory to another monitored directory
+        and verify if data base is updated accordingly"""
 
 
-                """ 3. move file to another monitored directory """
-                commands.getoutput('mv '+ file_path_1 + ' ' + file_path_2)
-		self.loop.run()
+        file_path_1 = TEST_DIR_1 + '/test-music-move-01.mp3'
+        file_path_2 = TEST_DIR_2 + '/test-music-move-01.mp3'
 
-		""" 4. verify if miner indexed both of these file.  """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
-		self.assert_(result == '1' , 'moved file is not shown as indexed')
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
-		self.assert_(result == '0' , 'source file is shown as indexed')
+        """ 1. Copy file to monitored directory """
+        self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path_1)
 
-                commands.getoutput('rm '+ file_path_2)
+
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
+
+
+        """ 3. move file to another monitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
+
+
+        """ 4. verify if miner indexed both of these file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '1' , 'moved file is not shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '0' , 'source file is shown as indexed')
+
+        self.wait_for_fileop('rm', file_path_2)
+
+    def test_move_09 (self):
+
+        """move a video file from monitored directory to another monitored directory
+        and verify if data base is updated accordingly"""
+
+
+        file_path_1 = TEST_DIR_1 + '/test-video-move-01.mp4'
+        file_path_2 = TEST_DIR_2 + '/test-video-move-01.mp4'
+
+        """ 1. Copy file to monitored directory """
+        self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path_1)
+
+
+        """ 2. verify if miner indexed this file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
+
+
+        """ 3. move file to another monitored directory """
+        self.wait_for_fileop('mv', file_path_1, file_path_2)
+
+
+        """ 4. verify if miner indexed both of these file.  """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_2 + ' | wc -l')
+        self.assert_(result == '1' , 'moved file is not shown as indexed')
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_1 + ' | wc -l')
+        self.assert_(result == '0' , 'source file is shown as indexed')
+
+        self.wait_for_fileop('rm', file_path_2)
 
 """ delete operation and tracker-miner response test cases """
 class delete(TestUpdate):
 
 
-        def test_delete_01 (self):
+    def test_delete_01 (self):
 
-                """Delete an image file and verify if data base is updated accordingly"""
-
-
-		file_path = TEST_DIR_1 + '/test-image-delete-01.jpg'
-
-                """ 1. Copy test image file from test data dir to a monitored dir """
-                commands.getoutput('cp '+ SRC_IMAGE_DIR + TEST_IMAGE + ' ' + file_path)
-		self.loop.run()
+        """Delete an image file and verify if data base is updated accordingly"""
 
 
-		"""verify the image is indexed """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
+        file_path = TEST_DIR_1 + '/test-image-delete-01.jpg'
+
+        """ 1. Copy test image file from test data dir to a monitored dir """
+        self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path)
+
+        """verify the image is indexed """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
+
+        """ 2. Delete the image file from monitored dir """
+        self.wait_for_fileop('rm', file_path)
+
+        """verify the deleted image is not indexed """
+        result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
+        print result
+        self.assert_(result == '0' , 'deleted file is shown as indexed')
+
+    def test_delete_02 (self):
+
+        """Delete an audio file from monitored directory and verify if data base is updated accordingly"""
+
+        file_path = TEST_DIR_1 + '/test-music-delete-01.mp3'
+
+        """ 1. Copy test music file from test data dir to a monitored dir """
+        self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path)
+
+        """verify the file is indexed """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
+
+        """ 2. Delete the file """
+        self.wait_for_fileop('rm', file_path)
+
+        """verify the deleted image is not indexed """
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
+        print result
+        self.assert_(result == '0' , 'deleted file is shown as indexed')
+
+    def test_delete_03 (self):
+
+        """Delete a video file from monitored directory and verify if data base is updated accordingly"""
+
+        file_path = TEST_DIR_1 + '/test-video-delete-01.mp4'
+
+        """ 1. Copy test music file from test data dir to a monitored dir """
+        self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path)
+
+        """verify the file is indexed """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
+        print result
+        if result == '1':
+            print "file copied and indexed"
+        else :
+            self.fail("file not indexed")
+
+        """ 2. Delete the file """
+        self.wait_for_fileop('rm', file_path)
+
+        """verify the deleted file is not indexed """
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
+        print result
+        self.assert_(result == '0' , 'deleted file is shown as indexed')
+
+class subfolders(TestUpdate) :
+
+    def test_subfolders_01(self):
+
+        """
+        1.Create multilevel directories.
+        2.Copy an image to the directory.
+        3.Check if tracker-search is listing the copied file.
+        4.Remove the file from directory.
+        5.Check if tracker-search is not listing the file.
+        """
+        commands.getoutput('mkdir -p '+ MYDOCS_SUB)
+        print MYDOCS_SUB,SRC_IMAGE_DIR,TEST_IMAGE
+        commands.getoutput('cp ' + SRC_IMAGE_DIR + TEST_IMAGE + ' ' + MYDOCS_SUB)
+        self.loop.run()
+
+        result = commands.getoutput('tracker-search -i -l 5000 | grep '+MYDOCS_SUB+TEST_IMAGE+' |wc -l')
+        self.assert_(int(result)==1 , "File is not indexed")
+
+        commands.getoutput ('rm '+MYDOCS_SUB+TEST_IMAGE)
+        self.loop.run()
+
+        result1 = commands.getoutput('tracker-search -i -l 5000 | grep '+MYDOCS_SUB+TEST_IMAGE +'|wc -l')
+        self.assert_(int(result1)==0 , "File is still listed in tracker search")
 
 
-                """ 2. Delete the image file from monitored dir """
-                commands.getoutput('rm '+ file_path)
-		self.loop.run()
+    def test_subfolders_02(self):
 
+        """
+        1.Create multilevel directories.
+        2.Copy an song to the directory.
+        3.Check if tracker-search is listing the copied file.
+        4.Remove the file from directory.
+        5.Check if tracker-search is not listing the file.
+        """
+        commands.getoutput('mkdir -p '+ MYDOCS_SUB)
+        commands.getoutput('cp ' + SRC_MUSIC_DIR + TEST_MUSIC + ' ' + MYDOCS_SUB)
+        self.loop.run()
 
-		"""verify the deleted image is not indexed """
-		result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path + ' | wc -l')
-		print result
-		self.assert_(result == '0' , 'deleted file is shown as indexed')
+        result = commands.getoutput('tracker-search -m -l 5000 | grep '+ MYDOCS_SUB+TEST_MUSIC +'| wc -l ')
+        self.assert_(int(result)==1 , "File is not indexed")
 
+        commands.getoutput ('rm '+MYDOCS_SUB+TEST_MUSIC)
+        self.loop.run()
 
-        def test_delete_02 (self):
-
-                """Delete an audio file from monitored directory and verify if data base is updated accordingly"""
-
-
-		file_path = TEST_DIR_1 + '/test-music-delete-01.mp3'
-
-                """ 1. Copy test music file from test data dir to a monitored dir """
-                commands.getoutput('cp '+ SRC_MUSIC_DIR + TEST_MUSIC + ' ' + file_path)
-		self.loop.run()
-
-
-		"""verify the file is indexed """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
-
-
-                """ 2. Delete the file """
-                commands.getoutput('rm '+ file_path)
-		self.loop.run()
-
-
-		"""verify the deleted image is not indexed """
-		result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path + ' | wc -l')
-		print result
-		self.assert_(result == '0' , 'deleted file is shown as indexed')
-
-        def test_delete_03 (self):
-
-                """Delete a video file from monitored directory and verify if data base is updated accordingly"""
-
-
-		file_path = TEST_DIR_1 + '/test-video-delete-01.mp4'
-
-                """ 1. Copy test music file from test data dir to a monitored dir """
-                commands.getoutput('cp '+ SRC_VIDEO_DIR + TEST_VIDEO + ' ' + file_path)
-		self.loop.run()
-
-
-		"""verify the file is indexed """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
-		print result
-		if result == '1':
-			print "file copied and indexed"
-		else :
-			self.fail("file not indexed")
-
-
-                """ 2. Delete the file """
-                commands.getoutput('rm '+ file_path)
-		self.loop.run()
-
-
-		"""verify the deleted file is not indexed """
-		result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path + ' | wc -l')
-		print result
-		self.assert_(result == '0' , 'deleted file is shown as indexed')
-
+        result1 = commands.getoutput('tracker-search -i -l 5000 | grep '+MYDOCS_SUB+TEST_MUSIC +'|wc -l')
+        self.assert_(int(result1)==0 , "File is still listed in tracker search")
 
 
 class subfolders(TestUpdate) :
@@ -810,4 +844,4 @@ class subfolders(TestUpdate) :
 
 
 if __name__ == "__main__":
-	unittest.main()
+    unittest.main()
