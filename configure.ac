@@ -143,7 +143,7 @@ UPOWER_REQUIRED=0.9.0
 GDKPIXBUF_REQUIRED=2.12.0
 QUILL_REQUIRED=1.0.0
 UNAC_REQUIRED=1.0.0
-POPPLER_GLIB_REQUIRED=0.4.5
+POPPLER_REQUIRED=0.12.2
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
 LIBVORBIS_REQUIRED=0.22
@@ -1122,37 +1122,37 @@ if test x$enable_unzip_psgz_files != "xno"; then
 fi
 
 ##################################################################
-# Check for poppler's glib bingings
+# Check for poppler
 ##################################################################
 
-AC_ARG_ENABLE(poppler-glib,
-	      AS_HELP_STRING([--enable-poppler-glib],
+AC_ARG_ENABLE(poppler,
+	      AS_HELP_STRING([--enable-poppler],
 	      		     [enable extractor for PDF data [[default=auto]]]),,
-	      [enable_poppler_glib=auto])
+	      [enable_poppler=auto])
 
-if test "x$enable_poppler_glib" != "xno" ; then
-   PKG_CHECK_MODULES(POPPLER_GLIB,
-   		     [poppler-glib >= $POPPLER_GLIB_REQUIRED],
-		     [have_poppler_glib=yes],
-		     [have_poppler_glib=no])
+if test "x$enable_poppler" != "xno" ; then
+   PKG_CHECK_MODULES(POPPLER,
+   		     [poppler >= $POPPLER_REQUIRED],
+		     [have_poppler=yes],
+		     [have_poppler=no])
 
-   AC_SUBST(POPPLER_GLIB_CFLAGS)
-   AC_SUBST(POPPLER_GLIB_LIBS)
+   AC_SUBST(POPPLER_CFLAGS)
+   AC_SUBST(POPPLER_LIBS)
 
-   if test "x$have_poppler_glib" = "xyes"; then
-      AC_DEFINE(HAVE_POPPLER_GLIB, [], [Define if we have poppler-glib])
+   if test "x$have_poppler" = "xyes"; then
+      AC_DEFINE(HAVE_POPPLER, [], [Define if we have poppler])
    fi
 else
-   have_poppler_glib="no  (disabled)"
+   have_poppler="no  (disabled)"
 fi
 
-if test "x$enable_poppler_glib" = "xyes"; then
-   if test "x$have_poppler_glib" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find poppler-glib >= $POPPLER_GLIB_REQUIRED.])
+if test "x$enable_poppler" = "xyes"; then
+   if test "x$have_poppler" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find poppler >= $POPPLER_REQUIRED.])
    fi
 fi
 
-AM_CONDITIONAL(HAVE_POPPLER_GLIB, test "x$have_poppler_glib" = "xyes")
+AM_CONDITIONAL(HAVE_POPPLER, test "x$have_poppler" = "xyes")
 
 ##################################################################
 # Check for libexif
@@ -1798,7 +1798,7 @@ Metadata Extractors:
 
 	Support libstreamanalyzer:		$have_libstreamanalyzer
 	Support PNG:				yes
-	Support PDF:				$have_poppler_glib
+	Support PDF:				$have_poppler
 	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
 	Support TIFF:				$have_libtiff (xmp: $have_exempi, exif: yes, iptc: $have_libiptcdata)
 	Support Vorbis (ogg/etc):		$have_libvorbis

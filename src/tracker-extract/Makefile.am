@@ -20,7 +20,7 @@ INCLUDES = 								\
 	$(LIBGSF_CFLAGS) 						\
 	$(LIBXML2_CFLAGS) 						\
 	$(LIBPNG_CFLAGS) 						\
-	$(POPPLER_GLIB_CFLAGS) 						\
+	$(POPPLER_CFLAGS) 						\
 	$(GSTREAMER_CFLAGS) 						\
 	$(XINE_CFLAGS) 							\
 	$(TOTEM_PL_PARSER_CFLAGS)
@@ -73,7 +73,7 @@ modules_LTLIBRARIES += 							\
 	libextract-oasis.la
 endif
 
-if HAVE_POPPLER_GLIB
+if HAVE_POPPLER
 modules_LTLIBRARIES += libextract-pdf.la
 endif
 
@@ -214,12 +214,12 @@ libextract_msoffice_la_LIBADD = 					\
 	$(GCOV_LIBS)
 
 # PDF
-libextract_pdf_la_SOURCES = tracker-extract-pdf.c
+libextract_pdf_la_SOURCES = tracker-extract-pdf.cpp
 libextract_pdf_la_LDFLAGS = $(module_flags)
 libextract_pdf_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(POPPLER_GLIB_LIBS)						\
+	$(POPPLER_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GCOV_LIBS)
 
