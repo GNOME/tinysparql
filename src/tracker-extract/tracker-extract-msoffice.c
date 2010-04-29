@@ -469,7 +469,7 @@ msoffice_convert_and_normalize_chunk (guint8    *buffer,
 		g_free (converted_text);
 		g_free (normalized_chunk);
 	} else {
-		g_warning ("Couldn't convert %d bytes from %s to UTF-8: %s",
+		g_warning ("Couldn't convert %" G_GSIZE_FORMAT " bytes from %s to UTF-8: %s",
 		           chunk_size,
 		           is_ansi ? "CP1252" : "UTF-16",
 		           error ? error->message : "no error given");
