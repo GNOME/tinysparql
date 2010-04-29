@@ -277,6 +277,13 @@ nco:contactUID a rdf:Property ;
 	rdfs:range xsd:string ;
 	tracker:weight 5 .
 
+nco:contactLocalUID a rdf:Property;
+        rdfs:label "local contact UID";
+        rdfs:comment "Unique ID for the contact in the local storage" ;
+        nrl:maxCardinality 1;
+        rdfs:domain nco:Contact ;
+        rdfs:range xsd:integer .
+
 nco:publisher a rdf:Property ;
 	rdfs:label "publisher" ;
 	rdfs:comment "An entity responsible for making the InformationElement available." ;
