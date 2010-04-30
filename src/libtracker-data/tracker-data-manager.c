@@ -2008,7 +2008,7 @@ get_new_service_id (TrackerDBInterface *iface)
 {
 	TrackerDBCursor    *cursor;
 	TrackerDBStatement *stmt;
-	gint max_service_id;
+	gint max_service_id = 0;
 
 	/* Don't intermix this thing with tracker_data_update_get_new_service_id,
 	 * if you use this, know what you are doing! */
