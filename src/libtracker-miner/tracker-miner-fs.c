@@ -2185,7 +2185,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
 	                                                "nie:url ?url ; "
 	                                                "nfo:fileLastModified ?last . "
-	                                             "?p nie:url '%s' }", uri);
+	                                             "?p nie:url \"%s\" }", uri);
 
 	g_free (uri);
 
