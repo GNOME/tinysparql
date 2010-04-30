@@ -161,6 +161,7 @@ TAGLIB_REQUIRED=1.6
 GNOME_KEYRING_REQUIRED=2.26
 LIBGRSS_REQUIRED=0.3
 REST_REQUIRED=0.6
+NETWORK_MANAGER_REQUIRED=0.8
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -799,6 +800,36 @@ if test "x$enable_gnome_keyring" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_GNOME_KEYRING, test "x$have_gnome_keyring" = "xyes")
+
+##################################################################
+# Enable NetworkManager for network status detection (for web miners)
+##################################################################
+
+AC_ARG_ENABLE(network_manager,
+	      AS_HELP_STRING([--enable-network-manager],
+			     [enable NetworkManager support to detect network status [[default=auto]]]),,
+	      [enable_network_manager=auto])
+
+if test "x$enable_network_manager" != "xno"; then
+	PKG_CHECK_MODULES(NETWORK_MANAGER,
+	                  [ libnm-glib >= $NETWORK_MANAGER_REQUIRED ],
+	                  [have_network_manager=yes],
+	                  [have_network_manager=no])
+	AC_SUBST(NETWORK_MANAGER_LIBS)
+	AC_SUBST(NETWORK_MANAGER_CFLAGS)
+
+	if test "x$have_network_manager" = "xyes"; then
+		AC_DEFINE(HAVE_NETWORK_MANAGER, [], [Define if we have NetworkManager for network status detection])
+	fi
+fi
+
+if test "x$enable_network_manager" = "xyes"; then
+   if test "x$have_network_manager" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libnm-glib >= $NETWORK_MANAGER_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_NETWORK_MANAGER, test "x$have_network_manager" = "xyes")
 
 ##################################################################
 # Flickr miner
@@ -1820,6 +1851,7 @@ Build Configuration:
 	Support for file monitoring:            $have_file_monitor
 	Support for accent stripping (unac):  	$have_unac
 	Support for Cyrillic languages (enca): 	$have_enca
+	Support for network status detection:	$have_network_manager
 
 Applications:
 

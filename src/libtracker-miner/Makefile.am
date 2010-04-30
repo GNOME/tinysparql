@@ -34,6 +34,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-miner-web-dbus.h			\
 	tracker-monitor.c				\
 	tracker-monitor.h				\
+	tracker-network-provider.c			\
 	tracker-password-provider.c			\
 	tracker-storage.c				\
 	tracker-thumbnailer.c				\
@@ -47,13 +48,14 @@ libtracker_minerinclude_HEADERS = 			\
 	tracker-miner-fs.h				\
 	tracker-miner-manager.h				\
 	tracker-miner-web.h				\
+	tracker-network-provider.h			\
 	tracker-password-provider.h			\
 	tracker-storage.h				\
 	tracker-thumbnailer.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
-	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider)_.*'
+	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider)_.*'
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
@@ -80,6 +82,20 @@ INCLUDES +=						\
 else
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
 	tracker-password-provider-keyfile.c
+endif
+
+if HAVE_NETWORK_MANAGER
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES +=	\
+	tracker-network-provider-network-manager.c
+
+libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
+	$(NETWORK_MANAGER_LIBS)
+
+INCLUDES +=						\
+	$(NETWORK_MANAGER_CFLAGS)
+else
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES +=	\
+	tracker-network-provider-dummy.c
 endif
 
 tracker-marshal.h: tracker-marshal.list

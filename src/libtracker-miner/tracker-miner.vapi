@@ -98,6 +98,22 @@ namespace Tracker {
 		public string get_password (string service, out string username) throws GLib.Error;
 		public void store_password (string service, string description, string username, string password) throws GLib.Error;
 	}
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
+	public interface NetworkProvider : GLib.Object {
+		public string get_name ();
+		public NetworkProviderStatus get_status ();
+		public signal void status_changed (NetworkProviderStatus status);
+		public static unowned Tracker.NetworkProvider @get ();
+	}
+	[CCode (cprefix = "TRACKER_NETWORK_PROVIDER_", cheader_filename = "libtracker-miner/tracker-miner.h")]
+	public enum NetworkProviderStatus {
+		DISCONNECTED,
+		UNKNOWN,
+		GPRS,
+		EDGE,
+		@3G,
+		LAN
+	}
 	[CCode (cprefix = "TRACKER_MINER_WEB_ERROR_", cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public errordomain MinerWebError {
 		WRONG_CREDENTIALS,
