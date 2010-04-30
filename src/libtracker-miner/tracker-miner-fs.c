@@ -2182,11 +2182,11 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_debug ("Generating mtime cache for folder: %s", uri);
 
-	query = g_strdup_printf ("SELECT ?uri nfo:fileLastModified (?u) { "
-	                         "  ?u nie:url ?uri . "
-	                         "  FILTER (tracker:uri-is-parent (\"%s\", ?uri)) "
-	                         "}",
-	                         uri);
+	query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
+	                                                "nie:url ?url ; "
+	                                                "nfo:fileLastModified ?last . "
+	                                             "?p nie:url '%s' }", uri);
+
 	g_free (uri);
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
