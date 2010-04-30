@@ -1191,7 +1191,7 @@ tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor,
 	if (!priv->finished) {
 		guint result = SQLITE_BUSY;
 
-		while (result == SQLITE_BUSY || result == SQLITE_IOERR_BLOCKED) {
+		while (result == SQLITE_BUSY || result == SQLITE_LOCKED || result == SQLITE_IOERR_BLOCKED) {
 			result = sqlite3_step (priv->stmt);
 		}
 
