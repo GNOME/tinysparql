@@ -94,7 +94,7 @@ namespace Tracker {
 	public interface PasswordProvider : GLib.Object {
 		public void forget_password (string service) throws GLib.Error;
 		public static unowned Tracker.PasswordProvider @get ();
-		public unowned string get_name ();
+		public string get_name ();
 		public string get_password (string service, out string username) throws GLib.Error;
 		public void store_password (string service, string description, string username, string password) throws GLib.Error;
 	}
