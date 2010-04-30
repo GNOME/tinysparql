@@ -19,7 +19,7 @@
 
 [CCode (cprefix = "Tracker", lower_case_cprefix = "tracker_")]
 namespace Tracker {
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner-object.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class Miner : GLib.Object {
 		[NoAccessorMethod]
 		public string name { get; construct; }
@@ -44,7 +44,7 @@ namespace Tracker {
 		public virtual void stopped ();
 		public signal void error (GLib.Error e);
 	}
-	[CCode (ref_function = "tracker_miner_fs_ref", unref_function = "tracker_miner_fs_unref", cheader_filename = "libtracker-miner/tracker-miner-fs.h")]
+	[CCode (ref_function = "tracker_miner_fs_ref", unref_function = "tracker_miner_fs_unref", cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class MinerFS {
 		public virtual bool check_directory (GLib.File directory);
 		public virtual bool check_directory_contents (GLib.File directory, GLib.List<GLib.File> children);
@@ -60,7 +60,7 @@ namespace Tracker {
 		public void set_throttle (double throttle);
 		public signal void finished (double elapsed, uint directories_found, uint directories_ignored, uint files_found, uint files_ignored);
 	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner-manager.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class MinerManager {
 		[CCode (has_construct_function = false)]
 		public MinerManager ();
@@ -80,7 +80,7 @@ namespace Tracker {
 		public virtual void miner_resumed (string miner_name);
 		public virtual void miner_progress (string miner_name, string status, double progress);
 	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner-web.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class MinerWeb : Tracker.Miner {
 		[NoAccessorMethod]
 		public bool associated { get; set; }
@@ -90,7 +90,7 @@ namespace Tracker {
 		public static GLib.Quark error_quark ();
 		public virtual GLib.HashTable get_association_data () throws Tracker.MinerWebError;
 	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-password-provider.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public interface PasswordProvider : GLib.Object {
 		public void forget_password (string service) throws GLib.Error;
 		public static unowned Tracker.PasswordProvider @get ();
@@ -98,7 +98,7 @@ namespace Tracker {
 		public string get_password (string service, out string username) throws GLib.Error;
 		public void store_password (string service, string description, string username, string password) throws GLib.Error;
 	}
-	[CCode (cprefix = "TRACKER_MINER_WEB_ERROR_", cheader_filename = "libtracker-miner/tracker-miner-web.h")]
+	[CCode (cprefix = "TRACKER_MINER_WEB_ERROR_", cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public errordomain MinerWebError {
 		WRONG_CREDENTIALS,
 		TOKEN_EXPIRED,
@@ -107,23 +107,23 @@ namespace Tracker {
 		SERVICE,
 		TRACKER,
 	}
-	[CCode (cprefix = "TRACKER_PASSWORD_PROVIDER_ERROR_", cheader_filename = "libtracker-miner/tracker-password-provider.h")]
+	[CCode (cprefix = "TRACKER_PASSWORD_PROVIDER_ERROR_", cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public errordomain PasswordProviderError {
 		SERVICE,
 		NOTFOUND,
 	}
-	[CCode (cheader_filename = "libtracker-miner/tracker-miner-object.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public const string MINER_WEB_DBUS_INTERFACE;
-	[CCode (cheader_filename = "libtracker-miner/tracker-thumbnailer.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public static bool thumbnailer_cleanup (string uri_prefix);
-	[CCode (cheader_filename = "libtracker-miner/tracker-thumbnailer.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public static bool thumbnailer_init ();
-	[CCode (cheader_filename = "libtracker-miner/tracker-thumbnailer.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public static bool thumbnailer_move_add (string from_uri, string mime_type, string to_uri);
-	[CCode (cheader_filename = "libtracker-miner/tracker-thumbnailer.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public static bool thumbnailer_remove_add (string uri, string mime_type);
-	[CCode (cheader_filename = "libtracker-miner/tracker-thumbnailer.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public static void thumbnailer_send ();
-	[CCode (cheader_filename = "libtracker-miner/tracker-thumbnailer.h")]
+	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public static void thumbnailer_shutdown ();
 }
