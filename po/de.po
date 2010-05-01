@@ -14,9 +14,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-16 14:46+0200\n"
-"PO-Revision-Date: 2010-04-16 14:49+0200\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&component=general\n"
+"POT-Creation-Date: 2010-04-28 09:38+0000\n"
+"PO-Revision-Date: 2010-04-27 22:13+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -197,32 +198,6 @@ msgstr ""
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Cookie zur Fortsetzung der Indizierung nicht erkannt"
 
-#: ../src/libtracker-miner/tracker-miner-fs.c:721
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2347
-#: ../src/miners/rss/tracker-miner-rss.c:164
-msgid "Initializing"
-msgstr "Initialisierung"
-
-#: ../src/libtracker-miner/tracker-miner-fs.c:732
-#: ../src/libtracker-miner/tracker-miner-fs.c:886
-msgid "Idle"
-msgstr "Leerlauf"
-
-#: ../src/libtracker-miner/tracker-miner-fs.c:2000
-#: ../src/libtracker-miner/tracker-miner-fs.c:2003
-msgid "Processing files"
-msgstr "Dateien werden verarbeitet"
-
-#: ../src/libtracker-miner/tracker-miner-fs.c:2556
-#, c-format
-msgid "Crawling recursively directory '%s'"
-msgstr "Ordner »%s« wird rekursiv durchgearbeitet"
-
-#: ../src/libtracker-miner/tracker-miner-fs.c:2558
-#, c-format
-msgid "Crawling single directory '%s'"
-msgstr "Einzelner Ordner »%s« wird durchgearbeitet"
-
 #: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
 msgid "Push data to Tracker to make it queryable."
 msgstr "Daten an Tracker senden, um sie für Abfragen verfügbar zu machen."
@@ -231,9 +206,10 @@ msgstr "Daten an Tracker senden, um sie für Abfragen verfügbar zu machen."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2439
-msgid "Resuming"
-msgstr "Es wird fortgesetzt"
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2456
+#: ../src/tracker-utils/tracker-status.c:70
+msgid "Processing…"
+msgstr "Verarbeitung läuft …"
 
 #: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:1
 msgid "Emails"
@@ -441,11 +417,11 @@ msgstr "Würde überwacht werden"
 msgid "- start the tracker indexer"
 msgstr "- startet die Tracker-Indizierung"
 
-#: ../src/miners/fs/tracker-miner-files.c:897
+#: ../src/miners/fs/tracker-miner-files.c:906
 msgid "Low battery"
 msgstr "Akkuzustand niedrig"
 
-#: ../src/miners/fs/tracker-miner-files.c:980
+#: ../src/miners/fs/tracker-miner-files.c:989
 msgid "Low disk space"
 msgstr "Wenig Speicherplatz"
 
@@ -456,9 +432,10 @@ msgstr "Wenig Speicherplatz"
 msgid "- start the feeds indexer"
 msgstr "- startet die Quellen-Indizierung"
 
-#: ../src/miners/rss/tracker-miner-rss.c:256
-msgid "Fetching..."
-msgstr "Holen läuft …"
+#: ../src/miners/rss/tracker-miner-rss.c:164
+#: ../src/tracker-utils/tracker-status.c:69
+msgid "Initializing"
+msgstr "Initialisierung"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -913,7 +890,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-search.c:113
 #: ../src/tracker-utils/tracker-sparql.c:93
 #: ../src/tracker-utils/tracker-stats.c:47
-#: ../src/tracker-utils/tracker-status.c:100
+#: ../src/tracker-utils/tracker-status.c:116
 #: ../src/tracker-utils/tracker-tag.c:88
 msgid "Print version"
 msgstr "Version ausgeben"
@@ -1171,7 +1148,7 @@ msgstr "Eine oder mehrere Dateien wurden nicht angegeben"
 #: ../src/tracker-utils/tracker-info.c:135
 #: ../src/tracker-utils/tracker-sparql.c:244
 #: ../src/tracker-utils/tracker-stats.c:106
-#: ../src/tracker-utils/tracker-status.c:527
+#: ../src/tracker-utils/tracker-status.c:543
 #: ../src/tracker-utils/tracker-tag.c:897
 msgid "Could not establish a D-Bus connection to Tracker"
 msgstr "Eine D-Bus-Verbindung zu Tracker konnte nicht aufgebaut werden"
@@ -1185,7 +1162,7 @@ msgid "Unable to import Turtle file"
 msgstr "Turtle-Datei konnte nicht importiert werden"
 
 #: ../src/tracker-utils/tracker-import.c:139
-#: ../src/tracker-utils/tracker-status.c:194
+#: ../src/tracker-utils/tracker-status.c:210
 msgid "Done"
 msgstr "Abgeschlossen"
 
@@ -1545,27 +1522,54 @@ msgstr "Keine Statistiken verfügbar"
 msgid "Statistics:"
 msgstr "Statistiken:"
 
-#: ../src/tracker-utils/tracker-status.c:68
+#: ../src/tracker-utils/tracker-status.c:71
+msgid "Fetching…"
+msgstr "Holen läuft …"
+
+#. miner/rss
+#: ../src/tracker-utils/tracker-status.c:72
+#, c-format
+msgid "Crawling single directory '%s'"
+msgstr "Einzelner Ordner »%s« wird durchgearbeitet"
+
+#: ../src/tracker-utils/tracker-status.c:73
+#, c-format
+msgid "Crawling recursively directory '%s'"
+msgstr "Ordner »%s« wird rekursiv durchgearbeitet"
+
+#: ../src/tracker-utils/tracker-status.c:74
+msgid "Paused"
+msgstr "Angehalten"
+
+#: ../src/tracker-utils/tracker-status.c:75
+msgid "Idle"
+msgstr "Leerlauf"
+
+#: ../src/tracker-utils/tracker-status.c:80
 msgid "Follow status changes as they happen"
 msgstr "Statusänderungen unmittelbar folgen"
 
-#: ../src/tracker-utils/tracker-status.c:72
+#: ../src/tracker-utils/tracker-status.c:84
 msgid "Include details with state updates (only applies to --follow)"
 msgstr "Details zur Statusaktualisierung hinzufügen (nur mit --follow)"
 
-#: ../src/tracker-utils/tracker-status.c:76
+#: ../src/tracker-utils/tracker-status.c:88
+msgid "List common statuses for miners and the store"
+msgstr "Häugfige Status für Indizierung und Speicherung auflisten"
+
+#: ../src/tracker-utils/tracker-status.c:92
 msgid "List all miners currently running"
 msgstr "Alle derzeit laufenden Indizierer auflisten"
 
-#: ../src/tracker-utils/tracker-status.c:80
+#: ../src/tracker-utils/tracker-status.c:96
 msgid "List all miners installed"
 msgstr "Alle installierten Indizierer auflisten"
 
-#: ../src/tracker-utils/tracker-status.c:84
+#: ../src/tracker-utils/tracker-status.c:100
 msgid "List pause reasons and applications for a miner"
 msgstr "Anhaltegründe und Anwendungen der Indizierer auflisten"
 
-#: ../src/tracker-utils/tracker-status.c:88
+#: ../src/tracker-utils/tracker-status.c:104
 msgid ""
 "Miner to use with other commands (you can use suffixes, e.g. FS or "
 "Applications)"
@@ -1573,126 +1577,130 @@ msgstr ""
 "Mit anderen Befehlen zu verwendender Indizierer (Sie können Suffixe "
 "verwenden, z.B. »FS« oder »Applications«)"
 
-#: ../src/tracker-utils/tracker-status.c:89
+#: ../src/tracker-utils/tracker-status.c:105
 msgid "MINER"
 msgstr "INDIZIERER"
 
-#: ../src/tracker-utils/tracker-status.c:92
+#: ../src/tracker-utils/tracker-status.c:108
 msgid "Pause a miner (you must use this with --miner)"
 msgstr ""
 "Einen Indizierer anhalten (Sie müssen dies zusammen mit »--miner« verwenden)"
 
-#: ../src/tracker-utils/tracker-status.c:93
+#: ../src/tracker-utils/tracker-status.c:109
 msgid "REASON"
 msgstr "GRUND"
 
-#: ../src/tracker-utils/tracker-status.c:96
+#: ../src/tracker-utils/tracker-status.c:112
 msgid "Resume a miner (you must use this with --miner)"
 msgstr ""
 "Einen Indizierer fortsetzen (Sie müssen dies zusammen mit »--miner« verwenden)"
 
-#: ../src/tracker-utils/tracker-status.c:97
+#: ../src/tracker-utils/tracker-status.c:113
 msgid "COOKIE"
 msgstr "COOKIE"
 
-#: ../src/tracker-utils/tracker-status.c:157
+#: ../src/tracker-utils/tracker-status.c:173
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
 msgstr "Es wird versucht, den Indizierer »%s« mit Grund »%s« anzuhalten"
 
-#: ../src/tracker-utils/tracker-status.c:164
+#: ../src/tracker-utils/tracker-status.c:180
 #, c-format
 msgid "Could not pause miner: %s"
 msgstr "Indizierer konnte nicht angehalten werden: %s"
 
-#: ../src/tracker-utils/tracker-status.c:169
+#: ../src/tracker-utils/tracker-status.c:185
 #, c-format
 msgid "Cookie is %d"
 msgstr "Cookie ist %d"
 
-#: ../src/tracker-utils/tracker-status.c:183
+#: ../src/tracker-utils/tracker-status.c:199
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Es wird versucht, den Indizierer »%s« mit Cookie »%d« fortzusetzen"
 
-#: ../src/tracker-utils/tracker-status.c:190
+#: ../src/tracker-utils/tracker-status.c:206
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "Indizierer konnte nicht fortgesetzt werden: %s"
 
-#: ../src/tracker-utils/tracker-status.c:210
+#: ../src/tracker-utils/tracker-status.c:226
 #, c-format
 msgid "Could not get status from miner: %s"
 msgstr "Der Status vom Indizierer konnte nicht erhalten werden: %s"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-utils/tracker-status.c:268
-#: ../src/tracker-utils/tracker-status.c:655
+#: ../src/tracker-utils/tracker-status.c:284
+#: ../src/tracker-utils/tracker-status.c:683
 msgid "PAUSED"
 msgstr "UNTERBROCHEN"
 
-#: ../src/tracker-utils/tracker-status.c:282
+#: ../src/tracker-utils/tracker-status.c:298
 msgid "Not running or is a disabled plugin"
 msgstr "Läuft nicht oder Plugin ist deaktiviert"
 
-#: ../src/tracker-utils/tracker-status.c:338
+#: ../src/tracker-utils/tracker-status.c:354
 msgid "Journal replay"
 msgstr "Journal verarbeiten"
 
-#: ../src/tracker-utils/tracker-status.c:462
+#: ../src/tracker-utils/tracker-status.c:478
 msgid "- Monitor and control status"
 msgstr "- Status von Überwachung und Steuerung"
 
-#: ../src/tracker-utils/tracker-status.c:477
+#: ../src/tracker-utils/tracker-status.c:493
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Die Argumente zum Anhalten und Fortsetzen des Indizierers können nicht "
 "zugleich verwendet werden"
 
-#: ../src/tracker-utils/tracker-status.c:491
+#: ../src/tracker-utils/tracker-status.c:507
 msgid "You must provide the miner for pause or resume commands"
 msgstr ""
 "Der Indizierer muss für die Befehle zum Anhalten und Fortsetzen angegeben "
 "werden"
 
-#: ../src/tracker-utils/tracker-status.c:505
+#: ../src/tracker-utils/tracker-status.c:521
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
 "Sie müssen die Befehle zum Anhalten und Fortsetzen für den Indizierer angeben"
 
-#: ../src/tracker-utils/tracker-status.c:539
+#: ../src/tracker-utils/tracker-status.c:555
+msgid "Common statuses include"
+msgstr "Häufige Status einschließen"
+
+#: ../src/tracker-utils/tracker-status.c:567
 #, c-format
 msgid "Found %d miners installed"
 msgstr "Es wurden %d installierte Indizierer gefunden"
 
-#: ../src/tracker-utils/tracker-status.c:551
+#: ../src/tracker-utils/tracker-status.c:579
 #, c-format
 msgid "Found %d miners running"
 msgstr "Es wurden %d laufende Indizierer gefunden"
 
-#: ../src/tracker-utils/tracker-status.c:584
+#: ../src/tracker-utils/tracker-status.c:612
 msgid "No miners are running"
 msgstr "Es laufen derzeit keine Indizierer"
 
-#: ../src/tracker-utils/tracker-status.c:624
-#: ../src/tracker-utils/tracker-status.c:671
+#: ../src/tracker-utils/tracker-status.c:652
+#: ../src/tracker-utils/tracker-status.c:699
 msgid "Miners"
 msgstr "Indizierer"
 
-#: ../src/tracker-utils/tracker-status.c:631
+#: ../src/tracker-utils/tracker-status.c:659
 msgid "Application"
 msgstr "Anwendung"
 
-#: ../src/tracker-utils/tracker-status.c:633
+#: ../src/tracker-utils/tracker-status.c:661
 msgid "Reason"
 msgstr "Grund"
 
-#: ../src/tracker-utils/tracker-status.c:642
+#: ../src/tracker-utils/tracker-status.c:670
 msgid "No miners are paused"
 msgstr "Es sind keine Indizierer angehalten"
 
 #. Display states
-#: ../src/tracker-utils/tracker-status.c:665
+#: ../src/tracker-utils/tracker-status.c:693
 msgid "Store"
 msgstr "Speichern"
 
@@ -1842,6 +1850,9 @@ msgstr "- startet die Tracker-Indizierung"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Gespeicherte Abfragen"
+
+#~ msgid "Resuming"
+#~ msgstr "Es wird fortgesetzt"
 
 #~ msgid "Minimizes the use of memory but may slow indexing down"
 #~ msgstr "Minimiert den Speicherverbrauch auf Kosten der Geschwindigkeit"
@@ -2126,9 +2137,6 @@ msgstr "Gespeicherte Abfragen"
 
 #~ msgid "[R] = Running"
 #~ msgstr "[R] = Wird ausgeführt"
-
-#~ msgid "[P] = Paused"
-#~ msgstr "[P] = Angehalten"
 
 #~ msgid "[ ] = Not Running"
 #~ msgstr "[ ] = Wird nicht ausgeführt"
