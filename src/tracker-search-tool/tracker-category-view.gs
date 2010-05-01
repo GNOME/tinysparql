@@ -49,13 +49,18 @@ class TrackerCategoryView : ScrolledWindow
 
         store = new ListStore (CategoryColumns.NumOfCols, typeof (Gdk.Pixbuf), typeof (string), typeof (string))
         iter : TreeIter
+
         store.append (out iter);
         store.set (iter, CategoryColumns.Icon, GetThemePixbufByName ("system-file-manager", icon_size, get_screen ()), \
                    CategoryColumns.Name, "All", CategoryColumns.DisplayName, N_("All Files") , -1);
 
         store.append (out iter);
+        store.set (iter, CategoryColumns.Icon, GetThemePixbufByName ("folder", icon_size, get_screen ()), \
+                   CategoryColumns.Name, "nfo:Folder", CategoryColumns.DisplayName, N_("Folders") , -1);
+
+        store.append (out iter);
         store.set (iter, CategoryColumns.Icon, GetThemePixbufByName ("x-office-document", icon_size, get_screen ()), \
-                   CategoryColumns.Name, "nfo:Document", CategoryColumns.DisplayName, N_("Office Documents") , -1);
+                   CategoryColumns.Name, "nfo:Document", CategoryColumns.DisplayName, N_("Documents") , -1);
 
         store.append (out iter);
         store.set (iter, CategoryColumns.Icon, GetThemePixbufByName ("image-x-generic", icon_size, get_screen ()), \
