@@ -947,18 +947,18 @@ tracker_resources_load (TrackerClient  *client,
  *
  *  /&ast; Create D-Bus connection with no warnings and maximum timeout. &ast;/
  *  client = tracker_client_new (0, G_MAXINT);
- *  query = "SELECT"
+ *  query = "SELECT {"
  *          "  ?album"
  *          "  ?title"
  *          "  COUNT(?song) AS songs"
  *          "  SUM(?length) AS totallength"
- *          "WHERE {"
+ *          "} WHERE {"
  *          "  ?album a nmm:MusicAlbum ;"
  *          "  nie:title ?title ."
  *          "  ?song nmm:musicAlbum ?album ;"
  *          "  nfo:duration ?length"
  *          "} "
- *          "GROUP BY ?album");
+ *          "GROUP BY (?album");
  *
  *  array = tracker_resources_sparql_query (client, query, &error);
  *
