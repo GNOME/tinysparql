@@ -7,9 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-23 00:03+0200\n"
-"PO-Revision-Date: 2010-04-17 23:32+0200\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&component=general\n"
+"POT-Creation-Date: 2010-04-22 22:04+0000\n"
+"PO-Revision-Date: 2010-04-25 17:16+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -203,9 +204,8 @@ msgstr "Tracker"
 
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2439
 #: ../src/tracker-utils/tracker-status.c:70
-#, fuzzy
 msgid "Processing…"
-msgstr "Zpracovávají se soubory"
+msgstr "Zpracovává se…"
 
 #: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:1
 msgid "Emails"
@@ -1485,7 +1485,6 @@ msgid "Statistics:"
 msgstr "Statistiky:"
 
 #: ../src/tracker-utils/tracker-status.c:71
-#, fuzzy
 msgid "Fetching…"
 msgstr "Získává se…"
 
@@ -1501,9 +1500,8 @@ msgid "Crawling recursively directory '%s'"
 msgstr "Prochází se rekurzivně složka „%s“"
 
 #: ../src/tracker-utils/tracker-status.c:74
-#, fuzzy
 msgid "Paused"
-msgstr "Pozastaveno uživatelem"
+msgstr "Pozastaveno"
 
 #: ../src/tracker-utils/tracker-status.c:75
 msgid "Idle"
@@ -1520,7 +1518,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-status.c:88
 msgid "List common statuses for miners and the store"
-msgstr ""
+msgstr "Vypsat běžné stavy pro démony na získávání dat z aplikací a úložiště"
 
 #: ../src/tracker-utils/tracker-status.c:92
 msgid "List all miners currently running"
@@ -1629,7 +1627,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-status.c:555
 msgid "Common statuses include"
-msgstr ""
+msgstr "Běžné stavy zahrnují"
 
 #: ../src/tracker-utils/tracker-status.c:567
 #, c-format
