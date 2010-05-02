@@ -276,7 +276,7 @@ class TrackerMetadataTile : EventBox
 
         if res.contains ("nfo#Video") do return Categories.Video
         if res.contains ("nfo#Image") do return Categories.Image
-        if res.contains ("nfo#Audio") do return Categories.Music
+        if res.contains ("nfo#Audio") do return Categories.Audio
         if res.contains ("nfo#Document") do return Categories.Document
         if res.contains ("nfo#Software") do return Categories.Application       
         if res.contains ("nfo#Folder") do return Categories.Folder        
@@ -333,7 +333,7 @@ class TrackerMetadataTile : EventBox
                      
 
         
-    def private DisplayMusicDetails (uri : string)
+    def private DisplayAudioDetails (uri : string)
         var query = "select nie:title(?s) nmm:performer(?s) nmm:musicAlbum(?s) Where { ?s nie:url \"%s\" }".printf(uri)
         var result = Query.Query (query)
 
@@ -402,7 +402,7 @@ class TrackerMetadataTile : EventBox
 
         case cat
             when Categories.Application do DisplayApplicationDetails (uri)
-            when Categories.Music do DisplayMusicDetails (uri)
+            when Categories.Audio do DisplayAudioDetails (uri)
             when Categories.Video do DisplayVideoDetails (uri)
             when Categories.Image do DisplayImageDetails (uri)
             when Categories.Document do DisplayDocumentDetails (uri)
