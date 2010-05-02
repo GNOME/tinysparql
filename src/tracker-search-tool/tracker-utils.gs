@@ -32,7 +32,7 @@ enum Categories
     EmailAttachment
     File
     Folder
-    Music
+    Audio
     Video
     Image
     Document
