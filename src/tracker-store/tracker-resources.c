@@ -214,15 +214,20 @@ query_callback (gpointer inthread_data, GError *error, gpointer user_data)
 	InThreadPtr *ptr = inthread_data;
 	TrackerDBusMethodInfo *info = user_data;
 
-	if (ptr->error) {
+	if (ptr && ptr->error) {
 		tracker_dbus_request_failed (info->request_id,
 		                             info->context,
 		                             &ptr->error,
 		                             NULL);
 		dbus_g_method_return_error (info->context, ptr->error);
 		g_error_free (ptr->error);
+	} else if (error) {
+		tracker_dbus_request_failed (info->request_id,
+		                             info->context,
+		                             &error,
+		                             NULL);
+		dbus_g_method_return_error (info->context, error);
 	} else {
-
 		tracker_dbus_request_success (info->request_id,
 		                              info->context);
 
