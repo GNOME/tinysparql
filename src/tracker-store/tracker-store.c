@@ -136,6 +136,12 @@ process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 
 		i++;
 		if (!new_error && i >= 10) {
+			tracker_data_commit_transaction (&new_error);
+			if (new_error) {
+				tracker_data_rollback_transaction ();
+				g_propagate_error (error, new_error);
+				return FALSE;
+			}
 			/* return to main loop */
 			return TRUE;
 		}
