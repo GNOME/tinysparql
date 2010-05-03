@@ -234,7 +234,8 @@ query_callback (gpointer inthread_data, GError *error, gpointer user_data)
 		dbus_g_method_send_reply (info->context, ptr->reply);
 	}
 
-	g_slice_free (InThreadPtr, ptr);
+	if (ptr)
+		g_slice_free (InThreadPtr, ptr);
 }
 
 static gpointer
