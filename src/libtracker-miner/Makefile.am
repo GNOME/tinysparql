@@ -106,14 +106,14 @@ dbus_sources = 						\
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
 vapi_DATA =                     			\
-	tracker-miner-$(TRACKER_API_VERSION).vapi
+	tracker-miner-$(TRACKER_API_VERSION).vapi	\
+	tracker-miner-$(TRACKER_API_VERSION).deps
 
 tracker-miner-$(TRACKER_API_VERSION).vapi: tracker-miner.vapi
 	cp $< $@
 
-# Web details
-tracker-miner-web-$(TRACKER_API_VERSION).deps: tracker-miner-web.deps.in
-	$(SED) -e "s|@VERSION[@]|${TRACKER_API_VERSION}|" $< > $@
+tracker-miner-$(TRACKER_API_VERSION).deps: tracker-miner.deps
+	cp $< $@
 
 # Custom rule to avoid API duplication. There is also a workaround for bug
 # in dbus-binding-tool where it generates bad code when two files are passed
