@@ -648,6 +648,10 @@ tracker_date_guess (const gchar *date_string)
 
 		num_month = parse_month (date_string + 4);
 
+		if (num_month < 0) {
+			return NULL;
+		}
+
 		mon1 = imonths[num_month];
 
 		if (date_string[8] == ' ') {
