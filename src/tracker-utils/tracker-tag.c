@@ -622,7 +622,7 @@ remove_tag_for_urns (TrackerClient *client,
                      GStrv          files,
                      const gchar   *tag)
 {
-	GPtrArray *urns;
+	GPtrArray *urns = NULL;
 	GError *error = NULL;
 	gchar *tag_escaped;
 	gchar *query;
@@ -635,7 +635,7 @@ remove_tag_for_urns (TrackerClient *client,
 		GPtrArray *results;
 		gchar *filter;
 		const gchar *urn;
-		GStrv uris, urns_strv;
+		GStrv urns_strv;
 
 		/* Get all tags urns */
 		query = g_strdup_printf ("SELECT ?tag "
@@ -654,6 +654,7 @@ remove_tag_for_urns (TrackerClient *client,
 			            error->message);
 			g_error_free (error);
 			g_free (tag_escaped);
+			g_strfreev (uris);
 
 			return FALSE;
 		}
@@ -663,13 +664,12 @@ remove_tag_for_urns (TrackerClient *client,
 			         _("No tags were found by that name"));
 
 			g_free (tag_escaped);
+			g_strfreev (uris);
 
 			return TRUE;
 		}
 
 		urn = * (GStrv) results->pdata[0];
-
-		uris = get_uris (files);
 		urns = get_file_urns (client, uris, urn);
 
 		if (!urns || urns->len == 0) {
@@ -719,6 +719,7 @@ remove_tag_for_urns (TrackerClient *client,
 		            _("Could not remove tag"),
 		            error->message);
 		g_error_free (error);
+		g_strfreev (uris);
 
 		return FALSE;
 	}
