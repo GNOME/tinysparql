@@ -1374,11 +1374,8 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
                                     GError     *error,
                                     gpointer    user_data)
 {
-	TrackerMinerFilesPrivate *priv;
 	ProcessFileData *data = user_data;
 	const gchar *uuid;
-
-	priv = TRACKER_MINER_FILES_GET_PRIVATE (data->miner);
 
 	if (error) {
 		/* Something bad happened, notify about the error */
@@ -1495,7 +1492,6 @@ process_file_cb (GObject      *object,
                  GAsyncResult *result,
                  gpointer      user_data)
 {
-	TrackerMinerFilesPrivate *priv;
 	TrackerSparqlBuilder *sparql;
 	ProcessFileData *data;
 	const gchar *mime_type, *urn, *parent_urn;
@@ -1509,7 +1505,6 @@ process_file_cb (GObject      *object,
 	data = user_data;
 	file = G_FILE (object);
 	sparql = data->sparql;
-	priv = TRACKER_MINER_FILES_GET_PRIVATE (data->miner);
 	file_info = g_file_query_info_finish (file, result, &error);
 
 	if (error) {
