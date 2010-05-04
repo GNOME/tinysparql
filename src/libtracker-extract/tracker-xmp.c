@@ -73,7 +73,6 @@ fix_metering_mode (const gchar *mode)
 	value = atoi(mode);
 
 	switch (value) {
-	default:
 	case 0:
 		return "nmm:metering-mode-other";
 	case 1:
