@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
- * Copyright (C) 2008-2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2008-2010, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -41,12 +41,17 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static gchar        **filenames = NULL;
-static gboolean       print_version;
+static gchar **filenames;
+static gboolean full_namespaces;
+static gboolean print_version;
 
-static GOptionEntry   entries[] = {
+static GOptionEntry entries[] = {
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
+	  NULL,
+	},
+	{ "full-namespaces", 'f', 0, G_OPTION_ARG_NONE, &full_namespaces,
+	  N_("Show full namespaces (i.e. don't use nie:title, use full URLs)"),
 	  NULL,
 	},
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
@@ -55,14 +60,52 @@ static GOptionEntry   entries[] = {
 	{ NULL }
 };
 
-static void
-print_property_value (gpointer value)
+static gchar *
+get_shorthand (GHashTable  *prefixes,
+	       const gchar *namespace)
 {
+	gchar *hash;
+
+	hash = strrchr (namespace, '#');
+
+	if (hash) {
+		gchar *property;
+		const gchar *prefix;
+
+		property = hash + 1;
+		*hash = '\0';
+
+		prefix = g_hash_table_lookup (prefixes, namespace);
+
+		return g_strdup_printf ("%s:%s", prefix, property);
+	}
+	
+	return g_strdup (namespace);
+}
+
+static void
+print_property_value (gpointer data,
+		      gpointer user_data)
+{
+	GHashTable *prefixes;
 	gchar **pair;
 
-	pair = value;
+	prefixes = user_data;
+	pair = data;
 
-	g_print ("  '%s' = '%s'\n", pair[0], pair[1]);
+	if (!pair[0] || !pair[1]) {
+		return;
+	}
+
+	if (G_UNLIKELY (full_namespaces)) {
+		g_print ("  '%s' = '%s'\n", pair[0], pair[1]);
+	} else {
+		gchar *shorthand;
+
+		shorthand = get_shorthand (prefixes, pair[0]);
+		g_print ("  '%s' = '%s'\n", shorthand, pair[1]);
+		g_free (shorthand);
+	}
 }
 
 static gboolean
@@ -83,12 +126,65 @@ has_valid_uri_scheme (const gchar *uri)
 	return (*s == ':');
 }
 
+static GHashTable *
+get_prefixes (TrackerClient *client)
+{
+	GPtrArray *results;
+	GHashTable *retval;
+	const gchar *query;
+
+	retval = g_hash_table_new_full (g_str_hash,
+					g_str_equal,
+					NULL,
+					NULL);
+
+	/* FIXME: Would like to get this in the same SPARQL that we
+	 * use to get the info, but doesn't seem possible at the
+	 * moment with the limited string manipulation features we
+	 * support in SPARQL. 
+	 */
+	query = "SELECT ?prefix ?ns "
+		"WHERE {"
+		"  ?ns a tracker:Namespace ;"
+		"  tracker:prefix ?prefix "
+		"}";
+
+	results = tracker_resources_sparql_query (client, query, NULL);
+
+	if (results) {
+		gint i;
+
+		/* First remove all parts after and including '#' */
+		for (i = 0; i < results->len; i++) {
+			gchar **data;
+			gchar *key, *value;
+			
+			data = g_ptr_array_index (results, i);
+
+			if (!data || !data[1]) {
+				continue;
+			}
+
+			key = g_strndup (data[1], strlen (data[1]) - 1);
+			value = g_strdup (data[0]);
+
+			g_hash_table_insert (retval, key, value);
+		}
+
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+		g_ptr_array_free (results, TRUE);
+	}
+
+	return retval;
+}
+
 int
 main (int argc, char **argv)
 {
-	TrackerClient   *client;
-	GOptionContext  *context;
-	gchar          **p;
+	TrackerClient *client;
+	GOptionContext *context;
+	GHashTable *prefixes;
+	gchar **p;
 
 	setlocale (LC_ALL, "");
 
@@ -136,12 +232,14 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
+	prefixes = get_prefixes (client);
+
 	for (p = filenames; *p; p++) {
 		GPtrArray *results;
-		GError    *error = NULL;
-		gchar     *uri;
-		gchar     *query;
-		gchar	  *urn;
+		GError *error = NULL;
+		gchar *uri;
+		gchar *query;
+		gchar *urn;
 
 		g_print ("%s:'%s'\n",
 		         _("Querying information for entity"),
@@ -218,7 +316,7 @@ main (int argc, char **argv)
 			         length);
 			g_print ("\n");
 
-			g_ptr_array_foreach (results, (GFunc) print_property_value, NULL);
+			g_ptr_array_foreach (results, (GFunc) print_property_value, prefixes);
 			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 			g_ptr_array_free (results, TRUE);
 		}
@@ -226,6 +324,7 @@ main (int argc, char **argv)
 		g_print ("\n");
 	}
 
+	g_hash_table_unref (prefixes);
 	g_object_unref (client);
 
 	return EXIT_SUCCESS;
