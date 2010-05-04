@@ -135,6 +135,7 @@ signal_handler (int signo)
 		in_loop = TRUE;
 		g_main_loop_quit (main_loop);
 
+		/* Fall through */
 	default:
 		if (g_strsignal (signo)) {
 			g_print ("\n");

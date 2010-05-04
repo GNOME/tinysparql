@@ -201,6 +201,8 @@ signal_handler (int signo)
 		in_loop = TRUE;
 		disable_shutdown = FALSE;
 		quit_timeout_cb (NULL);
+
+		/* Fall through */
 	default:
 		if (g_strsignal (signo)) {
 			g_print ("\n");
