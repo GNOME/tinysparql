@@ -81,6 +81,7 @@ test_guess_date (void)
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_date_guess (NULL);
+		g_free (result);
 	}
 
 	g_test_trap_assert_failed ();
