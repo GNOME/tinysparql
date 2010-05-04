@@ -858,7 +858,7 @@ extract_msword_content (GsfInfile *infile,
 	guint8 *piece_table = NULL;
 	guint8 *clx = NULL;
 	gint lcb_piece_table;
-	gint piece_count;
+	gint piece_count = 0;
 	gint32 fc;
 	GString *content = NULL;
 	guint8 *text_buffer = NULL;
@@ -1305,8 +1305,8 @@ xls_get_extended_record_string (GsfInput  *stream,
 	guint parsing_record = 0;
 	guint8 tmp_buffer[4] = { 0 };
 	guint i;
-	guint8 *buffer;
-	gsize buffer_size;
+	guint8 *buffer = NULL;
+	gsize buffer_size = 0;
 
 	/* Parsing the record from the list */
 	record = &g_array_index (list, ExcelExtendedStringRecord, parsing_record);
