@@ -556,7 +556,7 @@ get_genre_number (const char *str, guint *genre)
 static const gchar *
 get_genre_name (guint number)
 {
-	if (number > G_N_ELEMENTS (genre_names)) {
+	if (number >= G_N_ELEMENTS (genre_names)) {
 		return NULL;
 	}
 
