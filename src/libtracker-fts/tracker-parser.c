@@ -403,6 +403,7 @@ parser_next (TrackerParser *parser,
 		case TRACKER_PARSER_WORD_ASCII_HIGHER:
 			c += 32;
 
+                        /* Fall through */
 		case TRACKER_PARSER_WORD_ASCII_LOWER:
 		case TRACKER_PARSER_WORD_HYPHEN:
 		case TRACKER_PARSER_WORD_UNDERSCORE:
@@ -427,6 +428,7 @@ parser_next (TrackerParser *parser,
 		case TRACKER_PARSER_WORD_ALPHA_HIGHER:
 			c = g_unichar_tolower (c);
 
+			/* Fall through */
 		case TRACKER_PARSER_WORD_ALPHA_LOWER:
 			if (!do_strip) {
 				do_strip = TRUE;
