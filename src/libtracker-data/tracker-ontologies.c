@@ -159,12 +159,11 @@ void
 tracker_ontologies_add_class (TrackerClass *service)
 {
 
-	const gchar         *uri, *name;
+	const gchar *uri;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
 	uri = tracker_class_get_uri (service);
-	name = tracker_class_get_name (service);
 
 	g_ptr_array_add (classes, g_object_ref (service));
 
