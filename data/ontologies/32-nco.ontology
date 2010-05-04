@@ -48,6 +48,7 @@ nco:ContactMedium a rdfs:Class ;
 nco:EmailAddress a rdfs:Class ;
 	rdfs:label "EmailAddress" ;
 	rdfs:comment "An email address. The recommended best practice is to use mailto: uris for instances of this class." ;
+	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 nco:IMAddress a rdfs:Class ;
@@ -93,11 +94,13 @@ nco:MetaContact a rdfs:Class ;
 nco:PhoneNumber a rdfs:Class ;
 	rdfs:label "PhoneNumber" ;
 	rdfs:comment "A telephone number." ;
+	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 nco:PostalAddress a rdfs:Class ;
 	rdfs:label "PostalAddress" ;
 	rdfs:comment "A postal address. A class aggregating the various parts of a value for the 'ADR' property as defined in RFC 2426 Sec. 3.2.1." ;
+	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 nco:ModemNumber a rdfs:Class ;

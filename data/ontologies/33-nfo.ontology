@@ -17,6 +17,7 @@ nfo: a tracker:Namespace, tracker:Ontology ;
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
 	rdfs:comment "A generic document. A common superclass for all documents on the desktop." ;
+	tracker:notify true;
 	rdfs:subClassOf nie:InformationElement .
 
 nfo:FileDataObject a rdfs:Class ;
@@ -847,7 +848,8 @@ nfo:softwareCategoryIcon a rdf:Property ;
 nfo:SoftwareApplication a rdfs:Class ;
 	rdfs:label "Application" ;
 	rdfs:comment "An application" ;
-	rdfs:subClassOf nfo:Software .
+	rdfs:subClassOf nfo:Software ;
+	tracker:notify true .
 
 nfo:softwareIcon a rdf:Property ;
 	rdfs:label "SoftwareIcon" ;
