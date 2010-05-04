@@ -91,6 +91,11 @@ foreach_dataset (IptcDataSet *dataset,
 		if (!data->keywords) {
 			iptc_dataset_get_as_str (dataset, mbuffer, 1024);
 			data->keywords = g_strdup (mbuffer);
+		} else {
+			gchar *tmp = data->keywords;
+			iptc_dataset_get_as_str (dataset, mbuffer, 1024);
+			data->keywords = g_strdup_printf ("%s, %s", data->keywords, mbuffer);
+			g_free (tmp);
 		}
 		break;
 
