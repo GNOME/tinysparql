@@ -175,6 +175,7 @@ test_dbus_query_result_to_strv ()
 	result_set = get_mock_tracker_db_result (0, 1, FALSE);
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_dbus_query_result_to_strv (result_set, 0, &count);
+		g_strfreev (result);
 	}
 	g_test_trap_assert_failed ();
 	/* Should raise g_critical (priv->array...); */

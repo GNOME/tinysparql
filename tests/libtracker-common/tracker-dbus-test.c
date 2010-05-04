@@ -47,6 +47,7 @@ slist_to_strv (gboolean utf8)
 	} else {
 		if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 			input_as_strv = tracker_dbus_slist_to_strv (input);
+			g_strfreev (input_as_strv);
 		}
 		/* Error message:
 		 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8
@@ -100,6 +101,7 @@ async_queue_to_strv (gboolean utf8)
 	} else {
 		if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 			queue_as_strv = tracker_dbus_queue_str_to_strv (queue, g_queue_get_length (queue));
+			g_strfreev (queue_as_strv);
 		}
 		/* Error message:
 		 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8

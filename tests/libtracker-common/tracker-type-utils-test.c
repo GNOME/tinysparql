@@ -289,6 +289,7 @@ test_gslist_to_string_list (void)
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_gslist_to_string_list (NULL);
+		g_strfreev (result);
 	}
 
 	g_test_trap_assert_failed ();
@@ -344,6 +345,7 @@ test_string_list_to_string (void)
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_string_list_to_string (NULL, 6, 'x');
+		g_free (result);
 	}
 	g_test_trap_assert_failed ();
 
@@ -417,6 +419,7 @@ test_boolean_as_text_to_number (void)
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_string_boolean_to_string_gint (NULL);
+		g_free (result);
 	}
 	g_test_trap_assert_failed ();
 }
