@@ -1300,9 +1300,6 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 
 			TrackerClass *domain;
 			const gchar *service_name;
-			const char *field_name;
-
-			field_name = tracker_property_get_name (property);
 
 			domain = tracker_property_get_domain (property);
 			service_name = tracker_class_get_name (domain);
