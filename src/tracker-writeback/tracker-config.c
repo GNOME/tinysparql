@@ -156,10 +156,6 @@ config_get_property (GObject    *object,
 static void
 config_finalize (GObject *object)
 {
-	TrackerConfigPrivate *priv;
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (object);
-
 	(G_OBJECT_CLASS (tracker_config_parent_class)->finalize) (object);
 }
 
