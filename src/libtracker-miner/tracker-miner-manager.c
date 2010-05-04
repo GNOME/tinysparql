@@ -219,9 +219,6 @@ name_owner_changed_cb (DBusGProxy  *proxy,
                        gpointer     user_data)
 {
 	TrackerMinerManager *manager = user_data;
-	TrackerMinerManagerPrivate *priv;
-
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
 	if (find_miner_proxy (manager, name, FALSE) != NULL) {
 		if (new_owner && (!old_owner || !*old_owner)) {
