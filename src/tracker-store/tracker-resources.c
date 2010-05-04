@@ -323,11 +323,8 @@ tracker_resources_sparql_query (TrackerResources         *self,
                                 GError                  **error)
 {
 	TrackerDBusMethodInfo   *info;
-	TrackerResourcesPrivate *priv;
 	guint                 request_id;
 	gchar                 *sender;
-
-	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -380,11 +377,8 @@ tracker_resources_sparql_update (TrackerResources        *self,
                                  GError                 **error)
 {
 	TrackerDBusMethodInfo   *info;
-	TrackerResourcesPrivate *priv;
 	guint                 request_id;
 	gchar                 *sender;
-
-	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -436,11 +430,8 @@ tracker_resources_sparql_update_blank (TrackerResources       *self,
                                        GError                **error)
 {
 	TrackerDBusMethodInfo   *info;
-	TrackerResourcesPrivate *priv;
 	guint                 request_id;
 	gchar                 *sender;
-
-	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -493,11 +484,8 @@ tracker_resources_batch_sparql_update (TrackerResources          *self,
                                        GError                   **error)
 {
 	TrackerDBusMethodInfo   *info;
-	TrackerResourcesPrivate *priv;
 	guint                 request_id;
 	gchar                 *sender;
-
-	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -542,11 +530,8 @@ tracker_resources_batch_commit (TrackerResources         *self,
                                 GError                  **error)
 {
 	TrackerDBusMethodInfo *info;
-	TrackerResourcesPrivate *priv;
 	guint                 request_id;
 	gchar                 *sender;
-
-	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
 	request_id = tracker_dbus_get_next_request_id ();
 
