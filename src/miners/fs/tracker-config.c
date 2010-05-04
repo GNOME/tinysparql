@@ -998,7 +998,6 @@ config_save (TrackerConfig *config)
 				g_object_get (config, conversions[i].property, &dirs, NULL);
 
 				for (l = dirs; l; l = l->next) {
-					const gchar *dir;
 					const gchar *path_to_use;
 
 					/* FIXME: This doesn't work
@@ -1008,8 +1007,6 @@ config_save (TrackerConfig *config)
 					 * breaks. Need a better
 					 * solution at some point.
 					 */
-
-					dir = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
 					if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP)) == 0) {
 						path_to_use = "&DESKTOP";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS)) == 0) {
