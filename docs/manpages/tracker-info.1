@@ -23,7 +23,15 @@ Show summary of options.
 .TP
 .B \-V, \-\-version
 Print version.
-
+.TP
+.B \-f, \-\-full\-namespaces
+By default, all keys and values reported about any given \fIFILE\fR
+are returned in shortened form, for example, \fInie:title\fR is shown
+instead of
+\fIhttp://www.semanticdesktop.org/ontologies/2007/01/19/nie#title\fR.
+This makes things much easier to see generally and the output is less
+cluttered. This option reverses that so FULL namespaces are shown
+instead.
 .SH SEE ALSO
 .BR tracker-store (1),
 .BR tracker-sparql (1).
