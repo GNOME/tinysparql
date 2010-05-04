@@ -671,12 +671,7 @@ static void
 sparql_cancelled_cb (GCancellable  *cancellable,
                      AsyncCallData *data)
 {
-	TrackerMinerPrivate *priv;
-
 	async_call_data_notify_error (data, 0, "SPARQL operation was cancelled");
-
-	priv = TRACKER_MINER_GET_PRIVATE (data->miner);
-
 	async_call_data_destroy (data, TRUE);
 }
 
@@ -784,14 +779,12 @@ tracker_miner_execute_update (TrackerMiner        *miner,
                               GAsyncReadyCallback  callback,
                               gpointer             user_data)
 {
-	TrackerMinerPrivate *priv;
 	AsyncCallData *data;
 
 	g_return_if_fail (TRACKER_IS_MINER (miner));
 	g_return_if_fail (sparql != NULL);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
-	priv = TRACKER_MINER_GET_PRIVATE (miner);
 	data = async_call_data_new (miner,
 	                            cancellable,
 	                            callback,
@@ -850,7 +843,6 @@ tracker_miner_execute_sparql (TrackerMiner        *miner,
                               GAsyncReadyCallback  callback,
                               gpointer             user_data)
 {
-	TrackerMinerPrivate *priv;
 	AsyncCallData *data;
 
 	g_return_if_fail (TRACKER_IS_MINER (miner));
@@ -858,7 +850,6 @@ tracker_miner_execute_sparql (TrackerMiner        *miner,
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
 
-	priv = TRACKER_MINER_GET_PRIVATE (miner);
 	data = async_call_data_new (miner, cancellable, callback, user_data, tracker_miner_execute_sparql);
 
 	data->id = tracker_resources_sparql_query_async (miner->private->client,
@@ -917,14 +908,12 @@ tracker_miner_execute_batch_update (TrackerMiner        *miner,
                                     GAsyncReadyCallback  callback,
                                     gpointer             user_data)
 {
-	TrackerMinerPrivate *priv;
 	AsyncCallData *data;
 
 	g_return_if_fail (TRACKER_IS_MINER (miner));
 	g_return_if_fail (sparql != NULL);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
-	priv = TRACKER_MINER_GET_PRIVATE (miner);
 	data = async_call_data_new (miner, cancellable, callback, user_data, tracker_miner_execute_batch_update);
 
 	data->id = tracker_resources_batch_sparql_update_async (miner->private->client,
@@ -976,13 +965,11 @@ tracker_miner_commit (TrackerMiner        *miner,
                       gpointer             user_data)
 
 {
-	TrackerMinerPrivate *priv;
 	AsyncCallData *data;
 
 	g_return_if_fail (TRACKER_IS_MINER (miner));
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
-	priv = TRACKER_MINER_GET_PRIVATE (miner);
 	data = async_call_data_new (miner, cancellable, callback, user_data, tracker_miner_commit);
 
 	data->id = tracker_resources_batch_commit_async (miner->private->client,
