@@ -889,8 +889,12 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	in_use_file = g_open (in_use_filename,
 	                      O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
 	                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-	fsync (in_use_file);
-	close (in_use_file);
+
+        if (in_use_file >= 0) {
+                fsync (in_use_file);
+                close (in_use_file);
+        }
+
 	g_free (in_use_filename);
 
 	tracker_db_manager_ensure_locale ();
