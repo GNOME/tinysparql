@@ -65,6 +65,8 @@ gboolean       tracker_config_get_index_mounted_directories        (TrackerConfi
 gint           tracker_config_get_low_disk_space_limit             (TrackerConfig *config);
 GSList *       tracker_config_get_index_recursive_directories      (TrackerConfig *config);
 GSList *       tracker_config_get_index_single_directories         (TrackerConfig *config);
+GSList *       tracker_config_get_index_recursive_directories_unfiltered (TrackerConfig *config);
+GSList *       tracker_config_get_index_single_directories_unfiltered    (TrackerConfig *config);
 GSList *       tracker_config_get_ignored_directories              (TrackerConfig *config);
 GSList *       tracker_config_get_ignored_directories_with_content (TrackerConfig *config);
 GSList *       tracker_config_get_ignored_files                    (TrackerConfig *config);

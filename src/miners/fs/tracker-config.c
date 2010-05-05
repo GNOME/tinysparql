@@ -71,7 +71,9 @@ typedef struct {
 	gboolean  index_optical_discs;
 	gint      low_disk_space_limit;
 	GSList   *index_recursive_directories;
+	GSList	 *index_recursive_directories_unfiltered;
 	GSList   *index_single_directories;
+	GSList	 *index_single_directories_unfiltered;
 	GSList   *ignored_directories;
 	GSList   *ignored_directories_with_content;
 	GSList   *ignored_files;
@@ -528,8 +530,14 @@ config_finalize (GObject *object)
 	g_slist_foreach (priv->index_single_directories, (GFunc) g_free, NULL);
 	g_slist_free (priv->index_single_directories);
 
+	g_slist_foreach (priv->index_single_directories_unfiltered, (GFunc) g_free, NULL);
+	g_slist_free (priv->index_single_directories_unfiltered);
+
 	g_slist_foreach (priv->index_recursive_directories, (GFunc) g_free, NULL);
 	g_slist_free (priv->index_recursive_directories);
+
+	g_slist_foreach (priv->index_recursive_directories_unfiltered, (GFunc) g_free, NULL);
+	g_slist_free (priv->index_recursive_directories_unfiltered);
 
 	(G_OBJECT_CLASS (tracker_config_parent_class)->finalize) (object);
 }
@@ -928,16 +936,6 @@ config_load (TrackerConfig *config,
 				}
 			}
 
-			if (check_for_duplicates) {
-				GSList *filtered;
-
-				filtered = tracker_path_list_filter_duplicates (new_dirs, ".", is_recursive);
-				g_slist_foreach (new_dirs, (GFunc) g_free, NULL);
-				g_slist_free (new_dirs);
-
-                                new_dirs = filtered;
-                        }
-
                         equal = tracker_gslist_with_string_data_equal (new_dirs, old_dirs);
 
                         if (!equal) {
@@ -1228,6 +1226,18 @@ tracker_config_get_index_recursive_directories (TrackerConfig *config)
 }
 
 GSList *
+tracker_config_get_index_recursive_directories_unfiltered (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->index_recursive_directories_unfiltered;
+}
+
+GSList *
 tracker_config_get_index_single_directories (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
@@ -1237,6 +1247,18 @@ tracker_config_get_index_single_directories (TrackerConfig *config)
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	return priv->index_single_directories;
+}
+
+GSList *
+tracker_config_get_index_single_directories_unfiltered (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->index_single_directories_unfiltered;
 }
 
 GSList *
@@ -1467,6 +1489,70 @@ tracker_config_set_low_disk_space_limit (TrackerConfig *config,
 	g_object_notify (G_OBJECT (config), "low-disk-space-limit");
 }
 
+static void
+rebuild_filtered_lists (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+	GSList *old_list;
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	/* Filter single directories first, checking duplicates */
+	old_list = priv->index_single_directories;
+	priv->index_single_directories = NULL;
+
+	if (priv->index_single_directories_unfiltered) {
+		priv->index_single_directories =
+		        tracker_path_list_filter_duplicates (priv->index_single_directories_unfiltered,
+		                                             ".", FALSE);
+	}
+
+	if (!tracker_gslist_with_string_data_equal (old_list, priv->index_single_directories)) {
+		g_object_notify (G_OBJECT (config), "index-single-directories");
+	}
+
+	if (old_list) {
+		g_slist_foreach (old_list, (GFunc) g_free, NULL);
+		g_slist_free (old_list);
+	}
+
+	/* Filter recursive directories */
+	old_list = priv->index_recursive_directories;
+	priv->index_recursive_directories = NULL;
+
+	if (priv->index_recursive_directories_unfiltered) {
+		GSList *l, *new_list = NULL;
+
+		/* Remove elements already in single directories */
+		for (l = priv->index_recursive_directories_unfiltered; l; l = l->next) {
+			if (g_slist_find_custom (priv->index_single_directories,
+			                         l->data,
+			                         (GCompareFunc) g_strcmp0) != NULL) {
+				g_message ("Path '%s' being removed from recursive directories "
+				           "list, as it also exists in single directories list",
+				           (gchar *) l->data);
+			} else {
+				new_list = g_slist_prepend (new_list, l->data);
+			}
+		}
+
+		new_list = g_slist_reverse (new_list);
+
+		priv->index_recursive_directories =
+		        tracker_path_list_filter_duplicates (new_list, ".", TRUE);
+
+		g_slist_free (new_list);
+	}
+
+	if (!tracker_gslist_with_string_data_equal (old_list, priv->index_recursive_directories)) {
+		g_object_notify (G_OBJECT (config), "index-recursive-directories");
+	}
+
+	if (old_list) {
+		g_slist_foreach (old_list, (GFunc) g_free, NULL);
+		g_slist_free (old_list);
+	}
+}
 
 void
 tracker_config_set_index_recursive_directories (TrackerConfig *config,
@@ -1480,14 +1566,14 @@ tracker_config_set_index_recursive_directories (TrackerConfig *config,
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
-	l = priv->index_recursive_directories;
+	l = priv->index_recursive_directories_unfiltered;
 
         equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
-		priv->index_recursive_directories = NULL;
+		priv->index_recursive_directories_unfiltered = NULL;
 	} else {
-		priv->index_recursive_directories =
+		priv->index_recursive_directories_unfiltered =
 			tracker_gslist_copy_with_string_data (roots);
 	}
 
@@ -1498,7 +1584,7 @@ tracker_config_set_index_recursive_directories (TrackerConfig *config,
                 return;
         }
 
-	g_object_notify (G_OBJECT (config), "index-recursive-directories");
+        rebuild_filtered_lists (config);
 }
 
 void
@@ -1513,14 +1599,14 @@ tracker_config_set_index_single_directories (TrackerConfig *config,
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
-	l = priv->index_single_directories;
+	l = priv->index_single_directories_unfiltered;
 
         equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
-		priv->index_single_directories = NULL;
+		priv->index_single_directories_unfiltered = NULL;
 	} else {
-		priv->index_single_directories =
+		priv->index_single_directories_unfiltered =
 			tracker_gslist_copy_with_string_data (roots);
 	}
 
@@ -1531,7 +1617,7 @@ tracker_config_set_index_single_directories (TrackerConfig *config,
                 return;
         }
 
-	g_object_notify (G_OBJECT (config), "index-single-directories");
+        rebuild_filtered_lists (config);
 }
 
 void
