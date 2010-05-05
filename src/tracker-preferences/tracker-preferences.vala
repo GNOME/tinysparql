@@ -386,12 +386,12 @@ static int main (string[] args) {
 		setup_standard_treeview (treeview_ignored_files, _("File"));
 
 		liststore_index_recursively = builder.get_object ("liststore_index_recursively") as ListStore;
-		fill_in_model (liststore_index_recursively, config.index_recursive_directories);
+		fill_in_model (liststore_index_recursively, config.index_recursive_directories_unfiltered);
 
 		togglebutton_home.active = model_contains (liststore_index_recursively, HOME_STRING);
 
 		liststore_index_single = builder.get_object ("liststore_index_single") as ListStore;
-		fill_in_model (liststore_index_single, config.index_single_directories);
+		fill_in_model (liststore_index_single, config.index_single_directories_unfiltered);
 
 		liststore_ignored_directories = builder.get_object ("liststore_ignored_directories") as ListStore;
 		fill_in_model (liststore_ignored_directories, config.ignored_directories);
