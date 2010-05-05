@@ -61,14 +61,14 @@ def update_tag(artistid, artistname, albumid, trackid, genreid):
 	global fileid
 
 	length = random.randint(5000,5000000)
-	song = 'SongTitle%03u' % fileid
-	album = 'Album%03u' % albumid
-	genre = 'Genre%03u' % genreid
+	song = 'SongTitle%03d' % fileid
+	album = 'Album%03d' % albumid
+	genre = 'Genre%03d' % genreid
 	trackstr = str(artistid) + '/' + str(trackid)
-	fullpath = '/home/foo/music/%s/%s/%03u.mp3' % (artistname, album, trackid)
+	fullpath = '/home/foo/music/%s/%s/%03d.mp3' % (artistname, album, trackid)
 	fileid += 1
-	year = '%04u' % random.randint(1950, 2010)
-	size = '%03u' % random.randint(3 * 1024, 10 * 1024)
+	year = '%04d' % random.randint(1950, 2010)
+	size = '%03d' % random.randint(3 * 1024, 10 * 1024)
 	modified = "%04u-%02u-%02uT15:18:16" % (random.randint(1950, 2010),
                                                 random.randint(1, 12),
                                                 random.randint(1, 28))
