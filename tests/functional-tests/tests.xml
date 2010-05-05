@@ -302,6 +302,57 @@
         <hardware>true</hardware>
       </environments>
     </set>
+    <set name="_usr_share_tracker-tests_backup-restore-tc.py">
+      <description>tracker:backup-restore-tc.py</description>
+      <case name="backup-restore-tc.py-backup.test_backup_01">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_01</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_01</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_02">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_02</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_02</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_03">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_03</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_03</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_04">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_04</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_04</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_05">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_05</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_05</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_06">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_06</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_06</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_07">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_07</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_07</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_08">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_08</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_08</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_09">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_09</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_09</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_10">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_10</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_10</step>
+      </case>
+      <case name="backup-restore-tc.py-backup.test_backup_11">
+        <description>tracker:backup-restore-tc.py:backup.test_backup_11</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_11</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
     <set name="_usr_share_tracker-tests_02-metacontacts.py">
       <description>tracker:02-metacontacts.py</description>
       <case name="02-metacontacts.py-TestMetacontacts.test_metacontact_merge">
@@ -442,25 +493,6 @@
     </set>
     <set name="_usr_share_tracker-tests_performance-tc.py">
       <description>tracker:performance-tc.py</description>
-      <case name="performance-tc.py-rtcom.test_rtcom_02">
-        <description>tracker:performance-tc.py:rtcom.test_rtcom_02</description>
-        <step>/usr/share/tracker-tests/performance-tc.py rtcom.test_rtcom_02</step>
-      </case>
-      <case name="performance-tc.py-rtcom.test_rtcom_03">
-        <description>tracker:performance-tc.py:rtcom.test_rtcom_03</description>
-        <step>/usr/share/tracker-tests/performance-tc.py rtcom.test_rtcom_03</step>
-      </case>
-      <environments>
-        <scratchbox>true</scratchbox>
-        <hardware>true</hardware>
-      </environments>
-    </set>
-    <set name="_usr_share_tracker-tests_01-writeback.py">
-      <description>tracker:01-writeback.py</description>
-      <case name="01-writeback.py-TestInsertion.test_simple_insertion">
-        <description>tracker:01-writeback.py:TestInsertion.test_simple_insertion</description>
-        <step>/usr/share/tracker-tests/01-writeback.py TestInsertion.test_simple_insertion</step>
-      </case>
       <environments>
         <scratchbox>true</scratchbox>
         <hardware>true</hardware>

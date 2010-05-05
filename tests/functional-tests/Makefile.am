@@ -14,6 +14,7 @@ config_SCRIPTS =			\
 	07-graph.py			\
 	08-unique-insertions.py		\
 	09-concurrent-query.py		\
+	backup-restore-tc.py		\
 	bootup-tc.py			\
 	configuration.py		\
 	metadata_extraction_tc.py	\
