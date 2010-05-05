@@ -842,7 +842,7 @@ nfo:softwareIcon a rdf:Property ;
 
 nfo:softwareCmdLine a rdf:Property ;
 	rdfs:label "SoftwareCmdLine" ;
-	rdfs:comment "Commando to launch the software" ;
+	rdfs:comment "Command to launch the software" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Software ;
 	rdfs:range xsd:string ;
