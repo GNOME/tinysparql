@@ -33,17 +33,22 @@
 
 /* GKeyFile defines */
 #define GROUP_GENERAL     "General"
-#define GROUP_INDEXING    "Indexing"
+#define GROUP_JOURNAL     "Journal"
 
 /* Default values */
-#define DEFAULT_VERBOSITY 0
+#define DEFAULT_VERBOSITY                 2
+#define DEFAULT_JOURNAL_CHUNK_SIZE        500
+#define DEFAULT_ENABLE_JOURNAL_ROTATING   TRUE
 
 /* typedef struct TrackerConfigPrivate TrackerConfigPrivate; */
 
 typedef struct {
 	/* General */
 	gint verbosity;
-}  TrackerConfigPrivate;
+
+	/* Journal */
+	gint journal_chunk_size;
+} TrackerConfigPrivate;
 
 typedef struct {
 	GType type;
@@ -71,11 +76,15 @@ enum {
 	PROP_0,
 
 	/* General */
-	PROP_VERBOSITY
+	PROP_VERBOSITY,
+	/* Journal */
+	PROP_JOURNAL_CHUNK_SIZE,
+	PROP_ENABLE_JOURNAL_ROTATING
 };
 
 static ObjectToKeyFile conversions[] = {
-	{ G_TYPE_INT,     "verbosity",          GROUP_GENERAL,  "Verbosity"       },
+	{ G_TYPE_INT,     "verbosity",               GROUP_GENERAL,  "Verbosity"             },
+	{ G_TYPE_INT,     "journal-chunk-size",      GROUP_JOURNAL,  "JournalChunkSize"      },
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
@@ -101,6 +110,16 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   DEFAULT_VERBOSITY,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
+	g_object_class_install_property (object_class,
+	                                 PROP_JOURNAL_CHUNK_SIZE,
+	                                 g_param_spec_int    ("journal-chunk-size",
+	                                                      "Journal chunk size",
+	                                                      " Size of the journal at rotation in MB. Use -1 to disable rotating",
+	                                                      -1,
+	                                                      G_MAXINT,
+	                                                      DEFAULT_JOURNAL_CHUNK_SIZE,
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
 
@@ -121,7 +140,11 @@ config_set_property (GObject      *object,
 		tracker_config_set_verbosity (TRACKER_CONFIG (object),
 		                              g_value_get_int (value));
 		break;
-
+		/* Journal */
+	case PROP_JOURNAL_CHUNK_SIZE:
+		tracker_config_set_journal_chunk_size (TRACKER_CONFIG (object),
+		                                       g_value_get_int(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -143,7 +166,9 @@ config_get_property (GObject    *object,
 	case PROP_VERBOSITY:
 		g_value_set_int (value, priv->verbosity);
 		break;
-
+	case PROP_JOURNAL_CHUNK_SIZE:
+		g_value_set_int (value, priv->journal_chunk_size);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -331,6 +356,36 @@ tracker_config_get_verbosity (TrackerConfig *config)
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	return priv->verbosity;
+}
+
+gint
+tracker_config_get_journal_chunk_size (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_JOURNAL_CHUNK_SIZE);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	return priv->journal_chunk_size;
+}
+
+void
+tracker_config_set_journal_chunk_size (TrackerConfig *config,
+                                       gint           value)
+{
+	TrackerConfigPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	if (!tracker_keyfile_object_validate_int (config, "journal-chunk-size", value)) {
+		return;
+	}
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	priv->journal_chunk_size = value;
+	g_object_notify (G_OBJECT (config), "journal-chunk-size");
 }
 
 void

@@ -73,6 +73,7 @@ test_sparql_query (gconstpointer test_data)
 
 	test_schemas[0] = data_prefix;
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           FALSE, G_MAXSIZE,
 	                           test_schemas,
 	                           NULL, FALSE, NULL, NULL, NULL);
 

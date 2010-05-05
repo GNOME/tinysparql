@@ -334,6 +334,8 @@ main (gint argc, gchar *argv[])
 	TrackerStatus *notifier;
 	gpointer busy_user_data;
 	TrackerBusyCallback busy_callback;
+	gint chunk_size_mb;
+	gsize chunk_size;
 
 	g_type_init ();
 
@@ -438,7 +440,12 @@ main (gint argc, gchar *argv[])
 	busy_callback = tracker_status_get_callback (notifier,
 	                                            &busy_user_data);
 
+	chunk_size_mb = tracker_config_get_journal_chunk_size (config);
+	chunk_size = (gsize) ((gsize) chunk_size_mb * (gsize) 1024 * (gsize) 1024);
+
 	if (!tracker_data_manager_init (flags,
+	                                chunk_size_mb != -1,
+	                                chunk_size,
 	                                NULL,
 	                                &is_first_time_index,
 	                                TRUE,

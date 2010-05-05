@@ -48,11 +48,15 @@ GQuark       tracker_db_journal_error_quark                  (void);
  * Writer API
  */
 gboolean     tracker_db_journal_init                         (const gchar *filename,
-                                                              gboolean     truncate);
+                                                              gboolean     truncate,
+                                                              gboolean     do_rotating,
+                                                              gsize        chunk_size);
 gboolean     tracker_db_journal_shutdown                     (void);
 
 const gchar* tracker_db_journal_get_filename                 (void);
 gsize        tracker_db_journal_get_size                     (void);
+void         tracker_db_journal_get_rotating                 (gboolean    *do_rotating,
+                                                              gsize       *chunk_size);
 
 gboolean     tracker_db_journal_start_transaction            (time_t       time);
 gboolean     tracker_db_journal_start_ontology_transaction   (time_t       time);

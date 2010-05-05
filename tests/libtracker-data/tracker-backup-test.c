@@ -106,6 +106,7 @@ test_backup_and_restore_helper (gboolean journal)
 	test_schemas[3] = data_prefix;
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           FALSE, G_MAXSIZE,
 	                           (const gchar **) test_schemas,
 	                           NULL, FALSE, NULL, NULL, NULL);
 
@@ -158,6 +159,7 @@ test_backup_and_restore_helper (gboolean journal)
 	g_free (meta_db);
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           FALSE, G_MAXSIZE,
 	                           (const gchar **) test_schemas,
 	                           NULL, FALSE, NULL, NULL, NULL);
 	check_content_in_db (0, 0);

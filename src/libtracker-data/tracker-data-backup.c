@@ -143,6 +143,8 @@ tracker_data_backup_restore (GFile *journal,
 	if (g_file_query_exists (info->journal, NULL)) {
 		TrackerDBManagerFlags flags = tracker_db_manager_get_flags ();
 		gboolean is_first;
+		gsize chunk_size = 0;
+		gboolean do_rotating = FALSE;
 
 		tracker_db_manager_move_to_temp ();
 		tracker_data_manager_shutdown ();
@@ -156,7 +158,8 @@ tracker_data_backup_restore (GFile *journal,
 		             &info->error);
 
 		tracker_db_manager_init_locations ();
-		tracker_db_journal_init (NULL, FALSE);
+		tracker_db_journal_get_rotating (&do_rotating, &chunk_size);
+		tracker_db_journal_init (NULL, FALSE, do_rotating, chunk_size);
 
 		if (info->error) {
 			tracker_db_manager_restore_from_temp ();
@@ -166,7 +169,8 @@ tracker_data_backup_restore (GFile *journal,
 
 		tracker_db_journal_shutdown ();
 
-		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE,
+		tracker_data_manager_init (flags, do_rotating, chunk_size,
+		                           test_schemas, &is_first, TRUE,
 		                           busy_callback, busy_user_data,
 		                           "Restoring backup");
 

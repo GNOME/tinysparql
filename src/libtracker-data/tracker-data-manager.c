@@ -2667,6 +2667,8 @@ get_new_service_id (TrackerDBInterface *iface)
 
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags  flags,
+                           gboolean               do_journal_rotating,
+                           gsize                  chunk_size,
                            const gchar          **test_schemas,
                            gboolean              *first_time,
                            gboolean               journal_check,
@@ -2763,7 +2765,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		in_journal_replay = FALSE;
 
 		/* open journal for writing */
-		tracker_db_journal_init (NULL, FALSE);
+		tracker_db_journal_init (NULL, FALSE, do_journal_rotating, chunk_size);
 
 		check_ontology = TRUE;
 
@@ -2776,7 +2778,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* Truncate journal as it does not even contain a single valid transaction
 		 * or is explicitly ignored (journal_check == FALSE, only for test cases) */
-		tracker_db_journal_init (NULL, TRUE);
+		tracker_db_journal_init (NULL, TRUE, do_journal_rotating, chunk_size);
 
 		/* load ontology from files into memory (max_id starts at zero: first-time) */
 
@@ -2839,7 +2841,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* First time, no need to check ontology */
 		check_ontology = FALSE;
 	} else {
-		tracker_db_journal_init (NULL, FALSE);
+		tracker_db_journal_init (NULL, FALSE, do_journal_rotating, chunk_size);
 
 		/* Load ontology from database into memory */
 		db_get_static_data (iface);

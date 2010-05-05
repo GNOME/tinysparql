@@ -40,6 +40,8 @@ G_BEGIN_DECLS
 #endif
 
 gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  flags,
+                                                      gboolean               do_journal_rotating,
+                                                      gsize                  chunk_size,
                                                       const gchar          **test_schema,
                                                       gboolean              *first_time,
                                                       gboolean               journal_check,
@@ -49,7 +51,6 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  fla
 void     tracker_data_manager_shutdown               (void);
 gboolean tracker_data_manager_interrupt_thread       (GThread               *thread);
 void     tracker_data_manager_interrupt_thread_reset (GThread               *thread);
-
 gint64   tracker_data_manager_get_db_option_int64    (const gchar           *option);
 void     tracker_data_manager_set_db_option_int64    (const gchar           *option,
                                                       gint64                 value);

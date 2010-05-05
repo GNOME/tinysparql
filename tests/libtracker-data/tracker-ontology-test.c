@@ -187,12 +187,12 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 	g_free (queries);
 }
 
-
 static void
 test_ontology_init (void)
 {
 	/* first-time initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           FALSE, G_MAXSIZE,
 	                           NULL,
 	                           NULL,
 	                           FALSE,
@@ -203,7 +203,7 @@ test_ontology_init (void)
 	tracker_data_manager_shutdown ();
 
 	/* initialization from existing database */
-	tracker_data_manager_init (0,
+	tracker_data_manager_init (0, FALSE, G_MAXSIZE,
 	                           NULL,
 	                           NULL,
 	                           FALSE,
@@ -235,6 +235,7 @@ test_query (gconstpointer test_data)
 
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           FALSE, G_MAXSIZE,
 	                           NULL,
 	                           NULL, 
 	                           FALSE,

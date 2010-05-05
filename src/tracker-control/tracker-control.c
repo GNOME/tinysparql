@@ -411,7 +411,7 @@ main (int argc, char **argv)
 		g_log_set_default_handler (log_handler, NULL);
 
 		/* This call is needed to set the journal's filename */
-		tracker_db_journal_init (NULL, FALSE);
+		tracker_db_journal_init (NULL, FALSE, FALSE, G_MAXSIZE);
 
 		/* Clean up */
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE)) {

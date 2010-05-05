@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 #include <glib/gstdio.h>
 
@@ -84,6 +85,7 @@ static struct {
 	gint p_id;
 	gint o_id;
 	const gchar *object;
+	guint current_file;
 } reader;
 
 static struct {
@@ -95,6 +97,8 @@ static struct {
 	gchar *cur_block;
 	guint cur_entry_amount;
 	guint cur_pos;
+	gsize chunk_size;
+	gboolean do_rotating;
 } writer;
 
 static guint32
@@ -201,49 +205,18 @@ tracker_db_journal_error_quark (void)
 	return g_quark_from_static_string (TRACKER_DB_JOURNAL_ERROR_DOMAIN);
 }
 
-gboolean
-tracker_db_journal_init (const gchar *filename, gboolean truncate)
+static gboolean
+tracker_db_journal_init_file (gboolean truncate)
 {
-	gchar *directory;
 	struct stat st;
 	int flags;
 	int mode;
-
-	g_return_val_if_fail (writer.journal == 0, FALSE);
 
 	writer.cur_block_len = 0;
 	writer.cur_pos = 0;
 	writer.cur_entry_amount = 0;
 	writer.cur_block_alloc = 0;
 	writer.cur_block = NULL;
-
-	/* Used mostly for testing */
-	if (G_UNLIKELY (filename)) {
-		writer.journal_filename = g_strdup (filename);
-	} else {
-		writer.journal_filename = g_build_filename (g_get_user_data_dir (),
-		                                            "tracker",
-		                                            "data",
-		                                            JOURNAL_FILENAME,
-		                                            NULL);
-	}
-
-	directory = g_path_get_dirname (writer.journal_filename);
-	if (g_strcmp0 (directory, ".")) {
-		mode = S_IRWXU | S_IRWXG | S_IRWXO;
-		if (g_mkdir_with_parents (directory, mode)) {
-			g_critical ("tracker data directory does not exist and "
-				    "could not be created: %s",
-				    g_strerror (errno));
-
-			g_free (directory);
-			g_free (writer.journal_filename);
-			writer.journal_filename = NULL;
-
-			return FALSE;
-		}
-	}
-	g_free (directory);
 
 	mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 	flags = O_WRONLY | O_APPEND | O_CREAT | O_LARGEFILE;
@@ -285,7 +258,7 @@ tracker_db_journal_init (const gchar *filename, gboolean truncate)
 		writer.cur_block[4] = 'g';
 		writer.cur_block[5] = '\0';
 		writer.cur_block[6] = '0';
-		writer.cur_block[7] = '2';
+		writer.cur_block[7] = '3';
 
 		if (!write_all_data (writer.journal, writer.cur_block, 8)) {
 			g_free (writer.journal_filename);
@@ -298,6 +271,51 @@ tracker_db_journal_init (const gchar *filename, gboolean truncate)
 	}
 
 	return TRUE;
+}
+
+gboolean
+tracker_db_journal_init (const gchar *filename,
+                         gboolean     truncate,
+                         gboolean     do_rotating,
+                         gsize        chunk_size)
+{
+	gchar *directory;
+	int mode;
+
+	g_return_val_if_fail (writer.journal == 0, FALSE);
+
+	/* Used mostly for testing */
+	if (G_UNLIKELY (filename)) {
+		writer.journal_filename = g_strdup (filename);
+	} else {
+		writer.journal_filename = g_build_filename (g_get_user_data_dir (),
+		                                            "tracker",
+		                                            "data",
+		                                            JOURNAL_FILENAME,
+		                                            NULL);
+	}
+
+	directory = g_path_get_dirname (writer.journal_filename);
+	if (g_strcmp0 (directory, ".")) {
+		mode = S_IRWXU | S_IRWXG | S_IRWXO;
+		if (g_mkdir_with_parents (directory, mode)) {
+			g_critical ("tracker data directory does not exist and "
+			            "could not be created: %s",
+			            g_strerror (errno));
+
+			g_free (directory);
+			g_free (writer.journal_filename);
+			writer.journal_filename = NULL;
+
+			return FALSE;
+		}
+	}
+	g_free (directory);
+
+	writer.do_rotating = do_rotating;
+	writer.chunk_size = chunk_size;
+
+	return tracker_db_journal_init_file (truncate);
 }
 
 gboolean
@@ -606,6 +624,74 @@ tracker_db_journal_truncate (gsize new_size)
 	return (ftruncate (writer.journal, new_size) != -1);
 }
 
+void
+tracker_db_journal_get_rotating (gboolean *do_rotating,
+                                 gsize    *chunk_size)
+{
+	*do_rotating = writer.do_rotating;
+	*chunk_size = writer.chunk_size;
+}
+
+static gboolean
+tracker_db_journal_rotate (void)
+{
+	gchar *fullpath;
+	static guint max = 0;
+
+	if (max == 0) {
+		gchar *directory;
+		GDir *journal_dir;
+		const gchar *f_name;
+
+		directory = g_path_get_dirname (writer.journal_filename);
+
+		journal_dir = g_dir_open (directory, 0, NULL);
+
+		f_name = g_dir_read_name (journal_dir);
+
+		while (f_name) {
+			gchar *ptr;
+			guint cur;
+
+			if (f_name) {
+
+				if (!g_str_has_prefix (f_name, "tracker-store.journal.")) {
+					f_name = g_dir_read_name (journal_dir);
+					continue;
+				}
+
+				ptr = strrchr (f_name, '.');
+				if (ptr) {
+					ptr++;
+					cur = atoi (ptr);
+					max = MAX (cur, max);
+				}
+			}
+
+			f_name = g_dir_read_name (journal_dir);
+		}
+
+		g_dir_close (journal_dir);
+		g_free (directory);
+	}
+
+	tracker_db_journal_fsync ();
+
+	if (close (writer.journal) != 0) {
+		g_warning ("Could not close journal, %s", 
+		           g_strerror (errno));
+		return FALSE;
+	}
+
+	fullpath = g_strdup_printf ("%s.%d", writer.journal_filename, ++max);
+
+	g_rename (writer.journal_filename, fullpath);
+
+	g_free (fullpath);
+
+	return tracker_db_journal_init_file (TRUE);
+}
+
 gboolean
 tracker_db_journal_commit_db_transaction (void)
 {
@@ -651,6 +737,13 @@ tracker_db_journal_commit_db_transaction (void)
 	/* Clean up for next transaction */
 	cur_block_kill ();
 
+	if (writer.do_rotating && (writer.cur_size > writer.chunk_size)) {
+		if (!tracker_db_journal_rotate ()) {
+			g_critical ("Could not rotate journal, %s", g_strerror (errno));
+			return FALSE;
+		}
+	}
+
 	return TRUE;
 }
 
@@ -670,6 +763,8 @@ tracker_db_journal_reader_init (const gchar *filename)
 {
 	GError *error = NULL;
 	gchar *filename_used;
+	gchar *filename_open;
+	gchar *test;
 
 	g_return_val_if_fail (reader.file == NULL, FALSE);
 
@@ -684,16 +779,29 @@ tracker_db_journal_reader_init (const gchar *filename)
 		                                  NULL);
 	}
 
+	test = g_strdup_printf ("%s.1", filename_used);
+
+	if (g_file_test (test, G_FILE_TEST_EXISTS)) {
+		filename_open = test;
+		reader.current_file = 1;
+	} else {
+		g_free (test);
+		filename_open = g_strdup (filename_used);
+		reader.current_file = 0;
+	}
+
 	reader.type = TRACKER_DB_JOURNAL_START;
 	reader.filename = filename_used;
-	reader.file = g_mapped_file_new (reader.filename, FALSE, &error);
+	reader.file = g_mapped_file_new (filename_open, FALSE, &error);
+
+	g_free (filename_open);
 
 	if (error) {
 		if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT)) {
 			/* do not warn if the file does not exist, just return FALSE */
 			g_warning ("Could not create TrackerDBJournalReader for file '%s', %s",
-				   reader.filename,
-				   error->message ? error->message : "no error given");
+			           reader.filename,
+			           error->message ? error->message : "no error given");
 		}
 		g_error_free (error);
 		g_free (reader.filename);
@@ -713,7 +821,7 @@ tracker_db_journal_reader_init (const gchar *filename)
 		return FALSE;
 	}
 
-	if (memcmp (reader.current, "trlog\00002", 8)) {
+	if (memcmp (reader.current, "trlog\00003", 8)) {
 		tracker_db_journal_reader_shutdown ();
 		return FALSE;
 	}
@@ -729,6 +837,70 @@ tracker_db_journal_reader_get_size_of_correct (void)
 	g_return_val_if_fail (reader.file != NULL, FALSE);
 
 	return (gsize) (reader.last_success - reader.start);
+}
+
+static gboolean
+reader_next_file (GError **error)
+{
+	gchar *filename_open;
+	gchar *test;
+	GError *new_error = NULL;
+
+	test = g_strdup_printf ("%s.%d", reader.filename, ++reader.current_file);
+
+	if (g_file_test (test, G_FILE_TEST_EXISTS)) {
+		filename_open = test;
+	} else {
+		g_free (test);
+		filename_open = g_strdup (reader.filename);
+		/* Last file is the active journal file */
+		reader.current_file = 0;
+	}
+
+#if GLIB_CHECK_VERSION(2,22,0)
+	g_mapped_file_unref (reader.file);
+#else
+	g_mapped_file_free (reader.file);
+#endif
+
+	reader.file = g_mapped_file_new (filename_open, FALSE, &new_error);
+
+	if (new_error) {
+		g_propagate_error (error, new_error);
+		return FALSE;
+	}
+
+	reader.last_success = reader.start = reader.current = 
+		g_mapped_file_get_contents (reader.file);
+
+	reader.end = reader.current + g_mapped_file_get_length (reader.file);
+
+	/* verify journal file header */
+	if (reader.end - reader.current < 8) {
+		g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+		             "Damaged journal entry at begin of journal");
+		tracker_db_journal_reader_shutdown ();
+		return FALSE;
+	}
+
+	if (memcmp (reader.current, "trlog\00003", 8)) {
+		g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+		             "Damaged journal entry at begin of journal");
+		tracker_db_journal_reader_shutdown ();
+		return FALSE;
+	}
+
+	reader.current += 8;
+
+	reader.type = TRACKER_DB_JOURNAL_END_TRANSACTION;
+
+	reader.entry_begin = NULL;
+	reader.entry_end = NULL;
+	reader.amount_of_triples = 0;
+
+	g_free (filename_open);
+
+	return TRUE;
 }
 
 gboolean
@@ -840,9 +1012,11 @@ tracker_db_journal_reader_next (GError **error)
 		/* Check the end is not before where we currently are */
 		if (reader.current >= reader.end) {
 			/* Return FALSE as there is no further entry but
-			 * do not set error as it's not an error case.
-			 */
-			return FALSE;
+			 * do not set error as it's not an error case. */
+			if (reader.current_file != 0)
+				return reader_next_file (error);
+			else
+				return FALSE;
 		}
 
 		/* Check the end is not smaller than the first uint32
@@ -1154,6 +1328,7 @@ gdouble
 tracker_db_journal_reader_get_progress (void)
 {
 	gdouble percent = ((gdouble)(reader.end - reader.start));
-	return ((gdouble)(reader.current - reader.start)) / percent;
+	/* TODO: Fix this now that multiple chunks can exist */
+	return (((gdouble)(reader.current - reader.start)) / percent);
 }
 

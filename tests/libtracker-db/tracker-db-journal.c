@@ -29,13 +29,13 @@ test_init_and_shutdown (void)
 	gboolean result;
 
 	/* check double init/shutdown */
-	result = tracker_db_journal_init (NULL, FALSE);
+	result = tracker_db_journal_init (NULL, FALSE, FALSE, G_MAXSIZE);
 	g_assert (result == TRUE);
 
 	result = tracker_db_journal_shutdown ();
 	g_assert (result == TRUE);
 
-	result = tracker_db_journal_init (NULL, FALSE);
+	result = tracker_db_journal_init (NULL, FALSE, FALSE, G_MAXSIZE);
 	g_assert (result == TRUE);
 
 	result = tracker_db_journal_shutdown ();
@@ -53,7 +53,7 @@ test_write_functions (void)
 	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
 	g_unlink (path);
 
-	tracker_db_journal_init (path, FALSE);
+	tracker_db_journal_init (path, FALSE, FALSE, G_MAXSIZE);
 
         filename = tracker_db_journal_get_filename ();
 	g_assert (filename != NULL);

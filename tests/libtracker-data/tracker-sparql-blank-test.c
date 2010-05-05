@@ -42,6 +42,7 @@ test_blank (void)
 
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                           FALSE, G_MAXSIZE,
 	                           NULL,
 	                           NULL,
 	                           FALSE,

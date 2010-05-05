@@ -441,11 +441,45 @@ db_manager_remove_all (gboolean rm_journal)
 		if (opath) {
 			GFile *file;
 			gchar *cpath;
+			gchar *directory;
+			GDir *journal_dir;
+			const gchar *f_name;
 
 			cpath = g_strdup (opath);
 			tracker_db_journal_shutdown ();
-			g_message ("  Removing journal:'%s'",
-					   cpath);
+
+			g_message ("  Removing journal:'%s'", cpath);
+
+			directory = g_path_get_dirname (cpath);
+			journal_dir = g_dir_open (directory, 0, NULL);
+			f_name = g_dir_read_name (journal_dir);
+
+			/* Remove rotated chunks */
+			while (f_name) {
+				gchar *fullpath;
+
+				if (f_name) {
+					if (!g_str_has_prefix (f_name, "tracker-store.journal.")) {
+						f_name = g_dir_read_name (journal_dir);
+						continue;
+					}
+					
+				}
+
+				fullpath = g_build_filename (directory, f_name, NULL);
+
+				file = g_file_new_for_path (fullpath);
+				g_file_delete (file, NULL, NULL);
+				g_object_unref (file);
+				g_free (fullpath);
+
+				f_name = g_dir_read_name (journal_dir);
+			}
+
+			g_dir_close (journal_dir);
+			g_free (directory);
+
+			/* Remove active journal */
 			file = g_file_new_for_path (cpath);
 			g_file_delete (file, NULL, NULL);
 			g_object_unref (file);
