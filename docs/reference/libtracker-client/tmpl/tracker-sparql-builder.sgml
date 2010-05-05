@@ -55,6 +55,9 @@ for the same subject, and several objects for the same predicate.
 <!-- ##### SECTION Stability_Level ##### -->
 
 
+<!-- ##### SECTION Image ##### -->
+
+
 <!-- ##### STRUCT TrackerSparqlBuilder ##### -->
 <para>
 The <structname>TrackerSparqlBuilder</structname> object represents an
@@ -97,6 +100,7 @@ insertion/update SparQL query.
 Creates a stateless #TrackerSparqlBuilder.
 </para>
 
+@void: 
 @Returns: a newly created #TrackerSparqlBuilder. Free with g_object_unref() when done
 
 
@@ -107,6 +111,7 @@ inserts, the subject is implied (responsibility of the embedder), so only calls 
 append predicates and objects for the given subject are allowed.
 </para>
 
+@void: 
 @Returns: a newly created #TrackerSparqlBuilder. Free with g_object_unref() when done
 
 
@@ -115,6 +120,7 @@ append predicates and objects for the given subject are allowed.
 Creates an empty #TrackerSparqlBuilder for an update query.
 </para>
 
+@void: 
 @Returns: a newly created #TrackerSparqlBuilder. Free with g_object_unref() when done
 
 

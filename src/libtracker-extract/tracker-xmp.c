@@ -165,8 +165,7 @@ iterate_simple_qual (XmpPtr          xmp,
 	XmpIteratorPtr iter;
 	XmpStringPtr the_path;
 	XmpStringPtr the_prop;
-	gchar *locale;
-	gchar *sep;
+	static gchar *locale = NULL;
 	gboolean ignore_element = FALSE;
 
 	iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN | XMP_ITER_JUSTLEAFNAME);
@@ -174,16 +173,26 @@ iterate_simple_qual (XmpPtr          xmp,
 	the_path = xmp_string_new ();
 	the_prop = xmp_string_new ();
 
-	locale = setlocale (LC_ALL, NULL);
-	sep = strchr (locale,'.');
+	if (G_UNLIKELY (!locale)) {
+		locale = g_strdup (setlocale (LC_ALL, NULL));
 
-	if (sep) {
-		locale[sep - locale] = '\0';
-	}
+		if (!locale) {
+			locale = g_strdup ("C");
+		} else {
+			gchar *sep;
 
-	sep = strchr (locale, '_');
-	if (sep) {
-		locale[sep - locale] = '-';
+			sep = strchr (locale, '.');
+
+			if (sep) {
+				locale[sep - locale] = '\0';
+			}
+
+			sep = strchr (locale, '_');
+
+			if (sep) {
+				locale[sep - locale] = '-';
+			}
+		}
 	}
 
 	while (xmp_iterator_next (iter, NULL, the_path, the_prop, NULL)) {
