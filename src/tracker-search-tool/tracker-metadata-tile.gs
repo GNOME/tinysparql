@@ -34,8 +34,6 @@ class TrackerMetadataTile : EventBox
     name_link : LinkButton
     path_link : LinkButton
     table : Table
-    sparql : string
-
 
     /* metadata fields */
     name_label : Label
@@ -59,14 +57,7 @@ class TrackerMetadataTile : EventBox
     info_label6 : Label
     info_value6 : Label
 
-    info_label7 : Label
-    info_value7 : Label
-
-    info_label8 : Label
-    info_value8 : Label
-
     _result_grid : TrackerResultGrid
-
 
     prop Query : TrackerQuery
 
@@ -93,8 +84,6 @@ class TrackerMetadataTile : EventBox
         table.set_col_spacings (3)
         table.set_row_spacings (3)
 
-        
-
         add (table)
 
         image = new Image.from_icon_name ("text-x-generic", IconSize.DIALOG)
@@ -115,42 +104,34 @@ class TrackerMetadataTile : EventBox
 
         info_label1 = CreateLabel (N_("Type:"), false)
         AttachToTable (info_label1, 1, 2, 1, 2, false)
-
         info_value1 = CreateLabel ("-", true)
         AttachToTable (info_value1, 2, 3, 1, 2, true)
 
         info_label2 = CreateLabel (N_("Size:"), false)
         AttachToTable (info_label2, 3, 4, 1, 2, false)
-
         info_value2 = CreateLabel ("-", true)
         AttachToTable (info_value2, 4, 5, 1, 2, true)
 
         info_label3 = CreateLabel (N_("Modified:"), false)
         AttachToTable (info_label3, 5, 6, 1, 2, false)
-
         info_value3 = CreateLabel ("-", true)
         AttachToTable (info_value3, 6, 7, 1, 2, true)
 
         info_label4 = CreateLabel ("", false)
         AttachToTable (info_label4, 1, 2, 2, 3, false)
-
         info_value4 = CreateLabel ("-", true)
         AttachToTable (info_value4, 2, 3, 2, 3, true)
 
         info_label5 = CreateLabel ("", false)
         AttachToTable (info_label5, 3, 4, 2, 3, false)
-
         info_value5 = CreateLabel ("-", true)
         AttachToTable (info_value5, 4, 5, 2, 3, true)
 
         info_label6 = CreateLabel ("", false)
         AttachToTable (info_label6, 5, 6, 2, 3, false)
-
         info_value6 = CreateLabel ("-", true)
         AttachToTable (info_value6, 6, 7, 2, 3, true)
         
-        sparql = "SELECT ?mimetype WHERE {<%s> nie:mimeType ?mimetype.}"
-
         ClearLabels ()
 
 
@@ -206,6 +187,7 @@ class TrackerMetadataTile : EventBox
         else
             table.attach (lab, l, r, t, b, AttachOptions.FILL, AttachOptions.FILL, 0, 0)
 
+
     def private CreateLabel (s : string, e : bool) : Label
         var l = new Label (s)
         l.xalign = 0
@@ -236,11 +218,13 @@ class TrackerMetadataTile : EventBox
         name_link.set_sensitive (false)
         path_link.set_sensitive (false);
 
+
     def SetLabelValue (label : Label, val : string)
         var val1 = "<b>%s</b>".printf (val)
         label.set_markup (val1)
         label.xalign = 0
         
+
     def SetLabelSizeValue (label : Label, size: int64)
         var val1 = "<b>%s</b>".printf (FormatFileSize (size))
         label.set_markup (val1)
@@ -263,12 +247,10 @@ class TrackerMetadataTile : EventBox
         var val1 = "<b>%s</b>".printf (value)
         label.set_markup (val1)
         label.xalign = 0
-    
-        
 
 
     def private GetCategory (uri : string) : Categories
-        var query = "select rdf:type(?s) where { ?s nie:url \"%s\" }".printf(uri)
+        var query = "SELECT rdf:type(?s) where { ?s nie:url \"%s\" }".printf(uri)
         var results = Query.Query (query)
         var res = ""
         for s in results
@@ -321,7 +303,7 @@ class TrackerMetadataTile : EventBox
 
         
     def private DisplayImageDetails (uri : string)
-        var query = "select nfo:height(?s) nfo:width(?s) Where { ?s nie:url \"%s\" }".printf(uri)
+        var query = "SELECT nfo:height(?s) nfo:width(?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
         var result = Query.Query (query)
 
         info_label4.set_text (N_("Height:"))
@@ -330,11 +312,10 @@ class TrackerMetadataTile : EventBox
         if result is not null 
             SetLabelValue (info_value4, result[0])  
             SetLabelValue (info_value5, result[1])  
-                     
-
         
+
     def private DisplayAudioDetails (uri : string)
-        var query = "select nie:title(?s) nmm:performer(?s) nmm:musicAlbum(?s) Where { ?s nie:url \"%s\" }".printf(uri)
+        var query = "SELECT nie:title(?s) nmm:performer(?s) nmm:musicAlbum(?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
         var result = Query.Query (query)
 
         info_label4.set_text (N_("Title:"))
@@ -346,8 +327,9 @@ class TrackerMetadataTile : EventBox
             SetLabelUrnValue (info_value5, result[1])  
             SetLabelUrnValue (info_value6, result[2])  
         
+
     def private DisplayVideoDetails (uri : string)
-        var query = "select nfo:height(?s) nfo:width(?s) nfo:duration (?s) Where { ?s nie:url \"%s\" }".printf(uri)
+        var query = "SELECT nfo:height(?s) nfo:width(?s) nfo:duration (?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
         var result = Query.Query (query)
 
         info_label4.set_text (N_("Height:"))
@@ -359,8 +341,9 @@ class TrackerMetadataTile : EventBox
             SetLabelValue (info_value5, result[1])  
             SetLabelValue (info_value6, result[2])  
         
+
     def private DisplayDocumentDetails (uri : string)
-        var query = "select nie:title(?s) nco:creator(?s) nfo:pageCount (?s) Where { ?s nie:url \"%s\" }".printf(uri)
+        var query = "SELECT nie:title(?s) nco:creator(?s) nfo:pageCount (?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
         var result = Query.Query (query)
 
         info_label4.set_text (N_("Title:"))
@@ -372,9 +355,7 @@ class TrackerMetadataTile : EventBox
             SetLabelValue (info_value5, result[1])  
             SetLabelValue (info_value6, result[2])      
         
-    def private DisplayApplicationDetails (uri : string)
-        return   
-        
+
     def LoadUri (path : TreePath?)
         ClearLabels ()
 
@@ -392,7 +373,6 @@ class TrackerMetadataTile : EventBox
         _result_grid.store.get_iter (out iter, path)
         _result_grid.store.get (iter, ResultColumns.Id, out id, ResultColumns.Uri, out uri, ResultColumns.Mime, out mime, ResultColumns.Icon, out icon)
        
-        
         /* determine category type */
         var cat = GetCategory (uri)
 
@@ -401,12 +381,9 @@ class TrackerMetadataTile : EventBox
             image.set_from_pixbuf (icon)
 
         case cat
-            when Categories.Application do DisplayApplicationDetails (uri)
             when Categories.Audio do DisplayAudioDetails (uri)
             when Categories.Video do DisplayVideoDetails (uri)
             when Categories.Image do DisplayImageDetails (uri)
             when Categories.Document do DisplayDocumentDetails (uri)
             default do return
 
-                
-       
