@@ -92,7 +92,6 @@ class TrackerQuery : Object
         return null
 
 
-
     def Query (sparql : string) : array of string[,]?
         try
             return tracker.SparqlQuery (sparql)

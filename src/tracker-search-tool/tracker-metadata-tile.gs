@@ -253,8 +253,12 @@ class TrackerMetadataTile : EventBox
         var query = "SELECT rdf:type(?s) where { ?s nie:url \"%s\" }".printf(uri)
         var results = Query.Query (query)
         var res = ""
-        for s in results
-            res += s
+
+        if results is null
+            print "Query result is null!"
+        
+        else
+            res = results[0]
 
         if res.contains ("nfo#Video") do return Categories.Video
         if res.contains ("nfo#Image") do return Categories.Image
