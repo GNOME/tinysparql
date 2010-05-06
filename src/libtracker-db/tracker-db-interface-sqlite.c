@@ -509,7 +509,7 @@ open_database (TrackerDBInterfaceSqlitePrivate *priv)
 	}
 
 	sqlite3_create_function (priv->db, "SparqlRegex", 3, SQLITE_ANY,
-	                         priv, &function_sparql_regex, 
+	                         priv, &function_sparql_regex,
 	                         NULL, NULL);
 
 	sqlite3_create_function (priv->db, "SparqlHaversineDistance", 4, SQLITE_ANY,
@@ -622,7 +622,7 @@ close_database (GObject                         *object,
 	priv->function_data = NULL;
 
 	if (priv->fts_initialized) {
-		tracker_fts_shutdown ();
+		tracker_fts_shutdown (object);
 	}
 
 	rc = sqlite3_close (priv->db);
