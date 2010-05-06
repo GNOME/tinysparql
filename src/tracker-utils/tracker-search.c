@@ -296,9 +296,9 @@ get_emails_foreach (gpointer value,
 	details = GPOINTER_TO_INT (user_data);
 
 	if (details && data[1] && *data[1]) {
-		g_print ("  %s (%s)\n", data[0], data[1]);
+		g_print ("  %s, %s (%s)\n", data[0], data[1], data[2]);
 	} else {
-		g_print ("  %s\n", data[0]);
+		g_print ("  %s, %s\n", data[0], data[1]);
 	}
 }
 
@@ -366,13 +366,13 @@ get_emails (TrackerClient *client,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT nmo:messageSubject(?email) nie:url(?email) "
+		query = g_strdup_printf ("SELECT nmo:receivedDate(?email) nmo:messageSubject(?email) nie:url(?email) "
 		                         "WHERE { "
 		                         "  ?email a nmo:Email ;"
 		                         "  fts:match \"%s\" ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(nie:url(?email)) "
+		                         "ORDER BY ASC(nmo:messageSubject(?email)) ASC(nmo:receivedDate(?email))"
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         fts,
@@ -380,12 +380,12 @@ get_emails (TrackerClient *client,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT nmo:messageSubject(?email) nie:url(?email) "
+		query = g_strdup_printf ("SELECT nmo:receivedDate(?email) nmo:messageSubject(?email) nie:url(?email) "
 		                         "WHERE { "
 		                         "  ?email a nmo:Email ."
 		                         "  %s"
 		                         "} "
-		                         "ORDER BY ASC(nie:url(?email)) "
+		                         "ORDER BY ASC(nmo:messageSubject(?email)) ASC(nmo:receivedDate(?email))"
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         show_all_str,
