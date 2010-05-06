@@ -119,21 +119,23 @@ tracker_keyfile_object_validate_int (gpointer     object,
                                      const gchar *property,
                                      gint         value)
 {
+#ifdef G_DISABLE_CHECKS
+	GParamSpec *spec;
+	GValue      gvalue = { 0 };
+	gboolean    valid;
+#endif
+
 	g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
 	g_return_val_if_fail (property != NULL, FALSE);
 
 #ifdef G_DISABLE_CHECKS
-	GParamSpec *spec;
-	GValue      value = { 0 };
-	gboolean    valid;
-
 	spec = g_object_class_find_property (G_OBJECT_CLASS (object), property);
 	g_return_val_if_fail (spec != NULL, FALSE);
 
-	g_value_init (&value, spec->value_type);
-	g_value_set_int (&value, verbosity);
-	valid = g_param_value_validate (spec, &value);
-	g_value_unset (&value);
+	g_value_init (&gvalue, spec->value_type);
+	g_value_set_int (&gvalue, value);
+	valid = g_param_value_validate (spec, &gvalue);
+	g_value_unset (&gvalue);
 
 	g_return_val_if_fail (valid != TRUE, FALSE);
 #endif
