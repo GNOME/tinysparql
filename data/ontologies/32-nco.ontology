@@ -285,7 +285,7 @@ nco:contactLocalUID a rdf:Property;
         rdfs:comment "Unique ID for the contact in the local storage" ;
         nrl:maxCardinality 1;
         rdfs:domain nco:Contact ;
-        rdfs:range xsd:integer .
+        rdfs:range xsd:string .
 
 nco:publisher a rdf:Property ;
 	rdfs:label "publisher" ;
@@ -785,6 +785,12 @@ nco:imPresence a rdf:Property ;
 	rdfs:domain nco:IMAddress ;
 	rdfs:range nco:PresenceStatus .
 
+nco:presenceLastModified a rdf:Property ;
+        rdfs:label "Presence last modified";
+        rdfs:comment "Timestamp of the last change in the presence status";
+        nrl:maxCardinality 1;
+        rdfs:domain nco:IMAddress ;
+        rdfs:range xsd:dateTime .
 
 nco:IMCapability a rdfs:Class ;
         rdfs:label "IM Capabilities" ;
