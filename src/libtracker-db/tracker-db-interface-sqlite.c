@@ -76,7 +76,6 @@ struct TrackerDBInterfaceSqlitePrivate {
 	sqlite3 *db;
 
 	GHashTable *dynamic_statements;
-	GHashTable *statements;
 
 	GSList *function_data;
 
@@ -614,19 +613,16 @@ close_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
 	gint rc;
 
-	if (priv->fts_initialized) {
-		tracker_fts_shutdown ();
-	}
-
 	g_hash_table_unref (priv->dynamic_statements);
 	priv->dynamic_statements = NULL;
-
-	g_hash_table_unref (priv->statements);
-	priv->statements = NULL;
 
 	g_slist_foreach (priv->function_data, (GFunc) g_free, NULL);
 	g_slist_free (priv->function_data);
 	priv->function_data = NULL;
+
+	if (priv->fts_initialized) {
+		tracker_fts_shutdown ();
+	}
 
 	rc = sqlite3_close (priv->db);
 	g_warn_if_fail (rc == SQLITE_OK);
@@ -700,10 +696,6 @@ prepare_database (TrackerDBInterfaceSqlitePrivate *priv)
 	priv->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                                  (GDestroyNotify) g_free,
 	                                                  (GDestroyNotify) g_object_unref);
-	priv->statements = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                          (GDestroyNotify) g_free,
-	                                          (GDestroyNotify) sqlite3_finalize);
-
 }
 
 static void
@@ -792,13 +784,6 @@ tracker_db_interface_sqlite_create_statement (TrackerDBInterface *db_interface,
 	return g_object_ref (stmt);
 }
 
-static void
-foreach_print_error (gpointer key, gpointer value, gpointer stmt)
-{
-	if (value == stmt)
-		g_print ("In %s\n", (char*) key);
-}
-
 static TrackerDBResultSet *
 create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
                              sqlite3_stmt              *stmt,
@@ -834,7 +819,6 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 	}
 
 	if (result != SQLITE_DONE) {
-		g_hash_table_foreach (priv->statements, foreach_print_error, stmt);
 
 		/* This is rather fatal */
 		if (sqlite3_errcode (priv->db) == SQLITE_IOERR ||
