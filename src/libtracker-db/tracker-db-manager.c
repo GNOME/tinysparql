@@ -633,9 +633,20 @@ static void
 free_thread_interface (gpointer data)
 {
 	TrackerDBInterface *interface = data;
+	GHashTableIter iter;
+	gpointer value;
 
 	g_static_mutex_lock (&thread_ifaces_mutex);
-	g_hash_table_remove (thread_ifaces, g_thread_self ());
+
+	g_hash_table_iter_init (&iter, thread_ifaces);
+
+	while (g_hash_table_iter_next (&iter, NULL, &value)) {
+		if (value == data) {
+			g_hash_table_iter_remove (&iter);
+			break;
+		}
+	}
+
 	g_static_mutex_unlock (&thread_ifaces_mutex);
 
 	g_object_unref (interface);

@@ -609,7 +609,8 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 }
 
 static void
-close_database (TrackerDBInterfaceSqlitePrivate *priv)
+close_database (GObject                         *object,
+                TrackerDBInterfaceSqlitePrivate *priv)
 {
 	gint rc;
 
@@ -636,7 +637,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterfaceSqlite *interface,
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (interface);
 
-	tracker_fts_init (priv->db, create);
+	tracker_fts_init (priv->db, create, G_OBJECT (interface));
 	priv->fts_initialized = TRUE;
 }
 
@@ -647,7 +648,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (object);
 
-	close_database (priv);
+	close_database (object, priv);
 
 	g_message ("Closed sqlite3 database:'%s'", priv->filename);
 

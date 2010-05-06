@@ -2129,6 +2129,7 @@ static int sql_prepare(sqlite3 *db, const char *zDb, const char *zName,
 typedef struct fulltext_vtab fulltext_vtab;
 
 static GStaticPrivate tracker_fts_vtab_key = G_STATIC_PRIVATE_INIT;
+static GQuark quark_fulltext_vtab = 0;
 static TrackerFtsMapFunc map_function = NULL;
 
 /* A single term in a query is represented by an instances of
@@ -3304,14 +3305,19 @@ static int constructVtab(
   sqlite3 *db,		    /* The SQLite database connection */
   const char *zDb,
   const char *zName,
-  char **pzErr              /* Write any error message here */
+  char **pzErr,             /* Write any error message here */
+  GObject *object
 ){
   fulltext_vtab *v = 0;
   TrackerFTSConfig *config;
   TrackerLanguage *language;
   int min_len, max_len;
 
-  v = g_static_private_get (&tracker_fts_vtab_key);
+  if (G_UNLIKELY (quark_fulltext_vtab == 0)) {
+    quark_fulltext_vtab = g_quark_from_static_string ("quark_fulltext_vtab");
+  }
+
+  v = g_object_get_qdata (object, quark_fulltext_vtab);
 
   if(v) {
     return SQLITE_OK;
@@ -3381,7 +3387,9 @@ static int constructVtab(
 
   FTSTRACE(("FTS3 Connect %p\n", v));
 
-  g_static_private_set (&tracker_fts_vtab_key, v, (GDestroyNotify) fulltext_vtab_destroy);
+  g_static_private_set (&tracker_fts_vtab_key, v, NULL);
+  g_object_set_qdata_full (object, quark_fulltext_vtab, v,
+                           (GDestroyNotify) fulltext_vtab_destroy);
 
   return SQLITE_OK;
 }
@@ -7790,14 +7798,14 @@ int sqlite3Fts3InitHashTable(sqlite3 *, fts3Hash *, const char *);
 ** SQLite. If fts3 is built as a dynamically loadable extension, this
 ** function is called by the sqlite3_extension_init() entry point.
 */
-int tracker_fts_init(sqlite3 *db, int create){
+int tracker_fts_init(sqlite3 *db, int create, GObject *object){
   int rc = SQLITE_OK;
 
   if (create){
     createTables (db, "fulltext", "fts");
   }
 
-  constructVtab(db, "fulltext", "fts", NULL);
+  constructVtab(db, "fulltext", "fts", NULL, object);
 
   /* Create the virtual table wrapper around the hash-table and overload
   ** the two scalar functions. If this is successful, register the
@@ -7827,8 +7835,8 @@ int tracker_fts_init(sqlite3 *db, int create){
   return rc;
 }
 
-void tracker_fts_shutdown (void){
-  g_static_private_set (&tracker_fts_vtab_key, NULL, NULL);
+void tracker_fts_shutdown (GObject *object){
+  g_object_set_qdata (object, quark_fulltext_vtab, NULL);
 }
 
 void tracker_fts_shutdown_all (void){

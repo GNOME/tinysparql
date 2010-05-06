@@ -19,13 +19,14 @@
 
 #include <sqlite3.h>
 #include <glib.h>
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
 typedef const gchar *(*TrackerFtsMapFunc) (gint id);
 
-int tracker_fts_init (sqlite3 *db, int create);
-void tracker_fts_shutdown (void);
+int tracker_fts_init (sqlite3 *db, int create, GObject *object);
+void tracker_fts_shutdown (GObject *object);
 void tracker_fts_shutdown_all (void);
 void tracker_fts_set_map_function (TrackerFtsMapFunc map_func);
 int tracker_fts_update_init (int id);
