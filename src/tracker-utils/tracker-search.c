@@ -54,6 +54,7 @@ static gboolean music_files;
 static gboolean image_files;
 static gboolean video_files;
 static gboolean document_files;
+static gboolean emails;
 static gboolean print_version;
 
 static GOptionEntry entries[] = {
@@ -81,20 +82,20 @@ static GOptionEntry entries[] = {
 	  N_("Search for files"),
 	  NULL
 	},
-	{ "folders", 'e', 0, G_OPTION_ARG_NONE, &folders,
+	{ "folders", 's', 0, G_OPTION_ARG_NONE, &folders,
 	  N_("Search for folders"),
-	  NULL
-	},
-	{ "music-albums", 'b', 0, G_OPTION_ARG_NONE, &music_albums,
-	  N_("Search for music albums (--all has no effect on this)"),
-	  NULL
-	},
-	{ "music-artists", 's', 0, G_OPTION_ARG_NONE, &music_artists,
-	  N_("Search for music artists (--all has no effect on this) "),
 	  NULL
 	},
 	{ "music", 'm', 0, G_OPTION_ARG_NONE, &music_files,
 	  N_("Search for music files"),
+	  NULL
+	},
+	{ "music-albums", 'u', 0, G_OPTION_ARG_NONE, &music_albums,
+	  N_("Search for music albums (--all has no effect on this)"),
+	  NULL
+	},
+	{ "music-artists", 'c', 0, G_OPTION_ARG_NONE, &music_artists,
+	  N_("Search for music artists (--all has no effect on this) "),
 	  NULL
 	},
 	{ "images", 'i', 0, G_OPTION_ARG_NONE, &image_files,
@@ -107,6 +108,10 @@ static GOptionEntry entries[] = {
 	},
 	{ "documents", 't', 0, G_OPTION_ARG_NONE, &document_files,
 	  N_("Search for document files"),
+	  NULL
+	},
+	{ "emails", 'e', 0, G_OPTION_ARG_NONE, &emails,
+	  N_("Search for emails"),
 	  NULL
 	},
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
@@ -164,6 +169,115 @@ get_fts_string (GStrv    search_words,
 	}
 
 	return g_string_free (fts, FALSE);
+}
+
+static void
+get_emails_foreach (gpointer value,
+		    gpointer user_data)
+{
+	gchar **data = value;
+
+	if (data[1] && *data[1]) {
+		g_print ("  %s (%s)\n", data[0], data[1]);
+	} else {
+		g_print ("  %s\n", data[0]);
+	}
+}
+
+static gboolean
+get_emails_results (TrackerClient *client,
+		    const gchar   *query,
+		    gint           search_limit)
+{
+	GError *error = NULL;
+	GPtrArray *results;
+
+	results = tracker_resources_sparql_query (client, query, &error);
+
+	if (error) {
+		g_printerr ("%s, %s\n",
+		            _("Could not get search results"),
+		            error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	if (!results) {
+		g_print ("%s\n",
+		         _("No emails were found"));
+	} else {
+		g_print (g_dngettext (NULL,
+		                      "Email: %d",
+		                      "Emails: %d",
+		                      results->len),
+		         results->len);
+		g_print ("\n");
+
+		g_ptr_array_foreach (results,
+		                     get_emails_foreach,
+		                     NULL);
+
+		if (results->len >= search_limit) {
+			show_limit_warning ();
+		}
+
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+		g_ptr_array_free (results, TRUE);
+	}
+
+	return TRUE;
+}
+
+static gboolean
+get_emails (TrackerClient *client,
+	    GStrv          search_terms,
+	    gboolean       show_all,
+	    gint           search_offset,
+	    gint           search_limit,
+	    gboolean       use_or_operator)
+{
+	gchar *fts;
+	gchar *query;
+	const gchar *show_all_str;
+	gboolean success;
+
+	show_all_str = show_all ? "" : "?email tracker:available true .";
+	fts = get_fts_string (search_terms, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT nmo:messageSubject(?email) nie:url(?email) "
+		                         "WHERE { "
+		                         "  ?email a nmo:Email ;"
+		                         "  fts:match \"%s\" ."
+		                         "  %s"
+		                         "} "
+		                         "ORDER BY ASC(nie:url(?email)) "
+		                         "OFFSET %d "
+		                         "LIMIT %d",
+		                         fts,
+		                         show_all_str,
+		                         search_offset,
+		                         search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT nmo:messageSubject(?email) nie:url(?email) "
+		                         "WHERE { "
+		                         "  ?email a nmo:Email ."
+		                         "  %s"
+		                         "} "
+		                         "ORDER BY ASC(nie:url(?email)) "
+		                         "OFFSET %d "
+		                         "LIMIT %d",
+		                         show_all_str,
+		                         search_offset,
+		                         search_limit);
+	}
+
+	success = get_emails_results (client, query, search_limit);
+	g_free (query);
+	g_free (fts);
+
+	return success;
 }
 
 static void
@@ -886,6 +1000,7 @@ main (int argc, char **argv)
 	    !image_files &&
 	    !video_files &&
 	    !document_files &&
+	    !emails &&
 	    !files && !folders &&
 	    !terms) {
 		gchar *help;
@@ -1029,6 +1144,15 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_document_files (client, terms, all, offset, limit, or_operator);
+		g_object_unref (client);
+
+		return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	}
+
+	if (emails) {
+		gboolean success;
+
+		success = get_emails (client, terms, all, offset, limit, or_operator);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
