@@ -1,3 +1,87 @@
+NEW in 0.8.5 - 2010-05-06
+=========================
+
+Improvements / New:
+
+  General:
+  * Removed many unused variables from coverity reports
+  * Various other fixes picked up from coverity reports
+
+  Functional Tests:
+  * Added for journal replay
+  * Added for backup-restore
+
+  Ontology:
+  * Fixed typo for nfo:softwareCmdLine comment
+
+  Data Generators:
+  * Fixed %u use since it is deprecated in favour of %d in Python
+
+  libtracker-common:
+  * Fixed compilation error in validating ints for tracker-keyfile-object
+
+  libtracker-db:
+  * Don't fsync/close already open databases if g_open() succeeds
+  * Avoid strstr in uri_is_{parent|descendant} functions
+  * Performance improvement for tracker:uri-is-parent function
+
+  libtracker-extract:
+  * Don't modify setlocale() return value, as it's statically stored
+  * Protect against invalid values in tracker_date_guess()
+
+  libtracker-miner:
+  * Added missing .deps file for Vala bindings
+  * Fixed memory leak in VAPI file
+  * Fixed includes for libtracker-client in VAPI file
+
+  libtracker-client:
+  * Fixed typo in documentation for tracker_resources_sparql_query()
+
+  tracker-store:
+  * Handle commit transaction error when importing turtle files and rollback
+
+  tracker-extract:
+  * Don't run past genre array in mp3 extractor
+  * Use nfo:HtmlDocument instead of nfo:Document in html extractor
+  * Fixed compilation warning for msoffice extractor, use G_GSIZE_FORMAT not %d
+
+  tracker-search:
+  * Added --emails and list subjects/dates
+  * Added --contacts and list names/addresses
+  * Updated --detailed so we only report URNs if this is supplied
+
+  tracker-tag:
+  * Fixed possible use of uninitialised memory
+
+  tracker-info:
+  * Show results in shortened form, added --full-namespaces for old behaviour
+
+  tracker-search-tool:
+  * Fixed segmentation fault when there are no results
+  * Added "Folders" category
+  * Renamed "Office Documents" category to "Documents"
+
+Bugs:
+
+  * GB#616548 - DIrectory lists and de-duplication in tracker-preferences
+  * NB#166767 - Every word in a long tag is indexed separately
+
+Translations:
+
+  * Updated cs: Petr Kovar
+  * Updated de: Mario Blättermann
+
+Notes:
+
+  Due to the HTML extractor changing the document type from
+  nfo:Document to nfo:HtmlDocument, we would advise anyone with these
+  files indexed to use:
+
+    tracker-control --reindex-mime-type text/html
+
+  This should make sure all indexed files are correctly adjusted.
+
+
 NEW in 0.8.4 - 2010-04-29
 =========================
 
