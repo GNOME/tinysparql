@@ -348,6 +348,14 @@
         <description>tracker:backup-restore-tc.py:backup.test_backup_11</description>
         <step>/usr/share/tracker-tests/backup-restore-tc.py backup.test_backup_11</step>
       </case>
+      <case name="backup-restore-tc.py-journal.test_journal_01">
+        <description>tracker:backup-restore-tc.py:journal.test_journal_01</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py journal.test_journal_01</step>
+      </case>
+      <case name="backup-restore-tc.py-journal.test_journal_02">
+        <description>tracker:backup-restore-tc.py:journal.test_journal_02</description>
+        <step>/usr/share/tracker-tests/backup-restore-tc.py journal.test_journal_02</step>
+      </case>
       <environments>
         <scratchbox>true</scratchbox>
         <hardware>true</hardware>

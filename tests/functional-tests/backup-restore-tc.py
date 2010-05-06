@@ -31,6 +31,7 @@ import configuration
 from dbus.mainloop.glib import DBusGMainLoop
 import gobject
 
+
 TRACKER = 'org.freedesktop.Tracker1'                                                     
 TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'                                      
 RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"                                   
@@ -38,6 +39,9 @@ RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
 BACKUP1 = 'org.freedesktop.Tracker1'                                            
 BACKUP = "/org/freedesktop/Tracker1/Backup"                                            
 BACKUP_IFACE = "org.freedesktop.Tracker1.Backup"
+
+STATUS = '/org/freedesktop/Tracker1/Status'
+STATUS_IFACE = 'org.freedesktop.Tracker1.Status'
 
 target = configuration.check_target()
 
@@ -65,6 +69,17 @@ class TestHelper (unittest.TestCase):
                 self.resources = dbus.Interface (tracker, dbus_interface=RESOURCES_IFACE)
                 backup_obj = bus.get_object(TRACKER,BACKUP)                                  
                 self.backup = dbus.Interface (backup_obj,dbus_interface = BACKUP_IFACE)  
+		status_obj  = bus.get_object(TRACKER,STATUS)
+                self.status = dbus.Interface ( status_obj , dbus_interface = STATUS_IFACE)
+
+                self.loop = gobject.MainLoop()
+                self.dbus_loop = DBusGMainLoop(set_as_default=True)
+                self.bus = dbus.SessionBus (self.dbus_loop)
+
+                self.bus.add_signal_receiver (self.restore,
+                                             signal_name="Progress",
+                                             dbus_interface=STATUS_IFACE,
+                                             path=STATUS)
 
 	def db_backup(self,backup_file) :
 		self.backup.Save(backup_file,timeout=5000)
@@ -78,16 +93,25 @@ class TestHelper (unittest.TestCase):
         def query(self,query):
                 return self.resources.SparqlQuery(query,timeout=5000)
 
+        def restore(self,signal,handle) :
+                if signal == "Journal replaying" :
+                    print "Got journal replaying signal"
+		    set()
+                    if handle == 1:
+		       print "Journal replaying is done"
+                       self.loop.quit()
+
+
 	def dict(self,list_name):
-	      dd={}                                                           
-              for a1 in list_name :                                                   
-                key,value = a1.split('=')                                     
-                if key in dd :                                                
-                   vlist = dd [key]                                           
-                   if value not in list_name  :                                   
-                        vlist.append(value)                                   
-                else :                                                        
-                    dd[key]=[value]                                            
+	      dd={}
+              for a1 in list_name :
+                key,value = a1.split('=')
+                if key in dd :
+                   vlist = dd [key]
+                   if value not in list_name  :
+                        vlist.append(value)
+                else :
+                    dd[key]=[value]
 	      return dd
 
         def kill_store(self):
@@ -98,6 +122,8 @@ class TestHelper (unittest.TestCase):
                    os.kill(int(pid), signal.SIGKILL)
                 except OSError, e:
                    if not e.errno == 3 : raise e
+	def start_store (self) :
+            os.system('/usr/lib/tracker/tracker-store  -v 3 &' )
 
 
 class backup(TestHelper):
@@ -469,6 +495,61 @@ class backup(TestHelper):
               result = self.query(query)                                                     
 	      self.assert_(result[0][0].find(urn)!=-1 , "Restore is not successful") 
 
+
+
+class journal (TestHelper) :
+
+	def test_journal_01 (self) :
+
+	    result1 = commands.getoutput('tracker-stats ')
+            stats1 = result1.split('\n')
+            stats1.remove('Statistics:')
+            dd1 = self.dict(stats1)
+
+	    print "killing tracker-store process"
+	    self.kill_store ()
+
+	    print ("Corrupting the database")
+            commands.getoutput('cp  ' + configuration.TEST_DATA_IMAGES +'test-image-1.jpg' + ' ' + database +'meta.db' )
+
+	    print "Starting tracker-store process"
+	    self.start_store ()
+	    self.loop.run()
+
+            result2 = commands.getoutput('tracker-stats ')
+            stats2 = result2.split('\n')
+            stats2.remove('Statistics:')
+            dd2 = self.dict(stats1)
+	    diff = [key for key, value in dd1.iteritems() if value != dd2[key]]
+
+            self.assert_(isSet() == true and len(diff)==0, 'Journal replaying is not happening' )
+
+
+	def test_journal_02 (self) :
+
+	    result1 = commands.getoutput('tracker-stats ')
+            stats1 = result1.split('\n')
+            stats1.remove('Statistics:')
+            dd1 = self.dict(stats1)
+
+	    print "killing tracker-store process"
+	    self.kill_store ()
+
+	    print ("Deleting the database")
+            commands.getoutput('rm -rf ' + database )
+
+	    print "Starting tracker-store process"
+	    self.start_store ()
+
+	    self.loop.run()
+
+            result2 = commands.getoutput('tracker-stats ')
+            stats2 = result2.split('\n')
+            stats2.remove('Statistics:')
+            dd2 = self.dict(stats1)
+	    diff = [key for key, value in dd1.iteritems() if value != dd2[key]]
+
+            self.assert_(isSet() == true and len(diff)==0, 'Journal replaying is not happening' )
 
 if __name__ == "__main__":
         unittest.main()                      
