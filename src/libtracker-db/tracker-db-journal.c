@@ -785,6 +785,7 @@ tracker_db_journal_reader_verify_last (GError **error)
 		if (reader.end - entry_size_check < reader.current) {
 			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
 			             "Damaged journal entry at end of journal");
+			tracker_db_journal_reader_shutdown ();
 			return FALSE;
 		}
 
