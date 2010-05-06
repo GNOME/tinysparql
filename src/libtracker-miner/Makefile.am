@@ -137,4 +137,5 @@ DISTCLEANFILES = tracker-miner-web-full.xml
 EXTRA_DIST = 				\
 	tracker-marshal.list		\
 	tracker-miner.vapi		\
+	tracker-miner.deps		\
 	tracker-miner-web-full.xml
