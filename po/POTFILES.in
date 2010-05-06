@@ -7,6 +7,7 @@ data/miners/tracker-miner-files.desktop.in
 data/miners/tracker-miner-flickr.desktop.in
 data/miners/tracker-miner-rss.desktop.in
 data/tracker-miner-fs.desktop.in.in
+data/tracker-miner-rss.desktop.in.in
 data/tracker-status-icon.desktop.in.in
 data/tracker-store.desktop.in.in
 [type: gettext/glade]examples/rss-reader/rss_viewer.ui
