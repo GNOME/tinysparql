@@ -35,7 +35,8 @@ in the results. The default is 0.
 Use OR for search terms instead of AND (the default)
 .TP
 .B \-d, \-\-detailed
-Show more detailed results (only applies to general search)
+Show the unique URN associated with each search result. This does not
+apply to \-\-music\-albums and \-\-music\-artists.
 .TP
 .B \-a, \-\-all
 Show results which might not be available. This might bebecause a
@@ -55,10 +56,10 @@ Search for folders matching \fIEXPRESSION\fR (optional).
 .B \-m, \-\-music=EXPRESSION
 Search for music files matching \fIEXPRESSION\fR (optional).
 .TP
-.B \-u, \-\-music-albums=ALBUM
+.B \-u, \-\-music\-albums=ALBUM
 Search for music albums matching \fIALBUM\fR (optional).
 .TP
-.B \-c, \-\-music-artists=ARTIST
+.B \-c, \-\-music\-artists=ARTIST
 Search for music artists matching \fIARTIST\fR (optional).
 .TP
 .B \-l, \-\-images=EXPRESSION
@@ -71,7 +72,8 @@ Search for videos matching \fIEXPRESSION\fR (optional).
 Search for documents matching \fIEXPRESSION\fR (optional).
 .TP
 .B \-t, \-\-emails=EXPRESSION
-Search for emails matching \fIEXPRESSION\fR (optional).
+Search for emails matching \fIEXPRESSION\fR (optional). Returns a list
+of subjects for emails found.
 .TP
 .B \-V, \-\-version
 Print version.

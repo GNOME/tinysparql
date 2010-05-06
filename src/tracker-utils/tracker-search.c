@@ -71,7 +71,7 @@ static GOptionEntry entries[] = {
 	  NULL
 	},
 	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
-	  N_("Show more detailed results (only applies to general search)"),
+	  N_("Show URNs for results (doesn't apply to --music-albums, --music-artists)"),
 	  NULL
 	},
 	{ "all", 'a', 0, G_OPTION_ARG_NONE, &all,
@@ -175,9 +175,13 @@ static void
 get_emails_foreach (gpointer value,
 		    gpointer user_data)
 {
-	gchar **data = value;
+	gchar **data;
+	gboolean details;
 
-	if (data[1] && *data[1]) {
+	data = value;
+	details = GPOINTER_TO_INT (user_data);
+
+	if (details && data[1] && *data[1]) {
 		g_print ("  %s (%s)\n", data[0], data[1]);
 	} else {
 		g_print ("  %s\n", data[0]);
@@ -187,7 +191,8 @@ get_emails_foreach (gpointer value,
 static gboolean
 get_emails_results (TrackerClient *client,
 		    const gchar   *query,
-		    gint           search_limit)
+		    gint           search_limit,
+		    gboolean       details)
 {
 	GError *error = NULL;
 	GPtrArray *results;
@@ -216,7 +221,7 @@ get_emails_results (TrackerClient *client,
 
 		g_ptr_array_foreach (results,
 		                     get_emails_foreach,
-		                     NULL);
+		                     GINT_TO_POINTER (details));
 
 		if (results->len >= search_limit) {
 			show_limit_warning ();
@@ -235,7 +240,8 @@ get_emails (TrackerClient *client,
 	    gboolean       show_all,
 	    gint           search_offset,
 	    gint           search_limit,
-	    gboolean       use_or_operator)
+	    gboolean       use_or_operator,
+	    gboolean       details)
 {
 	gchar *fts;
 	gchar *query;
@@ -273,7 +279,7 @@ get_emails (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_emails_results (client, query, search_limit);
+	success = get_emails_results (client, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -284,19 +290,24 @@ static void
 get_files_foreach (gpointer value,
                    gpointer user_data)
 {
-	gchar **data = value;
+	gchar **data;
+	gboolean details;
 
-	if (data[1] && *data[1]) {
+	data = value;
+	details = GPOINTER_TO_INT (user_data);
+
+	if (details && data[1] && *data[1]) {
 		g_print ("  %s (%s)\n", data[1], data[0]);
 	} else {
-		g_print ("  %s\n", data[0]);
+		g_print ("  %s\n", data[1]);
 	}
 }
 
 static gboolean
 get_files_results (TrackerClient *client,
                    const gchar   *query,
-                   gint           search_limit)
+                   gint           search_limit,
+		   gboolean       details)
 {
 	GError *error = NULL;
 	GPtrArray *results;
@@ -325,7 +336,7 @@ get_files_results (TrackerClient *client,
 
 		g_ptr_array_foreach (results,
 		                     get_files_foreach,
-		                     NULL);
+		                     GINT_TO_POINTER (details));
 
 		if (results->len >= search_limit) {
 			show_limit_warning ();
@@ -344,7 +355,8 @@ get_document_files (TrackerClient *client,
                     gboolean       show_all,
                     gint           search_offset,
                     gint           search_limit,
-                    gboolean       use_or_operator)
+                    gboolean       use_or_operator,
+		    gboolean       details)
 {
 	gchar *fts;
 	gchar *query;
@@ -382,7 +394,7 @@ get_document_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit);
+	success = get_files_results (client, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -395,7 +407,8 @@ get_video_files (TrackerClient *client,
                  gboolean       show_all,
                  gint           search_offset,
                  gint           search_limit,
-                 gboolean       use_or_operator)
+                 gboolean       use_or_operator,
+		 gboolean       details)
 {
 	gchar *fts;
 	gchar *query;
@@ -433,7 +446,7 @@ get_video_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit);
+	success = get_files_results (client, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -446,7 +459,8 @@ get_image_files (TrackerClient *client,
                  gboolean       show_all,
                  gint           search_offset,
                  gint           search_limit,
-                 gboolean       use_or_operator)
+		 gboolean       use_or_operator,
+		 gboolean       details)
 {
 	gchar *fts;
 	gchar *query;
@@ -484,7 +498,7 @@ get_image_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit);
+	success = get_files_results (client, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -497,7 +511,8 @@ get_music_files (TrackerClient *client,
                  gboolean       show_all,
                  gint           search_offset,
                  gint           search_limit,
-                 gboolean       use_or_operator)
+                 gboolean       use_or_operator,
+		 gboolean       details)
 {
 	gchar *fts;
 	gchar *query;
@@ -535,7 +550,7 @@ get_music_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit);
+	success = get_files_results (client, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -715,7 +730,8 @@ get_files (TrackerClient *client,
            gboolean       show_all,
            gint           search_offset,
            gint           search_limit,
-           gboolean       use_or_operator)
+	   gboolean       use_or_operator,
+	   gboolean       details)
 {
 	gchar *fts;
 	gchar *query;
@@ -753,7 +769,7 @@ get_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit);
+	success = get_files_results (client, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -766,7 +782,8 @@ get_folders (TrackerClient *client,
              gboolean       show_all,
              gint           search_offset,
              gint           search_limit,
-             gboolean       use_or_operator)
+	     gboolean       use_or_operator,
+	     gboolean       details)
 {
 	gchar *fts;
 	gchar *query;
@@ -804,7 +821,7 @@ get_folders (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit);
+	success = get_files_results (client, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -816,16 +833,16 @@ get_all_by_search_foreach (gpointer value,
                            gpointer user_data)
 {
 	gchar **metadata;
-	gboolean detailed;
+	gboolean details;
 
 	metadata = value;
-	detailed = GPOINTER_TO_INT (user_data);
+	details = GPOINTER_TO_INT (user_data);
 
 	if (!metadata || !*metadata) {
 		return;
 	}
 
-	if (G_LIKELY (!detailed)) {
+	if (G_LIKELY (!details)) {
 		gchar **p;
 		gint i;
 
@@ -872,7 +889,7 @@ get_all_by_search (TrackerClient *client,
                    gint           search_offset,
                    gint           search_limit,
                    gboolean       use_or_operator,
-                   gboolean       detailed_results)
+                   gboolean       details)
 {
 	GError *error = NULL;
 	GPtrArray *results;
@@ -887,7 +904,7 @@ get_all_by_search (TrackerClient *client,
 
 	show_all_str = show_all ? "" : "?s tracker:available true . ";
 
-	if (detailed_results) {
+	if (details) {
 		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) nie:mimeType (?s) ?type "
 		                         "WHERE {"
 		                         "  ?s fts:match \"%s\" ;"
@@ -942,7 +959,7 @@ get_all_by_search (TrackerClient *client,
 
 		g_ptr_array_foreach (results,
 		                     get_all_by_search_foreach,
-		                     GINT_TO_POINTER (detailed_results));
+		                     GINT_TO_POINTER (details));
 
 		if (results->len >= search_limit) {
 			show_limit_warning ();
@@ -1080,7 +1097,7 @@ main (int argc, char **argv)
 	if (files) {
 		gboolean success;
 
-		success = get_files (client, terms, all, offset, limit, or_operator);
+		success = get_files (client, terms, all, offset, limit, or_operator, detailed);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -1089,7 +1106,7 @@ main (int argc, char **argv)
 	if (folders) {
 		gboolean success;
 
-		success = get_folders (client, terms, all, offset, limit, or_operator);
+		success = get_folders (client, terms, all, offset, limit, or_operator, detailed);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -1116,7 +1133,7 @@ main (int argc, char **argv)
 	if (music_files) {
 		gboolean success;
 
-		success = get_music_files (client, terms, all, offset, limit, or_operator);
+		success = get_music_files (client, terms, all, offset, limit, or_operator, detailed);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -1125,7 +1142,7 @@ main (int argc, char **argv)
 	if (image_files) {
 		gboolean success;
 
-		success = get_image_files (client, terms, all, offset, limit, or_operator);
+		success = get_image_files (client, terms, all, offset, limit, or_operator, detailed);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -1134,7 +1151,7 @@ main (int argc, char **argv)
 	if (video_files) {
 		gboolean success;
 
-		success = get_video_files (client, terms, all, offset, limit, or_operator);
+		success = get_video_files (client, terms, all, offset, limit, or_operator, detailed);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -1143,7 +1160,7 @@ main (int argc, char **argv)
 	if (document_files) {
 		gboolean success;
 
-		success = get_document_files (client, terms, all, offset, limit, or_operator);
+		success = get_document_files (client, terms, all, offset, limit, or_operator, detailed);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -1152,7 +1169,7 @@ main (int argc, char **argv)
 	if (emails) {
 		gboolean success;
 
-		success = get_emails (client, terms, all, offset, limit, or_operator);
+		success = get_emails (client, terms, all, offset, limit, or_operator, detailed);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
