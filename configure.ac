@@ -223,6 +223,13 @@ fi
 
 AM_CONDITIONAL(HAVE_ENCA, test "$have_enca" = "yes")
 
+# We need tar for Backup and Restore support
+AC_PATH_PROG(TAR, tar, tar)
+if test -z $TAR; then
+   AC_MSG_ERROR([Could not find 'tar'])
+fi
+AC_DEFINE_UNQUOTED(TAR, "$TAR", [The tar program])
+
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 

@@ -459,15 +459,13 @@ db_manager_remove_all (gboolean rm_journal)
 				gchar *fullpath;
 
 				if (f_name) {
-					if (!g_str_has_prefix (f_name, "tracker-store.journal.")) {
+					if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
 						f_name = g_dir_read_name (journal_dir);
 						continue;
 					}
-					
 				}
 
 				fullpath = g_build_filename (directory, f_name, NULL);
-
 				file = g_file_new_for_path (fullpath);
 				g_file_delete (file, NULL, NULL);
 				g_object_unref (file);
@@ -1087,6 +1085,9 @@ tracker_db_manager_move_to_temp (void)
 {
 	guint i;
 	gchar *cpath, *new_filename;
+	gchar *directory;
+	GDir *journal_dir;
+	const gchar *f_name;
 
 	g_return_if_fail (initialized != FALSE);
 
@@ -1101,6 +1102,32 @@ tracker_db_manager_move_to_temp (void)
 	}
 
 	cpath = g_strdup (tracker_db_journal_get_filename ());
+
+	directory = g_path_get_dirname (cpath);
+	journal_dir = g_dir_open (directory, 0, NULL);
+	f_name = g_dir_read_name (journal_dir);
+
+	while (f_name) {
+		gchar *fullpath;
+
+		if (f_name) {
+			if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
+				f_name = g_dir_read_name (journal_dir);
+				continue;
+			}
+		}
+
+		fullpath = g_build_filename (directory, f_name, NULL);
+		new_filename = g_strdup_printf ("%s.tmp", fullpath);
+		g_rename (fullpath, new_filename);
+		g_free (new_filename);
+		g_free (fullpath);
+		f_name = g_dir_read_name (journal_dir);
+	}
+
+	g_dir_close (journal_dir);
+	g_free (directory);
+
 	new_filename = g_strdup_printf ("%s.tmp", cpath);
 	g_message ("  Renaming journal:'%s' -> '%s'",
 	           cpath, new_filename);
@@ -1115,6 +1142,9 @@ tracker_db_manager_restore_from_temp (void)
 {
 	guint i;
 	gchar *cpath, *new_filename;
+	gchar *directory;
+	GDir *journal_dir;
+	const gchar *f_name;
 
 	g_return_if_fail (locations_initialized != FALSE);
 
@@ -1133,8 +1163,37 @@ tracker_db_manager_restore_from_temp (void)
 	g_message ("  Renaming journal:'%s' -> '%s'",
 	           cpath, new_filename);
 	g_rename (cpath, new_filename);
-	g_free (cpath);
 	g_free (new_filename);
+
+	directory = g_path_get_dirname (cpath);
+	journal_dir = g_dir_open (directory, 0, NULL);
+	f_name = g_dir_read_name (journal_dir);
+
+	while (f_name) {
+		gchar *fullpath, *ptr;
+
+		if (f_name) {
+			if (!g_str_has_suffix (f_name, ".tmp")) {
+				f_name = g_dir_read_name (journal_dir);
+				continue;
+			}
+		}
+
+		fullpath = g_build_filename (directory, f_name, NULL);
+		new_filename = g_strdup (fullpath);
+		ptr = strstr (new_filename, ".tmp");
+		if (ptr) {
+			*ptr = '\0';
+			g_rename (fullpath, new_filename);
+		}
+		g_free (new_filename);
+		g_free (fullpath);
+		f_name = g_dir_read_name (journal_dir);
+	}
+
+	g_dir_close (journal_dir);
+	g_free (directory);
+	g_free (cpath);
 }
 
 void
@@ -1142,6 +1201,9 @@ tracker_db_manager_remove_temp (void)
 {
 	guint i;
 	gchar *cpath, *new_filename;
+	gchar *directory;
+	GDir *journal_dir;
+	const gchar *f_name;
 
 	g_return_if_fail (locations_initialized != FALSE);
 
@@ -1160,8 +1222,30 @@ tracker_db_manager_remove_temp (void)
 	g_message ("  Removing temp journal:'%s'",
 	           new_filename);
 	g_unlink (new_filename);
-	g_free (cpath);
 	g_free (new_filename);
+
+	directory = g_path_get_dirname (cpath);
+	journal_dir = g_dir_open (directory, 0, NULL);
+	f_name = g_dir_read_name (journal_dir);
+
+	while (f_name) {
+		if (f_name) {
+			if (!g_str_has_suffix (f_name, ".tmp")) {
+				f_name = g_dir_read_name (journal_dir);
+				continue;
+			}
+		}
+
+		new_filename = g_build_filename (directory, f_name, NULL);
+		g_unlink (new_filename);
+		g_free (new_filename);
+
+		f_name = g_dir_read_name (journal_dir);
+	}
+
+	g_dir_close (journal_dir);
+	g_free (directory);
+	g_free (cpath);
 }
 
 void

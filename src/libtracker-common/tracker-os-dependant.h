@@ -34,6 +34,7 @@ G_BEGIN_DECLS
 gboolean tracker_spawn                     (gchar       **argv,
                                             gint          timeout,
                                             gchar       **tmp_stdout,
+                                            gchar       **tmp_stderr,
                                             gint         *exit_status);
 gboolean tracker_spawn_async_with_channels (const gchar **argv,
                                             gint          timeout,

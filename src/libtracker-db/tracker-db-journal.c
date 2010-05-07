@@ -43,7 +43,6 @@
 
 #include "tracker-db-journal.h"
 
-#define JOURNAL_FILENAME  "tracker-store.journal"
 #define MIN_BLOCK_SIZE    1024
 
 /*
@@ -291,7 +290,7 @@ tracker_db_journal_init (const gchar *filename,
 		writer.journal_filename = g_build_filename (g_get_user_data_dir (),
 		                                            "tracker",
 		                                            "data",
-		                                            JOURNAL_FILENAME,
+		                                            TRACKER_DB_JOURNAL_FILENAME,
 		                                            NULL);
 	}
 
@@ -655,7 +654,7 @@ tracker_db_journal_rotate (void)
 
 			if (f_name) {
 
-				if (!g_str_has_prefix (f_name, "tracker-store.journal.")) {
+				if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
 					f_name = g_dir_read_name (journal_dir);
 					continue;
 				}
@@ -666,7 +665,7 @@ tracker_db_journal_rotate (void)
 					cur = atoi (ptr);
 					max = MAX (cur, max);
 				}
-			}
+			} 
 
 			f_name = g_dir_read_name (journal_dir);
 		}
@@ -775,7 +774,7 @@ tracker_db_journal_reader_init (const gchar *filename)
 		filename_used = g_build_filename (g_get_user_data_dir (),
 		                                  "tracker",
 		                                  "data",
-		                                  JOURNAL_FILENAME,
+		                                  TRACKER_DB_JOURNAL_FILENAME,
 		                                  NULL);
 	}
 
