@@ -49,7 +49,6 @@ log_output (const gchar    *domain,
 	gchar         time_str[64];
 	gchar        *output;
 	struct tm    *local_time;
-	GTimeVal      current_time;
 	const gchar  *log_level_str;
 	static gsize  size = 0;
 
@@ -69,8 +68,6 @@ log_output (const gchar    *domain,
 
 		size = 0;
 	}
-
-	g_get_current_time (&current_time);
 
 	now = time ((time_t *) NULL);
 	local_time = localtime (&now);
