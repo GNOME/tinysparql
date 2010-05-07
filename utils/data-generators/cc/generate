@@ -30,9 +30,14 @@ if len(sys.argv) != 2:
 
 config = ConfigParser.RawConfigParser()
 try:
-  config.read(sys.argv[1])
+  loaded_files = config.read(sys.argv[1])
 except:
-  print "Failed to read configuration file %s", sys.argv[1]
+  print "Failed to read configuration file %s" % (sys.argv[1])
+  sys.exit (-1)
+
+if (len(loaded_files) != 1):
+  print "Cannot open %s" % (sys.argv[1])
+  sys.exit (-1)
 
 # set up all known types
 tools.addType( 'nco#EmailAddress', 10 )
