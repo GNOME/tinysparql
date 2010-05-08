@@ -87,6 +87,8 @@ writeback_xmp_content_types (TrackerWritebackFile *wbf)
 		"sketch/png",  /* .sketch.png files on Maemo*/
 		"image/jpeg",  /* .jpg & .jpeg files */
 		"image/tiff",  /* .tiff & .tif files */
+		"video/mp4",   /* .mp4 files */
+		"video/3gpp",  /* .3gpp files */
 		NULL
 	};
 
@@ -369,7 +371,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 		    g_strcmp0 (row[2], TRACKER_MLO_PREFIX "city") == 0     ||
 		    g_strcmp0 (row[2], TRACKER_MLO_PREFIX "country") == 0  ||
 		    g_strcmp0 (row[2], TRACKER_MLO_PREFIX "state") == 0    ||
-		    g_strcmp0 (row[2], TRACKER_MLO_PREFIX "address") == 0) 
+		    g_strcmp0 (row[2], TRACKER_MLO_PREFIX "address") == 0)
 		{
 			GPtrArray *array;
 			GError *error = NULL;
@@ -442,7 +444,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 		}
 
 		/* TODO: When a photo contains a known face
-		 * 
+		 *
 		 * if (g_strcmp0 (row[2], PHOTO_HAS "contact") == 0) {
 		  xmp_delete_property (xmp, FACE, "contact");
 		  Fetch full name of the contact?
