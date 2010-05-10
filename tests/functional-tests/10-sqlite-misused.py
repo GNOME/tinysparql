@@ -54,6 +54,7 @@ class TestSqliteMisused (unittest.TestCase):
                 full_path = os.path.abspath(os.path.join (root, ttl_file))
                 self.files_counter += 1
                 self.resources.Load ("file://" + full_path,
+                                     timeout=30000,
                                      reply_handler=self.loaded_success_cb,
                                      error_handler=self.loaded_failed_cb)
         
@@ -64,7 +65,8 @@ class TestSqliteMisused (unittest.TestCase):
 
     def run_a_query (self):
         QUERY = "SELECT ?u ?title WHERE { ?u a nie:InformationElement; nie:title ?title. }"
-        self.resources.SparqlQuery (QUERY, reply_handler=self.reply_cb, error_handler=self.error_handler)
+        self.resources.SparqlQuery (QUERY, timeout=20000,
+                                    reply_handler=self.reply_cb, error_handler=self.error_handler)
         return True
         
     def reply_cb (self, results):
@@ -85,7 +87,7 @@ class TestSqliteMisused (unittest.TestCase):
         assert False
 
     def timeout_cb (self):
-        print "Timeout cb"
+        print "Forced timeout after 60 sec."
         self.main_loop.quit ()
         return False
 
