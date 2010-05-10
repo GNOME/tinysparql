@@ -33,7 +33,7 @@ echo "Setting temporal directories for the DBs"
 if [[ -e /tmp/xdg-data-home ]]; then
     rm -rf /tmp/xdg-data-home
 fi
-mkdir /tmp/xdg-data-home
+mkdir -p /tmp/xdg-data-home/tracker
 export XDG_DATA_HOME=/tmp/xdg-data-home/
 
 if [[ -e /tmp/xdg-cache-home ]]; then
