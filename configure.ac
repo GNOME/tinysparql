@@ -811,7 +811,7 @@ AC_ARG_ENABLE(miner_flickr,
 
 if test "x$enable_miner_flickr" != "xno"; then
    PKG_CHECK_MODULES(MINER_FLICKR,
-                     [rest >= $REST_REQUIRED],
+                     [rest-0.6 >= $REST_REQUIRED],
                      [have_miner_flickr=yes],
                      [have_miner_flickr=no])
    AC_SUBST(MINER_FLICKR_LIBS)
