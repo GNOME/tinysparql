@@ -34,6 +34,8 @@ gboolean     tracker_keyfile_object_default_boolean  (gpointer      object,
                                                       const gchar  *property);
 gint         tracker_keyfile_object_default_int      (gpointer      object,
                                                       const gchar  *property);
+const gchar* tracker_keyfile_object_default_string   (gpointer      object,
+                                                      const gchar  *property);
 gboolean     tracker_keyfile_object_validate_int     (gpointer      object,
                                                       const gchar  *property,
                                                       gint          value);

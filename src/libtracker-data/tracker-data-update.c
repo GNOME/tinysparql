@@ -3033,15 +3033,11 @@ tracker_data_replay_journal (GHashTable          *classes,
 
 	if (journal_error) {
 		gsize size;
-		gsize chunk_size = 0;
-		gboolean do_rotating = FALSE;
 
 		size = tracker_db_journal_reader_get_size_of_correct ();
 		tracker_db_journal_reader_shutdown ();
 
-		tracker_db_journal_get_rotating (&do_rotating, &chunk_size);
-
-		tracker_db_journal_init (NULL, FALSE, do_rotating, chunk_size);
+		tracker_db_journal_init (NULL, FALSE);
 		tracker_db_journal_truncate (size);
 		tracker_db_journal_shutdown ();
 

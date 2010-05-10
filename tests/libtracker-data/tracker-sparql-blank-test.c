@@ -40,9 +40,10 @@ test_blank (void)
 
 	error = NULL;
 
+	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
+
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           FALSE, G_MAXSIZE,
 	                           NULL,
 	                           NULL,
 	                           FALSE,

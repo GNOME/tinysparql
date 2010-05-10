@@ -105,8 +105,9 @@ test_backup_and_restore_helper (gboolean journal)
 	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", "ontologies", "90-tracker", NULL);
 	test_schemas[3] = data_prefix;
 
+	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
+
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           FALSE, G_MAXSIZE,
 	                           (const gchar **) test_schemas,
 	                           NULL, FALSE, NULL, NULL, NULL);
 
@@ -158,8 +159,9 @@ test_backup_and_restore_helper (gboolean journal)
 	g_unlink (meta_db);
 	g_free (meta_db);
 
+	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
+
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           FALSE, G_MAXSIZE,
 	                           (const gchar **) test_schemas,
 	                           NULL, FALSE, NULL, NULL, NULL);
 	check_content_in_db (0, 0);

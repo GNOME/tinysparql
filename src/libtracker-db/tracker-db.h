@@ -33,6 +33,7 @@ G_BEGIN_DECLS
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-journal.h"
 #include "tracker-db-manager.h"
+#include "tracker-db-config.h"
 
 #undef __LIBTRACKER_DB_INSIDE__
 

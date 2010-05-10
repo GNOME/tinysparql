@@ -401,6 +401,13 @@ main (int argc, char **argv)
 
 	if (hard_reset || soft_reset) {
 		guint log_handler_id;
+		const gchar *rotate_to = NULL;
+		TrackerDBConfig *db_config;
+		gsize chunk_size;
+		gint chunk_size_mb;
+
+
+		db_config = tracker_db_config_new ();
 
 		/* Set log handler for library messages */
 		log_handler_id = g_log_set_handler (NULL,
@@ -410,8 +417,18 @@ main (int argc, char **argv)
 
 		g_log_set_default_handler (log_handler, NULL);
 
+		chunk_size_mb = tracker_db_config_get_journal_chunk_size (db_config);
+		chunk_size = (gsize) ((gsize) chunk_size_mb * (gsize) 1024 * (gsize) 1024);
+		rotate_to = tracker_db_config_get_journal_rotate_destination (db_config);
+
 		/* This call is needed to set the journal's filename */
-		tracker_db_journal_init (NULL, FALSE, FALSE, G_MAXSIZE);
+
+		tracker_db_journal_set_rotating ((chunk_size_mb != -1),
+		                                 chunk_size, rotate_to);
+
+		tracker_db_journal_init (NULL, FALSE);
+
+		g_object_unref (db_config);
 
 		/* Clean up */
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE)) {

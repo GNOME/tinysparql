@@ -18,7 +18,8 @@ libtracker_db_la_SOURCES = 						\
 	tracker-db-interface.c						\
 	tracker-db-interface-sqlite.c					\
 	tracker-db-manager.c						\
-	tracker-db-journal.c
+	tracker-db-journal.c						\
+	tracker-db-config.c
 
 noinst_HEADERS =							\
 	tracker-db.h							\
@@ -26,7 +27,8 @@ noinst_HEADERS =							\
 	tracker-db-interface.h						\
 	tracker-db-interface-sqlite.h					\
 	tracker-db-manager.h 						\
-	tracker-db-journal.h
+	tracker-db-journal.h						\
+	tracker-db-config.h
 
 libtracker_db_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\

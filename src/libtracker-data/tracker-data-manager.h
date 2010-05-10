@@ -40,8 +40,6 @@ G_BEGIN_DECLS
 #endif
 
 gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  flags,
-                                                      gboolean               do_journal_rotating,
-                                                      gsize                  chunk_size,
                                                       const gchar          **test_schema,
                                                       gboolean              *first_time,
                                                       gboolean               journal_check,

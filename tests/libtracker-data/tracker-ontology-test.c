@@ -190,9 +190,10 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 static void
 test_ontology_init (void)
 {
+	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
+
 	/* first-time initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           FALSE, G_MAXSIZE,
 	                           NULL,
 	                           NULL,
 	                           FALSE,
@@ -202,8 +203,10 @@ test_ontology_init (void)
 
 	tracker_data_manager_shutdown ();
 
+	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
+
 	/* initialization from existing database */
-	tracker_data_manager_init (0, FALSE, G_MAXSIZE,
+	tracker_data_manager_init (0,
 	                           NULL,
 	                           NULL,
 	                           FALSE,
@@ -233,9 +236,10 @@ test_query (gconstpointer test_data)
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
 
+	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
+
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           FALSE, G_MAXSIZE,
 	                           NULL,
 	                           NULL, 
 	                           FALSE,

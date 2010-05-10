@@ -93,6 +93,27 @@ tracker_keyfile_object_default_boolean (gpointer     object,
 	return bspec->default_value;
 }
 
+const gchar*
+tracker_keyfile_object_default_string (gpointer     object,
+                                       const gchar *property)
+{
+	GObjectClass *klass;
+	GParamSpec *spec;
+	GParamSpecString *bspec;
+
+	g_return_val_if_fail (G_IS_OBJECT (object), FALSE);
+	g_return_val_if_fail (property != NULL, FALSE);
+
+	klass = G_OBJECT_GET_CLASS (object);
+	spec = g_object_class_find_property (G_OBJECT_CLASS (klass), property);
+	g_return_val_if_fail (spec != NULL, FALSE);
+
+	bspec = G_PARAM_SPEC_STRING (spec);
+	g_return_val_if_fail (bspec != NULL, FALSE);
+
+	return bspec->default_value;
+}
+
 gint
 tracker_keyfile_object_default_int (gpointer     object,
                                     const gchar *property)

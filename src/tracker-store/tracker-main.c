@@ -44,6 +44,8 @@
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
+#include <libtracker-db/tracker-db-config.h>
+#include <libtracker-db/tracker-db-journal.h>
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-backup.h>
@@ -336,6 +338,8 @@ main (gint argc, gchar *argv[])
 	TrackerBusyCallback busy_callback;
 	gint chunk_size_mb;
 	gsize chunk_size;
+	const gchar *rotate_to;
+	TrackerDBConfig *db_config;
 
 	g_type_init ();
 
@@ -401,6 +405,7 @@ main (gint argc, gchar *argv[])
 
 	/* Initialize major subsystems */
 	config = tracker_config_new ();
+	db_config = tracker_db_config_new ();
 
 	g_signal_connect (config, "notify::verbosity",
 	                  G_CALLBACK (config_verbosity_changed_cb),
@@ -417,6 +422,7 @@ main (gint argc, gchar *argv[])
 	initialize_directories ();
 
 	if (!tracker_dbus_init ()) {
+		g_object_unref (db_config);
 		return EXIT_FAILURE;
 	}
 
@@ -440,12 +446,16 @@ main (gint argc, gchar *argv[])
 	busy_callback = tracker_status_get_callback (notifier,
 	                                            &busy_user_data);
 
-	chunk_size_mb = tracker_config_get_journal_chunk_size (config);
+	chunk_size_mb = tracker_db_config_get_journal_chunk_size (db_config);
 	chunk_size = (gsize) ((gsize) chunk_size_mb * (gsize) 1024 * (gsize) 1024);
+	rotate_to = tracker_db_config_get_journal_rotate_destination (db_config);
+
+	if (rotate_to[0] == '\0')
+		rotate_to = NULL;
+
+	tracker_db_journal_set_rotating ((chunk_size_mb != -1), chunk_size, rotate_to);
 
 	if (!tracker_data_manager_init (flags,
-	                                chunk_size_mb != -1,
-	                                chunk_size,
 	                                NULL,
 	                                &is_first_time_index,
 	                                TRUE,
@@ -453,10 +463,12 @@ main (gint argc, gchar *argv[])
 	                                busy_user_data,
 	                                "Journal replaying")) {
 
+		g_object_unref (db_config);
 		g_object_unref (notifier);
 		return EXIT_FAILURE;
 	}
 
+	g_object_unref (db_config);
 	g_object_unref (notifier);
 
 	tracker_store_init ();
@@ -511,6 +523,9 @@ main (gint argc, gchar *argv[])
 
 	g_signal_handlers_disconnect_by_func (config, config_verbosity_changed_cb, NULL);
 	g_object_unref (config);
+
+	/* This will free rotate_to up in the journal code */
+	tracker_db_journal_set_rotating ((chunk_size_mb != -1), chunk_size, NULL);
 
 	g_print ("\nOK\n\n");
 

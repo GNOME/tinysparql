@@ -441,40 +441,55 @@ db_manager_remove_all (gboolean rm_journal)
 		if (opath) {
 			GFile *file;
 			gchar *cpath;
-			gchar *directory;
-			GDir *journal_dir;
-			const gchar *f_name;
+			gchar *directory, *rotate_to = NULL;
+			gsize chunk_size;
+			gboolean do_rotate = FALSE;
+			const gchar *dirs[3] = { NULL, NULL, NULL };
 
 			cpath = g_strdup (opath);
-			tracker_db_journal_shutdown ();
 
 			g_message ("  Removing journal:'%s'", cpath);
 
 			directory = g_path_get_dirname (cpath);
-			journal_dir = g_dir_open (directory, 0, NULL);
-			f_name = g_dir_read_name (journal_dir);
 
-			/* Remove rotated chunks */
-			while (f_name) {
-				gchar *fullpath;
+			tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
 
-				if (f_name) {
-					if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
-						f_name = g_dir_read_name (journal_dir);
-						continue;
+			tracker_db_journal_shutdown ();
+
+			dirs[0] = directory;
+			dirs[1] = do_rotate ? rotate_to : NULL;
+
+			for (i = 0; dirs[i] != NULL; i++) {
+				GDir *journal_dir;
+				const gchar *f_name;
+
+				journal_dir = g_dir_open (dirs[i], 0, NULL);
+				f_name = g_dir_read_name (journal_dir);
+
+				/* Remove rotated chunks */
+				while (f_name) {
+					gchar *fullpath;
+
+					if (f_name) {
+						if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
+							f_name = g_dir_read_name (journal_dir);
+							continue;
+						}
 					}
+
+					fullpath = g_build_filename (dirs[i], f_name, NULL);
+					file = g_file_new_for_path (fullpath);
+					g_file_delete (file, NULL, NULL);
+					g_object_unref (file);
+					g_free (fullpath);
+
+					f_name = g_dir_read_name (journal_dir);
 				}
 
-				fullpath = g_build_filename (directory, f_name, NULL);
-				file = g_file_new_for_path (fullpath);
-				g_file_delete (file, NULL, NULL);
-				g_object_unref (file);
-				g_free (fullpath);
-
-				f_name = g_dir_read_name (journal_dir);
+				g_dir_close (journal_dir);
 			}
 
-			g_dir_close (journal_dir);
+			g_free (rotate_to);
 			g_free (directory);
 
 			/* Remove active journal */
@@ -879,11 +894,21 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 	} else {
 		gboolean must_recreate;
+		gchar *journal_filename;
 
 		/* Load databases */
 		g_message ("Loading databases files...");
 
-		must_recreate = !tracker_db_journal_reader_verify_last (NULL);
+		journal_filename = g_build_filename (g_get_user_data_dir (),
+		                                     "tracker",
+		                                     "data",
+		                                     TRACKER_DB_JOURNAL_FILENAME,
+		                                     NULL);
+
+		must_recreate = !tracker_db_journal_reader_verify_last (journal_filename,
+		                                                        NULL);
+
+		g_free (journal_filename);
 
 		if (!must_recreate && g_file_test (in_use_filename, G_FILE_TEST_EXISTS)) {
 			gsize size = 0;
@@ -1085,9 +1110,10 @@ tracker_db_manager_move_to_temp (void)
 {
 	guint i;
 	gchar *cpath, *new_filename;
-	gchar *directory;
-	GDir *journal_dir;
-	const gchar *f_name;
+	gchar *directory, *rotate_to = NULL;
+	const gchar *dirs[3] = { NULL, NULL, NULL };
+	gsize chunk_size = 0;
+	gboolean do_rotate = FALSE;
 
 	g_return_if_fail (initialized != FALSE);
 
@@ -1104,28 +1130,41 @@ tracker_db_manager_move_to_temp (void)
 	cpath = g_strdup (tracker_db_journal_get_filename ());
 
 	directory = g_path_get_dirname (cpath);
-	journal_dir = g_dir_open (directory, 0, NULL);
-	f_name = g_dir_read_name (journal_dir);
 
-	while (f_name) {
-		gchar *fullpath;
+	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
 
-		if (f_name) {
-			if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
-				f_name = g_dir_read_name (journal_dir);
-				continue;
+	dirs[0] = directory;
+	dirs[1] = do_rotate ? rotate_to : NULL;
+
+	for (i = 0; dirs[i] != NULL; i++) {
+		GDir *journal_dir;
+		const gchar *f_name;
+
+		journal_dir = g_dir_open (dirs[i], 0, NULL);
+		f_name = g_dir_read_name (journal_dir);
+
+		while (f_name) {
+			gchar *fullpath;
+
+			if (f_name) {
+				if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
+					f_name = g_dir_read_name (journal_dir);
+					continue;
+				}
 			}
+
+			fullpath = g_build_filename (dirs[i], f_name, NULL);
+			new_filename = g_strdup_printf ("%s.tmp", fullpath);
+			g_rename (fullpath, new_filename);
+			g_free (new_filename);
+			g_free (fullpath);
+			f_name = g_dir_read_name (journal_dir);
 		}
 
-		fullpath = g_build_filename (directory, f_name, NULL);
-		new_filename = g_strdup_printf ("%s.tmp", fullpath);
-		g_rename (fullpath, new_filename);
-		g_free (new_filename);
-		g_free (fullpath);
-		f_name = g_dir_read_name (journal_dir);
+		g_dir_close (journal_dir);
 	}
 
-	g_dir_close (journal_dir);
+	g_free (rotate_to);
 	g_free (directory);
 
 	new_filename = g_strdup_printf ("%s.tmp", cpath);
@@ -1142,9 +1181,10 @@ tracker_db_manager_restore_from_temp (void)
 {
 	guint i;
 	gchar *cpath, *new_filename;
-	gchar *directory;
-	GDir *journal_dir;
-	const gchar *f_name;
+	gchar *directory, *rotate_to = NULL;
+	const gchar *dirs[3] = { NULL, NULL, NULL };
+	gsize chunk_size = 0;
+	gboolean do_rotate = FALSE;
 
 	g_return_if_fail (locations_initialized != FALSE);
 
@@ -1166,32 +1206,43 @@ tracker_db_manager_restore_from_temp (void)
 	g_free (new_filename);
 
 	directory = g_path_get_dirname (cpath);
-	journal_dir = g_dir_open (directory, 0, NULL);
-	f_name = g_dir_read_name (journal_dir);
+	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
 
-	while (f_name) {
-		gchar *fullpath, *ptr;
+	dirs[0] = directory;
+	dirs[1] = do_rotate ? rotate_to : NULL;
 
-		if (f_name) {
-			if (!g_str_has_suffix (f_name, ".tmp")) {
-				f_name = g_dir_read_name (journal_dir);
-				continue;
-			}
-		}
+	for (i = 0; dirs[i] != NULL; i++) {
+		GDir *journal_dir;
+		const gchar *f_name;
 
-		fullpath = g_build_filename (directory, f_name, NULL);
-		new_filename = g_strdup (fullpath);
-		ptr = strstr (new_filename, ".tmp");
-		if (ptr) {
-			*ptr = '\0';
-			g_rename (fullpath, new_filename);
-		}
-		g_free (new_filename);
-		g_free (fullpath);
+		journal_dir = g_dir_open (dirs[i], 0, NULL);
 		f_name = g_dir_read_name (journal_dir);
+
+		while (f_name) {
+			gchar *fullpath, *ptr;
+
+			if (f_name) {
+				if (!g_str_has_suffix (f_name, ".tmp")) {
+					f_name = g_dir_read_name (journal_dir);
+					continue;
+				}
+			}
+
+			fullpath = g_build_filename (dirs[i], f_name, NULL);
+			new_filename = g_strdup (fullpath);
+			ptr = strstr (new_filename, ".tmp");
+			if (ptr) {
+				*ptr = '\0';
+				g_rename (fullpath, new_filename);
+			}
+			g_free (new_filename);
+			g_free (fullpath);
+			f_name = g_dir_read_name (journal_dir);
+		}
+		g_dir_close (journal_dir);
 	}
 
-	g_dir_close (journal_dir);
+	g_free (rotate_to);
 	g_free (directory);
 	g_free (cpath);
 }
@@ -1201,9 +1252,10 @@ tracker_db_manager_remove_temp (void)
 {
 	guint i;
 	gchar *cpath, *new_filename;
-	gchar *directory;
-	GDir *journal_dir;
-	const gchar *f_name;
+	gchar *directory, *rotate_to = NULL;
+	gsize chunk_size = 0;
+	gboolean do_rotate = FALSE;
+	const gchar *dirs[3] = { NULL, NULL, NULL };
 
 	g_return_if_fail (locations_initialized != FALSE);
 
@@ -1225,25 +1277,37 @@ tracker_db_manager_remove_temp (void)
 	g_free (new_filename);
 
 	directory = g_path_get_dirname (cpath);
-	journal_dir = g_dir_open (directory, 0, NULL);
-	f_name = g_dir_read_name (journal_dir);
+	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
 
-	while (f_name) {
-		if (f_name) {
-			if (!g_str_has_suffix (f_name, ".tmp")) {
-				f_name = g_dir_read_name (journal_dir);
-				continue;
+	dirs[0] = directory;
+	dirs[1] = do_rotate ? rotate_to : NULL;
+
+	for (i = 0; dirs[i] != NULL; i++) {
+		GDir *journal_dir;
+		const gchar *f_name;
+
+		journal_dir = g_dir_open (dirs[i], 0, NULL);
+		f_name = g_dir_read_name (journal_dir);
+
+		while (f_name) {
+			if (f_name) {
+				if (!g_str_has_suffix (f_name, ".tmp")) {
+					f_name = g_dir_read_name (journal_dir);
+					continue;
+				}
 			}
+
+			new_filename = g_build_filename (dirs[i], f_name, NULL);
+			g_unlink (new_filename);
+			g_free (new_filename);
+
+			f_name = g_dir_read_name (journal_dir);
 		}
 
-		new_filename = g_build_filename (directory, f_name, NULL);
-		g_unlink (new_filename);
-		g_free (new_filename);
-
-		f_name = g_dir_read_name (journal_dir);
+		g_dir_close (journal_dir);
 	}
 
-	g_dir_close (journal_dir);
+	g_free (rotate_to);
 	g_free (directory);
 	g_free (cpath);
 }
