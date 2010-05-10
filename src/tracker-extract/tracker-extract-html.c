@@ -41,7 +41,7 @@ typedef struct {
 	const gchar *uri;
 	guint in_body : 1;
 	GString *plain_text;
-	guint n_words;
+	guint n_bytes_remaining;
 } parser_data;
 
 static void extract_html (const gchar          *filename,
@@ -212,24 +212,28 @@ parser_characters (void          *data,
 	case READ_IGNORE:
 		break;
 	default:
-		if (pd->in_body && pd->n_words > 0) {
-			gchar *text;
-			guint n_words;
+		if (pd->in_body && pd->n_bytes_remaining > 0) {
+			gsize text_len;
 
-			text = tracker_text_normalize (ch, pd->n_words, &n_words);
+			text_len = strlen (ch);
 
-			if (text && *text) {
-				g_string_append (pd->plain_text, text);
+			if (tracker_text_validate_utf8 (ch,
+			                                (pd->n_bytes_remaining < text_len ?
+			                                 pd->n_bytes_remaining :
+			                                 text_len),
+			                                &pd->plain_text)) {
+				/* In the case of HTML, each string arriving this
+				 * callback is independent to any other previous
+				 * string, so need to add an explicit whitespace
+				 * separator */
 				g_string_append_c (pd->plain_text, ' ');
-
-				if (n_words > pd->n_words) {
-					pd->n_words = 0;
-				} else {
-					pd->n_words -= n_words;
-				}
 			}
 
-			g_free (text);
+			if (pd->n_bytes_remaining > text_len) {
+				pd->n_bytes_remaining -= text_len;
+			} else {
+				pd->n_bytes_remaining = 0;
+			}
 		}
 		break;
 	}
@@ -240,7 +244,7 @@ extract_html (const gchar          *uri,
               TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
 {
-	TrackerFTSConfig *fts_config;
+	TrackerConfig *config;
 	htmlDocPtr doc;
 	parser_data pd;
 	gchar *filename;
@@ -288,8 +292,8 @@ extract_html (const gchar          *uri,
 	pd.uri = uri;
 	pd.plain_text = g_string_new (NULL);
 
-	fts_config = tracker_main_get_fts_config ();
-	pd.n_words = tracker_fts_config_get_max_words_to_index (fts_config);
+	config = tracker_main_get_config ();
+	pd.n_bytes_remaining = tracker_config_get_max_bytes (config);
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 	doc = htmlSAXParseFile (filename, NULL, &handler, &pd);

@@ -74,7 +74,6 @@ static TrackerExtractData extract_data[] = {
 
 static gchar *
 extract_oasis_content (const gchar *uri,
-                       guint        n_words,
                        gsize        n_bytes)
 {
 	const gchar *argv[4];
@@ -93,9 +92,9 @@ extract_oasis_content (const gchar *uri,
 	argv[2] = path;
 	argv[3] = NULL;
 
-	g_debug ("Executing command:'%s %s %s' (max words: %u, "
-	         "max_bytes: %" G_GSIZE_FORMAT ")",
-	         argv[0], argv[1], argv[2], n_words, n_bytes);
+	g_debug ("Executing command:'%s %s %s' "
+	         "(max_bytes: %" G_GSIZE_FORMAT ")",
+	         argv[0], argv[1], argv[2], n_bytes);
 
 	/* Fork & spawn */
 	if (!g_spawn_async_with_pipes (g_get_tmp_dir (),
@@ -122,50 +121,38 @@ extract_oasis_content (const gchar *uri,
 	/* Start buffered reading... */
 	else {
 		unsigned char buf[ODT_BUFFER_SIZE];
-		size_t r, accum;
-		guint n_words_remaining = n_words;
-		GString *normalized;
+		size_t r, bytes_remaining;
+		GString *validated = NULL;
 
-		accum = 0;
-		normalized = g_string_new ("");
+		bytes_remaining = n_bytes;
 
 		/* Reading in chunks of ODT_BUFFER_SIZE -1 (8192)
 		 *   Loop is halted whenever one of this conditions is met:
 		 *     a) Read bytes reached the maximum allowed (n_bytes)
-		 *     b) Already read up to the max number of words configured
-		 *     c) No more bytes to read
+		 *     b) No more bytes to read
 		 */
-		while ((accum <= n_bytes) &&
-		       (n_words_remaining > 0) &&
+		while ((bytes_remaining > 0) &&
 		       (r = fread (buf, 1, ODT_BUFFER_SIZE-1, fz))) {
-			gchar *normalized_chunk;
-			guint n_words_normalized;
+			gsize len_to_validate;
 
-			/* Always make sure that the read string will be
-			 * NIL-terminated  */
-			buf[r] = '\0';
-			/* Get normalized chunk */
-			normalized_chunk = tracker_text_normalize (buf,
-			                                           n_words_remaining,
-			                                           &n_words_normalized);
-			/* Update number of words remaining.
-			 * Note that n_words_normalized should always be less or
-			 * equal than n_words_remaining */
-			n_words_remaining = (n_words_normalized <= n_words_remaining ?
-			                     n_words_remaining - n_words_normalized : 0);
-			/* Update accumulated */
-			accum += r;
+			len_to_validate = MIN (bytes_remaining, r);
 
-			/* Add normalized chunk to the whole normalized string */
-			g_string_append (normalized, normalized_chunk);
-			g_free (normalized_chunk);
+			tracker_text_validate_utf8 (buf,
+			                            len_to_validate,
+			                            &validated);
+
+			/* Note that in this case we shouldn't add a whitespace
+			 * separator between chunks read */
+
+			/* Update remaining */
+			bytes_remaining -= len_to_validate;
 		}
 
 		/* fclose() the stream, no need to close() the original FD */
 		fclose (fz);
 
 		/* Set final normalized contents to return */
-		text = g_string_free (normalized, FALSE);
+		text = g_string_free (validated, FALSE);
 	}
 
 	g_free (path);
@@ -179,9 +166,7 @@ extract_oasis (const gchar          *uri,
                TrackerSparqlBuilder *metadata)
 {
 	gchar *content;
-	TrackerFTSConfig *fts_config;
-	guint n_words;
-	gsize n_bytes;
+	TrackerConfig *config;
 	ODTParseInfo info;
 	GMarkupParseContext *context;
 	GMarkupParser parser = {
@@ -193,7 +178,7 @@ extract_oasis (const gchar          *uri,
 	};
 
 	/* Setup conf */
-	fts_config = tracker_main_get_fts_config ();
+	config = tracker_main_get_config ();
 
 	g_debug ("Extracting OASIS metadata and contents from '%s'", uri);
 
@@ -217,16 +202,9 @@ extract_oasis (const gchar          *uri,
 
 	/* Next, parse contents */
 
-	/* Set max words to read from content */
-	n_words = tracker_fts_config_get_max_words_to_index (fts_config);
-
-	/* Set max bytes to read from content.
-	 * Assuming 3 bytes per unicode point in UTF-8, as 4-byte UTF-8 unicode
-	 *  points are really pretty rare */
-	n_bytes = 3 * n_words * tracker_fts_config_get_max_word_length(fts_config);
-
 	/* Extract content with the given limitations */
-	content = extract_oasis_content (uri, n_words, n_bytes);
+	content = extract_oasis_content (uri,
+	                                 tracker_config_get_max_bytes (config));
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (metadata, content);

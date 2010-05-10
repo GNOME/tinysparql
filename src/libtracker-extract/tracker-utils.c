@@ -183,7 +183,7 @@ tracker_coalesce (gint n_values,
  * Since: 0.9
  **/
 gchar *
-tracker_merge_const (const gchar *delimiter, 
+tracker_merge_const (const gchar *delimiter,
                      gint         n_values,
                      ...)
 {
@@ -239,7 +239,7 @@ tracker_merge_const (const gchar *delimiter,
  * Deprecated: 1.0: Use tracker_merge_const() instead.
  **/
 gchar *
-tracker_merge (const gchar *delimiter, 
+tracker_merge (const gchar *delimiter,
                gint         n_values,
                ...)
 {
@@ -304,6 +304,8 @@ tracker_merge (const gchar *delimiter,
  * be freed with g_free() when finished with, otherwise %NULL.
  *
  * Since: 0.8
+ *
+ * Deprecated: 1.0: Use tracker_text_validate_utf8() instead.
  **/
 gchar *
 tracker_text_normalize (const gchar *text,
@@ -345,14 +347,60 @@ tracker_text_normalize (const gchar *text,
 	}
 
 	if (n_words) {
-                if (!in_break) {
-                        /* Count the last word */
-                        words += 1;
-                }
+		if (!in_break) {
+			/* Count the last word */
+			words += 1;
+		}
 		*n_words = words;
 	}
 
 	return g_string_free (string, FALSE);
+}
+
+/**
+ * tracker_text_validate_utf8:
+ * @text: the text to validate
+ * @text_len: length of @text, or -1 if NIL-terminated
+ * @str: the string where to place the validated characters
+ *
+ * This function iterates through @text checking for UTF-8 validity
+ * using g_utf8_validate(), and appends the first chunk of valid characters
+ * to @str.
+ *
+ * Returns: %TRUE if valid UTF-8 in @text was appended to @str
+ *
+ * Since: 0.9
+ **/
+gboolean
+tracker_text_validate_utf8 (const gchar  *text,
+                            gsize         text_len,
+                            GString     **str)
+{
+	gsize len_to_validate;
+
+	g_return_val_if_fail (text, FALSE);
+	g_return_val_if_fail (str, FALSE);
+
+	len_to_validate = text_len >= 0 ? text_len : strlen (text);
+
+	if (len_to_validate > 0) {
+		const gchar *end = text;
+
+		/* Validate string, getting the pointer to first non-valid character
+		 *  (if any) or to the end of the string. */
+		g_utf8_validate (text, len_to_validate, &end);
+		if (end > text) {
+			/* Create string to output if not already as input */
+			if (*str == NULL) {
+				*str = g_string_new_len (text, end-text);
+			} else {
+				*str = g_string_append_len (*str, text, end-text);
+			}
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 /**

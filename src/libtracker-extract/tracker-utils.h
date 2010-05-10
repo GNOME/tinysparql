@@ -34,11 +34,14 @@ gchar*       tracker_coalesce               (gint         n_values,
 gchar*       tracker_merge                  (const gchar *delimiter,
                                              gint         n_values,
                                                           ...) G_GNUC_DEPRECATED;
-#endif /* TRACKER_DISABLE_DEPRECATED */
-
 gchar*       tracker_text_normalize         (const gchar *text,
                                              guint        max_words,
-                                             guint       *n_words);
+                                             guint       *n_words) G_GNUC_DEPRECATED;
+#endif /* TRACKER_DISABLE_DEPRECATED */
+
+gboolean     tracker_text_validate_utf8     (const gchar  *text,
+                                             gsize         text_len,
+                                             GString     **str);
 gchar*       tracker_date_guess             (const gchar *date_string);
 gchar*       tracker_date_format_to_iso8601 (const gchar *date_string,
                                              const gchar *format);

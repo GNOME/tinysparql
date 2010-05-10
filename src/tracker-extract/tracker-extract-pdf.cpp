@@ -314,26 +314,27 @@ page_get_size (Page    *page,
 
 static gchar *
 extract_content (PDFDoc *document,
-                 guint   n_words)
+                 gsize   n_bytes)
 {
 	Page *page;
 	Catalog *catalog;
 	GString *string;
-	gint n_pages, i, words;
-	gchar *t;
+	gint n_pages, i;
+	gsize n_bytes_remaining;
 
 	n_pages = document->getNumPages();
 	string = g_string_new ("");
-	words = i = 0;
+	i = 0;
+	n_bytes_remaining = n_bytes;
 	catalog = document->getCatalog();
 
-	while (i < n_pages && words < n_words) {
-		guint normalized_words = 0;
+	while (i < n_pages && n_bytes_remaining > 0) {
 		Gfx *gfx;
 		GooString *sel_text;
 		TextOutputDev *text_dev;
 		PDFRectangle pdf_selection;
 		gdouble height = 0, width = 0;
+		gsize len_to_validate;
 
 		page = catalog->getPage (i + 1);
 		i++;
@@ -360,12 +361,17 @@ extract_content (PDFDoc *document,
 
 		sel_text = text_dev->getSelectionText (&pdf_selection, selectionStyleWord);
 
-		t = tracker_text_normalize (sel_text->getCString (), n_words - words, &normalized_words);
+		len_to_validate = MIN (n_bytes_remaining, strlen (sel_text->getCString ()));
 
-		words += normalized_words;
-		g_string_append (string, t);
+		if (tracker_text_validate_utf8 (sel_text->getCString (),
+		                                len_to_validate,
+		                                &string)) {
+			/* A whitespace is added to separate next strings appended */
+			g_string_append_c (string, ' ');
+		}
 
-		g_free (t);
+		/* Update accumulated UTF-8 bytes read */
+		n_bytes_remaining -= len_to_validate;
 
 		delete gfx;
 		delete text_dev;
@@ -494,13 +500,13 @@ extract_pdf (const gchar          *uri,
              TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
-	TrackerFTSConfig *fts_config;
+	TrackerConfig *config;
 	TrackerXmpData *xd = NULL;
 	PDFData pd = { 0 }; /* actual data */
 	PDFData md = { 0 }; /* for merging */
 	PDFDoc *document;
 	gchar *content;
-	guint n_words;
+	gsize n_bytes;
 	Object obj;
 	Catalog *catalog;
 
@@ -786,9 +792,9 @@ extract_pdf (const gchar          *uri,
 	tracker_sparql_builder_predicate (metadata, "nfo:pageCount");
 	tracker_sparql_builder_object_int64 (metadata, document->getNumPages());
 
-	fts_config = tracker_main_get_fts_config ();
-	n_words = tracker_fts_config_get_max_words_to_index (fts_config);
-	content = extract_content (document, n_words);
+	config = tracker_main_get_config ();
+	n_bytes = tracker_config_get_max_bytes (config);
+	content = extract_content (document, n_bytes);
 
 	if (content) {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");

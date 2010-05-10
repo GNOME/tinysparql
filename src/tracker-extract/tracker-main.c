@@ -76,7 +76,7 @@ static gboolean force_internal_extractors;
 static gchar *force_module;
 static gboolean version;
 
-static TrackerFTSConfig *fts_config;
+static TrackerConfig *config;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -264,14 +264,10 @@ log_handler (const gchar    *domain,
 	}
 }
 
-TrackerFTSConfig *
-tracker_main_get_fts_config (void)
+TrackerConfig *
+tracker_main_get_config (void)
 {
-	if (G_UNLIKELY (!fts_config)) {
-		fts_config = tracker_fts_config_new ();
-	}
-
-	return fts_config;
+	return config;
 }
 
 
@@ -336,7 +332,6 @@ main (int argc, char *argv[])
 {
 	GOptionContext *context;
 	GError         *error = NULL;
-	TrackerConfig  *config;
 	TrackerExtract *object;
 	gchar          *log_filename = NULL;
 

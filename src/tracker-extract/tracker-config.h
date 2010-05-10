@@ -53,6 +53,10 @@ gint           tracker_config_get_verbosity (TrackerConfig *config);
 void           tracker_config_set_verbosity (TrackerConfig *config,
                                              gint           value);
 
+gint           tracker_config_get_max_bytes (TrackerConfig *config);
+void           tracker_config_set_max_bytes (TrackerConfig *config,
+                                             gint           value);
+
 G_END_DECLS
 
 #endif /* __TRACKER_EXTRACT_CONFIG_H__ */

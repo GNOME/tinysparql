@@ -394,8 +394,6 @@ read_32bit (const guint8 *buffer)
  * @param chunk_size Number of valid bytes in the input buffer
  * @param is_ansi If %TRUE, input text should be encoded in CP1252, and
  *  in UTF-16 otherwise.
- * @param p_words_remaining Pointer to #gint specifying how many words
- *  should still be considered.
  * @param p_words_remaining Pointer to #gsize specifying how many bytes
  *  should still be considered.
  * @param p_content Pointer to a #GString where the output normalized words
@@ -405,7 +403,6 @@ static void
 msoffice_convert_and_normalize_chunk (guint8    *buffer,
                                       gsize      chunk_size,
                                       gboolean   is_ansi,
-                                      gint      *p_words_remaining,
                                       gsize     *p_bytes_remaining,
                                       GString  **p_content)
 {
@@ -415,7 +412,6 @@ msoffice_convert_and_normalize_chunk (guint8    *buffer,
 
 	g_return_if_fail (buffer != NULL);
 	g_return_if_fail (chunk_size > 0);
-	g_return_if_fail (p_words_remaining != NULL);
 	g_return_if_fail (p_bytes_remaining != NULL);
 	g_return_if_fail (p_content != NULL);
 
@@ -432,42 +428,20 @@ msoffice_convert_and_normalize_chunk (guint8    *buffer,
 	                            &error);
 
 	if (converted_text) {
-		gchar *normalized_chunk;
-		guint n_words_normalized;
+		gsize len_to_validate;
 
-		/* Get normalized chunk */
-		normalized_chunk = tracker_text_normalize (converted_text,
-		                                           *p_words_remaining,
-		                                           &n_words_normalized);
+		len_to_validate = MIN (*p_bytes_remaining, n_bytes_utf8);
 
-		/* Update number of words remaining.
-		 * Note that n_words_normalized should always be less or
-		 * equal than n_words_remaining */
-		*p_words_remaining = (n_words_normalized <= *p_words_remaining ?
-		                      *p_words_remaining - n_words_normalized : 0);
-
-		/* Update accumulated UTF-8 bytes read */
-		*p_bytes_remaining = (n_bytes_utf8 <= *p_bytes_remaining ?
-		                      *p_bytes_remaining - n_bytes_utf8 : 0);
-
-		/* g_debug ("Words normalized: %u (remaining: %u); " */
-		/*          "Bytes read (UTF-8): %" G_GSIZE_FORMAT " bytes " */
-		/*          "(remaining: %" G_GSIZE_FORMAT ")", */
-		/*          n_words_normalized, *p_words_remaining, */
-		/*          n_bytes_utf8, *p_bytes_remaining); */
-
-		/* Append normalized chunk to the string to be returned */
-		if (*p_content) {
-			g_string_append (*p_content, normalized_chunk);
-		} else {
-			*p_content = g_string_new (normalized_chunk);
+		if (tracker_text_validate_utf8 (converted_text,
+		                                len_to_validate,
+		                                p_content)) {
+			/* A whitespace is added to separate next strings appended */
+			g_string_append_c (*p_content, ' ');
 		}
 
-		/* A whitespace is added to separate next strings appended */
-		g_string_append (*p_content, " ");
+		/* Update accumulated UTF-8 bytes read */
+		*p_bytes_remaining -= len_to_validate;
 
-		g_free (converted_text);
-		g_free (normalized_chunk);
 	} else {
 		g_warning ("Couldn't convert %" G_GSIZE_FORMAT " bytes from %s to UTF-8: %s",
 		           chunk_size,
@@ -659,7 +633,6 @@ ppt_seek_header (GsfInput *stream,
 
 static gchar *
 extract_powerpoint_content (GsfInfile *infile,
-                            gint       max_words,
                             gsize      max_bytes,
                             gboolean  *is_encrypted)
 {
@@ -733,18 +706,16 @@ extract_powerpoint_content (GsfInfile *infile,
 	                     SLIDELISTWITHTEXT_RECORD_TYPE,
 	                     SLIDELISTWITHTEXT_RECORD_TYPE,
 	                     FALSE)) {
-		gint words_remaining = max_words;
 		gsize bytes_remaining = max_bytes;
 		guint8 *buffer = NULL;
 		gsize buffer_size = 0;
 
 		/*
 		 * Read while we have either TextBytesAtom or
-		 * TextCharsAtom and we have read less than max_words
-		 * amount of words and less than max_bytes (in UTF-8)
+		 * TextCharsAtom and we have read less than max_bytes
+		 * (in UTF-8)
 		 */
-		while (words_remaining > 0 &&
-		       bytes_remaining > 0 &&
+		while (bytes_remaining > 0 &&
 		       ppt_seek_header (stream,
 		                        TEXTBYTESATOM_RECORD_TYPE,
 		                        TEXTCHARSATOM_RECORD_TYPE,
@@ -763,7 +734,6 @@ extract_powerpoint_content (GsfInfile *infile,
 				msoffice_convert_and_normalize_chunk (buffer,
 				                                      read_size,
 				                                      FALSE, /* Always UTF-16 */
-				                                      &words_remaining,
 				                                      &bytes_remaining,
 				                                      &all_texts);
 			}
@@ -775,45 +745,6 @@ extract_powerpoint_content (GsfInfile *infile,
 	g_object_unref (stream);
 
 	return all_texts ? g_string_free (all_texts, FALSE) : NULL;
-}
-
-/**
- * @brief get maximum number of words to index
- * @return maximum number of words to index
- */
-static gint
-fts_max_words (void)
-{
-	TrackerFTSConfig *fts_config;
-
-	fts_config = tracker_main_get_fts_config ();
-	return tracker_fts_config_get_max_words_to_index (fts_config);
-}
-
-/**
- * @brief get min word length
- * @return min_word_length
- */
-static gint
-fts_min_word_length (void)
-{
-	TrackerFTSConfig *fts_config;
-
-	fts_config = tracker_main_get_fts_config ();
-	return tracker_fts_config_get_min_word_length (fts_config);
-}
-
-/**
- * @brief get max word length
- * @return max_word_length
- */
-static gint
-fts_max_word_length (void)
-{
-	TrackerFTSConfig *fts_config;
-
-	fts_config = tracker_main_get_fts_config ();
-	return tracker_fts_config_get_max_word_length (fts_config);
 }
 
 /**
@@ -847,7 +778,6 @@ open_uri (const gchar *uri)
  */
 static gchar *
 extract_msword_content (GsfInfile *infile,
-                        gint       n_words,
                         gsize      n_bytes,
                         gboolean  *is_encrypted)
 {
@@ -863,7 +793,6 @@ extract_msword_content (GsfInfile *infile,
 	GString *content = NULL;
 	guint8 *text_buffer = NULL;
 	gint text_buffer_size = 0;
-	guint n_words_remaining;
 	gsize n_bytes_remaining;
 
 	document_stream = gsf_infile_child_by_name (infile, "WordDocument");
@@ -939,14 +868,11 @@ extract_msword_content (GsfInfile *infile,
 	/* Iterate over pieces...
 	 *   Loop is halted whenever one of this conditions is met:
 	 *     a) Max bytes to be read reached
-	 *     b) Already read up to the max number of words configured
-	 *     c) No more pieces to read
+	 *     b) No more pieces to read
 	 */
 	i = 0;
-	n_words_remaining = n_words;
 	n_bytes_remaining = n_bytes;
-	while (n_words_remaining > 0 &&
-	       n_bytes_remaining > 0 &&
+	while (n_bytes_remaining > 0 &&
 	       i < piece_count) {
 		guint8 *piece_descriptor;
 		gint piece_start;
@@ -1009,7 +935,6 @@ extract_msword_content (GsfInfile *infile,
 			msoffice_convert_and_normalize_chunk (text_buffer,
 			                                      piece_size,
 			                                      is_ansi,
-			                                      &n_words_remaining,
 			                                      &n_bytes_remaining,
 			                                      &content);
 		}
@@ -1295,7 +1220,6 @@ read_excel_string (GsfInput *stream,
 static void
 xls_get_extended_record_string (GsfInput  *stream,
                                 GArray    *list,
-                                guint     *p_words_remaining,
                                 gsize     *p_bytes_remaining,
                                 GString  **p_content)
 {
@@ -1337,12 +1261,10 @@ xls_get_extended_record_string (GsfInput  *stream,
 	/* Iterate over chunks...
 	 *   Loop is halted whenever one of this conditions is met:
 	 *     a) Max bytes to be read reached
-	 *     b) Already read up to the max number of words configured
-	 *     c) No more chunks to read
+	 *     b) No more chunks to read
 	 */
 	i = 0;
-	while (*p_words_remaining > 0 &&
-	       *p_bytes_remaining > 0 &&
+	while (*p_bytes_remaining > 0 &&
 	       i < cst_unique) {
 		guint16 cch;
 		guint16 c_run;
@@ -1398,7 +1320,6 @@ xls_get_extended_record_string (GsfInput  *stream,
 		msoffice_convert_and_normalize_chunk (buffer,
 		                                      chunk_size,
 		                                      !is_high_byte,
-		                                      p_words_remaining,
 		                                      p_bytes_remaining,
 		                                      p_content);
 
@@ -1475,7 +1396,6 @@ xls_get_extended_record_string (GsfInput  *stream,
  */
 static gchar*
 extract_excel_content (GsfInfile *infile,
-                       gint       n_words,
                        gsize      n_bytes,
                        gboolean  *is_encrypted)
 {
@@ -1483,7 +1403,6 @@ extract_excel_content (GsfInfile *infile,
 	GString *content = NULL;
 	GsfInput *stream;
 	guint saved_offset;
-	guint n_words_remaining = n_words;
 	gsize n_bytes_remaining = n_bytes;
 
 	stream = gsf_infile_child_by_name (infile, "Workbook");
@@ -1493,8 +1412,7 @@ extract_excel_content (GsfInfile *infile,
 	}
 
 	/* Read until we reach eof or any of our limits reached */
-	while (n_words_remaining > 0 &&
-	       n_bytes_remaining > 0 &&
+	while (n_bytes_remaining > 0 &&
 	       !gsf_input_eof (stream)) {
 		guint8 tmp_buffer[4] = { 0 };
 
@@ -1577,7 +1495,6 @@ extract_excel_content (GsfInfile *infile,
 			/* Read extended string */
 			xls_get_extended_record_string (stream,
 			                                list,
-			                                &n_words_remaining,
 			                                &n_bytes_remaining,
 			                                &content);
 
@@ -1596,8 +1513,7 @@ extract_excel_content (GsfInfile *infile,
 
 	g_object_unref (stream);
 
-	g_debug ("Words normalized: %u, Bytes: %" G_GSIZE_FORMAT,
-	         n_words - n_words_remaining,
+	g_debug ("Bytes extracted: %" G_GSIZE_FORMAT,
 	         n_bytes - n_bytes_remaining);
 
 	return content ? g_string_free (content, FALSE) : NULL;
@@ -1696,13 +1612,13 @@ extract_msoffice (const gchar          *uri,
                   TrackerSparqlBuilder *preupdate,
                   TrackerSparqlBuilder *metadata)
 {
+	TrackerConfig *config;
 	GFile *file = NULL;
 	GFileInfo *file_info = NULL;
 	const gchar *mime_used;
 	GsfInfile *infile = NULL;
 	gchar *content = NULL;
 	gboolean is_encrypted = FALSE;
-	gint max_words;
 	gsize max_bytes;
 
 	file = g_file_new_for_uri (uri);
@@ -1738,23 +1654,19 @@ extract_msoffice (const gchar          *uri,
 
 	mime_used = g_file_info_get_content_type (file_info);
 
-	/* Set max words to read from content */
-	max_words = fts_max_words ();
-
-	/* Set max bytes to read from content.
-	 * Assuming 3 bytes per unicode point in UTF-8, as 4-byte UTF-8 unicode
-	 *  points are really pretty rare */
-	max_bytes = 3 * max_words * fts_max_word_length ();
+	/* Set max bytes to read from content */
+	config = tracker_main_get_config ();
+	max_bytes = tracker_config_get_max_bytes (config);
 
 	if (g_ascii_strcasecmp (mime_used, "application/msword") == 0) {
 		/* Word file */
-		content = extract_msword_content (infile, max_words, max_bytes, &is_encrypted);
+		content = extract_msword_content (infile, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-powerpoint") == 0) {
 		/* PowerPoint file */
-		content = extract_powerpoint_content (infile, max_words, max_bytes, &is_encrypted);
+		content = extract_powerpoint_content (infile, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-excel") == 0) {
 		/* Excel File */
-		content = extract_excel_content (infile, max_words, max_bytes, &is_encrypted);
+		content = extract_excel_content (infile, max_bytes, &is_encrypted);
 	} else {
 		g_message ("Mime type was not recognised:'%s'", mime_used);
 	}
@@ -1943,20 +1855,21 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 	MsOfficeXMLParserInfo *info = user_data;
 	static gboolean found = FALSE;
 	static gboolean added = FALSE;
-	guint min_word_length = fts_min_word_length();
 
 	switch (info->tag_type) {
 	case MS_OFFICE_XML_TAG_WORD_TEXT:
 		if (info->style_element_present) {
 			if (atoi (text) == 0) {
-				g_string_append_printf (info->content, "%s ", text);
+				tracker_text_validate_utf8 (text, -1, &info->content);
+				g_string_append_c (info->content, ' ');
 			}
 		}
 
 		if (info->preserve_attribute_present) {
 			gchar *keywords = g_strdup (text);
-			if (found && (strlen (keywords) >= min_word_length)) {
-				g_string_append_printf (info->content, "%s ", text);
+			if (found) {
+				tracker_text_validate_utf8 (text, -1, &info->content);
+				g_string_append_c (info->content, ' ');
 				found = FALSE;
 			} else {
 				gchar *lasts;
@@ -1979,14 +1892,14 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 		break;
 
 	case MS_OFFICE_XML_TAG_SLIDE_TEXT:
-		if (strlen (text) > min_word_length) {
-			g_string_append_printf (info->content, "%s ", text);
-		}
+		tracker_text_validate_utf8 (text, -1, &info->content);
+		g_string_append_c (info->content, ' ');
 		break;
 
 	case MS_OFFICE_XML_TAG_XLS_SHARED_TEXT:
-		if ((atoi (text) == 0) && (strlen (text) > min_word_length))  {
-			g_string_append_printf (info->content, "%s ", text);
+		if (atoi (text) == 0)  {
+			tracker_text_validate_utf8 (text, -1, &info->content);
+			g_string_append_c (info->content, ' ');
 		}
 		break;
 

@@ -21,7 +21,7 @@
 #ifndef __TRACKER_MAIN_H__
 #define __TRACKER_MAIN_H__
 
-#include "tracker-fts-config.h"
+#include "tracker-config.h"
 
 G_BEGIN_DECLS
 
@@ -29,7 +29,9 @@ G_BEGIN_DECLS
  * get more work to do.
  */
 void              tracker_main_quit_timeout_reset (void);
-TrackerFTSConfig *tracker_main_get_fts_config     (void);
+
+/* Enables getting the config object from extractors */
+TrackerConfig    *tracker_main_get_config         (void);
 
 G_END_DECLS
 
