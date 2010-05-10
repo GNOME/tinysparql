@@ -289,7 +289,7 @@ test_xmp_apply (void)
         tracker_sparql_builder_insert_close (metadata);
 
         /* This is the only way to check the sparql is kinda correct */
-        g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 50);
+        g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 41);
 
 	tracker_xmp_free (data);
 }
