@@ -1174,11 +1174,9 @@ tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor,
 	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
 
 	if (!priv->finished) {
-		guint result = SQLITE_BUSY;
+		guint result;
 
-		while (result == SQLITE_BUSY || result == SQLITE_LOCKED) {
-			result = sqlite3_step (priv->stmt);
-		}
+		result = sqlite3_step (priv->stmt);
 
 		if (result == SQLITE_INTERRUPT) {
 			g_set_error (error,
