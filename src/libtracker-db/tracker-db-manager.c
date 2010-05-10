@@ -267,6 +267,12 @@ db_set_params (TrackerDBInterface *iface,
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
 
+	/* if we add direct access library (or enable running queries in parallel with updates,
+	   we need to disable read_uncommitted again
+	   however, when read_uncommitted is disabled, we need the custom page cache (wrapper)
+	   to avoid locking issues between long running batch transactions and queries */
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA read_uncommitted = True;");
+
 	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
 		g_message ("  Setting page size to %d", page_size);
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);
