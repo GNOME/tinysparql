@@ -80,7 +80,7 @@ class TestSqliteMisused (unittest.TestCase):
             self.timeout_cb ()
         print "Success loading a file"
 
-    def loaded_failed_cb (self):
+    def loaded_failed_cb (self, error):
         print "Failed loading a file"
         assert False
 
