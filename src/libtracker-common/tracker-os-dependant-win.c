@@ -100,7 +100,6 @@ tracker_spawn_async_with_channels (const gchar **argv,
 	g_return_val_if_fail (argv != NULL, FALSE);
 	g_return_val_if_fail (argv[0] != NULL, FALSE);
 	g_return_val_if_fail (timeout > 0, FALSE);
-	g_return_val_if_fail (pid != NULL, FALSE);
 
 	result = g_spawn_async_with_pipes (NULL,
 	                                   (gchar **) argv,
