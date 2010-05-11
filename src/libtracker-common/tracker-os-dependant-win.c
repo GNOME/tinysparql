@@ -87,8 +87,8 @@ tracker_spawn (gchar **argv,
 
 gboolean
 tracker_spawn_async_with_channels (const gchar **argv,
-                                   gint                  timeout,
-                                   GPid                 *pid,
+                                   gint        timeout,
+                                   GPid        *pid,
                                    GIOChannel  **stdin_channel,
                                    GIOChannel  **stdout_channel,
                                    GIOChannel  **strerr_channel)
