@@ -1,3 +1,110 @@
+NEW in 0.9.4 - 2010-05-11
+=========================
+
+Improvements / New:
+
+  General:
+  * Require poppler 0.12.2 instead of poppler-glib 0.4.5
+  * Removed many unused variables from coverity reports
+  * Various other fixes picked up from coverity reports
+  * RSS miner, pkg-config should look for rest-0.6, not rest
+ 
+  Functional Tests:
+  * Added force-sqlite-misused-batch.sh and force-sqlite-misused.sh for NB#166684
+  * Added for journal replay
+  * Added for backup-restore
+ 
+  Ontology:
+  * Fixed typo for nfo:softwareCmdLine comment
+  * Added tracker:notify for nco:EmailAddress
+  * Added tracker:notify for nco:PhoneNumber
+  * Added tracker:notify for nco:PostalAddress
+  * Added tracker:notify for nfo:Document
+  * Added tracker:notify for nfo:SoftwareApplication
+  * Added tracker:indexed for nfo:belongsToContainer
+
+  Data Generators:
+  * Fixed %u use since it is deprecated in favour of %d in Python
+ 
+  libtracker-common:
+  * Fixed compilation error in validating ints for tracker-keyfile-object
+ 
+  libtracker-db:
+  * Enable read_uncommitted to fix locking issues
+  * Properly shut down thread data on thread destruction, fixes sqlite3_close() log errors
+  * Don't fsync/close already open databases if g_open() succeeds
+  * Avoid strstr in uri_is_{parent|descendant} functions
+  * Performance improvement for tracker:uri-is-parent function
+ 
+  libtracker-extract:
+  * Don't modify setlocale() return value, as it's statically stored
+  * Protect against invalid values in tracker_date_guess()
+ 
+  libtracker-miner:
+  * Added missing .deps file for Vala bindings
+  * Fixed memory leak in VAPI file
+  * Fixed includes for libtracker-client in VAPI file
+  * Updated nfo:fileLastModified query to use nfo:belongsToContainer, much faster
+ 
+  libtracker-client:
+  * Fixed typo in documentation for tracker_resources_sparql_query()
+ 
+  tracker-store:
+  * Fixed possible memory corruption
+  * Fixed crash when client disappears
+  * Fixed unref of TrackerDBCursor when NULL
+  * Handle commit transaction error when importing turtle files and rollback
+
+  tracker-extract:
+  * Ported PDF extractor to not use poppler-glib, speed improvement
+  * Don't run past genre array in mp3 extractor
+  * Use nfo:HtmlDocument instead of nfo:Document in html extractor
+  * Fixed compilation warning for msoffice extractor, use G_GSIZE_FORMAT not %d
+
+  tracker-writeback:
+  * Added MP4 and 3GPP video files xmp module 
+ 
+  tracker-search:
+  * Added --emails and list subjects/dates
+  * Added --contacts and list names/addresses
+  * Updated --detailed so we only report URNs if this is supplied
+ 
+  tracker-tag:
+  * Fixed possible use of uninitialised memory
+ 
+  tracker-info:
+  * Show results in shortened form, added --full-namespaces for old behaviour
+ 
+  tracker-search-tool:
+  * Fixed segmentation fault when there are no results
+  * Added "Folders" category
+  * Renamed "Office Documents" category to "Documents"
+ 
+Bugs:
+ 
+  * GB#616548 - DIrectory lists and de-duplication in tracker-preferences
+  * GB#617082 - RFE Useability - Learning How to Start the Miners was a Little Unintuitive
+  * NB#166767 - Every word in a long tag is indexed separately
+  * NB#166684 - Database table is locked issue, SQLITE_MISUSED is reported SQLite error here
+  * NB#167616 - Tracker's ISO 8601 timestamp implementation is not correct
+  * NB#166717 - Only first DC:Subject and IPTC:Keywords tags are extracted
+
+Translations:
+ 
+  * Updated cs: Petr Kovar
+  * Updated de: Mario Blättermann
+ 
+Notes:
+ 
+  Due to the HTML extractor changing the document type from
+  nfo:Document to nfo:HtmlDocument, we would advise anyone with these
+  files indexed to use:
+ 
+    tracker-control --reindex-mime-type text/html
+ 
+  This should make sure all indexed files are correctly adjusted.
+
+
 NEW in 0.9.3 - 2010-04-29
 =========================
 
