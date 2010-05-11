@@ -71,7 +71,7 @@ enum {
 
 static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_INT,     "verbosity",          GROUP_GENERAL,  "Verbosity"       },
-	{ G_TYPE_INT,     "max_bytes",          GROUP_GENERAL,  "Max Bytes"       },
+	{ G_TYPE_INT,     "max_bytes",          GROUP_GENERAL,  "Max_Bytes"       },
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
@@ -98,7 +98,7 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_object_class_install_property (object_class,
-	                                 PROP_VERBOSITY,
+	                                 PROP_MAX_BYTES,
 	                                 g_param_spec_int ("max_bytes",
 	                                                   "Max Bytes",
 	                                                   " Maximum number of UTF-8 bytes to extract [0,G_MAXINT]",
