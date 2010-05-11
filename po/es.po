@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-04-21 11:34+0000\n"
-"PO-Revision-Date: 2010-04-21 18:24+0200\n"
+"POT-Creation-Date: 2010-05-11 18:07+0000\n"
+"PO-Revision-Date: 2010-05-11 20:47+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -21,13 +21,21 @@ msgstr ""
 
 #: ../data/miners/tracker-miner-applications.desktop.in.h:1
 #: ../src/tracker-search-bar/tracker-results-window.c:666
-#: ../src/tracker-search-tool/tracker-category-view.gs:74
+#: ../src/tracker-search-tool/tracker-category-view.gs:79
 msgid "Applications"
 msgstr "Aplicaciones"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.h:2
 msgid "Applications data miner"
 msgstr "Minero de datos de aplicaciones"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:1
+msgid "Emails"
+msgstr "Correos-e"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:2
+msgid "Evolution Email miner"
+msgstr "Minero de correos-e de Evolution"
 
 #: ../data/miners/tracker-miner-files.desktop.in.h:1
 msgid "File System"
@@ -37,6 +45,14 @@ msgstr "Sistema de achivos"
 msgid "File system data miner"
 msgstr "Minero de datos del sistema de archivos"
 
+#: ../data/miners/tracker-miner-flickr.desktop.in.h:1
+msgid "Flickr"
+msgstr "Flickr"
+
+#: ../data/miners/tracker-miner-flickr.desktop.in.h:2
+msgid "Index your Flickr photo albums"
+msgstr "Indexar sus álbumes de fotos en Flickr"
+
 #: ../data/miners/tracker-miner-rss.desktop.in.h:1
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "Obtener proveedores RSS/ATOM"
@@ -45,6 +61,15 @@ msgstr "Obtener proveedores RSS/ATOM"
 msgid "RSS/ATOM Feeds"
 msgstr "Proveedores RSS/ATOM"
 
+#: ../data/tracker-miner-flickr.desktop.in.in.h:1
+msgid "Processes images and albums on Flickr"
+msgstr "Procesa imágenes y álbumes en Flickr"
+
+#: ../data/tracker-miner-flickr.desktop.in.in.h:2
+#| msgid "Tracker Search Tool"
+msgid "Tracker Miner for Flickr"
+msgstr "Minero de Tracker para Flickr"
+
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Crawls and processes files on the file system"
 msgstr "Se arrastra y procesa archivos en el sistema de archivos"
@@ -52,6 +77,16 @@ msgstr "Se arrastra y procesa archivos en el sistema de archivos"
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
 msgid "Tracker File System Miner"
 msgstr "Minero del sistema de archivos de Tracker"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:1
+#| msgid "Fetch RSS/ATOM Feeds"
+msgid "Fetch RSS/ATOM feeds"
+msgstr "Obtener proveedores RSS/ATOM"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:2
+#| msgid "Fetch RSS/ATOM Feeds"
+msgid "Tracker RSS/ATOM Feeds Miner"
+msgstr "Minero de proveedores RSS/ATOM de Tracker"
 
 #: ../data/tracker-status-icon.desktop.in.in.h:1
 msgid "Tracker Status Icon"
@@ -179,13 +214,13 @@ msgstr[1] " %2.2d segundos"
 msgid "Data store is not available"
 msgstr "El almacén de datos no está disponible"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1032
+#: ../src/libtracker-miner/tracker-miner-object.c:1019
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "La aplicación de pausa y la razón ya coinciden con una solicitud de pausa "
 "existente"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1104
+#: ../src/libtracker-miner/tracker-miner-object.c:1091
 msgid "Cookie not recognized to resume paused miner"
 msgstr "No se reconoce la «cookie» para resumir el minero pausado"
 
@@ -197,19 +232,10 @@ msgstr "Meter los datos en Tracker para poder solicitarlos."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2439
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2456
 #: ../src/tracker-utils/tracker-status.c:70
-#| msgid "Processing files"
 msgid "Processing…"
 msgstr "Procesando…"
-
-#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:1
-msgid "Emails"
-msgstr "Correos-e"
-
-#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:2
-msgid "Evolution Email miner"
-msgstr "Minero de correos-e de Evolution"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
 msgid "Properties"
@@ -240,8 +266,8 @@ msgstr "Archivo del que extraer los metadatos"
 #: ../src/tracker-extract/tracker-main.c:90 ../src/miners/fs/tracker-main.c:90
 #: ../src/miners/fs/tracker-main.c:94 ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-import.c:56
-#: ../src/tracker-utils/tracker-info.c:53
-#: ../src/tracker-utils/tracker-info.c:54
+#: ../src/tracker-utils/tracker-info.c:58
+#: ../src/tracker-utils/tracker-info.c:59
 #: ../src/tracker-utils/tracker-sparql.c:62
 msgid "FILE"
 msgstr "ARCHIVO"
@@ -281,15 +307,15 @@ msgstr "Muestra información de la versión"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:347
+#: ../src/tracker-extract/tracker-main.c:349
 msgid "- Extract file meta data"
 msgstr "- Extraer los metadatos del archivo"
 
-#: ../src/tracker-extract/tracker-main.c:356
+#: ../src/tracker-extract/tracker-main.c:358
 msgid "Filename and mime type must be provided together"
 msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
-#: ../src/tracker-extract/tracker-main.c:370
+#: ../src/tracker-extract/tracker-main.c:372
 msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr ""
@@ -317,97 +343,97 @@ msgstr ""
 msgid "Forces the insertion of FILE into the store"
 msgstr "Fuerza la inserción del ARCHIVO en el almacén"
 
-#: ../src/miners/fs/tracker-main.c:364
+#: ../src/miners/fs/tracker-main.c:365
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "El objeto de datos «%s» ya existe"
 
-#: ../src/miners/fs/tracker-main.c:365
+#: ../src/miners/fs/tracker-main.c:366
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "El objeto de datos «%s» no existe"
 
-#: ../src/miners/fs/tracker-main.c:380
+#: ../src/miners/fs/tracker-main.c:381
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "El directorio es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:381
+#: ../src/miners/fs/tracker-main.c:382
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "El directorio NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:401
+#: ../src/miners/fs/tracker-main.c:402
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "El directorio es elegible para ser escrutado (según el contenido)"
 
-#: ../src/miners/fs/tracker-main.c:402
+#: ../src/miners/fs/tracker-main.c:403
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "El directorio NO es elegible para ser escrutado (según el contenido)"
 
-#: ../src/miners/fs/tracker-main.c:449
+#: ../src/miners/fs/tracker-main.c:450
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "El directorio es elegible para ser escrutado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:450
+#: ../src/miners/fs/tracker-main.c:451
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El directorio NO es elegible para ser escrutado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:454
+#: ../src/miners/fs/tracker-main.c:455
 msgid "File is eligible to be monitored (based on config)"
 msgstr "El archivo es elegible para ser escrutado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:455
+#: ../src/miners/fs/tracker-main.c:456
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "El archivo NO es elegible para ser escrutado (según la configuración)"
 
-#: ../src/miners/fs/tracker-main.c:459
+#: ../src/miners/fs/tracker-main.c:460
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o directorio es elegible para ser monitorizado (según la "
 "configuración)"
 
-#: ../src/miners/fs/tracker-main.c:460
+#: ../src/miners/fs/tracker-main.c:461
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 "El archivo o directorio NO es elegible para ser monitorizado (según la "
 "configuración)"
 
-#: ../src/miners/fs/tracker-main.c:475
+#: ../src/miners/fs/tracker-main.c:476
 msgid "File is eligible to be mined (based on rules)"
 msgstr "El archivo es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:476
+#: ../src/miners/fs/tracker-main.c:477
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "El archivo NO es elegible para ser escrutado (según las reglas)"
 
-#: ../src/miners/fs/tracker-main.c:485
+#: ../src/miners/fs/tracker-main.c:486
 msgid "Would be indexed"
 msgstr "Se indexará"
 
-#: ../src/miners/fs/tracker-main.c:486 ../src/miners/fs/tracker-main.c:488
+#: ../src/miners/fs/tracker-main.c:487 ../src/miners/fs/tracker-main.c:489
 msgid "Yes"
 msgstr "Sí"
 
-#: ../src/miners/fs/tracker-main.c:486 ../src/miners/fs/tracker-main.c:488
+#: ../src/miners/fs/tracker-main.c:487 ../src/miners/fs/tracker-main.c:489
 msgid "No"
 msgstr "No"
 
-#: ../src/miners/fs/tracker-main.c:487
+#: ../src/miners/fs/tracker-main.c:488
 msgid "Would be monitored"
 msgstr "Se monitorizará"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:528
+#: ../src/miners/fs/tracker-main.c:529
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:897
+#: ../src/miners/fs/tracker-miner-files.c:906
 msgid "Low battery"
 msgstr "Batería baja"
 
-#: ../src/miners/fs/tracker-miner-files.c:980
+#: ../src/miners/fs/tracker-miner-files.c:989
 msgid "Low disk space"
 msgstr "Espacio en disco bajo"
 
@@ -665,11 +691,12 @@ msgid "Email Addresses"
 msgstr "Direcciones de correo-e"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:665
+#: ../src/tracker-search-tool/tracker-category-view.gs:63
 msgid "Documents"
 msgstr "Documentos"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:667
-#: ../src/tracker-search-tool/tracker-category-view.gs:62
+#: ../src/tracker-search-tool/tracker-category-view.gs:67
 msgid "Images"
 msgstr "Imágenes"
 
@@ -678,6 +705,7 @@ msgid "Audio"
 msgstr "Sonido"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:669
+#: ../src/tracker-search-tool/tracker-category-view.gs:59
 msgid "Folders"
 msgstr "Carpetas"
 
@@ -686,7 +714,7 @@ msgid "Fonts"
 msgstr "Tipografías"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:671
-#: ../src/tracker-search-tool/tracker-category-view.gs:70
+#: ../src/tracker-search-tool/tracker-category-view.gs:75
 msgid "Videos"
 msgstr "Vídeos"
 
@@ -756,15 +784,11 @@ msgstr ""
 "con este programa. Si no la recibió, escriba a la Free Software Foundation, "
 "Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, EE. UU."
 
-#: ../src/tracker-search-tool/tracker-category-view.gs:54
+#: ../src/tracker-search-tool/tracker-category-view.gs:55
 msgid "All Files"
 msgstr "Todos los archivos"
 
-#: ../src/tracker-search-tool/tracker-category-view.gs:58
-msgid "Office Documents"
-msgstr "Documentos de Office"
-
-#: ../src/tracker-search-tool/tracker-category-view.gs:66
+#: ../src/tracker-search-tool/tracker-category-view.gs:71
 msgid "Music"
 msgstr "Música"
 
@@ -772,58 +796,58 @@ msgstr "Música"
 msgid "Clear the search text"
 msgstr "Limpiar el texto de búsqueda"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:106
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:95
 msgid "Name:"
 msgstr "Nombre:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:112
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:101
 msgid "Folder:"
 msgstr "Carpeta:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:116
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:105
 msgid "Type:"
 msgstr "Tipo:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:122
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:110
 msgid "Size:"
 msgstr "Tamaño:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:128
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:115
 msgid "Modified:"
 msgstr "Modificado:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:353
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:313
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
 msgid "Height:"
 msgstr "Altura:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:328
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:314
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
 msgid "Width:"
 msgstr "Anchura:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:366
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:325
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:353
 msgid "Title:"
 msgstr "Título:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
 msgid "Artist:"
 msgstr "Artista:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:342
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
 msgid "Album:"
 msgstr "Álbum:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
 msgid "Duration:"
 msgstr "Duración:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:367
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
 msgid "Author:"
 msgstr "Autor:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:368
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
 msgid "Page count:"
 msgstr "Conteo de páginas:"
 
@@ -870,8 +894,8 @@ msgstr ""
 #: ../src/tracker-status-icon/tracker-main.c:46
 #: ../src/tracker-control/tracker-control.c:99
 #: ../src/tracker-utils/tracker-import.c:51
-#: ../src/tracker-utils/tracker-info.c:49
-#: ../src/tracker-utils/tracker-search.c:113
+#: ../src/tracker-utils/tracker-info.c:50
+#: ../src/tracker-utils/tracker-search.c:123
 #: ../src/tracker-utils/tracker-sparql.c:93
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:116
@@ -971,7 +995,7 @@ msgstr "Sólo permitir acciones de lectura en la base de datos"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:361
+#: ../src/tracker-store/tracker-main.c:362
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
@@ -1111,16 +1135,16 @@ msgid "- Import data using Turtle files"
 msgstr "- Importar datos usando archivos Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:119
+#: ../src/tracker-utils/tracker-info.c:215
 msgid "One or more files have not been specified"
 msgstr "No se especificó uno o más archivos"
 
 #: ../src/tracker-utils/tracker-import.c:109
-#: ../src/tracker-utils/tracker-info.c:135
+#: ../src/tracker-utils/tracker-info.c:231
 #: ../src/tracker-utils/tracker-sparql.c:244
 #: ../src/tracker-utils/tracker-stats.c:106
-#: ../src/tracker-utils/tracker-status.c:543
-#: ../src/tracker-utils/tracker-tag.c:897
+#: ../src/tracker-utils/tracker-status.c:544
+#: ../src/tracker-utils/tracker-tag.c:898
 msgid "Could not establish a D-Bus connection to Tracker"
 msgstr "No se pudo establecer una conexión de D-Bus a Tracker"
 
@@ -1133,109 +1157,127 @@ msgid "Unable to import Turtle file"
 msgstr "No se pudo importar el archivo Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:139
-#: ../src/tracker-utils/tracker-status.c:210
+#: ../src/tracker-utils/tracker-status.c:211
 msgid "Done"
 msgstr "Hecho"
 
+#: ../src/tracker-utils/tracker-info.c:54
+msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgstr ""
+"Mostrar espacios de nombres completos (ej. no usar nie:título, usar URL "
+"completos)"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:101
+#: ../src/tracker-utils/tracker-info.c:197
 msgid "- Get all information about one or more files"
 msgstr "- Obtener toda la información de uno o más archivos"
 
-#: ../src/tracker-utils/tracker-info.c:147
+#: ../src/tracker-utils/tracker-info.c:245
 msgid "Querying information for entity"
 msgstr "Consultando la información para la entidad"
 
-#: ../src/tracker-utils/tracker-info.c:168
+#: ../src/tracker-utils/tracker-info.c:266
 msgid "Unable to retrieve URN for URI"
 msgstr "No se pudo obtener el URN para el URI"
 
-#: ../src/tracker-utils/tracker-info.c:199
+#: ../src/tracker-utils/tracker-info.c:297
 msgid "Unable to retrieve data for URI"
 msgstr "No se pudieron obtener datos para el URI"
 
-#: ../src/tracker-utils/tracker-info.c:208
+#: ../src/tracker-utils/tracker-info.c:306
 msgid "No metadata available for that URI"
 msgstr "No existen metadatos disponibles para ese URI"
 
-#: ../src/tracker-utils/tracker-search.c:61
+#: ../src/tracker-utils/tracker-search.c:63
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "Limit the number of results shown"
 msgstr "Limitar el número de resultados mostrados"
 
-#: ../src/tracker-utils/tracker-search.c:62
+#: ../src/tracker-utils/tracker-search.c:64
 #: ../src/tracker-utils/tracker-tag.c:57
 msgid "512"
 msgstr "512"
 
-#: ../src/tracker-utils/tracker-search.c:65
+#: ../src/tracker-utils/tracker-search.c:67
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "Offset the results"
 msgstr "Compensar los resultados"
 
-#: ../src/tracker-utils/tracker-search.c:66
+#: ../src/tracker-utils/tracker-search.c:68
 #: ../src/tracker-utils/tracker-tag.c:61
 msgid "0"
 msgstr "0"
 
-#: ../src/tracker-utils/tracker-search.c:69
+#: ../src/tracker-utils/tracker-search.c:71
 #: ../src/tracker-utils/tracker-tag.c:64
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Use OR para buscar términos en lugar de AND (lo predeterminado)"
 
-#: ../src/tracker-utils/tracker-search.c:73
-msgid "Show more detailed results (only applies to general search)"
+#: ../src/tracker-utils/tracker-search.c:75
+msgid ""
+"Show URNs for results (doesn't apply to --music-albums, --music-artists)"
 msgstr ""
-"Mostrar resultados más detallados (sólo se aplica a la búsqueda general)"
+"Mostrar URN para los resultados (no se aplica para --music-albums, --music-"
+"artists)"
 
-#: ../src/tracker-utils/tracker-search.c:77
+#: ../src/tracker-utils/tracker-search.c:79
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
 "Devolver también todas las coincidencias no existentes (ej. incluir "
 "volúmenes sin montar)"
 
-#: ../src/tracker-utils/tracker-search.c:81
+#: ../src/tracker-utils/tracker-search.c:83
 msgid "Search for files"
 msgstr "Buscar archivos"
 
-#: ../src/tracker-utils/tracker-search.c:85
+#: ../src/tracker-utils/tracker-search.c:87
 msgid "Search for folders"
 msgstr "Buscar carpetas"
 
-#: ../src/tracker-utils/tracker-search.c:89
-msgid "Search for music albums (--all has no effect on this)"
-msgstr "Buscar álbumes de música («--all» no tiene efecto sobre esto)"
-
-#: ../src/tracker-utils/tracker-search.c:93
-msgid "Search for music artists (--all has no effect on this) "
-msgstr "Buscar artistas musicales («--all» no tiene efecto sobre esto)"
-
-#: ../src/tracker-utils/tracker-search.c:97
+#: ../src/tracker-utils/tracker-search.c:91
 msgid "Search for music files"
 msgstr "Buscar archivos de música"
 
-#: ../src/tracker-utils/tracker-search.c:101
+#: ../src/tracker-utils/tracker-search.c:95
+msgid "Search for music albums (--all has no effect on this)"
+msgstr "Buscar álbumes de música («--all» no tiene efecto sobre esto)"
+
+#: ../src/tracker-utils/tracker-search.c:99
+msgid "Search for music artists (--all has no effect on this) "
+msgstr "Buscar artistas musicales («--all» no tiene efecto sobre esto)"
+
+#: ../src/tracker-utils/tracker-search.c:103
 msgid "Search for image files"
 msgstr "Buscar archivos de imágenes"
 
-#: ../src/tracker-utils/tracker-search.c:105
+#: ../src/tracker-utils/tracker-search.c:107
 msgid "Search for video files"
 msgstr "Buscar archivos de vídeo"
 
-#: ../src/tracker-utils/tracker-search.c:109
+#: ../src/tracker-utils/tracker-search.c:111
 msgid "Search for document files"
 msgstr "Buscar archivos de documentos"
 
-#: ../src/tracker-utils/tracker-search.c:118
+#: ../src/tracker-utils/tracker-search.c:115
+#| msgid "Search for files"
+msgid "Search for emails"
+msgstr "Buscar correos-e"
+
+#: ../src/tracker-utils/tracker-search.c:119
+#| msgid "Search for folders"
+msgid "Search for contacts"
+msgstr "Buscar contactos"
+
+#: ../src/tracker-utils/tracker-search.c:128
 msgid "search terms"
 msgstr "términos de búsqueda"
 
-#: ../src/tracker-utils/tracker-search.c:119
+#: ../src/tracker-utils/tracker-search.c:129
 msgid "EXPRESSION"
 msgstr "EXPRESIÓN"
 
-#: ../src/tracker-utils/tracker-search.c:136
+#: ../src/tracker-utils/tracker-search.c:146
 #: ../src/tracker-utils/tracker-tag.c:111
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
@@ -1243,47 +1285,59 @@ msgstr ""
 "NOTA: Se alcanzó el límite, existen más elementos en la base de datos que no "
 "se listan aquí"
 
-#: ../src/tracker-utils/tracker-search.c:194
-#: ../src/tracker-utils/tracker-search.c:487
-#: ../src/tracker-utils/tracker-search.c:565
-#: ../src/tracker-utils/tracker-search.c:811
+#: ../src/tracker-utils/tracker-search.c:209
+#: ../src/tracker-utils/tracker-search.c:318
+#: ../src/tracker-utils/tracker-search.c:433
+#: ../src/tracker-utils/tracker-search.c:730
+#: ../src/tracker-utils/tracker-search.c:808
+#: ../src/tracker-utils/tracker-search.c:1056
 msgid "Could not get search results"
 msgstr "No se pudieron obtener los resultados"
 
-#: ../src/tracker-utils/tracker-search.c:203
+#: ../src/tracker-utils/tracker-search.c:218
+#| msgid "No tags were found"
+msgid "No contacts were found"
+msgstr "No se encontró ningún contacto"
+
+#: ../src/tracker-utils/tracker-search.c:327
+#| msgid "No files were found"
+msgid "No emails were found"
+msgstr "No se encontró ningún correo-e"
+
+#: ../src/tracker-utils/tracker-search.c:442
 msgid "No files were found"
 msgstr "No se encontró ningún archivo"
 
-#: ../src/tracker-utils/tracker-search.c:496
+#: ../src/tracker-utils/tracker-search.c:739
 msgid "No artists were found"
 msgstr "No se encontró ningún artista"
 
-#: ../src/tracker-utils/tracker-search.c:574
+#: ../src/tracker-utils/tracker-search.c:817
 msgid "No music was found"
 msgstr "No se encontró música"
 
-#: ../src/tracker-utils/tracker-search.c:820
+#: ../src/tracker-utils/tracker-search.c:1065
 msgid "No results were found matching your query"
 msgstr "No se encontró ningún resultado coincidente con su consulta"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:860
+#: ../src/tracker-utils/tracker-search.c:1105
 msgid "- Search for terms in all data"
 msgstr "- Buscar términos en todos los datos"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:865
+#: ../src/tracker-utils/tracker-search.c:1110
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "Aplica un operador AND a todos los términos separados por un espacio "
 "(consulte --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:869
+#: ../src/tracker-utils/tracker-search.c:1114
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -1291,16 +1345,16 @@ msgstr ""
 "Esto significa que si busca «foo» y «bar», AMBOS deben existir (a no ser que "
 "use --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:894
+#: ../src/tracker-utils/tracker-search.c:1141
 msgid "Search terms are missing"
 msgstr "Faltan los términos de búsqueda"
 
-#: ../src/tracker-utils/tracker-search.c:932
+#: ../src/tracker-utils/tracker-search.c:1179
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "El término de búsqueda «%s» es una palabra de parada."
 
-#: ../src/tracker-utils/tracker-search.c:935
+#: ../src/tracker-utils/tracker-search.c:1182
 #, c-format
 msgid ""
 "Stop words are common words which are ignored during the indexing process."
@@ -1308,7 +1362,7 @@ msgstr ""
 "Las palabras de parada son palabras comunes ignoradas durante el proceso de "
 "búsqueda."
 
-#: ../src/tracker-utils/tracker-search.c:938
+#: ../src/tracker-utils/tracker-search.c:1185
 #, c-format
 msgid ""
 "This means this search term will never be found when matching FTS entries."
@@ -1316,7 +1370,7 @@ msgstr ""
 "Esto significa que este término de búsqueda nunca se encontrará al buscar "
 "entradas FST."
 
-#: ../src/tracker-utils/tracker-search.c:957
+#: ../src/tracker-utils/tracker-search.c:1204
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "No se pudo establecer una conexión de DBus a Tracker"
 
@@ -1489,7 +1543,6 @@ msgid "Statistics:"
 msgstr "Estadísticas:"
 
 #: ../src/tracker-utils/tracker-status.c:71
-#| msgid "Fetching..."
 msgid "Fetching…"
 msgstr "Obteniendo…"
 
@@ -1565,103 +1618,103 @@ msgstr "Resumir un minero (debe usarlo con --miner)"
 msgid "COOKIE"
 msgstr "COOKIE"
 
-#: ../src/tracker-utils/tracker-status.c:173
+#: ../src/tracker-utils/tracker-status.c:174
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
 msgstr "Intentando pausar el minero «%s» con la razón «%s»"
 
-#: ../src/tracker-utils/tracker-status.c:180
+#: ../src/tracker-utils/tracker-status.c:181
 #, c-format
 msgid "Could not pause miner: %s"
 msgstr "No se pudo pausar el minero: %s"
 
-#: ../src/tracker-utils/tracker-status.c:185
+#: ../src/tracker-utils/tracker-status.c:186
 #, c-format
 msgid "Cookie is %d"
 msgstr "La «cookie» es la %d"
 
-#: ../src/tracker-utils/tracker-status.c:199
+#: ../src/tracker-utils/tracker-status.c:200
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Intentando resumir el minero %s con la «cookie» %d"
 
-#: ../src/tracker-utils/tracker-status.c:206
+#: ../src/tracker-utils/tracker-status.c:207
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "No se pudo resumir el minero: %s"
 
-#: ../src/tracker-utils/tracker-status.c:226
+#: ../src/tracker-utils/tracker-status.c:227
 #, c-format
 msgid "Could not get status from miner: %s"
 msgstr "No se pudo obtener el estado del minero: %s"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-utils/tracker-status.c:284
-#: ../src/tracker-utils/tracker-status.c:683
+#: ../src/tracker-utils/tracker-status.c:285
+#: ../src/tracker-utils/tracker-status.c:684
 msgid "PAUSED"
 msgstr "PAUSADO"
 
-#: ../src/tracker-utils/tracker-status.c:298
+#: ../src/tracker-utils/tracker-status.c:299
 msgid "Not running or is a disabled plugin"
 msgstr "No está en ejecución o es un complemento desactivado"
 
-#: ../src/tracker-utils/tracker-status.c:354
+#: ../src/tracker-utils/tracker-status.c:355
 msgid "Journal replay"
 msgstr "Respuesta del diario"
 
-#: ../src/tracker-utils/tracker-status.c:478
+#: ../src/tracker-utils/tracker-status.c:479
 msgid "- Monitor and control status"
 msgstr "- Monitorizar y controlar el estado"
 
-#: ../src/tracker-utils/tracker-status.c:493
+#: ../src/tracker-utils/tracker-status.c:494
 msgid "You can not use miner pause and resume switches together"
 msgstr "No puede usar un minero pausado y resumir los cambios a la vez"
 
-#: ../src/tracker-utils/tracker-status.c:507
+#: ../src/tracker-utils/tracker-status.c:508
 msgid "You must provide the miner for pause or resume commands"
 msgstr "Debe proporcionar el minero para los comandos pausar o resumir"
 
-#: ../src/tracker-utils/tracker-status.c:521
+#: ../src/tracker-utils/tracker-status.c:522
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Debe proporcionar una pausa o resumir el comando para el minero"
 
-#: ../src/tracker-utils/tracker-status.c:555
+#: ../src/tracker-utils/tracker-status.c:556
 msgid "Common statuses include"
 msgstr "Los estados comunes incluyen"
 
-#: ../src/tracker-utils/tracker-status.c:567
+#: ../src/tracker-utils/tracker-status.c:568
 #, c-format
 msgid "Found %d miners installed"
 msgstr "Se encontraron %d mineros instalados"
 
-#: ../src/tracker-utils/tracker-status.c:579
+#: ../src/tracker-utils/tracker-status.c:580
 #, c-format
 msgid "Found %d miners running"
 msgstr "Se encontraron %d mineros en ejecución"
 
-#: ../src/tracker-utils/tracker-status.c:612
+#: ../src/tracker-utils/tracker-status.c:613
 msgid "No miners are running"
 msgstr "No hay ningún minero en ejecución"
 
-#: ../src/tracker-utils/tracker-status.c:652
-#: ../src/tracker-utils/tracker-status.c:699
+#: ../src/tracker-utils/tracker-status.c:653
+#: ../src/tracker-utils/tracker-status.c:700
 msgid "Miners"
 msgstr "Mineros"
 
-#: ../src/tracker-utils/tracker-status.c:659
+#: ../src/tracker-utils/tracker-status.c:660
 msgid "Application"
 msgstr "Aplicación"
 
-#: ../src/tracker-utils/tracker-status.c:661
+#: ../src/tracker-utils/tracker-status.c:662
 msgid "Reason"
 msgstr "Razón"
 
-#: ../src/tracker-utils/tracker-status.c:670
+#: ../src/tracker-utils/tracker-status.c:671
 msgid "No miners are paused"
 msgstr "No hay ningún minero pausado"
 
 #. Display states
-#: ../src/tracker-utils/tracker-status.c:693
+#: ../src/tracker-utils/tracker-status.c:694
 msgid "Store"
 msgstr "Almacenar"
 
@@ -1715,12 +1768,12 @@ msgid "Could not get files related to tag"
 msgstr "No se pudieron obtener archivos relacionados con la etiqueta"
 
 #: ../src/tracker-utils/tracker-tag.c:463
-#: ../src/tracker-utils/tracker-tag.c:815
+#: ../src/tracker-utils/tracker-tag.c:816
 msgid "Could not get all tags"
 msgstr "No se pudieron obtener todas las etiquetas"
 
 #: ../src/tracker-utils/tracker-tag.c:472
-#: ../src/tracker-utils/tracker-tag.c:824
+#: ../src/tracker-utils/tracker-tag.c:825
 msgid "No tags were found"
 msgstr "No se encontró ninguna etiqueta"
 
@@ -1748,7 +1801,7 @@ msgstr "Sin etiquetar, el archivo no está indexado"
 msgid "Could not get tag by label"
 msgstr "No se pudo obtener la etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:703
+#: ../src/tracker-utils/tracker-tag.c:704
 msgid "No tags were found by that name"
 msgstr "No se encontró ninguna etiqueta con ese nombre"
 
@@ -1760,38 +1813,38 @@ msgstr "Ninguno de los archivos tiene este conjunto de etiquetas"
 msgid "Could not remove tag"
 msgstr "No se pudo quitar la etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:767
+#: ../src/tracker-utils/tracker-tag.c:768
 msgid "Tag was removed successfully"
 msgstr "Etiqueta quitada correctamente"
 
-#: ../src/tracker-utils/tracker-tag.c:771
+#: ../src/tracker-utils/tracker-tag.c:772
 msgid "Untagged"
 msgstr "Sin etiquetar"
 
-#: ../src/tracker-utils/tracker-tag.c:772
+#: ../src/tracker-utils/tracker-tag.c:773
 msgid "File not indexed or already untagged"
 msgstr "El archivo no está indexado o se ha desetiquetado"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:853
+#: ../src/tracker-utils/tracker-tag.c:854
 msgid "Add, remove or list tags"
 msgstr "Añadir, quitar o listar etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:869
+#: ../src/tracker-utils/tracker-tag.c:870
 msgid "The --list option is required for --show-files"
 msgstr "Se requiere la opción --list para --show-files"
 
-#: ../src/tracker-utils/tracker-tag.c:871
+#: ../src/tracker-utils/tracker-tag.c:872
 msgid "Add and delete actions can not be used together"
 msgstr "Añadir y borrar acciones que no se pueden usar conjuntamente"
 
-#: ../src/tracker-utils/tracker-tag.c:873
+#: ../src/tracker-utils/tracker-tag.c:874
 msgid "No arguments were provided"
 msgstr "No se proporcionó ningún argumento"
 
-#: ../src/tracker-utils/tracker-tag.c:875
+#: ../src/tracker-utils/tracker-tag.c:876
 msgid "The --description option can only be used with --add"
 msgstr "La opción --description sólo se puede usar con --add"
 
@@ -1805,6 +1858,13 @@ msgstr "- iniciar el servicio de escritura en diferido"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Consultas guardadas"
+
+#~ msgid "Office Documents"
+#~ msgstr "Documentos de Office"
+
+#~ msgid "Show more detailed results (only applies to general search)"
+#~ msgstr ""
+#~ "Mostrar resultados más detallados (sólo se aplica a la búsqueda general)"
 
 #~ msgid "Resuming"
 #~ msgstr "Resumiendo"
