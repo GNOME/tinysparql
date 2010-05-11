@@ -1138,9 +1138,10 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	g_debug ("Generating IRI cache for folder: %s", uri);
 
-	query = g_strdup_printf ("SELECT ?uri ?u { "
-	                         "  ?u nie:url ?uri . "
-	                         "  FILTER (tracker:uri-is-parent (\"%s\", ?uri)) "
+	query = g_strdup_printf ("SELECT ?url ?u { "
+	                         "  ?u nfo:belongsToContainer ?p ; "
+	                         "     nie:url ?url . "
+	                         "  ?p nie:url \"%s\" "
 	                         "}",
 	                         uri);
 	g_free (uri);
