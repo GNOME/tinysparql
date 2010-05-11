@@ -2,11 +2,11 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS =
 
-if USING_KMAIL_MINER
+if HAVE_MINER_KMAIL
 SUBDIRS += kmail
 endif
 
-if USING_EVOLUTION_MINER
+if HAVE_MINER_EVOLUTION
 SUBDIRS += evolution
 endif
 
