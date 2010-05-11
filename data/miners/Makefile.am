@@ -12,7 +12,7 @@ tracker_miners_DATA = 				\
 	tracker-miner-applications.desktop 	\
 	tracker-miner-files.desktop
 
-if USING_MINER_RSS
+if HAVE_MINER_RSS
 tracker_miners_DATA += tracker-miner-rss.desktop
 endif
 

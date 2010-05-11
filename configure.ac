@@ -300,7 +300,7 @@ AM_CONDITIONAL(HAVE_LIBSTREAMANALYZER, test "$have_libstreamanalyzer" = "yes")
 dnl DBus services dir
 AC_ARG_WITH([session_bus_services_dir],
             AS_HELP_STRING([--with-session-bus-services-dir],
-	                   [Path to DBus services directory]))
+	                   [path to DBus services directory]))
 
 if test "x$with_session_bus_services_dir" = "x" ; then
    services_dir="$datadir/dbus-1/services"
@@ -701,7 +701,7 @@ fi
 
 AC_ARG_ENABLE(libinotify,
 	      AS_HELP_STRING([--enable-libinotify],
-			     [Enables libinotify for the filesystem monitoring [[default=yes]]]),,
+			     [enables libinotify for the filesystem monitoring [[default=yes]]]),,
 	      [enable_libinotify=yes])
 
 if test "x$enable_libinotify" != "xno"; then
@@ -820,7 +820,7 @@ fi
 
 if test "x$enable_miner_flickr" = "xyes"; then
    if test "x$have_miner_flickr" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find the required dependencies for the Flickr miner: rest-0.6 >= $REST_REQUIRED.])
+      AC_MSG_ERROR([Couldn't find rest-0.6 >= $REST_REQUIRED for Flickr miner.])
    fi
 fi
 
@@ -830,17 +830,19 @@ AM_CONDITIONAL(HAVE_MINER_FLICKR, test "x$have_miner_flickr" = "xyes")
 # Miner Evolution
 ####################################################################
 
-AC_ARG_ENABLE([evolution_miner],
-              AS_HELP_STRING([--enable-evolution-miner],
-                             [enable support for Evolution data miner [[default=auto]]]),,
-              [enable_evolution_miner=auto])
+evolution_plugins_dir="/dev/null"
 
-if test "x$enable_evolution_miner" != "xno"; then
+AC_ARG_ENABLE([miner_evolution],
+              AS_HELP_STRING([--enable-miner-evolution],
+                             [enable Evolution email data miner [[default=auto]]]),,
+              [enable_miner_evolution=auto])
+
+if test "x$enable_miner_evolution" != "xno"; then
    PKG_CHECK_MODULES(EVOLUTION_PLUGIN, [
    		     evolution-plugin >= $EVO_REQUIRED
 		     evolution-data-server-1.2 >= $EDS_REQUIRED],
-		     have_evolution_plugin=yes,
-		     have_evolution_plugin=no)
+		     have_miner_evolution=yes,
+		     have_miner_evolution=no)
 
    PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.29.1],
 		    [AC_DEFINE(HAVE_EDS_2_29_1, 1, [Define if we have eds 2.29.1 or newer])])
@@ -848,51 +850,47 @@ if test "x$enable_evolution_miner" != "xno"; then
    AC_SUBST(EVOLUTION_PLUGIN_CFLAGS)
    AC_SUBST(EVOLUTION_PLUGIN_LIBS)
 
-   if test "x$have_evolution_plugin" = "xyes"; then
-      dnl Evolution plugin will be compiled
-      enable_evolution_miner=yes
-
+   if test "x$have_miner_evolution" = "xyes"; then
       dnl Evolution plugins dir
       AC_ARG_WITH([evolution_plugins_dir],
                   AS_HELP_STRING([--with-evolution-plugins-dir],
-	                         [Path to Evolution plugins directory]))
+	                         [path to Evolution plugins directory]))
       if test "x$with_evolution_plugins_dir" = "x" ; then
          evolution_plugins_dir=`$PKG_CONFIG evolution-plugin --variable=plugindir`
       else
          evolution_plugins_dir="$with_evolution_plugins_dir"
       fi
-
-      EVOLUTION_PLUGIN_INSTALL_DIR=$evolution_plugins_dir
-   else
-      if test "x$enable_evolution_miner" = "xyes"; then
-        dnl If evolution-miner was explicitly enabled by the user, and
-        dnl  evolution-plugin deps not found, dump error
-        AC_MSG_ERROR([Couldn't find Evolution plugin requirements (evolution-dev, evolution-data-server-dev).])
-      else
-        dnl support 'auto' mode...
-        enable_evolution_miner="no  (disabled)"
-        EVOLUTION_PLUGIN_INSTALL_DIR=/dev/null
-      fi
    fi
-
-   AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
 else
-   enable_evolution_miner="no  (disabled)"
+   have_miner_evolution="no  (disabled)"
 fi
 
-AM_CONDITIONAL(USING_EVOLUTION_MINER, test "x$enable_evolution_miner" = "xyes")
+if test "x$enable_miner_evolution" = "xyes"; then
+   if test "x$have_miner_evolution" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find evolution-dev and evolution-data-server-dev for Evolution miner.])
+   fi
+fi
+
+EVOLUTION_PLUGIN_INSTALL_DIR=$evolution_plugins_dir
+AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
+
+AM_CONDITIONAL(HAVE_MINER_EVOLUTION, test "x$have_miner_evolution" = "xyes")
 
 
 ####################################################################
 # Miner Kmail
 ####################################################################
 
-AC_ARG_ENABLE([kmail_miner],
-              AS_HELP_STRING([--enable-kmail-miner],
-                             [enable support for KMail data miner [[default=yes]]]),,
-              [enable_kmail_miner=yes])
+AC_ARG_ENABLE([miner_kmail],
+              AS_HELP_STRING([--enable-miner-kmail],
+                             [enable KMail email data miner [[default=yes]]]),,
+              [enable_miner_kmail=yes])
 
-AM_CONDITIONAL(USING_KMAIL_MINER, test "x$enable_kmail_miner" = "xyes")
+if test "x$enable_miner_kmail" = "xyes"; then
+   have_miner_kmail="yes"
+fi
+
+AM_CONDITIONAL(HAVE_MINER_KMAIL, test "x$enable_miner_kmail" = "xyes")
 
 
 ##################################################################
@@ -901,36 +899,28 @@ AM_CONDITIONAL(USING_KMAIL_MINER, test "x$enable_kmail_miner" = "xyes")
 
 AC_ARG_ENABLE([miner_rss],
               AS_HELP_STRING([--enable-miner-rss],
-                             [enable miner rss [[default=auto]]]),,
+                             [enable RSS data miner [[default=auto]]]),,
               [enable_miner_rss=auto])
 
 if test "x$enable_miner_rss" != "xno" ; then
    PKG_CHECK_MODULES(LIBGRSS,
                      [libgrss-0 >= $LIBGRSS_REQUIRED],
-                     [have_libgrss=yes],
-                     [have_libgrss=no])
+                     [have_miner_rss=yes],
+                     [have_miner_rss=no])
 
-   AC_SUBST(LIBGRSS_CFLAGS)
-   AC_SUBST(LIBGRSS_LIBS)
-
-   if test "x$enable_miner_rss" = "xauto"; then
-      if  test "x$have_libgrss" = "xyes"; then
-          enable_miner_rss="yes"
-      else
-        enable_miner_rss="no"
-      fi
-   fi
-
-   if test "x$enable_miner_rss" = "xyes"; then
-      if test "x$have_libgrss" != "xyes"; then
-         AC_MSG_ERROR([Couldn't find libgrss >= $LIBGRSS_REQUIRED. and miner rss requested])
-      fi
-   fi
+   AC_SUBST(MINER_RSS_CFLAGS)
+   AC_SUBST(MINER_RSS_LIBS)
 else
    enable_miner_rss="no  (disabled)"
 fi
 
-AM_CONDITIONAL(USING_MINER_RSS, test "x$enable_miner_rss" = "xyes")
+if test "x$enable_miner_rss" = "xyes"; then
+   if test "x$have_miner_rss" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libgrss >= $LIBGRSS_REQUIRED for RSS miner.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_MINER_RSS, test "x$have_miner_rss" = "xyes")
 
 ####################################################################
 # Application and Vala requirements
@@ -1521,7 +1511,7 @@ AM_CONDITIONAL(HAVE_MOCKUP, test "x$have_mockup" = "xyes")
 
 AC_ARG_ENABLE([nautilus-extension],
               AS_HELP_STRING([--enable-nautilus-extension],
-                             [Enable the nautilus extension [[default=auto]]]),,
+                             [enable the nautilus extension [[default=auto]]]),,
               [enable_nautilus_extension=auto])
 
 if test "x$enable_nautilus_extension" != "xno"; then
@@ -1536,7 +1526,7 @@ if test "x$enable_nautilus_extension" != "xno"; then
    if test "x$have_nautilus_extension" = "xyes"; then
       AC_ARG_WITH([nautilus-extensions-dir],
                   AS_HELP_STRING([--with-nautilus-extensions-dir],
-                                 [Path to Nautilus extensions directory]))
+                                 [path to Nautilus extensions directory]))
 
       if test "x$with_nautilus_extensions_dir" = "x"; then
          nautilus_extensions_dir=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
@@ -1813,9 +1803,9 @@ Metadata Extractors:
 
 Data Miners:
 
-        RSS:                                    $enable_miner_rss
-        Evolution:                              $enable_evolution_miner
-        KMail:                                  $enable_kmail_miner
+        RSS:                                    $have_miner_rss
+        Evolution:                              $have_miner_evolution ($evolution_plugins_dir)
+        KMail:                                  $have_miner_kmail
         Flickr:                                 $have_miner_flickr
 
 Plugins:

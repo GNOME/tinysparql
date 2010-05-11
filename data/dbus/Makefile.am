@@ -24,7 +24,7 @@ service_in_files =						\
 	org.freedesktop.Tracker1.Miner.Files.service.in		\
 	org.freedesktop.Tracker1.Extract.service.in
 
-if USING_MINER_RSS
+if HAVE_MINER_RSS
 service_in_files += 						\
 	org.freedesktop.Tracker1.Miner.RSS.service.in
 endif

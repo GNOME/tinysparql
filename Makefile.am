@@ -58,13 +58,13 @@ DISTCLEANFILES = 				\
 
 DISTCHECK_CONFIGURE_FLAGS =			\
 	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
-	--disable-evolution-miner		\
 	--disable-nautilus-extension		\
 	--enable-unit-tests			\
 	--enable-functional-tests		\
 	--enable-gtk-doc			\
 	--enable-miner-rss			\
 	--enable-miner-flickr			\
+	--disable-miner-evolution		\
 	--enable-unac				\
 	--enable-poppler-glib			\
 	--enable-exempi				\
