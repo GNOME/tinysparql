@@ -26,10 +26,11 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
+#include "tracker-main.h"
+
 #undef  TRY_LOCALE_TO_UTF8_CONVERSION
 
-#define TEXT_MAX_SIZE   1048576  /* bytes */
-#define TEXT_CHECK_SIZE 65535    /* bytes */
+#define TEXT_BUFFER_SIZE 65535    /* bytes */
 
 static void extract_text (const gchar          *uri,
                           TrackerSparqlBuilder *preupdate,
@@ -39,34 +40,6 @@ static TrackerExtractData data[] = {
 	{ "text/*", extract_text },
 	{ NULL, NULL }
 };
-
-static gboolean
-get_file_is_utf8 (GString *s,
-                  gssize  *bytes_valid)
-{
-	const gchar *end;
-
-	/* Check for UTF-8 validity, since we may
-	 * have cut off the end.
-	 */
-	if (g_utf8_validate (s->str, s->len, &end)) {
-		*bytes_valid = (gssize) s->len;
-		return TRUE;
-	}
-
-	*bytes_valid = end - s->str;
-
-	/* 4 is the maximum bytes for a UTF-8 character. */
-	if (*bytes_valid > 4) {
-		return FALSE;
-	}
-
-	if (g_utf8_get_char_validated (end, *bytes_valid) == (gunichar) -1) {
-		return FALSE;
-	}
-
-	return TRUE;
-}
 
 #ifdef TRY_LOCALE_TO_UTF8_CONVERSION
 
@@ -102,26 +75,22 @@ get_file_in_locale (GString *s)
 #endif /* TRY_LOCALE_TO_UTF8_CONVERSION */
 
 static gchar *
-get_file_content (const gchar *uri)
+get_file_content (const gchar *uri,
+                  gsize        n_bytes)
 {
 	GFile            *file;
 	GFileInputStream *stream;
 	GError           *error = NULL;
-	GString                  *s;
-	gssize            bytes;
-	gssize            bytes_valid;
-	gssize            bytes_read_total;
-	gssize            buf_size;
-	gchar             buf[TEXT_CHECK_SIZE];
-	gboolean          has_more_data;
-	gboolean          has_reached_max;
-	gboolean          is_utf8;
+	GString          *s = NULL;
+	gchar             buf[TEXT_BUFFER_SIZE];
+	gsize             n_bytes_remaining;
+	gsize             n_valid_utf8_bytes;
 
 	file = g_file_new_for_uri (uri);
 	stream = g_file_read (file, NULL, &error);
 
 	if (error) {
-		g_message ("Could not get read file:'%s', %s",
+		g_message ("Could not read file:'%s', %s",
 		           uri,
 		           error->message);
 		g_error_free (error);
@@ -130,43 +99,45 @@ get_file_content (const gchar *uri)
 		return NULL;
 	}
 
-	s = g_string_new ("");
-	has_reached_max = FALSE;
-	has_more_data = TRUE;
-	bytes_read_total = 0;
-	buf_size = TEXT_CHECK_SIZE - 1;
+	g_debug ("  Starting to read '%s' up to %" G_GSIZE_FORMAT " bytes...",
+	         uri, n_bytes);
 
-	g_debug ("  Starting read...");
-
-	while (has_more_data && !has_reached_max && !error) {
+	/* Reading in chunks of TEXT_BUFFER_SIZE (8192)
+	 *   Loop is halted whenever one of this conditions is met:
+	 *     a) Read bytes reached the maximum allowed (n_bytes)
+	 *     b) No more bytes to read
+	 *     c) Error reading
+	 *     d) File has less than 3 bytes
+	 *     e) File has a single line of TEXT_BUFFER_SIZE bytes with
+	 *          no EOL
+	 */
+	n_bytes_remaining = n_bytes;
+	while (n_bytes_remaining > 0) {
 		gssize bytes_read;
-		gssize bytes_remaining;
 
-		/* Leave space for NULL termination and make sure we
-		 * add it at the end now.
-		 */
-		bytes_remaining = buf_size;
-		bytes_read = 0;
+		/* Read n_bytes_remaining or TEXT_BUFFER_SIZE bytes */
+		bytes_read = g_input_stream_read (G_INPUT_STREAM (stream),
+		                                  buf,
+		                                  MIN (TEXT_BUFFER_SIZE, n_bytes_remaining),
+		                                  NULL,
+		                                  &error);
 
-		/* Loop until we hit the maximum */
-		for (bytes = -1; bytes != 0 && !error; ) {
-			bytes = g_input_stream_read (G_INPUT_STREAM (stream),
-			                             buf,
-			                             bytes_remaining,
-			                             NULL,
-			                             &error);
-
-			bytes_read += bytes;
-			bytes_remaining -= bytes;
-
-			g_debug ("  Read %" G_GSSIZE_FORMAT " bytes", bytes);
+		/* If any error reading, halt the loop */
+		if (error) {
+			g_message ("Error reading from '%s': '%s'",
+			           uri,
+			           error->message);
+			g_error_free (error);
+			break;
 		}
 
-		/* Set the NULL termination after the last byte read */
-		buf[buf_size - bytes_remaining] = '\0';
+		/* If no more bytes to read, halt loop */
+		if(bytes_read == 0) {
+			break;
+		}
 
 		/* First of all, check if this is the first time we
-		 * have tried to read the file up to the TEXT_CHECK_SIZE
+		 * have tried to read the file up to the TEXT_BUFFER_SIZE
 		 * limit. Then make sure that we read the maximum size
 		 * of the buffer. If we don't do this, there is the
 		 * case where we read 10 bytes in and it is just one
@@ -175,11 +146,11 @@ get_file_content (const gchar *uri)
 		 * file is worth indexing. Similarly if the file has
 		 * <= 3 bytes then we drop it.
 		 */
-		if (bytes_read_total == 0) {
-			if (bytes_read == buf_size &&
-			    strchr (buf, '\n') == NULL) {
+		if (s == NULL) {
+			if (bytes_read == TEXT_BUFFER_SIZE &&
+			    g_strstr_len (buf, bytes_read, "\n") == NULL) {
 				g_debug ("  No '\\n' in the first %" G_GSSIZE_FORMAT " bytes, not indexing file",
-				         buf_size);
+				         bytes_read);
 				break;
 			} else if (bytes_read <= 2) {
 				g_debug ("  File has less than 3 characters in it, not indexing file");
@@ -187,85 +158,61 @@ get_file_content (const gchar *uri)
 			}
 		}
 
-		/* Here we increment the bytes read total to evaluate
-		 * the next states. We don't do this before the
-		 * previous condition so we can know when we have
-		 * iterated > 1.
-		 */
-		bytes_read_total += bytes_read;
-
-		if (bytes_read != buf_size || bytes_read == 0) {
-			has_more_data = FALSE;
-		}
-
-		if (bytes_read_total >= TEXT_MAX_SIZE) {
-			has_reached_max = TRUE;
-		}
+		/* Update remaining bytes */
+		n_bytes_remaining -= bytes_read;
 
 		g_debug ("  Read "
-		         "%" G_GSSIZE_FORMAT " bytes total, "
 		         "%" G_GSSIZE_FORMAT " bytes this time, "
-		         "more data:%s, reached max:%s",
-		         bytes_read_total,
+		         "%" G_GSIZE_FORMAT " bytes remaining",
 		         bytes_read,
-		         has_more_data ? "yes" : "no",
-		         has_reached_max ? "yes" : "no");
+		         n_bytes_remaining);
 
-		/* The + 1 is for the NULL terminating byte */
-		s = g_string_append_len (s, buf, bytes_read + 1);
+		/* Append non-NIL terminated bytes */
+		s = (s == NULL ?
+		     g_string_new_len (buf, bytes_read) :
+		     g_string_append_len (s, buf, bytes_read));
 	}
 
-	if (has_reached_max) {
-		g_debug ("  Maximum indexable limit reached");
-	}
-
-	if (error) {
-		g_message ("Could not read input stream for:'%s', %s",
-		           uri,
-		           error->message);
-		g_error_free (error);
-		g_string_free (s, TRUE);
+	/* If nothing really read, return here */
+	if (!s) {
 		g_object_unref (stream);
 		g_object_unref (file);
-
 		return NULL;
 	}
 
-	/* Check for UTF-8 Validity, if not try to convert it to the
-	 * locale we are in.
-	 */
-	is_utf8 = get_file_is_utf8 (s, &bytes_valid);
+	/* Get number of valid UTF-8 bytes found */
+	tracker_text_validate_utf8 (s->str,
+	                            s->len,
+	                            NULL,
+	                            &n_valid_utf8_bytes);
 
-	/* Make sure the string is NULL terminated and in the case
-	 * where the string is valid UTF-8 up to the last character
-	 * which was cut off, NULL terminate to the last most valid
-	 * character.
-	 */
 #ifdef TRY_LOCALE_TO_UTF8_CONVERSION
-	if (!is_utf8) {
+	/* A valid UTF-8 file will be that where all read bytes are valid,
+	 *  with a margin of 3 bytes for the last UTF-8 character which might
+	 *  have been cut. */
+	if (s->len - n_valid_utf8_bytes > 3) {
+		/* If not UTF-8, try to get contents in locale encoding
+		 *  (returns valid UTF-8) */
 		s = get_file_in_locale (s);
-	} else {
-		g_debug ("  Truncating to last valid UTF-8 character (%d/%d bytes)",
-		         bytes_valid,
-		         s->len);
-		s = g_string_truncate (s, bytes_valid);
-	}
-#else   /* TRY_LOCALE_TO_UTF8_CONVERSION */
-	g_debug ("  Truncating to last valid UTF-8 character (%" G_GSSIZE_FORMAT "/%" G_GSSIZE_FORMAT " bytes)",
-	         bytes_valid,
-	         s->len);
-	s = g_string_truncate (s, bytes_valid);
+	} else
 #endif  /* TRY_LOCALE_TO_UTF8_CONVERSION */
+	if (n_valid_utf8_bytes < s->len) {
+		g_debug ("  Truncating to last valid UTF-8 character "
+		         "(%" G_GSSIZE_FORMAT "/%" G_GSSIZE_FORMAT " bytes)",
+		         n_valid_utf8_bytes,
+		         s->len);
+		s = g_string_truncate (s, n_valid_utf8_bytes);
+	}
 
 	g_object_unref (stream);
 	g_object_unref (file);
 
 	if (s->len < 1) {
 		g_string_free (s, TRUE);
-		s = NULL;
+		return NULL;
 	}
 
-	return s ? g_string_free (s, FALSE) : NULL;
+	return g_string_free (s, FALSE);
 }
 
 static void
@@ -273,11 +220,13 @@ extract_text (const gchar          *uri,
               TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
 {
+	TrackerConfig *config;
 	gchar *content;
 
-	g_type_init ();
+	config = tracker_main_get_config ();
 
-	content = get_file_content (uri);
+	content = get_file_content (uri,
+	                            tracker_config_get_max_bytes (config));
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PlainTextDocument");
