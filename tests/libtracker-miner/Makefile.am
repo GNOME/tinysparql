@@ -8,9 +8,6 @@ TEST_PROGS +=									\
 	tracker-password-provider-test						\
 	tracker-thumbnailer-test
 
-# Disabled for now because it requires symbols NOT exported
-# tracker-monitor-test							
-
 INCLUDES =									\
 	-DTEST									\
 	-DG_LOG_DOMAIN=\"Tracker\"						\
@@ -40,9 +37,6 @@ LIBS =										\
 	$(GTHREAD_LIBS)                                                         \
 	$(GIO_LIBS)                                                             \
 	$(GLIB2_LIBS)
-
-tracker_monitor_test_SOURCES =							\
-	tracker-monitor-test.c
 
 tracker_crawler_test_SOURCES =							\
 	tracker-crawler-test.c
