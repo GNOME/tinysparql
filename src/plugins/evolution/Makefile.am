@@ -11,9 +11,6 @@ INCLUDES =								\
 	$(EVOLUTION_PLUGIN_CFLAGS)					\
 	$(GCOV_CFLAGS)
 
-servicedir = $(DBUS_SERVICES_DIR)
-service_DATA = org.freedesktop.Tracker1.Miner.EMails.service
-
 %.eplug.in: %.eplug.xml
 	LC_ALL=C $(INTLTOOL_MERGE) -x -u /tmp $< $@
 
@@ -54,8 +51,7 @@ BUILT_SOURCES = 							\
 
 CLEANFILES = 								\
 	$(BUILT_SOURCES) 						\
-	org-freedesktop-Tracker-evolution-plugin.eplug
+	$(eplugin_DATA)
 
 EXTRA_DIST =								\
-	$(service_DATA)							\
 	org-freedesktop-Tracker-evolution-plugin.eplug.xml

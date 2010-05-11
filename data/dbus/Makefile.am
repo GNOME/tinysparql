@@ -17,22 +17,34 @@ config_noinst = 						\
 	tracker-miner-files-reindex.xml
 
 # Services
-servicedir = $(DBUS_SERVICES_DIR)
 service_in_files =						\
+	org.freedesktop.Tracker1.service.in			\
+	org.freedesktop.Tracker1.Miner.Applications.service.in	\
+	org.freedesktop.Tracker1.Miner.EMails.service.in	\
+	org.freedesktop.Tracker1.Miner.Files.service.in		\
+	org.freedesktop.Tracker1.Miner.Flickr.service.in	\
+	org.freedesktop.Tracker1.Miner.RSS.service.in		\
+	org.freedesktop.Tracker1.Extract.service.in
+
+%.service: %.service.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+
+# Services
+servicedir = $(DBUS_SERVICES_DIR)
+service_DATA =							\
 	org.freedesktop.Tracker1.service.in			\
 	org.freedesktop.Tracker1.Miner.Applications.service.in	\
 	org.freedesktop.Tracker1.Miner.Files.service.in		\
 	org.freedesktop.Tracker1.Extract.service.in
 
-if HAVE_MINER_RSS
-service_in_files += 						\
-	org.freedesktop.Tracker1.Miner.RSS.service.in
+if HAVE_MINER_EVOLUTION
+service_DATA += org.freedesktop.Tracker1.Miner.EMails.service
 endif
 
-service_DATA = $(service_in_files:.service.in=.service)
+if HAVE_MINER_RSS
+service_DATA += org.freedesktop.Tracker1.Miner.RSS.service
+endif
 
-%.service: %.service.in
-	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
 EXTRA_DIST = 							\
 	$(service_in_files)					\
