@@ -3,9 +3,11 @@
 [encoding: UTF-8]
 
 data/miners/tracker-miner-applications.desktop.in
+data/miners/tracker-miner-evolution.desktop.in
 data/miners/tracker-miner-files.desktop.in
 data/miners/tracker-miner-flickr.desktop.in
 data/miners/tracker-miner-rss.desktop.in
+data/tracker-miner-flickr.desktop.in.in
 data/tracker-miner-fs.desktop.in.in
 data/tracker-miner-rss.desktop.in.in
 data/tracker-status-icon.desktop.in.in
@@ -19,7 +21,6 @@ src/libtracker-miner/tracker-miner-object.c
 src/libtracker-miner/tracker-miner-fs.c
 src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
 src/plugins/evolution/tracker-evolution-plugin.c
-src/plugins/evolution/tracker-miner-emails.desktop.in
 [type: gettext/glade]src/tracker-explorer/tracker-explorer.ui
 src/tracker-extract/tracker-extract.c
 src/tracker-extract/tracker-main.c

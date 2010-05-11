@@ -1,7 +1,8 @@
 # List of source files that should NOT be translated.
 # Please keep this file sorted alphabetically.
-
+data/tracker-miner-flickr.desktop.in
 data/tracker-miner-fs.desktop.in
+data/tracker-miner-rss.desktop.in
 data/tracker-status-icon.desktop.in
 data/tracker-store.desktop.in
 src/tracker-preferences/tracker-preferences.c
