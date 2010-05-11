@@ -24,6 +24,7 @@
 
 #include "tracker-main.h"
 #include "tracker-gsf.h"
+#include "tracker-istream.h"
 
 #include <unistd.h>
 
@@ -69,19 +70,15 @@ static TrackerExtractData extract_data[] = {
 	{ NULL, NULL }
 };
 
-
-#define ODT_BUFFER_SIZE            8193  /* bytes */
-
 static gchar *
 extract_oasis_content (const gchar *uri,
                        gsize        n_bytes)
 {
-	const gchar *argv[4];
-	gint fdz;
-	FILE *fz;
-	GError *error = NULL;
-	gchar *text = NULL;
-	gchar *path;
+	const gchar  *argv[4];
+	gchar        *text = NULL;
+	gchar        *path;
+	GIOChannel   *channel;
+	GPid         pid;
 
 	/* Newly allocated string with the file path */
 	path = g_filename_from_uri (uri, NULL, NULL);
@@ -97,66 +94,25 @@ extract_oasis_content (const gchar *uri,
 	         argv[0], argv[1], argv[2], n_bytes);
 
 	/* Fork & spawn */
-	if (!g_spawn_async_with_pipes (g_get_tmp_dir (),
-	                               (gchar **)argv,
-	                               NULL,
-	                               G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-	                               tracker_spawn_child_func,
-	                               GINT_TO_POINTER (10),
-	                               NULL,
-	                               NULL,
-	                               &fdz,
-	                               NULL,
-	                               &error)) {
-		g_warning ("Spawning failed, could not extract text from '%s': %s",
-		           path, error ? error->message : NULL);
-		g_clear_error (&error);
-	}
-	/* Open file descriptor for reading */
-	else if ((fz = fdopen (fdz, "r")) == NULL) {
-		g_warning ("Cannot read child's output... could not extract "
-		           "text from '%s'", path);
-		close (fdz);
-	}
-	/* Start buffered reading... */
-	else {
-		unsigned char buf[ODT_BUFFER_SIZE];
-		size_t r, bytes_remaining;
-		GString *validated = NULL;
+	if (tracker_spawn_async_with_channels (argv,
+	                                       10,
+	                                       &pid,
+	                                       NULL,
+	                                       &channel,
+	                                       NULL)) {
+		/* Read up to n_bytes from stream */
+		text = tracker_iochannel_read_text (channel,
+		                                    n_bytes,
+		                                    FALSE,
+		                                    TRUE);
 
-		bytes_remaining = n_bytes;
-
-		/* Reading in chunks of ODT_BUFFER_SIZE -1 (8192)
-		 *   Loop is halted whenever one of this conditions is met:
-		 *     a) Read bytes reached the maximum allowed (n_bytes)
-		 *     b) No more bytes to read
-		 */
-		while ((bytes_remaining > 0) &&
-		       (r = fread (buf, 1, ODT_BUFFER_SIZE-1, fz))) {
-			gsize len_to_validate;
-
-			len_to_validate = MIN (bytes_remaining, r);
-
-			tracker_text_validate_utf8 (buf,
-			                            len_to_validate,
-			                            &validated,
-			                            NULL);
-
-			/* Note that in this case we shouldn't add a whitespace
-			 * separator between chunks read */
-
-			/* Update remaining */
-			bytes_remaining -= len_to_validate;
-		}
-
-		/* fclose() the stream, no need to close() the original FD */
-		fclose (fz);
-
-		/* Set final normalized contents to return */
-		text = g_string_free (validated, FALSE);
+		/* Close spawned PID */
+		g_spawn_close_pid (pid);
 	}
 
 	g_free (path);
+
+	/* Note: Channel already closed and unrefed */
 
 	return text;
 }

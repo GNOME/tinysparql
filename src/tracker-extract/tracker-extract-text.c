@@ -29,7 +29,7 @@
 #include "tracker-main.h"
 #include "tracker-istream.h"
 
-#undef  TRY_LOCALE_TO_UTF8_CONVERSION
+#define  TRY_LOCALE_TO_UTF8_CONVERSION 0
 
 static void extract_text (const gchar          *uri,
                           TrackerSparqlBuilder *preupdate,
@@ -40,109 +40,53 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
-#ifdef TRY_LOCALE_TO_UTF8_CONVERSION
-
-static GString *
-get_file_in_locale (GString *s)
-{
-	GError *error = NULL;
-	gchar  *str;
-	gsize   bytes_read;
-	gsize   bytes_written;
-
-	str = g_locale_to_utf8 (s->str,
-	                        s->len,
-	                        &bytes_read,
-	                        &bytes_written,
-	                        &error);
-	if (error) {
-		g_debug ("  Conversion to UTF-8 read %d bytes, wrote %d bytes",
-		         bytes_read,
-		         bytes_written);
-		g_message ("Could not convert file from locale to UTF-8, %s",
-		           error->message);
-		g_error_free (error);
-		g_free (str);
-	} else {
-		g_string_assign (s, str);
-		g_free (str);
-	}
-
-	return s;
-}
-
-#endif /* TRY_LOCALE_TO_UTF8_CONVERSION */
 
 static gchar *
 get_file_content (const gchar *uri,
                   gsize        n_bytes)
 {
-	GFile            *file;
-	GFileInputStream *stream;
-	GError           *error = NULL;
-	GString          *s;
-	gsize             n_valid_utf8_bytes = 0;
+	GIOChannel *channel;
+	GError     *error = NULL;
+	gchar      *text;
+	gchar      *filename;
 
-	file = g_file_new_for_uri (uri);
-	stream = g_file_read (file, NULL, &error);
-
+	/* Get filename from URI */
+	filename = g_filename_from_uri (uri, NULL, &error);
 	if (error) {
-		g_message ("Could not read file:'%s', %s",
+		g_message ("Could not get filename from URI '%s': %s",
 		           uri,
 		           error->message);
 		g_error_free (error);
-		g_object_unref (file);
 
 		return NULL;
 	}
+
+	/* New channel from the given file */
+	channel = g_io_channel_new_file (filename, "r", &error);
+	if (error) {
+		g_message ("Could not read file '%s': %s",
+		           uri,
+		           error->message);
+		g_error_free (error);
+		g_free (filename);
+
+		return NULL;
+	}
+
+	g_free (filename);
 
 	g_debug ("  Starting to read '%s' up to %" G_GSIZE_FORMAT " bytes...",
 	         uri, n_bytes);
 
 	/* Read up to n_bytes from stream */
-	s = tracker_istream_read_text (G_INPUT_STREAM (stream),
-	                               n_bytes);
+	text = tracker_iochannel_read_text (channel,
+	                                    n_bytes,
+	                                    TRY_LOCALE_TO_UTF8_CONVERSION,
+	                                    TRUE);
 
-	/* If nothing really read, return here */
-	if (!s) {
-		g_object_unref (stream);
-		g_object_unref (file);
-		return NULL;
-	}
+	/* Note: Channel already closed and unrefed */
 
-	/* Get number of valid UTF-8 bytes found */
-	tracker_text_validate_utf8 (s->str,
-	                            s->len,
-	                            NULL,
-	                            &n_valid_utf8_bytes);
-
-#ifdef TRY_LOCALE_TO_UTF8_CONVERSION
-	/* A valid UTF-8 file will be that where all read bytes are valid,
-	 *  with a margin of 3 bytes for the last UTF-8 character which might
-	 *  have been cut. */
-	if (s->len - n_valid_utf8_bytes > 3) {
-		/* If not UTF-8, try to get contents in locale encoding
-		 *  (returns valid UTF-8) */
-		s = get_file_in_locale (s);
-	} else
-#endif  /* TRY_LOCALE_TO_UTF8_CONVERSION */
-	if (n_valid_utf8_bytes < s->len) {
-		g_debug ("  Truncating to last valid UTF-8 character "
-		         "(%" G_GSSIZE_FORMAT "/%" G_GSSIZE_FORMAT " bytes)",
-		         n_valid_utf8_bytes,
-		         s->len);
-		s = g_string_truncate (s, n_valid_utf8_bytes);
-	}
-
-	g_object_unref (stream);
-	g_object_unref (file);
-
-	if (s->len < 1) {
-		g_string_free (s, TRUE);
-		return NULL;
-	}
-
-	return g_string_free (s, FALSE);
+	return text;
 }
 
 static void

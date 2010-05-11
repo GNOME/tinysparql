@@ -328,6 +328,7 @@ tracker_extract_SOURCES = 						\
 	tracker-albumart-generic.h
 
 tracker_extract_LDADD = 						\
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\

@@ -25,8 +25,10 @@
 
 G_BEGIN_DECLS
 
-GString *tracker_istream_read_text (GInputStream  *stream,
-                                    gsize          max_bytes);
+gchar *tracker_iochannel_read_text (GIOChannel *channel,
+                                    gsize       max_bytes,
+                                    gboolean    try_locale_if_not_utf8,
+                                    gboolean    close_channel);
 
 G_END_DECLS
 
