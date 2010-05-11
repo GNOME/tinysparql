@@ -8,13 +8,24 @@ tracker-status \- Report the state of all data miners
 
 .SH DESCRIPTION
 .B tracker-status
-shows the status of all miners installed. It also allows pausing and
-resuming of miners. For
-.B tracker-store
-state, you need to use
-.B tracker-control
-.PP
+shows the status of all miners and the store which miners push
+information into. To do this, you can run
+.B tracker-status
+with no command line arguments. For
+.B tracker-store,
+the status is always 
+.B Idle
+unless it is replaying a journal (regardless of load from applications
+or miners). For a list of common statuses, see
+.B \-\-list\-common\-statuses.
 
+The miners can be paused or resumed using this command and you can
+list miners running and available.
+
+To start or stop miners, you need to use 
+.B tracker-control.
+The store is started automatically by the D-Bus calls from the miners.
+.PP
 .SH OPTIONS
 .TP
 .B \-?, \-\-help
