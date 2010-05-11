@@ -321,6 +321,8 @@ tracker_extract_SOURCES = 						\
 	tracker-dbus.h							\
 	tracker-extract.c						\
 	tracker-extract.h						\
+	tracker-istream.c						\
+	tracker-istream.h						\
 	tracker-main.c							\
 	tracker-main.h							\
 	tracker-albumart-generic.h

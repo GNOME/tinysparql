@@ -27,10 +27,9 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-main.h"
+#include "tracker-istream.h"
 
 #undef  TRY_LOCALE_TO_UTF8_CONVERSION
-
-#define TEXT_BUFFER_SIZE 65535    /* bytes */
 
 static void extract_text (const gchar          *uri,
                           TrackerSparqlBuilder *preupdate,
@@ -81,10 +80,8 @@ get_file_content (const gchar *uri,
 	GFile            *file;
 	GFileInputStream *stream;
 	GError           *error = NULL;
-	GString          *s = NULL;
-	gchar             buf[TEXT_BUFFER_SIZE];
-	gsize             n_bytes_remaining;
-	gsize             n_valid_utf8_bytes;
+	GString          *s;
+	gsize             n_valid_utf8_bytes = 0;
 
 	file = g_file_new_for_uri (uri);
 	stream = g_file_read (file, NULL, &error);
@@ -102,76 +99,9 @@ get_file_content (const gchar *uri,
 	g_debug ("  Starting to read '%s' up to %" G_GSIZE_FORMAT " bytes...",
 	         uri, n_bytes);
 
-	/* Reading in chunks of TEXT_BUFFER_SIZE (8192)
-	 *   Loop is halted whenever one of this conditions is met:
-	 *     a) Read bytes reached the maximum allowed (n_bytes)
-	 *     b) No more bytes to read
-	 *     c) Error reading
-	 *     d) File has less than 3 bytes
-	 *     e) File has a single line of TEXT_BUFFER_SIZE bytes with
-	 *          no EOL
-	 */
-	n_bytes_remaining = n_bytes;
-	while (n_bytes_remaining > 0) {
-		gssize bytes_read;
-
-		/* Read n_bytes_remaining or TEXT_BUFFER_SIZE bytes */
-		bytes_read = g_input_stream_read (G_INPUT_STREAM (stream),
-		                                  buf,
-		                                  MIN (TEXT_BUFFER_SIZE, n_bytes_remaining),
-		                                  NULL,
-		                                  &error);
-
-		/* If any error reading, halt the loop */
-		if (error) {
-			g_message ("Error reading from '%s': '%s'",
-			           uri,
-			           error->message);
-			g_error_free (error);
-			break;
-		}
-
-		/* If no more bytes to read, halt loop */
-		if(bytes_read == 0) {
-			break;
-		}
-
-		/* First of all, check if this is the first time we
-		 * have tried to read the file up to the TEXT_BUFFER_SIZE
-		 * limit. Then make sure that we read the maximum size
-		 * of the buffer. If we don't do this, there is the
-		 * case where we read 10 bytes in and it is just one
-		 * line with no '\n'. Once we have confirmed this we
-		 * check that the buffer has a '\n' to make sure the
-		 * file is worth indexing. Similarly if the file has
-		 * <= 3 bytes then we drop it.
-		 */
-		if (s == NULL) {
-			if (bytes_read == TEXT_BUFFER_SIZE &&
-			    g_strstr_len (buf, bytes_read, "\n") == NULL) {
-				g_debug ("  No '\\n' in the first %" G_GSSIZE_FORMAT " bytes, not indexing file",
-				         bytes_read);
-				break;
-			} else if (bytes_read <= 2) {
-				g_debug ("  File has less than 3 characters in it, not indexing file");
-				break;
-			}
-		}
-
-		/* Update remaining bytes */
-		n_bytes_remaining -= bytes_read;
-
-		g_debug ("  Read "
-		         "%" G_GSSIZE_FORMAT " bytes this time, "
-		         "%" G_GSIZE_FORMAT " bytes remaining",
-		         bytes_read,
-		         n_bytes_remaining);
-
-		/* Append non-NIL terminated bytes */
-		s = (s == NULL ?
-		     g_string_new_len (buf, bytes_read) :
-		     g_string_append_len (s, buf, bytes_read));
-	}
+	/* Read up to n_bytes from stream */
+	s = tracker_istream_read_text (G_INPUT_STREAM (stream),
+	                               n_bytes);
 
 	/* If nothing really read, return here */
 	if (!s) {
