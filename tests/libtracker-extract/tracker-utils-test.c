@@ -88,32 +88,104 @@ test_guess_date (void)
 }
 
 static void
-test_text_normalize ()
+test_text_validate_utf8 ()
 {
-        gint i, n_words;
-        gchar *result;
-        struct {
-                const gchar *input_text;
-                const gchar *expected_output;
-                gint   n_words;
-        } TEST_BATTERY [] = {
-                { "this is the basic test", "this is the basic test", 5 },
-                { "         ", "", 0},
-                { "    A", "A", 1},
-                { "A   ", "A ", 1},
-                { "some.other:word-breaker/s", "some other word breaker s", 5},
-                { "or \"other\" symbols", "or other symbols", 3},
-                { "http://www.google.com", "http www google com", 4},
-                { NULL, NULL, 0 }
-        };
-        
-        for (i = 0; TEST_BATTERY[i].input_text != NULL; i++) {
-                result = tracker_text_normalize (TEST_BATTERY[i].input_text, 10, &n_words);
+	GString *s = NULL;
+	gsize    utf8_len = 0;
+	gint i;
+	gboolean result;
+	const gchar *valid_utf8[] = {
+		"GNU's not Unix",
+		"abcdefghijklmnopqrstuvwxyz0123456789?!,.-_",
+		"\xF0\x90\x80\x80",
+		"\x41" "\xCE\xA9" "\xE8\xAA\x9E" "\xF0\x90\x8E\x84",
+		NULL
+	};
 
-                g_assert_cmpstr (result, ==, TEST_BATTERY[i].expected_output);
-                g_assert_cmpint (n_words, ==, TEST_BATTERY[i].n_words);
-                g_free (result);
-        }
+	/* If text is empty, FALSE should be returned */
+	result = tracker_text_validate_utf8 ("", 0, NULL, NULL);
+	g_assert_cmpuint (result, ==, 0);
+
+	/* If a fully valid UTF-8 string is given as input, output
+	 *  length should be equal to the input length, and the
+	 *  output GString should contain exactly the same contents
+	 *  as the input */
+	for (i = 0; valid_utf8[i] != NULL; i++) {
+		s = NULL;
+		utf8_len = 0;
+		result = tracker_text_validate_utf8 (valid_utf8[i],
+		                                     strlen (valid_utf8[i]),
+		                                     &s,
+		                                     &utf8_len);
+		g_assert_cmpuint (result, ==, 1);
+		g_assert_cmpuint (utf8_len, ==, strlen (valid_utf8[i]));
+		g_assert (s);
+		g_assert_cmpuint (s->len, ==, strlen (valid_utf8[i]));
+		g_assert_cmpstr (s->str, ==, valid_utf8[i]);
+		g_string_free (s, TRUE);
+	}
+
+	/* Same as previous, passing -1 as input text length */
+	for (i = 0; valid_utf8[i] != NULL; i++) {
+		s = NULL;
+		utf8_len = 0;
+		result = tracker_text_validate_utf8 (valid_utf8[i],
+		                                     -1,
+		                                     &s,
+		                                     &utf8_len);
+		g_assert_cmpuint (result, ==, 1);
+		g_assert_cmpuint (utf8_len, ==, strlen (valid_utf8[i]));
+		g_assert (s);
+		g_assert_cmpuint (s->len, ==, strlen (valid_utf8[i]));
+		g_assert_cmpstr (s->str, ==, valid_utf8[i]);
+		g_string_free (s, TRUE);
+	}
+
+	/* Same as previous, only wanting output text */
+	for (i = 0; valid_utf8[i] != NULL; i++) {
+		s = NULL;
+		result = tracker_text_validate_utf8 (valid_utf8[i],
+		                                     -1,
+		                                     &s,
+		                                     NULL);
+		g_assert_cmpuint (result, ==, 1);
+		g_assert (s);
+		g_assert_cmpuint (s->len, ==, strlen (valid_utf8[i]));
+		g_assert_cmpstr (s->str, ==, valid_utf8[i]);
+		g_string_free (s, TRUE);
+	}
+
+	/* Same as previous, only wanting number of valid UTF-8 bytes */
+	for (i = 0; valid_utf8[i] != NULL; i++) {
+		utf8_len = 0;
+		result = tracker_text_validate_utf8 (valid_utf8[i],
+		                                     -1,
+		                                     NULL,
+		                                     &utf8_len);
+		g_assert_cmpuint (result, ==, 1);
+		g_assert_cmpuint (utf8_len, ==, strlen (valid_utf8[i]));
+	}
+
+	/* If the input string starts with non-valid UTF-8 already, FALSE
+	 *  should be returned */
+	result = tracker_text_validate_utf8 ("\xF0\x90\x80" "a", -1, NULL, NULL);
+	g_assert_cmpuint (result, ==, 0);
+
+	/* If the input string suddenly has some non-valid UTF-8 bytes,
+	 *  TRUE should be returned, and the outputs should contain only info
+	 *  about the valid first chunk of UTF-8 bytes */
+	s = NULL;
+	utf8_len = 0;
+	result = tracker_text_validate_utf8 ("abcdefghijk" "\xF0\x90\x80" "a",
+	                                     -1,
+	                                     &s,
+	                                     &utf8_len);
+	g_assert_cmpuint (result, ==, 1);
+	g_assert_cmpuint (utf8_len, ==, strlen ("abcdefghijk"));
+	g_assert (s);
+	g_assert_cmpuint (s->len, ==, strlen ("abcdefghijk"));
+	g_assert_cmpstr (s->str, ==, "abcdefghijk");
+	g_string_free (s, TRUE);
 }
 
 static void
@@ -142,8 +214,8 @@ main (int argc, char **argv)
 	g_test_add_func ("/libtracker-extract/tracker-utils/guess_date",
 	                 test_guess_date);
 
-        g_test_add_func ("/libtracker-extract/tracker-utils/text-normalize",
-                         test_text_normalize);
+        g_test_add_func ("/libtracker-extract/tracker-utils/text-validate-utf8",
+                         test_text_validate_utf8);
 
         g_test_add_func ("/libtracker-extract/tracker-utils/date_to_iso8601",
                          test_date_to_iso8601);
