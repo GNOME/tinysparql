@@ -402,6 +402,8 @@ main (int argc, char *argv[])
 
 	setlocale (LC_ALL, "");
 
+	config = tracker_config_new ();
+
 	/* Set conditions when we use stand alone settings */
 	if (filename) {
 		return run_standalone ();
@@ -409,8 +411,6 @@ main (int argc, char *argv[])
 
 	/* Initialize subsystems */
 	initialize_directories ();
-
-	config = tracker_config_new ();
 
 	/* Extractor command line arguments */
 	if (verbosity > -1) {
