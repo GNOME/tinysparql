@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_ISTREAM_H__
-#define __TRACKER_ISTREAM_H__
+#ifndef __TRACKER_IOCHANNEL_H__
+#define __TRACKER_IOCHANNEL_H__
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -32,5 +32,5 @@ gchar *tracker_iochannel_read_text (GIOChannel *channel,
 
 G_END_DECLS
 
-#endif /* __TRACKER_ISTREAM_H__ */
+#endif /* __TRACKER_IOCHANNEL_H__ */
 

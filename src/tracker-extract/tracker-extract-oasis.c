@@ -24,7 +24,7 @@
 
 #include "tracker-main.h"
 #include "tracker-gsf.h"
-#include "tracker-istream.h"
+#include "tracker-iochannel.h"
 
 #include <unistd.h>
 

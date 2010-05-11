@@ -24,7 +24,7 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#include "tracker-istream.h"
+#include "tracker-iochannel.h"
 
 /* Size of the buffer to use when reading from the GIOChannel, in bytes */
 #define BUFFER_SIZE 65535
@@ -32,7 +32,6 @@
 /* Maximum number of retries if the GIOChannel is G_IO_STATUS_AGAIN,
  *  to avoid infinite loops */
 #define MAX_RETRIES 5
-
 
 
 static GString *
@@ -84,7 +83,7 @@ tracker_iochannel_read_text (GIOChannel *channel,
                              gboolean    close_channel)
 {
 	GString *s = NULL;
-	gsize    n_bytes_remaining;
+	gsize    n_bytes_remaining = max_bytes;
 	guint    n_retries = MAX_RETRIES;
 
 	g_return_val_if_fail (channel, NULL);
@@ -103,7 +102,6 @@ tracker_iochannel_read_text (GIOChannel *channel,
 	 *     e) Stream has a single line of BUFFER_SIZE bytes with no EOL
 	 *     f) Max reading retries arrived
 	 */
-	n_bytes_remaining = max_bytes;
 	while (n_bytes_remaining > 0 &&
 	       n_retries > 0) {
 		gchar      buf[BUFFER_SIZE];
@@ -211,6 +209,7 @@ tracker_iochannel_read_text (GIOChannel *channel,
 	/* Properly close channel if requested to do so */
 	if (close_channel) {
 		GError *error = NULL;
+
 		g_io_channel_shutdown (channel, TRUE, &error);
 		if (error) {
 			g_message ("Couldn't properly shutdown channel: '%s'",

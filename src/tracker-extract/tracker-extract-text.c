@@ -27,7 +27,7 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-main.h"
-#include "tracker-istream.h"
+#include "tracker-iochannel.h"
 
 #define  TRY_LOCALE_TO_UTF8_CONVERSION 0
 
