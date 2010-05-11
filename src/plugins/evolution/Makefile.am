@@ -44,14 +44,7 @@ liborg_freedesktop_Tracker_evolution_plugin_la_LIBADD = 		\
 	$(DBUS_LIBS)							\
 	$(GCOV_LIBS)
 
-desktop_in_files = tracker-miner-emails.desktop.in
-
-tracker_minersdir = $(datadir)/tracker/miners
-
-tracker_miners_DATA = tracker-miner-emails.desktop
-
 @INTLTOOL_DESKTOP_RULE@
-
 
 %-glue.h: %.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
@@ -61,10 +54,8 @@ BUILT_SOURCES = 							\
 
 CLEANFILES = 								\
 	$(BUILT_SOURCES) 						\
-	$(tracker_miners_DATA)						\
 	org-freedesktop-Tracker-evolution-plugin.eplug
 
 EXTRA_DIST =								\
 	$(service_DATA)							\
-	$(desktop_in_files)						\
 	org-freedesktop-Tracker-evolution-plugin.eplug.xml
