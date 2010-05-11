@@ -361,25 +361,27 @@ tracker_text_normalize (const gchar *text,
  * tracker_text_validate_utf8:
  * @text: the text to validate
  * @text_len: length of @text, or -1 if NIL-terminated
- * @str: the string where to place the validated characters
+ * @str: the string where to place the validated UTF-8 characters, or %NULL if
+ *  not needed.
+ * @p_utf8_len: Output number of valid UTF-8 bytes found, or %NULL if not needed
  *
  * This function iterates through @text checking for UTF-8 validity
- * using g_utf8_validate(), and appends the first chunk of valid characters
- * to @str.
+ * using g_utf8_validate(), appends the first chunk of valid characters
+ * to @str, and gives the number of valid UTF-8 bytes in @p_utf8_len.
  *
- * Returns: %TRUE if valid UTF-8 in @text was appended to @str
+ * Returns: %TRUE if some bytes were found to be valid, %FALSE otherwise.
  *
  * Since: 0.9
  **/
 gboolean
 tracker_text_validate_utf8 (const gchar  *text,
                             gsize         text_len,
-                            GString     **str)
+                            GString     **str,
+                            gsize        *p_utf8_len)
 {
 	gsize len_to_validate;
 
 	g_return_val_if_fail (text, FALSE);
-	g_return_val_if_fail (str, FALSE);
 
 	len_to_validate = text_len >= 0 ? text_len : strlen (text);
 
@@ -390,12 +392,19 @@ tracker_text_validate_utf8 (const gchar  *text,
 		 *  (if any) or to the end of the string. */
 		g_utf8_validate (text, len_to_validate, &end);
 		if (end > text) {
-			/* Create string to output if not already as input */
-			if (*str == NULL) {
-				*str = g_string_new_len (text, end-text);
-			} else {
-				*str = g_string_append_len (*str, text, end-text);
+			/* If str output required... */
+			if (str) {
+				/* Create string to output if not already as input */
+				*str = (*str == NULL ?
+				        g_string_new_len (text, end - text) :
+				        g_string_append_len (*str, text, end - text));
 			}
+
+			/* If utf8 len output required... */
+			if (p_utf8_len) {
+				*p_utf8_len = end - text;
+			}
+
 			return TRUE;
 		}
 	}

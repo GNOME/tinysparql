@@ -221,7 +221,8 @@ parser_characters (void          *data,
 			                                (pd->n_bytes_remaining < text_len ?
 			                                 pd->n_bytes_remaining :
 			                                 text_len),
-			                                &pd->plain_text)) {
+			                                &pd->plain_text,
+			                                NULL)) {
 				/* In the case of HTML, each string arriving this
 				 * callback is independent to any other previous
 				 * string, so need to add an explicit whitespace

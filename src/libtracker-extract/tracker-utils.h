@@ -41,7 +41,8 @@ gchar*       tracker_text_normalize         (const gchar *text,
 
 gboolean     tracker_text_validate_utf8     (const gchar  *text,
                                              gsize         text_len,
-                                             GString     **str);
+                                             GString     **str,
+                                             gsize        *p_utf8_len);
 gchar*       tracker_date_guess             (const gchar *date_string);
 gchar*       tracker_date_format_to_iso8601 (const gchar *date_string,
                                              const gchar *format);

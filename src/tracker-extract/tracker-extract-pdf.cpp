@@ -365,7 +365,8 @@ extract_content (PDFDoc *document,
 
 		if (tracker_text_validate_utf8 (sel_text->getCString (),
 		                                len_to_validate,
-		                                &string)) {
+		                                &string,
+		                                NULL)) {
 			/* A whitespace is added to separate next strings appended */
 			g_string_append_c (string, ' ');
 		}

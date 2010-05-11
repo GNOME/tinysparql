@@ -139,7 +139,8 @@ extract_oasis_content (const gchar *uri,
 
 			tracker_text_validate_utf8 (buf,
 			                            len_to_validate,
-			                            &validated);
+			                            &validated,
+			                            NULL);
 
 			/* Note that in this case we shouldn't add a whitespace
 			 * separator between chunks read */

@@ -434,7 +434,8 @@ msoffice_convert_and_normalize_chunk (guint8    *buffer,
 
 		if (tracker_text_validate_utf8 (converted_text,
 		                                len_to_validate,
-		                                p_content)) {
+		                                p_content,
+		                                NULL)) {
 			/* A whitespace is added to separate next strings appended */
 			g_string_append_c (*p_content, ' ');
 		}
@@ -1860,7 +1861,7 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 	case MS_OFFICE_XML_TAG_WORD_TEXT:
 		if (info->style_element_present) {
 			if (atoi (text) == 0) {
-				tracker_text_validate_utf8 (text, -1, &info->content);
+				tracker_text_validate_utf8 (text, -1, &info->content, NULL);
 				g_string_append_c (info->content, ' ');
 			}
 		}
@@ -1868,7 +1869,7 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 		if (info->preserve_attribute_present) {
 			gchar *keywords = g_strdup (text);
 			if (found) {
-				tracker_text_validate_utf8 (text, -1, &info->content);
+				tracker_text_validate_utf8 (text, -1, &info->content, NULL);
 				g_string_append_c (info->content, ' ');
 				found = FALSE;
 			} else {
@@ -1892,13 +1893,13 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 		break;
 
 	case MS_OFFICE_XML_TAG_SLIDE_TEXT:
-		tracker_text_validate_utf8 (text, -1, &info->content);
+		tracker_text_validate_utf8 (text, -1, &info->content, NULL);
 		g_string_append_c (info->content, ' ');
 		break;
 
 	case MS_OFFICE_XML_TAG_XLS_SHARED_TEXT:
 		if (atoi (text) == 0)  {
-			tracker_text_validate_utf8 (text, -1, &info->content);
+			tracker_text_validate_utf8 (text, -1, &info->content, NULL);
 			g_string_append_c (info->content, ' ');
 		}
 		break;
