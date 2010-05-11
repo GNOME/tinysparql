@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS = db dbus languages icons ontologies miners
 
-# Should do this for *.desktop.in.in
+# First we fix the VERSION and libexecdir in the desktop files
 tracker-status-icon.desktop.in: tracker-status-icon.desktop.in.in
 	@sed -e "s|@bindir[@]|${bindir}|" 		\
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
@@ -15,31 +15,25 @@ tracker-miner-fs.desktop.in: tracker-miner-fs.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" 	\
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
-if USING_MINER_RSS
 tracker-miner-rss.desktop.in: tracker-miner-rss.desktop.in.in
 	@$(SED) -e "s|@libexecdir[@]|${libexecdir}|" 	\
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
-endif
 
-autostartdir = $(sysconfdir)/xdg/autostart
-autostart_in_in_files = 				\
+desktop_in_in_files = 					\
 	tracker-status-icon.desktop.in.in		\
 	tracker-store.desktop.in.in			\
-	tracker-miner-fs.desktop.in.in
+	tracker-miner-fs.desktop.in.in			\
+	tracker-miner-rss.desktop.in.in
 
-if USING_MINER_RSS
-autostart_in_in_files += tracker-miner-rss.desktop.in.in
-endif
-
-autostart_in_files = 					\
+# Second take those new .in files and translate them
+desktop_in_files = 					\
 	tracker-status-icon.desktop.in			\
 	tracker-store.desktop.in			\
-	tracker-miner-fs.desktop.in
+	tracker-miner-fs.desktop.in			\
+	tracker-miner-rss.desktop.in
 
-if USING_MINER_RSS
-autostart_in_files += tracker-miner-rss.desktop.in
-endif
-
+# Third we choose what we want installed based on config
+autostartdir = $(sysconfdir)/xdg/autostart
 autostart_DATA = 					\
 	tracker-store.desktop				\
 	tracker-miner-fs.desktop
@@ -54,6 +48,7 @@ endif
 
 @INTLTOOL_DESKTOP_RULE@
 
+# Set up pkg-config .pc files for exported libraries
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = 					\
 	tracker-client-$(TRACKER_API_VERSION).pc	\
@@ -71,9 +66,9 @@ tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
 
 CLEANFILES = 						\
 	$(autostart_DATA) 				\
-	$(autostart_in_files)				\
+	$(desktop_in_files)				\
 	tracker-client-$(TRACKER_API_VERSION).pc	\
 	tracker-extract-$(TRACKER_API_VERSION).pc	\
 	tracker-miner-$(TRACKER_API_VERSION).pc
 
-EXTRA_DIST = $(autostart_in_in_files)
+EXTRA_DIST = $(desktop_in_in_files)
