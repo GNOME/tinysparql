@@ -325,6 +325,32 @@ add_time_gst_tag (TrackerSparqlBuilder   *metadata,
 	}
 }
 
+static void
+add_keywords_gst_tag (TrackerSparqlBuilder *metadata,
+                      GstTagList           *tag_list)
+{
+	gboolean ret;
+	gchar *str;
+
+	ret = gst_tag_list_get_string (tag_list, GST_TAG_KEYWORDS, &str);
+
+	if (ret) {
+		GStrv keywords;
+		gint i = 0;
+
+		keywords = g_strsplit_set (str, " ,", -1);
+
+		while (keywords[i]) {
+			tracker_sparql_builder_predicate (metadata, "nie:keyword");
+			tracker_sparql_builder_object_unvalidated (metadata, g_strstrip (keywords[i]));
+			i++;
+		}
+
+		g_strfreev (keywords);
+		g_free (str);
+	}
+}
+
 static gboolean
 get_embedded_album_art(MetadataExtractor *extractor)
 {
@@ -716,6 +742,8 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_predicate (metadata, "nmm:director");
 				tracker_sparql_builder_object_iri (metadata, composer_uri);
 			}
+
+			add_keywords_gst_tag (metadata, extractor->tagcache);
 		}
 
 		if (needs_audio) {
