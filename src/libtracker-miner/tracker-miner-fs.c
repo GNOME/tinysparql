@@ -663,6 +663,10 @@ fs_finalize (GObject *object)
 		g_hash_table_unref (priv->mtime_cache);
 	}
 
+	if (priv->iri_cache) {
+		g_hash_table_unref (priv->iri_cache);
+	}
+
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->finalize (object);
 }
 
@@ -987,6 +991,8 @@ sparql_update_cb (GObject      *object,
 				 */
 				g_hash_table_insert (fs->private->iri_cache, g_object_ref (data->file), NULL);
 			}
+
+			g_object_unref (parent);
 		}
 	}
 
@@ -1153,6 +1159,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
+	g_free (query);
 }
 
 static const gchar *
@@ -2203,6 +2210,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
+	g_free (query);
 }
 
 static gboolean
