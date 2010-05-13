@@ -22,7 +22,6 @@ service_in_files =						\
 	org.freedesktop.Tracker1.Miner.Applications.service.in	\
 	org.freedesktop.Tracker1.Miner.EMails.service.in	\
 	org.freedesktop.Tracker1.Miner.Files.service.in		\
-	org.freedesktop.Tracker1.Miner.Flickr.service.in	\
 	org.freedesktop.Tracker1.Miner.RSS.service.in		\
 	org.freedesktop.Tracker1.Extract.service.in
 
