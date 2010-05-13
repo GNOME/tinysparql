@@ -19,6 +19,8 @@ INCLUDES =									\
 	-I$(top_srcdir)/src							\
 	-I$(top_srcdir)/tests/common						\
 	-I$(top_builddir)/src/tracker-store					\
+	-I$(top_builddir)/src							\
+	-I$(top_builddir)/src/libtracker-client					\
 	$(WARN_CFLAGS)								\
 	$(GCOV_CFLAGS)								\
 	$(GLIB2_CFLAGS)								\

@@ -7,6 +7,8 @@ INCLUDES =						\
 	-DTRACKER_COMPILATION				\
 	-DTRACKER_MINERS_DIR=\""$(datadir)/tracker/miners"\" 	\
 	-I$(top_srcdir)/src				\
+	-I$(top_builddir)/src				\
+	-I$(top_builddir)/src/libtracker-client		\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\

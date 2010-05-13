@@ -6,6 +6,8 @@ INCLUDES =								\
 	-DLOCALEDIR="\"$(localedir)\""					\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
+	-I$(top_builddir)/src						\
+	-I$(top_builddir)/src/libtracker-client				\
 	$(WARN_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(EVOLUTION_PLUGIN_CFLAGS)					\
@@ -30,7 +32,7 @@ module_flags = -module -avoid-version -no-undefined
 
 liborg_freedesktop_Tracker_evolution_plugin_la_SOURCES = 		\
 	tracker-evolution-plugin.c 			 		\
-	tracker-evolution-plugin.h					
+	tracker-evolution-plugin.h
 
 liborg_freedesktop_Tracker_evolution_plugin_la_LDFLAGS = -module -avoid-version
 liborg_freedesktop_Tracker_evolution_plugin_la_LIBADD = 		\

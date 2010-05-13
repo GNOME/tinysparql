@@ -2,6 +2,8 @@ include $(top_srcdir)/Makefile.decl
 
 INCLUDES =											\
 	-I$(top_srcdir)/src									\
+	-I$(top_builddir)/src									\
+	-I$(top_builddir)/src/libtracker-client							\
 	$(GCOV_CFLAGS)										\
 	$(WARN_CFLAGS)										\
 	$(NAUTILUS_EXTENSION_CFLAGS)								\

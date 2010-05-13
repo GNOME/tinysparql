@@ -10,6 +10,8 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\" 			\
 	-I$(top_srcdir)/src 						\
+	-I$(top_builddir)/src						\
+	-I$(top_builddir)/src/libtracker-client				\
 	$(TRACKER_APPS_CFLAGS)						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\

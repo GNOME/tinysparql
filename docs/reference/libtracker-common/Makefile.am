@@ -12,7 +12,7 @@ DOC_MAIN_SGML_FILE=libtracker-common-docs.sgml
 SCAN_OPTIONS=--deprecated-guards="TRACKER_DISABLE_DEPRECATED"
 
 # Extra options to pass to gtkdoc-scangobj
-# SCANGOBJ_OPTIONS=--type-init-func="gtk_type_init(0)" 
+# SCANGOBJ_OPTIONS=--type-init-func="gtk_type_init(0)"
 
 # The directory containing the source code. Relative to $(srcdir)
 DOC_SOURCE_DIR=../../../src/libtracker-common
@@ -42,6 +42,9 @@ GTKDOC_LIBS =								\
 
 # Extra options to supply to gtkdoc-mkdb
 MKDB_OPTIONS=--sgml-mode --output-format=xml
+
+# Extra options to supply to gtkdoc-mkhtml
+MKHTML_OPTIONS=--path="$(abs_builddir)"
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE)
 content_files =						\

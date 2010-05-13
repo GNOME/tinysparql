@@ -5,6 +5,8 @@ INCLUDES =								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
+	-I$(top_builddir)/src						\
+	-I$(top_builddir)/src/libtracker-client				\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
@@ -55,9 +57,9 @@ vapi_sources =								\
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi			\
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi	\
 	$(top_srcdir)/src/libtracker-db/libtracker-db.vapi		\
-	libtracker-data.vapi 
+	libtracker-data.vapi
 
-libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES) $(vapi_sources) 
+libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES) $(vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) -H tracker-sparql-query.h $^
 	touch $@
 
@@ -76,7 +78,7 @@ libtracker_data_la_LIBADD = 						\
 MAINTAINERCLEANFILES =							\
 	libtracker-data.vala.stamp					\
 	$(libtracker_data_la_VALASOURCES:.vala=.c)			\
-	tracker-sparql-query.h					\
+	tracker-sparql-query.h						\
 	$(NULL)
 
 EXTRA_DIST = $(libtracker_data_la_VALASOURCES)				\

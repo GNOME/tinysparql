@@ -24,7 +24,7 @@ INCLUDES = 									\
 
 tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/miners/fs/tracker-config.c				\
-	$(top_srcdir)/src/miners/fs/tracker-marshal.c				\
+	$(top_builddir)/src/miners/fs/tracker-marshal.c				\
 	tracker-metadata-utils-test.c
 
 tracker_metadata_utils_LDADD =	                                        	\

@@ -5,6 +5,8 @@ INCLUDES = -I$(top_srcdir)/src						\
 	-DLOCALEDIR="\"$(localedir)\""					\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
+	-I$(top_builddir)/src						\
+	-I$(top_builddir)/src/libtracker-client				\
 	$(WARN_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(GCOV_CFLAGS)

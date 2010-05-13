@@ -7,6 +7,8 @@ INCLUDES =								\
 	-DTRACKER_LIBEXECDIR=\""$(libexecdir)"\" 			\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
+	-I$(top_builddir)/src						\
+	-I$(top_builddir)/src/libtracker-client				\
 	$(TRACKER_APPS_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
 	$(WARN_CFLAGS)							\

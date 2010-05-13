@@ -5,6 +5,8 @@ modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
 INCLUDES = 								\
 	-I$(top_srcdir)/src 						\
+	-I$(top_builddir)/src						\
+	-I$(top_builddir)/src/libtracker-client				\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)

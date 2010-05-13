@@ -9,6 +9,8 @@ INCLUDES =								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
+	-I$(top_builddir)/src						\
+	-I$(top_builddir)/src/libtracker-client				\
 	$(WARN_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(DBUS_CFLAGS)							\
@@ -27,7 +29,7 @@ tracker_miner_fs_SOURCES =						\
 	tracker-miner-files.c						\
 	tracker-miner-files.h						\
 	tracker-miner-files-reindex.c					\
-	tracker-miner-files-reindex.h					
+	tracker-miner-files-reindex.h
 
 tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \

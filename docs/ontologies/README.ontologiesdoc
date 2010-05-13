@@ -9,11 +9,10 @@ Expected documents/format
 1) There should be one directory per ontology prefix.
 2) In that directory, there must be a file called 'explanation.xml'
    This file will be copied as-it-is into the documentation general XML
-3) There is a predefined id schema for the elements in ontology 
+3) There is a predefined id schema for the elements in ontology
    and the document itself, so it is easy to link them from anywhere.
-4) Images and other resources (*) linked in the documentation must be 
-   added _in two places_
-    - docs/tools/Makefile.am (ONTOLOGY_DIAGRAMS variable)
+4) Images and other resources (*) linked in the documentation must be
+   added: 
     - docs/reference/ontology/Makefile.am (ONTOLOGY_DIAGRAMS variable)
 
 (*) .dia files will be exported as PNG.
@@ -62,7 +61,7 @@ There are two steps:
    docs/reference/ontology
 
    make check the gen-doc.stamp file to decide when it needs to
-   rebuild. Remove that file after modifying any of the inputs to 
+   rebuild. Remove that file after modifying any of the inputs to
    force a rebuild.
 
 2) run make in docs/reference/ontology
