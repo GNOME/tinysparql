@@ -1,3 +1,57 @@
+NEW in 0.8.6 - 2010-05-13
+=========================
+
+Improvements / New:
+
+  General:
+  * Fixed some inconsistencies in the miner configuration
+  * Use conditionals for final .desktop files only (simplifies Makefile.am)
+
+  Data Generators:
+  * Moved deprecated scripts to a deprecated/ directory
+  * Added check to make sure config has been loaded when run
+
+  libtracker-common:
+  * Removed call to g_get_current_time() in log_output(), was unused
+
+  libtracker-miner:
+  * Removed monitor test, symbols are no longer exported and was disabled
+
+  tracker-store:
+  * Do not use DBusGMethodInvocation after freeing it
+
+  tracker-miner-fs:
+  * Fixed memory leak when finalizing TrackerMinerFS
+  * Fixed memory leak when called back after SPARQL update
+  * Fixed memory leak when ensuring IRI cache
+
+  tracker-miner-rss:
+  * Fixed .desktop file, was using miner file format
+
+  tracker-extract:
+  * Set nmm:albumArtist to nmm:MusicAlbum for GStreamer extractor
+
+  tracker-writeback:
+  * Support MP4 and 3GPP formats
+
+  evolution:
+  * Moved .desktop file to same location as others in data/dbus/
+
+Bugs:
+
+  * GB#617082 - RFE Useability - Learning How to Start the Miners was a Little Unintuitive
+  * GB#617515 - SPARQL query: SELECT MAX(?something)+1 { ... } creates wrong native SQLite query
+  * NB#166638 - Some of the metadata details of " avi " files are not extracted by tracker.
+  * NB#167616 - Tracker's ISO 8601 timestamp implementation is not correct
+
+Translations:
+
+  * Updated nb: Kjartan Maraas
+
+Notes:
+
+  None
+
 NEW in 0.8.5 - 2010-05-06
 =========================
 
