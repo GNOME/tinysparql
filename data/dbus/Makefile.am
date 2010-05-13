@@ -32,10 +32,10 @@ service_in_files =						\
 # Services
 servicedir = $(DBUS_SERVICES_DIR)
 service_DATA =							\
-	org.freedesktop.Tracker1.service.in			\
-	org.freedesktop.Tracker1.Miner.Applications.service.in	\
-	org.freedesktop.Tracker1.Miner.Files.service.in		\
-	org.freedesktop.Tracker1.Extract.service.in
+	org.freedesktop.Tracker1.service			\
+	org.freedesktop.Tracker1.Miner.Applications.service	\
+	org.freedesktop.Tracker1.Miner.Files.service		\
+	org.freedesktop.Tracker1.Extract.service
 
 if HAVE_MINER_EVOLUTION
 service_DATA += org.freedesktop.Tracker1.Miner.EMails.service
