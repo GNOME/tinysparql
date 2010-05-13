@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-05-06 17:54+0000\n"
-"PO-Revision-Date: 2010-05-10 20:07+0200\n"
+"POT-Creation-Date: 2010-05-13 14:52+0000\n"
+"PO-Revision-Date: 2010-05-13 21:13+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -28,6 +28,14 @@ msgstr "Aplicaciones"
 #: ../data/miners/tracker-miner-applications.desktop.in.h:2
 msgid "Applications data miner"
 msgstr "Minero de datos de aplicaciones"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:1
+msgid "Emails"
+msgstr "Correos-e"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:2
+msgid "Evolution Email miner"
+msgstr "Minero de correos-e de Evolution"
 
 #: ../data/miners/tracker-miner-files.desktop.in.h:1
 msgid "File System"
@@ -52,6 +60,16 @@ msgstr "Se arrastra y procesa archivos en el sistema de archivos"
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
 msgid "Tracker File System Miner"
 msgstr "Minero del sistema de archivos de Tracker"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:1
+#| msgid "Fetch RSS/ATOM Feeds"
+msgid "Fetch RSS/ATOM feeds"
+msgstr "Obtener proveedores RSS/ATOM"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:2
+#| msgid "Fetch RSS/ATOM Feeds"
+msgid "Tracker RSS/ATOM Feeds Miner"
+msgstr "Minero de proveedores RSS/ATOM de Tracker"
 
 #: ../data/tracker-status-icon.desktop.in.in.h:1
 msgid "Tracker Status Icon"
@@ -201,14 +219,6 @@ msgstr "Tracker"
 #: ../src/tracker-utils/tracker-status.c:70
 msgid "Processing…"
 msgstr "Procesando…"
-
-#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:1
-msgid "Emails"
-msgstr "Correos-e"
-
-#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:2
-msgid "Evolution Email miner"
-msgstr "Minero de correos-e de Evolution"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
 msgid "Properties"
@@ -1233,12 +1243,10 @@ msgid "Search for document files"
 msgstr "Buscar archivos de documentos"
 
 #: ../src/tracker-utils/tracker-search.c:115
-#| msgid "Search for files"
 msgid "Search for emails"
 msgstr "Buscar correos-e"
 
 #: ../src/tracker-utils/tracker-search.c:119
-#| msgid "Search for folders"
 msgid "Search for contacts"
 msgstr "Buscar contactos"
 
@@ -1268,12 +1276,10 @@ msgid "Could not get search results"
 msgstr "No se pudieron obtener los resultados"
 
 #: ../src/tracker-utils/tracker-search.c:218
-#| msgid "No tags were found"
 msgid "No contacts were found"
 msgstr "No se encontró ningún contacto"
 
 #: ../src/tracker-utils/tracker-search.c:327
-#| msgid "No files were found"
 msgid "No emails were found"
 msgstr "No se encontró ningún correo-e"
 
