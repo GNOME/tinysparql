@@ -501,7 +501,6 @@ extract_pdf (const gchar          *uri,
 	PDFDoc *document;
 	gchar *content;
 	guint n_words;
-	gchar *creation_date = NULL;
 	Object obj;
 	Catalog *catalog;
 
@@ -550,13 +549,15 @@ extract_pdf (const gchar          *uri,
 
 	document->getDocInfo (&obj);
 	if (obj.isDict ()) {
+		gchar *creation_date;
 		Dict *info_dict = obj.getDict();
 		pd.title = info_dict_get_string (info_dict, "Title");
 		pd.author = info_dict_get_string (info_dict, "Author");
 		pd.subject = info_dict_get_string (info_dict, "Subject");
 		pd.keywords = info_dict_get_string (info_dict, "Keywords");
-		creation_date = tracker_date_guess (info_dict_get_string (info_dict, "CreationDate"));
-		pd.creation_date = creation_date;
+		creation_date = info_dict_get_string (info_dict, "CreationDate");
+		pd.creation_date = tracker_date_guess (creation_date);
+		g_free (creation_date);
 	}
 	obj.free ();
 
@@ -797,7 +798,6 @@ extract_pdf (const gchar          *uri,
 
 	read_outline (document, metadata);
 
-	g_free (creation_date);
 	delete document;
 }
 
