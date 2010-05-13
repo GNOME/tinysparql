@@ -29,16 +29,18 @@ bashscriptsdir = $(datadir)/tracker-tests
 bashscripts_in_files =				\
 	force-sqlite-misused.sh.in		\
 	force-sqlite-misused-batch.sh.in	\
-	helper-test-data.sh.in		
+	helper-test-data.sh.in
 
 bashscripts_SCRIPTS = 				\
 	$(bashscripts_in_files:.sh.in=.sh)
 
 %.sh: %.sh.in
 	@sed -e "s|@topsrcdir[@]|${top_srcdir}|" \
-	     -e "s|@libexecdir[@]|${libexecdir}|" $< > $@	
+	     -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
-EXTRA_DIST = $(config_SCRIPTS) \
-	$(bashscripts_SCRIPTS)	
+EXTRA_DIST = 					\
+	$(config_SCRIPTS) 			\
+	$(bashscripts_SCRIPTS)			\
+	$(bashscripts_in_files)
 
 CLEANFILES = $(bashscripts_SCRIPTS)
