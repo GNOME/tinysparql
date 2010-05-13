@@ -499,6 +499,7 @@ extract_metadata (MetadataExtractor      *extractor,
 	g_return_if_fail (metadata != NULL);
 
 	if (extractor->tagcache) {
+		gchar *artist_uri = NULL;
 		gchar *performer_uri = NULL;
 		gchar *composer_uri = NULL;
 		gchar *album_uri = NULL;
@@ -526,6 +527,18 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &performer);
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist_local);
+
+			if (artist_local) {
+				artist_uri = tracker_uri_printf_escaped ("urn:artist:%s", artist_local);
+
+				tracker_sparql_builder_insert_open (preupdate, NULL);
+				tracker_sparql_builder_subject_iri (preupdate, artist_uri);
+				tracker_sparql_builder_predicate (preupdate, "a");
+				tracker_sparql_builder_object (preupdate, "nmm:Artist");
+				tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
+				tracker_sparql_builder_object_unvalidated (preupdate, artist_local);
+				tracker_sparql_builder_insert_close (preupdate);
+			}
 
 			temp = tracker_coalesce_strip (2, performer, artist_local);
 
@@ -587,6 +600,11 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_object (preupdate, "nmm:MusicAlbum");
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 			tracker_sparql_builder_object_unvalidated (preupdate, s);
+
+			if (artist_uri) {
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumArtist");
+				tracker_sparql_builder_object_iri (preupdate, artist_uri);
+			}
 
 			tracker_sparql_builder_insert_close (preupdate);
 
