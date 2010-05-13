@@ -94,8 +94,7 @@ zg:hasEventInterpretation a rdf:Property ;
     nrl:maxCardinality 1;
     rdfs:domain zg:Event ;
     rdfs:label "interpretation" ;
-    rdfs:range zg:EventInterpretation ;
-    rdfs:subPropertyOf nie:interpretedAs .
+    rdfs:range zg:EventInterpretation .
 
 zg:hasEventManifestation a rdf:Property ;
     nrl:maxCardinality 1;
@@ -106,7 +105,7 @@ zg:hasEventManifestation a rdf:Property ;
 zg:hasSubject a rdf:Property ;
     rdfs:domain zg:Event ;
     rdfs:label "subject" ;
-    rdfs:range rdfs:Resource .
+    rdfs:range nie:InformationElement.
 
 zg:eventId a rdf:Property ;
     nrl:maxCardinality 1 ;
