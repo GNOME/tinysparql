@@ -110,11 +110,11 @@ tracker_statistics_get (TrackerStatistics      *object,
 	/* Sort result so it is alphabetical */
 	g_ptr_array_sort (values, cache_sort_func);
 
+	tracker_dbus_request_success (request_id, context);
 	dbus_g_method_return (context, values);
 
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (values, TRUE);
 
-	tracker_dbus_request_success (request_id, context);
 	tracker_dbus_request_unblock_hooks ();
 }
