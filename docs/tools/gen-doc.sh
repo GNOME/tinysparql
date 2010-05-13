@@ -16,16 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA. 
+# 02110-1301, USA.
 #
 
-BUILD_DIR="../reference/ontology/"
-
-if ! [ -e $PWD/gen-doc.sh ]; then
-	# building documentation out of tree is not supported
-	# as documentation is distributed in release tarballs
-	exit
-fi
+TTL2SGML=$1
+ONTOLOGIES_DATA_DIR=$2
+ONTOLOGIES_INFO_DIR=$3
+BUILD_DIR=$4
 
 echo "Preparing file full text index properties (fts-properties.xml)"
 
@@ -45,14 +42,14 @@ echo "<?xml version='1.0' encoding='UTF-8'?>
 
 <tbody>" > $BUILD_DIR/fts-properties.xml
 
-for f in `find ../../data/ontologies -name "*.description"` ; do
+for f in `find $ONTOLOGIES_DATA_DIR -name "*.description"` ; do
     # ../../data/ontologies/XX-aaa.description -> PREFIX=aaa
     TMPNAME=${f%.description}
     PREFIX=${TMPNAME#*-}
     echo "Generating $PREFIX documentation"
 
-    ./ttl2sgml -d $f -o $BUILD_DIR/$PREFIX-ontology.xml -f $BUILD_DIR/fts-properties.xml \
-	-e ../../docs/ontologies/$PREFIX/explanation.xml
+    $TTL2SGML -d $f -o $BUILD_DIR/$PREFIX-ontology.xml -f $BUILD_DIR/fts-properties.xml \
+	-e $ONTOLOGIES_INFO_DIR/$PREFIX/explanation.xml
 done
 
 echo "</tbody></table></chapter>" >> $BUILD_DIR/fts-properties.xml

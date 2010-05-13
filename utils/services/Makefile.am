@@ -9,6 +9,7 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
+	-I$(top_builddir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GIO_CFLAGS)							\
@@ -32,7 +33,7 @@ data_validator_LDADD =							\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
-	$(GIO_LIBS)							
+	$(GIO_LIBS)
 
 #qname_test_SOURCES = qname-test.c qname.c
 #qname_test_LDADD = 	$(DBUS_LIBS)					\

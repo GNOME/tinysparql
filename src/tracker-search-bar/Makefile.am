@@ -16,6 +16,8 @@ tracker_search_bar_CFLAGS = \
 	-DPKGDATADIR=\""$(pkgdatadir)"\"	 		\
 	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
 	-I$(top_srcdir)/src					\
+	-I$(top_builddir)/src					\
+	-I$(top_builddir)/src/libtracker-client			\
 	$(TRACKER_APPS_CFLAGS)					\
 	$(TRACKER_APPLETS_CFLAGS)				\
 	$(GDKPIXBUF_CFLAGS)					\

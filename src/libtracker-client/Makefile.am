@@ -5,10 +5,11 @@ INCLUDES = 						\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
 	-I$(top_srcdir)/src				\
+	-I$(top_builddir)/src/libtracker-client		\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\
-	$(DBUS_CFLAGS)			
+	$(DBUS_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-client-@TRACKER_API_VERSION@.la
 

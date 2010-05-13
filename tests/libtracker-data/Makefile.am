@@ -37,6 +37,8 @@ INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
+	-I$(top_builddir)/src						\
+	-I$(top_builddir)/src/libtracker-client				\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\

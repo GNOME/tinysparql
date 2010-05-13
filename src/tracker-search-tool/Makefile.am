@@ -29,7 +29,7 @@ tracker_search_tool_CFLAGS = \
 	$(GDKPIXBUF_CFLAGS)					\
 	$(WARN_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
-	-include$(top_srcdir)/config.h  			\
+	-include$(top_builddir)/config.h  			\
 	$(NULL)
 
 tracker_search_tool_LDADD = 					\

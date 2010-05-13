@@ -5,6 +5,7 @@ INCLUDES =						\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
 	-I$(top_srcdir)/src				\
+	-I$(top_builddir)/src				\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\
