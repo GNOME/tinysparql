@@ -881,4 +881,6 @@ tracker_store_unreg_batches (const gchar *client_id)
 	if (error) {
 		g_clear_error (&error);
 	}
+
+	check_handler (private);
 }
