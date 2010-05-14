@@ -78,8 +78,9 @@ typedef struct {
 			GPtrArray    *blank_nodes;
 		} update;
 		struct {
-			gboolean      in_progress;
-			gchar        *path;
+			TrackerTurtleReader *reader;
+			gboolean             in_progress;
+			gchar               *path;
 		} turtle;
 	} data;
 	gchar                *client_id;
@@ -118,6 +119,7 @@ static void
 store_task_free (TrackerStoreTask *task)
 {
 	if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
+		g_object_unref (task->data.turtle.reader);
 		g_free (task->data.turtle.path);
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
 		g_free (task->data.query.query);
@@ -392,6 +394,25 @@ task_finish_cb (gpointer data)
 		}
 
 		private->update_running = FALSE;
+	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
+		private->update_running = FALSE;
+
+		if (task->data.turtle.in_progress) {
+			/* Task still in progress */
+			check_handler (private);
+			return FALSE;
+		} else {
+			if (task->callback.turtle_callback) {
+				task->callback.turtle_callback (task->error, task->user_data);
+			}
+
+			if (task->error) {
+				g_clear_error (&task->error);
+			}
+
+			/* Remove the task now that we're done with it */
+			g_queue_pop_head (private->queues[TRACKER_STORE_PRIORITY_TURTLE]);
+		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
 		tracker_data_notify_db_transaction ();
 
@@ -475,7 +496,31 @@ pool_dispatch_cb (gpointer data,
 		} else {
 			tracker_data_commit_db_transaction ();
 		}
+	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
+		if (!task->data.turtle.in_progress) {
+			task->data.turtle.reader = tracker_turtle_reader_new (task->data.turtle.path, &task->error);
 
+			if (task->error) {
+				g_idle_add (task_finish_cb, task);
+				return;
+			}
+
+			task->data.turtle.in_progress = TRUE;
+		}
+
+		begin_batch (private);
+
+		if (process_turtle_file_part (task->data.turtle.reader, &task->error)) {
+			/* import still in progress */
+			private->batch_count++;
+			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
+				end_batch (private);
+			}
+		} else {
+			/* import finished */
+			task->data.turtle.in_progress = FALSE;
+			end_batch (private);
+		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
 		end_batch (private);
 	}
@@ -530,71 +575,10 @@ queue_idle_handler (gpointer user_data)
 
 		task_run_async (private, task);
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
-		GError *error = NULL;
-		static TrackerTurtleReader *turtle_reader = NULL;
-
-		if (!task->data.turtle.in_progress) {
-			turtle_reader = tracker_turtle_reader_new (task->data.turtle.path, &error);
-			if (error) {
-				if (task->callback.turtle_callback) {
-					task->callback.turtle_callback (error, task->user_data);
-				}
-
-				turtle_reader = NULL;
-				g_clear_error (&error);
-
-				g_queue_pop_head (queue);
-
-				if (task->destroy) {
-					task->destroy (task->user_data);
-				}
-
-				store_task_free (task);
-
-				goto out;
-			}
-			task->data.turtle.in_progress = TRUE;
-		}
-
-		begin_batch (private);
-
-		if (process_turtle_file_part (turtle_reader, &error)) {
-			/* import still in progress */
-			private->batch_count++;
-			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
-				end_batch (private);
-			}
-
-			/* Process function wont return true in case of error */
-
-			return TRUE;
-		} else {
-			/* import finished */
-			task->data.turtle.in_progress = FALSE;
-
-			end_batch (private);
-
-			if (task->callback.turtle_callback) {
-				task->callback.turtle_callback (error, task->user_data);
-			}
-
-			g_object_unref (turtle_reader);
-			turtle_reader = NULL;
-			if (error) {
-				g_clear_error (&error);
-			}
-
-			g_queue_pop_head (queue);
-
-			if (task->destroy) {
-				task->destroy (task->user_data);
-			}
-
-			store_task_free (task);
-		}
+		private->update_running = TRUE;
+		task_run_async (private, task);
 	}
 
-out:
 	return task_ready (private);
 }
 
@@ -811,7 +795,7 @@ tracker_store_queue_turtle_import (GFile                      *file,
 	task->callback.update_callback = callback;
 	task->destroy = destroy;
 
-	g_queue_push_tail (private->queues[TRACKER_STORE_PRIORITY_LOW], task);
+	g_queue_push_tail (private->queues[TRACKER_STORE_PRIORITY_TURTLE], task);
 
 	check_handler (private);
 }
