@@ -994,7 +994,8 @@ id3v24_text_to_utf8 (const gchar  encoding,
 {
 	/* This byte describes the encoding
 	 * try to convert strings to UTF-8
-	 * if it fails, then forget it
+	 * if it fails, then forget it.
+	 * For UTF-16 if size odd assume invalid 00 term.
 	 */
 
 	switch (encoding) {
@@ -1006,13 +1007,13 @@ id3v24_text_to_utf8 (const gchar  encoding,
 		                            NULL, NULL, NULL);
 	case 0x01 :
 		return convert_to_encoding (text,
-		                            len,
+		                            len - len%2,
 		                            "UTF-8",
 		                            "UTF-16",
 		                            NULL, NULL, NULL);
 	case 0x02 :
 		return convert_to_encoding (text,
-		                            len,
+		                            len - len%2,
 		                            "UTF-8",
 		                            "UTF-16BE",
 		                            NULL, NULL, NULL);
@@ -1040,6 +1041,7 @@ id3v2_text_to_utf8 (const gchar  encoding,
 	/* This byte describes the encoding
 	 * try to convert strings to UTF-8
 	 * if it fails, then forget it
+	 * For UCS2 if size odd assume invalid 00 term.
 	 */
 
 	switch (encoding) {
@@ -1055,7 +1057,7 @@ id3v2_text_to_utf8 (const gchar  encoding,
 		/*                                "UTF-8", */
 		/*                                "UCS-2", */
 		/*                                NULL, NULL, NULL); */
-		return ucs2_to_utf8 (text, len);
+		return ucs2_to_utf8 (text, len - len%2);
 
 	default:
 		/* Bad encoding byte,
@@ -1248,6 +1250,8 @@ get_id3v24_tags (const gchar          *data,
 			if (!tracker_is_empty_string (word)) {
 				g_strstrip (word);
 			}
+
+			g_debug ("Frame is %d, word is %s", frame, word);
 
 			switch (frame) {
 			case ID3V24_TALB:
