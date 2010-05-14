@@ -330,7 +330,7 @@ tracker_language_new (const gchar *language_code)
 {
 	TrackerLanguage *language;
 
-	language = g_object_new (TRACKER_TYPE_LANGUAGE, 
+	language = g_object_new (TRACKER_TYPE_LANGUAGE,
 	                         "language-code", language_code,
 	                         NULL);
 
@@ -377,6 +377,30 @@ tracker_language_get_stop_words (TrackerLanguage *language)
 	priv = GET_PRIV (language);
 
 	return priv->stop_words;
+}
+
+/**
+ * tracker_language_is_stop_word:
+ * @language: a #TrackerLanguage
+ * @word: a string containing a word
+ *
+ * Returns %TRUE if the given @word is in the list of stop words of the
+ *  given @language.
+ *
+ * Returns: %TRUE if @word is a stop word. %FALSE otherwise.
+ */
+gboolean
+tracker_language_is_stop_word (TrackerLanguage *language,
+                               const gchar     *word)
+{
+	TrackerLanguagePriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), FALSE);
+	g_return_val_if_fail (word, FALSE);
+
+	priv = GET_PRIV (language);
+
+	return g_hash_table_lookup (priv->stop_words, word) != NULL;
 }
 
 /**
