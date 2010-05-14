@@ -3666,7 +3666,7 @@ static void snippetOffsetsOfColumn(
   pVtab = pQuery->pFts;
   nColumn = pVtab->nColumn;
 
-  tracker_parser_reset (pVtab->parser, zDoc, nDoc, FALSE, TRUE, pVtab->stop_words, FALSE);
+  tracker_parser_reset (pVtab->parser, zDoc, nDoc, FALSE, TRUE, pVtab->stop_words, TRUE, TRUE);
 
   aTerm = pQuery->pTerms;
   nTerm = pQuery->nTerms;
@@ -4363,7 +4363,7 @@ static int tokenizeSegment(
   int firstIndex = pQuery->nTerms;
   int nTerm = 1;
 
-  tracker_parser_reset (parser, pSegment, nSegment, FALSE, TRUE, v->stop_words, TRUE);
+  tracker_parser_reset (parser, pSegment, nSegment, FALSE, TRUE, v->stop_words, FALSE, TRUE);
 
   while( 1 ){
     const char *pToken;
@@ -4816,7 +4816,7 @@ int Catid,
 
   if (!zText) return SQLITE_OK;
 
-  tracker_parser_reset (parser, zText, strlen (zText), FALSE, TRUE, v->stop_words, FALSE);
+  tracker_parser_reset (parser, zText, strlen (zText), FALSE, TRUE, v->stop_words, TRUE, TRUE);
 
   while( 1 ){
 

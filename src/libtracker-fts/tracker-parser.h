@@ -35,10 +35,11 @@ TrackerParser *tracker_parser_new             (TrackerLanguage *language,
 void           tracker_parser_reset           (TrackerParser   *parser,
                                                const gchar     *txt,
                                                gint             txt_size,
-                                               gboolean                 delimit_words,
-                                               gboolean                 enable_stemmer,
-                                               gboolean                 enable_stop_words,
-                                               gboolean                 parse_reserved_words);
+                                               gboolean         delimit_words,
+                                               gboolean         enable_stemmer,
+                                               gboolean         enable_stop_words,
+                                               gboolean         skip_reserved_words,
+                                               gboolean         skip_numbers);
 
 const gchar *  tracker_parser_next            (TrackerParser   *parser,
                                                gint            *position,
@@ -48,9 +49,10 @@ const gchar *  tracker_parser_next            (TrackerParser   *parser,
                                                gint            *word_length);
 
 gchar *        tracker_parser_process_word    (TrackerParser   *parser,
-                                               const char      *word,
+                                               const gchar     *word,
                                                gint             length,
-                                               gboolean                 do_strip);
+                                               gboolean         do_strip);
+
 void           tracker_parser_free            (TrackerParser   *parser);
 
 G_END_DECLS

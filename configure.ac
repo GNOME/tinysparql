@@ -857,6 +857,77 @@ fi
 
 AM_CONDITIONAL(HAVE_MINER_FLICKR, test "x$have_miner_flickr" = "xyes")
 
+##################################################################
+# GLib, libunistring or libicu?
+# By default, AUTO with this order of preference:
+#  1)  libunistring
+#  2)  libicu
+#  3)  glib
+##################################################################
+
+# Check for libunistring...
+AC_CHECK_HEADER(uniwbrk.h,
+                AC_CHECK_LIB(unistring, u8_wordbreaks))
+have_libunistring=${ac_cv_lib_unistring_u8_wordbreaks:-no}
+LIBUNISTRING_CFLAGS="$CFLAGS"
+LIBUNISTRING_LIBS="$LIBS"
+
+# Check for libicu... Note that AC_CHECK_LIB cannot be used as
+#  symbol name includes libicu library version... don't want to
+#  look for ubrk_next_4_2
+AC_CHECK_HEADER(unicode/ubrk.h, [have_libicu=yes],[have_libicu=no])
+LIBICU_CFLAGS=""
+LIBICU_LIBS="-licuuc"
+
+# Configure option
+AC_ARG_WITH([unicode-support],
+            AS_HELP_STRING([--with-unicode-support],
+                           [Unicode support library? (libunistring|libicu|glib) [[default=auto]]]),,
+            [with_unicode_support=auto])
+
+# If auto, decide ourselves
+if test "x$with_unicode_support" = "xauto"; then
+   if test "x$have_libunistring" = "xyes"; then
+      with_unicode_support=libunistring
+   else
+      if test "x$have_libicu" = "xyes"; then
+         with_unicode_support=libicu
+      else
+         with_unicode_support=glib
+      fi
+   fi
+fi
+
+case "x$with_unicode_support" in
+     # Use libunistring
+     "xlibunistring")
+        AC_SUBST(LIBUNISTRING_CFLAGS)
+        AC_SUBST(LIBUNISTRING_LIBS)
+        if test "x$have_libunistring" = "xyes"; then
+           AC_DEFINE(HAVE_LIBUNISTRING, [], [libunistring Unicode support library])
+        else
+           AC_MSG_ERROR([***libunistring requested but not found - exiting!])
+        fi
+     ;;
+     # Use libicu
+     "xlibicu")
+        AC_SUBST(LIBICU_CFLAGS)
+        AC_SUBST(LIBICU_LIBS)
+        if test "x$have_libicu" = "xyes"; then
+          AC_DEFINE(HAVE_LIBICU, [], [libicu Unicode support library])
+        else
+          AC_MSG_ERROR([***libicu requested but not found - exiting!])
+        fi
+     ;;
+     # Use glib
+     "xglib") ;;
+     # Invalid option value
+     *) AC_MSG_ERROR([***wrong value for --with-unicode-support: $with_unicode_support - exiting!]) ;;
+esac
+
+AM_CONDITIONAL(HAVE_LIBUNISTRING, test "x$have_libunistring" = "xyes")
+AM_CONDITIONAL(HAVE_LIBICU, test "x$have_libicu" = "xyes")
+
 ####################################################################
 # Miner Evolution
 ####################################################################
@@ -1882,6 +1953,7 @@ Build Configuration:
 	Support for accent stripping (unac):  	$have_unac
 	Support for Cyrillic languages (enca): 	$have_enca
 	Support for network status detection:	$have_network_manager
+	Unicode support library: 		$with_unicode_support
 
 Applications:
 

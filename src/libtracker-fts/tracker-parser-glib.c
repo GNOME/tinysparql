@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
- * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2008,2009,2010 Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,15 +21,11 @@
 #include "config.h"
 
 #include <string.h>
+
 #include <pango/pango.h>
 
-#ifdef HAVE_UNAC
-#include <unac.h>
-#endif
-
 #include "tracker-parser.h"
-
-#define INDEX_NUMBER_MIN_LENGTH 6
+#include "tracker-parser-utils.h"
 
 /* Need pango for CJK ranges which are : 0x3400 - 0x4DB5, 0x4E00 -
  * 0x9FA5, 0x20000 - <= 0x2A6D6
@@ -80,7 +76,8 @@ struct TrackerParser {
 	guint                  max_words_to_index;
 	guint                  max_word_length;
 	gboolean               delimit_words;
-	gboolean               parse_reserved_words;
+	gboolean               skip_reserved_words;
+	gboolean               skip_numbers;
 
 	/* Private members */
 	gchar                   *word;
@@ -138,58 +135,6 @@ get_word_type (gunichar c)
 	return TRACKER_PARSER_WORD_IGNORE;
 }
 
-static inline gchar *
-strip_word (const gchar *str,
-            gint         length,
-            guint32     *len)
-{
-#ifdef HAVE_UNAC
-	GError *error = NULL;
-	gchar *str_utf16;
-	gsize utf16_len, unaccented_len, final_len;
-	gchar *unaccented_str = NULL;
-	gchar *s = NULL;
-
-	*len = 0;
-
-	/* unac_string() does roughly the same than below, plus it
-	 * corrupts memory in 64bit systems, so avoid it for now.
-	 */
-	str_utf16 = g_convert (str, length, "UTF-16BE", "UTF-8", NULL, &utf16_len, &error);
-
-	if (error) {
-		g_warning ("Could not convert to UTF-16: %s", error->message);
-		g_error_free (error);
-		return NULL;
-	}
-
-	if (unac_string_utf16 (str_utf16, utf16_len,
-	                       &unaccented_str, &unaccented_len) != 0) {
-		g_warning ("UNAC failed to strip accents");
-		g_free (str_utf16);
-		return NULL;
-	}
-
-	g_free (str_utf16);
-
-	s = g_convert (unaccented_str, unaccented_len, "UTF-8", "UTF-16BE", NULL, &final_len, &error);
-	g_free (unaccented_str);
-
-	if (error) {
-		g_warning ("Could not convert back to UTF-8: %s", error->message);
-		g_error_free (error);
-		return NULL;
-	}
-
-	*len = (guint32) final_len;
-
-	return s;
-#else
-	*len = length;
-	return NULL;
-#endif
-}
-
 static TrackerParserEncoding
 get_encoding (const gchar *txt)
 {
@@ -216,21 +161,6 @@ get_encoding (const gchar *txt)
 
 	return TRACKER_PARSER_ENCODING_ASCII;
 
-}
-
-static gboolean
-is_stop_word (TrackerLanguage *language,
-              const gchar     *word)
-{
-	GHashTable *stop_words;
-
-	if (!word) {
-		return FALSE;
-	}
-
-	stop_words = tracker_language_get_stop_words (language);
-
-	return g_hash_table_lookup (stop_words, word) != NULL;
 }
 
 static gboolean
@@ -348,14 +278,14 @@ parser_next (TrackerParser *parser,
 				/* word break */
 
 				/* check if word is reserved */
-				if (is_valid && parser->parse_reserved_words) {
+				if (is_valid && parser->skip_reserved_words) {
 					if (length == 2 && word[0] == 'o' && word[1] == 'r') {
-						break;
+						is_valid = FALSE;
 					}
 				}
 
 				if (!is_valid ||
-				    word_type == TRACKER_PARSER_WORD_NUM) {
+				    (parser->skip_numbers && word_type == TRACKER_PARSER_WORD_NUM)) {
 					word_type = TRACKER_PARSER_WORD_IGNORE;
 					is_valid = TRUE;
 					length = 0;
@@ -382,12 +312,12 @@ parser_next (TrackerParser *parser,
 			 * underscore if we are filtering.
 			 */
 
-			if (type == TRACKER_PARSER_WORD_NUM) {
+			if (parser->skip_numbers && type == TRACKER_PARSER_WORD_NUM) {
 				is_valid = FALSE;
 				continue;
 			} else {
 				if (type == TRACKER_PARSER_WORD_HYPHEN) {
-					is_valid = parser->parse_reserved_words;
+					is_valid = !parser->skip_reserved_words;
 					continue;
 				}
 			}
@@ -463,8 +393,6 @@ parser_next (TrackerParser *parser,
 		gchar       *utf8;
 		gchar       *processed_word;
 
-
-
 		utf8 = g_ucs4_to_utf8 (word, length, NULL, &bytes, NULL);
 
 		if (!utf8) {
@@ -535,7 +463,8 @@ tracker_parser_reset (TrackerParser *parser,
                       gboolean       delimit_words,
                       gboolean       enable_stemmer,
                       gboolean       enable_stop_words,
-                      gboolean       parse_reserved_words)
+                      gboolean       skip_reserved_words,
+                      gboolean       skip_numbers)
 {
 	g_return_if_fail (parser != NULL);
 	g_return_if_fail (txt != NULL);
@@ -543,20 +472,22 @@ tracker_parser_reset (TrackerParser *parser,
 	g_free (parser->attrs);
 	parser->attrs = NULL;
 
+	parser->cursor = txt;
+	parser->encoding = get_encoding (txt);
+
 	parser->enable_stemmer = enable_stemmer;
 	parser->enable_stop_words = enable_stop_words;
 	parser->delimit_words = delimit_words;
-	parser->encoding = get_encoding (txt);
+
 	parser->txt_size = txt_size;
 	parser->txt = txt;
-	parser->parse_reserved_words = parse_reserved_words;
+	parser->skip_reserved_words = skip_reserved_words;
+	parser->skip_numbers = skip_numbers;
 
 	g_free (parser->word);
 	parser->word = NULL;
 
 	parser->word_position = 0;
-
-	parser->cursor = txt;
 
 	if (parser->encoding == TRACKER_PARSER_ENCODING_CJK) {
 		PangoLogAttr *attrs;
@@ -583,14 +514,14 @@ tracker_parser_reset (TrackerParser *parser,
 
 gchar *
 tracker_parser_process_word (TrackerParser *parser,
-                             const char    *word,
+                             const gchar   *word,
                              gint           length,
                              gboolean       do_strip)
 {
 	gchar *stem_word;
 	gchar *str;
 	gchar *stripped_word;
-	guint  bytes, len;
+	gsize  bytes, len;
 
 	g_return_val_if_fail (parser != NULL, NULL);
 	g_return_val_if_fail (word != NULL, NULL);
@@ -605,8 +536,18 @@ tracker_parser_process_word (TrackerParser *parser,
 			bytes = length;
 		}
 
+		/* Log original word */
+		tracker_parser_message_hex ("ORIGINAL word",
+		                            word, bytes);
+
 		if (do_strip) {
-			stripped_word = strip_word (word, bytes, &len);
+			stripped_word = tracker_parser_unaccent_utf8_word (word,
+			                                                   bytes,
+			                                                   &len);
+
+			/* Log after UNAC stripping */
+			tracker_parser_message_hex (" After UNAC stripping",
+			                            stripped_word, len);
 		} else {
 			stripped_word = NULL;
 		}
@@ -621,6 +562,10 @@ tracker_parser_process_word (TrackerParser *parser,
 			                        G_NORMALIZE_NFC);
 			g_free (stripped_word);
 		}
+
+		/* Log after normalization */
+		tracker_parser_message_hex ("  After NFC normalization",
+		                            str, strlen ((gchar *)str));
 
 		if (!str) {
 			return NULL;
@@ -672,7 +617,9 @@ tracker_parser_next (TrackerParser *parser,
 			str = parser->word;
 		}
 
-		if (parser->enable_stop_words && is_stop_word (parser->language, str)) {
+		if (str &&
+		    parser->enable_stop_words &&
+		    tracker_language_is_stop_word (parser->language, str)) {
 			*stop_word = TRUE;
 		} else {
 			parser->word_position++;
