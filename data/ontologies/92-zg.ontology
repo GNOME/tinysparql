@@ -74,6 +74,7 @@ zg:SystemNotification a rdfs:Class ;
 
 zg:Event a rdfs:Class ;
     rdfs:comment "Something that happened at a point in time. Events are categorized by two primary factors 'what happened' - called the interpretation and 'how did it happen' - called the manifestation. Aside from a timestamp, events can also carry a reference to the entity responsible for instantiating it - called the actor. Normally the event actor is an application, but it need not be. Events happen to zero or more subjects. The subjects are described using the Nepomuk ontologies." ;
+    tracker:notify true ;
     rdfs:subClassOf rdfs:Resource .
 
 zg:timestamp a rdf:Property ;
