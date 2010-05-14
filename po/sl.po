@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2010-05-06 17:54+0000\n"
-"PO-Revision-Date: 2010-05-08 09:54+0100\n"
+"POT-Creation-Date: 2010-05-13 19:15+0000\n"
+"PO-Revision-Date: 2010-05-14 20:01+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -31,6 +31,14 @@ msgstr "Programi"
 #: ../data/miners/tracker-miner-applications.desktop.in.h:2
 msgid "Applications data miner"
 msgstr "Podatkovni kopalniki programov"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:1
+msgid "Emails"
+msgstr "E-pošta"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:2
+msgid "Evolution Email miner"
+msgstr "Kopalnik emailov evolution"
 
 #: ../data/miners/tracker-miner-files.desktop.in.h:1
 msgid "File System"
@@ -55,6 +63,14 @@ msgstr "Koplje in obdela datoteke datotečnega sistema"
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
 msgid "Tracker File System Miner"
 msgstr "Tracker podatkovni kopalnik datotečnega sistema"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:1
+msgid "Fetch RSS/ATOM feeds"
+msgstr "Pridobi vire RSS/ATOM"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:2
+msgid "Tracker RSS/ATOM Feeds Miner"
+msgstr "Tracker podatkovni kopalni virov RSS/ATOM"
 
 #: ../data/tracker-status-icon.desktop.in.in.h:1
 msgid "Tracker Status Icon"
@@ -209,14 +225,6 @@ msgstr "Tracker"
 #: ../src/tracker-utils/tracker-status.c:70
 msgid "Processing…"
 msgstr "Obdelovanje ..."
-
-#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:1
-msgid "Emails"
-msgstr "E-pošta"
-
-#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:2
-msgid "Evolution Email miner"
-msgstr "Kopalnik emailov evolution"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
 msgid "Properties"
@@ -1066,7 +1074,7 @@ msgstr "Končano"
 
 #: ../src/tracker-utils/tracker-info.c:54
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
-msgstr "Pokaži polne imenske prostore (ne uporabi nie:naslov, uporabi polne URL-je)"
+msgstr "Pokaži polni imenski prostor (ne uporabi nie:naslov, uporabi polne URL-je)"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -1157,11 +1165,11 @@ msgstr "Iskanje datotek dokumentov"
 
 #: ../src/tracker-utils/tracker-search.c:115
 msgid "Search for emails"
-msgstr "Iskanje elektrosnske opšte"
+msgstr "Išči sporočila elektronske pošte"
 
 #: ../src/tracker-utils/tracker-search.c:119
 msgid "Search for contacts"
-msgstr "Iskanje stikov"
+msgstr "Išči stike"
 
 #: ../src/tracker-utils/tracker-search.c:128
 msgid "search terms"
@@ -1187,11 +1195,11 @@ msgstr "Rezultatov iskanja ni mogoče dobiti"
 
 #: ../src/tracker-utils/tracker-search.c:218
 msgid "No contacts were found"
-msgstr "Stikov ni mogoče najti"
+msgstr "Ni najdenih stikov"
 
 #: ../src/tracker-utils/tracker-search.c:327
 msgid "No emails were found"
-msgstr "Sporočil elektronske pošte ni mogoče najti"
+msgstr "Ni najdenih sporočil elektronske pošte"
 
 #: ../src/tracker-utils/tracker-search.c:442
 msgid "No files were found"
@@ -1702,16 +1710,24 @@ msgstr "- zaženi program s podporo zamika zapisovanja"
 msgid "Saved queries"
 msgstr "Shranjene poizvedbe"
 
-#~ msgid "Office Documents"
-#~ msgstr "Pisarniški dokumenti"
-#~ msgid "Show more detailed results (only applies to general search)"
-#~ msgstr "Pokaži podrobnejše rezultate (velja samo za splošno iskanje)"
+#~ msgid "Flickr"
+#~ msgstr "Flickr"
+#~ msgid "Index your Flickr photo albums"
+#~ msgstr "Pripravi kazalo iz vaših albumov fotografij Flickr"
+#~ msgid "Processes images and albums on Flickr"
+#~ msgstr "Obdela slike in albume na Flickr"
+#~ msgid "Tracker Miner for Flickr"
+#~ msgstr "Tracker podatkovni kopalnik za Flickr"
 #~ msgid "Description for a tag (this is only used with --add)"
 #~ msgstr "Opis za oznako (ta je uporabljen le z --add"
 #~ msgid "STRING"
 #~ msgstr "NIZ"
 #~ msgid "The --description option can only be used with --add"
 #~ msgstr "Možnost --description je mogoče uporabiti le skupaj z --add"
+#~ msgid "Office Documents"
+#~ msgstr "Pisarniški dokumenti"
+#~ msgid "Show more detailed results (only applies to general search)"
+#~ msgstr "Pokaži podrobnejše rezultate (velja samo za splošno iskanje)"
 #~ msgid "Resuming"
 #~ msgstr "Nadaljevanje"
 #~ msgid "Minimizes the use of memory but may slow indexing down"
