@@ -4,10 +4,13 @@ SUBDIRS = 			\
 	limits			\
 	prefix
 
-noinst_PROGRAMS = $(TEST_PROGS)
+noinst_PROGRAMS = 							\
+	$(TEST_PROGS) 							\
+	tracker-parser
+
 
 TEST_PROGS += 								\
-	tracker-fts
+	tracker-fts-test
 
 INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
@@ -36,10 +39,13 @@ common_ldadd =								\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)
 
-tracker_fts_SOURCES = 						\
-	tracker-fts-test.c
+tracker_fts_test_SOURCES = tracker-fts-test.c
 
-tracker_fts_LDADD = $(common_ldadd)
+tracker_fts_test_LDADD = $(common_ldadd)
+
+tracker_parser_SOURCES = tracker-parser.c
+
+tracker_parser_LDADD = $(common_ldadd)
 
 EXTRA_DIST = 				\
 	data.ontology			\
