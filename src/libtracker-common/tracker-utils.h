@@ -29,14 +29,17 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-gboolean tracker_is_empty_string            (const char  *str);
-gboolean tracker_is_blank_string            (const char  *str);
-gchar *  tracker_seconds_estimate_to_string (gdouble      seconds_elapsed,
-                                             gboolean     short_string,
-                                             guint        items_done,
-                                             guint        items_remaining);
-gchar *  tracker_seconds_to_string          (gdouble      seconds_elapsed,
-                                             gboolean     short_string);
+gboolean tracker_is_empty_string            (const char   *str);
+gboolean tracker_is_blank_string            (const char   *str);
+gchar *  tracker_seconds_estimate_to_string (gdouble       seconds_elapsed,
+                                             gboolean      short_string,
+                                             guint         items_done,
+                                             guint         items_remaining);
+gchar *  tracker_seconds_to_string          (gdouble       seconds_elapsed,
+                                             gboolean      short_string);
+gchar *  tracker_strhex                     (const guint8 *data,
+                                             gsize         size,
+                                             gchar         delimiter);
 
 G_END_DECLS
 

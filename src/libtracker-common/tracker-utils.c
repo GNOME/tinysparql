@@ -20,6 +20,7 @@
 
 #include "config.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <locale.h>
 
@@ -151,3 +152,54 @@ tracker_seconds_to_string (gdouble  seconds_elapsed,
 
 
 
+/**
+ * tracker_strhex:
+ * @data: The input array of bytes
+ * @size: Number of bytes in the input array
+ * @delimiter: Character to use as separator between each printed byte
+ *
+ * Returns the contents of @data as a printable string in hexadecimal
+ *  representation.
+ *
+ * Based on GNU PDF's pdf_text_test_get_hex()
+ *
+ * Returns: A newly allocated string which should be disposed with g_free()
+ **/
+gchar *
+tracker_strhex (const guint8 *data,
+                gsize         size,
+                gchar         delimiter)
+{
+	/*  */
+	gsize i;
+	gsize j;
+	gsize new_str_length;
+	gchar *new_str;
+	gchar new_hex_char [3];
+
+	/* Get new string length. If input string has N bytes, we need:
+	 * - 1 byte for last NUL char
+	 * - 2N bytes for hexadecimal char representation of each byte...
+	 * - N-1 bytes for the separator ':'
+	 * So... a total of (1+2N+N-1) = 3N bytes are needed... */
+	new_str_length =  3 * size;
+
+	/* Allocate memory for new array and initialize contents to NUL */
+	new_str = g_malloc0 (new_str_length);
+
+	/* Print hexadecimal representation of each byte... */
+	for(i=0, j=0; i<size; i++, j+=3) {
+		memset (new_hex_char, 0, 3);
+		/* Print character in helper array... */
+		sprintf (new_hex_char, "%02X", data[i]);
+		/* Copy to output string... */
+		memcpy (&new_str[j],&new_hex_char[0],2);
+		/* And if needed, add separator */
+		if(i != (size-1) ) {
+			new_str[j+2] = delimiter;
+		}
+	}
+
+	/* Set output string */
+	return new_str;
+}
