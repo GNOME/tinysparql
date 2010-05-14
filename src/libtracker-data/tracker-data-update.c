@@ -2752,7 +2752,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 			tracker_db_journal_reader_get_resource (&id, &uri);
 
 			if (in_ontology) {
-				g_hash_table_insert (id_uri_map, GINT_TO_POINTER (id), (gpointer) uri);
+				g_hash_table_insert (id_uri_map, GINT_TO_POINTER (id), g_strdup (uri));
 				continue;
 			}
 

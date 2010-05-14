@@ -1205,7 +1205,8 @@ load_ontology_from_journal (GHashTable **classes_out,
 	properties = g_hash_table_new_full (g_direct_hash, g_direct_equal,
 	                                    NULL, (GDestroyNotify) g_object_unref);
 
-	id_uri_map = g_hash_table_new (g_direct_hash, g_direct_equal);
+	id_uri_map = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+	                                    NULL, g_free);
 
 	while (tracker_db_journal_reader_next (NULL)) {
 		TrackerDBJournalEntryType type;
@@ -1216,7 +1217,7 @@ load_ontology_from_journal (GHashTable **classes_out,
 			const gchar *uri;
 
 			tracker_db_journal_reader_get_resource (&id, &uri);
-			g_hash_table_insert (id_uri_map, GINT_TO_POINTER (id), (gpointer) uri);
+			g_hash_table_insert (id_uri_map, GINT_TO_POINTER (id), g_strdup (uri));
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
 			/* end of initial transaction => end of ontology */
 			break;
