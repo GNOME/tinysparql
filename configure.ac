@@ -1244,6 +1244,53 @@ fi
 AM_CONDITIONAL(HAVE_LIBGSF, test "x$have_libgsf" = "xyes")
 
 ##################################################################
+# Check for libgif
+##################################################################
+
+# FIXME This should be package based. Unfortunately in several main
+# distros, it is not.
+
+OLD_CFLAGS="$CFLAGS"
+OLD_LIBS="$LIBS"
+CFLAGS=""
+LIBS=""
+
+AC_ARG_ENABLE(libgif,
+	      AS_HELP_STRING([--enable-libgif],
+	                     [enable extractor for GIF data [[default=auto]]]),,
+	      [enable_libgif=auto])
+
+if test "x$enable_libgif" != "xno" ; then
+   AC_CHECK_HEADER(gif_lib.h,
+   AC_CHECK_LIB(gif,DGifOpen))
+
+   have_libgif=${ac_cv_lib_gif_DGifOpen:-no}
+
+   LIBGIF_CFLAGS="$CFLAGS"
+   LIBGIF_LIBS="$LIBS"
+
+   AC_SUBST(LIBGIF_CFLAGS)
+   AC_SUBST(LIBGIF_LIBS)
+
+   if test "x$have_libgif" = "xyes"; then
+      AC_DEFINE(HAVE_LIBGIF, [], [Define if we have libgif])
+   fi
+else
+   have_libgif="no  (disabled)"
+fi
+
+if test "x$enable_libgif" = "xyes"; then
+   if test "x$have_libgif" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libgif >= $LIBGIF_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBGIF, test "x$have_libgif" = "xyes")
+
+CFLAGS="$OLD_CFLAGS"
+LIBS="$OLD_LIBS"
+
+##################################################################
 # Check for libjpeg
 ##################################################################
 
@@ -1789,6 +1836,7 @@ Metadata Extractors:
 	Support libstreamanalyzer:		$have_libstreamanalyzer
 	Support PNG:				yes
 	Support PDF:				$have_poppler
+	Support GIF:                            $have_libgif (xmp: $have_exempi)
 	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
 	Support TIFF:				$have_libtiff (xmp: $have_exempi, exif: yes, iptc: $have_libiptcdata)
 	Support Vorbis (ogg/etc):		$have_libvorbis
