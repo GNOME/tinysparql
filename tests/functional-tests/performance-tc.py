@@ -331,6 +331,8 @@ class rtcom(TestUpdate):
 # Current rtcom queries, please do not "quietly optimize".
 #
 
+# requires secondary index support to be fast
+
 		query = " \
 SELECT ?message ?date ?from ?to \
      rdf:type(?message) \
@@ -361,35 +363,43 @@ SELECT ?message ?date ?from ?to \
      nie:language(?message) \
 WHERE \
 { \
-  { \
-    ?message a nmo:Message . \
-    ?message nmo:isDraft false . \
-    ?message nmo:isDeleted false . \
-    ?message nmo:receivedDate ?date . \
-    ?message nmo:from ?fromContact . \
-    ?message nmo:to ?toContact . \
-    ?fromContact nco:hasContactMedium ?from . \
-    ?toContact nco:hasContactMedium ?to . \
-    ?message nmo:communicationChannel <urn:channel:1> . \
-    <urn:channel:1> nmo:hasParticipant ?participant . \
-      OPTIONAL \
+  SELECT \
+     ?message ?date ?from ?to \
+     (SELECT ?contact \
+      WHERE \
       { \
-        ?contact a nco:PersonContact . \
           { \
+            <urn:channel:1> nmo:hasParticipant ?participant . \
+            ?contact a nco:PersonContact . \
             ?participant nco:hasIMAddress ?imaddress . \
             ?contact nco:hasIMAddress ?imaddress . \
           } \
           UNION \
           { \
+            <urn:channel:1> nmo:hasParticipant ?participant . \
+            ?contact a nco:PersonContact . \
             ?participant nco:hasPhoneNumber ?participantNumber . \
             ?participantNumber maemo:localPhoneNumber ?number . \
             ?contact nco:hasPhoneNumber ?contactNumber . \
             ?contactNumber maemo:localPhoneNumber ?number . \
           } \
       } \
+     ) AS ?contact \
+  WHERE \
+  { \
+    ?message a nmo:Message . \
+    ?message nmo:isDraft false . \
+    ?message nmo:isDeleted false . \
+    ?message nmo:sentDate ?date . \
+    ?message nmo:from ?fromContact . \
+    ?message nmo:to ?toContact . \
+    ?fromContact nco:hasContactMedium ?from . \
+    ?toContact nco:hasContactMedium ?to . \
+    ?message nmo:communicationChannel <urn:channel:1> . \
   } \
+  ORDER BY DESC(?date) \
 } \
-ORDER BY DESC(?date) LIMIT 50\
+LIMIT 50 \
 "
 
         	start=time.time()
@@ -405,35 +415,41 @@ ORDER BY DESC(?date) LIMIT 50\
 # Current rtcom queries, please do not "quietly optimize".
 #
 		query = " \
-SELECT ?channel ?participant ?subject nie:generator(?channel) ?contactName ?contactUID ?lastDate ?lastMessage nie:plainTextContent(?lastMessage) \
+SELECT ?channel ?subject nie:generator(?channel) \
+  tracker:coalesce(fn:concat(nco:nameGiven(?contact), ' ', nco:nameFamily(?contact)), nco:nickname(?contact)) AS ?contactName \
+  nco:contactUID(?contact) AS ?contactUID \
+  ?lastDate ?lastMessage nie:plainTextContent(?lastMessage) \
   nfo:fileName(nmo:fromVCard(?lastMessage)) \
   rdfs:label(nmo:fromVCard(?lastMessage)) \
   ( SELECT COUNT(?message) AS ?total_messages WHERE { ?message nmo:communicationChannel ?channel . }) \
   ( SELECT COUNT(?message) AS ?total_unread   WHERE { ?message nmo:communicationChannel ?channel . ?message nmo:isRead false  .}) \
   ( SELECT COUNT(?message) AS ?_total_sent    WHERE { ?message nmo:communicationChannel ?channel . ?message nmo:isSent true . }) \
 WHERE { \
-  SELECT ?channel ?participant nco:contactUID(?contact) AS ?contactUID ?subject  ?lastDate \
-         tracker:coalesce(fn:concat(nco:nameGiven(?contact), ' ', nco:nameFamily(?contact)), nco:nickname(?contact)) AS ?contactName \
+  SELECT ?channel  ?subject  ?lastDate \
+          \
          ( SELECT ?message WHERE {?message nmo:communicationChannel ?channel . ?message nmo:sentDate ?sentDate .} ORDER BY DESC(?sentDate) LIMIT 1) AS ?lastMessage \
-  WHERE { \
-      ?channel a nmo:CommunicationChannel . \
-      ?channel nmo:hasParticipant ?participant . \
-      ?channel nie:subject ?subject . \
-      ?channel nmo:lastMessageDate ?lastDate . \
-      OPTIONAL { \
-            ?contact a nco:PersonContact . \
+      (SELECT ?contact \
+      WHERE { \
             { \
+              ?channel nmo:hasParticipant ?participant . \
+              ?contact a nco:PersonContact . \
               ?participant nco:hasIMAddress ?imaddress . \
               ?contact nco:hasIMAddress ?imaddress . \
             } \
             UNION \
             { \
+              ?channel nmo:hasParticipant ?participant . \
+              ?contact a nco:PersonContact . \
               ?participant nco:hasPhoneNumber ?participantNumber . \
               ?number maemo:localPhoneNumber ?localNumber . \
               ?contact nco:hasPhoneNumber ?contactNumber . \
               ?contactNumber maemo:localPhoneNumber ?localNumber . \
             } \
-        } \
+        }) AS ?contact \
+  WHERE { \
+      ?channel a nmo:CommunicationChannel . \
+      ?channel nie:subject ?subject . \
+      ?channel nmo:lastMessageDate ?lastDate . \
     } \
 } \
 ORDER BY DESC(?lastDate) LIMIT 50\
@@ -455,8 +471,6 @@ ORDER BY DESC(?lastDate) LIMIT 50\
 		query = " \
 SELECT ?call ?date ?from ?to \
      rdf:type(?call) \
-     tracker:coalesce(fn:concat(nco:nameGiven(?contact), ' ', nco:nameFamily(?contact)), nco:nickname(?contact)) \
-     ?contactId \
      nmo:isSent(?call) \
      nmo:isAnswered(?call) \
      nmo:isRead(?call) \
@@ -464,42 +478,54 @@ SELECT ?call ?date ?from ?to \
      nmo:receivedDate(?call) \
      nmo:duration(?call) \
      nie:contentLastModified(?call) \
-WHERE \
-{ \
-  { \
-    ?call a nmo:Call . \
-    ?call nmo:receivedDate ?date . \
-    ?call nmo:from ?fromContact . \
-    ?call nmo:to ?toContact . \
-    ?fromContact nco:hasContactMedium ?from . \
-    ?toContact nco:hasContactMedium ?to . \
-      OPTIONAL \
+     (SELECT ?contact \
+      WHERE \
       { \
-        ?contact a nco:PersonContact . \
-        ?contact nco:contactUID ?contactId . \
           { \
-            ?call nmo:to ?address . \
-          } \
-          UNION \
-          { \
-            ?call nmo:from ?address . \
-          } \
-          { \
+              ?contact a nco:PersonContact . \
+              ?contact nco:contactUID ?contactId . \
+              { \
+                ?call nmo:to ?address . \
+              } \
+              UNION \
+              { \
+                ?call nmo:from ?address . \
+              } \
             ?address nco:hasIMAddress ?imaddress . \
             ?contact nco:hasIMAddress ?imaddress . \
           } \
           UNION \
           { \
+              ?contact a nco:PersonContact . \
+              ?contact nco:contactUID ?contactId . \
+              { \
+                ?call nmo:to ?address . \
+              } \
+              UNION \
+              { \
+                ?call nmo:from ?address . \
+              } \
             ?address nco:hasPhoneNumber ?addressNumber . \
             ?addressNumber maemo:localPhoneNumber ?number . \
             ?contact nco:hasPhoneNumber ?contactNumber . \
             ?contactNumber maemo:localPhoneNumber ?number . \
           } \
-      } \
+      }) \
+WHERE \
+{ \
+  { \
+    ?call a nmo:Call . \
+    ?call nmo:sentDate ?date . \
+    ?call nmo:from ?fromContact . \
+    ?call nmo:to ?toContact . \
+    ?fromContact nco:hasContactMedium ?from . \
+    ?toContact nco:hasContactMedium ?to . \
   } \
 } \
 ORDER BY DESC(?date) LIMIT 50\
 "
+
+
 
 
         	start=time.time()
