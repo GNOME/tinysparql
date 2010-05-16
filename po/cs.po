@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-02 18:00+0200\n"
-"PO-Revision-Date: 2010-04-25 17:16+0200\n"
+"POT-Creation-Date: 2010-05-17 00:32+0200\n"
+"PO-Revision-Date: 2010-05-07 07:39+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -21,13 +21,21 @@ msgstr ""
 
 #: ../data/miners/tracker-miner-applications.desktop.in.h:1
 #: ../src/tracker-search-bar/tracker-results-window.c:666
-#: ../src/tracker-search-tool/tracker-category-view.gs:74
+#: ../src/tracker-search-tool/tracker-category-view.gs:79
 msgid "Applications"
 msgstr "Aplikace"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.h:2
 msgid "Applications data miner"
 msgstr "Démon na získávání dat z aplikací"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:1
+msgid "Emails"
+msgstr "E-maily"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:2
+msgid "Evolution Email miner"
+msgstr "Démon na získávání dat e-mailů z aplikace Evolution"
 
 #: ../data/miners/tracker-miner-files.desktop.in.h:1
 msgid "File System"
@@ -52,6 +60,16 @@ msgstr "Prochází a zpracovává soubory v souborovém systému"
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
 msgid "Tracker File System Miner"
 msgstr "Démon na získávání dat souborového systému vyhledávače Tracker"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:1
+#, fuzzy
+msgid "Fetch RSS/ATOM feeds"
+msgstr "Stáhnout kanál RSS/ATOM"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:2
+#, fuzzy
+msgid "Tracker RSS/ATOM Feeds Miner"
+msgstr "Stáhnout kanál RSS/ATOM"
 
 #: ../data/tracker-status-icon.desktop.in.in.h:1
 msgid "Tracker Status Icon"
@@ -181,13 +199,13 @@ msgstr[2] " %2.2d sekund"
 msgid "Data store is not available"
 msgstr "Datové úložiště není dostupné"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1032
+#: ../src/libtracker-miner/tracker-miner-object.c:1019
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Pozastavit aplikaci a odůvodnit shodu s již existujícím požadavkem na "
 "pozastavení"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1104
+#: ../src/libtracker-miner/tracker-miner-object.c:1091
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 "Cookie pozastaveného nástroje získávání dat nutná k obnovení běhu nebyla "
@@ -206,14 +224,6 @@ msgstr "Tracker"
 msgid "Processing…"
 msgstr "Zpracovává se…"
 
-#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:1
-msgid "Emails"
-msgstr "E-maily"
-
-#: ../src/plugins/evolution/tracker-miner-emails.desktop.in.h:2
-msgid "Evolution Email miner"
-msgstr "Démon na získávání dat e-mailů z aplikace Evolution"
-
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
 msgid "Properties"
 msgstr "Vlastnosti"
@@ -225,7 +235,7 @@ msgstr "_Hledat:"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:3
 msgid "_URN:"
-msgstr "_URN:"
+msgstr "Název _URN:"
 
 #: ../src/tracker-extract/tracker-main.c:84
 #: ../src/tracker-store/tracker-main.c:99
@@ -243,8 +253,8 @@ msgstr "Soubor, pro který se mají rozbalit metadata"
 #: ../src/tracker-extract/tracker-main.c:90 ../src/miners/fs/tracker-main.c:90
 #: ../src/miners/fs/tracker-main.c:94 ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-import.c:56
-#: ../src/tracker-utils/tracker-info.c:53
-#: ../src/tracker-utils/tracker-info.c:54
+#: ../src/tracker-utils/tracker-info.c:58
+#: ../src/tracker-utils/tracker-info.c:59
 #: ../src/tracker-utils/tracker-sparql.c:62
 msgid "FILE"
 msgstr "SOUBOR"
@@ -285,15 +295,15 @@ msgstr "Zobrazuje informace o verzi"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:347
+#: ../src/tracker-extract/tracker-main.c:349
 msgid "- Extract file meta data"
 msgstr "- rozbalí metadata souboru"
 
-#: ../src/tracker-extract/tracker-main.c:356
+#: ../src/tracker-extract/tracker-main.c:358
 msgid "Filename and mime type must be provided together"
 msgstr "Název souboru a typ MIME musí být uvedeny dohromady"
 
-#: ../src/tracker-extract/tracker-main.c:370
+#: ../src/tracker-extract/tracker-main.c:372
 msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr ""
@@ -320,84 +330,84 @@ msgstr "Kontrola, zda je SOUBOR způsobilý k získávání dat podle nastavení
 msgid "Forces the insertion of FILE into the store"
 msgstr "Vynutit vložení SOUBORU do úložiště"
 
-#: ../src/miners/fs/tracker-main.c:364
+#: ../src/miners/fs/tracker-main.c:365
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Datový objekt „%s“ v současnosti existuje"
 
-#: ../src/miners/fs/tracker-main.c:365
+#: ../src/miners/fs/tracker-main.c:366
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Datový objekt „%s“ v současnosti neexistuje"
 
-#: ../src/miners/fs/tracker-main.c:380
+#: ../src/miners/fs/tracker-main.c:381
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "Adresář je způsobilý k získávání dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:381
+#: ../src/miners/fs/tracker-main.c:382
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "Adresář NENÍ způsobilý k získávání dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:401
+#: ../src/miners/fs/tracker-main.c:402
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "Adresář je způsobilý k získávání dat (podle obsahu)"
 
-#: ../src/miners/fs/tracker-main.c:402
+#: ../src/miners/fs/tracker-main.c:403
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "Adresář NENÍ způsobilý k získávání dat (podle obsahu)"
 
-#: ../src/miners/fs/tracker-main.c:449
+#: ../src/miners/fs/tracker-main.c:450
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Adresář je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:450
+#: ../src/miners/fs/tracker-main.c:451
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Adresář NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:454
+#: ../src/miners/fs/tracker-main.c:455
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Soubor je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:455
+#: ../src/miners/fs/tracker-main.c:456
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Soubor NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:459
+#: ../src/miners/fs/tracker-main.c:460
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "Soubor nebo adresář je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:460
+#: ../src/miners/fs/tracker-main.c:461
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "Soubor nebo adresář NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:475
+#: ../src/miners/fs/tracker-main.c:476
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Soubor je způsobilý k získávání dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:476
+#: ../src/miners/fs/tracker-main.c:477
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "Soubor NENÍ způsobilý k získávání dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:485
+#: ../src/miners/fs/tracker-main.c:486
 msgid "Would be indexed"
 msgstr "Byl by indexován"
 
-#: ../src/miners/fs/tracker-main.c:486 ../src/miners/fs/tracker-main.c:488
+#: ../src/miners/fs/tracker-main.c:487 ../src/miners/fs/tracker-main.c:489
 msgid "Yes"
 msgstr "Ano"
 
-#: ../src/miners/fs/tracker-main.c:486 ../src/miners/fs/tracker-main.c:488
+#: ../src/miners/fs/tracker-main.c:487 ../src/miners/fs/tracker-main.c:489
 msgid "No"
 msgstr "Ne"
 
-#: ../src/miners/fs/tracker-main.c:487
+#: ../src/miners/fs/tracker-main.c:488
 msgid "Would be monitored"
 msgstr "Byl by sledován"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:528
+#: ../src/miners/fs/tracker-main.c:529
 msgid "- start the tracker indexer"
 msgstr "- spustí indexovač tracker"
 
@@ -661,11 +671,12 @@ msgid "Email Addresses"
 msgstr "E-mailové adresy"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:665
+#: ../src/tracker-search-tool/tracker-category-view.gs:63
 msgid "Documents"
 msgstr "Dokumenty"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:667
-#: ../src/tracker-search-tool/tracker-category-view.gs:62
+#: ../src/tracker-search-tool/tracker-category-view.gs:67
 msgid "Images"
 msgstr "Obrázky"
 
@@ -674,6 +685,7 @@ msgid "Audio"
 msgstr "Zvuk"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:669
+#: ../src/tracker-search-tool/tracker-category-view.gs:59
 msgid "Folders"
 msgstr "Složky"
 
@@ -682,7 +694,7 @@ msgid "Fonts"
 msgstr "Písma"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:671
-#: ../src/tracker-search-tool/tracker-category-view.gs:70
+#: ../src/tracker-search-tool/tracker-category-view.gs:75
 msgid "Videos"
 msgstr "Videa"
 
@@ -752,15 +764,11 @@ msgstr ""
 "Public License. Pokud se tak nestalo, napište na Free Software Foundation, "
 "Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
 
-#: ../src/tracker-search-tool/tracker-category-view.gs:54
+#: ../src/tracker-search-tool/tracker-category-view.gs:55
 msgid "All Files"
 msgstr "Všechny soubory"
 
-#: ../src/tracker-search-tool/tracker-category-view.gs:58
-msgid "Office Documents"
-msgstr "Kancelářské dokumenty"
-
-#: ../src/tracker-search-tool/tracker-category-view.gs:66
+#: ../src/tracker-search-tool/tracker-category-view.gs:71
 msgid "Music"
 msgstr "Hudba"
 
@@ -768,58 +776,58 @@ msgstr "Hudba"
 msgid "Clear the search text"
 msgstr "Smazat hledaný text"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:106
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:95
 msgid "Name:"
 msgstr "Název:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:112
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:101
 msgid "Folder:"
 msgstr "Složka:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:116
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:105
 msgid "Type:"
 msgstr "Typ:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:122
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:110
 msgid "Size:"
 msgstr "Velikost:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:128
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:115
 msgid "Modified:"
 msgstr "Změněno:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:353
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:313
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
 msgid "Height:"
 msgstr "Výška:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:328
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:314
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
 msgid "Width:"
 msgstr "Šířka:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:366
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:325
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:353
 msgid "Title:"
 msgstr "Název:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
 msgid "Artist:"
 msgstr "Umělec:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:342
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
 msgid "Album:"
 msgstr "Album:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
 msgid "Duration:"
 msgstr "Délka:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:367
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
 msgid "Author:"
 msgstr "Autor:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:368
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
 msgid "Page count:"
 msgstr "Počet stránek:"
 
@@ -866,8 +874,8 @@ msgstr ""
 #: ../src/tracker-status-icon/tracker-main.c:46
 #: ../src/tracker-control/tracker-control.c:99
 #: ../src/tracker-utils/tracker-import.c:51
-#: ../src/tracker-utils/tracker-info.c:49
-#: ../src/tracker-utils/tracker-search.c:113
+#: ../src/tracker-utils/tracker-info.c:50
+#: ../src/tracker-utils/tracker-search.c:123
 #: ../src/tracker-utils/tracker-sparql.c:93
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:116
@@ -970,7 +978,7 @@ msgstr "Umožnit v databázi pouze akce založené na čtení"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:361
+#: ../src/tracker-store/tracker-main.c:362
 msgid "- start the tracker daemon"
 msgstr "- spustí démona prohledávače Tracker"
 
@@ -1111,16 +1119,16 @@ msgid "- Import data using Turtle files"
 msgstr "- importuje data za použití souborů Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:119
+#: ../src/tracker-utils/tracker-info.c:215
 msgid "One or more files have not been specified"
 msgstr "Musí být uveden jeden nebo více souborů"
 
 #: ../src/tracker-utils/tracker-import.c:109
-#: ../src/tracker-utils/tracker-info.c:135
+#: ../src/tracker-utils/tracker-info.c:231
 #: ../src/tracker-utils/tracker-sparql.c:244
 #: ../src/tracker-utils/tracker-stats.c:106
-#: ../src/tracker-utils/tracker-status.c:543
-#: ../src/tracker-utils/tracker-tag.c:855
+#: ../src/tracker-utils/tracker-status.c:544
+#: ../src/tracker-utils/tracker-tag.c:856
 msgid "Could not establish a D-Bus connection to Tracker"
 msgstr "Nelze vytvořit spojení D-Bus k prohledávači Tracker"
 
@@ -1133,108 +1141,125 @@ msgid "Unable to import Turtle file"
 msgstr "Nelze importovat soubor Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:139
-#: ../src/tracker-utils/tracker-status.c:210
+#: ../src/tracker-utils/tracker-status.c:211
 msgid "Done"
 msgstr "Dokončeno"
 
+#: ../src/tracker-utils/tracker-info.c:54
+msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgstr ""
+"Zobrazit úplné jmenné prostory (např. nepoužít nie:title, ale úplné adresy "
+"URL)"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:101
+#: ../src/tracker-utils/tracker-info.c:197
 msgid "- Get all information about one or more files"
 msgstr "- získá všechny informace o jednom nebo více souborech"
 
-#: ../src/tracker-utils/tracker-info.c:147
+#: ../src/tracker-utils/tracker-info.c:245
 msgid "Querying information for entity"
 msgstr "Dotazuje se na informace pro entitu"
 
-#: ../src/tracker-utils/tracker-info.c:168
+#: ../src/tracker-utils/tracker-info.c:266
 msgid "Unable to retrieve URN for URI"
-msgstr "Nelze získat data URN pro URI"
+msgstr "Nelze získat název URN pro identifikátor URI"
 
-#: ../src/tracker-utils/tracker-info.c:199
+#: ../src/tracker-utils/tracker-info.c:297
 msgid "Unable to retrieve data for URI"
-msgstr "Nelze získat data pro URI"
+msgstr "Nelze získat data pro identifikátor URI"
 
-#: ../src/tracker-utils/tracker-info.c:208
+#: ../src/tracker-utils/tracker-info.c:306
 msgid "No metadata available for that URI"
-msgstr "Pro toto URI nejsou dostupná žádná metadata"
+msgstr "Pro tento identifikátor URI nejsou dostupná žádná metadata"
 
-#: ../src/tracker-utils/tracker-search.c:61
+#: ../src/tracker-utils/tracker-search.c:63
 #: ../src/tracker-utils/tracker-tag.c:55
 msgid "Limit the number of results shown"
 msgstr "Omezit množství zobrazených výsledků"
 
-#: ../src/tracker-utils/tracker-search.c:62
+#: ../src/tracker-utils/tracker-search.c:64
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "512"
 msgstr "512"
 
-#: ../src/tracker-utils/tracker-search.c:65
+#: ../src/tracker-utils/tracker-search.c:67
 #: ../src/tracker-utils/tracker-tag.c:59
 msgid "Offset the results"
 msgstr "Výsledky zobrazit od"
 
-#: ../src/tracker-utils/tracker-search.c:66
+#: ../src/tracker-utils/tracker-search.c:68
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "0"
 msgstr "0"
 
-#: ../src/tracker-utils/tracker-search.c:69
+#: ../src/tracker-utils/tracker-search.c:71
 #: ../src/tracker-utils/tracker-tag.c:63
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Pro hledané výrazy použít logickou spojku OR místo AND (výchozí)"
 
-#: ../src/tracker-utils/tracker-search.c:73
-msgid "Show more detailed results (only applies to general search)"
-msgstr "Zobrazit podrobnější výsledky (použije se pouze pro obecné hledání)"
+#: ../src/tracker-utils/tracker-search.c:75
+msgid ""
+"Show URNs for results (doesn't apply to --music-albums, --music-artists)"
+msgstr ""
+"Zobrazit názvy URN pro výsledky (nepoužívat pro --music-albums, --music-"
+"artists)"
 
-#: ../src/tracker-utils/tracker-search.c:77
+#: ../src/tracker-utils/tracker-search.c:79
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
 "Vrátit i nalezené, které zrovna neexistují (např. jsou na nepřipojeném "
 "svazku)"
 
-#: ../src/tracker-utils/tracker-search.c:81
+#: ../src/tracker-utils/tracker-search.c:83
 msgid "Search for files"
 msgstr "Hledat soubory"
 
-#: ../src/tracker-utils/tracker-search.c:85
+#: ../src/tracker-utils/tracker-search.c:87
 msgid "Search for folders"
 msgstr "Hledat složky"
 
-#: ../src/tracker-utils/tracker-search.c:89
-msgid "Search for music albums (--all has no effect on this)"
-msgstr "Hledat hudební alba  (přepínač --all nemá u tohoto vliv)"
-
-#: ../src/tracker-utils/tracker-search.c:93
-msgid "Search for music artists (--all has no effect on this) "
-msgstr "Hledat hudební umělce (přepínač --all nemá u tohoto vliv)"
-
-#: ../src/tracker-utils/tracker-search.c:97
+#: ../src/tracker-utils/tracker-search.c:91
 msgid "Search for music files"
 msgstr "Hledat hudební soubory"
 
-#: ../src/tracker-utils/tracker-search.c:101
+#: ../src/tracker-utils/tracker-search.c:95
+msgid "Search for music albums (--all has no effect on this)"
+msgstr "Hledat hudební alba  (přepínač --all nemá u tohoto vliv)"
+
+#: ../src/tracker-utils/tracker-search.c:99
+msgid "Search for music artists (--all has no effect on this) "
+msgstr "Hledat hudební umělce (přepínač --all nemá u tohoto vliv)"
+
+#: ../src/tracker-utils/tracker-search.c:103
 msgid "Search for image files"
 msgstr "Hledat soubory s obrázky"
 
-#: ../src/tracker-utils/tracker-search.c:105
+#: ../src/tracker-utils/tracker-search.c:107
 msgid "Search for video files"
 msgstr "Hledat soubory s videem"
 
-#: ../src/tracker-utils/tracker-search.c:109
+#: ../src/tracker-utils/tracker-search.c:111
 msgid "Search for document files"
 msgstr "Hledat soubory s dokumenty"
 
-#: ../src/tracker-utils/tracker-search.c:118
+#: ../src/tracker-utils/tracker-search.c:115
+msgid "Search for emails"
+msgstr "Hledat e-maily"
+
+#: ../src/tracker-utils/tracker-search.c:119
+msgid "Search for contacts"
+msgstr "Hledat kontakty"
+
+#: ../src/tracker-utils/tracker-search.c:128
 msgid "search terms"
 msgstr "vyhledávací podmínky"
 
-#: ../src/tracker-utils/tracker-search.c:119
+#: ../src/tracker-utils/tracker-search.c:129
 msgid "EXPRESSION"
 msgstr "VÝRAZ"
 
-#: ../src/tracker-utils/tracker-search.c:136
+#: ../src/tracker-utils/tracker-search.c:146
 #: ../src/tracker-utils/tracker-tag.c:106
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
@@ -1242,47 +1267,57 @@ msgstr ""
 "UPOZORNĚNÍ: Bylo překročeno omezení, v databázi je více položek, ale zde "
 "nejsou vypsané"
 
-#: ../src/tracker-utils/tracker-search.c:194
-#: ../src/tracker-utils/tracker-search.c:487
-#: ../src/tracker-utils/tracker-search.c:565
-#: ../src/tracker-utils/tracker-search.c:811
+#: ../src/tracker-utils/tracker-search.c:209
+#: ../src/tracker-utils/tracker-search.c:318
+#: ../src/tracker-utils/tracker-search.c:433
+#: ../src/tracker-utils/tracker-search.c:730
+#: ../src/tracker-utils/tracker-search.c:808
+#: ../src/tracker-utils/tracker-search.c:1056
 msgid "Could not get search results"
 msgstr "Nelze získat výsledky hledání"
 
-#: ../src/tracker-utils/tracker-search.c:203
+#: ../src/tracker-utils/tracker-search.c:218
+msgid "No contacts were found"
+msgstr "Nebyl nalezen žádný kontakt"
+
+#: ../src/tracker-utils/tracker-search.c:327
+msgid "No emails were found"
+msgstr "Nebyl nalezen žádný e-mail"
+
+#: ../src/tracker-utils/tracker-search.c:442
 msgid "No files were found"
 msgstr "Nebyl nalezen žádný soubor"
 
-#: ../src/tracker-utils/tracker-search.c:496
+#: ../src/tracker-utils/tracker-search.c:739
 msgid "No artists were found"
 msgstr "Nenalezen žádný umělec"
 
-#: ../src/tracker-utils/tracker-search.c:574
+#: ../src/tracker-utils/tracker-search.c:817
 msgid "No music was found"
 msgstr "Nenalezena žádná hudba"
 
-#: ../src/tracker-utils/tracker-search.c:820
+#: ../src/tracker-utils/tracker-search.c:1065
 msgid "No results were found matching your query"
 msgstr "Nebyly nalezeny žádné výsledky odpovídající vašemu dotazu"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:860
+#: ../src/tracker-utils/tracker-search.c:1105
 msgid "- Search for terms in all data"
 msgstr "- hledá výraz ve všech datech"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:865
+#: ../src/tracker-utils/tracker-search.c:1110
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "Pro všechny výrazy oddělené mezerami se použije logický operátor AND (viz "
 "také --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:869
+#: ../src/tracker-utils/tracker-search.c:1114
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -1290,22 +1325,22 @@ msgstr ""
 "To znamená, že když hledáte např. „včerejší“ a „den“, musí existovat OBOJE "
 "(jedině že byste použili --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:894
+#: ../src/tracker-utils/tracker-search.c:1141
 msgid "Search terms are missing"
 msgstr "Scházejí podmínky vyhledávání"
 
-#: ../src/tracker-utils/tracker-search.c:932
+#: ../src/tracker-utils/tracker-search.c:1179
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Hledaný výraz „%s“ je stop slovo."
 
-#: ../src/tracker-utils/tracker-search.c:935
+#: ../src/tracker-utils/tracker-search.c:1182
 #, c-format
 msgid ""
 "Stop words are common words which are ignored during the indexing process."
 msgstr "Stop slova jsou běžná slova, která se ale během indexování ignorují."
 
-#: ../src/tracker-utils/tracker-search.c:938
+#: ../src/tracker-utils/tracker-search.c:1185
 #, c-format
 msgid ""
 "This means this search term will never be found when matching FTS entries."
@@ -1313,7 +1348,7 @@ msgstr ""
 "To znamená, že když tyto výrazy zadáte do fulltextového vyhledávání, nebudou "
 "nikdy nalezeny."
 
-#: ../src/tracker-utils/tracker-search.c:957
+#: ../src/tracker-utils/tracker-search.c:1204
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "Nelze vytvořit spojení DBus k prohledávači Tracker"
 
@@ -1559,108 +1594,108 @@ msgstr "Obnovit běh démona na získávání dat (musíte použít spolu s --mi
 msgid "COOKIE"
 msgstr "COOKIE"
 
-#: ../src/tracker-utils/tracker-status.c:173
+#: ../src/tracker-utils/tracker-status.c:174
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
 msgstr "Zkouší se pozastavit démona na získávání dat „%s“ z důvodu „%s“"
 
-#: ../src/tracker-utils/tracker-status.c:180
+#: ../src/tracker-utils/tracker-status.c:181
 #, c-format
 msgid "Could not pause miner: %s"
 msgstr "Nelze pozastavit démona na získávání dat: %s"
 
-#: ../src/tracker-utils/tracker-status.c:185
+#: ../src/tracker-utils/tracker-status.c:186
 #, c-format
 msgid "Cookie is %d"
 msgstr "Cookie je %d"
 
-#: ../src/tracker-utils/tracker-status.c:199
+#: ../src/tracker-utils/tracker-status.c:200
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Zkouší se obnovit běh démona na získávání dat %s s cookie %d"
 
-#: ../src/tracker-utils/tracker-status.c:206
+#: ../src/tracker-utils/tracker-status.c:207
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "Nelze obnovit běh démona na získávání dat: %s"
 
-#: ../src/tracker-utils/tracker-status.c:226
+#: ../src/tracker-utils/tracker-status.c:227
 #, c-format
 msgid "Could not get status from miner: %s"
 msgstr "Nelze získat udaje o stavu od démona na získávání dat: %s"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-utils/tracker-status.c:284
-#: ../src/tracker-utils/tracker-status.c:683
+#: ../src/tracker-utils/tracker-status.c:285
+#: ../src/tracker-utils/tracker-status.c:684
 msgid "PAUSED"
 msgstr "POZASTAVENO"
 
-#: ../src/tracker-utils/tracker-status.c:298
+#: ../src/tracker-utils/tracker-status.c:299
 msgid "Not running or is a disabled plugin"
 msgstr "Neběží nebo je vypnutý zásuvný modul"
 
-#: ../src/tracker-utils/tracker-status.c:354
+#: ../src/tracker-utils/tracker-status.c:355
 msgid "Journal replay"
 msgstr "Znovu přehrát žurnál"
 
-#: ../src/tracker-utils/tracker-status.c:478
+#: ../src/tracker-utils/tracker-status.c:479
 msgid "- Monitor and control status"
 msgstr "- sledování a ovládání stavu"
 
-#: ../src/tracker-utils/tracker-status.c:493
+#: ../src/tracker-utils/tracker-status.c:494
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Nemůžete naráz uvést přepínač pro pozastavení i obnovení běhu démona na "
 "získávání dat"
 
-#: ../src/tracker-utils/tracker-status.c:507
+#: ../src/tracker-utils/tracker-status.c:508
 msgid "You must provide the miner for pause or resume commands"
 msgstr ""
 "Pro příkaz pozastavení nebo obnovení běhu musíte uvést démona na získávání "
 "dat"
 
-#: ../src/tracker-utils/tracker-status.c:521
+#: ../src/tracker-utils/tracker-status.c:522
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
 "Musíte zadat příkaz pozastavení nebo pokračování pro démona na získávání dat"
 
-#: ../src/tracker-utils/tracker-status.c:555
+#: ../src/tracker-utils/tracker-status.c:556
 msgid "Common statuses include"
 msgstr "Běžné stavy zahrnují"
 
-#: ../src/tracker-utils/tracker-status.c:567
+#: ../src/tracker-utils/tracker-status.c:568
 #, c-format
 msgid "Found %d miners installed"
 msgstr "Nalezeno %d nainstalovaných démonů na získávání dat"
 
-#: ../src/tracker-utils/tracker-status.c:579
+#: ../src/tracker-utils/tracker-status.c:580
 #, c-format
 msgid "Found %d miners running"
 msgstr "Nalezeno %d běžících démonů na získávání dat"
 
-#: ../src/tracker-utils/tracker-status.c:612
+#: ../src/tracker-utils/tracker-status.c:613
 msgid "No miners are running"
 msgstr "Neběží žádný démon na získávání dat"
 
-#: ../src/tracker-utils/tracker-status.c:652
-#: ../src/tracker-utils/tracker-status.c:699
+#: ../src/tracker-utils/tracker-status.c:653
+#: ../src/tracker-utils/tracker-status.c:700
 msgid "Miners"
 msgstr "Démoni na získávání dat"
 
-#: ../src/tracker-utils/tracker-status.c:659
+#: ../src/tracker-utils/tracker-status.c:660
 msgid "Application"
 msgstr "Aplikace"
 
-#: ../src/tracker-utils/tracker-status.c:661
+#: ../src/tracker-utils/tracker-status.c:662
 msgid "Reason"
 msgstr "Důvod"
 
-#: ../src/tracker-utils/tracker-status.c:670
+#: ../src/tracker-utils/tracker-status.c:671
 msgid "No miners are paused"
 msgstr "Není pozastavený žádný démon na získávání dat"
 
 #. Display states
-#: ../src/tracker-utils/tracker-status.c:693
+#: ../src/tracker-utils/tracker-status.c:694
 msgid "Store"
 msgstr "Úložište"
 
@@ -1699,19 +1734,19 @@ msgstr "SOUBOR [SOUBOR…]"
 
 #: ../src/tracker-utils/tracker-tag.c:294
 msgid "Could not get file URNs"
-msgstr "Nelze získat URN souborů"
+msgstr "Nelze získat názvy URN souborů"
 
 #: ../src/tracker-utils/tracker-tag.c:375
 msgid "Could not get files related to tag"
 msgstr "Nelze získat soubor příslušející ke štítku"
 
 #: ../src/tracker-utils/tracker-tag.c:448
-#: ../src/tracker-utils/tracker-tag.c:775
+#: ../src/tracker-utils/tracker-tag.c:776
 msgid "Could not get all tags"
 msgstr "Nelze získat všechny štítky"
 
 #: ../src/tracker-utils/tracker-tag.c:457
-#: ../src/tracker-utils/tracker-tag.c:784
+#: ../src/tracker-utils/tracker-tag.c:785
 msgid "No tags were found"
 msgstr "Nebyl nalezen žádný štítek"
 
@@ -1739,7 +1774,7 @@ msgstr "Neoznačeno štítkem, soubor není indexován"
 msgid "Could not get tag by label"
 msgstr "Nelze získat štítek podle popisku"
 
-#: ../src/tracker-utils/tracker-tag.c:663
+#: ../src/tracker-utils/tracker-tag.c:664
 msgid "No tags were found by that name"
 msgstr "Nebyla nalezen žádný štítek odpovídající tomuto názvu"
 
@@ -1751,34 +1786,34 @@ msgstr "Žádný ze souborů nemá nastavený tento štítek"
 msgid "Could not remove tag"
 msgstr "Nelze odstranit štítek"
 
-#: ../src/tracker-utils/tracker-tag.c:727
+#: ../src/tracker-utils/tracker-tag.c:728
 msgid "Tag was removed successfully"
 msgstr "Štítek byl úspěšně odstraněn"
 
-#: ../src/tracker-utils/tracker-tag.c:731
+#: ../src/tracker-utils/tracker-tag.c:732
 msgid "Untagged"
 msgstr "Zrušeno označení štítkem"
 
-#: ../src/tracker-utils/tracker-tag.c:732
+#: ../src/tracker-utils/tracker-tag.c:733
 msgid "File not indexed or already untagged"
 msgstr "Soubor není indexován nebo již není označen štítkem"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:813
+#: ../src/tracker-utils/tracker-tag.c:814
 msgid "Add, remove or list tags"
 msgstr "přidá, odebere nebo vypíše štítky"
 
-#: ../src/tracker-utils/tracker-tag.c:829
+#: ../src/tracker-utils/tracker-tag.c:830
 msgid "The --list option is required for --show-files"
 msgstr "Pro --show-files je vyžadován přepínač --list"
 
-#: ../src/tracker-utils/tracker-tag.c:831
+#: ../src/tracker-utils/tracker-tag.c:832
 msgid "Add and delete actions can not be used together"
 msgstr "Přidání a smazání ikon nelze provést naráz"
 
-#: ../src/tracker-utils/tracker-tag.c:833
+#: ../src/tracker-utils/tracker-tag.c:834
 msgid "No arguments were provided"
 msgstr "Nebyly uvedeny žádné argumenty"
 
@@ -1792,6 +1827,12 @@ msgstr "- spustí službu zpětného zápisu pro tracker"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Uložené dotazy"
+
+#~ msgid "Office Documents"
+#~ msgstr "Kancelářské dokumenty"
+
+#~ msgid "Show more detailed results (only applies to general search)"
+#~ msgstr "Zobrazit podrobnější výsledky (použije se pouze pro obecné hledání)"
 
 #~ msgid "Resuming"
 #~ msgstr "Obnovuje se běh"
