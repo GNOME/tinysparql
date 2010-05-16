@@ -1089,6 +1089,7 @@ if test "x$enable_tracker_search_tool" != "xno"; then
       have_tracker_search_tool="no"
    else
       have_tracker_search_tool="yes"
+      AC_DEFINE(HAVE_TRACKER_SEARCH_TOOL, [], [Define if t-s-t is compiled])
    fi
 else
    have_tracker_search_tool="no  (disabled)"
@@ -1116,6 +1117,7 @@ if test "x$enable_tracker_preferences" != "xno" ; then
       have_tracker_preferences="no"
    else
       have_tracker_preferences="yes"
+      AC_DEFINE(HAVE_TRACKER_PREFERENCES, [], [Define if tracker-preferences is compiled])
    fi
 else
    have_tracker_preferences="no  (disabled)"
