@@ -1,5 +1,9 @@
 include $(top_srcdir)/Makefile.decl
 
+if HAVE_TRACKER_SEARCH_BAR
+tsb = tracker-search-bar.1
+endif
+
 if HAVE_TRACKER_SEARCH_TOOL
 tst = tracker-search-tool.1
 endif
@@ -22,15 +26,15 @@ man_MANS = 				\
 	tracker-miner-fs.cfg.5		\
 	tracker-control.1		\
 	tracker-search.1		\
-	tracker-search-bar.1		\
 	tracker-sparql.1		\
 	tracker-stats.1			\
 	tracker-status.1		\
 	tracker-store.1			\
 	tracker-store.cfg.5		\
 	tracker-tag.1			\
+	$(tsb)				\
 	$(tst)				\
 	$(ta)				\
 	$(tp)
 
-EXTRA_DIST = $(man_MANS)	
+EXTRA_DIST = $(man_MANS)
