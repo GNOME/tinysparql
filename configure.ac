@@ -977,6 +977,9 @@ if test "x$enable_tracker_status_icon" = "xyes"; then
    if test "x$have_tracker_status_icon" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies ($APP_REQUIREMENTS).])
    fi
+   AC_DEFINE(HAVE_TRACKER_STATUS_ICON, [1], [Define to 1 if status icon is compiled])
+else
+   AC_DEFINE(HAVE_TRACKER_STATUS_ICON, [0], [Define to 0 if status icon is not compiled])
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_STATUS_ICON, test "$have_tracker_status_icon" = "yes")
@@ -1005,6 +1008,9 @@ if test "x$enable_tracker_explorer" = "xyes"; then
    if test "x$have_tracker_explorer" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-explorer dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
    fi
+   AC_DEFINE(HAVE_TRACKER_EXPLORER, [1], [Define to 1 if tracker explorer is compiled])
+else
+   AC_DEFINE(HAVE_TRACKER_EXPLORER, [0], [Define to 0 if tracker explorer is not compiled])
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
@@ -1033,6 +1039,9 @@ if test "x$enable_tracker_search_bar" = "xyes"; then
    if test "x$have_tracker_search_bar" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($APP_REQUIREMENTS $APPLET_REQUIREMENTS).])
    fi
+   AC_DEFINE(HAVE_TRACKER_SEARCH_BAR, [1], [Define to 1 if t-s-b is compiled])
+else
+   AC_DEFINE(HAVE_TRACKER_SEARCH_BAR, [0], [Define to 0 if t-s-b is not compiled])
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_SEARCH_BAR, test "$have_tracker_search_bar" = "yes")
@@ -1052,7 +1061,6 @@ if test "x$enable_tracker_search_tool" != "xno"; then
       have_tracker_search_tool="no"
    else
       have_tracker_search_tool="yes"
-      AC_DEFINE(HAVE_TRACKER_SEARCH_TOOL, [], [Define if t-s-t is compiled])
    fi
 else
    have_tracker_search_tool="no  (disabled)"
@@ -1062,6 +1070,9 @@ if test "x$enable_tracker_search_tool" = "xyes"; then
    if test "x$have_tracker_search_tool" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
    fi
+   AC_DEFINE(HAVE_TRACKER_SEARCH_TOOL, [1], [Define to 1 if t-s-t is compiled])
+else
+   AC_DEFINE(HAVE_TRACKER_SEARCH_TOOL, [0], [Define to 0 if t-s-t is not compiled])
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_SEARCH_TOOL, test "$have_tracker_search_tool" = "yes")
@@ -1080,7 +1091,6 @@ if test "x$enable_tracker_preferences" != "xno" ; then
       have_tracker_preferences="no"
    else
       have_tracker_preferences="yes"
-      AC_DEFINE(HAVE_TRACKER_PREFERENCES, [], [Define if tracker-preferences is compiled])
    fi
 else
    have_tracker_preferences="no  (disabled)"
@@ -1090,6 +1100,9 @@ if test "x$enable_tracker_preferences" = "xyes"; then
    if test "x$have_tracker_preferences" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($APP_REQUIREMENTS).])
    fi
+   AC_DEFINE(HAVE_TRACKER_PREFERENCES, [1], [Define to 1 if tracker preferences is compiled])
+else
+   AC_DEFINE(HAVE_TRACKER_PREFERENCES, [0], [Define to 0 if tracker preferences is not compiled])
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
