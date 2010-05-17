@@ -31,7 +31,6 @@ class Tracker.Sparql.Expression : Object {
 
 	Context context {
 		get { return query.context; }
-		set { query.context = value; }
 	}
 
 	Pattern pattern {
@@ -1136,16 +1135,12 @@ class Tracker.Sparql.Expression : Object {
 		if (current () == SparqlTokenType.SELECT) {
 			// scalar subquery
 
-			context = new Context.subquery (context);
-
 			sql.append ("(");
-			var type = pattern.translate_select (sql, true);
+			var select_context = pattern.translate_select (sql, true, true);
 			sql.append (")");
 
-			context = context.parent_context;
-
 			expect (SparqlTokenType.CLOSE_PARENS);
-			return type;
+			return select_context.type;
 		}
 
 		var optype = translate_expression (sql);

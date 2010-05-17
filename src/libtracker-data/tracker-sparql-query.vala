@@ -165,6 +165,18 @@ namespace Tracker.Sparql {
 			return result;
 		}
 	}
+
+	class SelectContext : Context {
+		public PropertyType type;
+
+		public SelectContext (Context? parent_context = null) {
+			base (parent_context);
+		}
+
+		public SelectContext.subquery (Context parent_context) {
+			base.subquery (parent_context);
+		}
+	}
 }
 
 public class Tracker.Sparql.Query : Object {
@@ -490,7 +502,6 @@ public class Tracker.Sparql.Query : Object {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
-		context = new Context ();
 
 		// build SQL
 		var sql = new StringBuilder ();
@@ -502,7 +513,7 @@ public class Tracker.Sparql.Query : Object {
 
 		accept (SparqlTokenType.WHERE);
 
-		pattern.translate_group_graph_pattern (pattern_sql);
+		context = pattern.translate_group_graph_pattern (pattern_sql);
 
 		// select from results of WHERE clause
 		sql.append (" FROM (");
@@ -555,7 +566,6 @@ public class Tracker.Sparql.Query : Object {
 		}
 
 		var pattern_sql = new StringBuilder ();
-		context = new Context ();
 
 		var sql = new StringBuilder ();
 
@@ -567,9 +577,11 @@ public class Tracker.Sparql.Query : Object {
 			var old_graph = current_graph;
 			current_graph = null;
 
-			pattern.translate_group_graph_pattern (pattern_sql);
+			context = pattern.translate_group_graph_pattern (pattern_sql);
 
 			current_graph = old_graph;
+		} else {
+			context = new Context ();
 		}
 
 		var after_where = get_location ();
