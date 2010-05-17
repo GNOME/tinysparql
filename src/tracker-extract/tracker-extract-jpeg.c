@@ -238,9 +238,9 @@ extract_jpeg (const gchar          *uri,
 			str = (gchar*) marker->data;
 			len = marker->data_length;
 #ifdef HAVE_LIBIPTCDATA
-			if (strncmp (PS3_NAMESPACE, str, PS3_NAMESPACE_LENGTH) == 0) {
+			if (len > 0 && strncmp (PS3_NAMESPACE, str, PS3_NAMESPACE_LENGTH) == 0) {
 				offset = iptc_jpeg_ps3_find_iptc (str, len, &sublen);
-				if (offset > 0) {
+				if (offset > 0 && sublen > 0) {
 					id = tracker_iptc_new (str + offset, sublen, uri);
 				}
 			}
