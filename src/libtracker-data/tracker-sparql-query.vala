@@ -113,7 +113,7 @@ namespace Tracker.Sparql {
 		// Keep track of used sql identifiers to avoid using the same for multiple SPARQL variables
 		public HashTable<string,bool> used_sql_identifiers;
 
-		public bool in_scalar_subquery;
+		public bool scalar_subquery;
 
 		public Context (Context? parent_context = null) {
 			this.parent_context = parent_context;
@@ -129,7 +129,6 @@ namespace Tracker.Sparql {
 				var_map = parent_context.var_map;
 				predicate_variable_map = parent_context.predicate_variable_map;
 				used_sql_identifiers = parent_context.used_sql_identifiers;
-				in_scalar_subquery = parent_context.in_scalar_subquery;
 			}
 		}
 
@@ -138,10 +137,10 @@ namespace Tracker.Sparql {
 			this.var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 			select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
-			var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
+			var_map = parent_context.var_map;
 			predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
 			used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
-			in_scalar_subquery = true;
+			scalar_subquery = true;
 		}
 
 		internal unowned Variable get_variable (string name) {
@@ -485,15 +484,11 @@ public class Tracker.Sparql.Query : Object {
 	DBResultSet? execute_select () throws DBInterfaceError, SparqlError, DateError {
 		// SELECT query
 
-		context = new Context ();
-
 		// build SQL
 		var sql = new StringBuilder ();
 		pattern.translate_select (sql);
 
 		expect (SparqlTokenType.EOF);
-
-		context = context.parent_context;
 
 		return exec_sql (sql.str);
 	}
@@ -589,7 +584,7 @@ public class Tracker.Sparql.Query : Object {
 		// build SQL
 		sql.append ("SELECT ");
 		bool first = true;
-		foreach (var variable in context.var_map.get_values ()) {
+		foreach (var variable in context.var_set.get_keys ()) {
 			if (!first) {
 				sql.append (", ");
 			} else {
@@ -632,10 +627,10 @@ public class Tracker.Sparql.Query : Object {
 				// get values of all variables to be bound
 				var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 				int var_idx = 0;
-				foreach (string var_name in context.var_map.get_keys ()) {
+				foreach (var variable in context.var_set.get_keys ()) {
 					Value value;
 					result_set._get_value (var_idx++, out value);
-					var_value_map.insert (var_name, get_string_for_value (value));
+					var_value_map.insert (variable.name, get_string_for_value (value));
 				}
 
 				set_location (template_location);
