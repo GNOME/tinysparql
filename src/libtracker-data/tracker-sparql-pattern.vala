@@ -221,7 +221,14 @@ class Tracker.Sparql.Pattern : Object {
 
 	TripleContext? triple_context;
 
-	internal PropertyType translate_select (StringBuilder sql, bool subquery = false) throws SparqlError {
+	internal SelectContext translate_select (StringBuilder sql, bool subquery = false, bool scalar_subquery = false) throws SparqlError {
+		SelectContext result;
+		if (scalar_subquery) {
+			result = new SelectContext.subquery (context);
+		} else {
+			result = new SelectContext (context);
+		}
+		context = result;
 		var type = PropertyType.UNKNOWN;
 
 		var pattern_sql = new StringBuilder ();
@@ -247,7 +254,10 @@ class Tracker.Sparql.Pattern : Object {
 
 		accept (SparqlTokenType.WHERE);
 
-		translate_group_graph_pattern (pattern_sql);
+		var pattern = translate_group_graph_pattern (pattern_sql);
+		foreach (var key in pattern.var_set.get_keys ()) {
+			context.var_set.insert (key, VariableState.BOUND);
+		}
 
 		// process select variables
 		var after_where = get_location ();
@@ -390,7 +400,11 @@ class Tracker.Sparql.Pattern : Object {
 			query.bindings.append (binding);
 		}
 
-		return type;
+		context = context.parent_context;
+
+		result.type = type;
+
+		return result;
 	}
 
 	internal string parse_var_or_term (StringBuilder? sql, out bool is_var) throws SparqlError {
@@ -788,19 +802,25 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	internal void translate_group_graph_pattern (StringBuilder sql) throws SparqlError {
+	internal Context translate_group_graph_pattern (StringBuilder sql) throws SparqlError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		if (current () == SparqlTokenType.SELECT) {
-			translate_select (sql, true);
+			var result = translate_select (sql, true);
+			context = result;
 
 			// only export selected variables
 			context.var_set = context.select_var_set;
 			context.select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 			expect (SparqlTokenType.CLOSE_BRACE);
-			return;
+
+			context = context.parent_context;
+			return result;
 		}
+
+		var result = new Context (context);
+		context = result;
 
 		SourceLocation[] filters = { };
 
@@ -846,9 +866,7 @@ class Tracker.Sparql.Pattern : Object {
 
 					sql.append_printf (") AS t%d_g LEFT JOIN (", left_index);
 
-					context = new Context (context);
-
-					translate_group_graph_pattern (sql);
+					context = translate_group_graph_pattern (sql);
 
 					sql.append_printf (") AS t%d_g", right_index);
 
@@ -1000,6 +1018,9 @@ class Tracker.Sparql.Pattern : Object {
 
 			set_location (end);
 		}
+
+		context = context.parent_context;
+		return result;
 	}
 
 	void translate_group_or_union_graph_pattern (StringBuilder sql) throws SparqlError {
@@ -1010,13 +1031,8 @@ class Tracker.Sparql.Pattern : Object {
 		long[] offsets = { };
 
 		do {
-			context = new Context (context);
-
-			contexts += context;
 			offsets += sql.len;
-			translate_group_graph_pattern (sql);
-
-			context = context.parent_context;
+			contexts += translate_group_graph_pattern (sql);
 		} while (accept (SparqlTokenType.UNION));
 
 		if (contexts.length > 1) {
