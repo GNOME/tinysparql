@@ -14,5 +14,5 @@ NoDisplay=true
 OnlyShowIn=GNOME;KDE;XFCE;
 X-GNOME-Bugzilla-Bugzilla=GNOME
 X-GNOME-Bugzilla-Product=tracker
-X-GNOME-Bugzilla-Component=miner-flickr
+X-GNOME-Bugzilla-Component=Miners
 X-GNOME-Bugzilla-Version=@VERSION@
