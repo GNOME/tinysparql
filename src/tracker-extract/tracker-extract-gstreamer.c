@@ -396,18 +396,15 @@ get_embedded_album_art(MetadataExtractor *extractor)
 
 	if (value) {
 		GstBuffer    *buffer;
-		GstCaps      *caps;
 		GstStructure *caps_struct;
 
 		buffer = gst_value_get_buffer (value);
-		caps   = gst_buffer_get_caps (buffer);
 		caps_struct = gst_caps_get_structure (buffer->caps, 0);
 
 		extractor->album_art_data = buffer->data;
 		extractor->album_art_size = buffer->size;
 		extractor->album_art_mime = gst_structure_get_name (caps_struct);
 
-		gst_object_unref (caps);
 
 		return TRUE;
 	}
