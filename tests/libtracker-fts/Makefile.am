@@ -10,7 +10,8 @@ noinst_PROGRAMS = 							\
 
 
 TEST_PROGS += 								\
-	tracker-fts-test
+	tracker-fts-test 						\
+	tracker-parser-test
 
 INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
@@ -42,6 +43,10 @@ common_ldadd =								\
 tracker_fts_test_SOURCES = tracker-fts-test.c
 
 tracker_fts_test_LDADD = $(common_ldadd)
+
+tracker_parser_test_SOURCES = tracker-parser-test.c
+
+tracker_parser_test_LDADD = $(common_ldadd)
 
 tracker_parser_SOURCES = tracker-parser.c
 
