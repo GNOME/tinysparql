@@ -709,7 +709,7 @@ context_menu_pause_cb (GtkMenuItem *item,
 	update_icon_status (icon);
 }
 
-#ifdef HAVE_TRACKER_SEARCH_TOOL
+#if HAVE_TRACKER_SEARCH_TOOL
 static void
 context_menu_search_cb (GtkMenuItem *item,
                         gpointer     user_data)
@@ -719,7 +719,7 @@ context_menu_search_cb (GtkMenuItem *item,
 }
 #endif
 
-#ifdef HAVE_TRACKER_PREFERENCES
+#if HAVE_TRACKER_PREFERENCES
 static void
 context_menu_preferences_cb (GtkMenuItem *item,
                              gpointer     user_data)
@@ -839,7 +839,7 @@ status_icon_create_context_menu (TrackerStatusIcon *icon)
 	item = gtk_separator_menu_item_new ();
 	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
 
-#ifdef HAVE_TRACKER_SEARCH_TOOL
+#if HAVE_TRACKER_SEARCH_TOOL
 	item = gtk_image_menu_item_new_with_mnemonic (_("_Search"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_FIND,
 	                                      GTK_ICON_SIZE_MENU);
@@ -849,7 +849,7 @@ status_icon_create_context_menu (TrackerStatusIcon *icon)
 	                  G_CALLBACK (context_menu_search_cb), icon);
 #endif
 
-#ifdef HAVE_TRACKER_PREFERENCES
+#if HAVE_TRACKER_PREFERENCES
 	item = gtk_image_menu_item_new_with_mnemonic (_("_Preferences"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
 	                                      GTK_ICON_SIZE_MENU);

@@ -17,6 +17,7 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION 						\
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"			\
 	-I$(top_srcdir)/src						\
+	-I$(top_builddir)						\
 	$(TRACKER_APPS_CFLAGS)						\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)
