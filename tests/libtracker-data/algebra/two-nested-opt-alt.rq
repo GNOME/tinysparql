@@ -2,7 +2,7 @@ PREFIX :    <http://example/>
 
 ## The nested optional example, rewritten to a form that is the same
 ## for the SPARQL algebra and the declarative semantics.
-SELECT *
+SELECT ?v ?w
 { 
     :x1 :p ?v .
     OPTIONAL { :x3 :q ?w }

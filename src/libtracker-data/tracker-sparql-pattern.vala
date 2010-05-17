@@ -266,7 +266,7 @@ class Tracker.Sparql.Pattern : Object {
 		set_location (select_variables_location);
 
 		// report use of undefined variables
-		foreach (var variable in context.var_map.get_values ()) {
+		foreach (var variable in context.var_set.get_keys ()) {
 			if (variable.binding == null) {
 				throw get_error ("use of undefined variable `%s'".printf (variable.name));
 			}
@@ -277,7 +277,7 @@ class Tracker.Sparql.Pattern : Object {
 
 		bool first = true;
 		if (accept (SparqlTokenType.STAR)) {
-			foreach (var variable in context.var_map.get_values ()) {
+			foreach (var variable in context.var_set.get_keys ()) {
 				if (!first) {
 					sql.append (", ");
 				} else {
@@ -1091,30 +1091,30 @@ class Tracker.Sparql.Pattern : Object {
 		if (triple_context != null) {
 			binding_list = triple_context.var_bindings.lookup (variable);
 		}
-		if (binding_list == null && context.in_scalar_subquery) {
-			// in scalar subquery: check variables of outer queries
-			var parent_context = context.parent_context;
-			while (parent_context != null) {
-				var outer_var = parent_context.var_map.lookup (variable.name);
-				if (outer_var != null && outer_var.binding != null) {
+		if (binding_list == null && variable.binding != null) {
+			// might be in scalar subquery: check variables of outer queries
+			var current_context = context;
+			while (current_context != null) {
+				// only allow access to variables of immediate parent context of the subquery
+				// allowing access to other variables leads to invalid SQL or wrong results
+				if (current_context.scalar_subquery && current_context.parent_context.var_set.lookup (variable) != 0) {
 					// capture outer variable
 					var binding = new VariableBinding ();
-					binding.data_type = outer_var.binding.data_type;
+					binding.data_type = variable.binding.data_type;
 					binding.variable = context.get_variable (variable.name);
-					binding.type = outer_var.binding.type;
-					binding.sql_expression = outer_var.sql_expression;
+					binding.type = variable.binding.type;
+					binding.sql_expression = variable.sql_expression;
 					binding_list = new VariableBindingList ();
 					if (triple_context != null) {
-						triple_context.variables.append (binding.variable);
-						triple_context.var_bindings.insert (binding.variable, binding_list);
+						triple_context.variables.append (variable);
+						triple_context.var_bindings.insert (variable, binding_list);
 					}
 
-					context.var_set.insert (binding.variable, VariableState.BOUND);
+					context.var_set.insert (variable, VariableState.BOUND);
 					binding_list.list.append (binding);
-					binding.variable.binding = binding;
 					break;
 				}
-				parent_context = parent_context.parent_context;
+				current_context = current_context.parent_context;
 			}
 		}
 		return binding_list;
