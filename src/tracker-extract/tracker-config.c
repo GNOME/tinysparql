@@ -8,7 +8,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public
@@ -30,7 +30,8 @@
 
 /* Default values */
 #define DEFAULT_VERBOSITY 0
-#define DEFAULT_MAX_BYTES 1048576 /* 1Mbyte */
+#define DEFAULT_MAX_BYTES 1048576   /* 1Mbyte */
+#define ABSOLUTE_MAX_BYTES 10485760 /* 10 Mbytes (GB#616845) */
 
 typedef struct {
 	/* General */
@@ -101,9 +102,9 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                 PROP_MAX_BYTES,
 	                                 g_param_spec_int ("max-bytes",
 	                                                   "Max Bytes",
-	                                                   " Maximum number of UTF-8 bytes to extract per file [0->G_MAXINT]",
+	                                                   " Maximum number of UTF-8 bytes to extract per file [0->10485760]",
 	                                                   0,
-	                                                   G_MAXINT,
+	                                                   ABSOLUTE_MAX_BYTES,
 	                                                   DEFAULT_MAX_BYTES,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
