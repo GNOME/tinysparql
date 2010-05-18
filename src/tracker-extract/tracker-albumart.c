@@ -409,8 +409,8 @@ albumart_heuristic (const gchar *artist,
 	}
 
 	file = NULL;
-	artist_strdown = g_utf8_strdown (artist_stripped, -1);
-	album_strdown = g_utf8_strdown (album_stripped, -1);
+	artist_strdown = artist_stripped ? g_utf8_strdown (artist_stripped, -1) : g_strdup ("");
+	album_strdown = album_stripped ? g_utf8_strdown (album_stripped, -1) : g_strdup ("");
 
 	/* Try to find cover art in the directory */
 	for (name = g_dir_read_name (dir), count = 0, retval = FALSE;
@@ -486,8 +486,8 @@ albumart_heuristic (const gchar *artist,
 			}
 		}
 
-                g_free (name_utf8);
-                g_free (name_strdown);
+		g_free (name_utf8);
+		g_free (name_strdown);
 	}
 
 	if (count >= 50) {
