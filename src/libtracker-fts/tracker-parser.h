@@ -37,9 +37,9 @@ void           tracker_parser_reset           (TrackerParser   *parser,
                                                gint             txt_size,
                                                gboolean         delimit_words,
                                                gboolean         enable_stemmer,
-                                               gboolean         enable_stop_words,
-                                               gboolean         skip_reserved_words,
-                                               gboolean         skip_numbers);
+                                               gboolean         ignore_stop_words,
+                                               gboolean         ignore_reserved_words,
+                                               gboolean         ignore_numbers);
 
 const gchar *  tracker_parser_next            (TrackerParser   *parser,
                                                gint            *position,

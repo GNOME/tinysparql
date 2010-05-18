@@ -54,12 +54,12 @@ struct TrackerParser {
 
 	TrackerLanguage       *language;
 	gboolean               enable_stemmer;
-	gboolean               enable_stop_words;
 	guint                  max_words_to_index;
 	guint                  max_word_length;
 	gboolean               delimit_words;
-	gboolean               skip_reserved_words;
-	gboolean               skip_numbers;
+	gboolean               ignore_stop_words;
+	gboolean               ignore_reserved_words;
+	gboolean               ignore_numbers;
 
 	/* Private members */
 	gchar                   *word;
@@ -175,25 +175,25 @@ parser_next (TrackerParser *parser,
 			break;
 		}
 
-		/* Skip the word if not an allowed word start */
+		/* Ignore the word if not an allowed word start */
 		if (!is_allowed) {
-			/* Skip this word and keep on looping */
+			/* Ignore this word and keep on looping */
 			parser->cursor += word_length;
 			continue;
 		}
 
-		/* Skip the word if longer than the maximum allowed */
+		/* Ignore the word if longer than the maximum allowed */
 		if (word_length >= parser->max_word_length) {
-			/* Skip this word and keep on looping */
+			/* Ignore this word and keep on looping */
 			parser->cursor += word_length;
 			continue;
 		}
 
-		/* check if word is reserved and skip it if so */
-		if (parser->skip_reserved_words &&
+		/* check if word is reserved and ignore it if so */
+		if (parser->ignore_reserved_words &&
 		    tracker_parser_is_reserved_word_utf8 (&parser->txt[parser->cursor],
 		                                          word_length)) {
-			/* Skip this word and keep on looping */
+			/* Ignore this word and keep on looping */
 			parser->cursor += word_length;
 			continue;
 		}
@@ -212,7 +212,7 @@ parser_next (TrackerParser *parser,
 		                                    truncated_length,
 		                                    type);
 		if (!processed_word) {
-			/* Skip this word and keep on looping */
+			/* Ignore this word and keep on looping */
 			parser->cursor += word_length;
 			continue;
 		}
@@ -280,21 +280,21 @@ tracker_parser_reset (TrackerParser *parser,
                       gint           txt_size,
                       gboolean       delimit_words,
                       gboolean       enable_stemmer,
-                      gboolean       enable_stop_words,
-                      gboolean       skip_reserved_words,
-                      gboolean       skip_numbers)
+                      gboolean       ignore_stop_words,
+                      gboolean       ignore_reserved_words,
+                      gboolean       ignore_numbers)
 {
 	g_return_if_fail (parser != NULL);
 	g_return_if_fail (txt != NULL);
 
 	parser->enable_stemmer = enable_stemmer;
-	parser->enable_stop_words = enable_stop_words;
+	parser->ignore_stop_words = ignore_stop_words;
 	parser->delimit_words = delimit_words;
 
 	parser->txt_size = txt_size;
 	parser->txt = txt;
-	parser->skip_reserved_words = skip_reserved_words;
-	parser->skip_numbers = skip_numbers;
+	parser->ignore_reserved_words = ignore_reserved_words;
+	parser->ignore_numbers = ignore_numbers;
 
 	g_free (parser->word);
 	parser->word = NULL;
@@ -316,7 +316,7 @@ tracker_parser_reset (TrackerParser *parser,
 	/* Prepare a custom category which is a combination of the
 	 * desired ones */
 	parser->allowed_start = UC_LETTER;
-	if (!parser->skip_numbers) {
+	if (!parser->ignore_numbers) {
 		parser->allowed_start = uc_general_category_or (parser->allowed_start, UC_NUMBER);
 	}
 }
@@ -376,7 +376,7 @@ process_word_utf8 (TrackerParser         *parser,
 		                          word_buffer,
 		                          &new_word_length);
 
-		/* Case folding + Normalization failed, skip this word */
+		/* Case folding + Normalization failed, ignore this word */
 		g_return_val_if_fail (normalized != NULL, NULL);
 
 		/* If output buffer is not the same as the one passed to
@@ -481,7 +481,7 @@ tracker_parser_next (TrackerParser *parser,
 	}
 
 	if (str &&
-	    parser->enable_stop_words &&
+	    parser->ignore_stop_words &&
 	    tracker_language_is_stop_word (parser->language, str)) {
 		*stop_word = TRUE;
 	} else {

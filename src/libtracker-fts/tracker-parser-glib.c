@@ -72,12 +72,12 @@ struct TrackerParser {
 
 	TrackerLanguage       *language;
 	gboolean               enable_stemmer;
-	gboolean               enable_stop_words;
+	gboolean               ignore_stop_words;
 	guint                  max_words_to_index;
 	guint                  max_word_length;
 	gboolean               delimit_words;
-	gboolean               skip_reserved_words;
-	gboolean               skip_numbers;
+	gboolean               ignore_reserved_words;
+	gboolean               ignore_numbers;
 
 	/* Private members */
 	gchar                   *word;
@@ -278,14 +278,14 @@ parser_next (TrackerParser *parser,
 				/* word break */
 
 				/* check if word is reserved */
-				if (is_valid && parser->skip_reserved_words) {
+				if (is_valid && parser->ignore_reserved_words) {
 					if (length == 2 && word[0] == 'o' && word[1] == 'r') {
 						is_valid = FALSE;
 					}
 				}
 
 				if (!is_valid ||
-				    (parser->skip_numbers && word_type == TRACKER_PARSER_WORD_NUM)) {
+				    (parser->ignore_numbers && word_type == TRACKER_PARSER_WORD_NUM)) {
 					word_type = TRACKER_PARSER_WORD_IGNORE;
 					is_valid = TRUE;
 					length = 0;
@@ -312,12 +312,12 @@ parser_next (TrackerParser *parser,
 			 * underscore if we are filtering.
 			 */
 
-			if (parser->skip_numbers && type == TRACKER_PARSER_WORD_NUM) {
+			if (parser->ignore_numbers && type == TRACKER_PARSER_WORD_NUM) {
 				is_valid = FALSE;
 				continue;
 			} else {
 				if (type == TRACKER_PARSER_WORD_HYPHEN) {
-					is_valid = !parser->skip_reserved_words;
+					is_valid = !parser->ignore_reserved_words;
 					continue;
 				}
 			}
@@ -462,9 +462,9 @@ tracker_parser_reset (TrackerParser *parser,
                       gint           txt_size,
                       gboolean       delimit_words,
                       gboolean       enable_stemmer,
-                      gboolean       enable_stop_words,
-                      gboolean       skip_reserved_words,
-                      gboolean       skip_numbers)
+                      gboolean       ignore_stop_words,
+                      gboolean       ignore_reserved_words,
+                      gboolean       ignore_numbers)
 {
 	g_return_if_fail (parser != NULL);
 	g_return_if_fail (txt != NULL);
@@ -476,13 +476,13 @@ tracker_parser_reset (TrackerParser *parser,
 	parser->encoding = get_encoding (txt);
 
 	parser->enable_stemmer = enable_stemmer;
-	parser->enable_stop_words = enable_stop_words;
+	parser->ignore_stop_words = ignore_stop_words;
 	parser->delimit_words = delimit_words;
 
 	parser->txt_size = txt_size;
 	parser->txt = txt;
-	parser->skip_reserved_words = skip_reserved_words;
-	parser->skip_numbers = skip_numbers;
+	parser->ignore_reserved_words = ignore_reserved_words;
+	parser->ignore_numbers = ignore_numbers;
 
 	g_free (parser->word);
 	parser->word = NULL;
@@ -618,7 +618,7 @@ tracker_parser_next (TrackerParser *parser,
 		}
 
 		if (str &&
-		    parser->enable_stop_words &&
+		    parser->ignore_stop_words &&
 		    tracker_language_is_stop_word (parser->language, str)) {
 			*stop_word = TRUE;
 		} else {

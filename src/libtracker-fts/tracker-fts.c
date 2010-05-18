@@ -2330,7 +2330,8 @@ struct fulltext_vtab {
   const char *zName;		   /* virtual table name */
   int nColumn;			   /* number of columns in virtual table */
   TrackerParser *parser;	   /* tokenizer for inserts and queries */
-  gboolean stop_words;
+  gboolean ignore_numbers;
+  gboolean ignore_stop_words;
   int max_words;
   int min_word_length;
 
@@ -3369,13 +3370,12 @@ static int constructVtab(
 
   min_len = tracker_fts_config_get_min_word_length (config);
   max_len = tracker_fts_config_get_max_word_length (config);
+  v->ignore_numbers = tracker_fts_config_get_ignore_numbers (config);
+  v->ignore_stop_words = tracker_fts_config_get_ignore_stop_words (config);
 
   v->max_words = tracker_fts_config_get_max_words_to_index (config);
   v->min_word_length = min_len;
   v->parser = tracker_parser_new (language, max_len);
-
-  /* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests */
-  v->stop_words = g_strcmp0 (g_getenv ("TRACKER_FTS_STOP_WORDS"), "0") != 0;
 
   g_object_unref (language);
 
@@ -3666,7 +3666,14 @@ static void snippetOffsetsOfColumn(
   pVtab = pQuery->pFts;
   nColumn = pVtab->nColumn;
 
-  tracker_parser_reset (pVtab->parser, zDoc, nDoc, FALSE, TRUE, pVtab->stop_words, TRUE, TRUE);
+  tracker_parser_reset (pVtab->parser,
+                        zDoc,
+                        nDoc,
+                        FALSE,
+                        TRUE,
+                        pVtab->ignore_stop_words,
+                        TRUE,
+                        pVtab->ignore_numbers);
 
   aTerm = pQuery->pTerms;
   nTerm = pQuery->nTerms;
@@ -3690,7 +3697,7 @@ static void snippetOffsetsOfColumn(
 
     if (!zToken) break;
 
-    if (stop_word) {
+    if (pVtab->ignore_stop_words && stop_word) {
       continue;
     }
 
@@ -4363,7 +4370,14 @@ static int tokenizeSegment(
   int firstIndex = pQuery->nTerms;
   int nTerm = 1;
 
-  tracker_parser_reset (parser, pSegment, nSegment, FALSE, TRUE, v->stop_words, FALSE, TRUE);
+  tracker_parser_reset (parser,
+                        pSegment,
+                        nSegment,
+                        FALSE,
+                        TRUE,
+                        v->ignore_stop_words,
+                        FALSE,
+                        v->ignore_numbers);
 
   while( 1 ){
     const char *pToken;
@@ -4442,7 +4456,7 @@ static int tokenizeSegment(
       if (nToken < v->min_word_length) {
         continue;
       }
-      if (stop_word != 0) {
+      if (v->ignore_stop_words && stop_word) {
         continue;
       }
     }
@@ -4816,7 +4830,14 @@ int Catid,
 
   if (!zText) return SQLITE_OK;
 
-  tracker_parser_reset (parser, zText, strlen (zText), FALSE, TRUE, v->stop_words, TRUE, TRUE);
+  tracker_parser_reset (parser,
+                        zText,
+                        strlen (zText),
+                        FALSE,
+                        TRUE,
+                        v->ignore_stop_words,
+                        TRUE,
+                        v->ignore_numbers);
 
   while( 1 ){
 
@@ -4835,7 +4856,7 @@ int Catid,
 
   // printf("token being indexed  is %s, begin is %d, end is %d and length is %d\n", pToken, iStartOffset, iEndOffset, nTokenBytes);
 
-   if (stop_word) {
+   if (v->ignore_stop_words && stop_word) {
 	continue;
    }
 

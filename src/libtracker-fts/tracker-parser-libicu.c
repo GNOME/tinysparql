@@ -44,12 +44,10 @@ typedef enum {
 /* Max possible length of a UChar encoded string (just a safety limit) */
 #define WORD_BUFFER_LENGTH 512
 
-
-static gchar *process_word_uchar (TrackerParser *parser,
-                                  const UChar   *word,
-                                  gint           length,
-                                  TrackerParserWordType type);
-
+static gchar *process_word_uchar (TrackerParser         *parser,
+                                  const UChar           *word,
+                                  gint                   length,
+                                  TrackerParserWordType  type);
 
 struct TrackerParser {
 	const gchar           *txt;
@@ -57,12 +55,12 @@ struct TrackerParser {
 
 	TrackerLanguage       *language;
 	gboolean               enable_stemmer;
-	gboolean               enable_stop_words;
 	guint                  max_words_to_index;
 	guint                  max_word_length;
 	gboolean               delimit_words;
-	gboolean               skip_reserved_words;
-	gboolean               skip_numbers;
+	gboolean               ignore_stop_words;
+	gboolean               ignore_reserved_words;
+	gboolean               ignore_numbers;
 
 	/* Private members */
 	gchar                 *word;
@@ -86,7 +84,7 @@ struct TrackerParser {
 static gboolean
 get_word_info (const UChar           *word,
                gsize                  word_length,
-               gboolean               skip_numbers,
+               gboolean               ignore_numbers,
                gboolean              *p_is_allowed_word_start,
                TrackerParserWordType *p_word_type)
 {
@@ -117,7 +115,7 @@ get_word_info (const UChar           *word,
 	    unichar_gc == U_MODIFIER_LETTER ||
 	    unichar_gc == U_OTHER_LETTER ||
 	    IS_UNDERSCORE_UCS4 ((guint32)unichar) ||
-	    (!skip_numbers &&
+	    (!ignore_numbers &&
 	     (unichar_gc == U_DECIMAL_DIGIT_NUMBER ||
 	      unichar_gc == U_LETTER_NUMBER ||
 	      unichar_gc == U_OTHER_NUMBER))) {
@@ -197,9 +195,9 @@ parser_next (TrackerParser *parser,
 		/* g_debug ("next_word_offset_utf8: %" G_GSIZE_FORMAT, next_word_offset_utf8); */
 		/* g_debug ("current_word_offset_utf8: %" G_GSIZE_FORMAT, current_word_offset_utf8); */
 
-		/* Skip the word if longer than the maximum allowed */
+		/* Ignore the word if longer than the maximum allowed */
 		if (word_length_utf8 >= parser->max_word_length) {
-			/* Skip this word and keep on looping */
+			/* Ignore this word and keep on looping */
 			parser->cursor = next_word_offset_uchar;
 			continue;
 		}
@@ -207,7 +205,7 @@ parser_next (TrackerParser *parser,
 		/* Get word info... */
 		if (!get_word_info (&parser->utxt[parser->cursor],
 		                    word_length_uchar,
-		                    parser->skip_numbers,
+		                    parser->ignore_numbers,
 		                    &is_allowed,
 		                    &type)) {
 			/* Quit loop just in case */
@@ -215,18 +213,18 @@ parser_next (TrackerParser *parser,
 			break;
 		}
 
-		/* Skip the word if not an allowed word start */
+		/* Ignore the word if not an allowed word start */
 		if (!is_allowed) {
-			/* Skip this word and keep on looping */
+			/* Ignore this word and keep on looping */
 			parser->cursor = next_word_offset_uchar;
 			continue;
 		}
 
 		/* check if word is reserved (looking at ORIGINAL UTF-8 buffer here! */
-		if (parser->skip_reserved_words &&
+		if (parser->ignore_reserved_words &&
 		    tracker_parser_is_reserved_word_utf8 (&parser->txt[current_word_offset_utf8],
 		                                          word_length_utf8)) {
-			/* Skip this word and keep on looping */
+			/* Ignore this word and keep on looping */
 			parser->cursor = next_word_offset_uchar;
 			continue;
 		}
@@ -248,7 +246,7 @@ parser_next (TrackerParser *parser,
 		                                     truncated_length,
 		                                     type);
 		if (!processed_word) {
-			/* Skip this word and keep on looping */
+			/* Ignore this word and keep on looping */
 			parser->cursor = next_word_offset_uchar;
 			continue;
 		}
@@ -325,9 +323,9 @@ tracker_parser_reset (TrackerParser *parser,
                       gint           txt_size,
                       gboolean       delimit_words,
                       gboolean       enable_stemmer,
-                      gboolean       enable_stop_words,
-                      gboolean       skip_reserved_words,
-                      gboolean       skip_numbers)
+                      gboolean       ignore_stop_words,
+                      gboolean       ignore_reserved_words,
+                      gboolean       ignore_numbers)
 {
 	UErrorCode error = U_ZERO_ERROR;
 	UConverter *converter;
@@ -338,13 +336,13 @@ tracker_parser_reset (TrackerParser *parser,
 	g_return_if_fail (txt != NULL);
 
 	parser->enable_stemmer = enable_stemmer;
-	parser->enable_stop_words = enable_stop_words;
+	parser->ignore_stop_words = ignore_stop_words;
 	parser->delimit_words = delimit_words;
 
 	parser->txt_size = txt_size;
 	parser->txt = txt;
-	parser->skip_reserved_words = skip_reserved_words;
-	parser->skip_numbers = skip_numbers;
+	parser->ignore_reserved_words = ignore_reserved_words;
+	parser->ignore_numbers = ignore_numbers;
 
 	g_free (parser->word);
 	parser->word = NULL;
@@ -619,7 +617,7 @@ tracker_parser_next (TrackerParser *parser,
 	}
 
 	if (str &&
-	    parser->enable_stop_words &&
+	    parser->ignore_stop_words &&
 	    tracker_language_is_stop_word (parser->language, str)) {
 		*stop_word = TRUE;
 	} else {
