@@ -38,9 +38,9 @@ static GString *
 get_string_in_locale (GString *s)
 {
 	GError *error = NULL;
-	gchar  *str;
-	gsize   bytes_read;
-	gsize   bytes_written;
+	gchar *str;
+	gsize bytes_read;
+	gsize bytes_written;
 
 	str = g_locale_to_utf8 (s->str,
 	                        s->len,
@@ -48,7 +48,7 @@ get_string_in_locale (GString *s)
 	                        &bytes_written,
 	                        &error);
 	if (error) {
-		g_debug ("  Conversion to UTF-8 read %d bytes, wrote %d bytes",
+		g_debug ("  Conversion to UTF-8 read %" G_GSIZE_FORMAT " bytes, wrote %" G_GSIZE_FORMAT " bytes",
 		         bytes_read,
 		         bytes_written);
 		g_message ("Could not convert string from locale to UTF-8, %s",
@@ -83,8 +83,8 @@ tracker_iochannel_read_text (GIOChannel *channel,
                              gboolean    close_channel)
 {
 	GString *s = NULL;
-	gsize    n_bytes_remaining = max_bytes;
-	guint    n_retries = MAX_RETRIES;
+	gsize n_bytes_remaining = max_bytes;
+	guint n_retries = MAX_RETRIES;
 
 	g_return_val_if_fail (channel, NULL);
 	g_return_val_if_fail (max_bytes > 0, NULL);
@@ -104,10 +104,10 @@ tracker_iochannel_read_text (GIOChannel *channel,
 	 */
 	while (n_bytes_remaining > 0 &&
 	       n_retries > 0) {
-		gchar      buf[BUFFER_SIZE];
-		GError    *error = NULL;
-		gssize     bytes_read;
-		GIOStatus  status;
+		gchar buf[BUFFER_SIZE];
+		GError *error = NULL;
+		gssize bytes_read;
+		GIOStatus status;
 
 		/* Try to read from channel */
 		status = g_io_channel_read_chars (channel,

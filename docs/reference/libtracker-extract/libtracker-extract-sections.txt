@@ -29,7 +29,9 @@ tracker_coalesce
 tracker_coalesce_strip
 tracker_merge
 tracker_merge_const
+tracker_getline
 tracker_text_normalize
+tracker_text_validate_utf8
 tracker_date_format_to_iso8601
 tracker_date_guess
 </SECTION>

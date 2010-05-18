@@ -360,14 +360,14 @@ tracker_text_normalize (const gchar *text,
 /**
  * tracker_text_validate_utf8:
  * @text: the text to validate
- * @text_len: length of @text, or -1 if NIL-terminated
+ * @text_len: length of @text, or -1 if NULL-terminated
  * @str: the string where to place the validated UTF-8 characters, or %NULL if
  *  not needed.
- * @p_utf8_len: Output number of valid UTF-8 bytes found, or %NULL if not needed
+ * @valid_len: Output number of valid UTF-8 bytes found, or %NULL if not needed
  *
  * This function iterates through @text checking for UTF-8 validity
  * using g_utf8_validate(), appends the first chunk of valid characters
- * to @str, and gives the number of valid UTF-8 bytes in @p_utf8_len.
+ * to @str, and gives the number of valid UTF-8 bytes in @valid_len.
  *
  * Returns: %TRUE if some bytes were found to be valid, %FALSE otherwise.
  *
@@ -377,7 +377,7 @@ gboolean
 tracker_text_validate_utf8 (const gchar  *text,
                             gsize         text_len,
                             GString     **str,
-                            gsize        *p_utf8_len)
+                            gsize        *valid_len)
 {
 	gsize len_to_validate;
 
@@ -401,8 +401,8 @@ tracker_text_validate_utf8 (const gchar  *text,
 			}
 
 			/* If utf8 len output required... */
-			if (p_utf8_len) {
-				*p_utf8_len = end - text;
+			if (valid_len) {
+				*valid_len = end - text;
 			}
 
 			return TRUE;
@@ -834,22 +834,8 @@ tracker_date_guess (const gchar *date_string)
 	return g_strdup (date_string);
 }
 
-/**
- * tracker_getline:
- * @linebuf: Buffer to write into
- * @n: Max bytes of linebuf
- * @stream: Filestream to read from
- *
- * Reads an entire line from stream, storing the address of the buffer
- * containing  the  text into *lineptr.  The buffer is null-terminated
- * and includes the newline character, if one was found.
- *
- * Read GNU getline()'s manpage for more information
- *
- * Since: 0.9
- **/
-
 #ifndef HAVE_GETLINE
+
 static gint
 my_igetdelim (gchar  **linebuf,
               guint   *linebufsz,
@@ -904,15 +890,54 @@ my_igetdelim (gchar  **linebuf,
 	return idx;
 }
 
+/**
+ * tracker_getline:
+ * @lineptr: Buffer to write into
+ * @n: Max bytes of linebuf
+ * @stream: Filestream to read from
+ *
+ * Reads an entire line from stream, storing the address of the buffer
+ * containing  the  text into *lineptr.  The buffer is null-terminated
+ * and includes the newline character, if one was found.
+ *
+ * Read GNU getline()'s manpage for more information
+ *
+ * Returns: the number of characters read, including the delimiter
+ * character, but not including the terminating %NULL byte. This value
+ * can be used to handle embedded %NULL bytes in the line read. Upon
+ * failure, -1 is returned.
+ *
+ * Since: 0.9
+ **/
 gssize
 tracker_getline (gchar **lineptr,
                  gsize  *n,
-                 FILE *stream)
+                 FILE   *stream)
 {
 	return my_igetdelim (lineptr, n, '\n', stream);
 }
 
 #else
+
+/**
+ * tracker_getline:
+ * @lineptr: Buffer to write into
+ * @n: Max bytes of linebuf
+ * @stream: Filestream to read from
+ *
+ * Reads an entire line from stream, storing the address of the buffer
+ * containing  the  text into *lineptr.  The buffer is null-terminated
+ * and includes the newline character, if one was found.
+ *
+ * Read GNU getline()'s manpage for more information
+ *
+ * Returns: the number of characters read, including the delimiter
+ * character, but not including the terminating %NULL byte. This value
+ * can be used to handle embedded %NULL bytes in the line read. Upon
+ * failure, -1 is returned.
+ *
+ * Since: 0.9
+ **/
 gssize
 tracker_getline (gchar **lineptr,
                  gsize  *n,
@@ -920,4 +945,5 @@ tracker_getline (gchar **lineptr,
 {
 	return getline (lineptr, n, stream);
 }
+
 #endif /* HAVE_GETLINE */

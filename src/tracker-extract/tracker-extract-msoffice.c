@@ -394,7 +394,7 @@ read_32bit (const guint8 *buffer)
  * @param chunk_size Number of valid bytes in the input buffer
  * @param is_ansi If %TRUE, input text should be encoded in CP1252, and
  *  in UTF-16 otherwise.
- * @param p_words_remaining Pointer to #gsize specifying how many bytes
+ * @param p_bytes_remaining Pointer to #gsize specifying how many bytes
  *  should still be considered.
  * @param p_content Pointer to a #GString where the output normalized words
  *  will be appended.
@@ -403,8 +403,8 @@ static void
 msoffice_convert_and_normalize_chunk (guint8    *buffer,
                                       gsize      chunk_size,
                                       gboolean   is_ansi,
-                                      gsize     *p_bytes_remaining,
-                                      GString  **p_content)
+                                      gsize     *bytes_remaining,
+                                      GString  **content)
 {
 	gsize n_bytes_utf8;
 	gchar *converted_text;
@@ -412,13 +412,15 @@ msoffice_convert_and_normalize_chunk (guint8    *buffer,
 
 	g_return_if_fail (buffer != NULL);
 	g_return_if_fail (chunk_size > 0);
-	g_return_if_fail (p_bytes_remaining != NULL);
-	g_return_if_fail (p_content != NULL);
+	g_return_if_fail (bytes_remaining != NULL);
+	g_return_if_fail (content != NULL);
 
 	/* chunks can have different encoding
-	 *  TODO: Using g_iconv, this extra heap allocation could be
-	 *   avoided, re-using over and over again the same output buffer
-	 *   for the UTF-8 encoded string */
+	 *
+	 * TODO: Using g_iconv, this extra heap allocation could be
+	 * avoided, re-using over and over again the same output buffer
+	 * for the UTF-8 encoded string 
+	 */
 	converted_text = g_convert (buffer,
 	                            chunk_size,
 	                            "UTF-8",
@@ -430,18 +432,18 @@ msoffice_convert_and_normalize_chunk (guint8    *buffer,
 	if (converted_text) {
 		gsize len_to_validate;
 
-		len_to_validate = MIN (*p_bytes_remaining, n_bytes_utf8);
+		len_to_validate = MIN (*bytes_remaining, n_bytes_utf8);
 
 		if (tracker_text_validate_utf8 (converted_text,
 		                                len_to_validate,
-		                                p_content,
+		                                content,
 		                                NULL)) {
 			/* A whitespace is added to separate next strings appended */
-			g_string_append_c (*p_content, ' ');
+			g_string_append_c (*content, ' ');
 		}
 
 		/* Update accumulated UTF-8 bytes read */
-		*p_bytes_remaining -= len_to_validate;
+		*bytes_remaining -= len_to_validate;
 
 	} else {
 		g_warning ("Couldn't convert %" G_GSIZE_FORMAT " bytes from %s to UTF-8: %s",

@@ -74,11 +74,11 @@ static gchar *
 extract_oasis_content (const gchar *uri,
                        gsize        n_bytes)
 {
-	const gchar  *argv[4];
-	gchar        *text = NULL;
-	gchar        *path;
-	GIOChannel   *channel;
-	GPid         pid;
+	const gchar *argv[4];
+	gchar *text = NULL;
+	gchar *path;
+	GIOChannel *channel;
+	GPid pid;
 
 	/* Newly allocated string with the file path */
 	path = g_filename_from_uri (uri, NULL, NULL);
