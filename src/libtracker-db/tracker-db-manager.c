@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include <glib/gstdio.h>
 
@@ -56,6 +57,9 @@
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 
 #define IN_USE_FILENAME               ".meta.isrunning"
+
+/* Stamp filename to check for first index */
+#define FIRST_INDEX_STAMP_FILENAME    ".firstindex"
 
 typedef enum {
 	TRACKER_DB_LOCATION_DATA_DIR,
@@ -411,6 +415,9 @@ db_manager_remove_all (gboolean rm_journal)
 	guint i;
 
 	g_message ("Removing all database files");
+
+	/* Remove stamp file */
+	tracker_db_manager_set_first_index_done (FALSE);
 
 	/* NOTE: We don't have to be initialized for this so we
 	 * calculate the absolute directories here.
@@ -815,6 +822,9 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
 			return FALSE;
 		}
+
+		/* Clear the first-index stamp file */
+		tracker_db_manager_set_first_index_done (FALSE);
 
 		db_recreate_all ();
 
@@ -1290,4 +1300,80 @@ tracker_db_manager_interrupt_thread (GThread *thread)
 	}
 
 	return tracker_db_interface_interrupt (interface);
+}
+
+static gchar *
+get_first_index_stamp_path (void)
+{
+	return g_build_filename (g_get_user_cache_dir (),
+	                         "tracker",
+	                         FIRST_INDEX_STAMP_FILENAME,
+	                         NULL);
+}
+
+/**
+ * tracker_db_manager_get_first_index_done:
+ *
+ * Check if first full index of files was already done.
+ *
+ * Returns: %TRUE if a first full index have been done, %FALSE otherwise.
+ **/
+gboolean
+tracker_db_manager_get_first_index_done (void)
+{
+	gboolean exists;
+	gchar *stamp;
+
+	stamp = get_first_index_stamp_path();
+	exists = g_file_test (stamp, G_FILE_TEST_EXISTS);
+	g_free (stamp);
+
+	return exists;
+}
+
+/**
+ * tracker_db_manager_set_first_index_done:
+ *
+ * Set the status of the first full index of files. Should be set to
+ *  %FALSE if the index was never done or if a reindex is needed. When
+ *  the index is completed, should be set to %TRUE.
+ **/
+void
+tracker_db_manager_set_first_index_done (gboolean done)
+{
+	gboolean already_exists;
+	gchar *stamp;
+
+	stamp = get_first_index_stamp_path ();
+
+	already_exists = g_file_test (stamp, G_FILE_TEST_EXISTS);
+
+	if (done && !already_exists) {
+		GError *error = NULL;
+
+		/* If done, create stamp file if not already there */
+		if (!g_file_set_contents (stamp, "", -1, &error)) {
+			g_warning ("  Creating first-index stamp in "
+			           "'%s' failed: '%s'",
+			           stamp,
+			           error->message);
+			g_error_free (error);
+		} else {
+			g_message ("  First-index stamp created in '%s'",
+			           stamp);
+		}
+	} else if (!done && already_exists) {
+		/* If NOT done, remove stamp file */
+		if (g_remove (stamp)) {
+			g_warning ("  Removing first-index stamp from '%s' "
+			           "failed: '%s'",
+			           stamp,
+			           g_strerror (errno));
+		} else {
+			g_message ("  First-index stamp removed from '%s'",
+			           stamp);
+		}
+	}
+
+	g_free (stamp);
 }

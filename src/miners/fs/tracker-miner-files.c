@@ -36,6 +36,8 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include <libtracker-db/tracker-db.h>
+
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
 #include "tracker-extract-client.h"
@@ -60,7 +62,6 @@ struct ProcessFileData {
 struct TrackerMinerFilesPrivate {
 	TrackerConfig *config;
 	TrackerStorage *storage;
-	TrackerPower *power;
 
 	GVolumeMonitor *volume_monitor;
 
@@ -71,6 +72,11 @@ struct TrackerMinerFilesPrivate {
 	guint disk_space_pause_cookie;
 
 	guint low_battery_pause_cookie;
+
+#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
+	TrackerPower *power;
+	gulong finished_handler;
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 	DBusGProxy *extractor_proxy;
 
@@ -118,7 +124,9 @@ static void        check_battery_status                 (TrackerMinerFiles    *f
 static void        battery_status_cb                    (GObject              *object,
                                                          GParamSpec           *pspec,
                                                          gpointer              user_data);
-
+static void        index_on_battery_cb                  (GObject    *object,
+                                                         GParamSpec *pspec,
+                                                         gpointer    user_data);
 static void        init_mount_points                    (TrackerMinerFiles    *miner);
 static void        disk_space_check_start               (TrackerMinerFiles    *mf);
 static void        disk_space_check_stop                (TrackerMinerFiles    *mf);
@@ -155,6 +163,13 @@ static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *f
 static void      extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
                                                          ProcessFileData *data);
 
+static void        miner_finished_cb                    (TrackerMinerFS *fs,
+                                                         gdouble         seconds_elapsed,
+                                                         guint           total_directories_found,
+                                                         guint           total_directories_ignored,
+                                                         guint           total_files_found,
+                                                         guint           total_files_ignored,
+                                                         gpointer        user_data);
 
 G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
 
@@ -215,6 +230,11 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	g_signal_connect (priv->power, "notify::on-battery",
 	                  G_CALLBACK (battery_status_cb),
 	                  mf);
+
+	priv->finished_handler = g_signal_connect_after (mf, "finished",
+							 G_CALLBACK (miner_finished_cb),
+							 NULL);
+
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 	priv->volume_monitor = g_volume_monitor_get ();
@@ -483,7 +503,7 @@ miner_files_constructed (GObject *object)
 		g_object_unref (file);
 	}
 
-	/* Add optical media */
+	/* We want to get notified when config changes */
 
 	g_signal_connect (mf->private->config, "notify::low-disk-space-limit",
 	                  G_CALLBACK (low_disk_space_limit_cb),
@@ -500,6 +520,17 @@ miner_files_constructed (GObject *object)
 	g_signal_connect (mf->private->config, "notify::ignored-directories-with-content",
 	                  G_CALLBACK (ignore_directories_cb),
 	                  mf);
+
+#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
+
+	g_signal_connect (mf->private->config, "notify::index-on-battery",
+	                  G_CALLBACK (index_on_battery_cb),
+	                  mf);
+	g_signal_connect (mf->private->config, "notify::index-on-battery-first-time",
+	                  G_CALLBACK (index_on_battery_cb),
+	                  mf);
+
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 	g_slist_foreach (mounts, (GFunc) g_free, NULL);
 	g_slist_free (mounts);
@@ -537,7 +568,7 @@ set_up_mount_point (TrackerMinerFiles *miner,
 {
 	GString *queries;
 
-	g_debug ("Setting mount point '%s' state in database (URN '%s')", 
+	g_debug ("Setting mount point '%s' state in database (URN '%s')",
 	         mount_point,
 	         removable_device_urn);
 
@@ -815,7 +846,7 @@ mount_point_added_cb (TrackerStorage *storage,
 
 	g_message ("Added mount point '%s'", mount_point);
 
-	should_crawl = TRUE;	
+	should_crawl = TRUE;
 
 	if (removable && !tracker_config_get_index_removable_devices (priv->config)) {
 		g_message ("  Not crawling, removable devices disabled in config");
@@ -887,14 +918,28 @@ check_battery_status (TrackerMinerFiles *mf)
 		g_message ("Running on AC power");
 		should_pause = FALSE;
 		should_throttle = FALSE;
+	} else if (on_low_battery) {
+		g_message ("Running on LOW Battery, pausing");
+		should_pause = TRUE;
+		should_throttle = TRUE;
 	} else {
-		g_message ("Running on battery");
-
 		should_throttle = TRUE;
 
-		if (on_low_battery) {
-			g_message ("  Battery is LOW, pausing");
-			should_pause = TRUE;
+		/* Check if miner should be paused based on configuration */
+		if (!tracker_config_get_index_on_battery (mf->private->config)) {
+			if (!tracker_config_get_index_on_battery_first_time (mf->private->config)) {
+				g_message ("Running on battery, but not enabled, pausing");
+				should_pause = TRUE;
+			} else if (tracker_db_manager_get_first_index_done()) {
+				g_message ("Running on battery and first-time index "
+				           "already done, pausing");
+				should_pause = TRUE;
+			} else {
+				g_message ("Running on battery, but first-time index not "
+				           "already finished, keeping on");
+			}
+		} else {
+			g_message ("Running on battery");
 		}
 	}
 
@@ -919,12 +964,51 @@ check_battery_status (TrackerMinerFiles *mf)
 	set_up_throttle (mf, should_throttle);
 }
 
+/* Called when battery status change is detected */
 static void
 battery_status_cb (GObject    *object,
                    GParamSpec *pspec,
                    gpointer    user_data)
 {
 	TrackerMinerFiles *mf = user_data;
+
+	check_battery_status (mf);
+}
+
+/* Called when battery-related configuration change is detected */
+static void
+index_on_battery_cb (GObject    *object,
+                     GParamSpec *pspec,
+                     gpointer    user_data)
+{
+	TrackerMinerFiles *mf = user_data;
+
+	check_battery_status (mf);
+}
+
+/* Called when mining has finished the first time */
+static void
+miner_finished_cb (TrackerMinerFS *fs,
+                   gdouble         seconds_elapsed,
+                   guint           total_directories_found,
+                   guint           total_directories_ignored,
+                   guint           total_files_found,
+                   guint           total_files_ignored,
+                   gpointer        user_data)
+{
+	TrackerMinerFiles *mf = TRACKER_MINER_FILES (fs);
+
+	/* Create stamp file if not already there */
+	if (!tracker_db_manager_get_first_index_done ()) {
+		tracker_db_manager_set_first_index_done (TRUE);
+	}
+
+	/* And remove the signal handler so that it's not
+	 *  called again */
+	if (mf->private->finished_handler) {
+		g_signal_handler_disconnect (fs, mf->private->finished_handler);
+		mf->private->finished_handler = 0;
+	}
 
 	check_battery_status (mf);
 }
