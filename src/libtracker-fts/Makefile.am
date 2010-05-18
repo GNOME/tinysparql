@@ -11,10 +11,10 @@ INCLUDES =								\
 	$(UNAC_CFLAGS)							\
 	$(SQLITE3_CFLAGS)
 
-if HAVE_LIBUNISTRING
+if BUILD_LIBUNISTRING_PARSER
   INCLUDES += $(LIBUNISTRING_CFLAGS)
 else
-if HAVE_LIBICU
+if BUILD_LIBICU_PARSER
   INCLUDES += $(LIBICU_CFLAGS)
 else
   INCLUDES += $(PANGO_CFLAGS)
@@ -34,10 +34,10 @@ libtracker_fts_la_SOURCES = 						\
 	tracker-parser-utils.h						\
 	tracker-parser.h
 
-if HAVE_LIBUNISTRING
+if BUILD_LIBUNISTRING_PARSER
   libtracker_fts_la_SOURCES += tracker-parser-libunistring.c
 else
-if HAVE_LIBICU
+if BUILD_LIBICU_PARSER
   libtracker_fts_la_SOURCES += tracker-parser-libicu.c
 else
   libtracker_fts_la_SOURCES += tracker-parser-glib.c
@@ -53,10 +53,10 @@ libtracker_fts_la_LIBADD =						\
 	$(UNAC_LIBS)							\
 	$(GLIB2_LIBS)
 
-if HAVE_LIBUNISTRING
+if BUILD_LIBUNISTRING_PARSER
   libtracker_fts_la_LIBADD += $(LIBUNISTRING_LIBS)
 else
-if HAVE_LIBICU
+if BUILD_LIBICU_PARSER
   libtracker_fts_la_LIBADD += $(LIBICU_LIBS)
 else
   libtracker_fts_la_LIBADD += $(PANGO_LIBS)

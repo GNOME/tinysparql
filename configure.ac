@@ -867,15 +867,19 @@ AM_CONDITIONAL(HAVE_MINER_FLICKR, test "x$have_miner_flickr" = "xyes")
 
 # Check for libunistring...
 AC_CHECK_HEADER(uniwbrk.h,
-                AC_CHECK_LIB(unistring, u8_wordbreaks))
-have_libunistring=${ac_cv_lib_unistring_u8_wordbreaks:-no}
-LIBUNISTRING_CFLAGS="$CFLAGS"
-LIBUNISTRING_LIBS="$LIBS"
+                AC_SEARCH_LIBS(u8_wordbreaks,
+                               unistring,
+                               [have_libunistring=yes],
+                               [have_libunistring=no]))
+LIBUNISTRING_CFLAGS=""
+LIBUNISTRING_LIBS="-lunistring"
 
 # Check for libicu... Note that AC_CHECK_LIB cannot be used as
 #  symbol name includes libicu library version... don't want to
 #  look for ubrk_next_4_2
-AC_CHECK_HEADER(unicode/ubrk.h, [have_libicu=yes],[have_libicu=no])
+AC_CHECK_HEADER(unicode/ubrk.h,
+                [have_libicu=yes],
+                [have_libicu=no])
 LIBICU_CFLAGS=""
 LIBICU_LIBS="-licuuc"
 
@@ -904,7 +908,7 @@ case "x$with_unicode_support" in
         AC_SUBST(LIBUNISTRING_CFLAGS)
         AC_SUBST(LIBUNISTRING_LIBS)
         if test "x$have_libunistring" = "xyes"; then
-           AC_DEFINE(HAVE_LIBUNISTRING, [], [libunistring Unicode support library])
+           AC_DEFINE(HAVE_LIBUNISTRING, [1], [libunistring Unicode support library])
         else
            AC_MSG_ERROR([***libunistring requested but not found - exiting!])
         fi
@@ -914,7 +918,7 @@ case "x$with_unicode_support" in
         AC_SUBST(LIBICU_CFLAGS)
         AC_SUBST(LIBICU_LIBS)
         if test "x$have_libicu" = "xyes"; then
-          AC_DEFINE(HAVE_LIBICU, [], [libicu Unicode support library])
+          AC_DEFINE(HAVE_LIBICU, [1], [libicu Unicode support library])
         else
           AC_MSG_ERROR([***libicu requested but not found - exiting!])
         fi
@@ -925,8 +929,8 @@ case "x$with_unicode_support" in
      *) AC_MSG_ERROR([***wrong value for --with-unicode-support: $with_unicode_support - exiting!]) ;;
 esac
 
-AM_CONDITIONAL(HAVE_LIBUNISTRING, test "x$have_libunistring" = "xyes")
-AM_CONDITIONAL(HAVE_LIBICU, test "x$have_libicu" = "xyes")
+AM_CONDITIONAL(BUILD_LIBUNISTRING_PARSER, test "x$with_unicode_support" = "xlibunistring")
+AM_CONDITIONAL(BUILD_LIBICU_PARSER, test "x$with_unicode_support" = "xlibicu")
 
 ####################################################################
 # Miner Evolution
