@@ -65,6 +65,9 @@ gboolean            tracker_db_manager_has_enough_space  (void);
 TrackerDBManagerFlags
                     tracker_db_manager_get_flags         (void);
 
+gboolean            tracker_db_manager_get_first_index_done (void);
+void                tracker_db_manager_set_first_index_done (gboolean done);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DB_MANAGER_H__ */
