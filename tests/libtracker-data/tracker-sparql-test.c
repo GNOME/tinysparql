@@ -97,6 +97,7 @@ const TestInfo tests[] = {
 	{ "sort/query-sort-5", "sort/data-sort-4", FALSE },
 	{ "subqueries/subqueries-1", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-union-1", "subqueries/data-1", FALSE },
+	{ "subqueries/subqueries-union-2", "subqueries/data-1", FALSE },
 	/* Bracket error after WHERE */
 	{ "error/query-error-1", "error/query-error-1", TRUE, FALSE },
 	/* Unknown property */

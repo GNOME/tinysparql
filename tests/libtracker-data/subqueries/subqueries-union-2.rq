@@ -1,0 +1,14 @@
+SELECT ?msg (
+	SELECT ?date
+	WHERE
+	{
+		{
+			?msg example:date ?date .
+		} UNION {
+			?msg example:date ?date .
+		}
+	}
+) AS ?date
+WHERE {
+	?msg a example:Message
+} ORDER BY ?msg
