@@ -24,7 +24,7 @@
 
 #include "tracker-main.h"
 #include "tracker-gsf.h"
-#include "tracker-iochannel.h"
+#include "tracker-read.h"
 
 #include <unistd.h>
 
@@ -74,11 +74,11 @@ static gchar *
 extract_oasis_content (const gchar *uri,
                        gsize        n_bytes)
 {
+	GError *error = NULL;
 	const gchar *argv[4];
 	gchar *text = NULL;
 	gchar *path;
-	GIOChannel *channel;
-	GPid pid;
+	gint fd;
 
 	/* Newly allocated string with the file path */
 	path = g_filename_from_uri (uri, NULL, NULL);
@@ -94,25 +94,26 @@ extract_oasis_content (const gchar *uri,
 	         argv[0], argv[1], argv[2], n_bytes);
 
 	/* Fork & spawn */
-	if (tracker_spawn_async_with_channels (argv,
-	                                       10,
-	                                       &pid,
-	                                       NULL,
-	                                       &channel,
-	                                       NULL)) {
-		/* Read up to n_bytes from stream */
-		text = tracker_iochannel_read_text (channel,
-		                                    n_bytes,
-		                                    FALSE,
-		                                    TRUE);
-
-		/* Close spawned PID */
-		g_spawn_close_pid (pid);
+	if (!g_spawn_async_with_pipes (g_get_tmp_dir (),
+	                               (gchar **)argv,
+	                               NULL,
+	                               G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+	                               tracker_spawn_child_func,
+	                               GINT_TO_POINTER (10),
+	                               NULL,
+	                               NULL,
+	                               &fd,
+	                               NULL,
+	                               &error)) {
+		g_warning ("Spawning failed, could not extract text from '%s': %s",
+		           path, error ? error->message : NULL);
+		g_clear_error (&error);
+	} else {
+		/* Read up to n_bytes from FD (also closes FD) */
+		text = tracker_read_text_from_fd (fd, n_bytes, FALSE);
 	}
 
 	g_free (path);
-
-	/* Note: Channel already closed and unrefed */
 
 	return text;
 }

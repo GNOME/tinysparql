@@ -360,7 +360,7 @@ tracker_text_normalize (const gchar *text,
 /**
  * tracker_text_validate_utf8:
  * @text: the text to validate
- * @text_len: length of @text, or -1 if NULL-terminated
+ * @text_len: length of @text, or -1 if NUL-terminated
  * @str: the string where to place the validated UTF-8 characters, or %NULL if
  *  not needed.
  * @valid_len: Output number of valid UTF-8 bytes found, or %NULL if not needed

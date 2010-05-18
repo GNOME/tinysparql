@@ -27,7 +27,7 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-main.h"
-#include "tracker-iochannel.h"
+#include "tracker-read.h"
 
 #define  TRY_LOCALE_TO_UTF8_CONVERSION 0
 
@@ -45,46 +45,34 @@ static gchar *
 get_file_content (const gchar *uri,
                   gsize        n_bytes)
 {
-	GIOChannel *channel;
+	GFile *file;
+	GFileInputStream  *stream;
 	GError     *error = NULL;
 	gchar      *text;
-	gchar      *filename;
 
 	/* Get filename from URI */
-	filename = g_filename_from_uri (uri, NULL, &error);
-	if (error) {
-		g_message ("Could not get filename from URI '%s': %s",
-		           uri,
-		           error->message);
-		g_error_free (error);
-
-		return NULL;
-	}
-
-	/* New channel from the given file */
-	channel = g_io_channel_new_file (filename, "r", &error);
+	file = g_file_new_for_uri (uri);
+	stream = g_file_read (file, NULL, &error);
 	if (error) {
 		g_message ("Could not read file '%s': %s",
 		           uri,
 		           error->message);
 		g_error_free (error);
-		g_free (filename);
+		g_object_unref (file);
 
 		return NULL;
 	}
-
-	g_free (filename);
 
 	g_debug ("  Starting to read '%s' up to %" G_GSIZE_FORMAT " bytes...",
 	         uri, n_bytes);
 
 	/* Read up to n_bytes from stream */
-	text = tracker_iochannel_read_text (channel,
-	                                    n_bytes,
-	                                    TRY_LOCALE_TO_UTF8_CONVERSION,
-	                                    TRUE);
+	text = tracker_read_text_from_stream (G_INPUT_STREAM (stream),
+	                                      n_bytes,
+	                                      TRY_LOCALE_TO_UTF8_CONVERSION);
 
-	/* Note: Channel already closed and unrefed */
+	g_object_unref (stream);
+	g_object_unref (file);
 
 	return text;
 }
