@@ -27,13 +27,8 @@
 
 #include "tracker-read.h"
 
-/* Size of the buffer to use when reading from the GIOChannel, in bytes */
+/* Size of the buffer to use when reading, in bytes */
 #define BUFFER_SIZE 65535
-
-/* Maximum number of retries if the GIOChannel is G_IO_STATUS_AGAIN,
- *  to avoid infinite loops */
-#define MAX_RETRIES 5
-
 
 static GString *
 get_string_in_locale (GString *s)

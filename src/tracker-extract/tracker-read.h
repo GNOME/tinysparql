@@ -21,6 +21,7 @@
 #define __TRACKER_READ_H__
 
 #include <glib.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
