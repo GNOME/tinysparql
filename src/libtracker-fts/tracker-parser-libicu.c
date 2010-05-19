@@ -421,6 +421,11 @@ process_word_uchar (TrackerParser         *parser,
 	gchar *stemmed = NULL;
 	size_t new_word_length;
 
+	/* Log original word */
+	tracker_parser_message_hex ("ORIGINAL word",
+	                            (guint8 *)word,
+				    length * sizeof (UChar));
+
 
 	if (type != TRACKER_PARSER_WORD_TYPE_ASCII) {
 		UChar casefolded_buffer [WORD_BUFFER_LENGTH];
@@ -440,6 +445,11 @@ process_word_uchar (TrackerParser         *parser,
 		if (new_word_length > WORD_BUFFER_LENGTH)
 			new_word_length = WORD_BUFFER_LENGTH;
 
+		/* Log after casefolding */
+		tracker_parser_message_hex (" After Casefolding",
+		                            (guint8 *)casefolded_buffer,
+					    new_word_length * sizeof (UChar));
+
 		/* NFC normalization... */
 		new_word_length = unorm_normalize (casefolded_buffer,
 		                                   new_word_length,
@@ -456,6 +466,11 @@ process_word_uchar (TrackerParser         *parser,
 
 		if (new_word_length > WORD_BUFFER_LENGTH)
 			new_word_length = WORD_BUFFER_LENGTH;
+
+		/* Log after casefolding */
+		tracker_parser_message_hex (" After Normalization",
+		                            (guint8 *)normalized_buffer,
+					    new_word_length * sizeof (UChar));
 	} else {
 		/* For ASCII-only, just tolower() each character */
 		new_word_length = u_strToLower (normalized_buffer,
@@ -469,6 +484,11 @@ process_word_uchar (TrackerParser         *parser,
 			           u_errorName (error));
 			return NULL;
 		}
+
+		/* Log after casefolding */
+		tracker_parser_message_hex (" After lowercase",
+		                            (guint8 *)normalized_buffer,
+					    new_word_length * sizeof (UChar));
 	}
 
 	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
@@ -481,6 +501,11 @@ process_word_uchar (TrackerParser         *parser,
 		                                               &stripped_word_length);
 		if (utf8_str) {
 			new_word_length = stripped_word_length;
+
+			/* Log after unaccenting */
+			tracker_parser_message_hex ("   After UNAC",
+						    utf8_str,
+						    new_word_length);
 		}
 	}
 
@@ -497,13 +522,14 @@ process_word_uchar (TrackerParser         *parser,
 			           U_FAILURE (icu_error) ? u_errorName (icu_error) : "none");
 			return NULL;
 		}
-		/* Using same buffer size as for UTF-16 should always work. */
-		utf8_str = g_malloc (new_word_length * sizeof (UChar) + 1);
+		/* A character encoded in 2 bytes in UTF-16 may get expanded to 3 or 4 bytes
+		 *  in UTF-8. */
+		utf8_str = g_malloc (2 * new_word_length * sizeof (UChar) + 1);
 
 		/* Convert from UChar to UTF-8 (NIL-terminated) */
 		utf8_len = ucnv_fromUChars (converter,
 		                            utf8_str,
-		                            new_word_length * sizeof (UChar) + 1,
+		                            2 * new_word_length * sizeof (UChar) + 1,
 		                            normalized_buffer,
 		                            new_word_length,
 		                            &icu_error);
@@ -517,6 +543,11 @@ process_word_uchar (TrackerParser         *parser,
 
 		new_word_length = utf8_len;
 		ucnv_close (converter);
+
+		/* Log after unaccenting */
+		tracker_parser_message_hex ("   After UTF8 conversion",
+		                            utf8_str,
+					    new_word_length);
 	}
 
 	/* Stemming needed? */
