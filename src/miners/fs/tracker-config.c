@@ -1005,7 +1005,12 @@ config_save (TrackerConfig *config)
 					 * breaks. Need a better
 					 * solution at some point.
 					 */
-					if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP)) == 0) {
+					if (g_strcmp0 (l->data, g_get_home_dir ()) == 0) {
+						/* Home dir gets straight into configuration,
+						 * regardless of having XDG dirs pointing to it.
+						 */
+						path_to_use = "$HOME";
+					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP)) == 0) {
 						path_to_use = "&DESKTOP";
 					} else if (g_strcmp0 (l->data, g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS)) == 0) {
 						path_to_use = "&DOCUMENTS";
