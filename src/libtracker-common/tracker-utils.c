@@ -170,12 +170,10 @@ tracker_strhex (const guint8 *data,
                 gsize         size,
                 gchar         delimiter)
 {
-	/*  */
 	gsize i;
 	gsize j;
 	gsize new_str_length;
 	gchar *new_str;
-	gchar new_hex_char [3];
 
 	/* Get new string length. If input string has N bytes, we need:
 	 * - 1 byte for last NUL char
@@ -189,11 +187,9 @@ tracker_strhex (const guint8 *data,
 
 	/* Print hexadecimal representation of each byte... */
 	for(i=0, j=0; i<size; i++, j+=3) {
-		memset (new_hex_char, 0, 3);
-		/* Print character in helper array... */
-		sprintf (new_hex_char, "%02X", data[i]);
-		/* Copy to output string... */
-		memcpy (&new_str[j],&new_hex_char[0],2);
+		/* Print character in output string... */
+		snprintf (&new_str[j], 3, "%02X", data[i]);
+
 		/* And if needed, add separator */
 		if(i != (size-1) ) {
 			new_str[j+2] = delimiter;
