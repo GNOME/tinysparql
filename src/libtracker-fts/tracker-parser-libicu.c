@@ -132,8 +132,7 @@ get_word_info (const UChar           *word,
 	}
 
 	/* Is ASCII-only string? */
-	while (unichar != U_SENTINEL)
-	{
+	while (unichar != U_SENTINEL) {
 		if (!IS_ASCII_UCS4 ((guint32)unichar)) {
 			*p_word_type = TRACKER_PARSER_WORD_TYPE_OTHER_UNAC;
 			return TRUE;
@@ -178,8 +177,7 @@ parser_next (TrackerParser *parser,
 			/* Last word support... */
 			next_word_offset_uchar = parser->utxt_size;
 			next_word_offset_utf8 = parser->txt_size;
-		}
-		else {
+		} else {
 			next_word_offset_utf8 = parser->offsets[next_word_offset_uchar];
 		}
 
