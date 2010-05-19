@@ -179,7 +179,8 @@ expected_word_check (TrackerParserTestFixture *fixture,
 
 /* -------------- LIST OF TESTS ----------------- */
 
-/* Normalization-related tests */
+#ifdef HAVE_UNAC
+/* Normalization-related tests (unaccenting) */
 static const TestDataExpectedWord test_data_normalization[] = {
 	{ "école",                "ecole" },
 	{ "ÉCOLE",                "ecole" },
@@ -197,6 +198,18 @@ static const TestDataExpectedWord test_data_unaccent[] = {
 	{ "desagüe",    "desague"    },
 	{ NULL,         NULL         }
 };
+#else
+/* Normalization-related tests (not unaccenting) */
+static const TestDataExpectedWord test_data_normalization[] = {
+	{ "école",                "école" },
+	{ "ÉCOLE",                "école" },
+	{ "École",                "école" },
+	{ "e" "\xCC\x81" "cole",  "école" },
+	{ "E" "\xCC\x81" "COLE",  "école" },
+	{ "E" "\xCC\x81" "cole",  "école" },
+	{ NULL,                   NULL    }
+};
+#endif
 
 /* Casefolding-related tests */
 static const TestDataExpectedWord test_data_casefolding[] = {
@@ -244,6 +257,7 @@ main (int argc, char **argv)
 		g_free (testpath);
 	}
 
+#ifdef HAVE_UNAC
 	/* Add unaccent checks */
 	for (i = 0; test_data_unaccent[i].str != NULL; i++) {
 		gchar *testpath;
@@ -257,6 +271,7 @@ main (int argc, char **argv)
 		            test_common_teardown);
 		g_free (testpath);
 	}
+#endif
 
 	/* Add casefolding checks */
 	for (i = 0; test_data_casefolding[i].str != NULL; i++) {
