@@ -3371,7 +3371,11 @@ static int constructVtab(
   min_len = tracker_fts_config_get_min_word_length (config);
   max_len = tracker_fts_config_get_max_word_length (config);
   v->ignore_numbers = tracker_fts_config_get_ignore_numbers (config);
-  v->ignore_stop_words = tracker_fts_config_get_ignore_stop_words (config);
+
+  /* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests
+   *  otherwise, get value from the conf file */
+  v->ignore_stop_words = (g_strcmp0 (g_getenv ("TRACKER_FTS_STOP_WORDS"), "0") == 0 ?
+			  FALSE : tracker_fts_config_get_ignore_stop_words (config));
 
   v->max_words = tracker_fts_config_get_max_words_to_index (config);
   v->min_word_length = min_len;
