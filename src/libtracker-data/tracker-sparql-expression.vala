@@ -548,6 +548,13 @@ class Tracker.Sparql.Expression : Object {
 			sql.append_printf ("\"%s_u_offsets\"", v);
 
 			return PropertyType.STRING;
+		} else if (uri == TRACKER_NS + "id") {
+			var type = translate_expression (sql);
+			if (type != PropertyType.RESOURCE) {
+				throw get_error ("expected resource");
+			}
+
+			return PropertyType.INTEGER;
 		} else if (uri == TRACKER_NS + "cartesian-distance") {
 			sql.append ("SparqlCartesianDistance(");
 			translate_expression (sql);
