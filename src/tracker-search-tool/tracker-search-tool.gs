@@ -104,26 +104,23 @@ init
 
         try
             builder.add_from_file (UIDIR + "tst.ui")
-
         except e : GLib.Error
-
             var msg = new MessageDialog (null, DialogFlags.MODAL, \
                                          MessageType.ERROR, ButtonsType.OK, \
                                         N_("Failed to load UI\n%s"), e.message)
             msg.run ()
             Gtk.main_quit()
 
-
     window = builder.get_object ("window") as Window
     window.destroy += Gtk.main_quit
 
-    /* create tracker widgets */
-
+    /* create widgets */
     var
-        accel_group = new AccelGroup
+        accel_group = new AccelGroup ()
+        entry = new Entry ()
 
         query = new TrackerQuery
-        entry = new TrackerSearchEntry ()
+        search_entry = new TrackerSearchEntry ()
         grid = new TrackerResultGrid ()
         categories = new TrackerCategoryView ()
         tile = new TrackerMetadataTile ()
@@ -135,16 +132,18 @@ init
         search_label = builder.get_object ("SearchLabel") as Label
 
     window.add_accel_group (accel_group)
-    search_label.set_mnemonic_widget (entry)
+    search_label.set_mnemonic_widget (search_entry)
 
     query.Connect ()
-    entry.Query = query
-    entry_box.add (entry)
+    search_entry.Query = query
+    entry_box.add (search_entry)
 
     keyval : uint
     mods : Gdk.ModifierType
     accelerator_parse ("<Ctrl>s", out keyval, out mods)
-    entry.add_accelerator ("activate", accel_group, keyval, mods, AccelFlags.VISIBLE | AccelFlags.LOCKED)
+    entry = search_entry.get_child () as Entry
+    entry.add_accelerator ("activate", accel_group, keyval, mods,
+                            AccelFlags.VISIBLE | AccelFlags.LOCKED)
 
     grid.Query = query
     grid_box.add (grid)
