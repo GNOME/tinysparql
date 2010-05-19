@@ -72,6 +72,7 @@ struct TrackerDBInterfaceIface {
 	GTypeInterface iface;
 
 	TrackerDBStatement * (* create_statement) (TrackerDBInterface  *interface,
+	                                           GError             **error,
 	                                           const gchar         *query);
 	TrackerDBResultSet * (* execute_query)    (TrackerDBInterface  *interface,
 	                                           GError             **error,
@@ -139,8 +140,9 @@ GType               tracker_db_result_set_get_type         (void);
 
 /* Functions to create queries/procedures */
 TrackerDBStatement *tracker_db_interface_create_statement  (TrackerDBInterface   *interface,
-                                                            const gchar                *query,
-                                                            ...) G_GNUC_PRINTF (2, 3);
+                                                            GError              **error,
+                                                            const gchar          *query,
+                                                            ...) G_GNUC_PRINTF (3, 4);
 TrackerDBResultSet *tracker_db_interface_execute_vquery    (TrackerDBInterface   *interface,
                                                             GError              **error,
                                                             const gchar          *query,

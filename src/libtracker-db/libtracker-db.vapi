@@ -30,13 +30,14 @@ namespace Tracker {
 	[CCode (cprefix = "TRACKER_DB_", cheader_filename = "libtracker-db/tracker-db-interface.h")]
 	public errordomain DBInterfaceError {
 		QUERY_ERROR,
-		CORRUPT
+		CORRUPT,
+		INTERRUPTED
 	}
 
 	[CCode (cheader_filename = "libtracker-db/tracker-db-interface.h")]
 	public interface DBInterface : GLib.Object {
 		[PrintfFormat]
-		public abstract DBStatement create_statement (string query, ...);
+		public abstract DBStatement create_statement (...) throws DBInterfaceError;
 	}
 
 	[CCode (cheader_filename = "libtracker-db/tracker-db-manager.h")]

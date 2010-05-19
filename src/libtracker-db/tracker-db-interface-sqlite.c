@@ -756,8 +756,9 @@ add_row (TrackerDBResultSet *result_set,
 
 
 static TrackerDBStatement *
-tracker_db_interface_sqlite_create_statement (TrackerDBInterface *db_interface,
-                                              const gchar        *query)
+tracker_db_interface_sqlite_create_statement (TrackerDBInterface  *db_interface,
+                                              GError             **error,
+                                              const gchar         *query)
 {
 	TrackerDBInterfaceSqlitePrivate *priv;
 	TrackerDBStatementSqlite *stmt;
@@ -768,11 +769,18 @@ tracker_db_interface_sqlite_create_statement (TrackerDBInterface *db_interface,
 
 	if (!stmt) {
 		sqlite3_stmt *sqlite_stmt;
+		int retval;
 
 		g_debug ("Preparing query: '%s'", query);
 
-		if (sqlite3_prepare_v2 (priv->db, query, -1, &sqlite_stmt, NULL) != SQLITE_OK) {
-			g_critical ("Unable to prepare query '%s': %s", query, sqlite3_errmsg (priv->db));
+		retval = sqlite3_prepare_v2 (priv->db, query, -1, &sqlite_stmt, NULL);
+
+		if (retval != SQLITE_OK) {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_QUERY_ERROR,
+			             "%s",
+			             sqlite3_errmsg (priv->db));
 			return NULL;
 		}
 

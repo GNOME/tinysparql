@@ -562,7 +562,12 @@ tracker_db_manager_ensure_locale (void)
 
 	common = dbs[TRACKER_DB_METADATA].iface;
 
-	stmt = tracker_db_interface_create_statement (common, "SELECT OptionValue FROM Options WHERE OptionKey = 'CollationLocale'");
+	stmt = tracker_db_interface_create_statement (common, NULL, "SELECT OptionValue FROM Options WHERE OptionKey = 'CollationLocale'");
+
+	if (!stmt) {
+		return;
+	}
+
 	result_set = tracker_db_statement_execute (stmt, NULL);
 	g_object_unref (stmt);
 
@@ -575,10 +580,13 @@ tracker_db_manager_ensure_locale (void)
 		/* Locales differ, update collate keys */
 		g_message ("Updating DB locale dependent data to: %s\n", current_locale);
 
-		stmt = tracker_db_interface_create_statement (common, "UPDATE Options SET OptionValue = ? WHERE OptionKey = 'CollationLocale'");
-		tracker_db_statement_bind_text (stmt, 0, current_locale);
-		tracker_db_statement_execute (stmt, NULL);
-		g_object_unref (stmt);
+		stmt = tracker_db_interface_create_statement (common, NULL, "UPDATE Options SET OptionValue = ? WHERE OptionKey = 'CollationLocale'");
+
+		if (stmt) {
+			tracker_db_statement_bind_text (stmt, 0, current_locale);
+			tracker_db_statement_execute (stmt, NULL);
+			g_object_unref (stmt);
+		}
 	}
 
 	g_free (stored_locale);
@@ -845,7 +853,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 			g_message ("Didn't shut down cleanly last time, doing integrity checks");
 
 			for (i = 1; i < G_N_ELEMENTS (dbs) && !must_recreate; i++) {
-				TrackerDBCursor *cursor;
+				TrackerDBCursor *cursor = NULL;
 				TrackerDBStatement *stmt;
 				struct stat st;
 
@@ -866,11 +874,13 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 				loaded = TRUE;
 
-				stmt = tracker_db_interface_create_statement (dbs[i].iface,
+				stmt = tracker_db_interface_create_statement (dbs[i].iface, NULL,
 				                                              "PRAGMA integrity_check(1)");
 
-				cursor = tracker_db_statement_start_cursor (stmt, NULL);
-				g_object_unref (stmt);
+				if (stmt) {
+					cursor = tracker_db_statement_start_cursor (stmt, NULL);
+					g_object_unref (stmt);
+				}
 
 				if (cursor) {
 					if (tracker_db_cursor_iter_next (cursor, NULL)) {

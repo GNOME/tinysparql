@@ -235,6 +235,7 @@ ensure_result_set_state (TrackerDBResultSet *result_set)
 
 TrackerDBStatement *
 tracker_db_interface_create_statement (TrackerDBInterface  *interface,
+                                       GError             **error,
                                        const gchar         *query,
                                        ...)
 {
@@ -254,7 +255,7 @@ tracker_db_interface_create_statement (TrackerDBInterface  *interface,
 	va_end (args);
 
 	iface = TRACKER_DB_INTERFACE_GET_IFACE (interface);
-	stmt = iface->create_statement (interface, str);
+	stmt = iface->create_statement (interface, error, str);
 	g_free (str);
 
 	return stmt;

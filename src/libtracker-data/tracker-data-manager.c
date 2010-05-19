@@ -1172,11 +1172,19 @@ class_add_super_classes_from_db (TrackerDBInterface *iface,
 {
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor;
+	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface,
+	stmt = tracker_db_interface_create_statement (iface, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:subClassOf\") "
 	                                              "FROM \"rdfs:Class_rdfs:subClassOf\" "
 	                                              "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
+
+	if (!stmt) {
+		g_critical ("%s", error->message);
+		g_error_free (error);
+		return;
+	}
+
 	tracker_db_statement_bind_text (stmt, 0, tracker_class_get_uri (class));
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
@@ -1201,11 +1209,19 @@ property_add_super_properties_from_db (TrackerDBInterface *iface,
 {
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor;
+	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface,
+	stmt = tracker_db_interface_create_statement (iface, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:subPropertyOf\") "
 	                                              "FROM \"rdf:Property_rdfs:subPropertyOf\" "
 	                                              "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
+
+	if (!stmt) {
+		g_critical ("%s", error->message);
+		g_error_free (error);
+		return;
+	}
+
 	tracker_db_statement_bind_text (stmt, 0, tracker_property_get_uri (property));
 	cursor = tracker_db_statement_start_cursor (stmt, NULL);
 	g_object_unref (stmt);
@@ -1228,18 +1244,22 @@ static void
 db_get_static_data (TrackerDBInterface *iface)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor;
+	TrackerDBCursor *cursor = NULL;
 	TrackerDBResultSet *result_set;
+	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface,
+	stmt = tracker_db_interface_create_statement (iface, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:Ontology\".ID), "
 	                                              "\"nao:lastModified\" "
 	                                              "FROM \"tracker:Ontology\"");
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
-	g_object_unref (stmt);
+
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		g_object_unref (stmt);
+	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL)) {
+		while (tracker_db_cursor_iter_next (cursor, &error)) {
 			TrackerOntology *ontology;
 			const gchar     *uri;
 			time_t           last_mod;
@@ -1258,17 +1278,26 @@ db_get_static_data (TrackerDBInterface *iface)
 		}
 
 		g_object_unref (cursor);
+		cursor = NULL;
 	}
 
-	stmt = tracker_db_interface_create_statement (iface,
+	if (error) {
+		g_warning ("%s", error->message);
+		g_clear_error (&error);
+	}
+
+	stmt = tracker_db_interface_create_statement (iface, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:Namespace\".ID), "
 	                                              "\"tracker:prefix\" "
 	                                              "FROM \"tracker:Namespace\"");
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
-	g_object_unref (stmt);
+
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		g_object_unref (stmt);
+	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL)) {
+		while (tracker_db_cursor_iter_next (cursor, &error)) {
 			TrackerNamespace *namespace;
 			const gchar      *uri, *prefix;
 
@@ -1287,18 +1316,27 @@ db_get_static_data (TrackerDBInterface *iface)
 		}
 
 		g_object_unref (cursor);
+		cursor = NULL;
 	}
 
-	stmt = tracker_db_interface_create_statement (iface,
+	if (error) {
+		g_warning ("%s", error->message);
+		g_clear_error (&error);
+	}
+
+	stmt = tracker_db_interface_create_statement (iface, &error,
 	                                              "SELECT \"rdfs:Class\".ID, "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:Class\".ID), "
 	                                              "\"tracker:notify\" "
 	                                              "FROM \"rdfs:Class\" ORDER BY ID");
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
-	g_object_unref (stmt);
+
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		g_object_unref (stmt);
+	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL)) {
+		while (tracker_db_cursor_iter_next (cursor, &error)) {
 			TrackerClass *class;
 			const gchar  *uri;
 			gint          id;
@@ -1335,21 +1373,33 @@ db_get_static_data (TrackerDBInterface *iface)
 			/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
 			if (!g_str_has_prefix (tracker_class_get_name (class), "xsd:")) {
 				/* update statistics */
-				stmt = tracker_db_interface_create_statement (iface, "SELECT COUNT(1) FROM \"%s\"", tracker_class_get_name (class));
-				result_set = tracker_db_statement_execute (stmt, NULL);
-				tracker_db_result_set_get (result_set, 0, &count, -1);
-				tracker_class_set_count (class, count);
-				g_object_unref (result_set);
-				g_object_unref (stmt);
+				stmt = tracker_db_interface_create_statement (iface, &error, "SELECT COUNT(1) FROM \"%s\"", tracker_class_get_name (class));
+
+				if (error) {
+					g_warning ("%s", error->message);
+					g_clear_error (&error);
+				} else {
+					result_set = tracker_db_statement_execute (stmt, NULL);
+					tracker_db_result_set_get (result_set, 0, &count, -1);
+					tracker_class_set_count (class, count);
+					g_object_unref (result_set);
+					g_object_unref (stmt);
+				}
 			}
 
 			g_object_unref (class);
 		}
 
 		g_object_unref (cursor);
+		cursor = NULL;
 	}
 
-	stmt = tracker_db_interface_create_statement (iface,
+	if (error) {
+		g_warning ("%s", error->message);
+		g_clear_error (&error);
+	}
+
+	stmt = tracker_db_interface_create_statement (iface, &error,
 	                                              "SELECT \"rdf:Property\".ID, (SELECT Uri FROM Resource WHERE ID = \"rdf:Property\".ID), "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:domain\"), "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:range\"), "
@@ -1364,11 +1414,14 @@ db_get_static_data (TrackerDBInterface *iface)
 	                                              "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
 	                                              "\"rdf:type\" = (SELECT ID FROM Resource WHERE Uri = '" NRL_INVERSE_FUNCTIONAL_PROPERTY "')) "
 	                                              "FROM \"rdf:Property\" ORDER BY ID");
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
-	g_object_unref (stmt);
+
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		g_object_unref (stmt);
+	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL)) {
+		while (tracker_db_cursor_iter_next (cursor, &error)) {
 			GValue value = { 0 };
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri;
@@ -1500,6 +1553,12 @@ db_get_static_data (TrackerDBInterface *iface)
 		}
 
 		g_object_unref (cursor);
+		cursor = NULL;
+	}
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
 	}
 }
 
@@ -1512,11 +1571,17 @@ insert_uri_in_resource_table (TrackerDBInterface *iface,
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface,
+	stmt = tracker_db_interface_create_statement (iface, &error,
 	                                              "INSERT "
 	                                              "INTO Resource "
 	                                              "(ID, Uri) "
 	                                              "VALUES (?, ?)");
+	if (error) {
+		g_critical ("%s", error->message);
+		g_error_free (error);
+		return;
+	}
+
 	tracker_db_statement_bind_int (stmt, 0, id);
 	tracker_db_statement_bind_text (stmt, 1, uri);
 	tracker_db_statement_execute (stmt, &error);
@@ -2100,24 +2165,33 @@ get_ontologies (gboolean     test_schema,
 static gint
 get_new_service_id (TrackerDBInterface *iface)
 {
-	TrackerDBCursor    *cursor;
+	TrackerDBCursor    *cursor = NULL;
 	TrackerDBStatement *stmt;
 	gint max_service_id = 0;
+	GError *error = NULL;
 
 	/* Don't intermix this thing with tracker_data_update_get_new_service_id,
 	 * if you use this, know what you are doing! */
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (iface,
+	stmt = tracker_db_interface_create_statement (iface, &error,
 	                                              "SELECT MAX(ID) AS A FROM Resource");
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
-	g_object_unref (stmt);
+
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		g_object_unref (stmt);
+	}
 
 	if (cursor) {
-		tracker_db_cursor_iter_next (cursor, NULL);
+		tracker_db_cursor_iter_next (cursor, &error);
 		max_service_id = tracker_db_cursor_get_int (cursor, 0);
 		g_object_unref (cursor);
+	}
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
 	}
 
 	return ++max_service_id;
@@ -2306,6 +2380,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		guint p;
 		GPtrArray *seen_classes;
 		GPtrArray *seen_properties;
+		GError *error = NULL;
 
 		seen_classes = g_ptr_array_new ();
 		seen_properties = g_ptr_array_new ();
@@ -2344,30 +2419,41 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		 * for all the ontology files in ontologies_dir whether the last-modified
 		 * has changed since we dealt with the file last time. */
 
-		stmt = tracker_db_interface_create_statement (iface,
+		stmt = tracker_db_interface_create_statement (iface, &error,
 		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\""
 		        "INNER JOIN Resource ON Resource.ID = \"tracker:Ontology\".ID "
 		        "INNER JOIN \"rdfs:Resource\" ON \"tracker:Ontology\".ID = \"rdfs:Resource\".ID");
 
-		cursor = tracker_db_statement_start_cursor (stmt, NULL);
-		g_object_unref (stmt);
+		if (stmt) {
+			cursor = tracker_db_statement_start_cursor (stmt, &error);
+			g_object_unref (stmt);
+		} else {
+			cursor = NULL;
+		}
 
 		ontos_table = g_hash_table_new_full (g_str_hash,
 		                                     g_str_equal,
 		                                     g_free,
 		                                     NULL);
 
-		while (tracker_db_cursor_iter_next (cursor, NULL)) {
-			const gchar *onto_uri = tracker_db_cursor_get_string (cursor, 0);
-			/* It's stored as an int in the db anyway. This is caused by
-			 * string_to_gvalue in tracker-data-update.c */
-			gint value = tracker_db_cursor_get_int (cursor, 1);
+		if (cursor) {
+			while (tracker_db_cursor_iter_next (cursor, &error)) {
+				const gchar *onto_uri = tracker_db_cursor_get_string (cursor, 0);
+				/* It's stored as an int in the db anyway. This is caused by
+				 * string_to_gvalue in tracker-data-update.c */
+				gint value = tracker_db_cursor_get_int (cursor, 1);
 
-			g_hash_table_insert (ontos_table, g_strdup (onto_uri),
-			                     GINT_TO_POINTER (value));
+				g_hash_table_insert (ontos_table, g_strdup (onto_uri),
+				                     GINT_TO_POINTER (value));
+			}
+
+			g_object_unref (cursor);
 		}
 
-		g_object_unref (cursor);
+		if (error) {
+			g_warning ("%s", error->message);
+			g_clear_error (&error);
+		}
 
 		for (l = ontos; l; l = l->next) {
 			TrackerOntology *ontology;
@@ -2430,17 +2516,24 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 			if (update_nao) {
 				/* Update the nao:lastModified in the database */
-				stmt = tracker_db_interface_create_statement (iface,
+				stmt = tracker_db_interface_create_statement (iface, &error,
 				        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
 				        "WHERE \"rdfs:Resource\".ID = "
 				        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
 				        "ON \"rdfs:Resource\".ID = Resource.ID WHERE "
 				        "Resource.Uri = ?)");
 
-				tracker_db_statement_bind_int (stmt, 0, last_mod);
-				tracker_db_statement_bind_text (stmt, 1, ontology_uri);
-				tracker_db_statement_execute (stmt, NULL);
-				g_object_unref (stmt);
+				if (stmt) {
+					tracker_db_statement_bind_int (stmt, 0, last_mod);
+					tracker_db_statement_bind_text (stmt, 1, ontology_uri);
+					tracker_db_statement_execute (stmt, &error);
+					g_object_unref (stmt);
+				}
+
+				if (error) {
+					g_critical ("%s", error->message);
+					g_clear_error (&error);
+				}
 			}
 
 			g_object_unref (ontology);
@@ -2502,18 +2595,22 @@ tracker_data_manager_get_db_option_int64 (const gchar *option)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
+	TrackerDBResultSet *result_set = NULL;
 	gchar              *str;
 	gint                value = 0;
+	GError             *error = NULL;
 
 	g_return_val_if_fail (option != NULL, 0);
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (iface, "SELECT OptionValue FROM Options WHERE OptionKey = ?");
-	tracker_db_statement_bind_text (stmt, 0, option);
-	result_set = tracker_db_statement_execute (stmt, NULL);
-	g_object_unref (stmt);
+	stmt = tracker_db_interface_create_statement (iface, &error, "SELECT OptionValue FROM Options WHERE OptionKey = ?");
+
+	if (stmt) {
+		tracker_db_statement_bind_text (stmt, 0, option);
+		result_set = tracker_db_statement_execute (stmt, &error);
+		g_object_unref (stmt);
+	}
 
 	if (result_set) {
 		tracker_db_result_set_get (result_set, 0, &str, -1);
@@ -2526,6 +2623,12 @@ tracker_data_manager_get_db_option_int64 (const gchar *option)
 		g_object_unref (result_set);
 	}
 
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+		return;
+	}
+
 	return value;
 }
 
@@ -2536,20 +2639,30 @@ tracker_data_manager_set_db_option_int64 (const gchar *option,
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	gchar              *str;
+	GError             *error = NULL;
 
 	g_return_if_fail (option != NULL);
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (iface, "REPLACE INTO Options (OptionKey, OptionValue) VALUES (?,?)");
-	tracker_db_statement_bind_text (stmt, 0, option);
+	stmt = tracker_db_interface_create_statement (iface, &error, "REPLACE INTO Options (OptionKey, OptionValue) VALUES (?,?)");
 
-	str = g_strdup_printf ("%"G_GINT64_FORMAT, value);
-	tracker_db_statement_bind_text (stmt, 1, str);
-	g_free (str);
+	if (stmt) {
+		tracker_db_statement_bind_text (stmt, 0, option);
 
-	tracker_db_statement_execute (stmt, NULL);
-	g_object_unref (stmt);
+		str = g_strdup_printf ("%"G_GINT64_FORMAT, value);
+		tracker_db_statement_bind_text (stmt, 1, str);
+		g_free (str);
+
+		tracker_db_statement_execute (stmt, &error);
+		g_object_unref (stmt);
+	}
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+		return;
+	}
 }
 
 gboolean
