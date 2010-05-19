@@ -42,6 +42,7 @@
 
 * nmo:sentDate:
   - Used for sorting messages when displaying all messages (or rather the last N).
+  - Secondary index for nmo:communicationChannel
 
 * nmo:conversation:
   - Used for retrieving all messages of a specific conversation.
@@ -49,6 +50,7 @@
 * nmo:communicationChannel:
   - Used for displaying all conversations on a specific channel (for example,
   all conversations with a specific contact).
+  - Secondary index on nmo:sentDate
 
 * nmo:lastMessageDate:
   - Used for sorting the list of all channels by time of last message.

@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2010-04-05T22:39:00Z" .
+	nao:lastModified "2010-05-19T11:09:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -261,6 +261,7 @@ nmo:conversation a rdf:Property ;
 nmo:communicationChannel a rdf:Property ;
 	rdfs:comment "Connects this message to a communication channel. Every message must only be in a single channel." ;
 	tracker:indexed true ;
+	tracker:secondaryIndex nmo:sentDate ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nmo:CommunicationChannel .
