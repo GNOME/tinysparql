@@ -250,7 +250,7 @@ class TrackerMetadataTile : EventBox
 
 
     def private GetCategory (uri : string) : Categories
-        var query = "SELECT rdf:type(?s) where { ?s nie:url \"%s\" }".printf(uri)
+        var query = "SELECT rdf:type(?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
         var results = Query.Query (query)
         var res = ""
 
