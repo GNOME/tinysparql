@@ -7,7 +7,7 @@
 
 rdf: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "rdf" ;
-	nao:lastModified "2010-02-16T11:00:00Z" .
+	nao:lastModified "2010-05-18T21:06:00Z" .
 
 rdfs: a tracker:Namespace ;
 	tracker:prefix "rdfs" .
@@ -80,6 +80,11 @@ tracker:indexed a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
+
+tracker:secondaryIndex a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdf:Property ;
+	rdfs:range rdf:Property .
 
 tracker:fulltextIndexed a rdf:Property ;
 	nrl:maxCardinality 1 ;

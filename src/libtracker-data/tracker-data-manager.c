@@ -104,21 +104,44 @@ static Conversion allowed_range_conversions[] = {
 };
 
 static void
+set_secondary_index_for_single_value_property (TrackerDBInterface *iface,
+                                               const gchar        *service_name,
+                                               const gchar        *field_name,
+                                               const gchar        *second_field_name,
+                                               gboolean            enabled)
+{
+	tracker_db_interface_execute_query (iface, NULL,
+	                                    "DROP INDEX IF EXISTS \"%s_%s\"",
+	                                    service_name,
+	                                    field_name);
+
+	if (enabled) {
+		tracker_db_interface_execute_query (iface, NULL,
+		                                    "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
+		                                    service_name,
+		                                    field_name,
+		                                    service_name,
+		                                    field_name,
+		                                    second_field_name);
+	}
+}
+
+static void
 set_index_for_single_value_property (TrackerDBInterface *iface,
                                      const gchar        *service_name,
                                      const gchar        *field_name,
                                      gboolean            enabled)
 {
+	tracker_db_interface_execute_query (iface, NULL,
+	                                    "DROP INDEX IF EXISTS \"%s_%s\"",
+	                                    service_name,
+	                                    field_name);
+
 	if (enabled) {
 		tracker_db_interface_execute_query (iface, NULL,
 		                                    "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
 		                                    service_name,
 		                                    field_name,
-		                                    service_name,
-		                                    field_name);
-	} else {
-		tracker_db_interface_execute_query (iface, NULL,
-		                                    "DROP INDEX IF EXISTS \"%s_%s\"",
 		                                    service_name,
 		                                    field_name);
 	}
@@ -220,7 +243,7 @@ update_property_value (const gchar     *kind,
 				needed = FALSE;
 			} else {
 
-				if (!is_allowed_conversion (str, object, allowed)) {
+				if (allowed && !is_allowed_conversion (str, object, allowed)) {
 					g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
 					         str, object, predicate, subject);
 				}
@@ -232,7 +255,11 @@ update_property_value (const gchar     *kind,
 
 			g_free (str);
 		} else {
-			needed = (g_strcmp0 (object, "true") == 0);
+			if (object && (g_strcmp0 (object, "false") == 0)) {
+				needed = FALSE;
+			} else {
+				needed = (object != NULL);
+			}
 		}
 		g_free (query);
 		if (result_set) {
@@ -312,8 +339,17 @@ fix_indexed (TrackerProperty *property)
 		set_index_for_multi_value_property (iface, service_name, field_name,
 		                                    tracker_property_get_indexed (property));
 	} else {
-		set_index_for_single_value_property (iface, service_name, field_name,
-		                                     tracker_property_get_indexed (property));
+		TrackerProperty *secondary_index;
+
+		secondary_index = tracker_property_get_secondary_index (property);
+		if (secondary_index == NULL) {
+			set_index_for_single_value_property (iface, service_name, field_name,
+			                                     tracker_property_get_indexed (property));
+		} else {
+			set_secondary_index_for_single_value_property (iface, service_name, field_name,
+			                                               tracker_property_get_name (secondary_index),
+			                                               tracker_property_get_indexed (property));
+		}
 	}
 }
 
@@ -379,6 +415,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				} else {
 					/* Reset for a correct post-check */
 					tracker_property_set_indexed (property, FALSE);
+					tracker_property_set_secondary_index (property, NULL);
 					tracker_property_set_writeback (property, FALSE);
 				}
 				return;
@@ -575,6 +612,22 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_property_set_indexed (property, (strcmp (object, "true") == 0));
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "secondaryIndex") == 0) {
+		TrackerProperty *property, *secondary_index;
+
+		property = tracker_ontologies_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			return;
+		}
+
+		secondary_index = tracker_ontologies_get_property_by_uri (object);
+		if (secondary_index == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_path, object);
+			return;
+		}
+
+		tracker_property_set_secondary_index (property, secondary_index);
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "transient") == 0) {
 		TrackerProperty *property;
 
@@ -707,6 +760,8 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 		for (i = 0; i < seen_properties->len; i++) {
 			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
 			const gchar *subject;
+			TrackerProperty *secondary_index;
+			gboolean indexed_set = FALSE;
 
 			subject = tracker_property_get_uri (property);
 
@@ -731,6 +786,7 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 				                           "true", allowed_boolean_conversions,
 				                           NULL, property)) {
 					fix_indexed (property);
+					indexed_set = TRUE;
 				}
 			} else {
 				if (update_property_value ("tracker:indexed",
@@ -739,6 +795,29 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 				                           "false", allowed_boolean_conversions,
 				                           NULL, property)) {
 					fix_indexed (property);
+					indexed_set = TRUE;
+				}
+			}
+
+			secondary_index = tracker_property_get_secondary_index (property);
+
+			if (secondary_index) {
+				if (update_property_value ("tracker:secondaryIndex",
+				                           subject,
+				                           TRACKER_PREFIX "secondaryIndex",
+				                           tracker_property_get_uri (secondary_index), NULL,
+				                           NULL, property)) {
+					if (!indexed_set)
+						fix_indexed (property);
+				}
+			} else {
+				if (update_property_value ("tracker:secondaryIndex",
+				                           subject,
+				                           TRACKER_PREFIX "secondaryIndex",
+				                           NULL, NULL,
+				                           NULL, property)) {
+					if (!indexed_set)
+						fix_indexed (property);
 				}
 			}
 
@@ -1276,6 +1355,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:range\"), "
 	                                              "\"nrl:maxCardinality\", "
 	                                              "\"tracker:indexed\", "
+	                                              "(SELECT Uri FROM Resource WHERE ID = \"tracker:secondaryIndex\"), "
 	                                              "\"tracker:fulltextIndexed\", "
 	                                              "\"tracker:fulltextNoLimit\", "
 	                                              "\"tracker:transient\", "
@@ -1291,7 +1371,7 @@ db_get_static_data (TrackerDBInterface *iface)
 		while (tracker_db_cursor_iter_next (cursor, NULL)) {
 			GValue value = { 0 };
 			TrackerProperty *property;
-			const gchar     *uri, *domain_uri, *range_uri;
+			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed, fulltext_no_limit;
 			gboolean         transient, annotation, is_inverse_functional_property;
 			gboolean         writeback;
@@ -1325,7 +1405,9 @@ db_get_static_data (TrackerDBInterface *iface)
 				indexed = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 6, &value);
+			secondary_index_uri = tracker_db_cursor_get_string (cursor, 6);
+
+			tracker_db_cursor_get_value (cursor, 7, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				fulltext_indexed = (g_value_get_int (&value) == 1);
@@ -1335,7 +1417,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				fulltext_indexed = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 7, &value);
+			tracker_db_cursor_get_value (cursor, 8, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				fulltext_no_limit = (g_value_get_int (&value) == 1);
@@ -1345,7 +1427,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				fulltext_no_limit = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 8, &value);
+			tracker_db_cursor_get_value (cursor, 9, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				transient = (g_value_get_int (&value) == 1);
@@ -1355,7 +1437,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				transient = FALSE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 9, &value);
+			tracker_db_cursor_get_value (cursor, 10, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				annotation = (g_value_get_int (&value) == 1);
@@ -1365,8 +1447,9 @@ db_get_static_data (TrackerDBInterface *iface)
 				annotation = FALSE;
 			}
 
+
 			/* tracker:writeback column */
-			tracker_db_cursor_get_value (cursor, 10, &value);
+			tracker_db_cursor_get_value (cursor, 11, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				writeback = (g_value_get_int (&value) == 1);
@@ -1377,7 +1460,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			}
 
 			/* NRL_INVERSE_FUNCTIONAL_PROPERTY column */
-			tracker_db_cursor_get_value (cursor, 11, &value);
+			tracker_db_cursor_get_value (cursor, 12, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				is_inverse_functional_property = TRUE;
@@ -1395,8 +1478,14 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_range (property, tracker_ontologies_get_class_by_uri (range_uri));
 			tracker_property_set_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
+
 			tracker_property_set_db_schema_changed (property, FALSE);
 			tracker_property_set_writeback (property, writeback);
+
+			if (secondary_index_uri) {
+				tracker_property_set_secondary_index (property, tracker_ontologies_get_property_by_uri (secondary_index_uri));
+			}
+
 			tracker_property_set_fulltext_indexed (property, fulltext_indexed);
 			tracker_property_set_fulltext_no_limit (property, fulltext_no_limit);
 			tracker_property_set_embedded (property, !annotation);
@@ -1833,7 +1922,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 	/* create index for single-valued fields */
 	for (field_it = class_properties; field_it != NULL; field_it = field_it->next) {
-		TrackerProperty *field;
+		TrackerProperty *field, *secondary_index;
 		const char   *field_name;
 
 		field = field_it->data;
@@ -1841,7 +1930,15 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		if (!tracker_property_get_multiple_values (field)
 		    && tracker_property_get_indexed (field)) {
 			field_name = tracker_property_get_name (field);
-			set_index_for_single_value_property (iface, service_name, field_name, TRUE);
+
+			secondary_index = tracker_property_get_secondary_index (field);
+			if (secondary_index == NULL) {
+				set_index_for_single_value_property (iface, service_name, field_name, TRUE);
+			} else {
+				set_secondary_index_for_single_value_property (iface, service_name, field_name,
+				                                               tracker_property_get_name (secondary_index),
+				                                               TRUE);
+			}
 		}
 	}
 
@@ -2351,9 +2448,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		if (to_reload) {
 			/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
-			tracker_data_ontology_process_changes (seen_classes, seen_properties);
-
 			tracker_data_ontology_import_into_db (TRUE);
+
+			tracker_data_ontology_process_changes (seen_classes, seen_properties);
 
 			for (l = to_reload; l; l = l->next) {
 				const gchar *ontology_path = l->data;

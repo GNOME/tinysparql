@@ -51,6 +51,7 @@ struct _TrackerPropertyPrivate {
 	gint           weight;
 	gint           id;
 	gboolean       indexed;
+	TrackerProperty *secondary_index;
 	gboolean       fulltext_indexed;
 	gboolean       fulltext_no_limit;
 	gboolean       embedded;
@@ -153,6 +154,10 @@ property_finalize (GObject *object)
 
 	if (priv->range) {
 		g_object_unref (priv->range);
+	}
+
+	if (priv->secondary_index) {
+		g_object_unref (priv->secondary_index);
 	}
 
 	g_array_free (priv->super_properties, TRUE);
@@ -309,6 +314,18 @@ tracker_property_get_indexed (TrackerProperty *property)
 	priv = GET_PRIV (property);
 
 	return priv->indexed;
+}
+
+TrackerProperty *
+tracker_property_get_secondary_index (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
+
+	priv = GET_PRIV (property);
+
+	return priv->secondary_index;
 }
 
 gboolean
@@ -494,6 +511,26 @@ tracker_property_set_domain (TrackerProperty *property,
 
 	if (value) {
 		priv->domain = g_object_ref (value);
+	}
+}
+
+void
+tracker_property_set_secondary_index (TrackerProperty *property,
+                                      TrackerProperty *value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	if (priv->secondary_index) {
+		g_object_unref (priv->secondary_index);
+		priv->secondary_index = NULL;
+	}
+
+	if (value) {
+		priv->secondary_index = g_object_ref (value);
 	}
 }
 
