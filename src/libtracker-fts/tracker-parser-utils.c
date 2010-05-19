@@ -40,6 +40,7 @@ tracker_parser_unaccent_utf16be_word (const gchar *string,
                                       gsize        ilength,
                                       gsize        *p_olength)
 {
+#ifdef HAVE_UNAC
 	GError *error = NULL;
 	gchar *unaccented_str = NULL;
 	gchar *str_utf8 = NULL;
@@ -73,6 +74,9 @@ tracker_parser_unaccent_utf16be_word (const gchar *string,
 
 	*p_olength = utf8_len;
 	return str_utf8;
+#else
+	return NULL;
+#endif
 }
 
 
