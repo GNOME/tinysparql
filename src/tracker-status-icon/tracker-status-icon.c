@@ -646,23 +646,6 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 }
 
 static void
-status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
-{
-	TrackerStatusIconPrivate *priv;
-	GSList *miners, *m;
-
-	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
-
-	miners = tracker_miner_manager_get_available (priv->manager);
-
-	for (m = miners; m; m = m->next) {
-		miner_menu_entry_add (icon, (const gchar *) m->data);
-	}
-
-	g_slist_free (miners);
-}
-
-static void
 launch_application_on_screen (GdkScreen   *screen,
                               const gchar *command_line)
 {
@@ -823,31 +806,55 @@ context_menu_about_cb (GtkMenuItem *item,
 	g_free (license_trans);
 }
 
-static GtkWidget *
-status_icon_create_context_menu (TrackerStatusIcon *icon)
+static void
+status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 {
-	GtkWidget *menu, *item, *image;
+	GtkWidget *item, *image;
+	TrackerStatusIconPrivate *priv;
+	GSList *miners, *m;
 
-	menu = gtk_menu_new ();
-
-	item = gtk_check_menu_item_new_with_mnemonic (_("_Pause All Indexing"));
-	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	g_signal_connect (G_OBJECT (item), "toggled",
-	                  G_CALLBACK (context_menu_pause_cb), icon);
-
-	item = gtk_separator_menu_item_new ();
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
 
 #if HAVE_TRACKER_SEARCH_TOOL
 	item = gtk_image_menu_item_new_with_mnemonic (_("_Search"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_FIND,
 	                                      GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
 	g_signal_connect (G_OBJECT (item), "activate",
 	                  G_CALLBACK (context_menu_search_cb), icon);
+
+	item = gtk_separator_menu_item_new ();
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
 #endif
+
+	/* miner entries */
+	miners = tracker_miner_manager_get_available (priv->manager);
+
+	for (m = miners; m; m = m->next) {
+		miner_menu_entry_add (icon, (const gchar *) m->data);
+	}
+	g_slist_free (miners);
+	/* miner entries end */
+
+	item = gtk_separator_menu_item_new ();
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
+
+	item = gtk_check_menu_item_new_with_mnemonic (_("_Pause All Indexing"));
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
+	g_signal_connect (G_OBJECT (item), "toggled",
+	                  G_CALLBACK (context_menu_pause_cb), icon);
+
+	gtk_widget_show_all (priv->miner_menu);
+}
+
+static GtkWidget *
+status_icon_create_context_menu (TrackerStatusIcon *icon)
+{
+	GtkWidget *menu, *item, *image;
+
+	menu = gtk_menu_new ();
 
 #if HAVE_TRACKER_PREFERENCES
 	item = gtk_image_menu_item_new_with_mnemonic (_("_Preferences"));
