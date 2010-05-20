@@ -1125,15 +1125,40 @@ cache_query_cb (GObject	     *object,
 	}
 }
 
+static gboolean
+file_is_crawl_directory (TrackerMinerFS *fs,
+                         GFile          *file)
+{
+	GList *dirs;
+
+	/* Check whether file is a crawl directory itself */
+	dirs = fs->private->config_directories;
+
+	while (dirs) {
+		DirectoryData *data;
+
+		data = dirs->data;
+		dirs = dirs->next;
+
+		if (g_file_equal (data->file, file)) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 static void
 ensure_iri_cache (TrackerMinerFS *fs,
-                  GFile          *parent)
+                  GFile          *file)
 {
 	gchar *query, *uri;
 	CacheQueryData data;
+	GFile *parent;
 
 	g_hash_table_remove_all (fs->private->iri_cache);
 
+	parent = g_file_get_parent (file);
 	uri = g_file_get_uri (parent);
 
 	g_debug ("Generating IRI cache for folder: %s", uri);
@@ -1159,6 +1184,18 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
+
+	if (g_hash_table_size (data.values) == 0 &&
+	    file_is_crawl_directory (fs, file)) {
+		gchar *query_iri;
+
+		if (item_query_exists (fs, file, &query_iri, NULL)) {
+			g_hash_table_insert (data.values,
+			                     g_object_ref (file), query_iri);
+		}
+	}
+
+	g_object_unref (parent);
 	g_free (query);
 }
 
@@ -1346,7 +1383,7 @@ item_add_or_update (TrackerMinerFS *fs,
 				fs->private->current_parent_urn = NULL;
 			}
 
-			ensure_iri_cache (fs, parent);
+			ensure_iri_cache (fs, file);
 		}
 
 		parent_urn = fs->private->current_parent_urn;
@@ -2155,29 +2192,6 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		                   fs);
 }
 
-static gboolean
-file_is_crawl_directory (TrackerMinerFS *fs,
-                         GFile          *file)
-{
-	GList *dirs;
-
-	/* Check whether file is a crawl directory itself */
-	dirs = fs->private->config_directories;
-
-	while (dirs) {
-		DirectoryData *data;
-
-		data = dirs->data;
-		dirs = dirs->next;
-
-		if (g_file_equal (data->file, file)) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
 static void
 ensure_mtime_cache (TrackerMinerFS *fs,
                     GFile          *file)
@@ -2255,7 +2269,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		g_free (query);
 
 		g_main_loop_run (data.main_loop);
-        }
+	}
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
