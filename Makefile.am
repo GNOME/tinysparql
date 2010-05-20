@@ -65,7 +65,7 @@ DISTCHECK_CONFIGURE_FLAGS =			\
 	--enable-miner-rss			\
 	--disable-miner-evolution		\
 	--enable-unac				\
-	--enable-poppler			\
+	--enable-poppler-glib			\
 	--enable-exempi				\
 	--enable-libiptcdata			\
 	--enable-libjpeg			\
