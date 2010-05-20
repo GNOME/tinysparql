@@ -172,7 +172,7 @@ tracker_class_get_is_new (TrackerClass *service)
 gboolean
 tracker_class_get_notify (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
@@ -184,7 +184,7 @@ tracker_class_get_notify (TrackerClass *service)
 gboolean
 tracker_class_get_db_schema_changed (TrackerClass *service)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
@@ -293,7 +293,7 @@ void
 tracker_class_set_notify (TrackerClass *service,
                           gboolean      value)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
@@ -306,7 +306,7 @@ void
 tracker_class_set_db_schema_changed (TrackerClass *service,
                                      gboolean      value)
 {
-	TrackerClassPriv *priv;
+	TrackerClassPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
