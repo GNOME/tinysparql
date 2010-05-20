@@ -2155,6 +2155,29 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		                   fs);
 }
 
+static gboolean
+file_is_crawl_directory (TrackerMinerFS *fs,
+                         GFile          *file)
+{
+	GList *dirs;
+
+	/* Check whether file is a crawl directory itself */
+	dirs = fs->private->config_directories;
+
+	while (dirs) {
+		DirectoryData *data;
+
+		data = dirs->data;
+		dirs = dirs->next;
+
+		if (g_file_equal (data->file, file)) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 static void
 ensure_mtime_cache (TrackerMinerFS *fs,
                     GFile          *file)
@@ -2205,12 +2228,37 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	                              NULL,
 	                              cache_query_cb,
 	                              &data);
+	g_free (query);
 
 	g_main_loop_run (data.main_loop);
 
+	if (g_hash_table_size (data.values) == 0 &&
+	    file_is_crawl_directory (fs, file)) {
+		/* File is a crawl directory itself, query its mtime directly */
+		uri = g_file_get_uri (file);
+
+		g_debug ("Folder %s is a crawl directory, generating mtime cache for it", uri);
+
+		query = g_strdup_printf ("SELECT ?url ?last "
+		                         "WHERE { "
+		                         "  ?u nfo:fileLastModified ?last ; "
+		                         "     nie:url ?url ; "
+		                         "     nie:url \"%s\" "
+		                         "}", uri);
+		g_free (uri);
+
+		tracker_miner_execute_sparql (TRACKER_MINER (fs),
+		                              query,
+		                              NULL,
+		                              cache_query_cb,
+		                              &data);
+		g_free (query);
+
+		g_main_loop_run (data.main_loop);
+        }
+
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
-	g_free (query);
 }
 
 static gboolean
