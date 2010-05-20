@@ -54,6 +54,12 @@ tracker_store_SOURCES =							\
 	tracker-status.c						\
 	tracker-status.h
 
+if HAVE_DBUS_FD_PASSING
+tracker_store_SOURCES +=						\
+	tracker-steroids.c						\
+	tracker-steroids.h
+endif
+
 if OS_WIN32
 tracker_store_win_libs = -lws2_32 -lkernel32
 endif

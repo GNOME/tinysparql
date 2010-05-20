@@ -1662,6 +1662,35 @@ fi
 
 AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 
+####################################################################
+# Check for DBus > 1.3 for Steroids (query over pipe) support
+####################################################################
+
+AC_ARG_ENABLE(dbus-fd-passing,
+	      AS_HELP_STRING([--enable-dbus-fd-passing],
+			     [enable DBus FD passing for faster IPC [[default=yes]]]),,
+	      [enable_dbus_fd_passing=yes])
+
+if test "x$enable_dbus_fd_passing" != "xno" ; then
+    PKG_CHECK_EXISTS([dbus-1 >= 1.3],
+                     [have_dbus_fd_passing=yes],
+                     [have_dbus_fd_passing=no])
+
+    if test "x$have_dbus_fd_passing" = "xyes"; then
+       AC_DEFINE(HAVE_DBUS_FD_PASSING, [], [Define if we have DBus >= 1.3 and want DBus FD passing])
+    fi
+else
+    have_dbus_fd_passing="no  (disabled)"
+fi
+
+if test "x$enable_dbus_fd_passing" = "xyes"; then
+   if test "x$have_dbus_fd_passing" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find a recent enough DBus for FD passing.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_DBUS_FD_PASSING, test "x$have_dbus_fd_passing" = "xyes")
+
 ##################################################################
 # Enable mockup extractor module?
 ##################################################################
@@ -1938,6 +1967,7 @@ Build Configuration:
 	Support for Cyrillic languages (enca):  $have_enca
 	Support for network status detection:   $have_network_manager
 	Unicode support library:                $with_unicode_support
+	Support for DBus FD passing:		$have_dbus_fd_passing
 
 Applications:
 
