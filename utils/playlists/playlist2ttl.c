@@ -47,7 +47,7 @@ print_header ()
 
 static void
 print_playlist_entry (const gchar *uri) {
-	g_print ("<%s> a nfo:MediaList .\n\n", uri);
+	g_print ("<%s> a nmm:Playlist .\n\n", uri);
 }
 
 static void
