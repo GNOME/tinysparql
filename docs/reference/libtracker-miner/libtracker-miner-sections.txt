@@ -136,6 +136,22 @@ tracker_password_provider_get_type
 </SECTION>
 
 <SECTION>
+<FILE>tracker-network-provider</FILE>
+TRACKER_NETWORK_PROVIDER_GET_INTERFACE
+TrackerNetworkProvider
+TrackerNetworkProviderIface
+TrackerNetworkProviderStatus
+tracker_network_provider_get
+tracker_network_provider_get_name
+tracker_network_provider_get_status
+<SUBSECTION Standard>
+TRACKER_NETWORK_PROVIDER
+TRACKER_IS_NETWORK_PROVIDER
+TRACKER_TYPE_NETWORK_PROVIDER
+tracker_network_provider_get_type
+</SECTION>
+
+<SECTION>
 <FILE>tracker-thumbnailer</FILE>
 tracker_thumbnailer_init
 tracker_thumbnailer_shutdown
@@ -165,4 +181,3 @@ TRACKER_STORAGE_CLASS
 TRACKER_IS_STORAGE_CLASS
 TRACKER_STORAGE_GET_CLASS
 </SECTION>
-

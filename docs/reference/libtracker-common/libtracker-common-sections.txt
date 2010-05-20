@@ -22,7 +22,6 @@ TrackerPowerClass
 tracker_power_new
 tracker_power_get_on_battery
 tracker_power_get_on_low_battery
-tracker_power_get_battery_percentage
 <SUBSECTION Standard>
 TRACKER_POWER
 TRACKER_IS_POWER
@@ -46,6 +45,7 @@ tracker_language_set_enable_stemmer
 tracker_language_set_language_code
 tracker_language_stem_word
 tracker_language_get_name_by_code
+tracker_language_is_stop_word
 <SUBSECTION Standard>
 TRACKER_LANGUAGE
 TRACKER_IS_LANGUAGE
@@ -219,6 +219,7 @@ tracker_is_empty_string
 tracker_is_blank_string
 tracker_seconds_estimate_to_string
 tracker_seconds_to_string
+tracker_strhex
 </SECTION>
 
 <SECTION>
