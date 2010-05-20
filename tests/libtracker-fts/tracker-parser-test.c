@@ -26,6 +26,23 @@
 
 #include <libtracker-fts/tracker-parser.h>
 
+/* Note
+ *  Currently, three different types of parsers are defined in libtracker-fts:
+ *    - GNU libunistring-based parser, up to 20% faster than the others, and full
+ *       unicode compliant.
+ *    - libicu-based parser, full unicode compliant but slower as it needs
+ *       conversions to/from UChars (UTF-16 encoded strings)
+ *    - glib/pango parser, not fully unicode compliant as it doesn't work properly
+ *       with decomposed strings (NFD normalized), doesn't make a unicode-based
+ *       word-breaking and doesn't make full-word casefolding.
+ *
+ * Some of the tests, thus, will be DISABLED for the GLIB/PANGO parser.
+ */
+#undef FULL_UNICODE_TESTS
+#if defined HAVE_LIBUNISTRING || defined HAVE_LIBICU
+#define FULL_UNICODE_TESTS
+#endif
+
 /* -------------- COMMON FOR ALL TESTS ----------------- */
 
 /* Fixture object type */
@@ -185,9 +202,11 @@ static const TestDataExpectedWord test_data_normalization[] = {
 	{ "école",                "ecole" },
 	{ "ÉCOLE",                "ecole" },
 	{ "École",                "ecole" },
+#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
 	{ "e" "\xCC\x81" "cole",  "ecole" },
 	{ "E" "\xCC\x81" "COLE",  "ecole" },
 	{ "E" "\xCC\x81" "cole",  "ecole" },
+#endif
 	{ NULL,                   NULL    }
 };
 
@@ -204,9 +223,11 @@ static const TestDataExpectedWord test_data_normalization[] = {
 	{ "école",                "école" },
 	{ "ÉCOLE",                "école" },
 	{ "École",                "école" },
+#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
 	{ "e" "\xCC\x81" "cole",  "école" },
 	{ "E" "\xCC\x81" "COLE",  "école" },
 	{ "E" "\xCC\x81" "cole",  "école" },
+#endif
 	{ NULL,                   NULL    }
 };
 #endif
@@ -216,19 +237,27 @@ static const TestDataExpectedWord test_data_casefolding[] = {
 	{ "gross", "gross" },
 	{ "GROSS", "gross" },
 	{ "GrOsS", "gross" },
+#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't do full-word casefolding */
 	{ "groß",  "gross" },
+#endif
 	{ NULL,    NULL    }
 };
 
 /* Number of expected words tests */
 static const TestDataExpectedNWords test_data_nwords[] = {
+#ifdef FULL_UNICODE_TESTS /* glib/pango thinks 32.3 are 2 words */
 	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", TRUE,   8 },
 	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", FALSE,  9 },
+#endif
 	{ "ホモ・サピエンス",                                            TRUE,   2 }, /* katakana */
+#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
 	{ "本州最主流的风味",                                          TRUE,   8 }, /* chinese */
+#endif
 	{ "Американские суда находятся в международных водах.",     TRUE,   6 }, /* russian */
 	{ "Bần chỉ là một anh nghèo xác",                           TRUE,   7 }, /* vietnamese */
+#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
 	{ "ホモ・サピエンス 本州最主流的风味 katakana, chinese, english",   TRUE,  13 }, /* mixed */
+#endif
 	{ NULL,                                                     FALSE,  0 }
 };
 
