@@ -1,3 +1,68 @@
+NEW in 0.8.7 - 2010-05-20
+=========================
+
+Improvements / New:
+
+  General:
+  * Fixed building with VPATHS where $srcdir != $builddir
+
+  SPARQL:
+  * Added tracker:id function to return the integer ID used as last sort key in queries
+
+  Ontology:
+  * Added ontology change support for properties
+  * Added ontology change error reporting
+  * Added tracker:indexed for nfo:belongsToContainer
+  * Added nao:deprecated to the ontology
+
+  libtracker-data:
+  * Added ontology change support for tracker:notify, tracker:writeback and tracker:indexed
+  * Create new contexts per tripple now, improves variable handling
+
+  libtracker-miner:
+  * Fixed IRI cache
+  * Fixed mtime cache for config directories themselves
+  * Updated nfo:fileLastModified query to use nfo:belongsToContainer, much faster
+
+  tracker-extract: 
+  * Handle single null terminated strings in UCS2 and UTF-16 in mp3 extractor
+
+  tracker-search-tool:
+  * Fixed segfault when entering text while categories are selected
+
+  tracker-tag:
+  * Support nao:description with --description when using --add
+
+Bugs:
+
+  * NB#163155 - tracker-extract is crashing while extracting album art of a mp3 file
+  * NB#169254 - GLIB CRITICAL ** GLib - g_utf8_strdown: assertion `str != NULL' failed
+  * NB#169105 - GLIB CRITICAL ** Tracker - tracker_iptc_new: assertion `len > 0' failed
+  * NB#169119 - GLIB CRITICAL ** GLib-GObject - g_object_unref: assertion `G_IS_OBJECT (object)' failed
+  * GB#619061 - add search history and auto-completion
+  * GB#616535 - miner-fs stops after crawling a little (no crash). maybe non-utf8 locale related.
+  * GB#614870 - Open t-s-t on left click
+  * GB#614610 - config behaviour regarding xdg-user-dirs doesn't work properly
+  * GB#618821 - Wrong X-GNOME-Bugzilla-Components for desktop files
+  * GB#618544 - Only install tracker-search-bar man page when enabled
+  * GB#618011 - UI problems with tracker tray icon
+  * GB#616808 - dist tarball fails to build twice in a row if --enable-gtk-doc is selected
+  * GB#491850 - Allow option to ignore stopwords
+  * GB#503366 - Cannot search number in text files
+  * GB#579756 - Unicode Normalization is broken in Indexer and/or Search
+
+Translations:
+
+  * Updated cs: Petr Kovar
+  * Updated de: Mario Blättermann
+  * Updated sl: Andrej Žnidaršič
+  * Updated es: Jorge González
+
+Notes:
+
+  None
+
+
 NEW in 0.8.6 - 2010-05-13
 =========================
 
