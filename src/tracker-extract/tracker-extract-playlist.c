@@ -122,7 +122,7 @@ extract_playlist (const gchar          *uri,
 	                  G_CALLBACK (entry_parsed), &data);
 
 	tracker_sparql_builder_predicate (metadata, "a");
-	tracker_sparql_builder_object (metadata, "nfo:MediaList");
+	tracker_sparql_builder_object (metadata, "nmm:Playlist");
 
 	result = totem_pl_parser_parse (pl, uri, FALSE);
 
