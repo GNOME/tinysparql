@@ -2706,7 +2706,7 @@ static gboolean
 crawl_directories_cb (gpointer user_data)
 {
 	TrackerMinerFS *fs = user_data;
-	gchar *path;
+	gchar *path, *path_utf8;
 	gchar *str;
 
 	if (fs->private->current_directory) {
@@ -2733,12 +2733,15 @@ crawl_directories_cb (gpointer user_data)
 	                                          fs->private->current_directory);
 
 	path = g_file_get_path (fs->private->current_directory->file);
+	path_utf8 = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
+	g_free (path);
 
 	if (fs->private->current_directory->recurse) {
-		str = g_strdup_printf ("Crawling recursively directory '%s'", path);
+		str = g_strdup_printf ("Crawling recursively directory '%s'", path_utf8);
 	} else {
-		str = g_strdup_printf ("Crawling single directory '%s'", path);
+		str = g_strdup_printf ("Crawling single directory '%s'", path_utf8);
 	}
+	g_free (path_utf8);
 
 	g_message ("%s", str);
 
@@ -2748,7 +2751,6 @@ crawl_directories_cb (gpointer user_data)
 	              "status", str,
 	              NULL);
 	g_free (str);
-	g_free (path);
 
 	if (tracker_crawler_start (fs->private->crawler,
 	                           fs->private->current_directory->file,
