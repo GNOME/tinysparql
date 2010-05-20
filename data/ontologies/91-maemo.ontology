@@ -60,3 +60,24 @@ maemo:localPhoneNumber a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PhoneNumber ;
 	rdfs:range xsd:string .
+
+maemo:contactAudioRingtone a rdf:Property ;
+        rdfs:label "Audio ringtone" ;
+        rdfs:comment "Audio file linked with a contact";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nco:PersonContact ;
+        rdfs:range nfo:FileDataObject .
+
+maemo:contactVideoRingtone a rdf:Property ;
+        rdfs:label "Video ringtone" ;
+        rdfs:comment "Video file linked with a contact";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nco:PersonContact ;
+        rdfs:range nfo:FileDataObject .
+
+maemo:contactVibrationRingtone a rdf:Property ;
+        rdfs:label "Vibration ringtone";
+        rdfs:comment "File linked with a contact to vibrate on a pleasant frequency";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nco:PersonContact ;
+        rdfs:range nfo:FileDataObject .
