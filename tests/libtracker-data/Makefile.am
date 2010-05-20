@@ -93,4 +93,5 @@ EXTRA_DIST = \
 	change/updates/99-example.queries.v3	\
 	change/updates/99-example.queries.v4	\
 	ontologies/20-dc.ontology		\
-	ontologies/31-nao.ontology
+	ontologies/31-nao.ontology		\
+	ontologies/90-tracker.ontology
