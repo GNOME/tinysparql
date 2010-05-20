@@ -1,3 +1,75 @@
+NEW in 0.9.5 - 2010-05-20
+=========================
+
+Improvements / New:
+
+  General:
+  * Added support for libunistring and libicu thanks for the work from Aleksander Morgado
+  * Fixed building with VPATHS where $srcdir != $builddir
+
+  SPARQL:
+  * Added tracker:id function to return the integer ID used as last sort key in queries
+
+  Ontology:
+  * Added secondary index on nmo:communicationChannel
+
+  libtracker-data:
+  * Create new contexts per tripple now, improves variable handling
+  * Added support for secondary indexes, creates a 2 column index in SQLite
+
+  libtracker-fts:
+  * Fixed word breaking (if using libicu or libunistring)
+  * Fixed word normalization (if using libicu or libunistring)
+  * Fixed word case folding (if using libicu or libunistring) 
+  * Support multi language extraction per file (if using libicu or libunistring)
+
+  libtracker-miner:
+  * Fixed IRI cache
+  * Fixed mtime cache for config directories themselves
+  * Added TrackerNetworkProvider for miners which need to know about connection status
+
+  tracker-store:
+  * Check idle handler after 
+  * Use exclusive thread for TTL imports, fixes remaining table locked issues
+
+  tracker-extract:
+  * Handle single null terminated strings in UCS2 and UTF-16 in mp3 extractor
+  * Don't do word breaking to limit FTS extraction by words, instead use bytes, faster
+  * Added specific GIF file extractor
+
+  tracker-search-tool:
+  * Fixed segfault when entering text while categories are selected
+
+Bugs:
+
+  * NB#163155 - tracker-extract is crashing while extracting album art of a mp3 file
+  * NB#169254 - GLIB CRITICAL ** GLib - g_utf8_strdown: assertion `str != NULL' failed
+  * NB#169105 - GLIB CRITICAL ** Tracker - tracker_iptc_new: assertion `len > 0' failed
+  * NB#169119 - GLIB CRITICAL ** GLib-GObject - g_object_unref: assertion `G_IS_OBJECT (object)' failed
+  * GB#619061 - add search history and auto-completion
+  * GB#616535 - miner-fs stops after crawling a little (no crash). maybe non-utf8 locale related.
+  * GB#614870 - Open t-s-t on left click
+  * GB#614610 - config behaviour regarding xdg-user-dirs doesn't work properly
+  * GB#618821 - Wrong X-GNOME-Bugzilla-Components for desktop files
+  * GB#618544 - Only install tracker-search-bar man page when enabled
+  * GB#618011 - UI problems with tracker tray icon
+  * GB#616808 - dist tarball fails to build twice in a row if --enable-gtk-doc is selected
+  * GB#491850 - Allow option to ignore stopwords
+  * GB#503366 - Cannot search number in text files
+  * GB#579756 - Unicode Normalization is broken in Indexer and/or Search
+  * GB#616836 - Use libunistring's u8_normalize() instead of GLib's g_utf8_normalize()
+
+Translations:
+
+  * Updated cs: Petr Kovar
+  * Updated de: Mario Blättermann
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.9.4 - 2010-05-11
 =========================
 
