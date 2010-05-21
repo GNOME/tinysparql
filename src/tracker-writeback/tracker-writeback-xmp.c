@@ -269,6 +269,12 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			}
 		}
 
+#ifdef SET_TYPICAL_CAMERA_FIELDS
+		/* Default we don't do this, we shouldn't overwrite fields that are 
+		 * typically set by the camera itself. What do we know (better) than
+		 * the actual camera did, anyway? Even if the user overwrites them in
+		 * the RDF store ... (does he know what he's doing anyway?) */
+
 		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "meteringMode") == 0) {
 
 			xmp_delete_property (xmp, NS_EXIF, "MeteringMode");
@@ -318,12 +324,16 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 
 			if (g_strcmp0 (row[3], TRACKER_NMM_PREFIX "flash-on") == 0) {
 				/* 0 = Flash did not fire
-				   1 = Flash fired */
+				 * 1 = Flash fired */
 				xmp_set_property (xmp, NS_EXIF, "Flash", "1", 0);
 			} else {
 				xmp_set_property (xmp, NS_EXIF, "Flash", "0", 0);
 			}
 		}
+
+
+		/* TODO: Don't write row[3] as-is here, read xmp_specification.pdf,
+		   page 84 (bottom). */
 
 		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "focalLength") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "FocalLength");
@@ -344,6 +354,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			xmp_delete_property (xmp, NS_EXIF, "FNumber");
 			xmp_set_property (xmp, NS_EXIF, "FNumber", row[3], 0);
 		}
+
 
 		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "camera") == 0) {
 			gchar *work_on = g_strdup (row[3]);
@@ -366,6 +377,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 
 			g_free (work_on);
 		}
+#endif /* SET_TYPICAL_CAMERA_FIELDS */
 
 		if (g_strcmp0 (row[2], TRACKER_MLO_PREFIX "location") == 0 ||
 		    g_strcmp0 (row[2], TRACKER_MLO_PREFIX "city") == 0     ||
