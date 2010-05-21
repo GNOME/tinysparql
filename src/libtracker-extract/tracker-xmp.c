@@ -163,7 +163,10 @@ div_str_dup (const gchar *value)
 		cpy [ptr - value] = '\0';
 		a = atoi (cpy);
 		b = atoi (cpy + (ptr - value) + 1);
-		ret = g_strdup_printf ("%G", ((gdouble)((gdouble) a / (gdouble) b)));
+		if (b != 0)
+			ret = g_strdup_printf ("%G", ((gdouble)((gdouble) a / (gdouble) b)));
+		else
+			ret = NULL;
 		g_free (cpy);
 	} else {
 		ret = g_strdup (value);
