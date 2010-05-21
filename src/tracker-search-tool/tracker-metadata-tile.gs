@@ -272,13 +272,11 @@ class TrackerMetadataTile : EventBox
     
     def private DisplayFileDetails (uri : string, mime : string)
         var file = File.new_for_uri (uri)
-        var filepath = file.get_basename ()
         var displaypath = file.get_parent ()
         
         name_link.uri = uri
-        name_link.label = filepath
         path_link.uri = displaypath.get_uri ()
-        path_link.label = displaypath.get_path ()
+        path_link.label = displaypath.get_parse_name ()
 
         link_label : Label
         link_label = (Label) path_link.get_child ()
@@ -290,10 +288,11 @@ class TrackerMetadataTile : EventBox
         SetLabelValue (info_value1, mime)
 
         try
-            var info =  file.query_info ("standard::size,time::modified", \
+            var info =  file.query_info ("standard::size,time::modified,standard::display-name", \
                                          FileQueryInfoFlags.NONE, null)
 
             SetLabelSizeValue (info_value2, info.get_size())
+            name_link.label = info.get_display_name ()
 
             tm : TimeVal
             info.get_modification_time (out tm)
@@ -303,6 +302,8 @@ class TrackerMetadataTile : EventBox
             info_value3.set_markup (val3)
 
         except e:Error
+            var filepath = file.get_basename ()
+            name_link.label = filepath
             print "Could not get file info for %s", uri
 
         
