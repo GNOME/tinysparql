@@ -152,6 +152,26 @@ iterate_alt_text (XmpPtr          xmp,
 	xmp_iterator_free (iter);
 }
 
+static gchar *
+div_str_dup (const gchar *value)
+{
+	gchar *ret;
+	gchar *ptr = strchr (value, '/');
+	if (ptr) {
+		gchar *cpy = g_strdup (value);
+		gint a, b;
+		cpy [ptr - value] = '\0';
+		a = atoi (cpy);
+		b = atoi (cpy + (ptr - value) + 1);
+		ret = g_strdup_printf ("%G", ((gdouble)((gdouble) a / (gdouble) b)));
+		g_free (cpy);
+	} else {
+		ret = g_strdup (value);
+	}
+
+	return ret;
+}
+
 /* We have a simple element, but need to iterate over the qualifiers */
 static void
 iterate_simple_qual (XmpPtr          xmp,
@@ -290,13 +310,13 @@ iterate_simple (const gchar    *uri,
 			   tracker_statement_list_insert (metadata, uri,
 			   "Image:ExposureProgram", value);*/
 		} else if (!data->exposure_time && g_ascii_strcasecmp (name, "ExposureTime") == 0) {
-			data->exposure_time = g_strdup (value);
+			data->exposure_time = div_str_dup (value);
 		} else if (!data->fnumber && g_ascii_strcasecmp (name, "FNumber") == 0) {
-			data->fnumber = g_strdup (value);
+			data->fnumber = div_str_dup (value);
 		} else if (!data->focal_length && g_ascii_strcasecmp (name, "FocalLength") == 0) {
-			data->focal_length = g_strdup (value);
+			data->focal_length = div_str_dup (value);
 		} else if (!data->iso_speed_ratings && g_ascii_strcasecmp (name, "ISOSpeedRatings") == 0) {
-			data->iso_speed_ratings = g_strdup (value);
+			data->iso_speed_ratings = div_str_dup (value);
 		} else if (!data->white_balance && g_ascii_strcasecmp (name, "WhiteBalance") == 0) {
 			data->white_balance = g_strdup (fix_white_balance (value));
 		} else if (!data->copyright && g_ascii_strcasecmp (name, "Copyright") == 0) {
