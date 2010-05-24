@@ -35,16 +35,18 @@
 #define GROUP_INDEXING             "Indexing"
 
 /* Default values */
-#define DEFAULT_MIN_WORD_LENGTH            3      /* 0->30 */
-#define DEFAULT_MAX_WORD_LENGTH            30     /* 0->200 */
-#define DEFAULT_MAX_WORDS_TO_INDEX      10000
-#define DEFAULT_IGNORE_NUMBERS           TRUE
-#define DEFAULT_IGNORE_STOP_WORDS        TRUE
+#define DEFAULT_MIN_WORD_LENGTH      3      /* 0->30 */
+#define DEFAULT_MAX_WORD_LENGTH      30     /* 0->200 */
+#define DEFAULT_MAX_WORDS_TO_INDEX   10000
+#define DEFAULT_IGNORE_NUMBERS       TRUE
+#define DEFAULT_IGNORE_STOP_WORDS    TRUE
+#define DEFAULT_ENABLE_STEMMER       FALSE  /* As per GB#526346, disabled */
 
 typedef struct {
 	/* Indexing */
 	gint min_word_length;
 	gint max_word_length;
+	gboolean enable_stemmer;
 	gboolean ignore_numbers;
 	gboolean ignore_stop_words;
 	gint max_words_to_index;
@@ -78,6 +80,7 @@ enum {
 	/* Indexing */
 	PROP_MIN_WORD_LENGTH,
 	PROP_MAX_WORD_LENGTH,
+	PROP_ENABLE_STEMMER,
 	PROP_IGNORE_NUMBERS,
 	PROP_IGNORE_STOP_WORDS,
 
@@ -88,6 +91,7 @@ enum {
 static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_INT,     "min-word-length",    GROUP_INDEXING, "MinWordLength"   },
 	{ G_TYPE_INT,     "max-word-length",    GROUP_INDEXING, "MaxWordLength"   },
+	{ G_TYPE_BOOLEAN, "enable-stemmer",     GROUP_INDEXING, "EnableStemmer"   },
 	{ G_TYPE_BOOLEAN, "ignore-numbers",     GROUP_INDEXING, "IgnoreNumbers"   },
 	{ G_TYPE_BOOLEAN, "ignore-stop-words",  GROUP_INDEXING, "IgnoreStopWords" },
 	{ G_TYPE_INT,     "max-words-to-index", GROUP_INDEXING, "MaxWordsToIndex" },
@@ -125,17 +129,24 @@ tracker_fts_config_class_init (TrackerFTSConfigClass *klass)
 	                                                   DEFAULT_MAX_WORD_LENGTH,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
+	                                 PROP_ENABLE_STEMMER,
+	                                 g_param_spec_boolean ("enable-stemmer",
+	                                                       "Enable Stemmer",
+	                                                       " Flag to enable word stemming utility (default=FALSE)",
+	                                                       DEFAULT_ENABLE_STEMMER,
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
 	                                 PROP_IGNORE_NUMBERS,
 	                                 g_param_spec_boolean ("ignore-numbers",
 	                                                       "Ignore numbers",
-	                                                       " Flag to ignore numbers in FTS (default: TRUE)",
+	                                                       " Flag to ignore numbers in FTS (default=TRUE)",
 	                                                       DEFAULT_IGNORE_NUMBERS,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 	                                 PROP_IGNORE_STOP_WORDS,
 	                                 g_param_spec_boolean ("ignore-stop-words",
 	                                                       "Ignore stop words",
-	                                                       " Flag to ignore stop words in FTS (default: TRUE)",
+	                                                       " Flag to ignore stop words in FTS (default=TRUE)",
 	                                                       DEFAULT_IGNORE_STOP_WORDS,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
@@ -171,6 +182,10 @@ config_set_property (GObject      *object,
 	case PROP_MAX_WORD_LENGTH:
 		tracker_fts_config_set_max_word_length (TRACKER_FTS_CONFIG (object),
 		                                        g_value_get_int (value));
+		break;
+	case PROP_ENABLE_STEMMER:
+		tracker_fts_config_set_enable_stemmer (TRACKER_FTS_CONFIG (object),
+		                                       g_value_get_boolean (value));
 		break;
 	case PROP_IGNORE_NUMBERS:
 		tracker_fts_config_set_ignore_numbers (TRACKER_FTS_CONFIG (object),
@@ -208,6 +223,9 @@ config_get_property (GObject    *object,
 		break;
 	case PROP_MAX_WORD_LENGTH:
 		g_value_set_int (value, priv->max_word_length);
+		break;
+	case PROP_ENABLE_STEMMER:
+		g_value_set_boolean (value, priv->enable_stemmer);
 		break;
 	case PROP_IGNORE_NUMBERS:
 		g_value_set_boolean (value, priv->ignore_numbers);
@@ -419,6 +437,18 @@ tracker_fts_config_get_max_word_length (TrackerFTSConfig *config)
 }
 
 gboolean
+tracker_fts_config_get_enable_stemmer (TrackerFTSConfig *config)
+{
+	TrackerFTSConfigPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), DEFAULT_ENABLE_STEMMER);
+
+	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
+
+	return priv->enable_stemmer;
+}
+
+gboolean
 tracker_fts_config_get_ignore_numbers (TrackerFTSConfig *config)
 {
 	TrackerFTSConfigPrivate *priv;
@@ -488,6 +518,20 @@ tracker_fts_config_set_max_word_length (TrackerFTSConfig *config,
 
 	priv->max_word_length = value;
 	g_object_notify (G_OBJECT (config), "max-word-length");
+}
+
+void
+tracker_fts_config_set_enable_stemmer (TrackerFTSConfig *config,
+                                       gboolean          value)
+{
+	TrackerFTSConfigPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
+
+	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
+
+	priv->enable_stemmer = value;
+	g_object_notify (G_OBJECT (config), "enable-stemmer");
 }
 
 void

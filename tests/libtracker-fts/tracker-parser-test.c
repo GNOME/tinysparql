@@ -53,9 +53,9 @@ typedef struct {
 	/* Default parser configuration to use */
 	gint              max_word_length;
 	gboolean          enable_stemmer;
-	gboolean          enable_stop_words;
-	gboolean          skip_reserved_words;
-	gboolean          skip_numbers;
+	gboolean          ignore_stop_words;
+	gboolean          ignore_reserved_words;
+	gboolean          ignore_numbers;
 } TrackerParserTestFixture;
 
 /* Common setup for all tests */
@@ -65,8 +65,10 @@ test_common_setup (TrackerParserTestFixture *fixture,
 {
 	TrackerLanguage  *language;
 
-	/* Setup language for parser */
-	language = tracker_language_new (NULL);
+	/* Setup language for parser. We make sure that always English is used
+	 *  in the unit tests, because we want the English stemming method to
+	 *  be used. */
+	language = tracker_language_new ("en");
 	if (!language) {
 		g_critical ("Language setup failed!");
 		return;
@@ -75,9 +77,9 @@ test_common_setup (TrackerParserTestFixture *fixture,
 	/* Default conf parameters */
 	fixture->max_word_length = 50;
 	fixture->enable_stemmer = TRUE;
-	fixture->enable_stop_words = TRUE;
-	fixture->skip_reserved_words = TRUE;
-	fixture->skip_numbers = TRUE;
+	fixture->ignore_stop_words = TRUE;
+	fixture->ignore_reserved_words = TRUE;
+	fixture->ignore_numbers = TRUE;
 
 	/* Create the parser */
 	fixture->parser = tracker_parser_new (language,
@@ -106,7 +108,7 @@ test_common_teardown (TrackerParserTestFixture *fixture,
 typedef struct TestDataExpectedNWords TestDataExpectedNWords;
 struct TestDataExpectedNWords {
 	const gchar *str;
-	gboolean     skip_numbers;
+	gboolean     ignore_numbers;
 	guint        expected_nwords;
 };
 
@@ -129,9 +131,9 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	                      testdata->str,
 	                      strlen (testdata->str),
 	                      fixture->enable_stemmer,
-	                      fixture->enable_stop_words,
-	                      fixture->skip_reserved_words,
-	                      testdata->skip_numbers);
+	                      fixture->ignore_stop_words,
+	                      fixture->ignore_reserved_words,
+	                      testdata->ignore_numbers);
 
 	/* Count number of output words */
 	while ((word = tracker_parser_next (fixture->parser,
@@ -154,6 +156,7 @@ typedef struct TestDataExpectedWord TestDataExpectedWord;
 struct TestDataExpectedWord {
 	const gchar  *str;
 	const gchar  *expected;
+	gboolean      enable_stemmer;
 };
 
 /* Common expected_word test method */
@@ -173,10 +176,10 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	tracker_parser_reset (fixture->parser,
 	                      testdata->str,
 	                      strlen (testdata->str),
-	                      FALSE, /* no stemming for this test */
-	                      fixture->enable_stop_words,
-	                      fixture->skip_reserved_words,
-	                      fixture->skip_numbers);
+	                      testdata->enable_stemmer,
+	                      fixture->ignore_stop_words,
+	                      fixture->ignore_reserved_words,
+	                      fixture->ignore_numbers);
 
 	/* Process next word */
 	word = tracker_parser_next (fixture->parser,
@@ -195,48 +198,55 @@ expected_word_check (TrackerParserTestFixture *fixture,
 #ifdef HAVE_UNAC
 /* Normalization-related tests (unaccenting) */
 static const TestDataExpectedWord test_data_normalization[] = {
-	{ "école",                "ecole" },
-	{ "ÉCOLE",                "ecole" },
-	{ "École",                "ecole" },
+	{ "école",                "ecole", FALSE },
+	{ "ÉCOLE",                "ecole", FALSE },
+	{ "École",                "ecole", FALSE },
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
-	{ "e" "\xCC\x81" "cole",  "ecole" },
-	{ "E" "\xCC\x81" "COLE",  "ecole" },
-	{ "E" "\xCC\x81" "cole",  "ecole" },
+	{ "e" "\xCC\x81" "cole",  "ecole", FALSE },
+	{ "E" "\xCC\x81" "COLE",  "ecole", FALSE },
+	{ "E" "\xCC\x81" "cole",  "ecole", FALSE },
 #endif
-	{ NULL,                   NULL    }
+	{ NULL,                   NULL,    FALSE }
 };
 
 /* Unaccenting-related tests */
 static const TestDataExpectedWord test_data_unaccent[] = {
-	{ "Murciélago", "murcielago" },
-	{ "camión",     "camion"     },
-	{ "desagüe",    "desague"    },
-	{ NULL,         NULL         }
+	{ "Murciélago", "murcielago", FALSE },
+	{ "camión",     "camion",     FALSE },
+	{ "desagüe",    "desague",    FALSE },
+	{ NULL,         NULL,         FALSE }
 };
 #else
 /* Normalization-related tests (not unaccenting) */
 static const TestDataExpectedWord test_data_normalization[] = {
-	{ "école",                "école" },
-	{ "ÉCOLE",                "école" },
-	{ "École",                "école" },
+	{ "école",                "école", FALSE },
+	{ "ÉCOLE",                "école", FALSE },
+	{ "École",                "école", FALSE },
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
-	{ "e" "\xCC\x81" "cole",  "école" },
-	{ "E" "\xCC\x81" "COLE",  "école" },
-	{ "E" "\xCC\x81" "cole",  "école" },
+	{ "e" "\xCC\x81" "cole",  "école", FALSE },
+	{ "E" "\xCC\x81" "COLE",  "école", FALSE },
+	{ "E" "\xCC\x81" "cole",  "école", FALSE },
 #endif
-	{ NULL,                   NULL    }
+	{ NULL,                   NULL,    FALSE }
 };
 #endif
 
+/* Stemming-related tests */
+static const TestDataExpectedWord test_data_stemming[] = {
+	{ "ecole", "ecol",  TRUE  },
+	{ "ecole", "ecole", FALSE },
+	{ NULL,    NULL,    FALSE }
+};
+
 /* Casefolding-related tests */
 static const TestDataExpectedWord test_data_casefolding[] = {
-	{ "gross", "gross" },
-	{ "GROSS", "gross" },
-	{ "GrOsS", "gross" },
+	{ "gross", "gross", FALSE },
+	{ "GROSS", "gross", FALSE },
+	{ "GrOsS", "gross", FALSE },
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't do full-word casefolding */
-	{ "groß",  "gross" },
+	{ "groß",  "gross", FALSE },
 #endif
-	{ NULL,    NULL    }
+	{ NULL,    NULL,    FALSE }
 };
 
 /* Number of expected words tests */
@@ -306,6 +316,20 @@ main (int argc, char **argv)
 		g_test_add (testpath,
 		            TrackerParserTestFixture,
 		            &test_data_casefolding[i],
+		            test_common_setup,
+		            expected_word_check,
+		            test_common_teardown);
+		g_free (testpath);
+	}
+
+	/* Add stemming checks */
+	for (i = 0; test_data_stemming[i].str != NULL; i++) {
+		gchar *testpath;
+
+		testpath = g_strdup_printf ("/libtracker-fts/parser/stemming_%d", i);
+		g_test_add (testpath,
+		            TrackerParserTestFixture,
+		            &test_data_stemming[i],
 		            test_common_setup,
 		            expected_word_check,
 		            test_common_teardown);

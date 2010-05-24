@@ -2330,6 +2330,7 @@ struct fulltext_vtab {
   const char *zName;		   /* virtual table name */
   int nColumn;			   /* number of columns in virtual table */
   TrackerParser *parser;	   /* tokenizer for inserts and queries */
+  gboolean enable_stemmer;
   gboolean ignore_numbers;
   gboolean ignore_stop_words;
   int max_words;
@@ -3370,6 +3371,7 @@ static int constructVtab(
 
   min_len = tracker_fts_config_get_min_word_length (config);
   max_len = tracker_fts_config_get_max_word_length (config);
+  v->enable_stemmer = tracker_fts_config_get_enable_stemmer (config);
   v->ignore_numbers = tracker_fts_config_get_ignore_numbers (config);
 
   /* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests
@@ -3673,7 +3675,7 @@ static void snippetOffsetsOfColumn(
   tracker_parser_reset (pVtab->parser,
                         zDoc,
                         nDoc,
-                        TRUE,
+                        pVtab->enable_stemmer,
                         pVtab->ignore_stop_words,
                         TRUE,
                         pVtab->ignore_numbers);
@@ -4376,7 +4378,7 @@ static int tokenizeSegment(
   tracker_parser_reset (parser,
                         pSegment,
                         nSegment,
-                        TRUE,
+                        v->enable_stemmer,
                         v->ignore_stop_words,
                         FALSE,
                         v->ignore_numbers);
@@ -4835,7 +4837,7 @@ int Catid,
   tracker_parser_reset (parser,
                         zText,
                         strlen (zText),
-                        TRUE,
+                        v->enable_stemmer,
                         v->ignore_stop_words,
                         TRUE,
                         v->ignore_numbers);
