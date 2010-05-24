@@ -86,6 +86,8 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
 
             /* remove leading non-alphanumeric chars */
             while(!txt[0].isalnum())
+                if txt[0] == '_'
+                    break
                 txt = txt.slice(1, len--)
                 if len < 3
                     return false
@@ -93,6 +95,8 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
             /* remove trailing non-alphanumeric chars */
             if(!txt[len - 1].isalnum())
                 while(!txt[len - 2].isalnum())
+                    if txt[len - 2] == '_'
+                        break
                     txt = txt.slice(0, len - 2)
                     len--
                     if len < 3
