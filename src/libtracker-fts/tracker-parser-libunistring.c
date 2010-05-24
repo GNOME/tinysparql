@@ -54,7 +54,6 @@ struct TrackerParser {
 
 	TrackerLanguage       *language;
 	gboolean               enable_stemmer;
-	guint                  max_words_to_index;
 	guint                  max_word_length;
 	gboolean               ignore_stop_words;
 	gboolean               ignore_reserved_words;
