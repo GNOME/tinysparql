@@ -54,13 +54,22 @@
 #define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE_O(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqlitePrivate))
 #define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE(o) (((TrackerDBCursorSqlite *)o)->priv)
 
+/* I have no idea what the 'exact' meaning of nOps is in this API call, but
+ * experimentally I noticed that 9 is a relatively good value. It has to do
+ * with the frequency of check_interrupt being called. Presumably the amount
+ * of SQLite 'ops', or something. The documentation of SQLite isn't very
+ * enlightening about this either. I guess the higher you can make it, the
+ * fewer overhead you induce. I fear, though, that it might depend on the
+ * speed of the platform whether or not this value is actually a good value. */
+
+#define SQLITE_PROGRESS_HANDLER_NOPS_VALUE 9
+
 typedef struct TrackerDBStatementSqlitePrivate TrackerDBStatementSqlitePrivate;
 typedef struct TrackerDBCursorSqlitePrivate TrackerDBCursorSqlitePrivate;
 typedef struct TrackerDBCursorSqlite TrackerDBCursorSqlite;
 typedef struct TrackerDBCursorSqliteClass TrackerDBCursorSqliteClass;
 typedef struct TrackerDBStatementSqlite      TrackerDBStatementSqlite;
 typedef struct TrackerDBStatementSqliteClass TrackerDBStatementSqliteClass;
-
 
 struct TrackerDBCursorSqlite {
 	GObject parent_instance;
@@ -82,6 +91,8 @@ struct TrackerDBInterfaceSqlitePrivate {
 	guint in_transaction : 1;
 	guint ro : 1;
 	guint fts_initialized : 1;
+	GStaticRecMutex interrupt_mutex;
+	gboolean interrupt;
 };
 
 struct TrackerDBStatementSqlitePrivate {
@@ -488,11 +499,28 @@ function_sparql_regex (sqlite3_context *context,
 	sqlite3_result_int (context, ret);
 }
 
+static int
+check_interrupt (void *user_data)
+{
+	TrackerDBInterfaceSqlitePrivate *priv = user_data;
+	gint ret = 0;
+
+	g_static_rec_mutex_lock (&priv->interrupt_mutex);
+	if (priv->interrupt) {
+		ret = 1;
+		priv->interrupt = FALSE;
+	}
+	g_static_rec_mutex_unlock (&priv->interrupt_mutex);
+
+	return ret;
+}
 
 static void
 open_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
 	g_assert (priv->filename != NULL);
+
+	g_static_rec_mutex_init (&priv->interrupt_mutex);
 
 	if (!priv->ro) {
 		if (sqlite3_open (priv->filename, &priv->db) != SQLITE_OK) {
@@ -507,6 +535,9 @@ open_database (TrackerDBInterfaceSqlitePrivate *priv)
 			g_message ("Opened sqlite3 database:'%s'", priv->filename);
 		}
 	}
+
+	sqlite3_progress_handler (priv->db, SQLITE_PROGRESS_HANDLER_NOPS_VALUE,
+	                          check_interrupt, priv);
 
 	sqlite3_create_function (priv->db, "SparqlRegex", 3, SQLITE_ANY,
 	                         priv, &function_sparql_regex,
@@ -627,6 +658,9 @@ close_database (GObject                         *object,
 
 	rc = sqlite3_close (priv->db);
 	g_warn_if_fail (rc == SQLITE_OK);
+
+	/* Verified that this is how you're supposed to use it (I know it looks strange) */
+	g_static_rec_mutex_free (&priv->interrupt_mutex);
 }
 
 void
@@ -651,6 +685,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	close_database (object, priv);
 
 	g_message ("Closed sqlite3 database:'%s'", priv->filename);
+
 
 	g_free (priv->filename);
 
@@ -773,6 +808,13 @@ tracker_db_interface_sqlite_create_statement (TrackerDBInterface  *db_interface,
 
 		g_debug ("Preparing query: '%s'", query);
 
+		/* This sqlite3_prepare_v2 is why priv->interrupt_mutex is a 'recursive'
+		 * lock; sqlite3_prepare_v2 will also cause calls to check_interrupt
+		 * from this thread, and otherwise we'd be locked already right here. */
+
+		g_static_rec_mutex_lock (&priv->interrupt_mutex);
+		priv->interrupt = FALSE;
+
 		retval = sqlite3_prepare_v2 (priv->db, query, -1, &sqlite_stmt, NULL);
 
 		if (retval != SQLITE_OK) {
@@ -781,8 +823,13 @@ tracker_db_interface_sqlite_create_statement (TrackerDBInterface  *db_interface,
 			             TRACKER_DB_QUERY_ERROR,
 			             "%s",
 			             sqlite3_errmsg (priv->db));
+
+			g_static_rec_mutex_unlock (&priv->interrupt_mutex);
+
 			return NULL;
 		}
+
+		g_static_rec_mutex_unlock (&priv->interrupt_mutex);
 
 		stmt = tracker_db_statement_sqlite_new (TRACKER_DB_INTERFACE_SQLITE (db_interface), sqlite_stmt);
 		g_hash_table_insert (priv->dynamic_statements, g_strdup (query), stmt);
@@ -917,7 +964,10 @@ tracker_db_interface_sqlite_interrupt (TrackerDBInterface *iface)
 	TrackerDBInterfaceSqlitePrivate *priv;
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (iface);
-	sqlite3_interrupt (priv->db);
+
+	g_static_rec_mutex_lock (&priv->interrupt_mutex);
+	priv->interrupt = TRUE;
+	g_static_rec_mutex_unlock (&priv->interrupt_mutex);
 
 	return TRUE;
 }
