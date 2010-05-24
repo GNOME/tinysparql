@@ -375,18 +375,22 @@ tracker_text_normalize (const gchar *text,
  **/
 gboolean
 tracker_text_validate_utf8 (const gchar  *text,
-                            gsize         text_len,
+                            gssize        text_len,
                             GString     **str,
                             gsize        *valid_len)
 {
+	gsize len_to_validate;
+
 	g_return_val_if_fail (text, FALSE);
 
-	if (text_len > 0) {
+	len_to_validate = text_len >= 0 ? text_len : strlen (text);
+
+	if (len_to_validate > 0) {
 		const gchar *end = text;
 
 		/* Validate string, getting the pointer to first non-valid character
 		 *  (if any) or to the end of the string. */
-		g_utf8_validate (text, text_len, &end);
+		g_utf8_validate (text, len_to_validate, &end);
 		if (end > text) {
 			/* If str output required... */
 			if (str) {

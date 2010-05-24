@@ -40,7 +40,7 @@ gchar*       tracker_text_normalize         (const gchar *text,
 #endif /* TRACKER_DISABLE_DEPRECATED */
 
 gboolean     tracker_text_validate_utf8     (const gchar  *text,
-                                             gsize         text_len,
+                                             gssize        text_len,
                                              GString     **str,
                                              gsize        *valid_len);
 gchar*       tracker_date_guess             (const gchar *date_string);
