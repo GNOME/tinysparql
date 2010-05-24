@@ -56,7 +56,6 @@ struct TrackerParser {
 	gboolean               enable_stemmer;
 	guint                  max_words_to_index;
 	guint                  max_word_length;
-	gboolean               delimit_words;
 	gboolean               ignore_stop_words;
 	gboolean               ignore_reserved_words;
 	gboolean               ignore_numbers;
@@ -278,7 +277,6 @@ void
 tracker_parser_reset (TrackerParser *parser,
                       const gchar   *txt,
                       gint           txt_size,
-                      gboolean       delimit_words,
                       gboolean       enable_stemmer,
                       gboolean       ignore_stop_words,
                       gboolean       ignore_reserved_words,
@@ -289,7 +287,6 @@ tracker_parser_reset (TrackerParser *parser,
 
 	parser->enable_stemmer = enable_stemmer;
 	parser->ignore_stop_words = ignore_stop_words;
-	parser->delimit_words = delimit_words;
 
 	parser->txt_size = txt_size;
 	parser->txt = txt;

@@ -149,7 +149,6 @@ run_parsing (void)
 	                      TRUE,
 	                      TRUE,
 	                      TRUE,
-	                      TRUE,
 	                      TRUE);
 
 

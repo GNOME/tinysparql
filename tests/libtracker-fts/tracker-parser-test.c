@@ -52,7 +52,6 @@ typedef struct {
 
 	/* Default parser configuration to use */
 	gint              max_word_length;
-	gboolean          delimit_words;
 	gboolean          enable_stemmer;
 	gboolean          enable_stop_words;
 	gboolean          skip_reserved_words;
@@ -75,7 +74,6 @@ test_common_setup (TrackerParserTestFixture *fixture,
 
 	/* Default conf parameters */
 	fixture->max_word_length = 50;
-	fixture->delimit_words = TRUE;
 	fixture->enable_stemmer = TRUE;
 	fixture->enable_stop_words = TRUE;
 	fixture->skip_reserved_words = TRUE;
@@ -130,7 +128,6 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	tracker_parser_reset (fixture->parser,
 	                      testdata->str,
 	                      strlen (testdata->str),
-	                      fixture->delimit_words,
 	                      fixture->enable_stemmer,
 	                      fixture->enable_stop_words,
 	                      fixture->skip_reserved_words,
@@ -176,7 +173,6 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	tracker_parser_reset (fixture->parser,
 	                      testdata->str,
 	                      strlen (testdata->str),
-	                      fixture->delimit_words,
 	                      FALSE, /* no stemming for this test */
 	                      fixture->enable_stop_words,
 	                      fixture->skip_reserved_words,

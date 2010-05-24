@@ -75,7 +75,6 @@ struct TrackerParser {
 	gboolean               ignore_stop_words;
 	guint                  max_words_to_index;
 	guint                  max_word_length;
-	gboolean               delimit_words;
 	gboolean               ignore_reserved_words;
 	gboolean               ignore_numbers;
 
@@ -268,10 +267,7 @@ parser_next (TrackerParser *parser,
 		c = g_utf8_get_char (p);
 		type = get_word_type (c);
 
-		if (type == TRACKER_PARSER_WORD_IGNORE ||
-		    (parser->delimit_words &&
-		     (type == TRACKER_PARSER_WORD_HYPHEN ||
-		      type == TRACKER_PARSER_WORD_UNDERSCORE))) {
+		if (type == TRACKER_PARSER_WORD_IGNORE) {
 			if (!start) {
 				continue;
 			} else {
@@ -460,7 +456,6 @@ void
 tracker_parser_reset (TrackerParser *parser,
                       const gchar   *txt,
                       gint           txt_size,
-                      gboolean       delimit_words,
                       gboolean       enable_stemmer,
                       gboolean       ignore_stop_words,
                       gboolean       ignore_reserved_words,
@@ -477,7 +472,6 @@ tracker_parser_reset (TrackerParser *parser,
 
 	parser->enable_stemmer = enable_stemmer;
 	parser->ignore_stop_words = ignore_stop_words;
-	parser->delimit_words = delimit_words;
 
 	parser->txt_size = txt_size;
 	parser->txt = txt;
