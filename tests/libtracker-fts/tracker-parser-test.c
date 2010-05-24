@@ -53,6 +53,7 @@ typedef struct {
 	/* Default parser configuration to use */
 	gint              max_word_length;
 	gboolean          enable_stemmer;
+	gboolean          enable_unaccent;
 	gboolean          ignore_stop_words;
 	gboolean          ignore_reserved_words;
 	gboolean          ignore_numbers;
@@ -77,6 +78,7 @@ test_common_setup (TrackerParserTestFixture *fixture,
 	/* Default conf parameters */
 	fixture->max_word_length = 50;
 	fixture->enable_stemmer = TRUE;
+	fixture->enable_unaccent = TRUE;
 	fixture->ignore_stop_words = TRUE;
 	fixture->ignore_reserved_words = TRUE;
 	fixture->ignore_numbers = TRUE;
@@ -131,6 +133,7 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	                      testdata->str,
 	                      strlen (testdata->str),
 	                      fixture->enable_stemmer,
+	                      fixture->enable_unaccent,
 	                      fixture->ignore_stop_words,
 	                      fixture->ignore_reserved_words,
 	                      testdata->ignore_numbers);
@@ -157,6 +160,7 @@ struct TestDataExpectedWord {
 	const gchar  *str;
 	const gchar  *expected;
 	gboolean      enable_stemmer;
+	gboolean      enable_unaccent;
 };
 
 /* Common expected_word test method */
@@ -177,6 +181,7 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	                      testdata->str,
 	                      strlen (testdata->str),
 	                      testdata->enable_stemmer,
+	                      testdata->enable_unaccent,
 	                      fixture->ignore_stop_words,
 	                      fixture->ignore_reserved_words,
 	                      fixture->ignore_numbers);
@@ -198,38 +203,49 @@ expected_word_check (TrackerParserTestFixture *fixture,
 #ifdef HAVE_UNAC
 /* Normalization-related tests (unaccenting) */
 static const TestDataExpectedWord test_data_normalization[] = {
-	{ "école",                "ecole", FALSE },
-	{ "ÉCOLE",                "ecole", FALSE },
-	{ "École",                "ecole", FALSE },
+	{ "école",                "ecole", FALSE, TRUE  },
+	{ "ÉCOLE",                "ecole", FALSE, TRUE  },
+	{ "École",                "ecole", FALSE, TRUE  },
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
-	{ "e" "\xCC\x81" "cole",  "ecole", FALSE },
-	{ "E" "\xCC\x81" "COLE",  "ecole", FALSE },
-	{ "E" "\xCC\x81" "cole",  "ecole", FALSE },
+	{ "e" "\xCC\x81" "cole",  "ecole", FALSE, TRUE  },
+	{ "E" "\xCC\x81" "COLE",  "ecole", FALSE, TRUE  },
+	{ "E" "\xCC\x81" "cole",  "ecole", FALSE, TRUE  },
 #endif
-	{ NULL,                   NULL,    FALSE }
+	{ NULL,                   NULL,    FALSE, FALSE }
 };
 
 /* Unaccenting-related tests */
 static const TestDataExpectedWord test_data_unaccent[] = {
-	{ "Murciélago", "murcielago", FALSE },
-	{ "camión",     "camion",     FALSE },
-	{ "desagüe",    "desague",    FALSE },
-	{ NULL,         NULL,         FALSE }
+	{ "Murciélago", "murcielago", FALSE, TRUE  },
+	{ "camión",     "camion",     FALSE, TRUE  },
+	{ "desagüe",    "desague",    FALSE, TRUE  },
+	{ "Murciélago", "murciélago", FALSE, FALSE },
+	{ "camión",     "camión",     FALSE, FALSE },
+	{ "desagüe",    "desagüe",    FALSE, FALSE },
+	{ NULL,         NULL,         FALSE, FALSE }
 };
 #else
 /* Normalization-related tests (not unaccenting) */
 static const TestDataExpectedWord test_data_normalization[] = {
-	{ "école",                "école", FALSE },
-	{ "ÉCOLE",                "école", FALSE },
-	{ "École",                "école", FALSE },
+	{ "école",                "école", FALSE, FALSE },
+	{ "ÉCOLE",                "école", FALSE, FALSE },
+	{ "École",                "école", FALSE, FALSE },
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
-	{ "e" "\xCC\x81" "cole",  "école", FALSE },
-	{ "E" "\xCC\x81" "COLE",  "école", FALSE },
-	{ "E" "\xCC\x81" "cole",  "école", FALSE },
+	{ "e" "\xCC\x81" "cole",  "école", FALSE, FALSE },
+	{ "E" "\xCC\x81" "COLE",  "école", FALSE, FALSE },
+	{ "E" "\xCC\x81" "cole",  "école", FALSE, FALSE },
 #endif
-	{ NULL,                   NULL,    FALSE }
+	{ "école",                "école", FALSE, TRUE  },
+	{ "ÉCOLE",                "école", FALSE, TRUE  },
+	{ "École",                "école", FALSE, TRUE  },
+#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
+	{ "e" "\xCC\x81" "cole",  "école", FALSE, TRUE  },
+	{ "E" "\xCC\x81" "COLE",  "école", FALSE, TRUE  },
+	{ "E" "\xCC\x81" "cole",  "école", FALSE, TRUE  },
+#endif
+	{ NULL,                   NULL,    FALSE, FALSE }
 };
-#endif
+#endif /* !HAVE_UNAC */
 
 /* Stemming-related tests */
 static const TestDataExpectedWord test_data_stemming[] = {

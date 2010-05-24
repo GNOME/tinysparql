@@ -51,6 +51,7 @@ gboolean          tracker_fts_config_save                   (TrackerFTSConfig *c
 gint              tracker_fts_config_get_min_word_length    (TrackerFTSConfig *config);
 gint              tracker_fts_config_get_max_word_length    (TrackerFTSConfig *config);
 gboolean          tracker_fts_config_get_enable_stemmer     (TrackerFTSConfig *config);
+gboolean          tracker_fts_config_get_enable_unaccent    (TrackerFTSConfig *config);
 gboolean          tracker_fts_config_get_ignore_numbers     (TrackerFTSConfig *config);
 gboolean          tracker_fts_config_get_ignore_stop_words  (TrackerFTSConfig *config);
 gint              tracker_fts_config_get_max_words_to_index (TrackerFTSConfig *config);
@@ -59,6 +60,8 @@ void              tracker_fts_config_set_min_word_length    (TrackerFTSConfig *c
 void              tracker_fts_config_set_max_word_length    (TrackerFTSConfig *config,
                                                              gint              value);
 void              tracker_fts_config_set_enable_stemmer     (TrackerFTSConfig *config,
+                                                             gboolean          value);
+void              tracker_fts_config_set_enable_unaccent    (TrackerFTSConfig *config,
                                                              gboolean          value);
 void              tracker_fts_config_set_ignore_numbers     (TrackerFTSConfig *config,
                                                              gboolean          value);

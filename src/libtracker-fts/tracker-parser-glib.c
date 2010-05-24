@@ -72,6 +72,7 @@ struct TrackerParser {
 
 	TrackerLanguage       *language;
 	gboolean               enable_stemmer;
+	gboolean               enable_unaccent;
 	gboolean               ignore_stop_words;
 	guint                  max_word_length;
 	gboolean               ignore_reserved_words;
@@ -456,6 +457,7 @@ tracker_parser_reset (TrackerParser *parser,
                       const gchar   *txt,
                       gint           txt_size,
                       gboolean       enable_stemmer,
+                      gboolean       enable_unaccent,
                       gboolean       ignore_stop_words,
                       gboolean       ignore_reserved_words,
                       gboolean       ignore_numbers)
@@ -470,6 +472,7 @@ tracker_parser_reset (TrackerParser *parser,
 	parser->encoding = get_encoding (txt);
 
 	parser->enable_stemmer = enable_stemmer;
+	parser->enable_unaccent = enable_unaccent;
 	parser->ignore_stop_words = ignore_stop_words;
 
 	parser->txt_size = txt_size;
@@ -533,7 +536,7 @@ tracker_parser_process_word (TrackerParser *parser,
 		tracker_parser_message_hex ("ORIGINAL word",
 		                            word, bytes);
 
-		if (do_strip) {
+		if (parser->enable_unaccent && do_strip) {
 			stripped_word = tracker_parser_unaccent_utf8_word (word,
 			                                                   bytes,
 			                                                   &len);

@@ -29,10 +29,6 @@
 #include <libtracker-fts/tracker-fts-config.h>
 #include <libtracker-common/tracker-common.h>
 
-
-#define DEFAULT_MAX_WORD_LENGTH 30
-
-static gint      max_word_length = DEFAULT_MAX_WORD_LENGTH;
 static gchar    *text;
 static gchar    *filename;
 static gboolean  verbose;
@@ -43,12 +39,6 @@ static const GOptionEntry options [] = {
 		"verbose", 'v', G_OPTION_FLAG_NO_ARG,
 		G_OPTION_ARG_NONE, &verbose,
 		"Enable verbose output",
-		NULL
-	},
-	{
-		"max-word-length", 'm', 0,
-		G_OPTION_ARG_INT, &max_word_length,
-		"Maximum word length to consider",
 		NULL
 	},
 	{
@@ -119,12 +109,16 @@ load_file_contents (void)
 static gboolean
 run_parsing (void)
 {
+	TrackerFTSConfig *config;
 	TrackerLanguage *language;
-	TrackerParser   *parser;
-	GTimer          *timer;
+	TrackerParser *parser;
+	GTimer *timer;
 
 	/* Initialize timing */
 	timer = g_timer_new ();
+
+	/* Read config file */
+	config = tracker_fts_config_new ();
 
 	/* Setup language for parser */
 	language = tracker_language_new (NULL);
@@ -135,22 +129,22 @@ run_parsing (void)
 
 	/* Create the parser */
 	parser = tracker_parser_new (language,
-	                             max_word_length);
+	                             tracker_fts_config_get_max_word_length (config));
 	if (!parser) {
 		g_printerr ("Parser creation failed!\n");
 		g_object_unref (language);
 		return FALSE;
 	}
 
-	/* Reset the parser with our string */
+	/* Reset the parser with our string, reading the current FTS config */
 	tracker_parser_reset (parser,
 	                      text,
 	                      strlen (text),
+	                      tracker_fts_config_get_enable_stemmer (config),
+	                      tracker_fts_config_get_enable_unaccent (config),
+	                      tracker_fts_config_get_ignore_stop_words (config),
 	                      TRUE,
-	                      TRUE,
-	                      TRUE,
-	                      TRUE);
-
+	                      tracker_fts_config_get_ignore_numbers (config));
 
 	/* Loop through all words! */
 	while (1) {

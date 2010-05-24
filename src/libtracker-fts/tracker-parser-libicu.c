@@ -55,6 +55,7 @@ struct TrackerParser {
 
 	TrackerLanguage       *language;
 	gboolean               enable_stemmer;
+	gboolean               enable_unaccent;
 	guint                  max_word_length;
 	gboolean               ignore_stop_words;
 	gboolean               ignore_reserved_words;
@@ -318,6 +319,7 @@ tracker_parser_reset (TrackerParser *parser,
                       const gchar   *txt,
                       gint           txt_size,
                       gboolean       enable_stemmer,
+                      gboolean       enable_unaccent,
                       gboolean       ignore_stop_words,
                       gboolean       ignore_reserved_words,
                       gboolean       ignore_numbers)
@@ -331,6 +333,7 @@ tracker_parser_reset (TrackerParser *parser,
 	g_return_if_fail (txt != NULL);
 
 	parser->enable_stemmer = enable_stemmer;
+	parser->enable_unaccent = enable_unaccent;
 	parser->ignore_stop_words = ignore_stop_words;
 
 	parser->txt_size = txt_size;
@@ -486,7 +489,7 @@ process_word_uchar (TrackerParser         *parser,
 	}
 
 	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
-	if (type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC) {
+	if (parser->enable_unaccent && type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC) {
 		gsize stripped_word_length;
 
 		/* Get unaccented string in UTF-8 */

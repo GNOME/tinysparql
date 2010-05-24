@@ -2331,6 +2331,7 @@ struct fulltext_vtab {
   int nColumn;			   /* number of columns in virtual table */
   TrackerParser *parser;	   /* tokenizer for inserts and queries */
   gboolean enable_stemmer;
+  gboolean enable_unaccent;
   gboolean ignore_numbers;
   gboolean ignore_stop_words;
   int max_words;
@@ -3372,6 +3373,7 @@ static int constructVtab(
   min_len = tracker_fts_config_get_min_word_length (config);
   max_len = tracker_fts_config_get_max_word_length (config);
   v->enable_stemmer = tracker_fts_config_get_enable_stemmer (config);
+  v->enable_unaccent = tracker_fts_config_get_enable_unaccent (config);
   v->ignore_numbers = tracker_fts_config_get_ignore_numbers (config);
 
   /* disable stop words if TRACKER_FTS_STOP_WORDS is set to 0 - used by tests
@@ -3396,6 +3398,9 @@ static int constructVtab(
   g_static_private_set (&tracker_fts_vtab_key, v, NULL);
   g_object_set_qdata_full (object, quark_fulltext_vtab, v,
                            (GDestroyNotify) fulltext_vtab_destroy);
+
+  /* Config no longer needed */
+  g_object_unref (config);
 
   return SQLITE_OK;
 }
@@ -3676,6 +3681,7 @@ static void snippetOffsetsOfColumn(
                         zDoc,
                         nDoc,
                         pVtab->enable_stemmer,
+                        pVtab->enable_unaccent,
                         pVtab->ignore_stop_words,
                         TRUE,
                         pVtab->ignore_numbers);
@@ -4379,6 +4385,7 @@ static int tokenizeSegment(
                         pSegment,
                         nSegment,
                         v->enable_stemmer,
+                        v->enable_unaccent,
                         v->ignore_stop_words,
                         FALSE,
                         v->ignore_numbers);
@@ -4838,6 +4845,7 @@ int Catid,
                         zText,
                         strlen (zText),
                         v->enable_stemmer,
+                        v->enable_unaccent,
                         v->ignore_stop_words,
                         TRUE,
                         v->ignore_numbers);
