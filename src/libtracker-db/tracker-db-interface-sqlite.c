@@ -91,8 +91,7 @@ struct TrackerDBInterfaceSqlitePrivate {
 	guint in_transaction : 1;
 	guint ro : 1;
 	guint fts_initialized : 1;
-	GStaticRecMutex interrupt_mutex;
-	gboolean interrupt;
+	gint interrupt;
 };
 
 struct TrackerDBStatementSqlitePrivate {
@@ -503,24 +502,13 @@ static int
 check_interrupt (void *user_data)
 {
 	TrackerDBInterfaceSqlitePrivate *priv = user_data;
-	gint ret = 0;
-
-	g_static_rec_mutex_lock (&priv->interrupt_mutex);
-	if (priv->interrupt) {
-		ret = 1;
-		priv->interrupt = FALSE;
-	}
-	g_static_rec_mutex_unlock (&priv->interrupt_mutex);
-
-	return ret;
+	return g_atomic_int_compare_and_exchange (&priv->interrupt, 1, 0);
 }
 
 static void
 open_database (TrackerDBInterfaceSqlitePrivate *priv)
 {
 	g_assert (priv->filename != NULL);
-
-	g_static_rec_mutex_init (&priv->interrupt_mutex);
 
 	if (!priv->ro) {
 		if (sqlite3_open (priv->filename, &priv->db) != SQLITE_OK) {
@@ -658,9 +646,6 @@ close_database (GObject                         *object,
 
 	rc = sqlite3_close (priv->db);
 	g_warn_if_fail (rc == SQLITE_OK);
-
-	/* Verified that this is how you're supposed to use it (I know it looks strange) */
-	g_static_rec_mutex_free (&priv->interrupt_mutex);
 }
 
 void
@@ -808,28 +793,25 @@ tracker_db_interface_sqlite_create_statement (TrackerDBInterface  *db_interface,
 
 		g_debug ("Preparing query: '%s'", query);
 
-		/* This sqlite3_prepare_v2 is why priv->interrupt_mutex is a 'recursive'
-		 * lock; sqlite3_prepare_v2 will also cause calls to check_interrupt
-		 * from this thread, and otherwise we'd be locked already right here. */
-
-		g_static_rec_mutex_lock (&priv->interrupt_mutex);
-		priv->interrupt = FALSE;
-
 		retval = sqlite3_prepare_v2 (priv->db, query, -1, &sqlite_stmt, NULL);
 
 		if (retval != SQLITE_OK) {
-			g_set_error (error,
-			             TRACKER_DB_INTERFACE_ERROR,
-			             TRACKER_DB_QUERY_ERROR,
-			             "%s",
-			             sqlite3_errmsg (priv->db));
 
-			g_static_rec_mutex_unlock (&priv->interrupt_mutex);
+			if (retval == SQLITE_INTERRUPT) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_INTERRUPTED,
+				             "Interrupted");
+			} else {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "%s",
+				             sqlite3_errmsg (priv->db));
+			}
 
 			return NULL;
 		}
-
-		g_static_rec_mutex_unlock (&priv->interrupt_mutex);
 
 		stmt = tracker_db_statement_sqlite_new (TRACKER_DB_INTERFACE_SQLITE (db_interface), sqlite_stmt);
 		g_hash_table_insert (priv->dynamic_statements, g_strdup (query), stmt);
@@ -965,9 +947,7 @@ tracker_db_interface_sqlite_interrupt (TrackerDBInterface *iface)
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (iface);
 
-	g_static_rec_mutex_lock (&priv->interrupt_mutex);
-	priv->interrupt = TRUE;
-	g_static_rec_mutex_unlock (&priv->interrupt_mutex);
+	g_atomic_int_set (&priv->interrupt, 1);
 
 	return TRUE;
 }
