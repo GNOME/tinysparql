@@ -41,6 +41,7 @@ ONTOLOGY_EXPLANATIONS = 						\
 # The XMLs to generate from the Ontology info
 ONTOLOGY_INFOS_XML =							\
 	fts-properties.xml						\
+	dc-ontology.xml							\
 	nie-ontology.xml						\
 	nco-ontology.xml						\
 	nmo-ontology.xml						\
