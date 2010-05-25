@@ -1325,13 +1325,35 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 		g_value_unset (&gvalue);
 	} else if (!multiple_values && old_values->n_values > 1) {
 		/* trying to add second value to single valued property */
+		GValue old_value = { 0 };
+		GValue new_value = { 0 };
+		const gchar *old_value_str = NULL;
+		const gchar *new_value_str = NULL;
 
-		g_value_unset (&gvalue);
+		g_value_init (&old_value, G_TYPE_STRING);
+		g_value_init (&new_value, G_TYPE_STRING);
+
+		/* Get both old and new values as strings letting glib do
+		 * whatever transformation needed */
+		if (g_value_transform (g_value_array_get_nth (old_values, 0), &old_value)) {
+			old_value_str = g_value_get_string (&old_value);
+		}
+		if (g_value_transform (g_value_array_get_nth (old_values, 1), &new_value)) {
+			new_value_str = g_value_get_string (&new_value);
+		}
 
 		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_CONSTRAINT,
-		             "Unable to insert multiple values for subject `%s' and single valued property `%s'",
+		             "Unable to insert multiple values for subject `%s' and single valued property `%s' "
+		             "(old_value: '%s', new value: '%s')",
 		             resource_buffer->subject,
-		             field_name);
+		             field_name,
+		             old_value_str ? old_value_str : "<untransformable>",
+		             new_value_str ? new_value_str : "<untransformable>");
+
+		g_value_unset (&old_value);
+		g_value_unset (&new_value);
+		g_value_unset (&gvalue);
+
 	} else {
 		cache_insert_value (table_name, field_name, &gvalue,
 		                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
@@ -2360,7 +2382,7 @@ free_queued_statement (QueuedStatement *queued)
 }
 
 static GList*
-queue_statement (GList *queue, 
+queue_statement (GList *queue,
                  const gchar *graph,
                  const gchar *subject,
                  const gchar *predicate,
@@ -2404,10 +2426,10 @@ ontology_transaction_end (GList *ontology_queue,
 
 		/* store ontology in database */
 		tracker_data_ontology_process_statement (queued->graph,
-		                                         queued->subject, 
-		                                         queued->predicate, 
-		                                         queued->object, 
-		                                         queued->is_uri, 
+		                                         queued->subject,
+		                                         queued->predicate,
+		                                         queued->object,
+		                                         queued->is_uri,
 		                                         TRUE, TRUE);
 
 	}
