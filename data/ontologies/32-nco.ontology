@@ -826,3 +826,10 @@ nco:hasIMAddress a rdf:Property ;
 	rdfs:subPropertyOf nco:hasContactMedium ;
 	rdfs:domain nco:Role ;
 	rdfs:range nco:IMAddress .
+
+# Proposal for Nepomuk
+nco:video a rdf:Property ;
+        rdfs:label "Contact video";
+        rdfs:comment "Video avatar of a contact. Note that is an icon/avatar, not a generic 'present in video' property";
+        rdfs:domain nco:Role ;
+        rdfs:range nie:DataObject.
