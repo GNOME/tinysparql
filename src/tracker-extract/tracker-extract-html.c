@@ -40,6 +40,7 @@ typedef struct {
 	tag_type current;
 	const gchar *uri;
 	guint in_body : 1;
+	GString *title;
 	GString *plain_text;
 	guint n_bytes_remaining;
 } parser_data;
@@ -206,8 +207,7 @@ parser_characters (void          *data,
 
 	switch (pd->current) {
 	case READ_TITLE:
-		tracker_sparql_builder_predicate (pd->metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (pd->metadata, ch);
+		g_string_append (pd->title, ch);
 		break;
 	case READ_IGNORE:
 		break;
@@ -292,6 +292,7 @@ extract_html (const gchar          *uri,
 	pd.in_body = FALSE;
 	pd.uri = uri;
 	pd.plain_text = g_string_new (NULL);
+	pd.title = g_string_new (NULL);
 
 	config = tracker_main_get_config ();
 	pd.n_bytes_remaining = tracker_config_get_max_bytes (config);
@@ -305,13 +306,22 @@ extract_html (const gchar          *uri,
 	}
 
 	g_strstrip (pd.plain_text->str);
+	g_strstrip (pd.title->str);
 
-	if (pd.plain_text->str != '\0') {
+	if (pd.title->str &&
+	    *pd.title->str != '\0') {
+		tracker_sparql_builder_predicate (metadata, "nie:title");
+		tracker_sparql_builder_object_unvalidated (metadata, pd.title->str);
+	}
+
+	if (pd.plain_text->str &&
+	    *pd.plain_text->str != '\0') {
 		tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (metadata, pd.plain_text->str);
 	}
 
 	g_string_free (pd.plain_text, TRUE);
+	g_string_free (pd.title, TRUE);
 }
 
 TrackerExtractData *
