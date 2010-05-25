@@ -453,8 +453,8 @@ main (int argc, char **argv)
 
 	/* clean up */
 	g_print ("Removing temporary data\n");
-	g_spawn_command_line_async ("rm -R tracker/", NULL);
-	g_spawn_command_line_async ("rm -R test-cache/", NULL);
+	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
+	g_spawn_command_line_sync ("rm -R test-cache/", NULL, NULL, NULL, NULL);
 
         g_free (data_dir);
 
