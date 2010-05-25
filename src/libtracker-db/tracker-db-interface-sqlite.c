@@ -54,16 +54,6 @@
 #define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE_O(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_CURSOR_SQLITE, TrackerDBCursorSqlitePrivate))
 #define TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE(o) (((TrackerDBCursorSqlite *)o)->priv)
 
-/* I have no idea what the 'exact' meaning of nOps is in this API call, but
- * experimentally I noticed that 9 is a relatively good value. It has to do
- * with the frequency of check_interrupt being called. Presumably the amount
- * of SQLite 'ops', or something. The documentation of SQLite isn't very
- * enlightening about this either. I guess the higher you can make it, the
- * fewer overhead you induce. I fear, though, that it might depend on the
- * speed of the platform whether or not this value is actually a good value. */
-
-#define SQLITE_PROGRESS_HANDLER_NOPS_VALUE 9
-
 typedef struct TrackerDBStatementSqlitePrivate TrackerDBStatementSqlitePrivate;
 typedef struct TrackerDBCursorSqlitePrivate TrackerDBCursorSqlitePrivate;
 typedef struct TrackerDBCursorSqlite TrackerDBCursorSqlite;
@@ -524,7 +514,7 @@ open_database (TrackerDBInterfaceSqlitePrivate *priv)
 		}
 	}
 
-	sqlite3_progress_handler (priv->db, SQLITE_PROGRESS_HANDLER_NOPS_VALUE,
+	sqlite3_progress_handler (priv->db, 100,
 	                          check_interrupt, priv);
 
 	sqlite3_create_function (priv->db, "SparqlRegex", 3, SQLITE_ANY,
@@ -1217,13 +1207,21 @@ static gboolean
 tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor,
                                     GError         **error)
 {
-	TrackerDBCursorSqlitePrivate *priv;
-	priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+	TrackerDBCursorSqlitePrivate *priv = TRACKER_DB_CURSOR_SQLITE_GET_PRIVATE (cursor);
+	TrackerDBStatementSqlite *stmt = priv->ref_stmt;
+	TrackerDBStatementSqlitePrivate *stmt_priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
+	TrackerDBInterfaceSqlite *iface = stmt_priv->db_interface;
+	TrackerDBInterfaceSqlitePrivate *iface_priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (iface);
 
 	if (!priv->finished) {
 		guint result;
 
-		result = sqlite3_step (priv->stmt);
+		if (g_atomic_int_compare_and_exchange (&iface_priv->interrupt, 1, 0)) {
+			result = SQLITE_INTERRUPT;
+			sqlite3_reset (priv->stmt);
+		} else {
+			result = sqlite3_step (priv->stmt);
+		}
 
 		if (result == SQLITE_INTERRUPT) {
 			g_set_error (error,
@@ -1231,10 +1229,6 @@ tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor,
 			             TRACKER_DB_INTERRUPTED,
 			             "Interrupted");
 		} else if (result != SQLITE_ROW && result != SQLITE_DONE) {
-			TrackerDBStatementSqlite *stmt = priv->ref_stmt;
-			TrackerDBStatementSqlitePrivate *stmt_priv = TRACKER_DB_STATEMENT_SQLITE_GET_PRIVATE (stmt);
-			TrackerDBInterfaceSqlite *iface = stmt_priv->db_interface;
-			TrackerDBInterfaceSqlitePrivate *iface_priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (iface);
 
 			g_set_error (error,
 			             TRACKER_DB_INTERFACE_ERROR,
