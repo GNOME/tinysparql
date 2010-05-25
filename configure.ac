@@ -187,11 +187,6 @@ PKG_CHECK_MODULES(GIO, [gio-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GIO_CFLAGS)
 AC_SUBST(GIO_LIBS)
 
-# Check for Pango
-PKG_CHECK_MODULES(PANGO, [pango >= $PANGO_REQUIRED])
-AC_SUBST(PANGO_CFLAGS)
-AC_SUBST(PANGO_LIBS)
-
 # Check for dbus and dbus-glib or higher
 PKG_CHECK_MODULES(DBUS, [dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_GLIB_REQUIRED])
 AC_SUBST(DBUS_CFLAGS)
@@ -617,14 +612,14 @@ elif test "x$enable_video_extractor" = "xgstreamer"; then
       have_video_handler_app="GStreamer"
       have_video_handler="yes"
    else
-      AC_MSG_ERROR([***Gstreamer requested but not found - exiting!])
+      AC_MSG_ERROR([Couldn't find Gstreamer])
    fi
 elif test "x$enable_video_extractor" = "xxine"; then
    if test "$have_libxine" = "yes"; then
       have_video_handler_app="Xine"
       have_video_handler="yes"
    else
-      AC_MSG_ERROR([***libxine requested but not found - exiting!])
+      AC_MSG_ERROR([Couldn't find libxine])
    fi
 else
    have_video_handler="?"
@@ -883,6 +878,12 @@ AC_CHECK_HEADER(unicode/ubrk.h,
 LIBICU_CFLAGS=""
 LIBICU_LIBS="-licuuc"
 
+# Check for Pango...
+PKG_CHECK_MODULES(PANGO,
+                  [pango >= $PANGO_REQUIRED],
+                  [have_pango=yes],
+                  [have_pango=no])
+
 # Configure option
 AC_ARG_WITH([unicode-support],
             AS_HELP_STRING([--with-unicode-support],
@@ -897,7 +898,11 @@ if test "x$with_unicode_support" = "xauto"; then
       if test "x$have_libicu" = "xyes"; then
          with_unicode_support=libicu
       else
-         with_unicode_support=glib
+         if test "x$have_pango" = "xyes"; then
+            with_unicode_support=glib
+         else
+            AC_MSG_ERROR([Couldn't find a supporting unicode library (libunistring/libicu/libpango)])
+         fi
       fi
    fi
 fi
@@ -910,7 +915,7 @@ case "x$with_unicode_support" in
         if test "x$have_libunistring" = "xyes"; then
            AC_DEFINE(HAVE_LIBUNISTRING, [1], [libunistring Unicode support library])
         else
-           AC_MSG_ERROR([***libunistring requested but not found - exiting!])
+           AC_MSG_ERROR([Couldn't find libunistring])
         fi
      ;;
      # Use libicu
@@ -920,13 +925,19 @@ case "x$with_unicode_support" in
         if test "x$have_libicu" = "xyes"; then
           AC_DEFINE(HAVE_LIBICU, [1], [libicu Unicode support library])
         else
-          AC_MSG_ERROR([***libicu requested but not found - exiting!])
+          AC_MSG_ERROR([Couldn't find libicu])
         fi
      ;;
-     # Use glib
-     "xglib") ;;
+     # Use glib/pango
+     "xglib")
+        AC_SUBST(PANGO_CFLAGS)
+        AC_SUBST(PANGO_LIBS)
+        if test "x$have_pango" != "xyes"; then
+          AC_MSG_ERROR([Couldn't find pango])
+        fi
+     ;;
      # Invalid option value
-     *) AC_MSG_ERROR([***wrong value for --with-unicode-support: $with_unicode_support - exiting!]) ;;
+     *) AC_MSG_ERROR([Wrong value for --with-unicode-support: $with_unicode_support]) ;;
 esac
 
 AM_CONDITIONAL(BUILD_LIBUNISTRING_PARSER, test "x$with_unicode_support" = "xlibunistring")
