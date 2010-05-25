@@ -326,6 +326,21 @@ tracker_db_interface_interrupt (TrackerDBInterface *interface)
 	return TRACKER_DB_INTERFACE_GET_IFACE (interface)->interrupt (interface);
 }
 
+void
+tracker_db_interface_reset_interrupt (TrackerDBInterface *interface)
+{
+	g_return_if_fail (TRACKER_IS_DB_INTERFACE (interface));
+
+	if (!TRACKER_DB_INTERFACE_GET_IFACE (interface)->reset_interrupt) {
+		g_critical ("Database abstraction %s doesn't implement "
+		            "the method reset_interrupt()",
+		            G_OBJECT_TYPE_NAME (interface));
+		return;
+	}
+
+	TRACKER_DB_INTERFACE_GET_IFACE (interface)->reset_interrupt (interface);
+}
+
 gboolean
 tracker_db_interface_start_transaction (TrackerDBInterface *interface)
 {

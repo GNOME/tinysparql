@@ -2626,7 +2626,7 @@ tracker_data_manager_get_db_option_int64 (const gchar *option)
 	if (error) {
 		g_warning ("%s", error->message);
 		g_error_free (error);
-		return;
+		return -1;
 	}
 
 	return value;
@@ -2669,4 +2669,10 @@ gboolean
 tracker_data_manager_interrupt_thread (GThread *thread)
 {
 	return tracker_db_manager_interrupt_thread (thread);
+}
+
+void
+tracker_data_manager_interrupt_thread_reset (GThread *thread)
+{
+	tracker_db_manager_interrupt_thread_reset (thread);
 }

@@ -91,7 +91,7 @@ struct TrackerDBInterfaceSqlitePrivate {
 	guint in_transaction : 1;
 	guint ro : 1;
 	guint fts_initialized : 1;
-	gint interrupt;
+	volatile gint interrupt;
 };
 
 struct TrackerDBStatementSqlitePrivate {
@@ -953,11 +953,20 @@ tracker_db_interface_sqlite_interrupt (TrackerDBInterface *iface)
 }
 
 static void
+tracker_db_interface_sqlite_reset_interrupt (TrackerDBInterface *iface)
+{
+	TrackerDBInterfaceSqlitePrivate *priv;
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (iface);
+	priv->interrupt = 0;
+}
+
+static void
 tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface)
 {
 	iface->create_statement = tracker_db_interface_sqlite_create_statement;
 	iface->execute_query = tracker_db_interface_sqlite_execute_query;
 	iface->interrupt = tracker_db_interface_sqlite_interrupt;
+	iface->reset_interrupt = tracker_db_interface_sqlite_reset_interrupt;
 }
 
 TrackerDBInterface *

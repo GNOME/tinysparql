@@ -47,25 +47,26 @@ typedef enum {
 	TRACKER_DB_MANAGER_READONLY         = 1 << 5
 } TrackerDBManagerFlags;
 
-GType               tracker_db_get_type                  (void) G_GNUC_CONST;
-gboolean            tracker_db_manager_init              (TrackerDBManagerFlags  flags,
-                                                          gboolean              *first_time,
-                                                          gboolean               shared_cache);
-void                tracker_db_manager_shutdown          (void);
-void                tracker_db_manager_remove_all        (gboolean               rm_journal);
-void                tracker_db_manager_optimize          (void);
-const gchar *       tracker_db_manager_get_file          (TrackerDB              db);
-TrackerDBInterface *tracker_db_manager_get_db_interface  (void);
-void                tracker_db_manager_remove_temp       (void);
-void                tracker_db_manager_move_to_temp      (void);
-void                tracker_db_manager_restore_from_temp (void);
-void                tracker_db_manager_init_locations    (void);
-gboolean            tracker_db_manager_has_enough_space  (void);
+GType               tracker_db_get_type                       (void) G_GNUC_CONST;
+gboolean            tracker_db_manager_init                   (TrackerDBManagerFlags  flags,
+                                                               gboolean              *first_time,
+                                                               gboolean               shared_cache);
+void                tracker_db_manager_shutdown               (void);
+void                tracker_db_manager_remove_all             (gboolean               rm_journal);
+void                tracker_db_manager_optimize               (void);
+const gchar *       tracker_db_manager_get_file               (TrackerDB              db);
+TrackerDBInterface *tracker_db_manager_get_db_interface       (void);
+void                tracker_db_manager_remove_temp            (void);
+void                tracker_db_manager_move_to_temp           (void);
+void                tracker_db_manager_restore_from_temp      (void);
+void                tracker_db_manager_init_locations         (void);
+gboolean            tracker_db_manager_has_enough_space       (void);
 
 TrackerDBManagerFlags
-                    tracker_db_manager_get_flags         (void);
+                    tracker_db_manager_get_flags              (void);
 
-gboolean            tracker_db_manager_interrupt_thread  (GThread *thread);
+gboolean            tracker_db_manager_interrupt_thread       (GThread *thread);
+void                tracker_db_manager_interrupt_thread_reset (GThread *thread);
 
 gboolean            tracker_db_manager_get_first_index_done (void);
 void                tracker_db_manager_set_first_index_done (gboolean done);

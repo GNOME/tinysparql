@@ -78,6 +78,7 @@ struct TrackerDBInterfaceIface {
 	                                           GError             **error,
 	                                           const gchar         *query);
 	gboolean             (* interrupt)        (TrackerDBInterface  *interface);
+	void                 (* reset_interrupt)  (TrackerDBInterface  *interface);
 };
 
 struct TrackerDBStatementIface {
@@ -153,6 +154,7 @@ TrackerDBResultSet *tracker_db_interface_execute_query     (TrackerDBInterface  
                                                             ...) G_GNUC_PRINTF (3, 4);
 
 gboolean            tracker_db_interface_interrupt         (TrackerDBInterface  *interface);
+void                tracker_db_interface_reset_interrupt   (TrackerDBInterface  *interface);
 gboolean            tracker_db_interface_start_transaction (TrackerDBInterface  *interface);
 gboolean            tracker_db_interface_end_db_transaction(TrackerDBInterface  *interface);
 void                tracker_db_statement_bind_double       (TrackerDBStatement  *stmt,

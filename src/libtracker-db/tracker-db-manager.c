@@ -1288,29 +1288,6 @@ tracker_db_manager_has_enough_space  (void)
 	return tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, FALSE);
 }
 
-/**
- * tracker_db_manager_interrupt_thread:
- * @thread: a #GThread to be interrupted
- *
- * Interrupts any ongoing DB operation going on on @thread.
- *
- * Returns: %TRUE if DB operations were interrupted, %FALSE otherwise.
- **/
-gboolean
-tracker_db_manager_interrupt_thread (GThread *thread)
-{
-	TrackerDBInterface *interface;
-
-	g_static_mutex_lock (&thread_ifaces_mutex);
-	interface = g_hash_table_lookup (thread_ifaces, thread);
-	g_static_mutex_unlock (&thread_ifaces_mutex);
-
-	if (!interface) {
-		return FALSE;
-	}
-
-	return tracker_db_interface_interrupt (interface);
-}
 
 static gchar *
 get_first_index_stamp_path (void)
@@ -1386,4 +1363,51 @@ tracker_db_manager_set_first_index_done (gboolean done)
 	}
 
 	g_free (stamp);
+}
+
+/**
+ * tracker_db_manager_interrupt_thread:
+ * @thread: a #GThread to be interrupted
+ *
+ * Interrupts any ongoing DB operation going on on @thread.
+ *
+ * Returns: %TRUE if DB operations were interrupted, %FALSE otherwise.
+ **/
+gboolean
+tracker_db_manager_interrupt_thread (GThread *thread)
+{
+	TrackerDBInterface *interface;
+
+	g_static_mutex_lock (&thread_ifaces_mutex);
+	interface = g_hash_table_lookup (thread_ifaces, thread);
+	g_static_mutex_unlock (&thread_ifaces_mutex);
+
+	if (!interface) {
+		return FALSE;
+	}
+
+	return tracker_db_interface_interrupt (interface);
+}
+
+/**
+ * tracker_db_manager_interrupt_thread_reset:
+ * @thread: a #GThread to be reset
+ *
+ * Reset @thread's interrupt state
+ *
+ **/
+void
+tracker_db_manager_interrupt_thread_reset (GThread *thread)
+{
+	TrackerDBInterface *interface;
+
+	g_static_mutex_lock (&thread_ifaces_mutex);
+	interface = g_hash_table_lookup (thread_ifaces, thread);
+	g_static_mutex_unlock (&thread_ifaces_mutex);
+
+	if (!interface) {
+		return FALSE;
+	}
+
+	tracker_db_interface_reset_interrupt (interface);
 }
