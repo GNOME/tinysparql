@@ -170,6 +170,8 @@ test_backup_and_restore_helper (gboolean journal)
 	g_free (test_schemas[1]);
 
 	g_assert_cmpint (backup_calls, ==, 2);
+
+	tracker_data_manager_shutdown ();
 }
 
 static void
