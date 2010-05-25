@@ -606,7 +606,7 @@ extract_tiff (const gchar          *uri,
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:Contact");
 		tracker_sparql_builder_predicate (preupdate, "nco:fullname");
-		tracker_sparql_builder_object_unvalidated (preupdate, uri);
+		tracker_sparql_builder_object_unvalidated (preupdate, md.artist);
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_predicate (metadata, "nco:contributor");
