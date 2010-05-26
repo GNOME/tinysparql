@@ -251,42 +251,6 @@ read_outline (PDFDoc               *document,
 	}
 }
 
-static void
-insert_keywords (TrackerSparqlBuilder *metadata,
-                 gchar                *keywords)
-{
-	char *saveptr, *p;
-	size_t len;
-
-	p = keywords;
-	keywords = strchr (keywords, '"');
-
-	if (keywords) {
-		keywords++;
-	} else {
-		keywords = p;
-	}
-
-	len = strlen (keywords);
-	if (keywords[len - 1] == '"') {
-		keywords[len - 1] = '\0';
-	}
-
-	for (p = strtok_r (keywords, ",;", &saveptr);
-	     p;
-	     p = strtok_r (NULL, ",;", &saveptr)) {
-		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
-
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nao:Tag");
-
-		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
-		tracker_sparql_builder_object_unvalidated (metadata, p);
-
-		tracker_sparql_builder_object_blank_close (metadata);
-	}
-}
 
 static void
 page_get_size (Page    *page,
@@ -383,7 +347,8 @@ extract_content (PDFDoc *document,
 
 static void
 write_pdf_data (PDFData               data,
-                TrackerSparqlBuilder *metadata)
+                TrackerSparqlBuilder *metadata,
+                GPtrArray            *keywords)
 {
 	if (!tracker_is_empty_string (data.title)) {
 		tracker_sparql_builder_predicate (metadata, "nie:title");
@@ -411,7 +376,7 @@ write_pdf_data (PDFData               data,
 	}
 
 	if (!tracker_is_empty_string (data.keywords)) {
-		insert_keywords (metadata, data.keywords);
+		tracker_keywords_parse (keywords, data.keywords);
 	}
 }
 
@@ -510,6 +475,8 @@ extract_pdf (const gchar          *uri,
 	gsize n_bytes;
 	Object obj;
 	Catalog *catalog;
+	GPtrArray *keywords;
+	guint i;
 
 	g_type_init ();
 
@@ -568,6 +535,7 @@ extract_pdf (const gchar          *uri,
 	}
 	obj.free ();
 
+	keywords = g_ptr_array_new ();
 
 	catalog = document->getCatalog ();
 	if (catalog && catalog->isOk ()) {
@@ -590,14 +558,14 @@ extract_pdf (const gchar          *uri,
 			md.date = (gchar *) tracker_coalesce_strip (3, pd.creation_date, xd->date, xd->time_original);
 			md.author = (gchar *) tracker_coalesce_strip (2, pd.author, xd->creator);
 
-			write_pdf_data (md, metadata);
+			write_pdf_data (md, metadata, keywords);
 
 			if (xd->keywords) {
-				insert_keywords (metadata, xd->keywords);
+				tracker_keywords_parse (keywords, xd->keywords);
 			}
 
 			if (xd->pdf_keywords) {
-				insert_keywords (metadata, xd->pdf_keywords);
+				tracker_keywords_parse (keywords, xd->pdf_keywords);
 			}
 
 			if (xd->publisher) {
@@ -787,8 +755,25 @@ extract_pdf (const gchar          *uri,
 		/* So if we are here we have NO XMP data and we just
 		 * write what we know from Poppler.
 		 */
-		write_pdf_data (pd, metadata);
+		write_pdf_data (pd, metadata, keywords);
 	}
+
+	for (i = 0; i < keywords->len; i++) {
+		gchar *p;
+
+		p = (gchar *) g_ptr_array_index (keywords, i);
+
+		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nao:Tag");
+		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
+		tracker_sparql_builder_object_unvalidated (metadata, p);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (p);
+	}
+	g_ptr_array_free (keywords, TRUE);
 
 	tracker_sparql_builder_predicate (metadata, "nfo:pageCount");
 	tracker_sparql_builder_object_int64 (metadata, document->getNumPages());

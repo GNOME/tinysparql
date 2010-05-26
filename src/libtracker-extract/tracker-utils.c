@@ -947,3 +947,57 @@ tracker_getline (gchar **lineptr,
 }
 
 #endif /* HAVE_GETLINE */
+
+void
+tracker_keywords_parse (GPtrArray   *store,
+                        const gchar *keywords)
+{
+	gchar *keywords_d = g_strdup (keywords);
+	char *saveptr, *p;
+	size_t len;
+
+	p = keywords_d;
+	keywords_d = strchr (keywords_d, '"');
+
+	if (keywords_d) {
+		keywords_d++;
+	} else {
+		keywords_d = p;
+	}
+
+	len = strlen (keywords_d);
+	if (keywords_d[len - 1] == '"') {
+		keywords_d[len - 1] = '\0';
+	}
+
+	for (p = strtok_r (keywords_d, ",;", &saveptr); p;
+	     p = strtok_r (NULL, ",;", &saveptr)) {
+		guint i;
+		gboolean found = FALSE;
+		gchar *p_do = g_strdup (p);
+		gchar *p_dup = p_do;
+		guint len = strlen (p_dup);
+
+		if (*p_dup == ' ')
+			p_dup++;
+
+		if (p_dup[len-1] == ' ')
+			p_dup[len-1] = '\0';
+
+		for (i = 0; i < store->len; i++) {
+			const gchar *earlier = g_ptr_array_index (store, i);
+			if (g_strcmp0 (earlier, p_dup) == 0) {
+				found = TRUE;
+				break;
+			}
+		}
+
+		if (!found) {
+			g_ptr_array_add (store, g_strdup (p_dup));
+		}
+
+		g_free (p_do);
+	}
+
+	g_free (keywords_d);
+}

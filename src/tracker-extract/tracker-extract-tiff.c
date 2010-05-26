@@ -249,42 +249,6 @@ tag_to_string (TIFF    *image,
 }
 
 static void
-insert_keywords (TrackerSparqlBuilder *metadata, 
-                 const gchar          *uri, 
-                 gchar                *keywords)
-{
-	char *lasts, *keyw;
-	size_t len;
-
-	keyw = keywords;
-	keywords = strchr (keywords, '"');
-	if (keywords) {
-		keywords++;
-	} else {
-		keywords = keyw;
-	}
-
-	len = strlen (keywords);
-	if (keywords[len - 1] == '"')
-		keywords[len - 1] = '\0';
-
-	for (keyw = strtok_r (keywords, ",;", &lasts);
-	     keyw;
-	     keyw = strtok_r (NULL, ",;", &lasts)) {
-		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
-
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nao:Tag");
-
-		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
-		tracker_sparql_builder_object_unvalidated (metadata, keyw);
-
-		tracker_sparql_builder_object_blank_close (metadata);
-	}
-}
-
-static void
 extract_tiff (const gchar          *uri,
               TrackerSparqlBuilder *preupdate,
               TrackerSparqlBuilder *metadata)
@@ -298,6 +262,8 @@ extract_tiff (const gchar          *uri,
 	gchar *filename;
 	gchar *date;
 	glong exif_offset;
+	GPtrArray *keywords;
+	guint i;
 
 #ifdef HAVE_LIBIPTCDATA
 	gchar *iptc_offset;
@@ -420,6 +386,8 @@ extract_tiff (const gchar          *uri,
 	md.x_dimension = tracker_coalesce_strip (2, td.width, ed->x_dimension);
 	md.y_dimension = tracker_coalesce_strip (2, td.length, ed->y_dimension);
 
+	keywords = g_ptr_array_new ();
+
 	if (ed->user_comment) {
 		tracker_sparql_builder_predicate (metadata, "nie:comment");
 		tracker_sparql_builder_object_unvalidated (metadata, ed->user_comment);
@@ -436,15 +404,15 @@ extract_tiff (const gchar          *uri,
 	}
 
 	if (xd->keywords) {
-		insert_keywords (metadata, uri, xd->keywords);
+		tracker_keywords_parse (keywords, xd->keywords);
 	}
 
 	if (xd->pdf_keywords) {
-		insert_keywords (metadata, uri, xd->pdf_keywords);
+		tracker_keywords_parse (keywords, xd->pdf_keywords);
 	}
 
 	if (xd->subject) {
-		insert_keywords (metadata, uri, xd->subject);
+		tracker_keywords_parse (keywords, xd->subject);
 	}
 
 	if (xd->publisher) {
@@ -555,8 +523,25 @@ extract_tiff (const gchar          *uri,
 	}
 
 	if (id->keywords) {
-		insert_keywords (metadata, uri, id->keywords);
+		tracker_keywords_parse (keywords, id->keywords);
 	}
+
+	for (i = 0; i < keywords->len; i++) {
+		gchar *p;
+
+		p = g_ptr_array_index (keywords, i);
+
+		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nao:Tag");
+		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
+		tracker_sparql_builder_object_unvalidated (metadata, p);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (p);
+	}
+	g_ptr_array_free (keywords, TRUE);
 
 	if (md.camera) {
 		tracker_sparql_builder_predicate (metadata, "nmm:camera");

@@ -54,6 +54,8 @@ gchar*       tracker_merge_const            (const gchar *delimiter,
 gssize       tracker_getline                (gchar      **lineptr,
                                              gsize       *n,
                                              FILE        *stream);
+void         tracker_keywords_parse         (GPtrArray   *store,
+                                             const gchar *keywords);
 
 G_END_DECLS
 

@@ -78,43 +78,6 @@ ext_block_append(ExtBlock *extBlock,
 }
 
 static void
-insert_keywords (TrackerSparqlBuilder *metadata,
-                 const gchar          *uri,
-                 gchar                *keywords)
-{
-	char *lasts, *keyw;
-	size_t len;
-
-	keyw = keywords;
-	keywords = strchr (keywords, '"');
-	if (keywords) {
-		keywords++;
-	} else {
-		keywords = keyw;
-	}
-
-	len = strlen (keywords);
-	if (keywords[len - 1] == '"') {
-		keywords[len - 1] = '\0';
-	}
-
-	for (keyw = strtok_r (keywords, ",;", &lasts);
-	     keyw;
-	     keyw = strtok_r (NULL, ",;", &lasts)) {
-		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
-
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nao:Tag");
-
-		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
-		tracker_sparql_builder_object_unvalidated (metadata, keyw);
-
-		tracker_sparql_builder_object_blank_close (metadata);
-	}
-}
-
-static void
 read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
 	       GifFileType          *gifFile,
@@ -124,9 +87,9 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	int            frameheight;
 	int            framewidth;
 	unsigned char *framedata = NULL;
-
+	GPtrArray     *keywords;
+	guint          i;
 	int            status;
-
 	MergeData md = { 0 };
 	GifData   gd = { 0 };
 	TrackerXmpData *xd = NULL;
@@ -333,13 +296,14 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_unvalidated (metadata, xd->metering_mode);
 	}
 
+	keywords = g_ptr_array_new ();
 
 	if (xd->keywords) {
-		insert_keywords (metadata, uri, xd->keywords);
+		tracker_keywords_parse (keywords, xd->keywords);
 	}
 
 	if (xd->pdf_keywords) {
-		insert_keywords (metadata, uri, xd->pdf_keywords);
+		tracker_keywords_parse (keywords, xd->pdf_keywords);
 	}
 
 	if (xd->rating) {
@@ -348,8 +312,25 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 
 	if (xd->subject) {
-		insert_keywords (metadata, uri, xd->subject);
+		tracker_keywords_parse (keywords, xd->subject);
 	}
+
+	for (i = 0; i < keywords->len; i++) {
+		gchar *p;
+
+		p = g_ptr_array_index (keywords, i);
+
+		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nao:Tag");
+		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
+		tracker_sparql_builder_object_unvalidated (metadata, p);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (p);
+	}
+	g_ptr_array_free (keywords, TRUE);
 
 	if (xd->publisher) {
 		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", xd->publisher);

@@ -641,42 +641,6 @@ tracker_xmp_free (TrackerXmpData *data)
 	g_free (data);
 }
 
-static void
-insert_keywords (TrackerSparqlBuilder *metadata,
-                 const gchar          *uri,
-                 gchar                *keywords)
-{
-	char *lasts, *keyw;
-	size_t len;
-
-	keyw = keywords;
-	keywords = strchr (keywords, '"');
-	if (keywords) {
-		keywords++;
-	} else {
-		keywords = keyw;
-	}
-
-	len = strlen (keywords);
-	if (keywords[len - 1] == '"')
-		keywords[len - 1] = '\0';
-
-	for (keyw = strtok_r (keywords, ",;", &lasts);
-	     keyw;
-	     keyw = strtok_r (NULL, ",;", &lasts)) {
-		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
-
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nao:Tag");
-
-		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
-		tracker_sparql_builder_object_unvalidated (metadata, keyw);
-
-		tracker_sparql_builder_object_blank_close (metadata);
-	}
-}
-
 /**
  * tracker_xmp_apply:
  * @metadata: the metadata object to apply XMP data to.
@@ -695,21 +659,43 @@ tracker_xmp_apply (TrackerSparqlBuilder *metadata,
                    const gchar          *uri,
                    TrackerXmpData       *data)
 {
+	GPtrArray *keywords;
+	guint i;
+
 	g_return_val_if_fail (TRACKER_IS_SPARQL_BUILDER (metadata), FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
 	g_return_val_if_fail (data != NULL, FALSE);
 
+	keywords = g_ptr_array_new ();
+
 	if (data->keywords) {
-		insert_keywords (metadata, uri, data->keywords);
+		tracker_keywords_parse (keywords, data->keywords);
 	}
 
 	if (data->subject) {
-		insert_keywords (metadata, uri, data->subject);
+		tracker_keywords_parse (keywords, data->subject);
 	}
 
 	if (data->pdf_keywords) {
-		insert_keywords (metadata, uri, data->pdf_keywords);
+		tracker_keywords_parse (keywords, data->pdf_keywords);
 	}
+
+	for (i = 0; i < keywords->len; i++) {
+		gchar *p;
+
+		p = g_ptr_array_index (keywords, i);
+
+		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
+
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nao:Tag");
+		tracker_sparql_builder_predicate (metadata, "nao:prefLabel");
+		tracker_sparql_builder_object_unvalidated (metadata, p);
+		tracker_sparql_builder_object_blank_close (metadata);
+		g_free (p);
+	}
+	g_ptr_array_free (keywords, TRUE);
 
 	if (data->publisher) {
 		tracker_sparql_builder_predicate (metadata, "nco:publisher");
