@@ -1680,14 +1680,11 @@ tracker_db_journal_rotate (void)
 
 	g_rename (writer.journal_filename, fullpath);
 
-	g_free (fullpath);
-
-	if (max > 1 && needs_move) {
+	if (needs_move) {
 		GFile *source, *destination;
 		GFile *dest_dir;
 		gchar *filename;
 
-		fullpath = g_strdup_printf ("%s.%d", writer.journal_filename, max - 1);
 		source = g_file_new_for_path (fullpath);
 		dest_dir = g_file_new_for_path (rotating_settings.rotate_to);
 		filename = g_path_get_basename (fullpath);
@@ -1700,8 +1697,9 @@ tracker_db_journal_rotate (void)
 
 		g_object_unref (destination);
 		g_object_unref (source);
-		g_free (fullpath);
 	}
+
+	g_free (fullpath);
 
 	return db_journal_init_file (&writer, TRUE);
 }
