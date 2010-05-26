@@ -11,6 +11,7 @@ SUBDIRS = 			\
 	libtracker-fts 		\
 	tracker-miner-fs	\
 	tracker-extract		\
+	tracker-steroids	\
 	tracker-store		\
 	tracker-writeback
 
