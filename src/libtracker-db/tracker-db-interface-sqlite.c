@@ -828,7 +828,12 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 	while (result == SQLITE_OK  ||
 	       result == SQLITE_ROW) {
 
-		result = sqlite3_step (stmt);
+		if (g_atomic_int_get (&priv->interrupt) == 1) {
+			result = SQLITE_INTERRUPT;
+			sqlite3_reset (stmt);
+		} else {
+			result = sqlite3_step (stmt);
+		}
 
 		switch (result) {
 		case SQLITE_ERROR:
@@ -873,11 +878,18 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 			           sqlite3_errcode (priv->db),
 			           sqlite3_errmsg (priv->db));
 		} else {
-			g_set_error (error,
-			             TRACKER_DB_INTERFACE_ERROR,
-			             TRACKER_DB_QUERY_ERROR,
-			             "%s",
-			             sqlite3_errmsg (priv->db));
+			if (result == SQLITE_INTERRUPT) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_INTERRUPTED,
+				             "Interrupted");
+			} else {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "%s",
+				             sqlite3_errmsg (priv->db));
+			}
 		}
 
 		/* If there was an error, result set may be invalid or incomplete */
