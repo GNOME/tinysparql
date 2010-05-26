@@ -285,6 +285,7 @@ extract_content (PDFDoc *document,
 	GString *string;
 	gint n_pages, i;
 	gsize n_bytes_remaining;
+	GTimer *timer;
 
 	n_pages = document->getNumPages();
 	string = g_string_new ("");
@@ -292,7 +293,10 @@ extract_content (PDFDoc *document,
 	n_bytes_remaining = n_bytes;
 	catalog = document->getCatalog();
 
-	while (i < n_pages && n_bytes_remaining > 0) {
+	timer = g_timer_new ();
+	g_timer_start (timer);
+
+	while (i < n_pages && n_bytes_remaining > 0 && g_timer_elapsed (timer, NULL) < 5) {
 		Gfx *gfx;
 		GooString *sel_text;
 		TextOutputDev *text_dev;
@@ -341,6 +345,8 @@ extract_content (PDFDoc *document,
 		delete gfx;
 		delete text_dev;
 	}
+
+	g_timer_destroy (timer);
 
 	return g_string_free (string, FALSE);
 }
