@@ -1,0 +1,51 @@
+
+This file contains information about the different parser implementations
+ available in Tracker, each of them based on a different unicode support library
+ (GNU libunistring, libunac, glib/pango).
+
+Specific parser implementation can be selected with the following option at
+ configure time: --with-unicode-support=[libunistring|libicu|glib]
+
+
+Parser based on GNU libunistring (http://www.gnu.org/software/libunistring)
+ * Performs word-breaking as defined by UAX#29 [1], but still doesn't allow
+    'next-word' searches (as of v0.9.3), but feature is in the roadmap).
+ * Performs full-word casefolding [2] in non-ASCII strings.
+ * Performs lowercasing in ASCII strings.
+ * Performs NFKD normalization in non-ASCII strings.
+ * Library API is UTF-8 friendly.
+ * Up to 50% faster than the glib/pango parser for ASCII words.
+ * Up to 60% faster than the libicu parser for ASCII words.
+
+Parser based on ICU libicu (http://icu-project.org):
+ * Performs word-breaking as defined by UAX#29 [1], and allows 'next-word'
+    searches, perfect in the Tracker case.
+ * Performs full-word casefolding [2] in non-ASCII strings.
+ * Performs lowercasing in ASCII strings.
+ * Performs NFKD normalization in non-ASCII strings.
+ * Library API is not UTF-8 friendly, strongly based on a custom data type
+    (UChar), which is based on UTF-16 (so great for Windows systems, where
+    Unicode strings are encoded in UTF-16).
+ * Up to 37% faster than the libunistring parser for non-ASCII words.
+
+Parser based on glib/pango:
+ * Custom word breaking for non-CJK strings (fails if input string is decomposed
+    in NFD or NFKD normalizations).
+ * Pango-based word breaking (not fully compliant with UAX#29 [1]) for CJK
+    strings.
+ * Doesn't work properly with strings containing mixed CJK and non-CJK text
+    (for the same file with mixed CJK and non-CJK, while both libunistring and
+    libicu versions where around 1 second, the glib/pango parser needed several
+    minutes).
+ * Performs single-character lowercasing in non-CJK strings (so fails with
+    special casefolding cases where a single character is casefolded in more
+    than one character).
+ * Performs NFC normalization in non-CJK strings.
+
+
+References:
+ [1] UAX#29, Unicode Standard Annex #29: TEXT BOUNDARIES
+      http://unicode.org/reports/tr29
+ [2] Section 5.18 of Unicode 5 standard: CASE MAPPINGS
+      http://www.unicode.org/versions/latest/ch05.pdf
+
