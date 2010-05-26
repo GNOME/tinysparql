@@ -1406,7 +1406,7 @@ tracker_db_manager_interrupt_thread_reset (GThread *thread)
 	g_static_mutex_unlock (&thread_ifaces_mutex);
 
 	if (!interface) {
-		return FALSE;
+		return;
 	}
 
 	tracker_db_interface_reset_interrupt (interface);
