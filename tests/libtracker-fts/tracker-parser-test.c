@@ -249,20 +249,20 @@ static const TestDataExpectedWord test_data_normalization[] = {
 
 /* Stemming-related tests */
 static const TestDataExpectedWord test_data_stemming[] = {
-	{ "ecole", "ecol",  TRUE  },
-	{ "ecole", "ecole", FALSE },
-	{ NULL,    NULL,    FALSE }
+	{ "ecole", "ecol",  TRUE,  TRUE  },
+	{ "ecole", "ecole", FALSE, TRUE  },
+	{ NULL,    NULL,    FALSE, FALSE }
 };
 
 /* Casefolding-related tests */
 static const TestDataExpectedWord test_data_casefolding[] = {
-	{ "gross", "gross", FALSE },
-	{ "GROSS", "gross", FALSE },
-	{ "GrOsS", "gross", FALSE },
+	{ "gross", "gross", FALSE, TRUE  },
+	{ "GROSS", "gross", FALSE, TRUE  },
+	{ "GrOsS", "gross", FALSE, TRUE  },
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't do full-word casefolding */
-	{ "groß",  "gross", FALSE },
+	{ "groß",  "gross", FALSE, TRUE  },
 #endif
-	{ NULL,    NULL,    FALSE }
+	{ NULL,    NULL,    FALSE, FALSE }
 };
 
 /* Number of expected words tests */
@@ -271,14 +271,14 @@ static const TestDataExpectedNWords test_data_nwords[] = {
 	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", TRUE,   8 },
 	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", FALSE,  9 },
 #endif
-	{ "ホモ・サピエンス",                                            TRUE,   2 }, /* katakana */
+	{ "ホモ・サピエンス",                                          TRUE,   2 }, /* katakana */
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
 	{ "本州最主流的风味",                                          TRUE,   8 }, /* chinese */
 #endif
 	{ "Американские суда находятся в международных водах.",     TRUE,   6 }, /* russian */
-	{ "Bần chỉ là một anh nghèo xác",                           TRUE,   7 }, /* vietnamese */
+	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7 }, /* vietnamese */
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
-	{ "ホモ・サピエンス 本州最主流的风味 katakana, chinese, english",   TRUE,  13 }, /* mixed */
+	{ "ホモ・サピエンス 本州最主流的风味 katakana, chinese, english", TRUE,  13 }, /* mixed */
 #endif
 	{ NULL,                                                     FALSE,  0 }
 };
