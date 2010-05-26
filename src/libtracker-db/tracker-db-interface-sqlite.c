@@ -492,7 +492,7 @@ static int
 check_interrupt (void *user_data)
 {
 	TrackerDBInterfaceSqlitePrivate *priv = user_data;
-	return g_atomic_int_compare_and_exchange (&priv->interrupt, 1, 0);
+	return g_atomic_int_get (&priv->interrupt);
 }
 
 static void
@@ -1216,7 +1216,7 @@ tracker_db_cursor_sqlite_iter_next (TrackerDBCursor *cursor,
 	if (!priv->finished) {
 		guint result;
 
-		if (g_atomic_int_compare_and_exchange (&iface_priv->interrupt, 1, 0)) {
+		if (g_atomic_int_get (&iface_priv->interrupt) == 1) {
 			result = SQLITE_INTERRUPT;
 			sqlite3_reset (priv->stmt);
 		} else {
