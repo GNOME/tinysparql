@@ -53,17 +53,17 @@ struct TrackerParser {
 	gint                   txt_size;
 
 	TrackerLanguage       *language;
+	guint                  max_word_length;
 	gboolean               enable_stemmer;
 	gboolean               enable_unaccent;
-	guint                  max_word_length;
 	gboolean               ignore_stop_words;
 	gboolean               ignore_reserved_words;
 	gboolean               ignore_numbers;
 
 	/* Private members */
-	gchar                   *word;
-	gint                    word_length;
-	guint                   word_position;
+	gchar                 *word;
+	gint                   word_length;
+	guint                  word_position;
 
 	/* Cursor, as index of the input array of bytes */
 	gsize                  cursor;
@@ -237,22 +237,15 @@ parser_next (TrackerParser *parser,
 }
 
 TrackerParser *
-tracker_parser_new (TrackerLanguage *language,
-                    gint             max_word_length)
+tracker_parser_new (TrackerLanguage *language)
 {
 	TrackerParser *parser;
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
-	g_return_val_if_fail (max_word_length > 0, NULL);
 
 	parser = g_new0 (TrackerParser, 1);
 
 	parser->language = g_object_ref (language);
-
-	parser->max_word_length = max_word_length;
-	parser->word_length = 0;
-
-	parser->word_break_flags = NULL;
 
 	return parser;
 }
@@ -277,6 +270,7 @@ void
 tracker_parser_reset (TrackerParser *parser,
                       const gchar   *txt,
                       gint           txt_size,
+                      guint          max_word_length,
                       gboolean       enable_stemmer,
                       gboolean       enable_unaccent,
                       gboolean       ignore_stop_words,
@@ -286,14 +280,15 @@ tracker_parser_reset (TrackerParser *parser,
 	g_return_if_fail (parser != NULL);
 	g_return_if_fail (txt != NULL);
 
+	parser->max_word_length = max_word_length;
 	parser->enable_stemmer = enable_stemmer;
 	parser->enable_unaccent = enable_unaccent;
 	parser->ignore_stop_words = ignore_stop_words;
+	parser->ignore_reserved_words = ignore_reserved_words;
+	parser->ignore_numbers = ignore_numbers;
 
 	parser->txt_size = txt_size;
 	parser->txt = txt;
-	parser->ignore_reserved_words = ignore_reserved_words;
-	parser->ignore_numbers = ignore_numbers;
 
 	g_free (parser->word);
 	parser->word = NULL;

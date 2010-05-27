@@ -29,12 +29,12 @@ G_BEGIN_DECLS
 
 typedef struct TrackerParser TrackerParser;
 
-TrackerParser *tracker_parser_new             (TrackerLanguage *language,
-                                               gint             max_word_length);
+TrackerParser *tracker_parser_new             (TrackerLanguage *language);
 
 void           tracker_parser_reset           (TrackerParser   *parser,
                                                const gchar     *txt,
                                                gint             txt_size,
+                                               guint            max_word_length,
                                                gboolean         enable_stemmer,
                                                gboolean         enable_unaccent,
                                                gboolean         ignore_stop_words,

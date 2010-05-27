@@ -128,8 +128,7 @@ run_parsing (void)
 	}
 
 	/* Create the parser */
-	parser = tracker_parser_new (language,
-	                             tracker_fts_config_get_max_word_length (config));
+	parser = tracker_parser_new (language);
 	if (!parser) {
 		g_printerr ("Parser creation failed!\n");
 		g_object_unref (language);
@@ -140,6 +139,7 @@ run_parsing (void)
 	tracker_parser_reset (parser,
 	                      text,
 	                      strlen (text),
+	                      tracker_fts_config_get_max_word_length (config),
 	                      tracker_fts_config_get_enable_stemmer (config),
 	                      tracker_fts_config_get_enable_unaccent (config),
 	                      tracker_fts_config_get_ignore_stop_words (config),

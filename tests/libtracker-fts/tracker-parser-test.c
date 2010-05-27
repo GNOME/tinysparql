@@ -84,8 +84,7 @@ test_common_setup (TrackerParserTestFixture *fixture,
 	fixture->ignore_numbers = TRUE;
 
 	/* Create the parser */
-	fixture->parser = tracker_parser_new (language,
-	                                      fixture->max_word_length);
+	fixture->parser = tracker_parser_new (language);
 	if (!fixture->parser) {
 		g_critical ("Parser creation failed!");
 		return;
@@ -132,6 +131,7 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	tracker_parser_reset (fixture->parser,
 	                      testdata->str,
 	                      strlen (testdata->str),
+	                      fixture->max_word_length,
 	                      fixture->enable_stemmer,
 	                      fixture->enable_unaccent,
 	                      fixture->ignore_stop_words,
@@ -180,6 +180,7 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	tracker_parser_reset (fixture->parser,
 	                      testdata->str,
 	                      strlen (testdata->str),
+	                      fixture->max_word_length,
 	                      testdata->enable_stemmer,
 	                      testdata->enable_unaccent,
 	                      fixture->ignore_stop_words,

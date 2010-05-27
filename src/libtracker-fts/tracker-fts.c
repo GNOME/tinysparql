@@ -2336,6 +2336,7 @@ struct fulltext_vtab {
   gboolean ignore_stop_words;
   int max_words;
   int min_word_length;
+  int max_word_length;
 
   /* Precompiled statements which we keep as long as the table is
   ** open.
@@ -3318,7 +3319,6 @@ static int constructVtab(
   fulltext_vtab *v = 0;
   TrackerFTSConfig *config;
   TrackerLanguage *language;
-  int min_len, max_len;
 
   if (G_UNLIKELY (quark_fulltext_vtab == 0)) {
     quark_fulltext_vtab = g_quark_from_static_string ("quark_fulltext_vtab");
@@ -3374,8 +3374,8 @@ static int constructVtab(
 
   language = tracker_language_new (NULL);
 
-  min_len = tracker_fts_config_get_min_word_length (config);
-  max_len = tracker_fts_config_get_max_word_length (config);
+  v->min_word_length = tracker_fts_config_get_min_word_length (config);
+  v->max_word_length = tracker_fts_config_get_max_word_length (config);
   v->enable_stemmer = tracker_fts_config_get_enable_stemmer (config);
   v->enable_unaccent = tracker_fts_config_get_enable_unaccent (config);
   v->ignore_numbers = tracker_fts_config_get_ignore_numbers (config);
@@ -3386,8 +3386,8 @@ static int constructVtab(
 			  FALSE : tracker_fts_config_get_ignore_stop_words (config));
 
   v->max_words = tracker_fts_config_get_max_words_to_index (config);
-  v->min_word_length = min_len;
-  v->parser = tracker_parser_new (language, max_len);
+
+  v->parser = tracker_parser_new (language);
 
   g_object_unref (language);
 
@@ -3684,6 +3684,7 @@ static void snippetOffsetsOfColumn(
   tracker_parser_reset (pVtab->parser,
                         zDoc,
                         nDoc,
+                        pVtab->max_word_length,
                         pVtab->enable_stemmer,
                         pVtab->enable_unaccent,
                         pVtab->ignore_stop_words,
@@ -4388,6 +4389,7 @@ static int tokenizeSegment(
   tracker_parser_reset (parser,
                         pSegment,
                         nSegment,
+                        v->max_word_length,
                         v->enable_stemmer,
                         v->enable_unaccent,
                         v->ignore_stop_words,
@@ -4848,6 +4850,7 @@ int Catid,
   tracker_parser_reset (parser,
                         zText,
                         strlen (zText),
+                        v->max_word_length,
                         v->enable_stemmer,
                         v->enable_unaccent,
                         v->ignore_stop_words,
