@@ -294,7 +294,6 @@ extract_content (PDFDoc *document,
 	catalog = document->getCatalog();
 
 	timer = g_timer_new ();
-	g_timer_start (timer);
 
 	while (i < n_pages && n_bytes_remaining > 0 && g_timer_elapsed (timer, NULL) < 5) {
 		Gfx *gfx;
