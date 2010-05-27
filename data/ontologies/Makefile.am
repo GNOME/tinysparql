@@ -25,6 +25,7 @@ config_DATA =						\
 if HAVE_MAEMO
 config_DATA += 			\
 	91-maemo.ontology   91-maemo.description
+	92-slo.ontology     92-slo.ontology
 endif
 
 EXTRA_DIST = $(config_DATA)

@@ -1,0 +1,232 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> .
+@prefix slo: <http://www.tracker-project.org/temp/slo#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+
+slo: a tracker:Namespace, tracker:Ontology ;
+    tracker:prefix "slo" ;
+    nao:lastModified "2010-04-28T11:00:00Z" .
+
+slo:LandmarkCategory a rdfs:Class ;
+    rdfs:label "Landmark category";
+    rdfs:comment "Predefined set of instances for categories of landmarks";
+    rdfs:subClassOf nie:InformationElement.
+
+slo:isRemovable a rdf:Property ;
+    rdfs:label "Is removable";
+    rdfs:comment "Flag to indicate if this instance is removable. This restriction is not enforced by tracker; it is API responsability to honor the value";
+    rdfs:domain slo:LandmarkCategory ;
+    rdfs:range xsd:boolean.
+
+slo:Landmark a rdfs:Class ;
+    rdfs:label "Point with special relevance for the user" ;
+    rdfs:subClassOf nie:InformationElement ;
+    rdfs:comment "Use the nie title, description, ... properties" .
+
+slo:belongsToCategory a rdf:Property ;
+    rdfs:label "Belongs to category";
+    rdfs:comment "Relation of a landmark with a landmark category";
+    rdfs:domain slo:Landmark ;
+    rdfs:range slo:LandmarkCategory .
+
+slo:hasContact a rdf:Property ;
+    rdfs:label "Landmark contact information" ;
+    rdfs:comment "The contact information of the landmark in question" ;
+    rdfs:domain slo:Landmark ;
+    rdfs:range nco:Contact .
+
+slo:GeoLocation a rdfs:Class ;
+    rdfs:label "Location" ;
+    rdfs:comment "A place in the space, can be defined by coordinates or text";
+    rdfs:subClassOf nie:InformationElement.
+
+#Properties of GeoLocation
+slo:latitude a rdf:Property ;
+    rdfs:label "Latitude";
+    rdfs:comment "Positive values for the north hemisphere, negative for the south" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:longitude a rdf:Property ;
+    rdfs:label "Longitude" ;
+    rdfs:comment "Positive to the East of the Greenwich meridian, negative to the West (following WGS-84)" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:latitudeUncertainty a rdf:Property ;
+    rdfs:label "Latitude";
+    rdfs:comment "Uncertainty in the latitude of the location" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:longitudeUncertainty a rdf:Property ;
+    rdfs:label "Longitude" ;
+    rdfs:comment "Uncertainty in the longitude of the location" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:altitude a rdf:Property ;
+    rdfs:label "Altitude" ;
+    rdfs:comment "Altitude following WGS 84 reference";
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:boundingLatitudeMin a rdf:Property ;
+    rdfs:label "Latitude";
+    rdfs:comment "Southern latitude of the bounding box" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:boundingLatitudeMax a rdf:Property ;
+    rdfs:label "Latitude";
+    rdfs:comment "Northern latitude of the bounding box" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:boundingLongitudeMin a rdf:Property ;
+    rdfs:label "Longitude" ;
+    rdfs:comment "Western longitude of the bounding box" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:boundingLongitudeMax a rdf:Property ;
+    rdfs:label "Longitude" ;
+    rdfs:comment "Eastern longitude of the bounding box" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range  xsd:double .
+
+slo:radius a rdf:Property ;
+    rdfs:label "Radius";
+    rdfs:comment "Radius from the center to define an area. Some applications can use it in 2D sense, making then a circle instead of a sphere" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range xsd:double .
+
+slo:timestamp a rdf:Property ;
+    rdfs:label "Timestamp" ;
+    rdfs:comment "Timestamp when the geolocation is referenced. Create subproperties for certain use cases" ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range xsd:dateTime .
+
+slo:postalAddress a rdf:Property ;
+    rdfs:label "As postal address" ;
+    rdfs:comment "Representation of the location as text address" ;
+    tracker:indexed true ;
+    rdfs:domain slo:GeoLocation ;
+    rdfs:range nco:PostalAddress .
+
+# FIXME Domain rdfs:Resource?? to link files and not only content?
+slo:location a rdf:Property ;
+    tracker:writeback true ;
+    rdfs:label "Property linking something to a location" ;
+    rdfs:comment "This can be subclassed to add semantics" ;
+    rdfs:domain nie:InformationElement ;
+    tracker:indexed true ;
+    rdfs:range slo:GeoLocation .
+
+# Comment for rethinking, this used to be subclass of bounding box..
+# now location, properties other than the bounding box set to the starting point
+slo:Route a rdfs:Class ;
+    rdfs:label "Minimum box containing all the points traversed in route" ;
+    rdfs:subClassOf slo:GeoLocation .
+
+# Properties of Route
+slo:startTime a rdf:Property ;
+    rdfs:label "Time when the first point in the route was saved" ;
+    rdfs:domain slo:Route ;
+    rdfs:range  xsd:dateTime .
+
+slo:endTime a rdf:Property ;
+    rdfs:label "Time when the last point in the route was saved" ;
+    rdfs:domain slo:Route ;
+    rdfs:range  xsd:dateTime .
+
+slo:routeDetails a rdf:Property ;
+    rdfs:label "Pointer to a file containing route details (e.g. KML file)." ;
+    rdfs:comment "FIXME Domain can be resource if we handle map-files correctly in the ontology";
+    rdfs:domain slo:Route ;
+    rdfs:range  xsd:string .
+
+###############################################
+#  Predefined categories coming from Symbian
+#    - move to a different file?
+###############################################
+
+slo:predefined-landmark-category-accommodation a slo:LandmarkCategory ;
+	slo:isRemovable false ;
+	nie:title "Accommodation";
+	nie:description "Hotel, Camping site".
+
+slo:predefined-landmark-category-business a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Business";
+	nie:description "Bank, Factory, Office".
+
+slo:predefined-landmark-category-communication a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Communication";
+	nie:description "Internet Access Point, Public Telephone, Wireless LAN Hot Spot".
+
+slo:predefined-landmark-category-educational-institute a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Educational institute";
+	nie:description "School, College".
+
+slo:predefined-landmark-category-entertainment a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Entertainment";
+	nie:description "Amusement park, Cinema, Concert hall, Night club".
+
+slo:predefined-landmark-category-food-beverage a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Food & Beverage";
+	nie:description "Fast food, Restaurant, Café, Bar".
+
+slo:predefined-landmark-category-geographical-area a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Geographical area";
+	nie:description "City, City center, Town".
+
+slo:predefined-landmark-category-outdoor-activities a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Outdoor activities";
+	nie:description "Camping site, Fishing place, Hunting, National park, Playground".
+
+slo:predefined-landmark-category-people a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "People";
+	nie:description "My home, My friends home, Fathers summer cottage, Childs school".
+
+slo:predefined-landmark-category-public-service a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Public service";
+	nie:description "Tourist information office, Government office, Library, Post office, Hospital, Police ".
+
+slo:predefined-landmark-category-religious-places a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Religious places";
+	nie:description "Church, Mosque".
+
+slo:predefined-landmark-category-shopping a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Shopping";
+	nie:description "Market Place, Pharmacy, Shop, Shopping Center".
+
+slo:predefined-landmark-category-sightseeing a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Sightseeing";
+	nie:description "Monument, Mountain top, Museum".
+
+slo:predefined-landmark-category-sports a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Sports";
+	nie:description "Bowling, Golf course, Ice hockey hall, Stadium".
+
+slo:predefined-landmark-category-transport a slo:LandmarkCategory ;
+	slo:isRemovable False ;
+	nie:title "Transport";
+	nie:description "Airport, Bus stop, Harbour, Railway Station, Rest area".
