@@ -226,12 +226,15 @@ extract_content (PopplerDocument *document,
 	GString *string;
 	gint n_pages, i, words;
 	gchar *text, *t;
+	GTimer *timer;
 
 	n_pages = poppler_document_get_n_pages (document);
 	string = g_string_new ("");
 	words = i = 0;
 
-	while (i < n_pages && words < n_words) {
+	timer = g_timer_new ();
+
+	while (i < n_pages && words < n_words && g_timer_elapsed (timer, NULL) < 5) {
 		gint normalized_words;
 
 		page = poppler_document_get_page (document, i);
@@ -250,6 +253,8 @@ extract_content (PopplerDocument *document,
 		g_free (t);
 		g_object_unref (page);
 	}
+
+	g_timer_destroy (timer);
 
 	return g_string_free (string, FALSE);
 }
