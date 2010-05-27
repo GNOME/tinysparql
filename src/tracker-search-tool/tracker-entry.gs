@@ -78,34 +78,20 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
             Query.SearchTerms = ""
             return false
 
-        /* remove leading whitespace */
-        txt = txt.chug()
+        Query.SearchTerms = EscapeSparql (txt, true)
 
-        var len = txt.len()
-        if len > 2
+        /* remove leading and trailing whitespace before inserting items into
+         * history; this avoids having both "term" and " term " in there;
+         */
+        txt = txt.strip()
 
-            /* remove leading non-alphanumeric chars */
-            while(!txt[0].isalnum())
-                if txt[0] == '_'
-                    break
-                txt = txt.slice(1, len--)
-                if len < 3
-                    return false
+        /* ensure that accented chars are represented the same way to
+         * avoid duplicated entries in history
+         */
+        txt = txt.normalize(-1, NormalizeMode.NFC)
 
-            /* remove trailing non-alphanumeric chars */
-            if(!txt[len - 1].isalnum())
-                while(!txt[len - 2].isalnum())
-                    if txt[len - 2] == '_'
-                        break
-                    txt = txt.slice(0, len - 2)
-                    len--
-                    if len < 3
-                        return false
-
-            /* hit tracker-store */
-            Query.SearchTerms = EscapeSparql (txt, true)
-
-            /* do not store duplicate strings in history */
+        if txt.len() > 2
+            /* do not store items in history */
             for item in history
                 if txt == item
                     return false
