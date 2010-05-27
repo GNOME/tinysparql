@@ -1,1384 +1,829 @@
 # tracker ja.po.
-# Copyright (C) 2008, Free Software Foundation, Inc
+# Copyright (C) 2008,2010, Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
 # Takao Fujiwara <takao.fujiwara@sun.com>, 2008.
+# Takeshi AIHANA <takeshi.aihana@gmail.com>, 2010.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker trunk\n"
+"Project-Id-Version: tracker tracker-0.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-17 00:47+0900\n"
-"PO-Revision-Date: 2008-04-17 00:45+0900\n"
-"Last-Translator: Takao Fujiwara <takao.fujiwara@sun.com>\n"
-"Language-Team: Takao Fujiwara <takao.fujiwara@sun.com>\n"
+"POT-Creation-Date: 2010-05-28 00:08+0900\n"
+"PO-Revision-Date: 2010-05-28 00:06+0900\n"
+"Last-Translator: Takeshi AIHANA <takeshi.aihana@gmail.com>\n"
+"Language-Team: Japanese <takeshi.aihana@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural= (n != 1);\n"
 
-#: ../python/deskbar-handler/tracker-handler.py:36
-#: ../python/deskbar-handler/tracker-module.py:100
-#, python-format
-msgid "Launch %s (%s)"
-msgstr ""
+#: ../data/miners/tracker-miner-applications.desktop.in.h:1
+#: ../src/tracker-search-bar/tracker-results-window.c:666
+#: ../src/tracker-search-tool/tracker-category-view.gs:79
+msgid "Applications"
+msgstr "アプリケーション"
 
-#: ../python/deskbar-handler/tracker-handler.py:41
-#: ../python/deskbar-handler/tracker-module.py:105
-#, python-format
+#: ../data/miners/tracker-miner-applications.desktop.in.h:2
+msgid "Applications data miner"
+msgstr "アプリケーションのデータを収集します"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:1
+msgid "Emails"
+msgstr "E-メール"
+
+#: ../data/miners/tracker-miner-evolution.desktop.in.h:2
+msgid "Evolution Email miner"
+msgstr "Evolution から E-メールのデータを収集します"
+
+#: ../data/miners/tracker-miner-files.desktop.in.h:1
+msgid "File System"
+msgstr "ファイルシステム"
+
+#: ../data/miners/tracker-miner-files.desktop.in.h:2
+msgid "File system data miner"
+msgstr "ファイルシステムからデータを収集します"
+
+#: ../data/miners/tracker-miner-rss.desktop.in.h:1
+msgid "Fetch RSS/ATOM Feeds"
+msgstr "RSS/ATOM 配信元の回収"
+
+#: ../data/miners/tracker-miner-rss.desktop.in.h:2
+msgid "RSS/ATOM Feeds"
+msgstr "RSS/ATOM 配信元"
+
+#: ../data/tracker-miner-fs.desktop.in.in.h:1
+msgid "Crawls and processes files on the file system"
+msgstr "ファイルシステム上のファイルを追跡して情報を回収します"
+
+#: ../data/tracker-miner-fs.desktop.in.in.h:2
+msgid "Tracker File System Miner"
+msgstr "Tracker ファイルシステム採集器"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:1
+msgid "Fetch RSS/ATOM feeds"
+msgstr "RSS/ATOM 形式の配信元を収集します"
+
+#: ../data/tracker-miner-rss.desktop.in.in.h:2
+msgid "Tracker RSS/ATOM Feeds Miner"
+msgstr "RSS/ATOM 配信元の収集"
+
+#: ../data/tracker-status-icon.desktop.in.in.h:1
+msgid "Tracker Status Icon"
+msgstr "Tracker 状態アイコン"
+
+#: ../data/tracker-status-icon.desktop.in.in.h:2
+msgid "Tracker Status Notification Application"
+msgstr "Tracker 状態通知のアプリケーションです"
+
+#: ../data/tracker-store.desktop.in.in.h:1
+msgid "Metadata database store and lookup manager"
+msgstr "メタ・データベースへ格納してマネージャを検索します"
+
+#: ../data/tracker-store.desktop.in.in.h:2
+msgid "Tracker Store"
+msgstr "Tracker ストア"
+
+#: ../examples/rss-reader/rss_viewer.ui.h:1
+msgid "All posts"
+msgstr "全ての投稿"
+
+#: ../examples/rss-reader/rss_viewer.ui.h:2
+msgid "By usage"
+msgstr "利用別"
+
+#: ../src/plugins/nautilus/tracker-tags-view.c:284
+#: ../src/plugins/nautilus/tracker-tags-view.c:417
+#: ../src/plugins/nautilus/tracker-tags-view.c:451
+msgid "No error was given"
+msgstr "エラーはありませんでした"
+
+#: ../src/plugins/nautilus/tracker-tags-view.c:815
+#, c-format
+msgid "_Set the tags you want to associate with the %d selected item:"
+msgid_plural "_Set the tags you want to associate with the %d selected items:"
+msgstr[0] "選択した%d個のアイテムに関連づけるタグを指定して下さい(_S)"
+msgstr[1] "選択した%d個のアイテムに関連づけるタグを指定して下さい(_S)"
+
+#: ../src/plugins/nautilus/tracker-tags-extension.c:124
+#: ../src/plugins/nautilus/tracker-tags-extension.c:233
+#: ../src/tracker-search-bar/tracker-results-window.c:663
+msgid "Tags"
+msgstr "タグ"
+
+#: ../src/plugins/nautilus/tracker-tags-extension.c:171
+#: ../src/plugins/nautilus/tracker-tags-extension.c:198
+msgid "Tags..."
+msgstr "タグの付与..."
+
+#: ../src/plugins/nautilus/tracker-tags-extension.c:172
+#: ../src/plugins/nautilus/tracker-tags-extension.c:199
+msgid "Tag one or more files"
+msgstr "１個以上のファイルにタグを付与します"
+
+#: ../src/libtracker-common/tracker-dbus.c:589
+msgid "No error given"
+msgstr "エラーはありません"
+
+#: ../src/libtracker-common/tracker-utils.c:68
+#: ../src/libtracker-common/tracker-utils.c:75
+msgid "unknown time"
+msgstr "時刻不明"
+
+#: ../src/libtracker-common/tracker-utils.c:93
+#: ../src/libtracker-common/tracker-utils.c:144
+msgid "less than one second"
+msgstr "1秒以下"
+
+#. Translators: this is %d days
+#: ../src/libtracker-common/tracker-utils.c:108
+#, c-format
+msgid " %dd"
+msgstr " %d日間"
+
+#. Translators: this is %2.2d hours
+#: ../src/libtracker-common/tracker-utils.c:112
+#, c-format
+msgid " %2.2dh"
+msgstr " %2.2d時間"
+
+#. Translators: this is %2.2d minutes
+#: ../src/libtracker-common/tracker-utils.c:116
+#, c-format
+msgid " %2.2dm"
+msgstr " %2.2d分"
+
+#. Translators: this is %2.2d seconds
+#: ../src/libtracker-common/tracker-utils.c:120
+#, c-format
+msgid " %2.2ds"
+msgstr " %2.2d秒"
+
+#: ../src/libtracker-common/tracker-utils.c:124
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] " %d日間"
+msgstr[1] " %d日間"
+
+#: ../src/libtracker-common/tracker-utils.c:128
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] " %2.2d時間"
+msgstr[1] " %2.2d時間"
+
+#: ../src/libtracker-common/tracker-utils.c:132
+#, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] " %2.2d分"
+msgstr[1] " %2.2d分"
+
+#: ../src/libtracker-common/tracker-utils.c:136
+#, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] " %2.2d秒"
+msgstr[1] " %2.2d秒"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:460
+msgid "Data store is not available"
+msgstr "データ・ストアは利用できません"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:1019
+msgid "Pause application and reason match an already existing pause request"
+msgstr ""
+"一時停止中のアプリとその理由は既に一時停止している既存の要求と一致します"
+
+#: ../src/libtracker-miner/tracker-miner-object.c:1091
+msgid "Cookie not recognized to resume paused miner"
+msgstr "一時停止中の収集デーモンを再開するためのクッキーが不明です"
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
+msgid "Push data to Tracker to make it queryable."
+msgstr "検索できるようデータを Tracker に送信します"
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
+msgid "Tracker"
+msgstr "Tracker"
+
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2456
+#: ../src/tracker-utils/tracker-status.c:70
+msgid "Processing…"
+msgstr "処理中..."
+
+#: ../src/tracker-explorer/tracker-explorer.ui.h:1
+msgid "Properties"
+msgstr "プロパティ"
+
+#: ../src/tracker-explorer/tracker-explorer.ui.h:2
+#: ../src/tracker-search-tool/tst.ui.h:2
+msgid "_Search:"
+msgstr "検索(_S):"
+
+#: ../src/tracker-explorer/tracker-explorer.ui.h:3
+msgid "_URN:"
+msgstr "URN(_U):"
+
+#: ../src/tracker-extract/tracker-main.c:84
+#: ../src/tracker-store/tracker-main.c:99
 msgid ""
-"See %s conversation\n"
-"%s %s\n"
-"from %s"
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
+"0)"
 msgstr ""
+"詳細な出力にする (0 = エラーのみ、1 = 最小限の情報、2 = 詳細な情報、3 = デ"
+"バッグ情報、デフォルトは 0)"
 
-#: ../python/deskbar-handler/tracker-handler.py:47
-#: ../python/deskbar-handler/tracker-module.py:110
-#, python-format
-msgid "Email from %s"
+#: ../src/tracker-extract/tracker-main.c:89
+msgid "File to extract metadata for"
+msgstr "ファイルを指定してメタデータを展開する"
+
+#: ../src/tracker-extract/tracker-main.c:90 ../src/miners/fs/tracker-main.c:90
+#: ../src/miners/fs/tracker-main.c:94 ../src/tracker-utils/tracker-import.c:55
+#: ../src/tracker-utils/tracker-import.c:56
+#: ../src/tracker-utils/tracker-info.c:58
+#: ../src/tracker-utils/tracker-info.c:59
+#: ../src/tracker-utils/tracker-sparql.c:62
+msgid "FILE"
+msgstr "FILE"
+
+#: ../src/tracker-extract/tracker-main.c:93
+msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr ""
+"ファイルの MIME 型を指定する (このオプションを指定しない場合は自動検出を試み"
+"る)"
 
-#: ../python/deskbar-handler/tracker-handler.py:60
-#: ../python/deskbar-handler/tracker-module.py:122
-#, python-format
-msgid ""
-"Listen to music %s\n"
-"in %s"
+#: ../src/tracker-extract/tracker-main.c:94
+#: ../src/tracker-control/tracker-control.c:97
+msgid "MIME"
+msgstr "MIME"
+
+#: ../src/tracker-extract/tracker-main.c:99
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr "30秒後に終了する機能を無効にする"
+
+#: ../src/tracker-extract/tracker-main.c:103
+msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
+msgstr "内部の展開処理としてサードパーティ製 (libstreamanalyzer) を使用する"
+
+#: ../src/tracker-extract/tracker-main.c:107
+msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr ""
+"内部の展開処理として使用するモジュールを指定する (例: \"foo.so\" ならば \"foo"
+"\" と指定する)"
 
-#: ../python/deskbar-handler/tracker-handler.py:65
-#: ../python/deskbar-handler/tracker-module.py:128
-#, python-format
-msgid ""
-"See document %s\n"
-"in %s"
-msgstr ""
+#: ../src/tracker-extract/tracker-main.c:108
+msgid "MODULE"
+msgstr "MODULE"
 
-#: ../python/deskbar-handler/tracker-handler.py:70
-#: ../python/deskbar-handler/tracker-handler.py:87
-#: ../python/deskbar-handler/tracker-handler.py:124
-#: ../python/deskbar-handler/tracker-module.py:133
-#: ../python/deskbar-handler/tracker-module.py:155
-#: ../python/deskbar-handler/tracker-module.py:207
-#: ../python/deskbar-handler/tracker-module.py:243
-#, python-format
-msgid ""
-"Open file %s\n"
-"in %s"
-msgstr ""
+#: ../src/tracker-extract/tracker-main.c:111
+#: ../src/miners/fs/tracker-main.c:97 ../src/tracker-store/tracker-main.c:95
+#: ../src/tracker-writeback/tracker-main.c:51
+msgid "Displays version information"
+msgstr "バージョン情報を表示する"
 
-#: ../python/deskbar-handler/tracker-handler.py:75
-#: ../python/deskbar-handler/tracker-module.py:138
-#, python-format
-msgid ""
-"View image %s\n"
-"in %s"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:81
-#: ../python/deskbar-handler/tracker-module.py:144
-#, python-format
-msgid ""
-"Watch video  %s\n"
-"in %s"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:92
-#: ../python/deskbar-handler/tracker-module.py:150
-#, python-format
-msgid ""
-"Open folder %s\n"
-"%s"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:210
-#: ../python/deskbar-handler/tracker-module.py:351
-msgid "with"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:218
-#: ../python/deskbar-handler/tracker-module.py:359
-msgid "in channel"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:385
-msgid "Search all of your documents, <b>as you type</b>"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:389
-#: ../python/deskbar-handler/tracker-module.py:295
-msgid "Development Files"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:392
-#: ../python/deskbar-handler/tracker-module.py:298
-#: ../src/tracker-search-tool/tracker-search-tool.c:141
-msgid "Music"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:395
-#: ../python/deskbar-handler/tracker-module.py:301
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
-msgid "Images"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler.py:398
-#: ../python/deskbar-handler/tracker-module.py:304
-#: ../src/tracker-search-tool/tracker-search-tool.c:142
-msgid "Videos"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler-static.py:37
-#: ../python/deskbar-handler/tracker-module.py:65
-#: ../python/deskbar-handler/tracker-module.py:160
-#, python-format
-msgid "Search for %s with Tracker Search Tool"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-handler-static.py:68
-msgid "Search all of your documents with Tracker Search Tool"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-module.py:79
-msgid "Tracker Search"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-module.py:80
-msgid "Search with Tracker Search Tool"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-module.py:290
-msgid "Tracker Live Search"
-msgstr ""
-
-#: ../python/deskbar-handler/tracker-module.py:291
-msgid "Search with Tracker, as you type"
-msgstr ""
-
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:472
-#, c-format
-msgid "Path : <b>%s</b>"
-msgstr "パス : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:473
-#, c-format
-msgid "Modified : <b>%s</b>"
-msgstr "修正日時: <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:474
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:660
-#, c-format
-msgid "Size : <b>%s</b>"
-msgstr "サイズ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:475
-#, c-format
-msgid "Accessed : <b>%s</b>"
-msgstr "アクセス日: <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:476
-#, c-format
-msgid "Mime : <b>%s</b>"
-msgstr "MIME : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:528
-#, c-format
-msgid "Sender : <b>%s</b>"
-msgstr "送信者 : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:529
-#, c-format
-msgid "Date : <b>%s</b>"
-msgstr "日付 : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:569
-#, c-format
-msgid "Comment : <b>%s</b>"
-msgstr "コメント : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:570
-#, c-format
-msgid "Categories : <b>%s</b>"
-msgstr "カテゴリ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:656
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:761
-#, c-format
-msgid "Duration : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:657
-#, c-format
-msgid "Genre : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:658
-#, c-format
-msgid "Bitrate : <b>%s Kbs</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:659
-#, c-format
-msgid "Year : <b>%s</b>"
-msgstr "年 : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:661
-#, c-format
-msgid "Codec : <b>%s</b>"
-msgstr "コーデック : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:702
-#, c-format
-msgid " taken with a <span size='large'><i>%s</i></span>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:707
-#, c-format
-msgid " <span size='large'><i>%s</i></span>"
-msgstr ""
-
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:727
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:759
-#, c-format
-msgid "Dimensions : <b>%d x %d</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:728
-#, c-format
-msgid "Date Taken : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:729
-#, c-format
-msgid "Orientation : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:730
-#, c-format
-msgid "Flash : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:731
-#, c-format
-msgid "Focal Length : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:732
-#, c-format
-msgid "Exposure Time : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:760
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:793
-#, c-format
-msgid "Author : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:762
-#, c-format
-msgid "Bitrate : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:763
-#, c-format
-msgid "Encoded In : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:764
-#, c-format
-msgid "Framerate : <b>%s</b>"
-msgstr ""
-
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:792
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:824
-#, c-format
-msgid "Subject : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:794
-#, c-format
-msgid "Page Count : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:795
-#, c-format
-msgid "Word Count : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:796
-#, c-format
-msgid "Created : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:797
-#, c-format
-msgid "Comments : <b>%s</b>"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:917
-#, c-format
-msgid "%.1f KB"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:921
-#, c-format
-msgid "%.1f MB"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:925
-#, c-format
-msgid "%.1f GB"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:964
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1004
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1027
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1049
-msgid "Unknown"
-msgstr ""
-
-#: ../src/libtracker-gtk/tracker-tag-bar.c:250
-msgid "Type tags you want to add here, separated by commas"
-msgstr "追加したいタグをコンマで区切って入力してください"
-
-#: ../src/libtracker-gtk/tracker-tag-bar.c:365
-msgid "Tags :"
-msgstr "タグ :"
-
-#. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:392
-msgid "_Search For Tag"
-msgstr "タグで検索する(_S)"
-
-#. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:404
-msgid "_Remove Tag"
-msgstr "タグを削除する(_R)"
-
-#: ../src/libtracker/tracker-search.c:34
-msgid "Limit the number of results showed to N"
-msgstr ""
-
-#: ../src/libtracker/tracker-search.c:34
-msgid "N"
-msgstr ""
-
-#: ../src/libtracker/tracker-search.c:35
-msgid "Search for a specific service"
-msgstr ""
-
-#: ../src/libtracker/tracker-search.c:35
-#: ../src/tracker-search-tool/tracker-search-tool.c:65
-msgid "SERVICE"
-msgstr ""
-
-#: ../src/libtracker/tracker-search.c:36
-msgid "Show more detailed results with service and mime type as well"
-msgstr ""
-
-#. Translators: this messagge will apper immediately after the
+#. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-search.c:89
-msgid "TERM... - search files for certain terms"
-msgstr ""
+#: ../src/tracker-extract/tracker-main.c:349
+msgid "- Extract file meta data"
+msgstr "- ファイルのメタデータを展開する"
 
-#. Translators: this message will appear after the usage string
-#. and before the list of options.
-#: ../src/libtracker/tracker-search.c:93
+#: ../src/tracker-extract/tracker-main.c:358
+msgid "Filename and mime type must be provided together"
+msgstr "ファイル名と MIME 型を一緒に指定して下さい"
+
+#: ../src/tracker-extract/tracker-main.c:372
 msgid ""
-"Specifying more then one term, will be showed items containing ALL the "
-"specified terms (term1 AND term2 - logical conjunction)"
+"Options --force-internal-extractors and --force-module can't be used together"
 msgstr ""
+"--force-internal-extractors と --force-module オプションは一緒に指定できませ"
+"ん"
 
-#: ../src/libtracker/tracker-search.c:97
-msgid "The list of recognized services is:"
+#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:37
+#: ../src/tracker-writeback/tracker-main.c:55
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
 msgstr ""
+"詳細な出力にする (0 = エラーのみ、1 = 最小限の情報、2 = 詳細な情報、3 = デ"
+"バッグ情報、デフォルトは 0)"
 
-#: ../src/libtracker/tracker-search.c:114
-#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
-#: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
+#: ../src/miners/fs/tracker-main.c:84
+msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+msgstr ""
+"起動後のスリープ時間 (単位は秒) を 0〜1000 の値で指定する (デフォルトは 15)"
+
+#: ../src/miners/fs/tracker-main.c:89
+msgid "Checks if FILE is eligible for being mined based on configuration"
+msgstr "FILE が設定内容に基づいて収集するのに適したものかどうかをチェックする"
+
+#: ../src/miners/fs/tracker-main.c:93
+msgid "Forces the insertion of FILE into the store"
+msgstr "FILE の情報を強制的に保存する"
+
+#: ../src/miners/fs/tracker-main.c:365
 #, c-format
-msgid "Try \"%s --help\" for more information."
-msgstr ""
+msgid "Data object '%s' currently exists"
+msgstr "現在、'%s' というデータ・オブジェクトは存在しています"
 
-#: ../src/libtracker/tracker-search.c:120
+#: ../src/miners/fs/tracker-main.c:366
 #, c-format
-msgid "%s: missing search terms"
-msgstr ""
+msgid "Data object '%s' currently does not exist"
+msgstr "現在、'%s' というデータ・オブジェクトは存在していません"
 
-#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
-#: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
-#, c-format
-msgid "%s: no connection to tracker daemon"
-msgstr ""
+#: ../src/miners/fs/tracker-main.c:381
+msgid "Directory is eligible to be mined (based on rules)"
+msgstr "このフォルダは収集に適したものです (設定にあるルールに基づいています)"
 
-#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
-#: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
-#, c-format
-msgid "Ensure \"tracker-store\" is running before launch this command."
+#: ../src/miners/fs/tracker-main.c:382
+msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr ""
+"このフォルダは収集に適したものではありません (設定にあるルールに基づいていま"
+"せん)"
 
-#: ../src/libtracker/tracker-search.c:147
-#, c-format
-msgid "Service not recognized, searching in Other Files...\n"
+#: ../src/miners/fs/tracker-main.c:402
+msgid "Directory is eligible to be mined (based on contents)"
 msgstr ""
+"このフォルダは収集に適したものです (設定にある情報の内容に基づいています)"
 
-#: ../src/libtracker/tracker-search.c:164
-#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
-#: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
-#: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
-#, c-format
-msgid "%s: internal tracker error: %s"
+#: ../src/miners/fs/tracker-main.c:403
+msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr ""
+"このフォルダは収集に適していません (設定にある情報の内容に基づいていません)"
 
-#. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
-#, c-format
-msgid "No results found matching your query"
+#: ../src/miners/fs/tracker-main.c:450
+msgid "Directory is eligible to be monitored (based on config)"
+msgstr "このフォルダは監視に適したものです (設定に基づいています)"
+
+#: ../src/miners/fs/tracker-main.c:451
+msgid "Directory is NOT eligible to be monitored (based on config)"
+msgstr "このフォルダは監視に適していません (設定に基づいていません)"
+
+#: ../src/miners/fs/tracker-main.c:455
+msgid "File is eligible to be monitored (based on config)"
+msgstr "このファイルは監視に適したものです (設定に基づいています)"
+
+#: ../src/miners/fs/tracker-main.c:456
+msgid "File is NOT eligible to be monitored (based on config)"
+msgstr "このファイルは監視に適していません (設定に基づいていません)"
+
+#: ../src/miners/fs/tracker-main.c:460
+msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
+"このファイルまたはフォルダは監視に適したものです (設定に基づいています)"
+
+#: ../src/miners/fs/tracker-main.c:461
+msgid "File or Directory is NOT eligible to be monitored (based on config)"
+msgstr ""
+"このファイルまたはフォルダは監視に適していません (設定に基づいていません)"
+
+#: ../src/miners/fs/tracker-main.c:476
+msgid "File is eligible to be mined (based on rules)"
+msgstr "このファイルは収集に適したものです (設定にあるルールに基づいています)"
+
+#: ../src/miners/fs/tracker-main.c:477
+msgid "File is NOT eligible to be mined (based on rules)"
+msgstr "このファイルは収集に適していません(設定にあるルールに基づいていません)"
+
+#: ../src/miners/fs/tracker-main.c:486
+msgid "Would be indexed"
+msgstr "インデックスの生成"
+
+#: ../src/miners/fs/tracker-main.c:487 ../src/miners/fs/tracker-main.c:489
+msgid "Yes"
+msgstr "はい"
+
+#: ../src/miners/fs/tracker-main.c:487 ../src/miners/fs/tracker-main.c:489
+msgid "No"
+msgstr "いいえ"
+
+#: ../src/miners/fs/tracker-main.c:488
+msgid "Would be monitored"
+msgstr "メタデータの収集"
 
 #. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-stats.c:73
-msgid " - show number of indexed files for each service"
-msgstr ""
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/fs/tracker-main.c:529
+msgid "- start the tracker indexer"
+msgstr "- Tracker 用のインデックス生成デーモン"
 
-#: ../src/libtracker/tracker-stats.c:108
-msgid "fetching index stats"
-msgstr ""
+#: ../src/miners/fs/tracker-miner-files.c:951
+msgid "Low battery"
+msgstr "バッテリーが少なくなっています"
 
-#: ../src/libtracker/tracker-tag.c:41
-msgid "Add specified tag to a file"
-msgstr ""
-
-#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
-#: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
-msgid "TAG"
-msgstr ""
-
-#: ../src/libtracker/tracker-tag.c:42
-msgid "Remove specified tag from a file"
-msgstr ""
-
-#: ../src/libtracker/tracker-tag.c:43
-msgid "Remove all tags from a file"
-msgstr ""
-
-#: ../src/libtracker/tracker-tag.c:44
-msgid "List all defined tags"
-msgstr ""
-
-#: ../src/libtracker/tracker-tag.c:45
-msgid "Search for files with specified tag"
-msgstr ""
-
-#: ../src/libtracker/tracker-tag.c:46
-msgid "FILE..."
-msgstr ""
+#: ../src/miners/fs/tracker-miner-files.c:1073
+msgid "Low disk space"
+msgstr "ディスクの空き容量が少なくなっています"
 
 #. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-tag.c:90
-msgid "FILE... - manipulate tags on files"
-msgstr ""
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/rss/tracker-main.c:64
+msgid "- start the feeds indexer"
+msgstr "- 配信元のインデックス生成デーモン"
 
-#: ../src/libtracker/tracker-tag.c:99
-msgid ""
-"To add, remove, or search for multiple tags at the same time, join multiple "
-"options like:"
-msgstr ""
+#: ../src/miners/rss/tracker-miner-rss.c:164
+#: ../src/tracker-utils/tracker-status.c:69
+msgid "Initializing"
+msgstr "初期化中です"
 
-#: ../src/libtracker/tracker-tag.c:121
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Configure file indexing with Tracker"
+msgstr "Tracker でファイルのインデックス化の設定を行います"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
+msgid "Search and Indexing"
+msgstr "検索とインデックス生成"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:110
+msgid "Disabled"
+msgstr "無効"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:113
 #, c-format
-msgid "%s: invalid arguments"
-msgstr ""
+msgid "%d%%"
+msgstr "%d%%"
 
-#: ../src/libtracker/tracker-tag.c:148
+#: ../src/tracker-preferences/tracker-preferences.vala:117
 #, c-format
-msgid "%s: file %s not found"
-msgstr ""
+msgid "%d/20"
+msgstr "%d/20"
 
-#: ../src/tracker-store/tracker-store.c:120
-msgid "Directory to exclude from indexing"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.vala:125
+msgid "Enter value"
+msgstr "値の入力"
 
-#: ../src/tracker-store/tracker-store.c:120 ../src/tracker-store/tracker-store.c:121
-#: ../src/tracker-store/tracker-store.c:122
-msgid "/PATH/DIR"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.vala:156
+msgid "Select directory"
+msgstr "フォルダの選択"
 
-#: ../src/tracker-store/tracker-store.c:121
-msgid "Directory to include in indexing"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.vala:399
+#: ../src/tracker-preferences/tracker-preferences.vala:400
+#: ../src/tracker-preferences/tracker-preferences.vala:401
+#: ../src/tracker-preferences/tracker-preferences.vala:402
+msgid "Directory"
+msgstr "フォルダ"
 
-#: ../src/tracker-store/tracker-store.c:122
-msgid "Directory to crawl for indexing at start up only"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.vala:403
+msgid "File"
+msgstr "ファイル"
 
-#: ../src/tracker-store/tracker-store.c:123
-msgid "Disable any indexing or watching taking place"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:1
+msgid "<b>Notification area</b>"
+msgstr "<b>通知スペース</b>"
 
-#: ../src/tracker-store/tracker-store.c:124
+#: ../src/tracker-preferences/tracker-preferences.ui.h:2
+msgid "Al_ways display icon"
+msgstr "常にアイコンを表示する(_W)"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:3
+msgid "Directories"
+msgstr "いろいろなフォルダ"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
+msgid "Directories (no sub-directories are indexed):"
+msgstr "フォルダ (そのサブ・フォルダはインデックス化の対象外):"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
+msgid "Directories:"
+msgstr "フォルダ:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:6
+msgid "Enable for _first time"
+msgstr "初回時に有効にする(_F)"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:7
+msgid "Enable when running on _battery"
+msgstr "バッテリーで起動中の時も有効にする(_B)"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:8
+msgid "Faster"
+msgstr "高速"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:9
+msgid "Files"
+msgstr "ファイル"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:10
+msgid "General"
+msgstr "全般"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:11
+msgid "Glob patterns to ignore:"
+msgstr "無視するパターン:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:12
 msgid ""
-"Value that controls the level of logging. Valid values are 0 (displays/logs "
-"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+"Globbing patterns can be used here, for example: \"*bar*\".\n"
+"Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
+"ここで収集パターンを指定できます (例: \"*bar*\")\n"
+"一般的に、このパターンは無視するフォルダの照合に使用します (例: *~、*.o、*."
+"la など)"
 
-#: ../src/tracker-store/tracker-store.c:124 ../src/tracker-store/tracker-store.c:125
-msgid "VALUE"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:14
+msgid "Ignored Content"
+msgstr "無視するデータ"
 
-#: ../src/tracker-store/tracker-store.c:125
-msgid ""
-"Value to use for throttling indexing. Value must be in range 0-99 (default "
-"0) with lower values increasing indexing speed"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:15
+msgid "Include _removable media"
+msgstr "リムーバブル・メディアも対象にする(_R)"
 
-#: ../src/tracker-store/tracker-store.c:126
-msgid "Minimizes the use of memory but may slow indexing down"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:16
+msgid "Include mou_nted directories"
+msgstr "マウント済のフォルダも対象にする(_N)"
 
-#: ../src/tracker-store/tracker-store.c:127
-msgid "Initial sleep time, just before indexing, in seconds"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
+msgid "Include optical di_scs"
+msgstr "光学ディスク (CD/DVDなど) も対象にする(_S)"
 
-#: ../src/tracker-store/tracker-store.c:128
-msgid ""
-"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr ""
-
-#: ../src/tracker-store/tracker-store.c:128
-msgid "LANG"
-msgstr ""
-
-#: ../src/tracker-store/tracker-store.c:129
-msgid "Force a re-index of all content"
-msgstr ""
-
-#: ../src/tracker-store/tracker-store.c:130
-msgid "Make tracker errors fatal"
-msgstr ""
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/tracker-store/tracker-store.c:664
-msgid "- start the tracker daemon"
-msgstr ""
-
-#: ../src/tracker-store/tracker-store.c:665 ../src/tracker-store/tracker-store.c:666
-msgid "DIRECTORY"
-msgstr ""
-
-#: ../src/tracker-store/tracker-store.c:673
-msgid ""
-"To include or exclude multiple directories at the same time, join multiple "
-"options like:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
-msgid "Control and monitor the Tracker search and indexing service"
-msgstr "Tracker 検索と索引サービスを制御し監視します"
-
-#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
-#: ../src/tracker-applet/tracker-applet.c:54
-msgid "Tracker Applet"
-msgstr "Tracker アプレット"
-
-#. Translators: this will appear like "Tracker : Idle"
-#: ../src/tracker-applet/tracker-applet.c:238
-msgid "Tracker : "
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:243
-msgid "Idle"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:247
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid "Indexing"
-msgstr ""
+msgstr "インデックス化"
 
-#: ../src/tracker-applet/tracker-applet.c:251
-msgid "Merging"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+msgid "Indexing Preferences"
+msgstr "インデックス化の設定"
 
-#: ../src/tracker-applet/tracker-applet.c:261
-msgid " (paused by user)"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:20
+msgid "Indexing s_peed (faster consumes more resources):"
+msgstr "生成速度 (高速にすると大量のリソースを消費する)(_P)"
 
-#: ../src/tracker-applet/tracker-applet.c:263
-#: ../src/tracker-applet/tracker-applet.c:274
-msgid " (paused by system)"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
+msgid "Limitations"
+msgstr "制限"
 
-#: ../src/tracker-applet/tracker-applet.c:278
-msgid " (paused by battery)"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+msgid "Locations"
+msgstr "フォルダ"
 
-#: ../src/tracker-applet/tracker-applet.c:291
-msgid "folders"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+msgid "Non-Recursively Indexed"
+msgstr "再帰的にはインデックス化しないもの"
 
-#: ../src/tracker-applet/tracker-applet.c:293
-msgid "mailboxes"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+msgid "Opens text entry for glob patterns"
+msgstr "Glob パターンを指定するためのエントリ・ボックスを開きます"
 
-#: ../src/tracker-applet/tracker-applet.c:1021
-msgid "Re-index your system?"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+msgid "Opens the filechooser dialogue"
+msgstr "ファイル選択ダイアログを開きます"
 
-#: ../src/tracker-applet/tracker-applet.c:1024
-msgid "Indexing can take a long time. Are you sure you want to re-index?"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
+msgid "Recursively Indexed"
+msgstr "再帰的にインデックス化するもの"
 
-#: ../src/tracker-applet/tracker-applet.c:1162
-msgid "Statistics"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+msgid "Semantics"
+msgstr "動作"
 
-#: ../src/tracker-applet/tracker-applet.c:1188
-msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+msgid "Slower"
+msgstr "低速"
 
-#: ../src/tracker-applet/tracker-applet.c:1313
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+msgid "Start up"
+msgstr "起動時"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+msgid "Stop indexing when _disk space is below:"
+msgstr "ディスク使用量が次の値になったら停止する(_D):"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
+msgstr ""
+"これは全てのリムーバブル・メディア、メモリ・カード、CD、DVD などを含みます"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+msgid ""
+"When toggled, this makes sure your home directory is included in the list."
+msgstr ""
+"これを ON にすると、あなたのホーム・フォルダが一覧に含まれるようになります"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+msgid "With specific files:"
+msgstr "特定のファイル:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+msgid "_Delay"
+msgstr "遅れ(_D)"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+msgid "_Monitor file and directory changes"
+msgstr "ファイルとフォルダの変化を監視する(_M)"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+msgid "_Never display icon"
+msgstr "アイコンを表示しない(_N)"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+msgid "_Only display when indexing content"
+msgstr "インデックスが存在している時だけ表示する(_O)"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:38
+msgid "seconds"
+msgstr "秒"
+
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:1
+msgid "Desktop search tool using Tracker"
+msgstr "Tracker を使ったデスクトップ検索ツールです"
+
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:2
+msgid "Search Bar"
+msgstr "検索バー"
+
+#.
+#. item = gtk_image_menu_item_new_with_mnemonic (_("_Indexer Preferences"));
+#. image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
+#. GTK_ICON_SIZE_MENU);
+#. gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+#. gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+#. g_signal_connect (G_OBJECT (item), "activate",
+#. G_CALLBACK (preferences_menu_activated), icon);
+#.
+#.
+#. item = gtk_image_menu_item_new_with_mnemonic (_("S_tatistics"));
+#. image = gtk_image_new_from_icon_name (GTK_STOCK_INFO,
+#. GTK_ICON_SIZE_MENU);
+#. gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+#. gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
+#. g_signal_connect (G_OBJECT (item), "activate",
+#. G_CALLBACK (statistics_menu_activated), icon);
+#.
+#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
+#: ../src/tracker-status-icon/tracker-status-icon.c:890
+msgid "_About"
+msgstr "情報(_A)"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:661
+#: ../src/tracker-search-bar/tracker-results-window.c:677
+msgid "Other"
+msgstr "その他"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:662
+msgid "Contacts"
+msgstr "連絡先"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:664
+msgid "Email Addresses"
+msgstr "E-メール"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:665
+#: ../src/tracker-search-tool/tracker-category-view.gs:63
+msgid "Documents"
+msgstr "ドキュメント"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:667
+#: ../src/tracker-search-tool/tracker-category-view.gs:67
+msgid "Images"
+msgstr "画像"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:668
+msgid "Audio"
+msgstr "オーディオ"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:669
+#: ../src/tracker-search-tool/tracker-category-view.gs:59
+msgid "Folders"
+msgstr "フォルダ"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:670
+msgid "Fonts"
+msgstr "フォント"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:671
+#: ../src/tracker-search-tool/tracker-category-view.gs:75
+msgid "Videos"
+msgstr "ビデオ"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:672
+msgid "Archives"
+msgstr "書庫"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:673
+msgid "Bookmarks"
+msgstr "ブックマーク"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:674
+msgid "Links"
+msgstr "リンク"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:1048
+msgid "Category"
+msgstr "カテゴリ"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:1076
+msgid "Title"
+msgstr "タイトル"
+
+#: ../src/tracker-search-bar/tracker-results-window.c:1142
+#, c-format
+msgid "No results found for “%s”"
+msgstr "\"%s\" に対する検索結果はありません"
+
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:1
+msgid "A search bar applet for finding content stored in Tracker"
+msgstr "Tracker で蓄積された情報を検索するバー型のアプレットです。"
+
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
+#: ../src/tracker-status-icon/tracker-status-icon.c:791
+msgid "Copyright Tracker Authors 2005-2009"
+msgstr "Copyright Tracker の開発者 2005-2009"
+
+#: ../src/tracker-search-bar/tracker-search-bar.ui.h:3
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
 "Foundation; either version 2 of the License, or (at your option) any later "
-"version."
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1314
-msgid ""
+"version.\n"
+"\n"
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
 "FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
-"details."
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1315
-msgid ""
+"details.\n"
+"\n"
 "You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
-"Place, Suite 330, Boston, MA  02111-1307  USA"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1330
-msgid ""
-"Tracker is a tool designed to extract info and metadata about your personal "
-"data so that it can be searched easily and quickly"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1332
-msgid "Copyright © 2005-2008 The Tracker authors"
-msgstr ""
-
-#. Translators should localize the following string
-#. * which will be displayed at the bottom of the about
-#. * box to give credit to the translator(s).
-#.
-#: ../src/tracker-applet/tracker-applet.c:1340
-msgid "translator-credits"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1343
-msgid "Tracker Web Site"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1363
-msgid "_Pause All Indexing"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1374
-msgid "_Search"
-msgstr "検索(_S)"
-
-#: ../src/tracker-applet/tracker-applet.c:1384
-msgid "_Re-index"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1393
-msgid "_Preferences"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1404
-msgid "_Indexer Preferences"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1413
-msgid "S_tatistics"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1422
-msgid "_About"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1434
-msgid "_Quit"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1997 ../tracker-store.desktop.in.in.h:1
-msgid "Tracker"
-msgstr "Tracker"
-
-#: ../src/tracker-applet/tracker-applet.c:2004
-msgid ""
-"Your computer is about to be indexed so you can perform fast searches of "
-"your files and emails"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2007
-msgid ""
-"You can pause indexing at any time and configure index settings by right "
-"clicking here"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2010
-msgid "Tracker has finished indexing your system"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2011
-#, c-format
-msgid " in %d hours and %d minutes"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2012
-#, c-format
-msgid " in %d minutes and %d seconds"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2013
-#, c-format
-msgid " in %d seconds"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2015
-msgid "You can now perform searches by clicking here"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2018
-msgid "Files:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2019
-msgid "    Folders:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2020
-msgid "    Documents:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2021
-msgid "    Images:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2022
-msgid "    Music:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2023
-msgid "    Videos:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2024
-msgid "    Text:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2025
-msgid "    Development:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2026
-msgid "    Other:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2027
-msgid "Applications:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2028
-msgid "Conversations:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:2029
-msgid "Emails:"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
-msgid "<b>Animation</b>"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:2
-msgid "<b>Smart Pausing</b>"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:3
-msgid "<b>Visibility</b>"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:4
-msgid "Animate _icon when indexing"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:5
-msgid "Applet Preferences"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
-msgid ""
-"Automatically _pause if indexing may degrade performance of other "
-"applications in active use"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
-msgid "_Automatically pause all indexing when computer is in active use"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
-msgid "_Hide Icon (except when displaying messages to user)"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:9
-msgid "_Off"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.c:833
-msgid "Data must be reindexed"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.c:834
-msgid ""
-"In order for your changes to take effect, Tracker must reindex your files. "
-"Click the Reindex button to start reindexing now, otherwise this action will "
-"be performed the next time the Tracker daemon is restarted."
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.c:841
-msgid "_Reindex"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.c:844
-msgid "Tracker daemon must be restarted"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.c:846
-msgid ""
-"In order for your changes to take effect, the Tracker daemon has to be "
-"restarted. Click the Restart button to restart the daemon now."
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.c:851
-msgid "_Restart"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
-msgid "Configure file indexing with Tracker"
-msgstr "Tracker でファイルの索引を構成します"
-
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Search and Indexing"
-msgstr "検索と索引"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:1
-msgid "<b>Crawled Directories</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:2
-msgid "<b>Ignored File Patterns</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:3
-msgid "<b>Ignored Paths</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:4
-msgid "<b>Index Merging</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:5
-msgid "<b>Indexing Limits (per file)</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:6
-msgid "<b>Indexing Options</b>"
-msgstr "<b>索引オプション</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
-msgid "<b>Indexing</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:8
-msgid "<b>Power management</b>"
-msgstr "<b>電源管理</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:9
-msgid "<b>Resource Usage</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
-msgid "<b>Startup</b>"
-msgstr "<b>起動時</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
-msgid "<b>Stemming</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
-msgid "<b>Throttling</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
-msgid "<b>Watch Directories</b>"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
-msgid "Additional mbox style mailboxes to index:"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
-msgid "Additional paths to index and watch:"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
-msgid "Additional paths to index on startup (but not watch for updates):"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
-msgid ""
-"Danish\n"
-"Dutch\n"
-"English\n"
-"Finnish\n"
-"French\n"
-"German\n"
-"Italian\n"
-"Norwegian\n"
-"Portuguese\n"
-"Russian\n"
-"Spanish\n"
-"Swedish"
-msgstr ""
-"デンマーク語\n"
-"オランダ語\n"
-"英語\n"
-"フィンランド語\n"
-"フランス語\n"
-"ドイツ語\n"
-"イタリア語\n"
-"ノルウェイ語\n"
-"ポルトガル語\n"
-"ロシア語\n"
-"スペイン語\n"
-"スウェーデン語"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-msgid "Disable all Indexing when on battery"
-msgstr "バッテリーがオンの時にすべての索引を無効にする"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
-msgid "Disable initial index sweep when on battery"
-msgstr "バッテリーがオンの時に初期索引を無効にする"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
-msgid "Email"
-msgstr "電子メール"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Enable _Evolution email indexing"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
-msgid "Enable _KMail email indexing"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
-#, fuzzy
-msgid "Enable _Modest email indexing"
-msgstr "索引を有効にする(_N)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
-msgid "Enable _Thunderbird email indexing"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-msgid "Enable _watching"
-msgstr "監視を有効にする(_W)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "Enable i_ndexing"
-msgstr "索引を有効にする(_N)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
-msgid "Faster"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
-msgid "File patterns to ignore during indexing:"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
-msgid "Files"
-msgstr "ファイル"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
-msgid "General"
-msgstr "一般"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
-msgid "Generate thum_bnails"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
-msgid "Ignored Files"
-msgstr "無視されるファイル"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
-msgid "Index _delay: "
-msgstr "索引の遅延(_D):"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:45
-msgid "Index _file contents"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:46
-msgid "Index _mounted directories"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:47
-msgid "Index and watch my home _directory"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:48
-msgid "Indexing speed:"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:49
-msgid "Maximum _amount of text to index:"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:50
-msgid "Maximum number of unique _words to index:"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:51
-msgid "Path roots to be ignored during indexing:"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:52
-msgid "Perform fast index merges (may affect system performance)"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:53
-msgid "Performance"
-msgstr "性能"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:54
-msgid "Slower"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:55
-msgid "Tracker Preferences"
-msgstr "Tracker 設定"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:56
-msgid "_Language:"
-msgstr "言語(_L):"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:57
-msgid "_Minimize memory usage (slower indexing)"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:58
-msgid "_Use additional memory for faster indexing"
-msgstr ""
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:59
-msgid "kB"
-msgstr "kB"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:60
-msgid "seconds"
-msgstr "秒"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:65
-msgid "Search from a specific service"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "電子メール"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:137
+"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA  02110-1301, USA."
+msgstr ""
+"Tracker はフリーソフトウェアです。フリーソフトウェア財団が提供する GNU 一般公"
+"衆利用許諾契約書の第二版、あるいはそれ以降の版が定める条項の下で本プログラム"
+"を再頒布または変更することができます。\n"
+"\n"
+"Tracker は有用とは思いますが、その頒布にあたり商用での利用や特定の目的に対す"
+"る適用については暗黙の保証を含めて、いかなる保証も行ないません。詳細には GNU "
+"一般公衆利用許諾契約書をご覧下さい。\n"
+"\n"
+"あなたは本プログラムと一緒に GNU 一般公衆利用許諾契約書の写しを受け取っている"
+"はずです。そうでない場合は、Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA 02110-1301, USA まで連絡して下さい。"
+
+#: ../src/tracker-search-tool/tracker-category-view.gs:55
 msgid "All Files"
 msgstr "すべてのファイル"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:138
-msgid "Folders"
-msgstr "フォルダ"
+#: ../src/tracker-search-tool/tracker-category-view.gs:71
+msgid "Music"
+msgstr "楽曲"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:139
-msgid "Documents"
-msgstr "ドキュメント"
+#: ../src/tracker-search-tool/tracker-entry.gs:42
+msgid "Clear the search text"
+msgstr "検索フィールドをクリアします"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1213
-msgid "Text"
-msgstr "テキスト"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:95
+msgid "Name:"
+msgstr "名前:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:144
-msgid "Development"
-msgstr "開発"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:101
+msgid "Folder:"
+msgstr "フォルダ:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:145
-msgid "Chat Logs"
-msgstr "チャットログ"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:105
+msgid "Type:"
+msgstr "種類"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:146
-msgid "Applications"
-msgstr "アプリケーション"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:110
+msgid "Size:"
+msgstr "サイズ:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:147
-msgid "WebHistory"
-msgstr "Web 履歴"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:115
+msgid "Modified:"
+msgstr "修正日時: <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:207
-msgid "_Open"
-msgstr "開く(_O)"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:314
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
+msgid "Height:"
+msgstr "高さ:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:208
-msgid "O_pen Folder"
-msgstr ""
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:315
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
+msgid "Width:"
+msgstr "幅:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:209
-msgid "Mo_ve to Trash"
-msgstr ""
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
+msgid "Title:"
+msgstr "タイトル:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:210
-msgid "_Save Results As..."
-msgstr ""
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
+msgid "Artist:"
+msgstr "演奏者:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:238
-#, c-format
-msgid "Character set conversion failed for \"%s\""
-msgstr ""
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:328
+msgid "Album:"
+msgstr "アルバム:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:265
-msgid "The following error has occurred :"
-msgstr "次のエラーが起こりました :"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:342
+msgid "Duration:"
+msgstr "演奏時間:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:269
-msgid "Error"
-msgstr "エラー"
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
+msgid "Author:"
+msgstr "作者:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:644
-msgid "Did you mean"
-msgstr "次はいかがですか"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:675
-msgid "Your search returned no results."
-msgstr "検索は結果なしが返りました。"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:690
-msgid "Tracker Search Tool-"
-msgstr "Tracker 検索ツール-"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:851
-#: ../src/tracker-search-tool/tracker-search-tool.c:2221
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
-msgid "Tracker Search Tool"
-msgstr "Tracker 検索ツール"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1041
-msgid "Search _results: "
-msgstr "検索結果(_R): "
-
-#. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1047
-msgid "no search performed"
-msgstr "検索は実行されていません"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1107
-#: ../src/tracker-search-tool/tracker-search-tool.c:1267
-msgid "List View"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1179
-msgid "Icon"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1191
-msgid "Name"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1285
-msgid "_Categories"
-msgstr "カテゴリ(_C)"
-
-#. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1565
-#, c-format
-msgid "%d - %d of %d items"
-msgstr ""
-
-#. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1568
-#, c-format
-msgid "%d item"
-msgid_plural "%d items"
-msgstr[0] "%d 項目"
-msgstr[1] "%d 項目"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1616
-#: ../src/tracker-search-tool/tracker-search-tool.c:1811
-msgid "Could not connect to search service as it may be busy"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2012
-msgid "_Search:"
-msgstr "検索(_S):"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2026
-msgid "Tracker is still indexing so not all search results are available yet"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2040
-#: ../src/tracker-search-tool/tracker-search-tool.c:2041
-msgid "Enter a search term with multiple words seperated with spaces."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2041
-msgid "search_entry"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2087
-msgid "Click to perform a search."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
-msgid "Could not open help document."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
-#, c-format
-msgid "Are you sure you want to open %d document?"
-msgid_plural "Are you sure you want to open %d documents?"
-msgstr[0] ""
-msgstr[1] ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:689
-#, c-format
-msgid "This will open %d separate window."
-msgid_plural "This will open %d separate windows."
-msgstr[0] ""
-msgstr[1] ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
-#, c-format
-msgid "Could not open document \"%s\"."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
-#, c-format
-msgid "Could not open folder \"%s\"."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
-msgid "The nautilus file manager is not running."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:628
-msgid "Application could not be opened"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:643
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:963
-msgid "The document does not exist."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:659
-msgid "There is no installed viewer capable of displaying the document."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:684
-#, c-format
-msgid "Are you sure you want to open %d folder?"
-msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] ""
-msgstr[1] ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:788
-#, c-format
-msgid "Could not move \"%s\" to trash."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:819
-#, c-format
-msgid "Do you want to delete \"%s\" permanently?"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:822
-#, c-format
-msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:861
-#, c-format
-msgid "Could not delete \"%s\"."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:985
-#, c-format
-msgid "Moving \"%s\" failed: %s."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1019
-#, c-format
-msgid "Deleting \"%s\" failed: %s."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1305
-msgid "Activate to view this email"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1481
-msgid "Save Search Results As..."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1516
-msgid "Could not save document."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1517
-msgid "You did not select a document name."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
-#, c-format
-msgid "Could not save \"%s\" document to \"%s\"."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1581
-#, c-format
-msgid "The document \"%s\" already exists.  Would you like to replace it?"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1585
-msgid "If you replace an existing file, its contents will be overwritten."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1600
-msgid "_Replace"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1650
-msgid "The document name you selected is a folder."
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1699
-msgid "You may not have write permissions to the document."
-msgstr ""
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:356
+msgid "Page count:"
+msgstr "ページ数:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
 msgid ""
@@ -1388,40 +833,981 @@ msgstr ""
 "Tracker を使って名前や内容によりコンピュータ上のドキュメントやフォルダの場所"
 "を示します"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:72
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
+#: ../src/tracker-search-tool/tst.ui.h:1
+msgid "Tracker Search Tool"
+msgstr "Tracker 検索ツール"
+
+#: ../src/tracker-search-tool/tracker-search-tool.gs:110
 #, c-format
 msgid ""
-"GConf error:\n"
-"  %s"
+"Failed to load UI\n"
+"%s"
 msgstr ""
+"UI の読み込みエラー:\n"
+"%s"
 
-#. Translators:  Below are the strings displayed in the 'Date Modified'
-#. column of the list view.  The format of this string can vary depending
-#. on age of a file.  Please modify the format of the timestamp to match
-#. your locale.  For example, to display 24 hour time replace the '%-I'
-#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:674
-msgid "today at %-I:%M %p"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:676
-msgid "yesterday at %-I:%M %p"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:678
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:680
-msgid "%A, %B %-d %Y at %-I:%M:%S %p"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:860
-msgid "link (broken)"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:864
+#: ../src/tracker-search-tool/tracker-utils.gs:96
 #, c-format
-msgid "link to %s"
+msgid ""
+"Could not get application info for %s\n"
+"Error: %s\n"
 msgstr ""
+"%s の情報を取得できませんでした\n"
+"エラー: %s\n"
 
-#: ../tracker-store.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "Tracker 検索と索引サービス"
+#: ../src/tracker-search-tool/tracker-utils.gs:104
+#, c-format
+msgid ""
+"Could not lauch %s\n"
+"Error: %s\n"
+msgstr ""
+"%s を起動できませんでした\n"
+"エラー: %s\n"
+
+#: ../src/tracker-status-icon/tracker-main.c:46
+#: ../src/tracker-control/tracker-control.c:99
+#: ../src/tracker-utils/tracker-import.c:51
+#: ../src/tracker-utils/tracker-info.c:50
+#: ../src/tracker-utils/tracker-search.c:123
+#: ../src/tracker-utils/tracker-sparql.c:93
+#: ../src/tracker-utils/tracker-stats.c:47
+#: ../src/tracker-utils/tracker-status.c:116
+#: ../src/tracker-utils/tracker-tag.c:88
+msgid "Print version"
+msgstr "バージョンを表示する"
+
+#: ../src/tracker-status-icon/tracker-main.c:63
+msgid "- Miner status and control notification area icon"
+msgstr "- 収集デーモンの状況を通知するアイコン"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:523
+msgid "Miner is not running"
+msgstr "収集デーモンは起動されていません"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:564
+#: ../src/tracker-status-icon/tracker-status-icon.c:682
+msgid "Paused by user"
+msgstr "ユーザが一時停止させました"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:767
+msgid ""
+"Tracker is free software; you can redistribute it and/or modify it under the "
+"terms of the GNU General Public License as published by the Free Software "
+"Foundation; either version 2 of the License, or (at your option) any later "
+"version."
+msgstr ""
+"Tracker はフリーソフトウェアです。フリーソフトウェア財団が提供する GNU 一般公"
+"衆利用許諾契約書の第二版、あるいはそれ以降の版が定める条項の下で本プログラム"
+"を再頒布または変更することができます。"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:771
+msgid ""
+"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
+"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
+"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
+"details."
+msgstr ""
+"Tracker は有用とは思いますが、その頒布にあたり商用での利用や特定の目的に対す"
+"る適用については暗黙の保証を含めて、いかなる保証も行ないません。詳細には GNU "
+"一般公衆利用許諾契約書をご覧下さい。"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:775
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA  02110-1301, USA."
+msgstr ""
+"あなたは本プログラムと一緒に GNU 一般公衆利用許諾契約書の写しを受け取っている"
+"はずです。そうでない場合は、Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA 02110-1301, USA まで連絡して下さい。"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:790
+msgid "A notification icon application to monitor data miners for Tracker"
+msgstr "Tracker の収集デーモンを監視する通知アイコンです。"
+
+#. Translators should localize the following string
+#. * which will be displayed at the bottom of the about
+#. * box to give credit to the translator(s).
+#.
+#: ../src/tracker-status-icon/tracker-status-icon.c:800
+msgid "translator-credits"
+msgstr ""
+"相花 毅 <takeshi.aihana@gmail.com>\n"
+"Takao Fujiwara <takao.fujiwara@sun.com>"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:819
+msgid "_Search"
+msgstr "検索(_S)"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:843
+msgid "_Pause All Indexing"
+msgstr "インデックス生成処理を停止する(_P)"
+
+#: ../src/tracker-status-icon/tracker-status-icon.c:860
+msgid "_Preferences"
+msgstr "設定(_P)"
+
+#: ../src/tracker-status-icon/tracker-status-icon.desktop.in.in.h:1
+msgid "Control and monitor the Tracker search and indexing service"
+msgstr "Tracker による検索とインデックス化のサービスを制御し監視します"
+
+#: ../src/tracker-status-icon/tracker-status-icon.desktop.in.in.h:2
+msgid "Tracker Applet"
+msgstr "Tracker アプレット"
+
+#: ../src/tracker-store/tracker-main.c:106
+msgid "Force a re-index of all content"
+msgstr "全ての情報に対して強制的に再インデックス化を実施する"
+
+#: ../src/tracker-store/tracker-main.c:110
+msgid "Only allow read based actions on the database"
+msgstr "データベース上で読み込み系の操作だけ許可する"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-store/tracker-main.c:362
+msgid "- start the tracker daemon"
+msgstr "- Tracker のデーモンを起動する"
+
+#: ../src/tracker-control/tracker-control.c:78
+msgid ""
+"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
+"\"all\" may be used, no parameter equals \"all\""
+msgstr ""
+"SIGKILL を使って APPS にマッチするプロセスを停止する (APP は \"store\"、"
+"\"miners\"、\"all\" のいずれかで指定しない場合は \"all\")"
+
+#: ../src/tracker-control/tracker-control.c:79
+#: ../src/tracker-control/tracker-control.c:82
+msgid "APPS"
+msgstr "APPS"
+
+#: ../src/tracker-control/tracker-control.c:81
+msgid ""
+"Use SIGTERM to stop all matrhing processes, either \"store\", \"miners\" or "
+"\"all\" may be used, no parameter equals \"all\""
+msgstr ""
+"SIGTERM を使って APPS にマッチするプロセスを停止する (APP は \"store\"、"
+"\"miners\"、\"all\" のいずれかで指定しない場合は \"all\")"
+
+#: ../src/tracker-control/tracker-control.c:84
+msgid "Kill all Tracker processes and remove all databases"
+msgstr "全ての Tracker プロセスを強制終了してデータベースを全て削除する"
+
+#: ../src/tracker-control/tracker-control.c:87
+msgid ""
+"Same as --hard-reset but the backup & journal are restored after restart"
+msgstr "--hard-reset に加え再起動後にバックアップしたジャーナルをリストアする"
+
+#: ../src/tracker-control/tracker-control.c:90
+msgid "Remove all configuration files so they are re-generated on next start"
+msgstr "全ての設定ファイルを削除する (そのため次回起動した時に再生成される)"
+
+#: ../src/tracker-control/tracker-control.c:93
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr "収集デーモンを起動する (tracker-store も間接的に起動する)"
+
+#: ../src/tracker-control/tracker-control.c:96
+msgid ""
+"Reindex files which match the mime type supplied (for new extractors), use -"
+"m MIME1 -m MIME2"
+msgstr ""
+"MIME 型のファイルのインデックスを再生成する (-m MIME1 -m MIME2 で複数指定でき"
+"る)"
+
+#: ../src/tracker-control/tracker-control.c:115
+msgid "Could not open /proc"
+msgstr "/proc ファイルシステムをオープンできませんでした"
+
+#: ../src/tracker-control/tracker-control.c:116
+#: ../src/tracker-control/tracker-control.c:320
+#: ../src/tracker-control/tracker-control.c:359
+#: ../src/tracker-control/tracker-control.c:380
+msgid "no error given"
+msgstr "エラーはありませんでした"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-control/tracker-control.c:266
+msgid " - Manage Tracker processes and data"
+msgstr " - Tracker のプロセスとそのデータを管理する"
+
+#: ../src/tracker-control/tracker-control.c:278
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr "--kill オプションと一緒に --terminate オプションは指定できません"
+
+#: ../src/tracker-control/tracker-control.c:282
+msgid ""
+"You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
+"implied"
+msgstr ""
+"--terminate オプションと一緒に --hard-reset または --soft-reset または --"
+"kill オプションは指定できません"
+
+#: ../src/tracker-control/tracker-control.c:286
+msgid "You can not use the --hard-reset and --soft-reset arguments together"
+msgstr ""
+"--hard-reset オプションと一緒に --soft-reset オプションは指定できません"
+
+#: ../src/tracker-control/tracker-control.c:317
+#, c-format
+msgid "Could not open '%s'"
+msgstr "'%s' を開けませんでした"
+
+#: ../src/tracker-control/tracker-control.c:341
+#, c-format
+msgid "Found process ID %d for '%s'"
+msgstr "プロセス ID が %d である '%s' があります"
+
+#: ../src/tracker-control/tracker-control.c:356
+#, c-format
+msgid "Could not terminate process %d"
+msgstr "プロセス ID が %d のプロセスを終了できませんでした"
+
+#: ../src/tracker-control/tracker-control.c:362
+#, c-format
+msgid "Terminated process %d"
+msgstr "プロセス ID が %d のプロセスが終了しました"
+
+#: ../src/tracker-control/tracker-control.c:377
+#, c-format
+msgid "Could not kill process %d"
+msgstr "プロセス ID が %d のプロセスを強制終了できませんでした"
+
+#: ../src/tracker-control/tracker-control.c:383
+#, c-format
+msgid "Killed process %d"
+msgstr "プロセス ID が %d のプロセスが強制終了しました"
+
+#: ../src/tracker-control/tracker-control.c:468
+msgid "Removing configuration files…"
+msgstr "設定ファイルの削除中..."
+
+#: ../src/tracker-control/tracker-control.c:485
+msgid "Waiting one second before starting miners…"
+msgstr "収集デーモンを起動する前に1秒間待機しています..."
+
+#: ../src/tracker-control/tracker-control.c:491
+msgid "Starting miners…"
+msgstr "収集デーモンの起動中..."
+
+#: ../src/tracker-control/tracker-control.c:506
+msgid "perhaps a disabled plugin?"
+msgstr "プラグインが無効になっているかも？"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-import.c:75
+msgid "- Import data using Turtle files"
+msgstr "- タートル・ファイルを使ってデータをインポートする"
+
+#: ../src/tracker-utils/tracker-import.c:93
+#: ../src/tracker-utils/tracker-info.c:215
+msgid "One or more files have not been specified"
+msgstr "1個以上のファイルを指定して下さい"
+
+#: ../src/tracker-utils/tracker-import.c:109
+#: ../src/tracker-utils/tracker-info.c:231
+#: ../src/tracker-utils/tracker-sparql.c:244
+#: ../src/tracker-utils/tracker-stats.c:106
+#: ../src/tracker-utils/tracker-status.c:544
+#: ../src/tracker-utils/tracker-tag.c:898
+msgid "Could not establish a D-Bus connection to Tracker"
+msgstr "D-Bus と Tracker との間の接続を確立できませんでした"
+
+#: ../src/tracker-utils/tracker-import.c:119
+msgid "Importing Turtle file"
+msgstr "タートル・ファイルのインポート中"
+
+#: ../src/tracker-utils/tracker-import.c:132
+msgid "Unable to import Turtle file"
+msgstr "タートル・ファイルをインポートできませんでした"
+
+#: ../src/tracker-utils/tracker-import.c:139
+#: ../src/tracker-utils/tracker-status.c:211
+msgid "Done"
+msgstr "完了"
+
+#: ../src/tracker-utils/tracker-info.c:54
+msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgstr "名前空間を全て表示する (i.e. nie:title 表記ではなく URL 表記)"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-info.c:197
+msgid "- Get all information about one or more files"
+msgstr "- 1個以上のファイルに関する情報を全て取得する"
+
+#: ../src/tracker-utils/tracker-info.c:245
+msgid "Querying information for entity"
+msgstr "次のエントリに関する情報の取得中"
+
+#: ../src/tracker-utils/tracker-info.c:266
+msgid "Unable to retrieve URN for URI"
+msgstr "URI に対する URN を取得できません"
+
+#: ../src/tracker-utils/tracker-info.c:297
+msgid "Unable to retrieve data for URI"
+msgstr "URI の情報を取得できません"
+
+#: ../src/tracker-utils/tracker-info.c:306
+msgid "No metadata available for that URI"
+msgstr "その URI で利用できるメタデータはありません"
+
+#: ../src/tracker-utils/tracker-search.c:63
+#: ../src/tracker-utils/tracker-tag.c:56
+msgid "Limit the number of results shown"
+msgstr "結果を表示する数を限定する"
+
+#: ../src/tracker-utils/tracker-search.c:64
+#: ../src/tracker-utils/tracker-tag.c:57
+msgid "512"
+msgstr "512"
+
+#: ../src/tracker-utils/tracker-search.c:67
+#: ../src/tracker-utils/tracker-tag.c:60
+msgid "Offset the results"
+msgstr "結果のオフセットを指定する"
+
+#: ../src/tracker-utils/tracker-search.c:68
+#: ../src/tracker-utils/tracker-tag.c:61
+msgid "0"
+msgstr "0"
+
+#: ../src/tracker-utils/tracker-search.c:71
+#: ../src/tracker-utils/tracker-tag.c:64
+msgid "Use OR for search terms instead of AND (the default)"
+msgstr "検索する際に AND ではなく OR を使う (デフォルト)"
+
+#: ../src/tracker-utils/tracker-search.c:75
+msgid ""
+"Show URNs for results (doesn't apply to --music-albums, --music-artists)"
+msgstr ""
+"結果に対する URN を表示する (--music-albums や --music-artists には適用できな"
+"い)"
+
+#: ../src/tracker-utils/tracker-search.c:79
+msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
+msgstr ""
+"実在しないが検索条件を満足するものを全て表示する (i.e. アンマウントしたボ"
+"リュームのものが含まれる)"
+
+#: ../src/tracker-utils/tracker-search.c:83
+msgid "Search for files"
+msgstr "ファイルを検索する"
+
+#: ../src/tracker-utils/tracker-search.c:87
+msgid "Search for folders"
+msgstr "フォルダを検索する"
+
+#: ../src/tracker-utils/tracker-search.c:91
+msgid "Search for music files"
+msgstr "楽曲ファイルを検索する"
+
+#: ../src/tracker-utils/tracker-search.c:95
+msgid "Search for music albums (--all has no effect on this)"
+msgstr "楽曲のアルバムを検索する (--all は適用されない)"
+
+#: ../src/tracker-utils/tracker-search.c:99
+msgid "Search for music artists (--all has no effect on this) "
+msgstr "楽曲の演奏者を検索する (--all は適用されない)"
+
+#: ../src/tracker-utils/tracker-search.c:103
+msgid "Search for image files"
+msgstr "画像ファイルを検索する"
+
+#: ../src/tracker-utils/tracker-search.c:107
+msgid "Search for video files"
+msgstr "動画ファイルを検索する"
+
+#: ../src/tracker-utils/tracker-search.c:111
+msgid "Search for document files"
+msgstr "文書ファイルを検索する"
+
+#: ../src/tracker-utils/tracker-search.c:115
+msgid "Search for emails"
+msgstr "E-メールを検索する"
+
+#: ../src/tracker-utils/tracker-search.c:119
+msgid "Search for contacts"
+msgstr "連絡先を検索する"
+
+#: ../src/tracker-utils/tracker-search.c:128
+msgid "search terms"
+msgstr "検索する文字列や単語"
+
+#: ../src/tracker-utils/tracker-search.c:129
+msgid "EXPRESSION"
+msgstr "式"
+
+#: ../src/tracker-utils/tracker-search.c:146
+#: ../src/tracker-utils/tracker-tag.c:111
+msgid ""
+"NOTE: Limit was reached, there are more items in the database not listed here"
+msgstr ""
+"注意: 制限に到達しました (そのため、ここに表示されていないアイテムがデータ"
+"ベースの中にあります)"
+
+#: ../src/tracker-utils/tracker-search.c:208
+#: ../src/tracker-utils/tracker-search.c:317
+#: ../src/tracker-utils/tracker-search.c:432
+#: ../src/tracker-utils/tracker-search.c:729
+#: ../src/tracker-utils/tracker-search.c:807
+#: ../src/tracker-utils/tracker-search.c:1055
+msgid "Could not get search results"
+msgstr "検索結果を取得できませんでした"
+
+#: ../src/tracker-utils/tracker-search.c:217
+msgid "No contacts were found"
+msgstr "連絡先が見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-search.c:326
+msgid "No emails were found"
+msgstr "E-メールが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-search.c:441
+msgid "No files were found"
+msgstr "ファイルが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-search.c:738
+msgid "No artists were found"
+msgstr "演奏者が見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-search.c:816
+msgid "No music was found"
+msgstr "楽曲が見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-search.c:1064
+msgid "No results were found matching your query"
+msgstr "検索条件を満足する結果が見つかりませんでした"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#.
+#: ../src/tracker-utils/tracker-search.c:1104
+msgid "- Search for terms in all data"
+msgstr "- 全てのデータから検索する"
+
+#. Translators: this message will appear after the usage string
+#. * and before the list of options.
+#.
+#: ../src/tracker-utils/tracker-search.c:1109
+msgid ""
+"Applies an AND operator to all terms separated by a space (see --or-operator)"
+msgstr ""
+"空白文字で区切った文字列に対しては AND 演算子を適用します (--or-operator オプ"
+"ションの確認のこと)"
+
+#: ../src/tracker-utils/tracker-search.c:1113
+msgid ""
+"This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
+"you use --or-operator)"
+msgstr ""
+"これは 'foo' と 'bar' の検索を行った場合、それらが＊両方とも存在している＊こ"
+"とが検索条件になります (但し --or-operator を指定した場合を除く)"
+
+#: ../src/tracker-utils/tracker-search.c:1140
+msgid "Search terms are missing"
+msgstr "検索する文字列を指定して下さい"
+
+#: ../src/tracker-utils/tracker-search.c:1191
+#, c-format
+msgid "Search term '%s' is a stop word."
+msgstr "指定した '%s' は検索できません"
+
+#: ../src/tracker-utils/tracker-search.c:1194
+#, c-format
+msgid ""
+"Stop words are common words which are ignored during the indexing process."
+msgstr "この文字 (列) はインデックスの生成仮定で無視される共通の単語です"
+
+#: ../src/tracker-utils/tracker-search.c:1197
+#, c-format
+msgid ""
+"This means this search term will never be found when matching FTS entries."
+msgstr ""
+"すなわち FTS エントリに一致している限り、その文字列は絶対に見つかりません"
+
+#: ../src/tracker-utils/tracker-search.c:1216
+msgid "Could not establish a DBus connection to Tracker"
+msgstr "D-Bus と Tracker との間の接続を確立できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:61
+msgid "Path to use to run a query or update from file"
+msgstr "検索または更新する際に使用するパスを指定する"
+
+#: ../src/tracker-utils/tracker-sparql.c:65
+msgid "SPARQL query"
+msgstr "SPARQL クエリを指定する"
+
+#: ../src/tracker-utils/tracker-sparql.c:66
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: ../src/tracker-utils/tracker-sparql.c:69
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"このオプションはデータベースを更新する時にだけ --query と一緒に指定すること"
+
+#: ../src/tracker-utils/tracker-sparql.c:73
+msgid "Retrieve classes"
+msgstr "クラスの一覧を取得する"
+
+#: ../src/tracker-utils/tracker-sparql.c:77
+msgid "Retrieve class prefixes"
+msgstr "クラスが持つ接頭子の一覧を取得する"
+
+#: ../src/tracker-utils/tracker-sparql.c:81
+msgid ""
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
+msgstr ""
+"クラスのプロパティを取得する (クラスの接頭子も指定可; 例: rdfs:Resource)"
+
+#: ../src/tracker-utils/tracker-sparql.c:82
+#: ../src/tracker-utils/tracker-sparql.c:86
+msgid "CLASS"
+msgstr "CLASS"
+
+#: ../src/tracker-utils/tracker-sparql.c:85
+msgid ""
+"Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr ""
+"データベース内の変更を通知するクラスの一覧を取得する (CLASS はオプション)"
+
+#: ../src/tracker-utils/tracker-sparql.c:89
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr "クラスまたはそのプロパティを検索し詳細な情報を表示する (例: Document)"
+
+#: ../src/tracker-utils/tracker-sparql.c:90
+msgid "CLASS/PROPERTY"
+msgstr "CLASS/PROPERTY"
+
+#: ../src/tracker-utils/tracker-sparql.c:120
+msgid "Could not get namespace prefixes"
+msgstr "名前空間の接頭子を取得できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:129
+msgid "No namespace prefixes were found"
+msgstr "名前空間の接頭子が見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:204
+msgid "- Query or update using SPARQL"
+msgstr "- SPARQL を使ってデータベースを検索したり更新する"
+
+#: ../src/tracker-utils/tracker-sparql.c:218
+msgid "An argument must be supplied"
+msgstr "引数を指定して下さい"
+
+#: ../src/tracker-utils/tracker-sparql.c:220
+msgid "File and query can not be used together"
+msgstr "ファイルとクエリの両方を指定することはできません"
+
+#: ../src/tracker-utils/tracker-sparql.c:256
+msgid "Could not list classes"
+msgstr "クラスの一覧を表示できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:266
+msgid "No classes were found"
+msgstr "クラスが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:294
+msgid "Could not list class prefixes"
+msgstr "クラスの接頭子の一覧を表示できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:304
+msgid "No class prefixes were found"
+msgstr "クラスの接頭子が見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:336
+msgid ""
+"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+msgstr ""
+"クラスの接頭子のプロパティが見つかりませんでした (例: 'rdfs:Resource' のリ"
+"ソース)"
+
+#: ../src/tracker-utils/tracker-sparql.c:375
+msgid "Could not list properties"
+msgstr "プロパティの一覧を表示できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:385
+msgid "No properties were found"
+msgstr "プロパティが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:425
+msgid "Could not find notify classes"
+msgstr "通知クラスが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:431
+msgid "No notifies were found"
+msgstr "通知はありませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:462
+msgid "Could not search classes"
+msgstr "クラスを検索できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:468
+msgid "No classes were found to match search term"
+msgstr "検索文字列にマッチするクラスが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:496
+msgid "Could not search properties"
+msgstr "プロパティを検索できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:502
+msgid "No properties were found to match search term"
+msgstr "検索文字列にマッチするプロパティが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:525
+msgid "Could not get UTF-8 path from path"
+msgstr "指定したパスを UTF-8 エンコーディングに変換できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:537
+msgid "Could not read file"
+msgstr "ファイルの読み込みに失敗しました"
+
+#: ../src/tracker-utils/tracker-sparql.c:556
+msgid "Could not run update"
+msgstr "アップグレードを実施できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:594
+msgid "Could not run query"
+msgstr "クエリを実行できませんでした"
+
+#: ../src/tracker-utils/tracker-sparql.c:603
+msgid "No results found matching your query"
+msgstr "クエリを満足する結果が見つかりませんでした"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-stats.c:89
+msgid " - Show statistics for all Nepomuk defined ontology classes"
+msgstr " - ネポムクが定義したオントロジークラスの統計情報を表示する"
+
+#: ../src/tracker-utils/tracker-stats.c:114
+msgid "Could not get Tracker statistics"
+msgstr "Tracker の統計情報を取得できませんでした"
+
+#: ../src/tracker-utils/tracker-stats.c:123
+msgid "No statistics available"
+msgstr "統計情報は無効です"
+
+#: ../src/tracker-utils/tracker-stats.c:126
+msgid "Statistics:"
+msgstr "統計情報:"
+
+#: ../src/tracker-utils/tracker-status.c:71
+msgid "Fetching…"
+msgstr "取得中..."
+
+#. miner/rss
+#: ../src/tracker-utils/tracker-status.c:72
+#, c-format
+msgid "Crawling single directory '%s'"
+msgstr "単一のフォルダ (%s) のクロール中です"
+
+#: ../src/tracker-utils/tracker-status.c:73
+#, c-format
+msgid "Crawling recursively directory '%s'"
+msgstr "フォルダ (%s) の再帰的なクロール中です"
+
+#: ../src/tracker-utils/tracker-status.c:74
+msgid "Paused"
+msgstr "一時停止中です"
+
+#: ../src/tracker-utils/tracker-status.c:75
+msgid "Idle"
+msgstr "アイドル中です"
+
+#: ../src/tracker-utils/tracker-status.c:80
+msgid "Follow status changes as they happen"
+msgstr "状態の変化を監視する"
+
+#: ../src/tracker-utils/tracker-status.c:84
+msgid "Include details with state updates (only applies to --follow)"
+msgstr "更新された状態の詳細を含める (--follow オプションの時だけ利用可能)"
+
+#: ../src/tracker-utils/tracker-status.c:88
+msgid "List common statuses for miners and the store"
+msgstr "収集および保存デーモンに共通な状態を一覧表示する"
+
+#: ../src/tracker-utils/tracker-status.c:92
+msgid "List all miners currently running"
+msgstr "現在実行中の収集デーモンの一覧を表示する"
+
+#: ../src/tracker-utils/tracker-status.c:96
+msgid "List all miners installed"
+msgstr "インストール済の全ての収集デーモンを一覧表示する"
+
+#: ../src/tracker-utils/tracker-status.c:100
+msgid "List pause reasons and applications for a miner"
+msgstr "一時停止のアプリとその理由を一覧表示する"
+
+#: ../src/tracker-utils/tracker-status.c:104
+msgid ""
+"Miner to use with other commands (you can use suffixes, e.g. FS or "
+"Applications)"
+msgstr ""
+"他のコマンドと一緒に利用する収集デーモンを指定する (接頭子が指定可能で例えば "
+"FS または Applications)"
+
+#: ../src/tracker-utils/tracker-status.c:105
+msgid "MINER"
+msgstr "MINER"
+
+#: ../src/tracker-utils/tracker-status.c:108
+msgid "Pause a miner (you must use this with --miner)"
+msgstr "収集デーモンを一時停止する (--miner オプションと一緒に使用すること)"
+
+#: ../src/tracker-utils/tracker-status.c:109
+msgid "REASON"
+msgstr "REASON"
+
+#: ../src/tracker-utils/tracker-status.c:112
+msgid "Resume a miner (you must use this with --miner)"
+msgstr "収集デーモンを再開する (--miner オプションと一緒に使用すること)"
+
+#: ../src/tracker-utils/tracker-status.c:113
+msgid "COOKIE"
+msgstr "COOKIE"
+
+#: ../src/tracker-utils/tracker-status.c:174
+#, c-format
+msgid "Attempting to pause miner '%s' with reason '%s'"
+msgstr "'%s' を '%s' という理由で一時停止中です"
+
+#: ../src/tracker-utils/tracker-status.c:181
+#, c-format
+msgid "Could not pause miner: %s"
+msgstr "収集デーモンを一時停止できませんでした: %s"
+
+#: ../src/tracker-utils/tracker-status.c:186
+#, c-format
+msgid "Cookie is %d"
+msgstr "クッキーは %d です"
+
+#: ../src/tracker-utils/tracker-status.c:200
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr "'%s' (クッキーは %d) を再開中です"
+
+#: ../src/tracker-utils/tracker-status.c:207
+#, c-format
+msgid "Could not resume miner: %s"
+msgstr "収集デーモンを再開できませんでした: %s"
+
+#: ../src/tracker-utils/tracker-status.c:227
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr "収集デーモンから状態を取得できませんでした: %s"
+
+#. Work out lengths for output spacing
+#: ../src/tracker-utils/tracker-status.c:285
+#: ../src/tracker-utils/tracker-status.c:684
+msgid "PAUSED"
+msgstr "PAUSED"
+
+#: ../src/tracker-utils/tracker-status.c:299
+msgid "Not running or is a disabled plugin"
+msgstr "プラグインが実行されていないか無効になっています"
+
+#: ../src/tracker-utils/tracker-status.c:355
+msgid "Journal replay"
+msgstr "ジャーナル・リプレイ"
+
+#: ../src/tracker-utils/tracker-status.c:479
+msgid "- Monitor and control status"
+msgstr "- Tracker の状態の監視と制御"
+
+#: ../src/tracker-utils/tracker-status.c:494
+msgid "You can not use miner pause and resume switches together"
+msgstr "一時停止と再開のオプションを一緒に指定することはできません"
+
+#: ../src/tracker-utils/tracker-status.c:508
+msgid "You must provide the miner for pause or resume commands"
+msgstr "一時停止または再開する収集デーモンを指定して下さい"
+
+#: ../src/tracker-utils/tracker-status.c:522
+msgid "You must provide a pause or resume command for the miner"
+msgstr "収集デーモンに対して一時停止または再開のオプションを指定して下さい"
+
+#: ../src/tracker-utils/tracker-status.c:556
+msgid "Common statuses include"
+msgstr "共通な状態"
+
+#: ../src/tracker-utils/tracker-status.c:568
+#, c-format
+msgid "Found %d miners installed"
+msgstr "%d個の収集デーモンがインストール済です"
+
+#: ../src/tracker-utils/tracker-status.c:580
+#, c-format
+msgid "Found %d miners running"
+msgstr "%d個の収集デーモンが起動中です"
+
+#: ../src/tracker-utils/tracker-status.c:613
+msgid "No miners are running"
+msgstr "収集デーモンは起動されていません"
+
+#: ../src/tracker-utils/tracker-status.c:653
+#: ../src/tracker-utils/tracker-status.c:700
+msgid "Miners"
+msgstr "収集デーモン"
+
+#: ../src/tracker-utils/tracker-status.c:660
+msgid "Application"
+msgstr "アプリケーション"
+
+#: ../src/tracker-utils/tracker-status.c:662
+msgid "Reason"
+msgstr "理由"
+
+#: ../src/tracker-utils/tracker-status.c:671
+msgid "No miners are paused"
+msgstr "一時停止した収集デーモンはありません"
+
+#. Display states
+#: ../src/tracker-utils/tracker-status.c:694
+msgid "Store"
+msgstr "データ格納デーモン"
+
+#: ../src/tracker-utils/tracker-tag.c:68
+msgid "List all tags (using FILTER if specified)"
+msgstr "全てのタグを一覧表示する (FILTER が指定されている場合は利用する)"
+
+#: ../src/tracker-utils/tracker-tag.c:72
+msgid "Show files associated with each tag (this is only used with --list)"
+msgstr ""
+"タグに関連づけられたファイルを一覧表示する (--list オプションと一緒に指定する"
+"こと)"
+
+#: ../src/tracker-utils/tracker-tag.c:76
+msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+msgstr "タグを指定する (FILE を省略した場合 TAG は関連づけされない)"
+
+#: ../src/tracker-utils/tracker-tag.c:77 ../src/tracker-utils/tracker-tag.c:81
+msgid "TAG"
+msgstr "TAG"
+
+#: ../src/tracker-utils/tracker-tag.c:80
+msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+msgstr "タグを削除する (FILE を省略した場合は全てのファイルからTAG を削除する)"
+
+#: ../src/tracker-utils/tracker-tag.c:84
+msgid "Description for a tag (this is only used with --add)"
+msgstr "タグの説明を表示する (--add オプションと一緒に指定すること)"
+
+#: ../src/tracker-utils/tracker-tag.c:85
+msgid "STRING"
+msgstr "STRING"
+
+#: ../src/tracker-utils/tracker-tag.c:94
+msgid "FILE…"
+msgstr "FILE..."
+
+#: ../src/tracker-utils/tracker-tag.c:95
+msgid "FILE [FILE…]"
+msgstr "FILE [FILE...]"
+
+#: ../src/tracker-utils/tracker-tag.c:299
+msgid "Could not get file URNs"
+msgstr "ファイルの URN を取得できませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:390
+msgid "Could not get files related to tag"
+msgstr "タグに関連づけられたファイルを取得できませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:463
+#: ../src/tracker-utils/tracker-tag.c:816
+msgid "Could not get all tags"
+msgstr "全てのタグを取得できませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:472
+#: ../src/tracker-utils/tracker-tag.c:825
+msgid "No tags were found"
+msgstr "タグが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:586
+msgid "Could not add tag"
+msgstr "タグを追加できませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:595
+msgid "Tag was added successfully"
+msgstr "タグの追加が完了しました"
+
+#: ../src/tracker-utils/tracker-tag.c:636
+msgid "Could not add tag to files"
+msgstr "ファイルにタグを追加できませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:647
+msgid "Tagged"
+msgstr "タグ付き"
+
+#: ../src/tracker-utils/tracker-tag.c:648
+msgid "Not tagged, file is not indexed"
+msgstr "タグが追加されていません (このファイルのインデックスがありません)"
+
+#: ../src/tracker-utils/tracker-tag.c:693
+msgid "Could not get tag by label"
+msgstr "ラベルからタグを取得できませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:704
+msgid "No tags were found by that name"
+msgstr "その名前を持つタグが見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:717
+msgid "None of the files had this tag set"
+msgstr "このタグを持つファイルは存在しません"
+
+#: ../src/tracker-utils/tracker-tag.c:759
+msgid "Could not remove tag"
+msgstr "タグを削除できませんでした"
+
+#: ../src/tracker-utils/tracker-tag.c:768
+msgid "Tag was removed successfully"
+msgstr "タグの削除が完了しました"
+
+#: ../src/tracker-utils/tracker-tag.c:772
+msgid "Untagged"
+msgstr "タグなし"
+
+#: ../src/tracker-utils/tracker-tag.c:773
+msgid "File not indexed or already untagged"
+msgstr "インデックスが存在しないか既にタグが削除されています"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#.
+#: ../src/tracker-utils/tracker-tag.c:854
+msgid "Add, remove or list tags"
+msgstr "タグを追加したり削除したり一覧表示する"
+
+#: ../src/tracker-utils/tracker-tag.c:870
+msgid "The --list option is required for --show-files"
+msgstr "--show-files オプションには --list オプションが必要です"
+
+#: ../src/tracker-utils/tracker-tag.c:872
+msgid "Add and delete actions can not be used together"
+msgstr "追加と削除の操作を同時には実行できません"
+
+#: ../src/tracker-utils/tracker-tag.c:874
+msgid "No arguments were provided"
+msgstr "引数が指定されていません"
+
+#: ../src/tracker-utils/tracker-tag.c:876
+msgid "The --description option can only be used with --add"
+msgstr "--description オプションは --add オプションとのみ指定できます"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-writeback/tracker-main.c:176
+msgid "- start the tracker writeback service"
+msgstr "- Tracker のライトバック・サービスを起動する"
+
+#: ../utils/gtk-sparql/gtk-sparql.ui.h:1
+msgid "Saved queries"
+msgstr "クエリの保存"
