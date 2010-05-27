@@ -73,10 +73,10 @@ struct TrackerMinerFilesPrivate {
 
 	guint low_battery_pause_cookie;
 
-#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
+#if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
 	TrackerPower *power;
 	gulong finished_handler;
-#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
+#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
 
 	DBusGProxy *extractor_proxy;
 
@@ -521,7 +521,7 @@ miner_files_constructed (GObject *object)
 	                  G_CALLBACK (ignore_directories_cb),
 	                  mf);
 
-#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
+#if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
 
 	g_signal_connect (mf->private->config, "notify::index-on-battery",
 	                  G_CALLBACK (index_on_battery_cb),
@@ -530,7 +530,7 @@ miner_files_constructed (GObject *object)
 	                  G_CALLBACK (index_on_battery_cb),
 	                  mf);
 
-#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
+#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
 
 	g_slist_foreach (mounts, (GFunc) g_free, NULL);
 	g_slist_free (mounts);
