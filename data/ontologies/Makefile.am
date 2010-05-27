@@ -23,9 +23,9 @@ config_DATA =						\
 	90-tracker.ontology 90-tracker.description
 
 if HAVE_MAEMO
-config_DATA += 			\
-	91-maemo.ontology   91-maemo.description
-	92-slo.ontology     92-slo.ontology
+config_DATA += 						\
+	91-maemo.ontology   91-maemo.description	\
+	92-slo.ontology     92-slo.description
 endif
 
 EXTRA_DIST = $(config_DATA)
