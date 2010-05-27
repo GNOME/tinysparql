@@ -162,7 +162,6 @@ get_fts_string (GStrv    search_words,
 
 	for (i = 0; i < len; i++) {
 		g_string_append (fts, search_words[i]);
-		g_string_append_c (fts, '*');
 
 		if (i < len - 1) {
 			if (use_or_operator) {
