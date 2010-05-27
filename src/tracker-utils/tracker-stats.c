@@ -28,7 +28,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-client/tracker.h>
+#include <libtracker-client/tracker-client.h>
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
