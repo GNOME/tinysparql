@@ -28,8 +28,8 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-client/tracker.h>
-#include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-client/tracker-client.h>
+#include <libtracker-common/tracker-common.h>
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-status-client.h"
