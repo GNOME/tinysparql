@@ -1154,13 +1154,26 @@ main (int argc, char **argv)
 		g_thread_init (NULL);
 	}
 
-	/* Check terms are not stopwords */
 	if (terms) {
 		TrackerLanguage *language;
 		GHashTable *stop_words;
 		const gchar *stop_word_found;
 		gchar **p;
 
+		/* Check terms don't have additional quotes */
+		for (p = terms; *p; p++) {
+			gchar *term = *p;
+			gint end = strlen (term) - 1;
+
+			if ((term[0] == '"' && term[end] == '"') ||
+			    (term[0] == '\'' && term[end] == '\'')) {
+				/* We never have a quote JUST at the end */
+				term[0] = term[end] = ' ';
+				g_strstrip (term);
+			}
+		}
+
+		/* Check terms are not stopwords */
 		language = tracker_language_new (NULL);
 		stop_words = tracker_language_get_stop_words (language);
 
