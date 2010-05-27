@@ -3677,9 +3677,13 @@ static void snippetOffsetsOfColumn(
   unsigned int iRotor = 0;             /* Index of current token */
   int iRotorBegin[FTS3_ROTOR_SZ];      /* Beginning offset of token */
   int iRotorLen[FTS3_ROTOR_SZ];        /* Length of token */
+  int nWords;
 
   pVtab = pQuery->pFts;
   nColumn = pVtab->nColumn;
+
+  FTSTRACE (("FTS parsing started for Snippets, limiting '%d' bytes to '%d' words",
+             nDoc, pVtab->max_words));
 
   tracker_parser_reset (pVtab->parser,
                         zDoc,
@@ -3699,8 +3703,8 @@ static void snippetOffsetsOfColumn(
   }
 
   prevMatch = 0;
-
-  while(1){
+  nWords = 0;
+  while(nWords < pVtab->max_words){
 //    rc = pTModule->xNext(pTCursor, &zToken, &nToken, &iBegin, &iEnd, &iPos);
 
 
@@ -3717,6 +3721,7 @@ static void snippetOffsetsOfColumn(
       continue;
     }
 
+    nWords++;
 
     iRotorBegin[iRotor&FTS3_ROTOR_MASK] = iBegin;
     iRotorLen[iRotor&FTS3_ROTOR_MASK] = iEnd-iBegin;
@@ -4385,6 +4390,10 @@ static int tokenizeSegment(
   TrackerParser *parser = v->parser;
   int firstIndex = pQuery->nTerms;
   int nTerm = 1;
+  int nWords;
+
+  FTSTRACE (("FTS parsing started for Segments, limiting '%d' bytes to '%d' words",
+             nSegment, v->max_words));
 
   tracker_parser_reset (parser,
                         pSegment,
@@ -4396,7 +4405,8 @@ static int tokenizeSegment(
                         FALSE,
                         v->ignore_numbers);
 
-  while( 1 ){
+  nWords = 0;
+  while(nWords < v->max_words){
     const char *pToken;
     int nToken, iBegin, iEnd, iPos, stop_word;
 
@@ -4409,6 +4419,8 @@ static int tokenizeSegment(
     if (!pToken) {
       break;
      }
+
+    nWords ++;
 
 //   printf("token being indexed  is %s, pos is %d, begin is %d, end is %d and length is %d\n", pToken, iPos, iBegin, iEnd, nToken);
 
@@ -4844,20 +4856,29 @@ int Catid,
   TrackerParser *parser = v->parser;
   DLCollector *p;
   int nData;			 /* Size of doclist before our update. */
+  gint nText;
+  gint nWords;
 
   if (!zText) return SQLITE_OK;
 
+  nText = strlen (zText);
+
+  if (!nText) return SQLITE_OK;
+
+  FTSTRACE (("FTS parsing started for Terms, limiting '%d' bytes to '%d' words",
+             nText, v->max_words));
+
   tracker_parser_reset (parser,
                         zText,
-                        strlen (zText),
+                        nText,
                         v->max_word_length,
                         v->enable_stemmer,
                         v->enable_unaccent,
                         v->ignore_stop_words,
                         TRUE,
                         v->ignore_numbers);
-
-  while( 1 ){
+  nWords = 0;
+  while(nWords < v->max_words){
 
     pToken = tracker_parser_next (parser, &iPosition,
 				  &iStartOffset,
@@ -4871,6 +4892,8 @@ int Catid,
    if (limit_word_length && nTokenBytes < v->min_word_length) {
 	continue;
    }
+
+   nWords++;
 
   // printf("token being indexed  is %s, begin is %d, end is %d and length is %d\n", pToken, iStartOffset, iEndOffset, nTokenBytes);
 
