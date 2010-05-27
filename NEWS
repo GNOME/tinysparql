@@ -1,3 +1,24 @@
+NEW in 0.8.9 - 2010-05-27
+=========================
+
+Improvements / New:
+
+  tracker-miner-fs
+  * Build fails if using devkit for power
+
+Bugs:
+
+  None
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.8.8 - 2010-05-27
 =========================
 
