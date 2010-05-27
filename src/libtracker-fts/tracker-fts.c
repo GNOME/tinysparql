@@ -2487,6 +2487,10 @@ get_metadata_weight (fulltext_vtab *v, int id)
     weight = 1;
   }
 
+  /* We expect only one row.  We must execute another sqlite3_step()
+   * to complete the iteration; otherwise the table will remain locked. */
+  sqlite3_step (stmt);
+
   return weight;
 }
 
