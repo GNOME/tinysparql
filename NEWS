@@ -1,3 +1,66 @@
+NEW in 0.9.6 - 2010-05-27
+=========================
+
+Improvements / New:
+
+  General:
+  * Fixed libtracker-client header includes for all tracker-utils
+
+  Ontology:
+  * Added SLO (Simplified Location Ontology) for testing
+
+  libtracker-db: 
+  * Replaced unreliable sqlite3_interrupt() with another solution
+
+  libtracker-data:
+  * Fixed backup test to properly shutdown libtracker-data
+  * Improved error reporting when inserting multiple values for single valued property
+  * Don't remove temporary data asynchronously, leads to race conditions
+
+  libtracker-extract:
+  * XMP: Protect against division by zero
+  * Updated tracker_text_validate_utf8(), text_len was gsize, now it is gssize
+
+  libtracker-fts:
+  * Make sure to not keep table locked after queries
+  * Added README.parsers to explain libicu/libunistring/libglib parsing methods
+  * Removed max_words_to_index, it was unused
+  * Removed delimit_words, it was unused
+
+  tracker-extract:
+  * XMP: Fix strings that go like "n1/n2" that are xsd:double
+
+  tracker-writeback:
+  * XMP: Don't writeback fields that are typically set by the camera itself
+
+  tracker-search: 
+  * Don't append "*" to all fts:match queries
+
+Bugs:
+
+  * GB#526346 - please add option to disable stemming
+  * GB#560220 - New option required:ignore diacritics when indexing and searching
+  * GB#619271 - pango dependency only needed if compiling with the glib/pango parser
+  * GB#619487 - ensure that one can search terms with _underscores_
+  * GB#619630 - HTML extractor inserts several nie:title if title has an ampersand (&) character
+  * GB#619615 - Include DC ontology in gtk-doc documentation
+  * GB#619801 - We need SPARQL escaping for cases where we use g_file_info_get_display_name()
+  * GB#616540 - tracker-preferences doesn't like non-UTF8 locale
+  * NB#167449 - The attached PDF file is not displayed in the front page.
+  * NB#168740 - Tracker-Critical **: Could not execute sparql: Unable to insert multiple values for subject 
+  * NB#169460 - Added m3u playlist is not harvested by tracker in SB1
+  * NB#170142 - Same tags are extracted twice if found from DC:Subject and IPTC:keywords
+  * NB#164822 - Need property to associate a video URL with a contact
+
+Translations:
+
+  * Updated fr: Claude Paroz
+
+Notes:
+
+  None
+
+
 NEW in 0.9.5 - 2010-05-20
 =========================
 
