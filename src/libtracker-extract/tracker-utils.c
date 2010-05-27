@@ -948,6 +948,17 @@ tracker_getline (gchar **lineptr,
 
 #endif /* HAVE_GETLINE */
 
+
+/**
+ * tracker_keywords_parse:
+ * @store: Array where to store the keywords
+ * @keywords: Keywords line to parse
+ *
+ * Parses a keywords line into store, avoiding duplicates and stripping leading
+ * and trailing spaces from keywords. Allowed delimiters are , and ;
+ *
+ * Since: 0.9
+ **/
 void
 tracker_keywords_parse (GPtrArray   *store,
                         const gchar *keywords)
