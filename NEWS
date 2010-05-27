@@ -1,3 +1,48 @@
+NEW in 0.8.8 - 2010-05-27
+=========================
+
+Improvements / New:
+
+  General:
+  * Fixed libtracker-client header includes for all tracker-utils
+
+  libtracker-data:
+  * Fixed backup test to properly shutdown libtracker-data
+  * Improved error reporting when inserting multiple values for single valued property
+  * Don't remove temporary data asynchronously, leads to race conditions
+
+  libtracker-extract:
+  * XMP: Protect against division by zero
+
+  tracker-extract:
+  * XMP: Fix strings that go like "n1/n2" that are xsd:double
+
+  tracker-writeback:
+  * XMP: Don't writeback fields that are typically set by the camera itself
+
+  tracker-search: 
+  * Don't append "*" to all fts:match queries
+
+Bugs:
+
+  * GB#619487 - ensure that one can search terms with _underscores_
+  * GB#619630 - HTML extractor inserts several nie:title if title has an ampersand (&) character
+  * GB#619615 - Include DC ontology in gtk-doc documentation
+  * GB#619801 - We need SPARQL escaping for cases where we use g_file_info_get_display_name()
+  * GB#616540 - tracker-preferences doesn't like non-UTF8 locale
+  * NB#167449 - The attached PDF file is not displayed in the front page.
+  * NB#168740 - Tracker-Critical **: Could not execute sparql: Unable to insert multiple values for subject 
+  * NB#169460 - Added m3u playlist is not harvested by tracker in SB1
+
+Translations:
+
+  * Updated fr: Claude Paroz
+
+Notes:
+
+  None
+
+
 NEW in 0.8.7 - 2010-05-20
 =========================
 
