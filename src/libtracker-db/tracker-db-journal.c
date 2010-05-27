@@ -976,12 +976,20 @@ reader_get_next_filepath (JournalReader *jreader)
 	if (g_file_test (test, G_FILE_TEST_EXISTS)) {
 		jreader->current_file++;
 		filename_open = test;
-	} else if (rotating_settings.rotate_to != NULL) {
+	} else {
 		gchar *filename;
 		GFile *dest_dir, *possible;
 
 		/* This is where chunks are being rotated to */
-		dest_dir = g_file_new_for_path (rotating_settings.rotate_to);
+		if (rotating_settings.rotate_to) {
+			dest_dir = g_file_new_for_path (rotating_settings.rotate_to);
+		} else {
+			GFile *source;
+
+			/* keep compressed journal files in same directory */
+			source = g_file_new_for_path (test);
+			dest_dir = g_file_get_parent (source);
+		}
 
 		filename = g_path_get_basename (test);
 		g_free (test);
@@ -1127,12 +1135,22 @@ reader_next_file (GError **error)
 
 	filename_open = reader_get_next_filepath (&reader);
 
+	if (reader.stream) {
+		g_object_unref (reader.stream);
+		reader.stream = NULL;
+	} else {
+#if GLIB_CHECK_VERSION(2,22,0)
+		g_mapped_file_unref (reader.file);
+#else
+		g_mapped_file_free (reader.file);
+#endif
+		reader.file = NULL;
+	}
+
 	if (g_str_has_suffix (filename_open, ".gz")) {
 		GFile *file;
 		GInputStream *stream, *cstream;
 		GConverter *converter;
-
-		g_object_unref (reader.stream);
 
 		file = g_file_new_for_path (filename_open);
 		g_free (filename_open);
@@ -1152,12 +1170,6 @@ reader_next_file (GError **error)
 		reader.stream = g_data_input_stream_new (cstream);
 		g_object_unref (cstream);
 	} else {
-#if GLIB_CHECK_VERSION(2,22,0)
-		g_mapped_file_unref (reader.file);
-#else
-		g_mapped_file_free (reader.file);
-#endif
-
 		reader.file = g_mapped_file_new (filename_open, FALSE, &new_error);
 		g_free (filename_open);
 
@@ -1641,10 +1653,10 @@ tracker_db_journal_rotate (void)
 	GConverter *converter;
 	GInputStream *istream;
 	GOutputStream *ostream, *cstream;
-	static gint max = -1;
+	static gint max = 0;
 	static gboolean needs_move;
 
-	if (max == -1) {
+	if (max == 0) {
 		gchar *directory;
 		GDir *journal_dir;
 		const gchar *f_name;
@@ -1708,7 +1720,7 @@ tracker_db_journal_rotate (void)
 	ostream = G_OUTPUT_STREAM (g_file_create (destination, 0, NULL, NULL));
 	converter = G_CONVERTER (g_zlib_compressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP, -1));
 	cstream = g_converter_output_stream_new (ostream, converter);
-	g_output_stream_splice_async (cstream, istream, G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET, 0, NULL, on_chunk_copied_delete, source);
+	g_output_stream_splice_async (cstream, istream, 0, 0, NULL, on_chunk_copied_delete, source);
 	g_object_unref (istream);
 	g_object_unref (ostream);
 	g_object_unref (cstream);
