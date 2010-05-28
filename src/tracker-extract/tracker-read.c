@@ -101,8 +101,8 @@ process_chunk (const gchar  *read_bytes,
 	*remaining_size -= read_size;
 
 	g_debug ("  Read "
-	         "%" G_GSSIZE_FORMAT " bytes this time, "
-	         "%" G_GSIZE_FORMAT " bytes remaining",
+	         "%" G_GSSIZE_FORMAT " bytes from file, %" G_GSIZE_FORMAT " "
+	         "bytes remaining until configured threshold is reached",
 	         read_size,
 	         *remaining_size);
 
