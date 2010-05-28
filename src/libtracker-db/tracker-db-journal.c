@@ -1017,6 +1017,54 @@ reader_get_next_filepath (JournalReader *jreader)
 }
 
 static gboolean
+db_journal_reader_init_file (JournalReader  *jreader,
+                             const gchar    *filename,
+                             GError        **error)
+{
+	if (g_str_has_suffix (filename, ".gz")) {
+		GFile *file;
+		GInputStream *stream, *cstream;
+		GConverter *converter;
+
+		file = g_file_new_for_path (filename);
+
+		stream = G_INPUT_STREAM (g_file_read (file, NULL, error));
+		g_object_unref (file);
+		if (!stream) {
+			return FALSE;
+		}
+
+		converter = G_CONVERTER (g_zlib_decompressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP));
+		cstream = g_converter_input_stream_new (stream, converter);
+		g_object_unref (stream);
+		g_object_unref (converter);
+
+		jreader->stream = g_data_input_stream_new (cstream);
+		g_object_unref (cstream);
+	} else {
+		jreader->file = g_mapped_file_new (filename, FALSE, error);
+
+		if (!jreader->file) {
+			return FALSE;
+		}
+
+		jreader->last_success = jreader->start = jreader->current =
+			g_mapped_file_get_contents (jreader->file);
+
+		jreader->end = jreader->current + g_mapped_file_get_length (jreader->file);
+	}
+
+	if (!journal_verify_header (jreader)) {
+		g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
+		             "Damaged journal entry at begin of journal");
+		tracker_db_journal_reader_shutdown ();
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static gboolean
 db_journal_reader_init (JournalReader *jreader,
                         gboolean global_reader,
                         const gchar *filename)
@@ -1049,66 +1097,24 @@ db_journal_reader_init (JournalReader *jreader,
 
 	jreader->type = TRACKER_DB_JOURNAL_START;
 
-	if (g_str_has_suffix (filename_open, ".gz")) {
-		GFile *file;
-		GInputStream *stream, *cstream;
-		GConverter *converter;
-
-		file = g_file_new_for_path (filename_open);
-		g_free (filename_open);
-
-		stream = G_INPUT_STREAM (g_file_read (file, NULL, &error));
-		g_object_unref (file);
-		if (error) {
-			if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND)) {
-				/* do not warn if the file does not exist, just return FALSE */
-				g_warning ("Could not create TrackerDBJournalReader for file '%s', %s",
-					   jreader->filename,
-					   error->message ? error->message : "no error given");
-			}
-			g_error_free (error);
-			g_free (jreader->filename);
-			jreader->filename = NULL;
-
-			return FALSE;
+	if (!db_journal_reader_init_file (jreader, filename_open, &error)) {
+		if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND) &&
+		    !g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT)) {
+			/* do not warn if the file does not exist, just return FALSE */
+			g_warning ("Could not create TrackerDBJournalReader for file '%s', %s",
+				   jreader->filename,
+				   error->message ? error->message : "no error given");
 		}
-
-		converter = G_CONVERTER (g_zlib_decompressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP));
-		cstream = g_converter_input_stream_new (stream, converter);
-		g_object_unref (stream);
-		g_object_unref (converter);
-
-		jreader->stream = g_data_input_stream_new (cstream);
-		g_object_unref (cstream);
-	} else {
-		jreader->file = g_mapped_file_new (filename_open, FALSE, &error);
-
+		g_error_free (error);
 		g_free (filename_open);
+		g_free (jreader->filename);
+		jreader->filename = NULL;
 
-		if (error) {
-			if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT)) {
-				/* do not warn if the file does not exist, just return FALSE */
-				g_warning ("Could not create TrackerDBJournalReader for file '%s', %s",
-					   jreader->filename,
-					   error->message ? error->message : "no error given");
-			}
-			g_error_free (error);
-			g_free (jreader->filename);
-			jreader->filename = NULL;
-
-			return FALSE;
-		}
-
-		jreader->last_success = jreader->start = jreader->current = 
-			g_mapped_file_get_contents (jreader->file);
-
-		jreader->end = jreader->current + g_mapped_file_get_length (jreader->file);
-	}
-
-	if (!journal_verify_header (jreader)) {
 		tracker_db_journal_reader_shutdown ();
 		return FALSE;
 	}
+
+	g_free (filename_open);
 
 	return TRUE;
 }
@@ -1122,7 +1128,7 @@ tracker_db_journal_reader_init (const gchar *filename)
 gsize
 tracker_db_journal_reader_get_size_of_correct (void)
 {
-	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
+	g_return_val_if_fail (reader.file != NULL, FALSE);
 
 	return (gsize) (reader.last_success - reader.start);
 }
@@ -1131,7 +1137,6 @@ static gboolean
 reader_next_file (GError **error)
 {
 	gchar *filename_open;
-	GError *new_error = NULL;
 
 	filename_open = reader_get_next_filepath (&reader);
 
@@ -1139,57 +1144,16 @@ reader_next_file (GError **error)
 		g_object_unref (reader.stream);
 		reader.stream = NULL;
 	} else {
-#if GLIB_CHECK_VERSION(2,22,0)
 		g_mapped_file_unref (reader.file);
-#else
-		g_mapped_file_free (reader.file);
-#endif
 		reader.file = NULL;
 	}
 
-	if (g_str_has_suffix (filename_open, ".gz")) {
-		GFile *file;
-		GInputStream *stream, *cstream;
-		GConverter *converter;
-
-		file = g_file_new_for_path (filename_open);
+	if (!db_journal_reader_init_file (&reader, filename_open, error)) {
 		g_free (filename_open);
-
-		stream = G_INPUT_STREAM (g_file_read (file, NULL, &new_error));
-		g_object_unref (file);
-		if (new_error) {
-			g_propagate_error (error, new_error);
-			return FALSE;
-		}
-
-		converter = G_CONVERTER (g_zlib_decompressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP));
-		cstream = g_converter_input_stream_new (stream, converter);
-		g_object_unref (stream);
-		g_object_unref (converter);
-
-		reader.stream = g_data_input_stream_new (cstream);
-		g_object_unref (cstream);
-	} else {
-		reader.file = g_mapped_file_new (filename_open, FALSE, &new_error);
-		g_free (filename_open);
-
-		if (new_error) {
-			g_propagate_error (error, new_error);
-			return FALSE;
-		}
-
-		reader.last_success = reader.start = reader.current = 
-			g_mapped_file_get_contents (reader.file);
-
-		reader.end = reader.current + g_mapped_file_get_length (reader.file);
-	}
-
-	if (!journal_verify_header (&reader)) {
-		g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
-		             "Damaged journal entry at begin of journal");
-		tracker_db_journal_reader_shutdown ();
 		return FALSE;
 	}
+
+	g_free (filename_open);
 
 	reader.type = TRACKER_DB_JOURNAL_END_TRANSACTION;
 
