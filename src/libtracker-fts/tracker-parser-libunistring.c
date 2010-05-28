@@ -43,11 +43,6 @@ typedef enum {
 /* Max possible length of a UTF-8 encoded string (just a safety limit) */
 #define WORD_BUFFER_LENGTH 512
 
-static gchar *process_word_utf8 (TrackerParser         *parser,
-                                 const gchar           *word,
-                                 gint                  length,
-                                 TrackerParserWordType type);
-
 struct TrackerParser {
 	const gchar           *txt;
 	gint                   txt_size;
@@ -142,6 +137,130 @@ get_word_info (TrackerParser         *parser,
 		*p_word_type = TRACKER_PARSER_WORD_TYPE_OTHER_UNAC;
 	}
 	return TRUE;
+}
+
+static gchar *
+process_word_utf8 (TrackerParser         *parser,
+                   const gchar           *word,
+                   gint                  length,
+                   TrackerParserWordType type)
+{
+	gchar word_buffer [WORD_BUFFER_LENGTH];
+	gchar *normalized = NULL;
+	gchar *stripped = NULL;
+	gchar *stemmed = NULL;
+	size_t new_word_length;
+
+	g_return_val_if_fail (parser != NULL, NULL);
+	g_return_val_if_fail (word != NULL, NULL);
+
+	/* If length is set as -1, the input word MUST be NIL-terminated.
+	 * Otherwise, this restriction is not needed as the length to process
+	 *  is given as input argument */
+	if (length < 0) {
+		length = strlen (word);
+	}
+
+	/* Log original word */
+	tracker_parser_message_hex ("ORIGINAL word",
+	                            word, length);
+
+	/* Normalization and case-folding ONLY for non-ASCII */
+	if (type != TRACKER_PARSER_WORD_TYPE_ASCII) {
+		/* Leave space for last NIL */
+		new_word_length = WORD_BUFFER_LENGTH - 1;
+
+		/* Casefold and NFC normalization in output.
+		 *  NOTE: if the output buffer is not big enough, u8_casefold will
+		 *  return a newly-allocated buffer. */
+		normalized = u8_casefold ((const uint8_t *)word,
+		                          length,
+		                          uc_locale_language (),
+		                          UNINORM_NFC,
+		                          word_buffer,
+		                          &new_word_length);
+
+		/* Case folding + Normalization failed, ignore this word */
+		g_return_val_if_fail (normalized != NULL, NULL);
+
+		/* If output buffer is not the same as the one passed to
+		 *  u8_casefold, we know it was newly-allocated, so need
+		 *  to resize it in 1 byte to add last NIL */
+		if (normalized != word_buffer) {
+			normalized = g_realloc (normalized, new_word_length + 1);
+		}
+
+		/* Log after Normalization */
+		tracker_parser_message_hex (" After Casefolding and NFC normalization",
+		                            normalized, new_word_length);
+	} else {
+		/* For ASCII-only, just tolower() each character */
+		gsize i;
+
+		normalized = length > WORD_BUFFER_LENGTH ? g_malloc (length + 1) : word_buffer;
+
+		for (i = 0; i < length; i++) {
+			normalized[i] = g_ascii_tolower (word[i]);
+		}
+
+		new_word_length = length;
+
+		/* Log after tolower */
+		tracker_parser_message_hex (" After Lowercasing",
+		                            normalized, new_word_length);
+	}
+
+	/* Set output NIL */
+	normalized[new_word_length] = '\0';
+
+	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
+	if (parser->enable_unaccent && type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC) {
+		gsize stripped_word_length;
+
+		stripped = tracker_parser_unaccent_utf8_word (normalized,
+		                                              new_word_length,
+		                                              &stripped_word_length);
+
+		if (stripped) {
+			/* Log after UNAC stripping */
+			tracker_parser_message_hex ("  After UNAC stripping",
+			                            stripped, stripped_word_length);
+			new_word_length = stripped_word_length;
+		}
+	}
+
+	/* Stemming needed? */
+	if (parser->enable_stemmer) {
+		stemmed = tracker_language_stem_word (parser->language,
+		                                      stripped ? stripped : normalized,
+		                                      new_word_length);
+
+		/* Log after stemming */
+		tracker_parser_message_hex ("   After stemming",
+		                            stemmed, strlen (stemmed));
+	}
+
+	/* If stemmed wanted and succeeded, free previous and return it */
+	if (stemmed) {
+		g_free (stripped);
+		if (normalized != word_buffer) {
+			g_free (normalized);
+		}
+		return stemmed;
+	}
+
+	/* If stripped wanted and succeeded, free previous and return it */
+	if (stripped) {
+		if (normalized != word_buffer) {
+			g_free (normalized);
+		}
+		return stripped;
+	}
+
+	/* It may be the case that no stripping and no stemming was needed, and
+	 * that the output buffer in stack was enough for case-folding and
+	 * normalization. In this case, need to strdup() the string to return it */
+	return normalized == word_buffer ? g_strdup (word_buffer) : normalized;
 }
 
 static gboolean
@@ -313,145 +432,6 @@ tracker_parser_reset (TrackerParser *parser,
 	if (!parser->ignore_numbers) {
 		parser->allowed_start = uc_general_category_or (parser->allowed_start, UC_NUMBER);
 	}
-}
-
-gchar *
-tracker_parser_process_word (TrackerParser *parser,
-                             const gchar    *word,
-                             gint           length,
-                             gboolean       do_strip)
-{
-
-	return process_word_utf8 (parser,
-	                          word,
-	                          length,
-	                          (do_strip ?
-	                           TRACKER_PARSER_WORD_TYPE_OTHER_UNAC :
-	                           TRACKER_PARSER_WORD_TYPE_OTHER_NO_UNAC));
-}
-
-static gchar *
-process_word_utf8 (TrackerParser         *parser,
-                   const gchar           *word,
-                   gint                  length,
-                   TrackerParserWordType type)
-{
-	gchar word_buffer [WORD_BUFFER_LENGTH];
-	gchar *normalized = NULL;
-	gchar *stripped = NULL;
-	gchar *stemmed = NULL;
-	size_t new_word_length;
-
-	g_return_val_if_fail (parser != NULL, NULL);
-	g_return_val_if_fail (word != NULL, NULL);
-
-	/* If length is set as -1, the input word MUST be NIL-terminated.
-	 * Otherwise, this restriction is not needed as the length to process
-	 *  is given as input argument */
-	if (length < 0) {
-		length = strlen (word);
-	}
-
-	/* Log original word */
-	tracker_parser_message_hex ("ORIGINAL word",
-	                            word, length);
-
-	/* Normalization and case-folding ONLY for non-ASCII */
-	if (type != TRACKER_PARSER_WORD_TYPE_ASCII) {
-		/* Leave space for last NIL */
-		new_word_length = WORD_BUFFER_LENGTH - 1;
-
-		/* Casefold and NFC normalization in output.
-		 *  NOTE: if the output buffer is not big enough, u8_casefold will
-		 *  return a newly-allocated buffer. */
-		normalized = u8_casefold ((const uint8_t *)word,
-		                          length,
-		                          uc_locale_language (),
-		                          UNINORM_NFC,
-		                          word_buffer,
-		                          &new_word_length);
-
-		/* Case folding + Normalization failed, ignore this word */
-		g_return_val_if_fail (normalized != NULL, NULL);
-
-		/* If output buffer is not the same as the one passed to
-		 *  u8_casefold, we know it was newly-allocated, so need
-		 *  to resize it in 1 byte to add last NIL */
-		if (normalized != word_buffer) {
-			normalized = g_realloc (normalized, new_word_length + 1);
-		}
-
-		/* Log after Normalization */
-		tracker_parser_message_hex (" After Casefolding and NFC normalization",
-		                            normalized, new_word_length);
-	} else {
-		/* For ASCII-only, just tolower() each character */
-		gsize i;
-
-		normalized = length > WORD_BUFFER_LENGTH ? g_malloc (length + 1) : word_buffer;
-
-		for (i = 0; i < length; i++) {
-			normalized[i] = g_ascii_tolower (word[i]);
-		}
-
-		new_word_length = length;
-
-		/* Log after tolower */
-		tracker_parser_message_hex (" After Lowercasing",
-		                            normalized, new_word_length);
-	}
-
-	/* Set output NIL */
-	normalized[new_word_length] = '\0';
-
-	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
-	if (parser->enable_unaccent && type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC) {
-		gsize stripped_word_length;
-
-		stripped = tracker_parser_unaccent_utf8_word (normalized,
-		                                              new_word_length,
-		                                              &stripped_word_length);
-
-		if (stripped) {
-			/* Log after UNAC stripping */
-			tracker_parser_message_hex ("  After UNAC stripping",
-			                            stripped, stripped_word_length);
-			new_word_length = stripped_word_length;
-		}
-	}
-
-	/* Stemming needed? */
-	if (parser->enable_stemmer) {
-		stemmed = tracker_language_stem_word (parser->language,
-		                                      stripped ? stripped : normalized,
-		                                      new_word_length);
-
-		/* Log after stemming */
-		tracker_parser_message_hex ("   After stemming",
-		                            stemmed, strlen (stemmed));
-	}
-
-	/* If stemmed wanted and succeeded, free previous and return it */
-	if (stemmed) {
-		g_free (stripped);
-		if (normalized != word_buffer) {
-			g_free (normalized);
-		}
-		return stemmed;
-	}
-
-	/* If stripped wanted and succeeded, free previous and return it */
-	if (stripped) {
-		if (normalized != word_buffer) {
-			g_free (normalized);
-		}
-		return stripped;
-	}
-
-	/* It may be the case that no stripping and no stemming was needed, and
-	 * that the output buffer in stack was enough for case-folding and
-	 * normalization. In this case, need to strdup() the string to return it */
-	return normalized == word_buffer ? g_strdup (word_buffer) : normalized;
 }
 
 const gchar *

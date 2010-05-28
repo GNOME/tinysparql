@@ -162,6 +162,83 @@ get_encoding (const gchar *txt)
 
 }
 
+static gchar *
+process_word_utf8 (TrackerParser *parser,
+		   const gchar   *word,
+		   gint           length,
+		   gboolean       do_strip)
+{
+	gchar *stem_word;
+	gchar *str;
+	gchar *stripped_word;
+	gsize  bytes, len;
+
+	g_return_val_if_fail (parser != NULL, NULL);
+	g_return_val_if_fail (word != NULL, NULL);
+
+	str = NULL;
+	stripped_word = NULL;
+
+	if (word) {
+		if (length == -1) {
+			bytes = strlen (word);
+		} else {
+			bytes = length;
+		}
+
+		/* Log original word */
+		tracker_parser_message_hex ("ORIGINAL word",
+		                            word, bytes);
+
+		if (parser->enable_unaccent && do_strip) {
+			stripped_word = tracker_parser_unaccent_utf8_word (word,
+			                                                   bytes,
+			                                                   &len);
+
+			/* Log after UNAC stripping */
+			tracker_parser_message_hex (" After UNAC stripping",
+			                            stripped_word, len);
+		} else {
+			stripped_word = NULL;
+		}
+
+		if (!stripped_word) {
+			str = g_utf8_normalize (word,
+			                        bytes,
+			                        G_NORMALIZE_NFC);
+		} else {
+			str = g_utf8_normalize (stripped_word,
+			                        len,
+			                        G_NORMALIZE_NFC);
+			g_free (stripped_word);
+		}
+
+		/* Log after normalization */
+		tracker_parser_message_hex ("  After NFC normalization",
+		                            str, strlen ((gchar *)str));
+
+		if (!str) {
+			return NULL;
+		}
+
+		if (!parser->enable_stemmer) {
+			return str;
+		}
+
+		len = strlen (str);
+
+		stem_word = tracker_language_stem_word (parser->language, str, len);
+
+		if (stem_word) {
+			g_free (str);
+
+			return stem_word;
+		}
+	}
+
+	return str;
+}
+
 static gboolean
 pango_next (TrackerParser *parser,
             gint          *byte_offset_start,
@@ -400,7 +477,7 @@ parser_next (TrackerParser *parser,
 
 		parser->cursor = parser->txt + *byte_offset_end;
 
-		processed_word = tracker_parser_process_word (parser, utf8, bytes, do_strip);
+		processed_word = process_word_utf8 (parser, utf8, bytes, do_strip);
 		g_free (utf8);
 
 		if (processed_word) {
@@ -501,83 +578,6 @@ tracker_parser_reset (TrackerParser *parser,
 		parser->attrs = attrs;
 		parser->attr_pos = 0;
 	}
-}
-
-gchar *
-tracker_parser_process_word (TrackerParser *parser,
-                             const gchar   *word,
-                             gint           length,
-                             gboolean       do_strip)
-{
-	gchar *stem_word;
-	gchar *str;
-	gchar *stripped_word;
-	gsize  bytes, len;
-
-	g_return_val_if_fail (parser != NULL, NULL);
-	g_return_val_if_fail (word != NULL, NULL);
-
-	str = NULL;
-	stripped_word = NULL;
-
-	if (word) {
-		if (length == -1) {
-			bytes = strlen (word);
-		} else {
-			bytes = length;
-		}
-
-		/* Log original word */
-		tracker_parser_message_hex ("ORIGINAL word",
-		                            word, bytes);
-
-		if (parser->enable_unaccent && do_strip) {
-			stripped_word = tracker_parser_unaccent_utf8_word (word,
-			                                                   bytes,
-			                                                   &len);
-
-			/* Log after UNAC stripping */
-			tracker_parser_message_hex (" After UNAC stripping",
-			                            stripped_word, len);
-		} else {
-			stripped_word = NULL;
-		}
-
-		if (!stripped_word) {
-			str = g_utf8_normalize (word,
-			                        bytes,
-			                        G_NORMALIZE_NFC);
-		} else {
-			str = g_utf8_normalize (stripped_word,
-			                        len,
-			                        G_NORMALIZE_NFC);
-			g_free (stripped_word);
-		}
-
-		/* Log after normalization */
-		tracker_parser_message_hex ("  After NFC normalization",
-		                            str, strlen ((gchar *)str));
-
-		if (!str) {
-			return NULL;
-		}
-
-		if (!parser->enable_stemmer) {
-			return str;
-		}
-
-		len = strlen (str);
-
-		stem_word = tracker_language_stem_word (parser->language, str, len);
-
-		if (stem_word) {
-			g_free (str);
-
-			return stem_word;
-		}
-	}
-
-	return str;
 }
 
 const gchar *

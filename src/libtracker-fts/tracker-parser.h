@@ -48,11 +48,6 @@ const gchar *  tracker_parser_next            (TrackerParser   *parser,
                                                gboolean        *stop_word,
                                                gint            *word_length);
 
-gchar *        tracker_parser_process_word    (TrackerParser   *parser,
-                                               const gchar     *word,
-                                               gint             length,
-                                               gboolean         do_strip);
-
 void           tracker_parser_free            (TrackerParser   *parser);
 
 G_END_DECLS

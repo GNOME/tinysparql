@@ -44,11 +44,6 @@ typedef enum {
 /* Max possible length of a UChar encoded string (just a safety limit) */
 #define WORD_BUFFER_LENGTH 512
 
-static gchar *process_word_uchar (TrackerParser         *parser,
-                                  const UChar           *word,
-                                  gint                   length,
-                                  TrackerParserWordType  type);
-
 struct TrackerParser {
 	const gchar           *txt;
 	gint                   txt_size;
@@ -141,6 +136,168 @@ get_word_info (const UChar           *word,
 
 	*p_word_type = TRACKER_PARSER_WORD_TYPE_ASCII;
 	return TRUE;
+}
+
+static gchar *
+process_word_uchar (TrackerParser         *parser,
+                    const UChar           *word,
+                    gint                   length,
+                    TrackerParserWordType  type)
+{
+	UErrorCode error = U_ZERO_ERROR;
+	UChar normalized_buffer [WORD_BUFFER_LENGTH];
+	gchar *utf8_str = NULL;
+	gchar *stemmed = NULL;
+	size_t new_word_length;
+
+	/* Log original word */
+	tracker_parser_message_hex ("ORIGINAL word",
+	                            (guint8 *)word,
+				    length * sizeof (UChar));
+
+
+	if (type != TRACKER_PARSER_WORD_TYPE_ASCII) {
+		UChar casefolded_buffer [WORD_BUFFER_LENGTH];
+
+		/* Casefold... */
+		new_word_length = u_strFoldCase (casefolded_buffer,
+		                                 WORD_BUFFER_LENGTH,
+		                                 word,
+		                                 length,
+		                                 U_FOLD_CASE_DEFAULT,
+		                                 &error);
+		if (U_FAILURE (error)) {
+			g_warning ("Error casefolding: '%s'",
+			           u_errorName (error));
+			return NULL;
+		}
+		if (new_word_length > WORD_BUFFER_LENGTH)
+			new_word_length = WORD_BUFFER_LENGTH;
+
+		/* Log after casefolding */
+		tracker_parser_message_hex (" After Casefolding",
+		                            (guint8 *)casefolded_buffer,
+					    new_word_length * sizeof (UChar));
+
+		/* NFC normalization... */
+		new_word_length = unorm_normalize (casefolded_buffer,
+		                                   new_word_length,
+		                                   UNORM_NFC,
+		                                   0,
+		                                   normalized_buffer,
+		                                   WORD_BUFFER_LENGTH,
+		                                   &error);
+		if (U_FAILURE (error)) {
+			g_warning ("Error normalizing: '%s'",
+			           u_errorName (error));
+			return NULL;
+		}
+
+		if (new_word_length > WORD_BUFFER_LENGTH)
+			new_word_length = WORD_BUFFER_LENGTH;
+
+		/* Log after casefolding */
+		tracker_parser_message_hex (" After Normalization",
+		                            (guint8 *)normalized_buffer,
+					    new_word_length * sizeof (UChar));
+	} else {
+		/* For ASCII-only, just tolower() each character */
+		new_word_length = u_strToLower (normalized_buffer,
+		                                WORD_BUFFER_LENGTH,
+		                                word,
+		                                length,
+		                                NULL,
+		                                &error);
+		if (U_FAILURE (error)) {
+			g_warning ("Error lowercasing: '%s'",
+			           u_errorName (error));
+			return NULL;
+		}
+
+		/* Log after casefolding */
+		tracker_parser_message_hex (" After lowercase",
+		                            (guint8 *)normalized_buffer,
+					    new_word_length * sizeof (UChar));
+	}
+
+	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
+	if (parser->enable_unaccent && type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC) {
+		gsize stripped_word_length;
+
+		/* Get unaccented string in UTF-8 */
+		utf8_str = tracker_parser_unaccent_UChar_word (normalized_buffer,
+		                                               new_word_length,
+		                                               &stripped_word_length);
+		if (utf8_str) {
+			new_word_length = stripped_word_length;
+
+			/* Log after unaccenting */
+			tracker_parser_message_hex ("   After UNAC",
+						    utf8_str,
+						    new_word_length);
+		}
+	}
+
+	/* If stripping failed or not needed, convert to UTF-8 */
+	if (!utf8_str) {
+		UErrorCode icu_error = U_ZERO_ERROR;
+		UConverter *converter;
+		gsize utf8_len;
+
+		/* Open converter UChar to UTF-16BE */
+		converter = ucnv_open ("UTF-8", &icu_error);
+		if (!converter) {
+			g_warning ("Cannot open UTF-8 converter: '%s'",
+			           U_FAILURE (icu_error) ? u_errorName (icu_error) : "none");
+			return NULL;
+		}
+		/* A character encoded in 2 bytes in UTF-16 may get expanded to 3 or 4 bytes
+		 *  in UTF-8. */
+		utf8_str = g_malloc (2 * new_word_length * sizeof (UChar) + 1);
+
+		/* Convert from UChar to UTF-8 (NIL-terminated) */
+		utf8_len = ucnv_fromUChars (converter,
+		                            utf8_str,
+		                            2 * new_word_length * sizeof (UChar) + 1,
+		                            normalized_buffer,
+		                            new_word_length,
+		                            &icu_error);
+		if (U_FAILURE (icu_error)) {
+			g_warning ("Cannot convert from UChar to UTF-8: '%s'",
+			           u_errorName (icu_error));
+			g_free (utf8_str);
+			ucnv_close (converter);
+			return NULL;
+		}
+
+		new_word_length = utf8_len;
+		ucnv_close (converter);
+
+		/* Log after unaccenting */
+		tracker_parser_message_hex ("   After UTF8 conversion",
+		                            utf8_str,
+					    new_word_length);
+	}
+
+	/* Stemming needed? */
+	if (parser->enable_stemmer) {
+		/* Input for stemmer ALWAYS in UTF-8, as well as output */
+		stemmed = tracker_language_stem_word (parser->language,
+		                                      utf8_str,
+		                                      new_word_length);
+
+		/* Log after stemming */
+		tracker_parser_message_hex ("   After stemming",
+		                            stemmed, strlen (stemmed));
+	}
+
+	/* If stemmed wanted and succeeded, free previous and return it */
+	if (stemmed) {
+		g_free (utf8_str);
+		return stemmed;
+	}
+
+	return utf8_str;
 }
 
 static gboolean
@@ -395,226 +552,6 @@ tracker_parser_reset (TrackerParser *parser,
 
 	/* Close converter */
 	ucnv_close (converter);
-}
-
-static gchar *
-process_word_uchar (TrackerParser         *parser,
-                    const UChar           *word,
-                    gint                   length,
-                    TrackerParserWordType  type)
-{
-	UErrorCode error = U_ZERO_ERROR;
-	UChar normalized_buffer [WORD_BUFFER_LENGTH];
-	gchar *utf8_str = NULL;
-	gchar *stemmed = NULL;
-	size_t new_word_length;
-
-	/* Log original word */
-	tracker_parser_message_hex ("ORIGINAL word",
-	                            (guint8 *)word,
-				    length * sizeof (UChar));
-
-
-	if (type != TRACKER_PARSER_WORD_TYPE_ASCII) {
-		UChar casefolded_buffer [WORD_BUFFER_LENGTH];
-
-		/* Casefold... */
-		new_word_length = u_strFoldCase (casefolded_buffer,
-		                                 WORD_BUFFER_LENGTH,
-		                                 word,
-		                                 length,
-		                                 U_FOLD_CASE_DEFAULT,
-		                                 &error);
-		if (U_FAILURE (error)) {
-			g_warning ("Error casefolding: '%s'",
-			           u_errorName (error));
-			return NULL;
-		}
-		if (new_word_length > WORD_BUFFER_LENGTH)
-			new_word_length = WORD_BUFFER_LENGTH;
-
-		/* Log after casefolding */
-		tracker_parser_message_hex (" After Casefolding",
-		                            (guint8 *)casefolded_buffer,
-					    new_word_length * sizeof (UChar));
-
-		/* NFC normalization... */
-		new_word_length = unorm_normalize (casefolded_buffer,
-		                                   new_word_length,
-		                                   UNORM_NFC,
-		                                   0,
-		                                   normalized_buffer,
-		                                   WORD_BUFFER_LENGTH,
-		                                   &error);
-		if (U_FAILURE (error)) {
-			g_warning ("Error normalizing: '%s'",
-			           u_errorName (error));
-			return NULL;
-		}
-
-		if (new_word_length > WORD_BUFFER_LENGTH)
-			new_word_length = WORD_BUFFER_LENGTH;
-
-		/* Log after casefolding */
-		tracker_parser_message_hex (" After Normalization",
-		                            (guint8 *)normalized_buffer,
-					    new_word_length * sizeof (UChar));
-	} else {
-		/* For ASCII-only, just tolower() each character */
-		new_word_length = u_strToLower (normalized_buffer,
-		                                WORD_BUFFER_LENGTH,
-		                                word,
-		                                length,
-		                                NULL,
-		                                &error);
-		if (U_FAILURE (error)) {
-			g_warning ("Error lowercasing: '%s'",
-			           u_errorName (error));
-			return NULL;
-		}
-
-		/* Log after casefolding */
-		tracker_parser_message_hex (" After lowercase",
-		                            (guint8 *)normalized_buffer,
-					    new_word_length * sizeof (UChar));
-	}
-
-	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
-	if (parser->enable_unaccent && type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC) {
-		gsize stripped_word_length;
-
-		/* Get unaccented string in UTF-8 */
-		utf8_str = tracker_parser_unaccent_UChar_word (normalized_buffer,
-		                                               new_word_length,
-		                                               &stripped_word_length);
-		if (utf8_str) {
-			new_word_length = stripped_word_length;
-
-			/* Log after unaccenting */
-			tracker_parser_message_hex ("   After UNAC",
-						    utf8_str,
-						    new_word_length);
-		}
-	}
-
-	/* If stripping failed or not needed, convert to UTF-8 */
-	if (!utf8_str) {
-		UErrorCode icu_error = U_ZERO_ERROR;
-		UConverter *converter;
-		gsize utf8_len;
-
-		/* Open converter UChar to UTF-16BE */
-		converter = ucnv_open ("UTF-8", &icu_error);
-		if (!converter) {
-			g_warning ("Cannot open UTF-8 converter: '%s'",
-			           U_FAILURE (icu_error) ? u_errorName (icu_error) : "none");
-			return NULL;
-		}
-		/* A character encoded in 2 bytes in UTF-16 may get expanded to 3 or 4 bytes
-		 *  in UTF-8. */
-		utf8_str = g_malloc (2 * new_word_length * sizeof (UChar) + 1);
-
-		/* Convert from UChar to UTF-8 (NIL-terminated) */
-		utf8_len = ucnv_fromUChars (converter,
-		                            utf8_str,
-		                            2 * new_word_length * sizeof (UChar) + 1,
-		                            normalized_buffer,
-		                            new_word_length,
-		                            &icu_error);
-		if (U_FAILURE (icu_error)) {
-			g_warning ("Cannot convert from UChar to UTF-8: '%s'",
-			           u_errorName (icu_error));
-			g_free (utf8_str);
-			ucnv_close (converter);
-			return NULL;
-		}
-
-		new_word_length = utf8_len;
-		ucnv_close (converter);
-
-		/* Log after unaccenting */
-		tracker_parser_message_hex ("   After UTF8 conversion",
-		                            utf8_str,
-					    new_word_length);
-	}
-
-	/* Stemming needed? */
-	if (parser->enable_stemmer) {
-		/* Input for stemmer ALWAYS in UTF-8, as well as output */
-		stemmed = tracker_language_stem_word (parser->language,
-		                                      utf8_str,
-		                                      new_word_length);
-
-		/* Log after stemming */
-		tracker_parser_message_hex ("   After stemming",
-		                            stemmed, strlen (stemmed));
-	}
-
-	/* If stemmed wanted and succeeded, free previous and return it */
-	if (stemmed) {
-		g_free (utf8_str);
-		return stemmed;
-	}
-
-	return utf8_str;
-}
-
-
-/* Both Input and Output are always UTF-8 */
-gchar *
-tracker_parser_process_word (TrackerParser *parser,
-                             const gchar   *word,
-                             gint           length,
-                             gboolean       do_strip)
-{
-	UErrorCode icu_error = U_ZERO_ERROR;
-	UConverter *converter;
-	UChar *uchar_word;
-	gsize uchar_len;
-	gchar *processed;
-
-	/* Open converter UTF-8 to UChar */
-	converter = ucnv_open ("UTF-8", &icu_error);
-	if (!converter) {
-		g_warning ("Cannot open UTF-8 converter: '%s'",
-		           U_FAILURE (icu_error) ? u_errorName (icu_error) : "none");
-		return NULL;
-	}
-
-	/* Compute length if not already as input */
-	if (length < 0) {
-		length = strlen (word);
-	}
-
-	/* Twice the size of the UTF-8 string for UChars */
-	uchar_word = g_malloc (2 * length);
-
-	/* Convert from UTF-8 to UChars*/
-	uchar_len = ucnv_toUChars (converter,
-	                           uchar_word,
-	                           2 * length,
-	                           word,
-	                           length,
-	                           &icu_error);
-	if (U_FAILURE (icu_error)) {
-		g_warning ("Cannot convert from UTF-8 to UChar: '%s'",
-		           u_errorName (icu_error));
-		g_free (uchar_word);
-		ucnv_close (converter);
-		return NULL;
-	}
-
-	ucnv_close (converter);
-
-	/* Process UChar based word */
-	processed = process_word_uchar (parser,
-	                                uchar_word,
-	                                uchar_len,
-	                                (do_strip ?
-	                                 TRACKER_PARSER_WORD_TYPE_OTHER_UNAC :
-	                                 TRACKER_PARSER_WORD_TYPE_OTHER_NO_UNAC));
-	g_free (uchar_word);
-	return processed;
 }
 
 const gchar *
