@@ -26,6 +26,7 @@ SUBDIRS =                                              \
 	tracker-utils                                  \
 	tracker-extract                                \
 	tracker-writeback                              \
+	needle					       \
 	vapi
 
 if HAVE_TRACKER_PREFERENCES
