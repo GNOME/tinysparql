@@ -464,6 +464,9 @@ db_manager_remove_all (gboolean rm_journal)
 				const gchar *f_name;
 
 				journal_dir = g_dir_open (dirs[i], 0, NULL);
+				if (!journal_dir) {
+					continue;
+				}
 				f_name = g_dir_read_name (journal_dir);
 
 				/* Remove rotated chunks */
