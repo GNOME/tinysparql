@@ -48,15 +48,15 @@
 /* Fixture object type */
 typedef struct {
 	/* The parser object */
-	TrackerParser    *parser;
+	TrackerParser *parser;
 
 	/* Default parser configuration to use */
-	gint              max_word_length;
-	gboolean          enable_stemmer;
-	gboolean          enable_unaccent;
-	gboolean          ignore_stop_words;
-	gboolean          ignore_reserved_words;
-	gboolean          ignore_numbers;
+	gint max_word_length;
+	gboolean enable_stemmer;
+	gboolean enable_unaccent;
+	gboolean ignore_stop_words;
+	gboolean ignore_reserved_words;
+	gboolean ignore_numbers;
 } TrackerParserTestFixture;
 
 /* Common setup for all tests */
@@ -109,8 +109,8 @@ test_common_teardown (TrackerParserTestFixture *fixture,
 typedef struct TestDataExpectedNWords TestDataExpectedNWords;
 struct TestDataExpectedNWords {
 	const gchar *str;
-	gboolean     ignore_numbers;
-	guint        expected_nwords;
+	gboolean ignore_numbers;
+	guint expected_nwords;
 };
 
 /* Common expected_word test method */
@@ -157,10 +157,10 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 /* Test struct for the expected-word tests */
 typedef struct TestDataExpectedWord TestDataExpectedWord;
 struct TestDataExpectedWord {
-	const gchar  *str;
-	const gchar  *expected;
-	gboolean      enable_stemmer;
-	gboolean      enable_unaccent;
+	const gchar *str;
+	const gchar *expected;
+	gboolean enable_stemmer;
+	gboolean enable_unaccent;
 };
 
 /* Common expected_word test method */
@@ -197,6 +197,52 @@ expected_word_check (TrackerParserTestFixture *fixture,
 
 	/* Check if input is same as expected */
 	g_assert_cmpstr (word, == , testdata->expected);
+}
+
+/* -------------- STOP WORD TESTS ----------------- */
+
+/* Test struct for the stop-word tests */
+typedef struct TestDataStopWord TestDataStopWord;
+struct TestDataStopWord {
+	const gchar *str;
+	gboolean ignore_stop_words;
+	gboolean is_expected_stop_word;
+};
+
+/* Common stop__word test method */
+static void
+stop_word_check (TrackerParserTestFixture *fixture,
+                 gconstpointer data)
+{
+	const TestDataStopWord *testdata = data;
+	const gchar *word;
+	gint position;
+	gint byte_offset_start;
+	gint byte_offset_end;
+	gboolean stop_word;
+	gint word_length;
+
+	/* Reset the parser with our string */
+	tracker_parser_reset (fixture->parser,
+	                      testdata->str,
+	                      strlen (testdata->str),
+	                      fixture->max_word_length,
+	                      fixture->enable_stemmer,
+	                      fixture->enable_unaccent,
+	                      testdata->ignore_stop_words,
+	                      fixture->ignore_reserved_words,
+	                      fixture->ignore_numbers);
+
+	/* Process next word */
+	word = tracker_parser_next (fixture->parser,
+	                            &position,
+	                            &byte_offset_start,
+	                            &byte_offset_end,
+	                            &stop_word,
+	                            &word_length);
+
+	/* Check if input is same as stop_word */
+	g_assert_cmpuint (stop_word, == , testdata->is_expected_stop_word);
 }
 
 /* -------------- LIST OF TESTS ----------------- */
@@ -284,6 +330,15 @@ static const TestDataExpectedNWords test_data_nwords[] = {
 	{ NULL,                                                     FALSE,  0 }
 };
 
+/* Stop-word tests (for english only) */
+static const TestDataStopWord test_data_stop_words[] = {
+	{ "hello", TRUE,  TRUE  }, /* hello is stop word */
+	{ "hello", FALSE, FALSE },
+	{ "world", TRUE,  FALSE }, /* world is not stop word */
+	{ "world", FALSE, FALSE },
+	{ NULL,    FALSE, FALSE }
+};
+
 int
 main (int argc, char **argv)
 {
@@ -294,6 +349,13 @@ main (int argc, char **argv)
 		g_thread_init (NULL);
 	}
 	g_test_init (&argc, &argv, NULL);
+
+	/* We want the tests to properly find the stopwords dictionaries, so we
+	 *  need to set the following envvar with the path where the
+	 *  dictionaries are. */
+	g_setenv ("TRACKER_LANGUAGE_STOP_WORDS_DIR",
+	          TOP_SRCDIR "/data/languages",
+	          TRUE);
 
 	/* Add normalization checks */
 	for (i = 0; test_data_normalization[i].str != NULL; i++) {
@@ -363,6 +425,20 @@ main (int argc, char **argv)
 		            &test_data_nwords[i],
 		            test_common_setup,
 		            expected_nwords_check,
+		            test_common_teardown);
+		g_free (testpath);
+	}
+
+	/* Add stop word checks */
+	for (i = 0; test_data_stop_words[i].str != NULL; i++) {
+		gchar *testpath;
+
+		testpath = g_strdup_printf ("/libtracker-fts/parser/stop_words_%d", i);
+		g_test_add (testpath,
+		            TrackerParserTestFixture,
+		            &test_data_stop_words[i],
+		            test_common_setup,
+		            stop_word_check,
 		            test_common_teardown);
 		g_free (testpath);
 	}

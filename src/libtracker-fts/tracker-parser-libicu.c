@@ -142,7 +142,8 @@ static gchar *
 process_word_uchar (TrackerParser         *parser,
                     const UChar           *word,
                     gint                   length,
-                    TrackerParserWordType  type)
+                    TrackerParserWordType  type,
+                    gboolean              *stop_word)
 {
 	UErrorCode error = U_ZERO_ERROR;
 	UChar normalized_buffer [WORD_BUFFER_LENGTH];
@@ -279,6 +280,12 @@ process_word_uchar (TrackerParser         *parser,
 					    new_word_length);
 	}
 
+	/* Check if stop word */
+	if (parser->ignore_stop_words) {
+		*stop_word = tracker_language_is_stop_word (parser->language,
+		                                            utf8_str);
+	}
+
 	/* Stemming needed? */
 	if (parser->enable_stemmer) {
 		/* Input for stemmer ALWAYS in UTF-8, as well as output */
@@ -303,7 +310,8 @@ process_word_uchar (TrackerParser         *parser,
 static gboolean
 parser_next (TrackerParser *parser,
              gint          *byte_offset_start,
-             gint          *byte_offset_end)
+             gint          *byte_offset_end,
+             gboolean      *stop_word)
 {
 	gsize word_length_uchar = 0;
 	gsize word_length_utf8 = 0;
@@ -398,7 +406,8 @@ parser_next (TrackerParser *parser,
 		processed_word = process_word_uchar (parser,
 		                                     &(parser->utxt[parser->cursor]),
 		                                     truncated_length,
-		                                     type);
+		                                     type,
+		                                     stop_word);
 		if (!processed_word) {
 			/* Ignore this word and keep on looping */
 			parser->cursor = next_word_offset_uchar;
@@ -563,24 +572,21 @@ tracker_parser_next (TrackerParser *parser,
                      gint          *word_length)
 {
 	const gchar  *str;
-	gint     byte_start = 0, byte_end = 0;
+	gint byte_start = 0, byte_end = 0;
 
 	str = NULL;
 
 	g_free (parser->word);
 	parser->word = NULL;
 
-	if (parser_next (parser, &byte_start, &byte_end)) {
+	*stop_word = FALSE;
+
+	if (parser_next (parser, &byte_start, &byte_end, stop_word)) {
 		str = parser->word;
 	}
 
-	if (str &&
-	    parser->ignore_stop_words &&
-	    tracker_language_is_stop_word (parser->language, str)) {
-		*stop_word = TRUE;
-	} else {
+	if (!*stop_word) {
 		parser->word_position++;
-		*stop_word = FALSE;
 	}
 
 	*word_length = parser->word_length;

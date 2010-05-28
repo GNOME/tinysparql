@@ -166,7 +166,8 @@ static gchar *
 process_word_utf8 (TrackerParser *parser,
 		   const gchar   *word,
 		   gint           length,
-		   gboolean       do_strip)
+                   gboolean       do_strip,
+                   gboolean      *stop_word)
 {
 	gchar *stem_word;
 	gchar *str;
@@ -219,6 +220,12 @@ process_word_utf8 (TrackerParser *parser,
 
 		if (!str) {
 			return NULL;
+		}
+
+		/* Check if stop word */
+		if (parser->ignore_stop_words) {
+			*stop_word = tracker_language_is_stop_word (parser->language,
+			                                            str);
 		}
 
 		if (!parser->enable_stemmer) {
@@ -306,7 +313,8 @@ pango_next (TrackerParser *parser,
 static gboolean
 parser_next (TrackerParser *parser,
              gint          *byte_offset_start,
-             gint          *byte_offset_end)
+             gint          *byte_offset_end,
+             gboolean      *stop_word)
 {
 	TrackerParserWordType word_type;
 	gunichar              word[64];
@@ -477,7 +485,7 @@ parser_next (TrackerParser *parser,
 
 		parser->cursor = parser->txt + *byte_offset_end;
 
-		processed_word = process_word_utf8 (parser, utf8, bytes, do_strip);
+		processed_word = process_word_utf8 (parser, utf8, bytes, do_strip, stop_word);
 		g_free (utf8);
 
 		if (processed_word) {
@@ -589,33 +597,27 @@ tracker_parser_next (TrackerParser *parser,
                      gint          *word_length)
 {
 	const gchar  *str;
-	gint     byte_start = 0, byte_end = 0;
+	gint byte_start = 0, byte_end = 0;
 
 	str = NULL;
 
 	g_free (parser->word);
 	parser->word = NULL;
 
+	*stop_word = FALSE;
+
 	if (parser->encoding == TRACKER_PARSER_ENCODING_CJK) {
 		if (pango_next (parser, &byte_start, &byte_end)) {
 			str = parser->word;
 		}
-		parser->word_position++;
-
-		*stop_word = FALSE;
 	} else {
-		if (parser_next (parser, &byte_start, &byte_end)) {
+		if (parser_next (parser, &byte_start, &byte_end, stop_word)) {
 			str = parser->word;
 		}
+	}
 
-		if (str &&
-		    parser->ignore_stop_words &&
-		    tracker_language_is_stop_word (parser->language, str)) {
-			*stop_word = TRUE;
-		} else {
-			parser->word_position++;
-			*stop_word = FALSE;
-		}
+	if (!*stop_word) {
+		parser->word_position++;
 	}
 
 	*word_length = parser->word_length;

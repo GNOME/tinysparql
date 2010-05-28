@@ -218,15 +218,26 @@ language_get_stopword_filename (const gchar *language_code)
 {
 	gchar *str;
 	gchar *filename;
+	const gchar *testpath;
 
 	str = g_strconcat ("stopwords.", language_code, NULL);
-	filename = g_build_filename (SHAREDIR,
-	                             "tracker",
-	                             "languages",
-	                             str,
-	                             NULL);
-	g_free (str);
 
+	/* Look if the testpath for stopwords dictionary was set
+	 *  (used during unit tests) */
+	testpath = g_getenv ("TRACKER_LANGUAGE_STOP_WORDS_DIR");
+	if (!testpath) {
+		filename = g_build_filename (SHAREDIR,
+		                             "tracker",
+		                             "languages",
+		                             str,
+		                             NULL);
+	} else {
+		filename = g_build_filename (testpath,
+		                             str,
+		                             NULL);
+	}
+
+	g_free (str);
 	return filename;
 }
 
