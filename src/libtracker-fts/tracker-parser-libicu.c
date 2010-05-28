@@ -611,8 +611,8 @@ tracker_parser_process_word (TrackerParser *parser,
 	                                uchar_word,
 	                                uchar_len,
 	                                (do_strip ?
-					 TRACKER_PARSER_WORD_TYPE_OTHER_UNAC :
-					 TRACKER_PARSER_WORD_TYPE_OTHER_NO_UNAC));
+	                                 TRACKER_PARSER_WORD_TYPE_OTHER_UNAC :
+	                                 TRACKER_PARSER_WORD_TYPE_OTHER_NO_UNAC));
 	g_free (uchar_word);
 	return processed;
 }

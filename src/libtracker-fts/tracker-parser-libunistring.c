@@ -321,6 +321,7 @@ tracker_parser_process_word (TrackerParser *parser,
                              gint           length,
                              gboolean       do_strip)
 {
+
 	return process_word_utf8 (parser,
 	                          word,
 	                          length,
@@ -383,8 +384,7 @@ process_word_utf8 (TrackerParser         *parser,
 		/* Log after Normalization */
 		tracker_parser_message_hex (" After Casefolding and NFC normalization",
 		                            normalized, new_word_length);
-	}
-	else {
+	} else {
 		/* For ASCII-only, just tolower() each character */
 		gsize i;
 
