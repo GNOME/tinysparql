@@ -610,7 +610,9 @@ tracker_parser_process_word (TrackerParser *parser,
 	processed = process_word_uchar (parser,
 	                                uchar_word,
 	                                uchar_len,
-	                                do_strip);
+	                                (do_strip ?
+					 TRACKER_PARSER_WORD_TYPE_OTHER_UNAC :
+					 TRACKER_PARSER_WORD_TYPE_OTHER_NO_UNAC));
 	g_free (uchar_word);
 	return processed;
 }
