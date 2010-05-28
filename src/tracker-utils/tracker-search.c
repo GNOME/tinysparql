@@ -976,18 +976,18 @@ get_all_by_search_foreach (gpointer value,
 		if (mime_type && mime_type[0] == '\0') {
 			mime_type = NULL;
 		}
-		
+
 		if (mime_type) {
 			g_print ("  %s\n"
 			         "    %s\n"
-			         "    %s\n", 
-			         urn, 
-			         mime_type, 
+			         "    %s\n",
+			         urn,
+			         mime_type,
 			         class);
 		} else {
 			g_print ("  %s\n"
-			         "    %s\n", 
-			         urn, 
+			         "    %s\n",
+			         urn,
 			         class);
 		}
 	}
@@ -1155,8 +1155,7 @@ main (int argc, char **argv)
 
 	if (terms) {
 		TrackerLanguage *language;
-		GHashTable *stop_words;
-		const gchar *stop_word_found;
+		gboolean stop_words_found;
 		gchar **p;
 
 		/* Check terms don't have additional quotes */
@@ -1172,36 +1171,30 @@ main (int argc, char **argv)
 			}
 		}
 
-		/* Check terms are not stopwords */
+		/* Check if terms are stopwords, and warn if so */
 		language = tracker_language_new (NULL);
-		stop_words = tracker_language_get_stop_words (language);
+		stop_words_found = FALSE;
+		for (p = terms; *p; p++) {
+			gchar *down;
 
-		for (p = terms, stop_word_found = NULL; *p && !stop_word_found; p++) {
-			gpointer data;
-			gchar *up = g_utf8_strdown (*p, -1);
+			down = g_utf8_strdown (*p, -1);
 
-			data = g_hash_table_lookup (stop_words, up);
-			if (data) {
-				stop_word_found = *p;
+			if (tracker_language_is_stop_word (language, down)) {
+				g_printerr (_("Search term '%s' is a stop word."),
+				            down);
+				g_printerr ("\n");
+
+				stop_words_found = TRUE;
 			}
-			g_free (up);
+
+			g_free (down);
 		}
 
-		if (stop_word_found) {
-			g_printerr (_("Search term '%s' is a stop word."),
-			            stop_word_found);
+		if (stop_words_found) {
+			g_printerr (_("Stop words are common words which "
+			              "may be ignored during the indexing "
+			              "process."));
 			g_printerr ("\n\n");
-			g_printerr (_("Stop words are common words which are "
-			              "ignored during the indexing process."));
-			g_printerr ("\n");
-			g_printerr (_("This means this search term will never "
-			              "be found when matching FTS entries."));
-			g_printerr ("\n\n");
-
-			g_option_context_free (context);
-			g_object_unref (language);
-
-			return EXIT_FAILURE;
 		}
 
 		g_object_unref (language);
