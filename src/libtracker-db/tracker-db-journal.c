@@ -1167,12 +1167,10 @@ reader_next_file (GError **error)
 static gboolean
 db_journal_reader_shutdown (JournalReader *jreader)
 {
-	g_return_val_if_fail (jreader->file != NULL || jreader->stream != NULL, FALSE);
-
-	if (reader.stream) {
-		g_object_unref (reader.stream);
-		reader.stream = NULL;
-	} else {
+	if (jreader->stream) {
+		g_object_unref (jreader->stream);
+		jreader->stream = NULL;
+	} else if (jreader->file) {
 #if GLIB_CHECK_VERSION(2,22,0)
 		g_mapped_file_unref (jreader->file);
 #else
