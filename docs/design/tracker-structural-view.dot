@@ -20,6 +20,7 @@ digraph G {
 
     libqttracker [label="<<library>>\n\nlibqttracker"];
     libthumbnailer [label="<<library>>\n\nlibthumbnailer"];
+    libcontentaction [label="<<library>>\n\nlibcontentaction"];
     trackerutils [label="<<command-line>>\n\ntracker-utils"];
     trackerstore [label="<<process>>\n\ntracker-store"];
     sqlite [label="<<library>>\n\nsqlite" ];    
@@ -64,6 +65,7 @@ digraph G {
 
   app -> libqttracker [label="<<link>>"]
   app -> libthumbnailer [label="<<link>>"]
+  app -> libcontentaction [label="<<link>>"]
 
   trackerextract -> extractionlibs [label="<<link>>"]
   trackerextract -> gstreamer [label="<<link>>"]
