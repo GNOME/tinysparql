@@ -25,6 +25,7 @@ tracker_miner_rss_SOURCES =						\
 	tracker-miner-rss.c
 
 tracker_miner_rss_LDADD =						\
+	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(LIBGRSS_LIBS)							\
