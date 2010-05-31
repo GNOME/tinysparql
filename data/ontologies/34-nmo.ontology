@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2010-05-19T11:09:00Z" .
+	nao:lastModified "2010-05-31T19:29:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -462,9 +462,48 @@ nmo:reportDelivery a rdf:Property ;
          rdfs:domain nmo:Message ;
          rdfs:range xsd:boolean .
 
+# Read report property
+nmo:sentWithReportRead a rdf:Property ;
+         rdfs:label "Report read" ;
+         rdfs:comment "The message has been send with a flag indicating that we want to receive a confirmation when the recipient reads it" ;
+         nrl:maxCardinality 1 ;
+         rdfs:domain nmo:Message ;
+         rdfs:range xsd:boolean .
+
+nmo:ReportReadStatus a rdfs:Class ;
+        rdfs:label "Read statuses" ;
+        rdfs:comment "Predefined set of read status instances" ;
+        rdfs:subClassOf rdfs:Resource .
+
+nmo:reportReadStatus a rdf:Property ;
+        rdfs:label "reportReadStatus" ;
+        rdfs:comment "If the message was sent with report read enable, this property stores the status of that message: if the recipient has read it, delete it, or we are still waiting for an answer" ;
+        nrl:maxCardinality 1 ;
+        rdfs:domain nmo:Message ;
+        rdfs:range nmo:ReportReadStatus .
+
+nmo:read-status-read a nmo:ReportReadStatus .
+nmo:read-status-deleted a nmo:ReportReadStatus .
+nmo:read-status-unknown a nmo:ReportReadStatus .
+
+nmo:mustAnswerReportRead a rdf:Property ;
+         rdfs:label "Report read requested" ;
+         rdfs:comment "The message came with the report-read flag enabled, and somebody must be send the answer back. Once the report is sent, this property goes to False.";
+         nrl:maxCardinality 1 ;
+         rdfs:domain nmo:Message ;
+         rdfs:range xsd:boolean .
+
 # MMS support
 nmo:MMSMessage a rdfs:Class;
          rdfs:label "MMS Message";
          rdfs:comment "An MMS message is basically a Email with different envelop. It inherits also from SMS the folders and delivery status";
          rdfs:subClassOf nmo:Email;
          rdfs:subClassOf nmo:SMSMessage.
+
+nmo:mmsId a rdf:Property ;
+        rdfs:label "mms id";
+        rdfs:comment "Unique identifier of an MMS message. It comes from the server";
+        nrl:maxCardinality 1 ;
+        rdfs:domain nmo:Message ;
+        rdfs:range xsd:string .
+
