@@ -26,5 +26,35 @@ namespace Tracker {
 		OFFSET,
 		INVALID_ISO8601
 	}
+
+	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
+	public class ConfigFile : GLib.Object {
+		[NoAccessorMethod]
+		public string domain { get; construct; }
+		public bool save ();
+		public virtual signal void changed ();
+		public GLib.File file;
+		public GLib.FileMonitor monitor;
+		public bool file_exists;
+		public GLib.KeyFile key_file;
+	}
+
+	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
+	public class KeyfileObject {
+		public static string blurb (void *object, string property);
+		public static bool default_boolean (void *object, string property);
+		public static int  default_int (void *object, string property);
+		public static bool validate_int (void *object, string propery, int value);
+		public static void load_int (void *object, string property, GLib.KeyFile key_file, string group, string key);
+		public static void load_boolean (void *object, string property, GLib.KeyFile key_file, string group, string key);
+		public static void load_string (void *object, string property, GLib.KeyFile key_file, string group, string key);
+		public static void load_string_list (void *object, string property, GLib.KeyFile key_file, string group, string key, out GLib.SList return_instead);
+		public static void load_directory_list (void *object, string property, GLib.KeyFile key_file, string group, string key, bool is_recursive, out GLib.SList return_instead);
+		public static void save_int (void *object, string property, GLib.KeyFile key_file, string group, string key);
+		public static void save_boolean (void *object, string property, GLib.KeyFile key_file, string group, string key);
+		public static void save_string (void *object, string property, GLib.KeyFile key_file, string group, string key);
+		public static void save_string_list (void *object, string property, GLib.KeyFile key_file, string group, string key);
+		public static void save_directory_list (void *object, string property, GLib.KeyFile key_file, string group, string key);
+	}
 }
 
