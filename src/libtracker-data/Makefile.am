@@ -60,7 +60,7 @@ vapi_sources =								\
 	libtracker-data.vapi
 
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) -H tracker-sparql-query.h $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) -H tracker-sparql-query.h --pkg gio-2.0 $^
 	touch $@
 
 libtracker_data_la_LDFLAGS =						\
