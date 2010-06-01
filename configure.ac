@@ -398,9 +398,10 @@ AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
 ####################################################################
 
 AC_ARG_ENABLE(maemo,
-	      AS_HELP_STRING([--enable-maemo],
-			     [enable maemo ontology [[default=no]]]), ,
-	      [enable_maemo=no])
+	         AS_HELP_STRING([--enable-maemo],
+			                [enable maemo ontology [[default=no]]]), 
+             [enable_maemo="$enableval"],
+	         [enable_maemo=no])
 
 AM_CONDITIONAL(HAVE_MAEMO, test "x$enable_maemo" = "xyes")
 
@@ -1838,6 +1839,10 @@ Writeback:
 
 	MP3:                                    $have_id3lib
 	XMP:                                    $have_exempi
+
+Frameworks:
+
+	Support Maemo                           $enable_maemo
 
 Warning:
 
