@@ -333,7 +333,7 @@ tracker_config_class_init (TrackerConfigClass *klass)
                                                            " Interval in days to check the filesystem is up to date in the database."
                                                            " If set to 0, crawling always occurs on startup, if -1 crawling is"
                                                            " disabled entirely.",
-	                                                   -1,
+	                                                   0,
 	                                                   G_MAXINT,
 	                                                   DEFAULT_CRAWLING_INTERVAL,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
