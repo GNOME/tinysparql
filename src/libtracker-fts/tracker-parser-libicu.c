@@ -94,13 +94,15 @@ get_word_info (const UChar           *word,
 	}
 
 	/* We only want the words where the first character
-	 *  in the word is either a letter, a number or a symbol.
+	 * in the word is either a letter, a number or a symbol.
+	 *
 	 * This is needed because the word break algorithm also
-	 *  considers word breaks after for example commas or other
-	 *  punctuation marks.
+	 * considers word breaks after for example commas or other
+	 * punctuation marks.
+	 *
 	 * Note that looking at the first character in the string
-	 *  should be compatible with all Unicode normalization
-	 *  methods.
+	 * should be compatible with all Unicode normalization
+	 * methods.
 	 */
 	unichar_gc = u_charType (unichar);
 	if (unichar_gc == U_UPPERCASE_LETTER ||
@@ -138,6 +140,111 @@ get_word_info (const UChar           *word,
 	return TRUE;
 }
 
+static gboolean
+parser_unaccent_nfkd_word (UChar *word,
+			   gsize *word_length)
+{
+	/* The input word in this method MUST be normalized in NFKD form */
+	gsize i;
+	gsize j;
+
+	g_return_val_if_fail (word, FALSE);
+	g_return_val_if_fail (word_length, FALSE);
+	g_return_val_if_fail (*word_length > 0, FALSE);
+
+	i = 0;
+	j = 0;
+	while (i < *word_length) {
+		UChar32 unichar;
+		gint utf16_len; /* given in UChars */
+		gsize aux_i;
+
+		/* Get next character of the word as UCS4 */
+		aux_i = i;
+		U16_NEXT (word, aux_i, *word_length, unichar);
+		utf16_len = aux_i - i;
+
+		/* Invalid UTF-16 character or end of original string. */
+		if (utf16_len <= 0) {
+			break;
+		}
+
+		/* If the given unichar is a combining diacritical mark,
+		 * just update the original index, not the output one */
+		if (IS_CDM_UCS4 ((guint32) unichar)) {
+			i += utf16_len;
+			continue;
+		}
+
+		/* If already found a previous combining
+		 * diacritical mark, indexes are different so
+		 * need to copy characters. As output and input
+		 * buffers may overlap, need to use memmove
+		 * instead of memcpy */
+		if (i != j) {
+			memmove (&word[j], &word[i], sizeof (UChar) * utf16_len);
+		}
+
+		/* Update both indexes */
+		i += utf16_len;
+		j += utf16_len;
+	}
+
+	/* Force proper string end */
+	word[j] = (UChar) 0;
+
+	/* Set new output length */
+	*word_length = j;
+
+	return TRUE;
+}
+
+static gchar *
+convert_UChar_to_utf8 (const UChar *word,
+                       gsize        uchar_len,
+                       gsize       *utf8_len)
+{
+	gchar *utf8_str;
+	UErrorCode icu_error = U_ZERO_ERROR;
+	UConverter *converter;
+	gsize new_utf8_len;
+
+	g_return_val_if_fail (word, NULL);
+	g_return_val_if_fail (utf8_len, NULL);
+
+	/* Open converter UChar to UTF-16BE */
+	converter = ucnv_open ("UTF-8", &icu_error);
+	if (!converter) {
+		g_warning ("Cannot open UTF-8 converter: '%s'",
+		           U_FAILURE (icu_error) ? u_errorName (icu_error) : "none");
+		return NULL;
+	}
+
+	/* A character encoded in 2 bytes in UTF-16 may get expanded to 3 or 4 bytes
+	 *  in UTF-8. */
+	utf8_str = g_malloc (2 * uchar_len * sizeof (UChar) + 1);
+
+	/* Convert from UChar to UTF-8 (NIL-terminated) */
+	new_utf8_len = ucnv_fromUChars (converter,
+	                                utf8_str,
+	                                2 * uchar_len * sizeof (UChar) + 1,
+	                                word,
+	                                uchar_len,
+	                                &icu_error);
+	if (U_FAILURE (icu_error)) {
+		g_warning ("Cannot convert from UChar to UTF-8: '%s'",
+		           u_errorName (icu_error));
+		g_free (utf8_str);
+		ucnv_close (converter);
+		return NULL;
+	}
+
+	*utf8_len = new_utf8_len;
+	ucnv_close (converter);
+
+	return utf8_str;
+}
+
 static gchar *
 process_word_uchar (TrackerParser         *parser,
                     const UChar           *word,
@@ -146,15 +253,14 @@ process_word_uchar (TrackerParser         *parser,
                     gboolean              *stop_word)
 {
 	UErrorCode error = U_ZERO_ERROR;
-	UChar normalized_buffer [WORD_BUFFER_LENGTH];
+	UChar normalized_buffer[WORD_BUFFER_LENGTH];
 	gchar *utf8_str = NULL;
-	gchar *stemmed = NULL;
-	size_t new_word_length;
+	gsize new_word_length;
 
 	/* Log original word */
 	tracker_parser_message_hex ("ORIGINAL word",
 	                            (guint8 *)word,
-				    length * sizeof (UChar));
+	                            length * sizeof (UChar));
 
 
 	if (type != TRACKER_PARSER_WORD_TYPE_ASCII) {
@@ -178,12 +284,12 @@ process_word_uchar (TrackerParser         *parser,
 		/* Log after casefolding */
 		tracker_parser_message_hex (" After Casefolding",
 		                            (guint8 *)casefolded_buffer,
-					    new_word_length * sizeof (UChar));
+		                            new_word_length * sizeof (UChar));
 
-		/* NFC normalization... */
+		/* NFKD normalization... */
 		new_word_length = unorm_normalize (casefolded_buffer,
 		                                   new_word_length,
-		                                   UNORM_NFC,
+		                                   UNORM_NFKD,
 		                                   0,
 		                                   normalized_buffer,
 		                                   WORD_BUFFER_LENGTH,
@@ -199,8 +305,8 @@ process_word_uchar (TrackerParser         *parser,
 
 		/* Log after casefolding */
 		tracker_parser_message_hex (" After Normalization",
-		                            (guint8 *)normalized_buffer,
-					    new_word_length * sizeof (UChar));
+		                            (guint8 *) normalized_buffer,
+		                            new_word_length * sizeof (UChar));
 	} else {
 		/* For ASCII-only, just tolower() each character */
 		new_word_length = u_strToLower (normalized_buffer,
@@ -217,68 +323,29 @@ process_word_uchar (TrackerParser         *parser,
 
 		/* Log after casefolding */
 		tracker_parser_message_hex (" After lowercase",
-		                            (guint8 *)normalized_buffer,
-					    new_word_length * sizeof (UChar));
+		                            (guint8 *) normalized_buffer,
+		                            new_word_length * sizeof (UChar));
 	}
 
 	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
-	if (parser->enable_unaccent && type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC) {
-		gsize stripped_word_length;
-
-		/* Get unaccented string in UTF-8 */
-		utf8_str = tracker_parser_unaccent_UChar_word (normalized_buffer,
-		                                               new_word_length,
-		                                               &stripped_word_length);
-		if (utf8_str) {
-			new_word_length = stripped_word_length;
-
-			/* Log after unaccenting */
-			tracker_parser_message_hex ("   After UNAC",
-						    utf8_str,
-						    new_word_length);
-		}
-	}
-
-	/* If stripping failed or not needed, convert to UTF-8 */
-	if (!utf8_str) {
-		UErrorCode icu_error = U_ZERO_ERROR;
-		UConverter *converter;
-		gsize utf8_len;
-
-		/* Open converter UChar to UTF-16BE */
-		converter = ucnv_open ("UTF-8", &icu_error);
-		if (!converter) {
-			g_warning ("Cannot open UTF-8 converter: '%s'",
-			           U_FAILURE (icu_error) ? u_errorName (icu_error) : "none");
-			return NULL;
-		}
-		/* A character encoded in 2 bytes in UTF-16 may get expanded to 3 or 4 bytes
-		 *  in UTF-8. */
-		utf8_str = g_malloc (2 * new_word_length * sizeof (UChar) + 1);
-
-		/* Convert from UChar to UTF-8 (NIL-terminated) */
-		utf8_len = ucnv_fromUChars (converter,
-		                            utf8_str,
-		                            2 * new_word_length * sizeof (UChar) + 1,
-		                            normalized_buffer,
-		                            new_word_length,
-		                            &icu_error);
-		if (U_FAILURE (icu_error)) {
-			g_warning ("Cannot convert from UChar to UTF-8: '%s'",
-			           u_errorName (icu_error));
-			g_free (utf8_str);
-			ucnv_close (converter);
-			return NULL;
-		}
-
-		new_word_length = utf8_len;
-		ucnv_close (converter);
-
+	if (parser->enable_unaccent &&
+	    type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC &&
+	    parser_unaccent_nfkd_word (normalized_buffer, &new_word_length)) {
 		/* Log after unaccenting */
-		tracker_parser_message_hex ("   After UTF8 conversion",
-		                            utf8_str,
-					    new_word_length);
+		tracker_parser_message_hex ("  After UNAC",
+		                            (guint8 *) normalized_buffer,
+		                            new_word_length * sizeof (UChar));
 	}
+
+	/* Finally, convert to UTF-8 */
+	utf8_str = convert_UChar_to_utf8 (normalized_buffer,
+	                                  new_word_length,
+	                                  &new_word_length);
+
+	/* Log after unaccenting */
+	tracker_parser_message_hex ("   After UTF8 conversion",
+	                            utf8_str,
+	                            new_word_length);
 
 	/* Check if stop word */
 	if (parser->ignore_stop_words) {
@@ -287,21 +354,24 @@ process_word_uchar (TrackerParser         *parser,
 	}
 
 	/* Stemming needed? */
-	if (parser->enable_stemmer) {
+	if (utf8_str &&
+	    parser->enable_stemmer) {
+		gchar *stemmed;
+
 		/* Input for stemmer ALWAYS in UTF-8, as well as output */
 		stemmed = tracker_language_stem_word (parser->language,
 		                                      utf8_str,
 		                                      new_word_length);
 
 		/* Log after stemming */
-		tracker_parser_message_hex ("   After stemming",
+		tracker_parser_message_hex ("    After stemming",
 		                            stemmed, strlen (stemmed));
-	}
 
-	/* If stemmed wanted and succeeded, free previous and return it */
-	if (stemmed) {
-		g_free (utf8_str);
-		return stemmed;
+		/* If stemmed wanted and succeeded, free previous and return it */
+		if (stemmed) {
+			g_free (utf8_str);
+			return stemmed;
+		}
 	}
 
 	return utf8_str;
@@ -519,7 +589,7 @@ tracker_parser_reset (TrackerParser *parser,
 	if (!converter) {
 		g_warning ("Cannot open UTF-8 converter: '%s'",
 		           U_FAILURE (error) ? u_errorName (error) : "none");
-               return;
+		return;
 	}
 
 	/* Allocate UChars and offsets buffers */

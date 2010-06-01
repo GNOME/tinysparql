@@ -42,9 +42,6 @@
 #define IS_ASCII_IGNORE(c)       ((c) <= 0x002C)
 #define IS_HYPHEN(c)             ((c) == 0x002D)
 #define IS_UNDERSCORE(c)         ((c) == 0x005F)
-#define IS_NEWLINE(c)            ((c) == 0x000D)
-#define IS_O(c)                          ((c) == 0x006F)
-#define IS_R(c)                          ((c) == 0x0072)
 
 typedef enum {
 	TRACKER_PARSER_WORD_ASCII_HIGHER,
@@ -162,64 +159,109 @@ get_encoding (const gchar *txt)
 
 }
 
+static gboolean
+parser_unaccent_nfkd_word (gchar *word,
+			   gsize *word_length)
+{
+	/* The input word in this method MUST be normalized in NFKD form */
+	gsize i;
+	gsize j;
+
+	g_return_val_if_fail (word, FALSE);
+	g_return_val_if_fail (word_length, FALSE);
+	g_return_val_if_fail (*word_length > 0, FALSE);
+
+	i = 0;
+	j = 0;
+	while (i < *word_length) {
+		gunichar unichar;
+		gchar *next_utf8;
+		gint utf8_len;
+
+		/* Get next character of the word as UCS4 */
+		unichar = g_utf8_get_char_validated (&word[i], -1);
+
+		/* Invalid UTF-8 character or end of original string. */
+		if (unichar == (gunichar) -1 ||
+		    unichar == (gunichar) -2) {
+			break;
+		}
+
+		/* Find next UTF-8 character */
+		next_utf8 = g_utf8_next_char (&word[i]);
+		utf8_len = next_utf8 - &word[i];
+
+		/* If the given unichar is a combining diacritical mark,
+		 * just update the original index, not the output one */
+		if (IS_CDM_UCS4 ((guint32) unichar)) {
+			i += utf8_len;
+			continue;
+		}
+
+		/* If already found a previous combining
+		 * diacritical mark, indexes are different so
+		 * need to copy characters. As output and input
+		 * buffers may overlap, need to use memmove
+		 * instead of memcpy */
+		if (i != j) {
+			memmove (&word[j], &word[i], utf8_len);
+		}
+
+		/* Update both indexes */
+		i += utf8_len;
+		j += utf8_len;
+	}
+
+	/* Force proper string end */
+	word[j] = '\0';
+
+	/* Set new output length */
+	*word_length = j;
+
+	return TRUE;
+}
+
 static gchar *
 process_word_utf8 (TrackerParser *parser,
-		   const gchar   *word,
-		   gint           length,
+                   const gchar   *word,
+                   gint           length,
                    gboolean       do_strip,
                    gboolean      *stop_word)
 {
 	gchar *stem_word;
 	gchar *str;
-	gchar *stripped_word;
-	gsize  bytes, len;
+	gsize  bytes;
 
 	g_return_val_if_fail (parser != NULL, NULL);
 	g_return_val_if_fail (word != NULL, NULL);
 
 	str = NULL;
-	stripped_word = NULL;
 
 	if (word) {
-		if (length == -1) {
-			bytes = strlen (word);
-		} else {
-			bytes = length;
-		}
+		bytes = length == -1 ? strlen (word) : length;
 
 		/* Log original word */
 		tracker_parser_message_hex ("ORIGINAL word",
 		                            word, bytes);
 
-		if (parser->enable_unaccent && do_strip) {
-			stripped_word = tracker_parser_unaccent_utf8_word (word,
-			                                                   bytes,
-			                                                   &len);
-
-			/* Log after UNAC stripping */
-			tracker_parser_message_hex (" After UNAC stripping",
-			                            stripped_word, len);
-		} else {
-			stripped_word = NULL;
-		}
-
-		if (!stripped_word) {
-			str = g_utf8_normalize (word,
-			                        bytes,
-			                        G_NORMALIZE_NFC);
-		} else {
-			str = g_utf8_normalize (stripped_word,
-			                        len,
-			                        G_NORMALIZE_NFC);
-			g_free (stripped_word);
-		}
-
-		/* Log after normalization */
-		tracker_parser_message_hex ("  After NFC normalization",
-		                            str, strlen ((gchar *)str));
-
+		str = g_utf8_normalize (word, bytes, G_NORMALIZE_NFKD);
 		if (!str) {
 			return NULL;
+		}
+
+		/* Update string length */
+		bytes = strlen (str);
+
+		/* Log after normalization */
+		tracker_parser_message_hex (" After NFKD normalization",
+		                            str, bytes);
+
+		if (parser->enable_unaccent &&
+		    do_strip &&
+		    parser_unaccent_nfkd_word (str, &bytes)) {
+			/* Log after UNAC stripping */
+			tracker_parser_message_hex ("  After UNAC stripping",
+			                            str, bytes);
 		}
 
 		/* Check if stop word */
@@ -232,9 +274,9 @@ process_word_utf8 (TrackerParser *parser,
 			return str;
 		}
 
-		len = strlen (str);
-
-		stem_word = tracker_language_stem_word (parser->language, str, len);
+		stem_word = tracker_language_stem_word (parser->language,
+		                                        str,
+		                                        bytes);
 
 		if (stem_word) {
 			g_free (str);
@@ -414,7 +456,7 @@ parser_next (TrackerParser *parser,
 		case TRACKER_PARSER_WORD_ASCII_HIGHER:
 			c += 32;
 
-                        /* Fall through */
+			/* Fall through */
 		case TRACKER_PARSER_WORD_ASCII_LOWER:
 		case TRACKER_PARSER_WORD_HYPHEN:
 		case TRACKER_PARSER_WORD_UNDERSCORE:
