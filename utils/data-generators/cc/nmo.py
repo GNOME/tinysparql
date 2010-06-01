@@ -42,12 +42,13 @@ nmo_Email = '''
     nie:isLogicalPartOf  <%(email_folder)s> ;
     nie:contentSize      "%(email_size)s" ;
     nie:plainTextContent "%(email_content)s" ;
-    nmo:recipient        <%(email_recipient)s> ;
+    nmo:recipient        <%(email_to)s> ;
+    nmo:to               <%(email_to)s> ;
     nmo:messageId        "%(email_id)s" ;
     nmo:messageSubject   "%(email_subject)s" ;
     nmo:receivedDate     "%(email_received)s" ;
-    nmo:sender           <%(email_sender)s> ;
-    nmo:from             <%(email_sender)s> ;
+    nmo:sender           <%(email_from)s> ;
+    nmo:from             <%(email_from)s> ;
     nmo:isDraft          "%(email_draft)s" ;
     nmo:isDeleted        "%(email_deleted)s" ;
     nmo:sentDate         "%(email_sent)s" .
@@ -60,11 +61,11 @@ def generateEmail(index):
   email_account   = tools.getRandomUri( 'nmo#MailAccount' )
   email_folder    = tools.getRandomUri( 'nmo#MailFolder' )
   email_size      = str(index)
-  email_recipient = tools.getRandomUri( 'nco#PersonContact' )
+  email_to        = tools.getRandomUri( 'nco#ContactEmail' )
   email_id        = str(index)
   email_subject   = 'Subject %d' % (index % 1000)
   email_received  = '%d-%02d-%02dT01:01:01Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
-  email_sender    = tools.getRandomUri( 'nco#PersonContact' )
+  email_from      = tools.getRandomUri( 'nco#ContactEmail' )
   email_sent      = '%d-%02d-%02dT01:01:02Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
   email_content   = gen.create_text(2,30)
   email_draft     = 'false'
@@ -79,7 +80,7 @@ nmo_CommunicationChannel = '''
   nie:informationElementDate "%(channel_date)s";
   nie:contentLastModified    "%(channel_modified)s";
   nmo:lastMessageDate        "%(channel_last_message)s";
-  nmo:hasParticipant         <%(channel_participiant)s> .
+  nmo:hasParticipant         <%(channel_participant)s> .
 '''
 def generateCommunicationChannel(index):
   me = 'nmo#CommunicationChannel'
@@ -88,11 +89,12 @@ def generateCommunicationChannel(index):
   channel_date         = tools.now
   channel_modified     = channel_date
   channel_last_message = channel_date
-  channel_participiant = tools.getRandomUri( 'nco#PersonContact' )
+  channel_participant  = tools.getRandomUri( 'nco#PersonContact' )
 
   tools.addItem( me, channel_uri, nmo_CommunicationChannel % locals() )
 
-####################################################################################
+##################################################################
+
 nmo_IMMessage = '''
 <%(immessage_uri)s> a nmo:IMMessage;
   nie:plainTextContent       "%(immessage_content)s" ;
@@ -116,8 +118,8 @@ def generateIMMessage(index):
   immessage_content     = 'Lorem IM Ipsum %d' % index
   immessage_date        = tools.now
   immessage_modified    = tools.now
-  immessage_from        = tools.getRandomUri( 'nco#PersonContact' )
-  immessage_to          = tools.getRandomUri( 'nco#PersonContact' )
+  immessage_from        = tools.getRandomUri( 'nco#ContactIM' )
+  immessage_to          = tools.getRandomUri( 'nco#ContactIM' )
   immessage_draft       = ('false', 'true')[index % 2]
   immessage_read        = ('false', 'true')[index % 2]
   immessage_sent        = 'true'
@@ -190,8 +192,8 @@ def generateCall(index):
   call_subject     = 'Subject %d' % index
   call_date        = tools.now
   call_modified    = tools.now
-  call_from        = tools.getRandomUri( 'nco#PersonContact' )
-  call_to          = tools.getRandomUri( 'nco#PersonContact' )
+  call_from        = tools.getRandomUri( 'nco#ContactCall' )
+  call_to          = tools.getRandomUri( 'nco#ContactCall' )
   call_read        = 'true'
   call_sent        = 'true'
   call_received    = tools.now

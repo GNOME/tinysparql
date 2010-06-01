@@ -138,8 +138,8 @@ def generateMusicPiece(index):
   music_piece_genre         = 'Genre %d' % (index % 1000)
   music_piece_channels      = '2'
   music_piece_sample_rate   = '44100.0'
-  music_piece_album         = tools.getRandomUri( 'nmm#MusicAlbum' )
-  music_piece_artist        = tools.getRandomUri( 'nmm#Artist' )
+  music_piece_album         = tools.getLastUri( 'nmm#MusicAlbum' )
+  music_piece_artist        = tools.getLastUri( 'nmm#Artist' )
   music_piece_length        = '%d' % (1 + (index % 1000))
   music_piece_track         = '%d' % (1 + (index % 100))
 

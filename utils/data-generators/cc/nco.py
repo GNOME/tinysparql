@@ -15,6 +15,23 @@ def generateEmailAddress(index):
   tools.addItem( me, email_address_uri, nco_EmailAddress % locals() )
 
 ####################################################################################
+nco_Contact_Email = '''
+<%(emailcontact_uri)s> a nco:Contact;
+    nco:fullname            "%(emailcontact_name_given)s %(emailcontact_name_family)s";
+    nco:nickname            "%(emailcontact_nickname)s" ;
+    nco:hasEmailAddress      %(emailcontact_email_address_uri)s .
+'''
+def generateContactEmail(index):
+  me = 'nco#ContactEmail'
+  emailcontact_uri              = 'urn:contact:email%d' % index
+  emailcontact_name_given       = 'Given%d' % (index % 1000)
+  emailcontact_name_family      = 'Family%d' % (index % 1000)
+  emailcontact_nickname         = 'Nickname%d' % (index % 1000)
+  emailcontact_email_address_uri= '<%s>' % tools.getLastUri( 'nco#EmailAddress' )
+
+  tools.addItem( me, emailcontact_uri, nco_Contact_Email % locals() )
+
+####################################################################################
 nco_PhoneNumber = '''
 <%(phonenumber_uri)s> a nco:CellPhoneNumber;
     nco:phoneNumber "%(phonenumber)s".
@@ -27,6 +44,25 @@ def generatePhoneNumber(index):
   tools.addItem( me, phonenumber_uri, nco_PhoneNumber % locals() )
 
 ####################################################################################
+
+nco_Contact_Call = '''
+<%(callcontact_uri)s> a nco:Contact;
+    nco:fullname            "%(callcontact_name_given)s %(callcontact_name_family)s";
+    nco:nickname            "%(callcontact_nickname)s" ;
+    nco:hasPhoneNumber       %(callcontact_phonenumber_uri)s .
+'''
+def generateContactCall(index):
+  me = 'nco#ContactCall'
+  callcontact_uri              = 'urn:contact:call%d' % index
+  callcontact_name_given       = 'Given%d' % (index % 1000)
+  callcontact_name_family      = 'Family%d' % (index % 1000)
+  callcontact_nickname         = 'Nickname%d' % (index % 1000)
+  callcontact_phonenumber_uri  = '<%s>' % tools.getLastUri( 'nco#PhoneNumber' )
+
+  tools.addItem( me, callcontact_uri, nco_Contact_Call % locals() )
+
+####################################################################################
+
 nco_PostalAddress = '''
 <%(postal_address_uri)s> a nco:PostalAddress;
     nco:country         "%(postal_address_country)s" ;
@@ -61,6 +97,24 @@ def generateIMAddress(index):
   im_address_imid         = 'IM ID %d' % (index % 1000)
   im_address_capability   = '<%s>' % ('nco:im-capability-text-chat', 'nco:im-capability-audio-calls') [ index %2 ]
   tools.addItem( me, im_address_uri, nco_IMAddress % locals() )
+
+####################################################################################
+
+nco_Contact_IM = '''
+<%(imcontact_uri)s> a nco:Contact;
+    nco:fullname            "%(imcontact_name_given)s %(imcontact_name_family)s";
+    nco:nickname            "%(imcontact_nickname)s" ;
+    nco:hasIMAddress         %(imcontact_imaddress_uri)s .
+'''
+def generateContactIM(index):
+  me = 'nco#ContactIM'
+  imcontact_uri              = 'urn:contact:im%d' % index
+  imcontact_name_given       = 'Given%d' % (index % 1000)
+  imcontact_name_family      = 'Family%d' % (index % 1000)
+  imcontact_nickname         = 'Nickname%d' % (index % 1000)
+  imcontact_imaddress_uri    = '<%s>' % tools.getLastUri( 'nco#IMAddress' )
+
+  tools.addItem( me, imcontact_uri, nco_Contact_IM % locals() )
 
 ####################################################################################
 nco_PersonContact = '''
