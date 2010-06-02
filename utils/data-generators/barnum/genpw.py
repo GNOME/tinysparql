@@ -1,4 +1,4 @@
-#!/usr/bin/python2.5
+#!/usr/bin/python
 #
 # Random password generator in the form of 'word'+digits+'word'
 # Copyright (C) 2005, Pradeep Kishore Gowda <pradeep at btbytes.com>
