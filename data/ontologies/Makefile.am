@@ -27,7 +27,7 @@ config_DATA =						\
 	90-tracker.ontology 90-tracker.description
 
 if HAVE_MAEMO
-config_DATA +=
+config_DATA += 						\
 	$(maemo_ontology)
 endif
 
