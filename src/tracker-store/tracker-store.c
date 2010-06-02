@@ -38,6 +38,8 @@
 #define TRACKER_STORE_TRANSACTION_MAX                   4000
 #define TRACKER_STORE_MAX_CONCURRENT_QUERIES               2
 
+#define TRACKER_STORE_N_TURTLE_STATEMENTS                 50
+
 #define TRACKER_STORE_QUERY_WATCHDOG_TIMEOUT 10
 #define TRACKER_STORE_MAX_TASK_TIME          30
 
@@ -176,7 +178,7 @@ process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 		}
 
 		i++;
-		if (!new_error && i >= 10) {
+		if (!new_error && i >= TRACKER_STORE_N_TURTLE_STATEMENTS) {
 			tracker_data_commit_transaction (&new_error);
 			if (new_error) {
 				tracker_data_rollback_transaction ();
