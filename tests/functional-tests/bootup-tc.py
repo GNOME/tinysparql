@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python
 
 # Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python
 #
 # Demo RSS provider simulator
 # Copyright (C) 2009, Nokia <ivan.frade@nokia.com>

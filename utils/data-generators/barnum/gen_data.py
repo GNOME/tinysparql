@@ -1,4 +1,4 @@
-#!/usr/bin/python2.5
+#!/usr/bin/python
 #
 # Barnum is a python-based test data generator.
 # Copyright (C) 2007, Chris Moffitt
