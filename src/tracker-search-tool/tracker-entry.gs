@@ -27,10 +27,15 @@ uses
 /* wait 0.5s after each keystroke before performing a search */
 const static RUN_DELAY : int = 500
 
+/* acceptable length of string for history */
+const static TOO_SHORT : int = 2
+
 class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
     id_invoker : uint = 0
     entry : Entry
     history : list of string
+    histfilename : string
+    histfile : FileStream
 
     prop Query : TrackerQuery
 
@@ -56,7 +61,20 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
             if p0 is EntryIconPosition.SECONDARY
                 entry.text = ""
 
+        histfilename = Path.build_filename (Environment.get_user_data_dir(),
+            "tracker", "history", null)
+        var temp = ""
         history = new list of string
+
+        /* load history from file */
+        try
+            FileUtils.get_contents(histfilename, out temp)
+            for item in temp.split("\n")
+                if item.len() > TOO_SHORT
+                    prepend_text(item)
+                    history.add(item)
+        except e : FileError
+            print (e.message)
 
     def private entry_changed ()
         if entry.text is null
@@ -80,26 +98,34 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
 
         Query.SearchTerms = EscapeSparql (txt, true)
 
+        history_handler(txt)
+        return false
+
+    def history_handler (text : string)
         /* remove leading and trailing whitespace before inserting items into
          * history; this avoids having both "term" and " term " in there;
          */
-        txt = txt.strip()
+        var txt = text.strip()
 
         /* ensure that accented chars are represented the same way to
          * avoid duplicated entries in history
          */
         txt = txt.normalize(-1, NormalizeMode.NFC)
 
-        if txt.len() > 2
-            /* do not store items in history */
+        if txt.len() > TOO_SHORT
+
+            /* do not store duplicate items in history */
             for item in history
                 if txt == item
-                    return false
+                    return
 
             history.add(txt)
             prepend_text(txt)
-
-        return false
+            histfile = FileStream.open(histfilename, "a")
+            if (FileStream.open(histfilename, "a") != null)
+                histfile.printf("%s\n", txt)
+            else
+                print("error: '%s' is not writable", histfilename)
 
     def sync_action_properties (action : Action)
         return

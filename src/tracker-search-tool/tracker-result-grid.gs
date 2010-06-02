@@ -59,6 +59,7 @@ class TrackerResultGrid : ScrolledWindow
                 _query.ClearSearchResults += def ()
                     store.clear ()
 
+
     def GetSelectedPath () : TreePath?
         if iconview.get_selected_items () is not null
             return (Gtk.TreePath) iconview.get_selected_items ().data
@@ -69,8 +70,8 @@ class TrackerResultGrid : ScrolledWindow
     def GetSelectedUri () : weak string
         iter : TreeIter
         uri : weak string
-
         var path = GetSelectedPath ()
+
         if path is not null
             store.get_iter (out iter, path)
             store.get (iter, ResultColumns.Uri, out uri);
@@ -131,9 +132,7 @@ class TrackerResultGrid : ScrolledWindow
                 var id = results[i]
                 var mime = results[i+2]                     
                 i += 3
-            
-                
-            
+
                 if uri.has_prefix ("file://")
 
                     has_results = true
@@ -158,8 +157,6 @@ class TrackerResultGrid : ScrolledWindow
                 var path = new TreePath.from_string ("0:0:0")
                 if path is not null
                     iconview.select_path (path)
-
-
 
 
     def ActivateUri (path : TreePath)
