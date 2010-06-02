@@ -74,6 +74,13 @@ This is the directory which tracker uses to load the stop words
 dictionaries from. If unset it will default to the correct place. This
 is used mainly for testing purposes.
 
+.TP
+.B TRACKER_STORE_MAX_TASK_TIME
+This is maximum time allowed for a process to finish before interruption
+happens. The actual moment of interruption depends also on the frequency of
+checks. The value 0 indicates no interruption.
+This environment variable is used mainly for testing purposes.
+
 .SH FILES
 .I $HOME/.config/tracker/tracker-store.cfg
 .I $HOME/.config/tracker/tracker-fts.cfg

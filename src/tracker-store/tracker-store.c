@@ -53,6 +53,7 @@ typedef struct {
 	GThreadPool *global_pool;
 	GSList	    *running_tasks;
 	guint	     watchdog_id;
+	guint        max_task_time;
 } TrackerStorePrivate;
 
 typedef enum {
@@ -303,7 +304,8 @@ watchdog_cb (gpointer user_data)
 		running = running->next;
 		thread = task->data.query.running_thread;
 
-		if (thread && g_timer_elapsed (task->data.query.timer, NULL) > TRACKER_STORE_MAX_TASK_TIME) {
+		if (thread && private->max_task_time &&
+		    g_timer_elapsed (task->data.query.timer, NULL) > private->max_task_time) {
 			tracker_data_manager_interrupt_thread (task->data.query.running_thread);
 		}
 	}
@@ -598,8 +600,15 @@ tracker_store_init (void)
 {
 	TrackerStorePrivate *private;
 	gint i;
+	const char *tmp;
 
 	private = g_new0 (TrackerStorePrivate, 1);
+
+	if ((tmp = g_getenv("TRACKER_STORE_MAX_TASK_TIME")) != NULL) {
+		private->max_task_time = atoi (tmp);
+	} else {
+		private->max_task_time = TRACKER_STORE_MAX_TASK_TIME;
+	}
 
 	for (i = 0; i < TRACKER_STORE_N_PRIORITIES; i++) {
 		private->queues[i] = g_queue_new ();
