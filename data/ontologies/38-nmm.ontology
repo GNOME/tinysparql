@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-04-09T00:00:50Z" .
+	nao:lastModified "2010-06-02T00:00:50Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -322,10 +322,11 @@ nmm:Photo a rdfs:Class ;
 
 nmm:camera a rdf:Property ;
 	rdfs:label "Camera" ;
-	rdfs:comment "The maker and model of the camera used to take the photograph" ;
+	rdfs:comment "The maker and model of the camera used to take the photograph. DEPRECATED (check nfo:device)" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Photo ;
 	rdfs:range xsd:string ;
+	nao:deprecated true ;
 	tracker:weight 3 ;
 	tracker:writeback true .
 
