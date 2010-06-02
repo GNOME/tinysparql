@@ -52,7 +52,7 @@
 #define DEFAULT_INDEX_ON_BATTERY                 FALSE
 #define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
 #define DEFAULT_LOW_DISK_SPACE_LIMIT             1        /* 0->100 / -1 */
-#define DEFAULT_CRAWLING_INTERVAL                0        /* 0->7 / -1 */
+#define DEFAULT_CRAWLING_INTERVAL                0        /* 0->365 / -1 */
 
 typedef struct {
 	/* General */
@@ -327,26 +327,14 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                       " List of files to NOT index (separator=;)",
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-	                         PROP_CRAWLING_INTERVAL,
+                                         PROP_CRAWLING_INTERVAL,
 	                                 g_param_spec_int ("crawling-interval",
 	                                                   "Crawling interval",
                                                            " Interval in days to check the filesystem is up to date in the database."
                                                            " If set to 0, crawling always occurs on startup, if -1 crawling is"
-                                                           " disabled entirely.",
-	                                                   0,
-	                                                   G_MAXINT,
-	                                                   DEFAULT_CRAWLING_INTERVAL,
-	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-
-        /* Crawling */
-	g_object_class_install_property (object_class,
-	                         PROP_CRAWLING_INTERVAL,
-	                                 g_param_spec_int ("crawling-interval",
-	                                                   "Crawling interval",
-	                                                   " Interval at which startup crawling may happen. 0 is always, -1 is never,"
-	                                                   " and any number > 0 is the crawling interval in number of days.",
+                                                           " disabled entirely. Maximum is 365.",
 	                                                   -1,
-	                                                   G_MAXINT,
+	                                                   365,
 	                                                   DEFAULT_CRAWLING_INTERVAL,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
