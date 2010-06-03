@@ -1,3 +1,57 @@
+NEW in 0.9.7 - 2010-06-03
+=========================
+
+Improvements / New:
+
+  General:
+  * Fixed _DATA include for Maemo ontologies, was missing \
+  * Use simple contacts instead of PersonContacts for message data generators
+
+  Functional Test:
+  * Added experimental nmo:Message query tests
+
+  Ontology:
+  * Deprecated nmm:camera for nfo:device
+  * Added nmo:ReportReadStatus class
+  * Added nmo:sentWithReportRead property
+  * Added nmo:reportReadStatus property
+  * Added nmo:read-status-read, nmo:read-status-deleted and nmo:read-status-unknown for nmo:ReportReadStatus
+  * Added nmo:mmsId property
+  * Don't use nie:hasPart subproperty for nco:key, nco:photo, nco:logo and nco:sound
+
+  libtracker-common:
+  * Added TrackerConfigFile and TrackerKeyfileObject Vala bindings
+
+  libtracker-fts:
+  * Removed tracker_parser_process_word() API
+
+  tracker-store:
+  * Added support for TRACKER_STORE_TASK_MAX_TIME environment variable to set maximum time allowed before interrupting a query
+  * Process 50 Turtle statements at once, previously was 10
+
+  tracker-miner-fs:
+  * Added 'CrawlingInterval' config option to disable or only mtime check file system after n days, default is same as previously (every startup)
+
+  tracker-miner-rss:
+  * Link against libtracker-client since we use the API
+
+Bugs:
+
+  * NB#167647 - Packages built from tracker depend on python2.5 but call /usr/bin/python
+  * GB#619498 - Check if stop word before stemming, not after
+  * GB#619929 - tracker-search shouldn't quit if stopword found
+  * GB#619535 - MaxWords configuration in FTS config is not used
+
+Translations:
+
+  * Updated de: Mario Blättermann
+  * Updated ja: Takeshi AIHANA
+
+Notes:
+
+  None
+
+
 NEW in 0.9.6 - 2010-05-27
 =========================
 
