@@ -1218,6 +1218,29 @@ fi
 
 AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
 
+##################################################################
+# Checks for tracker-fts
+##################################################################
+
+AC_ARG_ENABLE([tracker-fts],
+              AS_HELP_STRING([--enable-tracker-fts],
+                             [enable the tracker FTS [[default=auto]]]),,
+              [enable_tracker_fts=auto])
+
+if test "x$enable_tracker_fts" != "xno" ; then
+   have_tracker_fts="yes"
+else
+   have_tracker_fts="no  (disabled)"
+fi
+
+if test "x$have_tracker_fts" = "xyes"; then
+   AC_DEFINE(HAVE_TRACKER_FTS, [1], [Define to 1 if tracker FTS is compiled])
+else
+   AC_DEFINE(HAVE_TRACKER_FTS, [0], [Define to 0 if tracker FTS is not compiled])
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_FTS, test "$have_tracker_fts" = "yes")
+
 ####################################################################
 # PS extractor option
 ####################################################################
@@ -1974,7 +1997,7 @@ Build Configuration:
 
 Applications:
 
-	Build with SQLite FTS support:          yes
+	Build with SQLite FTS support:          $have_tracker_fts
 
 	Build tracker-search-tool:              $have_tracker_search_tool
 	Build tracker-preferences:              $have_tracker_preferences
