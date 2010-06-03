@@ -1,3 +1,33 @@
+NEW in 0.8.10 - 2010-06-03
+==========================
+
+Improvements / New:
+
+  General:
+  * Fixed _DATA include for Maemo ontologies, was missing \
+  * Use simple contacts instead of PersonContacts for message data generators
+
+  libtracker-common:
+  * Added TrackerConfigFile and TrackerKeyfileObject Vala bindings
+
+  tracker-miner-rss:
+  * Link against libtracker-client since we use the API
+
+Bugs:
+
+  * NB#167647 - Packages built from tracker depend on python2.5 but call /usr/bin/python
+  * GB#619498 - Check if stop word before stemming, not after
+  * GB#619929 - tracker-search shouldn't quit if stopword found
+
+Translations:
+
+  * Updated ja: Takeshi AIHANA
+
+Notes:
+
+  None
+
+
 NEW in 0.8.9 - 2010-05-27
 =========================
 
