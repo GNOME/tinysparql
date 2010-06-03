@@ -248,7 +248,6 @@ nco:region a rdf:Property ;
 nco:key a rdf:Property ;
 	rdfs:label "key" ;
 	rdfs:comment "An encryption key attached to a contact. Inspired by the KEY property defined in RFC 2426 sec. 3.7.2" ;
-	rdfs:subPropertyOf nie:hasPart ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range nie:DataObject .
@@ -483,7 +482,6 @@ nco:hasPhoneNumber a rdf:Property ;
 nco:photo a rdf:Property ;
 	rdfs:label "photo" ;
 	rdfs:comment "Photograph attached to a Contact. The DataObject refered to by this property is usually interpreted as an nfo:Image. Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4" ;
-	rdfs:subPropertyOf nie:hasPart ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range nie:DataObject .
@@ -492,7 +490,6 @@ nco:photo a rdf:Property ;
 nco:logo a rdf:Property ;
 	rdfs:label "logo" ;
 	rdfs:comment "Logo of a company. Inspired by the LOGO property defined in RFC 2426 sec. 3.5.3" ;
-	rdfs:subPropertyOf nie:hasPart ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:OrganizationContact ;
 	rdfs:range nie:DataObject .
@@ -609,7 +606,6 @@ nco:locality a rdf:Property ;
 nco:sound a rdf:Property ;
 	rdfs:label "sound" ;
 	rdfs:comment "Sound clip attached to a Contact. The DataObject refered to by this property is usually interpreted as an nfo:Audio. Inspired by the SOUND property defined in RFC 2425 sec. 3.6.6." ;
-	rdfs:subPropertyOf nie:hasPart ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range nie:DataObject .
