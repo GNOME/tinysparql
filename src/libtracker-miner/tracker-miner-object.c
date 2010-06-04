@@ -578,9 +578,9 @@ async_call_data_update_callback (AsyncCallData *data,
 }
 
 static void
-async_call_data_query_callback (AsyncCallData   *data,
-                                const GPtrArray *query_results,
-                                GError          *error)
+async_call_data_query_callback (AsyncCallData         *data,
+                                TrackerResultIterator *iterator,
+                                GError                *error)
 {
 	GAsyncReadyCallback callback;
 	GSimpleAsyncResult *result;
@@ -599,7 +599,7 @@ async_call_data_query_callback (AsyncCallData   *data,
 		                                    data->source_function);
 	}
 
-	g_simple_async_result_set_op_res_gpointer (result, (gpointer) query_results, NULL);
+	g_simple_async_result_set_op_res_gpointer (result, (gpointer) iterator, NULL);
 	g_simple_async_result_complete (result);
 	g_object_unref (result);
 }
@@ -649,19 +649,19 @@ sparql_update_cb (GError   *error,
 }
 
 static void
-sparql_query_cb (GPtrArray *result,
+sparql_query_cb (TrackerResultIterator *iterator,
                  GError    *error,
                  gpointer   user_data)
 {
 	AsyncCallData *data = user_data;
 
-	async_call_data_query_callback (data, result, error);
+	async_call_data_query_callback (data, iterator, error);
 
 	if (error) {
 		g_error_free (error);
 	} else {
-		if (result) {
-			tracker_dbus_results_ptr_array_free (&result);
+		if (iterator) {
+			tracker_result_iterator_free (iterator);
 		}
 	}
 
@@ -792,10 +792,10 @@ tracker_miner_execute_update (TrackerMiner        *miner,
 	                            user_data,
 	                            tracker_miner_execute_sparql);
 
-	data->id = tracker_resources_sparql_update_async (miner->private->client,
-	                                                  sparql,
-	                                                  sparql_update_cb,
-	                                                  data);
+	data->id = tracker_resources_sparql_update_fast_async (miner->private->client,
+	                                                       sparql,
+	                                                       sparql_update_cb,
+	                                                       data);
 }
 
 /**
@@ -853,9 +853,9 @@ tracker_miner_execute_sparql (TrackerMiner        *miner,
 
 	data = async_call_data_new (miner, cancellable, callback, user_data, tracker_miner_execute_sparql);
 
-	data->id = tracker_resources_sparql_query_async (miner->private->client,
-	                                                 sparql, sparql_query_cb,
-	                                                 data);
+	data->id = tracker_resources_sparql_query_iterate_async (miner->private->client,
+	                                                         sparql, sparql_query_cb,
+	                                                         data);
 }
 
 /**
@@ -869,7 +869,7 @@ tracker_miner_execute_sparql (TrackerMiner        *miner,
  *
  * Returns: a #GPtrArray with the sparql results which should not be freed.
  **/
-const GPtrArray *
+TrackerResultIterator*
 tracker_miner_execute_sparql_finish (TrackerMiner  *miner,
                                      GAsyncResult  *result,
                                      GError       **error)
@@ -880,7 +880,7 @@ tracker_miner_execute_sparql_finish (TrackerMiner  *miner,
 		return NULL;
 	}
 
-	return (const GPtrArray*) g_simple_async_result_get_op_res_gpointer (r);
+	return (TrackerResultIterator*) g_simple_async_result_get_op_res_gpointer (r);
 }
 
 /**

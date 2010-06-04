@@ -1061,12 +1061,12 @@ sparql_query_cb (GObject      *object,
                  gpointer      user_data)
 {
 	SparqlQueryData *data = user_data;
-	const GPtrArray *query_results;
+	TrackerResultIterator *iterator;
 	TrackerMiner *miner;
 	GError *error = NULL;
 
 	miner = TRACKER_MINER (object);
-	query_results = tracker_miner_execute_sparql_finish (miner, result, &error);
+	iterator = tracker_miner_execute_sparql_finish (miner, result, &error);
 
 	g_main_loop_quit (data->main_loop);
 
@@ -1076,19 +1076,18 @@ sparql_query_cb (GObject      *object,
 		return;
 	}
 
-	if (!query_results ||
-	    query_results->len == 0)
+	if (!iterator ||
+	    !tracker_result_iterator_has_next (iterator))
 		return;
 
-	if (query_results->len == 1) {
-		gchar **val;
+	tracker_result_iterator_next (iterator);
 
-		val = g_ptr_array_index (query_results, 0);
-		data->iri = g_strdup (val[0]);
+	if (!tracker_result_iterator_has_next (iterator)) {
+		data->iri = g_strdup (tracker_result_iterator_value (iterator, 0));
 		if (data->get_mime)
-			data->mime = g_strdup (val[1]);
+			data->mime = g_strdup (tracker_result_iterator_value (iterator, 1));
 	} else {
-		g_critical ("More than one URNs (%d) have been found for uri \"%s\"", query_results->len, data->uri);
+		g_critical ("More than one URNs have been found for uri \"%s\"", data->uri);
 	}
 }
 
@@ -1149,15 +1148,14 @@ cache_query_cb (GObject	     *object,
 		GAsyncResult *result,
 		gpointer      user_data)
 {
-	const GPtrArray *query_results;
+	TrackerResultIterator *iterator;
 	TrackerMiner *miner;
 	CacheQueryData *data;
 	GError *error = NULL;
-	guint i;
 
 	data = user_data;
 	miner = TRACKER_MINER (object);
-	query_results = tracker_miner_execute_sparql_finish (miner, result, &error);
+	iterator = tracker_miner_execute_sparql_finish (miner, result, &error);
 
 	g_main_loop_quit (data->main_loop);
 
@@ -1167,14 +1165,15 @@ cache_query_cb (GObject	     *object,
 		return;
 	}
 
-	for (i = 0; i < query_results->len; i++) {
+	while (tracker_result_iterator_has_next (iterator)) {
 		GFile *file;
-		GStrv strv;
 
-		strv = g_ptr_array_index (query_results, i);
-		file = g_file_new_for_uri (strv[0]);
+		tracker_result_iterator_next (iterator);
+		file = g_file_new_for_uri (tracker_result_iterator_value (iterator, 0));
 
-		g_hash_table_insert (data->values, file, g_strdup (strv[1]));
+		g_hash_table_insert (data->values,
+		                     file,
+		                     g_strdup (tracker_result_iterator_value (iterator, 1)));
 	}
 }
 
@@ -1643,23 +1642,20 @@ item_update_children_uri_cb (GObject      *object,
 	RecursiveMoveData *data = user_data;
 	GError *error = NULL;
 
-	const GPtrArray *query_results = tracker_miner_execute_sparql_finish (TRACKER_MINER (object), result, &error);
+	TrackerResultIterator *iterator = tracker_miner_execute_sparql_finish (TRACKER_MINER (object), result, &error);
 
 	if (error) {
 		g_critical ("Could not query children: %s", error->message);
 		g_error_free (error);
-	} else if (query_results) {
-		gint i;
-
-		for (i = 0; i < query_results->len; i++) {
+	} else if (iterator) {
+		while (tracker_result_iterator_has_next (iterator)) {
 			const gchar *child_source_uri, *child_mime, *child_urn;
 			gchar *child_uri;
-			GStrv row;
 
-			row = g_ptr_array_index (query_results, i);
-			child_urn = row[0];
-			child_source_uri = row[1];
-			child_mime = row[2];
+			tracker_result_iterator_next (iterator);
+			child_urn = tracker_result_iterator_value (iterator, 0);
+			child_source_uri = tracker_result_iterator_value (iterator, 1);
+			child_mime = tracker_result_iterator_value (iterator, 2);
 
 			if (!g_str_has_prefix (child_source_uri, data->source_uri)) {
 				g_warning ("Child URI '%s' does not start with parent URI '%s'",
