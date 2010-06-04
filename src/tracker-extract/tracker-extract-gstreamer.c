@@ -75,6 +75,11 @@ long long int llroundl(long double x);
 #define GST_TAG_FRAMERATE "framerate"
 #endif
 
+#ifndef GST_TAG_DEVICE_MODEL
+#define GST_TAG_DEVICE_MODEL "device-model"
+#endif
+
+
 typedef enum {
 	EXTRACT_MIME_AUDIO,
 	EXTRACT_MIME_VIDEO,
@@ -739,6 +744,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		add_string_gst_tag (metadata, uri, "dc:coverage", extractor->tagcache, GST_TAG_LOCATION);
 		add_y_date_gst_tag (metadata, uri, "nie:contentCreated", extractor->tagcache, GST_TAG_DATE);
 		add_string_gst_tag (metadata, uri, "nie:comment", extractor->tagcache, GST_TAG_COMMENT);
+		add_string_gst_tag (metadata, uri, "nfo:device", extractor->tagcache, GST_TAG_DEVICE_MODEL);
 
 		if (extractor->is_content_encrypted) {
 			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
