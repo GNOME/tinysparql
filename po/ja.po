@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker tracker-0.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-28 00:08+0900\n"
-"PO-Revision-Date: 2010-05-28 00:06+0900\n"
+"POT-Creation-Date: 2010-06-05 09:46+0900\n"
+"PO-Revision-Date: 2010-06-05 09:45+0900\n"
 "Last-Translator: Takeshi AIHANA <takeshi.aihana@gmail.com>\n"
 "Language-Team: Japanese <takeshi.aihana@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -618,7 +618,7 @@ msgstr "アイコンを表示しない(_N)"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "_Only display when indexing content"
-msgstr "インデックスが存在している時だけ表示する(_O)"
+msgstr "インデックスを生成している時だけ表示する(_O)"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:38
 msgid "seconds"
@@ -1297,7 +1297,7 @@ msgstr "- 全てのデータから検索する"
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
-"空白文字で区切った文字列に対しては AND 演算子を適用します (--or-operator オプ"
+"空白文字で区切った文字列に対しては AND 演算子を適用する (--or-operator オプ"
 "ションの確認のこと)"
 
 #: ../src/tracker-utils/tracker-search.c:1113
@@ -1306,13 +1306,13 @@ msgid ""
 "you use --or-operator)"
 msgstr ""
 "これは 'foo' と 'bar' の検索を行った場合、それらが＊両方とも存在している＊こ"
-"とが検索条件になります (但し --or-operator を指定した場合を除く)"
+"とが検索条件になる (但し --or-operator を指定した場合を除く)"
 
 #: ../src/tracker-utils/tracker-search.c:1140
 msgid "Search terms are missing"
 msgstr "検索する文字列を指定して下さい"
 
-#: ../src/tracker-utils/tracker-search.c:1191
+#: ../src/tracker-utils/tracker-search.c:1183
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "指定した '%s' は検索できません"
@@ -1320,17 +1320,10 @@ msgstr "指定した '%s' は検索できません"
 #: ../src/tracker-utils/tracker-search.c:1194
 #, c-format
 msgid ""
-"Stop words are common words which are ignored during the indexing process."
-msgstr "この文字 (列) はインデックスの生成仮定で無視される共通の単語です"
+"Stop words are common words which may be ignored during the indexing process."
+msgstr "この文字 (列) はインデックスの生成過程で無視される共通の単語です"
 
-#: ../src/tracker-utils/tracker-search.c:1197
-#, c-format
-msgid ""
-"This means this search term will never be found when matching FTS entries."
-msgstr ""
-"すなわち FTS エントリに一致している限り、その文字列は絶対に見つかりません"
-
-#: ../src/tracker-utils/tracker-search.c:1216
+#: ../src/tracker-utils/tracker-search.c:1209
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "D-Bus と Tracker との間の接続を確立できませんでした"
 
