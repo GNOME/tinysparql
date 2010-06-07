@@ -784,7 +784,7 @@ class Tracker.Sparql.Expression : Object {
 			return result;
 		} else {
 			// resource
-			sql.append ("(SELECT ID FROM Resource WHERE Uri = ?)");
+			sql.append ("COALESCE((SELECT ID FROM Resource WHERE Uri = ?), 0)");
 			var binding = new LiteralBinding ();
 			binding.literal = uri;
 			query.bindings.append (binding);
