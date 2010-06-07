@@ -1,5 +1,5 @@
 PREFIX : <http://example.org/>
 SELECT ?s WHERE {
     ?s a :B .
-    FILTER((!(?s = <a> || ?s = <b>))) .
+    FILTER((!(?s = <a> || ?s = <b> || ?s = <unknown>))) .
 }
