@@ -12,4 +12,4 @@ endif
 
 EXTRA_DIST = 					\
 	$(icon_DATA)				\
-	$(minericons_DATA)
+	tracker-miner-flickr.svg
