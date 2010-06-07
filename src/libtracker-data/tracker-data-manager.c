@@ -417,6 +417,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					tracker_property_set_indexed (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
 					tracker_property_set_writeback (property, FALSE);
+					tracker_property_set_default_value (property, NULL);
 				}
 				return;
 			}
@@ -692,6 +693,16 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		if (strcmp (object, "true") == 0) {
 			tracker_property_set_fulltext_no_limit (property, TRUE);
 		}
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "defaultValue") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontologies_get_property_by_uri (subject);
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			return;
+		}
+
+		tracker_property_set_default_value (property, object);
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "prefix") == 0) {
 		TrackerNamespace *namespace;
 
@@ -825,6 +836,16 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 			                           tracker_class_get_uri (tracker_property_get_range (property)), 
 			                           allowed_range_conversions,
 			                           NULL, property)) {
+				TrackerClass *class;
+
+				class = tracker_property_get_domain (property);
+				tracker_class_set_db_schema_changed (class, TRUE);
+				tracker_property_set_db_schema_changed (property, TRUE);
+			}
+
+			if (update_property_value ("tracker:defaultValue", subject, TRACKER_PREFIX "defaultValue",
+			                           tracker_property_get_default_value (property),
+			                           NULL, NULL, property)) {
 				TrackerClass *class;
 
 				class = tracker_property_get_domain (property);
@@ -1412,7 +1433,8 @@ db_get_static_data (TrackerDBInterface *iface)
 	                                              "\"tracker:isAnnotation\", "
 	                                              "\"tracker:writeback\", "
 	                                              "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
-	                                              "\"rdf:type\" = (SELECT ID FROM Resource WHERE Uri = '" NRL_INVERSE_FUNCTIONAL_PROPERTY "')) "
+	                                              "\"rdf:type\" = (SELECT ID FROM Resource WHERE Uri = '" NRL_INVERSE_FUNCTIONAL_PROPERTY "')), "
+	                                              "\"tracker:defaultValue\" "
 	                                              "FROM \"rdf:Property\" ORDER BY ID");
 
 	if (stmt) {
@@ -1424,7 +1446,7 @@ db_get_static_data (TrackerDBInterface *iface)
 		while (tracker_db_cursor_iter_next (cursor, &error)) {
 			GValue value = { 0 };
 			TrackerProperty *property;
-			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri;
+			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri, *default_value;
 			gboolean         multi_valued, indexed, fulltext_indexed, fulltext_no_limit;
 			gboolean         transient, annotation, is_inverse_functional_property;
 			gboolean         writeback;
@@ -1523,6 +1545,8 @@ db_get_static_data (TrackerDBInterface *iface)
 				is_inverse_functional_property = FALSE;
 			}
 
+			default_value = tracker_db_cursor_get_string (cursor, 13);
+
 			tracker_property_set_is_new (property, FALSE);
 			tracker_property_set_transient (property, transient);
 			tracker_property_set_uri (property, uri);
@@ -1531,6 +1555,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_range (property, tracker_ontologies_get_class_by_uri (range_uri));
 			tracker_property_set_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
+			tracker_property_set_default_value (property, default_value);
 
 			tracker_property_set_db_schema_changed (property, FALSE);
 			tracker_property_set_writeback (property, writeback);
@@ -1880,7 +1905,11 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 			field_name = tracker_property_get_name (property);
 
 			if (sql_type_for_single_value) {
+				const gchar *default_value;
+
 				/* single value */
+
+				default_value = tracker_property_get_default_value (property);
 
 				if (in_update) {
 					g_debug ("%sAltering database for class '%s' property '%s': single value (%s)",
@@ -1897,6 +1926,13 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					g_string_append_printf (create_sql, ", \"%s\" %s",
 					                        field_name,
 					                        sql_type_for_single_value);
+
+					/* add DEFAULT in case that the ontology specifies a default value,
+					   assumes that default values never contain quotes */
+					if (default_value != NULL) {
+						g_string_append_printf (create_sql, " DEFAULT '%s'", default_value);
+					}
+
 					if (tracker_property_get_is_inverse_functional_property (property)) {
 						g_string_append (create_sql, " UNIQUE");
 					}
@@ -1923,6 +1959,12 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					                        service_name,
 					                        field_name,
 					                        sql_type_for_single_value);
+
+					/* add DEFAULT in case that the ontology specifies a default value,
+					   assumes that default values never contain quotes */
+					if (default_value != NULL) {
+						g_string_append_printf (alter_sql, " DEFAULT '%s'", default_value);
+					}
 					if (tracker_property_get_is_inverse_functional_property (property)) {
 						g_string_append (alter_sql, " UNIQUE");
 					}

@@ -61,6 +61,7 @@ struct _TrackerPropertyPrivate {
 	gboolean       is_new;
 	gboolean       db_schema_changed;
 	gboolean       writeback;
+	gchar         *default_value;
 
 	GArray        *super_properties;
 };
@@ -161,6 +162,8 @@ property_finalize (GObject *object)
 	}
 
 	g_array_free (priv->super_properties, TRUE);
+
+	g_free (priv->default_value);
 
 	(G_OBJECT_CLASS (tracker_property_parent_class)->finalize) (object);
 }
@@ -437,6 +440,18 @@ tracker_property_get_super_properties (TrackerProperty *property)
 	priv = GET_PRIV (property);
 
 	return (TrackerProperty **) priv->super_properties->data;
+}
+
+const gchar *
+tracker_property_get_default_value (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
+
+	priv = GET_PRIV (property);
+
+	return priv->default_value;
 }
 
 void
@@ -730,3 +745,16 @@ tracker_property_add_super_property (TrackerProperty *property,
 	g_array_append_val (priv->super_properties, value);
 }
 
+void
+tracker_property_set_default_value (TrackerProperty *property,
+                                    const gchar     *value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	g_free (priv->default_value);
+	priv->default_value = g_strdup (value);
+}

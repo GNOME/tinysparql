@@ -91,6 +91,7 @@ gboolean            tracker_property_get_multiple_values   (TrackerProperty     
 gboolean            tracker_property_get_transient         (TrackerProperty      *property);
 gboolean            tracker_property_get_is_new            (TrackerProperty      *property);
 gboolean            tracker_property_get_writeback         (TrackerProperty      *property);
+const gchar *       tracker_property_get_default_value     (TrackerProperty      *property);
 gboolean            tracker_property_get_db_schema_changed (TrackerProperty      *property);
 gboolean            tracker_property_get_is_inverse_functional_property
 (TrackerProperty      *property);
@@ -123,6 +124,8 @@ void                tracker_property_set_is_new            (TrackerProperty     
                                                             gboolean              value);
 void                tracker_property_set_writeback         (TrackerProperty      *property,
                                                             gboolean              value);
+void                tracker_property_set_default_value     (TrackerProperty      *property,
+                                                            const gchar          *value);
 void                tracker_property_set_db_schema_changed (TrackerProperty      *property,
                                                             gboolean              value);
 void                tracker_property_set_is_inverse_functional_property
