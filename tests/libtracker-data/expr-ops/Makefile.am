@@ -16,4 +16,6 @@ EXTRA_DIST = 			\
 	query-unminus-1.out	\
 	query-unminus-1.rq	\
 	query-unplus-1.out	\
-	query-unplus-1.rq
+	query-unplus-1.rq	\
+	query-res-1.rq		\
+	query-res-1.out
