@@ -365,7 +365,7 @@ public class Tracker.TurtleReader : Object {
 		}
 	}
 
-	public static void load (string path) throws FileError, SparqlError, DataError, DBInterfaceError {
+	public static void load (string path) throws FileError, SparqlError, DataError, DateError, DBInterfaceError {
 		try {
 			Data.begin_transaction ();
 
