@@ -1918,7 +1918,6 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		/* add value to metadata database */
 		change = cache_set_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
 		if (actual_error) {
-			tracker_data_update_buffer_clear ();
 			g_propagate_error (error, actual_error);
 			return;
 		}
@@ -1989,7 +1988,6 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	/* add value to metadata database */
 	change = cache_set_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
 	if (actual_error) {
-		tracker_data_update_buffer_clear ();
 		g_propagate_error (error, actual_error);
 		return;
 	}
@@ -2819,7 +2817,6 @@ tracker_data_replay_journal (GHashTable          *classes,
 						cache_set_metadata_decomposed (property, NULL, object_id, NULL, graph_id, &new_error);
 
 						if (new_error) {
-							tracker_data_update_buffer_clear ();
 							g_warning ("Journal replay error: '%s'", new_error->message);
 							g_error_free (new_error);
 						}
