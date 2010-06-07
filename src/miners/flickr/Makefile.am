@@ -31,6 +31,7 @@ tracker_miner_flickr_VALASOURCES =					\
 	tracker-miner-flickr.vala
 
 tracker_miner_flickr_SOURCES =						\
+	tracker-miner-flickr.vala.stamp                                 \
 	$(tracker_miner_flickr_VALASOURCES:.vala=.c)
 
 tracker_miner_flickr_LDADD =						\
