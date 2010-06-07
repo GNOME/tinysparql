@@ -210,6 +210,9 @@ public class Tracker.Sparql.Query : Object {
 	string current_predicate;
 	bool current_predicate_is_var;
 
+	// SILENT => ignore (non-syntax) errors
+	bool silent;
+
 	HashTable<string,string> prefix_map;
 
 	// All SPARQL literals
@@ -603,6 +606,9 @@ public class Tracker.Sparql.Query : Object {
 		if (accept (SparqlTokenType.INSERT)) {
 			delete_statements = false;
 
+			// SILENT => ignore (non-syntax) errors
+			silent = accept (SparqlTokenType.SILENT);
+
 			if (current_graph == null && accept (SparqlTokenType.INTO)) {
 				parse_from_or_into_param ();
 			}
@@ -610,6 +616,9 @@ public class Tracker.Sparql.Query : Object {
 			expect (SparqlTokenType.DELETE);
 			delete_statements = true;
 			blank = false;
+
+			// SILENT => ignore (non-syntax) errors
+			silent = accept (SparqlTokenType.SILENT);
 
 			if (current_graph == null && accept (SparqlTokenType.FROM)) {
 				parse_from_or_into_param ();
@@ -924,12 +933,22 @@ public class Tracker.Sparql.Query : Object {
 
 	void parse_construct_object (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
 		string object = parse_construct_var_or_term (var_value_map);
-		if (delete_statements) {
-			// delete triple from database
-			Data.delete_statement (current_graph, current_subject, current_predicate, object);
-		} else {
-			// insert triple into database
-			Data.insert_statement (current_graph, current_subject, current_predicate, object);
+		try {
+			if (delete_statements) {
+				// delete triple from database
+				Data.delete_statement (current_graph, current_subject, current_predicate, object);
+			} else {
+				// insert triple into database
+				Data.insert_statement (current_graph, current_subject, current_predicate, object);
+			}
+		} catch (DataError e) {
+			if (!silent) {
+				throw e;
+			}
+		} catch (DateError e) {
+			if (!silent) {
+				throw e;
+			}
 		}
 	}
 

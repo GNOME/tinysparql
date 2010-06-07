@@ -254,7 +254,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'S':
 			case 's':
-				if (matches (begin, "SELECT")) return SparqlTokenType.SELECT;
+				switch (begin[1]) {
+				case 'E':
+				case 'e':
+					if (matches (begin, "SELECT")) return SparqlTokenType.SELECT;
+					break;
+				case 'I':
+				case 'i':
+					if (matches (begin, "SILENT")) return SparqlTokenType.SILENT;
+					break;
+				}
 				break;
 			}
 			break;
@@ -857,6 +866,7 @@ public enum Tracker.SparqlTokenType {
 	SAMETERM,
 	SELECT,
 	SEMICOLON,
+	SILENT,
 	STAR,
 	STR,
 	STRING_LITERAL1,
@@ -944,6 +954,7 @@ public enum Tracker.SparqlTokenType {
 		case SAMETERM: return "`SAMETERM'";
 		case SELECT: return "`SELECT'";
 		case SEMICOLON: return "`;'";
+		case SILENT: return "`SILENT'";
 		case STAR: return "`*'";
 		case STR: return "`STR'";
 		case STRING_LITERAL1: return "string literal";
