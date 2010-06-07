@@ -382,6 +382,10 @@ public class Tracker.Sparql.Query : Object {
 		prefix_map.insert ("fn", FN_NS);
 
 		foreach (Namespace ns in Ontologies.get_namespaces ()) {
+			if (ns.prefix == null) {
+				critical ("Namespace does not specify a prefix: %s", ns.uri);
+				continue;
+			}
 			prefix_map.insert (ns.prefix, ns.uri);
 		}
 
@@ -415,6 +419,10 @@ public class Tracker.Sparql.Query : Object {
 		prefix_map.insert ("fn", FN_NS);
 
 		foreach (Namespace ns in Ontologies.get_namespaces ()) {
+			if (ns.prefix == null) {
+				critical ("Namespace does not specify a prefix: %s", ns.uri);
+				continue;
+			}
 			prefix_map.insert (ns.prefix, ns.uri);
 		}
 
