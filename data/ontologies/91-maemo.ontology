@@ -46,7 +46,8 @@ maemo:webhistoryThumbnail a rdf:Property ;
 maemo:relevance a rdf:Property ;
         nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:double .
+	rdfs:range xsd:double ;
+	tracker:defaultValue 1000000 .
 
 # Remote media art for media player
 maemo:remoteMediaArt a rdf:Property ;
