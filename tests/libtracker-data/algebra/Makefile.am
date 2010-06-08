@@ -15,6 +15,8 @@ EXTRA_DIST = 				\
 	filter-placement-2.rq		\
 	filter-placement-3.out		\
 	filter-placement-3.rq		\
+	filter-placement-3a.out		\
+	filter-placement-3a.rq		\
 	filter-scope-1.out		\
 	filter-scope-1.rq		\
 	opt-filter-3.ontology		\

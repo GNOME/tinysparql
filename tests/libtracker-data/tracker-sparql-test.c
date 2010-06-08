@@ -51,6 +51,7 @@ const TestInfo tests[] = {
 	{ "algebra/filter-placement-1", "algebra/data-2", FALSE },
 	{ "algebra/filter-placement-2", "algebra/data-2", FALSE },
 	{ "algebra/filter-placement-3", "algebra/data-2", FALSE },
+	{ "algebra/filter-placement-3a", "algebra/data-2", FALSE },
 	{ "algebra/filter-nested-1", "algebra/data-1", FALSE },
 	{ "algebra/filter-nested-2", "algebra/data-1", FALSE },
 	{ "algebra/filter-scope-1", "algebra/data-2", FALSE },
