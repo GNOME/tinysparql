@@ -337,11 +337,13 @@ mount_add (TrackerStorage *storage,
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	node = mount_add_hierarchy (priv->mounts, uuid, mount_point, removable_device, optical_disc);
-	g_hash_table_insert (priv->mounts_by_uuid, g_strdup (uuid), node);
+	if (uuid) {
+		node = mount_add_hierarchy (priv->mounts, uuid, mount_point, removable_device, optical_disc);
+		g_hash_table_insert (priv->mounts_by_uuid, g_strdup (uuid), node);
+	}
 
-	g_signal_emit (storage, 
-	               signals[MOUNT_POINT_ADDED], 
+	g_signal_emit (storage,
+	               signals[MOUNT_POINT_ADDED],
 	               0,
 	               uuid,
 	               mount_point,
@@ -366,9 +368,9 @@ mount_guess_content_type (GFile    *mount_root,
 	} else {
 		gchar **guess_type;
 		gint i;
-		
+
 		guess_type = g_content_type_guess_for_tree (mount_root);
-		
+
 		for (i = 0; guess_type && guess_type[i]; i++) {
 			if (!g_strcmp0 (guess_type[i], "x-content/image-picturecd")) {
 				/* Images */
@@ -411,7 +413,7 @@ mount_guess_content_type (GFile    *mount_root,
 				break;
 			}
 		}
-		
+
 		if (guess_type) {
 			g_strfreev (guess_type);
 		}
@@ -449,7 +451,7 @@ volume_add (TrackerStorage *storage,
 
 	name = g_volume_get_name (volume);
 	g_debug ("  Volume:'%s' found", name);
-		
+
 	if (!g_volume_should_automount (volume) ||
 	    !g_volume_can_mount (volume)) {
 		g_debug ("    Ignoring, volume can not be automatically mounted or mounted at all");
@@ -463,8 +465,8 @@ volume_add (TrackerStorage *storage,
 		gchar *content_type;
 		gboolean is_multimedia;
 
-		mount = g_volume_get_mount (volume); 
-		
+		mount = g_volume_get_mount (volume);
+
 		if (mount) {
 			file = g_mount_get_root (mount);
 			g_object_unref (mount);
@@ -507,26 +509,26 @@ volume_add (TrackerStorage *storage,
 
 	device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
 	g_debug ("    Device file  : %s", device_file);
-		
-	mount = g_volume_get_mount (volume); 
+
+	mount = g_volume_get_mount (volume);
 
 	if (mount) {
 		GFile *file;
-		
+
 		file = g_mount_get_root (mount);
-		
+
 		mount_point = g_file_get_path (file);
 		g_debug ("    Mount point  : %s", mount_point);
-		
+
 		g_object_unref (file);
 		g_object_unref (mount);
-		
+
 		is_mounted = TRUE;
 	} else {
 		mount_point = NULL;
 		is_mounted = FALSE;
 	}
-	
+
 	g_debug ("    UUID         : %s", uuid);
 	g_debug ("    Mounted      : %s", is_mounted ? "yes" : "no");
 
@@ -566,7 +568,7 @@ drives_setup (TrackerStorage *storage)
 		if (!drive) {
 			continue;
 		}
-		
+
 		volumes = g_drive_get_volumes (drive);
 		name = g_drive_get_name (drive);
 
@@ -658,7 +660,8 @@ mount_added_cb (GVolumeMonitor *monitor,
 		g_free (device_file);
 		g_object_unref (volume);
 	} else {
-		g_message ("  Being ignored because we have no GVolume");
+		g_message ("  Non-Volume mount detected, forcing re-check");
+		mount_add (storage, NULL, mount_point, FALSE, FALSE);
 	}
 
 	g_free (mount_point);
@@ -700,7 +703,7 @@ mount_removed_cb (GVolumeMonitor *monitor,
 		           mount_point);
 
 		g_signal_emit (storage, signals[MOUNT_POINT_REMOVED], 0, info->uuid, mount_point, NULL);
-		
+
 		g_hash_table_remove (priv->mounts_by_uuid, info->uuid);
 		mount_node_free (node);
 	} else {
@@ -811,7 +814,7 @@ tracker_storage_get_device_roots (TrackerStorage     *storage,
  *
  * Returns: a #GSList of strings containing the UUID for devices with
  * @type based on @exact_match. Each element must be freed using
- * g_free() and the list itself through g_slist_free(). 
+ * g_free() and the list itself through g_slist_free().
  **/
 GSList *
 tracker_storage_get_device_uuids (TrackerStorage     *storage,
