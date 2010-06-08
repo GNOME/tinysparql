@@ -944,7 +944,10 @@ class Tracker.Sparql.Pattern : Object {
 
 				if (!in_triples_block && !in_group_graph_pattern) {
 					in_group_graph_pattern = true;
+
+					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
 					translate_group_or_union_graph_pattern (sql);
+					sql.append (")");
 				} else {
 					if (in_triples_block) {
 						end_triples_block (sql, ref first_where, in_group_graph_pattern);
@@ -965,7 +968,10 @@ class Tracker.Sparql.Pattern : Object {
 			} else if (current () == SparqlTokenType.OPEN_BRACE) {
 				if (!in_triples_block && !in_group_graph_pattern) {
 					in_group_graph_pattern = true;
+
+					sql.insert (group_graph_pattern_start, "SELECT * FROM (");
 					translate_group_or_union_graph_pattern (sql);
+					sql.append (")");
 				} else {
 					if (in_triples_block) {
 						end_triples_block (sql, ref first_where, in_group_graph_pattern);
