@@ -846,50 +846,38 @@ mount_point_added_cb (TrackerStorage *storage,
 
 	g_message ("Added mount point '%s'", mount_point);
 
-	if (uuid) {
-		/* We only get UUID if this mount point was actually coming from a
-		 *  proper GVolume (user-mountable). */
-
-		if (removable && !tracker_config_get_index_removable_devices (priv->config)) {
-			g_message ("  Not crawling, removable devices disabled in config");
-		} else if (optical && !tracker_config_get_index_optical_discs (priv->config)) {
-			g_message ("  Not crawling, optical devices discs disabled in config");
-		} else {
-			g_message ("  Adding directory to crawler's queue");
-
-			file = g_file_new_for_path (mount_point);
-			g_object_set_qdata_full (G_OBJECT (file),
-			                         priv->quark_mount_point_uuid,
-			                         g_strdup (uuid),
-			                         (GDestroyNotify) g_free);
-
-			g_object_set_qdata (G_OBJECT (file),
-			                    priv->quark_directory_config_root,
-			                    GINT_TO_POINTER (TRUE));
-
-			tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
-			                                file,
-			                                TRUE);
-			g_object_unref (file);
-		}
-
-		urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
-		set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
-		g_free (urn);
+	if (removable && !tracker_config_get_index_removable_devices (priv->config)) {
+		g_message ("  Not crawling, removable devices disabled in config");
+	} else if (optical && !tracker_config_get_index_optical_discs (priv->config)) {
+		g_message ("  Not crawling, optical devices discs disabled in config");
 	} else {
-		/* If we don't get a UUID, it probably is because the mount point
-		 *  was not really user-mountable (so also not a removable media or
-		 *  optical disk). In this case, we just force a re-check as if the
-		 *  conf had changed, so that if any path inside the mount was
-		 *  configured to be indexed, it's properly updated.
-		 */
+		g_message ("  Adding directory to crawler's queue");
 
-		if (miner->private->force_recheck_id == 0) {
-			/* Set idle so multiple changes in the config lead to one recheck */
-			miner->private->force_recheck_id =
-				g_idle_add (miner_files_force_recheck_idle, miner);
-		}
+		file = g_file_new_for_path (mount_point);
+		g_object_set_qdata_full (G_OBJECT (file),
+		                         priv->quark_mount_point_uuid,
+		                         g_strdup (uuid),
+		                         (GDestroyNotify) g_free);
+
+		g_object_set_qdata (G_OBJECT (file),
+		                    priv->quark_directory_config_root,
+		                    GINT_TO_POINTER (TRUE));
+
+		tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
+		                                file,
+		                                TRUE);
+		g_object_unref (file);
 	}
+
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
+	set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
+	g_free (urn);
+
+	/* if (miner->private->force_recheck_id == 0) { */
+	/* 	/\* Set idle so multiple changes in the config lead to one recheck *\/ */
+	/* 	miner->private->force_recheck_id = */
+	/* 		g_idle_add (miner_files_force_recheck_idle, miner); */
+	/* } */
 }
 
 #if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)

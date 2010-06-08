@@ -70,15 +70,12 @@ static void     tracker_storage_finalize (GObject        *object);
 static gboolean mount_info_free          (GNode          *node,
                                           gpointer        user_data);
 static void     mount_node_free          (GNode          *node);
-static gboolean drives_setup             (TrackerStorage *storage);
+static gboolean mounts_setup             (TrackerStorage *storage);
 static void     mount_added_cb           (GVolumeMonitor *monitor,
                                           GMount         *mount,
                                           gpointer        user_data);
 static void     mount_removed_cb         (GVolumeMonitor *monitor,
                                           GMount         *mount,
-                                          gpointer        user_data);
-static void     volume_added_cb          (GVolumeMonitor *monitor,
-                                          GVolume        *volume,
                                           gpointer        user_data);
 
 enum {
@@ -154,13 +151,11 @@ tracker_storage_init (TrackerStorage *storage)
 	                         G_CALLBACK (mount_removed_cb), storage, 0);
 	g_signal_connect_object (priv->volume_monitor, "mount-added",
 	                         G_CALLBACK (mount_added_cb), storage, 0);
-	g_signal_connect_object (priv->volume_monitor, "volume-added",
-	                         G_CALLBACK (volume_added_cb), storage, 0);
 
-	g_message ("Drive/Volume monitors set up for to watch for added, removed and pre-unmounts...");
+	g_message ("Mount monitors set up for to watch for added, removed and pre-unmounts...");
 
-	/* Get all devices which are mountable and set them up */
-	if (!drives_setup (storage)) {
+	/* Get all mounts and set them up */
+	if (!mounts_setup (storage)) {
 		return;
 	}
 }
@@ -326,21 +321,19 @@ mount_add_hierarchy (GNode       *root,
 }
 
 static void
-mount_add (TrackerStorage *storage,
-           const gchar    *uuid,
-           const gchar    *mount_point,
-           gboolean        removable_device,
-           gboolean        optical_disc)
+mount_add_new (TrackerStorage *storage,
+               const gchar    *uuid,
+               const gchar    *mount_point,
+               gboolean        removable_device,
+               gboolean        optical_disc)
 {
 	TrackerStoragePrivate *priv;
 	GNode *node;
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	if (uuid) {
-		node = mount_add_hierarchy (priv->mounts, uuid, mount_point, removable_device, optical_disc);
-		g_hash_table_insert (priv->mounts_by_uuid, g_strdup (uuid), node);
-	}
+	node = mount_add_hierarchy (priv->mounts, uuid, mount_point, removable_device, optical_disc);
+	g_hash_table_insert (priv->mounts_by_uuid, g_strdup (uuid), node);
 
 	g_signal_emit (storage,
 	               signals[MOUNT_POINT_ADDED],
@@ -422,172 +415,133 @@ mount_guess_content_type (GFile    *mount_root,
 	return content_type;
 }
 
+
 static void
-volume_add (TrackerStorage *storage,
-            GVolume        *volume,
-            gboolean        initialization)
+mount_add (TrackerStorage *storage,
+           GMount *mount)
 {
 	TrackerStoragePrivate *priv;
-	GMount *mount;
-	gchar *name;
-	gboolean is_mounted;
-	gboolean is_optical;
-	gchar *uuid;
-	gchar *mount_point;
-	gchar *device_file;
+	GFile *root;
+	GVolume *volume;
+	gchar *mount_name, *mount_path, *uuid;
+	gboolean is_optical = FALSE;
+	gboolean is_removable = FALSE;
 
-	if (!initialization) {
-		GDrive *drive;
-
-		drive = g_volume_get_drive (volume);
-
-		if (drive) {
-			g_debug ("Drive:'%s' added 1 volume:",
-			         g_drive_get_name (drive));
-		} else {
-			g_debug ("No drive associated with volume being added:");
-		}
-	}
-
-	name = g_volume_get_name (volume);
-	g_debug ("  Volume:'%s' found", name);
-
-	if (!g_volume_should_automount (volume) ||
-	    !g_volume_can_mount (volume)) {
-		g_debug ("    Ignoring, volume can not be automatically mounted or mounted at all");
-		g_free (name);
-		return;
-	}
-
-	uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
-	if (!uuid) {
-		GFile *file;
-		gchar *content_type;
-		gboolean is_multimedia;
-
-		mount = g_volume_get_mount (volume);
-
-		if (mount) {
-			file = g_mount_get_root (mount);
-			g_object_unref (mount);
-		} else {
-			g_debug ("  Being ignored because there is no mount point and no UUID");
-			g_free (name);
-			return;
-		}
-
-		content_type = mount_guess_content_type (file, &is_multimedia);
-		g_object_unref (file);
-
-		g_debug ("  No UUID, guessed content type:'%s', has music/video:%s",
-		           content_type,
-		           is_multimedia ? "yes" : "no");
-
-		if (!is_multimedia) {
-			uuid = g_strdup (name);
-			g_debug ("  Using UUID:'%s' for optical disc", uuid);
-		}
-
-		g_free (content_type);
-
-		if (!uuid) {
-			g_debug ("  Being ignored because mount is not optical media or is music/video");
-			g_free (name);
-			return;
-		}
-
-		is_optical = TRUE;
-	} else {
-		/* We assume that all devices that are non-optical
-		 * have UUIDS already. Since optical devices are the
-		 * only ones which seem to have no UUID.
-		 */
-		is_optical = FALSE;
-	}
-
-	g_free (name);
-
-	device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-	g_debug ("    Device file  : %s", device_file);
-
-	mount = g_volume_get_mount (volume);
-
-	if (mount) {
-		GFile *file;
-
-		file = g_mount_get_root (mount);
-
-		mount_point = g_file_get_path (file);
-		g_debug ("    Mount point  : %s", mount_point);
-
-		g_object_unref (file);
-		g_object_unref (mount);
-
-		is_mounted = TRUE;
-	} else {
-		mount_point = NULL;
-		is_mounted = FALSE;
-	}
-
-	g_debug ("    UUID         : %s", uuid);
-	g_debug ("    Mounted      : %s", is_mounted ? "yes" : "no");
+	g_return_if_fail (storage);
+	g_return_if_fail (mount);
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	if (mount_point && !g_hash_table_lookup (priv->mounts_by_uuid, uuid)) {
-		mount_add (storage, uuid, mount_point, TRUE, is_optical);
+	/* Get mount name */
+	mount_name = g_mount_get_name (mount);
+
+	/* Get root path of the mount */
+	root = g_mount_get_root (mount);
+	mount_path = g_file_get_path (root);
+
+	g_debug ("Mount '%s' found (path: '%s')",
+	         mount_name, mount_path);
+
+	/* fstab partitions may not have corresponding
+	 *  GVolumes, so volume may be NULL */
+	volume = g_mount_get_volume (mount);
+	if (volume) {
+		/* GMount with GVolume */
+
+		/* Try to get UUID from the Volume.
+		 *  Note that g_volume_get_uuid() is NOT equivalent */
+		uuid = g_volume_get_identifier (volume,
+		                                G_VOLUME_IDENTIFIER_KIND_UUID);
+		if (!uuid) {
+			/* Optical discs won't have UUID in the GVolume */
+			gchar *content_type;
+			gboolean is_multimedia;
+
+			content_type = mount_guess_content_type (root,
+			                                         &is_multimedia);
+			g_debug ("  No UUID, guessed content type:'%s', has music/video:%s",
+			         content_type,
+			         is_multimedia ? "yes" : "no");
+
+			if (!is_multimedia) {
+				uuid = g_strdup (mount_name);
+				is_optical = TRUE;
+				is_removable = TRUE;
+				g_debug ("  Using UUID:'%s' for optical disc", uuid);
+			} else {
+				g_debug ("  Being ignored because mount is not optical "
+				         "media or is music/video");
+			}
+
+			g_free (content_type);
+		} else {
+			/* Any other removable media will have UUID in the GVolume.
+			 *  Note that this also may include some partitions in the machine
+			 *  which have GVolumes associated to the GMounts */
+			is_removable = TRUE;
+		}
+
+		g_object_unref (volume);
+	} else {
+		/* GMount without GVolume.
+		 * Note: Did never found a case where this g_mount_get_uuid() returns
+		 *  non-NULL... :-) */
+		uuid = g_mount_get_uuid (mount);
+		if (!uuid) {
+			if(mount_path) {
+				uuid = g_strdup (mount_path);
+				g_debug ("  No UUID, so using:'%s' for mount without volume",
+				         uuid);
+			} else {
+				g_debug ("  Being ignored because mount without volume "
+				         "and no root path available");
+			}
+		}
 	}
 
+	/* If we got something to be used as UUID, then add the mount
+	 *  to the TrackerStorage */
+	if (uuid && !g_hash_table_lookup (priv->mounts_by_uuid, uuid)) {
+		g_debug ("     Adding new mount '%s' with UUID '%s' at '%s' "
+		         "(removable: %s, optical: %s)",
+		         mount_name,
+		         uuid,
+		         mount_path,
+		         is_removable ? "yes" : "no",
+		         is_optical ? "yes" : "no");
+		mount_add_new (storage, uuid, mount_path, is_removable, is_optical);
+	}
+
+	g_free (mount_name);
+	g_free (mount_path);
 	g_free (uuid);
-	g_free (mount_point);
-	g_free (device_file);
+	g_object_unref (root);
 }
 
 static gboolean
-drives_setup (TrackerStorage *storage)
+mounts_setup (TrackerStorage *storage)
 {
 	TrackerStoragePrivate *priv;
-	GList *drives, *ld;
+	GList *mounts, *lm;
 
 	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
-	drives = g_volume_monitor_get_connected_drives (priv->volume_monitor);
+	mounts = g_volume_monitor_get_mounts (priv->volume_monitor);
 
-	if (g_list_length (drives) < 1) {
-		g_message ("No drives found to iterate");
+	if (!mounts) {
+		g_message ("No mounts found to iterate");
 		return TRUE;
 	}
 
-	for (ld = drives; ld; ld = ld->next) {
-		GDrive *drive;
-		GList *volumes, *lv;
-		gchar *name;
-
-		drive = ld->data;
-
-		if (!drive) {
-			continue;
-		}
-
-		volumes = g_drive_get_volumes (drive);
-		name = g_drive_get_name (drive);
-
-		g_debug ("Drive:'%s' found with %d %s:",
-		         name,
-		         g_list_length (volumes),
-		         (volumes && !volumes->next) ? "volume" : "volumes");
-
-		for (lv = volumes; lv; lv = lv->next) {
-			volume_add (storage, lv->data, TRUE);
-			g_object_unref (lv->data);
-		}
-
-		g_list_free (volumes);
-		g_object_unref (ld->data);
-		g_free (name);
+	/* Iterate over all available mounts and add them.
+	 * Note that GVolumeMonitor shows only those mounts which are
+	 *  actually mounted. */
+	for (lm = mounts; lm; lm = g_list_next (lm)) {
+		mount_add (storage, lm->data);
+		g_object_unref (lm->data);
 	}
 
-	g_list_free (drives);
+	g_list_free (mounts);
 
 	return TRUE;
 }
@@ -597,76 +551,7 @@ mount_added_cb (GVolumeMonitor *monitor,
                 GMount         *mount,
                 gpointer        user_data)
 {
-	TrackerStorage *storage;
-	GVolume *volume;
-	GFile *file;
-	gchar *mount_point;
-	gchar *name;
-
-	storage = user_data;
-
-	name = g_mount_get_name (mount);
-	file = g_mount_get_root (mount);
-	mount_point = g_file_get_path (file);
-
-	g_message ("Mount:'%s', now mounted on:'%s'",
-	           name,
-	           mount_point);
-
-	volume = g_mount_get_volume (mount);
-
-	if (volume) {
-		gchar *device_file;
-		gchar *uuid;
-		gboolean removable_device;
-
-		device_file = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-		uuid = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UUID);
-
-		/* NOTE: We only deal with removable devices */
-		removable_device = TRUE;
-
-		g_message ("  Device:'%s', UUID:'%s'",
-		           device_file,
-		           uuid);
-
-		/* We don't have a UUID for CDROMs */
-		if (uuid) {
-			g_message ("  Being added as a tracker resource to index!");
-			mount_add (storage, uuid, mount_point, removable_device, FALSE);
-		} else {
-			gchar *content_type;
-			gboolean is_multimedia;
-
-			content_type = mount_guess_content_type (file, &is_multimedia);
-
-			g_message ("  No UUID, guessed content type:'%s', music/video:%s",
-			           content_type,
-			           is_multimedia ? "yes" : "no");
-
-			if (!is_multimedia) {
-				uuid = g_strdup (name);
-
-				g_message ("  Using UUID:'%s' for optical disc", uuid);
-				mount_add (storage, uuid, mount_point, removable_device, TRUE);
-			} else {
-				g_message ("  Being ignored because mount is not optical media or is music/video");
-			}
-
-			g_free (content_type);
-		}
-
-		g_free (uuid);
-		g_free (device_file);
-		g_object_unref (volume);
-	} else {
-		g_message ("  Non-Volume mount detected, forcing re-check");
-		mount_add (storage, NULL, mount_point, FALSE, FALSE);
-	}
-
-	g_free (mount_point);
-	g_object_unref (file);
-	g_free (name);
+	mount_add (user_data, mount);
 }
 
 static void
@@ -715,14 +600,6 @@ mount_removed_cb (GVolumeMonitor *monitor,
 	g_free (name);
 	g_free (mount_point);
 	g_object_unref (file);
-}
-
-static void
-volume_added_cb (GVolumeMonitor *monitor,
-                 GVolume        *volume,
-                 gpointer        user_data)
-{
-	volume_add (user_data, volume, FALSE);
 }
 
 /**
