@@ -464,7 +464,10 @@ mount_add (TrackerStorage *storage,
 			         is_multimedia ? "yes" : "no");
 
 			if (!is_multimedia) {
-				uuid = g_strdup (mount_name);
+				/* Get UUID as MD5 digest of the mount name */
+				uuid = g_compute_checksum_for_string (G_CHECKSUM_MD5,
+				                                      mount_name,
+				                                      -1);
 				is_optical = TRUE;
 				is_removable = TRUE;
 				g_debug ("  Using UUID:'%s' for optical disc", uuid);
@@ -489,7 +492,10 @@ mount_add (TrackerStorage *storage,
 		uuid = g_mount_get_uuid (mount);
 		if (!uuid) {
 			if(mount_path) {
-				uuid = g_strdup (mount_path);
+				/* Get UUID as MD5 digest of the mount path */
+				uuid = g_compute_checksum_for_string (G_CHECKSUM_MD5,
+				                                      mount_path,
+				                                      -1);
 				g_debug ("  No UUID, so using:'%s' for mount without volume",
 				         uuid);
 			} else {
