@@ -83,6 +83,8 @@ struct TrackerMinerFilesPrivate {
 	GQuark quark_mount_point_uuid;
 	GQuark quark_directory_config_root;
 
+	gboolean first_index_run;
+
 	guint force_recheck_id;
 };
 
@@ -172,6 +174,9 @@ static void        miner_finished_cb                    (TrackerMinerFS *fs,
                                                          guint           total_files_ignored,
                                                          gpointer        user_data);
 
+static gboolean    miner_files_path_is_root_for_indexed_directories (TrackerMinerFiles *miner,
+                                                                     const gchar *root_path);
+
 G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
 
 static void
@@ -231,12 +236,13 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	g_signal_connect (priv->power, "notify::on-battery",
 	                  G_CALLBACK (battery_status_cb),
 	                  mf);
+#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
 
 	priv->finished_handler = g_signal_connect_after (mf, "finished",
 							 G_CALLBACK (miner_finished_cb),
 							 NULL);
 
-#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
+	priv->first_index_run = FALSE;
 
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
@@ -850,6 +856,22 @@ mount_point_added_cb (TrackerStorage *storage,
 		g_message ("  Not crawling, removable devices disabled in config");
 	} else if (optical && !tracker_config_get_index_optical_discs (priv->config)) {
 		g_message ("  Not crawling, optical devices discs disabled in config");
+	} else if (!removable && !optical) {
+		/* We should only add idles to re-check the monitored locations
+		 *  AFTER first whole index is finished (and only if the mount
+		 *  point contains one of the configured locations to monitor) */
+		if (miner->private->first_index_run &&
+		    miner_files_path_is_root_for_indexed_directories (miner,
+		                                                      mount_point)) {
+			g_message ("  Non-removable mount, adding recheck idle");
+			if (miner->private->force_recheck_id == 0) {
+				/* Set idle to recheck if not already there */
+				miner->private->force_recheck_id =
+					g_idle_add (miner_files_force_recheck_idle, miner);
+			}
+		} else {
+			g_message ("  Not crawling by default non-removable mount");
+		}
 	} else {
 		g_message ("  Adding directory to crawler's queue");
 
@@ -872,12 +894,6 @@ mount_point_added_cb (TrackerStorage *storage,
 	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 	set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
 	g_free (urn);
-
-	/* if (miner->private->force_recheck_id == 0) { */
-	/* 	/\* Set idle so multiple changes in the config lead to one recheck *\/ */
-	/* 	miner->private->force_recheck_id = */
-	/* 		g_idle_add (miner_files_force_recheck_idle, miner); */
-	/* } */
 }
 
 #if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
@@ -984,6 +1000,8 @@ index_on_battery_cb (GObject    *object,
 	check_battery_status (mf);
 }
 
+#endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
+
 /* Called when mining has finished the first time */
 static void
 miner_finished_cb (TrackerMinerFS *fs,
@@ -1001,6 +1019,10 @@ miner_finished_cb (TrackerMinerFS *fs,
 		tracker_db_manager_set_first_index_done (TRUE);
 	}
 
+	/* Make sure startup things are not executed after first index
+	 *  was run */
+	mf->private->first_index_run = TRUE;
+
 	/* And remove the signal handler so that it's not
 	 *  called again */
 	if (mf->private->finished_handler) {
@@ -1008,10 +1030,10 @@ miner_finished_cb (TrackerMinerFS *fs,
 		mf->private->finished_handler = 0;
 	}
 
+#if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
 	check_battery_status (mf);
-}
-
 #endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
+}
 
 static void
 mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
@@ -1984,4 +2006,34 @@ tracker_miner_files_monitor_directory (GFile    *file,
 	 * these directories to be indexed.
          */
 	return TRUE;
+}
+
+
+/* Returns TRUE if one of the directories set to be indexed is actually
+ *  located inside the given root path. */
+static gboolean
+miner_files_path_is_root_for_indexed_directories (TrackerMinerFiles *miner,
+                                                  const gchar *root_path)
+{
+	GSList *it;
+
+	/* Check if one of the recursively indexed ones... */
+	for (it = tracker_config_get_index_recursive_directories (miner->private->config);
+	     it;
+	     it= g_slist_next (it)) {
+		if (g_str_has_prefix (it->data, root_path)) {
+			return TRUE;
+		}
+	}
+
+	/* Check if one of the non-recursively indexed ones... */
+	for (it = tracker_config_get_index_single_directories (miner->private->config);
+	     it;
+	     it= g_slist_next (it)) {
+		if (g_str_has_prefix (it->data, root_path)) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
