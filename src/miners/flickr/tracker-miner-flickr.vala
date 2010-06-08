@@ -364,7 +364,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 			switch (exif_node.get_attr ("tag").to_int ()) {
 				case ExifTag.CAMERA:
-					update_triple_string (builder, graph, urn, "nmm:camera", exif_value);
+					update_triple_string (builder, graph, urn, "nfo:device", exif_value);
 					break;
 				case ExifTag.FLASH:
 					update_triple_object (builder, graph, urn, "nmm:flash", exif_value.to_int ()%2 == 1 ? "nmm:flash-on" : "nmm:flash-off");

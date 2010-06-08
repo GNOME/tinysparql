@@ -544,9 +544,9 @@ class writeback(TestWriteback):
 			Results = {}
 
                 	insert = """
-				DELETE {?file nmm:camera ?val }
-				WHERE { ?file nmm:camera ?val ;nie:url <%s> }
-				INSERT {?file nmm:camera 'test camera' }
+				DELETE {?file nfo:device ?val }
+				WHERE { ?file nfo:device ?val ;nie:url <%s> }
+				INSERT {?file nfo:device 'test camera' }
 				WHERE { ?file nie:url <%s> }
                 		""" %(uri, uri)
 			print insert
@@ -554,14 +554,14 @@ class writeback(TestWriteback):
 			self.loop.run()
 
                 	""" verify the inserted item """
-			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nmm:camera')
+			result=commands.getoutput(tracker_ext + ' -f' +' ' + uri +' | grep nfo:device')
 			print result
                 	value=result.split()
-			if (result.find('nmm:camera')!=-1)  and (value[1]=='"test') and (value[2]=='camera"'):
+			if (result.find('nfo:device')!=-1)  and (value[1]=='"test') and (value[2]=='camera"'):
 				print "property is set"
                 	else:
 				print "property is NOT set"
-				Results[uri]='nmm:camera'
+				Results[uri]='nfo:device'
 
 			overallRes.append(Results)
                 for Result_dict in overallRes:

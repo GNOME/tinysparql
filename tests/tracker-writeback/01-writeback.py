@@ -69,7 +69,7 @@ class TestInsertion (unittest.TestCase):
                       nmm:exposureTime '1' ;
                       nmm:isoSpeed '1' ;
                       nmm:fnumber '1' ;
-                      nmm:camera 'Some Test Model' ;
+                      nfo:device 'Some Test Model' ;
                       nco:contributor [ a nco:Contact ;
                                         nco:fullname 'test_fullname_2' ] ;
                       nie:copyright 'test_copyright_1'

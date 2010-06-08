@@ -312,7 +312,7 @@ nmm nmm:isContentEncrypted
 nmm nmm:skipCounter
 nmm nmm:ImageList
 nmm nmm:Photo
-nmm nmm:camera
+nmm nfo:device
 nmm nmm:exposureTime
 nmm nmm:Flash
 nmm nmm:flash-on

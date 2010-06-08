@@ -136,7 +136,7 @@ its album).
 	 nfo:height 36 ;
          nmm:flash &lt;nmm:flash-off&gt;;
          nmm:whiteBalance &lt;nmm:white-balance-automatic&gt; ;
-         nmm:camera "Tracknon N900" ;
+         nfo:device "Tracknon N900" ;
 
          # Properties from nfo:FileDataObject
          nfo:fileSize 12341234 ;

@@ -618,7 +618,7 @@ class images(TrackerHelpers):
                                 if parm.rstrip() == 'Camera':
 					query = "SELECT ?value WHERE { \
 					?uid nie:url <%s>; \
-					nmm:camera ?value.}" %(file_uri)
+					nfo:device ?value.}" %(file_uri)
 					print query
 					results = self.query (query)
 					print results

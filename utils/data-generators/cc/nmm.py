@@ -14,7 +14,7 @@ nmm_Photo = '''
     nfo:fileLastAccessed "%(photo_date)s";
     nfo:fileSize         "%(photo_size)s";
     nfo:fileName         "%(photo_filename)s" ;
-    nmm:camera           "%(photo_camera)s";
+    nfo:device           "%(photo_camera)s";
     nmm:exposureTime     "%(photo_exposure)s";
     nmm:fnumber          "%(photo_fnumber)s";
     nmm:focalLength      "%(photo_focal_length)s";

@@ -544,7 +544,7 @@ extract_tiff (const gchar          *uri,
 	g_ptr_array_free (keywords, TRUE);
 
 	if (md.camera) {
-		tracker_sparql_builder_predicate (metadata, "nmm:camera");
+		tracker_sparql_builder_predicate (metadata, "nfo:device");
 		tracker_sparql_builder_object_unvalidated (metadata, md.camera);
 	}
 

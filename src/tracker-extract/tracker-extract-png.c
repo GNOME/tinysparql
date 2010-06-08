@@ -276,7 +276,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 
 	if (md.camera) {
-		tracker_sparql_builder_predicate (metadata, "nmm:camera");
+		tracker_sparql_builder_predicate (metadata, "nfo:device");
 		tracker_sparql_builder_object_unvalidated (metadata, md.camera);
 	}
 

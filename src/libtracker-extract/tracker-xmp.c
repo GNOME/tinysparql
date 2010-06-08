@@ -752,7 +752,7 @@ tracker_xmp_apply (TrackerSparqlBuilder *metadata,
 	if (data->make || data->model) {
 		gchar *final_camera = tracker_merge_const (" ", 2, data->make, data->model);
 
-		tracker_sparql_builder_predicate (metadata, "nmm:camera");
+		tracker_sparql_builder_predicate (metadata, "nfo:device");
 		tracker_sparql_builder_object_unvalidated (metadata, final_camera);
 		g_free (final_camera);
 	}

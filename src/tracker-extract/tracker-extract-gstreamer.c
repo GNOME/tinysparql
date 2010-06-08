@@ -79,6 +79,10 @@ long long int llroundl(long double x);
 #define GST_TAG_DEVICE_MODEL "device-model"
 #endif
 
+#ifndef GST_TAG_DEVICE_MAKE
+#define GST_TAG_DEVICE_MAKE "device-make"
+#endif
+
 
 typedef enum {
 	EXTRACT_MIME_AUDIO,
@@ -492,7 +496,7 @@ extract_metadata (MetadataExtractor      *extractor,
                   gchar                 **scount)
 {
 	const gchar *temp;
-	gchar *s;
+	gchar *s, *make = NULL, *model = NULL, *make_model = NULL;
 	gboolean ret;
 	gint count;
 	gboolean needs_audio = FALSE;
@@ -748,7 +752,26 @@ extract_metadata (MetadataExtractor      *extractor,
 		add_string_gst_tag (metadata, uri, "dc:coverage", extractor->tagcache, GST_TAG_LOCATION);
 		add_y_date_gst_tag (metadata, uri, "nie:contentCreated", extractor->tagcache, GST_TAG_DATE);
 		add_string_gst_tag (metadata, uri, "nie:comment", extractor->tagcache, GST_TAG_COMMENT);
-		add_string_gst_tag (metadata, uri, "nfo:device", extractor->tagcache, GST_TAG_DEVICE_MODEL);
+
+		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MODEL, &model);
+		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MAKE, &make);
+
+		if (make && model) {
+			make_model = tracker_merge_const (" ", 2, make, model);
+		} else if (make) {
+			make_model = g_strdup (make);
+		} else if (model) {
+			make_model = g_strdup (model);
+		}
+
+		if (make_model) {
+			tracker_sparql_builder_predicate (metadata, "nfo:device");
+			tracker_sparql_builder_object_unvalidated (metadata, make_model);
+			g_free (make_model);
+		}
+
+		g_free (make);
+		g_free (model);
 
 		if (extractor->is_content_encrypted) {
 			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
