@@ -79,6 +79,10 @@ long long int llroundl(long double x);
 #define GST_TAG_DEVICE_MODEL "device-model"
 #endif
 
+#ifndef GST_TAG_DEVICE_MANUFACTURER
+#define GST_TAG_DEVICE_MANUFACTURER "device-manufacturer"
+#endif
+
 #ifndef GST_TAG_DEVICE_MAKE
 #define GST_TAG_DEVICE_MAKE "device-make"
 #endif
@@ -496,7 +500,7 @@ extract_metadata (MetadataExtractor      *extractor,
                   gchar                 **scount)
 {
 	const gchar *temp;
-	gchar *s, *make = NULL, *model = NULL, *make_model = NULL;
+	gchar *s, *make = NULL, *model = NULL, *manuf = NULL, *make_model = NULL;
 	gboolean ret;
 	gint count;
 	gboolean needs_audio = FALSE;
@@ -755,13 +759,22 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MODEL, &model);
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MAKE, &make);
+		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MANUFACTURER, &manuf);
 
-		if (make && model) {
+		if (make && model && manuf) {
+			make_model = tracker_merge_const (" ", 3, manuf, make, model);
+		} else if (make && model) {
 			make_model = tracker_merge_const (" ", 2, make, model);
-		} else if (make) {
-			make_model = g_strdup (make);
+		} else if (make && manuf) {
+			make_model = tracker_merge_const (" ", 2, manuf, make);
+		} else if (model && manuf) {
+			make_model = tracker_merge_const (" ", 2, manuf, model);
 		} else if (model) {
 			make_model = g_strdup (model);
+		} else if (make) {
+			make_model = g_strdup (make);
+		} else if (manuf) {
+			make_model = g_strdup (manuf);
 		}
 
 		if (make_model) {
@@ -772,6 +785,7 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		g_free (make);
 		g_free (model);
+		g_free (manuf);
 
 		if (extractor->is_content_encrypted) {
 			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
