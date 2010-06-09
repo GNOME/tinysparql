@@ -33,6 +33,8 @@
 
 G_BEGIN_DECLS
 
+#define TRACKER_MINER_FS_GRAPH_URN "urn:uuid:472ed0cc-40ff-4e37-9c0c-062d78656540"
+
 #define TRACKER_TYPE_MINER_FS         (tracker_miner_fs_get_type())
 #define TRACKER_MINER_FS(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFS))
 #define TRACKER_MINER_FS_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_MINER_FS, TrackerMinerFSClass))

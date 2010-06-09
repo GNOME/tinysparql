@@ -1605,7 +1605,7 @@ process_file_cb (GObject      *object,
 	mime_type = g_file_info_get_content_type (file_info);
 	urn = miner_files_get_file_urn (TRACKER_MINER_FILES (data->miner), file, &is_iri);
 
-	tracker_sparql_builder_insert_open (sparql, uri);
+	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
 	if (is_iri) {
 		tracker_sparql_builder_subject_iri (sparql, urn);
@@ -1736,7 +1736,7 @@ miner_files_ignore_next_update_file (TrackerMinerFS       *fs,
 	 * should NEVER be marked as tracker:writeback in the ontology! (else you break
 	 * the tracker-writeback feature) */
 
-	tracker_sparql_builder_insert_open (sparql, uri);
+	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
 	tracker_sparql_builder_subject_variable (sparql, "urn");
 	tracker_sparql_builder_predicate (sparql, "a");

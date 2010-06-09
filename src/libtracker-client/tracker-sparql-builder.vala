@@ -72,6 +72,16 @@ public class Tracker.SparqlBuilder : Object {
 			str.append ("INSERT {\n");
 	}
 
+	public void insert_silent_open (string? graph)
+		requires (state == State.UPDATE)
+	{
+		states += State.INSERT;
+		if (graph != null)
+			str.append ("INSERT SILENT INTO <%s> {\n".printf (graph));
+		else
+			str.append ("INSERT SILENT {\n");
+	}
+
 	public void insert_close ()
 		requires (state == State.INSERT || state == State.OBJECT)
 	{

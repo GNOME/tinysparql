@@ -1362,8 +1362,16 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 		g_debug ("Adding item '%s'", uri);
 
-		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
-		                               uri, tracker_sparql_builder_get_result (data->builder));
+		if (data->urn) {
+			/* update, delete all statements inserted by miner
+			   except for rdf:type statements as they could cause implicit deletion of user data */
+			full_sparql = g_strdup_printf ("DELETE { <%s> ?p ?o } WHERE { GRAPH <%s> { <%s> ?p ?o FILTER (?p != rdf:type) } } %s",
+			                               data->urn, TRACKER_MINER_FS_GRAPH_URN,
+			                               data->urn, tracker_sparql_builder_get_result (data->builder));
+		} else {
+			/* new file */
+			full_sparql = g_strdup (tracker_sparql_builder_get_result (data->builder));
+		}
 
 		tracker_miner_execute_batch_update (TRACKER_MINER (fs),
 		                                    full_sparql,

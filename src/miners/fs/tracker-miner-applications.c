@@ -254,7 +254,7 @@ miner_applications_process_file_cb (gpointer user_data)
 		gchar *icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
 		uri = canonical_uri;
-		tracker_sparql_builder_insert_open (sparql, uri);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 		tracker_sparql_builder_subject_iri (sparql, uri);
 
 		tracker_sparql_builder_predicate (sparql, "a");
@@ -284,7 +284,7 @@ miner_applications_process_file_cb (gpointer user_data)
 
 	} else if (name && g_ascii_strcasecmp (type, "Application") == 0) {
 		uri = g_file_get_uri (data->file);
-		tracker_sparql_builder_insert_open (sparql, uri);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
 		tracker_sparql_builder_subject_iri (sparql, APPLICATION_DATASOURCE_URN);
 		tracker_sparql_builder_predicate (sparql, "a");
@@ -303,7 +303,7 @@ miner_applications_process_file_cb (gpointer user_data)
 	} else if (name && g_str_has_suffix (type, "Applet")) {
 		/* The URI of the InformationElement should be a UUID URN */
 		uri = g_file_get_uri (data->file);
-		tracker_sparql_builder_insert_open (sparql, uri);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
 		tracker_sparql_builder_subject_iri (sparql, APPLET_DATASOURCE_URN);
 		tracker_sparql_builder_predicate (sparql, "a");
@@ -320,7 +320,7 @@ miner_applications_process_file_cb (gpointer user_data)
 	} else {
 		/* Invalid type, all valid types are already listed above */
 		uri = g_file_get_uri (data->file);
-		tracker_sparql_builder_insert_open (sparql, uri);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
 		tracker_sparql_builder_subject_iri (sparql, APPLICATION_DATASOURCE_URN);
 		tracker_sparql_builder_predicate (sparql, "a");
