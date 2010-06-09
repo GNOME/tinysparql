@@ -596,7 +596,7 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			                        removable_device_urn, removable_device_urn, uri);
 
 			g_string_append_printf (queries,
-			                        "DROP GRAPH <%s> "
+			                        "DELETE { <%s> a rdfs:Resource }  "
 			                        "INSERT INTO <%s> { "
 			                        "  <%s> a tracker:Volume; "
 			                        "       tracker:mountPoint ?u "
