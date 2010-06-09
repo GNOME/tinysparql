@@ -430,8 +430,8 @@ albumart_heuristic (const gchar *artist,
 		/* Accept cover, front, folder, AlbumArt_{GUID}_Large
 		 * reject AlbumArt_{GUID}_Small and AlbumArtSmall
 		 */
-		if ((artist_strdown && strstr (name_strdown, artist_strdown)) ||
-		    (album_strdown && strstr (name_strdown, album_strdown)) ||
+		if ((artist_strdown && artist_strdown[0] != '\0' && strstr (name_strdown, artist_strdown)) ||
+		    (album_strdown && album_strdown[0] != '\0' && strstr (name_strdown, album_strdown)) ||
 		    (strstr (name_strdown, "cover")) ||
 		    (strstr (name_strdown, "front")) ||
 		    (strstr (name_strdown, "folder")) ||
