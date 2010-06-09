@@ -59,7 +59,7 @@ namespace Tracker.Sparql {
 
 									Expression.append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
-									sql.append (" AS \"object\" FROM ");
+									sql.append_printf (" AS \"object\", \"%s:graph\" AS \"graph\" FROM ", prop.name);
 									sql.append_printf ("\"%s\"", prop.table_name);
 
 									sql.append (" WHERE ID = ?");
@@ -102,7 +102,7 @@ namespace Tracker.Sparql {
 
 									Expression.append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
-									sql.append (" AS \"object\" FROM ");
+									sql.append_printf (" AS \"object\", \"%s:graph\" AS \"graph\" FROM ", prop.name);
 									sql.append_printf ("\"%s\"", prop.table_name);
 								}
 							}
@@ -1365,14 +1365,20 @@ class Tracker.Sparql.Pattern : Object {
 				triple_context.bindings.append (binding);
 			}
 
-			if (current_graph != null && prop != null) {
+			if (current_graph != null) {
 				if (current_graph_is_var) {
 					var binding = new VariableBinding ();
 					binding.variable = context.get_variable (current_graph);
 					binding.table = table;
-
 					binding.data_type = PropertyType.RESOURCE;
-					binding.sql_db_column_name = prop.name + ":graph";
+
+					if (prop != null) {
+						binding.sql_db_column_name = prop.name + ":graph";
+					} else {
+						// variable as predicate
+						binding.sql_db_column_name = "graph";
+					}
+
 					binding.maybe_null = true;
 					binding.in_simple_optional = in_simple_optional;
 
@@ -1388,9 +1394,15 @@ class Tracker.Sparql.Pattern : Object {
 					var binding = new LiteralBinding ();
 					binding.literal = current_graph;
 					binding.table = table;
-
 					binding.data_type = PropertyType.RESOURCE;
-					binding.sql_db_column_name = prop.name + ":graph";
+
+					if (prop != null) {
+						binding.sql_db_column_name = prop.name + ":graph";
+					} else {
+						// variable as predicate
+						binding.sql_db_column_name = "graph";
+					}
+
 					triple_context.bindings.append (binding);
 				}
 			}
