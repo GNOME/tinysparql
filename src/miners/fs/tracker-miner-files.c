@@ -936,7 +936,7 @@ check_battery_status (TrackerMinerFiles *mf)
 			if (!tracker_config_get_index_on_battery_first_time (mf->private->config)) {
 				g_message ("Running on battery, but not enabled, pausing");
 				should_pause = TRUE;
-			} else if (tracker_db_manager_get_first_index_done()) {
+			} else if (tracker_db_manager_get_first_index_done ()) {
 				g_message ("Running on battery and first-time index "
 				           "already done, pausing");
 				should_pause = TRUE;

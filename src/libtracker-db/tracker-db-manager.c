@@ -59,7 +59,7 @@
 #define IN_USE_FILENAME               ".meta.isrunning"
 
 /* Stamp filename to check for first index */
-#define FIRST_INDEX_STAMP_FILENAME    ".firstindex"
+#define FIRST_INDEX_FILENAME          "first-index.txt"
 
 typedef enum {
 	TRACKER_DB_LOCATION_DATA_DIR,
@@ -1289,12 +1289,12 @@ tracker_db_manager_has_enough_space  (void)
 }
 
 
-static gchar *
+inline static gchar *
 get_first_index_stamp_path (void)
 {
 	return g_build_filename (g_get_user_cache_dir (),
 	                         "tracker",
-	                         FIRST_INDEX_STAMP_FILENAME,
+	                         FIRST_INDEX_FILENAME,
 	                         NULL);
 }
 
@@ -1311,7 +1311,7 @@ tracker_db_manager_get_first_index_done (void)
 	gboolean exists;
 	gchar *stamp;
 
-	stamp = get_first_index_stamp_path();
+	stamp = get_first_index_stamp_path ();
 	exists = g_file_test (stamp, G_FILE_TEST_EXISTS);
 	g_free (stamp);
 
@@ -1339,7 +1339,7 @@ tracker_db_manager_set_first_index_done (gboolean done)
 		GError *error = NULL;
 
 		/* If done, create stamp file if not already there */
-		if (!g_file_set_contents (stamp, "", -1, &error)) {
+		if (!g_file_set_contents (stamp, PACKAGE_VERSION, -1, &error)) {
 			g_warning ("  Creating first-index stamp in "
 			           "'%s' failed: '%s'",
 			           stamp,
