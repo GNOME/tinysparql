@@ -64,7 +64,6 @@ typedef struct {
 	gchar *parent_urn;
 	GCancellable *cancellable;
 	TrackerSparqlBuilder *builder;
-	gboolean update;
 } ProcessData;
 
 typedef struct {
@@ -562,11 +561,10 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 static ProcessData *
 process_data_new (GFile                *file,
-                  const gchar          *urn,
-                  const gchar          *parent_urn,
+		  const gchar          *urn,
+		  const gchar          *parent_urn,
                   GCancellable         *cancellable,
-                  TrackerSparqlBuilder *builder,
-                  gboolean              update)
+                  TrackerSparqlBuilder *builder)
 {
 	ProcessData *data;
 
@@ -574,7 +572,6 @@ process_data_new (GFile                *file,
 	data->file = g_object_ref (file);
 	data->urn = g_strdup (urn);
 	data->parent_urn = g_strdup (parent_urn);
-	data->update = update;
 
 	if (cancellable) {
 		data->cancellable = g_object_ref (cancellable);
@@ -1365,13 +1362,8 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 		g_debug ("Adding item '%s'", uri);
 
-		if (data->update) {
-			full_sparql = g_strdup_printf ("DELETE { ?res a rdfs:Resource } WHERE { ?res nie:url \"%s\" } %s",
-			                               uri, tracker_sparql_builder_get_result (data->builder));
-		} else {
-			full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
-			                               uri, tracker_sparql_builder_get_result (data->builder));
-		}
+		full_sparql = g_strdup_printf ("DROP GRAPH <%s> %s",
+		                               uri, tracker_sparql_builder_get_result (data->builder));
 
 		tracker_miner_execute_batch_update (TRACKER_MINER (fs),
 		                                    full_sparql,
@@ -1386,8 +1378,7 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 static gboolean
 item_add_or_update (TrackerMinerFS *fs,
-                    GFile          *file,
-                    gboolean        update)
+                    GFile          *file)
 {
 	TrackerMinerFSPrivate *priv;
 	TrackerSparqlBuilder *sparql;
@@ -1436,7 +1427,7 @@ item_add_or_update (TrackerMinerFS *fs,
 
 	urn = iri_cache_lookup (fs, file);
 
-	data = process_data_new (file, urn, parent_urn, cancellable, sparql, update);
+	data = process_data_new (file, urn, parent_urn, cancellable, sparql);
 	priv->processing_pool = g_list_prepend (priv->processing_pool, data);
 
 	if (do_process_file (fs, data)) {
@@ -1505,7 +1496,7 @@ item_remove (TrackerMinerFS *fs,
 	                        "}",
 	                        uri);
 
-	data = process_data_new (file, NULL, NULL, NULL, NULL, FALSE);
+	data = process_data_new (file, NULL, NULL, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
 	tracker_miner_execute_batch_update (TRACKER_MINER (fs),
@@ -1750,7 +1741,7 @@ item_move (TrackerMinerFS *fs,
 			tracker_miner_fs_directory_add_internal (fs, file);
 			retval = TRUE;
 		} else {
-			retval = item_add_or_update (fs, file, FALSE);
+			retval = item_add_or_update (fs, file);
 		}
 
 		g_free (source_uri);
@@ -1815,7 +1806,7 @@ item_move (TrackerMinerFS *fs,
 
 	g_main_loop_unref (move_data.main_loop);
 
-	data = process_data_new (file, NULL, NULL, NULL, NULL, FALSE);
+	data = process_data_new (file, NULL, NULL, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
 	tracker_miner_execute_batch_update (TRACKER_MINER (fs),
@@ -2154,10 +2145,8 @@ item_queue_handlers_cb (gpointer user_data)
 		keep_processing = item_remove (fs, file);
 		break;
 	case QUEUE_CREATED:
-		keep_processing = item_add_or_update (fs, file, FALSE);
-		break;
 	case QUEUE_UPDATED:
-		keep_processing = item_add_or_update (fs, file, TRUE);
+		keep_processing = item_add_or_update (fs, file);
 		break;
 	case QUEUE_IGNORE_NEXT_UPDATE:
 		keep_processing = item_ignore_next_update (fs, file, source_file);
