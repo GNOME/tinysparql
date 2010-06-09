@@ -22,6 +22,7 @@ namespace Tracker.Sparql {
 	class PredicateVariable : Object {
 		public string? subject;
 		public string? object;
+		public bool return_graph;
 
 		public Class? domain;
 
@@ -59,8 +60,11 @@ namespace Tracker.Sparql {
 
 									Expression.append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
-									sql.append_printf (" AS \"object\", \"%s:graph\" AS \"graph\" FROM ", prop.name);
-									sql.append_printf ("\"%s\"", prop.table_name);
+									sql.append (" AS \"object\"");
+									if (return_graph) {
+										sql.append_printf (", \"%s:graph\" AS \"graph\"", prop.name);
+									}
+									sql.append_printf (" FROM \"%s\"", prop.table_name);
 
 									sql.append (" WHERE ID = ?");
 
@@ -102,8 +106,11 @@ namespace Tracker.Sparql {
 
 									Expression.append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
-									sql.append_printf (" AS \"object\", \"%s:graph\" AS \"graph\" FROM ", prop.name);
-									sql.append_printf ("\"%s\"", prop.table_name);
+									sql.append (" AS \"object\"");
+									if (return_graph) {
+										sql.append_printf (", \"%s:graph\" AS \"graph\"", prop.name);
+									}
+									sql.append_printf (" FROM \"%s\"", prop.table_name);
 								}
 							}
 						} while (result_set.iter_next ());
@@ -1265,6 +1272,9 @@ class Tracker.Sparql.Pattern : Object {
 			if (!object_is_var) {
 				// single object
 				table.predicate_variable.object = object;
+			}
+			if (current_graph != null) {
+				table.predicate_variable.return_graph = true;
 			}
 			table.sql_query_tablename = current_predicate + (++counter).to_string ();
 			triple_context.tables.append (table);
