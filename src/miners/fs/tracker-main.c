@@ -74,7 +74,6 @@ static gint initial_sleep = -1;
 static gchar *eligible;
 static gchar *add_file;
 static gboolean version;
-static gchar *crawl_timestamp_file;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -200,13 +199,6 @@ should_crawl (TrackerConfig *config)
 {
 	gint crawling_interval;
 
-	if (G_UNLIKELY (!crawl_timestamp_file)) {
-		crawl_timestamp_file = g_build_filename (g_get_user_cache_dir (),
-		                                         "tracker",
-		                                         "crawling-timestamp.txt",
-		                                         NULL);
-	}
-
 	crawling_interval = tracker_config_get_crawling_interval (config);
 
 	g_message ("Checking whether to perform mtime checks during crawling:");
@@ -219,17 +211,14 @@ should_crawl (TrackerConfig *config)
 		return TRUE;
 	} else {
 		guint64 then, now;
-		gchar *content;
+		
+		then = tracker_db_manager_get_last_crawl_done ();
 
-		if (!g_file_get_contents (crawl_timestamp_file, &content, NULL, NULL)) {
-			g_message ("  No previous timestamp, crawling forced");
+		if (then < 1) {
 			return TRUE;
 		}
 
 		now = (guint64) time (NULL);
-
-		then = g_ascii_strtoull (content, NULL, 10);
-		g_free (content);
 
 		if (now < then + (crawling_interval * SECONDS_PER_DAY)) {
 			g_message ("  Postponed");
@@ -238,22 +227,6 @@ should_crawl (TrackerConfig *config)
 			g_message ("  (More than) %d days after last crawling, enabled", crawling_interval);
 			return FALSE;
 		}
-	}
-}
-
-static void
-save_crawling_time (void)
-{
-	GError *error = NULL;
-	gchar *content;
-
-	content = g_strdup_printf ("%" G_GUINT64_FORMAT, (guint64) time (NULL));
-
-	g_file_set_contents (crawl_timestamp_file, content, -1, &error);
-
-	if (error) {
-		g_critical ("Could not save crawling timestamp: %s", error->message);
-		g_error_free (error);
 	}
 }
 
@@ -309,7 +282,7 @@ miner_finished_cb (TrackerMinerFS *fs,
 
 	if (TRACKER_IS_MINER_FILES (fs) &&
 	    tracker_miner_fs_get_initial_crawling (fs)) {
-		save_crawling_time ();
+		tracker_db_manager_set_last_crawl_done (TRUE);
 	}
 
 	miner_handle_next ();

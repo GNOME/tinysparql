@@ -68,9 +68,11 @@ TrackerDBManagerFlags
 gboolean            tracker_db_manager_interrupt_thread       (GThread *thread);
 void                tracker_db_manager_interrupt_thread_reset (GThread *thread);
 
-gboolean            tracker_db_manager_get_first_index_done (void);
-void                tracker_db_manager_set_first_index_done (gboolean done);
+gboolean            tracker_db_manager_get_first_index_done   (void);
+guint64             tracker_db_manager_get_last_crawl_done    (void);
 
+void                tracker_db_manager_set_first_index_done   (gboolean done);
+void                tracker_db_manager_set_last_crawl_done    (gboolean done);
 
 G_END_DECLS
 

@@ -58,8 +58,9 @@
 
 #define IN_USE_FILENAME               ".meta.isrunning"
 
-/* Stamp filename to check for first index */
+/* Stamp files to know crawling/indexing state */
 #define FIRST_INDEX_FILENAME          "first-index.txt"
+#define LAST_CRAWL_FILENAME           "last-crawl.txt"
 
 typedef enum {
 	TRACKER_DB_LOCATION_DATA_DIR,
@@ -416,8 +417,9 @@ db_manager_remove_all (gboolean rm_journal)
 
 	g_message ("Removing all database files");
 
-	/* Remove stamp file */
+	/* Remove stamp files */
 	tracker_db_manager_set_first_index_done (FALSE);
+	tracker_db_manager_set_last_crawl_done (FALSE);
 
 	/* NOTE: We don't have to be initialized for this so we
 	 * calculate the absolute directories here.
@@ -1290,7 +1292,7 @@ tracker_db_manager_has_enough_space  (void)
 
 
 inline static gchar *
-get_first_index_stamp_path (void)
+get_first_index_filename (void)
 {
 	return g_build_filename (g_get_user_cache_dir (),
 	                         "tracker",
@@ -1309,11 +1311,11 @@ gboolean
 tracker_db_manager_get_first_index_done (void)
 {
 	gboolean exists;
-	gchar *stamp;
+	gchar *filename;
 
-	stamp = get_first_index_stamp_path ();
-	exists = g_file_test (stamp, G_FILE_TEST_EXISTS);
-	g_free (stamp);
+	filename = get_first_index_filename ();
+	exists = g_file_test (filename, G_FILE_TEST_EXISTS);
+	g_free (filename);
 
 	return exists;
 }
@@ -1329,40 +1331,122 @@ void
 tracker_db_manager_set_first_index_done (gboolean done)
 {
 	gboolean already_exists;
-	gchar *stamp;
+	gchar *filename;
 
-	stamp = get_first_index_stamp_path ();
-
-	already_exists = g_file_test (stamp, G_FILE_TEST_EXISTS);
+	filename = get_first_index_filename ();
+	already_exists = g_file_test (filename, G_FILE_TEST_EXISTS);
 
 	if (done && !already_exists) {
 		GError *error = NULL;
 
 		/* If done, create stamp file if not already there */
-		if (!g_file_set_contents (stamp, PACKAGE_VERSION, -1, &error)) {
-			g_warning ("  Creating first-index stamp in "
-			           "'%s' failed: '%s'",
-			           stamp,
+		if (!g_file_set_contents (filename, PACKAGE_VERSION, -1, &error)) {
+			g_warning ("  Could not create file:'%s' failed, %s",
+			           filename,
 			           error->message);
 			g_error_free (error);
 		} else {
-			g_message ("  First-index stamp created in '%s'",
-			           stamp);
+			g_message ("  First index file:'%s' created",
+			           filename);
 		}
 	} else if (!done && already_exists) {
 		/* If NOT done, remove stamp file */
-		if (g_remove (stamp)) {
-			g_warning ("  Removing first-index stamp from '%s' "
-			           "failed: '%s'",
-			           stamp,
+		if (g_remove (filename)) {
+			g_warning ("  Could not remove file:'%s', %s", 
+			           filename,
 			           g_strerror (errno));
 		} else {
-			g_message ("  First-index stamp removed from '%s'",
-			           stamp);
+			g_message ("  First index file:'%s' removed",
+			           filename);
 		}
 	}
 
-	g_free (stamp);
+	g_free (filename);
+}
+
+inline static gchar *
+get_last_crawl_filename (void)
+{
+	return g_build_filename (g_get_user_cache_dir (),
+	                         "tracker",
+	                         LAST_CRAWL_FILENAME,
+	                         NULL);
+}
+
+/**
+ * tracker_db_manager_get_last_crawl_done:
+ *
+ * Check when last crawl was performed.
+ *
+ * Returns: time_t() value when last crawl occurred, otherwise 0.
+ **/
+guint64
+tracker_db_manager_get_last_crawl_done (void)
+{
+	gchar *filename;
+	gchar *content;
+	guint64 then;
+
+	filename = get_last_crawl_filename ();
+
+	if (!g_file_get_contents (filename, &content, NULL, NULL)) {
+		g_message ("  No previous timestamp, crawling forced");
+		return 0;
+	}
+
+	then = g_ascii_strtoull (content, NULL, 10);
+	g_free (content);
+
+	return then;
+}
+
+/**
+ * tracker_db_manager_set_last_crawl_done:
+ *
+ * Set the status of the first full index of files. Should be set to
+ *  %FALSE if the index was never done or if a reindex is needed. When
+ *  the index is completed, should be set to %TRUE.
+ **/
+void
+tracker_db_manager_set_last_crawl_done (gboolean done)
+{
+	gboolean already_exists;
+	gchar *filename;
+
+	filename = get_last_crawl_filename ();
+	already_exists = g_file_test (filename, G_FILE_TEST_EXISTS);
+
+	if (done && !already_exists) {
+		GError *error = NULL;
+		gchar *content;
+
+		content = g_strdup_printf ("%" G_GUINT64_FORMAT, (guint64) time (NULL));
+
+		/* If done, create stamp file if not already there */
+		if (!g_file_set_contents (filename, content, -1, &error)) {
+			g_warning ("  Could not create file:'%s' failed, %s",
+			           filename,
+			           error->message);
+			g_error_free (error);
+		} else {
+			g_message ("  Last crawl file:'%s' created",
+			           filename);
+		}
+
+		g_free (content);
+	} else if (!done && already_exists) {
+		/* If NOT done, remove stamp file */
+		if (g_remove (filename)) {
+			g_warning ("  Could not remove file:'%s', %s", 
+			           filename,
+			           g_strerror (errno));
+		} else {
+			g_message ("  Last crawl file:'%s' removed",
+			           filename);
+		}
+	}
+
+	g_free (filename);
 }
 
 /**

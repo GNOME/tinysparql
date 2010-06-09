@@ -97,8 +97,6 @@ enum {
 	PROP_CONFIG
 };
 
-static gchar *crawl_timestamp_file = NULL;
-
 static void        miner_files_set_property             (GObject              *object,
                                                          guint                 param_id,
                                                          const GValue         *value,
@@ -1779,13 +1777,6 @@ should_check_mtime (TrackerConfig *config)
 {
 	gint crawling_interval;
 
-	if (G_UNLIKELY (!crawl_timestamp_file)) {
-		crawl_timestamp_file = g_build_filename (g_get_user_cache_dir (),
-		                                         "tracker",
-		                                         "crawling-timestamp.txt",
-		                                         NULL);
-	}
-
 	crawling_interval = tracker_config_get_crawling_interval (config);
 
 	g_message ("Checking whether to perform mtime checks during crawling:");
@@ -1798,17 +1789,14 @@ should_check_mtime (TrackerConfig *config)
 		return TRUE;
 	} else {
 		guint64 then, now;
-		gchar *content;
 
-		if (!g_file_get_contents (crawl_timestamp_file, &content, NULL, NULL)) {
+		then = tracker_db_manager_get_last_crawl_done ();
+		if (then < 1) {
 			g_message ("  No previous timestamp, crawling forced");
 			return TRUE;
 		}
-
+	
 		now = (guint64) time (NULL);
-
-		then = g_ascii_strtoull (content, NULL, 10);
-		g_free (content);
 
 		if (now < then + (crawling_interval * SECONDS_PER_DAY)) {
 			g_message ("  Postponed");
@@ -1821,25 +1809,9 @@ should_check_mtime (TrackerConfig *config)
 }
 
 static void
-save_crawling_time (void)
-{
-	GError *error = NULL;
-	gchar *content;
-
-	content = g_strdup_printf ("%" G_GUINT64_FORMAT, (guint64) time (NULL));
-
-	g_file_set_contents (crawl_timestamp_file, content, -1, &error);
-
-	if (error) {
-		g_critical ("Could not save crawling timestamp: %s", error->message);
-		g_error_free (error);
-	}
-}
-
-static void
 miner_files_finished (TrackerMinerFS *fs)
 {
-        save_crawling_time ();
+        tracker_db_manager_set_last_crawl_done (TRUE);
 }
 
 TrackerMiner *
