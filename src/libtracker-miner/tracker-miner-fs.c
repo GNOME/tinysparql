@@ -1222,6 +1222,7 @@ iri_cache_lookup (TrackerMinerFS *fs,
 		if (item_query_exists (fs, file, &query_iri, NULL)) {
 			g_hash_table_insert (fs->private->iri_cache,
 			                     g_object_ref (file), query_iri);
+			iri = query_iri;
 		} else {
 			g_hash_table_remove (fs->private->iri_cache, file);
 			iri = NULL;
