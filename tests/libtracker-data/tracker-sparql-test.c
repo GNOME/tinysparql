@@ -90,6 +90,7 @@ const TestInfo tests[] = {
 	{ "graph/graph-1", "graph/data-1", FALSE },
 	{ "graph/graph-2", "graph/data-2", FALSE },
 	{ "graph/graph-3", "graph/data-3", FALSE },
+	{ "graph/graph-4", "graph/data-3", FALSE },
 	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
 	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
 	{ "regex/regex-query-002", "regex/regex-data-01", FALSE },
