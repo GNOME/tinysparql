@@ -1658,7 +1658,7 @@ resource_buffer_switch (const gchar *graph,
 		g_value_init (&gvalue, G_TYPE_INT);
 		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue,
-		                    graph_id,
+		                    0,
 		                    FALSE, FALSE, FALSE);
 	}
 }
