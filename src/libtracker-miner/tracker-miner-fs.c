@@ -2215,9 +2215,16 @@ remove_unexisting_file_cb (gpointer key,
 
 	/* If file no longer exists, remove it from the store*/
 	if (!g_file_query_exists (file, NULL)) {
-		g_debug ("Removing file which no longer exists in FS: %s",
-		         g_file_get_uri (file));
-		item_remove (fs, file);
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_debug ("Marking file which no longer exists in FS for removal: %s", uri);
+		g_free (uri);
+
+		g_queue_push_tail (fs->private->items_deleted,
+		                   g_object_ref (file));
+
+		item_queue_handlers_set_up (fs);
 	}
 
 	return TRUE;
