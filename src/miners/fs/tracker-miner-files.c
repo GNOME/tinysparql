@@ -860,47 +860,47 @@ mount_point_added_cb (TrackerStorage *storage,
 	} else if (!removable &&
 	           !optical &&
 	           miner->private->first_index_run) {
-			GSList *it;
+		GSList *it;
 
-			/* Check if one of the recursively indexed locations is in
-			 *   the mounted path, or if the mounted path is inside
-			 *   a recursively indexed directory... */
-			for (it = tracker_config_get_index_recursive_directories (miner->private->config);
-			     it;
-			     it= g_slist_next (it)) {
-				if (g_str_has_prefix (it->data, mount_point) ||
-				    g_str_has_prefix (mount_point, it->data)) {
-					gchar *uri;
+		/* Check if one of the recursively indexed locations is in
+		 *   the mounted path, or if the mounted path is inside
+		 *   a recursively indexed directory... */
+		for (it = tracker_config_get_index_recursive_directories (miner->private->config);
+		     it;
+		     it= g_slist_next (it)) {
+			if (g_str_has_prefix (it->data, mount_point) ||
+			    g_str_has_prefix (mount_point, it->data)) {
+				gchar *uri;
 
-					file = g_file_new_for_path (it->data);
-					uri = g_file_get_uri (file);
-					g_message ("  Re-check of path '%s' needed", uri);
-					tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
-					                                file,
-					                                TRUE);
-					g_object_unref (file);
-					g_free (uri);
-				}
+				file = g_file_new_for_path (it->data);
+				uri = g_file_get_uri (file);
+				g_message ("  Re-check of path '%s' needed", uri);
+				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
+				                                file,
+				                                TRUE);
+				g_object_unref (file);
+				g_free (uri);
 			}
+		}
 
-			/* Check if one of the non-recursively indexed locations is in
-			 *  the mount path... */
-			for (it = tracker_config_get_index_single_directories (miner->private->config);
-			     it;
-			     it= g_slist_next (it)) {
-				if (g_str_has_prefix (it->data, mount_point)) {
-					gchar *uri;
+		/* Check if one of the non-recursively indexed locations is in
+		 *  the mount path... */
+		for (it = tracker_config_get_index_single_directories (miner->private->config);
+		     it;
+		     it= g_slist_next (it)) {
+			if (g_str_has_prefix (it->data, mount_point)) {
+				gchar *uri;
 
-					file = g_file_new_for_path (it->data);
-					uri = g_file_get_uri (file);
-					g_message ("  Re-check of path '%s' needed", uri);
-					tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
-					                                file,
-					                                FALSE);
-					g_object_unref (file);
-					g_free (uri);
-				}
+				file = g_file_new_for_path (it->data);
+				uri = g_file_get_uri (file);
+				g_message ("  Re-check of path '%s' needed", uri);
+				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
+				                                file,
+				                                FALSE);
+				g_object_unref (file);
+				g_free (uri);
 			}
+		}
 	} else {
 		g_message ("  Adding directory to crawler's queue");
 
