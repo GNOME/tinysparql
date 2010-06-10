@@ -501,6 +501,15 @@ tracker_parser_reset (TrackerParser *parser,
 	g_free (parser->word);
 	parser->word = NULL;
 
+	if (parser->bi) {
+		ubrk_close (parser->bi);
+		parser->bi = NULL;
+	}
+	g_free (parser->utxt);
+	parser->utxt = NULL;
+	g_free (parser->offsets);
+	parser->offsets = NULL;
+
 	parser->word_position = 0;
 
 	parser->cursor = 0;
@@ -553,10 +562,14 @@ tracker_parser_reset (TrackerParser *parser,
 		           u_errorName (error));
 		/* Reset buffers */
 		g_free (parser->utxt);
-		g_free (parser->offsets);
 		parser->utxt = NULL;
+		g_free (parser->offsets);
 		parser->offsets = NULL;
 		parser->utxt_size = 0;
+		if (parser->bi) {
+			ubrk_close (parser->bi);
+			parser->bi = NULL;
+		}
 	}
 
 	/* Close converter */
