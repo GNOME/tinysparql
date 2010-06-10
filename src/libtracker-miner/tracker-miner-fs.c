@@ -3039,6 +3039,16 @@ should_recurse_for_directory (TrackerMinerFS *fs,
 	return recurse;
 }
 
+
+static gint
+directory_compare_cb (gconstpointer a,
+                      gconstpointer b)
+{
+	return !g_file_equal (((DirectoryData *)a)->file,
+	                      ((DirectoryData *)b)->file);
+}
+
+
 /* This function is for internal use, adds the file to the processing
  * queue with the same directory settings than the corresponding
  * config directory.
@@ -3079,12 +3089,22 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 
 	dir_data = directory_data_new (file, recurse);
 
-	fs->private->config_directories =
-		g_list_append (fs->private->config_directories, dir_data);
-
-	fs->private->directories =
-		g_list_append (fs->private->directories,
-			       directory_data_ref (dir_data));
+	/* New directory to add in config_directories? */
+	if (!g_list_find_custom (fs->private->config_directories,
+	                         dir_data,
+	                         directory_compare_cb)) {
+		fs->private->config_directories =
+			g_list_append (fs->private->config_directories, dir_data);
+		fs->private->directories =
+			g_list_append (fs->private->directories,
+			               directory_data_ref (dir_data));
+	} else {
+		/* Existing directory in config_directories,
+		 * just force re-check */
+		fs->private->directories =
+			g_list_append (fs->private->directories,
+			               dir_data);
+	}
 
 	crawl_directories_start (fs);
 }
