@@ -45,7 +45,8 @@ typedef struct {
 } TrackerResourceClassPrivate;
 
 typedef struct {
-	gchar *uri, *predicate;
+	gchar *uri;
+	TrackerProperty *predicate;
 } ChangedItem;
 
 enum {
@@ -128,6 +129,7 @@ emit_strings (TrackerResourceClass *object, gint signal_, GPtrArray *array)
 			strings_to_emit[i] = array->pdata [i];
 		}
 
+
 		g_signal_emit (object, signal_, 0, strings_to_emit);
 
 		/* Normal free, not a GStrv free, we free the strings later */
@@ -139,19 +141,19 @@ static void
 emit_changed_strings (TrackerResourceClass *object, GPtrArray *array)
 {
 	GStrv stringsa_to_emit;
-	GStrv stringsb_to_emit;
+	const gchar **stringsb_to_emit;
 
 	guint i;
 
 	if (array->len > 0) {
 		stringsa_to_emit = (GStrv) g_malloc0  (sizeof (gchar *) * (array->len + 1));
-		stringsb_to_emit = (GStrv) g_malloc0  (sizeof (gchar *) * (array->len + 1));
+		stringsb_to_emit = g_malloc0  (sizeof (const gchar *) * (array->len + 1));
 
 		for (i = 0; i < array->len; i++) {
 			ChangedItem *item = array->pdata [i];
 
 			stringsa_to_emit[i] = item->uri;
-			stringsb_to_emit[i] = item->predicate;
+			stringsb_to_emit[i] = tracker_property_get_uri (item->predicate);
 		}
 
 		g_signal_emit (object, signals[SUBJECTS_CHANGED], 0,
@@ -168,7 +170,9 @@ free_changed_array (GPtrArray *array)
 {
 	guint i;
 	for (i = 0; i < array->len; i++) {
-		g_slice_free (ChangedItem, array->pdata [i]);
+		ChangedItem *item = array->pdata [i];
+		g_object_unref (item->predicate);
+		g_slice_free (ChangedItem, item);
 	}
 	g_ptr_array_free (array, TRUE);
 }
@@ -265,31 +269,10 @@ has_already (GPtrArray *array, const gchar *uri)
 	return FALSE;
 }
 
-/*
-  static gboolean
-  changed_has_already (GPtrArray *array, const gchar *uri, const gchar *predicate)
-  {
-  guint i;
-
-  if (!array) {
-  return FALSE;
-  }
-
-  for (i = 0; i < array->len; i++) {
-  ChangedItem *item = g_ptr_array_index (array, i);
-  if (g_strcmp0 (item->uri, uri) == 0 && g_strcmp0 (item->predicate, predicate) == 0) {
-  return TRUE;
-  }
-  }
-
-  return FALSE;
-  }
-*/
-
 void
 tracker_resource_class_add_event (TrackerResourceClass  *object,
                                   const gchar           *uri,
-                                  const gchar           *predicate,
+                                  TrackerProperty       *predicate,
                                   TrackerDBusEventsType type)
 {
 	TrackerResourceClassPrivate *priv;
@@ -310,19 +293,19 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 		}
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_UPDATE: {
-		/* Duplicate checking slows down too much
-		   if (!changed_has_already (priv->ups, uri, predicate)) { */
-		ChangedItem *item;
+			/* Duplicate checking slows down too much
+			   if (!changed_has_already (priv->ups, uri, predicate)) { */
+			ChangedItem *item;
 
-		item = g_slice_new (ChangedItem);
+			item = g_slice_new (ChangedItem);
 
-		item->uri = g_string_chunk_insert_const (priv->changed_strings, uri);
-		item->predicate = g_string_chunk_insert_const (priv->changed_strings, predicate);
+			item->uri = g_string_chunk_insert_const (priv->changed_strings, uri);
+			item->predicate = g_object_ref (predicate);
 
-		if (!priv->ups)
-			priv->ups = g_ptr_array_new ();
-		g_ptr_array_add (priv->ups, item);
-	}
+			if (!priv->ups)
+				priv->ups = g_ptr_array_new ();
+			g_ptr_array_add (priv->ups, item);
+		}
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_DELETE:
 		if (!has_already (priv->dels, uri)) {

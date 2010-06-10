@@ -582,7 +582,7 @@ on_statements_committed (gpointer user_data)
 			for (l = event_sources; l; l = l->next) {
 				TrackerResourceClass *class_ = l->data;
 				if (g_strcmp0 (tracker_class_get_uri (event->class), tracker_resource_class_get_rdf_class (class_)) == 0) {
-					tracker_resource_class_add_event (class_, event->subject, tracker_property_get_uri (event->predicate), event->type);
+					tracker_resource_class_add_event (class_, event->subject, event->predicate, event->type);
 					if (!to_emit) {
 						to_emit = g_hash_table_new (NULL, NULL);
 					}
