@@ -367,7 +367,7 @@ tracker_dbus_register_objects (void)
 		g_free (replaced);
 
 		/* Add a org.freedesktop.Tracker1.Resources.Class */
-		object = tracker_resource_class_new (rdf_class);
+		object = tracker_resource_class_new (rdf_class, path, connection);
 		if (!object) {
 			g_critical ("Could not create TrackerResourcesClass object to register:'%s' class",
 			            rdf_class);

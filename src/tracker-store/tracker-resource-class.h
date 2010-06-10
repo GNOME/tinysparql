@@ -52,7 +52,9 @@ struct TrackerResourceClassClass {
 };
 
 GType                  tracker_resource_class_get_type      (void);
-TrackerResourceClass  *tracker_resource_class_new           (const gchar *rdf_class);
+TrackerResourceClass  *tracker_resource_class_new           (const gchar           *rdf_class,
+                                                             const gchar           *dbus_path,
+                                                             DBusGConnection       *connection);
 
 const gchar *          tracker_resource_class_get_rdf_class (TrackerResourceClass  *object);
 
