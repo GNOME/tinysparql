@@ -133,6 +133,9 @@ struct TrackerMinerFSPrivate {
 	/* File -> iri cache */
 	GHashTable     *iri_cache;
 
+	/* Files to check if no longer exist */
+	GHashTable     *check_removed;
+
 	/* Status */
 	guint           been_started : 1;
 	guint           been_crawled : 1;
@@ -535,6 +538,10 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                                         (GEqualFunc) g_file_equal,
 	                                         (GDestroyNotify) g_object_unref,
 	                                         (GDestroyNotify) g_free);
+	priv->check_removed = g_hash_table_new_full (g_file_hash,
+	                                             (GEqualFunc) g_file_equal,
+	                                             (GDestroyNotify) g_object_unref,
+	                                             NULL);
 }
 
 static ProcessData *
@@ -665,6 +672,10 @@ fs_finalize (GObject *object)
 
 	if (priv->iri_cache) {
 		g_hash_table_unref (priv->iri_cache);
+	}
+
+	if (priv->check_removed) {
+		g_hash_table_unref (priv->check_removed);
 	}
 
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->finalize (object);
@@ -2207,10 +2218,33 @@ remove_unexisting_file_cb (gpointer key,
 		g_debug ("Removing file which no longer exists in FS: %s",
 		         g_file_get_uri (file));
 		item_remove (fs, file);
-		return TRUE;
 	}
 
-	return FALSE;
+	return TRUE;
+}
+
+static void
+check_if_files_removed (TrackerMinerFS *fs)
+{
+	g_debug ("Checking if any file was removed...");
+	g_hash_table_foreach_remove (fs->private->check_removed,
+	                             remove_unexisting_file_cb,
+	                             fs);
+}
+
+static void
+add_to_check_removed_cb (gpointer key,
+                         gpointer value,
+                         gpointer user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	GFile *file = key;
+
+	/* Not adding any data to the value, we just want
+	 *  fast search for key availability */
+	g_hash_table_insert (fs->private->check_removed,
+	                     g_object_ref (file),
+	                     NULL);
 }
 
 static void
@@ -2295,10 +2329,11 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
 
-	/* Look for files which no longer exist in the FS... */
-	g_hash_table_foreach_remove (fs->private->mtime_cache,
-	                             remove_unexisting_file_cb,
-	                             fs);
+
+	/* Iterate repopulated HT and add all to the check_removed HT */
+	g_hash_table_foreach (fs->private->mtime_cache,
+	                      add_to_check_removed_cb,
+	                      fs);
 }
 
 static gboolean
@@ -2324,6 +2359,9 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	if (!lookup_time) {
 		return TRUE;
 	}
+
+	/* Remove the file from the list of files to be checked if removed */
+	g_hash_table_remove (fs->private->check_removed, file);
 
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_TIME_MODIFIED,
@@ -2792,6 +2830,10 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 	directory_data_unref (fs->private->current_directory);
 	fs->private->current_directory = NULL;
+
+	/* Check if any file was left after whole
+	 *  crawling */
+	check_if_files_removed (fs);
 
 	/* Proceed to next thing to process */
 	crawl_directories_start (fs);
