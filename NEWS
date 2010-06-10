@@ -1,3 +1,44 @@
+NEW in 0.9.8 - 2010-06-10
+=========================
+
+The changes are:
+
+  * Fixes: NB#171657, Device manufacturer and device model XMP metadata are not extracted from mp4 video files
+  * Fixes: NB#173206, Images and videos should both have the key 'nfo:device' with the same information
+  * Fixes: NB#161449, Empty place holder in query result after copying new songs to device
+  * Fixes: NB#172414, Song without any album image is shown with some random primary image in Content Manager
+  * Fixes: NB#172652, Avoiding some missing playlists in query doesn't
+  * return anything other exist playlists in query
+  * Fixes --enable-maemo (had no effect)
+  * Updated generator scripts to include data objects for emails
+  * SPARQL: Warn instead of crash on namespaces without a prefix
+  * SPARQL: Added test for FILTER in group graph patterns
+  * SPARQL: Always generate SELECT around group graph patterns
+  * SPARQL: Only clear buffer when rolling back a transaction
+  * SPARQL: Support experimental INSERT SILENT and DELETE SILENT (don't rollback on failures during transactions)
+  * Ontology: Added tracker:defaultValue property
+  * Ontology: Added maemo:relevance default value of 1000000
+  * Functional Tests: Added script to kill store during batch commit
+  * libtracker-data: Fix error annotations in Vala bindings
+  * tracker-miner-fs: Fixed IRI cache invalidation
+  * tracker-miner-fs: Use DELETE instead of DROP GRAPH for volumes
+  * tracker-miner-fs: Separate user data from filesystem data using graphs
+  * libtracker-common: Removed public documentation for private library
+  * libtracker-db: Renamed crawling-timestamp to last-crawl.txt
+  * libtracker-db: Renamed .firstindex to first-index.txt
+  * libtracker-db: Set contents of first-index.txt to PACKAGE_VERSION
+
+Translations:
+
+  * Updated sl: Andrej Žnidaršič
+  * Updated hu: Gabor Kelemen
+  * Updated es: Jorge González
+
+Notes:
+
+  None
+
+
 NEW in 0.9.7 - 2010-06-03
 =========================
 
