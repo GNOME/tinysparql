@@ -837,7 +837,6 @@ mount_point_added_cb (TrackerStorage *storage,
 {
 	TrackerMinerFiles *miner = user_data;
 	TrackerMinerFilesPrivate *priv;
-	GFile *file;
 	gchar *urn;
 	gboolean index_removable_devices;
 	gboolean index_optical_discs;
@@ -856,7 +855,10 @@ mount_point_added_cb (TrackerStorage *storage,
 	} else if (!removable &&
 	           !optical &&
 	           miner->private->first_index_run) {
+		GFile *mount_point_file;
 		GSList *it;
+
+		mount_point_file = g_file_new_for_path (mount_point);
 
 		/* Check if one of the recursively indexed locations is in
 		 *   the mounted path, or if the mounted path is inside
@@ -864,19 +866,32 @@ mount_point_added_cb (TrackerStorage *storage,
 		for (it = tracker_config_get_index_recursive_directories (miner->private->config);
 		     it;
 		     it= g_slist_next (it)) {
-			if (g_str_has_prefix (it->data, mount_point) ||
-			    g_str_has_prefix (mount_point, it->data)) {
-				gchar *uri;
+			GFile *config_file;
 
-				file = g_file_new_for_path (it->data);
-				uri = g_file_get_uri (file);
-				g_message ("  Re-check of path '%s' needed", uri);
+			config_file = g_file_new_for_path (it->data);
+
+			if (g_file_equal (config_file, mount_point_file) ||
+			    g_file_has_prefix (config_file, mount_point_file)) {
+				/* If the config path is contained inside the mount path,
+				 *  then add the config path to re-check */
+				g_message ("  Re-check of configured path '%s' "
+				           "needed (recursively)",
+				           (gchar *)it->data);
 				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
-				                                file,
+				                                config_file,
 				                                TRUE);
-				g_object_unref (file);
-				g_free (uri);
+			} else if (g_file_has_prefix (mount_point_file, config_file)) {
+				/* If the mount path is contained inside the config path,
+				 *  then add the mount path to re-check */
+				g_message ("  Re-check of path '%s' needed (inside configured"
+				           " path '%s')",
+				           mount_point,
+				           (gchar *)it->data);
+				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
+				                                mount_point_file,
+				                                TRUE);
 			}
+			g_object_unref (config_file);
 		}
 
 		/* Check if one of the non-recursively indexed locations is in
@@ -884,20 +899,25 @@ mount_point_added_cb (TrackerStorage *storage,
 		for (it = tracker_config_get_index_single_directories (miner->private->config);
 		     it;
 		     it= g_slist_next (it)) {
-			if (g_str_has_prefix (it->data, mount_point)) {
-				gchar *uri;
+			GFile *config_file;
 
-				file = g_file_new_for_path (it->data);
-				uri = g_file_get_uri (file);
-				g_message ("  Re-check of path '%s' needed", uri);
+			config_file = g_file_new_for_path (it->data);
+			if (g_file_equal (config_file, mount_point_file) ||
+			    g_file_has_prefix (config_file, mount_point_file)) {
+				g_message ("  Re-check of configured path '%s' "
+				           "needed (non-recursively)",
+				           (gchar *)it->data);
 				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
-				                                file,
+				                                config_file,
 				                                FALSE);
-				g_object_unref (file);
-				g_free (uri);
 			}
+			g_object_unref (config_file);
 		}
+
+		g_object_unref (mount_point_file);
 	} else {
+		GFile *file;
+
 		g_message ("  Adding directory to crawler's queue");
 
 		file = g_file_new_for_path (mount_point);

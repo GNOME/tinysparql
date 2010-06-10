@@ -2985,12 +2985,19 @@ should_recurse_for_directory (TrackerMinerFS *fs,
 }
 
 
+/* Returns 0 if 'a' and 'b' point to the same diretory, OR if
+ *  'b' is contained inside directory 'a' and 'a' is recursively
+ *  indexed. */
 static gint
 directory_compare_cb (gconstpointer a,
                       gconstpointer b)
 {
-	return !g_file_equal (((DirectoryData *)a)->file,
-	                      ((DirectoryData *)b)->file);
+	DirectoryData *dda = (DirectoryData *)a;
+	DirectoryData *ddb = (DirectoryData *)b;
+
+	return (g_file_equal (dda->file, ddb->file) ||
+	        (dda->recurse &&
+	         g_file_has_prefix (ddb->file, dda->file))) ? 0 : -1;
 }
 
 
@@ -3008,10 +3015,18 @@ tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
 	recurse = should_recurse_for_directory (fs, file);
 	data = directory_data_new (file, recurse);
 
-	fs->private->directories =
-		g_list_append (fs->private->directories, data);
+	/* Only add if not already there */
+	if (!g_list_find_custom (fs->private->directories,
+	                         data,
+	                         directory_compare_cb)) {
+		fs->private->directories =
+			g_list_append (fs->private->directories,
+			               directory_data_ref (data));
 
-	crawl_directories_start (fs);
+		crawl_directories_start (fs);
+	}
+
+	directory_data_unref (data);
 }
 
 /**
@@ -3039,19 +3054,22 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 	                         dir_data,
 	                         directory_compare_cb)) {
 		fs->private->config_directories =
-			g_list_append (fs->private->config_directories, dir_data);
+			g_list_append (fs->private->config_directories,
+			               directory_data_ref (dir_data));
+	}
+
+	/* If not already in the list to process, add it */
+	if (!g_list_find_custom (fs->private->directories,
+	                         dir_data,
+	                         directory_compare_cb)) {
 		fs->private->directories =
 			g_list_append (fs->private->directories,
 			               directory_data_ref (dir_data));
-	} else {
-		/* Existing directory in config_directories,
-		 * just force re-check */
-		fs->private->directories =
-			g_list_append (fs->private->directories,
-			               dir_data);
+
+		crawl_directories_start (fs);
 	}
 
-	crawl_directories_start (fs);
+	directory_data_unref (dir_data);
 }
 
 static void
