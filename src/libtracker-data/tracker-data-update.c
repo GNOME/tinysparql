@@ -1625,6 +1625,11 @@ resource_buffer_switch (const gchar *graph,
 		GValue gvalue = { 0 };
 		gchar *subject_dup = NULL;
 
+		/* large INSERTs with thousands of resources could lead to
+		   high peak memory usage due to the update buffer
+		   flush the buffer if it already contains 1000 resources */
+		tracker_data_update_buffer_might_flush (NULL);
+
 		/* subject not yet in cache, retrieve or create ID */
 		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
 		if (subject != NULL) {
