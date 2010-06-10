@@ -174,9 +174,6 @@ static void        miner_finished_cb                    (TrackerMinerFS *fs,
                                                          guint           total_files_ignored,
                                                          gpointer        user_data);
 
-static gboolean    miner_files_path_is_root_for_indexed_directories (TrackerMinerFiles *miner,
-                                                                     const gchar *root_path);
-
 G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
 
 static void
@@ -856,22 +853,50 @@ mount_point_added_cb (TrackerStorage *storage,
 		g_message ("  Not crawling, removable devices disabled in config");
 	} else if (optical && !tracker_config_get_index_optical_discs (priv->config)) {
 		g_message ("  Not crawling, optical devices discs disabled in config");
-	} else if (!removable && !optical) {
-		/* We should only add idles to re-check the monitored locations
-		 *  AFTER first whole index is finished (and only if the mount
-		 *  point contains one of the configured locations to monitor) */
-		if (miner->private->first_index_run &&
-		    miner_files_path_is_root_for_indexed_directories (miner,
-		                                                      mount_point)) {
-			g_message ("  Non-removable mount, adding recheck idle");
-			if (miner->private->force_recheck_id == 0) {
-				/* Set idle to recheck if not already there */
-				miner->private->force_recheck_id =
-					g_idle_add (miner_files_force_recheck_idle, miner);
+	} else if (!removable &&
+	           !optical &&
+	           miner->private->first_index_run) {
+			GSList *it;
+
+			/* Check if one of the recursively indexed locations is in
+			 *   the mounted path, or if the mounted path is inside
+			 *   a recursively indexed directory... */
+			for (it = tracker_config_get_index_recursive_directories (miner->private->config);
+			     it;
+			     it= g_slist_next (it)) {
+				if (g_str_has_prefix (it->data, mount_point) ||
+				    g_str_has_prefix (mount_point, it->data)) {
+					gchar *uri;
+
+					file = g_file_new_for_path (it->data);
+					uri = g_file_get_uri (file);
+					g_message ("  Re-check of path '%s' needed", uri);
+					tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
+					                                file,
+					                                TRUE);
+					g_object_unref (file);
+					g_free (uri);
+				}
 			}
-		} else {
-			g_message ("  Not crawling by default non-removable mount");
-		}
+
+			/* Check if one of the non-recursively indexed locations is in
+			 *  the mount path... */
+			for (it = tracker_config_get_index_single_directories (miner->private->config);
+			     it;
+			     it= g_slist_next (it)) {
+				if (g_str_has_prefix (it->data, mount_point)) {
+					gchar *uri;
+
+					file = g_file_new_for_path (it->data);
+					uri = g_file_get_uri (file);
+					g_message ("  Re-check of path '%s' needed", uri);
+					tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
+					                                file,
+					                                FALSE);
+					g_object_unref (file);
+					g_free (uri);
+				}
+			}
 	} else {
 		g_message ("  Adding directory to crawler's queue");
 
@@ -2006,34 +2031,4 @@ tracker_miner_files_monitor_directory (GFile    *file,
 	 * these directories to be indexed.
          */
 	return TRUE;
-}
-
-
-/* Returns TRUE if one of the directories set to be indexed is actually
- *  located inside the given root path. */
-static gboolean
-miner_files_path_is_root_for_indexed_directories (TrackerMinerFiles *miner,
-                                                  const gchar *root_path)
-{
-	GSList *it;
-
-	/* Check if one of the recursively indexed ones... */
-	for (it = tracker_config_get_index_recursive_directories (miner->private->config);
-	     it;
-	     it= g_slist_next (it)) {
-		if (g_str_has_prefix (it->data, root_path)) {
-			return TRUE;
-		}
-	}
-
-	/* Check if one of the non-recursively indexed ones... */
-	for (it = tracker_config_get_index_single_directories (miner->private->config);
-	     it;
-	     it= g_slist_next (it)) {
-		if (g_str_has_prefix (it->data, root_path)) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
 }
