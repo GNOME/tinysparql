@@ -21,9 +21,10 @@ def generateMailAccount(index):
 
 ####################################################################################
 nmo_MailFolder = '''
-<%(mailfolder_uri)s> a nmo:MailFolder ;
-    nie:relatedTo  %(mailfolder_account)s ;
-    nmo:folderName "%(mailfolder_name)s" .
+<%(mailfolder_uri)s> a nmo:MailFolder, nmo:MailboxDataObject ;
+    tracker:available  true ;
+    nie:relatedTo      %(mailfolder_account)s ;
+    nmo:folderName    "%(mailfolder_name)s" .
 '''
 def generateMailFolder(index):
   me = 'nmo#MailFolder'
@@ -35,7 +36,7 @@ def generateMailFolder(index):
 
 ####################################################################################
 nmo_Email = '''
-<%(email_uri)s> a nmo:Email ;
+<%(email_uri)s> a nmo:Email, nmo:MailboxDataObject ;
     nie:mimeType         "%(email_mime)s" ;
     nie:relatedTo        <%(email_account)s> ;
     nie:isStoredAs       <%(email_stored_as)s> ;
@@ -50,7 +51,8 @@ nmo_Email = '''
     nmo:from             <%(email_sender)s> ;
     nmo:isDraft          "%(email_draft)s" ;
     nmo:isDeleted        "%(email_deleted)s" ;
-    nmo:sentDate         "%(email_sent)s" .
+    nmo:sentDate         "%(email_sent)s" ;
+    tracker:available     true .
 '''
 def generateEmail(index):
   me = 'nmo#Email'
