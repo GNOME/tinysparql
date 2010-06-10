@@ -1762,7 +1762,7 @@ item_move (TrackerMinerFS *fs,
 	         source_uri,
 	         uri);
 
-	tracker_thumbnailer_move_add (source_uri, 
+	tracker_thumbnailer_move_add (source_uri,
 	                              g_file_info_get_content_type (file_info),
 	                              uri);
 
@@ -2236,6 +2236,25 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		                   fs);
 }
 
+static gboolean
+remove_unexisting_file_cb (gpointer key,
+                           gpointer value,
+                           gpointer user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	GFile *file = key;
+
+	/* If file no longer exists, remove it from the store*/
+	if (!g_file_query_exists (file, NULL)) {
+		g_debug ("Removing file which no longer exists in FS: %s",
+		         g_file_get_uri (file));
+		item_remove (fs, file);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 ensure_mtime_cache (TrackerMinerFS *fs,
                     GFile          *file)
@@ -2317,6 +2336,11 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
+
+	/* Look for files which no longer exist in the FS... */
+	g_hash_table_foreach_remove (fs->private->mtime_cache,
+	                             remove_unexisting_file_cb,
+	                             fs);
 }
 
 static gboolean
@@ -2329,9 +2353,16 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	struct tm           t;
 	gchar              *time_str, *lookup_time;
 
+	/* Make sure mtime cache contains the mtimes of all files in the
+	 *  same directory as the given file
+	 */
 	ensure_mtime_cache (fs, file);
-	lookup_time = g_hash_table_lookup (fs->private->mtime_cache, file);
 
+	/* If the file is NOT found in the cache, it means its a new
+	 *  file the store doesn't know about, so just report it to be
+	 *  re-indexed.
+	 */
+	lookup_time = g_hash_table_lookup (fs->private->mtime_cache, file);
 	if (!lookup_time) {
 		return TRUE;
 	}
