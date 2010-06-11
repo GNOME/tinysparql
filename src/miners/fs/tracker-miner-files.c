@@ -822,13 +822,22 @@ mount_point_removed_cb (TrackerStorage *storage,
 {
 	TrackerMinerFiles *miner = user_data;
 	gchar *urn;
+	GFile *mount_point_file;
 
 	g_debug ("Removing mount point '%s'", mount_point);
 
 	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
+	mount_point_file = g_file_new_for_path (mount_point);
 
+	/* Set mount point status in tracker-store */
 	set_up_mount_point (miner, urn, mount_point, FALSE, NULL);
+
+	/* Tell TrackerMinerFS to skip monitoring everything under the mount
+	 *  point (in case there was no pre-unmount notification) */
+	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (miner), mount_point_file);
+
 	g_free (urn);
+	g_object_unref (mount_point_file);
 }
 
 static void
@@ -1090,10 +1099,14 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
                       TrackerMinerFiles *mf)
 {
 	GFile *mount_root;
+	gchar *uri;
 
 	mount_root = g_mount_get_root (mount);
+	uri = g_file_get_uri (mount_root);
+	g_message ("Pre-unmount requested for '%s'", uri);
 	tracker_miner_fs_directory_remove (TRACKER_MINER_FS (mf), mount_root);
 	g_object_unref (mount_root);
+	g_free (uri);
 }
 
 static gboolean
@@ -1860,7 +1873,7 @@ should_check_mtime (TrackerConfig *config)
 			g_message ("  No previous timestamp, crawling forced");
 			return TRUE;
 		}
-	
+
 		now = (guint64) time (NULL);
 
 		if (now < then + (crawling_interval * SECONDS_PER_DAY)) {
