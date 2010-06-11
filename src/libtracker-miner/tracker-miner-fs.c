@@ -3180,6 +3180,9 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 		pool = pool->next;
 	}
 
+	/* Remove all monitors */
+	tracker_monitor_remove_recursively (fs->private->monitor, file);
+
 	return return_val;
 }
 
