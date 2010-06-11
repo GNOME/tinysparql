@@ -315,6 +315,28 @@ has_already (GPtrArray *array, const gchar *uri)
 	return FALSE;
 }
 
+static gboolean
+has_already_updated (GPtrArray *array,
+                     const gchar *uri,
+                     TrackerProperty *predicate)
+{
+	guint i;
+
+	if (!array) {
+		return FALSE;
+	}
+
+	for (i = 0; i < array->len; i++) {
+		ChangedItem *item = array->pdata[i];
+
+		if (item->predicate == predicate && g_strcmp0 (item->uri, uri) == 0) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 void
 tracker_resource_class_add_event (TrackerResourceClass  *object,
                                   const gchar           *uri,
@@ -338,9 +360,8 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 			g_ptr_array_add (priv->adds, g_string_chunk_insert_const (priv->changed_strings, uri));
 		}
 		break;
-	case TRACKER_DBUS_EVENTS_TYPE_UPDATE: {
-			/* Duplicate checking slows down too much
-			   if (!changed_has_already (priv->ups, uri, predicate)) { */
+	case TRACKER_DBUS_EVENTS_TYPE_UPDATE:
+		if (!has_already_updated (priv->ups, uri, predicate)) {
 			ChangedItem *item;
 
 			item = g_slice_new (ChangedItem);
