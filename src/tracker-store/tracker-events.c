@@ -30,6 +30,7 @@
 typedef struct {
 	GHashTable *allowances;
 	GArray *events;
+	GStringChunk *chunk;
 } EventsPrivate;
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
@@ -72,10 +73,14 @@ prepare_event_for_rdf_type (EventsPrivate *private,
 		private->events = g_array_new (TRUE, FALSE, sizeof (TrackerEvent));
 	}
 
+	if (!private->chunk) {
+		private->chunk = g_string_chunk_new (strlen (uri) + 10);
+	}
+
 	event.type = type;
 	event.class = rdf_class;
 	event.predicate = tracker_ontologies_get_property_by_uri (predicate);
-	event.subject = g_strdup (uri);
+	event.subject = g_string_chunk_insert_const (private->chunk, uri);
 
 	g_array_append_val (private->events, event);
 }
@@ -116,27 +121,18 @@ tracker_events_insert (const gchar *uri,
 	}
 }
 
-static void
-tracker_event_destroy (TrackerEvent *event)
-{
-	g_free (event->subject);
-}
-
 void
 tracker_events_reset (void)
 {
 	EventsPrivate *private;
-	guint i;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
 	if (private->events) {
-		for (i = 0; i < private->events->len; i++) {
-			tracker_event_destroy (&g_array_index (private->events, TrackerEvent, i));
-		}
 		g_array_free (private->events, TRUE);
-
+		g_string_chunk_free (private->chunk);
+		private->chunk = NULL;
 		private->events = NULL;
 	}
 }
