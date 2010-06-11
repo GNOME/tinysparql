@@ -307,7 +307,10 @@ has_already (GPtrArray *array, const gchar *uri)
 	}
 
 	for (i = 0; i < array->len; i++) {
-		if (g_strcmp0 (g_ptr_array_index (array, i), uri) == 0) {
+		const gchar *a_uri = g_ptr_array_index (array, i);
+
+		/* This works because of how we use the GStringChunk */
+		if (a_uri == uri) {
 			return TRUE;
 		}
 	}
@@ -329,7 +332,8 @@ has_already_updated (GPtrArray *array,
 	for (i = 0; i < array->len; i++) {
 		ChangedItem *item = array->pdata[i];
 
-		if (item->predicate == predicate && g_strcmp0 (item->uri, uri) == 0) {
+		/* This works for uri because of how we use the GStringChunk */
+		if (item->predicate == predicate && item->uri == uri) {
 			return TRUE;
 		}
 	}
@@ -344,6 +348,7 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
                                   TrackerDBusEventsType type)
 {
 	TrackerResourceClassPrivate *priv;
+	gchar *n_uri;
 
 	priv = TRACKER_RESOURCE_CLASS_GET_PRIVATE (object);
 
@@ -354,19 +359,25 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 
 	switch (type) {
 	case TRACKER_DBUS_EVENTS_TYPE_ADD:
-		if (!has_already (priv->adds, uri)) {
+
+		n_uri = g_string_chunk_insert_const (priv->changed_strings, uri);
+
+		if (!has_already (priv->adds, n_uri)) {
 			if (!priv->adds)
 				priv->adds = g_ptr_array_new ();
-			g_ptr_array_add (priv->adds, g_string_chunk_insert_const (priv->changed_strings, uri));
+			g_ptr_array_add (priv->adds, n_uri);
 		}
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_UPDATE:
-		if (!has_already_updated (priv->ups, uri, predicate)) {
+
+		n_uri = g_string_chunk_insert_const (priv->changed_strings, uri);
+
+		if (!has_already_updated (priv->ups, n_uri, predicate)) {
 			ChangedItem *item;
 
 			item = g_slice_new (ChangedItem);
 
-			item->uri = g_string_chunk_insert_const (priv->changed_strings, uri);
+			item->uri = n_uri;
 			item->predicate = g_object_ref (predicate);
 
 			if (!priv->ups)
@@ -375,10 +386,13 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 		}
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_DELETE:
-		if (!has_already (priv->dels, uri)) {
+
+		n_uri = g_string_chunk_insert_const (priv->changed_strings, uri);
+
+		if (!has_already (priv->dels, n_uri)) {
 			if (!priv->dels)
 				priv->dels = g_ptr_array_new ();
-			g_ptr_array_add (priv->dels, g_string_chunk_insert_const (priv->changed_strings, uri));
+			g_ptr_array_add (priv->dels, n_uri);
 		}
 		break;
 	default:
