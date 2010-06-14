@@ -430,10 +430,17 @@ mount_add (TrackerStorage *storage,
 	g_return_if_fail (storage);
 	g_return_if_fail (mount);
 
-	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
-
 	/* Get mount name */
 	mount_name = g_mount_get_name (mount);
+
+	/* Do not process shadowed mounts! */
+	if (g_mount_is_shadowed (mount)) {
+		g_debug ("Skipping shadowed mount '%s'", mount_name);
+		g_free (mount_name);
+		return;
+	}
+
+	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
 
 	/* Get root path of the mount */
 	root = g_mount_get_root (mount);
