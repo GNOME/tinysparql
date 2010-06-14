@@ -28,41 +28,19 @@ G_BEGIN_DECLS
 #error "only <libtracker-db/tracker-db.h> must be included directly."
 #endif
 
-#define TRACKER_TYPE_DB_INTERFACE_SQLITE         (tracker_db_interface_sqlite_get_type ())
-#define TRACKER_DB_INTERFACE_SQLITE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqlite))
-#define TRACKER_DB_INTERFACE_SQLITE_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqliteClass))
-#define TRACKER_IS_DB_INTERFACE_SQLITE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_INTERFACE_SQLITE))
-#define TRACKER_IS_DB_INTERFACE_SQLITE_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_INTERFACE_SQLITE))
-#define TRACKER_DB_INTERFACE_SQLITE_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_INTERFACE_SQLITE, TrackerDBInterfaceSqliteClass))
-
-typedef struct TrackerDBInterfaceSqlite      TrackerDBInterfaceSqlite;
-typedef struct TrackerDBInterfaceSqliteClass TrackerDBInterfaceSqliteClass;
-typedef struct TrackerDBInterfaceSqlitePrivate TrackerDBInterfaceSqlitePrivate;
-
 typedef gint (* TrackerDBCollationFunc) (gchar *str1,
                                          gint   len1,
                                          gchar *str2,
                                          gint   len2);
 
-struct TrackerDBInterfaceSqlite {
-	GObject parent_instance;
-	TrackerDBInterfaceSqlitePrivate *priv;
-};
-
-struct TrackerDBInterfaceSqliteClass {
-	GObjectClass parent_class;
-};
-
-GType               tracker_db_interface_sqlite_get_type               (void);
-
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename);
 TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gchar              *filename);
-gboolean            tracker_db_interface_sqlite_set_collation_function (TrackerDBInterfaceSqlite *interface,
+gboolean            tracker_db_interface_sqlite_set_collation_function (TrackerDBInterface       *interface,
                                                                         const gchar              *name,
                                                                         TrackerDBCollationFunc    func);
-gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterfaceSqlite *interface);
+gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
-void                tracker_db_interface_sqlite_fts_init               (TrackerDBInterfaceSqlite *interface,
+void                tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
                                                                         gboolean                  create);
 
 G_END_DECLS

@@ -2319,7 +2319,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* Read first ontology and commit it into the DB */
 		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
-		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
+		tracker_db_interface_sqlite_fts_init (iface, TRUE);
 		tracker_data_ontology_import_into_db (FALSE);
 		tracker_data_commit_db_transaction ();
 		tracker_db_journal_reader_shutdown ();
@@ -2375,7 +2375,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* Not an ontology transaction: this is the first ontology */
 		tracker_db_journal_start_transaction (time (NULL));
 
-		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), TRUE);
+		tracker_db_interface_sqlite_fts_init (iface, TRUE);
 		tracker_data_ontology_import_into_db (FALSE);
 
 		/* store ontology in database */
@@ -2413,7 +2413,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		create_decomposed_transient_metadata_tables (iface);
 		check_ontology = TRUE;
 
-		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (iface), FALSE);
+		tracker_db_interface_sqlite_fts_init (iface, FALSE);
 	}
 
 	if (check_ontology) {

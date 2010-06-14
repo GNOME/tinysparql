@@ -1264,7 +1264,7 @@ tracker_db_manager_get_db_interface (void)
 			                                          TRACKER_DB_FULLTEXT,
 			                                          TRACKER_DB_CONTENTS);
 
-		tracker_db_interface_sqlite_fts_init (TRACKER_DB_INTERFACE_SQLITE (interface), FALSE);
+		tracker_db_interface_sqlite_fts_init (interface, FALSE);
 
 		g_static_private_set (&interface_data_key, interface, free_thread_interface);
 
