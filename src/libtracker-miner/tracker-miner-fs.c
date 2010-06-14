@@ -2379,6 +2379,9 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	 */
 	ensure_mtime_cache (fs, file);
 
+	/* Remove the file from the list of files to be checked if removed */
+	g_hash_table_remove (fs->private->check_removed, file);
+
 	/* If the file is NOT found in the cache, it means its a new
 	 * file the store doesn't know about, so just report it to be
 	 * re-indexed.
@@ -2387,9 +2390,6 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	if (!lookup_time) {
 		return TRUE;
 	}
-
-	/* Remove the file from the list of files to be checked if removed */
-	g_hash_table_remove (fs->private->check_removed, file);
 
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_TIME_MODIFIED,
