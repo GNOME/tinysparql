@@ -45,7 +45,6 @@ G_DEFINE_TYPE (TrackerSteroids, tracker_steroids, G_TYPE_OBJECT)
 #define TRACKER_STEROIDS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_STEROIDS, TrackerSteroidsPrivate))
 
 typedef struct {
-	GHashTable *clients;
 } TrackerSteroidsPrivate;
 
 typedef struct {
@@ -77,9 +76,6 @@ tracker_steroids_class_init (TrackerSteroidsClass *klass)
 static void
 tracker_steroids_init (TrackerSteroids *object)
 {
-	TrackerSteroidsPrivate *priv = TRACKER_STEROIDS_GET_PRIVATE (object);
-
-	priv->clients = g_hash_table_new (g_direct_hash, g_direct_equal);
 }
 
 TrackerSteroids*
@@ -575,7 +571,4 @@ tracker_steroids_connection_filter (DBusConnection *connection,
 static void
 tracker_steroids_finalize (GObject *object)
 {
-	TrackerSteroidsPrivate *priv = TRACKER_STEROIDS_GET_PRIVATE (object);
-
-	g_hash_table_unref (priv->clients);
 }
