@@ -99,10 +99,6 @@ destroy_client_info (gpointer user_data)
 	dbus_message_unref (info->call_message);
 	dbus_connection_unref (info->connection);
 
-	if (info->fd) {
-		close (info->fd);
-	}
-
 	g_slice_free (ClientInfo, user_data);
 }
 
@@ -209,10 +205,6 @@ update_blank_callback (GPtrArray *blank_nodes, GError *error, gpointer user_data
 	DBusMessageIter iter;
 	DBusMessageIter subiter;
 	DBusMessageIter subsubiter;
-
-	if (info->fd) {
-		close (info->fd);
-	}
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
