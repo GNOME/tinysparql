@@ -328,6 +328,11 @@ query_inthread (TrackerDBCursor *cursor,
 			                                 column_data[i] ? column_data[i] : "",
 			                                 NULL,
 			                                 &loop_error);
+
+			if (loop_error) {
+				goto end_query_inthread;
+			}
+
 			g_data_output_stream_put_byte (data_output_stream,
 			                               0,
 			                               NULL,
