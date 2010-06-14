@@ -49,11 +49,8 @@ typedef struct {
 } TrackerSteroidsPrivate;
 
 typedef struct {
-	TrackerSteroids *parent;
 	DBusMessage *call_message;
 	int fd;
-	unsigned int send_buffer_index;
-	char send_buffer[TRACKER_STEROIDS_BUFFER_SIZE];
 	guint request_id;
 	DBusConnection *connection;
 } ClientInfo;
@@ -398,7 +395,6 @@ tracker_steroids_query (TrackerSteroids *steroids,
 	                          __FUNCTION__);
 
 	info = g_slice_new0 (ClientInfo);
-	info->parent = steroids;
 	info->connection = dbus_connection_ref (connection);
 	info->call_message = dbus_message_ref (message);
 	info->request_id = request_id;
@@ -457,7 +453,6 @@ tracker_steroids_update (TrackerSteroids *steroids,
 	                          __FUNCTION__);
 
 	info = g_slice_new0 (ClientInfo);
-	info->parent = steroids;
 	info->connection = dbus_connection_ref (connection);
 	info->call_message = dbus_message_ref (message);
 
