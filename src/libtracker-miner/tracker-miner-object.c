@@ -440,7 +440,8 @@ store_name_monitor_cb (TrackerMiner *miner,
 {
 	GError *error = NULL;
 
-	g_debug ("Tracker-store availability has changed to %d", available);
+	g_debug ("Store availability has changed to %s", 
+		 available ? "AVAILABLE" : "UNAVAILABLE");
 
 	if (available && miner->private->availability_cookie != 0) {
 		tracker_miner_resume (miner,
@@ -448,7 +449,7 @@ store_name_monitor_cb (TrackerMiner *miner,
 		                      &error);
 
 		if (error) {
-			g_warning ("Error happened resuming miner: %s\n", error->message);
+			g_warning ("Error happened resuming miner, %s", error->message);
 			g_error_free (error);
 		}
 
@@ -461,7 +462,7 @@ store_name_monitor_cb (TrackerMiner *miner,
 		                                 &error);
 
 		if (error) {
-			g_warning ("Could not pause: %s", error->message);
+			g_warning ("Could not pause, %s", error->message);
 			g_error_free (error);
 		} else {
 			miner->private->availability_cookie = cookie_id;

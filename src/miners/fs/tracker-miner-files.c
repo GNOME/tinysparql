@@ -548,15 +548,16 @@ set_up_mount_point_cb (GObject      *source,
                        gpointer      user_data)
 {
 	gchar *removable_device_urn = user_data;
-
 	GError *error = NULL;
+
 	tracker_miner_execute_update_finish (TRACKER_MINER (source),
 	                                     result,
 	                                     &error);
 
 	if (error) {
-		g_critical ("Could not set up mount point '%s': %s",
-		            removable_device_urn, error->message);
+		g_critical ("Could not set mount point in database '%s', %s",
+		            removable_device_urn, 
+			    error->message);
 		g_error_free (error);
 	}
 
@@ -572,8 +573,7 @@ set_up_mount_point (TrackerMinerFiles *miner,
 {
 	GString *queries;
 
-	g_debug ("Setting mount point '%s' state in database (URN '%s')",
-	         mount_point,
+	g_debug ("Mount point state being set in DB for URN '%s'",
 	         removable_device_urn);
 
 	queries = g_string_new (NULL);
@@ -769,18 +769,33 @@ query_mount_points_cb (GObject      *source,
 
 			if (urn) {
 				if (mount_point) {
-					g_debug ("URN '%s' (mount point: %s) was not reported to be mounted, but now it is, updating state",
-					         urn, mount_point);
+					g_debug ("Mount point state incorrect in DB for URN '%s', "
+						 "currently it is mounted on '%s'",
+					         urn,
+						 mount_point);
 				} else {
-					g_debug ("URN '%s' was not reported to be mounted, but now it is, updating state", urn);
+					g_debug ("Mount point state incorrect in DB for URN '%s', "
+						 "currently it is mounted",
+					         urn);
 				}
-				set_up_mount_point (TRACKER_MINER_FILES (miner), urn, mount_point, TRUE, accumulator);
+
+				set_up_mount_point (TRACKER_MINER_FILES (miner),
+						    urn,
+						    mount_point,
+						    TRUE,
+						    accumulator);
 			}
 		} else if (!(state & VOLUME_MOUNTED) &&
 		           (state & VOLUME_MOUNTED_IN_STORE)) {
 			if (urn) {
-				g_debug ("URN '%s' was reported to be mounted, but it isn't anymore, updating state", urn);
-				set_up_mount_point (TRACKER_MINER_FILES (miner), urn, NULL, FALSE, accumulator);
+				g_debug ("Mount pont state incorrect in DB for URN '%s', "
+					 "currently it is NOT mounted", 
+					 urn);
+				set_up_mount_point (TRACKER_MINER_FILES (miner),
+						    urn,
+						    NULL,
+						    FALSE,
+						    accumulator);
 			}
 		}
 	}
@@ -820,9 +835,9 @@ mount_point_removed_cb (TrackerStorage *storage,
 	gchar *urn;
 	GFile *mount_point_file;
 
-	g_debug ("Removing mount point '%s'", mount_point);
-
 	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
+	g_debug ("Mount point removed for URN '%s'", urn);
+
 	mount_point_file = g_file_new_for_path (mount_point);
 
 	/* Set mount point status in tracker-store */
@@ -855,7 +870,8 @@ mount_point_added_cb (TrackerStorage *storage,
 	index_removable_devices = tracker_config_get_index_removable_devices (priv->config);
 	index_optical_discs = tracker_config_get_index_optical_discs (priv->config);
 
-	g_message ("Added mount point '%s'", mount_point);
+	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
+	g_message ("Mount point added for URN '%s'", urn);
 
 	if (removable && !index_removable_devices) {
 		g_message ("  Not crawling, removable devices disabled in config");
@@ -940,7 +956,6 @@ mount_point_added_cb (TrackerStorage *storage,
 		g_object_unref (file);
 	}
 
-	urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 	set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
 	g_free (urn);
 }
