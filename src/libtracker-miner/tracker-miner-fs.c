@@ -993,17 +993,24 @@ sparql_update_cb (GObject      *object,
 		if (fs->private->current_parent) {
 			GFile *parent;
 
+			/* Note: parent may be NULL if the file represents
+			 *  the root directory of the file system (applies to
+			 *  .gvfs mounts also!) */
 			parent = g_file_get_parent (data->file);
 
-			if (g_file_equal (parent, fs->private->current_parent) &&
-			    g_hash_table_lookup (fs->private->iri_cache, data->file) == NULL) {
-				/* Item is processed, add an empty element for the processed GFile,
-				 * in case it is again processed before the cache expires
-				 */
-				g_hash_table_insert (fs->private->iri_cache, g_object_ref (data->file), NULL);
-			}
+			if(parent) {
+				if (g_file_equal (parent, fs->private->current_parent) &&
+				    g_hash_table_lookup (fs->private->iri_cache, data->file) == NULL) {
+					/* Item is processed, add an empty element for the processed GFile,
+					 * in case it is again processed before the cache expires
+					 */
+					g_hash_table_insert (fs->private->iri_cache,
+					                     g_object_ref (data->file),
+					                     NULL);
+				}
 
-			g_object_unref (parent);
+				g_object_unref (parent);
+			}
 		}
 	}
 
@@ -1169,7 +1176,15 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	g_hash_table_remove_all (fs->private->iri_cache);
 
+	/* Note: parent may be NULL if the file represents
+	 *  the root directory of the file system (applies to
+	 *  .gvfs mounts also!) */
 	parent = g_file_get_parent (file);
+
+	if (!parent) {
+		return;
+	}
+
 	uri = g_file_get_uri (parent);
 
 	g_debug ("Generating IRI cache for folder: %s", uri);
@@ -2269,10 +2284,14 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                                                  (GDestroyNotify) g_free);
 	}
 
+	/* Note: parent may be NULL if the file represents
+	 *  the root directory of the file system (applies to
+	 *  .gvfs mounts also!) */
 	parent = g_file_get_parent (file);
 
 	if (fs->private->current_parent) {
-		if (g_file_equal (parent, fs->private->current_parent)) {
+		if (parent &&
+		    g_file_equal (parent, fs->private->current_parent)) {
 			/* Cache is still valid */
 			g_object_unref (parent);
 			return;
@@ -2285,30 +2304,33 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_hash_table_remove_all (fs->private->mtime_cache);
 
-	uri = g_file_get_uri (parent);
-
-	g_debug ("Generating mtime cache for folder: %s", uri);
-
-	query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
-	                                                "nie:url ?url ; "
-	                                                "nfo:fileLastModified ?last . "
-	                                             "?p nie:url \"%s\" }", uri);
-
-	g_free (uri);
-
+	/* Initialize data contents */
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.values = g_hash_table_ref (fs->private->mtime_cache);
 
-	tracker_miner_execute_sparql (TRACKER_MINER (fs),
-	                              query,
-	                              NULL,
-	                              cache_query_cb,
-	                              &data);
-	g_free (query);
+	if (parent) {
+		uri = g_file_get_uri (parent);
 
-	g_main_loop_run (data.main_loop);
+		g_debug ("Generating mtime cache for folder: %s", uri);
 
-	if (g_hash_table_size (data.values) == 0 &&
+		query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
+		                                                "nie:url ?url ; "
+		                                                "nfo:fileLastModified ?last . "
+		                                             "?p nie:url \"%s\" }", uri);
+
+		g_free (uri);
+
+		tracker_miner_execute_sparql (TRACKER_MINER (fs),
+		                              query,
+		                              NULL,
+		                              cache_query_cb,
+		                              &data);
+		g_free (query);
+
+		g_main_loop_run (data.main_loop);
+	}
+
+	if ((!parent || g_hash_table_size (data.values) == 0 ) &&
 	    file_is_crawl_directory (fs, file)) {
 		/* File is a crawl directory itself, query its mtime directly */
 		uri = g_file_get_uri (file);
@@ -2335,7 +2357,6 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
-
 
 	/* Iterate repopulated HT and add all to the check_removed HT */
 	g_hash_table_foreach (fs->private->mtime_cache,
