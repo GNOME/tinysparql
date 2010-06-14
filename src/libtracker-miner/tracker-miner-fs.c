@@ -127,7 +127,7 @@ struct TrackerMinerFSPrivate {
 	GFile          *current_parent;
 	gchar          *current_parent_urn;
 
-	/* Folder contents' mtime cache */
+	/* URI mtime cache */
 	GHashTable     *mtime_cache;
 
 	/* File -> iri cache */
@@ -1187,7 +1187,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	uri = g_file_get_uri (parent);
 
-	g_debug ("Generating IRI cache for folder: %s", uri);
+	g_debug ("Generating children cache for URI '%s'", uri);
 
 	query = g_strdup_printf ("SELECT ?url ?u { "
 	                         "  ?u nfo:belongsToContainer ?p ; "
@@ -1457,7 +1457,7 @@ item_remove (TrackerMinerFS *fs,
 	         uri);
 
 	if (!item_query_exists (fs, file, NULL, &mime)) {
-		g_debug ("  File does not exist anyway (uri:'%s')", uri);
+		g_debug ("  File does not exist anyway (uri '%s')", uri);
 		g_free (uri);
 		g_free (mime);
 		return TRUE;
@@ -2311,7 +2311,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	if (parent) {
 		uri = g_file_get_uri (parent);
 
-		g_debug ("Generating mtime cache for folder: '%s'", uri);
+		g_debug ("Generating mtime cache for URI '%s'", uri);
 
 		query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
 		                                                "nie:url ?url ; "
@@ -2335,14 +2335,15 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		/* File is a crawl directory itself, query its mtime directly */
 		uri = g_file_get_uri (file);
 
-		g_debug ("Folder '%s' is a crawl directory, generating mtime cache for it", uri);
+		g_debug ("Generating mtime cache for URI '%s' (config location)", uri);
 
 		query = g_strdup_printf ("SELECT ?url ?last "
 		                         "WHERE { "
 		                         "  ?u nfo:fileLastModified ?last ; "
 		                         "     nie:url ?url ; "
 		                         "     nie:url \"%s\" "
-		                         "}", uri);
+		                         "}", 
+					 uri);
 		g_free (uri);
 
 		tracker_miner_execute_sparql (TRACKER_MINER (fs),
