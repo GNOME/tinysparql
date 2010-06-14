@@ -844,6 +844,7 @@ class Tracker.Sparql.Expression : Object {
 
 			switch (type) {
 			case PropertyType.INTEGER:
+			case PropertyType.BOOLEAN:
 				sql.append ("?");
 				binding.data_type = type;
 				return type;
