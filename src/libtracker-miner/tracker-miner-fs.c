@@ -1029,11 +1029,11 @@ sparql_update_cb (GObject      *object,
 			GFile *parent;
 
 			/* Note: parent may be NULL if the file represents
-			 *  the root directory of the file system (applies to
-			 *  .gvfs mounts also!) */
+			 * the root directory of the file system (applies to
+			 * .gvfs mounts also!) */
 			parent = g_file_get_parent (data->file);
 
-			if(parent) {
+			if (parent) {
 				if (g_file_equal (parent, fs->private->current_parent) &&
 				    g_hash_table_lookup (fs->private->iri_cache, data->file) == NULL) {
 					/* Item is processed, add an empty element for the processed GFile,
@@ -1212,8 +1212,8 @@ ensure_iri_cache (TrackerMinerFS *fs,
 	g_hash_table_remove_all (fs->private->iri_cache);
 
 	/* Note: parent may be NULL if the file represents
-	 *  the root directory of the file system (applies to
-	 *  .gvfs mounts also!) */
+	 * the root directory of the file system (applies to
+	 * .gvfs mounts also!) */
 	parent = g_file_get_parent (file);
 
 	if (!parent) {
@@ -2276,7 +2276,7 @@ remove_unexisting_file_cb (gpointer key,
 		gchar *uri;
 
 		uri = g_file_get_uri (file);
-		g_debug ("Marking file which no longer exists in FS for removal: %s", uri);
+		g_debug ("  Marking file which no longer exists in FS for removal: %s", uri);
 		g_free (uri);
 
 		g_queue_push_tail (fs->private->items_deleted,
@@ -2306,7 +2306,7 @@ add_to_check_removed_cb (gpointer key,
 	GFile *file = key;
 
 	/* Not adding any data to the value, we just want
-	 *  fast search for key availability */
+	 * fast search for key availability */
 	g_hash_table_insert (fs->private->check_removed,
 	                     g_object_ref (file),
 	                     NULL);
@@ -2328,8 +2328,8 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	}
 
 	/* Note: parent may be NULL if the file represents
-	 *  the root directory of the file system (applies to
-	 *  .gvfs mounts also!) */
+	 * the root directory of the file system (applies to
+	 * .gvfs mounts also!) */
 	parent = g_file_get_parent (file);
 
 	if (fs->private->current_parent) {
@@ -2354,7 +2354,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	if (parent) {
 		uri = g_file_get_uri (parent);
 
-		g_debug ("Generating mtime cache for folder: %s", uri);
+		g_debug ("Generating mtime cache for folder: '%s'", uri);
 
 		query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
 		                                                "nie:url ?url ; "
@@ -2373,12 +2373,12 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		g_main_loop_run (data.main_loop);
 	}
 
-	if ((!parent || g_hash_table_size (data.values) == 0 ) &&
+	if ((!parent || g_hash_table_size (data.values) == 0) &&
 	    file_is_crawl_directory (fs, file)) {
 		/* File is a crawl directory itself, query its mtime directly */
 		uri = g_file_get_uri (file);
 
-		g_debug ("Folder %s is a crawl directory, generating mtime cache for it", uri);
+		g_debug ("Folder '%s' is a crawl directory, generating mtime cache for it", uri);
 
 		query = g_strdup_printf ("SELECT ?url ?last "
 		                         "WHERE { "
@@ -2418,13 +2418,13 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	gchar              *time_str, *lookup_time;
 
 	/* Make sure mtime cache contains the mtimes of all files in the
-	 *  same directory as the given file
+	 * same directory as the given file
 	 */
 	ensure_mtime_cache (fs, file);
 
 	/* If the file is NOT found in the cache, it means its a new
-	 *  file the store doesn't know about, so just report it to be
-	 *  re-indexed.
+	 * file the store doesn't know about, so just report it to be
+	 * re-indexed.
 	 */
 	lookup_time = g_hash_table_lookup (fs->private->mtime_cache, file);
 	if (!lookup_time) {
@@ -2914,8 +2914,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	directory_data_unref (fs->private->current_directory);
 	fs->private->current_directory = NULL;
 
-	/* Check if any file was left after whole
-	 *  crawling */
+	/* Check if any file was left after whole crawling */
 	check_if_files_removed (fs);
 
 	/* Proceed to next thing to process */
