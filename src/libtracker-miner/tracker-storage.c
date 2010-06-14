@@ -392,7 +392,7 @@ mount_guess_content_type (GFile    *mount_root,
 
 		device_path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
 
-		g_debug ("  Using device path:'%s'", 
+		g_debug ("  Using device path:'%s'",
 			 device_path);
 
 		if (strcmp (filesystem_type, "udf") == 0 ||
@@ -502,7 +502,7 @@ mount_add (TrackerStorage *storage,
 	mount_path = g_file_get_path (root);
 
 	g_debug ("Found '%s' mounted on path '%s'",
-	         mount_name, 
+	         mount_name,
 		 mount_path);
 
 	/* Do not process shadowed mounts! */

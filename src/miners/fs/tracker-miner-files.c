@@ -556,7 +556,7 @@ set_up_mount_point_cb (GObject      *source,
 
 	if (error) {
 		g_critical ("Could not set mount point in database '%s', %s",
-		            removable_device_urn, 
+		            removable_device_urn,
 			    error->message);
 		g_error_free (error);
 	}
@@ -789,7 +789,7 @@ query_mount_points_cb (GObject      *source,
 		           (state & VOLUME_MOUNTED_IN_STORE)) {
 			if (urn) {
 				g_debug ("Mount pont state incorrect in DB for URN '%s', "
-					 "currently it is NOT mounted", 
+					 "currently it is NOT mounted",
 					 urn);
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
 						    urn,

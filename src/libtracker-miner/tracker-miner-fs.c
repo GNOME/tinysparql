@@ -2385,7 +2385,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                         "  ?u nfo:fileLastModified ?last ; "
 		                         "     nie:url ?url ; "
 		                         "     nie:url \"%s\" "
-		                         "}", 
+		                         "}",
 					 uri);
 		g_free (uri);
 
