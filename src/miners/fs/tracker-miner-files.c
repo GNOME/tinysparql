@@ -84,8 +84,6 @@ struct TrackerMinerFilesPrivate {
 	GQuark quark_mount_point_uuid;
 	GQuark quark_directory_config_root;
 
-	gboolean first_index_run;
-
 	guint force_recheck_id;
 };
 
@@ -242,8 +240,6 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	priv->finished_handler = g_signal_connect_after (mf, "finished",
 							 G_CALLBACK (miner_finished_cb),
 							 NULL);
-
-	priv->first_index_run = FALSE;
 
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
@@ -861,45 +857,41 @@ mount_point_added_cb (TrackerStorage *storage,
 
 	g_message ("Added mount point '%s'", mount_point);
 
-	if (removable && !tracker_config_get_index_removable_devices (priv->config)) {
+	if (removable && !index_removable_devices) {
 		g_message ("  Not crawling, removable devices disabled in config");
-	} else if (optical && !tracker_config_get_index_optical_discs (priv->config)) {
+	} else if (optical && !index_optical_discs) {
 		g_message ("  Not crawling, optical devices discs disabled in config");
-	} else if (!removable &&
-	           !optical &&
-	           miner->private->first_index_run) {
+	} else if (!removable && !optical) {
 		GFile *mount_point_file;
-		GSList *it;
+		GSList *l;
 
 		mount_point_file = g_file_new_for_path (mount_point);
 
 		/* Check if one of the recursively indexed locations is in
 		 *   the mounted path, or if the mounted path is inside
 		 *   a recursively indexed directory... */
-		for (it = tracker_config_get_index_recursive_directories (miner->private->config);
-		     it;
-		     it= g_slist_next (it)) {
+		for (l = tracker_config_get_index_recursive_directories (miner->private->config);
+		     l;
+		     l = g_slist_next (l)) {
 			GFile *config_file;
 
-			config_file = g_file_new_for_path (it->data);
+			config_file = g_file_new_for_path (l->data);
 
 			if (g_file_equal (config_file, mount_point_file) ||
 			    g_file_has_prefix (config_file, mount_point_file)) {
 				/* If the config path is contained inside the mount path,
 				 *  then add the config path to re-check */
-				g_message ("  Re-check of configured path '%s' "
-				           "needed (recursively)",
-				           (gchar *)it->data);
+				g_message ("  Re-check of configured path '%s' needed (recursively)",
+				           (gchar *) l->data);
 				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
 				                                config_file,
 				                                TRUE);
 			} else if (g_file_has_prefix (mount_point_file, config_file)) {
 				/* If the mount path is contained inside the config path,
 				 *  then add the mount path to re-check */
-				g_message ("  Re-check of path '%s' needed (inside configured"
-				           " path '%s')",
+				g_message ("  Re-check of path '%s' needed (inside configured path '%s')",
 				           mount_point,
-				           (gchar *)it->data);
+				           (gchar *) l->data);
 				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
 				                                mount_point_file,
 				                                TRUE);
@@ -909,17 +901,16 @@ mount_point_added_cb (TrackerStorage *storage,
 
 		/* Check if one of the non-recursively indexed locations is in
 		 *  the mount path... */
-		for (it = tracker_config_get_index_single_directories (miner->private->config);
-		     it;
-		     it= g_slist_next (it)) {
+		for (l = tracker_config_get_index_single_directories (miner->private->config);
+		     l;
+		     l = g_slist_next (l)) {
 			GFile *config_file;
 
-			config_file = g_file_new_for_path (it->data);
+			config_file = g_file_new_for_path (l->data);
 			if (g_file_equal (config_file, mount_point_file) ||
 			    g_file_has_prefix (config_file, mount_point_file)) {
-				g_message ("  Re-check of configured path '%s' "
-				           "needed (non-recursively)",
-				           (gchar *)it->data);
+				g_message ("  Re-check of configured path '%s' needed (non-recursively)",
+				           (gchar *) l->data);
 				tracker_miner_fs_directory_add (TRACKER_MINER_FS (user_data),
 				                                config_file,
 				                                FALSE);
@@ -931,7 +922,7 @@ mount_point_added_cb (TrackerStorage *storage,
 	} else {
 		GFile *file;
 
-		g_message ("  Adding directory to crawler's queue");
+		g_message ("  Adding directories in removable/optical media to crawler's queue");
 
 		file = g_file_new_for_path (mount_point);
 		g_object_set_qdata_full (G_OBJECT (file),
@@ -1074,10 +1065,6 @@ miner_finished_cb (TrackerMinerFS *fs,
 	if (!tracker_db_manager_get_first_index_done ()) {
 		tracker_db_manager_set_first_index_done (TRUE);
 	}
-
-	/* Make sure startup things are not executed after first index
-	 *  was run */
-	mf->private->first_index_run = TRUE;
 
 	/* And remove the signal handler so that it's not
 	 *  called again */
