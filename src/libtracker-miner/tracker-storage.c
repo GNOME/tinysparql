@@ -355,8 +355,6 @@ mount_guess_content_type (GFile    *mount_root,
 	GUnixMountEntry *entry;
 	gchar *content_type = NULL;
 	gchar *mount_path;
-	gchar *device_path;
-	const gchar *filesystem_type = NULL;
 	gchar **guess_type;
 	gint i;
 
@@ -386,23 +384,30 @@ mount_guess_content_type (GFile    *mount_root,
 	entry = g_unix_mount_at (mount_path, NULL);
 
 	if (entry) {
+		const gchar *filesystem_type;
+		gchar *device_path = NULL;
+
 		filesystem_type = g_unix_mount_get_fs_type (entry);
 		g_debug ("  Using filesystem type:'%s'",
 			 filesystem_type);
 
-		device_path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-
-		g_debug ("  Using device path:'%s'",
-			 device_path);
+		/* Volume may be NULL */
+		if (volume) {
+			device_path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
+			g_debug ("  Using device path:'%s'",
+			         device_path);
+		}
 
 		if (strcmp (filesystem_type, "udf") == 0 ||
 		    strcmp (filesystem_type, "iso9660") == 0 ||
 		    strcmp (filesystem_type, "cd9660") == 0 ||
-		    g_str_has_prefix (device_path, "/dev/cdrom") ||
-		    g_str_has_prefix (device_path, "/dev/acd") ||
-		    g_str_has_prefix (device_path, "/dev/cd")) {
+		    (device_path &&
+		     (g_str_has_prefix (device_path, "/dev/cdrom") ||
+		      g_str_has_prefix (device_path, "/dev/acd") ||
+		      g_str_has_prefix (device_path, "/dev/cd")))) {
 			*is_optical = TRUE;
-		} else if (g_str_has_prefix (device_path, "/vol/")) {
+		} else if (device_path &&
+		           g_str_has_prefix (device_path, "/vol/")) {
 			const gchar *name;
 
 			name = mount_path + strlen ("/");
