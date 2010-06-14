@@ -244,6 +244,7 @@ query_inthread (TrackerDBCursor *cursor,
 	InThreadPtr *ptr  = g_slice_new0 (InThreadPtr);
 	ClientInfo  *info = user_data;
 	GError *loop_error = NULL;
+	GOutputStream *unix_output_stream;
 	GOutputStream *output_stream;
 	GDataOutputStream *data_output_stream;
 	guint n_columns;
@@ -251,7 +252,8 @@ query_inthread (TrackerDBCursor *cursor,
 	int *column_offsets;
 	const gchar **column_data;
 
-	output_stream = g_buffered_output_stream_new_sized (g_unix_output_stream_new (info->fd, TRUE),
+	unix_output_stream = g_unix_output_stream_new (info->fd, TRUE);
+	output_stream = g_buffered_output_stream_new_sized (unix_output_stream,
 	                                                    TRACKER_STEROIDS_BUFFER_SIZE);
 	data_output_stream = g_data_output_stream_new (output_stream);
 
@@ -262,6 +264,7 @@ query_inthread (TrackerDBCursor *cursor,
 		                                NULL);
 		g_object_unref (data_output_stream);
 		g_object_unref (output_stream);
+		g_object_unref (unix_output_stream);
 		ptr->error = g_error_copy (error);
 		return ptr;
 	}
@@ -347,6 +350,7 @@ end_query_inthread:
 	/* Will force flushing */
 	g_object_unref (data_output_stream);
 	g_object_unref (output_stream);
+	g_object_unref (unix_output_stream);
 
 	if (loop_error) {
 		ptr->error = loop_error;
