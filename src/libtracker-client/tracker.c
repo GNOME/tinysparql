@@ -201,6 +201,11 @@ typedef struct {
 		TrackerReplyIterator   iterator_callback;
 	};
 } FastAsyncData;
+#else
+typedef struct {
+	TrackerReplyIterator callback;
+	gpointer user_data;
+} FastQueryAsyncCompatData;
 #endif
 
 static gboolean is_service_available (void);
@@ -214,10 +219,6 @@ static void     client_get_property  (GObject      *object,
                                       GValue       *value,
                                       GParamSpec   *pspec);
 static void     client_constructed   (GObject      *object);
-
-#ifdef HAVE_DBUS_FD_PASSING
-static int      iterator_buffer_read_int (TrackerResultIterator *iterator);
-#endif
 
 enum {
 	PROP_0,
@@ -495,6 +496,17 @@ callback_with_void (DBusGProxy *proxy,
 	g_slice_free (CallbackVoid, cb);
 }
 
+#ifdef HAVE_DBUS_FD_PASSING
+static int
+iterator_buffer_read_int (TrackerResultIterator *iterator)
+{
+	int v = *((int *)(iterator->buffer + iterator->buffer_index));
+
+	iterator->buffer_index += 4;
+
+	return GINT32_FROM_BE (v);
+}
+
 static void
 fast_async_callback_iterator (GObject      *source_object,
                               GAsyncResult *result,
@@ -564,6 +576,33 @@ fast_async_callback_iterator (GObject      *source_object,
 
 	(* data->iterator_callback) (iterator, NULL, data->user_data);
 }
+#else
+static void
+fast_async_callback_iterator_compat (GPtrArray *results,
+                                     GError *error,
+                                     gpointer user_data)
+{
+	FastQueryAsyncCompatData *data = user_data;
+	TrackerResultIterator *iterator;
+
+	if (!data->callback) {
+		g_slice_free (FastQueryAsyncCompatData, data);
+		return;
+	}
+
+	if (error) {
+		(* data->callback) (NULL, error, data->user_data);
+	} else {
+		iterator = g_slice_new0 (TrackerResultIterator);
+		iterator->results = results;
+		iterator->current_row = -1;
+
+		(* data->callback) (iterator, error, data->user_data);
+	}
+
+	g_slice_free (FastQueryAsyncCompatData, data);
+}
+#endif /* HAVE_DBUS_FD_PASSING */
 
 /* Deprecated and only used for 0.6 API */
 static void
@@ -842,16 +881,6 @@ unmarshall_hash_table (DBusMessageIter *iter) {
 	}
 
 	return result;
-}
-
-static int
-iterator_buffer_read_int (TrackerResultIterator *iterator)
-{
-	int v = *((int *)(iterator->buffer + iterator->buffer_index));
-
-	iterator->buffer_index += 4;
-
-	return GINT32_FROM_BE (v);
 }
 
 static void
@@ -1157,7 +1186,7 @@ sparql_update_fast_async (TrackerClient      *client,
 }
 
 
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 
 /**
  * tracker_uri_vprintf_escaped:
@@ -2242,6 +2271,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
                                               TrackerReplyIterator   callback,
                                               gpointer               user_data)
 {
+#ifdef HAVE_DBUS_FD_PASSING
 	TrackerClientPrivate *private;
 	DBusConnection *connection;
 	DBusMessage *message;
@@ -2313,6 +2343,15 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                              fast_async_callback_iterator,
 	                              async_data);
 	return 42;
+#else
+	FastQueryAsyncCompatData *data;
+
+	data = g_slice_new0 (FastQueryAsyncCompatData);
+	data->callback = callback;
+	data->user_data = user_data;
+
+	return tracker_resources_sparql_query_async (client, query, fast_async_callback_iterator_compat, user_data);
+#endif
 }
 
 /**
@@ -2366,6 +2405,7 @@ tracker_resources_sparql_update_fast_async (TrackerClient    *client,
                                             TrackerReplyVoid  callback,
                                             gpointer          user_data)
 {
+#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *data;
 	GError *error = NULL;
 
@@ -2390,6 +2430,9 @@ tracker_resources_sparql_update_fast_async (TrackerClient    *client,
 	}
 
 	return 42;
+#else
+	return tracker_resources_sparql_update_async (client, query, callback, user_data);
+#endif
 }
 
 guint
@@ -2429,6 +2472,7 @@ tracker_resources_sparql_update_blank_fast_async (TrackerClient         *client,
                                                   TrackerReplyGPtrArray  callback,
                                                   gpointer               user_data)
 {
+#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *data;
 	GError *error = NULL;
 
@@ -2453,6 +2497,9 @@ tracker_resources_sparql_update_blank_fast_async (TrackerClient         *client,
 	}
 
 	return 42;
+#else
+	return tracker_resources_sparql_update_blank_async (client, query, callback, user_data);
+#endif
 }
 
 /**
@@ -2506,6 +2553,7 @@ tracker_resources_batch_sparql_update_fast_async (TrackerClient    *client,
                                                   TrackerReplyVoid  callback,
                                                   gpointer          user_data)
 {
+#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *data;
 	GError *error = NULL;
 
@@ -2530,6 +2578,9 @@ tracker_resources_batch_sparql_update_fast_async (TrackerClient    *client,
 	}
 
 	return 42;
+#else
+	return tracker_resources_batch_sparql_update_async (client, query, callback, user_data);
+#endif
 }
 
 /**
