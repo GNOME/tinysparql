@@ -418,7 +418,7 @@ mount_guess_content_type (GFile    *mount_root,
 
 static void
 mount_add (TrackerStorage *storage,
-           GMount *mount)
+           GMount         *mount)
 {
 	TrackerStoragePrivate *priv;
 	GFile *root;
@@ -426,9 +426,6 @@ mount_add (TrackerStorage *storage,
 	gchar *mount_name, *mount_path, *uuid;
 	gboolean is_optical = FALSE;
 	gboolean is_removable = FALSE;
-
-	g_return_if_fail (storage);
-	g_return_if_fail (mount);
 
 	/* Get mount name */
 	mount_name = g_mount_get_name (mount);
@@ -450,13 +447,13 @@ mount_add (TrackerStorage *storage,
 	         mount_name, mount_path);
 
 	/* fstab partitions may not have corresponding
-	 *  GVolumes, so volume may be NULL */
+	 * GVolumes, so volume may be NULL */
 	volume = g_mount_get_volume (mount);
 	if (volume) {
 		/* GMount with GVolume */
 
 		/* Try to get UUID from the Volume.
-		 *  Note that g_volume_get_uuid() is NOT equivalent */
+		 * Note that g_volume_get_uuid() is NOT equivalent */
 		uuid = g_volume_get_identifier (volume,
 		                                G_VOLUME_IDENTIFIER_KIND_UUID);
 		if (!uuid) {
@@ -486,10 +483,10 @@ mount_add (TrackerStorage *storage,
 			g_free (content_type);
 		} else {
 			/* Any other removable media will have UUID in the GVolume.
-			 *  Note that this also may include some partitions in the machine
-			 *  which have GVolumes associated to the GMounts. So, we need to
-			 *  explicitly check if the drive is media-removable (machine
-			 *  partitions won't be media-removable) */
+			 * Note that this also may include some partitions in the machine
+			 * which have GVolumes associated to the GMounts. So, we need to
+			 * explicitly check if the drive is media-removable (machine
+			 * partitions won't be media-removable) */
 			GDrive *drive;
 
 			drive = g_volume_get_drive (volume);
@@ -506,10 +503,10 @@ mount_add (TrackerStorage *storage,
 	} else {
 		/* GMount without GVolume.
 		 * Note: Did never found a case where this g_mount_get_uuid() returns
-		 *  non-NULL... :-) */
+		 * non-NULL... :-) */
 		uuid = g_mount_get_uuid (mount);
 		if (!uuid) {
-			if(mount_path) {
+			if (mount_path) {
 				/* Get UUID as MD5 digest of the mount path */
 				uuid = g_compute_checksum_for_string (G_CHECKSUM_MD5,
 				                                      mount_path,
@@ -524,9 +521,9 @@ mount_add (TrackerStorage *storage,
 	}
 
 	/* If we got something to be used as UUID, then add the mount
-	 *  to the TrackerStorage */
+	 * to the TrackerStorage */
 	if (uuid && !g_hash_table_lookup (priv->mounts_by_uuid, uuid)) {
-		g_debug ("     Adding new mount '%s' with UUID '%s' at '%s' "
+		g_debug ("    Adding new mount '%s' with UUID '%s' at '%s' "
 		         "(removable: %s, optical: %s)",
 		         mount_name,
 		         uuid,
@@ -559,7 +556,7 @@ mounts_setup (TrackerStorage *storage)
 
 	/* Iterate over all available mounts and add them.
 	 * Note that GVolumeMonitor shows only those mounts which are
-	 *  actually mounted. */
+	 * actually mounted. */
 	for (lm = mounts; lm; lm = g_list_next (lm)) {
 		mount_add (storage, lm->data);
 		g_object_unref (lm->data);
