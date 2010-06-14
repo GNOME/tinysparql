@@ -1668,8 +1668,8 @@ AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 
 AC_ARG_ENABLE(dbus-fd-passing,
 	      AS_HELP_STRING([--enable-dbus-fd-passing],
-			     [enable DBus FD passing for faster IPC [[default=yes]]]),,
-	      [enable_dbus_fd_passing=yes])
+			     [enable DBus FD passing for faster IPC [[default=auto]]]),,
+	      [enable_dbus_fd_passing=auto])
 
 if test "x$enable_dbus_fd_passing" != "xno" ; then
     PKG_CHECK_EXISTS([dbus-1 >= 1.3],
