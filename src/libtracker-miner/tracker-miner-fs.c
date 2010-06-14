@@ -3012,8 +3012,8 @@ static gint
 directory_compare_cb (gconstpointer a,
                       gconstpointer b)
 {
-	DirectoryData *dda = (DirectoryData *)a;
-	DirectoryData *ddb = (DirectoryData *)b;
+	DirectoryData *dda = (DirectoryData *) a;
+	DirectoryData *ddb = (DirectoryData *) b;
 
 	return (g_file_equal (dda->file, ddb->file) ||
 	        (dda->recurse &&
