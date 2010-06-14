@@ -283,7 +283,7 @@ query_inthread (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 
 		for (i = 0; i < cols && cont; i++, length++) {
 			const gchar *result_str;
-			result_str = tracker_db_cursor_get_string (cursor, i);
+			result_str = tracker_db_cursor_get_string (cursor, i, NULL);
 
 			if (result_str == NULL)
 				result_str = "";

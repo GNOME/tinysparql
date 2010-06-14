@@ -1215,7 +1215,7 @@ class_add_super_classes_from_db (TrackerDBInterface *iface,
 			TrackerClass *super_class;
 			const gchar *super_class_uri;
 
-			super_class_uri = tracker_db_cursor_get_string (cursor, 0);
+			super_class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 			super_class = tracker_ontologies_get_class_by_uri (super_class_uri);
 			tracker_class_add_super_class (class, super_class);
 		}
@@ -1252,7 +1252,7 @@ property_add_super_properties_from_db (TrackerDBInterface *iface,
 			TrackerProperty *super_property;
 			const gchar *super_property_uri;
 
-			super_property_uri = tracker_db_cursor_get_string (cursor, 0);
+			super_property_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 			super_property = tracker_ontologies_get_property_by_uri (super_property_uri);
 			tracker_property_add_super_property (property, super_property);
 		}
@@ -1287,7 +1287,7 @@ db_get_static_data (TrackerDBInterface *iface)
 
 			ontology = tracker_ontology_new ();
 
-			uri = tracker_db_cursor_get_string (cursor, 0);
+			uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 			last_mod = (time_t) tracker_db_cursor_get_int (cursor, 1);
 
 			tracker_ontology_set_is_new (ontology, FALSE);
@@ -1324,8 +1324,8 @@ db_get_static_data (TrackerDBInterface *iface)
 
 			namespace = tracker_namespace_new ();
 
-			uri = tracker_db_cursor_get_string (cursor, 0);
-			prefix = tracker_db_cursor_get_string (cursor, 1);
+			uri = tracker_db_cursor_get_string (cursor, 0, NULL);
+			prefix = tracker_db_cursor_get_string (cursor, 1, NULL);
 
 			tracker_namespace_set_is_new (namespace, FALSE);
 			tracker_namespace_set_uri (namespace, uri);
@@ -1368,7 +1368,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			class = tracker_class_new ();
 
 			id = tracker_db_cursor_get_int (cursor, 0);
-			uri = tracker_db_cursor_get_string (cursor, 1);
+			uri = tracker_db_cursor_get_string (cursor, 1, NULL);
 
 			tracker_db_cursor_get_value (cursor, 2, &value);
 
@@ -1455,9 +1455,9 @@ db_get_static_data (TrackerDBInterface *iface)
 			property = tracker_property_new ();
 
 			id = tracker_db_cursor_get_int (cursor, 0);
-			uri = tracker_db_cursor_get_string (cursor, 1);
-			domain_uri = tracker_db_cursor_get_string (cursor, 2);
-			range_uri = tracker_db_cursor_get_string (cursor, 3);
+			uri = tracker_db_cursor_get_string (cursor, 1, NULL);
+			domain_uri = tracker_db_cursor_get_string (cursor, 2, NULL);
+			range_uri = tracker_db_cursor_get_string (cursor, 3, NULL);
 
 			tracker_db_cursor_get_value (cursor, 4, &value);
 
@@ -1480,7 +1480,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				indexed = FALSE;
 			}
 
-			secondary_index_uri = tracker_db_cursor_get_string (cursor, 6);
+			secondary_index_uri = tracker_db_cursor_get_string (cursor, 6, NULL);
 
 			tracker_db_cursor_get_value (cursor, 7, &value);
 
@@ -1545,7 +1545,7 @@ db_get_static_data (TrackerDBInterface *iface)
 				is_inverse_functional_property = FALSE;
 			}
 
-			default_value = tracker_db_cursor_get_string (cursor, 13);
+			default_value = tracker_db_cursor_get_string (cursor, 13, NULL);
 
 			tracker_property_set_is_new (property, FALSE);
 			tracker_property_set_transient (property, transient);
@@ -2480,7 +2480,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		if (cursor) {
 			while (tracker_db_cursor_iter_next (cursor, &error)) {
-				const gchar *onto_uri = tracker_db_cursor_get_string (cursor, 0);
+				const gchar *onto_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 				/* It's stored as an int in the db anyway. This is caused by
 				 * string_to_gvalue in tracker-data-update.c */
 				gint value = tracker_db_cursor_get_int (cursor, 1);

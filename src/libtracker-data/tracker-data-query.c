@@ -70,7 +70,7 @@ tracker_data_query_rdf_type (gint id)
 			const gchar *class_uri;
 			TrackerClass *cl;
 
-			class_uri = tracker_db_cursor_get_string (cursor, 0);
+			class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 			cl = tracker_ontologies_get_class_by_uri (class_uri);
 			if (!cl) {
 				g_critical ("Unknown class %s", class_uri);

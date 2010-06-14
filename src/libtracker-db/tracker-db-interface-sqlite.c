@@ -1209,9 +1209,16 @@ tracker_db_cursor_get_double (TrackerDBCursor *cursor,  guint column)
 
 
 const gchar*
-tracker_db_cursor_get_string (TrackerDBCursor *cursor,  guint column)
+tracker_db_cursor_get_string (TrackerDBCursor *cursor,  guint column, gint *length)
 {
-	return (const gchar *) sqlite3_column_text (cursor->stmt, column);
+	if (length) {
+		sqlite3_value *val = sqlite3_column_value (cursor->stmt, column);
+
+		*length = sqlite3_value_bytes (val);
+		return (const gchar *) sqlite3_value_text (val);
+	} else {
+		return (const gchar *) sqlite3_column_text (cursor->stmt, column);
+	}
 }
 
 

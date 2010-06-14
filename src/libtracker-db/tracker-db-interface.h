@@ -145,7 +145,8 @@ void                tracker_db_cursor_get_value            (TrackerDBCursor     
                                                             guint                column,
                                                             GValue              *value);
 const gchar*        tracker_db_cursor_get_string           (TrackerDBCursor     *cursor,
-                                                            guint                column);
+                                                            guint                column,
+                                                            gint                *length);
 gint                tracker_db_cursor_get_int              (TrackerDBCursor     *cursor,
                                                             guint                column);
 gdouble             tracker_db_cursor_get_double           (TrackerDBCursor     *cursor,
