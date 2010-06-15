@@ -42,8 +42,6 @@ G_BEGIN_DECLS
 #define TRACKER_STEROIDS_RC_DONE  2
 #define TRACKER_STEROIDS_RC_LARGEROW 3
 
-#define TRACKER_STEROIDS_EOP      0xFF
-
 typedef struct TrackerSteroids      TrackerSteroids;
 typedef struct TrackerSteroidsClass TrackerSteroidsClass;
 
