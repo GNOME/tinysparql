@@ -721,7 +721,6 @@ nco:gender a rdf:Property ;
 nco:hasAffiliation a rdf:Property ;
 	rdfs:label "hasAffiliation" ;
 	rdfs:comment "Links a PersonContact with an Affiliation." ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range nco:Affiliation .
 
