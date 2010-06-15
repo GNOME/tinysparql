@@ -398,6 +398,17 @@ mount_guess_content_type (GFile    *mount_root,
 			         device_path);
 		}
 
+		/* NOTE: This code was taken from guess_mount_type()
+		 * in GIO's gunixmounts.c and adapted purely for
+		 * guessing optical media. We don't use the guessing
+		 * code for other types such as MEMSTICKS, ZIPs,
+		 * IPODs, etc.
+		 *
+		 * This code may need updating over time since it is
+		 * very situational depending on how distributions
+		 * mount their devices and how devices are named in
+		 * /dev.
+		 */
 		if (strcmp (filesystem_type, "udf") == 0 ||
 		    strcmp (filesystem_type, "iso9660") == 0 ||
 		    strcmp (filesystem_type, "cd9660") == 0 ||
@@ -435,7 +446,13 @@ mount_guess_content_type (GFile    *mount_root,
 		g_free (mount_path);
 	}
 
-	/* Check we don't have multimedia */
+	/* We try to determine the content type because we don't want
+	 * to store Volume information in Tracker about DVDs and media
+	 * which has no real data for us to mine.
+	 *
+	 * Generally, if is_multimedia is TRUE then we end up ignoring
+	 * the media.
+	 */
 	guess_type = g_content_type_guess_for_tree (mount_root);
 
 	for (i = 0; guess_type && guess_type[i]; i++) {
