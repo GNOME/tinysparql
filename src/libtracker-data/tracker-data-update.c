@@ -29,7 +29,9 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontologies.h>
 
+#if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
+#endif
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
@@ -70,30 +72,39 @@ struct _TrackerDataUpdateBuffer {
 	GHashTable *resources_by_id;
 
 	/* the following two fields are valid per sqlite transaction, not just for same subject */
-	gboolean fts_ever_updated;
 	/* TrackerClass -> integer */
 	GHashTable *class_counts;
+
+#if HAVE_TRACKER_FTS
+	gboolean fts_ever_updated;
+#endif
 };
 
 struct _TrackerDataUpdateBufferResource {
 	const gchar *subject;
 	gint id;
 	gboolean create;
-	gboolean fts_updated;
 	/* TrackerProperty -> GValueArray */
 	GHashTable *predicates;
 	/* string -> TrackerDataUpdateBufferTable */
 	GHashTable *tables;
 	/* TrackerClass */
 	GPtrArray *types;
+
+#if HAVE_TRACKER_FTS
+	gboolean fts_updated;
+#endif
 };
 
 struct _TrackerDataUpdateBufferProperty {
 	const gchar *name;
 	GValue value;
 	gint graph;
-	gboolean fts : 1;
 	gboolean date_time : 1;
+
+#if HAVE_TRACKER_FTS
+	gboolean fts : 1;
+#endif
 };
 
 struct _TrackerDataUpdateBufferTable {
@@ -482,7 +493,9 @@ cache_insert_value (const gchar            *table_name,
 
 	property.value = *value;
 	property.graph = graph;
+#if TRACKER_HAVE_FTS
 	property.fts = fts;
+#endif
 	property.date_time = date_time;
 
 	table = cache_ensure_table (table_name, multiple_values);
@@ -513,7 +526,9 @@ cache_delete_value (const gchar            *table_name,
 	property.name = field_name;
 	property.value = *value;
 	property.graph = 0;
+#if TRACKER_HAVE_FTS
 	property.fts = fts;
+#endif
 	property.date_time = date_time;
 
 	table = cache_ensure_table (table_name, multiple_values);
@@ -639,7 +654,7 @@ tracker_data_resource_buffer_flush (GError **error)
 	TrackerDataUpdateBufferProperty *property;
 	GHashTableIter                  iter;
 	const gchar                    *table_name;
-	GString                        *sql, *fts;
+	GString                        *sql;
 	gint                            i, param;
 	GError                         *actual_error = NULL;
 
@@ -834,6 +849,7 @@ tracker_data_resource_buffer_flush (GError **error)
 		}
 	}
 
+#if HAVE_TRACKER_FTS
 	if (resource_buffer->fts_updated) {
 		TrackerProperty *prop;
 		GValueArray *values;
@@ -843,6 +859,8 @@ tracker_data_resource_buffer_flush (GError **error)
 		g_hash_table_iter_init (&iter, resource_buffer->predicates);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
 			if (tracker_property_get_fulltext_indexed (prop)) {
+				GString *fts;
+
 				fts = g_string_new ("");
 				for (i = 0; i < values->n_values; i++) {
 					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
@@ -855,6 +873,7 @@ tracker_data_resource_buffer_flush (GError **error)
 			}
 		}
 	}
+#endif
 }
 
 static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
@@ -918,8 +937,10 @@ tracker_data_update_buffer_clear (void)
 	g_hash_table_remove_all (update_buffer.resources_by_id);
 	resource_buffer = NULL;
 
+#if HAVE_TRACKER_FTS
 	tracker_fts_update_rollback ();
 	update_buffer.fts_ever_updated = FALSE;
+#endif
 
 	if (update_buffer.class_counts) {
 		/* revert class count changes */
@@ -1220,11 +1241,7 @@ static GValueArray *
 get_old_property_values (TrackerProperty  *property,
                          GError          **error)
 {
-	gboolean            fts;
-	TrackerProperty   **properties, *prop;
 	GValueArray        *old_values;
-
-	fts = tracker_property_get_fulltext_indexed (property);
 
 	/* read existing property values */
 	old_values = g_hash_table_lookup (resource_buffer->predicates, property);
@@ -1238,44 +1255,51 @@ get_old_property_values (TrackerProperty  *property,
 			return NULL;
 		}
 
-		if (fts && !resource_buffer->fts_updated && !resource_buffer->create) {
-			guint i, n_props;
+#if HAVE_TRACKER_FTS
+		if (tracker_property_get_fulltext_indexed (property)) {
+			if (!resource_buffer->fts_updated && !resource_buffer->create) {
+				guint i, n_props;
+				TrackerProperty   **properties, *prop;
 
-			/* first fulltext indexed property to be modified
-			 * retrieve values of all fulltext indexed properties
-			 */
-			tracker_fts_update_init (resource_buffer->id);
+				/* first fulltext indexed property to be modified
+				 * retrieve values of all fulltext indexed properties
+				 */
+				tracker_fts_update_init (resource_buffer->id);
 
-			properties = tracker_ontologies_get_properties (&n_props);
+				properties = tracker_ontologies_get_properties (&n_props);
 
-			for (i = 0; i < n_props; i++) {
-				prop = properties[i];
+				for (i = 0; i < n_props; i++) {
+					prop = properties[i];
 
-				if (tracker_property_get_fulltext_indexed (prop)
-				    && check_property_domain (prop)) {
-					gint i;
+					if (tracker_property_get_fulltext_indexed (prop)
+					    && check_property_domain (prop)) {
+						gint i;
 
-					old_values = get_property_values (prop);
+						old_values = get_property_values (prop);
 
-					/* delete old fts entries */
-					for (i = 0; i < old_values->n_values; i++) {
-						tracker_fts_update_text (resource_buffer->id, -1,
-						                         g_value_get_string (g_value_array_get_nth (old_values, i)),
-									 !tracker_property_get_fulltext_no_limit (prop));
+						/* delete old fts entries */
+						for (i = 0; i < old_values->n_values; i++) {
+							tracker_fts_update_text (resource_buffer->id, -1,
+							                         g_value_get_string (g_value_array_get_nth (old_values, i)),
+							                         !tracker_property_get_fulltext_no_limit (prop));
+						}
 					}
 				}
+
+				update_buffer.fts_ever_updated = TRUE;
+
+				old_values = g_hash_table_lookup (resource_buffer->predicates, property);
+			} else {
+				old_values = get_property_values (property);
 			}
 
-			update_buffer.fts_ever_updated = TRUE;
-
-			old_values = g_hash_table_lookup (resource_buffer->predicates, property);
+			resource_buffer->fts_updated = TRUE;
 		} else {
 			old_values = get_property_values (property);
 		}
-
-		if (fts) {
-			resource_buffer->fts_updated = TRUE;
-		}
+#else
+		old_values = get_property_values (property);
+#endif
 	}
 
 	return old_values;
@@ -1332,7 +1356,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
                                gint              graph_id,
                                GError          **error)
 {
-	gboolean            multiple_values, fts;
+	gboolean            multiple_values;
 	const gchar        *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
@@ -1356,8 +1380,6 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	multiple_values = tracker_property_get_multiple_values (property);
 	table_name = tracker_property_get_table_name (property);
 	field_name = tracker_property_get_name (property);
-
-	fts = tracker_property_get_fulltext_indexed (property);
 
 	/* read existing property values */
 	old_values = get_old_property_values (property, &new_error);
@@ -1414,7 +1436,8 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	} else {
 		cache_insert_value (table_name, field_name, &gvalue,
 		                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
-		                    multiple_values, fts,
+		                    multiple_values,
+		                    tracker_property_get_fulltext_indexed (property),
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
 
 		change = TRUE;
@@ -1429,7 +1452,7 @@ delete_metadata_decomposed (TrackerProperty  *property,
                             gint              value_id,
                             GError          **error)
 {
-	gboolean            multiple_values, fts;
+	gboolean            multiple_values;
 	const gchar        *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
@@ -1441,8 +1464,6 @@ delete_metadata_decomposed (TrackerProperty  *property,
 	multiple_values = tracker_property_get_multiple_values (property);
 	table_name = tracker_property_get_table_name (property);
 	field_name = tracker_property_get_name (property);
-
-	fts = tracker_property_get_fulltext_indexed (property);
 
 	/* read existing property values */
 	old_values = get_old_property_values (property, &new_error);
@@ -1466,7 +1487,8 @@ delete_metadata_decomposed (TrackerProperty  *property,
 		/* value not found */
 		g_value_unset (&gvalue);
 	} else {
-		cache_delete_value (table_name, field_name, &gvalue, multiple_values, fts,
+		cache_delete_value (table_name, field_name, &gvalue, multiple_values,
+		                    tracker_property_get_fulltext_indexed (property),
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
 
 		change = TRUE;
@@ -1547,7 +1569,7 @@ cache_delete_resource_type (TrackerClass *class,
 	properties = tracker_ontologies_get_properties (&n_props);
 
 	for (p = 0; p < n_props; p++) {
-		gboolean            multiple_values, fts;
+		gboolean            multiple_values;
 		const gchar        *table_name;
 		const gchar        *field_name;
 		GValueArray        *old_values;
@@ -1563,8 +1585,6 @@ cache_delete_resource_type (TrackerClass *class,
 		table_name = tracker_property_get_table_name (prop);
 		field_name = tracker_property_get_name (prop);
 
-		fts = tracker_property_get_fulltext_indexed (prop);
-
 		old_values = get_old_property_values (prop, NULL);
 
 		for (i = old_values->n_values - 1; i >= 0 ; i--) {
@@ -1576,7 +1596,8 @@ cache_delete_resource_type (TrackerClass *class,
 			g_value_copy (old_gvalue, &gvalue);
 
 			value_set_remove_value (old_values, &gvalue);
-			cache_delete_value (table_name, field_name, &gvalue, multiple_values, fts,
+			cache_delete_value (table_name, field_name, &gvalue, multiple_values,
+			                    tracker_property_get_fulltext_indexed (prop),
 			                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
 		}
 	}
@@ -1638,7 +1659,9 @@ resource_buffer_switch (const gchar *graph,
 		} else {
 			resource_buffer->id = ensure_resource_id (resource_buffer->subject, &resource_buffer->create);
 		}
+#if HAVE_TRACKER_FTS
 		resource_buffer->fts_updated = FALSE;
+#endif
 		if (resource_buffer->create) {
 			resource_buffer->types = g_ptr_array_new ();
 		} else {
@@ -2063,10 +2086,12 @@ tracker_data_commit_db_transaction (void)
 
 	tracker_data_update_buffer_flush (NULL);
 
+#if HAVE_TRACKER_FTS
 	if (update_buffer.fts_ever_updated) {
 		tracker_fts_update_commit ();
 		update_buffer.fts_ever_updated = FALSE;
 	}
+#endif
 
 	if (update_buffer.class_counts) {
 		/* successful transaction, no need to rollback class counts,

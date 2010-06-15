@@ -32,7 +32,9 @@
 
 #include <libtracker-common/tracker-common.h>
 
+#if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
+#endif
 
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 #include <libtracker-db/tracker-db-manager.h>
@@ -741,7 +743,7 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 	gint i;
 
 	/* This updates property-property changes and marks classes for necessity
-	 * of having their tables recreated later. There's support for 
+	 * of having their tables recreated later. There's support for
 	 * tracker:notify, tracker:writeback and tracker:indexed */
 
 	if (seen_classes) {
@@ -833,7 +835,7 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 			}
 
 			if (update_property_value ("rdfs:range", subject, RDFS_PREFIX "range",
-			                           tracker_class_get_uri (tracker_property_get_range (property)), 
+			                           tracker_class_get_uri (tracker_property_get_range (property)),
 			                           allowed_range_conversions,
 			                           NULL, property)) {
 				TrackerClass *class;
@@ -1913,9 +1915,9 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 				if (in_update) {
 					g_debug ("%sAltering database for class '%s' property '%s': single value (%s)",
-					         in_alter ? "" : "  ", 
-					         service_name, 
-					         field_name, 
+					         in_alter ? "" : "  ",
+					         service_name,
+					         field_name,
 					         in_alter ? "alter" : "create");
 				}
 
@@ -2110,7 +2112,7 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 	}
 }
 
-void 
+void
 tracker_data_ontology_import_finished (void)
 {
 	TrackerClass **classes;
@@ -2277,7 +2279,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		return FALSE;
 	}
 
+#if HAVE_TRACKER_FTS
 	tracker_fts_set_map_function (tracker_ontologies_get_uri_by_id);
+#endif
 
 	if (first_time != NULL) {
 		*first_time = is_first_time_index;
@@ -2319,14 +2323,17 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* Read first ontology and commit it into the DB */
 		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
+
+		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, TRUE);
+
 		tracker_data_ontology_import_into_db (FALSE);
 		tracker_data_commit_db_transaction ();
 		tracker_db_journal_reader_shutdown ();
 
 		/* Start replay. Ontology changes might happen during replay of the journal. */
 
-		tracker_data_replay_journal (classes, properties, id_uri_map, 
+		tracker_data_replay_journal (classes, properties, id_uri_map,
 		                             busy_callback, busy_user_data, busy_status);
 
 		in_journal_replay = FALSE;
@@ -2375,7 +2382,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* Not an ontology transaction: this is the first ontology */
 		tracker_db_journal_start_transaction (time (NULL));
 
+		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, TRUE);
+
 		tracker_data_ontology_import_into_db (FALSE);
 
 		/* store ontology in database */
@@ -2413,6 +2422,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		create_decomposed_transient_metadata_tables (iface);
 		check_ontology = TRUE;
 
+		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, FALSE);
 	}
 
