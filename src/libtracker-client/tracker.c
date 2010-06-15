@@ -958,20 +958,18 @@ sparql_update_fast_callback (DBusPendingCall *call,
 	g_slice_free (FastAsyncData, data);
 }
 
-static DBusMessage*
-sparql_update_fast (TrackerClient      *client,
-                    const gchar        *query,
-                    FastOperationType   type,
-                    GError            **error)
+static DBusPendingCall*
+sparql_update_fast_send (TrackerClient      *client,
+                         const gchar        *query,
+                         FastOperationType   type,
+                         GError            **error)
 {
 	TrackerClientPrivate *private;
 	DBusConnection *connection;
 	gchar *dbus_method;
 	DBusMessage *message;
 	DBusMessageIter iter;
-	DBusMessage *reply;
 	DBusPendingCall *call;
-	DBusError dbus_error;
 	int pipefd[2];
 	GOutputStream *output_stream;
 	GOutputStream *buffered_output_stream;
@@ -992,8 +990,6 @@ sparql_update_fast (TrackerClient      *client,
 	}
 
 	connection = dbus_g_connection_get_connection (private->connection);
-
-	dbus_error_init (&dbus_error);
 
 	switch (type) {
 		case FAST_UPDATE:
@@ -1063,6 +1059,23 @@ sparql_update_fast (TrackerClient      *client,
 	g_object_unref (buffered_output_stream);
 	g_object_unref (output_stream);
 
+	return call;
+}
+
+static DBusMessage*
+sparql_update_fast (TrackerClient      *client,
+                    const gchar        *query,
+                    FastOperationType   type,
+                    GError            **error)
+{
+	DBusPendingCall *call;
+	DBusMessage *reply;
+
+	call = sparql_update_fast_send (client, query, type, error);
+	if (!call) {
+		return NULL;
+	}
+
 	dbus_pending_call_block (call);
 
 	reply = dbus_pending_call_steal_reply (call);
@@ -1070,6 +1083,10 @@ sparql_update_fast (TrackerClient      *client,
 	g_assert (reply);
 
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
+		DBusError dbus_error;
+
+		dbus_error_init (&dbus_error);
+
 		dbus_set_error_from_message (&dbus_error, reply);
 		dbus_set_g_error (error, &dbus_error);
 		dbus_pending_call_unref (call);
@@ -1086,100 +1103,12 @@ sparql_update_fast_async (TrackerClient      *client,
                           FastAsyncData      *data,
                           GError            **error)
 {
-	TrackerClientPrivate *private;
-	DBusConnection *connection;
-	gchar *dbus_method;
-	DBusMessage *message;
-	DBusMessageIter iter;
 	DBusPendingCall *call;
-	DBusError dbus_error;
-	int pipefd[2];
-	GOutputStream *output_stream;
-	GOutputStream *buffered_output_stream;
-	GDataOutputStream *data_output_stream;
-	GError *inner_error = NULL;
 
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	if (pipe (pipefd) < 0) {
-		g_set_error (error,
-		             TRACKER_CLIENT_ERROR,
-		             TRACKER_CLIENT_ERROR_UNSUPPORTED,
-		             "Cannot open pipe");
-		return;
-	}
-
-	connection = dbus_g_connection_get_connection (private->connection);
-
-	dbus_error_init (&dbus_error);
-
-	switch (data->operation) {
-		case FAST_UPDATE:
-			dbus_method = "Update";
-			break;
-		case FAST_UPDATE_BLANK:
-			dbus_method = "UpdateBlank";
-			break;
-		case FAST_UPDATE_BATCH:
-			dbus_method = "BatchUpdate";
-			break;
-		default:
-			g_assert_not_reached ();
-	}
-
-	message = dbus_message_new_method_call (TRACKER_STEROIDS_SERVICE,
-	                                        TRACKER_STEROIDS_PATH,
-	                                        TRACKER_STEROIDS_INTERFACE,
-	                                        dbus_method);
-	dbus_message_iter_init_append (message, &iter);
-	dbus_message_iter_append_basic (&iter, DBUS_TYPE_UNIX_FD, &pipefd[0]);
-	dbus_connection_send_with_reply (connection,
-	                                 message,
-	                                 &call,
-	                                 -1);
-	dbus_message_unref (message);
-	close (pipefd[0]);
-
+	call = sparql_update_fast_send (client, data->query, data->operation, error);
 	if (!call) {
-		g_set_error (error,
-		             TRACKER_CLIENT_ERROR,
-		             TRACKER_CLIENT_ERROR_UNSUPPORTED,
-		             "FD passing unsupported or connection disconnected");
 		return;
 	}
-
-	output_stream = g_unix_output_stream_new (pipefd[1], TRUE);
-	buffered_output_stream = g_buffered_output_stream_new_sized (output_stream,
-	                                                             TRACKER_STEROIDS_BUFFER_SIZE);
-	data_output_stream = g_data_output_stream_new (buffered_output_stream);
-
-	g_data_output_stream_put_int32 (data_output_stream,
-	                                strlen (data->query),
-	                                NULL,
-	                                &inner_error);
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		g_object_unref (data_output_stream);
-		g_object_unref (output_stream);
-		return;
-	}
-
-	g_data_output_stream_put_string (data_output_stream,
-	                                 data->query,
-	                                 NULL,
-	                                 &inner_error);
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		g_object_unref (data_output_stream);
-		g_object_unref (output_stream);
-		return;
-	}
-
-	g_object_unref (data_output_stream);
-	g_object_unref (buffered_output_stream);
-	g_object_unref (output_stream);
 
 	dbus_pending_call_set_notify (call, sparql_update_fast_callback, data, NULL);
 }
