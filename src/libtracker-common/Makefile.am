@@ -47,7 +47,6 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-file-utils.c				\
 	tracker-ioprio.c				\
 	tracker-keyfile-object.c			\
-	tracker-language.c				\
 	tracker-log.c	 				\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
@@ -64,23 +63,33 @@ noinst_HEADERS =					\
 	tracker-date-time.h				\
 	tracker-file-utils.h				\
 	tracker-keyfile-object.h			\
-	tracker-language.h				\
 	tracker-ontologies.h				\
 	tracker-type-utils.h				\
 	tracker-utils.h					\
 	tracker-crc32.h
 
+if HAVE_TRACKER_FTS
+libtracker_common_la_SOURCES +=	 			\
+	tracker-language.c
+noinst_HEADERS +=					\
+	tracker-language.h
+endif
+
 libtracker_common_la_LDFLAGS = 				\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 libtracker_common_la_LIBADD = 				\
-	$(top_builddir)/src/libstemmer/libstemmer.la	\
 	$(HAL_LIBS)					\
 	$(UPOWER_LIBS)					\
 	$(DBUS_LIBS)					\
 	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\
 	$(GLIB2_LIBS)
+
+if HAVE_TRACKER_FTS
+libtracker_common_la_LIBADD += 				\
+	$(top_builddir)/src/libstemmer/libstemmer.la
+endif
 
 marshal_sources =                              		\
         tracker-marshal.h              			\
