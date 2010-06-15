@@ -751,7 +751,7 @@ get_mount_point_by_uuid_foreach (gpointer key,
 
 	/* is mount of the type we're looking for? */
 	if ((gr->exact_match && mount_type == gr->type) ||
-	    (!gr->exact_match && ((mount_type & gr->type) == gr->type))) {
+	    (!gr->exact_match && (mount_type & gr->type))) {
 		gchar *normalized_mount_point;
 		gint len;
 
@@ -842,7 +842,7 @@ tracker_storage_get_device_uuids (TrackerStorage     *storage,
 
 		/* is mount of the type we're looking for? */
 		if ((exact_match && mount_type == type) ||
-		    (!exact_match && ((mount_type & type) == type))) {
+		    (!exact_match && (mount_type & type))) {
 			uuids = g_slist_prepend (uuids, g_strdup (uuid));
 		}
 	}

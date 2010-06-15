@@ -350,9 +350,8 @@ miner_files_constructed (GObject *object)
 	TrackerMinerFS *fs;
 	GSList *dirs;
 	GSList *mounts = NULL, *m;
-	gboolean index_removable_devices;
-	gboolean index_optical_discs;
-	TrackerStorageType type = 0;
+	gboolean index_removable_devices = FALSE;
+	gboolean index_optical_discs = FALSE;
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
 
@@ -366,15 +365,20 @@ miner_files_constructed (GObject *object)
 
 	if (tracker_config_get_index_removable_devices (mf->private->config)) {
 		index_removable_devices = TRUE;
-		type |= TRACKER_STORAGE_REMOVABLE;
+		/* Get list of roots for removable devices (excluding optical) */
+		mounts = tracker_storage_get_device_roots (mf->private->storage,
+		                                           TRACKER_STORAGE_REMOVABLE,
+		                                           TRUE);
 	}
 
 	if (tracker_config_get_index_optical_discs (mf->private->config)) {
 		index_optical_discs = TRUE;
-		type |= TRACKER_STORAGE_OPTICAL;
+		/* Get list of roots for removable+optical devices */
+		m = tracker_storage_get_device_roots (mf->private->storage,
+		                                      TRACKER_STORAGE_OPTICAL | TRACKER_STORAGE_REMOVABLE,
+		                                      TRUE);
+		mounts = g_slist_concat (mounts, m);
 	}
-
-	mounts = tracker_storage_get_device_roots (mf->private->storage, type, TRUE);
 
 #if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 	check_battery_status (mf);
