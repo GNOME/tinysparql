@@ -139,6 +139,62 @@ get_word_info (TrackerParser         *parser,
 	return TRUE;
 }
 
+static gboolean
+parser_unaccent_nfkd_word (gchar *word,
+			   gsize *word_length)
+{
+	/* The input word in this method MUST be normalized in NFKD form */
+	gsize i;
+	gsize j;
+
+	g_return_val_if_fail (word, FALSE);
+	g_return_val_if_fail (word_length, FALSE);
+	g_return_val_if_fail (*word_length > 0, FALSE);
+
+	i = 0;
+	j = 0;
+	while (i < *word_length) {
+		ucs4_t unichar;
+		gint utf8_len;
+
+		/* Get next character of the word as UCS4 */
+		utf8_len = u8_strmbtouc (&unichar, &word[i]);
+
+		/* Invalid UTF-8 character or end of original string. */
+		if (utf8_len <= 0) {
+			break;
+		}
+
+		/* If the given unichar is a combining diacritical mark,
+		 * just update the original index, not the output one */
+		if (IS_CDM_UCS4 ((guint32) unichar)) {
+			i += utf8_len;
+			continue;
+		}
+
+		/* If already found a previous combining
+		 * diacritical mark, indexes are different so
+		 * need to copy characters. As output and input
+		 * buffers may overlap, need to use memmove
+		 * instead of memcpy */
+		if (i != j) {
+			memmove (&word[j], &word[i], utf8_len);
+		}
+
+		/* Update both indexes */
+		i += utf8_len;
+		j += utf8_len;
+	}
+
+	/* Force proper string end */
+	word[j] = '\0';
+
+	/* Set new output length */
+	*word_length = j;
+
+	return TRUE;
+}
+
 static gchar *
 process_word_utf8 (TrackerParser         *parser,
                    const gchar           *word,
@@ -148,7 +204,6 @@ process_word_utf8 (TrackerParser         *parser,
 {
 	gchar word_buffer [WORD_BUFFER_LENGTH];
 	gchar *normalized = NULL;
-	gchar *stripped = NULL;
 	gchar *stemmed = NULL;
 	size_t new_word_length;
 
@@ -157,7 +212,7 @@ process_word_utf8 (TrackerParser         *parser,
 
 	/* If length is set as -1, the input word MUST be NIL-terminated.
 	 * Otherwise, this restriction is not needed as the length to process
-	 *  is given as input argument */
+	 * is given as input argument */
 	if (length < 0) {
 		length = strlen (word);
 	}
@@ -171,13 +226,13 @@ process_word_utf8 (TrackerParser         *parser,
 		/* Leave space for last NIL */
 		new_word_length = WORD_BUFFER_LENGTH - 1;
 
-		/* Casefold and NFC normalization in output.
-		 *  NOTE: if the output buffer is not big enough, u8_casefold will
-		 *  return a newly-allocated buffer. */
+		/* Casefold and NFKD normalization in output.
+		 * NOTE: if the output buffer is not big enough, u8_casefold will
+		 * return a newly-allocated buffer. */
 		normalized = u8_casefold ((const uint8_t *)word,
 		                          length,
 		                          uc_locale_language (),
-		                          UNINORM_NFC,
+		                          UNINORM_NFKD,
 		                          word_buffer,
 		                          &new_word_length);
 
@@ -185,14 +240,14 @@ process_word_utf8 (TrackerParser         *parser,
 		g_return_val_if_fail (normalized != NULL, NULL);
 
 		/* If output buffer is not the same as the one passed to
-		 *  u8_casefold, we know it was newly-allocated, so need
-		 *  to resize it in 1 byte to add last NIL */
+		 * u8_casefold, we know it was newly-allocated, so need
+		 * to resize it in 1 byte to add last NIL */
 		if (normalized != word_buffer) {
 			normalized = g_realloc (normalized, new_word_length + 1);
 		}
 
 		/* Log after Normalization */
-		tracker_parser_message_hex (" After Casefolding and NFC normalization",
+		tracker_parser_message_hex (" After Casefolding and NFKD normalization",
 		                            normalized, new_word_length);
 	} else {
 		/* For ASCII-only, just tolower() each character */
@@ -215,31 +270,24 @@ process_word_utf8 (TrackerParser         *parser,
 	normalized[new_word_length] = '\0';
 
 	/* UNAC stripping needed? (for non-CJK and non-ASCII) */
-	if (parser->enable_unaccent && type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC) {
-		gsize stripped_word_length;
-
-		stripped = tracker_parser_unaccent_utf8_word (normalized,
-		                                              new_word_length,
-		                                              &stripped_word_length);
-
-		if (stripped) {
-			/* Log after UNAC stripping */
-			tracker_parser_message_hex ("  After UNAC stripping",
-			                            stripped, stripped_word_length);
-			new_word_length = stripped_word_length;
-		}
+	if (parser->enable_unaccent &&
+	    type == TRACKER_PARSER_WORD_TYPE_OTHER_UNAC &&
+	    parser_unaccent_nfkd_word (normalized, &new_word_length)) {
+		/* Log after UNAC stripping */
+		tracker_parser_message_hex ("  After UNAC stripping",
+		                            normalized, new_word_length);
 	}
 
 	/* Check if stop word */
 	if (parser->ignore_stop_words) {
 		*stop_word = tracker_language_is_stop_word (parser->language,
-		                                            stripped ? stripped : normalized);
+		                                            normalized);
 	}
 
 	/* Stemming needed? */
 	if (parser->enable_stemmer) {
 		stemmed = tracker_language_stem_word (parser->language,
-		                                      stripped ? stripped : normalized,
+		                                      normalized,
 		                                      new_word_length);
 
 		/* Log after stemming */
@@ -249,19 +297,10 @@ process_word_utf8 (TrackerParser         *parser,
 
 	/* If stemmed wanted and succeeded, free previous and return it */
 	if (stemmed) {
-		g_free (stripped);
 		if (normalized != word_buffer) {
 			g_free (normalized);
 		}
 		return stemmed;
-	}
-
-	/* If stripped wanted and succeeded, free previous and return it */
-	if (stripped) {
-		if (normalized != word_buffer) {
-			g_free (normalized);
-		}
-		return stripped;
 	}
 
 	/* It may be the case that no stripping and no stemming was needed, and

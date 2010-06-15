@@ -38,22 +38,19 @@ G_BEGIN_DECLS
                                ((c) >= 0x4E00 && (c) <= 0x9FA5)  ||	\
                                ((c) >= 0x20000 && (c) <= 0x2A6D6))
 
+/* ASCII undescore? */
 #define IS_UNDERSCORE_UCS4(c) ((c) == 0x005F)
 
-
-gchar *tracker_parser_unaccent_utf16be_word (const gchar *string,
-                                             gsize        ilength,
-                                             gsize        *p_olength);
-
-gchar *tracker_parser_unaccent_utf8_word (const gchar *string,
-                                          gsize        ilength,
-                                          gsize        *p_olength);
-
-#ifdef HAVE_LIBICU
-gchar *tracker_parser_unaccent_UChar_word (const UChar *string,
-                                           gsize        ilength,
-                                           gsize        *p_olength);
-#endif
+/* Combining diacritical mark?
+ * Basic range: [0x0300,0x036F]
+ * Supplement:  [0x1DC0,0x1DFF]
+ * For Symbols: [0x20D0,0x20FF]
+ * Half marks:  [0xFE20,0xFE2F]
+ */
+#define IS_CDM_UCS4(c)        (((c) >= 0x0300 && (c) <= 0x036F)  ||	\
+                               ((c) >= 0x1DC0 && (c) <= 0x1DFF)  ||	\
+                               ((c) >= 0x20D0 && (c) <= 0x20FF)  ||	\
+                               ((c) >= 0xFE20 && (c) <= 0xFE2F))
 
 
 gboolean tracker_parser_is_reserved_word_utf8 (const gchar *word,

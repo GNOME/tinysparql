@@ -170,6 +170,7 @@ expected_word_check (TrackerParserTestFixture *fixture,
 {
 	const TestDataExpectedWord *testdata = data;
 	const gchar *word;
+	gchar *expected_nfkd;
 	gint position;
 	gint byte_offset_start;
 	gint byte_offset_end;
@@ -195,8 +196,15 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	                            &stop_word,
 	                            &word_length);
 
+	/* Expected word MUST always be in NFKD normalization */
+	expected_nfkd = g_utf8_normalize (testdata->expected,
+	                                  -1,
+	                                  G_NORMALIZE_NFKD);
+
 	/* Check if input is same as expected */
-	g_assert_cmpstr (word, == , testdata->expected);
+	g_assert_cmpstr (word, == , expected_nfkd);
+
+	g_free (expected_nfkd);
 }
 
 /* -------------- STOP WORD TESTS ----------------- */
@@ -247,7 +255,6 @@ stop_word_check (TrackerParserTestFixture *fixture,
 
 /* -------------- LIST OF TESTS ----------------- */
 
-#ifdef HAVE_UNAC
 /* Normalization-related tests (unaccenting) */
 static const TestDataExpectedWord test_data_normalization[] = {
 	{ "école",                "ecole", FALSE, TRUE  },
@@ -263,36 +270,30 @@ static const TestDataExpectedWord test_data_normalization[] = {
 
 /* Unaccenting-related tests */
 static const TestDataExpectedWord test_data_unaccent[] = {
-	{ "Murciélago", "murcielago", FALSE, TRUE  },
-	{ "camión",     "camion",     FALSE, TRUE  },
-	{ "desagüe",    "desague",    FALSE, TRUE  },
+	{ "Murciélago",   "murcielago", FALSE, TRUE  },
+	{ "camión",       "camion",     FALSE, TRUE  },
+	{ "desagüe",      "desague",    FALSE, TRUE  },
+	{ "Ὰ",            "α",          FALSE, TRUE  }, /* greek capital alpha with U+0300, composed */
+	{ "ὰ",            "α",          FALSE, TRUE  }, /* greek small alpha with U+0300, composed */
+	{ "Ὶ",            "ι",          FALSE, TRUE  }, /* greek capital iotta with U+0300, composed */
+	{ "ὶ",            "ι",          FALSE, TRUE  }, /* greek small iotta with U+0300, composed */
+	{ "Ὼ",            "ω",          FALSE, TRUE  }, /* greek capital omega with U+0300, composed */
+	{ "ὼ",            "ω",          FALSE, TRUE  }, /* greek small omega with U+0300, composed */
+#ifdef FULL_UNICODE_TESTS /* glib/pango does not like NFD strings */
+	{ "Ὰ",          "α",          FALSE, TRUE  }, /* capital alpha with U+0300, decomposed */
+	{ "ὰ",          "α",          FALSE, TRUE  }, /* small alpha with U+0300, decomposed */
+	{ "Ὶ",          "ι",          FALSE, TRUE  }, /* capital iotta with U+0300, decomposed */
+	{ "ὶ",          "ι",          FALSE, TRUE  }, /* small iotta with U+0300, decomposed */
+	{ "Ὼ",          "ω",          FALSE, TRUE  }, /* capital omega with U+0300, decomposed */
+	{ "ὼ",          "ω",          FALSE, TRUE  }, /* small omega with U+0300, decomposed */
+	{ "aN͡Ga",       "anga",       FALSE, TRUE  }, /* 0x0361 affects to two characters */
+	{ "aNG͡a",       "anga",       FALSE, TRUE  }, /* 0x0361 affects to two characters */
+#endif
 	{ "Murciélago", "murciélago", FALSE, FALSE },
 	{ "camión",     "camión",     FALSE, FALSE },
 	{ "desagüe",    "desagüe",    FALSE, FALSE },
 	{ NULL,         NULL,         FALSE, FALSE }
 };
-#else
-/* Normalization-related tests (not unaccenting) */
-static const TestDataExpectedWord test_data_normalization[] = {
-	{ "école",                "école", FALSE, FALSE },
-	{ "ÉCOLE",                "école", FALSE, FALSE },
-	{ "École",                "école", FALSE, FALSE },
-#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
-	{ "e" "\xCC\x81" "cole",  "école", FALSE, FALSE },
-	{ "E" "\xCC\x81" "COLE",  "école", FALSE, FALSE },
-	{ "E" "\xCC\x81" "cole",  "école", FALSE, FALSE },
-#endif
-	{ "école",                "école", FALSE, TRUE  },
-	{ "ÉCOLE",                "école", FALSE, TRUE  },
-	{ "École",                "école", FALSE, TRUE  },
-#ifdef FULL_UNICODE_TESTS /* glib/pango doesn't like NFD strings */
-	{ "e" "\xCC\x81" "cole",  "école", FALSE, TRUE  },
-	{ "E" "\xCC\x81" "COLE",  "école", FALSE, TRUE  },
-	{ "E" "\xCC\x81" "cole",  "école", FALSE, TRUE  },
-#endif
-	{ NULL,                   NULL,    FALSE, FALSE }
-};
-#endif /* !HAVE_UNAC */
 
 /* Stemming-related tests */
 static const TestDataExpectedWord test_data_stemming[] = {

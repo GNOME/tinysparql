@@ -142,7 +142,6 @@ HAL_REQUIRED=0.5
 UPOWER_REQUIRED=0.9.0
 GDKPIXBUF_REQUIRED=2.12.0
 QUILL_REQUIRED=1.0.0
-UNAC_REQUIRED=1.0.0
 POPPLER_REQUIRED=0.12.2
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
@@ -734,38 +733,6 @@ SQLITE_REQUIRED=3.6.17
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
 AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
-
-##################################################################
-# Enable UNAC support?
-##################################################################
-
-AC_ARG_ENABLE(unac,
-              AS_HELP_STRING([--enable-unac],
-                             [enable UNAC support, required for stripping accents [[default=auto]]]),,
-              [enable_unac=auto])
-
-if test "x$enable_unac" != "xno"; then
-   PKG_CHECK_MODULES(UNAC,
-                     [unac >= $UNAC_REQUIRED],
-                     [have_unac=yes],
-                     [have_unac=no])
-   AC_SUBST(UNAC_LIBS)
-   AC_SUBST(UNAC_CFLAGS)
-
-   if test "x$have_unac" = "xyes"; then
-      AC_DEFINE(HAVE_UNAC, [], [Define if we have UNAC for accent stripping])
-   fi
-else
-   have_unac="no  (disabled)"
-fi
-
-if test "x$enable_unac" = "xyes"; then
-   if test "x$have_unac" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find UNAC >= $UNAC_REQUIRED.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_UNAC, test "x$have_unac" = "xyes")
 
 ##################################################################
 # Enable Gnome Keyring support to store credentials (for web miners)
@@ -1964,7 +1931,6 @@ Build Configuration:
 	Support for HAL:                        $have_hal
 	Support for UPower:                     $have_upower
 	Support for file monitoring:            $have_file_monitor
-	Support for accent stripping (unac):    $have_unac
 	Support for Cyrillic languages (enca):  $have_enca
 	Support for network status detection:   $have_network_manager
 	Unicode support library:                $with_unicode_support
