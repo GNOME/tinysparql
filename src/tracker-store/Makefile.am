@@ -69,7 +69,6 @@ tracker_store_LDADD =							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GIO_LIBS)							\
