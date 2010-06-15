@@ -40,7 +40,6 @@ G_BEGIN_DECLS
 #define TRACKER_STEROIDS_RC_ERROR 0
 #define TRACKER_STEROIDS_RC_ROW   1
 #define TRACKER_STEROIDS_RC_DONE  2
-#define TRACKER_STEROIDS_RC_LARGEROW 3
 
 typedef struct TrackerSteroids      TrackerSteroids;
 typedef struct TrackerSteroidsClass TrackerSteroidsClass;
