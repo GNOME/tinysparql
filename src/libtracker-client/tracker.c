@@ -860,7 +860,7 @@ find_conversion (const char  *format,
 
 #ifdef HAVE_DBUS_FD_PASSING
 static GHashTable*
-unmarshall_hash_table (DBusMessageIter *iter) {
+unmarshal_hash_table (DBusMessageIter *iter) {
 	GHashTable *result;
 	DBusMessageIter subiter, subsubiter;
 
@@ -941,7 +941,7 @@ sparql_update_fast_callback (DBusPendingCall *call,
 			dbus_message_iter_recurse (&subiter, &subsubiter);
 
 			while (dbus_message_iter_get_arg_type (&subsubiter) != DBUS_TYPE_INVALID) {
-				g_ptr_array_add (inner_array, unmarshall_hash_table (&subsubiter));
+				g_ptr_array_add (inner_array, unmarshal_hash_table (&subsubiter));
 				dbus_message_iter_next (&subsubiter);
 			}
 
@@ -2057,7 +2057,7 @@ tracker_resources_sparql_update_blank_fast (TrackerClient  *client,
 		dbus_message_iter_recurse (&subiter, &subsubiter);
 
 		while (dbus_message_iter_get_arg_type (&subsubiter) != DBUS_TYPE_INVALID) {
-			g_ptr_array_add (inner_array, unmarshall_hash_table (&subsubiter));
+			g_ptr_array_add (inner_array, unmarshal_hash_table (&subsubiter));
 			dbus_message_iter_next (&subsubiter);
 		}
 
