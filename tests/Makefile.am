@@ -8,7 +8,6 @@ SUBDIRS = 			\
 	libtracker-miner	\
 	libtracker-data		\
 	libtracker-db 		\
-	libtracker-fts 		\
 	tracker-miner-fs	\
 	tracker-extract		\
 	tracker-steroids	\
@@ -17,4 +16,8 @@ SUBDIRS = 			\
 
 if DIST_FUNCTIONAL_TESTS
 SUBDIRS += functional-tests
+endif
+
+if HAVE_TRACKER_FTS
+SUBDIRS += libtracker-fts
 endif
