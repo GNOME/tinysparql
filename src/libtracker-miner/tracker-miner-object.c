@@ -792,10 +792,10 @@ tracker_miner_execute_update (TrackerMiner        *miner,
 	                            user_data,
 	                            tracker_miner_execute_sparql);
 
-	data->id = tracker_resources_sparql_update_fast_async (miner->private->client,
-	                                                       sparql,
-	                                                       sparql_update_cb,
-	                                                       data);
+	data->id = tracker_resources_sparql_update_async (miner->private->client,
+	                                                  sparql,
+	                                                  sparql_update_cb,
+	                                                  data);
 }
 
 /**

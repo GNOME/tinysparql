@@ -86,7 +86,7 @@ main (int argc, char **argv) {
 
 	client = tracker_client_new (0, 0);
 
-	if (tracker_resources_sparql_update_blank_fast_async (client, query, query_cb, NULL) == 0) {
+	if (tracker_resources_sparql_update_blank_async (client, query, query_cb, NULL) == 0) {
 		g_critical ("error running update");
 		return 1;
 	}

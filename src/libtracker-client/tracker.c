@@ -1942,6 +1942,23 @@ tracker_result_iterator_value (TrackerResultIterator *iterator,
 #endif
 }
 
+static void
+tracker_resources_sparql_update_compat (TrackerClient  *client,
+                                        const gchar    *query,
+                                        GError        **error)
+{
+	TrackerClientPrivate *private;
+
+	g_return_if_fail (TRACKER_IS_CLIENT (client));
+	g_return_if_fail (query != NULL);
+
+	private = TRACKER_CLIENT_GET_PRIVATE (client);
+
+	org_freedesktop_Tracker1_Resources_sparql_update (private->proxy_resources,
+	                                                  query,
+	                                                  error);
+}
+
 /**
  * tracker_resources_sparql_update:
  * @client: a #TrackerClient.
@@ -1963,23 +1980,6 @@ tracker_resources_sparql_update (TrackerClient  *client,
                                  const gchar    *query,
                                  GError        **error)
 {
-	TrackerClientPrivate *private;
-
-	g_return_if_fail (TRACKER_IS_CLIENT (client));
-	g_return_if_fail (query != NULL);
-
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	org_freedesktop_Tracker1_Resources_sparql_update (private->proxy_resources,
-	                                                  query,
-	                                                  error);
-}
-
-void
-tracker_resources_sparql_update_fast (TrackerClient  *client,
-                                      const gchar    *query,
-                                      GError        **error)
-{
 #ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
 
@@ -1991,14 +1991,14 @@ tracker_resources_sparql_update_fast (TrackerClient  *client,
 
 	dbus_message_unref (reply);
 #else
-	tracker_resources_sparql_update (client, query, error);
+	tracker_resources_sparql_update_compat (client, query, error);
 #endif
 }
 
-GPtrArray *
-tracker_resources_sparql_update_blank (TrackerClient  *client,
-                                       const gchar    *query,
-                                       GError        **error)
+static GPtrArray*
+tracker_resources_sparql_update_blank_compat (TrackerClient  *client,
+                                              const gchar    *query,
+                                              GError        **error)
 {
 	TrackerClientPrivate *private;
 	GPtrArray *result;
@@ -2018,10 +2018,10 @@ tracker_resources_sparql_update_blank (TrackerClient  *client,
 	return result;
 }
 
-GPtrArray*
-tracker_resources_sparql_update_blank_fast (TrackerClient  *client,
-                                            const gchar    *query,
-                                            GError        **error)
+GPtrArray *
+tracker_resources_sparql_update_blank (TrackerClient  *client,
+                                       const gchar    *query,
+                                       GError        **error)
 {
 #ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
@@ -2066,8 +2066,25 @@ tracker_resources_sparql_update_blank_fast (TrackerClient  *client,
 
 	return result;
 #else
-	return tracker_resources_sparql_update_blank (client, query, error);
+	return tracker_resources_sparql_update_blank_compat (client, query, error);
 #endif
+}
+
+static void
+tracker_resources_batch_sparql_update_compat (TrackerClient  *client,
+                                              const gchar    *query,
+                                              GError        **error)
+{
+	TrackerClientPrivate *private;
+
+	g_return_if_fail (TRACKER_IS_CLIENT (client));
+	g_return_if_fail (query != NULL);
+
+	private = TRACKER_CLIENT_GET_PRIVATE (client);
+
+	org_freedesktop_Tracker1_Resources_batch_sparql_update (private->proxy_resources,
+	                                                        query,
+	                                                        error);
 }
 
 /**
@@ -2088,23 +2105,6 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
                                        const gchar    *query,
                                        GError        **error)
 {
-	TrackerClientPrivate *private;
-
-	g_return_if_fail (TRACKER_IS_CLIENT (client));
-	g_return_if_fail (query != NULL);
-
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	org_freedesktop_Tracker1_Resources_batch_sparql_update (private->proxy_resources,
-	                                                        query,
-	                                                        error);
-}
-
-void
-tracker_resources_batch_sparql_update_fast (TrackerClient  *client,
-                                            const gchar    *query,
-                                            GError        **error)
-{
 #ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
 
@@ -2116,7 +2116,7 @@ tracker_resources_batch_sparql_update_fast (TrackerClient  *client,
 
 	dbus_message_unref (reply);
 #else
-	tracker_resources_batch_sparql_update (client, query, error);
+	tracker_resources_batch_sparql_update_compat (client, query, error);
 #endif
 }
 
@@ -2366,11 +2366,11 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
  *
  * Since: 0.8
  **/
-guint
-tracker_resources_sparql_update_async (TrackerClient    *client,
-                                       const gchar      *query,
-                                       TrackerReplyVoid  callback,
-                                       gpointer          user_data)
+static guint
+tracker_resources_sparql_update_compat_async (TrackerClient    *client,
+                                              const gchar      *query,
+                                              TrackerReplyVoid  callback,
+                                              gpointer          user_data)
 {
 	TrackerClientPrivate *private;
 	CallbackVoid *cb;
@@ -2398,10 +2398,10 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 }
 
 guint
-tracker_resources_sparql_update_fast_async (TrackerClient    *client,
-                                            const gchar      *query,
-                                            TrackerReplyVoid  callback,
-                                            gpointer          user_data)
+tracker_resources_sparql_update_async (TrackerClient    *client,
+                                       const gchar      *query,
+                                       TrackerReplyVoid  callback,
+                                       gpointer          user_data)
 {
 #ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *data;
@@ -2429,15 +2429,15 @@ tracker_resources_sparql_update_fast_async (TrackerClient    *client,
 
 	return 42;
 #else
-	return tracker_resources_sparql_update_async (client, query, callback, user_data);
+	return tracker_resources_sparql_update_compat_async (client, query, callback, user_data);
 #endif
 }
 
-guint
-tracker_resources_sparql_update_blank_async (TrackerClient         *client,
-                                             const gchar           *query,
-                                             TrackerReplyGPtrArray  callback,
-                                             gpointer               user_data)
+static guint
+tracker_resources_sparql_update_blank_compat_async (TrackerClient         *client,
+                                                    const gchar           *query,
+                                                    TrackerReplyGPtrArray  callback,
+                                                    gpointer               user_data)
 {
 	TrackerClientPrivate *private;
 	CallbackGPtrArray *cb;
@@ -2465,10 +2465,10 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 }
 
 guint
-tracker_resources_sparql_update_blank_fast_async (TrackerClient         *client,
-                                                  const gchar           *query,
-                                                  TrackerReplyGPtrArray  callback,
-                                                  gpointer               user_data)
+tracker_resources_sparql_update_blank_async (TrackerClient         *client,
+                                             const gchar           *query,
+                                             TrackerReplyGPtrArray  callback,
+                                             gpointer               user_data)
 {
 #ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *data;
@@ -2496,29 +2496,15 @@ tracker_resources_sparql_update_blank_fast_async (TrackerClient         *client,
 
 	return 42;
 #else
-	return tracker_resources_sparql_update_blank_async (client, query, callback, user_data);
+	return tracker_resources_sparql_update_blank_compat_async (client, query, callback, user_data);
 #endif
 }
 
-/**
- * tracker_resources_batch_sparql_update_async:
- * @client: a #TrackerClient.
- * @query: a string representing SPARQL.
- * @callback: function to be called when the batch update has been performed.
- * @user_data: user data to pass to @callback.
- *
- * Updates the database using SPARQL. see tracker_resources_batch_sparql_update().
- *
- * Returns: A #guint representing the operation ID. See
- * tracker_cancel_call(). In the event of failure, 0 is returned.
- *
- * Since: 0.8
- **/
-guint
-tracker_resources_batch_sparql_update_async (TrackerClient    *client,
-                                             const gchar      *query,
-                                             TrackerReplyVoid  callback,
-                                             gpointer          user_data)
+static guint
+tracker_resources_batch_sparql_update_compat_async (TrackerClient    *client,
+                                                    const gchar      *query,
+                                                    TrackerReplyVoid  callback,
+                                                    gpointer          user_data)
 {
 	TrackerClientPrivate *private;
 	CallbackVoid *cb;
@@ -2545,11 +2531,25 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	return cb->id;
 }
 
+/**
+ * tracker_resources_batch_sparql_update_async:
+ * @client: a #TrackerClient.
+ * @query: a string representing SPARQL.
+ * @callback: function to be called when the batch update has been performed.
+ * @user_data: user data to pass to @callback.
+ *
+ * Updates the database using SPARQL. see tracker_resources_batch_sparql_update().
+ *
+ * Returns: A #guint representing the operation ID. See
+ * tracker_cancel_call(). In the event of failure, 0 is returned.
+ *
+ * Since: 0.8
+ **/
 guint
-tracker_resources_batch_sparql_update_fast_async (TrackerClient    *client,
-                                                  const gchar      *query,
-                                                  TrackerReplyVoid  callback,
-                                                  gpointer          user_data)
+tracker_resources_batch_sparql_update_async (TrackerClient    *client,
+                                             const gchar      *query,
+                                             TrackerReplyVoid  callback,
+                                             gpointer          user_data)
 {
 #ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *data;
@@ -2577,7 +2577,7 @@ tracker_resources_batch_sparql_update_fast_async (TrackerClient    *client,
 
 	return 42;
 #else
-	return tracker_resources_batch_sparql_update_async (client, query, callback, user_data);
+	return tracker_resources_batch_sparql_update_compat_async (client, query, callback, user_data);
 #endif
 }
 

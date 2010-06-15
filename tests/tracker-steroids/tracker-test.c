@@ -298,7 +298,7 @@ test_tracker_sparql_update_fast_small ()
 	GError *error = NULL;
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 
-	tracker_resources_sparql_update_fast (client, query, &error);
+	tracker_resources_sparql_update (client, query, &error);
 
 	g_assert (!error);
 
@@ -319,7 +319,7 @@ test_tracker_sparql_update_fast_large ()
 
 	query = g_strdup_printf (query_template, lotsOfA);
 
-	tracker_resources_sparql_update_fast (client, query, &error);
+	tracker_resources_sparql_update (client, query, &error);
 
 	g_free (lotsOfA);
 	g_free (query);
@@ -335,7 +335,7 @@ test_tracker_sparql_update_fast_error ()
 	GError *error = NULL;
 	const gchar *query = "blork blork blork";
 
-	tracker_resources_sparql_update_fast (client, query, &error);
+	tracker_resources_sparql_update (client, query, &error);
 
 	g_assert (error);
 
@@ -349,7 +349,7 @@ test_tracker_sparql_update_blank_fast_small ()
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 	GPtrArray *results;
 
-	results = tracker_resources_sparql_update_blank_fast (client, query, &error);
+	results = tracker_resources_sparql_update_blank (client, query, &error);
 
 	g_assert (!error);
 	g_assert (results);
@@ -374,7 +374,7 @@ test_tracker_sparql_update_blank_fast_large ()
 
 	query = g_strdup_printf (query_template, lotsOfA);
 
-	results = tracker_resources_sparql_update_blank_fast (client, query, &error);
+	results = tracker_resources_sparql_update_blank (client, query, &error);
 
 	g_free (lotsOfA);
 	g_free (query);
@@ -394,7 +394,7 @@ test_tracker_sparql_update_blank_fast_error ()
 	const gchar *query = "blork blork blork";
 	GPtrArray *results;
 
-	results = tracker_resources_sparql_update_blank_fast (client, query, &error);
+	results = tracker_resources_sparql_update_blank (client, query, &error);
 
 	g_assert (error);
 	g_assert (!results);
@@ -409,7 +409,7 @@ test_tracker_sparql_update_blank_fast_no_blanks ()
 	const gchar *query = "INSERT { <urn:not_blank> a nmo:Message }";
 	GPtrArray *results;
 
-	results = tracker_resources_sparql_update_blank_fast (client, query, &error);
+	results = tracker_resources_sparql_update_blank (client, query, &error);
 
 	g_assert (!error);
 	g_assert (results);
@@ -425,7 +425,7 @@ test_tracker_batch_sparql_update_fast ()
 	GError *error = NULL;
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 
-	tracker_resources_batch_sparql_update_fast (client, query, &error);
+	tracker_resources_batch_sparql_update (client, query, &error);
 
 	g_assert (!error);
 

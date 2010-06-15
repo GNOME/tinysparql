@@ -57,6 +57,7 @@ main (int argc, char **argv)
 	timer = g_timer_new ();
 
 	for (i = 0; i < N_TRIES; i++) {
+		/* FIXME disable FD passing */
 		tracker_resources_sparql_update (client, query, &error);
 
 		if (error) {
@@ -72,7 +73,7 @@ main (int argc, char **argv)
 	g_timer_start (timer);
 
 	for (i = 0; i < N_TRIES; i++) {
-		tracker_resources_sparql_update_fast (client, query, &error);
+		tracker_resources_sparql_update (client, query, &error);
 
 		if (error) {
 			g_critical ("Query error: %s", error->message);

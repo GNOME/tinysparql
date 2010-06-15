@@ -152,19 +152,10 @@ const gchar *  tracker_result_iterator_value               (TrackerResultIterato
 void           tracker_resources_sparql_update             (TrackerClient          *client,
                                                             const gchar            *query,
                                                             GError                **error);
-void           tracker_resources_sparql_update_fast        (TrackerClient          *client,
-                                                            const gchar            *query,
-                                                            GError                **error);
 GPtrArray *    tracker_resources_sparql_update_blank       (TrackerClient          *client,
                                                             const gchar            *query,
                                                             GError                **error);
-GPtrArray *    tracker_resources_sparql_update_blank_fast  (TrackerClient          *client,
-                                                            const gchar            *query,
-                                                            GError                **error);
 void           tracker_resources_batch_sparql_update       (TrackerClient          *client,
-                                                            const gchar            *query,
-                                                            GError                **error);
-void           tracker_resources_batch_sparql_update_fast  (TrackerClient          *client,
                                                             const gchar            *query,
                                                             GError                **error);
 void           tracker_resources_batch_commit              (TrackerClient          *client,
@@ -189,23 +180,11 @@ guint          tracker_resources_sparql_update_async       (TrackerClient       
                                                             const gchar            *query,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
-guint          tracker_resources_sparql_update_fast_async  (TrackerClient          *client,
-                                                            const gchar            *query,
-                                                            TrackerReplyVoid        callback,
-                                                            gpointer                user_data);
 guint          tracker_resources_sparql_update_blank_async (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyGPtrArray   callback,
                                                             gpointer                user_data);
-guint     tracker_resources_sparql_update_blank_fast_async (TrackerClient          *client,
-                                                            const gchar            *query,
-                                                            TrackerReplyGPtrArray   callback,
-                                                            gpointer                user_data);
 guint          tracker_resources_batch_sparql_update_async (TrackerClient          *client,
-                                                            const gchar            *query,
-                                                            TrackerReplyVoid        callback,
-                                                            gpointer                user_data);
-guint     tracker_resources_batch_sparql_update_fast_async (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyVoid        callback,
                                                             gpointer                user_data);
