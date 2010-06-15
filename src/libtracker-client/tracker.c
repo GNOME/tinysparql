@@ -1151,7 +1151,7 @@ sparql_update_fast_async (TrackerClient      *client,
 	output_stream = g_unix_output_stream_new (pipefd[1], TRUE);
 	buffered_output_stream = g_buffered_output_stream_new_sized (output_stream,
 	                                                             TRACKER_STEROIDS_BUFFER_SIZE);
-	data_output_stream = g_data_output_stream_new (output_stream);
+	data_output_stream = g_data_output_stream_new (buffered_output_stream);
 
 	g_data_output_stream_put_int32 (data_output_stream,
 	                                strlen (data->query),
