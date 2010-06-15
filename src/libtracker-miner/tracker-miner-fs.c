@@ -127,11 +127,14 @@ struct TrackerMinerFSPrivate {
 	GFile          *current_parent;
 	gchar          *current_parent_urn;
 
-	/* Folder contents' mtime cache */
+	/* URI mtime cache */
 	GHashTable     *mtime_cache;
 
 	/* File -> iri cache */
 	GHashTable     *iri_cache;
+
+	/* Files to check if no longer exist */
+	GHashTable     *check_removed;
 
 	/* Status */
 	guint           been_started : 1;
@@ -555,6 +558,11 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                                         (GDestroyNotify) g_object_unref,
 	                                         (GDestroyNotify) g_free);
 
+	priv->check_removed = g_hash_table_new_full (g_file_hash,
+	                                             (GEqualFunc) g_file_equal,
+	                                             (GDestroyNotify) g_object_unref,
+	                                             NULL);
+
 	priv->mtime_checking = TRUE;
 	priv->initial_crawling = TRUE;
 }
@@ -687,6 +695,10 @@ fs_finalize (GObject *object)
 
 	if (priv->iri_cache) {
 		g_hash_table_unref (priv->iri_cache);
+	}
+
+	if (priv->check_removed) {
+		g_hash_table_unref (priv->check_removed);
 	}
 
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->finalize (object);
@@ -1016,17 +1028,24 @@ sparql_update_cb (GObject      *object,
 		if (fs->private->current_parent) {
 			GFile *parent;
 
+			/* Note: parent may be NULL if the file represents
+			 * the root directory of the file system (applies to
+			 * .gvfs mounts also!) */
 			parent = g_file_get_parent (data->file);
 
-			if (g_file_equal (parent, fs->private->current_parent) &&
-			    g_hash_table_lookup (fs->private->iri_cache, data->file) == NULL) {
-				/* Item is processed, add an empty element for the processed GFile,
-				 * in case it is again processed before the cache expires
-				 */
-				g_hash_table_insert (fs->private->iri_cache, g_object_ref (data->file), NULL);
-			}
+			if (parent) {
+				if (g_file_equal (parent, fs->private->current_parent) &&
+				    g_hash_table_lookup (fs->private->iri_cache, data->file) == NULL) {
+					/* Item is processed, add an empty element for the processed GFile,
+					 * in case it is again processed before the cache expires
+					 */
+					g_hash_table_insert (fs->private->iri_cache,
+					                     g_object_ref (data->file),
+					                     NULL);
+				}
 
-			g_object_unref (parent);
+				g_object_unref (parent);
+			}
 		}
 	}
 
@@ -1192,10 +1211,18 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 	g_hash_table_remove_all (fs->private->iri_cache);
 
+	/* Note: parent may be NULL if the file represents
+	 * the root directory of the file system (applies to
+	 * .gvfs mounts also!) */
 	parent = g_file_get_parent (file);
+
+	if (!parent) {
+		return;
+	}
+
 	uri = g_file_get_uri (parent);
 
-	g_debug ("Generating IRI cache for folder: %s", uri);
+	g_debug ("Generating children cache for URI '%s'", uri);
 
 	query = g_strdup_printf ("SELECT ?url ?u { "
 	                         "  ?u nfo:belongsToContainer ?p ; "
@@ -1473,7 +1500,7 @@ item_remove (TrackerMinerFS *fs,
 	         uri);
 
 	if (!item_query_exists (fs, file, NULL, &mime)) {
-		g_debug ("  File does not exist anyway (uri:'%s')", uri);
+		g_debug ("  File does not exist anyway (uri '%s')", uri);
 		g_free (uri);
 		g_free (mime);
 		return TRUE;
@@ -1762,7 +1789,7 @@ item_move (TrackerMinerFS *fs,
 	         source_uri,
 	         uri);
 
-	tracker_thumbnailer_move_add (source_uri, 
+	tracker_thumbnailer_move_add (source_uri,
 	                              g_file_info_get_content_type (file_info),
 	                              uri);
 
@@ -2236,6 +2263,55 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		                   fs);
 }
 
+static gboolean
+remove_unexisting_file_cb (gpointer key,
+                           gpointer value,
+                           gpointer user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	GFile *file = key;
+
+	/* If file no longer exists, remove it from the store*/
+	if (!g_file_query_exists (file, NULL)) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_debug ("  Marking file which no longer exists in FS for removal: %s", uri);
+		g_free (uri);
+
+		g_queue_push_tail (fs->private->items_deleted,
+		                   g_object_ref (file));
+
+		item_queue_handlers_set_up (fs);
+	}
+
+	return TRUE;
+}
+
+static void
+check_if_files_removed (TrackerMinerFS *fs)
+{
+	g_debug ("Checking if any file was removed...");
+	g_hash_table_foreach_remove (fs->private->check_removed,
+	                             remove_unexisting_file_cb,
+	                             fs);
+}
+
+static void
+add_to_check_removed_cb (gpointer key,
+                         gpointer value,
+                         gpointer user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	GFile *file = key;
+
+	/* Not adding any data to the value, we just want
+	 * fast search for key availability */
+	g_hash_table_insert (fs->private->check_removed,
+	                     g_object_ref (file),
+	                     NULL);
+}
+
 static void
 ensure_mtime_cache (TrackerMinerFS *fs,
                     GFile          *file)
@@ -2251,10 +2327,14 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                                                  (GDestroyNotify) g_free);
 	}
 
+	/* Note: parent may be NULL if the file represents
+	 * the root directory of the file system (applies to
+	 * .gvfs mounts also!) */
 	parent = g_file_get_parent (file);
 
 	if (fs->private->current_parent) {
-		if (g_file_equal (parent, fs->private->current_parent)) {
+		if (parent &&
+		    g_file_equal (parent, fs->private->current_parent)) {
 			/* Cache is still valid */
 			g_object_unref (parent);
 			return;
@@ -2267,42 +2347,46 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_hash_table_remove_all (fs->private->mtime_cache);
 
-	uri = g_file_get_uri (parent);
-
-	g_debug ("Generating mtime cache for folder: %s", uri);
-
-	query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
-	                                                "nie:url ?url ; "
-	                                                "nfo:fileLastModified ?last . "
-	                                             "?p nie:url \"%s\" }", uri);
-
-	g_free (uri);
-
+	/* Initialize data contents */
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.values = g_hash_table_ref (fs->private->mtime_cache);
 
-	tracker_miner_execute_sparql (TRACKER_MINER (fs),
-	                              query,
-	                              NULL,
-	                              cache_query_cb,
-	                              &data);
-	g_free (query);
+	if (parent) {
+		uri = g_file_get_uri (parent);
 
-	g_main_loop_run (data.main_loop);
+		g_debug ("Generating mtime cache for URI '%s'", uri);
 
-	if (g_hash_table_size (data.values) == 0 &&
+		query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
+		                                                "nie:url ?url ; "
+		                                                "nfo:fileLastModified ?last . "
+		                                             "?p nie:url \"%s\" }", uri);
+
+		g_free (uri);
+
+		tracker_miner_execute_sparql (TRACKER_MINER (fs),
+		                              query,
+		                              NULL,
+		                              cache_query_cb,
+		                              &data);
+		g_free (query);
+
+		g_main_loop_run (data.main_loop);
+	}
+
+	if ((!parent || g_hash_table_size (data.values) == 0) &&
 	    file_is_crawl_directory (fs, file)) {
 		/* File is a crawl directory itself, query its mtime directly */
 		uri = g_file_get_uri (file);
 
-		g_debug ("Folder %s is a crawl directory, generating mtime cache for it", uri);
+		g_debug ("Generating mtime cache for URI '%s' (config location)", uri);
 
 		query = g_strdup_printf ("SELECT ?url ?last "
 		                         "WHERE { "
 		                         "  ?u nfo:fileLastModified ?last ; "
 		                         "     nie:url ?url ; "
 		                         "     nie:url \"%s\" "
-		                         "}", uri);
+		                         "}",
+					 uri);
 		g_free (uri);
 
 		tracker_miner_execute_sparql (TRACKER_MINER (fs),
@@ -2317,6 +2401,11 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
+
+	/* Iterate repopulated HT and add all to the check_removed HT */
+	g_hash_table_foreach (fs->private->mtime_cache,
+	                      add_to_check_removed_cb,
+	                      fs);
 }
 
 static gboolean
@@ -2329,9 +2418,19 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	struct tm           t;
 	gchar              *time_str, *lookup_time;
 
+	/* Make sure mtime cache contains the mtimes of all files in the
+	 * same directory as the given file
+	 */
 	ensure_mtime_cache (fs, file);
-	lookup_time = g_hash_table_lookup (fs->private->mtime_cache, file);
 
+	/* Remove the file from the list of files to be checked if removed */
+	g_hash_table_remove (fs->private->check_removed, file);
+
+	/* If the file is NOT found in the cache, it means its a new
+	 * file the store doesn't know about, so just report it to be
+	 * re-indexed.
+	 */
+	lookup_time = g_hash_table_lookup (fs->private->mtime_cache, file);
 	if (!lookup_time) {
 		return TRUE;
 	}
@@ -2816,6 +2915,9 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	directory_data_unref (fs->private->current_directory);
 	fs->private->current_directory = NULL;
 
+	/* Check if any file was left after whole crawling */
+	check_if_files_removed (fs);
+
 	/* Proceed to next thing to process */
 	crawl_directories_start (fs);
 }
@@ -2958,6 +3060,23 @@ should_recurse_for_directory (TrackerMinerFS *fs,
 	return recurse;
 }
 
+
+/* Returns 0 if 'a' and 'b' point to the same diretory, OR if
+ *  'b' is contained inside directory 'a' and 'a' is recursively
+ *  indexed. */
+static gint
+directory_compare_cb (gconstpointer a,
+                      gconstpointer b)
+{
+	DirectoryData *dda = (DirectoryData *) a;
+	DirectoryData *ddb = (DirectoryData *) b;
+
+	return (g_file_equal (dda->file, ddb->file) ||
+	        (dda->recurse &&
+	         g_file_has_prefix (ddb->file, dda->file))) ? 0 : -1;
+}
+
+
 /* This function is for internal use, adds the file to the processing
  * queue with the same directory settings than the corresponding
  * config directory.
@@ -2972,10 +3091,18 @@ tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
 	recurse = should_recurse_for_directory (fs, file);
 	data = directory_data_new (file, recurse);
 
-	fs->private->directories =
-		g_list_append (fs->private->directories, data);
+	/* Only add if not already there */
+	if (!g_list_find_custom (fs->private->directories,
+	                         data,
+	                         directory_compare_cb)) {
+		fs->private->directories =
+			g_list_append (fs->private->directories,
+			               directory_data_ref (data));
 
-	crawl_directories_start (fs);
+		crawl_directories_start (fs);
+	}
+
+	directory_data_unref (data);
 }
 
 /**
@@ -2998,14 +3125,27 @@ tracker_miner_fs_directory_add (TrackerMinerFS *fs,
 
 	dir_data = directory_data_new (file, recurse);
 
-	fs->private->config_directories =
-		g_list_append (fs->private->config_directories, dir_data);
+	/* New directory to add in config_directories? */
+	if (!g_list_find_custom (fs->private->config_directories,
+	                         dir_data,
+	                         directory_compare_cb)) {
+		fs->private->config_directories =
+			g_list_append (fs->private->config_directories,
+			               directory_data_ref (dir_data));
+	}
 
-	fs->private->directories =
-		g_list_append (fs->private->directories,
-			       directory_data_ref (dir_data));
+	/* If not already in the list to process, add it */
+	if (!g_list_find_custom (fs->private->directories,
+	                         dir_data,
+	                         directory_compare_cb)) {
+		fs->private->directories =
+			g_list_append (fs->private->directories,
+			               directory_data_ref (dir_data));
 
-	crawl_directories_start (fs);
+		crawl_directories_start (fs);
+	}
+
+	directory_data_unref (dir_data);
 }
 
 static void
@@ -3115,6 +3255,9 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 
 		pool = pool->next;
 	}
+
+	/* Remove all monitors */
+	tracker_monitor_remove_recursively (fs->private->monitor, file);
 
 	return return_val;
 }
