@@ -43,7 +43,6 @@
 
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
-#define HAVE_DBUS_FD_PASSING
 
 /* sleep delay to emulate dbus_pending_call_block, in us */
 #define NOT_TOO_SHORT_DELAY 1000
