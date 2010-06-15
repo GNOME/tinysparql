@@ -258,10 +258,6 @@ query_inthread (TrackerDBCursor *cursor,
 	data_output_stream = g_data_output_stream_new (output_stream);
 
 	if (error) {
-		g_data_output_stream_put_int32 (data_output_stream,
-		                                TRACKER_STEROIDS_RC_ERROR,
-		                                NULL,
-		                                NULL);
 		g_object_unref (data_output_stream);
 		g_object_unref (output_stream);
 		g_object_unref (unix_output_stream);
@@ -294,11 +290,6 @@ query_inthread (TrackerDBCursor *cursor,
 			last_offset += column_sizes[i] + 1;
 			column_offsets[i] = last_offset;
 		}
-
-		g_data_output_stream_put_int32 (data_output_stream,
-		                                TRACKER_STEROIDS_RC_ROW,
-		                                NULL,
-		                                &loop_error);
 
 		if (loop_error) {
 			goto end_query_inthread;
@@ -344,13 +335,6 @@ query_inthread (TrackerDBCursor *cursor,
 		}
 	}
 end_query_inthread:
-
-	if (!loop_error) {
-		g_data_output_stream_put_int32 (data_output_stream,
-		                                TRACKER_STEROIDS_RC_DONE,
-		                                NULL,
-		                                &loop_error);
-	}
 
 	/* Will force flushing */
 	g_object_unref (data_output_stream);

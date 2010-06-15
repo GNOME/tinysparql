@@ -160,7 +160,6 @@ typedef struct {
 
 struct TrackerResultIterator {
 #ifdef HAVE_DBUS_FD_PASSING
-	int rc;
 	char *buffer;
 	int buffer_index;
 	long buffer_size;
@@ -168,7 +167,6 @@ struct TrackerResultIterator {
 	guint  n_columns;
 	int   *offsets;
 	char  *data;
-	gboolean has_next;
 #else
 	GPtrArray *results;
 	gint current_row;
@@ -543,14 +541,9 @@ fast_async_callback_iterator (GObject      *source_object,
 	}
 
 	iterator->buffer_index = 0;
-	iterator->rc = iterator_buffer_read_int (iterator);
 
 	/* Reset the iterator internal state */
 	iterator->buffer_index = 0;
-
-	if (iterator->rc == TRACKER_STEROIDS_RC_ROW) {
-		iterator->has_next = TRUE;
-	}
 
 	dbus_pending_call_block (data->dbus_call);
 
@@ -1642,14 +1635,6 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	}
 
 	iterator->buffer_index = 0;
-	iterator->rc = iterator_buffer_read_int (iterator);
-
-	/* Reset the iterator internal state */
-	iterator->buffer_index = 0;
-
-	if (iterator->rc == TRACKER_STEROIDS_RC_ROW) {
-		iterator->has_next = TRUE;
-	}
 
 	dbus_pending_call_block (call);
 
@@ -1768,7 +1753,7 @@ tracker_result_iterator_has_next (TrackerResultIterator *iterator)
 #ifdef HAVE_DBUS_FD_PASSING
 	g_return_val_if_fail (iterator, FALSE);
 
-	return iterator->has_next;
+	return iterator->buffer_index < iterator->buffer_size;
 #else
 	g_return_val_if_fail (iterator, FALSE);
 
@@ -1792,38 +1777,18 @@ void
 tracker_result_iterator_next (TrackerResultIterator  *iterator)
 {
 #ifdef HAVE_DBUS_FD_PASSING
-	int nextrc;
 	int last_offset;
 
-	iterator->rc = iterator_buffer_read_int (iterator);
-	switch (iterator->rc) {
-	case TRACKER_STEROIDS_RC_ROW:
-		iterator->n_columns = iterator_buffer_read_int (iterator);
-		iterator->offsets = (int *)(iterator->buffer + iterator->buffer_index);
-		iterator->buffer_index += sizeof (int) * (iterator->n_columns - 1);
-		last_offset = iterator_buffer_read_int (iterator);
-		iterator->data = iterator->buffer + iterator->buffer_index;
-		iterator->buffer_index += last_offset + 1;
-
-		nextrc = iterator_buffer_read_int (iterator);
-		iterator->buffer_index -= 4;
-
-		if (nextrc == TRACKER_STEROIDS_RC_ROW) {
-			iterator->has_next = TRUE;
-		} else if (nextrc == TRACKER_STEROIDS_RC_DONE) {
-			iterator->has_next = FALSE;
-		} else {
-			g_critical ("Invalid row code %d", nextrc);
-			iterator->has_next = FALSE;
-		}
-		break;
-	case TRACKER_STEROIDS_RC_DONE:
-		break;
-	default:
-		/* If an error happened, it has been reported by
-		 * tracker_resources_sparql_query_iterate */
-		break;
+	if (!tracker_result_iterator_has_next (iterator)) {
+		return;
 	}
+
+	iterator->n_columns = iterator_buffer_read_int (iterator);
+	iterator->offsets = (int *)(iterator->buffer + iterator->buffer_index);
+	iterator->buffer_index += sizeof (int) * (iterator->n_columns - 1);
+	last_offset = iterator_buffer_read_int (iterator);
+	iterator->data = iterator->buffer + iterator->buffer_index;
+	iterator->buffer_index += last_offset + 1;
 #else
 	g_return_if_fail (iterator);
 
