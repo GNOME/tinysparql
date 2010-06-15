@@ -157,8 +157,8 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 				_tracker_db_result_set_get_value (result_set, col, &value);
 
 				switch (G_VALUE_TYPE (&value)) {
-				case G_TYPE_INT:
-					g_string_append_printf (test_results, "\"%d\"", g_value_get_int (&value));
+				case G_TYPE_INT64:
+					g_string_append_printf (test_results, "\"%" G_GINT64_FORMAT "\"", g_value_get_int64 (&value));
 					break;
 				case G_TYPE_DOUBLE:
 					g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));

@@ -594,18 +594,15 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	case G_TYPE_STRING:
 		tracker_db_statement_bind_text (stmt, (*idx)++, g_value_get_string (value));
 		break;
-	case G_TYPE_INT:
-		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_int (value));
-		break;
 	case G_TYPE_INT64:
-		tracker_db_statement_bind_int64 (stmt, (*idx)++, g_value_get_int64 (value));
+		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_int64 (value));
 		break;
 	case G_TYPE_DOUBLE:
 		tracker_db_statement_bind_double (stmt, (*idx)++, g_value_get_double (value));
 		break;
 	default:
 		if (type == TRACKER_TYPE_DATE_TIME) {
-			tracker_db_statement_bind_int64 (stmt, (*idx)++, tracker_date_time_get_time (value));
+			tracker_db_statement_bind_int (stmt, (*idx)++, tracker_date_time_get_time (value));
 			tracker_db_statement_bind_int (stmt, (*idx)++, tracker_date_time_get_local_date (value));
 			tracker_db_statement_bind_int (stmt, (*idx)++, tracker_date_time_get_local_time (value));
 		} else {
@@ -748,7 +745,7 @@ tracker_data_resource_buffer_flush (GError **error)
 					if (stmt) {
 						tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
 						g_warn_if_fail	(resource_time != 0);
-						tracker_db_statement_bind_int64 (stmt, 1, (gint64) resource_time);
+						tracker_db_statement_bind_int (stmt, 1, (gint64) resource_time);
 						tracker_db_statement_bind_int (stmt, 3, tracker_data_update_get_next_modseq ());
 						tracker_db_statement_execute (stmt, &actual_error);
 						g_object_unref (stmt);
@@ -1036,11 +1033,11 @@ cache_create_service_decomposed (TrackerClass *cl,
 
 	g_ptr_array_add (resource_buffer->types, cl);
 
-	g_value_init (&gvalue, G_TYPE_INT);
+	g_value_init (&gvalue, G_TYPE_INT64);
 
 	cache_insert_row (cl);
 
-	g_value_set_int (&gvalue, ensure_resource_id (tracker_class_get_uri (cl), NULL));
+	g_value_set_int64 (&gvalue, ensure_resource_id (tracker_class_get_uri (cl), NULL));
 	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue,
 	                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
 	                    TRUE, FALSE, FALSE);
@@ -1077,8 +1074,8 @@ value_equal (GValue *value1,
 	switch (type) {
 	case G_TYPE_STRING:
 		return (strcmp (g_value_get_string (value1), g_value_get_string (value2)) == 0);
-	case G_TYPE_INT:
-		return g_value_get_int (value1) == g_value_get_int (value2);
+	case G_TYPE_INT64:
+		return g_value_get_int64 (value1) == g_value_get_int64 (value2);
 	case G_TYPE_DOUBLE:
 		/* does RDF define equality for floating point values? */
 		return g_value_get_double (value1) == g_value_get_double (value2);
@@ -1201,7 +1198,7 @@ get_property_values (TrackerProperty *property)
 					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
 						gint time;
 
-						time = g_value_get_int (&gvalue);
+						time = g_value_get_int64 (&gvalue);
 						g_value_unset (&gvalue);
 						g_value_init (&gvalue, TRACKER_TYPE_DATE_TIME);
 						/* UTC offset is irrelevant for comparison */
@@ -1298,14 +1295,14 @@ string_to_gvalue (const gchar         *value,
 		g_value_set_string (gvalue, value);
 		break;
 	case TRACKER_PROPERTY_TYPE_INTEGER:
-		g_value_init (gvalue, G_TYPE_INT);
-		g_value_set_int (gvalue, atoi (value));
+		g_value_init (gvalue, G_TYPE_INT64);
+		g_value_set_int64 (gvalue, atoll (value));
 		break;
 	case TRACKER_PROPERTY_TYPE_BOOLEAN:
-		/* use G_TYPE_INT to be compatible with value stored in DB
+		/* use G_TYPE_INT64 to be compatible with value stored in DB
 		   (important for value_equal function) */
-		g_value_init (gvalue, G_TYPE_INT);
-		g_value_set_int (gvalue, strcmp (value, "true") == 0);
+		g_value_init (gvalue, G_TYPE_INT64);
+		g_value_set_int64 (gvalue, strcmp (value, "true") == 0);
 		break;
 	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		g_value_init (gvalue, G_TYPE_DOUBLE);
@@ -1318,8 +1315,8 @@ string_to_gvalue (const gchar         *value,
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
 		object_id = ensure_resource_id (value, NULL);
-		g_value_init (gvalue, G_TYPE_INT);
-		g_value_set_int (gvalue, object_id);
+		g_value_init (gvalue, G_TYPE_INT64);
+		g_value_set_int64 (gvalue, object_id);
 		break;
 	default:
 		g_warn_if_reached ();
@@ -1376,8 +1373,8 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 			return FALSE;
 		}
 	} else {
-		g_value_init (&gvalue, G_TYPE_INT);
-		g_value_set_int (&gvalue, value_id);
+		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_set_int64 (&gvalue, value_id);
 	}
 
 	if (!value_set_add_value (old_values, &gvalue)) {
@@ -1461,8 +1458,8 @@ delete_metadata_decomposed (TrackerProperty  *property,
 			return FALSE;
 		}
 	} else {
-		g_value_init (&gvalue, G_TYPE_INT);
-		g_value_set_int (&gvalue, value_id);
+		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_set_int64 (&gvalue, value_id);
 	}
 
 	if (!value_set_remove_value (old_values, &gvalue)) {
@@ -1660,8 +1657,8 @@ resource_buffer_switch (const gchar *graph,
 			}
 		}
 
-		g_value_init (&gvalue, G_TYPE_INT);
-		g_value_set_int (&gvalue, tracker_data_update_get_next_modseq ());
+		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_set_int64 (&gvalue, tracker_data_update_get_next_modseq ());
 		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue,
 		                    0,
 		                    FALSE, FALSE, FALSE);

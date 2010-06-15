@@ -203,11 +203,11 @@ _tracker_db_result_set_set_value (TrackerDBResultSet *result_set,
 	}
 
 	switch (result_set->col_types [column]) {
-	case G_TYPE_INT: {
-		gint *val;
+	case G_TYPE_INT64: {
+		gint64 *val;
 
-		val = g_new (gint, 1);
-		*val = g_value_get_int (value);
+		val = g_new (gint64, 1);
+		*val = g_value_get_int64 (value);
 		row[column] = val;
 		break;
 	}
@@ -232,8 +232,8 @@ fill_in_value (GValue   *value,
                gpointer  data)
 {
 	switch (G_VALUE_TYPE (value)) {
-	case G_TYPE_INT:
-		g_value_set_int (value, *((gint*) data));
+	case G_TYPE_INT64:
+		g_value_set_int64 (value, *((gint64*) data));
 		break;
 	case G_TYPE_DOUBLE:
 		g_value_set_double (value, *((gdouble *) data));

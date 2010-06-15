@@ -1373,7 +1373,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 2, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				notify = (g_value_get_int (&value) == 1);
+				notify = (g_value_get_int64 (&value) == 1);
 				g_value_unset (&value);
 			} else {
 				/* NULL */
@@ -1462,7 +1462,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 4, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				multi_valued = (g_value_get_int (&value) > 1);
+				multi_valued = (g_value_get_int64 (&value) > 1);
 				g_value_unset (&value);
 			} else {
 				/* nrl:maxCardinality not set
@@ -1473,7 +1473,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 5, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				indexed = (g_value_get_int (&value) == 1);
+				indexed = (g_value_get_int64 (&value) == 1);
 				g_value_unset (&value);
 			} else {
 				/* NULL */
@@ -1485,7 +1485,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 7, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				fulltext_indexed = (g_value_get_int (&value) == 1);
+				fulltext_indexed = (g_value_get_int64 (&value) == 1);
 				g_value_unset (&value);
 			} else {
 				/* NULL */
@@ -1495,7 +1495,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 8, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				fulltext_no_limit = (g_value_get_int (&value) == 1);
+				fulltext_no_limit = (g_value_get_int64 (&value) == 1);
 				g_value_unset (&value);
 			} else {
 				/* NULL */
@@ -1505,7 +1505,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 9, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				transient = (g_value_get_int (&value) == 1);
+				transient = (g_value_get_int64 (&value) == 1);
 				g_value_unset (&value);
 			} else {
 				/* NULL */
@@ -1515,7 +1515,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 10, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				annotation = (g_value_get_int (&value) == 1);
+				annotation = (g_value_get_int64 (&value) == 1);
 				g_value_unset (&value);
 			} else {
 				/* NULL */
@@ -1527,7 +1527,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_db_cursor_get_value (cursor, 11, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
-				writeback = (g_value_get_int (&value) == 1);
+				writeback = (g_value_get_int64 (&value) == 1);
 				g_value_unset (&value);
 			} else {
 				/* NULL */

@@ -964,6 +964,8 @@ public class Tracker.Sparql.Query : Object {
 	{
 		if (value.type () == typeof (int)) {
 			return value.get_int ().to_string ();
+		} else if (value.type () == typeof (int64)) {
+			return value.get_int64 ().to_string ();
 		} else if (value.type () == typeof (double)) {
 			return value.get_double ().to_string ();
 		} else if (value.type () == typeof (string)) {

@@ -104,9 +104,6 @@ void                tracker_db_statement_bind_double       (TrackerDBStatement  
                                                             double               value);
 void                tracker_db_statement_bind_int          (TrackerDBStatement  *stmt,
                                                             int                  index,
-                                                            int                  value);
-void                tracker_db_statement_bind_int64        (TrackerDBStatement  *stmt,
-                                                            int                  index,
                                                             gint64               value);
 void                tracker_db_statement_bind_null         (TrackerDBStatement  *stmt,
                                                             int                  index);
@@ -147,7 +144,7 @@ void                tracker_db_cursor_get_value            (TrackerDBCursor     
 const gchar*        tracker_db_cursor_get_string           (TrackerDBCursor     *cursor,
                                                             guint                column,
                                                             gint                *length);
-gint                tracker_db_cursor_get_int              (TrackerDBCursor     *cursor,
+gint64              tracker_db_cursor_get_int              (TrackerDBCursor     *cursor,
                                                             guint                column);
 gdouble             tracker_db_cursor_get_double           (TrackerDBCursor     *cursor,
                                                             guint                column);

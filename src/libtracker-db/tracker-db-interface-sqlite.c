@@ -689,8 +689,8 @@ add_row (TrackerDBResultSet *result_set,
 			g_value_set_string (&value, (gchar *) sqlite3_column_text (stmt, i));
 			break;
 		case SQLITE_INTEGER:
-			g_value_init (&value, G_TYPE_INT);
-			g_value_set_int (&value, sqlite3_column_int (stmt, i));
+			g_value_init (&value, G_TYPE_INT64);
+			g_value_set_int64 (&value, sqlite3_column_int64 (stmt, i));
 			break;
 		case SQLITE_FLOAT:
 			g_value_init (&value, G_TYPE_DOUBLE);
@@ -1070,21 +1070,9 @@ tracker_db_statement_bind_double (TrackerDBStatement      *stmt,
 }
 
 void
-tracker_db_statement_bind_int (TrackerDBStatement         *stmt,
-                               int                         index,
-                               int                         value)
-{
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
-
-	g_assert (!stmt->stmt_is_sunk);
-
-	sqlite3_bind_int (stmt->stmt, index + 1, value);
-}
-
-void
-tracker_db_statement_bind_int64 (TrackerDBStatement       *stmt,
-                                 int                       index,
-                                 gint64                    value)
+tracker_db_statement_bind_int (TrackerDBStatement       *stmt,
+                               int                       index,
+                               gint64                    value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -1179,8 +1167,8 @@ tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *val
 		g_value_set_string (value, (gchar *) sqlite3_column_text (cursor->stmt, column));
 		break;
 	case SQLITE_INTEGER:
-		g_value_init (value, G_TYPE_INT);
-		g_value_set_int (value, sqlite3_column_int (cursor->stmt, column));
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, sqlite3_column_int64 (cursor->stmt, column));
 		break;
 	case SQLITE_FLOAT:
 		g_value_init (value, G_TYPE_DOUBLE);
@@ -1195,10 +1183,10 @@ tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *val
 
 }
 
-gint
+gint64
 tracker_db_cursor_get_int (TrackerDBCursor *cursor,  guint column)
 {
-	return (gint) sqlite3_column_int (cursor->stmt, column);
+	return (gint64) sqlite3_column_int64 (cursor->stmt, column);
 }
 
 gdouble
