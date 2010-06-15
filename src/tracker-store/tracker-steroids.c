@@ -412,6 +412,15 @@ tracker_steroids_query (TrackerSteroids *steroids,
 	                       DBUS_TYPE_UNIX_FD, &info->fd,
 	                       DBUS_TYPE_INVALID);
 
+	if (dbus_error_is_set (&dbus_error)) {
+		reply = dbus_message_new_error (message, dbus_error.name, dbus_error.message);
+		dbus_connection_send (connection, reply, NULL);
+		dbus_message_unref (reply);
+		dbus_error_free (&dbus_error);
+		destroy_client_info (info);
+		return;
+	}
+
 	sender = dbus_message_get_sender (message);
 
 	tracker_store_sparql_query (query, TRACKER_STORE_PRIORITY_HIGH,
@@ -460,6 +469,7 @@ tracker_steroids_update (TrackerSteroids *steroids,
 	info = g_slice_new0 (ClientInfo);
 	info->connection = dbus_connection_ref (connection);
 	info->call_message = dbus_message_ref (message);
+	info->request_id = request_id;
 
 	dbus_error_init (&dbus_error);
 
@@ -468,7 +478,14 @@ tracker_steroids_update (TrackerSteroids *steroids,
 	                       DBUS_TYPE_UNIX_FD, &info->fd,
 	                       DBUS_TYPE_INVALID);
 
-	info->request_id = request_id;
+	if (dbus_error_is_set (&dbus_error)) {
+		reply = dbus_message_new_error (message, dbus_error.name, dbus_error.message);
+		dbus_connection_send (connection, reply, NULL);
+		dbus_message_unref (reply);
+		dbus_error_free (&dbus_error);
+		destroy_client_info (info);
+		return;
+	}
 
 	sender = dbus_message_get_sender (message);
 

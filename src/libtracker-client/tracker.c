@@ -43,6 +43,7 @@
 
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
+#define HAVE_DBUS_FD_PASSING
 
 /* sleep delay to emulate dbus_pending_call_block, in us */
 #define NOT_TOO_SHORT_DELAY 1000
@@ -513,14 +514,11 @@ fast_async_callback_iterator (GObject      *source_object,
                               gpointer      user_data)
 {
 	DBusMessage *reply;
-	DBusError dbus_error;
 	GError *inner_error = NULL;
 	GError *error = NULL;
 	FastAsyncData *data = user_data;
 	TrackerResultIterator *iterator = data->result_iterator;
 	GInputStream *base_input_stream;
-
-	dbus_error_init (&dbus_error);
 
 	iterator->buffer_size = g_output_stream_splice_finish (data->output_stream,
 	                                                       result,
@@ -562,10 +560,16 @@ fast_async_callback_iterator (GObject      *source_object,
 	g_assert (reply);
 
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
+		DBusError dbus_error;
+
+		dbus_error_init (&dbus_error);
+
 		dbus_set_error_from_message (&dbus_error, reply);
 		dbus_set_g_error (&error, &dbus_error);
 		dbus_pending_call_unref (data->dbus_call);
 		(* data->iterator_callback) (NULL, error, data->user_data);
+		dbus_error_free (&dbus_error);
+
 		return ;
 	}
 
@@ -888,20 +892,22 @@ sparql_update_fast_callback (DBusPendingCall *call,
 {
 	FastAsyncData *data = user_data;
 	DBusMessage *reply;
-	DBusError dbus_error;
 	GError *error = NULL;
 	DBusMessageIter iter, subiter, subsubiter;
 	GPtrArray *result;
 
-	dbus_error_init (&dbus_error);
 
 	reply = dbus_pending_call_steal_reply (call);
 
 	g_assert (reply);
 
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
+		DBusError dbus_error;
+
+		dbus_error_init (&dbus_error);
 		dbus_set_error_from_message (&dbus_error, reply);
 		dbus_set_g_error (&error, &dbus_error);
+		dbus_error_free (&dbus_error);
 
 		switch (data->operation) {
 		case FAST_UPDATE:
@@ -966,7 +972,7 @@ sparql_update_fast_send (TrackerClient      *client,
 {
 	TrackerClientPrivate *private;
 	DBusConnection *connection;
-	gchar *dbus_method;
+	const gchar *dbus_method;
 	DBusMessage *message;
 	DBusMessageIter iter;
 	DBusPendingCall *call;
@@ -1086,10 +1092,11 @@ sparql_update_fast (TrackerClient      *client,
 		DBusError dbus_error;
 
 		dbus_error_init (&dbus_error);
-
 		dbus_set_error_from_message (&dbus_error, reply);
 		dbus_set_g_error (error, &dbus_error);
 		dbus_pending_call_unref (call);
+		dbus_error_free (&dbus_error);
+
 		return NULL;
 	}
 
@@ -1563,7 +1570,6 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	DBusMessageIter iter;
 	DBusMessage *reply;
 	DBusPendingCall *call;
-	DBusError dbus_error;
 	TrackerResultIterator *iterator;
 	int pipefd[2];
 	GInputStream *input_stream;
@@ -1585,8 +1591,6 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	}
 
 	connection = dbus_g_connection_get_connection (private->connection);
-
-	dbus_error_init (&dbus_error);
 
 	message = dbus_message_new_method_call (TRACKER_STEROIDS_SERVICE,
 	                                        TRACKER_STEROIDS_PATH,
@@ -1655,9 +1659,14 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	g_assert (reply);
 
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
+		DBusError dbus_error;
+
+		dbus_error_init (&dbus_error);
 		dbus_set_error_from_message (&dbus_error, reply);
 		dbus_set_g_error (error, &dbus_error);
 		dbus_pending_call_unref (call);
+		dbus_error_free (&dbus_error);
+
 		return NULL;
 	}
 
@@ -2204,7 +2213,6 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	DBusMessage *message;
 	DBusMessageIter iter;
 	DBusPendingCall *call;
-	DBusError dbus_error;
 	TrackerResultIterator *iterator;
 	int pipefd[2];
 	GInputStream *input_stream;
@@ -2223,8 +2231,6 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	}
 
 	connection = dbus_g_connection_get_connection (private->connection);
-
-	dbus_error_init (&dbus_error);
 
 	message = dbus_message_new_method_call (TRACKER_STEROIDS_SERVICE,
 	                                        TRACKER_STEROIDS_PATH,
