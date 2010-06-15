@@ -167,7 +167,7 @@ update_callback (GError *error, gpointer user_data)
 }
 
 static void
-marshall_hash_table_item (gpointer key, gpointer value, gpointer user_data)
+marshal_hash_table_item (gpointer key, gpointer value, gpointer user_data)
 {
 	DBusMessageIter *iter = user_data;
 	DBusMessageIter subiter;
@@ -179,12 +179,12 @@ marshall_hash_table_item (gpointer key, gpointer value, gpointer user_data)
 }
 
 static void
-marshall_hash_table (DBusMessageIter *iter, GHashTable *hash)
+marshal_hash_table (DBusMessageIter *iter, GHashTable *hash)
 {
 	DBusMessageIter subiter;
 
 	dbus_message_iter_open_container (iter, DBUS_TYPE_ARRAY, "{ss}", &subiter);
-	g_hash_table_foreach (hash, marshall_hash_table_item, &subiter);
+	g_hash_table_foreach (hash, marshal_hash_table_item, &subiter);
 	dbus_message_iter_close_container (iter, &subiter);
 }
 
@@ -226,7 +226,7 @@ update_blank_callback (GPtrArray *blank_nodes, GError *error, gpointer user_data
 		for (j = 0; j < inner_array->len; j++) {
 			GHashTable *hash = g_ptr_array_index (inner_array, j);
 
-			marshall_hash_table (&subsubiter, hash);
+			marshal_hash_table (&subsubiter, hash);
 		}
 		dbus_message_iter_close_container (&subiter, &subsubiter);
 	}
