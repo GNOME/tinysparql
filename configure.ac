@@ -810,6 +810,8 @@ if test "x$enable_miner_flickr" != "xno"; then
                      [have_miner_flickr=no])
    AC_SUBST(MINER_FLICKR_LIBS)
    AC_SUBST(MINER_FLICKR_CFLAGS)
+else
+   have_miner_flickr="no  (disabled)"
 fi
 
 if test "x$enable_miner_flickr" = "xyes"; then
@@ -973,9 +975,11 @@ AC_ARG_ENABLE([miner_kmail],
 
 if test "x$enable_miner_kmail" = "xyes"; then
    have_miner_kmail="yes"
+else
+   have_miner_kmail="no  (disabled)"
 fi
 
-AM_CONDITIONAL(HAVE_MINER_KMAIL, test "x$enable_miner_kmail" = "xyes")
+AM_CONDITIONAL(HAVE_MINER_KMAIL, test "x$have_miner_kmail" = "xyes")
 
 
 ##################################################################
@@ -996,7 +1000,7 @@ if test "x$enable_miner_rss" != "xno" ; then
    AC_SUBST(MINER_RSS_CFLAGS)
    AC_SUBST(MINER_RSS_LIBS)
 else
-   enable_miner_rss="no  (disabled)"
+   have_miner_rss="no  (disabled)"
 fi
 
 if test "x$enable_miner_rss" = "xyes"; then
