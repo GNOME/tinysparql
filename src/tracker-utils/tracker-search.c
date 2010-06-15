@@ -150,8 +150,10 @@ static gchar *
 get_fts_string (GStrv    search_words,
                 gboolean use_or_operator)
 {
+#if HAVE_TRACKER_FTS
 	GString *fts;
 	gint i, len;
+
 
 	if (!search_words) {
 		return NULL;
@@ -181,6 +183,10 @@ get_fts_string (GStrv    search_words,
 	}
 
 	return g_string_free (fts, FALSE);
+#else
+	/* If FTS support not enabled, always do non-fts searches */
+	return NULL;
+#endif
 }
 
 static void
@@ -1161,6 +1167,9 @@ main (int argc, char **argv)
 		g_thread_init (NULL);
 	}
 
+
+#if HAVE_TRACKER_FTS
+	/* Only check stopwords if FTS is enabled */
 	if (terms) {
 		TrackerLanguage *language;
 		gboolean stop_words_found;
@@ -1207,6 +1216,7 @@ main (int argc, char **argv)
 
 		g_object_unref (language);
 	}
+#endif
 
 	g_option_context_free (context);
 
