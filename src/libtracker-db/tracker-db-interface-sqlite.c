@@ -26,7 +26,10 @@
 #include <math.h>
 
 #include <libtracker-common/tracker-common.h>
+
+#if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
+#endif
 
 #include "tracker-db-interface-sqlite.h"
 
@@ -41,7 +44,9 @@ struct TrackerDBInterface {
 	GSList *function_data;
 
 	guint ro : 1;
+#if HAVE_TRACKER_FTS
 	guint fts_initialized : 1;
+#endif
 	volatile gint interrupt;
 };
 
@@ -575,9 +580,11 @@ close_database (TrackerDBInterface *db_interface)
 	g_slist_free (db_interface->function_data);
 	db_interface->function_data = NULL;
 
+#if HAVE_TRACKER_FTS
 	if (db_interface->fts_initialized) {
 		tracker_fts_shutdown (G_OBJECT (db_interface));
 	}
+#endif
 
 	rc = sqlite3_close (db_interface->db);
 	g_warn_if_fail (rc == SQLITE_OK);
@@ -587,8 +594,12 @@ void
 tracker_db_interface_sqlite_fts_init (TrackerDBInterface *db_interface,
                                       gboolean            create)
 {
+#if HAVE_TRACKER_FTS
 	tracker_fts_init (db_interface->db, create, G_OBJECT (db_interface));
 	db_interface->fts_initialized = TRUE;
+#else
+	g_message ("FTS support is disabled");
+#endif
 }
 
 static void
@@ -601,7 +612,6 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	close_database (db_interface);
 
 	g_message ("Closed sqlite3 database:'%s'", db_interface->filename);
-
 
 	g_free (db_interface->filename);
 
