@@ -19,7 +19,7 @@ libtracker_db_la_SOURCES = 						\
 	tracker-db-interface.c						\
 	tracker-db-interface-sqlite.c					\
 	tracker-db-manager.c						\
-	tracker-db-journal.c						
+	tracker-db-journal.c
 
 noinst_HEADERS =							\
 	tracker-db.h							\
@@ -31,13 +31,17 @@ noinst_HEADERS =							\
 
 libtracker_db_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-fts/libtracker-fts.la		\
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)							\
 	-lz								\
 	-lm
+
+if HAVE_TRACKER_FTS
+libtracker_db_la_LIBADD += 						\
+	$(top_builddir)/src/libtracker-fts/libtracker-fts.la
+endif
 
 EXTRA_DIST = libtracker-db.vapi
 
