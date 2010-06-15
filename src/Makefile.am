@@ -4,12 +4,21 @@ if HAVE_LIBINOTIFY
 libinotify_dir = libinotify
 endif
 
+if HAVE_TRACKER_FTS
+libstemmer_dir = libstemmer
+endif
+
+if HAVE_TRACKER_FTS
+libtrackerfts_dir = libtracker-fts
+endif
+
+
 SUBDIRS = 					\
-	libstemmer				\
+	$(libstemmer_dir)			\
 	$(libinotify_dir)			\
 	libtracker-common 			\
 	libtracker-client			\
-	libtracker-fts				\
+	$(libtrackerfts_dir)			\
 	libtracker-db				\
 	libtracker-data				\
 	libtracker-extract			\
