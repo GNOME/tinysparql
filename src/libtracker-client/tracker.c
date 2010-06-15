@@ -551,8 +551,7 @@ fast_async_callback_iterator (GObject      *source_object,
 	/* Reset the iterator internal state */
 	iterator->buffer_index = 0;
 
-	if (iterator->rc == TRACKER_STEROIDS_RC_ROW ||
-	    iterator->rc == TRACKER_STEROIDS_RC_LARGEROW) {
+	if (iterator->rc == TRACKER_STEROIDS_RC_ROW) {
 		iterator->has_next = TRUE;
 	}
 
@@ -1716,8 +1715,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	/* Reset the iterator internal state */
 	iterator->buffer_index = 0;
 
-	if (iterator->rc == TRACKER_STEROIDS_RC_ROW ||
-	    iterator->rc == TRACKER_STEROIDS_RC_LARGEROW) {
+	if (iterator->rc == TRACKER_STEROIDS_RC_ROW) {
 		iterator->has_next = TRUE;
 	}
 
@@ -1873,7 +1871,7 @@ tracker_result_iterator_next (TrackerResultIterator  *iterator)
 		nextrc = iterator_buffer_read_int (iterator);
 		iterator->buffer_index -= 4;
 
-		if (nextrc == TRACKER_STEROIDS_RC_ROW || nextrc == TRACKER_STEROIDS_RC_LARGEROW) {
+		if (nextrc == TRACKER_STEROIDS_RC_ROW) {
 			iterator->has_next = TRUE;
 		} else if (nextrc == TRACKER_STEROIDS_RC_DONE) {
 			iterator->has_next = FALSE;
