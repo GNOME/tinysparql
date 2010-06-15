@@ -36,7 +36,7 @@ TEST_PROGS +=								\
 
 # 	tracker-db-manager-unattach					\
 # 	tracker-db-manager-attach					\
-# 	tracker-db-manager-custom					
+# 	tracker-db-manager-custom
 
 
 tracker_db_journal_SOURCES = 						\
@@ -45,7 +45,6 @@ tracker_db_journal_SOURCES = 						\
 tracker_db_journal_LDADD =						\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/libtracker-fts/libtracker-fts.la		\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 	$(SQLITE3_LIBS)							\
 	$(GMODULE_LIBS)							\
