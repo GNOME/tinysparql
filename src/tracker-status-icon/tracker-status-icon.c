@@ -640,6 +640,19 @@ miner_menu_entry_add (TrackerStatusIcon *icon,
 		gtk_widget_set_sensitive (entry->menu_item, FALSE);
 		gtk_widget_hide (entry->progress_bar);
 		gtk_widget_hide (entry->progress_percentage);
+	} else {
+		gdouble progress;
+		gchar *status;
+
+		tracker_miner_manager_get_status (priv->manager, miner, &status, &progress);
+
+		entry->status = status;
+		entry->progress = progress;
+
+		gtk_widget_show (entry->progress_bar);
+		gtk_widget_show (entry->progress_percentage);
+
+		status_icon_miner_progress_set (entry);
 	}
 
 	g_hash_table_replace (priv->miners, str, entry);
