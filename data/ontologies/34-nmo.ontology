@@ -401,6 +401,12 @@ nmo:smsFolderId a rdf:Property ;
 	rdfs:range xsd:string ;
 	rdfs:subPropertyOf nie:identifier .
 
+nmo:validityPeriod a rdf:Property ;
+        rdfs:label "Validity period"
+        rdfs:comment "Validity period of an SMS in seconds. It is a value coming from the network." ;
+        nrl:maxCardinality 1 ;
+        rdfs:domain nmo:SMSMessage ;
+        rdfs:range xsd:integer .
 
 nmo:containsSMSFolder a rdf:Property ;
 	rdfs:label "contains SMS Folder";
