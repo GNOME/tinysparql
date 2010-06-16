@@ -415,7 +415,7 @@ db_manager_remove_all (gboolean rm_journal)
 {
 	guint i;
 
-	g_message ("Removing all database files");
+	g_message ("Removing all database/storage files");
 
 	/* Remove stamp files */
 	tracker_db_manager_set_first_index_done (FALSE);
