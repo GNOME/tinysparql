@@ -20,18 +20,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <libtracker-client/tracker.h>
+#include <libtracker-client/tracker-client.h>
 
 int
-main (int argc, char **argv) {
-	const char *query;
+main (int argc, char **argv) 
+{
+	const gchar *query;
 	TrackerClient *client;
 	GError *error = NULL;
 	TrackerResultIterator *iterator;
 
 	if (argc != 2) {
-		fprintf (stderr, "Usage: %s query\n", argv[0]);
-		exit (1);
+		g_printerr ( "Usage: %s query\n", argv[0]);
+		return EXIT_FAILURE;
 	}
 
 	query = argv[1];
@@ -41,29 +42,29 @@ main (int argc, char **argv) {
 	iterator = tracker_resources_sparql_query_iterate (client, query, &error);
 
 	if (!iterator) {
-		fprintf (stderr, "Query preparation failed, %s\n", error->message);
+		g_printerr ("Query preparation failed, %s\n", error->message);
 		g_error_free (error);
-		exit (1);
+		return EXIT_FAILURE;
 	}
 
 	while (tracker_result_iterator_has_next (iterator)) {
-		int i;
+		gint i;
 
 		tracker_result_iterator_next (iterator);
 
 		for (i = 0; i < tracker_result_iterator_n_columns (iterator); i++) {
-			printf ("%s", tracker_result_iterator_value (iterator, i));
+			g_print ("%s", tracker_result_iterator_value (iterator, i));
 
 			if (i != tracker_result_iterator_n_columns (iterator) - 1) {
-				printf (", ");
+				g_print (", ");
 			}
 		}
 
-		printf ("\n");
+		g_print ("\n");
 	}
 
 	tracker_result_iterator_free (iterator);
 	g_object_unref (client);
 
-	return 0;
+	return EXIT_SUCCESS;
 }

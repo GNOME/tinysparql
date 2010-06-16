@@ -13,7 +13,7 @@ INCLUDES =							\
 	$(GIO_CFLAGS)						\
 	$(DBUS_CFLAGS)
 
-noinst_PROGRAMS = \
+noinst_PROGRAMS = 						\
 	steroids-sparql						\
 	steroids-sparql-async					\
 	steroids-sparql-update-async				\
@@ -23,11 +23,11 @@ noinst_PROGRAMS = \
 steroids_sparql_SOURCES =					\
 	steroids-sparql.c
 
-steroids_sparql_update_async_SOURCES=steroids-sparql-update-async.c
+steroids_sparql_update_async_SOURCES = steroids-sparql-update-async.c
 
-benchmark_SOURCES= benchmark.c
+benchmark_SOURCES = benchmark.c
 
-benchmark_update_SOURCES=benchmark-update.c
+benchmark_update_SOURCES = benchmark-update.c
 
 steroids_sparql_LDADD =						\
        $(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
@@ -41,10 +41,10 @@ steroids_sparql_LDADD =						\
        -lz							\
        -lm
 
-steroids_sparql_async_LDADD= $(steroids_sparql_LDADD)
+steroids_sparql_async_LDADD = $(steroids_sparql_LDADD)
 
-steroids_sparql_update_async_LDADD= $(steroids_sparql_LDADD)
+steroids_sparql_update_async_LDADD = $(steroids_sparql_LDADD)
 
-benchmark_LDADD= $(steroids_sparql_LDADD)
+benchmark_LDADD = $(steroids_sparql_LDADD)
 
-benchmark_update_LDADD= $(steroids_sparql_LDADD)
+benchmark_update_LDADD = $(steroids_sparql_LDADD)

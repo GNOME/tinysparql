@@ -20,24 +20,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libtracker-client/tracker.h>
+
+#include <libtracker-client/tracker-client.h>
 
 int
 main (int argc, char **argv)
 {
-	const char *query;
+	const gchar *query;
 	TrackerClient *client;
 	GError *error = NULL;
 	GPtrArray *results;
 	TrackerResultIterator *iterator;
-	char buffer[1024*1024];
+	gchar buffer[1024 * 1024];
 	GTimer *timer;
-	int i, j;
-	double time_normal, time_steroids;
+	gint i, j;
+	gdouble time_normal, time_steroids;
 
 	if (argc != 2) {
 		fprintf (stderr, "Usage: %s query\n", argv[0]);
-		exit (1);
+		return EXIT_FAILURE;
 	}
 
 	query = argv[1];
@@ -52,7 +53,7 @@ main (int argc, char **argv)
 		g_critical ("Query error: %s", error->message);
 		g_error_free (error);
 		g_timer_destroy (timer);
-		exit (1);
+		return EXIT_FAILURE;
 	}
 
 	for (i = 0; i < results->len; i++) {
@@ -67,15 +68,15 @@ main (int argc, char **argv)
 
 	g_ptr_array_free (results, TRUE);
 
-	g_timer_start (timer);
-
 	iterator = tracker_resources_sparql_query_iterate (client, query, &error);
 
 	while (tracker_result_iterator_has_next (iterator)) {
 		tracker_result_iterator_next (iterator);
 
 		for (i = 0; i < tracker_result_iterator_n_columns (iterator); i++) {
-			const char *data = tracker_result_iterator_value (iterator, i);
+			const char *data;
+
+			data = tracker_result_iterator_value (iterator, i);
 			memcpy (buffer, data, g_utf8_strlen (data, -1));
 		}
 	}
@@ -84,9 +85,9 @@ main (int argc, char **argv)
 
 	tracker_result_iterator_free (iterator);
 
-	printf ("Normal:   %f seconds\n", time_normal);
-	printf ("Steroids: %f seconds\n", time_steroids);
-	printf ("Speedup:  %f %%\n", 100 * (time_normal/time_steroids - 1));
+	g_print ("Normal:   %f seconds\n", time_normal);
+	g_print ("Steroids: %f seconds\n", time_steroids);
+	g_print ("Speedup:  %f %%\n", 100 * (time_normal / time_steroids - 1));
 
-	return 0;
+	return EXIT_SUCCESS;
 }

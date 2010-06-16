@@ -1,8 +1,7 @@
 /* 
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
  * Copyright (C) 2008-2010, Nokia <ivan.frade@nokia.com>
- * Copyright (C) 2010, Codeminded BVBA
- *                     FD passing by Adrien Bustany <abustany@gnome.org>
+ * Copyright (C) 2010, Codeminded BVBA <abustany@gnome.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,6 +22,9 @@
 #include "config.h"
 
 #include <string.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
@@ -33,14 +35,8 @@
 #include <gio/gunixoutputstream.h>
 
 #include <libtracker-common/tracker-dbus.h>
-#include <tracker-store/tracker-steroids.h>
-
-#include <errno.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #include "tracker.h"
-
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
 
@@ -174,13 +170,14 @@ struct TrackerResultIterator {
 	guint  n_columns;
 	int   *offsets;
 	char  *data;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	GPtrArray *results;
 	gint current_row;
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 };
 
 #ifdef HAVE_DBUS_FD_PASSING
+
 typedef enum {
 	FAST_QUERY,
 	FAST_UPDATE,
@@ -214,12 +211,15 @@ typedef struct {
 	GCancellable  *cancellable;
 	FastAsyncData *data;
 } FastPendingCallData;
-#else
+
+#else  /* HAVE_DBUS_FD_PASSING */
+
 typedef struct {
 	TrackerReplyIterator callback;
 	gpointer user_data;
 } FastQueryAsyncCompatData;
-#endif
+
+#endif /* HAVE_DBUS_FD_PASSING */
 
 static gboolean is_service_available (void);
 static void     client_finalize      (GObject      *object);
@@ -255,7 +255,7 @@ pending_call_free (PendingCallData *data)
 		g_slice_free (FastPendingCallData, fast_data);
 		return;
 	}
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 	g_slice_free (PendingCallData, data);
 }
 
@@ -275,7 +275,7 @@ pending_call_new (TrackerClient  *client,
 	data = g_slice_new (PendingCallData);
 #ifdef HAVE_DBUS_FD_PASSING
 	data->fast = 0;
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 	data->proxy = proxy;
 	data->pending_call = pending_call;
 
@@ -289,10 +289,11 @@ pending_call_new (TrackerClient  *client,
 }
 
 #ifdef HAVE_DBUS_FD_PASSING
+
 static guint
-pending_call_new_fast (TrackerClient   *client,
-                      GCancellable    *cancellable,
-                      FastAsyncData   *data)
+pending_call_new_fast (TrackerClient *client,
+		       GCancellable  *cancellable,
+		       FastAsyncData *data)
 {
 	TrackerClientPrivate *private;
 	FastPendingCallData *call_data;
@@ -549,6 +550,7 @@ callback_with_void (DBusGProxy *proxy,
 }
 
 #ifdef HAVE_DBUS_FD_PASSING
+
 static int
 iterator_buffer_read_int (TrackerResultIterator *iterator)
 {
@@ -633,7 +635,9 @@ fast_async_callback_iterator (GObject      *source_object,
 
 	(* data->iterator_callback) (iterator, NULL, data->user_data);
 }
-#else
+
+#else  /* HAVE_DBUS_FD_PASSING */
+
 static void
 fast_async_callback_iterator_compat (GPtrArray *results,
                                      GError *error,
@@ -659,6 +663,7 @@ fast_async_callback_iterator_compat (GPtrArray *results,
 
 	g_slice_free (FastQueryAsyncCompatData, data);
 }
+
 #endif /* HAVE_DBUS_FD_PASSING */
 
 /* Deprecated and only used for 0.6 API */
@@ -1420,7 +1425,7 @@ tracker_cancel_call (TrackerClient *client,
 		                     GUINT_TO_POINTER (call_id));
 		return TRUE;
 	}
-#endif
+#endif  /* HAVE_DBUS_FD_PASSING */
 
 	dbus_g_proxy_cancel_call (data->proxy, data->pending_call);
 	g_hash_table_remove (private->pending_calls,
@@ -1768,7 +1773,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	dbus_pending_call_unref (call);
 
 	return iterator;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	TrackerResultIterator *iterator;
 	GError *inner_error = NULL;
 
@@ -1787,7 +1792,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	}
 
 	return iterator;
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1804,12 +1809,12 @@ tracker_result_iterator_free (TrackerResultIterator *iterator)
 #ifndef HAVE_DBUS_FD_PASSING
 	g_ptr_array_foreach (iterator->results, (GFunc) g_free, NULL);
 	g_ptr_array_free (iterator->results, TRUE);
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	if (iterator->buffer) {
 		g_free (iterator->buffer);
 	}
 	g_slice_free (TrackerResultIterator, iterator);
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1827,7 +1832,7 @@ tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
 	g_return_val_if_fail (iterator, 0);
 
 	return iterator->n_columns;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	GStrv row;
 	guint i = 0;
 
@@ -1843,7 +1848,7 @@ tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
 	}
 
 	return i - 1;
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1863,7 +1868,7 @@ tracker_result_iterator_has_next (TrackerResultIterator *iterator)
 	g_return_val_if_fail (iterator, FALSE);
 
 	return iterator->buffer_index < iterator->buffer_size;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	g_return_val_if_fail (iterator, FALSE);
 
 	if (!iterator->results->len) {
@@ -1871,7 +1876,7 @@ tracker_result_iterator_has_next (TrackerResultIterator *iterator)
 	}
 
 	return (iterator->current_row < (gint)(iterator->results->len - 1));
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1898,7 +1903,7 @@ tracker_result_iterator_next (TrackerResultIterator  *iterator)
 	last_offset = iterator_buffer_read_int (iterator);
 	iterator->data = iterator->buffer + iterator->buffer_index;
 	iterator->buffer_index += last_offset + 1;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	g_return_if_fail (iterator);
 
 	if (!iterator->results->len) {
@@ -1908,7 +1913,7 @@ tracker_result_iterator_next (TrackerResultIterator  *iterator)
 	if (iterator->current_row < (gint)iterator->results->len) {
 		iterator->current_row++;
 	}
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1935,7 +1940,7 @@ tracker_result_iterator_value (TrackerResultIterator *iterator,
 	} else {
 		return iterator->data + iterator->offsets[column-1] + 1;
 	}
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	GStrv row;
 
 	g_return_val_if_fail (iterator, NULL);
@@ -1950,7 +1955,7 @@ tracker_result_iterator_value (TrackerResultIterator *iterator,
 	row = g_ptr_array_index (iterator->results, iterator->current_row);
 
 	return row[column];
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static void
@@ -2001,9 +2006,9 @@ tracker_resources_sparql_update (TrackerClient  *client,
 	}
 
 	dbus_message_unref (reply);
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	tracker_resources_sparql_update_compat (client, query, error);
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static GPtrArray*
@@ -2076,9 +2081,9 @@ tracker_resources_sparql_update_blank (TrackerClient  *client,
 	dbus_message_unref (reply);
 
 	return result;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	return tracker_resources_sparql_update_blank_compat (client, query, error);
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static void
@@ -2126,9 +2131,9 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
 	}
 
 	dbus_message_unref (reply);
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	tracker_resources_batch_sparql_update_compat (client, query, error);
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2353,7 +2358,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                              fast_async_callback_iterator,
 	                              async_data);
 	return async_data->request_id;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	FastQueryAsyncCompatData *data;
 
 	data = g_slice_new0 (FastQueryAsyncCompatData);
@@ -2361,7 +2366,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	data->user_data = user_data;
 
 	return tracker_resources_sparql_query_async (client, query, fast_async_callback_iterator_compat, user_data);
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2442,9 +2447,9 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	}
 
 	return data->request_id;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	return tracker_resources_sparql_update_compat_async (client, query, callback, user_data);
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static guint
@@ -2511,9 +2516,9 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	}
 
 	return data->request_id;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	return tracker_resources_sparql_update_blank_compat_async (client, query, callback, user_data);
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static guint
@@ -2594,9 +2599,9 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	}
 
 	return data->request_id;
-#else
+#else  /* HAVE_DBUS_FD_PASSING */
 	return tracker_resources_batch_sparql_update_compat_async (client, query, callback, user_data);
-#endif
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**

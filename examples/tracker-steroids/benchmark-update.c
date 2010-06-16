@@ -20,23 +20,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libtracker-client/tracker.h>
+
+#include <libtracker-client/tracker-client.h>
 
 #define N_TRIES 500
 
 int
 main (int argc, char **argv)
 {
-	const char *query;
+	const gchar *query;
 	TrackerClient *client;
 	GError *error = NULL;
 	GTimer *timer;
-	int i;
-	double time_normal, time_steroids;
+	gint i;
+	gdouble time_normal, time_steroids;
 
 	if (argc != 2) {
-		fprintf (stderr, "Usage: %s query\n", argv[0]);
-		exit (1);
+		g_printerr ("Usage: %s query\n", argv[0]);
+		return EXIT_FAILURE;
 	}
 
 	query = argv[1];
@@ -50,7 +51,7 @@ main (int argc, char **argv)
 		if (error) {
 			g_critical ("Query error: %s", error->message);
 			g_error_free (error);
-			exit (1);
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -64,13 +65,11 @@ main (int argc, char **argv)
 			g_critical ("Query error: %s", error->message);
 			g_error_free (error);
 			g_timer_destroy (timer);
-			exit (1);
+			return EXIT_FAILURE;
 		}
 	}
 
 	time_normal = g_timer_elapsed (timer, NULL);
-
-	g_timer_start (timer);
 
 	for (i = 0; i < N_TRIES; i++) {
 		tracker_resources_sparql_update (client, query, &error);
@@ -79,15 +78,15 @@ main (int argc, char **argv)
 			g_critical ("Query error: %s", error->message);
 			g_error_free (error);
 			g_timer_destroy (timer);
-			exit (1);
+			return EXIT_FAILURE;
 		}
 	}
 
 	time_steroids = g_timer_elapsed (timer, NULL);
 
-	printf ("Normal:   %f seconds\n", time_normal/N_TRIES);
-	printf ("Steroids: %f seconds\n", time_steroids/N_TRIES);
-	printf ("Speedup:  %f %%\n", 100 * (time_normal/time_steroids - 1));
+	g_print ("Normal:   %f seconds\n", time_normal/N_TRIES);
+	g_print ("Steroids: %f seconds\n", time_steroids/N_TRIES);
+	g_print ("Speedup:  %f %%\n", 100 * (time_normal / time_steroids - 1));
 
-	return 0;
+	return EXIT_SUCCESS;
 }

@@ -1672,15 +1672,15 @@ AC_ARG_ENABLE(dbus-fd-passing,
 	      [enable_dbus_fd_passing=auto])
 
 if test "x$enable_dbus_fd_passing" != "xno" ; then
-    PKG_CHECK_EXISTS([dbus-1 >= 1.3],
-                     [have_dbus_fd_passing=yes],
-                     [have_dbus_fd_passing=no])
+   PKG_CHECK_EXISTS([dbus-1 >= 1.3],
+                    [have_dbus_fd_passing=yes],
+                    [have_dbus_fd_passing=no])
 
-    if test "x$have_dbus_fd_passing" = "xyes"; then
-       AC_DEFINE(HAVE_DBUS_FD_PASSING, [], [Define if we have DBus >= 1.3 and want DBus FD passing])
-    fi
+   if test "x$have_dbus_fd_passing" = "xyes"; then
+      AC_DEFINE(HAVE_DBUS_FD_PASSING, [], [Define if we have DBus >= 1.3 and want DBus FD passing])
+   fi
 else
-    have_dbus_fd_passing="no  (disabled)"
+   have_dbus_fd_passing="no  (disabled)"
 fi
 
 if test "x$enable_dbus_fd_passing" = "xyes"; then

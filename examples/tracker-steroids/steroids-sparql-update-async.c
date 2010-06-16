@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <libtracker-client/tracker.h>
+#include <libtracker-client/tracker-client.h>
 
 #include <glib.h>
 
@@ -28,11 +28,11 @@ static TrackerClient *client;
 static GMainLoop *main_loop;
 
 static void
-query_cb (GPtrArray       *results,
-          GError          *error,
-          gpointer         user_data)
+query_cb (GPtrArray *results,
+          GError    *error,
+          gpointer   user_data)
 {
-	int i, j;
+	gint i, j;
 
 	if (error) {
 		g_critical ("Update failed: %s", error->message);
@@ -57,7 +57,7 @@ query_cb (GPtrArray       *results,
 			g_hash_table_iter_init (&iter, hash);
 
 			while (g_hash_table_iter_next (&iter, &key, &value)) {
-				g_printf ("%s -> %s\n", (char *)key, (char *)value);
+				g_print ("%s -> %s\n", (gchar*) key, (gchar*) value);
 			}
 
 			g_hash_table_unref (hash);
@@ -72,12 +72,13 @@ query_cb (GPtrArray       *results,
 }
 
 int
-main (int argc, char **argv) {
-	const char *query;
-
+main (int argc, char **argv) 
+{
+	const gchar *query;
+	
 	if (argc != 2) {
-		fprintf (stderr, "Usage: %s query\n", argv[0]);
-		exit (1);
+		g_printerr ("Usage: %s query\n", argv[0]);
+		return EXIT_FAILURE;
 	}
 
 	query = argv[1];
@@ -88,10 +89,10 @@ main (int argc, char **argv) {
 
 	if (tracker_resources_sparql_update_blank_async (client, query, query_cb, NULL) == 0) {
 		g_critical ("error running update");
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	g_main_loop_run (main_loop);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
