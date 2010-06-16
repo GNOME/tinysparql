@@ -569,6 +569,37 @@ set_up_mount_point_cb (GObject      *source,
 }
 
 static void
+set_up_mount_point_type (TrackerMinerFiles *miner,
+                         const gchar       *removable_device_urn,
+                         gboolean           removable,
+                         gboolean           optical,
+                         GString           *accumulator)
+{
+	if (!accumulator) {
+		return;
+	}
+
+	g_debug ("Mount point type being set in DB for URN '%s'",
+	         removable_device_urn);
+
+	g_string_append_printf (accumulator,
+	                        "DELETE FROM <%s> { <%s> tracker:isRemovable ?unknown } WHERE { <%s> a tracker:Volume; tracker:isRemovable ?unknown } ",
+	                        removable_device_urn, removable_device_urn, removable_device_urn);
+
+	g_string_append_printf (accumulator,
+	                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isRemovable %s } ",
+	                        removable_device_urn, removable_device_urn, removable ? "true" : "false");
+
+	g_string_append_printf (accumulator,
+	                        "DELETE FROM <%s> { <%s> tracker:isOptical ?unknown } WHERE { <%s> a tracker:Volume; tracker:isOptical ?unknown } ",
+	                        removable_device_urn, removable_device_urn, removable_device_urn);
+
+	g_string_append_printf (accumulator,
+	                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isOptical %s } ",
+	                        removable_device_urn, removable_device_urn, optical ? "true" : "false");
+}
+
+static void
 set_up_mount_point (TrackerMinerFiles *miner,
                     const gchar       *removable_device_urn,
                     const gchar       *mount_point,
@@ -763,12 +794,16 @@ query_mount_points_cb (GObject      *source,
 		if ((state & VOLUME_MOUNTED) &&
 		    !(state & VOLUME_MOUNTED_IN_STORE)) {
 			const gchar *mount_point = NULL;
+			TrackerStorageType type = 0;
 
+			/* Note: is there any case where the urn doesn't have our
+			 *  datasource prefix? */
 			if (g_str_has_prefix (urn, TRACKER_DATASOURCE_URN_PREFIX)) {
 				const gchar *uuid;
 
 				uuid = urn + strlen (TRACKER_DATASOURCE_URN_PREFIX);
 				mount_point = tracker_storage_get_mount_point_for_uuid (priv->storage, uuid);
+				type = tracker_storage_get_type_for_uuid (priv->storage, uuid);
 			}
 
 			if (urn) {
@@ -783,16 +818,25 @@ query_mount_points_cb (GObject      *source,
 					         urn);
 				}
 
+				/* Set mount point state */
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
 						    urn,
 						    mount_point,
 						    TRUE,
 						    accumulator);
+
+				/* Set mount point type */
+				set_up_mount_point_type (TRACKER_MINER_FILES (miner),
+				                         urn,
+				                         type & TRACKER_STORAGE_REMOVABLE,
+				                         type & TRACKER_STORAGE_OPTICAL,
+				                         accumulator);
+
 			}
 		} else if (!(state & VOLUME_MOUNTED) &&
 		           (state & VOLUME_MOUNTED_IN_STORE)) {
 			if (urn) {
-				g_debug ("Mount pont state incorrect in DB for URN '%s', "
+				g_debug ("Mount point state incorrect in DB for URN '%s', "
 					 "currently it is NOT mounted",
 					 urn);
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
@@ -868,6 +912,7 @@ mount_point_added_cb (TrackerStorage *storage,
 	gchar *urn;
 	gboolean index_removable_devices;
 	gboolean index_optical_discs;
+	GString *queries;
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (miner);
 
@@ -960,7 +1005,15 @@ mount_point_added_cb (TrackerStorage *storage,
 		g_object_unref (file);
 	}
 
-	set_up_mount_point (miner, urn, mount_point, TRUE, NULL);
+	queries = g_string_new ("");
+	set_up_mount_point (miner, urn, mount_point, TRUE, queries);
+	set_up_mount_point_type (miner, urn, removable, optical, queries);
+	tracker_miner_execute_update (TRACKER_MINER (miner),
+	                              queries->str,
+	                              NULL,
+	                              set_up_mount_point_cb,
+	                              g_strdup (urn));
+	g_string_free (queries, TRUE);
 	g_free (urn);
 }
 
