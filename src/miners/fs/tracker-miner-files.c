@@ -75,8 +75,8 @@ struct TrackerMinerFilesPrivate {
 
 #if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
 	TrackerPower *power;
-	gulong finished_handler;
 #endif /* defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL) */
+	gulong finished_handler;
 
 	DBusGProxy *extractor_proxy;
 
