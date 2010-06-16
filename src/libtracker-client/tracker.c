@@ -40,8 +40,11 @@
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
 
-/* sleep delay to emulate dbus_pending_call_block, in us */
-#define NOT_TOO_SHORT_DELAY 1000
+/* Would probably be better in tracker-common */
+#define TRACKER_STEROIDS_SERVICE   "org.freedesktop.Tracker1"
+#define TRACKER_STEROIDS_PATH      "/org/freedesktop/Tracker1/Steroids"
+#define TRACKER_STEROIDS_INTERFACE "org.freedesktop.Tracker1.Steroids"
+#define TRACKER_STEROIDS_BUFFER_SIZE 65536
 
 /**
  * SECTION:tracker
