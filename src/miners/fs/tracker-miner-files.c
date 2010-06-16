@@ -1246,10 +1246,11 @@ update_directories_from_new_config (TrackerMinerFS *mf,
                 if (!tracker_string_in_gslist (path, new_dirs)) {
                         GFile *file;
 
-                        g_message ("  Removing directory:'%s'", path);
+                        g_message ("  Removing directory: '%s'", path);
 
                         file = g_file_new_for_path (path);
-                        tracker_miner_fs_directory_remove (TRACKER_MINER_FS (mf), file);
+                        /* Fully remove item (monitors and from store) */
+                        tracker_miner_fs_directory_remove_full (TRACKER_MINER_FS (mf), file);
                         g_object_unref (file);
                 }
         }

@@ -1496,7 +1496,7 @@ item_remove (TrackerMinerFS *fs,
 	iri_cache_invalidate (fs, file);
 	uri = g_file_get_uri (file);
 
-	g_debug ("Removing item: '%s' (Deleted from filesystem)",
+	g_debug ("Removing item: '%s' (Deleted from filesystem or no longer monitored)",
 	         uri);
 
 	if (!item_query_exists (fs, file, NULL, &mime)) {
@@ -2271,7 +2271,7 @@ remove_unexisting_file_cb (gpointer key,
 	TrackerMinerFS *fs = user_data;
 	GFile *file = key;
 
-	/* If file no longer exists, remove it from the store*/
+	/* If file no longer exists, remove it from the store */
 	if (!g_file_query_exists (file, NULL)) {
 		gchar *uri;
 
@@ -3181,7 +3181,8 @@ check_files_removal (GQueue *queue,
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the directory to be removed
  *
- * Removes a directory from being inspected by @fs.
+ * Removes a directory from being inspected by @fs. Note that only directory
+ *  watches are removed.
  *
  * Returns: %TRUE if the directory was successfully removed.
  **/
@@ -3266,6 +3267,37 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 	tracker_monitor_remove_recursively (fs->private->monitor, file);
 
 	return return_val;
+}
+
+
+/**
+ * tracker_miner_fs_directory_remove_full:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the directory to be removed
+ *
+ * Removes a directory from being inspected by @fs, and removes all
+ *  associated metadata from the store.
+ *
+ * Returns: %TRUE if the directory was successfully removed.
+ **/
+gboolean
+tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
+                                        GFile          *file)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	/* Tell miner not to keep on inspecting the directory... */
+	if (tracker_miner_fs_directory_remove (fs, file)) {
+		/* And remove all info about the directory from the store... */
+		g_queue_push_tail (fs->private->items_deleted,
+		                   g_object_ref (file));
+		item_queue_handlers_set_up (fs);
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 /**

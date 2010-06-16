@@ -100,6 +100,8 @@ void                  tracker_miner_fs_directory_add        (TrackerMinerFS *fs,
                                                              gboolean        recurse);
 gboolean              tracker_miner_fs_directory_remove     (TrackerMinerFS *fs,
                                                              GFile          *file);
+gboolean              tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
+                                                              GFile          *file);
 void                  tracker_miner_fs_file_add             (TrackerMinerFS *fs,
                                                              GFile          *file);
 void                  tracker_miner_fs_file_notify          (TrackerMinerFS *fs,
@@ -117,7 +119,6 @@ void                  tracker_miner_fs_force_recheck        (TrackerMinerFS *fs)
 void                  tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
                                                              gboolean        do_initial_crawling);
 gboolean              tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs);
-
 
 G_END_DECLS
 

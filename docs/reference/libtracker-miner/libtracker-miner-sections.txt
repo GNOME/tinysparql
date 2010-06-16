@@ -69,6 +69,7 @@ TrackerMinerFS
 TrackerMinerFSClass
 tracker_miner_fs_directory_add
 tracker_miner_fs_directory_remove
+tracker_miner_fs_directory_remove_full
 tracker_miner_fs_file_add
 tracker_miner_fs_file_notify
 tracker_miner_fs_set_throttle
