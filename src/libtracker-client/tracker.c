@@ -1405,7 +1405,8 @@ tracker_cancel_call (TrackerClient *client,
 		case FAST_UPDATE:
 		case FAST_UPDATE_BLANK:
 		case FAST_UPDATE_BATCH:
-			dbus_pending_call_unref (async_data->dbus_call);
+			/* dbus_pending_call_cancel does unref the call, so no need to
+			 * unref it here */
 			break;
 		default:
 			g_assert_not_reached ();
