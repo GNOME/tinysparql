@@ -2881,6 +2881,12 @@ crawl_directories_cb (gpointer user_data)
 	}
 
 	if (!fs->private->directories) {
+		if (fs->private->current_parent) {
+			/* Unset parent folder so caches are regenerated */
+			g_object_unref (fs->private->current_parent);
+			fs->private->current_parent = NULL;
+		}
+
 		/* Now we handle the queue */
 		item_queue_handlers_set_up (fs);
 		crawl_directories_stop (fs);
