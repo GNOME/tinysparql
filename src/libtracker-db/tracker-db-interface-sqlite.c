@@ -639,7 +639,7 @@ static void
 prepare_database (TrackerDBInterface *db_interface)
 {
 	db_interface->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                                          (GDestroyNotify) g_free,
+	                                                          NULL,
 	                                                          (GDestroyNotify) g_object_unref);
 }
 
@@ -759,13 +759,12 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 
 		stmt = tracker_db_statement_sqlite_new (db_interface, sqlite_stmt);
 
-		/* ownership of full_query is transferred to the hash table */
-		g_hash_table_insert (db_interface->dynamic_statements, full_query, stmt);
+		g_hash_table_insert (db_interface->dynamic_statements, sqlite3_sql (sqlite_stmt), stmt);
 	} else {
-		g_free (full_query);
-
 		tracker_db_statement_sqlite_reset (stmt);
 	}
+
+	g_free (full_query);
 
 	return g_object_ref (stmt);
 }
