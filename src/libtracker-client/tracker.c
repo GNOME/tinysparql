@@ -189,7 +189,6 @@ typedef struct {
 	TrackerClient         *client;
 	guint                  request_id;
 	FastOperationType      operation;
-	const gchar           *query;
 	gpointer               user_data;
 	GInputStream          *input_stream;
 	GOutputStream         *output_stream;
@@ -1171,12 +1170,13 @@ sparql_update_fast (TrackerClient      *client,
 
 static void
 sparql_update_fast_async (TrackerClient      *client,
+                          const gchar        *query,
                           FastAsyncData      *data,
                           GError            **error)
 {
 	DBusPendingCall *call;
 
-	call = sparql_update_fast_send (client, data->query, data->operation, error);
+	call = sparql_update_fast_send (client, query, data->operation, error);
 	if (!call) {
 		return;
 	}
@@ -2431,12 +2431,11 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	data = g_slice_new0 (FastAsyncData);
 	data->client = g_object_ref (client);
 	data->operation = FAST_UPDATE;
-	data->query = query;
 	data->void_callback = callback;
 	data->user_data = user_data;
 	data->request_id = pending_call_new_fast (client, NULL, data);
 
-	sparql_update_fast_async (client, data, &error);
+	sparql_update_fast_async (client, query, data, &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
@@ -2500,12 +2499,11 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	data = g_slice_new0 (FastAsyncData);
 	data->client = g_object_ref (client);
 	data->operation = FAST_UPDATE_BLANK;
-	data->query = query;
 	data->gptrarray_callback = callback;
 	data->user_data = user_data;
 	data->request_id = pending_call_new_fast (client, NULL, data);
 
-	sparql_update_fast_async (client, data, &error);
+	sparql_update_fast_async (client, query, data, &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
@@ -2583,12 +2581,11 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	data = g_slice_new0 (FastAsyncData);
 	data->client = g_object_ref (client);
 	data->operation = FAST_UPDATE_BATCH;
-	data->query = query;
 	data->void_callback = callback;
 	data->user_data = user_data;
 	data->request_id = pending_call_new_fast (client, NULL, data);
 
-	sparql_update_fast_async (client, data, &error);
+	sparql_update_fast_async (client, query, data, &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
