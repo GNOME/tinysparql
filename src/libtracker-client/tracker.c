@@ -127,7 +127,7 @@ typedef struct {
 	 * It is common to both the PendingCallData and the FastPendingCallData
 	 * structs, so it allows differentiating between them, and cast
 	 * appropriately */
-	char fast;
+	gboolean fast;
 #endif
 	DBusGProxy *proxy;
 	DBusGProxyCall *pending_call;
@@ -210,7 +210,7 @@ typedef struct {
 } FastAsyncData;
 
 typedef struct {
-	char           fast;
+	gboolean       fast;
 	GCancellable  *cancellable;
 	FastAsyncData *data;
 } FastPendingCallData;
