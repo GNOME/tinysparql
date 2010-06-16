@@ -25,6 +25,11 @@
 /* This MUST be larger than TRACKER_STEROIDS_BUFFER_SIZE */
 #define LONG_NAME_SIZE 128*1024*sizeof(char)
 
+typedef struct {
+	GMainLoop *main_loop;
+	const gchar *query;
+} AsyncData;
+
 static TrackerClient *client;
 
 static void
@@ -432,6 +437,167 @@ test_tracker_batch_sparql_update_fast ()
 	return;
 }
 
+static void
+async_query_cb (TrackerResultIterator *iterator,
+                GError                *error,
+                gpointer               user_data)
+{
+	AsyncData *data = user_data;
+	GPtrArray *r1;
+	GError *inner_error = NULL;
+	guint i = 0;
+
+	g_main_loop_quit (data->main_loop);
+
+	g_assert (!error);
+
+	r1 = tracker_resources_sparql_query (client, data->query, &inner_error);
+
+	g_assert (!inner_error);
+
+	while (tracker_result_iterator_has_next (iterator)) {
+		GStrv row;
+
+		g_assert (i < r1->len);
+
+		tracker_result_iterator_next (iterator);
+		row = g_ptr_array_index (r1, i++);
+
+		g_assert (!g_strcmp0 (tracker_result_iterator_value (iterator, 0), row[0]));
+	}
+
+	g_assert (i == r1->len);
+}
+
+static void
+test_tracker_sparql_query_iterate_async ()
+{
+	guint request_id;
+	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
+	GMainLoop *main_loop;
+	AsyncData *data;
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	data = g_slice_new (AsyncData);
+	data->main_loop = main_loop;
+	data->query = query;
+
+	request_id = tracker_resources_sparql_query_iterate_async (client,
+	                                                           query,
+	                                                           async_query_cb,
+	                                                           data);
+
+	g_main_loop_run (main_loop);
+
+	g_assert (request_id != 0);
+
+	g_slice_free (AsyncData, data);
+}
+
+static void
+test_tracker_sparql_query_iterate_async_cancel ()
+{
+	guint request_id;
+	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
+
+	request_id = tracker_resources_sparql_query_iterate_async (client,
+	                                                           query,
+	                                                           (TrackerReplyIterator) 42, /* will segfault if ever callback is called */
+	                                                           NULL);
+	tracker_cancel_call (client, request_id);
+	g_usleep (1000000); /* Sleep one second to see if callback is called */
+}
+
+static void
+async_update_callback (GError *error, gpointer user_data)
+{
+	AsyncData *data = user_data;
+
+	g_assert (!error);
+
+	g_main_loop_quit (data->main_loop);
+}
+
+static void
+test_tracker_sparql_update_async ()
+{
+	guint request_id;
+	const gchar *query = "INSERT { _:x a nmo:Message }";
+	GMainLoop *main_loop;
+	AsyncData *data;
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	data = g_slice_new (AsyncData);
+	data->main_loop = main_loop;
+
+	request_id = tracker_resources_sparql_update_async (client,
+	                                                    query,
+	                                                    async_update_callback,
+	                                                    data);
+
+	g_assert (request_id);
+
+	g_main_loop_run (main_loop);
+
+	g_slice_free (AsyncData, data);
+}
+
+static void
+test_tracker_sparql_update_async_cancel ()
+{
+	guint request_id;
+	const gchar *query = "INSERT { _:x a nmo:Message }";
+
+	request_id = tracker_resources_sparql_update_async (client,
+	                                                    query,
+	                                                    (TrackerReplyVoid) 42, /* will segfault if ever callback is called */
+	                                                    NULL);
+	tracker_cancel_call (client, request_id);
+	g_usleep (1000000); /* Sleep one second to see if callback is called */
+}
+
+static void
+async_update_blank_callback (GPtrArray *results,
+                             GError    *error,
+                             gpointer   user_data)
+{
+	AsyncData *data = user_data;
+
+	g_main_loop_quit (data->main_loop);
+
+	g_assert (!error);
+	g_assert (results);
+
+	free_results (results);
+}
+
+static void
+test_tracker_sparql_update_blank_async ()
+{
+	guint request_id;
+	const gchar *query = "INSERT { _:x a nmo:Message }";
+	GMainLoop *main_loop;
+	AsyncData *data;
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	data = g_slice_new (AsyncData);
+	data->main_loop = main_loop;
+
+	request_id = tracker_resources_sparql_update_blank_async (client,
+	                                                          query,
+	                                                          async_update_blank_callback,
+	                                                          data);
+
+	g_assert (request_id);
+
+	g_main_loop_run (main_loop);
+
+	g_slice_free (AsyncData, data);
+}
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -455,6 +621,11 @@ main (gint argc, gchar **argv)
         g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_fast_error", test_tracker_sparql_update_blank_fast_error);
         g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_fast_no_blanks", test_tracker_sparql_update_blank_fast_no_blanks);
         g_test_add_func ("/steroids/tracker/tracker_batch_sparql_update_fast", test_tracker_batch_sparql_update_fast);
+        g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_async", test_tracker_sparql_query_iterate_async);
+        g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_async_cancel", test_tracker_sparql_query_iterate_async_cancel);
+        g_test_add_func ("/steroids/tracker/tracker_sparql_update_async", test_tracker_sparql_update_async);
+        g_test_add_func ("/steroids/tracker/tracker_sparql_update_async_cancel", test_tracker_sparql_update_async_cancel);
+        g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_async", test_tracker_sparql_update_blank_async);
 
 		/* client is leaked */
 
