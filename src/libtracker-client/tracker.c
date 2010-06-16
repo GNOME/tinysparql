@@ -579,6 +579,7 @@ fast_async_callback_iterator (GObject      *source_object,
 	private = TRACKER_CLIENT_GET_PRIVATE (data->client);
 	g_hash_table_remove (private->pending_calls,
 	                     GUINT_TO_POINTER (data->request_id));
+	g_object_unref (data->client);
 
 	iterator->buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream));
 
@@ -953,6 +954,7 @@ sparql_update_fast_callback (DBusPendingCall *call,
 	private = TRACKER_CLIENT_GET_PRIVATE (data->client);
 	g_hash_table_remove (private->pending_calls,
 	                     GUINT_TO_POINTER (data->request_id));
+	g_object_unref (data->client);
 
 	reply = dbus_pending_call_steal_reply (call);
 
@@ -2334,7 +2336,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	iterator_output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
 	cancellable = g_cancellable_new ();
 
-	async_data->client = client;
+	async_data->client = g_object_ref (client);
 	async_data->result_iterator = iterator;
 	async_data->input_stream = buffered_input_stream;
 	async_data->output_stream = iterator_output_stream;
@@ -2422,7 +2424,7 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	g_return_val_if_fail (callback != NULL, 0);
 
 	data = g_slice_new0 (FastAsyncData);
-	data->client = client;
+	data->client = g_object_ref (client);
 	data->operation = FAST_UPDATE;
 	data->query = query;
 	data->void_callback = callback;
@@ -2491,7 +2493,7 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	g_return_val_if_fail (callback != NULL, 0);
 
 	data = g_slice_new0 (FastAsyncData);
-	data->client = client;
+	data->client = g_object_ref (client);
 	data->operation = FAST_UPDATE_BLANK;
 	data->query = query;
 	data->gptrarray_callback = callback;
@@ -2574,7 +2576,7 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	g_return_val_if_fail (callback != NULL, 0);
 
 	data = g_slice_new0 (FastAsyncData);
-	data->client = client;
+	data->client = g_object_ref (client);
 	data->operation = FAST_UPDATE_BATCH;
 	data->query = query;
 	data->void_callback = callback;
