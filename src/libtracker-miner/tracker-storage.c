@@ -882,6 +882,44 @@ tracker_storage_get_mount_point_for_uuid (TrackerStorage *storage,
 }
 
 /**
+ * tracker_storage_get_type_for_uuid:
+ * @storage: A #TrackerStorage
+ * @uuid: A string pointer to the UUID for the %GVolume.
+ *
+ * Returns: The type flags for @uuid.
+ **/
+TrackerStorageType
+tracker_storage_get_type_for_uuid (TrackerStorage     *storage,
+                                   const gchar        *uuid)
+{
+	TrackerStoragePrivate *priv;
+	GNode *node;
+	TrackerStorageType type = 0;
+
+	g_return_val_if_fail (TRACKER_IS_STORAGE (storage), 0);
+	g_return_val_if_fail (uuid != NULL, 0);
+
+	priv = TRACKER_STORAGE_GET_PRIVATE (storage);
+
+	node = g_hash_table_lookup (priv->mounts_by_uuid, uuid);
+
+	if (node) {
+		MountInfo *info;
+
+		info = node->data;
+
+		if (info->removable) {
+			type |= TRACKER_STORAGE_REMOVABLE;
+		}
+		if (info->optical) {
+			type |= TRACKER_STORAGE_OPTICAL;
+		}
+	}
+
+	return type;
+}
+
+/**
  * tracker_storage_get_uuid_for_file:
  * @storage: A #TrackerStorage
  * @file: a file

@@ -172,6 +172,7 @@ tracker_storage_new
 tracker_storage_get_device_roots
 tracker_storage_get_device_uuids
 tracker_storage_get_mount_point_for_uuid
+tracker_storage_get_type_for_uuid
 tracker_storage_get_uuid_for_file
 <SUBSECTION Standard>
 TRACKER_STORAGE
