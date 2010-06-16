@@ -588,14 +588,16 @@ fast_async_callback_iterator (GObject      *source_object,
 	g_object_unref (data->output_stream);
 
 	if (inner_error) {
-		g_set_error (&error,
-		             TRACKER_CLIENT_ERROR,
-		             TRACKER_CLIENT_ERROR_BROKEN_PIPE,
-		             "Couldn't get results from server");
-		g_error_free (inner_error);
+		if (inner_error->code != G_IO_ERROR_CANCELLED) {
+			g_set_error (&error,
+			             TRACKER_CLIENT_ERROR,
+			             TRACKER_CLIENT_ERROR_BROKEN_PIPE,
+			             "Couldn't get results from server");
+			(* data->iterator_callback) (NULL, error, data->user_data);
+		}
 		tracker_result_iterator_free (iterator);
 		dbus_pending_call_unref (data->dbus_call);
-		(* data->iterator_callback) (NULL, error, data->user_data);
+		g_error_free (inner_error);
 		return;
 	}
 
