@@ -1,3 +1,51 @@
+NEW in 0.9.9 - 2010-06-17
+=========================
+
+The changes are:
+
+  * Fixes: GB#621547, inconsistent messages on hard-reset
+  * Fixes: GB#621126, Status icon's progress bars should be at 0% on init
+  * Fixes: GB#620094, tracker-status-icon shows "search" menu item even though t-s-t is not installed
+  * Fixes: GB#621183, When mounting volume 2nd time, inotify watches don't work any more
+  * Fixes: GB#621001, tracker-miner-fs fails to initialize active mount points if CD name has whitespaces
+  * Fixes: NB#174162, Tracker's filesize returns integer which prevents to show correct file size for big files.
+  * Fixes: NB#174333, Each file is listed twice in tracker search results
+  * Fixes: NB#174591, Tracker accepts unbound variables in FILTER() expression.
+  * Fixes: NB#173673, SMS validity period property needed in nmo ontology
+  * Fixes: NB#172818, Tracker is not indexing new content on EMMC
+  * Fixes: NB#173589, tracker-store is killed due to high memory usage from large INSERTs
+  * Fixes: NB#174248, Filtering by boolean value fails
+  * configure: Fixed summary for miners (strings were blank sometimes)
+  * Ontology: Removed nrl:maxCardinality from nco:hasAffiliation (was 1)
+  * Ontology: Added tracker:isRemovable and tracker:isOptical properties
+  * libtracker-db: Database version bump (due to ontology changes)
+  * libtracker-db: Simplify DB abstraction, it is not needed
+  * libtracker-db: Add a "length" parameter to tracker_db_cursor_string
+  * libtracker-fts: Fixed libicu backend memory leak in tracker_parser_reset()
+  * libtracker-miner: Added tracker_storage_get_type_for_uuid()
+  * libtracker-miner: Update the database when config changes for optical/removable media
+  * libtracker-miner: Use GMount instead of GVolume which is for user-mountable devices only
+  * libtracker-miner: Detect removable devices using GDrive API, not guessing
+  * libtracker-miner: Ignore GMounts which are considered shadowed mounts
+  * libtracker-miner: Import GIO's system for detecting optical media more accurately
+  * tracker-store: Optimized memory use for class signals
+  * tracker-store: Optimized class signals with use of GStringChunk
+  * tracker-store: Avoid using dbus-glib for sending class signals
+  * tracker-store: Compress SubjectsChanged signal for multi-value fields
+  * tracker-extract: Slightly reduce SPARQL update size for playlists
+  * tracker-miner-fs: Force re-check of mounted path ONLY if an indexed location
+  * tracker-minre-fs: Fixed build when there is no DEVKIT or HAL
+
+Translations:
+
+  None
+
+Notes:
+
+  The database version up has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.9.8 - 2010-06-10
 =========================
 
