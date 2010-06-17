@@ -69,6 +69,7 @@ TrackerMinerFS
 TrackerMinerFSClass
 tracker_miner_fs_directory_add
 tracker_miner_fs_directory_remove
+tracker_miner_fs_directory_remove_full
 tracker_miner_fs_file_add
 tracker_miner_fs_file_notify
 tracker_miner_fs_set_throttle
@@ -167,10 +168,13 @@ tracker_thumbnailer_cleanup
 TrackerStorage
 TrackerStorageClass
 TrackerStorageType
+TRACKER_STORAGE_TYPE_IS_REMOVABLE
+TRACKER_STORAGE_TYPE_IS_OPTICAL
 tracker_storage_new
 tracker_storage_get_device_roots
 tracker_storage_get_device_uuids
 tracker_storage_get_mount_point_for_uuid
+tracker_storage_get_type_for_uuid
 tracker_storage_get_uuid_for_file
 <SUBSECTION Standard>
 TRACKER_STORAGE

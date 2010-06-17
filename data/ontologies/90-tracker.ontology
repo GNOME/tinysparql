@@ -42,6 +42,16 @@ tracker:mountPoint a rdf:Property ;
 	rdfs:domain tracker:Volume ;
 	rdfs:range rdfs:Resource .
 
+tracker:isRemovable a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain tracker:Volume ;
+	rdfs:range xsd:boolean .
+
+tracker:isOptical a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain tracker:Volume ;
+	rdfs:range xsd:boolean .
+
 tracker:available a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:DataObject ;

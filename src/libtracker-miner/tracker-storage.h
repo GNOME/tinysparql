@@ -29,6 +29,39 @@
 
 G_BEGIN_DECLS
 
+/**
+ * TrackerStorageType:
+ * @TRACKER_STORAGE_REMOVABLE: Storage is a removable media
+ * @TRACKER_STORAGE_OPTICAL: Storage is an optical disc
+ *
+ * Flags specifying properties of the type of storage.
+ */
+typedef enum {
+	TRACKER_STORAGE_REMOVABLE = 1 << 0,
+	TRACKER_STORAGE_OPTICAL   = 1 << 1
+} TrackerStorageType;
+
+/**
+ * TRACKER_STORAGE_TYPE_IS_REMOVABLE:
+ * @type: Mask of TrackerStorageType flags
+ *
+ * Check if the given storage type is marked as being removable media.
+ *
+ * Returns: %TRUE if the storage is marked as removable media, %FALSE otherwise
+ */
+#define TRACKER_STORAGE_TYPE_IS_REMOVABLE(type) ((type & TRACKER_STORAGE_REMOVABLE) ? TRUE : FALSE)
+
+/**
+ * TRACKER_STORAGE_TYPE_IS_OPTICAL:
+ * @type: Mask of TrackerStorageType flags
+ *
+ * Check if the given storage type is marked as being optical disc
+ *
+ * Returns: %TRUE if the storage is marked as optical disc, %FALSE otherwise
+ */
+#define TRACKER_STORAGE_TYPE_IS_OPTICAL(type) ((type & TRACKER_STORAGE_OPTICAL) ? TRUE : FALSE)
+
+
 #define TRACKER_TYPE_STORAGE         (tracker_storage_get_type ())
 #define TRACKER_STORAGE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_STORAGE, TrackerStorage))
 #define TRACKER_STORAGE_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_STORAGE, TrackerStorageClass))
@@ -47,23 +80,20 @@ struct _TrackerStorageClass {
 	GObjectClass parent_class;
 };
 
-typedef enum {
-	TRACKER_STORAGE_REMOVABLE = 1 << 0,
-	TRACKER_STORAGE_OPTICAL   = 1 << 1
-} TrackerStorageType;
-
-GType           tracker_storage_get_type                 (void) G_GNUC_CONST;
-TrackerStorage *tracker_storage_new                      (void);
-GSList *        tracker_storage_get_device_roots         (TrackerStorage     *storage,
-                                                          TrackerStorageType  type,
-                                                          gboolean            exact_match);
-GSList *        tracker_storage_get_device_uuids         (TrackerStorage     *storage,
-                                                          TrackerStorageType  type,
-                                                          gboolean            exact_match);
-const gchar *   tracker_storage_get_mount_point_for_uuid (TrackerStorage     *storage,
-                                                          const gchar        *uuid);
-const gchar*    tracker_storage_get_uuid_for_file        (TrackerStorage     *storage,
-                                                          GFile              *file);
+GType              tracker_storage_get_type                 (void) G_GNUC_CONST;
+TrackerStorage *   tracker_storage_new                      (void);
+GSList *           tracker_storage_get_device_roots         (TrackerStorage     *storage,
+                                                             TrackerStorageType  type,
+                                                             gboolean            exact_match);
+GSList *           tracker_storage_get_device_uuids         (TrackerStorage     *storage,
+                                                             TrackerStorageType  type,
+                                                             gboolean            exact_match);
+const gchar *      tracker_storage_get_mount_point_for_uuid (TrackerStorage     *storage,
+                                                             const gchar        *uuid);
+TrackerStorageType tracker_storage_get_type_for_uuid        (TrackerStorage     *storage,
+                                                             const gchar        *uuid);
+const gchar *      tracker_storage_get_uuid_for_file        (TrackerStorage     *storage,
+                                                             GFile              *file);
 
 G_END_DECLS
 
