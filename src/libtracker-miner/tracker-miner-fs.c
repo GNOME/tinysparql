@@ -3276,7 +3276,8 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
  * @file: #GFile for the directory to be removed
  *
  * Removes a directory from being inspected by @fs, and removes all
- *  associated metadata from the store.
+ * associated metadata of the directory (and its contents) from the
+ * store.
  *
  * Returns: %TRUE if the directory was successfully removed.
  **/
@@ -3289,7 +3290,8 @@ tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
 
 	/* Tell miner not to keep on inspecting the directory... */
 	if (tracker_miner_fs_directory_remove (fs, file)) {
-		/* And remove all info about the directory from the store... */
+		/* And remove all info about the directory (recursively)
+		 * from the store... */
 		g_queue_push_tail (fs->private->items_deleted,
 		                   g_object_ref (file));
 		item_queue_handlers_set_up (fs);
