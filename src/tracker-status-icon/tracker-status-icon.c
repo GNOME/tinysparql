@@ -834,12 +834,15 @@ status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 		image = gtk_image_new_from_icon_name (GTK_STOCK_FIND,
 						      GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+		gtk_widget_show_all (item);
+
 		gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
 		g_signal_connect (G_OBJECT (item), "activate",
 				  G_CALLBACK (context_menu_search_cb), icon);
 
 		item = gtk_separator_menu_item_new ();
 		gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
+		gtk_widget_show (item);
 	}
 #endif
 
@@ -854,8 +857,11 @@ status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 
 	item = gtk_separator_menu_item_new ();
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
+	gtk_widget_show (item);
 
 	item = gtk_check_menu_item_new_with_mnemonic (_("_Pause All Indexing"));
+	gtk_widget_show (item);
+
 	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
 	g_signal_connect (G_OBJECT (item), "toggled",
