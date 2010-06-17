@@ -1450,16 +1450,6 @@ tracker_cancel_call (TrackerClient *client,
 	if (data) {
 		FastPendingCallData *fast_data = data;
 		FastAsyncData *async_data = fast_data->data;
-		GInputStream *base_input_stream;
-
-		if (fast_data->cancellable) {
-			/* When cancelling a GIO call, the callback is called with an
-			 * error, so we do the cleanup there
-			 */
-			g_cancellable_cancel (fast_data->cancellable);
-
-			return TRUE;
-		}
 
 		if (async_data->dbus_call) {
 			dbus_pending_call_cancel (async_data->dbus_call);
@@ -1467,24 +1457,22 @@ tracker_cancel_call (TrackerClient *client,
 
 		switch (async_data->operation) {
 		case FAST_QUERY:
-			base_input_stream = g_filter_input_stream_get_base_stream (G_FILTER_INPUT_STREAM (async_data->input_stream));
-			g_object_unref (async_data->input_stream);
-			g_object_unref (base_input_stream);
-			g_object_unref (async_data->output_stream);
-
-			/* Fall through */
+			/* When cancelling a GIO call, the callback is called with an
+			 * error, so we do the cleanup there
+			 */
+			g_cancellable_cancel (fast_data->cancellable);
+			break;
 		case FAST_UPDATE:
 		case FAST_UPDATE_BLANK:
 		case FAST_UPDATE_BATCH:
 			/* dbus_pending_call_cancel does unref the call, so no need to
 			 * unref it here
 			 */
+			g_slice_free (FastAsyncData, async_data);
 			break;
 		default:
 			g_assert_not_reached ();
 		}
-
-		g_slice_free (FastAsyncData, async_data);
 
 		g_hash_table_remove (private->fast_pending_calls,
 		                     GUINT_TO_POINTER (call_id));
