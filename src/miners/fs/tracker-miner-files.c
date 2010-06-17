@@ -844,8 +844,8 @@ query_mount_points_cb (GObject      *source,
 				/* Set mount point type */
 				set_up_mount_point_type (TRACKER_MINER_FILES (miner),
 				                         urn,
-				                         type & TRACKER_STORAGE_REMOVABLE,
-				                         type & TRACKER_STORAGE_OPTICAL,
+				                         TRACKER_STORAGE_TYPE_IS_REMOVABLE (type),
+				                         TRACKER_STORAGE_TYPE_IS_OPTICAL (type),
 				                         accumulator);
 
 			}
@@ -2319,8 +2319,8 @@ miner_files_remove_by_type (TrackerMinerFiles  *miner,
 	gboolean removable;
 	gboolean optical;
 
-	removable = type & TRACKER_STORAGE_REMOVABLE ? TRUE : FALSE;
-	optical = type & TRACKER_STORAGE_OPTICAL ? TRUE : FALSE;
+	removable = TRACKER_STORAGE_TYPE_IS_REMOVABLE (type);
+	optical = TRACKER_STORAGE_TYPE_IS_OPTICAL (type);
 
 	/* Only remove if any of the flags was TRUE */
 	if (removable || optical) {

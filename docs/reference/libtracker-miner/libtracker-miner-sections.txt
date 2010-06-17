@@ -168,6 +168,8 @@ tracker_thumbnailer_cleanup
 TrackerStorage
 TrackerStorageClass
 TrackerStorageType
+TRACKER_STORAGE_TYPE_IS_REMOVABLE
+TRACKER_STORAGE_TYPE_IS_OPTICAL
 tracker_storage_new
 tracker_storage_get_device_roots
 tracker_storage_get_device_uuids
