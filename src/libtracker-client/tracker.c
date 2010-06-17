@@ -625,6 +625,7 @@ fast_async_callback_iterator (GObject      *source_object,
 		tracker_result_iterator_free (iterator);
 		dbus_pending_call_unref (data->dbus_call);
 		g_error_free (inner_error);
+		g_slice_free (FastAsyncData, data);
 		return;
 	}
 
@@ -658,6 +659,8 @@ fast_async_callback_iterator (GObject      *source_object,
 	dbus_pending_call_unref (data->dbus_call);
 
 	(* data->iterator_callback) (iterator, NULL, data->user_data);
+
+	g_slice_free (FastAsyncData, data);
 }
 
 #else  /* HAVE_DBUS_FD_PASSING */
