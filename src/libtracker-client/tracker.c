@@ -40,11 +40,11 @@
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
 
-/* Would probably be better in tracker-common */
-#define TRACKER_STEROIDS_SERVICE   "org.freedesktop.Tracker1"
-#define TRACKER_STEROIDS_PATH      "/org/freedesktop/Tracker1/Steroids"
-#define TRACKER_STEROIDS_INTERFACE "org.freedesktop.Tracker1.Steroids"
-#define TRACKER_STEROIDS_BUFFER_SIZE 65536
+/* Are defined in src/tracker-store/tracker-steroids.h */
+#define TRACKER_STEROIDS_BUFFER_SIZE      65536
+
+#define TRACKER_DBUS_OBJECT_STEROIDS      "/org/freedesktop/Tracker1/Steroids"
+#define TRACKER_DBUS_INTERFACE_STEROIDS   "org.freedesktop.Tracker1.Steroids"
 
 /**
  * SECTION:tracker
@@ -952,7 +952,10 @@ unmarshal_hash_table (DBusMessageIter *iter)
 	GHashTable *result;
 	DBusMessageIter subiter, subsubiter;
 
-	result = g_hash_table_new (g_str_hash, g_str_equal);
+	result = g_hash_table_new_full (g_str_hash,
+					g_str_equal,
+					(GDestroyNotify) g_free,
+					(GDestroyNotify) g_free);
 
 	dbus_message_iter_recurse (iter, &subiter);
 
@@ -969,6 +972,22 @@ unmarshal_hash_table (DBusMessageIter *iter)
 	}
 
 	return result;
+}
+
+static void
+unmarshal_inner_array_free (gpointer data)
+{
+	if (data) {
+		g_hash_table_unref (data);
+	}
+}
+
+static void
+unmarshal_result_free (gpointer data)
+{
+	if (data) {
+		g_ptr_array_free (data, TRUE);
+	}
 }
 
 static void
@@ -1024,14 +1043,14 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		(* data->void_callback) (NULL, data->user_data);
 		break;
 	case FAST_UPDATE_BLANK:
-		result = g_ptr_array_new ();
+		result = g_ptr_array_new_with_free_func (unmarshal_result_free);
 		dbus_message_iter_init (reply, &iter);
 		dbus_message_iter_recurse (&iter, &subiter);
 
 		while (dbus_message_iter_get_arg_type (&subiter) != DBUS_TYPE_INVALID) {
 			GPtrArray *inner_array;
 
-			inner_array = g_ptr_array_new ();
+			inner_array = g_ptr_array_new_with_free_func (unmarshal_inner_array_free);
 			g_ptr_array_add (result, inner_array);
 			dbus_message_iter_recurse (&subiter, &subsubiter);
 
@@ -1043,6 +1062,9 @@ sparql_update_fast_callback (DBusPendingCall *call,
 			dbus_message_iter_next (&subiter);
 		}
 		(* data->gptrarray_callback) (result, error, data->user_data);
+		
+		g_ptr_array_free (result, TRUE);
+
 		break;
 	default:
 		g_assert_not_reached ();
@@ -1100,9 +1122,9 @@ sparql_update_fast_send (TrackerClient      *client,
 		g_assert_not_reached ();
 	}
 
-	message = dbus_message_new_method_call (TRACKER_STEROIDS_SERVICE,
-	                                        TRACKER_STEROIDS_PATH,
-	                                        TRACKER_STEROIDS_INTERFACE,
+	message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE,
+	                                        TRACKER_DBUS_OBJECT_STEROIDS,
+	                                        TRACKER_DBUS_INTERFACE_STEROIDS,
 	                                        dbus_method);
 	dbus_message_iter_init_append (message, &iter);
 	dbus_message_iter_append_basic (&iter, DBUS_TYPE_UNIX_FD, &pipefd[0]);
@@ -1134,6 +1156,7 @@ sparql_update_fast_send (TrackerClient      *client,
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		g_object_unref (data_output_stream);
+		g_object_unref (buffered_output_stream);
 		g_object_unref (output_stream);
 		return NULL;
 	}
@@ -1146,6 +1169,7 @@ sparql_update_fast_send (TrackerClient      *client,
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		g_object_unref (data_output_stream);
+		g_object_unref (buffered_output_stream);
 		g_object_unref (output_stream);
 		return NULL;
 	}
@@ -1732,9 +1756,9 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 
 	connection = dbus_g_connection_get_connection (private->connection);
 
-	message = dbus_message_new_method_call (TRACKER_STEROIDS_SERVICE,
-	                                        TRACKER_STEROIDS_PATH,
-	                                        TRACKER_STEROIDS_INTERFACE,
+	message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE,
+	                                        TRACKER_DBUS_OBJECT_STEROIDS,
+	                                        TRACKER_DBUS_INTERFACE_STEROIDS,
 	                                        "Query");
 
 	dbus_message_iter_init_append (message, &iter);
@@ -2314,9 +2338,9 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 
 	connection = dbus_g_connection_get_connection (private->connection);
 
-	message = dbus_message_new_method_call (TRACKER_STEROIDS_SERVICE,
-	                                        TRACKER_STEROIDS_PATH,
-	                                        TRACKER_STEROIDS_INTERFACE,
+	message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE,
+	                                        TRACKER_DBUS_OBJECT_STEROIDS,
+	                                        TRACKER_DBUS_INTERFACE_STEROIDS,
 	                                        "Query");
 
 	dbus_message_iter_init_append (message, &iter);
