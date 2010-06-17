@@ -175,6 +175,9 @@ static void        miner_finished_cb                    (TrackerMinerFS *fs,
                                                          guint           total_files_ignored,
                                                          gpointer        user_data);
 
+static gboolean    miner_files_remove_by_type           (TrackerMinerFiles  *miner,
+                                                         TrackerStorageType  type);
+
 G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
 
 static void
@@ -486,10 +489,16 @@ miner_files_constructed (GObject *object)
 
 	if (!index_removable_devices) {
 		g_message ("  Removable devices are disabled in the config");
+
+		/* Make sure we don't have any resource in a volume of the given type */
+		miner_files_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE);
 	}
 
 	if (!index_optical_discs) {
 		g_message ("  Optical discs are disabled in the config");
+
+		/* Make sure we don't have any resource in a volume of the given type */
+		miner_files_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE | TRACKER_STORAGE_OPTICAL);
 	}
 
 	for (m = mounts; m; m = m->next) {
@@ -2168,4 +2177,63 @@ tracker_miner_files_monitor_directory (GFile    *file,
 	 * these directories to be indexed.
          */
 	return TRUE;
+}
+
+static void
+remove_by_type_cb (GObject      *object,
+                   GAsyncResult *result,
+                   gpointer      user_data)
+{
+	GError *error = NULL;
+
+	tracker_miner_execute_update_finish (TRACKER_MINER (object), result, &error);
+
+	if (error) {
+		g_critical ("Could not remove by type: %s", error->message);
+		g_error_free (error);
+	}
+}
+
+static gboolean
+miner_files_remove_by_type (TrackerMinerFiles  *miner,
+                            TrackerStorageType  type)
+{
+	gboolean removable;
+	gboolean optical;
+
+	removable = type & TRACKER_STORAGE_REMOVABLE ? TRUE : FALSE;
+	optical = type & TRACKER_STORAGE_OPTICAL ? TRUE : FALSE;
+
+	/* Only remove if any of the flags was TRUE */
+	if (removable || optical) {
+		GString *queries;
+
+		queries = g_string_new ("");
+
+		/* Delete all resources where nie:dataSource is a volume
+		 * of the given type */
+		g_string_append_printf (queries,
+		                        "DELETE { "
+		                        "  ?f a rdfs:Resource "
+		                        "} WHERE { "
+		                        "  ?v a tracker:Volume ; "
+		                        "     tracker:isRemovable %s ; "
+		                        "     tracker:isOptical %s . "
+		                        "  ?f nie:dataSource ?v "
+		                        "}",
+		                        removable ? "true" : "false",
+		                        optical ? "true" : "false");
+
+		tracker_miner_execute_batch_update (TRACKER_MINER (miner),
+		                                    queries->str,
+		                                    NULL,
+		                                    remove_by_type_cb,
+		                                    NULL);
+
+		g_string_free (queries, TRUE);
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
