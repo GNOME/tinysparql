@@ -388,7 +388,7 @@ tracker_client_init (TrackerClient *client)
 
 	private->timeout = -1;
 	private->slow_pending_calls = g_hash_table_new_full (NULL,
-	                                                     NULL
+	                                                     NULL,
 	                                                     NULL,
 	                                                     (GDestroyNotify) slow_pending_call_free);
 
