@@ -24,8 +24,6 @@
 33-nfo:
 * nfo:fileLastModified:
   - The miner-fs uses this property during crawling a lot
-* nfo:belongsToContainer:
-  - The miner-fs uses this property during crawling a lot
 
 34-nmo:
 * nmo:sender:
