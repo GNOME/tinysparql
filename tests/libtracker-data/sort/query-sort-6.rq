@@ -1,0 +1,6 @@
+PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
+PREFIX ex:      <http://example.org/things#>
+
+SELECT 1 AS ?filter
+WHERE { ?x a foaf:Person }
+ORDER BY ?filter
