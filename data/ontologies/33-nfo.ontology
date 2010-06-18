@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2010-06-02T16:12:00Z" .
+	nao:lastModified "2010-06-17T17:06:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -339,7 +339,6 @@ nfo:belongsToContainer a rdf:Property ;
 	rdfs:subPropertyOf nie:isPartOf ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:DataObject ;
-	tracker:indexed true ;
 	rdfs:range nfo:DataContainer .
 
 nfo:aspectRatio a rdf:Property ;
