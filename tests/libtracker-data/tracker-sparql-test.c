@@ -99,6 +99,7 @@ const TestInfo tests[] = {
 	{ "sort/query-sort-3", "sort/data-sort-3", FALSE },
 	{ "sort/query-sort-4", "sort/data-sort-4", FALSE },
 	{ "sort/query-sort-5", "sort/data-sort-4", FALSE },
+	{ "sort/query-sort-6", "sort/data-sort-4", FALSE },
 	{ "subqueries/subqueries-1", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-union-1", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-union-2", "subqueries/data-1", FALSE },

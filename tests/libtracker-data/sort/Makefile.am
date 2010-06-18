@@ -16,4 +16,6 @@ EXTRA_DIST = 			\
 	query-sort-4.out	\
 	query-sort-4.rq		\
 	query-sort-5.out	\
-	query-sort-5.rq
+	query-sort-5.rq		\
+	query-sort-6.rq		\
+	query-sort-6.out
