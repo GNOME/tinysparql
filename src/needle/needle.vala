@@ -36,8 +36,8 @@ public class Needle {
 	private Window window;
 	private ToolButton back;
 	private ToolButton forward;
-	private ToolButton view_list;
-	private ToolButton view_icons;
+	private ToggleToolButton view_list;
+	private ToggleToolButton view_icons;
 	private Entry search;
 	private ScrolledWindow sw_treeview;
 	private TreeView treeview;
@@ -94,25 +94,24 @@ public class Needle {
 		}
 
 		window = builder.get_object ("window_needle") as Window;
-		window.destroy += Gtk.main_quit;
+		window.destroy.connect (Gtk.main_quit);
 
 		back = builder.get_object ("toolbutton_back") as ToolButton;
-		back.clicked += back_clicked;
-		back.set_sensitive(false);
+		back.clicked.connect (back_clicked);
+		back.set_sensitive (false);
 
 		forward = builder.get_object ("toolbutton_forward") as ToolButton;
-		forward.clicked += forward_clicked;
-		forward.set_sensitive(false);
+		forward.clicked.connect (forward_clicked);
+		forward.set_sensitive (false);
 
-		view_list = builder.get_object ("toolbutton_view_list") as ToolButton;
-		view_list.clicked += view_list_clicked;
+		view_list = builder.get_object ("toolbutton_view_list") as ToggleToolButton;
+		view_list.toggled.connect (view_toggled);
 
-		// The default
-		view_icons = builder.get_object ("toolbutton_view_icons") as ToolButton;
-		view_icons.clicked += view_icons_clicked;
+		view_icons = builder.get_object ("toolbutton_view_icons") as ToggleToolButton;
+		view_icons.toggled.connect (view_toggled);
 
 		search = builder.get_object ("entry_search") as Entry;
-		search.changed += search_changed;
+		search.changed.connect (search_changed);
 
 		sw_treeview = builder.get_object ("scrolledwindow_treeview") as ScrolledWindow;
 		treeview = builder.get_object ("treeview_results") as TreeView;
@@ -120,24 +119,40 @@ public class Needle {
 		iconview = builder.get_object ("iconview_results") as IconView;
 		setup_ui_results (treeview, iconview);
 
-		sw_iconview.show_all ();
-		sw_treeview.hide ();
+		view_list.set_active (true);
 	}
 
 	private void setup_ui_results (TreeView treeview, IconView iconview) {
 		// Setup treeview
-		store = new ListStore (5,
+		store = new ListStore (7,
 							   typeof (Gdk.Pixbuf),  // Icon
 							   typeof (string),      // URN
 							   typeof (string),      // URL
-							   typeof (string),      // Filename
-							   typeof (string));     // Description
+							   typeof (string),      // File name
+							   typeof (string),      // File last changed
+							   typeof (string),      // File size
+							   typeof (string));     // Tooltip
 		treeview.set_model (store);
 
-		// view.insert_column_with_attributes (-1, "URN", new CellRendererText (), "text", 0, null);
-		treeview.insert_column_with_attributes (-1, "", new CellRendererPixbuf (), "pixbuf", 0, null);
-		treeview.insert_column_with_attributes (-1, "Filename", new CellRendererText (), "text", 3, null);
-		treeview.row_activated += view_row_selected;
+	    var col = new Gtk.TreeViewColumn ();
+
+		var renderer1 = new CellRendererPixbuf ();
+    	col.pack_start (renderer1, false);
+	    col.add_attribute (renderer1, "pixbuf", 0);
+
+		var renderer2 = new CellRendererText ();
+    	col.pack_start (renderer2, true);
+	    col.add_attribute (renderer2, "text", 3);
+
+	    col.set_title ("File");
+	    col.set_resizable (true);
+	    col.set_expand (true);
+	    col.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
+	    treeview.append_column (col);   
+	    
+		treeview.insert_column_with_attributes (-1, "Last Changed", new CellRendererText (), "text", 4, null);
+		treeview.insert_column_with_attributes (-1, "Size", new CellRendererText (), "text", 5, null);
+		treeview.row_activated.connect (view_row_selected);
 
 		// Setup iconview
 		iconview.set_model (store);
@@ -148,7 +163,7 @@ public class Needle {
 		//iconview.row_activated += view_row_selected;
 	}
 
-	private void search_changed (Entry entry) {
+	private void search_changed (Editable editable) {
 		if (last_search_id != 0) {
 			Source.remove (last_search_id);
 		}
@@ -160,7 +175,7 @@ public class Needle {
 		// Need to escape this string
 		string query;
 
-		query = "SELECT ?u nie:url(?u) nfo:fileName(?u) tracker:coalesce(nie:title(?u), \"Unknown\") WHERE { ?u fts:match \"%s\" } ORDER BY DESC(fts:rank(?u)) OFFSET 0 LIMIT 100".printf ((search).text);
+		query = "SELECT ?u nie:url(?u) tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u fts:match \"%s\" . ?u nfo:belongsToContainer ?c } ORDER BY DESC(fts:rank(?u)) OFFSET 0 LIMIT 100".printf ((search).text);
 		debug ("Query:'%s'", query);
 
 		try {
@@ -170,11 +185,14 @@ public class Needle {
 
 			var screen = window.get_screen ();
 			var theme = IconTheme.get_for_screen (screen);
+			var size = 24;
 
 			for (int i = 0; i < result.length[0]; i++) {
 				debug ("--> %s", result[i,0]);
 				debug ("  --> %s", result[i,1]);
 				debug ("  --> %s", result[i,2]);
+				debug ("  --> %s", result[i,3]);
+				debug ("  --> %s", result[i,4]);
 
 				// Get Icon
 				var file = File.new_for_uri (result[i,1]);
@@ -190,18 +208,18 @@ public class Needle {
 							var icon = file_info.get_icon ();
 
 							if (icon != null) {
-								//var names = ((ThemedIcon) icon).get_names ();
-
+								var names = ((ThemedIcon) icon).get_names ();
+								
 								// See bug #618574
-								// var icon_info = theme.choose_icon (names, 48, IconLookupFlags.USE_BUILTIN);
+								var icon_info = theme.choose_icon (names, size, IconLookupFlags.USE_BUILTIN);
 
-								// if (icon_info != null) {
-									// try {
-									// 	pixbuf = icon_info.load_icon ();
-									// } catch (GLib.Error e) {
+								if (icon_info != null) {
+									try {
+										pixbuf = icon_info.load_icon ();
+									} catch (GLib.Error e) {
 										// Do something
-									// }
-								// }
+									}
+								}
 							}
 						}
 					} catch (GLib.Error e) {
@@ -212,7 +230,7 @@ public class Needle {
 				if (pixbuf == null) {
 					try {
 						// pixbuf = theme.load_icon (theme.get_example_icon_name (), 48, IconLookupFlags.USE_BUILTIN);
-						pixbuf = theme.load_icon ("text-x-generic", 48, IconLookupFlags.USE_BUILTIN);
+						pixbuf = theme.load_icon ("text-x-generic", size, IconLookupFlags.USE_BUILTIN);
 					} catch (GLib.Error e) {
 						// Do something
 					}
@@ -220,13 +238,17 @@ public class Needle {
 
 				// Insert into model
 				TreeIter iter;
-
+				string file_size = GLib.format_size_for_display (result[i,4].to_int());
+								
 				store.append (out iter);
 				store.set (iter, 
 						   0, pixbuf,
-						   1, result[i,0], 
-						   2, result[i,1], 
-						   3, result[i,2], 
+						   1, result[i,0],
+						   2, result[i,1],
+						   3, result[i,2],
+						   4, result[i,3],
+						   5, file_size, 
+						   6, result[i,5],
 						   -1);
 			}
 		} catch (DBus.Error e) {
@@ -246,14 +268,14 @@ public class Needle {
 		// Do nothing
 	}
 
-	private void view_list_clicked () {
-		sw_iconview.hide ();
-		sw_treeview.show_all ();
-	}
-
-	private void view_icons_clicked () {
-		sw_iconview.show_all ();
-		sw_treeview.hide ();
+	private void view_toggled () {
+		if (view_list.active) {
+			sw_iconview.hide ();
+			sw_treeview.show_all ();
+		} else {
+			sw_iconview.show_all ();
+			sw_treeview.hide ();
+		}
 	}
 
 	private void view_row_selected (TreeView view, TreePath path, TreeViewColumn column) {

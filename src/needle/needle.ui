@@ -52,6 +52,7 @@
                 <property name="is_important">True</property>
                 <property name="label" translatable="yes">_List</property>
                 <property name="use_underline">True</property>
+                <property name="stock_id">gtk-index</property>
                 <property name="active">True</property>
                 <property name="group">toolbutton_view_icons</property>
               </object>
@@ -66,6 +67,7 @@
                 <property name="is_important">True</property>
                 <property name="label" translatable="yes">_Icons</property>
                 <property name="use_underline">True</property>
+                <property name="stock_id">gtk-orientation-portrait</property>
                 <property name="active">True</property>
               </object>
               <packing>
@@ -132,12 +134,14 @@
               <object class="GtkScrolledWindow" id="scrolledwindow_treeview">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
+                <property name="hscrollbar_policy">never</property>
                 <property name="vscrollbar_policy">automatic</property>
                 <child>
                   <object class="GtkTreeView" id="treeview_results">
                     <property name="can_focus">True</property>
                     <property name="model">liststore_results</property>
+                    <property name="enable_grid_lines">vertical</property>
+                    <property name="tooltip_column">2</property>
                   </object>
                 </child>
               </object>
