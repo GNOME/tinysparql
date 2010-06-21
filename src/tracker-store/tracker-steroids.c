@@ -20,6 +20,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <dbus/dbus.h>
+
 #include <gio/gunixoutputstream.h>
 #include <gio/gunixinputstream.h>
 
@@ -27,8 +30,7 @@
 #include "tracker-steroids.h"
 #include "tracker-store.h"
 
-#define DBUS_ERROR_UNKNOWN_METHOD_NAME "org.freedesktop.DBus.Error.UnknownMethod"
-#define DBUS_ERROR_UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on interface \"%s\" doesn't exist"
+#define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on interface \"%s\" doesn't exist"
 
 /**
  * /!\ IMPORTANT WARNING /!\
@@ -366,8 +368,8 @@ tracker_steroids_query (TrackerSteroids *steroids,
 
 	if (g_strcmp0 (dbus_message_get_signature (message), DBUS_TYPE_STRING_AS_STRING DBUS_TYPE_UNIX_FD_AS_STRING)) {
 		reply = dbus_message_new_error_printf (message,
-		                                       DBUS_ERROR_UNKNOWN_METHOD_NAME,
-		                                       DBUS_ERROR_UNKNOWN_METHOD_MESSAGE,
+		                                       DBUS_ERROR_UNKNOWN_METHOD,   
+		                                       UNKNOWN_METHOD_MESSAGE,
 		                                       "Query",
 		                                       dbus_message_get_signature (message),
 		                                       dbus_message_get_interface (message));
@@ -433,8 +435,8 @@ tracker_steroids_update (TrackerSteroids *steroids,
 
 	if (g_strcmp0 (dbus_message_get_signature (message), DBUS_TYPE_UNIX_FD_AS_STRING)) {
 		reply = dbus_message_new_error_printf (message,
-		                                       DBUS_ERROR_UNKNOWN_METHOD_NAME,
-		                                       DBUS_ERROR_UNKNOWN_METHOD_MESSAGE,
+		                                       DBUS_ERROR_UNKNOWN_METHOD,
+		                                       UNKNOWN_METHOD_MESSAGE,
 		                                       "Update",
 		                                       dbus_message_get_signature (message),
 		                                       dbus_message_get_interface (message));
