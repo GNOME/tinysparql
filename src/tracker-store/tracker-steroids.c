@@ -30,7 +30,8 @@
 #include "tracker-steroids.h"
 #include "tracker-store.h"
 
-#define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on interface \"%s\" doesn't exist"
+#define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on " \
+	                       "interface \"%s\" doesn't exist, expected \"%s\""
 
 /**
  * /!\ IMPORTANT WARNING /!\
@@ -376,7 +377,8 @@ steroids_query (TrackerSteroids *steroids,
 		                                       UNKNOWN_METHOD_MESSAGE,
 		                                       "Query",
 		                                       dbus_message_get_signature (message),
-		                                       dbus_message_get_interface (message));
+		                                       dbus_message_get_interface (message),
+		                                       expected_signature);
 		dbus_connection_send (connection, reply, NULL);
 
 		tracker_dbus_request_failed (request_id,
@@ -385,7 +387,8 @@ steroids_query (TrackerSteroids *steroids,
 		                             UNKNOWN_METHOD_MESSAGE,
 		                             "Query",
 		                             dbus_message_get_signature (message),
-		                             dbus_message_get_interface (message));
+		                             dbus_message_get_interface (message),
+		                             expected_signature);
 
 		dbus_message_unref (reply);
 
@@ -476,7 +479,8 @@ steroids_update (TrackerSteroids *steroids,
 		                                       UNKNOWN_METHOD_MESSAGE,
 		                                       "Update",
 		                                       dbus_message_get_signature (message),
-		                                       dbus_message_get_interface (message));
+		                                       dbus_message_get_interface (message),
+		                                       DBUS_TYPE_UNIX_FD_AS_STRING);
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
 
@@ -486,7 +490,8 @@ steroids_update (TrackerSteroids *steroids,
 		                             UNKNOWN_METHOD_MESSAGE,
 		                             "Update",
 		                             dbus_message_get_signature (message),
-		                             dbus_message_get_interface (message));
+		                             dbus_message_get_interface (message),
+		                             DBUS_TYPE_UNIX_FD_AS_STRING);
 
 		return;
 	}
