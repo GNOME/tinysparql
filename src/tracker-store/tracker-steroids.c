@@ -366,13 +366,19 @@ steroids_query (TrackerSteroids *steroids,
                 DBusConnection  *connection,
                 DBusMessage     *message)
 {
-	ClientInfo  *info;
+	ClientInfo *info;
 	guint request_id;
 	const gchar *sender;
 	DBusMessage *reply;
 	DBusError dbus_error;
 	gchar *query;
 	const gchar *expected_signature;
+
+	request_id = tracker_dbus_get_next_request_id ();
+	tracker_dbus_request_new (request_id,
+	                          NULL,
+	                          "%s()",
+	                          __FUNCTION__);
 
 	expected_signature = DBUS_TYPE_STRING_AS_STRING DBUS_TYPE_UNIX_FD_AS_STRING;
 
@@ -387,13 +393,6 @@ steroids_query (TrackerSteroids *steroids,
 		dbus_message_unref (reply);
 		return;
 	}
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id,
-	                          NULL,
-	                          "%s()",
-	                          __FUNCTION__);
 
 	info = g_slice_new0 (ClientInfo);
 	info->connection = dbus_connection_ref (connection);
@@ -447,6 +446,12 @@ steroids_update (TrackerSteroids *steroids,
 	DBusMessage *reply;
 	gchar *query;
 
+	request_id = tracker_dbus_get_next_request_id ();
+	tracker_dbus_request_new (request_id,
+	                          NULL,
+	                          "%s()",
+	                          __FUNCTION__);
+
 	if (g_strcmp0 (dbus_message_get_signature (message), DBUS_TYPE_UNIX_FD_AS_STRING)) {
 		reply = dbus_message_new_error_printf (message,
 		                                       DBUS_ERROR_UNKNOWN_METHOD,
@@ -458,13 +463,6 @@ steroids_update (TrackerSteroids *steroids,
 		dbus_message_unref (reply);
 		return;
 	}
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id,
-	                          NULL,
-	                          "%s()",
-	                          __FUNCTION__);
 
 	info = g_slice_new0 (ClientInfo);
 	info->connection = dbus_connection_ref (connection);
