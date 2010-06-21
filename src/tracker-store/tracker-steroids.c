@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2010, Codeminded BVBA <abustany@gnome.org>
  *
  * This library is free software; you can redistribute it and/or
@@ -87,7 +87,7 @@ tracker_steroids_new (void)
 }
 
 static void
-destroy_client_info (gpointer user_data)
+client_info_destroy (gpointer user_data)
 {
 	ClientInfo *info = user_data;
 
@@ -102,8 +102,8 @@ query_callback (gpointer  inthread_data,
                 GError   *error,
                 gpointer  user_data)
 {
-	InThreadPtr *ptr  = inthread_data;
-	ClientInfo  *info = user_data;
+	InThreadPtr *ptr = inthread_data;
+	ClientInfo *info = user_data;
 	DBusMessage *reply;
 
 	if (ptr && ptr->error) {
@@ -161,15 +161,16 @@ update_callback (GError *error, gpointer user_data)
 		return;
 	}
 
-	tracker_dbus_request_success (info->request_id,
-	                              NULL);
+	tracker_dbus_request_success (info->request_id, NULL);
 	reply = dbus_message_new_method_return (info->call_message);
 	dbus_connection_send (info->connection, reply, NULL);
 	dbus_message_unref (reply);
 }
 
 static void
-marshal_hash_table_item (gpointer key, gpointer value, gpointer user_data)
+marshal_hash_table_item (gpointer key,
+                         gpointer value,
+                         gpointer user_data)
 {
 	DBusMessageIter *iter = user_data;
 	DBusMessageIter subiter;
@@ -191,15 +192,19 @@ marshal_hash_table (DBusMessageIter *iter, GHashTable *hash)
 }
 
 static void
-update_blank_callback (GPtrArray *blank_nodes, GError *error, gpointer user_data)
+update_blank_callback (GPtrArray *blank_nodes,
+                       GError    *error,
+                       gpointer   user_data)
 {
-	ClientInfo *info = user_data;
+	ClientInfo *info;
 	DBusMessage *reply;
-	int i, j;
+	gint i, j;
 	/* Reply type is aaa{ss} */
 	DBusMessageIter iter;
 	DBusMessageIter subiter;
 	DBusMessageIter subsubiter;
+
+	info = user_data;
 
 	if (error) {
 		tracker_dbus_request_failed (info->request_id,
@@ -214,14 +219,14 @@ update_blank_callback (GPtrArray *blank_nodes, GError *error, gpointer user_data
 		return;
 	}
 
-	tracker_dbus_request_success (info->request_id,
-	                              NULL);
+	tracker_dbus_request_success (info->request_id, NULL);
 	reply = dbus_message_new_method_return (info->call_message);
 	dbus_message_iter_init_append (reply, &iter);
 
 	dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, "aa{ss}", &subiter);
 	for (i = 0; i < blank_nodes->len; i++) {
 		GPtrArray *inner_array;
+
 		inner_array = g_ptr_array_index (blank_nodes, i);
 
 		dbus_message_iter_open_container (&subiter, DBUS_TYPE_ARRAY, "a{ss}", &subsubiter);
@@ -243,17 +248,19 @@ query_inthread (TrackerDBCursor *cursor,
                 GError          *error,
                 gpointer         user_data)
 {
-	InThreadPtr *ptr  = g_slice_new0 (InThreadPtr);
-	ClientInfo  *info = user_data;
+	InThreadPtr *ptr;
+	ClientInfo *info;
 	GError *loop_error = NULL;
 	GOutputStream *unix_output_stream;
 	GOutputStream *output_stream;
 	GDataOutputStream *data_output_stream;
 	guint n_columns;
-	int *column_sizes;
-	int *column_offsets;
+	gint *column_sizes;
+	gint *column_offsets;
 	const gchar **column_data;
 
+	ptr = g_slice_new0 (InThreadPtr);
+	info = user_data;
 	unix_output_stream = g_unix_output_stream_new (info->fd, TRUE);
 	output_stream = g_buffered_output_stream_new_sized (unix_output_stream,
 	                                                    TRACKER_STEROIDS_BUFFER_SIZE);
@@ -269,12 +276,12 @@ query_inthread (TrackerDBCursor *cursor,
 
 	n_columns = tracker_db_cursor_get_n_columns (cursor);
 
-	column_sizes = g_malloc (n_columns * sizeof (int));
-	column_offsets = g_malloc (n_columns * sizeof (int));
-	column_data = g_malloc (n_columns * sizeof (char*));
+	column_sizes = g_malloc (n_columns * sizeof (gint));
+	column_offsets = g_malloc (n_columns * sizeof (gint));
+	column_data = g_malloc (n_columns * sizeof (gchar*));
 
 	while (tracker_db_cursor_iter_next (cursor, &loop_error)) {
-		int i;
+		gint i;
 		guint last_offset = -1;
 
 		if (loop_error != NULL) {
@@ -336,8 +343,8 @@ query_inthread (TrackerDBCursor *cursor,
 			}
 		}
 	}
-end_query_inthread:
 
+end_query_inthread:
 	/* Will force flushing */
 	g_object_unref (data_output_stream);
 	g_object_unref (output_stream);
@@ -355,18 +362,21 @@ end_query_inthread:
 }
 
 static void
-tracker_steroids_query (TrackerSteroids *steroids,
-						DBusConnection  *connection,
-						DBusMessage     *message)
+steroids_query (TrackerSteroids *steroids,
+                DBusConnection  *connection,
+                DBusMessage     *message)
 {
 	ClientInfo  *info;
-	guint        request_id;
+	guint request_id;
 	const gchar *sender;
 	DBusMessage *reply;
-	DBusError    dbus_error;
-	gchar       *query;
+	DBusError dbus_error;
+	gchar *query;
+	const gchar *expected_signature;
 
-	if (g_strcmp0 (dbus_message_get_signature (message), DBUS_TYPE_STRING_AS_STRING DBUS_TYPE_UNIX_FD_AS_STRING)) {
+	expected_signature = DBUS_TYPE_STRING_AS_STRING DBUS_TYPE_UNIX_FD_AS_STRING;
+
+	if (g_strcmp0 (dbus_message_get_signature (message), expected_signature)) {
 		reply = dbus_message_new_error_printf (message,
 		                                       DBUS_ERROR_UNKNOWN_METHOD,   
 		                                       UNKNOWN_METHOD_MESSAGE,
@@ -403,35 +413,39 @@ tracker_steroids_query (TrackerSteroids *steroids,
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
 		dbus_error_free (&dbus_error);
-		destroy_client_info (info);
+		client_info_destroy (info);
 		return;
 	}
 
 	sender = dbus_message_get_sender (message);
 
-	tracker_store_sparql_query (query, TRACKER_STORE_PRIORITY_HIGH,
-	                            query_inthread, query_callback, sender,
-	                            info, destroy_client_info);
+	tracker_store_sparql_query (query,
+	                            TRACKER_STORE_PRIORITY_HIGH,
+	                            query_inthread,
+	                            query_callback,
+	                            sender,
+	                            info,
+	                            client_info_destroy);
 }
 
 static void
-tracker_steroids_update (TrackerSteroids *steroids,
-                         DBusConnection  *connection,
-                         DBusMessage     *message,
-                         gboolean         batch,
-                         gboolean         update_blank)
+steroids_update (TrackerSteroids *steroids,
+                 DBusConnection  *connection,
+                 DBusMessage     *message,
+                 gboolean         batch,
+                 gboolean         update_blank)
 {
-	DBusError               dbus_error;
-	ClientInfo             *info;
-	GInputStream           *input_stream;
-	GDataInputStream       *data_input_stream;
-	GError                 *error = NULL;
-	gsize                   bytes_read;
-	guint                   request_id;
-	const gchar            *sender;
-	int                     query_size;
-	DBusMessage            *reply;
-	gchar                  *query;
+	DBusError dbus_error;
+	ClientInfo *info;
+	GInputStream *input_stream;
+	GDataInputStream *data_input_stream;
+	GError *error = NULL;
+	gsize bytes_read;
+	guint request_id;
+	const gchar *sender;
+	int query_size;
+	DBusMessage *reply;
+	gchar *query;
 
 	if (g_strcmp0 (dbus_message_get_signature (message), DBUS_TYPE_UNIX_FD_AS_STRING)) {
 		reply = dbus_message_new_error_printf (message,
@@ -469,7 +483,7 @@ tracker_steroids_update (TrackerSteroids *steroids,
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
 		dbus_error_free (&dbus_error);
-		destroy_client_info (info);
+		client_info_destroy (info);
 		return;
 	}
 
@@ -493,7 +507,7 @@ tracker_steroids_update (TrackerSteroids *steroids,
 		g_object_unref (data_input_stream);
 		g_object_unref (input_stream);
 		g_error_free (error);
-		destroy_client_info (info);
+		client_info_destroy (info);
 
 		return;
 	}
@@ -519,7 +533,7 @@ tracker_steroids_update (TrackerSteroids *steroids,
 		g_object_unref (data_input_stream);
 		g_object_unref (input_stream);
 		g_error_free (error);
-		destroy_client_info (info);
+		client_info_destroy (info);
 
 		return;
 	}
@@ -528,15 +542,20 @@ tracker_steroids_update (TrackerSteroids *steroids,
 	g_object_unref (input_stream);
 
 	if (update_blank) {
-		tracker_store_sparql_update_blank (query, TRACKER_STORE_PRIORITY_HIGH,
-		                                   update_blank_callback, sender,
-		                                   info, destroy_client_info);
+		tracker_store_sparql_update_blank (query,
+		                                   TRACKER_STORE_PRIORITY_HIGH,
+		                                   update_blank_callback,
+		                                   sender,
+		                                   info,
+		                                   client_info_destroy);
 	} else {
 		tracker_store_sparql_update (query,
 		                             batch ? TRACKER_STORE_PRIORITY_LOW : TRACKER_STORE_PRIORITY_HIGH,
 		                             FALSE,
-		                             update_callback, sender,
-		                             info, destroy_client_info);
+		                             update_callback,
+		                             sender,
+		                             info,
+		                             client_info_destroy);
 	}
 }
 
@@ -545,8 +564,12 @@ tracker_steroids_connection_filter (DBusConnection *connection,
                                     DBusMessage    *message,
                                     void           *user_data)
 {
-	TrackerSteroids *steroids = user_data;
+	TrackerSteroids *steroids;
 
+	g_return_val_if_fail (connection != NULL, DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
+	g_return_val_if_fail (message != NULL, DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
+
+	steroids = user_data;
 	g_return_val_if_fail (TRACKER_IS_STEROIDS (steroids), DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
 
 	if (g_strcmp0 (TRACKER_STEROIDS_PATH, dbus_message_get_path (message))) {
@@ -558,22 +581,22 @@ tracker_steroids_connection_filter (DBusConnection *connection,
 	}
 
 	if (!g_strcmp0 ("Query", dbus_message_get_member (message))) {
-		tracker_steroids_query (steroids, connection, message);
+		steroids_query (steroids, connection, message);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
 	if (!g_strcmp0 ("Update", dbus_message_get_member (message))) {
-		tracker_steroids_update (steroids, connection, message, FALSE, FALSE);
+		steroids_update (steroids, connection, message, FALSE, FALSE);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
 	if (!g_strcmp0 ("UpdateBlank", dbus_message_get_member (message))) {
-		tracker_steroids_update (steroids, connection, message, FALSE, TRUE);
+		steroids_update (steroids, connection, message, FALSE, TRUE);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
 	if (!g_strcmp0 ("BatchUpdate", dbus_message_get_member (message))) {
-		tracker_steroids_update (steroids, connection, message, TRUE, FALSE);
+		steroids_update (steroids, connection, message, TRUE, FALSE);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 

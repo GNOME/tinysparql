@@ -48,11 +48,10 @@ struct TrackerSteroidsClass {
 	GObjectClass parent;
 };
 
-GType            tracker_steroids_get_type (void) G_GNUC_CONST;
-TrackerSteroids* tracker_steroids_new      (void);
-DBusHandlerResult
-        tracker_steroids_connection_filter (DBusConnection *connection,
-                                            DBusMessage    *message,
-                                            void           *user_data);
+GType             tracker_steroids_get_type          (void) G_GNUC_CONST;
 
+TrackerSteroids*  tracker_steroids_new               (void);
+DBusHandlerResult tracker_steroids_connection_filter (DBusConnection *connection,
+                                                      DBusMessage    *message,
+                                                      void           *user_data);
 #endif /* __TRACKER_STEROIDS_H__ */
