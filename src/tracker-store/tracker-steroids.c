@@ -355,20 +355,22 @@ steroids_query (TrackerSteroids *steroids,
 	ClientInfo *info;
 	guint request_id;
 	const gchar *sender;
+	const gchar *expected_signature;
 	DBusMessage *reply;
 	DBusError dbus_error;
 	gchar *query;
-	const gchar *expected_signature;
+	int fd;
 
 	request_id = tracker_dbus_get_next_request_id ();
-	tracker_dbus_request_new (request_id,
-	                          NULL,
-	                          "%s()",
-	                          __FUNCTION__);
 
 	expected_signature = DBUS_TYPE_STRING_AS_STRING DBUS_TYPE_UNIX_FD_AS_STRING;
 
 	if (g_strcmp0 (dbus_message_get_signature (message), expected_signature)) {
+		tracker_dbus_request_new (request_id,
+		                          NULL,
+		                          "%s()",
+		                          __FUNCTION__);
+
 		reply = dbus_message_new_error_printf (message,
 		                                       DBUS_ERROR_UNKNOWN_METHOD,   
 		                                       UNKNOWN_METHOD_MESSAGE,
@@ -376,31 +378,59 @@ steroids_query (TrackerSteroids *steroids,
 		                                       dbus_message_get_signature (message),
 		                                       dbus_message_get_interface (message));
 		dbus_connection_send (connection, reply, NULL);
+
+		tracker_dbus_request_failed (request_id,
+		                             NULL,
+		                             NULL,
+		                             UNKNOWN_METHOD_MESSAGE,
+		                             "Query",
+		                             dbus_message_get_signature (message),
+		                             dbus_message_get_interface (message));
+
 		dbus_message_unref (reply);
+
 		return;
 	}
-
-	info = g_slice_new0 (ClientInfo);
-	info->connection = dbus_connection_ref (connection);
-	info->call_message = dbus_message_ref (message);
-	info->request_id = request_id;
 
 	dbus_error_init (&dbus_error);
 
 	dbus_message_get_args (message,
 	                       &dbus_error,
 	                       DBUS_TYPE_STRING, &query,
-	                       DBUS_TYPE_UNIX_FD, &info->fd,
+	                       DBUS_TYPE_UNIX_FD, &fd,
 	                       DBUS_TYPE_INVALID);
 
 	if (dbus_error_is_set (&dbus_error)) {
+		tracker_dbus_request_new (request_id,
+		                          NULL,
+		                          "%s()",
+		                          __FUNCTION__);
+
 		reply = dbus_message_new_error (message, dbus_error.name, dbus_error.message);
 		dbus_connection_send (connection, reply, NULL);
+
+		tracker_dbus_request_failed (request_id,
+		                             NULL,
+		                             NULL,
+		                             dbus_error.message);
+
 		dbus_message_unref (reply);
 		dbus_error_free (&dbus_error);
-		client_info_destroy (info);
+
 		return;
 	}
+
+	info = g_slice_new (ClientInfo);
+	info->connection = dbus_connection_ref (connection);
+	info->call_message = dbus_message_ref (message);
+	info->request_id = request_id;
+	info->fd = fd;
+
+	tracker_dbus_request_new (request_id,
+	                          NULL,
+	                          "%s(query:'%s')",
+	                          __FUNCTION__,
+	                          query);
 
 	sender = dbus_message_get_sender (message);
 
@@ -431,14 +461,16 @@ steroids_update (TrackerSteroids *steroids,
 	int query_size;
 	DBusMessage *reply;
 	gchar *query;
+	int fd;
 
 	request_id = tracker_dbus_get_next_request_id ();
-	tracker_dbus_request_new (request_id,
-	                          NULL,
-	                          "%s()",
-	                          __FUNCTION__);
 
 	if (g_strcmp0 (dbus_message_get_signature (message), DBUS_TYPE_UNIX_FD_AS_STRING)) {
+		tracker_dbus_request_new (request_id,
+		                          NULL,
+		                          "%s()",
+		                          __FUNCTION__);
+
 		reply = dbus_message_new_error_printf (message,
 		                                       DBUS_ERROR_UNKNOWN_METHOD,
 		                                       UNKNOWN_METHOD_MESSAGE,
@@ -447,29 +479,56 @@ steroids_update (TrackerSteroids *steroids,
 		                                       dbus_message_get_interface (message));
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
+
+		tracker_dbus_request_failed (request_id,
+		                             NULL,
+		                             NULL,
+		                             UNKNOWN_METHOD_MESSAGE,
+		                             "Update",
+		                             dbus_message_get_signature (message),
+		                             dbus_message_get_interface (message));
+
 		return;
 	}
-
-	info = g_slice_new0 (ClientInfo);
-	info->connection = dbus_connection_ref (connection);
-	info->call_message = dbus_message_ref (message);
-	info->request_id = request_id;
 
 	dbus_error_init (&dbus_error);
 
 	dbus_message_get_args (message,
 	                       &dbus_error,
-	                       DBUS_TYPE_UNIX_FD, &info->fd,
+	                       DBUS_TYPE_UNIX_FD, &fd,
 	                       DBUS_TYPE_INVALID);
 
 	if (dbus_error_is_set (&dbus_error)) {
+		tracker_dbus_request_new (request_id,
+		                          NULL,
+		                          "%s()",
+		                          __FUNCTION__);
+
 		reply = dbus_message_new_error (message, dbus_error.name, dbus_error.message);
 		dbus_connection_send (connection, reply, NULL);
+
+		tracker_dbus_request_failed (request_id,
+		                             NULL,
+		                             NULL,
+		                             dbus_error.message);
+
 		dbus_message_unref (reply);
 		dbus_error_free (&dbus_error);
-		client_info_destroy (info);
+
 		return;
 	}
+
+	tracker_dbus_request_new (request_id,
+	                          NULL,
+	                          "%s(fd:%d)",
+	                          __FUNCTION__,
+	                          fd);
+
+	info = g_slice_new (ClientInfo);
+	info->connection = dbus_connection_ref (connection);
+	info->call_message = dbus_message_ref (message);
+	info->request_id = request_id;
+	info->fd = fd;
 
 	sender = dbus_message_get_sender (message);
 
@@ -487,6 +546,11 @@ steroids_update (TrackerSteroids *steroids,
 		                                error->message);
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
+
+		tracker_dbus_request_failed (request_id,
+		                             NULL,
+		                             NULL,
+		                             error->message);
 
 		g_object_unref (data_input_stream);
 		g_object_unref (input_stream);
@@ -513,6 +577,11 @@ steroids_update (TrackerSteroids *steroids,
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
 
+		tracker_dbus_request_failed (request_id,
+		                             NULL,
+		                             NULL,
+		                             error->message);
+
 		g_free (query);
 		g_object_unref (data_input_stream);
 		g_object_unref (input_stream);
@@ -521,6 +590,12 @@ steroids_update (TrackerSteroids *steroids,
 
 		return;
 	}
+
+	tracker_dbus_request_comment (request_id,
+	                              NULL,
+	                              "query:'%s'",
+	                              __FUNCTION__,
+	                              query);
 
 	g_object_unref (data_input_stream);
 	g_object_unref (input_stream);
