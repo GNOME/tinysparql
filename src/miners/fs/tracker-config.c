@@ -885,7 +885,8 @@ config_load (TrackerConfig *config,
 			is_directory_list = TRUE;
 
 			if (strcmp (conversions[i].property, "index-recursive-directories") != 0 &&
-			    strcmp (conversions[i].property, "index-single-directories") != 0) {
+			    strcmp (conversions[i].property, "index-single-directories") != 0 &&
+			    strcmp (conversions[i].property, "ignored-directories") != 0) {
                                 tracker_keyfile_object_load_string_list (G_OBJECT (file),
                                                                          conversions[i].property,
                                                                          file->key_file,
