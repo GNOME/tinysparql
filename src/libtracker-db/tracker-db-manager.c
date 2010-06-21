@@ -1352,13 +1352,12 @@ tracker_db_manager_set_first_index_done (gboolean done)
 		}
 	} else if (!done && already_exists) {
 		/* If NOT done, remove stamp file */
+		g_message ("  Removing first index file:'%s'", filename);
+
 		if (g_remove (filename)) {
-			g_warning ("  Could not remove file:'%s', %s", 
+			g_warning ("    Could not remove file:'%s', %s",
 			           filename,
 			           g_strerror (errno));
-		} else {
-			g_message ("  First index file:'%s' removed",
-			           filename);
 		}
 	}
 
@@ -1437,13 +1436,12 @@ tracker_db_manager_set_last_crawl_done (gboolean done)
 		g_free (content);
 	} else if (!done && already_exists) {
 		/* If NOT done, remove stamp file */
+		g_message ("  Removing last crawl file:'%s'", filename);
+
 		if (g_remove (filename)) {
-			g_warning ("  Could not remove file:'%s', %s", 
+			g_warning ("    Could not remove file:'%s', %s",
 			           filename,
 			           g_strerror (errno));
-		} else {
-			g_message ("  Last crawl file:'%s' removed",
-			           filename);
 		}
 	}
 
