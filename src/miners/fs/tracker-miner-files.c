@@ -776,12 +776,28 @@ query_mount_points_cb (GObject      *source,
 		g_hash_table_insert (volumes, g_strdup (row[0]), GINT_TO_POINTER (state));
 	}
 
+	/* Then, get all currently mounted non-REMOVABLE volumes, according to GIO */
+	uuids = tracker_storage_get_device_uuids (priv->storage, 0, TRUE);
+	for (u = uuids; u; u = u->next) {
+		const gchar *uuid;
+		gchar *non_removable_device_urn;
+		gint state;
+
+		uuid = u->data;
+		non_removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
+
+		state = GPOINTER_TO_INT (g_hash_table_lookup (volumes, non_removable_device_urn));
+		state |= VOLUME_MOUNTED;
+
+		g_hash_table_replace (volumes, non_removable_device_urn, GINT_TO_POINTER (state));
+	}
+
+	/* Make sure the root partition is always set to mounted */
 	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
 	                      GINT_TO_POINTER (VOLUME_MOUNTED));
 
+	/* Then, get all currently mounted REMOVABLE volumes, according to GIO */
 	uuids = tracker_storage_get_device_uuids (priv->storage, TRACKER_STORAGE_REMOVABLE, FALSE);
-
-	/* Then, get all currently mounted volumes, according to GIO */
 	for (u = uuids; u; u = u->next) {
 		const gchar *uuid;
 		gchar *removable_device_urn;
