@@ -44,11 +44,6 @@
 
 G_DEFINE_TYPE (TrackerSteroids, tracker_steroids, G_TYPE_OBJECT)
 
-#define TRACKER_STEROIDS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_STEROIDS, TrackerSteroidsPrivate))
-
-typedef struct {
-} TrackerSteroidsPrivate;
-
 typedef struct {
 	DBusMessage *call_message;
 	int fd;
@@ -61,18 +56,9 @@ typedef struct {
 	gpointer user_data;
 } InThreadPtr;
 
-static void tracker_steroids_finalize (GObject *object);
-
 static void
 tracker_steroids_class_init (TrackerSteroidsClass *klass)
 {
-	GObjectClass *object_class;
-
-	object_class = G_OBJECT_CLASS (klass);
-
-	object_class->finalize = tracker_steroids_finalize;
-
-	g_type_class_add_private (object_class, sizeof (TrackerSteroidsPrivate));
 }
 
 static void
@@ -599,9 +585,4 @@ tracker_steroids_connection_filter (DBusConnection *connection,
 	}
 
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
-static void
-tracker_steroids_finalize (GObject *object)
-{
 }
