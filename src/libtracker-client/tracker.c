@@ -609,6 +609,7 @@ fast_async_callback_iterator (GObject      *source_object,
 
 	iterator->buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream));
 
+	/* FIXME: What is this for? Why do we use GFilterInputStream? */
 	base_input_stream = g_filter_input_stream_get_base_stream (G_FILTER_INPUT_STREAM (data->input_stream));
 	g_object_unref (data->input_stream);
 	g_object_unref (base_input_stream);
@@ -629,8 +630,6 @@ fast_async_callback_iterator (GObject      *source_object,
 		return;
 	}
 
-	iterator->buffer_index = 0;
-
 	/* Reset the iterator internal state */
 	iterator->buffer_index = 0;
 
@@ -638,6 +637,7 @@ fast_async_callback_iterator (GObject      *source_object,
 
 	reply = dbus_pending_call_steal_reply (data->dbus_call);
 
+	/* FIXME: Don't assert in a library like this */
 	g_assert (reply);
 
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
@@ -2309,7 +2309,6 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	DBusMessage *message;
 	DBusMessageIter iter;
 	DBusPendingCall *call;
-	TrackerResultIterator *iterator;
 	int pipefd[2];
 	GInputStream *input_stream;
 	GInputStream *buffered_input_stream;
@@ -2334,6 +2333,20 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                                        TRACKER_DBUS_INTERFACE_STEROIDS,
 	                                        "Query");
 
+	/* FIXME: This at least returns FALSE where append_basic()
+	 * silently fails when actually sending the message and
+	 * DBUS_TYPE_UNIX_FD is not supported.
+	 *
+	 * No error handling though :(
+	 */
+	/* if (!dbus_message_append_args (message, */
+	/*                                DBUS_TYPE_STRING, &query, */
+	/*                                DBUS_TYPE_UNIX_FD, &pipefd[1], */
+	/*                                DBUS_TYPE_INVALID)) { */
+	/* 	g_critical ("Could not append arguments to DBusMessage"); */
+	/* 	return 0; */
+	/* } */
+
 	dbus_message_iter_init_append (message, &iter);
 	dbus_message_iter_append_basic (&iter, DBUS_TYPE_STRING, &query);
 	dbus_message_iter_append_basic (&iter, DBUS_TYPE_UNIX_FD, &pipefd[1]);
@@ -2343,6 +2356,8 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                                 &call,
 	                                 -1);
 	dbus_message_unref (message);
+
+	/* FIXME: Why do we close this? */
 	close (pipefd[1]);
 
 	if (!call) {
@@ -2350,17 +2365,15 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 		return 0;
 	}
 
-	async_data = g_slice_new0 (FastAsyncData);
-
-	iterator = g_slice_new0 (TrackerResultIterator);
 	input_stream = g_unix_input_stream_new (pipefd[0], TRUE);
 	buffered_input_stream = g_buffered_input_stream_new_sized (input_stream,
 	                                                           TRACKER_STEROIDS_BUFFER_SIZE);
 	iterator_output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
 	cancellable = g_cancellable_new ();
 
+	async_data = g_slice_new0 (FastAsyncData);
 	async_data->client = g_object_ref (client);
-	async_data->result_iterator = iterator;
+	async_data->result_iterator = g_slice_new0 (TrackerResultIterator);
 	async_data->input_stream = buffered_input_stream;
 	async_data->output_stream = iterator_output_stream;
 	async_data->dbus_call = call;
