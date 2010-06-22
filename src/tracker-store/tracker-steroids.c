@@ -278,7 +278,7 @@ query_inthread (TrackerDBCursor *cursor,
 		for (i = 0; i < n_columns ; i++) {
 			const gchar *str;
 
-			str = tracker_db_cursor_get_string (cursor, i);
+			str = tracker_db_cursor_get_string (cursor, i, NULL);
 
 			column_sizes[i] = str ? strlen (str) : 0;
 			column_data[i]  = str;
