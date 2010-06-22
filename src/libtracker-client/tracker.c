@@ -582,7 +582,7 @@ iterator_buffer_read_int (TrackerResultIterator *iterator)
 
 	iterator->buffer_index += 4;
 
-	return GINT32_FROM_BE (v);
+	return v;
 }
 
 static void
@@ -1924,8 +1924,6 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
 	 * iteration = [4 bytes for number of columns,
 	 *              4 bytes for last offset]
 	 */
-
-
 	iterator->n_columns = iterator_buffer_read_int (iterator);
 	iterator->offsets = (int *)(iterator->buffer + iterator->buffer_index);
 	iterator->buffer_index += sizeof (int) * (iterator->n_columns - 1);

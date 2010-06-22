@@ -252,6 +252,7 @@ query_inthread (TrackerDBCursor *cursor,
 	output_stream = g_buffered_output_stream_new_sized (unix_output_stream,
 	                                                    TRACKER_STEROIDS_BUFFER_SIZE);
 	data_output_stream = g_data_output_stream_new (output_stream);
+	g_data_output_stream_set_byte_order (data_output_stream, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
 	if (error) {
 		g_object_unref (data_output_stream);
