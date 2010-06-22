@@ -575,7 +575,7 @@ callback_with_void (DBusGProxy *proxy,
 
 #ifdef HAVE_DBUS_FD_PASSING
 
-static int
+static inline int
 iterator_buffer_read_int (TrackerResultIterator *iterator)
 {
 	int v = *((int *)(iterator->buffer + iterator->buffer_index));
@@ -586,79 +586,83 @@ iterator_buffer_read_int (TrackerResultIterator *iterator)
 }
 
 static void
-fast_async_callback_iterator (GObject      *source_object,
-                              GAsyncResult *result,
-                              gpointer      user_data)
+callback_iterator (GObject      *source_object,
+                   GAsyncResult *result,
+                   gpointer      user_data)
 {
 	TrackerClientPrivate *private;
-	DBusMessage *reply;
-	GError *inner_error = NULL;
+	DBusMessage *reply = NULL;
 	GError *error = NULL;
-	FastAsyncData *data = user_data;
-	TrackerResultIterator *iterator = data->result_iterator;
+	FastAsyncData *data;
+	TrackerResultIterator *iterator;
 	GInputStream *base_input_stream;
 
-	iterator->buffer_size = g_output_stream_splice_finish (data->output_stream,
-	                                                       result,
-	                                                       &inner_error);
+	/* Clean up pending calls */
+	data = user_data;
 
 	private = TRACKER_CLIENT_GET_PRIVATE (data->client);
 	g_hash_table_remove (private->fast_pending_calls,
 	                     GUINT_TO_POINTER (data->request_id));
 	g_object_unref (data->client);
 
-	iterator->buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream));
+	/* Reset the iterator internal state */
+	iterator = data->result_iterator;
 
-	/* FIXME: What is this for? Why do we use GFilterInputStream? */
+	iterator->buffer_size = g_output_stream_splice_finish (data->output_stream,
+	                                                       result,
+	                                                       &error);
+	iterator->buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream));
+	iterator->buffer_index = 0;
+
+	/* Clean up streams */
 	base_input_stream = g_filter_input_stream_get_base_stream (G_FILTER_INPUT_STREAM (data->input_stream));
 	g_object_unref (data->input_stream);
 	g_object_unref (base_input_stream);
 	g_object_unref (data->output_stream);
 
-	if (inner_error) {
-		if (inner_error->code != G_IO_ERROR_CANCELLED) {
+	/* Check for errors */
+	if (G_LIKELY (!error)) {
+		/* Wait for any current d-bus call to finish */
+		dbus_pending_call_block (data->dbus_call);
+
+		/* Check we didn't get an error */
+		reply = dbus_pending_call_steal_reply (data->dbus_call);
+
+		if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
+			DBusError dbus_error;
+
+			dbus_error_init (&dbus_error);
+			dbus_set_error_from_message (&dbus_error, reply);
+			dbus_set_g_error (&error, &dbus_error);
+
+			(* data->iterator_callback) (NULL, error, data->user_data);
+	
+			dbus_error_free (&dbus_error);
+		} else {
+			/* Call iterator callback */
+			(* data->iterator_callback) (iterator, NULL, data->user_data);
+		}
+	} else {
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			g_clear_error (&error);
 			g_set_error (&error,
 			             TRACKER_CLIENT_ERROR,
 			             TRACKER_CLIENT_ERROR_BROKEN_PIPE,
 			             "Couldn't get results from server");
+
 			(* data->iterator_callback) (NULL, error, data->user_data);
 		}
+
 		tracker_result_iterator_free (iterator);
-		dbus_pending_call_unref (data->dbus_call);
-		g_error_free (inner_error);
-		g_slice_free (FastAsyncData, data);
-		return;
+		g_error_free (error);
 	}
 
-	/* Reset the iterator internal state */
-	iterator->buffer_index = 0;
-
-	dbus_pending_call_block (data->dbus_call);
-
-	reply = dbus_pending_call_steal_reply (data->dbus_call);
-
-	/* FIXME: Don't assert in a library like this */
-	g_assert (reply);
-
-	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
-		DBusError dbus_error;
-
-		dbus_error_init (&dbus_error);
-
-		dbus_set_error_from_message (&dbus_error, reply);
-		dbus_set_g_error (&error, &dbus_error);
-		dbus_pending_call_unref (data->dbus_call);
-		(* data->iterator_callback) (NULL, error, data->user_data);
-		dbus_error_free (&dbus_error);
-
-		return ;
+	/* Clean up */
+	if (reply) {
+		dbus_message_unref (reply);
 	}
-
-	dbus_message_unref (reply);
 
 	dbus_pending_call_unref (data->dbus_call);
-
-	(* data->iterator_callback) (iterator, NULL, data->user_data);
 
 	g_slice_free (FastAsyncData, data);
 }
@@ -666,9 +670,9 @@ fast_async_callback_iterator (GObject      *source_object,
 #else  /* HAVE_DBUS_FD_PASSING */
 
 static void
-fast_async_callback_iterator_compat (GPtrArray *results,
-                                     GError    *error,
-                                     gpointer   user_data)
+callback_iterator_compat (GPtrArray *results,
+                          GError    *error,
+                          gpointer   user_data)
 {
 	FastQueryAsyncCompatData *data = user_data;
 	TrackerResultIterator *iterator;
@@ -2394,7 +2398,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
 	                              0,
 	                              cancellable,
-	                              fast_async_callback_iterator,
+	                              callback_iterator,
 	                              async_data);
 	return async_data->request_id;
 #else  /* HAVE_DBUS_FD_PASSING */
@@ -2406,7 +2410,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 
 	return tracker_resources_sparql_query_async (client,
 	                                             query,
-	                                             fast_async_callback_iterator_compat,
+	                                             callback_iterator_compat,
 	                                             user_data);
 #endif /* HAVE_DBUS_FD_PASSING */
 }
