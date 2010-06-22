@@ -1715,7 +1715,7 @@ tracker_resources_sparql_query (TrackerClient  *client,
  *
  * Since: 0.9
  **/
-TrackerResultIterator*
+TrackerResultIterator *
 tracker_resources_sparql_query_iterate (TrackerClient  *client,
                                         const gchar    *query,
                                         GError        **error)
@@ -1860,9 +1860,7 @@ tracker_result_iterator_free (TrackerResultIterator *iterator)
 	g_ptr_array_foreach (iterator->results, (GFunc) g_free, NULL);
 	g_ptr_array_free (iterator->results, TRUE);
 #else  /* HAVE_DBUS_FD_PASSING */
-	if (iterator->buffer) {
-		g_free (iterator->buffer);
-	}
+	g_free (iterator->buffer);
 	g_slice_free (TrackerResultIterator, iterator);
 #endif /* HAVE_DBUS_FD_PASSING */
 }
