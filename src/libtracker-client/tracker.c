@@ -1903,7 +1903,7 @@ tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
  *
  * Checks if the iterator has more rows
  *
- * Returns: TRUE if there are more rows to fetch, FALSE else
+ * Returns: %TRUE if there are more rows to fetch, otherwise %FALSE.
  *
  * Since: 0.9
  **/
@@ -1927,7 +1927,7 @@ tracker_result_iterator_has_next (TrackerResultIterator *iterator)
  * tracker_result_iterator_next:
  * @iterator: A TrackerResultIterator
  *
- * Fetches the next results row.
+ * Fetches the next row for the results.
  *
  * Since: 0.9
  **/
@@ -1942,6 +1942,13 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
 	if (!tracker_result_iterator_has_next (iterator)) {
 		return;
 	}
+
+	/* So, the make up on each iterator segment is:
+	 *
+	 * iteration = [4 bytes for number of columns,
+	 *              4 bytes for last offset]
+	 */
+
 
 	iterator->n_columns = iterator_buffer_read_int (iterator);
 	iterator->offsets = (int *)(iterator->buffer + iterator->buffer_index);
@@ -1964,6 +1971,7 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
 /**
  * tracker_result_iterator_value:
  * @iterator: A TrackerResultIterator
+ * @column: the column with the data
  *
  * Get a column's value as a string
  *
