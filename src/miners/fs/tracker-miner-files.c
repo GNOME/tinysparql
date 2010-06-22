@@ -761,19 +761,29 @@ query_mount_points_cb (GObject      *source,
 	                                 (GDestroyNotify) g_free,
 	                                 NULL);
 
+	/* Make sure the root partition is always set to mounted, as GIO won't
+	 * report it as a proper mount */
+	g_hash_table_insert (volumes,
+	                     g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
+	                     GINT_TO_POINTER (VOLUME_MOUNTED));
+
+	/* Get mounted status from store */
 	for (i = 0; i < query_results->len; i++) {
 		gchar **row;
-		gint state;
 
 		row = g_ptr_array_index (query_results, i);
-		state = VOLUME_MOUNTED_IN_STORE;
 
 		if (strcmp (row[0], TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {
-			/* Report non-removable media to be mounted by HAL as well */
-			state |= VOLUME_MOUNTED;
+			/* Update root partition to set also mounted in store */
+			g_hash_table_replace (volumes,
+			                     g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
+			                     GINT_TO_POINTER (VOLUME_MOUNTED | VOLUME_MOUNTED_IN_STORE));
+		} else {
+			/* Set status of known volumes in store */
+			g_hash_table_insert (volumes,
+			                     g_strdup (row[0]),
+			                     GINT_TO_POINTER (VOLUME_MOUNTED_IN_STORE));
 		}
-
-		g_hash_table_insert (volumes, g_strdup (row[0]), GINT_TO_POINTER (state));
 	}
 
 	/* Then, get all currently mounted non-REMOVABLE volumes, according to GIO */
@@ -791,10 +801,6 @@ query_mount_points_cb (GObject      *source,
 
 		g_hash_table_replace (volumes, non_removable_device_urn, GINT_TO_POINTER (state));
 	}
-
-	/* Make sure the root partition is always set to mounted */
-	g_hash_table_replace (volumes, g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
-	                      GINT_TO_POINTER (VOLUME_MOUNTED));
 
 	/* Then, get all currently mounted REMOVABLE volumes, according to GIO */
 	uuids = tracker_storage_get_device_uuids (priv->storage, TRACKER_STORAGE_REMOVABLE, FALSE);
