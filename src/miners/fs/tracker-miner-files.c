@@ -767,13 +767,12 @@ query_mount_points_cb (GObject      *source,
                              g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN), 
                              GINT_TO_POINTER (VOLUME_MOUNTED));
 
-	while (tracker_result_iterator_has_next (iterator)) {
+	while (tracker_result_iterator_next (iterator)) {
 		gint state;
 		const gchar *urn;
 
 		state = VOLUME_MOUNTED_IN_STORE;
 
-		tracker_result_iterator_next (iterator);
 		urn = tracker_result_iterator_value (iterator, 0);
 
 		if (strcmp (urn, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {

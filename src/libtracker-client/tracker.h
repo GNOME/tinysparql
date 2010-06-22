@@ -145,8 +145,7 @@ TrackerResultIterator *
                                                             GError                **error);
 void           tracker_result_iterator_free                (TrackerResultIterator  *iterator);
 guint          tracker_result_iterator_n_columns           (TrackerResultIterator  *iterator);
-gboolean       tracker_result_iterator_has_next            (TrackerResultIterator  *iterator);
-void           tracker_result_iterator_next                (TrackerResultIterator  *iterator);
+gboolean       tracker_result_iterator_next                (TrackerResultIterator  *iterator);
 const gchar *  tracker_result_iterator_value               (TrackerResultIterator  *iterator,
                                                             guint                   column);
 void           tracker_resources_sparql_update             (TrackerClient          *client,

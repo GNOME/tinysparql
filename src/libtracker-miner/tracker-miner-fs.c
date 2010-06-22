@@ -1077,12 +1077,10 @@ sparql_query_cb (GObject      *object,
 	}
 
 	if (!iterator ||
-	    !tracker_result_iterator_has_next (iterator))
+	    !tracker_result_iterator_next (iterator))
 		return;
 
-	tracker_result_iterator_next (iterator);
-
-	if (!tracker_result_iterator_has_next (iterator)) {
+	if (!tracker_result_iterator_next (iterator)) {
 		data->iri = g_strdup (tracker_result_iterator_value (iterator, 0));
 		if (data->get_mime)
 			data->mime = g_strdup (tracker_result_iterator_value (iterator, 1));
@@ -1165,10 +1163,9 @@ cache_query_cb (GObject	     *object,
 		return;
 	}
 
-	while (tracker_result_iterator_has_next (iterator)) {
+	while (tracker_result_iterator_next (iterator)) {
 		GFile *file;
 
-		tracker_result_iterator_next (iterator);
 		file = g_file_new_for_uri (tracker_result_iterator_value (iterator, 0));
 
 		g_hash_table_insert (data->values,
@@ -1648,11 +1645,10 @@ item_update_children_uri_cb (GObject      *object,
 		g_critical ("Could not query children: %s", error->message);
 		g_error_free (error);
 	} else if (iterator) {
-		while (tracker_result_iterator_has_next (iterator)) {
+		while (tracker_result_iterator_next (iterator)) {
 			const gchar *child_source_uri, *child_mime, *child_urn;
 			gchar *child_uri;
 
-			tracker_result_iterator_next (iterator);
 			child_urn = tracker_result_iterator_value (iterator, 0);
 			child_source_uri = tracker_result_iterator_value (iterator, 1);
 			child_mime = tracker_result_iterator_value (iterator, 2);

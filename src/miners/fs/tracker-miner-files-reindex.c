@@ -174,9 +174,7 @@ mime_types_cb (TrackerResultIterator *iterator,
 		tracker_dbus_request_comment (mtd->request_id, mtd->context,
 		                              "Found files that will need reindexing");
 
-		while (tracker_result_iterator_has_next (iterator)) {
-			tracker_result_iterator_next (iterator);
-
+		while (tracker_result_iterator_next (iterator)) {
 			if (tracker_result_iterator_value (iterator, 0)) {
 				const gchar *url = (const gchar *) tracker_result_iterator_value (iterator, 0);
 				GFile *file = g_file_new_for_uri (url);

@@ -1699,9 +1699,7 @@ tracker_resources_sparql_query (TrackerClient  *client,
  *          return;
  *  }
  *
- *  while (tracker_result_iterator_has_next (iterator)) {
- *          tracker_result_iterator_next (iterator);
- *
+ *  while (tracker_result_iterator_next (iterator)) {
  *          g_message ("Album: %s, Title: %s",
  *                     tracker_result_iterator_value (iterator, 0),
  *                     tracker_result_iterator_value (iterator, 1));
@@ -1902,40 +1900,16 @@ tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
 }
 
 /**
- * tracker_result_iterator_has_next:
- * @iterator: A TrackerResultIterator
- *
- * Checks if the iterator has more rows
- *
- * Returns: %TRUE if there are more rows to fetch, otherwise %FALSE.
- *
- * Since: 0.9
- **/
-gboolean
-tracker_result_iterator_has_next (TrackerResultIterator *iterator)
-{
-	g_return_val_if_fail (iterator != NULL, FALSE);
-
-#ifdef HAVE_DBUS_FD_PASSING
-	return iterator->buffer_index < iterator->buffer_size;
-#else  /* HAVE_DBUS_FD_PASSING */
-	if (!iterator->results->len) {
-		return FALSE;
-	}
-
-	return (iterator->current_row < (gint) (iterator->results->len - 1));
-#endif /* HAVE_DBUS_FD_PASSING */
-}
-
-/**
  * tracker_result_iterator_next:
  * @iterator: A TrackerResultIterator
  *
  * Fetches the next row for the results.
  *
+ * Returns: %TRUE if a rows was fetched, otherwise %FALSE.
+ *
  * Since: 0.9
  **/
-void
+gboolean
 tracker_result_iterator_next (TrackerResultIterator *iterator)
 {
 	g_return_if_fail (iterator != NULL);
@@ -1943,8 +1917,8 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
 #ifdef HAVE_DBUS_FD_PASSING
 	int last_offset;
 
-	if (!tracker_result_iterator_has_next (iterator)) {
-		return;
+	if (iterator->buffer_index >= iterator->buffer_size) {
+		return FALSE;
 	}
 
 	/* So, the make up on each iterator segment is:
@@ -1961,13 +1935,14 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
 	last_offset = iterator_buffer_read_int (iterator);
 	iterator->data = iterator->buffer + iterator->buffer_index;
 	iterator->buffer_index += last_offset + 1;
-#else  /* HAVE_DBUS_FD_PASSING */
-	if (!iterator->results->len) {
-		return;
-	}
 
-	if (iterator->current_row < (gint)iterator->results->len) {
+	return TRUE;
+#else  /* HAVE_DBUS_FD_PASSING */
+	if (iterator->current_row < (gint)iterator->results->len - 1) {
 		iterator->current_row++;
+		return TRUE;
+	} else {
+		return FALSE;
 	}
 #endif /* HAVE_DBUS_FD_PASSING */
 }

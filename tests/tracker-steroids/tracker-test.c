@@ -180,14 +180,13 @@ test_tracker_sparql_query_iterate ()
 
 	g_assert (!error);
 
-	while (tracker_result_iterator_has_next (iterator)) {
+	while (tracker_result_iterator_next (iterator)) {
 		GStrv row;
 
 		g_assert (i < r1->len);
 
 		n_rows ++;
 
-		tracker_result_iterator_next (iterator);
 		row = g_ptr_array_index (r1, i++);
 
 		g_assert (!g_strcmp0 (tracker_result_iterator_value (iterator, 0), row[0]));
@@ -219,14 +218,13 @@ test_tracker_sparql_query_iterate_largerow ()
 
 	g_assert (!error);
 
-	while (tracker_result_iterator_has_next (iterator)) {
+	while (tracker_result_iterator_next (iterator)) {
 		GStrv row;
 
 		g_assert (i < r1->len);
 
 		n_rows ++;
 
-		tracker_result_iterator_next (iterator);
 		row = g_ptr_array_index (r1, i++);
 
 		g_assert (!g_strcmp0 (tracker_result_iterator_value (iterator, 0), row[0]));
@@ -269,15 +267,13 @@ test_tracker_sparql_query_iterate_empty ()
 	g_assert (iterator);
 	g_assert (!error);
 
-	g_assert (!tracker_result_iterator_has_next (iterator));
+	g_assert (!tracker_result_iterator_next (iterator));
 	g_assert (!tracker_result_iterator_n_columns (iterator));
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
 		tracker_result_iterator_value (iterator, 0);
 		exit (0);
 	}
 	g_test_trap_assert_failed ();
-	/* And just to make coverage happy... */
-	tracker_result_iterator_next (iterator);
 }
 
 static void
@@ -455,12 +451,11 @@ async_query_cb (TrackerResultIterator *iterator,
 
 	g_assert (!inner_error);
 
-	while (tracker_result_iterator_has_next (iterator)) {
+	while (tracker_result_iterator_next (iterator)) {
 		GStrv row;
 
 		g_assert (i < r1->len);
 
-		tracker_result_iterator_next (iterator);
 		row = g_ptr_array_index (r1, i++);
 
 		g_assert (!g_strcmp0 (tracker_result_iterator_value (iterator, 0), row[0]));

@@ -36,10 +36,8 @@ query_cb (TrackerResultIterator *iterator,
 		exit (EXIT_FAILURE);
 	}
 
-	while (tracker_result_iterator_has_next (iterator)) {
+	while (tracker_result_iterator_next (iterator)) {
 		int i;
-
-		tracker_result_iterator_next (iterator);
 
 		for (i = 0; i < tracker_result_iterator_n_columns (iterator); i++) {
 			g_print ("%s", tracker_result_iterator_value (iterator, i));

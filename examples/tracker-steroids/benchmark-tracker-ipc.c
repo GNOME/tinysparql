@@ -70,9 +70,7 @@ main (int argc, char **argv)
 
 	iterator = tracker_resources_sparql_query_iterate (client, query, &error);
 
-	while (tracker_result_iterator_has_next (iterator)) {
-		tracker_result_iterator_next (iterator);
-
+	while (tracker_result_iterator_next (iterator)) {
 		for (i = 0; i < tracker_result_iterator_n_columns (iterator); i++) {
 			const char *data;
 
