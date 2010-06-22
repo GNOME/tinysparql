@@ -161,7 +161,13 @@ get_fts_string (GStrv    search_words,
 	len = g_strv_length (search_words);
 
 	for (i = 0; i < len; i++) {
-		g_string_append (fts, search_words[i]);
+		gchar *escaped;
+
+		/* Properly escape the input string as it's going to be passed
+		 * in a sparql query */
+		escaped = tracker_sparql_escape (search_words[i]);
+
+		g_string_append (fts, escaped);
 
 		if (i < len - 1) {
 			if (use_or_operator) {
@@ -170,6 +176,8 @@ get_fts_string (GStrv    search_words,
 				g_string_append (fts, " ");
 			}
 		}
+
+		g_free (escaped);
 	}
 
 	return g_string_free (fts, FALSE);
