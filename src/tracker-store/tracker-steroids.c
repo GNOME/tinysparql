@@ -598,11 +598,10 @@ steroids_update (TrackerSteroids *steroids,
 		return;
 	}
 
-	tracker_dbus_request_comment (request_id,
-	                              NULL,
-	                              "query:'%s'",
-	                              __FUNCTION__,
-	                              query);
+	tracker_dbus_request_debug (request_id,
+	                            NULL,
+	                            "query: '%s'",
+	                            query);
 
 	g_object_unref (data_input_stream);
 	g_object_unref (input_stream);
