@@ -2451,6 +2451,16 @@ should_process_file (TrackerMinerFS *fs,
                      gboolean        is_dir)
 {
 	if (!should_check_file (fs, file, is_dir)) {
+		ensure_mtime_cache (fs, file);
+
+		if (g_hash_table_lookup (fs->private->mtime_cache, file) != NULL) {
+			/* File is told not to be checked, but exists
+			 * in the store, put in deleted queue.
+			 */
+			g_queue_push_tail (fs->private->items_deleted,
+					   g_object_ref (file));
+		}
+
 		return FALSE;
 	}
 
@@ -2681,6 +2691,17 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 	if (!should_check) {
 		/* Remove monitors if any */
 		tracker_monitor_remove (fs->private->monitor, file);
+
+		/* Put item in deleted queue if it existed in the store */
+		ensure_mtime_cache (fs, file);
+
+		if (g_hash_table_lookup (fs->private->mtime_cache, file) != NULL) {
+			/* File is told not to be checked, but exists
+			 * in the store, put in deleted queue.
+			 */
+			g_queue_push_tail (fs->private->items_deleted,
+					   g_object_ref (file));
+		}
 	} else {
                 gboolean should_change_index;
 
