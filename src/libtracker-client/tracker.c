@@ -2446,7 +2446,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	return tracker_resources_sparql_query_async (client,
 	                                             query,
 	                                             callback_iterator_compat,
-	                                             user_data);
+	                                             data);
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
