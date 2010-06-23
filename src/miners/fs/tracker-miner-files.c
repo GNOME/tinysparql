@@ -140,9 +140,9 @@ static void        index_single_directories_cb          (GObject              *g
                                                          GParamSpec           *arg1,
                                                          gpointer              user_data);
 static gboolean    miner_files_force_recheck_idle       (gpointer user_data);
-static void        ignore_directories_cb                (GObject              *gobject,
-							 GParamSpec           *arg1,
-							 gpointer              user_data);
+static void        trigger_recheck_cb                   (GObject              *gobject,
+                                                         GParamSpec           *arg1,
+                                                         gpointer              user_data);
 static DBusGProxy *extractor_create_proxy               (void);
 static gboolean    miner_files_check_file               (TrackerMinerFS       *fs,
                                                          GFile                *file);
@@ -515,10 +515,13 @@ miner_files_constructed (GObject *object)
 	                  G_CALLBACK (index_single_directories_cb),
 	                  mf);
 	g_signal_connect (mf->private->config, "notify::ignored-directories",
-	                  G_CALLBACK (ignore_directories_cb),
+	                  G_CALLBACK (trigger_recheck_cb),
 	                  mf);
 	g_signal_connect (mf->private->config, "notify::ignored-directories-with-content",
-	                  G_CALLBACK (ignore_directories_cb),
+	                  G_CALLBACK (trigger_recheck_cb),
+	                  mf);
+	g_signal_connect (mf->private->config, "notify::ignored-files",
+	                  G_CALLBACK (trigger_recheck_cb),
 	                  mf);
 
 #if defined(HAVE_DEVKIT_POWER) || defined(HAVE_HAL)
@@ -1359,9 +1362,9 @@ miner_files_force_recheck_idle (gpointer user_data)
 }
 
 static void
-ignore_directories_cb (GObject    *gobject,
-                       GParamSpec *arg1,
-                       gpointer    user_data)
+trigger_recheck_cb (GObject    *gobject,
+                    GParamSpec *arg1,
+                    gpointer    user_data)
 {
 	TrackerMinerFiles *miner_files = user_data;
 
