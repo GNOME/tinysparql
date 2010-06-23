@@ -1523,6 +1523,7 @@ tracker_cancel_call (TrackerClient *client,
 
 		if (fad->dbus_call) {
 			dbus_pending_call_cancel (fad->dbus_call);
+			dbus_pending_call_unref (fad->dbus_call);
 			fad->dbus_call = NULL;
 		}
 
