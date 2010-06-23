@@ -2501,7 +2501,7 @@ should_process_file (TrackerMinerFS *fs,
 			 * in the store, put in deleted queue.
 			 */
 			g_queue_push_tail (fs->private->items_deleted,
-					   g_object_ref (file));
+			                   g_object_ref (file));
 		}
 
 		return FALSE;
@@ -2749,7 +2749,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 			 * in the store, put in deleted queue.
 			 */
 			g_queue_push_tail (fs->private->items_deleted,
-					   g_object_ref (file));
+			                   g_object_ref (file));
 		}
 	} else {
                 gboolean should_change_index;
