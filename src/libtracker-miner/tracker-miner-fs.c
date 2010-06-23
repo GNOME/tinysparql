@@ -1925,10 +1925,12 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	queue_file = g_queue_pop_head (fs->private->items_deleted);
 	if (queue_file) {
 		*source_file = NULL;
+
 		if (check_ignore_next_update (fs, queue_file)) {
 			*file = NULL;
 			return QUEUE_IGNORE_NEXT_UPDATE;
 		}
+
 		if (process_data_find (fs, queue_file, TRUE)) {
 			*file = NULL;
 			/* Need to postpone event... */
@@ -1936,6 +1938,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			                   queue_file);
 			return QUEUE_WAIT;
 		}
+
 		*file = queue_file;
 		return QUEUE_DELETED;
 	}
@@ -1973,6 +1976,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			*source_file = queue_file;
 			return QUEUE_IGNORE_NEXT_UPDATE;
 		}
+
 		if (process_data_find (fs, queue_file, TRUE)) {
 			*file = NULL;
 			/* Need to postpone event... */
@@ -1980,6 +1984,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			                   queue_file);
 			return QUEUE_WAIT;
 		}
+
 		*file = queue_file;
 		*source_file = NULL;
 		return QUEUE_CREATED;
@@ -1990,8 +1995,10 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	if (queue_file) {
 		*file = queue_file;
 		*source_file = NULL;
+
 		if (check_ignore_next_update (fs, queue_file))
 			return QUEUE_IGNORE_NEXT_UPDATE;
+
 		if (process_data_find (fs, queue_file, TRUE)) {
 			*file = NULL;
 			/* Need to postpone event... */
@@ -1999,6 +2006,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			                   queue_file);
 			return QUEUE_WAIT;
 		}
+
 		return QUEUE_UPDATED;
 	}
 
@@ -2011,6 +2019,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			item_moved_data_free (data);
 			return QUEUE_IGNORE_NEXT_UPDATE;
 		}
+
 		if (process_data_find (fs, data->file, TRUE) ||
 		    process_data_find (fs, data->source_file, TRUE)) {
 			*file = NULL;
@@ -2020,6 +2029,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			                   data); /* no need to create again */
 			return QUEUE_WAIT;
 		}
+
 		*file = g_object_ref (data->file);
 		*source_file = g_object_ref (data->source_file);
 		item_moved_data_free (data);
