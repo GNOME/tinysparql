@@ -1044,22 +1044,6 @@ unmarshal_hash_table (DBusMessageIter *iter)
 }
 
 static void
-unmarshal_inner_array_free (gpointer data)
-{
-	if (data) {
-		g_hash_table_unref (data);
-	}
-}
-
-static void
-unmarshal_result_free (gpointer data)
-{
-	if (data) {
-		g_ptr_array_free (data, TRUE);
-	}
-}
-
-static void
 sparql_update_fast_callback (DBusPendingCall *call,
                              void            *user_data)
 {
@@ -1113,14 +1097,14 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		(* fad->void_callback) (NULL, fad->user_data);
 		break;
 	case FAST_UPDATE_BLANK:
-		result = g_ptr_array_new_with_free_func (unmarshal_result_free);
+		result = g_ptr_array_new ();
 		dbus_message_iter_init (reply, &iter);
 		dbus_message_iter_recurse (&iter, &subiter);
 
 		while (dbus_message_iter_get_arg_type (&subiter) != DBUS_TYPE_INVALID) {
 			GPtrArray *inner_array;
 
-			inner_array = g_ptr_array_new_with_free_func (unmarshal_inner_array_free);
+			inner_array = g_ptr_array_new ();
 			g_ptr_array_add (result, inner_array);
 			dbus_message_iter_recurse (&subiter, &subsubiter);
 
@@ -1133,8 +1117,6 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		}
 
 		(* fad->gptrarray_callback) (result, error, fad->user_data);
-
-		g_ptr_array_free (result, TRUE);
 
 		break;
 	default:
