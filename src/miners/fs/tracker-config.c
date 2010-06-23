@@ -852,7 +852,6 @@ config_load (TrackerConfig *config,
 
 	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
 		gboolean has_key;
-		gboolean is_directory_list;
 
 		has_key = g_key_file_has_key (file->key_file,
 		                              conversions[i].group,
@@ -878,73 +877,69 @@ config_load (TrackerConfig *config,
 
 		case G_TYPE_POINTER: {
 			GSList *new_dirs, *old_dirs, *l;
-			gboolean check_for_duplicates = FALSE;
-                        gboolean is_recursive = TRUE;
-                        gboolean equal;
+			gboolean is_recursive = TRUE;
+			gboolean equal;
 
-			is_directory_list = TRUE;
+			if (strcmp (conversions[i].property, "index-recursive-directories") == 0 ||
+			    strcmp (conversions[i].property, "index-single-directories") == 0 ||
+			    strcmp (conversions[i].property, "ignored-directories") == 0) {
+				is_recursive = strcmp (conversions[i].property, "index-recursive-directories") == 0;
+				tracker_keyfile_object_load_directory_list (G_OBJECT (file),
+				                                            conversions[i].property,
+				                                            file->key_file,
+				                                            conversions[i].group,
+				                                            conversions[i].key,
+				                                            is_recursive,
+				                                            &new_dirs);
 
-			if (strcmp (conversions[i].property, "index-recursive-directories") != 0 &&
-			    strcmp (conversions[i].property, "index-single-directories") != 0 &&
-			    strcmp (conversions[i].property, "ignored-directories") != 0) {
-                                tracker_keyfile_object_load_string_list (G_OBJECT (file),
-                                                                         conversions[i].property,
-                                                                         file->key_file,
-                                                                         conversions[i].group,
-                                                                         conversions[i].key,
-                                                                         NULL);
-                                continue;
+				for (l = new_dirs; l; l = l->next) {
+					const gchar *path_to_use;
+
+					/* Must be a special dir */
+					if (strcmp (l->data, "&DESKTOP") == 0) {
+						path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+					} else if (strcmp (l->data, "&DOCUMENTS") == 0) {
+						path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS);
+					} else if (strcmp (l->data, "&DOWNLOAD") == 0) {
+						path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD);
+					} else if (strcmp (l->data, "&MUSIC") == 0) {
+						path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_MUSIC);
+					} else if (strcmp (l->data, "&PICTURES") == 0) {
+						path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PICTURES);
+					} else if (strcmp (l->data, "&PUBLIC_SHARE") == 0) {
+						path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PUBLIC_SHARE);
+					} else if (strcmp (l->data, "&TEMPLATES") == 0) {
+						path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_TEMPLATES);
+					} else if (strcmp (l->data, "&VIDEOS") == 0) {
+						path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
+					} else {
+						path_to_use = NULL;
+					}
+
+					if (path_to_use) {
+						g_free (l->data);
+						l->data = g_strdup (path_to_use);
+					}
+				}
+			} else {
+				tracker_keyfile_object_load_string_list (G_OBJECT (file),
+				                                         conversions[i].property,
+				                                         file->key_file,
+				                                         conversions[i].group,
+				                                         conversions[i].key,
+				                                         &new_dirs);
 			}
 
-                        is_recursive = strcmp (conversions[i].property, "index-recursive-directories") == 0;
-                        tracker_keyfile_object_load_directory_list (G_OBJECT (file),
-                                                                    conversions[i].property,
-                                                                    file->key_file,
-                                                                    conversions[i].group,
-                                                                    conversions[i].key,
-                                                                    is_recursive,
-                                                                    &new_dirs);
-                        g_object_get (config, conversions[i].property, &old_dirs, NULL);
+			g_object_get (config, conversions[i].property, &old_dirs, NULL);
 
-			for (l = new_dirs; l; l = l->next) {
-				const gchar *path_to_use;
+			equal = tracker_gslist_with_string_data_equal (new_dirs, old_dirs);
 
-				/* Must be a special dir */
-				if (strcmp (l->data, "&DESKTOP") == 0) {
-					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
-				} else if (strcmp (l->data, "&DOCUMENTS") == 0) {
-					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS);
-				} else if (strcmp (l->data, "&DOWNLOAD") == 0) {
-					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD);
-				} else if (strcmp (l->data, "&MUSIC") == 0) {
-					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_MUSIC);
-				} else if (strcmp (l->data, "&PICTURES") == 0) {
-					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PICTURES);
-				} else if (strcmp (l->data, "&PUBLIC_SHARE") == 0) {
-					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_PUBLIC_SHARE);
-				} else if (strcmp (l->data, "&TEMPLATES") == 0) {
-					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_TEMPLATES);
-				} else if (strcmp (l->data, "&VIDEOS") == 0) {
-					path_to_use = g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS);
-				} else {
-					path_to_use = NULL;
-				}
-
-				if (path_to_use) {
-					check_for_duplicates = TRUE;
-					g_free (l->data);
-					l->data = g_strdup (path_to_use);
-				}
-			}
-
-                        equal = tracker_gslist_with_string_data_equal (new_dirs, old_dirs);
-
-                        if (!equal) {
-                                g_object_set (config, conversions[i].property, new_dirs, NULL);
+			if (!equal) {
+				g_object_set (config, conversions[i].property, new_dirs, NULL);
                         }
 
-                        g_slist_foreach (new_dirs, (GFunc) g_free, NULL);
-                        g_slist_free (new_dirs);
+			g_slist_foreach (new_dirs, (GFunc) g_free, NULL);
+			g_slist_free (new_dirs);
 
 			break;
 		}
