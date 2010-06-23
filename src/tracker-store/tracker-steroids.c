@@ -622,6 +622,8 @@ steroids_update (TrackerSteroids *steroids,
 		                             info,
 		                             client_info_destroy);
 	}
+
+	g_free (query);
 }
 
 DBusHandlerResult
