@@ -1,6 +1,8 @@
 /* 
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
  * Copyright (C) 2008-2010, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2010, Codeminded BVBA
+ *                     FD passing by Adrien Bustany <abustany@gnome.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -49,6 +51,8 @@ typedef struct {
 	GObjectClass parent;
 } TrackerClientClass;
 
+typedef struct TrackerResultIterator TrackerResultIterator;
+
 /**
  * TrackerClientFlags:
  * @TRACKER_CLIENT_ENABLE_WARNINGS: If supplied warnings will be
@@ -58,6 +62,14 @@ typedef struct {
 typedef enum {
 	TRACKER_CLIENT_ENABLE_WARNINGS      = 1 << 0
 } TrackerClientFlags;
+
+#define TRACKER_CLIENT_ERROR        tracker_client_error_quark ()
+#define TRACKER_CLIENT_ERROR_DOMAIN "TrackerClient"
+
+typedef enum {
+	TRACKER_CLIENT_ERROR_UNSUPPORTED,
+	TRACKER_CLIENT_ERROR_BROKEN_PIPE
+} TrackerClientError;
 
 /**
  * TrackerReplyGPtrArray:
@@ -85,6 +97,10 @@ typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
 typedef void (*TrackerReplyVoid)      (GError    *error,
                                        gpointer   user_data);
 
+typedef void (*TrackerReplyIterator)  (TrackerResultIterator *iterator,
+                                       GError                *error,
+                                       gpointer               user_data);
+
 /**
  * TrackerWritebackCallback:
  * @resources: a hash table where each key is the uri of a resources which
@@ -98,6 +114,7 @@ typedef void (*TrackerWritebackCallback) (const GHashTable *resources,
                                           gpointer          user_data);
 
 GType          tracker_client_get_type                     (void) G_GNUC_CONST;
+GQuark         tracker_client_error_quark                  (void);
 TrackerClient *tracker_client_new                          (TrackerClientFlags      flags,
                                                             gint                    timeout);
 
@@ -122,6 +139,15 @@ void           tracker_resources_load                      (TrackerClient       
 GPtrArray *    tracker_resources_sparql_query              (TrackerClient          *client,
                                                             const gchar            *query,
                                                             GError                **error);
+TrackerResultIterator *
+               tracker_resources_sparql_query_iterate      (TrackerClient          *client,
+                                                            const gchar            *query,
+                                                            GError                **error);
+void           tracker_result_iterator_free                (TrackerResultIterator  *iterator);
+guint          tracker_result_iterator_n_columns           (TrackerResultIterator  *iterator);
+gboolean       tracker_result_iterator_next                (TrackerResultIterator  *iterator);
+const gchar *  tracker_result_iterator_value               (TrackerResultIterator  *iterator,
+                                                            guint                   column);
 void           tracker_resources_sparql_update             (TrackerClient          *client,
                                                             const gchar            *query,
                                                             GError                **error);
@@ -144,6 +170,10 @@ guint          tracker_resources_load_async                (TrackerClient       
 guint          tracker_resources_sparql_query_async        (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyGPtrArray   callback,
+                                                            gpointer                user_data);
+guint         tracker_resources_sparql_query_iterate_async (TrackerClient          *client,
+                                                            const gchar            *query,
+                                                            TrackerReplyIterator    callback,
                                                             gpointer                user_data);
 guint          tracker_resources_sparql_update_async       (TrackerClient          *client,
                                                             const gchar            *query,

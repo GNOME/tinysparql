@@ -744,14 +744,13 @@ query_mount_points_cb (GObject      *source,
 	GHashTableIter iter;
 	gpointer key, value;
 	GString *accumulator;
-	gint i;
 	GError *error = NULL;
-	const GPtrArray *query_results;
+	TrackerResultIterator *iterator;
 	GSList *uuids, *u;
 
-	query_results = tracker_miner_execute_sparql_finish (miner,
-	                                                     result,
-	                                                     &error);
+	iterator = tracker_miner_execute_sparql_finish (miner,
+	                                                result,
+	                                                &error);
 	if (error) {
 		g_critical ("Could not obtain the mounted volumes: %s", error->message);
 		g_error_free (error);
@@ -764,29 +763,27 @@ query_mount_points_cb (GObject      *source,
 	                                 (GDestroyNotify) g_free,
 	                                 NULL);
 
+
 	/* Make sure the root partition is always set to mounted, as GIO won't
 	 * report it as a proper mount */
-	g_hash_table_insert (volumes,
-	                     g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
-	                     GINT_TO_POINTER (VOLUME_MOUNTED));
+        g_hash_table_insert (volumes, 
+                             g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN), 
+                             GINT_TO_POINTER (VOLUME_MOUNTED));
 
-	/* Get mounted status from store */
-	for (i = 0; i < query_results->len; i++) {
-		gchar **row;
+	while (tracker_result_iterator_next (iterator)) {
+		gint state;
+		const gchar *urn;
 
-		row = g_ptr_array_index (query_results, i);
+		state = VOLUME_MOUNTED_IN_STORE;
 
-		if (strcmp (row[0], TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {
-			/* Update root partition to set also mounted in store */
-			g_hash_table_replace (volumes,
-			                     g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
-			                     GINT_TO_POINTER (VOLUME_MOUNTED | VOLUME_MOUNTED_IN_STORE));
-		} else {
-			/* Set status of known volumes in store */
-			g_hash_table_insert (volumes,
-			                     g_strdup (row[0]),
-			                     GINT_TO_POINTER (VOLUME_MOUNTED_IN_STORE));
+		urn = tracker_result_iterator_value (iterator, 0);
+
+		if (strcmp (urn, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {
+			/* Report non-removable media to be mounted by HAL as well */
+			state |= VOLUME_MOUNTED;
 		}
+
+		g_hash_table_replace (volumes, g_strdup (urn), GINT_TO_POINTER (state));
 	}
 
 	/* Then, get all currently mounted non-REMOVABLE volumes, according to GIO */

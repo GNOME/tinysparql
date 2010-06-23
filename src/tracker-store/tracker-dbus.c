@@ -43,6 +43,10 @@
 #include "tracker-backup-glue.h"
 #include "tracker-marshal.h"
 
+#ifdef HAVE_DBUS_FD_PASSING
+#include "tracker-steroids.h"
+#endif
+
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
 static GSList          *objects;
@@ -288,6 +292,21 @@ tracker_dbus_register_objects (void)
 	                      &dbus_glib_tracker_resources_object_info,
 	                      TRACKER_RESOURCES_PATH);
 	objects = g_slist_prepend (objects, object);
+
+#ifdef HAVE_DBUS_FD_PASSING
+	/* Add org.freedesktop.Tracker1.Steroids */
+	object = tracker_steroids_new ();
+	if (!object) {
+		g_critical ("Could not create TrackerSteroids object to register");
+		return FALSE;
+	}
+
+	dbus_connection_add_filter (dbus_g_connection_get_connection (connection),
+	                            tracker_steroids_connection_filter,
+	                            object,
+	                            NULL);
+	objects = g_slist_prepend (objects, object);
+#endif
 
 	/* Reverse list since we added objects at the top each time */
 	objects = g_slist_reverse (objects);

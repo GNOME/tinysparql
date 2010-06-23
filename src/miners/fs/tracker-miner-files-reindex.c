@@ -164,23 +164,19 @@ mime_types_data_destroy (gpointer data)
 }
 
 static void
-mime_types_cb (GPtrArray *result,
-               GError    *error,
-               gpointer   user_data)
+mime_types_cb (TrackerResultIterator *iterator,
+               GError                *error,
+               gpointer               user_data)
 {
 	MimeTypesData *mtd = user_data;
-	guint i;
 
 	if (!error) {
 		tracker_dbus_request_comment (mtd->request_id, mtd->context,
-		                              "Found %d files that will need reindexing",
-		                              result ? result->len : 0);
+		                              "Found files that will need reindexing");
 
-		for (i = 0; i < result->len; i++) {
-			GStrv *row = g_ptr_array_index (result, i);
-
-			if (row && row[0]) {
-				const gchar *url = (const gchar *) row[0];
+		while (tracker_result_iterator_next (iterator)) {
+			if (tracker_result_iterator_value (iterator, 0)) {
+				const gchar *url = (const gchar *) tracker_result_iterator_value (iterator, 0);
 				GFile *file = g_file_new_for_uri (url);
 				tracker_miner_fs_file_add (TRACKER_MINER_FS (mtd->miner_files), file);
 				g_object_unref (file);
@@ -265,13 +261,13 @@ tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
 	priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
 
 	/* FIXME: save last call id */
-	tracker_resources_sparql_query_async (client, 
-	                                      query->str, 
-	                                      mime_types_cb, 
-	                                      mime_types_data_new (request_id, 
-	                                                           context, 
-	                                                           client,
-	                                                           priv->files_miner));
+	tracker_resources_sparql_query_iterate_async (client,
+	                                              query->str,
+	                                              mime_types_cb,
+	                                              mime_types_data_new (request_id,
+	                                                                   context,
+	                                                                   client,
+	                                                                   priv->files_miner));
 
 	g_string_free (query, TRUE);
 	g_object_unref (client);
