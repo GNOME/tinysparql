@@ -61,6 +61,7 @@ insert_test_data ()
 	tracker_resources_sparql_update (client, filled_query, &error);
 
 	g_free (filled_query);
+	g_free (longName);
 
 	g_assert (!error);
 }
@@ -254,6 +255,8 @@ test_tracker_sparql_query_iterate_empty ()
 		exit (0);
 	}
 	g_test_trap_assert_failed ();
+
+	tracker_result_iterator_free (iterator);
 }
 
 static void
@@ -269,6 +272,8 @@ test_tracker_sparql_query_iterate_sigpipe ()
 	g_assert (!error);
 
 	tracker_result_iterator_next (iterator);
+
+	tracker_result_iterator_free (iterator);
 
 	return;
 }
@@ -319,6 +324,7 @@ test_tracker_sparql_update_fast_error ()
 	tracker_resources_sparql_update (client, query, &error);
 
 	g_assert (error);
+	g_error_free (error);
 
 	return;
 }
@@ -329,11 +335,21 @@ test_tracker_sparql_update_blank_fast_small ()
 	GError *error = NULL;
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 	GPtrArray *results;
+	guint i;
 
 	results = tracker_resources_sparql_update_blank (client, query, &error);
 
 	g_assert (!error);
 	g_assert (results);
+
+	for (i = 0; i < results->len; i++) {
+		GPtrArray *inner_array;
+
+		inner_array = g_ptr_array_index (results, i);
+		g_ptr_array_foreach (inner_array, (GFunc) g_hash_table_unref, NULL);
+		g_ptr_array_free (inner_array, TRUE);
+	}
+	g_ptr_array_free (results, TRUE);
 
 	return;
 }
@@ -346,6 +362,7 @@ test_tracker_sparql_update_blank_fast_large ()
 	gchar *lotsOfA;
 	gchar *query;
 	GPtrArray *results;
+	guint i;
 
 	lotsOfA = g_malloc (LONG_NAME_SIZE);
 	memset (lotsOfA, 'a', LONG_NAME_SIZE);
@@ -360,6 +377,15 @@ test_tracker_sparql_update_blank_fast_large ()
 
 	g_assert (!error);
 	g_assert (results);
+
+	for (i = 0; i < results->len; i++) {
+		GPtrArray *inner_array;
+
+		inner_array = g_ptr_array_index (results, i);
+		g_ptr_array_foreach (inner_array, (GFunc) g_hash_table_unref, NULL);
+		g_ptr_array_free (inner_array, TRUE);
+	}
+	g_ptr_array_free (results, TRUE);
 
 	return;
 }
@@ -376,6 +402,8 @@ test_tracker_sparql_update_blank_fast_error ()
 	g_assert (error);
 	g_assert (!results);
 
+	g_error_free (error);
+
 	return;
 }
 
@@ -385,11 +413,21 @@ test_tracker_sparql_update_blank_fast_no_blanks ()
 	GError *error = NULL;
 	const gchar *query = "INSERT { <urn:not_blank> a nmo:Message }";
 	GPtrArray *results;
+	guint i;
 
 	results = tracker_resources_sparql_update_blank (client, query, &error);
 
 	g_assert (!error);
 	g_assert (results);
+
+	for (i = 0; i < results->len; i++) {
+		GPtrArray *inner_array;
+
+		inner_array = g_ptr_array_index (results, i);
+		g_ptr_array_foreach (inner_array, (GFunc) g_hash_table_unref, NULL);
+		g_ptr_array_free (inner_array, TRUE);
+	}
+	g_ptr_array_free (results, TRUE);
 
 	return;
 }
@@ -436,6 +474,10 @@ async_query_cb (TrackerResultIterator *iterator,
 	}
 
 	g_assert (i == r1->len);
+
+	tracker_result_iterator_free (iterator);
+	g_ptr_array_foreach (r1, (GFunc) g_free, NULL);
+	g_ptr_array_free (r1, TRUE);
 }
 
 static void
@@ -462,6 +504,7 @@ test_tracker_sparql_query_iterate_async ()
 	g_assert (request_id != 0);
 
 	g_slice_free (AsyncData, data);
+	g_main_loop_unref (main_loop);
 }
 
 static void
@@ -511,6 +554,7 @@ test_tracker_sparql_update_async ()
 	g_main_loop_run (main_loop);
 
 	g_slice_free (AsyncData, data);
+	g_main_loop_unref (main_loop);
 }
 
 static void
@@ -533,11 +577,21 @@ async_update_blank_callback (GPtrArray *results,
                              gpointer   user_data)
 {
 	AsyncData *data = user_data;
+	guint i;
 
 	g_main_loop_quit (data->main_loop);
 
 	g_assert (!error);
 	g_assert (results);
+
+	for (i = 0; i < results->len; i++) {
+		GPtrArray *inner_array;
+
+		inner_array = g_ptr_array_index (results, i);
+		g_ptr_array_foreach (inner_array, (GFunc) g_hash_table_unref, NULL);
+		g_ptr_array_free (inner_array, TRUE);
+	}
+	g_ptr_array_free (results, TRUE);
 }
 
 static void
@@ -563,6 +617,7 @@ test_tracker_sparql_update_blank_async ()
 	g_main_loop_run (main_loop);
 
 	g_slice_free (AsyncData, data);
+	g_main_loop_unref (main_loop);
 }
 
 gint
