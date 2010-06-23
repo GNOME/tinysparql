@@ -538,9 +538,10 @@ steroids_update (TrackerSteroids *steroids,
 
 	sender = dbus_message_get_sender (message);
 
-	input_stream = g_buffered_input_stream_new_sized (g_unix_input_stream_new (info->fd, TRUE),
-	                                                  TRACKER_STEROIDS_BUFFER_SIZE);
+	input_stream = g_unix_input_stream_new (info->fd, TRUE);
 	data_input_stream = g_data_input_stream_new (input_stream);
+	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (data_input_stream),
+	                                         TRACKER_STEROIDS_BUFFER_SIZE);
 
 	query_size = g_data_input_stream_read_int32 (data_input_stream,
 	                                             NULL,
