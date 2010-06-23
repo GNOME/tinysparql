@@ -109,7 +109,9 @@ static struct {
 static JournalReader reader = {0};
 static JournalWriter writer = {0};
 
+#if GLIB_CHECK_VERSION (2, 24, 2)
 static gboolean tracker_db_journal_rotate (void);
+#endif /* GLib check */
 
 static gboolean
 journal_eof (JournalReader *jreader)
@@ -940,6 +942,7 @@ tracker_db_journal_commit_db_transaction (void)
 
 	ret = db_journal_writer_commit_db_transaction (&writer);
 
+#if GLIB_CHECK_VERSION (2, 24, 2)
 	if (ret) {
 		if (rotating_settings.do_rotating && (writer.cur_size > rotating_settings.chunk_size)) {
 			if (!tracker_db_journal_rotate ()) {
@@ -948,6 +951,7 @@ tracker_db_journal_commit_db_transaction (void)
 			}
 		}
 	}
+#endif /* GLib check */
 
 	return ret;
 }
@@ -1021,6 +1025,7 @@ db_journal_reader_init_file (JournalReader  *jreader,
                              const gchar    *filename,
                              GError        **error)
 {
+#if GLIB_CHECK_VERSION (2, 24, 2)
 	if (g_str_has_suffix (filename, ".gz")) {
 		GFile *file;
 		GInputStream *stream, *cstream;
@@ -1042,6 +1047,7 @@ db_journal_reader_init_file (JournalReader  *jreader,
 		jreader->stream = g_data_input_stream_new (cstream);
 		g_object_unref (cstream);
 	} else {
+#endif /* GLib check */
 		jreader->file = g_mapped_file_new (filename, FALSE, error);
 
 		if (!jreader->file) {
@@ -1052,7 +1058,9 @@ db_journal_reader_init_file (JournalReader  *jreader,
 			g_mapped_file_get_contents (jreader->file);
 
 		jreader->end = jreader->current + g_mapped_file_get_length (jreader->file);
+#if GLIB_CHECK_VERSION (2, 24, 2)
 	}
+#endif /* GLib check */
 
 	if (!journal_verify_header (jreader)) {
 		g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
@@ -1583,6 +1591,7 @@ tracker_db_journal_reader_get_progress (void)
 	return (((gdouble)(reader.current - reader.start)) / percent);
 }
 
+#if GLIB_CHECK_VERSION (2, 24, 2)
 static void
 on_chunk_copied_delete (GObject      *source_object,
                         GAsyncResult *res,
@@ -1693,3 +1702,4 @@ tracker_db_journal_rotate (void)
 
 	return db_journal_init_file (&writer, TRUE);
 }
+#endif /* GLib check */
