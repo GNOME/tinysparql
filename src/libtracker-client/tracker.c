@@ -1990,7 +1990,7 @@ tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
 gboolean
 tracker_result_iterator_next (TrackerResultIterator *iterator)
 {
-	g_return_if_fail (iterator != NULL);
+	g_return_val_if_fail (iterator != NULL, FALSE);
 
 #ifdef HAVE_DBUS_FD_PASSING
 	int last_offset;
