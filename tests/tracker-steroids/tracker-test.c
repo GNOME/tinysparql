@@ -65,26 +65,6 @@ insert_test_data ()
 	g_assert (!error);
 }
 
-static void
-free_hash_table (GHashTable *hash, gpointer user_data)
-{
-	g_hash_table_unref (hash);
-}
-
-static void
-free_results_inner (GPtrArray *array, gpointer user_data)
-{
-	g_ptr_array_foreach (array, (GFunc)free_hash_table, NULL);
-	g_ptr_array_free (array, TRUE);
-}
-
-static void
-free_results (GPtrArray *results)
-{
-	g_ptr_array_foreach (results, (GFunc)free_results_inner, NULL);
-	g_ptr_array_free (results, TRUE);
-}
-
 /*
  * I comment that part out because I don't know how anonymous node hashing
  * works, but if we know two SparqlUpdate calls are going to return the same
@@ -355,8 +335,6 @@ test_tracker_sparql_update_blank_fast_small ()
 	g_assert (!error);
 	g_assert (results);
 
-	free_results (results);
-
 	return;
 }
 
@@ -382,8 +360,6 @@ test_tracker_sparql_update_blank_fast_large ()
 
 	g_assert (!error);
 	g_assert (results);
-
-	free_results (results);
 
 	return;
 }
@@ -414,8 +390,6 @@ test_tracker_sparql_update_blank_fast_no_blanks ()
 
 	g_assert (!error);
 	g_assert (results);
-
-	free_results (results);
 
 	return;
 }
@@ -564,8 +538,6 @@ async_update_blank_callback (GPtrArray *results,
 
 	g_assert (!error);
 	g_assert (results);
-
-	free_results (results);
 }
 
 static void

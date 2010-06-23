@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
  * Copyright (C) 2008-2010, Nokia <ivan.frade@nokia.com>
  * Copyright (C) 2010, Codeminded BVBA <abustany@gnome.org>
@@ -186,23 +186,27 @@ typedef enum {
 } FastOperationType;
 
 typedef struct {
-	TrackerClient         *client;
-	guint                  request_id;
-	FastOperationType      operation;
-	gpointer               user_data;
-	GInputStream          *input_stream;
-	GOutputStream         *output_stream;
-	DBusPendingCall       *dbus_call;
+	TrackerClient *client;
+	guint request_id;
+	FastOperationType operation_type;
+
+	GInputStream *input_stream;
+	GOutputStream *output_stream;
+	GCancellable *cancellable;
+
+	DBusPendingCall *dbus_call;
+
+	TrackerResultIterator *result_iterator;
+	gboolean iterator_returned;
+
 	union {
-		GPtrArray             *result_gptrarray;
-		TrackerResultIterator *result_iterator;
+		TrackerReplyGPtrArray gptrarray_callback;
+		TrackerReplyVoid void_callback;
+		TrackerReplyArray array_callback;
+		TrackerReplyIterator iterator_callback;
 	};
-	union {
-		TrackerReplyGPtrArray  gptrarray_callback;
-		TrackerReplyVoid       void_callback;
-		TrackerReplyArray      array_callback;
-		TrackerReplyIterator   iterator_callback;
-	};
+
+	gpointer user_data;
 } FastAsyncData;
 
 typedef struct {
@@ -255,10 +259,16 @@ pending_call_get_next_id (void)
 }
 
 static void
-slow_pending_call_free (SlowPendingCallData *data)
+slow_pending_call_destroy (gpointer data)
 {
-	if (data) {
-		g_slice_free (SlowPendingCallData, data);
+	SlowPendingCallData *spcd = data;
+
+	if (spcd) {
+		if (spcd->proxy) {
+			g_object_unref (spcd->proxy);
+		}
+
+		g_slice_free (SlowPendingCallData, spcd);
 	}
 }
 
@@ -275,9 +285,8 @@ slow_pending_call_new (TrackerClient  *client,
 
 	id = pending_call_get_next_id ();
 
-	data = g_slice_new (SlowPendingCallData);
-
-	data->proxy = proxy;
+	data = g_slice_new0 (SlowPendingCallData);
+	data->proxy = g_object_ref (proxy);
 	data->pending_call = pending_call;
 
 	g_hash_table_insert (private->slow_pending_calls,
@@ -292,10 +301,12 @@ slow_pending_call_new (TrackerClient  *client,
 #ifdef HAVE_DBUS_FD_PASSING
 
 static void
-fast_pending_call_free (FastPendingCallData *data)
+fast_pending_call_destroy (gpointer data)
 {
-	if (data) {
-		g_slice_free (FastPendingCallData, data);
+	FastPendingCallData *fpcd = data;
+
+	if (fpcd) {
+		g_slice_free (FastPendingCallData, fpcd);
 	}
 }
 
@@ -312,7 +323,7 @@ fast_pending_call_new (TrackerClient *client,
 
 	id = pending_call_get_next_id ();
 
-	data = g_slice_new (FastPendingCallData);
+	data = g_slice_new0 (FastPendingCallData);
 	data->cancellable = cancellable;
 	data->data = async_data;
 
@@ -323,6 +334,59 @@ fast_pending_call_new (TrackerClient *client,
 	private->last_call = id;
 
 	return id;
+}
+
+static void
+fast_async_data_free (gpointer data)
+{
+	FastAsyncData *fad = data;
+
+	if (fad) {
+		if (fad->result_iterator && !fad->iterator_returned) {
+			tracker_result_iterator_free (fad->result_iterator);
+		}
+
+		if (fad->cancellable) {
+			g_object_unref (fad->cancellable);
+		}
+
+		if (fad->dbus_call) {
+			dbus_pending_call_cancel (fad->dbus_call);
+			dbus_pending_call_unref (fad->dbus_call);
+		}
+
+		if (fad->client) {
+			g_object_unref (fad->client);
+		}
+
+		g_slice_free (FastAsyncData, fad);
+	}
+}
+
+static FastAsyncData *
+fast_async_data_new (TrackerClient     *client,
+                     FastOperationType  operation_type,
+                     GInputStream      *input_stream,
+                     GOutputStream     *output_stream,
+                     GCancellable      *cancellable,
+                     DBusPendingCall   *dbus_call,
+                     gpointer           user_data)
+{
+	FastAsyncData *data;
+
+	data = g_slice_new0 (FastAsyncData);
+
+	data->client = g_object_ref (client);
+	data->request_id = fast_pending_call_new (client, cancellable, data);
+	data->operation_type = operation_type;
+	data->result_iterator = g_slice_new0 (TrackerResultIterator);
+	data->input_stream = input_stream;
+	data->output_stream = output_stream;
+	data->cancellable = cancellable;
+	data->dbus_call = dbus_call;
+	data->user_data = user_data;
+
+	return data;
 }
 
 #endif /* HAVE_DBUS_FD_PASSING */
@@ -390,13 +454,13 @@ tracker_client_init (TrackerClient *client)
 	private->slow_pending_calls = g_hash_table_new_full (NULL,
 	                                                     NULL,
 	                                                     NULL,
-	                                                     (GDestroyNotify) slow_pending_call_free);
+	                                                     (GDestroyNotify) slow_pending_call_destroy);
 
 #ifdef HAVE_DBUS_FD_PASSING
 	private->fast_pending_calls = g_hash_table_new_full (NULL,
 	                                                     NULL,
 	                                                     NULL,
-	                                                     (GDestroyNotify) fast_pending_call_free);
+	                                                     (GDestroyNotify) fast_pending_call_destroy);
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
@@ -566,7 +630,7 @@ callback_with_void (DBusGProxy *proxy,
 	private = TRACKER_CLIENT_GET_PRIVATE (cb->client);
 	g_hash_table_remove (private->slow_pending_calls,
 	                     GUINT_TO_POINTER (cb->id));
-	
+
 	(*(TrackerReplyVoid) cb->func) (error, cb->data);
 
 	g_object_unref (cb->client);
@@ -593,40 +657,39 @@ callback_iterator (GObject      *source_object,
 	TrackerClientPrivate *private;
 	DBusMessage *reply = NULL;
 	GError *error = NULL;
-	FastAsyncData *data;
+	FastAsyncData *fad;
 	TrackerResultIterator *iterator;
 	GInputStream *base_input_stream;
 
 	/* Clean up pending calls */
-	data = user_data;
+	fad = user_data;
 
-	private = TRACKER_CLIENT_GET_PRIVATE (data->client);
+	private = TRACKER_CLIENT_GET_PRIVATE (fad->client);
 	g_hash_table_remove (private->fast_pending_calls,
-	                     GUINT_TO_POINTER (data->request_id));
-	g_object_unref (data->client);
+	                     GUINT_TO_POINTER (fad->request_id));
 
 	/* Reset the iterator internal state */
-	iterator = data->result_iterator;
+	iterator = fad->result_iterator;
 
-	iterator->buffer_size = g_output_stream_splice_finish (data->output_stream,
+	iterator->buffer_size = g_output_stream_splice_finish (fad->output_stream,
 	                                                       result,
 	                                                       &error);
-	iterator->buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream));
+	iterator->buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (fad->output_stream));
 	iterator->buffer_index = 0;
 
 	/* Clean up streams */
-	base_input_stream = g_filter_input_stream_get_base_stream (G_FILTER_INPUT_STREAM (data->input_stream));
-	g_object_unref (data->input_stream);
+	base_input_stream = g_filter_input_stream_get_base_stream (G_FILTER_INPUT_STREAM (fad->input_stream));
+	g_object_unref (fad->input_stream);
+	g_object_unref (fad->output_stream);
 	g_object_unref (base_input_stream);
-	g_object_unref (data->output_stream);
 
 	/* Check for errors */
 	if (G_LIKELY (!error)) {
 		/* Wait for any current d-bus call to finish */
-		dbus_pending_call_block (data->dbus_call);
+		dbus_pending_call_block (fad->dbus_call);
 
 		/* Check we didn't get an error */
-		reply = dbus_pending_call_steal_reply (data->dbus_call);
+		reply = dbus_pending_call_steal_reply (fad->dbus_call);
 
 		if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
 			DBusError dbus_error;
@@ -635,12 +698,14 @@ callback_iterator (GObject      *source_object,
 			dbus_set_error_from_message (&dbus_error, reply);
 			dbus_set_g_error (&error, &dbus_error);
 
-			(* data->iterator_callback) (NULL, error, data->user_data);
-	
+			(* fad->iterator_callback) (NULL, error, fad->user_data);
+
 			dbus_error_free (&dbus_error);
 		} else {
 			/* Call iterator callback */
-			(* data->iterator_callback) (iterator, NULL, data->user_data);
+			fad->iterator_returned = TRUE;
+
+			(* fad->iterator_callback) (iterator, NULL, fad->user_data);
 		}
 	} else {
 		if (error->code != G_IO_ERROR_CANCELLED) {
@@ -650,10 +715,9 @@ callback_iterator (GObject      *source_object,
 			             TRACKER_CLIENT_ERROR_BROKEN_PIPE,
 			             "Couldn't get results from server");
 
-			(* data->iterator_callback) (NULL, error, data->user_data);
+			(* fad->iterator_callback) (NULL, error, fad->user_data);
 		}
 
-		tracker_result_iterator_free (iterator);
 		g_error_free (error);
 	}
 
@@ -662,9 +726,7 @@ callback_iterator (GObject      *source_object,
 		dbus_message_unref (reply);
 	}
 
-	dbus_pending_call_unref (data->dbus_call);
-
-	g_slice_free (FastAsyncData, data);
+	fast_async_data_free (fad);
 }
 
 #else  /* HAVE_DBUS_FD_PASSING */
@@ -1002,20 +1064,19 @@ sparql_update_fast_callback (DBusPendingCall *call,
                              void            *user_data)
 {
 	TrackerClientPrivate *private;
-	FastAsyncData *data = user_data;
+	FastAsyncData *fad = user_data;
 	DBusMessage *reply;
 	GError *error = NULL;
 	DBusMessageIter iter, subiter, subsubiter;
 	GPtrArray *result;
 
-	private = TRACKER_CLIENT_GET_PRIVATE (data->client);
+	/* Clean up pending calls */
+	private = TRACKER_CLIENT_GET_PRIVATE (fad->client);
 	g_hash_table_remove (private->fast_pending_calls,
-	                     GUINT_TO_POINTER (data->request_id));
-	g_object_unref (data->client);
+	                     GUINT_TO_POINTER (fad->request_id));
 
+	/* Check for errors */
 	reply = dbus_pending_call_steal_reply (call);
-
-	g_assert (reply);
 
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
 		DBusError dbus_error;
@@ -1025,13 +1086,13 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		dbus_set_g_error (&error, &dbus_error);
 		dbus_error_free (&dbus_error);
 
-		switch (data->operation) {
+		switch (fad->operation_type) {
 		case FAST_UPDATE:
 		case FAST_UPDATE_BATCH:
-			(* data->void_callback) (error, data->user_data);
+			(* fad->void_callback) (error, fad->user_data);
 			break;
 		case FAST_UPDATE_BLANK:
-			(* data->gptrarray_callback) (NULL, error, data->user_data);
+			(* fad->gptrarray_callback) (NULL, error, fad->user_data);
 			break;
 		default:
 			g_assert_not_reached ();
@@ -1039,15 +1100,17 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		}
 
 		dbus_message_unref (reply);
-		dbus_pending_call_unref (call);
-		g_slice_free (FastAsyncData, data);
+
+		fast_async_data_free (fad);
+
 		return;
 	}
 
-	switch (data->operation) {
+	/* Call iterator callback */
+	switch (fad->operation_type) {
 	case FAST_UPDATE:
 	case FAST_UPDATE_BATCH:
-		(* data->void_callback) (NULL, data->user_data);
+		(* fad->void_callback) (NULL, fad->user_data);
 		break;
 	case FAST_UPDATE_BLANK:
 		result = g_ptr_array_new_with_free_func (unmarshal_result_free);
@@ -1068,7 +1131,8 @@ sparql_update_fast_callback (DBusPendingCall *call,
 
 			dbus_message_iter_next (&subiter);
 		}
-		(* data->gptrarray_callback) (result, error, data->user_data);
+
+		(* fad->gptrarray_callback) (result, error, fad->user_data);
 
 		g_ptr_array_free (result, TRUE);
 
@@ -1078,9 +1142,10 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		break;
 	}
 
+	/* Clean up */
 	dbus_message_unref (reply);
-	dbus_pending_call_unref (call);
-	g_slice_free (FastAsyncData, data);
+
+	fast_async_data_free (fad);
 }
 
 static DBusPendingCall *
@@ -1206,8 +1271,6 @@ sparql_update_fast (TrackerClient      *client,
 
 	reply = dbus_pending_call_steal_reply (call);
 
-	g_assert (reply);
-
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
 		DBusError dbus_error;
 
@@ -1228,17 +1291,20 @@ sparql_update_fast (TrackerClient      *client,
 static void
 sparql_update_fast_async (TrackerClient  *client,
                           const gchar    *query,
-                          FastAsyncData  *data,
+                          FastAsyncData  *fad,
                           GError        **error)
 {
 	DBusPendingCall *call;
 
-	call = sparql_update_fast_send (client, query, data->operation, error);
+	call = sparql_update_fast_send (client, query, fad->operation_type, error);
 	if (!call) {
+		/* Do some clean up ?*/
 		return;
 	}
 
-	dbus_pending_call_set_notify (call, sparql_update_fast_callback, data, NULL);
+	fad->dbus_call = call;
+
+	dbus_pending_call_set_notify (call, sparql_update_fast_callback, fad, NULL);
 }
 
 #endif /* HAVE_DBUS_FD_PASSING */
@@ -1453,27 +1519,34 @@ tracker_cancel_call (TrackerClient *client,
 
 	if (data) {
 		FastPendingCallData *fast_data = data;
-		FastAsyncData *async_data = fast_data->data;
+		FastAsyncData *fad = fast_data->data;
 
-		if (async_data->dbus_call) {
-			dbus_pending_call_cancel (async_data->dbus_call);
+		if (fad->dbus_call) {
+			dbus_pending_call_cancel (fad->dbus_call);
+			fad->dbus_call = NULL;
 		}
 
-		switch (async_data->operation) {
+		switch (fad->operation_type) {
 		case FAST_QUERY:
 			/* When cancelling a GIO call, the callback is called with an
 			 * error, so we do the cleanup there
 			 */
-			g_cancellable_cancel (fast_data->cancellable);
+			if (fad->cancellable) {
+				g_cancellable_cancel (fad->cancellable);
+				g_object_unref (fad->cancellable);
+				fad->cancellable = NULL;
+			}
 			break;
+
 		case FAST_UPDATE:
 		case FAST_UPDATE_BLANK:
 		case FAST_UPDATE_BATCH:
 			/* dbus_pending_call_cancel does unref the call, so no need to
 			 * unref it here
 			 */
-			g_slice_free (FastAsyncData, async_data);
+			fast_async_data_free (fad);
 			break;
+
 		default:
 			g_assert_not_reached ();
 		}
@@ -1729,7 +1802,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	DBusConnection *connection;
 	DBusMessage *message;
 	DBusMessageIter iter;
-	DBusMessage *reply;
+	DBusMessage *reply = NULL;
 	DBusPendingCall *call;
 	int pipefd[2];
 	GInputStream *input_stream;
@@ -1773,53 +1846,60 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 		return NULL;
 	}
 
-	iterator = g_slice_new0 (TrackerResultIterator);
 	input_stream = g_unix_input_stream_new (pipefd[0], TRUE);
 	buffered_input_stream = g_buffered_input_stream_new_sized (input_stream,
 	                                                           TRACKER_STEROIDS_BUFFER_SIZE);
 	iterator_output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
+
+	/* Reset the iterator internal state */
+	iterator = g_slice_new0 (TrackerResultIterator);
 	iterator->buffer_size = g_output_stream_splice (iterator_output_stream,
 	                                                buffered_input_stream,
-	                                                G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+	                                                G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | 
+	                                                G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
 	                                                NULL,
 	                                                &inner_error);
 	iterator->buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (iterator_output_stream));
+	iterator->buffer_index = 0;
 
+	/* Clean up streams */
 	g_object_unref (buffered_input_stream);
-	g_object_unref (input_stream);
 	g_object_unref (iterator_output_stream);
+	g_object_unref (input_stream);
 
-	if (inner_error) {
+	if (G_LIKELY (!inner_error)) {
+		/* Wait for any current d-bus call to finish */
+		dbus_pending_call_block (call);
+
+		/* Check we didn't get an error */
+		reply = dbus_pending_call_steal_reply (call);
+
+		if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
+			DBusError dbus_error;
+
+			dbus_error_init (&dbus_error);
+			dbus_set_error_from_message (&dbus_error, reply);
+			dbus_set_g_error (error, &dbus_error);
+			dbus_error_free (&dbus_error);
+
+			tracker_result_iterator_free (iterator);
+			iterator = NULL;
+		}
+	} else {
 		g_set_error (error,
 		             TRACKER_CLIENT_ERROR,
 		             TRACKER_CLIENT_ERROR_BROKEN_PIPE,
 		             "Couldn't get results from server");
 		g_error_free (inner_error);
+
 		tracker_result_iterator_free (iterator);
-		return NULL;
+		iterator = NULL;
 	}
 
-	iterator->buffer_index = 0;
-
-	dbus_pending_call_block (call);
-
-	reply = dbus_pending_call_steal_reply (call);
-
-	g_assert (reply);
-
-	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
-		DBusError dbus_error;
-
-		dbus_error_init (&dbus_error);
-		dbus_set_error_from_message (&dbus_error, reply);
-		dbus_set_g_error (error, &dbus_error);
-		dbus_pending_call_unref (call);
-		dbus_error_free (&dbus_error);
-
-		return NULL;
+	/* Clean up */
+	if (reply) {
+		dbus_message_unref (reply);
 	}
-
-	dbus_message_unref (reply);
 
 	dbus_pending_call_unref (call);
 
@@ -2297,7 +2377,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	GInputStream *buffered_input_stream;
 	GOutputStream *iterator_output_stream;
 	GCancellable *cancellable;
-	FastAsyncData *async_data;
+	FastAsyncData *fad;
 
 	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
 	g_return_val_if_fail (query, 0);
@@ -2354,24 +2434,25 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	iterator_output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
 	cancellable = g_cancellable_new ();
 
-	async_data = g_slice_new0 (FastAsyncData);
-	async_data->client = g_object_ref (client);
-	async_data->result_iterator = g_slice_new0 (TrackerResultIterator);
-	async_data->input_stream = buffered_input_stream;
-	async_data->output_stream = iterator_output_stream;
-	async_data->dbus_call = call;
-	async_data->iterator_callback = callback;
-	async_data->user_data = user_data;
-	async_data->request_id = fast_pending_call_new (client, cancellable, async_data);
+	fad = fast_async_data_new (client,
+	                           FAST_QUERY,
+	                           buffered_input_stream,
+	                           iterator_output_stream,
+	                           cancellable,
+	                           call,
+	                           user_data);
+	fad->iterator_callback = callback;
 
 	g_output_stream_splice_async (iterator_output_stream,
 	                              buffered_input_stream,
-	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
 	                              0,
 	                              cancellable,
 	                              callback_iterator,
-	                              async_data);
-	return async_data->request_id;
+	                              fad);
+
+	return fad->request_id;
 #else  /* HAVE_DBUS_FD_PASSING */
 	FastQueryAsyncCompatData *data;
 
@@ -2397,27 +2478,30 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	g_return_val_if_fail (callback != NULL, 0);
 
 #ifdef HAVE_DBUS_FD_PASSING
-	FastAsyncData *data;
+	FastAsyncData *fad;
 	GError *error = NULL;
 
-	data = g_slice_new0 (FastAsyncData);
-	data->client = g_object_ref (client);
-	data->operation = FAST_UPDATE;
-	data->void_callback = callback;
-	data->user_data = user_data;
-	data->request_id = fast_pending_call_new (client, NULL, data);
+	fad = fast_async_data_new (client,
+	                           FAST_UPDATE,
+	                           NULL,
+	                           NULL,
+	                           NULL,
+	                           NULL,
+	                           user_data);
+	fad->void_callback = callback;
 
-	sparql_update_fast_async (client, query, data, &error);
+	sparql_update_fast_async (client, query, fad, &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
 		g_error_free (error);
-		g_slice_free (FastAsyncData, data);
+
+		fast_async_data_free (fad);
 
 		return 0;
 	}
 
-	return data->request_id;
+	return fad->request_id;
 #else  /* HAVE_DBUS_FD_PASSING */
 	TrackerClientPrivate *private;
 	CallbackVoid *cb;
@@ -2452,27 +2536,30 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	g_return_val_if_fail (callback != NULL, 0);
 
 #ifdef HAVE_DBUS_FD_PASSING
-	FastAsyncData *data;
+	FastAsyncData *fad;
 	GError *error = NULL;
 
-	data = g_slice_new0 (FastAsyncData);
-	data->client = g_object_ref (client);
-	data->operation = FAST_UPDATE_BLANK;
-	data->gptrarray_callback = callback;
-	data->user_data = user_data;
-	data->request_id = fast_pending_call_new (client, NULL, data);
+	fad = fast_async_data_new (client,
+	                           FAST_UPDATE_BLANK,
+	                           NULL,
+	                           NULL,
+	                           NULL,
+	                           NULL,
+	                           user_data);
+	fad->gptrarray_callback = callback;
 
-	sparql_update_fast_async (client, query, data, &error);
+	sparql_update_fast_async (client, query, fad, &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
 		g_error_free (error);
-		g_slice_free (FastAsyncData, data);
+
+		fast_async_data_free (fad);
 
 		return 0;
 	}
 
-	return data->request_id;
+	return fad->request_id;
 #else  /* HAVE_DBUS_FD_PASSING */
 	TrackerClientPrivate *private;
 	CallbackGPtrArray *cb;
@@ -2521,27 +2608,30 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	g_return_val_if_fail (callback != NULL, 0);
 
 #ifdef HAVE_DBUS_FD_PASSING
-	FastAsyncData *data;
+	FastAsyncData *fad;
 	GError *error = NULL;
 
-	data = g_slice_new0 (FastAsyncData);
-	data->client = g_object_ref (client);
-	data->operation = FAST_UPDATE_BATCH;
-	data->void_callback = callback;
-	data->user_data = user_data;
-	data->request_id = fast_pending_call_new (client, NULL, data);
+	fad = fast_async_data_new (client,
+	                           FAST_UPDATE_BATCH,
+	                           NULL,
+	                           NULL,
+	                           NULL,
+	                           NULL,
+	                           user_data);
+	fad->void_callback = callback;
 
-	sparql_update_fast_async (client, query, data, &error);
+	sparql_update_fast_async (client, query, fad, &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
 		g_error_free (error);
-		g_slice_free (FastAsyncData, data);
+
+		fast_async_data_free (fad);
 
 		return 0;
 	}
 
-	return data->request_id;
+	return fad->request_id;
 #else  /* HAVE_DBUS_FD_PASSING */
 	TrackerClientPrivate *private;
 	CallbackVoid *cb;
