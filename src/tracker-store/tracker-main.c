@@ -340,6 +340,7 @@ main (gint argc, gchar *argv[])
 	gsize chunk_size;
 	const gchar *rotate_to;
 	TrackerDBConfig *db_config;
+	gboolean do_rotating;
 
 	g_type_init ();
 
@@ -453,7 +454,15 @@ main (gint argc, gchar *argv[])
 	if (rotate_to[0] == '\0')
 		rotate_to = NULL;
 
-	tracker_db_journal_set_rotating ((chunk_size_mb != -1), chunk_size, rotate_to);
+	do_rotating = (chunk_size_mb != -1);
+
+	if (!GLIB_CHECK_VERSION (2, 24, 2)) {
+		if (do_rotating) {
+			g_warning ("Your GLib isn't recent enough for journal rotating to be enabled");
+			do_rotating = FALSE;
+		}
+		tracker_db_journal_set_rotating (do_rotating, chunk_size, rotate_to);
+	}
 
 	if (!tracker_data_manager_init (flags,
 	                                NULL,
