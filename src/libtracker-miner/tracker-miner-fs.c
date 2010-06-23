@@ -2420,8 +2420,11 @@ should_change_index_for_file (TrackerMinerFS *fs,
 
 	if (strcmp (time_str, lookup_time) == 0) {
 		/* File already up-to-date in the database */
+		g_free (time_str);
 		return FALSE;
 	}
+
+	g_free (time_str);
 
 	/* File either not yet in the database or mtime is different
 	 * Update in database required
