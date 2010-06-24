@@ -2558,7 +2558,7 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	call = org_freedesktop_Tracker1_Resources_sparql_update_blank_async (private->proxy_resources,
 	                                                                     query,
 	                                                                     callback_with_gptrarray,
-	                                                                     callback);
+	                                                                     cb);
 
 	cb->id = slow_pending_call_new (client, private->proxy_resources, call);
 
