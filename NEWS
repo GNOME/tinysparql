@@ -16,6 +16,7 @@ The changes are:
   * Fixes: NB#170915, tracker-search for snippet is resulting in errors
   * Fixes: NB#175957, Properly setup non-removable mounts at startup
   * Fixes: NB#175712, tracker is listing the files under Ignore directories
+  * Fixes: NB#172813, Tracker Miner polluting dbus channels upon indexing
   * Support --disable-tracker-fts to disable libtracker-fts and all FTS operations
   * Support D-Bus FD passing (avoids much memory copying) thanks to the work from Adrien Bustany
   * SPARQL: Fix generated SQL for triple block following simple optional
