@@ -1,3 +1,35 @@
+NEW in 0.8.13 - 2010-06-24
+==========================
+
+The changes are:
+
+  * Fixes: GB#620828, returns no e-mail results
+  * Fixes: GB#621987, Correctly handle applications in results
+  * Fixes: GB#620362, mp3 extraction crashes if year string is NULL before using atoi() with libenca enabled
+  * Fixes: GB#619868, don't recheck all monitored directories needlessly
+  * Fixes: GB#620486, Ignored files can still be found after changing tracker-miner-fs.cfg
+  * Fixes: GB#622351, Wrong initial detection of mounted state of the root partition
+  * Fixes: NB#175723, Avoid duplicates if several monitor events arrive together and store is slow
+  * Fixes: NB#170915, tracker-search for snippet is resulting in errors
+  * Fixes: NB#175957, Properly setup non-removable mounts at startup
+  * Fixes: NB#175712, tracker is listing the files under Ignore directories
+  * SPARQL: Fix generated SQL for triple block following simple optional
+  * libtracker-data: Add tests for triple block following simple optional
+  * libtracker-miner: Fixed memory leak
+  * libtracker-miner: Minor style changes
+  * tracker-miner-fs: Force recheck on IgnoredFiles changes
+  * Revert index added for nfo:belongsToContainer
+  * Revert "libtracker-data: Fixes NB#174591, Throw error on undefined variable in expressions"
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.8.12 - 2010-06-17
 ==========================
 
