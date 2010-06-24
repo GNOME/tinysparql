@@ -701,6 +701,7 @@ class Tracker.Sparql.Pattern : Object {
 				// due to not using a JOIN for the simple optional
 				end_triples_block (sql, ref first_where, in_group_graph_pattern);
 				in_triples_block = false;
+				in_group_graph_pattern = true;
 			}
 			if (!in_triples_block) {
 				if (in_group_graph_pattern) {
