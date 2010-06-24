@@ -20,7 +20,7 @@ INCLUDES =								\
 
 VALAFLAGS =								\
 	--pkg gio-2.0							\
-	--pkg rest							\
+	--pkg rest-0.6							\
 	--pkg posix							\
 	--thread
 
