@@ -513,7 +513,7 @@ client_set_property (GObject      *object,
 		}
 
 		if (private->is_constructed) {
-			dbus_g_proxy_set_default_timeout (private->proxy_resources, 
+			dbus_g_proxy_set_default_timeout (private->proxy_resources,
 			                                  private->timeout);
 		}
 
@@ -1838,7 +1838,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	iterator = g_slice_new0 (TrackerResultIterator);
 	iterator->buffer_size = g_output_stream_splice (iterator_output_stream,
 	                                                buffered_input_stream,
-	                                                G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE | 
+	                                                G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
 	                                                G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
 	                                                NULL,
 	                                                &inner_error);
