@@ -914,6 +914,10 @@ query_mount_points_cb (GObject      *source,
 		                              NULL,
 		                              init_mount_points_cb,
 		                              NULL);
+	} else {
+		/* If no further mount point initialization was needed,
+		 * initialize stale volume removal here. */
+		init_stale_volume_removal (TRACKER_MINER_FILES (miner));
 	}
 
 	g_string_free (accumulator, TRUE);
