@@ -461,8 +461,9 @@ main (gint argc, gchar *argv[])
 			g_warning ("Your GLib isn't recent enough for journal rotating to be enabled");
 			do_rotating = FALSE;
 		}
-		tracker_db_journal_set_rotating (do_rotating, chunk_size, rotate_to);
 	}
+
+	tracker_db_journal_set_rotating (do_rotating, chunk_size, rotate_to);
 
 	if (!tracker_data_manager_init (flags,
 	                                NULL,
