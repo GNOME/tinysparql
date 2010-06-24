@@ -1,0 +1,5 @@
+@prefix example: <http://example.org/> .
+
+example:a a example:A;
+    example:p 42;
+    example:q 23.

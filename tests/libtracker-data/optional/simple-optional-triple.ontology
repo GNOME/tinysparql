@@ -1,0 +1,22 @@
+@prefix example: <http://example.org/> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+example: a tracker:Namespace ;
+	tracker:prefix "example" .
+
+example:A a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+example:p a rdf:Property ;
+	rdfs:domain example:A ;
+	rdfs:range xsd:integer ;
+	nrl:maxCardinality 1 .
+
+example:q a rdf:Property ;
+	rdfs:domain example:A ;
+	rdfs:range xsd:integer ;
+	nrl:maxCardinality 1 .
