@@ -743,7 +743,7 @@ get_id3 (const gchar *data,
 
 	pos += 30;
 	year = g_convert (pos, 4, "UTF-8", encoding, NULL, NULL, NULL);
-	if (atoi (year) > 0) {
+	if (year && atoi (year) > 0) {
 		id3->recording_time = tracker_date_guess (year);
 	}
 	g_free (year);
