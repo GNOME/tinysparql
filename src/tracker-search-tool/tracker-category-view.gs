@@ -78,6 +78,10 @@ class TrackerCategoryView : ScrolledWindow
         store.set (iter, CategoryColumns.Icon, GetThemePixbufByName ("system-run", icon_size, get_screen ()), \
                    CategoryColumns.Name, "nfo:SoftwareApplication", CategoryColumns.DisplayName, N_("Applications") , -1);
 
+        store.append (out iter);
+        store.set (iter, CategoryColumns.Icon, GetThemePixbufByName ("evolution-mail", icon_size, get_screen ()), \
+                   CategoryColumns.Name, "nmo:Email", CategoryColumns.DisplayName, N_("Emails") , -1);
+
         treeview = new TreeView.with_model (store)
         treeview.insert_column_with_attributes (-1, "icon", new CellRendererPixbuf (), "pixbuf", 0, null)
         treeview.insert_column_with_attributes (-1, "name", new CellRendererText (), "text", 2, null)

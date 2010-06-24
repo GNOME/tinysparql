@@ -168,6 +168,17 @@ class TrackerResultGrid : ScrolledWindow
                         except e:Error
                             print "Could not get file info for %s", uri
 
+                else
+                    if uri.has_prefix ("email://")
+
+                        var query = "SELECT nmo:messageSubject(?s) where { ?s nie:url \"%s\" }".printf(uri)
+                        var qresults = Query.Query (query)
+
+                        store.append (out iter);
+                        store.set (iter, ResultColumns.Id, id, ResultColumns.Uri, uri, ResultColumns.Mime, mime, ResultColumns.Icon, GetThemePixbufByName ("evolution-mail", 48, get_screen ()), \
+                                   ResultColumns.DisplayName, qresults[0], ResultColumns.IsDirectory, false, -1)
+
+
             /* select first result */
             if has_results
                 var path = new TreePath.from_string ("0:0:0")
