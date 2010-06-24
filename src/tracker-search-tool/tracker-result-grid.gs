@@ -137,21 +137,37 @@ class TrackerResultGrid : ScrolledWindow
                 if uri.has_prefix ("file://")
 
                     has_results = true
+                    var handled = false
 
                     var file = File.new_for_uri (uri)
 
-                    try
-                        var info =  file.query_info ("standard::display-name,standard::icon,thumbnail::path", \
-                                                     FileQueryInfoFlags.NONE, null)
+                    var query = "SELECT rdf:type(?s) where { ?s nie:url \"%s\" }".printf(uri)
+                    var qresults = Query.Query (query)
 
-                        var filetype =  info.get_file_type ()
-                        store.append (out iter);
-                        store.set (iter, ResultColumns.Id, id, ResultColumns.Uri, uri, ResultColumns.Mime, mime, ResultColumns.Icon, GetThumbNail (info, 64, 48, get_screen()), \
-                                  ResultColumns.DisplayName, info.get_display_name(), ResultColumns.IsDirectory, \
-                                  (filetype is FileType.DIRECTORY) , -1)
-                                  
-                    except e:Error
-                        print "Could not get file info for %s", uri
+                    if qresults is not null and qresults[0].contains ("nfo#Software")
+                        app_info : AppInfo
+                        app_info = new DesktopAppInfo.from_filename (file.get_path ())
+
+                        if app_info is not null
+                            store.append (out iter);
+                            store.set (iter, ResultColumns.Id, id, ResultColumns.Uri, uri, ResultColumns.Mime, mime, ResultColumns.Icon, GetThemeIconPixbuf (app_info.get_icon (), 48, get_screen()), \
+                                      ResultColumns.DisplayName, app_info.get_display_name(), ResultColumns.IsDirectory, \
+                                      false , -1)
+                            handled = true
+
+                    if not handled
+                        try
+                            var info =  file.query_info ("standard::display-name,standard::icon,thumbnail::path", \
+                                                         FileQueryInfoFlags.NONE, null)
+
+                            var filetype =  info.get_file_type ()
+                            store.append (out iter);
+                            store.set (iter, ResultColumns.Id, id, ResultColumns.Uri, uri, ResultColumns.Mime, mime, ResultColumns.Icon, GetThumbNail (info, 64, 48, get_screen()), \
+                                      ResultColumns.DisplayName, info.get_display_name(), ResultColumns.IsDirectory, \
+                                      (filetype is FileType.DIRECTORY) , -1)
+                                      
+                        except e:Error
+                            print "Could not get file info for %s", uri
 
             /* select first result */
             if has_results
@@ -171,4 +187,9 @@ class TrackerResultGrid : ScrolledWindow
         store.get (iter, ResultColumns.Uri, out uri);
         store.get (iter, ResultColumns.IsDirectory, out is_dir);
 
-        OpenUri (uri, is_dir)
+        var query = "SELECT rdf:type(?s) where { ?s nie:url \"%s\" }".printf(uri)
+        var results = Query.Query (query)
+        if results is not null and results[0].contains ("nfo#Software")
+            LaunchApp (uri)
+        else
+            OpenUri (uri, is_dir)

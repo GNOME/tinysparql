@@ -923,6 +923,7 @@ AM_CONDITIONAL(HAVE_MINER_RSS, test "x$have_miner_rss" = "xyes")
 ####################################################################
 
 APP_REQUIREMENTS="glib-2.0    >= $GLIB_REQUIRED
+                  gio-unix-2.0 >= $GLIB_REQUIRED
                   gthread-2.0 >= $GLIB_REQUIRED
                   gmodule-2.0 >= $GLIB_REQUIRED
                   gtk+-2.0    >= $GTK_REQUIRED
