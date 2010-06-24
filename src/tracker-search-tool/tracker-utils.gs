@@ -83,6 +83,27 @@ class TrackerUtils
 
 
 
+    def static LaunchApp (uri : string) : bool
+        app_info : AppInfo
+        context : AppLaunchContext
+
+        var file = File.new_for_uri (uri)
+
+        app_info = new DesktopAppInfo.from_filename (file.get_path ())
+        if app_info is null
+            return OpenUri (uri, false)
+
+        context = new Gdk.AppLaunchContext ()
+        try
+            app_info.launch (null, context)
+        except e:Error
+            var msg = new MessageDialog (null, DialogFlags.MODAL, MessageType.ERROR, ButtonsType.OK, \
+                                         N_("Could not launch \"%s\"\nError: %s\n"), app_info.get_display_name (), e.message)
+            msg.run ();
+            return false
+
+        return true
+
 
     def static OpenUri (uri : string, is_dir :bool) : bool
         app_info : AppInfo

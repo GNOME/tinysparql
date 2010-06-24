@@ -206,6 +206,7 @@ class TrackerMetadataTile : EventBox
         info_value4.set_text ("")
         info_value5.set_text ("")
         info_value6.set_text ("")
+        info_label1.set_text (N_("Type:"))
         info_label4.set_text ("")
         info_label5.set_text ("")
         info_label6.set_text ("")
@@ -216,7 +217,13 @@ class TrackerMetadataTile : EventBox
         path_link.label = ""
 
         name_link.set_sensitive (false)
-        path_link.set_sensitive (false);
+        path_link.set_sensitive (false)
+
+        name_label.show ()
+        path_label.show ()
+        info_label1.show ()
+        info_label2.show ()
+        info_label3.show ()
 
 
     def SetLabelValue (label : Label, val : string)
@@ -359,7 +366,31 @@ class TrackerMetadataTile : EventBox
             SetLabelValue (info_value4, result[0])  
             SetLabelValue (info_value5, result[1])  
             SetLabelValue (info_value6, result[2])      
+
+
+    def private DisplayApplicationDetails (uri : string)
+        app_info : AppInfo
+
+        var file = File.new_for_uri (uri)
+        app_info = new DesktopAppInfo.from_filename (file.get_path ())
+        if app_info is null
+            DisplayFileDetails (uri, "")
+            return
         
+        //name_link.set_sensitive (false)
+        path_link.set_sensitive (false)
+        path_label.hide ()
+        info_label2.hide ()
+        info_label3.hide ()
+
+        name_link.uri = uri
+        name_link.label = app_info.get_display_name ()
+        info_label1.set_text (N_("Description:"))
+
+        var description = app_info.get_description ()
+        if description is not null
+            SetLabelValue (info_value1, description)
+
 
     def LoadUri (path : TreePath?)
         ClearLabels ()
@@ -378,17 +409,19 @@ class TrackerMetadataTile : EventBox
         _result_grid.store.get_iter (out iter, path)
         _result_grid.store.get (iter, ResultColumns.Id, out id, ResultColumns.Uri, out uri, ResultColumns.Mime, out mime, ResultColumns.Icon, out icon)
        
+        image.set_from_pixbuf (icon)
+
         /* determine category type */
         var cat = GetCategory (uri)
 
         if cat is not Categories.Application
             DisplayFileDetails (uri, mime)
-            image.set_from_pixbuf (icon)
 
         case cat
             when Categories.Audio do DisplayAudioDetails (uri)
             when Categories.Video do DisplayVideoDetails (uri)
             when Categories.Image do DisplayImageDetails (uri)
             when Categories.Document do DisplayDocumentDetails (uri)
+            when Categories.Application do DisplayApplicationDetails (uri)
             default do return
 

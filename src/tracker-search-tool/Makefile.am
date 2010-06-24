@@ -17,7 +17,7 @@ tracker_search_tool_SOURCES = 					\
 	$(tracker_search_tool_VALASOURCES:.gs=.c)
 
 tracker_search_tool.gs.stamp: $(tracker_search_tool_VALASOURCES)
-	$(VALAC) -C -g --pkg dbus-glib-1 --pkg gee-1.0 --pkg gtk+-2.0 $^
+	$(VALAC) -C -g --pkg dbus-glib-1 --pkg gee-1.0 --pkg gio-unix-2.0 --pkg gtk+-2.0 $^
 	touch tracker_search_tool.gs.stamp
 
 tracker_search_tool_CFLAGS = \
