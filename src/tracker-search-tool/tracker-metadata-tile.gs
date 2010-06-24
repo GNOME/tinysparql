@@ -217,7 +217,10 @@ class TrackerMetadataTile : EventBox
         path_link.label = ""
 
         name_link.set_sensitive (false)
+        name_link.show ()
+
         path_link.set_sensitive (false)
+        path_link.show ()
 
         name_label.show ()
         path_label.show ()
@@ -270,9 +273,10 @@ class TrackerMetadataTile : EventBox
         if res.contains ("nfo#Video") do return Categories.Video
         if res.contains ("nfo#Image") do return Categories.Image
         if res.contains ("nfo#Audio") do return Categories.Audio
+        if res.contains ("nmo#Email") do return Categories.Email
         if res.contains ("nfo#Document") do return Categories.Document
         if res.contains ("nfo#Software") do return Categories.Application       
-        if res.contains ("nfo#Folder") do return Categories.Folder        
+        if res.contains ("nfo#Folder") do return Categories.Folder
                          
         return Categories.File
         
@@ -354,6 +358,26 @@ class TrackerMetadataTile : EventBox
             SetLabelValue (info_value6, result[2])  
         
 
+    def private DisplayEmailDetails (uri : string)
+        var query = "SELECT nmo:messageSubject(?e) nco:fullname(?s) nmo:receivedDate(?e) WHERE { ?e nie:url \"%s\" ; nmo:from ?s }".printf(uri)
+        var result = Query.Query (query)
+
+        name_label.hide ()
+        name_link.hide ()
+        path_link.hide ()
+        path_label.hide ()
+        info_label2.hide ()
+
+        info_label1.set_text (N_("Subject:"))
+        info_label4.set_text (N_("From:"))
+        info_label3.set_text (N_("Received:"))
+
+        if result is not null
+            SetLabelValue (info_value1, result[0])
+            SetLabelValue (info_value4, result[1])
+            SetLabelValue (info_value3, result[2])
+
+
     def private DisplayDocumentDetails (uri : string)
         var query = "SELECT nie:title(?s) nco:creator(?s) nfo:pageCount (?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
         var result = Query.Query (query)
@@ -414,13 +438,14 @@ class TrackerMetadataTile : EventBox
         /* determine category type */
         var cat = GetCategory (uri)
 
-        if cat is not Categories.Application
+        if cat is not Categories.Application and cat is not Categories.Email
             DisplayFileDetails (uri, mime)
 
         case cat
             when Categories.Audio do DisplayAudioDetails (uri)
             when Categories.Video do DisplayVideoDetails (uri)
             when Categories.Image do DisplayImageDetails (uri)
+            when Categories.Email do DisplayEmailDetails (uri)
             when Categories.Document do DisplayDocumentDetails (uri)
             when Categories.Application do DisplayApplicationDetails (uri)
             default do return
