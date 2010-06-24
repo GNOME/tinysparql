@@ -193,7 +193,7 @@ static void        miner_finished_cb                    (TrackerMinerFS *fs,
 
 static gboolean    miner_files_in_removable_media_remove_by_type  (TrackerMinerFiles  *miner,
                                                                    TrackerStorageType  type);
-static void        miner_files_in_removable_remove_by_date        (TrackerMinerFiles  *miner,
+static void        miner_files_in_removable_media_remove_by_date  (TrackerMinerFiles  *miner,
                                                                    const gchar        *date);
 
 static void        miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
@@ -945,8 +945,8 @@ cleanup_stale_removable_volumes_cb (gpointer user_data)
 
 	g_message ("Running stale volumes check...");
 
-	miner_files_in_removable_remove_by_date (TRACKER_MINER_FILES (user_data),
-	                                         n_days_ago_as_string);
+	miner_files_in_removable_media_remove_by_date (TRACKER_MINER_FILES (user_data),
+	                                               n_days_ago_as_string);
 
 	g_free (n_days_ago_as_string);
 
@@ -2438,8 +2438,8 @@ miner_files_in_removable_media_remove_by_type (TrackerMinerFiles  *miner,
 }
 
 static void
-miner_files_in_removable_remove_by_date (TrackerMinerFiles  *miner,
-                                         const gchar        *date)
+miner_files_in_removable_media_remove_by_date (TrackerMinerFiles  *miner,
+                                               const gchar        *date)
 {
 	GString *queries;
 
