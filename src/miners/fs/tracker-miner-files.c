@@ -44,7 +44,13 @@
 #include "tracker-marshal.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
-#define SECONDS_PER_DAY 60 * 60 * 24
+#define SECONDS_PER_DAY 86400
+
+/* If any removable device was not mounted again before the given
+ * number of days threshold, it will be removed from the store
+ * TODO: Make this value configurable in tracker-miner-fs.cfg
+ */
+#define N_DAYS_THRESHOLD 3
 
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
 
@@ -89,6 +95,8 @@ struct TrackerMinerFilesPrivate {
 	gboolean index_removable_devices;
 	gboolean index_optical_discs;
 	guint volumes_changed_id;
+
+	guint stale_volumes_check_id;
 };
 
 enum {
@@ -133,6 +141,7 @@ static void        index_on_battery_cb                  (GObject    *object,
                                                          GParamSpec *pspec,
                                                          gpointer    user_data);
 static void        init_mount_points                    (TrackerMinerFiles    *miner);
+static void        init_stale_volume_removal            (TrackerMinerFiles    *miner);
 static void        disk_space_check_start               (TrackerMinerFiles    *mf);
 static void        disk_space_check_stop                (TrackerMinerFiles    *mf);
 static void        low_disk_space_limit_cb              (GObject              *gobject,
@@ -182,8 +191,10 @@ static void        miner_finished_cb                    (TrackerMinerFS *fs,
                                                          guint           total_files_ignored,
                                                          gpointer        user_data);
 
-static gboolean    miner_files_remove_by_type           (TrackerMinerFiles  *miner,
-                                                         TrackerStorageType  type);
+static gboolean    miner_files_in_removable_media_remove_by_type  (TrackerMinerFiles  *miner,
+                                                                   TrackerStorageType  type);
+static void        miner_files_in_removable_remove_by_date        (TrackerMinerFiles  *miner,
+                                                                   const gchar        *date);
 
 static void        miner_files_add_removable_or_optical_directory (TrackerMinerFiles *mf,
                                                                    const gchar       *mount_path,
@@ -354,6 +365,11 @@ miner_files_finalize (GObject *object)
 		priv->force_recheck_id = 0;
 	}
 
+	if (priv->stale_volumes_check_id) {
+		g_source_remove (priv->stale_volumes_check_id);
+		priv->stale_volumes_check_id = 0;
+	}
+
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
 }
 
@@ -505,14 +521,14 @@ miner_files_constructed (GObject *object)
 		g_message ("  Removable devices are disabled in the config");
 
 		/* Make sure we don't have any resource in a volume of the given type */
-		miner_files_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE);
+		miner_files_in_removable_media_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE);
 	}
 
 	if (!mf->private->index_optical_discs) {
 		g_message ("  Optical discs are disabled in the config");
 
 		/* Make sure we don't have any resource in a volume of the given type */
-		miner_files_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE | TRACKER_STORAGE_OPTICAL);
+		miner_files_in_removable_media_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE | TRACKER_STORAGE_OPTICAL);
 	}
 
 	for (m = mounts; m; m = m->next) {
@@ -730,6 +746,12 @@ init_mount_points_cb (GObject      *source,
 		g_critical ("Could not initialize currently active mount points: %s",
 		            error->message);
 		g_error_free (error);
+	} else {
+		/* Only initiate stale volume removal AFTER we have initialized
+		 * the mount points, as we need the correct tracker:isMounted value
+		 * for all currently mounted volumes
+		 */
+		init_stale_volume_removal (TRACKER_MINER_FILES (source));
 	}
 }
 
@@ -766,8 +788,8 @@ query_mount_points_cb (GObject      *source,
 
 	/* Make sure the root partition is always set to mounted, as GIO won't
 	 * report it as a proper mount */
-        g_hash_table_insert (volumes, 
-                             g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN), 
+        g_hash_table_insert (volumes,
+                             g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
                              GINT_TO_POINTER (VOLUME_MOUNTED));
 
 	while (tracker_result_iterator_next (iterator)) {
@@ -910,6 +932,40 @@ init_mount_points (TrackerMinerFiles *miner)
 	                              query_mount_points_cb,
 	                              NULL);
 }
+
+
+static gboolean
+cleanup_stale_removable_volumes_cb (gpointer user_data)
+{
+	time_t n_days_ago;
+	gchar *n_days_ago_as_string;
+
+	n_days_ago = (time (NULL) - (SECONDS_PER_DAY * N_DAYS_THRESHOLD));
+	n_days_ago_as_string = tracker_date_to_string (n_days_ago);
+
+	g_message ("Running stale volumes check...");
+
+	miner_files_in_removable_remove_by_date (TRACKER_MINER_FILES (user_data),
+	                                         n_days_ago_as_string);
+
+	g_free (n_days_ago_as_string);
+
+	return TRUE;
+}
+
+static void
+init_stale_volume_removal (TrackerMinerFiles *miner)
+{
+	/* Run right away the first check */
+	cleanup_stale_removable_volumes_cb (miner);
+
+	/* Then, setup new timeout event every day */
+	miner->private->stale_volumes_check_id =
+		g_timeout_add_seconds (SECONDS_PER_DAY + 1,
+		                       cleanup_stale_removable_volumes_cb,
+		                       miner);
+}
+
 
 static void
 mount_point_removed_cb (TrackerStorage *storage,
@@ -1476,7 +1532,7 @@ index_volumes_changed_idle (gpointer user_data)
 			/* And now, single sparql update to remove all resources
 			 * corresponding to removable devices (includes those
 			 * not currently mounted) */
-			miner_files_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE);
+			miner_files_in_removable_media_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE);
 		}
 	}
 
@@ -1507,7 +1563,7 @@ index_volumes_changed_idle (gpointer user_data)
 			/* And now, single sparql update to remove all resources
 			 * corresponding to removable+optical devices (includes those
 			 * not currently mounted) */
-			miner_files_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE | TRACKER_STORAGE_OPTICAL);
+			miner_files_in_removable_media_remove_by_type (mf, TRACKER_STORAGE_REMOVABLE | TRACKER_STORAGE_OPTICAL);
 		}
 	}
 
@@ -2320,23 +2376,23 @@ tracker_miner_files_monitor_directory (GFile    *file,
 }
 
 static void
-remove_by_type_cb (GObject      *object,
-                   GAsyncResult *result,
-                   gpointer      user_data)
+remove_files_in_removable_media_cb (GObject      *object,
+                                    GAsyncResult *result,
+                                    gpointer      user_data)
 {
 	GError *error = NULL;
 
 	tracker_miner_execute_update_finish (TRACKER_MINER (object), result, &error);
 
 	if (error) {
-		g_critical ("Could not remove by type: %s", error->message);
+		g_critical ("Could not remove files in volumes: %s", error->message);
 		g_error_free (error);
 	}
 }
 
 static gboolean
-miner_files_remove_by_type (TrackerMinerFiles  *miner,
-                            TrackerStorageType  type)
+miner_files_in_removable_media_remove_by_type (TrackerMinerFiles  *miner,
+                                               TrackerStorageType  type)
 {
 	gboolean removable;
 	gboolean optical;
@@ -2370,7 +2426,7 @@ miner_files_remove_by_type (TrackerMinerFiles  *miner,
 		tracker_miner_execute_batch_update (TRACKER_MINER (miner),
 		                                    queries->str,
 		                                    NULL,
-		                                    remove_by_type_cb,
+		                                    remove_files_in_removable_media_cb,
 		                                    NULL);
 
 		g_string_free (queries, TRUE);
@@ -2379,6 +2435,42 @@ miner_files_remove_by_type (TrackerMinerFiles  *miner,
 	}
 
 	return FALSE;
+}
+
+static void
+miner_files_in_removable_remove_by_date (TrackerMinerFiles  *miner,
+                                         const gchar        *date)
+{
+	GString *queries;
+
+	g_debug ("  Removing all resources in store from removable or "
+	         "optical devices not mounted after '%s'",
+	         date);
+
+	queries = g_string_new ("");
+
+	/* Delete all resources where nie:dataSource is a volume
+	 * which was last unmounted before the given date */
+	g_string_append_printf (queries,
+	                        "DELETE { "
+	                        "  ?f a rdfs:Resource "
+	                        "} WHERE { "
+	                        "  ?v a tracker:Volume ; "
+	                        "     tracker:isRemovable true ; "
+	                        "     tracker:isMounted false ; "
+	                        "     tracker:unmountDate ?d . "
+	                        "  ?f nie:dataSource ?v . "
+	                        "  FILTER ( ?d < \"%s\") "
+	                        "}",
+	                        date);
+
+	tracker_miner_execute_batch_update (TRACKER_MINER (miner),
+	                                    queries->str,
+	                                    NULL,
+	                                    remove_files_in_removable_media_cb,
+	                                    NULL);
+
+	g_string_free (queries, TRUE);
 }
 
 static void
