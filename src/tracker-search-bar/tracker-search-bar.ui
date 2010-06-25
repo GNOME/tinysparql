@@ -9,7 +9,7 @@
     <property name="has_separator">False</property>
     <property name="program_name">Search Bar</property>
     <property name="version">0.7</property>
-    <property name="copyright" translatable="yes">Copyright Tracker Authors 2005-2009</property>
+    <property name="copyright" translatable="yes">Copyright Tracker Authors 2005-2010</property>
     <property name="comments" translatable="yes">A search bar applet for finding content stored in Tracker</property>
     <property name="website">http://www.tracker-project.org/</property>
     <property name="website_label">http://www.tracker-project.org/</property>
