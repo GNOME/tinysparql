@@ -764,6 +764,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 	summary = folder->summary;
 	em_uri = em_uri_from_camel (account_uri);
+	em_uri [strlen (em_uri) - 1] = '\0';
 
 	merged = g_ptr_array_new ();
 
@@ -830,10 +831,10 @@ on_folder_summary_changed (CamelFolder *folder,
 			/* This is not a path but a URI, don't use the
 			 * OS's directory separator here */
 
-			uri = g_strdup_printf ("%s%s/%s",
-			                       em_uri,
-			                       camel_folder_get_full_name (folder),
-			                       uid);
+			uri = tracker_uri_printf_escaped ("%s/%s/%s",
+			                                  em_uri,
+			                                  camel_folder_get_full_name (folder),
+			                                  uid);
 
 			sparql = tracker_sparql_builder_new_update ();
 
@@ -911,17 +912,17 @@ on_folder_summary_changed (CamelFolder *folder,
 		GString *sparql = g_string_new ("");
 
 		for (i = 0; i< changes->uid_removed->len; i++) {
+			gchar *uri;
 
 			/* This is not a path but a URI, don't use the OS's
 			 * directory separator here */
+			uri = tracker_uri_printf_escaped ("%s/%s/%s",
+			                                  em_uri,
+			                                  camel_folder_get_full_name (folder),
+			                                  (char*) changes->uid_removed->pdata[i]);
 
-			g_string_append_printf (sparql, "DELETE FROM <%s%s/%s> { <%s%s/%s> a rdfs:Resource }\n ",
-			                        em_uri,
-			                        camel_folder_get_full_name (folder),
-			                        (char*) changes->uid_removed->pdata[i],
-			                        em_uri,
-			                        camel_folder_get_full_name (folder),
-			                        (char*) changes->uid_removed->pdata[i]);
+			g_string_append_printf (sparql, "DELETE FROM <%s> { <%s> a rdfs:Resource }\n ", uri, uri);
+			g_free (uri);
 		}
 
 		send_sparql_update (info->self, sparql->str, 100);
@@ -954,6 +955,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 	}
 
 	em_uri = em_uri_from_camel (account_uri);
+	em_uri [strlen (em_uri) - 1] = '\0';
 
 	while (iter) {
 		guint count = 0;
@@ -1034,8 +1036,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 				folder = g_hash_table_lookup (priv->cached_folders, iter->full_name);
 
-				uri =  g_strdup_printf ("%s%s/%s", em_uri,
-				                        iter->full_name, uid);
+				uri = tracker_uri_printf_escaped ("%s/%s/%s", em_uri, iter->full_name, uid);
 
 				if (!sparql) {
 					sparql = tracker_sparql_builder_new_update ();
@@ -1158,7 +1159,10 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 	sqlite3_stmt *stmt = NULL;
 	CamelDB *cdb_r;
 	guint i, ret;
-	gchar *em_uri = em_uri_from_camel (account_uri);
+	gchar *em_uri;
+
+	em_uri = em_uri_from_camel (account_uri);
+	em_uri [strlen (em_uri) - 1] = '\0';
 
 	query = sqlite3_mprintf ("SELECT uid, mailbox "
 	                         "FROM Deletes "
@@ -1200,8 +1204,9 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 			/* This is not a path but a URI, don't use the OS's
 			 * directory separator here */
 
-			g_ptr_array_add (subjects_a, g_strdup_printf ("%s%s/%s", em_uri,
-			                                              mailbox, uid));
+			g_ptr_array_add (subjects_a,
+			                 tracker_uri_printf_escaped ("%s/%s/%s", em_uri,
+			                                             mailbox, uid));
 
 			if (count > 100) {
 				more = TRUE;
