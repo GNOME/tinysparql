@@ -45,7 +45,6 @@
 #define DEFAULT_THROTTLE                         0        /* 0->20 */
 #define DEFAULT_SCAN_TIMEOUT                     0        /* 0->1000 */
 #define DEFAULT_CACHE_TIMEOUT                    60       /* 0->1000 */
-#define DEFAULT_INDEX_MOUNTED_DIRECTORIES        TRUE
 #define DEFAULT_INDEX_REMOVABLE_DEVICES          TRUE
 #define DEFAULT_INDEX_OPTICAL_DISCS              FALSE
 #define DEFAULT_INDEX_ON_BATTERY                 FALSE
@@ -66,7 +65,6 @@ typedef struct {
 	gint      throttle;
 	gboolean  index_on_battery;
 	gboolean  index_on_battery_first_time;
-	gboolean  index_mounted_directories;
 	gboolean  index_removable_devices;
 	gboolean  index_optical_discs;
 	gint      low_disk_space_limit;
@@ -126,7 +124,6 @@ enum {
 	PROP_THROTTLE,
 	PROP_INDEX_ON_BATTERY,
 	PROP_INDEX_ON_BATTERY_FIRST_TIME,
-	PROP_INDEX_MOUNTED_DIRECTORIES,
 	PROP_INDEX_REMOVABLE_DEVICES,
 	PROP_INDEX_OPTICAL_DISCS,
 	PROP_LOW_DISK_SPACE_LIMIT,
@@ -149,7 +146,6 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_INT,     "throttle",                         GROUP_INDEXING, "Throttle"                  },
 	{ G_TYPE_BOOLEAN, "index-on-battery",                 GROUP_INDEXING, "IndexOnBattery"            },
 	{ G_TYPE_BOOLEAN, "index-on-battery-first-time",      GROUP_INDEXING, "IndexOnBatteryFirstTime"   },
-	{ G_TYPE_BOOLEAN, "index-mounted-directories",        GROUP_INDEXING, "IndexMountedDirectories"   },
 	{ G_TYPE_BOOLEAN, "index-removable-devices",          GROUP_INDEXING, "IndexRemovableMedia"       },
 	{ G_TYPE_BOOLEAN, "index-optical-discs",              GROUP_INDEXING, "IndexOpticalDiscs"         },
 	{ G_TYPE_INT,     "low-disk-space-limit",             GROUP_INDEXING, "LowDiskSpaceLimit"         },
@@ -245,14 +241,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                       "Index on battery first time",
 	                                                       " Set to true to index while running on battery for the first time only",
 	                                                       DEFAULT_INDEX_ON_BATTERY_FIRST_TIME,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-	                                 PROP_INDEX_MOUNTED_DIRECTORIES,
-	                                 g_param_spec_boolean ("index-mounted-directories",
-	                                                       "Index mounted directories",
-	                                                       " Set to true to enable traversing mounted directories on other file systems\n"
-	                                                       " (this excludes removable devices)",
-	                                                       DEFAULT_INDEX_MOUNTED_DIRECTORIES,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 	                                 PROP_INDEX_REMOVABLE_DEVICES,
@@ -374,10 +362,6 @@ config_set_property (GObject      *object,
 		tracker_config_set_index_on_battery_first_time (TRACKER_CONFIG (object),
 		                                                g_value_get_boolean (value));
 		break;
-	case PROP_INDEX_MOUNTED_DIRECTORIES:
-		tracker_config_set_index_mounted_directories (TRACKER_CONFIG (object),
-		                                              g_value_get_boolean (value));
-		break;
 	case PROP_INDEX_REMOVABLE_DEVICES:
 		tracker_config_set_index_removable_devices (TRACKER_CONFIG (object),
 		                                            g_value_get_boolean (value));
@@ -456,9 +440,6 @@ config_get_property (GObject    *object,
 		break;
 	case PROP_INDEX_ON_BATTERY_FIRST_TIME:
 		g_value_set_boolean (value, priv->index_on_battery_first_time);
-		break;
-	case PROP_INDEX_MOUNTED_DIRECTORIES:
-		g_value_set_boolean (value, priv->index_mounted_directories);
 		break;
 	case PROP_INDEX_REMOVABLE_DEVICES:
 		g_value_set_boolean (value, priv->index_removable_devices);
@@ -1167,18 +1148,6 @@ tracker_config_get_index_on_battery_first_time (TrackerConfig *config)
 }
 
 gboolean
-tracker_config_get_index_mounted_directories (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_MOUNTED_DIRECTORIES);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->index_mounted_directories;
-}
-
-gboolean
 tracker_config_get_index_removable_devices (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
@@ -1428,20 +1397,6 @@ tracker_config_set_index_on_battery_first_time (TrackerConfig *config,
 
 	priv->index_on_battery_first_time = value;
 	g_object_notify (G_OBJECT (config), "index-on-battery-first-time");
-}
-
-void
-tracker_config_set_index_mounted_directories (TrackerConfig *config,
-                                              gboolean       value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->index_mounted_directories = value;
-	g_object_notify (G_OBJECT (config), "index-mounted-directories");
 }
 
 void
