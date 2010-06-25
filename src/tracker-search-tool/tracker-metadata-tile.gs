@@ -379,7 +379,7 @@ class TrackerMetadataTile : EventBox
 
 
     def private DisplayDocumentDetails (uri : string)
-        var query = "SELECT nie:title(?s) nco:creator(?s) nfo:pageCount (?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
+        var query = "SELECT nie:title(?s) nco:fullname(?c) nfo:pageCount (?s) WHERE { ?s nie:url \"%s\" ; nco:creator ?c }".printf(uri)
         var result = Query.Query (query)
 
         info_label4.set_text (N_("Title:"))
