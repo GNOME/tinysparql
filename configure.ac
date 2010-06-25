@@ -1687,7 +1687,7 @@ fi
 AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 
 ####################################################################
-# Check for DBus > 1.3 for Steroids (query over pipe) support
+# Check for DBus > 1.3.1 for Steroids (query over pipe) support
 ####################################################################
 
 AC_ARG_ENABLE(dbus-fd-passing,
@@ -1696,7 +1696,7 @@ AC_ARG_ENABLE(dbus-fd-passing,
 	      [enable_dbus_fd_passing=auto])
 
 if test "x$enable_dbus_fd_passing" != "xno" ; then
-   PKG_CHECK_EXISTS([dbus-1 >= 1.3],
+   PKG_CHECK_EXISTS([dbus-1 >= 1.3.1],
                     [have_dbus_fd_passing=yes],
                     [have_dbus_fd_passing=no])
 
