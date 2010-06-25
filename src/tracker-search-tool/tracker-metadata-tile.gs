@@ -38,7 +38,7 @@ class TrackerMetadataTile : EventBox
     /* metadata fields */
     name_label : Label
     path_label : Label
-    
+
     info_label1 : Label
     info_value1 : Label
 
@@ -75,9 +75,9 @@ class TrackerMetadataTile : EventBox
     init
 
         set_app_paintable (true)
-        
+
         expose_event += expose
-   
+
         border_width = 0
 
         table = new Table (5, 7, false)
@@ -131,18 +131,18 @@ class TrackerMetadataTile : EventBox
         AttachToTable (info_label6, 5, 6, 2, 3, false)
         info_value6 = CreateLabel ("-", true)
         AttachToTable (info_value6, 6, 7, 2, 3, true)
-        
+
         ClearLabels ()
 
 
     def private expose (e : Gdk.EventExpose) : bool
-    
+
         var cr = Gdk.cairo_create (self.window)
 
         var style = self.get_style ()
         var step1 = style.bg [StateType.NORMAL]
         var step2 = style.bg [StateType.SELECTED]
-        
+
         w,h : double
         w = self.allocation.width
         h = self.allocation.height
@@ -157,15 +157,15 @@ class TrackerMetadataTile : EventBox
 
         /* main gradient */
         var pat = new Pattern.linear (0.0, 0.0, 0.0, h)
-        
+
         pat.add_color_stop_rgba (0.0, step2.red/65535.0, step2.green/65535.0, step2.blue/65535.0, 0.05)
-	                                   
+
         pat.add_color_stop_rgba (1.0, step2.red/65535.0, step2.green/65535.0, step2.blue/65535.0, 0.5)
 
         cr.rectangle (0, 0, w, h)
         cr.set_source (pat)
         cr.fill ()
-	
+
         /* border line */
         cr.set_source_rgba (step2.red/65535.0, step2.green/65535.0, step2.blue/65535.0, 0.7)
         cr.move_to (0, 0)
@@ -178,7 +178,7 @@ class TrackerMetadataTile : EventBox
         cr.line_to (w, 1)
         cr.stroke ()
 
-        return super.expose_event (e) 
+        return super.expose_event (e)
 
 
     def private AttachToTable (lab : Label, l : int, r : int, t : int, b : int, e : bool)
@@ -210,7 +210,7 @@ class TrackerMetadataTile : EventBox
         info_label4.set_text ("")
         info_label5.set_text ("")
         info_label6.set_text ("")
-        
+
         name_link.uri = ""
         name_link.label = ""
         path_link.uri = ""
@@ -233,17 +233,17 @@ class TrackerMetadataTile : EventBox
         var val1 = "<b>%s</b>".printf (val)
         label.set_markup (val1)
         label.xalign = 0
-        
+
 
     def SetLabelSizeValue (label : Label, size: int64)
         var val1 = "<b>%s</b>".printf (FormatFileSize (size))
         label.set_markup (val1)
         label.xalign = 0
-        
-        
+
+
     def SetLabelUrnValue (label : Label, val : string)
         var value = val
-        
+
         var values = val.split (":")
 
         for s in values
@@ -266,7 +266,7 @@ class TrackerMetadataTile : EventBox
 
         if results is null
             print "Query result is null!"
-        
+
         else
             res = results[0]
 
@@ -275,16 +275,16 @@ class TrackerMetadataTile : EventBox
         if res.contains ("nfo#Audio") do return Categories.Audio
         if res.contains ("nmo#Email") do return Categories.Email
         if res.contains ("nfo#Document") do return Categories.Document
-        if res.contains ("nfo#Software") do return Categories.Application       
+        if res.contains ("nfo#Software") do return Categories.Application
         if res.contains ("nfo#Folder") do return Categories.Folder
-                         
+
         return Categories.File
-        
-    
+
+
     def private DisplayFileDetails (uri : string, mime : string)
         var file = File.new_for_uri (uri)
         var displaypath = file.get_parent ()
-        
+
         name_link.uri = uri
         path_link.uri = displaypath.get_uri ()
         path_link.label = displaypath.get_parse_name ()
@@ -317,7 +317,7 @@ class TrackerMetadataTile : EventBox
             name_link.label = filepath
             print "Could not get file info for %s", uri
 
-        
+
     def private DisplayImageDetails (uri : string)
         var query = "SELECT nfo:height(?s) nfo:width(?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
         var result = Query.Query (query)
@@ -325,10 +325,10 @@ class TrackerMetadataTile : EventBox
         info_label4.set_text (N_("Height:"))
         info_label5.set_text (N_("Width:"))
 
-        if result is not null 
-            SetLabelValue (info_value4, result[0])  
-            SetLabelValue (info_value5, result[1])  
-        
+        if result is not null
+            SetLabelValue (info_value4, result[0])
+            SetLabelValue (info_value5, result[1])
+
 
     def private DisplayAudioDetails (uri : string)
         var query = "SELECT nie:title(?s) nmm:performer(?s) nmm:musicAlbum(?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
@@ -338,11 +338,11 @@ class TrackerMetadataTile : EventBox
         info_label5.set_text (N_("Artist:"))
         info_label6.set_text (N_("Album:"))
 
-        if result is not null 
-            SetLabelValue (info_value4, result[0])  
-            SetLabelUrnValue (info_value5, result[1])  
-            SetLabelUrnValue (info_value6, result[2])  
-        
+        if result is not null
+            SetLabelValue (info_value4, result[0])
+            SetLabelUrnValue (info_value5, result[1])
+            SetLabelUrnValue (info_value6, result[2])
+
 
     def private DisplayVideoDetails (uri : string)
         var query = "SELECT nfo:height(?s) nfo:width(?s) nfo:duration (?s) WHERE { ?s nie:url \"%s\" }".printf(uri)
@@ -350,13 +350,13 @@ class TrackerMetadataTile : EventBox
 
         info_label4.set_text (N_("Height:"))
         info_label5.set_text (N_("Width:"))
-        info_label6.set_text (N_("Duration:"))        
+        info_label6.set_text (N_("Duration:"))
 
-        if result is not null 
-            SetLabelValue (info_value4, result[0])  
-            SetLabelValue (info_value5, result[1])  
-            SetLabelValue (info_value6, result[2])  
-        
+        if result is not null
+            SetLabelValue (info_value4, result[0])
+            SetLabelValue (info_value5, result[1])
+            SetLabelValue (info_value6, result[2])
+
 
     def private DisplayEmailDetails (uri : string)
         var query = "SELECT nmo:messageSubject(?e) nco:fullname(?s) nmo:receivedDate(?e) WHERE { ?e nie:url \"%s\" ; nmo:from ?s }".printf(uri)
@@ -384,12 +384,12 @@ class TrackerMetadataTile : EventBox
 
         info_label4.set_text (N_("Title:"))
         info_label5.set_text (N_("Author:"))
-        info_label6.set_text (N_("Page count:"))        
+        info_label6.set_text (N_("Page count:"))
 
-        if result is not null 
-            SetLabelValue (info_value4, result[0])  
-            SetLabelValue (info_value5, result[1])  
-            SetLabelValue (info_value6, result[2])      
+        if result is not null
+            SetLabelValue (info_value4, result[0])
+            SetLabelValue (info_value5, result[1])
+            SetLabelValue (info_value6, result[2])
 
 
     def private DisplayApplicationDetails (uri : string)
@@ -400,7 +400,7 @@ class TrackerMetadataTile : EventBox
         if app_info is null
             DisplayFileDetails (uri, "")
             return
-        
+
         //name_link.set_sensitive (false)
         path_link.set_sensitive (false)
         path_label.hide ()
@@ -432,7 +432,7 @@ class TrackerMetadataTile : EventBox
 
         _result_grid.store.get_iter (out iter, path)
         _result_grid.store.get (iter, ResultColumns.Id, out id, ResultColumns.Uri, out uri, ResultColumns.Mime, out mime, ResultColumns.Icon, out icon)
-       
+
         image.set_from_pixbuf (icon)
 
         /* determine category type */
