@@ -320,23 +320,6 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkCheckButton" id="checkbutton_index_mounted_directories">
-                                <property name="label" translatable="yes">Include mou_nted directories</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_underline">True</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="checkbutton_index_mounted_directories_toggled_cb"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">3</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GtkCheckButton" id="checkbutton_index_removable_media">
                                 <property name="label" translatable="yes">Include _removable media</property>
                                 <property name="visible">True</property>
