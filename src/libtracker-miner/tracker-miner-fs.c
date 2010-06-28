@@ -2377,6 +2377,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	 * the root directory of the file system (applies to
 	 * .gvfs mounts also!) */
 	parent = g_file_get_parent (file);
+	query = NULL;
 
 	if (fs->private->current_parent) {
 		if (parent &&
@@ -2397,30 +2398,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.values = g_hash_table_ref (fs->private->mtime_cache);
 
-	if (parent) {
-		uri = g_file_get_uri (parent);
-
-		g_debug ("Generating mtime cache for URI '%s'", uri);
-
-		query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
-		                                                "nie:url ?url ; "
-		                                                "nfo:fileLastModified ?last . "
-		                                             "?p nie:url \"%s\" }", uri);
-
-		g_free (uri);
-
-		tracker_miner_execute_sparql (TRACKER_MINER (fs),
-		                              query,
-		                              NULL,
-		                              cache_query_cb,
-		                              &data);
-		g_free (query);
-
-		g_main_loop_run (data.main_loop);
-	}
-
-	if ((!parent || g_hash_table_size (data.values) == 0) &&
-	    file_is_crawl_directory (fs, file)) {
+	if (!parent || file_is_crawl_directory (fs, file)) {
 		/* File is a crawl directory itself, query its mtime directly */
 		uri = g_file_get_uri (file);
 
@@ -2434,13 +2412,27 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                         "}",
 					 uri);
 		g_free (uri);
+	} else if (parent) {
+		uri = g_file_get_uri (parent);
 
+		g_debug ("Generating mtime cache for URI '%s'", uri);
+
+		query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
+		                                                "nie:url ?url ; "
+		                                                "nfo:fileLastModified ?last . "
+		                                             "?p nie:url \"%s\" }", uri);
+
+		g_free (uri);
+	}
+
+	if (query) {
 		tracker_miner_execute_sparql (TRACKER_MINER (fs),
 		                              query,
 		                              NULL,
 		                              cache_query_cb,
 		                              &data);
 		g_free (query);
+
 
 		g_main_loop_run (data.main_loop);
 	}
