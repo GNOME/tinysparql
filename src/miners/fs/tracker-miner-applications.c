@@ -177,6 +177,7 @@ get_desktop_key_file (GFile   *file,
 
 	path = g_file_get_path (file);
 	key_file = g_key_file_new ();
+	*type = NULL;
 
 	if (!g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, NULL)) {
 		g_set_error (error, miner_applications_error_quark, 0, "Couldn't load desktop file:'%s'", path);
@@ -211,17 +212,65 @@ get_desktop_key_file (GFile   *file,
 	return key_file;
 }
 
-static gboolean
-miner_applications_process_file_cb (gpointer user_data)
+static void
+process_directory (ProcessApplicationData  *data,
+                   GFileInfo               *file_info,
+                   GError                 **error)
 {
-	ProcessApplicationData *data = user_data;
+	TrackerSparqlBuilder *sparql;
+	gchar *urn, *path, *uri;
+
+	sparql = data->sparql;
+
+	path = g_file_get_path (data->file);
+	uri = g_file_get_uri (data->file);
+	urn = tracker_uri_printf_escaped ("urn:applications-dir:%s", path);
+
+	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+
+	tracker_sparql_builder_subject_iri (sparql, urn);
+
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
+	tracker_sparql_builder_object (sparql, "nie:DataObject");
+	tracker_sparql_builder_object (sparql, "nie:Folder");
+
+	tracker_sparql_builder_predicate (sparql, "tracker:available");
+	tracker_sparql_builder_object_boolean (sparql, TRUE);
+
+	tracker_sparql_builder_predicate (sparql, "nie:isStoredAs");
+	tracker_sparql_builder_object_iri (sparql, urn);
+
+	tracker_sparql_builder_predicate (sparql, "nie:url");
+	tracker_sparql_builder_object_string (sparql, uri);
+
+	if (file_info) {
+		guint64 time;
+
+		time = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+		tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
+		tracker_sparql_builder_object_date (sparql, (time_t *) &time);
+	}
+
+	tracker_sparql_builder_insert_close (data->sparql);
+
+	g_free (path);
+	g_free (urn);
+	g_free (uri);
+}
+
+static void
+process_desktop_file (ProcessApplicationData  *data,
+                      GFileInfo               *file_info,
+                      GError                 **error)
+{
 	TrackerSparqlBuilder *sparql;
 	GKeyFile *key_file;
 	gchar *path, *type, *filename, *name, *uri = NULL;
-	GFileInfo *file_info;
 	GStrv cats;
 	gsize cats_len;
 	gboolean is_software = TRUE;
+	const gchar *parent_urn;
 
 	sparql = data->sparql;
 	key_file = data->key_file;
@@ -450,33 +499,28 @@ miner_applications_process_file_cb (gpointer user_data)
 		g_free (desktop_file_uri);
 	}
 
-	file_info = g_file_query_info (data->file,
-	                               G_FILE_ATTRIBUTE_TIME_MODIFIED,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
-
 	if (file_info) {
 		guint64 time;
 
 		time = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
 		tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
 		tracker_sparql_builder_object_date (sparql, (time_t *) &time);
+	}
 
-		g_object_unref (file_info);
+	parent_urn = tracker_miner_fs_get_parent_urn (TRACKER_MINER_FS (data->miner), data->file);
+
+	if (parent_urn) {
+		tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
+		tracker_sparql_builder_object_iri (sparql, parent_urn);
 	}
 
 	tracker_sparql_builder_insert_close (sparql);
-
-	/* Notify about success */
-	tracker_miner_fs_file_notify (data->miner, data->file, NULL);
 
 	g_strfreev (cats);
 
 	g_free (uri);
 	g_free (path);
 	g_free (name);
-
-	return FALSE;
 }
 
 static void
@@ -486,9 +530,50 @@ process_application_data_free (ProcessApplicationData *data)
 	g_object_unref (data->file);
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
-	g_key_file_free (data->key_file);
 	g_free (data->type);
+
+	if (data->key_file) {
+		g_key_file_free (data->key_file);
+	}
+
 	g_slice_free (ProcessApplicationData, data);
+}
+
+static void
+process_file_cb (GObject      *object,
+                 GAsyncResult *result,
+                 gpointer      user_data)
+{
+	ProcessApplicationData *data;
+	GFileInfo *file_info;
+	GError *error = NULL;
+	GFile *file;
+
+	data = user_data;
+	file = G_FILE (object);
+	file_info = g_file_query_info_finish (file, result, &error);
+
+	if (error) {
+		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
+		process_application_data_free (data);
+		g_error_free (error);
+		return;
+	}
+
+	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+		process_directory (data, file_info, &error);
+	} else if (data->key_file) {
+		process_desktop_file (data, file_info, &error);
+	} else {
+		error = g_error_new_literal (miner_applications_error_quark, 0, "File is not a key file");
+	}
+
+	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
+	process_application_data_free (data);
+
+	if (error) {
+		g_error_free (error);
+	}
 }
 
 static gboolean
@@ -499,13 +584,10 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 {
 	ProcessApplicationData *data;
 	GKeyFile *key_file;
+	const gchar *attrs;
 	gchar *type;
 
 	key_file = get_desktop_key_file (file, &type, NULL);
-
-	if (!key_file) {
-		return FALSE;
-	}
 
 	data = g_slice_new0 (ProcessApplicationData);
 	data->miner = g_object_ref (fs);
@@ -515,10 +597,16 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 	data->key_file = key_file;
 	data->type = type;
 
-	g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
-	                 miner_applications_process_file_cb,
-	                 data,
-	                 (GDestroyNotify) process_application_data_free);
+	attrs = G_FILE_ATTRIBUTE_TIME_MODIFIED ","
+		G_FILE_ATTRIBUTE_STANDARD_TYPE;
+
+	g_file_query_info_async (file,
+				 attrs,
+	                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                         G_PRIORITY_DEFAULT,
+	                         cancellable,
+	                         process_file_cb,
+	                         data);
 
 	return TRUE;
 }
