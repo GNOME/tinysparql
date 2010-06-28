@@ -145,9 +145,10 @@ static TrackerExtractData data[] = {
 	{ "audio/*", extract_gstreamer_audio },
 	{ "video/*", extract_gstreamer_video },
 	{ "image/*", extract_gstreamer_image },
-	/* mime type guessing returns for instance video/3gpp also for 3gpp audio files */
+	/* Tell gstreamer to guess if mimetype guessing returns video also for audio files */
 	{ "video/3gpp", extract_gstreamer_guess },
 	{ "video/mp4", extract_gstreamer_guess },
+	{ "video/x-ms-asf", extract_gstreamer_guess },
 	{ NULL, NULL }
 };
 
