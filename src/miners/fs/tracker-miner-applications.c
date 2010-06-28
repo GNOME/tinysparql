@@ -436,15 +436,10 @@ miner_applications_process_file_cb (gpointer user_data)
 		tracker_sparql_builder_object_string (sparql, filename);
 		g_free (filename);
 
-		desktop_file_uri = g_file_get_uri (data->file);
-		tracker_sparql_builder_subject_iri (sparql, desktop_file_uri);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
-		tracker_sparql_builder_object (sparql, "nie:DataObject");
-
 		/* The URL of the DataObject */
+		desktop_file_uri = g_file_get_uri (data->file);
 		tracker_sparql_builder_predicate (sparql, "nie:url");
-		tracker_sparql_builder_object_string (sparql, uri);
+		tracker_sparql_builder_object_string (sparql, desktop_file_uri);
 
 		/* Laying the link between the IE and the DO */
 		tracker_sparql_builder_subject_iri (sparql, uri);
