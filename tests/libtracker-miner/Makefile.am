@@ -12,7 +12,7 @@ TEST_PROGS +=									\
 	tracker-miner-manager-test						\
 	tracker-password-provider-test						\
 	tracker-thumbnailer-test						\
-	tracker-monitor.test
+	tracker-monitor-test
 
 INCLUDES =									\
 	-DTEST									\
