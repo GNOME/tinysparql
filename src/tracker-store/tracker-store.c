@@ -39,7 +39,6 @@
 
 #include "tracker-store.h"
 
-#define TRACKER_STORE_TRANSACTION_MAX                   4000
 #define TRACKER_STORE_MAX_CONCURRENT_QUERIES               2
 
 #define TRACKER_STORE_N_TURTLE_STATEMENTS                 50
@@ -49,8 +48,7 @@
 
 typedef struct {
 	gboolean     have_handler, have_sync_handler;
-	gboolean     batch_mode, start_log;
-	guint        batch_count;
+	gboolean     start_log;
 	GQueue      *queues[TRACKER_STORE_N_PRIORITIES];
 	guint        handler, sync_handler;
 	guint        n_queries_running;
@@ -67,7 +65,6 @@ typedef enum {
 	TRACKER_STORE_TASK_TYPE_QUERY,
 	TRACKER_STORE_TASK_TYPE_UPDATE,
 	TRACKER_STORE_TASK_TYPE_UPDATE_BLANK,
-	TRACKER_STORE_TASK_TYPE_COMMIT,
 	TRACKER_STORE_TASK_TYPE_TURTLE,
 } TrackerStoreTaskType;
 
@@ -82,7 +79,6 @@ typedef struct {
 		} query;
 		struct {
 			gchar        *query;
-			gboolean      batch;
 			GPtrArray    *blank_nodes;
 		} update;
 		struct {
@@ -102,7 +98,6 @@ typedef struct {
 		} query;
 		TrackerStoreSparqlUpdateCallback      update_callback;
 		TrackerStoreSparqlUpdateBlankCallback update_blank_callback;
-		TrackerStoreCommitCallback            commit_callback;
 		TrackerStoreTurtleCallback            turtle_callback;
 	} callback;
 } TrackerStoreTask;
@@ -217,27 +212,6 @@ process_turtle_file_part (TrackerTurtleReader *reader, GError **error)
 	}
 
 	return FALSE;
-}
-
-static void
-begin_batch (TrackerStorePrivate *private)
-{
-	if (!private->batch_mode) {
-		private->batch_mode = TRUE;
-		private->batch_count = 0;
-	}
-}
-
-static void
-end_batch (TrackerStorePrivate *private)
-{
-	if (private->batch_mode) {
-		/* commit pending batch items */
-		tracker_data_notify_transaction ();
-
-		private->batch_mode = FALSE;
-		private->batch_count = 0;
-	}
 }
 
 static gboolean
@@ -371,7 +345,7 @@ task_finish_cb (gpointer data)
 		check_running_tasks_watchdog (private);
 		private->n_queries_running--;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
-		if (!task->data.update.batch && !task->error) {
+		if (!task->error) {
 			tracker_data_notify_transaction ();
 		}
 
@@ -385,7 +359,7 @@ task_finish_cb (gpointer data)
 
 		private->update_running = FALSE;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
-		if (!task->data.update.batch && !task->error) {
+		if (!task->error) {
 			tracker_data_notify_transaction ();
 		}
 
@@ -432,14 +406,6 @@ task_finish_cb (gpointer data)
 			/* Remove the task now that we're done with it */
 			g_queue_pop_head (private->queues[TRACKER_STORE_PRIORITY_TURTLE]);
 		}
-	} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
-		tracker_data_notify_transaction ();
-
-		if (task->callback.commit_callback) {
-			task->callback.commit_callback (task->user_data);
-		}
-
-		private->update_running = FALSE;
 	}
 
 	if (task->destroy) {
@@ -487,39 +453,9 @@ pool_dispatch_cb (gpointer data,
 			g_object_unref (cursor);
 
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
-		if (task->data.update.batch) {
-			begin_batch (private);
-		} else {
-			end_batch (private);
-		}
-
 		tracker_data_update_sparql (task->data.update.query, &task->error);
-
-		if (task->data.update.batch) {
-			if (!task->error) {
-				private->batch_count++;
-				if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
-					end_batch (private);
-				}
-			}
-		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
-		if (task->data.update.batch) {
-			begin_batch (private);
-		} else {
-			end_batch (private);
-		}
-
 		task->data.update.blank_nodes = tracker_data_update_sparql_blank (task->data.update.query, &task->error);
-
-		if (task->data.update.batch) {
-			if (!task->error) {
-				private->batch_count++;
-				if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
-					end_batch (private);
-				}
-			}
-		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		if (!task->data.turtle.in_progress) {
 			task->data.turtle.reader = tracker_turtle_reader_new (task->data.turtle.path, &task->error);
@@ -532,21 +468,12 @@ pool_dispatch_cb (gpointer data,
 			task->data.turtle.in_progress = TRUE;
 		}
 
-		begin_batch (private);
-
 		if (process_turtle_file_part (task->data.turtle.reader, &task->error)) {
 			/* import still in progress */
-			private->batch_count++;
-			if (private->batch_count >= TRACKER_STORE_TRANSACTION_MAX) {
-				end_batch (private);
-			}
 		} else {
 			/* import finished */
 			task->data.turtle.in_progress = FALSE;
-			end_batch (private);
 		}
-	} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
-		end_batch (private);
 	}
 
 	g_idle_add (task_finish_cb, task);
@@ -591,8 +518,7 @@ queue_idle_handler (gpointer user_data)
 
 		task_run_async (private, task);
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE ||
-	           task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK ||
-	           task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
+	           task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
 		g_queue_pop_head (queue);
 
 		private->update_running = TRUE;
@@ -702,31 +628,6 @@ start_handler (TrackerStorePrivate *private)
 }
 
 void
-tracker_store_queue_commit (TrackerStoreCommitCallback callback,
-                            const gchar *client_id,
-                            gpointer user_data,
-                            GDestroyNotify destroy)
-{
-	TrackerStorePrivate *private;
-	TrackerStoreTask    *task;
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	task = g_slice_new0 (TrackerStoreTask);
-	task->type = TRACKER_STORE_TASK_TYPE_COMMIT;
-	task->user_data = user_data;
-	task->callback.commit_callback = callback;
-	task->destroy = destroy;
-	task->client_id = g_strdup (client_id);
-	task->data.update.query = NULL;
-
-	g_queue_push_tail (private->queues[TRACKER_STORE_PRIORITY_LOW], task);
-
-	check_handler (private);
-}
-
-void
 tracker_store_sparql_query (const gchar *sparql,
                             TrackerStorePriority priority,
                             TrackerStoreSparqlQueryInThread in_thread,
@@ -761,7 +662,6 @@ tracker_store_sparql_query (const gchar *sparql,
 void
 tracker_store_sparql_update (const gchar *sparql,
                              TrackerStorePriority priority,
-                             gboolean batch,
                              TrackerStoreSparqlUpdateCallback callback,
                              const gchar *client_id,
                              gpointer user_data,
@@ -778,7 +678,6 @@ tracker_store_sparql_update (const gchar *sparql,
 	task = g_slice_new0 (TrackerStoreTask);
 	task->type = TRACKER_STORE_TASK_TYPE_UPDATE;
 	task->data.update.query = g_strdup (sparql);
-	task->data.update.batch = batch;
 	task->user_data = user_data;
 	task->callback.update_callback = callback;
 	task->destroy = destroy;
@@ -909,8 +808,6 @@ tracker_store_unreg_batches (const gchar *client_id)
 						task->callback.update_callback (error, task->user_data);
 					} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
 						task->callback.update_blank_callback (NULL, error, task->user_data);
-					} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
-						task->callback.commit_callback (task->user_data);
 					}
 					task->destroy (task->user_data);
 

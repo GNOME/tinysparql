@@ -396,7 +396,7 @@ tracker_resources_sparql_update (TrackerResources        *self,
 
 	sender = dbus_g_method_get_sender (context);
 
-	tracker_store_sparql_update (update, TRACKER_STORE_PRIORITY_HIGH, FALSE,
+	tracker_store_sparql_update (update, TRACKER_STORE_PRIORITY_HIGH,
 	                             update_callback, sender,
 	                             info, destroy_method_info);
 
@@ -503,24 +503,11 @@ tracker_resources_batch_sparql_update (TrackerResources          *self,
 
 	sender = dbus_g_method_get_sender (context);
 
-	tracker_store_sparql_update (update, TRACKER_STORE_PRIORITY_LOW, TRUE,
+	tracker_store_sparql_update (update, TRACKER_STORE_PRIORITY_LOW,
 	                             update_callback, sender,
 	                             info, destroy_method_info);
 
 	g_free (sender);
-}
-
-static void
-batch_commit_callback (gpointer user_data)
-{
-	TrackerDBusMethodInfo *info = user_data;
-
-	tracker_data_sync ();
-
-	tracker_dbus_request_success (info->request_id,
-	                              info->context);
-
-	dbus_g_method_return (info->context);
 }
 
 void
@@ -528,28 +515,7 @@ tracker_resources_batch_commit (TrackerResources         *self,
                                 DBusGMethodInvocation    *context,
                                 GError                  **error)
 {
-	TrackerDBusMethodInfo *info;
-	guint                 request_id;
-	gchar                 *sender;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id,
-	                          context,
-	                          "%s()",
-	                          __FUNCTION__);
-
-	info = g_slice_new (TrackerDBusMethodInfo);
-
-	info->request_id = request_id;
-	info->context = context;
-
-	sender = dbus_g_method_get_sender (context);
-
-	tracker_store_queue_commit (batch_commit_callback, sender, info,
-	                            destroy_method_info);
-
-	g_free (sender);
+	/* no longer needed */
 }
 
 

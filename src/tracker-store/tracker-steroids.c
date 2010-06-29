@@ -617,7 +617,6 @@ steroids_update (TrackerSteroids *steroids,
 	} else {
 		tracker_store_sparql_update (query,
 		                             batch ? TRACKER_STORE_PRIORITY_LOW : TRACKER_STORE_PRIORITY_HIGH,
-		                             batch,
 		                             update_callback,
 		                             sender,
 		                             info,
