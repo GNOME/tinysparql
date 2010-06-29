@@ -603,6 +603,7 @@ extract_jpeg (const gchar          *uri,
 	tracker_exif_free (ed);
 	tracker_xmp_free (xd);
 	tracker_iptc_free (id);
+	g_free (comment);
 
 fail:
 	tracker_file_close (f, FALSE);
