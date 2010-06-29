@@ -157,6 +157,7 @@ extract_xmp (const gchar          *uri,
 		tracker_xmp_apply (metadata, uri, &xd);
 
 		g_free (original_uri);
+		g_free (contents);
 	}
 
 	g_free (filename);
