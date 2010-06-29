@@ -223,9 +223,6 @@ static void
 begin_batch (TrackerStorePrivate *private)
 {
 	if (!private->batch_mode) {
-		/* switch to batch mode
-		   delays database commits to improve performance */
-		tracker_data_begin_db_transaction ();
 		private->batch_mode = TRUE;
 		private->batch_count = 0;
 	}
@@ -236,8 +233,7 @@ end_batch (TrackerStorePrivate *private)
 {
 	if (private->batch_mode) {
 		/* commit pending batch items */
-		tracker_data_commit_db_transaction ();
-		tracker_data_notify_db_transaction ();
+		tracker_data_notify_transaction ();
 
 		private->batch_mode = FALSE;
 		private->batch_count = 0;
@@ -376,7 +372,7 @@ task_finish_cb (gpointer data)
 		private->n_queries_running--;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (!task->data.update.batch && !task->error) {
-			tracker_data_notify_db_transaction ();
+			tracker_data_notify_transaction ();
 		}
 
 		if (task->callback.update_callback) {
@@ -390,7 +386,7 @@ task_finish_cb (gpointer data)
 		private->update_running = FALSE;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
 		if (!task->data.update.batch && !task->error) {
-			tracker_data_notify_db_transaction ();
+			tracker_data_notify_transaction ();
 		}
 
 		if (task->callback.update_blank_callback) {
@@ -437,7 +433,7 @@ task_finish_cb (gpointer data)
 			g_queue_pop_head (private->queues[TRACKER_STORE_PRIORITY_TURTLE]);
 		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_COMMIT) {
-		tracker_data_notify_db_transaction ();
+		tracker_data_notify_transaction ();
 
 		if (task->callback.commit_callback) {
 			task->callback.commit_callback (task->user_data);
@@ -495,7 +491,6 @@ pool_dispatch_cb (gpointer data,
 			begin_batch (private);
 		} else {
 			end_batch (private);
-			tracker_data_begin_db_transaction ();
 		}
 
 		tracker_data_update_sparql (task->data.update.query, &task->error);
@@ -507,15 +502,12 @@ pool_dispatch_cb (gpointer data,
 					end_batch (private);
 				}
 			}
-		} else {
-			tracker_data_commit_db_transaction ();
 		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
 		if (task->data.update.batch) {
 			begin_batch (private);
 		} else {
 			end_batch (private);
-			tracker_data_begin_db_transaction ();
 		}
 
 		task->data.update.blank_nodes = tracker_data_update_sparql_blank (task->data.update.query, &task->error);
@@ -527,8 +519,6 @@ pool_dispatch_cb (gpointer data,
 					end_batch (private);
 				}
 			}
-		} else {
-			tracker_data_commit_db_transaction ();
 		}
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		if (!task->data.turtle.in_progress) {

@@ -52,12 +52,10 @@ test_blank (void)
 
 	/* perform update in transaction */
 
-	tracker_data_begin_db_transaction ();
 	updates = tracker_data_update_sparql_blank (
 	                                            "INSERT { _:foo a rdfs:Resource } "
 	                                            "INSERT { _:foo a rdfs:Resource . _:bar a rdfs:Resource } ",
 	                                            &error);
-	tracker_data_commit_db_transaction ();
 	g_assert_no_error (error);
 
 	g_assert_cmpint (updates->len, ==, 2);

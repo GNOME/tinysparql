@@ -2751,13 +2751,13 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		load_ontology_from_journal (&classes, &properties, &id_uri_map);
 
 		/* Read first ontology and commit it into the DB */
-		tracker_data_begin_db_transaction_for_replay (tracker_db_journal_reader_get_time ());
+		tracker_data_begin_transaction_for_replay (tracker_db_journal_reader_get_time (), NULL);
 
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, TRUE);
 
 		tracker_data_ontology_import_into_db (FALSE);
-		tracker_data_commit_db_transaction ();
+		tracker_data_commit_transaction (NULL);
 		tracker_db_journal_reader_shutdown ();
 
 		/* Start replay. Ontology changes might happen during replay of the journal. */
@@ -2806,10 +2806,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			}
 		}
 
-		tracker_data_begin_db_transaction ();
-
-		/* Not an ontology transaction: this is the first ontology */
-		tracker_db_journal_start_transaction (time (NULL));
+		tracker_data_begin_transaction (NULL);
 
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, TRUE);
@@ -2834,8 +2831,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			}
 		}
 
-		tracker_db_journal_commit_db_transaction ();
-		tracker_data_commit_db_transaction ();
+		tracker_data_commit_transaction (NULL);
 
 		g_list_foreach (sorted, (GFunc) g_free, NULL);
 		g_list_free (sorted);
@@ -2888,7 +2884,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* check ontology against database */
 
-		tracker_data_begin_db_transaction ();
+		tracker_data_begin_transaction (NULL);
 
 		/* This _is_ an ontology transaction, it represents a change to the
 		 * ontology. We mark it up as such in the journal, so that replay_journal
@@ -3045,8 +3041,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* Reset the is_new flag for all classes and properties */
 		tracker_data_ontology_import_finished ();
 
-		tracker_db_journal_commit_db_transaction ();
-		tracker_data_commit_db_transaction ();
+		tracker_data_commit_transaction (NULL);
 
 		g_hash_table_unref (ontos_table);
 

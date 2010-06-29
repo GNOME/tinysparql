@@ -2109,11 +2109,17 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 }
 
 void
-tracker_data_begin_db_transaction (void)
+tracker_data_begin_transaction (GError **error)
 {
 	TrackerDBInterface *iface;
 
 	g_return_if_fail (!in_transaction);
+
+	if (!tracker_db_manager_has_enough_space ()) {
+		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_NO_SPACE,
+			"There is not enough space on the file system for update operations");
+		return;
+	}
 
 	resource_time = time (NULL);
 
@@ -2134,34 +2140,45 @@ tracker_data_begin_db_transaction (void)
 
 	tracker_db_interface_start_transaction (iface);
 
+	if (!in_journal_replay) {
+		tracker_db_journal_start_transaction (resource_time);
+	}
+
+	iface = tracker_db_manager_get_db_interface ();
+
 	in_transaction = TRUE;
 }
 
 void
-tracker_data_begin_db_transaction_for_replay (time_t time)
+tracker_data_begin_transaction_for_replay (time_t time, GError **error)
 {
 	in_journal_replay = TRUE;
-	tracker_data_begin_db_transaction ();
+	tracker_data_begin_transaction (error);
 	resource_time = time;
 }
 
 void
-tracker_data_commit_db_transaction (void)
+tracker_data_commit_transaction (GError **error)
 {
 	TrackerDBInterface *iface;
+	GError *actual_error = NULL;
 
 	g_return_if_fail (in_transaction);
 
+	iface = tracker_db_manager_get_db_interface ();
+
+	tracker_data_update_buffer_flush (&actual_error);
+	if (actual_error) {
+		g_propagate_error (error, actual_error);
+		return;
+	}
+
 	in_transaction = FALSE;
 
-	tracker_data_update_buffer_flush (NULL);
-
-#if HAVE_TRACKER_FTS
-	if (update_buffer.fts_ever_updated) {
-		tracker_fts_update_commit ();
-		update_buffer.fts_ever_updated = FALSE;
+	if (!in_journal_replay) {
+		tracker_db_journal_commit_db_transaction ();
 	}
-#endif
+	resource_time = 0;
 
 	if (update_buffer.class_counts) {
 		/* successful transaction, no need to rollback class counts,
@@ -2169,7 +2186,12 @@ tracker_data_commit_db_transaction (void)
 		g_hash_table_remove_all (update_buffer.class_counts);
 	}
 
-	iface = tracker_db_manager_get_db_interface ();
+#if HAVE_TRACKER_FTS
+	if (update_buffer.fts_ever_updated) {
+		tracker_fts_update_commit ();
+		update_buffer.fts_ever_updated = FALSE;
+	}
+#endif
 
 	tracker_db_interface_end_db_transaction (iface);
 
@@ -2181,7 +2203,7 @@ tracker_data_commit_db_transaction (void)
 }
 
 void
-tracker_data_notify_db_transaction (void)
+tracker_data_notify_transaction (void)
 {
 	if (commit_callbacks) {
 		guint n;
@@ -2451,57 +2473,18 @@ tracker_data_delete_resource_description (const gchar *graph,
 }
 
 void
-tracker_data_begin_transaction (GError **error)
-{
-	TrackerDBInterface *iface;
-
-	if (!tracker_db_manager_has_enough_space ()) {
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_NO_SPACE,
-			"There is not enough space on the file system for update operations");
-		return;
-	}
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	resource_time = time (NULL);
-	tracker_db_interface_execute_query (iface, NULL, "SAVEPOINT sparql");
-	tracker_db_journal_start_transaction (resource_time);
-}
-
-void
-tracker_data_commit_transaction (GError **error)
-{
-	TrackerDBInterface *iface;
-	GError *actual_error = NULL;
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	tracker_data_update_buffer_flush (&actual_error);
-	if (actual_error) {
-		g_propagate_error (error, actual_error);
-		return;
-	}
-
-	tracker_db_journal_commit_db_transaction ();
-	resource_time = 0;
-	tracker_db_interface_execute_query (iface, NULL, "RELEASE sparql");
-
-	if (update_buffer.class_counts) {
-		/* successful transaction, no need to rollback class counts,
-		   so remove them */
-		g_hash_table_remove_all (update_buffer.class_counts);
-	}
-}
-
-void
 tracker_data_rollback_transaction (void)
 {
 	TrackerDBInterface *iface;
 
+	g_return_if_fail (in_transaction);
+
+	in_transaction = FALSE;
+
 	iface = tracker_db_manager_get_db_interface ();
 
 	tracker_data_update_buffer_clear ();
-	tracker_db_interface_execute_query (iface, NULL, "ROLLBACK TO sparql");
+	tracker_db_interface_execute_query (iface, NULL, "ROLLBACK");
 	tracker_db_journal_rollback_transaction ();
 
 	if (rollback_callbacks) {
@@ -2727,8 +2710,6 @@ tracker_data_replay_journal (GHashTable          *classes,
 	GPtrArray *seen_classes = NULL;
 	GPtrArray *seen_properties = NULL;
 
-	tracker_data_begin_db_transaction_for_replay (0);
-
 	rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
 
 	tracker_db_journal_reader_init (NULL);
@@ -2783,10 +2764,14 @@ tracker_data_replay_journal (GHashTable          *classes,
 			}
 
 		} else if (type == TRACKER_DB_JOURNAL_START_ONTOLOGY_TRANSACTION) {
+			tracker_data_begin_transaction_for_replay (tracker_db_journal_reader_get_time (), NULL);
 			in_ontology = TRUE;
 		} else if (type == TRACKER_DB_JOURNAL_START_TRANSACTION) {
-			resource_time = tracker_db_journal_reader_get_time ();
+			tracker_data_begin_transaction_for_replay (tracker_db_journal_reader_get_time (), NULL);
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
+			GError *new_error = NULL;
+			tracker_data_update_buffer_might_flush (&new_error);
+
 			if (in_ontology) {
 				ontology_transaction_end (ontology_queue, seen_classes, seen_properties);
 				g_list_foreach (ontology_queue, (GFunc) free_queued_statement, NULL);
@@ -2797,13 +2782,12 @@ tracker_data_replay_journal (GHashTable          *classes,
 				seen_classes = NULL;
 				tracker_data_ontology_free_seen (seen_properties);
 				seen_properties = NULL;
-			} else {
-				GError *new_error = NULL;
-				tracker_data_update_buffer_might_flush (&new_error);
-				if (new_error) {
-					g_warning ("Journal replay error: '%s'", new_error->message);
-					g_clear_error (&new_error);
-				}
+			}
+
+			tracker_data_commit_transaction (&new_error);
+			if (new_error) {
+				g_warning ("Journal replay error: '%s'", new_error->message);
+				g_clear_error (&new_error);
 			}
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
 			GError *new_error = NULL;
@@ -3044,6 +3028,4 @@ tracker_data_replay_journal (GHashTable          *classes,
 	} else {
 		tracker_db_journal_reader_shutdown ();
 	}
-
-	tracker_data_commit_db_transaction ();
 }

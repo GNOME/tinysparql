@@ -252,9 +252,7 @@ test_ontology_change (void)
 			gchar *query = strtok (queries, "\n");
 			while (query) {
 
-				tracker_data_begin_db_transaction ();
 				tracker_data_update_sparql (query, &error);
-				tracker_data_commit_db_transaction ();
 
 				g_assert_no_error (error);
 				query = strtok (NULL, "\n");
