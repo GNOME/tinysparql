@@ -595,10 +595,8 @@ monitor_event_to_string (GFileMonitorEvent event_type)
 		return "G_FILE_MONITOR_EVENT_PRE_UNMOUNT";
 	case G_FILE_MONITOR_EVENT_UNMOUNTED:
 		return "G_FILE_MONITOR_EVENT_UNMOUNTED";
-#if GLIB_CHECK_VERSION (2, 23, 6)
 	case G_FILE_MONITOR_EVENT_MOVED:
 		return "G_FILE_MONITOR_EVENT_MOVED";
-#endif /* GLIB_CHECK_VERSION */
 	}
 
 	return "unknown";
@@ -780,7 +778,6 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 			       is_directory);
 		break;
 
-#if GLIB_CHECK_VERSION (2, 23, 6)
 	case G_FILE_MONITOR_EVENT_MOVED:
 		g_signal_emit (monitor,
 			       signals[ITEM_MOVED], 0,
@@ -794,7 +791,6 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		}
 
 		break;
-#endif /* GLIB_CHECK_VERSION */
 
 	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
 	case G_FILE_MONITOR_EVENT_UNMOUNTED:
@@ -830,10 +826,7 @@ directory_monitor_new (TrackerMonitor *monitor,
 	GError *error = NULL;
 
 	file_monitor = g_file_monitor_directory (file,
-#if GLIB_CHECK_VERSION (2, 23, 6)
-						 G_FILE_MONITOR_SEND_MOVED |
-#endif /* GLIB_CHECK_VERSION */
-						 G_FILE_MONITOR_WATCH_MOUNTS,
+						 G_FILE_MONITOR_SEND_MOVED | G_FILE_MONITOR_WATCH_MOUNTS,
 						 NULL,
 						 &error);
 
