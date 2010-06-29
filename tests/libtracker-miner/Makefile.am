@@ -60,11 +60,6 @@ tracker_monitor_test_SOURCES =							\
 	$(libtracker_miner_marshal_sources)					\
 	$(libtracker_miner_monitor_sources)
 
-if HAVE_LIBINOTIFY
-tracker_monitor_test_LDADD =							\
-	$(top_builddir)/src/libinotify/libinotify.la
-endif
-
 tracker_miner_manager_test_VALASOURCES =					\
 	tracker-miner-mock.vala
 

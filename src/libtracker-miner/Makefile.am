@@ -68,11 +68,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(GCOV_LIBS)					\
 	$(GLIB2_LIBS)
 
-if HAVE_LIBINOTIFY
-libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
-	$(top_builddir)/src/libinotify/libinotify.la
-endif
-
 if HAVE_GNOME_KEYRING
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
 	tracker-password-provider-gnome.c
