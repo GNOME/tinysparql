@@ -29,6 +29,14 @@
 
 #define ALARM_TIMEOUT 10 /* seconds */
 
+typedef enum {
+	MONITOR_SIGNAL_EXPECTED_NONE = 0,
+	MONITOR_SIGNAL_EXPECTED_ITEM_CREATED = 1 << 0,
+	MONITOR_SIGNAL_EXPECTED_ITEM_UPDATED = 1 << 1,
+	MONITOR_SIGNAL_EXPECTED_ITEM_DELETED = 1 << 2,
+	MONITOR_SIGNAL_EXPECTED_ITEM_MOVED   = 1 << 3,
+} MonitorSignalExpected;
+
 static TrackerMonitor *monitor;
 static GFile *file_for_monitor;
 static GFile *file_for_tmp;
@@ -41,6 +49,7 @@ static gchar *path_for_move_in;
 static gchar *path_for_move_out;
 static GHashTable *events;
 static GMainLoop *main_loop;
+static guint8 signals_received;
 
 static void
 signal_handler (int signo)
@@ -73,7 +82,8 @@ initialize_signal_handler (void)
 }
 
 static void
-events_wait (void)
+events_wait_and_check (MonitorSignalExpected expected_signal,
+                       MonitorSignalExpected unexpected_signal)
 {
 	/* Set alarm in case we don't get the event */
 	alarm (ALARM_TIMEOUT);
@@ -87,6 +97,21 @@ events_wait (void)
 	g_main_loop_run (main_loop);
 	g_main_loop_unref (main_loop);
 	main_loop = NULL;
+
+	g_debug ("Compilation of signals received (CREATED: %s, UPDATED: %s, DELETED: %s, MOVED: %s)",
+	         signals_received & MONITOR_SIGNAL_EXPECTED_ITEM_CREATED ? "yes" : "no",
+	         signals_received & MONITOR_SIGNAL_EXPECTED_ITEM_UPDATED ? "yes" : "no",
+	         signals_received & MONITOR_SIGNAL_EXPECTED_ITEM_DELETED ? "yes" : "no",
+	         signals_received & MONITOR_SIGNAL_EXPECTED_ITEM_MOVED ? "yes" : "no");
+
+	/* Fail the test if we didn't get the signal we expected */
+	g_assert_cmpuint ((signals_received & expected_signal), >, 0);
+
+	/* Fail the test if we got an unexpected signal */
+	g_assert_cmpuint ((signals_received & unexpected_signal), ==, 0);
+
+	/* Clear the received signals */
+	signals_received = MONITOR_SIGNAL_EXPECTED_NONE;
 }
 
 static void
@@ -174,41 +199,57 @@ test_monitor_file_events (void)
 	g_assert_cmpint (tracker_monitor_add (monitor, file_for_monitor), ==, TRUE);
 	g_assert_cmpint (tracker_monitor_get_count (monitor), ==, 1);
 
-	/* Test CREATED */
+	/* Test CREATED.
+	 *  Actually, UPDATED will also probably arrive here. */
 	g_debug (">> Testing CREATE");
 	create_file (path_for_events, "foo");
-	events_wait ();
+	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_CREATED,
+	                       MONITOR_SIGNAL_EXPECTED_NONE);
 
 	/* Test UPDATE */
 	g_debug (">> Testing UPDATE");
 	create_file (path_for_events, "bar");
-	events_wait ();
+	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_UPDATED,
+	                       MONITOR_SIGNAL_EXPECTED_NONE);
 
-	/* Test MOVE to (monitored dir) */
+	/* Test MOVE to (monitored dir).
+	 * When moving to a directory also monitored, a MOVE event
+	 * must arrive, and no DELETED event. */
 	g_debug (">> Testing MOVE to monitored dir");
 	g_assert_cmpint (g_rename (path_for_events, path_for_move_in), ==, 0);
-	events_wait ();
+	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_MOVED,
+	                       MONITOR_SIGNAL_EXPECTED_ITEM_DELETED);
 
-	/* Test MOVE back (monitored dir) */
+	/* Test MOVE back (monitored dir)
+	 * When moving from a directory also monitored, a MOVE event
+	 * must arrive, and no DELETED event. */
 	g_debug (">> Testing MOVE from monitored dir");
 	g_assert_cmpint (g_rename (path_for_move_in, path_for_events), ==, 0);
-	events_wait ();
+	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_MOVED,
+	                       MONITOR_SIGNAL_EXPECTED_ITEM_DELETED);
 
-	/* Test MOVE to (not monitored dir) */
+	/* Test MOVE to (not monitored dir)
+	 * When moving to a directory NOT monitored, a DELETE event
+	 * must arrive, and no MOVE event. */
 	g_debug (">> Testing MOVE to NOT monitored dir");
 	g_assert_cmpint (g_rename (path_for_events, path_for_move_out), ==, 0);
-	events_wait ();
+	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_DELETED,
+	                       MONITOR_SIGNAL_EXPECTED_ITEM_MOVED);
 
-	/* Test MOVE back (not monitored dir) */
+	/* Test MOVE back (not monitored dir)
+	 * When moving from a directory NOT monitored, a CREATE event
+	 * must arrive, and no MOVE event.*/
 	g_debug (">> Testing MOVE from NOT monitored dir");
 	g_assert_cmpint (g_rename (path_for_move_out, path_for_events), ==, 0);
-	events_wait ();
+	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_CREATED,
+	                       MONITOR_SIGNAL_EXPECTED_ITEM_MOVED);
 
 	/* TODO: Add more complex MOVE operations */
 
 	/* Test DELETED */
 	g_assert_cmpint (g_unlink (path_for_events), ==, 0);
-	events_wait ();
+	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_DELETED,
+	                       MONITOR_SIGNAL_EXPECTED_NONE);
 
 	/* Clean up */
 	g_assert_cmpint (tracker_monitor_remove (monitor, file_for_monitor), ==, TRUE);
@@ -230,6 +271,8 @@ test_monitor_events_created_cb (TrackerMonitor *monitor,
 	g_debug ("***** '%s' (%s) (CREATED)",
 	         path,
 	         is_directory ? "DIR" : "FILE");
+
+	signals_received |= MONITOR_SIGNAL_EXPECTED_ITEM_CREATED;
 
 	/* More tests? */
 
@@ -258,6 +301,8 @@ test_monitor_events_updated_cb (TrackerMonitor *monitor,
 	         path,
 	         is_directory ? "DIR" : "FILE");
 
+	signals_received |= MONITOR_SIGNAL_EXPECTED_ITEM_UPDATED;
+
 	/* More tests? */
 
 	g_free (path);
@@ -284,6 +329,8 @@ test_monitor_events_deleted_cb (TrackerMonitor *monitor,
 	         path,
 	         is_directory ? "DIR" : "FILE");
 
+	signals_received |= MONITOR_SIGNAL_EXPECTED_ITEM_DELETED;
+
 	/* More tests? */
 
 	g_free (path);
@@ -302,6 +349,8 @@ test_monitor_events_moved_cb (TrackerMonitor *monitor,
                               gpointer        user_data)
 {
 	g_assert (file != NULL);
+
+	signals_received |= MONITOR_SIGNAL_EXPECTED_ITEM_MOVED;
 
 	if (!is_source_monitored) {
 		if (is_directory) {
