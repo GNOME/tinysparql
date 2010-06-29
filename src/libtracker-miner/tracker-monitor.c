@@ -1530,7 +1530,7 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 	switch (event_type) {
 	case G_FILE_MONITOR_EVENT_CHANGED:
 		if (!monitor->private->use_changed_event) {
-			/* Do nothing */
+			/* Do nothing (using CHANGES_DONE_HINT) */
 			break;
 		}
 
@@ -1558,6 +1558,10 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		if (event_data) {
 			emit_signal_for_event (monitor, event_data);
 			g_hash_table_remove (monitor->private->event_pairs, file);
+		} else {
+			event_data = event_data_new (file, event_type);
+			emit_signal_for_event (monitor, event_data);
+			event_data_free (event_data);
 		}
 
 		break;
