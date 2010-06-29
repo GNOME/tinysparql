@@ -1,0 +1,13 @@
+
+# Includes sources that will be shared with the
+# testers in test/libtracker-miner
+
+libtracker_miner_marshal_sources =                              \
+	$(top_builddir)/src/libtracker-miner/tracker-marshal.c	\
+	$(top_builddir)/src/libtracker-miner/tracker-marshal.h
+
+libtracker_miner_monitor_sources =                              \
+	$(top_srcdir)/src/libtracker-miner/tracker-monitor.c    \
+	$(top_srcdir)/src/libtracker-miner/tracker-monitor.h
+
+

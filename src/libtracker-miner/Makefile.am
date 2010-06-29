@@ -1,5 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
+# Include list of shared sources:
+#  Defines $(libtracker_miner_marshal_sources) and
+#  $(libtracker_miner_monitor_sources)
+include Makefile-shared-sources.decl
+
 INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
@@ -21,19 +26,17 @@ libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
+	$(libtracker_miner_marshal_sources)		\
+	$(libtracker_miner_monitor_sources)		\
 	tracker-crawler.c				\
 	tracker-dbus.c					\
 	tracker-dbus.h					\
-	tracker-marshal.c				\
-	tracker-marshal.h				\
 	tracker-miner-dbus.h 				\
 	tracker-miner-object.c				\
 	tracker-miner-fs.c				\
 	tracker-miner-manager.c				\
 	tracker-miner-web.c				\
 	tracker-miner-web-dbus.h			\
-	tracker-monitor.c				\
-	tracker-monitor.h				\
 	tracker-network-provider.c			\
 	tracker-password-provider.c			\
 	tracker-storage.c				\
@@ -98,16 +101,12 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES +=	\
 	tracker-network-provider-dummy.c
 endif
 
-tracker-marshal.h: tracker-marshal.list
+$(top_builddir)/src/libtracker-miner/tracker-marshal.h: tracker-marshal.list
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
-tracker-marshal.c: tracker-marshal.list
+$(top_builddir)/src/libtracker-miner/tracker-marshal.c: tracker-marshal.list
 	$(AM_V_GEN)(echo "#include \"tracker-marshal.h\""; \
 		    $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body) > $@
-
-marshal_sources = 					\
-	tracker-marshal.c				\
-	tracker-marshal.h
 
 # Generate DBus files from XML data.
 dbus_sources = 						\
@@ -146,7 +145,7 @@ tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_sr
 
 tracker-miner-web-full.xml: tracker-miner-web-glue.h
 
-BUILT_SOURCES = $(dbus_sources) $(marshal_sources) $(vapi_DATA)
+BUILT_SOURCES = $(dbus_sources) $(libtracker_miner_marshal_sources) $(vapi_DATA)
 
 CLEANFILES = $(BUILT_SOURCES)
 
