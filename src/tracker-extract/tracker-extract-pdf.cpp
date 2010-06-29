@@ -343,6 +343,7 @@ extract_content (PDFDoc *document,
 
 		delete gfx;
 		delete text_dev;
+		delete sel_text;
 	}
 
 	g_timer_destroy (timer);
@@ -761,6 +762,13 @@ extract_pdf (const gchar          *uri,
 		 * write what we know from Poppler.
 		 */
 		write_pdf_data (pd, metadata, keywords);
+
+		g_free (pd.keywords);
+		g_free (pd.title);
+		g_free (pd.subject);
+		g_free (pd.creation_date);
+		g_free (pd.author);
+		g_free (pd.date);
 	}
 
 	for (i = 0; i < keywords->len; i++) {
