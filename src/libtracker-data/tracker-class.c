@@ -42,6 +42,7 @@ struct _TrackerClassPrivate {
 	gboolean notify;
 
 	GArray *super_classes;
+	GArray *domain_indexes;
 };
 
 static void class_finalize     (GObject      *object);
@@ -67,6 +68,7 @@ tracker_class_init (TrackerClass *service)
 
 	priv->id = 0;
 	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
+	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 
 	/* Make GET_PRIV working */
 	service->priv = priv;
@@ -83,6 +85,7 @@ class_finalize (GObject *object)
 	g_free (priv->name);
 
 	g_array_free (priv->super_classes, TRUE);
+	g_array_free (priv->domain_indexes, TRUE);
 
 	(G_OBJECT_CLASS (tracker_class_parent_class)->finalize) (object);
 }
@@ -155,6 +158,18 @@ tracker_class_get_super_classes (TrackerClass *service)
 	priv = GET_PRIV (service);
 
 	return (TrackerClass **) priv->super_classes->data;
+}
+
+TrackerProperty **
+tracker_class_get_domain_indexes (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
+
+	priv = GET_PRIV (service);
+
+	return (TrackerProperty **) priv->domain_indexes->data;
 }
 
 gboolean
@@ -261,7 +276,6 @@ tracker_class_set_id (TrackerClass *service,
 	priv->id = value;
 }
 
-
 void
 tracker_class_add_super_class (TrackerClass *service,
                                TrackerClass *value)
@@ -277,6 +291,20 @@ tracker_class_add_super_class (TrackerClass *service,
 }
 
 void
+tracker_class_add_domain_index (TrackerClass *service,
+                                TrackerProperty *value)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+	g_return_if_fail (TRACKER_IS_PROPERTY (value));
+
+	priv = GET_PRIV (service);
+
+	g_array_append_val (priv->domain_indexes, value);
+}
+
+void
 tracker_class_set_is_new (TrackerClass *service,
                           gboolean      value)
 {
@@ -288,6 +316,7 @@ tracker_class_set_is_new (TrackerClass *service,
 
 	priv->is_new = value;
 }
+
 
 void
 tracker_class_set_notify (TrackerClass *service,

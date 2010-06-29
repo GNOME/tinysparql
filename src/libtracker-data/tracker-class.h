@@ -36,6 +36,7 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CLASS_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_CLASS))
 #define TRACKER_CLASS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CLASS, TrackerClassClass))
 
+typedef struct _TrackerProperty TrackerProperty;
 typedef struct _TrackerClass TrackerClass;
 typedef struct _TrackerClassClass TrackerClassClass;
 typedef struct _TrackerClassPrivate TrackerClassPrivate;
@@ -49,32 +50,36 @@ struct _TrackerClassClass {
 	GObjectClass parent_class;
 };
 
-GType           tracker_class_get_type              (void) G_GNUC_CONST;
-TrackerClass *  tracker_class_new                   (void);
-const gchar *   tracker_class_get_uri               (TrackerClass  *service);
-const gchar *   tracker_class_get_name              (TrackerClass  *service);
-gint            tracker_class_get_count             (TrackerClass  *service);
-gint            tracker_class_get_id                (TrackerClass  *service);
-gboolean        tracker_class_get_is_new            (TrackerClass  *service);
-gboolean        tracker_class_get_db_schema_changed (TrackerClass  *service);
-gboolean        tracker_class_get_notify            (TrackerClass  *service);
+GType             tracker_class_get_type               (void) G_GNUC_CONST;
+TrackerClass *    tracker_class_new                    (void);
+const gchar *     tracker_class_get_uri                (TrackerClass    *service);
+const gchar *     tracker_class_get_name               (TrackerClass    *service);
+gint              tracker_class_get_count              (TrackerClass    *service);
+gint              tracker_class_get_id                 (TrackerClass    *service);
+gboolean          tracker_class_get_is_new             (TrackerClass    *service);
+gboolean          tracker_class_get_db_schema_changed  (TrackerClass    *service);
+gboolean          tracker_class_get_notify             (TrackerClass    *service);
 
-TrackerClass  **tracker_class_get_super_classes     (TrackerClass  *service);
+TrackerClass    **tracker_class_get_super_classes      (TrackerClass    *service);
+TrackerProperty **tracker_class_get_domain_indexes     (TrackerClass    *service);
 
-void            tracker_class_set_uri               (TrackerClass  *service,
-                                                     const gchar   *value);
-void            tracker_class_set_count             (TrackerClass  *service,
-                                                     gint           value);
-void            tracker_class_add_super_class       (TrackerClass  *self,
-                                                     TrackerClass  *value);
-void            tracker_class_set_id                (TrackerClass  *service,
-                                                     gint           id);
-void            tracker_class_set_is_new            (TrackerClass  *service,
-                                                     gboolean       value);
-void            tracker_class_set_db_schema_changed (TrackerClass  *service,
-                                                     gboolean       value);
-void            tracker_class_set_notify            (TrackerClass  *service,
-                                                     gboolean       value);
+void              tracker_class_set_uri                (TrackerClass    *service,
+                                                        const gchar     *value);
+void              tracker_class_set_count              (TrackerClass    *service,
+                                                        gint             value);
+void              tracker_class_add_super_class        (TrackerClass    *self,
+                                                        TrackerClass    *value);
+void              tracker_class_add_domain_index       (TrackerClass    *self,
+                                                        TrackerProperty *value);
+
+void              tracker_class_set_id                 (TrackerClass    *service,
+                                                        gint             id);
+void              tracker_class_set_is_new             (TrackerClass    *service,
+                                                        gboolean         value);
+void              tracker_class_set_db_schema_changed  (TrackerClass    *service,
+                                                        gboolean         value);
+void              tracker_class_set_notify             (TrackerClass    *service,
+                                                        gboolean         value);
 
 G_END_DECLS
 

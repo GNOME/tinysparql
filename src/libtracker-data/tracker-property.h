@@ -59,7 +59,7 @@ GType        tracker_property_type_get_type  (void) G_GNUC_CONST;
 #define TRACKER_IS_PROPERTY_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_PROPERTY))
 #define TRACKER_PROPERTY_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_PROPERTY, TrackerPropertyClass))
 
-typedef struct _TrackerProperty         TrackerProperty;
+/* Forward typedef for TrackerProperty in tracker-class.h */
 typedef struct _TrackerPropertyClass TrackerPropertyClass;
 typedef struct _TrackerPropertyPrivate TrackerPropertyPrivate;
 

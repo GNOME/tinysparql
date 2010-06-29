@@ -516,6 +516,41 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_class_set_notify (class, (strcmp (object, "true") == 0));
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "domainIndex") == 0) {
+		TrackerClass *class;
+		TrackerProperty *property;
+		TrackerProperty **properties;
+		gboolean ignore = FALSE;
+
+		class = tracker_ontologies_get_class_by_uri (subject);
+
+		if (class == NULL) {
+			g_critical ("%s: Unknown class %s", ontology_path, subject);
+			return;
+		}
+
+		property = tracker_ontologies_get_property_by_uri (object);
+
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s for tracker:domainIndex in %s",
+			            ontology_path, object, subject);
+			return;
+		}
+
+		properties = tracker_class_get_domain_indexes (class);
+		while (*properties) {
+			if (property == *properties) {
+				g_critical ("%s: property %s already a tracker:domainIndex in %s",
+				            ontology_path, object, subject);
+				ignore = TRUE;
+			}
+			properties++;
+		}
+
+		if (!ignore) {
+			tracker_class_add_domain_index (class, property);
+		}
+
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "writeback") == 0) {
 		TrackerProperty *property;
 
@@ -1226,6 +1261,44 @@ class_add_super_classes_from_db (TrackerDBInterface *iface,
 	}
 }
 
+
+static void
+class_add_domain_indexes_from_db (TrackerDBInterface *iface,
+                                  TrackerClass       *class)
+{
+	TrackerDBStatement *stmt;
+	TrackerDBCursor *cursor;
+	GError *error = NULL;
+
+	stmt = tracker_db_interface_create_statement (iface, &error,
+	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:domainIndex\") "
+	                                              "FROM \"rdfs:Class_tracker:domainIndex\" "
+	                                              "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
+
+	if (!stmt) {
+		g_critical ("%s", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	tracker_db_statement_bind_text (stmt, 0, tracker_class_get_uri (class));
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	g_object_unref (stmt);
+
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor, NULL)) {
+			TrackerProperty *domain_index;
+			const gchar *domain_index_uri;
+
+			domain_index_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
+			domain_index = tracker_ontologies_get_property_by_uri (domain_index_uri);
+			tracker_class_add_domain_index (class, domain_index);
+		}
+
+		g_object_unref (cursor);
+	}
+}
+
 static void
 property_add_super_properties_from_db (TrackerDBInterface *iface,
                                        TrackerProperty *property)
@@ -1269,6 +1342,8 @@ db_get_static_data (TrackerDBInterface *iface)
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBResultSet *result_set;
+	TrackerClass **classes;
+	guint n_classes, i;
 	GError *error = NULL;
 
 	stmt = tracker_db_interface_create_statement (iface, &error,
@@ -1388,6 +1463,9 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_class_set_notify (class, notify);
 
 			class_add_super_classes_from_db (iface, class);
+
+			/* We do this later, we first need to load the properties too
+			   class_add_domain_indexes_from_db (iface, class); */
 
 			tracker_ontologies_add_class (class);
 			tracker_ontologies_add_id_uri_pair (id, uri);
@@ -1581,6 +1659,12 @@ db_get_static_data (TrackerDBInterface *iface)
 
 		g_object_unref (cursor);
 		cursor = NULL;
+	}
+
+	/* Now that the properties are loaded we can do this foreach class */
+	classes = tracker_ontologies_get_classes (&n_classes);
+	for (i = 0; i < n_classes; i++) {
+		class_add_domain_indexes_from_db (iface, classes[i]);
 	}
 
 	if (error) {
