@@ -1208,6 +1208,7 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	if (!extractor->pipeline) {
 		g_warning ("No valid pipeline for uri %s", uri);
+		g_slice_free (MetadataExtractor, extractor);
 		return;
 	}
 
@@ -1216,11 +1217,17 @@ tracker_extract_gstreamer (const gchar *uri,
 	if (use_tagreadbin) {
 		if (!poll_for_ready (extractor, GST_STATE_PLAYING, FALSE, TRUE)) {
 			g_warning ("Error running tagreadbin");
+			gst_object_unref (GST_OBJECT (extractor->pipeline));
+			gst_object_unref (extractor->bus);
+			g_slice_free (MetadataExtractor, extractor);
 			return;
 		}
 	} else {
 		if (!poll_for_ready (extractor, GST_STATE_PAUSED, TRUE, FALSE)) {
 			g_warning ("Error running decodebin");
+			gst_object_unref (GST_OBJECT (extractor->pipeline));
+			gst_object_unref (extractor->bus);
+			g_slice_free (MetadataExtractor, extractor);
 			return;
 		}
 
