@@ -83,7 +83,7 @@ events_wait (void)
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_assert (main_loop != NULL);
-	
+
 	g_main_loop_run (main_loop);
 	g_main_loop_unref (main_loop);
 	main_loop = NULL;
@@ -111,7 +111,7 @@ create_file (const gchar *filename,
 	g_assert (contents != NULL);
 
 	file = g_fopen (filename, "wb");
-	g_assert (file != NULL); 
+	g_assert (file != NULL);
 
 	length = strlen (contents);
 	g_assert_cmpint (fwrite (contents, 1, length, file), >=, length);
@@ -232,7 +232,7 @@ test_monitor_events_created_cb (TrackerMonitor *monitor,
 	/* g_assert_cmpstr (g_file_get_path (file), ==, g_file_get_path (file_for_events)); */
 	if (!is_directory && g_file_equal (file, file_for_events)) {
 		events_received ();
-	} 
+	}
 }
 
 static void
@@ -331,8 +331,8 @@ test_monitor_events_moved_cb (TrackerMonitor *monitor,
 		g_free (path);
 	}
 
-	if (!is_directory && 
-	    (g_file_equal (file, file_for_events) || 
+	if (!is_directory &&
+	    (g_file_equal (file, file_for_events) ||
 	     g_file_equal (other_file, file_for_events))) {
 		events_received ();
 	}
@@ -451,10 +451,10 @@ main (int    argc,
 
 	/* FIXME: Bug found, if this test occurs before the events
 	 * test the setting up of the monitor again doesn't produce
-	 * any actual events. 
+	 * any actual events.
 	 */
-	g_test_add_func ("/libtracker-miner/tracker-monitor/monitor-enabled", 
-	                 test_monitor_enabled); 
+	g_test_add_func ("/libtracker-miner/tracker-monitor/monitor-enabled",
+	                 test_monitor_enabled);
 	g_test_add_func ("/libtracker-miner/tracker-monitor/monitor-free",
 	                 test_monitor_free);
 
