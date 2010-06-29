@@ -78,7 +78,7 @@ static GOptionEntry entries[] = {
 	  N_("Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""),
 	  N_("APPS") },
 	{ "terminate", 't', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, term_option_arg_func,
-	  N_("Use SIGTERM to stop all matrhing processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""),
+	  N_("Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""),
 	  N_("APPS") },
 	{ "hard-reset", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
 	  N_("Kill all Tracker processes and remove all databases"),
