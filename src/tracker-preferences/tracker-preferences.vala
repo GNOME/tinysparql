@@ -317,13 +317,17 @@ fill_in_model (ListStore model, SList<string> list)
 {
 	int position = 0;
 	foreach (string str in list) {
-		model.insert_with_values (null,
-		                          position++,
-		                          0,
-		                          Filename.to_utf8 (str,
-		                                            -1,
-		                                            null,
-		                                            null));
+		try {
+			model.insert_with_values (null,
+			                          position++,
+			                          0,
+			                          Filename.to_utf8 (str,
+			                                            -1,
+			                                            null,
+			                                            null));
+		} catch (GLib.ConvertError e) {
+			print ("%s", e.message);
+		}
 	}
 }
 
