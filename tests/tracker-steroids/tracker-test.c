@@ -42,12 +42,6 @@ insert_test_data ()
                                "<urn:testdata3> a rdfs:Resource ."
                                "<urn:testdata4> a rdfs:Resource ."
                                "}";
-	const char *query = "INSERT {"
-	                    "    <urn:testdata1> a nfo:FileDataObject ; nie:url \"/foo/bar\" ."
-	                    "    <urn:testdata2> a nfo:FileDataObject ; nie:url \"/plop/coin\" ."
-	                    "    <urn:testdata3> a nmm:Artist ; nmm:artistName \"testArtist\" ."
-                        "    <urn:testdata4> a nmm:Photo ; nao:identifier \"%s\" ."
-	                    "}";
 	char *longName = g_malloc (LONG_NAME_SIZE);
 	char *filled_query;
 
@@ -55,7 +49,12 @@ insert_test_data ()
 
 	longName[LONG_NAME_SIZE - 1] = '\0';
 
-	filled_query = g_strdup_printf (query, longName);
+	filled_query = g_strdup_printf ("INSERT {"
+	                                "    <urn:testdata1> a nfo:FileDataObject ; nie:url \"/foo/bar\" ."
+	                                "    <urn:testdata2> a nfo:FileDataObject ; nie:url \"/plop/coin\" ."
+	                                "    <urn:testdata3> a nmm:Artist ; nmm:artistName \"testArtist\" ."
+	                                "    <urn:testdata4> a nmm:Photo ; nao:identifier \"%s\" ."
+	                                "}", longName);
 
 	tracker_resources_sparql_update (client, delete_query, NULL);
 	tracker_resources_sparql_update (client, filled_query, &error);
@@ -295,7 +294,6 @@ static void
 test_tracker_sparql_update_fast_large ()
 {
 	GError *error = NULL;
-	const gchar *query_template = "INSERT { _:x a nmo:Message; nao:identifier \"%s\" }";
 	gchar *lotsOfA;
 	gchar *query;
 
@@ -303,7 +301,7 @@ test_tracker_sparql_update_fast_large ()
 	memset (lotsOfA, 'a', LONG_NAME_SIZE);
 	lotsOfA[LONG_NAME_SIZE-1] = '\0';
 
-	query = g_strdup_printf (query_template, lotsOfA);
+	query = g_strdup_printf ("INSERT { _:x a nmo:Message; nao:identifier \"%s\" }", lotsOfA);
 
 	tracker_resources_sparql_update (client, query, &error);
 
@@ -358,7 +356,6 @@ static void
 test_tracker_sparql_update_blank_fast_large ()
 {
 	GError *error = NULL;
-	const gchar *query_template = "INSERT { _:x a nmo:Message; nao:identifier \"%s\" }";
 	gchar *lotsOfA;
 	gchar *query;
 	GPtrArray *results;
@@ -368,7 +365,7 @@ test_tracker_sparql_update_blank_fast_large ()
 	memset (lotsOfA, 'a', LONG_NAME_SIZE);
 	lotsOfA[LONG_NAME_SIZE-1] = '\0';
 
-	query = g_strdup_printf (query_template, lotsOfA);
+	query = g_strdup_printf ("INSERT { _:x a nmo:Message; nao:identifier \"%s\" }", lotsOfA);
 
 	results = tracker_resources_sparql_update_blank (client, query, &error);
 
