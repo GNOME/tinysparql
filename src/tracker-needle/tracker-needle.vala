@@ -33,7 +33,7 @@ interface Resources : GLib.Object {
 }
 
 public class Needle {
-	private const string UI_FILE = "needle.ui";
+	private const string UI_FILE = "tracker-needle.ui";
 	private Resources tracker;
 	private Window window;
 	private ToolButton back;
