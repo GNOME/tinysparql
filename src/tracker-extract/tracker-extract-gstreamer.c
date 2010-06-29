@@ -1065,37 +1065,39 @@ create_decodebin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 	GstElement *filesrc  = NULL;
 	GstElement *bin      = NULL;
 
-	guint       id;
-
 	pipeline = gst_element_factory_make ("pipeline", NULL);
 	if (!pipeline) {
 		g_warning ("Failed to create GStreamer pipeline");
-		return FALSE;
+		return NULL;
 	}
 
 	filesrc = gst_element_factory_make ("giosrc", NULL);
 	if (!filesrc) {
 		g_warning ("Failed to create GStreamer giosrc");
-		return FALSE;
+		gst_object_unref (GST_OBJECT (pipeline));
+		return NULL;
 	}
 
 	bin = gst_element_factory_make ("decodebin2", "decodebin2");
 	if (!bin) {
 		g_warning ("Failed to create GStreamer decodebin");
-		return FALSE;
+		gst_object_unref (GST_OBJECT (pipeline));
+		gst_object_unref (GST_OBJECT (filesrc));
+		return NULL;
 	}
 
-	id = g_signal_connect (G_OBJECT (bin),
-	                       "new-decoded-pad",
-	                       G_CALLBACK (dbin_dpad_cb),
-	                       extractor);
+	g_signal_connect (G_OBJECT (bin),
+			  "new-decoded-pad",
+			  G_CALLBACK (dbin_dpad_cb),
+			  extractor);
 
 	gst_bin_add (GST_BIN (pipeline), filesrc);
 	gst_bin_add (GST_BIN (pipeline), bin);
 
 	if (!gst_element_link_many (filesrc, bin, NULL)) {
 		g_warning ("Could not link GStreamer elements");
-		return FALSE;
+		gst_object_unref (GST_OBJECT (pipeline));
+		return NULL;
 	}
 
 	g_object_set (G_OBJECT (filesrc), "location", uri, NULL);
