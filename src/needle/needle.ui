@@ -16,6 +16,7 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_back">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Go back in search history</property>
                 <property name="label" translatable="yes">toolbutton1</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-go-back</property>
@@ -28,6 +29,7 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_forward">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Go forward in search history</property>
                 <property name="label" translatable="yes">toolbutton1</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-go-forward</property>
@@ -49,6 +51,7 @@
             <child>
               <object class="GtkRadioToolButton" id="toolbutton_view_list">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Display results in a list view</property>
                 <property name="is_important">True</property>
                 <property name="label" translatable="yes">_List</property>
                 <property name="use_underline">True</property>
@@ -64,6 +67,7 @@
             <child>
               <object class="GtkRadioToolButton" id="toolbutton_view_icons">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Display results in an icon view</property>
                 <property name="is_important">True</property>
                 <property name="label" translatable="yes">_Icons</property>
                 <property name="use_underline">True</property>

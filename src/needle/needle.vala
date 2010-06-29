@@ -128,8 +128,9 @@ public class Needle {
 
 	private void setup_ui_results (TreeView treeview, IconView iconview) {
 		// Setup treeview
-		store = new ListStore (7,
-							   typeof (Gdk.Pixbuf),  // Icon
+		store = new ListStore (8,
+							   typeof (Gdk.Pixbuf),  // Icon small
+							   typeof (Gdk.Pixbuf),  // Icon big
 							   typeof (string),      // URN
 							   typeof (string),      // URL
 							   typeof (string),      // File name
@@ -146,7 +147,7 @@ public class Needle {
 
 		var renderer2 = new CellRendererText ();
     	col.pack_start (renderer2, true);
-	    col.add_attribute (renderer2, "text", 3);
+	    col.add_attribute (renderer2, "text", 4);
 
 	    col.set_title ("File");
 	    col.set_resizable (true);
@@ -154,16 +155,16 @@ public class Needle {
 	    col.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
 	    treeview.append_column (col);   
 	    
-		treeview.insert_column_with_attributes (-1, "Last Changed", new CellRendererText (), "text", 4, null);
-		treeview.insert_column_with_attributes (-1, "Size", new CellRendererText (), "text", 5, null);
+		treeview.insert_column_with_attributes (-1, "Last Changed", new CellRendererText (), "text", 5, null);
+		treeview.insert_column_with_attributes (-1, "Size", new CellRendererText (), "text", 6, null);
 		treeview.row_activated.connect (view_row_selected);
 
 		// Setup iconview
 		iconview.set_model (store);
 		iconview.set_item_width (96);
 		iconview.set_selection_mode (Gtk.SelectionMode.SINGLE);
-		iconview.set_pixbuf_column (0);
-		iconview.set_text_column (3);
+		iconview.set_pixbuf_column (1);
+		iconview.set_text_column (4);
 		//iconview.row_activated += view_row_selected;
 	}
 
@@ -277,7 +278,11 @@ public class Needle {
 			var screen = window.get_screen ();
 			var theme = IconTheme.get_for_screen (screen);
 
-			int size = 24;
+			var size_small = 0;
+			Gtk.icon_size_lookup (Gtk.IconSize.DND, out size_small, null) ;  //24; // Small
+
+			var size_big = 0;
+			Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null) ;  //32; // Big
 
 			for (int i = 0; i < result.length[0]; i++) {
 				debug ("--> %s", result[i,0]);
@@ -287,7 +292,8 @@ public class Needle {
 				debug ("  --> %s", result[i,4]);
 
 				// Get icon
-				Gdk.Pixbuf pixbuf = item_get_pixbuf (theme, result[i,1], size);
+				Gdk.Pixbuf pixbuf_small = item_get_pixbuf (theme, result[i,1], size_small);
+				Gdk.Pixbuf pixbuf_big = item_get_pixbuf (theme, result[i,1], size_big);
 				string file_size = GLib.format_size_for_display (result[i,4].to_int());
 				string file_time = item_get_time (result[i,3]);
 								
@@ -296,13 +302,14 @@ public class Needle {
 				store.append (out iter);
 				
 				store.set (iter, 
-						   0, pixbuf,
-						   1, result[i,0],
-						   2, result[i,1],
-						   3, result[i,2],
-						   4, file_time,
-						   5, file_size, 
-						   6, result[i,5],
+						   0, pixbuf_small,
+						   1, pixbuf_big,
+						   2, result[i,0],
+						   3, result[i,1],
+						   4, result[i,2],
+						   5, file_time,
+						   6, file_size, 
+						   7, result[i,5],
 						   -1);
 			}
 		} catch (DBus.Error e) {
