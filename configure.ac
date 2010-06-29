@@ -2065,7 +2065,7 @@ AC_CONFIG_FILES([
 	src/tracker-search-tool/Makefile
 	src/tracker-search-tool/tracker-search-tool.desktop.in
 	src/tracker-explorer/Makefile
-	src/needle/Makefile
+	src/tracker-needle/Makefile
 	src/tracker-utils/Makefile
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
