@@ -8,7 +8,7 @@ tracker_needle_VALASOURCES = 					\
 tracker_needle_SOURCES = 					\
 	$(tracker_needle_VALASOURCES:.vala=.c)
 
-needle.vala.stamp: $(tracker_needle_VALASOURCES) config.vapi
+tracker-needle.vala.stamp: $(tracker_needle_VALASOURCES) config.vapi
 	$(VALAC) -C -g --pkg dbus-glib-1 --pkg gtk+-2.0 $^
 	touch tracker-needle.vala.stamp
 
