@@ -444,7 +444,7 @@ msoffice_convert_and_normalize_chunk (guint8    *buffer,
 
 		/* Update accumulated UTF-8 bytes read */
 		*bytes_remaining -= len_to_validate;
-
+		g_free (converted_text);
 	} else {
 		g_warning ("Couldn't convert %" G_GSIZE_FORMAT " bytes from %s to UTF-8: %s",
 		           chunk_size,
@@ -1686,6 +1686,7 @@ extract_msoffice (const gchar          *uri,
 	}
 
 	g_object_unref (infile);
+	g_object_unref (file_info);
 	gsf_shutdown ();
 }
 
