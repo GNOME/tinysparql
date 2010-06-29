@@ -353,8 +353,8 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 	priv = TRACKER_RESOURCE_CLASS_GET_PRIVATE (object);
 
 	if (!priv->changed_strings) {
-		/* Default size a bit longer than this sample uri */
-		priv->changed_strings = g_string_chunk_new (strlen (uri) + 10);
+		/* allocate in chunks of 4K */
+		priv->changed_strings = g_string_chunk_new (4096);
 	}
 
 	switch (type) {
