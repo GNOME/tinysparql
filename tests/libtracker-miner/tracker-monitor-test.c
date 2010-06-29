@@ -175,26 +175,32 @@ test_monitor_file_events (void)
 	g_assert_cmpint (tracker_monitor_get_count (monitor), ==, 1);
 
 	/* Test CREATED */
+	g_debug (">> Testing CREATE");
 	create_file (path_for_events, "foo");
 	events_wait ();
 
 	/* Test UPDATE */
+	g_debug (">> Testing UPDATE");
 	create_file (path_for_events, "bar");
 	events_wait ();
 
 	/* Test MOVE to (monitored dir) */
+	g_debug (">> Testing MOVE to monitored dir");
 	g_assert_cmpint (g_rename (path_for_events, path_for_move_in), ==, 0);
 	events_wait ();
 
 	/* Test MOVE back (monitored dir) */
+	g_debug (">> Testing MOVE from monitored dir");
 	g_assert_cmpint (g_rename (path_for_move_in, path_for_events), ==, 0);
 	events_wait ();
 
 	/* Test MOVE to (not monitored dir) */
+	g_debug (">> Testing MOVE to NOT monitored dir");
 	g_assert_cmpint (g_rename (path_for_events, path_for_move_out), ==, 0);
 	events_wait ();
 
 	/* Test MOVE back (not monitored dir) */
+	g_debug (">> Testing MOVE from NOT monitored dir");
 	g_assert_cmpint (g_rename (path_for_move_out, path_for_events), ==, 0);
 	events_wait ();
 
