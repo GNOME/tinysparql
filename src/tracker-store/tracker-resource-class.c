@@ -41,7 +41,8 @@
 typedef struct {
 	gchar *rdf_class;
 	gchar *dbus_path;
-	GPtrArray *adds, *ups, *dels;
+	GPtrArray *adds, *dels;
+	GArray *ups;
 	GStringChunk *changed_strings;
 	DBusConnection *connection;
 } TrackerResourceClassPrivate;
@@ -159,7 +160,7 @@ emit_strings (TrackerResourceClass *object,
 
 static void
 emit_changed_strings (TrackerResourceClass *object,
-                      GPtrArray *array)
+                      GArray               *array)
 {
 	TrackerResourceClassPrivate *priv;
 
@@ -182,7 +183,7 @@ emit_changed_strings (TrackerResourceClass *object,
 		                                  DBUS_TYPE_STRING_AS_STRING, &strv1_iter);
 
 		for (i = 0; i < array->len; i++) {
-			ChangedItem *item = array->pdata [i];
+			ChangedItem *item = &g_array_index (array, ChangedItem, i);
 			dbus_message_iter_append_basic (&strv1_iter, DBUS_TYPE_STRING, &item->uri);
 		}
 
@@ -192,7 +193,7 @@ emit_changed_strings (TrackerResourceClass *object,
 		                                  DBUS_TYPE_STRING_AS_STRING, &strv2_iter);
 
 		for (i = 0; i < array->len; i++) {
-			ChangedItem *item = array->pdata [i];
+			ChangedItem *item = &g_array_index (array, ChangedItem, i);
 			const gchar *predicate = tracker_property_get_uri (item->predicate);
 			dbus_message_iter_append_basic (&strv2_iter, DBUS_TYPE_STRING, &predicate);
 		}
@@ -206,15 +207,14 @@ emit_changed_strings (TrackerResourceClass *object,
 }
 
 static void
-free_changed_array (GPtrArray *array)
+free_changed_array (GArray *array)
 {
 	guint i;
 	for (i = 0; i < array->len; i++) {
-		ChangedItem *item = array->pdata [i];
+		ChangedItem *item = &g_array_index (array, ChangedItem, i);
 		g_object_unref (item->predicate);
-		g_slice_free (ChangedItem, item);
 	}
-	g_ptr_array_free (array, TRUE);
+	g_array_free (array, TRUE);
 }
 
 void
@@ -319,8 +319,8 @@ has_already (GPtrArray *array, const gchar *uri)
 }
 
 static gboolean
-has_already_updated (GPtrArray *array,
-                     const gchar *uri,
+has_already_updated (GArray          *array,
+                     const gchar     *uri,
                      TrackerProperty *predicate)
 {
 	guint i;
@@ -330,7 +330,7 @@ has_already_updated (GPtrArray *array,
 	}
 
 	for (i = 0; i < array->len; i++) {
-		ChangedItem *item = array->pdata[i];
+		ChangedItem *item = &g_array_index (array, ChangedItem, i);
 
 		/* This works for uri because of how we use the GStringChunk */
 		if (item->predicate == predicate && item->uri == uri) {
@@ -373,16 +373,14 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 		n_uri = g_string_chunk_insert_const (priv->changed_strings, uri);
 
 		if (!has_already_updated (priv->ups, n_uri, predicate)) {
-			ChangedItem *item;
+			ChangedItem item;
 
-			item = g_slice_new (ChangedItem);
-
-			item->uri = n_uri;
-			item->predicate = g_object_ref (predicate);
+			item.uri = n_uri;
+			item.predicate = g_object_ref (predicate);
 
 			if (!priv->ups)
-				priv->ups = g_ptr_array_new ();
-			g_ptr_array_add (priv->ups, item);
+				priv->ups = g_array_new (FALSE, TRUE, sizeof (ChangedItem));
+			g_array_append_val (priv->ups, item);
 		}
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_DELETE:
