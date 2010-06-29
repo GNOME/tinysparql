@@ -1553,6 +1553,15 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		break;
 
 	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
+		/* Note: the general case is that this event is the last
+		 * one after a series of EVENT_CHANGED ones. It may be the
+		 * case that after this one, an ATTRIBUTE_CHANGED one is
+		 * issued, as when downloading a file with wget, where
+		 * mtime of the file is modified. But this last case is
+		 * quite specific, so we will anyway signal the event
+		 * right away instead of adding it to the HT.
+		 */
+
 		event_data = g_hash_table_lookup (monitor->private->event_pairs, file);
 
 		if (event_data) {
