@@ -493,7 +493,7 @@ cache_insert_value (const gchar            *table_name,
 
 	property.value = *value;
 	property.graph = graph;
-#if TRACKER_HAVE_FTS
+#if HAVE_TRACKER_FTS
 	property.fts = fts;
 #endif
 	property.date_time = date_time;
@@ -526,7 +526,7 @@ cache_delete_value (const gchar            *table_name,
 	property.name = field_name;
 	property.value = *value;
 	property.graph = 0;
-#if TRACKER_HAVE_FTS
+#if HAVE_TRACKER_FTS
 	property.fts = fts;
 #endif
 	property.date_time = date_time;
