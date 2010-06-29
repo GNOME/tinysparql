@@ -40,6 +40,8 @@ public class Needle {
 	private ToolButton forward;
 	private ToggleToolButton view_list;
 	private ToggleToolButton view_icons;
+	private ToggleToolButton find_in_contents;
+	private ToggleToolButton find_in_titles;
 	private Entry search;
 	private ScrolledWindow sw_treeview;
 	private TreeView treeview;
@@ -113,6 +115,12 @@ public class Needle {
 
 		view_icons = builder.get_object ("toolbutton_view_icons") as ToggleToolButton;
 		view_icons.toggled.connect (view_toggled);
+
+		find_in_contents = builder.get_object ("toolbutton_find_in_contents") as ToggleToolButton;
+		find_in_contents.toggled.connect (find_in_toggled);
+
+		find_in_titles = builder.get_object ("toolbutton_find_in_titles") as ToggleToolButton;
+		find_in_titles.toggled.connect (find_in_toggled);
 
 		search = builder.get_object ("entry_search") as Entry;
 		search.changed.connect (search_changed);
@@ -231,9 +239,9 @@ public class Needle {
 		var diff_days = diff_sec / secs_per_day;
 		var diff_days_abs = diff_days.abs ();
 		
-		stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
+		// stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
 			
-		/* if it's more than a week, use the default date format */
+		// if it's more than a week, use the default date format
 		if (diff_days_abs > 7) { 	    
 			return t.format ("%x");
 		}					
@@ -266,8 +274,21 @@ public class Needle {
 	private bool search_run () {
 		// Need to escape this string
 		string query;
+		string criteria;
+		
+		criteria = search.get_text ();
+		
+		if (criteria.length < 1) {
+			last_search_id = 0;
+			return false;
+		}
 
-		query = "SELECT ?u nie:url(?u) tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u fts:match \"%s\" . ?u nfo:belongsToContainer ?c } ORDER BY DESC(fts:rank(?u)) OFFSET 0 LIMIT 100".printf ((search).text);
+		if (find_in_contents.active) {
+			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u fts:match \"$criteria\" . ?u nfo:belongsToContainer ?c } ORDER BY DESC(fts:rank(?u)) OFFSET 0 LIMIT 100";
+		} else {
+			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c . FILTER(fn:contains(nfo:fileName(?u), \"$criteria\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET 0 LIMIT 100";
+		}
+	
 		debug ("Query:'%s'", query);
 
 		try {
@@ -279,10 +300,10 @@ public class Needle {
 			var theme = IconTheme.get_for_screen (screen);
 
 			var size_small = 0;
-			Gtk.icon_size_lookup (Gtk.IconSize.DND, out size_small, null) ;  //24; // Small
+			Gtk.icon_size_lookup (Gtk.IconSize.DND, out size_small, null);
 
 			var size_big = 0;
-			Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null) ;  //32; // Big
+			Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null);
 
 			for (int i = 0; i < result.length[0]; i++) {
 				debug ("--> %s", result[i,0]);
@@ -301,6 +322,7 @@ public class Needle {
 				TreeIter iter;
 				store.append (out iter);
 				
+				// FIXME: should optimise this a bit more, inserting 2 images into a list eek
 				store.set (iter, 
 						   0, pixbuf_small,
 						   1, pixbuf_big,
@@ -336,6 +358,14 @@ public class Needle {
 		} else {
 			sw_iconview.show_all ();
 			sw_treeview.hide ();
+		}
+	}
+
+	private void find_in_toggled () {
+		if (find_in_contents.active) {
+			// TODO: Re-run query		
+		} else {
+			// TODO: Re-run query		
 		}
 	}
 

@@ -53,9 +53,8 @@
                 <property name="visible">True</property>
                 <property name="tooltip_text" translatable="yes">Display results in a list view</property>
                 <property name="is_important">True</property>
-                <property name="label" translatable="yes">_List</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-index</property>
+                <property name="icon_name">gtk-index</property>
                 <property name="active">True</property>
                 <property name="group">toolbutton_view_icons</property>
               </object>
@@ -69,9 +68,8 @@
                 <property name="visible">True</property>
                 <property name="tooltip_text" translatable="yes">Display results in an icon view</property>
                 <property name="is_important">True</property>
-                <property name="label" translatable="yes">_Icons</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-orientation-portrait</property>
+                <property name="icon_name">gtk-orientation-portrait</property>
                 <property name="active">True</property>
               </object>
               <packing>
@@ -81,6 +79,43 @@
             </child>
             <child>
               <object class="GtkSeparatorToolItem" id="toolbutton2">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioToolButton" id="toolbutton_find_in_contents">
+                <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Find search criteria inside files</property>
+                <property name="label" translatable="yes">toolbutton3</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-find</property>
+                <property name="active">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioToolButton" id="toolbutton_find_in_titles">
+                <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Find search criteria in file titles</property>
+                <property name="label" translatable="yes">toolbutton4</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-bold</property>
+                <property name="group">toolbutton_find_in_contents</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="&lt;separator&gt;">
                 <property name="visible">True</property>
               </object>
               <packing>
