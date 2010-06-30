@@ -63,15 +63,15 @@ public class Needle {
 		try {
 			var conn = DBus.Bus.get (DBus.BusType.SESSION);
 			tracker = (Resources) conn.get_object ("org.freedesktop.Tracker1",
-												   "/org/freedesktop/Tracker1/Resources",
-												   "org.freedesktop.Tracker1.Resources");
+			                                       "/org/freedesktop/Tracker1/Resources",
+			                                       "org.freedesktop.Tracker1.Resources");
 		} catch (DBus.Error e) {
 			var msg = new MessageDialog (null,
-										 DialogFlags.MODAL,
-										 MessageType.ERROR,
-										 ButtonsType.CANCEL,
-										 "Error connecting to D-Bus session bus, %s", 
-										 e.message);
+			                             DialogFlags.MODAL,
+			                             MessageType.ERROR,
+			                             ButtonsType.CANCEL,
+			                             "Error connecting to D-Bus session bus, %s", 
+			                             e.message);
 			msg.run ();
 			Gtk.main_quit ();
 		}
@@ -88,12 +88,12 @@ public class Needle {
 			try {
 				builder.add_from_file (UIDIR + UI_FILE);
 			} catch (GLib.Error e) {
-				var msg = new MessageDialog (null, 
-											 DialogFlags.MODAL,
-											 MessageType.ERROR,
-											 ButtonsType.CANCEL,
-											 "Failed to load UI file, %s\n",
-											 e.message);
+				var msg = new MessageDialog (null,
+				                             DialogFlags.MODAL,
+				                             MessageType.ERROR,
+				                             ButtonsType.CANCEL,
+				                             "Failed to load UI file, %s\n",
+				                             e.message);
 				msg.run ();
 				Gtk.main_quit();
 			}
@@ -137,32 +137,32 @@ public class Needle {
 	private void setup_ui_results (TreeView treeview, IconView iconview) {
 		// Setup treeview
 		store = new ListStore (8,
-							   typeof (Gdk.Pixbuf),  // Icon small
-							   typeof (Gdk.Pixbuf),  // Icon big
-							   typeof (string),      // URN
-							   typeof (string),      // URL
-							   typeof (string),      // File name
-							   typeof (string),      // File last changed
-							   typeof (string),      // File size
-							   typeof (string));     // Tooltip
+		                       typeof (Gdk.Pixbuf),  // Icon small
+		                       typeof (Gdk.Pixbuf),  // Icon big
+		                       typeof (string),      // URN
+		                       typeof (string),      // URL
+		                       typeof (string),      // File name
+		                       typeof (string),      // File last changed
+		                       typeof (string),      // File size
+		                       typeof (string));     // Tooltip
 		treeview.set_model (store);
 
-	    var col = new Gtk.TreeViewColumn ();
+		var col = new Gtk.TreeViewColumn ();
 
 		var renderer1 = new CellRendererPixbuf ();
-    	col.pack_start (renderer1, false);
-	    col.add_attribute (renderer1, "pixbuf", 0);
+		col.pack_start (renderer1, false);
+		col.add_attribute (renderer1, "pixbuf", 0);
 
 		var renderer2 = new CellRendererText ();
-    	col.pack_start (renderer2, true);
-	    col.add_attribute (renderer2, "text", 4);
+		col.pack_start (renderer2, true);
+		col.add_attribute (renderer2, "text", 4);
 
-	    col.set_title ("File");
-	    col.set_resizable (true);
-	    col.set_expand (true);
-	    col.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
-	    treeview.append_column (col);   
-	    
+		col.set_title ("File");
+		col.set_resizable (true);
+		col.set_expand (true);
+		col.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
+		treeview.append_column (col);
+
 		treeview.insert_column_with_attributes (-1, "Last Changed", new CellRendererText (), "text", 5, null);
 		treeview.insert_column_with_attributes (-1, "Size", new CellRendererText (), "text", 6, null);
 		treeview.row_activated.connect (view_row_selected);
@@ -184,32 +184,32 @@ public class Needle {
 		last_search_id = Timeout.add_seconds (1, search_run);
 	}
 
-    private Gdk.Pixbuf item_get_pixbuf (IconTheme theme, string filename, int size) {
+	private Gdk.Pixbuf item_get_pixbuf (IconTheme theme, string filename, int size) {
 		// Get Icon
 		var file = File.new_for_uri (filename);
 		var pixbuf = null as Gdk.Pixbuf;
 
 		if (file.query_exists (null)) {
 			try {
-				var file_info = file.query_info ("standard::icon", 
-												 FileQueryInfoFlags.NONE, 
-												 null);
+				var file_info = file.query_info ("standard::icon",
+				                                 FileQueryInfoFlags.NONE,
+				                                 null);
 
 				if (file_info != null) {
 					var icon = file_info.get_icon ();
-					
+
 					try {
-					    if (icon is FileIcon) {
-					        pixbuf = new Gdk.Pixbuf.from_file (((FileIcon) icon).get_file ().get_path ());
-					    } else if (icon is ThemedIcon) {
-					        pixbuf = theme.load_icon (((ThemedIcon) icon).get_names ()[0], size, Gtk.IconLookupFlags.USE_BUILTIN);
-					    }
-	   	            } catch (GLib.Error error) {
-					    warning ("Error loading icon pixbuf: " + error.message);
+						if (icon is FileIcon) {
+							pixbuf = new Gdk.Pixbuf.from_file (((FileIcon) icon).get_file ().get_path ());
+						} else if (icon is ThemedIcon) {
+							pixbuf = theme.load_icon (((ThemedIcon) icon).get_names ()[0], size, Gtk.IconLookupFlags.USE_BUILTIN);
+						}
+					} catch (GLib.Error error) {
+						warning ("Error loading icon pixbuf: " + error.message);
 					}
 				}
 			} catch (GLib.Error error) {
-			    warning ("Error looking up file for pixbuf: " + error.message);
+				warning ("Error looking up file for pixbuf: " + error.message);
 			}
 		}
 
@@ -221,30 +221,30 @@ public class Needle {
 				// Do something
 			}
 		}
-		
+
 		return pixbuf;
-    }
+	}
 
 	private string item_get_time (string s) {
 		GLib.Time t = GLib.Time ();
 		t.strptime (s, "%FT%T");
-		
+
 		var tv_now = GLib.TimeVal ();
 		tv_now.get_current_time ();
-		
+
 		var tv_then = GLib.TimeVal ();
 		tv_then.from_iso8601 (s);
-		
+
 		var diff_sec = tv_now.tv_sec - tv_then.tv_sec;
 		var diff_days = diff_sec / secs_per_day;
 		var diff_days_abs = diff_days.abs ();
-		
+
 		// stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
-			
+
 		// if it's more than a week, use the default date format
-		if (diff_days_abs > 7) { 	    
+		if (diff_days_abs > 7) {
 			return t.format ("%x");
-		}					
+		}
 
 		if (diff_days_abs == 0) {
 			return "Today";
@@ -268,16 +268,16 @@ public class Needle {
 					return ngettext ("%ld day ago", "%ld days ago", diff_days_abs).printf (diff_days_abs);
 				}
 			}
-		}	
+		}
 	}
 
 	private bool search_run () {
 		// Need to escape this string
 		string query;
 		string criteria;
-		
+
 		criteria = search.get_text ();
-		
+
 		if (criteria.length < 1) {
 			last_search_id = 0;
 			return false;
@@ -288,7 +288,7 @@ public class Needle {
 		} else {
 			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c . FILTER(fn:contains(nfo:fileName(?u), \"$criteria\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET 0 LIMIT 100";
 		}
-	
+
 		debug ("Query:'%s'", query);
 
 		try {
@@ -317,22 +317,22 @@ public class Needle {
 				Gdk.Pixbuf pixbuf_big = item_get_pixbuf (theme, result[i,1], size_big);
 				string file_size = GLib.format_size_for_display (result[i,4].to_int());
 				string file_time = item_get_time (result[i,3]);
-								
+
 				// Insert into model
 				TreeIter iter;
 				store.append (out iter);
-				
+
 				// FIXME: should optimise this a bit more, inserting 2 images into a list eek
-				store.set (iter, 
-						   0, pixbuf_small,
-						   1, pixbuf_big,
-						   2, result[i,0],
-						   3, result[i,1],
-						   4, result[i,2],
-						   5, file_time,
-						   6, file_size, 
-						   7, result[i,5],
-						   -1);
+				store.set (iter,
+				           0, pixbuf_small,
+				           1, pixbuf_big,
+				           2, result[i,0],
+				           3, result[i,1],
+				           4, result[i,2],
+				           5, file_time,
+				           6, file_size,
+				           7, result[i,5],
+				           -1);
 			}
 		} catch (DBus.Error e) {
 			// Do nothing
@@ -363,9 +363,9 @@ public class Needle {
 
 	private void find_in_toggled () {
 		if (find_in_contents.active) {
-			// TODO: Re-run query		
+			// TODO: Re-run query
 		} else {
-			// TODO: Re-run query		
+			// TODO: Re-run query
 		}
 	}
 
@@ -377,17 +377,17 @@ public class Needle {
 
 		weak string filename;
 		model.get (iter, 1, out filename);
-		
+
 		debug ("Selected filename:'%s'", filename);
 	}
 }
 
 static int main (string[] args) {
 	Gtk.init (ref args);
-	
+
 	Intl.bindtextdomain (Config.GETTEXT_PACKAGE, Config.LOCALEDIR);
-    Intl.bind_textdomain_codeset (Config.GETTEXT_PACKAGE, "UTF-8");
-    Intl.textdomain (Config.GETTEXT_PACKAGE);
+	Intl.bind_textdomain_codeset (Config.GETTEXT_PACKAGE, "UTF-8");
+	Intl.textdomain (Config.GETTEXT_PACKAGE);
 
 	Needle n = new Needle();
 	n.show();
@@ -395,4 +395,3 @@ static int main (string[] args) {
 
 	return 0;
 }
-
