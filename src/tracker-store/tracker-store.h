@@ -75,6 +75,7 @@ void         tracker_store_sparql_update_blank    (const gchar   *sparql,
                                                    GDestroyNotify destroy);
 void         tracker_store_queue_turtle_import    (GFile         *file,
                                                    TrackerStoreTurtleCallback callback,
+                                                   const gchar   *client_id,
                                                    gpointer       user_data,
                                                    GDestroyNotify destroy);
 

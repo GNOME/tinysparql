@@ -585,6 +585,7 @@ tracker_store_sparql_update_blank (const gchar *sparql,
 void
 tracker_store_queue_turtle_import (GFile                      *file,
                                    TrackerStoreTurtleCallback  callback,
+                                   const gchar                *client_id,
                                    gpointer                    user_data,
                                    GDestroyNotify              destroy)
 {
@@ -602,6 +603,7 @@ tracker_store_queue_turtle_import (GFile                      *file,
 	task->user_data = user_data;
 	task->callback.update_callback = callback;
 	task->destroy = destroy;
+	task->client_id = g_strdup (client_id);
 
 	g_queue_push_tail (private->update_queues[TRACKER_STORE_PRIORITY_TURTLE], task);
 

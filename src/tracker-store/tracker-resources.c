@@ -183,6 +183,7 @@ tracker_resources_load (TrackerResources         *object,
 	TrackerDBusMethodInfo   *info;
 	guint                    request_id;
 	GFile  *file;
+	gchar *sender;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -201,9 +202,12 @@ tracker_resources_load (TrackerResources         *object,
 	info->request_id = request_id;
 	info->context = context;
 
-	tracker_store_queue_turtle_import (file, turtle_import_callback,
-	                                   info, destroy_method_info);
+	sender = dbus_g_method_get_sender (context);
 
+	tracker_store_queue_turtle_import (file, turtle_import_callback,
+	                                   sender, info, destroy_method_info);
+
+	g_free (sender);
 	g_object_unref (file);
 }
 
