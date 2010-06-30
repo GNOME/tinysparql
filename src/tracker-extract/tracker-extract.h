@@ -23,6 +23,7 @@
 #include <glib-object.h>
 
 #include <dbus/dbus-glib-bindings.h>
+#include <dbus/dbus.h>
 
 #define TRACKER_EXTRACT_SERVICE        "org.freedesktop.Tracker1.Extract"
 #define TRACKER_EXTRACT_PATH           "/org/freedesktop/Tracker1/Extract"
@@ -60,6 +61,11 @@ void            tracker_extract_get_metadata            (TrackerExtract         
                                                          const gchar            *mime,
                                                          DBusGMethodInvocation  *context,
                                                          GError                **error);
+#ifdef HAVE_DBUS_FD_PASSING
+DBusHandlerResult tracker_extract_connection_filter     (DBusConnection         *connection,
+                                                         DBusMessage            *message,
+                                                         void                   *user_data);
+#endif /* HAVE_DBUS_FD_PASSING */
 
 /* Not DBus API */
 void            tracker_extract_get_metadata_by_cmdline (TrackerExtract         *object,

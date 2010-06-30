@@ -177,6 +177,25 @@ tracker_dbus_register_objects (gpointer object)
 	return TRUE;
 }
 
+#ifdef HAVE_DBUS_FD_PASSING
+gboolean
+tracker_dbus_connection_add_filter (DBusHandleMessageFunction  function,
+                                    void                      *user_data)
+{
+	if (!connection) {
+		g_critical ("D-Bus support must be initialized before adding connection filters!");
+		return FALSE;
+	}
+
+	dbus_connection_add_filter (dbus_g_connection_get_connection (connection),
+	                            function,
+	                            user_data,
+	                            NULL);
+
+	return TRUE;
+}
+#endif /* HAVE_DBUS_FD_PASSING */
+
 GObject *
 tracker_dbus_get_object (GType type)
 {
