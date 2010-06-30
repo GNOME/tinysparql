@@ -1200,6 +1200,8 @@ index_on_battery_cb (GObject    *object,
 	check_battery_status (mf);
 }
 
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
+
 /* Called when mining has finished the first time */
 static void
 miner_finished_cb (TrackerMinerFS *fs,
@@ -1228,8 +1230,6 @@ miner_finished_cb (TrackerMinerFS *fs,
 	check_battery_status (mf);
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 }
-
-#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 static void
 mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
