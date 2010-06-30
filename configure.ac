@@ -48,7 +48,7 @@ AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.c])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 
-AM_INIT_AUTOMAKE([no-define tar-ustar])
+AM_INIT_AUTOMAKE([no-define tar-ustar -Wno-portability])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
