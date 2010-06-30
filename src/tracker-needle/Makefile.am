@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-bin_PROGRAMS = tracker_needle
+bin_PROGRAMS = tracker-needle
 
 tracker_needle_VALASOURCES = 					\
 	tracker-needle.vala
