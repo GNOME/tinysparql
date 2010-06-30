@@ -14,41 +14,6 @@
           <object class="GtkToolbar" id="toolbar_main">
             <property name="visible">True</property>
             <child>
-              <object class="GtkToolButton" id="toolbutton_back">
-                <property name="visible">True</property>
-                <property name="tooltip_text" translatable="yes">Go back in search history</property>
-                <property name="label" translatable="yes">toolbutton1</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-go-back</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="toolbutton_forward">
-                <property name="visible">True</property>
-                <property name="tooltip_text" translatable="yes">Go forward in search history</property>
-                <property name="label" translatable="yes">toolbutton1</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-go-forward</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSeparatorToolItem" id="toolbutton1">
-                <property name="visible">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkRadioToolButton" id="toolbutton_view_list">
                 <property name="visible">True</property>
                 <property name="tooltip_text" translatable="yes">Display results in a list view</property>

@@ -36,8 +36,6 @@ public class Needle {
 	private const string UI_FILE = "tracker-needle.ui";
 	private Resources tracker;
 	private Window window;
-	private ToolButton back;
-	private ToolButton forward;
 	private ToggleToolButton view_list;
 	private ToggleToolButton view_icons;
 	private ToggleToolButton find_in_contents;
@@ -49,6 +47,8 @@ public class Needle {
 	private IconView iconview;
 	private uint last_search_id = 0;
 	private ListStore store;
+    static bool current_view = true;
+    static bool current_find_in = true;
 
 	private const int secs_per_day = 60 * 60 * 24;
 
@@ -101,14 +101,6 @@ public class Needle {
 
 		window = builder.get_object ("window_needle") as Window;
 		window.destroy.connect (Gtk.main_quit);
-
-		back = builder.get_object ("toolbutton_back") as ToolButton;
-		back.clicked.connect (back_clicked);
-		back.set_sensitive (false);
-
-		forward = builder.get_object ("toolbutton_forward") as ToolButton;
-		forward.clicked.connect (forward_clicked);
-		forward.set_sensitive (false);
 
 		view_list = builder.get_object ("toolbutton_view_list") as ToggleToolButton;
 		view_list.toggled.connect (view_toggled);
@@ -335,7 +327,7 @@ public class Needle {
 				           -1);
 			}
 		} catch (DBus.Error e) {
-			// Do nothing
+			warning ("Could not run SPARQL query: " + e.message);
 		}
 
 		last_search_id = 0;
@@ -343,30 +335,38 @@ public class Needle {
 		return false;
 	}
 
-	private void forward_clicked () {
-		// Do nothing
-	}
-
-	private void back_clicked () {
-		// Do nothing
-	}
-
 	private void view_toggled () {
+	    if (current_view == view_list.active) {
+	        return;	    
+	    }
+
 		if (view_list.active) {
 			sw_iconview.hide ();
 			sw_treeview.show_all ();
+			debug ("View toggled to 'list'");
 		} else {
 			sw_iconview.show_all ();
 			sw_treeview.hide ();
+			debug ("View toggled to 'icons'");
 		}
+
+		current_view = view_list.active;
 	}
 
-	private void find_in_toggled () {
+	private void find_in_toggled () {    
+	    if (current_find_in == find_in_contents.active) {
+	        return;	    
+	    }
+	    
 		if (find_in_contents.active) {
-			// TODO: Re-run query
+			debug ("Find in toggled to 'contents'");
+			search_run ();
 		} else {
-			// TODO: Re-run query
+			debug ("Find in toggled to 'titles'");
+			search_run ();
 		}
+		
+		current_find_in = find_in_contents.active;
 	}
 
 	private void view_row_selected (TreeView view, TreePath path, TreeViewColumn column) {
