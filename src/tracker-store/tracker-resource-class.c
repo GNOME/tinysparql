@@ -43,7 +43,6 @@ typedef struct {
 	gchar *dbus_path;
 	GHashTable *adds_table, *ups_table, *dels_table;
 	GArray *ups;
-	GStringChunk *changed_strings;
 	DBusConnection *connection;
 } TrackerResourceClassPrivate;
 
@@ -236,11 +235,6 @@ tracker_resource_class_emit_events (TrackerResourceClass  *object)
 		priv->dels_table = NULL;
 	}
 
-	if (priv->changed_strings) {
-		g_string_chunk_free (priv->changed_strings);
-		priv->changed_strings = NULL;
-	}
-
 }
 
 
@@ -303,43 +297,36 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 
 	priv = TRACKER_RESOURCE_CLASS_GET_PRIVATE (object);
 
-	if (!priv->changed_strings) {
-		/* allocate in chunks of 4K */
-		priv->changed_strings = g_string_chunk_new (4096);
-	}
+	/* We reuse the strings we get from tracker-events without copying
+	   to keep memory usage low. Code in tracker-resources.c guarantees
+	   that they are not freed too early. */
 
 	switch (type) {
 	case TRACKER_DBUS_EVENTS_TYPE_ADD:
-
-		n_uri = g_string_chunk_insert_const (priv->changed_strings, uri);
 
 		if (!priv->adds_table) {
 			priv->adds_table = g_hash_table_new (NULL, NULL);
 		}
 
-		g_hash_table_insert (priv->adds_table, n_uri, GINT_TO_POINTER (TRUE));
+		g_hash_table_insert (priv->adds_table, uri, GINT_TO_POINTER (TRUE));
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_UPDATE:
-
-		n_uri = g_string_chunk_insert_const (priv->changed_strings, uri);
 
 		if (!priv->ups_table) {
 			priv->ups_table = g_hash_table_new (NULL, NULL);
 		}
 
-		hash_key = (gpointer) ((gsize) n_uri ^ (gsize) predicate);
+		hash_key = (gpointer) ((gsize) uri ^ (gsize) predicate);
 
-		g_hash_table_insert (priv->ups_table, hash_key, n_uri);
+		g_hash_table_insert (priv->ups_table, hash_key, uri);
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_DELETE:
-
-		n_uri = g_string_chunk_insert_const (priv->changed_strings, uri);
 
 		if (!priv->dels_table) {
 			priv->dels_table = g_hash_table_new (NULL, NULL);
 		}
 
-		g_hash_table_insert (priv->dels_table, n_uri, GINT_TO_POINTER (TRUE));
+		g_hash_table_insert (priv->dels_table, uri, GINT_TO_POINTER (TRUE));
 		break;
 	default:
 		break;

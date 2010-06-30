@@ -74,7 +74,7 @@ prepare_event_for_rdf_type (EventsPrivate *private,
 	}
 
 	if (!private->chunk) {
-		private->chunk = g_string_chunk_new (strlen (uri) + 10);
+		private->chunk = g_string_chunk_new (4096);
 	}
 
 	event.type = type;
