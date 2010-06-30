@@ -567,6 +567,9 @@ on_statements_committed (gpointer user_data)
 	/* Class signals feature */
 	events = tracker_events_get_pending ();
 
+	/* Do not call tracker_events_reset before calling tracker_resource_class_emit_events
+	   as we're reusing the same strings without copies */
+
 	if (events) {
 		GSList *event_sources, *l;
 		guint i;
