@@ -301,20 +301,17 @@ client_get_for_context (DBusGMethodInvocation *context)
 
 	if (G_UNLIKELY (!clients)) {
 		clients_init ();
+	}
 
+	cd = g_hash_table_lookup (clients, sender);
+	if (!cd) {
 		cd = client_data_new (sender);
 		g_hash_table_insert (clients, sender, cd);
 	} else {
-		cd = g_hash_table_lookup (clients, sender);
-
-		if (G_UNLIKELY (!cd)) {
-			cd = client_data_new (sender);
-			g_hash_table_insert (clients, sender, cd);
-		} else {
-			g_get_current_time (&cd->last_time);
-			g_free (sender);
-		}
+		g_free (sender);
 	}
+
+	g_get_current_time (&cd->last_time);
 
 	return cd;
 }
