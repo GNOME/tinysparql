@@ -444,15 +444,16 @@ pool_dispatch_cb (gpointer data,
 {
 	TrackerStorePrivate *private;
 	TrackerStoreTask *task;
+	GThread *running_thread = g_thread_self ();
 
 	private = user_data;
 	task = data;
 
+	tracker_data_manager_interrupt_thread_reset (running_thread);
+
 	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
 		TrackerDBCursor *cursor;
-		GThread *running_thread = g_thread_self ();
 
-		tracker_data_manager_interrupt_thread_reset (running_thread);
 		task->data.query.running_thread = running_thread;
 		cursor = tracker_data_query_sparql_cursor (task->data.query.query, &task->error);
 
