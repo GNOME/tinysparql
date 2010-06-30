@@ -30,7 +30,13 @@
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
+#include <gio/gunixinputstream.h>
+
+#include <dbus/dbus-glib-lowlevel.h>
+#include <dbus/dbus.h>
+
 #include <libtracker-common/tracker-date-time.h>
+#include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-type-utils.h>
@@ -63,8 +69,17 @@ struct ProcessFileData {
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
 	GFile *file;
+#ifdef HAVE_DBUS_FD_PASSING
+	DBusPendingCall *call;
+#else /* HAVE_DBUS_FD_PASSING */
 	DBusGProxyCall *call;
+#endif /* HAVE_DBUS_FD_PASSING */
 };
+
+typedef struct {
+	org_freedesktop_Tracker1_Extract_get_metadata_reply callback;
+	gpointer user_data;
+} FastAsyncData;
 
 struct TrackerMinerFilesPrivate {
 	TrackerConfig *config;
@@ -85,6 +100,7 @@ struct TrackerMinerFilesPrivate {
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 	gulong finished_handler;
 
+	DBusGConnection *connection;
 	DBusGProxy *extractor_proxy;
 
 	GQuark quark_mount_point_uuid;
@@ -160,7 +176,7 @@ static void        trigger_recheck_cb                   (GObject              *g
 static void        index_volumes_changed_cb             (GObject              *gobject,
 							 GParamSpec           *arg1,
 							 gpointer              user_data);
-static DBusGProxy *extractor_create_proxy               (void);
+static DBusGProxy *extractor_create_proxy               (DBusGConnection      *connection);
 static gboolean    miner_files_check_file               (TrackerMinerFS       *fs,
                                                          GFile                *file);
 static gboolean    miner_files_check_directory          (TrackerMinerFS       *fs,
@@ -238,6 +254,7 @@ static void
 tracker_miner_files_init (TrackerMinerFiles *mf)
 {
 	TrackerMinerFilesPrivate *priv;
+	GError *error = NULL;
 
 	priv = mf->private = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
@@ -272,7 +289,15 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	                  mf);
 
 	/* Set up extractor and signals */
-	priv->extractor_proxy = extractor_create_proxy ();
+	priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!priv->connection) {
+		g_critical ("Could not connect to the D-Bus session bus, %s",
+		            error ? error->message : "no error given.");
+		g_error_free (error);
+	}
+
+	priv->extractor_proxy = extractor_create_proxy (priv->connection);
 
 	priv->quark_mount_point_uuid = g_quark_from_static_string ("tracker-mount-point-uuid");
 	priv->quark_directory_config_root = g_quark_from_static_string ("tracker-directory-config-root");
@@ -1772,20 +1797,11 @@ process_file_data_free (ProcessFileData *data)
 }
 
 static DBusGProxy *
-extractor_create_proxy (void)
+extractor_create_proxy (DBusGConnection *connection)
 {
 	DBusGProxy *proxy;
-	DBusGConnection *connection;
-	GError *error = NULL;
 
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-	if (!connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
-		g_clear_error (&error);
-		return FALSE;
-	}
+	g_return_val_if_fail (connection, NULL);
 
 	/* Get proxy for the extractor */
 	proxy = dbus_g_proxy_new_for_name (connection,
@@ -1885,8 +1901,11 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
 
 	process_file_data_free (data);
+#ifndef HAVE_DBUS_FD_PASSING
+	/* When using DBus FD passing, we let the caller free */
 	g_free (preupdate);
 	g_free (sparql);
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static void
@@ -1896,8 +1915,10 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 	GError *error;
 
 	/* Cancel extractor call */
+#ifndef HAVE_DBUS_FD_PASSING
 	dbus_g_proxy_cancel_call (data->miner->private->extractor_proxy,
 	                          data->call);
+#endif /* HAVE_DBUS_FD_PASSING */
 
 	error = g_error_new_literal (miner_files_error_quark, 0, "Embedded metadata extraction was cancelled");
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
@@ -1906,16 +1927,124 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 	g_error_free (error);
 }
 
+#ifdef HAVE_DBUS_FD_PASSING
+static FastAsyncData*
+fast_async_data_new (org_freedesktop_Tracker1_Extract_get_metadata_reply callback,
+                     gpointer       user_data)
+{
+	FastAsyncData *data;
+
+	data = g_slice_new0 (FastAsyncData);
+	data->callback = callback;
+	data->user_data = user_data;
+
+	return data;
+}
+
+static void
+fast_async_data_free (FastAsyncData *data)
+{
+	g_slice_free (FastAsyncData, data);
+}
+
+static void
+get_metadata_fast_cb (void     *buffer,
+                      gssize    buffer_size,
+                      GError   *error,
+                      gpointer  user_data)
+{
+	FastAsyncData *data;
+	ProcessFileData *process_data;
+	gchar *preupdate;
+	gchar *sparql = NULL;
+
+	data = user_data;
+	process_data = data->user_data;
+
+	preupdate = buffer;
+	if (G_UNLIKELY (error)) {
+		if (error->code != G_IO_ERROR_CANCELLED) {
+			/* ProcessFileData and error are freed in the callback */
+			(* data->callback) (NULL, NULL, NULL, error, process_data);
+		}
+	} else {
+		if (buffer_size) {
+		/* sparql is stored just after preupdate in the original buffer */
+			sparql = preupdate + strlen (preupdate) + 1;
+		}
+
+		(* data->callback) (NULL, preupdate, sparql, NULL, data->user_data);
+		g_free (preupdate);
+	}
+
+	fast_async_data_free (data);
+}
+
+static void
+get_metadata_fast_async (DBusConnection  *connection,
+                         const gchar     *uri,
+                         const gchar     *mime_type,
+                         GCancellable    *cancellable,
+                         org_freedesktop_Tracker1_Extract_get_metadata_reply callback,
+                         ProcessFileData *user_data)
+{
+	int pipefd[2];
+	DBusMessage *message;
+	FastAsyncData *data;
+
+	g_return_if_fail (connection);
+	g_return_if_fail (uri);
+	g_return_if_fail (mime_type);
+	g_return_if_fail (callback);
+
+	if (pipe (pipefd) < 0) {
+		g_critical ("Coudln't open pipe");
+		return;
+	}
+
+	message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE_EXTRACT,
+	                                        TRACKER_DBUS_PATH_EXTRACT,
+	                                        TRACKER_DBUS_INTERFACE_EXTRACT,
+	                                        "GetMetadataFast");
+	dbus_message_append_args (message,
+	                          DBUS_TYPE_STRING, &uri,
+	                          DBUS_TYPE_STRING, &mime_type,
+	                          DBUS_TYPE_UNIX_FD, &pipefd[1],
+	                          DBUS_TYPE_INVALID);
+	close (pipefd[1]);
+
+	data = fast_async_data_new (callback,
+	                            user_data);
+
+	tracker_dbus_send_and_splice_async (connection,
+	                                    message,
+	                                    pipefd[0],
+	                                    cancellable,
+	                                    get_metadata_fast_cb,
+	                                    data);
+}
+#endif /* HAVE_DBUS_FD_PASSING */
+
 static void
 extractor_get_embedded_metadata (ProcessFileData *data,
                                  const gchar     *uri,
                                  const gchar     *mime_type)
 {
+#ifdef HAVE_DBUS_FD_PASSING
+	get_metadata_fast_async (dbus_g_connection_get_connection (data->miner->private->connection),
+	                         uri,
+	                         mime_type,
+	                         data->cancellable,
+	                         extractor_get_embedded_metadata_cb,
+	                         data);
+	data->call = NULL;
+#else /* HAVE_DBUS_FD_PASSING */
 	data->call = org_freedesktop_Tracker1_Extract_get_metadata_async (data->miner->private->extractor_proxy,
 	                                                                  uri,
 	                                                                  mime_type,
 	                                                                  extractor_get_embedded_metadata_cb,
 	                                                                  data);
+#endif
 	g_signal_connect (data->cancellable, "cancelled",
 	                  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
 }

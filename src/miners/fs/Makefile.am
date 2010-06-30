@@ -12,6 +12,7 @@ INCLUDES =								\
 	-I$(top_builddir)/src/libtracker-client				\
 	$(WARN_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
+	$(GIO_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
