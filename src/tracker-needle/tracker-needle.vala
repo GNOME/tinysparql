@@ -204,12 +204,12 @@ public class Needle {
 						} else if (icon is ThemedIcon) {
 							pixbuf = theme.load_icon (((ThemedIcon) icon).get_names ()[0], size, Gtk.IconLookupFlags.USE_BUILTIN);
 						}
-					} catch (GLib.Error error) {
-						warning ("Error loading icon pixbuf: " + error.message);
+					} catch (GLib.Error e) {
+						warning ("Error loading icon pixbuf: " + e.message);
 					}
 				}
-			} catch (GLib.Error error) {
-				warning ("Error looking up file for pixbuf: " + error.message);
+			} catch (GLib.Error e) {
+				warning ("Error looking up file for pixbuf: " + e.message);
 			}
 		}
 
@@ -218,7 +218,7 @@ public class Needle {
 				// pixbuf = theme.load_icon (theme.get_example_icon_name (), 48, IconLookupFlags.USE_BUILTIN);
 				pixbuf = theme.load_icon ("text-x-generic", size, IconLookupFlags.USE_BUILTIN);
 			} catch (GLib.Error e) {
-				// Do something
+				warning ("Could not load default icon pixbuf from theme for 'text-x-generic': " + e.message);
 			}
 		}
 
