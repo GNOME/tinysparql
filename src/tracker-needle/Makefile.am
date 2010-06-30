@@ -3,7 +3,8 @@ include $(top_srcdir)/Makefile.decl
 bin_PROGRAMS = tracker-needle
 
 tracker_needle_VALASOURCES = 					\
-	tracker-needle.vala
+	tracker-needle.vala                         \
+	tracker-stats.vala
 
 tracker_needle_SOURCES = 					\
 	$(tracker_needle_VALASOURCES:.vala=.c)

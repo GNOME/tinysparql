@@ -25,14 +25,15 @@ extern static const string UIDIR;
 [CCode (cname = "SRCDIR")]
 extern static const string SRCDIR;
 
-private const string some_unique_name = Config.APPNAME;
+// Added to fix #error for GETTEXT_PACKAGE
+private const string a = Config.APPNAME;
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 interface Resources : GLib.Object {
 	public abstract string[,] SparqlQuery (string query) throws DBus.Error;
 }
 
-public class Needle {
+public class TrackerNeedle {
 	private const string UI_FILE = "tracker-needle.ui";
 	private Resources tracker;
 	private Window window;
@@ -41,6 +42,7 @@ public class Needle {
 	private ToggleToolButton find_in_contents;
 	private ToggleToolButton find_in_titles;
 	private Entry search;
+	private ToolButton show_stats;
 	private ScrolledWindow sw_treeview;
 	private TreeView treeview;
 	private ScrolledWindow sw_iconview;
@@ -116,6 +118,9 @@ public class Needle {
 
 		search = builder.get_object ("entry_search") as Entry;
 		search.changed.connect (search_changed);
+
+		show_stats = builder.get_object ("toolbutton_show_stats") as ToolButton;
+		show_stats.clicked.connect (show_stats_clicked);
 
 		sw_treeview = builder.get_object ("scrolledwindow_treeview") as ScrolledWindow;
 		treeview = builder.get_object ("treeview_results") as TreeView;
@@ -380,6 +385,12 @@ public class Needle {
 
 		debug ("Selected filename:'%s'", filename);
 	}
+	
+	private void show_stats_clicked () {
+	    debug ("Showing stats dialog");
+		TrackerStats s = new TrackerStats ();
+		s.show ();
+	}
 }
 
 static int main (string[] args) {
@@ -389,7 +400,7 @@ static int main (string[] args) {
 	Intl.bind_textdomain_codeset (Config.GETTEXT_PACKAGE, "UTF-8");
 	Intl.textdomain (Config.GETTEXT_PACKAGE);
 
-	Needle n = new Needle();
+	TrackerNeedle n = new TrackerNeedle ();
 	n.show();
 	Gtk.main ();
 
