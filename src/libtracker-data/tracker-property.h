@@ -72,65 +72,68 @@ struct _TrackerPropertyClass {
 	GObjectClass parent_class;
 };
 
-GType               tracker_property_get_type              (void) G_GNUC_CONST;
-TrackerProperty *   tracker_property_new                   (void);
-const gchar *       tracker_property_get_uri               (TrackerProperty      *property);
-const gchar *       tracker_property_get_name              (TrackerProperty      *property);
-const gchar *       tracker_property_get_table_name        (TrackerProperty      *property);
-TrackerPropertyType tracker_property_get_data_type         (TrackerProperty      *property);
-TrackerClass *      tracker_property_get_domain            (TrackerProperty      *property);
-TrackerClass *      tracker_property_get_range             (TrackerProperty      *property);
-gint                tracker_property_get_weight            (TrackerProperty      *property);
-gint                tracker_property_get_id                (TrackerProperty      *property);
-gboolean            tracker_property_get_indexed           (TrackerProperty      *property);
-TrackerProperty *   tracker_property_get_secondary_index   (TrackerProperty      *property);
-gboolean            tracker_property_get_fulltext_indexed  (TrackerProperty      *property);
-gboolean            tracker_property_get_fulltext_no_limit (TrackerProperty      *property);
-gboolean            tracker_property_get_embedded          (TrackerProperty      *property);
-gboolean            tracker_property_get_multiple_values   (TrackerProperty      *property);
-gboolean            tracker_property_get_transient         (TrackerProperty      *property);
-gboolean            tracker_property_get_is_new            (TrackerProperty      *property);
-gboolean            tracker_property_get_writeback         (TrackerProperty      *property);
-const gchar *       tracker_property_get_default_value     (TrackerProperty      *property);
-gboolean            tracker_property_get_db_schema_changed (TrackerProperty      *property);
+GType               tracker_property_get_type                (void) G_GNUC_CONST;
+TrackerProperty *   tracker_property_new                     (void);
+const gchar *       tracker_property_get_uri                 (TrackerProperty      *property);
+const gchar *       tracker_property_get_name                (TrackerProperty      *property);
+const gchar *       tracker_property_get_table_name          (TrackerProperty      *property);
+TrackerPropertyType tracker_property_get_data_type           (TrackerProperty      *property);
+TrackerClass *      tracker_property_get_domain              (TrackerProperty      *property);
+TrackerClass *      tracker_property_get_range               (TrackerProperty      *property);
+gint                tracker_property_get_weight              (TrackerProperty      *property);
+gint                tracker_property_get_id                  (TrackerProperty      *property);
+gboolean            tracker_property_get_indexed             (TrackerProperty      *property);
+TrackerProperty *   tracker_property_get_secondary_index     (TrackerProperty      *property);
+gboolean            tracker_property_get_fulltext_indexed    (TrackerProperty      *property);
+gboolean            tracker_property_get_fulltext_no_limit   (TrackerProperty      *property);
+gboolean            tracker_property_get_embedded            (TrackerProperty      *property);
+gboolean            tracker_property_get_multiple_values     (TrackerProperty      *property);
+gboolean            tracker_property_get_transient           (TrackerProperty      *property);
+gboolean            tracker_property_get_is_new              (TrackerProperty      *property);
+gboolean            tracker_property_get_is_new_domain_index (TrackerProperty      *property);
+gboolean            tracker_property_get_writeback           (TrackerProperty      *property);
+const gchar *       tracker_property_get_default_value       (TrackerProperty      *property);
+gboolean            tracker_property_get_db_schema_changed   (TrackerProperty      *property);
 gboolean            tracker_property_get_is_inverse_functional_property
-(TrackerProperty      *property);
-TrackerProperty **  tracker_property_get_super_properties  (TrackerProperty      *property);
-void                tracker_property_set_uri               (TrackerProperty      *property,
-                                                            const gchar          *value);
-void                tracker_property_set_domain            (TrackerProperty      *property,
-                                                            TrackerClass         *value);
-void                tracker_property_set_range             (TrackerProperty      *property,
-                                                            TrackerClass         *range);
-void                tracker_property_set_weight            (TrackerProperty      *property,
-                                                            gint                  value);
-void                tracker_property_set_id                (TrackerProperty      *property,
-                                                            gint                  value);
-void                tracker_property_set_indexed           (TrackerProperty      *property,
-                                                            gboolean              value);
-void                tracker_property_set_secondary_index   (TrackerProperty      *property,
-                                                            TrackerProperty      *value);
-void                tracker_property_set_fulltext_indexed  (TrackerProperty      *property,
-                                                            gboolean              value);
-void                tracker_property_set_fulltext_no_limit (TrackerProperty      *property,
-                                                            gboolean              value);
-void                tracker_property_set_embedded          (TrackerProperty      *property,
-                                                            gboolean              value);
-void                tracker_property_set_multiple_values   (TrackerProperty      *property,
-                                                            gboolean              value);
-void                tracker_property_set_transient         (TrackerProperty      *property,
-                                                            gboolean              value);
-void                tracker_property_set_is_new            (TrackerProperty      *property,
-                                                            gboolean              value);
-void                tracker_property_set_writeback         (TrackerProperty      *property,
-                                                            gboolean              value);
-void                tracker_property_set_default_value     (TrackerProperty      *property,
-                                                            const gchar          *value);
-void                tracker_property_set_db_schema_changed (TrackerProperty      *property,
-                                                            gboolean              value);
+                                                             (TrackerProperty      *property);
+TrackerProperty **  tracker_property_get_super_properties    (TrackerProperty      *property);
+void                tracker_property_set_uri                 (TrackerProperty      *property,
+                                                              const gchar          *value);
+void                tracker_property_set_domain              (TrackerProperty      *property,
+                                                              TrackerClass         *value);
+void                tracker_property_set_range               (TrackerProperty      *property,
+                                                              TrackerClass         *range);
+void                tracker_property_set_weight              (TrackerProperty      *property,
+                                                              gint                  value);
+void                tracker_property_set_id                  (TrackerProperty      *property,
+                                                              gint                  value);
+void                tracker_property_set_indexed             (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_secondary_index     (TrackerProperty      *property,
+                                                              TrackerProperty      *value);
+void                tracker_property_set_fulltext_indexed    (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_fulltext_no_limit   (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_embedded            (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_multiple_values     (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_transient           (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_is_new              (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_is_new_domain_index (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_writeback           (TrackerProperty      *property,
+                                                               gboolean              value);
+void                tracker_property_set_default_value       (TrackerProperty      *property,
+                                                              const gchar          *value);
+void                tracker_property_set_db_schema_changed   (TrackerProperty      *property,
+                                                              gboolean              value);
 void                tracker_property_set_is_inverse_functional_property
-(TrackerProperty      *property,
- gboolean              value);
+                                                             (TrackerProperty      *property,
+                                                              gboolean              value);
 void                tracker_property_add_super_property    (TrackerProperty      *property,
                                                             TrackerProperty      *value);
 

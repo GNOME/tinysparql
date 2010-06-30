@@ -62,6 +62,7 @@ struct _TrackerPropertyPrivate {
 	gboolean       db_schema_changed;
 	gboolean       writeback;
 	gchar         *default_value;
+	gboolean       is_new_domain_index;
 
 	GArray        *super_properties;
 };
@@ -371,6 +372,18 @@ tracker_property_get_is_new (TrackerProperty *property)
 }
 
 gboolean
+tracker_property_get_is_new_domain_index (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = GET_PRIV (property);
+
+	return priv->is_new_domain_index;
+}
+
+gboolean
 tracker_property_get_writeback (TrackerProperty *property)
 {
 	TrackerPropertyPrivate *priv;
@@ -634,6 +647,19 @@ tracker_property_set_is_new (TrackerProperty *property,
 	priv = GET_PRIV (property);
 
 	priv->is_new = value;
+}
+
+void
+tracker_property_set_is_new_domain_index (TrackerProperty *property,
+                                          gboolean         value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	priv->is_new_domain_index = value;
 }
 
 void
