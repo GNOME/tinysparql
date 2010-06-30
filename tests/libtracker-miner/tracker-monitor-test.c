@@ -18,7 +18,6 @@
  */
 
 #include <string.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include <glib.h>
@@ -27,127 +26,649 @@
 /* Special case, the monitor header is not normally exported */
 #include <libtracker-miner/tracker-monitor.h>
 
-#define ALARM_TIMEOUT 10 /* seconds */
+/* -------------- COMMON FOR ALL FILE EVENT TESTS ----------------- */
+
+#define TEST_TIMEOUT 5 /* seconds */
 
 typedef enum {
-	MONITOR_SIGNAL_EXPECTED_NONE = 0,
-	MONITOR_SIGNAL_EXPECTED_ITEM_CREATED = 1 << 0,
-	MONITOR_SIGNAL_EXPECTED_ITEM_UPDATED = 1 << 1,
-	MONITOR_SIGNAL_EXPECTED_ITEM_DELETED = 1 << 2,
-	MONITOR_SIGNAL_EXPECTED_ITEM_MOVED   = 1 << 3,
-} MonitorSignalExpected;
+	MONITOR_SIGNAL_NONE            = 0,
+	MONITOR_SIGNAL_ITEM_CREATED    = 1 << 0,
+	MONITOR_SIGNAL_ITEM_UPDATED    = 1 << 1,
+	MONITOR_SIGNAL_ITEM_DELETED    = 1 << 2,
+	MONITOR_SIGNAL_ITEM_MOVED_FROM = 1 << 3,
+	MONITOR_SIGNAL_ITEM_MOVED_TO   = 1 << 4
+} MonitorSignal;
 
-static TrackerMonitor *monitor;
-static GFile *file_for_monitor;
-static GFile *file_for_tmp;
-static GFile *file_for_events;
-static GFile *file_for_move_in;
-static GFile *file_for_move_out;
-static gchar *path_for_monitor;
-static gchar *path_for_events;
-static gchar *path_for_move_in;
-static gchar *path_for_move_out;
-static GHashTable *events;
-static GMainLoop *main_loop;
-static guint8 signals_received;
+/* Fixture object type */
+typedef struct {
+	TrackerMonitor *monitor;
+	GFile *monitored_directory_file;
+	gchar *monitored_directory;
+	gchar *not_monitored_directory;
+	GHashTable *events;
+	GMainLoop *main_loop;
+} TrackerMonitorTestFixture;
 
 static void
-signal_handler (int signo)
+add_event (GHashTable    *events,
+           GFile         *file,
+           MonitorSignal  new_event)
 {
-	if (g_strsignal (signo)) {
-		g_print ("\n");
-		g_print ("Received signal:%d->'%s'\n",
-		         signo,
-		         g_strsignal (signo));
+	gpointer previous_file;
+	gpointer previous_mask;
+
+	/* Lookup file in HT */
+	if (g_hash_table_lookup_extended (events,
+	                                  file,
+	                                  &previous_file,
+	                                  &previous_mask)) {
+		guint mask;
+
+		mask = GPOINTER_TO_UINT (previous_mask);
+		mask |= new_event;
+		g_hash_table_replace (events,
+		                      g_object_ref (previous_file),
+		                      GUINT_TO_POINTER (mask));
 	}
-
-	g_print ("If we got this alarm, we likely didn't get the event we expected in time\n");
-	g_assert_cmpint (signo, !=, SIGALRM);
 }
 
 static void
-initialize_signal_handler (void)
+test_monitor_events_created_cb (TrackerMonitor *monitor,
+                                GFile          *file,
+                                gboolean        is_directory,
+                                gpointer        user_data)
 {
-#ifndef G_OS_WIN32
-	struct sigaction act;
-	sigset_t         empty_mask;
+	gchar *path;
 
-	sigemptyset (&empty_mask);
-	act.sa_handler = signal_handler;
-	act.sa_mask    = empty_mask;
-	act.sa_flags   = 0;
+	g_assert (file != NULL);
+	path = g_file_get_path (file);
+	g_assert (path != NULL);
 
-	sigaction (SIGALRM, &act, NULL);
-#endif /* G_OS_WIN32 */
+	g_debug ("***** '%s' (%s) (CREATED)",
+	         path,
+	         is_directory ? "DIR" : "FILE");
+
+	g_free (path);
+
+	add_event ((GHashTable *) user_data,
+	           file,
+	           MONITOR_SIGNAL_ITEM_CREATED);
 }
 
 static void
-events_wait_and_check (MonitorSignalExpected expected_signal,
-                       MonitorSignalExpected unexpected_signal)
+test_monitor_events_updated_cb (TrackerMonitor *monitor,
+                                GFile          *file,
+                                gboolean        is_directory,
+                                gpointer        user_data)
 {
-	/* Set alarm in case we don't get the event */
-	alarm (ALARM_TIMEOUT);
-	g_debug ("***** Setting ALARM");
+	gchar *path;
 
-	g_assert (main_loop == NULL);
+	g_assert (file != NULL);
+	path = g_file_get_path (file);
+	g_assert (path != NULL);
 
-	main_loop = g_main_loop_new (NULL, FALSE);
-	g_assert (main_loop != NULL);
+	g_debug ("***** '%s' (%s) (UPDATED)",
+	         path,
+	         is_directory ? "DIR" : "FILE");
 
-	g_main_loop_run (main_loop);
-	g_main_loop_unref (main_loop);
-	main_loop = NULL;
+	g_free (path);
 
-	g_debug ("Compilation of signals received (CREATED: %s, UPDATED: %s, DELETED: %s, MOVED: %s)",
-	         signals_received & MONITOR_SIGNAL_EXPECTED_ITEM_CREATED ? "yes" : "no",
-	         signals_received & MONITOR_SIGNAL_EXPECTED_ITEM_UPDATED ? "yes" : "no",
-	         signals_received & MONITOR_SIGNAL_EXPECTED_ITEM_DELETED ? "yes" : "no",
-	         signals_received & MONITOR_SIGNAL_EXPECTED_ITEM_MOVED ? "yes" : "no");
-
-	/* Fail the test if we didn't get the signal we expected */
-	g_assert_cmpuint ((signals_received & expected_signal), >, 0);
-
-	/* Fail the test if we got an unexpected signal */
-	g_assert_cmpuint ((signals_received & unexpected_signal), ==, 0);
-
-	/* Clear the received signals */
-	signals_received = MONITOR_SIGNAL_EXPECTED_NONE;
+	add_event ((GHashTable *) user_data,
+	           file,
+	           MONITOR_SIGNAL_ITEM_UPDATED);
 }
 
 static void
-events_received (void)
+test_monitor_events_deleted_cb (TrackerMonitor *monitor,
+                                GFile          *file,
+                                gboolean        is_directory,
+                                gpointer        user_data)
 {
-	/* Cancel alarm */
-	alarm (0);
-	g_debug ("***** Cancelled ALARM");
+	gchar *path;
 
-	g_assert (main_loop != NULL);
-	g_main_loop_quit (main_loop);
+	g_assert (file != NULL);
+	path = g_file_get_path (file);
+	g_assert (path != NULL);
+
+	g_debug ("***** '%s' (%s) (DELETED)",
+	         path,
+	         is_directory ? "DIR" : "FILE");
+
+	g_free (path);
+
+	add_event ((GHashTable *) user_data,
+	           file,
+	           MONITOR_SIGNAL_ITEM_DELETED);
 }
 
 static void
-create_file (const gchar *filename,
-             const gchar *contents)
+test_monitor_events_moved_cb (TrackerMonitor *monitor,
+                              GFile          *file,
+                              GFile          *other_file,
+                              gboolean        is_directory,
+                              gboolean        is_source_monitored,
+                              gpointer        user_data)
+{
+	gchar *path;
+	gchar *other_path;
+
+	g_assert (file != NULL);
+	path = g_file_get_path (other_file);
+	other_path = g_file_get_path (other_file);
+
+	g_debug ("***** '%s'->'%s' (%s) (MOVED) (source %smonitored)",
+	         path,
+	         other_path,
+	         is_directory ? "DIR" : "FILE",
+	         is_source_monitored ? "" : "not ");
+
+	g_free (other_path);
+	g_free (path);
+
+	/* Add event to the files */
+	add_event ((GHashTable *) user_data,
+	           file,
+	           MONITOR_SIGNAL_ITEM_MOVED_FROM);
+	add_event ((GHashTable *) user_data,
+	           other_file,
+	           MONITOR_SIGNAL_ITEM_MOVED_TO);
+}
+
+static void
+test_monitor_common_setup (TrackerMonitorTestFixture *fixture,
+                           gconstpointer data)
+{
+	gchar *basename;
+
+	/* Create HT to store received events */
+	fixture->events = g_hash_table_new_full (g_file_hash,
+	                                         (GEqualFunc) g_file_equal,
+	                                         NULL,
+	                                         NULL);
+
+	/* Create and setup the tracker monitor */
+	fixture->monitor = tracker_monitor_new ();
+	g_assert (fixture->monitor != NULL);
+
+	g_signal_connect (fixture->monitor, "item-created",
+	                  G_CALLBACK (test_monitor_events_created_cb),
+	                  fixture->events);
+	g_signal_connect (fixture->monitor, "item-updated",
+	                  G_CALLBACK (test_monitor_events_updated_cb),
+	                  fixture->events);
+	g_signal_connect (fixture->monitor, "item-deleted",
+	                  G_CALLBACK (test_monitor_events_deleted_cb),
+	                  fixture->events);
+	g_signal_connect (fixture->monitor, "item-moved",
+	                  G_CALLBACK (test_monitor_events_moved_cb),
+	                  fixture->events);
+
+	/* Initially, set it disabled */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+
+	/* Create a temp directory to monitor in the test */
+	basename = g_strdup_printf ("monitor-test-%d", getpid ());
+	fixture->monitored_directory = g_build_path (G_DIR_SEPARATOR_S, g_get_tmp_dir (), basename, NULL);
+	fixture->monitored_directory_file = g_file_new_for_path (fixture->monitored_directory);
+	g_assert (fixture->monitored_directory_file != NULL);
+	g_assert_cmpint (g_file_make_directory_with_parents (fixture->monitored_directory_file, NULL, NULL), ==, TRUE);
+	g_free (basename);
+	g_assert_cmpint (tracker_monitor_add (fixture->monitor, fixture->monitored_directory_file), ==, TRUE);
+	g_assert_cmpint (tracker_monitor_get_count (fixture->monitor), ==, 1);
+
+	/* Setup also not-monitored directory */
+	fixture->not_monitored_directory = g_strdup (g_get_tmp_dir ());
+
+	/* Create new main loop */
+	fixture->main_loop = g_main_loop_new (NULL, FALSE);
+	g_assert (fixture->main_loop != NULL);
+}
+
+static void
+test_monitor_common_teardown (TrackerMonitorTestFixture *fixture,
+                              gconstpointer data)
+{
+	/* Remove the main loop */
+	g_main_loop_unref (fixture->main_loop);
+
+	/* Cleanup monitor */
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, fixture->monitored_directory_file), ==, TRUE);
+	g_assert_cmpint (tracker_monitor_get_count (fixture->monitor), ==, 0);
+
+	/* Destroy monitor */
+	g_assert (fixture->monitor != NULL);
+	g_object_unref (fixture->monitor);
+
+	/* Remove the HT of events */
+	g_hash_table_destroy (fixture->events);
+
+	/* Remove base test directories */
+	g_assert (fixture->monitored_directory_file != NULL);
+	g_assert (fixture->monitored_directory != NULL);
+	g_assert_cmpint (g_file_delete (fixture->monitored_directory_file, NULL, NULL), ==, TRUE);
+	g_object_unref (fixture->monitored_directory_file);
+	g_free (fixture->monitored_directory);
+
+	g_assert (fixture->not_monitored_directory != NULL);
+	g_free (fixture->not_monitored_directory);
+}
+
+static void
+set_file_contents (const gchar  *directory,
+                   const gchar  *filename,
+                   const gchar  *contents,
+                   GFile       **outfile)
 {
 	FILE *file;
 	size_t length;
+	gchar *file_path;
 
+	g_assert (directory != NULL);
 	g_assert (filename != NULL);
 	g_assert (contents != NULL);
 
-	file = g_fopen (filename, "wb");
-	g_assert (file != NULL);
+	file_path = g_build_filename (directory, filename, NULL);
 
+	file = g_fopen (file_path, "wb");
+	g_assert (file != NULL);
 	length = strlen (contents);
 	g_assert_cmpint (fwrite (contents, 1, length, file), >=, length);
 	g_assert_cmpint (fflush (file), ==, 0);
 	g_assert_cmpint (fclose (file), !=, EOF);
+
+	if (outfile) {
+		*outfile = g_file_new_for_path (file_path);
+	}
+	g_free (file_path);
 }
 
 static void
-test_monitor_enabled (void)
+print_file_events_cb (gpointer key,
+                      gpointer value,
+                      gpointer user_data)
 {
-	/* Test general API with monitors enabled first */
+	GFile *file;
+	guint events;
+	gchar *uri;
+
+	file = key;
+	events = GPOINTER_TO_UINT (value);
+	uri = g_file_get_uri (file);
+
+	g_print ("Signals received for '%s': \n"
+	         "   CREATED:    %s\n"
+	         "   UPDATED:    %s\n"
+	         "   DELETED:    %s\n"
+	         "   MOVED_FROM: %s\n"
+	         "   MOVED_TO:   %s\n",
+	         uri,
+	         events & MONITOR_SIGNAL_ITEM_CREATED ? "yes" : "no",
+	         events & MONITOR_SIGNAL_ITEM_UPDATED ? "yes" : "no",
+	         events & MONITOR_SIGNAL_ITEM_DELETED ? "yes" : "no",
+	         events & MONITOR_SIGNAL_ITEM_MOVED_FROM ? "yes" : "no",
+	         events & MONITOR_SIGNAL_ITEM_MOVED_TO ? "yes" : "no");
+
+	g_free (uri);
+}
+
+static gboolean
+timeout_cb (gpointer data)
+{
+	g_main_loop_quit ((GMainLoop *) data);
+	return FALSE;
+}
+
+static void
+events_wait (TrackerMonitorTestFixture *fixture)
+{
+	/* Setup timeout to stop the main loop after some seconds */
+	g_timeout_add_seconds (TEST_TIMEOUT, timeout_cb, fixture->main_loop);
+	g_debug ("Waiting %u seconds for monitor events...", TEST_TIMEOUT);
+	g_main_loop_run (fixture->main_loop);
+
+	/* Print signals received for each file */
+	g_hash_table_foreach (fixture->events, print_file_events_cb, NULL);
+}
+
+/* ----------------------------- FILE EVENT TESTS --------------------------------- */
+
+static void
+test_monitor_file_event_created (TrackerMonitorTestFixture *fixture,
+                                 gconstpointer data)
+{
+	GFile *test_file;
+	guint file_events;
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Create file to test with */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &test_file);
+	g_assert (test_file != NULL);
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (test_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, test_file));
+
+	/* Fail if we didn't get the CREATE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), >, 0);
+
+	/* Fail if we got a MOVE or DELETE signal (update may actually happen) */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+
+	/* Remove the test file */
+	g_assert_cmpint (g_file_delete (test_file, NULL, NULL), ==, TRUE);
+	g_object_unref (test_file);
+}
+
+static void
+test_monitor_file_event_updated (TrackerMonitorTestFixture *fixture,
+                                 gconstpointer data)
+{
+	GFile *test_file;
+	guint file_events;
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", NULL);
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Now, trigger update of the already created file */
+	set_file_contents (fixture->monitored_directory, "created.txt", "barrrr", &test_file);
+	g_assert (test_file != NULL);
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (test_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, test_file));
+
+	/* Fail if we didn't get the UPDATE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), >, 0);
+
+	/* Fail if we got a CREATE, MOVE or DELETE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+
+	/* Remove the test file */
+	g_assert_cmpint (g_file_delete (test_file, NULL, NULL), ==, TRUE);
+	g_object_unref (test_file);
+}
+
+static void
+test_monitor_file_event_deleted (TrackerMonitorTestFixture *fixture,
+                                 gconstpointer data)
+{
+	GFile *test_file;
+	guint file_events;
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &test_file);
+	g_assert (test_file != NULL);
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Now, remove file */
+	g_assert_cmpint (g_file_delete (test_file, NULL, NULL), ==, TRUE);
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (test_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, test_file));
+
+	/* Fail if we didn't get the DELETED signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), >, 0);
+
+	/* Fail if we got a CREATE, UDPATE or MOVE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_object_unref (test_file);
+}
+
+static void
+test_monitor_file_event_moved_to_monitored (TrackerMonitorTestFixture *fixture,
+                                            gconstpointer data)
+{
+	GFile *source_file;
+	gchar *source_path;
+	GFile *dest_file;
+	gchar *dest_path;
+	guint file_events;
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &source_file);
+	g_assert (source_file != NULL);
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Now, rename the file */
+	source_path = g_file_get_path (source_file);
+	dest_path = g_build_filename (fixture->monitored_directory, "renamed.txt", NULL);
+	dest_file = g_file_new_for_path (dest_path);
+	g_assert (dest_file != NULL);
+
+	g_assert_cmpint (g_rename (source_path, dest_path), ==, 0);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (source_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (dest_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the source file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, source_file));
+	/* Fail if we didn't get the MOVED_FROM signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), >, 0);
+	/* Fail if we got a CREATE, UPDATE or MOVE_TO signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+
+	/* Get events in the dest file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, dest_file));
+	/* Fail if we didn't get the MOVED_TO signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), >, 0);
+	/* Fail if we got a CREATE or MOVE_FROM signal (UPDATE may actually be possible) */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_assert_cmpint (g_file_delete (dest_file, NULL, NULL), ==, TRUE);
+	g_object_unref (source_file);
+	g_object_unref (dest_file);
+	g_free (source_path);
+	g_free (dest_path);
+}
+
+static void
+test_monitor_file_event_moved_to_not_monitored (TrackerMonitorTestFixture *fixture,
+                                                gconstpointer data)
+{
+	GFile *source_file;
+	gchar *source_path;
+	GFile *dest_file;
+	gchar *dest_path;
+	guint file_events;
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &source_file);
+	g_assert (source_file != NULL);
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Now, rename the file */
+	source_path = g_file_get_path (source_file);
+	dest_path = g_build_filename (fixture->not_monitored_directory, "out.txt", NULL);
+	dest_file = g_file_new_for_path (dest_path);
+	g_assert (dest_file != NULL);
+
+	g_assert_cmpint (g_rename (source_path, dest_path), ==, 0);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (source_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (dest_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the source file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, source_file));
+	/* Fail if we didn't get the DELETED signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), >, 0);
+	/* Fail if we got a CREATE, UPDATE or MOVE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+
+	/* Get events in the dest file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, dest_file));
+	/* Fail if we got a CREATE, UPDATE, DELETE or MOVE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_assert_cmpint (g_file_delete (dest_file, NULL, NULL), ==, TRUE);
+	g_object_unref (source_file);
+	g_object_unref (dest_file);
+	g_free (source_path);
+	g_free (dest_path);
+}
+
+static void
+test_monitor_file_event_moved_from_not_monitored (TrackerMonitorTestFixture *fixture,
+                                                  gconstpointer data)
+{
+	GFile *source_file;
+	gchar *source_path;
+	GFile *dest_file;
+	gchar *dest_path;
+	guint file_events;
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->not_monitored_directory, "created.txt", "foo", &source_file);
+	g_assert (source_file != NULL);
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Now, rename the file */
+	source_path = g_file_get_path (source_file);
+	dest_path = g_build_filename (fixture->monitored_directory, "in.txt", NULL);
+	dest_file = g_file_new_for_path (dest_path);
+	g_assert (dest_file != NULL);
+
+	g_assert_cmpint (g_rename (source_path, dest_path), ==, 0);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (source_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (dest_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the source file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, source_file));
+	/* Fail if we got a CREATE, UPDATE, DELETE or MOVE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+
+	/* Get events in the dest file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, dest_file));
+	/* Fail if we didn't get the CREATED signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), >, 0);
+	/* Fail if we got a DELETE, UPDATE or MOVE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_assert_cmpint (g_file_delete (dest_file, NULL, NULL), ==, TRUE);
+	g_object_unref (source_file);
+	g_object_unref (dest_file);
+	g_free (source_path);
+	g_free (dest_path);
+}
+
+/* ----------------------------- BASIC API TESTS --------------------------------- */
+
+static void
+test_monitor_basic (void)
+{
+	TrackerMonitor *monitor;
+	gchar *basename;
+	gchar *path_for_monitor;
+	GFile *file_for_monitor;
+	GFile *file_for_tmp;
+
+	/* Setup directories */
+	basename = g_strdup_printf ("monitor-test-%d", getpid ());
+	path_for_monitor = g_build_path (G_DIR_SEPARATOR_S, g_get_tmp_dir (), basename, NULL);
+	g_free (basename);
+	g_assert_cmpint (g_mkdir_with_parents (path_for_monitor, 00755), ==, 0);
+
+	file_for_monitor = g_file_new_for_path (path_for_monitor);
+	g_assert (G_IS_FILE (file_for_monitor));
+
+	file_for_tmp = g_file_new_for_path (g_get_tmp_dir ());
+	g_assert (G_IS_FILE (file_for_tmp));
+
+	/* Create a monitor */
+	monitor = tracker_monitor_new ();
+	g_assert (monitor != NULL);
+
+	/* Test general API with monitors enabled */
 	tracker_monitor_set_enabled (monitor, TRUE);
 	g_assert_cmpint (tracker_monitor_get_enabled (monitor), ==, TRUE);
 
@@ -168,7 +689,7 @@ test_monitor_enabled (void)
 	g_assert_cmpint (tracker_monitor_remove_recursively (monitor, file_for_tmp), ==, TRUE);
 	g_assert_cmpint (tracker_monitor_get_count (monitor), ==, 0);
 
-	/* Test general API with monitors disabled first */
+	/* Test general API with monitors disabled */
 	tracker_monitor_set_enabled (monitor, FALSE);
 	g_assert_cmpint (tracker_monitor_get_enabled (monitor), ==, FALSE);
 
@@ -187,331 +708,75 @@ test_monitor_enabled (void)
 	g_assert_cmpint (tracker_monitor_get_count (monitor), ==, 2);
 	g_assert_cmpint (tracker_monitor_remove_recursively (monitor, file_for_tmp), ==, TRUE);
 	g_assert_cmpint (tracker_monitor_get_count (monitor), ==, 0);
-}
 
-static void
-test_monitor_file_events (void)
-{
-	/* Set up environment */
-	g_assert_cmpint (g_hash_table_size (events), ==, 0);
-	tracker_monitor_set_enabled (monitor, TRUE);
-	g_assert_cmpint (tracker_monitor_get_enabled (monitor), ==, TRUE);
-	g_assert_cmpint (tracker_monitor_add (monitor, file_for_monitor), ==, TRUE);
-	g_assert_cmpint (tracker_monitor_get_count (monitor), ==, 1);
-
-	/* Test CREATED.
-	 *  Actually, UPDATED will also probably arrive here. */
-	g_debug (">> Testing CREATE");
-	create_file (path_for_events, "foo");
-	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_CREATED,
-	                       MONITOR_SIGNAL_EXPECTED_NONE);
-
-	/* Test UPDATE */
-	g_debug (">> Testing UPDATE");
-	create_file (path_for_events, "bar");
-	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_UPDATED,
-	                       MONITOR_SIGNAL_EXPECTED_NONE);
-
-	/* Test MOVE to (monitored dir).
-	 * When moving to a directory also monitored, a MOVE event
-	 * must arrive, and no DELETED event. */
-	g_debug (">> Testing MOVE to monitored dir");
-	g_assert_cmpint (g_rename (path_for_events, path_for_move_in), ==, 0);
-	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_MOVED,
-	                       MONITOR_SIGNAL_EXPECTED_ITEM_DELETED);
-
-	/* Test MOVE back (monitored dir)
-	 * When moving from a directory also monitored, a MOVE event
-	 * must arrive, and no DELETED event. */
-	g_debug (">> Testing MOVE from monitored dir");
-	g_assert_cmpint (g_rename (path_for_move_in, path_for_events), ==, 0);
-	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_MOVED,
-	                       MONITOR_SIGNAL_EXPECTED_ITEM_DELETED);
-
-	/* Test MOVE to (not monitored dir)
-	 * When moving to a directory NOT monitored, a DELETE event
-	 * must arrive, and no MOVE event. */
-	g_debug (">> Testing MOVE to NOT monitored dir");
-	g_assert_cmpint (g_rename (path_for_events, path_for_move_out), ==, 0);
-	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_DELETED,
-	                       MONITOR_SIGNAL_EXPECTED_ITEM_MOVED);
-
-	/* Test MOVE back (not monitored dir)
-	 * When moving from a directory NOT monitored, a CREATE event
-	 * must arrive, and no MOVE event.*/
-	g_debug (">> Testing MOVE from NOT monitored dir");
-	g_assert_cmpint (g_rename (path_for_move_out, path_for_events), ==, 0);
-	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_CREATED,
-	                       MONITOR_SIGNAL_EXPECTED_ITEM_MOVED);
-
-	/* TODO: Add more complex MOVE operations */
-
-	/* Test DELETED */
-	g_assert_cmpint (g_unlink (path_for_events), ==, 0);
-	events_wait_and_check (MONITOR_SIGNAL_EXPECTED_ITEM_DELETED,
-	                       MONITOR_SIGNAL_EXPECTED_NONE);
-
-	/* Clean up */
-	g_assert_cmpint (tracker_monitor_remove (monitor, file_for_monitor), ==, TRUE);
-}
-
-static void
-test_monitor_events_created_cb (TrackerMonitor *monitor,
-                                GFile          *file,
-                                gboolean        is_directory,
-                                gpointer        user_data)
-{
-	gchar *path;
-
-	g_assert (file != NULL);
-
-	path = g_file_get_path (file);
-	g_assert (path != NULL);
-
-	g_debug ("***** '%s' (%s) (CREATED)",
-	         path,
-	         is_directory ? "DIR" : "FILE");
-
-	signals_received |= MONITOR_SIGNAL_EXPECTED_ITEM_CREATED;
-
-	/* More tests? */
-
-	g_free (path);
-
-	/* g_assert_cmpstr (g_file_get_path (file), ==, g_file_get_path (file_for_events)); */
-	if (!is_directory && g_file_equal (file, file_for_events)) {
-		events_received ();
-	}
-}
-
-static void
-test_monitor_events_updated_cb (TrackerMonitor *monitor,
-                                GFile          *file,
-                                gboolean        is_directory,
-                                gpointer        user_data)
-{
-	gchar *path;
-
-	g_assert (file != NULL);
-
-	path = g_file_get_path (file);
-	g_assert (path != NULL);
-
-	g_debug ("***** '%s' (%s) (UPDATED)",
-	         path,
-	         is_directory ? "DIR" : "FILE");
-
-	signals_received |= MONITOR_SIGNAL_EXPECTED_ITEM_UPDATED;
-
-	/* More tests? */
-
-	g_free (path);
-
-	if (!is_directory && g_file_equal (file, file_for_events)) {
-		events_received ();
-	}
-}
-
-static void
-test_monitor_events_deleted_cb (TrackerMonitor *monitor,
-                                GFile          *file,
-                                gboolean        is_directory,
-                                gpointer        user_data)
-{
-	gchar *path;
-
-	g_assert (file != NULL);
-
-	path = g_file_get_path (file);
-	g_assert (path != NULL);
-
-	g_debug ("***** '%s' (%s) (DELETED)",
-	         path,
-	         is_directory ? "DIR" : "FILE");
-
-	signals_received |= MONITOR_SIGNAL_EXPECTED_ITEM_DELETED;
-
-	/* More tests? */
-
-	g_free (path);
-
-	if (!is_directory && g_file_equal (file, file_for_events)) {
-		events_received ();
-	}
-}
-
-static void
-test_monitor_events_moved_cb (TrackerMonitor *monitor,
-                              GFile          *file,
-                              GFile          *other_file,
-                              gboolean        is_directory,
-                              gboolean        is_source_monitored,
-                              gpointer        user_data)
-{
-	g_assert (file != NULL);
-
-	signals_received |= MONITOR_SIGNAL_EXPECTED_ITEM_MOVED;
-
-	if (!is_source_monitored) {
-		if (is_directory) {
-			gchar *path;
-
-			path = g_file_get_path (other_file);
-
-			g_debug ("***** Not in store:'?'->'%s' (DIR) (MOVED, source unknown)",
-			         path);
-
-			g_free (path);
-		}
-	} else {
-		gchar *path;
-		gchar *other_path;
-
-		path = g_file_get_path (file);
-		other_path = g_file_get_path (other_file);
-
-		g_debug ("***** '%s'->'%s' (%s) (MOVED)",
-		         path,
-		         other_path,
-		         is_directory ? "DIR" : "FILE");
-
-		/* FIXME: Guessing this soon the queue the event should pertain
-		 *        to could introduce race conditions if events from other
-		 *        queues for the same files are processed before items_moved,
-		 *        Most of these decisions should be taken when the event is
-		 *        actually being processed.
-		 */
-
-		g_free (other_path);
-		g_free (path);
-	}
-
-	if (!is_directory &&
-	    (g_file_equal (file, file_for_events) ||
-	     g_file_equal (other_file, file_for_events))) {
-		events_received ();
-	}
-}
-
-static void
-test_monitor_new (void)
-{
-	gchar *basename;
-	gboolean success;
-
-	monitor = tracker_monitor_new ();
-	g_assert (monitor != NULL);
-
-	basename = g_strdup_printf ("monitor-test-%d", getpid ());
-	path_for_monitor = g_build_path (G_DIR_SEPARATOR_S, g_get_tmp_dir (), basename, NULL);
-	g_free (basename);
-
-	success = g_mkdir_with_parents (path_for_monitor, 00755) == 0;
-	g_assert_cmpint (success, ==, TRUE);
-
-	file_for_monitor = g_file_new_for_path (path_for_monitor);
-	g_assert (G_IS_FILE (file_for_monitor));
-
-	file_for_tmp = g_file_new_for_path (g_get_tmp_dir ());
-	g_assert (G_IS_FILE (file_for_tmp));
-
-	g_signal_connect (monitor, "item-created",
-	                  G_CALLBACK (test_monitor_events_created_cb),
-	                  NULL);
-	g_signal_connect (monitor, "item-updated",
-	                  G_CALLBACK (test_monitor_events_updated_cb),
-	                  NULL);
-	g_signal_connect (monitor, "item-deleted",
-	                  G_CALLBACK (test_monitor_events_deleted_cb),
-	                  NULL);
-	g_signal_connect (monitor, "item-moved",
-	                  G_CALLBACK (test_monitor_events_moved_cb),
-	                  NULL);
-
-	events = g_hash_table_new_full (g_file_hash,
-	                                (GEqualFunc) g_file_equal,
-	                                g_object_unref,
-	                                NULL);
-
-	path_for_events = g_build_filename (path_for_monitor, "events.txt", NULL);
-	g_assert (path_for_events != NULL);
-	file_for_events = g_file_new_for_path (path_for_events);
-	g_assert (file_for_events != NULL);
-
-	path_for_move_in = g_build_filename (path_for_monitor, "moved.txt", NULL);
-	g_assert (path_for_move_in != NULL);
-	file_for_move_in = g_file_new_for_path (path_for_move_in);
-	g_assert (file_for_move_in != NULL);
-
-	path_for_move_out = g_build_filename (g_get_tmp_dir (), "moved.txt", NULL);
-	g_assert (path_for_move_out != NULL);
-	file_for_move_out = g_file_new_for_path (path_for_move_out);
-	g_assert (file_for_move_out != NULL);
-}
-
-static void
-test_monitor_free (void)
-{
-	g_assert (events != NULL);
-	g_hash_table_unref (events);
-
+	/* Cleanup */
 	g_assert_cmpint (g_rmdir (path_for_monitor), ==, 0);
-
-	g_assert (path_for_move_out != NULL);
-	g_free (path_for_move_out);
-	g_assert (file_for_move_out != NULL);
-	g_object_unref (file_for_move_out);
-
-	g_assert (path_for_move_in != NULL);
-	g_free (path_for_move_in);
-	g_assert (file_for_move_in != NULL);
-	g_object_unref (file_for_move_in);
-
-	g_assert (path_for_events != NULL);
-	g_free (path_for_events);
-	g_assert (file_for_events != NULL);
-	g_object_unref (file_for_events);
-
 	g_assert (file_for_tmp != NULL);
 	g_object_unref (file_for_tmp);
-
 	g_assert (file_for_monitor != NULL);
 	g_object_unref (file_for_monitor);
 	g_assert (path_for_monitor != NULL);
 	g_free (path_for_monitor);
-
 	g_assert (monitor != NULL);
 	g_object_unref (monitor);
-	monitor = NULL;
 }
 
-int
-main (int    argc,
-      char **argv)
+gint
+main (gint    argc,
+      gchar **argv)
 {
-	g_type_init ();
 	g_thread_init (NULL);
+	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
-
-	initialize_signal_handler ();
 
 	g_test_message ("Testing filesystem monitor");
 
-	g_test_add_func ("/libtracker-miner/tracker-monitor/monitor-new",
-	                 test_monitor_new);
-	g_test_add_func ("/libtracker-miner/tracker-monitor/monitor-file-events",
-	                 test_monitor_file_events);
+	/* Basic API tests */
+	g_test_add_func ("/libtracker-miner/tracker-monitor/basic",
+	                 test_monitor_basic);
 
-	/* TODO: Add directory events tests */
+	/* File Event tests */
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/created",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_created,
+	            test_monitor_common_teardown);
 
-	/* FIXME: Bug found, if this test occurs before the events
-	 * test the setting up of the monitor again doesn't produce
-	 * any actual events.
-	 */
-	g_test_add_func ("/libtracker-miner/tracker-monitor/monitor-enabled",
-	                 test_monitor_enabled);
-	g_test_add_func ("/libtracker-miner/tracker-monitor/monitor-free",
-	                 test_monitor_free);
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/updated",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_updated,
+	            test_monitor_common_teardown);
+
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/deleted",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_deleted,
+	            test_monitor_common_teardown);
+
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/moved/to-monitored",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_moved_to_monitored,
+	            test_monitor_common_teardown);
+
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/moved/to-not-monitored",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_moved_to_not_monitored,
+	            test_monitor_common_teardown);
+
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/moved/from-not-monitored",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_moved_from_not_monitored,
+	            test_monitor_common_teardown);
 
 	return g_test_run ();
 }
