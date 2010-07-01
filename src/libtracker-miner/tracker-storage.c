@@ -350,7 +350,8 @@ static gchar *
 mount_guess_content_type (GFile    *mount_root,
 			  GVolume  *volume,
 			  gboolean *is_optical,
-			  gboolean *is_multimedia)
+                          gboolean *is_multimedia,
+                          gboolean *is_blank)
 {
 	GUnixMountEntry *entry;
 	gchar *content_type = NULL;
@@ -375,15 +376,15 @@ mount_guess_content_type (GFile    *mount_root,
 
 	*is_optical = FALSE;
 	*is_multimedia = FALSE;
+	*is_blank = FALSE;
 
 	mount_path = g_file_get_path (mount_root);
 
 	/* FIXME: Try to assume we have a unix mount :(
 	 * EEK, once in a while, I have to write crack, oh well
 	 */
-	entry = g_unix_mount_at (mount_path, NULL);
-
-	if (entry) {
+	if (mount_path &&
+	    (entry = g_unix_mount_at (mount_path, NULL)) != NULL) {
 		const gchar *filesystem_type;
 		gchar *device_path = NULL;
 
@@ -481,6 +482,7 @@ mount_guess_content_type (GFile    *mount_root,
 			   !g_strcmp0 (guess_type[i], "x-content/blank-dvd") ||
 			   !g_strcmp0 (guess_type[i], "x-content/blank-hddvd")) {
 			/* Blank */
+			*is_blank = TRUE;
 			content_type = g_strdup (guess_type[i]);
 			break;
 		} else if (!g_strcmp0 (guess_type[i], "x-content/software") ||
@@ -500,6 +502,12 @@ mount_guess_content_type (GFile    *mount_root,
 
 	if (guess_type) {
 		g_strfreev (guess_type);
+	}
+
+	/* If none of the previous methods worked, return NULL content type and
+	 * set is_blank so that it's not indexed */
+	if (!content_type) {
+		*is_blank = TRUE;
 	}
 
 	return content_type;
@@ -551,20 +559,23 @@ mount_add (TrackerStorage *storage,
 		if (!uuid) {
 			gchar *content_type;
 			gboolean is_multimedia;
+			gboolean is_blank;
 
 			/* Optical discs usually won't have UUID in the GVolume */
-			content_type = mount_guess_content_type (root, volume, &is_optical, &is_multimedia);
+			content_type = mount_guess_content_type (root, volume, &is_optical, &is_multimedia, &is_blank);
 			is_removable = TRUE;
 
-			/* We don't index content which is video or music, nothing to index */
-			if (!is_multimedia) {
+			/* We don't index content which is video, music or blank */
+			if (!is_multimedia && !is_blank) {
 				uuid = g_compute_checksum_for_string (G_CHECKSUM_MD5,
 								      mount_name,
 								      -1);
 				g_debug ("  No UUID, generated:'%s' (based on mount name)", uuid);
-				g_debug ("  Assuming GVolume has removable media, if wrong report a bug!");
+				g_debug ("  Assuming GVolume has removable media, if wrong report a bug! "
+				         "content type is '%s'",
+				         content_type);
 			} else {
-				g_debug ("  Being ignored because mount is music/video, content type is '%s'",
+				g_debug ("  Being ignored because mount is music/video/blank, content type is '%s'",
 					 content_type);
 			}
 
@@ -598,16 +609,17 @@ mount_add (TrackerStorage *storage,
 			if (mount_path) {
 				gchar *content_type;
 				gboolean is_multimedia;
+				gboolean is_blank;
 
-				content_type = mount_guess_content_type (root, volume, &is_optical, &is_multimedia);
+				content_type = mount_guess_content_type (root, volume, &is_optical, &is_multimedia, &is_blank);
 
-				if (!is_multimedia) {
+				if (!is_multimedia && !is_blank) {
 					uuid = g_compute_checksum_for_string (G_CHECKSUM_MD5,
 									      mount_path,
 									      -1);
 					g_debug ("  No UUID, generated:'%s' (based on mount path)", uuid);
 				} else {
-					g_debug ("  Being ignored because mount is music/video, content type is '%s'",
+					g_debug ("  Being ignored because mount is music/video/blank, content type is '%s'",
 						 content_type);
 				}
 
