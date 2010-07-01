@@ -712,11 +712,18 @@ test_monitor_directory_event_moved_to_monitored (TrackerMonitorTestFixture *fixt
 	gchar *source_path;
 	GFile *dest_dir;
 	gchar *dest_path;
+	GFile *file_in_source_dir;
+	GFile *file_in_dest_dir;
+	gchar *file_in_dest_dir_path;
 	guint file_events;
 
 	/* Create directory to test with, before setting up the environment */
 	create_directory (fixture->monitored_directory, "foo", &source_dir);
+	source_path = g_file_get_path (source_dir);
 	g_assert (source_dir != NULL);
+
+	/* Add some file to the new dir */
+	set_file_contents (source_path, "lalala.txt", "whatever", &file_in_source_dir);
 
 	/* Set up environment */
 	tracker_monitor_set_enabled (fixture->monitor, TRUE);
@@ -724,11 +731,18 @@ test_monitor_directory_event_moved_to_monitored (TrackerMonitorTestFixture *fixt
 	/* Set to monitor the new dir also */
 	g_assert_cmpint (tracker_monitor_add (fixture->monitor, source_dir), ==, TRUE);
 
-	/* Now, rename the file */
-	source_path = g_file_get_path (source_dir);
-	dest_path = g_build_path (G_DIR_SEPARATOR_S, fixture->monitored_directory, "renamed", NULL);
-	dest_dir = g_file_new_for_path (dest_path);
-	g_assert (dest_dir != NULL);
+	/* Get final path of the file */
+	file_in_dest_dir_path = g_build_path (G_DIR_SEPARATOR_S,
+	                                      fixture->monitored_directory,
+	                                      "renamed",
+	                                      "lalala.txt",
+	                                      NULL);
+	file_in_dest_dir = g_file_new_for_path (file_in_dest_dir_path);
+	g_assert (file_in_dest_dir != NULL);
+
+	/* Now, rename the directory */
+	dest_dir = g_file_get_parent (file_in_dest_dir);
+	dest_path = g_file_get_path (dest_dir);
 
 	g_assert_cmpint (g_rename (source_path, dest_path), ==, 0);
 
@@ -737,6 +751,12 @@ test_monitor_directory_event_moved_to_monitored (TrackerMonitorTestFixture *fixt
 	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
 	g_hash_table_insert (fixture->events,
 	                     g_object_ref (dest_dir),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (file_in_dest_dir),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (file_in_source_dir),
 	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
 
 	/* Wait for events */
@@ -761,14 +781,37 @@ test_monitor_directory_event_moved_to_monitored (TrackerMonitorTestFixture *fixt
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
 
+	/* Get events in the file in source dir */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, file_in_source_dir));
+	/* Fail if we got ANY signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+
+	/* Get events in the file in dest dir */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, file_in_dest_dir));
+	/* Fail if we got ANY signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+
+
 	/* Cleanup environment */
 	tracker_monitor_set_enabled (fixture->monitor, FALSE);
 	/* Note that monitor is now in dest_dir */
 	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, dest_dir), ==, TRUE);
+	g_assert_cmpint (g_file_delete (file_in_dest_dir, NULL, NULL), ==, TRUE);
 	g_assert_cmpint (g_file_delete (dest_dir, NULL, NULL), ==, TRUE);
 	g_object_unref (source_dir);
+	g_object_unref (file_in_source_dir);
 	g_object_unref (dest_dir);
+	g_object_unref (file_in_dest_dir);
 	g_free (source_path);
+	g_free (file_in_dest_dir_path);
 	g_free (dest_path);
 }
 
