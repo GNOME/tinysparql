@@ -348,8 +348,8 @@ mount_add_new (TrackerStorage *storage,
 
 static gchar *
 mount_guess_content_type (GFile    *mount_root,
-			  GVolume  *volume,
-			  gboolean *is_optical,
+                          GVolume  *volume,
+                          gboolean *is_optical,
                           gboolean *is_multimedia,
                           gboolean *is_blank)
 {
@@ -791,8 +791,8 @@ get_mount_point_by_uuid_foreach (gpointer key,
  **/
 GSList *
 tracker_storage_get_device_roots (TrackerStorage     *storage,
-				  TrackerStorageType  type,
-				  gboolean            exact_match)
+                                  TrackerStorageType  type,
+                                  gboolean            exact_match)
 {
 	TrackerStoragePrivate *priv;
 	GetRoots gr;
@@ -824,8 +824,8 @@ tracker_storage_get_device_roots (TrackerStorage     *storage,
  **/
 GSList *
 tracker_storage_get_device_uuids (TrackerStorage     *storage,
-				  TrackerStorageType  type,
-				  gboolean            exact_match)
+                                  TrackerStorageType  type,
+                                  gboolean            exact_match)
 {
 	TrackerStoragePrivate *priv;
 	GHashTableIter iter;
