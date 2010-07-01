@@ -440,7 +440,7 @@ store_name_monitor_cb (TrackerMiner *miner,
 {
 	GError *error = NULL;
 
-	g_debug ("Store availability has changed to %s", 
+	g_debug ("Store availability has changed to %s",
 		 available ? "AVAILABLE" : "UNAVAILABLE");
 
 	if (available && miner->private->availability_cookie != 0) {
@@ -1133,9 +1133,8 @@ _tracker_miner_dbus_get_progress (TrackerMiner           *miner,
 
 	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
 
-	dbus_g_method_return (context, miner->private->progress);
-
 	tracker_dbus_request_success (request_id, context);
+	dbus_g_method_return (context, miner->private->progress);
 }
 
 void
