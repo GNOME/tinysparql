@@ -18,6 +18,7 @@ config_SCRIPTS =			\
 	bootup-tc.py			\
 	configuration.py		\
 	metadata_extraction_tc.py	\
+	mass-storage-mode.py		\
 	miner-basic-ops.py		\
 	performance-tc.py		\
 	tests.xml			\
