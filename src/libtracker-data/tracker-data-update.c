@@ -1369,7 +1369,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
 		change |= cache_set_metadata_decomposed (*super_properties, value, value_id,
-		                               graph, graph_id, &new_error);
+		                                         graph, graph_id, &new_error);
 		if (new_error) {
 			g_propagate_error (error, new_error);
 			return FALSE;
@@ -1434,11 +1434,31 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 		g_value_unset (&gvalue);
 
 	} else {
+
 		cache_insert_value (table_name, field_name, &gvalue,
 		                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
 		                    multiple_values,
 		                    tracker_property_get_fulltext_indexed (property),
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+
+		if (!multiple_values) {
+			TrackerClass *domain_index_class;
+
+			domain_index_class = tracker_property_get_domain_index (property);
+
+			if (domain_index_class) {
+				GValue gvalue_copy = { 0 };
+
+				g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
+				g_value_copy (&gvalue, &gvalue_copy);
+
+				cache_insert_value (tracker_class_get_name (domain_index_class), field_name, &gvalue_copy,
+				                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
+				                    multiple_values,
+				                    tracker_property_get_fulltext_indexed (property),
+				                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+			}
+		}
 
 		change = TRUE;
 	}
@@ -1490,6 +1510,23 @@ delete_metadata_decomposed (TrackerProperty  *property,
 		cache_delete_value (table_name, field_name, &gvalue, multiple_values,
 		                    tracker_property_get_fulltext_indexed (property),
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+
+		if (!multiple_values) {
+			TrackerClass *domain_index_class;
+
+			domain_index_class = tracker_property_get_domain_index (property);
+
+			if (domain_index_class) {
+				GValue gvalue_copy = { 0 };
+
+				g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
+				g_value_copy (&gvalue, &gvalue_copy);
+
+				cache_delete_value (tracker_class_get_name (domain_index_class), field_name, &gvalue_copy, multiple_values,
+				                    tracker_property_get_fulltext_indexed (property),
+				                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+			}
+		}
 
 		change = TRUE;
 	}
@@ -1599,6 +1636,25 @@ cache_delete_resource_type (TrackerClass *class,
 			cache_delete_value (table_name, field_name, &gvalue, multiple_values,
 			                    tracker_property_get_fulltext_indexed (prop),
 			                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
+
+
+			if (!multiple_values) {
+				TrackerClass *domain_index_class;
+
+				domain_index_class = tracker_property_get_domain_index (prop);
+
+				if (domain_index_class) {
+					GValue gvalue_copy = { 0 };
+
+					g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
+					g_value_copy (&gvalue, &gvalue_copy);
+
+					cache_delete_value (tracker_class_get_name (domain_index_class), field_name, &gvalue_copy, multiple_values,
+					                    tracker_property_get_fulltext_indexed (prop),
+					                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
+				}
+			}
+
 		}
 	}
 

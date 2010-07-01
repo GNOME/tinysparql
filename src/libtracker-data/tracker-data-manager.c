@@ -560,6 +560,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		if (!ignore) {
 			tracker_property_set_is_new_domain_index (property, in_update);
 			tracker_class_add_domain_index (class, property);
+			tracker_property_set_domain_index (property, class);
 		}
 
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "writeback") == 0) {
@@ -1304,6 +1305,7 @@ class_add_domain_indexes_from_db (TrackerDBInterface *iface,
 			domain_index_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 			domain_index = tracker_ontologies_get_property_by_uri (domain_index_uri);
 			tracker_class_add_domain_index (class, domain_index);
+			tracker_property_set_domain_index (domain_index, class);
 		}
 
 		g_object_unref (cursor);
@@ -1638,6 +1640,7 @@ db_get_static_data (TrackerDBInterface *iface)
 
 			default_value = tracker_db_cursor_get_string (cursor, 13, NULL);
 
+			tracker_property_set_domain_index (property, NULL);
 			tracker_property_set_is_new_domain_index (property, FALSE);
 			tracker_property_set_is_new (property, FALSE);
 			tracker_property_set_transient (property, transient);

@@ -47,6 +47,7 @@ struct _TrackerPropertyPrivate {
 
 	TrackerPropertyType  data_type;
 	TrackerClass   *domain;
+	TrackerClass   *domain_index;
 	TrackerClass   *range;
 	gint           weight;
 	gint           id;
@@ -270,6 +271,21 @@ tracker_property_get_domain (TrackerProperty *property)
 	priv = GET_PRIV (property);
 
 	return priv->domain;
+}
+
+TrackerClass *
+tracker_property_get_domain_index (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	/* Removed for performance:
+	 g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
+
+	g_return_val_if_fail (property != NULL, NULL);
+
+	priv = GET_PRIV (property);
+
+	return priv->domain_index;
 }
 
 TrackerClass *
@@ -539,6 +555,26 @@ tracker_property_set_domain (TrackerProperty *property,
 
 	if (value) {
 		priv->domain = g_object_ref (value);
+	}
+}
+
+void
+tracker_property_set_domain_index (TrackerProperty *property,
+                                   TrackerClass    *value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	if (priv->domain_index) {
+		g_object_unref (priv->domain_index);
+		priv->domain_index = NULL;
+	}
+
+	if (value) {
+		priv->domain_index = g_object_ref (value);
 	}
 }
 
