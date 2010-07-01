@@ -80,9 +80,6 @@ typedef struct {
 	                             const gchar  *status,
 	                             gdouble       progress);
 
-	void (* error)              (TrackerMiner *miner,
-	                             GError       *error);
-
 	void (* ignore_next_update) (TrackerMiner *miner,
 	                             const GStrv   urls);
 } TrackerMinerClass;
