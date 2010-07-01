@@ -21,6 +21,10 @@
 
 #include "config.h"
 
+#define _GNU_SOURCE
+#include <sched.h>
+#include <pthread.h>
+
 #include <unistd.h>
 #include <sys/types.h>
 
@@ -103,6 +107,11 @@ typedef struct {
 } TrackerStoreTask;
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
+
+#ifdef __USE_GNU
+/* cpu used for mainloop thread and main update/query thread */
+static int main_cpu;
+#endif /* __USE_GNU */
 
 static void start_handler (TrackerStorePrivate *private);
 
@@ -446,6 +455,19 @@ pool_dispatch_cb (gpointer data,
 	TrackerStoreTask *task;
 	GThread *running_thread = g_thread_self ();
 
+#ifdef __USE_GNU
+	/* special task, only ever sent to main pool */
+	if (GPOINTER_TO_INT (data) == 1) {
+		cpu_set_t cpuset;
+		CPU_ZERO (&cpuset);
+		CPU_SET (main_cpu, &cpuset);
+
+		/* avoid cpu hopping which can lead to significantly worse performance */
+		pthread_setaffinity_np (pthread_self (), sizeof (cpu_set_t), &cpuset);
+		return;
+	}
+#endif /* __USE_GNU */
+
 	private = user_data;
 	task = data;
 
@@ -597,13 +619,15 @@ queue_idle_destroy (gpointer user_data)
 	private->have_handler = FALSE;
 }
 
-
 void
 tracker_store_init (void)
 {
 	TrackerStorePrivate *private;
 	gint i;
 	const char *tmp;
+#ifdef __USE_GNU
+	cpu_set_t cpuset;
+#endif /* __USE_GNU */
 
 	private = g_new0 (TrackerStorePrivate, 1);
 
@@ -630,10 +654,22 @@ tracker_store_init (void)
 	g_thread_pool_set_max_idle_time (15 * 1000);
 	g_thread_pool_set_max_unused_threads (2);
 
+#ifdef __USE_GNU
+	main_cpu = sched_getcpu ();
+	CPU_ZERO (&cpuset);
+	CPU_SET (main_cpu, &cpuset);
+
+	/* avoid cpu hopping which can lead to significantly worse performance */
+	pthread_setaffinity_np (pthread_self (), sizeof (cpu_set_t), &cpuset);
+	/* lock main update/query thread to same cpu to improve overall performance
+	   main loop thread is essentially idle during query execution */
+#endif /* __USE_GNU */
+
+	g_thread_pool_push (private->main_pool, GINT_TO_POINTER (1), NULL);
+
 	g_static_private_set (&private_key,
 	                      private,
 	                      private_free);
-
 }
 
 void
