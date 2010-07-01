@@ -26,11 +26,13 @@
 
 #include "tracker-events.h"
 
+#define MAX_EVENTS 1000000
 
 typedef struct {
 	GHashTable *allowances;
 	GArray *events;
 	GStringChunk *chunk;
+	gboolean frozen;
 } EventsPrivate;
 
 static EventsPrivate *private;
@@ -93,6 +95,18 @@ tracker_events_insert (const gchar *uri,
 	g_return_if_fail (rdf_types || type != TRACKER_DBUS_EVENTS_TYPE_UPDATE);
 	g_return_if_fail (private != NULL);
 
+	if (private->frozen) {
+		return;
+	}
+
+	if (private->events && private->events->len > MAX_EVENTS) {
+		/* too many events would lead to high memory usage and to dbus signal messages
+		   larger than maximum dbus message size, which results in dbus disconnect and tracker-store crash */
+		g_warning ("Too many events pending, disabling events for current transaction");
+		tracker_events_reset ();
+		private->frozen = TRUE;
+	}
+
 	if (rdf_types && type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
 		guint i;
 
@@ -127,6 +141,7 @@ tracker_events_reset (void)
 		private->chunk = NULL;
 		private->events = NULL;
 	}
+	private->frozen = FALSE;
 }
 
 GArray *
