@@ -1,3 +1,38 @@
+NEW in 0.8.14 - 2010-07-01
+==========================
+
+The changes are:
+
+ * Fixes: GB#511474, Remove the option to index remote mounted directories
+ * Fixes: GB#622734, too many open files error / possible file descriptor leak
+ * Fixes: GB#623203, Fix segfault when guessing content type in mounts without path
+ * Fixes: GB#616809, t-s-t shows Author as urn:uuid: in metadata bar
+ * Fixes: GB#622702, 0.8.13 does not build with gio 2.22 anymore
+ * Fixes: NB#174202, Some .pya audio files cannot be displayed in Music application after copying to device via USB.
+ * Fixes: NB#176932, Pure asf audio file is displayed in Video&TV application.
+ * Fixes: NB#177447, Remove the 'error' signal from TrackerMiner object
+ * general: Added -Wno-portability to AM_INIT_AUTOMAKE
+ * general: Bumped version requirement for GLib from 2.20 to 2.24
+ * tracker-control: Fixed typo in --help
+ * tracker-extract: Plug leaks in XMP extractor
+ * tracker-extract: Plug leaks in GStreamer extractor on pipeline creation errors
+ * tracker-store: Improve memory allocation for change events and avoid duplicates
+ * libtracker-miner: Fix potential invalid read error
+ * evolution: Don't fail to add mails with spaces in the folder name
+ * function-tests: added mass storage mode test cases
+
+Translations:
+
+ * Updated de: Mario Blättermann
+ * Updated sl: Andrej Žnidaršič
+ * Updated es: Jorge González
+ * Updated ja: Takeshi AIHANA
+
+Notes:
+
+  None
+
+
 NEW in 0.8.13 - 2010-06-24
 ==========================
 
