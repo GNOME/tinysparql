@@ -1975,6 +1975,44 @@ copy_from_domain_to_domain_index (TrackerDBInterface *iface,
 }
 
 static void
+copy_from_domain_to_domain_index (TrackerDBInterface *iface,
+                                  TrackerProperty    *domain_index,
+                                  const gchar        *column_name,
+                                  const gchar        *column_suffix,
+                                  TrackerClass       *dest_domain)
+{
+	GError *error = NULL;
+	TrackerClass *source_domain;
+	const gchar *source_name, *dest_name;
+	gchar *query;
+
+	source_domain = tracker_property_get_domain (domain_index);
+	source_name = tracker_class_get_name (source_domain);
+	dest_name = tracker_class_get_name (dest_domain);
+
+	query = g_strdup_printf ("UPDATE \"%s\" SET \"%s%s\"=("
+	                         "SELECT \"%s%s\" FROM \"%s\" "
+	                         "WHERE \"%s\".ID = \"%s\".ID)",
+	                         dest_name,
+	                         column_name,
+	                         column_suffix ? column_suffix : "",
+	                         column_name,
+	                         column_suffix ? column_suffix : "",
+	                         source_name,
+	                         source_name,
+	                         dest_name);
+
+	tracker_db_interface_execute_query (iface, &error, "%s", query);
+
+	if (error) {
+		g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
+		g_clear_error (&error);
+	}
+
+	g_free (query);
+}
+
+static void
 create_decomposed_metadata_tables (TrackerDBInterface *iface,
                                    TrackerClass       *service,
                                    gboolean            in_update,
@@ -1990,7 +2028,6 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	gint              i, n_props;
 	gboolean          in_alter = in_update;
 	GError           *error = NULL;
-	GSList           *domain_indexes_to_copy = NULL, *l;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
@@ -2124,8 +2161,17 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					if (error) {
 						g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
 						g_clear_error (&error);
+					} else if (is_domain_index) {
+						copy_from_domain_to_domain_index (iface, property,
+						                                  field_name, NULL,
+						                                  service);
+						/* This is implicit for all domain-specific-indices */
+						set_index_for_single_value_property (iface, service_name,
+						                                     field_name, TRUE);
 					}
+
 					g_string_free (alter_sql, TRUE);
+
 
 					alter_sql = g_string_new ("ALTER TABLE ");
 					g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:graph\" INTEGER",
@@ -2135,7 +2181,12 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					if (error) {
 						g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
 						g_clear_error (&error);
+					} else if (is_domain_index) {
+						copy_from_domain_to_domain_index (iface, property,
+						                                  field_name, ":graph",
+						                                  service);
 					}
+
 					g_string_free (alter_sql, TRUE);
 
 					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
@@ -2147,8 +2198,14 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						if (error) {
 							g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
 							g_clear_error (&error);
+						}	else if (is_domain_index) {
+							copy_from_domain_to_domain_index (iface, property,
+							                                  field_name, ":localDate",
+							                                  service);
 						}
+
 						g_string_free (alter_sql, TRUE);
+
 
 						alter_sql = g_string_new ("ALTER TABLE ");
 						g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:localTime\" INTEGER",
@@ -2158,7 +2215,12 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						if (error) {
 							g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
 							g_clear_error (&error);
+						} else if (is_domain_index) {
+							copy_from_domain_to_domain_index (iface, property,
+							                                  field_name, ":localTime",
+							                                  service);
 						}
+
 						g_string_free (alter_sql, TRUE);
 
 					}
@@ -2168,10 +2230,6 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 				if (in_change && put_change) {
 					range_change_for (property, in_col_sql, sel_col_sql, field_name);
-				}
-
-				if (is_domain_index && put_change) {
-					domain_indexes_to_copy = g_slist_prepend (domain_indexes_to_copy, property);
 				}
 			}
 		}
@@ -2186,12 +2244,17 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	/* create index for single-valued fields */
 	for (field_it = class_properties; field_it != NULL; field_it = field_it->next) {
 		TrackerProperty *field, *secondary_index;
-		const char   *field_name;
+		const char *field_name;
+		gboolean is_domain_index;
 
 		field = field_it->data;
 
+		/* This is implicit for all domain-specific-indices */
+		is_domain_index = is_a_domain_index (domain_indexes, field);
+
 		if (!tracker_property_get_multiple_values (field)
-		    && tracker_property_get_indexed (field)) {
+		    && (tracker_property_get_indexed (field) || is_domain_index)) {
+
 			field_name = tracker_property_get_name (field);
 
 			secondary_index = tracker_property_get_secondary_index (field);
@@ -2234,15 +2297,6 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	if (sel_col_sql)
 		g_string_free (sel_col_sql, TRUE);
 
-	domain_indexes = tracker_class_get_domain_indexes (service);
-
-	for (l = domain_indexes_to_copy; l != NULL; l = l->next) {
-		TrackerProperty *domain_index = l->data;
-		g_print ("to copy: %s", tracker_property_get_name (domain_index));
-		/* TODO */
-	}
-
-	g_slist_free (domain_indexes_to_copy);
 }
 
 static void
