@@ -361,6 +361,85 @@
         <hardware>true</hardware>
       </environments>
     </set>
+    <set name="_usr_share_tracker-tests_mass-storage-mode.py">
+      <description>tracker:mass-storage-mode.py</description>
+      <case name="mass-storage-mode.py-copy.test_image_01">
+        <description>tracker:mass-storage-mode.py:copy.test_image_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py copy.test_image_01</step>
+      </case>
+      <case name="mass-storage-mode.py-copy.test_music_02">
+        <description>tracker:mass-storage-mode.py:copy.test_music_02</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py copy.test_music_02</step>
+      </case>
+      <case name="mass-storage-mode.py-copy.test_video_03">
+        <description>tracker:mass-storage-mode.py:copy.test_video_03</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py copy.test_video_03</step>
+      </case>
+      <case name="mass-storage-mode.py-delete.test_image_01">
+        <description>tracker:mass-storage-mode.py:delete.test_image_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py delete.test_image_01</step>
+      </case>
+      <case name="mass-storage-mode.py-delete.test_music_02">
+        <description>tracker:mass-storage-mode.py:delete.test_music_02</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py delete.test_music_02</step>
+      </case>
+      <case name="mass-storage-mode.py-delete.test_video_03">
+        <description>tracker:mass-storage-mode.py:delete.test_video_03</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py delete.test_video_03</step>
+      </case>
+      <case name="mass-storage-mode.py-move.test_image_01">
+        <description>tracker:mass-storage-mode.py:move.test_image_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py move.test_image_01</step>
+      </case>
+      <case name="mass-storage-mode.py-move.test_music_01">
+        <description>tracker:mass-storage-mode.py:move.test_music_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py move.test_music_01</step>
+      </case>
+      <case name="mass-storage-mode.py-move.test_video_01">
+        <description>tracker:mass-storage-mode.py:move.test_video_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py move.test_video_01</step>
+      </case>
+      <case name="mass-storage-mode.py-no_file_op.test_msm_01">
+        <description>tracker:mass-storage-mode.py:no_file_op.test_msm_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py no_file_op.test_msm_01</step>
+      </case>
+      <case name="mass-storage-mode.py-no_file_op.test_msm_02">
+        <description>tracker:mass-storage-mode.py:no_file_op.test_msm_02</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py no_file_op.test_msm_02</step>
+      </case>
+      <case name="mass-storage-mode.py-no_file_op.test_msm_03">
+        <description>tracker:mass-storage-mode.py:no_file_op.test_msm_03</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py no_file_op.test_msm_03</step>
+      </case>
+      <case name="mass-storage-mode.py-rename.test_image_01">
+        <description>tracker:mass-storage-mode.py:rename.test_image_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py rename.test_image_01</step>
+      </case>
+      <case name="mass-storage-mode.py-rename.test_music_01">
+        <description>tracker:mass-storage-mode.py:rename.test_music_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py rename.test_music_01</step>
+      </case>
+      <case name="mass-storage-mode.py-rename.test_video_01">
+        <description>tracker:mass-storage-mode.py:rename.test_video_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py rename.test_video_01</step>
+      </case>
+      <case name="mass-storage-mode.py-subfolder.test_create_01">
+        <description>tracker:mass-storage-mode.py:subfolder.test_create_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py subfolder.test_create_01</step>
+      </case>
+      <case name="mass-storage-mode.py-subfolder.test_delete_02">
+        <description>tracker:mass-storage-mode.py:subfolder.test_delete_02</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py subfolder.test_delete_02</step>
+      </case>
+      <case name="mass-storage-mode.py-text.test_text_01">
+        <description>tracker:mass-storage-mode.py:text.test_text_01</description>
+        <step>/usr/share/tracker-tests/mass-storage-mode.py text.test_text_01</step>
+      </case>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
     <set name="_usr_share_tracker-tests_02-metacontacts.py">
       <description>tracker:02-metacontacts.py</description>
       <case name="02-metacontacts.py-TestMetacontacts.test_metacontact_merge">
@@ -501,6 +580,17 @@
     </set>
     <set name="_usr_share_tracker-tests_performance-tc.py">
       <description>tracker:performance-tc.py</description>
+      <environments>
+        <scratchbox>true</scratchbox>
+        <hardware>true</hardware>
+      </environments>
+    </set>
+    <set name="_usr_share_tracker-tests_01-writeback.py">
+      <description>tracker:01-writeback.py</description>
+      <case name="01-writeback.py-TestInsertion.test_simple_insertion">
+        <description>tracker:01-writeback.py:TestInsertion.test_simple_insertion</description>
+        <step>/usr/share/tracker-tests/01-writeback.py TestInsertion.test_simple_insertion</step>
+      </case>
       <environments>
         <scratchbox>true</scratchbox>
         <hardware>true</hardware>

@@ -787,57 +787,8 @@ class subfolders(TestUpdate) :
         commands.getoutput ('rm '+MYDOCS_SUB+TEST_MUSIC)
         self.loop.run()
 
-        result1 = commands.getoutput('tracker-search -i -l 5000 | grep '+MYDOCS_SUB+TEST_MUSIC +'|wc -l')
+        result1 = commands.getoutput('tracker-search -m -l 5000 | grep '+MYDOCS_SUB+TEST_MUSIC +'|wc -l')
         self.assert_(int(result1)==0 , "File is still listed in tracker search")
-
-
-class subfolders(TestUpdate) :
-
-        def test_subfolders_01(self):
-
-                """
-                1.Create multilevel directories.
-                2.Copy an image to the directory.
-                3.Check if tracker-search is listing the copied file.
-                4.Remove the file from directory.
-                5.Check if tracker-search is not listing the file.
-                """
-                commands.getoutput('mkdir -p '+ MYDOCS_SUB)
-                print MYDOCS_SUB,SRC_IMAGE_DIR,TEST_IMAGE
-                commands.getoutput('cp ' + SRC_IMAGE_DIR + TEST_IMAGE + ' ' + MYDOCS_SUB)
-                self.loop.run()
-
-                result = commands.getoutput('tracker-search -i -l 5000 | grep '+MYDOCS_SUB+TEST_IMAGE+' |wc -l')
-                self.assert_(int(result)==1 , "File is not indexed")
-
-                commands.getoutput ('rm '+MYDOCS_SUB+TEST_IMAGE)
-                self.loop.run()
-
-                result1 = commands.getoutput('tracker-search -i -l 5000 | grep '+MYDOCS_SUB+TEST_IMAGE +'|wc -l')
-                self.assert_(int(result1)==0 , "File is still listed in tracker search")
-
-
-        def test_subfolders_02(self):
-
-                """
-                1.Create multilevel directories.
-                2.Copy an song to the directory.
-                3.Check if tracker-search is listing the copied file.
-                4.Remove the file from directory.
-                5.Check if tracker-search is not listing the file.
-                """
-                commands.getoutput('mkdir -p '+ MYDOCS_SUB)
-                commands.getoutput('cp ' + SRC_MUSIC_DIR + TEST_MUSIC + ' ' + MYDOCS_SUB)
-                self.loop.run()
-
-                result = commands.getoutput('tracker-search -m -l 5000 | grep '+ MYDOCS_SUB+TEST_MUSIC +'| wc -l ')
-                self.assert_(int(result)==1 , "File is not indexed")
-
-                commands.getoutput ('rm '+MYDOCS_SUB+TEST_MUSIC)
-                self.loop.run()
-
-                result1 = commands.getoutput('tracker-search -i -l 5000 | grep '+MYDOCS_SUB+TEST_MUSIC +'|wc -l')
-                self.assert_(int(result1)==1 , "File is still listed in tracker search")
 
 
 
