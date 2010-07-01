@@ -112,12 +112,18 @@ set_secondary_index_for_single_value_property (TrackerDBInterface *iface,
                                                const gchar        *second_field_name,
                                                gboolean            enabled)
 {
+	g_debug ("Dropping index:  DROP INDEX IF EXISTS \"%s_%s\"",
+	         service_name, field_name);
+
 	tracker_db_interface_execute_query (iface, NULL,
 	                                    "DROP INDEX IF EXISTS \"%s_%s\"",
 	                                    service_name,
 	                                    field_name);
 
 	if (enabled) {
+		g_debug ("Creating index: CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
+		         service_name, field_name, service_name, field_name, second_field_name);
+
 		tracker_db_interface_execute_query (iface, NULL,
 		                                    "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
 		                                    service_name,
@@ -134,12 +140,18 @@ set_index_for_single_value_property (TrackerDBInterface *iface,
                                      const gchar        *field_name,
                                      gboolean            enabled)
 {
+	g_debug ("Dropping index: DROP INDEX IF EXISTS \"%s_%s\"",
+	         service_name, field_name);
+
 	tracker_db_interface_execute_query (iface, NULL,
 	                                    "DROP INDEX IF EXISTS \"%s_%s\"",
 	                                    service_name,
 	                                    field_name);
 
 	if (enabled) {
+		g_debug ("Creating index: CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
+		         service_name, field_name, service_name, field_name);
+
 		tracker_db_interface_execute_query (iface, NULL,
 		                                    "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
 		                                    service_name,
@@ -1964,6 +1976,8 @@ copy_from_domain_to_domain_index (TrackerDBInterface *iface,
 	                         source_name,
 	                         dest_name);
 
+	g_debug ("Copying: '%s'", query);
+
 	tracker_db_interface_execute_query (iface, &error, "%s", query);
 
 	if (error) {
@@ -2157,6 +2171,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					if (tracker_property_get_is_inverse_functional_property (property)) {
 						g_string_append (alter_sql, " UNIQUE");
 					}
+					g_debug ("Altering: '%s'", alter_sql->str);
 					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 					if (error) {
 						g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
@@ -2177,6 +2192,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:graph\" INTEGER",
 					                        service_name,
 					                        field_name);
+					g_debug ("Altering: '%s'", alter_sql->str);
 					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 					if (error) {
 						g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
@@ -2194,6 +2210,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:localDate\" INTEGER",
 						                        service_name,
 						                        field_name);
+						g_debug ("Altering: '%s'", alter_sql->str);
 						tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 						if (error) {
 							g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
@@ -2211,6 +2228,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:localTime\" INTEGER",
 						                        service_name,
 						                        field_name);
+						g_debug ("Altering: '%s'", alter_sql->str);
 						tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 						if (error) {
 							g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
@@ -2237,6 +2255,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 	if (create_sql) {
 		g_string_append (create_sql, ")");
+		g_debug ("Creating: '%s'", create_sql->str);
 		tracker_db_interface_execute_query (iface, NULL, "%s", create_sql->str);
 		g_string_free (create_sql, TRUE);
 	}
