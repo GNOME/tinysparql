@@ -43,9 +43,5 @@
       <arg type="s" name="status" />
       <arg type="d" name="progress" />
     </signal>
-    <signal name="Error">
-      <arg type="i" name="code"/>
-      <arg type="s" name="reason"/>
-    </signal>
   </interface>
 </node>
