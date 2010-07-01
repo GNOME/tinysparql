@@ -80,7 +80,7 @@ const gchar *       tracker_property_get_table_name          (TrackerProperty   
 TrackerPropertyType tracker_property_get_data_type           (TrackerProperty      *property);
 TrackerClass *      tracker_property_get_domain              (TrackerProperty      *property);
 TrackerClass *      tracker_property_get_range               (TrackerProperty      *property);
-TrackerClass *      tracker_property_get_domain_index        (TrackerProperty      *property);
+TrackerClass **     tracker_property_get_domain_indexes      (TrackerProperty      *property);
 gint                tracker_property_get_weight              (TrackerProperty      *property);
 gint                tracker_property_get_id                  (TrackerProperty      *property);
 gboolean            tracker_property_get_indexed             (TrackerProperty      *property);
@@ -102,7 +102,7 @@ void                tracker_property_set_uri                 (TrackerProperty   
                                                               const gchar          *value);
 void                tracker_property_set_domain              (TrackerProperty      *property,
                                                               TrackerClass         *value);
-void                tracker_property_set_domain_index        (TrackerProperty      *property,
+void                tracker_property_add_domain_index        (TrackerProperty      *property,
                                                               TrackerClass         *value);
 void                tracker_property_set_range               (TrackerProperty      *property,
                                                               TrackerClass         *range);

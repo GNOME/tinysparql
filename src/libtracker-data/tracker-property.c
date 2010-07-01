@@ -66,6 +66,7 @@ struct _TrackerPropertyPrivate {
 	gboolean       is_new_domain_index;
 
 	GArray        *super_properties;
+	GArray        *domain_indexes;
 };
 
 static void property_finalize     (GObject      *object);
@@ -135,6 +136,7 @@ tracker_property_init (TrackerProperty *property)
 	priv->transient = FALSE;
 	priv->multiple_values = TRUE;
 	priv->super_properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
+	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 
 	/* Make GET_PRIV working */
 	property->priv = priv;
@@ -164,6 +166,7 @@ property_finalize (GObject *object)
 	}
 
 	g_array_free (priv->super_properties, TRUE);
+	g_array_free (priv->domain_indexes, TRUE);
 
 	g_free (priv->default_value);
 
@@ -273,8 +276,8 @@ tracker_property_get_domain (TrackerProperty *property)
 	return priv->domain;
 }
 
-TrackerClass *
-tracker_property_get_domain_index (TrackerProperty *property)
+TrackerClass **
+tracker_property_get_domain_indexes (TrackerProperty *property)
 {
 	TrackerPropertyPrivate *priv;
 
@@ -285,7 +288,7 @@ tracker_property_get_domain_index (TrackerProperty *property)
 
 	priv = GET_PRIV (property);
 
-	return priv->domain_index;
+	return priv->domain_indexes->data;
 }
 
 TrackerClass *
@@ -559,23 +562,17 @@ tracker_property_set_domain (TrackerProperty *property,
 }
 
 void
-tracker_property_set_domain_index (TrackerProperty *property,
+tracker_property_add_domain_index (TrackerProperty *property,
                                    TrackerClass    *value)
 {
 	TrackerPropertyPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+	g_return_if_fail (TRACKER_IS_CLASS (value));
 
 	priv = GET_PRIV (property);
 
-	if (priv->domain_index) {
-		g_object_unref (priv->domain_index);
-		priv->domain_index = NULL;
-	}
-
-	if (value) {
-		priv->domain_index = g_object_ref (value);
-	}
+	g_array_append_val (priv->domain_indexes, value);
 }
 
 void

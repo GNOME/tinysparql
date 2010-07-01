@@ -1349,6 +1349,18 @@ string_to_gvalue (const gchar         *value,
 }
 
 static gboolean
+resource_in_domain_index_class (TrackerClass *domain_index_class)
+{
+	guint i;
+	for (i = 0; i < resource_buffer->types->len; i++) {
+		if (g_ptr_array_index (resource_buffer->types, i) == domain_index_class) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+static gboolean
 cache_set_metadata_decomposed (TrackerProperty  *property,
                                const gchar      *value,
                                gint              value_id,
@@ -1442,21 +1454,23 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
 
 		if (!multiple_values) {
-			TrackerClass *domain_index_class;
+			TrackerClass **domain_index_classes;
 
-			domain_index_class = tracker_property_get_domain_index (property);
+			domain_index_classes = tracker_property_get_domain_indexes (property);
+			while (*domain_index_classes) {
+				if (resource_in_domain_index_class (*domain_index_classes)) {
+					GValue gvalue_copy = { 0 };
 
-			if (domain_index_class) {
-				GValue gvalue_copy = { 0 };
+					g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
+					g_value_copy (&gvalue, &gvalue_copy);
 
-				g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
-				g_value_copy (&gvalue, &gvalue_copy);
-
-				cache_insert_value (tracker_class_get_name (domain_index_class), field_name, &gvalue_copy,
-				                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
-				                    multiple_values,
-				                    tracker_property_get_fulltext_indexed (property),
-				                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+					cache_insert_value (tracker_class_get_name (*domain_index_classes), field_name, &gvalue_copy,
+					                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
+					                    multiple_values,
+					                    tracker_property_get_fulltext_indexed (property),
+					                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+				}
+				domain_index_classes++;
 			}
 		}
 
@@ -1512,19 +1526,20 @@ delete_metadata_decomposed (TrackerProperty  *property,
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
 
 		if (!multiple_values) {
-			TrackerClass *domain_index_class;
+			TrackerClass **domain_index_classes;
 
-			domain_index_class = tracker_property_get_domain_index (property);
+			domain_index_classes = tracker_property_get_domain_indexes (property);
 
-			if (domain_index_class) {
-				GValue gvalue_copy = { 0 };
-
-				g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
-				g_value_copy (&gvalue, &gvalue_copy);
-
-				cache_delete_value (tracker_class_get_name (domain_index_class), field_name, &gvalue_copy, multiple_values,
-				                    tracker_property_get_fulltext_indexed (property),
-				                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+			while (*domain_index_classes) {
+				if (resource_in_domain_index_class (*domain_index_classes)) {
+					GValue gvalue_copy = { 0 };
+					g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
+					g_value_copy (&gvalue, &gvalue_copy);
+					cache_delete_value (tracker_class_get_name (*domain_index_classes), field_name, &gvalue_copy, multiple_values,
+					                    tracker_property_get_fulltext_indexed (property),
+					                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+				}
+				domain_index_classes++;
 			}
 		}
 
@@ -1639,19 +1654,19 @@ cache_delete_resource_type (TrackerClass *class,
 
 
 			if (!multiple_values) {
-				TrackerClass *domain_index_class;
+				TrackerClass **domain_index_classes;
 
-				domain_index_class = tracker_property_get_domain_index (prop);
-
-				if (domain_index_class) {
-					GValue gvalue_copy = { 0 };
-
-					g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
-					g_value_copy (&gvalue, &gvalue_copy);
-
-					cache_delete_value (tracker_class_get_name (domain_index_class), field_name, &gvalue_copy, multiple_values,
-					                    tracker_property_get_fulltext_indexed (prop),
-					                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
+				domain_index_classes = tracker_property_get_domain_indexes (prop);
+				while (*domain_index_classes) {
+					if (resource_in_domain_index_class (*domain_index_classes)) {
+						GValue gvalue_copy = { 0 };
+						g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
+						g_value_copy (&gvalue, &gvalue_copy);
+						cache_delete_value (tracker_class_get_name (*domain_index_classes), field_name, &gvalue_copy, multiple_values,
+						                    tracker_property_get_fulltext_indexed (prop),
+						                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
+					}
+					domain_index_classes++;
 				}
 			}
 
