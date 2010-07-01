@@ -48,6 +48,7 @@ void       tracker_events_insert      (const gchar              *uri,
                                        TrackerDBusEventsType     type);
 GArray    *tracker_events_get_pending (void);
 void       tracker_events_reset       (void);
+void       tracker_events_freeze      (void);
 
 G_END_DECLS
 

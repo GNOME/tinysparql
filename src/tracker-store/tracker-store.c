@@ -38,6 +38,7 @@
 #include <libtracker-data/tracker-sparql-query.h>
 
 #include "tracker-store.h"
+#include "tracker-events.h"
 
 #define TRACKER_STORE_MAX_CONCURRENT_QUERIES               2
 
@@ -143,9 +144,12 @@ process_turtle_file (TrackerTurtleReader *reader, GError **error)
 {
 	GError *new_error = NULL;
 
+	tracker_events_freeze ();
+
 	tracker_data_begin_transaction (&new_error);
 	if (new_error) {
 		g_propagate_error (error, new_error);
+		tracker_events_reset ();
 		return;
 	}
 
@@ -166,11 +170,15 @@ process_turtle_file (TrackerTurtleReader *reader, GError **error)
 			                                           tracker_turtle_reader_get_object (reader),
 			                                           &new_error);
 		}
+		if (!new_error) {
+			tracker_data_update_buffer_might_flush (&new_error);
+		}
 	}
 
 	if (new_error) {
 		tracker_data_rollback_transaction ();
 		g_propagate_error (error, new_error);
+		tracker_events_reset ();
 		return;
 	}
 
@@ -178,8 +186,11 @@ process_turtle_file (TrackerTurtleReader *reader, GError **error)
 	if (new_error) {
 		tracker_data_rollback_transaction ();
 		g_propagate_error (error, new_error);
+		tracker_events_reset ();
 		return;
 	}
+
+	tracker_events_reset ();
 }
 
 static gboolean

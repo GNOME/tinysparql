@@ -144,6 +144,14 @@ tracker_events_reset (void)
 	private->frozen = FALSE;
 }
 
+void
+tracker_events_freeze (void)
+{
+	g_return_if_fail (private != NULL);
+
+	private->frozen = TRUE;
+}
+
 GArray *
 tracker_events_get_pending (void)
 {
