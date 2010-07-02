@@ -663,9 +663,8 @@ tracker_store_init (void)
 	pthread_setaffinity_np (pthread_self (), sizeof (cpu_set_t), &cpuset);
 	/* lock main update/query thread to same cpu to improve overall performance
 	   main loop thread is essentially idle during query execution */
-#endif /* __USE_GNU */
-
 	g_thread_pool_push (private->main_pool, GINT_TO_POINTER (1), NULL);
+#endif /* __USE_GNU */
 
 	g_static_private_set (&private_key,
 	                      private,
