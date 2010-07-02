@@ -376,6 +376,7 @@ public class Tracker.TurtleReader : Object {
 				} else {
 					Data.insert_statement_with_string (reader.graph, reader.subject, reader.predicate, reader.object);
 				}
+				Data.update_buffer_might_flush ();
 			}
 
 			Data.commit_transaction ();

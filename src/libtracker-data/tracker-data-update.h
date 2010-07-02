@@ -22,6 +22,7 @@
 #define __LIBTRACKER_DATA_UPDATE_H__
 
 #include <glib.h>
+#include <gio/gio.h>
 
 #include <libtracker-common/tracker-ontologies.h>
 
@@ -93,6 +94,8 @@ GPtrArray *
                                                      GError                   **error);
 void     tracker_data_update_buffer_flush           (GError                   **error);
 void     tracker_data_update_buffer_might_flush     (GError                   **error);
+void     tracker_data_load_turtle_file              (GFile                     *file,
+                                                     GError                   **error);
 
 void     tracker_data_sync                          (void);
 void     tracker_data_replay_journal                (GHashTable                *classes,
