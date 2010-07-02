@@ -194,9 +194,6 @@ typedef struct {
 
 	DBusPendingCall *dbus_call;
 
-	TrackerResultIterator *result_iterator;
-	gboolean iterator_returned;
-
 	union {
 		TrackerReplyGPtrArray gptrarray_callback;
 		TrackerReplyVoid void_callback;
@@ -340,10 +337,6 @@ fast_async_data_free (gpointer data)
 	FastAsyncData *fad = data;
 
 	if (fad) {
-		if (fad->result_iterator && !fad->iterator_returned) {
-			tracker_result_iterator_free (fad->result_iterator);
-		}
-
 		if (fad->cancellable) {
 			g_object_unref (fad->cancellable);
 		}
@@ -369,7 +362,6 @@ fast_async_data_new (TrackerClient     *client,
 	data->client = g_object_ref (client);
 	data->request_id = fast_pending_call_new (client, cancellable, data);
 	data->operation_type = operation_type;
-	data->result_iterator = g_slice_new0 (TrackerResultIterator);
 	data->cancellable = cancellable;
 	data->user_data = user_data;
 
@@ -652,16 +644,18 @@ callback_iterator (void     *buffer,
 	g_hash_table_remove (private->fast_pending_calls,
 	                     GUINT_TO_POINTER (fad->request_id));
 
-	/* Reset the iterator internal state */
-	iterator = fad->result_iterator;
-
-	iterator->buffer = buffer;
-	iterator->buffer_size = buffer_size;
-	iterator->buffer_index = 0;
 
 	/* Check for errors */
 	if (G_LIKELY (!error)) {
+		iterator = g_slice_new0 (TrackerResultIterator);
+
+		iterator->buffer = buffer;
+		iterator->buffer_size = buffer_size;
+		iterator->buffer_index = 0;
+
 		(* fad->iterator_callback) (iterator, NULL, fad->user_data);
+
+		tracker_result_iterator_free (iterator);
 	} else {
 		if (error->code != G_IO_ERROR_CANCELLED) {
 			g_clear_error (&error);
@@ -700,6 +694,8 @@ callback_iterator_compat (GPtrArray *results,
 		iterator->current_row = -1;
 
 		(* data->callback) (iterator, error, data->user_data);
+
+		tracker_result_iterator_free (iterator);
 	}
 
 	g_slice_free (FastQueryAsyncCompatData, data);
@@ -1772,7 +1768,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 
 	if (G_UNLIKELY (inner_error)) {
 		g_propagate_error (error, inner_error);
-		g_slice_free (TrackerResultIterator, iterator);
+		tracker_result_iterator_free (iterator);
 		iterator = NULL;
 	}
 
