@@ -641,10 +641,6 @@ sparql_query_cb (TrackerResultIterator *iterator,
 
 	if (error) {
 		g_error_free (error);
-	} else {
-		if (iterator) {
-			tracker_result_iterator_free (iterator);
-		}
 	}
 
 	async_call_data_destroy (data, TRUE);
