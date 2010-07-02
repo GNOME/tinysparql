@@ -139,60 +139,6 @@ store_task_free (TrackerStoreTask *task)
 	g_slice_free (TrackerStoreTask, task);
 }
 
-static void
-process_turtle_file (TrackerTurtleReader *reader, GError **error)
-{
-	GError *new_error = NULL;
-
-	tracker_events_freeze ();
-
-	tracker_data_begin_transaction (&new_error);
-	if (new_error) {
-		g_propagate_error (error, new_error);
-		tracker_events_reset ();
-		return;
-	}
-
-	while (new_error == NULL && tracker_turtle_reader_next (reader, &new_error)) {
-		/* insert statement */
-		if (tracker_turtle_reader_get_object_is_uri (reader)) {
-			tracker_data_insert_statement_with_uri (
-			                                        tracker_turtle_reader_get_graph (reader),
-			                                        tracker_turtle_reader_get_subject (reader),
-			                                        tracker_turtle_reader_get_predicate (reader),
-			                                        tracker_turtle_reader_get_object (reader),
-			                                        &new_error);
-		} else {
-			tracker_data_insert_statement_with_string (
-			                                           tracker_turtle_reader_get_graph (reader),
-			                                           tracker_turtle_reader_get_subject (reader),
-			                                           tracker_turtle_reader_get_predicate (reader),
-			                                           tracker_turtle_reader_get_object (reader),
-			                                           &new_error);
-		}
-		if (!new_error) {
-			tracker_data_update_buffer_might_flush (&new_error);
-		}
-	}
-
-	if (new_error) {
-		tracker_data_rollback_transaction ();
-		g_propagate_error (error, new_error);
-		tracker_events_reset ();
-		return;
-	}
-
-	tracker_data_commit_transaction (&new_error);
-	if (new_error) {
-		tracker_data_rollback_transaction ();
-		g_propagate_error (error, new_error);
-		tracker_events_reset ();
-		return;
-	}
-
-	tracker_events_reset ();
-}
-
 static gboolean
 watchdog_cb (gpointer user_data)
 {
@@ -426,11 +372,15 @@ pool_dispatch_cb (gpointer data,
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
 		task->data.update.blank_nodes = tracker_data_update_sparql_blank (task->data.update.query, &task->error);
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
-		TrackerTurtleReader *reader;
+		GFile *file;
 
-		reader = tracker_turtle_reader_new (task->data.turtle.path, &task->error);
-		process_turtle_file (reader, &task->error);
-		g_object_unref (reader);
+		file = g_file_new_for_path (task->data.turtle.path);
+
+		tracker_events_freeze ();
+		tracker_data_load_turtle_file (file, &task->error);
+		tracker_events_reset ();
+
+		g_object_unref (file);
 	}
 
 	g_idle_add (task_finish_cb, task);
