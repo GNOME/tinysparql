@@ -305,6 +305,46 @@ tracker_class_add_domain_index (TrackerClass *service,
 }
 
 void
+tracker_class_del_domain_index (TrackerClass    *service,
+                                TrackerProperty *value)
+{
+	TrackerClassPrivate *priv;
+	gint i = 0, found = -1;
+	TrackerProperty **properties;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+	g_return_if_fail (TRACKER_IS_PROPERTY (value));
+
+	priv = GET_PRIV (service);
+
+	properties = (TrackerProperty **) priv->domain_indexes->data;
+	while (*properties) {
+		if (*properties == value) {
+			found = i;
+			break;
+		}
+		i++;
+		properties++;
+	}
+
+	if (found != -1) {
+		g_array_remove_index (priv->domain_indexes, found);
+	}
+}
+
+void
+tracker_class_reset_domain_indexes (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = GET_PRIV (service);
+	g_array_free (priv->domain_indexes, TRUE);
+	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
+}
+
+void
 tracker_class_set_is_new (TrackerClass *service,
                           gboolean      value)
 {

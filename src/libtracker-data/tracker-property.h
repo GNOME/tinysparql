@@ -104,6 +104,9 @@ void                tracker_property_set_domain              (TrackerProperty   
                                                               TrackerClass         *value);
 void                tracker_property_add_domain_index        (TrackerProperty      *property,
                                                               TrackerClass         *value);
+void                tracker_property_del_domain_index        (TrackerProperty      *property,
+                                                              TrackerClass         *value);
+void                tracker_property_reset_domain_indexes    (TrackerProperty      *property);
 void                tracker_property_set_range               (TrackerProperty      *property,
                                                               TrackerClass         *range);
 void                tracker_property_set_weight              (TrackerProperty      *property,

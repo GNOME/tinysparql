@@ -288,7 +288,7 @@ tracker_property_get_domain_indexes (TrackerProperty *property)
 
 	priv = GET_PRIV (property);
 
-	return priv->domain_indexes->data;
+	return (TrackerClass ** ) priv->domain_indexes->data;
 }
 
 TrackerClass *
@@ -573,6 +573,46 @@ tracker_property_add_domain_index (TrackerProperty *property,
 	priv = GET_PRIV (property);
 
 	g_array_append_val (priv->domain_indexes, value);
+}
+
+void
+tracker_property_del_domain_index (TrackerProperty *property,
+                                   TrackerClass    *value)
+{
+	TrackerClass **classes;
+	TrackerPropertyPrivate *priv;
+	gint i = 0, found = -1;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+	g_return_if_fail (TRACKER_IS_CLASS (value));
+
+	priv = GET_PRIV (property);
+
+	classes = (TrackerClass **) priv->domain_indexes->data;
+	while (*classes) {
+		if (*classes == value) {
+			found = i;
+			break;
+		}
+		i++;
+		classes++;
+	}
+
+	if (found != -1) {
+		g_array_remove_index (priv->domain_indexes, found);
+	}
+}
+
+void
+tracker_property_reset_domain_indexes (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+	g_array_free (priv->domain_indexes, TRUE);
+	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 }
 
 void

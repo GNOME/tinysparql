@@ -2611,10 +2611,12 @@ ontology_transaction_end (GList *ontology_queue,
 	GList *l;
 	const gchar *ontology_uri = NULL;
 
+	tracker_data_ontology_process_changes_pre_db (seen_classes, seen_properties);
+
 	/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
 	tracker_data_ontology_import_into_db (TRUE);
 
-	tracker_data_ontology_process_changes (seen_classes, seen_properties);
+	tracker_data_ontology_process_changes_post_db (seen_classes, seen_properties);
 
 	for (l = ontology_queue; l; l = l->next) {
 		QueuedStatement *queued = ontology_queue->data;
@@ -2634,6 +2636,8 @@ ontology_transaction_end (GList *ontology_queue,
 		                                         TRUE, TRUE);
 
 	}
+
+	tracker_data_ontology_process_changes_post_import (seen_classes, seen_properties);
 
 	/* Update the nao:lastModified in the database */
 	if (ontology_uri) {

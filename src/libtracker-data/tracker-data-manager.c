@@ -392,6 +392,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					g_critical ("%s: Duplicate definition of class %s", ontology_path, subject);
 				} else {
 					/* Reset for a correct post-check */
+					tracker_class_reset_domain_indexes (class);
 					tracker_class_set_notify (class, FALSE);
 				}
 				return;
@@ -428,6 +429,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					g_critical ("%s: Duplicate definition of property %s", ontology_path, subject);
 				} else {
 					/* Reset for a correct post-check */
+					tracker_property_reset_domain_indexes (property);
 					tracker_property_set_indexed (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
 					tracker_property_set_writeback (property, FALSE);
@@ -552,6 +554,8 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		properties = tracker_class_get_domain_indexes (class);
 		while (*properties) {
 			if (property == *properties) {
+				g_debug ("%s: Property %s already a tracker:domainIndex in %s",
+				         ontology_path, object, subject);
 				ignore = TRUE;
 			}
 			properties++;
@@ -783,9 +787,127 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 	}
 }
 
+
+typedef struct {
+	TrackerProperty *domain_index;
+	gboolean found;
+} CheckEntry;
+
+static void
+check_for_deleted_domain_index (TrackerClass *class)
+{
+	TrackerDBResultSet *result_set;
+	const gchar *subject;
+	GError *error = NULL;
+	TrackerProperty **domain_indexes;
+	GPtrArray *check_table;
+	gchar *query;
+	guint i;
+	gboolean found_any_to_delete = TRUE;
+
+	domain_indexes = tracker_class_get_domain_indexes (class);
+
+	check_table = g_ptr_array_new_with_free_func (g_free);
+
+	subject = tracker_class_get_uri (class);
+
+	/* Detect deleted domainIndexes */
+	query = g_strdup_printf ("SELECT ?s {"
+	                         " <%s> a rdfs:Class ; "
+	                               "tracker:domainIndex ?s "
+	                         "}", subject);
+
+	result_set = tracker_data_query_sparql (query, &error);
+
+	if (!error && result_set) {
+		gboolean results = TRUE;
+		while (results) {
+			gchar *str = NULL;
+			TrackerProperty *prop;
+
+			tracker_db_result_set_get (result_set, 0, &str, -1);
+			prop = tracker_ontologies_get_property_by_uri (str);
+
+			if (prop) {
+				CheckEntry *entry;
+				entry = g_new0 (CheckEntry, 1);
+				entry->domain_index = prop;
+				entry->found = FALSE;
+				g_ptr_array_add (check_table, entry);
+			}
+
+			g_free (str);
+
+			results = tracker_db_result_set_iter_next (result_set);
+		}
+	}
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+
+	g_free (query);
+
+	if (error) {
+		g_critical ("%s", error->message);
+		g_error_free (error);
+	}
+
+	while (*domain_indexes) {
+		for (i = 0; i< check_table->len; i++) {
+			CheckEntry *entry = g_ptr_array_index (check_table, i);
+			if (entry->domain_index == *domain_indexes) {
+				entry->found = TRUE;
+			}
+		}
+		domain_indexes++;
+	}
+
+	for (i = 0; i< check_table->len; i++) {
+		CheckEntry *entry = g_ptr_array_index (check_table, i);
+		if (entry->found == FALSE) {
+			found_any_to_delete = TRUE;
+			break;
+		}
+	}
+
+	if (found_any_to_delete) {
+		tracker_class_set_db_schema_changed (class, TRUE);
+
+		for (i = 0; i< check_table->len; i++) {
+			CheckEntry *entry = g_ptr_array_index (check_table, i);
+			TrackerProperty *prop = entry->domain_index;
+
+			if (entry->found == TRUE) {
+				tracker_property_set_is_new_domain_index (prop, TRUE);
+			} else {
+				tracker_property_del_domain_index (prop, class);
+				tracker_class_del_domain_index (class, prop);
+				/* tracker_property_set_db_schema_changed (prop, TRUE); */
+			}
+		}
+	}
+
+	g_ptr_array_free (check_table, TRUE);
+}
+
 void
-tracker_data_ontology_process_changes (GPtrArray *seen_classes,
-                                       GPtrArray *seen_properties)
+tracker_data_ontology_process_changes_pre_db (GPtrArray *seen_classes,
+                                               GPtrArray *seen_properties)
+{
+	gint i;
+	if (seen_classes) {
+		for (i = 0; i < seen_classes->len; i++) {
+			TrackerClass *class = g_ptr_array_index (seen_classes, i);
+			check_for_deleted_domain_index (class);
+
+		}
+	}
+}
+
+void
+tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
+                                               GPtrArray *seen_properties)
 {
 	gint i;
 
@@ -903,6 +1025,13 @@ tracker_data_ontology_process_changes (GPtrArray *seen_classes,
 			}
 		}
 	}
+}
+
+void
+tracker_data_ontology_process_changes_post_import (GPtrArray *seen_classes,
+                                                   GPtrArray *seen_properties)
+{
+	return;
 }
 
 void
@@ -1821,10 +1950,16 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			if (in_change && !tracker_property_get_is_new (property)) {
+				g_debug ("Drop index: DROP INDEX IF EXISTS \"%s_%s_ID\"\nRename: ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
+				         service_name, field_name, service_name, field_name,
+				         service_name, field_name);
+
 				tracker_db_interface_execute_query (iface, NULL,
 				                                    "DROP INDEX IF EXISTS \"%s_%s_ID\"",
 				                                    service_name,
 				                                    field_name);
+
+
 				tracker_db_interface_execute_query (iface, &error,
 				                                    "ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
 				                                    service_name, field_name, service_name, field_name);
@@ -2059,6 +2194,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	}
 
 	if (in_change) {
+		g_debug ("Rename: ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
 		tracker_db_interface_execute_query (iface, &error, "ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
 		in_col_sql = g_string_new ("ID");
 		sel_col_sql = g_string_new ("ID");
@@ -2300,12 +2436,15 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		                         service_name, in_col_sql->str,
 		                         sel_col_sql->str, service_name);
 
+		g_debug ("Copy: %s", query);
+
 		tracker_db_interface_execute_query (iface, &error, "%s", query);
 		if (error) {
 			g_critical ("Ontology change failed while merging SQL table data '%s'", error->message);
 			g_clear_error (&error);
 		}
 		g_free (query);
+		g_debug ("Rename (drop): DROP TABLE \"%s_TEMP\"", service_name);
 		tracker_db_interface_execute_query (iface, &error, "DROP TABLE \"%s_TEMP\"", service_name);
 		if (error) {
 			g_critical ("Ontology change failed while dropping SQL table '%s'", error->message);
@@ -2830,10 +2969,12 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		}
 
 		if (to_reload) {
+			tracker_data_ontology_process_changes_pre_db (seen_classes, seen_properties);
+
 			/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
 			tracker_data_ontology_import_into_db (TRUE);
 
-			tracker_data_ontology_process_changes (seen_classes, seen_properties);
+			tracker_data_ontology_process_changes_post_db (seen_classes, seen_properties);
 
 			for (l = to_reload; l; l = l->next) {
 				const gchar *ontology_path = l->data;
@@ -2841,7 +2982,10 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				import_ontology_path (ontology_path, TRUE, !journal_check);
 			}
 			g_list_free (to_reload);
+
+			tracker_data_ontology_process_changes_post_import (seen_classes, seen_properties);
 		}
+
 
 		tracker_data_ontology_free_seen (seen_classes);
 		tracker_data_ontology_free_seen (seen_properties);

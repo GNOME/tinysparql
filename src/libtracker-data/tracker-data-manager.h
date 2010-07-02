@@ -73,7 +73,13 @@ void     tracker_data_ontology_process_statement     (const gchar           *gra
                                                       gboolean               in_update,
                                                       gboolean               ignore_nao_last_modified);
 void    tracker_data_ontology_import_finished        (void);
-void    tracker_data_ontology_process_changes        (GPtrArray             *seen_classes,
+void    tracker_data_ontology_process_changes_pre_db (GPtrArray             *seen_classes,
+                                                      GPtrArray             *seen_properties);
+void    tracker_data_ontology_process_changes_post_db
+                                                     (GPtrArray             *seen_classes,
+                                                      GPtrArray             *seen_properties);
+void    tracker_data_ontology_process_changes_post_import
+                                                     (GPtrArray             *seen_classes,
                                                       GPtrArray             *seen_properties);
 void    tracker_data_ontology_free_seen              (GPtrArray             *seen);
 

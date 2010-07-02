@@ -67,11 +67,13 @@ void              tracker_class_set_uri                (TrackerClass    *service
                                                         const gchar     *value);
 void              tracker_class_set_count              (TrackerClass    *service,
                                                         gint             value);
-void              tracker_class_add_super_class        (TrackerClass    *self,
+void              tracker_class_add_super_class        (TrackerClass    *service,
                                                         TrackerClass    *value);
-void              tracker_class_add_domain_index       (TrackerClass    *self,
+void              tracker_class_add_domain_index       (TrackerClass    *service,
                                                         TrackerProperty *value);
-
+void              tracker_class_del_domain_index       (TrackerClass    *service,
+                                                        TrackerProperty *value);
+void              tracker_class_reset_domain_indexes   (TrackerClass    *service);
 void              tracker_class_set_id                 (TrackerClass    *service,
                                                         gint             id);
 void              tracker_class_set_is_new             (TrackerClass    *service,
