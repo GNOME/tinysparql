@@ -380,10 +380,16 @@ public class TrackerNeedle {
 		var model = view.get_model ();
 		model.get_iter (out iter, path);
 
-		weak string filename;
-		model.get (iter, 1, out filename);
+		weak string uri;
+		model.get (iter, 3, out uri);
 
-		debug ("Selected filename:'%s'", filename);
+		debug ("Selected uri:'%s'", uri);
+
+        try {
+            AppInfo.launch_default_for_uri (uri, null);
+        } catch (GLib.Error e) {
+            warning ("Could not launch application: " + e.message);
+        }
 	}
 	
 	private void show_stats_clicked () {
