@@ -472,7 +472,6 @@ async_query_cb (TrackerResultIterator *iterator,
 
 	g_assert (i == r1->len);
 
-	tracker_result_iterator_free (iterator);
 	g_ptr_array_foreach (r1, (GFunc) g_free, NULL);
 	g_ptr_array_free (r1, TRUE);
 }
