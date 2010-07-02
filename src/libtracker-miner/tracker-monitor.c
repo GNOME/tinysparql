@@ -325,6 +325,10 @@ tracker_monitor_finalize (GObject *object)
 	}
 #endif /* PAUSE_ON_IO */
 
+	if (priv->event_pairs_timeout_id) {
+		g_source_remove (priv->event_pairs_timeout_id);
+	}
+
 	g_hash_table_unref (priv->event_pairs);
 	g_hash_table_unref (priv->monitors);
 
