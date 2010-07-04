@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: tracker 0.8\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-06-26 08:02+0000\n"
-"PO-Revision-Date: 2010-06-27 19:23+0100\n"
+"POT-Creation-Date: 2010-07-04 06:01+0000\n"
+"PO-Revision-Date: 2010-07-05 01:21+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -202,17 +202,17 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d Sekunde"
 msgstr[1] " %2.2d Sekunden"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:461
+#: ../src/libtracker-miner/tracker-miner-object.c:443
 msgid "Data store is not available"
 msgstr "Datenspeicher ist nicht verfügbar"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1020
+#: ../src/libtracker-miner/tracker-miner-object.c:1002
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Anfrage zum Anhalten der Anwendung und Grund entsprechen einer bereits "
 "bestehenden Anforderung zum Pausieren"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1092
+#: ../src/libtracker-miner/tracker-miner-object.c:1074
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Cookie zur Fortsetzung der Indizierung nicht erkannt"
 
@@ -224,7 +224,7 @@ msgstr "Daten an Tracker senden, um sie für Abfragen verfügbar zu machen."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2456
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2461
 #: ../src/tracker-utils/tracker-status.c:70
 msgid "Processing…"
 msgstr "Verarbeitung läuft …"
@@ -453,36 +453,36 @@ msgstr "Indizierungseinstellungen von Tracker einstellen"
 msgid "Search and Indexing"
 msgstr "Suche und Indizierung"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:110
+#: ../src/tracker-preferences/tracker-preferences.vala:105
 msgid "Disabled"
 msgstr "Ausgeschaltet"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:113
+#: ../src/tracker-preferences/tracker-preferences.vala:108
 #, c-format
 msgid "%d%%"
 msgstr "%d%%"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:117
+#: ../src/tracker-preferences/tracker-preferences.vala:112
 #, c-format
 msgid "%d/20"
 msgstr "%d/20"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:125
+#: ../src/tracker-preferences/tracker-preferences.vala:120
 msgid "Enter value"
 msgstr "Wert eingeben"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:156
+#: ../src/tracker-preferences/tracker-preferences.vala:151
 msgid "Select directory"
 msgstr "Ordner auswählen"
 
+#: ../src/tracker-preferences/tracker-preferences.vala:396
+#: ../src/tracker-preferences/tracker-preferences.vala:397
+#: ../src/tracker-preferences/tracker-preferences.vala:398
 #: ../src/tracker-preferences/tracker-preferences.vala:399
-#: ../src/tracker-preferences/tracker-preferences.vala:400
-#: ../src/tracker-preferences/tracker-preferences.vala:401
-#: ../src/tracker-preferences/tracker-preferences.vala:402
 msgid "Directory"
 msgstr "Ordner"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:403
+#: ../src/tracker-preferences/tracker-preferences.vala:400
 msgid "File"
 msgstr "Datei"
 
@@ -548,97 +548,93 @@ msgid "Include _removable media"
 msgstr "_Wechseldatenträger einschließen"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:16
-msgid "Include mou_nted directories"
-msgstr "_Eingehängte Ordner einschließen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "Include optical di_scs"
 msgstr "_Optische Datenträger einschließen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:18
+#: ../src/tracker-preferences/tracker-preferences.ui.h:17
 msgid "Indexing"
 msgstr "Indizierung"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:19
+#: ../src/tracker-preferences/tracker-preferences.ui.h:18
 msgid "Indexing Preferences"
 msgstr "Indizierungseinstellungen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:20
+#: ../src/tracker-preferences/tracker-preferences.ui.h:19
 msgid "Indexing s_peed (faster consumes more resources):"
 msgstr "Indizierungsgesch_windigkeit (schneller verbraucht mehr Leistung):"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:21
+#: ../src/tracker-preferences/tracker-preferences.ui.h:20
 msgid "Limitations"
 msgstr "Einschränkungen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:22
+#: ../src/tracker-preferences/tracker-preferences.ui.h:21
 msgid "Locations"
 msgstr "Orte"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:23
+#: ../src/tracker-preferences/tracker-preferences.ui.h:22
 msgid "Non-Recursively Indexed"
 msgstr "Nicht rekursiv indiziert"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:24
+#: ../src/tracker-preferences/tracker-preferences.ui.h:23
 msgid "Opens text entry for glob patterns"
 msgstr "Öffnet das Texteingabefeld für Mustervergleiche"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:25
+#: ../src/tracker-preferences/tracker-preferences.ui.h:24
 msgid "Opens the filechooser dialogue"
 msgstr "Öffnet den Dateiauswahldialog"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:26
+#: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid "Recursively Indexed"
 msgstr "Rekursiv indiziert"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:27
+#: ../src/tracker-preferences/tracker-preferences.ui.h:26
 msgid "Semantics"
 msgstr "Semantik"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:28
+#: ../src/tracker-preferences/tracker-preferences.ui.h:27
 msgid "Slower"
 msgstr "langsamer"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
+#: ../src/tracker-preferences/tracker-preferences.ui.h:28
 msgid "Start up"
 msgstr "Programmstart"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
+#: ../src/tracker-preferences/tracker-preferences.ui.h:29
 msgid "Stop indexing when _disk space is below:"
 msgstr "In_dizierung anhalten, wenn Plattenplatz kleiner als:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
+#: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr "Dies deckt ALLE Wechseldatenträger, Speicherkarten, CDs, DVDs usw. ab"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
+#: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid ""
 "When toggled, this makes sure your home directory is included in the list."
 msgstr ""
 "Stellt bei Ankreuzen sicher, dass der persönliche Ordner in der Liste "
 "enthalten ist"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
+#: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "With specific files:"
 msgstr "Mit angegebenen Dateien:"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
+#: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "_Delay"
 msgstr "_Verzögerung"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:35
+#: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "_Monitor file and directory changes"
 msgstr "_Änderungen an Dateien und Ordnern überwachen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
+#: ../src/tracker-preferences/tracker-preferences.ui.h:35
 msgid "_Never display icon"
 msgstr "Symbol _niemals anzeigen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:37
+#: ../src/tracker-preferences/tracker-preferences.ui.h:36
 msgid "_Only display when indexing content"
 msgstr "Nur _beim Indizieren von Inhalten anzeigen"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:38
+#: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "seconds"
 msgstr "Sekunden"
 
@@ -669,7 +665,7 @@ msgstr "Suchleiste"
 #. G_CALLBACK (statistics_menu_activated), icon);
 #.
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
-#: ../src/tracker-status-icon/tracker-status-icon.c:913
+#: ../src/tracker-status-icon/tracker-status-icon.c:915
 msgid "_About"
 msgstr "_Über"
 
@@ -746,9 +742,9 @@ msgstr ""
 "gespeichert sind"
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
-#: ../src/tracker-status-icon/tracker-status-icon.c:804
-msgid "Copyright Tracker Authors 2005-2009"
-msgstr "Copyright © 2005-2009 Die Tracker-Autoren"
+#: ../src/tracker-status-icon/tracker-status-icon.c:806
+msgid "Copyright Tracker Authors 2005-2010"
+msgstr "Copyright © 2005-2010 Die Tracker-Autoren"
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:3
 msgid ""
@@ -938,7 +934,7 @@ msgstr "Indizierung wird nicht ausgeführt"
 msgid "Paused by user"
 msgstr "Angehalten durch Benutzer"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:780
+#: ../src/tracker-status-icon/tracker-status-icon.c:782
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -950,7 +946,7 @@ msgstr ""
 "sie von der Free Software Foundation festgelegt wurden; entweder in Version 2 "
 "der Lizenz oder (nach Ihrem Ermessen) in jeder folgenden Lizenz."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:784
+#: ../src/tracker-status-icon/tracker-status-icon.c:786
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR "
@@ -962,7 +958,7 @@ msgstr ""
 "für weitere Informationen bitte in der GNU General Public License (GNU GPL) "
 "nach."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:788
+#: ../src/tracker-status-icon/tracker-status-icon.c:790
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
@@ -973,7 +969,7 @@ msgstr ""
 "Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA "
 "02110-1301, USA."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:803
+#: ../src/tracker-status-icon/tracker-status-icon.c:805
 msgid "A notification icon application to monitor data miners for Tracker"
 msgstr ""
 "Eine Anwendung mit Benachrichtigungssymbol zum Überwachen der Indizierung "
@@ -983,7 +979,7 @@ msgstr ""
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-status-icon/tracker-status-icon.c:813
+#: ../src/tracker-status-icon/tracker-status-icon.c:815
 msgid "translator-credits"
 msgstr ""
 "Hendrik Richter <hendrikr@gnome.org>\n"
@@ -992,15 +988,15 @@ msgstr ""
 "Mario Blättermann <mariobl@gnome.org>\n"
 "Christian Kirbach <Christian.Kirbach@googlemail.com>"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:833
+#: ../src/tracker-status-icon/tracker-status-icon.c:835
 msgid "_Search"
 msgstr "_Suchen"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:862
+#: ../src/tracker-status-icon/tracker-status-icon.c:864
 msgid "_Pause All Indexing"
 msgstr "Indizierung _anhalten"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:882
+#: ../src/tracker-status-icon/tracker-status-icon.c:884
 msgid "_Preferences"
 msgstr "_Einstellungen"
 
@@ -1043,10 +1039,10 @@ msgstr "APPS"
 
 #: ../src/tracker-control/tracker-control.c:81
 msgid ""
-"Use SIGTERM to stop all matrhing processes, either \"store\", \"miners\" or "
+"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
-"SIGKILL verwenden, um alle entsprechenden Prozesse zu stoppen. Entweder "
+"SIGTERM verwenden, um alle entsprechenden Prozesse zu stoppen. Entweder "
 "»store«, »miners« oder »all« kann verwendet werden, kein Parameter wird mit »all« "
 "gleichgesetzt."
 
@@ -1892,6 +1888,9 @@ msgstr "- startet die Tracker-Indizierung"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Gespeicherte Abfragen"
+
+#~ msgid "Include mou_nted directories"
+#~ msgstr "_Eingehängte Ordner einschließen"
 
 #~ msgid "Flickr"
 #~ msgstr "Flickr"
