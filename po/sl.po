@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2010-06-27 17:23+0000\n"
-"PO-Revision-Date: 2010-06-27 19:43+0100\n"
+"POT-Creation-Date: 2010-07-02 13:41+0000\n"
+"PO-Revision-Date: 2010-07-03 11:42+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -144,7 +144,7 @@ msgstr "Oznake ..."
 msgid "Tag one or more files"
 msgstr "Oznaka ene ali več datotek"
 
-#: ../src/libtracker-common/tracker-dbus.c:589
+#: ../src/libtracker-common/tracker-dbus.c:586
 msgid "No error given"
 msgstr "Ni določene napake"
 
@@ -218,15 +218,15 @@ msgstr[1] " %2.2d sekunda"
 msgstr[2] " %2.2d sekundi"
 msgstr[3] " %2.2d sekunde"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:461
+#: ../src/libtracker-miner/tracker-miner-object.c:443
 msgid "Data store is not available"
 msgstr "Shramba podatkov ni dostopna"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1020
+#: ../src/libtracker-miner/tracker-miner-object.c:1002
 msgid "Pause application and reason match an already existing pause request"
 msgstr "Premor programa in skladanje razloga za že obstoječo zahtevo po premoru"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1092
+#: ../src/libtracker-miner/tracker-miner-object.c:1074
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Piškotek za nadaljevanje podatkovnega kopalnika v premoru ni prepoznan"
 
@@ -473,14 +473,14 @@ msgstr "Vnesite vrednost"
 msgid "Select directory"
 msgstr "Izbor mape"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:392
-#: ../src/tracker-preferences/tracker-preferences.vala:393
-#: ../src/tracker-preferences/tracker-preferences.vala:394
-#: ../src/tracker-preferences/tracker-preferences.vala:395
+#: ../src/tracker-preferences/tracker-preferences.vala:396
+#: ../src/tracker-preferences/tracker-preferences.vala:397
+#: ../src/tracker-preferences/tracker-preferences.vala:398
+#: ../src/tracker-preferences/tracker-preferences.vala:399
 msgid "Directory"
 msgstr "Mapa"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:396
+#: ../src/tracker-preferences/tracker-preferences.vala:400
 msgid "File"
 msgstr "Datoteka"
 
@@ -980,8 +980,8 @@ msgid "APPS"
 msgstr "Izbrani programi"
 
 #: ../src/tracker-control/tracker-control.c:81
-msgid "Use SIGTERM to stop all matrhing processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""
-msgstr "Uporabi SIGTERM za končanje vseh skladajočih opravil, mogoče je uporabiti parametre \"store\", \"miners\" ali \"all\", nedoločen parameter pomeni \"all\""
+msgid "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or \"all\" may be used, no parameter equals \"all\""
+msgstr "Uporabi SIGKILL za zaustavitev vseh skladajočih opravil, mogoče je uporabiti parametre \"store\", \"miners\" ali \"all\", nedoločen parameter pomeni \"all\""
 
 #: ../src/tracker-control/tracker-control.c:84
 msgid "Kill all Tracker processes and remove all databases"
