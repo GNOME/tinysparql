@@ -1058,7 +1058,7 @@ msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
-"SIGKILL verwenden, um alle entsprechenden Prozesse zu stoppen. Entweder "
+"SIGTERM verwenden, um alle entsprechenden Prozesse zu stoppen. Entweder "
 "»store«, »miners« oder »all« kann verwendet werden, kein Parameter wird mit »all« "
 "gleichgesetzt."
 
