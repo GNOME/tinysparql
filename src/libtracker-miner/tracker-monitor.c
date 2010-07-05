@@ -67,14 +67,18 @@ struct TrackerMonitorPrivate {
 	guint          unpause_timeout_id;
 #endif /* PAUSE_ON_IO */
 
-	GHashTable    *event_pairs;
+	GHashTable    *pre_update;
+	GHashTable    *pre_delete;
 	guint          event_pairs_timeout_id;
 };
 
 typedef struct {
 	GFile    *file;
+	gchar    *file_uri;
+	GFile    *other_file;
+	gchar    *other_file_uri;
+	gboolean  is_directory;
 	GTimeVal  start_time;
-	GTimeVal  last_time;
 	guint32   event_type;
 } EventData;
 
@@ -109,7 +113,8 @@ static void           directory_monitor_cancel     (GFileMonitor     *dir_monito
 
 
 static void           event_data_free              (gpointer        data);
-
+static void           emit_signal_for_event        (TrackerMonitor *monitor,
+                                                    EventData      *event_data);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -224,7 +229,12 @@ tracker_monitor_init (TrackerMonitor *object)
 		                       (GDestroyNotify) g_object_unref,
 		                       (GDestroyNotify) directory_monitor_cancel);
 
-	priv->event_pairs =
+	priv->pre_update =
+		g_hash_table_new_full (g_file_hash,
+				       (GEqualFunc) g_file_equal,
+				       (GDestroyNotify) g_object_unref,
+				       event_data_free);
+	priv->pre_delete =
 		g_hash_table_new_full (g_file_hash,
 				       (GEqualFunc) g_file_equal,
 				       (GDestroyNotify) g_object_unref,
@@ -329,7 +339,8 @@ tracker_monitor_finalize (GObject *object)
 		g_source_remove (priv->event_pairs_timeout_id);
 	}
 
-	g_hash_table_unref (priv->event_pairs);
+	g_hash_table_unref (priv->pre_update);
+	g_hash_table_unref (priv->pre_delete);
 	g_hash_table_unref (priv->monitors);
 
 	G_OBJECT_CLASS (tracker_monitor_parent_class)->finalize (object);
@@ -460,8 +471,10 @@ check_is_directory (TrackerMonitor *monitor,
 }
 
 static EventData *
-event_data_new (GFile   *file,
-                guint32  event_type)
+event_data_new (GFile    *file,
+                GFile    *other_file,
+                gboolean  is_directory,
+                guint32   event_type)
 {
 	EventData *event;
 	GTimeVal now;
@@ -470,8 +483,16 @@ event_data_new (GFile   *file,
 	g_get_current_time (&now);
 
 	event->file = g_object_ref (file);
+	event->file_uri = g_file_get_uri (file);
+	if (other_file) {
+		event->other_file = g_object_ref (other_file);
+		event->other_file_uri = g_file_get_uri (other_file);
+	} else {
+		event->other_file = NULL;
+		event->other_file_uri = NULL;
+	}
+	event->is_directory = is_directory;
 	event->start_time = now;
-	event->last_time = now;
 	event->event_type = event_type;
 
 	return event;
@@ -485,6 +506,11 @@ event_data_free (gpointer data)
 	event = data;
 
 	g_object_unref (event->file);
+	g_free (event->file_uri);
+	if (event->other_file) {
+		g_object_unref (event->other_file);
+		g_free (event->other_file_uri);
+	}
 	g_slice_free (EventData, data);
 }
 
@@ -610,20 +636,84 @@ static void
 emit_signal_for_event (TrackerMonitor *monitor,
 		       EventData      *event_data)
 {
-	gboolean is_directory;
-
-	is_directory = check_is_directory (monitor, event_data->file);
-
-	if (event_data->event_type == G_FILE_MONITOR_EVENT_CREATED) {
+	switch (event_data->event_type) {
+	case G_FILE_MONITOR_EVENT_CREATED:
+		g_debug ("Emitting ITEM_CREATED for (%s) '%s'",
+		         event_data->is_directory ? "DIRECTORY" : "FILE",
+		         event_data->file_uri);
 		g_signal_emit (monitor,
 			       signals[ITEM_CREATED], 0,
 			       event_data->file,
-			       is_directory);
-	} else {
+		               event_data->is_directory);
+		break;
+	case G_FILE_MONITOR_EVENT_CHANGED:
+	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
+	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
+		g_debug ("Emitting ITEM_UPDATED for (%s) '%s'",
+		         event_data->is_directory ? "DIRECTORY" : "FILE",
+		         event_data->file_uri);
 		g_signal_emit (monitor,
 			       signals[ITEM_UPDATED], 0,
 			       event_data->file,
-			       is_directory);
+			       event_data->is_directory);
+		break;
+	case G_FILE_MONITOR_EVENT_DELETED:
+		g_debug ("Emitting ITEM_DELETED for (%s) '%s'",
+		         event_data->is_directory ? "DIRECTORY" : "FILE",
+		         event_data->file_uri);
+		g_signal_emit (monitor,
+		               signals[ITEM_DELETED], 0,
+		               event_data->file,
+		               event_data->is_directory);
+		break;
+	case G_FILE_MONITOR_EVENT_MOVED:
+		g_debug ("Emitting ITEM_MOVED for (%s) '%s->%s'",
+		         event_data->is_directory ? "DIRECTORY" : "FILE",
+		         event_data->file_uri,
+		         event_data->other_file_uri);
+		g_signal_emit (monitor,
+		               signals[ITEM_MOVED], 0,
+		               event_data->file,
+		               event_data->other_file,
+		               event_data->is_directory,
+		               TRUE);
+		if (event_data->is_directory) {
+			tracker_monitor_move (monitor,
+			                      event_data->file,
+			                      event_data->other_file);
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+static void
+event_pairs_process_in_ht (TrackerMonitor *monitor,
+                           GHashTable     *ht,
+                           GTimeVal       *now)
+{
+	GHashTableIter iter;
+	gpointer key, value;
+
+	g_hash_table_iter_init (&iter, ht);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		EventData *event_data = value;
+		glong seconds;
+
+		seconds = now->tv_sec - event_data->start_time.tv_sec;
+
+		if (seconds < 2) {
+			continue;
+		}
+
+		g_debug ("Event '%s' for URI '%s' has timed out (%ld seconds have elapsed)",
+		         monitor_event_to_string (event_data->event_type),
+		         event_data->file_uri,
+		         seconds);
+
+		emit_signal_for_event (monitor, event_data);
+		g_hash_table_iter_remove (&iter);
 	}
 }
 
@@ -631,39 +721,19 @@ static gboolean
 event_pairs_timeout_cb (gpointer user_data)
 {
 	TrackerMonitor *monitor;
-	GHashTableIter iter;
-	gpointer key, value;
 	GTimeVal now;
 
 	monitor = user_data;
-	g_hash_table_iter_init (&iter, monitor->private->event_pairs);
 	g_get_current_time (&now);
 
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		GFile *file = key;
-		EventData *event_data = value;
-		glong seconds;
-		gchar *uri;
+	/* Process PRE-UPDATE hash table */
+	event_pairs_process_in_ht (monitor, monitor->private->pre_update, &now);
 
-		seconds = now.tv_sec - event_data->start_time.tv_sec;
+	/* Process PRE-DELETE hash table */
+	event_pairs_process_in_ht (monitor, monitor->private->pre_delete, &now);
 
-		if (seconds < 2) {
-			continue;
-		}
-
-		uri = g_file_get_uri (file);
-
-		g_debug ("Event '%s' for URI '%s' has timed out (%ld seconds have elapsed)",
-		         monitor_event_to_string (event_data->event_type),
-			 uri, seconds);
-
-		g_free (uri);
-
-		emit_signal_for_event (monitor, event_data);
-		g_hash_table_iter_remove (&iter);
-	}
-
-	if (g_hash_table_size (monitor->private->event_pairs) > 0) {
+	if (g_hash_table_size (monitor->private->pre_update) > 0 ||
+	    g_hash_table_size (monitor->private->pre_delete) > 0) {
 		return TRUE;
 	}
 
@@ -680,10 +750,9 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		  gpointer	     user_data)
 {
 	TrackerMonitor *monitor;
-	gchar	       *str1;
-	gchar	       *str2;
-	gboolean	is_directory;
-	EventData      *event_data;
+	gchar *file_uri;
+	gchar *other_file_uri;
+	gboolean is_directory;
 
 	monitor = user_data;
 
@@ -692,19 +761,15 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		return;
 	}
 
-	str1 = g_file_get_path (file);
+	/* Get URIs as paths may not be in UTF-8 */
+	file_uri = g_file_get_uri (file);
+	other_file_uri = other_file ? g_file_get_uri (other_file) : NULL;
 
-	if (other_file) {
-		str2 = g_file_get_path (other_file);
-	} else {
-		str2 = NULL;
-	}
-
-	g_message ("Received monitor event:%d->'%s' for file:'%s' and other file:'%s'",
-		   event_type,
-		   monitor_event_to_string (event_type),
-		   str1,
-		   str2 ? str2 : "");
+	g_debug ("Received monitor event:%d->'%s' for file:'%s' and other file:'%s'",
+	         event_type,
+	         monitor_event_to_string (event_type),
+	         file_uri,
+	         other_file_uri ? other_file_uri : "");
 
 	is_directory = check_is_directory (monitor, file);
 
@@ -724,85 +789,179 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 				       monitor);
 #endif /* PAUSE_ON_IO */
 
-	switch (event_type) {
-	case G_FILE_MONITOR_EVENT_CHANGED:
-		if (!monitor->private->use_changed_event) {
-			/* Do nothing (using CHANGES_DONE_HINT) */
+	if (!is_directory) {
+		/* FILE Events */
+
+		switch (event_type) {
+		case G_FILE_MONITOR_EVENT_CREATED: {
+			/*  - When a G_FILE_MONITOR_EVENT_CREATED(A) is received,
+			 *    -- Add it to the cache, replacing any previous element
+			 *       (shouldn't be any)
+			 */
+			g_hash_table_replace (monitor->private->pre_update,
+			                      g_object_ref (file),
+			                      event_data_new (file, NULL, FALSE, event_type));
 			break;
 		}
 
-		/* Fall through */
-	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
-		if (!g_hash_table_lookup (monitor->private->event_pairs, file)) {
-			g_hash_table_insert (monitor->private->event_pairs,
-					     g_object_ref (file),
-					     event_data_new (file, event_type));
+		case G_FILE_MONITOR_EVENT_CHANGED: {
+			/* If use_changed_event, treat as an ATTRIBUTE_CHANGED. Otherwise,
+			 * assume there will be a CHANGES_DONE_HINT afterwards... */
+			if (!monitor->private->use_changed_event) {
+				EventData *previous_update_event_data;
+
+				/* Get previous event data, if any */
+				previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
+
+				/* If there is a previous ATTRIBUTE_CHANGED still not notified,
+				 * remove it, as we know there will be a CHANGES_DONE_HINT afterwards
+				 */
+				if (previous_update_event_data &&
+				    previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED) {
+					g_hash_table_remove (monitor->private->pre_update, file);
+				}
+
+				break;
+			}
+		} /* Else, Fall through and treat as an ATTRIBUTE_CHANGED */
+
+		case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED: {
+			if (!g_hash_table_lookup (monitor->private->pre_update, file)) {
+				g_hash_table_insert (monitor->private->pre_update,
+				                     g_object_ref (file),
+				                     event_data_new (file, NULL, FALSE, event_type));
+			}
+
+			break;
 		}
 
-		break;
-	case G_FILE_MONITOR_EVENT_CREATED:
-		if (!g_hash_table_lookup (monitor->private->event_pairs, file)) {
-			g_hash_table_insert (monitor->private->event_pairs,
-					     g_object_ref (file),
-					     event_data_new (file, event_type));
+		case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT: {
+			EventData *previous_update_event_data;
+
+			/* Get previous event data, if any */
+			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
+
+			if (previous_update_event_data) {
+				emit_signal_for_event (monitor, previous_update_event_data);
+				g_hash_table_remove (monitor->private->pre_update, file);
+			} else {
+				EventData *new_event;
+
+				new_event = event_data_new (file, NULL, FALSE, event_type);
+				emit_signal_for_event (monitor, new_event);
+				event_data_free (new_event);
+			}
+
+			break;
 		}
 
-		break;
+		case G_FILE_MONITOR_EVENT_DELETED: {
+			EventData *new_event;
 
-	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
-		/* Note: the general case is that this event is the last
-		 * one after a series of EVENT_CHANGED ones. It may be the
-		 * case that after this one, an ATTRIBUTE_CHANGED one is
-		 * issued, as when downloading a file with wget, where
-		 * mtime of the file is modified. But this last case is
-		 * quite specific, so we will anyway signal the event
-		 * right away instead of adding it to the HT.
-		 */
+			new_event = event_data_new (file, NULL, FALSE, event_type);
+			emit_signal_for_event (monitor, new_event);
+			event_data_free (new_event);
 
-		event_data = g_hash_table_lookup (monitor->private->event_pairs, file);
+			break;
+		}
+		case G_FILE_MONITOR_EVENT_MOVED: {
+			EventData *new_event;
 
-		if (event_data) {
-			emit_signal_for_event (monitor, event_data);
-			g_hash_table_remove (monitor->private->event_pairs, file);
-		} else {
-			event_data = event_data_new (file, event_type);
-			emit_signal_for_event (monitor, event_data);
-			event_data_free (event_data);
+			new_event = event_data_new (file, other_file, FALSE, event_type);
+			emit_signal_for_event (monitor, new_event);
+			event_data_free (new_event);
+
+			break;
+		}
+		case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
+		case G_FILE_MONITOR_EVENT_UNMOUNTED:
+			/* Do nothing */
+			break;
+		}
+	} else {
+		/* DIRECTORY Events */
+
+		switch (event_type) {
+		case G_FILE_MONITOR_EVENT_CREATED: {
+			EventData *new_event;
+
+			new_event = event_data_new (file, NULL, TRUE, event_type);
+			emit_signal_for_event (monitor, new_event);
+			event_data_free (new_event);
+
+			break;
 		}
 
-		break;
-	case G_FILE_MONITOR_EVENT_DELETED:
-		if (is_directory) {
-			tracker_monitor_remove_recursively (monitor, file);
+		case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
+		case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
+		case G_FILE_MONITOR_EVENT_CHANGED: {
+			if (!g_hash_table_lookup (monitor->private->pre_update, file)) {
+				g_hash_table_insert (monitor->private->pre_update,
+				                     g_object_ref (file),
+				                     event_data_new (file, NULL, TRUE, event_type));
+			}
+
+			break;
 		}
 
-		g_signal_emit (monitor,
-			       signals[ITEM_DELETED], 0,
-			       file,
-			       is_directory);
-		break;
+		case G_FILE_MONITOR_EVENT_DELETED: {
+			EventData *previous_delete_event_data;
 
-	case G_FILE_MONITOR_EVENT_MOVED:
-		g_signal_emit (monitor,
-			       signals[ITEM_MOVED], 0,
-			       file,
-			       other_file,
-			       is_directory,
-			       TRUE);
+			previous_delete_event_data = g_hash_table_lookup (monitor->private->pre_delete, file);
 
-		if (is_directory) {
-			tracker_monitor_move (monitor, file, other_file);
+			if (previous_delete_event_data &&
+			    previous_delete_event_data->event_type == G_FILE_MONITOR_EVENT_MOVED) {
+				g_debug ("Processing MOVE(A->B) + DELETE(A) as MOVE(A->B) for directory '%s->%s'",
+				         previous_delete_event_data->file_uri,
+				         previous_delete_event_data->other_file_uri);
+
+				emit_signal_for_event (monitor, previous_delete_event_data);
+				g_hash_table_remove (monitor->private->pre_delete, file);
+			}  else {
+				g_hash_table_insert (monitor->private->pre_delete,
+				                     g_object_ref (file),
+				                     event_data_new (file, NULL, TRUE, event_type));
+			}
+
+			break;
 		}
 
-		break;
+		case G_FILE_MONITOR_EVENT_MOVED: {
+			EventData *previous_delete_event_data;
 
-	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
-	case G_FILE_MONITOR_EVENT_UNMOUNTED:
-		/* Do nothing */
-		break;
+			previous_delete_event_data = g_hash_table_lookup (monitor->private->pre_delete, file);
+
+			if (previous_delete_event_data &&
+			    previous_delete_event_data->event_type == G_FILE_MONITOR_EVENT_DELETED) {
+				EventData *new_event;
+
+				new_event = event_data_new (file, other_file, TRUE, G_FILE_MONITOR_EVENT_MOVED);
+				g_debug ("Processing DELETE(A) + MOVE(A->B) as MOVE(A->B) for directory '%s->%s'",
+				         new_event->file_uri,
+				         new_event->other_file_uri);
+				emit_signal_for_event (monitor, new_event);
+				event_data_free (new_event);
+
+				/* And remove the previous DELETE */
+				g_hash_table_remove (monitor->private->pre_delete, file);
+			} else {
+				g_hash_table_insert (monitor->private->pre_delete,
+				                     g_object_ref (file),
+				                     event_data_new (file, other_file, TRUE, event_type));
+			}
+
+			break;
+		}
+
+		case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
+		case G_FILE_MONITOR_EVENT_UNMOUNTED:
+			/* Do nothing */
+			break;
+		}
 	}
 
-	if (g_hash_table_size (monitor->private->event_pairs) > 0) {
+	if (g_hash_table_size (monitor->private->pre_update) > 0 ||
+	    g_hash_table_size (monitor->private->pre_delete) > 0) {
 		if (monitor->private->event_pairs_timeout_id == 0) {
 			g_debug ("Waiting for event pairs");
 			monitor->private->event_pairs_timeout_id =
@@ -818,8 +977,8 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		monitor->private->event_pairs_timeout_id = 0;
 	}
 
-	g_free (str1);
-	g_free (str2);
+	g_free (file_uri);
+	g_free (other_file_uri);
 }
 
 static GFileMonitor *
