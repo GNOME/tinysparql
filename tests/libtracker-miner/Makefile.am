@@ -11,7 +11,6 @@ TEST_PROGS +=									\
 INCLUDES =									\
 	-DTEST									\
 	-DG_LOG_DOMAIN=\"Tracker\"						\
-	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"		\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\
 	-DTRACKER_COMPILATION							\
 	-DTEST_DATA_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/data"\"	\

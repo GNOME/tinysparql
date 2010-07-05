@@ -7,7 +7,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 INCLUDES = 									\
 	-DTEST									\
 	-DG_LOG_DOMAIN=\"Tracker\"						\
-	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"		\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\
 	-DTRACKER_COMPILATION							\
 	-I$(top_srcdir)/src							\
