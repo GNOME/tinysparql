@@ -3,7 +3,6 @@ include $(top_srcdir)/Makefile.decl
 INCLUDES =								\
 	-Wall								\
 	-DSHAREDIR=\""$(datadir)"\"					\
-	-DPKGLIBDIR=\""$(libdir)/tracker"\"				\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
