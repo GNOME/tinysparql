@@ -535,6 +535,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		TrackerProperty *property;
 		TrackerProperty **properties;
 		gboolean ignore = FALSE;
+		gboolean had = FALSE;
 
 		class = tracker_ontologies_get_class_by_uri (subject);
 
@@ -567,8 +568,20 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			properties++;
 		}
 
+		properties = tracker_class_get_last_domain_indexes (class);
+		if (properties) {
+			while (*properties) {
+				if (property == *properties) {
+					had = TRUE;
+				}
+				properties++;
+			}
+		}
+
 		if (!ignore) {
-			tracker_property_set_is_new_domain_index (property, in_update);
+			if (!had) {
+				tracker_property_set_is_new_domain_index (property, in_update);
+			}
 			tracker_class_add_domain_index (class, property);
 			tracker_property_add_domain_index (property, class);
 		}
@@ -794,107 +807,64 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 }
 
 
-typedef struct {
-	TrackerProperty *domain_index;
-	gboolean found;
-} CheckEntry;
-
 static void
 check_for_deleted_domain_index (TrackerClass *class)
 {
-	TrackerDBResultSet *result_set;
-	const gchar *subject;
-	GError *error = NULL;
-	TrackerProperty **domain_indexes;
-	GPtrArray *check_table;
-	gchar *query;
-	guint i;
-	gboolean found_any_to_delete = TRUE;
+	TrackerProperty **last_domain_indexes;
+	GSList *hfound = NULL, *deleted = NULL;
 
-	domain_indexes = tracker_class_get_domain_indexes (class);
+	last_domain_indexes = tracker_class_get_last_domain_indexes (class);
 
-	check_table = g_ptr_array_new_with_free_func (g_free);
+	while (*last_domain_indexes) {
+		TrackerProperty *last_domain_index = *last_domain_indexes;
+		gboolean found = FALSE;
+		TrackerProperty **domain_indexes;
 
-	subject = tracker_class_get_uri (class);
+		domain_indexes = tracker_class_get_domain_indexes (class);
 
-	/* Detect deleted domainIndexes */
-	query = g_strdup_printf ("SELECT ?s {"
-	                         " <%s> a rdfs:Class ; "
-	                               "tracker:domainIndex ?s "
-	                         "}", subject);
-
-	result_set = tracker_data_query_sparql (query, &error);
-
-	if (!error && result_set) {
-		gboolean results = TRUE;
-		while (results) {
-			gchar *str = NULL;
-			TrackerProperty *prop;
-
-			tracker_db_result_set_get (result_set, 0, &str, -1);
-			prop = tracker_ontologies_get_property_by_uri (str);
-
-			if (prop) {
-				CheckEntry *entry;
-				entry = g_new0 (CheckEntry, 1);
-				entry->domain_index = prop;
-				entry->found = FALSE;
-				g_ptr_array_add (check_table, entry);
+		while (*domain_indexes) {
+			TrackerProperty *domain_index = *domain_indexes;
+			if (last_domain_index == domain_index) {
+				found = TRUE;
+				hfound = g_slist_prepend (hfound, domain_index);
+				break;
 			}
-
-			g_free (str);
-
-			results = tracker_db_result_set_iter_next (result_set);
+			domain_indexes++;
 		}
-	}
 
-	if (result_set) {
-		g_object_unref (result_set);
-	}
-
-	g_free (query);
-
-	if (error) {
-		g_critical ("%s", error->message);
-		g_error_free (error);
-	}
-
-	while (*domain_indexes) {
-		for (i = 0; i< check_table->len; i++) {
-			CheckEntry *entry = g_ptr_array_index (check_table, i);
-			if (entry->domain_index == *domain_indexes) {
-				entry->found = TRUE;
-			}
+		if (!found) {
+			deleted = g_slist_prepend (deleted, last_domain_index);
 		}
-		domain_indexes++;
+
+		last_domain_indexes++;
 	}
 
-	for (i = 0; i< check_table->len; i++) {
-		CheckEntry *entry = g_ptr_array_index (check_table, i);
-		if (entry->found == FALSE) {
-			found_any_to_delete = TRUE;
-			break;
-		}
-	}
 
-	if (found_any_to_delete) {
+	if (deleted) {
+		GSList *l;
+
 		tracker_class_set_db_schema_changed (class, TRUE);
 
-		for (i = 0; i< check_table->len; i++) {
-			CheckEntry *entry = g_ptr_array_index (check_table, i);
-			TrackerProperty *prop = entry->domain_index;
-
-			if (entry->found == TRUE) {
-				tracker_property_set_is_new_domain_index (prop, TRUE);
-			} else {
-				tracker_property_del_domain_index (prop, class);
-				tracker_class_del_domain_index (class, prop);
-				/* tracker_property_set_db_schema_changed (prop, TRUE); */
-			}
+		for (l = hfound; l != NULL; l = l->next) {
+			TrackerProperty *prop = l->data;
+			g_debug ("Ontology change: keeping tracker:domainIndex: %s",
+			         tracker_property_get_name (prop));
+			tracker_property_set_is_new_domain_index (prop, TRUE);
 		}
+
+		for (l = deleted; l != NULL; l = l->next) {
+			TrackerProperty *prop = l->data;
+			/* TODO: delete from introspection too */
+			g_debug ("Ontology change: deleting tracker:domainIndex: %s",
+			         tracker_property_get_name (prop));
+			tracker_property_del_domain_index (prop, class);
+			tracker_class_del_domain_index (class, prop);
+		}
+
+		g_slist_free (deleted);
 	}
 
-	g_ptr_array_free (check_table, TRUE);
+	g_slist_free (hfound);
 }
 
 void
@@ -2131,6 +2101,25 @@ copy_from_domain_to_domain_index (TrackerDBInterface *iface,
 	g_free (query);
 }
 
+typedef struct {
+	TrackerProperty *prop;
+	const gchar *field_name;
+	const gchar *suffix;
+} ScheduleCopy;
+
+static void
+schedule_copy (GPtrArray *schedule,
+               TrackerProperty *prop,
+               const gchar *field_name,
+               const gchar *suffix)
+{
+	ScheduleCopy *sched = g_new0 (ScheduleCopy, 1);
+	sched->prop = prop;
+	sched->field_name = field_name,
+	sched->suffix = suffix;
+	g_ptr_array_add (schedule, sched);
+}
+
 static void
 copy_from_domain_to_domain_index (TrackerDBInterface *iface,
                                   TrackerProperty    *domain_index,
@@ -2185,6 +2174,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	gint              i, n_props;
 	gboolean          in_alter = in_update;
 	GError           *error = NULL;
+	GPtrArray        *copy_schedule = NULL;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
@@ -2273,6 +2263,14 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					                        field_name,
 					                        sql_type_for_single_value);
 
+					if (!copy_schedule) {
+						copy_schedule = g_ptr_array_new_with_free_func (g_free);
+					}
+
+					if (is_domain_index && tracker_property_get_is_new_domain_index (property)) {
+						schedule_copy (copy_schedule, property, field_name, NULL);
+					}
+
 					/* add DEFAULT in case that the ontology specifies a default value,
 					   assumes that default values never contain quotes */
 					if (default_value != NULL) {
@@ -2286,12 +2284,22 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					g_string_append_printf (create_sql, ", \"%s:graph\" INTEGER",
 					                        field_name);
 
+					if (is_domain_index && tracker_property_get_is_new_domain_index (property)) {
+						schedule_copy (copy_schedule, property, field_name, ":graph");
+					}
+
 					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
 						/* xsd:dateTime is stored in three columns:
 						 * universal time, local date, local time of day */
 						g_string_append_printf (create_sql, ", \"%s:localDate\" INTEGER, \"%s:localTime\" INTEGER",
 						                        tracker_property_get_name (property),
 						                        tracker_property_get_name (property));
+
+						if (is_domain_index && tracker_property_get_is_new_domain_index (property)) {
+							schedule_copy (copy_schedule, property, field_name, ":localTime");
+							schedule_copy (copy_schedule, property, field_name, ":localDate");
+						}
+
 					}
 
 				} else if ((!is_domain_index && tracker_property_get_is_new (property)) ||
@@ -2463,6 +2471,16 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	if (sel_col_sql)
 		g_string_free (sel_col_sql, TRUE);
 
+	if (copy_schedule) {
+		guint i;
+		for (i = 0; i < copy_schedule->len; i++) {
+			ScheduleCopy *sched = g_ptr_array_index (copy_schedule, i);
+			copy_from_domain_to_domain_index (iface, sched->prop,
+			                                  sched->field_name, sched->suffix,
+			                                  service);
+		}
+		g_ptr_array_free (copy_schedule, TRUE);
+	}
 }
 
 static void

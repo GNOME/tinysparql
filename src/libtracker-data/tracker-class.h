@@ -62,6 +62,7 @@ gboolean          tracker_class_get_notify             (TrackerClass    *service
 
 TrackerClass    **tracker_class_get_super_classes      (TrackerClass    *service);
 TrackerProperty **tracker_class_get_domain_indexes     (TrackerClass    *service);
+TrackerProperty **tracker_class_get_last_domain_indexes(TrackerClass    *service);
 
 void              tracker_class_set_uri                (TrackerClass    *service,
                                                         const gchar     *value);
