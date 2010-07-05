@@ -547,7 +547,22 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		property = tracker_ontologies_get_property_by_uri (object);
 
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s for tracker:domainIndex in %s",
+
+			/* In this case the import of the TTL will still make the introspection
+			 * have the URI set as a tracker:domainIndex for class. The critical
+			 * will have happened, but future operations might not cope with this
+			 * situation. TODO: add error handling so that the entire ontology
+			 * change operation is discarded, for example ignore the entire
+			 * .ontology file and rollback all changes that happened. I would
+			 * prefer a hard abort() here over a g_critical(), to be honest.
+			 *
+			 * Of course don't we yet allow just anybody to alter the ontology
+			 * files. So very serious is this lack of thorough error handling
+			 * not. Let's just not make mistakes when changing the .ontology
+			 * files for now. */
+
+			g_critical ("%s: Unknown property %s for tracker:domainIndex in %s."
+			            "Don't release this .ontology change!",
 			            ontology_path, object, subject);
 			return;
 		}
@@ -853,12 +868,29 @@ check_for_deleted_domain_index (TrackerClass *class)
 		}
 
 		for (l = deleted; l != NULL; l = l->next) {
+			GError *error = NULL;
 			TrackerProperty *prop = l->data;
-			/* TODO: delete from introspection too */
+
 			g_debug ("Ontology change: deleting tracker:domainIndex: %s",
 			         tracker_property_get_name (prop));
 			tracker_property_del_domain_index (prop, class);
 			tracker_class_del_domain_index (class, prop);
+
+			tracker_data_delete_statement (NULL, tracker_class_get_uri (class),
+			                               TRACKER_PREFIX "domainIndex",
+			                               tracker_property_get_uri (prop),
+			                               &error);
+
+			if (error) {
+				g_critical ("Ontology change, %s", error->message);
+				g_clear_error (&error);
+			} else {
+				tracker_data_update_buffer_flush (&error);
+				if (error) {
+					g_critical ("Ontology change, %s", error->message);
+					g_clear_error (&error);
+				}
+			}
 		}
 
 		g_slist_free (deleted);
