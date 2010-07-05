@@ -40,6 +40,17 @@ namespace Tracker {
 		public abstract DBStatement create_statement (...) throws DBInterfaceError;
 	}
 
+	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
+	public delegate void BusyCallback (string status, double progress);
+
+	[CCode (cprefix = "TRACKER_DB_MANAGER_", cheader_filename = "libtracker-data/tracker-db-manager.h")]
+	public enum DBManagerFlags {
+		FORCE_REINDEX,
+		REMOVE_CACHE,
+		REMOVE_ALL,
+		READONLY
+	}
+
 	[CCode (cheader_filename = "libtracker-data/tracker-db-manager.h")]
 	namespace DBManager {
 		public unowned DBInterface get_db_interface ();
@@ -135,6 +146,12 @@ namespace Tracker {
 		public void delete_resource_description (string graph, string uri) throws DataError;
 		public void update_buffer_flush () throws DBInterfaceError;
 		public void update_buffer_might_flush () throws DBInterfaceError;
+	}
+
+	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]
+	namespace Data.Manager {
+		public bool init (DBManagerFlags flags, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, BusyCallback? busy_callback, string? busy_status);
+		public void shutdown ();
 	}
 }
 

@@ -17,6 +17,7 @@ SUBDIRS = 					\
 	$(libtrackerfts_dir)			\
 	libtracker-bus				\
 	libtracker-data				\
+	libtracker-direct			\
 	libtracker-extract			\
 	libtracker-miner			\
 	miners					\
