@@ -551,6 +551,12 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
+		if (tracker_property_get_multiple_values (property)) {
+			g_critical ("%s: Property %s has multiple values while trying to add it as tracker:domainIndex in %s, this isn't supported",
+			            ontology_path, object, subject);
+			return;
+		}
+
 		properties = tracker_class_get_domain_indexes (class);
 		while (*properties) {
 			if (property == *properties) {
