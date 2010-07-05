@@ -667,7 +667,7 @@ emit_signal_for_event (TrackerMonitor *monitor,
 		               event_data->is_directory);
 		break;
 	case G_FILE_MONITOR_EVENT_MOVED:
-		g_debug ("Emitting ITEM_MOVED for (%s) '%s->%s'",
+		g_debug ("Emitting ITEM_MOVED for (%s) '%s'->'%s'",
 		         event_data->is_directory ? "DIRECTORY" : "FILE",
 		         event_data->file_uri,
 		         event_data->other_file_uri);
@@ -882,19 +882,20 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		/* DIRECTORY Events */
 
 		switch (event_type) {
-		case G_FILE_MONITOR_EVENT_CREATED: {
-			EventData *new_event;
-
-			new_event = event_data_new (file, NULL, TRUE, event_type);
-			emit_signal_for_event (monitor, new_event);
-			event_data_free (new_event);
-
-			break;
-		}
-
+		case G_FILE_MONITOR_EVENT_CREATED:
 		case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
 		case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
 		case G_FILE_MONITOR_EVENT_CHANGED: {
+			EventData *previous_delete_event_data;
+
+			/* If any previous event on this item, notify it
+			 *  before creating it */
+			previous_delete_event_data = g_hash_table_lookup (monitor->private->pre_delete, file);
+			if (previous_delete_event_data) {
+				emit_signal_for_event (monitor, previous_delete_event_data);
+				g_hash_table_remove (monitor->private->pre_delete, file);
+			}
+
 			if (!g_hash_table_lookup (monitor->private->pre_update, file)) {
 				g_hash_table_insert (monitor->private->pre_update,
 				                     g_object_ref (file),
@@ -905,12 +906,22 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		}
 
 		case G_FILE_MONITOR_EVENT_DELETED: {
+			EventData *previous_update_event_data;
 			EventData *previous_delete_event_data;
 
-			previous_delete_event_data = g_hash_table_lookup (monitor->private->pre_delete, file);
+			/* If any previous update event on this item, notify it */
+			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
+			if (previous_update_event_data) {
+				emit_signal_for_event (monitor, previous_update_event_data);
+				g_hash_table_remove (monitor->private->pre_update, file);
+			}
 
+			/* Check if there is a previous delete event */
+			previous_delete_event_data = g_hash_table_lookup (monitor->private->pre_delete, file);
 			if (previous_delete_event_data &&
 			    previous_delete_event_data->event_type == G_FILE_MONITOR_EVENT_MOVED) {
+
+
 				g_debug ("Processing MOVE(A->B) + DELETE(A) as MOVE(A->B) for directory '%s->%s'",
 				         previous_delete_event_data->file_uri,
 				         previous_delete_event_data->other_file_uri);
@@ -918,19 +929,28 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 				emit_signal_for_event (monitor, previous_delete_event_data);
 				g_hash_table_remove (monitor->private->pre_delete, file);
 			}  else {
-				g_hash_table_insert (monitor->private->pre_delete,
-				                     g_object_ref (file),
-				                     event_data_new (file, NULL, TRUE, event_type));
+				/* If no previous, add to HT */
+				g_hash_table_replace (monitor->private->pre_delete,
+				                      g_object_ref (file),
+				                      event_data_new (file, NULL, TRUE, event_type));
 			}
 
 			break;
 		}
 
 		case G_FILE_MONITOR_EVENT_MOVED: {
+			EventData *previous_update_event_data;
 			EventData *previous_delete_event_data;
 
-			previous_delete_event_data = g_hash_table_lookup (monitor->private->pre_delete, file);
+			/* If any previous update event on this item, notify it */
+			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
+			if (previous_update_event_data) {
+				emit_signal_for_event (monitor, previous_update_event_data);
+				g_hash_table_remove (monitor->private->pre_update, file);
+			}
 
+			/* Check if there is a previous delete event */
+			previous_delete_event_data = g_hash_table_lookup (monitor->private->pre_delete, file);
 			if (previous_delete_event_data &&
 			    previous_delete_event_data->event_type == G_FILE_MONITOR_EVENT_DELETED) {
 				EventData *new_event;
@@ -939,15 +959,17 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 				g_debug ("Processing DELETE(A) + MOVE(A->B) as MOVE(A->B) for directory '%s->%s'",
 				         new_event->file_uri,
 				         new_event->other_file_uri);
+
 				emit_signal_for_event (monitor, new_event);
 				event_data_free (new_event);
 
 				/* And remove the previous DELETE */
 				g_hash_table_remove (monitor->private->pre_delete, file);
 			} else {
-				g_hash_table_insert (monitor->private->pre_delete,
-				                     g_object_ref (file),
-				                     event_data_new (file, other_file, TRUE, event_type));
+				/* If no previous, add to HT */
+				g_hash_table_replace (monitor->private->pre_delete,
+				                      g_object_ref (file),
+				                      event_data_new (file, other_file, TRUE, event_type));
 			}
 
 			break;
