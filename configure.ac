@@ -1864,6 +1864,7 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 	src/libstemmer/Makefile
 	src/libtracker-common/Makefile
+	src/libtracker-sparql/Makefile
 	src/libtracker-data/Makefile
 	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile

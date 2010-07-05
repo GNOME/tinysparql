@@ -12,6 +12,7 @@ endif
 SUBDIRS = 					\
 	$(libstemmer_dir)			\
 	libtracker-common 			\
+	libtracker-sparql 			\
 	libtracker-client			\
 	$(libtrackerfts_dir)			\
 	libtracker-data				\
