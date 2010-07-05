@@ -24,11 +24,10 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-db/tracker-db.h>
-
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-data.h>
 #include <libtracker-data/tracker-sparql-query.h>
 
 static void

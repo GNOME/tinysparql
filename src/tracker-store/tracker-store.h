@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 #include <libtracker-common/tracker-common.h>
-#include <libtracker-db/tracker-db-interface.h>
+#include <libtracker-data/tracker-db-interface.h>
 
 G_BEGIN_DECLS
 

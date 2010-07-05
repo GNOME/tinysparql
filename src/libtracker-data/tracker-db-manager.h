@@ -26,8 +26,8 @@
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_DB_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-db/tracker-db.h> must be included directly."
+#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
 #define TRACKER_TYPE_DB (tracker_db_get_type ())

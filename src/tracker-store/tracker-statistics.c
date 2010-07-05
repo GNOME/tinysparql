@@ -27,10 +27,9 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-dbus.h>
 
-#include <libtracker-db/tracker-db-dbus.h>
-#include <libtracker-db/tracker-db-manager.h>
-
 #include <libtracker-data/tracker-data.h>
+#include <libtracker-data/tracker-db-dbus.h>
+#include <libtracker-data/tracker-db-manager.h>
 
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"

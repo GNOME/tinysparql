@@ -22,7 +22,7 @@
 
 #include <glib.h>
 
-#include <libtracker-db/tracker-db.h>
+#include <libtracker-data/tracker-data.h>
 
 gboolean test_assert_query_run (TrackerDB db, const gchar *query);
 gboolean test_assert_query_run_on_iface (TrackerDBInterface *iface, const gchar *query);

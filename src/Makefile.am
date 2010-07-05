@@ -14,7 +14,6 @@ SUBDIRS = 					\
 	libtracker-common 			\
 	libtracker-client			\
 	$(libtrackerfts_dir)			\
-	libtracker-db				\
 	libtracker-data				\
 	libtracker-extract			\
 	libtracker-miner			\

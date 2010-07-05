@@ -25,13 +25,13 @@
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-common.h>
-#include <libtracker-db/tracker-db.h>
 
+#include <libtracker-data/tracker-data-backup.h>
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-data.h>
 #include <libtracker-data/tracker-sparql-query.h>
-#include <libtracker-data/tracker-data-backup.h>
 
 static gint backup_calls = 0;
 static GMainLoop *loop = NULL;

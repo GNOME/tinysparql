@@ -67,7 +67,6 @@ endif
 tracker_store_LDADD =							\
 	$(plugin_libs)							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
-	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\

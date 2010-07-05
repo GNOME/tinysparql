@@ -29,12 +29,12 @@
 #include <sys/types.h>
 
 #include <libtracker-common/tracker-dbus.h>
-#include <libtracker-db/tracker-db-dbus.h>
-#include <libtracker-db/tracker-db-interface-sqlite.h>
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-db-dbus.h>
+#include <libtracker-data/tracker-db-interface-sqlite.h>
 #include <libtracker-data/tracker-sparql-query.h>
 
 #include "tracker-store.h"

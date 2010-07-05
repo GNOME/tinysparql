@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, Nokia
+ * Copyright (C) 2008-2010, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,52 @@
  */
 
 namespace Tracker {
+	[CCode (cheader_filename = "libtracker-data/tracker-db-manager.h")]
+	public enum DB {
+		UNKNOWN,
+		COMMON,
+		CACHE,
+		METADATA,
+		CONTENTS
+	}
+
+	[CCode (cprefix = "TRACKER_DB_", cheader_filename = "libtracker-data/tracker-db-interface.h")]
+	public errordomain DBInterfaceError {
+		QUERY_ERROR,
+		CORRUPT,
+		INTERRUPTED
+	}
+
+	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
+	public interface DBInterface : GLib.Object {
+		[PrintfFormat]
+		public abstract DBStatement create_statement (...) throws DBInterfaceError;
+	}
+
+	[CCode (cheader_filename = "libtracker-data/tracker-db-manager.h")]
+	namespace DBManager {
+		public unowned DBInterface get_db_interface ();
+	}
+
+	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
+	public class DBResultSet : GLib.Object {
+		public void _get_value (uint column, out GLib.Value value);
+		public bool iter_next ();
+	}
+
+	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
+	public class DBCursor : GLib.Object {
+	}
+
+	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
+	public interface DBStatement : GLib.Object {
+		public abstract void bind_double (int index, double value);
+		public abstract void bind_int (int index, int value);
+		public abstract void bind_text (int index, string value);
+		public abstract DBResultSet execute () throws DBInterfaceError;
+		public abstract DBCursor start_cursor () throws DBInterfaceError;
+	}
+
 	[CCode (cheader_filename = "libtracker-data/tracker-class.h")]
 	public class Class : GLib.Object {
 		public string name { get; set; }

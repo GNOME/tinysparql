@@ -21,7 +21,7 @@
 
 #include <glib.h>
 
-#include <libtracker-db/tracker-db.h>
+#include <libtracker-data/tracker-data.h>
 
 #include "tracker-test-helpers.h"
 

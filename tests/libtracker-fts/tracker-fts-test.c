@@ -26,11 +26,10 @@
 
 #include <libtracker-common/tracker-ontologies.h>
 
-#include <libtracker-db/tracker-db.h>
-
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-data.h>
 #include <libtracker-data/tracker-sparql-query.h>
 
 typedef struct _TestInfo TestInfo;

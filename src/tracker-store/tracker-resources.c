@@ -29,11 +29,10 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-ontologies.h>
 
-#include <libtracker-db/tracker-db-dbus.h>
-
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-db-dbus.h>
 
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"

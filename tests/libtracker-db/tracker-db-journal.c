@@ -21,7 +21,7 @@
 
 #include <libtracker-common/tracker-crc32.h>
 
-#include <libtracker-db/tracker-db-journal.h>
+#include <libtracker-data/tracker-db-journal.h>
 
 static void
 test_init_and_shutdown (void)

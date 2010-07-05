@@ -28,7 +28,7 @@ libtracker_module_kmail_daemon_module_la_LDFLAGS = $(module_flags)
 libtracker_module_kmail_daemon_module_la_LIBADD = 			\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la          \
-	$(top_builddir)/src/libtracker-db/libtracker-db.la              \
+	$(top_builddir)/src/libtracker-data/libtracker-data.la              \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la      \
 	$(GMODULE_LIBS)							\
 	$(DBUS_LIBS)                                                    \

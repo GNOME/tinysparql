@@ -32,6 +32,12 @@ libtracker_data_la_SOURCES = 						\
 	tracker-data-manager.c						\
 	tracker-data-query.c						\
 	tracker-data-update.c						\
+	tracker-db-config.c						\
+	tracker-db-dbus.c						\
+	tracker-db-interface.c						\
+	tracker-db-interface-sqlite.c					\
+	tracker-db-manager.c						\
+	tracker-db-journal.c						\
 	tracker-namespace.c						\
 	tracker-ontology.c						\
 	tracker-ontologies.c						\
@@ -46,6 +52,12 @@ noinst_HEADERS =							\
 	tracker-data-manager.h						\
 	tracker-data-query.h						\
 	tracker-data-update.h						\
+	tracker-db-config.h						\
+	tracker-db-dbus.h						\
+	tracker-db-interface.h						\
+	tracker-db-interface-sqlite.h					\
+	tracker-db-manager.h 						\
+	tracker-db-journal.h						\
 	tracker-namespace.h						\
 	tracker-ontology.h						\
 	tracker-ontologies.h						\
@@ -56,7 +68,6 @@ vapi_sources =								\
 	$(top_srcdir)/src/vapi/posix.vapi				\
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi			\
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi	\
-	$(top_srcdir)/src/libtracker-db/libtracker-db.vapi		\
 	libtracker-data.vapi
 
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES) $(vapi_sources)
@@ -68,12 +79,18 @@ libtracker_data_la_LDFLAGS =						\
 
 libtracker_data_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
+	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(UUID_LIBS)							\
 	$(GCOV_LIBS)							\
-	-lz
+	-lz								\
+	-lm
+
+if HAVE_TRACKER_FTS
+libtracker_data_la_LIBADD += 						\
+	$(top_builddir)/src/libtracker-fts/libtracker-fts.la
+endif
 
 MAINTAINERCLEANFILES =							\
 	libtracker-data.vala.stamp					\

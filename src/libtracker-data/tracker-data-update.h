@@ -25,7 +25,7 @@
 
 #include <libtracker-common/tracker-ontologies.h>
 
-#include <libtracker-db/tracker-db-interface.h>
+#include "tracker-db-interface.h"
 
 G_BEGIN_DECLS
 

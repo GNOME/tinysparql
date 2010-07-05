@@ -33,14 +33,13 @@
 #include <libtracker-fts/tracker-fts.h>
 #endif
 
-#include <libtracker-db/tracker-db-manager.h>
-#include <libtracker-db/tracker-db-dbus.h>
-#include <libtracker-db/tracker-db-journal.h>
-
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
 #include "tracker-data-query.h"
+#include "tracker-db-manager.h"
+#include "tracker-db-dbus.h"
+#include "tracker-db-journal.h"
 #include "tracker-ontologies.h"
 #include "tracker-property.h"
 #include "tracker-sparql-query.h"

@@ -17,7 +17,7 @@ INCLUDES =								\
 libs = 									\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(DBUS_LIBS)							\
 	$(GIO_LIBS)							\

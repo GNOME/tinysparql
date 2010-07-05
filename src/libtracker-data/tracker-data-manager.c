@@ -36,13 +36,12 @@
 #include <libtracker-fts/tracker-fts.h>
 #endif
 
-#include <libtracker-db/tracker-db-interface-sqlite.h>
-#include <libtracker-db/tracker-db-manager.h>
-#include <libtracker-db/tracker-db-journal.h>
-
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
+#include "tracker-db-interface-sqlite.h"
+#include "tracker-db-manager.h"
+#include "tracker-db-journal.h"
 #include "tracker-namespace.h"
 #include "tracker-ontologies.h"
 #include "tracker-ontology.h"

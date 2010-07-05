@@ -43,7 +43,7 @@ tracker_db_journal_SOURCES = 						\
 	tracker-db-journal.c
 
 tracker_db_journal_LDADD =						\
-	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 	$(SQLITE3_LIBS)							\
@@ -57,7 +57,7 @@ tracker_db_dbus_SOURCES = 						\
 
 tracker_db_dbus_LDADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 	$(SQLITE3_LIBS)							\
 	$(GMODULE_LIBS)							\
@@ -72,7 +72,7 @@ tracker_db_dbus_LDADD =						\
 # 	tracker-db-manager-common.h
 #
 # tracker_db_manager_attach_LDADD =					\
-# 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
+# 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 # 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 # 	$(SQLITE3_LIBS)							\
@@ -87,7 +87,7 @@ tracker_db_dbus_LDADD =						\
 # 	tracker-db-manager-common.h
 #
 # tracker_db_manager_unattach_LDADD =					\
-# 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
+# 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 # 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 # 	$(SQLITE3_LIBS)							\
@@ -102,7 +102,7 @@ tracker_db_dbus_LDADD =						\
 # 	tracker-db-manager-common.h
 #
 # tracker_db_manager_custom_LDADD =					\
-# 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
+# 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 # 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 # 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 # 	$(SQLITE3_LIBS)							\

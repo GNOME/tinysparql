@@ -24,12 +24,12 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-db/tracker-db-manager.h>
-#include <libtracker-db/tracker-db-journal.h>
-#include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include "tracker-data-backup.h"
+#include "tracker-data-manager.h"
+#include "tracker-db-manager.h"
+#include "tracker-db-journal.h"
 
 typedef struct {
 	GFile *destination, *journal;
