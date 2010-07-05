@@ -143,6 +143,7 @@ public class TrackerNeedle {
 		                       typeof (string),      // File size
 		                       typeof (string));     // Tooltip
 		treeview.set_model (store);
+        treeview.set_tooltip_column (7);
 
 		var col = new Gtk.TreeViewColumn ();
 
@@ -297,7 +298,7 @@ public class TrackerNeedle {
 			var theme = IconTheme.get_for_screen (screen);
 
 			var size_small = 0;
-			Gtk.icon_size_lookup (Gtk.IconSize.DND, out size_small, null);
+			Gtk.icon_size_lookup (Gtk.IconSize.MENU, out size_small, null);
 
 			var size_big = 0;
 			Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null);
@@ -308,6 +309,7 @@ public class TrackerNeedle {
 				debug ("  --> %s", result[i,2]);
 				debug ("  --> %s", result[i,3]);
 				debug ("  --> %s", result[i,4]);
+				debug ("  --> %s", result[i,5]);
 
 				// Get icon
 				Gdk.Pixbuf pixbuf_small = item_get_pixbuf (theme, result[i,1], size_small);
