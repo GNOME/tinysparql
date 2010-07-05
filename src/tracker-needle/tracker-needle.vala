@@ -49,8 +49,8 @@ public class TrackerNeedle {
 	private IconView iconview;
 	private uint last_search_id = 0;
 	private ListStore store;
-    static bool current_view = true;
-    static bool current_find_in = true;
+	static bool current_view = true;
+	static bool current_find_in = true;
 
 	private const int secs_per_day = 60 * 60 * 24;
 
@@ -143,7 +143,7 @@ public class TrackerNeedle {
 		                       typeof (string),      // File size
 		                       typeof (string));     // Tooltip
 		treeview.set_model (store);
-        treeview.set_tooltip_column (7);
+		treeview.set_tooltip_column (7);
 
 		var col = new Gtk.TreeViewColumn ();
 
@@ -343,9 +343,9 @@ public class TrackerNeedle {
 	}
 
 	private void view_toggled () {
-	    if (current_view == view_list.active) {
-	        return;	    
-	    }
+		if (current_view == view_list.active) {
+			return;
+		}
 
 		if (view_list.active) {
 			sw_iconview.hide ();
@@ -360,11 +360,11 @@ public class TrackerNeedle {
 		current_view = view_list.active;
 	}
 
-	private void find_in_toggled () {    
-	    if (current_find_in == find_in_contents.active) {
-	        return;	    
-	    }
-	    
+	private void find_in_toggled () {
+		if (current_find_in == find_in_contents.active) {
+			return;
+		}
+
 		if (find_in_contents.active) {
 			debug ("Find in toggled to 'contents'");
 			search_run ();
@@ -372,7 +372,7 @@ public class TrackerNeedle {
 			debug ("Find in toggled to 'titles'");
 			search_run ();
 		}
-		
+
 		current_find_in = find_in_contents.active;
 	}
 
@@ -387,15 +387,15 @@ public class TrackerNeedle {
 
 		debug ("Selected uri:'%s'", uri);
 
-        try {
-            AppInfo.launch_default_for_uri (uri, null);
-        } catch (GLib.Error e) {
-            warning ("Could not launch application: " + e.message);
-        }
+		try {
+			AppInfo.launch_default_for_uri (uri, null);
+		} catch (GLib.Error e) {
+			warning ("Could not launch application: " + e.message);
+		}
 	}
-	
+
 	private void show_stats_clicked () {
-	    debug ("Showing stats dialog");
+		debug ("Showing stats dialog");
 		TrackerStats s = new TrackerStats ();
 		s.show ();
 	}
