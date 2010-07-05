@@ -17,14 +17,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-public abstract class Tracker.Sparql.Cursor : Object {
-	public abstract int n_columns { get; }
-	public abstract unowned string get_string (int column, out int length = null);
-	public virtual bool interrupt () throws GLib.Error {
-		warning ("Interrupt interface called when not implemented");
-		return false;
-	}
-
-	public abstract bool iter_next () throws GLib.Error;
-	public abstract void rewind ();
+public abstract class Tracker.Sparql.Connection : Object {
+	public abstract Cursor query (string sparql) throws GLib.Error;
 }
