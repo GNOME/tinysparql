@@ -646,6 +646,7 @@ emit_signal_for_event (TrackerMonitor *monitor,
 			       event_data->file,
 		               event_data->is_directory);
 		break;
+
 	case G_FILE_MONITOR_EVENT_CHANGED:
 	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
 	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
@@ -657,6 +658,7 @@ emit_signal_for_event (TrackerMonitor *monitor,
 			       event_data->file,
 			       event_data->is_directory);
 		break;
+
 	case G_FILE_MONITOR_EVENT_DELETED:
 		g_debug ("Emitting ITEM_DELETED for (%s) '%s'",
 		         event_data->is_directory ? "DIRECTORY" : "FILE",
@@ -665,7 +667,13 @@ emit_signal_for_event (TrackerMonitor *monitor,
 		               signals[ITEM_DELETED], 0,
 		               event_data->file,
 		               event_data->is_directory);
+		/* Remove monitors recursively */
+		if (event_data->is_directory) {
+			tracker_monitor_remove_recursively (monitor,
+							    event_data->file);
+		}
 		break;
+
 	case G_FILE_MONITOR_EVENT_MOVED:
 		g_debug ("Emitting ITEM_MOVED for (%s) '%s'->'%s'",
 		         event_data->is_directory ? "DIRECTORY" : "FILE",
@@ -677,6 +685,7 @@ emit_signal_for_event (TrackerMonitor *monitor,
 		               event_data->other_file,
 		               event_data->is_directory,
 		               TRUE);
+		/* Move monitors to the new place */
 		if (event_data->is_directory) {
 			tracker_monitor_move (monitor,
 			                      event_data->file,
