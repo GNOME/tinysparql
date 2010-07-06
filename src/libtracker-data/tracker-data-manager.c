@@ -861,8 +861,23 @@ check_for_deleted_domain_index (TrackerClass *class)
 
 	if (deleted) {
 		GSList *l;
+		TrackerProperty **properties;
+		guint n_props, i;
 
 		tracker_class_set_db_schema_changed (class, TRUE);
+
+		properties = tracker_ontologies_get_properties (&n_props);
+		for (i = 0; i < n_props; i++) {
+			if (tracker_property_get_domain (properties[i]) == class &&
+			    !tracker_property_get_multiple_values (properties[i])) {
+
+				/* These aren't domain-indexes, but it's just a flag for the
+				 * functionality that'll recreate the table to know that the
+				 * property must be involved in the recreation and copy */
+
+				tracker_property_set_is_new_domain_index (properties[i], TRUE);
+			}
+		}
 
 		for (l = hfound; l != NULL; l = l->next) {
 			TrackerProperty *prop = l->data;
