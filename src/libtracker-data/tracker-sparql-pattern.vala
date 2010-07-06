@@ -1223,10 +1223,17 @@ class Tracker.Sparql.Pattern : Object {
 					Variable v = context.get_variable (current_subject);
 					VariableBindingList list = triple_context.var_bindings.lookup (v);
 
-					foreach (Class cl in prop.get_domain_indexes ()) {
-						foreach (VariableBinding b in list.list) {
-							if (b.type == cl) {
-								db_table = cl.name;
+					if (list != null && list.list != null) {
+						bool stop = false;
+						foreach (Class cl in prop.get_domain_indexes ()) {
+							foreach (VariableBinding b in list.list) {
+								if (b.type == cl) {
+									db_table = cl.name;
+									stop = true;
+									break;
+								}
+							}
+							if (stop) {
 								break;
 							}
 						}
