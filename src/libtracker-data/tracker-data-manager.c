@@ -830,6 +830,10 @@ check_for_deleted_domain_index (TrackerClass *class)
 
 	last_domain_indexes = tracker_class_get_last_domain_indexes (class);
 
+	if (!last_domain_indexes) {
+		return;
+	}
+
 	while (*last_domain_indexes) {
 		TrackerProperty *last_domain_index = *last_domain_indexes;
 		gboolean found = FALSE;
