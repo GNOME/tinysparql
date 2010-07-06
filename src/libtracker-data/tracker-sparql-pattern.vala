@@ -1168,7 +1168,7 @@ class Tracker.Sparql.Pattern : Object {
 		bool object_is_var;
 		string object = parse_var_or_term (sql, out object_is_var);
 
-		string db_table;
+		string db_table = null;
 		bool rdftype = false;
 		bool share_table = true;
 		bool is_fts_match = false;
@@ -1218,7 +1218,24 @@ class Tracker.Sparql.Pattern : Object {
 					pv.domain = domain;
 				}
 
-				db_table = prop.table_name;
+				if (current_subject_is_var) {
+					// Domain specific index might be a possibility, let's check
+					Variable v = context.get_variable (current_subject);
+					VariableBindingList list = triple_context.var_bindings.lookup (v);
+
+					foreach (Class cl in prop.get_domain_indexes ()) {
+						foreach (VariableBinding b in list.list) {
+							if (b.type == cl) {
+								db_table = cl.name;
+								break;
+							}
+						}
+					}
+				}
+
+				if (db_table == null)
+					db_table = prop.table_name;
+
 				if (prop.multiple_values) {
 					// we can never share the table with multiple triples
 					// for multi value properties as a property may consist of multiple rows

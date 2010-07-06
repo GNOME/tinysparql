@@ -42,6 +42,8 @@ namespace Tracker {
 		public Class range { get; set; }
 		public bool multiple_values { get; set; }
 		public bool is_inverse_functional_property { get; set; }
+		[CCode (array_length = false, array_null_terminated = true)]
+		public unowned Class[] get_domain_indexes ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-property.h")]
