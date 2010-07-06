@@ -67,11 +67,12 @@ noinst_HEADERS =							\
 vapi_sources =								\
 	$(top_srcdir)/src/vapi/posix.vapi				\
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi			\
+	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi	\
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi	\
 	libtracker-data.vapi
 
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) -H tracker-sparql-query.h --pkg gio-2.0 $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) -H tracker-sparql-query.h --vapi tracker-sparql-query.vapi --pkg gio-2.0 $^
 	touch $@
 
 libtracker_data_la_LDFLAGS =						\
@@ -101,5 +102,6 @@ MAINTAINERCLEANFILES =							\
 
 EXTRA_DIST = $(libtracker_data_la_VALASOURCES)				\
 	libtracker-data.vala.stamp					\
-	libtracker-data.vapi
+	libtracker-data.vapi						\
+	tracker-sparql-query.vapi
 

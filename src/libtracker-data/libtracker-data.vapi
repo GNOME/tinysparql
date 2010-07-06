@@ -52,7 +52,7 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
-	public class DBCursor : GLib.Object {
+	public class DBCursor : Sparql.Cursor {
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]

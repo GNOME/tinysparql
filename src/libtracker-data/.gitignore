@@ -1,6 +1,6 @@
 tracker-sparql-expression.c
 tracker-sparql-pattern.c
-tracker-sparql-query.c
-tracker-sparql-query.h
+tracker-sparql-query.[ch]
+tracker-sparql-query.vapi
 tracker-sparql-scanner.c
 tracker-turtle-reader.c
