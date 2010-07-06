@@ -65,7 +65,7 @@ tracker_data_query_rdf_type (gint id)
 		 * function is called fairly often) */
 
 		ret = g_ptr_array_sized_new (20);
-		while (tracker_db_cursor_iter_next (cursor, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			const gchar *class_uri;
 			TrackerClass *cl;
 
@@ -116,7 +116,7 @@ tracker_data_query_resource_id (const gchar *uri)
 	}
 
 	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, &error)) {
+		if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			id = tracker_db_cursor_get_int (cursor, 0);
 		}
 

@@ -47,7 +47,7 @@ struct TrackerDBInterface {
 #if HAVE_TRACKER_FTS
 	guint fts_initialized : 1;
 #endif
-	volatile gint interrupt;
+	GCancellable *cancellable;
 };
 
 struct TrackerDBInterfaceClass {
@@ -449,7 +449,7 @@ static int
 check_interrupt (void *user_data)
 {
 	TrackerDBInterface *db_interface = user_data;
-	return g_atomic_int_get (&db_interface->interrupt);
+	return g_cancellable_is_cancelled (db_interface->cancellable) ? 1 : 0;
 }
 
 static void
@@ -784,6 +784,7 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 static TrackerDBResultSet *
 create_result_set_from_stmt (TrackerDBInterface  *interface,
                              sqlite3_stmt        *stmt,
+                             GCancellable        *cancellable,
                              GError             **error)
 {
 	TrackerDBResultSet *result_set = NULL;
@@ -795,11 +796,14 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 	while (result == SQLITE_OK  ||
 	       result == SQLITE_ROW) {
 
-		if (g_atomic_int_get (&interface->interrupt) == 1) {
+		if (g_cancellable_is_cancelled (cancellable)) {
 			result = SQLITE_INTERRUPT;
 			sqlite3_reset (stmt);
 		} else {
+			/* only one statement can be active at the same time per interface */
+			interface->cancellable = cancellable;
 			result = sqlite3_step (stmt);
+			interface->cancellable = NULL;
 		}
 
 		switch (result) {
@@ -905,25 +909,11 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 		return NULL;
 	}
 
-	result_set = create_result_set_from_stmt (db_interface, stmt, error);
+	result_set = create_result_set_from_stmt (db_interface, stmt, NULL, error);
 	sqlite3_finalize (stmt);
 
 	g_free (full_query);
 	return result_set;
-}
-
-gboolean
-tracker_db_interface_interrupt (TrackerDBInterface *iface)
-{
-	g_atomic_int_set (&iface->interrupt, 1);
-
-	return TRUE;
-}
-
-void
-tracker_db_interface_reset_interrupt (TrackerDBInterface *iface)
-{
-	iface->interrupt = 0;
 }
 
 TrackerDBInterface *
@@ -1125,6 +1115,7 @@ tracker_db_cursor_rewind (TrackerDBCursor *cursor)
 
 gboolean
 tracker_db_cursor_iter_next (TrackerDBCursor *cursor,
+                             GCancellable    *cancellable,
                              GError         **error)
 {
 	TrackerDBStatement *stmt = cursor->ref_stmt;
@@ -1133,11 +1124,14 @@ tracker_db_cursor_iter_next (TrackerDBCursor *cursor,
 	if (!cursor->finished) {
 		guint result;
 
-		if (g_atomic_int_get (&iface->interrupt) == 1) {
+		if (g_cancellable_is_cancelled (cancellable)) {
 			result = SQLITE_INTERRUPT;
 			sqlite3_reset (cursor->stmt);
 		} else {
+			/* only one statement can be active at the same time per interface */
+			iface->cancellable = cancellable;
 			result = sqlite3_step (cursor->stmt);
+			iface->cancellable = NULL;
 		}
 
 		if (result == SQLITE_INTERRUPT) {
@@ -1227,7 +1221,7 @@ tracker_db_statement_execute (TrackerDBStatement          *stmt,
 {
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
-	return create_result_set_from_stmt (stmt->db_interface, stmt->stmt, error);
+	return create_result_set_from_stmt (stmt->db_interface, stmt->stmt, NULL, error);
 }
 
 TrackerDBCursor *

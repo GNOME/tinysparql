@@ -238,7 +238,7 @@ query_callback (gpointer inthread_data, GError *error, gpointer user_data)
 }
 
 static gpointer
-query_inthread (TrackerDBCursor *cursor, GError *error, gpointer user_data)
+query_inthread (TrackerDBCursor *cursor, GCancellable *cancellable, GError *error, gpointer user_data)
 {
 	InThreadPtr *ptr = g_slice_new0 (InThreadPtr);
 	TrackerDBusMethodInfo *info = user_data;
@@ -267,7 +267,7 @@ query_inthread (TrackerDBCursor *cursor, GError *error, gpointer user_data)
 
 	cont = TRUE;
 
-	while (tracker_db_cursor_iter_next (cursor, &loop_error) && cont) {
+	while (tracker_db_cursor_iter_next (cursor, cancellable, &loop_error) && cont) {
 		DBusMessageIter cols_iter;
 		guint i;
 

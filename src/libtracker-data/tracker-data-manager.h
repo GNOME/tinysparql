@@ -46,8 +46,7 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  fla
                                                       gpointer               busy_user_data,
                                                       const gchar           *busy_status);
 void     tracker_data_manager_shutdown               (void);
-gboolean tracker_data_manager_interrupt_thread       (GThread               *thread);
-void     tracker_data_manager_interrupt_thread_reset (GThread               *thread);
+
 gint64   tracker_data_manager_get_db_option_int64    (const gchar           *option);
 void     tracker_data_manager_set_db_option_int64    (const gchar           *option,
                                                       gint64                 value);

@@ -1426,7 +1426,7 @@ class_add_super_classes_from_db (TrackerDBInterface *iface,
 	g_object_unref (stmt);
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
 			TrackerClass *super_class;
 			const gchar *super_class_uri;
 
@@ -1464,7 +1464,7 @@ class_add_domain_indexes_from_db (TrackerDBInterface *iface,
 	g_object_unref (stmt);
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
 			TrackerProperty *domain_index;
 			const gchar *domain_index_uri;
 
@@ -1502,7 +1502,7 @@ property_add_super_properties_from_db (TrackerDBInterface *iface,
 	g_object_unref (stmt);
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
 			TrackerProperty *super_property;
 			const gchar *super_property_uri;
 
@@ -1536,7 +1536,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			TrackerOntology *ontology;
 			const gchar     *uri;
 			time_t           last_mod;
@@ -1574,7 +1574,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			TrackerNamespace *namespace;
 			const gchar      *uri, *prefix;
 
@@ -1613,7 +1613,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			TrackerClass *class;
 			const gchar  *uri;
 			gint          id;
@@ -1702,7 +1702,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			GValue value = { 0 };
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri, *default_value;
@@ -2652,7 +2652,7 @@ get_new_service_id (TrackerDBInterface *iface)
 	}
 
 	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, &error)) {
+		if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			max_service_id = tracker_db_cursor_get_int (cursor, 0);
 		}
 		g_object_unref (cursor);
@@ -2913,7 +2913,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		                                     NULL);
 
 		if (cursor) {
-			while (tracker_db_cursor_iter_next (cursor, &error)) {
+			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 				const gchar *onto_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 				/* It's stored as an int in the db anyway. This is caused by
 				 * string_to_gvalue in tracker-data-update.c */
@@ -3144,16 +3144,4 @@ tracker_data_manager_set_db_option_int64 (const gchar *option,
 		g_error_free (error);
 		return;
 	}
-}
-
-gboolean
-tracker_data_manager_interrupt_thread (GThread *thread)
-{
-	return tracker_db_manager_interrupt_thread (thread);
-}
-
-void
-tracker_data_manager_interrupt_thread_reset (GThread *thread)
-{
-	tracker_db_manager_interrupt_thread_reset (thread);
 }

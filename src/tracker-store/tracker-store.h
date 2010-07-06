@@ -41,6 +41,7 @@ typedef void (* TrackerStoreSparqlQueryCallback)       (gpointer         data,
                                                         gpointer         user_data);
 typedef gpointer
              (* TrackerStoreSparqlQueryInThread)       (TrackerDBCursor *cursor,
+                                                        GCancellable    *cancellable,
                                                         GError          *error,
                                                         gpointer         user_data);
 typedef void (* TrackerStoreSparqlUpdateCallback)      (GError          *error,

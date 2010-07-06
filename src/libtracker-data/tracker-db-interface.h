@@ -21,6 +21,7 @@
 #define __LIBTRACKER_DB_INTERFACE_H__
 
 #include <glib-object.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
@@ -95,8 +96,6 @@ TrackerDBResultSet *tracker_db_interface_execute_query     (TrackerDBInterface  
                                                             const gchar          *query,
                                                             ...) G_GNUC_PRINTF (3, 4);
 
-gboolean            tracker_db_interface_interrupt         (TrackerDBInterface  *interface);
-void                tracker_db_interface_reset_interrupt   (TrackerDBInterface  *interface);
 gboolean            tracker_db_interface_start_transaction (TrackerDBInterface  *interface);
 gboolean            tracker_db_interface_end_db_transaction(TrackerDBInterface  *interface);
 void                tracker_db_statement_bind_double       (TrackerDBStatement  *stmt,
@@ -136,6 +135,7 @@ guint               tracker_db_result_set_get_n_rows       (TrackerDBResultSet  
 /* Functions to deal with a cursor */
 void                tracker_db_cursor_rewind               (TrackerDBCursor     *cursor);
 gboolean            tracker_db_cursor_iter_next            (TrackerDBCursor     *cursor,
+                                                            GCancellable        *cancellable,
                                                             GError             **error);
 guint               tracker_db_cursor_get_n_columns        (TrackerDBCursor     *cursor);
 void                tracker_db_cursor_get_value            (TrackerDBCursor     *cursor,

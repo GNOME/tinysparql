@@ -949,7 +949,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 				}
 
 				if (cursor) {
-					if (tracker_db_cursor_iter_next (cursor, NULL)) {
+					if (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
 						if (g_strcmp0 (tracker_db_cursor_get_string (cursor, 0, NULL), "ok") != 0) {
 							must_recreate = TRUE;
 						}
@@ -1638,51 +1638,4 @@ tracker_db_manager_set_last_crawl_done (gboolean done)
 	}
 
 	g_free (filename);
-}
-
-/**
- * tracker_db_manager_interrupt_thread:
- * @thread: a #GThread to be interrupted
- *
- * Interrupts any ongoing DB operation going on on @thread.
- *
- * Returns: %TRUE if DB operations were interrupted, %FALSE otherwise.
- **/
-gboolean
-tracker_db_manager_interrupt_thread (GThread *thread)
-{
-	TrackerDBInterface *interface;
-
-	g_static_mutex_lock (&thread_ifaces_mutex);
-	interface = g_hash_table_lookup (thread_ifaces, thread);
-	g_static_mutex_unlock (&thread_ifaces_mutex);
-
-	if (!interface) {
-		return FALSE;
-	}
-
-	return tracker_db_interface_interrupt (interface);
-}
-
-/**
- * tracker_db_manager_interrupt_thread_reset:
- * @thread: a #GThread to be reset
- *
- * Reset @thread's interrupt state
- *
- **/
-void
-tracker_db_manager_interrupt_thread_reset (GThread *thread)
-{
-	TrackerDBInterface *interface;
-
-	g_static_mutex_lock (&thread_ifaces_mutex);
-	interface = g_hash_table_lookup (thread_ifaces, thread);
-	g_static_mutex_unlock (&thread_ifaces_mutex);
-
-	if (!interface) {
-		return;
-	}
-
-	tracker_db_interface_reset_interrupt (interface);
 }

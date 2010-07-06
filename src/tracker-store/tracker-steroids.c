@@ -232,6 +232,7 @@ update_blank_callback (GPtrArray *blank_nodes,
 
 static gpointer
 query_inthread (TrackerDBCursor *cursor,
+                GCancellable    *cancellable,
                 GError          *error,
                 gpointer         user_data)
 {
@@ -268,7 +269,7 @@ query_inthread (TrackerDBCursor *cursor,
 	column_offsets = g_malloc (n_columns * sizeof (gint));
 	column_data = g_malloc (n_columns * sizeof (gchar*));
 
-	while (tracker_db_cursor_iter_next (cursor, &loop_error)) {
+	while (tracker_db_cursor_iter_next (cursor, cancellable, &loop_error)) {
 		gint i;
 		guint last_offset = -1;
 

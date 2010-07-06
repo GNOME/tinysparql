@@ -74,10 +74,10 @@ typedef struct {
 	TrackerStoreTaskType  type;
 	union {
 		struct {
-			gchar       *query;
-			GThread     *running_thread;
-			GTimer      *timer;
-			gpointer     thread_data;
+			gchar        *query;
+			GCancellable *cancellable;
+			GTimer       *timer;
+			gpointer      thread_data;
 		} query;
 		struct {
 			gchar        *query;
@@ -137,6 +137,9 @@ store_task_free (TrackerStoreTask *task)
 		g_free (task->data.query.query);
 		if (task->data.query.timer) {
 			g_timer_destroy (task->data.query.timer);
+		}
+		if (task->data.query.cancellable) {
+			g_object_unref (task->data.query.cancellable);
 		}
 	} else {
 		g_free (task->data.update.query);
@@ -309,15 +312,15 @@ watchdog_cb (gpointer user_data)
 
 	while (running) {
 		TrackerStoreTask *task;
-		GThread *thread;
+		GCancellable *cancellable;
 
 		task = running->data;
 		running = running->next;
-		thread = task->data.query.running_thread;
+		cancellable = task->data.query.cancellable;
 
-		if (thread && private->max_task_time &&
+		if (cancellable && private->max_task_time &&
 		    g_timer_elapsed (task->data.query.timer, NULL) > private->max_task_time) {
-			tracker_data_manager_interrupt_thread (task->data.query.running_thread);
+			g_cancellable_cancel (cancellable);
 		}
 	}
 
@@ -353,6 +356,10 @@ task_finish_cb (gpointer data)
 	task = data;
 
 	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
+		if (!task->error) {
+			g_cancellable_set_error_if_cancelled (task->data.query.cancellable, &task->error);
+		}
+
 		if (task->callback.query.query_callback) {
 			task->callback.query.query_callback (task->data.query.thread_data, task->error, task->user_data);
 		}
@@ -361,6 +368,7 @@ task_finish_cb (gpointer data)
 			g_clear_error (&task->error);
 		}
 
+		task->data.query.cancellable = g_cancellable_new ();
 		private->running_tasks = g_slist_remove (private->running_tasks, task);
 		check_running_tasks_watchdog (private);
 		private->n_queries_running--;
@@ -453,7 +461,6 @@ pool_dispatch_cb (gpointer data,
 {
 	TrackerStorePrivate *private;
 	TrackerStoreTask *task;
-	GThread *running_thread = g_thread_self ();
 
 #ifdef __USE_GNU
 	/* special task, only ever sent to main pool */
@@ -471,19 +478,15 @@ pool_dispatch_cb (gpointer data,
 	private = user_data;
 	task = data;
 
-	tracker_data_manager_interrupt_thread_reset (running_thread);
-
 	if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
 		TrackerDBCursor *cursor;
 
-		task->data.query.running_thread = running_thread;
 		cursor = tracker_data_query_sparql_cursor (task->data.query.query, &task->error);
 
-		task->data.query.thread_data = task->callback.query.in_thread (cursor, task->error, task->user_data);
+		task->data.query.thread_data = task->callback.query.in_thread (cursor, task->data.query.cancellable, task->error, task->user_data);
 
 		if (cursor)
 			g_object_unref (cursor);
-		task->data.query.running_thread = NULL;
 
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (task->data.update.batch) {
@@ -883,9 +886,9 @@ tracker_store_unreg_batches (const gchar *client_id)
 
 		task = running->data;
 
-		if (task->data.query.running_thread &&
-                    g_strcmp0 (task->client_id, client_id) == 0) {
-			tracker_data_manager_interrupt_thread (task->data.query.running_thread);
+		if (task->data.query.cancellable &&
+		    g_strcmp0 (task->client_id, client_id) == 0) {
+			g_cancellable_cancel (task->data.query.cancellable);
 		}
 	}
 

@@ -360,7 +360,7 @@ tracker_data_update_get_new_service_id (void)
 	}
 
 	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, &error)) {
+		if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), max_service_id);
 		}
 
@@ -405,7 +405,7 @@ tracker_data_update_get_next_modseq (void)
 	}
 
 	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, &error)) {
+		if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			max_modseq = MAX (tracker_db_cursor_get_int (cursor, 0), max_modseq);
 		}
 

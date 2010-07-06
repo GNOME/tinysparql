@@ -65,9 +65,6 @@ gboolean            tracker_db_manager_has_enough_space       (void);
 TrackerDBManagerFlags
                     tracker_db_manager_get_flags              (void);
 
-gboolean            tracker_db_manager_interrupt_thread       (GThread *thread);
-void                tracker_db_manager_interrupt_thread_reset (GThread *thread);
-
 gboolean            tracker_db_manager_get_first_index_done   (void);
 guint64             tracker_db_manager_get_last_crawl_done    (void);
 
