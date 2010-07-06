@@ -1226,7 +1226,6 @@ test_monitor_directory_event_moved_from_not_monitored (TrackerMonitorTestFixture
 	g_free (dest_path);
 }
 
-
 /* ----------------------------- BASIC API TESTS --------------------------------- */
 
 static void
@@ -1328,35 +1327,30 @@ main (gint    argc,
 	            test_monitor_common_setup,
 	            test_monitor_file_event_created,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/file-event/updated",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_file_event_updated,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/file-event/deleted",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_file_event_deleted,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/file-event/moved/to-monitored",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_file_event_moved_to_monitored,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/file-event/moved/to-not-monitored",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_file_event_moved_to_not_monitored,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/file-event/moved/from-not-monitored",
 	            TrackerMonitorTestFixture,
 	            NULL,
@@ -1371,42 +1365,36 @@ main (gint    argc,
 	            test_monitor_common_setup,
 	            test_monitor_directory_event_created,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/directory-event/deleted",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_directory_event_deleted,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/directory-event/moved/to-monitored",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_directory_event_moved_to_monitored,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/directory-event/moved/to-monitored-after-file-create",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_directory_event_moved_to_monitored_after_file_create,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/directory-event/moved/to-monitored-after-file-update",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_directory_event_moved_to_monitored_after_file_update,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/directory-event/moved/to-not-monitored",
 	            TrackerMonitorTestFixture,
 	            NULL,
 	            test_monitor_common_setup,
 		    test_monitor_directory_event_moved_to_not_monitored,
 	            test_monitor_common_teardown);
-
 	g_test_add ("/libtracker-miner/tracker-monitor/directory-event/moved/from-not-monitored",
 	            TrackerMonitorTestFixture,
 	            NULL,
