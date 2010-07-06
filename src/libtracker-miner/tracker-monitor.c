@@ -645,6 +645,8 @@ emit_signal_for_event (TrackerMonitor *monitor,
 			       signals[ITEM_CREATED], 0,
 			       event_data->file,
 		               event_data->is_directory);
+		/* Note that if the created item is a Directory, we must NOT
+		 * add automatically a new monitor. */
 		break;
 
 	case G_FILE_MONITOR_EVENT_CHANGED:
