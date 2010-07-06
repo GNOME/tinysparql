@@ -2157,44 +2157,6 @@ schedule_copy (GPtrArray *schedule,
 }
 
 static void
-copy_from_domain_to_domain_index (TrackerDBInterface *iface,
-                                  TrackerProperty    *domain_index,
-                                  const gchar        *column_name,
-                                  const gchar        *column_suffix,
-                                  TrackerClass       *dest_domain)
-{
-	GError *error = NULL;
-	TrackerClass *source_domain;
-	const gchar *source_name, *dest_name;
-	gchar *query;
-
-	source_domain = tracker_property_get_domain (domain_index);
-	source_name = tracker_class_get_name (source_domain);
-	dest_name = tracker_class_get_name (dest_domain);
-
-	query = g_strdup_printf ("UPDATE \"%s\" SET \"%s%s\"=("
-	                         "SELECT \"%s%s\" FROM \"%s\" "
-	                         "WHERE \"%s\".ID = \"%s\".ID)",
-	                         dest_name,
-	                         column_name,
-	                         column_suffix ? column_suffix : "",
-	                         column_name,
-	                         column_suffix ? column_suffix : "",
-	                         source_name,
-	                         source_name,
-	                         dest_name);
-
-	tracker_db_interface_execute_query (iface, &error, "%s", query);
-
-	if (error) {
-		g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
-		g_clear_error (&error);
-	}
-
-	g_free (query);
-}
-
-static void
 create_decomposed_metadata_tables (TrackerDBInterface *iface,
                                    TrackerClass       *service,
                                    gboolean            in_update,
