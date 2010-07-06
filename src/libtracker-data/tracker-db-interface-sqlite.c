@@ -28,6 +28,8 @@
 
 #include <libtracker-common/tracker-common.h>
 
+#include <libtracker-sparql/tracker-sparql.h>
+
 #if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
 #endif
@@ -56,14 +58,14 @@ struct TrackerDBInterfaceClass {
 };
 
 struct TrackerDBCursor {
-	GObject parent_instance;
+	TrackerSparqlCursor parent_instance;
 	sqlite3_stmt *stmt;
 	TrackerDBStatement *ref_stmt;
 	gboolean finished;
 };
 
 struct TrackerDBCursorClass {
-	GObjectClass parent_class;
+	TrackerSparqlCursorClass parent_class;
 };
 
 struct TrackerDBStatement {
@@ -93,7 +95,7 @@ G_DEFINE_TYPE (TrackerDBInterface, tracker_db_interface, G_TYPE_OBJECT)
 
 G_DEFINE_TYPE (TrackerDBStatement, tracker_db_statement, G_TYPE_OBJECT)
 
-G_DEFINE_TYPE (TrackerDBCursor, tracker_db_cursor, G_TYPE_OBJECT)
+G_DEFINE_TYPE (TrackerDBCursor, tracker_db_cursor, TRACKER_SPARQL_TYPE_CURSOR)
 
 void
 tracker_db_interface_sqlite_enable_shared_cache (void)
@@ -1072,8 +1074,14 @@ static void
 tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (class);
+	TrackerSparqlCursorClass *sparql_cursor_class = TRACKER_SPARQL_CURSOR_CLASS (class);
 
 	object_class->finalize = tracker_db_cursor_finalize;
+
+	sparql_cursor_class->get_n_columns = (gint (*) (TrackerSparqlCursor *)) tracker_db_cursor_get_n_columns;
+	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, gint, glong*)) tracker_db_cursor_get_string;
+	sparql_cursor_class->next = (gboolean (*) (TrackerSparqlCursor *, GCancellable *, GError **)) tracker_db_cursor_iter_next;
+	sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_db_cursor_rewind;
 }
 
 static TrackerDBCursor *
@@ -1150,6 +1158,7 @@ tracker_db_cursor_rewind (TrackerDBCursor *cursor)
 	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
 
 	sqlite3_reset (cursor->stmt);
+	cursor->finished = FALSE;
 }
 
 gboolean
@@ -1241,7 +1250,7 @@ tracker_db_cursor_get_double (TrackerDBCursor *cursor,  guint column)
 
 
 const gchar*
-tracker_db_cursor_get_string (TrackerDBCursor *cursor,  guint column, gint *length)
+tracker_db_cursor_get_string (TrackerDBCursor *cursor,  guint column, glong *length)
 {
 	if (length) {
 		sqlite3_value *val = sqlite3_column_value (cursor->stmt, column);

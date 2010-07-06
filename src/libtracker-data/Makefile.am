@@ -79,6 +79,7 @@ libtracker_data_la_LDFLAGS =						\
 
 libtracker_data_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(SQLITE3_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
