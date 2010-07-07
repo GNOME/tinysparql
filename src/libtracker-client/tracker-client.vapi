@@ -79,7 +79,7 @@ namespace Tracker {
 		public void object_blank_close ();
 		public void object_blank_open ();
 		public void object_boolean (bool literal);
-		public void object_date (ulong literal);
+		public void object_date (ref time_t literal);
 		public void object_double (double literal);
 		public void object_int64 (int64 literal);
 		public void object_iri (string iri);
