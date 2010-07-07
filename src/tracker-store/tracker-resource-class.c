@@ -292,7 +292,6 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
                                   TrackerDBusEventsType type)
 {
 	TrackerResourceClassPrivate *priv;
-	gchar *n_uri;
 	gpointer hash_key;
 
 	priv = TRACKER_RESOURCE_CLASS_GET_PRIVATE (object);
@@ -308,7 +307,7 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 			priv->adds_table = g_hash_table_new (NULL, NULL);
 		}
 
-		g_hash_table_insert (priv->adds_table, uri, GINT_TO_POINTER (TRUE));
+		g_hash_table_insert (priv->adds_table, (gpointer) uri, GINT_TO_POINTER (TRUE));
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_UPDATE:
 
@@ -318,7 +317,7 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 
 		hash_key = (gpointer) ((gsize) uri ^ (gsize) predicate);
 
-		g_hash_table_insert (priv->ups_table, hash_key, uri);
+		g_hash_table_insert (priv->ups_table, (gpointer) hash_key, (gpointer)  uri);
 		break;
 	case TRACKER_DBUS_EVENTS_TYPE_DELETE:
 
@@ -326,7 +325,7 @@ tracker_resource_class_add_event (TrackerResourceClass  *object,
 			priv->dels_table = g_hash_table_new (NULL, NULL);
 		}
 
-		g_hash_table_insert (priv->dels_table, uri, GINT_TO_POINTER (TRUE));
+		g_hash_table_insert (priv->dels_table, (gpointer) uri, GINT_TO_POINTER (TRUE));
 		break;
 	default:
 		break;
