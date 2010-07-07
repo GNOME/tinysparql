@@ -38,8 +38,13 @@ vapi_sources =						\
 	$(top_srcdir)/src/libtracker-data/libtracker-data.vapi	\
 	$(top_srcdir)/src/libtracker-data/tracker-sparql-query.vapi
 
+# Vala bindings
+vapidir = $(datadir)/vala/vapi
+vapi_DATA = \
+	tracker-direct-$(TRACKER_API_VERSION).vapi
+
 libtracker-direct.vala.stamp: $(libtracker_direct_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-direct.h $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-direct.h --vapi tracker-direct-$(TRACKER_API_VERSION).vapi $^
 	$(AM_V_GEN)touch $@
 
 libtracker_direct_@TRACKER_API_VERSION@_la_LIBADD = 						\
