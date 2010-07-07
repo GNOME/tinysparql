@@ -656,7 +656,10 @@ emit_signal_for_event (TrackerMonitor *monitor,
 			                      event_data->other_file);
 		}
 		break;
-	default:
+
+	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
+	case G_FILE_MONITOR_EVENT_UNMOUNTED:
+		/* Do nothing */
 		break;
 	}
 }
