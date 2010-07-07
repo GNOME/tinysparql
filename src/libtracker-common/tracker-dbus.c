@@ -728,9 +728,10 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 	GError *inner_error = NULL;
 	gboolean ret_value = FALSE;
 
-	g_return_val_if_fail (connection, FALSE);
-	g_return_val_if_fail (message, FALSE);
-	g_return_val_if_fail (dest_buffer, FALSE);
+	g_return_val_if_fail (connection != NULL, FALSE);
+	g_return_val_if_fail (message != NULL, FALSE);
+	g_return_val_if_fail (fd > 0, FALSE);
+	g_return_val_if_fail (dest_buffer != NULL, FALSE);
 
 	dbus_connection_send_with_reply (connection,
 	                                 message,
@@ -802,7 +803,7 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 	return ret_value;
 }
 
-static SendAndSpliceData*
+static SendAndSpliceData *
 send_and_splice_data_new (GInputStream                     *unix_input_stream,
                           GInputStream                     *buffered_input_stream,
                           GOutputStream                    *output_stream,
@@ -880,7 +881,7 @@ send_and_splice_async_callback (GObject      *source,
 	send_and_splice_data_free (data);
 }
 
-void
+gboolean
 tracker_dbus_send_and_splice_async (DBusConnection                   *connection,
                                     DBusMessage                      *message,
                                     int                               fd,
@@ -894,9 +895,10 @@ tracker_dbus_send_and_splice_async (DBusConnection                   *connection
 	GOutputStream *output_stream;
 	SendAndSpliceData *data;
 
-	g_return_if_fail (connection);
-	g_return_if_fail (message);
-
+	g_return_val_if_fail (connection != NULL, FALSE);
+	g_return_val_if_fail (message != NULL, FALSE);
+	g_return_val_if_fail (fd > 0, FALSE);
+	g_return_val_if_fail (callback != NULL, FALSE);
 
 	dbus_connection_send_with_reply (connection,
 	                                 message,
@@ -906,7 +908,7 @@ tracker_dbus_send_and_splice_async (DBusConnection                   *connection
 
 	if (!call) {
 		g_critical ("FD passing unsupported or connection disconnected");
-		return;
+		return FALSE;
 	}
 
 	unix_input_stream = g_unix_input_stream_new (fd, TRUE);
@@ -929,4 +931,6 @@ tracker_dbus_send_and_splice_async (DBusConnection                   *connection
 	                              cancellable,
 	                              send_and_splice_async_callback,
 	                              data);
+
+	return TRUE;
 }

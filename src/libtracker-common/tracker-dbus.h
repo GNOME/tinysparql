@@ -176,7 +176,7 @@ gboolean         tracker_dbus_send_and_splice        (DBusConnection            
                                                       gssize                     *dest_buffer_size,
                                                       GError                    **error);
 
-void             tracker_dbus_send_and_splice_async  (DBusConnection             *connection,
+gboolean         tracker_dbus_send_and_splice_async  (DBusConnection             *connection,
                                                       DBusMessage                *message,
                                                       int                         fd,
                                                       GCancellable               *cancellable,
