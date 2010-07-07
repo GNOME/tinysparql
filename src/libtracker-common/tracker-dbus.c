@@ -831,6 +831,7 @@ send_and_splice_data_free (SendAndSpliceData *data)
 	g_object_unref (data->buffered_input_stream);
 	g_object_unref (data->output_stream);
 	dbus_pending_call_unref (data->call);
+	g_slice_free (SendAndSpliceData, data);
 }
 
 static void
