@@ -769,7 +769,9 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 
 		stmt = tracker_db_statement_sqlite_new (db_interface, sqlite_stmt);
 
-		g_hash_table_insert (db_interface->dynamic_statements, sqlite3_sql (sqlite_stmt), stmt);
+		g_hash_table_insert (db_interface->dynamic_statements,
+		                     (gpointer) sqlite3_sql (sqlite_stmt),
+		                     stmt);
 	} else {
 		tracker_db_statement_sqlite_reset (stmt);
 	}
