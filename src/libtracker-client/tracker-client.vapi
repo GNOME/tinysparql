@@ -67,14 +67,14 @@ namespace Tracker {
 		public static unowned Tracker.SparqlBuilder construct_embedded_insert (GLib.Type object_type);
 		public static unowned Tracker.SparqlBuilder construct_update (GLib.Type object_type);
 		public void delete_close ();
-		public void delete_open (string graph);
+		public void delete_open (string? graph);
 		public void drop_graph (string iri);
 		[CCode (has_construct_function = false)]
 		public SparqlBuilder.embedded_insert ();
 		public int get_length ();
 		public unowned string get_result ();
 		public void insert_close ();
-		public void insert_open (string graph);
+		public void insert_open (string? graph);
 		public void object (string s);
 		public void object_blank_close ();
 		public void object_blank_open ();
