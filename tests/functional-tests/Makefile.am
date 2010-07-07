@@ -7,6 +7,7 @@ INCLUDES =					\
 	-I$(top_srcdir)/src/libtracker-direct	\
 	-I$(top_srcdir)/src/libtracker-bus	\
 	-I$(top_builddir)/src/libtracker-sparql	\
+	-I$(top_builddir)/src/libtracker-direct	\
 	-I$(top_builddir)/src/libtracker-bus	\
 	$(WARN_CFLAGS)				\
 	$(DBUS_CFLAGS)				\
@@ -52,7 +53,7 @@ bashscripts_SCRIPTS = 				\
 	@sed -e "s|@topsrcdir[@]|${top_srcdir}|" \
 	     -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
-noinst_PROGRAMS = busy-handling-test bus-query-test bus-update-test
+noinst_PROGRAMS = busy-handling-test direct-query-test bus-query-test default-update-test bus-update-test
 
 busy_handling_test_VALASOURCES = busy-handling-test.vala
 
@@ -69,6 +70,18 @@ busy_handling_test_LDADD = \
 	$(GLIB2_LIBS) \
 	$(DBUS_LIBS)
 
+direct_query_test_VALASOURCES = shared-query-test.vala direct-query-test.vala
+
+direct_query_test_SOURCES = \
+	direct-query-test.vala.stamp \
+	$(direct_query_test_VALASOURCES:.vala=.c)
+
+default_update_test_VALASOURCES = shared-update-test.vala default-update-test.vala
+
+default_update_test_SOURCES = \
+	default-update-test.vala.stamp \
+	$(default_update_test_VALASOURCES:.vala=.c)
+
 bus_query_test_VALASOURCES = shared-query-test.vala bus-query-test.vala
 
 bus_query_test_SOURCES = \
@@ -80,6 +93,26 @@ bus_update_test_VALASOURCES = shared-update-test.vala bus-update-test.vala
 bus_update_test_SOURCES = \
 	bus-update-test.vala.stamp \
 	$(bus_update_test_VALASOURCES:.vala=.c)
+
+direct_vapi_sources = \
+	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
+	$(top_srcdir)/src/libtracker-direct/tracker-direct-$(TRACKER_API_VERSION).vapi
+
+direct-query-test.vala.stamp: $(direct_query_test_VALASOURCES) $(direct_vapi_sources)
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 $^
+	$(AM_V_GEN)touch $@
+
+direct_query_test_LDADD = \
+	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
+	$(GIO_LIBS) \
+	$(GLIB2_LIBS)
+
+default-update-test.vala.stamp: $(default_update_test_VALASOURCES) $(direct_vapi_sources)
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 $^
+	$(AM_V_GEN)touch $@
+
+default_update_test_LDADD = $(direct_query_test_LDADD)
 
 bus_vapi_sources = \
 	$(top_builddir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
@@ -105,7 +138,9 @@ bus_update_test_LDADD = $(bus_query_test_LDADD)
 
 BUILT_SOURCES = 				\
 	busy-handling-test.vala.stamp 		\
+	direct-query-test.vala.stamp 		\
 	bus-query-test.vala.stamp 		\
+	default-update-test.vala.stamp 		\
 	bus-update-test.vala.stamp
 
 
@@ -126,5 +161,7 @@ MAINTAINERCLEANFILES =					\
 	$(BUILT_SOURCES)				\
 	$(busy_handling_test_VALASOURCES:.vala=.c)	\
 	$(bus_query_test_VALASOURCES:.vala=.c)		\
-	$(bus_update_test_VALASOURCES:.vala=.c)
+	$(bus_update_test_VALASOURCES:.vala=.c)		\
+	$(direct_query_test_VALASOURCES:.vala=.c)	\
+	$(default_update_test_VALASOURCES:.vala=.c)
 

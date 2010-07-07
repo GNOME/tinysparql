@@ -2,8 +2,12 @@ shared-query-test.c
 shared-update-test.c
 bus-query-test
 bus-query-test.c
+direct-query-test
+direct-query-test.c
 bus-update-test
 bus-update-test.c
+default-update-test
+default-update-test.c
 ttl
 force-sqlite-misused-batch.sh
 force-sqlite-misused.sh
