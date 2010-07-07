@@ -54,7 +54,7 @@ typedef struct {
 	GInputStream *buffered_input_stream;
 	GOutputStream *output_stream;
 	DBusPendingCall *call;
-	TrackerSendAndSpliceCallback callback;
+	TrackerDBusSendAndSpliceCallback callback;
 	gpointer user_data;
 } SendAndSpliceData;
 
@@ -803,12 +803,12 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 }
 
 static SendAndSpliceData*
-send_and_splice_data_new (GInputStream                 *unix_input_stream,
-                          GInputStream                 *buffered_input_stream,
-                          GOutputStream                *output_stream,
-						  DBusPendingCall              *call,
-						  TrackerSendAndSpliceCallback  callback,
-						  gpointer                      user_data)
+send_and_splice_data_new (GInputStream                     *unix_input_stream,
+                          GInputStream                     *buffered_input_stream,
+                          GOutputStream                    *output_stream,
+                          DBusPendingCall                  *call,
+                          TrackerDBusSendAndSpliceCallback  callback,
+                          gpointer                          user_data)
 {
 	SendAndSpliceData *data;
 
@@ -881,12 +881,12 @@ send_and_splice_async_callback (GObject      *source,
 }
 
 void
-tracker_dbus_send_and_splice_async (DBusConnection               *connection,
-                                    DBusMessage                  *message,
-                                    int                           fd,
-                                    GCancellable                 *cancellable,
-                                    TrackerSendAndSpliceCallback  callback,
-                                    gpointer                      user_data)
+tracker_dbus_send_and_splice_async (DBusConnection                   *connection,
+                                    DBusMessage                      *message,
+                                    int                               fd,
+                                    GCancellable                     *cancellable,
+                                    TrackerDBusSendAndSpliceCallback  callback,
+                                    gpointer                          user_data)
 {
 	DBusPendingCall *call;
 	GInputStream *unix_input_stream;
