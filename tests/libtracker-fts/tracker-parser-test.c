@@ -119,7 +119,6 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
                        gconstpointer data)
 {
 	const TestDataExpectedNWords *testdata = data;
-	const gchar *word;
 	gint position;
 	gint byte_offset_start;
 	gint byte_offset_end;
@@ -139,12 +138,12 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	                      testdata->ignore_numbers);
 
 	/* Count number of output words */
-	while ((word = tracker_parser_next (fixture->parser,
-	                                    &position,
-	                                    &byte_offset_start,
-	                                    &byte_offset_end,
-	                                    &stop_word,
-	                                    &word_length))) {
+	while (tracker_parser_next (fixture->parser,
+				    &position,
+				    &byte_offset_start,
+				    &byte_offset_end,
+				    &stop_word,
+				    &word_length)) {
 		nwords++;
 	}
 
@@ -223,7 +222,6 @@ stop_word_check (TrackerParserTestFixture *fixture,
                  gconstpointer data)
 {
 	const TestDataStopWord *testdata = data;
-	const gchar *word;
 	gint position;
 	gint byte_offset_start;
 	gint byte_offset_end;
@@ -242,12 +240,12 @@ stop_word_check (TrackerParserTestFixture *fixture,
 	                      fixture->ignore_numbers);
 
 	/* Process next word */
-	word = tracker_parser_next (fixture->parser,
-	                            &position,
-	                            &byte_offset_start,
-	                            &byte_offset_end,
-	                            &stop_word,
-	                            &word_length);
+	tracker_parser_next (fixture->parser,
+			     &position,
+			     &byte_offset_start,
+			     &byte_offset_end,
+			     &stop_word,
+			     &word_length);
 
 	/* Check if input is same as stop_word */
 	g_assert_cmpuint (stop_word, == , testdata->is_expected_stop_word);
