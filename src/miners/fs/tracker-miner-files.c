@@ -45,6 +45,9 @@
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
 
+/* Default DBus timeout to be used in requests to extractor (milliseconds) */
+#define EXTRACTOR_DBUS_TIMEOUT 60000
+
 #define TRACKER_MINER_FILES_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES, TrackerMinerFilesPrivate))
 
 static GQuark miner_files_error_quark = 0;
@@ -1551,6 +1554,16 @@ extractor_create_proxy (void)
 
 	if (!proxy) {
 		g_critical ("Could not create a DBusGProxy to the extract service");
+	} else {
+		/* Set default timeout for DBus requests to be around 60s.
+		 * Assuming that the files which need more time to get extracted are PDFs
+		 * using libpoppler, we already have a limit in the PDF extractor not to
+		 * spend more than 5s extraction contents. And, assuming the default
+		 * value of 10 in process-pool-limit, it means we may end up queueing up
+		 * to 10 PDF files which may need 5s each, so in order not to have dbus
+		 * timeouts in this case, any value greater than 5*10 would be good.
+		 */
+		dbus_g_proxy_set_default_timeout (proxy, EXTRACTOR_DBUS_TIMEOUT);
 	}
 
 	return proxy;
