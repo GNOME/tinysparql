@@ -57,7 +57,7 @@
  * bytes plus DBusMessage's overhead. If that makes this number less
  * arbitrary for you, then fine.
  *
- * I really hope that the libdbus people get to their senses and 
+ * I really hope that the libdbus people get to their senses and
  * either stop doing their exit() nonsense in a library, and instead
  * return a clean DBusError or something, or create crystal clear
  * clarity about the maximum size of a message. And make it both so
@@ -227,12 +227,12 @@ query_callback (gpointer inthread_data, GError *error, gpointer user_data)
 		                             &error,
 		                             NULL);
 		dbus_g_method_return_error (info->context, error);
-	} else {
+	} else if (ptr) {
 		tracker_dbus_request_success (info->request_id,
 		                              info->context);
 
 		dbus_g_method_send_reply (info->context, ptr->reply);
-	}
+	} /* else, !ptr && !error... shouldn't happen */
 
 	if (ptr)
 		g_slice_free (InThreadPtr, ptr);
