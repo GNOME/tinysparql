@@ -25,8 +25,8 @@
 
 static GList *calls = NULL;
 
-void 
-dbus_mock_call_log_reset () 
+void
+dbus_mock_call_log_reset ()
 {
         if (calls) {
                 g_list_foreach (calls, (GFunc)g_free, NULL);
@@ -53,8 +53,8 @@ dbus_mock_call_log_append (const gchar *function_name)
  * DBus overrides
  */
 
-DBusGConnection * 	
-dbus_g_bus_get (DBusBusType type, GError **error) 
+DBusGConnection *
+dbus_g_bus_get (DBusBusType type, GError **error)
 {
         return (DBusGConnection *) empty_object_new ();
 }
@@ -77,12 +77,11 @@ dbus_g_proxy_call (DBusGProxy *proxy,
         va_list args;
         GType arg_type;
         const gchar *supported_mimes[] = { "mock/one", "mock/two", NULL};
-        gchar *local_error = NULL;
         int     counter;
 
         g_assert (g_strcmp0 (function_name, "GetSupported") == 0);
-        
-        /* 
+
+        /*
 	   G_TYPE_INVALID,
 	   G_TYPE_STRV, &uri_schemes,
 	   G_TYPE_STRV, &mime_types,
@@ -96,14 +95,16 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 
         counter = 1;
         while (arg_type != G_TYPE_INVALID) {
-                
+
                 if (arg_type == G_TYPE_STRV && counter == 2) {
+	                gchar *local_error = NULL;
                         GValue value = { 0, };
                         g_value_init (&value, arg_type);
                         g_value_set_boxed (&value, supported_mimes);
-                        G_VALUE_LCOPY (&value, 
-                                       args, 0, 
+                        G_VALUE_LCOPY (&value,
+                                       args, 0,
                                        &local_error);
+                        g_free (local_error);
                         g_value_unset (&value);
                 } else {
                         gpointer *out_param;
@@ -118,7 +119,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 }
 
 
-void              
+void
 dbus_g_proxy_call_no_reply (DBusGProxy        *proxy,
                             const char        *method,
                             GType              first_arg_type,
