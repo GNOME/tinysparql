@@ -879,6 +879,11 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	 * other things like the nfs lock file.
 	 */
 	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX || need_reindex) {
+		if (flags & TRACKER_DB_MANAGER_READONLY) {
+			/* no reindexing supported in read-only mode (direct access) */
+			return FALSE;
+		}
+
 		if (first_time) {
 			*first_time = TRUE;
 		}
@@ -895,7 +900,9 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		/* Load databases */
 		g_message ("Loading databases files...");
 
-	} else {
+	} else if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+		/* do not do shutdown check for read-only mode (direct access) */
+
 		gboolean must_recreate;
 		gchar *journal_filename;
 
@@ -989,14 +996,18 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		}
 	}
 
-	in_use_file = g_open (in_use_filename,
-	                      O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
-	                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+		/* do not create in-use file for read-only mode (direct access) */
 
-        if (in_use_file >= 0) {
-                fsync (in_use_file);
-                close (in_use_file);
-        }
+		in_use_file = g_open (in_use_filename,
+			              O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
+			              S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+
+		if (in_use_file >= 0) {
+		        fsync (in_use_file);
+		        close (in_use_file);
+		}
+	}
 
 	g_free (in_use_filename);
 
@@ -1031,7 +1042,6 @@ void
 tracker_db_manager_shutdown (void)
 {
 	guint i;
-	gchar *in_use_filename;
 
 	if (!initialized) {
 		return;
@@ -1088,15 +1098,21 @@ tracker_db_manager_shutdown (void)
 	initialized = FALSE;
 	locations_initialized = FALSE;
 
-	in_use_filename = g_build_filename (g_get_user_data_dir (),
-	                                    "tracker",
-	                                    "data",
-	                                    IN_USE_FILENAME,
-	                                    NULL);
+	if ((tracker_db_manager_get_flags () & TRACKER_DB_MANAGER_READONLY) == 0) {
+		/* do not delete in-use file for read-only mode (direct access) */
 
-	g_unlink (in_use_filename);
+		gchar *in_use_filename;
 
-	g_free (in_use_filename);
+		in_use_filename = g_build_filename (g_get_user_data_dir (),
+			                            "tracker",
+			                            "data",
+			                            IN_USE_FILENAME,
+			                            NULL);
+
+		g_unlink (in_use_filename);
+
+		g_free (in_use_filename);
+	}
 }
 
 void
