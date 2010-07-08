@@ -163,8 +163,8 @@ cur_setstr (gchar       *dest,
 }
 
 static gboolean
-write_all_data (int    fd, 
-                gchar *data, 
+write_all_data (int    fd,
+                gchar *data,
                 gsize  len)
 {
 	gssize written;
@@ -174,7 +174,7 @@ write_all_data (int    fd,
 
 	while (len > 0) {
 		written = write (fd, data, len);
-		
+
 		if (written < 0) {
 			if (errno == EAGAIN) {
 				continue;
@@ -183,7 +183,7 @@ write_all_data (int    fd,
 		} else if (written == 0) {
 			goto out; /* WTH? Don't loop forever*/
 		}
-		
+
 		len -= written;
 		data += written;
 	}
@@ -258,7 +258,7 @@ tracker_db_journal_init (const gchar *filename, gboolean truncate)
 	writer.journal = g_open (writer.journal_filename, flags, mode);
 
 	if (writer.journal == -1) {
-		g_critical ("Could not open journal for writing, %s", 
+		g_critical ("Could not open journal for writing, %s",
 		            g_strerror (errno));
 
 		g_free (writer.journal_filename);
@@ -308,7 +308,7 @@ tracker_db_journal_shutdown (void)
 	}
 
 	if (close (writer.journal) != 0) {
-		g_warning ("Could not close journal, %s", 
+		g_warning ("Could not close journal, %s",
 		           g_strerror (errno));
 		return FALSE;
 	}
@@ -702,7 +702,7 @@ tracker_db_journal_reader_init (const gchar *filename)
 		return FALSE;
 	}
 
-	reader.last_success = reader.start = reader.current = 
+	reader.last_success = reader.start = reader.current =
 		g_mapped_file_get_contents (reader.file);
 
 	reader.end = reader.current + g_mapped_file_get_length (reader.file);
@@ -783,7 +783,7 @@ tracker_db_journal_reader_verify_last (GError **error)
 		entry_size_check = read_uint32 (reader.end - 4);
 
 		if (reader.end - entry_size_check < reader.current) {
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 			             "Damaged journal entry at end of journal");
 			tracker_db_journal_reader_shutdown ();
 			return FALSE;
@@ -809,7 +809,7 @@ tracker_db_journal_reader_next (GError **error)
 	 *  [magic]
 	 *  [version]
 	 *  [
-	 *   [entry 
+	 *   [entry
 	 *    [size]
 	 *    [amount]
 	 *    [crc]
@@ -849,7 +849,7 @@ tracker_db_journal_reader_next (GError **error)
 		 * for reading the entry size.
 		 */
 		if (reader.end - reader.current < sizeof (guint32)) {
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 			             "Damaged journal entry, %d < sizeof(guint32) at start/end of journal",
 			             (gint) (reader.end - reader.current));
 			return FALSE;
@@ -874,7 +874,7 @@ tracker_db_journal_reader_next (GError **error)
 		 * of the journal.
 		 */
 		if (reader.end < reader.entry_end) {
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 			             "Damaged journal entry, end < entry end");
 			return FALSE;
 		}
@@ -889,9 +889,9 @@ tracker_db_journal_reader_next (GError **error)
 
 		if (entry_size != entry_size_check) {
 			/* damaged journal entry */
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
-			             "Damaged journal entry, %d != %d (entry size != entry size check)", 
-			             entry_size, 
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
+			             "Damaged journal entry, %d != %d (entry size != entry size check)",
+			             entry_size,
 			             entry_size_check);
 			return FALSE;
 		}
@@ -910,7 +910,7 @@ tracker_db_journal_reader_next (GError **error)
 		/* Verify checksum */
 		if (crc != crc_check) {
 			/* damaged journal entry */
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 			             "Damaged journal entry, 0x%.8x != 0x%.8x (crc32 failed)",
 			             crc,
 			             crc_check);
@@ -936,7 +936,7 @@ tracker_db_journal_reader_next (GError **error)
 		reader.current += 4;
 		if (reader.current != reader.entry_end) {
 			/* damaged journal entry */
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 			             "Damaged journal entry, %p != %p (end of transaction with 0 triples)",
 			             reader.current,
 			             reader.entry_end);
@@ -953,7 +953,7 @@ tracker_db_journal_reader_next (GError **error)
 
 		if (reader.end - reader.current < sizeof (guint32)) {
 			/* damaged journal entry */
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 			             "Damaged journal entry, %d < sizeof(guint32)",
 			             (gint) (reader.end - reader.current));
 			return FALSE;
@@ -967,7 +967,7 @@ tracker_db_journal_reader_next (GError **error)
 
 			if (reader.end - reader.current < sizeof (guint32) + 1) {
 				/* damaged journal entry */
-				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 				             "Damaged journal entry, %d < sizeof(guint32) + 1 for resource",
 				             (gint) (reader.end - reader.current));
 				return FALSE;
@@ -979,7 +979,7 @@ tracker_db_journal_reader_next (GError **error)
 			str_length = strnlen (reader.current, reader.end - reader.current);
 			if (str_length == reader.end - reader.current) {
 				/* damaged journal entry (no terminating '\0' character) */
-				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 				             "Damaged journal entry, no terminating zero found for resource");
 				return FALSE;
 
@@ -987,7 +987,7 @@ tracker_db_journal_reader_next (GError **error)
 
 			if (!g_utf8_validate (reader.current, -1, NULL)) {
 				/* damaged journal entry (invalid UTF-8) */
-				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 				             "Damaged journal entry, invalid UTF-8 for resource");
 				return FALSE;
 			}
@@ -1012,7 +1012,7 @@ tracker_db_journal_reader_next (GError **error)
 			if (df & DATA_FORMAT_GRAPH) {
 				if (reader.end - reader.current < sizeof (guint32)) {
 					/* damaged journal entry */
-					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 						     "Damaged journal entry, %d < sizeof(guint32)",
 						     (gint) (reader.end - reader.current));
 					return FALSE;
@@ -1028,7 +1028,7 @@ tracker_db_journal_reader_next (GError **error)
 
 			if (reader.end - reader.current < 2 * sizeof (guint32)) {
 				/* damaged journal entry */
-				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 				             "Damaged journal entry, %d < 2 * sizeof(guint32)",
 				             (gint) (reader.end - reader.current));
 				return FALSE;
@@ -1043,7 +1043,7 @@ tracker_db_journal_reader_next (GError **error)
 			if (df & DATA_FORMAT_OBJECT_ID) {
 				if (reader.end - reader.current < sizeof (guint32)) {
 					/* damaged journal entry */
-					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 					             "Damaged journal entry, %d < sizeof(guint32) for data format 2",
 					             (gint) (reader.end - reader.current));
 					return FALSE;
@@ -1054,7 +1054,7 @@ tracker_db_journal_reader_next (GError **error)
 			} else {
 				if (reader.end - reader.current < 1) {
 					/* damaged journal entry */
-					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 					             "Damaged journal entry, %d < 1",
 					             (gint) (reader.end - reader.current));
 					return FALSE;
@@ -1063,14 +1063,14 @@ tracker_db_journal_reader_next (GError **error)
 				str_length = strnlen (reader.current, reader.end - reader.current);
 				if (str_length == reader.end - reader.current) {
 					/* damaged journal entry (no terminating '\0' character) */
-					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 					             "Damaged journal entry, no terminating zero found");
 					return FALSE;
 				}
 
 				if (!g_utf8_validate (reader.current, -1, NULL)) {
 					/* damaged journal entry (invalid UTF-8) */
-					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+					g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0,
 					             "Damaged journal entry, invalid UTF-8");
 					return FALSE;
 				}
