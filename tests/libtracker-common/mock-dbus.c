@@ -72,7 +72,6 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 {
 	va_list  args;
 	GType    arg_type;
-	gchar   *local_error = NULL;
 
 	va_start (args, first_arg_type);
 	if (g_strcmp0 (function_name, "GetConnectionUnixProcessID") == 0) {
@@ -83,10 +82,12 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		 * G_TYPE_INVALID,
 		 */
 		GValue value = { 0, };
+		gchar *local_error = NULL;
 
 		/* Input string (ignore) */
 		g_value_init (&value, G_TYPE_STRING);
 		G_VALUE_COLLECT (&value, args, 0, &local_error);
+		g_free (local_error);
 		g_value_unset (&value);
 
 		arg_type = va_arg (args, GType);
@@ -96,13 +97,12 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		g_assert (arg_type == G_TYPE_UINT);
 
 		g_value_init (&value, arg_type);
-		g_value_set_uint (&value, (guint)getpid ());
+		g_value_set_uint (&value, (guint) getpid ());
 		G_VALUE_LCOPY (&value,
 		               args, 0,
 		               &local_error);
+		g_free (local_error);
 		g_value_unset (&value);
-
-
 	} else {
 		g_critical ("dbus_g_proxy_call '%s' unsupported", function_name);
 	}
