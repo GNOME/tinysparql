@@ -576,8 +576,12 @@ mount_add (TrackerStorage *storage,
 				         "content type is '%s'",
 				         content_type);
 			} else {
-				g_debug ("  Being ignored because mount is music/video/blank, content type is '%s'",
-					 content_type);
+				g_debug ("  Being ignored because mount with volume is music/video/blank "
+				         "(content type:%s, optical:%s, multimedia:%s, blank:%s)",
+				         content_type,
+				         is_optical ? "yes" : "no",
+				         is_multimedia ? "yes" : "no",
+				         is_blank ? "yes" : "no");
 			}
 
 			g_free (content_type);
@@ -614,18 +618,19 @@ mount_add (TrackerStorage *storage,
 
 				content_type = mount_guess_content_type (root, volume, &is_optical, &is_multimedia, &is_blank);
 
-				if (!is_multimedia && !is_blank) {
+				/* Note: for GMounts without GVolume, is_blank should NOT be considered,
+				 * as it may give unwanted results... */
+				if (!is_multimedia) {
 					uuid = g_compute_checksum_for_string (G_CHECKSUM_MD5,
 									      mount_path,
 									      -1);
 					g_debug ("  No UUID, generated:'%s' (based on mount path)", uuid);
 				} else {
-					g_debug ("  Being ignored because mount is music/video/blank "
-					         "(content type:%s, optical:%s, multimedia:%s, blank:%s)",
+					g_debug ("  Being ignored because mount is music/video "
+					         "(content type:%s, optical:%s, multimedia:%s)",
 					         content_type,
 					         is_optical ? "yes" : "no",
-					         is_multimedia ? "yes" : "no",
-					         is_blank ? "yes" : "no");
+					         is_multimedia ? "yes" : "no");
 				}
 
 				g_free (content_type);
