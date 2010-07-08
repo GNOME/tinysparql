@@ -138,8 +138,8 @@ load_modules (const gchar  *force_module,
 
 	if (G_UNLIKELY (force_module)) {
 		if (!g_str_has_suffix (force_module, "." G_MODULE_SUFFIX)) {
-			force_module_checked = g_strdup_printf ("%s.%s", 
-			                                        force_module, 
+			force_module_checked = g_strdup_printf ("%s.%s",
+			                                        force_module,
 			                                        G_MODULE_SUFFIX);
 		} else {
 			force_module_checked = g_strdup (force_module);
@@ -215,15 +215,15 @@ load_modules (const gchar  *force_module,
 				}
 			}
 		} else {
-			g_warning ("Could not load module '%s': Function %s() was not found, is it exported?", 
+			g_warning ("Could not load module '%s': Function %s() was not found, is it exported?",
 			           name, EXTRACT_FUNCTION);
 		}
 
 		g_free (module_path);
 	}
 
-	if (G_UNLIKELY (force_module) && 
-	    (!*specific_extractors || (*specific_extractors)->len < 1) && 
+	if (G_UNLIKELY (force_module) &&
+	    (!*specific_extractors || (*specific_extractors)->len < 1) &&
 	    (!*generic_extractors || (*generic_extractors)->len < 1)) {
 		g_warning ("Could not force module '%s', it was not found", force_module_checked);
 		success = FALSE;
@@ -282,7 +282,9 @@ get_file_metadata (TrackerExtract         *extract,
 	TrackerExtractPrivate *priv;
 	TrackerSparqlBuilder *statements, *preupdate;
 	gchar *mime_used = NULL;
+#ifdef HAVE_LIBSTREAMANALYZER
 	gchar *content_type = NULL;
+#endif
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
@@ -318,11 +320,15 @@ get_file_metadata (TrackerExtract         *extract,
 		/* We know the mime */
 		mime_used = g_strdup (mime);
 		g_strstrip (mime_used);
-	} else if (content_type && *content_type) {
+	}
+#ifdef HAVE_LIBSTREAMANALYZER
+	else if (content_type && *content_type) {
 		/* We know the mime from LSA */
 		mime_used = content_type;
 		g_strstrip (mime_used);
-	} else {
+	}
+#endif /* HAVE_LIBSTREAMANALYZER */
+	else {
 		GFile *file;
 		GFileInfo *info;
 		GError *error = NULL;
