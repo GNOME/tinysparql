@@ -4237,7 +4237,6 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
 
     dlrStep(&c->reader);
 
-    if( rc!=SQLITE_OK ) return rc;
     c->eof = 0;
     return SQLITE_OK;
   }
