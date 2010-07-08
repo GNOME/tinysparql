@@ -2684,8 +2684,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	GList *sorted = NULL, *l;
 	const gchar *env_path;
 	gint max_id = 0;
+	gboolean read_only;
 
 	tracker_data_update_init ();
+
+	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -2773,7 +2776,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		g_hash_table_unref (properties);
 		g_hash_table_unref (id_uri_map);
 
-	} else if (is_first_time_index) {
+	} else if (is_first_time_index && !read_only) {
 		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
 
 		/* Truncate journal as it does not even contain a single valid transaction
@@ -2852,7 +2855,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		tracker_db_interface_sqlite_fts_init (iface, FALSE);
 	}
 
-	if (check_ontology) {
+	if (check_ontology && !read_only) {
 		GList *to_reload = NULL;
 		GList *ontos = NULL;
 		guint p;
