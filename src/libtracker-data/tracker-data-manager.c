@@ -1651,7 +1651,9 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_class_set_id (class, id);
 
 			/* xsd classes do not derive from rdfs:Resource and do not use separate tables */
-			if (!g_str_has_prefix (tracker_class_get_name (class), "xsd:")) {
+			/* no need to fetch resource count if we are running in read-only mode (direct access) */
+			if (!g_str_has_prefix (tracker_class_get_name (class), "xsd:") &&
+			    (tracker_db_manager_get_flags () & TRACKER_DB_MANAGER_READONLY) == 0) {
 				/* update statistics */
 				stmt = tracker_db_interface_create_statement (iface, &error, "SELECT COUNT(1) FROM \"%s\"", tracker_class_get_name (class));
 
