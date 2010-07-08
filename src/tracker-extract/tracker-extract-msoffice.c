@@ -419,7 +419,7 @@ msoffice_convert_and_normalize_chunk (guint8    *buffer,
 	 *
 	 * TODO: Using g_iconv, this extra heap allocation could be
 	 * avoided, re-using over and over again the same output buffer
-	 * for the UTF-8 encoded string 
+	 * for the UTF-8 encoded string
 	 */
 	converted_text = g_convert (buffer,
 	                            chunk_size,
@@ -845,6 +845,14 @@ extract_msword_content (GsfInfile *infile,
 	fcClx = read_32bit (tmp_buffer);
 	gsf_input_read (document_stream, 4, tmp_buffer);
 	lcbClx = read_32bit (tmp_buffer);
+
+	/* If we got an invalid or empty length of piece table, just return
+	 * as we cannot iterate over pieces */
+	if (lcbClx <= 0) {
+		g_object_unref (document_stream);
+		g_object_unref (table_stream);
+		return NULL;
+	}
 
 	/* copy the structure holding the piece table into the clx array. */
 	clx = g_malloc (lcbClx);
