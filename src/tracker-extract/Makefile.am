@@ -3,6 +3,9 @@ include $(top_srcdir)/Makefile.decl
 module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
+AM_CFLAGS = $(WARN_CFLAGS)
+AM_CXXFLAGS = $(WARN_CXXFLAGS)
+
 INCLUDES = 								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DTRACKER_EXTRACTORS_DIR=\"$(modulesdir)\"			\
@@ -11,7 +14,6 @@ INCLUDES = 								\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-client				\
-	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GIO_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
