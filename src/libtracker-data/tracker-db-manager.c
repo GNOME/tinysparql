@@ -606,49 +606,6 @@ tracker_db_get_type (void)
 }
 
 static void
-tracker_db_manager_ensure_locale (void)
-{
-	TrackerDBInterface *common;
-	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
-	const gchar *current_locale;
-	gchar *stored_locale = NULL;
-
-	current_locale = setlocale (LC_COLLATE, NULL);
-
-	common = dbs[TRACKER_DB_METADATA].iface;
-
-	stmt = tracker_db_interface_create_statement (common, NULL, "SELECT OptionValue FROM Options WHERE OptionKey = 'CollationLocale'");
-
-	if (!stmt) {
-		return;
-	}
-
-	result_set = tracker_db_statement_execute (stmt, NULL);
-	g_object_unref (stmt);
-
-	if (result_set) {
-		tracker_db_result_set_get (result_set, 0, &stored_locale, -1);
-		g_object_unref (result_set);
-	}
-
-	if (g_strcmp0 (current_locale, stored_locale) != 0) {
-		/* Locales differ, update collate keys */
-		g_message ("Updating DB locale dependent data to: %s\n", current_locale);
-
-		stmt = tracker_db_interface_create_statement (common, NULL, "UPDATE Options SET OptionValue = ? WHERE OptionKey = 'CollationLocale'");
-
-		if (stmt) {
-			tracker_db_statement_bind_text (stmt, 0, current_locale);
-			tracker_db_statement_execute (stmt, NULL);
-			g_object_unref (stmt);
-		}
-	}
-
-	g_free (stored_locale);
-}
-
-static void
 db_recreate_all (void)
 {
 	guint i;
@@ -1010,8 +967,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	g_free (in_use_filename);
-
-	tracker_db_manager_ensure_locale ();
 
 	initialized = TRUE;
 

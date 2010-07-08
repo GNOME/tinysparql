@@ -5,5 +5,4 @@ CREATE TABLE Options (
 );
 
 insert Into Options (OptionKey, OptionValue) values ('KMailLastModseq', '0');
-insert Into Options (OptionKey, OptionValue) values ('CollationLocale', '');
 
