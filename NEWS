@@ -1,3 +1,46 @@
+NEW in 0.9.12 - 2010-07-08
+==========================
+
+The changes are:
+
+ * Fixes: NB#175613, Avoid duplicate media files showing in databases when sending MMS'
+ * Require GLib 2.24
+ * Removed unused PKGLIBDIR defines in Makefile.ams
+ * Removed libinotify imported module and use GIO completely
+ * libtracker-common: Added common functionality for D-Bus FD passing with send_and_splice API
+ * libtracker-common: Avoid unused variable warnings in unit tests
+ * libtracker-common: Always set last_time in D-Bus client data
+ * libtracker-db: Remove unreachable code
+ * libtracker-db: Avoid results->GSList->GStrv in _dbus_query_result_to_ptr_array(), just use ->GStrv
+ * libtracker-fts: initialize all buffers before using them
+ * libtracker-fts: Avoid unneeded check, rc is always SQLITE_OK
+ * libtracker-fts  Remove unused variable in test case
+ * libtracker-miner: If mount has no volume, don't rely on is_blank for guessing content type
+ * libtracker-miner: Improve logging for storage module
+ * libtracker-miner: Added tracker-monitor test cases
+ * libtracker-miner: Avoid dead code in mount_guess_content_type()
+ * libtracker-miner: Avoid unused variable warning in unit test
+ * libtracker-client: Fixed object_date bindings in VAPI file
+ * libtracker-client: Mark graph as nullable in VAPI file
+ * tracker-store: Fix crash when not building with glibc
+ * tracker-store: Avoid potential pointer ptr->reply dereference where ptr is NULL
+ * tracker-store: Avoid unused variable warning
+ * tracker-extract: Avoid unreachable code when not using libstreamanalyzer
+ * tracker-extract: MP3: avoid deadcode, bitrate will always be greater than 0
+ * tracker-extract: PDF: check if document is returned before dereferencing it
+ * tracker-extract: Implement tracker_dbus_send_and_splice() for miner/extractor communications
+ * tracker-writeback: Avoid unused variable warning
+
+Translations:
+
+  * Updated de: Mario Blättermann
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.9.11 - 2010-07-01
 ==========================
 
