@@ -488,6 +488,13 @@ extract_pdf (const gchar          *uri,
 
 	document = poppler_document_new_pdf_from_file (uri, NULL);
 
+	if (!document) {
+		g_warning ("Could not create PopplerDocument from uri:'%s', "
+		           "NULL returned without an error",
+		           uri);
+		return;
+	}
+
 	if (!document->isOk()) {
 		int fopen_errno;
 		switch (document->getErrorCode()) {
@@ -514,13 +521,6 @@ extract_pdf (const gchar          *uri,
 		}
 
 		delete document;
-		return;
-	}
-
-	if (!document) {
-		g_warning ("Could not create PopplerDocument from uri:'%s', "
-		           "NULL returned without an error",
-		           uri);
 		return;
 	}
 
