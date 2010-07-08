@@ -692,35 +692,6 @@ if test "$native_win32" = "yes" ; then
 fi
 
 ####################################################################
-#  libinotify
-####################################################################
-
-AC_ARG_ENABLE(libinotify,
-              AS_HELP_STRING([--enable-libinotify],
-                             [enables libinotify for the filesystem monitoring [[default=yes]]]),,
-              [enable_libinotify=yes])
-
-if test "x$enable_libinotify" != "xno"; then
-   AC_CHECK_HEADERS([sys/inotify.h],[have_libinotify=yes],[have_libinotify=no])
-
-   AM_CONDITIONAL(HAVE_LIBINOTIFY, test "$have_libinotify" = "yes")
-
-   if test "$have_libinotify" = "yes" ; then
-      AC_DEFINE(HAVE_LIBINOTIFY, 1, [Have libinotify])
-   fi
-else
-   have_libinotify="no  (disabled)"
-fi
-
-AM_CONDITIONAL(HAVE_LIBINOTIFY, test "$have_libinotify" = "yes")
-
-if test "$have_libinotify" = "yes" ; then
-  have_file_monitor="libinotify"
-else
-  have_file_monitor="gio"
-fi
-
-####################################################################
 #  SQLite check
 ####################################################################
 
@@ -1884,7 +1855,6 @@ AC_CONFIG_FILES([
 	docs/tools/Makefile
 	Makefile
 	po/Makefile.in
-	src/libinotify/Makefile
 	src/libstemmer/Makefile
 	src/libtracker-common/Makefile
 	src/libtracker-data/Makefile
@@ -1989,7 +1959,6 @@ Build Configuration:
 	Support for ioprio:                     $tracker_cv_have_ioprio
 	Support for HAL:                        $have_hal
 	Support for UPower:                     $have_upower
-	Support for file monitoring:            $have_file_monitor
 	Support for Cyrillic languages (enca):  $have_enca
 	Support for network status detection:   $have_network_manager
 	Unicode support library:                $with_unicode_support

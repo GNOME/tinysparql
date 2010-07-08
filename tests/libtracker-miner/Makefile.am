@@ -1,12 +1,18 @@
 include $(top_srcdir)/Makefile.decl
 
+# Include list of shared sources:
+#  Defines $(libtracker_miner_marshal_sources) and
+#  $(libtracker_miner_monitor_sources)
+include $(top_srcdir)/src/libtracker-miner/Makefile-shared-sources.decl
+
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS +=									\
 	tracker-crawler-test							\
 	tracker-miner-manager-test						\
 	tracker-password-provider-test						\
-	tracker-thumbnailer-test
+	tracker-thumbnailer-test						\
+	tracker-monitor-test
 
 INCLUDES =									\
 	-DTEST									\
@@ -48,6 +54,11 @@ tracker_thumbnailer_test_SOURCES =						\
 	thumbnailer-mock.c							\
 	empty-gobject.h								\
 	empty-gobject.c
+
+tracker_monitor_test_SOURCES =							\
+	tracker-monitor-test.c							\
+	$(libtracker_miner_marshal_sources)					\
+	$(libtracker_miner_monitor_sources)
 
 tracker_miner_manager_test_VALASOURCES =					\
 	tracker-miner-mock.vala

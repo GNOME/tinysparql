@@ -53,15 +53,8 @@ GType           tracker_monitor_get_type             (void);
 TrackerMonitor *tracker_monitor_new                  (void);
 
 gboolean        tracker_monitor_get_enabled          (TrackerMonitor *monitor);
-gint            tracker_monitor_get_scan_timeout     (TrackerMonitor *monitor);
-gint            tracker_monitor_get_cache_timeout    (TrackerMonitor *monitor);
-
 void            tracker_monitor_set_enabled          (TrackerMonitor *monitor,
                                                       gboolean        enabled);
-void            tracker_monitor_set_scan_timeout     (TrackerMonitor *monitor,
-                                                      gint            value);
-void            tracker_monitor_set_cache_timeout    (TrackerMonitor *monitor,
-                                                      gint            value);
 gboolean        tracker_monitor_add                  (TrackerMonitor *monitor,
                                                       GFile          *file);
 gboolean        tracker_monitor_remove               (TrackerMonitor *monitor,
