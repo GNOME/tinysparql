@@ -232,12 +232,13 @@ initialize_directories (void)
 static void
 shutdown_databases (void)
 {
+#if 0
 	TrackerMainPrivate *private;
 
 	private = g_static_private_get (&private_key);
 
 	/* TODO port backup support */
-#if 0
+
 	/* If we are reindexing, save the user metadata  */
 	if (private->reindex_on_shutdown) {
 		tracker_data_backup_save (private->ttl_backup_file, NULL);
@@ -434,7 +435,7 @@ main (gint argc, gchar *argv[])
 	}
 
 	notifier = tracker_dbus_register_notifier ();
-	busy_callback = tracker_status_get_callback (notifier, 
+	busy_callback = tracker_status_get_callback (notifier,
 	                                            &busy_user_data);
 
 	if (!tracker_data_manager_init (flags,
