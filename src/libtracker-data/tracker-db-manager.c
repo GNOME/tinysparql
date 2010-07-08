@@ -128,17 +128,6 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  FALSE,
 	  0 },
-	{ TRACKER_DB_CONTENTS,
-	  TRACKER_DB_LOCATION_DATA_DIR,
-	  NULL,
-	  "contents.db",
-	  "contents",
-	  NULL,
-	  1024,
-	  TRACKER_DB_PAGE_SIZE_DONT_SET,
-	  FALSE,
-	  FALSE,
-	  0 },
 	{ TRACKER_DB_FULLTEXT,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -352,25 +341,6 @@ db_interface_get_fulltext (void)
 }
 
 static TrackerDBInterface *
-db_interface_get_contents (void)
-{
-	TrackerDBInterface *iface;
-	gboolean            create;
-
-	iface = db_interface_get (TRACKER_DB_CONTENTS, &create);
-
-	if (create) {
-		tracker_db_interface_start_transaction (iface);
-		load_sql_file (iface, "sqlite-contents.sql", NULL);
-		tracker_db_interface_end_db_transaction (iface);
-	}
-
-	return iface;
-}
-
-
-
-static TrackerDBInterface *
 db_interface_get_metadata (void)
 {
 	TrackerDBInterface *iface;
@@ -402,9 +372,6 @@ db_interface_create (TrackerDB db)
 
 	case TRACKER_DB_FULLTEXT:
 		return db_interface_get_fulltext ();
-
-	case TRACKER_DB_CONTENTS:
-		return db_interface_get_contents ();
 
 	default:
 		g_critical ("This TrackerDB type:%d->'%s' has no interface set up yet!!",
@@ -593,10 +560,6 @@ tracker_db_get_type (void)
 			{ TRACKER_DB_METADATA,
 			  "TRACKER_DB_METADATA",
 			  "metadata" },
-			{ TRACKER_DB_CONTENTS,
-			  "TRACKER_DB_CONTENTS",
-			  "contents" },
-			{ 0, NULL, NULL }
 		};
 
 		etype = g_enum_register_static ("TrackerDB", values);
@@ -973,15 +936,13 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	thread_ifaces = g_hash_table_new (NULL, NULL);
 
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
-		resources_iface = tracker_db_manager_get_db_interfaces_ro (3,
+		resources_iface = tracker_db_manager_get_db_interfaces_ro (2,
 		                                                           TRACKER_DB_METADATA,
-		                                                           TRACKER_DB_FULLTEXT,
-		                                                           TRACKER_DB_CONTENTS);
+		                                                           TRACKER_DB_FULLTEXT);
 	} else {
-		resources_iface = tracker_db_manager_get_db_interfaces (3,
+		resources_iface = tracker_db_manager_get_db_interfaces (2,
 		                                                        TRACKER_DB_METADATA,
-		                                                        TRACKER_DB_FULLTEXT,
-		                                                        TRACKER_DB_CONTENTS);
+		                                                        TRACKER_DB_FULLTEXT);
 	}
 
 	g_static_private_set (&interface_data_key, resources_iface, free_thread_interface);
@@ -1423,10 +1384,9 @@ tracker_db_manager_get_db_interface (void)
 
 	/* Ensure the interface is there */
 	if (!interface) {
-		interface = tracker_db_manager_get_db_interfaces (3,
-			                                          TRACKER_DB_METADATA,
-			                                          TRACKER_DB_FULLTEXT,
-			                                          TRACKER_DB_CONTENTS);
+		interface = tracker_db_manager_get_db_interfaces (2,
+		                                                  TRACKER_DB_METADATA,
+		                                                  TRACKER_DB_FULLTEXT);
 
 		tracker_db_interface_sqlite_fts_init (interface, FALSE);
 
