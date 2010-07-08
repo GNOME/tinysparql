@@ -394,8 +394,19 @@ db_manager_remove_all (gboolean rm_journal)
 	 * calculate the absolute directories here.
 	 */
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		gchar *filename;
+
 		g_message ("  Removing database:'%s'", dbs[i].abs_filename);
 		g_unlink (dbs[i].abs_filename);
+
+		/* also delete shm and wal helper files */
+		filename = g_strdup_printf ("%s-shm", dbs[i].abs_filename);
+		g_unlink (filename);
+		g_free (filename);
+
+		filename = g_strdup_printf ("%s-wal", dbs[i].abs_filename);
+		g_unlink (filename);
+		g_free (filename);
 	}
 
 	if (rm_journal) {
