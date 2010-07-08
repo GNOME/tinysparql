@@ -1855,7 +1855,6 @@ AC_CONFIG_FILES([
 	docs/tools/Makefile
 	Makefile
 	po/Makefile.in
-	src/libinotify/Makefile
 	src/libstemmer/Makefile
 	src/libtracker-common/Makefile
 	src/libtracker-data/Makefile
