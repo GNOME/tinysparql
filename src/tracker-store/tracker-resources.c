@@ -57,7 +57,7 @@
  * bytes plus DBusMessage's overhead. If that makes this number less
  * arbitrary for you, then fine.
  *
- * I really hope that the libdbus people get to their senses and
+ * I really hope that the libdbus people get to their senses and 
  * either stop doing their exit() nonsense in a library, and instead
  * return a clean DBusError or something, or create crystal clear
  * clarity about the maximum size of a message. And make it both so
@@ -214,29 +214,28 @@ query_callback (gpointer inthread_data, GError *error, gpointer user_data)
 	InThreadPtr *ptr = inthread_data;
 	TrackerDBusMethodInfo *info = user_data;
 
-	if (ptr) {
-		if (ptr->error) {
-			tracker_dbus_request_failed (info->request_id,
-			                             info->context,
-			                             &ptr->error,
-			                             NULL);
-			dbus_g_method_return_error (info->context, ptr->error);
-			g_error_free (ptr->error);
-		} else {
-			/* Success */
-			tracker_dbus_request_success (info->request_id,
-			                              info->context);
-
-			dbus_g_method_send_reply (info->context, ptr->reply);
-		}
-		g_slice_free (InThreadPtr, ptr);
+	if (ptr && ptr->error) {
+		tracker_dbus_request_failed (info->request_id,
+		                             info->context,
+		                             &ptr->error,
+		                             NULL);
+		dbus_g_method_return_error (info->context, ptr->error);
+		g_error_free (ptr->error);
 	} else if (error) {
 		tracker_dbus_request_failed (info->request_id,
 		                             info->context,
 		                             &error,
 		                             NULL);
 		dbus_g_method_return_error (info->context, error);
-	} /* else !ptr && !error */
+	} else {
+		tracker_dbus_request_success (info->request_id,
+		                              info->context);
+
+		dbus_g_method_send_reply (info->context, ptr->reply);
+	}
+
+	if (ptr)
+		g_slice_free (InThreadPtr, ptr);
 }
 
 static gpointer
