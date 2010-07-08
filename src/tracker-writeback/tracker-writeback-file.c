@@ -70,13 +70,11 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	GFileInfo *file_info;
 	const gchar *urls[2] = { NULL, NULL };
 	GStrv row;
-	TrackerWritebackFile *self;
 	const gchar * const *content_types;
 	const gchar *mime_type;
 	guint n;
 
 	writeback_file_class = TRACKER_WRITEBACK_FILE_GET_CLASS (writeback);
-	self = TRACKER_WRITEBACK_FILE (writeback);
 
 	if (!writeback_file_class->update_file_metadata) {
 		g_critical ("%s doesn't implement update_file_metadata()",
@@ -94,7 +92,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	row = g_ptr_array_index (values, 0);
 	file = g_file_new_for_uri (row[0]);
 
-	file_info = g_file_query_info (file, 
+	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
