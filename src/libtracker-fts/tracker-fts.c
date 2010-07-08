@@ -4569,6 +4569,12 @@ static int fulltextQuery(
     return SQLITE_OK;
   }
 
+  /* Initialize empty buffers */
+  dataBufferInit (&left, 0);
+  dataBufferInit (&right, 0);
+  dataBufferInit (&or, 0);
+  dataBufferInit (&new, 0);
+
   /* Merge AND terms. */
   /* TODO(shess) I think we can early-exit if( i>nNot && left.nData==0 ). */
   aTerm = pQuery->pTerms;
