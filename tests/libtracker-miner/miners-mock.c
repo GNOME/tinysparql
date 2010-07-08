@@ -101,7 +101,6 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 {
 	va_list args;
 	GType   arg_type;
-	gchar *local_error = NULL;
 	const gchar *running_services[] = { "org.gnome.Tomboy",
 	                                    "org.gnome.GConf",
 	                                    MOCK_MINER_1,
@@ -117,6 +116,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		 *  G_TYPE_INVALID
 		 */
 		GValue value = { 0, };
+		gchar *local_error = NULL;
 
 		arg_type = va_arg (args, GType);
 
@@ -126,6 +126,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		G_VALUE_LCOPY (&value,
 		               args, 0,
 		               &local_error);
+		g_free (local_error);
 		g_value_unset (&value);
 
 	} else if (g_strcmp0 (function_name, "NameHasOwner") == 0) {
@@ -136,6 +137,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		 *  G_TYPE_INVALID)) {
 		 */
 		GValue value = { 0, };
+		gchar *local_error = NULL;
 		const gchar *miner_name;
 		TrackerMinerMock *miner;
 		gboolean     active;
@@ -158,6 +160,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		G_VALUE_LCOPY (&value,
 		               args, 0,
 		               &local_error);
+		g_free (local_error);
 		g_value_unset (&value);
 
 	} else if (g_strcmp0 (function_name, "GetPauseDetails") == 0) {
@@ -168,6 +171,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		 *  G_TYPE_INVALID
 		 */
 		GValue value = { 0, };
+		gchar *local_error = NULL;
 		gint   amount;
 		gchar **apps, **reasons;
 		TrackerMinerMock *miner = (TrackerMinerMock *)proxy;
@@ -183,6 +187,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		G_VALUE_LCOPY (&value,
 		               args, 0,
 		               &local_error);
+		g_free (local_error);
 		g_value_unset (&value);
 
 		arg_type = va_arg (args, GType);
@@ -196,6 +201,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		G_VALUE_LCOPY (&value,
 		               args, 0,
 		               &local_error);
+		g_free (local_error);
 		g_value_unset (&value);
 
 	} else if (g_strcmp0 (function_name, "Pause") == 0) {
@@ -207,6 +213,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		 *  G_TYPE_INVALID
 		 */
 		GValue value_app = { 0, };
+		gchar *local_error = NULL;
 		GValue value_reason = {0, };
 		const gchar *app;
 		const gchar *reason;
@@ -214,11 +221,13 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 
 		g_value_init (&value_app, G_TYPE_STRING);
 		G_VALUE_COLLECT (&value_app, args, 0, &local_error);
+		g_free (local_error);
 		app = g_value_get_string (&value_app);
 
 		arg_type = va_arg (args, GType);
 		g_value_init (&value_reason, G_TYPE_STRING);
 		G_VALUE_COLLECT (&value_reason, args, 0, &local_error);
+		g_free (local_error);
 		reason = g_value_get_string (&value_reason);
 
 		tracker_miner_mock_pause (miner, app, reason);
