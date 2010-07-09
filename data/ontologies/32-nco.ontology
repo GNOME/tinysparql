@@ -539,7 +539,6 @@ nco:org a rdf:Property ;
 
 nco:title a rdf:Property ;
 	rdfs:label "title" ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Affiliation ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
