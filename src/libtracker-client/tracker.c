@@ -658,13 +658,15 @@ callback_iterator (void     *buffer,
 		tracker_result_iterator_free (iterator);
 	} else {
 		if (error->code != G_IO_ERROR_CANCELLED) {
-			g_clear_error (&error);
-			g_set_error (&error,
-			             TRACKER_CLIENT_ERROR,
-			             TRACKER_CLIENT_ERROR_BROKEN_PIPE,
-			             "Couldn't get results from server");
+			GError *iterator_error;
 
-			(* fad->iterator_callback) (NULL, error, fad->user_data);
+			iterator_error = g_error_new (TRACKER_CLIENT_ERROR,
+			                              TRACKER_CLIENT_ERROR_BROKEN_PIPE,
+			                              "Couldn't get results from server");
+
+			(* fad->iterator_callback) (NULL, iterator_error, fad->user_data);
+
+			g_error_free (iterator_error);
 		}
 	}
 
