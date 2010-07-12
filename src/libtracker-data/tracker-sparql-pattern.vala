@@ -1203,6 +1203,8 @@ class Tracker.Sparql.Pattern : Object {
 	}
 
 	void parse_object (StringBuilder sql, bool in_simple_optional = false) throws SparqlError {
+		long begin_sql_len = sql.len;
+
 		bool object_is_var;
 		string object = parse_var_or_term (sql, out object_is_var);
 
@@ -1481,10 +1483,9 @@ class Tracker.Sparql.Pattern : Object {
 			}
 		}
 
-		if (!current_subject_is_var &&
-		    !current_predicate_is_var &&
-		    !object_is_var) {
-			// no variables involved, add dummy expression to SQL
+		if (sql.len == begin_sql_len) {
+			// no SELECT expression was added, add dummy expression
+			// this is required in cases where no values need to be retrieved
 			sql.append ("1, ");
 		}
 	}
