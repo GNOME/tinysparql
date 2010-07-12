@@ -144,6 +144,7 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 
 		g_value_init (&value, G_TYPE_STRING);
 		G_VALUE_COLLECT (&value, args, 0, &local_error);
+		g_free (local_error);
 		miner_name = g_value_get_string (&value);
 
 		miner = (TrackerMinerMock *)g_hash_table_lookup (miners, miner_name);
