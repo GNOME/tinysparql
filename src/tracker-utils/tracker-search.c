@@ -56,6 +56,7 @@ static gboolean video_files;
 static gboolean document_files;
 static gboolean emails;
 static gboolean contacts;
+static gboolean feeds;
 static gboolean print_version;
 
 static GOptionEntry entries[] = {
@@ -72,7 +73,7 @@ static GOptionEntry entries[] = {
 	  NULL
 	},
 	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
-	  N_("Show URNs for results (doesn't apply to --music-albums, --music-artists)"),
+	  N_("Show URNs for results (doesn't apply to --music-albums, --music-artists, --feeds)"),
 	  NULL
 	},
 	{ "all", 'a', 0, G_OPTION_ARG_NONE, &all,
@@ -117,6 +118,10 @@ static GOptionEntry entries[] = {
 	},
 	{ "contacts", 'c', 0, G_OPTION_ARG_NONE, &contacts,
 	  N_("Search for contacts"),
+	  NULL
+	},
+	{ "feeds", 0, 0, G_OPTION_ARG_NONE, &feeds,
+	  N_("Search for feeds (--all has no effect on this) "),
 	  NULL
 	},
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
@@ -845,6 +850,93 @@ get_music_albums (TrackerClient *client,
 	return TRUE;
 }
 
+static void
+get_feed_foreach (gpointer value,
+                  gpointer user_data)
+{
+	gchar **data = value;
+
+	g_print ("  '%s' (%s)\n", data[1], data[0]);
+}
+
+static gboolean
+get_feeds (TrackerClient *client,
+           GStrv          search_terms,
+           gint           search_offset,
+           gint           search_limit,
+           gboolean       use_or_operator)
+{
+	GError *error = NULL;
+	GPtrArray *results;
+	gchar *fts;
+	gchar *query;
+
+	fts = get_fts_string (search_terms, use_or_operator);
+
+	if (fts) {
+		query = g_strdup_printf ("SELECT ?feed nie:title(?feed) "
+		                         "WHERE {"
+		                         "  ?feed a mfo:FeedMessage ;"
+		                         "  fts:match \"%s\" . "
+		                         "} "
+		                         "ORDER BY ASC(nie:title(?feed)) "
+		                         "OFFSET %d "
+		                         "LIMIT %d",
+		                         fts,
+		                         search_offset,
+		                         search_limit);
+	} else {
+		query = g_strdup_printf ("SELECT ?feed nie:title(?feed) "
+		                         "WHERE {"
+		                         "  ?feed a mfo:FeedMessage ."
+		                         "} "
+		                         "ORDER BY ASC(nie:title(?feed)) "
+		                         "OFFSET %d "
+		                         "LIMIT %d",
+		                         search_offset,
+		                         search_limit);
+	}
+
+	g_free (fts);
+
+	results = tracker_resources_sparql_query (client, query, &error);
+	g_free (query);
+
+	if (error) {
+		g_printerr ("%s, %s\n",
+		            _("Could not get search results"),
+		            error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	if (!results) {
+		g_print ("%s\n",
+		         _("No feeds were found"));
+	} else {
+		g_print (g_dngettext (NULL,
+		                      "Feed: %d",
+		                      "Feeds: %d",
+		                      results->len),
+		         results->len);
+		g_print ("\n");
+
+		g_ptr_array_foreach (results,
+		                     get_feed_foreach,
+		                     NULL);
+
+		if (results->len >= search_limit) {
+			show_limit_warning ();
+		}
+
+		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+		g_ptr_array_free (results, TRUE);
+	}
+
+	return TRUE;
+}
+
 static gboolean
 get_files (TrackerClient *client,
            GStrv          search_terms,
@@ -1135,6 +1227,7 @@ main (int argc, char **argv)
 	}
 
 	if (!music_albums && !music_artists && !music_files &&
+	    !feeds &&
 	    !image_files &&
 	    !video_files &&
 	    !document_files &&
@@ -1262,6 +1355,15 @@ main (int argc, char **argv)
 		gboolean success;
 
 		success = get_music_files (client, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (client);
+
+		return success ? EXIT_SUCCESS : EXIT_FAILURE;
+	}
+
+	if (feeds) {
+		gboolean success;
+
+		success = get_feeds (client, terms, offset, limit, or_operator);
 		g_object_unref (client);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
