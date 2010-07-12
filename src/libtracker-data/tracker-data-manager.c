@@ -2233,14 +2233,14 @@ get_new_service_id (TrackerDBInterface *iface)
 	}
 
 	if (cursor) {
-		tracker_db_cursor_iter_next (cursor, &error);
-		max_service_id = tracker_db_cursor_get_int (cursor, 0);
+		if (tracker_db_cursor_iter_next (cursor, &error)) {
+			max_service_id = tracker_db_cursor_get_int (cursor, 0);
+		}
 		g_object_unref (cursor);
 	}
 
 	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
+		g_error ("Unable to get max ID, aborting: %s", error->message);
 	}
 
 	return ++max_service_id;
