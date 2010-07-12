@@ -1853,7 +1853,12 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	gboolean          in_alter = in_update;
 	GError           *error = NULL;
 
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
 	service_name = tracker_class_get_name (service);
+
+	g_return_if_fail (service_name != NULL);
+
 	main_class = (strcmp (service_name, "rdfs:Resource") == 0);
 
 	if (g_str_has_prefix (service_name, "xsd:")) {
