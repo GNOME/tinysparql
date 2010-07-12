@@ -36,7 +36,7 @@
 #define GROUP_INDEXING    "Indexing"
 
 /* Default values */
-#define DEFAULT_VERBOSITY 2
+#define DEFAULT_VERBOSITY 0
 
 /* typedef struct TrackerConfigPrivate TrackerConfigPrivate; */
 
