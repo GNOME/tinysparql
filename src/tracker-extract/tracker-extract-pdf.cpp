@@ -121,73 +121,85 @@ read_toc (GooList  *items,
 
 		switch (link_action->getKind()) {
 			case actionGoTo: {
-				guint title_length = item->getTitleLength ();
 				LinkGoTo *gto = dynamic_cast <LinkGoTo *> (link_action);
-				GooString *named_dest = gto->getNamedDest ();
 
-				if (title_length > 0) {
-					gchar *str = unicode_to_char (item->getTitle(),
-					                              title_length);
-					g_string_append_printf (*toc, "%s ", str);
-					g_free (str);
+				if (gto) {
+					guint title_length = item->getTitleLength ();
+					GooString *named_dest = gto->getNamedDest ();
+
+					if (title_length > 0) {
+						gchar *str = unicode_to_char (item->getTitle(),
+						                              title_length);
+						g_string_append_printf (*toc, "%s ", str);
+						g_free (str);
+					}
+
+					if (named_dest)
+						g_string_append_printf (*toc, "%s ", named_dest->getCString ());
 				}
-
-				if (named_dest)
-					g_string_append_printf (*toc, "%s ", named_dest->getCString ());
 
 				break;
 			}
 
 			case actionLaunch: {
-				guint title_length = item->getTitleLength ();
 				LinkLaunch *lan = dynamic_cast <LinkLaunch *> (link_action);
-				GooString *filen, *param;
 
-				filen = lan->getFileName();
-				param = lan->getParams();
+				if (lan) {
+					guint title_length = item->getTitleLength ();
+					GooString *filen, *param;
 
-				if (title_length > 0) {
-					gchar *str = unicode_to_char (item->getTitle(),
-					                              title_length);
-					g_string_append_printf (*toc, "%s ", str);
-					g_free (str);
+					filen = lan->getFileName();
+					param = lan->getParams();
+
+					if (title_length > 0) {
+						gchar *str = unicode_to_char (item->getTitle(),
+						                              title_length);
+						g_string_append_printf (*toc, "%s ", str);
+						g_free (str);
+					}
+
+					if (filen)
+						g_string_append_printf (*toc, "%s ", filen->getCString ());
+
+					if (param)
+						g_string_append_printf (*toc, "%s ", param->getCString ());
 				}
-
-				if (filen)
-					g_string_append_printf (*toc, "%s ", filen->getCString ());
-
-				if (param)
-					g_string_append_printf (*toc, "%s ", param->getCString ());
 
 				break;
 			}
 
 			case actionURI: {
 				LinkURI *uri = dynamic_cast <LinkURI *> (link_action);
-				GooString *muri;
 
-				muri = uri->getURI();
+				if (uri) {
+					GooString *muri;
 
-				if (muri)
-					g_string_append_printf (*toc, "%s ", muri->getCString ());
+					muri = uri->getURI();
+
+					if (muri)
+						g_string_append_printf (*toc, "%s ", muri->getCString ());
+				}
 
 				break;
 			}
 
 			case actionNamed: {
-				guint title_length = item->getTitleLength ();
 				LinkNamed *named = dynamic_cast <LinkNamed *> (link_action);
-				GooString *named_dest = named->getName ();
 
-				if (title_length > 0) {
-					gchar *str = unicode_to_char (item->getTitle(),
-					                              title_length);
-					g_string_append_printf (*toc, "%s ", str);
-					g_free (str);
+				if (named) {
+					GooString *named_dest = named->getName ();
+					guint title_length = item->getTitleLength ();
+
+					if (title_length > 0) {
+						gchar *str = unicode_to_char (item->getTitle(),
+						                              title_length);
+						g_string_append_printf (*toc, "%s ", str);
+						g_free (str);
+					}
+
+					if (named_dest)
+						g_string_append_printf (*toc, "%s ", named_dest->getCString ());
 				}
-
-				if (named_dest)
-					g_string_append_printf (*toc, "%s ", named_dest->getCString ());
 
 				break;
 			}
