@@ -2195,6 +2195,14 @@ xml_start_element_handler_content_types (GMarkupParseContext  *context,
 		}
 	}
 
+	/* Both part_name and content_type MUST be NON-NULL */
+	if (!part_name || !content_type) {
+		g_message ("Invalid file (part_name:%s, content_type:%s)",
+		           part_name ? part_name : "none",
+		           content_type ? content_type : "none");
+		return;
+	}
+
 	if ((g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-package.core-properties+xml") == 0) ||
 	    (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.extended-properties+xml") == 0)) {
 		xml_read (info, part_name + 1, MS_OFFICE_XML_TAG_DOCUMENT_CORE_DATA);
