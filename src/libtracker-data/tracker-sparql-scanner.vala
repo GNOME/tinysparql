@@ -98,6 +98,10 @@ public class Tracker.SparqlScanner : Object {
 					break;
 				}
 				break;
+			case 'N':
+			case 'n':
+				if (matches (begin, "NOT")) return SparqlTokenType.NOT;
+				break;
 			case 'S':
 			case 's':
 				switch (begin[1]) {
@@ -235,6 +239,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'D':
 			case 'd':
 				if (matches (begin, "DELETE")) return SparqlTokenType.DELETE;
+				break;
+			case 'E':
+			case 'e':
+				if (matches (begin, "EXISTS")) return SparqlTokenType.EXISTS;
 				break;
 			case 'F':
 			case 'f':
@@ -822,6 +830,7 @@ public enum Tracker.SparqlTokenType {
 	DOUBLE_CIRCUMFLEX,
 	DROP,
 	EOF,
+	EXISTS,
 	FALSE,
 	FILTER,
 	FROM,
@@ -843,6 +852,7 @@ public enum Tracker.SparqlTokenType {
 	MIN,
 	MINUS,
 	NAMED,
+	NOT,
 	OFFSET,
 	OP_AND,
 	OP_EQ,
@@ -910,6 +920,7 @@ public enum Tracker.SparqlTokenType {
 		case DOUBLE_CIRCUMFLEX: return "`^^'";
 		case DROP: return "`DROP'";
 		case EOF: return "end of file";
+		case EXISTS: return "`EXISTS'";
 		case FALSE: return "`false'";
 		case FILTER: return "`FILTER'";
 		case FROM: return "`FROM'";
@@ -931,6 +942,7 @@ public enum Tracker.SparqlTokenType {
 		case MIN: return "`MIN'";
 		case MINUS: return "`-'";
 		case NAMED: return "`NAMED'";
+		case NOT: return "`NOT'";
 		case OFFSET: return "`OFFSET'";
 		case OP_AND: return "`&&'";
 		case OP_EQ: return "`='";

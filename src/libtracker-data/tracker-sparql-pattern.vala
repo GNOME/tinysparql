@@ -416,6 +416,44 @@ class Tracker.Sparql.Pattern : Object {
 		return result;
 	}
 
+	internal void translate_exists (StringBuilder sql) throws SparqlError {
+		bool not = accept (SparqlTokenType.NOT);
+		expect (SparqlTokenType.EXISTS);
+
+		SelectContext result;
+		result = new SelectContext.subquery (context);
+		context = result;
+
+		var pattern_sql = new StringBuilder ();
+
+		sql.append ("SELECT ");
+
+		var pattern = translate_group_graph_pattern (pattern_sql);
+		foreach (var key in pattern.var_set.get_keys ()) {
+			context.var_set.insert (key, VariableState.BOUND);
+		}
+
+		// report use of undefined variables
+		foreach (var variable in context.var_set.get_keys ()) {
+			if (variable.binding == null) {
+				throw get_error ("use of undefined variable `%s'".printf (variable.name));
+			}
+		}
+
+		if (not) {
+			// NOT EXISTS
+			sql.append ("COUNT(1) = 0");
+		} else {
+			// EXISTS
+			sql.append ("COUNT(1) > 0");
+		}
+
+		// select from results of WHERE clause
+		sql.append (" FROM (");
+		sql.append (pattern_sql.str);
+		sql.append (")");
+	}
+
 	internal string parse_var_or_term (StringBuilder? sql, out bool is_var) throws SparqlError {
 		string result = "";
 		is_var = false;

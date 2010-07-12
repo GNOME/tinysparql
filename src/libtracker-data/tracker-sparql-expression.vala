@@ -224,6 +224,12 @@ class Tracker.Sparql.Expression : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	void translate_exists (StringBuilder sql) throws SparqlError {
+		sql.append ("(");
+		pattern.translate_exists (sql);
+		sql.append (")");
+	}
+
 	internal static void append_expression_as_string (StringBuilder sql, string expression, PropertyType type) {
 		long begin = sql.len;
 		sql.append (expression);
@@ -920,6 +926,10 @@ class Tracker.Sparql.Expression : Object {
 		case SparqlTokenType.REGEX:
 			translate_regex (sql);
 			return PropertyType.BOOLEAN;
+		case SparqlTokenType.EXISTS:
+		case SparqlTokenType.NOT:
+			translate_exists (sql);
+			return PropertyType.BOOLEAN;
 		case SparqlTokenType.COUNT:
 			next ();
 			sql.append ("COUNT(");
@@ -1185,6 +1195,8 @@ class Tracker.Sparql.Expression : Object {
 		case SparqlTokenType.ISBLANK:
 		case SparqlTokenType.ISLITERAL:
 		case SparqlTokenType.REGEX:
+		case SparqlTokenType.EXISTS:
+		case SparqlTokenType.NOT:
 			return translate_primary_expression (sql);
 		default:
 			return translate_bracketted_expression (sql);
