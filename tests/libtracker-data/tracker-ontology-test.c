@@ -44,6 +44,8 @@ typedef struct _ChangeInfo ChangeInfo;
 struct _ChangeInfo {
 	const gchar *ontology;
 	const gchar *update;
+	const gchar *test_name;
+	const gchar *ptr;
 };
 
 const TestInfo nie_tests[] = {
@@ -91,12 +93,12 @@ const TestInfo change_tests[] = {
 };
 
 const ChangeInfo changes[] = {
-	{ "99-example.ontology.v1", "99-example.queries.v1" },
-	{ "99-example.ontology.v2", "99-example.queries.v2" },
-	{ "99-example.ontology.v3", "99-example.queries.v3" },
-	{ "99-example.ontology.v4", "99-example.queries.v4" },
-	{ "99-example.ontology.v5", "99-example.queries.v5" },
-	{ "99-example.ontology.v6", "99-example.queries.v6" },
+	{ "99-example.ontology.v1", "99-example.queries.v1", NULL, NULL },
+	{ "99-example.ontology.v2", "99-example.queries.v2", NULL, NULL },
+	{ "99-example.ontology.v3", "99-example.queries.v3", NULL, NULL },
+	{ "99-example.ontology.v4", "99-example.queries.v4", NULL, NULL },
+	{ "99-example.ontology.v5", "99-example.queries.v5", "change/change-test-1", NULL },
+	{ "99-example.ontology.v6", "99-example.queries.v6", "change/change-test-2", NULL },
 	{ NULL }
 };
 
@@ -126,13 +128,12 @@ delete_db (gboolean del_journal)
 static void
 query_helper (const gchar *query_filename, const gchar *results_filename)
 {
-	TrackerDBResultSet *result_set;
 	GError *error = NULL;
-	gchar *query = NULL;
+	gchar *queries = NULL, *query;
 	gchar *results = NULL;
-	GString *test_results;
+	GString *test_results = NULL;
 
-	g_file_get_contents (query_filename, &query, NULL, &error);
+	g_file_get_contents (query_filename, &queries, NULL, &error);
 	g_assert_no_error (error);
 
 	g_file_get_contents (results_filename, &results, NULL, &error);
@@ -140,52 +141,64 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 
 	/* perform actual query */
 
-	result_set = tracker_data_query_sparql (query, &error);
-	g_assert_no_error (error);
+	query = strtok (queries, "~");
 
-	/* compare results with reference output */
+	while (query) {
+		TrackerDBResultSet *result_set;
 
-	test_results = g_string_new ("");
+		result_set = tracker_data_query_sparql (query, &error);
+		g_assert_no_error (error);
 
-	if (result_set) {
-		gboolean valid = TRUE;
-		guint col_count;
-		gint col;
+		/* compare results with reference output */
 
-		col_count = tracker_db_result_set_get_n_columns (result_set);
-
-		while (valid) {
-			for (col = 0; col < col_count; col++) {
-				GValue value = { 0 };
-
-				_tracker_db_result_set_get_value (result_set, col, &value);
-
-				switch (G_VALUE_TYPE (&value)) {
-				case G_TYPE_INT64:
-					g_string_append_printf (test_results, "\"%" G_GINT64_FORMAT "\"", g_value_get_int64 (&value));
-					break;
-				case G_TYPE_DOUBLE:
-					g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
-					break;
-				case G_TYPE_STRING:
-					g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
-					break;
-				default:
-					/* unbound variable */
-					break;
-				}
-
-				if (col < col_count - 1) {
-					g_string_append (test_results, "\t");
-				}
-			}
-
-			g_string_append (test_results, "\n");
-
-			valid = tracker_db_result_set_iter_next (result_set);
+		if (!test_results) {
+			test_results = g_string_new ("");
+		} else {
+			g_string_append (test_results, "~\n");
 		}
 
-		g_object_unref (result_set);
+		if (result_set) {
+			gboolean valid = TRUE;
+			guint col_count;
+			gint col;
+
+			col_count = tracker_db_result_set_get_n_columns (result_set);
+
+			while (valid) {
+				for (col = 0; col < col_count; col++) {
+					GValue value = { 0 };
+
+					_tracker_db_result_set_get_value (result_set, col, &value);
+
+					switch (G_VALUE_TYPE (&value)) {
+					case G_TYPE_INT64:
+						g_string_append_printf (test_results, "\"%" G_GINT64_FORMAT "\"", g_value_get_int64 (&value));
+						break;
+					case G_TYPE_DOUBLE:
+						g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
+						break;
+					case G_TYPE_STRING:
+						g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
+						break;
+					default:
+						/* unbound variable */
+						break;
+					}
+
+					if (col < col_count - 1) {
+						g_string_append (test_results, "\t");
+					}
+				}
+
+				g_string_append (test_results, "\n");
+
+				valid = tracker_db_result_set_iter_next (result_set);
+			}
+
+			g_object_unref (result_set);
+		}
+
+			query = strtok (NULL, "~");
 	}
 
 	if (strcmp (results, test_results->str)) {
@@ -214,7 +227,7 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 
 	g_string_free (test_results, TRUE);
 	g_free (results);
-	g_free (query);
+	g_free (queries);
 }
 
 static void
@@ -264,9 +277,9 @@ test_ontology_change (void)
 		g_free (to);
 
 		g_file_copy (file1, file2, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
-                g_assert_no_error (error);
 
-                g_chmod (ontology_file, 0666);
+		g_assert_no_error (error);
+		g_chmod (ontology_file, 0666);
 
 		tracker_data_manager_init (0, (const gchar **) test_schemas,
 		                           NULL, FALSE, NULL, NULL, NULL);
@@ -288,6 +301,23 @@ test_ontology_change (void)
 		g_free (update);
 		g_free (source);
 		g_object_unref (file1);
+
+
+		if (changes[i].test_name) {
+			gchar *query_filename;
+			gchar *results_filename;
+			gchar *test_prefix;
+
+			test_prefix = g_build_filename (prefix, changes[i].test_name, NULL);
+			query_filename = g_strconcat (test_prefix, ".rq", NULL);
+			results_filename = g_strconcat (test_prefix, ".out", NULL);
+
+			query_helper (query_filename, results_filename);
+
+			g_free (test_prefix);
+			g_free (query_filename);
+			g_free (results_filename);
+		}
 
 		tracker_data_manager_shutdown ();
 	}
