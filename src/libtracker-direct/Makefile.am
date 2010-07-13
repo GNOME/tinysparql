@@ -23,7 +23,7 @@ libtracker_direct_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	$(libtracker_direct_la_VALASOURCES:.vala=.c)
 
 libtracker_direct_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) 
+	-shared -fPIC -module -avoid-version
 
 #	-export-symbols-regex '^tracker_.*'
 

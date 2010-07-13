@@ -45,3 +45,8 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		return query (sparql, cancellable);
 	}
 }
+
+public Tracker.Sparql.Connection module_init () {
+	Tracker.Sparql.Connection plugin = new Tracker.Direct.Connection ();
+	return plugin;
+}
