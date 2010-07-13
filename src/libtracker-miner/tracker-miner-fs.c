@@ -72,7 +72,7 @@ typedef struct {
 	gchar *iri;
 	gchar *mime;
 	gboolean get_mime;
-} SparqlQueryData;
+} ItemQueryExistsData;
 
 typedef struct {
 	GMainLoop *main_loop;
@@ -1066,11 +1066,11 @@ sparql_update_cb (GObject      *object,
 }
 
 static void
-sparql_query_cb (GObject      *object,
-                 GAsyncResult *result,
-                 gpointer      user_data)
+item_query_exists_cb (GObject      *object,
+                      GAsyncResult *result,
+                      gpointer      user_data)
 {
-	SparqlQueryData *data = user_data;
+	ItemQueryExistsData *data = user_data;
 	TrackerResultIterator *iterator;
 	TrackerMiner *miner;
 	GError *error = NULL;
@@ -1122,7 +1122,7 @@ item_query_exists (TrackerMinerFS  *miner,
 {
 	gboolean   result;
 	gchar     *sparql, *uri;
-	SparqlQueryData data = { 0 };
+	ItemQueryExistsData data = { 0 };
 
 	data.get_mime = (mime != NULL);
 
@@ -1140,7 +1140,7 @@ item_query_exists (TrackerMinerFS  *miner,
 	tracker_miner_execute_sparql (TRACKER_MINER (miner),
 	                              sparql,
 	                              NULL,
-	                              sparql_query_cb,
+	                              item_query_exists_cb,
 	                              &data);
 
 	g_main_loop_run (data.main_loop);
