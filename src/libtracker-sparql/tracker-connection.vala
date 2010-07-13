@@ -40,10 +40,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	}
 	
 	// Import
-	public virtual void import (string uri, Cancellable? cancellable = null) throws GLib.Error {
+	public virtual void import (File file, Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'import' not implemented");
 	}
-	public async virtual void import_async (string uri, Cancellable? cancellable = null) throws GLib.Error {
+	public async virtual void import_async (File file, Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'import_async' not implemented");
 	}
 }
