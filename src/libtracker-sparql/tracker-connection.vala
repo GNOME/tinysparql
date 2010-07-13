@@ -18,5 +18,6 @@
  */
 
 public abstract class Tracker.Sparql.Connection : Object {
-	public abstract Cursor query (string sparql) throws GLib.Error;
+	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws GLib.Error;
+	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error;
 }

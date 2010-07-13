@@ -23,5 +23,6 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	public abstract unowned string get_string (int column, out int length = null);
 
 	public abstract bool next (Cancellable? cancellable = null) throws GLib.Error;
+	public async abstract bool next_async (Cancellable? cancellable = null) throws GLib.Error;
 	public abstract void rewind ();
 }
