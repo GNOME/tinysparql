@@ -1071,6 +1071,47 @@ tracker_db_cursor_finalize (GObject *object)
 }
 
 static void
+tracker_db_cursor_iter_next_thread (GSimpleAsyncResult *res,
+                                    GObject            *object,
+                                    GCancellable       *cancellable)
+{
+	/* run in thread */
+
+	GError *error = NULL;
+	gboolean result;
+
+	result = tracker_db_cursor_iter_next (TRACKER_DB_CURSOR (object), cancellable, &error);
+	if (error) {
+		g_simple_async_result_set_from_error (res, error);
+	} else {
+		g_simple_async_result_set_op_res_gboolean (res, result);
+	}
+}
+
+static void
+tracker_db_cursor_iter_next_async (TrackerDBCursor     *cursor,
+                                   GCancellable        *cancellable,
+                                   GAsyncReadyCallback  callback,
+                                   gpointer             user_data)
+{
+	GSimpleAsyncResult *res;
+
+	res = g_simple_async_result_new (G_OBJECT (cursor), callback, user_data, tracker_db_cursor_iter_next_async);
+	g_simple_async_result_run_in_thread (res, tracker_db_cursor_iter_next_thread, 0, cancellable);
+}
+
+static gboolean
+tracker_db_cursor_iter_next_finish (TrackerDBCursor  *cursor,
+                                    GAsyncResult     *res,
+                                    GError          **error)
+{
+	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
+		return FALSE;
+	}
+	return g_simple_async_result_get_op_res_gboolean (G_SIMPLE_ASYNC_RESULT (res));
+}
+
+static void
 tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (class);
@@ -1081,6 +1122,8 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 	sparql_cursor_class->get_n_columns = (gint (*) (TrackerSparqlCursor *)) tracker_db_cursor_get_n_columns;
 	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, gint, glong*)) tracker_db_cursor_get_string;
 	sparql_cursor_class->next = (gboolean (*) (TrackerSparqlCursor *, GCancellable *, GError **)) tracker_db_cursor_iter_next;
+	sparql_cursor_class->next_async = (void (*) (TrackerSparqlCursor *, GCancellable *, GAsyncReadyCallback, gpointer)) tracker_db_cursor_iter_next_async;
+	sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_db_cursor_iter_next_finish;
 	sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_db_cursor_rewind;
 }
 
