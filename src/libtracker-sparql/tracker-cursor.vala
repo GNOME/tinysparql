@@ -22,6 +22,6 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	public abstract int n_columns { get; }
 	public abstract unowned string get_string (int column, out int length = null);
 
-	public abstract bool iter_next () throws GLib.Error;
+	public abstract bool next (Cancellable? cancellable = null) throws GLib.Error;
 	public abstract void rewind ();
 }
