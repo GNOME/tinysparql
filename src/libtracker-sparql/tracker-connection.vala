@@ -26,7 +26,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	public virtual void update (string sparql, Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'update' not implemented");
 	}
-	public async virtual void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) {
+	public async virtual void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'update_async' not implemented");
 	}
 
@@ -35,7 +35,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	public virtual void update_commit (Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'update_commit' not implemented");
 	}
-	public async virtual void update_commit_async (Cancellable? cancellable = null) {
+	public async virtual void update_commit_async (Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'update_commit_async' not implemented");
 	}
 	
@@ -43,7 +43,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	public virtual void import (string uri, Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'import' not implemented");
 	}
-	public async virtual void import_async (string uri, Cancellable? cancellable = null) {
+	public async virtual void import_async (string uri, Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'import_async' not implemented");
 	}
 }
