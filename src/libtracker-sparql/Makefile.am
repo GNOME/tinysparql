@@ -14,10 +14,11 @@ lib_LTLIBRARIES = libtracker-sparql-@TRACKER_API_VERSION@.la
 libtracker_sparqlincludedir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-sparql
 
 libtracker_sparql_la_VALASOURCES = 			\
-	tracker-connection.vala				\
-	tracker-cursor.vala             		\
-	tracker-query.vala              		\
-	tracker-plugin-loader.vala
+	tracker-connection.vala					\
+	tracker-cursor.vala						\
+	tracker-plugin-loader.vala				\
+	tracker-query.vala						\
+	tracker-builder.vala
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	libtracker-sparql.vala.stamp			\
@@ -37,7 +38,11 @@ vapi_DATA =                     			\
 	tracker-sparql-$(TRACKER_API_VERSION).vapi
 
 # Vala sources
-libtracker-sparql.vala.stamp: $(libtracker_sparql_la_VALASOURCES)
+vapi_sources =						\
+	$(top_srcdir)/src/vapi/posix.vapi		\
+	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
+
+libtracker-sparql.vala.stamp: $(libtracker_sparql_la_VALASOURCES) $(vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg gmodule-2.0 -H tracker-sparql.h --vapi tracker-sparql-$(TRACKER_API_VERSION).vapi $^
 	$(AM_V_GEN)touch $@
 
