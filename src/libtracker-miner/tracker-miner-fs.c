@@ -1074,6 +1074,7 @@ sparql_query_cb (GObject      *object,
 	TrackerResultIterator *iterator;
 	TrackerMiner *miner;
 	GError *error = NULL;
+	guint n_results;
 
 	miner = TRACKER_MINER (object);
 	iterator = tracker_miner_execute_sparql_finish (miner, result, &error);
@@ -1090,12 +1091,26 @@ sparql_query_cb (GObject      *object,
 	    !tracker_result_iterator_next (iterator))
 		return;
 
-	if (!tracker_result_iterator_next (iterator)) {
-		data->iri = g_strdup (tracker_result_iterator_value (iterator, 0));
-		if (data->get_mime)
-			data->mime = g_strdup (tracker_result_iterator_value (iterator, 1));
-	} else {
-		g_critical ("More than one URNs have been found for uri \"%s\"", data->uri);
+	n_results = 1;
+	data->iri = g_strdup (tracker_result_iterator_value (iterator, 0));
+	if (data->get_mime)
+		data->mime = g_strdup (tracker_result_iterator_value (iterator, 1));
+
+	/* Any additional result must be logged as critical */
+	while (tracker_result_iterator_next (iterator)) {
+		if (n_results == 1) {
+			/* If first duplicate found, log initial critical */
+			g_critical ("More than one URNs have been found for uri \"%s\"...",
+			            data->uri);
+			g_critical ("  (1) urn:'%s', mime:'%s'",
+			            data->iri,
+			            data->get_mime ? data->mime : "unneeded");
+		}
+		n_results++;
+		g_critical ("  (%d) urn:'%s', mime:'%s'",
+		            n_results,
+		            tracker_result_iterator_value (iterator, 0),
+		            data->get_mime ? tracker_result_iterator_value (iterator, 1) : "unneeded");
 	}
 }
 
