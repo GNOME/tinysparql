@@ -14,11 +14,12 @@ lib_LTLIBRARIES = libtracker-sparql-@TRACKER_API_VERSION@.la
 libtracker_sparqlincludedir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-sparql
 
 libtracker_sparql_la_VALASOURCES = 			\
+	tracker-builder.vala					\
 	tracker-connection.vala					\
 	tracker-cursor.vala						\
 	tracker-plugin-loader.vala				\
 	tracker-query.vala						\
-	tracker-builder.vala
+	tracker-utils.vala
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	libtracker-sparql.vala.stamp			\
