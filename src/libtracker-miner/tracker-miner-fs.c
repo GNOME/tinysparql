@@ -123,14 +123,13 @@ struct TrackerMinerFSPrivate {
 	GList          *processing_pool;
 	guint           pool_limit;
 
-	/* Parent folder URN cache */
-	GFile          *current_parent;
-	gchar          *current_parent_urn;
-
 	/* URI mtime cache */
+	GFile          *current_mtime_cache_parent;
 	GHashTable     *mtime_cache;
 
 	/* File -> iri cache */
+	GFile          *current_iri_cache_parent;
+	gchar          *current_iri_cache_parent_urn;
 	GHashTable     *iri_cache;
 
 	/* Files to check if no longer exist */
@@ -664,10 +663,11 @@ fs_finalize (GObject *object)
 	g_object_unref (priv->crawler);
 	g_object_unref (priv->monitor);
 
-	if (priv->current_parent)
-		g_object_unref (priv->current_parent);
-
-	g_free (priv->current_parent_urn);
+	g_free (priv->current_iri_cache_parent_urn);
+	if (priv->current_iri_cache_parent)
+		g_object_unref (priv->current_iri_cache_parent);
+	if (priv->current_mtime_cache_parent)
+		g_object_unref (priv->current_mtime_cache_parent);
 
 	if (priv->directories) {
 		g_list_foreach (priv->directories, (GFunc) directory_data_unref, NULL);
@@ -1035,7 +1035,7 @@ sparql_update_cb (GObject      *object,
 			tracker_miner_commit (TRACKER_MINER (fs), NULL, commit_cb, NULL);
 		}
 
-		if (fs->private->current_parent) {
+		if (fs->private->current_iri_cache_parent) {
 			GFile *parent;
 
 			/* Note: parent may be NULL if the file represents
@@ -1044,7 +1044,7 @@ sparql_update_cb (GObject      *object,
 			parent = g_file_get_parent (data->file);
 
 			if (parent) {
-				if (g_file_equal (parent, fs->private->current_parent) &&
+				if (g_file_equal (parent, fs->private->current_iri_cache_parent) &&
 				    g_hash_table_lookup (fs->private->iri_cache, data->file) == NULL) {
 					/* Item is processed, add an empty element for the processed GFile,
 					 * in case it is again processed before the cache expires
@@ -1457,29 +1457,32 @@ item_add_or_update (TrackerMinerFS *fs,
 	parent = g_file_get_parent (file);
 
 	if (parent) {
-		if (!fs->private->current_parent ||
-		    !g_file_equal (parent, fs->private->current_parent)) {
+		if (!fs->private->current_iri_cache_parent ||
+		    !g_file_equal (parent, fs->private->current_iri_cache_parent)) {
 			/* Cache the URN for the new current parent, processing
 			 * order guarantees that all contents for a folder are
 			 * inspected together, and that the parent folder info
 			 * is already in tracker-store. So this should only
 			 * happen on folder switch.
 			 */
-			if (fs->private->current_parent)
-				g_object_unref (fs->private->current_parent);
+			if (fs->private->current_iri_cache_parent)
+				g_object_unref (fs->private->current_iri_cache_parent);
 
-			g_free (fs->private->current_parent_urn);
+			g_free (fs->private->current_iri_cache_parent_urn);
 
-			fs->private->current_parent = g_object_ref (parent);
+			fs->private->current_iri_cache_parent = g_object_ref (parent);
 
-			if (!item_query_exists (fs, parent, &fs->private->current_parent_urn, NULL)) {
-				fs->private->current_parent_urn = NULL;
+			if (!item_query_exists (fs,
+			                        parent,
+			                        &fs->private->current_iri_cache_parent_urn,
+			                        NULL)) {
+				fs->private->current_iri_cache_parent_urn = NULL;
 			}
 
 			ensure_iri_cache (fs, file);
 		}
 
-		parent_urn = fs->private->current_parent_urn;
+		parent_urn = fs->private->current_iri_cache_parent_urn;
 		g_object_unref (parent);
 	}
 
@@ -2396,18 +2399,18 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	parent = g_file_get_parent (file);
 	query = NULL;
 
-	if (fs->private->current_parent) {
+	if (fs->private->current_mtime_cache_parent) {
 		if (parent &&
-		    g_file_equal (parent, fs->private->current_parent)) {
+		    g_file_equal (parent, fs->private->current_mtime_cache_parent)) {
 			/* Cache is still valid */
 			g_object_unref (parent);
 			return;
 		}
 
-		g_object_unref (fs->private->current_parent);
+		g_object_unref (fs->private->current_mtime_cache_parent);
 	}
 
-	fs->private->current_parent = parent;
+	fs->private->current_mtime_cache_parent = parent;
 
 	g_hash_table_remove_all (fs->private->mtime_cache);
 
@@ -3015,10 +3018,16 @@ crawl_directories_cb (gpointer user_data)
 	}
 
 	if (!fs->private->directories) {
-		if (fs->private->current_parent) {
+		if (fs->private->current_iri_cache_parent) {
 			/* Unset parent folder so caches are regenerated */
-			g_object_unref (fs->private->current_parent);
-			fs->private->current_parent = NULL;
+			g_object_unref (fs->private->current_iri_cache_parent);
+			fs->private->current_iri_cache_parent = NULL;
+		}
+
+		if (fs->private->current_mtime_cache_parent) {
+			/* Unset parent folder so caches are regenerated */
+			g_object_unref (fs->private->current_mtime_cache_parent);
+			fs->private->current_mtime_cache_parent = NULL;
 		}
 
 		/* Now we handle the queue */
