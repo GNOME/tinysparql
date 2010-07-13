@@ -1,0 +1,1 @@
+select ?ib ?sb { <b02> example:ib ?ib; example:sb ?sb }

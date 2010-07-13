@@ -85,6 +85,8 @@ const TestInfo change_tests[] = {
 	{ "change/test-1", "change/data-1" },
 	{ "change/test-2", "change/data-2" },
 	{ "change/test-3", "change/data-3" },
+	{ "change/test-4", "change/data-4" },
+	{ "change/test-5", "change/data-5" },
 	{ NULL }
 };
 
@@ -93,6 +95,8 @@ const ChangeInfo changes[] = {
 	{ "99-example.ontology.v2", "99-example.queries.v2" },
 	{ "99-example.ontology.v3", "99-example.queries.v3" },
 	{ "99-example.ontology.v4", "99-example.queries.v4" },
+	{ "99-example.ontology.v5", "99-example.queries.v5" },
+	{ "99-example.ontology.v6", "99-example.queries.v6" },
 	{ NULL }
 };
 

@@ -83,6 +83,8 @@ EXTRA_DIST = \
 	change/source/99-example.ontology.v2	\
 	change/source/99-example.ontology.v3	\
 	change/source/99-example.ontology.v4	\
+	change/source/99-example.ontology.v5	\
+	change/source/99-example.ontology.v6	\
 	change/test-1.out			\
 	change/test-1.rq			\
 	change/test-2.out			\
@@ -92,6 +94,8 @@ EXTRA_DIST = \
 	change/updates/99-example.queries.v2	\
 	change/updates/99-example.queries.v3	\
 	change/updates/99-example.queries.v4	\
+	change/updates/99-example.queries.v5	\
+	change/updates/99-example.queries.v6	\
 	ontologies/20-dc.ontology		\
 	ontologies/31-nao.ontology		\
 	ontologies/90-tracker.ontology
