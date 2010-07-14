@@ -536,6 +536,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		TrackerProperty **properties;
 		gboolean ignore = FALSE;
 		gboolean had = FALSE;
+		guint n_props, i;
 
 		class = tracker_ontologies_get_class_by_uri (subject);
 
@@ -571,6 +572,15 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			g_critical ("%s: Property %s has multiple values while trying to add it as tracker:domainIndex in %s, this isn't supported",
 			            ontology_path, object, subject);
 			return;
+		}
+
+		properties = tracker_ontologies_get_properties (&n_props);
+		for (i = 0; i < n_props; i++) {
+			if (tracker_property_get_domain (properties[i]) == class &&
+			    properties[i] == property) {
+				g_critical ("%s: Property %s is already a first-class property of %s while trying to add it as tracker:domainIndex",
+				            ontology_path, object, subject);
+			}
 		}
 
 		properties = tracker_class_get_domain_indexes (class);
