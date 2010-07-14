@@ -739,15 +739,27 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 
 	/* Get URIs as paths may not be in UTF-8 */
 	file_uri = g_file_get_uri (file);
-	other_file_uri = other_file ? g_file_get_uri (other_file) : NULL;
 
-	g_debug ("Received monitor event:%d->'%s' for file:'%s' and other file:'%s'",
-	         event_type,
-	         monitor_event_to_string (event_type),
-	         file_uri,
-	         other_file_uri ? other_file_uri : "");
+	if (!other_file) {
+		other_file_uri = NULL;
+		g_debug ("Received monitor event:%d (%s) for file:'%s'",
+		         event_type,
+		         monitor_event_to_string (event_type),
+		         file_uri);
+		is_directory = check_is_directory (monitor, file);
+	} else {
+		other_file_uri = g_file_get_uri (other_file);
+		g_debug ("Received monitor event:%d (%s) for files '%s'->'%s'",
+		         event_type,
+		         monitor_event_to_string (event_type),
+		         file_uri,
+		         other_file_uri);
 
-	is_directory = check_is_directory (monitor, file);
+		/* If we have other_file, it means an item was moved from file to other_file;
+		 * so, it makes sense to check if the other_file is directory instead of
+		 * the origin file, as this one will not exist any more */
+		is_directory = check_is_directory (monitor, other_file);
+	}
 
 #ifdef PAUSE_ON_IO
 	if (monitor->private->unpause_timeout_id != 0) {
