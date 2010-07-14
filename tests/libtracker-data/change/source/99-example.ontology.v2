@@ -9,12 +9,16 @@ example: a tracker:Namespace, tracker:Ontology ;
 	nao:lastModified "2010-03-23T11:00:02Z" ;
 	tracker:prefix "example" .
 
+# Creation of a class
 example:A a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
 
+# Creation of a class
 example:B a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
 
+# Creation of a property at the same time of creation of a the classes in domain
+# and range
 example:b a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range example:B ;

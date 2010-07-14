@@ -20,14 +20,17 @@ example:b a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range example:B .
 
+# Creation of a property
 example:i1 a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range xsd:integer .
 
+# Creation of a property
 example:i2 a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range xsd:integer .
 
+# Creation of a property
 example:single1 a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range xsd:integer ;

@@ -13,6 +13,7 @@ example: a tracker:Namespace, tracker:Ontology ;
 example:A a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
 
+# Creation of a class
 example:DomA a rdfs:Class ;
 	rdfs:subClassOf example:A .
 
@@ -31,22 +32,26 @@ example:i2 a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range xsd:integer .
 
+# Index change of a property
 example:single1 a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range xsd:integer ;
 	nrl:maxCardinality 1 ;
 	tracker:indexed false .
 
+# Creation of a property
 example:single2 a rdf:Property ;
 	rdfs:domain example:A ;
 	rdfs:range xsd:integer ;
 	nrl:maxCardinality 1 ;
 	tracker:indexed false .
 
+# Creation of a property
 example:ib a rdf:Property ;
 	rdfs:domain example:B ;
 	rdfs:range xsd:integer .
 
+# Creation of a property
 example:sb a rdf:Property ;
 	rdfs:domain example:B ;
 	rdfs:range xsd:string .

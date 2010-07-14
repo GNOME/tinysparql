@@ -99,6 +99,7 @@ const ChangeInfo changes[] = {
 	{ "99-example.ontology.v4", "99-example.queries.v4", NULL, NULL },
 	{ "99-example.ontology.v5", "99-example.queries.v5", "change/change-test-1", NULL },
 	{ "99-example.ontology.v6", "99-example.queries.v6", "change/change-test-2", NULL },
+	{ "99-example.ontology.v7", "99-example.queries.v7", "change/change-test-3", NULL },
 	{ NULL }
 };
 
@@ -198,7 +199,7 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 			g_object_unref (result_set);
 		}
 
-			query = strtok (NULL, "~");
+		query = strtok (NULL, "~");
 	}
 
 	if (strcmp (results, test_results->str)) {
@@ -351,7 +352,7 @@ test_ontology_change (void)
 	g_free (test_schemas[0]);
 	g_free (test_schemas[1]);
 	g_free (test_schemas[2]);
-        g_free (build_prefix);
+	g_free (build_prefix);
 	g_free (prefix);
 }
 
@@ -448,7 +449,7 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-        data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
+	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
 
 	g_setenv ("XDG_DATA_HOME", data_dir, TRUE);
 	g_setenv ("XDG_CACHE_HOME", data_dir, TRUE);
@@ -490,7 +491,7 @@ main (int argc, char **argv)
 	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
 	g_spawn_command_line_sync ("rm -R test-cache/", NULL, NULL, NULL, NULL);
 
-        g_free (data_dir);
+	g_free (data_dir);
 
 	return result;
 }

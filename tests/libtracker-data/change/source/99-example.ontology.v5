@@ -13,6 +13,7 @@ example: a tracker:Namespace, tracker:Ontology ;
 example:A a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
 
+# Adding two domainIndexes to a class
 example:DomA a rdfs:Class ;
 	tracker:domainIndex example:single1, example:single2 ;
 	rdfs:subClassOf example:A .
