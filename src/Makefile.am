@@ -15,6 +15,7 @@ SUBDIRS = 					\
 	libtracker-sparql 			\
 	libtracker-client			\
 	$(libtrackerfts_dir)			\
+	libtracker-bus				\
 	libtracker-data				\
 	libtracker-extract			\
 	libtracker-miner			\

@@ -1,3 +1,5 @@
+bus-test
+bus-test.c
 ttl
 force-sqlite-misused-batch.sh
 force-sqlite-misused.sh
