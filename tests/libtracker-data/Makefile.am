@@ -28,7 +28,8 @@ TEST_PROGS += 								\
 	tracker-sparql							\
 	tracker-sparql-blank						\
 	tracker-ontology						\
-	tracker-backup
+	tracker-backup							\
+	tracker-ontology-change
 
 INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
@@ -71,6 +72,11 @@ tracker_ontology_SOURCES =						\
 	tracker-ontology-test.c
 
 tracker_ontology_LDADD = $(common_ldadd)
+
+tracker_ontology_change_SOURCES =					\
+        tracker-ontology-change-test.c
+
+tracker_ontology_change_LDADD = $(common_ldadd)
 
 tracker_backup_SOURCES = 						\
 	tracker-backup-test.c
