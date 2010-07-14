@@ -4413,7 +4413,7 @@ static int tokenizeSegment(
       ){
 	pTerm->nNear = (pSegment[iBegin+5] - '0');
 	nToken += 2;
-	if( pSegment[iBegin+6]>='0' && pSegment[iBegin+6]<=9 ){
+	if( pSegment[iBegin+6]>='0' && pSegment[iBegin+6]<='9' ){
 	  pTerm->nNear = pTerm->nNear * 10 + (pSegment[iBegin+6] - '0');
 	  iEnd++;
 	}
