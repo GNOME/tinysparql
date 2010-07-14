@@ -4585,8 +4585,14 @@ static int parseQuery(
     */
     aTerm = pQuery->pTerms;
     for(ii=0; ii<pQuery->nTerms; ii++){
+      if( aTerm[ii].nNear || aTerm[ii].nPhrase ){
+        while (aTerm[ii+aTerm[ii].nPhrase].nNear) {
+          aTerm[ii].nPhrase += (1 + aTerm[ii+aTerm[ii].nPhrase+1].nPhrase);
+        }
+      }
 #if PRINT_PARSED_QUERY
-      g_debug ("  [Term %d] '%s' (%d)\n"
+      g_debug ("\n"
+               "[Term %d] '%s' (%d)\n"
                "      nPhrase:  %d\n"
                "      iPhrase:  %d\n"
                "      iColumn:  %d\n"
@@ -4603,12 +4609,6 @@ static int parseQuery(
                aTerm[ii].isNot ? "yes" : "no",
                aTerm[ii].isPrefix ? "yes" : "no");
 #endif /* PRINT_PARSED_QUERY */
-
-      if( aTerm[ii].nNear || aTerm[ii].nPhrase ){
-        while (aTerm[ii+aTerm[ii].nPhrase].nNear) {
-          aTerm[ii].nPhrase += (1 + aTerm[ii+aTerm[ii].nPhrase+1].nPhrase);
-        }
-      }
     }
   }
 
