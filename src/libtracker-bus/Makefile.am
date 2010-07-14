@@ -7,6 +7,7 @@ INCLUDES =								\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
 	$(WARN_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
@@ -19,7 +20,8 @@ libtracker_bus_la_VALASOURCES = \
 
 libtracker_bus_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	libtracker-bus.vala.stamp			\
-	$(libtracker_bus_la_VALASOURCES:.vala=.c)
+	$(libtracker_bus_la_VALASOURCES:.vala=.c) \
+	tracker-bus-cursor.c
 
 libtracker_bus_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-shared -fPIC -module -avoid-version
@@ -41,7 +43,7 @@ vapi_DATA = \
 	tracker-bus-$(TRACKER_API_VERSION).vapi
 
 libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-bus.h --vapi tracker-bus-$(TRACKER_API_VERSION).vapi $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus-$(TRACKER_API_VERSION).vapi $^
 	$(AM_V_GEN)touch $@
 
 libtracker_bus_@TRACKER_API_VERSION@_la_LIBADD = 						\
