@@ -311,6 +311,10 @@ static int default_column = 0;
 #endif
 
 
+/* Define to 1 if you want to get debug logs with the parsed query,
+ * quite useful to understand the FTS syntax */
+#define PRINT_PARSED_QUERY 0
+
 /*
  * ** Default span for NEAR operators.
  * */
@@ -4524,6 +4528,26 @@ static int parseQuery(
     */
     aTerm = pQuery->pTerms;
     for(ii=0; ii<pQuery->nTerms; ii++){
+
+#if PRINT_PARSED_QUERY
+      g_debug ("  [Term %d] '%s' (%d)\n"
+               "      nPhrase:  %d\n"
+               "      iPhrase:  %d\n"
+               "      iColumn:  %d\n"
+               "      nNear:    %d\n"
+               "      isOr:     %s\n"
+               "      isNot:    %s\n"
+               "      isPrefix: %s\n",
+               ii, aTerm[ii].pTerm, aTerm[ii].nTerm,
+               aTerm[ii].nPhrase,
+               aTerm[ii].iPhrase,
+               aTerm[ii].iColumn,
+               aTerm[ii].nNear,
+               aTerm[ii].isOr ? "yes" : "no",
+               aTerm[ii].isNot ? "yes" : "no",
+               aTerm[ii].isPrefix ? "yes" : "no");
+#endif /* PRINT_PARSED_QUERY */
+
       if( aTerm[ii].nNear || aTerm[ii].nPhrase ){
         while (aTerm[ii+aTerm[ii].nPhrase].nNear) {
           aTerm[ii].nPhrase += (1 + aTerm[ii+aTerm[ii].nPhrase+1].nPhrase);
