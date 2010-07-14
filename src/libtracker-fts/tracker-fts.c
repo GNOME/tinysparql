@@ -4394,6 +4394,7 @@ static int tokenizeSegment(
   int firstIndex = pQuery->nTerms;
   int nTerm = 1;
   int nWords;
+  int last_near_offset = -1;
 
   FTSTRACE (("FTS parsing started for Segments, limiting '%d' bytes to '%d' words",
              nSegment, v->max_words));
@@ -4423,6 +4424,11 @@ static int tokenizeSegment(
       break;
      }
 
+    if (last_near_offset > 0 && iEnd <= last_near_offset) {
+      /* Skip this word */
+      continue;
+    }
+
     nWords ++;
 
 //   printf("token being indexed  is %s, pos is %d, begin is %d, end is %d and length is %d\n", pToken, iPos, iBegin, iEnd, nToken);
@@ -4443,6 +4449,7 @@ static int tokenizeSegment(
 	}
     }
 #endif
+
     if( !inPhrase && pQuery->nTerms>0 && nToken==2
      && pToken[0] == 'o' && pToken[1] == 'r'
     ){
@@ -4469,18 +4476,14 @@ static int tokenizeSegment(
 	nToken += 2;
 	if( pSegment[iBegin+6]>='0' && pSegment[iBegin+6]<='9' ){
 	  pTerm->nNear = pTerm->nNear * 10 + (pSegment[iBegin+6] - '0');
-	  iEnd++;
-	}
-	pToken = tracker_parser_next (parser, &iPos,
-				      &iBegin,
-				      &iEnd,
-				      &stop_word,
-				      &nToken);
-	if (!pToken) {
-	  break;
+	  nToken++;
 	}
 
-
+	/* Set last near offset, so that any new word that comes
+	 * after the near which ends before this last near offset is
+	 * discarded. This is done because NEAR/10 will actually get
+	 * split into 3 words, "NEAR", "/" and "10" */
+	last_near_offset = iBegin + nToken;
       } else {
 	pTerm->nNear = SQLITE_FTS3_DEFAULT_NEAR_PARAM;
       }
@@ -4582,7 +4585,6 @@ static int parseQuery(
     */
     aTerm = pQuery->pTerms;
     for(ii=0; ii<pQuery->nTerms; ii++){
-
 #if PRINT_PARSED_QUERY
       g_debug ("  [Term %d] '%s' (%d)\n"
                "      nPhrase:  %d\n"
