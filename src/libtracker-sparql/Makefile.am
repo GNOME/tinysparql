@@ -18,7 +18,6 @@ libtracker_sparql_la_VALASOURCES = 			\
 	tracker-connection.vala					\
 	tracker-cursor.vala						\
 	tracker-plugin-loader.vala				\
-	tracker-query.vala						\
 	tracker-utils.vala
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_SOURCES = 	\

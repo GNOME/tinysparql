@@ -17,29 +17,66 @@
  * Boston, MA  02110-1301, USA.
  */
 
-private class Tracker.Sparql.PluginLoader : Object {
+class Tracker.Sparql.PluginLoader : Connection {
 	static bool initialized = false;
 	static Tracker.Sparql.Connection direct = null;
 	static Tracker.Sparql.Connection bus = null;
 
 	private delegate Tracker.Sparql.Connection ModuleInitFunc ();
 
-	public PluginLoader ()
+	public PluginLoader (bool direct_only = false) throws Error
 	requires (!initialized) {
 		if (!Module.supported ()) {
 		    return;
 		}
 
-		if (!load_plugins ()) {
-			initialized = false;
-			return;
-		}
+		load_plugins (direct_only);
 
 		initialized = true;
 	}
 
+	public override Cursor query (string sparql, Cancellable? cancellable = null) throws GLib.Error {
+		if (direct != null) {
+			return direct.query (sparql, cancellable);
+		} else {
+			return bus.query (sparql, cancellable);
+		}
+	}
+
+	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error {
+		if (direct != null) {
+			return yield direct.query_async (sparql, cancellable);
+		} else {
+			return yield bus.query_async (sparql, cancellable);
+		}
+	}
+
+	public override void update (string sparql, Cancellable? cancellable = null) throws GLib.Error {
+		bus.update (sparql, cancellable);
+	}
+
+	public async override void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws GLib.Error {
+		yield bus.update_async (sparql, priority, cancellable);
+	}
+
+	public override void update_commit (Cancellable? cancellable = null) throws GLib.Error {
+		bus.update_commit (cancellable);
+	}
+
+	public async override void update_commit_async (Cancellable? cancellable = null) throws GLib.Error {
+		yield bus.update_commit_async (cancellable);
+	}
+
+	public override void import (File file, Cancellable? cancellable = null) throws GLib.Error {
+		bus.import (file, cancellable);
+	}
+
+	public async override void import_async (File file, Cancellable? cancellable = null) throws GLib.Error {
+		yield bus.import_async (file, cancellable);
+	}
+
 	// Plugin loading functions
-	private bool load_plugins () {
+	private bool load_plugins (bool direct_only) throws GLib.Error {
 		string env_path = Environment.get_variable ("TRACKER_SPARQL_MODULE_PATH");
 		string path;
 		
@@ -57,79 +94,84 @@ private class Tracker.Sparql.PluginLoader : Object {
 
 		// First get direct library details
 		string direct_path = Module.build_path (dir_path, "tracker-direct-0.9");
-		direct = load_plugins_from_path (direct_path);
+		direct = load_plugins_from_path (direct_path, direct_only /* required */);
 
-		// Second get bus library details
-		string bus_path = Module.build_path (dir_path, "tracker-bus-0.9");
-		bus = load_plugins_from_path (bus_path);
+		if (!direct_only) {
+			// Second get bus library details
+			string bus_path = Module.build_path (dir_path, "tracker-bus-0.9");
+			bus = load_plugins_from_path (bus_path, true /* required */);
+		}
 
 		debug ("Finished searching for modules in folder '%s'", dir_path);
 
-		// FIXME: Finish this by checking for bus too!
-		return direct != null;
+		if (direct_only) {
+			return direct != null;
+		} else {
+			return bus != null;
+		}
 	}
 
-	private Tracker.Sparql.Connection? load_plugins_from_path (string path) {
-		File file = File.new_for_path (path);
-		assert (file != null);
-
-		FileInfo info = null;
-
+	private Tracker.Sparql.Connection? load_plugins_from_path (string path, bool required) throws GLib.Error {
 		try {
+			File file = File.new_for_path (path);
+			assert (file != null);
+
+			FileInfo info = null;
+
 			string attributes = FILE_ATTRIBUTE_STANDARD_NAME + "," +
-			                    FILE_ATTRIBUTE_STANDARD_TYPE + "," +
-			                    FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE;
+				            FILE_ATTRIBUTE_STANDARD_TYPE + "," +
+				            FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE;
 
 			info = file.query_info (attributes,
-			                        FileQueryInfoFlags.NONE,
-			                        null);
-		} catch (Error e) {
-			warning ("Could not get GFileInfo for '%s'", path);
-			return null;
-		}
+				                FileQueryInfoFlags.NONE,
+				                null);
 
-		string content_type = info.get_content_type ();
-		string mime = g_content_type_get_mime_type (content_type);
-		string expected_mime = "application/x-sharedlib";
+			string content_type = info.get_content_type ();
+			string mime = g_content_type_get_mime_type (content_type);
+			string expected_mime = "application/x-sharedlib";
 		
-		if (mime != expected_mime) {
-			warning ("Could not load plugin, mime type was '%s', expected:'%s'", 
-			         mime,
-			         expected_mime);
-			return null;
+			if (mime != expected_mime) {
+				throw new IOError.FAILED ("Could not load plugin, mime type was '%s', expected:'%s'",
+				                          mime,
+				                          expected_mime);
+			}
+
+			Module module = Module.open (path, ModuleFlags.BIND_LOCAL);
+			if (module == null) {
+				throw new IOError.FAILED ("Failed to load module from path '%s': %s",
+				                          path,
+				                          Module.error ());
+			}
+
+			void *function;
+
+			if (!module.symbol ("module_init", out function)) {
+				throw new IOError.FAILED ("Failed to find entry point function '%s' in '%s': %s",
+				                          "module_init",
+				                          path,
+				                          Module.error ());
+			}
+
+			ModuleInitFunc module_init = (ModuleInitFunc) function;
+			assert (module_init != null);
+
+			// We don't want our modules to ever unload
+			module.make_resident ();
+
+			// Call module init function
+			Tracker.Sparql.Connection c = module_init ();
+
+			debug ("Loaded module source: '%s'", module.name ());
+
+			return c;
+		} catch (Error e) {
+			if (required) {
+				// plugin required => error is fatal
+				throw e;
+			} else {
+				return null;
+			}
 		}
-
-		Module module = Module.open (path, ModuleFlags.BIND_LOCAL);
-		if (module == null) {
-			warning ("Failed to load module from path '%s': %s",
-			         path,
-			         Module.error ());
-			return null;
-		}
-
-		void *function;
-
-		if (!module.symbol ("module_init", out function)) {
-			warning ("Failed to find entry point function '%s' in '%s': %s",
-			         "module_init",
-			         path,
-			         Module.error ());
-
-			return null;
-		}
-
-		ModuleInitFunc module_init = (ModuleInitFunc) function;
-		assert (module_init != null);
-
-		// We don't want our modules to ever unload
-		module.make_resident ();
-
-		// Call module init function
-		Tracker.Sparql.Connection c = module_init ();
-
-		debug ("Loaded module source: '%s'", module.name ());
-
-		return c;
 	}
 }
 

@@ -18,6 +18,14 @@
  */
 
 public abstract class Tracker.Sparql.Connection : Object {
+	public static Connection get () throws GLib.Error {
+		return new PluginLoader ();
+	}
+
+	public static Connection get_direct () throws GLib.Error {
+		return new PluginLoader (true /* direct_only */);
+	}
+
 	// Query
 	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws GLib.Error;
 	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error;
