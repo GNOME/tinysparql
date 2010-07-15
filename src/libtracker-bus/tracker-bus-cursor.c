@@ -174,7 +174,7 @@ tracker_bus_cursor_get_n_columns (TrackerBusCursor *cursor)
 }
 
 static const gchar *
-tracker_bus_cursor_get_string (TrackerBusCursor *cursor, 
+tracker_bus_cursor_get_string (TrackerBusCursor *cursor,
 	                           guint             column,
 	                           gint             *length)
 {
@@ -218,17 +218,17 @@ tracker_bus_cursor_get_string (TrackerBusCursor *cursor,
 static void
 tracker_bus_cursor_class_init (TrackerBusCursorClass *class)
 {
-        GObjectClass *object_class = G_OBJECT_CLASS (class);
-        TrackerSparqlCursorClass *sparql_cursor_class = TRACKER_SPARQL_CURSOR_CLASS (class);
+	GObjectClass *object_class = G_OBJECT_CLASS (class);
+	TrackerSparqlCursorClass *sparql_cursor_class = TRACKER_SPARQL_CURSOR_CLASS (class);
 
-        object_class->finalize = tracker_bus_cursor_finalize;
+	object_class->finalize = tracker_bus_cursor_finalize;
 
-        sparql_cursor_class->get_n_columns = (gint (*) (TrackerSparqlCursor *)) tracker_bus_cursor_get_n_columns;
-        sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, gint, gint*)) tracker_bus_cursor_get_string;
-        sparql_cursor_class->next = (gboolean (*) (TrackerSparqlCursor *, GCancellable *, GError **)) tracker_bus_cursor_iter_next;
-        sparql_cursor_class->next_async = (void (*) (TrackerSparqlCursor *, GCancellable *, GAsyncReadyCallback, gpointer)) tracker_bus_cursor_iter_next_async;
-        sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_bus_cursor_iter_next_finish;
-        sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_bus_cursor_rewind;
+	sparql_cursor_class->get_n_columns = (gint (*) (TrackerSparqlCursor *)) tracker_bus_cursor_get_n_columns;
+	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, gint, gint*)) tracker_bus_cursor_get_string;
+	sparql_cursor_class->next = (gboolean (*) (TrackerSparqlCursor *, GCancellable *, GError **)) tracker_bus_cursor_iter_next;
+	sparql_cursor_class->next_async = (void (*) (TrackerSparqlCursor *, GCancellable *, GAsyncReadyCallback, gpointer)) tracker_bus_cursor_iter_next_async;
+	sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_bus_cursor_iter_next_finish;
+	sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_bus_cursor_rewind;
 }
 
 void
@@ -311,7 +311,9 @@ tracker_bus_query (DBusGConnection  *gconnection,
 }
 
 TrackerSparqlCursor *
-tracker_bus_query_results_to_cursor (char **results, int rows, int cols)
+tracker_bus_query_results_to_cursor (char **results,
+	                                 int    rows,
+	                                 int    cols)
 {
 	TrackerBusCursor *cursor;
 	
