@@ -111,9 +111,13 @@ void             tracker_miner_execute_sparql              (TrackerMiner        
                                                             GCancellable         *cancellable,
                                                             GAsyncReadyCallback   callback,
                                                             gpointer              user_data);
-TrackerResultIterator*
+TrackerResultIterator *
                  tracker_miner_execute_sparql_finish       (TrackerMiner         *miner,
                                                             GAsyncResult         *result,
+                                                            GError              **error);
+TrackerResultIterator *
+                 tracker_miner_execute_sparql_sync         (TrackerMiner         *miner,
+                                                            const gchar          *sparql,
                                                             GError              **error);
 void             tracker_miner_execute_batch_update        (TrackerMiner         *miner,
                                                             const gchar          *sparql,

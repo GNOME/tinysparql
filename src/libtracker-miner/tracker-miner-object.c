@@ -845,9 +845,9 @@ tracker_miner_execute_sparql (TrackerMiner        *miner,
  * Finishes the async operation and returns the query results. If an error
  * occured during the query, @error will be set.
  *
- * Returns: a #GPtrArray with the sparql results which should not be freed.
+ * Returns: a #TrackerResultIterator with the sparql results which should not be freed.
  **/
-TrackerResultIterator*
+TrackerResultIterator *
 tracker_miner_execute_sparql_finish (TrackerMiner  *miner,
                                      GAsyncResult  *result,
                                      GError       **error)
@@ -859,6 +859,32 @@ tracker_miner_execute_sparql_finish (TrackerMiner  *miner,
 	}
 
 	return (TrackerResultIterator*) g_simple_async_result_get_op_res_gpointer (r);
+}
+
+/**
+ * tracker_miner_execute_sparql_sync:
+ * @miner: a #TrackerMiner
+ * @sparql: a SPARQL query
+ * @error: a #GError
+ *
+ * Executes the SPARQL query on tracker-store and blocks until reply arrives.
+ * If an error occured during the query, @error will be set.
+ * Returns: A #TrackerResultIterator pointing before the first result row. This
+ * iterator must be disposed when done using tracker_result_iterator_free().
+ *
+ * Since: 0.9
+ **/
+TrackerResultIterator *
+tracker_miner_execute_sparql_sync (TrackerMiner  *miner,
+                                   const gchar   *sparql,
+                                   GError       **error)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), NULL);
+	g_return_val_if_fail (sparql != NULL, NULL);
+
+	return tracker_resources_sparql_query_iterate (miner->private->client,
+	                                               sparql,
+	                                               error);
 }
 
 /**
