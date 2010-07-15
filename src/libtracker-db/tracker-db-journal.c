@@ -1083,6 +1083,10 @@ tracker_db_journal_reader_next (GError **error)
 		reader.amount_of_triples--;
 		return TRUE;
 	}
+
+	g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, "Unknown reason");
+
+	return FALSE;
 }
 
 gint64
