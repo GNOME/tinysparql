@@ -1183,6 +1183,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 	gchar *query, *uri;
 	CacheQueryData data;
 	GFile *parent;
+	guint cache_size;
 
 	g_hash_table_remove_all (fs->private->iri_cache);
 
@@ -1205,7 +1206,6 @@ ensure_iri_cache (TrackerMinerFS *fs,
 	                         "  ?p nie:url \"%s\" "
 	                         "}",
 	                         uri);
-	g_free (uri);
 
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.values = g_hash_table_ref (fs->private->iri_cache);
@@ -1215,24 +1215,67 @@ ensure_iri_cache (TrackerMinerFS *fs,
 	                              NULL,
 	                              cache_query_cb,
 	                              &data);
+	g_free (query);
 
 	g_main_loop_run (data.main_loop);
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
 
-	if (g_hash_table_size (data.values) == 0 &&
-	    file_is_crawl_directory (fs, file)) {
-		gchar *query_iri;
+	cache_size = g_hash_table_size (fs->private->iri_cache);
 
-		if (item_query_exists (fs, file, &query_iri, NULL)) {
-			g_hash_table_insert (data.values,
-			                     g_object_ref (file), query_iri);
+	if (cache_size == 0) {
+		if (file_is_crawl_directory (fs, file)) {
+			gchar *query_iri;
+
+			if (item_query_exists (fs, file, &query_iri, NULL)) {
+				g_hash_table_insert (data.values,
+				                     g_object_ref (file), query_iri);
+				cache_size++;
+			}
+		} else {
+			/* Quite ugly hack: If mtime_cache is found EMPTY after the query, still, we
+			 * may have a nfo:Folder where nfo:belogsToContainer was not yet set (when
+			 * generating the dummy nfo:Folder for mount points). In this case, make a
+			 * new query not using nfo:belongsToContainer, and using fn:starts-with
+			 * instead. Any better solution is highly appreciated */
+
+			/* Initialize data contents */
+			data.main_loop = g_main_loop_new (NULL, FALSE);
+			data.values = g_hash_table_ref (fs->private->iri_cache);
+
+			g_debug ("Generating iri cache for URI '%s' (fn:starts-with)", uri);
+
+			query = g_strdup_printf ("SELECT ?url ?u "
+			                         "WHERE { ?u a nfo:Folder ; "
+			                         "           nie:url ?url . "
+			                         "        FILTER (fn:starts-with (?url,\"%s\"))"
+			                         "}",
+			                         uri);
+
+			tracker_miner_execute_sparql (TRACKER_MINER (fs),
+			                              query,
+			                              NULL,
+			                              cache_query_cb,
+			                              &data);
+			g_free (query);
+
+			g_main_loop_run (data.main_loop);
+			g_main_loop_unref (data.main_loop);
+			g_hash_table_unref (data.values);
+
+			/* Note that in this case, the cache may be actually populated with items
+			 * which are not direct children of this parent, but doesn't seem a big
+			 * issue right now. In the best case, the dummy item that we created will
+			 * be there with a proper mtime set. */
+			cache_size = g_hash_table_size (fs->private->iri_cache);
 		}
 	}
 
+	g_debug ("Populated IRI cache with '%u' items", cache_size);
+
 	g_object_unref (parent);
-	g_free (query);
+	g_free (uri);
 }
 
 static const gchar *
@@ -2333,6 +2376,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	gchar *query, *uri;
 	CacheQueryData data;
 	GFile *parent;
+	guint cache_size;
 
 	if (G_UNLIKELY (!fs->private->mtime_cache)) {
 		fs->private->mtime_cache = g_hash_table_new_full (g_file_hash,
@@ -2400,13 +2444,54 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                              cache_query_cb,
 		                              &data);
 		g_free (query);
-
-
 		g_main_loop_run (data.main_loop);
 	}
 
 	g_main_loop_unref (data.main_loop);
 	g_hash_table_unref (data.values);
+
+	cache_size = g_hash_table_size (fs->private->mtime_cache);
+
+	/* Quite ugly hack: If mtime_cache is found EMPTY after the query, still, we
+	 * may have a nfo:Folder where nfo:belogsToContainer was not yet set (when
+	 * generating the dummy nfo:Folder for mount points). In this case, make a
+	 * new query not using nfo:belongsToContainer, and using fn:starts-with
+	 * instead. Any better solution is highly appreciated */
+	if (parent && cache_size == 0) {
+		/* Initialize data contents */
+		data.main_loop = g_main_loop_new (NULL, FALSE);
+		data.values = g_hash_table_ref (fs->private->mtime_cache);
+		uri = g_file_get_uri (parent);
+
+		g_debug ("Generating mtime cache for URI '%s' (fn:starts-with)", uri);
+
+		query = g_strdup_printf ("SELECT ?url ?last "
+		                         "WHERE { ?u a nfo:Folder ; "
+		                         "           nie:url ?url ; "
+		                         "           nfo:fileLastModified ?last . "
+		                         "        FILTER (fn:starts-with (?url,\"%s\"))"
+		                         "}",
+		                         uri);
+		g_free (uri);
+
+		tracker_miner_execute_sparql (TRACKER_MINER (fs),
+		                              query,
+		                              NULL,
+		                              cache_query_cb,
+		                              &data);
+		g_free (query);
+		g_main_loop_run (data.main_loop);
+		g_main_loop_unref (data.main_loop);
+		g_hash_table_unref (data.values);
+
+		/* Note that in this case, the cache may be actually populated with items
+		 * which are not direct children of this parent, but doesn't seem a big
+		 * issue right now. In the best case, the dummy item that we created will
+		 * be there with a proper mtime set. */
+		cache_size = g_hash_table_size (fs->private->mtime_cache);
+	}
+
+	g_debug ("Populated mtime cache with '%u' items", cache_size);
 
 	/* Iterate repopulated HT and add all to the check_removed HT */
 	g_hash_table_foreach (fs->private->mtime_cache,
@@ -2493,7 +2578,6 @@ should_check_file (TrackerMinerFS *fs,
 	} else {
 		g_signal_emit (fs, signals[CHECK_FILE], 0, file, &should_check);
 	}
-
 	return should_check;
 }
 
