@@ -1,15 +1,17 @@
 # Czech translation of tracker.
 # Copyright (C) 2008, 2009, 2010 the author(s) of tracker.
 # This file is distributed under the same license as the tracker package.
+#
 # Kamil Páral <ripper42@gmail.com>, 2008.
 # Petr Kovar <pknbe@volny.cz>, 2010.
 # Marek Černocký <marek@manet.cz>, 2009, 2010.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-11 17:29+0200\n"
-"PO-Revision-Date: 2010-05-17 08:31+0200\n"
+"POT-Creation-Date: 2010-07-15 20:56+0200\n"
+"PO-Revision-Date: 2010-07-13 07:27+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -726,9 +728,8 @@ msgstr ""
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
 #: ../src/tracker-status-icon/tracker-status-icon.c:806
-#, fuzzy
 msgid "Copyright Tracker Authors 2005-2010"
-msgstr "Copyright © 2005-2009 Autoři prohledávače Tracker"
+msgstr "Copyright © 2005-2010 autoři prohledávače Tracker"
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:3
 msgid ""
@@ -822,15 +823,15 @@ msgstr "Délka:"
 
 #: ../src/tracker-search-tool/tracker-metadata-tile.gs:371
 msgid "Subject:"
-msgstr ""
+msgstr "Předmět:"
 
 #: ../src/tracker-search-tool/tracker-metadata-tile.gs:372
 msgid "From:"
-msgstr ""
+msgstr "Od:"
 
 #: ../src/tracker-search-tool/tracker-metadata-tile.gs:373
 msgid "Received:"
-msgstr ""
+msgstr "Přijato:"
 
 #: ../src/tracker-search-tool/tracker-metadata-tile.gs:386
 msgid "Author:"
@@ -841,9 +842,8 @@ msgid "Page count:"
 msgstr "Počet stránek:"
 
 #: ../src/tracker-search-tool/tracker-metadata-tile.gs:412
-#, fuzzy
 msgid "Description:"
-msgstr "Délka:"
+msgstr "Popis:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
 msgid ""
@@ -868,12 +868,12 @@ msgstr ""
 "%s"
 
 #: ../src/tracker-search-tool/tracker-utils.gs:101
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Could not launch \"%s\"\n"
 "Error: %s\n"
 msgstr ""
-"Nelze spustit %s\n"
+"Nelze spustit „%s“\n"
 "Chyba: %s\n"
 
 #: ../src/tracker-search-tool/tracker-utils.gs:117
@@ -1019,13 +1019,13 @@ msgid "APPS"
 msgstr "APPS"
 
 #: ../src/tracker-control/tracker-control.c:81
-#, fuzzy
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "Použít SIGTERM k zastavení všech odpovídajících procesů. Zadat můžete buď "
-"„store“, „miners“ nebo „all“, když nezadáte nic, použije se „all“"
+"„store“ (ukládání dat), „miners“ (získávání dat) nebo „all“ (všechny), když "
+"nezadáte nic, použije se „all“"
 
 #: ../src/tracker-control/tracker-control.c:84
 msgid "Kill all Tracker processes and remove all databases"
@@ -1359,10 +1359,12 @@ msgid "Search term '%s' is a stop word."
 msgstr "Hledaný výraz „%s“ je stop slovo."
 
 #: ../src/tracker-utils/tracker-search.c:1202
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
-msgstr "Stop slova jsou běžná slova, která se ale během indexování ignorují."
+msgstr ""
+"Stop slova jsou běžná slova, která ale smí být během procesu indexace "
+"ignorována."
 
 #: ../src/tracker-utils/tracker-search.c:1217
 msgid "Could not establish a DBus connection to Tracker"
@@ -1741,14 +1743,12 @@ msgstr ""
 "soubory)"
 
 #: ../src/tracker-utils/tracker-tag.c:84
-#, fuzzy
 msgid "Description for a tag (this is only used with --add)"
-msgstr ""
-"Zobrazit soubory přidružené ke každému štítku (to se použije pouze s --list)"
+msgstr "Popis pro štítek (toto se použije pouze spolu s --add)"
 
 #: ../src/tracker-utils/tracker-tag.c:85
 msgid "STRING"
-msgstr ""
+msgstr "ŘETĚZEC"
 
 #: ../src/tracker-utils/tracker-tag.c:94
 msgid "FILE…"
@@ -1845,7 +1845,7 @@ msgstr "Nebyly uvedeny žádné argumenty"
 
 #: ../src/tracker-utils/tracker-tag.c:876
 msgid "The --description option can only be used with --add"
-msgstr ""
+msgstr "Přepínač --description je možné použít jen spolu s přepínačem --add"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
