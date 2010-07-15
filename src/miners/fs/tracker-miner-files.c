@@ -610,6 +610,36 @@ miner_files_constructed (GObject *object)
 }
 
 static void
+ensure_mount_point_exists (TrackerMinerFiles *miner,
+			   GFile             *mount_point)
+{
+	gchar *iri;
+	gchar *uri;
+
+	uri = g_file_get_uri (mount_point);
+
+	g_debug ("Checking if mount point '%s' exists in store...", uri);
+	/* Query the store for the URN of the mount point */
+	iri = tracker_miner_fs_query_urn (TRACKER_MINER_FS (miner),
+	                                  mount_point);
+
+	if (iri) {
+		/* If exists, just return, nothing else to do */
+		g_message ("Mount point '%s' already exists in store: '%s'",
+		           uri, iri);
+		g_free (iri);
+	} else {
+		/* If it doesn't exist, we need to create it */
+		g_message ("Mount point '%s' does not exist in store, need to create it",
+		           uri);
+
+		/* TODO: Create a nfo:Folder for the mount point */
+	}
+
+	g_free (uri);
+}
+
+static void
 set_up_mount_point_cb (GObject      *source,
                        GAsyncResult *result,
                        gpointer      user_data)
@@ -684,6 +714,10 @@ set_up_mount_point (TrackerMinerFiles *miner,
 
 			file = g_file_new_for_path (mount_point);
 			uri = g_file_get_uri (file);
+
+			/* Before assigning a nfo:FileDataObject as tracker:mountPoint for
+			 * the volume, make sure the nfo:FileDataObject exists in the store */
+			ensure_mount_point_exists (miner, file);
 
 			g_string_append_printf (queries,
 			                        "DELETE FROM <%s> { "
@@ -788,11 +822,9 @@ init_mount_points_cb (GObject      *source,
 }
 
 static void
-query_mount_points_cb (GObject      *source,
-                       GAsyncResult *result,
-                       gpointer      user_data)
+init_mount_points (TrackerMinerFiles *miner_files)
 {
-	TrackerMiner *miner = TRACKER_MINER (source);
+	TrackerMiner *miner = TRACKER_MINER (miner_files);
 	TrackerMinerFilesPrivate *priv;
 	GHashTable *volumes;
 	GHashTableIter iter;
@@ -802,12 +834,17 @@ query_mount_points_cb (GObject      *source,
 	TrackerResultIterator *iterator;
 	GSList *uuids, *u;
 
-	iterator = tracker_miner_execute_sparql_finish (miner,
-	                                                result,
-	                                                &error);
+	g_debug ("Initializing mount points...");
+
+	/* First, get all mounted volumes, according to tracker-store (SYNC!) */
+	iterator = tracker_miner_execute_sparql_sync (TRACKER_MINER (miner),
+	                                              "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
+	                                              &error);
 	if (error) {
 		g_critical ("Could not obtain the mounted volumes: %s", error->message);
 		g_error_free (error);
+		if (iterator)
+			tracker_result_iterator_free (iterator);
 		return;
 	}
 
@@ -839,6 +876,8 @@ query_mount_points_cb (GObject      *source,
 
 		g_hash_table_replace (volumes, g_strdup (urn), GINT_TO_POINTER (state));
 	}
+
+	tracker_result_iterator_free (iterator);
 
 	/* Then, get all currently mounted non-REMOVABLE volumes, according to GIO */
 	uuids = tracker_storage_get_device_uuids (priv->storage, 0, TRUE);
@@ -955,20 +994,6 @@ query_mount_points_cb (GObject      *source,
 	g_string_free (accumulator, TRUE);
 	g_hash_table_unref (volumes);
 }
-
-static void
-init_mount_points (TrackerMinerFiles *miner)
-{
-	g_debug ("Initializing mount points");
-
-	/* First, get all mounted volumes, according to tracker-store */
-	tracker_miner_execute_sparql (TRACKER_MINER (miner),
-	                              "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
-	                              NULL,
-	                              query_mount_points_cb,
-	                              NULL);
-}
-
 
 static gboolean
 cleanup_stale_removable_volumes_cb (gpointer user_data)
@@ -1887,6 +1912,10 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 		uri = g_file_get_uri (G_FILE (data->file));
+
+		/* Before assigning a nfo:FileDataObject as tracker:mountPoint for
+		 * the volume, make sure the nfo:FileDataObject exists in the store */
+		ensure_mount_point_exists (data->miner, data->file);
 
 		queries = g_string_new ("");
 		g_string_append_printf (queries,
