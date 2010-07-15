@@ -3549,6 +3549,7 @@ tracker_miner_fs_get_urn (TrackerMinerFS *fs,
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
+	/* Check if found in currently processed data */
 	data = process_data_find (fs, file, FALSE);
 
 	if (!data) {
@@ -3564,6 +3565,37 @@ tracker_miner_fs_get_urn (TrackerMinerFS *fs,
 	}
 
 	return data->urn;
+}
+
+/**
+ * tracker_miner_fs_query_urn:
+ * @fs: a #TrackerMinerFS
+ * @file: a #GFile
+ *
+ * If the item exists in the store, this function retrieves
+ * the URN of the given #GFile
+
+ * If @file doesn't exist in the store yet, %NULL will be returned.
+ *
+ * Returns: A newly allocated string with the URN containing the data associated
+ *          to @file, or %NULL.
+ *
+ * Since: 0.9
+ **/
+gchar *
+tracker_miner_fs_query_urn (TrackerMinerFS *fs,
+                            GFile          *file)
+{
+	gchar *iri = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
+	g_return_val_if_fail (G_IS_FILE (file), NULL);
+
+	/* We don't really need to check the return value here, just
+	 * looking at the output iri is enough. */
+	item_query_exists (fs, file, &iri, NULL);
+
+	return iri;
 }
 
 /**

@@ -114,6 +114,8 @@ G_CONST_RETURN gchar *tracker_miner_fs_get_urn              (TrackerMinerFS *fs,
                                                              GFile          *file);
 G_CONST_RETURN gchar *tracker_miner_fs_get_parent_urn       (TrackerMinerFS *fs,
                                                              GFile          *file);
+gchar                *tracker_miner_fs_query_urn            (TrackerMinerFS *fs,
+                                                             GFile          *file);
 void                  tracker_miner_fs_force_recheck        (TrackerMinerFS *fs);
 
 void                  tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
