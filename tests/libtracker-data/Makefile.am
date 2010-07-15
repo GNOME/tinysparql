@@ -91,17 +91,29 @@ EXTRA_DIST = \
 	change/source/99-example.ontology.v4	\
 	change/source/99-example.ontology.v5	\
 	change/source/99-example.ontology.v6	\
+	change/source/99-example.ontology.v7	\
 	change/test-1.out			\
 	change/test-1.rq			\
 	change/test-2.out			\
 	change/test-2.rq			\
 	change/test-3.out			\
 	change/test-3.rq			\
+	change/test-4.rq			\
+	change/test-4.out			\
+	change/test-5.out			\
+	change/test-5.rq			\
+	change/change-test-1.rq			\
+	change/change-test-1.out		\
+	change/change-test-2.rq			\
+	change/change-test-2.out		\
+	change/change-test-3.rq			\
+	change/change-test-3.out		\
 	change/updates/99-example.queries.v2	\
 	change/updates/99-example.queries.v3	\
 	change/updates/99-example.queries.v4	\
 	change/updates/99-example.queries.v5	\
 	change/updates/99-example.queries.v6	\
+	change/updates/99-example.queries.v7	\
 	ontologies/20-dc.ontology		\
 	ontologies/31-nao.ontology		\
 	ontologies/90-tracker.ontology
