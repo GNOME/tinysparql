@@ -640,7 +640,7 @@ ensure_mount_point_exists (TrackerMinerFiles *miner,
 		                        "        nie:isStoredAs _:file ; "
 		                        "        nie:url \"%s\" ; "
 		                        "        nie:mimeType \"inode/directory\" ; "
-		                        "        nfo:fileLastModified \"1970-01-01T00:00:00Z\" . "
+		                        "        nfo:fileLastModified \"1981-06-05T02:20:00Z\" . "
 		                        "}",
 		                        uri);
 	}
