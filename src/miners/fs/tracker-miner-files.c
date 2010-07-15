@@ -611,14 +611,14 @@ miner_files_constructed (GObject *object)
 
 static void
 ensure_mount_point_exists (TrackerMinerFiles *miner,
-			   GFile             *mount_point)
+                           GFile             *mount_point,
+                           GString           *accumulator)
 {
 	gchar *iri;
 	gchar *uri;
 
 	uri = g_file_get_uri (mount_point);
 
-	g_debug ("Checking if mount point '%s' exists in store...", uri);
 	/* Query the store for the URN of the mount point */
 	iri = tracker_miner_fs_query_urn (TRACKER_MINER_FS (miner),
 	                                  mount_point);
@@ -633,7 +633,16 @@ ensure_mount_point_exists (TrackerMinerFiles *miner,
 		g_message ("Mount point '%s' does not exist in store, need to create it",
 		           uri);
 
-		/* TODO: Create a nfo:Folder for the mount point */
+		/* Create a nfo:Folder for the mount point */
+		g_string_append_printf (accumulator,
+		                        "INSERT SILENT INTO <" TRACKER_MINER_FS_GRAPH_URN "> {"
+		                        " _:file a nfo:FileDataObject, nie:InformationElement, nfo:Folder ; "
+		                        "        nie:isStoredAs _:file ; "
+		                        "        nie:url \"%s\" ; "
+		                        "        nie:mimeType \"inode/directory\" ; "
+		                        "        nfo:fileLastModified \"1970-01-01T00:00:00Z\" . "
+		                        "}",
+		                        uri);
 	}
 
 	g_free (uri);
@@ -717,7 +726,7 @@ set_up_mount_point (TrackerMinerFiles *miner,
 
 			/* Before assigning a nfo:FileDataObject as tracker:mountPoint for
 			 * the volume, make sure the nfo:FileDataObject exists in the store */
-			ensure_mount_point_exists (miner, file);
+			ensure_mount_point_exists (miner, file, queries);
 
 			g_string_append_printf (queries,
 			                        "DELETE FROM <%s> { "
@@ -1912,12 +1921,8 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 
 		removable_device_urn = g_strdup_printf (TRACKER_DATASOURCE_URN_PREFIX "%s", uuid);
 		uri = g_file_get_uri (G_FILE (data->file));
-
-		/* Before assigning a nfo:FileDataObject as tracker:mountPoint for
-		 * the volume, make sure the nfo:FileDataObject exists in the store */
-		ensure_mount_point_exists (data->miner, data->file);
-
 		queries = g_string_new ("");
+
 		g_string_append_printf (queries,
 		                        "DELETE FROM <%s> { "
 		                        "  <%s> tracker:mountPoint ?unknown "
