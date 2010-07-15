@@ -24,12 +24,15 @@ private interface Tracker.Bus.Resources : GLib.Object {
 
 // Imported DBus FD API until we have support with Vala
 public extern Tracker.Sparql.Cursor tracker_bus_query (DBus.Connection connection, string query) throws GLib.Error;
+public extern Tracker.Sparql.Cursor tracker_bus_query_results_to_cursor (owned char **results, int rows, int cols);
 
 // Actual class definition
 public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	static DBus.Connection connection;
+	static Resources resources;
 	static bool initialized;
-
+	static bool use_steroids;
+		
 	public Connection ()
 	requires (!initialized) {
 		initialized = true;
@@ -38,9 +41,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 			connection = DBus.Bus.get (DBus.BusType.SESSION);
 
 			// FIXME: Test for steroids and resources interfaces?			
-//			resources = (Resources) c.get_object (TRACKER_DBUS_SERVICE,
-//			                                      TRACKER_DBUS_OBJECT_RESOURCES,
-//			                                      TRACKER_DBUS_INTERFACE_RESOURCES);
+			use_steroids = false;
+
+			resources = (Resources) connection.get_object (TRACKER_DBUS_SERVICE,
+			                                               TRACKER_DBUS_OBJECT_RESOURCES,
+			                                               TRACKER_DBUS_INTERFACE_RESOURCES);
 		} catch (DBus.Error e) {
 			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
 			initialized = false;
@@ -49,13 +54,26 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		
 		initialized = true;
 	}
-
+ 
 	~Connection () {
 		initialized = false;
 	}
 
 	public override Sparql.Cursor? query (string sparql, Cancellable? cancellable) throws GLib.Error {
-		return tracker_bus_query (connection, sparql);
+		// FIXME: Decide between FD passing and DBus-Glib, we need to do this
+		// here because otherwise we need to do the whole set up of their
+		// DBus interface again in the .c file, which is pointless when
+		// one call can do it here just fine.
+		//
+		// Really we need #ifdef here, unsupported in vala AFAIK
+
+		
+		if (use_steroids) {
+			return tracker_bus_query (connection, sparql);
+		} else {
+			string[,] results = resources.SparqlQuery (sparql);
+			return tracker_bus_query_results_to_cursor ((owned) results, results.length[0], results.length[1]);
+		}
 	}
 
 	public async override Sparql.Cursor? query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error {

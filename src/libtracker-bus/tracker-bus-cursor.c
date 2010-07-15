@@ -45,6 +45,7 @@ typedef struct TrackerBusCursorClass TrackerBusCursorClass;
 struct TrackerBusCursor {
 	TrackerSparqlCursor parent_instance;
 
+#ifdef HAVE_DBUS_FD_PASSING
 	char *buffer;
 	int buffer_index;
 	long buffer_size;
@@ -52,6 +53,12 @@ struct TrackerBusCursor {
 	guint n_columns;
 	int *offsets;
 	char *data;
+#else  /* HAVE_DBUS_FD_PASSING */
+	gint n_columns;
+	gint rows;
+	gint current_row;
+	gchar **results;
+#endif /* HAVE_DBUS_FD_PASSING */
 };
 
 struct TrackerBusCursorClass {
@@ -69,6 +76,8 @@ tracker_bus_cursor_rewind (TrackerBusCursor *cursor)
 	/* FIXME: Implement */
 }
 
+#ifdef HAVE_DBUS_FD_PASSING
+
 static inline int
 buffer_read_int (TrackerBusCursor *cursor)
 {
@@ -79,11 +88,14 @@ buffer_read_int (TrackerBusCursor *cursor)
 	return v;
 }
 
+#endif /* HAVE_DBUS_FD_PASSING */
+
 static gboolean
 tracker_bus_cursor_iter_next (TrackerBusCursor  *cursor,
               	              GCancellable      *cancellable,
               	              GError           **error)
 {
+#ifdef HAVE_DBUS_FD_PASSING
 	int last_offset;
 
 	if (cursor->buffer_index >= cursor->buffer_size) {
@@ -102,7 +114,13 @@ tracker_bus_cursor_iter_next (TrackerBusCursor  *cursor,
 	last_offset = buffer_read_int (cursor);
 	cursor->data = cursor->buffer + cursor->buffer_index;
 	cursor->buffer_index += last_offset + 1;
-	
+#else  /* HAVE_DBUS_FD_PASSING */
+	if (cursor->current_row >= (gint) cursor->rows - 1) {
+		return FALSE;
+	}
+
+	cursor->current_row++;
+#endif /* HAVE_DBUS_FD_PASSING */
 	return TRUE;
 }
 
@@ -160,13 +178,41 @@ tracker_bus_cursor_get_string (TrackerBusCursor *cursor,
 	                           guint             column,
 	                           gint             *length)
 {
+	const gchar *str = NULL;
+
+	if (length) {
+		*length = 0;
+	}
+	
+#ifdef HAVE_DBUS_FD_PASSING
 	g_return_val_if_fail (column < tracker_bus_cursor_get_n_columns (cursor), NULL);
 
 	if (column == 0) {
-		return cursor->data;
+		str = cursor->data;
 	} else {
-		return cursor->data + cursor->offsets[column - 1] + 1;
+		str = cursor->data + cursor->offsets[column - 1] + 1;
 	}
+#else  /* HAVE_DBUS_FD_PASSING */
+	gchar **row;
+
+	g_return_val_if_fail (column < tracker_bus_cursor_get_n_columns (cursor), NULL);
+
+	if (cursor->rows < 1) {
+		return NULL;
+	}
+
+	g_return_val_if_fail (cursor->current_row < (gint) cursor->rows, NULL);
+
+	row = cursor->results + cursor->current_row;
+
+	str = row[column];
+#endif /* HAVE_DBUS_FD_PASSING */
+
+	if (length) {
+		*length = strlen (str);
+	}
+
+	return str;
 }
 
 static void
@@ -197,28 +243,32 @@ tracker_bus_cursor_finalize (GObject *object)
 
 	cursor = TRACKER_BUS_CURSOR (object);
 
+#ifdef HAVE_DBUS_FD_PASSING
 	g_free (cursor->buffer);
+#else  /* HAVE_DBUS_FD_PASSING */
+	g_strfreev (cursor->results);
+#endif /* HAVE_DBUS_FD_PASSING */
 
 	G_OBJECT_CLASS (tracker_bus_cursor_parent_class)->finalize (object);
 }
-
 
 // Public API
 
 TrackerSparqlCursor *
 tracker_bus_query (DBusGConnection  *gconnection,
-                   const gchar     *query,
-                   GError         **error)
+                   const gchar      *query,
+                   GError          **error)
 {
 #ifdef HAVE_DBUS_FD_PASSING
-	TrackerBusCursor *cursor;
 	DBusConnection *connection;
 	DBusMessage *message;
 	DBusMessageIter iter;
-	int pipefd[2];
+	TrackerBusCursor *cursor;
 	GError *inner_error = NULL;
+	int pipefd[2];
 
-	g_return_val_if_fail (query, NULL);
+	g_return_val_if_fail (gconnection != NULL, NULL);
+	g_return_val_if_fail (query != NULL, NULL);
 
 	if (pipe (pipefd) < 0) {
 		/* FIXME: Use proper error domain/code */
@@ -254,10 +304,25 @@ tracker_bus_query (DBusGConnection  *gconnection,
 		g_object_unref (cursor);
 		cursor = NULL;
 	}
-
 	return TRACKER_SPARQL_CURSOR (cursor);
 #else  /* HAVE_DBUS_FD_PASSING */
-	return NULL;
+	return NULL;	
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
+TrackerSparqlCursor *
+tracker_bus_query_results_to_cursor (char **results, int rows, int cols)
+{
+	TrackerBusCursor *cursor;
+	
+	cursor = g_object_new (TRACKER_TYPE_BUS_CURSOR, NULL);
+	
+#ifndef HAVE_DBUS_FD_PASSING
+	cursor->rows = rows;
+	cursor->current_row = -1;
+	cursor->n_columns = cols;
+	cursor->results = results;
+#endif /* HAVE_DBUS_FD_PASSING */
+
+	return TRACKER_SPARQL_CURSOR (cursor);
+}
