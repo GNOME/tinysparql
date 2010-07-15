@@ -439,47 +439,47 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              NULL, NULL,
 		              tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
 		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER, G_TYPE_CANCELLABLE),
+		              3, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER, G_TYPE_CANCELLABLE);
 
-		/**
-		 * TrackerMinerFS::ignore-next-update-file:
-		 * @miner_fs: the #TrackerMinerFS
-		 * @file: a #GFile
-		 * @builder: a #TrackerSparqlBuilder
-		 * @cancellable: a #GCancellable
-		 *
-		 * The ::ignore-next-update-file signal is emitted whenever a file should
-		 * be marked as to ignore on next update, and it's metadata prepared for that.
-		 *
-		 * @builder is the #TrackerSparqlBuilder where all sparql updates
-		 * to be performed for @file will be appended.
-		 *
-		 * Returns: %TRUE on success
-		 *          %FALSE on failure
-		 **/
-		signals[IGNORE_NEXT_UPDATE_FILE] =
+	/**
+	 * TrackerMinerFS::ignore-next-update-file:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @file: a #GFile
+	 * @builder: a #TrackerSparqlBuilder
+	 * @cancellable: a #GCancellable
+	 *
+	 * The ::ignore-next-update-file signal is emitted whenever a file should
+	 * be marked as to ignore on next update, and it's metadata prepared for that.
+	 *
+	 * @builder is the #TrackerSparqlBuilder where all sparql updates
+	 * to be performed for @file will be appended.
+	 *
+	 * Returns: %TRUE on success
+	 *          %FALSE on failure
+	 **/
+	signals[IGNORE_NEXT_UPDATE_FILE] =
 		g_signal_new ("ignore-next-update-file",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerFSClass, ignore_next_update_file),
-		              NULL, NULL,
-		              tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
-		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER, G_TYPE_CANCELLABLE),
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerMinerFSClass, ignore_next_update_file),
+			      NULL, NULL,
+			      tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
+			      G_TYPE_BOOLEAN,
+			      3, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER, G_TYPE_CANCELLABLE);
 
-		/**
-		 * TrackerMinerFS::finished:
-		 * @miner_fs: the #TrackerMinerFS
-		 * @elapsed: elapsed time since mining was started
-		 * @directories_found: number of directories found
-		 * @directories_ignored: number of ignored directories
-		 * @files_found: number of files found
-		 * @files_ignored: number of ignored files
-		 *
-		 * The ::finished signal is emitted when @miner_fs has finished
-		 * all pending processing.
-		 **/
-		signals[FINISHED] =
+	/**
+	 * TrackerMinerFS::finished:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @elapsed: elapsed time since mining was started
+	 * @directories_found: number of directories found
+	 * @directories_ignored: number of ignored directories
+	 * @files_found: number of files found
+	 * @files_ignored: number of ignored files
+	 *
+	 * The ::finished signal is emitted when @miner_fs has finished
+	 * all pending processing.
+	 **/
+	signals[FINISHED] =
 		g_signal_new ("finished",
 		              G_TYPE_FROM_CLASS (object_class),
 		              G_SIGNAL_RUN_LAST,
