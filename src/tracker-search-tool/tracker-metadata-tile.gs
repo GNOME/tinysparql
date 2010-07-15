@@ -296,7 +296,8 @@ class TrackerMetadataTile : EventBox
         link_label = (Label) name_link.get_child ()
         link_label.set_ellipsize (EllipsizeMode.MIDDLE)
 
-        SetLabelValue (info_value1, mime)
+        if mime is not null
+           SetLabelValue (info_value1, mime)
 
         try
             var info =  file.query_info ("standard::size,time::modified,standard::display-name", \
@@ -325,9 +326,10 @@ class TrackerMetadataTile : EventBox
         info_label4.set_text (N_("Height:"))
         info_label5.set_text (N_("Width:"))
 
-        if result is not null
-            SetLabelValue (info_value4, result[0])
-            SetLabelValue (info_value5, result[1])
+        if result is null or result[0] is null do return
+
+        SetLabelValue (info_value4, result[0])
+        SetLabelValue (info_value5, result[1])
 
 
     def private DisplayAudioDetails (uri : string)
@@ -338,10 +340,11 @@ class TrackerMetadataTile : EventBox
         info_label5.set_text (N_("Artist:"))
         info_label6.set_text (N_("Album:"))
 
-        if result is not null
-            SetLabelValue (info_value4, result[0])
-            SetLabelUrnValue (info_value5, result[1])
-            SetLabelUrnValue (info_value6, result[2])
+        if result is null or result[0] is null do return
+
+        SetLabelValue (info_value4, result[0])
+        SetLabelUrnValue (info_value5, result[1])
+        SetLabelUrnValue (info_value6, result[2])
 
 
     def private DisplayVideoDetails (uri : string)
@@ -352,10 +355,11 @@ class TrackerMetadataTile : EventBox
         info_label5.set_text (N_("Width:"))
         info_label6.set_text (N_("Duration:"))
 
-        if result is not null
-            SetLabelValue (info_value4, result[0])
-            SetLabelValue (info_value5, result[1])
-            SetLabelValue (info_value6, result[2])
+        if result is null or result[0] is null do return
+
+        SetLabelValue (info_value4, result[0])
+        SetLabelValue (info_value5, result[1])
+        SetLabelValue (info_value6, result[2])
 
 
     def private DisplayEmailDetails (uri : string)
@@ -372,24 +376,26 @@ class TrackerMetadataTile : EventBox
         info_label4.set_text (N_("From:"))
         info_label3.set_text (N_("Received:"))
 
-        if result is not null
-            SetLabelValue (info_value1, result[0])
-            SetLabelValue (info_value4, result[1])
-            SetLabelValue (info_value3, result[2])
+        if result is null or result[0] is null do return
+
+        SetLabelValue (info_value1, result[0])
+        SetLabelValue (info_value4, result[1])
+        SetLabelValue (info_value3, result[2])
 
 
     def private DisplayDocumentDetails (uri : string)
-        var query = "SELECT nie:title(?s) nco:fullname(?c) nfo:pageCount (?s) WHERE { ?s nie:url \"%s\" ; nco:creator ?c }".printf(uri)
+        var query = "SELECT nie:title(?s) nco:fullname(?c) nfo:pageCount(?s) WHERE { ?s nie:url \"%s\" ; nco:creator ?c }".printf(uri)
         var result = Query.Query (query)
 
         info_label4.set_text (N_("Title:"))
         info_label5.set_text (N_("Author:"))
         info_label6.set_text (N_("Page count:"))
 
-        if result is not null
-            SetLabelValue (info_value4, result[0])
-            SetLabelValue (info_value5, result[1])
-            SetLabelValue (info_value6, result[2])
+        if result is null or result[0] is null do return
+
+        SetLabelValue (info_value4, result[0])
+        SetLabelValue (info_value5, result[1])
+        SetLabelValue (info_value6, result[2])
 
 
     def private DisplayApplicationDetails (uri : string)
