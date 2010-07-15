@@ -575,12 +575,13 @@ set_up_mount_point (TrackerMinerFiles *miner,
 {
 	GString *queries;
 
-	g_debug ("Mount point state being set in DB for URN '%s'",
-	         removable_device_urn);
-
 	queries = g_string_new (NULL);
 
 	if (mounted) {
+		g_debug ("Mount point state (MOUNTED) being set in DB for URN '%s' (mount_point: %s)",
+		         removable_device_urn,
+		         mount_point ? mount_point : "unknown");
+
 		if (mount_point) {
 			GFile *file;
 			gchar *uri;
@@ -625,6 +626,9 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		                        removable_device_urn, removable_device_urn);
 	} else {
 		gchar *now;
+
+		g_debug ("Mount point state (UNMOUNTED) being set in DB for URN '%s'",
+		         removable_device_urn);
 
 		now = tracker_date_to_string (time (NULL));
 
