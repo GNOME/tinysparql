@@ -23,7 +23,8 @@ libtracker_sparql_la_VALASOURCES = 			\
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	libtracker-sparql.vala.stamp			\
-	$(libtracker_sparql_la_VALASOURCES:.vala=.c)
+	$(libtracker_sparql_la_VALASOURCES:.vala=.c) \
+	tracker-uri.c
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
