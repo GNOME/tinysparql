@@ -69,6 +69,9 @@
   - Used for retrieving songs by a performer.
   - Used in cases where fts:match is done against the performer as well as the song.
 
+* nie:title domainIndex for nmm:MusicPiece
+  - Used to improve performance of ORDER BY on nie:title
+
 40-mlo:
 * mlo:location:
   - Used for retrieving all content in some specific location
