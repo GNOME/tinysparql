@@ -38,7 +38,7 @@
 #define GROUP_JOURNAL     "Journal"
 
 /* Default values */
-#define DEFAULT_JOURNAL_CHUNK_SIZE           500
+#define DEFAULT_JOURNAL_CHUNK_SIZE           50
 #define DEFAULT_JOURNAL_ROTATE_DESTINATION   ""
 
 typedef struct {
