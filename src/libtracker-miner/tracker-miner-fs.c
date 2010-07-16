@@ -1794,6 +1794,7 @@ item_move (TrackerMinerFS *fs,
 
 		g_free (source_uri);
 		g_free (uri);
+		g_object_unref (file_info);
 
 		return retval;
 	}
