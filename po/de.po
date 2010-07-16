@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: tracker 0.8\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-07-04 06:01+0000\n"
-"PO-Revision-Date: 2010-07-05 01:21+0100\n"
+"POT-Creation-Date: 2010-07-16 10:12+0000\n"
+"PO-Revision-Date: 2010-07-16 21:51+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -136,7 +136,7 @@ msgstr "Schlagworte …"
 msgid "Tag one or more files"
 msgstr "Einer oder mehreren Dateien Schlagwörter zuordnen"
 
-#: ../src/libtracker-common/tracker-dbus.c:589
+#: ../src/libtracker-common/tracker-dbus.c:586
 msgid "No error given"
 msgstr "Kein Fehler angegeben"
 
@@ -425,11 +425,11 @@ msgstr "Würde überwacht werden"
 msgid "- start the tracker indexer"
 msgstr "- startet die Tracker-Indizierung"
 
-#: ../src/miners/fs/tracker-miner-files.c:1050
+#: ../src/miners/fs/tracker-miner-files.c:1053
 msgid "Low battery"
 msgstr "Akkuzustand niedrig"
 
-#: ../src/miners/fs/tracker-miner-files.c:1178
+#: ../src/miners/fs/tracker-miner-files.c:1181
 msgid "Low disk space"
 msgstr "Wenig Speicherplatz"
 
@@ -810,54 +810,54 @@ msgstr "Größe:"
 msgid "Modified:"
 msgstr "Geändert:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:325
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:351
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
 msgid "Height:"
 msgstr "Höhe:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:352
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
 msgid "Width:"
 msgstr "Breite:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:337
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:385
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:390
 msgid "Title:"
 msgstr "Titel:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:338
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
 msgid "Artist:"
 msgstr "Künstler:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
 msgid "Album:"
 msgstr "Album:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:353
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:356
 msgid "Duration:"
 msgstr "Dauer:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:371
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:375
 msgid "Subject:"
 msgstr "Betreff:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:372
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:376
 msgid "From:"
 msgstr "Von:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:373
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:377
 msgid "Received:"
 msgstr "Empfangen: "
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:386
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:391
 msgid "Author:"
 msgstr "Autor:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:387
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:392
 msgid "Page count:"
 msgstr "Seitenanzahl:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:412
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:418
 msgid "Description:"
 msgstr "Beschreibung:"
 
@@ -913,7 +913,7 @@ msgstr ""
 #: ../src/tracker-control/tracker-control.c:99
 #: ../src/tracker-utils/tracker-import.c:51
 #: ../src/tracker-utils/tracker-info.c:50
-#: ../src/tracker-utils/tracker-search.c:123
+#: ../src/tracker-utils/tracker-search.c:128
 #: ../src/tracker-utils/tracker-sparql.c:93
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:116
@@ -1019,7 +1019,7 @@ msgstr "Nur Lesevorgänge in der Datenbank erlauben"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:362
+#: ../src/tracker-store/tracker-main.c:363
 msgid "- start the tracker daemon"
 msgstr "- startet den Tracker-Dienst"
 
@@ -1219,92 +1219,98 @@ msgstr "Daten für Adresse konnten nicht erhalten werden"
 msgid "No metadata available for that URI"
 msgstr "Keine Metadaten für diese Adresse verfügbar"
 
-#: ../src/tracker-utils/tracker-search.c:63
+#: ../src/tracker-utils/tracker-search.c:64
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "Limit the number of results shown"
 msgstr "Die anzuzeigenden Ergebnisse begrenzen"
 
-#: ../src/tracker-utils/tracker-search.c:64
+#: ../src/tracker-utils/tracker-search.c:65
 #: ../src/tracker-utils/tracker-tag.c:57
 msgid "512"
 msgstr "512"
 
-#: ../src/tracker-utils/tracker-search.c:67
+#: ../src/tracker-utils/tracker-search.c:68
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "Offset the results"
 msgstr "Ergebnisse versetzen"
 
-#: ../src/tracker-utils/tracker-search.c:68
+#: ../src/tracker-utils/tracker-search.c:69
 #: ../src/tracker-utils/tracker-tag.c:61
 msgid "0"
 msgstr "0"
 
-#: ../src/tracker-utils/tracker-search.c:71
+#: ../src/tracker-utils/tracker-search.c:72
 #: ../src/tracker-utils/tracker-tag.c:64
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "»OR« für Suchbegriffe anstatt der Vorgabe »AND« verwenden"
 
-#: ../src/tracker-utils/tracker-search.c:75
-msgid "Show URNs for results (doesn't apply to --music-albums, --music-artists)"
+#: ../src/tracker-utils/tracker-search.c:76
+msgid ""
+"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"feeds)"
 msgstr ""
-"URNs für Ergebnisse anzeigen (nicht für --music-albums, --music-artists "
-"anwenden)"
+"URNs für Ergebnisse anzeigen (nicht für --music-albums, --music-artists, --"
+"feeds anwenden)"
 
-#: ../src/tracker-utils/tracker-search.c:79
+#: ../src/tracker-utils/tracker-search.c:80
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
 "Auch alle nicht existierenden Treffer ausgeben (zum Beispiel von nicht "
 "eingehängten Datenträgern)"
 
-#: ../src/tracker-utils/tracker-search.c:83
+#: ../src/tracker-utils/tracker-search.c:84
 msgid "Search for files"
 msgstr "Nach Dateien suchen"
 
-#: ../src/tracker-utils/tracker-search.c:87
+#: ../src/tracker-utils/tracker-search.c:88
 msgid "Search for folders"
 msgstr "Nach Ordnern suchen"
 
-#: ../src/tracker-utils/tracker-search.c:91
+#: ../src/tracker-utils/tracker-search.c:92
 msgid "Search for music files"
 msgstr "Nach Musikdateien suchen"
 
-#: ../src/tracker-utils/tracker-search.c:95
+#: ../src/tracker-utils/tracker-search.c:96
 msgid "Search for music albums (--all has no effect on this)"
 msgstr "Nach Musikalben suchen (--all hat darauf keinen Einfluss)"
 
-#: ../src/tracker-utils/tracker-search.c:99
+#: ../src/tracker-utils/tracker-search.c:100
 msgid "Search for music artists (--all has no effect on this) "
 msgstr "Nach Musikern suchen (--all hat darauf keinen Einfluss)"
 
-#: ../src/tracker-utils/tracker-search.c:103
+#: ../src/tracker-utils/tracker-search.c:104
 msgid "Search for image files"
 msgstr "Nach Bilddateien suchen"
 
-#: ../src/tracker-utils/tracker-search.c:107
+#: ../src/tracker-utils/tracker-search.c:108
 msgid "Search for video files"
 msgstr "Nach Videodateien suchen"
 
-#: ../src/tracker-utils/tracker-search.c:111
+#: ../src/tracker-utils/tracker-search.c:112
 msgid "Search for document files"
 msgstr "Nach Dokumenten suchen"
 
-#: ../src/tracker-utils/tracker-search.c:115
+#: ../src/tracker-utils/tracker-search.c:116
 msgid "Search for emails"
 msgstr "Nach E-Mails suchen"
 
-#: ../src/tracker-utils/tracker-search.c:119
+#: ../src/tracker-utils/tracker-search.c:120
 msgid "Search for contacts"
 msgstr "Nach Kontakten suchen"
 
-#: ../src/tracker-utils/tracker-search.c:128
+#: ../src/tracker-utils/tracker-search.c:124
+msgid "Search for feeds (--all has no effect on this) "
+msgstr "Nach Nachrichtenquellen suchen (--all hat darauf keinen Einfluss)"
+
+#: ../src/tracker-utils/tracker-search.c:133
 msgid "search terms"
 msgstr "Suchbegriffe"
 
-#: ../src/tracker-utils/tracker-search.c:129
+#: ../src/tracker-utils/tracker-search.c:134
 msgid "EXPRESSION"
 msgstr "AUSDRUCK"
 
-#: ../src/tracker-utils/tracker-search.c:146
+#: ../src/tracker-utils/tracker-search.c:151
 #: ../src/tracker-utils/tracker-tag.c:111
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
@@ -1312,57 +1318,62 @@ msgstr ""
 "ACHTUNG: Limit wurde erreicht. Die Datenbank enthält weitere hier nicht "
 "aufgelistete Einträge"
 
-#: ../src/tracker-utils/tracker-search.c:216
-#: ../src/tracker-utils/tracker-search.c:325
-#: ../src/tracker-utils/tracker-search.c:440
-#: ../src/tracker-utils/tracker-search.c:737
-#: ../src/tracker-utils/tracker-search.c:815
-#: ../src/tracker-utils/tracker-search.c:1063
+#: ../src/tracker-utils/tracker-search.c:221
+#: ../src/tracker-utils/tracker-search.c:330
+#: ../src/tracker-utils/tracker-search.c:445
+#: ../src/tracker-utils/tracker-search.c:742
+#: ../src/tracker-utils/tracker-search.c:820
+#: ../src/tracker-utils/tracker-search.c:907
+#: ../src/tracker-utils/tracker-search.c:1155
 msgid "Could not get search results"
 msgstr "Suchergebnisse konnten nicht angefordert werden"
 
-#: ../src/tracker-utils/tracker-search.c:225
+#: ../src/tracker-utils/tracker-search.c:230
 msgid "No contacts were found"
 msgstr "Es wurden keine Kontakte gefunden"
 
-#: ../src/tracker-utils/tracker-search.c:334
+#: ../src/tracker-utils/tracker-search.c:339
 msgid "No emails were found"
 msgstr "Es wurden keine E-Mails gefunden"
 
-#: ../src/tracker-utils/tracker-search.c:449
+#: ../src/tracker-utils/tracker-search.c:454
 msgid "No files were found"
 msgstr "Es wurden keine Dateien gefunden"
 
-#: ../src/tracker-utils/tracker-search.c:746
+#: ../src/tracker-utils/tracker-search.c:751
 msgid "No artists were found"
 msgstr "Es wurden keine Künstler gefunden"
 
-#: ../src/tracker-utils/tracker-search.c:824
+#: ../src/tracker-utils/tracker-search.c:829
 msgid "No music was found"
 msgstr "Es wurde keine Musik gefunden"
 
-#: ../src/tracker-utils/tracker-search.c:1072
+#: ../src/tracker-utils/tracker-search.c:916
+msgid "No feeds were found"
+msgstr "Es wurden keine Nachrichtenquellen gefunden"
+
+#: ../src/tracker-utils/tracker-search.c:1164
 msgid "No results were found matching your query"
 msgstr "Es wurden keine Ergebnisse zur Suche gefunden"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:1112
+#: ../src/tracker-utils/tracker-search.c:1204
 msgid "- Search for terms in all data"
 msgstr "- Nach Begriffen in allen Daten suchen"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:1117
+#: ../src/tracker-utils/tracker-search.c:1209
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "Verwendet den Operator »AND« (UND) auf alle durch ein Komma getrennten "
 "Begriffe an (schauen Sie auch »--or-operator«)"
 
-#: ../src/tracker-utils/tracker-search.c:1121
+#: ../src/tracker-utils/tracker-search.c:1213
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -1370,16 +1381,16 @@ msgstr ""
 "Das bedeutet, dass bei der Suche nach »foo« und »bar« BEIDE existieren müssen "
 "(es sei denn, Sie verwenden »--or-operator«)"
 
-#: ../src/tracker-utils/tracker-search.c:1148
+#: ../src/tracker-utils/tracker-search.c:1241
 msgid "Search terms are missing"
 msgstr "Suchbegriffe fehlen"
 
-#: ../src/tracker-utils/tracker-search.c:1191
+#: ../src/tracker-utils/tracker-search.c:1284
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Suchbegriff »%s« ist ein Stopp-Wort."
 
-#: ../src/tracker-utils/tracker-search.c:1202
+#: ../src/tracker-utils/tracker-search.c:1295
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -1387,7 +1398,7 @@ msgstr ""
 "Stopp-Wörter sind häufige Begriffe, die während des Indizierungsvorgangs "
 "ignoriert werden können."
 
-#: ../src/tracker-utils/tracker-search.c:1217
+#: ../src/tracker-utils/tracker-search.c:1310
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "DBus-Verbindung zu Tracker konnte nicht aufgebaut werden"
 
