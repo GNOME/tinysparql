@@ -643,6 +643,11 @@ ensure_mount_point_exists (TrackerMinerFiles *miner,
 		                        "        nfo:fileLastModified \"1981-06-05T02:20:00Z\" . "
 		                        "}",
 		                        uri);
+
+		/* Tell the underlying miner-fs that we created a directory without
+		 * a valid specific parent */
+		tracker_miner_fs_add_directory_without_parent (TRACKER_MINER_FS (miner),
+		                                               mount_point);
 	}
 
 	g_free (uri);

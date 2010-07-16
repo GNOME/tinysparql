@@ -79,6 +79,7 @@ tracker_miner_fs_force_recheck
 tracker_miner_fs_get_parent_urn
 tracker_miner_fs_get_urn
 tracker_miner_fs_query_urn
+tracker_miner_fs_add_directory_without_parent
 <SUBSECTION Standard>
 TRACKER_MINER_FS
 TRACKER_IS_MINER_FS

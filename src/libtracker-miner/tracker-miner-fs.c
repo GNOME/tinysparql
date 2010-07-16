@@ -33,6 +33,10 @@
 
 /* If defined will print the tree from GNode while running */
 #undef ENABLE_TREE_DEBUGGING
+/* If defined will print contents of populated IRI cache while running */
+#undef PRINT_IRI_CACHE_CONTENTS
+/* If defined will print contents of populated mtime cache while running */
+#undef PRINT_MTIME_CACHE_CONTENTS
 
 /**
  * SECTION:tracker-miner-fs
@@ -131,6 +135,8 @@ struct TrackerMinerFSPrivate {
 	GFile          *current_iri_cache_parent;
 	gchar          *current_iri_cache_parent_urn;
 	GHashTable     *iri_cache;
+
+	GList          *dirs_without_parent;
 
 	/* Files to check if no longer exist */
 	GHashTable     *check_removed;
@@ -268,7 +274,8 @@ static gboolean       should_recurse_for_directory            (TrackerMinerFS *f
 							       GFile          *file);
 static void           tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
 							       GFile          *file);
-
+static gboolean       miner_fs_has_children_without_parent (TrackerMinerFS *fs,
+                                                            GFile          *file);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -564,6 +571,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	priv->mtime_checking = TRUE;
 	priv->initial_crawling = TRUE;
+	priv->dirs_without_parent = NULL;
 }
 
 static ProcessData *
@@ -696,6 +704,9 @@ fs_finalize (GObject *object)
 
 	g_queue_foreach (priv->items_created, (GFunc) g_object_unref, NULL);
 	g_queue_free (priv->items_created);
+
+	g_list_foreach (priv->dirs_without_parent, (GFunc) g_object_unref, NULL);
+	g_list_free (priv->dirs_without_parent);
 
 	g_hash_table_unref (priv->items_ignore_next_update);
 
@@ -1279,7 +1290,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 				                     g_object_ref (file), query_iri);
 				cache_size++;
 			}
-		} else {
+		} else if (miner_fs_has_children_without_parent (fs, parent)) {
 			/* Quite ugly hack: If mtime_cache is found EMPTY after the query, still, we
 			 * may have a nfo:Folder where nfo:belogsToContainer was not yet set (when
 			 * generating the dummy nfo:Folder for mount points). In this case, make a
@@ -1290,12 +1301,13 @@ ensure_iri_cache (TrackerMinerFS *fs,
 			data.main_loop = g_main_loop_new (NULL, FALSE);
 			data.values = g_hash_table_ref (fs->private->iri_cache);
 
-			g_debug ("Generating iri cache for URI '%s' (fn:starts-with)", uri);
+			g_debug ("Generating children cache for URI '%s' (fn:starts-with)",
+			         uri);
 
 			query = g_strdup_printf ("SELECT ?url ?u "
 			                         "WHERE { ?u a nfo:Folder ; "
 			                         "           nie:url ?url . "
-			                         "        FILTER (fn:starts-with (?url,\"%s\"))"
+			                         "        FILTER (fn:starts-with (?url,\"%s/\"))"
 			                         "}",
 			                         uri);
 
@@ -1318,7 +1330,22 @@ ensure_iri_cache (TrackerMinerFS *fs,
 		}
 	}
 
+#ifdef PRINT_IRI_CACHE_CONTENTS
 	g_debug ("Populated IRI cache with '%u' items", cache_size);
+	if (cache_size > 0) {
+		GHashTableIter iter;
+		gpointer key, value;
+
+		g_hash_table_iter_init (&iter, fs->private->iri_cache);
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			gchar *fileuri;
+
+			fileuri = g_file_get_uri (key);
+			g_debug ("  In IRI cache: '%s','%s'", fileuri, (gchar *) value);
+			g_free (fileuri);
+		}
+	}
+#endif /* PRINT_IRI_CACHE_CONTENTS */
 
 	g_object_unref (parent);
 	g_free (uri);
@@ -2509,7 +2536,9 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	 * generating the dummy nfo:Folder for mount points). In this case, make a
 	 * new query not using nfo:belongsToContainer, and using fn:starts-with
 	 * instead. Any better solution is highly appreciated */
-	if (parent && cache_size == 0) {
+	if (parent &&
+	    cache_size == 0 &&
+	    miner_fs_has_children_without_parent (fs, parent)) {
 		/* Initialize data contents */
 		data.main_loop = g_main_loop_new (NULL, FALSE);
 		data.values = g_hash_table_ref (fs->private->mtime_cache);
@@ -2543,7 +2572,22 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		cache_size = g_hash_table_size (fs->private->mtime_cache);
 	}
 
+#ifdef PRINT_MTIME_CACHE_CONTENTS
 	g_debug ("Populated mtime cache with '%u' items", cache_size);
+	if (cache_size > 0) {
+		GHashTableIter iter;
+		gpointer key, value;
+
+		g_hash_table_iter_init (&iter, fs->private->mtime_cache);
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			gchar *fileuri;
+
+			fileuri = g_file_get_uri (key);
+			g_debug ("  In mtime cache: '%s','%s'", fileuri, (gchar *) value);
+			g_free (fileuri);
+		}
+	}
+#endif /* PRINT_MTIME_CACHE_CONTENTS */
 
 	/* Iterate repopulated HT and add all to the check_removed HT */
 	g_hash_table_foreach (fs->private->mtime_cache,
@@ -3755,4 +3799,62 @@ tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
         g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
         return fs->private->initial_crawling;
+}
+
+/**
+ * tracker_miner_fs_add_directory_without_parent:
+ * @fs: a #TrackerMinerFS
+ * @file: a #GFile
+ *
+ * Tells the miner-fs that the given #GFile corresponds to a
+ * directory which was created in the store without a specific
+ * parent object. In this case, when regenerating internal
+ * caches, an extra query will be done so that these elements
+ * are taken into account.
+ *
+ **/
+void
+tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
+                                               GFile          *file)
+{
+	GFile *parent;
+	GList *l;
+
+        g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+        g_return_if_fail (G_IS_FILE (file));
+
+        /* Get parent of the input file */
+        parent = g_file_get_parent (file);
+
+        l = fs->private->dirs_without_parent;
+        while (l) {
+	        if (g_file_equal (l->data, parent)) {
+		        /* If parent already in the list, return */
+		        g_object_unref (parent);
+		        return;
+	        }
+	        l = g_list_next (l);
+        }
+
+        /* We add the parent of the input file */
+        fs->private->dirs_without_parent = g_list_prepend (fs->private->dirs_without_parent,
+                                                           parent);
+}
+
+/* Returns TRUE if the given GFile is actually the REAL parent
+ * of a GFile without parent notified before */
+static gboolean
+miner_fs_has_children_without_parent (TrackerMinerFS *fs,
+                                      GFile          *file)
+{
+	GList *l;
+        l = fs->private->dirs_without_parent;
+        while (l) {
+	        if (g_file_equal (l->data, file)) {
+		        /* If already found, return */
+		        return TRUE;
+	        }
+	        l = g_list_next (l);
+        }
+        return FALSE;
 }
