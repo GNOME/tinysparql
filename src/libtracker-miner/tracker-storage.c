@@ -441,6 +441,7 @@ mount_guess_content_type (GFile    *mount_root,
 
 		g_free (device_path);
 		g_free (mount_path);
+		g_unix_mount_free (entry);
 	} else {
 		g_debug ("  No GUnixMountEntry found, needed for detecting if optical media... :(");
 		g_free (mount_path);
