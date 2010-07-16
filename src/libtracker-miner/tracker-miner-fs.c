@@ -1304,6 +1304,8 @@ ensure_iri_cache (TrackerMinerFS *fs,
 			g_debug ("Generating children cache for URI '%s' (fn:starts-with)",
 			         uri);
 
+			/* Note the last '/' in the url passed in the FILTER: We want to look for
+			 * directory contents, not the directory itself */
 			query = g_strdup_printf ("SELECT ?url ?u "
 			                         "WHERE { ?u a nfo:Folder ; "
 			                         "           nie:url ?url . "
@@ -2546,11 +2548,13 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 		g_debug ("Generating mtime cache for URI '%s' (fn:starts-with)", uri);
 
+		/* Note the last '/' in the url passed in the FILTER: We want to look for
+		 * directory contents, not the directory itself */
 		query = g_strdup_printf ("SELECT ?url ?last "
 		                         "WHERE { ?u a nfo:Folder ; "
 		                         "           nie:url ?url ; "
 		                         "           nfo:fileLastModified ?last . "
-		                         "        FILTER (fn:starts-with (?url,\"%s\"))"
+		                         "        FILTER (fn:starts-with (?url,\"%s/\"))"
 		                         "}",
 		                         uri);
 		g_free (uri);
@@ -3826,14 +3830,14 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
         /* Get parent of the input file */
         parent = g_file_get_parent (file);
 
-        l = fs->private->dirs_without_parent;
-        while (l) {
+        for (l = fs->private->dirs_without_parent;
+             l;
+             l = g_list_next (l)) {
 	        if (g_file_equal (l->data, parent)) {
 		        /* If parent already in the list, return */
 		        g_object_unref (parent);
 		        return;
 	        }
-	        l = g_list_next (l);
         }
 
         /* We add the parent of the input file */
@@ -3848,13 +3852,14 @@ miner_fs_has_children_without_parent (TrackerMinerFS *fs,
                                       GFile          *file)
 {
 	GList *l;
-        l = fs->private->dirs_without_parent;
-        while (l) {
+
+        for (l = fs->private->dirs_without_parent;
+             l;
+             l = g_list_next (l)) {
 	        if (g_file_equal (l->data, file)) {
 		        /* If already found, return */
 		        return TRUE;
 	        }
-	        l = g_list_next (l);
         }
         return FALSE;
 }
