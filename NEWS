@@ -1,3 +1,50 @@
+NEW in 0.9.13 - 2010-07-16
+==========================
+
+The changes are:
+
+  * Fixes: GB#624071, t-s-t: Query results is always a 2 dimensional array.
+  * Fixes: GB#623836, Avoid crashing if table of pieces is empty in the msword file
+  * Fixes: NB#176090, libtracker-miner: Don't use same parent GFile for both mtime and iri caches
+  * Fixes: NB#178825, New --feeds option in tracker-search to look for feeds
+  * Fixes: NB#178808, Default verbosity should be errors-only in tracker-store
+  * Fixes: NB#179559, Added domainIndex on nie:title for nmm:MusicPiece
+  * Fixes: NB#179798, Wrong detection of ignored directory as a directory
+  * Fixes: NB#178599, extra checks for finding the problem
+  * Fixes: NB#174590, NCO: Remove cardinality restriction in nco:title
+  * FixeS: NB#180602, Cannot detect is a song in device's local memory or not
+  * NEW Feature: Added domain specific indexes, adding a column to DB tables to avoid full table scans/joins with larger tables for performance.
+  * NEW Feature: Journal compression and rotation using 50Mb chunk sizes
+  * libtracker-fts: Fix NEAR/XX operator with more than 2 digits
+  * libtracker-fts: Useful debugging log included, disabled by default
+  * libtracker-fts: Avoid possible NULL dereference
+  * libtracker-fts: Initialize all buffers before using them
+  * libtracker-fts: Avoid segfault when using the NEAR/N operator in FTS
+  * libtracker-data: Added important debugging when changing database (drops/alters/creates/etc)
+  * libtracker-data: Call g_error() if getting max ID fails
+  * libtracker-miner: Improve logging when duplicates are found for a given uri
+  * libtracker-miner: Improved logging, instead of "Adding item", now uses "Creating"/"Updating"
+  * libtracker-miner: Improve logging for storage reporting
+  * libtracker-miner: Avoid unused variable warnings in test cases
+  * libtracker-client: Fix double free in error handling
+  * libtracker-client: Fix object_date proto in vapi
+  * libtracker-client: Mark graph as nullable in vapi
+  * tracker-miner-fs: Use 60s as default DBus timeout for requests to extractor
+  * tracker-extract: MSOffice-xml: Avoid possible NULL dereference
+  * tracker-extract: PDF: Avoid possible NULL dereference
+  * tracker-extract: Avoid warnings when compiling C++ code with C-only warning flags
+
+Translations:
+
+  * Updated de: Mario Blättermann
+  * Updated pt: Nicolau Gonçalves
+  * Updated cs: Marek Cernocky
+
+Notes:
+
+  None
+
+
 NEW in 0.9.12 - 2010-07-08
 ==========================
 
