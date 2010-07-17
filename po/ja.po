@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker tracker-0.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-03 14:18+0900\n"
-"PO-Revision-Date: 2010-07-03 14:18+0900\n"
+"POT-Creation-Date: 2010-07-17 12:07+0900\n"
+"PO-Revision-Date: 2010-07-17 12:06+0900\n"
 "Last-Translator: Takeshi AIHANA <takeshi.aihana@gmail.com>\n"
 "Language-Team: Japanese <takeshi.aihana@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -121,7 +121,7 @@ msgstr "タグの付与..."
 msgid "Tag one or more files"
 msgstr "１個以上のファイルにタグを付与します"
 
-#: ../src/libtracker-common/tracker-dbus.c:589
+#: ../src/libtracker-common/tracker-dbus.c:586
 msgid "No error given"
 msgstr "エラーはありません"
 
@@ -408,11 +408,11 @@ msgstr "メタデータの収集"
 msgid "- start the tracker indexer"
 msgstr "- Tracker 用のインデックス生成デーモン"
 
-#: ../src/miners/fs/tracker-miner-files.c:1050
+#: ../src/miners/fs/tracker-miner-files.c:1053
 msgid "Low battery"
 msgstr "バッテリーが少なくなっています"
 
-#: ../src/miners/fs/tracker-miner-files.c:1178
+#: ../src/miners/fs/tracker-miner-files.c:1181
 msgid "Low disk space"
 msgstr "ディスクの空き容量が少なくなっています"
 
@@ -788,54 +788,54 @@ msgstr "サイズ:"
 msgid "Modified:"
 msgstr "修正日時: <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:325
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:351
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
 msgid "Height:"
 msgstr "高さ:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:352
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
 msgid "Width:"
 msgstr "幅:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:337
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:385
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:390
 msgid "Title:"
 msgstr "タイトル:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:338
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
 msgid "Artist:"
 msgstr "演奏者:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
 msgid "Album:"
 msgstr "アルバム:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:353
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:356
 msgid "Duration:"
 msgstr "演奏時間:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:371
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:375
 msgid "Subject:"
 msgstr "件名:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:372
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:376
 msgid "From:"
 msgstr "差出人:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:373
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:377
 msgid "Received:"
 msgstr "宛先:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:386
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:391
 msgid "Author:"
 msgstr "作者:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:387
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:392
 msgid "Page count:"
 msgstr "ページ数:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:412
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:418
 msgid "Description:"
 msgstr "内容:"
 
@@ -892,7 +892,7 @@ msgstr ""
 #: ../src/tracker-control/tracker-control.c:99
 #: ../src/tracker-utils/tracker-import.c:51
 #: ../src/tracker-utils/tracker-info.c:50
-#: ../src/tracker-utils/tracker-search.c:123
+#: ../src/tracker-utils/tracker-search.c:128
 #: ../src/tracker-utils/tracker-sparql.c:93
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:116
@@ -990,7 +990,7 @@ msgstr "データベース上で読み込み系の操作だけ許可する"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:362
+#: ../src/tracker-store/tracker-main.c:363
 msgid "- start the tracker daemon"
 msgstr "- Tracker のデーモンを起動する"
 
@@ -1179,93 +1179,98 @@ msgstr "URI の情報を取得できません"
 msgid "No metadata available for that URI"
 msgstr "その URI で利用できるメタデータはありません"
 
-#: ../src/tracker-utils/tracker-search.c:63
+#: ../src/tracker-utils/tracker-search.c:64
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "Limit the number of results shown"
 msgstr "結果を表示する数を限定する"
 
-#: ../src/tracker-utils/tracker-search.c:64
+#: ../src/tracker-utils/tracker-search.c:65
 #: ../src/tracker-utils/tracker-tag.c:57
 msgid "512"
 msgstr "512"
 
-#: ../src/tracker-utils/tracker-search.c:67
+#: ../src/tracker-utils/tracker-search.c:68
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "Offset the results"
 msgstr "結果のオフセットを指定する"
 
-#: ../src/tracker-utils/tracker-search.c:68
+#: ../src/tracker-utils/tracker-search.c:69
 #: ../src/tracker-utils/tracker-tag.c:61
 msgid "0"
 msgstr "0"
 
-#: ../src/tracker-utils/tracker-search.c:71
+#: ../src/tracker-utils/tracker-search.c:72
 #: ../src/tracker-utils/tracker-tag.c:64
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "検索する際に AND ではなく OR を使う (デフォルト)"
 
-#: ../src/tracker-utils/tracker-search.c:75
+#: ../src/tracker-utils/tracker-search.c:76
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists)"
+"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"feeds)"
 msgstr ""
-"結果に対する URN を表示する (--music-albums や --music-artists には適用できな"
-"い)"
+"結果に対する URN を表示する (--music-albums や --music-artists や --feeds に"
+"は適用できない)"
 
-#: ../src/tracker-utils/tracker-search.c:79
+#: ../src/tracker-utils/tracker-search.c:80
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
 "実在しないが検索条件を満足するものを全て表示する (i.e. アンマウントしたボ"
 "リュームのものが含まれる)"
 
-#: ../src/tracker-utils/tracker-search.c:83
+#: ../src/tracker-utils/tracker-search.c:84
 msgid "Search for files"
 msgstr "ファイルを検索する"
 
-#: ../src/tracker-utils/tracker-search.c:87
+#: ../src/tracker-utils/tracker-search.c:88
 msgid "Search for folders"
 msgstr "フォルダを検索する"
 
-#: ../src/tracker-utils/tracker-search.c:91
+#: ../src/tracker-utils/tracker-search.c:92
 msgid "Search for music files"
 msgstr "楽曲ファイルを検索する"
 
-#: ../src/tracker-utils/tracker-search.c:95
+#: ../src/tracker-utils/tracker-search.c:96
 msgid "Search for music albums (--all has no effect on this)"
 msgstr "楽曲のアルバムを検索する (--all は適用されない)"
 
-#: ../src/tracker-utils/tracker-search.c:99
+#: ../src/tracker-utils/tracker-search.c:100
 msgid "Search for music artists (--all has no effect on this) "
 msgstr "楽曲の演奏者を検索する (--all は適用されない)"
 
-#: ../src/tracker-utils/tracker-search.c:103
+#: ../src/tracker-utils/tracker-search.c:104
 msgid "Search for image files"
 msgstr "画像ファイルを検索する"
 
-#: ../src/tracker-utils/tracker-search.c:107
+#: ../src/tracker-utils/tracker-search.c:108
 msgid "Search for video files"
 msgstr "動画ファイルを検索する"
 
-#: ../src/tracker-utils/tracker-search.c:111
+#: ../src/tracker-utils/tracker-search.c:112
 msgid "Search for document files"
 msgstr "文書ファイルを検索する"
 
-#: ../src/tracker-utils/tracker-search.c:115
+#: ../src/tracker-utils/tracker-search.c:116
 msgid "Search for emails"
 msgstr "E-メールを検索する"
 
-#: ../src/tracker-utils/tracker-search.c:119
+#: ../src/tracker-utils/tracker-search.c:120
 msgid "Search for contacts"
 msgstr "連絡先を検索する"
 
-#: ../src/tracker-utils/tracker-search.c:128
+#: ../src/tracker-utils/tracker-search.c:124
+msgid "Search for feeds (--all has no effect on this) "
+msgstr "配信元を検索する (--all は適用されない)"
+
+#: ../src/tracker-utils/tracker-search.c:133
 msgid "search terms"
 msgstr "検索する文字列や単語"
 
-#: ../src/tracker-utils/tracker-search.c:129
+#: ../src/tracker-utils/tracker-search.c:134
 msgid "EXPRESSION"
 msgstr "式"
 
-#: ../src/tracker-utils/tracker-search.c:146
+#: ../src/tracker-utils/tracker-search.c:151
 #: ../src/tracker-utils/tracker-tag.c:111
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
@@ -1273,57 +1278,62 @@ msgstr ""
 "注意: 制限に到達しました (そのため、ここに表示されていないアイテムがデータ"
 "ベースの中にあります)"
 
-#: ../src/tracker-utils/tracker-search.c:216
-#: ../src/tracker-utils/tracker-search.c:325
-#: ../src/tracker-utils/tracker-search.c:440
-#: ../src/tracker-utils/tracker-search.c:737
-#: ../src/tracker-utils/tracker-search.c:815
-#: ../src/tracker-utils/tracker-search.c:1063
+#: ../src/tracker-utils/tracker-search.c:221
+#: ../src/tracker-utils/tracker-search.c:330
+#: ../src/tracker-utils/tracker-search.c:445
+#: ../src/tracker-utils/tracker-search.c:742
+#: ../src/tracker-utils/tracker-search.c:820
+#: ../src/tracker-utils/tracker-search.c:907
+#: ../src/tracker-utils/tracker-search.c:1155
 msgid "Could not get search results"
 msgstr "検索結果を取得できませんでした"
 
-#: ../src/tracker-utils/tracker-search.c:225
+#: ../src/tracker-utils/tracker-search.c:230
 msgid "No contacts were found"
 msgstr "連絡先が見つかりませんでした"
 
-#: ../src/tracker-utils/tracker-search.c:334
+#: ../src/tracker-utils/tracker-search.c:339
 msgid "No emails were found"
 msgstr "E-メールが見つかりませんでした"
 
-#: ../src/tracker-utils/tracker-search.c:449
+#: ../src/tracker-utils/tracker-search.c:454
 msgid "No files were found"
 msgstr "ファイルが見つかりませんでした"
 
-#: ../src/tracker-utils/tracker-search.c:746
+#: ../src/tracker-utils/tracker-search.c:751
 msgid "No artists were found"
 msgstr "演奏者が見つかりませんでした"
 
-#: ../src/tracker-utils/tracker-search.c:824
+#: ../src/tracker-utils/tracker-search.c:829
 msgid "No music was found"
 msgstr "楽曲が見つかりませんでした"
 
-#: ../src/tracker-utils/tracker-search.c:1072
+#: ../src/tracker-utils/tracker-search.c:916
+msgid "No feeds were found"
+msgstr "配信元が見つかりませんでした"
+
+#: ../src/tracker-utils/tracker-search.c:1164
 msgid "No results were found matching your query"
 msgstr "検索条件を満足する結果が見つかりませんでした"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:1112
+#: ../src/tracker-utils/tracker-search.c:1204
 msgid "- Search for terms in all data"
 msgstr "- 全てのデータから検索する"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:1117
+#: ../src/tracker-utils/tracker-search.c:1209
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "空白文字で区切った文字列に対しては AND 演算子を適用する (--or-operator オプ"
 "ションの確認のこと)"
 
-#: ../src/tracker-utils/tracker-search.c:1121
+#: ../src/tracker-utils/tracker-search.c:1213
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -1331,22 +1341,22 @@ msgstr ""
 "これは 'foo' と 'bar' の検索を行った場合、それらが＊両方とも存在している＊こ"
 "とが検索条件になる (但し --or-operator を指定した場合を除く)"
 
-#: ../src/tracker-utils/tracker-search.c:1148
+#: ../src/tracker-utils/tracker-search.c:1241
 msgid "Search terms are missing"
 msgstr "検索する文字列を指定して下さい"
 
-#: ../src/tracker-utils/tracker-search.c:1191
+#: ../src/tracker-utils/tracker-search.c:1284
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "指定した '%s' は検索できません"
 
-#: ../src/tracker-utils/tracker-search.c:1202
+#: ../src/tracker-utils/tracker-search.c:1295
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
 msgstr "この文字 (列) はインデックスの生成過程で無視される共通の単語です"
 
-#: ../src/tracker-utils/tracker-search.c:1217
+#: ../src/tracker-utils/tracker-search.c:1310
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "D-Bus と Tracker との間の接続を確立できませんでした"
 
