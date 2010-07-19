@@ -27,7 +27,8 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-client/tracker-client.h>
+#include <libtracker-sparql/tracker-sparql.h>
+
 #include <libtracker-common/tracker-common.h>
 
 #define ABOUT	  \
@@ -172,7 +173,7 @@ get_fts_string (GStrv    search_words,
 
 		/* Properly escape the input string as it's going to be passed
 		 * in a sparql query */
-		escaped = tracker_sparql_escape (search_words[i]);
+		escaped = tracker_sparql_escape_string (search_words[i]);
 
 		g_string_append (fts, escaped);
 
@@ -194,33 +195,16 @@ get_fts_string (GStrv    search_words,
 #endif
 }
 
-static void
-get_contacts_foreach (gpointer value,
-		    gpointer user_data)
-{
-	gchar **data;
-	gboolean details;
-
-	data = value;
-	details = GPOINTER_TO_INT (user_data);
-
-	if (details && data[1] && *data[1]) {
-		g_print ("  %s, %s (%s)\n", data[0], data[1], data[2]);
-	} else {
-		g_print ("  %s, %s\n", data[0], data[1]);
-	}
-}
-
 static gboolean
-get_contacts_results (TrackerClient *client,
-		      const gchar   *query,
-		      gint           search_limit,
-		      gboolean       details)
+get_contacts_results (TrackerSparqlConnection *connection,
+                      const gchar             *query,
+                      gint                     search_limit,
+                      gboolean                 details)
 {
 	GError *error = NULL;
-	GPtrArray *results;
+	TrackerSparqlCursor *cursor;
 
-	results = tracker_resources_sparql_query (client, query, &error);
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -231,40 +215,49 @@ get_contacts_results (TrackerClient *client,
 		return FALSE;
 	}
 
-	if (!results) {
+	if (!cursor) {
 		g_print ("%s\n",
 		         _("No contacts were found"));
 	} else {
-		g_print (g_dngettext (NULL,
-		                      "Contact: %d",
-		                      "Contacts: %d",
-		                      results->len),
-		         results->len);
+		gint count = 0;
+
+		g_print ("%s:\n", _("Contacts"));
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			if (details) {
+				g_print ("  %s, %s (%s)\n",
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 2, NULL));
+			} else {
+				g_print ("  %s, %s\n",
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+			}
+
+			count++;
+		}
+
 		g_print ("\n");
 
-		g_ptr_array_foreach (results,
-		                     get_contacts_foreach,
-		                     GINT_TO_POINTER (details));
-
-		if (results->len >= search_limit) {
+		if (count >= search_limit) {
 			show_limit_warning ();
 		}
 
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		g_object_unref (cursor);
 	}
 
 	return TRUE;
 }
 
 static gboolean
-get_contacts (TrackerClient *client,
-	      GStrv          search_terms,
-	      gboolean       show_all,
-	      gint           search_offset,
-	      gint           search_limit,
-	      gboolean       use_or_operator,
-	      gboolean       details)
+get_contacts (TrackerSparqlConnection *connection,
+              GStrv                    search_terms,
+              gboolean                 show_all,
+              gint                     search_offset,
+              gint                     search_limit,
+              gboolean                 use_or_operator,
+              gboolean                 details)
 {
 	gchar *fts;
 	gchar *query;
@@ -296,40 +289,23 @@ get_contacts (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_contacts_results (client, query, search_limit, details);
+	success = get_contacts_results (connection, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
 	return success;
 }
 
-static void
-get_emails_foreach (gpointer value,
-		    gpointer user_data)
-{
-	gchar **data;
-	gboolean details;
-
-	data = value;
-	details = GPOINTER_TO_INT (user_data);
-
-	if (details && data[1] && *data[1]) {
-		g_print ("  %s, %s (%s)\n", data[0], data[1], data[2]);
-	} else {
-		g_print ("  %s, %s\n", data[0], data[1]);
-	}
-}
-
 static gboolean
-get_emails_results (TrackerClient *client,
-		    const gchar   *query,
-		    gint           search_limit,
-		    gboolean       details)
+get_emails_results (TrackerSparqlConnection *connection,
+                    const gchar             *query,
+                    gint                     search_limit,
+                    gboolean                 details)
 {
 	GError *error = NULL;
-	GPtrArray *results;
+	TrackerSparqlCursor *cursor;
 
-	results = tracker_resources_sparql_query (client, query, &error);
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -340,40 +316,49 @@ get_emails_results (TrackerClient *client,
 		return FALSE;
 	}
 
-	if (!results) {
+	if (!cursor) {
 		g_print ("%s\n",
 		         _("No emails were found"));
 	} else {
-		g_print (g_dngettext (NULL,
-		                      "Email: %d",
-		                      "Emails: %d",
-		                      results->len),
-		         results->len);
+		gint count = 0;
+
+		g_print ("%s:\n", _("Emails"));
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			if (details) {
+				g_print ("  %s, %s (%s)\n",
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 2, NULL));
+			} else {
+				g_print ("  %s, %s\n",
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+			}
+
+			count++;
+		}
+
 		g_print ("\n");
 
-		g_ptr_array_foreach (results,
-		                     get_emails_foreach,
-		                     GINT_TO_POINTER (details));
-
-		if (results->len >= search_limit) {
+		if (count >= search_limit) {
 			show_limit_warning ();
 		}
 
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		g_object_unref (cursor);
 	}
 
 	return TRUE;
 }
 
 static gboolean
-get_emails (TrackerClient *client,
-	    GStrv          search_terms,
-	    gboolean       show_all,
-	    gint           search_offset,
-	    gint           search_limit,
-	    gboolean       use_or_operator,
-	    gboolean       details)
+get_emails (TrackerSparqlConnection *connection,
+            GStrv                    search_terms,
+            gboolean                 show_all,
+            gint                     search_offset,
+            gint                     search_limit,
+            gboolean                 use_or_operator,
+            gboolean                 details)
 {
 	gchar *fts;
 	gchar *query;
@@ -411,40 +396,23 @@ get_emails (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_emails_results (client, query, search_limit, details);
+	success = get_emails_results (connection, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
 	return success;
 }
 
-static void
-get_files_foreach (gpointer value,
-                   gpointer user_data)
-{
-	gchar **data;
-	gboolean details;
-
-	data = value;
-	details = GPOINTER_TO_INT (user_data);
-
-	if (details && data[1] && *data[1]) {
-		g_print ("  %s (%s)\n", data[1], data[0]);
-	} else {
-		g_print ("  %s\n", data[1]);
-	}
-}
-
 static gboolean
-get_files_results (TrackerClient *client,
-                   const gchar   *query,
-                   gint           search_limit,
-		   gboolean       details)
+get_files_results (TrackerSparqlConnection *connection,
+                   const gchar             *query,
+                   gint                     search_limit,
+                   gboolean                 details)
 {
 	GError *error = NULL;
-	GPtrArray *results;
+	TrackerSparqlCursor *cursor;
 
-	results = tracker_resources_sparql_query (client, query, &error);
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -455,40 +423,47 @@ get_files_results (TrackerClient *client,
 		return FALSE;
 	}
 
-	if (!results) {
+	if (!cursor) {
 		g_print ("%s\n",
 		         _("No files were found"));
 	} else {
-		g_print (g_dngettext (NULL,
-		                      "File: %d",
-		                      "Files: %d",
-		                      results->len),
-		         results->len);
+		gint count = 0;
+
+		g_print ("%s:\n", _("Contacts"));
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			if (details) {
+				g_print ("  %s (%s)\n",
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+			} else {
+				g_print ("  %s\n",
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
+			}
+
+			count++;
+		}
+
 		g_print ("\n");
 
-		g_ptr_array_foreach (results,
-		                     get_files_foreach,
-		                     GINT_TO_POINTER (details));
-
-		if (results->len >= search_limit) {
+		if (count >= search_limit) {
 			show_limit_warning ();
 		}
 
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		g_object_unref (cursor);
 	}
 
 	return TRUE;
 }
 
 static gboolean
-get_document_files (TrackerClient *client,
-                    GStrv          search_terms,
-                    gboolean       show_all,
-                    gint           search_offset,
-                    gint           search_limit,
-                    gboolean       use_or_operator,
-		    gboolean       details)
+get_document_files (TrackerSparqlConnection *connection,
+                    GStrv                    search_terms,
+                    gboolean                 show_all,
+                    gint                     search_offset,
+                    gint                     search_limit,
+                    gboolean                 use_or_operator,
+                    gboolean                 details)
 {
 	gchar *fts;
 	gchar *query;
@@ -526,7 +501,7 @@ get_document_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit, details);
+	success = get_files_results (connection, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -534,13 +509,13 @@ get_document_files (TrackerClient *client,
 }
 
 static gboolean
-get_video_files (TrackerClient *client,
-                 GStrv          search_terms,
-                 gboolean       show_all,
-                 gint           search_offset,
-                 gint           search_limit,
-                 gboolean       use_or_operator,
-		 gboolean       details)
+get_video_files (TrackerSparqlConnection *connection,
+                 GStrv                    search_terms,
+                 gboolean                 show_all,
+                 gint                     search_offset,
+                 gint                     search_limit,
+                 gboolean                 use_or_operator,
+                 gboolean                 details)
 {
 	gchar *fts;
 	gchar *query;
@@ -578,7 +553,7 @@ get_video_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit, details);
+	success = get_files_results (connection, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -586,13 +561,13 @@ get_video_files (TrackerClient *client,
 }
 
 static gboolean
-get_image_files (TrackerClient *client,
-                 GStrv          search_terms,
-                 gboolean       show_all,
-                 gint           search_offset,
-                 gint           search_limit,
-		 gboolean       use_or_operator,
-		 gboolean       details)
+get_image_files (TrackerSparqlConnection *connection,
+                 GStrv                    search_terms,
+                 gboolean                 show_all,
+                 gint                     search_offset,
+                 gint                     search_limit,
+                 gboolean                 use_or_operator,
+                 gboolean                 details)
 {
 	gchar *fts;
 	gchar *query;
@@ -630,7 +605,7 @@ get_image_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit, details);
+	success = get_files_results (connection, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -638,13 +613,13 @@ get_image_files (TrackerClient *client,
 }
 
 static gboolean
-get_music_files (TrackerClient *client,
-                 GStrv          search_terms,
-                 gboolean       show_all,
-                 gint           search_offset,
-                 gint           search_limit,
-                 gboolean       use_or_operator,
-		 gboolean       details)
+get_music_files (TrackerSparqlConnection *connection,
+                 GStrv                    search_terms,
+                 gboolean                 show_all,
+                 gint                     search_offset,
+                 gint                     search_limit,
+                 gboolean                 use_or_operator,
+                 gboolean                 details)
 {
 	gchar *fts;
 	gchar *query;
@@ -682,31 +657,22 @@ get_music_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit, details);
+	success = get_files_results (connection, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
 	return success;
 }
 
-static void
-get_music_foreach (gpointer value,
-                   gpointer user_data)
-{
-	gchar **data = value;
-
-	g_print ("  '%s' (%s)\n", data[1], data[0]);
-}
-
 static gboolean
-get_music_artists (TrackerClient *client,
-                   GStrv          search_terms,
-                   gint           search_offset,
-                   gint           search_limit,
-                   gboolean       use_or_operator)
+get_music_artists (TrackerSparqlConnection *connection,
+                   GStrv                    search_terms,
+                   gint                     search_offset,
+                   gint                     search_limit,
+                   gboolean                 use_or_operator)
 {
 	GError *error = NULL;
-	GPtrArray *results;
+	TrackerSparqlCursor *cursor;
 	gchar *fts;
 	gchar *query;
 
@@ -740,7 +706,7 @@ get_music_artists (TrackerClient *client,
 
 	g_free (fts);
 
-	results = tracker_resources_sparql_query (client, query, &error);
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 	g_free (query);
 
 	if (error) {
@@ -752,41 +718,43 @@ get_music_artists (TrackerClient *client,
 		return FALSE;
 	}
 
-	if (!results) {
+	if (!cursor) {
 		g_print ("%s\n",
 		         _("No artists were found"));
 	} else {
-		g_print (g_dngettext (NULL,
-		                      "Artist: %d",
-		                      "Artists: %d",
-		                      results->len),
-		         results->len);
+		gint count = 0;
+
+		g_print ("%s:\n", _("Artists"));
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			g_print ("  '%s', (%s)\n",
+			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+
+			count++;
+		}
+
 		g_print ("\n");
 
-		g_ptr_array_foreach (results,
-		                     get_music_foreach,
-		                     NULL);
-
-		if (results->len >= search_limit) {
+		if (count >= search_limit) {
 			show_limit_warning ();
 		}
 
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		g_object_unref (cursor);
 	}
 
 	return TRUE;
 }
 
 static gboolean
-get_music_albums (TrackerClient *client,
-                  GStrv          search_words,
-                  gint           search_offset,
-                  gint           search_limit,
-                  gboolean       use_or_operator)
+get_music_albums (TrackerSparqlConnection *connection,
+                  GStrv                    search_words,
+                  gint                     search_offset,
+                  gint                     search_limit,
+                  gboolean                 use_or_operator)
 {
 	GError *error = NULL;
-	GPtrArray *results;
+	TrackerSparqlCursor *cursor;
 	gchar *fts;
 	gchar *query;
 
@@ -818,7 +786,7 @@ get_music_albums (TrackerClient *client,
 
 	g_free (fts);
 
-	results = tracker_resources_sparql_query (client, query, &error);
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 	g_free (query);
 
 	if (error) {
@@ -830,50 +798,43 @@ get_music_albums (TrackerClient *client,
 		return FALSE;
 	}
 
-	if (!results) {
+	if (!cursor) {
 		g_print ("%s\n",
 		         _("No music was found"));
 	} else {
-		g_print (g_dngettext (NULL,
-		                      "Album: %d",
-		                      "Albums: %d",
-		                      results->len),
-		         results->len);
+		gint count = 0;
+
+		g_print ("%s:\n", _("Albums"));
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			g_print ("  '%s' (%s)\n",
+			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+
+			count++;
+		}
+
 		g_print ("\n");
 
-		g_ptr_array_foreach (results,
-		                     get_music_foreach,
-		                     NULL);
-
-		if (results->len >= search_limit) {
+		if (count >= search_limit) {
 			show_limit_warning ();
 		}
 
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		g_object_unref (cursor);
 	}
 
 	return TRUE;
 }
 
-static void
-get_feed_foreach (gpointer value,
-                  gpointer user_data)
-{
-	gchar **data = value;
-
-	g_print ("  '%s' (%s)\n", data[1], data[0]);
-}
-
 static gboolean
-get_feeds (TrackerClient *client,
-           GStrv          search_terms,
-           gint           search_offset,
-           gint           search_limit,
-           gboolean       use_or_operator)
+get_feeds (TrackerSparqlConnection *connection,
+           GStrv                    search_terms,
+           gint                     search_offset,
+           gint                     search_limit,
+           gboolean                 use_or_operator)
 {
 	GError *error = NULL;
-	GPtrArray *results;
+	TrackerSparqlCursor *cursor;
 	gchar *fts;
 	gchar *query;
 
@@ -905,7 +866,7 @@ get_feeds (TrackerClient *client,
 
 	g_free (fts);
 
-	results = tracker_resources_sparql_query (client, query, &error);
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 	g_free (query);
 
 	if (error) {
@@ -917,40 +878,42 @@ get_feeds (TrackerClient *client,
 		return FALSE;
 	}
 
-	if (!results) {
+	if (!cursor) {
 		g_print ("%s\n",
 		         _("No feeds were found"));
 	} else {
-		g_print (g_dngettext (NULL,
-		                      "Feed: %d",
-		                      "Feeds: %d",
-		                      results->len),
-		         results->len);
+		gint count = 0;
+
+		g_print ("%s:\n", _("Feeds"));
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			g_print ("  %s (%s)\n",
+			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
+			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+
+			count++;
+		}
+
 		g_print ("\n");
 
-		g_ptr_array_foreach (results,
-		                     get_feed_foreach,
-		                     NULL);
-
-		if (results->len >= search_limit) {
+		if (count >= search_limit) {
 			show_limit_warning ();
 		}
 
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		g_object_unref (cursor);
 	}
 
 	return TRUE;
 }
 
 static gboolean
-get_files (TrackerClient *client,
-           GStrv          search_terms,
-           gboolean       show_all,
-           gint           search_offset,
-           gint           search_limit,
-	   gboolean       use_or_operator,
-	   gboolean       details)
+get_files (TrackerSparqlConnection *connection,
+           GStrv                    search_terms,
+           gboolean                 show_all,
+           gint                     search_offset,
+           gint                     search_limit,
+           gboolean                 use_or_operator,
+           gboolean                 details)
 {
 	gchar *fts;
 	gchar *query;
@@ -988,7 +951,7 @@ get_files (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit, details);
+	success = get_files_results (connection, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
@@ -996,13 +959,13 @@ get_files (TrackerClient *client,
 }
 
 static gboolean
-get_folders (TrackerClient *client,
-             GStrv          search_terms,
-             gboolean       show_all,
-             gint           search_offset,
-             gint           search_limit,
-	     gboolean       use_or_operator,
-	     gboolean       details)
+get_folders (TrackerSparqlConnection *connection,
+             GStrv                    search_terms,
+             gboolean                 show_all,
+             gint                     search_offset,
+             gint                     search_limit,
+             gboolean                 use_or_operator,
+             gboolean                 details)
 {
 	gchar *fts;
 	gchar *query;
@@ -1040,78 +1003,24 @@ get_folders (TrackerClient *client,
 		                         search_limit);
 	}
 
-	success = get_files_results (client, query, search_limit, details);
+	success = get_files_results (connection, query, search_limit, details);
 	g_free (query);
 	g_free (fts);
 
 	return success;
 }
 
-static void
-get_all_by_search_foreach (gpointer value,
-                           gpointer user_data)
-{
-	gchar **metadata;
-	gboolean details;
-
-	metadata = value;
-	details = GPOINTER_TO_INT (user_data);
-
-	if (!metadata || !*metadata) {
-		return;
-	}
-
-	if (G_LIKELY (!details)) {
-		gchar **p;
-		gint i;
-
-		for (p = metadata, i = 0; *p; p++, i++) {
-			if (i == 0) {
-				g_print ("  %s", *p);
-			}
-		}
-	} else {
-		const gchar *urn;
-		const gchar *mime_type;
-		const gchar *class;
-
-		urn = metadata[0];
-		mime_type = metadata[1];
-		class = metadata[2];
-
-		if (mime_type && mime_type[0] == '\0') {
-			mime_type = NULL;
-		}
-
-		if (mime_type) {
-			g_print ("  %s\n"
-			         "    %s\n"
-			         "    %s\n",
-			         urn,
-			         mime_type,
-			         class);
-		} else {
-			g_print ("  %s\n"
-			         "    %s\n",
-			         urn,
-			         class);
-		}
-	}
-
-	g_print ("\n");
-}
-
 static gboolean
-get_all_by_search (TrackerClient *client,
-                   GStrv          search_words,
-                   gboolean       show_all,
-                   gint           search_offset,
-                   gint           search_limit,
-                   gboolean       use_or_operator,
-                   gboolean       details)
+get_all_by_search (TrackerSparqlConnection *connection,
+                   GStrv                    search_words,
+                   gboolean                 show_all,
+                   gint                     search_offset,
+                   gint                     search_limit,
+                   gboolean                 use_or_operator,
+                   gboolean                 details)
 {
 	GError *error = NULL;
-	GPtrArray *results;
+	TrackerSparqlCursor *cursor;
 	gchar *fts;
 	gchar *query;
 	const gchar *show_all_str;
@@ -1153,7 +1062,7 @@ get_all_by_search (TrackerClient *client,
 
 	g_free (fts);
 
-	results = tracker_resources_sparql_query (client, query, &error);
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 	g_free (query);
 
 	if (error) {
@@ -1165,27 +1074,58 @@ get_all_by_search (TrackerClient *client,
 		return FALSE;
 	}
 
-	if (!results) {
+	if (!cursor) {
 		g_print ("%s\n",
 		         _("No results were found matching your query"));
 	} else {
-		g_print (g_dngettext (NULL,
-		                      "Result: %d",
-		                      "Results: %d",
-		                      results->len),
-		         results->len);
+		gint count = 0;
+
+		g_print ("%s:\n", _("Results"));
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			if (details) {
+				const gchar *urn;
+				const gchar *mime_type;
+				const gchar *class;
+
+				g_print ("cols:%d\n", tracker_sparql_cursor_get_n_columns (cursor));
+
+				urn = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+				mime_type = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+				class = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+
+				if (mime_type && mime_type[0] == '\0') {
+					mime_type = NULL;
+				}
+
+				if (mime_type) {
+					g_print ("  %s\n"
+					         "    %s\n"
+					         "    %s\n",
+					         urn,
+					         mime_type,
+					         class);
+				} else {
+					g_print ("  %s\n"
+					         "    %s\n",
+					         urn,
+					         class);
+				}
+			} else {
+				g_print ("  %s\n",
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
+			}
+
+			count++;
+		}
+
 		g_print ("\n");
 
-		g_ptr_array_foreach (results,
-		                     get_all_by_search_foreach,
-		                     GINT_TO_POINTER (details));
-
-		if (results->len >= search_limit) {
+		if (count >= search_limit) {
 			show_limit_warning ();
 		}
 
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		g_object_unref (cursor);
 	}
 
 	return TRUE;
@@ -1194,8 +1134,9 @@ get_all_by_search (TrackerClient *client,
 int
 main (int argc, char **argv)
 {
-	TrackerClient *client;
+	TrackerSparqlConnection *connection;
 	GOptionContext *context;
+	GError *error = NULL;
 	gchar *summary;
 
 	setlocale (LC_ALL, "");
@@ -1313,11 +1254,13 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	client = tracker_client_new (0, G_MAXINT);
+	connection = tracker_sparql_connection_get (&error);
 
-	if (!client) {
-		g_printerr ("%s\n",
-		            _("Could not establish a DBus connection to Tracker"));
+	if (!connection) {
+		g_printerr ("%s: %s\n",
+		            _("Could not establish a connection to Tracker"),
+		            error ? error->message : _("No error given"));
+		g_clear_error (&error);
 		return EXIT_FAILURE;
 	}
 
@@ -1328,8 +1271,8 @@ main (int argc, char **argv)
 	if (files) {
 		gboolean success;
 
-		success = get_files (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_files (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1337,8 +1280,8 @@ main (int argc, char **argv)
 	if (folders) {
 		gboolean success;
 
-		success = get_folders (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_folders (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1346,8 +1289,8 @@ main (int argc, char **argv)
 	if (music_albums) {
 		gboolean success;
 
-		success = get_music_albums (client, terms, offset, limit, or_operator);
-		g_object_unref (client);
+		success = get_music_albums (connection, terms, offset, limit, or_operator);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1355,8 +1298,8 @@ main (int argc, char **argv)
 	if (music_artists) {
 		gboolean success;
 
-		success = get_music_artists (client, terms, offset, limit, or_operator);
-		g_object_unref (client);
+		success = get_music_artists (connection, terms, offset, limit, or_operator);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1364,8 +1307,8 @@ main (int argc, char **argv)
 	if (music_files) {
 		gboolean success;
 
-		success = get_music_files (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_music_files (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1373,8 +1316,8 @@ main (int argc, char **argv)
 	if (feeds) {
 		gboolean success;
 
-		success = get_feeds (client, terms, offset, limit, or_operator);
-		g_object_unref (client);
+		success = get_feeds (connection, terms, offset, limit, or_operator);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1382,8 +1325,8 @@ main (int argc, char **argv)
 	if (image_files) {
 		gboolean success;
 
-		success = get_image_files (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_image_files (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1391,8 +1334,8 @@ main (int argc, char **argv)
 	if (video_files) {
 		gboolean success;
 
-		success = get_video_files (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_video_files (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1400,8 +1343,8 @@ main (int argc, char **argv)
 	if (document_files) {
 		gboolean success;
 
-		success = get_document_files (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_document_files (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1409,8 +1352,8 @@ main (int argc, char **argv)
 	if (emails) {
 		gboolean success;
 
-		success = get_emails (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_emails (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1418,8 +1361,8 @@ main (int argc, char **argv)
 	if (contacts) {
 		gboolean success;
 
-		success = get_contacts (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_contacts (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
@@ -1427,13 +1370,13 @@ main (int argc, char **argv)
 	if (terms) {
 		gboolean success;
 
-		success = get_all_by_search (client, terms, all, offset, limit, or_operator, detailed);
-		g_object_unref (client);
+		success = get_all_by_search (connection, terms, all, offset, limit, or_operator, detailed);
+		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
 
-	g_object_unref (client);
+	g_object_unref (connection);
 
 	return EXIT_SUCCESS;
 }
