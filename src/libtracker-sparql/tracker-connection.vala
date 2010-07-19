@@ -18,12 +18,32 @@
  */
 
 public abstract class Tracker.Sparql.Connection : Object {
+	static bool direct_only;
+	static weak Connection? singleton;
+
 	public static Connection get () throws GLib.Error {
-		return new PluginLoader ();
+		if (singleton != null) {
+			assert (!direct_only);
+			return singleton;
+		} else {
+			var result = new PluginLoader ();
+			singleton = result;
+			result.add_weak_pointer ((void**) (&singleton));
+			return result;
+		}
 	}
 
 	public static Connection get_direct () throws GLib.Error {
-		return new PluginLoader (true /* direct_only */);
+		if (singleton != null) {
+			assert (direct_only);
+			return singleton;
+		} else {
+			var result = new PluginLoader (true /* direct_only */);
+			direct_only = true;
+			singleton = result;
+			result.add_weak_pointer ((void**) (&singleton));
+			return result;
+		}
 	}
 
 	// Query
