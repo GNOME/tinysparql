@@ -20,7 +20,7 @@
 public abstract class Tracker.Sparql.Cursor : Object {
 	public Connection connection { get; set; }
 	public abstract int n_columns { get; }
-	public abstract unowned string get_string (int column, out int length = null);
+	public abstract unowned string? get_string (int column, out long length = null);
 
 	public abstract bool next (Cancellable? cancellable = null) throws GLib.Error;
 	public async abstract bool next_async (Cancellable? cancellable = null) throws GLib.Error;
