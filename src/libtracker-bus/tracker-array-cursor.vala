@@ -19,7 +19,7 @@
 
 internal class Tracker.Bus.ArrayCursor : Tracker.Sparql.Cursor {
 	int rows;
-	int current_row;
+	int current_row = -1;
 	char **results;
 	int cols;
 
@@ -31,7 +31,8 @@ internal class Tracker.Bus.ArrayCursor : Tracker.Sparql.Cursor {
 
 	public override int n_columns { get { return cols; } }
 
-	public override unowned string? get_string (int column, out long length = null) {
+	public override unowned string? get_string (int column, out long length = null)
+	requires (current_row >= 0) {
 		char **row;
 		unowned string str;
 
@@ -40,7 +41,7 @@ internal class Tracker.Bus.ArrayCursor : Tracker.Sparql.Cursor {
 		}
 
 		row = results + current_row;
-		str =  (string) row[column];
+		str = (string) row[column];
 
 		if (&length != null) {
 			length = str.length;
