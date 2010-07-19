@@ -23,10 +23,16 @@ coverage-report: coverage
 		tracker-turtle-reader.c \
 		tracker-turtle-writer.c \
 		libtracker-miner/tracker-storage.c \
+		libtracker-miner/tracker-dbus.c \
+		libtracker-miner/tracker-miner-fs.c \
+		libtracker-miner/tracker-miner-object.c \
+		libtracker-miner/tracker-miner-web.c \
+		libtracker-miner/tracker-network-provider.c \
+		libtracker-miner/tracker-network-provider-network-manager.c \
 		"*.vapi" \
 		"*-glue.h" \
 		"tracker-marshal.*" \
-		"inotify-*.*" 
+		"inotify-*.*"
 	rm -rf $(top_builddir)/coverage
 	$(mkdir_p) $(top_builddir)/coverage
 	genhtml --title "@PACKAGE_STRING@" --output-directory $(top_builddir)/coverage $(top_builddir)/lcov.info
@@ -49,7 +55,7 @@ EXTRA_DIST = 					\
 	gitlog-to-changelog			\
 	intltool-extract.in 			\
 	intltool-merge.in 			\
-	intltool-update.in 
+	intltool-update.in
 
 DISTCLEANFILES = 				\
 	intltool-extract 			\
@@ -92,6 +98,6 @@ install-data-hook:
 	rm -Rf $(DESTDIR)$(DBUS_SERVICES_DIR)/tracker.service
 	rm -Rf $(DESTDIR)$(datadir)/tracker/sqlite-service-stored-procs.sql
 	rm -Rf $(DESTDIR)$(datadir)/tracker/tracker-introspect.xml
-endif	
+endif
 
 ACLOCAL_AMFLAGS = -I m4
