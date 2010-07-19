@@ -503,9 +503,9 @@ path_has_write_access (const gchar *path,
 		}
 
 		writable = g_file_info_get_attribute_boolean (info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
-	}
 
-	g_object_unref (info);
+		g_object_unref (info);
+	}
 
 	return writable;
 }

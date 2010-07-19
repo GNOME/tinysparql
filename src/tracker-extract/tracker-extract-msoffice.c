@@ -1657,6 +1657,8 @@ extract_msoffice (const gchar          *uri,
 
 	infile = open_uri (uri);
 	if (!infile) {
+		g_object_unref (file_info);
+		gsf_shutdown ();
 		return;
 	}
 

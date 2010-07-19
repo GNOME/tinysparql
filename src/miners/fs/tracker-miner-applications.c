@@ -408,11 +408,11 @@ process_desktop_file (ProcessApplicationData  *data,
 		if (is_software) {
 			gchar *icon;
 
-			insert_data_from_desktop_file (sparql, uri, 
-			                               TRACKER_NIE_PREFIX "comment", key_file, 
+			insert_data_from_desktop_file (sparql, uri,
+			                               TRACKER_NIE_PREFIX "comment", key_file,
 			                               "Comment", TRUE);
-			insert_data_from_desktop_file (sparql, uri, 
-			                               TRACKER_NFO_PREFIX "softwareCmdLine", key_file, 
+			insert_data_from_desktop_file (sparql, uri,
+			                               TRACKER_NFO_PREFIX "softwareCmdLine", key_file,
 			                               "Exec", TRUE);
 
 			icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
@@ -573,6 +573,10 @@ process_file_cb (GObject      *object,
 
 	if (error) {
 		g_error_free (error);
+	}
+
+	if (file_info) {
+		g_object_unref (file_info);
 	}
 }
 

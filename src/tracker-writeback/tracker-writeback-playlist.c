@@ -122,6 +122,7 @@ get_playlist_type (GFile             *file,
 	}
 
 	mime_type = g_file_info_get_content_type (file_info);
+	g_object_unref (file_info);
 
 	if (!mime_type) {
 		return FALSE;
