@@ -1886,6 +1886,8 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 		/* Something bad happened, notify about the error */
 		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 		process_file_data_free (data);
+		/* Always free input GError. We want to behave exactly as if this
+		 * callback were one used in an async dbus-glib query.  */
 		g_error_free (error);
 		return;
 	}

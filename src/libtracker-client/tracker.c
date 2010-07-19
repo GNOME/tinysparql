@@ -668,6 +668,10 @@ callback_iterator (void     *buffer,
 
 			g_error_free (iterator_error);
 		}
+
+		/* Always free input GError. We want to behave exactly as if this
+		 * callback were one used in an async dbus-glib query.  */
+		g_error_free (error);
 	}
 
 	fast_async_data_free (fad);
