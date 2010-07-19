@@ -20,28 +20,22 @@
 internal class Tracker.Bus.ArrayCursor : Tracker.Sparql.Cursor {
 	int rows;
 	int current_row = -1;
-	char **results;
+	string[,] results;
 	int cols;
 
-	public ArrayCursor (owned char** results, int rows, int cols) {
+	public ArrayCursor (owned string[,] results, int rows, int cols) {
 		this.rows = rows;
 		this.cols = cols;
-		this.results = results;
+		this.results = (owned) results;
 	}
 
 	public override int n_columns { get { return cols; } }
 
 	public override unowned string? get_string (int column, out long length = null)
 	requires (current_row >= 0) {
-		char **row;
 		unowned string str;
 
-		if (rows < 1) {
-			return null;
-		}
-
-		row = results + current_row;
-		str = (string) row[column];
+		str = results[current_row, column];
 
 		if (&length != null) {
 			length = str.length;
