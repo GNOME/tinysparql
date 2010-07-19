@@ -16,12 +16,13 @@ lib_LTLIBRARIES = libtracker-bus-@TRACKER_API_VERSION@.la
 libtracker_busincludedir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-bus
 
 libtracker_bus_la_VALASOURCES = \
-	tracker-bus.vala
+	tracker-bus.vala			\
+	tracker-array-cursor.vala
 
 libtracker_bus_@TRACKER_API_VERSION@_la_SOURCES = 	\
-	libtracker-bus.vala.stamp			\
-	$(libtracker_bus_la_VALASOURCES:.vala=.c) \
-	tracker-bus-cursor.c
+	libtracker-bus.vala.stamp						\
+	$(libtracker_bus_la_VALASOURCES:.vala=.c)		\
+	tracker-bus-fd-cursor.c
 
 libtracker_bus_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 	-shared -fPIC -module -avoid-version

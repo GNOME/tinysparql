@@ -23,8 +23,7 @@ private interface Tracker.Bus.Resources : GLib.Object {
 }
 
 // Imported DBus FD API until we have support with Vala
-public extern Tracker.Sparql.Cursor tracker_bus_query (DBus.Connection connection, string query) throws GLib.Error;
-public extern Tracker.Sparql.Cursor tracker_bus_query_results_to_cursor (owned char **results, int rows, int cols);
+public extern Tracker.Sparql.Cursor tracker_bus_fd_query (DBus.Connection connection, string query) throws GLib.Error;
 
 // Actual class definition
 public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
@@ -69,10 +68,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 
 		
 		if (use_steroids) {
-			return tracker_bus_query (connection, sparql);
+			return tracker_bus_fd_query (connection, sparql);
 		} else {
 			string[,] results = resources.SparqlQuery (sparql);
-			return tracker_bus_query_results_to_cursor ((owned) results, results.length[0], results.length[1]);
+			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
 		}
 	}
 
