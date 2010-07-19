@@ -18,10 +18,10 @@
  */
 
 // Imported from tracker-uri.c
-public extern unowned string tracker_sparql_escape_uri_vprintf (string format, va_list args);
-public extern unowned string tracker_sparql_escape_uri_printf (string format, ...);
+public extern string tracker_sparql_escape_uri_vprintf (string format, va_list args);
+public extern string tracker_sparql_escape_uri_printf (string format, ...);
 
-public unowned string tracker_sparql_escape_string (string literal) {
+public string tracker_sparql_escape_string (string literal) {
 	StringBuilder str = new StringBuilder ();
 	char *p = literal;
 
