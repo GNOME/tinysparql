@@ -28,16 +28,15 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-status-client.h"
 
-#define ABOUT	  \
+#define ABOUT \
 	"Tracker " PACKAGE_VERSION "\n"
 
-#define LICENSE	  \
+#define LICENSE \
 	"This program is free software and comes without any warranty.\n" \
 	"It is licensed under version 2 or later of the General Public " \
 	"License which can be viewed at:\n" \
@@ -465,7 +464,6 @@ main (gint argc, gchar *argv[])
 {
 	TrackerMinerManager *manager;
 	GOptionContext *context;
-	TrackerSparqlConnection *connection;
 	GSList *miners_available;
 	GSList *miners_running;
 	GSList *l;
@@ -537,15 +535,6 @@ main (gint argc, gchar *argv[])
 		g_thread_init (NULL);
 	}
 
-	connection = tracker_sparql_connection_get (NULL);
-
-	if (!connection) {
-		g_printerr ("%s\n",
-		            _("Could not establish a D-Bus connection to Tracker"));
-
-		return EXIT_FAILURE;
-	}
-
 	manager = tracker_miner_manager_new ();
 	miners_available = tracker_miner_manager_get_available (manager);
 	miners_running = tracker_miner_manager_get_running (manager);
@@ -602,7 +591,10 @@ main (gint argc, gchar *argv[])
 		g_slist_foreach (miners_running, (GFunc) g_free, NULL);
 		g_slist_free (miners_running);
 
-		g_object_unref (connection);
+		if (proxy) {
+			g_object_unref (proxy);
+		}
+
 		return EXIT_SUCCESS;
 	}
 
@@ -747,7 +739,9 @@ main (gint argc, gchar *argv[])
 
 	if (!follow) {
 		/* Do nothing further */
-		g_object_unref (connection);
+		if (proxy) {
+			g_object_unref (proxy);
+		}
 		g_print ("\n");
 		return EXIT_SUCCESS;
 	}
@@ -782,8 +776,13 @@ main (gint argc, gchar *argv[])
 	g_hash_table_unref (miners_progress);
 	g_hash_table_unref (miners_status);
 
-	g_object_unref (connection);
-	g_object_unref (manager);
+	if (proxy) {
+		g_object_unref (proxy);
+	}
+
+	if (manager) {
+		g_object_unref (manager);
+	}
 
 	return EXIT_SUCCESS;
 }
