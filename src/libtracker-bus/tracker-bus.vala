@@ -19,7 +19,10 @@
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 private interface Tracker.Bus.Resources : GLib.Object {
-	public abstract string[,] SparqlQuery (string query) throws DBus.Error;
+	public abstract string[,] sparql_query (string query) throws DBus.Error;
+	public abstract void sparql_update (string query) throws DBus.Error;
+	[DBus (name = "SparqlUpdate")]
+	public abstract async void sparql_update_async (string query) throws DBus.Error;
 }
 
 // Imported DBus FD API until we have support with Vala
@@ -70,7 +73,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		if (use_steroids) {
 			return tracker_bus_fd_query (connection, sparql);
 		} else {
-			string[,] results = resources.SparqlQuery (sparql);
+			string[,] results = resources.sparql_query (sparql);
 			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
 		}
 	}
@@ -78,6 +81,14 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public async override Sparql.Cursor? query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error {
 		// FIXME: Implement
 		return null;
+	}
+
+	public override void update (string sparql, Cancellable? cancellable = null) throws GLib.Error {
+		resources.sparql_update (sparql);
+	}
+
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws GLib.Error {
+		yield resources.sparql_update_async (sparql);
 	}
 }
 
