@@ -1484,10 +1484,6 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 		jreader->amount_of_triples--;
 		return TRUE;
 	}
-
-	g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, "Unknown reason");
-
-	return FALSE;
 }
 
 gboolean
