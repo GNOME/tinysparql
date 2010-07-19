@@ -28,7 +28,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-client/tracker-client.h>
+#include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-miner/tracker-miner.h>
 
@@ -465,7 +465,7 @@ main (gint argc, gchar *argv[])
 {
 	TrackerMinerManager *manager;
 	GOptionContext *context;
-	TrackerClient *client;
+	TrackerSparqlConnection *connection;
 	GSList *miners_available;
 	GSList *miners_running;
 	GSList *l;
@@ -537,9 +537,9 @@ main (gint argc, gchar *argv[])
 		g_thread_init (NULL);
 	}
 
-	client = tracker_client_new (0, G_MAXINT);
+	connection = tracker_sparql_connection_get (NULL);
 
-	if (!client) {
+	if (!connection) {
 		g_printerr ("%s\n",
 		            _("Could not establish a D-Bus connection to Tracker"));
 
@@ -602,7 +602,7 @@ main (gint argc, gchar *argv[])
 		g_slist_foreach (miners_running, (GFunc) g_free, NULL);
 		g_slist_free (miners_running);
 
-		g_object_unref (client);
+		g_object_unref (connection);
 		return EXIT_SUCCESS;
 	}
 
@@ -747,7 +747,7 @@ main (gint argc, gchar *argv[])
 
 	if (!follow) {
 		/* Do nothing further */
-		g_object_unref (client);
+		g_object_unref (connection);
 		g_print ("\n");
 		return EXIT_SUCCESS;
 	}
@@ -782,7 +782,7 @@ main (gint argc, gchar *argv[])
 	g_hash_table_unref (miners_progress);
 	g_hash_table_unref (miners_status);
 
-	g_object_unref (client);
+	g_object_unref (connection);
 	g_object_unref (manager);
 
 	return EXIT_SUCCESS;
