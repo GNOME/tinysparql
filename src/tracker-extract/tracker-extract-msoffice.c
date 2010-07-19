@@ -163,6 +163,7 @@ typedef struct {
 	gboolean preserve_attribute_present;
 	const gchar *uri;
 	GString *content;
+	gboolean title_already_set;
 } MsOfficeXMLParserInfo;
 
 typedef struct {
@@ -2001,8 +2002,14 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 		break;
 
 	case MS_OFFICE_XML_TAG_TITLE:
-		tracker_sparql_builder_predicate (info->metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		if (info->title_already_set) {
+			g_warning ("Avoiding additional title (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->title_already_set = TRUE;
+			tracker_sparql_builder_predicate (info->metadata, "nie:title");
+			tracker_sparql_builder_object_unvalidated (info->metadata, text);
+		}
 		break;
 
 	case MS_OFFICE_XML_TAG_SUBJECT:
@@ -2113,6 +2120,7 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 	info.preserve_attribute_present = FALSE;
 	info.uri = parser_info->uri;
 	info.content = parser_info->content;
+	info.title_already_set = parser_info->title_already_set;
 
 	switch (type) {
 	case MS_OFFICE_XML_TAG_DOCUMENT_CORE_DATA: {
@@ -2304,6 +2312,7 @@ extract_msoffice_xml (const gchar          *uri,
 	info.preserve_attribute_present = FALSE;
 	info.uri = uri;
 	info.content = g_string_new ("");
+	info.title_already_set = FALSE;
 
 	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
 
