@@ -31,6 +31,13 @@
 
 G_BEGIN_DECLS
 
+#ifndef TRACKER_DISABLE_DEPRECATED
+
+/*
+ * Now, libtracker-sparql is to be used instead of libtracker-client. All these
+ * APIS are now marked as deprecated.
+ */
+
 #define TRACKER_DBUS_SERVICE              "org.freedesktop.Tracker1"
 #define TRACKER_DBUS_OBJECT               "/org/freedesktop/Tracker1"
 #define TRACKER_DBUS_INTERFACE_RESOURCES  "org.freedesktop.Tracker1.Resources"
@@ -84,7 +91,7 @@ typedef enum {
  **/
 typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
                                        GError    *error,
-                                       gpointer   user_data);
+                                       gpointer   user_data)                                      G_GNUC_DEPRECATED;
 
 /**
  * TrackerReplyVoid:
@@ -95,11 +102,11 @@ typedef void (*TrackerReplyGPtrArray) (GPtrArray *result,
  * is an error the @error is populated with the details.
  **/
 typedef void (*TrackerReplyVoid)      (GError    *error,
-                                       gpointer   user_data);
+                                       gpointer   user_data)                                      G_GNUC_DEPRECATED;
 
 typedef void (*TrackerReplyIterator)  (TrackerResultIterator *iterator,
                                        GError                *error,
-                                       gpointer               user_data);
+                                       gpointer               user_data)                          G_GNUC_DEPRECATED;
 
 /**
  * TrackerWritebackCallback:
@@ -111,96 +118,97 @@ typedef void (*TrackerReplyIterator)  (TrackerResultIterator *iterator,
  * is modified in the store.
  */
 typedef void (*TrackerWritebackCallback) (const GHashTable *resources,
-                                          gpointer          user_data);
+                                          gpointer          user_data)                            G_GNUC_DEPRECATED;
 
-GType          tracker_client_get_type                     (void) G_GNUC_CONST;
-GQuark         tracker_client_error_quark                  (void);
+GType          tracker_client_get_type                     (void) G_GNUC_CONST                    G_GNUC_DEPRECATED;
+GQuark         tracker_client_error_quark                  (void)                                 G_GNUC_DEPRECATED;
 TrackerClient *tracker_client_new                          (TrackerClientFlags      flags,
-                                                            gint                    timeout);
+                                                            gint                    timeout)      G_GNUC_DEPRECATED;
 
 gboolean       tracker_cancel_call                         (TrackerClient          *client,
-                                                            guint                   call_id);
-gboolean       tracker_cancel_last_call                    (TrackerClient          *client);
+                                                            guint                   call_id)      G_GNUC_DEPRECATED;
+gboolean       tracker_cancel_last_call                    (TrackerClient          *client)       G_GNUC_DEPRECATED;
 
 /* Utilities */
-gchar *        tracker_sparql_escape                       (const gchar            *str);
+gchar *        tracker_sparql_escape                       (const gchar            *str)          G_GNUC_DEPRECATED;
 
 gchar *        tracker_uri_vprintf_escaped                 (const gchar            *format,
-                                                            va_list                 args);
+                                                            va_list                 args)         G_GNUC_DEPRECATED;
 gchar *        tracker_uri_printf_escaped                  (const gchar            *format, 
-                                                            ...);
+                                                            ...)                                  G_GNUC_DEPRECATED;
 
 /* Synchronous API */
 GPtrArray *    tracker_statistics_get                      (TrackerClient          *client,
-                                                            GError                **error);
+                                                            GError                **error)        G_GNUC_DEPRECATED;
 void           tracker_resources_load                      (TrackerClient          *client,
                                                             const gchar            *uri,
-                                                            GError                **error);
+                                                            GError                **error)        G_GNUC_DEPRECATED;
 GPtrArray *    tracker_resources_sparql_query              (TrackerClient          *client,
                                                             const gchar            *query,
-                                                            GError                **error);
+                                                            GError                **error)        G_GNUC_DEPRECATED;
 TrackerResultIterator *
                tracker_resources_sparql_query_iterate      (TrackerClient          *client,
                                                             const gchar            *query,
-                                                            GError                **error);
-void           tracker_result_iterator_free                (TrackerResultIterator  *iterator);
-guint          tracker_result_iterator_n_columns           (TrackerResultIterator  *iterator);
-gboolean       tracker_result_iterator_next                (TrackerResultIterator  *iterator);
+                                                            GError                **error)        G_GNUC_DEPRECATED;
+void           tracker_result_iterator_free                (TrackerResultIterator  *iterator)     G_GNUC_DEPRECATED;
+guint          tracker_result_iterator_n_columns           (TrackerResultIterator  *iterator)     G_GNUC_DEPRECATED;
+gboolean       tracker_result_iterator_next                (TrackerResultIterator  *iterator)     G_GNUC_DEPRECATED;
 const gchar *  tracker_result_iterator_value               (TrackerResultIterator  *iterator,
-                                                            guint                   column);
+                                                            guint                   column)       G_GNUC_DEPRECATED;
 void           tracker_resources_sparql_update             (TrackerClient          *client,
                                                             const gchar            *query,
-                                                            GError                **error);
+                                                            GError                **error)        G_GNUC_DEPRECATED;
 GPtrArray *    tracker_resources_sparql_update_blank       (TrackerClient          *client,
                                                             const gchar            *query,
-                                                            GError                **error);
+                                                            GError                **error)        G_GNUC_DEPRECATED;
 void           tracker_resources_batch_sparql_update       (TrackerClient          *client,
                                                             const gchar            *query,
-                                                            GError                **error);
+                                                            GError                **error)        G_GNUC_DEPRECATED;
 void           tracker_resources_batch_commit              (TrackerClient          *client,
-                                                            GError                **error);
+                                                            GError                **error)        G_GNUC_DEPRECATED;
 /* Asynchronous API */
 guint          tracker_statistics_get_async                (TrackerClient          *client,
                                                             TrackerReplyGPtrArray   callback,
-                                                            gpointer                user_data);
+                                                            gpointer                user_data)    G_GNUC_DEPRECATED;
 guint          tracker_resources_load_async                (TrackerClient          *client,
                                                             const gchar            *uri,
                                                             TrackerReplyVoid        callback,
-                                                            gpointer                user_data);
+                                                            gpointer                user_data)    G_GNUC_DEPRECATED;
 guint          tracker_resources_sparql_query_async        (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyGPtrArray   callback,
-                                                            gpointer                user_data);
+                                                            gpointer                user_data)    G_GNUC_DEPRECATED;
 guint         tracker_resources_sparql_query_iterate_async (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyIterator    callback,
-                                                            gpointer                user_data);
+                                                            gpointer                user_data)    G_GNUC_DEPRECATED;
 guint          tracker_resources_sparql_update_async       (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyVoid        callback,
-                                                            gpointer                user_data);
+                                                            gpointer                user_data)    G_GNUC_DEPRECATED;
 guint          tracker_resources_sparql_update_blank_async (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyGPtrArray   callback,
-                                                            gpointer                user_data);
+                                                            gpointer                user_data)    G_GNUC_DEPRECATED;
 guint          tracker_resources_batch_sparql_update_async (TrackerClient          *client,
                                                             const gchar            *query,
                                                             TrackerReplyVoid        callback,
-                                                            gpointer                user_data);
+                                                            gpointer                user_data)    G_GNUC_DEPRECATED;
 guint          tracker_resources_batch_commit_async        (TrackerClient          *client,
                                                             TrackerReplyVoid        callback,
-                                                            gpointer                user_data);
+                                                            gpointer                user_data)    G_GNUC_DEPRECATED;
 
 /* Store signals */
 guint          tracker_resources_writeback_connect         (TrackerClient            *client,
                                                             TrackerWritebackCallback  callback,
-                                                            gpointer                  user_data);
+                                                            gpointer                  user_data)  G_GNUC_DEPRECATED;
 void           tracker_resources_writeback_disconnect      (TrackerClient            *client,
-                                                            guint handle);
+                                                            guint handle)                         G_GNUC_DEPRECATED;
 
-#ifndef TRACKER_DISABLE_DEPRECATED
+/*
+ * REALLY OLD and Deprecated APIs, since 0.6.x APIs
+ */
 
-/* Deprecated APIs */
 /**
  * TrackerReplyArray:
  * @result: a gchar ** with the results of the query.
