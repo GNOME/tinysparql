@@ -44,6 +44,7 @@ typedef struct {
 	TrackerSparqlBuilder *metadata;
 	ODTTagType current;
 	const gchar *uri;
+	gboolean title_already_set;
 } ODTParseInfo;
 
 static void xml_start_element_handler (GMarkupParseContext   *context,
@@ -149,6 +150,7 @@ extract_oasis (const gchar          *uri,
 	info.metadata = metadata;
 	info.current = ODT_TAG_TYPE_UNKNOWN;
 	info.uri = uri;
+	info.title_already_set = FALSE;
 
 	/* Create parsing context */
 	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
@@ -245,8 +247,14 @@ xml_text_handler (GMarkupParseContext  *context,
 
 	switch (data->current) {
 	case ODT_TAG_TYPE_TITLE:
-		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, text);
+		if (data->title_already_set) {
+			g_warning ("Avoiding additional title (%s) in OASIS document '%s'",
+			           text, data->uri);
+		} else {
+			data->title_already_set = TRUE;
+			tracker_sparql_builder_predicate (metadata, "nie:title");
+			tracker_sparql_builder_object_unvalidated (metadata, text);
+		}
 		break;
 
 	case ODT_TAG_TYPE_SUBJECT:
