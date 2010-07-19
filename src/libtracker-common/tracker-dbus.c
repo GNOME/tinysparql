@@ -773,6 +773,10 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 			dbus_set_error_from_message (&dbus_error, reply);
 			dbus_set_g_error (error, &dbus_error);
 			dbus_error_free (&dbus_error);
+
+			/* If any error happened, we're not passing any received data, so we
+			 * need to free it */
+			g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (output_stream)));
 		} else {
 			*dest_buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (output_stream));
 
@@ -788,6 +792,9 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 		             TRACKER_DBUS_ERROR_BROKEN_PIPE,
 		             "Couldn't get results from server");
 		g_error_free (inner_error);
+		/* If any error happened, we're not passing any received data, so we
+		 * need to free it */
+		g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (output_stream)));
 	}
 
 	g_object_unref (output_stream);
