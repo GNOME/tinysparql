@@ -13,7 +13,7 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-client				\
+	-I$(top_builddir)/src/libtracker-sparql				\
 	$(GLIB2_CFLAGS)							\
 	$(GIO_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
@@ -346,7 +346,7 @@ tracker_extract_SOURCES = 						\
 
 tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(DBUS_LIBS)							\
