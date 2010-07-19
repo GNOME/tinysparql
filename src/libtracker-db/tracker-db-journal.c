@@ -459,7 +459,6 @@ db_journal_init_file (JournalWriter *jwriter, gboolean truncate)
 		g_assert (jwriter->cur_block_len == 0);
 		g_assert (jwriter->cur_block_alloc == 0);
 		g_assert (jwriter->cur_block == NULL);
-		g_assert (jwriter->cur_block == NULL);
 
 		cur_block_maybe_expand (jwriter, 8);
 
