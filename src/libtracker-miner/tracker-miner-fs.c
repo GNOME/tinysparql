@@ -68,6 +68,7 @@ typedef struct {
 	gchar *parent_urn;
 	GCancellable *cancellable;
 	TrackerSparqlBuilder *builder;
+	TrackerMiner *miner;
 } ProcessData;
 
 typedef struct {
@@ -446,7 +447,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              NULL, NULL,
 		              tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
 		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER, G_TYPE_CANCELLABLE);
+		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
 
 	/**
 	 * TrackerMinerFS::ignore-next-update-file:
@@ -472,7 +473,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 			      NULL, NULL,
 			      tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
 			      G_TYPE_BOOLEAN,
-			      3, G_TYPE_FILE, TRACKER_TYPE_SPARQL_BUILDER, G_TYPE_CANCELLABLE);
+			      3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
 
 	/**
 	 * TrackerMinerFS::finished:
@@ -575,7 +576,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 }
 
 static ProcessData *
-process_data_new (GFile                *file,
+process_data_new (TrackerMiner         *miner,
+                  GFile                *file,
 		  const gchar          *urn,
 		  const gchar          *parent_urn,
                   GCancellable         *cancellable,
@@ -584,6 +586,7 @@ process_data_new (GFile                *file,
 	ProcessData *data;
 
 	data = g_slice_new0 (ProcessData);
+	data->miner = miner;
 	data->file = g_object_ref (file);
 	data->urn = g_strdup (urn);
 	data->parent_urn = g_strdup (parent_urn);
@@ -951,10 +954,9 @@ commit_cb (GObject      *object,
            GAsyncResult *result,
            gpointer      user_data)
 {
-	TrackerMiner *miner = TRACKER_MINER (object);
 	GError *error = NULL;
 
-	tracker_miner_commit_finish (miner, result, &error);
+	tracker_sparql_connection_update_commit_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
 	if (error) {
 		g_critical ("Could not commit: %s", error->message);
@@ -968,7 +970,7 @@ process_stop (TrackerMinerFS *fs)
 	/* Now we have finished crawling, print stats and enable monitor events */
 	process_print_stats (fs);
 
-	tracker_miner_commit (TRACKER_MINER (fs), NULL, commit_cb, NULL);
+	tracker_sparql_connection_update_commit_async (tracker_miner_get_connection (TRACKER_MINER (fs)), NULL, commit_cb, NULL);
 
 	g_message ("Idle");
 
@@ -1028,11 +1030,11 @@ sparql_update_cb (GObject      *object,
 	ProcessData *data;
 	GError *error = NULL;
 
-	tracker_miner_execute_update_finish (TRACKER_MINER (object), result, &error);
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
-	fs = TRACKER_MINER_FS (object);
-	priv = fs->private;
 	data = user_data;
+	fs = TRACKER_MINER_FS (data->miner);
+	priv = fs->private;
 
 	if (error) {
 		g_critical ("Could not execute sparql: %s", error->message);
@@ -1043,7 +1045,7 @@ sparql_update_cb (GObject      *object,
 			/* Only commit immediately for
 			 * changes after initial crawling.
 			 */
-			tracker_miner_commit (TRACKER_MINER (fs), NULL, commit_cb, NULL);
+			tracker_sparql_connection_update_commit_async (TRACKER_SPARQL_CONNECTION (object), NULL, commit_cb, NULL);
 		}
 
 		if (fs->private->current_iri_cache_parent) {
@@ -1082,13 +1084,11 @@ item_query_exists_cb (GObject      *object,
                       gpointer      user_data)
 {
 	ItemQueryExistsData *data = user_data;
-	TrackerResultIterator *iterator;
-	TrackerMiner *miner;
+	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	guint n_results;
 
-	miner = TRACKER_MINER (object);
-	iterator = tracker_miner_execute_sparql_finish (miner, result, &error);
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
 	g_main_loop_quit (data->main_loop);
 
@@ -1098,17 +1098,16 @@ item_query_exists_cb (GObject      *object,
 		return;
 	}
 
-	if (!iterator ||
-	    !tracker_result_iterator_next (iterator))
+	if (!tracker_sparql_cursor_next (cursor, NULL, NULL))
 		return;
 
 	n_results = 1;
-	data->iri = g_strdup (tracker_result_iterator_value (iterator, 0));
+	data->iri = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 	if (data->get_mime)
-		data->mime = g_strdup (tracker_result_iterator_value (iterator, 1));
+		data->mime = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
 
 	/* Any additional result must be logged as critical */
-	while (tracker_result_iterator_next (iterator)) {
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		if (n_results == 1) {
 			/* If first duplicate found, log initial critical */
 			g_critical ("More than one URNs have been found for uri \"%s\"...",
@@ -1120,8 +1119,8 @@ item_query_exists_cb (GObject      *object,
 		n_results++;
 		g_critical ("  (%d) urn:'%s', mime:'%s'",
 		            n_results,
-		            tracker_result_iterator_value (iterator, 0),
-		            data->get_mime ? tracker_result_iterator_value (iterator, 1) : "unneeded");
+		            tracker_sparql_cursor_get_string (cursor, 0, NULL),
+		            data->get_mime ? tracker_sparql_cursor_get_string (cursor, 1, NULL) : "unneeded");
 	}
 }
 
@@ -1148,7 +1147,7 @@ item_query_exists (TrackerMinerFS  *miner,
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.uri = uri;
 
-	tracker_miner_execute_sparql (TRACKER_MINER (miner),
+	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                              sparql,
 	                              NULL,
 	                              item_query_exists_cb,
@@ -1182,14 +1181,12 @@ cache_query_cb (GObject	     *object,
 		GAsyncResult *result,
 		gpointer      user_data)
 {
-	TrackerResultIterator *iterator;
-	TrackerMiner *miner;
+	TrackerSparqlCursor *cursor;
 	CacheQueryData *data;
 	GError *error = NULL;
 
 	data = user_data;
-	miner = TRACKER_MINER (object);
-	iterator = tracker_miner_execute_sparql_finish (miner, result, &error);
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
 	g_main_loop_quit (data->main_loop);
 
@@ -1199,14 +1196,14 @@ cache_query_cb (GObject	     *object,
 		return;
 	}
 
-	while (tracker_result_iterator_next (iterator)) {
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		GFile *file;
 
-		file = g_file_new_for_uri (tracker_result_iterator_value (iterator, 0));
+		file = g_file_new_for_uri (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 
 		g_hash_table_insert (data->values,
 		                     file,
-		                     g_strdup (tracker_result_iterator_value (iterator, 1)));
+		                     g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL)));
 	}
 }
 
@@ -1267,7 +1264,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 	data.main_loop = g_main_loop_new (NULL, FALSE);
 	data.values = g_hash_table_ref (fs->private->iri_cache);
 
-	tracker_miner_execute_sparql (TRACKER_MINER (fs),
+	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 	                              query,
 	                              NULL,
 	                              cache_query_cb,
@@ -1313,7 +1310,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 			                         "}",
 			                         uri);
 
-			tracker_miner_execute_sparql (TRACKER_MINER (fs),
+			tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 			                              query,
 			                              NULL,
 			                              cache_query_cb,
@@ -1495,11 +1492,10 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 			full_sparql = g_strdup (tracker_sparql_builder_get_result (data->builder));
 		}
 
-		tracker_miner_execute_batch_update (TRACKER_MINER (fs),
+		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 		                                    full_sparql,
-		                                    NULL,
-		                                    sparql_update_cb,
-		                                    data);
+		                                    NULL, NULL,
+		                                    sparql_update_cb, data);
 		g_free (full_sparql);
 	}
 
@@ -1560,7 +1556,7 @@ item_add_or_update (TrackerMinerFS *fs,
 
 	urn = iri_cache_lookup (fs, file);
 
-	data = process_data_new (file, urn, parent_urn, cancellable, sparql);
+	data = process_data_new (TRACKER_MINER (fs), file, urn, parent_urn, cancellable, sparql);
 	priv->processing_pool = g_list_prepend (priv->processing_pool, data);
 
 	if (do_process_file (fs, data)) {
@@ -1629,14 +1625,13 @@ item_remove (TrackerMinerFS *fs,
 	                        "}",
 	                        uri);
 
-	data = process_data_new (file, NULL, NULL, NULL, NULL);
+	data = process_data_new (TRACKER_MINER (fs), file, NULL, NULL, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
-	tracker_miner_execute_batch_update (TRACKER_MINER (fs),
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 	                                    sparql->str,
-	                                    NULL,
-	                                    sparql_update_cb,
-	                                    data);
+	                                    NULL, NULL,
+	                                    sparql_update_cb, data);
 
 	g_string_free (sparql, TRUE);
 	g_free (uri);
@@ -1715,8 +1710,8 @@ item_ignore_next_update (TrackerMinerFS *fs,
 		                         "} %s",
 		                         uri, tracker_sparql_builder_get_result (sparql));
 
-		tracker_miner_execute_batch_update (TRACKER_MINER (fs),
-		                                    query,
+		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
+		                                    query, NULL,
 		                                    NULL, NULL, NULL);
 
 		g_free (query);
@@ -1741,19 +1736,19 @@ item_update_children_uri_cb (GObject      *object,
 	RecursiveMoveData *data = user_data;
 	GError *error = NULL;
 
-	TrackerResultIterator *iterator = tracker_miner_execute_sparql_finish (TRACKER_MINER (object), result, &error);
+	TrackerSparqlCursor *cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
 	if (error) {
 		g_critical ("Could not query children: %s", error->message);
 		g_error_free (error);
-	} else if (iterator) {
-		while (tracker_result_iterator_next (iterator)) {
+	} else {
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			const gchar *child_source_uri, *child_mime, *child_urn;
 			gchar *child_uri;
 
-			child_urn = tracker_result_iterator_value (iterator, 0);
-			child_source_uri = tracker_result_iterator_value (iterator, 1);
-			child_mime = tracker_result_iterator_value (iterator, 2);
+			child_urn = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			child_source_uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+			child_mime = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 
 			if (!g_str_has_prefix (child_source_uri, data->source_uri)) {
 				g_warning ("Child URI '%s' does not start with parent URI '%s'",
@@ -1801,7 +1796,7 @@ item_update_children_uri (TrackerMinerFS    *fs,
 				  "}",
 				  source_uri);
 
-	tracker_miner_execute_sparql (TRACKER_MINER (fs),
+	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 	                              sparql,
 	                              NULL,
 	                              item_update_children_uri_cb,
@@ -1911,7 +1906,7 @@ item_move (TrackerMinerFS *fs,
 	                        "} ",
 	                        source_iri, source_iri, source_iri);
 
-	display_name = tracker_sparql_escape (g_file_info_get_display_name (file_info));
+	display_name = tracker_sparql_escape_string (g_file_info_get_display_name (file_info));
 
 	g_string_append_printf (sparql,
 	                        "INSERT INTO <%s> {"
@@ -1936,14 +1931,13 @@ item_move (TrackerMinerFS *fs,
 
 	g_main_loop_unref (move_data.main_loop);
 
-	data = process_data_new (file, NULL, NULL, NULL, NULL);
+	data = process_data_new (TRACKER_MINER (fs), file, NULL, NULL, NULL, NULL);
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
-	tracker_miner_execute_batch_update (TRACKER_MINER (fs),
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 	                                    sparql->str,
-	                                    NULL,
-	                                    sparql_update_cb,
-	                                    data);
+	                                    NULL, NULL,
+	                                    sparql_update_cb, data);
 
 	g_free (uri);
 	g_free (source_uri);
@@ -2382,7 +2376,7 @@ item_queue_handlers_cb (gpointer user_data)
 			/* Only commit immediately for
 			 * changes after initial crawling.
 			 */
-			tracker_miner_commit (TRACKER_MINER (fs), NULL, commit_cb, NULL);
+			tracker_sparql_connection_update_commit_async (tracker_miner_get_connection (TRACKER_MINER (fs)), NULL, commit_cb, NULL);
 		}
 
 		return TRUE;
@@ -2557,7 +2551,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	}
 
 	if (query) {
-		tracker_miner_execute_sparql (TRACKER_MINER (fs),
+		tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 		                              query,
 		                              NULL,
 		                              cache_query_cb,
@@ -2597,7 +2591,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                         uri);
 		g_free (uri);
 
-		tracker_miner_execute_sparql (TRACKER_MINER (fs),
+		tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 		                              query,
 		                              NULL,
 		                              cache_query_cb,

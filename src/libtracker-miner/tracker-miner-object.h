@@ -26,7 +26,8 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <libtracker-client/tracker-client.h>
+
+#include <libtracker-sparql/tracker-sparql.h>
 
 G_BEGIN_DECLS
 
@@ -98,42 +99,9 @@ gint             tracker_miner_pause                       (TrackerMiner        
 gboolean         tracker_miner_resume                      (TrackerMiner         *miner,
                                                             gint                  cookie,
                                                             GError              **error);
-void             tracker_miner_execute_update              (TrackerMiner         *miner,
-                                                            const gchar          *sparql,
-                                                            GCancellable         *cancellable,
-                                                            GAsyncReadyCallback   callback,
-                                                            gpointer              user_data);
-void             tracker_miner_execute_update_finish       (TrackerMiner         *miner,
-                                                            GAsyncResult         *result,
-                                                            GError              **error);
-void             tracker_miner_execute_sparql              (TrackerMiner         *miner,
-                                                            const gchar          *sparql,
-                                                            GCancellable         *cancellable,
-                                                            GAsyncReadyCallback   callback,
-                                                            gpointer              user_data);
-TrackerResultIterator *
-                 tracker_miner_execute_sparql_finish       (TrackerMiner         *miner,
-                                                            GAsyncResult         *result,
-                                                            GError              **error);
-TrackerResultIterator *
-                 tracker_miner_execute_sparql_sync         (TrackerMiner         *miner,
-                                                            const gchar          *sparql,
-                                                            GError              **error);
-void             tracker_miner_execute_batch_update        (TrackerMiner         *miner,
-                                                            const gchar          *sparql,
-                                                            GCancellable         *cancellable,
-                                                            GAsyncReadyCallback   callback,
-                                                            gpointer              user_data);
-void             tracker_miner_execute_batch_update_finish (TrackerMiner         *miner,
-                                                            GAsyncResult         *result,
-                                                            GError              **error);
-void             tracker_miner_commit                      (TrackerMiner         *miner,
-                                                            GCancellable         *cancellable,
-                                                            GAsyncReadyCallback   callback,
-                                                            gpointer              user_data);
-void             tracker_miner_commit_finish               (TrackerMiner         *miner,
-                                                            GAsyncResult         *result,
-                                                            GError              **error);
+
+TrackerSparqlConnection *
+                 tracker_miner_get_connection              (TrackerMiner         *miner);
 
 G_END_DECLS
 

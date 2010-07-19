@@ -661,7 +661,7 @@ set_up_mount_point_cb (GObject      *source,
 	gchar *removable_device_urn = user_data;
 	GError *error = NULL;
 
-	tracker_miner_execute_update_finish (TRACKER_MINER (source),
+	tracker_sparql_connection_update_finish (tracker_miner_get_connection (TRACKER_MINER (source)),
 	                                     result,
 	                                     &error);
 
@@ -801,9 +801,9 @@ set_up_mount_point (TrackerMinerFiles *miner,
 	if (accumulator) {
 		g_string_append_printf (accumulator, "%s ", queries->str);
 	} else {
-		tracker_miner_execute_update (TRACKER_MINER (miner),
+		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 		                              queries->str,
-		                              NULL,
+		                              NULL, NULL,
 		                              set_up_mount_point_cb,
 		                              g_strdup (removable_device_urn));
 	}
@@ -818,7 +818,7 @@ init_mount_points_cb (GObject      *source,
 {
 	GError *error = NULL;
 
-	tracker_miner_execute_update_finish (TRACKER_MINER (source),
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source),
 	                                     result,
 	                                     &error);
 
@@ -831,7 +831,7 @@ init_mount_points_cb (GObject      *source,
 		 * the mount points, as we need the correct tracker:isMounted value
 		 * for all currently mounted volumes
 		 */
-		init_stale_volume_removal (TRACKER_MINER_FILES (source));
+		init_stale_volume_removal (TRACKER_MINER_FILES (user_data));
 	}
 }
 
@@ -845,20 +845,18 @@ init_mount_points (TrackerMinerFiles *miner_files)
 	gpointer key, value;
 	GString *accumulator;
 	GError *error = NULL;
-	TrackerResultIterator *iterator;
+	TrackerSparqlCursor *cursor;
 	GSList *uuids, *u;
 
 	g_debug ("Initializing mount points...");
 
 	/* First, get all mounted volumes, according to tracker-store (SYNC!) */
-	iterator = tracker_miner_execute_sparql_sync (TRACKER_MINER (miner),
-	                                              "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
-	                                              &error);
+	cursor = tracker_sparql_connection_query (tracker_miner_get_connection (miner),
+	                                          "SELECT ?v WHERE { ?v a tracker:Volume ; tracker:isMounted true }",
+	                                          NULL, &error);
 	if (error) {
 		g_critical ("Could not obtain the mounted volumes: %s", error->message);
 		g_error_free (error);
-		if (iterator)
-			tracker_result_iterator_free (iterator);
 		return;
 	}
 
@@ -875,13 +873,13 @@ init_mount_points (TrackerMinerFiles *miner_files)
                              g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
                              GINT_TO_POINTER (VOLUME_MOUNTED));
 
-	while (tracker_result_iterator_next (iterator)) {
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		gint state;
 		const gchar *urn;
 
 		state = VOLUME_MOUNTED_IN_STORE;
 
-		urn = tracker_result_iterator_value (iterator, 0);
+		urn = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 
 		if (strcmp (urn, TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN) == 0) {
 			/* Report non-removable media to be mounted by HAL as well */
@@ -891,7 +889,7 @@ init_mount_points (TrackerMinerFiles *miner_files)
 		g_hash_table_replace (volumes, g_strdup (urn), GINT_TO_POINTER (state));
 	}
 
-	tracker_result_iterator_free (iterator);
+	g_object_unref (cursor);
 
 	/* Then, get all currently mounted non-REMOVABLE volumes, according to GIO */
 	uuids = tracker_storage_get_device_uuids (priv->storage, 0, TRUE);
@@ -994,11 +992,11 @@ init_mount_points (TrackerMinerFiles *miner_files)
 	}
 
 	if (accumulator->str[0] != '\0') {
-		tracker_miner_execute_update (miner,
+		tracker_sparql_connection_update_async (tracker_miner_get_connection (miner),
 		                              accumulator->str,
-		                              NULL,
+		                              NULL, NULL,
 		                              init_mount_points_cb,
-		                              NULL);
+		                              miner);
 	} else {
 		/* If no further mount point initialization was needed,
 		 * initialize stale volume removal here. */
@@ -1158,9 +1156,9 @@ mount_point_added_cb (TrackerStorage *storage,
 	queries = g_string_new ("");
 	set_up_mount_point (miner, urn, mount_point, TRUE, queries);
 	set_up_mount_point_type (miner, urn, removable, optical, queries);
-	tracker_miner_execute_update (TRACKER_MINER (miner),
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                              queries->str,
-	                              NULL,
+	                              NULL, NULL,
 	                              set_up_mount_point_cb,
 	                              g_strdup (urn));
 	g_string_free (queries, TRUE);
@@ -2576,7 +2574,7 @@ remove_files_in_removable_media_cb (GObject      *object,
 {
 	GError *error = NULL;
 
-	tracker_miner_execute_update_finish (TRACKER_MINER (object), result, &error);
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
 	if (error) {
 		g_critical ("Could not remove files in volumes: %s", error->message);
@@ -2617,9 +2615,9 @@ miner_files_in_removable_media_remove_by_type (TrackerMinerFiles  *miner,
 		                        removable ? "true" : "false",
 		                        optical ? "true" : "false");
 
-		tracker_miner_execute_batch_update (TRACKER_MINER (miner),
+		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 		                                    queries->str,
-		                                    NULL,
+		                                    NULL, NULL,
 		                                    remove_files_in_removable_media_cb,
 		                                    NULL);
 
@@ -2658,9 +2656,9 @@ miner_files_in_removable_media_remove_by_date (TrackerMinerFiles  *miner,
 	                        "}",
 	                        date);
 
-	tracker_miner_execute_batch_update (TRACKER_MINER (miner),
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                                    queries->str,
-	                                    NULL,
+	                                    NULL, NULL,
 	                                    remove_files_in_removable_media_cb,
 	                                    NULL);
 

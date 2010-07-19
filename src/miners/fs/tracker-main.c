@@ -291,7 +291,6 @@ miner_finished_cb (TrackerMinerFS *fs,
 static void
 finalize_miner (TrackerMiner *miner)
 {
-	g_object_run_dispose (G_OBJECT (miner));
 	g_object_unref (G_OBJECT (miner));
 }
 

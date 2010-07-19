@@ -27,7 +27,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include <libtracker-client/tracker-sparql-builder.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-miner-object.h"
 
