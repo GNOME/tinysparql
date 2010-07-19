@@ -765,6 +765,11 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 
 	stmt = g_hash_table_lookup (db_interface->dynamic_statements, full_query);
 
+	if (stmt && stmt->stmt_is_sunk) {
+		/* prepared statement is still in use, create new one */
+		stmt = NULL;
+	}
+
 	if (!stmt) {
 		sqlite3_stmt *sqlite_stmt;
 		int retval;
@@ -795,9 +800,12 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 
 		stmt = tracker_db_statement_sqlite_new (db_interface, sqlite_stmt);
 
-		g_hash_table_insert (db_interface->dynamic_statements,
-		                     (gpointer) sqlite3_sql (sqlite_stmt),
-		                     stmt);
+		/* use replace instead of insert to make sure we store the string that
+		   belongs to the right sqlite statement to ensure the lifetime of the string
+		   matches the statement */
+		g_hash_table_replace (db_interface->dynamic_statements,
+		                      (gpointer) sqlite3_sql (sqlite_stmt),
+		                      stmt);
 	} else {
 		tracker_db_statement_sqlite_reset (stmt);
 	}
