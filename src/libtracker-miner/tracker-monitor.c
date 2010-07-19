@@ -671,7 +671,15 @@ event_pairs_process_in_ht (TrackerMonitor *monitor,
 {
 	GHashTableIter iter;
 	gpointer key, value;
+	GList *expired_events = NULL;
+	GList *l;
 
+	/* Start iterating the HT of events, and see if any of them was expired.
+	 * If so, STEAL the item from the HT, add it in an auxiliary list, and
+	 * once the whole HT has been iterated, emit the signals for the stolen
+	 * items. If the signal is emitted WHILE iterating the HT, we may end up
+	 * with some upper layer action modifying the HT we are iterating, and
+	 * that is not good. */
 	g_hash_table_iter_init (&iter, ht);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		EventData *event_data = value;
@@ -681,16 +689,28 @@ event_pairs_process_in_ht (TrackerMonitor *monitor,
 
 		if (seconds < 2) {
 			continue;
+		} else {
+			g_debug ("Event '%s' for URI '%s' has timed out (%ld seconds have elapsed)",
+			         monitor_event_to_string (event_data->event_type),
+			         event_data->file_uri,
+			         seconds);
+			/* STEAL the item from the HT, so that disposal methods
+			 * for key and value are not called. */
+			g_hash_table_iter_steal (&iter);
+			/* Unref the key, as no longer needed */
+			g_object_unref (key);
+			/* Add the expired event to our temp list */
+			expired_events = g_list_append (expired_events, event_data);
 		}
-
-		g_debug ("Event '%s' for URI '%s' has timed out (%ld seconds have elapsed)",
-		         monitor_event_to_string (event_data->event_type),
-		         event_data->file_uri,
-		         seconds);
-
-		emit_signal_for_event (monitor, event_data);
-		g_hash_table_iter_remove (&iter);
 	}
+
+	for (l = expired_events; l; l = g_list_next (l)) {
+		/* Emit signal for the expired event */
+		emit_signal_for_event (monitor, l->data);
+		/* And dispose the event data */
+		event_data_free (l->data);
+	}
+	g_list_free (expired_events);
 }
 
 static gboolean
