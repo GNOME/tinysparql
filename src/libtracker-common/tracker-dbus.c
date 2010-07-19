@@ -842,10 +842,16 @@ send_and_splice_async_callback (GObject      *source,
 	SendAndSpliceData *data = user_data;
 	DBusMessage *reply = NULL;
 	GError *error = NULL;
+	gpointer received_data;
+	gsize received_data_size;
 
 	g_output_stream_splice_finish (data->output_stream,
 	                               result,
 	                               &error);
+
+	/* Get received data pointer and size */
+	received_data = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream));
+	received_data_size = g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream));
 
 	if (G_LIKELY (!error)) {
 		dbus_pending_call_block (data->call);
@@ -853,6 +859,10 @@ send_and_splice_async_callback (GObject      *source,
 
 		if (G_UNLIKELY (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR)) {
 			DBusError dbus_error;
+
+			/* If any error happened, we're not passing any received data, so we
+			 * need to free it */
+			g_free (received_data);
 
 			dbus_error_init (&dbus_error);
 			dbus_set_error_from_message (&dbus_error, reply);
@@ -867,12 +877,16 @@ send_and_splice_async_callback (GObject      *source,
 			 * callback itself. */
 		} else {
 			dbus_pending_call_cancel (data->call);
-			(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
-			                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
+			(* data->callback) (received_data,
+			                    received_data_size,
 			                    NULL,
 			                    data->user_data);
 		}
 	} else {
+		/* If any error happened, we're not passing any received data, so we
+		 * need to free it */
+		g_free (received_data);
+
 		(* data->callback) (NULL, -1, error, data->user_data);
 
 		g_error_free (error);
