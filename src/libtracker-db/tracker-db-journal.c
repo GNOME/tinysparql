@@ -462,6 +462,13 @@ db_journal_init_file (JournalWriter *jwriter, gboolean truncate)
 
 		cur_block_maybe_expand (jwriter, 8);
 
+		/* If it didn't expand properly */
+		if (jwriter->cur_block == NULL) {
+			g_free (jwriter->journal_filename);
+			jwriter->journal_filename = NULL;
+			return FALSE;
+		}
+
 		jwriter->cur_block[0] = 't';
 		jwriter->cur_block[1] = 'r';
 		jwriter->cur_block[2] = 'l';
