@@ -46,11 +46,11 @@ public class Tracker.Sparql.Builder : Object {
 	State[] states;
 	StringBuilder str = new StringBuilder ();
 
-	public void update () {
+	public Builder.update () {
 		states += State.UPDATE;
 	}
 
-	public void embedded_insert () {
+	public Builder.embedded_insert () {
 		states += State.EMBEDDED_INSERT;
 		states += State.INSERT;
 		states += State.SUBJECT;
