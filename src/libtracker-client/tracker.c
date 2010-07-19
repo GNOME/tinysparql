@@ -163,13 +163,13 @@ typedef struct {
 
 struct TrackerResultIterator {
 #ifdef HAVE_DBUS_FD_PASSING
-	char *buffer;
-	int buffer_index;
-	long buffer_size;
+	gchar *buffer;
+	gint buffer_index;
+	gssize buffer_size;
 
 	guint n_columns;
-	int *offsets;
-	char *data;
+	gint *offsets;
+	gchar *data;
 #else  /* HAVE_DBUS_FD_PASSING */
 	GPtrArray *results;
 	gint current_row;
