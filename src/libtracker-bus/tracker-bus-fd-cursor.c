@@ -68,7 +68,8 @@ G_DEFINE_TYPE (TrackerBusFDCursor, tracker_bus_fd_cursor, TRACKER_SPARQL_TYPE_CU
 static void
 tracker_bus_fd_cursor_rewind (TrackerBusFDCursor *cursor)
 {
-	/* FIXME: Implement */
+	cursor->buffer_index = 0;
+	cursor->data = cursor->buffer;
 }
 
 static inline int

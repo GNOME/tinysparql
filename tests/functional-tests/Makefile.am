@@ -73,21 +73,21 @@ MAINTAINERCLEANFILES =					\
 	$(BUILT_SOURCES)				\
 	$(busy_handling_test_VALASOURCES:.vala=.c)
 
-bus_test_VALASOURCES = bus-test.vala
+bus_query_test_VALASOURCES = bus-query-test.vala
 
-bus_test_SOURCES = \
-	bus_test.vala.stamp \
-	$(bus_test_VALASOURCES:.vala=.c)
+bus_query_test_SOURCES = \
+	bus_query_test.vala.stamp \
+	$(bus_query_test_VALASOURCES:.vala=.c)
 
 bus_vapi_sources = \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	$(top_srcdir)/src/libtracker-bus/tracker-bus-$(TRACKER_API_VERSION).vapi
 
-bus-test.vala.stamp: $(bus_test_VALASOURCES) $(bus_vapi_sources)
+bus-query-test.vala.stamp: $(bus_query_test_VALASOURCES) $(bus_vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 $^
 	$(AM_V_GEN)touch $@
 
-bus_test_LDADD = \
+bus_query_test_LDADD = \
 	$(top_builddir)/src/libtracker-bus/libtracker-bus-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
@@ -97,7 +97,7 @@ bus_test_LDADD = \
 
 BUILT_SOURCES = \
 	busy-handling-test.vala.stamp \
-	bus-test.vala.stamp
+	bus-query-test.vala.stamp
 
 EXTRA_DIST = 					\
 	$(config_SCRIPTS) 			\
