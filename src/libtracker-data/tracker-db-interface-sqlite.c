@@ -24,6 +24,7 @@
 #include <sqlite3.h>
 #include <stdlib.h>
 #include <math.h>
+#include <errno.h>
 
 #include <libtracker-common/tracker-common.h>
 
@@ -828,6 +829,10 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 		if (sqlite3_errcode (interface->db) == SQLITE_IOERR ||
 		    sqlite3_errcode (interface->db) == SQLITE_CORRUPT ||
 		    sqlite3_errcode (interface->db) == SQLITE_NOTADB) {
+
+			g_critical ("SQLite error: %s (errno: %s)",
+			            sqlite3_errmsg (interface->db),
+			            g_strerror (errno));
 
 			sqlite3_finalize (stmt);
 			sqlite3_close (interface->db);
