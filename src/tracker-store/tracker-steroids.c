@@ -375,7 +375,7 @@ steroids_query (TrackerSteroids *steroids,
 		                          __FUNCTION__);
 
 		reply = dbus_message_new_error_printf (message,
-		                                       DBUS_ERROR_UNKNOWN_METHOD,   
+		                                       DBUS_ERROR_UNKNOWN_METHOD,
 		                                       UNKNOWN_METHOD_MESSAGE,
 		                                       "Query",
 		                                       dbus_message_get_signature (message),
@@ -637,9 +637,6 @@ tracker_steroids_connection_filter (DBusConnection *connection,
 	g_return_val_if_fail (connection != NULL, DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
 	g_return_val_if_fail (message != NULL, DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
 
-	steroids = user_data;
-	g_return_val_if_fail (TRACKER_IS_STEROIDS (steroids), DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
-
 	if (g_strcmp0 (TRACKER_STEROIDS_PATH, dbus_message_get_path (message))) {
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 	}
@@ -647,6 +644,11 @@ tracker_steroids_connection_filter (DBusConnection *connection,
 	if (g_strcmp0 (TRACKER_STEROIDS_INTERFACE, dbus_message_get_interface (message))) {
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 	}
+
+	/* Only check if the user_data is our TrackerSteroids AFTER having checked that
+	 * the message matches expected path and interface. */
+	steroids = user_data;
+	g_return_val_if_fail (TRACKER_IS_STEROIDS (steroids), DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
 
 	if (!g_strcmp0 ("Query", dbus_message_get_member (message))) {
 		steroids_query (steroids, connection, message);
