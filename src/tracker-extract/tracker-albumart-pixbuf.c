@@ -86,6 +86,14 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 
 		pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
 
+		if (pixbuf == NULL) {
+			g_warning ("Could not get pixbuf from GdkPixbufLoader when setting album art");
+
+			gdk_pixbuf_loader_close (loader, NULL);
+
+			return FALSE;
+		}
+
 		if (!gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL)) {
 			g_warning ("Could not save GdkPixbuf when setting album art, %s",
 			           error ? error->message : "no error given");
