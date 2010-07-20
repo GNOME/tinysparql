@@ -27,11 +27,7 @@ namespace Tracker {
 		public string status { get; set; }
 		[NoAccessorMethod]
 		public double progress { get; set; }
-		public async void commit (GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public static GLib.Quark error_quark ();
-		public async void execute_batch_update (string sparql, GLib.Cancellable? cancellable = null) throws GLib.Error;
-		public async unowned GLib.PtrArray execute_sparql (string sparql, GLib.Cancellable? cancellable = null) throws GLib.Error;
-		public async void execute_update (string sparql, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public void ignore_next_update (string[] urls);
 		public bool is_started ();
 		public int pause (string reason) throws GLib.Error;
@@ -43,6 +39,7 @@ namespace Tracker {
 		public void stop ();
 		public virtual void stopped ();
 		public signal void error (GLib.Error e);
+		public unowned Tracker.Sparql.Connection? get_connection ();
 	}
 	[CCode (ref_function = "tracker_miner_fs_ref", unref_function = "tracker_miner_fs_unref", cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class MinerFS {

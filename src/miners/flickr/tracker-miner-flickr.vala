@@ -68,8 +68,6 @@ public class MinerFlickr : Tracker.MinerWeb {
 	private static MainLoop main_loop;
 
 	/* Needed to connect to the writeback signal */
-	private Tracker.Client tracker_client;
-
 	private Rest.Proxy rest;
 
 	/* Only used during association phase */
@@ -87,8 +85,8 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 		rest = new Rest.Proxy (FLICKR_REST_URL, false);
 
-		tracker_client = new Tracker.Client (0, -1);
-		tracker_client.writeback_connect (writeback);
+		// FIXME: Add support for this, it won't be in libtracker-sparql though.
+		// tracker_client.writeback_connect (writeback);
 
 		init_datasource ();
 
@@ -102,7 +100,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 	private void init_datasource () {
 		try {
-			tracker_client.sparql_update ("insert { <%s> a nie:DataSource ; nao:identifier \"flickr\" }".printf (DATASOURCE_URN));
+			get_connection ().update ("insert { <%s> a nie:DataSource ; nao:identifier \"flickr\" }".printf (DATASOURCE_URN));
 		} catch (Error e) {
 			warning ("Couldn't init datasource: %s", e.message);
 		}
@@ -168,7 +166,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		string photoset_urn;
 		string delete_query;
 		Rest.ProxyCall photos_call;
-		SparqlBuilder builder;
+		Tracker.Sparql.Builder builder;
 		uint n_photosets;
 		uint indexed_photosets = 0;
 
@@ -186,7 +184,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 				message ("Getting photos for album %s", photoset_url);
 
-				builder = new SparqlBuilder.update ();
+				builder = new Tracker.Sparql.Builder.update ();
 				builder.insert_open (photoset_url);
 				builder.subject_iri (photoset_urn);
 
@@ -194,7 +192,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 					delete_query = ("delete { <%1$s> nie:title ?title }"
 					             +  "where  { <%1$s> nie:title ?title }")
 					             .printf (photoset_urn);
-					tracker_client.sparql_update (delete_query);
+					get_connection ().update (delete_query);
 				} else {
 					builder.predicate ("nie:dataSource");
 					builder.object_iri (DATASOURCE_URN);
@@ -210,7 +208,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 				builder.insert_close ();
 
-				tracker_client.sparql_update (builder.get_result ());
+				get_connection ().update (builder.result);
 
 				status = "Refresing album \"%s\"".printf (title_node.content);
 
@@ -240,7 +238,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		string photo_url;
 		string photo_urn;
 		bool resource_created;
-		SparqlBuilder builder;
+		Tracker.Sparql.Builder builder;
 
 		photoset_node = root_node.find ("photoset");
 		if (photoset_node == null || photoset_node.get_attr ("id") == null) {
@@ -264,7 +262,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 				                          "flickr:photo:%s".printf (photo_node.get_attr ("id")),
 				                          out resource_created);
 
-				builder = new SparqlBuilder.update ();
+				builder = new Tracker.Sparql.Builder.update ();
 
 				if (resource_created) {
 					builder.insert_open (photo_url);
@@ -280,7 +278,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 				insert_exif_data (photo_node, builder, photo_url, photo_urn);
 
 
-				tracker_client.sparql_update (builder.get_result ());
+				get_connection ().update (builder.result);
 			} catch (Error err) {
 				warning ("Couldn't insert photo %s: %s", photo_url, err.message);
 			}
@@ -289,7 +287,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		}
 	}
 
-	private void insert_photo_info (Rest.XmlNode photo_node, SparqlBuilder builder, string graph, string urn) {
+	private void insert_photo_info (Rest.XmlNode photo_node, Tracker.Sparql.Builder builder, string graph, string urn) {
 		var info_call = rest.new_call ();
 		Rest.XmlNode root_node;
 		Rest.XmlNode title_node;
@@ -339,7 +337,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		builder.insert_close ();
 	}
 
-	private void insert_exif_data (Rest.XmlNode photo_node, SparqlBuilder builder, string graph, string urn) {
+	private void insert_exif_data (Rest.XmlNode photo_node, Tracker.Sparql.Builder builder, string graph, string urn) {
 		var exif_call = rest.new_call ();
 		Rest.XmlNode root_node;
 		Rest.XmlNode exif_node;
@@ -456,8 +454,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 	}
 
 	private async void writeback_photo (string uri) {
-		weak PtrArray results;
-		weak string[][] triples;
+		Tracker.Sparql.Cursor cursor;
 		string photo_id;
 		string[] local_tags = {};
 		HashTable<string, string> flickr_tags = new HashTable<string, string> (str_hash, str_equal);
@@ -468,24 +465,30 @@ public class MinerFlickr : Tracker.MinerWeb {
 		Rest.XmlNode tag_node;
 
 		try {
-			results = yield execute_sparql (("select ?photo_id ?tag where { <%s> nie:dataSource <%s> ;"
-			                                                               +    "nao:identifier ?photo_id ;"
-			                                                               +    "nao:hasTag ?t ."
-			                                                               + "?t nao:prefLabel ?tag }").printf (uri, DATASOURCE_URN));
-		} catch (Error tracker_error) {
-			warning ("Tracker error when doing writeback for photo %s: %s", uri, tracker_error.message);
+			var c = get_connection ();
+			string s = ("select ?photo_id ?tag where { <%s> nie:dataSource <%s> ;"
+			                                          +    "nao:identifier ?photo_id ;"
+			                                          +    "nao:hasTag ?t ."
+			                                          + "?t nao:prefLabel ?tag }").printf (uri, DATASOURCE_URN);
+
+			cursor = yield c.query_async (s, null);
+		} catch (Error query_error) {
+			warning ("Tracker error when doing writeback for photo %s: %s", uri, query_error.message);
 			return;
 		}
 
-		if (results.len == 0) {
-			return;
-		}
+		try {
+			photo_id = null;
 
-		triples = (string[][])results.pdata;
-		photo_id = triples[0][0];
+			while (cursor.next (null)) {
+				if (photo_id == null)
+					photo_id = cursor.get_string (0, null);
 
-		for (uint i = 0 ; i < results.len ; ++i) {
-			local_tags += triples[i][1];
+				local_tags += cursor.get_string (1, null);
+			}
+			photo_id = cursor.get_string (0, null);
+		} catch (Error cursor_error) {
+			warning ("Tracker error when getting tags and photo ids: %s", cursor_error.message);
 		}
 
 		tag_call = rest.new_call ();
@@ -730,14 +733,11 @@ public class MinerFlickr : Tracker.MinerWeb {
 		}
 	}
 
-	private string get_resource (string? graph, string[] types, string identifier, out bool created) throws GLib.Error {
+	private string? get_resource (string? graph, string[] types, string identifier, out bool created) throws GLib.Error {
 		string inner_query;
 		string select_query;
 		string insert_query;
-		GLib.PtrArray query_results;
-		unowned string[][] triples;
-		HashTable<string, string> anonymous_nodes;
-
+		Tracker.Sparql.Cursor cursor;
 
 		select_query = "";
 		inner_query = "";
@@ -751,33 +751,43 @@ public class MinerFlickr : Tracker.MinerWeb {
 		select_query = "select ?urn where { ?urn %s }".printf (inner_query);
 
 		try {
-			query_results = tracker_client.sparql_query (select_query);
-		} catch (Error tracker_error) {
-			throw tracker_error;
-		}
+			cursor = get_connection ().query (select_query, null);
+			if (cursor.next (null))
+				return cursor.get_string (0, null);
 
-		if (query_results.len > 0) {
-			triples = (string[][]) query_results.pdata;
-			return triples[0][0];
-		}
+			if (graph == null) {
+				insert_query = "insert { _:res %s }".printf (inner_query);
+			} else {
+				insert_query = "insert into <%s> { _:res %s }".printf (graph, inner_query);
+			}
 
-		if (graph == null) {
-			insert_query = "insert { _:res %s }".printf (inner_query);
-		} else {
-			insert_query = "insert into <%s> { _:res %s }".printf (graph, inner_query);
-		}
-
-		try {
 			created = true;
-			query_results = tracker_client.sparql_update_blank (insert_query);
-			anonymous_nodes = ((HashTable<string, string>[])(((PtrArray[])query_results.pdata)[0].pdata))[0];
-			return anonymous_nodes.lookup ("res");
+
+			Variant v = get_connection ().update_blank (insert_query, GLib.Priority.DEFAULT, null);
+
+			VariantIter iter1, iter2, iter3;
+			string key = null, val = null;
+			
+			iter1 = v.iterator ();
+			
+			while (iter1.next ("aa{ss}", out iter2)) {
+				while (iter2.next ("a{ss}", out iter3)) {
+					while (iter3.next ("{ss}", out key, out val)) {
+						// Just get first, should only be one
+						break;
+					}
+				}
+			}
+			
+			return val;
 		} catch (Error tracker_error) {
 			throw tracker_error;
 		}
+
+		return null;
 	}
 
-	public void update_triple_string (SparqlBuilder builder, string graph, string urn, string property, string new_value) {
+	public void update_triple_string (Tracker.Sparql.Builder builder, string graph, string urn, string property, string new_value) {
 		builder.delete_open (graph);
 		builder.subject_iri (urn);
 		builder.predicate (property);
@@ -791,7 +801,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		builder.insert_close ();
 	}
 
-	public void update_triple_object (SparqlBuilder builder, string graph, string urn, string property, string new_value) {
+	public void update_triple_object (Tracker.Sparql.Builder builder, string graph, string urn, string property, string new_value) {
 		builder.delete_open (graph);
 		builder.subject_iri (urn);
 		builder.predicate (property);
@@ -805,7 +815,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		builder.insert_close ();
 	}
 
-	public void update_triple_double (SparqlBuilder builder, string graph, string urn, string property, double new_value) {
+	public void update_triple_double (Tracker.Sparql.Builder builder, string graph, string urn, string property, double new_value) {
 		builder.delete_open (graph);
 		builder.subject_iri (urn);
 		builder.predicate (property);
@@ -819,7 +829,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		builder.insert_close ();
 	}
 
-	public void update_triple_int64 (SparqlBuilder builder, string graph, string urn, string property, int64 new_value) {
+	public void update_triple_int64 (Tracker.Sparql.Builder builder, string graph, string urn, string property, int64 new_value) {
 		builder.delete_open (graph);
 		builder.subject_iri (urn);
 		builder.predicate (property);

@@ -9,7 +9,7 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-client				\
+	-I$(top_builddir)/src/libtracker-sparql		\
 	$(WARN_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
@@ -26,7 +26,7 @@ VALAFLAGS =								\
 libexec_PROGRAMS = tracker-miner-flickr
 
 tracker_miner_flickr_VALASOURCES =					\
-	$(top_srcdir)/src/libtracker-client/tracker-client.vapi		\
+	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-@TRACKER_API_VERSION@.vapi		\
 	tracker-miner-flickr.vala
 
 tracker_miner_flickr_SOURCES =						\
@@ -35,7 +35,7 @@ tracker_miner_flickr_SOURCES =						\
 
 tracker_miner_flickr_LDADD =						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
