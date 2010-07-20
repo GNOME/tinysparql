@@ -280,7 +280,7 @@ extract_jpeg (const gchar          *uri,
 	tracker_sparql_builder_object_int64 (metadata, cinfo.image_height);
 
 	if (id->contact) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", id->contact);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", id->contact);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
@@ -310,7 +310,7 @@ extract_jpeg (const gchar          *uri,
 	}
 
 	if (xd->publisher) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", xd->publisher);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", xd->publisher);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
@@ -438,7 +438,7 @@ extract_jpeg (const gchar          *uri,
 	}
 
 	if (md.artist) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", md.artist);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.artist);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
@@ -485,7 +485,7 @@ extract_jpeg (const gchar          *uri,
 	}
 
 	if (md.creator) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", md.creator);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.creator);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);

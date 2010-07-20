@@ -105,10 +105,10 @@ extract_totem (const gchar          *uri,
 
 					if (g_strcmp0 (tags[i][0], "TOTEM_INFO_ARTIST") == 0) {
 						artist = g_strdup (value);
-						artist_uri = tracker_uri_printf_escaped ("urn:artist:%s", artist);
+						artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", artist);
 					} else if (g_strcmp0 (tags[i][0], "TOTEM_INFO_ALBUM") == 0) {
 						album = g_strdup (value);
-						album_uri = tracker_uri_printf_escaped ("urn:album:%s", album);
+						album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album);
 					} else {
 						g_hash_table_insert (tmp_metadata, g_strdup (tags[i][1]), g_strdup (value));
 					}

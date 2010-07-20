@@ -154,7 +154,7 @@ extract_mockup (const gchar          *uri,
 	 *  data objects, for example, an artist which might be used n times)
 	 */
 	if (performer) {
-		performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", performer);
+		performer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", performer);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, performer_uri);
@@ -168,7 +168,7 @@ extract_mockup (const gchar          *uri,
 	}
 
 	if (composer) {
-		composer_uri = tracker_uri_printf_escaped ("urn:artist:%s", composer);
+		composer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", composer);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, composer_uri);
@@ -182,7 +182,7 @@ extract_mockup (const gchar          *uri,
 	}
 
 	if (lyricist) {
-		lyricist_uri = tracker_uri_printf_escaped ("urn:artist:%s", lyricist);
+		lyricist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", lyricist);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, lyricist_uri);
@@ -196,7 +196,7 @@ extract_mockup (const gchar          *uri,
 	}
 
 	if (album) {
-		album_uri = tracker_uri_printf_escaped ("urn:album:%s", album);
+		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, album_uri);

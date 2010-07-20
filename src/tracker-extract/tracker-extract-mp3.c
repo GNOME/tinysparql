@@ -2078,7 +2078,7 @@ extract_mp3 (const gchar          *uri,
 	}
 
 	if (md.performer) {
-		md.performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", md.performer);
+		md.performer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.performer);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 
@@ -2092,7 +2092,7 @@ extract_mp3 (const gchar          *uri,
 	}
 
 	if (md.composer) {
-		md.composer_uri = tracker_uri_printf_escaped ("urn:artist:%s", md.composer);
+		md.composer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.composer);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 
@@ -2106,7 +2106,7 @@ extract_mp3 (const gchar          *uri,
 	}
 
 	if (md.lyricist) {
-		md.lyricist_uri = tracker_uri_printf_escaped ("urn:artist:%s", md.lyricist);
+		md.lyricist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.lyricist);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, md.lyricist_uri);
@@ -2118,7 +2118,7 @@ extract_mp3 (const gchar          *uri,
 	}
 
 	if (md.album) {
-		md.album_uri = tracker_uri_printf_escaped ("urn:album:%s", md.album);
+		md.album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", md.album);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 

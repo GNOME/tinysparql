@@ -240,7 +240,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	g_free (ed->software);
 
 	if (md.creator) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", md.creator);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.creator);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
@@ -281,7 +281,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 
 	if (md.artist) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", md.artist);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.artist);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
@@ -355,7 +355,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 
 	if (xd->publisher) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:contact:%s", xd->publisher);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", xd->publisher);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);

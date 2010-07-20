@@ -99,7 +99,7 @@ tracker_extract_xine (const gchar          *uri,
 
 	author = xine_get_meta_info (stream, XINE_META_INFO_ARTIST);
 	if (author) {
-		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", author);
+		gchar *canonical_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", author);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 
@@ -114,7 +114,7 @@ tracker_extract_xine (const gchar          *uri,
 
 	album = xine_get_meta_info (stream, XINE_META_INFO_ALBUM);
 	if (album) {
-		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:album:%s", album);
+		gchar *canonical_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", album);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 

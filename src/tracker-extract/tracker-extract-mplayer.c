@@ -90,7 +90,7 @@ copy_hash_table_entry (gpointer key,
 	ForeachCopyInfo *info = user_data;
 
 	if (g_strcmp0 (key, "nmm:performer") == 0) {
-		gchar *canonical_uri = tracker_uri_printf_escaped ("urn:artist:%s", value);
+		gchar *canonical_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", value);
 
 		tracker_sparql_builder_insert_open (info->preupdate, NULL);
 

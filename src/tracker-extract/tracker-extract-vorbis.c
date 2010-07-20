@@ -172,7 +172,7 @@ extract_vorbis (const char *uri,
 	md.creator = tracker_coalesce_strip (3, vd.artist, vd.album_artist, vd.performer);
 
 	if (md.creator) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:artist:%s", md.creator);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.creator);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);
@@ -188,7 +188,7 @@ extract_vorbis (const char *uri,
 	}
 
 	if (vd.album) {
-		gchar *uri = tracker_uri_printf_escaped ("urn:album:%s", vd.album);
+		gchar *uri = tracker_sparql_escape_uri_printf ("urn:album:%s", vd.album);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, uri);

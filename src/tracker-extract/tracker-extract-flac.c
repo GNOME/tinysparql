@@ -221,7 +221,7 @@ extract_flac (const gchar          *uri,
 	                                  fd.performer);
 
 	if (creator) {
-		artist_uri = tracker_uri_printf_escaped ("urn:artist:%s", creator);
+		artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", creator);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, artist_uri);
@@ -233,7 +233,7 @@ extract_flac (const gchar          *uri,
 	}
 
 	if (fd.album) {
-		album_uri = tracker_uri_printf_escaped ("urn:album:%s", fd.album);
+		album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", fd.album);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 
