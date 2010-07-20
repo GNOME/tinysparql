@@ -7908,10 +7908,10 @@ int tracker_fts_init(sqlite3 *db, int create, GObject *object){
   int rc = SQLITE_OK;
 
   if (create){
-    createTables (db, "fulltext", "fts");
+    createTables (db, "main", "fts");
   }
 
-  constructVtab(db, "fulltext", "fts", NULL, object);
+  constructVtab(db, "main", "fts", NULL, object);
 
   /* Create the virtual table wrapper around the hash-table and overload
   ** the two scalar functions. If this is successful, register the
@@ -7934,7 +7934,7 @@ int tracker_fts_init(sqlite3 *db, int create, GObject *object){
       return rc;
 
     if (create){
-        rc = sqlite3_exec(db, "CREATE VIRTUAL TABLE fulltext.fts USING trackerfts", NULL, 0, NULL);
+        rc = sqlite3_exec(db, "CREATE VIRTUAL TABLE fts USING trackerfts", NULL, 0, NULL);
     }
   }
 

@@ -130,17 +130,6 @@ static TrackerDBDefinition dbs[] = {
 	  FALSE,
 	  FALSE,
 	  0 },
-	{ TRACKER_DB_FULLTEXT,
-	  TRACKER_DB_LOCATION_DATA_DIR,
-	  NULL,
-	  "fulltext.db",
-	  "fulltext",
-	  NULL,
-	  512,
-	  TRACKER_DB_PAGE_SIZE_DONT_SET,
-	  FALSE,
-	  TRUE,
-	  0 },
 };
 
 static gboolean            db_exec_no_reply    (TrackerDBInterface *iface,
@@ -276,17 +265,6 @@ db_interface_get (TrackerDB  type,
 }
 
 static TrackerDBInterface *
-db_interface_get_fulltext (void)
-{
-	TrackerDBInterface *iface;
-	gboolean            create;
-
-	iface = db_interface_get (TRACKER_DB_FULLTEXT, &create);
-
-	return iface;
-}
-
-static TrackerDBInterface *
 db_interface_get_metadata (void)
 {
 	TrackerDBInterface *iface;
@@ -306,9 +284,6 @@ db_interface_create (TrackerDB db)
 
 	case TRACKER_DB_METADATA:
 		return db_interface_get_metadata ();
-
-	case TRACKER_DB_FULLTEXT:
-		return db_interface_get_fulltext ();
 
 	default:
 		g_critical ("This TrackerDB type:%d->'%s' has no interface set up yet!!",
@@ -891,13 +866,11 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	thread_ifaces = g_hash_table_new (NULL, NULL);
 
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
-		resources_iface = tracker_db_manager_get_db_interfaces_ro (2,
-		                                                           TRACKER_DB_METADATA,
-		                                                           TRACKER_DB_FULLTEXT);
+		resources_iface = tracker_db_manager_get_db_interfaces_ro (1,
+		                                                           TRACKER_DB_METADATA);
 	} else {
-		resources_iface = tracker_db_manager_get_db_interfaces (2,
-		                                                        TRACKER_DB_METADATA,
-		                                                        TRACKER_DB_FULLTEXT);
+		resources_iface = tracker_db_manager_get_db_interfaces (1,
+		                                                        TRACKER_DB_METADATA);
 	}
 
 	g_static_private_set (&interface_data_key, resources_iface, free_thread_interface);
@@ -1339,9 +1312,8 @@ tracker_db_manager_get_db_interface (void)
 
 	/* Ensure the interface is there */
 	if (!interface) {
-		interface = tracker_db_manager_get_db_interfaces (2,
-		                                                  TRACKER_DB_METADATA,
-		                                                  TRACKER_DB_FULLTEXT);
+		interface = tracker_db_manager_get_db_interfaces (1,
+		                                                  TRACKER_DB_METADATA);
 
 		tracker_db_interface_sqlite_fts_init (interface, FALSE);
 
