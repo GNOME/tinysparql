@@ -21,6 +21,8 @@
 public const string TRACKER_DBUS_SERVICE = "org.freedesktop.Tracker1";
 public const string TRACKER_DBUS_INTERFACE_RESOURCES = TRACKER_DBUS_SERVICE + ".Resources";
 public const string TRACKER_DBUS_OBJECT_RESOURCES = "/org/freedesktop/Tracker1/Resources";
+public const string TRACKER_DBUS_INTERFACE_STATISTICS = TRACKER_DBUS_SERVICE + ".Statistics";
+public const string TRACKER_DBUS_OBJECT_STATISTICS = "/org/freedesktop/Tracker1/Statistics";
 public const string TRACKER_DBUS_INTERFACE_STEROIDS = TRACKER_DBUS_SERVICE + ".Steroids";
 public const string TRACKER_DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/Steroids";
 
@@ -80,5 +82,16 @@ public abstract class Tracker.Sparql.Connection : Object {
 	}
 	public async virtual void import_async (File file, Cancellable? cancellable = null) throws GLib.Error {
 		warning ("Interface 'import_async' not implemented");
+	}
+	
+	// Statistics
+	public virtual Cursor? statistics (Cancellable? cancellable = null) throws GLib.Error {
+		warning ("Interface 'statistics' not implemented");
+		return null;
+	}
+	
+	public async virtual Cursor? statistics_async (Cancellable? cancellable = null) throws GLib.Error {
+		warning ("Interface 'statistics_async' not implemented");
+		return null;
 	}
 }

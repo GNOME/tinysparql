@@ -75,6 +75,14 @@ class Tracker.Sparql.PluginLoader : Connection {
 		yield bus.import_async (file, cancellable);
 	}
 
+	public override Cursor? statistics (Cancellable? cancellable = null) throws GLib.Error {
+		return bus.statistics (cancellable);
+	}
+
+	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws GLib.Error {
+		return yield bus.statistics_async (cancellable);
+	}
+
 	// Plugin loading functions
 	private bool load_plugins (bool direct_only) throws GLib.Error {
 		string env_path = Environment.get_variable ("TRACKER_SPARQL_MODULE_PATH");
