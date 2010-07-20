@@ -23,6 +23,11 @@ private interface Tracker.Bus.Resources : GLib.Object {
 	public abstract void sparql_update (string query) throws DBus.Error;
 	[DBus (name = "SparqlUpdate")]
 	public abstract async void sparql_update_async (string query) throws DBus.Error;
+
+	[DBus (name = "Load")]
+	public abstract void import (string uri) throws DBus.Error;
+	[DBus (name = "Load")]
+	public abstract async void import_async (string uri) throws DBus.Error;
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Statistics")]
@@ -99,6 +104,13 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws GLib.Error {
 		yield resources_object.sparql_update_async (sparql);
+	}
+
+	public override void import (File file, Cancellable? cancellable = null) throws GLib.Error {
+		resources_object.import (file.get_uri ());
+	}
+	public async override void import_async (File file, Cancellable? cancellable = null) throws GLib.Error {
+		yield resources_object.import_async (file.get_uri ());
 	}
 
 	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws GLib.Error {
