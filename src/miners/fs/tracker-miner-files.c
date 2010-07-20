@@ -2024,6 +2024,9 @@ get_metadata_fast_cb (void     *buffer,
 		if (error->code != G_IO_ERROR_CANCELLED) {
 			/* ProcessFileData and error are freed in the callback */
 			(* data->callback) (NULL, NULL, NULL, error, process_data);
+		} else {
+			/* Free error ourselves */
+			g_error_free (error);
 		}
 	} else {
 		if (buffer_size) {
