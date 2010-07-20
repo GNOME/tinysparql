@@ -666,7 +666,8 @@ callback_iterator (void     *buffer,
 
 			(* fad->iterator_callback) (NULL, iterator_error, fad->user_data);
 
-			g_error_free (iterator_error);
+			/* iterator_error was passed to the callback and should be
+			 * disposed there */
 		}
 
 		/* Always free input GError. We want to behave exactly as if this
