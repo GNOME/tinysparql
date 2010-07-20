@@ -890,7 +890,10 @@ send_and_splice_async_callback (GObject      *source,
 
 		(* data->callback) (NULL, -1, error, data->user_data);
 
-		g_error_free (error);
+		/* Note: GError should be freed by callback. We do this to be aligned
+		 * with the behavior of dbus-glib, where if an error happens, the
+		 * GError passed to the callback is supposed to be disposed by the
+		 * callback itself. */
 	}
 
 	if (reply) {
