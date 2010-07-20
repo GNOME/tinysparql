@@ -17,6 +17,13 @@
  * Boston, MA  02110-1301, USA.
  */
 
+// Convenience
+public const string TRACKER_DBUS_SERVICE = "org.freedesktop.Tracker1";
+public const string TRACKER_DBUS_INTERFACE_RESOURCES = TRACKER_DBUS_SERVICE + ".Resources";
+public const string TRACKER_DBUS_OBJECT_RESOURCES = "/org/freedesktop/Tracker1/Resources";
+public const string TRACKER_DBUS_INTERFACE_STEROIDS = TRACKER_DBUS_SERVICE + ".Steroids";
+public const string TRACKER_DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/Steroids";
+
 public abstract class Tracker.Sparql.Connection : Object {
 	static bool direct_only;
 	static weak Connection? singleton;
