@@ -23,6 +23,8 @@
 
 #include <libtracker-miner/tracker-miner.h>
 
+#include <libtracker-sparql/tracker-sparql.h>
+
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_MINER_RSS         (tracker_miner_rss_get_type())

@@ -32,8 +32,8 @@
 
 #define TRACKER_MINER_RSS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MINER_RSS, TrackerMinerRSSPrivate))
 
-#define TRACKER_DBUS_OBJECT_FEED    TRACKER_DBUS_OBJECT "/Resources/Classes/mfo/FeedChannel"
 #define TRACKER_DBUS_INTERFACE_FEED TRACKER_DBUS_INTERFACE_RESOURCES ".Class"
+#define TRACKER_DBUS_OBJECT_FEED    TRACKER_DBUS_OBJECT_RESOURCES "/Classes/mfo/FeedChannel"
 
 typedef struct _TrackerMinerRSSPrivate TrackerMinerRSSPrivate;
 
@@ -140,7 +140,7 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 	}
 
 	proxy = dbus_g_proxy_new_for_name (connection,
-	                                   TRACKER_DBUS_SERVICE,
+	                                   TRACKER_DBUS_SERVICE, /* org.freedesktop.Tracker1 */
 	                                   TRACKER_DBUS_OBJECT_FEED,
 	                                   TRACKER_DBUS_INTERFACE_FEED);
 
@@ -182,7 +182,7 @@ verify_channel_update (GObject      *source,
 
 	error = NULL;
 
-	tracker_miner_execute_update_finish (TRACKER_MINER (source), result, &error);
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source), result, &error);
 	if (error != NULL) {
 		g_critical ("Could not update channel information, %s", error->message);
 		g_error_free (error);
@@ -220,11 +220,13 @@ update_updated_interval (TrackerMinerRSS *miner,
 	tracker_sparql_builder_object_date (sparql, now);
 	tracker_sparql_builder_insert_close (sparql);
 
-	tracker_miner_execute_update (TRACKER_MINER (miner),
-	                              tracker_sparql_builder_get_result (sparql),
-	                              NULL,
-	                              verify_channel_update,
-	                              NULL);
+        /* FIXME: Should be async */
+        tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+                                                tracker_sparql_builder_get_result (sparql),
+                                                G_PRIORITY_DEFAULT,
+                                                NULL,
+                                                verify_channel_update,
+                                                NULL);
 	g_object_unref (sparql);
 }
 
@@ -265,7 +267,7 @@ verify_item_insertion (GObject      *source,
 
 	error = NULL;
 
-	tracker_miner_execute_update_finish (TRACKER_MINER (source), result, &error);
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source), result, &error);
 	if (error != NULL) {
 		g_critical ("Could not insert feed information, %s", error->message);
 		g_error_free (error);
@@ -279,12 +281,12 @@ item_verify_reply_cb (GObject      *source_object,
 {
 	time_t t;
 	gchar *uri;
-	gchar **values;
+	const gchar *str;
 	const gchar *url;
 	gdouble latitude;
 	gdouble longitude;
 	const gchar *tmp_string;
-	const GPtrArray *response;
+	TrackerSparqlCursor *cursor;
 	GError *error;
 	TrackerSparqlBuilder *sparql;
 	FeedItem *item;
@@ -294,9 +296,9 @@ item_verify_reply_cb (GObject      *source_object,
 
 	miner = TRACKER_MINER_RSS (source_object);
 	error = NULL;
-	response = tracker_miner_execute_sparql_finish (TRACKER_MINER (source_object),
-	                                                res,
-	                                                &error);
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
+                                                         res,
+                                                         &error);
 
 	if (error != NULL) {
 		g_message ("Could not verify feed existance, %s", error->message);
@@ -304,8 +306,13 @@ item_verify_reply_cb (GObject      *source_object,
 		return;
 	}
 
-	values = g_ptr_array_index (response, 0);
-	if (g_strcmp0 (values[0], "1") == 0) {
+        if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		g_message ("No data in query response??");
+                return;
+        }
+
+	str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+	if (g_strcmp0 (str, "1") == 0) {
 		return;
 	}
 
@@ -394,11 +401,12 @@ item_verify_reply_cb (GObject      *source_object,
 
 	tracker_sparql_builder_insert_close (sparql);
 
-	tracker_miner_execute_update (TRACKER_MINER (miner),
-	                              tracker_sparql_builder_get_result (sparql),
-	                              NULL,
-	                              verify_item_insertion,
-	                              NULL);
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+                                                tracker_sparql_builder_get_result (sparql),
+                                                G_PRIORITY_DEFAULT,
+                                                NULL,
+                                                verify_item_insertion,
+                                                NULL);
 
 	g_object_unref (sparql);
 }
@@ -423,11 +431,11 @@ check_if_save (TrackerMinerRSS *miner,
 	                         url,
 	                         communication_channel);
 
-	tracker_miner_execute_sparql (TRACKER_MINER (miner),
-	                              query,
-	                              NULL,
-	                              item_verify_reply_cb,
-	                              item);
+	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+                                               query,
+                                               NULL,
+                                               item_verify_reply_cb,
+                                               item);
 	g_free (query);
 }
 
@@ -471,19 +479,15 @@ feeds_retrieve_cb (GObject      *source_object,
                    GAsyncResult *res,
                    gpointer      user_data)
 {
-	gint interval;
-	guint i;
-	gchar **values;
 	GList *channels;
-	const GPtrArray *response;
-	GError *error;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
 	TrackerMinerRSSPrivate *priv;
 	FeedChannel *chan;
 
-	error = NULL;
-	response = tracker_miner_execute_sparql_finish (TRACKER_MINER (source_object),
-	                                                res,
-	                                                &error);
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
+                                                         res,
+                                                         &error);
 
 	if (error != NULL) {
 		g_message ("Could not retrieve feeds, %s", error->message);
@@ -493,31 +497,38 @@ feeds_retrieve_cb (GObject      *source_object,
 
 	channels = NULL;
 
-	g_message ("Found %d feeds", response->len);
+	g_message ("Found feeds");
 
-	for (i = 0; i < response->len; i++) {
-		values = g_ptr_array_index (response, i);
+        while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+                const gchar *source;
+                const gchar *interval;
+                const gchar *subject;
+                gint mins;
+
+                source = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+                interval = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+                subject = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 
 		chan = feed_channel_new ();
 		g_object_set_data_full (G_OBJECT (chan),
 		                        "subject",
-		                        g_strdup (values [2]),
+		                        g_strdup (subject),
 		                        g_free);
-		feed_channel_set_source (chan, values [0]);
+		feed_channel_set_source (chan, g_strdup (source));
 
 		/* TODO How to manage feeds with an update mfo:updateInterval == 0 ?
 		 * Here the interval is forced to be at least 1 minute, but perhaps those
 		 * elements are to be considered "disabled"
 		 */
-		interval = strtoull (values [1], NULL, 10);
-		if (interval <= 0)
-			interval = 1;
-		feed_channel_set_update_interval (chan, interval);
+		mins = strtoull (interval, NULL, 10);
+		if (mins <= 0)
+			mins = 1;
+		feed_channel_set_update_interval (chan, mins);
 
 		channels = g_list_prepend (channels, chan);
 	}
 
-	priv = TRACKER_MINER_RSS_GET_PRIVATE (source_object);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
 	feeds_pool_listen (priv->pool, channels);
 }
 
@@ -534,11 +545,11 @@ retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
 	         "?chanUrn nie:url ?chanUrl . "
 	         "?settings mfo:updateInterval ?interval }";
 
-	tracker_miner_execute_sparql (TRACKER_MINER (miner),
-	                              sparql,
-	                              NULL,
-	                              feeds_retrieve_cb,
-	                              NULL);
+	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+                                               sparql,
+                                               NULL,
+                                               feeds_retrieve_cb,
+                                               miner);
 }
 
 static const gchar *
