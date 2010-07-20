@@ -1,8 +1,11 @@
 include $(top_srcdir)/Makefile.decl
 
+modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
+
 INCLUDES =								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
+	-DSPARQL_MODULES_DIR=\""$(modulesdir)"\" 			\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
 	$(WARN_CFLAGS)							\
@@ -40,6 +43,7 @@ vapi_DATA =                     			\
 
 # Vala sources
 vapi_sources =						\
+	config.vapi					\
 	$(top_srcdir)/src/vapi/posix.vapi		\
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
 
@@ -63,5 +67,6 @@ MAINTAINERCLEANFILES =					\
 	tracker-sparql.h
 
 EXTRA_DIST = 						\
+	config.vapi \
 	$(libtracker_sparql_la_VALASOURCES) \
 	libtracker-sparql.vala.stamp

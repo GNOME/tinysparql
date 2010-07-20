@@ -91,8 +91,7 @@ class Tracker.Sparql.PluginLoader : Connection {
 		if (env_path != null && env_path.length > 0) {
 			path = env_path;
 		} else {
-			// FIXME: Get from config
-			path = "/tmp";
+			path = Config.SPARQL_MODULES_DIR;
 		}
 
 		File dir = File.new_for_path (path);
@@ -101,12 +100,12 @@ class Tracker.Sparql.PluginLoader : Connection {
 		debug ("Searching for modules in folder '%s' ..", dir_path);
 
 		// First get direct library details
-		string direct_path = Module.build_path (dir_path, "tracker-direct-0.9");
+		string direct_path = Module.build_path (dir_path, "tracker-direct");
 		direct = load_plugins_from_path (direct_path, direct_only /* required */);
 
 		if (!direct_only) {
 			// Second get bus library details
-			string bus_path = Module.build_path (dir_path, "tracker-bus-0.9");
+			string bus_path = Module.build_path (dir_path, "tracker-bus");
 			bus = load_plugins_from_path (bus_path, true /* required */);
 		}
 
