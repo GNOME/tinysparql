@@ -48,6 +48,7 @@ libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
 	$(AM_V_GEN)touch $@
 
 libtracker_bus_@TRACKER_API_VERSION@_la_LIBADD = 						\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(GLIB2_LIBS) \
 	$(DBUS_LIBS)
 
