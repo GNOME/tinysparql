@@ -25,13 +25,20 @@ private interface Tracker.Bus.Resources : GLib.Object {
 	public abstract async void sparql_update_async (string query) throws DBus.Error;
 }
 
+[DBus (name = "org.freedesktop.Tracker1.Statistics")]
+private interface Tracker.Bus.Statistics : GLib.Object {
+	public abstract string[,] Get () throws DBus.Error;
+	public async abstract string[,] Get_async () throws DBus.Error;
+}
+
 // Imported DBus FD API until we have support with Vala
 public extern Tracker.Sparql.Cursor tracker_bus_fd_query (DBus.Connection connection, string query) throws GLib.Error;
 
 // Actual class definition
 public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	static DBus.Connection connection;
-	static Resources resources;
+	static Resources resources_object;
+	static Statistics statistics_object;
 	static bool initialized;
 	static bool use_steroids;
 		
@@ -40,14 +47,18 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		initialized = true;
 		
 		try {
-			connection = DBus.Bus.get (DBus.BusType.SESSION);
-
-			// FIXME: Test for steroids and resources interfaces?			
+			// FIXME: Test for steroids and resources interfaces?
 			use_steroids = false;
 
-			resources = (Resources) connection.get_object (TRACKER_DBUS_SERVICE,
-			                                               TRACKER_DBUS_OBJECT_RESOURCES,
-			                                               TRACKER_DBUS_INTERFACE_RESOURCES);
+			connection = DBus.Bus.get (DBus.BusType.SESSION);
+
+			// FIXME: Ideally we would just get these as and when we need them
+			resources_object = (Resources) connection.get_object (TRACKER_DBUS_SERVICE,
+			                                                      TRACKER_DBUS_OBJECT_RESOURCES,
+			                                                      TRACKER_DBUS_INTERFACE_RESOURCES);
+			statistics_object = (Statistics) connection.get_object (TRACKER_DBUS_SERVICE,
+			                                                        TRACKER_DBUS_OBJECT_STATISTICS,
+			                                                        TRACKER_DBUS_INTERFACE_STATISTICS);
 		} catch (DBus.Error e) {
 			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
 			initialized = false;
@@ -69,11 +80,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		//
 		// Really we need #ifdef here, unsupported in vala AFAIK
 
-		
 		if (use_steroids) {
 			return tracker_bus_fd_query (connection, sparql);
 		} else {
-			string[,] results = resources.sparql_query (sparql);
+			string[,] results = resources_object.sparql_query (sparql);
 			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
 		}
 	}
@@ -84,11 +94,21 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public override void update (string sparql, Cancellable? cancellable = null) throws GLib.Error {
-		resources.sparql_update (sparql);
+		resources_object.sparql_update (sparql);
 	}
 
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws GLib.Error {
-		yield resources.sparql_update_async (sparql);
+		yield resources_object.sparql_update_async (sparql);
+	}
+
+	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws GLib.Error {
+		string[,] results = statistics_object.Get ();
+		return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+	}
+
+	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws GLib.Error {
+		string[,] results = yield statistics_object.Get_async ();
+		return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
 	}
 }
 
