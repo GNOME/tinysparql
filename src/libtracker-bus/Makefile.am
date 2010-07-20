@@ -1,5 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
+modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
+
 INCLUDES =								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
@@ -11,26 +13,21 @@ INCLUDES =								\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
-lib_LTLIBRARIES = libtracker-bus-@TRACKER_API_VERSION@.la
-
-libtracker_busincludedir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-bus
+modules_LTLIBRARIES = libtracker-bus.la
 
 libtracker_bus_la_VALASOURCES = \
 	tracker-bus.vala			\
 	tracker-array-cursor.vala
 
-libtracker_bus_@TRACKER_API_VERSION@_la_SOURCES = 	\
+libtracker_bus_la_SOURCES = 	\
 	libtracker-bus.vala.stamp						\
 	$(libtracker_bus_la_VALASOURCES:.vala=.c)		\
 	tracker-bus-fd-cursor.c
 
-libtracker_bus_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
-	-shared -fPIC -module -avoid-version
+libtracker_bus_la_LDFLAGS = 	\
+	-module -avoid-version -no-undefined
 
-#	-export-symbols-regex '^tracker_.*'
-
-libtracker_businclude_HEADERS = 			\
-	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi	\
+noinst_HEADERS = 			\
 	tracker-bus.h
 
 # Vala sources
@@ -38,16 +35,11 @@ vapi_sources =						\
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi	\
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi
 
-# Vala bindings
-vapidir = $(datadir)/vala/vapi
-vapi_DATA = \
-	tracker-bus-$(TRACKER_API_VERSION).vapi
-
 libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus-$(TRACKER_API_VERSION).vapi $^
 	$(AM_V_GEN)touch $@
 
-libtracker_bus_@TRACKER_API_VERSION@_la_LIBADD = 						\
+libtracker_bus_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(GLIB2_LIBS) \
 	$(DBUS_LIBS)

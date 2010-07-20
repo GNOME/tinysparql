@@ -88,7 +88,7 @@ bus-query-test.vala.stamp: $(bus_query_test_VALASOURCES) $(bus_vapi_sources)
 	$(AM_V_GEN)touch $@
 
 bus_query_test_LDADD = \
-	$(top_builddir)/src/libtracker-bus/libtracker-bus-$(TRACKER_API_VERSION).la \
+	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(GIO_LIBS) \
