@@ -824,9 +824,6 @@ tracker_extract_connection_filter (DBusConnection *connection,
 	g_return_val_if_fail (connection != NULL, DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
 	g_return_val_if_fail (message != NULL, DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
 
-	extract = user_data;
-	g_return_val_if_fail (TRACKER_IS_EXTRACT (extract), DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
-
 	if (g_strcmp0 (TRACKER_EXTRACT_PATH, dbus_message_get_path (message))) {
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 	}
@@ -834,6 +831,11 @@ tracker_extract_connection_filter (DBusConnection *connection,
 	if (g_strcmp0 (TRACKER_EXTRACT_INTERFACE, dbus_message_get_interface (message))) {
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 	}
+
+	/* Only check if the user_data is our TrackerExtract AFTER having checked that
+	 * the message matches expected path and interface. */
+	extract = user_data;
+	g_return_val_if_fail (TRACKER_IS_EXTRACT (extract), DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
 
 	if (!g_strcmp0 ("GetMetadataFast", dbus_message_get_member (message))) {
 		get_metadata_fast (extract, connection, message);
