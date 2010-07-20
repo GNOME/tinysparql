@@ -21,7 +21,7 @@
 
 #include <libtracker-common/tracker-dbus.h>
 
-#include <libtracker-client/tracker.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-miner-files-reindex.h"
 #include "tracker-dbus.h"
@@ -30,7 +30,7 @@
 typedef struct {
 	guint request_id;
 	DBusGMethodInvocation *context;
-	TrackerClient *client;
+	TrackerSparqlConnection *connection;
 	TrackerMinerFiles *miner_files;
 } MimeTypesData;
 
@@ -133,10 +133,10 @@ tracker_miner_files_reindex_init (TrackerMinerFilesReindex *object)
 }
 
 static MimeTypesData *
-mime_types_data_new (guint                  request_id,
-                     DBusGMethodInvocation *context,
-                     TrackerClient         *client,
-                     TrackerMinerFiles     *miner_files)
+mime_types_data_new (guint                    request_id,
+                     DBusGMethodInvocation   *context,
+                     TrackerSparqlConnection *connection,
+                     TrackerMinerFiles       *miner_files)
 {
 	MimeTypesData *mtd;
 
@@ -145,7 +145,7 @@ mime_types_data_new (guint                  request_id,
 	mtd->miner_files = g_object_ref (miner_files);
 	mtd->request_id = request_id;
 	mtd->context = context;
-	mtd->client = g_object_ref (client);
+	mtd->connection = g_object_ref (connection);
 
 	return mtd;
 }
@@ -158,34 +158,38 @@ mime_types_data_destroy (gpointer data)
 	mtd = data;
 
 	g_object_unref (mtd->miner_files);
-	g_object_unref (mtd->client);
+	g_object_unref (mtd->connection);
 
 	g_slice_free (MimeTypesData, mtd);
 }
 
 static void
-mime_types_cb (TrackerResultIterator *iterator,
-               GError                *error,
-               gpointer               user_data)
+mime_types_cb (GObject      *object,
+               GAsyncResult *result,
+               gpointer      user_data)
 {
 	MimeTypesData *mtd = user_data;
+        TrackerSparqlCursor *cursor;
+        GError *error = NULL;
+
+        cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
 	if (!error) {
 		tracker_dbus_request_comment (mtd->request_id, mtd->context,
 		                              "Found files that will need reindexing");
 
-		while (tracker_result_iterator_next (iterator)) {
-			if (tracker_result_iterator_value (iterator, 0)) {
-				const gchar *url = (const gchar *) tracker_result_iterator_value (iterator, 0);
-				GFile *file = g_file_new_for_uri (url);
-				tracker_miner_fs_file_add (TRACKER_MINER_FS (mtd->miner_files), file);
-				g_object_unref (file);
-			}
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+                        GFile *file;
+			const gchar *url;
+
+                        url = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+                        file = g_file_new_for_uri (url);
+                        tracker_miner_fs_file_add (TRACKER_MINER_FS (mtd->miner_files), file);
+                        g_object_unref (file);
 		}
 
 		tracker_dbus_request_success (mtd->request_id, mtd->context);
 		dbus_g_method_return (mtd->context);
-
 	} else {
 		tracker_dbus_request_success (mtd->request_id, mtd->context);
 		dbus_g_method_return_error (mtd->context, error);
@@ -211,7 +215,8 @@ tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
 {
 	TrackerMinerFilesReindexPrivate *priv;
 	GString *query;
-	TrackerClient *client;
+        GError *inner_error = NULL;
+	TrackerSparqlConnection *connection;
 	guint request_id;
 	gint len, i;
 
@@ -224,16 +229,15 @@ tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
 
 	tracker_dbus_request_new (request_id, context, "%s()", __FUNCTION__);
 
-	client = tracker_client_new (FALSE, G_MAXINT);
-	if (!client) {
-		GError *actual_error = NULL;
+	connection = tracker_sparql_connection_get (&inner_error);
 
+	if (!connection) {
 		tracker_dbus_request_failed (request_id,
 		                             context,
-		                             &actual_error,
-		                             "Could not create TrackerClient");
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
+		                             &inner_error,
+		                             NULL);
+		dbus_g_method_return_error (context, inner_error);
+		g_error_free (inner_error);
 		return;
 	}
 
@@ -261,14 +265,15 @@ tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
 	priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
 
 	/* FIXME: save last call id */
-	tracker_resources_sparql_query_iterate_async (client,
-	                                              query->str,
-	                                              mime_types_cb,
-	                                              mime_types_data_new (request_id,
-	                                                                   context,
-	                                                                   client,
-	                                                                   priv->files_miner));
+	tracker_sparql_connection_query_async (connection,
+                                               query->str,
+                                               NULL,
+                                               mime_types_cb,
+                                               mime_types_data_new (request_id,
+                                                                    context,
+                                                                    connection,
+                                                                    priv->files_miner));
 
 	g_string_free (query, TRUE);
-	g_object_unref (client);
+	g_object_unref (connection);
 }

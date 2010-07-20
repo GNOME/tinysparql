@@ -224,7 +224,7 @@ process_directory (ProcessApplicationData  *data,
 
 	path = g_file_get_path (data->file);
 	uri = g_file_get_uri (data->file);
-	urn = tracker_uri_printf_escaped ("urn:applications-dir:%s", path);
+	urn = tracker_sparql_escape_uri_printf ("urn:applications-dir:%s", path);
 
 	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
@@ -299,7 +299,7 @@ process_desktop_file (ProcessApplicationData  *data,
 	}
 
 	if (name && g_ascii_strcasecmp (type, "Directory") == 0) {
-		gchar *canonical_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", path);
+		gchar *canonical_uri = tracker_sparql_escape_uri_printf (SOFTWARE_CATEGORY_URN_PREFIX "%s", path);
 		gchar *icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
 		uri = canonical_uri;
@@ -454,7 +454,7 @@ process_desktop_file (ProcessApplicationData  *data,
 				/* Sanitize category */
 				g_strstrip (cat);
 
-				cat_uri = tracker_uri_printf_escaped (SOFTWARE_CATEGORY_URN_PREFIX "%s", cat);
+				cat_uri = tracker_sparql_escape_uri_printf (SOFTWARE_CATEGORY_URN_PREFIX "%s", cat);
 
 				/* There are also .desktop
 				 * files that describe these categories, but we can handle
