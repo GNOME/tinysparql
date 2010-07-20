@@ -49,7 +49,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	static Statistics statistics_object;
 	static bool initialized;
 	static bool use_steroids;
-		
+
 	public Connection ()
 	requires (!initialized) {
 		initialized = true;
@@ -113,7 +113,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 
 	public override void update (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
 		try {
-			resources_object.sparql_update (sparql);
+			if (use_steroids) {
+				tracker_bus_fd_sparql_update (connection, sparql);
+			} else {
+				resources_object.sparql_update (sparql);
+			}
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
@@ -121,7 +125,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
 		try {
-			yield resources_object.sparql_update_async (sparql);
+			if (use_steroids) {
+				yield tracker_bus_fd_sparql_update_async (connection, sparql, cancellable);
+			} else {
+				yield resources_object.sparql_update_async (sparql);
+			}
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}

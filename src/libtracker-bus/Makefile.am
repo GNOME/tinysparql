@@ -11,7 +11,8 @@ INCLUDES =								\
 	$(WARN_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)							\
+	$(GIO_CFLAGS)
 
 if HAVE_DBUS_FD_PASSING
 INCLUDES += -DHAVE_DBUS_FD_PASSING_IN_VALA=\"1\"
@@ -26,9 +27,11 @@ libtracker_bus_la_VALASOURCES = \
 	tracker-array-cursor.vala
 
 libtracker_bus_la_SOURCES = 	\
-	libtracker-bus.vala.stamp						\
-	$(libtracker_bus_la_VALASOURCES:.vala=.c)		\
-	tracker-bus-fd-cursor.c
+	libtracker-bus.vala.stamp			\
+	$(libtracker_bus_la_VALASOURCES:.vala=.c)	\
+	tracker-bus-fd-cursor.c				\
+	tracker-bus-fd-update.c				\
+	tracker-bus-fd-update.h
 
 libtracker_bus_la_LDFLAGS = 	\
 	-module -avoid-version -no-undefined
@@ -44,13 +47,14 @@ vapi_sources =						\
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi
 
 libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus-$(TRACKER_API_VERSION).vapi $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus-$(TRACKER_API_VERSION).vapi tracker-bus-fd-update.vapi $^
 	$(AM_V_GEN)touch $@
 
 libtracker_bus_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(GLIB2_LIBS) \
-	$(DBUS_LIBS)
+	$(DBUS_LIBS) \
+	$(GIO_LIBS)
 
 BUILT_SOURCES = 					\
 	libtracker-bus.vala.stamp
