@@ -24,18 +24,22 @@ class Tracker.Sparql.PluginLoader : Connection {
 
 	private delegate Tracker.Sparql.Connection ModuleInitFunc ();
 
-	public PluginLoader (bool direct_only = false) throws Error
+	public PluginLoader (bool direct_only = false) throws Sparql.Error
 	requires (!initialized) {
 		if (!Module.supported ()) {
 		    return;
 		}
 
-		load_plugins (direct_only);
+		try {
+			load_plugins (direct_only);
+		} catch (GLib.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 
 		initialized = true;
 	}
 
-	public override Cursor query (string sparql, Cancellable? cancellable = null) throws GLib.Error {
+	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
 		if (direct != null) {
 			return direct.query (sparql, cancellable);
 		} else {
@@ -43,7 +47,7 @@ class Tracker.Sparql.PluginLoader : Connection {
 		}
 	}
 
-	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error {
+	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
 		if (direct != null) {
 			return yield direct.query_async (sparql, cancellable);
 		} else {
@@ -51,35 +55,35 @@ class Tracker.Sparql.PluginLoader : Connection {
 		}
 	}
 
-	public override void update (string sparql, Cancellable? cancellable = null) throws GLib.Error {
+	public override void update (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
 		bus.update (sparql, cancellable);
 	}
 
-	public async override void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws GLib.Error {
+	public async override void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public override void update_commit (Cancellable? cancellable = null) throws GLib.Error {
+	public override void update_commit (Cancellable? cancellable = null) throws Sparql.Error {
 		bus.update_commit (cancellable);
 	}
 
-	public async override void update_commit_async (Cancellable? cancellable = null) throws GLib.Error {
+	public async override void update_commit_async (Cancellable? cancellable = null) throws Sparql.Error {
 		yield bus.update_commit_async (cancellable);
 	}
 
-	public override void import (File file, Cancellable? cancellable = null) throws GLib.Error {
+	public override void import (File file, Cancellable? cancellable = null) throws Sparql.Error {
 		bus.import (file, cancellable);
 	}
 
-	public async override void import_async (File file, Cancellable? cancellable = null) throws GLib.Error {
+	public async override void import_async (File file, Cancellable? cancellable = null) throws Sparql.Error {
 		yield bus.import_async (file, cancellable);
 	}
 
-	public override Cursor? statistics (Cancellable? cancellable = null) throws GLib.Error {
+	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error {
 		return bus.statistics (cancellable);
 	}
 
-	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws GLib.Error {
+	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error {
 		return yield bus.statistics_async (cancellable);
 	}
 
@@ -171,7 +175,7 @@ class Tracker.Sparql.PluginLoader : Connection {
 			debug ("Loaded module source: '%s'", module.name ());
 
 			return c;
-		} catch (Error e) {
+		} catch (GLib.Error e) {
 			if (required) {
 				// plugin required => error is fatal
 				throw e;

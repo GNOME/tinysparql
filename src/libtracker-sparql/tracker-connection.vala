@@ -26,12 +26,21 @@ public const string TRACKER_DBUS_OBJECT_STATISTICS = "/org/freedesktop/Tracker1/
 public const string TRACKER_DBUS_INTERFACE_STEROIDS = TRACKER_DBUS_SERVICE + ".Steroids";
 public const string TRACKER_DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/Steroids";
 
+public errordomain Tracker.Sparql.Error {
+	PARSE,
+	UNKNOWN_CLASS,
+	UNKNOWN_PROPERTY,
+	TYPE,
+	INTERNAL,
+	UNSUPPORTED
+}
+
 public abstract class Tracker.Sparql.Connection : Object {
 	static bool direct_only;
 	static weak Connection? singleton;
 	static int verbosity = 0;
 
-	public static Connection get () throws GLib.Error {
+	public static Connection get () throws Sparql.Error {
 		if (singleton != null) {
 			assert (!direct_only);
 			return singleton;
@@ -45,7 +54,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 		}
 	}
 
-	public static Connection get_direct () throws GLib.Error {
+	public static Connection get_direct () throws Sparql.Error {
 		if (singleton != null) {
 			assert (direct_only);
 			return singleton;
@@ -123,41 +132,41 @@ public abstract class Tracker.Sparql.Connection : Object {
 	}
 
 	// Query
-	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws GLib.Error;
-	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error;
+	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error;
+	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error;
 
 	// Update
-	public virtual void update (string sparql, Cancellable? cancellable = null) throws GLib.Error {
+	public virtual void update (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'update' not implemented");
 	}
-	public async virtual void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws GLib.Error {
+	public async virtual void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'update_async' not implemented");
 	}
 
 	// Only applies to update_async with the right priority. 
 	// Priority is used to identify batch updates.
-	public virtual void update_commit (Cancellable? cancellable = null) throws GLib.Error {
+	public virtual void update_commit (Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'update_commit' not implemented");
 	}
-	public async virtual void update_commit_async (Cancellable? cancellable = null) throws GLib.Error {
+	public async virtual void update_commit_async (Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'update_commit_async' not implemented");
 	}
 	
 	// Import
-	public virtual void import (File file, Cancellable? cancellable = null) throws GLib.Error {
+	public virtual void import (File file, Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'import' not implemented");
 	}
-	public async virtual void import_async (File file, Cancellable? cancellable = null) throws GLib.Error {
+	public async virtual void import_async (File file, Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'import_async' not implemented");
 	}
 	
 	// Statistics
-	public virtual Cursor? statistics (Cancellable? cancellable = null) throws GLib.Error {
+	public virtual Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'statistics' not implemented");
 		return null;
 	}
 	
-	public async virtual Cursor? statistics_async (Cancellable? cancellable = null) throws GLib.Error {
+	public async virtual Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'statistics_async' not implemented");
 		return null;
 	}
