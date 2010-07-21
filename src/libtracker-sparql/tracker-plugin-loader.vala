@@ -59,7 +59,7 @@ class Tracker.Sparql.PluginLoader : Connection {
 		bus.update (sparql, cancellable);
 	}
 
-	public async override void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 

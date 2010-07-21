@@ -139,7 +139,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	public virtual void update (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'update' not implemented");
 	}
-	public async virtual void update_async (string sparql, int? priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+	public async virtual void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'update_async' not implemented");
 	}
 
