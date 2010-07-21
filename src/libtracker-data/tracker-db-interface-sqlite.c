@@ -446,6 +446,32 @@ function_sparql_regex (sqlite3_context *context,
 	sqlite3_result_int (context, ret);
 }
 
+static inline int
+stmt_step (sqlite3_stmt *stmt)
+{
+	int result;
+
+	result = sqlite3_step (stmt);
+
+	/* If the statement expired between preparing it and executing
+	 * sqlite3_step(), we are supposed to get SQLITE_SCHEMA error in
+	 * sqlite3_errcode(), BUT there seems to be a bug in sqlite and
+	 * SQLITE_ABORT is being returned instead for that case. So, the
+	 * only way to see if a given statement was expired is to use
+	 * sqlite3_expired(stmt), which is marked as DEPRECATED in sqlite.
+	 * If found that the statement is expired, we need to reset it
+	 * and retry the sqlite3_step().
+	 * NOTE, that this expiration may only happen between preparing
+	 * the statement and step-ing it, NOT between steps. */
+	if ((result == SQLITE_ABORT || result == SQLITE_SCHEMA) &&
+	    sqlite3_expired (stmt)) {
+		sqlite3_reset (stmt);
+		result = sqlite3_step (stmt);
+	}
+
+	return result;
+}
+
 static int
 check_interrupt (void *user_data)
 {
@@ -803,7 +829,8 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 		} else {
 			/* only one statement can be active at the same time per interface */
 			interface->cancellable = cancellable;
-			result = sqlite3_step (stmt);
+			result = stmt_step (stmt);
+
 			interface->cancellable = NULL;
 		}
 
@@ -1135,7 +1162,7 @@ tracker_db_cursor_iter_next (TrackerDBCursor *cursor,
 		} else {
 			/* only one statement can be active at the same time per interface */
 			iface->cancellable = cancellable;
-			result = sqlite3_step (cursor->stmt);
+			result = stmt_step (cursor->stmt);
 			iface->cancellable = NULL;
 		}
 
