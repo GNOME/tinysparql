@@ -29,12 +29,15 @@ public const string TRACKER_DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/St
 public abstract class Tracker.Sparql.Connection : Object {
 	static bool direct_only;
 	static weak Connection? singleton;
+	static int verbosity = 0;
 
 	public static Connection get () throws GLib.Error {
 		if (singleton != null) {
 			assert (!direct_only);
 			return singleton;
 		} else {
+			log_init ();
+			
 			var result = new PluginLoader ();
 			singleton = result;
 			result.add_weak_pointer ((void**) (&singleton));
@@ -47,12 +50,76 @@ public abstract class Tracker.Sparql.Connection : Object {
 			assert (direct_only);
 			return singleton;
 		} else {
+			log_init ();
+			
 			var result = new PluginLoader (true /* direct_only */);
 			direct_only = true;
 			singleton = result;
 			result.add_weak_pointer ((void**) (&singleton));
 			return result;
 		}
+	}
+
+	private static void log_init () {
+		// Avoid debug messages
+		string env_verbosity = Environment.get_variable ("TRACKER_SPARQL_VERBOSITY");
+		if (env_verbosity != null)
+			verbosity = env_verbosity.to_int ();
+	
+		GLib.Log.set_handler (null, LogLevelFlags.LEVEL_MASK | LogLevelFlags.FLAG_FATAL, log_handler);
+		GLib.Log.set_default_handler (log_handler);
+	}
+
+	private static bool log_should_handle (LogLevelFlags log_level) {
+		switch (verbosity) {
+		// Log level 3: EVERYTHING
+		case 3:
+			break;
+
+		// Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only
+		case 2:
+			if (!(LogLevelFlags.LEVEL_MESSAGE in log_level) &&
+				!(LogLevelFlags.LEVEL_INFO in log_level) &&
+				!(LogLevelFlags.LEVEL_WARNING in log_level) &&
+				!(LogLevelFlags.LEVEL_ERROR in log_level) &&
+				!(LogLevelFlags.LEVEL_CRITICAL in log_level)) {
+				return false;
+			}
+
+			break;
+
+		// Log level 1: CRITICAL/ERROR/WARNING/INFO only
+		case 1:
+			if (!(LogLevelFlags.LEVEL_INFO in log_level) &&
+				!(LogLevelFlags.LEVEL_WARNING in log_level) &&
+				!(LogLevelFlags.LEVEL_ERROR in log_level) &&
+				!(LogLevelFlags.LEVEL_CRITICAL in log_level)) {
+				return false;
+			}
+
+			break;
+
+		// Log level 0: CRITICAL/ERROR/WARNING only (default)
+		default:
+		case 0:
+			if (!(LogLevelFlags.LEVEL_WARNING in log_level) &&
+				!(LogLevelFlags.LEVEL_ERROR in log_level) &&
+				!(LogLevelFlags.LEVEL_CRITICAL in log_level)) {
+				return false;
+			}
+
+			break;
+		}
+
+		return true;
+	}
+
+	private static void log_handler (string? log_domain, LogLevelFlags log_level, string message) {
+		if (!log_should_handle (log_level)) {
+			return;
+		}
+
+		GLib.Log.default_handler (log_domain, log_level, message);
 	}
 
 	// Query
