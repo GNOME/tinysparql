@@ -209,6 +209,13 @@ tracker_dbus_set_available (gboolean available)
 			                                "NameOwnerChanged",
 			                                G_CALLBACK (name_owner_changed_cb),
 			                                tracker_dbus_get_object (TRACKER_TYPE_RESOURCES));
+
+#ifdef HAVE_DBUS_FD_PASSING
+			dbus_connection_remove_filter (dbus_g_connection_get_connection (connection),
+			                               tracker_steroids_connection_filter,
+			                               tracker_dbus_get_object (TRACKER_TYPE_STEROIDS));
+#endif
+
 			g_slist_foreach (objects, (GFunc) g_object_unref, NULL);
 			g_slist_free (objects);
 			objects = NULL;
