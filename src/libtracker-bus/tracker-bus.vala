@@ -40,7 +40,7 @@ private interface Tracker.Bus.Statistics : GLib.Object {
 }
 
 // Imported DBus FD API until we have support with Vala
-public extern Tracker.Sparql.Cursor tracker_bus_fd_query (DBus.Connection connection, string query) throws GLib.Error;
+public extern Tracker.Sparql.Cursor tracker_bus_fd_query (DBus.Connection connection, string query) throws Tracker.Sparql.Error;
 
 // Actual class definition
 public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
@@ -79,54 +79,79 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		initialized = false;
 	}
 
-	public override Sparql.Cursor? query (string sparql, Cancellable? cancellable) throws GLib.Error {
-		// FIXME: Decide between FD passing and DBus-Glib, we need to do this
-		// here because otherwise we need to do the whole set up of their
-		// DBus interface again in the .c file, which is pointless when
-		// one call can do it here just fine.
-		//
-		// Really we need #ifdef here, unsupported in vala AFAIK
-
-		if (use_steroids) {
-			return tracker_bus_fd_query (connection, sparql);
-		} else {
-			string[,] results = resources_object.sparql_query (sparql);
-			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+	public override Sparql.Cursor? query (string sparql, Cancellable? cancellable) throws Sparql.Error {
+		try {
+			if (use_steroids) {
+				return tracker_bus_fd_query (connection, sparql);
+			} else {
+				string[,] results = resources_object.sparql_query (sparql);
+				return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+			}
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
 		}
 	}
 
-	public async override Sparql.Cursor? query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error {
-		if (use_steroids) {
-			return yield tracker_bus_fd_query_async (connection, sparql);
-		} else {
-			string[,] results = yield resources_object.sparql_query_async (sparql);
-			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+	public async override Sparql.Cursor? query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
+		try {
+			if (use_steroids) {
+				return yield tracker_bus_fd_query_async (connection, sparql);
+			} else {
+				string[,] results = yield resources_object.sparql_query_async (sparql);
+				return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+			}
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
 		}
 	}
 
-	public override void update (string sparql, Cancellable? cancellable = null) throws GLib.Error {
-		resources_object.sparql_update (sparql);
+	public override void update (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
+		try {
+			resources_object.sparql_update (sparql);
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 	}
 
-	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws GLib.Error {
-		yield resources_object.sparql_update_async (sparql);
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+		try {
+			yield resources_object.sparql_update_async (sparql);
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 	}
 
-	public override void import (File file, Cancellable? cancellable = null) throws GLib.Error {
-		resources_object.import (file.get_uri ());
+	public override void import (File file, Cancellable? cancellable = null) throws Sparql.Error {
+		try {
+			resources_object.import (file.get_uri ());
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 	}
-	public async override void import_async (File file, Cancellable? cancellable = null) throws GLib.Error {
-		yield resources_object.import_async (file.get_uri ());
+	public async override void import_async (File file, Cancellable? cancellable = null) throws Sparql.Error {
+		try {
+			yield resources_object.import_async (file.get_uri ());
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 	}
 
-	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws GLib.Error {
-		string[,] results = statistics_object.Get ();
-		return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error {
+		try {
+			string[,] results = statistics_object.Get ();
+			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 	}
 
-	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws GLib.Error {
-		string[,] results = yield statistics_object.Get_async ();
-		return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error {
+		try {
+			string[,] results = yield statistics_object.Get_async ();
+			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 	}
 }
 

@@ -31,6 +31,7 @@
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-bus.h"
+#include "tracker-bus-fd-cursor.h"
 
 #ifdef HAVE_DBUS_FD_PASSING
 

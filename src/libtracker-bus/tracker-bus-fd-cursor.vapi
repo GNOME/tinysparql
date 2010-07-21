@@ -18,4 +18,4 @@
  */
 
 [CCode (cheader_filename = "libtracker-bus/tracker-bus-fd-cursor.h")]
-public async Tracker.Sparql.Cursor tracker_bus_fd_query_async (DBus.Connection connection, string query) throws GLib.Error;
+public async Tracker.Sparql.Cursor tracker_bus_fd_query_async (DBus.Connection connection, string query) throws DBus.Error;
