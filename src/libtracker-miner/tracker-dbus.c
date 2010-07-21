@@ -206,12 +206,14 @@ dbus_data_create (TrackerMiner          *miner,
 
 	/* Now we're successfully connected and registered, create the data */
 	data = g_slice_new0 (DBusData);
+	/* Connection object is a shared one, so we need to keep our own
+	 * reference to it */
 	data->connection = dbus_g_connection_ref (connection);
-	data->gproxy = g_object_ref (gproxy);
-        data->name_monitors = g_hash_table_new_full (g_str_hash,
-                                                     g_str_equal,
-                                                     (GDestroyNotify) g_free,
-                                                     NULL);
+	data->gproxy = gproxy;
+	data->name_monitors = g_hash_table_new_full (g_str_hash,
+	                                             g_str_equal,
+	                                             (GDestroyNotify) g_free,
+	                                             NULL);
 
 	return data;
 }
