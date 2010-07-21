@@ -97,8 +97,12 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override Sparql.Cursor? query_async (string sparql, Cancellable? cancellable = null) throws GLib.Error {
-		string[,] results = yield resources_object.sparql_query_async (sparql);
-		return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+		if (use_steroids) {
+			return yield tracker_bus_fd_query_async (connection, sparql);
+		} else {
+			string[,] results = yield resources_object.sparql_query_async (sparql);
+			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+		}
 	}
 
 	public override void update (string sparql, Cancellable? cancellable = null) throws GLib.Error {

@@ -280,3 +280,101 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
+static void
+query_async_cb (gpointer  buffer,
+                gssize    buffer_size,
+                GError   *error,
+                gpointer  user_data)
+{
+	GSimpleAsyncResult *res;
+
+	res = G_SIMPLE_ASYNC_RESULT (user_data);
+
+	if (G_UNLIKELY (error)) {
+		g_simple_async_result_set_from_error (res, error);
+	} else {
+		TrackerBusFDCursor *cursor;
+
+		cursor = g_object_new (TRACKER_TYPE_BUS_FD_CURSOR, NULL);
+
+		cursor->buffer = buffer;
+		cursor->buffer_size = buffer_size;
+
+		g_simple_async_result_set_op_res_gpointer (res, cursor, g_object_unref);
+	}
+
+	g_simple_async_result_complete (res);
+	g_object_unref (res);
+}
+
+void
+tracker_bus_fd_query_async (DBusGConnection     *gconnection,
+                            const gchar         *query,
+                            GAsyncReadyCallback  callback,
+                            gpointer             user_data)
+{
+#ifdef HAVE_DBUS_FD_PASSING
+	GSimpleAsyncResult *res;
+	DBusConnection *connection;
+	DBusMessage *message;
+	DBusMessageIter iter;
+	int pipefd[2];
+
+	g_return_if_fail (gconnection != NULL);
+	g_return_if_fail (query != NULL);
+
+	if (pipe (pipefd) < 0) {
+		/* FIXME: Use proper error domain/code */
+		res = g_simple_async_result_new_error (NULL,
+		                                       callback, user_data,
+		                                       0, 0, "Cannot open pipe");
+		g_simple_async_result_complete_in_idle (res);
+		g_object_unref (res);
+		return;
+	}
+
+	connection = dbus_g_connection_get_connection (gconnection);
+
+	message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE,
+	                                        TRACKER_DBUS_OBJECT_STEROIDS,
+	                                        TRACKER_DBUS_INTERFACE_STEROIDS,
+	                                        "Query");
+
+	dbus_message_iter_init_append (message, &iter);
+	dbus_message_iter_append_basic (&iter, DBUS_TYPE_STRING, &query);
+	dbus_message_iter_append_basic (&iter, DBUS_TYPE_UNIX_FD, &pipefd[1]);
+	close (pipefd[1]);
+
+	res = g_simple_async_result_new (NULL,
+	                                 callback,
+	                                 user_data,
+	                                 tracker_bus_fd_query_async);
+
+	tracker_dbus_send_and_splice_async (connection,
+	                                    message,
+	                                    pipefd[0],
+	                                    NULL,
+	                                    query_async_cb, res);
+	/* message is destroyed by tracker_dbus_send_and_splice_async */
+#else /* HAVE_DBUS_FD_PASSING */
+	g_assert_not_reached ();
+#endif /* HAVE_DBUS_FD_PASSING */
+}
+
+TrackerSparqlCursor *
+tracker_bus_fd_query_finish (GAsyncResult     *res,
+                             GError          **error)
+{
+#ifdef HAVE_DBUS_FD_PASSING
+	g_return_val_if_fail (res != NULL, NULL);
+
+	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
+		return NULL;
+	}
+
+	return g_object_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
+#else /* HAVE_DBUS_FD_PASSING */
+	g_assert_not_reached ();
+	return NULL;
+#endif /* HAVE_DBUS_FD_PASSING */
+}
