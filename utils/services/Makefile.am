@@ -9,6 +9,7 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
+	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
