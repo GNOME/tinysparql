@@ -32,6 +32,7 @@ noinst_HEADERS = 			\
 
 # Vala sources
 vapi_sources =						\
+	config.vapi \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi	\
 	$(top_srcdir)/src/libtracker-bus/tracker-bus-fd-cursor.vapi \
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi
@@ -57,6 +58,7 @@ MAINTAINERCLEANFILES =					\
 	tracker-bus.h
 
 EXTRA_DIST = 						\
+	config.vapi \
 	$(libtracker_bus_la_VALASOURCES) \
 	libtracker-bus.vala.stamp \
 	$(top_srcdir)/src/libtracker-bus/tracker-bus-fd-cursor.vapi

@@ -1688,7 +1688,7 @@ if test "x$enable_dbus_fd_passing" != "xno" ; then
                     [have_dbus_fd_passing=no])
 
    if test "x$have_dbus_fd_passing" = "xyes"; then
-      AC_DEFINE(HAVE_DBUS_FD_PASSING, [], [Define if we have DBus >= 1.3 and want DBus FD passing])
+      AC_DEFINE(HAVE_DBUS_FD_PASSING, 1, [Define if we have DBus >= 1.3 and want DBus FD passing])
    fi
 else
    have_dbus_fd_passing="no  (disabled)"

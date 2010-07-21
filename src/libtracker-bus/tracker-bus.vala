@@ -55,8 +55,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		initialized = true;
 		
 		try {
-			// FIXME: Test for steroids and resources interfaces?
-			use_steroids = false;
+			use_steroids = Config.HAVE_DBUS_FD_PASSING;
 
 			connection = DBus.Bus.get (DBus.BusType.SESSION);
 
