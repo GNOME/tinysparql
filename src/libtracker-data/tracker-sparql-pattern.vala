@@ -26,7 +26,7 @@ namespace Tracker.Sparql {
 
 		public Class? domain;
 
-		public string get_sql_query (Query query) throws SparqlError {
+		public string get_sql_query (Query query) throws Sparql.Error {
 			try {
 				var sql = new StringBuilder ();
 
@@ -142,7 +142,7 @@ namespace Tracker.Sparql {
 				}
 				return sql.str;
 			} catch (DBInterfaceError e) {
-				throw new SparqlError.INTERNAL (e.message);
+				throw new Sparql.Error.INTERNAL (e.message);
 			}
 		}
 	}
@@ -173,7 +173,7 @@ class Tracker.Sparql.Pattern : Object {
 		set { query.context = value; }
 	}
 
-	inline bool next () throws SparqlError {
+	inline bool next () throws Sparql.Error {
 		return query.next ();
 	}
 
@@ -181,15 +181,15 @@ class Tracker.Sparql.Pattern : Object {
 		return query.current ();
 	}
 
-	inline bool accept (SparqlTokenType type) throws SparqlError {
+	inline bool accept (SparqlTokenType type) throws Sparql.Error {
 		return query.accept (type);
 	}
 
-	SparqlError get_error (string msg) {
+	Sparql.Error get_error (string msg) {
 		return query.get_error (msg);
 	}
 
-	bool expect (SparqlTokenType type) throws SparqlError {
+	bool expect (SparqlTokenType type) throws Sparql.Error {
 		return query.expect (type);
 	}
 
@@ -230,7 +230,7 @@ class Tracker.Sparql.Pattern : Object {
 
 	TripleContext? triple_context;
 
-	internal SelectContext translate_select (StringBuilder sql, bool subquery = false, bool scalar_subquery = false) throws SparqlError {
+	internal SelectContext translate_select (StringBuilder sql, bool subquery = false, bool scalar_subquery = false) throws Sparql.Error {
 		SelectContext result;
 		if (scalar_subquery) {
 			result = new SelectContext.subquery (context);
@@ -416,7 +416,7 @@ class Tracker.Sparql.Pattern : Object {
 		return result;
 	}
 
-	internal void translate_exists (StringBuilder sql) throws SparqlError {
+	internal void translate_exists (StringBuilder sql) throws Sparql.Error {
 		bool not = accept (SparqlTokenType.NOT);
 		expect (SparqlTokenType.EXISTS);
 
@@ -454,7 +454,7 @@ class Tracker.Sparql.Pattern : Object {
 		sql.append (")");
 	}
 
-	internal string parse_var_or_term (StringBuilder? sql, out bool is_var) throws SparqlError {
+	internal string parse_var_or_term (StringBuilder? sql, out bool is_var) throws Sparql.Error {
 		string result = "";
 		is_var = false;
 		if (current () == SparqlTokenType.VAR) {
@@ -524,7 +524,7 @@ class Tracker.Sparql.Pattern : Object {
 		return result;
 	}
 
-	void parse_object_list (StringBuilder sql, bool in_simple_optional = false) throws SparqlError {
+	void parse_object_list (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
 		while (true) {
 			parse_object (sql, in_simple_optional);
 			if (accept (SparqlTokenType.COMMA)) {
@@ -534,7 +534,7 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	void parse_property_list_not_empty (StringBuilder sql, bool in_simple_optional = false) throws SparqlError {
+	void parse_property_list_not_empty (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
 		while (true) {
 			var old_predicate = current_predicate;
 			var old_predicate_is_var = current_predicate_is_var;
@@ -578,12 +578,12 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	void translate_filter (StringBuilder sql) throws SparqlError {
+	void translate_filter (StringBuilder sql) throws Sparql.Error {
 		expect (SparqlTokenType.FILTER);
 		expression.translate_constraint (sql);
 	}
 
-	void skip_filter () throws SparqlError {
+	void skip_filter () throws Sparql.Error {
 		expect (SparqlTokenType.FILTER);
 
 		switch (current ()) {
@@ -620,13 +620,13 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	void start_triples_block (StringBuilder sql) throws SparqlError {
+	void start_triples_block (StringBuilder sql) throws Sparql.Error {
 		context = triple_context = new TripleContext (context);
 
 		sql.append ("SELECT ");
 	}
 
-	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws SparqlError {
+	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws Sparql.Error {
 		// remove last comma and space
 		sql.truncate (sql.len - 2);
 
@@ -724,7 +724,7 @@ class Tracker.Sparql.Pattern : Object {
 		context = context.parent_context;
 	}
 
-	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws SparqlError {
+	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws Sparql.Error {
 		while (true) {
 			if (current () != SparqlTokenType.VAR &&
 			    current () != SparqlTokenType.IRI_REF &&
@@ -847,7 +847,7 @@ class Tracker.Sparql.Pattern : Object {
 
 			// no match
 			return false;
-		} catch (SparqlError e) {
+		} catch (Sparql.Error e) {
 			return false;
 		} finally {
 			// in any case, go back to the start of the optional
@@ -855,7 +855,7 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	internal Context translate_group_graph_pattern (StringBuilder sql) throws SparqlError {
+	internal Context translate_group_graph_pattern (StringBuilder sql) throws Sparql.Error {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		if (current () == SparqlTokenType.SELECT) {
@@ -1082,7 +1082,7 @@ class Tracker.Sparql.Pattern : Object {
 		return result;
 	}
 
-	void translate_group_or_union_graph_pattern (StringBuilder sql) throws SparqlError {
+	void translate_group_or_union_graph_pattern (StringBuilder sql) throws Sparql.Error {
 		Variable[] all_vars = { };
 		HashTable<Variable,int> all_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
@@ -1202,7 +1202,7 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	void parse_object (StringBuilder sql, bool in_simple_optional = false) throws SparqlError {
+	void parse_object (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
 		long begin_sql_len = sql.len;
 
 		bool object_is_var;
@@ -1228,7 +1228,7 @@ class Tracker.Sparql.Pattern : Object {
 				rdftype = true;
 				var cl = Ontologies.get_class_by_uri (object);
 				if (cl == null) {
-					throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
+					throw new Sparql.Error.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 				}
 				db_table = cl.name;
 				subject_type = cl;
@@ -1239,7 +1239,7 @@ class Tracker.Sparql.Pattern : Object {
 					share_table = false;
 					is_fts_match = true;
 				} else {
-					throw new SparqlError.UNKNOWN_PROPERTY ("Unknown property `%s'".printf (current_predicate));
+					throw new Sparql.Error.UNKNOWN_PROPERTY ("Unknown property `%s'".printf (current_predicate));
 				}
 			} else {
 				if (current_predicate == "http://www.w3.org/2000/01/rdf-schema#domain"
@@ -1248,7 +1248,7 @@ class Tracker.Sparql.Pattern : Object {
 					// rdfs:domain
 					var domain = Ontologies.get_class_by_uri (object);
 					if (domain == null) {
-						throw new SparqlError.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
+						throw new Sparql.Error.UNKNOWN_CLASS ("Unknown class `%s'".printf (object));
 					}
 					var pv = context.predicate_variable_map.lookup (context.get_variable (current_subject));
 					if (pv == null) {

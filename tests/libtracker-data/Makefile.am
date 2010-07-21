@@ -63,6 +63,8 @@ INCLUDES = 								\
 	-I$(top_builddir)/src/libtracker-client				\
 	-I$(top_srcdir)/src/libtracker-data				\
 	-I$(top_builddir)/src/libtracker-data				\
+	-I$(top_srcdir)/src/libtracker-sparql				\
+	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\

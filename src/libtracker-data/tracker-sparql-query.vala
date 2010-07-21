@@ -17,15 +17,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-public errordomain Tracker.SparqlError {
-	PARSE,
-	UNKNOWN_CLASS,
-	UNKNOWN_PROPERTY,
-	TYPE,
-	INTERNAL,
-	UNSUPPORTED
-}
-
 namespace Tracker.Sparql {
 	enum VariableState {
 		NONE,
@@ -291,7 +282,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	internal bool next () throws SparqlError {
+	internal bool next () throws Sparql.Error {
 		index = (index + 1) % BUFFER_SIZE;
 		size--;
 		if (size <= 0) {
@@ -314,7 +305,7 @@ public class Tracker.Sparql.Query : Object {
 		return tokens[last_index].type;
 	}
 
-	internal bool accept (SparqlTokenType type) throws SparqlError {
+	internal bool accept (SparqlTokenType type) throws Sparql.Error {
 		if (current () == type) {
 			next ();
 			return true;
@@ -322,15 +313,15 @@ public class Tracker.Sparql.Query : Object {
 		return false;
 	}
 
-	internal SparqlError get_error (string msg) {
-		return new SparqlError.PARSE ("%d.%d: syntax error, %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
+	internal Sparql.Error get_error (string msg) {
+		return new Sparql.Error.PARSE ("%d.%d: syntax error, %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
 	}
 
-	internal SparqlError get_internal_error (string msg) {
-		return new SparqlError.INTERNAL ("%d.%d: %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
+	internal Sparql.Error get_internal_error (string msg) {
+		return new Sparql.Error.INTERNAL ("%d.%d: %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
 	}
 
-	internal bool expect (SparqlTokenType type) throws SparqlError {
+	internal bool expect (SparqlTokenType type) throws Sparql.Error {
 		if (accept (type)) {
 			return true;
 		}
@@ -348,7 +339,7 @@ public class Tracker.Sparql.Query : Object {
 		index = 0;
 		try {
 			next ();
-		} catch (SparqlError e) {
+		} catch (Sparql.Error e) {
 			// this should never happen as this is the second time we scan this token
 			critical ("internal error: next in set_location failed");
 		}
@@ -359,7 +350,7 @@ public class Tracker.Sparql.Query : Object {
 		return ((string) (tokens[last_index].begin.pos + strip)).ndup ((tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
-	void parse_prologue () throws SparqlError {
+	void parse_prologue () throws Sparql.Error {
 		if (accept (SparqlTokenType.BASE)) {
 			expect (SparqlTokenType.IRI_REF);
 		}
@@ -375,7 +366,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void prepare_execute () throws DBInterfaceError, SparqlError, DateError {
+	void prepare_execute () throws DBInterfaceError, Sparql.Error, DateError {
 		assert (!update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -395,7 +386,7 @@ public class Tracker.Sparql.Query : Object {
 		parse_prologue ();
 	}
 
-	public DBResultSet? execute () throws DBInterfaceError, SparqlError, DateError {
+	public DBResultSet? execute () throws DBInterfaceError, Sparql.Error, DateError {
 
 		prepare_execute ();
 
@@ -418,7 +409,7 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 
-	public DBCursor? execute_cursor () throws DBInterfaceError, SparqlError, DateError {
+	public DBCursor? execute_cursor () throws DBInterfaceError, Sparql.Error, DateError {
 
 		prepare_execute ();
 
@@ -440,7 +431,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	public PtrArray? execute_update (bool blank) throws DataError, DBInterfaceError, SparqlError, DateError {
+	public PtrArray? execute_update (bool blank) throws DataError, DBInterfaceError, Sparql.Error, DateError {
 		assert (update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
@@ -492,7 +483,7 @@ public class Tracker.Sparql.Query : Object {
 		return blank_nodes;
 	}
 
-	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, SparqlError, DateError {
+	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, Sparql.Error, DateError {
 		var iface = DBManager.get_db_interface ();
 		var stmt = iface.create_statement ("%s", sql);
 
@@ -505,7 +496,7 @@ public class Tracker.Sparql.Query : Object {
 				} else if (binding.literal == "false" || binding.literal == "0") {
 					stmt.bind_int (i, 0);
 				} else {
-					throw new SparqlError.TYPE ("`%s' is not a valid boolean".printf (binding.literal));
+					throw new Sparql.Error.TYPE ("`%s' is not a valid boolean".printf (binding.literal));
 				}
 			} else if (binding.data_type == PropertyType.DATETIME) {
 				stmt.bind_int (i, string_to_date (binding.literal, null));
@@ -520,19 +511,19 @@ public class Tracker.Sparql.Query : Object {
 		return stmt;
 	}
 
-	DBResultSet? exec_sql (string sql) throws DBInterfaceError, SparqlError, DateError {
+	DBResultSet? exec_sql (string sql) throws DBInterfaceError, Sparql.Error, DateError {
 		var stmt = prepare_for_exec (sql);
 
 		return stmt.execute ();
 	}
 
-	DBCursor? exec_sql_cursor (string sql) throws DBInterfaceError, SparqlError, DateError {
+	DBCursor? exec_sql_cursor (string sql) throws DBInterfaceError, Sparql.Error, DateError {
 		var stmt = prepare_for_exec (sql);
 
 		return stmt.start_cursor ();
 	}
 
-	string get_select_query () throws DBInterfaceError, SparqlError, DateError {
+	string get_select_query () throws DBInterfaceError, Sparql.Error, DateError {
 		// SELECT query
 
 		// build SQL
@@ -544,15 +535,15 @@ public class Tracker.Sparql.Query : Object {
 		return sql.str;
 	}
 
-	DBResultSet? execute_select () throws DBInterfaceError, SparqlError, DateError {
+	DBResultSet? execute_select () throws DBInterfaceError, Sparql.Error, DateError {
 		return exec_sql (get_select_query ());
 	}
 
-	DBCursor? execute_select_cursor () throws DBInterfaceError, SparqlError, DateError {
+	DBCursor? execute_select_cursor () throws DBInterfaceError, Sparql.Error, DateError {
 		return exec_sql_cursor (get_select_query ());
 	}
 
-	string get_ask_query () throws DBInterfaceError, SparqlError, DateError {
+	string get_ask_query () throws DBInterfaceError, Sparql.Error, DateError {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
@@ -579,15 +570,15 @@ public class Tracker.Sparql.Query : Object {
 		return sql.str;
 	}
 
-	DBResultSet? execute_ask () throws DBInterfaceError, SparqlError, DateError {
+	DBResultSet? execute_ask () throws DBInterfaceError, Sparql.Error, DateError {
 		return exec_sql (get_ask_query ());
 	}
 
-	DBCursor? execute_ask_cursor () throws DBInterfaceError, SparqlError, DateError {
+	DBCursor? execute_ask_cursor () throws DBInterfaceError, Sparql.Error, DateError {
 		return exec_sql_cursor (get_ask_query ());
 	}
 
-	private void parse_from_or_into_param () throws SparqlError {
+	private void parse_from_or_into_param () throws Sparql.Error {
 		if (accept (SparqlTokenType.IRI_REF)) {
 			current_graph = get_last_string (1);
 		} else if (accept (SparqlTokenType.PN_PREFIX)) {
@@ -600,7 +591,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	PtrArray? execute_insert_or_delete (bool blank) throws DBInterfaceError, DataError, SparqlError, DateError {
+	PtrArray? execute_insert_or_delete (bool blank) throws DBInterfaceError, DataError, Sparql.Error, DateError {
 		// INSERT or DELETE
 
 		if (accept (SparqlTokenType.WITH)) {
@@ -732,7 +723,7 @@ public class Tracker.Sparql.Query : Object {
 		return update_blank_nodes;
 	}
 
-	void execute_drop_graph () throws DBInterfaceError, DataError, SparqlError {
+	void execute_drop_graph () throws DBInterfaceError, DataError, Sparql.Error {
 		expect (SparqlTokenType.DROP);
 		expect (SparqlTokenType.GRAPH);
 
@@ -745,7 +736,7 @@ public class Tracker.Sparql.Query : Object {
 		Data.update_buffer_flush ();
 	}
 
-	internal string resolve_prefixed_name (string prefix, string local_name) throws SparqlError {
+	internal string resolve_prefixed_name (string prefix, string local_name) throws Sparql.Error {
 		string ns = prefix_map.lookup (prefix);
 		if (ns == null) {
 			throw get_error ("use of undefined prefix `%s'".printf (prefix));
@@ -753,7 +744,7 @@ public class Tracker.Sparql.Query : Object {
 		return ns + local_name;
 	}
 
-	void skip_braces () throws SparqlError {
+	void skip_braces () throws Sparql.Error {
 		expect (SparqlTokenType.OPEN_BRACE);
 		int n_braces = 1;
 		while (n_braces > 0) {
@@ -770,7 +761,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
+	void parse_construct_triples_block (HashTable<string,string> var_value_map) throws Sparql.Error, DataError, DateError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		while (current () != SparqlTokenType.CLOSE_BRACE) {
@@ -807,7 +798,7 @@ public class Tracker.Sparql.Query : Object {
 
 	bool anon_blank_node_open = false;
 
-	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
+	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws Sparql.Error, DataError, DateError {
 		string result = "";
 		if (current () == SparqlTokenType.VAR) {
 			next ();
@@ -892,7 +883,7 @@ public class Tracker.Sparql.Query : Object {
 		return result;
 	}
 
-	void parse_construct_property_list_not_empty (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
+	void parse_construct_property_list_not_empty (HashTable<string,string> var_value_map) throws Sparql.Error, DataError, DateError {
 		while (true) {
 			var old_predicate = current_predicate;
 
@@ -929,7 +920,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_object_list (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
+	void parse_construct_object_list (HashTable<string,string> var_value_map) throws Sparql.Error, DataError, DateError {
 		while (true) {
 			parse_construct_object (var_value_map);
 			if (accept (SparqlTokenType.COMMA)) {
@@ -939,7 +930,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_object (HashTable<string,string> var_value_map) throws SparqlError, DataError, DateError {
+	void parse_construct_object (HashTable<string,string> var_value_map) throws Sparql.Error, DataError, DateError {
 		string object = parse_construct_var_or_term (var_value_map);
 		try {
 			if (delete_statements) {

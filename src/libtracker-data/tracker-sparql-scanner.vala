@@ -430,7 +430,7 @@ public class Tracker.SparqlScanner : Object {
 		return (c.isalnum () || c == '_');
 	}
 
-	public SparqlTokenType read_token (out SourceLocation token_begin, out SourceLocation token_end) throws SparqlError {
+	public SparqlTokenType read_token (out SourceLocation token_begin, out SourceLocation token_end) throws Sparql.Error {
 		space ();
 
 		SparqlTokenType type;
@@ -651,14 +651,14 @@ public class Tracker.SparqlScanner : Object {
 								current += u.to_utf8 (null);
 								token_length_in_chars++;
 							} else {
-								throw new SparqlError.PARSE ("%d.%d: invalid UTF-8 character", line, column + token_length_in_chars);
+								throw new Sparql.Error.PARSE ("%d.%d: invalid UTF-8 character", line, column + token_length_in_chars);
 							}
 						}
 					}
 					if (current[0] == begin[0] && current[1] == begin[0] && current[2] == begin[0]) {
 						current += 3;
 					} else {
-						throw new SparqlError.PARSE ("%d.%d: syntax error, expected \"\"\"", line, column + token_length_in_chars);
+						throw new Sparql.Error.PARSE ("%d.%d: syntax error, expected \"\"\"", line, column + token_length_in_chars);
 					}
 					break;
 				}
@@ -692,7 +692,7 @@ public class Tracker.SparqlScanner : Object {
 							token_length_in_chars++;
 							break;
 						default:
-							throw new SparqlError.PARSE ("%d.%d: invalid escape sequence", line, column + token_length_in_chars);
+							throw new Sparql.Error.PARSE ("%d.%d: invalid escape sequence", line, column + token_length_in_chars);
 						}
 					} else if (current[0] == '\n') {
 						break;
@@ -703,14 +703,14 @@ public class Tracker.SparqlScanner : Object {
 							token_length_in_chars++;
 						} else {
 							current++;
-							throw new SparqlError.PARSE ("%d.%d: invalid UTF-8 character", line, column + token_length_in_chars);
+							throw new Sparql.Error.PARSE ("%d.%d: invalid UTF-8 character", line, column + token_length_in_chars);
 						}
 					}
 				}
 				if (current < end && current[0] != '\n') {
 					current++;
 				} else {
-					throw new SparqlError.PARSE ("%d.%d: syntax error, expected %c", line, column + token_length_in_chars, begin[0]);
+					throw new Sparql.Error.PARSE ("%d.%d: syntax error, expected %c", line, column + token_length_in_chars, begin[0]);
 				}
 				break;
 			case '^':
@@ -719,7 +719,7 @@ public class Tracker.SparqlScanner : Object {
 					type = SparqlTokenType.DOUBLE_CIRCUMFLEX;
 					current += 2;
 				} else {
-					throw new SparqlError.PARSE ("%d.%d: syntax error, unexpected character", line, column);
+					throw new Sparql.Error.PARSE ("%d.%d: syntax error, unexpected character", line, column);
 				}
 				break;
 			case '_':
@@ -729,9 +729,9 @@ public class Tracker.SparqlScanner : Object {
 			default:
 				unichar u = ((string) current).get_char_validated ((long) (end - current));
 				if (u != (unichar) (-1)) {
-					throw new SparqlError.PARSE ("%d.%d: syntax error, unexpected character", line, column);
+					throw new Sparql.Error.PARSE ("%d.%d: syntax error, unexpected character", line, column);
 				} else {
-					throw new SparqlError.PARSE ("%d.%d: invalid UTF-8 character", line, column);
+					throw new Sparql.Error.PARSE ("%d.%d: invalid UTF-8 character", line, column);
 				}
 			}
 		}

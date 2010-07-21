@@ -94,7 +94,7 @@ public class Tracker.TurtleReader : Object {
 		}
 	}
 
-	inline bool next_token () throws SparqlError {
+	inline bool next_token () throws Sparql.Error {
 		index = (index + 1) % BUFFER_SIZE;
 		size--;
 		if (size <= 0) {
@@ -112,7 +112,7 @@ public class Tracker.TurtleReader : Object {
 		return tokens[index].type;
 	}
 
-	inline bool accept (SparqlTokenType type) throws SparqlError {
+	inline bool accept (SparqlTokenType type) throws Sparql.Error {
 		if (current () == type) {
 			next_token ();
 			return true;
@@ -120,11 +120,11 @@ public class Tracker.TurtleReader : Object {
 		return false;
 	}
 
-	SparqlError get_error (string msg) {
-		return new SparqlError.PARSE ("%d.%d: syntax error, %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
+	Sparql.Error get_error (string msg) {
+		return new Sparql.Error.PARSE ("%d.%d: syntax error, %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
 	}
 
-	bool expect (SparqlTokenType type) throws SparqlError {
+	bool expect (SparqlTokenType type) throws Sparql.Error {
 		if (accept (type)) {
 			return true;
 		}
@@ -137,7 +137,7 @@ public class Tracker.TurtleReader : Object {
 		return ((string) (tokens[last_index].begin.pos + strip)).ndup ((tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
-	string resolve_prefixed_name (string prefix, string local_name) throws SparqlError {
+	string resolve_prefixed_name (string prefix, string local_name) throws Sparql.Error {
 		string ns = prefix_map.lookup (prefix);
 		if (ns == null) {
 			throw get_error ("use of undefined prefix `%s'".printf (prefix));
@@ -145,7 +145,7 @@ public class Tracker.TurtleReader : Object {
 		return ns + local_name;
 	}
 
-	public bool next () throws SparqlError {
+	public bool next () throws Sparql.Error {
 		while (true) {
 			switch (state) {
 			case State.INITIAL:
@@ -365,7 +365,7 @@ public class Tracker.TurtleReader : Object {
 		}
 	}
 
-	public static void load (string path) throws FileError, SparqlError, DataError, DateError, DBInterfaceError {
+	public static void load (string path) throws FileError, Sparql.Error, DataError, DateError, DBInterfaceError {
 		try {
 			Data.begin_transaction ();
 
