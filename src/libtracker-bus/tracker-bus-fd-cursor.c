@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
  * Copyright (C) 2008-2010, Nokia <ivan.frade@nokia.com>
  * Copyright (C) 2010, Codeminded BVBA <abustany@gnome.org>
  *
@@ -220,8 +219,6 @@ tracker_bus_fd_cursor_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_bus_fd_cursor_parent_class)->finalize (object);
 }
 
-#endif /* HAVE_DBUS_FD_PASSING */
-
 /* Public API */
 
 TrackerSparqlCursor *
@@ -229,7 +226,6 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
                       const gchar      *query,
                       GError          **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusConnection *connection;
 	DBusMessage *message;
 	DBusMessageIter iter;
@@ -275,10 +271,6 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 		cursor = NULL;
 	}
 	return TRACKER_SPARQL_CURSOR (cursor);
-#else /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-	return NULL;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static void
@@ -314,7 +306,6 @@ tracker_bus_fd_query_async (DBusGConnection     *gconnection,
                             GAsyncReadyCallback  callback,
                             gpointer             user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	GSimpleAsyncResult *res;
 	DBusConnection *connection;
 	DBusMessage *message;
@@ -357,16 +348,12 @@ tracker_bus_fd_query_async (DBusGConnection     *gconnection,
 	                                    NULL,
 	                                    query_async_cb, res);
 	/* message is destroyed by tracker_dbus_send_and_splice_async */
-#else /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 TrackerSparqlCursor *
 tracker_bus_fd_query_finish (GAsyncResult     *res,
                              GError          **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	g_return_val_if_fail (res != NULL, NULL);
 
 	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
@@ -374,8 +361,6 @@ tracker_bus_fd_query_finish (GAsyncResult     *res,
 	}
 
 	return g_object_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
-#else /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-	return NULL;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
+
+#endif /* HAVE_DBUS_FD_PASSING */

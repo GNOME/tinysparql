@@ -13,6 +13,12 @@ INCLUDES =								\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
+if HAVE_DBUS_FD_PASSING
+INCLUDES += -DHAVE_DBUS_FD_PASSING_IN_VALA=\"1\"
+else
+INCLUDES += -DHAVE_DBUS_FD_PASSING_IN_VALA=\"0\"
+endif
+
 modules_LTLIBRARIES = libtracker-bus.la
 
 libtracker_bus_la_VALASOURCES = \
