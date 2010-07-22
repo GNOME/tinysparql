@@ -4,6 +4,7 @@ SUBDIRS = data
 
 INCLUDES =					\
 	-I$(top_srcdir)/src/libtracker-sparql	\
+	-I$(top_srcdir)/src/libtracker-direct	\
 	-I$(top_srcdir)/src/libtracker-bus	\
 	-I$(top_builddir)/src/libtracker-sparql	\
 	-I$(top_builddir)/src/libtracker-bus	\

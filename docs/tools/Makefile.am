@@ -7,6 +7,8 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
+	-I$(top_srcdir)/src/libtracker-sparql				\
+	-I$(top_srcdir)/src/libtracker-data				\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-data				\
