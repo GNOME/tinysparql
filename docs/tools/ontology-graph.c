@@ -21,7 +21,6 @@
 #include <gio/gio.h>
 #include <glib/gprintf.h>
 #include <libtracker-data/tracker-data.h>
-#include <libtracker-data/tracker-sparql-query.h>
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_PROPERTY RDF_PREFIX "Property"

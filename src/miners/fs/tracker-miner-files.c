@@ -802,10 +802,11 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		g_string_append_printf (accumulator, "%s ", queries->str);
 	} else {
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-		                              queries->str,
-		                              NULL, NULL,
-		                              set_up_mount_point_cb,
-		                              g_strdup (removable_device_urn));
+                                                        queries->str,
+                                                        G_PRIORITY_DEFAULT,
+                                                        NULL,
+                                                        set_up_mount_point_cb,
+                                                        g_strdup (removable_device_urn));
 	}
 
 	g_string_free (queries, TRUE);
@@ -993,10 +994,11 @@ init_mount_points (TrackerMinerFiles *miner_files)
 
 	if (accumulator->str[0] != '\0') {
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (miner),
-		                              accumulator->str,
-		                              NULL, NULL,
-		                              init_mount_points_cb,
-		                              miner);
+                                                        accumulator->str,
+                                                        G_PRIORITY_DEFAULT,
+                                                        NULL,
+                                                        init_mount_points_cb,
+                                                        miner);
 	} else {
 		/* If no further mount point initialization was needed,
 		 * initialize stale volume removal here. */
@@ -1157,10 +1159,11 @@ mount_point_added_cb (TrackerStorage *storage,
 	set_up_mount_point (miner, urn, mount_point, TRUE, queries);
 	set_up_mount_point_type (miner, urn, removable, optical, queries);
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-	                              queries->str,
-	                              NULL, NULL,
-	                              set_up_mount_point_cb,
-	                              g_strdup (urn));
+                                                queries->str,
+                                                G_PRIORITY_DEFAULT,
+                                                NULL,
+                                                set_up_mount_point_cb,
+                                                g_strdup (urn));
 	g_string_free (queries, TRUE);
 	g_free (urn);
 }
@@ -2616,10 +2619,11 @@ miner_files_in_removable_media_remove_by_type (TrackerMinerFiles  *miner,
 		                        optical ? "true" : "false");
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-		                                    queries->str,
-		                                    NULL, NULL,
-		                                    remove_files_in_removable_media_cb,
-		                                    NULL);
+                                                        queries->str,
+                                                        G_PRIORITY_DEFAULT,
+                                                        NULL,
+                                                        remove_files_in_removable_media_cb,
+                                                        NULL);
 
 		g_string_free (queries, TRUE);
 
@@ -2657,10 +2661,11 @@ miner_files_in_removable_media_remove_by_date (TrackerMinerFiles  *miner,
 	                        date);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-	                                    queries->str,
-	                                    NULL, NULL,
-	                                    remove_files_in_removable_media_cb,
-	                                    NULL);
+                                                queries->str,
+                                                G_PRIORITY_DEFAULT,
+                                                NULL,
+                                                remove_files_in_removable_media_cb,
+                                                NULL);
 
 	g_string_free (queries, TRUE);
 }

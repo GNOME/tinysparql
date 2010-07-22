@@ -8,7 +8,7 @@ INCLUDES = 								\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-client				\
+	-I$(top_builddir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-data				\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
