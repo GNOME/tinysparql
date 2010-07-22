@@ -184,22 +184,28 @@ dbus_set_available (gboolean available)
 			tracker_dbus_register_objects ();
 		}
 	} else {
-		if (objects) {
-			dbus_g_proxy_disconnect_signal (gproxy,
-			                                "NameOwnerChanged",
-			                                G_CALLBACK (name_owner_changed_cb),
-			                                tracker_dbus_get_object (TRACKER_TYPE_RESOURCES));
+                GSList *l;
+
+                if (objects) {
+                        dbus_g_proxy_disconnect_signal (gproxy,
+                                                        "NameOwnerChanged",
+                                                        G_CALLBACK (name_owner_changed_cb),
+                                                        tracker_dbus_get_object (TRACKER_TYPE_RESOURCES));
 
 #ifdef HAVE_DBUS_FD_PASSING
 			dbus_connection_remove_filter (dbus_g_connection_get_connection (connection),
 			                               tracker_steroids_connection_filter,
 			                               tracker_dbus_get_object (TRACKER_TYPE_STEROIDS));
 #endif
+                }
 
-			g_slist_foreach (objects, (GFunc) g_object_unref, NULL);
-			g_slist_free (objects);
-			objects = NULL;
-		}
+                for (l = objects; l; l = l->next) {
+                        dbus_g_connection_unregister_g_object (connection, l->data);
+                        g_object_unref (l->data);
+                }
+
+                g_slist_free (objects);
+                objects = NULL;
 	}
 }
 
@@ -209,10 +215,12 @@ tracker_dbus_shutdown (void)
 	dbus_set_available (FALSE);
 
 	if (backup) {
+		dbus_g_connection_unregister_g_object (connection, G_OBJECT (backup));
 		g_object_unref (backup);
 	}
 
 	if (notifier) {
+		dbus_g_connection_unregister_g_object (connection, G_OBJECT (notifier));
 		g_object_unref (notifier);
 	}
 
