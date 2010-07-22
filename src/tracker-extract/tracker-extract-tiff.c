@@ -24,7 +24,6 @@
 
 #include <tiffio.h>
 
-#include <libtracker-client/tracker-client.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #define CM_TO_INCH          0.393700787

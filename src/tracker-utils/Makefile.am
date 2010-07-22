@@ -6,7 +6,7 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-client				\
+	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\

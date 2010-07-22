@@ -28,9 +28,7 @@
 
 #include <vorbis/vorbisfile.h>
 
-#include <libtracker-common/tracker-file-utils.h>
-
-#include <libtracker-client/tracker.h>
+#include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
 

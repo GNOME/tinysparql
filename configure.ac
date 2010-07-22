@@ -1956,7 +1956,6 @@ AC_CONFIG_FILES([
 	examples/libtracker-extract/Makefile
 	examples/libtracker-miner/Makefile
 	examples/rss-reader/Makefile
-	examples/tracker-steroids/Makefile
 ])
 
 AC_OUTPUT

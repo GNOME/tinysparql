@@ -38,7 +38,6 @@ tracker_preferences_SOURCES = 						\
 	$(tracker_preferences_VALASOURCES:.vala=.c)
 
 tracker_preferences_LDADD = 						\
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(TRACKER_APPS_LIBS)						\
 	$(GCOV_LIBS)

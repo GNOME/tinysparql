@@ -34,6 +34,7 @@ tracker_text_normalize
 tracker_text_validate_utf8
 tracker_date_format_to_iso8601
 tracker_date_guess
+tracker_keywords_parse
 </SECTION>
 
 <SECTION>

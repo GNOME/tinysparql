@@ -45,8 +45,6 @@
 
 #include <libtracker-common/tracker-common.h>
 
-#include <libtracker-client/tracker.h>
-
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"

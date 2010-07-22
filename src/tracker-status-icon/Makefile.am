@@ -8,7 +8,6 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-client				\
 	$(TRACKER_APPS_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
 	$(WARN_CFLAGS)							\
@@ -19,7 +18,6 @@ bin_PROGRAMS = tracker-status-icon
 # Note: the -lX11 is needed for XGetModifierMapping() and other X11 calls
 tracker_status_icon_LDADD = 						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la 	\
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(TRACKER_APPS_LIBS)						\
 	$(PANGO_LIBS)							\

@@ -18,16 +18,15 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-os-dependant.h>
-#include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-client/tracker.h>
 
 static void extract_totem (const gchar          *uri,
                            TrackerSparqlBuilder *preupdate,

@@ -24,9 +24,7 @@
 #error "only <libtracker-extract/tracker-extract.h> must be included directly."
 #endif
 
-#include <glib.h>
-
-#include <libtracker-client/tracker-sparql-builder.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 G_BEGIN_DECLS
 

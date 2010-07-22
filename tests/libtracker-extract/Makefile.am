@@ -12,7 +12,7 @@ INCLUDES = 								\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-client				\
+	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
@@ -27,7 +27,7 @@ tracker_utils_LDADD =							\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la   \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la   \
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GOBJECT_LIBS)							\

@@ -26,8 +26,8 @@
 
 #include <gif_lib.h>
 
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-client/tracker-client.h>
+#include <libtracker-common/tracker-common.h>
+
 #include <libtracker-extract/tracker-extract.h>
 
 #define XMP_MAGIC_TRAILER_LENGTH 256

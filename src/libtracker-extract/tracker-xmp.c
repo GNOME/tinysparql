@@ -662,7 +662,7 @@ tracker_xmp_apply (TrackerSparqlBuilder *metadata,
 	GPtrArray *keywords;
 	guint i;
 
-	g_return_val_if_fail (TRACKER_IS_SPARQL_BUILDER (metadata), FALSE);
+	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (metadata), FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
 	g_return_val_if_fail (data != NULL, FALSE);
 

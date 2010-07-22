@@ -22,8 +22,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <libtracker-extract/tracker-xmp.h>
-#include <libtracker-client/tracker-sparql-builder.h>
+#include <libtracker-extract/tracker-extract.h>
 
 #define BROKEN_XMP "This is not even XML"
 #define EXAMPLE_XMP   \

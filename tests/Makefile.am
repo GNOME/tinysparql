@@ -9,9 +9,11 @@ SUBDIRS = 			\
 	libtracker-data		\
 	tracker-miner-fs	\
 	tracker-extract		\
-	tracker-steroids	\
 	tracker-store		\
 	tracker-writeback
+
+# Disabled until it works again
+#	tracker-steroids	
 
 if DIST_FUNCTIONAL_TESTS
 SUBDIRS += functional-tests

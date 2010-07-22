@@ -28,10 +28,7 @@
 #include <gio/gunixoutputstream.h>
 #include <gio/gunixinputstream.h>
 
-#include <libtracker-common/tracker-dbus.h>
-#include <libtracker-common/tracker-log.h>
-
-#include <libtracker-client/tracker-sparql-builder.h>
+#include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
 
