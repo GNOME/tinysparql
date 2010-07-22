@@ -261,7 +261,7 @@ tracker_data_backup_save (GFile *destination,
 
 	argv = g_new0 (gchar*, files->len + 7);
 
-	argv[0] = g_strdup (TAR);
+	argv[0] = g_strdup ("tar");
 	argv[1] = g_strdup ("-zcf");
 	argv[2] = path;
 	argv[3] = g_strdup ("-C");
