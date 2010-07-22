@@ -101,10 +101,12 @@ fast_async_data_new (DBusConnection    *connection,
 
 	data->connection = dbus_connection_ref (connection);
 	data->operation_type = operation_type;
-	data->cancellable = g_object_ref (cancellable);
-	data->user_data = user_data;
+	if (cancellable) {
+		data->cancellable = g_object_ref (cancellable);
 
-	data->cancelid = g_cancellable_connect (cancellable, G_CALLBACK (on_cancel), data, NULL);
+		data->cancelid = g_cancellable_connect (cancellable, G_CALLBACK (on_cancel), data, NULL);
+	}
+	data->user_data = user_data;
 
 	return data;
 }
