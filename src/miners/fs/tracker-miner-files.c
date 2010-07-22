@@ -908,6 +908,9 @@ init_mount_points (TrackerMinerFiles *miner_files)
 		g_hash_table_replace (volumes, non_removable_device_urn, GINT_TO_POINTER (state));
 	}
 
+	g_slist_foreach (uuids, (GFunc) g_free, NULL);
+	g_slist_free (uuids);
+
 	/* Then, get all currently mounted REMOVABLE volumes, according to GIO */
 	uuids = tracker_storage_get_device_uuids (priv->storage, TRACKER_STORAGE_REMOVABLE, FALSE);
 	for (u = uuids; u; u = u->next) {
