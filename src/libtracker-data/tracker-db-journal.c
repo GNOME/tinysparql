@@ -1002,6 +1002,7 @@ reader_get_next_filepath (JournalReader *jreader)
 			/* keep compressed journal files in same directory */
 			source = g_file_new_for_path (test);
 			dest_dir = g_file_get_parent (source);
+			g_object_unref (source);
 		}
 
 		filename = g_path_get_basename (test);
