@@ -13,7 +13,8 @@ SUBDIRS = 			\
 	tracker-writeback
 
 # Disabled until it works again
-#	tracker-steroids	
+# Note: re-enable the generation of the Makefile in configure.ac
+#	tracker-steroids
 
 if DIST_FUNCTIONAL_TESTS
 SUBDIRS += functional-tests
