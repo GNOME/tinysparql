@@ -1,3 +1,4 @@
+shared-query-test.c
 shared-update-test.c
 bus-query-test
 bus-query-test.c

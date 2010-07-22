@@ -5,6 +5,7 @@ using Tracker.Sparql;
 public class TestApp : GLib.Object {
 	MainLoop loop;
 	Sparql.Connection con;
+	private int res = 0;
 
 	public TestApp (Sparql.Connection connection) {
 		con = connection;
@@ -37,6 +38,7 @@ public class TestApp : GLib.Object {
 			con.update ("INSERT { <test01> a nie:InformationElement ; nie:title 'test01' }");
 		} catch (Tracker.Sparql.Error ea) {
 			warning ("Couldn't update: %s", ea.message);
+			res = -1;
 		}
 
 		try {
@@ -44,6 +46,7 @@ public class TestApp : GLib.Object {
 			a = iter_cursor (cursor);
 		} catch (Tracker.Sparql.Error eb) {
 			warning ("Couldn't query: %s", eb.message);
+			res = -1;
 		}
 
 	}
@@ -56,6 +59,7 @@ public class TestApp : GLib.Object {
 			yield con.update_async ("INSERT { <test01> a nie:InformationElement ; nie:title 'test01' }");
 		} catch (Tracker.Sparql.Error ea) {
 			warning ("Couldn't update: %s", ea.message);
+			res = -1;
 		}
 
 		try {
@@ -63,6 +67,7 @@ public class TestApp : GLib.Object {
 			a = iter_cursor (cursor);
 		} catch (Tracker.Sparql.Error eb) {
 			warning ("Couldn't query: %s", eb.message);
+			res = -1;
 		}
 
 	}
@@ -86,11 +91,13 @@ public class TestApp : GLib.Object {
 		return false;
 	}
 
-	public void run () {
+	public int run () {
 		loop = new MainLoop (null, false);
 
 		Idle.add (in_mainloop);
 
 		loop.run ();
+
+		return res;
 	}
 }

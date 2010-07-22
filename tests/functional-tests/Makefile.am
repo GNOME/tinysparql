@@ -73,13 +73,7 @@ MAINTAINERCLEANFILES =					\
 	$(BUILT_SOURCES)				\
 	$(busy_handling_test_VALASOURCES:.vala=.c)
 
-default_update_test_VALASOURCES = shared-update-test.vala default-update-test.vala
-
-default_update_test_SOURCES = \
-	default_update_test.vala.stamp \
-	$(default_update_test_VALASOURCES:.vala=.c)
-
-bus_query_test_VALASOURCES = bus-query-test.vala
+bus_query_test_VALASOURCES = shared-query-test.vala bus-query-test.vala
 
 bus_query_test_SOURCES = \
 	bus_query_test.vala.stamp \
