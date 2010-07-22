@@ -436,7 +436,7 @@ tracker_bus_fd_sparql_update_finish (GAsyncResult     *res,
                                      GError          **error)
 {
 #ifdef HAVE_DBUS_FD_PASSING
-	g_return_val_if_fail (res != NULL, NULL);
+	g_return_if_fail (res != NULL);
 
 	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
 #else /* HAVE_DBUS_FD_PASSING */
