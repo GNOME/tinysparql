@@ -29,6 +29,7 @@ libtracker_bus_la_VALASOURCES = \
 libtracker_bus_la_SOURCES = 	\
 	libtracker-bus.vala.stamp			\
 	$(libtracker_bus_la_VALASOURCES:.vala=.c)	\
+	tracker-bus-fd-cursor.h				\
 	tracker-bus-fd-cursor.c				\
 	tracker-bus-fd-update.c				\
 	tracker-bus-fd-update.h
