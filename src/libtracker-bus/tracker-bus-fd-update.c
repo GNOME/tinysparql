@@ -411,7 +411,7 @@ tracker_bus_fd_sparql_update_async (DBusGConnection       *connection,
 	fad = fast_async_data_new (dbus_g_connection_get_connection (connection),
 	                           FAST_UPDATE, cancellable, user_data);
 
-	fad->res = g_simple_async_result_new (G_OBJECT (connection), callback, user_data,
+	fad->res = g_simple_async_result_new (NULL, callback, user_data,
 	                                      tracker_bus_fd_sparql_update_async);
 
 	sparql_update_fast_async (dbus_g_connection_get_connection (connection),
@@ -540,7 +540,7 @@ tracker_bus_fd_sparql_update_blank_async (DBusGConnection       *connection,
 	                           cancellable,
 	                           user_data);
 
-	fad->res = g_simple_async_result_new (G_OBJECT (connection), callback, user_data,
+	fad->res = g_simple_async_result_new (NULL, callback, user_data,
 	                                      tracker_bus_fd_sparql_update_blank_async);
 
 	sparql_update_fast_async (dbus_g_connection_get_connection (connection),
