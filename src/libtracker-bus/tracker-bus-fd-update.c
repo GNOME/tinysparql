@@ -431,21 +431,16 @@ tracker_bus_fd_sparql_update_async (DBusGConnection       *connection,
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
-GPtrArray*
+void
 tracker_bus_fd_sparql_update_finish (GAsyncResult     *res,
                                      GError          **error)
 {
 #ifdef HAVE_DBUS_FD_PASSING
 	g_return_val_if_fail (res != NULL, NULL);
 
-	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
-		return NULL;
-	}
-
-	return g_object_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
+	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
 #else /* HAVE_DBUS_FD_PASSING */
 	g_assert_not_reached ();
-	return NULL;
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 

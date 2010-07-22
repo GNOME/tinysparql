@@ -39,7 +39,7 @@ void        tracker_bus_fd_sparql_update_blank_async  (DBusGConnection       *co
                                                        GCancellable          *cancellable,
                                                        GAsyncReadyCallback    callback,
                                                        gpointer               user_data);
-GPtrArray*  tracker_bus_fd_sparql_update_finish       (GAsyncResult          *res,
+void        tracker_bus_fd_sparql_update_finish       (GAsyncResult          *res,
                                                        GError               **error);
 GPtrArray*  tracker_bus_fd_sparql_update_blank_finish (GAsyncResult          *res,
                                                        GError               **error);
