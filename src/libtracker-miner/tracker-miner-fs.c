@@ -3828,8 +3828,11 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
         g_return_if_fail (TRACKER_IS_MINER_FS (fs));
         g_return_if_fail (G_IS_FILE (file));
 
-        /* Get parent of the input file */
+        /* Get parent of the input file, IF ANY! */
         parent = g_file_get_parent (file);
+        if (!parent) {
+	        return;
+        }
 
         for (l = fs->private->dirs_without_parent;
              l;
