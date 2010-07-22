@@ -145,6 +145,7 @@ static gchar                *sql_dir;
 static gchar                *data_dir = NULL;
 static gchar                *user_data_dir = NULL;
 static gchar                *sys_tmp_dir = NULL;
+static gchar                *in_use_filename = NULL;
 static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
 
@@ -588,7 +589,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	const gchar        *env_path;
 	gboolean            need_reindex;
 	guint               i;
-	gchar              *in_use_filename;
 	int                 in_use_file;
 	gboolean            loaded = FALSE;
 	TrackerDBInterface *resources_iface;
@@ -651,6 +651,12 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	data_dir = g_build_filename (g_get_user_cache_dir (),
 	                             "tracker",
 	                             NULL);
+
+	in_use_filename = g_build_filename (g_get_user_data_dir (),
+	                                    "tracker",
+	                                    "data",
+	                                    IN_USE_FILENAME,
+	                                    NULL);
 
 	/* Make sure the directories exist */
 	g_message ("Checking database directories exist");
@@ -717,12 +723,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		g_message ("Enabling database shared cache");
 		tracker_db_interface_sqlite_enable_shared_cache ();
 	}
-
-	in_use_filename = g_build_filename (g_get_user_data_dir (),
-	                                    "tracker",
-	                                    "data",
-	                                    IN_USE_FILENAME,
-	                                    NULL);
 
 	/* Should we reindex? If so, just remove all databases files,
 	 * NOT the paths, note, that these paths are also used for
@@ -848,7 +848,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not create in-use file for read-only mode (direct access) */
-
 		in_use_file = g_open (in_use_filename,
 			              O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
 			              S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
@@ -858,8 +857,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		        close (in_use_file);
 		}
 	}
-
-	g_free (in_use_filename);
 
 	initialized = TRUE;
 
@@ -944,19 +941,11 @@ tracker_db_manager_shutdown (void)
 
 	if ((tracker_db_manager_get_flags () & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not delete in-use file for read-only mode (direct access) */
-
-		gchar *in_use_filename;
-
-		in_use_filename = g_build_filename (g_get_user_data_dir (),
-			                            "tracker",
-			                            "data",
-			                            IN_USE_FILENAME,
-			                            NULL);
-
 		g_unlink (in_use_filename);
-
-		g_free (in_use_filename);
 	}
+
+	g_free (in_use_filename);
+        in_use_filename = NULL;
 }
 
 void
