@@ -225,12 +225,12 @@ get_contacts_results (TrackerSparqlConnection *connection,
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
-				g_print ("  %s, %s (%s)\n",
+				g_print ("  '%s', %s (%s)\n",
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
 				         tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			} else {
-				g_print ("  %s, %s\n",
+				g_print ("  '%s', %s\n",
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
 			}
@@ -266,7 +266,7 @@ get_contacts (TrackerSparqlConnection *connection,
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
-		query = g_strdup_printf ("SELECT tracker:coalesce(nco:fullname(?contact), \"Unknown\") nco:hasEmailAddress(?contact) ?contact "
+		query = g_strdup_printf ("SELECT tracker:coalesce(nco:fullname(?contact), \"%s\") tracker:coalesce(nco:hasEmailAddress(?contact), \"%s\") ?contact "
 		                         "WHERE { "
 		                         "  ?contact a nco:Contact ;"
 		                         "  fts:match \"%s\" ."
@@ -274,17 +274,21 @@ get_contacts (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nco:fullname(?contact)) ASC(nco:hasEmailAddress(?contact)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
+                                         _("No Name"),
+                                         _("No Address"),
 		                         fts,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT tracker:coalesce(nco:fullname(?contact), \"Unknown\") nco:hasEmailAddress(?contact) ?contact "
+		query = g_strdup_printf ("SELECT tracker:coalesce(nco:fullname(?contact), \"%s\") tracker:coalesce(nco:hasEmailAddress(?contact), \"%s\") ?contact "
 		                         "WHERE { "
 		                         "  ?contact a nco:Contact ."
 		                         "} "
 		                         "ORDER BY ASC(nco:fullname(?contact)) ASC(nco:hasEmailAddress(?contact)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
+                                         _("No Name"),
+                                         _("No Address"),
 		                         search_offset,
 		                         search_limit);
 	}
@@ -434,11 +438,11 @@ get_files_results (TrackerSparqlConnection *connection,
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
 				g_print ("  %s (%s)\n",
-				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
 			} else {
 				g_print ("  %s\n",
-				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
 			}
 
 			count++;
@@ -669,7 +673,8 @@ get_music_artists (TrackerSparqlConnection *connection,
                    GStrv                    search_terms,
                    gint                     search_offset,
                    gint                     search_limit,
-                   gboolean                 use_or_operator)
+                   gboolean                 use_or_operator,
+                   gboolean                 details)
 {
 	GError *error = NULL;
 	TrackerSparqlCursor *cursor;
@@ -727,10 +732,14 @@ get_music_artists (TrackerSparqlConnection *connection,
 		g_print ("%s:\n", _("Artists"));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			g_print ("  '%s', (%s)\n",
-			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
-
+			if (details) {
+				g_print ("  '%s' (%s)\n",
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
+			} else {
+				g_print ("  '%s'\n",
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+			}
 			count++;
 		}
 
@@ -751,7 +760,8 @@ get_music_albums (TrackerSparqlConnection *connection,
                   GStrv                    search_words,
                   gint                     search_offset,
                   gint                     search_limit,
-                  gboolean                 use_or_operator)
+                  gboolean                 use_or_operator,
+                  gboolean                 details)
 {
 	GError *error = NULL;
 	TrackerSparqlCursor *cursor;
@@ -807,10 +817,14 @@ get_music_albums (TrackerSparqlConnection *connection,
 		g_print ("%s:\n", _("Albums"));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			g_print ("  '%s' (%s)\n",
-			         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-			         tracker_sparql_cursor_get_string (cursor, 1, NULL));
-
+			if (details) {
+				g_print ("  '%s' (%s)\n",
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
+				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
+			} else {
+				g_print ("  '%s'\n",
+				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
+			}
 			count++;
 		}
 
@@ -1289,7 +1303,7 @@ main (int argc, char **argv)
 	if (music_albums) {
 		gboolean success;
 
-		success = get_music_albums (connection, terms, offset, limit, or_operator);
+		success = get_music_albums (connection, terms, offset, limit, or_operator, detailed);
 		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -1298,7 +1312,7 @@ main (int argc, char **argv)
 	if (music_artists) {
 		gboolean success;
 
-		success = get_music_artists (connection, terms, offset, limit, or_operator);
+		success = get_music_artists (connection, terms, offset, limit, or_operator, detailed);
 		g_object_unref (connection);
 
 		return success ? EXIT_SUCCESS : EXIT_FAILURE;
