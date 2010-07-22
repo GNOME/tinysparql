@@ -1493,9 +1493,10 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		}
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-		                                    full_sparql,
-		                                    NULL, NULL,
-		                                    sparql_update_cb, data);
+                                                        full_sparql,
+                                                        G_PRIORITY_DEFAULT, 
+                                                        NULL,
+                                                        sparql_update_cb, data);
 		g_free (full_sparql);
 	}
 
@@ -1629,9 +1630,10 @@ item_remove (TrackerMinerFS *fs,
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-	                                    sparql->str,
-	                                    NULL, NULL,
-	                                    sparql_update_cb, data);
+                                                sparql->str,
+                                                G_PRIORITY_DEFAULT, 
+                                                NULL,
+                                                sparql_update_cb, data);
 
 	g_string_free (sparql, TRUE);
 	g_free (uri);
@@ -1711,8 +1713,11 @@ item_ignore_next_update (TrackerMinerFS *fs,
 		                         uri, tracker_sparql_builder_get_result (sparql));
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-		                                    query, NULL,
-		                                    NULL, NULL, NULL);
+                                                        query, 
+                                                        G_PRIORITY_DEFAULT, 
+                                                        NULL, 
+                                                        NULL, 
+                                                        NULL);
 
 		g_free (query);
 	}
@@ -1935,9 +1940,10 @@ item_move (TrackerMinerFS *fs,
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-	                                    sparql->str,
-	                                    NULL, NULL,
-	                                    sparql_update_cb, data);
+                                                sparql->str,
+                                                G_PRIORITY_DEFAULT, 
+                                                NULL,
+                                                sparql_update_cb, data);
 
 	g_free (uri);
 	g_free (source_uri);
