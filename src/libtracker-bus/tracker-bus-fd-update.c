@@ -183,6 +183,8 @@ sparql_update_fast_callback (DBusPendingCall *call,
 	/* Call iterator callback */
 	switch (fad->operation_type) {
 	case FAST_UPDATE:
+		g_simple_async_result_complete (fad->res);
+		break;
 	case FAST_UPDATE_BLANK:
 		result = g_ptr_array_new_with_free_func (free_inner_array);
 		dbus_message_iter_init (reply, &iter);
