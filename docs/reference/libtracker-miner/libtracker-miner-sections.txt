@@ -43,15 +43,7 @@ tracker_miner_ignore_next_update
 tracker_miner_is_started
 tracker_miner_pause
 tracker_miner_resume
-tracker_miner_execute_update
-tracker_miner_execute_update_finish
-tracker_miner_execute_sparql
-tracker_miner_execute_sparql_finish
-tracker_miner_execute_sparql_sync
-tracker_miner_execute_batch_update
-tracker_miner_execute_batch_update_finish
-tracker_miner_commit
-tracker_miner_commit_finish
+tracker_miner_get_connection
 <SUBSECTION Standard>
 TRACKER_MINER
 TRACKER_IS_MINER
@@ -80,6 +72,8 @@ tracker_miner_fs_get_parent_urn
 tracker_miner_fs_get_urn
 tracker_miner_fs_query_urn
 tracker_miner_fs_add_directory_without_parent
+tracker_miner_fs_get_initial_crawling
+tracker_miner_fs_set_initial_crawling
 <SUBSECTION Standard>
 TRACKER_MINER_FS
 TRACKER_IS_MINER_FS
@@ -88,6 +82,7 @@ tracker_miner_fs_get_type
 TRACKER_MINER_FS_CLASS
 TRACKER_IS_MINER_FS_CLASS
 TRACKER_MINER_FS_GET_CLASS
+TRACKER_MINER_FS_GRAPH_URN
 </SECTION>
 
 <SECTION>

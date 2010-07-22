@@ -39,6 +39,7 @@ typedef struct TrackerMinerWeb TrackerMinerWeb;
 typedef struct TrackerMinerWebPrivate TrackerMinerWebPrivate;
 
 /**
+ * TRACKER_MINER_WEB_DBUS_INTERFACE:
  * The name of the DBus interface exposed by the web miners
  **/
 #define TRACKER_MINER_WEB_DBUS_INTERFACE "org.freedesktop.Tracker1.MinerWeb"

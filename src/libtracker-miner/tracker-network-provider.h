@@ -37,6 +37,7 @@ typedef struct TrackerNetworkProvider TrackerNetworkProvider;
 
 /**
  * TrackerNetworkProviderStatus:
+ *
  * Enumerates the different types of connections that the device might use when
  * connected to internet. Note that not all providers might provide this
  * information.
