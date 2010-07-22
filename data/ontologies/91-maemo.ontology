@@ -12,7 +12,7 @@
 
 maemo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "maemo" ;
-	nao:lastModified "2010-03-23T14:30:00Z" .
+	nao:lastModified "2010-07-22T09:00:00Z" .
 
 maemo:SoftwareWidget a rdfs:Class ;
 	rdfs:label "Widget" ;
@@ -44,7 +44,7 @@ maemo:webhistoryThumbnail a rdf:Property ;
 
 # Denotes how relevant an item is for the user
 maemo:relevance a rdf:Property ;
-        nrl:maxCardinality 1 ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:double ;
 	tracker:defaultValue 1000000 .
@@ -63,22 +63,43 @@ maemo:localPhoneNumber a rdf:Property ;
 	rdfs:range xsd:string .
 
 maemo:contactAudioRingtone a rdf:Property ;
-        rdfs:label "Audio ringtone" ;
-        rdfs:comment "Audio file linked with a contact";
-        nrl:maxCardinality 1 ;
-        rdfs:domain nco:PersonContact ;
-        rdfs:range nfo:FileDataObject .
+	rdfs:label "Audio ringtone" ;
+	rdfs:comment "Audio file linked with a contact";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:PersonContact ;
+	rdfs:range nfo:FileDataObject .
 
 maemo:contactVideoRingtone a rdf:Property ;
-        rdfs:label "Video ringtone" ;
-        rdfs:comment "Video file linked with a contact";
-        nrl:maxCardinality 1 ;
-        rdfs:domain nco:PersonContact ;
-        rdfs:range nfo:FileDataObject .
+	rdfs:label "Video ringtone" ;
+	rdfs:comment "Video file linked with a contact";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:PersonContact ;
+	rdfs:range nfo:FileDataObject .
 
 maemo:contactVibrationRingtone a rdf:Property ;
-        rdfs:label "Vibration ringtone";
-        rdfs:comment "File linked with a contact to vibrate on a pleasant frequency";
-        nrl:maxCardinality 1 ;
-        rdfs:domain nco:PersonContact ;
-        rdfs:range nfo:FileDataObject .
+	rdfs:label "Vibration ringtone";
+	rdfs:comment "File linked with a contact to vibrate on a pleasant frequency";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:PersonContact ;
+	rdfs:range nfo:FileDataObject .
+
+maemo:contactGroupAudioRingtone a rdf:Property ;
+	rdfs:label "Audio ringtone" ;
+	rdfs:comment "Audio file linked with a contact group";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:ContactGroup ;
+	rdfs:range nfo:FileDataObject .
+
+maemo:contactGroupVideoRingtone a rdf:Property ;
+	rdfs:label "Video ringtone" ;
+	rdfs:comment "Video file linked with a contact group";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:ContactGroup ;
+	rdfs:range nfo:FileDataObject .
+
+maemo:contactGroupVibrationRingtone a rdf:Property ;
+	rdfs:label "Vibration ringtone";
+	rdfs:comment "File linked with a contact group to vibrate on a pleasant frequency";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:ContactGroup ;
+	rdfs:range nfo:FileDataObject .
