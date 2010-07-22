@@ -55,12 +55,13 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		initialized = true;
 		
 		try {
-			if (Config.HAVE_DBUS_FD_PASSING_IN_VALA) {
+			if (strcmp (Config.HAVE_DBUS_FD_PASSING_IN_VALA, "1") == 0) {
 				use_steroids = true;
 			} else {
 				use_steroids = false;
 			}
-			critical ("use steroids = %s", use_steroids ? "yes" : "no");
+
+			debug ("Using steroids = %s", use_steroids ? "yes" : "no");
 
 			connection = DBus.Bus.get (DBus.BusType.SESSION);
 

@@ -19,5 +19,5 @@
 
 [CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "config.h")]
 namespace Config {
-	public const bool HAVE_DBUS_FD_PASSING_IN_VALA;
+	public const string HAVE_DBUS_FD_PASSING_IN_VALA;
 }

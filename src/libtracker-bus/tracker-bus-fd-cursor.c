@@ -32,8 +32,6 @@
 #include "tracker-bus.h"
 #include "tracker-bus-fd-cursor.h"
 
-#ifdef HAVE_DBUS_FD_PASSING
-
 #define TRACKER_TYPE_BUS_FD_CURSOR           (tracker_bus_fd_cursor_get_type ())
 #define TRACKER_BUS_FD_CURSOR(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_BUS_FD_CURSOR, TrackerBusFDCursor))
 #define TRACKER_BUS_FD_CURSOR_CLASS(c)       (G_TYPE_CHECK_CLASS_CAST ((c),      TRACKER_TYPE_BUS_FD_CURSOR, TrackerBusFDCursorClass))
@@ -226,6 +224,7 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
                       const gchar      *query,
                       GError          **error)
 {
+#ifdef HAVE_DBUS_FD_PASSING
 	DBusConnection *connection;
 	DBusMessage *message;
 	DBusMessageIter iter;
@@ -271,7 +270,13 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 		cursor = NULL;
 	}
 	return TRACKER_SPARQL_CURSOR (cursor);
+#else  /* HAVE_DBUS_FD_PASSING */
+        g_assert_not_reached ();
+        return NULL;
+#endif /* HAVE_DBUS_FD_PASSING */
 }
+
+#ifdef HAVE_DBUS_FD_PASSING
 
 static void
 query_async_cb (gpointer  buffer,
@@ -300,12 +305,15 @@ query_async_cb (gpointer  buffer,
 	g_object_unref (res);
 }
 
+#endif /* HAVE_DBUS_FD_PASSING */
+
 void
 tracker_bus_fd_query_async (DBusGConnection     *gconnection,
                             const gchar         *query,
                             GAsyncReadyCallback  callback,
                             gpointer             user_data)
 {
+#ifdef HAVE_DBUS_FD_PASSING
 	GSimpleAsyncResult *res;
 	DBusConnection *connection;
 	DBusMessage *message;
@@ -348,6 +356,9 @@ tracker_bus_fd_query_async (DBusGConnection     *gconnection,
 	                                    NULL,
 	                                    query_async_cb, res);
 	/* message is destroyed by tracker_dbus_send_and_splice_async */
+#else  /* HAVE_DBUS_FD_PASSING */
+        g_assert_not_reached ();
+#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 TrackerSparqlCursor *
@@ -363,4 +374,3 @@ tracker_bus_fd_query_finish (GAsyncResult     *res,
 	return g_object_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
 }
 
-#endif /* HAVE_DBUS_FD_PASSING */
