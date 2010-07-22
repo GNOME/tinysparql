@@ -622,8 +622,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	old_flags = flags;
 
 	filename = g_strdup_printf ("tracker-%s", g_get_user_name ());
-	if (sys_tmp_dir)
-		g_free (sys_tmp_dir);
+        g_free (sys_tmp_dir);
 	sys_tmp_dir = g_build_filename (g_get_tmp_dir (), filename, NULL);
 	g_free (filename);
 
@@ -637,17 +636,13 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		sql_dir = g_strdup (env_path);
 	}
 
-	if (user_data_dir)
-		g_free (user_data_dir);
-
+        g_free (user_data_dir);
 	user_data_dir = g_build_filename (g_get_user_data_dir (),
 	                                  "tracker",
 	                                  "data",
 	                                  NULL);
 
-	if (data_dir)
-		g_free (data_dir);
-
+	g_free (data_dir);
 	data_dir = g_build_filename (g_get_user_cache_dir (),
 	                             "tracker",
 	                             NULL);
@@ -686,8 +681,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		/* Fill absolute path for the database */
 		dir = location_to_directory (dbs[i].location);
-		if (dbs[i].abs_filename)
-			g_free (dbs[i].abs_filename);
+
+                g_free (dbs[i].abs_filename);
 		dbs[i].abs_filename = g_build_filename (dir, dbs[i].file, NULL);
 
 		/* Check we have each database in place, if one is
