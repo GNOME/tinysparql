@@ -69,20 +69,16 @@ busy_handling_test_LDADD = \
 BUILT_SOURCES = 				\
 	busy-handling-test.vala.stamp
 
-MAINTAINERCLEANFILES =					\
-	$(BUILT_SOURCES)				\
-	$(busy_handling_test_VALASOURCES:.vala=.c)
-
 bus_query_test_VALASOURCES = shared-query-test.vala bus-query-test.vala
 
 bus_query_test_SOURCES = \
-	bus_query_test.vala.stamp \
+	bus-query-test.vala.stamp \
 	$(bus_query_test_VALASOURCES:.vala=.c)
 
 bus_update_test_VALASOURCES = shared-update-test.vala bus-update-test.vala
 
 bus_update_test_SOURCES = \
-	bus_update_test.vala.stamp \
+	bus-update-test.vala.stamp \
 	$(bus_update_test_VALASOURCES:.vala=.c)
 
 bus_vapi_sources = \
@@ -105,19 +101,31 @@ bus_query_test_LDADD = \
 	$(GLIB2_LIBS) \
 	$(DBUS_LIBS)
 
-BUILT_SOURCES = \
+bus_update_test_LDADD = $(bus_query_test_LDADD)
+
+BUILT_SOURCES = 				\
 	busy-handling-test.vala.stamp \
 	bus-query-test.vala.stamp \
+	bus-query-test.vala.stamp 		\
 	bus-update-test.vala.stamp
 
-bus_update_test_LDADD = $(bus_query_test_LDADD)
 
 EXTRA_DIST = 					\
 	$(config_SCRIPTS) 			\
 	$(bashscripts_SCRIPTS)			\
 	$(bashscripts_in_files)			\
 	$(BUILT_SOURCES)			\
-	$(busy_handling_test_VALASOURCES)
+	$(busy_handling_test_VALASOURCES)	\
+	$(direct_query_test_VALASOURCES)	\
+	$(default_update_test_VALASOURCES)	\
+	$(bus_query_test_VALASOURCES)		\
+	$(bus_update_test_VALASOURCES)
 
 CLEANFILES = $(bashscripts_SCRIPTS)
+
+MAINTAINERCLEANFILES =					\
+	$(BUILT_SOURCES)				\
+	$(busy_handling_test_VALASOURCES:.vala=.c)	\
+	$(bus_query_test_VALASOURCES:.vala=.c)		\
+	$(bus_update_test_VALASOURCES:.vala=.c)
 
