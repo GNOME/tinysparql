@@ -33,7 +33,9 @@ libtracker_bus_la_SOURCES = 	\
 	tracker-bus-fd-cursor.h				\
 	tracker-bus-fd-cursor.c				\
 	tracker-bus-fd-update.c				\
-	tracker-bus-fd-update.h
+	tracker-bus-fd-update.h				\
+	tracker-bus-array-update.c			\
+	tracker-bus-array-update.h
 
 libtracker_bus_la_LDFLAGS = 	\
 	-module -avoid-version -no-undefined
@@ -46,10 +48,12 @@ vapi_sources =						\
 	config.vapi \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi	\
 	$(top_srcdir)/src/libtracker-bus/tracker-bus-fd-cursor.vapi \
-	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi
+	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi \
+	tracker-bus-fd-update.vapi \
+	tracker-bus-array-update.vapi
 
 libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus-$(TRACKER_API_VERSION).vapi tracker-bus-fd-update.vapi $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus-$(TRACKER_API_VERSION).vapi $^
 	$(AM_V_GEN)touch $@
 
 libtracker_bus_la_LIBADD = 						\

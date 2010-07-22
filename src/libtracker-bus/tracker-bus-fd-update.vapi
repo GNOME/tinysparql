@@ -17,14 +17,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
-/* This .vapi file is a workaround for bug fixed in this commit for valac: 
- * http://git.gnome.org/browse/vala/commit/?id=7757cf9ecf6084413f409ba31c31ed73cacd6ec1*/
-
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
 public void tracker_bus_fd_sparql_update (DBus.Connection connection, string query) throws Tracker.Sparql.Error;
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
-public extern GLib.PtrArray tracker_bus_fd_sparql_update_blank (DBus.Connection connection, string query) throws Tracker.Sparql.Error;
+public extern GLib.Variant tracker_bus_fd_sparql_update_blank (DBus.Connection connection, string query) throws Tracker.Sparql.Error;
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
 public extern async void tracker_bus_fd_sparql_update_async (DBus.Connection connection, string query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error;
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
-public extern async uint tracker_bus_fd_sparql_update_blank_async (DBus.Connection connection, string query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error;
+public extern async GLib.Variant tracker_bus_fd_sparql_update_blank_async (DBus.Connection connection, string query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error;

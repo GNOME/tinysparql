@@ -21,27 +21,13 @@
 #include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-glib.h>
 
-G_BEGIN_DECLS
-
-void        tracker_bus_fd_sparql_update                 (DBusGConnection       *connection,
-                                                          const char            *query,
-                                                          GError               **error);
-void        tracker_bus_fd_sparql_update_async           (DBusGConnection       *connection,
-                                                          const char            *query,
-                                                          GCancellable          *cancellable,
-                                                          GAsyncReadyCallback    callback,
-                                                          gpointer               user_data);
-GVariant *  tracker_bus_fd_sparql_update_blank           (DBusGConnection       *connection,
-                                                          const gchar           *query,
-                                                          GError               **error);
-void        tracker_bus_fd_sparql_update_blank_async     (DBusGConnection       *connection,
+void        tracker_bus_array_sparql_update_blank_async  (DBusGConnection       *connection,
                                                           const gchar           *query,
                                                           GCancellable          *cancellable,
                                                           GAsyncReadyCallback    callback,
                                                           gpointer               user_data);
-void        tracker_bus_fd_sparql_update_finish          (GAsyncResult          *res,
+GVariant *  tracker_bus_array_sparql_update_blank        (DBusGConnection       *connection,
+                                                          const gchar           *query,
                                                           GError               **error);
-GVariant *  tracker_bus_fd_sparql_update_blank_finish    (GAsyncResult          *res,
+GVariant *  tracker_bus_array_sparql_update_blank_finish (GAsyncResult          *res,
                                                           GError               **error);
-
-G_END_DECLS

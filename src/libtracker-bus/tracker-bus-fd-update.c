@@ -111,7 +111,7 @@ fast_async_data_new (DBusConnection    *connection,
 	return data;
 }
 
-
+/*
 static GHashTable *
 unmarshal_hash_table (DBusMessageIter *iter)
 {
@@ -144,6 +144,34 @@ static void
 free_inner_array (gpointer elem)
 {
 	g_ptr_array_free (elem, TRUE);
+}*/
+
+static GVariant*
+message_to_variant (DBusMessage *message)
+{
+	GVariant *result = NULL;
+	DBusMessageIter iter, subiter, subsubiter;
+
+//	result = g_ptr_array_new_with_free_func (free_inner_array);
+	dbus_message_iter_init (message, &iter);
+	dbus_message_iter_recurse (&iter, &subiter);
+
+	while (dbus_message_iter_get_arg_type (&subiter) != DBUS_TYPE_INVALID) {
+//		GPtrArray *inner_array;
+
+//		inner_array = g_ptr_array_new_with_free_func ((GDestroyNotify) g_hash_table_destroy);
+//		g_ptr_array_add (result, inner_array);
+		dbus_message_iter_recurse (&subiter, &subsubiter);
+
+		while (dbus_message_iter_get_arg_type (&subsubiter) != DBUS_TYPE_INVALID) {
+//			g_ptr_array_add (inner_array, unmarshal_hash_table (&subsubiter));
+			dbus_message_iter_next (&subsubiter);
+		}
+
+		dbus_message_iter_next (&subiter);
+	}
+
+	return result;
 }
 
 static void
@@ -153,8 +181,7 @@ sparql_update_fast_callback (DBusPendingCall *call,
 	FastAsyncData *fad = user_data;
 	DBusMessage *reply;
 	GError *error = NULL;
-	DBusMessageIter iter, subiter, subsubiter;
-	GPtrArray *result;
+	GVariant *result;
 
 	/* Check for errors */
 	reply = dbus_pending_call_steal_reply (call);
@@ -186,30 +213,11 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		g_simple_async_result_complete (fad->res);
 		break;
 	case FAST_UPDATE_BLANK:
-		result = g_ptr_array_new_with_free_func (free_inner_array);
-		dbus_message_iter_init (reply, &iter);
-		dbus_message_iter_recurse (&iter, &subiter);
-
-		while (dbus_message_iter_get_arg_type (&subiter) != DBUS_TYPE_INVALID) {
-			GPtrArray *inner_array;
-
-			inner_array = g_ptr_array_new_with_free_func ((GDestroyNotify) g_hash_table_unref);
-			g_ptr_array_add (result, inner_array);
-			dbus_message_iter_recurse (&subiter, &subsubiter);
-
-			while (dbus_message_iter_get_arg_type (&subsubiter) != DBUS_TYPE_INVALID) {
-				g_ptr_array_add (inner_array, unmarshal_hash_table (&subsubiter));
-				dbus_message_iter_next (&subsubiter);
-			}
-
-			dbus_message_iter_next (&subiter);
-		}
-
+		result = message_to_variant (reply);
 		g_simple_async_result_set_op_res_gpointer (fad->res, result, NULL);
-
 		g_simple_async_result_complete (fad->res);
-
-		g_ptr_array_free (result, TRUE);
+		dbus_message_unref (reply);
+		g_variant_unref (result);
 
 		break;
 	default:
@@ -444,7 +452,7 @@ tracker_bus_fd_sparql_update_finish (GAsyncResult     *res,
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
-GPtrArray*
+GVariant *
 tracker_bus_fd_sparql_update_blank_finish (GAsyncResult     *res,
                                            GError          **error)
 {
@@ -462,15 +470,14 @@ tracker_bus_fd_sparql_update_blank_finish (GAsyncResult     *res,
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
-GPtrArray *
+GVariant *
 tracker_bus_fd_sparql_update_blank (DBusGConnection *connection,
                                     const gchar     *query,
                                     GError         **error)
 {
 #ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
-	DBusMessageIter iter, subiter, subsubiter;
-	GPtrArray *result;
+	GVariant *result;
 
 	g_return_val_if_fail (query != NULL, NULL);
 
@@ -490,25 +497,7 @@ tracker_bus_fd_sparql_update_blank (DBusGConnection *connection,
 		return NULL;
 	}
 
-	result = g_ptr_array_new_with_free_func (free_inner_array);
-	dbus_message_iter_init (reply, &iter);
-	dbus_message_iter_recurse (&iter, &subiter);
-
-	while (dbus_message_iter_get_arg_type (&subiter) != DBUS_TYPE_INVALID) {
-		GPtrArray *inner_array;
-
-		inner_array = g_ptr_array_new_with_free_func ((GDestroyNotify) g_hash_table_destroy);
-		g_ptr_array_add (result, inner_array);
-		dbus_message_iter_recurse (&subiter, &subsubiter);
-
-		while (dbus_message_iter_get_arg_type (&subsubiter) != DBUS_TYPE_INVALID) {
-			g_ptr_array_add (inner_array, unmarshal_hash_table (&subsubiter));
-			dbus_message_iter_next (&subsubiter);
-		}
-
-		dbus_message_iter_next (&subiter);
-	}
-
+	result = message_to_variant (reply);
 	dbus_message_unref (reply);
 
 	return result;
@@ -554,3 +543,4 @@ tracker_bus_fd_sparql_update_blank_async (DBusGConnection       *connection,
 	g_assert_not_reached ();
 #endif /* HAVE_DBUS_FD_PASSING */
 }
+
