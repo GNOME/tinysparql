@@ -56,8 +56,6 @@ struct TrackerMinerPrivate {
 	gdouble progress;
 
 	gint availability_cookie;
-
-	GPtrArray *async_calls;
 };
 
 typedef struct {
@@ -264,7 +262,6 @@ tracker_miner_init (TrackerMiner *miner)
 	                                      g_direct_equal,
 	                                      NULL,
 	                                      pause_data_destroy);
-	priv->async_calls = g_ptr_array_new ();
 }
 
 static void
