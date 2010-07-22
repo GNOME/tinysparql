@@ -81,6 +81,15 @@ happens. The actual moment of interruption depends also on the frequency of
 checks. The value 0 indicates no interruption.
 This environment variable is used mainly for testing purposes.
 
+.TP
+.B TRACKER_STORE_DISABLE_CPU_AFFINITY
+Tracker currently uses CPU affinity to improve query times by making
+sure that certain operations are done on the same CPU. This is only
+useful on multi processor systems of course and on some architectures
+has given a yeild of up to 50% performance improvement. The main
+reason for wanting to disable this is if there is an adverse effect.
+This has been seen by using Valgrind with tracker-store for example.
+
 .SH FILES
 .I $HOME/.config/tracker/tracker-store.cfg
 .I $HOME/.config/tracker/tracker-fts.cfg
