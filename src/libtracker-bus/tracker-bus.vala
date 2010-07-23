@@ -140,30 +140,21 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public override GLib.Variant? update_blank (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
 		GLib.Variant res = null;
 
-		try {
-			if (use_steroids) {
-				res = tracker_bus_fd_sparql_update_blank (connection, sparql);
-			} else {
-				res = tracker_bus_array_sparql_update_blank (connection, sparql);
-			}
-		} catch (DBus.Error e) {
-			throw new Sparql.Error.INTERNAL (e.message);
+		if (use_steroids) {
+			res = tracker_bus_fd_sparql_update_blank (connection, sparql);
+		} else {
+			res = tracker_bus_array_sparql_update_blank (connection, sparql);
 		}
-
 		return res;
 	}
 
 	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
 		GLib.Variant res = null;
 
-		try {
-			if (use_steroids) {
-				res = yield tracker_bus_fd_sparql_update_blank_async (connection, sparql, cancellable);
-			} else {
-				res = yield tracker_bus_array_sparql_update_blank_async (connection, sparql, cancellable);
-			}
-		} catch (DBus.Error e) {
-			throw new Sparql.Error.INTERNAL (e.message);
+		if (use_steroids) {
+			res = yield tracker_bus_fd_sparql_update_blank_async (connection, sparql, cancellable);
+		} else {
+			res = yield tracker_bus_array_sparql_update_blank_async (connection, sparql, cancellable);
 		}
 
 		return res;

@@ -35,7 +35,9 @@ libtracker_bus_la_SOURCES = 	\
 	tracker-bus-fd-update.c				\
 	tracker-bus-fd-update.h				\
 	tracker-bus-array-update.c			\
-	tracker-bus-array-update.h
+	tracker-bus-array-update.h			\
+	tracker-bus-shared.c				\
+	tracker-bus-shared.h
 
 libtracker_bus_la_LDFLAGS = 	\
 	-module -avoid-version -no-undefined
