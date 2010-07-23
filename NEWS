@@ -1,3 +1,55 @@
+NEW in 0.9.14 - 2010-07-23
+==========================
+
+The changes are:
+
+  * Fixes: GB#616199, tracker-extract: Avoid second nie:title in msoffice/xml and oasis documents.
+  * Fixes: GB#624731, libtracker-miner: Don't emit signals while iterating hash table.
+  * Fixes: GB#624747, NB#179434: Avoid double-free in send_and_splice_async_callback()
+  * Fixes: GB#624774, Fixes memleaks in tracker-miner-fs
+  * Fixes: NB#180679, Make sure DBusGProxy is destroyed when destroying miner
+  * Fixes: NB#180236, Filter not removed when going into UNAVAILABLE
+  * Fixes: NB#179894, Reset sqlite3 stmt if detected as expired, and retry
+  * Fixes: NB#181538, Assume tar program is in $PATH
+  * NEW Feature: SPARQL, Add support for EXISTS and NOT EXISTS
+  * Ontology, NAO: Set maximum cardinality of propertyName and propertyValue to 1
+  * Ontology, maemo: Add contactGroup{Audio,Video,Vibration}Ringtone
+  * libtracker-data: Avoid reading already disposed memory
+  * libtracker-data: Improve logging after sqlite error, before aborting
+  * libtracker-data: Remove the unused contents.db
+  * libtracker-data: Remove storing of local locale for no reason
+  * libtracker-data: Do not cope with ontology changes in read-only mode
+  * libtracker-data: Do not reindex in read-only mode
+  * libtracker-data: Do not fetch resource count in read-only mode
+  * libtracker-data: Replace interrupt_thread by GCancellable
+  * libtracker-db, journal: Fix static code analysis issues
+  * libtracker-db: Merged into libtracker-data
+  * libtracker-db tests: Merged into libtracker-data tests
+  * libtracker-common: Fix double free when error splicing
+  * libtracker-common: Fix memory leaks when receiving partial reply plus errors in DBus calls
+  * libtracker-common: Fixed memleak in path_has_write_access()
+  * libtracker-client: Avoid critical, file may not have parent
+  * libtracker-client: Fix memleak, unref DBusPendingCall missing in notify callback
+  * libtracker-client: Avoid compiler warning when using FD-passing
+  * libtracker-client: Fix double free, error is freed in callback
+  * libtracker-miner: Exclude some files from coverage reports
+  * libtracker-miner: Fixed memleak in item_move()
+  * libtracker-miner: Fixed memleak in mount_guess_content_type()
+  * tracker-extract: Fix crash in albumart when pixbuf cannot be created
+  * tracker-extract, msoffice: Fixed memleak in extract_msoffice()
+  * tracker-miner-applications: Fix memleak in process_file_cb()
+  * tracker-writeback: Fixed memleak in get_playlist_type()
+
+Translations:
+  * Updated sl: Andrej Žnidaršič
+  * Updated es: Jorge González
+  * Updated zh_CN: Jessica Ban
+
+Notes:
+
+  None
+
+
 NEW in 0.9.13 - 2010-07-16
 ==========================
 
