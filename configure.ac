@@ -1944,6 +1944,7 @@ AC_CONFIG_FILES([
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile
+	tests/tracker-steroids/Makefile
 	tests/tracker-store/Makefile
 	tests/tracker-writeback/Makefile
 	utils/Makefile

@@ -9,6 +9,7 @@ SUBDIRS = 			\
 	libtracker-data		\
 	tracker-miner-fs	\
 	tracker-extract		\
+	tracker-steroids	\
 	tracker-store		\
 	tracker-writeback
 
