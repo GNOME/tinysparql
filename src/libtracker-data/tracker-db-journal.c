@@ -1233,6 +1233,8 @@ static gboolean
 db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError **error)
 {
 	GError *inner_error = NULL;
+	static gboolean debug_unchecked = TRUE;
+	static gboolean slow_down = FALSE;
 
 	g_return_val_if_fail (jreader->file != NULL || jreader->stream != NULL, FALSE);
 
@@ -1280,6 +1282,21 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 		guint32 crc;
 		guint32 crc_check;
 		TransactionFormat t_kind;
+
+
+		if (G_UNLIKELY (debug_unchecked)) {
+			const gchar *test;
+
+			test = g_getenv ("TRACKER_DEBUG_MAKE_JOURNAL_READER_GO_VERY_SLOW");
+			if (g_strcmp0 (test, "yes") == 0) {
+				slow_down = TRUE;
+			}
+			debug_unchecked = FALSE;
+		}
+
+		if (G_UNLIKELY (slow_down)) {
+			sleep (1);
+		}
 
 		/* Check the end is not where we currently are */
 		if (journal_eof (jreader)) {

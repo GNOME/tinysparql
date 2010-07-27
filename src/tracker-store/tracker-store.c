@@ -57,9 +57,10 @@ typedef struct {
 	gboolean     update_running;
 	GThreadPool *main_pool;
 	GThreadPool *global_pool;
-	GSList	    *running_tasks;
-	guint	     watchdog_id;
+	GSList      *running_tasks;
+	guint        watchdog_id;
 	guint        max_task_time;
+	gboolean     active;
 } TrackerStorePrivate;
 
 typedef enum {
@@ -283,7 +284,7 @@ task_ready (TrackerStorePrivate *private)
 static void
 check_handler (TrackerStorePrivate *private)
 {
-	if (task_ready (private)) {
+	if (private->active && task_ready (private)) {
 		/* handler should be running */
 		if (!private->have_handler) {
 			start_handler (private);
@@ -292,6 +293,7 @@ check_handler (TrackerStorePrivate *private)
 		/* handler should not be running */
 		if (private->have_handler) {
 			g_source_remove (private->handler);
+			private->have_handler = FALSE;
 		}
 	}
 }
@@ -933,6 +935,18 @@ tracker_store_unreg_batches (const gchar *client_id)
 	if (error) {
 		g_clear_error (&error);
 	}
+
+	check_handler (private);
+}
+
+void
+tracker_store_set_active (gboolean active)
+{
+	TrackerStorePrivate *private;
+	TrackerStoreTask *task;
+
+	private = g_static_private_get (&private_key);
+	private->active = active;
 
 	check_handler (private);
 }

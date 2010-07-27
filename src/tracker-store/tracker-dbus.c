@@ -162,27 +162,6 @@ tracker_dbus_init (void)
 	return TRUE;
 }
 
-void
-tracker_dbus_shutdown (void)
-{
-	tracker_dbus_set_available (FALSE);
-
-	if (backup) {
-		g_object_unref (backup);
-	}
-
-	if (notifier) {
-		g_object_unref (notifier);
-	}
-
-	if (gproxy) {
-		g_object_unref (gproxy);
-		gproxy = NULL;
-	}
-
-	connection = NULL;
-}
-
 static void
 name_owner_changed_cb (DBusGProxy *proxy,
                        gchar      *name,
@@ -196,8 +175,14 @@ name_owner_changed_cb (DBusGProxy *proxy,
 	}
 }
 
-void
-tracker_dbus_set_available (gboolean available)
+static void
+name_owner_changed_closure (gpointer  data,
+                            GClosure *closure)
+{
+}
+
+static void
+dbus_set_available (gboolean available)
 {
 	if (available) {
 		if (!objects) {
@@ -223,10 +208,25 @@ tracker_dbus_set_available (gboolean available)
 	}
 }
 
-static void
-name_owner_changed_closure (gpointer  data,
-                            GClosure *closure)
+void
+tracker_dbus_shutdown (void)
 {
+	dbus_set_available (FALSE);
+
+	if (backup) {
+		g_object_unref (backup);
+	}
+
+	if (notifier) {
+		g_object_unref (notifier);
+	}
+
+	if (gproxy) {
+		g_object_unref (gproxy);
+		gproxy = NULL;
+	}
+
+	connection = NULL;
 }
 
 TrackerStatus*

@@ -118,7 +118,7 @@ backup_idle (gpointer user_data)
 
 	journal = g_file_new_for_uri (info->journal_uri);
 
-	tracker_dbus_set_available (FALSE);
+	tracker_store_set_active (FALSE);
 
 	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
 
@@ -135,7 +135,7 @@ backup_idle (gpointer user_data)
 	                             busy_callback,
 	                             busy_user_data);
 
-	tracker_dbus_set_available (TRUE);
+	tracker_store_set_active (TRUE);
 
 	g_object_unref (journal);
 

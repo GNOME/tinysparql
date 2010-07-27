@@ -88,6 +88,8 @@ guint        tracker_store_get_queue_size         (void);
 
 void         tracker_store_unreg_batches          (const gchar   *client_id);
 
+void         tracker_store_set_active             (gboolean       active);
+
 G_END_DECLS
 
 #endif /* __TRACKER_STORE_STORE_H__ */

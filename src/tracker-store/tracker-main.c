@@ -445,6 +445,15 @@ main (gint argc, gchar *argv[])
 	busy_callback = tracker_status_get_callback (notifier,
 	                                            &busy_user_data);
 
+	tracker_store_init ();
+
+	tracker_store_set_active (FALSE);
+
+	/* Make Tracker available for introspection */
+	if (!tracker_dbus_register_objects ()) {
+		return EXIT_FAILURE;
+	}
+
 	chunk_size_mb = tracker_db_config_get_journal_chunk_size (db_config);
 	chunk_size = (gsize) ((gsize) chunk_size_mb * (gsize) 1024 * (gsize) 1024);
 	rotate_to = tracker_db_config_get_journal_rotate_destination (db_config);
@@ -479,21 +488,16 @@ main (gint argc, gchar *argv[])
 	g_object_unref (db_config);
 	g_object_unref (notifier);
 
-	tracker_store_init ();
-
 	if (private->shutdown) {
 		goto shutdown;
-	}
-
-	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_objects ()) {
-		return EXIT_FAILURE;
 	}
 
 	tracker_events_init (get_notifiable_classes);
 	tracker_writeback_init (get_writeback_predicates);
 
 	tracker_push_init ();
+
+	tracker_store_set_active (TRUE);
 
 	g_message ("Waiting for D-Bus requests...");
 
