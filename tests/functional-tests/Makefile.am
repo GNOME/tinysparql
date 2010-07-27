@@ -19,6 +19,7 @@ config_SCRIPTS =			\
 	configuration.py		\
 	metadata_extraction_tc.py	\
 	mass-storage-mode.py		\
+	fts-tc.py			\
 	miner-basic-ops.py		\
 	performance-tc.py		\
 	tests.xml			\

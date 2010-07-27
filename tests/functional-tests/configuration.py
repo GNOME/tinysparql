@@ -98,7 +98,7 @@ def check_target():
         release = fcontent.lower().replace(' ','')
         fhandle.close()
 
-        if "maemo6" in release:
+        if "maemo" in release:
             if os.path.exists(sboxindicator) and \
             os.path.isfile(os.readlink(sboxindicator)) :
                 return MAEMO6_SBOX
