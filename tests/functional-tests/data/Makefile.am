@@ -3,7 +3,8 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS = 		\
 	Music		\
 	Video		\
-	Images
+	Images		\
+	Text		
 
 configdir = $(datadir)/tracker-tests/data
 

@@ -36,6 +36,8 @@ MINER="org.freedesktop.Tracker1.Miner.Files"
 MINER_OBJ="/org/freedesktop/Tracker1/Miner/Files"
 MINER_IFACE="org.freedesktop.Tracker1.Miner"
 
+
+
 TEST_IMAGE = "test-image-1.jpg"
 TEST_MUSIC = "tracker-mp3-test.mp3"
 TEST_VIDEO = "test-video.mp4"
@@ -140,22 +142,20 @@ class copy (TestUpdate):
 
         check_mount()
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount -t vfat -o rw  '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
 
         """copy the test file """
         shutil.copy2(SRC_IMAGE_DIR + TEST_IMAGE, MOUNT_DUMMY)
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
 
         print commands.getoutput ( 'ls ' + MYDOCS)
 
-        """since we get Idle signal twicei after mounting, in the second one, the indexing is completed. """
-        self.loop.run ()
         self.loop.run ()
 
         """ verify if miner indexed these file.  """
@@ -173,21 +173,18 @@ class copy (TestUpdate):
 
         check_mount()
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
         """copy the test files """
         shutil.copy2(SRC_MUSIC_DIR + TEST_MUSIC, MOUNT_DUMMY)
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount  -t vfat -o rw  '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
         print commands.getoutput ( 'ls ' + MYDOCS)
 
-        """since we get Idle signal twice after mounting,
-        in the second one, the indexing is completed. """
-        self.loop.run ()
         self.loop.run ()
 
         """ verify if miner indexed these file.  """
@@ -205,23 +202,20 @@ class copy (TestUpdate):
 
         check_mount()
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount -t vfat -o rw'  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
         """copy the test files """
         shutil.copy2(SRC_VIDEO_DIR + TEST_VIDEO, MOUNT_DUMMY)
 
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
 
         print commands.getoutput ( 'ls ' + MYDOCS)
 
-        """since we get Idle signal twice after mounting,
-        in the second one, the indexing is completed. """
-        self.loop.run ()
         self.loop.run ()
 
         """ verify if miner indexed these file.  """
@@ -233,130 +227,124 @@ class copy (TestUpdate):
 
 
 """ move in mass storage mode"""
+class move (TestUpdate):                                                     
+                                                            
+                                                            
+    def test_image_01 (self):                               
+                                                               
+        """ To check if tracker indexes moved image file in massstorage mode """      
+                                                                                
+        file_path_dst =  MYDOCS_DIR + TEST_IMAGE                                
+        file_path_src =  MYDOCS + TEST_IMAGE                
+                                                                                
+        check_mount()                                                           
+                                                                                                              
+        """copy the test files """                                              
+        self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE, file_path_src)      
+                                                                                
+        result =  commands.getoutput(' tracker-search -i -l 10000 | grep  ' + file_path_src + ' |wc -l' )      
+        self.assert_(result == '1' , 'copied image file is not shown as indexed')                                     
+                                                                                                         
+        commands.getoutput ( 'umount ' + MOUNT_PARTITION )                       
+                                                                                                         
+        commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)                            
+                                                                                                         
+        shutil.move( MOUNT_DUMMY + TEST_IMAGE , DUMMY_DIR)                                               
+                                                                                                         
+        commands.getoutput ( 'umount ' + MOUNT_PARTITION )                                               
+                                                                                 
+        commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)                   
+                                                                                                         
+        print commands.getoutput ( 'ls ' + MYDOCS)                                                       
+        self.loop.run()                                                                                  
+                                                                                                         
+        """ verify if miner indexed these file.  """                                                     
+        result =  commands.getoutput(' tracker-search -i -l 10000 | grep  ' + file_path_dst + ' |wc -l' )
+                                                                                                         
+        self.assert_(result == '1'  , 'moved file is not listed in tracker search')                      
+        result1 = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_src + ' | wc -l')
+        self.assert_(result == '1' and result1 == '0' , 'Both the  original and moved files are listed in tracker search')
+                                                                                                                          
+        os.remove(file_path_dst)                                                                                          
+                                                                                                               
+                                                                                                                          
+    def test_music_01 (self):                                                                                             
+                                                                                                                          
+        """ To check if tracker indexes moved audio files in massstorage mode """                                         
+                                                                                        
 
-class move (TestUpdate) :
-
-    def test_image_01 (self):
-
-    	""" To check if tracker indexes image files moved  in massstorage mode """
-	file_path_src =  MYDOCS     + TEST_IMAGE
-	file_path_dst =  MYDOCS_DIR + TEST_IMAGE
-
-        check_mount()
-
-	"""copy the test files """
-	self.wait_for_fileop('cp', SRC_IMAGE_DIR + TEST_IMAGE , file_path_src)
-	time.sleep(2)
-	result = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_src + ' | wc -l')
-	print result
-        self.assert_(result == '1' , 'copied file is not shown as indexed')
-
-        commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
-        commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
-	commands.getoutput('mkdir   ' + DUMMY_DIR)
-
-	shutil.move( MOUNT_DUMMY + TEST_IMAGE ,  DUMMY_DIR)
-
-        commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
-        commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
-
-        print commands.getoutput ( 'ls ' + MYDOCS)
-	self.loop.run()
-	self.loop.run()
-
-	""" verify if miner indexed this file.  """
-	result =  commands.getoutput(' tracker-search -i -l 10000 | grep  ' + file_path_dst + ' |wc -l' )
-	print result
-        self.assert_(result == '1' , 'moved image file is not shown as indexed')
-
-        os.remove(file_path_dst)
-
-
-
-    def test_music_01 (self):
-
-
-    	""" To check if tracker indexes  audio files moved in massstorage mode """
-
-	file_path_dst =  MYDOCS_DIR + TEST_MUSIC
-	file_path_src =  MYDOCS     + TEST_MUSIC
-
-        check_mount()
-
-	"""copy the test files """
-
-	self.wait_for_fileop('cp' , SRC_MUSIC_DIR + TEST_MUSIC , file_path_src)
-	time.sleep(2)
-	result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')
-        print result
-        self.assert_(result == '1' , 'copied file is not shown as indexed')
-
-        commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
-        commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
-	commands.getoutput('mkdir   ' + DUMMY_DIR)
-
-	shutil.move( MOUNT_DUMMY  + TEST_MUSIC , DUMMY_DIR)
-        commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
-        commands.getoutput ( 'mount  ' + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
-
-        print commands.getoutput ( 'ls ' + MYDOCS)
-
-	self.loop.run()
-	self.loop.run()
-
-	""" verify if miner indexed these file.  """
-
-        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_dst + ' | wc -l')
-        print result
-        self.assert_(result == '1' , 'moved music file is not shown as indexed')
-
-        os.remove(file_path_dst)
-
-    def test_video_01 (self):
-
-    	""" To check if tracker indexes  video files moved in massstorage mode """
-	file_path_dst =  MYDOCS_DIR + TEST_VIDEO
-	file_path_src =  MYDOCS     + TEST_VIDEO
-
-        check_mount()
-
-	"""copy the test files """
-	self.wait_for_fileop('cp' ,SRC_VIDEO_DIR + TEST_VIDEO,file_path_src)
-	time.sleep(2)
-
-	result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_src+ ' | wc -l')
-        print result
-        self.assert_(result == '1' , 'moved file is not shown as indexed')
-
-        commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
-        commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
-	commands.getoutput('mkdir   ' + DUMMY_DIR)
-
-	shutil.move(MOUNT_DUMMY + TEST_VIDEO , DUMMY_DIR)
-        commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
-        commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
-        print commands.getoutput ( 'ls ' + MYDOCS)
-	self.loop.run()
-	self.loop.run()
-
-	""" verify if miner indexed these file.  """
-        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_dst + ' | wc -l')
-        print result
-        self.assert_(result == '1' , 'moved video file is not shown as indexed')
-
-        os.remove(file_path_dst)
+ 	file_path_dst =  MYDOCS_DIR + TEST_MUSIC                                                                          
+        file_path_src =  MYDOCS + TEST_MUSIC                                                                              
+                                                                                                                          
+        check_mount()                                                                                                     
+                                                                                                                          
+        """copy the test files """                                                                                        
+        self.wait_for_fileop('cp', SRC_MUSIC_DIR + TEST_MUSIC, file_path_src)                                             
+                                                                                                                          
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')            
+        self.assert_(result == '1' , 'copied music file is not shown as indexed')                                         
+                                                                                                                          
+        commands.getoutput ( 'umount ' + MOUNT_PARTITION )                                                                
+                                                                                                                          
+        commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)                                             
+                                                                                                                          
+        shutil.move( MOUNT_DUMMY  + TEST_MUSIC , DUMMY_DIR)                                                               
+        commands.getoutput ( 'umount ' + MOUNT_PARTITION )                                                                
+                                                                                                                          
+        commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)                                    
+                                                                                                                          
+        print commands.getoutput ( 'ls ' + MYDOCS)                                                                        
+                                                                                                                          
+        self.loop.run()                                                                                        
+                                                                                                                          
+        """ verify if miner indexed these file.  """                                                                      
+                                                                                                                          
+        result = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_dst + ' | wc -l')            
+        print result                                                                                                      
+        self.assert_(result == '1' , 'moved music file is not shown as indexed')                                          
+                                                                                                                          
+        result1 = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')           
+        self.assert_(result == '1' and result1 == '0' , 'Both original and moved files are listed in tracker search ')    
+                                                                                                                          
+        os.remove(file_path_dst)                                                                                      
+                                                                                                                          
+                                                                                                                          
+    def test_video_01 (self):                                                                                             
+                                                                                                                          
+        """ To check if tracker indexes moved video files in massstorage mode """                                     
+                                                                                                                          
+        file_path_dst =  MYDOCS_DIR + TEST_VIDEO                                                                          
+        file_path_src =  MYDOCS + TEST_VIDEO                                                                              
+                                                                                                                          
+        check_mount()                         
+	"""copy the test files """                                                                                        
+        self.wait_for_fileop('cp', SRC_VIDEO_DIR + TEST_VIDEO, file_path_src)                                             
+                                                                                                                          
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')            
+        self.assert_(result == '1' , 'copied video file is not shown as indexed')                                         
+                                                                                                                          
+        commands.getoutput ( 'umount ' + MOUNT_PARTITION )                                                                
+                                                                                                                          
+        commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)                                             
+                                                                                                                      
+        shutil.move(MOUNT_DUMMY + TEST_VIDEO , DUMMY_DIR)                                                                 
+        commands.getoutput ( 'umount ' + MOUNT_PARTITION )                                                                
+                                                                                                                          
+        commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)                                    
+                                                                                                                          
+        print commands.getoutput ( 'ls ' + MYDOCS)                                                                        
+        self.loop.run()                                                                                                   
+        """ verify if miner indexed these file.  """                                                                      
+                                                                                                                          
+        result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_dst + ' | wc -l')            
+                                                                                                                      
+        self.assert_(result == '1' , 'moved file is not listed in tracker search ')                                       
+                                                                                                                          
+        result1 = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')           
+        self.assert_(result == '1' and result1 == '0' , 'Both original and moved files are listed in tracker search ')    
+                                                                                                                      
+        os.remove(file_path_dst)                                                                                          
+                                                
 
 class rename (TestUpdate):
 
@@ -377,28 +365,26 @@ class rename (TestUpdate):
         self.assert_(result == '1' , 'copied image file is not shown as indexed')
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
 	shutil.move( MOUNT_DUMMY + TEST_IMAGE ,  MOUNT_DUMMY+RENAME_IMAGE)
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
         print commands.getoutput ( 'ls ' + MYDOCS)
-	self.loop.run()
 	self.loop.run()
 
 	""" verify if miner indexed these file.  """
 	result =  commands.getoutput(' tracker-search -i -l 10000 | grep  ' + file_path_dst + ' |wc -l' )
-	print result
-        self.assert_(result == '1' , 'renamed image file is not shown as indexed')
 
+        self.assert_(result == '1'  , 'renamed file s not listed in tracker search')
 	result1 = commands.getoutput ('tracker-search --limit=10000  -i  | grep ' + file_path_src + ' | wc -l')
-        self.assert_(result == '1' and result1 == 0 , 'Both the  original and renamed files are listed in tracker search')
+        self.assert_(result == '1' and result1 == '0' , 'Both the  original and renamed files are listed in tracker search')
 
-	os.remove(file_path)
+	os.remove(file_path_dst)
 
 
     def test_music_01 (self):
@@ -417,17 +403,16 @@ class rename (TestUpdate):
         self.assert_(result == '1' , 'copied music file is not shown as indexed')
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
 	shutil.move( MOUNT_DUMMY  + TEST_MUSIC , MOUNT_DUMMY+RENAME_MUSIC)
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
         print commands.getoutput ( 'ls ' + MYDOCS)
 
-	self.loop.run()
 	self.loop.run()
 
 	""" verify if miner indexed these file.  """
@@ -437,9 +422,9 @@ class rename (TestUpdate):
         self.assert_(result == '1' , 'renamed music file is not shown as indexed')
 
         result1 = commands.getoutput ('tracker-search --limit=10000  -m  | grep ' + file_path_src + ' | wc -l')
-        self.assert_(result == '1' and result1 == 0 , 'Both original and renamed files are listed in tracker search ')
+        self.assert_(result == '1' and result1 == '0' , 'Both original and renamed files are listed in tracker search ')
 
-	os.remove(file_path)
+	os.remove(file_path_dst)
 
 
     def test_video_01 (self):
@@ -458,27 +443,26 @@ class rename (TestUpdate):
         self.assert_(result == '1' , 'copied video file is not shown as indexed')
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
 	shutil.move(MOUNT_DUMMY + TEST_VIDEO , MOUNT_DUMMY+RENAME_VIDEO)
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
         print commands.getoutput ( 'ls ' + MYDOCS)
-	self.loop.run()
 	self.loop.run()
 	""" verify if miner indexed these file.  """
 
         result = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_dst + ' | wc -l')
-        print result
-        self.assert_(result == '1' , 'copied video file is not shown as indexed')
+
+        self.assert_(result == '1' , 'renamed file is not listed in tracker search ')
 
         result1 = commands.getoutput ('tracker-search --limit=10000  -v  | grep ' + file_path_src + ' | wc -l')
-        self.assert_(result == '1' and result1 == 0 , 'Both original and renamed files are listed in tracker search ')
+        self.assert_(result == '1' and result1 == '0' , 'Both original and renamed files are listed in tracker search ')
 
-	os.remove(file_path)
+	os.remove(file_path_dst)
 
 
 """ subfolder operations in mass storage mode """
@@ -493,9 +477,9 @@ class subfolder (TestUpdate):
 
         check_mount()
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
 
         """create a subfolder """
         commands.getoutput('mkdir -p '+ SUB_FOLDER_DUMMY)
@@ -504,14 +488,13 @@ class subfolder (TestUpdate):
         shutil.copy2(SRC_IMAGE_DIR + TEST_IMAGE, SUB_FOLDER_DUMMY)
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
 
         print commands.getoutput ( 'ls ' + SUB_FOLDER_MYDOCS)
 
-        """since we get Idle signal twicei after mounting, in the second one, the indexing is completed. """
-        self.loop.run ()
+        
         self.loop.run ()
 
         """ verify if miner indexed these file.  """
@@ -543,21 +526,20 @@ class subfolder (TestUpdate):
 
         check_mount()
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
 
         shutil.rmtree(MOUNT_DUMMY + '/' + 's1')
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
 
         print commands.getoutput ( 'ls ' + SUB_FOLDER_MYDOCS)
 
-        """since we get Idle signal twicei after mounting, in the second one, the indexing is completed. """
-        self.loop.run ()
+        
         self.loop.run ()
 
         """ verify if miner un-indexed these file.  """
@@ -585,23 +567,21 @@ class delete (TestUpdate):
 
         check_mount()
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
         """remove the test files """
         os.remove(MOUNT_DUMMY + '/' + TEST_IMAGE)
 
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
 
         print commands.getoutput ( 'ls ' + MYDOCS)
 
-        """since we get Idle signal twice after mounting,
-        in the second one, the indexing is completed. """
-        self.loop.run ()
+       
         self.loop.run ()
 
         """ verify if miner un-indexed this file.  """
@@ -625,23 +605,21 @@ class delete (TestUpdate):
 
         check_mount()
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
         """remove the test files """
         os.remove(MOUNT_DUMMY + '/' + TEST_MUSIC)
 
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
 
         print commands.getoutput ( 'ls ' + MYDOCS)
 
-        """since we get Idle signal twice after mounting,
-        in the second one, the indexing is completed. """
-        self.loop.run ()
+       
         self.loop.run ()
 
         """ verify if miner un-indexed this file.  """
@@ -666,24 +644,22 @@ class delete (TestUpdate):
 
         check_mount()
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
 
         """remove the test files """
         os.remove(MOUNT_DUMMY + '/' + TEST_VIDEO)
 
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
 
         print commands.getoutput ( 'ls ' + MYDOCS)
 
-        """since we get Idle signal twice after mounting,
-        in the second one, the indexing is completed. """
-        self.loop.run ()
+      
         self.loop.run ()
 
         """ verify if miner un-indexed this file.  """
@@ -708,19 +684,19 @@ class text (TestUpdate) :
         check_mount()
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount '  + MOUNT_PARTITION + ' ' + MOUNT_DUMMY)
-	time.sleep(2)
+	  
 	self.edit_text(TEST_TEXT)
 
         commands.getoutput ( 'umount ' + MOUNT_PARTITION )
-	time.sleep(2)
+	  
         commands.getoutput ( 'mount -t vfat -o rw '  + MOUNT_PARTITION + ' ' + MYDOCS)
-	time.sleep(2)
+	  
 
         print commands.getoutput ( 'ls ' + MYDOCS)
 	self.loop.run()
-	self.loop.run()
+
 	""" verify if miner indexed these file.  """
 
         result = commands.getoutput ('tracker-search  -t  massstorage | grep ' + file_path + ' | wc -l')
@@ -738,7 +714,7 @@ class no_file_op(TestUpdate):
 
 	     check_mount()
              commands.getoutput ('umount /dev/mmcblk0p1')
-	     time.sleep(2)
+	       
              result = self.miner.GetStatus ()
              self.assert_(result == 'Idle' , 'Tracker is not in idle state')
 
@@ -751,7 +727,7 @@ class no_file_op(TestUpdate):
 
 	    check_mount()
 	    commands.getoutput ('umount /dev/mmcblk0p1')
-	    time.sleep(2)
+	      
 	    result = commands.getoutput ('tracker-search -f -l 10000 | grep ' + MYDOCS + '  |wc -l ')
 	    print result
 	    self.assert_(result == '0' , 'Tracker is listing the files when the device is connected in mass storage mode')
@@ -765,13 +741,42 @@ class no_file_op(TestUpdate):
 
 	    check_mount()
             commands.getoutput ('umount /dev/mmcblk0p1')
-	    time.sleep(2)
+	      
             result = commands.getoutput ('tracker-search -f -l 10000 |wc -l ')
             self.assert_(result != 0 , 'Tracker(checked with -a) is not listing the files when the device is connected in mass storage mode')
 
 if __name__ == "__main__":
 
-        unittest.main()
+        #unittest.main()
+        copy_tcs_list=unittest.TestLoader().getTestCaseNames(copy)
+        copy_testsuite=unittest.TestSuite(map(copy, copy_tcs_list))
+
+
+        move_tcs_list=unittest.TestLoader().getTestCaseNames(move)
+        move_testsuite=unittest.TestSuite(map(move, move_tcs_list))
+
+
+        rename_tcs_list=unittest.TestLoader().getTestCaseNames(rename)
+        rename_testsuite=unittest.TestSuite(map(rename, rename_tcs_list))
+
+        delete_tcs_list=unittest.TestLoader().getTestCaseNames(delete)
+        delete_testsuite=unittest.TestSuite(map(delete, delete_tcs_list))
+
+
+        subfolder_tcs_list=unittest.TestLoader().getTestCaseNames(subfolder)
+        subfolder_testsuite=unittest.TestSuite(map(subfolder, subfolder_tcs_list))
+
+
+        text_tcs_list=unittest.TestLoader().getTestCaseNames(text)
+        text_testsuite=unittest.TestSuite(map(text, text_tcs_list))
+
+        file_tcs_list=unittest.TestLoader().getTestCaseNames(no_file_op)
+        file_testsuite=unittest.TestSuite(map(no_file_op, file_tcs_list))
+
+        all_testsuites = unittest.TestSuite((rename_testsuite,move_testsuite,copy_testsuite,subfolder_testsuite,text_testsuite))
+
+        unittest.TextTestRunner(verbosity=2).run(all_testsuites)
+
 
 
 
