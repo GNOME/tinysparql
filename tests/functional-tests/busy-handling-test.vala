@@ -36,6 +36,7 @@ private interface Resources : GLib.Object {
 private interface Status: GLib.Object {
 	public signal void progress (string status, double progress);
 	public abstract double get_progress () throws DBus.Error;
+	public abstract string get_status () throws DBus.Error;
 }
 
 public class TestApp {
@@ -52,6 +53,7 @@ public class TestApp {
 	requires (!initialized) {
 		try {
 			double progress;
+			string status;
 
 			connection = DBus.Bus.get (DBus.BusType.SESSION);
 			resources_object = (Resources) connection.get_object ("org.freedesktop.Tracker1",
@@ -63,7 +65,9 @@ public class TestApp {
 
 			status_object.progress.connect (on_status_cb);
 			progress = status_object.get_progress ();
-			ready = (progress == 1.0);
+			status = status_object.get_status ();
+
+			ready = (progress == 1.0 && status == "Idle");
 
 		} catch (DBus.Error e) {
 			warning ("Could not connect to D-Bus service: %s", e.message);
@@ -74,9 +78,9 @@ public class TestApp {
 		initialized = true;
 	}
 
-
 	void on_status_cb (string status, double progress) {
 		print ("%s: %f\n", status, progress);
+		// Don't use status here, it'll be "Journal replaying" when progress = 1
 		if (progress == 1.0) {
 			ready = true;
 		}
