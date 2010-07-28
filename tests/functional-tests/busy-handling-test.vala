@@ -35,6 +35,7 @@ private interface Resources : GLib.Object {
 [DBus (name = "org.freedesktop.Tracker1.Status")]
 private interface Status: GLib.Object {
 	public signal void progress (string status, double progress);
+	public abstract double get_progress () throws DBus.Error;
 }
 
 public class TestApp {
@@ -42,12 +43,16 @@ public class TestApp {
 	static Resources resources_object;
 	static Status status_object;
 	int res = -1;
+	int users = 0;
 	MainLoop loop;
 	bool initialized = false;
+	bool ready = false;
 
 	public TestApp ()
 	requires (!initialized) {
 		try {
+			double progress;
+
 			connection = DBus.Bus.get (DBus.BusType.SESSION);
 			resources_object = (Resources) connection.get_object ("org.freedesktop.Tracker1",
 			                                                      "/org/freedesktop/Tracker1/Resources",
@@ -57,6 +62,8 @@ public class TestApp {
 			                                                "org.freedesktop.Tracker1.Status");
 
 			status_object.progress.connect (on_status_cb);
+			progress = status_object.get_progress ();
+			ready = (progress == 1.0);
 
 		} catch (DBus.Error e) {
 			warning ("Could not connect to D-Bus service: %s", e.message);
@@ -70,29 +77,67 @@ public class TestApp {
 
 	void on_status_cb (string status, double progress) {
 		print ("%s: %f\n", status, progress);
+		if (progress == 1.0) {
+			ready = true;
+		}
 	}
 
-	async void do_query_tests_async () {
+	async void do_query_tests_async (string test_name) {
 		try {
+			int cnt = 0;
 			string[,] results = yield resources_object.sparql_query_async ("SELECT ?u { ?u a rdfs:Resource }");
 			foreach (string res in results) {
-				print ("%s\n", res);
+				cnt++;
 			}
+			print ("%s: Saw %d strings in result\n", test_name, cnt);
 		} catch (GLib.Error e) {
 			print ("Fail: %s\n", e.message);
 			res = -1;
 		}
 	}
 
-	async void do_async_query_tests () {
-		yield do_query_tests_async ();
+	void check_shutdown () {
+		users--;
+		if (users == 0) {
+			print ("Async tests done, now I can quit the mainloop\n");
+			loop.quit ();
+		}
+	}
 
-		print ("Async tests done, now I can quit the mainloop\n");
-		loop.quit ();
+	async void do_async_query_tests () {
+		print ("Test 1: Just launch the query and let it wait\nTest 1: query launches immediately\n");
+		users++;
+		yield do_query_tests_async ("Test 1");
+
+		check_shutdown ();
+	}
+
+	async void jumper_async () {
+		yield do_query_tests_async ("Test 2");
+		check_shutdown ();
+	}
+
+	bool test_ready () {
+
+		if (ready) {
+			print ("Test 2: query launches now\n");
+			jumper_async ();
+		}
+
+		return !ready;
 	}
 
 	bool in_mainloop () {
 		do_async_query_tests ();
+
+		print ("Test 2: Wait for the status signal to indicate readyness\n");
+		users++;
+
+		if (!ready) {
+			Timeout.add (1, test_ready);
+		} else {
+			test_ready ();
+		}
 
 		return false;
 	}
