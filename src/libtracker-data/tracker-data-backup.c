@@ -357,7 +357,7 @@ tracker_data_backup_restore (GFile *journal,
 
 		argv = g_new0 (char*, 6);
 
-		argv[0] = g_strdup (TAR);
+		argv[0] = g_strdup ("tar");
 		argv[1] = g_strdup ("-zxf");
 		argv[2] = g_file_get_path (info->journal);
 		argv[3] = g_strdup ("-C");
