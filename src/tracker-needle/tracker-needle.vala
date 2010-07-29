@@ -151,7 +151,7 @@ public class TrackerNeedle {
 		col.pack_start (renderer1, false);
 		col.add_attribute (renderer1, "pixbuf", 0);
 
-		var renderer2 = new CellRendererText ();
+		var renderer2 = new Tracker.CellRendererText ();
 		col.pack_start (renderer2, true);
 		col.add_attribute (renderer2, "text", 4);
 

@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.decl
 bin_PROGRAMS = tracker-needle
 
 tracker_needle_VALASOURCES = 					\
+	tracker-cell-renderer-text.vala				\
 	tracker-needle.vala                         \
 	tracker-stats.vala
 
