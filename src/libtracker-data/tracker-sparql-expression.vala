@@ -1088,15 +1088,22 @@ class Tracker.Sparql.Expression : Object {
 		return PropertyType.BOOLEAN;
 	}
 
-	PropertyType translate_in (StringBuilder sql) throws SparqlError {
+	PropertyType translate_in (StringBuilder sql, bool not) throws SparqlError {
+
+		if (not) {
+			sql.append (" NOT");
+		}
+
 		expect (SparqlTokenType.OPEN_PARENS);
 		sql.append (" IN (");
-		translate_expression_as_string (sql);
-		while (accept (SparqlTokenType.COMMA)) {
-			sql.append (", ");
+		if (!accept (SparqlTokenType.CLOSE_PARENS)) {
 			translate_expression_as_string (sql);
+			while (accept (SparqlTokenType.COMMA)) {
+				sql.append (", ");
+				translate_expression_as_string (sql);
+			}
+			expect (SparqlTokenType.CLOSE_PARENS);
 		}
-		expect (SparqlTokenType.CLOSE_PARENS);
 		sql.append (")");
 		return PropertyType.BOOLEAN;
 	}
@@ -1119,7 +1126,9 @@ class Tracker.Sparql.Expression : Object {
 		} else if (accept (SparqlTokenType.OP_GT)) {
 			return process_relational_expression (sql, begin, n_bindings, optype, " > ");
 		} else if (accept (SparqlTokenType.OP_IN)) {
-			return translate_in (sql);
+			return translate_in (sql, false);
+		} else if (accept (SparqlTokenType.NOT) && accept (SparqlTokenType.OP_IN)) {
+			return translate_in (sql, true);
 		}
 		return optype;
 	}
