@@ -55,6 +55,8 @@ const TestInfo tests[] = {
 	{ "algebra/filter-nested-1", "algebra/data-1", FALSE },
 	{ "algebra/filter-nested-2", "algebra/data-1", FALSE },
 	{ "algebra/filter-scope-1", "algebra/data-2", FALSE },
+	{ "algebra/filter-in-1", "algebra/data-2", FALSE },
+	{ "algebra/filter-in-2", "algebra/data-2", FALSE },
 	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", FALSE },
 	{ "anon/query", "anon/data", FALSE },
 	{ "ask/ask-1", "ask/data", FALSE },
