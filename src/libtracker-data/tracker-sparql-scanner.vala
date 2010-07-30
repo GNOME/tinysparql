@@ -59,6 +59,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'b':
 				if (matches (begin, "BY")) return SparqlTokenType.BY;
 				break;
+			case 'i':
+			case 'I':
+				if (matches (begin, "IN")) return SparqlTokenType.OP_IN;
+				break;
 			}
 			break;
 		case 3:
@@ -863,6 +867,7 @@ public enum Tracker.SparqlTokenType {
 	OP_NE,
 	OP_NEG,
 	OP_OR,
+	OP_IN,
 	OPEN_BRACE,
 	OPEN_BRACKET,
 	OPEN_PARENS,
@@ -953,6 +958,7 @@ public enum Tracker.SparqlTokenType {
 		case OP_NE: return "`!='";
 		case OP_NEG: return "`!'";
 		case OP_OR: return "`||'";
+		case OP_IN: return "`IN'";
 		case OPEN_BRACE: return "`{'";
 		case OPEN_BRACKET: return "`['";
 		case OPEN_PARENS: return "`('";
