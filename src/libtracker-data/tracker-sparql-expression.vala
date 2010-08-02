@@ -1127,7 +1127,8 @@ class Tracker.Sparql.Expression : Object {
 			return process_relational_expression (sql, begin, n_bindings, optype, " > ");
 		} else if (accept (SparqlTokenType.OP_IN)) {
 			return translate_in (sql, false);
-		} else if (accept (SparqlTokenType.NOT) && accept (SparqlTokenType.OP_IN)) {
+		} else if (accept (SparqlTokenType.NOT)) {
+			expect (SparqlTokenType.OP_IN);
 			return translate_in (sql, true);
 		}
 		return optype;
