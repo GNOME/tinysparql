@@ -59,7 +59,10 @@ INCLUDES = 								\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
 	-I$(top_builddir)/src						\
+	-I$(top_srcdir)/src/libtracker-client				\
 	-I$(top_builddir)/src/libtracker-client				\
+	-I$(top_srcdir)/src/libtracker-data				\
+	-I$(top_builddir)/src/libtracker-data				\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\

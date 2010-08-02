@@ -22,10 +22,12 @@ INCLUDES =									\
 	-DTEST_DATA_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/data"\"	\
 	-DTEST_MINERS_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/mock-miners"\"	\
 	-I$(top_srcdir)/src							\
-	-I$(top_srcdir)/tests/common						\
-	-I$(top_builddir)/src/tracker-store					\
 	-I$(top_builddir)/src							\
+	-I$(top_srcdir)/tests/common						\
+	-I$(top_srcdir)/src/libtracker-client					\
 	-I$(top_builddir)/src/libtracker-client					\
+	-I$(top_srcdir)/src/libtracker-miner					\
+	-I$(top_builddir)/src/libtracker-miner					\
 	$(WARN_CFLAGS)								\
 	$(GCOV_CFLAGS)								\
 	$(GLIB2_CFLAGS)								\
