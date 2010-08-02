@@ -313,17 +313,22 @@ static const TestDataExpectedWord test_data_casefolding[] = {
 
 /* Number of expected words tests */
 static const TestDataExpectedNWords test_data_nwords[] = {
-#ifdef FULL_UNICODE_TESTS /* glib/pango thinks 32.3 are 2 words */
+#ifdef FULL_UNICODE_TESTS /* glib/pango assumes ' is a word breaker */
 	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", TRUE,   8 },
-	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", FALSE,  9 },
+	{ "The quick (\"brown\") fox can’t jump 32.3 feet, right?", FALSE, 10 },
 #endif
+	/* Note: as of 0.9.15, the dot is always a word breaker, even between
+	 *  numbers. */
+	{ "filename.txt",                                           TRUE,   2 },
+	{ ".hidden.txt",                                            TRUE,   2 },
+	{ "noextension.",                                           TRUE,   1 },
 	{ "ホモ・サピエンス",                                          TRUE,   2 }, /* katakana */
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
 	{ "本州最主流的风味",                                          TRUE,   8 }, /* chinese */
 #endif
 	{ "Американские суда находятся в международных водах.",     TRUE,   6 }, /* russian */
-	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7 }, /* vietnamese */
 #ifdef FULL_UNICODE_TESTS /* glib/pango doesn't work properly with chinese */
+	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7 }, /* vietnamese */
 	{ "ホモ・サピエンス 本州最主流的风味 katakana, chinese, english", TRUE,  13 }, /* mixed */
 #endif
 	{ NULL,                                                     FALSE,  0 }

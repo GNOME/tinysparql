@@ -43,6 +43,13 @@ Parser based on glib/pango:
  * Performs NFC normalization in non-CJK strings.
 
 
+Notes:
+  * As of tracker 0.9.15, the libunistring and libicu parsers have a list of
+     Unicode characters which will always act as word breakers. This hack works
+     on top of the unicode word-breaking algorithm, and was mainly done in order
+     to be able to perform FTS searches using file extension as input for the
+     FTS search.
+
 References:
  [1] UAX#29, Unicode Standard Annex #29: TEXT BOUNDARIES
       http://unicode.org/reports/tr29

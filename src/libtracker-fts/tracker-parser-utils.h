@@ -52,6 +52,14 @@ G_BEGIN_DECLS
                                ((c) >= 0x20D0 && (c) <= 0x20FF)  ||	\
                                ((c) >= 0xFE20 && (c) <= 0xFE2F))
 
+/* Forced word breaks in Unicode parsers.
+ * If any of these is found INSIDE a properly delimited Unicode word, a new word
+ * break is forced and the Unicode word is split in two words.
+ * Current forced wordbreaks:
+ *   - 0x002E: DOT ('.')
+ */
+#define IS_FORCED_WORDBREAK_UCS4(c) ((c) == 0x002E)
+
 
 gboolean tracker_parser_is_reserved_word_utf8 (const gchar *word,
                                                gsize word_length);

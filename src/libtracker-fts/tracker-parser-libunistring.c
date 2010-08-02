@@ -54,6 +54,7 @@ struct TrackerParser {
 	gboolean               ignore_stop_words;
 	gboolean               ignore_reserved_words;
 	gboolean               ignore_numbers;
+	gboolean               enable_forced_wordbreaks;
 
 	/* Private members */
 	gchar                 *word;
@@ -76,7 +77,6 @@ get_word_info (TrackerParser         *parser,
 {
 	ucs4_t first_unichar;
 	gint first_unichar_len;
-	gsize i;
 	gboolean ascii_only;
 
 	/* Defaults */
@@ -94,23 +94,40 @@ get_word_info (TrackerParser         *parser,
 		ascii_only = first_unichar_len == 1 ? TRUE : FALSE;
 	}
 
-	/* Find next word break, and in the same loop checking if only ASCII
-	 *  characters */
-	i = parser->cursor + first_unichar_len;
-	while (i < parser->txt_size &&
-	       !parser->word_break_flags [i]) {
+	/* Consider word starts with a forced wordbreak */
+	if (parser->enable_forced_wordbreaks &&
+	    IS_FORCED_WORDBREAK_UCS4 ((guint32)first_unichar)) {
+		*p_word_length = first_unichar_len;
+	} else {
+		gsize i;
 
-		if (ascii_only &&
-		    !IS_ASCII_UCS4 ((guint32)parser->txt[i])) {
-			ascii_only = FALSE;
+		/* Find next word break, and in the same loop checking if only ASCII
+		 *  characters */
+		i = parser->cursor + first_unichar_len;
+		while (1) {
+			/* Text bounds reached? */
+			if (i >= parser->txt_size)
+				break;
+			/* Proper unicode word break detected? */
+			if (parser->word_break_flags[i])
+				break;
+			/* Forced word break detected? */
+			if (parser->enable_forced_wordbreaks &&
+			    IS_FORCED_WORDBREAK_UCS4 ((guint32)parser->txt[i]))
+				break;
+
+			if (ascii_only &&
+			    !IS_ASCII_UCS4 ((guint32)parser->txt[i])) {
+				ascii_only = FALSE;
+			}
+
+			i++;
 		}
 
-		i++;
+		/* Word end is the first byte after the word, which is either the
+		 *  start of next word or the end of the string */
+		*p_word_length = i - parser->cursor;
 	}
-
-	/* Word end is the first byte after the word, which is either the
-	 *  start of next word or the end of the string */
-	*p_word_length = i - parser->cursor;
 
 	/* We only want the words where the first character
 	 *  in the word is either a letter, a number or a symbol.
@@ -453,6 +470,11 @@ tracker_parser_reset (TrackerParser *parser,
 	parser->ignore_stop_words = ignore_stop_words;
 	parser->ignore_reserved_words = ignore_reserved_words;
 	parser->ignore_numbers = ignore_numbers;
+
+	/* Note: We're forcing some unicode characters to behave
+	 * as wordbreakers: e.g, the '.' The main reason for this
+	 * is to enable FTS searches matching file extension. */
+	parser->enable_forced_wordbreaks = TRUE;
 
 	parser->txt_size = txt_size;
 	parser->txt = txt;

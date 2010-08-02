@@ -55,6 +55,7 @@ struct TrackerParser {
 	gboolean               ignore_stop_words;
 	gboolean               ignore_reserved_words;
 	gboolean               ignore_numbers;
+	gboolean               enable_forced_wordbreaks;
 
 	/* Private members */
 	gchar                 *word;
@@ -378,6 +379,47 @@ process_word_uchar (TrackerParser         *parser,
 }
 
 static gboolean
+parser_check_forced_wordbreaks (const UChar *buffer,
+                                gsize        current,
+                                gsize       *next)
+{
+	gsize unicode_word_length = *next - current;
+	gsize word_length = 0;
+	UCharIterator iter;
+	UChar32 unichar;
+
+	uiter_setString (&iter, &buffer[current], unicode_word_length);
+
+	/* Iterate over the string looking for forced word breaks */
+	while ((unichar = uiter_next32 (&iter)) != U_SENTINEL &&
+	       word_length < unicode_word_length) {
+
+		if (IS_FORCED_WORDBREAK_UCS4 ((guint32) unichar)) {
+			/* Support word starting with a forced wordbreak */
+			if (word_length == 0) {
+				word_length = 1;
+			}
+			break;
+		}
+
+		word_length ++;
+	}
+
+	/* g_debug ("current: %" G_GSIZE_FORMAT ", " */
+	/*          "next: %" G_GSIZE_FORMAT ", " */
+	/*          "now: %" G_GSIZE_FORMAT, */
+	/*          current, */
+	/*          *next, */
+	/*          current + word_length); */
+
+	if (word_length != unicode_word_length) {
+		*next = current + word_length;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static gboolean
 parser_next (TrackerParser *parser,
              gint          *byte_offset_start,
              gint          *byte_offset_end,
@@ -407,6 +449,19 @@ parser_next (TrackerParser *parser,
 
 		/* Find next word break. */
 		next_word_offset_uchar = ubrk_next (parser->bi);
+
+		/* Check if any forced wordbreaks here... */
+		if (parser->enable_forced_wordbreaks) {
+			/* Returns TRUE if next word offset changed */
+			if (parser_check_forced_wordbreaks (parser->utxt,
+			                                    parser->cursor,
+			                                    &next_word_offset_uchar)) {
+				/* We need to reset the iterator so that next word
+				 * actually returns the same result */
+				ubrk_previous (parser->bi);
+			}
+		}
+
 		if (next_word_offset_uchar >= parser->utxt_size) {
 			/* Last word support... */
 			next_word_offset_uchar = parser->utxt_size;
@@ -564,6 +619,11 @@ tracker_parser_reset (TrackerParser *parser,
 	parser->ignore_stop_words = ignore_stop_words;
 	parser->ignore_reserved_words = ignore_reserved_words;
 	parser->ignore_numbers = ignore_numbers;
+
+	/* Note: We're forcing some unicode characters to behave
+	 * as wordbreakers: e.g, the '.' The main reason for this
+	 * is to enable FTS searches matching file extension. */
+	parser->enable_forced_wordbreaks = TRUE;
 
 	parser->txt_size = txt_size;
 	parser->txt = txt;
