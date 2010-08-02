@@ -447,7 +447,6 @@ main (gint argc, gchar *argv[])
 
 	tracker_store_init ();
 
-	tracker_store_set_active (FALSE);
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects ()) {
