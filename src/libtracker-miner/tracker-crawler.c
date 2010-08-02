@@ -103,6 +103,7 @@ typedef struct {
 	TrackerCrawler *crawler;
 	DirectoryRootInfo  *root_info;
 	DirectoryProcessingData *dir_info;
+	GFile *dir_file;
 } EnumeratorData;
 
 static void     crawler_finalize        (GObject         *object);
@@ -572,6 +573,9 @@ enumerator_data_new (TrackerCrawler          *crawler,
 	ed->crawler = g_object_ref (crawler);
 	ed->root_info = root_info;
 	ed->dir_info = dir_info;
+	/* Make sure there's always a ref of the GFile while we're
+	 * iterating it */
+	ed->dir_file = g_object_ref (G_FILE (dir_info->node->data));
 
 	return ed;
 }
@@ -606,6 +610,7 @@ enumerator_data_process (EnumeratorData *ed)
 static void
 enumerator_data_free (EnumeratorData *ed)
 {
+	g_object_unref (ed->dir_file);
 	g_object_unref (ed->crawler);
 	g_slice_free (EnumeratorData, ed);
 }
@@ -770,12 +775,10 @@ file_enumerate_children (TrackerCrawler          *crawler,
 			 DirectoryProcessingData *dir_data)
 {
 	EnumeratorData *ed;
-	GFile *file;
 
-	file = dir_data->node->data;
 	ed = enumerator_data_new (crawler, info, dir_data);
 
-	g_file_enumerate_children_async (file,
+	g_file_enumerate_children_async (ed->dir_file,
 	                                 FILE_ATTRIBUTES,
 	                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                                 G_PRIORITY_LOW,
