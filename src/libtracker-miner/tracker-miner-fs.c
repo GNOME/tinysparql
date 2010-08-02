@@ -1095,11 +1095,16 @@ item_query_exists_cb (GObject      *object,
 	if (error) {
 		g_critical ("Could not execute sparql query: %s", error->message);
 		g_error_free (error);
+		if (cursor) {
+			g_object_unref (cursor);
+		}
 		return;
 	}
 
-	if (!tracker_sparql_cursor_next (cursor, NULL, NULL))
+	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		g_object_unref (cursor);
 		return;
+	}
 
 	n_results = 1;
 	data->iri = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
@@ -1122,6 +1127,8 @@ item_query_exists_cb (GObject      *object,
 		            tracker_sparql_cursor_get_string (cursor, 0, NULL),
 		            data->get_mime ? tracker_sparql_cursor_get_string (cursor, 1, NULL) : "unneeded");
 	}
+
+	g_object_unref (cursor);
 }
 
 static gboolean
@@ -1193,6 +1200,9 @@ cache_query_cb (GObject	     *object,
 	if (G_UNLIKELY (error)) {
 		g_critical ("Could not execute cache query: %s", error->message);
 		g_error_free (error);
+		if (cursor) {
+			g_object_unref (cursor);
+		}
 		return;
 	}
 
@@ -1205,6 +1215,8 @@ cache_query_cb (GObject	     *object,
 		                     file,
 		                     g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL)));
 	}
+
+	g_object_unref (cursor);
 }
 
 static gboolean
@@ -1746,6 +1758,9 @@ item_update_children_uri_cb (GObject      *object,
 	if (error) {
 		g_critical ("Could not query children: %s", error->message);
 		g_error_free (error);
+		if (cursor) {
+			g_object_unref (cursor);
+		}
 	} else {
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			const gchar *child_source_uri, *child_mime, *child_urn;
@@ -1783,6 +1798,8 @@ item_update_children_uri_cb (GObject      *object,
 			g_free (child_uri);
 		}
 	}
+
+	g_object_unref (cursor);
 
 	g_main_loop_quit (data->main_loop);
 }

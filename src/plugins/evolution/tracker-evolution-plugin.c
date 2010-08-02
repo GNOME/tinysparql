@@ -1751,7 +1751,7 @@ on_register_client_qry (GObject *source_object,
 		g_error_free (error);
 		g_slice_free (ClientRegistry, info);
 		if (cursor) {
-			//g_object_unref (cursor);
+			g_object_unref (cursor);
 		}
 		return;
 	}
@@ -1774,7 +1774,7 @@ on_register_client_qry (GObject *source_object,
 			if (new_error) {
 				g_warning ("%s", new_error->message);
 				g_error_free (error);
-				//g_object_unref (cursor);
+				g_object_unref (cursor);
 				return;
 			}
 
@@ -1784,7 +1784,7 @@ on_register_client_qry (GObject *source_object,
 
 	register_client_second_half (info);
 
-	//g_object_unref (cursor);
+	g_object_unref (cursor);
 }
 
 static void

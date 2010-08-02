@@ -303,16 +303,21 @@ item_verify_reply_cb (GObject      *source_object,
 	if (error != NULL) {
 		g_message ("Could not verify feed existance, %s", error->message);
 		g_error_free (error);
+		if (cursor) {
+			g_object_unref (cursor);
+		}
 		return;
 	}
 
-        if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		g_message ("No data in query response??");
-                return;
-        }
+		g_object_unref (cursor);
+		return;
+	}
 
 	str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 	if (g_strcmp0 (str, "1") == 0) {
+		g_object_unref (cursor);
 		return;
 	}
 
@@ -408,6 +413,7 @@ item_verify_reply_cb (GObject      *source_object,
                                                 verify_item_insertion,
                                                 NULL);
 
+	g_object_unref (cursor);
 	g_object_unref (sparql);
 }
 
@@ -486,12 +492,15 @@ feeds_retrieve_cb (GObject      *source_object,
 	FeedChannel *chan;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
-                                                         res,
-                                                         &error);
+	                                                     res,
+	                                                     &error);
 
 	if (error != NULL) {
 		g_message ("Could not retrieve feeds, %s", error->message);
 		g_error_free (error);
+		if (cursor) {
+			g_object_unref (cursor);
+		}
 		return;
 	}
 
@@ -499,15 +508,15 @@ feeds_retrieve_cb (GObject      *source_object,
 
 	g_message ("Found feeds");
 
-        while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-                const gchar *source;
-                const gchar *interval;
-                const gchar *subject;
-                gint mins;
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		const gchar *source;
+		const gchar *interval;
+		const gchar *subject;
+		gint mins;
 
-                source = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-                interval = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-                subject = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+		source = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+		interval = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+		subject = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 
 		chan = feed_channel_new ();
 		g_object_set_data_full (G_OBJECT (chan),
@@ -530,6 +539,8 @@ feeds_retrieve_cb (GObject      *source_object,
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
 	feeds_pool_listen (priv->pool, channels);
+
+	g_object_unref (cursor);
 }
 
 static void
