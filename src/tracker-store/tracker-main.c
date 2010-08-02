@@ -453,6 +453,10 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	if (!tracker_dbus_register_names ()) {
+		return EXIT_FAILURE;
+	}
+
 	chunk_size_mb = tracker_db_config_get_journal_chunk_size (db_config);
 	chunk_size = (gsize) ((gsize) chunk_size_mb * (gsize) 1024 * (gsize) 1024);
 	rotate_to = tracker_db_config_get_journal_rotate_destination (db_config);

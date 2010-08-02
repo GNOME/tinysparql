@@ -34,6 +34,7 @@ void            tracker_dbus_shutdown                (void);
 gboolean        tracker_dbus_register_objects        (void);
 GObject        *tracker_dbus_get_object              (GType type);
 TrackerStatus  *tracker_dbus_register_notifier       (void);
+gboolean        tracker_dbus_register_names          (void);
 
 G_END_DECLS
 

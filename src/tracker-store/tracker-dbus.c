@@ -100,10 +100,26 @@ dbus_register_object (DBusGConnection       *lconnection,
 	dbus_g_connection_register_g_object (lconnection, path, object);
 }
 
-static gboolean
-dbus_register_names (void)
+gboolean
+tracker_dbus_register_names (void)
+{
+	/* Register the service name for org.freedesktop.Tracker */
+	if (!dbus_register_service (gproxy, TRACKER_STATISTICS_SERVICE)) {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_dbus_init (void)
 {
 	GError *error = NULL;
+
+	/* Don't reinitialize */
+	if (objects) {
+		return TRUE;
+	}
 
 	if (connection) {
 		g_critical ("The DBusGConnection is already set, have we already initialized?");
@@ -131,27 +147,6 @@ dbus_register_names (void)
 	                                    DBUS_SERVICE_DBUS,
 	                                    DBUS_PATH_DBUS,
 	                                    DBUS_INTERFACE_DBUS);
-
-	/* Register the service name for org.freedesktop.Tracker */
-	if (!dbus_register_service (gproxy, TRACKER_STATISTICS_SERVICE)) {
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-gboolean
-tracker_dbus_init (void)
-{
-	/* Don't reinitialize */
-	if (objects) {
-		return TRUE;
-	}
-
-	/* Register names and get proxy/connection details */
-	if (!dbus_register_names ()) {
-		return FALSE;
-	}
 
 	dbus_g_proxy_add_signal (gproxy, "NameOwnerChanged",
 	                         G_TYPE_STRING,
