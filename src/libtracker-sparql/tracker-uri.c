@@ -137,10 +137,10 @@ find_conversion (const char  *format,
  *
  * The result is escaped using g_uri_escape_string().
  *
- * Returns: a newly-allocated string holding the result which should
- * be freed with g_free() when finished with.
+ * Returns: a newly-allocated string holding the result.
+ *  The returned string should be freed with g_free() when no longer needed.
  *
- * Since: 0.8
+ * Since: 0.9
  */
 gchar *
 tracker_sparql_escape_uri_vprintf (const gchar *format,
@@ -239,13 +239,13 @@ cleanup:
  *     <link linkend="string-precision">string precision pitfalls</link>
  * @Varargs: the parameters to insert into the format string
  *
- * Calls tracker_sparql_escpae_uri_vprintf() with the @Varargs supplied.
-
- * Returns: a newly-allocated string holding the result which should
- * be freed with g_free() when finished with.
+ * Calls tracker_sparql_escape_uri_vprintf() with the @Varargs supplied.
  *
- * Since: 0.8
- **/
+ * Returns: a newly-allocated string holding the result.
+ *  The returned string should be freed with g_free() when no longer needed.
+ *
+ * Since: 0.9
+ */
 gchar *
 tracker_sparql_escape_uri_printf (const gchar *format, ...)
 {

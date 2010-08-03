@@ -1853,6 +1853,8 @@ AC_CONFIG_FILES([
 	docs/reference/Makefile
 	docs/reference/libtracker-client/Makefile
 	docs/reference/libtracker-client/version.xml
+	docs/reference/libtracker-sparql/Makefile
+	docs/reference/libtracker-sparql/version.xml
 	docs/reference/libtracker-extract/Makefile
 	docs/reference/libtracker-extract/version.xml
 	docs/reference/libtracker-miner/Makefile

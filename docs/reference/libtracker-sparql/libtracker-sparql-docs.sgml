@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!--!ENTITY tracker SYSTEM "xml/tracker.xml"-->
+<!--!ENTITY tracker-cancel SYSTEM "xml/tracker_cancel.xml"-->
+<!ENTITY tracker-misc SYSTEM "xml/tracker-misc.xml">
+<!--!ENTITY tracker-statistics SYSTEM "xml/tracker_statistics.xml"-->
+<!--!ENTITY tracker-resources SYSTEM "xml/tracker_resources.xml"-->
+<!--!ENTITY tracker-search SYSTEM "xml/tracker_search.xml"-->
+<!ENTITY tracker-sparql-builder SYSTEM "xml/tracker-sparql-builder.xml">
+<!ENTITY version SYSTEM "version.xml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Tracker Sparql Library Reference Manual</title>
+    <releaseinfo>for libtracker-sparql &version;</releaseinfo>
+  </bookinfo>
+
+  <part id="libtracker-sparql">
+    <title>Overview</title>
+    <partintro>
+      <para>
+        The libtracker-sparql library BLA BLA BLA...
+      </para>
+      <para>
+      </para>
+    </partintro>
+  </part>
+
+    <chapter>
+      <title>General</title>
+<!--      &tracker; -->
+<!--      &tracker-cancel; -->
+      &tracker-misc;
+    </chapter>
+    <!--chapter>
+      <title>Querying</title>
+      &tracker-statistics;
+      &tracker-resources;
+      &tracker-search;
+    </chapter-->
+    <chapter>
+      <title>Building Queries</title>
+      &tracker-sparql-builder;
+    </chapter>
+</book>

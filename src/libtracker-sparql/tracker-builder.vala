@@ -18,6 +18,7 @@
  */
 
 public class Tracker.Sparql.Builder : Object {
+
 	public enum State {
 		UPDATE,
 		INSERT,
