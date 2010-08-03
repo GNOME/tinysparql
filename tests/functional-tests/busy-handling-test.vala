@@ -29,7 +29,7 @@
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 private interface Resources : GLib.Object {
 	[DBus (name = "SparqlQuery", timeout = 99999999999)]
-	public abstract async string[,] sparql_query_async (string query) throws DBus.Error;
+	public abstract async string[,] sparql_query (string query) throws DBus.Error;
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Status")]
@@ -89,7 +89,7 @@ public class TestApp {
 	async void do_query_tests_async (string test_name) {
 		try {
 			int cnt = 0;
-			string[,] results = yield resources_object.sparql_query_async ("SELECT ?u { ?u a rdfs:Resource }");
+			string[,] results = yield resources_object.sparql_query ("SELECT ?u { ?u a rdfs:Resource }");
 			foreach (string res in results) {
 				cnt++;
 			}
