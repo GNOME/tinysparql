@@ -69,6 +69,8 @@ typedef enum {
 typedef struct {
 	gchar *filename;
 	GDataInputStream *stream;
+	GInputStream *underlying_stream;
+	GFileInfo *underlying_stream_info;
 	GMappedFile *file;
 	const gchar *current;
 	const gchar *end;
@@ -104,6 +106,7 @@ static struct {
 	gsize chunk_size;
 	gboolean do_rotating;
 	gchar *rotate_to;
+	gboolean rotate_progress_flag;
 } rotating_settings = {0};
 
 static JournalReader reader = {0};
@@ -1045,6 +1048,13 @@ db_journal_reader_init_file (JournalReader  *jreader,
 			return FALSE;
 		}
 
+		jreader->underlying_stream = g_object_ref (stream);
+
+		if (jreader->underlying_stream_info) {
+			g_object_unref (jreader->underlying_stream_info);
+			jreader->underlying_stream_info = NULL;
+		}
+
 		converter = G_CONVERTER (g_zlib_decompressor_new (G_ZLIB_COMPRESSOR_FORMAT_GZIP));
 		cstream = g_converter_input_stream_new (stream, converter);
 		g_object_unref (stream);
@@ -1184,6 +1194,12 @@ db_journal_reader_shutdown (JournalReader *jreader)
 	if (jreader->stream) {
 		g_object_unref (jreader->stream);
 		jreader->stream = NULL;
+		g_object_unref (jreader->underlying_stream);
+		jreader->underlying_stream = NULL;
+		if (jreader->underlying_stream_info) {
+			g_object_unref (jreader->underlying_stream_info);
+			jreader->underlying_stream_info = NULL;
+		}
 	} else if (jreader->file) {
 #if GLIB_CHECK_VERSION(2,22,0)
 		g_mapped_file_unref (jreader->file);
@@ -1605,9 +1621,80 @@ tracker_db_journal_reader_get_statement_id (gint *g_id,
 gdouble
 tracker_db_journal_reader_get_progress (void)
 {
-	gdouble percent = ((gdouble)(reader.end - reader.start));
-	/* TODO: Fix this now that multiple chunks can exist */
-	return (((gdouble)(reader.current - reader.start)) / percent);
+	gdouble chunk = 0, total = 0;
+	static guint total_chunks = 0;
+
+	if (!rotating_settings.rotate_progress_flag) {
+		gchar *test;
+		GFile *dest_dir;
+		gboolean cont = TRUE;
+
+		total_chunks = 0;
+
+		test = g_path_get_basename (reader.filename);
+
+		if (rotating_settings.rotate_to) {
+			dest_dir = g_file_new_for_path (rotating_settings.rotate_to);
+		} else {
+			GFile *source;
+
+			/* keep compressed journal files in same directory */
+			source = g_file_new_for_path (test);
+			dest_dir = g_file_get_parent (source);
+			g_object_unref (source);
+		}
+
+		g_free (test);
+
+		while (cont) {
+			gchar *filename;
+			GFile *possible;
+
+			test = g_strdup_printf ("%s.%d", reader.filename, total_chunks + 1);
+			filename = g_path_get_basename (test);
+			g_free (test);
+			test = filename;
+			filename = g_strconcat (test, ".gz", NULL);
+			g_free (test);
+			possible = g_file_get_child (dest_dir, filename);
+			g_free (filename);
+			if (g_file_query_exists (possible, NULL)) {
+				total_chunks++;
+			} else {
+				cont = FALSE;
+			}
+			g_object_unref (possible);
+		}
+
+		g_object_unref (dest_dir);
+		rotating_settings.rotate_progress_flag = TRUE;
+	}
+
+	if (total_chunks > 0) {
+		total = ((gdouble) ((gdouble) reader.current_file) / ((gdouble) total_chunks));
+	}
+
+	if (reader.start != 0) {
+		/* When the last uncompressed part is being processed: */
+		gdouble percent = ((gdouble)(reader.end - reader.start));
+		chunk = (((gdouble)(reader.current - reader.start)) / percent);
+	} else if (reader.underlying_stream) {
+		goffset size;
+
+		if (!reader.underlying_stream_info) {
+			reader.underlying_stream_info =
+				g_file_input_stream_query_info (G_FILE_INPUT_STREAM (reader.underlying_stream),
+			                                    G_FILE_ATTRIBUTE_STANDARD_SIZE,
+			                                    NULL, NULL);
+		}
+
+		if (reader.underlying_stream_info) {
+			size = g_file_info_get_size (reader.underlying_stream_info);
+			chunk = (gdouble) ((gdouble)g_seekable_tell (G_SEEKABLE (reader.underlying_stream))) / ((gdouble)size);
+		}
+	}
+
+	return total + chunk;
 }
 
 #if GLIB_CHECK_VERSION (2, 24, 2)
@@ -1691,6 +1778,9 @@ tracker_db_journal_rotate (void)
 	fullpath = g_strdup_printf ("%s.%d", writer.journal_filename, ++max);
 
 	g_rename (writer.journal_filename, fullpath);
+
+	/* Recalculate progress next time */
+	rotating_settings.rotate_progress_flag = FALSE;
 
 	source = g_file_new_for_path (fullpath);
 	if (rotating_settings.rotate_to) {
