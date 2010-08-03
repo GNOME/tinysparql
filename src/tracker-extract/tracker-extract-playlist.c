@@ -86,7 +86,7 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 	tracker_sparql_builder_predicate (data->metadata, "a");
 	tracker_sparql_builder_object (data->metadata, "nfo:MediaFileListEntry");
 
-	tracker_sparql_builder_predicate (data->metadata, "nfo:entryContent");
+	tracker_sparql_builder_predicate (data->metadata, "nfo:entryUrl");
 	tracker_sparql_builder_object_unvalidated (data->metadata, to_uri);
 
 	tracker_sparql_builder_predicate (data->metadata, "nfo:listPosition");

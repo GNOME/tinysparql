@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2010-06-17T17:06:00Z" .
+	nao:lastModified "2010-08-03T10:03:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -475,12 +475,24 @@ nfo:listPosition a rdf:Property ;
 
 
 # Propose in nepomuk
+
+# This property is very impractical
 nfo:entryContent a rdf:Property ;
 	rdfs:label "Entry content" ;
 	rdfs:comment "URI to the element in certain position of the list" ;
-        nrl:maxCardinality 1 ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:MediaFileListEntry ;
 	rdfs:range nie:InformationElement ;
+	nao:deprecated true ;
+	tracker:writeback true .
+
+# This one makes more sense
+nfo:entryUrl a rdf:Property ;
+	rdfs:label "Entry URL" ;
+	rdfs:comment "URI to the element in certain position of the list" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:MediaFileListEntry ;
+	rdfs:range xsd:string ;
 	tracker:writeback true .
 
 nfo:height a rdf:Property ;
