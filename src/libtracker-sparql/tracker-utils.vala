@@ -17,6 +17,18 @@
  * Boston, MA  02110-1301, USA.
  */
 
+/**
+ * SECTION: tracker-misc
+ * @short_description: General purpose utilities provided by the library
+ * @title: Utilities
+ * @stability: Stable
+ * @include: tracker-sparql.h
+ *
+ * <para>
+ * The libtracker-sparql utilities help in the creation of proper SPARQL queries.
+ * </para>
+ */
+
 // Imported from tracker-uri.c
 public extern string tracker_sparql_escape_uri_vprintf (string format, va_list args);
 public extern string tracker_sparql_escape_uri_printf (string format, ...);
