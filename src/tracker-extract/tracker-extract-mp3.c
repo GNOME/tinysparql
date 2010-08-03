@@ -87,6 +87,7 @@ typedef struct {
 	gchar *comment;
 	gchar *content_type;
 	gchar *copyright;
+	gchar *encoded_by;
 	guint32 length;
 	gchar *performer1;
 	gchar *performer2;
@@ -109,6 +110,7 @@ typedef enum {
 	ID3V2_TAL,
 	ID3V2_TCO,
 	ID3V2_TCR,
+	ID3V2_TEN,
 	ID3V2_TLE,
 	ID3V2_TPB,
 	ID3V2_TP1,
@@ -129,6 +131,7 @@ typedef enum {
 	ID3V24_TCOP,
 	ID3V24_TDRC,
 	ID3V24_TDRL,
+	ID3V24_TENC,
 	ID3V24_TEXT,
 	ID3V24_TIT1,
 	ID3V24_TIT2,
@@ -159,6 +162,7 @@ typedef struct {
 	const gchar *genre;
 	const gchar *text;
 	const gchar *recording_time;
+	const gchar *encoded_by;
 	const gchar *copyright;
 	const gchar *publisher;
 	const gchar *comment;
@@ -208,6 +212,7 @@ static const struct {
 	{ "TCOP", ID3V24_TCOP },
 	{ "TDRC", ID3V24_TDRC },
 	{ "TDRL", ID3V24_TDRL },
+	{ "TENC", ID3V24_TENC },
 	{ "TOLY", ID3V24_TOLY },
 	{ "TEXT", ID3V24_TEXT },
 	{ "TIT1", ID3V24_TIT1 },
@@ -231,6 +236,7 @@ static const struct {
 	{ "TAL", ID3V2_TAL },
 	{ "TCO", ID3V2_TCO },
 	{ "TCR", ID3V2_TCR },
+	{ "TEN", ID3V2_TEN },
 	{ "TLE", ID3V2_TLE },
 	{ "TP1", ID3V2_TP1 },
 	{ "TP2", ID3V2_TP2 },
@@ -463,6 +469,7 @@ id3v2tag_free (id3v2tag *tags)
 	g_free (tags->publisher);
 	g_free (tags->recording_time);
 	g_free (tags->release_time);
+	g_free (tags->encoded_by);
 	g_free (tags->text);
 	g_free (tags->toly);
 	g_free (tags->title1);
@@ -1283,6 +1290,9 @@ get_id3v24_tags (const gchar          *data,
 				tag->release_time = tracker_date_guess (word);
 				g_free (word);
 				break;
+			case ID3V24_TENC:
+				tag->encoded_by = word;
+				break;
 			case ID3V24_TEXT:
 				tag->text = word;
 				break;
@@ -1488,6 +1498,9 @@ get_id3v23_tags (const gchar          *data,
 			case ID3V24_TCOP:
 				tag->copyright = word;
 				break;
+			case ID3V24_TENC:
+				tag->encoded_by = word;
+				break;
 			case ID3V24_TEXT:
 				tag->text = word;
 				break;
@@ -1639,6 +1652,9 @@ get_id3v20_tags (const gchar          *data,
 			}
 			case ID3V2_TCR:
 				tag->copyright = word;
+				break;
+			case ID3V2_TEN:
+				tag->encoded_by = word;
 				break;
 			case ID3V2_TLE:
 				tag->length = atoi (word) / 1000;
@@ -2039,6 +2055,10 @@ extract_mp3 (const gchar          *uri,
 	                                     md.id3v22.comment,
 	                                     md.id3v1.comment);
 
+	md.encoded_by = tracker_coalesce_strip (3, md.id3v24.encoded_by,
+						md.id3v23.encoded_by,
+						md.id3v22.encoded_by);
+
 	if (md.id3v24.track_number != 0) {
 		md.track_number = md.id3v24.track_number;
 	} else if (md.id3v23.track_number != 0) {
@@ -2194,6 +2214,11 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nco:fullname");
 		tracker_sparql_builder_object_unvalidated (metadata, md.publisher);
 		tracker_sparql_builder_object_blank_close (metadata);
+	}
+
+	if (md.encoded_by) {
+		tracker_sparql_builder_predicate (metadata, "nfo:encodedBy");
+		tracker_sparql_builder_object_unvalidated (metadata, md.encoded_by);
 	}
 
 	if (md.track_number > 0) {

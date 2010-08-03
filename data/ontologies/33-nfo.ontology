@@ -639,6 +639,14 @@ nfo:codec a rdf:Property ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:string .
 
+# FIXME Added property
+nfo:encodedBy a rdf:Property ;
+	rdfs:label "encodedBy" ;
+	rdfs:comment "The contains the name of the person or organisation that encoded the media" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:string .
+
 nfo:fontFamily a rdf:Property ;
 	rdfs:label "fontFamily" ;
 	rdfs:comment "The name of the font family." ;
