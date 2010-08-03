@@ -1,46 +1,42 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
-<!--!ENTITY tracker SYSTEM "xml/tracker.xml"-->
-<!--!ENTITY tracker-cancel SYSTEM "xml/tracker_cancel.xml"-->
-<!ENTITY tracker-misc SYSTEM "xml/tracker-misc.xml">
-<!--!ENTITY tracker-statistics SYSTEM "xml/tracker_statistics.xml"-->
-<!--!ENTITY tracker-resources SYSTEM "xml/tracker_resources.xml"-->
-<!--!ENTITY tracker-search SYSTEM "xml/tracker_search.xml"-->
 <!ENTITY tracker-sparql-builder SYSTEM "xml/tracker-sparql-builder.xml">
+<!ENTITY tracker-sparql-connection SYSTEM "xml/tracker-sparql-connection.xml">
+<!ENTITY tracker-sparql-cursor SYSTEM "xml/tracker-sparql-cursor.xml">
+<!ENTITY tracker-misc SYSTEM "xml/tracker-misc.xml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
   <bookinfo>
-    <title>Tracker Sparql Library Reference Manual</title>
+    <title>Tracker SPARQL Library Reference Manual</title>
     <releaseinfo>for libtracker-sparql &version;</releaseinfo>
   </bookinfo>
 
-  <part id="libtracker-sparql">
+  <part id="libtracker-sparql-overview">
     <title>Overview</title>
     <partintro>
       <para>
-        The libtracker-sparql library BLA BLA BLA...
-      </para>
-      <para>
+        The libtracker-sparql library is the foundation for Tracker
+        querying and inserting into the data store. The data store
+        allows both querying and inserting using SPARQL based on the
+        Nepomuk ontology.
       </para>
     </partintro>
   </part>
 
-    <chapter>
-      <title>General</title>
-<!--      &tracker; -->
-<!--      &tracker-cancel; -->
-      &tracker-misc;
-    </chapter>
-    <!--chapter>
-      <title>Querying</title>
-      &tracker-statistics;
-      &tracker-resources;
-      &tracker-search;
-    </chapter-->
-    <chapter>
-      <title>Building Queries</title>
-      &tracker-sparql-builder;
-    </chapter>
+  <part id="libtracker-sparql-reference">
+    <title>Reference</title>
+    <partintro>
+      <para>
+        This section provides the detailed API of the Tracker SPARQL library.
+      </para>
+    </partintro>
+
+    &tracker-sparql-builder;
+    &tracker-sparql-connection;
+    &tracker-sparql-cursor;
+    &tracker-misc;
+  </part>
+
 </book>
