@@ -26,7 +26,7 @@ public string tracker_sparql_escape_string (string literal) {
 	char *p = literal;
 
 	while (*p != '\0') {
-		size_t len = Posix.strcspn ((string) p, "\t\n\r\"\\");
+		size_t len = Posix.strcspn ((string) p, "\t\n\r\b\f\"\\");
 		str.append_len ((string) p, (long) len);
 		p += len;
 
