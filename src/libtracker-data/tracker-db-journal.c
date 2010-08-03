@@ -1167,6 +1167,14 @@ reader_next_file (GError **error)
 	if (reader.stream) {
 		g_object_unref (reader.stream);
 		reader.stream = NULL;
+
+		g_object_unref (reader.underlying_stream);
+		reader.underlying_stream = NULL;
+		if (reader.underlying_stream_info) {
+			g_object_unref (reader.underlying_stream_info);
+			reader.underlying_stream_info = NULL;
+		}
+
 	} else {
 		g_mapped_file_unref (reader.file);
 		reader.file = NULL;
@@ -1621,8 +1629,11 @@ tracker_db_journal_reader_get_statement_id (gint *g_id,
 gdouble
 tracker_db_journal_reader_get_progress (void)
 {
-	gdouble chunk = 0, total = 0;
+	gdouble chunk = 0, total = 0, ret = 0;
+	guint current_file;
 	static guint total_chunks = 0;
+
+	current_file = reader.current_file == 0 ? total_chunks -1 : reader.current_file -1;
 
 	if (!rotating_settings.rotate_progress_flag) {
 		gchar *test;
@@ -1671,15 +1682,17 @@ tracker_db_journal_reader_get_progress (void)
 	}
 
 	if (total_chunks > 0) {
-		total = ((gdouble) ((gdouble) reader.current_file) / ((gdouble) total_chunks));
+		total = ((gdouble) ((gdouble) current_file) / ((gdouble) total_chunks));
 	}
 
 	if (reader.start != 0) {
 		/* When the last uncompressed part is being processed: */
 		gdouble percent = ((gdouble)(reader.end - reader.start));
-		chunk = (((gdouble)(reader.current - reader.start)) / percent);
+		ret = chunk = (((gdouble)(reader.current - reader.start)) / percent);
 	} else if (reader.underlying_stream) {
 		goffset size;
+
+		/* When a compressed part is being processed: */
 
 		if (!reader.underlying_stream_info) {
 			reader.underlying_stream_info =
@@ -1690,11 +1703,15 @@ tracker_db_journal_reader_get_progress (void)
 
 		if (reader.underlying_stream_info) {
 			size = g_file_info_get_size (reader.underlying_stream_info);
-			chunk = (gdouble) ((gdouble)g_seekable_tell (G_SEEKABLE (reader.underlying_stream))) / ((gdouble)size);
+			ret = chunk = (gdouble) ((gdouble)g_seekable_tell (G_SEEKABLE (reader.underlying_stream))) / ((gdouble)size);
 		}
 	}
 
-	return total + chunk;
+	if (total_chunks > 0) {
+		ret = total + (chunk / (gdouble) total_chunks);
+	}
+
+	return ret;
 }
 
 #if GLIB_CHECK_VERSION (2, 24, 2)
