@@ -16,8 +16,9 @@
     <title>Connection methods</title>
 
     <para>
-      The Tracker SPARQL library provides several underlying methods to connect
-      to the Tracker Store:
+      The Tracker SPARQL library provides several underlying methods to perform
+      queries and updates to the Tracker Store.
+
       <itemizedlist>
 	<listitem>
 	  <emphasis>Direct Access:</emphasis>
@@ -64,6 +65,13 @@
 	  </para>
 	</listitem>
       </itemizedlist>
+    </para>
+
+    <para>
+      Please note that the user of the library <emphasis>cannot</emphasis> choose a specific
+      method to be used, as that is done automatically by the
+      <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+      depending on the available possibilities.
     </para>
   </chapter>
 
