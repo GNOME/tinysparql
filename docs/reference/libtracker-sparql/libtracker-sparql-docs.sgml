@@ -2,11 +2,12 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY version SYSTEM "version.xml">
+<!ENTITY tracker-overview SYSTEM "overview.sgml">
 <!ENTITY tracker-sparql-builder SYSTEM "xml/tracker-sparql-builder.xml">
 <!ENTITY tracker-sparql-connection SYSTEM "xml/tracker-sparql-connection.xml">
 <!ENTITY tracker-sparql-cursor SYSTEM "xml/tracker-sparql-cursor.xml">
 <!ENTITY tracker-misc SYSTEM "xml/tracker-misc.xml">
-<!ENTITY tracker-examples SYSTEM "examples.xml">
+<!ENTITY tracker-examples SYSTEM "examples.sgml">
 ]>
 <book id="index">
   <bookinfo>
@@ -15,17 +16,7 @@
   </bookinfo>
 
   <!-- The Library Overview -->
-  <part id="libtracker-sparql-overview">
-    <title>Overview</title>
-    <partintro>
-      <para>
-        The libtracker-sparql library is the foundation for Tracker
-        querying and inserting into the data store. The data store
-        allows both querying and inserting using SPARQL based on the
-        Nepomuk ontology.
-      </para>
-    </partintro>
-  </part>
+  &tracker-overview;
 
   <!-- The API Reference -->
   <part id="libtracker-sparql-reference">

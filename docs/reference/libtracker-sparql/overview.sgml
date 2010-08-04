@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding="ISO-8859-1"?>
+
+<part id="tracker-overview">
+  <title>Overview</title>
+  <partintro>
+    <para>
+      The libtracker-sparql library is the foundation for Tracker
+      querying and inserting into the data store. The data store
+      allows both querying and inserting using SPARQL based on the
+      Nepomuk ontology.
+    </para>
+  </partintro>
+
+
+  <chapter id="tracker-overview-connection-methods">
+    <title>Connection methods</title>
+
+    <para>
+      The Tracker SPARQL library provides several underlying methods to connect
+      to the Tracker Store:
+      <itemizedlist>
+	<listitem>
+	  <emphasis>Direct Access:</emphasis>
+	  <para>
+	    All Read-Only operations done in a
+	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+	    will by default use this method, as it doesn't involve any D-Bus traffic,
+	    and thus, it will perform much better. There is no real connection with
+	    the Tracker Store in this case, as the access is direct to the underlying
+	    SQLite database. Again, note that this method applies only to
+	    <emphasis>Read-Only</emphasis> operations.
+	  </para>
+	  <para>
+	    If you plan to only do Read-Only queries to the store, you can get the
+	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+	    object using <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function>. Otherwise, if you also plan to use the same connection object
+	    for updates, you must get the connection object with
+	    <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <emphasis>D-Bus FD passing:</emphasis>
+	  <para>
+	    If the system runs a D-Bus &ge; 1.3.1, the
+	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+	    will use the File Descriptor passing method via D-Bus to connect to the Store,
+	    which is faster than the plain D-Bus for queries involving a lot of traffic.
+	    This method will be used for all non read-only queries on
+	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+	    objects obtained with
+	    <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <emphasis>D-Bus:</emphasis>
+	  <para>
+	    If the system runs a D-Bus &lt; 1.3.1, the
+	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+	    will use the standard D-Bus method to connect to the Store.
+	    This method will be used for all non read-only queries on
+	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+	    objects obtained with
+	    <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+  </chapter>
+
+
+  <chapter id="tracker-overview-compiling">
+    <title>Compiling applications</title>
+
+    <para>
+      To compile applications using libtracker-sparql, you
+      need to tell the compiler where to find the proper header files
+      and libraries. This is done with the
+      <application>pkg-config</application> utility.
+    </para>
+
+    <para>
+      The following interactive shell session demonstrates how
+      <application>pkg-config</application> is used (the actual output on
+      your system may be different):
+<programlisting>
+$ pkg-config --cflags tracker-sparql-0.9
+ -pthread -I/usr/include/tracker-0.9 -I/usr/include/tracker-0.9/libtracker-sparql -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+
+$ pkg-config --libs tracker-sparql-0.9
+ -Wl,--export-dynamic -pthread -ltracker-sparql-0.9 -lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0
+</programlisting>
+    </para>
+    <para>
+      The simplest way to compile a program is to use the "backticks"
+      feature of the shell. If you enclose a command in backticks
+      (<emphasis>not single quotes</emphasis>), then its output will be
+      substituted into the command line before execution:
+<programlisting>
+ $ cc `pkg-config --cflags --libs tracker-sparql-0.9` hello.c -o hello
+</programlisting>
+    </para>
+
+  </chapter>
+
+</part>
+

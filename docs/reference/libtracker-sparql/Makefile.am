@@ -48,7 +48,7 @@ MKDB_OPTIONS = --sgml-mode --output-format=xml
 MKHTML_OPTIONS=--path="$(abs_builddir)"
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE)
-content_files =	version.xml
+content_files =	version.xml examples.sgml overview.sgml
 
 expand_content_files =
 
