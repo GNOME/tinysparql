@@ -16,61 +16,48 @@ zg: a tracker:Namespace, tracker:Ontology ;
 
 
 zg:EventInterpretation a rdfs:Class ;
-    rdfs:comment "Base class for event interpretations. Please do no instantiate directly, but use one of the sub classes. The interpretation of an event describes 'what happened' - fx. 'something was created' or 'something was accessed'" ;
+    rdfs:comment "Class for event interpretations. The interpretation of an event describes 'what happened' - fx. 'something was created' or 'something was accessed'" ;
     rdfs:subClassOf nie:InformationElement .
 
-zg:CreateEvent a rdfs:Class ;
+zg:create-event a zg:EventInterpretation;
     rdfs:comment "Event type triggered when an item is created" ;
-    rdfs:label "Created" ;
-    rdfs:subClassOf zg:EventInterpretation .
 
-zg:AccessEvent a rdfs:Class ;
+zg:access-event a zg:EventInterpretation ;
     rdfs:comment "Event triggered by opening, accessing, or starting a resource. Most zg:AccessEvents will have an accompanying zg:LeaveEvent, but this need not always be the case" ;
-    rdfs:subClassOf zg:EventInterpretation .
 
-zg:LeaveEvent a rdfs:Class ;
+zg:leave-event a zg:EventInterpretation ;
     rdfs:comment "Event triggered by closing, leaving, or stopping a resource. Most zg:LeaveEvents will be following a zg:Access event, but this need not always be the case" ;
-    rdfs:subClassOf zg:EventInterpretation .
 
-zg:ModifyEvent a rdfs:Class ;
+zg:modify-event a zg:EventInterpretation;
     rdfs:comment "Event triggered by modifying an existing resources. Fx. when editing and saving a file on disk or correcting a typo in the name of a contact" ;
-    rdfs:subClassOf zg:EventInterpretation .
 
-zg:DeleteEvent a rdfs:Class ;
+zg:delete-event a zg:EventInterpretation;
     rdfs:comment "Event triggered because a resource has been deleted or otherwise made permanently unavailable. Fx. when deleting a file. FIXME: How about when moving to trash?" ;
-    rdfs:subClassOf zg:EventInterpretation .
 
-zg:ReceiveEvent a rdfs:Class ;
+zg:receive-event a zg:EventInterpretation;
     rdfs:comment "Event triggered when something is received from an external party. The event manifestation must be set according to the world view of the receiving party. Most often the item that is being received will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" ;
-    rdfs:subClassOf zg:EventInterpretation .
 
-zg:SendEvent a rdfs:Class ;
+zg:send-event a zg:EventInterpretation;
     rdfs:comment "Event triggered when something is send to an external party. The event manifestation must be set according to the world view of the sending party. Most often the item that is being send will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" ;
-    rdfs:subClassOf zg:EventInterpretation .
 
 zg:EventManifestation a rdfs:Class ;
-    rdfs:comment "Base class for event manifestation types. Please do no instantiate directly, but use one of the sub classes. The manifestation of an event describes 'how it happened'. Fx. 'the user did this' or 'the system notified the user'" ;
+    rdfs:comment "Class for event manifestation types. The manifestation of an event describes 'how it happened'. Fx. 'the user did this' or 'the system notified the user'" ;
     rdfs:subClassOf nie:DataObject .
 
-zg:UserActivity a rdfs:Class ;
+zg:user-activity a zg:EventManifestation;
     rdfs:comment "An event that was actively performed by the user. For example saving or opening a file by clicking on it in the file manager" ;
-    rdfs:subClassOf zg:EventManifestation .
 
-zg:HeuristicActivity a rdfs:Class ;
+zg:heuristic-activity a zg:EventManifestation;
     rdfs:comment "An event that is caused indirectly from user activity or deducted via analysis of other events. Fx. if an algorithm divides a user workflow into disjoint 'projects' based on temporal analysis it could insert heuristic events when the user changed project" ;
-    rdfs:subClassOf zg:EventManifestation .
 
-zg:ScheduledActivity a rdfs:Class ;
+zg:scheduled-activity a zg:EventManifestation;
     rdfs:comment "An event that was directly triggered by some user initiated sequence of actions. For example a music player automatically changing to the next song in a playlist" ;
-    rdfs:subClassOf zg:EventManifestation .
 
-zg:WorldActivity a rdfs:Class ;
+zg:world-activity a zg:EventManifestation;
     rdfs:comment "An event that was performed by an entity, usually human or organization, other than the user. An example could be logging the activities of other people in a team" ;
-    rdfs:subClassOf zg:EventManifestation .
 
-zg:SystemNotification a rdfs:Class ;
+zg:system-notification a zg:EventManifestation;
     rdfs:comment "An event send to the user by the operating system. Examples could include when the user inserts a USB stick or when the system warns that the hard disk is full" ;
-    rdfs:subClassOf zg:EventManifestation .
 
 zg:Event a rdfs:Class ;
     rdfs:comment "Something that happened at a point in time. Events are categorized by two primary factors 'what happened' - called the interpretation and 'how did it happen' - called the manifestation. Aside from a timestamp, events can also carry a reference to the entity responsible for instantiating it - called the actor. Normally the event actor is an application, but it need not be. Events happen to zero or more subjects. The subjects are described using the Nepomuk ontologies." ;
@@ -108,17 +95,9 @@ zg:hasSubject a rdf:Property ;
     rdfs:label "subject" ;
     rdfs:range nie:InformationElement.
 
-zg:eventId a rdf:Property ;
-    nrl:maxCardinality 1 ;
-    rdfs:comment "A unique integer id assigned to an event by the logging framework when the event is first logged" ;
-    rdfs:domain zg:Event ;
-    rdfs:label "id" ;
-    rdfs:range xsd:integer .
-
 zg:Relation a rdf:Class ;
-    rdfs:comment "a weigthed relationship" ;
+    rdfs:comment "a weighted relationship" ;
     rdfs:subClassOf nie:InformationElement .
-
 
 zg:relationFrom a rdf:Property ;
     nrl:maxCardinality 1 ;
