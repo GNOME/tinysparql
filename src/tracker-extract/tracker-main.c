@@ -119,7 +119,9 @@ quit_timeout_cb (gpointer user_data)
 	quit_timeout_id = 0;
 
 	if (!disable_shutdown) {
-		g_main_loop_quit (main_loop);
+		if (main_loop) {
+			g_main_loop_quit (main_loop);
+		}
 	} else {
 		g_debug ("Would have quit the mainloop");
 	}
@@ -201,7 +203,6 @@ signal_handler (int signo)
 		in_loop = TRUE;
 		disable_shutdown = FALSE;
 		quit_timeout_cb (NULL);
-
 		/* Fall through */
 	default:
 		if (g_strsignal (signo)) {
@@ -339,6 +340,7 @@ main (int argc, char *argv[])
 	TrackerConfig  *config;
 	TrackerExtract *object;
 	gchar          *log_filename = NULL;
+	GMainLoop      *my_main_loop;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -466,7 +468,10 @@ main (int argc, char *argv[])
 	main_loop = g_main_loop_new (NULL, FALSE);
 	tracker_main_quit_timeout_reset ();
 	g_main_loop_run (main_loop);
-	g_main_loop_unref (main_loop);
+
+	my_main_loop = main_loop;
+	main_loop = NULL;
+	g_main_loop_unref (my_main_loop);
 
 	g_message ("Shutdown started");
 
