@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-15 20:56+0200\n"
-"PO-Revision-Date: 2010-07-13 07:27+0200\n"
+"POT-Creation-Date: 2010-08-04 08:56+0200\n"
+"PO-Revision-Date: 2010-07-17 10:41+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -126,7 +126,7 @@ msgstr "Štítky…"
 msgid "Tag one or more files"
 msgstr "Přiřadit štítek jednomu nebo více souborům"
 
-#: ../src/libtracker-common/tracker-dbus.c:589
+#: ../src/libtracker-common/tracker-dbus.c:586
 msgid "No error given"
 msgstr "Není uvedena žádná chyba"
 
@@ -412,11 +412,11 @@ msgstr "Byl by sledován"
 msgid "- start the tracker indexer"
 msgstr "- spustí indexovač tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1050
+#: ../src/miners/fs/tracker-miner-files.c:1053
 msgid "Low battery"
 msgstr "Nízká úroveň nabití baterie"
 
-#: ../src/miners/fs/tracker-miner-files.c:1178
+#: ../src/miners/fs/tracker-miner-files.c:1181
 msgid "Low disk space"
 msgstr "Málo místa na disku"
 
@@ -794,54 +794,54 @@ msgstr "Velikost:"
 msgid "Modified:"
 msgstr "Změněno:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:325
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:351
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
 msgid "Height:"
 msgstr "Výška:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:352
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
 msgid "Width:"
 msgstr "Šířka:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:337
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:385
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:390
 msgid "Title:"
 msgstr "Název:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:338
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
 msgid "Artist:"
 msgstr "Umělec:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
 msgid "Album:"
 msgstr "Album:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:353
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:356
 msgid "Duration:"
 msgstr "Délka:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:371
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:375
 msgid "Subject:"
 msgstr "Předmět:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:372
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:376
 msgid "From:"
 msgstr "Od:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:373
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:377
 msgid "Received:"
 msgstr "Přijato:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:386
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:391
 msgid "Author:"
 msgstr "Autor:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:387
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:392
 msgid "Page count:"
 msgstr "Počet stránek:"
 
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:412
+#: ../src/tracker-search-tool/tracker-metadata-tile.gs:418
 msgid "Description:"
 msgstr "Popis:"
 
@@ -898,7 +898,7 @@ msgstr ""
 #: ../src/tracker-control/tracker-control.c:99
 #: ../src/tracker-utils/tracker-import.c:51
 #: ../src/tracker-utils/tracker-info.c:50
-#: ../src/tracker-utils/tracker-search.c:123
+#: ../src/tracker-utils/tracker-search.c:128
 #: ../src/tracker-utils/tracker-sparql.c:93
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:116
@@ -1001,7 +1001,7 @@ msgstr "Umožnit v databázi pouze akce založené na čtení"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:362
+#: ../src/tracker-store/tracker-main.c:363
 msgid "- start the tracker daemon"
 msgstr "- spustí démona prohledávače Tracker"
 
@@ -1197,93 +1197,98 @@ msgstr "Nelze získat data pro identifikátor URI"
 msgid "No metadata available for that URI"
 msgstr "Pro tento identifikátor URI nejsou dostupná žádná metadata"
 
-#: ../src/tracker-utils/tracker-search.c:63
+#: ../src/tracker-utils/tracker-search.c:64
 #: ../src/tracker-utils/tracker-tag.c:56
 msgid "Limit the number of results shown"
 msgstr "Omezit množství zobrazených výsledků"
 
-#: ../src/tracker-utils/tracker-search.c:64
+#: ../src/tracker-utils/tracker-search.c:65
 #: ../src/tracker-utils/tracker-tag.c:57
 msgid "512"
 msgstr "512"
 
-#: ../src/tracker-utils/tracker-search.c:67
+#: ../src/tracker-utils/tracker-search.c:68
 #: ../src/tracker-utils/tracker-tag.c:60
 msgid "Offset the results"
 msgstr "Výsledky zobrazit od"
 
-#: ../src/tracker-utils/tracker-search.c:68
+#: ../src/tracker-utils/tracker-search.c:69
 #: ../src/tracker-utils/tracker-tag.c:61
 msgid "0"
 msgstr "0"
 
-#: ../src/tracker-utils/tracker-search.c:71
+#: ../src/tracker-utils/tracker-search.c:72
 #: ../src/tracker-utils/tracker-tag.c:64
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Pro hledané výrazy použít logickou spojku OR místo AND (výchozí)"
 
-#: ../src/tracker-utils/tracker-search.c:75
+#: ../src/tracker-utils/tracker-search.c:76
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists)"
+"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"feeds)"
 msgstr ""
 "Zobrazit názvy URN pro výsledky (nepoužívat pro --music-albums, --music-"
-"artists)"
+"artists, --feeds)"
 
-#: ../src/tracker-utils/tracker-search.c:79
+#: ../src/tracker-utils/tracker-search.c:80
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
 "Vrátit i nalezené, které zrovna neexistují (např. jsou na nepřipojeném "
 "svazku)"
 
-#: ../src/tracker-utils/tracker-search.c:83
+#: ../src/tracker-utils/tracker-search.c:84
 msgid "Search for files"
 msgstr "Hledat soubory"
 
-#: ../src/tracker-utils/tracker-search.c:87
+#: ../src/tracker-utils/tracker-search.c:88
 msgid "Search for folders"
 msgstr "Hledat složky"
 
-#: ../src/tracker-utils/tracker-search.c:91
+#: ../src/tracker-utils/tracker-search.c:92
 msgid "Search for music files"
 msgstr "Hledat hudební soubory"
 
-#: ../src/tracker-utils/tracker-search.c:95
+#: ../src/tracker-utils/tracker-search.c:96
 msgid "Search for music albums (--all has no effect on this)"
 msgstr "Hledat hudební alba  (přepínač --all nemá u tohoto vliv)"
 
-#: ../src/tracker-utils/tracker-search.c:99
+#: ../src/tracker-utils/tracker-search.c:100
 msgid "Search for music artists (--all has no effect on this) "
 msgstr "Hledat hudební umělce (přepínač --all nemá u tohoto vliv)"
 
-#: ../src/tracker-utils/tracker-search.c:103
+#: ../src/tracker-utils/tracker-search.c:104
 msgid "Search for image files"
 msgstr "Hledat soubory s obrázky"
 
-#: ../src/tracker-utils/tracker-search.c:107
+#: ../src/tracker-utils/tracker-search.c:108
 msgid "Search for video files"
 msgstr "Hledat soubory s videem"
 
-#: ../src/tracker-utils/tracker-search.c:111
+#: ../src/tracker-utils/tracker-search.c:112
 msgid "Search for document files"
 msgstr "Hledat soubory s dokumenty"
 
-#: ../src/tracker-utils/tracker-search.c:115
+#: ../src/tracker-utils/tracker-search.c:116
 msgid "Search for emails"
 msgstr "Hledat e-maily"
 
-#: ../src/tracker-utils/tracker-search.c:119
+#: ../src/tracker-utils/tracker-search.c:120
 msgid "Search for contacts"
 msgstr "Hledat kontakty"
 
-#: ../src/tracker-utils/tracker-search.c:128
+#: ../src/tracker-utils/tracker-search.c:124
+msgid "Search for feeds (--all has no effect on this) "
+msgstr "Hledat kanály (přepínač --all nemá u tohoto vliv)"
+
+#: ../src/tracker-utils/tracker-search.c:133
 msgid "search terms"
 msgstr "vyhledávací podmínky"
 
-#: ../src/tracker-utils/tracker-search.c:129
+#: ../src/tracker-utils/tracker-search.c:134
 msgid "EXPRESSION"
 msgstr "VÝRAZ"
 
-#: ../src/tracker-utils/tracker-search.c:146
+#: ../src/tracker-utils/tracker-search.c:151
 #: ../src/tracker-utils/tracker-tag.c:111
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
@@ -1291,57 +1296,62 @@ msgstr ""
 "UPOZORNĚNÍ: Bylo překročeno omezení, v databázi je více položek, ale zde "
 "nejsou vypsané"
 
-#: ../src/tracker-utils/tracker-search.c:216
-#: ../src/tracker-utils/tracker-search.c:325
-#: ../src/tracker-utils/tracker-search.c:440
-#: ../src/tracker-utils/tracker-search.c:737
-#: ../src/tracker-utils/tracker-search.c:815
-#: ../src/tracker-utils/tracker-search.c:1063
+#: ../src/tracker-utils/tracker-search.c:221
+#: ../src/tracker-utils/tracker-search.c:330
+#: ../src/tracker-utils/tracker-search.c:445
+#: ../src/tracker-utils/tracker-search.c:742
+#: ../src/tracker-utils/tracker-search.c:820
+#: ../src/tracker-utils/tracker-search.c:907
+#: ../src/tracker-utils/tracker-search.c:1155
 msgid "Could not get search results"
 msgstr "Nelze získat výsledky hledání"
 
-#: ../src/tracker-utils/tracker-search.c:225
+#: ../src/tracker-utils/tracker-search.c:230
 msgid "No contacts were found"
 msgstr "Nebyl nalezen žádný kontakt"
 
-#: ../src/tracker-utils/tracker-search.c:334
+#: ../src/tracker-utils/tracker-search.c:339
 msgid "No emails were found"
 msgstr "Nebyl nalezen žádný e-mail"
 
-#: ../src/tracker-utils/tracker-search.c:449
+#: ../src/tracker-utils/tracker-search.c:454
 msgid "No files were found"
 msgstr "Nebyl nalezen žádný soubor"
 
-#: ../src/tracker-utils/tracker-search.c:746
+#: ../src/tracker-utils/tracker-search.c:751
 msgid "No artists were found"
 msgstr "Nenalezen žádný umělec"
 
-#: ../src/tracker-utils/tracker-search.c:824
+#: ../src/tracker-utils/tracker-search.c:829
 msgid "No music was found"
 msgstr "Nenalezena žádná hudba"
 
-#: ../src/tracker-utils/tracker-search.c:1072
+#: ../src/tracker-utils/tracker-search.c:916
+msgid "No feeds were found"
+msgstr "Nebyl nalezen žádný kanál"
+
+#: ../src/tracker-utils/tracker-search.c:1164
 msgid "No results were found matching your query"
 msgstr "Nebyly nalezeny žádné výsledky odpovídající vašemu dotazu"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:1112
+#: ../src/tracker-utils/tracker-search.c:1204
 msgid "- Search for terms in all data"
 msgstr "- hledá výraz ve všech datech"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:1117
+#: ../src/tracker-utils/tracker-search.c:1209
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "Pro všechny výrazy oddělené mezerami se použije logický operátor AND (viz "
 "také --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1121
+#: ../src/tracker-utils/tracker-search.c:1213
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -1349,16 +1359,16 @@ msgstr ""
 "To znamená, že když hledáte např. „včerejší“ a „den“, musí existovat OBOJE "
 "(jedině že byste použili --or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1148
+#: ../src/tracker-utils/tracker-search.c:1241
 msgid "Search terms are missing"
 msgstr "Scházejí podmínky vyhledávání"
 
-#: ../src/tracker-utils/tracker-search.c:1191
+#: ../src/tracker-utils/tracker-search.c:1284
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "Hledaný výraz „%s“ je stop slovo."
 
-#: ../src/tracker-utils/tracker-search.c:1202
+#: ../src/tracker-utils/tracker-search.c:1295
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -1366,7 +1376,7 @@ msgstr ""
 "Stop slova jsou běžná slova, která ale smí být během procesu indexace "
 "ignorována."
 
-#: ../src/tracker-utils/tracker-search.c:1217
+#: ../src/tracker-utils/tracker-search.c:1310
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "Nelze vytvořit spojení DBus k prohledávači Tracker"
 
