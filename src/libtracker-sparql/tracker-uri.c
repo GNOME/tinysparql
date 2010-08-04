@@ -139,8 +139,6 @@ find_conversion (const char  *format,
  *
  * Returns: a newly-allocated string holding the result.
  *  The returned string should be freed with g_free() when no longer needed.
- *
- * Since: 0.9
  */
 gchar *
 tracker_sparql_escape_uri_vprintf (const gchar *format,
@@ -243,8 +241,6 @@ cleanup:
  *
  * Returns: a newly-allocated string holding the result.
  *  The returned string should be freed with g_free() when no longer needed.
- *
- * Since: 0.9
  */
 gchar *
 tracker_sparql_escape_uri_printf (const gchar *format, ...)

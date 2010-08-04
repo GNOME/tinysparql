@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
 <!ENTITY tracker-sparql-builder SYSTEM "xml/tracker-sparql-builder.xml">
 <!ENTITY tracker-sparql-connection SYSTEM "xml/tracker-sparql-connection.xml">
 <!ENTITY tracker-sparql-cursor SYSTEM "xml/tracker-sparql-cursor.xml">
 <!ENTITY tracker-misc SYSTEM "xml/tracker-misc.xml">
-<!ENTITY version SYSTEM "version.xml">
+<!ENTITY tracker-examples SYSTEM "examples.xml">
 ]>
 <book id="index">
   <bookinfo>
@@ -13,6 +14,7 @@
     <releaseinfo>for libtracker-sparql &version;</releaseinfo>
   </bookinfo>
 
+  <!-- The Library Overview -->
   <part id="libtracker-sparql-overview">
     <title>Overview</title>
     <partintro>
@@ -25,6 +27,7 @@
     </partintro>
   </part>
 
+  <!-- The API Reference -->
   <part id="libtracker-sparql-reference">
     <title>Reference</title>
     <partintro>
@@ -38,5 +41,8 @@
     &tracker-sparql-cursor;
     &tracker-misc;
   </part>
+
+  <!-- The Examples -->
+  &tracker-examples;
 
 </book>

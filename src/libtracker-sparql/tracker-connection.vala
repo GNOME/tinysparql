@@ -71,7 +71,7 @@ public errordomain Tracker.Sparql.Error {
 /**
  * TrackerSparqlConnection:
  *
- * The <structname>TrackerSparqlConnection</structname> object represents an
+ * The <structname>TrackerSparqlConnection</structname> object represents a
  * connection with the Tracker Store.
  */
 public abstract class Tracker.Sparql.Connection : Object {
@@ -84,7 +84,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @error: #GError for error reporting.
 	 *
 	 * Returns a new #TrackerSparqlConnection, which will use the best method
-	 * available to connect to the Tracker Store.
+	 * available to connect to the Tracker Store (direct-access for Read-Only
+	 * queries, and D-Bus otherwise).
 	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
@@ -108,7 +109,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @error: #GError for error reporting.
 	 *
 	 * Returns a new #TrackerSparqlConnection, which uses direct-access method
-	 * to connect to the Tracker Store.
+	 * to connect to the Tracker Store. Note that this connection will only be
+	 * able to perform Read-Only queries in the store.
 	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
@@ -200,9 +202,9 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Executes a SPARQL query on the store. The API call is completely
 	 * synchronous, so it may block.
 	 *
-	 * Returns: a #TrackerSparqlCursor to iterate the reply if successful, #NULL
-	 * on error. Call g_object_unref() on the returned cursor when no longer
-	 * needed.
+	 * Returns: a #TrackerSparqlCursor if results were found, #NULL otherwise.
+	 * On error, #NULL is returned and the @error is set accordingly.
+	 * Call g_object_unref() on the returned cursor when no longer needed.
 	 */
 	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error;
 
@@ -226,9 +228,9 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Finishes the asynchronous SPARQL query operation.
 	 *
-	 * Returns: a #TrackerSparqlCursor to iterate the reply if successful, #NULL
-	 * on error. Call g_object_unref() on the returned cursor when no longer
-	 * needed.
+	 * Returns: a #TrackerSparqlCursor if results were found, #NULL otherwise.
+	 * On error, #NULL is returned and the @error is set accordingly.
+	 * Call g_object_unref() on the returned cursor when no longer needed.
 	 */
 	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error;
 

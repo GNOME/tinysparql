@@ -80,12 +80,13 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	/**
 	 * tracker_sparql_cursor_get_string:
 	 * @self: a #TrackerSparqlCursor
-	 * @column: column number to retrieve
+	 * @column: column number to retrieve (first one is 0)
 	 * @length: length of the returned string
 	 *
 	 * Returns the string at @column in the current row being iterated.
 	 *
-	 * Returns: a string, which should not be freed by the caller.
+	 * Returns: a string, which should not be freed by the caller. #NULL
+	 * is returned if the column number is in the [0,#n_columns] range.
 	 */
 	public abstract unowned string? get_string (int column, out long length = null);
 
