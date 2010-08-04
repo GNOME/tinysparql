@@ -1844,6 +1844,7 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/miners/Makefile
 	data/ontologies/Makefile
+	data/tracker-sparql.pc
 	data/tracker-client.pc
 	data/tracker-extract.pc
 	data/tracker-miner.pc

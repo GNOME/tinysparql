@@ -61,9 +61,13 @@ endif
 # Set up pkg-config .pc files for exported libraries
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = 					\
+	tracker-sparql-$(TRACKER_API_VERSION).pc	\
 	tracker-client-$(TRACKER_API_VERSION).pc	\
 	tracker-extract-$(TRACKER_API_VERSION).pc	\
 	tracker-miner-$(TRACKER_API_VERSION).pc
+
+tracker-sparql-$(TRACKER_API_VERSION).pc: tracker-sparql.pc
+	cp $< $@
 
 tracker-client-$(TRACKER_API_VERSION).pc: tracker-client.pc
 	cp $< $@
@@ -77,6 +81,7 @@ tracker-miner-$(TRACKER_API_VERSION).pc: tracker-miner.pc
 CLEANFILES = 						\
 	$(autostart_DATA) 				\
 	$(desktop_in_files)				\
+	tracker-sparql-$(TRACKER_API_VERSION).pc	\
 	tracker-client-$(TRACKER_API_VERSION).pc	\
 	tracker-extract-$(TRACKER_API_VERSION).pc	\
 	tracker-miner-$(TRACKER_API_VERSION).pc
