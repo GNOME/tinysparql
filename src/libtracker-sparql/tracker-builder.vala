@@ -35,38 +35,6 @@
  * When using #TrackerSparqlBuilder, note that you may append several predicates
  * for the same subject, and several objects for the same predicate.
  * </para>
- *
- * <example id="example-sparql-builder">
- *   <title>Using TrackerSparqlBuilder</title>
- *   <programlisting>
- *   TrackerSparqlBuilder *builder;
- *   const gchar *iri = "urn:example:0001";
- *   gchar *query_str;
- * &nbsp;&nbsp;
- *   /&ast; Create builder &ast;/
- *   builder = tracker_sparql_builder_new_update ();
- * &nbsp;&nbsp;
- *   /&ast; Drop previous data &ast;/
- *   tracker_sparql_builder_drop_graph (builder, iri);
- * &nbsp;&nbsp;
- *   /&ast; Insert new data &ast;/
- *   tracker_sparql_builder_insert_open (builder, iri);
- * &nbsp;&nbsp;
- *   tracker_sparql_builder_subject_iri (builder, iri);
- * &nbsp;&nbsp;
- *   tracker_sparql_builder_predicate (builder, "a");
- *   tracker_sparql_builder_object (builder, "nie:DataObject");
- *   tracker_sparql_builder_object (builder, "nfo:FileDataObject");
- * &nbsp;&nbsp;
- *   tracker_sparql_builder_predicate (builder, "nfo:fileLastModified");
- *   tracker_sparql_builder_object_date (builder, time (NULL));
- * &nbsp;&nbsp;
- *   tracker_sparql_builder_insert_close (builder);
- * &nbsp;&nbsp;
- *   /&ast; Get query as string &ast;/
- *   query_str = tracker_sparql_builder_get_result (builder);
- *   </programlisting>
- * </example>
  */
 
 
