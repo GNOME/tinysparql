@@ -115,4 +115,34 @@ zg:eventId a rdf:Property ;
     rdfs:label "id" ;
     rdfs:range xsd:integer .
 
+zg:Relation a rdf:Class ;
+    rdfs:comment "a weigthed relationship" ;
+    rdfs:subClassOf nie:InformationElement .
+
+
+zg:relationFrom a rdf:Property ;
+    nrl:maxCardinality 1 ;
+    rdfs:domain zg:Relation ;
+    rdfs:range nie:InformationElement;
+
+zg:relationTo a rdf:Property ;
+    nrl:maxCardinality 1 ;
+    rdfs:domain zg:Relation ;
+    rdfs:range nie:InformationElement;
+
+zg:relationWeight a rdf:Property;
+    nrl:maxCardinality 1 ;
+    rdfs:domain zg:Relation ;
+    rdfs:range xsd:double;
+
+zg:relationExpires  a rdf:Property;
+    nrl:maxCardinality 1 ;
+    rdfs:domain zg:Relation ;
+    rdfa:range xsd:dateTime;
+
+
+
+
+
+
 
