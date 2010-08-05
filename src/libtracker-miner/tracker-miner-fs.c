@@ -1470,21 +1470,6 @@ item_add_or_update (TrackerMinerFS *fs,
 		}
 
 		parent_urn = fs->private->current_iri_cache_parent_urn;
-
-		/* Check if we are trying to update/create a file where its parent still
-		 * doesn't exist */
-		if (parent && !parent_urn) {
-			gchar *uri;
-			gchar *parent_uri;
-
-			uri = g_file_get_uri (file);
-			parent_uri = g_file_get_uri (parent);
-			g_debug ("Adding to process item '%s' where parent '%s' still "
-			         "doesn't exist in store...", uri, parent_uri);
-			g_free (uri);
-			g_free (parent_uri);
-		}
-
 		g_object_unref (parent);
 	}
 
