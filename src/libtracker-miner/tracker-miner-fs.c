@@ -1960,6 +1960,35 @@ fill_in_queue (TrackerMinerFS       *fs,
 	}
 }
 
+
+static gboolean
+should_wait (TrackerMinerFS *fs,
+             GFile          *file)
+{
+	GFile *parent;
+
+	/* Is the item already being processed? */
+	if (process_data_find (fs, file, TRUE)) {
+		/* Yes, a previous event on same item currently
+		 * being processed */
+		return TRUE;
+	}
+
+	/* Is the item's parent being processed right now? */
+	parent = g_file_get_parent (file);
+	if (parent) {
+		if (process_data_find (fs, parent, TRUE)) {
+			/* Yes, a previous event on the parent of this item
+			 * currently being processed */
+			g_object_unref (parent);
+			return TRUE;
+		}
+
+		g_object_unref (parent);
+	}
+	return FALSE;
+}
+
 static QueueState
 item_queue_get_next_file (TrackerMinerFS  *fs,
                           GFile          **file,
@@ -1978,7 +2007,9 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			return QUEUE_IGNORE_NEXT_UPDATE;
 		}
 
-		if (process_data_find (fs, queue_file, TRUE)) {
+		/* If the same item OR its first parent is currently being processed,
+		 * we need to wait for this event */
+		if (should_wait (fs, queue_file)) {
 			*file = NULL;
 			/* Need to postpone event... */
 			g_queue_push_head (fs->private->items_deleted,
@@ -2024,7 +2055,9 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			return QUEUE_IGNORE_NEXT_UPDATE;
 		}
 
-		if (process_data_find (fs, queue_file, TRUE)) {
+		/* If the same item OR its first parent is currently being processed,
+		 * we need to wait for this event */
+		if (should_wait (fs, queue_file)) {
 			*file = NULL;
 			/* Need to postpone event... */
 			g_queue_push_head (fs->private->items_created,
@@ -2046,7 +2079,9 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		if (check_ignore_next_update (fs, queue_file))
 			return QUEUE_IGNORE_NEXT_UPDATE;
 
-		if (process_data_find (fs, queue_file, TRUE)) {
+		/* If the same item OR its first parent is currently being processed,
+		 * we need to wait for this event */
+		if (should_wait (fs, queue_file)) {
 			*file = NULL;
 			/* Need to postpone event... */
 			g_queue_push_head (fs->private->items_updated,
@@ -2067,8 +2102,10 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			return QUEUE_IGNORE_NEXT_UPDATE;
 		}
 
-		if (process_data_find (fs, data->file, TRUE) ||
-		    process_data_find (fs, data->source_file, TRUE)) {
+		/* If the same item OR its first parent is currently being processed,
+		 * we need to wait for this event */
+		if (should_wait (fs, data->file) ||
+		    should_wait (fs, data->source_file)) {
 			*file = NULL;
 			*source_file = NULL;
 			/* Need to postpone event... */
