@@ -1,3 +1,37 @@
+NEW in 0.9.15 - 2010-08-05
+==========================
+
+The changes are:
+
+  * Require GLib 2.24
+  * Fixes: NB#172390, Tracker doesn't return any content from m3u playlists
+  * Fixes: NB#179570, FTS search of file extension doesn't always work
+  * Fixes: NB#180803, Busy-handling race condition
+  * Fixes: NB#181112, Fix GStreamer pipeline error handling
+  * Fixes: NB#181538, Assume tar program is in $PATH
+  * Fixes: NB#182131, Tracker isn't using resource tokens to protect its interfaces
+  * Fixes: NB#182788, segfault during opendir()
+  * Fixes: NB#183307, Crash in quit_timeout_cb when signal_handler calls it
+  * Fixes: NB#183653, Class notification signals are lost
+  * Ontology, MTP: Fix mtp:hidden
+  * libtracker-data: Support for SPARQL 1.1's IN operator
+  * libtracker-data: Implement progress indication for rotated journals
+  * tracker-store: Queue queries while busy
+  * Add first version of FTS functional test cases
+  * Add functional test case for busy-handling
+
+Translations:
+  * Updated hu: Gabor Kelemen
+  * Updated nds: Nils-Christoph Fiedler
+  * Updated se: Daniel Nylander
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.9.14 - 2010-07-23
 ==========================
 
