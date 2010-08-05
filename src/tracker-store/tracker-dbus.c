@@ -251,9 +251,6 @@ tracker_dbus_register_notifier (void)
 gboolean
 tracker_dbus_register_objects (void)
 {
-	TrackerDBResultSet *result_set;
-	GSList *event_sources = NULL;
-	GStrv classes, p;
 	gpointer object, resources;
 
 	if (!connection || !gproxy) {
@@ -328,6 +325,25 @@ tracker_dbus_register_objects (void)
 		                      TRACKER_BACKUP_PATH);
 		/* Backup object isn't part of the linked list, set_available wouldn't
 		 * work correctly from the dbus call otherwise */
+	}
+
+	return TRUE;
+	
+}
+
+gboolean
+tracker_dbus_register_class_signal_objects (void)
+{
+	TrackerDBResultSet *result_set;
+	GSList *event_sources = NULL;
+	GStrv classes, p;
+	gpointer object, resources;
+
+	resources = tracker_dbus_get_object (TRACKER_TYPE_RESOURCES);
+
+	if (!resources) {
+		g_message ("Error during initialization, Resources DBus object not available");
+		return TRUE;
 	}
 
 	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
