@@ -11,7 +11,7 @@
 
 mtp: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "mtp" ;
-	nao:lastModified "2010-02-16T11:00:00Z" .
+	nao:lastModified "2010-08-05T13:00:00Z" .
 
 #
 # This ontology "decorates" nmm and nfo to include properties required
@@ -47,8 +47,8 @@ mtp:scantype a rdf:Property ;
 mtp:hidden a rdf:Property ;
 	 rdfs:label "Hidden" ;
 	 rdfs:comment "Hidden for the MTP protocol" ;
-	 rdfs:range nfo:Media ;
-	 rdfs:domain xsd:boolean .
+	 rdfs:domain nfo:Media ;
+	 rdfs:range xsd:boolean .
 
 mtp:credits a rdf:Property ;
 	rdfs:label "MTP credits" ;
