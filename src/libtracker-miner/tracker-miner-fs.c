@@ -2728,16 +2728,16 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 {
 	TrackerMinerFS *fs;
 	gboolean should_process = TRUE;
-	gchar *path;
+	gchar *uri;
 
 	fs = user_data;
 	should_process = should_check_file (fs, file, is_directory);
 
-	path = g_file_get_path (file);
+	uri = g_file_get_uri (file);
 
 	g_debug ("%s:'%s' (%s) (create monitor event or user request)",
 	         should_process ? "Found " : "Ignored",
-	         path,
+	         uri,
 	         is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
@@ -2752,7 +2752,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 		}
 	}
 
-	g_free (path);
+	g_free (uri);
 }
 
 static void
@@ -2763,16 +2763,16 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 {
 	TrackerMinerFS *fs;
 	gboolean should_process;
-	gchar *path;
+	gchar *uri;
 
 	fs = user_data;
 	should_process = should_check_file (fs, file, is_directory);
 
-	path = g_file_get_path (file);
+	uri = g_file_get_uri (file);
 
 	g_debug ("%s:'%s' (%s) (update monitor event or user request)",
 	         should_process ? "Found " : "Ignored",
-	         path,
+	         uri,
 	         is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
@@ -2782,7 +2782,7 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 		item_queue_handlers_set_up (fs);
 	}
 
-	g_free (path);
+	g_free (uri);
 }
 
 static void
@@ -2793,15 +2793,16 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 {
 	TrackerMinerFS *fs;
 	gboolean should_process;
-	gchar *path;
+	gchar *uri;
 
 	fs = user_data;
 	should_process = should_check_file (fs, file, is_directory);
-	path = g_file_get_path (file);
+
+	uri = g_file_get_uri (file);
 
 	g_debug ("%s:'%s' (%s) (delete monitor event or user request)",
 	         should_process ? "Found " : "Ignored",
-	         path,
+	         uri,
 	         is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
@@ -2832,7 +2833,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	}
 #endif
 
-	g_free (path);
+	g_free (uri);
 }
 
 static void
