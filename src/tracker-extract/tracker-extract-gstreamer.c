@@ -1219,6 +1219,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	if (use_tagreadbin) {
 		if (!poll_for_ready (extractor, GST_STATE_PLAYING, FALSE, TRUE)) {
 			g_warning ("Error running tagreadbin");
+			gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 			gst_object_unref (GST_OBJECT (extractor->pipeline));
 			gst_object_unref (extractor->bus);
 			g_slice_free (MetadataExtractor, extractor);
@@ -1227,6 +1228,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	} else {
 		if (!poll_for_ready (extractor, GST_STATE_PAUSED, TRUE, FALSE)) {
 			g_warning ("Error running decodebin");
+			gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 			gst_object_unref (GST_OBJECT (extractor->pipeline));
 			gst_object_unref (extractor->bus);
 			g_slice_free (MetadataExtractor, extractor);
