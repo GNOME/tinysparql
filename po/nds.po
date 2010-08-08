@@ -1,14 +1,14 @@
 # Low German translation for tracker.
 # Copyright (C) 2009 tracker's COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
-# Nils-Christoph Fiedler <fiedler@medienkompanie.de>, 2009.
+# Nils-Christoph Fiedler <ncfiedler@gnome.org>, 2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
 "POT-Creation-Date: 2009-11-28 11:59+0000\n"
-"PO-Revision-Date: 2010-08-03 15:31+0100\n"
+"PO-Revision-Date: 2010-08-08 15:26+0100\n"
 "Last-Translator: Nils-Christoph Fiedler <ncfiedler@gnome.org>\n"
 "Language-Team: Low German <nds-lowgerman@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -159,7 +159,7 @@ msgstr ""
 #: ../python/deskbar-handler/tracker-handler.py:390
 #: ../python/deskbar-handler/tracker-module.py:295
 msgid "Development Files"
-msgstr ""
+msgstr "Entwickelndateien"
 
 #: ../python/deskbar-handler/tracker-handler.py:393
 #: ../python/deskbar-handler/tracker-module.py:298
@@ -220,7 +220,7 @@ msgstr "unbekannte Tied"
 #: ../src/libtracker-common/tracker-utils.c:163
 #: ../src/libtracker-common/tracker-utils.c:214
 msgid "less than one second"
-msgstr ""
+msgstr "weniger as eene Sekunn"
 
 #. Translators: this is %d days
 #: ../src/libtracker-common/tracker-utils.c:178
@@ -393,7 +393,7 @@ msgstr ""
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:671
 #, c-format
 msgid "Author : <b>%s</b>"
-msgstr ""
+msgstr "Schriever : <b>%s</b>"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:643
 #, c-format
@@ -972,7 +972,7 @@ msgstr[1] "%d PIDs funnen…"
 #: ../src/tracker-control/tracker-control.c:271
 #, c-format
 msgid "Could not open '%s'"
-msgstr ""
+msgstr "Künn '%s' nich opmaken"
 
 #: ../src/tracker-control/tracker-control.c:293
 #, c-format
@@ -1331,7 +1331,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:347
 msgid "No properties were found"
-msgstr ""
+msgstr "Keene Eegenschapten funnen"
 
 #: ../src/tracker-utils/tracker-sparql.c:350
 #, c-format
@@ -1346,15 +1346,15 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:381
 msgid "Could not read file"
-msgstr ""
+msgstr "Künn Datei nich lesen"
 
 #: ../src/tracker-utils/tracker-sparql.c:400
 msgid "Could not run update"
-msgstr ""
+msgstr "Künn nich opfrischen"
 
 #: ../src/tracker-utils/tracker-sparql.c:435
 msgid "Could not run query"
-msgstr ""
+msgstr "Künn nich avfragen"
 
 #: ../src/tracker-utils/tracker-sparql.c:444
 msgid "No results found matching your query"
@@ -1372,7 +1372,7 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-stats.c:124
 msgid "No statistics available"
-msgstr ""
+msgstr "Keene Statistiken verfögbar"
 
 #: ../src/tracker-utils/tracker-stats.c:127
 msgid "Statistics:"
@@ -1439,7 +1439,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-status.c:172
 #, c-format
 msgid "Cookie is %d"
-msgstr ""
+msgstr "Cookie is %dC"
 
 #: ../src/tracker-utils/tracker-status.c:186
 #, c-format
@@ -1459,7 +1459,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-status.c:256
 #: ../src/tracker-utils/tracker-status.c:264
 msgid "Progress"
-msgstr ""
+msgstr "Tostand"
 
 #: ../src/tracker-utils/tracker-status.c:259
 msgid "Status"
@@ -1587,7 +1587,7 @@ msgstr[1] "Tags: %d (opwiest nah Naam)"
 
 #: ../src/tracker-utils/tracker-tag.c:450
 msgid "Could not add tag"
-msgstr ""
+msgstr "Künn Slötelwoord nich hentofögen"
 
 #: ../src/tracker-utils/tracker-tag.c:458
 msgid "Tag was added successfully"
@@ -1630,7 +1630,7 @@ msgstr ""
 
 #: ../python/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
-msgstr ""
+msgstr "Spiekerte Avfragen"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "<b>Notification area</b>"
@@ -1670,11 +1670,11 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:10
 msgid "Faster"
-msgstr ""
+msgstr "Schneller"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:11
 msgid "Files"
-msgstr ""
+msgstr "Dateien"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:12
 msgid "General"
@@ -1728,7 +1728,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:25
 msgid "Slower"
-msgstr ""
+msgstr "Langsamer"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:26
 msgid "Start up"
@@ -1756,11 +1756,11 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:32
 msgid "_Disk space:"
-msgstr ""
+msgstr "_Spiekerruum:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:33
 msgid "_Never display icon"
-msgstr ""
+msgstr "_Lütte Billers nienich opwiesen"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:34
 msgid "_Only display when indexing content"
