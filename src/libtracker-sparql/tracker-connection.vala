@@ -238,13 +238,14 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * tracker_sparql_connection_update:
 	 * @self: a #TrackerSparqlConnection
 	 * @sparql: string containing the SPARQL update query
+	 * @priority: the priority for the operation
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
 	 * Executes a SPARQL update on the store. The API call is completely
 	 * synchronous, so it may block.
 	 */
-	public virtual void update (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
+	public virtual void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'update' not implemented");
 	}
 
@@ -277,6 +278,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * tracker_sparql_connection_update_blank:
 	 * @self: a #TrackerSparqlConnection
 	 * @sparql: string containing the SPARQL update query
+	 * @priority: the priority for the operation
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
@@ -287,7 +289,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a #GVariant with the generated URNs, which should be freed with
 	 * g_variant_unref() when no longer used.
 	 */
-	public virtual GLib.Variant? update_blank (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
+	public virtual GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
 		warning ("Interface 'update_blank' not implemented");
 		return null;
 	}

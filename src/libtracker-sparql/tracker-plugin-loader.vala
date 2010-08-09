@@ -55,12 +55,12 @@ class Tracker.Sparql.PluginLoader : Connection {
 		}
 	}
 
-	public override void update (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
-		bus.update (sparql, cancellable);
+	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+		bus.update (sparql, priority, cancellable);
 	}
 
-	public override GLib.Variant? update_blank (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
-		return bus.update_blank (sparql, cancellable);
+	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+		return bus.update_blank (sparql, priority, cancellable);
 	}
 
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
