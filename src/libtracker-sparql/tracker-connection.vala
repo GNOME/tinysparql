@@ -90,7 +90,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
 	 */
-	public static Connection get () throws Sparql.Error {
+	public static new Connection get () throws Sparql.Error {
 		if (singleton != null) {
 			assert (!direct_only);
 			return singleton;
