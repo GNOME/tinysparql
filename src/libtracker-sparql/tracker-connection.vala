@@ -325,47 +325,6 @@ public abstract class Tracker.Sparql.Connection : Object {
 	}
 
 	/**
-	 * tracker_sparql_connection_update_commit:
-	 * @self: a #TrackerSparqlConnection
-	 * @cancellable: a #GCancellable used to cancel the operation
-	 * @error: #GError for error reporting.
-	 *
-	 * Makes sure that any previous asynchronous update has been commited
-	 * to the store. Only applies to tracker_sparql_connection_update_async()
-	 * with the right priority (Priority is used to identify batch updates.)
-	 * The API call is completely synchronous, so it may block.
-	 */
-	public virtual void update_commit (Cancellable? cancellable = null) throws Sparql.Error {
-		warning ("Interface 'update_commit' not implemented");
-	}
-
-	/**
-	 * tracker_sparql_connection_update_commit_async:
-	 * @self: a #TrackerSparqlConnection
-	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
-	 *              asynchronous operation is finished.
-	 * @_user_data_: user-defined data to be passed to @_callback_
-	 * @cancellable: a #GCancellable used to cancel the operation
-	 *
-	 * Makes sure, asynchronously, that any previous asynchronous update has
-	 * been commited to the store. Only applies to
-	 * tracker_sparql_connection_update_async() with the right priority
-	 * (Priority is used to identify batch updates.)
-	 */
-
-	/**
-	 * tracker_sparql_connection_update_commit_finish:
-	 * @self: a #TrackerSparqlConnection
-	 * @_res_: a #GAsyncResult with the result of the operation
-	 * @error: #GError for error reporting.
-	 *
-	 * Finishes the asynchronous commit operation.
-	 */
-	public async virtual void update_commit_async (Cancellable? cancellable = null) throws Sparql.Error {
-		warning ("Interface 'update_commit_async' not implemented");
-	}
-
-	/**
 	 * tracker_sparql_connection_import:
 	 * @self: a #TrackerSparqlConnection
 	 * @file: a #GFile

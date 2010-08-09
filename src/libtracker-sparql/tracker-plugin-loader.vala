@@ -71,14 +71,6 @@ class Tracker.Sparql.PluginLoader : Connection {
 		return yield bus.update_blank_async (sparql, priority, cancellable);
 	}
 
-	public override void update_commit (Cancellable? cancellable = null) throws Sparql.Error {
-		bus.update_commit (cancellable);
-	}
-
-	public async override void update_commit_async (Cancellable? cancellable = null) throws Sparql.Error {
-		yield bus.update_commit_async (cancellable);
-	}
-
 	public override void import (File file, Cancellable? cancellable = null) throws Sparql.Error {
 		bus.import (file, cancellable);
 	}

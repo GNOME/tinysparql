@@ -202,14 +202,6 @@ int main (int argc, const char **argv)
     </para>
 
     <para>
-      You can assure that all previous update operations where commited to the store before
-      going on with the program, using
-      <function><link linkend="tracker-sparql-connection-update-commit">tracker_sparql_connection_update_commit</link></function>
-      or its equivalent asynchronous version (
-      <function><link linkend="tracker-sparql-connection-update-commit-async">tracker_sparql_connection_update_commit_async</link></function>)
-    </para>
-
-    <para>
       Once you no longer need the connection, remember to call <function><link linkend="g-object-unref">g_object_unref</link></function>
       for the <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>.
     </para>
@@ -257,17 +249,6 @@ int main (int argc, const char **argv)
   if (error) {
     /* Some error happened performing the query, not good */
     g_error ("Couldn't update the Tracker Store: '%s'",
-             error ? error-&gt;message : "unknown error");
-  }
-
-  /* Commit the transaction (not really needed in this
-   * example, but anyway) */
-  <function><link linkend="tracker-sparql-connection-update-commit">tracker_sparql_connection_update_commit</link></function> (connection,
-				    NULL,
-				    &amp;error);
-  if (error) {
-    /* Some error happened commiting, not good */
-    g_error ("Couldn't commit all previous transactions: '%s'",
              error ? error-&gt;message : "unknown error");
   }
 
