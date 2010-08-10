@@ -241,10 +241,6 @@ log_handler (const gchar    *domain,
              const gchar    *message,
              gpointer        user_data)
 {
-	if (!tracker_log_should_handle (log_level, verbosity)) {
-		return;
-	}
-
 	switch (log_level) {
 	case G_LOG_LEVEL_WARNING:
 	case G_LOG_LEVEL_CRITICAL:
@@ -278,14 +274,8 @@ run_standalone (void)
 	TrackerExtract *object;
 	GFile *file;
 	gchar *uri;
-	guint log_handler_id;
 
 	/* Set log handler for library messages */
-	log_handler_id = g_log_set_handler (NULL,
-	                                    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
-	                                    log_handler,
-	                                    NULL);
-
 	g_log_set_default_handler (log_handler, NULL);
 
 	/* Set the default verbosity if unset */
@@ -317,11 +307,6 @@ run_standalone (void)
 	g_object_unref (object);
 	g_object_unref (file);
 	g_free (uri);
-
-	if (log_handler_id != 0) {
-		/* Unset log handler */
-		g_log_remove_handler (NULL, log_handler_id);
-	}
 
 	tracker_albumart_shutdown ();
 

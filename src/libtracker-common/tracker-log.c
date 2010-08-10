@@ -122,14 +122,19 @@ tracker_log_handler (const gchar    *domain,
                      const gchar    *message,
                      gpointer        user_data)
 {
-	if (!tracker_log_should_handle (log_level, verbosity)) {
-		return;
-	}
-
 	log_output (domain, log_level, message);
 
 	/* Now show the message through stdout/stderr as usual */
 	g_log_default_handler (domain, log_level, message, user_data);
+}
+
+static void
+hide_log_handler (const gchar    *domain,
+                  GLogLevelFlags  log_level,
+                  const gchar    *message,
+                  gpointer        user_data)
+{
+	/* do nothing */
 }
 
 gboolean
@@ -138,9 +143,16 @@ tracker_log_init (gint    this_verbosity,
 {
 	gchar *filename;
 	gchar *basename;
+	const gchar *env_verbosity;
+	GLogLevelFlags hide_levels = 0;
 
 	if (initialized) {
 		return TRUE;
+	}
+
+	env_verbosity = g_getenv ("TRACKER_VERBOSITY");
+	if (env_verbosity != NULL) {
+		this_verbosity = atoi (env_verbosity);
 	}
 
 	basename = g_strdup_printf ("%s.log", g_get_application_name ());
@@ -150,7 +162,7 @@ tracker_log_init (gint    this_verbosity,
 	                             NULL);
 	g_free (basename);
 
-	/* Remove previous log */
+	/* hide previous log */
 	g_unlink (filename);
 
 	/* Open file */
@@ -170,12 +182,38 @@ tracker_log_init (gint    this_verbosity,
 	verbosity = CLAMP (this_verbosity, 0, 3);
 	mutex = g_mutex_new ();
 
-	/* Add log handler function */
-	log_handler_id = g_log_set_handler (NULL,
-	                                    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
-	                                    tracker_log_handler,
+	switch (this_verbosity) {
+		/* Log level 3: EVERYTHING */
+	case 3:
+		break;
+
+		/* Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only */
+	case 2:
+		hide_levels = G_LOG_LEVEL_DEBUG;
+		break;
+
+		/* Log level 1: CRITICAL/ERROR/WARNING/INFO only */
+	case 1:
+		hide_levels = G_LOG_LEVEL_DEBUG |
+		              G_LOG_LEVEL_MESSAGE;
+		break;
+
+		/* Log level 0: CRITICAL/ERROR/WARNING only (default) */
+	default:
+	case 0:
+		hide_levels = G_LOG_LEVEL_DEBUG |
+		              G_LOG_LEVEL_MESSAGE |
+		              G_LOG_LEVEL_INFO;
+		break;
+	}
+
+	/* Hide log levels according to configuration */
+	log_handler_id = g_log_set_handler (G_LOG_DOMAIN,
+	                                    hide_levels,
+	                                    hide_log_handler,
 	                                    NULL);
 
+	/* Set log handler function for the rest */
 	g_log_set_default_handler (tracker_log_handler, NULL);
 
 	if (used_filename) {
@@ -209,51 +247,4 @@ tracker_log_shutdown (void)
 	g_mutex_free (mutex);
 
 	initialized = FALSE;
-}
-
-gboolean
-tracker_log_should_handle (GLogLevelFlags log_level,
-                           gint           this_verbosity)
-{
-	switch (this_verbosity) {
-		/* Log level 3: EVERYTHING */
-	case 3:
-		break;
-
-		/* Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only */
-	case 2:
-		if (!(log_level & G_LOG_LEVEL_MESSAGE) &&
-		    !(log_level & G_LOG_LEVEL_INFO) &&
-		    !(log_level & G_LOG_LEVEL_WARNING) &&
-		    !(log_level & G_LOG_LEVEL_ERROR) &&
-		    !(log_level & G_LOG_LEVEL_CRITICAL)) {
-			return FALSE;
-		}
-
-		break;
-
-		/* Log level 1: CRITICAL/ERROR/WARNING/INFO only */
-	case 1:
-		if (!(log_level & G_LOG_LEVEL_INFO) &&
-		    !(log_level & G_LOG_LEVEL_WARNING) &&
-		    !(log_level & G_LOG_LEVEL_ERROR) &&
-		    !(log_level & G_LOG_LEVEL_CRITICAL)) {
-			return FALSE;
-		}
-
-		break;
-
-		/* Log level 0: CRITICAL/ERROR/WARNING only (default) */
-	default:
-	case 0:
-		if (!(log_level & G_LOG_LEVEL_WARNING) &&
-		    !(log_level & G_LOG_LEVEL_ERROR) &&
-		    !(log_level & G_LOG_LEVEL_CRITICAL)) {
-			return FALSE;
-		}
-
-		break;
-	}
-
-	return TRUE;
 }
