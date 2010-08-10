@@ -505,7 +505,7 @@ main (int argc, char **argv)
 
 	if (query) {
 		if (G_UNLIKELY (update)) {
-			tracker_sparql_connection_update (connection, query, NULL, &error);
+			tracker_sparql_connection_update (connection, query, 0, NULL, &error);
 
 			if (error) {
 				g_printerr ("%s, %s\n",

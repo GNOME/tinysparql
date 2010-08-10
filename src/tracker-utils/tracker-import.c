@@ -127,7 +127,7 @@ main (int argc, char **argv)
 		         *p);
 
 		file = g_file_new_for_commandline_arg (*p);
-		tracker_sparql_connection_import (connection, file, NULL, &error);
+		tracker_sparql_connection_load (connection, file, NULL, &error);
 		g_object_unref (file);
 
 		if (error) {

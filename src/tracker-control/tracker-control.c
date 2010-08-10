@@ -33,7 +33,9 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-common.h>
-#include <libtracker-data/tracker-data.h>
+#include <libtracker-data/tracker-db-config.h>
+#include <libtracker-data/tracker-db-journal.h>
+#include <libtracker-data/tracker-db-manager.h>
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-miner-files-reindex-client.h"
