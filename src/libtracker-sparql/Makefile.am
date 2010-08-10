@@ -38,7 +38,7 @@ libtracker_sparqlinclude_HEADERS = 			\
 
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
-vapi_DATA =                     			\
+dist_vapi_DATA =                     			\
 	tracker-sparql-$(TRACKER_API_VERSION).vapi
 
 # Vala sources
