@@ -71,12 +71,12 @@ class Tracker.Sparql.PluginLoader : Connection {
 		return yield bus.update_blank_async (sparql, priority, cancellable);
 	}
 
-	public override void import (File file, Cancellable? cancellable = null) throws Sparql.Error {
-		bus.import (file, cancellable);
+	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error {
+		bus.load (file, cancellable);
 	}
 
-	public async override void import_async (File file, Cancellable? cancellable = null) throws Sparql.Error {
-		yield bus.import_async (file, cancellable);
+	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error {
+		yield bus.load_async (file, cancellable);
 	}
 
 	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error {
