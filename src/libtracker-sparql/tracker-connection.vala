@@ -77,7 +77,7 @@ public errordomain Tracker.Sparql.Error {
 public abstract class Tracker.Sparql.Connection : Object {
 	static bool direct_only;
 	static weak Connection? singleton;
-	static int verbosity = 0;
+	static bool log_initialized;
 
 	/**
 	 * tracker_sparql_connection_get:
@@ -131,16 +131,20 @@ public abstract class Tracker.Sparql.Connection : Object {
 	}
 
 	private static void log_init () {
+		if (log_initialized) {
+			return;
+		}
+
+		log_initialized = true;
+
 		// Avoid debug messages
-		string env_verbosity = Environment.get_variable ("TRACKER_SPARQL_VERBOSITY");
+		int verbosity = 0;
+		string env_verbosity = Environment.get_variable ("TRACKER_VERBOSITY");
 		if (env_verbosity != null)
 			verbosity = env_verbosity.to_int ();
 
-		GLib.Log.set_handler (null, LogLevelFlags.LEVEL_MASK | LogLevelFlags.FLAG_FATAL, log_handler);
-		GLib.Log.set_default_handler (log_handler);
-	}
+		LogLevelFlags remove_levels = 0;
 
-	private static bool log_should_handle (LogLevelFlags log_level) {
 		switch (verbosity) {
 		// Log level 3: EVERYTHING
 		case 3:
@@ -148,48 +152,31 @@ public abstract class Tracker.Sparql.Connection : Object {
 
 		// Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only
 		case 2:
-			if (!(LogLevelFlags.LEVEL_MESSAGE in log_level) &&
-				!(LogLevelFlags.LEVEL_INFO in log_level) &&
-				!(LogLevelFlags.LEVEL_WARNING in log_level) &&
-				!(LogLevelFlags.LEVEL_ERROR in log_level) &&
-				!(LogLevelFlags.LEVEL_CRITICAL in log_level)) {
-				return false;
-			}
-
+			remove_levels = LogLevelFlags.LEVEL_DEBUG;
 			break;
 
 		// Log level 1: CRITICAL/ERROR/WARNING/INFO only
 		case 1:
-			if (!(LogLevelFlags.LEVEL_INFO in log_level) &&
-				!(LogLevelFlags.LEVEL_WARNING in log_level) &&
-				!(LogLevelFlags.LEVEL_ERROR in log_level) &&
-				!(LogLevelFlags.LEVEL_CRITICAL in log_level)) {
-				return false;
-			}
-
+			remove_levels = LogLevelFlags.LEVEL_DEBUG |
+			              LogLevelFlags.LEVEL_MESSAGE;
 			break;
 
 		// Log level 0: CRITICAL/ERROR/WARNING only (default)
 		default:
 		case 0:
-			if (!(LogLevelFlags.LEVEL_WARNING in log_level) &&
-				!(LogLevelFlags.LEVEL_ERROR in log_level) &&
-				!(LogLevelFlags.LEVEL_CRITICAL in log_level)) {
-				return false;
-			}
-
+			remove_levels = LogLevelFlags.LEVEL_DEBUG |
+			              LogLevelFlags.LEVEL_MESSAGE |
+			              LogLevelFlags.LEVEL_INFO;
 			break;
 		}
 
-		return true;
+		if (remove_levels != 0) {
+			GLib.Log.set_handler ("Tracker", remove_levels, remove_log_handler);
+		}
 	}
 
-	private static void log_handler (string? log_domain, LogLevelFlags log_level, string message) {
-		if (!log_should_handle (log_level)) {
-			return;
-		}
-
-		GLib.Log.default_handler (log_domain, log_level, message);
+	private static void remove_log_handler (string? log_domain, LogLevelFlags log_level, string message) {
+		/* do nothing */
 	}
 
 	/**
