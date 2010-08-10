@@ -950,27 +950,10 @@ process_print_stats (TrackerMinerFS *fs)
 }
 
 static void
-commit_cb (GObject      *object,
-           GAsyncResult *result,
-           gpointer      user_data)
-{
-	GError *error = NULL;
-
-	tracker_sparql_connection_update_commit_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
-
-	if (error) {
-		g_critical ("Could not commit: %s", error->message);
-		g_error_free (error);
-	}
-}
-
-static void
 process_stop (TrackerMinerFS *fs)
 {
 	/* Now we have finished crawling, print stats and enable monitor events */
 	process_print_stats (fs);
-
-	tracker_sparql_connection_update_commit_async (tracker_miner_get_connection (TRACKER_MINER (fs)), NULL, commit_cb, NULL);
 
 	g_message ("Idle");
 
@@ -1041,13 +1024,6 @@ sparql_update_cb (GObject      *object,
 		priv->total_files_notified_error++;
 		g_error_free (error);
 	} else {
-		if (fs->private->been_crawled) {
-			/* Only commit immediately for
-			 * changes after initial crawling.
-			 */
-			tracker_sparql_connection_update_commit_async (TRACKER_SPARQL_CONNECTION (object), NULL, commit_cb, NULL);
-		}
-
 		if (fs->private->current_iri_cache_parent) {
 			GFile *parent;
 
@@ -2395,13 +2371,6 @@ item_queue_handlers_cb (gpointer user_data)
 		fs->private->item_queues_handler_id = 0;
 		return FALSE;
 	} else {
-		if (fs->private->been_crawled) {
-			/* Only commit immediately for
-			 * changes after initial crawling.
-			 */
-			tracker_sparql_connection_update_commit_async (tracker_miner_get_connection (TRACKER_MINER (fs)), NULL, commit_cb, NULL);
-		}
-
 		return TRUE;
 	}
 }

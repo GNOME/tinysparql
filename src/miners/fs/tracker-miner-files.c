@@ -42,7 +42,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
-#include <libtracker-data/tracker-data.h>
+#include <libtracker-data/tracker-db-manager.h>
 
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
