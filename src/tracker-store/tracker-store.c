@@ -943,7 +943,6 @@ void
 tracker_store_set_active (gboolean active)
 {
 	TrackerStorePrivate *private;
-	TrackerStoreTask *task;
 
 	private = g_static_private_get (&private_key);
 	private->active = active;
