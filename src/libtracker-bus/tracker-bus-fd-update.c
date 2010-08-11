@@ -112,6 +112,22 @@ fast_async_data_new (DBusConnection    *connection,
 	return data;
 }
 
+static GError *
+sparql_error_from_dbus_message (DBusMessage *reply)
+{
+	DBusError dbus_error;
+	GError *error;
+
+	dbus_error_init (&dbus_error);
+	dbus_set_error_from_message (&dbus_error, reply);
+
+	error = g_error_new_literal (TRACKER_SPARQL_ERROR, 0, dbus_error.message);
+
+	dbus_error_free (&dbus_error);
+
+	return error;
+}
+
 static void
 sparql_update_fast_callback (DBusPendingCall *call,
                              void            *user_data)
@@ -125,12 +141,7 @@ sparql_update_fast_callback (DBusPendingCall *call,
 	reply = dbus_pending_call_steal_reply (call);
 
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
-		DBusError dbus_error;
-
-		dbus_error_init (&dbus_error);
-		dbus_set_error_from_message (&dbus_error, reply);
-		dbus_set_g_error (&error, &dbus_error);
-		dbus_error_free (&dbus_error);
+		error = sparql_error_from_dbus_message (reply);
 
 		g_simple_async_result_set_from_error (fad->res, error);
 
@@ -280,13 +291,7 @@ sparql_update_fast (DBusConnection     *connection,
 	reply = dbus_pending_call_steal_reply (call);
 
 	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
-		DBusError dbus_error;
-
-		dbus_error_init (&dbus_error);
-		dbus_set_error_from_message (&dbus_error, reply);
-		dbus_set_g_error (error, &dbus_error);
-		dbus_pending_call_unref (call);
-		dbus_error_free (&dbus_error);
+		g_propagate_error (error, sparql_error_from_dbus_message (reply));
 
 		return NULL;
 	}

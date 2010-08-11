@@ -265,6 +265,8 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	/* message is destroyed by tracker_dbus_send_and_splice */
 
 	if (G_UNLIKELY (inner_error)) {
+		inner_error->domain = TRACKER_SPARQL_ERROR;
+		inner_error->code = 0;
 		g_propagate_error (error, inner_error);
 		g_object_unref (cursor);
 		cursor = NULL;
@@ -289,6 +291,8 @@ query_async_cb (gpointer  buffer,
 	res = G_SIMPLE_ASYNC_RESULT (user_data);
 
 	if (G_UNLIKELY (error)) {
+		error->domain = TRACKER_SPARQL_ERROR;
+		error->code = 0;
 		g_simple_async_result_set_from_error (res, error);
 	} else {
 		TrackerBusFDCursor *cursor;
