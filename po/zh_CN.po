@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker trunk\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-07-16 13:55+0000\n"
-"PO-Revision-Date: 2010-07-19 01:12+0800\n"
+"POT-Creation-Date: 2010-08-10 12:54+0000\n"
+"PO-Revision-Date: 2010-07-23 21:16+0800\n"
 "Last-Translator: Jessica Ban <bancage@gmail.com>\n"
 "Language-Team: Chinese(simplified) <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -240,7 +240,7 @@ msgid "_URN:"
 msgstr "URN (_U)："
 
 #: ../src/tracker-extract/tracker-main.c:84
-#: ../src/tracker-store/tracker-main.c:101
+#: ../src/tracker-store/tracker-main.c:99
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -286,22 +286,22 @@ msgid "MODULE"
 msgstr "模块"
 
 #: ../src/tracker-extract/tracker-main.c:111
-#: ../src/miners/fs/tracker-main.c:99 ../src/tracker-store/tracker-main.c:97
+#: ../src/miners/fs/tracker-main.c:99 ../src/tracker-store/tracker-main.c:95
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "显示版本信息"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:344
+#: ../src/tracker-extract/tracker-main.c:331
 msgid "- Extract file meta data"
 msgstr "- 提取文件元数据"
 
-#: ../src/tracker-extract/tracker-main.c:353
+#: ../src/tracker-extract/tracker-main.c:340
 msgid "Filename and mime type must be provided together"
 msgstr "必须同时提供文件名和 mime 类型"
 
-#: ../src/tracker-extract/tracker-main.c:367
+#: ../src/tracker-extract/tracker-main.c:354
 msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr "选项 --fore-internal-extractors 和 --force-module 不能同时使用"
@@ -970,18 +970,18 @@ msgstr "控制并监视 Tracker 搜索与索引服务"
 msgid "Tracker Applet"
 msgstr "Tracker 面板小程序"
 
-#: ../src/tracker-store/tracker-main.c:108
+#: ../src/tracker-store/tracker-main.c:106
 msgid "Force a re-index of all content"
 msgstr "强制重新索引所有内容"
 
-#: ../src/tracker-store/tracker-main.c:112
+#: ../src/tracker-store/tracker-main.c:110
 msgid "Only allow read based actions on the database"
 msgstr "只允许在数据库上基于读的动作"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:370
+#: ../src/tracker-store/tracker-main.c:368
 msgid "- start the tracker daemon"
 msgstr "- 启动 tracker 守护进程"
 
@@ -1151,9 +1151,8 @@ msgid "- Get all information about one or more files"
 msgstr "- 获取一个或多个文件的所有信息"
 
 #: ../src/tracker-utils/tracker-info.c:245
-#, fuzzy
 msgid "Querying information for entity"
-msgstr "查询文件的信息"
+msgstr "查询实体的信息"
 
 #: ../src/tracker-utils/tracker-info.c:266
 msgid "Unable to retrieve URN for URI"
@@ -1439,14 +1438,12 @@ msgid "No properties were found"
 msgstr "没有找到属性"
 
 #: ../src/tracker-utils/tracker-sparql.c:425
-#, fuzzy
 msgid "Could not find notify classes"
-msgstr "不能列出类别"
+msgstr "不能找到提示类别"
 
 #: ../src/tracker-utils/tracker-sparql.c:431
-#, fuzzy
 msgid "No notifies were found"
-msgstr "没有找到文件"
+msgstr "没有找到提示"
 
 #: ../src/tracker-utils/tracker-sparql.c:462
 msgid "Could not search classes"
@@ -1461,9 +1458,8 @@ msgid "Could not search properties"
 msgstr "无法搜索属性"
 
 #: ../src/tracker-utils/tracker-sparql.c:502
-#, fuzzy
 msgid "No properties were found to match search term"
-msgstr "没有发现属性"
+msgstr "没有发现匹配搜索条件的属性"
 
 #: ../src/tracker-utils/tracker-sparql.c:525
 msgid "Could not get UTF-8 path from path"
@@ -1633,9 +1629,8 @@ msgid "You must provide the miner for pause or resume commands"
 msgstr "必须为暂停或恢复命令提供挖掘器"
 
 #: ../src/tracker-utils/tracker-status.c:522
-#, fuzzy
 msgid "You must provide a pause or resume command for the miner"
-msgstr "必须为暂停或恢复命令提供挖掘器"
+msgstr "必须为挖掘器提供暂停或恢复命令"
 
 #: ../src/tracker-utils/tracker-status.c:556
 msgid "Common statuses include"
@@ -1698,9 +1693,8 @@ msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr "删除一个标记 (如果文件被省略，标记从所有文件中移除)"
 
 #: ../src/tracker-utils/tracker-tag.c:84
-#, fuzzy
 msgid "Description for a tag (this is only used with --add)"
-msgstr "显示与每个标记关联的文件 (这只伴随 --list 使用)"
+msgstr "标记的描述 (这只伴随 --add 使用)"
 
 #: ../src/tracker-utils/tracker-tag.c:85
 msgid "STRING"
@@ -1715,9 +1709,8 @@ msgid "FILE [FILE…]"
 msgstr "文件 [文件…]"
 
 #: ../src/tracker-utils/tracker-tag.c:299
-#, fuzzy
 msgid "Could not get file URNs"
-msgstr "不能读取文件"
+msgstr "不能获取文件 URN"
 
 #: ../src/tracker-utils/tracker-tag.c:390
 msgid "Could not get files related to tag"
@@ -1742,14 +1735,12 @@ msgid "Tag was added successfully"
 msgstr "标记添加成功"
 
 #: ../src/tracker-utils/tracker-tag.c:636
-#, fuzzy
 msgid "Could not add tag to files"
-msgstr "不能添加标记"
+msgstr "不能向文件添加标记"
 
 #: ../src/tracker-utils/tracker-tag.c:647
-#, fuzzy
 msgid "Tagged"
-msgstr "标签"
+msgstr "已标记"
 
 #: ../src/tracker-utils/tracker-tag.c:648
 msgid "Not tagged, file is not indexed"
