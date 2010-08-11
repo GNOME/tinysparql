@@ -207,11 +207,13 @@ tracker_log_init (gint    this_verbosity,
 		break;
 	}
 
-	/* Hide log levels according to configuration */
-	log_handler_id = g_log_set_handler (G_LOG_DOMAIN,
-	                                    hide_levels,
-	                                    hide_log_handler,
-	                                    NULL);
+	if (hide_levels) {
+		/* Hide log levels according to configuration */
+		log_handler_id = g_log_set_handler (G_LOG_DOMAIN,
+			                            hide_levels,
+			                            hide_log_handler,
+			                            NULL);
+	}
 
 	/* Set log handler function for the rest */
 	g_log_set_default_handler (tracker_log_handler, NULL);
@@ -241,8 +243,10 @@ tracker_log_shutdown (void)
 		fclose (fd);
 	}
 
-	g_log_remove_handler (NULL, log_handler_id);
-	log_handler_id = 0;
+	if (log_handler_id) {
+		g_log_remove_handler (G_LOG_DOMAIN, log_handler_id);
+		log_handler_id = 0;
+	}
 
 	g_mutex_free (mutex);
 
