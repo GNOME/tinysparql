@@ -459,18 +459,42 @@ test_tracker_sparql_query_iterate_async ()
 }
 
 static void
+cancel_query_cb (GObject      *source_object,
+                 GAsyncResult *result,
+                 gpointer      user_data)
+{
+	GMainLoop *main_loop = user_data;
+	GError *error = NULL;
+
+	g_main_loop_quit (main_loop);
+
+	tracker_sparql_connection_query_finish (connection, result, &error);
+
+	g_assert (error);
+
+	g_error_free (error);
+}
+
+static void
 test_tracker_sparql_query_iterate_async_cancel ()
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
+	GMainLoop *main_loop;
 	GCancellable *cancellable = g_cancellable_new ();
+
+	main_loop = g_main_loop_new (NULL, FALSE);
 
 	tracker_sparql_connection_query_async (connection,
 	                                       query,
 	                                       cancellable,
-	                                       (GAsyncReadyCallback) 42, /* will segfault if ever callback is called */
-	                                       NULL);
+	                                       cancel_query_cb,
+	                                       main_loop);
+
 	g_cancellable_cancel (cancellable);
-	g_usleep (1000000); /* Sleep one second to see if callback is called */
+
+	g_main_loop_run (main_loop);
+
+	g_main_loop_unref (main_loop);
 }
 
 static void
@@ -514,19 +538,42 @@ test_tracker_sparql_update_async ()
 }
 
 static void
+cancel_update_cb (GObject      *source_object,
+                  GAsyncResult *result,
+                  gpointer      user_data)
+{
+	GMainLoop *main_loop = user_data;
+	GError *error = NULL;
+
+	g_main_loop_quit (main_loop);
+
+	tracker_sparql_connection_update_finish (connection, result, &error);
+
+	g_assert (error);
+
+	g_error_free (error);
+}
+
+static void
 test_tracker_sparql_update_async_cancel ()
 {
 	GCancellable *cancellable = g_cancellable_new ();
 	const gchar *query = "INSERT { _:x a nmo:Message }";
+	GMainLoop *main_loop;
+
+	main_loop = g_main_loop_new (NULL, FALSE);
 
 	tracker_sparql_connection_update_async (connection,
 	                                        query,
 	                                        0,
 	                                        cancellable,
-	                                        (GAsyncReadyCallback) 42, /* will segfault if ever callback is called */
-	                                        NULL);
+	                                        cancel_update_cb,
+	                                        main_loop);
 	g_cancellable_cancel (cancellable);
-	g_usleep (1000000); /* Sleep one second to see if callback is called */
+
+	g_main_loop_run (main_loop);
+
+	g_main_loop_unref (main_loop);
 }
 
 static void
