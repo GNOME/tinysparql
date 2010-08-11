@@ -78,8 +78,30 @@ fast_async_data_free (gpointer data)
 	}
 }
 
+static gboolean
+on_cancel_idle (gpointer data)
+{
+	FastAsyncData *fad = data;
+	GError *error = NULL;
+
+	g_set_error_literal (&error,
+	                     G_IO_ERROR,
+	                     G_IO_ERROR_CANCELLED,
+	                     "Operation was cancelled");
+
+	g_simple_async_result_set_from_error (fad->res, error);
+
+	g_simple_async_result_complete (fad->res);
+
+	g_error_free (error);
+	fast_async_data_free (fad);
+
+	return FALSE;
+}
+
 static void
-on_cancel (FastAsyncData *fad)
+on_cancel (GCancellable *cancellable,
+           FastAsyncData *fad)
 {
 	if (fad->dbus_call) {
 		dbus_pending_call_cancel (fad->dbus_call);
@@ -87,7 +109,7 @@ on_cancel (FastAsyncData *fad)
 		fad->dbus_call = NULL;
 	}
 
-	fast_async_data_free (fad);
+	g_idle_add (on_cancel_idle, fad);
 }
 
 static FastAsyncData *

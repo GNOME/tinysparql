@@ -222,6 +222,7 @@ tracker_bus_fd_cursor_finalize (GObject *object)
 TrackerSparqlCursor *
 tracker_bus_fd_query (DBusGConnection  *gconnection,
                       const gchar      *query,
+                      GCancellable     *cancellable,
                       GError          **error)
 {
 #ifdef HAVE_DBUS_FD_PASSING
@@ -258,7 +259,7 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	tracker_dbus_send_and_splice (connection,
 	                              message,
 	                              pipefd[0],
-	                              NULL,
+	                              cancellable,
 	                              (void **) &cursor->buffer,
 	                              &cursor->buffer_size,
 	                              &inner_error);
@@ -314,6 +315,7 @@ query_async_cb (gpointer  buffer,
 void
 tracker_bus_fd_query_async (DBusGConnection     *gconnection,
                             const gchar         *query,
+                            GCancellable        *cancellable,
                             GAsyncReadyCallback  callback,
                             gpointer             user_data)
 {
@@ -357,7 +359,7 @@ tracker_bus_fd_query_async (DBusGConnection     *gconnection,
 	tracker_dbus_send_and_splice_async (connection,
 	                                    message,
 	                                    pipefd[0],
-	                                    NULL,
+	                                    cancellable,
 	                                    query_async_cb, res);
 	/* message is destroyed by tracker_dbus_send_and_splice_async */
 #else  /* HAVE_DBUS_FD_PASSING */

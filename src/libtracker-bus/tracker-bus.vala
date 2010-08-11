@@ -39,7 +39,7 @@ private interface Tracker.Bus.Statistics : GLib.Object {
 }
 
 // Imported DBus FD API until we have support with Vala
-public extern Tracker.Sparql.Cursor tracker_bus_fd_query (DBus.Connection connection, string query) throws Tracker.Sparql.Error;
+public extern Tracker.Sparql.Cursor tracker_bus_fd_query (DBus.Connection connection, string query, Cancellable? cancellable) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;
 
 // Actual class definition
 public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
@@ -86,10 +86,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		initialized = false;
 	}
 
-	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws Sparql.Error {
+	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError {
 		try {
 			if (use_steroids) {
-				return tracker_bus_fd_query (connection, sparql);
+				return tracker_bus_fd_query (connection, sparql, cancellable);
 			} else {
 				string[,] results = resources_object.sparql_query (sparql);
 				return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
@@ -99,10 +99,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error {
+	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			if (use_steroids) {
-				return yield tracker_bus_fd_query_async (connection, sparql);
+				return yield tracker_bus_fd_query_async (connection, sparql, cancellable);
 			} else {
 				string[,] results = yield resources_object.sparql_query_async (sparql);
 				return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
@@ -112,7 +112,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			if (use_steroids) {
 				tracker_bus_fd_sparql_update (connection, sparql);
@@ -124,7 +124,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			if (use_steroids) {
 				yield tracker_bus_fd_sparql_update_async (connection, sparql, cancellable);
@@ -136,7 +136,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		GLib.Variant res = null;
 
 		if (use_steroids) {
@@ -147,7 +147,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		return res;
 	}
 
-	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error {
+	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		GLib.Variant res = null;
 
 		if (use_steroids) {
@@ -159,14 +159,14 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		return res;
 	}
 
-	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error {
+	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			resources_object.load (file.get_uri ());
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
 	}
-	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error {
+	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			yield resources_object.load_async (file.get_uri ());
 		} catch (DBus.Error e) {
@@ -174,7 +174,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error {
+	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			string[,] results = statistics_object.Get ();
 			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
@@ -183,7 +183,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error {
+	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			string[,] results = yield statistics_object.Get_async ();
 			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);

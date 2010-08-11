@@ -32,6 +32,7 @@ G_BEGIN_DECLS
 void
 tracker_bus_fd_query_async (DBusGConnection     *gconnection,
                             const gchar         *query,
+                            GCancellable        *cancellable,
                             GAsyncReadyCallback  callback,
                             gpointer             user_data);
 
