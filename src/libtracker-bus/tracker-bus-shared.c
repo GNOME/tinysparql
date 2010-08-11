@@ -39,31 +39,28 @@ tracker_bus_message_to_variant (DBusMessage *message)
 	GVariantBuilder builder;
 	DBusMessageIter iter, subiter, subsubiter;
 
-	/* TODO: This is probably wrong, especially the hashtable part */
-
 	/*aaa{ss}*/
 
-	g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY); /* a */
+	g_variant_builder_init (&builder, G_VARIANT_TYPE ("aaa{ss}")); /* a */
 
 	dbus_message_iter_init (message, &iter);
 	dbus_message_iter_recurse (&iter, &subiter);
 
 	while (dbus_message_iter_get_arg_type (&subiter) != DBUS_TYPE_INVALID) {
 
-		g_variant_builder_open (&builder, G_VARIANT_TYPE_ARRAY); /* a */
+		g_variant_builder_open (&builder, G_VARIANT_TYPE ("aa{ss}")); /* a */
 
 		dbus_message_iter_recurse (&subiter, &subsubiter);
 
 		while (dbus_message_iter_get_arg_type (&subsubiter) != DBUS_TYPE_INVALID) {
 			DBusMessageIter s_subiter, s_subsubiter;
 
+			g_variant_builder_open (&builder, G_VARIANT_TYPE ("a{ss}")); /* a */
+
 			dbus_message_iter_recurse (&subsubiter, &s_subiter);
 
 			while (dbus_message_iter_get_arg_type (&s_subiter) != DBUS_TYPE_INVALID) {
 				const gchar *key, *value;
-
-				g_variant_builder_open (&builder, G_VARIANT_TYPE_ARRAY); /* a */
-				g_variant_builder_open (&builder, G_VARIANT_TYPE_DICTIONARY); /* {ss} */
 
 				dbus_message_iter_recurse (&s_subiter, &s_subsubiter);
 				dbus_message_iter_get_basic (&s_subsubiter, &key);
@@ -73,12 +70,11 @@ tracker_bus_message_to_variant (DBusMessage *message)
 				g_variant_builder_add (&builder, "{ss}", key, value);
 
 				dbus_message_iter_next (&s_subiter);
-
-				g_variant_builder_close (&builder);
-				g_variant_builder_close (&builder);
 			}
 
 			dbus_message_iter_next (&subsubiter);
+
+			g_variant_builder_close (&builder);
 		}
 
 		g_variant_builder_close (&builder);
