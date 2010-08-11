@@ -581,7 +581,7 @@ db_recreate_all (void)
 	 */
 	g_message ("Cleaning up database files for reindex");
 
-	db_manager_remove_all (TRUE);
+	db_manager_remove_all (FALSE);
 
 	/* Now create the databases and close them */
 	g_message ("Creating database files, this may take a few moments...");
