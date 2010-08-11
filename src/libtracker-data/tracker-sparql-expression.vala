@@ -1097,10 +1097,10 @@ class Tracker.Sparql.Expression : Object {
 		expect (SparqlTokenType.OPEN_PARENS);
 		sql.append (" IN (");
 		if (!accept (SparqlTokenType.CLOSE_PARENS)) {
-			translate_expression_as_string (sql);
+			translate_expression (sql);
 			while (accept (SparqlTokenType.COMMA)) {
 				sql.append (", ");
-				translate_expression_as_string (sql);
+				translate_expression (sql);
 			}
 			expect (SparqlTokenType.CLOSE_PARENS);
 		}

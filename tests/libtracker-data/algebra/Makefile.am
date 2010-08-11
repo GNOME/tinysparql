@@ -13,6 +13,10 @@ EXTRA_DIST = 				\
 	filter-in-1.rq			\
 	filter-in-2.out			\
 	filter-in-2.rq			\
+	filter-in-3.in			\
+	filter-in-3.out			\
+	filter-in-4.rq			\
+	filter-in-4.out			\
 	filter-placement-1.out		\
 	filter-placement-1.rq		\
 	filter-placement-2.out		\
