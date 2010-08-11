@@ -11,7 +11,7 @@
 
 mtp: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "mtp" ;
-	nao:lastModified "2010-08-05T13:00:00Z" .
+	nao:lastModified "2010-08-11T16:00:00Z" .
 
 #
 # This ontology "decorates" nmm and nfo to include properties required

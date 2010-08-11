@@ -431,7 +431,7 @@ main (int argc, char **argv)
 		g_object_unref (db_config);
 
 		/* Clean up */
-		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE)) {
+		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, NULL, FALSE)) {
 			return EXIT_FAILURE;
 		}
 

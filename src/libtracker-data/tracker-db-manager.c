@@ -56,7 +56,7 @@
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_9_15
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_9_16
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 
 #define IN_USE_FILENAME               ".meta.isrunning"
@@ -89,7 +89,8 @@ typedef enum {
 	TRACKER_DB_VERSION_0_8_0,   /* stable release */
 	TRACKER_DB_VERSION_0_9_0,   /* unstable release */
 	TRACKER_DB_VERSION_0_9_8,   /* affiliation cardinality + volumes */
-	TRACKER_DB_VERSION_0_9_15   /* mtp:hidden */
+	TRACKER_DB_VERSION_0_9_15,  /* mtp:hidden */
+	TRACKER_DB_VERSION_0_9_16   /* Fix for NB#184823 */
 } TrackerDBVersion;
 
 typedef struct {
@@ -653,6 +654,7 @@ free_thread_interface (gpointer data)
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
+                         gboolean              *needed_reindex,
                          gboolean               shared_cache)
 {
 	GType               etype;
@@ -743,6 +745,9 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	if (need_reindex) {
+		if (needed_reindex) {
+			*needed_reindex = TRUE;
+		}
 		db_set_version ();
 	}
 

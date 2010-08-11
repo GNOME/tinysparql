@@ -2684,7 +2684,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	GList *sorted = NULL, *l;
 	const gchar *env_path;
 	gint max_id = 0;
-	gboolean read_only;
+	gboolean read_only, needed_reindex = FALSE;
 
 	tracker_data_update_init ();
 
@@ -2704,7 +2704,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	read_journal = FALSE;
 
-	if (!tracker_db_manager_init (flags, &is_first_time_index, TRUE)) {
+	if (!tracker_db_manager_init (flags, &is_first_time_index, &needed_reindex, TRUE)) {
 		return FALSE;
 	}
 
@@ -2718,7 +2718,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	if (journal_check && is_first_time_index) {
+	if (journal_check && is_first_time_index && !needed_reindex) {
 		if (tracker_db_journal_reader_init (NULL)) {
 			if (tracker_db_journal_reader_next (NULL)) {
 				/* journal with at least one valid transaction
