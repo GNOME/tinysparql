@@ -47,13 +47,19 @@ public class TestApp : GLib.Object {
 		} catch (Tracker.Sparql.Error ea) {
 			warning ("Couldn't update: %s", ea.message);
 			res = -1;
+		} catch (IOError eb) {
+			warning ("Couldn't update: %s", eb.message);
+			res = -1;
 		}
 
 		try {
 			cursor = con.query ("SELECT ?title WHERE { <test01> nie:title ?title }");
 			a = iter_cursor (cursor);
-		} catch (Tracker.Sparql.Error eb) {
-			warning ("Couldn't query: %s", eb.message);
+		} catch (Tracker.Sparql.Error ec) {
+			warning ("Couldn't query: %s", ec.message);
+			res = -1;
+		} catch (IOError ed) {
+			warning ("Couldn't update: %s", ed.message);
 			res = -1;
 		}
 	}
@@ -67,13 +73,19 @@ public class TestApp : GLib.Object {
 		} catch (Tracker.Sparql.Error ea) {
 			warning ("Couldn't update: %s", ea.message);
 			res = -1;
+		} catch (IOError eb) {
+			warning ("Couldn't update: %s", eb.message);
+			res = -1;
 		}
 
 		try {
 			cursor = con.query ("SELECT ?title WHERE { <test02> nie:title ?title }");
 			a = iter_cursor (cursor);
-		} catch (Tracker.Sparql.Error eb) {
-			warning ("Couldn't query: %s", eb.message);
+		} catch (Tracker.Sparql.Error ec) {
+			warning ("Couldn't query: %s", ec.message);
+			res = -1;
+		} catch (IOError ed) {
+			warning ("Couldn't update: %s", ed.message);
 			res = -1;
 		}
 	}
@@ -88,6 +100,9 @@ public class TestApp : GLib.Object {
 		} catch (Tracker.Sparql.Error ea) {
 			warning ("Couldn't update: %s", ea.message);
 			res = -1;
+		} catch (IOError eb) {
+			warning ("Couldn't update: %s", eb.message);
+			res = -1;
 		}
 	}
 
@@ -100,6 +115,9 @@ public class TestApp : GLib.Object {
 			a = iter_variant (variant);
 		} catch (Tracker.Sparql.Error ea) {
 			warning ("Couldn't update: %s", ea.message);
+			res = -1;
+		} catch (IOError eb) {
+			warning ("Couldn't update: %s", eb.message);
 			res = -1;
 		}
 	}
