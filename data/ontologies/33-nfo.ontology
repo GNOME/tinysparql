@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2010-08-03T10:03:00Z" .
+	nao:lastModified "2010-08-12T21:30:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
