@@ -1,3 +1,30 @@
+NEW in 0.9.16 - 2010-08-12
+==========================
+
+The changes are:
+
+  * Require Vala 0.9.4 (to build from git repository only)
+  * NEW Feature: tracker-extract: Added a GUPnP DLNA extractor
+  * NEW Feature: libtracker-sparql: Client library for direct/dbus access
+  * Fixes: NB#184823, Unsupported ontology change prevent tracker for booting
+  * Fixes: NB#177663, Tracker does not harvest ID3v2 tags
+  * Fixes: NB#181421, Duplicates when monitor events processed before directory is created in store
+  * libtracker-common: New environment variable TRACKER_VERBOSITY to override config
+  * libtracker-data: Fixed support for IN, NOT IN with <resources>
+  * libtracker-miner: If parent GFile being processed, serialise by waiting
+  * libtracker-miner: Print URIs not paths for CREATE monitor event debugging
+
+Translations:
+
+  * Updated zh_CN: Aron Xu
+  * Updated nds: Nils-Christoph Fiedler
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.9.15 - 2010-08-05
 ==========================
 
