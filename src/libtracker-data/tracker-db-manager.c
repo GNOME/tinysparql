@@ -384,6 +384,67 @@ db_interface_create (TrackerDB db)
 }
 
 static void
+db_manager_remove_journal (void)
+{
+	gchar *path;
+	gchar *directory, *rotate_to = NULL;
+	gsize chunk_size;
+	gboolean do_rotate = FALSE;
+	const gchar *dirs[3] = { NULL, NULL, NULL };
+	guint i;
+
+	/* We duplicate the path here because later we shutdown the
+	 * journal which frees this data. We want to survive that.
+	 */
+	path = g_strdup (tracker_db_journal_get_filename ());
+	if (!path) {
+		return;
+	}
+
+	g_message ("  Removing journal:'%s'", path);
+
+	directory = g_path_get_dirname (path);
+
+	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
+	tracker_db_journal_shutdown ();
+
+	dirs[0] = directory;
+	dirs[1] = do_rotate ? rotate_to : NULL;
+
+	for (i = 0; dirs[i] != NULL; i++) {
+		GDir *journal_dir;
+		const gchar *f;
+
+		journal_dir = g_dir_open (dirs[i], 0, NULL);
+		if (!journal_dir) {
+			continue;
+		}
+
+		/* Remove rotated chunks */
+		while ((f = g_dir_read_name (journal_dir)) != NULL) {
+			gchar *fullpath;
+
+			if (!g_str_has_prefix (f, TRACKER_DB_JOURNAL_FILENAME ".")) {
+				continue;
+			}
+
+			fullpath = g_build_filename (dirs[i], f, NULL);
+			g_unlink (fullpath);
+			g_free (fullpath);
+		}
+
+		g_dir_close (journal_dir);
+	}
+
+	g_free (rotate_to);
+	g_free (directory);
+
+	/* Remove active journal */
+	g_unlink (path);
+	g_free (path);
+}
+
+static void
 db_manager_remove_all (gboolean rm_journal)
 {
 	guint i;
@@ -398,78 +459,21 @@ db_manager_remove_all (gboolean rm_journal)
 	 * calculate the absolute directories here.
 	 */
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-
-		g_message ("  Removing database:'%s'",
-		           dbs[i].abs_filename);
+		g_message ("  Removing database:'%s'", dbs[i].abs_filename);
 		g_unlink (dbs[i].abs_filename);
 	}
 
 	if (rm_journal) {
-		const gchar *opath = tracker_db_journal_get_filename ();
+		gchar *filename;
 
-		if (opath) {
-			GFile *file;
-			gchar *cpath;
-			gchar *directory, *rotate_to = NULL;
-			gsize chunk_size;
-			gboolean do_rotate = FALSE;
-			const gchar *dirs[3] = { NULL, NULL, NULL };
+		db_manager_remove_journal ();
 
-			cpath = g_strdup (opath);
-
-			g_message ("  Removing journal:'%s'", cpath);
-
-			directory = g_path_get_dirname (cpath);
-
-			tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
-
-			tracker_db_journal_shutdown ();
-
-			dirs[0] = directory;
-			dirs[1] = do_rotate ? rotate_to : NULL;
-
-			for (i = 0; dirs[i] != NULL; i++) {
-				GDir *journal_dir;
-				const gchar *f_name;
-
-				journal_dir = g_dir_open (dirs[i], 0, NULL);
-				if (!journal_dir) {
-					continue;
-				}
-				f_name = g_dir_read_name (journal_dir);
-
-				/* Remove rotated chunks */
-				while (f_name) {
-					gchar *fullpath;
-
-					if (f_name) {
-						if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
-							f_name = g_dir_read_name (journal_dir);
-							continue;
-						}
-					}
-
-					fullpath = g_build_filename (dirs[i], f_name, NULL);
-					file = g_file_new_for_path (fullpath);
-					g_file_delete (file, NULL, NULL);
-					g_object_unref (file);
-					g_free (fullpath);
-
-					f_name = g_dir_read_name (journal_dir);
-				}
-
-				g_dir_close (journal_dir);
-			}
-
-			g_free (rotate_to);
-			g_free (directory);
-
-			/* Remove active journal */
-			file = g_file_new_for_path (cpath);
-			g_file_delete (file, NULL, NULL);
-			g_object_unref (file);
-			g_free (cpath);
-		}
+		/* If also the journal is gone, we can also remove db-version.txt, it
+		 * would have no more relevance whatsoever. */
+		filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
+		g_message ("  Removing db-version file:'%s'", filename);
+		g_unlink (filename);
+		g_free (filename);
 	}
 }
 
@@ -654,7 +658,6 @@ free_thread_interface (gpointer data)
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
-                         gboolean              *needed_reindex,
                          gboolean               shared_cache)
 {
 	GType               etype;
@@ -745,9 +748,9 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	if (need_reindex) {
-		if (needed_reindex) {
-			*needed_reindex = TRUE;
-		}
+		tracker_db_journal_init (NULL, FALSE);
+		db_manager_remove_journal ();
+		tracker_db_journal_shutdown ();
 		db_set_version ();
 	}
 

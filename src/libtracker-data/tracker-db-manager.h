@@ -49,7 +49,6 @@ typedef enum {
 GType               tracker_db_get_type                       (void) G_GNUC_CONST;
 gboolean            tracker_db_manager_init                   (TrackerDBManagerFlags  flags,
                                                                gboolean              *first_time,
-                                                               gboolean              *needed_reindex,
                                                                gboolean               shared_cache);
 void                tracker_db_manager_shutdown               (void);
 void                tracker_db_manager_remove_all             (gboolean               rm_journal);
