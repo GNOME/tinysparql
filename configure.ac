@@ -584,8 +584,16 @@ AM_CONDITIONAL(HAVE_GDKPIXBUF, test "x$have_gdkpixbuf" = "xyes")
 
 AC_ARG_ENABLE(video-extractor,
               AS_HELP_STRING([--enable-video-extractor=ARG],
-                             [enables one of the (gstreamer, xine, external, auto) video extractor backends [[default=auto]]]),,
+                             [enables one of the (gupnp-dlna, gstreamer, xine, external, auto) video extractor backends [[default=auto]]]),,
               [enable_video_extractor=auto])
+
+PKG_CHECK_MODULES(GUPNP_DLNA,
+		  [gupnp-dlna-1.0],
+                  [have_gupnp_dlna=yes],
+                  [have_gupnp_dlna=no])
+
+AC_SUBST(GUPNP_DLNA_CFLAGS)
+AC_SUBST(GUPNP_DLNA_LIBS)
 
 PKG_CHECK_MODULES(GSTREAMER,
                   [gstreamer-0.10 >= 0.10.12 gstreamer-tag-0.10 >= 0.10.12],
@@ -604,7 +612,10 @@ AC_SUBST(XINE_CFLAGS)
 AC_SUBST(XINE_LIBS)
 
 if test "x$enable_video_extractor" = "xauto"; then
-   if test "$have_libgstreamer" = "yes"; then
+   if test "$have_gupnp_dlna" = "yes"; then
+      have_video_handler_app="GUPnP-DLNA"
+      have_video_handler="yes"
+   elif test "$have_libgstreamer" = "yes"; then
       have_video_handler_app="GStreamer"
       have_video_handler="yes"
    elif test "$have_libxine" = "yes"; then
@@ -613,6 +624,13 @@ if test "x$enable_video_extractor" = "xauto"; then
    else
       have_video_handler="?"
       have_video_handler_app="An external video player will be called"
+   fi
+elif test "x$enable_video_extractor" = "xgupnp-dlna"; then
+   if test "$have_gupnp_dlna" = "yes"; then
+      have_video_handler_app="GUPnP-DLNA"
+      have_video_handler="yes"
+   else
+      AC_MSG_ERROR([Couldn't find GUPnP-DLNA])
    fi
 elif test "x$enable_video_extractor" = "xgstreamer"; then
    if test "$have_libgstreamer" = "yes"; then
@@ -633,19 +651,28 @@ else
    have_video_handler_app="An external video player will be called"
 fi
 
-if test "$have_video_handler_app" = "GStreamer"; then
+if test "$have_video_handler_app" = "GUPnP-DLNA"; then
+   AC_DEFINE(HAVE_GUPNP_DLNA, [], [Define if we have GUPnP-DLNA])
+   AM_CONDITIONAL(HAVE_GUPNP_DLNA, true)
+   AM_CONDITIONAL(HAVE_GSTREAMER, false)
+   AM_CONDITIONAL(HAVE_LIBXINE, false)
+   AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, false)
+elif test "$have_video_handler_app" = "GStreamer"; then
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GSTREAMER, true)
+   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
    AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, false)
 elif test "$have_video_handler_app" = "Xine"; then
    AC_DEFINE(HAVE_LIBXINE, [], [Define if we have Libxine])
    AM_CONDITIONAL(HAVE_LIBXINE, true)
+   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
    AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, false)
 else
    AC_DEFINE(USING_EXTERNAL_VIDEO_PLAYER, [], [Define that Tracker will try to use external video players])
    AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, true)
+   AM_CONDITIONAL(HAVE_GUPNP_DLNA, false)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
 fi

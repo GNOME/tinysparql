@@ -29,6 +29,7 @@ INCLUDES = 								\
 	$(POPPLER_CFLAGS) 						\
 	$(GSTREAMER_CFLAGS) 						\
 	$(XINE_CFLAGS) 							\
+	$(GUPNP_DLNA_CFLAGS)						\
 	$(TOTEM_PL_PARSER_CFLAGS)
 
 if HAVE_LIBSTREAMANALYZER
@@ -89,6 +90,10 @@ endif
 
 if HAVE_GSTREAMER
 modules_LTLIBRARIES += libextract-gstreamer.la
+endif
+
+if HAVE_GUPNP_DLNA
+modules_LTLIBRARIES += libextract-gupnp-dlna.la
 endif
 
 if HAVE_GSTREAMER_HELIX
@@ -248,6 +253,15 @@ libextract_gstreamer_helix_la_LDFLAGS = $(module_flags) $(albumart_flags)
 libextract_gstreamer_helix_la_LIBADD = 					\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(GSTREAMER_LIBS) 						\
+	$(GLIB2_LIBS) 							\
+	$(GCOV_LIBS)
+
+# GUPnP DLNA
+libextract_gupnp_dlna_la_SOURCES = tracker-extract-gupnp-dlna.c
+libextract_gupnp_dlna_la_LDFLAGS = $(module_flags) $(albumart_flags)
+libextract_gupnp_dlna_la_LIBADD = 					\
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(GUPNP_DLNA_LIBS) 						\
 	$(GLIB2_LIBS) 							\
 	$(GCOV_LIBS)
 
