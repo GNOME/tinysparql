@@ -53,7 +53,6 @@
 #include "tracker-config.h"
 #include "tracker-events.h"
 #include "tracker-writeback.h"
-#include "tracker-push.h"
 #include "tracker-backup.h"
 #include "tracker-store.h"
 #include "tracker-statistics.h"
@@ -500,8 +499,6 @@ main (gint argc, gchar *argv[])
 	tracker_events_init (get_notifiable_classes);
 	tracker_writeback_init (get_writeback_predicates);
 
-	tracker_push_init ();
-
 	tracker_store_set_active (TRUE);
 
 	g_message ("Waiting for D-Bus requests...");
@@ -530,7 +527,6 @@ main (gint argc, gchar *argv[])
 	shutdown_directories ();
 
 	/* Shutdown major subsystems */
-	tracker_push_shutdown ();
 	tracker_writeback_shutdown ();
 	tracker_events_shutdown ();
 

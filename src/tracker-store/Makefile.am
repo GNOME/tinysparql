@@ -41,10 +41,6 @@ tracker_store_SOURCES =							\
 	tracker-main.c							\
 	tracker-resources.c						\
 	tracker-resources.h						\
-	tracker-push.c							\
-	tracker-push.h							\
-	tracker-push-registrar.c					\
-	tracker-push-registrar.h					\
 	tracker-resource-class.c					\
 	tracker-resource-class.h					\
 	tracker-statistics.c						\
