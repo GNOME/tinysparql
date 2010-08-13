@@ -4,5 +4,3 @@ CREATE TABLE Options (
 	OptionValue	Text COLLATE NOCASE
 );
 
-insert Into Options (OptionKey, OptionValue) values ('KMailLastModseq', '0');
-

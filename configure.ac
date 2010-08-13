@@ -969,24 +969,6 @@ AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
 AM_CONDITIONAL(HAVE_MINER_EVOLUTION, test "x$have_miner_evolution" = "xyes")
 
 
-####################################################################
-# Miner Kmail
-####################################################################
-
-AC_ARG_ENABLE([miner_kmail],
-              AS_HELP_STRING([--enable-miner-kmail],
-                             [enable KMail email data miner [[default=yes]]]),,
-              [enable_miner_kmail=yes])
-
-if test "x$enable_miner_kmail" = "xyes"; then
-   have_miner_kmail="yes"
-else
-   have_miner_kmail="no  (disabled)"
-fi
-
-AM_CONDITIONAL(HAVE_MINER_KMAIL, test "x$have_miner_kmail" = "xyes")
-
-
 ##################################################################
 # Miner RSS
 ##################################################################
@@ -1920,7 +1902,6 @@ AC_CONFIG_FILES([
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
 	src/plugins/evolution/Makefile
-	src/plugins/kmail/Makefile
 	src/plugins/nautilus/Makefile
 	src/vapi/Makefile
 	tests/common/Makefile
@@ -2033,7 +2014,6 @@ Data Miners:
 
 	RSS:                                    $have_miner_rss
 	Evolution:                              $have_miner_evolution ($evolution_plugins_dir)
-	KMail:                                  $have_miner_kmail
 	Flickr:                                 $have_miner_flickr
 
 Plugins:
