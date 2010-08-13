@@ -276,5 +276,122 @@ int main (int argc, const char **argv)
     </para>
   </chapter>
 
+  <chapter id="tracker-examples-writeonly-with-blank-nodes">
+    <title>Updating the Store with Blank Nodes</title>
+
+    <para>
+      The majority of the work here is already described in the
+      <link linkend="tracker-examples-writeonly">previous example</link> where we talk about how to write the store.
+    </para>
+
+    <para>
+      The difference with this example is that sometimes you want to
+      insert data and have the URNs returned which were created to
+      avoid re-querying for them. This is done using
+      the <function><link linkend="tracker-sparql-connection-update-blank">tracker_sparql_connection_update_blank</link></function> function (or asynchronously <function><link linkend="tracker-sparql-connection-update-blank-async">tracker_sparql_connection_update_blank_async</link></function>).
+      If launched asynchronously, the result of the operation can be obtained with
+      <function><link linkend="tracker-sparql-connection-update-blank-finish">tracker_sparql_connection_update_blank_finish</link></function>.
+    </para>
+
+    <para>
+      The <emphasis>_:foo</emphasis> in the example is how a blank node is
+      represented in SPARQL. The <emphasis>foo</emphasis> part is used to generate the
+      unique ID that is used for the new URN. It is also used in the
+      <function><link linkend="GVariant">GVariant</link></function>
+      that is returned. In the example below, we are creating a new
+      blank node called <emphasis>foo</emphasis> for every class that
+      exists.
+    </para>
+
+    <para>
+      The format of the GVariant (in D-Bus terms) is an aaa{ss} (an
+      array of an array of dictionaries). This is rather complex but
+      for a good reason. The first array represents each INSERT that
+      may exist in the SPARQL. The second array represents each new
+      node for a given WHERE clause (the example below illustrates
+      this), you need this to differentiate between two INSERT
+      statments like the one below in the same SPARQL sent to the
+      store. Last, we have a final array to represent each new node's
+      name (in this case <emphasis>foo</emphasis>) and the actual URN which was
+      created. For most updates the first two outer arrays will only
+      have one item in them.
+    </para>
+
+    <para>
+      The following program shows how a synchronous blank node update can be done to the store:
+
+<programlisting>
+#include &lt;tracker-sparql.h&gt;
+
+int main (int argc, const char **argv)
+{
+  GError *error = NULL;
+  GVariant *v;
+  <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type> *connection;
+  const gchar *query =
+    "INSERT { _:foo a nie:InformationElement } WHERE { ?x a rdfs:Class }";
+
+  /* Initialize GLib type system */
+  g_type_init ();
+
+  /* Do NOT get a direct connection if you're going to
+   * do some write operation in the Store
+   */
+  connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (&amp;error);
+  if (!connection) {
+    g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
+                error ? error-&gt;message : "unknown error");
+    g_clear_error (&amp;error);
+
+    return 1;
+  }
+
+  /* Run a synchronous blank node update query */
+  v = <function><link linkend="tracker-sparql-connection-update-blank">tracker_sparql_connection_update_blank</link></function> (connection,
+  				              query,
+  				              G_PRIORITY_DEFAULT,
+  				              NULL,
+  				              &amp;error);
+
+  if (error) {
+    /* Some error happened performing the query, not good */
+    g_printerr ("Couldn't update the Tracker store: %s",
+                error ? error-&gt;message : "unknown error");
+
+    g_clear_error (&amp;error);
+    g_object_unref (connection);
+
+    return 1;
+  }
+
+  if (!v) {
+	  g_print ("No results were returned\n");
+  } else {
+	  GVariantIter iter1, *iter2, *iter3;
+	  const gchar *key;
+	  const gchar *value;
+
+	  g_print ("Results:\n");
+
+	  g_variant_iter_init (&amp;iter1, v);
+	  while (g_variant_iter_loop (&amp;iter1, "aa{ss}", &amp;iter2)) { /* aa{ss} */
+		  while (g_variant_iter_loop (iter2, "a{ss}", &amp;iter3)) { /* a{ss} */
+			  while (g_variant_iter_loop (iter3, "{ss}", &amp;key, &amp;value)) { /* {ss} */
+				  g_print ("  Node:'%s', URN:'%s'\n", key, value);
+	  		  }
+	  	  }
+	  }
+
+	  g_variant_unref (v);
+  }
+
+  g_object_unref (connection);
+
+  return 0;
+}
+</programlisting>
+    </para>
+  </chapter>
+
 </part>
 
