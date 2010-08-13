@@ -365,24 +365,24 @@ int main (int argc, const char **argv)
   }
 
   if (!v) {
-	  g_print ("No results were returned\n");
+    g_print ("No results were returned\n");
   } else {
-	  GVariantIter iter1, *iter2, *iter3;
-	  const gchar *key;
-	  const gchar *value;
+    GVariantIter iter1, *iter2, *iter3;
+    const gchar *node;
+    const gchar *urn;
 
-	  g_print ("Results:\n");
+    g_print ("Results:\n");
 
-	  g_variant_iter_init (&amp;iter1, v);
-	  while (g_variant_iter_loop (&amp;iter1, "aa{ss}", &amp;iter2)) { /* aa{ss} */
-		  while (g_variant_iter_loop (iter2, "a{ss}", &amp;iter3)) { /* a{ss} */
-			  while (g_variant_iter_loop (iter3, "{ss}", &amp;key, &amp;value)) { /* {ss} */
-				  g_print ("  Node:'%s', URN:'%s'\n", key, value);
-	  		  }
-	  	  }
-	  }
+    g_variant_iter_init (&amp;iter1, v);
+    while (g_variant_iter_loop (&amp;iter1, "aa{ss}", &amp;iter2)) { /* aa{ss} */
+      while (g_variant_iter_loop (iter2, "a{ss}", &amp;iter3)) { /* a{ss} */
+        while (g_variant_iter_loop (iter3, "{ss}", &amp;node, &amp;urn)) { /* {ss} */
+	  g_print ("  Node:'%s', URN:'%s'\n", node, urn);
+	}
+      }
+    }
 
-	  g_variant_unref (v);
+    g_variant_unref (v);
   }
 
   g_object_unref (connection);
