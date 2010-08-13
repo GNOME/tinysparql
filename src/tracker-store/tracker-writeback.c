@@ -49,9 +49,11 @@ copy_rdf_types (GPtrArray *rdf_types)
 }
 
 void
-tracker_writeback_check (const gchar *graph,
+tracker_writeback_check (gint         graph_id,
+                         gint         subject_id,
                          const gchar *subject,
-                         const gchar *predicate,
+                         gint         pred_id,
+                         gint         object_id,
                          const gchar *object,
                          GPtrArray   *rdf_types)
 {
@@ -60,14 +62,14 @@ tracker_writeback_check (const gchar *graph,
 	 * aren't coming from the miner)
 	 */
 
-	if (graph != NULL) {
+	if (graph_id != 0) {
 		/* g_debug ("Not doing writeback check, no graph"); */
 		return;
 	}
 
 	g_return_if_fail (private != NULL);
 
-	if (g_hash_table_lookup (private->allowances, predicate)) {
+	if (g_hash_table_lookup (private->allowances, GINT_TO_POINTER (pred_id))) {
 		if (!private->events) {
 			private->events = g_hash_table_new_full (g_str_hash, g_str_equal,
 			                                         (GDestroyNotify) g_free,
@@ -119,9 +121,9 @@ tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 
 	private = g_new0 (WritebackPrivate, 1);
 
-	private->allowances = g_hash_table_new_full (g_str_hash,
-	                                             g_str_equal,
-	                                             (GDestroyNotify) g_free,
+	private->allowances = g_hash_table_new_full (g_direct_hash,
+	                                             g_direct_equal,
+	                                             NULL,
 	                                             NULL);
 
 	g_message ("Setting up predicates for writeback notification...");
@@ -139,11 +141,16 @@ tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 	}
 
 	count = g_strv_length (predicates_to_signal);
+
 	for (i = 0; i < count; i++) {
-		g_message ("  Adding:'%s'", predicates_to_signal[i]);
-		g_hash_table_insert (private->allowances,
-		                     g_strdup (predicates_to_signal[i]),
-		                     GINT_TO_POINTER (TRUE));
+		TrackerProperty *predicate = tracker_ontologies_get_property_by_uri (predicates_to_signal[i]);
+		if (predicate) {
+			gint id = tracker_property_get_id (predicate);
+			g_message ("  Adding:'%s'", predicates_to_signal[i]);
+			g_hash_table_insert (private->allowances,
+			                     GINT_TO_POINTER (id),
+			                     GINT_TO_POINTER (TRUE));
+		}
 	}
 
 	g_strfreev (predicates_to_signal);

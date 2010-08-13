@@ -1078,9 +1078,10 @@ cache_create_service_decomposed (TrackerClass *cl,
 			TrackerStatementDelegate *delegate;
 
 			delegate = g_ptr_array_index (insert_callbacks, n);
-			delegate->callback (final_graph_id, resource_buffer->id,
+			delegate->callback (final_graph_id, resource_buffer->id, resource_buffer->subject,
 			                    tracker_property_get_id (tracker_ontologies_get_rdf_type ()),
 			                    class_id,
+			                    tracker_class_get_uri (cl),
 			                    resource_buffer->types,
 			                    delegate->user_data);
 		}
@@ -1690,9 +1691,10 @@ cache_delete_resource_type (TrackerClass *class,
 			TrackerStatementDelegate *delegate;
 
 			delegate = g_ptr_array_index (delete_callbacks, n);
-			delegate->callback (final_graph_id, resource_buffer->id,
+			delegate->callback (final_graph_id, resource_buffer->id, resource_buffer->subject,
 			                    tracker_property_get_id (tracker_ontologies_get_rdf_type ()),
 			                    tracker_class_get_id (class),
+			                    tracker_class_get_uri (class),
 			                    resource_buffer->types,
 			                    delegate->user_data);
 		}
@@ -1863,8 +1865,9 @@ tracker_data_delete_statement (const gchar  *graph,
 				TrackerStatementDelegate *delegate;
 
 				delegate = g_ptr_array_index (delete_callbacks, n);
-				delegate->callback (graph_id, subject_id,
+				delegate->callback (graph_id, subject_id, subject,
 				                    pred_id, object_id,
+				                    object,
 				                    resource_buffer->types,
 				                    delegate->user_data);
 			}
@@ -2065,8 +2068,9 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 					TrackerStatementDelegate *delegate;
 
 					delegate = g_ptr_array_index (insert_callbacks, n);
-					delegate->callback (graph_id, resource_buffer->id,
+					delegate->callback (graph_id, resource_buffer->id, subject,
 					                    final_prop_id, object_id,
+					                    object,
 					                    resource_buffer->types,
 					                    delegate->user_data);
 				}
@@ -2143,8 +2147,9 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 			TrackerStatementDelegate *delegate;
 
 			delegate = g_ptr_array_index (insert_callbacks, n);
-			delegate->callback (graph_id, resource_buffer->id,
+			delegate->callback (graph_id, resource_buffer->id, subject,
 			                    pred_id, 0 /* Always a literal */,
+			                    object,
 			                    resource_buffer->types,
 			                    delegate->user_data);
 		}

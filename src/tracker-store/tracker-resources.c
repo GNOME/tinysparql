@@ -600,39 +600,43 @@ on_statements_rolled_back (gpointer user_data)
 }
 
 static void
-on_statement_inserted (const gchar *graph,
+on_statement_inserted (gint         graph_id,
+                       gint         subject_id,
                        const gchar *subject,
-                       const gchar *predicate,
+                       gint         pred_id,
+                       gint         object_id,
                        const gchar *object,
                        GPtrArray   *rdf_types,
-                       gpointer user_data)
+                       gpointer     user_data)
 {
-	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_ADD);
-	} else {
-		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
-	}
+	//if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
+		//tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_ADD);
+	//} else {
+		//tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
+	//}
 
 	/* For predicates it's always update here */
-	tracker_writeback_check (graph, subject, predicate, object, rdf_types);
+	tracker_writeback_check (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
 }
 
 static void
-on_statement_deleted (const gchar *graph,
+on_statement_deleted (gint         graph_id,
+                      gint         subject_id,
                       const gchar *subject,
-                      const gchar *predicate,
+                      gint         pred_id,
+                      gint         object_id,
                       const gchar *object,
                       GPtrArray   *rdf_types,
-                      gpointer user_data)
+                      gpointer     user_data)
 {
-	if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
-	} else {
-		tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
-	}
+	//if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
+		//tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
+	//} else {
+		//tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
+	//}
 
 	/* For predicates it's always delete here */
-	tracker_writeback_check (graph, subject, predicate, object, rdf_types);
+	tracker_writeback_check (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
 }
 
 void
@@ -645,8 +649,8 @@ tracker_resources_prepare (TrackerResources *object,
 
 	free_event_sources (priv);
 
-//	tracker_data_add_insert_statement_callback (on_statement_inserted, object);
-//	tracker_data_add_delete_statement_callback (on_statement_deleted, object);
+	tracker_data_add_insert_statement_callback (on_statement_inserted, object);
+	tracker_data_add_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_add_commit_statement_callback (on_statements_committed, object);
 	tracker_data_add_rollback_statement_callback (on_statements_rolled_back, object);
 
@@ -660,8 +664,8 @@ tracker_resources_finalize (GObject      *object)
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
 
-//	tracker_data_remove_insert_statement_callback (on_statement_inserted, object);
-//	tracker_data_remove_delete_statement_callback (on_statement_deleted, object);
+	tracker_data_remove_insert_statement_callback (on_statement_inserted, object);
+	tracker_data_remove_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_remove_commit_statement_callback (on_statements_committed, object);
 	tracker_data_remove_rollback_statement_callback (on_statements_rolled_back, object);
 
