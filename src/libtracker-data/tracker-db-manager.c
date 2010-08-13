@@ -179,58 +179,6 @@ location_to_directory (TrackerDBLocation location)
 	};
 }
 
-static void
-load_sql_file (TrackerDBInterface *iface,
-               const gchar        *file,
-               const gchar        *delimiter)
-{
-	gchar *path, *content, **queries;
-	gint   count;
-	gint   i;
-
-	path = g_build_filename (sql_dir, file, NULL);
-
-	if (!delimiter) {
-		delimiter = ";";
-	}
-
-	if (!g_file_get_contents (path, &content, NULL, NULL)) {
-		g_critical ("Cannot read SQL file:'%s', please reinstall tracker"
-		            " or check read permissions on the file if it exists", path);
-		g_assert_not_reached ();
-	}
-
-	queries = g_strsplit (content, delimiter, -1);
-
-	for (i = 0, count = 0; queries[i]; i++) {
-		GError *error = NULL;
-		gchar  *sql;
-
-		/* Skip white space, including control characters */
-		for (sql = queries[i]; sql && g_ascii_isspace (sql[0]); sql++);
-
-		if (!sql || sql[0] == '\0') {
-			continue;
-		}
-
-		tracker_db_interface_execute_query (iface, &error, "%s", sql);
-
-		if (error) {
-			g_warning ("Error loading query:'%s' #%d, %s", file, i, error->message);
-			g_error_free (error);
-			continue;
-		}
-
-		count++;
-	}
-
-	g_message ("  Loaded SQL file:'%s' (%d queries)", file, count);
-
-	g_strfreev (queries);
-	g_free (content);
-	g_free (path);
-}
-
 static gboolean
 db_exec_no_reply (TrackerDBInterface *iface,
                   const gchar        *query,
@@ -349,15 +297,6 @@ db_interface_get_metadata (void)
 	gboolean            create;
 
 	iface = db_interface_get (TRACKER_DB_METADATA, &create);
-
-	if (create) {
-		tracker_db_interface_start_transaction (iface);
-
-		/* Create tables */
-		load_sql_file (iface, "sqlite-tracker.sql", NULL);
-
-		tracker_db_interface_end_db_transaction (iface);
-	}
 
 	return iface;
 }

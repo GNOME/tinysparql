@@ -47,9 +47,6 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  fla
                                                       const gchar           *busy_status);
 void     tracker_data_manager_shutdown               (void);
 
-gint64   tracker_data_manager_get_db_option_int64    (const gchar           *option);
-void     tracker_data_manager_set_db_option_int64    (const gchar           *option,
-                                                      gint64                 value);
 void     tracker_data_ontology_load_statement        (const gchar           *ontology_file,
                                                       gint                   subject_id,
                                                       const gchar           *subject,
