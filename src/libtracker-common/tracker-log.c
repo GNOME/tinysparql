@@ -153,6 +153,14 @@ tracker_log_init (gint    this_verbosity,
 	env_verbosity = g_getenv ("TRACKER_VERBOSITY");
 	if (env_verbosity != NULL) {
 		this_verbosity = atoi (env_verbosity);
+	} else {
+		gchar *verbosity_string;
+
+		/* make sure libtracker-sparql uses the same verbosity setting */
+
+		verbosity_string = g_strdup_printf ("%d", this_verbosity);
+		g_setenv ("TRACKER_VERBOSITY", verbosity_string, FALSE);
+		g_free (verbosity_string);
 	}
 
 	basename = g_strdup_printf ("%s.log", g_get_application_name ());
