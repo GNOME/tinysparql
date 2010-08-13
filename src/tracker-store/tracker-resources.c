@@ -645,8 +645,8 @@ tracker_resources_prepare (TrackerResources *object,
 
 	free_event_sources (priv);
 
-	tracker_data_add_insert_statement_callback (on_statement_inserted, object);
-	tracker_data_add_delete_statement_callback (on_statement_deleted, object);
+//	tracker_data_add_insert_statement_callback (on_statement_inserted, object);
+//	tracker_data_add_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_add_commit_statement_callback (on_statements_committed, object);
 	tracker_data_add_rollback_statement_callback (on_statements_rolled_back, object);
 
@@ -660,8 +660,8 @@ tracker_resources_finalize (GObject      *object)
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
 
-	tracker_data_remove_insert_statement_callback (on_statement_inserted, object);
-	tracker_data_remove_delete_statement_callback (on_statement_deleted, object);
+//	tracker_data_remove_insert_statement_callback (on_statement_inserted, object);
+//	tracker_data_remove_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_remove_commit_statement_callback (on_statements_committed, object);
 	tracker_data_remove_rollback_statement_callback (on_statements_rolled_back, object);
 

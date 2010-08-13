@@ -34,10 +34,10 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
-typedef void (*TrackerStatementCallback) (const gchar *graph,
-                                          const gchar *subject,
-                                          const gchar *predicate,
-                                          const gchar *object,
+typedef void (*TrackerStatementCallback) (gint         graph_id,
+                                          gint         subject_id,
+                                          gint         predicate_id,
+                                          gint         object_id,
                                           GPtrArray   *rdf_types,
                                           gpointer     user_data);
 typedef void (*TrackerCommitCallback)    (gpointer     user_data);

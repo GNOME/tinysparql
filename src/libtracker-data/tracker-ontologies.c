@@ -25,6 +25,8 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-ontologies.h>
+
 #include "tracker-ontologies.h"
 
 static gboolean    initialized;
@@ -58,6 +60,9 @@ static gpointer    property_type_enum_class;
 
 /* Hash (int id, const gchar *uri) */
 static GHashTable *id_uri_pairs;
+
+/* rdf:type */
+static TrackerProperty *rdf_type = NULL;
 
 void
 tracker_ontologies_init (void)
@@ -144,7 +149,20 @@ tracker_ontologies_shutdown (void)
 	g_type_class_unref (property_type_enum_class);
 	property_type_enum_class = NULL;
 
+	if (rdf_type) {
+		g_object_unref (rdf_type);
+		rdf_type = NULL;
+	}
+
 	initialized = FALSE;
+}
+
+TrackerProperty *
+tracker_ontologies_get_rdf_type (void)
+{
+	g_return_val_if_fail (rdf_type != NULL, NULL);
+
+	return rdf_type;
 }
 
 const gchar*
@@ -239,6 +257,13 @@ tracker_ontologies_add_property (TrackerProperty *field)
 	g_return_if_fail (TRACKER_IS_PROPERTY (field));
 
 	uri = tracker_property_get_uri (field);
+
+	if (g_strcmp0 (uri, TRACKER_RDF_PREFIX "type") == 0) {
+		if (rdf_type) {
+			g_object_unref (rdf_type);
+		}
+		rdf_type = g_object_ref (field);
+	}
 
 	g_ptr_array_add (properties, g_object_ref (field));
 

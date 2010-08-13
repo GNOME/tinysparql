@@ -1035,7 +1035,7 @@ cache_create_service_decomposed (TrackerClass *cl,
 {
 	TrackerClass       **super_classes;
 	GValue              gvalue = { 0 };
-	gint                i;
+	gint                i, final_graph_id, class_id;
 
 	/* also create instance of all super classes */
 	super_classes = tracker_class_get_super_classes (cl);
@@ -1057,24 +1057,30 @@ cache_create_service_decomposed (TrackerClass *cl,
 
 	cache_insert_row (cl);
 
-	g_value_set_int64 (&gvalue, ensure_resource_id (tracker_class_get_uri (cl), NULL));
+	final_graph_id = (graph != NULL ? ensure_resource_id (graph, NULL) : graph_id);
+
+	/* This is the original, no idea why tracker_class_get_id wasn't used here:
+	 * class_id = ensure_resource_id (tracker_class_get_uri (cl), NULL); */
+
+	class_id = tracker_class_get_id (cl);
+
+	g_value_set_int64 (&gvalue, class_id);
 	cache_insert_value ("rdfs:Resource_rdf:type", "rdf:type", &gvalue,
-	                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
+	                    final_graph_id,
 	                    TRUE, FALSE, FALSE);
 
 	add_class_count (cl, 1);
+
 	if (!in_journal_replay && insert_callbacks) {
 		guint n;
-		const gchar *class_uri;
-
-		class_uri = tracker_class_get_uri (cl);
 
 		for (n = 0; n < insert_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
 
 			delegate = g_ptr_array_index (insert_callbacks, n);
-			delegate->callback (graph, resource_buffer->subject,
-			                    RDF_PREFIX "type", class_uri,
+			delegate->callback (final_graph_id, resource_buffer->id,
+			                    tracker_property_get_id (tracker_ontologies_get_rdf_type ()),
+			                    class_id,
 			                    resource_buffer->types,
 			                    delegate->user_data);
 		}
@@ -1676,13 +1682,19 @@ cache_delete_resource_type (TrackerClass *class,
 
 	if (!in_journal_replay && delete_callbacks) {
 		guint n;
+		gint final_graph_id;
+
+		final_graph_id = (graph != NULL ? ensure_resource_id (graph, NULL) : graph_id);
+
 		for (n = 0; n < delete_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
 
 			delegate = g_ptr_array_index (delete_callbacks, n);
-			delegate->callback (graph, resource_buffer->subject,
-			                    RDF_PREFIX "type", tracker_class_get_uri (class),
-			                    resource_buffer->types, delegate->user_data);
+			delegate->callback (final_graph_id, resource_buffer->id,
+			                    tracker_property_get_id (tracker_ontologies_get_rdf_type ()),
+			                    tracker_class_get_id (class),
+			                    resource_buffer->types,
+			                    delegate->user_data);
 		}
 	}
 
@@ -1767,8 +1779,8 @@ tracker_data_delete_statement (const gchar  *graph,
 {
 	TrackerClass       *class;
 	TrackerProperty    *field;
-	gint                subject_id;
-	gboolean change = FALSE;
+	gint                subject_id = 0;
+	gboolean            change = FALSE;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -1789,43 +1801,60 @@ tracker_data_delete_statement (const gchar  *graph,
 		if (class != NULL) {
 			if (!in_journal_replay) {
 				tracker_db_journal_append_delete_statement_id (
-					(graph != NULL ? query_resource_id (graph) : 0),
-					resource_buffer->id,
-					tracker_data_query_resource_id (predicate),
-					query_resource_id (object));
+				       (graph != NULL ? query_resource_id (graph) : 0),
+				       resource_buffer->id,
+				       tracker_data_query_resource_id (predicate),
+				       tracker_class_get_id (class));
 			}
-
 			cache_delete_resource_type (class, graph, 0);
 		} else {
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object);
 		}
 	} else {
+		gint pred_id = 0, graph_id = 0, object_id = 0;
+		gboolean tried = FALSE;
+
 		field = tracker_ontologies_get_property_by_uri (predicate);
 		if (field != NULL) {
-			gint id;
-
 			change = delete_metadata_decomposed (field, object, 0, error);
-
-			id = tracker_property_get_id (field);
 			if (!in_journal_replay && change) {
 				if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-					tracker_db_journal_append_delete_statement_id (
-						(graph != NULL ? query_resource_id (graph) : 0),
-						resource_buffer->id,
-						(id != 0) ? id : tracker_data_query_resource_id (predicate),
-						query_resource_id (object));
+
+					pred_id = tracker_property_get_id (field);
+					graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+					object_id = query_resource_id (object);
+					tried = TRUE;
+
+					tracker_db_journal_append_delete_statement_id (graph_id,
+					                                               resource_buffer->id,
+					                                               pred_id,
+					                                               object_id);
 				} else {
-					tracker_db_journal_append_delete_statement (
-						(graph != NULL ? query_resource_id (graph) : 0),
-						resource_buffer->id,
-						(id != 0) ? id : tracker_data_query_resource_id (predicate),
-						object);
+					pred_id = tracker_property_get_id (field);
+					graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+					object_id = 0;
+					tried = TRUE;
+
+					tracker_db_journal_append_delete_statement (graph_id,
+					                                            resource_buffer->id,
+					                                            pred_id,
+					                                            object);
 				}
 			}
 		} else {
+			/* I wonder why in case of error the delete_callbacks are still executed */
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
 			             "Property '%s' not found in the ontology", predicate);
+		}
+
+		if (!tried) {
+			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+			if (field == NULL) {
+				pred_id = tracker_data_query_resource_id (predicate);
+			} else {
+				pred_id = tracker_property_get_id (field);
+			}
 		}
 
 		if (delete_callbacks && change) {
@@ -1834,7 +1863,8 @@ tracker_data_delete_statement (const gchar  *graph,
 				TrackerStatementDelegate *delegate;
 
 				delegate = g_ptr_array_index (delete_callbacks, n);
-				delegate->callback (graph, subject, predicate, object,
+				delegate->callback (graph_id, subject_id,
+				                    pred_id, object_id,
 				                    resource_buffer->types,
 				                    delegate->user_data);
 			}
@@ -1929,7 +1959,8 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 	GError          *actual_error = NULL;
 	TrackerClass    *class;
 	TrackerProperty *property;
-	gint             prop_id = 0;
+	gint             prop_id = 0, graph_id = 0;
+	gint             final_prop_id = 0, object_id = 0;
 	gboolean change = FALSE;
 
 	g_return_if_fail (subject != NULL);
@@ -2008,6 +2039,12 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 			return;
 		}
 
+		if (!in_journal_replay) {
+			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (predicate);
+			object_id = query_resource_id (object);
+		}
+
 		change = TRUE;
 	} else {
 		/* add value to metadata database */
@@ -2017,25 +2054,33 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 			return;
 		}
 
-		if (insert_callbacks && change) {
-			guint n;
-			for (n = 0; n < insert_callbacks->len; n++) {
-				TrackerStatementDelegate *delegate;
+		if (change) {
+			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (predicate);
+			object_id = query_resource_id (object);
 
-				delegate = g_ptr_array_index (insert_callbacks, n);
-				delegate->callback (graph, subject, predicate, object,
-				                    resource_buffer->types,
-				                    delegate->user_data);
+			if (insert_callbacks) {
+				guint n;
+				for (n = 0; n < insert_callbacks->len; n++) {
+					TrackerStatementDelegate *delegate;
+
+					delegate = g_ptr_array_index (insert_callbacks, n);
+					delegate->callback (graph_id, resource_buffer->id,
+					                    final_prop_id, object_id,
+					                    resource_buffer->types,
+					                    delegate->user_data);
+				}
 			}
 		}
+
 	}
 
 	if (!in_journal_replay && change) {
 		tracker_db_journal_append_insert_statement_id (
 			(graph != NULL ? query_resource_id (graph) : 0),
 			resource_buffer->id,
-			(prop_id != 0) ? prop_id : tracker_data_query_resource_id (predicate),
-			query_resource_id (object));
+			final_prop_id,
+			object_id);
 	}
 }
 
@@ -2048,8 +2093,8 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 {
 	GError          *actual_error = NULL;
 	TrackerProperty *property;
-	gint             id = 0;
-	gboolean change;
+	gboolean         change, tried = FALSE;
+	gint             graph_id = 0, pred_id = 0;
 
 
 	g_return_if_fail (subject != NULL);
@@ -2068,7 +2113,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 			             "Property '%s' only accepts URIs", predicate);
 			return;
 		}
-		id = tracker_property_get_id (property);
+		pred_id = tracker_property_get_id (property);
 	}
 
 	if (!tracker_data_insert_statement_common (graph, subject, predicate, object, &actual_error)) {
@@ -2089,22 +2134,31 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 
 	if (insert_callbacks && change) {
 		guint n;
+
+		graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
+		tried = TRUE;
+
 		for (n = 0; n < insert_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
 
 			delegate = g_ptr_array_index (insert_callbacks, n);
-			delegate->callback (graph, subject, predicate, object,
+			delegate->callback (graph_id, resource_buffer->id,
+			                    pred_id, 0 /* Always a literal */,
 			                    resource_buffer->types,
 			                    delegate->user_data);
 		}
 	}
 
 	if (!in_journal_replay && change) {
-		tracker_db_journal_append_insert_statement (
-			(graph != NULL ? query_resource_id (graph) : 0),
-			resource_buffer->id,
-			(id != 0) ? id : tracker_data_query_resource_id (predicate),
-			object);
+		if (!tried) {
+			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+			pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
+		}
+		tracker_db_journal_append_insert_statement (graph_id,
+		                                            resource_buffer->id,
+		                                            pred_id,
+		                                            object);
 	}
 }
 
@@ -2382,7 +2436,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 					continue;
 				}
 
-				if (strcmp (tracker_property_get_uri (property), RDF_PREFIX "type") == 0) {
+				if (property == tracker_ontologies_get_rdf_type ()) {
 					/* Do not delete rdf:type statements */
 					continue;
 				}
@@ -2723,7 +2777,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 	GPtrArray *seen_classes = NULL;
 	GPtrArray *seen_properties = NULL;
 
-	rdf_type = tracker_ontologies_get_property_by_uri (RDF_PREFIX "type");
+	rdf_type = tracker_ontologies_get_rdf_type ();
 
 	tracker_db_journal_reader_init (NULL);
 
