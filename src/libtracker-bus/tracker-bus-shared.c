@@ -21,11 +21,6 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <unistd.h>
-
 #include <glib-object.h>
 
 #include <libtracker-common/tracker-common.h>
@@ -33,13 +28,15 @@
 
 #include "tracker-bus-shared.h"
 
-GVariant*
+GVariant *
 tracker_bus_message_to_variant (DBusMessage *message)
 {
 	GVariantBuilder builder;
 	DBusMessageIter iter, subiter, subsubiter;
 
-	/*aaa{ss}*/
+	g_return_val_if_fail (message != NULL, NULL);
+
+	/* Expecting aaa{ss} */
 
 	g_variant_builder_init (&builder, G_VARIANT_TYPE ("aaa{ss}")); /* a */
 

@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
- * Copyright (C) 2008-2010, Nokia <ivan.frade@nokia.com>
- * Copyright (C) 2010, Codeminded BVBA <philip@codeminded.be>
+ * Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,8 +17,13 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef __TRACKER_BUS_SHARED_H__
+#define __TRACKER_BUS_SHARED_H__
+
 G_BEGIN_DECLS
 
-GVariant* tracker_bus_message_to_variant (DBusMessage *message);
+GVariant *tracker_bus_message_to_variant (DBusMessage *message);
 
 G_END_DECLS
+
+#endif /* __TRACKER_BUS_SHARED_H__ */
