@@ -35,6 +35,8 @@
 #include "tracker-bus.h"
 #include "tracker-bus-shared.h"
 
+#ifdef HAVE_DBUS_FD_PASSING
+
 typedef struct {
 	DBusConnection *connection;
 	GCancellable *cancellable;
@@ -43,7 +45,6 @@ typedef struct {
 	gpointer user_data;
 	gulong cancelid;
 } AsyncData;
-
 
 static void
 async_data_free (gpointer data)
@@ -84,8 +85,6 @@ async_data_new (DBusConnection      *connection,
 	return fad;
 }
 
-
-
 static void
 sparql_update_callback (DBusPendingCall *call,
                         void            *user_data)
@@ -121,6 +120,8 @@ sparql_update_callback (DBusPendingCall *call,
 
 	dbus_pending_call_unref (call);
 }
+
+#endif /* HAVE_DBUS_FD_PASSING */
 
 void
 tracker_bus_array_sparql_update_blank_async (DBusGConnection       *connection,
@@ -165,8 +166,6 @@ tracker_bus_array_sparql_update_blank_async (DBusGConnection       *connection,
 	fad->dbus_call = call;
 
 	dbus_pending_call_set_notify (call, sparql_update_callback, fad, NULL);
-
-
 #else  /* HAVE_DBUS_FD_PASSING */
 	g_assert_not_reached ();
 #endif /* HAVE_DBUS_FD_PASSING */
