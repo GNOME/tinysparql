@@ -35,7 +35,7 @@
 #include "tracker-bus.h"
 #include "tracker-bus-shared.h"
 
-#ifdef HAVE_DBUS_FD_PASSING
+#ifndef HAVE_DBUS_FD_PASSING
 
 typedef struct {
 	DBusConnection *connection;
@@ -130,7 +130,7 @@ tracker_bus_array_sparql_update_blank_async (DBusGConnection       *connection,
                                              GAsyncReadyCallback    callback,
                                              gpointer               user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
+#ifndef HAVE_DBUS_FD_PASSING
 	DBusPendingCall *call;
 	DBusMessage *message;
 	AsyncData *fad;
@@ -177,7 +177,7 @@ tracker_bus_array_sparql_update_blank (DBusGConnection *connection,
                                        const gchar     *query,
                                        GError         **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
+#ifndef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply, *message;
 	GVariant *result;
 	DBusMessageIter iter;
@@ -250,7 +250,7 @@ GVariant *
 tracker_bus_array_sparql_update_blank_finish (GAsyncResult     *res,
                                               GError          **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
+#ifndef HAVE_DBUS_FD_PASSING
 	g_return_val_if_fail (res != NULL, NULL);
 
 	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
