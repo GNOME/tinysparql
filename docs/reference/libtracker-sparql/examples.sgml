@@ -28,8 +28,7 @@ int main (int argc, char **argv)
   <type><link linkend="TrackerSparqlBuilder-struct">TrackerSparqlBuilder</link></type> *builder;
   const gchar *iri = "urn:example:0001";
   const gchar *query_str;
-  time_t now = time (NULL);
-
+  time_t now;
 
   /* Initialize GLib type system */
   g_type_init ();
@@ -49,6 +48,7 @@ int main (int argc, char **argv)
   <function><link linkend="tracker-sparql-builder-object">tracker_sparql_builder_object</link></function> (builder, "nie:DataObject");
   <function><link linkend="tracker-sparql-builder-object">tracker_sparql_builder_object</link></function> (builder, "nfo:FileDataObject");
 
+  now = time (NULL);
   <function><link linkend="tracker-sparql-builder-predicate">tracker_sparql_builder_predicate</link></function> (builder, "nfo:fileLastModified");
   <function><link linkend="tracker-sparql-builder-object-date">tracker_sparql_builder_object_date</link></function> (builder, &amp;now);
 
@@ -58,12 +58,12 @@ int main (int argc, char **argv)
   query_str = <function><link linkend="tracker-sparql-builder-get-result">tracker_sparql_builder_get_result</link></function> (builder);
 
   /* Print it */
-  g_print ("Generated SPARQL query: \n"
-	   "%s", query_str);
+  g_print ("Generated SPARQL query: '%s'\n", query_str);
 
   /* Once builder no longer needed, unref it. Note that after
    * this operation, you must not use the returned query result
-   * any more */
+   * any more 
+   */
   g_object_unref (builder)
 
   return 0;
@@ -137,13 +137,15 @@ int main (int argc, const char **argv)
   g_type_init ();
 
   /* As we know only read-only queries will be done, it's enough
-   * to use a connection with only direct-access setup. */
+   * to use a connection with only direct-access setup. 
+   */
   connection = <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function> (&amp;error);
   if (!connection) {
-    /* Some error happened getting the connection, not good */
-    g_error ("Couldn't obtain a direct-access connection to the "
-             "Tracker Store: '%s'",
-             error ? error-&gt;message : "unknown error");
+    g_printerr ("Couldn't obtain a direct connection to the Tracker store: %s",
+                error ? error-&gt;message : "unknown error");
+    g_clear_error (&amp;error);
+
+    return 1;
   }
 
   /* Make a synchronous query to the store */
@@ -151,10 +153,14 @@ int main (int argc, const char **argv)
   					    query,
   					    NULL,
   					    &amp;error);
+
   if (error) {
     /* Some error happened performing the query, not good */
-    g_error ("Couldn't query the Tracker Store: '%s'",
-             error ? error-&gt;message : "unknown error");
+    g_printerr ("Couldn't query the Tracker Store: '%s'",
+                error ? error-&gt;message : "unknown error");
+    g_clear_error (&amp;error);
+
+    return 1;
   }
 
   /* Check results... */
@@ -162,12 +168,14 @@ int main (int argc, const char **argv)
     g_print ("No results found :-/\n");
   } else {
     gint i = 0;
+
     /* Iterate, synchronously, the results... */
     while (<function><link linkend="tracker-sparql-cursor-next">tracker_sparql_cursor_next</link></function> (cursor, NULL, &amp;error)) {
       g_print ("Result [%d]: %s\n",
 	       i++,
 	       <function><link linkend="tracker-sparql-cursor-get-string">tracker_sparql_cursor_get_string</link></function> (cursor, 0, NULL));
     }
+
     g_print ("A total of '%d' results were found\n", i);
 
     g_object_unref (cursor);
@@ -232,24 +240,32 @@ int main (int argc, const char **argv)
   g_type_init ();
 
   /* Do NOT get a direct connection if you're going to
-   * do some write operation in the Store */
+   * do some write operation in the Store
+   */
   connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (&amp;error);
   if (!connection) {
-    /* Some error happened getting the connection, not good */
-    g_error ("Couldn't obtain a connection to the "
-             "Tracker Store: '%s'",
-             error ? error-&gt;message : "unknown error");
+    g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
+                error ? error-&gt;message : "unknown error");
+    g_clear_error (&amp;error);
+
+    return 1;
   }
 
   /* Run a synchronous update query */
   <function><link linkend="tracker-sparql-connection-update">tracker_sparql_connection_update</link></function> (connection,
-  					    query,
-  					    NULL,
-  					    &amp;error);
+  				    query,
+  				    NULL,
+  				    &amp;error);
+
   if (error) {
     /* Some error happened performing the query, not good */
-    g_error ("Couldn't update the Tracker Store: '%s'",
-             error ? error-&gt;message : "unknown error");
+    g_printerr ("Couldn't update the Tracker store: %s",
+                error ? error-&gt;message : "unknown error");
+
+    g_clear_error (&amp;error);
+    g_object_unref (connection);
+
+    return 1;
   }
 
   g_object_unref (connection);
