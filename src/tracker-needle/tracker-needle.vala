@@ -25,9 +25,6 @@ extern static const string UIDIR;
 [CCode (cname = "SRCDIR")]
 extern static const string SRCDIR;
 
-// Added to fix #error for GETTEXT_PACKAGE
-private const string a = Config.APPNAME;
-
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 interface Resources : GLib.Object {
 	public abstract string[,] SparqlQuery (string query) throws DBus.Error;
