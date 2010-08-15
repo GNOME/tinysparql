@@ -43,6 +43,7 @@ public class TrackerNeedle {
 	private uint last_search_id = 0;
 	private ListStore store;
 	private int size_small = 0;
+	private int size_medium = 0;
 	private int size_big = 0;
 	static bool current_view = true;
 	static bool current_find_in = true;
@@ -76,6 +77,7 @@ public class TrackerNeedle {
 		}
 
 		Gtk.icon_size_lookup (Gtk.IconSize.MENU, out size_small, null);
+		Gtk.icon_size_lookup (Gtk.IconSize.DND, out size_medium, null);
 		Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null);
 
 		window = builder.get_object ("window_needle") as Window;
@@ -113,17 +115,18 @@ public class TrackerNeedle {
 
 	private void setup_ui_results (TreeView treeview, IconView iconview) {
 		// Setup treeview
-		store = new ListStore (8,
+		store = new ListStore (9,
 		                       typeof (Gdk.Pixbuf),  // Icon small
 		                       typeof (Gdk.Pixbuf),  // Icon big
 		                       typeof (string),      // URN
 		                       typeof (string),      // URL
-		                       typeof (string),      // File name
+		                       typeof (string),      // Title
+		                       typeof (string),      // Subtitle
 		                       typeof (string),      // File last changed
 		                       typeof (string),      // File size
 		                       typeof (string));     // Tooltip
 		treeview.set_model (store);
-		treeview.set_tooltip_column (7);
+		treeview.set_tooltip_column (8);
 
 		var col = new Gtk.TreeViewColumn ();
 
@@ -134,6 +137,7 @@ public class TrackerNeedle {
 		var renderer2 = new Tracker.CellRendererText ();
 		col.pack_start (renderer2, true);
 		col.add_attribute (renderer2, "text", 4);
+		col.add_attribute (renderer2, "subtext", 5);
 
 		col.set_title ("File");
 		col.set_resizable (true);
@@ -141,8 +145,8 @@ public class TrackerNeedle {
 		col.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
 		treeview.append_column (col);
 
-		treeview.insert_column_with_attributes (-1, "Last Changed", new CellRendererText (), "text", 5, null);
-		treeview.insert_column_with_attributes (-1, "Size", new CellRendererText (), "text", 6, null);
+		treeview.insert_column_with_attributes (-1, "Last Changed", new CellRendererText (), "text", 6, null);
+		treeview.insert_column_with_attributes (-1, "Size", new CellRendererText (), "text", 7, null);
 		treeview.row_activated.connect (view_row_selected);
 
 		// Setup iconview
@@ -162,9 +166,7 @@ public class TrackerNeedle {
 		last_search_id = Timeout.add_seconds (1, search_run);
 	}
 
-	private bool search_run () {
-		last_search_id = 0;
-
+	private void search_simple () {
 		Tracker.Query query = new Tracker.Query ();
 		Tracker.Sparql.Cursor cursor = null;
 
@@ -179,7 +181,7 @@ public class TrackerNeedle {
 
 		if (cursor == null) {
 			// FIXME: Print "no results" some where
-			return false;
+			return;
 		}
 
 		store.clear ();
@@ -198,7 +200,6 @@ public class TrackerNeedle {
 						debug ("  --> %s", cursor.get_string (i));
 					}
 				}
-				debug ("\n");
 
 				// Get icon
 				string urn = cursor.get_string (0);
@@ -207,8 +208,8 @@ public class TrackerNeedle {
 				string _file_time = cursor.get_string (3);
 				string _file_size = cursor.get_string (4);
 				string tooltip = cursor.get_string (7);
-				Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, _file, size_small);
-				Gdk.Pixbuf pixbuf_big = tracker_pixbuf_new_from_file (theme, _file, size_big);
+				Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, _file, size_small, false);
+				Gdk.Pixbuf pixbuf_big = tracker_pixbuf_new_from_file (theme, _file, size_big, false);
 				string file_size = GLib.format_size_for_display (_file_size.to_int());
 				string file_time = tracker_time_format_from_iso8601 (_file_time);
 
@@ -218,19 +219,117 @@ public class TrackerNeedle {
 
 				// FIXME: should optimise this a bit more, inserting 2 images into a list eek
 				store.set (iter,
-					       0, pixbuf_small,
-					       1, pixbuf_big,
-					       2, urn,
-					       3, _file,
-					       4, title,
-					       5, file_time,
-					       6, file_size,
-					       7, tooltip,
+					       0, pixbuf_small, // Small Image
+					       1, pixbuf_big,   // Large Image
+					       2, urn,          // URN
+					       3, _file,        // URL
+					       4, title,        // Title
+					       5, null,         // Subtitle
+					       6, file_time,    // Time
+					       7, file_size,    // Size
+					       8, tooltip,      // Tooltip
 					       -1);
 			}
 		} catch (GLib.Error e) {
 			warning ("Could not iterate query results: %s", e.message);
-			return false;
+			return;
+		}
+	}
+
+	private void search_detailed () {
+		Tracker.Query.Type[] categories = { 
+			Tracker.Query.Type.APPLICATIONS,
+			Tracker.Query.Type.MUSIC,
+			Tracker.Query.Type.IMAGES,
+			Tracker.Query.Type.VIDEOS,
+			Tracker.Query.Type.DOCUMENTS
+		};
+		Tracker.Query query = new Tracker.Query ();
+
+		store.clear ();
+
+		var screen = window.get_screen ();
+		var theme = IconTheme.get_for_screen (screen);
+
+		foreach (Tracker.Query.Type type in categories) {
+			Tracker.Sparql.Cursor cursor;
+
+			query.limit = 100;
+			query.criteria = search.get_text ();
+
+			cursor = query.perform (type);
+
+			if (cursor == null) {
+				// FIXME: Print "no results" some where
+				return;
+			}
+
+			try {
+				while (cursor.next()) {
+					int i;
+
+					for (i = 0; i < cursor.n_columns; i++) {
+						if (i == 0) {
+							debug ("--> %s", cursor.get_string (i));
+						} else {
+							debug ("  --> %s", cursor.get_string (i));
+						}
+					}
+
+					bool is_image = type == Tracker.Query.Type.IMAGES;
+
+					string urn = cursor.get_string (0);
+					string _file = cursor.get_string (1);
+					string title = cursor.get_string (2);
+					string subtitle = null;
+					string tooltip = cursor.get_string (4);
+					Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, _file, size_medium, is_image);
+
+					// Special cases
+					switch (type) {
+					case Tracker.Query.Type.VIDEOS:
+						subtitle = tracker_time_format_from_seconds (cursor.get_string (3));
+						break;
+						
+					default:
+						break;
+					}
+
+					if (subtitle == null) {
+						subtitle = cursor.get_string (3);
+					}
+
+					// Insert into model
+					TreeIter iter;
+					store.append (out iter);
+
+					// FIXME: should optimise this a bit more, inserting 2 images into a list eek
+					store.set (iter,
+							   0, pixbuf_small, // Small Image
+							   1, null,         // Large Image
+							   2, urn,          // URN
+							   3, _file,        // URL
+							   4, title,        // Title
+							   5, subtitle,     // Subtitle
+							   6, null,         // Time
+							   7, null,         // Size
+							   8, tooltip,      // Tooltip
+							   -1);
+				}
+			} catch (GLib.Error e) {
+				warning ("Could not iterate query results: %s", e.message);
+				return;
+			}
+		}
+	}
+
+	private bool search_run () {
+		last_search_id = 0;
+
+		if (view_details.active) {
+			search_detailed ();
+		} else {
+			search_simple ();
 		}
 
 		return false;
@@ -250,12 +349,29 @@ public class TrackerNeedle {
 			sw_iconview.hide ();
 			sw_treeview.show_all ();
 			debug ("View toggled to 'list' or 'details'");
+			
+			if (view_details.active) {
+				treeview.get_column (1).visible = false;
+				treeview.get_column (2).visible = false;
+				treeview.set_headers_visible (false);
+				find_in_contents.sensitive = false;
+				find_in_titles.sensitive = false;
+			} else {
+				treeview.get_column (1).visible = true;
+				treeview.get_column (2).visible = true;
+				treeview.set_headers_visible (true);
+				find_in_contents.sensitive = true;
+				find_in_titles.sensitive = true;
+			}
 		} else {
 			sw_iconview.show_all ();
 			sw_treeview.hide ();
+			find_in_contents.sensitive = true;
+			find_in_titles.sensitive = true;
 			debug ("View toggled to 'icons'");
 		}
 
+		search_run ();
 		current_view = rows;
 	}
 

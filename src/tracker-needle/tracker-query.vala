@@ -23,7 +23,14 @@ public class Tracker.Query {
 	public enum Type {
 		ALL,
 		ALL_ONLY_IN_TITLES,
-		MUSIC
+		CONTACTS,
+		APPLICATIONS,
+		MUSIC,
+		IMAGES,
+		VIDEOS,
+		DOCUMENTS,
+		MAIL,
+		CALENDAR
 	}
 
 	public string criteria { get; set; }
@@ -59,14 +66,102 @@ public class Tracker.Query {
 
 		switch (query_type) {
 		case Type.ALL:
-			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u fts:match \"$criteria_escaped\" . ?u nfo:belongsToContainer ?c ; tracker:available true . } ORDER BY DESC(fts:rank(?u)) OFFSET 0 LIMIT 100";
+			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u fts:match \"$criteria_escaped\" . ?u nfo:belongsToContainer ?c ; tracker:available true . } ORDER BY DESC(fts:rank(?u)) OFFSET $offset LIMIT $limit";
 			break;
 			
 		case Type.ALL_ONLY_IN_TITLES:
-			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c ; tracker:available true . FILTER(fn:contains(nfo:fileName(?u), \"$criteria_escaped\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET 0 LIMIT 100";
+			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c ; tracker:available true . FILTER(fn:contains(nfo:fileName(?u), \"$criteria_escaped\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET $offset LIMIT $limit";
+			break;
+
+		case Type.APPLICATIONS:
+			query = @"
+			        SELECT
+			          ?urn 
+			          nie:url(?urn) 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          nie:comment(?urn)
+			          nfo:softwareCmdLine (?urn)
+			        WHERE {
+			          ?urn a nfo:Software .
+			          ?urn fts:match \"$criteria_escaped\" .
+			        }
+			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
+			        OFFSET $offset LIMIT $limit
+			        ";
 			break;
 
 		case Type.MUSIC:
+			query = @"
+			        SELECT
+			          ?urn 
+			          nie:url(?urn) 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          fn:string-join((?performer, ?album), \" - \") 
+			          ?tooltip
+			        WHERE {
+			          ?urn a nfo:Audio ;
+			          nmm:performer [ nmm:artistName ?performer ] ;
+			          nmm:musicAlbum [ nie:title ?album ] ;
+			          nfo:belongsToContainer [ nie:url ?tooltip ] .
+			          ?urn fts:match \"$criteria_escaped\" 
+			        }
+			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
+			        OFFSET $offset LIMIT $limit
+			        ";
+			break;
+
+		case Type.IMAGES:
+			query = @"
+			        SELECT
+			          ?urn 
+			          nie:url(?urn) 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          fn:string-join((nfo:height(?urn), nfo:width(?urn)), \" x \") 
+			          ?tooltip
+			        WHERE {
+			          ?urn a nfo:Image ;
+			          nfo:belongsToContainer [ nie:url ?tooltip ] .
+			          ?urn fts:match \"$criteria_escaped\" 
+			        }
+			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
+			        OFFSET $offset LIMIT $limit
+			        ";
+			break;
+
+		case Type.VIDEOS:
+			query = @"
+			        SELECT
+			          ?urn 
+			          nie:url(?urn) 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          nfo:duration(?urn)
+			          ?tooltip
+			        WHERE {
+			          ?urn a nfo:Video ;
+			          nfo:belongsToContainer [ nie:url ?tooltip ] .
+			          ?urn fts:match \"$criteria_escaped\" .
+			        }
+			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
+			        OFFSET $offset LIMIT $limit
+			        ";
+			break;
+
+		case Type.DOCUMENTS:
+//			          fn:concat(nco:pageCount(?urn), \" pages\")
+			query = @"
+			        SELECT
+			          ?urn 
+			          nie:url(?urn) 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          ?tooltip
+			        WHERE {
+			          ?urn a nfo:Document ;
+			          nfo:belongsToContainer [ nie:url ?tooltip ] .
+			          ?urn fts:match \"$criteria_escaped\" .
+			        }
+			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
+			        OFFSET $offset LIMIT $limit
+			        ";
 			break;
 
 		default:
@@ -82,6 +177,8 @@ public class Tracker.Query {
 		} catch (GLib.IOError eb) {
 			warning ("Could not run Sparql query: %s", eb.message);
 		}
+
+		debug ("Done");
 
 		return cursor;
 	}

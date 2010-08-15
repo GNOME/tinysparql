@@ -54,7 +54,7 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 		if (is_valid && is_selected == selected) {
 			return;
 		}
-
+		//subtext = "foo";
 		var style = widget.get_style ();
 		var attr_list = new Pango.AttrList ();
 

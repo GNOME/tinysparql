@@ -67,10 +67,66 @@ public string tracker_time_format_from_iso8601 (string s) {
 	}
 }
 
-public Gdk.Pixbuf tracker_pixbuf_new_from_file (IconTheme theme, string filename, int size) {
+public string tracker_time_format_from_seconds (string seconds_str) {
+	double seconds = seconds_str.to_int ();
+	double total;
+	int d, h, m, s;
+	
+	if (seconds == 0.0) {
+		return _("Less than one second");
+	}
+
+	total = seconds;
+	s = (int) total % 60;
+	total /= 60;
+	m = (int) total % 60;
+	total /= 60;
+	h = (int) total % 24;
+	d = (int) total / 24;
+
+	var output = new StringBuilder ("");
+
+	if (d > 0) {
+		output.append (" %dd".printf (d));
+	}
+
+	if (h > 0) {
+		output.append (" %2.2dh".printf (h));
+	}
+
+	if (m > 0) {
+		output.append (" %2.2dm".printf (m));
+	}
+
+	if (s > 0) {
+		output.append (" %2.2ds".printf (s));
+	}
+
+	if (output.len < 1) {
+		return _("Less than one second");
+	}
+
+	string str = output.str;
+
+	return str._chug ();
+}
+
+public Gdk.Pixbuf tracker_pixbuf_new_from_file (IconTheme theme, string filename, int size, bool is_image) {
 	// Get Icon
 	var file = File.new_for_uri (filename);
 	var pixbuf = null as Gdk.Pixbuf;
+
+	if (is_image) {
+		try {
+			pixbuf = new Gdk.Pixbuf.from_file_at_size (file.get_path (), size, size);
+		} catch (GLib.Error e) {
+			warning ("Error loading icon pixbuf: " + e.message);
+		}
+		
+		if (pixbuf != null) {
+			return pixbuf;
+		}
+	}
 
 	if (file.query_exists (null)) {
 		try {
