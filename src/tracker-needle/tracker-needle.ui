@@ -43,6 +43,21 @@
               </packing>
             </child>
             <child>
+              <object class="GtkRadioToolButton" id="toolbutton_view_details">
+                <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Display results for all categories</property>
+                <property name="is_important">True</property>
+                <property name="use_underline">True</property>
+                <property name="icon_name">help-faq</property>
+                <property name="active">True</property>
+                <property name="group">toolbutton_view_icons</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkSeparatorToolItem" id="toolbutton2">
                 <property name="visible">True</property>
               </object>

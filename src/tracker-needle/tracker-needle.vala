@@ -39,6 +39,7 @@ public class TrackerNeedle {
 	private Window window;
 	private ToggleToolButton view_list;
 	private ToggleToolButton view_icons;
+	private ToggleToolButton view_details;
 	private ToggleToolButton find_in_contents;
 	private ToggleToolButton find_in_titles;
 	private Entry search;
@@ -109,6 +110,9 @@ public class TrackerNeedle {
 
 		view_icons = builder.get_object ("toolbutton_view_icons") as ToggleToolButton;
 		view_icons.toggled.connect (view_toggled);
+
+		view_details = builder.get_object ("toolbutton_view_details") as ToggleToolButton;
+		view_details.toggled.connect (view_toggled);
 
 		find_in_contents = builder.get_object ("toolbutton_find_in_contents") as ToggleToolButton;
 		find_in_contents.toggled.connect (find_in_toggled);
@@ -335,29 +339,33 @@ public class TrackerNeedle {
 			}
 		} catch (DBus.Error e) {
 			warning ("Could not run SPARQL query: " + e.message);
+			return false;
 		}
-
-		last_search_id = 0;
-
-		return false;
+		
+		return true;
 	}
 
 	private void view_toggled () {
-		if (current_view == view_list.active) {
+		bool rows;
+
+		rows = view_list.active || view_details.active;
+		
+		if (current_view == rows) {
 			return;
 		}
 
-		if (view_list.active) {
+		if (rows) {
+			// FIXME: if list/details changes, re-run query
 			sw_iconview.hide ();
 			sw_treeview.show_all ();
-			debug ("View toggled to 'list'");
+			debug ("View toggled to 'list' or 'details'");
 		} else {
 			sw_iconview.show_all ();
 			sw_treeview.hide ();
 			debug ("View toggled to 'icons'");
 		}
 
-		current_view = view_list.active;
+		current_view = rows;
 	}
 
 	private void find_in_toggled () {
