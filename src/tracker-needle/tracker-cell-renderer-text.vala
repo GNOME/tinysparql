@@ -57,12 +57,12 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 
 		var style = widget.get_style ();
 		var attr_list = new Pango.AttrList ();
-		uint start = (uint) text.length;
-		
-//		var attr_style = new Pango.Style (Pango.Style.ITALIC);
-//		attr_style.start_index = start
-//		attr_style.end_index = -1;
-//		attr_list.insert (attr_style);
+
+		uint start = 0;
+
+		if (text != null) {
+			start = (uint) text.length;
+		}
 
 		if (!selected) {
 			var c = style.text_aa[Gtk.StateType.NORMAL];
@@ -87,7 +87,6 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 			str = "%s\n%s".printf (text, subtext);
 		}
 
-		debug ("str:'%s'\n", str);
 		this.visible = true;
 		this.weight = Pango.Weight.NORMAL;
 		this.text = str;
