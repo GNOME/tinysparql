@@ -5,6 +5,7 @@ bin_PROGRAMS = tracker-needle
 tracker_needle_VALASOURCES = 					\
 	tracker-cell-renderer-text.vala				\
 	tracker-needle.vala \
+	tracker-query.vala \
 	tracker-stats.vala \
 	tracker-utils.vala
 
@@ -23,13 +24,16 @@ tracker_needle_CFLAGS = 					\
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
 	-DLOCALEDIR=\""$(localedir)"\"				\
 	-DSRCDIR=\"$(abs_srcdir)/\"				\
-	$(TRACKER_APPS_CFLAGS)					\
-	$(TRACKER_VALA_CFLAGS)					\
+	-I$(top_srcdir)/src/libtracker-sparql \
+	-I$(top_builddir)/src/libtracker-sparql \
 	$(WARN_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
+	$(TRACKER_APPS_CFLAGS)					\
+	$(TRACKER_VALA_CFLAGS)					\
 	-include config.h
 
 tracker_needle_LDADD = 						\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(TRACKER_APPS_LIBS)					\
 	$(TRACKER_VALA_LIBS)					\
 	$(GCOV_LIBS)

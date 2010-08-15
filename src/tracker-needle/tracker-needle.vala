@@ -18,6 +18,7 @@
 //
 
 using Gtk;
+using Tracker.Sparql;
 
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
@@ -25,14 +26,8 @@ extern static const string UIDIR;
 [CCode (cname = "SRCDIR")]
 extern static const string SRCDIR;
 
-[DBus (name = "org.freedesktop.Tracker1.Resources")]
-interface Resources : GLib.Object {
-	public abstract string[,] SparqlQuery (string query) throws DBus.Error;
-}
-
 public class TrackerNeedle {
 	private const string UI_FILE = "tracker-needle.ui";
-	private Resources tracker;
 	private Window window;
 	private ToggleToolButton view_list;
 	private ToggleToolButton view_icons;
@@ -47,37 +42,19 @@ public class TrackerNeedle {
 	private IconView iconview;
 	private uint last_search_id = 0;
 	private ListStore store;
+	private int size_small = 0;
+	private int size_big = 0;
 	static bool current_view = true;
 	static bool current_find_in = true;
 
-
 	public void show () {
-		setup_dbus ();
 		setup_ui ();
 
 		window.show ();
 	}
 
-	private void setup_dbus () {
-		try {
-			var conn = DBus.Bus.get (DBus.BusType.SESSION);
-			tracker = (Resources) conn.get_object ("org.freedesktop.Tracker1",
-			                                       "/org/freedesktop/Tracker1/Resources",
-			                                       "org.freedesktop.Tracker1.Resources");
-		} catch (DBus.Error e) {
-			var msg = new MessageDialog (null,
-			                             DialogFlags.MODAL,
-			                             MessageType.ERROR,
-			                             ButtonsType.CANCEL,
-			                             "Error connecting to D-Bus session bus, %s", 
-			                             e.message);
-			msg.run ();
-			Gtk.main_quit ();
-		}
-	}
-
 	private void setup_ui () {
-		var builder = new Builder ();
+		var builder = new Gtk.Builder ();
 
 		try {
 			//try load from source tree first.
@@ -97,6 +74,9 @@ public class TrackerNeedle {
 				Gtk.main_quit();
 			}
 		}
+
+		Gtk.icon_size_lookup (Gtk.IconSize.MENU, out size_small, null);
+		Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null);
 
 		window = builder.get_object ("window_needle") as Window;
 		window.destroy.connect (Gtk.main_quit);
@@ -183,52 +163,54 @@ public class TrackerNeedle {
 	}
 
 	private bool search_run () {
-		// Need to escape this string
-		string query;
-		string criteria;
+		last_search_id = 0;
 
-		criteria = search.get_text ();
+		Tracker.Query query = new Tracker.Query ();
+		Tracker.Sparql.Cursor cursor = null;
 
-		if (criteria.length < 1) {
-			last_search_id = 0;
+		query.limit = 100;
+		query.criteria = search.get_text ();
+
+		if (find_in_contents.active) {
+			cursor = query.perform (query.Type.ALL);
+		} else {
+			cursor = query.perform (query.Type.ALL_ONLY_IN_TITLES);
+		}
+
+		if (cursor == null) {
+			// FIXME: Print "no results" some where
 			return false;
 		}
 
-		if (find_in_contents.active) {
-			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u fts:match \"$criteria\" . ?u nfo:belongsToContainer ?c ; tracker:available true . } ORDER BY DESC(fts:rank(?u)) OFFSET 0 LIMIT 100";
-		} else {
-			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c ; tracker:available true . FILTER(fn:contains(nfo:fileName(?u), \"$criteria\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET 0 LIMIT 100";
-		}
+		store.clear ();
 
-		debug ("Query:'%s'", query);
+		var screen = window.get_screen ();
+		var theme = IconTheme.get_for_screen (screen);
 
 		try {
-			var result = tracker.SparqlQuery (query);
+			while (cursor.next()) {
+				int i;
 
-			store.clear ();
-
-			var screen = window.get_screen ();
-			var theme = IconTheme.get_for_screen (screen);
-
-			var size_small = 0;
-			Gtk.icon_size_lookup (Gtk.IconSize.MENU, out size_small, null);
-
-			var size_big = 0;
-			Gtk.icon_size_lookup (Gtk.IconSize.DIALOG, out size_big, null);
-
-			for (int i = 0; i < result.length[0]; i++) {
-				debug ("--> %s", result[i,0]);
-				debug ("  --> %s", result[i,1]);
-				debug ("  --> %s", result[i,2]);
-				debug ("  --> %s", result[i,3]);
-				debug ("  --> %s", result[i,4]);
-				debug ("  --> %s", result[i,5]);
+				for (i = 0; i < cursor.n_columns; i++) {
+					if (i == 0) {
+						debug ("--> %s", cursor.get_string (i));
+					} else {
+						debug ("  --> %s", cursor.get_string (i));
+					}
+				}
+				debug ("\n");
 
 				// Get icon
-				Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, result[i,1], size_small);
-				Gdk.Pixbuf pixbuf_big = tracker_pixbuf_new_from_file (theme, result[i,1], size_big);
-				string file_size = GLib.format_size_for_display (result[i,4].to_int());
-				string file_time = tracker_time_format_from_iso8601 (result[i,3]);
+				string urn = cursor.get_string (0);
+				string _file = cursor.get_string (1);
+				string title = cursor.get_string (2);
+				string _file_time = cursor.get_string (3);
+				string _file_size = cursor.get_string (4);
+				string tooltip = cursor.get_string (7);
+				Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, _file, size_small);
+				Gdk.Pixbuf pixbuf_big = tracker_pixbuf_new_from_file (theme, _file, size_big);
+				string file_size = GLib.format_size_for_display (_file_size.to_int());
+				string file_time = tracker_time_format_from_iso8601 (_file_time);
 
 				// Insert into model
 				TreeIter iter;
@@ -236,22 +218,22 @@ public class TrackerNeedle {
 
 				// FIXME: should optimise this a bit more, inserting 2 images into a list eek
 				store.set (iter,
-				           0, pixbuf_small,
-				           1, pixbuf_big,
-				           2, result[i,0],
-				           3, result[i,1],
-				           4, result[i,2],
-				           5, file_time,
-				           6, file_size,
-				           7, result[i,5],
-				           -1);
+					       0, pixbuf_small,
+					       1, pixbuf_big,
+					       2, urn,
+					       3, _file,
+					       4, title,
+					       5, file_time,
+					       6, file_size,
+					       7, tooltip,
+					       -1);
 			}
-		} catch (DBus.Error e) {
-			warning ("Could not run SPARQL query: " + e.message);
+		} catch (GLib.Error e) {
+			warning ("Could not iterate query results: %s", e.message);
 			return false;
 		}
-		
-		return true;
+
+		return false;
 	}
 
 	private void view_toggled () {
