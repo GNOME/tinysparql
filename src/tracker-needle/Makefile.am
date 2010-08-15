@@ -11,9 +11,13 @@ tracker_needle_VALASOURCES = 					\
 tracker_needle_SOURCES = 					\
 	$(tracker_needle_VALASOURCES:.vala=.c)
 
-tracker-needle.vala.stamp: $(tracker_needle_VALASOURCES) config.vapi
-	$(VALAC) -C -g --pkg dbus-glib-1 --pkg gtk+-2.0 $^
-	touch tracker-needle.vala.stamp
+vapi_sources = \
+	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
+	config.vapi
+
+tracker-needle.vala.stamp: $(tracker_needle_VALASOURCES) $(vapi_sources)
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) -g --pkg dbus-glib-1 --pkg gtk+-2.0 $^
+	$(AM_V_GEN)touch $@
 
 tracker_needle_CFLAGS = 					\
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
