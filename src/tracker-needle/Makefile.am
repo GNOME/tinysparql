@@ -4,8 +4,9 @@ bin_PROGRAMS = tracker-needle
 
 tracker_needle_VALASOURCES = 					\
 	tracker-cell-renderer-text.vala				\
-	tracker-needle.vala                         \
-	tracker-stats.vala
+	tracker-needle.vala \
+	tracker-stats.vala \
+	tracker-utils.vala
 
 tracker_needle_SOURCES = 					\
 	$(tracker_needle_VALASOURCES:.vala=.c)
@@ -21,7 +22,8 @@ tracker_needle_CFLAGS = 					\
 	$(TRACKER_APPS_CFLAGS)					\
 	$(TRACKER_VALA_CFLAGS)					\
 	$(WARN_CFLAGS)						\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)						\
+	-include config.h
 
 tracker_needle_LDADD = 						\
 	$(TRACKER_APPS_LIBS)					\

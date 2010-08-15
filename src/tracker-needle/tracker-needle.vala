@@ -53,7 +53,6 @@ public class TrackerNeedle {
 	static bool current_view = true;
 	static bool current_find_in = true;
 
-	private const int secs_per_day = 60 * 60 * 24;
 
 	public void show () {
 		setup_dbus ();
@@ -227,51 +226,7 @@ public class TrackerNeedle {
 		return pixbuf;
 	}
 
-	private string item_get_time (string s) {
-		GLib.Time t = GLib.Time ();
-		t.strptime (s, "%FT%T");
 
-		var tv_now = GLib.TimeVal ();
-		tv_now.get_current_time ();
-
-		var tv_then = GLib.TimeVal ();
-		tv_then.from_iso8601 (s);
-
-		var diff_sec = tv_now.tv_sec - tv_then.tv_sec;
-		var diff_days = diff_sec / secs_per_day;
-		var diff_days_abs = diff_days.abs ();
-
-		// stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
-
-		// if it's more than a week, use the default date format
-		if (diff_days_abs > 7) {
-			return t.format ("%x");
-		}
-
-		if (diff_days_abs == 0) {
-			return "Today";
-		} else {
-			bool future = false;
-
-			if (diff_days < 0)
-				future = true;
-
-			if (diff_days <= 1) {
-				if (future)
-					return "Tomorrow";
-				else
-					return "Yesterday";
-			} else {
-				if (future) {
-					/* Translators: %d is replaced with a number of days. It's always greater than 1 */
-					return ngettext ("%ld day from now", "%ld days from now", diff_days_abs).printf (diff_days_abs);
-				} else {
-					/* Translators: %d is replaced with a number of days. It's always greater than 1 */
-					return ngettext ("%ld day ago", "%ld days ago", diff_days_abs).printf (diff_days_abs);
-				}
-			}
-		}
-	}
 
 	private bool search_run () {
 		// Need to escape this string
@@ -319,7 +274,7 @@ public class TrackerNeedle {
 				Gdk.Pixbuf pixbuf_small = item_get_pixbuf (theme, result[i,1], size_small);
 				Gdk.Pixbuf pixbuf_big = item_get_pixbuf (theme, result[i,1], size_big);
 				string file_size = GLib.format_size_for_display (result[i,4].to_int());
-				string file_time = item_get_time (result[i,3]);
+				string file_time = tracker_item_format_time (result[i,3]);
 
 				// Insert into model
 				TreeIter iter;
