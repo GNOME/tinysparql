@@ -228,7 +228,7 @@ public class TrackerNeedle {
 				Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, result[i,1], size_small);
 				Gdk.Pixbuf pixbuf_big = tracker_pixbuf_new_from_file (theme, result[i,1], size_big);
 				string file_size = GLib.format_size_for_display (result[i,4].to_int());
-				string file_time = tracker_item_format_time (result[i,3]);
+				string file_time = tracker_time_format_from_iso8601 (result[i,3]);
 
 				// Insert into model
 				TreeIter iter;

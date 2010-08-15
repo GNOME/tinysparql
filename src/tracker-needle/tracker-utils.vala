@@ -21,7 +21,7 @@ using Gtk;
 
 private const int secs_per_day = 60 * 60 * 24;
 
-public string tracker_item_format_time (string s) {
+public string tracker_time_format_from_iso8601 (string s) {
 	GLib.Time t = GLib.Time ();
 	t.strptime (s, "%FT%T");
 
