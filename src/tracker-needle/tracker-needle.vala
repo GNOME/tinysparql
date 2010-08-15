@@ -182,49 +182,6 @@ public class TrackerNeedle {
 		last_search_id = Timeout.add_seconds (1, search_run);
 	}
 
-	private Gdk.Pixbuf item_get_pixbuf (IconTheme theme, string filename, int size) {
-		// Get Icon
-		var file = File.new_for_uri (filename);
-		var pixbuf = null as Gdk.Pixbuf;
-
-		if (file.query_exists (null)) {
-			try {
-				var file_info = file.query_info ("standard::icon",
-				                                 FileQueryInfoFlags.NONE,
-				                                 null);
-
-				if (file_info != null) {
-					var icon = file_info.get_icon ();
-
-					try {
-						if (icon is FileIcon) {
-							pixbuf = new Gdk.Pixbuf.from_file (((FileIcon) icon).get_file ().get_path ());
-						} else if (icon is ThemedIcon) {
-							pixbuf = theme.load_icon (((ThemedIcon) icon).get_names ()[0], size, Gtk.IconLookupFlags.USE_BUILTIN);
-						}
-					} catch (GLib.Error e) {
-						warning ("Error loading icon pixbuf: " + e.message);
-					}
-				}
-			} catch (GLib.Error e) {
-				warning ("Error looking up file for pixbuf: " + e.message);
-			}
-		}
-
-		if (pixbuf == null) {
-			try {
-				// pixbuf = theme.load_icon (theme.get_example_icon_name (), 48, IconLookupFlags.USE_BUILTIN);
-				pixbuf = theme.load_icon ("text-x-generic", size, IconLookupFlags.USE_BUILTIN);
-			} catch (GLib.Error e) {
-				warning ("Could not load default icon pixbuf from theme for 'text-x-generic': " + e.message);
-			}
-		}
-
-		return pixbuf;
-	}
-
-
-
 	private bool search_run () {
 		// Need to escape this string
 		string query;
@@ -268,8 +225,8 @@ public class TrackerNeedle {
 				debug ("  --> %s", result[i,5]);
 
 				// Get icon
-				Gdk.Pixbuf pixbuf_small = item_get_pixbuf (theme, result[i,1], size_small);
-				Gdk.Pixbuf pixbuf_big = item_get_pixbuf (theme, result[i,1], size_big);
+				Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, result[i,1], size_small);
+				Gdk.Pixbuf pixbuf_big = tracker_pixbuf_new_from_file (theme, result[i,1], size_big);
 				string file_size = GLib.format_size_for_display (result[i,4].to_int());
 				string file_time = tracker_item_format_time (result[i,3]);
 
