@@ -239,6 +239,42 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			}
 		}
 
+
+		if (g_strcmp0 (row[2], TRACKER_NAO_PREFIX "hasTag") == 0) {
+			GPtrArray *name_array;
+			GError *error = NULL;
+			gchar *query;
+
+			query = g_strdup_printf ("SELECT ?label { "
+			                         "  <%s> nao:prefLabel ?label "
+			                         "}", row[3]);
+
+			name_array = tracker_resources_sparql_query (client, query, &error);
+
+			g_free (query);
+
+			if (name_array && name_array->len > 0) {
+				GStrv name_row;
+
+				name_row = g_ptr_array_index (name_array, 0);
+
+				if (name_row[0]) {
+					if (!keywords) {
+						keywords = g_string_new (name_row[0]);
+					} else {
+						g_string_append_printf (keywords, ", %s", name_row[0]);
+					}
+				}
+			}
+
+			if (name_array) {
+				g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
+				g_ptr_array_free (name_array, TRUE);
+			}
+
+			g_clear_error (&error);
+		}
+
 		if (g_strcmp0 (row[2], TRACKER_NIE_PREFIX "contentCreated") == 0) {
 			xmp_delete_property (xmp, NS_EXIF, "Date");
 			xmp_set_property (xmp, NS_EXIF, "Date", row[3], 0);
