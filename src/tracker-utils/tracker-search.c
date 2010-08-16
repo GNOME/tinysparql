@@ -433,7 +433,7 @@ get_files_results (TrackerSparqlConnection *connection,
 	} else {
 		gint count = 0;
 
-		g_print ("%s:\n", _("Contacts"));
+		g_print ("%s:\n", _("Files"));
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
