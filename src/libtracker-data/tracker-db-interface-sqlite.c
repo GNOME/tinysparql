@@ -98,7 +98,6 @@ G_DEFINE_TYPE (TrackerDBCursor, tracker_db_cursor, G_TYPE_OBJECT)
 void
 tracker_db_interface_sqlite_enable_shared_cache (void)
 {
-	sqlite3_config (SQLITE_CONFIG_MULTITHREAD);
 	sqlite3_enable_shared_cache (1);
 }
 
@@ -482,20 +481,20 @@ check_interrupt (void *user_data)
 static void
 open_database (TrackerDBInterface *db_interface)
 {
+	int mode;
+
 	g_assert (db_interface->filename != NULL);
 
 	if (!db_interface->ro) {
-		if (sqlite3_open (db_interface->filename, &db_interface->db) != SQLITE_OK) {
-			g_critical ("Could not open sqlite3 database:'%s'", db_interface->filename);
-		} else {
-			g_message ("Opened sqlite3 database:'%s'", db_interface->filename);
-		}
+		mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
 	} else {
-		if (sqlite3_open_v2 (db_interface->filename, &db_interface->db, SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
-			g_critical ("Could not open sqlite3 database:'%s'", db_interface->filename);
-		} else {
-			g_message ("Opened sqlite3 database:'%s'", db_interface->filename);
-		}
+		mode = SQLITE_OPEN_READONLY;
+	}
+
+	if (sqlite3_open_v2 (db_interface->filename, &db_interface->db, mode | SQLITE_OPEN_NOMUTEX, NULL) != SQLITE_OK) {
+		g_critical ("Could not open sqlite3 database:'%s'", db_interface->filename);
+	} else {
+		g_message ("Opened sqlite3 database:'%s'", db_interface->filename);
 	}
 
 	sqlite3_progress_handler (db_interface->db, 100,
