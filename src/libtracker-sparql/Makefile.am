@@ -53,6 +53,7 @@ libtracker-sparql.vala.stamp: $(libtracker_sparql_la_VALASOURCES) $(vapi_sources
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(GLIB2_LIBS)					\
+	$(GCOV_LIBS)					\
 	$(GIO_LIBS)
 
 BUILT_SOURCES = 					\

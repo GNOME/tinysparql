@@ -62,6 +62,7 @@ libtracker_bus_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(GLIB2_LIBS) \
 	$(DBUS_LIBS) \
+	$(GCOV_LIBS) \
 	$(GIO_LIBS)
 
 BUILT_SOURCES = 					\
