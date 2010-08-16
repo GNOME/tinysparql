@@ -21,6 +21,7 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 	// FIXME: Chain text and set is_valid to false when changes
 	//public string text { get; set; }
 	public string subtext { get; set; }
+	public bool show_row_hint { get; set; }
 	public bool show_subtext { get; set; }
 	private bool is_selected;
 	private bool is_valid;
@@ -45,7 +46,7 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 		bool selected = Gtk.CellRendererState.SELECTED in flags;
 
 		update_text (widget, selected);
-		
+
 		base.render (window, widget, background_area, cell_area, expose_area, flags);
 	}
 
@@ -54,7 +55,7 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 		if (is_valid && is_selected == selected) {
 			return;
 		}
-		//subtext = "foo";
+
 		var style = widget.get_style ();
 		var attr_list = new Pango.AttrList ();
 

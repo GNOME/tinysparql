@@ -113,9 +113,34 @@ public class TrackerNeedle {
 		view_list.set_active (true);
 	}
 
+	private void cell_renderer_func (Gtk.CellLayout   cell_layout,
+	                                 Gtk.CellRenderer cell,
+	                                 Gtk.TreeModel    tree_model,
+	                                 Gtk.TreeIter     iter) {
+		Gdk.Color color;
+		bool show_row_hint;
+
+		tree_model.get (iter, 9, out show_row_hint, -1);
+
+		// Set odd/even colours
+		if (show_row_hint) {
+			Gdk.Color.parse ("light gray", out color);
+			cell.set ("cell-background-gdk", &color);
+
+//			widget.style_get ("odd-row-color", out color, null);
+//			cell.set ("cell-background-gdk", &color);
+		} else {
+//			Gdk.Color.parse ("blue", out color);
+			cell.set ("cell-background-gdk", null);
+
+//			widget.style_get ("even-row-color", out color, null);
+//			cell.set ("cell-background-gdk", &color);
+		}
+	}
+
 	private void setup_ui_results (TreeView treeview, IconView iconview) {
 		// Setup treeview
-		store = new ListStore (9,
+		store = new ListStore (10,
 		                       typeof (Gdk.Pixbuf),  // Icon small
 		                       typeof (Gdk.Pixbuf),  // Icon big
 		                       typeof (string),      // URN
@@ -124,29 +149,49 @@ public class TrackerNeedle {
 		                       typeof (string),      // Subtitle
 		                       typeof (string),      // Column 2
 		                       typeof (string),      // Column 3
-		                       typeof (string));     // Tooltip
+		                       typeof (string),      // Tooltip
+		                       typeof (bool));       // Category hint
 		treeview.set_model (store);
 		treeview.set_tooltip_column (8);
+		treeview.set_rules_hint (false);
 
-		var col = new Gtk.TreeViewColumn ();
+		Gtk.TreeViewColumn col;
 
 		var renderer1 = new CellRendererPixbuf ();
+		var renderer2 = new Tracker.CellRendererText ();
+
+		col = new Gtk.TreeViewColumn ();
 		col.pack_start (renderer1, false);
 		col.add_attribute (renderer1, "pixbuf", 0);
 
-		var renderer2 = new Tracker.CellRendererText ();
 		col.pack_start (renderer2, true);
 		col.add_attribute (renderer2, "text", 4);
 		col.add_attribute (renderer2, "subtext", 5);
 
-		col.set_title ("File");
+		col.set_title (_("File"));
 		col.set_resizable (true);
 		col.set_expand (true);
 		col.set_sizing (Gtk.TreeViewColumnSizing.AUTOSIZE);
+		col.set_cell_data_func (renderer1, cell_renderer_func);
+		col.set_cell_data_func (renderer2, cell_renderer_func);
 		treeview.append_column (col);
 
-		treeview.insert_column_with_attributes (-1, "Last Changed", new CellRendererText (), "text", 6, null);
-		treeview.insert_column_with_attributes (-1, "Size", new CellRendererText (), "text", 7, null);
+		var renderer3 = new Tracker.CellRendererText ();
+		col = new Gtk.TreeViewColumn ();
+		col.pack_start (renderer3, true);
+		col.add_attribute (renderer3, "text", 6);
+		col.set_title (_("Last Changed"));
+		col.set_cell_data_func (renderer3, cell_renderer_func);
+		treeview.append_column (col);
+
+		var renderer4 = new Tracker.CellRendererText ();
+		col = new Gtk.TreeViewColumn ();
+		col.pack_start (renderer4, true);
+		col.add_attribute (renderer4, "text", 7);
+		col.set_title (_("Size"));
+		col.set_cell_data_func (renderer4, cell_renderer_func);
+		treeview.append_column (col);
+
 		treeview.row_activated.connect (view_row_selected);
 
 		// Setup iconview
@@ -250,8 +295,11 @@ public class TrackerNeedle {
 
 		var screen = window.get_screen ();
 		var theme = IconTheme.get_for_screen (screen);
+		bool odd = false;
 
 		foreach (Tracker.Query.Type type in categories) {
+			int count = 0;
+
 			Tracker.Sparql.Cursor cursor;
 
 			query.limit = 100;
@@ -326,11 +374,18 @@ public class TrackerNeedle {
 							   6, column2,      // Column2
 							   7, column3,      // Column3
 							   8, tooltip,      // Tooltip
+							   9, odd,          // Category hint
 							   -1);
+
+					count++;
 				}
 			} catch (GLib.Error e) {
 				warning ("Could not iterate query results: %s", e.message);
 				return;
+			}
+
+			if (count > 0) {
+				odd = !odd;
 			}
 		}
 	}
