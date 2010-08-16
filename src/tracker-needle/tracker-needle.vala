@@ -184,6 +184,7 @@ public class TrackerNeedle {
 		col.pack_start (renderer2, true);
 		col.add_attribute (renderer2, "text", 4);
 		col.add_attribute (renderer2, "subtext", 5);
+		renderer2.ellipsize = Pango.EllipsizeMode.MIDDLE;
 
 		col.set_title (_("File"));
 		col.set_resizable (true);
