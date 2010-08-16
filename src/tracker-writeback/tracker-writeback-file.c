@@ -72,7 +72,7 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 	GStrv row;
 	const gchar * const *content_types;
 	const gchar *mime_type;
-	guint n;
+	guint n, x;
 
 	writeback_file_class = TRACKER_WRITEBACK_FILE_GET_CLASS (writeback);
 
@@ -88,55 +88,56 @@ tracker_writeback_file_update_metadata (TrackerWriteback *writeback,
 		return FALSE;
 	}
 
-	/* Get the file from the first row */
-	row = g_ptr_array_index (values, 0);
-	file = g_file_new_for_uri (row[0]);
+	for (x = 0 ; x < values->len ; x++) {
+		/* Get the file from the row */
+		row = g_ptr_array_index (values, x);
+		file = g_file_new_for_uri (row[0]);
 
-	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
+		file_info = g_file_query_info (file,
+		                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+		                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+		                               NULL, NULL);
 
-	if (!file_info) {
-		if (file) {
-			g_object_unref (file);
+		if (!file_info) {
+			if (file) {
+				g_object_unref (file);
+			}
+			continue;
 		}
 
-		return FALSE;
-	}
+		mime_type = g_file_info_get_content_type (file_info);
+		content_types = (writeback_file_class->content_types) (TRACKER_WRITEBACK_FILE (writeback));
 
-	mime_type = g_file_info_get_content_type (file_info);
-	content_types = (writeback_file_class->content_types) (TRACKER_WRITEBACK_FILE (writeback));
+		retval = FALSE;
 
-	retval = FALSE;
-
-	for (n = 0; content_types[n] != NULL; n++) {
-		if (g_strcmp0 (mime_type, content_types[n]) == 0) {
-			retval = TRUE;
-			break;
+		for (n = 0; content_types[n] != NULL; n++) {
+			if (g_strcmp0 (mime_type, content_types[n]) == 0) {
+				retval = TRUE;
+				break;
+			}
 		}
+
+		g_object_unref (file_info);
+
+		if (retval) {
+			g_message ("Locking file '%s' in order to write metadata", row[0]);
+
+			tracker_file_lock (file);
+
+			urls[0] = row[0];
+
+			tracker_miner_manager_ignore_next_update (tracker_writeback_get_miner_manager (),
+			                                          "org.freedesktop.Tracker1.Miner.Files",
+			                                          urls);
+
+			retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
+			                                                       file, values, client);
+
+			g_timeout_add_seconds (3, file_unlock_cb, g_object_ref (file));
+		}
+
+		g_object_unref (file);
 	}
-
-	g_object_unref (file_info);
-
-	if (retval) {
-		g_message ("Locking file '%s' in order to write metadata", row[0]);
-
-		tracker_file_lock (file);
-
-		urls[0] = row[0];
-
-		tracker_miner_manager_ignore_next_update (tracker_writeback_get_miner_manager (),
-		                                          "org.freedesktop.Tracker1.Miner.Files",
-		                                          urls);
-
-		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
-		                                                       file, values, client);
-
-		g_timeout_add_seconds (3, file_unlock_cb, g_object_ref (file));
-	}
-
-	g_object_unref (file);
 
 	return retval;
 }
