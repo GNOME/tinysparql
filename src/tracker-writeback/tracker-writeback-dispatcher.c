@@ -124,32 +124,39 @@ handle_writeback_signal (TrackerWritebackDispatcher *dispatcher,
 	g_free (signature);
 
 	while ((arg_type = dbus_message_iter_get_arg_type (&iter)) != DBUS_TYPE_INVALID) {
-		DBusMessageIter arr, dict, types_arr;
-		const gchar *subject;
-		GArray *rdf_types;
-
-		rdf_types = g_array_new (TRUE, TRUE, sizeof (gchar *));
+		DBusMessageIter arr;
 
 		dbus_message_iter_recurse (&iter, &arr);
-		dbus_message_iter_recurse (&arr, &dict);
 
-		dbus_message_iter_get_basic (&dict, &subject);
+		while ((arg_type = dbus_message_iter_get_arg_type (&arr)) != DBUS_TYPE_INVALID) {
+			DBusMessageIter dict, types_arr;
+			const gchar *subject;
+			GArray *rdf_types;
 
-		dbus_message_iter_next (&dict);
-		dbus_message_iter_recurse (&dict, &types_arr);
+			rdf_types = g_array_new (TRUE, TRUE, sizeof (gchar *));
 
-		while ((arg_type = dbus_message_iter_get_arg_type (&types_arr)) != DBUS_TYPE_INVALID) {
-			const gchar *type;
+			dbus_message_iter_recurse (&arr, &dict);
 
-			dbus_message_iter_get_basic (&types_arr, &type);
+			dbus_message_iter_get_basic (&dict, &subject);
 
-			g_array_append_val (rdf_types, type);
+			dbus_message_iter_next (&dict);
+			dbus_message_iter_recurse (&dict, &types_arr);
 
-			dbus_message_iter_next (&types_arr);
+			while ((arg_type = dbus_message_iter_get_arg_type (&types_arr)) != DBUS_TYPE_INVALID) {
+				const gchar *type;
+
+				dbus_message_iter_get_basic (&types_arr, &type);
+
+				g_array_append_val (rdf_types, type);
+
+				dbus_message_iter_next (&types_arr);
+			}
+
+			g_signal_emit (dispatcher, signals[WRITEBACK], 0, subject, rdf_types->data);
+			g_array_free (rdf_types, TRUE);
+
+			dbus_message_iter_next (&arr);
 		}
-
-		g_signal_emit (dispatcher, signals[WRITEBACK], 0, subject, rdf_types->data);
-		g_array_free (rdf_types, TRUE);
 
 		dbus_message_iter_next (&iter);
 	}
