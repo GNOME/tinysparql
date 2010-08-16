@@ -152,13 +152,21 @@ public Gdk.Pixbuf tracker_pixbuf_new_from_file (IconTheme theme, string filename
 		}
 	}
 
-	if (pixbuf == null) {
-		try {
-			// pixbuf = theme.load_icon (theme.get_example_icon_name (), 48, IconLookupFlags.USE_BUILTIN);
-			pixbuf = theme.load_icon ("text-x-generic", size, IconLookupFlags.USE_BUILTIN);
-		} catch (GLib.Error e) {
-			warning ("Could not load default icon pixbuf from theme for 'text-x-generic': " + e.message);
-		}
+	if (pixbuf != null) {
+		return pixbuf;
+	}
+
+	return tracker_pixbuf_new_from_name (theme, "text-x-generic", size);
+}
+
+public Gdk.Pixbuf tracker_pixbuf_new_from_name (IconTheme theme, string name, int size) {
+	// Get Icon
+	var pixbuf = null as Gdk.Pixbuf;
+
+	try {
+		pixbuf = theme.load_icon (name, size, IconLookupFlags.USE_BUILTIN);
+	} catch (GLib.Error e) {
+		warning ("Could not load default icon pixbuf from theme for '%s': %s", name, e.message);
 	}
 
 	return pixbuf;

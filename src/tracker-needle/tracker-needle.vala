@@ -110,7 +110,7 @@ public class TrackerNeedle {
 		iconview = builder.get_object ("iconview_results") as IconView;
 		setup_ui_results (treeview, iconview);
 
-		view_list.set_active (true);
+		view_details.set_active (true);
 	}
 
 	private void cell_renderer_func (Gtk.CellLayout   cell_layout,
@@ -118,23 +118,38 @@ public class TrackerNeedle {
 	                                 Gtk.TreeModel    tree_model,
 	                                 Gtk.TreeIter     iter) {
 		Gdk.Color color;
+		Gtk.Style style;
 		bool show_row_hint;
 
 		tree_model.get (iter, 9, out show_row_hint, -1);
 
+		style = ((Widget) treeview).get_style ();
+
+		color = style.base[Gtk.StateType.SELECTED];
+		int sum_normal = color.red + color.green + color.blue;
+		color = style.base[Gtk.StateType.NORMAL];
+		int sum_selected = color.red + color.green + color.blue;
+		color = style.text_aa[Gtk.StateType.INSENSITIVE];
+
+		if (sum_normal < sum_selected) {
+			/* Found a light theme */
+			color.red = (color.red + (style.white).red) / 2;
+			color.green = (color.green + (style.white).green) / 2;
+			color.blue = (color.blue + (style.white).blue) / 2;
+		} else {
+			/* Found a dark theme */
+			color.red = (color.red + (style.black).red) / 2;
+			color.green = (color.green + (style.black).green) / 2;
+			color.blue = (color.blue + (style.black).blue) / 2;
+		}
+
 		// Set odd/even colours
 		if (show_row_hint) {
-			Gdk.Color.parse ("light gray", out color);
+//			((Widget) treeview).style_get ("odd-row-color", out color, null);
 			cell.set ("cell-background-gdk", &color);
-
-//			widget.style_get ("odd-row-color", out color, null);
-//			cell.set ("cell-background-gdk", &color);
 		} else {
-//			Gdk.Color.parse ("blue", out color);
+//			((Widget) treeview).style_get ("even-row-color", out color, null);
 			cell.set ("cell-background-gdk", null);
-
-//			widget.style_get ("even-row-color", out color, null);
-//			cell.set ("cell-background-gdk", &color);
 		}
 	}
 
@@ -163,6 +178,8 @@ public class TrackerNeedle {
 		col = new Gtk.TreeViewColumn ();
 		col.pack_start (renderer1, false);
 		col.add_attribute (renderer1, "pixbuf", 0);
+		renderer1.xpad = 5;
+		renderer1.ypad = 5;
 
 		col.pack_start (renderer2, true);
 		col.add_attribute (renderer2, "text", 4);
@@ -324,8 +341,6 @@ public class TrackerNeedle {
 						}
 					}
 
-					bool is_image = type == Tracker.Query.Type.IMAGES;
-
 					string urn = cursor.get_string (0);
 					string _file = cursor.get_string (1);
 					string title = cursor.get_string (2);
@@ -333,20 +348,39 @@ public class TrackerNeedle {
 					string column2 = null;
 					string column3 = null;
 					string tooltip = cursor.get_string (5);
-					Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, _file, size_medium, is_image);
+					Gdk.Pixbuf pixbuf_small = null; 
 
 					// Special cases
 					switch (type) {
+					case Tracker.Query.Type.APPLICATIONS:
+						if (count == 0) {
+							pixbuf_small = tracker_pixbuf_new_from_name (theme, "package-x-generic", size_medium);
+						}
+						break;
 					case Tracker.Query.Type.MUSIC:
+						if (count == 0) {
+							pixbuf_small = tracker_pixbuf_new_from_name (theme, "audio-x-generic", size_medium);
+						}
 						column2 = tracker_time_format_from_seconds (cursor.get_string (4));
 						break;
 					case Tracker.Query.Type.IMAGES:
+						if (count == 0) {
+							pixbuf_small = tracker_pixbuf_new_from_name (theme, "image-x-generic", size_medium);
+						}
 						column2 = GLib.format_size_for_display (cursor.get_string (4).to_int ());
 						break;
 					case Tracker.Query.Type.VIDEOS:
+						if (count == 0) {
+							pixbuf_small = tracker_pixbuf_new_from_name (theme, "video-x-generic", size_medium);
+						}
 						column2 = tracker_time_format_from_seconds (cursor.get_string (4));
 						break;
-						
+					case Tracker.Query.Type.DOCUMENTS:
+						if (count == 0) {
+							pixbuf_small = tracker_pixbuf_new_from_name (theme, "x-office-presentation", size_medium);
+						}
+						break;
+
 					default:
 						break;
 					}
