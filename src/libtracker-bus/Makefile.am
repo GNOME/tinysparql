@@ -47,16 +47,24 @@ noinst_HEADERS = 			\
 
 # Vala sources
 vapi_sources =						\
-	config.vapi \
-	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi	\
-	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi \
-	tracker-bus-fd-cursor.vapi \
-	tracker-bus-fd-update.vapi \
+	config.vapi					\
+	$(top_builddir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi 	\
+	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi 				\
+	tracker-bus-fd-cursor.vapi 			\
+	tracker-bus-fd-update.vapi 			\
 	tracker-bus-array-update.vapi
 
 libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus-$(TRACKER_API_VERSION).vapi $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus.vapi $^
 	$(AM_V_GEN)touch $@
+
+# Vala bindings
+vapidir = $(datadir)/vala/vapi
+vapi_DATA = tracker-bus-$(TRACKER_API_VERSION).vapi
+
+tracker-bus.vapi: libtracker-bus.vala.stamp
+tracker-bus-$(TRACKER_API_VERSION).vapi: tracker-bus.vapi
+	cp $< $@
 
 libtracker_bus_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
@@ -80,6 +88,7 @@ EXTRA_DIST = 						\
 	config.vapi \
 	$(libtracker_bus_la_VALASOURCES) \
 	libtracker-bus.vala.stamp \
+	tracker-bus.vapi \
 	tracker-bus-fd-cursor.vapi \
 	tracker-bus-fd-update.vapi \
 	tracker-bus-array-update.vapi
