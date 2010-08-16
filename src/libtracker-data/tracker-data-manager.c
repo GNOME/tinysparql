@@ -2704,7 +2704,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	read_journal = FALSE;
 
-	if (!tracker_db_manager_init (flags, &is_first_time_index, TRUE)) {
+	if (!tracker_db_manager_init (flags, &is_first_time_index, FALSE)) {
 		return FALSE;
 	}
 
