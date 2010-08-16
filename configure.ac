@@ -938,6 +938,8 @@ if test "x$enable_miner_evolution" != "xno"; then
 
    PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.29.1],
                     [AC_DEFINE(HAVE_EDS_2_29_1, 1, [Define if we have eds 2.29.1 or newer])])
+   PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.31.2],
+                    [AC_DEFINE(HAVE_EDS_2_31_2, 1, [Define if we have eds 2.31.2 or newer])])
 
    AC_SUBST(EVOLUTION_PLUGIN_CFLAGS)
    AC_SUBST(EVOLUTION_PLUGIN_LIBS)
