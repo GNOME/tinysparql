@@ -80,7 +80,6 @@ public class Tracker.Query {
 			          nie:url(?urn) 
 			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
 			          nie:comment(?urn)
-			          nfo:softwareCmdLine (?urn)
 			        WHERE {
 			          ?urn a nfo:Software .
 			          ?urn fts:match \"$criteria_escaped\" .
@@ -97,6 +96,7 @@ public class Tracker.Query {
 			          nie:url(?urn) 
 			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
 			          fn:string-join((?performer, ?album), \" - \") 
+			          nfo:duration(?urn)
 			          ?tooltip
 			        WHERE {
 			          ?urn a nfo:Audio ;
@@ -117,6 +117,7 @@ public class Tracker.Query {
 			          nie:url(?urn) 
 			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
 			          fn:string-join((nfo:height(?urn), nfo:width(?urn)), \" x \") 
+			          nfo:fileSize(?urn)
 			          ?tooltip
 			        WHERE {
 			          ?urn a nfo:Image ;
@@ -134,6 +135,7 @@ public class Tracker.Query {
 			          ?urn 
 			          nie:url(?urn) 
 			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          \"\"
 			          nfo:duration(?urn)
 			          ?tooltip
 			        WHERE {
@@ -148,14 +150,19 @@ public class Tracker.Query {
 
 		case Type.DOCUMENTS:
 //			          fn:concat(nco:pageCount(?urn), \" pages\")
+			string pages = _("Pages");
+			
 			query = @"
 			        SELECT
 			          ?urn 
 			          nie:url(?urn) 
 			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          ?creator
+			          fn:concat(nfo:pageCount(?urn), \" $pages\")
 			          ?tooltip
 			        WHERE {
 			          ?urn a nfo:Document ;
+			          nco:creator [ nco:fullname ?creator ] ;
 			          nfo:belongsToContainer [ nie:url ?tooltip ] .
 			          ?urn fts:match \"$criteria_escaped\" .
 			        }

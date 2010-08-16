@@ -91,15 +91,15 @@ public string tracker_time_format_from_seconds (string seconds_str) {
 	}
 
 	if (h > 0) {
-		output.append (" %2.2dh".printf (h));
+		output.append (" %.2d".printf (h));
 	}
 
 	if (m > 0) {
-		output.append (" %2.2dm".printf (m));
+		output.append ("%s%.2d".printf (h > 0 ? ":" : "", m));
 	}
 
 	if (s > 0) {
-		output.append (" %2.2ds".printf (s));
+		output.append ("%s%.2d".printf (m > 0 ? ":" : "0:", s));
 	}
 
 	if (output.len < 1) {

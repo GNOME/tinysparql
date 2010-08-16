@@ -122,8 +122,8 @@ public class TrackerNeedle {
 		                       typeof (string),      // URL
 		                       typeof (string),      // Title
 		                       typeof (string),      // Subtitle
-		                       typeof (string),      // File last changed
-		                       typeof (string),      // File size
+		                       typeof (string),      // Column 2
+		                       typeof (string),      // Column 3
 		                       typeof (string));     // Tooltip
 		treeview.set_model (store);
 		treeview.set_tooltip_column (8);
@@ -225,8 +225,8 @@ public class TrackerNeedle {
 					       3, _file,        // URL
 					       4, title,        // Title
 					       5, null,         // Subtitle
-					       6, file_time,    // Time
-					       7, file_size,    // Size
+					       6, file_time,    // Column2: Time
+					       7, file_size,    // Column3: Size
 					       8, tooltip,      // Tooltip
 					       -1);
 			}
@@ -282,13 +282,21 @@ public class TrackerNeedle {
 					string _file = cursor.get_string (1);
 					string title = cursor.get_string (2);
 					string subtitle = null;
-					string tooltip = cursor.get_string (4);
+					string column2 = null;
+					string column3 = null;
+					string tooltip = cursor.get_string (5);
 					Gdk.Pixbuf pixbuf_small = tracker_pixbuf_new_from_file (theme, _file, size_medium, is_image);
 
 					// Special cases
 					switch (type) {
+					case Tracker.Query.Type.MUSIC:
+						column2 = tracker_time_format_from_seconds (cursor.get_string (4));
+						break;
+					case Tracker.Query.Type.IMAGES:
+						column2 = GLib.format_size_for_display (cursor.get_string (4).to_int ());
+						break;
 					case Tracker.Query.Type.VIDEOS:
-						subtitle = tracker_time_format_from_seconds (cursor.get_string (3));
+						column2 = tracker_time_format_from_seconds (cursor.get_string (4));
 						break;
 						
 					default:
@@ -297,6 +305,10 @@ public class TrackerNeedle {
 
 					if (subtitle == null) {
 						subtitle = cursor.get_string (3);
+					}
+
+					if (column2 == null) {
+						column2 = cursor.get_string (4);
 					}
 
 					// Insert into model
@@ -311,8 +323,8 @@ public class TrackerNeedle {
 							   3, _file,        // URL
 							   4, title,        // Title
 							   5, subtitle,     // Subtitle
-							   6, null,         // Time
-							   7, null,         // Size
+							   6, column2,      // Column2
+							   7, column3,      // Column3
 							   8, tooltip,      // Tooltip
 							   -1);
 				}
@@ -325,6 +337,10 @@ public class TrackerNeedle {
 
 	private bool search_run () {
 		last_search_id = 0;
+
+		if (search.get_text ().length < 1) {
+			return false;
+		}
 
 		if (view_details.active) {
 			search_detailed ();
@@ -351,13 +367,13 @@ public class TrackerNeedle {
 			debug ("View toggled to 'list' or 'details'");
 			
 			if (view_details.active) {
-				treeview.get_column (1).visible = false;
+				treeview.set_grid_lines (Gtk.TreeViewGridLines.NONE);
 				treeview.get_column (2).visible = false;
 				treeview.set_headers_visible (false);
 				find_in_contents.sensitive = false;
 				find_in_titles.sensitive = false;
 			} else {
-				treeview.get_column (1).visible = true;
+				treeview.set_grid_lines (Gtk.TreeViewGridLines.VERTICAL);
 				treeview.get_column (2).visible = true;
 				treeview.set_headers_visible (true);
 				find_in_contents.sensitive = true;
