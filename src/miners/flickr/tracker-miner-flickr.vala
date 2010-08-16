@@ -17,6 +17,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
+public delegate void TrackerWritebackCallback (HashTable<string,void*> resources);
+
+public extern void  tracker_writeback_init       ();
+public extern void  tracker_writeback_shutdown   ();
+public extern uint  tracker_writeback_connect    (TrackerWritebackCallback callback,
+												  void                    *user_data);
+public extern void  tracker_writeback_disconnect (uint                     handle);
+
 namespace Tracker {
 
 private errordomain RestCallError {
@@ -85,8 +93,8 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 		rest = new Rest.Proxy (FLICKR_REST_URL, false);
 
-		// FIXME: Add support for this, it won't be in libtracker-sparql though.
-		// tracker_client.writeback_connect (writeback);
+		tracker_writeback_init ();
+		tracker_writeback_connect (writeback, null);
 
 		init_datasource ();
 
@@ -94,6 +102,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 	}
 
 	public void shutdown () {
+		tracker_writeback_shutdown ();
 		status = "Shutting down";
 		associated = false;
 	}
@@ -783,8 +792,6 @@ public class MinerFlickr : Tracker.MinerWeb {
 		} catch (Error tracker_error) {
 			throw tracker_error;
 		}
-
-		return null;
 	}
 
 	public void update_triple_string (Tracker.Sparql.Builder builder, string graph, string urn, string property, string new_value) {

@@ -31,7 +31,9 @@ tracker_miner_flickr_VALASOURCES =					\
 
 tracker_miner_flickr_SOURCES =						\
 	tracker-miner-flickr.vala.stamp                                 \
-	$(tracker_miner_flickr_VALASOURCES:.vala=.c)
+	$(tracker_miner_flickr_VALASOURCES:.vala=.c)			\
+	tracker-writeback.c						\
+	tracker-writeback.h
 
 tracker_miner_flickr_LDADD =						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
