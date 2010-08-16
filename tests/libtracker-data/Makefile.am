@@ -117,6 +117,7 @@ tracker_db_journal_LDADD =						\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)							\
 	-lz
 
 tracker_db_dbus_SOURCES = 						\
@@ -130,6 +131,7 @@ tracker_db_dbus_LDADD =						\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(GCOV_LIBS)							\
 	-lz
 
 #
