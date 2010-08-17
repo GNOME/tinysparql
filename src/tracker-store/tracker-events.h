@@ -30,32 +30,33 @@ G_BEGIN_DECLS
 
 typedef GStrv (*TrackerNotifyClassGetter) (void);
 
-void       tracker_events_init        (TrackerNotifyClassGetter  callback);
-void       tracker_events_shutdown    (void);
-void       tracker_events_add_insert  (gint                      graph_id,
-                                       gint                      subject_id,
-                                       const gchar              *subject,
-                                       gint                      pred_id,
-                                       gint                      object_id,
-                                       const gchar              *object,
-                                       GPtrArray                *rdf_types);
-void       tracker_events_add_delete  (gint                      graph_id,
-                                       gint                      subject_id,
-                                       const gchar              *subject,
-                                       gint                      pred_id,
-                                       gint                      object_id,
-                                       const gchar              *object,
-                                       GPtrArray                *rdf_types);
-void       tracker_events_get_inserts (gint                      class_id,
-                                       GArray                   *subject_ids,
-                                       GArray                   *pred_ids,
-                                       GArray                   *object_ids);
-void       tracker_events_get_deletes (gint                      class_id,
-                                       GArray                   *subject_ids,
-                                       GArray                   *pred_ids,
-                                       GArray                   *object_ids);
-void       tracker_events_reset       (void);
-void       tracker_events_freeze      (void);
+void       tracker_events_init         (TrackerNotifyClassGetter  callback);
+void       tracker_events_shutdown     (void);
+void       tracker_events_add_insert   (gint                      graph_id,
+                                        gint                      subject_id,
+                                        const gchar              *subject,
+                                        gint                      pred_id,
+                                        gint                      object_id,
+                                        const gchar              *object,
+                                        GPtrArray                *rdf_types);
+void       tracker_events_add_delete   (gint                      graph_id,
+                                        gint                      subject_id,
+                                        const gchar              *subject,
+                                        gint                      pred_id,
+                                        gint                      object_id,
+                                        const gchar              *object,
+                                        GPtrArray                *rdf_types);
+void       tracker_events_get_inserts  (gint                      class_id,
+                                        GArray                   *subject_ids,
+                                        GArray                   *pred_ids,
+                                        GArray                   *object_ids);
+void       tracker_events_get_deletes  (gint                      class_id,
+                                        GArray                   *subject_ids,
+                                        GArray                   *pred_ids,
+                                        GArray                   *object_ids);
+void       tracker_events_classes_iter (GHashTableIter           *iter);
+void       tracker_events_reset        (void);
+void       tracker_events_freeze       (void);
 
 G_END_DECLS
 

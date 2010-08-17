@@ -509,62 +509,68 @@ tracker_resources_batch_commit (TrackerResources         *self,
 	/* no longer needed */
 }
 
+static struct {
+	GArray *subject_ids;
+	GArray *pred_ids;
+	GArray *object_ids;
+} inserts_ids = { NULL, NULL, NULL };
+
+static struct {
+	GArray *subject_ids;
+	GArray *pred_ids;
+	GArray *object_ids;
+} deletes_ids = { NULL, NULL, NULL };
 
 static void
 on_statements_committed (gpointer user_data)
 {
 	TrackerResources *resources = user_data;
-	/* GArray *events; */
 	GHashTable *writebacks;
 	TrackerResourcesPrivate *priv;
+	GHashTableIter iter;
+	gpointer key, value;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
-	/* Class signals feature *
-	events = tracker_events_get_pending ();
+	/* Class signal feature */
 
-	* Do not call tracker_events_reset before calling tracker_resource_class_emit_events
-	   as we're reusing the same strings without copies *
-
-	if (events) {
-		GSList *event_sources, *l;
-		guint i;
-		GHashTable *to_emit = NULL;
-
-		event_sources = priv->event_sources;
-
-		for (i = 0; i < events->len; i++) {
-			TrackerEvent *event;
-
-			event = &g_array_index (events, TrackerEvent, i);
-
-			for (l = event_sources; l; l = l->next) {
-				TrackerResourceClass *class_ = l->data;
-				if (g_strcmp0 (tracker_class_get_uri (event->class), tracker_resource_class_get_rdf_class (class_)) == 0) {
-					tracker_resource_class_add_event (class_, event->subject, event->predicate, event->type);
-					if (!to_emit) {
-						to_emit = g_hash_table_new (NULL, NULL);
-					}
-					g_hash_table_insert (to_emit, class_, class_);
-				}
-			}
-		}
-
-		if (to_emit) {
-			GHashTableIter iter;
-			gpointer key, value;
-
-			g_hash_table_iter_init (&iter, to_emit);
-
-			while (g_hash_table_iter_next (&iter, &key, &value)) {
-				TrackerResourceClass *class_ = key;
-				tracker_resource_class_emit_events (class_);
-			}
-
-			g_hash_table_destroy (to_emit);
-		}
+	if (inserts_ids.subject_ids == NULL) {
+		inserts_ids.subject_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+		inserts_ids.pred_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+		inserts_ids.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 	}
-	*/
+
+	if (deletes_ids.subject_ids == NULL) {
+		deletes_ids.subject_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+		deletes_ids.pred_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+		deletes_ids.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	}
+
+	tracker_events_classes_iter (&iter);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		TrackerClass *class = key;
+
+		g_array_set_size (deletes_ids.subject_ids, 0);
+		g_array_set_size (deletes_ids.pred_ids, 0);
+		g_array_set_size (deletes_ids.object_ids, 0);
+
+		tracker_events_get_inserts (tracker_class_get_id (class),
+		                            deletes_ids.subject_ids,
+		                            deletes_ids.pred_ids,
+		                            deletes_ids.object_ids);
+
+		g_array_set_size (inserts_ids.subject_ids, 0);
+		g_array_set_size (inserts_ids.pred_ids, 0);
+		g_array_set_size (inserts_ids.object_ids, 0);
+
+		tracker_events_get_inserts (tracker_class_get_id (class),
+		                            inserts_ids.subject_ids,
+		                            inserts_ids.pred_ids,
+		                            inserts_ids.object_ids);
+
+		/* TODO: Emit the signal with tracker_class_get_uri (class) */
+	}
 
 	tracker_events_reset ();
 

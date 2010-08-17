@@ -341,6 +341,14 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 }
 
 void
+tracker_events_classes_iter (GHashTableIter *iter)
+{
+	g_return_if_fail (private != NULL);
+
+	g_hash_table_iter_init (iter, private->allowances);
+}
+
+void
 tracker_events_shutdown (void)
 {
 	if (private != NULL) {
