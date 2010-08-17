@@ -527,17 +527,17 @@ static void
 on_statements_committed (gpointer user_data)
 {
 	TrackerResources *resources = user_data;
-	GArray *events;
+	/* GArray *events; */
 	GHashTable *writebacks;
 	TrackerResourcesPrivate *priv;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
-	/* Class signals feature */
+	/* Class signals feature *
 	events = tracker_events_get_pending ();
 
-	/* Do not call tracker_events_reset before calling tracker_resource_class_emit_events
-	   as we're reusing the same strings without copies */
+	* Do not call tracker_events_reset before calling tracker_resource_class_emit_events
+	   as we're reusing the same strings without copies *
 
 	if (events) {
 		GSList *event_sources, *l;
@@ -577,6 +577,7 @@ on_statements_committed (gpointer user_data)
 			g_hash_table_destroy (to_emit);
 		}
 	}
+	*/
 
 	tracker_events_reset ();
 
@@ -609,13 +610,8 @@ on_statement_inserted (gint         graph_id,
                        GPtrArray   *rdf_types,
                        gpointer     user_data)
 {
-	//if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		//tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_ADD);
-	//} else {
-		//tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
-	//}
-
-	/* For predicates it's always update here */
+	tracker_events_add_insert (graph_id, subject_id, subject, pred_id,
+	                           object_id, object, rdf_types);
 	tracker_writeback_check (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
 }
 
@@ -629,14 +625,10 @@ on_statement_deleted (gint         graph_id,
                       GPtrArray   *rdf_types,
                       gpointer     user_data)
 {
-	//if (g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
-		//tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_DELETE);
-	//} else {
-		//tracker_events_insert (subject, predicate, object, rdf_types, TRACKER_DBUS_EVENTS_TYPE_UPDATE);
-	//}
-
-	/* For predicates it's always delete here */
-	tracker_writeback_check (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
+	tracker_events_add_delete (graph_id, subject_id, subject, pred_id,
+	                           object_id, object, rdf_types);
+	tracker_writeback_check (graph_id, subject_id, subject, pred_id,
+	                         object_id, object, rdf_types);
 }
 
 void

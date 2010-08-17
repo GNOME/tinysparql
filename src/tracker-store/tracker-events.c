@@ -26,108 +26,207 @@
 
 #include "tracker-events.h"
 
-#define MAX_EVENTS 1000000
-
 typedef struct {
+	GHashTable *allowances_id;
 	GHashTable *allowances;
-	GArray *events;
-	GStringChunk *chunk;
+	struct {
+		GArray *sub_pred_ids;
+		GArray *object_ids;
+	} deletes;
+	struct {
+		GArray *sub_pred_ids;
+		GArray *object_ids;
+	} inserts;
 	gboolean frozen;
 } EventsPrivate;
 
 static EventsPrivate *private;
 
 static void
-tracker_events_add_allow (const gchar *rdf_class)
+get_from_array (GArray *sub_pred_ids,
+                GArray *object_ids_in,
+                GArray *subject_ids,
+                GArray *pred_ids,
+                GArray *object_ids)
 {
-	TrackerClass *cl;
+	guint i;
 
-	g_return_if_fail (private != NULL);
+	g_array_set_size (subject_ids, 0);
+	g_array_set_size (pred_ids, 0);
+	g_array_set_size (object_ids, 0);
 
-	cl = tracker_ontologies_get_class_by_uri (rdf_class);
-	if (!cl) {
-		g_critical ("Unknown class %s", rdf_class);
-		return;
+	for (i = 0; i < sub_pred_ids->len; i++) {
+		gint subject_id, pred_id, object_id;
+		gint64 sub_pred_id;
+
+		sub_pred_id = g_array_index (sub_pred_ids, gint64, i);
+		subject_id = sub_pred_id >> 32;
+		pred_id = sub_pred_id << 32;
+		object_id = g_array_index (object_ids_in, gint, i);
+
+		g_array_append_val (subject_ids, subject_id);
+		g_array_append_val (pred_ids, pred_id);
+		g_array_append_val (object_ids, object_id);
 	}
-
-	g_hash_table_insert (private->allowances, cl,
-	                     GINT_TO_POINTER (TRUE));
-}
-
-static gboolean
-is_allowed (EventsPrivate *private, TrackerClass *rdf_class)
-{
-	return (g_hash_table_lookup (private->allowances, rdf_class) != NULL) ? TRUE : FALSE;
-}
-
-static void
-prepare_event_for_rdf_type (EventsPrivate *private,
-                            TrackerClass  *rdf_class ,
-                            const gchar *uri,
-                            TrackerDBusEventsType type,
-                            const gchar *predicate)
-{
-	TrackerEvent event;
-
-	if (!private->events) {
-		private->events = g_array_new (TRUE, FALSE, sizeof (TrackerEvent));
-	}
-
-	if (!private->chunk) {
-		private->chunk = g_string_chunk_new (4096);
-	}
-
-	event.type = type;
-	event.class = rdf_class;
-	event.predicate = tracker_ontologies_get_property_by_uri (predicate);
-	event.subject = g_string_chunk_insert_const (private->chunk, uri);
-
-	g_array_append_val (private->events, event);
 }
 
 void
-tracker_events_insert (const gchar *uri,
-                       const gchar *predicate,
-                       const gchar *object,
-                       GPtrArray *rdf_types,
-                       TrackerDBusEventsType type)
+tracker_events_get_inserts (GArray *subject_ids,
+                            GArray *pred_ids,
+                            GArray *object_ids)
 {
-	g_return_if_fail (rdf_types || type != TRACKER_DBUS_EVENTS_TYPE_UPDATE);
+	g_return_if_fail (private != NULL);
+	g_return_if_fail (subject_ids != NULL);
+	g_return_if_fail (pred_ids != NULL);
+	g_return_if_fail (object_ids != NULL);
+
+	get_from_array (private->inserts.sub_pred_ids,
+	                private->inserts.object_ids,
+	                subject_ids,
+	                pred_ids,
+	                object_ids);
+}
+
+void
+tracker_events_get_deletes (GArray *subject_ids,
+                            GArray *pred_ids,
+                            GArray *object_ids)
+{
+	g_return_if_fail (private != NULL);
+	g_return_if_fail (subject_ids != NULL);
+	g_return_if_fail (pred_ids != NULL);
+	g_return_if_fail (object_ids != NULL);
+
+	get_from_array (private->deletes.sub_pred_ids,
+	                private->deletes.object_ids,
+	                subject_ids,
+	                pred_ids,
+	                object_ids);
+}
+
+static gboolean
+is_allowed (EventsPrivate *private, TrackerClass *rdf_class, gint class_id)
+{
+	gboolean ret;
+
+	if (rdf_class != NULL) {
+		ret = (g_hash_table_lookup (private->allowances, rdf_class) != NULL) ? TRUE : FALSE;
+	} else {
+		ret = (g_hash_table_lookup (private->allowances_id, GINT_TO_POINTER (class_id)) != NULL) ? TRUE : FALSE;
+	}
+	return ret;
+}
+
+static void
+insert_vals_into_arrays (GArray *sub_pred_ids,
+                         GArray *object_ids,
+                         gint subject_id,
+                         gint pred_id,
+                         gint object_id)
+{
+	guint i;
+	gboolean inserted = FALSE;
+	gint64 sub_pred_id = (gint64) subject_id;
+
+	sub_pred_id = sub_pred_id << 32 | pred_id;
+
+	for (i = 0; i < sub_pred_ids->len; i++) {
+		if (sub_pred_id < g_array_index (sub_pred_ids, gint64, i)) {
+			g_array_insert_val (sub_pred_ids, i, sub_pred_id);
+			g_array_insert_val (object_ids, i, object_id);
+			inserted = TRUE;
+			break;
+		}
+	}
+
+	if (!inserted) {
+		g_array_append_val (sub_pred_ids, sub_pred_ids);
+		g_array_append_val (object_ids, object_id);
+	}
+
+}
+
+void
+tracker_events_add_insert (gint         graph_id,
+                           gint         subject_id,
+                           const gchar *subject,
+                           gint         pred_id,
+                           gint         object_id,
+                           const gchar *object,
+                           GPtrArray   *rdf_types)
+{
+	TrackerProperty *rdf_type;
+
+	g_return_if_fail (rdf_types != NULL);
 	g_return_if_fail (private != NULL);
 
 	if (private->frozen) {
 		return;
 	}
 
-	if (private->events && private->events->len > MAX_EVENTS) {
-		/* too many events would lead to high memory usage and to dbus signal messages
-		   larger than maximum dbus message size, which results in dbus disconnect and tracker-store crash */
-		g_warning ("Too many events pending, disabling events for current transaction");
-		tracker_events_reset ();
-		private->frozen = TRUE;
-	}
+	rdf_type = tracker_ontologies_get_rdf_type ();
 
-	if (rdf_types && type == TRACKER_DBUS_EVENTS_TYPE_UPDATE) {
+	if (object_id != 0 && pred_id == tracker_property_get_id (rdf_type)) {
+		/* Resource create
+		 * In case of create, object is the rdf:type */
+		if (is_allowed (private, NULL, object_id)) {
+			insert_vals_into_arrays (private->inserts.sub_pred_ids,
+			                         private->inserts.object_ids,
+			                         subject_id, pred_id, object_id);
+		}
+	} else {
 		guint i;
 
 		for (i = 0; i < rdf_types->len; i++) {
-
-			/* object is not very important for updates (we don't expose
-			 * the value being set to the user's DBus API in tracker-store) */
-			if (is_allowed (private, rdf_types->pdata[i])) {
-
-				prepare_event_for_rdf_type (private, rdf_types->pdata[i],
-				                            uri, type, predicate);
+			if (is_allowed (private, rdf_types->pdata[i], 0)) {
+				insert_vals_into_arrays (private->inserts.sub_pred_ids,
+				                         private->inserts.object_ids,
+				                         subject_id, pred_id, object_id);
 			}
 		}
+	}
+}
+
+void
+tracker_events_add_delete (gint         graph_id,
+                           gint         subject_id,
+                           const gchar *subject,
+                           gint         pred_id,
+                           gint         object_id,
+                           const gchar *object,
+                           GPtrArray   *rdf_types)
+{
+	TrackerProperty *rdf_type;
+
+	g_return_if_fail (rdf_types != NULL);
+	g_return_if_fail (private != NULL);
+
+	if (private->frozen) {
+		return;
+	}
+
+	rdf_type = tracker_ontologies_get_rdf_type ();
+
+	if (object_id != 0 && pred_id == tracker_property_get_id (rdf_type)) {
+		/* Resource delete
+		 * In case of delete, object is the rdf:type */
+		if (is_allowed (private, NULL, object_id)) {
+			insert_vals_into_arrays (private->deletes.sub_pred_ids,
+			                         private->deletes.object_ids,
+			                         subject_id, pred_id, object_id);
+		}
 	} else {
-		TrackerClass *class = tracker_ontologies_get_class_by_uri (object);
-		/* In case of delete and create, object is the rdf:type */
-		if (is_allowed (private, class)) {
-			prepare_event_for_rdf_type (private, class,
-			                            uri, type, predicate);
+		guint i;
+
+		for (i = 0; i < rdf_types->len; i++) {
+			if (is_allowed (private, rdf_types->pdata[i], 0)) {
+				insert_vals_into_arrays (private->deletes.sub_pred_ids,
+				                         private->deletes.object_ids,
+				                         subject_id, pred_id, object_id);
+			}
 		}
 	}
+
 }
 
 void
@@ -135,12 +234,11 @@ tracker_events_reset (void)
 {
 	g_return_if_fail (private != NULL);
 
-	if (private->events) {
-		g_array_free (private->events, TRUE);
-		g_string_chunk_free (private->chunk);
-		private->chunk = NULL;
-		private->events = NULL;
-	}
+	g_array_set_size (private->deletes.sub_pred_ids, 0);
+	g_array_set_size (private->deletes.object_ids, 0);
+	g_array_set_size (private->inserts.sub_pred_ids, 0);
+	g_array_set_size (private->inserts.object_ids, 0);
+
 	private->frozen = FALSE;
 }
 
@@ -152,36 +250,36 @@ tracker_events_freeze (void)
 	private->frozen = TRUE;
 }
 
-GArray *
-tracker_events_get_pending (void)
-{
-	g_return_val_if_fail (private != NULL, NULL);
-
-	return private->events;
-}
-
 static void
 free_private (EventsPrivate *private)
 {
 	g_hash_table_unref (private->allowances);
+	g_hash_table_unref (private->allowances_id);
+	g_array_free (private->deletes.sub_pred_ids, TRUE);
+	g_array_free (private->deletes.object_ids, TRUE);
+	g_array_free (private->inserts.sub_pred_ids, TRUE);
+	g_array_free (private->inserts.object_ids, TRUE);
 	g_free (private);
 }
 
 void
 tracker_events_init (TrackerNotifyClassGetter callback)
 {
-	GStrv          classes_to_signal;
-	gint           i, count;
-
-	private = g_new0 (EventsPrivate, 1);
-
-	private->allowances = g_hash_table_new (g_direct_hash, g_direct_equal);
-
-	private->events = NULL;
+	GStrv classes_to_signal;
+	gint  i, count;
 
 	if (!callback) {
 		return;
 	}
+
+	private = g_new0 (EventsPrivate, 1);
+
+	private->allowances = g_hash_table_new (g_direct_hash, g_direct_equal);
+	private->allowances_id = g_hash_table_new (g_direct_hash, g_direct_equal);
+	private->deletes.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
+	private->deletes.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	private->inserts.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
+	private->inserts.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 
 	classes_to_signal = (*callback)();
 
@@ -190,9 +288,16 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 
 	count = g_strv_length (classes_to_signal);
 	for (i = 0; i < count; i++) {
-		tracker_events_add_allow (classes_to_signal[i]);
+		TrackerClass *class = tracker_ontologies_get_class_by_uri (classes_to_signal[i]);
+		if (class != NULL) {
+			g_hash_table_insert (private->allowances,
+			                     class,
+			                     GINT_TO_POINTER (TRUE));
+			g_hash_table_insert (private->allowances_id,
+			                     GINT_TO_POINTER (tracker_class_get_id (class)),
+			                     GINT_TO_POINTER (TRUE));
+		}
 	}
-
 	g_strfreev (classes_to_signal);
 }
 
@@ -200,7 +305,6 @@ void
 tracker_events_shutdown (void)
 {
 	if (private != NULL) {
-		tracker_events_reset ();
 		free_private (private);
 		private = NULL;
 	} else {

@@ -41,12 +41,26 @@ typedef GStrv (*TrackerNotifyClassGetter) (void);
 
 void       tracker_events_init        (TrackerNotifyClassGetter  callback);
 void       tracker_events_shutdown    (void);
-void       tracker_events_insert      (const gchar              *uri,
-                                       const gchar              *predicate,
+void       tracker_events_add_insert  (gint                      graph_id,
+                                       gint                      subject_id,
+                                       const gchar              *subject,
+                                       gint                      pred_id,
+                                       gint                      object_id,
                                        const gchar              *object,
-                                       GPtrArray                *rdf_types,
-                                       TrackerDBusEventsType     type);
-GArray    *tracker_events_get_pending (void);
+                                       GPtrArray                *rdf_types);
+void       tracker_events_add_delete  (gint                      graph_id,
+                                       gint                      subject_id,
+                                       const gchar              *subject,
+                                       gint                      pred_id,
+                                       gint                      object_id,
+                                       const gchar              *object,
+                                       GPtrArray                *rdf_types);
+void       tracker_events_get_inserts (GArray                   *subject_ids,
+                                       GArray                   *pred_ids,
+                                       GArray                   *object_ids);
+void       tracker_events_get_deletes (GArray                   *subject_ids,
+                                       GArray                   *pred_ids,
+                                       GArray                   *object_ids);
 void       tracker_events_reset       (void);
 void       tracker_events_freeze      (void);
 
