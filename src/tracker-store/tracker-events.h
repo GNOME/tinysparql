@@ -28,15 +28,6 @@
 
 G_BEGIN_DECLS
 
-typedef struct TrackerEvent TrackerEvent;
-
-struct TrackerEvent {
-	TrackerDBusEventsType type;
-	TrackerClass *class;
-	TrackerProperty *predicate;
-	gchar *subject;
-};
-
 typedef GStrv (*TrackerNotifyClassGetter) (void);
 
 void       tracker_events_init        (TrackerNotifyClassGetter  callback);
