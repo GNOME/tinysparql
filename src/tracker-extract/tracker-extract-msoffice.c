@@ -2082,7 +2082,7 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 		 * using the given context */
 		tracker_gsf_parse_xml_in_zip (parser_info->uri,
 		                              xml_filename,
-		                              context);
+		                              context, NULL);
 		g_markup_parse_context_free (context);
 	}
 
@@ -2237,7 +2237,7 @@ extract_msoffice_xml (const gchar          *uri,
 	 * using the given context */
 	tracker_gsf_parse_xml_in_zip (uri,
 	                              "[Content_Types].xml",
-	                              context);
+	                              context, NULL);
 
 	if (info.content) {
 		gchar *content;

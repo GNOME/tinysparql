@@ -77,9 +77,10 @@ find_member (GsfInfile *arch,
  *  maximum size of the uncompressed XML file is limited to be to 20MBytes.
  */
 void
-tracker_gsf_parse_xml_in_zip (const gchar         *zip_file_uri,
-                              const gchar         *xml_filename,
-                              GMarkupParseContext *context)
+tracker_gsf_parse_xml_in_zip (const gchar          *zip_file_uri,
+                              const gchar          *xml_filename,
+                              GMarkupParseContext  *context,
+                              GError              **err)
 {
 	gchar *filename;
 	GError *error = NULL;
@@ -124,7 +125,8 @@ tracker_gsf_parse_xml_in_zip (const gchar         *zip_file_uri,
 		chunk_size = MIN (remaining_size, XML_BUFFER_SIZE);
 
 		accum = 0;
-		while (accum  <= XML_MAX_BYTES_READ &&
+		while (!error &&
+		       accum  <= XML_MAX_BYTES_READ &&
 		       chunk_size > 0 &&
 		       gsf_input_read (GSF_INPUT (member), chunk_size, buf) != NULL) {
 
@@ -132,7 +134,7 @@ tracker_gsf_parse_xml_in_zip (const gchar         *zip_file_uri,
 			accum += chunk_size;
 
 			/* Pass the read stream to the context parser... */
-			g_markup_parse_context_parse (context, buf, chunk_size, NULL);
+			g_markup_parse_context_parse (context, buf, chunk_size, &error);
 
 			/* update bytes to be read */
 			remaining_size -= chunk_size;
@@ -141,8 +143,9 @@ tracker_gsf_parse_xml_in_zip (const gchar         *zip_file_uri,
 	}
 
 	g_free (filename);
+
 	if (error)
-		g_error_free (error);
+		g_propagate_error (err, error);
 	if (infile)
 		g_object_unref (infile);
 	if (src)

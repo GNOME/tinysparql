@@ -25,9 +25,10 @@
 
 G_BEGIN_DECLS
 
-void tracker_gsf_parse_xml_in_zip (const gchar         *zip_file_uri,
-                                   const gchar         *xml_filename,
-                                   GMarkupParseContext *context);
+void tracker_gsf_parse_xml_in_zip (const gchar          *zip_file_uri,
+                                   const gchar          *xml_filename,
+                                   GMarkupParseContext  *context,
+                                   GError              **error);
 
 G_END_DECLS
 
