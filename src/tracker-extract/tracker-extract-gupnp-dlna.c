@@ -851,7 +851,7 @@ extract_gupnp_dlna (const gchar *uri,
 	extractor.album_art_size = 0;
 	extractor.album_art_mime = NULL;
 
-	discoverer = gupnp_dlna_discoverer_new (5*GST_SECOND);
+	discoverer = gupnp_dlna_discoverer_new (5*GST_SECOND, TRUE, FALSE);
 	dlna_info = gupnp_dlna_discoverer_discover_uri_sync (discoverer,
 							     uri,
 							     &error);
