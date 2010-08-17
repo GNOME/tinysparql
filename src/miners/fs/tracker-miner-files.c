@@ -658,12 +658,11 @@ set_up_mount_point_cb (GObject      *source,
                        GAsyncResult *result,
                        gpointer      user_data)
 {
+	TrackerSparqlConnection *connection = TRACKER_SPARQL_CONNECTION (source);
 	gchar *removable_device_urn = user_data;
 	GError *error = NULL;
 
-	tracker_sparql_connection_update_finish (tracker_miner_get_connection (TRACKER_MINER (source)),
-	                                     result,
-	                                     &error);
+	tracker_sparql_connection_update_finish (connection, result, &error);
 
 	if (error) {
 		g_critical ("Could not set mount point in database '%s', %s",
