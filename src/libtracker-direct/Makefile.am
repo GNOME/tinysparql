@@ -43,7 +43,8 @@ BUILT_SOURCES = libtracker-direct.vala.stamp
 
 libtracker_direct_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la	\
-	$(GLIB2_LIBS)
+	$(GLIB2_LIBS)						\
+	$(GCOV_LIBS)
 
 MAINTAINERCLEANFILES =					\
 	$(libtracker_direct_la_VALASOURCES:.vala=.c) 	\
