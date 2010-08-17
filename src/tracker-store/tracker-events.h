@@ -55,10 +55,12 @@ void       tracker_events_add_delete  (gint                      graph_id,
                                        gint                      object_id,
                                        const gchar              *object,
                                        GPtrArray                *rdf_types);
-void       tracker_events_get_inserts (GArray                   *subject_ids,
+void       tracker_events_get_inserts (gint                      class_id,
+                                       GArray                   *subject_ids,
                                        GArray                   *pred_ids,
                                        GArray                   *object_ids);
-void       tracker_events_get_deletes (GArray                   *subject_ids,
+void       tracker_events_get_deletes (gint                      class_id,
+                                       GArray                   *subject_ids,
                                        GArray                   *pred_ids,
                                        GArray                   *object_ids);
 void       tracker_events_reset       (void);

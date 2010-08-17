@@ -45,7 +45,9 @@ typedef struct {
 static EventsPrivate *private;
 
 static void
-get_from_array (GArray *sub_pred_ids,
+get_from_array (gint    class_id,
+                GArray *class_ids,
+                GArray *sub_pred_ids,
                 GArray *object_ids_in,
                 GArray *subject_ids,
                 GArray *pred_ids,
@@ -57,23 +59,30 @@ get_from_array (GArray *sub_pred_ids,
 	g_array_set_size (pred_ids, 0);
 	g_array_set_size (object_ids, 0);
 
-	for (i = 0; i < sub_pred_ids->len; i++) {
-		gint subject_id, pred_id, object_id;
-		gint64 sub_pred_id;
+	for (i = 0; i < class_ids->len; i++) {
+		gint class_id_v;
 
-		sub_pred_id = g_array_index (sub_pred_ids, gint64, i);
-		subject_id = sub_pred_id >> 32;
-		pred_id = sub_pred_id << 32;
-		object_id = g_array_index (object_ids_in, gint, i);
+		class_id_v = g_array_index (class_ids, gint, i);
 
-		g_array_append_val (subject_ids, subject_id);
-		g_array_append_val (pred_ids, pred_id);
-		g_array_append_val (object_ids, object_id);
+		if (class_id_v == class_id) {
+			gint subject_id, pred_id, object_id;
+			gint64 sub_pred_id;
+
+			sub_pred_id = g_array_index (sub_pred_ids, gint64, i);
+			subject_id = sub_pred_id >> 32;
+			pred_id = sub_pred_id << 32;
+			object_id = g_array_index (object_ids_in, gint, i);
+
+			g_array_append_val (subject_ids, subject_id);
+			g_array_append_val (pred_ids, pred_id);
+			g_array_append_val (object_ids, object_id);
+		}
 	}
 }
 
 void
-tracker_events_get_inserts (GArray *subject_ids,
+tracker_events_get_inserts (gint    class_id,
+                            GArray *subject_ids,
                             GArray *pred_ids,
                             GArray *object_ids)
 {
@@ -82,7 +91,9 @@ tracker_events_get_inserts (GArray *subject_ids,
 	g_return_if_fail (pred_ids != NULL);
 	g_return_if_fail (object_ids != NULL);
 
-	get_from_array (private->inserts.sub_pred_ids,
+	get_from_array (class_id,
+	                private->inserts.class_ids,
+	                private->inserts.sub_pred_ids,
 	                private->inserts.object_ids,
 	                subject_ids,
 	                pred_ids,
@@ -90,7 +101,8 @@ tracker_events_get_inserts (GArray *subject_ids,
 }
 
 void
-tracker_events_get_deletes (GArray *subject_ids,
+tracker_events_get_deletes (gint    class_id,
+                            GArray *subject_ids,
                             GArray *pred_ids,
                             GArray *object_ids)
 {
@@ -99,7 +111,9 @@ tracker_events_get_deletes (GArray *subject_ids,
 	g_return_if_fail (pred_ids != NULL);
 	g_return_if_fail (object_ids != NULL);
 
-	get_from_array (private->deletes.sub_pred_ids,
+	get_from_array (class_id,
+	                private->deletes.class_ids,
+	                private->deletes.sub_pred_ids,
 	                private->deletes.object_ids,
 	                subject_ids,
 	                pred_ids,
@@ -120,11 +134,13 @@ is_allowed (EventsPrivate *private, TrackerClass *rdf_class, gint class_id)
 }
 
 static void
-insert_vals_into_arrays (GArray *sub_pred_ids,
+insert_vals_into_arrays (GArray *class_ids,
+                         GArray *sub_pred_ids,
                          GArray *object_ids,
-                         gint subject_id,
-                         gint pred_id,
-                         gint object_id)
+                         gint    subject_id,
+                         gint    pred_id,
+                         gint    object_id,
+                         gint    class_id)
 {
 	guint i;
 	gboolean inserted = FALSE;
@@ -134,6 +150,7 @@ insert_vals_into_arrays (GArray *sub_pred_ids,
 
 	for (i = 0; i < sub_pred_ids->len; i++) {
 		if (sub_pred_id < g_array_index (sub_pred_ids, gint64, i)) {
+			g_array_insert_val (class_ids, i, class_id);
 			g_array_insert_val (sub_pred_ids, i, sub_pred_id);
 			g_array_insert_val (object_ids, i, object_id);
 			inserted = TRUE;
@@ -142,10 +159,10 @@ insert_vals_into_arrays (GArray *sub_pred_ids,
 	}
 
 	if (!inserted) {
+		g_array_append_val (class_ids, class_id);
 		g_array_append_val (sub_pred_ids, sub_pred_ids);
 		g_array_append_val (object_ids, object_id);
 	}
-
 }
 
 void
@@ -172,8 +189,10 @@ tracker_events_add_insert (gint         graph_id,
 		/* Resource create
 		 * In case of create, object is the rdf:type */
 		if (is_allowed (private, NULL, object_id)) {
-			insert_vals_into_arrays (private->inserts.sub_pred_ids,
+			insert_vals_into_arrays (private->inserts.class_ids,
+			                         private->inserts.sub_pred_ids,
 			                         private->inserts.object_ids,
+			                         object_id,
 			                         subject_id, pred_id, object_id);
 		}
 	} else {
@@ -181,8 +200,10 @@ tracker_events_add_insert (gint         graph_id,
 
 		for (i = 0; i < rdf_types->len; i++) {
 			if (is_allowed (private, rdf_types->pdata[i], 0)) {
-				insert_vals_into_arrays (private->inserts.sub_pred_ids,
+				insert_vals_into_arrays (private->inserts.class_ids,
+				                         private->inserts.sub_pred_ids,
 				                         private->inserts.object_ids,
+				                         tracker_class_get_id (rdf_types->pdata[i]),
 				                         subject_id, pred_id, object_id);
 			}
 		}
@@ -213,8 +234,10 @@ tracker_events_add_delete (gint         graph_id,
 		/* Resource delete
 		 * In case of delete, object is the rdf:type */
 		if (is_allowed (private, NULL, object_id)) {
-			insert_vals_into_arrays (private->deletes.sub_pred_ids,
+			insert_vals_into_arrays (private->deletes.class_ids,
+			                         private->deletes.sub_pred_ids,
 			                         private->deletes.object_ids,
+			                         object_id,
 			                         subject_id, pred_id, object_id);
 		}
 	} else {
@@ -222,8 +245,10 @@ tracker_events_add_delete (gint         graph_id,
 
 		for (i = 0; i < rdf_types->len; i++) {
 			if (is_allowed (private, rdf_types->pdata[i], 0)) {
-				insert_vals_into_arrays (private->deletes.sub_pred_ids,
+				insert_vals_into_arrays (private->deletes.class_ids,
+				                         private->deletes.sub_pred_ids,
 				                         private->deletes.object_ids,
+				                         tracker_class_get_id (rdf_types->pdata[i]),
 				                         subject_id, pred_id, object_id);
 			}
 		}
@@ -236,13 +261,13 @@ tracker_events_reset (void)
 {
 	g_return_if_fail (private != NULL);
 
+	g_array_set_size (private->deletes.class_ids, 0);
 	g_array_set_size (private->deletes.sub_pred_ids, 0);
 	g_array_set_size (private->deletes.object_ids, 0);
-	g_array_set_size (private->deletes.class_ids, 0);
 
+	g_array_set_size (private->inserts.class_ids, 0);
 	g_array_set_size (private->inserts.sub_pred_ids, 0);
 	g_array_set_size (private->inserts.object_ids, 0);
-	g_array_set_size (private->inserts.class_ids, 0);
 
 	private->frozen = FALSE;
 }
@@ -260,13 +285,15 @@ free_private (EventsPrivate *private)
 {
 	g_hash_table_unref (private->allowances);
 	g_hash_table_unref (private->allowances_id);
+
+	g_array_free (private->deletes.class_ids, TRUE);
 	g_array_free (private->deletes.sub_pred_ids, TRUE);
 	g_array_free (private->deletes.object_ids, TRUE);
-	g_array_free (private->deletes.class_ids, TRUE);
 
+	g_array_free (private->inserts.class_ids, TRUE);
 	g_array_free (private->inserts.sub_pred_ids, TRUE);
 	g_array_free (private->inserts.object_ids, TRUE);
-	g_array_free (private->inserts.class_ids, TRUE);
+
 	g_free (private);
 }
 
@@ -284,8 +311,12 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 
 	private->allowances = g_hash_table_new (g_direct_hash, g_direct_equal);
 	private->allowances_id = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+	private->deletes.class_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 	private->deletes.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 	private->deletes.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+
+	private->inserts.class_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 	private->inserts.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 	private->inserts.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 
