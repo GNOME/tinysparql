@@ -19,17 +19,17 @@
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 private interface Tracker.Bus.Resources : GLib.Object {
-	public abstract string[,] sparql_query (string query) throws DBus.Error;
+	public abstract string[,] sparql_query (string query) throws Sparql.Error, DBus.Error;
 	[DBus (name = "SparqlQuery")]
-	public abstract async string[,] sparql_query_async (string query) throws DBus.Error;
+	public abstract async string[,] sparql_query_async (string query) throws Sparql.Error, DBus.Error;
 
-	public abstract void sparql_update (string query) throws DBus.Error;
+	public abstract void sparql_update (string query) throws Sparql.Error, DBus.Error;
 	[DBus (name = "SparqlUpdate")]
-	public abstract async void sparql_update_async (string query) throws DBus.Error;
+	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBus.Error;
 
-	public abstract void load (string uri) throws DBus.Error;
+	public abstract void load (string uri) throws Sparql.Error, DBus.Error;
 	[DBus (name = "Load")]
-	public abstract async void load_async (string uri) throws DBus.Error;
+	public abstract async void load_async (string uri) throws Sparql.Error, DBus.Error;
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Statistics")]

@@ -59,6 +59,7 @@ public const string TRACKER_DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/St
  *
  * Possible errors reported in the operations with the #TrackerSparqlConnection.
  */
+[DBus (name = "org.freedesktop.DBus.GLib.UnmappedError.TrackerSparqlErrorQuark")]
 public errordomain Tracker.Sparql.Error {
 	PARSE,
 	UNKNOWN_CLASS,
