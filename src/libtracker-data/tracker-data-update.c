@@ -333,10 +333,6 @@ tracker_data_remove_delete_statement_callback (TrackerStatementCallback callback
 	}
 }
 
-GQuark tracker_data_error_quark (void) {
-	return g_quark_from_static_string ("tracker_data_error-quark");
-}
-
 static gint
 tracker_data_update_get_new_service_id (void)
 {
@@ -1246,7 +1242,7 @@ get_old_property_values (TrackerProperty  *property,
 	old_values = g_hash_table_lookup (resource_buffer->predicates, property);
 	if (old_values == NULL) {
 		if (!check_property_domain (property)) {
-			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_CONSTRAINT,
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
 			             "Subject `%s' is not in domain `%s' of property `%s'",
 			             resource_buffer->subject,
 			             tracker_class_get_name (tracker_property_get_domain (property)),
@@ -1432,7 +1428,7 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 			new_value_str = g_value_get_string (&new_value);
 		}
 
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_CONSTRAINT,
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
 		             "Unable to insert multiple values for subject `%s' and single valued property `%s' "
 		             "(old_value: '%s', new value: '%s')",
 		             resource_buffer->subject,
@@ -1797,7 +1793,7 @@ tracker_data_delete_statement (const gchar  *graph,
 
 			cache_delete_resource_type (class, graph, 0);
 		} else {
-			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object);
 		}
 	} else {
@@ -1824,7 +1820,7 @@ tracker_data_delete_statement (const gchar  *graph,
 				}
 			}
 		} else {
-			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
 			             "Property '%s' not found in the ontology", predicate);
 		}
 
@@ -1914,7 +1910,7 @@ tracker_data_insert_statement (const gchar            *graph,
 			tracker_data_insert_statement_with_string (graph, subject, predicate, object, error);
 		}
 	} else {
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology", predicate);
 	}
 }
@@ -1939,12 +1935,12 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 
 	property = tracker_ontologies_get_property_by_uri (predicate);
 	if (property == NULL) {
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology", predicate);
 		return;
 	} else {
 		if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
-			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_TYPE,
 			             "Property '%s' does not accept URIs", predicate);
 			return;
 		}
@@ -2003,7 +1999,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		if (class != NULL) {
 			cache_create_service_decomposed (class, graph, 0);
 		} else {
-			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_CLASS,
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object);
 			return;
 		}
@@ -2059,12 +2055,12 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 
 	property = tracker_ontologies_get_property_by_uri (predicate);
 	if (property == NULL) {
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology", predicate);
 		return;
 	} else {
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_INVALID_TYPE,
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_TYPE,
 			             "Property '%s' only accepts URIs", predicate);
 			return;
 		}
@@ -2116,7 +2112,7 @@ tracker_data_begin_transaction (GError **error)
 	g_return_if_fail (!in_transaction);
 
 	if (!tracker_db_manager_has_enough_space ()) {
-		g_set_error (error, TRACKER_DATA_ERROR, TRACKER_DATA_ERROR_NO_SPACE,
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_NO_SPACE,
 			"There is not enough space on the file system for update operations");
 		return;
 	}

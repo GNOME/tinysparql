@@ -65,6 +65,8 @@ public errordomain Tracker.Sparql.Error {
 	UNKNOWN_CLASS,
 	UNKNOWN_PROPERTY,
 	TYPE,
+	CONSTRAINT,
+	NO_SPACE,
 	INTERNAL,
 	UNSUPPORTED
 }

@@ -34,16 +34,6 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
-#define TRACKER_DATA_ERROR tracker_data_error_quark ()
-
-typedef enum  {
-	TRACKER_DATA_ERROR_UNKNOWN_CLASS,
-	TRACKER_DATA_ERROR_UNKNOWN_PROPERTY,
-	TRACKER_DATA_ERROR_INVALID_TYPE,
-	TRACKER_DATA_ERROR_CONSTRAINT,
-	TRACKER_DATA_ERROR_NO_SPACE
-} TrackerDataError;
-
 typedef void (*TrackerStatementCallback) (const gchar *graph,
                                           const gchar *subject,
                                           const gchar *predicate,

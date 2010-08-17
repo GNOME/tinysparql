@@ -365,7 +365,7 @@ public class Tracker.TurtleReader : Object {
 		}
 	}
 
-	public static void load (string path) throws FileError, Sparql.Error, DataError, DateError, DBInterfaceError {
+	public static void load (string path) throws FileError, Sparql.Error, DateError, DBInterfaceError {
 		try {
 			Data.begin_transaction ();
 
@@ -380,7 +380,7 @@ public class Tracker.TurtleReader : Object {
 			}
 
 			Data.commit_transaction ();
-		} catch (DataError e) {
+		} catch (Sparql.Error e) {
 			Data.rollback_transaction ();
 			throw e;
 		} catch (DBInterfaceError e) {

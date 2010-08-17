@@ -124,13 +124,6 @@ namespace Tracker {
 		public unowned Property[] get_properties ();
 	}
 
-	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
-	public errordomain DataError {
-		UNKNOWN_CLASS,
-		UNKNOWN_PROPERTY,
-		INVALID_TYPE
-	}
-
 	[CCode (cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h")]
 	namespace Data {
 		public int query_resource_id (string uri);
@@ -139,11 +132,11 @@ namespace Tracker {
 		public void begin_transaction () throws DBInterfaceError;
 		public void commit_transaction () throws DBInterfaceError;
 		public void rollback_transaction ();
-		public void delete_statement (string graph, string subject, string predicate, string object) throws DataError, DateError;
-		public void insert_statement (string graph, string subject, string predicate, string object) throws DataError, DateError;
-		public void insert_statement_with_uri (string graph, string subject, string predicate, string object) throws DataError;
-		public void insert_statement_with_string (string graph, string subject, string predicate, string object) throws DataError, DateError;
-		public void delete_resource_description (string graph, string uri) throws DataError;
+		public void delete_statement (string graph, string subject, string predicate, string object) throws Sparql.Error, DateError;
+		public void insert_statement (string graph, string subject, string predicate, string object) throws Sparql.Error, DateError;
+		public void insert_statement_with_uri (string graph, string subject, string predicate, string object) throws Sparql.Error;
+		public void insert_statement_with_string (string graph, string subject, string predicate, string object) throws Sparql.Error, DateError;
+		public void delete_resource_description (string graph, string uri) throws Sparql.Error;
 		public void update_buffer_flush () throws DBInterfaceError;
 		public void update_buffer_might_flush () throws DBInterfaceError;
 	}
