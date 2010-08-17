@@ -96,7 +96,7 @@ bus_update_test_SOURCES = \
 
 direct_vapi_sources = \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
-	$(top_srcdir)/src/libtracker-direct/tracker-direct-$(TRACKER_API_VERSION).vapi
+	$(top_srcdir)/src/libtracker-direct/tracker-direct.vapi
 
 direct-query-test.vala.stamp: $(direct_query_test_VALASOURCES) $(direct_vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 $^
@@ -115,8 +115,8 @@ default-update-test.vala.stamp: $(default_update_test_VALASOURCES) $(direct_vapi
 default_update_test_LDADD = $(direct_query_test_LDADD)
 
 bus_vapi_sources = \
-	$(top_builddir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
-	$(top_builddir)/src/libtracker-bus/tracker-bus-$(TRACKER_API_VERSION).vapi
+	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
+	$(top_srcdir)/src/libtracker-bus/tracker-bus.vapi
 
 bus-query-test.vala.stamp: $(bus_query_test_VALASOURCES) $(bus_vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 $^

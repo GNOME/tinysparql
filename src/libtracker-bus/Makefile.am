@@ -23,7 +23,7 @@ endif
 
 modules_LTLIBRARIES = libtracker-bus.la
 
-libtracker_bus_la_VALASOURCES = \
+libtracker_bus_la_VALASOURCES = 		\
 	tracker-bus.vala			\
 	tracker-array-cursor.vala
 
@@ -55,33 +55,22 @@ vapi_sources =						\
 	tracker-bus-array-update.vapi
 
 libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus.vapi $^
+	$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus.vapi $^
 	$(AM_V_GEN)touch $@
 
-# Vala bindings
-vapidir = $(datadir)/vala/vapi
-vapi_DATA = tracker-bus-$(TRACKER_API_VERSION).vapi
-
-tracker-bus.vapi: libtracker-bus.vala.stamp
-tracker-bus-$(TRACKER_API_VERSION).vapi: tracker-bus.vapi
-	cp $< $@
+BUILT_SOURCES = libtracker-bus.vala.stamp
 
 libtracker_bus_la_LIBADD = 						\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(GLIB2_LIBS) \
 	$(DBUS_LIBS) \
 	$(GCOV_LIBS) \
 	$(GIO_LIBS)
 
-BUILT_SOURCES = 					\
-	libtracker-bus.vala.stamp
-
-CLEANFILES = 						\
-	$(BUILT_SOURCES)
-
 MAINTAINERCLEANFILES =					\
-	$(libtracker_bus_la_VALASOURCES:.vala=.c) \
+	$(libtracker_bus_la_VALASOURCES:.vala=.c) 	\
 	libtracker-bus.vala.stamp			\
+	tracker-bus.vapi				\
 	tracker-bus.h
 
 EXTRA_DIST = 						\
