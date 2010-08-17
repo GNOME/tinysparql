@@ -137,10 +137,10 @@ static void
 insert_vals_into_arrays (GArray *class_ids,
                          GArray *sub_pred_ids,
                          GArray *object_ids,
+                         gint    class_id,
                          gint    subject_id,
                          gint    pred_id,
-                         gint    object_id,
-                         gint    class_id)
+                         gint    object_id)
 {
 	guint i;
 	gboolean inserted = FALSE;
