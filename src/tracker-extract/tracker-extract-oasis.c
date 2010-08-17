@@ -245,9 +245,9 @@ extract_oasis (const gchar          *uri,
 	g_object_unref (file_info);
 
 	/* Extract content with the given limitations */
-	extract_oasis_content (uri, 
-	                       tracker_config_get_max_bytes (config), 
-	                       file_type, 
+	extract_oasis_content (uri,
+	                       tracker_config_get_max_bytes (config),
+	                       file_type,
 	                       metadata);
 }
 
@@ -293,7 +293,7 @@ xml_start_element_handler_metadata (GMarkupParseContext  *context,
 	} else if (g_ascii_strcasecmp (element_name, "meta:creation-date") == 0) {
 		data->current = ODT_TAG_TYPE_CREATED;
 	} else if (g_ascii_strcasecmp (element_name, "meta:generator") == 0) {
-	 	data->current = ODT_TAG_TYPE_GENERATOR;
+		data->current = ODT_TAG_TYPE_GENERATOR;
 	} else {
 		data->current = -1;
 	}
@@ -412,7 +412,7 @@ xml_start_element_handler_content (GMarkupParseContext  *context,
 		    (g_ascii_strcasecmp (element_name, "text:table-index") == 0) ||
 		    (g_ascii_strcasecmp (element_name, "text:illustration-index") == 0) ||
 		    (g_ascii_strcasecmp (element_name, "text:section") == 0)) {
-		    data->styles_present = TRUE;
+			data->styles_present = TRUE;
 		} else if (g_ascii_strcasecmp (element_name, "table:table-cell") == 0) {
 			data->current = ODT_TAG_TYPE_WORD_TEXT;
 		} else if (g_ascii_strcasecmp (element_name, "text:p") == 0) {
@@ -445,7 +445,7 @@ xml_start_element_handler_content (GMarkupParseContext  *context,
 		} else if (g_ascii_strcasecmp (element_name, "text:span") == 0) {
 			data->current = ODT_TAG_TYPE_WORD_TEXT;
 		} else if ((g_ascii_strcasecmp (element_name, "text:a") == 0) ||
-			   (g_ascii_strcasecmp (element_name, "text:s") == 0)) {
+		           (g_ascii_strcasecmp (element_name, "text:s") == 0)) {
 			data->current = ODT_TAG_TYPE_WORD_TEXT;
 		} else {
 			data->current = -1;
@@ -484,7 +484,7 @@ xml_end_element_handler_content (GMarkupParseContext  *context,
 		    (g_ascii_strcasecmp (element_name, "text:table-index") == 0) ||
 		    (g_ascii_strcasecmp (element_name, "text:illustration-index") == 0) ||
 		    (g_ascii_strcasecmp (element_name, "text:section") == 0)) {
-		    data->styles_present = FALSE;
+			data->styles_present = FALSE;
 		}
 		break;
 	default:
@@ -511,12 +511,12 @@ xml_text_handler_content (GMarkupParseContext  *context,
 	case ODT_TAG_TYPE_WORD_TEXT:
 	case ODT_TAG_TYPE_SLIDE_TEXT:
 	case ODT_TAG_TYPE_SPREADSHEET_TEXT:
-                if (data->bytes_pending == 0) {
-                        g_set_error_literal (error,
-                                             maximum_size_error_quark, 0,
-                                             "Maximum text limit reached");
-                        break;
-                }
+		if (data->bytes_pending == 0) {
+			g_set_error_literal (error,
+			                     maximum_size_error_quark, 0,
+			                     "Maximum text limit reached");
+			break;
+		}
 
 		/* Look for valid UTF-8 text */
 		if (tracker_text_validate_utf8 (text,
