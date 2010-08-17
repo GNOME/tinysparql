@@ -645,6 +645,10 @@ public class Tracker.SparqlScanner : Object {
 							line++;
 							column = 1;
 							token_length_in_chars = 3;
+						} else if (current[0] <= 0x7f) {
+							// ASCII
+							current++;
+							token_length_in_chars++;
 						} else {
 							unichar u = ((string) current).get_char_validated ((long) (end - current));
 							if (u != (unichar) (-1)) {
@@ -696,6 +700,10 @@ public class Tracker.SparqlScanner : Object {
 						}
 					} else if (current[0] == '\n') {
 						break;
+					} else if (current[0] <= 0x7f) {
+						// ASCII
+						current++;
+						token_length_in_chars++;
 					} else {
 						unichar u = ((string) current).get_char_validated ((long) (end - current));
 						if (u != (unichar) (-1)) {
