@@ -32,8 +32,6 @@
 #include "tracker-dbus.h"
 #include "tracker-resources.h"
 #include "tracker-resources-glue.h"
-#include "tracker-resource-class.h"
-#include "tracker-resources-class-glue.h"
 #include "tracker-status.h"
 #include "tracker-status-glue.h"
 #include "tracker-statistics.h"
@@ -348,102 +346,18 @@ tracker_dbus_register_objects (void)
 }
 
 gboolean
-tracker_dbus_register_class_signal_objects (void)
+tracker_dbus_register_prepare_class_signal (void)
 {
-	TrackerDBResultSet *result_set;
-	GSList *event_sources = NULL;
-	GStrv classes, p;
-	gpointer object, resources;
+	gpointer resources;
 
 	resources = tracker_dbus_get_object (TRACKER_TYPE_RESOURCES);
 
 	if (!resources) {
 		g_message ("Error during initialization, Resources DBus object not available");
-		return TRUE;
+		return FALSE;
 	}
 
-	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
-
-	if (!result_set) {
-		g_message ("No Nepomuk classes to register on D-Bus");
-		return TRUE;
-	}
-
-	classes = tracker_dbus_query_result_to_strv (result_set, 0, NULL);
-	g_object_unref (result_set);
-
-	if (!classes) {
-		g_message ("No Nepomuk classes to register on D-Bus");
-		return TRUE;
-	}
-
-	for (p = classes; *p; p++) {
-		TrackerNamespace *namespace;
-		const gchar *rdf_class;
-		gchar *namespace_uri;
-		gchar *replaced, *path, *hash;
-
-		rdf_class = *p;
-		hash = strrchr (rdf_class, '#');
-
-		if (!hash) {
-			/* Support ontologies whose namespace
-			 * uri does not end in a hash, e.g.
-			 * dc.
-			 */
-			hash = strrchr (rdf_class, '/');
-		}
-
-		if (!hash) {
-			g_critical ("Unknown namespace for class:'%s'",
-			            rdf_class);
-			continue;
-		}
-
-		namespace_uri = g_strndup (rdf_class, hash - rdf_class + 1);
-		namespace = tracker_ontologies_get_namespace_by_uri (namespace_uri);
-		g_free (namespace_uri);
-
-		if (!namespace) {
-			g_critical ("Unknown namespace:'%s' for class:'%s'",
-			            namespace_uri,
-			            rdf_class);
-			continue;
-		}
-
-		replaced = g_strdup_printf ("%s/%s",
-		                            tracker_namespace_get_prefix (namespace),
-		                            hash + 1);
-		path = g_strdup_printf (TRACKER_RESOURCES_CLASS_PATH,
-		                        replaced);
-		g_free (replaced);
-
-		/* Add a org.freedesktop.Tracker1.Resources.Class */
-		object = tracker_resource_class_new (rdf_class, path, connection);
-		if (!object) {
-			g_critical ("Could not create TrackerResourcesClass object to register:'%s' class",
-			            rdf_class);
-			g_free (path);
-			return FALSE;
-		}
-
-		dbus_register_object (connection,
-		                      gproxy,
-		                      G_OBJECT (object),
-		                      &dbus_glib_tracker_resources_class_object_info,
-		                      path);
-		g_free (path);
-
-		/* TrackerResources takes over ownership and unrefs
-		 * the gobjects too.
-		 */
-		event_sources = g_slist_prepend (event_sources, g_object_ref (object));
-		objects = g_slist_prepend (objects, object);
-	}
-
-	g_strfreev (classes);
-
-	tracker_resources_prepare (resources, event_sources);
+	tracker_resources_prepare (resources);
 
 	return TRUE;
 }

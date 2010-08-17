@@ -32,10 +32,12 @@ typedef struct {
 	struct {
 		GArray *sub_pred_ids;
 		GArray *object_ids;
+		GArray *class_ids;
 	} deletes;
 	struct {
 		GArray *sub_pred_ids;
 		GArray *object_ids;
+		GArray *class_ids;
 	} inserts;
 	gboolean frozen;
 } EventsPrivate;
@@ -236,8 +238,11 @@ tracker_events_reset (void)
 
 	g_array_set_size (private->deletes.sub_pred_ids, 0);
 	g_array_set_size (private->deletes.object_ids, 0);
+	g_array_set_size (private->deletes.class_ids, 0);
+
 	g_array_set_size (private->inserts.sub_pred_ids, 0);
 	g_array_set_size (private->inserts.object_ids, 0);
+	g_array_set_size (private->inserts.class_ids, 0);
 
 	private->frozen = FALSE;
 }
@@ -257,8 +262,11 @@ free_private (EventsPrivate *private)
 	g_hash_table_unref (private->allowances_id);
 	g_array_free (private->deletes.sub_pred_ids, TRUE);
 	g_array_free (private->deletes.object_ids, TRUE);
+	g_array_free (private->deletes.class_ids, TRUE);
+
 	g_array_free (private->inserts.sub_pred_ids, TRUE);
 	g_array_free (private->inserts.object_ids, TRUE);
+	g_array_free (private->inserts.class_ids, TRUE);
 	g_free (private);
 }
 

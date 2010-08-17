@@ -37,7 +37,6 @@
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"
 #include "tracker-resources.h"
-#include "tracker-resource-class.h"
 #include "tracker-events.h"
 #include "tracker-writeback.h"
 #include "tracker-store.h"
@@ -80,7 +79,7 @@ enum {
 };
 
 typedef struct {
-	GSList *event_sources;
+	gboolean nothing;
 } TrackerResourcesPrivate;
 
 typedef struct {
@@ -98,18 +97,6 @@ typedef struct {
 static void tracker_resources_finalize (GObject *object);
 
 static guint signals[LAST_SIGNAL] = { 0 };
-
-static void
-free_event_sources (TrackerResourcesPrivate *priv)
-{
-	if (priv->event_sources) {
-		g_slist_foreach (priv->event_sources,
-		                 (GFunc) g_object_unref, NULL);
-		g_slist_free (priv->event_sources);
-
-		priv->event_sources = NULL;
-	}
-}
 
 static void
 tracker_resources_class_init (TrackerResourcesClass *klass)
@@ -632,21 +619,16 @@ on_statement_deleted (gint         graph_id,
 }
 
 void
-tracker_resources_prepare (TrackerResources *object,
-                           GSList           *event_sources)
+tracker_resources_prepare (TrackerResources *object)
 {
 	TrackerResourcesPrivate *priv;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
 
-	free_event_sources (priv);
-
 	tracker_data_add_insert_statement_callback (on_statement_inserted, object);
 	tracker_data_add_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_add_commit_statement_callback (on_statements_committed, object);
 	tracker_data_add_rollback_statement_callback (on_statements_rolled_back, object);
-
-	priv->event_sources = event_sources;
 }
 
 static void
@@ -660,8 +642,6 @@ tracker_resources_finalize (GObject      *object)
 	tracker_data_remove_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_remove_commit_statement_callback (on_statements_committed, object);
 	tracker_data_remove_rollback_statement_callback (on_statements_rolled_back, object);
-
-	free_event_sources (priv);
 
 	G_OBJECT_CLASS (tracker_resources_parent_class)->finalize (object);
 }

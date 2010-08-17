@@ -44,8 +44,6 @@ tracker_store_SOURCES =							\
 	tracker-main.c							\
 	tracker-resources.c						\
 	tracker-resources.h						\
-	tracker-resource-class.c					\
-	tracker-resource-class.h					\
 	tracker-statistics.c						\
 	tracker-statistics.h						\
 	tracker-store.c							\
@@ -86,7 +84,6 @@ dbus_sources = 								\
 	tracker-backup-glue.h						\
 	tracker-resources-glue.h					\
 	tracker-statistics-glue.h					\
-	tracker-resources-class-glue.h					\
 	tracker-status-glue.h
 
 tracker-marshal.h: tracker-marshal.list

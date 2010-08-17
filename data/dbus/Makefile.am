@@ -8,7 +8,6 @@ config_DATA =							\
 	tracker-miner.xml					\
 	tracker-miner-web.xml					\
 	tracker-resources.xml					\
-	tracker-resources-class.xml				\
 	tracker-statistics.xml					\
 	tracker-writeback.xml					\
 	tracker-status.xml

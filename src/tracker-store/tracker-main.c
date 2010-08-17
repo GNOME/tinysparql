@@ -494,7 +494,7 @@ main (gint argc, gchar *argv[])
 		goto shutdown;
 	}
 
-	tracker_dbus_register_class_signal_objects ();
+	tracker_dbus_register_prepare_class_signal ();
 
 	tracker_events_init (get_notifiable_classes);
 	tracker_writeback_init (get_writeback_predicates);
