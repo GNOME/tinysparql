@@ -138,7 +138,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 					return;
 				}
 #if defined(HAVE_EXEMPI)
-				if (ExtData &&
+				if (ExtData && *ExtData &&
 				    strncmp(&ExtData[1],"XMP Data",8) == 0) {
 					while (ExtData != NULL && status == GIF_OK ) {
 						if ((status = DGifGetExtensionNext(gifFile, &ExtData)) == GIF_OK) {
