@@ -50,6 +50,9 @@ gen-ChangeLog:
 	  mv $(distdir)/cl-t $(distdir)/ChangeLog;			\
 	fi
 
+functional-test: 
+	cd tests/functional-tests/ && $(MAKE) $(AM_MAKEFLAGS) $@
+
 EXTRA_DIST = 					\
 	ChangeLog.pre-0-6-93			\
 	gitlog-to-changelog			\

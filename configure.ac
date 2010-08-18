@@ -1938,11 +1938,20 @@ AC_CONFIG_FILES([
 	tests/libtracker-fts/limits/Makefile
 	tests/libtracker-fts/prefix/Makefile
 	tests/functional-tests/Makefile
-	tests/functional-tests/data/Makefile
-	tests/functional-tests/data/Music/Makefile
-	tests/functional-tests/data/Images/Makefile
-	tests/functional-tests/data/Video/Makefile
-	tests/functional-tests/data/Text/Makefile
+        tests/functional-tests/common/Makefile
+	tests/functional-tests/common/utils/configuration.py
+	tests/functional-tests/common/utils/Makefile
+        tests/functional-tests/unittest2/Makefile
+        tests/functional-tests/test-extraction-data/Makefile
+        tests/functional-tests/test-extraction-data/audio/Makefile
+        tests/functional-tests/test-extraction-data/images/Makefile
+        tests/functional-tests/test-extraction-data/office/Makefile
+        tests/functional-tests/test-extraction-data/video/Makefile
+        tests/functional-tests/test-writeback-data/Makefile
+        tests/functional-tests/test-configurations/Makefile
+        tests/functional-tests/test-configurations/miner-basic-ops/Makefile
+        tests/functional-tests/test-configurations/writeback/Makefile
+        tests/functional-tests/ttl/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
 	tests/tracker-extract/Makefile

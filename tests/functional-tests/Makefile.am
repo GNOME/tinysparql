@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = data
+SUBDIRS=common test-configurations test-extraction-data test-writeback-data ttl unittest2
 
 INCLUDES =					\
 	-I$(top_srcdir)/src/libtracker-sparql	\
@@ -18,8 +18,13 @@ INCLUDES =					\
 configdir = $(datadir)/tracker-tests
 
 config_SCRIPTS =			\
+	__init__.py			\
+	tests.xml			\
+	$(slow_tests)			\
+	$(standard_tests)
+
+standard_tests = 			\
 	01-insertion.py			\
-	02-metacontacts.py		\
 	03-fts-functions.py		\
 	04-group-concat.py		\
 	05-coalesce.py			\
@@ -27,31 +32,34 @@ config_SCRIPTS =			\
 	07-graph.py			\
 	08-unique-insertions.py		\
 	09-concurrent-query.py		\
-	backup-restore-tc.py		\
-	bootup-tc.py			\
-	configuration.py		\
-	metadata_extraction_tc.py	\
+	14-signals.py			\
+	200-backup-restore.py		\
+	300-miner-basic-ops.py		\
+	310-fts-indexing.py		\
+	400-extractor.py		\
+	500-writeback.py		\
 	mass-storage-mode.py		\
-	fts-tc.py			\
-	miner-basic-ops.py		\
-	performance-tc.py		\
-	tests.xml			\
-	virtual-files-tc.py		\
-	writeback-tc.py
+	performance-tc-modified.py	\
+	virtual-files-tc.py		
 
-bashscriptsdir = $(datadir)/tracker-tests
+slow_tests = 				\
+	10-sqlite-misused.py		\
+	11-sqlite-batch-misused.py	\
+	12-transactions.py		\
+	13-threaded-store.py
 
-bashscripts_in_files =				\
-	force-sqlite-misused.sh.in		\
-	force-sqlite-misused-batch.sh.in	\
-	helper-test-data.sh.in
+tests.xml:
+	@if test -h /targets/links/scratchbox.config ; then \
+		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
+	fi;
+	./create-tests-xml.py $(standard_tests) > tests.xml
 
-bashscripts_SCRIPTS = 				\
-	$(bashscripts_in_files:.sh.in=.sh)
+10-sqlite-misused.py: ttl/gen-test-data.stamp
+11-sqlite-misused-batch.py: ttl/gen-test-data.stamp
+13-busy-store.py: ttl/gen-test-data.stamp
 
-%.sh: %.sh.in
-	@sed -e "s|@topsrcdir[@]|${top_srcdir}|" \
-	     -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
+ttl/gen-test-data.stamp: 
+	cd ttl && $(MAKE) $(AM_MAKEFLAGS)
 
 noinst_PROGRAMS = busy-handling-test direct-query-test bus-query-test default-update-test bus-update-test
 
@@ -144,18 +152,38 @@ BUILT_SOURCES = 				\
 	bus-update-test.vala.stamp
 
 
+functional-test: ${standard_tests}
+	@if test -h /targets/links/scratchbox.config ; then \
+		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
+		ENV_COMMAND_WRAPPER=meego-run ;\
+	else \
+		ENV_COMMAND_WRAPPER="" ; \
+	fi ; \
+	for testfile in ${standard_tests} ; do \
+	  echo "Trying with" $$ENV_COMMAND_WRAPPER $$testfile ; \
+	  test ! -x $$testfile  || $$ENV_COMMAND_WRAPPER ./$$testfile > /dev/null; \
+	 done
+
+functional-test-slow: ${slow_tests}
+	@if test -h /targets/links/scratchbox.config ; then \
+		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
+		ENV_COMMAND_WRAPPER=meego-run ;\
+	else \
+		ENV_COMMAND_WRAPPER="" ; \
+	fi ; \
+	@for test in ${slow_tests} ; do \
+	  echo "Trying with" $$ENV_COMMAND_WRAPPER $$test ; \
+	  test ! -x $$test  || $$ENV_COMMAND_WRAPPER ./$$test > /dev/null; \
+	 done
+
 EXTRA_DIST = 					\
 	$(config_SCRIPTS) 			\
-	$(bashscripts_SCRIPTS)			\
-	$(bashscripts_in_files)			\
 	$(BUILT_SOURCES)			\
 	$(busy_handling_test_VALASOURCES)	\
 	$(direct_query_test_VALASOURCES)	\
 	$(default_update_test_VALASOURCES)	\
 	$(bus_query_test_VALASOURCES)		\
 	$(bus_update_test_VALASOURCES)
-
-CLEANFILES = $(bashscripts_SCRIPTS)
 
 MAINTAINERCLEANFILES =					\
 	$(BUILT_SOURCES)				\
