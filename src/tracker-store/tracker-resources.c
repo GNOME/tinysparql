@@ -95,16 +95,7 @@ typedef struct {
 	gpointer user_data;
 } InThreadPtr;
 
-typedef struct {
-	GArray *subject_ids;
-	GArray *pred_ids;
-	GArray *object_ids;
-} TrackerIds;
-
-static TrackerIds inserts_ids = { NULL, NULL, NULL };
-static TrackerIds deletes_ids = { NULL, NULL, NULL };
 static void tracker_resources_finalize (GObject *object);
-
 static guint signals[LAST_SIGNAL] = { 0 };
 
 static void
@@ -539,76 +530,61 @@ tracker_resources_batch_commit (TrackerResources         *self,
 }
 
 static void
-emit_class_signal (TrackerResources *self,
-                   TrackerClass     *class,
-                   TrackerIds       *deletes,
-                   TrackerIds       *inserts)
+foreach_add_to_iter (gint subject_id,
+                     gint pred_id,
+                     gint object_id,
+                     gpointer user_data)
 {
-	TrackerResourcesPrivate *priv;
-	DBusMessageIter iter, deletes_iter, inserts_iter;
-	DBusMessage *message;
-	const gchar *class_uri;
-	guint i;
+	DBusMessageIter *array_iter = user_data;
+	DBusMessageIter struct_iter;
 
-	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
+	dbus_message_iter_open_container (array_iter, DBUS_TYPE_STRUCT, NULL, &struct_iter);
+	dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &subject_id);
+	dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &pred_id);
+	dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &object_id);
+	dbus_message_iter_close_container (array_iter, &struct_iter);
+}
 
-	message = dbus_message_new_signal (TRACKER_RESOURCES_PATH,
-	                                   TRACKER_RESOURCES_INTERFACE,
-	                                   "ClassSignal");
+static void
+emit_class_signal (TrackerResources *self,
+                   TrackerClass     *class)
+{
+	if (tracker_events_class_has_inserts (class) || tracker_events_class_has_deletes (class)) {
+		TrackerResourcesPrivate *priv;
+		DBusMessageIter iter, deletes_iter, inserts_iter;
+		DBusMessage *message;
+		const gchar *class_uri;
 
-	class_uri = tracker_class_get_uri (class);
+		priv = TRACKER_RESOURCES_GET_PRIVATE (self);
 
-	dbus_message_iter_init_append (message, &iter);
-	dbus_message_iter_append_basic (&iter, DBUS_TYPE_STRING, &class_uri);
+		message = dbus_message_new_signal (TRACKER_RESOURCES_PATH,
+		                                   TRACKER_RESOURCES_INTERFACE,
+		                                   "ClassSignal");
 
-	dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, 
-	                                  "(iii)", &deletes_iter);
+		class_uri = tracker_class_get_uri (class);
 
-	for (i = 0; i < deletes->subject_ids->len; i++) {
-		DBusMessageIter struct_iter;
-		gint subject_id, pred_id, object_id;
+		dbus_message_iter_init_append (message, &iter);
+		dbus_message_iter_append_basic (&iter, DBUS_TYPE_STRING, &class_uri);
 
-		subject_id = g_array_index (deletes->subject_ids, gint, i);
-		pred_id = g_array_index (deletes->pred_ids, gint, i);
-		object_id = g_array_index (deletes->object_ids, gint, i);
+		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY,
+		                                  "(iii)", &deletes_iter);
 
-		dbus_message_iter_open_container (&deletes_iter, DBUS_TYPE_STRUCT, NULL, &struct_iter);
+		tracker_events_foreach_delete_of (class, foreach_add_to_iter, &deletes_iter);
 
-		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &subject_id);
-		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &pred_id);
-		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &object_id);
+		dbus_message_iter_close_container (&iter, &deletes_iter);
 
-		dbus_message_iter_close_container (&deletes_iter, &struct_iter);
+
+		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY,
+		                                  "(iii)", &inserts_iter);
+
+		tracker_events_foreach_insert_of (class, foreach_add_to_iter, &inserts_iter);
+
+		dbus_message_iter_close_container (&iter, &inserts_iter);
+
+		dbus_connection_send (priv->connection, message, NULL);
+
+		dbus_message_unref (message);
 	}
-
-	dbus_message_iter_close_container (&iter, &deletes_iter);
-
-
-	dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, 
-	                                  "(iii)", &inserts_iter);
-
-	for (i = 0; i < inserts->subject_ids->len; i++) {
-		DBusMessageIter struct_iter;
-		gint subject_id, pred_id, object_id;
-
-		subject_id = g_array_index (inserts->subject_ids, gint, i);
-		pred_id = g_array_index (inserts->pred_ids, gint, i);
-		object_id = g_array_index (inserts->object_ids, gint, i);
-
-		dbus_message_iter_open_container (&inserts_iter, DBUS_TYPE_STRUCT, NULL, &struct_iter);
-
-		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &subject_id);
-		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &pred_id);
-		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &object_id);
-
-		dbus_message_iter_close_container (&inserts_iter, &struct_iter);
-	}
-
-	dbus_message_iter_close_container (&iter, &inserts_iter);
-
-	dbus_connection_send (priv->connection, message, NULL);
-
-	dbus_message_unref (message);
 }
 
 static void
@@ -623,45 +599,11 @@ on_statements_committed (gpointer user_data)
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
 	/* Class signal feature */
-
-	if (inserts_ids.subject_ids == NULL) {
-		inserts_ids.subject_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-		inserts_ids.pred_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-		inserts_ids.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-	}
-
-	if (deletes_ids.subject_ids == NULL) {
-		deletes_ids.subject_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-		deletes_ids.pred_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-		deletes_ids.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-	}
-
 	tracker_events_classes_iter (&iter);
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		TrackerClass *class = key;
-
-		g_array_set_size (deletes_ids.subject_ids, 0);
-		g_array_set_size (deletes_ids.pred_ids, 0);
-		g_array_set_size (deletes_ids.object_ids, 0);
-
-		tracker_events_get_deletes (tracker_class_get_id (class),
-		                            deletes_ids.subject_ids,
-		                            deletes_ids.pred_ids,
-		                            deletes_ids.object_ids);
-
-		g_array_set_size (inserts_ids.subject_ids, 0);
-		g_array_set_size (inserts_ids.pred_ids, 0);
-		g_array_set_size (inserts_ids.object_ids, 0);
-
-		tracker_events_get_inserts (tracker_class_get_id (class),
-		                            inserts_ids.subject_ids,
-		                            inserts_ids.pred_ids,
-		                            inserts_ids.object_ids);
-
-		if (inserts_ids.subject_ids->len > 0 || deletes_ids.subject_ids->len > 0) {
-			emit_class_signal (user_data, class, &deletes_ids, &inserts_ids);
-		}
+		emit_class_signal (user_data, class);
 	}
 
 	tracker_events_reset ();

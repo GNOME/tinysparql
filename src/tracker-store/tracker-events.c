@@ -44,82 +44,118 @@ typedef struct {
 
 static EventsPrivate *private;
 
-static void
-get_from_array (gint    class_id,
-                GArray *class_ids,
-                GArray *sub_pred_ids,
-                GArray *object_ids_in,
-                GArray *subject_ids,
-                GArray *pred_ids,
-                GArray *object_ids)
+void
+tracker_events_foreach_insert_of (TrackerClass        *class,
+                                  TrackerEventsForeach foreach,
+                                  gpointer             user_data)
 {
 	guint i;
+	gint class_id;
 
-	g_array_set_size (subject_ids, 0);
-	g_array_set_size (pred_ids, 0);
-	g_array_set_size (object_ids, 0);
+	g_return_if_fail (private != NULL);
+	g_return_if_fail (class != NULL);
+	g_return_if_fail (foreach != NULL);
 
-	for (i = 0; i < class_ids->len; i++) {
+	class_id = tracker_class_get_id (class);
+
+	for (i = 0; i < private->inserts.class_ids->len; i++) {
 		gint class_id_v;
 
-		class_id_v = g_array_index (class_ids, gint, i);
+		class_id_v = g_array_index (private->inserts.class_ids, gint, i);
 
 		if (class_id_v == class_id) {
 			gint subject_id, pred_id, object_id;
 			gint64 sub_pred_id;
 
-			sub_pred_id = g_array_index (sub_pred_ids, gint64, i);
-
+			sub_pred_id = g_array_index (private->inserts.sub_pred_ids, gint64, i);
 			pred_id = sub_pred_id & 0xffffffff;
 			subject_id = sub_pred_id >> 32;
+			object_id = g_array_index (private->inserts.object_ids, gint, i);
 
-			object_id = g_array_index (object_ids_in, gint, i);
-
-			g_array_append_val (subject_ids, subject_id);
-			g_array_append_val (pred_ids, pred_id);
-			g_array_append_val (object_ids, object_id);
+			foreach (subject_id, pred_id, object_id, user_data);
 		}
 	}
 }
 
 void
-tracker_events_get_inserts (gint    class_id,
-                            GArray *subject_ids,
-                            GArray *pred_ids,
-                            GArray *object_ids)
+tracker_events_foreach_delete_of (TrackerClass        *class,
+                                  TrackerEventsForeach foreach,
+                                  gpointer             user_data)
 {
-	g_return_if_fail (private != NULL);
-	g_return_if_fail (subject_ids != NULL);
-	g_return_if_fail (pred_ids != NULL);
-	g_return_if_fail (object_ids != NULL);
+	guint i;
+	gint class_id;
 
-	get_from_array (class_id,
-	                private->inserts.class_ids,
-	                private->inserts.sub_pred_ids,
-	                private->inserts.object_ids,
-	                subject_ids,
-	                pred_ids,
-	                object_ids);
+	g_return_if_fail (private != NULL);
+	g_return_if_fail (class != NULL);
+	g_return_if_fail (foreach != NULL);
+
+	class_id = tracker_class_get_id (class);
+
+	for (i = 0; i < private->deletes.class_ids->len; i++) {
+		gint class_id_v;
+
+		class_id_v = g_array_index (private->deletes.class_ids, gint, i);
+
+		if (class_id_v == class_id) {
+			gint subject_id, pred_id, object_id;
+			gint64 sub_pred_id;
+
+			sub_pred_id = g_array_index (private->deletes.sub_pred_ids, gint64, i);
+			pred_id = sub_pred_id & 0xffffffff;
+			subject_id = sub_pred_id >> 32;
+			object_id = g_array_index (private->deletes.object_ids, gint, i);
+
+			foreach (subject_id, pred_id, object_id, user_data);
+		}
+	}
 }
 
-void
-tracker_events_get_deletes (gint    class_id,
-                            GArray *subject_ids,
-                            GArray *pred_ids,
-                            GArray *object_ids)
+gboolean
+tracker_events_class_has_deletes (TrackerClass *class)
 {
-	g_return_if_fail (private != NULL);
-	g_return_if_fail (subject_ids != NULL);
-	g_return_if_fail (pred_ids != NULL);
-	g_return_if_fail (object_ids != NULL);
+	guint i;
+	gint class_id;
 
-	get_from_array (class_id,
-	                private->deletes.class_ids,
-	                private->deletes.sub_pred_ids,
-	                private->deletes.object_ids,
-	                subject_ids,
-	                pred_ids,
-	                object_ids);
+	g_return_val_if_fail (private != NULL, FALSE);
+	g_return_val_if_fail (class != NULL, FALSE);
+
+	class_id = tracker_class_get_id (class);
+
+	for (i = 0; i < private->deletes.class_ids->len; i++) {
+		gint class_id_v;
+
+		class_id_v = g_array_index (private->deletes.class_ids, gint, i);
+
+		if (class_id_v == class_id) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+gboolean
+tracker_events_class_has_inserts (TrackerClass *class)
+{
+	guint i;
+	gint class_id;
+
+	g_return_val_if_fail (private != NULL, FALSE);
+	g_return_val_if_fail (class != NULL, FALSE);
+
+	class_id = tracker_class_get_id (class);
+
+	for (i = 0; i < private->inserts.class_ids->len; i++) {
+		gint class_id_v;
+
+		class_id_v = g_array_index (private->inserts.class_ids, gint, i);
+
+		if (class_id_v == class_id) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 static gboolean
