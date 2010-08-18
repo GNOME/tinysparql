@@ -2228,6 +2228,10 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_object_int64 (metadata, md.track_number);
 	}
 
+	/* FIXME We use a hardcoded value here for now. In reality there's a second option MP3X */
+	tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
+	tracker_sparql_builder_object_string (metadata, "MP3");
+
 	/* Get mp3 stream info */
 	mp3_parse (buffer, buffer_size, audio_offset, uri, metadata, &md);
 
