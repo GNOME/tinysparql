@@ -30,16 +30,12 @@ typedef struct {
 	GHashTable *allowances_id;
 	GHashTable *allowances;
 	struct {
-		//GArray *sub_pred_ids;
-		GArray *subject_ids;
-		GArray *pred_ids;
+		GArray *sub_pred_ids;
 		GArray *object_ids;
 		GArray *class_ids;
 	} deletes;
 	struct {
-		//GArray *sub_pred_ids;
-		GArray *subject_ids;
-		GArray *pred_ids;
+		GArray *sub_pred_ids;
 		GArray *object_ids;
 		GArray *class_ids;
 	} inserts;
@@ -48,46 +44,10 @@ typedef struct {
 
 static EventsPrivate *private;
 
-/*
-void showbits64(gint64 a)
-{
-  int i  , k , mask;
-
-  for( i =63 ; i >= 0 ; i--)
-  {
-     mask = 1 << i;
-     k = a & mask;
-     if( k == 0)
-        printf("0 ");
-     else
-        printf ("1 ");
-  }
-	printf ("\n");
-}
-
-void showbits(gint a)
-{
-  int i  , k , mask;
-
-  for( i =31 ; i >= 0 ; i--)
-  {
-     mask = 1 << i;
-     k = a & mask;
-     if( k == 0)
-        printf("0 ");
-     else
-        printf ("1 ");
-  }
-	printf ("\n");
-}
-*/
-
 static void
 get_from_array (gint    class_id,
                 GArray *class_ids,
-                //GArray *sub_pred_ids,
-                GArray *subject_ids_in,
-                GArray *pred_ids_in,
+                GArray *sub_pred_ids,
                 GArray *object_ids_in,
                 GArray *subject_ids,
                 GArray *pred_ids,
@@ -106,29 +66,13 @@ get_from_array (gint    class_id,
 
 		if (class_id_v == class_id) {
 			gint subject_id, pred_id, object_id;
-			/*gint64 sub_pred_id;
+			gint64 sub_pred_id;
 
 			sub_pred_id = g_array_index (sub_pred_ids, gint64, i);
 
-			printf ("get_array\n");
-
-			printf ("sub_pred_id: ");
-			showbits64 (sub_pred_id);
-			printf ("\n");
-
+			pred_id = sub_pred_id & 0xffffffff;
 			subject_id = sub_pred_id >> 32;
-			pred_id = sub_pred_id << 32;
 
-			printf ("subject_id: ");
-			showbits (subject_id);
-			printf("\n");
-
-			printf ("pred_id: ");
-			showbits (pred_id);
-			printf("\n");*/
-
-			subject_id = g_array_index (subject_ids_in, gint, i);
-			pred_id = g_array_index (pred_ids_in, gint, i);
 			object_id = g_array_index (object_ids_in, gint, i);
 
 			g_array_append_val (subject_ids, subject_id);
@@ -151,9 +95,7 @@ tracker_events_get_inserts (gint    class_id,
 
 	get_from_array (class_id,
 	                private->inserts.class_ids,
-	                //private->inserts.sub_pred_ids,
-	                private->inserts.subject_ids,
-	                private->inserts.pred_ids,
+	                private->inserts.sub_pred_ids,
 	                private->inserts.object_ids,
 	                subject_ids,
 	                pred_ids,
@@ -173,9 +115,7 @@ tracker_events_get_deletes (gint    class_id,
 
 	get_from_array (class_id,
 	                private->deletes.class_ids,
-	                //private->deletes.sub_pred_ids,
-	                private->inserts.subject_ids,
-	                private->inserts.pred_ids,
+	                private->deletes.sub_pred_ids,
 	                private->deletes.object_ids,
 	                subject_ids,
 	                pred_ids,
@@ -197,54 +137,35 @@ is_allowed (EventsPrivate *private, TrackerClass *rdf_class, gint class_id)
 
 static void
 insert_vals_into_arrays (GArray *class_ids,
-                         //GArray *sub_pred_ids,
-                         GArray *subject_ids,
-                         GArray *pred_ids,
+                         GArray *sub_pred_ids,
                          GArray *object_ids,
                          gint    class_id,
                          gint    subject_id,
                          gint    pred_id,
                          gint    object_id)
 {
-//	guint i;
-//	gboolean inserted = FALSE;
-	/*gint64 sub_pred_id = (gint64) subject_id;
+	guint i;
+	gboolean inserted = FALSE;
+	gint64 sub_pred_id;
 
-	sub_pred_id = sub_pred_id << 32 | (gint64) pred_id;
+	sub_pred_id = (gint64) subject_id;
+	sub_pred_id = sub_pred_id << 32 | pred_id;
 
-	printf ("insert_vals\n");
-	printf ("subject_id: ");
-	showbits (subject_id);
-	printf("\n");
+	for (i = 0; i < sub_pred_ids->len; i++) {
+		if (sub_pred_id < g_array_index (sub_pred_ids, gint64, i)) {
+			g_array_insert_val (class_ids, i, class_id);
+			g_array_insert_val (sub_pred_ids, i, sub_pred_id);
+			g_array_insert_val (object_ids, i, object_id);
+			inserted = TRUE;
+			break;
+		}
+	}
 
-	printf ("pred_id: ");
-	showbits (subject_id);
-	printf("\n");
-
-	printf ("sub_pred_id: ");
-	showbits64 (sub_pred_id);
-	printf("\n");*/
-
-	//for (i = 0; i < sub_pred_ids->len; i++) {
-//	for (i = 0; i < subject_ids->len; i++) {
-//		 if (sub_pred_id < g_array_index (sub_pred_ids, gint64, i)) {
-//			g_array_insert_val (class_ids, i, class_id);
-//			//g_array_insert_val (sub_pred_ids, i, sub_pred_id);
-//			g_array_insert_val (subject_ids, i, subject_id);
-//			g_array_insert_val (pred_ids, i, pred_id);
-//			g_array_insert_val (object_ids, i, object_id);
-//			inserted = TRUE;
-//			break;
-//		}
-//	}
-
-//	if (!inserted) {
+	if (!inserted) {
 		g_array_append_val (class_ids, class_id);
-		//g_array_append_val (sub_pred_ids, sub_pred_ids);
-		g_array_append_val (subject_ids, subject_id);
-		g_array_append_val (pred_ids, pred_id);
+		g_array_append_val (sub_pred_ids, sub_pred_id);
 		g_array_append_val (object_ids, object_id);
-//	}
+	}
 }
 
 void
@@ -272,9 +193,7 @@ tracker_events_add_insert (gint         graph_id,
 		 * In case of create, object is the rdf:type */
 		if (is_allowed (private, NULL, object_id)) {
 			insert_vals_into_arrays (private->inserts.class_ids,
-			                         //private->inserts.sub_pred_ids,
-			                         private->inserts.subject_ids,
-			                         private->inserts.pred_ids,
+			                         private->inserts.sub_pred_ids,
 			                         private->inserts.object_ids,
 			                         object_id,
 			                         subject_id, pred_id, object_id);
@@ -285,9 +204,7 @@ tracker_events_add_insert (gint         graph_id,
 		for (i = 0; i < rdf_types->len; i++) {
 			if (is_allowed (private, rdf_types->pdata[i], 0)) {
 				insert_vals_into_arrays (private->inserts.class_ids,
-				                         //private->inserts.sub_pred_ids,
-				                         private->inserts.subject_ids,
-				                         private->inserts.pred_ids,
+				                         private->inserts.sub_pred_ids,
 				                         private->inserts.object_ids,
 				                         tracker_class_get_id (rdf_types->pdata[i]),
 				                         subject_id, pred_id, object_id);
@@ -321,9 +238,7 @@ tracker_events_add_delete (gint         graph_id,
 		 * In case of delete, object is the rdf:type */
 		if (is_allowed (private, NULL, object_id)) {
 			insert_vals_into_arrays (private->deletes.class_ids,
-			                         //private->deletes.sub_pred_ids,
-			                         private->deletes.subject_ids,
-			                         private->deletes.pred_ids,
+			                         private->deletes.sub_pred_ids,
 			                         private->deletes.object_ids,
 			                         object_id,
 			                         subject_id, pred_id, object_id);
@@ -334,9 +249,7 @@ tracker_events_add_delete (gint         graph_id,
 		for (i = 0; i < rdf_types->len; i++) {
 			if (is_allowed (private, rdf_types->pdata[i], 0)) {
 				insert_vals_into_arrays (private->deletes.class_ids,
-				                         //private->deletes.sub_pred_ids,
-				                         private->deletes.subject_ids,
-				                         private->deletes.pred_ids,
+				                         private->deletes.sub_pred_ids,
 				                         private->deletes.object_ids,
 				                         tracker_class_get_id (rdf_types->pdata[i]),
 				                         subject_id, pred_id, object_id);
@@ -352,15 +265,11 @@ tracker_events_reset (void)
 	g_return_if_fail (private != NULL);
 
 	g_array_set_size (private->deletes.class_ids, 0);
-	//g_array_set_size (private->deletes.sub_pred_ids, 0);
-	g_array_set_size (private->deletes.subject_ids, 0);
-	g_array_set_size (private->deletes.pred_ids, 0);
+	g_array_set_size (private->deletes.sub_pred_ids, 0);
 	g_array_set_size (private->deletes.object_ids, 0);
 
 	g_array_set_size (private->inserts.class_ids, 0);
-	//g_array_set_size (private->inserts.sub_pred_ids, 0);
-	g_array_set_size (private->inserts.subject_ids, 0);
-	g_array_set_size (private->inserts.pred_ids, 0);
+	g_array_set_size (private->inserts.sub_pred_ids, 0);
 	g_array_set_size (private->inserts.object_ids, 0);
 
 	private->frozen = FALSE;
@@ -381,15 +290,11 @@ free_private (EventsPrivate *private)
 	g_hash_table_unref (private->allowances_id);
 
 	g_array_free (private->deletes.class_ids, TRUE);
-	//g_array_free (private->deletes.sub_pred_ids, TRUE);
-	g_array_free (private->deletes.subject_ids, TRUE);
-	g_array_free (private->deletes.pred_ids, TRUE);
+	g_array_free (private->deletes.sub_pred_ids, TRUE);
 	g_array_free (private->deletes.object_ids, TRUE);
 
 	g_array_free (private->inserts.class_ids, TRUE);
-	//g_array_free (private->inserts.sub_pred_ids, TRUE);
-	g_array_free (private->inserts.subject_ids, TRUE);
-	g_array_free (private->inserts.pred_ids, TRUE);
+	g_array_free (private->inserts.sub_pred_ids, TRUE);
 	g_array_free (private->inserts.object_ids, TRUE);
 
 	g_free (private);
@@ -411,15 +316,11 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 	private->allowances_id = g_hash_table_new (g_direct_hash, g_direct_equal);
 
 	private->deletes.class_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-	//private->deletes.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
-	private->deletes.subject_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-	private->deletes.pred_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	private->deletes.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 	private->deletes.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 
 	private->inserts.class_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-	//private->inserts.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
-	private->inserts.subject_ids = g_array_new (FALSE, FALSE, sizeof (gint));
-	private->inserts.pred_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	private->inserts.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 	private->inserts.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 
 	classes_to_signal = (*callback)();
