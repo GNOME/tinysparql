@@ -23,7 +23,7 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-#include "tracker-miner-files-reindex.h"
+#include "tracker-miner-files-index.h"
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"
 
@@ -36,37 +36,37 @@ typedef struct {
 
 typedef struct {
 	TrackerMinerFiles *files_miner;
-} TrackerMinerFilesReindexPrivate;
+} TrackerMinerFilesIndexPrivate;
 
 enum {
 	PROP_0,
 	PROP_FILES_MINER
 };
 
-#define TRACKER_MINER_FILES_REINDEX_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES_REINDEX, TrackerMinerFilesReindexPrivate))
+#define TRACKER_MINER_FILES_INDEX_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FILES_INDEX, TrackerMinerFilesIndexPrivate))
 
-static void     reindex_set_property      (GObject              *object,
+static void     index_set_property        (GObject              *object,
                                            guint                 param_id,
                                            const GValue         *value,
                                            GParamSpec           *pspec);
-static void     reindex_get_property      (GObject              *object,
+static void     index_get_property        (GObject              *object,
                                            guint                 param_id,
                                            GValue               *value,
                                            GParamSpec           *pspec);
-static void     reindex_finalize          (GObject              *object);
+static void     index_finalize            (GObject              *object);
 
-G_DEFINE_TYPE(TrackerMinerFilesReindex, tracker_miner_files_reindex, G_TYPE_OBJECT)
+G_DEFINE_TYPE(TrackerMinerFilesIndex, tracker_miner_files_index, G_TYPE_OBJECT)
 
 static void
-tracker_miner_files_reindex_class_init (TrackerMinerFilesReindexClass *klass)
+tracker_miner_files_index_class_init (TrackerMinerFilesIndexClass *klass)
 {
 	GObjectClass *object_class;
 
 	object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize = reindex_finalize;
-	object_class->set_property = reindex_set_property;
-	object_class->get_property = reindex_get_property;
+	object_class->finalize = index_finalize;
+	object_class->set_property = index_set_property;
+	object_class->get_property = index_get_property;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_FILES_MINER,
@@ -76,18 +76,18 @@ tracker_miner_files_reindex_class_init (TrackerMinerFilesReindexClass *klass)
 	                                                      TRACKER_TYPE_MINER_FILES,
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
-	g_type_class_add_private (klass, sizeof (TrackerMinerFilesReindexPrivate));
+	g_type_class_add_private (klass, sizeof (TrackerMinerFilesIndexPrivate));
 }
 
 static void
-reindex_set_property (GObject      *object,
-                      guint         param_id,
-                      const GValue *value,
-                      GParamSpec   *pspec)
+index_set_property (GObject      *object,
+                    guint         param_id,
+                    const GValue *value,
+                    GParamSpec   *pspec)
 {
-	TrackerMinerFilesReindexPrivate *priv;
+	TrackerMinerFilesIndexPrivate *priv;
 
-	priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
+	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
 
 	switch (param_id) {
 	case PROP_FILES_MINER:
@@ -101,14 +101,14 @@ reindex_set_property (GObject      *object,
 
 
 static void
-reindex_get_property (GObject    *object,
-                      guint       param_id,
-                      GValue     *value,
-                      GParamSpec *pspec)
+index_get_property (GObject    *object,
+                    guint       param_id,
+                    GValue     *value,
+                    GParamSpec *pspec)
 {
-	TrackerMinerFilesReindexPrivate *priv;
+	TrackerMinerFilesIndexPrivate *priv;
 
-	priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
+	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
 
 	switch (param_id) {
 	case PROP_FILES_MINER:
@@ -121,14 +121,14 @@ reindex_get_property (GObject    *object,
 }
 
 static void
-reindex_finalize (GObject *object)
+index_finalize (GObject *object)
 {
-	TrackerMinerFilesReindexPrivate *priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
+	TrackerMinerFilesIndexPrivate *priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
 	g_object_unref (priv->files_miner);
 }
 
 static void
-tracker_miner_files_reindex_init (TrackerMinerFilesReindex *object)
+tracker_miner_files_index_init (TrackerMinerFilesIndex *object)
 {
 }
 
@@ -199,21 +199,21 @@ mime_types_cb (GObject      *object,
 	mime_types_data_destroy (user_data);
 }
 
-TrackerMinerFilesReindex *
-tracker_miner_files_reindex_new (TrackerMinerFiles *miner_files)
+TrackerMinerFilesIndex *
+tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 {
-	return g_object_new (TRACKER_TYPE_MINER_FILES_REINDEX, 
-	                     "files-miner", miner_files, 
+	return g_object_new (TRACKER_TYPE_MINER_FILES_INDEX,
+	                     "files-miner", miner_files,
 	                     NULL);
 }
 
 void
-tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
-                                        gchar                    **mime_types,
-                                        DBusGMethodInvocation     *context,
-                                        GError                   **error)
+tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
+                                              gchar                  **mime_types,
+                                              DBusGMethodInvocation   *context,
+                                              GError                 **error)
 {
-	TrackerMinerFilesReindexPrivate *priv;
+	TrackerMinerFilesIndexPrivate *priv;
 	GString *query;
         GError *inner_error = NULL;
 	TrackerSparqlConnection *connection;
@@ -262,7 +262,7 @@ tracker_miner_files_reindex_mime_types (TrackerMinerFilesReindex  *object,
 
 	g_string_append (query, ") }");
 
-	priv = TRACKER_MINER_FILES_REINDEX_GET_PRIVATE (object);
+	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
 
 	/* FIXME: save last call id */
 	tracker_sparql_connection_query_async (connection,

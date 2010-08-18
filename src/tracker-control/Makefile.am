@@ -39,7 +39,7 @@ tracker_control_SOURCES = 						\
 tracker_control_LDADD = $(libs)
 
 dbus_sources = 								\
-	tracker-miner-files-reindex-client.h
+	tracker-miner-files-index-client.h
 
 %-client.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^

@@ -34,8 +34,8 @@ tracker_miner_fs_SOURCES =						\
 	tracker-miner-applications.h					\
 	tracker-miner-files.c						\
 	tracker-miner-files.h						\
-	tracker-miner-files-reindex.c					\
-	tracker-miner-files-reindex.h
+	tracker-miner-files-index.c					\
+	tracker-miner-files-index.h
 
 tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
@@ -57,7 +57,7 @@ marshal_sources =							\
 
 dbus_sources = 								\
 	tracker-miner-glue.h						\
-	tracker-miner-files-reindex-glue.h				\
+	tracker-miner-files-index-glue.h				\
 	tracker-extract-client.h
 
 tracker-marshal.h: tracker-marshal.list

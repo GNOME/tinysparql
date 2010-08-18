@@ -38,7 +38,7 @@
 #include <libtracker-data/tracker-db-manager.h>
 #include <libtracker-miner/tracker-miner.h>
 
-#include "tracker-miner-files-reindex-client.h"
+#include "tracker-miner-files-index-client.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -553,9 +553,9 @@ main (int argc, char **argv)
 		 * predefined for us to just use (dbus_g_proxy_...)
 		 */
 		proxy = dbus_g_proxy_new_for_name (connection,
-		                                   "org.freedesktop.Tracker1.Miner.Files.Reindex",
-		                                   "/org/freedesktop/Tracker1/Miner/Files/Reindex",
-		                                   "org.freedesktop.Tracker1.Miner.Files.Reindex");
+		                                   "org.freedesktop.Tracker1.Miner.Files.Index",
+		                                   "/org/freedesktop/Tracker1/Miner/Files/Index",
+		                                   "org.freedesktop.Tracker1.Miner.Files.Index");
 		
 		if (!proxy) {
 			g_print ("Could not create a proxy for the D-Bus service, %s",
@@ -564,9 +564,9 @@ main (int argc, char **argv)
 			return FALSE;
 		}
 		
-		if (!org_freedesktop_Tracker1_Miner_Files_Reindex_mime_types (proxy, 
-		                                                              reindex_mime_types, 
-		                                                              &error)) {
+		if (!org_freedesktop_Tracker1_Miner_Files_Index_reindex_mime_types (proxy,
+		                                                                    reindex_mime_types,
+		                                                                    &error)) {
 			g_print ("Could not reindex mime types, %s",
 			         error ? error->message : "no error given.");
 			g_clear_error (&error);

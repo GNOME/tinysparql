@@ -50,7 +50,7 @@
 #include "tracker-marshal.h"
 #include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
-#include "tracker-miner-files-reindex.h"
+#include "tracker-miner-files-index.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -545,7 +545,7 @@ main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
 	TrackerMiner *miner_applications, *miner_files;
-	TrackerMinerFilesReindex *object;
+	TrackerMinerFilesIndex *object;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
@@ -644,7 +644,7 @@ main (gint argc, gchar *argv[])
 			  G_CALLBACK (miner_finished_cb),
 			  main_loop);
 
-	object = tracker_miner_files_reindex_new (TRACKER_MINER_FILES (miner_files));
+	object = tracker_miner_files_index_new (TRACKER_MINER_FILES (miner_files));
 
 	if (!object) {
 		g_object_unref (miner_files);

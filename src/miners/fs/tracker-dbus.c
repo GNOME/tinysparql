@@ -22,8 +22,8 @@
 #include <libtracker-common/tracker-dbus.h>
 
 #include "tracker-dbus.h"
-#include "tracker-miner-files-reindex.h"
-#include "tracker-miner-files-reindex-glue.h"
+#include "tracker-miner-files-index.h"
+#include "tracker-miner-files-index-glue.h"
 
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
@@ -109,8 +109,8 @@ dbus_register_names (void)
 	                                    DBUS_PATH_DBUS,
 	                                    DBUS_INTERFACE_DBUS);
 
-	/* Register the service name for org.freedesktop.Tracker1.Miner.Files.Reindex */
-	if (!dbus_register_service (gproxy, TRACKER_MINER_FILES_REINDEX_SERVICE)) {
+	/* Register the service name for org.freedesktop.Tracker1.Miner.Files.Index */
+	if (!dbus_register_service (gproxy, TRACKER_MINER_FILES_INDEX_SERVICE)) {
 		return FALSE;
 	}
 
@@ -153,7 +153,7 @@ tracker_dbus_shutdown (void)
 gboolean
 tracker_dbus_register_objects (gpointer object)
 {
-	g_return_val_if_fail (TRACKER_IS_MINER_FILES_REINDEX (object), FALSE);
+	g_return_val_if_fail (TRACKER_IS_MINER_FILES_INDEX (object), FALSE);
 
 	if (!connection || !gproxy) {
 		g_critical ("D-Bus support must be initialized before registering objects!");
@@ -169,8 +169,8 @@ tracker_dbus_register_objects (gpointer object)
 	dbus_register_object (connection,
 	                      gproxy,
 	                      G_OBJECT (object),
-	                      &dbus_glib_tracker_miner_files_reindex_object_info,
-	                      TRACKER_MINER_FILES_REINDEX_PATH);
+	                      &dbus_glib_tracker_miner_files_index_object_info,
+	                      TRACKER_MINER_FILES_INDEX_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	return TRUE;
