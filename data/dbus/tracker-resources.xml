@@ -54,5 +54,11 @@
       <arg type="a{sas}" name="subjects" />
    </signal>
 
+   <signal name="ClassSignal">
+      <arg type="s" name ="classname" />
+      <arg type="a(iii)" name="deletes" />
+      <arg type="a(iii)" name="inserts" />
+   </signal>
+
   </interface>
 </node>

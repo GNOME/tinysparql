@@ -286,7 +286,7 @@ tracker_dbus_register_objects (void)
 	objects = g_slist_prepend (objects, object);
 
 	/* Add org.freedesktop.Tracker1.Resources */
-	object = resources = tracker_resources_new ();
+	object = resources = tracker_resources_new (connection);
 	if (!object) {
 		g_critical ("Could not create TrackerResources object to register");
 		return FALSE;

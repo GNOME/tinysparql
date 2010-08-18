@@ -46,12 +46,16 @@ struct TrackerResources {
 struct TrackerResourcesClass {
 	GObjectClass parent;
 
-	void     (*writeback)                          (TrackerResources *resources,
-	                                                GStrv subjects);
+	void     (*writeback)                               (TrackerResources *resources,
+	                                                     GStrv subjects);
+	void     (*class_signal)                            (TrackerResources *resources,
+	                                                     const gchar      *classname,
+	                                                     GPtrArray        *deletes,
+	                                                     GPtrArray        *inserts);
 };
 
 GType             tracker_resources_get_type            (void);
-TrackerResources *tracker_resources_new                 (void);
+TrackerResources *tracker_resources_new                 (DBusGConnection        *connection);
 void              tracker_resources_prepare             (TrackerResources       *object);
 void              tracker_resources_unprepare           (TrackerResources       *object);
 

@@ -75,11 +75,12 @@ G_DEFINE_TYPE(TrackerResources, tracker_resources, G_TYPE_OBJECT)
 
 enum {
 	WRITEBACK,
+	CLASSSIGNAL,
 	LAST_SIGNAL
 };
 
 typedef struct {
-	gboolean nothing;
+	DBusConnection *connection;
 } TrackerResourcesPrivate;
 
 typedef struct {
@@ -94,6 +95,14 @@ typedef struct {
 	gpointer user_data;
 } InThreadPtr;
 
+typedef struct {
+	GArray *subject_ids;
+	GArray *pred_ids;
+	GArray *object_ids;
+} TrackerIds;
+
+static TrackerIds inserts_ids = { NULL, NULL, NULL };
+static TrackerIds deletes_ids = { NULL, NULL, NULL };
 static void tracker_resources_finalize (GObject *object);
 
 static guint signals[LAST_SIGNAL] = { 0 };
@@ -117,6 +126,19 @@ tracker_resources_class_init (TrackerResourcesClass *klass)
 		              G_TYPE_NONE, 1,
 		              TRACKER_TYPE_STR_STRV_MAP);
 
+	/* This is just for introspection to work */
+	signals[CLASSSIGNAL] =
+		g_signal_new ("class-signal",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerResourcesClass, class_signal),
+		              NULL, NULL,
+		              tracker_marshal_VOID__STRING_BOXED_BOXED,
+		              G_TYPE_NONE, 3,
+		              G_TYPE_STRING,
+		              TRACKER_TYPE_THREE_INT_ARRAY,
+		              TRACKER_TYPE_THREE_INT_ARRAY);
+
 	g_type_class_add_private (object_class, sizeof (TrackerResourcesPrivate));
 }
 
@@ -127,9 +149,16 @@ tracker_resources_init (TrackerResources *object)
 }
 
 TrackerResources *
-tracker_resources_new (void)
+tracker_resources_new (DBusGConnection *connection)
 {
-	return g_object_new (TRACKER_TYPE_RESOURCES, NULL);
+	TrackerResourcesPrivate *priv;
+	TrackerResources *resources = g_object_new (TRACKER_TYPE_RESOURCES, NULL);
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
+
+	priv->connection = dbus_connection_ref (dbus_g_connection_get_connection (connection));
+
+	return resources;
 }
 
 /*
@@ -509,17 +538,78 @@ tracker_resources_batch_commit (TrackerResources         *self,
 	/* no longer needed */
 }
 
-static struct {
-	GArray *subject_ids;
-	GArray *pred_ids;
-	GArray *object_ids;
-} inserts_ids = { NULL, NULL, NULL };
+static void
+emit_class_signal (TrackerResources *self,
+                   TrackerClass     *class,
+                   TrackerIds       *deletes,
+                   TrackerIds       *inserts)
+{
+	TrackerResourcesPrivate *priv;
+	DBusMessageIter iter, deletes_iter, inserts_iter;
+	DBusMessage *message;
+	const gchar *class_uri;
+	guint i;
 
-static struct {
-	GArray *subject_ids;
-	GArray *pred_ids;
-	GArray *object_ids;
-} deletes_ids = { NULL, NULL, NULL };
+	priv = TRACKER_RESOURCES_GET_PRIVATE (self);
+
+	message = dbus_message_new_signal (TRACKER_RESOURCES_PATH,
+	                                   TRACKER_RESOURCES_INTERFACE,
+	                                   "ClassSignal");
+
+	class_uri = tracker_class_get_uri (class);
+
+	dbus_message_iter_init_append (message, &iter);
+	dbus_message_iter_append_basic (&iter, DBUS_TYPE_STRING, &class_uri);
+
+	dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, 
+	                                  "(iii)", &deletes_iter);
+
+	for (i = 0; i < deletes->subject_ids->len; i++) {
+		DBusMessageIter struct_iter;
+		gint subject_id, pred_id, object_id;
+
+		subject_id = g_array_index (deletes->subject_ids, gint, i);
+		pred_id = g_array_index (deletes->pred_ids, gint, i);
+		object_id = g_array_index (deletes->object_ids, gint, i);
+
+		dbus_message_iter_open_container (&deletes_iter, DBUS_TYPE_STRUCT, NULL, &struct_iter);
+
+		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &subject_id);
+		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &pred_id);
+		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &object_id);
+
+		dbus_message_iter_close_container (&deletes_iter, &struct_iter);
+	}
+
+	dbus_message_iter_close_container (&iter, &deletes_iter);
+
+
+	dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, 
+	                                  "(iii)", &inserts_iter);
+
+	for (i = 0; i < inserts->subject_ids->len; i++) {
+		DBusMessageIter struct_iter;
+		gint subject_id, pred_id, object_id;
+
+		subject_id = g_array_index (inserts->subject_ids, gint, i);
+		pred_id = g_array_index (inserts->pred_ids, gint, i);
+		object_id = g_array_index (inserts->object_ids, gint, i);
+
+		dbus_message_iter_open_container (&inserts_iter, DBUS_TYPE_STRUCT, NULL, &struct_iter);
+
+		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &subject_id);
+		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &pred_id);
+		dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &object_id);
+
+		dbus_message_iter_close_container (&inserts_iter, &struct_iter);
+	}
+
+	dbus_message_iter_close_container (&iter, &inserts_iter);
+
+	dbus_connection_send (priv->connection, message, NULL);
+
+	dbus_message_unref (message);
+}
 
 static void
 on_statements_committed (gpointer user_data)
@@ -555,7 +645,7 @@ on_statements_committed (gpointer user_data)
 		g_array_set_size (deletes_ids.pred_ids, 0);
 		g_array_set_size (deletes_ids.object_ids, 0);
 
-		tracker_events_get_inserts (tracker_class_get_id (class),
+		tracker_events_get_deletes (tracker_class_get_id (class),
 		                            deletes_ids.subject_ids,
 		                            deletes_ids.pred_ids,
 		                            deletes_ids.object_ids);
@@ -569,7 +659,9 @@ on_statements_committed (gpointer user_data)
 		                            inserts_ids.pred_ids,
 		                            inserts_ids.object_ids);
 
-		/* TODO: Emit the signal with tracker_class_get_uri (class) */
+		if (inserts_ids.subject_ids->len > 0 || deletes_ids.subject_ids->len > 0) {
+			emit_class_signal (user_data, class, &deletes_ids, &inserts_ids);
+		}
 	}
 
 	tracker_events_reset ();
@@ -648,6 +740,8 @@ tracker_resources_finalize (GObject      *object)
 	tracker_data_remove_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_remove_commit_statement_callback (on_statements_committed, object);
 	tracker_data_remove_rollback_statement_callback (on_statements_rolled_back, object);
+
+	dbus_connection_unref (priv->connection);
 
 	G_OBJECT_CLASS (tracker_resources_parent_class)->finalize (object);
 }
