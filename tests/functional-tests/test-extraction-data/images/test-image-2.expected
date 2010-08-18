@@ -1,0 +1,11 @@
+[TestFile]
+Filename=test-image-2.png
+Bugzilla=
+Comment=Basic png example
+
+[Metadata]
+a=nmm:Photo
+nfo_width=211
+nfo_height=217
+
+[Meego]

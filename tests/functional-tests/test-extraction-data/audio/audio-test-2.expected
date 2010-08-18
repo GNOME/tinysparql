@@ -1,0 +1,19 @@
+[TestFile]
+Filename=audio-test-2.mp3
+Bugzilla=NB#177663
+Comment=Mp3 with id3v2 tags. Encoded wasn't extracted.
+ Binary cut with dd of the original file.
+
+[Metadata]
+a=nmm:MusicPiece
+nie_title=Vinegar
+nfo_genre=Pop
+nie_copyright=(P) 2008 Sony Music Entertainment Finland Oy
+nmm_trackNumber=1
+nfo_codec=MPEG
+nfo_channels=2
+nfo_sampleRate=44100
+nfo_averageBitrate=256000
+
+[Meego]
+nfo_encodedBy=Nokia Music

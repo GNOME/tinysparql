@@ -1,0 +1,10 @@
+[TestFile]
+Filename=office-doc.doc
+Comment=MS Office document (unknown version)
+
+[Metadata]
+a=nfo:PaginatedTextDocument
+nie_generator=Microsoft Word 10.0
+nfo_wordCount=3053
+nie_title=Public Comments on Performance Based Payments
+nco_creator_fullname=capitadj

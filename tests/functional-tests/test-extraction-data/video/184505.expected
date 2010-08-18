@@ -1,0 +1,12 @@
+[TestFile]
+Filename=184505.mp4
+Bugzilla=NB#184505
+Comment=Video without audio stream. Seems to be clasified as Audio.
+
+[Metadata]
+a=nmm:Video
+!a=nmm:Audio
+
+[Meego]
+nfo_height=480
+nfo_width=864

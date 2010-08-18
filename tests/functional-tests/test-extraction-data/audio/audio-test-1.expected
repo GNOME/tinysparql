@@ -1,0 +1,19 @@
+[TestFile]
+Filename=audio-test-1.mp3
+Bugzilla=
+Comment=Basic MP3 example
+
+[Metadata]
+a=nmm:MusicPiece
+nie_title=Simply Juvenile
+nfo_genre=Pop
+nie_copyright=none
+nie_comment=I am for simple MP3 testing
+nmm_trackNumber=13
+nfo_codec=MPEG
+nfo_channels=1
+nfo_duration=15
+nfo_sampleRate=22050
+nfo_averageBitrate=32000
+
+[Meego]

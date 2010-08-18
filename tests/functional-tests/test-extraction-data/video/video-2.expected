@@ -1,0 +1,11 @@
+[TestFile]
+Filename=video-2.mov
+Bugzilla=NB#181112
+Comment=Produces a Critical in Gstreamer freeing a component.
+
+[Metadata]
+a=nmm:Video
+
+[Meego]
+nfo_height=144
+nfo_width=192

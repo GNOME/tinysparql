@@ -1,0 +1,56 @@
+test-extraction-data
+====================
+
+The python test will traverse recursively this directory, loading the .expected files as tests.
+
+.expected file format
+=====================
+
+It is a .ini (.desktop) formatted file with two mandatory sections: TestFile and Metadata.
+Optionally there can be a "Meego" section, for metadata that should be checked only on that platform.
+Adding more platforms is fairly trivial but requires to modify the python code.
+
+The TestFile section contains the 
+* Filename (mandatory): relative path from the .expected of the file under test.
+* Bugzilla (optional): reference to a bug related with the file.
+* Comment (optional): brief description of why that file is in the test suite (problematic, format example...)
+* ExpectedFailure (optional): If this key is present, we expect the extraction to fail.
+    If ExpectedFailure is included, it is recommended to fill the Bugzilla field! 
+
+The Metadata section contains pairs of property=values with few special rules:
+1. The ':' in the properties is replaced with ̈́_'. Note that in the values is ok to have ':'.
+  
+   E.G.    nfo:duration=5 -> nfo_duration=5
+       but a=nmm:Video    -> a=nmm:Video 
+
+2. If the property name is prefixed with '!' then the property is NOT expected in the extraction
+   If the negated property has a value, it forbids the exact value. Otherwise, it forbids the property at all.
+
+   E.G.   The extraction is:    a nmm:Video; nfo:duration 50.
+
+       !a=nmm:Audio     -> PASS because there is no "a nmm:Audio"
+       !nfo_duration=12 -> PASS because duration has a different value
+       !nfo_duration=   -> FAIL because there shouldn't be any nfo:duration at all
+
+3. The translation of the extraction results to a python dictionary is very basic. 
+   It handles a couple of special cases, relevant for testing:
+
+  mlo:location [a mlo:GeoPoint; mlo:city "XXX"]    -> mlo_location_city=XXX
+  mlo:location [a mlo:GeoPoint; mlo:country "XXX"] -> mlo_location_country=XXX
+  nao:hasTag [a nao:Tag; nao:prefLabel "XXX"]      -> nao_hasTag_prefLabel=XXX
+
+Example
+======
+
+Everything together should look like this:
+
+[TestFile]
+Filename=x.mp4
+Bugzilla=GB#123123
+Comment=Video usually clasiffied as Audio by mistake
+
+[Metadata]
+a=nmm:Video
+!a=nmm:Audio
+nfo_duration=123
+

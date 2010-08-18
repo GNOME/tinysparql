@@ -1,0 +1,13 @@
+[TestFile]
+Filename=test-image-3.tif
+Bugzilla=
+Comment=Basic TIFF example
+
+[Metadata]
+a=nmm:Photo
+nfo_width=37
+nfo_height=39
+nie_title=/home/amit/Desktop/test-image-3.tif
+nfo_orientation=nfo:orientation-top-mirror
+
+[Meego]

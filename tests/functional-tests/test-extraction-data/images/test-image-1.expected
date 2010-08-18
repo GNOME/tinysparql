@@ -1,0 +1,21 @@
+[TestFile]
+Filename=test-image-1.jpg
+Bugzilla=
+Comment=Basic jpeg example
+
+[Metadata]
+a=nmm:Photo
+nfo_width=699
+nfo_height=464
+nao_hasTag_prefLabel=test
+nao_hasTag_prefLabel=tracker
+nie_title=Kid
+nmm_fnumber=5
+nmm_focalLength=5
+nie_comment=This is a for tracker test
+mlo_location_city=Tig
+mlo_location_country=Banglore
+nfo_horizontalResolution=20
+nfo_verticalResolution=20
+
+[Meego]
