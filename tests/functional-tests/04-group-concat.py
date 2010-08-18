@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -17,23 +17,22 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
-
+"""
+Test the GROUP_CONCAT function in Sparql. Only requires the store.
+"""
 import dbus
 import unittest
 import random
 
-TRACKER = 'org.freedesktop.Tracker1'
-TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
-RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
+from common.utils import configuration as cfg
+import unittest2 as ut
+#import unittest as ut
+from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
-class TestGroupConcat (unittest.TestCase):
-
-    def setUp (self):
-        bus = dbus.SessionBus ()
-        tracker = bus.get_object (TRACKER, TRACKER_OBJ)
-        self.resources = dbus.Interface (tracker,
-                                         dbus_interface=RESOURCES_IFACE);
-
+class TestGroupConcat (CommonTrackerStoreTest):
+    """
+    Insert a multivalued property and request the results in GROUP_CONCAT
+    """
     def test_group_concat (self):
         """
         1. Insert 3 capabilities for a test contact
@@ -52,7 +51,7 @@ class TestGroupConcat (unittest.TestCase):
                       nco:imContactCapability nco:im-capability-file-transfers .
          }
         """ % (uri)
-        self.resources.SparqlUpdate (insert)
+        self.tracker.update (insert)
 
         query = """
         SELECT ?c ?capability WHERE {
@@ -61,7 +60,7 @@ class TestGroupConcat (unittest.TestCase):
               nco:imContactCapability ?capability .
         }
         """ 
-        results = self.resources.SparqlQuery (query)
+        results = self.tracker.query (query)
 
         assert len (results) == 3
         group_concat_query = """
@@ -71,7 +70,7 @@ class TestGroupConcat (unittest.TestCase):
               nco:imContactCapability ?capability .
         } GROUP BY (?c)
         """ 
-        results = self.resources.SparqlQuery (group_concat_query)
+        results = self.tracker.query (group_concat_query)
         assert len (results) == 1
         
         instances = results[0][1].split ('|')
@@ -90,8 +89,8 @@ class TestGroupConcat (unittest.TestCase):
         delete = """
         DELETE { <%s> a rdfs:Resource. }
         """ % (uri)
-        self.resources.SparqlUpdate (delete)
+        self.tracker.update (delete)
         
 
 if __name__ == '__main__':
-    unittest.main()
+    ut.main()

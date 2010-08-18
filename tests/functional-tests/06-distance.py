@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -17,27 +17,27 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
-
+"""
+Test the distance-calculation functions in Sparql. Only requires the Store
+"""
 import dbus
 import unittest
 import random
 
-TRACKER = 'org.freedesktop.Tracker1'
-TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
-RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
+from common.utils import configuration as cfg
+import unittest2 as ut
+#import unittest as ut
+from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 POINT_COORDS = [
     (0, 0), (1, 1), (2, 2), (3, 3), (4, 4)
     ]
 
-class TestCoalesce (unittest.TestCase):
-
+class TestDistanceFunctions (CommonTrackerStoreTest):
+    """
+    Insert some points and get the distance between them.
+    """
     def setUp (self):
-        bus = dbus.SessionBus ()
-        tracker = bus.get_object (TRACKER, TRACKER_OBJ)
-        self.resources = dbus.Interface (tracker,
-                                         dbus_interface=RESOURCES_IFACE);
-
         self.counter = 0
         for lat, log in POINT_COORDS:
             insert = """
@@ -47,7 +47,7 @@ class TestCoalesce (unittest.TestCase):
                 mlo:latitude %d .                
             }
             """ % ("point://test/point/" + str(self.counter), log, lat)
-            self.resources.SparqlUpdate (insert)
+            self.tracker.update (insert)
             self.counter += 1
 
     def tearDown (self):
@@ -57,7 +57,7 @@ class TestCoalesce (unittest.TestCase):
             <%s> a rdfs:Resource.
             }
             """ % ("point://test/point/" + str (i))
-            self.resources.SparqlUpdate (delete)
+            self.tracker.update (delete)
 
 
     def get_distance_between_points (self, sum_func, id1, id2):
@@ -78,7 +78,7 @@ class TestCoalesce (unittest.TestCase):
              mlo:longitude ?lon2 .
         }
         """ % (sum_func, id1, id2)
-        result = self.resources.SparqlQuery (query_1_to_2)
+        result = self.tracker.query (query_1_to_2)
         return int (result[0][0])
         
         
@@ -132,4 +132,4 @@ class TestCoalesce (unittest.TestCase):
         
 
 if __name__ == '__main__':
-    unittest.main()
+    ut.main()

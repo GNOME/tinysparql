@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -17,43 +17,34 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
-
-import sys,os,dbus
-import unittest
-import time
-import random
-import configuration
-import commands
-import signal
+"""
+Test the query while importing at the same time. This was raising
+some SQLITE_MISUSED errors before.
+"""
+import os, dbus
 import gobject
 from dbus.mainloop.glib import DBusGMainLoop
 
-TRACKER = 'org.freedesktop.Tracker1'
-TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
-RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
+from common.utils import configuration as cfg
+import unittest2 as ut
+#import unittest as ut
+from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
-class TestSqliteMisused (unittest.TestCase):
+class TestSqliteMisused (CommonTrackerStoreTest):
     """
     Send queries while importing files (in .ttl directory)
-    Don't run this script directly, use the bash script "force-sqlite-misused.sh" instead
-    to configure properly the environment
     """
     def setUp (self):
         self.main_loop = gobject.MainLoop ()
-        dbus_loop = DBusGMainLoop(set_as_default=True)
-
-        bus = dbus.SessionBus(mainloop=dbus_loop)
-        tracker = bus.get_object(TRACKER, TRACKER_OBJ)
-        self.resources = dbus.Interface (tracker,
-                                         dbus_interface=RESOURCES_IFACE)
         self.files_counter = 0
         
     def test_queries_while_import (self):
+        self.assertTrue (os.path.exists ('ttl'))
         for root, dirs, files in os.walk('ttl'):
             for ttl_file in filter (lambda f: f.endswith (".ttl"), files):
                 full_path = os.path.abspath(os.path.join (root, ttl_file))
                 self.files_counter += 1
-                self.resources.Load ("file://" + full_path,
+                self.tracker.get_tracker_iface ().Load ("file://" + full_path,
                                      timeout=30000,
                                      reply_handler=self.loaded_success_cb,
                                      error_handler=self.loaded_failed_cb)
@@ -65,8 +56,9 @@ class TestSqliteMisused (unittest.TestCase):
 
     def run_a_query (self):
         QUERY = "SELECT ?u ?title WHERE { ?u a nie:InformationElement; nie:title ?title. }"
-        self.resources.SparqlQuery (QUERY, timeout=20000,
-                                    reply_handler=self.reply_cb, error_handler=self.error_handler)
+        self.tracker.get_tracker_iface ().SparqlQuery (QUERY, timeout=20000,
+                                                       reply_handler=self.reply_cb,
+                                                       error_handler=self.error_handler)
         return True
         
     def reply_cb (self, results):
@@ -84,7 +76,7 @@ class TestSqliteMisused (unittest.TestCase):
 
     def loaded_failed_cb (self, error):
         print "Failed loading a file"
-        assert False
+        self.assertTrue (False)
 
     def timeout_cb (self):
         print "Forced timeout after 60 sec."
@@ -92,4 +84,4 @@ class TestSqliteMisused (unittest.TestCase):
         return False
 
 if __name__ == "__main__":
-    unittest.main ()
+    ut.main ()

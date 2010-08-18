@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -17,24 +17,25 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
-
+"""
+Replicate the behaviour of the miner inserting information in the store.
+"""
 import dbus
 import unittest
 import random
 
-TRACKER = 'org.freedesktop.Tracker1'
-TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
-RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources"
+from common.utils import configuration as cfg
+import unittest2 as ut
+#import unittest as ut
+from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
-class TestFTSFunctions (unittest.TestCase):
+class TestMinerInsertBehaviour (CommonTrackerStoreTest):
+    """
+    Mimic the behaviour of the miner, removing the previous information of the resource
+    and inserting a new one.
+    """
 
-    def setUp (self):
-        bus = dbus.SessionBus ()
-        tracker = bus.get_object (TRACKER, TRACKER_OBJ)
-        self.resources = dbus.Interface (tracker,
-                                         dbus_interface=RESOURCES_IFACE);
-
-    def test_unique_insertion (self):
+    def test_miner_unique_insertion (self):
         """
         We actually can't test tracker-miner-fs, so we mimick its behavior in this test
         1. Insert one resource
@@ -62,23 +63,23 @@ class TestFTSFunctions (unittest.TestCase):
         """
 
         ''' First insertion '''
-        self.resources.SparqlUpdate (insert_sparql)
+        self.tracker.update (insert_sparql)
 
-        results = self.resources.SparqlQuery (select_sparql)
+        results = self.tracker.query (select_sparql)
         self.assertEquals (len(results), 1)
 
         ''' Second insertion / update '''
-        self.resources.SparqlUpdate (insert_sparql)
+        self.tracker.update (insert_sparql)
 
-        results = self.resources.SparqlQuery (select_sparql)
+        results = self.tracker.query (select_sparql)
         self.assertEquals (len(results), 1)
 
         ''' Clean up '''
-        self.resources.SparqlUpdate (delete_sparql)
+        self.tracker.update (delete_sparql)
 
-        results = self.resources.SparqlQuery (select_sparql)
+        results = self.tracker.query (select_sparql)
         self.assertEquals (len(results), 0)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    ut.main()

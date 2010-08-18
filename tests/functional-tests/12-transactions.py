@@ -1,55 +1,57 @@
-import dbus
-import os
-from dbus.mainloop.glib import DBusGMainLoop
-import gobject
-import unittest
+#!/usr/bin/python
+#
+# Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+"""
+Make sure that when COMMIT returns, the data is in the DB
+"""
 import time
-import commands, signal
 
-TRACKER = 'org.freedesktop.Tracker1'
-TRACKER_OBJ = '/org/freedesktop/Tracker1/Resources'
+from common.utils import configuration as cfg
+from common.utils.helpers import StoreHelper as StoreHelper
+import unittest2 as ut
+#import unittest as ut
+from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
-TEST_INSTANCE_PATTERN = "test://test-instance-%d"
+TEST_INSTANCE_PATTERN = "test://12-transactions-%d"
 
-def kill_store ():
-    for pid in commands.getoutput("ps -ef| grep tracker-store | awk '{print $2}'").split() :
-        try:
-            print "Killing tracker process", pid
-            os.kill(int(pid), signal.SIGKILL)
-        except OSError, e:
-            if not e.errno == 3 : raise e
+class TrackerTransactionsTest (CommonTrackerStoreTest):
+    """
+    In a loop:
+       1. Inserts a Batch of instances
+       2. Wait for batch commit
+       3. Abort (SIGKILL) the daemon
+       4. Restart daemon a query # of instances
 
-class TrackerTransactionsTest (unittest.TestCase):
+    If the commit was real, all the inserted instances should be there.
+    """
 
     def setUp (self):
-        self.connect_dbus ()
         self.instance_counter = 0
-
-    def connect_dbus (self):
-        dbus_loop = DBusGMainLoop(set_as_default=True)
-        self.bus = dbus.SessionBus (dbus_loop)
-        self.tracker = self.bus.get_object (TRACKER, TRACKER_OBJ)
-        self.iface = dbus.Interface (self.tracker,
-                                     "org.freedesktop.Tracker1.Resources")
-
 
     def tearDown (self):
         print "Tear down (will take some time to remove all resources)"
         delete_sparql = "DELETE { ?u a rdfs:Resource } WHERE { ?u a nmo:Email} \n"
-        self.iface.SparqlUpdate (delete_sparql,
-                                 #reply_handler=self.delete_ok_cb,
-                                 #error_handler=self.delete_error_cb,
-                                 timeout=60000)
+        self.tracker.update (delete_sparql,
+                             timeout=60000)
         self.instance_counter = 0
 
-    def delete_ok_cb (self):
-        print "Delete ok"
-
-    def delete_error_cb (self, error):
-        print "Delete error"
-    
     def insert_and_commit (self, number):
-        print "Preparing the batch sparql"
         insert_sparql = "INSERT {\n"
         for i in range (0, number):
             insert_sparql += "  <" + TEST_INSTANCE_PATTERN % (self.instance_counter) + ">"
@@ -57,39 +59,32 @@ class TrackerTransactionsTest (unittest.TestCase):
             self.instance_counter += 1
 
         insert_sparql += "}"
-        self.iface.BatchSparqlUpdate (insert_sparql)
-        print "Waiting for commit (", number," instances)"
-        start = time.time ()
-        self.iface.BatchCommit ()
-        end = time.time ()
-        print "BatchCommit returned (after %d s.)" % (end - start)
+        self.tracker.batch_update (insert_sparql)
+        #print "Waiting for commit (", number," instances)"
+        #start = time.time ()
+        self.tracker.batch_commit ()
+        #end = time.time ()
+        #print "BatchCommit returned (after %d s.)" % (end - start)
 
-    def count_instances (self):
-        #query_sparql = "SELECT COUNT(?u) WHERE { ?u a nmo:Email. FILTER (REGEX (?u, '%s*'))}" % TEST_INSTANCE_PATTERN[:-3]
-        query_sparql = "SELECT COUNT(?u) WHERE { ?u a nmo:Email.}"
-        return int (self.iface.SparqlQuery (query_sparql)[0][0])
 
     def test_commit_and_abort (self):
 
         for i in range (0, 20):
-            NUMBER_OF_INSTANCES = 100
+            NUMBER_OF_INSTANCES = 1000
             self.insert_and_commit (NUMBER_OF_INSTANCES)
 
-            print "Abort daemon"
-            kill_store ()
-            time.sleep (3)
-            # Reconnect dbus to autoactivate the daemon!
-            self.connect_dbus ()
+            self.system.tracker_store_brutal_restart ()
+            # Reconnect dbus
+            self.tracker.connect ()
             try:
-                print "Wake up the store with a query"
-                results = self.count_instances ()
+                results = self.tracker.count_instances ("nmo:Email")
             except:
                 print "Timeout, probably replaying journal or something (wait 20 sec.)"
                 time.sleep (20)
                 results = self.count_instances ()
 
-            self.assertEqual (results, NUMBER_OF_INSTANCES * (i+1))
-            print "Yep,", results, "results"
+            # Every iteration we are adding new instances in the store!
+            self.assertEquals (results, NUMBER_OF_INSTANCES * (i+1))
 
 if __name__ == "__main__":
-    unittest.main ()
+    ut.main ()
