@@ -24,7 +24,6 @@ import calendar
 import datetime
 import os
 import convert_data
-import subprocess
 
 DIRNAME = os.path.dirname(__file__)
 

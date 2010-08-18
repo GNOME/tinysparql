@@ -28,7 +28,6 @@ import datetime
 import genpw
 import os
 import convert_data
-import subprocess
 
 DIRNAME = os.path.dirname(__file__)
 

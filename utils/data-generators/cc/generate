@@ -5,6 +5,7 @@ import string
 import time
 import sys
 import ConfigParser
+import platform 
 
 import ontology_prefixes
 import tools
@@ -20,6 +21,13 @@ import nmo
 import mlo
 import tracker
 
+def recent_enough_python ():
+  """
+  True if it is 2.6 or more recent
+  """
+  print "Running generate with python", platform.python_version ()
+  version = platform.python_version_tuple ()
+  return (int(version[0]) >= 2 and int(version[1]) >= 6)
 
 ####################################################################################
 
@@ -31,13 +39,17 @@ if len(sys.argv) != 2:
 config = ConfigParser.RawConfigParser()
 try:
   loaded_files = config.read(sys.argv[1])
-except:
-  print "Failed to read configuration file %s" % (sys.argv[1])
+  # config.read 
+  #   in 2.3 return None
+  #   in 2.6+ returns a list of loaded files
+  if recent_enough_python ():
+    if (len (loaded_files) != 1):
+      print "Cannot open %s" % (sys.argv[1])
+      sys.exit (-1)
+except Exception, e:
+  print "Failed to read configuration file %s (%s)" % (sys.argv[1], e)
   sys.exit (-1)
 
-if (len(loaded_files) != 1):
-  print "Cannot open %s" % (sys.argv[1])
-  sys.exit (-1)
 
 # set up all known types
 tools.addType( 'nco#EmailAddress', 10 )
