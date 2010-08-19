@@ -70,6 +70,11 @@ public class TestApp {
 		initialized = true;
 	}
 
+	// Query looks like this:
+	// SELECT ?t { ?r a nmm:MusicPiece; nie:title ?t .
+	//             FILTER (tracker:id (?r) IN (id1, id2, id3))
+	// }
+
 	private StringBuilder build_title_query (string class_name, Event[] ids) {
 		bool first = true;
 		StringBuilder builder = new StringBuilder ("SELECT ?r ?t { ?r a <");
