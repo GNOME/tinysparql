@@ -13,7 +13,8 @@ INCLUDES =								\
 	$(DBUS_CFLAGS)							\
 	$(UUID_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
-	$(SQLITE3_CFLAGS)
+	$(SQLITE3_CFLAGS)						\
+	$(UNICODE_SUPPORT_CFLAGS)
 
 BUILT_SOURCES = libtracker-data.vala.stamp
 
@@ -29,6 +30,7 @@ libtracker_data_la_VALASOURCES = 					\
 
 libtracker_data_la_SOURCES = 						\
 	tracker-class.c							\
+	tracker-collation.c						\
 	tracker-data-backup.c						\
 	tracker-data-manager.c						\
 	tracker-data-query.c						\
@@ -49,6 +51,7 @@ libtracker_data_la_SOURCES = 						\
 noinst_HEADERS =							\
 	tracker-class.h							\
 	tracker-data.h							\
+	tracker-collation.h						\
 	tracker-data-backup.h						\
 	tracker-data-manager.h						\
 	tracker-data-query.h						\
@@ -87,6 +90,7 @@ libtracker_data_la_LIBADD = 						\
 	$(GLIB2_LIBS)							\
 	$(UUID_LIBS)							\
 	$(GCOV_LIBS)							\
+	$(UNICODE_SUPPORT_LIBS)						\
 	-lz								\
 	-lm
 
