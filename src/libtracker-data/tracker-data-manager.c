@@ -2232,7 +2232,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		create_sql = g_string_new ("");
 		g_string_append_printf (create_sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
 		if (main_class) {
-			tracker_db_interface_execute_query (iface, &error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri Text NOT NULL, UNIQUE (Uri))");
+			tracker_db_interface_execute_query (iface, &error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri TEXT COLLATE " TRACKER_COLLATION_NAME " NOT NULL, UNIQUE (Uri))");
 			if (error) {
 				g_critical ("Failed creating Resource SQL table: %s", error->message);
 				g_clear_error (&error);
@@ -2296,6 +2296,10 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						schedule_copy (copy_schedule, property, field_name, NULL);
 					}
 
+					if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0) {
+						g_string_append (create_sql, " COLLATE " TRACKER_COLLATION_NAME);
+					}
+
 					/* add DEFAULT in case that the ontology specifies a default value,
 					   assumes that default values never contain quotes */
 					if (default_value != NULL) {
@@ -2340,14 +2344,20 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					                        field_name,
 					                        sql_type_for_single_value);
 
+					if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0) {
+						g_string_append (create_sql, " COLLATE " TRACKER_COLLATION_NAME);
+					}
+
 					/* add DEFAULT in case that the ontology specifies a default value,
 					   assumes that default values never contain quotes */
 					if (default_value != NULL) {
 						g_string_append_printf (alter_sql, " DEFAULT '%s'", default_value);
 					}
+
 					if (tracker_property_get_is_inverse_functional_property (property)) {
 						g_string_append (alter_sql, " UNIQUE");
 					}
+
 					g_debug ("Altering: '%s'", alter_sql->str);
 					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
 					if (error) {
