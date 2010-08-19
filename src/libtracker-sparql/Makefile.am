@@ -46,11 +46,16 @@ libtracker-sparql.vala.stamp: $(libtracker_sparql_la_VALASOURCES) $(vapi_sources
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg gmodule-2.0 --pkg dbus-glib-1 -H tracker-sparql.h --vapi tracker-sparql-$(TRACKER_API_VERSION).vapi $^
 	$(AM_V_GEN)touch $@
 
+tracker-sparql-$(TRACKER_API_VERSION).deps: tracker-sparql.deps
+	$(AM_V_GEN)cp $^ $@
+
 BUILT_SOURCES = libtracker-sparql.vala.stamp
 
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
-vapi_DATA = tracker-sparql-$(TRACKER_API_VERSION).vapi
+vapi_DATA =						\
+	tracker-sparql-$(TRACKER_API_VERSION).vapi	\
+	tracker-sparql-$(TRACKER_API_VERSION).deps
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(GLIB2_LIBS)					\
@@ -61,10 +66,12 @@ MAINTAINERCLEANFILES =					\
 	$(libtracker_sparql_la_VALASOURCES:.vala=.c) 	\
 	libtracker-sparql.vala.stamp			\
 	tracker-sparql-$(TRACKER_API_VERSION).vapi	\
+	tracker-sparql-$(TRACKER_API_VERSION).deps	\
 	tracker-sparql.h
 
 EXTRA_DIST = 						\
 	config.vapi 					\
 	$(libtracker_sparql_la_VALASOURCES) 		\
 	libtracker-sparql.vala.stamp			\
-	tracker-sparql-$(TRACKER_API_VERSION).vapi
+	tracker-sparql-$(TRACKER_API_VERSION).vapi	\
+	tracker-sparql-$(TRACKER_API_VERSION).deps
