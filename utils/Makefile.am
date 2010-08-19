@@ -4,4 +4,5 @@ SUBDIRS = 			\
 	gtk-sparql		\
 	lyrics			\
 	services		\
-	playlists
+	playlists		\
+	data-generators

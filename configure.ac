@@ -1963,6 +1963,8 @@ AC_CONFIG_FILES([
 	utils/lyrics/Makefile
 	utils/playlists/Makefile
 	utils/services/Makefile
+        utils/data-generators/Makefile
+        utils/data-generators/cc/Makefile
 	examples/Makefile
 	examples/libtracker-extract/Makefile
 	examples/libtracker-miner/Makefile
