@@ -3672,6 +3672,47 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 }
 
 /**
+ * tracker_miner_fs_check_directory:
+ * @fs: a #TrackerMinerFS
+ * @file: #GFile for the directory to check
+ * @check_parents: whether to check parents as well or not
+ *
+ * Tells the filesystem miner to check and index a directory,
+ * this file must be part of the usual crawling directories
+ * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
+ **/
+void
+tracker_miner_fs_check_directory (TrackerMinerFS *fs,
+                                  GFile          *file,
+                                  gboolean        check_parents)
+{
+	gboolean should_process;
+	gchar *path;
+
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (G_IS_FILE (file));
+
+	should_process = should_check_file (fs, file, TRUE);
+
+	path = g_file_get_path (file);
+
+	g_debug ("%s:'%s' (DIR) (requested by application)",
+	         should_process ? "Found " : "Ignored",
+	         path);
+
+	if (should_process) {
+		if (check_parents &&
+		    !check_file_parents (fs, file)) {
+			return;
+		}
+
+		tracker_miner_fs_directory_add_internal (fs, file);
+	}
+
+	g_free (path);
+}
+
+/**
  * tracker_miner_fs_file_notify:
  * @fs: a #TrackerMinerFS
  * @file: a #GFile
