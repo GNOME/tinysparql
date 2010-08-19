@@ -69,6 +69,7 @@ static gboolean remove_config;
 static gboolean start;
 static const gchar **reindex_mime_types;
 static gboolean print_version;
+static gchar *index_file;
 
 static gboolean term_option_arg_func (const gchar  *option_value,
                                       const gchar  *value,
@@ -97,6 +98,9 @@ static GOptionEntry entries[] = {
 	{ "reindex-mime-type", 'm', 0, G_OPTION_ARG_STRING_ARRAY, &reindex_mime_types,
 	  N_("Reindex files which match the mime type supplied (for new extractors), use -m MIME1 -m MIME2"),
 	  N_("MIME") },
+	{ "index-file", 'f', 0, G_OPTION_ARG_FILENAME, &index_file,
+	  N_("(Re)Index a given file"),
+	  N_("File") },
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
 	  NULL },
@@ -532,6 +536,7 @@ main (int argc, char **argv)
 		}
 
 		g_slist_free (miners);
+		g_object_unref (manager);
 	}
 
 	if (reindex_mime_types) {
@@ -575,6 +580,27 @@ main (int argc, char **argv)
 		}
 
 		g_object_unref (proxy);
+	}
+
+	if (index_file) {
+		TrackerMinerManager *manager;
+		GError *error = NULL;
+		GFile *file;
+
+		file = g_file_new_for_commandline_arg (index_file);
+		manager = tracker_miner_manager_new ();
+
+		tracker_miner_manager_index_file (manager, file, &error);
+
+		if (error) {
+			g_print ("Could not (re)index file '%s': %s\n",
+			         index_file, error->message);
+			g_error_free (error);
+			return EXIT_FAILURE;
+		}
+
+		g_object_unref (manager);
+		g_object_unref (file);
 	}
 
 	return EXIT_SUCCESS;
