@@ -44,6 +44,15 @@ struct _TrackerClassPrivate {
 	GArray *super_classes;
 	GArray *domain_indexes;
 	GArray *last_domain_indexes;
+
+	struct {
+		GArray *sub_pred_ids;
+		GArray *object_ids;
+	} deletes;
+	struct {
+		GArray *sub_pred_ids;
+		GArray *object_ids;
+	} inserts;
 };
 
 static void class_finalize     (GObject      *object);
@@ -72,6 +81,12 @@ tracker_class_init (TrackerClass *service)
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 	priv->last_domain_indexes = NULL;
 
+	priv->deletes.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
+	priv->deletes.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+
+	priv->inserts.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
+	priv->inserts.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+
 	/* Make GET_PRIV working */
 	service->priv = priv;
 }
@@ -88,6 +103,12 @@ class_finalize (GObject *object)
 
 	g_array_free (priv->super_classes, TRUE);
 	g_array_free (priv->domain_indexes, TRUE);
+
+	g_array_free (priv->deletes.sub_pred_ids, TRUE);
+	g_array_free (priv->deletes.object_ids, TRUE);
+
+	g_array_free (priv->inserts.sub_pred_ids, TRUE);
+	g_array_free (priv->inserts.object_ids, TRUE);
 
 	if (priv->last_domain_indexes)
 		g_array_free (priv->last_domain_indexes, TRUE);
@@ -401,4 +422,160 @@ tracker_class_set_db_schema_changed (TrackerClass *service,
 	priv = GET_PRIV (service);
 
 	priv->db_schema_changed = value;
+}
+
+gboolean
+tracker_class_has_insert_events (TrackerClass *class)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (class), FALSE);
+
+	priv = GET_PRIV (class);
+
+	return (priv->inserts.sub_pred_ids->len > 0);
+}
+
+gboolean
+tracker_class_has_delete_events (TrackerClass *class)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (class), FALSE);
+
+	priv = GET_PRIV (class);
+
+	return (priv->deletes.sub_pred_ids->len > 0);
+}
+
+void
+tracker_class_foreach_insert_event (TrackerClass        *class,
+                                    TrackerEventsForeach foreach,
+                                    gpointer             user_data)
+{
+	guint i;
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (class));
+	g_return_if_fail (foreach != NULL);
+
+	priv = GET_PRIV (class);
+
+	for (i = 0; i < priv->inserts.sub_pred_ids->len; i++) {
+		gint subject_id, pred_id, object_id;
+		gint64 sub_pred_id;
+
+		sub_pred_id = g_array_index (priv->inserts.sub_pred_ids, gint64, i);
+		pred_id = sub_pred_id & 0xffffffff;
+		subject_id = sub_pred_id >> 32;
+		object_id = g_array_index (priv->inserts.object_ids, gint, i);
+
+		foreach (subject_id, pred_id, object_id, user_data);
+	}
+}
+
+void
+tracker_class_foreach_delete_event (TrackerClass        *class,
+                                    TrackerEventsForeach foreach,
+                                    gpointer             user_data)
+{
+	guint i;
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (class));
+	g_return_if_fail (foreach != NULL);
+
+	priv = GET_PRIV (class);
+
+	for (i = 0; i < priv->deletes.sub_pred_ids->len; i++) {
+		gint subject_id, pred_id, object_id;
+		gint64 sub_pred_id;
+
+		sub_pred_id = g_array_index (priv->deletes.sub_pred_ids, gint64, i);
+		pred_id = sub_pred_id & 0xffffffff;
+		subject_id = sub_pred_id >> 32;
+		object_id = g_array_index (priv->deletes.object_ids, gint, i);
+
+		foreach (subject_id, pred_id, object_id, user_data);
+	}
+}
+
+void
+tracker_class_reset_events (TrackerClass *class)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (class));
+	priv = GET_PRIV (class);
+
+	g_array_set_size (priv->deletes.sub_pred_ids, 0);
+	g_array_set_size (priv->deletes.object_ids, 0);
+
+	g_array_set_size (priv->inserts.sub_pred_ids, 0);
+	g_array_set_size (priv->inserts.object_ids, 0);
+}
+
+static void
+insert_vals_into_arrays (GArray *sub_pred_ids,
+                         GArray *object_ids,
+                         gint    subject_id,
+                         gint    pred_id,
+                         gint    object_id)
+{
+	guint i;
+	gboolean inserted = FALSE;
+	gint64 sub_pred_id;
+
+	sub_pred_id = (gint64) subject_id;
+	sub_pred_id = sub_pred_id << 32 | pred_id;
+
+	for (i = 0; i < sub_pred_ids->len; i++) {
+		if (sub_pred_id < g_array_index (sub_pred_ids, gint64, i)) {
+			g_array_insert_val (sub_pred_ids, i, sub_pred_id);
+			g_array_insert_val (object_ids, i, object_id);
+			inserted = TRUE;
+			break;
+		}
+	}
+
+	if (!inserted) {
+		g_array_append_val (sub_pred_ids, sub_pred_id);
+		g_array_append_val (object_ids, object_id);
+	}
+}
+
+void
+tracker_class_add_insert_event (TrackerClass *class,
+                                gint          subject_id,
+                                gint          pred_id,
+                                gint          object_id)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (class));
+	priv = GET_PRIV (class);
+
+	insert_vals_into_arrays (priv->inserts.sub_pred_ids,
+	                         priv->inserts.object_ids,
+	                         subject_id,
+	                         pred_id,
+	                         object_id);
+}
+
+void
+tracker_class_add_delete_event (TrackerClass *class,
+                                gint          subject_id,
+                                gint          pred_id,
+                                gint          object_id)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (class));
+	priv = GET_PRIV (class);
+
+	insert_vals_into_arrays (priv->deletes.sub_pred_ids,
+	                         priv->deletes.object_ids,
+	                         subject_id,
+	                         pred_id,
+	                         object_id);
 }

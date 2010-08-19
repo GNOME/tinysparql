@@ -29,10 +29,6 @@
 G_BEGIN_DECLS
 
 typedef GStrv (*TrackerNotifyClassGetter)   (void);
-typedef void  (*TrackerEventsForeach)       (gint                      subject_id,
-                                             gint                      pred_id,
-                                             gint                      object_id,
-                                             gpointer                  user_data);
 
 void       tracker_events_init              (TrackerNotifyClassGetter  callback);
 void       tracker_events_shutdown          (void);

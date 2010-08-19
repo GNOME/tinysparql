@@ -50,39 +50,63 @@ struct _TrackerClassClass {
 	GObjectClass parent_class;
 };
 
+typedef void    (*TrackerEventsForeach)                (gint                 subject_id,
+                                                        gint                 pred_id,
+                                                        gint                 object_id,
+                                                        gpointer             user_data);
+
 GType             tracker_class_get_type               (void) G_GNUC_CONST;
 TrackerClass *    tracker_class_new                    (void);
-const gchar *     tracker_class_get_uri                (TrackerClass    *service);
-const gchar *     tracker_class_get_name               (TrackerClass    *service);
-gint              tracker_class_get_count              (TrackerClass    *service);
-gint              tracker_class_get_id                 (TrackerClass    *service);
-gboolean          tracker_class_get_is_new             (TrackerClass    *service);
-gboolean          tracker_class_get_db_schema_changed  (TrackerClass    *service);
-gboolean          tracker_class_get_notify             (TrackerClass    *service);
+const gchar *     tracker_class_get_uri                (TrackerClass        *service);
+const gchar *     tracker_class_get_name               (TrackerClass        *service);
+gint              tracker_class_get_count              (TrackerClass        *service);
+gint              tracker_class_get_id                 (TrackerClass        *service);
+gboolean          tracker_class_get_is_new             (TrackerClass        *service);
+gboolean          tracker_class_get_db_schema_changed  (TrackerClass        *service);
+gboolean          tracker_class_get_notify             (TrackerClass        *service);
 
-TrackerClass    **tracker_class_get_super_classes      (TrackerClass    *service);
-TrackerProperty **tracker_class_get_domain_indexes     (TrackerClass    *service);
-TrackerProperty **tracker_class_get_last_domain_indexes(TrackerClass    *service);
+TrackerClass    **tracker_class_get_super_classes      (TrackerClass        *service);
+TrackerProperty **tracker_class_get_domain_indexes     (TrackerClass        *service);
+TrackerProperty **tracker_class_get_last_domain_indexes(TrackerClass        *service);
 
-void              tracker_class_set_uri                (TrackerClass    *service,
-                                                        const gchar     *value);
-void              tracker_class_set_count              (TrackerClass    *service,
-                                                        gint             value);
-void              tracker_class_add_super_class        (TrackerClass    *service,
-                                                        TrackerClass    *value);
-void              tracker_class_add_domain_index       (TrackerClass    *service,
-                                                        TrackerProperty *value);
-void              tracker_class_del_domain_index       (TrackerClass    *service,
-                                                        TrackerProperty *value);
-void              tracker_class_reset_domain_indexes   (TrackerClass    *service);
-void              tracker_class_set_id                 (TrackerClass    *service,
-                                                        gint             id);
-void              tracker_class_set_is_new             (TrackerClass    *service,
-                                                        gboolean         value);
-void              tracker_class_set_db_schema_changed  (TrackerClass    *service,
-                                                        gboolean         value);
-void              tracker_class_set_notify             (TrackerClass    *service,
-                                                        gboolean         value);
+void              tracker_class_set_uri                (TrackerClass        *service,
+                                                        const gchar         *value);
+void              tracker_class_set_count              (TrackerClass        *service,
+                                                        gint                 value);
+void              tracker_class_add_super_class        (TrackerClass        *service,
+                                                        TrackerClass        *value);
+void              tracker_class_add_domain_index       (TrackerClass        *service,
+                                                        TrackerProperty     *value);
+void              tracker_class_del_domain_index       (TrackerClass        *service,
+                                                        TrackerProperty     *value);
+void              tracker_class_reset_domain_indexes   (TrackerClass        *service);
+void              tracker_class_set_id                 (TrackerClass        *service,
+                                                        gint                 id);
+void              tracker_class_set_is_new             (TrackerClass        *service,
+                                                        gboolean             value);
+void              tracker_class_set_db_schema_changed  (TrackerClass        *service,
+                                                        gboolean             value);
+void              tracker_class_set_notify             (TrackerClass        *service,
+                                                        gboolean             value);
+
+/* For signals API */
+void              tracker_class_foreach_delete_event   (TrackerClass        *class,
+                                                        TrackerEventsForeach foreach,
+                                                        gpointer             user_data);
+void              tracker_class_foreach_insert_event   (TrackerClass        *class,
+                                                        TrackerEventsForeach foreach,
+                                                        gpointer             user_data);
+gboolean          tracker_class_has_insert_events      (TrackerClass        *class);
+gboolean          tracker_class_has_delete_events      (TrackerClass        *class);
+void              tracker_class_reset_events           (TrackerClass        *class);
+void              tracker_class_add_delete_event       (TrackerClass        *class,
+                                                        gint                 subject_id,
+                                                        gint                 pred_id,
+                                                        gint                 object_id);
+void              tracker_class_add_insert_event       (TrackerClass        *class,
+                                                        gint                 subject_id,
+                                                        gint                 pred_id,
+                                                        gint                 object_id);
 
 G_END_DECLS
 
