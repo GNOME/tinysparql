@@ -1,3 +1,43 @@
+NEW in 0.9.17 - 2010-08-19
+==========================
+
+The changes are:
+
+  * Require SQLite 3.7 (for Write Ahead Logging)
+  * Require D-Bus GLib 0.82 (for dbus_g_connection_unregister_g_object())
+  * Fixes: GB#627281, crash in tracker-0.8.15 ms-office extractor
+  * Fixes: GB#623005, Remove odt2txt dependency in the OASIS extractor
+  * Fixes: GB#623207, tracker 0.8.6/0.9.x fails to build against evolution 2.31.4
+  * Fixes: NB#185950, COREWEB: /usr/lib/tracker/tracker-extract '*__GI_strncmp extract_gif get_file_metadata tra
+  * Fixes: NB#185070, Enable PNG_iTXt_SUPPORTED flag in libpng
+  * Fixes: NB#182948, Keywords/Subject metadata not written back to the file
+  * Fixes: NB#184882, tracker-extract is getting crashed for malformed gif files
+  * Functional Tests: refactoring branch merged, much more comprehensive testings now
+  * SPARQL: Improve lexer performance for strings with ASCII characters
+  * libtracker-common: Make sure libtracker-sparql inherits verbosity
+  * libtracker-data: Merged DataError into TrackerSparqlError, was causing miner-fs to not finish
+  * libtracker-data: Remove unused Options database table
+  * libtracker-sparql: Added dbus-glib-1 dependency when building Vala sources
+  * libtracker-sparql: Added example documentation for update_blank() API
+  * libtracker-bus: Catch SPARQL errors thrown by D-Bus
+  * tracker-extract: MP3, Fixed extraction of certain ID3v2.3 and ID3v2.4 tags
+  * tracker-extract: MP3, Fixed un-unsynchronisation in ID3v2
+  * tracker-store: Fixed some memory leaks in dbus shutdown
+  * tracker-store: Removed plugin support (was only used by kmail)
+  * tracker-miner-fs: Fixed memory leak when setting up volumes
+  * tracker-search: Fixed typo, output was "Contacts:" when it should be "Files:"
+  * tracker-search: Improved output for --contacts and --files
+  * kmail: Removed this plugin, it was unmaintained
+
+Translations:
+
+  * Updated es: Jorge González
+
+Notes:
+
+  None
+
+
 NEW in 0.9.16 - 2010-08-12
 ==========================
 
