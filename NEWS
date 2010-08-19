@@ -1,3 +1,47 @@
+NEW in 0.8.16 - 2010-08-19
+==========================
+
+The changes are:
+
+  * Fixes: NB#181421, Duplicates when monitor events processed before directory is created in store
+  * Fixes: NB#185070, Enable PNG_iTXt_SUPPORTED flag in libpng
+  * Fixes: NB#182948, Keywords/Subject metadata not written back to the file
+  * Fixes: NB#183307, COREWEB: /usr/lib/tracker/tracker-extract '__pthread_mutex_lock IA__g_main_loop_quit quit_timeout_cb signal_handler'
+  * Fixes: NB#172390, Tracker doesn't return any content from m3u playlists.
+https://projects.maemo.org/bugzilla/show_bug.cgi?id=172390
+  * Fixes: NB#182788, COREWEB: /usr/lib/tracker/tracker-miner-fs 'malloc_consolidate _int_malloc *__GI___libc_malloc __alloc_dir __opendir'
+  * Fixes: NB#180679, tracker-miner-fs crash @ "IA__g_object_get_qdata" upon disconnecting device from PC after data transfer in Mass storage mode
+  * Fixes: GB#623207, tracker 0.8.6/0.9.x fails to build against evolution 2.31.4
+  * Fixes: GB#616199, Critical in miner-fs: Unable to insert multiple values for subject and single valued property `dc:title'
+  * Fixes: GB#624346, tracker:mountPoint no longer set for the tracker:Volumes
+  * Fixes: GB#511474, The option for Don't index remote mounted directories doesn't work in some cases
+  * Fixes: GB#627281, crash in tracker-0.8.15 ms-office extractor
+  * SPARQL: Improve lexer performance for strings with ASCII characters
+  * SPARQL: Fix generated SQL when not retrieving actual data
+  * libtracker-miner: If parent is being processed, wait.
+  * libtracker-miner: Print URI always instead of path, as path may not be UTF-8
+  * libtracker-miner: remove files coverage reports which are difficult to test with unit-tests
+  * libtracker-miner: Fix memleak in item_move()
+  * libtracker-miner: Fix memleak in storage, GUnixMountEntry was not being disposed
+  * libtracker-fts: First functional test cases added
+  * tracker-extract: gstreamer, Fix pipeline error handling
+  * tracker-extract: Fix crash in albumart when pixbuf cannot be created
+  * tracker-writeback: Don't just process the first row of results for file writebacks
+
+Translations:
+
+  * Updated cs: Marek Cernocky
+  * Updated hu: Gabor Kelemen
+  * Updated es: Jorge González
+  * Updated sl: Andrej Žnidaršič
+  * Updated ja: Takeshi AIHANA
+  * Updated de: Mario Blättermann
+
+Notes:
+
+  None
+
+
 NEW in 0.8.15 - 2010-07-16
 ==========================
 
