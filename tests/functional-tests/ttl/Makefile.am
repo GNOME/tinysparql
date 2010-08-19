@@ -51,6 +51,8 @@ ttl_DATA =  				\
 	090-mto_TransferElement.ttl	\
 	091-mto_UploadTransfer.ttl
 
-EXTRA_DIST = $(ttl_DATA)
+EXTRA_DIST = $(ttl_DATA) gen-test-data.stamp
 
-# Clean files... ??
+MAINTAINERCLEAN_FILES = 		\
+	$(ttl_DATA)			\
+	gen-test-data.stamp
