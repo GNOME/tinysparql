@@ -1218,6 +1218,30 @@ file_is_crawl_directory (TrackerMinerFS *fs,
 	return FALSE;
 }
 
+static DirectoryData *
+find_config_directory (TrackerMinerFS *fs,
+                       GFile          *file)
+{
+	GList *dirs;
+
+	dirs = fs->private->config_directories;
+
+	while (dirs) {
+		DirectoryData *data;
+
+		data = dirs->data;
+		dirs = dirs->next;
+
+		if (g_file_equal (data->file, file) ||
+		    (data->recurse && (g_file_has_prefix (file, data->file)))) {
+			return data;
+		}
+	}
+
+	return NULL;
+}
+
+
 static void
 ensure_iri_cache (TrackerMinerFS *fs,
                   GFile          *file)
@@ -3571,7 +3595,8 @@ tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
  **/
 void
 tracker_miner_fs_file_add (TrackerMinerFS *fs,
-                           GFile          *file)
+                           GFile          *file,
+                           gboolean        check_parents)
 {
 	gboolean should_process;
 	gchar *path;
@@ -3588,6 +3613,42 @@ tracker_miner_fs_file_add (TrackerMinerFS *fs,
 	         path);
 
 	if (should_process) {
+		if (check_parents) {
+			DirectoryData *data;
+			GFile *parent;
+			GList *parents = NULL, *p;
+
+			parent = g_file_get_parent (file);
+
+			if (!parent) {
+				return;
+			}
+
+			data = find_config_directory (fs, parent);
+
+			if (!data) {
+				return;
+			}
+
+			/* Add parent directories until we're past the config dir */
+			while (parent &&
+			       !g_file_has_prefix (data->file, parent)) {
+				parents = g_list_prepend (parents, parent);
+				parent = g_file_get_parent (parent);
+			}
+
+			/* Last parent fetched is not added to the list */
+			if (parent) {
+				g_object_unref (parent);
+			}
+
+			for (p = parents; p; p = p->next) {
+				g_queue_push_tail (fs->private->items_updated, p->data);
+			}
+
+			g_list_free (parents);
+		}
+
 		g_queue_push_tail (fs->private->items_updated,
 		                   g_object_ref (file));
 

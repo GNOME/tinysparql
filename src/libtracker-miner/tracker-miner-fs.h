@@ -103,7 +103,8 @@ gboolean              tracker_miner_fs_directory_remove     (TrackerMinerFS *fs,
 gboolean              tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
                                                               GFile          *file);
 void                  tracker_miner_fs_file_add             (TrackerMinerFS *fs,
-                                                             GFile          *file);
+                                                             GFile          *file,
+                                                             gboolean        check_parents);
 void                  tracker_miner_fs_file_notify          (TrackerMinerFS *fs,
                                                              GFile          *file,
                                                              const GError   *error);
