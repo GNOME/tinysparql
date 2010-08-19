@@ -71,21 +71,25 @@ tracker_events_add_insert (gint         graph_id,
 		/* Resource create
 		 * In case of create, object is the rdf:type */
 		if (is_allowed (private, NULL, object_id)) {
-			const gchar *uri;
+			TrackerClass *class = NULL;
 
-			/* Double hashtable lookup can be optimized: the class might also be
-			 * in rdf_types (need to check this) */
-
-			uri = tracker_ontologies_get_uri_by_id (object_id);
-			if (uri) {
-				TrackerClass *class;
-				class = tracker_ontologies_get_class_by_uri (uri);
-				if (class) {
-					tracker_class_add_insert_event (class,
-					                                subject_id,
-					                                pred_id,
-					                                object_id);
+			if (rdf_types->len == 1 && tracker_class_get_id (rdf_types->pdata[0]) == object_id) {
+				class = rdf_types->pdata[0];
+			} else {
+				if (object == NULL) {
+					const gchar *uri = tracker_ontologies_get_uri_by_id (object_id);
+					if (uri != NULL)
+						class = tracker_ontologies_get_class_by_uri (uri);
+				} else {
+					class = tracker_ontologies_get_class_by_uri (object);
 				}
+			}
+
+			if (class) {
+				tracker_class_add_insert_event (class,
+				                                subject_id,
+				                                pred_id,
+				                                object_id);
 			}
 		}
 	} else {
@@ -126,21 +130,25 @@ tracker_events_add_delete (gint         graph_id,
 		/* Resource delete
 		 * In case of delete, object is the rdf:type */
 		if (is_allowed (private, NULL, object_id)) {
-			const gchar *uri;
+			TrackerClass *class = NULL;
 
-			/* Double hashtable lookup can be optimized: the class might also be
-			 * in rdf_types (need to check this) */
-
-			uri = tracker_ontologies_get_uri_by_id (object_id);
-			if (uri) {
-				TrackerClass *class;
-				class = tracker_ontologies_get_class_by_uri (uri);
-				if (class) {
-					tracker_class_add_delete_event (class,
-					                                subject_id,
-					                                pred_id,
-					                                object_id);
+			if (rdf_types->len == 1 && tracker_class_get_id (rdf_types->pdata[0]) == object_id) {
+				class = rdf_types->pdata[0];
+			} else {
+				if (object == NULL) {
+					const gchar *uri = tracker_ontologies_get_uri_by_id (object_id);
+					if (uri != NULL)
+						class = tracker_ontologies_get_class_by_uri (uri);
+				} else {
+					class = tracker_ontologies_get_class_by_uri (object);
 				}
+			}
+
+			if (class) {
+				tracker_class_add_delete_event (class,
+				                                subject_id,
+				                                pred_id,
+				                                object_id);
 			}
 		}
 	} else {
