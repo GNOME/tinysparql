@@ -877,7 +877,6 @@ extract_msword_content (GsfInfile *infile,
 			 * real text, so skip it */
 			guint16 GrpPrl_len;
 
-
 			GrpPrl_len = read_16bit (&clx[i+1]);
 			/* 3 is the length of clxt (1byte) and cbGrpprl(2bytes) */
 			i = i + 3 + GrpPrl_len;
