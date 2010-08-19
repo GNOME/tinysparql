@@ -1,3 +1,5 @@
+class-signal-test
+class-signal-test.c
 shared-query-test.c
 shared-update-test.c
 bus-query-test
