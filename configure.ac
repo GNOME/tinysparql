@@ -852,7 +852,7 @@ AC_CHECK_HEADER(unicode/ubrk.h,
                 [have_libicu=yes],
                 [have_libicu=no])
 LIBICU_CFLAGS=""
-LIBICU_LIBS="-licuuc"
+LIBICU_LIBS="-licuuc -licui18n"
 
 # Check for Pango...
 PKG_CHECK_MODULES(PANGO,
@@ -883,11 +883,14 @@ if test "x$with_unicode_support" = "xauto"; then
    fi
 fi
 
+UNICODE_SUPPORT_CFLAGS=
+UNICODE_SUPPORT_LIBS=
+
 case "x$with_unicode_support" in
      # Use libunistring
      "xlibunistring")
-        AC_SUBST(LIBUNISTRING_CFLAGS)
-        AC_SUBST(LIBUNISTRING_LIBS)
+        UNICODE_SUPPORT_CFLAGS=$LIBUNISTRING_CFLAGS
+        UNICODE_SUPPORT_LIBS=$LIBUNISTRING_LIBS
         if test "x$have_libunistring" = "xyes"; then
            AC_DEFINE(HAVE_LIBUNISTRING, [1], [libunistring Unicode support library])
         else
@@ -896,8 +899,8 @@ case "x$with_unicode_support" in
      ;;
      # Use libicu
      "xlibicu")
-        AC_SUBST(LIBICU_CFLAGS)
-        AC_SUBST(LIBICU_LIBS)
+        UNICODE_SUPPORT_CFLAGS=$LIBICU_CFLAGS
+        UNICODE_SUPPORT_LIBS=$LIBICU_LIBS
         if test "x$have_libicu" = "xyes"; then
           AC_DEFINE(HAVE_LIBICU, [1], [libicu Unicode support library])
         else
@@ -906,8 +909,8 @@ case "x$with_unicode_support" in
      ;;
      # Use glib/pango
      "xglib")
-        AC_SUBST(PANGO_CFLAGS)
-        AC_SUBST(PANGO_LIBS)
+        UNICODE_SUPPORT_CFLAGS=$PANGO_CFLAGS
+        UNICODE_SUPPORT_LIBS=$PANGO_LIBS
         if test "x$have_pango" != "xyes"; then
           AC_MSG_ERROR([Couldn't find pango])
         fi
@@ -918,6 +921,9 @@ esac
 
 AM_CONDITIONAL(BUILD_LIBUNISTRING_PARSER, test "x$with_unicode_support" = "xlibunistring")
 AM_CONDITIONAL(BUILD_LIBICU_PARSER, test "x$with_unicode_support" = "xlibicu")
+
+AC_SUBST(UNICODE_SUPPORT_CFLAGS)
+AC_SUBST(UNICODE_SUPPORT_LIBS)
 
 ####################################################################
 # Miner Evolution

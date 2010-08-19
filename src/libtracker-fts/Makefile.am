@@ -9,17 +9,8 @@ INCLUDES =								\
 	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(UNAC_CFLAGS)							\
-	$(SQLITE3_CFLAGS)
-
-if BUILD_LIBUNISTRING_PARSER
-  INCLUDES += $(LIBUNISTRING_CFLAGS)
-else
-if BUILD_LIBICU_PARSER
-  INCLUDES += $(LIBICU_CFLAGS)
-else
-  INCLUDES += $(PANGO_CFLAGS)
-endif
-endif
+	$(SQLITE3_CFLAGS)						\
+	$(UNICODE_SUPPORT_CFLAGS)
 
 noinst_LTLIBRARIES = libtracker-fts.la
 
@@ -51,14 +42,5 @@ libtracker_fts_la_LIBADD =						\
 	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(UNAC_LIBS)							\
-	$(GLIB2_LIBS)
-
-if BUILD_LIBUNISTRING_PARSER
-  libtracker_fts_la_LIBADD += $(LIBUNISTRING_LIBS)
-else
-if BUILD_LIBICU_PARSER
-  libtracker_fts_la_LIBADD += $(LIBICU_LIBS)
-else
-  libtracker_fts_la_LIBADD += $(PANGO_LIBS)
-endif
-endif
+	$(GLIB2_LIBS)							\
+	$(UNICODE_SUPPORT_LIBS)
