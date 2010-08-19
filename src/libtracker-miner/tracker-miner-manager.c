@@ -27,6 +27,7 @@
 #include "tracker-miner-manager.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-client.h"
+#include "tracker-miner-files-index-client.h"
 #include "tracker-miner-dbus.h"
 
 /**
@@ -979,4 +980,30 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 	}
 
 	return TRUE;
+}
+
+void
+tracker_miner_manager_index_file (TrackerMinerManager  *manager,
+                                  GFile                *file,
+                                  GError              **error)
+{
+	static DBusGProxy *proxy = NULL;
+	TrackerMinerManagerPrivate *priv;
+	gchar *uri;
+
+	g_return_if_fail (TRACKER_IS_MINER_MANAGER (manager));
+	g_return_if_fail (G_IS_FILE (file));
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	if (G_UNLIKELY (!proxy)) {
+		proxy = dbus_g_proxy_new_for_name (priv->connection,
+		                                   "org.freedesktop.Tracker1.Miner.Files.Index",
+		                                   "/org/freedesktop/Tracker1/Miner/Files/Index",
+		                                   "org.freedesktop.Tracker1.Miner.Files.Index");
+	}
+
+	uri = g_file_get_uri (file);
+	org_freedesktop_Tracker1_Miner_Files_Index_index_files (proxy, uri, error);
+	g_free (uri);
 }

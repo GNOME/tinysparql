@@ -106,6 +106,7 @@ $(top_builddir)/src/libtracker-miner/tracker-marshal.c: tracker-marshal.list
 dbus_sources = 						\
 	tracker-miner-glue.h				\
 	tracker-miner-web-glue.h			\
+	tracker-miner-files-index-client.h		\
 	tracker-miner-client.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
