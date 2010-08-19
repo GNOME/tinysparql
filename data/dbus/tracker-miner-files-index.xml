@@ -6,7 +6,7 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="as" name="mime_types" direction="in" />
     </method>
-    <method name="IndexFiles">
+    <method name="IndexFile">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="file_uri" direction="in" />
     </method>

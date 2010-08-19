@@ -1004,6 +1004,6 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 	}
 
 	uri = g_file_get_uri (file);
-	org_freedesktop_Tracker1_Miner_Files_Index_index_files (proxy, uri, error);
+	org_freedesktop_Tracker1_Miner_Files_Index_index_file (proxy, uri, error);
 	g_free (uri);
 }
