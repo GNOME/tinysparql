@@ -523,7 +523,6 @@ insert_vals_into_arrays (GArray *sub_pred_ids,
                          gint    object_id)
 {
 	guint i;
-	gboolean inserted = FALSE;
 	gint64 sub_pred_id;
 
 	sub_pred_id = (gint64) subject_id;
@@ -533,15 +532,12 @@ insert_vals_into_arrays (GArray *sub_pred_ids,
 		if (sub_pred_id < g_array_index (sub_pred_ids, gint64, i)) {
 			g_array_insert_val (sub_pred_ids, i, sub_pred_id);
 			g_array_insert_val (object_ids, i, object_id);
-			inserted = TRUE;
-			break;
+			return;
 		}
 	}
 
-	if (!inserted) {
-		g_array_append_val (sub_pred_ids, sub_pred_id);
-		g_array_append_val (object_ids, object_id);
-	}
+	g_array_append_val (sub_pred_ids, sub_pred_id);
+	g_array_append_val (object_ids, object_id);
 }
 
 void
