@@ -34,44 +34,6 @@ typedef struct {
 
 static EventsPrivate *private;
 
-void
-tracker_events_foreach_insert_of (TrackerClass        *class,
-                                  TrackerEventsForeach foreach,
-                                  gpointer             user_data)
-{
-	g_return_if_fail (class != NULL);
-	g_return_if_fail (foreach != NULL);
-
-	tracker_class_foreach_insert_event (class, foreach, user_data);
-}
-
-void
-tracker_events_foreach_delete_of (TrackerClass        *class,
-                                  TrackerEventsForeach foreach,
-                                  gpointer             user_data)
-{
-	g_return_if_fail (class != NULL);
-	g_return_if_fail (foreach != NULL);
-
-	tracker_class_foreach_delete_event (class, foreach, user_data);
-}
-
-gboolean
-tracker_events_class_has_deletes (TrackerClass *class)
-{
-	g_return_val_if_fail (class != NULL, FALSE);
-
-	return tracker_class_has_delete_events (class);
-}
-
-gboolean
-tracker_events_class_has_inserts (TrackerClass *class)
-{
-	g_return_val_if_fail (class != NULL, FALSE);
-
-	return tracker_class_has_insert_events (class);
-}
-
 static gboolean
 is_allowed (EventsPrivate *private, TrackerClass *rdf_class, gint class_id)
 {
@@ -119,7 +81,7 @@ tracker_events_add_insert (gint         graph_id,
 				TrackerClass *class;
 				class = tracker_ontologies_get_class_by_uri (uri);
 				if (class) {
-					tracker_class_add_delete_event (class,
+					tracker_class_add_insert_event (class,
 					                                subject_id,
 					                                pred_id,
 					                                object_id);
@@ -131,7 +93,7 @@ tracker_events_add_insert (gint         graph_id,
 
 		for (i = 0; i < rdf_types->len; i++) {
 			if (is_allowed (private, rdf_types->pdata[i], 0)) {
-				tracker_class_add_delete_event (rdf_types->pdata[i],
+				tracker_class_add_insert_event (rdf_types->pdata[i],
 				                                subject_id,
 				                                pred_id,
 				                                object_id);

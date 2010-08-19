@@ -46,14 +46,6 @@ void       tracker_events_add_delete        (gint                      graph_id,
                                              gint                      object_id,
                                              const gchar              *object,
                                              GPtrArray                *rdf_types);
-void       tracker_events_foreach_delete_of (TrackerClass            *class,
-                                             TrackerEventsForeach     foreach,
-                                             gpointer                 user_data);
-void       tracker_events_foreach_insert_of (TrackerClass            *class,
-                                             TrackerEventsForeach     foreach,
-                                             gpointer                 user_data);
-gboolean   tracker_events_class_has_deletes (TrackerClass            *class);
-gboolean   tracker_events_class_has_inserts (TrackerClass            *class);
 void       tracker_events_classes_iter      (GHashTableIter           *iter);
 void       tracker_events_reset             (void);
 void       tracker_events_freeze            (void);

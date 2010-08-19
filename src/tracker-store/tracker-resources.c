@@ -549,7 +549,7 @@ static void
 emit_class_signal (TrackerResources *self,
                    TrackerClass     *class)
 {
-	if (tracker_events_class_has_inserts (class) || tracker_events_class_has_deletes (class)) {
+	if (tracker_class_has_insert_events (class) || tracker_class_has_delete_events (class)) {
 		TrackerResourcesPrivate *priv;
 		DBusMessageIter iter, deletes_iter, inserts_iter;
 		DBusMessage *message;
@@ -569,7 +569,7 @@ emit_class_signal (TrackerResources *self,
 		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY,
 		                                  "(iii)", &deletes_iter);
 
-		tracker_events_foreach_delete_of (class, foreach_add_to_iter, &deletes_iter);
+		tracker_class_foreach_delete_event (class, foreach_add_to_iter, &deletes_iter);
 
 		dbus_message_iter_close_container (&iter, &deletes_iter);
 
@@ -577,7 +577,7 @@ emit_class_signal (TrackerResources *self,
 		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY,
 		                                  "(iii)", &inserts_iter);
 
-		tracker_events_foreach_insert_of (class, foreach_add_to_iter, &inserts_iter);
+		tracker_class_foreach_insert_event (class, foreach_add_to_iter, &inserts_iter);
 
 		dbus_message_iter_close_container (&iter, &inserts_iter);
 
