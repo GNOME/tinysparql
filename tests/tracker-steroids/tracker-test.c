@@ -460,7 +460,8 @@ cancel_query_cb (GObject      *source_object,
 
 	tracker_sparql_connection_query_finish (connection, result, &error);
 
-	g_assert_no_error (error);
+	/* An error should be returned (cancelled!) */
+	g_assert (error);
 }
 
 static void
@@ -537,7 +538,8 @@ cancel_update_cb (GObject      *source_object,
 
 	tracker_sparql_connection_update_finish (connection, result, &error);
 
-	g_assert_no_error (error);
+	/* An error should be returned (cancelled!) */
+	g_assert (error);
 }
 
 static void
