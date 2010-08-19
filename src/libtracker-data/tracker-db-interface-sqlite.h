@@ -28,16 +28,10 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
-typedef gint (* TrackerDBCollationFunc) (gchar *str1,
-                                         gint   len1,
-                                         gchar *str2,
-                                         gint   len2);
+#define TRACKER_COLLATION_NAME "TRACKER"
 
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename);
 TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gchar              *filename);
-gboolean            tracker_db_interface_sqlite_set_collation_function (TrackerDBInterface       *interface,
-                                                                        const gchar              *name,
-                                                                        TrackerDBCollationFunc    func);
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 void                tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,

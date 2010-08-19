@@ -34,6 +34,8 @@
 #include <libtracker-fts/tracker-fts.h>
 #endif
 
+#include "tracker-collation.h"
+
 #include "tracker-db-interface-sqlite.h"
 
 struct TrackerDBInterface {
@@ -45,6 +47,8 @@ struct TrackerDBInterface {
 	GHashTable *dynamic_statements;
 
 	GSList *function_data;
+
+	gpointer collator;
 
 	guint ro : 1;
 #if HAVE_TRACKER_FTS
@@ -78,6 +82,12 @@ struct TrackerDBStatement {
 struct TrackerDBStatementClass {
 	GObjectClass parent_class;
 };
+
+typedef gint (* TrackerDBCollationFunc) (gpointer      collator,
+                                         gint          len1,
+                                         gconstpointer str1,
+                                         gint          len2,
+                                         gconstpointer str2);
 
 static TrackerDBStatement       * tracker_db_statement_sqlite_new (TrackerDBInterface     *db_interface,
                                                                    sqlite3_stmt           *sqlite_stmt);
@@ -480,6 +490,20 @@ check_interrupt (void *user_data)
 	return g_cancellable_is_cancelled (db_interface->cancellable) ? 1 : 0;
 }
 
+static gboolean
+set_collation_function (TrackerDBInterface     *interface,
+                        const gchar            *name,
+                        TrackerDBCollationFunc  func)
+{
+	gint result;
+
+	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (interface), FALSE);
+
+	result = sqlite3_create_collation (interface->db, name, SQLITE_UTF8, interface->collator, func);
+
+	return (result == SQLITE_OK);
+}
+
 static void
 open_database (TrackerDBInterface *db_interface)
 {
@@ -497,6 +521,14 @@ open_database (TrackerDBInterface *db_interface)
 		g_critical ("Could not open sqlite3 database:'%s'", db_interface->filename);
 	} else {
 		g_message ("Opened sqlite3 database:'%s'", db_interface->filename);
+	}
+
+	/* Set our unicode collation function */
+	if (!db_interface->collator) {
+		db_interface->collator = tracker_collation_init ();
+		set_collation_function (db_interface,
+		                        TRACKER_COLLATION_NAME,
+		                        tracker_collation_utf8);
 	}
 
 	sqlite3_progress_handler (db_interface->db, 100,
@@ -642,6 +674,8 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	g_message ("Closed sqlite3 database:'%s'", db_interface->filename);
 
 	g_free (db_interface->filename);
+
+	tracker_collation_deinit (db_interface->collator);
 
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
 }
@@ -972,34 +1006,6 @@ tracker_db_interface_sqlite_new_ro (const gchar *filename)
 	                     "filename", filename,
 	                     "read-only", TRUE,
 	                     NULL);
-}
-
-static gint
-collation_function (gpointer      data,
-                    int           len1,
-                    gconstpointer str1,
-                    int           len2,
-                    gconstpointer str2)
-{
-	TrackerDBCollationFunc func;
-
-	func = (TrackerDBCollationFunc) data;
-
-	return (func) ((gchar *) str1, len1, (gchar *) str2, len2);
-}
-
-gboolean
-tracker_db_interface_sqlite_set_collation_function (TrackerDBInterface       *interface,
-                                                    const gchar              *name,
-                                                    TrackerDBCollationFunc    func)
-{
-	gint result;
-
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (interface), FALSE);
-
-	result = sqlite3_create_collation (interface->db, name, SQLITE_UTF8, func, &collation_function);
-
-	return (result == SQLITE_OK);
 }
 
 gint64
