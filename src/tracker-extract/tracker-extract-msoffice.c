@@ -936,12 +936,21 @@ extract_msword_content (GsfInfile *infile,
 
 	while (TRUE) {
 		if (clx[i] == 2) {
+			/* Nice, a proper structure with contents, no need to
+			 * iterate more. */
 			lcb_piece_table = read_32bit (clx + (i + 1));
 			piece_table = clx + i + 5;
 			piece_count = (lcb_piece_table - 4) / 12;
 			break;
 		} else if (clx[i] == 1) {
-			i = i + 2 + clx[i + 1];
+			/* Oh, a PRC structure with properties of text, not
+			 * real text, so skip it */
+			guint16 GrpPrl_len;
+
+
+			GrpPrl_len = read_16bit (&clx[i+1]);
+			/* 3 is the length of clxt (1byte) and cbGrpprl(2bytes) */
+			i = i + 3 + GrpPrl_len;
 		} else {
 			break;
 		}
