@@ -277,3 +277,111 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
 	g_string_free (query, TRUE);
 	g_object_unref (connection);
 }
+
+void
+tracker_miner_files_index_index_files (TrackerMinerFilesIndex    *object,
+                                       gchar                     *file_uri,
+                                       DBusGMethodInvocation     *context,
+                                       GError                   **error)
+{
+	TrackerMinerFilesIndexPrivate *priv;
+	TrackerConfig *config;
+	guint request_id;
+	GFile *file, *parent;
+	GError *err;
+
+	tracker_dbus_async_return_if_fail (file_uri != NULL, context);
+
+	request_id = tracker_dbus_get_next_request_id ();
+	tracker_dbus_request_new (request_id, context, "%s()", __FUNCTION__);
+
+	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
+	file = g_file_new_for_uri (file_uri);
+	parent = g_file_get_parent (file);
+
+	g_object_get (priv->files_miner,
+	              "config", &config,
+	              NULL);
+
+	if (parent) {
+		gboolean found = FALSE;
+		GSList *l;
+
+		if (!tracker_miner_files_check_directory (parent,
+		                                          tracker_config_get_index_recursive_directories (config),
+		                                          tracker_config_get_index_single_directories (config),
+		                                          tracker_config_get_ignored_directory_paths (config),
+		                                          tracker_config_get_ignored_directory_patterns (config))) {
+			err = g_error_new_literal (1, 0, "File is not eligible to be indexed");
+			dbus_g_method_return_error (context, err);
+			tracker_dbus_request_success (request_id, context);
+
+			g_error_free (err);
+
+			return;
+		}
+
+		l = tracker_config_get_index_recursive_directories (config);
+
+		while (l && !found) {
+			GFile *dir;
+
+			dir = g_file_new_for_path ((gchar *) l->data);
+
+			if (g_file_equal (parent, dir) ||
+			    g_file_has_prefix (parent, dir)) {
+				found = TRUE;
+			}
+
+			g_object_unref (dir);
+			l = l->next;
+		}
+
+		l = tracker_config_get_index_single_directories (config);
+
+		while (l && !found) {
+			GFile *dir;
+
+			dir = g_file_new_for_path ((gchar *) l->data);
+
+			if (g_file_equal (parent, dir)) {
+				found = TRUE;
+			}
+
+			g_object_unref (dir);
+			l = l->next;
+		}
+
+		if (!found) {
+			err = g_error_new_literal (1, 0, "File is not eligible to be indexed");
+			dbus_g_method_return_error (context, err);
+			tracker_dbus_request_success (request_id, context);
+
+			g_error_free (err);
+
+			return;
+		}
+
+		g_object_unref (parent);
+	}
+
+	if (!tracker_miner_files_check_file (file,
+	                                     tracker_config_get_ignored_file_paths (config),
+	                                     tracker_config_get_ignored_file_patterns (config))) {
+		err = g_error_new_literal (1, 0, "File is not eligible to be indexed");
+		dbus_g_method_return_error (context, err);
+		tracker_dbus_request_success (request_id, context);
+
+		g_error_free (err);
+
+		return;
+	}
+
+	tracker_miner_fs_file_add (TRACKER_MINER_FS (priv->files_miner), file, TRUE);
+
+	tracker_dbus_request_success (request_id, context);
+	dbus_g_method_return (context);
+
+	g_object_unref (file);
+	g_object_unref (config);
+}

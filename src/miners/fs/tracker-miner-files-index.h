@@ -50,10 +50,15 @@ struct TrackerMinerFilesIndexClass {
 
 GType                     tracker_miner_files_index_get_type           (void);
 TrackerMinerFilesIndex   *tracker_miner_files_index_new                (TrackerMinerFiles         *miner_files);
-void                      tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
+void                      tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex    *object,
 	                                                                gchar                    **mime_types,
 	                                                                DBusGMethodInvocation     *context,
                                                                         GError                   **error);
+
+void                      tracker_miner_files_index_index_files        (TrackerMinerFilesIndex    *object,
+	                                                                gchar                     *file_uri,
+	                                                                DBusGMethodInvocation     *context,
+	                                                                GError                   **error);
 
 G_END_DECLS
 
