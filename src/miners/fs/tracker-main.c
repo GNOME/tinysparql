@@ -636,7 +636,7 @@ main (gint argc, gchar *argv[])
 		file = g_file_new_for_commandline_arg (add_file);
 		miner_files = tracker_miner_files_new (NULL);
 
-		tracker_miner_fs_file_add (TRACKER_MINER_FS (miner_files), file, FALSE);
+		tracker_miner_fs_check_file (TRACKER_MINER_FS (miner_files), file, FALSE);
 		g_object_unref (file);
 	}
 

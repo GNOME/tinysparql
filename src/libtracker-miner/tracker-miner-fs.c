@@ -3586,17 +3586,61 @@ tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
 	return FALSE;
 }
 
+static gboolean
+check_file_parents (TrackerMinerFS *fs,
+                    GFile          *file)
+{
+	DirectoryData *data;
+	GFile *parent;
+	GList *parents = NULL, *p;
+
+	parent = g_file_get_parent (file);
+
+	if (!parent) {
+		return FALSE;
+	}
+
+	data = find_config_directory (fs, parent);
+
+	if (!data) {
+		return FALSE;
+	}
+
+	/* Add parent directories until we're past the config dir */
+	while (parent &&
+	       !g_file_has_prefix (data->file, parent)) {
+		parents = g_list_prepend (parents, parent);
+		parent = g_file_get_parent (parent);
+	}
+
+	/* Last parent fetched is not added to the list */
+	if (parent) {
+		g_object_unref (parent);
+	}
+
+	for (p = parents; p; p = p->next) {
+		g_queue_push_tail (fs->private->items_updated, p->data);
+	}
+
+	g_list_free (parents);
+
+	return TRUE;
+}
+
 /**
- * tracker_miner_fs_file_add:
+ * tracker_miner_fs_check_file:
  * @fs: a #TrackerMinerFS
- * @file: #GFile for the file to inspect
+ * @file: #GFile for the file to check
+ * @check_parents: whether to check parents as well or not
  *
- * Tells the filesystem miner to inspect a file.
+ * Tells the filesystem miner to check and index a file,
+ * this file must be part of the usual crawling directories
+ * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
  **/
 void
-tracker_miner_fs_file_add (TrackerMinerFS *fs,
-                           GFile          *file,
-                           gboolean        check_parents)
+tracker_miner_fs_check_file (TrackerMinerFS *fs,
+                             GFile          *file,
+                             gboolean        check_parents)
 {
 	gboolean should_process;
 	gchar *path;
@@ -3613,40 +3657,9 @@ tracker_miner_fs_file_add (TrackerMinerFS *fs,
 	         path);
 
 	if (should_process) {
-		if (check_parents) {
-			DirectoryData *data;
-			GFile *parent;
-			GList *parents = NULL, *p;
-
-			parent = g_file_get_parent (file);
-
-			if (!parent) {
-				return;
-			}
-
-			data = find_config_directory (fs, parent);
-
-			if (!data) {
-				return;
-			}
-
-			/* Add parent directories until we're past the config dir */
-			while (parent &&
-			       !g_file_has_prefix (data->file, parent)) {
-				parents = g_list_prepend (parents, parent);
-				parent = g_file_get_parent (parent);
-			}
-
-			/* Last parent fetched is not added to the list */
-			if (parent) {
-				g_object_unref (parent);
-			}
-
-			for (p = parents; p; p = p->next) {
-				g_queue_push_tail (fs->private->items_updated, p->data);
-			}
-
-			g_list_free (parents);
+		if (check_parents &&
+		    !check_file_parents (fs, file)) {
+			return;
 		}
 
 		g_queue_push_tail (fs->private->items_updated,
