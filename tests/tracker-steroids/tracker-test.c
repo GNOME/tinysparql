@@ -16,14 +16,15 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#include <glib.h>
-#include <libtracker-sparql/tracker-sparql.h>
-#include <libtracker-common/tracker-common.h>
+
 #include <stdlib.h>
 #include <string.h>
 
+#include <libtracker-sparql/tracker-sparql.h>
+#include <libtracker-common/tracker-common.h>
+
 /* This MUST be larger than TRACKER_STEROIDS_BUFFER_SIZE */
-#define LONG_NAME_SIZE 128*1024*sizeof(char)
+#define LONG_NAME_SIZE 128 * 1024 * sizeof(char)
 
 typedef struct {
 	GMainLoop *main_loop;
@@ -57,10 +58,10 @@ insert_test_data ()
 	                                "}", longName);
 
 	tracker_sparql_connection_update (connection, delete_query, 0, NULL, &error);
-	g_assert (!error);
+	g_assert_no_error (error);
 
 	tracker_sparql_connection_update (connection, filled_query, 0, NULL, &error);
-	g_assert (!error);
+	g_assert_no_error (error);
 
 	g_free (filled_query);
 	g_free (longName);
@@ -161,16 +162,17 @@ query_and_compare_results (const char *query)
 	set_force_dbus_glib (TRUE);
 	cursor_glib = tracker_sparql_connection_query (connection, query, NULL, &error);
 
-	g_assert (!error);
+	g_assert_no_error (error);
 
 	set_force_dbus_glib (FALSE);
 	cursor_fd = tracker_sparql_connection_query (connection, query, NULL, &error);
 
-	g_assert (!error);
+	g_assert_no_error (error);
 
 	while (tracker_sparql_cursor_next (cursor_glib, NULL, NULL) && tracker_sparql_cursor_next (cursor_fd, NULL, NULL)) {
-		g_assert (!g_strcmp0 (tracker_sparql_cursor_get_string (cursor_glib, 0, NULL),
-		                      tracker_sparql_cursor_get_string (cursor_fd, 0, NULL)));
+		g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor_glib, 0, NULL),
+				 ==,
+				 tracker_sparql_cursor_get_string (cursor_fd, 0, NULL));
 	}
 
 	/* Check that both cursors are at the end (same number of rows) */
@@ -204,8 +206,14 @@ test_tracker_sparql_query_iterate_error ()
 
 	/* tracker_sparql_query_iterate should return null on error */
 	g_assert (!cursor);
-	/* error should be set, along with its message */
-	g_assert (error && error->message);
+
+	/* error should be set, along with its message, note: we don't
+	 * use g_assert_error() because the code does not match the
+	 * enum values for TRACKER_SPARQL_ERROR_*, this is due to
+	 * dbus/error matching between client/server. This should be
+	 * fixed in gdbus.
+	 */
+	g_assert (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
 
 	g_error_free (error);
 }
@@ -221,7 +229,7 @@ test_tracker_sparql_query_iterate_empty ()
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	g_assert (cursor);
-	g_assert (!error);
+	g_assert_no_error (error);
 
 	g_assert (!tracker_sparql_cursor_next (cursor, NULL, NULL));
 	g_assert (!tracker_sparql_cursor_get_n_columns (cursor));
@@ -245,13 +253,11 @@ test_tracker_sparql_query_iterate_sigpipe ()
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	g_assert (cursor);
-	g_assert (!error);
+	g_assert_no_error (error);
 
 	tracker_sparql_cursor_next (cursor, NULL, NULL);
 
 	g_object_unref (cursor);
-
-	return;
 }
 
 static void
@@ -262,32 +268,28 @@ test_tracker_sparql_update_fast_small ()
 
 	tracker_sparql_connection_update (connection, query, 0, NULL, &error);
 
-	g_assert (!error);
-
-	return;
+	g_assert_no_error (error);
 }
 
 static void
 test_tracker_sparql_update_fast_large ()
 {
 	GError *error = NULL;
-	gchar *lotsOfA;
+	gchar *lots;
 	gchar *query;
 
-	lotsOfA = g_malloc (LONG_NAME_SIZE);
-	memset (lotsOfA, 'a', LONG_NAME_SIZE);
-	lotsOfA[LONG_NAME_SIZE-1] = '\0';
+	lots = g_malloc (LONG_NAME_SIZE);
+	memset (lots, 'a', LONG_NAME_SIZE);
+	lots[LONG_NAME_SIZE-1] = '\0';
 
-	query = g_strdup_printf ("INSERT { _:x a nmo:Message; nao:identifier \"%s\" }", lotsOfA);
+	query = g_strdup_printf ("INSERT { _:x a nmo:Message; nao:identifier \"%s\" }", lots);
 
 	tracker_sparql_connection_update (connection, query, 0, NULL, &error);
 
-	g_free (lotsOfA);
+	g_free (lots);
 	g_free (query);
 
-	g_assert (!error);
-
-	return;
+	g_assert_no_error (error);
 }
 
 static void
@@ -298,10 +300,8 @@ test_tracker_sparql_update_fast_error ()
 
 	tracker_sparql_connection_update (connection, query, 0, NULL, &error);
 
-	g_assert (error);
+	g_assert (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
 	g_error_free (error);
-
-	return;
 }
 
 static void
@@ -313,39 +313,35 @@ test_tracker_sparql_update_blank_fast_small ()
 
 	results = tracker_sparql_connection_update_blank (connection, query, 0, NULL, &error);
 
-	g_assert (!error);
+	g_assert_no_error (error);
 	g_assert (results);
 
 	/* FIXME: Properly test once we get update_blank implemented */
-
-	return;
 }
 
 static void
 test_tracker_sparql_update_blank_fast_large ()
 {
 	GError *error = NULL;
-	gchar *lotsOfA;
+	gchar *lots;
 	gchar *query;
 	GVariant *results;
 
-	lotsOfA = g_malloc (LONG_NAME_SIZE);
-	memset (lotsOfA, 'a', LONG_NAME_SIZE);
-	lotsOfA[LONG_NAME_SIZE-1] = '\0';
+	lots = g_malloc (LONG_NAME_SIZE);
+	memset (lots, 'a', LONG_NAME_SIZE);
+	lots[LONG_NAME_SIZE-1] = '\0';
 
-	query = g_strdup_printf ("INSERT { _:x a nmo:Message; nao:identifier \"%s\" }", lotsOfA);
+	query = g_strdup_printf ("INSERT { _:x a nmo:Message; nao:identifier \"%s\" }", lots);
 
 	results = tracker_sparql_connection_update_blank (connection, query, 0, NULL, &error);
 
-	g_free (lotsOfA);
+	g_free (lots);
 	g_free (query);
 
-	g_assert (!error);
+	g_assert_no_error (error);
 	g_assert (results);
 
 	/* FIXME: Properly test once we get update_blank implemented */
-
-	return;
 }
 
 static void
@@ -357,12 +353,10 @@ test_tracker_sparql_update_blank_fast_error ()
 
 	results = tracker_sparql_connection_update_blank (connection, query, 0, NULL, &error);
 
-	g_assert (error);
+	g_assert (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
 	g_assert (!results);
 
 	g_error_free (error);
-
-	return;
 }
 
 static void
@@ -376,25 +370,20 @@ test_tracker_sparql_update_blank_fast_no_blanks ()
 
 	/* FIXME: Properly test once we get update_blank implemented */
 
-	g_assert (!error);
+	g_assert_no_error (error);
 	g_assert (results);
-
-
-	return;
 }
 
 static void
 test_tracker_batch_sparql_update_fast ()
 {
-	GError *error = NULL;
-	const gchar *query = "INSERT { _:x a nmo:Message }";
+	/* GError *error = NULL; */
+	/* const gchar *query = "INSERT { _:x a nmo:Message }"; */
 
 	/* FIXME: batch update is missing so far
 	 * tracker_sparql_connection_batch_update (connection, query, NULL, &error); */
 
-	g_assert (!error);
-
-	return;
+	/* g_assert (!error); */
 }
 
 static void
@@ -411,19 +400,20 @@ async_query_cb (GObject      *source_object,
 
 	cursor_fd = tracker_sparql_connection_query_finish (connection, result, &error);
 
-	g_assert (!error);
+	g_assert_no_error (error);
 	g_assert (cursor_fd != NULL);
 
 	set_force_dbus_glib (TRUE);
 	cursor_glib = tracker_sparql_connection_query (connection, data->query, NULL, &error);
 	set_force_dbus_glib (FALSE);
 
-	g_assert (!error);
+	g_assert_no_error (error);
 	g_assert (cursor_glib != NULL);
 
 	while (tracker_sparql_cursor_next (cursor_fd, NULL, NULL) && tracker_sparql_cursor_next (cursor_glib, NULL, NULL)) {
-		g_assert (!g_strcmp0 (tracker_sparql_cursor_get_string (cursor_fd, 0, NULL),
-		                      tracker_sparql_cursor_get_string (cursor_glib, 0, NULL)));
+		g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor_fd, 0, NULL),
+				 ==,
+				 tracker_sparql_cursor_get_string (cursor_glib, 0, NULL));
 	}
 
 	g_assert (!tracker_sparql_cursor_next (cursor_fd, NULL, NULL));
@@ -470,9 +460,7 @@ cancel_query_cb (GObject      *source_object,
 
 	tracker_sparql_connection_query_finish (connection, result, &error);
 
-	g_assert (error);
-
-	g_error_free (error);
+	g_assert_no_error (error);
 }
 
 static void
@@ -507,7 +495,7 @@ async_update_callback (GObject      *source_object,
 
 	tracker_sparql_connection_update_finish (connection, result, &error);
 
-	g_assert (!error);
+	g_assert_no_error (error);
 
 	g_main_loop_quit (data->main_loop);
 }
@@ -549,9 +537,7 @@ cancel_update_cb (GObject      *source_object,
 
 	tracker_sparql_connection_update_finish (connection, result, &error);
 
-	g_assert (error);
-
-	g_error_free (error);
+	g_assert_no_error (error);
 }
 
 static void
@@ -589,8 +575,8 @@ async_update_blank_callback (GObject      *source_object,
 
 	results = tracker_sparql_connection_update_blank_finish (connection, result, &error);
 
-	g_assert (!error);
-	g_assert (results);
+	g_assert_no_error (error);
+	g_assert (results != NULL);
 }
 
 static void
