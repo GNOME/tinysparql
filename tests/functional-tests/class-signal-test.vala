@@ -82,9 +82,9 @@ public class TestApp {
 		builder.append (">; nie:title ?t . FILTER (tracker:id (?r) IN (");
 		foreach (Event event in ids) {
 			if (first)
-				builder.append_printf ("%d ", event.subject_id);
+				builder.append_printf ("%d", event.subject_id);
 			else
-				builder.append_printf (", %d", event.subject_id);
+				builder.append_printf (" , %d", event.subject_id);
 			first = false;
 		}
 		builder.append (")) }");
