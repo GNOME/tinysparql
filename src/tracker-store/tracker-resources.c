@@ -594,7 +594,6 @@ static gboolean
 on_emit_class_signal (gpointer user_data)
 {
 	TrackerResources *resources = user_data;
-	GHashTable *writebacks;
 	TrackerResourcesPrivate *priv;
 	GHashTableIter iter;
 	gpointer key, value;
@@ -618,8 +617,6 @@ on_statements_committed (gpointer user_data)
 	TrackerResources *resources = user_data;
 	GHashTable *writebacks;
 	TrackerResourcesPrivate *priv;
-	GHashTableIter iter;
-	gpointer key, value;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
