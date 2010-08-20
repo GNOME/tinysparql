@@ -17,69 +17,70 @@
  * Boston, MA  02110-1301, USA.
  */
 
-/**
- * SECTION: tracker-misc
- * @short_description: General purpose utilities provided by the library
- * @title: Utilities
- * @stability: Stable
- * @include: tracker-sparql.h
- *
- * <para>
- * The libtracker-sparql utilities help in the creation of proper SPARQL queries.
- * </para>
- */
+namespace Tracker.Sparql {
+	/**
+	 * SECTION: tracker-misc
+	 * @short_description: General purpose utilities provided by the library
+	 * @title: Utilities
+	 * @stability: Stable
+	 * @include: tracker-sparql.h
+	 *
+	 * <para>
+	 * The libtracker-sparql utilities help in the creation of proper SPARQL queries.
+	 * </para>
+	 */
 
-// Imported from tracker-uri.c
-public extern string tracker_sparql_escape_uri_vprintf (string format, va_list args);
-public extern string tracker_sparql_escape_uri_printf (string format, ...);
+	// Imported from tracker-uri.c
+	public extern string escape_uri_vprintf (string format, va_list args);
+	public extern string escape_uri_printf (string format, ...);
 
+	/**
+	 * tracker_sparql_escape_string:
+	 * @literal: a string to escape
+	 *
+	 * Escapes a string so that it can be used in a SPARQL query.
+	 *
+	 * Returns: a newly-allocated string with the escaped version of @literal.
+	 *  The returned string should be freed with g_free() when no longer needed.
+	 */
+	public string escape_string (string literal) {
+		StringBuilder str = new StringBuilder ();
+		char *p = literal;
 
-/**
- * tracker_sparql_escape_string:
- * @literal: a string to escape
- *
- * Escapes a string so that it can be used in a SPARQL query.
- *
- * Returns: a newly-allocated string with the escaped version of @literal.
- *  The returned string should be freed with g_free() when no longer needed.
- */
-public string tracker_sparql_escape_string (string literal) {
-	StringBuilder str = new StringBuilder ();
-	char *p = literal;
+		while (*p != '\0') {
+			size_t len = Posix.strcspn ((string) p, "\t\n\r\b\f\"\\");
+			str.append_len ((string) p, (long) len);
+			p += len;
 
-	while (*p != '\0') {
-		size_t len = Posix.strcspn ((string) p, "\t\n\r\b\f\"\\");
-		str.append_len ((string) p, (long) len);
-		p += len;
+			switch (*p) {
+			case '\t':
+				str.append ("\\t");
+				break;
+			case '\n':
+				str.append ("\\n");
+				break;
+			case '\r':
+				str.append ("\\r");
+				break;
+			case '\b':
+				str.append ("\\b");
+				break;
+			case '\f':
+				str.append ("\\f");
+				break;
+			case '"':
+				str.append ("\\\"");
+				break;
+			case '\\':
+				str.append ("\\\\");
+				break;
+			default:
+				continue;
+			}
 
-		switch (*p) {
-		case '\t':
-			str.append ("\\t");
-			break;
-		case '\n':
-			str.append ("\\n");
-			break;
-		case '\r':
-			str.append ("\\r");
-			break;
-		case '\b':
-			str.append ("\\b");
-			break;
-		case '\f':
-			str.append ("\\f");
-			break;
-		case '"':
-			str.append ("\\\"");
-			break;
-		case '\\':
-			str.append ("\\\\");
-			break;
-		default:
-			continue;
+			p++;
 		}
 
-		p++;
+		return str.str;
 	}
-
-	return str.str;
 }
