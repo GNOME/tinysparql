@@ -3,6 +3,7 @@ tracker-connection.c
 tracker-cursor.c
 tracker-plugin-loader.c
 tracker-query.c
+tracker-sparql-*.deps
 tracker-sparql*.vapi
 tracker-sparql.h
 tracker-utils.c
