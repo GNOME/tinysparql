@@ -30,6 +30,9 @@ struct Event {
 private interface Resources : GLib.Object {
 	[DBus (name = "ClassSignal")]
 	public signal void class_signal (string class_name, Event[] deletes, Event[] inserts);
+
+	[DBus (name = "SparqlUpdate")]
+	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBus.Error;
 }
 
 public class TestApp {
@@ -136,9 +139,10 @@ public class TestApp {
 	private void insert_data () {
 		int i;
 
-		for (i = 0; i< 100; i++) {
+		for (i = 0; i< 10000; i++) {
 			string upqry = "DELETE { <%d> a rdfs:Resource } INSERT { <%d> a nmm:MusicPiece ; nie:title 'title %d' }".printf(i, i, i);
-			con.update_async (upqry);
+			resources_object.sparql_update_async (upqry);
+			// con.update_async (upqry);
 		}
 	}
 
