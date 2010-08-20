@@ -3022,12 +3022,14 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	 * the finished sig?
 	 */
 	if (add_monitor) {
-		/* Before adding the monitor, start notifying the store
-		 * about the new directory, so that if any file event comes
-		 * afterwards, the directory is already in store. */
-		g_queue_push_tail (fs->private->items_created,
-		                   g_object_ref (parent));
-		item_queue_handlers_set_up (fs);
+		if (!item_query_exists (fs, parent, NULL, NULL)) {
+			/* Before adding the monitor, start notifying the store
+			 * about the new directory, so that if any file event comes
+			 * afterwards, the directory is already in store. */
+			g_queue_push_tail (fs->private->items_created,
+			                   g_object_ref (parent));
+			item_queue_handlers_set_up (fs);
+		}
 
 		/* As we already added here, specify that it shouldn't be added
 		 * any more */
