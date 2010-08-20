@@ -96,6 +96,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				return tracker_bus_fd_query (connection, sparql, cancellable);
 			} else {
 				string[,] results = resources_object.sparql_query (sparql);
+
+				if (cancellable != null && cancellable.is_cancelled ()) {
+					throw new IOError.CANCELLED ("Operation was cancelled");
+				}
+
 				return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
 			}
 		} catch (DBus.Error e) {
@@ -109,6 +114,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				return yield tracker_bus_fd_query_async (connection, sparql, cancellable);
 			} else {
 				string[,] results = yield resources_object.sparql_query_async (sparql);
+
+				if (cancellable != null && cancellable.is_cancelled ()) {
+					throw new IOError.CANCELLED ("Operation was cancelled");
+				}
+
 				return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
 			}
 		} catch (DBus.Error e) {
@@ -130,6 +140,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				} else {
 					resources_object.batch_sparql_update (sparql);
 				}
+
+				if (cancellable != null && cancellable.is_cancelled ()) {
+					throw new IOError.CANCELLED ("Operation was cancelled");
+				}
 			}
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
@@ -150,6 +164,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				} else {
 					yield resources_object.batch_sparql_update_async (sparql);
 				}
+
+				if (cancellable != null && cancellable.is_cancelled ()) {
+					throw new IOError.CANCELLED ("Operation was cancelled");
+				}
 			}
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
@@ -164,6 +182,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				res = tracker_bus_fd_sparql_update_blank (connection, sparql);
 			} else {
 				res = tracker_bus_array_sparql_update_blank (connection, sparql);
+
+				if (cancellable != null && cancellable.is_cancelled ()) {
+					throw new IOError.CANCELLED ("Operation was cancelled");
+				}
 			}
 			return res;
 		} catch (DBus.Error e) {
@@ -179,6 +201,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				res = yield tracker_bus_fd_sparql_update_blank_async (connection, sparql, cancellable);
 			} else {
 				res = yield tracker_bus_array_sparql_update_blank_async (connection, sparql, cancellable);
+
+				if (cancellable != null && cancellable.is_cancelled ()) {
+					throw new IOError.CANCELLED ("Operation was cancelled");
+				}
 			}
 
 			return res;
@@ -190,6 +216,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			resources_object.load (file.get_uri ());
+
+			if (cancellable != null && cancellable.is_cancelled ()) {
+				throw new IOError.CANCELLED ("Operation was cancelled");
+			}
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
@@ -197,6 +227,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			yield resources_object.load_async (file.get_uri ());
+
+			if (cancellable != null && cancellable.is_cancelled ()) {
+				throw new IOError.CANCELLED ("Operation was cancelled");
+			}
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
@@ -205,6 +239,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			string[,] results = statistics_object.Get ();
+
+			if (cancellable != null && cancellable.is_cancelled ()) {
+				throw new IOError.CANCELLED ("Operation was cancelled");
+			}
+
 			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
@@ -214,6 +253,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			string[,] results = yield statistics_object.Get_async ();
+
+			if (cancellable != null && cancellable.is_cancelled ()) {
+				throw new IOError.CANCELLED ("Operation was cancelled");
+			}
+
 			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
