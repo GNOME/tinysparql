@@ -526,6 +526,24 @@ tracker_class_reset_events (TrackerClass *class)
 	TrackerClassPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_CLASS (class));
+
+	priv = GET_PRIV (class);
+
+	/* Reset */
+	g_array_set_size (priv->deletes.ready.sub_pred_ids, 0);
+	g_array_set_size (priv->deletes.ready.object_ids, 0);
+
+	g_array_set_size (priv->inserts.ready.sub_pred_ids, 0);
+	g_array_set_size (priv->inserts.ready.object_ids, 0);
+
+}
+
+void
+tracker_class_transact_events (TrackerClass *class)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (class));
 	priv = GET_PRIV (class);
 
 	/* Move */

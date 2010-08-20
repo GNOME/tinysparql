@@ -173,7 +173,8 @@ tracker_events_reset (void)
 	gpointer key, value;
 
 	g_return_if_fail (private != NULL);
-
+/*
+	 this is wrong atm, check tracker-store.c what the purpose of this is
 	g_hash_table_iter_init (&iter, private->allowances);
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
@@ -181,7 +182,7 @@ tracker_events_reset (void)
 
 		tracker_class_reset_events (class);
 	}
-
+*/
 	private->frozen = FALSE;
 }
 

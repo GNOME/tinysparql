@@ -99,6 +99,7 @@ void              tracker_class_foreach_insert_event   (TrackerClass        *cla
 gboolean          tracker_class_has_insert_events      (TrackerClass        *class);
 gboolean          tracker_class_has_delete_events      (TrackerClass        *class);
 void              tracker_class_reset_events           (TrackerClass        *class);
+void              tracker_class_transact_events        (TrackerClass        *class);
 void              tracker_class_add_delete_event       (TrackerClass        *class,
                                                         gint                 subject_id,
                                                         gint                 pred_id,

@@ -617,11 +617,20 @@ on_statements_committed (gpointer user_data)
 	TrackerResources *resources = user_data;
 	GHashTable *writebacks;
 	TrackerResourcesPrivate *priv;
+	GHashTableIter iter;
+	gpointer key, value;
+
+	/* Class signal feature */
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
 	/* Class signal feature */
-	tracker_events_reset ();
+	tracker_events_classes_iter (&iter);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		TrackerClass *class = key;
+		tracker_class_transact_events (class);
+	}
 
 	/* Writeback feature */
 	writebacks = tracker_writeback_get_pending ();
