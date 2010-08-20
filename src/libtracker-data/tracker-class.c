@@ -46,12 +46,24 @@ struct _TrackerClassPrivate {
 	GArray *last_domain_indexes;
 
 	struct {
-		GArray *sub_pred_ids;
-		GArray *object_ids;
+		struct {
+			GArray *sub_pred_ids;
+			GArray *object_ids;
+		} pending;
+		struct {
+			GArray *sub_pred_ids;
+			GArray *object_ids;
+		} ready;
 	} deletes;
 	struct {
-		GArray *sub_pred_ids;
-		GArray *object_ids;
+		struct {
+			GArray *sub_pred_ids;
+			GArray *object_ids;
+		} pending;
+		struct {
+			GArray *sub_pred_ids;
+			GArray *object_ids;
+		} ready;
 	} inserts;
 };
 
@@ -81,11 +93,15 @@ tracker_class_init (TrackerClass *service)
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 	priv->last_domain_indexes = NULL;
 
-	priv->deletes.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
-	priv->deletes.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->deletes.pending.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
+	priv->deletes.pending.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->deletes.ready.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
+	priv->deletes.ready.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 
-	priv->inserts.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
-	priv->inserts.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->inserts.pending.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
+	priv->inserts.pending.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->inserts.ready.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
+	priv->inserts.ready.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 
 	/* Make GET_PRIV working */
 	service->priv = priv;
@@ -104,11 +120,15 @@ class_finalize (GObject *object)
 	g_array_free (priv->super_classes, TRUE);
 	g_array_free (priv->domain_indexes, TRUE);
 
-	g_array_free (priv->deletes.sub_pred_ids, TRUE);
-	g_array_free (priv->deletes.object_ids, TRUE);
+	g_array_free (priv->deletes.pending.sub_pred_ids, TRUE);
+	g_array_free (priv->deletes.pending.object_ids, TRUE);
+	g_array_free (priv->deletes.ready.sub_pred_ids, TRUE);
+	g_array_free (priv->deletes.ready.object_ids, TRUE);
 
-	g_array_free (priv->inserts.sub_pred_ids, TRUE);
-	g_array_free (priv->inserts.object_ids, TRUE);
+	g_array_free (priv->inserts.pending.sub_pred_ids, TRUE);
+	g_array_free (priv->inserts.pending.object_ids, TRUE);
+	g_array_free (priv->inserts.ready.sub_pred_ids, TRUE);
+	g_array_free (priv->inserts.ready.object_ids, TRUE);
 
 	if (priv->last_domain_indexes)
 		g_array_free (priv->last_domain_indexes, TRUE);
@@ -433,7 +453,7 @@ tracker_class_has_insert_events (TrackerClass *class)
 
 	priv = GET_PRIV (class);
 
-	return (priv->inserts.sub_pred_ids->len > 0);
+	return (priv->inserts.ready.sub_pred_ids->len > 0);
 }
 
 gboolean
@@ -445,7 +465,7 @@ tracker_class_has_delete_events (TrackerClass *class)
 
 	priv = GET_PRIV (class);
 
-	return (priv->deletes.sub_pred_ids->len > 0);
+	return (priv->deletes.ready.sub_pred_ids->len > 0);
 }
 
 void
@@ -461,14 +481,14 @@ tracker_class_foreach_insert_event (TrackerClass        *class,
 
 	priv = GET_PRIV (class);
 
-	for (i = 0; i < priv->inserts.sub_pred_ids->len; i++) {
+	for (i = 0; i < priv->inserts.ready.sub_pred_ids->len; i++) {
 		gint subject_id, pred_id, object_id;
 		gint64 sub_pred_id;
 
-		sub_pred_id = g_array_index (priv->inserts.sub_pred_ids, gint64, i);
+		sub_pred_id = g_array_index (priv->inserts.ready.sub_pred_ids, gint64, i);
 		pred_id = sub_pred_id & 0xffffffff;
 		subject_id = sub_pred_id >> 32;
-		object_id = g_array_index (priv->inserts.object_ids, gint, i);
+		object_id = g_array_index (priv->inserts.ready.object_ids, gint, i);
 
 		foreach (subject_id, pred_id, object_id, user_data);
 	}
@@ -487,14 +507,14 @@ tracker_class_foreach_delete_event (TrackerClass        *class,
 
 	priv = GET_PRIV (class);
 
-	for (i = 0; i < priv->deletes.sub_pred_ids->len; i++) {
+	for (i = 0; i < priv->deletes.ready.sub_pred_ids->len; i++) {
 		gint subject_id, pred_id, object_id;
 		gint64 sub_pred_id;
 
-		sub_pred_id = g_array_index (priv->deletes.sub_pred_ids, gint64, i);
+		sub_pred_id = g_array_index (priv->deletes.ready.sub_pred_ids, gint64, i);
 		pred_id = sub_pred_id & 0xffffffff;
 		subject_id = sub_pred_id >> 32;
-		object_id = g_array_index (priv->deletes.object_ids, gint, i);
+		object_id = g_array_index (priv->deletes.ready.object_ids, gint, i);
 
 		foreach (subject_id, pred_id, object_id, user_data);
 	}
@@ -508,11 +528,37 @@ tracker_class_reset_events (TrackerClass *class)
 	g_return_if_fail (TRACKER_IS_CLASS (class));
 	priv = GET_PRIV (class);
 
-	g_array_set_size (priv->deletes.sub_pred_ids, 0);
-	g_array_set_size (priv->deletes.object_ids, 0);
+	/* Move */
+	g_array_insert_vals (priv->deletes.ready.object_ids,
+	                     priv->deletes.ready.object_ids->len,
+	                     priv->deletes.pending.object_ids->data,
+	                     priv->deletes.pending.object_ids->len);
 
-	g_array_set_size (priv->inserts.sub_pred_ids, 0);
-	g_array_set_size (priv->inserts.object_ids, 0);
+	g_array_insert_vals (priv->deletes.ready.sub_pred_ids,
+	                     priv->deletes.ready.sub_pred_ids->len,
+	                     priv->deletes.pending.sub_pred_ids->data,
+	                     priv->deletes.pending.sub_pred_ids->len);
+
+	/* Reset */
+	g_array_set_size (priv->deletes.pending.sub_pred_ids, 0);
+	g_array_set_size (priv->deletes.pending.object_ids, 0);
+
+
+	/* Move */
+	g_array_insert_vals (priv->inserts.ready.object_ids,
+	                     priv->inserts.ready.object_ids->len,
+	                     priv->inserts.pending.object_ids->data,
+	                     priv->inserts.pending.object_ids->len);
+
+	g_array_insert_vals (priv->inserts.ready.sub_pred_ids,
+	                     priv->inserts.ready.sub_pred_ids->len,
+	                     priv->inserts.pending.sub_pred_ids->data,
+	                     priv->inserts.pending.sub_pred_ids->len);
+
+	/* Reset */
+	g_array_set_size (priv->inserts.pending.sub_pred_ids, 0);
+	g_array_set_size (priv->inserts.pending.object_ids, 0);
+
 }
 
 static void
@@ -551,8 +597,8 @@ tracker_class_add_insert_event (TrackerClass *class,
 	g_return_if_fail (TRACKER_IS_CLASS (class));
 	priv = GET_PRIV (class);
 
-	insert_vals_into_arrays (priv->inserts.sub_pred_ids,
-	                         priv->inserts.object_ids,
+	insert_vals_into_arrays (priv->inserts.pending.sub_pred_ids,
+	                         priv->inserts.pending.object_ids,
 	                         subject_id,
 	                         pred_id,
 	                         object_id);
@@ -569,8 +615,8 @@ tracker_class_add_delete_event (TrackerClass *class,
 	g_return_if_fail (TRACKER_IS_CLASS (class));
 	priv = GET_PRIV (class);
 
-	insert_vals_into_arrays (priv->deletes.sub_pred_ids,
-	                         priv->deletes.object_ids,
+	insert_vals_into_arrays (priv->deletes.pending.sub_pred_ids,
+	                         priv->deletes.pending.object_ids,
 	                         subject_id,
 	                         pred_id,
 	                         object_id);

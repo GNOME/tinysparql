@@ -81,6 +81,7 @@ enum {
 
 typedef struct {
 	DBusConnection *connection;
+	guint class_signal_timeout;
 } TrackerResourcesPrivate;
 
 typedef struct {
@@ -584,11 +585,13 @@ emit_class_signal (TrackerResources *self,
 		dbus_connection_send (priv->connection, message, NULL);
 
 		dbus_message_unref (message);
+
+		tracker_class_reset_events (class);
 	}
 }
 
-static void
-on_statements_committed (gpointer user_data)
+static gboolean
+on_emit_class_signal (gpointer user_data)
 {
 	TrackerResources *resources = user_data;
 	GHashTable *writebacks;
@@ -606,6 +609,21 @@ on_statements_committed (gpointer user_data)
 		emit_class_signal (user_data, class);
 	}
 
+	return TRUE;
+}
+
+static void
+on_statements_committed (gpointer user_data)
+{
+	TrackerResources *resources = user_data;
+	GHashTable *writebacks;
+	TrackerResourcesPrivate *priv;
+	GHashTableIter iter;
+	gpointer key, value;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
+
+	/* Class signal feature */
 	tracker_events_reset ();
 
 	/* Writeback feature */
@@ -669,6 +687,8 @@ tracker_resources_prepare (TrackerResources *object)
 	tracker_data_add_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_add_commit_statement_callback (on_statements_committed, object);
 	tracker_data_add_rollback_statement_callback (on_statements_rolled_back, object);
+
+	priv->class_signal_timeout = g_timeout_add_seconds (1, on_emit_class_signal, object);
 }
 
 static void
@@ -682,6 +702,9 @@ tracker_resources_finalize (GObject      *object)
 	tracker_data_remove_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_remove_commit_statement_callback (on_statements_committed, object);
 	tracker_data_remove_rollback_statement_callback (on_statements_rolled_back, object);
+
+	if (priv->class_signal_timeout != 0)
+		g_source_remove (priv->class_signal_timeout);
 
 	dbus_connection_unref (priv->connection);
 
