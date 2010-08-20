@@ -20,7 +20,8 @@
 using Tracker;
 using Tracker.Sparql;
 
-int max_signals = 1000;
+const int max_signals = 1000;
+const string title_data = "title";
 
 struct Event {
 	int subject_id;
@@ -149,7 +150,7 @@ public class TestApp {
 		int i;
 
 		for (i = 0; i <= max_signals; i++) {
-			string upqry = "DELETE { <%d> a rdfs:Resource } INSERT { <%d> a nmm:MusicPiece ; nie:title 'title %d' }".printf(i, i, i);
+			string upqry = "DELETE { <%d> a rdfs:Resource } INSERT { <%d> a nmm:MusicPiece ; nie:title '%s %d' }".printf(i, i, title_data, i);
 
 			resources_object.sparql_update_async (upqry);
 
