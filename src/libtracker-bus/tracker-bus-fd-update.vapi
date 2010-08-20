@@ -22,6 +22,10 @@ public void tracker_bus_fd_sparql_update (DBus.Connection connection, string que
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
 public extern GLib.Variant tracker_bus_fd_sparql_update_blank (DBus.Connection connection, string query) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
+public void tracker_bus_fd_sparql_batch_update (DBus.Connection connection, string query) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;
+[CCode (cheader_filename = "tracker-bus-fd-update.h")]
 public extern async void tracker_bus_fd_sparql_update_async (DBus.Connection connection, string query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
 public extern async GLib.Variant tracker_bus_fd_sparql_update_blank_async (DBus.Connection connection, string query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;
+[CCode (cheader_filename = "tracker-bus-fd-update.h")]
+public extern async void tracker_bus_fd_sparql_batch_update_async (DBus.Connection connection, string query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;

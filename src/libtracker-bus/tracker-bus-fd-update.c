@@ -40,7 +40,8 @@
 
 typedef enum {
 	FAST_UPDATE,
-	FAST_UPDATE_BLANK
+	FAST_UPDATE_BLANK,
+	FAST_UPDATE_BATCH
 } FastOperationType;
 
 typedef struct {
@@ -181,6 +182,7 @@ sparql_update_fast_callback (DBusPendingCall *call,
 	/* Call iterator callback */
 	switch (fad->operation_type) {
 	case FAST_UPDATE:
+	case FAST_UPDATE_BATCH:
 		g_simple_async_result_complete (fad->res);
 		break;
 	case FAST_UPDATE_BLANK:
@@ -235,6 +237,9 @@ sparql_update_fast_send (DBusConnection     *connection,
 		break;
 	case FAST_UPDATE_BLANK:
 		dbus_method = "UpdateBlank";
+		break;
+	case FAST_UPDATE_BATCH:
+		dbus_method = "BatchUpdate";
 		break;
 	default:
 		g_assert_not_reached ();
@@ -508,3 +513,72 @@ tracker_bus_fd_sparql_update_blank_async (DBusGConnection       *connection,
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
+void
+tracker_bus_fd_sparql_batch_update (DBusGConnection *connection,
+                                    const char      *query,
+                                    GError         **error)
+{
+#ifdef HAVE_DBUS_FD_PASSING
+	DBusMessage *reply;
+
+	g_return_if_fail (query != NULL);
+
+	reply = sparql_update_fast (dbus_g_connection_get_connection (connection),
+	                            query, FAST_UPDATE_BATCH, error);
+
+	if (!reply) {
+		return;
+	}
+
+	dbus_message_unref (reply);
+#else
+	g_assert_not_reached ();
+#endif /* HAVE_DBUS_FD_PASSING */
+}
+
+void
+tracker_bus_fd_sparql_batch_update_async (DBusGConnection       *connection,
+                                          const char            *query,
+                                          GCancellable          *cancellable,
+                                          GAsyncReadyCallback    callback,
+                                          gpointer               user_data)
+{
+#ifdef HAVE_DBUS_FD_PASSING
+	FastAsyncData *fad;
+	GError *error = NULL;
+
+	g_return_if_fail (query != NULL);
+
+	fad = fast_async_data_new (dbus_g_connection_get_connection (connection),
+	                           FAST_UPDATE_BATCH, cancellable, user_data);
+
+	fad->res = g_simple_async_result_new (NULL, callback, user_data,
+	                                      tracker_bus_fd_sparql_batch_update_async);
+
+	sparql_update_fast_async (dbus_g_connection_get_connection (connection),
+	                          query, fad, &error);
+
+	if (error) {
+		g_critical ("Could not initiate update: %s", error->message);
+		g_error_free (error);
+		g_object_unref (fad->res);
+		fast_async_data_free (fad);
+	}
+
+#else
+	g_assert_not_reached ();
+#endif /* HAVE_DBUS_FD_PASSING */
+}
+
+void
+tracker_bus_fd_sparql_batch_update_finish (GAsyncResult     *res,
+                                           GError          **error)
+{
+#ifdef HAVE_DBUS_FD_PASSING
+	g_return_if_fail (res != NULL);
+
+	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
+#else /* HAVE_DBUS_FD_PASSING */
+	g_assert_not_reached ();
+#endif /* HAVE_DBUS_FD_PASSING */
+}

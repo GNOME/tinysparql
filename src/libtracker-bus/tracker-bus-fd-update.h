@@ -39,9 +39,19 @@ void        tracker_bus_fd_sparql_update_blank_async     (DBusGConnection       
                                                           GCancellable          *cancellable,
                                                           GAsyncReadyCallback    callback,
                                                           gpointer               user_data);
+void        tracker_bus_fd_sparql_batch_update           (DBusGConnection       *connection,
+                                                          const char            *query,
+                                                          GError               **error);
+void        tracker_bus_fd_sparql_batch_update_async     (DBusGConnection       *connection,
+                                                          const char            *query,
+                                                          GCancellable          *cancellable,
+                                                          GAsyncReadyCallback    callback,
+                                                          gpointer               user_data);
 void        tracker_bus_fd_sparql_update_finish          (GAsyncResult          *res,
                                                           GError               **error);
 GVariant *  tracker_bus_fd_sparql_update_blank_finish    (GAsyncResult          *res,
+                                                          GError               **error);
+void        tracker_bus_fd_sparql_batch_update_finish    (GAsyncResult          *res,
                                                           GError               **error);
 
 G_END_DECLS

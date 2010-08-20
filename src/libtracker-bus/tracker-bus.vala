@@ -27,6 +27,10 @@ private interface Tracker.Bus.Resources : GLib.Object {
 	[DBus (name = "SparqlUpdate")]
 	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBus.Error;
 
+	public abstract void batch_sparql_update (string query) throws Sparql.Error, DBus.Error;
+	[DBus (name = "BatchSparqlUpdate")]
+	public abstract async void batch_sparql_update_async (string query) throws Sparql.Error, DBus.Error;
+
 	public abstract void load (string uri) throws Sparql.Error, DBus.Error;
 	[DBus (name = "Load")]
 	public abstract async void load_async (string uri) throws Sparql.Error, DBus.Error;
@@ -115,9 +119,17 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			if (use_steroids) {
-				tracker_bus_fd_sparql_update (connection, sparql);
+				if (priority >= GLib.Priority.DEFAULT) {
+					tracker_bus_fd_sparql_update (connection, sparql);
+				} else {
+					tracker_bus_fd_sparql_batch_update (connection, sparql);
+				}
 			} else {
-				resources_object.sparql_update (sparql);
+				if (priority >= GLib.Priority.DEFAULT) {
+					resources_object.sparql_update (sparql);
+				} else {
+					resources_object.batch_sparql_update (sparql);
+				}
 			}
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
@@ -127,9 +139,17 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			if (use_steroids) {
-				yield tracker_bus_fd_sparql_update_async (connection, sparql, cancellable);
+				if (priority >= GLib.Priority.DEFAULT) {
+					yield tracker_bus_fd_sparql_update_async (connection, sparql, cancellable);
+				} else {
+					yield tracker_bus_fd_sparql_batch_update_async (connection, sparql, cancellable);
+				}
 			} else {
-				yield resources_object.sparql_update_async (sparql);
+				if (priority >= GLib.Priority.DEFAULT) {
+					yield resources_object.sparql_update_async (sparql);
+				} else {
+					yield resources_object.batch_sparql_update_async (sparql);
+				}
 			}
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
