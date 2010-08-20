@@ -20,6 +20,8 @@
 using Tracker;
 using Tracker.Sparql;
 
+int max_signals = 1000;
+
 struct Event {
 	int subject_id;
 	int pred_id;
@@ -43,6 +45,7 @@ public class TestApp {
 	bool initialized = false;
 	Sparql.Connection signal_con;
 	Sparql.Connection con;
+	string max_signals_s;
 
 	public TestApp ()
 	requires (!initialized) {
@@ -58,6 +61,8 @@ public class TestApp {
 			                                                           "org.freedesktop.Tracker1.Resources");
 
 			resources_object.class_signal.connect (on_class_signal_received);
+
+			max_signals_s = max_signals.to_string ();
 
 		} catch (Sparql.Error e) {
 			warning ("Could not connect to D-Bus service: %s", e.message);
@@ -98,11 +103,15 @@ public class TestApp {
 		try {
 			while (cursor.next()) {
 				int i;
-				print ("%s", kind);
-				for (i = 0; i < cursor.n_columns; i++)
-					print ("%s%s%s", i != 0 ? ", nie:title '":"<", cursor.get_string (i),
-					                 i != 0 ? "'":">");
-				print ("\n");
+				string resource = cursor.get_string (0);
+
+				print ("%s <%s> nie:title '%s'\n",
+				       kind,
+				       resource,
+				       cursor.get_string (1));
+				if (resource == max_signals_s) {
+					loop.quit();
+				}
 			}
 		} catch (GLib.Error e) {
 			warning ("Couldn't iterate query results: %s", e.message);
@@ -139,9 +148,13 @@ public class TestApp {
 	private void insert_data () {
 		int i;
 
-		for (i = 0; i< 10000; i++) {
+		for (i = 0; i <= max_signals; i++) {
 			string upqry = "DELETE { <%d> a rdfs:Resource } INSERT { <%d> a nmm:MusicPiece ; nie:title 'title %d' }".printf(i, i, i);
+
 			resources_object.sparql_update_async (upqry);
+
+			// Once the FD passing bug is fixed (running out of FDs), replace
+			// above with this:
 			// con.update_async (upqry);
 		}
 	}
