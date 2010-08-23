@@ -617,6 +617,9 @@ on_emit_class_signal (gpointer user_data)
 		}
 	}
 
+	/* Reset counter */
+	tracker_events_get_total (TRUE);
+
 	if (!had_any)
 		priv->class_signal_timeout = 0;
 
@@ -679,6 +682,8 @@ check_class_signal_signal (TrackerResources *object)
 			TrackerClass *class = key;
 			emit_class_signal (object, class);
 		}
+
+		/* Reset counter */
 		tracker_events_get_total (TRUE);
 	} else {
 		/* Ready the signal */
