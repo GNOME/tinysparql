@@ -178,19 +178,13 @@ print_cursor (TrackerSparqlCursor *cursor,
 				count++;
 			}
 		} else {
-			gint n_cols;
-
-			n_cols = tracker_sparql_cursor_get_n_columns (cursor);
-
 			while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 				gint col;
 
-				for (col = 0; col < n_cols; col++) {
-					if (col == 0) {
-						g_print ("  %s", tracker_sparql_cursor_get_string (cursor, col, NULL));
-					} else {
-						g_print (", %s", tracker_sparql_cursor_get_string (cursor, col, NULL));
-					}
+				for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
+					g_print ("%c %s",
+					         col == 0 ? ' ' : ',',
+					         tracker_sparql_cursor_get_string (cursor, col, NULL));
 				}
 
 				g_print ("\n");
@@ -536,8 +530,8 @@ main (int argc, char **argv)
 						n = 0;
 						while (g_hash_table_iter_next (&iter, &key, &value)) {
 							g_print ("%s%s: %s",
-							         n > 0 ? ", " : "", 
-							         (const gchar *) key, 
+							         n > 0 ? ", " : "",
+							         (const gchar *) key,
 							         (const gchar *) value);
 							n++;
 						}

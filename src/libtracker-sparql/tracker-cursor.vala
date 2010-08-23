@@ -71,6 +71,9 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		 * @self: a #TrackerSparqlCursor
 		 *
 		 * Returns the number of columns available in the results to iterate.
+		 * This method should only be called after a successful
+		 * tracker_sparql_cursor_next(); otherwise its return value will be
+		 * undefined.
 		 *
 		 * Returns: a #gint with the number of columns.
 		 */
