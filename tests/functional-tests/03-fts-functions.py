@@ -80,6 +80,8 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         <contact://test/fts-function/rank/3> a rdfs:Resource .
         }
         """
+        self.tracker.update (delete_sparql)
+
 
     def test_fts_offsets (self):
         """
@@ -92,14 +94,14 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         """
         insert_sparql = """
         INSERT {
-        <contact://test/fts-function/rank/1> a nco:PersonContact ;
+        <contact://test/fts-function/offset/1> a nco:PersonContact ;
                        nco:fullname 'abcdefxyz' ;
                        nco:nickname 'abcdefxyz' .
 
-        <contact://test/fts-function/rank/2> a nco:PersonContact ;
+        <contact://test/fts-function/offset/2> a nco:PersonContact ;
                        nco:fullname 'abcdefxyz' .
 
-        <contact://test/fts-function/rank/3> a nco:PersonContact ;
+        <contact://test/fts-function/offset/3> a nco:PersonContact ;
                        nco:fullname 'abcdefxyz' ;
                        nco:nickname 'abcdefxyz abcdefxyz' .
         }
@@ -113,6 +115,7 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         }
         """
         results = self.tracker.query (query)
+
         self.assertEquals (len(results), 3)
         self.assertEquals (len (results[0][0].split(",")), 4) # (u'151,1,161,1')
         self.assertEquals (len (results[1][0].split(",")), 2) # (u'161,1')
@@ -120,12 +123,12 @@ class TestFTSFunctions (CommonTrackerStoreTest):
 
         delete_sparql = """
         DELETE {
-        <contact://test/fts-function/rank/1> a rdfs:Resource .
-        <contact://test/fts-function/rank/2> a rdfs:Resource .
-        <contact://test/fts-function/rank/3> a rdfs:Resource .
+        <contact://test/fts-function/offset/1> a rdfs:Resource .
+        <contact://test/fts-function/offset/2> a rdfs:Resource .
+        <contact://test/fts-function/offset/3> a rdfs:Resource .
         }
         """
-
+        self.tracker.update (delete_sparql)
 
 
 if __name__ == '__main__':
