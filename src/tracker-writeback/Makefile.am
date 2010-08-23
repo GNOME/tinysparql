@@ -11,7 +11,7 @@ INCLUDES = 								\
 	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\" 			\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-client				\
+	-I$(top_builddir)/src/libtracker-sparql				\
 	$(TRACKER_APPS_CFLAGS)						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
@@ -73,7 +73,7 @@ tracker_writeback_SOURCES = 						\
 	tracker-main.c
 
 tracker_writeback_LDADD = 						\
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(TRACKER_APPS_LIBS)						\

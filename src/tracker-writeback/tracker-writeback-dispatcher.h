@@ -23,7 +23,6 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <libtracker-client/tracker.h>
 
 G_BEGIN_DECLS
 

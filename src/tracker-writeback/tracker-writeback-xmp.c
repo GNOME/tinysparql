@@ -49,11 +49,11 @@ struct TrackerWritebackXMPClass {
 };
 
 static GType                tracker_writeback_xmp_get_type     (void) G_GNUC_CONST;
-static gboolean             writeback_xmp_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                                                GFile                *file,
-                                                                GPtrArray            *values,
-                                                                TrackerClient        *client);
-static const gchar * const *writeback_xmp_content_types        (TrackerWritebackFile *writeback_file);
+static gboolean             writeback_xmp_update_file_metadata (TrackerWritebackFile     *writeback_file,
+                                                                GFile                    *file,
+                                                                GPtrArray                *values,
+                                                                TrackerSparqlConnection  *connection);
+static const gchar * const *writeback_xmp_content_types        (TrackerWritebackFile     *writeback_file);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackXMP, tracker_writeback_xmp, TRACKER_TYPE_WRITEBACK_FILE);
 
@@ -105,10 +105,10 @@ writeback_xmp_content_types (TrackerWritebackFile *wbf)
 }
 
 static gboolean
-writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
-                                    GFile                *file,
-                                    GPtrArray            *values,
-                                    TrackerClient        *client)
+writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
+                                    GFile                   *file,
+                                    GPtrArray               *values,
+                                    TrackerSparqlConnection *connection)
 {
 	gchar *path;
 	guint n;
@@ -153,39 +153,28 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 		}
 
 		if (g_strcmp0 (row[2], TRACKER_NCO_PREFIX "creator") == 0) {
-			GPtrArray *name_array;
+			TrackerSparqlCursor *cursor;
 			GError *error = NULL;
 			gchar *query;
 
 			query = g_strdup_printf ("SELECT ?fullname { "
 			                         "  <%s> nco:fullname ?fullname "
 			                         "}", row[3]);
-
-			name_array = tracker_resources_sparql_query (client, query, &error);
-
+			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 			g_free (query);
-
-			if (name_array && name_array->len > 0) {
-				GStrv name_row;
-
-				name_row = g_ptr_array_index (name_array, 0);
-
-				if (name_row[0]) {
+			if (!error) {
+				while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 					xmp_delete_property (xmp, NS_DC, "creator");
-					xmp_set_property (xmp, NS_DC, "creator", name_row[0], 0);
+					xmp_set_property (xmp, NS_DC, "creator",
+					                  tracker_sparql_cursor_get_string (cursor, 0, NULL),
+					                  0);
 				}
 			}
-
-			if (name_array) {
-				g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
-				g_ptr_array_free (name_array, TRUE);
-			}
-
 			g_clear_error (&error);
 		}
 
 		if (g_strcmp0 (row[2], TRACKER_NCO_PREFIX "contributor") == 0) {
-			GPtrArray *name_array;
+			TrackerSparqlCursor *cursor;
 			GError *error = NULL;
 			gchar *query;
 
@@ -193,26 +182,14 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			                         "  <%s> nco:fullname ?fullname "
 			                         "}", row[3]);
 
-			name_array = tracker_resources_sparql_query (client, query, &error);
-
+			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 			g_free (query);
-
-			if (name_array && name_array->len > 0) {
-				GStrv name_row;
-
-				name_row = g_ptr_array_index (name_array, 0);
-
-				if (name_row[0]) {
+			if (!error) {
+				while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 					xmp_delete_property (xmp, NS_DC, "contributor");
-					xmp_set_property (xmp, NS_DC, "contributor", name_row[0], 0);
+					xmp_set_property (xmp, NS_DC, "contributor", tracker_sparql_cursor_get_string (cursor, 0, NULL), 0);
 				}
 			}
-
-			if (name_array) {
-				g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
-				g_ptr_array_free (name_array, TRUE);
-			}
-
 			g_clear_error (&error);
 		}
 
@@ -241,7 +218,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 
 
 		if (g_strcmp0 (row[2], TRACKER_NAO_PREFIX "hasTag") == 0) {
-			GPtrArray *name_array;
+			TrackerSparqlCursor *cursor;
 			GError *error = NULL;
 			gchar *query;
 
@@ -249,29 +226,17 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			                         "  <%s> nao:prefLabel ?label "
 			                         "}", row[3]);
 
-			name_array = tracker_resources_sparql_query (client, query, &error);
-
+			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 			g_free (query);
-
-			if (name_array && name_array->len > 0) {
-				GStrv name_row;
-
-				name_row = g_ptr_array_index (name_array, 0);
-
-				if (name_row[0]) {
+			if (!error) {
+				while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 					if (!keywords) {
-						keywords = g_string_new (name_row[0]);
+						keywords = g_string_new (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 					} else {
-						g_string_append_printf (keywords, ", %s", name_row[0]);
+						g_string_append_printf (keywords, ", %s", tracker_sparql_cursor_get_string (cursor, 0, NULL));
 					}
 				}
 			}
-
-			if (name_array) {
-				g_ptr_array_foreach (name_array, (GFunc) g_strfreev, NULL);
-				g_ptr_array_free (name_array, TRUE);
-			}
-
 			g_clear_error (&error);
 		}
 
@@ -421,7 +386,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 		    g_strcmp0 (row[2], TRACKER_MLO_PREFIX "state") == 0    ||
 		    g_strcmp0 (row[2], TRACKER_MLO_PREFIX "address") == 0)
 		{
-			GPtrArray *array;
+			TrackerSparqlCursor *cursor;
 			GError *error = NULL;
 			gchar *query;
 
@@ -430,62 +395,55 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile *wbf,
 			                               " mlo:country (?location) "
 			                         "WHERE { <%s> mlo:location ?location }",
 			                         row[1]); /* The urn is at 1 */
-
-			array = tracker_resources_sparql_query (client, query, &error);
-
+			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 			g_free (query);
+			if (!error) {
+				if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+					const gchar *city, *subl, *country, *state;
 
-			if (array && array->len > 0) {
-				GStrv qrow;
+					city = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+					state = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+					subl = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+					country = tracker_sparql_cursor_get_string (cursor, 3, NULL);
 
-				qrow = g_ptr_array_index (array, 0);
+					/* TODO: A lot of these location fields are pretty vague and ambigious.
+					 * We should go through them one by one and ensure that all of them are
+					 * used sanely */
 
-				/* TODO: A lot of these location fields are pretty vague and ambigious.
-				 * We should go through them one by one and ensure that all of them are
-				 * used sanely */
+					if (!tracker_is_blank_string (city)) {
+						xmp_delete_property (xmp, NS_IPTC4XMP, "City");
+						xmp_set_property (xmp, NS_IPTC4XMP, "City", city, 0);
+						xmp_delete_property (xmp, NS_PHOTOSHOP, "City");
+						xmp_set_property (xmp, NS_PHOTOSHOP, "City", city, 0);
+					}
 
-				if (!tracker_is_blank_string (qrow[0])) {
-					xmp_delete_property (xmp, NS_IPTC4XMP, "City");
-					xmp_set_property (xmp, NS_IPTC4XMP, "City", qrow[0], 0);
-					xmp_delete_property (xmp, NS_PHOTOSHOP, "City");
-					xmp_set_property (xmp, NS_PHOTOSHOP, "City", qrow[0], 0);
+					if (!tracker_is_blank_string (state)) {
+						xmp_delete_property (xmp, NS_IPTC4XMP, "State");
+						xmp_set_property (xmp, NS_IPTC4XMP, "State", state, 0);
+						xmp_delete_property (xmp, NS_IPTC4XMP, "Province");
+						xmp_set_property (xmp, NS_IPTC4XMP, "Province", state, 0);
+						xmp_delete_property (xmp, NS_PHOTOSHOP, "State");
+						xmp_set_property (xmp, NS_PHOTOSHOP, "State", state, 0);
+					}
+
+					if (!tracker_is_blank_string (subl)) {
+						xmp_delete_property (xmp, NS_IPTC4XMP, "SubLocation");
+						xmp_set_property (xmp, NS_IPTC4XMP, "SubLocation", subl, 0);
+						xmp_delete_property (xmp, NS_PHOTOSHOP, "Location");
+						xmp_set_property (xmp, NS_PHOTOSHOP, "Location", subl, 0);
+					}
+
+					if (!tracker_is_blank_string (country)) {
+						xmp_delete_property (xmp, NS_PHOTOSHOP, "Country");
+						xmp_set_property (xmp, NS_PHOTOSHOP, "Country", country, 0);
+						xmp_delete_property (xmp, NS_IPTC4XMP, "Country");
+						xmp_set_property (xmp, NS_IPTC4XMP, "Country", country, 0);
+						xmp_delete_property (xmp, NS_IPTC4XMP, "PrimaryLocationName");
+						xmp_set_property (xmp, NS_IPTC4XMP, "PrimaryLocationName", country, 0);
+						xmp_delete_property (xmp, NS_IPTC4XMP, "CountryName");
+						xmp_set_property (xmp, NS_IPTC4XMP, "CountryName", country, 0);
+					}
 				}
-				g_free (qrow[0]);
-
-				if (!tracker_is_blank_string (qrow[1])) {
-					xmp_delete_property (xmp, NS_IPTC4XMP, "State");
-					xmp_set_property (xmp, NS_IPTC4XMP, "State", qrow[1], 0);
-					xmp_delete_property (xmp, NS_IPTC4XMP, "Province");
-					xmp_set_property (xmp, NS_IPTC4XMP, "Province", qrow[1], 0);
-					xmp_delete_property (xmp, NS_PHOTOSHOP, "State");
-					xmp_set_property (xmp, NS_PHOTOSHOP, "State", qrow[1], 0);
-				}
-				g_free (qrow[1]);
-
-				if (!tracker_is_blank_string (qrow[2])) {
-					xmp_delete_property (xmp, NS_IPTC4XMP, "SubLocation");
-					xmp_set_property (xmp, NS_IPTC4XMP, "SubLocation", qrow[2], 0);
-					xmp_delete_property (xmp, NS_PHOTOSHOP, "Location");
-					xmp_set_property (xmp, NS_PHOTOSHOP, "Location", qrow[2], 0);
-				}
-				g_free (qrow[2]);
-
-				if (!tracker_is_blank_string (qrow[3])) {
-					xmp_delete_property (xmp, NS_PHOTOSHOP, "Country");
-					xmp_set_property (xmp, NS_PHOTOSHOP, "Country", qrow[3], 0);
-					xmp_delete_property (xmp, NS_IPTC4XMP, "Country");
-					xmp_set_property (xmp, NS_IPTC4XMP, "Country", qrow[3], 0);
-					xmp_delete_property (xmp, NS_IPTC4XMP, "PrimaryLocationName");
-					xmp_set_property (xmp, NS_IPTC4XMP, "PrimaryLocationName", qrow[3], 0);
-					xmp_delete_property (xmp, NS_IPTC4XMP, "CountryName");
-					xmp_set_property (xmp, NS_IPTC4XMP, "CountryName", qrow[3], 0);
-				}
-				g_free (qrow[3]);
-
-			}
-
-			if (array) {
-				g_ptr_array_free (array, TRUE);
 			}
 
 			g_clear_error (&error);

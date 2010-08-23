@@ -18,7 +18,6 @@
  */
 
 #include <libtracker-common/tracker-dbus.h>
-#include <libtracker-client/tracker.h>
 
 #include "tracker-writeback-dispatcher.h"
 #include "tracker-writeback-dbus.h"

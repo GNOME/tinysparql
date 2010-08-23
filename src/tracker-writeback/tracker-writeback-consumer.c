@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 #include <libtracker-common/tracker-dbus.h>
-#include <libtracker-client/tracker.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-writeback-consumer.h"
 #include "tracker-writeback-dbus.h"
@@ -43,7 +43,7 @@ typedef struct {
 
 typedef struct {
 	GHashTable *modules;
-	TrackerClient *client;
+	TrackerSparqlConnection *connection;
 	TrackerMinerManager *manager;
 	GQueue *process_queue;
 	guint idle_id;
@@ -77,10 +77,19 @@ static void
 tracker_writeback_consumer_init (TrackerWritebackConsumer *consumer)
 {
 	TrackerWritebackConsumerPrivate *priv;
+	GError *error = NULL;
 
 	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
 
-	priv->client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, G_MAXINT);
+	priv->connection = tracker_sparql_connection_get (&error);
+
+	if (!priv->connection) {
+		g_printerr ("%s: %s\n",
+		            _("Could not establish a connection to Tracker"),
+		            error ? error->message : _("No error given"));
+		g_clear_error (&error);
+	}
+
 	priv->modules = g_hash_table_new_full (g_str_hash,
 	                                       g_str_equal,
 	                                       (GDestroyNotify) g_free,
@@ -98,8 +107,8 @@ tracker_writeback_consumer_finalize (GObject *object)
 
 	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (object);
 
-	if (priv->client) {
-		g_object_unref (priv->client);
+	if (priv->connection) {
+		g_object_unref (priv->connection);
 	}
 
 	g_object_unref (priv->manager);
@@ -157,49 +166,77 @@ sparql_rdf_types_match (const gchar * const *module_types,
 }
 
 static void
-sparql_query_cb (GPtrArray *result,
-                 GError    *error,
-                 gpointer   user_data)
+sparql_query_cb (GObject      *object,
+                 GAsyncResult *result,
+                 gpointer      user_data)
 {
 	TrackerWritebackConsumerPrivate *priv;
 	TrackerWritebackConsumer *consumer;
 	QueryData *data;
+	GError *error = NULL;
+	TrackerSparqlCursor *cursor;
 
 	consumer = TRACKER_WRITEBACK_CONSUMER (user_data);
 	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
 	data = g_queue_pop_head (priv->process_queue);
 
-	if (!error && result && result->len > 0) {
-		GHashTableIter iter;
-		gpointer key, value;
-		GStrv rdf_types;
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
-		rdf_types = data->rdf_types;
+	if (!error) {
+		GPtrArray *results = g_ptr_array_new ();
+		guint cols = tracker_sparql_cursor_get_n_columns (cursor);
 
-		g_hash_table_iter_init (&iter, priv->modules);
-
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			TrackerWritebackModule *module;
-			const gchar * const *module_types;
-
-			module = value;
-			module_types = tracker_writeback_module_get_rdf_types (module);
-
-			if (sparql_rdf_types_match (module_types, (const gchar * const *) rdf_types)) {
-				TrackerWriteback *writeback;
-
-				g_message ("  Updating metadata for subject:'%s' using module:'%s'",
-				           data->subject,
-				           module->name);
-
-				writeback = tracker_writeback_module_create (module);
-				tracker_writeback_update_metadata (writeback, result, priv->client);
-				g_object_unref (writeback);
-			}
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			GStrv row = g_new0 (gchar*, cols);
+			guint i;
+			for (i = 0; i < cols; i++)
+				row[i] = g_strdup (tracker_sparql_cursor_get_string (cursor, i, NULL));
+			g_ptr_array_add (results, row);
 		}
+
+		if (results->len > 0) {
+			GHashTableIter iter;
+			gpointer key, value;
+			GStrv rdf_types;
+
+			rdf_types = data->rdf_types;
+
+			g_hash_table_iter_init (&iter, priv->modules);
+
+			while (g_hash_table_iter_next (&iter, &key, &value)) {
+				TrackerWritebackModule *module;
+				const gchar * const *module_types;
+
+				module = value;
+				module_types = tracker_writeback_module_get_rdf_types (module);
+
+				if (sparql_rdf_types_match (module_types, (const gchar * const *) rdf_types)) {
+					TrackerWriteback *writeback;
+
+					g_message ("  Updating metadata for subject:'%s' using module:'%s'",
+					           data->subject,
+					           module->name);
+
+					writeback = tracker_writeback_module_create (module);
+					tracker_writeback_update_metadata (writeback, results, priv->connection);
+					g_object_unref (writeback);
+				}
+			}
+			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+		} else {
+			g_message ("  No files qualify for updates");
+		}
+		g_ptr_array_free (results, TRUE);
 	} else {
-		g_message ("  No files qualify for updates");
+		if (error != NULL) {
+			g_message ("  No files qualify for updates (%s)", error->message);
+			g_error_free (error);
+		} else {
+			g_message ("  No files qualify for updates");
+		}
 	}
+
+	g_object_unref (cursor);
 
 	g_free (data->subject);
 	g_strfreev (data->rdf_types);
@@ -234,10 +271,8 @@ process_queue_cb (gpointer user_data)
 	                         "}",
 	                         data->subject, data->subject);
 
-	tracker_resources_sparql_query_async (priv->client,
-	                                      query,
-	                                      sparql_query_cb,
-	                                      consumer);
+	tracker_sparql_connection_query_async (priv->connection, query, NULL,
+	                                       sparql_query_cb, consumer);
 
 	g_free (query);
 

@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
  *
@@ -48,11 +47,11 @@ struct PlaylistMap {
 };
 
 static GType                tracker_writeback_playlist_get_type     (void) G_GNUC_CONST;
-static gboolean             writeback_playlist_update_file_metadata (TrackerWritebackFile *wbf,
-                                                                     GFile                *file,
-                                                                     GPtrArray            *values,
-                                                                     TrackerClient        *client);
-static const gchar * const *writeback_playlist_content_types        (TrackerWritebackFile *wbf);
+static gboolean             writeback_playlist_update_file_metadata (TrackerWritebackFile     *wbf,
+                                                                     GFile                    *file,
+                                                                     GPtrArray                *values,
+                                                                     TrackerSparqlConnection  *connection);
+static const gchar * const *writeback_playlist_content_types        (TrackerWritebackFile     *wbf);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackPlaylist, tracker_writeback_playlist, TRACKER_TYPE_WRITEBACK_FILE);
 
@@ -99,7 +98,7 @@ writeback_playlist_content_types (TrackerWritebackFile *wbf)
 
 static gboolean
 get_playlist_type (GFile             *file,
-		   TotemPlParserType *type)
+                   TotemPlParserType *type)
 {
 	GFileInfo *file_info;
 	const gchar *mime_type;
@@ -139,13 +138,13 @@ get_playlist_type (GFile             *file,
 }
 
 static void
-rewrite_playlist (TrackerClient *client,
-		  GFile         *file,
-		  const gchar   *subject)
+rewrite_playlist (TrackerSparqlConnection *connection,
+                  GFile                   *file,
+                  const gchar             *subject)
 {
 	TotemPlParserType type;
 	gchar *path;
-	GPtrArray *array;
+	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	gchar *query;
 
@@ -154,76 +153,65 @@ rewrite_playlist (TrackerClient *client,
 	}
 
 	path = g_file_get_path (file);
-
 	query = g_strdup_printf ("SELECT ?entry { ?unknown a nfo:MediaFileListEntry ; "
 	                                                  "nie:url '%s' ; "
 	                                                  "nfo:entryContent ?entry"
 	                         "}", subject);
-
-	array = tracker_resources_sparql_query (client, query, &error);
-
+	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 	g_free (query);
 
 	if (!error) {
-		if (array && array->len > 0) {
-			TotemPlParser *parser;
-			TotemPlPlaylist *playlist;
-			TotemPlPlaylistIter iter;
-			guint i;
+		TotemPlParser *parser;
+		TotemPlPlaylist *playlist;
+		TotemPlPlaylistIter iter;
+		guint amount = 0;
 
-			parser = totem_pl_parser_new ();
-			playlist = totem_pl_playlist_new ();
+		parser = totem_pl_parser_new ();
+		playlist = totem_pl_playlist_new ();
 
-			for (i = 0; i < array->len; i++) {
-				GStrv row;
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			totem_pl_playlist_append  (playlist, &iter);
+			totem_pl_playlist_set (playlist, &iter,
+			                       TOTEM_PL_PARSER_FIELD_URI,
+			                       tracker_sparql_cursor_get_string (cursor, 0),
+			                       NULL);
+			amount++;
+		}
 
-				row = g_ptr_array_index (array, i);
-
-				if (row && row[0]) {
-					totem_pl_playlist_append  (playlist, &iter);
-					totem_pl_playlist_set (playlist, &iter,
-							       TOTEM_PL_PARSER_FIELD_URI, row[0],
-							       NULL);
-				}
-			}
-
+		if (amount > 0) {
 			totem_pl_parser_save (parser, playlist, file, NULL, type, &error);
-
-			if (error) {
-				g_critical ("Could not save playlist: %s\n", error->message);
-				g_error_free (error);
-			}
-
-			g_object_unref (playlist);
-			g_object_unref (parser);
 		} else {
 			/* TODO: Empty the file in @path */
 		}
 
+		if (error) {
+			g_critical ("Could not save playlist: %s\n", error->message);
+			g_error_free (error);
+		}
+
+		g_object_unref (playlist);
+		g_object_unref (parser);
+		g_object_unref (cursor);
+
 	} else {
 		g_clear_error (&error);
-	}
-
-	if (array) {
-		g_ptr_array_foreach (array, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (array, TRUE);
 	}
 
 	g_free (path);
 }
 
 static gboolean
-writeback_playlist_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                         GFile                *file,
-                                         GPtrArray            *values,
-                                         TrackerClient        *client)
+writeback_playlist_update_file_metadata (TrackerWritebackFile     *writeback_file,
+                                         GFile                    *file,
+                                         GPtrArray                *values,
+                                         TrackerSparqlConnection  *connection)
 {
 	guint n;
 
 	for (n = 0; n < values->len; n++) {
 		const GStrv row = g_ptr_array_index (values, n);
 		if (g_strcmp0 (row[2], TRACKER_NFO_PREFIX "entryCounter") == 0) {
-			rewrite_playlist (client, file, row[0]);
+			rewrite_playlist (connection, file, row[0]);
 			break;
 		}
 	}

@@ -42,15 +42,15 @@ struct TrackerWritebackTaglibClass {
 };
 
 static GType                tracker_writeback_taglib_get_type         (void) G_GNUC_CONST;
-static gboolean             writeback_taglib_update_file_metadata     (TrackerWritebackFile *wbf,
-                                                                       GFile                *file,
-                                                                       GPtrArray            *values,
-                                                                       TrackerClient        *client);
-static const gchar * const *writeback_taglib_content_types            (TrackerWritebackFile *wbf);
-static gchar*               writeback_taglib_get_artist_name          (TrackerClient        *client,
-                                                                       const gchar          *urn);
-static gchar*               writeback_taglib_get_album_name           (TrackerClient        *client,
-                                                                       const gchar          *urn);
+static gboolean             writeback_taglib_update_file_metadata     (TrackerWritebackFile    *wbf,
+                                                                       GFile                   *file,
+                                                                       GPtrArray               *values,
+                                                                       TrackerSparqlConnection *connection);
+static const gchar * const *writeback_taglib_content_types            (TrackerWritebackFile    *wbf);
+static gchar*               writeback_taglib_get_artist_name          (TrackerSparqlConnection *connection,
+                                                                       const gchar             *urn);
+static gchar*               writeback_taglib_get_album_name           (TrackerSparqlConnection *connection,
+                                                                       const gchar             *urn);
 
 G_DEFINE_DYNAMIC_TYPE (TrackerWritebackTaglib, tracker_writeback_taglib, TRACKER_TYPE_WRITEBACK_FILE);
 
@@ -129,10 +129,10 @@ writeback_taglib_content_types (TrackerWritebackFile *wbf)
 }
 
 static gboolean
-writeback_taglib_update_file_metadata (TrackerWritebackFile *writeback_file,
-                                       GFile                *file,
-                                       GPtrArray            *values,
-                                       TrackerClient        *client)
+writeback_taglib_update_file_metadata (TrackerWritebackFile     *writeback_file,
+                                       GFile                    *file,
+                                       GPtrArray                *values,
+                                       TrackerSparqlConnection  *connection)
 {
 	gboolean ret;
 	gchar *path;
@@ -158,7 +158,7 @@ writeback_taglib_update_file_metadata (TrackerWritebackFile *writeback_file,
 		}
 
 		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "performer") == 0) {
-			gchar *artist_name = writeback_taglib_get_artist_name (client, row[3]);
+			gchar *artist_name = writeback_taglib_get_artist_name (connection, row[3]);
 
 			if (artist_name) {
 				taglib_tag_set_artist (tag, artist_name);
@@ -167,7 +167,7 @@ writeback_taglib_update_file_metadata (TrackerWritebackFile *writeback_file,
 		}
 
 		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "musicAlbum") == 0) {
-			gchar *album_name = writeback_taglib_get_album_name (client, row[3]);
+			gchar *album_name = writeback_taglib_get_album_name (connection, row[3]);
 
 			if (album_name) {
 				taglib_tag_set_album (tag, album_name);
@@ -202,85 +202,61 @@ writeback_taglib_update_file_metadata (TrackerWritebackFile *writeback_file,
 }
 
 static gchar*
-writeback_taglib_get_artist_name (TrackerClient  *client,
-                                  const gchar    *urn)
+writeback_taglib_get_from_query (TrackerSparqlConnection *connection,
+                                 const gchar             *urn,
+                                 const gchar             *query,
+                                 const gchar             *errmsg)
 {
 	gchar *query;
-	GPtrArray *query_results;
+	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
-	GError *inner_error = NULL;
-	gchar *artist_name;
+	GError *error = NULL;
+	gchar *value = NULL;
 
-	artist_name = NULL;
+	cursor = tracker_sparql_connection_query (connection,
+	                                          query,
+	                                          NULL,
+	                                          &error);
 
-	query = g_strdup_printf ("SELECT ?artistName WHERE {<%s> nmm:artistName ?artistName}",
-	                         urn);
-
-	query_results = tracker_resources_sparql_query (client,
-	                                                query,
-	                                                &inner_error);
-
-	if (error || query_results->len != 1) {
-		g_warning ("Couldn't find artist name for artist with urn '%s', %s",
+	if (error || !tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		g_warning ("Couldn't find %s for artist with urn '%s', %s",
+		           errmsg,
 		           urn,
-		           error ? error->message : "no such artist was found");
+		           error ? error->message : "no such was found");
 
 		if (error) {
 			g_error_free (error);
 		}
 	} else {
-		gchar **data;
-
-		data = g_ptr_array_index (query_results, 0);
-		artist_name = g_strdup (data[0]);
+		value = g_strdup (tracker_sparql_cursor_get_string (cursor, 0));
 	}
 
-	g_free (query);
-	g_ptr_array_foreach (query_results, (GFunc) g_strfreev, NULL);
-	g_ptr_array_free (query_results, TRUE);
+	return value;
+}
 
-	return artist_name;
+
+static gchar*
+writeback_taglib_get_artist_name (TrackerSparqlConnection *connection,
+                                  const gchar             *urn)
+{
+	gchar *val, *query;
+	query = g_strdup_printf ("SELECT ?artistName WHERE {<%s> nmm:artistName ?artistName}",
+	                         urn);
+	val = writeback_taglib_get_from_query (connection, urn, query, "artist name");
+	g_free (query);
+	return val;
 }
 
 static gchar*
-writeback_taglib_get_album_name (TrackerClient  *client,
-                                 const gchar    *urn)
+writeback_taglib_get_album_name (TrackerSparqlConnection *connection,
+                                 const gchar             *urn)
 {
-	gchar *query;
-	GPtrArray *query_results;
-	GError *error = NULL;
-	GError *inner_error = NULL;
-	gchar *album_name;
-
-	album_name = NULL;
-
+	gchar *val, *query;
 	query = g_strdup_printf ("SELECT ?albumName WHERE {<%s> dc:title ?albumName}",
 	                         urn);
-
-	query_results = tracker_resources_sparql_query (client,
-	                                                query,
-	                                                &inner_error);
-
-	if (error || query_results->len != 1) {
-		g_warning ("Couldn't find album name for album with urn '%s', %s",
-		           urn,
-		           error ? error->message : "no such album was found");
-
-		if (error) {
-			g_error_free (error);
-		}
-	} else {
-		gchar **data;
-
-		data = g_ptr_array_index (query_results, 0);
-		album_name = g_strdup (data[0]);
-	}
-
+	val = writeback_taglib_get_from_query (connection, urn, query, "album name");
 	g_free (query);
-	g_ptr_array_foreach (query_results, (GFunc) g_strfreev, NULL);
-	g_ptr_array_free (query_results, TRUE);
-
-	return album_name;
+	return val;
 }
 
 TrackerWriteback *
