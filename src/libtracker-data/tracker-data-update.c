@@ -865,6 +865,10 @@ tracker_data_resource_buffer_flush (GError **error)
 							 tracker_data_query_resource_id (tracker_property_get_uri (prop)),
 							 fts->str, !tracker_property_get_fulltext_no_limit (prop));
 				g_string_free (fts, TRUE);
+
+				/* Set that we ever updated FTS, so that tracker_fts_update_commit()
+				 * gets called */
+				update_buffer.fts_ever_updated = TRUE;
 			}
 		}
 	}
