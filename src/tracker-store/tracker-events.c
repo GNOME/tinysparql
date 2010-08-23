@@ -30,9 +30,26 @@ typedef struct {
 	GHashTable *allowances_id;
 	GHashTable *allowances;
 	gboolean frozen;
+	guint total;
 } EventsPrivate;
 
 static EventsPrivate *private;
+
+guint
+tracker_events_get_total (gboolean and_reset)
+{
+	guint total;
+
+	g_return_val_if_fail (private != NULL, 0);
+
+	total = private->total;
+
+	if (and_reset) {
+		private->total = 0;
+	}
+
+	return total;
+}
 
 static gboolean
 is_allowed (EventsPrivate *private, TrackerClass *rdf_class, gint class_id)
@@ -90,6 +107,7 @@ tracker_events_add_insert (gint         graph_id,
 				                                subject_id,
 				                                pred_id,
 				                                object_id);
+				private->total++;
 			}
 		}
 	} else {
@@ -101,6 +119,7 @@ tracker_events_add_insert (gint         graph_id,
 				                                subject_id,
 				                                pred_id,
 				                                object_id);
+				private->total++;
 			}
 		}
 	}
@@ -149,6 +168,7 @@ tracker_events_add_delete (gint         graph_id,
 				                                subject_id,
 				                                pred_id,
 				                                object_id);
+				private->total++;
 			}
 		}
 	} else {
@@ -160,6 +180,7 @@ tracker_events_add_delete (gint         graph_id,
 				                                subject_id,
 				                                pred_id,
 				                                object_id);
+				private->total++;
 			}
 		}
 	}

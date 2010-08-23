@@ -41,6 +41,8 @@
 #include "tracker-writeback.h"
 #include "tracker-store.h"
 
+#define NEED_IMMEDIATE_EMIT_AT 1000
+
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_TYPE RDF_PREFIX "type"
 
@@ -546,7 +548,7 @@ foreach_add_to_iter (gint subject_id,
 	dbus_message_iter_close_container (array_iter, &struct_iter);
 }
 
-static void
+static gboolean
 emit_class_signal (TrackerResources *self,
                    TrackerClass     *class)
 {
@@ -587,7 +589,11 @@ emit_class_signal (TrackerResources *self,
 		dbus_message_unref (message);
 
 		tracker_class_reset_events (class);
+
+		return TRUE;
 	}
+
+	return FALSE;
 }
 
 static gboolean
@@ -597,6 +603,7 @@ on_emit_class_signal (gpointer user_data)
 	TrackerResourcesPrivate *priv;
 	GHashTableIter iter;
 	gpointer key, value;
+	gboolean had_any = FALSE;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
@@ -605,10 +612,15 @@ on_emit_class_signal (gpointer user_data)
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		TrackerClass *class = key;
-		emit_class_signal (user_data, class);
+		if (emit_class_signal (user_data, class)) {
+			had_any = TRUE;
+		}
 	}
 
-	return TRUE;
+	if (!had_any)
+		priv->class_signal_timeout = 0;
+
+	return had_any;
 }
 
 static void
@@ -637,7 +649,6 @@ on_statements_committed (gpointer user_data)
 
 	if (writebacks) {
 		g_signal_emit (resources, signals[WRITEBACK], 0, writebacks);
-
 	}
 
 	tracker_writeback_reset ();
@@ -652,6 +663,32 @@ on_statements_rolled_back (gpointer user_data)
 }
 
 static void
+check_class_signal_signal (TrackerResources *object)
+{
+	TrackerResourcesPrivate *priv;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
+
+	/* Check for whether we need an immediate emit */
+	if (tracker_events_get_total (FALSE) > NEED_IMMEDIATE_EMIT_AT) {
+		gpointer key, value;
+		GHashTableIter iter;
+
+		tracker_events_classes_iter (&iter);
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			TrackerClass *class = key;
+			emit_class_signal (object, class);
+		}
+		tracker_events_get_total (TRUE);
+	} else {
+		/* Ready the signal */
+		if (priv->class_signal_timeout == 0) {
+			priv->class_signal_timeout = g_timeout_add_seconds (1, on_emit_class_signal, object);
+		}
+	}
+}
+
+static void
 on_statement_inserted (gint         graph_id,
                        gint         subject_id,
                        const gchar *subject,
@@ -663,6 +700,7 @@ on_statement_inserted (gint         graph_id,
 {
 	tracker_events_add_insert (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
+	check_class_signal_signal (user_data);
 	tracker_writeback_check (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
 }
 
@@ -678,6 +716,7 @@ on_statement_deleted (gint         graph_id,
 {
 	tracker_events_add_delete (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
+	check_class_signal_signal (user_data);
 	tracker_writeback_check (graph_id, subject_id, subject, pred_id,
 	                         object_id, object, rdf_types);
 }
@@ -694,7 +733,6 @@ tracker_resources_prepare (TrackerResources *object)
 	tracker_data_add_commit_statement_callback (on_statements_committed, object);
 	tracker_data_add_rollback_statement_callback (on_statements_rolled_back, object);
 
-	priv->class_signal_timeout = g_timeout_add_seconds (1, on_emit_class_signal, object);
 }
 
 static void
@@ -709,8 +747,9 @@ tracker_resources_finalize (GObject      *object)
 	tracker_data_remove_commit_statement_callback (on_statements_committed, object);
 	tracker_data_remove_rollback_statement_callback (on_statements_rolled_back, object);
 
-	if (priv->class_signal_timeout != 0)
+	if (priv->class_signal_timeout != 0) {
 		g_source_remove (priv->class_signal_timeout);
+	}
 
 	dbus_connection_unref (priv->connection);
 
