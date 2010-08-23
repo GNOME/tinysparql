@@ -39,7 +39,6 @@ typedef struct {
 	gchar *status;
 	guint timer_id;
 	TrackerStatus *object;
-	gboolean last;
 } TrackerStatusPrivate;
 
 enum {
@@ -112,7 +111,7 @@ tracker_status_init (TrackerStatus *object)
 
 	priv->object = object;
 	priv->timer_id = 0;
-	priv->progress = 1;
+	priv->progress = 0;
 	priv->status = g_strdup ("Idle");
 }
 
@@ -125,31 +124,7 @@ busy_notification_timeout (gpointer user_data)
 	               priv->status,
 	               priv->progress);
 
-	priv->last = TRUE;
-
 	return FALSE;
-}
-
-static void
-busy_notification_destroy (gpointer user_data)
-{
-	TrackerStatusPrivate *priv = user_data;
-
-	if (priv->last) {
-		g_free (priv->status);
-		priv->status = g_strdup ("Idle");
-	}
-
-	priv->progress = 1;
-	priv->timer_id = 0;
-}
-
-static void
-busy_notification_idle_destroy (gpointer user_data)
-{
-	TrackerStatusPrivate *priv = user_data;
-
-	priv->timer_id = 0;
 }
 
 static void
@@ -161,7 +136,6 @@ tracker_status_callback (const gchar *status,
 	TrackerStatusPrivate *priv = user_data;
 
 	priv->progress = progress;
-	priv->last = FALSE;
 
 	if (g_strcmp0 (status, priv->status) != 0) {
 		g_free (priv->status);
@@ -170,16 +144,13 @@ tracker_status_callback (const gchar *status,
 
 	if (priv->timer_id == 0) {
 		if (first_time) {
-			priv->timer_id = g_idle_add_full (G_PRIORITY_DEFAULT,
-			                                  busy_notification_timeout,
-			                                  priv,
-			                                  busy_notification_idle_destroy);
+			priv->timer_id = g_idle_add (busy_notification_timeout,
+			                             priv);
 			first_time = FALSE;
 		} else {
-			priv->timer_id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, PROGRESS_TIMEOUT_S,
-			                                             busy_notification_timeout,
-			                                             priv,
-			                                             busy_notification_destroy);
+			priv->timer_id = g_timeout_add_seconds (PROGRESS_TIMEOUT_S,
+			                                        busy_notification_timeout,
+			                                        priv);
 		}
 	}
 
