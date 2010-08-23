@@ -20,7 +20,7 @@
 using Tracker;
 using Tracker.Sparql;
 
-const int max_signals = 1000;
+const int max_signals = 10000;
 const string title_data = "title";
 
 struct Event {
@@ -46,7 +46,7 @@ public class TestApp {
 	bool initialized = false;
 	Sparql.Connection signal_con;
 	Sparql.Connection con;
-	string max_signals_s;
+	int total_signals_seen = 0;
 
 	public TestApp ()
 	requires (!initialized) {
@@ -63,8 +63,6 @@ public class TestApp {
 
 			resources_object.class_signal.connect (on_class_signal_received);
 
-			max_signals_s = max_signals.to_string ();
-
 		} catch (Sparql.Error e) {
 			warning ("Could not connect to D-Bus service: %s", e.message);
 			initialized = false;
@@ -80,7 +78,7 @@ public class TestApp {
 	}
 
 	// Query looks like this:
-	// SELECT ?t { ?r a nmm:MusicPiece; nie:title ?t .
+	// SELECT ?r ?t { ?r a nmm:MusicPiece; nie:title ?t .
 	//             FILTER (tracker:id (?r) IN (id1, id2, id3))
 	// }
 
@@ -110,7 +108,11 @@ public class TestApp {
 				       kind,
 				       resource,
 				       cursor.get_string (1));
-				if (resource == max_signals_s) {
+				total_signals_seen++;
+
+				// We'll see ~ max_signals*2 things, (insert and delete, plus the
+				// resource creates too - so a little bit more)
+				if (total_signals_seen >= (max_signals*2)) {
 					loop.quit();
 				}
 			}
