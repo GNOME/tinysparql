@@ -540,46 +540,19 @@ main (int argc, char **argv)
 	}
 
 	if (reindex_mime_types) {
-		DBusGConnection *connection;
-		DBusGProxy *proxy;
-	
-		GError *error = NULL;
+		TrackerMinerManager *manager;
 
-		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-		
-		if (!connection) {
-			g_print ("Could not connect to the D-Bus session bus, %s",
-			         error ? error->message : "no error given.");
-			g_clear_error (&error);
-			return FALSE;
-		}
-		
-		/* The definitions below (DBUS_SERVICE_DBUS, etc) are
-		 * predefined for us to just use (dbus_g_proxy_...)
-		 */
-		proxy = dbus_g_proxy_new_for_name (connection,
-		                                   "org.freedesktop.Tracker1.Miner.Files.Index",
-		                                   "/org/freedesktop/Tracker1/Miner/Files/Index",
-		                                   "org.freedesktop.Tracker1.Miner.Files.Index");
-		
-		if (!proxy) {
-			g_print ("Could not create a proxy for the D-Bus service, %s",
-			         error ? error->message : "no error given.");
-			g_clear_error (&error);
-			return FALSE;
-		}
-		
-		if (!org_freedesktop_Tracker1_Miner_Files_Index_reindex_mime_types (proxy,
-		                                                                    reindex_mime_types,
-		                                                                    &error)) {
-			g_print ("Could not reindex mime types, %s",
-			         error ? error->message : "no error given.");
-			g_clear_error (&error);
-			g_object_unref (proxy);
-			return FALSE;
+		manager = tracker_miner_manager_new ();
+		tracker_miner_manager_reindex_by_mimetype (manager, reindex_mime_types, &error);
+
+		if (error) {
+			g_print ("Could not reindex mimetypes: %s\n",
+			         error->message);
+			g_error_free (error);
+			return EXIT_FAILURE;
 		}
 
-		g_object_unref (proxy);
+		g_object_unref (manager);
 	}
 
 	if (index_file) {
