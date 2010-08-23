@@ -995,6 +995,48 @@ tracker_miner_manager_error_quark (void)
 }
 
 gboolean
+tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
+                                           const GStrv           mimetypes,
+                                           GError              **error)
+{
+	static DBusGProxy *proxy = NULL;
+	TrackerMinerManagerPrivate *priv;
+	GError *internal_error = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (mimetypes != NULL, FALSE);
+
+	if (!tracker_miner_manager_is_active (manager,
+	                                      "org.freedesktop.Tracker1.Miner.Files")) {
+		g_set_error_literal (error,
+		                     TRACKER_MINER_MANAGER_ERROR,
+		                     TRACKER_MINER_MANAGER_ERROR_NOT_AVAILABLE,
+		                     "Filesystem miner is not active");
+		return FALSE;
+	}
+
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	if (G_UNLIKELY (!proxy)) {
+		proxy = dbus_g_proxy_new_for_name (priv->connection,
+		                                   "org.freedesktop.Tracker1.Miner.Files.Index",
+		                                   "/org/freedesktop/Tracker1/Miner/Files/Index",
+		                                   "org.freedesktop.Tracker1.Miner.Files.Index");
+	}
+
+	org_freedesktop_Tracker1_Miner_Files_Index_reindex_mime_types (proxy,
+	                                                               (const gchar **) mimetypes,
+	                                                               &internal_error);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+gboolean
 tracker_miner_manager_index_file (TrackerMinerManager  *manager,
                                   GFile                *file,
                                   GError              **error)

@@ -108,6 +108,9 @@ const gchar *        tracker_miner_manager_get_display_name   (TrackerMinerManag
 const gchar *        tracker_miner_manager_get_description    (TrackerMinerManager  *manager,
                                                                const gchar          *miner);
 
+gboolean             tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
+                                                                const GStrv           mimetypes,
+                                                                GError              **error);
 gboolean             tracker_miner_manager_index_file          (TrackerMinerManager  *manager,
                                                                 GFile                *file,
                                                                 GError              **error);
