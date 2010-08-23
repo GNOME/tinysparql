@@ -17,12 +17,28 @@
  * Boston, MA  02110-1301, USA.
  */
 
+[DBus (name = "org.freedesktop.Tracker1.Status")]
+interface Tracker.Direct.Status : GLib.Object {
+	public abstract void wait () throws DBus.Error;
+}
+
 public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	// only single connection is currently supported per process
 	static bool initialized;
 
 	public Connection () throws Sparql.Error
 	requires (!initialized) {
+		try {
+			var connection = DBus.Bus.get (DBus.BusType.SESSION);
+
+			var status = (Status) connection.get_object (TRACKER_DBUS_SERVICE,
+			                                             TRACKER_DBUS_OBJECT_STATUS,
+			                                             TRACKER_DBUS_INTERFACE_STATUS);
+			status.wait ();
+		} catch (DBus.Error e) {
+			throw new Sparql.Error.INTERNAL ("Unable to initialize database");
+		}
+
 		if (!Data.Manager.init (DBManagerFlags.READONLY, null, null, false, null, null)) {
 			throw new Sparql.Error.INTERNAL ("Unable to initialize database");
 		}
