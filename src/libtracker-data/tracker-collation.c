@@ -24,7 +24,10 @@
 #include "tracker-collation.h"
 
 /* If defined, will dump some additional logs as prints,
- *  instead of debugs*/
+ * instead of debugs. Why would you want to do so? Well,
+ * using direct-access reading with tracker-sparql, I
+ * don't want logs, I want output to stdout.
+ */
 #ifdef PRINT_INSTEADOF_LOG
 #undef g_debug
 #define g_debug(message, ...) \
@@ -39,6 +42,14 @@
 	g_print ("(critical) %s:%d: " message "\n", \
 	         __FILE__, __LINE__, ##__VA_ARGS__)
 #endif /* PRINT_INSTEADOF_LOG */
+
+/* If defined, will dump additional traces */
+#ifdef ENABLE_TRACE
+#define trace(message, ...) \
+	g_debug (message, ##__VA_ARGS__)
+#else
+#define trace(...)
+#endif /* ENABLE_TRACE */
 
 #ifdef HAVE_LIBUNISTRING
 /* libunistring versions prior to 9.1.2 need this hack */
@@ -85,6 +96,8 @@ tracker_collation_utf8 (gpointer      collator,
 
 	memcpy (aux1, str1, len1); aux1[len1] = '\0';
 	memcpy (aux2, str2, len2); aux2[len2] = '\0';
+
+	trace ("(libunistring) Collating '%s' and '%s'", aux1, aux2);
 
 	result = u8_strcoll (aux1, aux2);
 
@@ -142,6 +155,27 @@ tracker_collation_utf8 (gpointer      collator,
 	/* Collator must be created before trying to collate */
 	g_return_val_if_fail (collator, -1);
 
+#ifdef ENABLE_TRACE
+	{
+		gchar *aux1;
+		gchar *aux2;
+
+		/* Note: str1 and str2 are NOT NUL-terminated */
+		aux1 = (len1 < MAX_STACK_STR_SIZE) ? g_alloca (len1+1) : g_malloc (len1+1);
+		aux2 = (len2 < MAX_STACK_STR_SIZE) ? g_alloca (len2+1) : g_malloc (len2+1);
+
+		memcpy (aux1, str1, len1); aux1[len1] = '\0';
+		memcpy (aux2, str2, len2); aux2[len2] = '\0';
+
+		trace ("(ICU) Collating '%s' and '%s'", aux1, aux2);
+
+		if (len1 >= MAX_STACK_STR_SIZE)
+			g_free (aux1);
+		if (len2 >= MAX_STACK_STR_SIZE)
+			g_free (aux2);
+	}
+#endif /* ENABLE_TRACE */
+
 	/* Setup iterators */
 	uiter_setUTF8 (&iter1, str1, len1);
 	uiter_setUTF8 (&iter2, str2, len2);
@@ -193,6 +227,8 @@ tracker_collation_utf8 (gpointer      collator,
 
 	memcpy (aux1, str1, len1); aux1[len1] = '\0';
 	memcpy (aux2, str2, len2); aux2[len2] = '\0';
+
+	trace ("(GLib) Collating '%s' and '%s'", aux1, aux2);
 
 	result = g_utf8_collate (aux1, aux2);
 
