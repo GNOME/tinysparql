@@ -170,6 +170,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 					                  0);
 				}
 			}
+			g_object_unref (cursor);
 			g_clear_error (&error);
 		}
 
@@ -190,6 +191,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 					xmp_set_property (xmp, NS_DC, "contributor", tracker_sparql_cursor_get_string (cursor, 0, NULL), 0);
 				}
 			}
+			g_object_unref (cursor);
 			g_clear_error (&error);
 		}
 
@@ -237,6 +239,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 					}
 				}
 			}
+			g_object_unref (cursor);
 			g_clear_error (&error);
 		}
 
@@ -446,6 +449,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 				}
 			}
 
+			g_object_unref (cursor);
 			g_clear_error (&error);
 		}
 
