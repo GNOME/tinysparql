@@ -982,17 +982,18 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 	return TRUE;
 }
 
-void
+gboolean
 tracker_miner_manager_index_file (TrackerMinerManager  *manager,
                                   GFile                *file,
                                   GError              **error)
 {
 	static DBusGProxy *proxy = NULL;
 	TrackerMinerManagerPrivate *priv;
+	GError *internal_error = NULL;
 	gchar *uri;
 
-	g_return_if_fail (TRACKER_IS_MINER_MANAGER (manager));
-	g_return_if_fail (G_IS_FILE (file));
+	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
@@ -1004,6 +1005,13 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 	}
 
 	uri = g_file_get_uri (file);
-	org_freedesktop_Tracker1_Miner_Files_Index_index_file (proxy, uri, error);
+	org_freedesktop_Tracker1_Miner_Files_Index_index_file (proxy, uri, &internal_error);
 	g_free (uri);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return FALSE;
+	}
+
+	return TRUE;
 }

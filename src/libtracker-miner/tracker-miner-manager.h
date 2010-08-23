@@ -99,9 +99,9 @@ const gchar *        tracker_miner_manager_get_display_name   (TrackerMinerManag
 const gchar *        tracker_miner_manager_get_description    (TrackerMinerManager  *manager,
                                                                const gchar          *miner);
 
-void                 tracker_miner_manager_index_file         (TrackerMinerManager  *manager,
-                                                               GFile                *file,
-                                                               GError              **error);
+gboolean             tracker_miner_manager_index_file          (TrackerMinerManager  *manager,
+                                                                GFile                *file,
+                                                                GError              **error);
 
 G_END_DECLS
 
