@@ -61,6 +61,7 @@ libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
 BUILT_SOURCES = libtracker-bus.vala.stamp
 
 libtracker_bus_la_LIBADD = 						\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(GLIB2_LIBS) \
 	$(DBUS_LIBS) \
