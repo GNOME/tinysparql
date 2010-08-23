@@ -231,6 +231,8 @@ writeback_taglib_get_from_query (TrackerSparqlConnection *connection,
 		value = g_strdup (tracker_sparql_cursor_get_string (cursor, 0));
 	}
 
+	g_object_unref (cursor);
+
 	return value;
 }
 
