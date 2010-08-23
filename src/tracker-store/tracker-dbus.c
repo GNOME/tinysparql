@@ -49,8 +49,11 @@
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
 static GSList          *objects;
-TrackerStatus          *notifier = NULL;
-TrackerBackup          *backup = NULL;
+static TrackerStatus   *notifier;
+static TrackerBackup   *backup;
+#ifdef HAVE_DBUS_FD_PASSING
+static TrackerSteroids *steroids;
+#endif
 
 static gboolean
 dbus_register_service (DBusGProxy  *proxy,
@@ -191,13 +194,17 @@ dbus_set_available (gboolean available)
                                                         "NameOwnerChanged",
                                                         G_CALLBACK (name_owner_changed_cb),
                                                         tracker_dbus_get_object (TRACKER_TYPE_RESOURCES));
+                }
 
 #ifdef HAVE_DBUS_FD_PASSING
+                if (steroids) {
 			dbus_connection_remove_filter (dbus_g_connection_get_connection (connection),
 			                               tracker_steroids_connection_filter,
-			                               tracker_dbus_get_object (TRACKER_TYPE_STEROIDS));
-#endif
+			                               steroids);
+			g_object_unref (steroids);
+			steroids = NULL;
                 }
+#endif
 
                 for (l = objects; l; l = l->next) {
                         dbus_g_connection_unregister_g_object (connection, l->data);
@@ -300,28 +307,30 @@ tracker_dbus_register_objects (void)
 	objects = g_slist_prepend (objects, object);
 
 #ifdef HAVE_DBUS_FD_PASSING
-	/* Add org.freedesktop.Tracker1.Steroids */
-	object = tracker_steroids_new ();
-	if (!object) {
-		g_critical ("Could not create TrackerSteroids object to register");
-		return FALSE;
-	}
+	if (!steroids) {
+		/* Add org.freedesktop.Tracker1.Steroids */
+		steroids = tracker_steroids_new ();
+		if (!steroids) {
+			g_critical ("Could not create TrackerSteroids object to register");
+			return FALSE;
+		}
 
-	dbus_connection_add_filter (dbus_g_connection_get_connection (connection),
-	                            tracker_steroids_connection_filter,
-	                            object,
-	                            NULL);
-	objects = g_slist_prepend (objects, object);
+		dbus_connection_add_filter (dbus_g_connection_get_connection (connection),
+		                            tracker_steroids_connection_filter,
+		                            G_OBJECT (steroids),
+		                            NULL);
+		/* Note: TrackerSteroids should not go to the 'objects' list, as it is
+		 * a filter, not an object registered */
+	}
 #endif
 
 	/* Reverse list since we added objects at the top each time */
 	objects = g_slist_reverse (objects);
 
-	if (backup == NULL) {
+	if (!backup) {
 		/* Add org.freedesktop.Tracker1.Backup */
 		backup = tracker_backup_new ();
-
-		if (!object) {
+		if (!backup) {
 			g_critical ("Could not create TrackerBackup object to register");
 			return FALSE;
 		}
@@ -336,7 +345,6 @@ tracker_dbus_register_objects (void)
 	}
 
 	return TRUE;
-	
 }
 
 gboolean
@@ -449,6 +457,10 @@ tracker_dbus_get_object (GType type)
 		if (G_OBJECT_TYPE (l->data) == type) {
 			return l->data;
 		}
+	}
+
+	if (steroids && type == TRACKER_TYPE_STEROIDS) {
+		return G_OBJECT (steroids);
 	}
 
 	if (notifier && type == TRACKER_TYPE_STATUS) {
