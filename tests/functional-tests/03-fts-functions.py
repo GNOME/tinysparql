@@ -75,9 +75,9 @@ class TestFTSFunctions (CommonTrackerStoreTest):
 
         delete_sparql = """
         DELETE {
-        <contact://test/fts-function/rank/1> a rdf:Resource .
-        <contact://test/fts-function/rank/2> a rdf:Resource .
-        <contact://test/fts-function/rank/3> a rdf:Resource .
+        <contact://test/fts-function/rank/1> a rdfs:Resource .
+        <contact://test/fts-function/rank/2> a rdfs:Resource .
+        <contact://test/fts-function/rank/3> a rdfs:Resource .
         }
         """
 
@@ -110,7 +110,7 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         SELECT fts:offsets (?contact) WHERE {
            ?contact a nco:PersonContact ;
                 fts:match 'abcdefxyz' .
-        } 
+        }
         """
         results = self.tracker.query (query)
         self.assertEquals (len(results), 3)
@@ -120,13 +120,13 @@ class TestFTSFunctions (CommonTrackerStoreTest):
 
         delete_sparql = """
         DELETE {
-        <contact://test/fts-function/rank/1> a rdf:Resource .
-        <contact://test/fts-function/rank/2> a rdf:Resource .
-        <contact://test/fts-function/rank/3> a rdf:Resource .
+        <contact://test/fts-function/rank/1> a rdfs:Resource .
+        <contact://test/fts-function/rank/2> a rdfs:Resource .
+        <contact://test/fts-function/rank/3> a rdfs:Resource .
         }
         """
-        
-        
+
+
 
 if __name__ == '__main__':
     ut.main()
