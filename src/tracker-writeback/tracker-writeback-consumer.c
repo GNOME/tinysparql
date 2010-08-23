@@ -228,12 +228,8 @@ sparql_query_cb (GObject      *object,
 		}
 		g_ptr_array_free (results, TRUE);
 	} else {
-		if (error != NULL) {
-			g_message ("  No files qualify for updates (%s)", error->message);
-			g_error_free (error);
-		} else {
-			g_message ("  No files qualify for updates");
-		}
+		g_message ("  No files qualify for updates (%s)", error->message);
+		g_error_free (error);
 	}
 
 	g_object_unref (cursor);
@@ -271,8 +267,11 @@ process_queue_cb (gpointer user_data)
 	                         "}",
 	                         data->subject, data->subject);
 
-	tracker_sparql_connection_query_async (priv->connection, query, NULL,
-	                                       sparql_query_cb, consumer);
+	tracker_sparql_connection_query_async (priv->connection,
+	                                       query,
+	                                       NULL,
+	                                       sparql_query_cb,
+	                                       consumer);
 
 	g_free (query);
 

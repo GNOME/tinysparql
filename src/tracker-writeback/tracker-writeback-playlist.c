@@ -173,7 +173,7 @@ rewrite_playlist (TrackerSparqlConnection *connection,
 			totem_pl_playlist_append  (playlist, &iter);
 			totem_pl_playlist_set (playlist, &iter,
 			                       TOTEM_PL_PARSER_FIELD_URI,
-			                       tracker_sparql_cursor_get_string (cursor, 0),
+			                       tracker_sparql_cursor_get_string (cursor, 0, NULL),
 			                       NULL);
 			amount++;
 		}

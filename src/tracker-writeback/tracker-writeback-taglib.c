@@ -218,7 +218,7 @@ writeback_taglib_get_from_query (TrackerSparqlConnection *connection,
 	                                          NULL,
 	                                          &error);
 
-	if (error || !tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+	if (error || !cursor || !tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		g_warning ("Couldn't find %s for artist with urn '%s', %s",
 		           errmsg,
 		           urn,
@@ -242,10 +242,12 @@ writeback_taglib_get_artist_name (TrackerSparqlConnection *connection,
                                   const gchar             *urn)
 {
 	gchar *val, *query;
+
 	query = g_strdup_printf ("SELECT ?artistName WHERE {<%s> nmm:artistName ?artistName}",
 	                         urn);
 	val = writeback_taglib_get_from_query (connection, urn, query, "artist name");
 	g_free (query);
+
 	return val;
 }
 
@@ -254,10 +256,12 @@ writeback_taglib_get_album_name (TrackerSparqlConnection *connection,
                                  const gchar             *urn)
 {
 	gchar *val, *query;
+
 	query = g_strdup_printf ("SELECT ?albumName WHERE {<%s> dc:title ?albumName}",
 	                         urn);
 	val = writeback_taglib_get_from_query (connection, urn, query, "album name");
 	g_free (query);
+
 	return val;
 }
 
