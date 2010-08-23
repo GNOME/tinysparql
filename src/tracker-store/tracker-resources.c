@@ -41,7 +41,8 @@
 #include "tracker-writeback.h"
 #include "tracker-store.h"
 
-#define NEED_IMMEDIATE_EMIT_AT 1000
+#define TRACKER_CLASS_SIGNAL_IMMEDIATE_EMIT_AT	1000
+#define TRACKER_CLASS_SIGNAL_SECONDS_PER_EMIT	1
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_TYPE RDF_PREFIX "type"
@@ -673,7 +674,7 @@ check_class_signal_signal (TrackerResources *object)
 	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
 
 	/* Check for whether we need an immediate emit */
-	if (tracker_events_get_total (FALSE) > NEED_IMMEDIATE_EMIT_AT) {
+	if (tracker_events_get_total (FALSE) > TRACKER_CLASS_SIGNAL_IMMEDIATE_EMIT_AT) {
 		gpointer key, value;
 		GHashTableIter iter;
 
@@ -688,7 +689,9 @@ check_class_signal_signal (TrackerResources *object)
 	} else {
 		/* Ready the signal */
 		if (priv->class_signal_timeout == 0) {
-			priv->class_signal_timeout = g_timeout_add_seconds (1, on_emit_class_signal, object);
+			priv->class_signal_timeout = g_timeout_add_seconds (TRACKER_CLASS_SIGNAL_SECONDS_PER_EMIT,
+			                                                    on_emit_class_signal,
+			                                                    object);
 		}
 	}
 }
