@@ -459,9 +459,11 @@ tracker_dbus_get_object (GType type)
 		}
 	}
 
+#ifdef HAVE_DBUS_FD_PASSING
 	if (steroids && type == TRACKER_TYPE_STEROIDS) {
 		return G_OBJECT (steroids);
 	}
+#endif /* HAVE_DBUS_FD_PASSING */
 
 	if (notifier && type == TRACKER_TYPE_STATUS) {
 		return G_OBJECT (notifier);
