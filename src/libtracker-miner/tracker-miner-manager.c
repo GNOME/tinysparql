@@ -982,6 +982,18 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 	return TRUE;
 }
 
+GQuark
+tracker_miner_manager_error_quark (void)
+{
+	static GQuark error_quark = 0;
+
+	if (G_UNLIKELY (error_quark == 0)) {
+		error_quark = g_quark_from_static_string ("tracker-miner-manager-error-quark");
+	}
+
+	return error_quark;
+}
+
 gboolean
 tracker_miner_manager_index_file (TrackerMinerManager  *manager,
                                   GFile                *file,
@@ -994,6 +1006,23 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	if (!g_file_query_exists (file, NULL)) {
+		g_set_error_literal (error,
+		                     TRACKER_MINER_MANAGER_ERROR,
+		                     TRACKER_MINER_MANAGER_ERROR_NOENT,
+		                     "File or directory does not exist");
+		return FALSE;
+	}
+
+	if (!tracker_miner_manager_is_active (manager,
+	                                      "org.freedesktop.Tracker1.Miner.Files")) {
+		g_set_error_literal (error,
+		                     TRACKER_MINER_MANAGER_ERROR,
+		                     TRACKER_MINER_MANAGER_ERROR_NOT_AVAILABLE,
+		                     "Filesystem miner is not active");
+		return FALSE;
+	}
 
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 

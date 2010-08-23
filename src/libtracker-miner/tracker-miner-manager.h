@@ -35,8 +35,16 @@ G_BEGIN_DECLS
 #define TRACKER_IS_MINER_MANAGER_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),    TRACKER_TYPE_MINER_MANAGER))
 #define TRACKER_MINER_MANAGER_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerClass))
 
+#define TRACKER_MINER_MANAGER_ERROR tracker_miner_manager_error_quark ()
+
 typedef struct TrackerMinerManager TrackerMinerManager;
 typedef struct TrackerMinerManagerClass TrackerMinerManagerClass;
+typedef enum TrackerMinerManagerError TrackerMinerManagerError;
+
+enum TrackerMinerManagerError {
+	TRACKER_MINER_MANAGER_ERROR_NOT_AVAILABLE,
+	TRACKER_MINER_MANAGER_ERROR_NOENT
+};
 
 /**
  * TrackerMinerManager:
@@ -70,6 +78,7 @@ struct TrackerMinerManagerClass {
 };
 
 GType                tracker_miner_manager_get_type           (void) G_GNUC_CONST;
+GQuark               tracker_miner_manager_error_quark        (void) G_GNUC_CONST;
 
 TrackerMinerManager *tracker_miner_manager_new                (void);
 GSList *             tracker_miner_manager_get_running        (TrackerMinerManager  *manager);
