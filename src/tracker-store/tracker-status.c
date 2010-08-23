@@ -39,6 +39,7 @@ typedef struct {
 	gchar *status;
 	guint timer_id;
 	TrackerStatus *object;
+	GList *wait_list;
 } TrackerStatusPrivate;
 
 enum {
@@ -137,6 +138,20 @@ tracker_status_callback (const gchar *status,
 
 	priv->progress = progress;
 
+	if (progress == 1 && priv->wait_list) {
+		GList *l;
+
+		/* notify clients that tracker-store is no longer busy */
+
+		priv->wait_list = g_list_reverse (priv->wait_list);
+		for (l = priv->wait_list; l; l = l->next) {
+			dbus_g_method_return (l->data);
+		}
+
+		g_list_free (priv->wait_list);
+		priv->wait_list = NULL;
+	}
+
 	if (g_strcmp0 (status, priv->status) != 0) {
 		g_free (priv->status);
 		priv->status = g_strdup (status);
@@ -195,4 +210,19 @@ tracker_status_get_status  (TrackerStatus    *object,
 	tracker_dbus_request_success (request_id, context);
 
 	return;
+}
+
+void
+tracker_status_wait  (TrackerStatus          *object,
+                      DBusGMethodInvocation  *context,
+                      GError                **error)
+{
+	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
+
+	if (priv->progress == 1) {
+		/* tracker-store is idle */
+		dbus_g_method_return (context);
+	} else {
+		priv->wait_list = g_list_prepend (priv->wait_list, context);
+	}
 }

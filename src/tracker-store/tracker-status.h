@@ -67,6 +67,9 @@ void                  tracker_status_get_progress  (TrackerStatus          *obje
 void                  tracker_status_get_status    (TrackerStatus          *object,
                                                     DBusGMethodInvocation  *context,
                                                     GError                **error);
+void                  tracker_status_wait          (TrackerStatus          *object,
+                                                    DBusGMethodInvocation  *context,
+                                                    GError                **error);
 
 
 G_END_DECLS
