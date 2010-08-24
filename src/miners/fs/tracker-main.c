@@ -72,7 +72,6 @@ static gboolean finished_miners;
 static gint verbosity = -1;
 static gint initial_sleep = -1;
 static gchar *eligible;
-static gchar *add_file;
 static gboolean version;
 
 static GOptionEntry entries[] = {
@@ -89,10 +88,6 @@ static GOptionEntry entries[] = {
 	{ "eligible", 'e', 0,
 	  G_OPTION_ARG_FILENAME, &eligible,
 	  N_("Checks if FILE is eligible for being mined based on configuration"),
-	  N_("FILE") },
-	{ "add-file", 'a', 0,
-	  G_OPTION_ARG_FILENAME, &add_file,
-	  N_("Forces the insertion of FILE into the store"),
 	  N_("FILE") },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
@@ -266,19 +261,10 @@ miner_finished_cb (TrackerMinerFS *fs,
                    guint           total_files_ignored,
                    gpointer        user_data)
 {
-	GMainLoop *main_loop = user_data;
-
 	g_message ("Finished mining in seconds:%f, total directories:%d, total files:%d",
 	           seconds_elapsed,
 	           total_directories_found,
 	           total_files_found);
-
-	if (add_file && main_loop) {
-		/* We were waiting for a file to be processed, now it's safe to quit */
-		GMainLoop *main_loop = user_data;
-		g_main_loop_quit (main_loop);
-		return;
-	}
 
 	if (TRACKER_IS_MINER_FILES (fs) &&
 	    tracker_miner_fs_get_initial_crawling (fs)) {
@@ -626,23 +612,13 @@ main (gint argc, gchar *argv[])
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
-	if (!add_file) {
-		miner_files = tracker_miner_files_new (config);
-		tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files),
-		                                       should_crawl (config));
-	} else {
-		GFile *file;
-
-		file = g_file_new_for_commandline_arg (add_file);
-		miner_files = tracker_miner_files_new (NULL);
-
-		tracker_miner_fs_check_file (TRACKER_MINER_FS (miner_files), file, FALSE);
-		g_object_unref (file);
-	}
+	miner_files = tracker_miner_files_new (config);
+	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files),
+	                                       should_crawl (config));
 
 	g_signal_connect (miner_files, "finished",
 			  G_CALLBACK (miner_finished_cb),
-			  main_loop);
+			  NULL);
 
 	object = tracker_miner_files_index_new (TRACKER_MINER_FILES (miner_files));
 
@@ -666,18 +642,16 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (!add_file) {
-		/* Create miner for applications */
-		miner_applications = tracker_miner_applications_new ();
-		miners = g_slist_append (miners, miner_applications);
+	/* Create miner for applications */
+	miner_applications = tracker_miner_applications_new ();
+	miners = g_slist_append (miners, miner_applications);
 
-		g_signal_connect (miner_applications, "finished",
-				  G_CALLBACK (miner_finished_cb),
-				  NULL);
+	g_signal_connect (miner_applications, "finished",
+	                  G_CALLBACK (miner_finished_cb),
+	                  NULL);
 
-		/* Create miner for files */
-		miners = g_slist_append (miners, miner_files);
-	}
+	/* Create miner for files */
+	miners = g_slist_append (miners, miner_files);
 
 	tracker_thumbnailer_init ();
 

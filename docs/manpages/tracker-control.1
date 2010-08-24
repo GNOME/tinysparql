@@ -21,6 +21,9 @@ are running and which ones are installed.
 .B \-?, \-\-help
 Show summary of options.
 .TP
+.B \-V, \-\-version
+Returns the version of this binary.
+.TP
 .B \-k, \-\-kill=[all|store|miners]
 This uses SIGKILL to stop all Tracker processes found matching the
 parameter, if no extra parameter is passed,
@@ -70,8 +73,8 @@ files. You can use
 .B \-\-reindex-mime-type
 more than once per \fIMIME\fR type.
 .TP
-.B \-V, \-\-version
-Print version.
+.B \-f, \-\-index-file=FILE
+(Re)index a file matching the \fIFILE\fR type supplied.
 
 .SH SEE ALSO
 .BR tracker-status (1),
