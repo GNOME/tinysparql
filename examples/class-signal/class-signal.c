@@ -22,14 +22,6 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-#define TRACKER_TYPE_THREE_INT_ARRAY	\
-	dbus_g_type_get_collection ("GPtrArray", \
-	                            dbus_g_type_get_struct("GValueArray", \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INVALID))
-
 #define TRACKER_SERVICE                 "org.freedesktop.Tracker1"
 #define TRACKER_RESOURCES_OBJECT        "/org/freedesktop/Tracker1/Resources"
 #define TRACKER_INTERFACE_RESOURCES     "org.freedesktop.Tracker1.Resources"
