@@ -553,6 +553,8 @@ main (int argc, char **argv)
 			return EXIT_FAILURE;
 		}
 
+		g_print ("Reindexing mime types was successful\n");
+
 		g_object_unref (manager);
 	}
 
@@ -572,6 +574,8 @@ main (int argc, char **argv)
 			g_error_free (error);
 			return EXIT_FAILURE;
 		}
+
+		g_print ("(Re)indexing file was successful\n");
 
 		g_object_unref (manager);
 		g_object_unref (file);
