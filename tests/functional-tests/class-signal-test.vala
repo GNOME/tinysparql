@@ -23,6 +23,7 @@ using Tracker.Sparql;
 const int max_signals = 10000;
 const string title_data = "title";
 
+
 struct Event {
 	int subject_id;
 	int pred_id;
@@ -101,7 +102,6 @@ public class TestApp {
 	private int iter_cursor (string kind, Cursor cursor) {
 		try {
 			while (cursor.next()) {
-				int i;
 				string resource = cursor.get_string (0);
 
 				print ("%s <%s> nie:title '%s'\n",
