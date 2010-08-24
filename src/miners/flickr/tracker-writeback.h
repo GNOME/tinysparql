@@ -40,7 +40,7 @@ typedef void (*TrackerWritebackCallback) (const GHashTable *resources,
 void  tracker_writeback_init       (void);
 void  tracker_writeback_shutdown   (void);
 guint tracker_writeback_connect    (TrackerWritebackCallback callback,
-				    gpointer                 user_data);
+                                    gpointer                 user_data);
 void  tracker_writeback_disconnect (guint                    handle);
 
 G_END_DECLS

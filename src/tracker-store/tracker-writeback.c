@@ -33,19 +33,26 @@ typedef struct {
 
 static WritebackPrivate *private;
 
-static GStrv
-copy_rdf_types (GPtrArray *rdf_types)
+static GArray*
+rdf_types_to_array (GPtrArray *rdf_types)
 {
-	GStrv new_types;
+	GArray *new_types;
 	guint n;
 
-	new_types = g_new0 (gchar *, rdf_types->len + 1);
+	new_types =  g_array_sized_new (FALSE, FALSE, sizeof (gint), rdf_types->len);
 
 	for (n = 0; n < rdf_types->len; n++) {
-		new_types[n] = g_strdup (tracker_class_get_uri (rdf_types->pdata[n]));
+		gint id = tracker_class_get_id (rdf_types->pdata[n]);
+		g_array_append_val (new_types, id);
 	}
 
 	return new_types;
+}
+
+static void
+array_free (GArray *array)
+{
+	g_array_free (array, TRUE);
 }
 
 void
@@ -73,12 +80,12 @@ tracker_writeback_check (gint         graph_id,
 		if (!private->events) {
 			private->events = g_hash_table_new_full (g_str_hash, g_str_equal,
 			                                         (GDestroyNotify) g_free,
-			                                         (GDestroyNotify) g_strfreev);
+			                                         (GDestroyNotify) array_free);
 		}
 
 		g_hash_table_insert (private->events,
 		                     g_strdup (subject),
-		                     copy_rdf_types (rdf_types));
+		                     rdf_types_to_array (rdf_types));
 	}
 }
 

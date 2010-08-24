@@ -731,14 +731,17 @@ public class MinerFlickr : Tracker.MinerWeb {
 		weak string[] rdf_classes;
 
 		foreach (string uri in uris) {
-			rdf_classes = (string[])properties.lookup (uri);
+			// This part is not correct anylonger, the hashtable contains IDs
+			// instead of string uris
 
-			for (uint i = 0; rdf_classes[i] != null; i++) {
-				if (rdf_classes[i] == NMM_PHOTO) {
-					writeback_photo (uri);
-					return;
-				}
-			}
+			//rdf_classes = (string[])properties.lookup (uri);
+
+			//for (uint i = 0; rdf_classes[i] != null; i++) {
+				//if (rdf_classes[i] == NMM_PHOTO) {
+					//writeback_photo (uri);
+					//return;
+				//}
+			//}
 		}
 	}
 

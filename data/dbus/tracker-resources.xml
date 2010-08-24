@@ -51,7 +51,7 @@
     </method>
 
    <signal name="Writeback">
-      <arg type="a{sas}" name="subjects" />
+      <arg type="a{sai}" name="subjects" />
    </signal>
 
    <signal name="ClassSignal">

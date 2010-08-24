@@ -45,7 +45,7 @@ struct TrackerWritebackDispatcherClass {
 
 	void (* writeback) (TrackerWritebackDispatcher *dispatcher,
 	                    const gchar                *subject,
-	                    const GStrv                 rdf_types);
+	                    GArray                     *rdf_types);
 };
 
 GType                        tracker_writeback_dispatcher_get_type (void) G_GNUC_CONST;

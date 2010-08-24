@@ -190,8 +190,8 @@ tracker_events_add_delete (gint         graph_id,
 void
 tracker_events_reset (void)
 {
-	GHashTableIter iter;
-	gpointer key, value;
+/*	GHashTableIter iter;
+	gpointer key, value; */
 
 	g_return_if_fail (private != NULL);
 /*

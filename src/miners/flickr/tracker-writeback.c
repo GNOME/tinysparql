@@ -74,7 +74,7 @@ tracker_writeback_init (void)
 
 	dbus_g_proxy_add_signal (proxy_resources,
 	                         "Writeback",
-	                         TRACKER_TYPE_STR_STRV_MAP,
+	                         TRACKER_TYPE_STR_ARRAY_MAP,
 	                         G_TYPE_INVALID);
 }
 
@@ -114,7 +114,7 @@ tracker_writeback_connect (TrackerWritebackCallback callback,
 		dbus_g_proxy_connect_signal (proxy_resources,
 		                             "Writeback",
 		                             G_CALLBACK (writeback_cb),
-					     NULL,
+		                             NULL,
 		                             NULL);
 	}
 

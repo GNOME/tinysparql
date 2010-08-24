@@ -50,7 +50,7 @@ TrackerWritebackConsumer * tracker_writeback_consumer_new      (void);
 
 void tracker_writeback_consumer_add_subject (TrackerWritebackConsumer *consumer,
                                              const gchar              *subject,
-                                             const GStrv               rdf_types);
+                                             GArray                   *rdf_types);
 
 G_END_DECLS
 
