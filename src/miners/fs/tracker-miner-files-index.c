@@ -27,6 +27,13 @@
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"
 
+/* If defined, then a file provided to be indexed MUST be a child in
+ * an configured path. if undefined, any file can be indexed, however
+ * it is up to applications to maintain files outside the configured
+ * locations.
+ */
+#undef REQUIRE_LOCATION_IN_CONFIG
+
 typedef struct {
 	guint request_id;
 	DBusGMethodInvocation *context;
@@ -296,6 +303,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 	GFile *file, *dir;
 	GFileInfo *file_info;
 	gboolean is_dir;
+	gboolean do_checks = FALSE;
 	GError *internal_error;
 
 	tracker_dbus_async_return_if_fail (file_uri != NULL, context);
@@ -328,9 +336,14 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 	is_dir = (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
 	g_object_unref (file_info);
 
+#ifdef REQUIRE_LOCATION_IN_CONFIG
+	do_checks = TRUE;
+#endif /* REQUIRE_LOCATION_IN_CONFIG */
+
 	if (is_dir) {
 		dir = g_object_ref (file);
 	} else {
+#ifdef REQUIRE_LOCATION_IN_CONFIG
 		if (!tracker_miner_files_check_file (file,
 		                                     tracker_config_get_ignored_file_paths (config),
 		                                     tracker_config_get_ignored_file_patterns (config))) {
@@ -342,11 +355,13 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 
 			return;
 		}
+#endif /* REQUIRE_LOCATION_IN_CONFIG */
 
 		dir = g_file_get_parent (file);
 	}
 
 	if (dir) {
+#ifdef REQUIRE_LOCATION_IN_CONFIG
 		gboolean found = FALSE;
 		GSList *l;
 
@@ -404,14 +419,15 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 
 			return;
 		}
+#endif /* REQUIRE_LOCATION_IN_CONFIG */
 
 		g_object_unref (dir);
 	}
 
 	if (is_dir) {
-		tracker_miner_fs_check_directory (TRACKER_MINER_FS (priv->files_miner), file, TRUE);
+		tracker_miner_fs_check_directory (TRACKER_MINER_FS (priv->files_miner), file, do_checks);
 	} else {
-		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner), file, TRUE);
+		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner), file, do_checks);
 	}
 
 	tracker_dbus_request_success (request_id, context);
