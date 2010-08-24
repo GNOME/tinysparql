@@ -2232,7 +2232,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		create_sql = g_string_new ("");
 		g_string_append_printf (create_sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
 		if (main_class) {
-			tracker_db_interface_execute_query (iface, &error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri TEXT COLLATE " TRACKER_COLLATION_NAME " NOT NULL, UNIQUE (Uri))");
+			tracker_db_interface_execute_query (iface, &error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri TEXT NOT NULL, UNIQUE (Uri))");
 			if (error) {
 				g_critical ("Failed creating Resource SQL table: %s", error->message);
 				g_clear_error (&error);
