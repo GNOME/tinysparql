@@ -1327,10 +1327,17 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 		if (journal_eof (jreader)) {
 			/* Return FALSE as there is no further entry but
 			 * do not set error as it's not an error case. */
-			if (global_reader && jreader->current_file != 0)
-				return reader_next_file (error);
-			else
+			if (global_reader && jreader->current_file != 0) {
+				if (reader_next_file (error)) {
+					/* read first entry in next file */
+					return db_journal_reader_next (jreader, global_reader, error);
+				} else {
+					/* no more files */
+					return FALSE;
+				}
+			} else {
 				return FALSE;
+			}
 		}
 
 		jreader->entry_begin = jreader->current;
