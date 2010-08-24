@@ -100,7 +100,7 @@ static GOptionEntry entries[] = {
 	  N_("MIME") },
 	{ "index-file", 'f', 0, G_OPTION_ARG_FILENAME, &index_file,
 	  N_("(Re)Index a given file"),
-	  N_("File") },
+	  N_("FILE") },
 	{ "version", 'V', 0, G_OPTION_ARG_NONE, &print_version,
 	  N_("Print version"),
 	  NULL },
@@ -547,13 +547,14 @@ main (int argc, char **argv)
 		tracker_miner_manager_reindex_by_mimetype (manager, reindex_mime_types, &error);
 
 		if (error) {
-			g_print ("Could not reindex mimetypes: %s\n",
-			         error->message);
+			g_printerr ("%s: %s\n",
+			            _("Could not reindex mimetypes"),
+			            error->message);
 			g_error_free (error);
 			return EXIT_FAILURE;
 		}
 
-		g_print ("Reindexing mime types was successful\n");
+		g_print ("%s\n", _("Reindexing mime types was successful"));
 
 		g_object_unref (manager);
 	}
@@ -569,13 +570,14 @@ main (int argc, char **argv)
 		tracker_miner_manager_index_file (manager, file, &error);
 
 		if (error) {
-			g_print ("Could not (re)index file '%s': %s\n",
-			         index_file, error->message);
+			g_printerr ("%s: %s\n",
+			            _("Could not (re)index file"),
+			            error->message);
 			g_error_free (error);
 			return EXIT_FAILURE;
 		}
 
-		g_print ("(Re)indexing file was successful\n");
+		g_print ("%s\n", _("(Re)indexing file was successful"));
 
 		g_object_unref (manager);
 		g_object_unref (file);
