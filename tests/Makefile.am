@@ -7,6 +7,7 @@ SUBDIRS = 			\
 	libtracker-extract	\
 	libtracker-miner	\
 	libtracker-data		\
+	libtracker-sparql	\
 	tracker-miner-fs	\
 	tracker-extract		\
 	tracker-steroids	\

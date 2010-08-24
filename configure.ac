@@ -1937,6 +1937,7 @@ AC_CONFIG_FILES([
 	tests/libtracker-fts/Makefile
 	tests/libtracker-fts/limits/Makefile
 	tests/libtracker-fts/prefix/Makefile
+	tests/libtracker-sparql/Makefile
 	tests/functional-tests/Makefile
 	tests/functional-tests/common/Makefile
 	tests/functional-tests/common/utils/configuration.py
