@@ -231,7 +231,9 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
 	len = g_strv_length (mime_types);
 	tracker_dbus_async_return_if_fail (len > 0, context);
 
-	tracker_dbus_request_new (request_id, context, "%s()", __FUNCTION__);
+	tracker_dbus_request_new (request_id, context, "%s(%d mime types)",
+	                          __FUNCTION__,
+	                          len);
 
 	connection = tracker_sparql_connection_get (&inner_error);
 
@@ -299,7 +301,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 	tracker_dbus_async_return_if_fail (file_uri != NULL, context);
 
 	request_id = tracker_dbus_get_next_request_id ();
-	tracker_dbus_request_new (request_id, context, "%s()", __FUNCTION__);
+	tracker_dbus_request_new (request_id, context, "%s(uri:'%s')", __FUNCTION__, file_uri);
 
 	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
 	file = g_file_new_for_uri (file_uri);
