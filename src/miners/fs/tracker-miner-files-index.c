@@ -169,23 +169,25 @@ mime_types_cb (GObject      *object,
                gpointer      user_data)
 {
 	MimeTypesData *mtd = user_data;
-        TrackerSparqlCursor *cursor;
-        GError *error = NULL;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
 
-        cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), 
+	                                                 result,
+	                                                 &error);
 
 	if (!error) {
 		tracker_dbus_request_comment (mtd->request_id, mtd->context,
 		                              "Found files that will need reindexing");
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-                        GFile *file;
+			GFile *file;
 			const gchar *url;
 
-                        url = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-                        file = g_file_new_for_uri (url);
-                        tracker_miner_fs_check_file (TRACKER_MINER_FS (mtd->miner_files), file, FALSE);
-                        g_object_unref (file);
+			url = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			file = g_file_new_for_uri (url);
+			tracker_miner_fs_check_file (TRACKER_MINER_FS (mtd->miner_files), file, FALSE);
+			g_object_unref (file);
 		}
 
 		tracker_dbus_request_success (mtd->request_id, mtd->context);
@@ -194,7 +196,6 @@ mime_types_cb (GObject      *object,
 		tracker_dbus_request_success (mtd->request_id, mtd->context);
 		dbus_g_method_return_error (mtd->context, error);
 	}
-
 
 	mime_types_data_destroy (user_data);
 }
@@ -215,7 +216,7 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
 {
 	TrackerMinerFilesIndexPrivate *priv;
 	GString *query;
-        GError *inner_error = NULL;
+	GError *inner_error = NULL;
 	TrackerSparqlConnection *connection;
 	guint request_id;
 	gint len, i;
@@ -266,13 +267,13 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
 
 	/* FIXME: save last call id */
 	tracker_sparql_connection_query_async (connection,
-                                               query->str,
-                                               NULL,
-                                               mime_types_cb,
-                                               mime_types_data_new (request_id,
-                                                                    context,
-                                                                    connection,
-                                                                    priv->files_miner));
+	                                       query->str,
+	                                       NULL,
+	                                       mime_types_cb,
+	                                       mime_types_data_new (request_id,
+	                                                            context,
+	                                                            connection,
+	                                                            priv->files_miner));
 
 	g_string_free (query, TRUE);
 	g_object_unref (connection);
@@ -305,18 +306,18 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex    *object,
 	              NULL);
 
 	file_info = g_file_query_info (file,
-				       G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
 
 	if (!file_info) {
-			err = g_error_new_literal (1, 0, "File does not exist");
-			dbus_g_method_return_error (context, err);
-			tracker_dbus_request_success (request_id, context);
+		err = g_error_new_literal (1, 0, "File does not exist");
+		dbus_g_method_return_error (context, err);
+		tracker_dbus_request_success (request_id, context);
 
-			g_error_free (err);
+		g_error_free (err);
 
-			return;
+		return;
 	}
 
 	is_dir = (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
