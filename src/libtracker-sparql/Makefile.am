@@ -74,4 +74,5 @@ EXTRA_DIST = 						\
 	$(libtracker_sparql_la_VALASOURCES) 		\
 	libtracker-sparql.vala.stamp			\
 	tracker-sparql-$(TRACKER_API_VERSION).vapi	\
+	tracker-sparql.deps				\
 	tracker-sparql-$(TRACKER_API_VERSION).deps
