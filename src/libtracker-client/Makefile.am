@@ -9,7 +9,6 @@ INCLUDES = 						\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
 	$(GIO_CFLAGS)					\
-	$(GCOV_CFLAGS)					\
 	$(DBUS_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-client-@TRACKER_API_VERSION@.la
@@ -36,7 +35,6 @@ libtracker_client_@TRACKER_API_VERSION@_la_LIBADD =	\
 	$(GLIB2_LIBS) 					\
 	$(GIO_LIBS)					\
 	$(DBUS_LIBS)					\
-	$(GCOV_LIBS)					\
 	$(GOBJECT_LIBS)
 
 libtracker_clientinclude_HEADERS = 			\
@@ -66,7 +64,7 @@ vapi_sources =						\
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
 
 libtracker-client.vala.stamp: $(libtracker_client_@TRACKER_API_VERSION@_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
+	$(AM_V_GEN)$(VALAC) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-sparql-builder.h $^
 	$(AM_V_GEN)touch $@
 
 BUILT_SOURCES = 					\
