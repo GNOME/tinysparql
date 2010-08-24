@@ -17,7 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-[DBus (name = "org.freedesktop.Tracker1.Status")]
+[DBus (name = "org.freedesktop.Tracker1.Status", timeout = 2147483647 /* INT_MAX */)]
 interface Tracker.Direct.Status : GLib.Object {
 	public abstract void wait () throws DBus.Error;
 }
