@@ -22,6 +22,9 @@ coverage-report: coverage
 		tracker-sparql-scanner.c \
 		tracker-turtle-reader.c \
 		tracker-turtle-writer.c \
+		libtracker-bus/tracker-array-cursor.c \
+		libtracker-bus/tracker-bus.c \
+		libtracker-direct/tracker-direct.c \
 		libtracker-miner/tracker-storage.c \
 		libtracker-miner/tracker-dbus.c \
 		libtracker-miner/tracker-miner-fs.c \
@@ -29,6 +32,11 @@ coverage-report: coverage
 		libtracker-miner/tracker-miner-web.c \
 		libtracker-miner/tracker-network-provider.c \
 		libtracker-miner/tracker-network-provider-network-manager.c \
+		libtracker-sparql/tracker-builder.c \
+		libtracker-sparql/tracker-connection.c \
+		libtracker-sparql/tracker-cursor.c \
+		libtracker-sparql/tracker-plugin-loader.c \
+		libtracker-sparql/tracker-utils.c \
 		"*.vapi" \
 		"*-glue.h" \
 		"tracker-marshal.*" \
