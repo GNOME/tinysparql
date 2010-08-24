@@ -1983,6 +1983,7 @@ AC_CONFIG_FILES([
 	examples/libtracker-extract/Makefile
 	examples/libtracker-miner/Makefile
 	examples/rss-reader/Makefile
+	examples/class-signal/Makefile
 ])
 
 AC_OUTPUT
