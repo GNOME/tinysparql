@@ -115,7 +115,7 @@ tracker_collation_init (void)
 {
 	UCollator *collator = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-	const gchar *locale = setlocale (LC_ALL, NULL);
+	const gchar *locale = setlocale (LC_COLLATE, NULL);
 
 	g_debug ("[ICU collation] Initializing collator for locale '%s'", locale);
 	collator = ucol_open (locale, &status);
