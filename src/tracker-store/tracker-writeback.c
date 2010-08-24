@@ -78,13 +78,13 @@ tracker_writeback_check (gint         graph_id,
 
 	if (g_hash_table_lookup (private->allowances, GINT_TO_POINTER (pred_id))) {
 		if (!private->events) {
-			private->events = g_hash_table_new_full (g_str_hash, g_str_equal,
-			                                         (GDestroyNotify) g_free,
+			private->events = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+			                                         (GDestroyNotify) NULL,
 			                                         (GDestroyNotify) array_free);
 		}
 
 		g_hash_table_insert (private->events,
-		                     g_strdup (subject),
+		                     GINT_TO_POINTER (subject_id),
 		                     rdf_types_to_array (rdf_types));
 	}
 }

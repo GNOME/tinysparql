@@ -119,7 +119,7 @@ tracker_resources_class_init (TrackerResourcesClass *klass)
 		              NULL, NULL,
 		              g_cclosure_marshal_VOID__BOXED,
 		              G_TYPE_NONE, 1,
-		              TRACKER_TYPE_STR_ARRAY_MAP);
+		              TRACKER_TYPE_INT_ARRAY_MAP);
 
 	/* This is just for introspection to work */
 	signals[CLASSSIGNAL] =

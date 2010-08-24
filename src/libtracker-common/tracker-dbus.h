@@ -38,8 +38,8 @@ G_BEGIN_DECLS
 #define TRACKER_DBUS_ERROR        tracker_dbus_error_quark()
 
 
-#define TRACKER_TYPE_STR_ARRAY_MAP	\
-	dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, DBUS_TYPE_G_INT_ARRAY)
+#define TRACKER_TYPE_INT_ARRAY_MAP	\
+	dbus_g_type_get_map ("GHashTable", G_TYPE_INT, DBUS_TYPE_G_INT_ARRAY)
 
 #define TRACKER_TYPE_THREE_INT_ARRAY	\
 	dbus_g_type_get_collection ("GPtrArray", \

@@ -59,7 +59,7 @@ static GOptionEntry  entries[] = {
 };
 
 typedef struct {
-	gchar  *subject;
+	gint    subject;
 	GArray *rdf_types;
 } WritebackData;
 
@@ -68,14 +68,14 @@ static TrackerWritebackDispatcher *dispatcher = NULL;
 static GMainContext *dispatcher_context = NULL;
 
 static WritebackData *
-writeback_data_new (const gchar  *subject,
-                    GArray       *rdf_types)
+writeback_data_new (gint    subject,
+                    GArray *rdf_types)
 {
 	WritebackData *data;
 	guint i;
 
 	data = g_slice_new (WritebackData);
-	data->subject = g_strdup (subject);
+	data->subject = subject;
 
 	data->rdf_types = g_array_sized_new (FALSE, FALSE, sizeof (gint), rdf_types->len);
 
@@ -90,7 +90,6 @@ writeback_data_new (const gchar  *subject,
 static void
 writeback_data_free (WritebackData *data)
 {
-	g_free (data->subject);
 	g_array_free (data->rdf_types, TRUE);
 	g_slice_free (WritebackData, data);
 }
@@ -113,12 +112,12 @@ on_writeback_idle_cb (gpointer user_data)
 /* This callback run in the dispatcher thread */
 static void
 on_writeback_cb (TrackerWritebackDispatcher *dispatcher,
-                 const gchar                *subject,
+                 gint                        subject,
                  GArray                     *rdf_types)
 {
 	WritebackData *data;
 
-	g_message ("Got writeback petition on thread '%p' for subject '%s'",
+	g_message ("Got writeback petition on thread '%p' for subject '%d'",
 	           g_thread_self (), subject);
 
 	data = writeback_data_new (subject, rdf_types);

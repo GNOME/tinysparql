@@ -44,7 +44,7 @@ struct TrackerWritebackDispatcherClass {
 	GObjectClass parent_class;
 
 	void (* writeback) (TrackerWritebackDispatcher *dispatcher,
-	                    const gchar                *subject,
+	                    gint                        subject,
 	                    GArray                     *rdf_types);
 };
 

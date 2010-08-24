@@ -37,7 +37,7 @@
 #define TRACKER_INTERFACE_RESOURCES "org.freedesktop.Tracker1.Resources"
 
 typedef struct {
-	gchar  *subject;
+	gint    subject;
 	GStrv   rdf_types;
 	GArray *rdf_types_int;
 } QueryData;
@@ -214,7 +214,7 @@ sparql_query_cb (GObject      *object,
 				if (sparql_rdf_types_match (module_types, (const gchar * const *) rdf_types)) {
 					TrackerWriteback *writeback;
 
-					g_message ("  Updating metadata for subject:'%s' using module:'%s'",
+					g_message ("  Updating metadata for subject:'%d' using module:'%s'",
 					           data->subject,
 					           module->name);
 
@@ -234,7 +234,6 @@ sparql_query_cb (GObject      *object,
 		g_error_free (error);
 	}
 
-	g_free (data->subject);
 	g_strfreev (data->rdf_types);
 	g_slice_free (QueryData, data);
 
@@ -251,16 +250,19 @@ rdf_types_to_uris_cb (GObject      *object,
 	QueryData *data;
 	GError *error = NULL;
 	TrackerSparqlCursor *cursor;
+	TrackerSparqlConnection *connection;
 
 	consumer = TRACKER_WRITEBACK_CONSUMER (user_data);
 	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
+	connection = TRACKER_SPARQL_CONNECTION (object);
 
 	data = g_queue_peek_head (priv->process_queue);
 
-	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
+	cursor = tracker_sparql_connection_query_finish (connection, result, &error);
 
 	if (!error) {
 		gchar *query;
+		const gchar *subject;
 		GArray *rdf_types;
 		guint i;
 
@@ -279,12 +281,26 @@ rdf_types_to_uris_cb (GObject      *object,
 
 		g_object_unref (cursor);
 
+		query = g_strdup_printf ("SELECT tracker:subject (%d) {}", data->subject);
+		cursor = tracker_sparql_connection_query (connection, query, NULL, NULL);
+		g_free (query);
+
+		if (cursor && tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			subject = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			if (!subject)
+				goto trouble;
+		} else {
+			if (cursor)
+				g_object_unref (cursor);
+			goto trouble;
+		}
+
 		query = g_strdup_printf ("SELECT ?url '%s' ?predicate ?object {"
 		                         "  <%s> ?predicate ?object ; "
 		                         "       nie:url ?url ."
 		                         "  ?predicate tracker:writeback true "
 		                         "}",
-		                         data->subject, data->subject);
+		                         subject, subject);
 
 		tracker_sparql_connection_query_async (priv->connection,
 		                                       query,
@@ -295,17 +311,25 @@ rdf_types_to_uris_cb (GObject      *object,
 		g_free (query);
 
 	} else {
-		g_message ("  No files qualify for updates (%s)", error->message);
-		g_error_free (error);
+		goto trouble;
+	}
+
+	g_array_free (data->rdf_types_int, TRUE);
+
+	return;
+
+trouble:
+		if (error) {
+			g_message ("  No files qualify for updates (%s)", error->message);
+			g_error_free (error);
+		}
+		g_array_free (data->rdf_types_int, TRUE);
 		data = g_queue_pop_head (priv->process_queue);
-		g_free (data->subject);
 		g_strfreev (data->rdf_types);
 		g_slice_free (QueryData, data);
 
 		priv->idle_id = g_idle_add (process_queue_cb, consumer);
-	}
 
-	g_array_free (data->rdf_types_int, TRUE);
 }
 
 static gboolean
@@ -357,7 +381,7 @@ process_queue_cb (gpointer user_data)
 
 void
 tracker_writeback_consumer_add_subject (TrackerWritebackConsumer *consumer,
-                                        const gchar              *subject,
+                                        gint                      subject,
                                         GArray                   *rdf_types)
 {
 	TrackerWritebackConsumerPrivate *priv;
@@ -365,13 +389,12 @@ tracker_writeback_consumer_add_subject (TrackerWritebackConsumer *consumer,
 	guint i;
 
 	g_return_if_fail (TRACKER_IS_WRITEBACK_CONSUMER (consumer));
-	g_return_if_fail (subject != NULL);
 	g_return_if_fail (rdf_types != NULL);
 
 	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
 
 	data = g_slice_new (QueryData);
-	data->subject = g_strdup (subject);
+	data->subject = subject;
 
 	data->rdf_types_int = g_array_sized_new (FALSE, FALSE, sizeof (gint), rdf_types->len);
 

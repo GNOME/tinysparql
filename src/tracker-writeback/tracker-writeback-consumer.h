@@ -49,7 +49,7 @@ GType                      tracker_writeback_consumer_get_type (void) G_GNUC_CON
 TrackerWritebackConsumer * tracker_writeback_consumer_new      (void);
 
 void tracker_writeback_consumer_add_subject (TrackerWritebackConsumer *consumer,
-                                             const gchar              *subject,
+                                             gint                      subject,
                                              GArray                   *rdf_types);
 
 G_END_DECLS

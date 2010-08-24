@@ -91,8 +91,8 @@ tracker_writeback_dispatcher_class_init (TrackerWritebackDispatcherClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerWritebackDispatcherClass, writeback),
 		              NULL, NULL,
-		              tracker_marshal_VOID__STRING_BOXED,
-		              G_TYPE_NONE, 2, G_TYPE_STRING, G_TYPE_ARRAY);
+		              tracker_marshal_VOID__INT_BOXED,
+		              G_TYPE_NONE, 2, G_TYPE_INT, G_TYPE_ARRAY);
 
 	g_type_class_add_private (object_class, sizeof (TrackerWritebackDispatcherPrivate));
 }
@@ -114,7 +114,7 @@ handle_writeback_signal (TrackerWritebackDispatcher *dispatcher,
 
 	signature = dbus_message_iter_get_signature (&iter);
 
-	if (g_strcmp0 (signature, "a{sai}") != 0) {
+	if (g_strcmp0 (signature, "a{iai}") != 0) {
 		g_critical ("  Unexpected message signature '%s'", signature);
 		g_free (signature);
 		return;
@@ -129,7 +129,7 @@ handle_writeback_signal (TrackerWritebackDispatcher *dispatcher,
 
 		while ((arg_type = dbus_message_iter_get_arg_type (&arr)) != DBUS_TYPE_INVALID) {
 			DBusMessageIter dict, types_arr;
-			const gchar *subject;
+			gint subject;
 			GArray *rdf_types;
 
 			rdf_types = g_array_new (FALSE, FALSE, sizeof (gint));

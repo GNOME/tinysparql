@@ -576,7 +576,7 @@ client_constructed (GObject *object)
 
 	dbus_g_proxy_add_signal (private->proxy_resources,
 	                         "Writeback",
-	                         TRACKER_TYPE_STR_ARRAY_MAP,
+	                         TRACKER_TYPE_INT_ARRAY_MAP,
 	                         G_TYPE_INVALID);
 
 	private->is_constructed = TRUE;
