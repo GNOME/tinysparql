@@ -303,7 +303,8 @@ main (int argc, char **argv)
 	 */
 	if (kill_option != TERM_NONE ||
 	    terminate_option != TERM_NONE ||
-	    (!start && !remove_config)) {
+	    (!start && !remove_config && !reindex_mime_types && 
+	     !print_version && !index_file)) {
 		pids = get_pids ();
 		str = g_strdup_printf (g_dngettext (NULL,
 		                                    "Found %d PID…",
