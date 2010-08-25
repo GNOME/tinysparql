@@ -207,9 +207,7 @@ writeback_taglib_get_from_query (TrackerSparqlConnection *connection,
                                  const gchar             *query,
                                  const gchar             *errmsg)
 {
-	gchar *query;
 	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
 	GError *error = NULL;
 	gchar *value = NULL;
 
@@ -228,7 +226,7 @@ writeback_taglib_get_from_query (TrackerSparqlConnection *connection,
 			g_error_free (error);
 		}
 	} else {
-		value = g_strdup (tracker_sparql_cursor_get_string (cursor, 0));
+		value = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 	}
 
 	g_object_unref (cursor);
