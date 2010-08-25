@@ -58,6 +58,7 @@
 /* Set current database version we are working with */
 #define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_9_16
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
+#define TRACKER_DB_LOCALE_FILE        "db-locale.txt"
 
 #define IN_USE_FILENAME               ".meta.isrunning"
 
@@ -138,6 +139,8 @@ static gboolean            db_exec_no_reply    (TrackerDBInterface *iface,
 static TrackerDBInterface *db_interface_create (TrackerDB           db);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces     (gint num, ...);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces_ro  (gint num, ...);
+static void                db_remove_version_file (void);
+static void                db_remove_locale_file  (void);
 
 static gboolean              initialized;
 static gboolean              locations_initialized;
@@ -389,17 +392,28 @@ db_manager_remove_all (gboolean rm_journal)
 	}
 
 	if (rm_journal) {
-		gchar *filename;
+
 
 		db_manager_remove_journal ();
 
 		/* If also the journal is gone, we can also remove db-version.txt, it
 		 * would have no more relevance whatsoever. */
-		filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
-		g_message ("  Removing db-version file:'%s'", filename);
-		g_unlink (filename);
-		g_free (filename);
+		db_remove_version_file ();
 	}
+
+	/* Remove locale file also */
+	db_remove_locale_file ();
+}
+
+static void
+db_remove_version_file (void)
+{
+	gchar *filename;
+
+	filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
+	g_message ("  Removing db-version file:'%s'", filename);
+	g_unlink (filename);
+	g_free (filename);
 }
 
 static TrackerDBVersion
@@ -461,6 +475,100 @@ db_set_version (void)
 
 	g_free (str);
 	g_free (filename);
+}
+
+static void
+db_remove_locale_file (void)
+{
+	gchar *filename;
+
+	filename = g_build_filename (data_dir, TRACKER_DB_LOCALE_FILE, NULL);
+	g_message ("  Removing db-locale file:'%s'", filename);
+	g_unlink (filename);
+	g_free (filename);
+}
+
+static gchar *
+db_get_locale (void)
+{
+	gchar *locale = NULL;
+	gchar *filename;
+
+	filename = g_build_filename (data_dir, TRACKER_DB_LOCALE_FILE, NULL);
+
+	if (G_LIKELY (g_file_test (filename, G_FILE_TEST_EXISTS))) {
+		gchar *contents;
+
+		/* Check locale is correct */
+		if (G_LIKELY (g_file_get_contents (filename, &contents, NULL, NULL))) {
+			if (contents && strlen (contents) == 0) {
+				g_critical ("  Empty locale file found at '%s'", filename);
+				g_free (contents);
+			} else {
+				/* Re-use contents */
+				locale = contents;
+			}
+		} else {
+			g_critical ("  Could not get content of file '%s'", filename);
+		}
+	} else {
+		g_critical ("  Could not find database locale file:'%s'", filename);
+	}
+
+	g_free (filename);
+
+	return locale;
+}
+
+static void
+db_set_locale (const gchar *locale)
+{
+	GError *error = NULL;
+	gchar  *filename;
+	gchar  *str;
+
+	filename = g_build_filename (data_dir, TRACKER_DB_LOCALE_FILE, NULL);
+	g_message ("  Creating locale file '%s'", filename);
+
+	str = g_strdup_printf ("%s", locale ? locale : "");
+
+	if (!g_file_set_contents (filename, str, -1, &error)) {
+		g_message ("  Could not set file contents, %s",
+		           error ? error->message : "no error given");
+		g_clear_error (&error);
+	}
+
+	g_free (str);
+	g_free (filename);
+}
+
+void
+tracker_db_manager_ensure_locale (void)
+{
+	gchar *db_locale;
+	gchar *current_locale;
+
+	/* Get current collation locale */
+	current_locale = setlocale (LC_COLLATE, NULL);
+
+	/* Get db locale */
+	db_locale = db_get_locale ();
+
+	/* If they are different, recreate indexes. Note that having
+	 * both to NULL is actually valid, they would default to
+	 * the unicode collation without locale-specific stuff. */
+	if (g_strcmp0 (db_locale, current_locale) != 0) {
+		g_message ("Switching collation from locale '%s' to locale '%s'...",
+		           db_locale, current_locale);
+
+		/* TODO here */
+
+		db_set_locale (current_locale);
+	} else {
+		g_message ("Current and DB locales match: '%s'", db_locale);
+	}
+
+	g_free (db_locale);
 }
 
 static void
@@ -527,6 +635,9 @@ db_recreate_all (void)
 		g_object_unref (dbs[i].iface);
 		dbs[i].iface = NULL;
 	}
+
+	/* Initialize locale file */
+	db_set_locale (setlocale (LC_COLLATE, NULL));
 }
 
 void

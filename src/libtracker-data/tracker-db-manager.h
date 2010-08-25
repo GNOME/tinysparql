@@ -70,6 +70,8 @@ guint64             tracker_db_manager_get_last_crawl_done    (void);
 void                tracker_db_manager_set_first_index_done   (gboolean done);
 void                tracker_db_manager_set_last_crawl_done    (gboolean done);
 
+void                tracker_db_manager_ensure_locale          (void);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DB_MANAGER_H__ */

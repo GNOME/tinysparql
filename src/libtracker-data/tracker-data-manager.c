@@ -2861,6 +2861,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		tracker_db_interface_sqlite_fts_init (iface, FALSE);
 	}
 
+	/* If LC_COLLATE changed, re-create indexes, before applying
+	 * ontology changes, as those will already use the new locale.
+	 */
+	tracker_db_manager_ensure_locale ();
+
 	if (check_ontology && !read_only) {
 		GList *to_reload = NULL;
 		GList *ontos = NULL;
