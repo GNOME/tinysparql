@@ -21,6 +21,11 @@ class Tracker.Sparql.PluginLoader : Connection {
 	static bool initialized = false;
 	static Tracker.Sparql.Connection direct = null;
 	static Tracker.Sparql.Connection bus = null;
+	static enum Backend {
+		AUTO,
+		DIRECT,
+		BUS
+	}
 
 	private delegate Tracker.Sparql.Connection ModuleInitFunc ();
 
@@ -39,7 +44,8 @@ class Tracker.Sparql.PluginLoader : Connection {
 		initialized = true;
 	}
 
-	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null || direct != null) {
 		if (direct != null) {
 			return direct.query (sparql, cancellable);
 		} else {
@@ -47,7 +53,8 @@ class Tracker.Sparql.PluginLoader : Connection {
 		}
 	}
 
-	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null || direct != null) {
 		if (direct != null) {
 			return yield direct.query_async (sparql, cancellable);
 		} else {
@@ -55,35 +62,43 @@ class Tracker.Sparql.PluginLoader : Connection {
 		}
 	}
 
-	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null) {
 		bus.update (sparql, priority, cancellable);
 	}
 
-	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null) {
 		return bus.update_blank (sparql, priority, cancellable);
 	}
 
-	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null) {
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null) {
 		return yield bus.update_blank_async (sparql, priority, cancellable);
 	}
 
-	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null) {
 		bus.load (file, cancellable);
 	}
 
-	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null) {
 		yield bus.load_async (file, cancellable);
 	}
 
-	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null) {
 		return bus.statistics (cancellable);
 	}
 
-	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError
+	requires (bus != null) {
 		return yield bus.statistics_async (cancellable);
 	}
 
@@ -100,26 +115,67 @@ class Tracker.Sparql.PluginLoader : Connection {
 
 		File dir = File.new_for_path (path);
 		string dir_path = dir.get_path ();
-		
+
+		string env_backend = Environment.get_variable ("TRACKER_SPARQL_BACKEND");
+		Backend backend = Backend.AUTO;
+
+		if (env_backend != null) {
+			if (env_backend.ascii_casecmp ("direct") == 0) {
+				backend = Backend.DIRECT;
+				debug ("Using backend = 'DIRECT'");
+			} else if (env_backend.ascii_casecmp ("bus") == 0) {
+				backend = Backend.BUS;
+				debug ("Using backend = 'BUS'");
+			} else {
+				warning ("Environment variable TRACKER_SPARQL_BACKEND set to unknown value '%s'", env_backend);
+			}
+		}
+
+		if (backend == Backend.AUTO) {
+			if (direct_only && backend == Backend.AUTO) {
+				backend = Backend.DIRECT;
+				debug ("Using backend = 'DIRECT'");
+			} else {
+				debug ("Using backend = 'AUTO'");
+			}
+		}
+
+		if (direct_only && backend == Backend.BUS) {
+			debug ("Backend set in environment contradicts requested connection type, using environment to override");
+		}
+
 		debug ("Searching for modules in folder '%s' ..", dir_path);
 
-		// First get direct library details
-		string direct_path = Module.build_path (dir_path, "tracker-direct");
-		direct = load_plugins_from_path (direct_path, direct_only /* required */);
+		Tracker.Sparql.Connection connection;
 
-		if (!direct_only) {
-			// Second get bus library details
+		switch (backend) {
+		case backend.AUTO:
+			string direct_path = Module.build_path (dir_path, "tracker-direct");
+			direct = load_plugins_from_path (direct_path, false /* required */);
+
 			string bus_path = Module.build_path (dir_path, "tracker-bus");
 			bus = load_plugins_from_path (bus_path, true /* required */);
+
+			connection = bus;
+			break;
+
+		case backend.DIRECT:
+			string direct_path = Module.build_path (dir_path, "tracker-direct");
+			connection = direct = load_plugins_from_path (direct_path, true /* required */);
+			break;
+
+		case backend.BUS:
+			string bus_path = Module.build_path (dir_path, "tracker-bus");
+			connection = bus = load_plugins_from_path (bus_path, true /* required */);
+			break;
+
+		default:
+			assert_not_reached ();
 		}
 
-		debug ("Finished searching for modules in folder '%s'", dir_path);
+		debug ("Finished searching for modules");
 
-		if (direct_only) {
-			return direct != null;
-		} else {
-			return bus != null;
-		}
+		return connection != null;
 	}
 
 	private Tracker.Sparql.Connection? load_plugins_from_path (string path, bool required) throws GLib.Error {

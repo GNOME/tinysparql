@@ -25,8 +25,8 @@
  * @include: tracker-sparql.h
  *
  * <para>
- * #TrackerSparqlConnection is an object which allows setting up
- * connections to the Tracker Store.
+ * #TrackerSparqlConnection is an object which sets up connections to the
+ * Tracker Store.
  * </para>
  */
 
@@ -90,6 +90,20 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * available to connect to the Tracker Store (direct-access for Read-Only
 	 * queries, and D-Bus otherwise).
 	 *
+	 * There are 2 environment variables which can be used to control which
+	 * backends are used to set up the connection. If no environment variables are
+	 * provided, then both backends are loaded and chosen based on their merits.
+	 *
+	 * The TRACKER_BUS_BACKEND environment variable can be set to "dbus-glib" to
+	 * force the D-Bus backend to use non-FD (File Descriptor) passing (the
+	 * original communication method Tracker used).
+	 *
+	 * The TRACKER_SPARQL_BACKEND environment variable also allows the caller to
+	 * switch between "auto" (the default), "direct" (for direct access) and
+	 * "bus" for D-Bus backends. If you force a backend which does not support
+	 * what you're doing (for example, using the "direct" backend for a SPARQL
+	 * update) then you will see critical warnings in your code.
+	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
 	 */
@@ -114,6 +128,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns a new #TrackerSparqlConnection, which uses direct-access method
 	 * to connect to the Tracker Store. Note that this connection will only be
 	 * able to perform Read-Only queries in the store.
+	 *
+	 * If the TRACKER_SPARQL_BACKEND environment variable is set, it may
+	 * override the choice to use a direct access connection here, for more
+	 * details, see tracker_sparql_connection_get().
 	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
