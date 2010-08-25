@@ -43,7 +43,6 @@ public class MinerFlickr : Tracker.MinerWeb {
 	private static const string FLICKR_REST_URL = "http://api.flickr.com/services/rest/";
 	private static const string FLICKR_PHOTOSET_URL = "http://www.flickr.com/photos/%s/sets/%s";
 	private static const string FLICKR_PHOTO_URL = "http://farm%s.static.flickr.com/%s/%s_%s.jpg";
-	private static const string NMM_PHOTO = "http://www.tracker-project.org/temp/nmm#Photo";
 
 	/* Values taken from the EXIF spec */
 	private enum ExifTag {
@@ -85,6 +84,9 @@ public class MinerFlickr : Tracker.MinerWeb {
 	/* Used to form some urls */
 	private string user_id;
 
+	/* tracker:id of the nmm:Photo class */
+	private int nmm_photo_id;
+
 	construct {
 		name = MINER_NAME;
 		associated = false;
@@ -97,6 +99,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		tracker_writeback_connect (writeback, null);
 
 		init_datasource ();
+		load_nmm_photo_id ();
 
 		this.notify["associated"].connect (association_status_changed);
 	}
@@ -112,6 +115,23 @@ public class MinerFlickr : Tracker.MinerWeb {
 			get_connection ().update ("insert { <%s> a nie:DataSource ; nao:identifier \"flickr\" }".printf (DATASOURCE_URN));
 		} catch (Error e) {
 			warning ("Couldn't init datasource: %s", e.message);
+		}
+	}
+
+	private void load_nmm_photo_id () {
+		Tracker.Sparql.Cursor cursor;
+		string query = "select tracker:id (nmm:Photo) {}";
+
+		nmm_photo_id = -1;
+
+		try {
+			cursor = get_connection ().query (query);
+
+			return_if_fail (cursor.next () == true);
+
+			nmm_photo_id = cursor.get_string (0).to_int ();
+		} catch (Error e) {
+			critical ("Could not load ID of class nmm:Photo: %s", e.message);
 		}
 	}
 
@@ -462,8 +482,9 @@ public class MinerFlickr : Tracker.MinerWeb {
 		}
 	}
 
-	private async void writeback_photo (string uri) {
+	private async void writeback_photo (int id) {
 		Tracker.Sparql.Cursor cursor;
+		string photo_urn;
 		string photo_id;
 		string[] local_tags = {};
 		HashTable<string, string> flickr_tags = new HashTable<string, string> (str_hash, str_equal);
@@ -475,14 +496,18 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 		try {
 			var c = get_connection ();
+			cursor = yield c.query_async ("select tracker:subject (%d) {}".printf (id));
+			return_if_fail (cursor.next () != true);
+			photo_urn = cursor.get_string (0);
+
 			string s = ("select ?photo_id ?tag where { <%s> nie:dataSource <%s> ;"
 			                                          +    "nao:identifier ?photo_id ;"
 			                                          +    "nao:hasTag ?t ."
-			                                          + "?t nao:prefLabel ?tag }").printf (uri, DATASOURCE_URN);
+			                                          + "?t nao:prefLabel ?tag }").printf (photo_urn, DATASOURCE_URN);
 
 			cursor = yield c.query_async (s, null);
 		} catch (Error query_error) {
-			warning ("Tracker error when doing writeback for photo %s: %s", uri, query_error.message);
+			warning ("Tracker error when doing writeback for photo %d: %s", id, query_error.message);
 			return;
 		}
 
@@ -506,7 +531,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		try {
 			root_node = run_call (tag_call);
 		} catch (Error get_tags_error) {
-			string error_message = "Couldn't get tags for photo %s: %s".printf (uri, get_tags_error.message);
+			string error_message = "Couldn't get tags for photo %s: %s".printf (photo_urn, get_tags_error.message);
 			status = error_message;
 			warning (error_message);
 			return;
@@ -725,24 +750,18 @@ public class MinerFlickr : Tracker.MinerWeb {
 		associated = false;
 	}
 
-	public void writeback (HashTable<string, void*> properties)
+	public void writeback (HashTable<int, Array<int>?> properties)
 	{
-		List<weak string> uris = (List<weak string>)properties.get_keys ();
-		weak string[] rdf_classes;
+		properties.foreach ((key, value) => {
+				int id = (int) key;
+				weak Array<int> classes = (Array<int>) value;
 
-		foreach (string uri in uris) {
-			// This part is not correct anylonger, the hashtable contains IDs
-			// instead of string uris
-
-			//rdf_classes = (string[])properties.lookup (uri);
-
-			//for (uint i = 0; rdf_classes[i] != null; i++) {
-				//if (rdf_classes[i] == NMM_PHOTO) {
-					//writeback_photo (uri);
-					//return;
-				//}
-			//}
-		}
+				for (uint i = 0; i < classes.length; i++) {
+					if (classes.index (i) == nmm_photo_id) {
+						writeback_photo (id);
+					}
+				}
+			});
 	}
 
 	private string? get_resource (string? graph, string[] types, string identifier, out bool created) throws GLib.Error {
