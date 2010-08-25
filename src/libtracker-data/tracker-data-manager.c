@@ -2715,7 +2715,6 @@ get_new_service_id (TrackerDBInterface *iface)
 static void
 tracker_data_manager_recreate_indexes (void)
 {
-	TrackerDBInterface *iface;
 	TrackerProperty **properties;
 	guint n_properties;
 	guint i;
@@ -2725,8 +2724,6 @@ tracker_data_manager_recreate_indexes (void)
 		g_critical ("Couldn't get all properties to recreate indexes");
 		return;
 	}
-
-	iface = tracker_db_manager_get_db_interface ();
 
 	g_debug ("Starting index re-creation...");
 	for (i = 0; i < n_properties; i++) {
