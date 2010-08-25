@@ -542,11 +542,12 @@ db_set_locale (const gchar *locale)
 	g_free (filename);
 }
 
-void
-tracker_db_manager_ensure_locale (void)
+gboolean
+tracker_db_manager_locale_changed (void)
 {
 	gchar *db_locale;
 	gchar *current_locale;
+	gboolean changed;
 
 	/* Get current collation locale */
 	current_locale = setlocale (LC_COLLATE, NULL);
@@ -558,17 +559,29 @@ tracker_db_manager_ensure_locale (void)
 	 * both to NULL is actually valid, they would default to
 	 * the unicode collation without locale-specific stuff. */
 	if (g_strcmp0 (db_locale, current_locale) != 0) {
-		g_message ("Switching collation from locale '%s' to locale '%s'...",
+		g_message ("Locale change detected from '%s' to '%s'...",
 		           db_locale, current_locale);
-
-		/* TODO here */
-
-		db_set_locale (current_locale);
+		changed = TRUE;
 	} else {
 		g_message ("Current and DB locales match: '%s'", db_locale);
+		changed = FALSE;
 	}
 
 	g_free (db_locale);
+	return changed;
+}
+
+void
+tracker_db_manager_set_current_locale (void)
+{
+	const gchar *current_locale;
+
+	/* Get current collation locale */
+	current_locale = setlocale (LC_COLLATE, NULL);
+
+	g_message ("Changing db locale to: '%s'", current_locale);
+
+	db_set_locale (current_locale);
 }
 
 static void

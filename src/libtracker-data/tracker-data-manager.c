@@ -111,7 +111,8 @@ set_secondary_index_for_single_value_property (TrackerDBInterface *iface,
                                                const gchar        *second_field_name,
                                                gboolean            enabled)
 {
-	g_debug ("Dropping index:  DROP INDEX IF EXISTS \"%s_%s\"",
+	g_debug ("Dropping secondary index (single-value property):  "
+	         "DROP INDEX IF EXISTS \"%s_%s\"",
 	         service_name, field_name);
 
 	tracker_db_interface_execute_query (iface, NULL,
@@ -120,7 +121,8 @@ set_secondary_index_for_single_value_property (TrackerDBInterface *iface,
 	                                    field_name);
 
 	if (enabled) {
-		g_debug ("Creating index: CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
+		g_debug ("Creating secondary index (single-value property): "
+		         "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
 		         service_name, field_name, service_name, field_name, second_field_name);
 
 		tracker_db_interface_execute_query (iface, NULL,
@@ -139,7 +141,8 @@ set_index_for_single_value_property (TrackerDBInterface *iface,
                                      const gchar        *field_name,
                                      gboolean            enabled)
 {
-	g_debug ("Dropping index: DROP INDEX IF EXISTS \"%s_%s\"",
+	g_debug ("Dropping index (single-value property): "
+	         "DROP INDEX IF EXISTS \"%s_%s\"",
 	         service_name, field_name);
 
 	tracker_db_interface_execute_query (iface, NULL,
@@ -148,7 +151,8 @@ set_index_for_single_value_property (TrackerDBInterface *iface,
 	                                    field_name);
 
 	if (enabled) {
-		g_debug ("Creating index: CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
+		g_debug ("Creating index (single-value property): "
+		         "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
 		         service_name, field_name, service_name, field_name);
 
 		tracker_db_interface_execute_query (iface, NULL,
@@ -166,18 +170,46 @@ set_index_for_multi_value_property (TrackerDBInterface *iface,
                                     const gchar        *field_name,
                                     gboolean            enabled)
 {
+	g_debug ("Dropping index (multi-value property): "
+	         "DROP INDEX IF EXISTS \"%s_%s_ID_ID\"",
+	         service_name, field_name);
 	tracker_db_interface_execute_query (iface, NULL,
 	                                    "DROP INDEX IF EXISTS \"%s_%s_ID_ID\"",
 	                                    service_name,
 	                                    field_name);
 
+	/* Useful to have this here for the cases where we want to fully
+	 * re-create the indexes even without an ontology change (when locale
+	 * of the user changes) */
+	g_debug ("Dropping index (multi-value property): "
+	         "DROP INDEX IF EXISTS \"%s_%s_ID\"",
+	         service_name,
+	         field_name);
+	tracker_db_interface_execute_query (iface, NULL,
+	                                    "DROP INDEX IF EXISTS \"%s_%s_ID\"",
+	                                    service_name,
+	                                    field_name);
+
 	if (enabled) {
+		g_debug ("Creating index (multi-value property): "
+		         "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
+		         service_name,
+		         field_name,
+		         service_name,
+		         field_name);
 		tracker_db_interface_execute_query (iface, NULL,
 		                                    "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
 		                                    service_name,
 		                                    field_name,
 		                                    service_name,
 		                                    field_name);
+		g_debug ("Creating index (multi-value property): "
+		         "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (\"%s\", ID)",
+		         service_name,
+		         field_name,
+		         service_name,
+		         field_name,
+		         field_name);
 		tracker_db_interface_execute_query (iface, NULL,
 		                                    "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (\"%s\", ID)",
 		                                    service_name,
@@ -186,10 +218,13 @@ set_index_for_multi_value_property (TrackerDBInterface *iface,
 		                                    field_name,
 		                                    field_name);
 	} else {
-		tracker_db_interface_execute_query (iface, NULL,
-		                                    "DROP INDEX IF EXISTS \"%s_%s_ID\"",
-		                                    service_name,
-		                                    field_name);
+		g_debug ("Creating index (multi-value property): "
+		         "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (ID, \"%s\")",
+		         service_name,
+		         field_name,
+		         service_name,
+		         field_name,
+		         field_name);
 		tracker_db_interface_execute_query (iface, NULL,
 		                                    "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (ID, \"%s\")",
 		                                    service_name,
@@ -2677,9 +2712,44 @@ get_new_service_id (TrackerDBInterface *iface)
 	return ++max_service_id;
 }
 
+static void
+tracker_data_manager_recreate_indexes (void)
+{
+	TrackerDBInterface *iface;
+	TrackerProperty **properties;
+	guint n_properties;
+	guint i;
+
+	properties = tracker_ontologies_get_properties (&n_properties);
+	if (!properties) {
+		g_critical ("Couldn't get all properties to recreate indexes");
+		return;
+	}
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	g_debug ("Starting index re-creation...");
+	for (i = 0; i < n_properties; i++) {
+		TrackerClass *class;
+		const gchar *service_name;
+		const gchar *field_name;
+
+		class = tracker_property_get_domain (properties [i]);
+		field_name = tracker_property_get_name (properties [i]);
+		service_name = tracker_class_get_name (class);
+		g_debug ("  Re-creating possible indexes in property "
+		         "(service: '%s', field: '%s')",
+		         service_name,
+		         field_name);
+
+		fix_indexed (properties [i]);
+	}
+	g_debug ("  Finished index re-creation...");
+}
+
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags  flags,
-                          const gchar          **test_schemas,
+                           const gchar          **test_schemas,
                            gboolean              *first_time,
                            gboolean               journal_check,
                            TrackerBusyCallback    busy_callback,
@@ -2860,11 +2930,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, FALSE);
 	}
-
-	/* If LC_COLLATE changed, re-create indexes, before applying
-	 * ontology changes, as those will already use the new locale.
-	 */
-	tracker_db_manager_ensure_locale ();
 
 	if (check_ontology && !read_only) {
 		GList *to_reload = NULL;
@@ -3062,6 +3127,12 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		g_list_foreach (ontos, (GFunc) g_free, NULL);
 		g_list_free (ontos);
+	}
+
+	/* If locale changed, re-create indexes */
+	if (!read_only && tracker_db_manager_locale_changed ()) {
+		tracker_data_manager_recreate_indexes ();
+		tracker_db_manager_set_current_locale ();
 	}
 
 	initialized = TRUE;
