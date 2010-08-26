@@ -286,7 +286,7 @@ get_file_urns (TrackerSparqlConnection *connection,
 	                         "  %s "
 	                         "}",
 	                         tag ? "nao:hasTag ?t ; " : "",
-	                         filter);
+	                         filter ? filter : "");
 
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
@@ -547,13 +547,39 @@ add_tag_for_urns (TrackerSparqlConnection *connection,
                   const gchar             *tag,
                   const gchar             *description)
 {
-	TrackerSparqlCursor *cursor;
+	TrackerSparqlCursor *cursor = NULL;
 	GError *error = NULL;
-	GStrv  uris;
+	GStrv  uris = NULL, urns_strv = NULL;
 	gchar *tag_escaped;
 	gchar *query;
 
 	tag_escaped = get_escaped_sparql_string (tag);
+
+	if (files) {
+		uris = get_uris (files);
+
+		if (!uris) {
+			return FALSE;
+		}
+
+		cursor = get_file_urns (connection, uris, NULL);
+
+		if (!cursor) {
+			g_printerr ("Files do not exist or aren't indexed\n");
+			g_strfreev (uris);
+			return FALSE;
+		}
+
+		urns_strv = result_to_strv (cursor, 0);
+
+		if (!urns_strv || g_strv_length (urns_strv) < 1) {
+			g_printerr ("Files do not exist or aren't indexed\n");
+			g_object_unref (cursor);
+			g_strfreev (uris);
+
+			return FALSE;
+		}
+	}
 
 	if (description) {
 		gchar *description_escaped;
@@ -600,8 +626,15 @@ add_tag_for_urns (TrackerSparqlConnection *connection,
 		g_printerr ("%s, %s\n",
 		            _("Could not add tag"),
 		            error->message);
+
+		if (cursor) {
+			g_object_unref (cursor);
+		}
+
 		g_error_free (error);
 		g_free (tag_escaped);
+		g_strfreev (urns_strv);
+		g_strfreev (uris);
 
 		return FALSE;
 	}
@@ -609,24 +642,12 @@ add_tag_for_urns (TrackerSparqlConnection *connection,
 	g_print ("%s\n",
 	         _("Tag was added successfully"));
 
-	uris = get_uris (files);
-
-	if (!uris) {
-		/* No URIs to tag */
-		g_free (tag_escaped);
-		return TRUE;
-	}
-
-	cursor = get_file_urns (connection, uris, NULL);
-
 	/* First we check if the tag is already set and only add if it
 	 * is, then we add the urns specified to the new tag.
 	 */
-	if (cursor) {
-		GStrv urns_strv;
+	if (urns_strv) {
 		gchar *filter;
 
-		urns_strv = result_to_strv (cursor, 0);
 		filter = get_filter_string (urns_strv, TRUE, NULL);
 
 		/* Add tag to specific urns */
@@ -639,7 +660,7 @@ add_tag_for_urns (TrackerSparqlConnection *connection,
 		                         "  %s "
 		                         "}",
 		                         tag_escaped,
-		                         filter);
+		                         filter ? filter : "");
 
 		tracker_sparql_connection_update (connection, query, 0, NULL, &error);
 		g_strfreev (urns_strv);
@@ -650,21 +671,24 @@ add_tag_for_urns (TrackerSparqlConnection *connection,
 			g_printerr ("%s, %s\n",
 			            _("Could not add tag to files"),
 			            error->message);
+			g_object_unref (cursor);
 			g_error_free (error);
 			g_free (tag_escaped);
-			g_object_unref (cursor);
+			g_strfreev (uris);
 
 			return FALSE;
 		}
 
 		print_file_report (cursor, uris, _("Tagged"),
 		                   _("Not tagged, file is not indexed"));
-
-		g_object_unref (cursor);
 	}
 
 	g_strfreev (uris);
 	g_free (tag_escaped);
+
+	if (cursor) {
+		g_object_unref (cursor);
+	}
 
 	return TRUE;
 }
@@ -754,7 +778,7 @@ remove_tag_for_urns (TrackerSparqlConnection *connection,
 		                         "  ?urn nao:hasTag ?t . "
 		                         "  %s "
 		                         "}",
-		                         filter);
+		                         filter ? filter : "");
 		g_free (filter);
 
 		g_object_unref (tag_cursor);
