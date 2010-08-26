@@ -1,3 +1,61 @@
+NEW in 0.9.18 - 2010-08-26
+==========================
+
+The changes are:
+
+  * Fixes: GB#613252, Application-driven indexing and metadata storage
+  * Fixes: GB#627893, tracker 0.9.17 does not compile with e-d-s/evolution 2.31.90 built with gtk+ 3.0
+  * Fixes: NB#187148, "Not tagged, file is not indexed" message is seen when adding a tag
+  * coverage: Ignore deprecated libtracker-client
+  * coverage: Ignore generated .c files
+  * functional-tests: Use python instead of specific python2.6
+  * functional-tests: Corrupted-image extraction test is no longer an expected failure, as bug was fixed
+  * functional-tests: FTS: Improve offsets/rank tests
+  * functional-tests, FTS: Remove rdfs:Resource, not rdf:Resource
+  * Ontology: Renamed slo:longitudeUncertainty to slo:horizontalAccuracy
+  * Ontology: Renamed slo:latitudeUncertainty to slo:verticalAccuracy
+  * libtracker-data: Fixed journal reader with rotated journals
+  * libtracker-data: Make sure tracker_fts_update_commit() is called for FTS updates
+  * libtracker-direct: Use maximum D-Bus timeout
+  * libtracker-direct: Wait for tracker-store to be ready
+  * libtracker-bus: Use maximum D-Bus timeout
+  * libtracker-bus: Fixed linking to include libtracker-sparql
+  * libtracker-bus: Throw errors for non-FD passing when Cancellable is cancelled
+  * libtracker-bus: Support BatchUpdate for low priority requests
+  * libtracker-sparql: Added debugging to know what SPARQL is used with direct-access
+  * libtracker-sparql: Added TRACKER_SPARQL_BACKEND environment variable
+  * libtracker-sparql: Added deps file for tracker-sparql.vapi to distribution
+  * libtracker-sparql: cursor_get_n_columns() should only be called after cursor_next()
+  * libtracker-miner: Allow API to bypass config dir checks for user based indexing
+  * libtracker-miner: Add method to reindex certain mimetypes
+  * libtracker-miner: Add method to invoke tracker-miner-fs to index a file
+  * tracker-store: Fixed race conditions with new 'Wait' d-bus interface
+  * tracker-store: Fixed unregister_g_object() criticals
+  * tracker-store: Small busy callback improvements, indexing speed increased
+  * tracker-miner-fs: Remove --add-file option (now done using tracker-control -f)
+  * tracker-miner-fs: Added debugging to know which file is requested to be indexed over D-Bus
+  * tracker-miner-fs: Use tracker_dbus_request_failed() for error situations
+  * tracker-miner-fs: Do not index dirs unconditionally when adding monitors, huge crawling performance improvement
+  * tracker-miner-fs: Renamed Reindex D-Bus interface to Index
+  * tracker-control: Make -f and -m outputs translatable
+  * tracker-control: Print when reindexing mime types or files is successful
+  * tracker-control: Don't print PIDs if we're reindexing mimes or a file
+  * tracker-control: Use TrackerMinerManager to reindex mimetypes
+  * tracker-tag: Bail out if none of the passed files exist in the store
+
+Translations:
+
+  * Updated es: Jorge González
+  * Updated fr: Bruno Brouard
+  * Updated cs: Marek Cernocky
+  * Updated de: Mario Blättermann
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.9.17 - 2010-08-19
 ==========================
 
