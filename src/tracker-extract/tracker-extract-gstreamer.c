@@ -582,7 +582,11 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		/* Audio */
 		s = NULL;
-		gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
+
+		if (extractor->mime == EXTRACT_MIME_AUDIO) {
+			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ALBUM, &s);
+		}
+
 		if (s) {
 			gboolean has_it;
 			guint count;
