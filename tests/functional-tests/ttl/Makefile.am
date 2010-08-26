@@ -51,8 +51,8 @@ ttl_DATA =  				\
 	090-mto_TransferElement.ttl	\
 	091-mto_UploadTransfer.ttl
 
-EXTRA_DIST = $(ttl_DATA) gen-test-data.stamp
+DISTCLEANFILES = 			\
+	$(BUILT_SOURCES) 		\
+	$(ttl_DATA) 			\
+	source-data.pkl
 
-MAINTAINERCLEAN_FILES = 		\
-	$(ttl_DATA)			\
-	gen-test-data.stamp
