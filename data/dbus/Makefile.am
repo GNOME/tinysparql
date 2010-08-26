@@ -14,7 +14,7 @@ config_DATA =							\
 	tracker-status.xml
 
 config_noinst = 						\
-	tracker-miner-files-reindex.xml
+	tracker-miner-files-index.xml
 
 # Services
 service_in_files =						\
