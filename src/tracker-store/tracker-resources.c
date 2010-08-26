@@ -698,6 +698,7 @@ check_class_signal_signal (TrackerResources *object)
 
 static void
 on_statement_inserted (gint         graph_id,
+                       const gchar *graph,
                        gint         subject_id,
                        const gchar *subject,
                        gint         pred_id,
@@ -709,11 +710,12 @@ on_statement_inserted (gint         graph_id,
 	tracker_events_add_insert (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
 	check_class_signal_signal (user_data);
-	tracker_writeback_check (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
+	tracker_writeback_check (graph_id, graph, subject_id, subject, pred_id, object_id, object, rdf_types);
 }
 
 static void
 on_statement_deleted (gint         graph_id,
+                      const gchar *graph,
                       gint         subject_id,
                       const gchar *subject,
                       gint         pred_id,
@@ -725,8 +727,8 @@ on_statement_deleted (gint         graph_id,
 	tracker_events_add_delete (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
 	check_class_signal_signal (user_data);
-	tracker_writeback_check (graph_id, subject_id, subject, pred_id,
-	                         object_id, object, rdf_types);
+//	tracker_writeback_check (graph_id, graph, subject_id, subject, pred_id,
+//	                         object_id, object, rdf_types);
 }
 
 void

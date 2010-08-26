@@ -35,6 +35,7 @@ G_BEGIN_DECLS
 #endif
 
 typedef void (*TrackerStatementCallback) (gint         graph_id,
+                                          const gchar *graph,
                                           gint         subject_id,
                                           const gchar *subject,
                                           gint         predicate_id,

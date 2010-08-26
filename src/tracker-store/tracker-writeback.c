@@ -57,6 +57,7 @@ array_free (GArray *array)
 
 void
 tracker_writeback_check (gint         graph_id,
+                         const gchar *graph,
                          gint         subject_id,
                          const gchar *subject,
                          gint         pred_id,
@@ -69,7 +70,7 @@ tracker_writeback_check (gint         graph_id,
 	 * aren't coming from the miner)
 	 */
 
-	if (graph_id != 0) {
+	if (graph != NULL) {
 		/* g_debug ("Not doing writeback check, no graph"); */
 		return;
 	}
