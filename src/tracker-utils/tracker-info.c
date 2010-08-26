@@ -243,24 +243,25 @@ main (int argc, char **argv)
 			            _("Unable to retrieve URN for URI"),
 			            error->message);
 
-			g_error_free (error);
+			g_clear_error (&error);
 			continue;
 		}
 
-		if (!cursor) {
-			/* No URN matches, use uri as URN */
-			urn = g_strdup (uri);
-		} else {
-			if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		if (!cursor || !tracker_sparql_cursor_next (cursor, NULL, &error)) {
+			if (error) {
 				g_printerr ("  %s, %s\n",
 				            _("Unable to retrieve data for URI"),
-				            _("No error given"));
+					    error->message);
 
-				g_free (uri);
 				g_object_unref (cursor);
+				g_clear_error (&error);
+
 				continue;
 			}
 
+			/* No URN matches, use uri as URN */
+			urn = g_strdup (uri);
+		} else {
 			urn = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 			g_print ("  '%s'\n", urn);
 
@@ -279,7 +280,7 @@ main (int argc, char **argv)
 			            _("Unable to retrieve data for URI"),
 			            error->message);
 
-			g_error_free (error);
+			g_clear_error (&error);
 			continue;
 		}
 
