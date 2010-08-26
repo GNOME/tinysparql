@@ -28,7 +28,8 @@
 
 typedef struct {
 	GHashTable *allowances;
-	GHashTable *events;
+	GHashTable *pending_events;
+	GHashTable *ready_events;
 } WritebackPrivate;
 
 static WritebackPrivate *private;
@@ -78,13 +79,16 @@ tracker_writeback_check (gint         graph_id,
 	g_return_if_fail (private != NULL);
 
 	if (g_hash_table_lookup (private->allowances, GINT_TO_POINTER (pred_id))) {
-		if (!private->events) {
-			private->events = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-			                                         (GDestroyNotify) NULL,
-			                                         (GDestroyNotify) array_free);
+		if (!private->ready_events || !private->pending_events) {
+			private->ready_events = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+			                                               (GDestroyNotify) NULL,
+			                                               (GDestroyNotify) array_free);
+			private->pending_events = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+			                                                 (GDestroyNotify) NULL,
+			                                                 (GDestroyNotify) NULL);
 		}
 
-		g_hash_table_insert (private->events,
+		g_hash_table_insert (private->pending_events,
 		                     GINT_TO_POINTER (subject_id),
 		                     rdf_types_to_array (rdf_types));
 	}
@@ -95,9 +99,21 @@ tracker_writeback_reset (void)
 {
 	g_return_if_fail (private != NULL);
 
-	if (private->events) {
-		g_hash_table_unref (private->events);
-		private->events = NULL;
+	if (private->pending_events && private->ready_events) {
+		GHashTableIter iter;
+		gpointer key, value;
+
+		g_hash_table_iter_init (&iter, private->pending_events);
+
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			g_hash_table_insert (private->ready_events, key, value);
+			g_hash_table_iter_remove (&iter);
+		}
+		g_hash_table_unref (private->ready_events);
+		g_hash_table_unref (private->pending_events);
+
+		private->ready_events = NULL;
+		private->pending_events = NULL;
 	}
 }
 
@@ -106,7 +122,7 @@ tracker_writeback_get_pending (void)
 {
 	g_return_val_if_fail (private != NULL, NULL);
 
-	return private->events;
+	return private->ready_events;
 }
 
 static void
@@ -162,6 +178,23 @@ tracker_writeback_init (TrackerWritebackGetPredicatesFunc func)
 	}
 
 	g_strfreev (predicates_to_signal);
+}
+
+void
+tracker_writeback_transact (void)
+{
+	GHashTableIter iter;
+	gpointer key, value;
+
+	if (!private->pending_events)
+		return;
+
+	g_hash_table_iter_init (&iter, private->pending_events);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		g_hash_table_insert (private->ready_events, key, value);
+		g_hash_table_iter_remove (&iter);
+	}
 }
 
 void

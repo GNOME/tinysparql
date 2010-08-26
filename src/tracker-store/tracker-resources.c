@@ -658,6 +658,9 @@ on_statements_committed (gpointer user_data)
 		TrackerClass *class = key;
 		tracker_class_transact_events (class);
 	}
+
+	/* Writeback feature */
+	tracker_writeback_transact ();
 }
 
 

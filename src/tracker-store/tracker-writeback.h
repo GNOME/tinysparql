@@ -41,6 +41,7 @@ void        tracker_writeback_check       (gint         graph_id,
                                            GPtrArray   *rdf_types);
 GHashTable* tracker_writeback_get_pending (void);
 void        tracker_writeback_reset       (void);
+void        tracker_writeback_transact    (void);
 
 G_END_DECLS
 
