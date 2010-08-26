@@ -24,8 +24,11 @@ config_SCRIPTS =			\
 	$(standard_tests)
 
 standard_tests = 			\
-	01-insertion.py			\
-	03-fts-functions.py		\
+	01-insertion.py
+if HAVE_TRACKER_FTS
+standard_tests += 03-fts-functions.py
+endif
+standard_tests +=			\
 	04-group-concat.py		\
 	05-coalesce.py			\
 	06-distance.py			\
@@ -34,13 +37,16 @@ standard_tests = 			\
 	09-concurrent-query.py		\
 	14-signals.py			\
 	200-backup-restore.py		\
-	300-miner-basic-ops.py		\
-	310-fts-indexing.py		\
+	300-miner-basic-ops.py
+if HAVE_TRACKER_FTS
+standard_tests += 310-fts-indexing.py
+endif
+standard_tests +=			\
 	400-extractor.py		\
 	500-writeback.py		\
 	mass-storage-mode.py		\
 	performance-tc-modified.py	\
-	virtual-files-tc.py		
+	virtual-files-tc.py
 
 slow_tests = 				\
 	10-sqlite-misused.py		\
@@ -58,7 +64,7 @@ tests.xml:
 11-sqlite-misused-batch.py: ttl/gen-test-data.stamp
 13-busy-store.py: ttl/gen-test-data.stamp
 
-ttl/gen-test-data.stamp: 
+ttl/gen-test-data.stamp:
 	cd ttl && $(MAKE) $(AM_MAKEFLAGS)
 
 noinst_PROGRAMS = busy-handling-test direct-query-test bus-query-test default-update-test bus-update-test
