@@ -10,7 +10,7 @@
 
 slo: a tracker:Namespace, tracker:Ontology ;
     tracker:prefix "slo" ;
-    nao:lastModified "2010-04-28T11:00:00Z" .
+    nao:lastModified "2010-08-26T11:00:00Z" .
 
 slo:LandmarkCategory a rdfs:Class ;
     rdfs:label "Landmark category";
@@ -58,15 +58,15 @@ slo:longitude a rdf:Property ;
     rdfs:domain slo:GeoLocation ;
     rdfs:range  xsd:double .
 
-slo:latitudeUncertainty a rdf:Property ;
+slo:verticalAccuracy a rdf:Property ;
     rdfs:label "Latitude";
-    rdfs:comment "Uncertainty in the latitude of the location" ;
+    rdfs:comment "Represents the error estimate of vertical (earths-surface) accuracy in meters." ;
     rdfs:domain slo:GeoLocation ;
     rdfs:range  xsd:double .
 
-slo:longitudeUncertainty a rdf:Property ;
+slo:horizontalAccuracy a rdf:Property ;
     rdfs:label "Longitude" ;
-    rdfs:comment "Uncertainty in the longitude of the location" ;
+    rdfs:comment "Represents the error estimate of horizontal (earths-surface) accuracy in meters." ;
     rdfs:domain slo:GeoLocation ;
     rdfs:range  xsd:double .
 
