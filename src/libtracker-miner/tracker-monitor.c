@@ -1024,14 +1024,14 @@ directory_monitor_new (TrackerMonitor *monitor,
 						 &error);
 
 	if (error) {
-		gchar *path;
+		gchar *uri;
 
-		path = g_file_get_path (file);
+		uri = g_file_get_uri (file);
 		g_warning ("Could not add monitor for path:'%s', %s",
-			   path, error->message);
+			   uri, error->message);
 
 		g_error_free (error);
-		g_free (path);
+		g_free (uri);
 
 		return NULL;
 	}
@@ -1113,7 +1113,7 @@ tracker_monitor_add (TrackerMonitor *monitor,
                      GFile          *file)
 {
 	GFileMonitor *dir_monitor = NULL;
-	gchar *path;
+	gchar *uri;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
@@ -1136,7 +1136,7 @@ tracker_monitor_add (TrackerMonitor *monitor,
 		return FALSE;
 	}
 
-	path = g_file_get_path (file);
+	uri = g_file_get_uri (file);
 
 	if (monitor->private->enabled) {
 		/* We don't check if a file exists or not since we might want
@@ -1148,8 +1148,8 @@ tracker_monitor_add (TrackerMonitor *monitor,
 
 		if (!dir_monitor) {
 			g_warning ("Could not add monitor for path:'%s'",
-			           path);
-			g_free (path);
+			           uri);
+			g_free (uri);
 			return FALSE;
 		}
 	}
@@ -1163,10 +1163,10 @@ tracker_monitor_add (TrackerMonitor *monitor,
 	                     dir_monitor);
 
 	g_debug ("Added monitor for path:'%s', total monitors:%d",
-	         path,
+	         uri,
 	         g_hash_table_size (monitor->private->monitors));
 
-	g_free (path);
+	g_free (uri);
 
 	return TRUE;
 }
@@ -1183,14 +1183,14 @@ tracker_monitor_remove (TrackerMonitor *monitor,
 	removed = g_hash_table_remove (monitor->private->monitors, file);
 
 	if (removed) {
-		gchar *path;
+		gchar *uri;
 
-		path = g_file_get_path (file);
+		uri = g_file_get_uri (file);
 		g_debug ("Removed monitor for path:'%s', total monitors:%d",
-		         path,
+		         uri,
 		         g_hash_table_size (monitor->private->monitors));
 
-		g_free (path);
+		g_free (uri);
 	}
 
 	return removed;
@@ -1209,22 +1209,22 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 
 	g_hash_table_iter_init (&iter, monitor->private->monitors);
 	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
-		gchar *path;
+		gchar *uri;
 
 		if (!g_file_has_prefix (iter_file, file) &&
 		    !g_file_equal (iter_file, file)) {
 			continue;
 		}
 
-		path = g_file_get_path (iter_file);
+		uri = g_file_get_uri (iter_file);
 
 		g_hash_table_iter_remove (&iter);
 
 		g_debug ("Removed monitor for path:'%s', total monitors:%d",
-		         path,
+		         uri,
 		         g_hash_table_size (monitor->private->monitors));
 
-		g_free (path);
+		g_free (uri);
 
 		/* We reset this because now it is possible we have limit - 1 */
 		monitor->private->monitor_limit_warned = FALSE;
