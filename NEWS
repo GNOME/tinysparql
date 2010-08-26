@@ -6,6 +6,7 @@ The changes are:
   * Fixes: GB#613252, Application-driven indexing and metadata storage
   * Fixes: GB#627893, tracker 0.9.17 does not compile with e-d-s/evolution 2.31.90 built with gtk+ 3.0
   * Fixes: NB#187148, "Not tagged, file is not indexed" message is seen when adding a tag
+  * Fixes: NB#184505, Video files without audio are listed as music clips.
   * coverage: Ignore deprecated libtracker-client
   * coverage: Ignore generated .c files
   * functional-tests: Use python instead of specific python2.6
