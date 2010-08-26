@@ -11,6 +11,9 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="d" name="progress" direction="out" />
     </method>
+    <method name="Wait">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+    </method>
 
     <!-- Signals -->
     <signal name="Progress">

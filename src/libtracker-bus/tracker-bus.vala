@@ -17,7 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-[DBus (name = "org.freedesktop.Tracker1.Resources")]
+[DBus (name = "org.freedesktop.Tracker1.Resources", timeout = 2147483647 /* INT_MAX */)]
 private interface Tracker.Bus.Resources : GLib.Object {
 	public abstract string[,] sparql_query (string query) throws Sparql.Error, DBus.Error;
 	[DBus (name = "SparqlQuery")]

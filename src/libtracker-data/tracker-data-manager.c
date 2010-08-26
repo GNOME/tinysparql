@@ -3053,6 +3053,10 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	g_free (ontologies_dir);
 
+	if (busy_callback) {
+		busy_callback ("Idle", 1, busy_user_data);
+	}
+
 	return TRUE;
 }
 

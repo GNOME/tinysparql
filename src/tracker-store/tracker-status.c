@@ -39,7 +39,7 @@ typedef struct {
 	gchar *status;
 	guint timer_id;
 	TrackerStatus *object;
-	gboolean last;
+	GList *wait_list;
 } TrackerStatusPrivate;
 
 enum {
@@ -112,7 +112,7 @@ tracker_status_init (TrackerStatus *object)
 
 	priv->object = object;
 	priv->timer_id = 0;
-	priv->progress = 1;
+	priv->progress = 0;
 	priv->status = g_strdup ("Idle");
 }
 
@@ -125,31 +125,7 @@ busy_notification_timeout (gpointer user_data)
 	               priv->status,
 	               priv->progress);
 
-	priv->last = TRUE;
-
 	return FALSE;
-}
-
-static void
-busy_notification_destroy (gpointer user_data)
-{
-	TrackerStatusPrivate *priv = user_data;
-
-	if (priv->last) {
-		g_free (priv->status);
-		priv->status = g_strdup ("Idle");
-	}
-
-	priv->progress = 1;
-	priv->timer_id = 0;
-}
-
-static void
-busy_notification_idle_destroy (gpointer user_data)
-{
-	TrackerStatusPrivate *priv = user_data;
-
-	priv->timer_id = 0;
 }
 
 static void
@@ -161,7 +137,20 @@ tracker_status_callback (const gchar *status,
 	TrackerStatusPrivate *priv = user_data;
 
 	priv->progress = progress;
-	priv->last = FALSE;
+
+	if (progress == 1 && priv->wait_list) {
+		GList *l;
+
+		/* notify clients that tracker-store is no longer busy */
+
+		priv->wait_list = g_list_reverse (priv->wait_list);
+		for (l = priv->wait_list; l; l = l->next) {
+			dbus_g_method_return (l->data);
+		}
+
+		g_list_free (priv->wait_list);
+		priv->wait_list = NULL;
+	}
 
 	if (g_strcmp0 (status, priv->status) != 0) {
 		g_free (priv->status);
@@ -170,16 +159,13 @@ tracker_status_callback (const gchar *status,
 
 	if (priv->timer_id == 0) {
 		if (first_time) {
-			priv->timer_id = g_idle_add_full (G_PRIORITY_DEFAULT,
-			                                  busy_notification_timeout,
-			                                  priv,
-			                                  busy_notification_idle_destroy);
+			priv->timer_id = g_idle_add (busy_notification_timeout,
+			                             priv);
 			first_time = FALSE;
 		} else {
-			priv->timer_id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, PROGRESS_TIMEOUT_S,
-			                                             busy_notification_timeout,
-			                                             priv,
-			                                             busy_notification_destroy);
+			priv->timer_id = g_timeout_add_seconds (PROGRESS_TIMEOUT_S,
+			                                        busy_notification_timeout,
+			                                        priv);
 		}
 	}
 
@@ -224,4 +210,19 @@ tracker_status_get_status  (TrackerStatus    *object,
 	tracker_dbus_request_success (request_id, context);
 
 	return;
+}
+
+void
+tracker_status_wait  (TrackerStatus          *object,
+                      DBusGMethodInvocation  *context,
+                      GError                **error)
+{
+	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
+
+	if (priv->progress == 1) {
+		/* tracker-store is idle */
+		dbus_g_method_return (context);
+	} else {
+		priv->wait_list = g_list_prepend (priv->wait_list, context);
+	}
 }

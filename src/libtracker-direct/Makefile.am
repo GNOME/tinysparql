@@ -10,6 +10,7 @@ INCLUDES =								\
 	-I$(top_srcdir)/src/libtracker-data				\
 	-I$(top_builddir)/src						\
 	$(WARN_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)
 
@@ -36,7 +37,7 @@ vapi_sources =						\
 	$(top_srcdir)/src/libtracker-data/tracker-sparql-query.vapi
 
 libtracker-direct.vala.stamp: $(libtracker_direct_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 -H tracker-direct.h --vapi tracker-direct.vapi $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-direct.h --vapi tracker-direct.vapi $^
 	$(AM_V_GEN)touch $@
 
 BUILT_SOURCES = libtracker-direct.vala.stamp
@@ -44,6 +45,7 @@ BUILT_SOURCES = libtracker-direct.vala.stamp
 libtracker_direct_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la	\
 	$(GLIB2_LIBS)						\
+	$(DBUS_LIBS) \
 	$(GCOV_LIBS)
 
 MAINTAINERCLEANFILES =					\
