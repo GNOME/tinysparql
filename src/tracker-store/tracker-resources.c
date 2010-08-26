@@ -605,6 +605,7 @@ on_emit_class_signal (gpointer user_data)
 	GHashTableIter iter;
 	gpointer key, value;
 	gboolean had_any = FALSE;
+	GHashTable *writebacks;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (resources);
 
@@ -621,6 +622,17 @@ on_emit_class_signal (gpointer user_data)
 	/* Reset counter */
 	tracker_events_get_total (TRUE);
 
+
+	/* Writeback feature */
+	writebacks = tracker_writeback_get_pending ();
+
+	if (writebacks) {
+		had_any = TRUE;
+		g_signal_emit (resources, signals[WRITEBACK], 0, writebacks);
+	}
+
+	tracker_writeback_reset ();
+
 	if (!had_any)
 		priv->class_signal_timeout = 0;
 
@@ -631,7 +643,6 @@ static void
 on_statements_committed (gpointer user_data)
 {
 	TrackerResources *resources = user_data;
-	GHashTable *writebacks;
 	TrackerResourcesPrivate *priv;
 	GHashTableIter iter;
 	gpointer key, value;
@@ -647,15 +658,6 @@ on_statements_committed (gpointer user_data)
 		TrackerClass *class = key;
 		tracker_class_transact_events (class);
 	}
-
-	/* Writeback feature */
-	writebacks = tracker_writeback_get_pending ();
-
-	if (writebacks) {
-		g_signal_emit (resources, signals[WRITEBACK], 0, writebacks);
-	}
-
-	tracker_writeback_reset ();
 }
 
 
@@ -709,8 +711,8 @@ on_statement_inserted (gint         graph_id,
 {
 	tracker_events_add_insert (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
-	check_class_signal_signal (user_data);
 	tracker_writeback_check (graph_id, graph, subject_id, subject, pred_id, object_id, object, rdf_types);
+	check_class_signal_signal (user_data);
 }
 
 static void
@@ -726,9 +728,9 @@ on_statement_deleted (gint         graph_id,
 {
 	tracker_events_add_delete (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
-	check_class_signal_signal (user_data);
 //	tracker_writeback_check (graph_id, graph, subject_id, subject, pred_id,
 //	                         object_id, object, rdf_types);
+	check_class_signal_signal (user_data);
 }
 
 void
