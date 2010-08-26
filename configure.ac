@@ -936,6 +936,15 @@ if test "x$enable_miner_evolution" != "xno"; then
                       evolution-data-server-1.2 >= $EDS_REQUIRED],
                      have_miner_evolution=yes,
                      have_miner_evolution=no)
+   if test "x$have_miner_evolution" = "xyes"; then
+       evolution_plugin=evolution-plugin
+   else
+       PKG_CHECK_MODULES(EVOLUTION_PLUGIN,
+                         [evolution-plugin-3.0 >= $EVO_REQUIRED
+                          evolution-data-server-1.2 >= $EDS_REQUIRED],
+                         have_miner_evolution=yes)
+       evolution_plugin=evolution-plugin-3.0
+   fi
 
    PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.29.1],
                     [AC_DEFINE(HAVE_EDS_2_29_1, 1, [Define if we have eds 2.29.1 or newer])])
@@ -951,9 +960,13 @@ if test "x$enable_miner_evolution" != "xno"; then
                   AS_HELP_STRING([--with-evolution-plugins-dir],
                                  [path to Evolution plugins directory]))
       if test "x$with_evolution_plugins_dir" = "x" ; then
-         evolution_plugins_dir=`$PKG_CONFIG evolution-plugin --variable=plugindir`
+         evolution_plugins_dir=`$PKG_CONFIG $evolution_plugin --variable=plugindir`
       else
          evolution_plugins_dir="$with_evolution_plugins_dir"
+      fi
+
+      if test -z $evolution_plugins_dir; then
+         AC_MSG_ERROR([Couldn't find evolution plugins dir, consider using --with-evolution-plugins-dir.])
       fi
    fi
 else
