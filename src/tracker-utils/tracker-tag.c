@@ -522,17 +522,15 @@ print_file_report (TrackerSparqlCursor *cursor,
 	for (i = 0; uris[i]; i++) {
 		gboolean found = FALSE;
 
-		g_print ("*** checking uri:'%s' and rewinding cursor\n", uris[i]);
+		tracker_sparql_cursor_rewind (cursor);
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			const gchar *str;
 
 			str = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-			g_print ("***   comparing to str:'%s'\n", str);
 
 			if (g_strcmp0 (str, uris[i]) == 0) {
 				found = TRUE;
-				g_print ("***   FOUND FOUND FOUND!\n");
 				break;
 			}
 		}
@@ -540,8 +538,6 @@ print_file_report (TrackerSparqlCursor *cursor,
 		g_print ("  %s: %s\n",
 		         found ? found_msg : not_found_msg,
 		         uris[i]);
-
-		tracker_sparql_cursor_rewind (cursor);
 	}
 }
 
