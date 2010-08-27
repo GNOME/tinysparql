@@ -95,29 +95,6 @@ tracker_writeback_check (gint         graph_id,
 }
 
 void
-tracker_writeback_reset (void)
-{
-	g_return_if_fail (private != NULL);
-
-	if (private->pending_events && private->ready_events) {
-		GHashTableIter iter;
-		gpointer key, value;
-
-		g_hash_table_iter_init (&iter, private->pending_events);
-
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			g_hash_table_insert (private->ready_events, key, value);
-			g_hash_table_iter_remove (&iter);
-		}
-		g_hash_table_unref (private->ready_events);
-		g_hash_table_unref (private->pending_events);
-
-		private->ready_events = NULL;
-		private->pending_events = NULL;
-	}
-}
-
-void
 tracker_writeback_reset_pending ()
 {
 	g_return_if_fail (private != NULL);
@@ -218,7 +195,11 @@ tracker_writeback_shutdown (void)
 {
 	g_return_if_fail (private != NULL);
 
-	tracker_writeback_reset ();
+	/* Perhaps hurry an emit of the ready events here? We're shutting down,
+	 * so I guess we're not required to do that here ... ? */
+	tracker_writeback_reset_ready ();
+
+	tracker_writeback_reset_pending ();
 	free_private (private);
 	private = NULL;
 }
