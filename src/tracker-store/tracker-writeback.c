@@ -79,10 +79,7 @@ tracker_writeback_check (gint         graph_id,
 	g_return_if_fail (private != NULL);
 
 	if (g_hash_table_lookup (private->allowances, GINT_TO_POINTER (pred_id))) {
-		if (!private->ready_events || !private->pending_events) {
-			private->ready_events = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-			                                               (GDestroyNotify) NULL,
-			                                               (GDestroyNotify) array_free);
+		if (!private->pending_events) {
 			private->pending_events = g_hash_table_new_full (g_direct_hash, g_direct_equal,
 			                                                 (GDestroyNotify) NULL,
 			                                                 (GDestroyNotify) NULL);
@@ -99,7 +96,9 @@ tracker_writeback_reset_pending ()
 {
 	g_return_if_fail (private != NULL);
 
-	g_hash_table_remove_all (private->pending_events);
+	if (private->pending_events) {
+		g_hash_table_remove_all (private->pending_events);
+	}
 }
 
 void
@@ -107,7 +106,10 @@ tracker_writeback_reset_ready ()
 {
 	g_return_if_fail (private != NULL);
 
-	g_hash_table_remove_all (private->ready_events);
+	if (private->ready_events) {
+		g_hash_table_unref (private->ready_events);
+		private->ready_events = NULL;
+	}
 }
 
 GHashTable *
@@ -124,6 +126,10 @@ free_private (gpointer user_data)
 	WritebackPrivate *private;
 
 	private = user_data;
+	if (private->ready_events)
+		g_hash_table_unref (private->ready_events);
+	if (private->pending_events)
+		g_hash_table_unref (private->pending_events);
 	g_hash_table_unref (private->allowances);
 	g_free (private);
 }
@@ -182,6 +188,12 @@ tracker_writeback_transact (void)
 	if (!private->pending_events)
 		return;
 
+	if (!private->ready_events) {
+		private->ready_events = g_hash_table_new_full (g_direct_hash, g_direct_equal,
+		                                               (GDestroyNotify) NULL,
+		                                               (GDestroyNotify) array_free);
+	}
+
 	g_hash_table_iter_init (&iter, private->pending_events);
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
@@ -195,11 +207,12 @@ tracker_writeback_shutdown (void)
 {
 	g_return_if_fail (private != NULL);
 
+	tracker_writeback_reset_pending ();
+
 	/* Perhaps hurry an emit of the ready events here? We're shutting down,
 	 * so I guess we're not required to do that here ... ? */
 	tracker_writeback_reset_ready ();
 
-	tracker_writeback_reset_pending ();
 	free_private (private);
 	private = NULL;
 }

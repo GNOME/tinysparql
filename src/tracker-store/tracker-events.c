@@ -225,11 +225,12 @@ free_private (EventsPrivate *private)
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		TrackerClass *class = key;
 
+		tracker_class_reset_pending_events (class);
+
 		/* Perhaps hurry an emit of the ready events here? We're shutting down,
 		 * so I guess we're not required to do that here ... ? */
 		tracker_class_reset_ready_events (class);
 
-		tracker_class_reset_pending_events (class);
 	}
 
 	g_hash_table_unref (private->allowances);
