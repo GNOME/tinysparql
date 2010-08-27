@@ -287,8 +287,10 @@ rdf_types_to_uris_cb (GObject      *object,
 
 		if (cursor && tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			subject = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			if (!subject)
+			if (!subject) {
+				g_object_unref (cursor);
 				goto trouble;
+			}
 		} else {
 			if (cursor)
 				g_object_unref (cursor);
@@ -309,6 +311,7 @@ rdf_types_to_uris_cb (GObject      *object,
 		                                       consumer);
 
 		g_free (query);
+		g_object_unref (cursor);
 
 	} else {
 		goto trouble;
