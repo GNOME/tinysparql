@@ -1497,8 +1497,8 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 			/* update, delete all statements inserted by miner
 			   except for rdf:type statements as they could cause implicit deletion of user data */
-			full_sparql = g_strdup_printf ("DELETE { <%s> ?p ?o } WHERE { GRAPH <%s> { <%s> ?p ?o FILTER (?p != rdf:type) } } %s",
-			                               data->urn, TRACKER_MINER_FS_GRAPH_URN,
+			full_sparql = g_strdup_printf ("DELETE { GRAPH <%s> { <%s> ?p ?o } } WHERE { GRAPH <%s> { <%s> ?p ?o FILTER (?p != rdf:type) } } %s",
+			                               TRACKER_MINER_FS_GRAPH_URN, data->urn, TRACKER_MINER_FS_GRAPH_URN,
 			                               data->urn, tracker_sparql_builder_get_result (data->builder));
 		} else {
 			g_debug ("Creating new item '%s'", uri);
@@ -1714,19 +1714,20 @@ item_ignore_next_update (TrackerMinerFS *fs,
 		/* Perhaps we should move the DELETE to tracker-miner-files.c?
 		 * Or we add support for DELETE to TrackerSparqlBuilder ofcrs */
 
-		query = g_strdup_printf ("DELETE { "
+		query = g_strdup_printf ("DELETE { GRAPH <%s> { "
 		                         "  ?u nfo:fileSize ?unknown1 ; "
 		                         "     nfo:fileLastModified ?unknown2 ; "
 		                         "     nfo:fileLastAccessed ?unknown3 ; "
-		                         "     nie:mimeType ?unknown4 "
-		                         "} WHERE { "
+		                         "     nie:mimeType ?unknown4 } "
+		                         "} WHERE { GRAPH <%s> { "
 		                         "  ?u nfo:fileSize ?unknown1 ; "
 		                         "     nfo:fileLastModified ?unknown2 ; "
 		                         "     nfo:fileLastAccessed ?unknown3 ; "
 		                         "     nie:mimeType ?unknown4 ; "
-		                         "     nie:url \"%s\" "
-		                         "} %s",
-		                         uri, tracker_sparql_builder_get_result (sparql));
+		                         "     nie:url \"%s\" } "
+		                         "} %s", TRACKER_MINER_FS_GRAPH_URN,
+		                         TRACKER_MINER_FS_GRAPH_URN, uri,
+		                         tracker_sparql_builder_get_result (sparql));
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 		                                        query,

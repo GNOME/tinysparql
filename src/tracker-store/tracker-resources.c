@@ -731,8 +731,8 @@ on_statement_deleted (gint         graph_id,
 {
 	tracker_events_add_delete (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
-//	tracker_writeback_check (graph_id, graph, subject_id, subject, pred_id,
-//	                         object_id, object, rdf_types);
+	tracker_writeback_check (graph_id, graph, subject_id, subject, pred_id,
+	                         object_id, object, rdf_types);
 	check_class_signal_signal (user_data);
 }
 
