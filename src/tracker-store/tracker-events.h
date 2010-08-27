@@ -48,7 +48,7 @@ void       tracker_events_add_delete        (gint                      graph_id,
                                              GPtrArray                *rdf_types);
 void       tracker_events_classes_iter      (GHashTableIter           *iter);
 guint      tracker_events_get_total         (gboolean                  and_reset);
-void       tracker_events_reset             (void);
+void       tracker_events_reset_pending     (void);
 void       tracker_events_freeze            (void);
 
 G_END_DECLS

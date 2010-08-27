@@ -29,19 +29,21 @@ G_BEGIN_DECLS
 
 typedef GStrv (*TrackerWritebackGetPredicatesFunc) (void);
 
-void        tracker_writeback_init        (TrackerWritebackGetPredicatesFunc callback);
-void        tracker_writeback_shutdown    (void);
-void        tracker_writeback_check       (gint         graph_id,
-                                           const gchar *graph,
-                                           gint         subject_id,
-                                           const gchar *subject,
-                                           gint         pred_id,
-                                           gint         object_id,
-                                           const gchar *object,
-                                           GPtrArray   *rdf_types);
-GHashTable* tracker_writeback_get_pending (void);
-void        tracker_writeback_reset       (void);
-void        tracker_writeback_transact    (void);
+void        tracker_writeback_init          (TrackerWritebackGetPredicatesFunc callback);
+void        tracker_writeback_shutdown      (void);
+void        tracker_writeback_check         (gint         graph_id,
+                                             const gchar *graph,
+                                             gint         subject_id,
+                                             const gchar *subject,
+                                             gint         pred_id,
+                                             gint         object_id,
+                                             const gchar *object,
+                                             GPtrArray   *rdf_types);
+GHashTable* tracker_writeback_get_ready     (void);
+void        tracker_writeback_reset_pending (void);
+void        tracker_writeback_reset_ready   (void);
+void        tracker_writeback_reset         (void);
+void        tracker_writeback_transact      (void);
 
 G_END_DECLS
 

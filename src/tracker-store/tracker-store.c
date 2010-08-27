@@ -380,7 +380,7 @@ pool_dispatch_cb (gpointer data,
 
 		tracker_events_freeze ();
 		tracker_data_load_turtle_file (file, &task->error);
-		tracker_events_reset ();
+		tracker_events_reset_pending ();
 
 		g_object_unref (file);
 	}

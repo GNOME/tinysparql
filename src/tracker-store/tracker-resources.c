@@ -589,7 +589,7 @@ emit_class_signal (TrackerResources *self,
 
 		dbus_message_unref (message);
 
-		tracker_class_reset_events (class);
+		tracker_class_reset_ready_events (class);
 
 		return TRUE;
 	}
@@ -624,14 +624,14 @@ on_emit_class_signal (gpointer user_data)
 
 
 	/* Writeback feature */
-	writebacks = tracker_writeback_get_pending ();
+	writebacks = tracker_writeback_get_ready ();
 
 	if (writebacks) {
 		had_any = TRUE;
 		g_signal_emit (resources, signals[WRITEBACK], 0, writebacks);
 	}
 
-	tracker_writeback_reset ();
+	tracker_writeback_reset_ready ();
 
 	if (!had_any)
 		priv->class_signal_timeout = 0;
@@ -667,8 +667,8 @@ on_statements_committed (gpointer user_data)
 static void
 on_statements_rolled_back (gpointer user_data)
 {
-	tracker_events_reset ();
-	tracker_writeback_reset ();
+	tracker_events_reset_pending ();
+	tracker_writeback_reset_pending ();
 }
 
 static void

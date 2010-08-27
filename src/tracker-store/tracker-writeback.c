@@ -117,8 +117,24 @@ tracker_writeback_reset (void)
 	}
 }
 
+void
+tracker_writeback_reset_pending ()
+{
+	g_return_if_fail (private != NULL);
+
+	g_hash_table_remove_all (private->pending_events);
+}
+
+void
+tracker_writeback_reset_ready ()
+{
+	g_return_if_fail (private != NULL);
+
+	g_hash_table_remove_all (private->ready_events);
+}
+
 GHashTable *
-tracker_writeback_get_pending (void)
+tracker_writeback_get_ready (void)
 {
 	g_return_val_if_fail (private != NULL, NULL);
 

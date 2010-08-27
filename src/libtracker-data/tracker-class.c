@@ -521,7 +521,7 @@ tracker_class_foreach_delete_event (TrackerClass        *class,
 }
 
 void
-tracker_class_reset_events (TrackerClass *class)
+tracker_class_reset_ready_events (TrackerClass *class)
 {
 	TrackerClassPrivate *priv;
 
@@ -535,6 +535,24 @@ tracker_class_reset_events (TrackerClass *class)
 
 	g_array_set_size (priv->inserts.ready.sub_pred_ids, 0);
 	g_array_set_size (priv->inserts.ready.object_ids, 0);
+
+}
+
+void
+tracker_class_reset_pending_events (TrackerClass *class)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (class));
+
+	priv = GET_PRIV (class);
+
+	/* Reset */
+	g_array_set_size (priv->deletes.pending.sub_pred_ids, 0);
+	g_array_set_size (priv->deletes.pending.object_ids, 0);
+
+	g_array_set_size (priv->inserts.pending.sub_pred_ids, 0);
+	g_array_set_size (priv->inserts.pending.object_ids, 0);
 
 }
 

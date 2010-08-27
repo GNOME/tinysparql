@@ -188,22 +188,21 @@ tracker_events_add_delete (gint         graph_id,
 }
 
 void
-tracker_events_reset (void)
+tracker_events_reset_pending (void)
 {
-/*	GHashTableIter iter;
-	gpointer key, value; */
+	GHashTableIter iter;
+	gpointer key, value;
 
 	g_return_if_fail (private != NULL);
-/*
-	 this is wrong atm, check tracker-store.c what the purpose of this is
+
 	g_hash_table_iter_init (&iter, private->allowances);
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		TrackerClass *class = key;
 
-		tracker_class_reset_events (class);
+		tracker_class_reset_pending_events (class);
 	}
-*/
+
 	private->frozen = FALSE;
 }
 
@@ -226,7 +225,11 @@ free_private (EventsPrivate *private)
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		TrackerClass *class = key;
 
-		tracker_class_reset_events (class);
+		/* Perhaps hurry an emit of the ready events here? We're shutting down,
+		 * so I guess we're not required to do that here ... ? */
+		tracker_class_reset_ready_events (class);
+
+		tracker_class_reset_pending_events (class);
 	}
 
 	g_hash_table_unref (private->allowances);
