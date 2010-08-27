@@ -151,6 +151,7 @@ typedef enum {
 typedef enum {
 	FILE_TYPE_INVALID,
 	FILE_TYPE_PPTX,
+	FILE_TYPE_PPSX,
 	FILE_TYPE_DOCX,
 	FILE_TYPE_XLSX
 } MsOfficeXMLFileType;
@@ -186,6 +187,7 @@ static TrackerExtractData data[] = {
 	{ "application/vnd.ms-*",          extract_msoffice },
 	/* MSoffice2007*/
 	{ "application/vnd.openxmlformats-officedocument.presentationml.presentation", extract_msoffice_xml },
+	{ "application/vnd.openxmlformats-officedocument.presentationml.slideshow",    extract_msoffice_xml },
 	{ "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",         extract_msoffice_xml },
 	{ "application/vnd.openxmlformats-officedocument.wordprocessingml.document",   extract_msoffice_xml },
 	{ NULL, NULL }
@@ -1883,6 +1885,7 @@ xml_start_element_handler_text_data (GMarkupParseContext  *context,
 		break;
 
 	case FILE_TYPE_PPTX:
+	case FILE_TYPE_PPSX:
 		info->tag_type = MS_OFFICE_XML_TAG_SLIDE_TEXT;
 		break;
 
@@ -2234,6 +2237,7 @@ xml_start_element_handler_content_types (GMarkupParseContext  *context,
 		break;
 
 	case FILE_TYPE_PPTX:
+	case FILE_TYPE_PPSX:
 		if ((g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.presentationml.slide+xml") == 0) ||
 		    (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.drawingml.diagramData+xml") == 0)) {
 			xml_read (info, part_name + 1, MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA);
@@ -2299,6 +2303,8 @@ extract_msoffice_xml (const gchar          *uri,
 		file_type = FILE_TYPE_DOCX;
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.presentation") == 0) {
 		file_type = FILE_TYPE_PPTX;
+	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.slideshow") == 0) {
+		file_type = FILE_TYPE_PPSX;
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") == 0) {
 		file_type = FILE_TYPE_XLSX;
 	} else {
