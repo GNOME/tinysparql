@@ -39,7 +39,7 @@ handle_statement (gint subject, gint predicate)
 	gchar *query, *pred;
 	TrackerSparqlCursor *cursor;
 
-	query = g_strdup_printf ("SELECT tracker:subject (%d) tracker:subject(%d) {}",
+	query = g_strdup_printf ("SELECT tracker:uri (%d) tracker:uri(%d) {}",
 	                         subject, predicate);
 	cursor = tracker_sparql_connection_query (con, query, NULL, NULL);
 	g_free (query);

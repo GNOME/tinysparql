@@ -281,7 +281,7 @@ rdf_types_to_uris_cb (GObject      *object,
 
 		g_object_unref (cursor);
 
-		query = g_strdup_printf ("SELECT tracker:subject (%d) {}", data->subject);
+		query = g_strdup_printf ("SELECT tracker:uri (%d) {}", data->subject);
 		cursor = tracker_sparql_connection_query (connection, query, NULL, NULL);
 		g_free (query);
 

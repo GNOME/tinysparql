@@ -567,7 +567,7 @@ class Tracker.Sparql.Expression : Object {
 			}
 
 			return PropertyType.INTEGER;
-		} else if (uri == TRACKER_NS + "subject") {
+		} else if (uri == TRACKER_NS + "uri") {
 			
 			if (current () == SparqlTokenType.INTEGER) {
 				next ();

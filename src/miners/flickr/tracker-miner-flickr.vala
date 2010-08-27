@@ -496,7 +496,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 		try {
 			var c = get_connection ();
-			cursor = yield c.query_async ("select tracker:subject (%d) {}".printf (id));
+			cursor = yield c.query_async ("select tracker:uri (%d) {}".printf (id));
 			return_if_fail (cursor.next () != true);
 			photo_urn = cursor.get_string (0);
 
