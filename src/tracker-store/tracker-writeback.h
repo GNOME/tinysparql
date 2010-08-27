@@ -31,7 +31,7 @@ typedef GStrv (*TrackerWritebackGetPredicatesFunc) (void);
 
 void        tracker_writeback_init          (TrackerWritebackGetPredicatesFunc callback);
 void        tracker_writeback_shutdown      (void);
-void        tracker_writeback_check         (gint         graph_id,
+gboolean    tracker_writeback_check         (gint         graph_id,
                                              const gchar *graph,
                                              gint         subject_id,
                                              const gchar *subject,

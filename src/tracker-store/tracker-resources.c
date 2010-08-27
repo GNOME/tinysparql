@@ -84,7 +84,7 @@ enum {
 
 typedef struct {
 	DBusConnection *connection;
-	guint class_signal_timeout;
+	guint signal_timeout;
 } TrackerResourcesPrivate;
 
 typedef struct {
@@ -598,7 +598,7 @@ emit_class_signal (TrackerResources *self,
 }
 
 static gboolean
-on_emit_class_signal (gpointer user_data)
+on_emit_signals (gpointer user_data)
 {
 	TrackerResources *resources = user_data;
 	TrackerResourcesPrivate *priv;
@@ -634,7 +634,7 @@ on_emit_class_signal (gpointer user_data)
 	tracker_writeback_reset_ready ();
 
 	if (!had_any)
-		priv->class_signal_timeout = 0;
+		priv->signal_timeout = 0;
 
 	return had_any;
 }
@@ -671,7 +671,7 @@ on_statements_rolled_back (gpointer user_data)
 	tracker_writeback_reset_pending ();
 }
 
-static void
+static gboolean
 check_class_signal_signal (TrackerResources *object)
 {
 	TrackerResourcesPrivate *priv;
@@ -691,14 +691,11 @@ check_class_signal_signal (TrackerResources *object)
 
 		/* Reset counter */
 		tracker_events_get_total (TRUE);
-	} else {
-		/* Ready the signal */
-		if (priv->class_signal_timeout == 0) {
-			priv->class_signal_timeout = g_timeout_add_seconds (TRACKER_CLASS_SIGNAL_SECONDS_PER_EMIT,
-			                                                    on_emit_class_signal,
-			                                                    object);
-		}
+
+		return TRUE;
 	}
+
+	return FALSE;
 }
 
 static void
@@ -712,10 +709,24 @@ on_statement_inserted (gint         graph_id,
                        GPtrArray   *rdf_types,
                        gpointer     user_data)
 {
+	gboolean a, b;
+	TrackerResourcesPrivate *priv;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (user_data);
+
 	tracker_events_add_insert (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
-	tracker_writeback_check (graph_id, graph, subject_id, subject, pred_id, object_id, object, rdf_types);
-	check_class_signal_signal (user_data);
+	a = tracker_writeback_check (graph_id, graph, subject_id,
+	                             subject, pred_id, object_id,
+	                             object, rdf_types);
+	b = check_class_signal_signal (user_data);
+
+	if ((a || b) && priv->signal_timeout == 0) {
+		priv->signal_timeout = g_timeout_add_seconds (TRACKER_CLASS_SIGNAL_SECONDS_PER_EMIT,
+		                                              on_emit_signals,
+		                                              user_data);
+	}
+
 }
 
 static void
@@ -729,11 +740,23 @@ on_statement_deleted (gint         graph_id,
                       GPtrArray   *rdf_types,
                       gpointer     user_data)
 {
+	gboolean a, b;
+	TrackerResourcesPrivate *priv;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (user_data);
+
 	tracker_events_add_delete (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
-	tracker_writeback_check (graph_id, graph, subject_id, subject, pred_id,
-	                         object_id, object, rdf_types);
-	check_class_signal_signal (user_data);
+	a = tracker_writeback_check (graph_id, graph, subject_id,
+	                             subject, pred_id, object_id,
+	                             object, rdf_types);
+	b = check_class_signal_signal (user_data);
+
+	if ((a || b) && priv->signal_timeout == 0) {
+		priv->signal_timeout = g_timeout_add_seconds (TRACKER_CLASS_SIGNAL_SECONDS_PER_EMIT,
+		                                              on_emit_signals,
+		                                              user_data);
+	}
 }
 
 void
@@ -762,8 +785,8 @@ tracker_resources_finalize (GObject      *object)
 	tracker_data_remove_commit_statement_callback (on_statements_committed, object);
 	tracker_data_remove_rollback_statement_callback (on_statements_rolled_back, object);
 
-	if (priv->class_signal_timeout != 0) {
-		g_source_remove (priv->class_signal_timeout);
+	if (priv->signal_timeout != 0) {
+		g_source_remove (priv->signal_timeout);
 	}
 
 	dbus_connection_unref (priv->connection);
