@@ -1517,7 +1517,8 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 static gboolean
 item_add_or_update (TrackerMinerFS *fs,
-                    GFile          *file)
+                    GFile          *file,
+                    gboolean        force_cache_update)
 {
 	TrackerMinerFSPrivate *priv;
 	TrackerSparqlBuilder *sparql;
@@ -1538,7 +1539,8 @@ item_add_or_update (TrackerMinerFS *fs,
 	parent = g_file_get_parent (file);
 
 	if (parent) {
-		if (!fs->private->current_iri_cache_parent ||
+		if (force_cache_update ||
+		    !fs->private->current_iri_cache_parent ||
 		    !g_file_equal (parent, fs->private->current_iri_cache_parent)) {
 			/* Cache the URN for the new current parent, processing
 			 * order guarantees that all contents for a folder are
@@ -1590,6 +1592,26 @@ item_add_or_update (TrackerMinerFS *fs,
 
 	return retval;
 }
+
+static gboolean
+item_add (TrackerMinerFS *fs,
+          GFile          *file)
+{
+	/* We force cache update when new item creations, so that we try to
+	 * avoid duplicates if the item was already created in the store by
+	 * an external application */
+	return item_add_or_update (fs, file, TRUE);
+}
+
+static gboolean
+item_update (TrackerMinerFS *fs,
+             GFile          *file)
+{
+	/* When getting UPDATE events, don't force cache updates, just follow
+	 * the standard rules. */
+	return item_add_or_update (fs, file, FALSE);
+}
+
 
 static gboolean
 item_remove (TrackerMinerFS *fs,
@@ -1887,7 +1909,7 @@ item_move (TrackerMinerFS *fs,
 			tracker_miner_fs_directory_add_internal (fs, file);
 			retval = TRUE;
 		} else {
-			retval = item_add_or_update (fs, file);
+			retval = item_add (fs, file);
 		}
 
 		g_free (source_uri);
@@ -2373,8 +2395,10 @@ item_queue_handlers_cb (gpointer user_data)
 		keep_processing = item_remove (fs, file);
 		break;
 	case QUEUE_CREATED:
+		keep_processing = item_add (fs, file);
+		break;
 	case QUEUE_UPDATED:
-		keep_processing = item_add_or_update (fs, file);
+		keep_processing = item_update (fs, file);
 		break;
 	case QUEUE_IGNORE_NEXT_UPDATE:
 		keep_processing = item_ignore_next_update (fs, file, source_file);
