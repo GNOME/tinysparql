@@ -48,7 +48,7 @@ struct TrackerResourcesClass {
 
 	void     (*writeback)                               (TrackerResources *resources,
 	                                                     GStrv subjects);
-	void     (*class_signal)                            (TrackerResources *resources,
+	void     (*graph_updated)                           (TrackerResources *resources,
 	                                                     const gchar      *classname,
 	                                                     GPtrArray        *deletes,
 	                                                     GPtrArray        *inserts);

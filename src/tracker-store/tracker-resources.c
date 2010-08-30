@@ -41,8 +41,8 @@
 #include "tracker-writeback.h"
 #include "tracker-store.h"
 
-#define TRACKER_CLASS_SIGNAL_IMMEDIATE_EMIT_AT	1000
-#define TRACKER_CLASS_SIGNAL_SECONDS_PER_EMIT	1
+#define TRACKER_GRAPH_UPDATED_IMMEDIATE_EMIT_AT   1000
+#define TRACKER_SIGNALS_SECONDS_PER_EMIT          1
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDF_TYPE RDF_PREFIX "type"
@@ -78,7 +78,7 @@ G_DEFINE_TYPE(TrackerResources, tracker_resources, G_TYPE_OBJECT)
 
 enum {
 	WRITEBACK,
-	CLASSSIGNAL,
+	GRAPHUPDATED,
 	LAST_SIGNAL
 };
 
@@ -122,11 +122,11 @@ tracker_resources_class_init (TrackerResourcesClass *klass)
 		              TRACKER_TYPE_INT_ARRAY_MAP);
 
 	/* This is just for introspection to work */
-	signals[CLASSSIGNAL] =
-		g_signal_new ("class-signal",
+	signals[GRAPHUPDATED] =
+		g_signal_new ("graph-updated",
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerResourcesClass, class_signal),
+		              G_STRUCT_OFFSET (TrackerResourcesClass, graph_updated),
 		              NULL, NULL,
 		              tracker_marshal_VOID__STRING_BOXED_BOXED,
 		              G_TYPE_NONE, 3,
@@ -552,8 +552,8 @@ foreach_add_to_iter (gint graph_id,
 }
 
 static gboolean
-emit_class_signal (TrackerResources *self,
-                   TrackerClass     *class)
+emit_graph_updated (TrackerResources *self,
+                    TrackerClass     *class)
 {
 	if (tracker_class_has_insert_events (class) || tracker_class_has_delete_events (class)) {
 		TrackerResourcesPrivate *priv;
@@ -565,7 +565,7 @@ emit_class_signal (TrackerResources *self,
 
 		message = dbus_message_new_signal (TRACKER_RESOURCES_PATH,
 		                                   TRACKER_RESOURCES_INTERFACE,
-		                                   "ClassSignal");
+		                                   "GraphUpdated");
 
 		class_uri = tracker_class_get_uri (class);
 
@@ -616,7 +616,7 @@ on_emit_signals (gpointer user_data)
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		TrackerClass *class = key;
-		if (emit_class_signal (user_data, class)) {
+		if (emit_graph_updated (user_data, class)) {
 			had_any = TRUE;
 		}
 	}
@@ -674,21 +674,21 @@ on_statements_rolled_back (gpointer user_data)
 }
 
 static gboolean
-check_class_signal_signal (TrackerResources *object)
+check_graph_updated_signal (TrackerResources *object)
 {
 	TrackerResourcesPrivate *priv;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
 
 	/* Check for whether we need an immediate emit */
-	if (tracker_events_get_total (FALSE) > TRACKER_CLASS_SIGNAL_IMMEDIATE_EMIT_AT) {
+	if (tracker_events_get_total (FALSE) > TRACKER_GRAPH_UPDATED_IMMEDIATE_EMIT_AT) {
 		gpointer key, value;
 		GHashTableIter iter;
 
 		tracker_events_classes_iter (&iter);
 		while (g_hash_table_iter_next (&iter, &key, &value)) {
 			TrackerClass *class = key;
-			emit_class_signal (object, class);
+			emit_graph_updated (object, class);
 		}
 
 		/* Reset counter */
@@ -721,10 +721,10 @@ on_statement_inserted (gint         graph_id,
 	a = tracker_writeback_check (graph_id, graph, subject_id,
 	                             subject, pred_id, object_id,
 	                             object, rdf_types);
-	b = check_class_signal_signal (user_data);
+	b = check_graph_updated_signal (user_data);
 
 	if ((a || b) && priv->signal_timeout == 0) {
-		priv->signal_timeout = g_timeout_add_seconds (TRACKER_CLASS_SIGNAL_SECONDS_PER_EMIT,
+		priv->signal_timeout = g_timeout_add_seconds (TRACKER_SIGNALS_SECONDS_PER_EMIT,
 		                                              on_emit_signals,
 		                                              user_data);
 	}
@@ -752,10 +752,10 @@ on_statement_deleted (gint         graph_id,
 	a = tracker_writeback_check (graph_id, graph, subject_id,
 	                             subject, pred_id, object_id,
 	                             object, rdf_types);
-	b = check_class_signal_signal (user_data);
+	b = check_graph_updated_signal (user_data);
 
 	if ((a || b) && priv->signal_timeout == 0) {
-		priv->signal_timeout = g_timeout_add_seconds (TRACKER_CLASS_SIGNAL_SECONDS_PER_EMIT,
+		priv->signal_timeout = g_timeout_add_seconds (TRACKER_SIGNALS_SECONDS_PER_EMIT,
 		                                              on_emit_signals,
 		                                              user_data);
 	}

@@ -94,7 +94,7 @@ class_signal_cb (DBusMessage *message)
 static DBusHandlerResult
 message_filter (DBusConnection *connection, DBusMessage *message, gpointer ud)
 {
-	if (dbus_message_is_signal (message, TRACKER_INTERFACE_RESOURCES, "ClassSignal")) {
+	if (dbus_message_is_signal (message, TRACKER_INTERFACE_RESOURCES, "GraphUpdated")) {
 		class_signal_cb (message);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}

@@ -33,8 +33,8 @@ struct Event {
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 private interface Resources : GLib.Object {
-	[DBus (name = "ClassSignal")]
-	public signal void class_signal (string class_name, Event[] deletes, Event[] inserts);
+	[DBus (name = "GraphUpdated")]
+	public signal void graph_updated (string class_name, Event[] deletes, Event[] inserts);
 
 	[DBus (name = "SparqlUpdate")]
 	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBus.Error;
@@ -63,7 +63,7 @@ public class TestApp {
 			                                                           "/org/freedesktop/Tracker1/Resources",
 			                                                           "org.freedesktop.Tracker1.Resources");
 
-			resources_object.class_signal.connect (on_class_signal_received);
+			resources_object.graph_updated.connect (on_graph_updated_received);
 
 		} catch (Sparql.Error e) {
 			warning ("Could not connect to D-Bus service: %s", e.message);
@@ -125,7 +125,7 @@ public class TestApp {
 		return (0);
 	}
 
-	private async void on_class_signal_received_async (string dels_query, string ins_query) {
+	private async void on_graph_updated_received_async (string dels_query, string ins_query) {
 		try {
 			Sparql.Cursor cursor1, cursor2;
 
@@ -142,11 +142,11 @@ public class TestApp {
 		}
 	}
 
-	private void on_class_signal_received (string class_name, Event[] deletes, Event[] inserts) {
+	private void on_graph_updated_received (string class_name, Event[] deletes, Event[] inserts) {
 		string dels_qry = build_title_query (class_name, deletes).str;
 		string ins_qry = build_title_query (class_name, deletes).str;
 
-		on_class_signal_received_async (dels_qry, ins_qry);
+		on_graph_updated_received_async (dels_qry, ins_qry);
 	}
 
 	private void insert_data () {

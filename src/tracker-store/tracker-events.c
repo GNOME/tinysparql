@@ -273,7 +273,7 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 			g_hash_table_insert (private->allowances_id,
 			                     GINT_TO_POINTER (tracker_class_get_id (class)),
 			                     GINT_TO_POINTER (TRUE));
-			g_debug ("ClassSignal allowance: %s has ID %d",
+			g_debug ("GraphUpdated allowance: %s has ID %d",
 			         tracker_class_get_name (class),
 			         tracker_class_get_id (class));
 		}

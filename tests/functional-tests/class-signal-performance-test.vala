@@ -45,6 +45,7 @@ const string title_data = "title";
 
 
 struct Event {
+	int graph_id;
 	int subject_id;
 	int pred_id;
 	int object_id;
@@ -52,8 +53,8 @@ struct Event {
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 private interface Resources : GLib.Object {
-	[DBus (name = "ClassSignal")]
-	public signal void class_signal (string class_name, Event[] deletes, Event[] inserts);
+	[DBus (name = "GraphUpdated")]
+	public signal void graph_updated (string class_name, Event[] deletes, Event[] inserts);
 
 	[DBus (name = "SparqlUpdate")]
 	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBus.Error;
@@ -86,17 +87,14 @@ public class TestApp {
 			                                                           "/org/freedesktop/Tracker1/Resources",
 			                                                           "org.freedesktop.Tracker1.Resources");
 
-			try {
-				class_object = (ResourcesClass) dbus_connection.get_object ("org.freedesktop.Tracker1",
-			                                                                "/org/freedesktop/Tracker1/Resources/Classes/nmm/MusicPiece",
-			                                                                "org.freedesktop.Tracker1.Resources.Class");
-			
-				class_object.subjects_added.connect (on_subjects_added);
-				class_object.subjects_changed.connect (on_subjects_changed);
-			} catch (GLib.Error e) {
-			}
+			class_object = (ResourcesClass) dbus_connection.get_object ("org.freedesktop.Tracker1",
+		                                                                "/org/freedesktop/Tracker1/Resources/Classes/nmm/MusicPiece",
+		                                                                "org.freedesktop.Tracker1.Resources.Class");
 
-			resources_object.class_signal.connect (on_class_signal_received);
+			class_object.subjects_added.connect (on_subjects_added);
+			class_object.subjects_changed.connect (on_subjects_changed);
+
+			resources_object.graph_updated.connect (on_graph_updated_received);
 			t = new GLib.Timer ();
 			
 		} catch (Sparql.Error e) {
@@ -127,7 +125,7 @@ public class TestApp {
 			print ("Old class signal count=%d time=%lf\n", count, t.elapsed ());
 	}
 
-	private void on_class_signal_received (string class_name, Event[] deletes, Event[] inserts) {
+	private void on_graph_updated_received (string class_name, Event[] deletes, Event[] inserts) {
 		foreach (Event insert in inserts)
 			count++;
 		//if (count == 20002)
