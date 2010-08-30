@@ -491,9 +491,8 @@ tracker_class_foreach_insert_event (TrackerClass        *class,
 
 		pred_id = sub_pred_id & 0xffffffff;
 		subject_id = sub_pred_id >> 32;
-		object_id = obj_graph_id & 0xffffffff;
-		graph_id = obj_graph_id >> 32;
-
+		graph_id = obj_graph_id & 0xffffffff;
+		object_id = obj_graph_id >> 32;
 
 		foreach (graph_id, subject_id, pred_id, object_id, user_data);
 	}
@@ -522,8 +521,8 @@ tracker_class_foreach_delete_event (TrackerClass        *class,
 
 		pred_id = sub_pred_id & 0xffffffff;
 		subject_id = sub_pred_id >> 32;
-		object_id = obj_graph_id & 0xffffffff;
-		graph_id = obj_graph_id >> 32;
+		graph_id = obj_graph_id & 0xffffffff;
+		object_id = obj_graph_id >> 32;
 
 		foreach (graph_id, subject_id, pred_id, object_id, user_data);
 	}
