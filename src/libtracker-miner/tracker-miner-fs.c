@@ -272,9 +272,9 @@ static void           item_update_children_uri            (TrackerMinerFS       
 static void           crawled_directory_data_free         (CrawledDirectoryData *data);
 
 static gboolean       should_recurse_for_directory            (TrackerMinerFS *fs,
-							       GFile          *file);
+                                                               GFile          *file);
 static void           tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
-							       GFile          *file);
+                                                               GFile          *file);
 static gboolean       miner_fs_has_children_without_parent (TrackerMinerFS *fs,
                                                             GFile          *file);
 
@@ -319,7 +319,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                    1, G_MAXUINT, 1,
 	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
- 	                                 PROP_MTIME_CHECKING,
+	                                 PROP_MTIME_CHECKING,
 	                                 g_param_spec_boolean ("mtime-checking",
 	                                                       "Mtime checking",
 	                                                       "Whether to perform mtime checks during initial crawling or not",
@@ -467,13 +467,13 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 **/
 	signals[IGNORE_NEXT_UPDATE_FILE] =
 		g_signal_new ("ignore-next-update-file",
-			      G_OBJECT_CLASS_TYPE (object_class),
-			      G_SIGNAL_RUN_LAST,
-			      G_STRUCT_OFFSET (TrackerMinerFSClass, ignore_next_update_file),
-			      NULL, NULL,
-			      tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
-			      G_TYPE_BOOLEAN,
-			      3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerFSClass, ignore_next_update_file),
+		              NULL, NULL,
+		              tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
+		              G_TYPE_BOOLEAN,
+		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
 
 	/**
 	 * TrackerMinerFS::finished:
@@ -536,8 +536,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  G_CALLBACK (crawler_check_directory_contents_cb),
 	                  object);
 	g_signal_connect (priv->crawler, "directory-crawled",
-			  G_CALLBACK (crawler_directory_crawled_cb),
-			  object);
+	                  G_CALLBACK (crawler_directory_crawled_cb),
+	                  object);
 	g_signal_connect (priv->crawler, "finished",
 	                  G_CALLBACK (crawler_finished_cb),
 	                  object);
@@ -578,8 +578,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 static ProcessData *
 process_data_new (TrackerMiner         *miner,
                   GFile                *file,
-		  const gchar          *urn,
-		  const gchar          *parent_urn,
+                  const gchar          *urn,
+                  const gchar          *parent_urn,
                   GCancellable         *cancellable,
                   TrackerSparqlBuilder *builder)
 {
@@ -747,7 +747,7 @@ fs_set_property (GObject      *object,
 		break;
 	case PROP_MTIME_CHECKING:
 		fs->private->mtime_checking = g_value_get_boolean (value);
-                break;
+		break;
 	case PROP_INITIAL_CRAWLING:
 		fs->private->initial_crawling = g_value_get_boolean (value);
 		break;
@@ -776,7 +776,7 @@ fs_get_property (GObject    *object,
 		break;
 	case PROP_MTIME_CHECKING:
 		g_value_set_boolean (value, fs->private->mtime_checking);
-                break;
+		break;
 	case PROP_INITIAL_CRAWLING:
 		g_value_set_boolean (value, fs->private->initial_crawling);
 		break;
@@ -942,9 +942,9 @@ process_print_stats (TrackerMinerFS *fs)
 		g_message ("Total monitors    : %d",
 		           tracker_monitor_get_count (fs->private->monitor));
 		g_message ("Total processed   : %d (%d notified, %d with error)",
-			   fs->private->total_files_processed,
-			   fs->private->total_files_notified,
-			   fs->private->total_files_notified_error);
+		           fs->private->total_files_processed,
+		           fs->private->total_files_notified,
+		           fs->private->total_files_notified_error);
 		g_message ("--------------------------------------------------\n");
 	}
 }
@@ -1131,10 +1131,10 @@ item_query_exists (TrackerMinerFS  *miner,
 	data.uri = uri;
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-	                              sparql,
-	                              NULL,
-	                              item_query_exists_cb,
-	                              &data);
+	                                       sparql,
+	                                       NULL,
+	                                       item_query_exists_cb,
+	                                       &data);
 
 	g_main_loop_run (data.main_loop);
 	result = (data.iri != NULL);
@@ -1161,8 +1161,8 @@ item_query_exists (TrackerMinerFS  *miner,
 
 static void
 cache_query_cb (GObject	     *object,
-		GAsyncResult *result,
-		gpointer      user_data)
+                GAsyncResult *result,
+                gpointer      user_data)
 {
 	TrackerSparqlCursor *cursor;
 	CacheQueryData *data;
@@ -1277,10 +1277,10 @@ ensure_iri_cache (TrackerMinerFS *fs,
 	data.values = g_hash_table_ref (fs->private->iri_cache);
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-	                              query,
-	                              NULL,
-	                              cache_query_cb,
-	                              &data);
+	                                       query,
+	                                       NULL,
+	                                       cache_query_cb,
+	                                       &data);
 	g_free (query);
 
 	g_main_loop_run (data.main_loop);
@@ -1323,10 +1323,10 @@ ensure_iri_cache (TrackerMinerFS *fs,
 			                         uri);
 
 			tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-			                              query,
-			                              NULL,
-			                              cache_query_cb,
-			                              &data);
+			                                       query,
+			                                       NULL,
+			                                       cache_query_cb,
+			                                       &data);
 			g_free (query);
 
 			g_main_loop_run (data.main_loop);
@@ -1404,7 +1404,7 @@ iri_cache_invalidate (TrackerMinerFS *fs,
 
 static gboolean
 do_process_file (TrackerMinerFS *fs,
-		 ProcessData    *data)
+                 ProcessData    *data)
 {
 	TrackerMinerFSPrivate *priv;
 	gboolean processing;
@@ -1477,7 +1477,7 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 			do_process_file (fs, data);
 		} else {
-                        g_message ("Could not process '%s': %s", uri, error->message);
+			g_message ("Could not process '%s': %s", uri, error->message);
 
 			fs->private->total_files_notified_error++;
 			fs->private->processing_pool =
@@ -1505,10 +1505,10 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		}
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-                                                        full_sparql,
-                                                        G_PRIORITY_DEFAULT,
-                                                        NULL,
-                                                        sparql_update_cb, data);
+		                                        full_sparql,
+		                                        G_PRIORITY_DEFAULT,
+		                                        NULL,
+		                                        sparql_update_cb, data);
 		g_free (full_sparql);
 	}
 
@@ -1642,10 +1642,10 @@ item_remove (TrackerMinerFS *fs,
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-                                                sparql->str,
-                                                G_PRIORITY_DEFAULT,
-                                                NULL,
-                                                sparql_update_cb, data);
+	                                        sparql->str,
+	                                        G_PRIORITY_DEFAULT,
+	                                        NULL,
+	                                        sparql_update_cb, data);
 
 	g_string_free (sparql, TRUE);
 	g_free (uri);
@@ -1725,11 +1725,11 @@ item_ignore_next_update (TrackerMinerFS *fs,
 		                         uri, tracker_sparql_builder_get_result (sparql));
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-                                                        query,
-                                                        G_PRIORITY_DEFAULT,
-                                                        NULL,
-                                                        NULL,
-                                                        NULL);
+		                                        query,
+		                                        G_PRIORITY_DEFAULT,
+		                                        NULL,
+		                                        NULL,
+		                                        NULL);
 
 		g_free (query);
 	}
@@ -1772,8 +1772,8 @@ item_update_children_uri_cb (GObject      *object,
 
 			if (!g_str_has_prefix (child_source_uri, data->source_uri)) {
 				g_warning ("Child URI '%s' does not start with parent URI '%s'",
-					   child_source_uri,
-					   data->source_uri);
+				           child_source_uri,
+				           data->source_uri);
 				continue;
 			}
 
@@ -1813,16 +1813,16 @@ item_update_children_uri (TrackerMinerFS    *fs,
 	gchar *sparql;
 
 	sparql = g_strdup_printf ("SELECT ?child ?url nie:mimeType(?child) WHERE { "
-				  "  ?child nie:url ?url . "
-                                  "  FILTER (tracker:uri-is-descendant (\"%s\", ?url)) "
-				  "}",
-				  source_uri);
+	                          "  ?child nie:url ?url . "
+	                          "  FILTER (tracker:uri-is-descendant (\"%s\", ?url)) "
+	                          "}",
+	                          source_uri);
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-	                              sparql,
-	                              NULL,
-	                              item_update_children_uri_cb,
-	                              move_data);
+	                                       sparql,
+	                                       NULL,
+	                                       item_update_children_uri_cb,
+	                                       move_data);
 
 	g_free (sparql);
 }
@@ -1850,7 +1850,7 @@ item_move (TrackerMinerFS *fs,
 	file_info = g_file_query_info (file,
 	                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
 	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
-				       G_FILE_ATTRIBUTE_STANDARD_TYPE,
+	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
 
@@ -1909,12 +1909,12 @@ item_move (TrackerMinerFS *fs,
 
 	/* Delete destination item from store if any */
 	g_string_append_printf (sparql,
-				"DELETE { "
+	                        "DELETE { "
 	                        "  ?urn a rdfs:Resource "
 	                        "} WHERE {"
 	                        "  ?urn nie:url \"%s\" "
-				"}",
-				uri);
+	                        "}",
+	                        uri);
 
 	g_string_append_printf (sparql,
 	                        "DELETE FROM <%s> { "
@@ -1957,10 +1957,10 @@ item_move (TrackerMinerFS *fs,
 	fs->private->processing_pool = g_list_prepend (fs->private->processing_pool, data);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-                                                sparql->str,
-                                                G_PRIORITY_DEFAULT,
-                                                NULL,
-                                                sparql_update_cb, data);
+	                                        sparql->str,
+	                                        G_PRIORITY_DEFAULT,
+	                                        NULL,
+	                                        sparql_update_cb, data);
 
 	g_free (uri);
 	g_free (source_uri);
@@ -1985,7 +1985,7 @@ check_ignore_next_update (TrackerMinerFS *fs, GFile *queue_file)
 
 static void
 fill_in_queue (TrackerMinerFS       *fs,
-	       GQueue               *queue)
+               GQueue               *queue)
 {
 	CrawledDirectoryData *dir_data;
 	GList *l, *post_nodes = NULL;
@@ -2226,7 +2226,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 static void
 get_tree_progress_foreach (CrawledDirectoryData *data,
-			   gint                 *items_to_process)
+                           gint                 *items_to_process)
 {
 	*items_to_process += data->n_items - data->n_items_processed;
 }
@@ -2245,8 +2245,8 @@ item_queue_get_progress (TrackerMinerFS *fs,
 	items_to_process += g_queue_get_length (fs->private->items_moved);
 
 	g_queue_foreach (fs->private->crawled_directories,
-			 (GFunc) get_tree_progress_foreach,
-			 &items_to_process);
+	                 (GFunc) get_tree_progress_foreach,
+	                 &items_to_process);
 
 	items_total += fs->private->total_directories_found;
 	items_total += fs->private->total_files_found;
@@ -2316,7 +2316,7 @@ item_queue_handlers_cb (gpointer user_data)
 		guint items_processed, items_remaining;
 		gdouble progress_now;
 		static gdouble progress_last = 0.0;
-                static gint info_last = 0;
+		static gint info_last = 0;
 
 		time_last = time_now;
 
@@ -2326,12 +2326,12 @@ item_queue_handlers_cb (gpointer user_data)
 		                                        &items_remaining);
 		g_object_set (fs, "progress", progress_now, NULL);
 
-                if (++info_last >= 5 &&
-                    (gint) (progress_last * 100) != (gint) (progress_now * 100)) {
+		if (++info_last >= 5 &&
+		    (gint) (progress_last * 100) != (gint) (progress_now * 100)) {
 			gchar *str1, *str2;
 			gdouble seconds_elapsed;
 
-                        info_last = 0;
+			info_last = 0;
 			progress_last = progress_now;
 
 			/* Log estimated remaining time */
@@ -2551,27 +2551,28 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                         "     nie:url ?url ; "
 		                         "     nie:url \"%s\" "
 		                         "}",
-					 uri);
+		                         uri);
 		g_free (uri);
 	} else if (parent) {
 		uri = g_file_get_uri (parent);
 
 		g_debug ("Generating mtime cache for URI '%s'", uri);
 
-		query = g_strdup_printf ("SELECT ?url ?last { ?u nfo:belongsToContainer ?p ; "
-		                                                "nie:url ?url ; "
-		                                                "nfo:fileLastModified ?last . "
-		                                             "?p nie:url \"%s\" }", uri);
+		query = g_strdup_printf ("SELECT ?url ?last { "
+		                         "?u nfo:belongsToContainer ?p ; "
+		                         "   nie:url ?url ; "
+		                         "   nfo:fileLastModified ?last . "
+		                         "?p nie:url \"%s\" }", uri);
 
 		g_free (uri);
 	}
 
 	if (query) {
 		tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-		                              query,
-		                              NULL,
-		                              cache_query_cb,
-		                              &data);
+		                                       query,
+		                                       NULL,
+		                                       cache_query_cb,
+		                                       &data);
 		g_free (query);
 		g_main_loop_run (data.main_loop);
 	}
@@ -2608,10 +2609,10 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		g_free (uri);
 
 		tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-		                              query,
-		                              NULL,
-		                              cache_query_cb,
-		                              &data);
+		                                       query,
+		                                       NULL,
+		                                       cache_query_cb,
+		                                       &data);
 		g_free (query);
 		g_main_loop_run (data.main_loop);
 		g_main_loop_unref (data.main_loop);
@@ -2962,7 +2963,7 @@ crawler_check_file_cb (TrackerCrawler *crawler,
 
 	if (!fs->private->been_crawled &&
 	    (!fs->private->mtime_checking ||
-             !fs->private->initial_crawling)) {
+	     !fs->private->initial_crawling)) {
 		return FALSE;
 	}
 
@@ -2994,11 +2995,11 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 			                   g_object_ref (file));
 		}
 	} else {
-                gboolean should_change_index;
+		gboolean should_change_index;
 
 		if (!fs->private->been_crawled &&
 		    (!fs->private->mtime_checking ||
-                     !fs->private->initial_crawling)) {
+		     !fs->private->initial_crawling)) {
 			should_change_index = FALSE;
 		} else {
 			should_change_index = should_change_index_for_file (fs, file);
@@ -3073,7 +3074,7 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 
 static gboolean
 print_file_tree (GNode    *node,
-		 gpointer  user_data)
+                 gpointer  user_data)
 {
 	gchar *name;
 	gint i;
@@ -3110,7 +3111,7 @@ crawled_directory_data_new (GNode *tree)
 
 static gboolean
 crawled_directory_data_free_foreach (GNode    *node,
-				     gpointer  user_data)
+                                     gpointer  user_data)
 {
 	g_object_unref (node->data);
 	return FALSE;
@@ -3120,11 +3121,11 @@ static void
 crawled_directory_data_free (CrawledDirectoryData *data)
 {
 	g_node_traverse (data->tree,
-			 G_POST_ORDER,
-			 G_TRAVERSE_ALL,
-			 -1,
-			 crawled_directory_data_free_foreach,
-			 NULL);
+	                 G_POST_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 crawled_directory_data_free_foreach,
+	                 NULL);
 	g_node_destroy (data->tree);
 
 	g_queue_free (data->nodes);
@@ -3134,13 +3135,13 @@ crawled_directory_data_free (CrawledDirectoryData *data)
 
 static void
 crawler_directory_crawled_cb (TrackerCrawler *crawler,
-			      GFile          *directory,
-			      GNode          *tree,
-			      guint           directories_found,
-			      guint           directories_ignored,
-			      guint           files_found,
-			      guint           files_ignored,
-			      gpointer        user_data)
+                              GFile          *directory,
+                              GNode          *tree,
+                              guint           directories_found,
+                              guint           directories_ignored,
+                              guint           files_found,
+                              guint           files_ignored,
+                              gpointer        user_data)
 {
 	TrackerMinerFS *fs = user_data;
 	CrawledDirectoryData *dir_data;
@@ -3148,7 +3149,7 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 #ifdef ENABLE_TREE_DEBUGGING
 	/* Debug printing of the directory tree */
 	g_node_traverse (tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
-			 print_file_tree, NULL);
+	                 print_file_tree, NULL);
 #endif /* ENABLE_TREE_DEBUGGING */
 
 	/* Add tree to the crawled directories queue, this queue
@@ -3180,7 +3181,7 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 static void
 crawler_finished_cb (TrackerCrawler *crawler,
                      gboolean        was_interrupted,
-		     gpointer        user_data)
+                     gpointer        user_data)
 {
 	TrackerMinerFS *fs = user_data;
 
@@ -3328,7 +3329,7 @@ crawl_directories_stop (TrackerMinerFS *fs)
 
 static gboolean
 should_recurse_for_directory (TrackerMinerFS *fs,
-			      GFile          *file)
+                              GFile          *file)
 {
 	gboolean recurse = FALSE;
 	GList *dirs;
@@ -3373,7 +3374,7 @@ directory_compare_cb (gconstpointer a,
  */
 static void
 tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
-					 GFile          *file)
+                                         GFile          *file)
 {
 	DirectoryData *data;
 	gboolean recurse;
@@ -3746,9 +3747,9 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
 		            "but that file was not in the processing queue. "
 		            "This is an implementation error, please ensure that "
 		            "tracker_miner_fs_file_notify() is called on the same "
-			    "GFile that is passed in ::process-file, and that this"
-			    "signal didn't return FALSE for it",
-			    G_OBJECT_TYPE_NAME (fs), uri);
+		            "GFile that is passed in ::process-file, and that this"
+		            "signal didn't return FALSE for it",
+		            G_OBJECT_TYPE_NAME (fs), uri);
 		g_free (uri);
 
 		return;
@@ -3847,7 +3848,7 @@ tracker_miner_fs_get_urn (TrackerMinerFS *fs,
 		uri = g_file_get_uri (file);
 
 		g_critical ("File '%s' is not being currently processed, "
-			    "so the URN cannot be retrieved.", uri);
+		            "so the URN cannot be retrieved.", uri);
 		g_free (uri);
 
 		return NULL;
@@ -3919,7 +3920,7 @@ tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
 		uri = g_file_get_uri (file);
 
 		g_critical ("File '%s' is not being currently processed, "
-			    "so the URN cannot be retrieved.", uri);
+		            "so the URN cannot be retrieved.", uri);
 		g_free (uri);
 
 		return NULL;
@@ -3949,17 +3950,17 @@ void
 tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
                                        gboolean        do_initial_crawling)
 {
-        g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 
-        fs->private->initial_crawling = do_initial_crawling;
+	fs->private->initial_crawling = do_initial_crawling;
 }
 
 gboolean
 tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
 {
-        g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
-        return fs->private->initial_crawling;
+	return fs->private->initial_crawling;
 }
 
 /**
@@ -3981,28 +3982,28 @@ tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
 	GFile *parent;
 	GList *l;
 
-        g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-        g_return_if_fail (G_IS_FILE (file));
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+	g_return_if_fail (G_IS_FILE (file));
 
-        /* Get parent of the input file, IF ANY! */
-        parent = g_file_get_parent (file);
-        if (!parent) {
-	        return;
-        }
+	/* Get parent of the input file, IF ANY! */
+	parent = g_file_get_parent (file);
+	if (!parent) {
+		return;
+	}
 
-        for (l = fs->private->dirs_without_parent;
-             l;
-             l = g_list_next (l)) {
-	        if (g_file_equal (l->data, parent)) {
-		        /* If parent already in the list, return */
-		        g_object_unref (parent);
-		        return;
-	        }
-        }
+	for (l = fs->private->dirs_without_parent;
+	     l;
+	     l = g_list_next (l)) {
+		if (g_file_equal (l->data, parent)) {
+			/* If parent already in the list, return */
+			g_object_unref (parent);
+			return;
+		}
+	}
 
-        /* We add the parent of the input file */
-        fs->private->dirs_without_parent = g_list_prepend (fs->private->dirs_without_parent,
-                                                           parent);
+	/* We add the parent of the input file */
+	fs->private->dirs_without_parent = g_list_prepend (fs->private->dirs_without_parent,
+	                                                   parent);
 }
 
 /* Returns TRUE if the given GFile is actually the REAL parent
@@ -4013,13 +4014,13 @@ miner_fs_has_children_without_parent (TrackerMinerFS *fs,
 {
 	GList *l;
 
-        for (l = fs->private->dirs_without_parent;
-             l;
-             l = g_list_next (l)) {
-	        if (g_file_equal (l->data, file)) {
-		        /* If already found, return */
-		        return TRUE;
-	        }
-        }
-        return FALSE;
+	for (l = fs->private->dirs_without_parent;
+	     l;
+	     l = g_list_next (l)) {
+		if (g_file_equal (l->data, file)) {
+			/* If already found, return */
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
