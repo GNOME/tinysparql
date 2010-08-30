@@ -131,8 +131,8 @@ tracker_resources_class_init (TrackerResourcesClass *klass)
 		              tracker_marshal_VOID__STRING_BOXED_BOXED,
 		              G_TYPE_NONE, 3,
 		              G_TYPE_STRING,
-		              TRACKER_TYPE_THREE_INT_ARRAY,
-		              TRACKER_TYPE_THREE_INT_ARRAY);
+		              TRACKER_TYPE_FOUR_INT_ARRAY,
+		              TRACKER_TYPE_FOUR_INT_ARRAY);
 
 	g_type_class_add_private (object_class, sizeof (TrackerResourcesPrivate));
 }
@@ -534,7 +534,8 @@ tracker_resources_batch_commit (TrackerResources         *self,
 }
 
 static void
-foreach_add_to_iter (gint subject_id,
+foreach_add_to_iter (gint graph_id,
+                     gint subject_id,
                      gint pred_id,
                      gint object_id,
                      gpointer user_data)
@@ -543,6 +544,7 @@ foreach_add_to_iter (gint subject_id,
 	DBusMessageIter struct_iter;
 
 	dbus_message_iter_open_container (array_iter, DBUS_TYPE_STRUCT, NULL, &struct_iter);
+	dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &graph_id);
 	dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &subject_id);
 	dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &pred_id);
 	dbus_message_iter_append_basic (&struct_iter, DBUS_TYPE_INT32, &object_id);
@@ -571,7 +573,7 @@ emit_class_signal (TrackerResources *self,
 		dbus_message_iter_append_basic (&iter, DBUS_TYPE_STRING, &class_uri);
 
 		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY,
-		                                  "(iii)", &deletes_iter);
+		                                  "(iiii)", &deletes_iter);
 
 		tracker_class_foreach_delete_event (class, foreach_add_to_iter, &deletes_iter);
 
@@ -579,7 +581,7 @@ emit_class_signal (TrackerResources *self,
 
 
 		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY,
-		                                  "(iii)", &inserts_iter);
+		                                  "(iiii)", &inserts_iter);
 
 		tracker_class_foreach_insert_event (class, foreach_add_to_iter, &inserts_iter);
 

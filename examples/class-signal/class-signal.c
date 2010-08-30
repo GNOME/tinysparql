@@ -75,9 +75,11 @@ class_signal_cb (DBusMessage *message)
 
 		while ((arg_type = dbus_message_iter_get_arg_type (&arr)) != DBUS_TYPE_INVALID) {
 			DBusMessageIter strct;
-			gint subject = 0, predicate = 0, object = 0;
+			gint graph = 0, subject = 0, predicate = 0, object = 0;
 
 			dbus_message_iter_recurse (&arr, &strct);
+			dbus_message_iter_get_basic (&strct, &graph);
+			dbus_message_iter_next (&strct);
 			dbus_message_iter_get_basic (&strct, &subject);
 			dbus_message_iter_next (&strct);
 			dbus_message_iter_get_basic (&strct, &predicate);

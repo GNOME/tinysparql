@@ -48,21 +48,21 @@ struct _TrackerClassPrivate {
 	struct {
 		struct {
 			GArray *sub_pred_ids;
-			GArray *object_ids;
+			GArray *obj_graph_ids;
 		} pending;
 		struct {
 			GArray *sub_pred_ids;
-			GArray *object_ids;
+			GArray *obj_graph_ids;
 		} ready;
 	} deletes;
 	struct {
 		struct {
 			GArray *sub_pred_ids;
-			GArray *object_ids;
+			GArray *obj_graph_ids;
 		} pending;
 		struct {
 			GArray *sub_pred_ids;
-			GArray *object_ids;
+			GArray *obj_graph_ids;
 		} ready;
 	} inserts;
 };
@@ -94,14 +94,14 @@ tracker_class_init (TrackerClass *service)
 	priv->last_domain_indexes = NULL;
 
 	priv->deletes.pending.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
-	priv->deletes.pending.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->deletes.pending.obj_graph_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 	priv->deletes.ready.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
-	priv->deletes.ready.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->deletes.ready.obj_graph_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 
 	priv->inserts.pending.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
-	priv->inserts.pending.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->inserts.pending.obj_graph_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 	priv->inserts.ready.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
-	priv->inserts.ready.object_ids = g_array_new (FALSE, FALSE, sizeof (gint));
+	priv->inserts.ready.obj_graph_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 
 	/* Make GET_PRIV working */
 	service->priv = priv;
@@ -121,14 +121,14 @@ class_finalize (GObject *object)
 	g_array_free (priv->domain_indexes, TRUE);
 
 	g_array_free (priv->deletes.pending.sub_pred_ids, TRUE);
-	g_array_free (priv->deletes.pending.object_ids, TRUE);
+	g_array_free (priv->deletes.pending.obj_graph_ids, TRUE);
 	g_array_free (priv->deletes.ready.sub_pred_ids, TRUE);
-	g_array_free (priv->deletes.ready.object_ids, TRUE);
+	g_array_free (priv->deletes.ready.obj_graph_ids, TRUE);
 
 	g_array_free (priv->inserts.pending.sub_pred_ids, TRUE);
-	g_array_free (priv->inserts.pending.object_ids, TRUE);
+	g_array_free (priv->inserts.pending.obj_graph_ids, TRUE);
 	g_array_free (priv->inserts.ready.sub_pred_ids, TRUE);
-	g_array_free (priv->inserts.ready.object_ids, TRUE);
+	g_array_free (priv->inserts.ready.obj_graph_ids, TRUE);
 
 	if (priv->last_domain_indexes)
 		g_array_free (priv->last_domain_indexes, TRUE);
@@ -482,15 +482,20 @@ tracker_class_foreach_insert_event (TrackerClass        *class,
 	priv = GET_PRIV (class);
 
 	for (i = 0; i < priv->inserts.ready.sub_pred_ids->len; i++) {
-		gint subject_id, pred_id, object_id;
+		gint graph_id, subject_id, pred_id, object_id;
 		gint64 sub_pred_id;
+		gint64 obj_graph_id;
 
 		sub_pred_id = g_array_index (priv->inserts.ready.sub_pred_ids, gint64, i);
+		obj_graph_id = g_array_index (priv->inserts.ready.obj_graph_ids, gint64, i);
+
 		pred_id = sub_pred_id & 0xffffffff;
 		subject_id = sub_pred_id >> 32;
-		object_id = g_array_index (priv->inserts.ready.object_ids, gint, i);
+		object_id = obj_graph_id & 0xffffffff;
+		graph_id = obj_graph_id >> 32;
 
-		foreach (subject_id, pred_id, object_id, user_data);
+
+		foreach (graph_id, subject_id, pred_id, object_id, user_data);
 	}
 }
 
@@ -508,15 +513,19 @@ tracker_class_foreach_delete_event (TrackerClass        *class,
 	priv = GET_PRIV (class);
 
 	for (i = 0; i < priv->deletes.ready.sub_pred_ids->len; i++) {
-		gint subject_id, pred_id, object_id;
+		gint graph_id, subject_id, pred_id, object_id;
 		gint64 sub_pred_id;
+		gint64 obj_graph_id;
 
 		sub_pred_id = g_array_index (priv->deletes.ready.sub_pred_ids, gint64, i);
+		obj_graph_id = g_array_index (priv->deletes.ready.obj_graph_ids, gint64, i);
+
 		pred_id = sub_pred_id & 0xffffffff;
 		subject_id = sub_pred_id >> 32;
-		object_id = g_array_index (priv->deletes.ready.object_ids, gint, i);
+		object_id = obj_graph_id & 0xffffffff;
+		graph_id = obj_graph_id >> 32;
 
-		foreach (subject_id, pred_id, object_id, user_data);
+		foreach (graph_id, subject_id, pred_id, object_id, user_data);
 	}
 }
 
@@ -531,10 +540,10 @@ tracker_class_reset_ready_events (TrackerClass *class)
 
 	/* Reset */
 	g_array_set_size (priv->deletes.ready.sub_pred_ids, 0);
-	g_array_set_size (priv->deletes.ready.object_ids, 0);
+	g_array_set_size (priv->deletes.ready.obj_graph_ids, 0);
 
 	g_array_set_size (priv->inserts.ready.sub_pred_ids, 0);
-	g_array_set_size (priv->inserts.ready.object_ids, 0);
+	g_array_set_size (priv->inserts.ready.obj_graph_ids, 0);
 
 }
 
@@ -549,10 +558,10 @@ tracker_class_reset_pending_events (TrackerClass *class)
 
 	/* Reset */
 	g_array_set_size (priv->deletes.pending.sub_pred_ids, 0);
-	g_array_set_size (priv->deletes.pending.object_ids, 0);
+	g_array_set_size (priv->deletes.pending.obj_graph_ids, 0);
 
 	g_array_set_size (priv->inserts.pending.sub_pred_ids, 0);
-	g_array_set_size (priv->inserts.pending.object_ids, 0);
+	g_array_set_size (priv->inserts.pending.obj_graph_ids, 0);
 
 }
 
@@ -565,10 +574,10 @@ tracker_class_transact_events (TrackerClass *class)
 	priv = GET_PRIV (class);
 
 	/* Move */
-	g_array_insert_vals (priv->deletes.ready.object_ids,
-	                     priv->deletes.ready.object_ids->len,
-	                     priv->deletes.pending.object_ids->data,
-	                     priv->deletes.pending.object_ids->len);
+	g_array_insert_vals (priv->deletes.ready.obj_graph_ids,
+	                     priv->deletes.ready.obj_graph_ids->len,
+	                     priv->deletes.pending.obj_graph_ids->data,
+	                     priv->deletes.pending.obj_graph_ids->len);
 
 	g_array_insert_vals (priv->deletes.ready.sub_pred_ids,
 	                     priv->deletes.ready.sub_pred_ids->len,
@@ -577,14 +586,14 @@ tracker_class_transact_events (TrackerClass *class)
 
 	/* Reset */
 	g_array_set_size (priv->deletes.pending.sub_pred_ids, 0);
-	g_array_set_size (priv->deletes.pending.object_ids, 0);
+	g_array_set_size (priv->deletes.pending.obj_graph_ids, 0);
 
 
 	/* Move */
-	g_array_insert_vals (priv->inserts.ready.object_ids,
-	                     priv->inserts.ready.object_ids->len,
-	                     priv->inserts.pending.object_ids->data,
-	                     priv->inserts.pending.object_ids->len);
+	g_array_insert_vals (priv->inserts.ready.obj_graph_ids,
+	                     priv->inserts.ready.obj_graph_ids->len,
+	                     priv->inserts.pending.obj_graph_ids->data,
+	                     priv->inserts.pending.obj_graph_ids->len);
 
 	g_array_insert_vals (priv->inserts.ready.sub_pred_ids,
 	                     priv->inserts.ready.sub_pred_ids->len,
@@ -593,37 +602,42 @@ tracker_class_transact_events (TrackerClass *class)
 
 	/* Reset */
 	g_array_set_size (priv->inserts.pending.sub_pred_ids, 0);
-	g_array_set_size (priv->inserts.pending.object_ids, 0);
+	g_array_set_size (priv->inserts.pending.obj_graph_ids, 0);
 
 }
 
 static void
 insert_vals_into_arrays (GArray *sub_pred_ids,
-                         GArray *object_ids,
+                         GArray *obj_graph_ids,
+                         gint    graph_id,
                          gint    subject_id,
                          gint    pred_id,
                          gint    object_id)
 {
 	guint i;
 	gint64 sub_pred_id;
+	gint64 obj_graph_id;
 
 	sub_pred_id = (gint64) subject_id;
 	sub_pred_id = sub_pred_id << 32 | pred_id;
+	obj_graph_id = (gint64) object_id;
+	obj_graph_id = obj_graph_id << 32 | graph_id;
 
 	for (i = 0; i < sub_pred_ids->len; i++) {
 		if (sub_pred_id < g_array_index (sub_pred_ids, gint64, i)) {
 			g_array_insert_val (sub_pred_ids, i, sub_pred_id);
-			g_array_insert_val (object_ids, i, object_id);
+			g_array_insert_val (obj_graph_ids, i, obj_graph_id);
 			return;
 		}
 	}
 
 	g_array_append_val (sub_pred_ids, sub_pred_id);
-	g_array_append_val (object_ids, object_id);
+	g_array_append_val (obj_graph_ids, obj_graph_id);
 }
 
 void
 tracker_class_add_insert_event (TrackerClass *class,
+                                gint          graph_id,
                                 gint          subject_id,
                                 gint          pred_id,
                                 gint          object_id)
@@ -634,7 +648,8 @@ tracker_class_add_insert_event (TrackerClass *class,
 	priv = GET_PRIV (class);
 
 	insert_vals_into_arrays (priv->inserts.pending.sub_pred_ids,
-	                         priv->inserts.pending.object_ids,
+	                         priv->inserts.pending.obj_graph_ids,
+	                         graph_id,
 	                         subject_id,
 	                         pred_id,
 	                         object_id);
@@ -642,6 +657,7 @@ tracker_class_add_insert_event (TrackerClass *class,
 
 void
 tracker_class_add_delete_event (TrackerClass *class,
+                                gint          graph_id,
                                 gint          subject_id,
                                 gint          pred_id,
                                 gint          object_id)
@@ -652,7 +668,8 @@ tracker_class_add_delete_event (TrackerClass *class,
 	priv = GET_PRIV (class);
 
 	insert_vals_into_arrays (priv->deletes.pending.sub_pred_ids,
-	                         priv->deletes.pending.object_ids,
+	                         priv->deletes.pending.obj_graph_ids,
+	                         graph_id,
 	                         subject_id,
 	                         pred_id,
 	                         object_id);

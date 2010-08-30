@@ -104,6 +104,7 @@ tracker_events_add_insert (gint         graph_id,
 
 			if (class) {
 				tracker_class_add_insert_event (class,
+				                                graph_id,
 				                                subject_id,
 				                                pred_id,
 				                                object_id);
@@ -116,6 +117,7 @@ tracker_events_add_insert (gint         graph_id,
 		for (i = 0; i < rdf_types->len; i++) {
 			if (is_allowed (private, rdf_types->pdata[i], 0)) {
 				tracker_class_add_insert_event (rdf_types->pdata[i],
+				                                graph_id,
 				                                subject_id,
 				                                pred_id,
 				                                object_id);
@@ -165,6 +167,7 @@ tracker_events_add_delete (gint         graph_id,
 
 			if (class) {
 				tracker_class_add_delete_event (class,
+				                                graph_id,
 				                                subject_id,
 				                                pred_id,
 				                                object_id);
@@ -177,6 +180,7 @@ tracker_events_add_delete (gint         graph_id,
 		for (i = 0; i < rdf_types->len; i++) {
 			if (is_allowed (private, rdf_types->pdata[i], 0)) {
 				tracker_class_add_delete_event (rdf_types->pdata[i],
+				                                graph_id,
 				                                subject_id,
 				                                pred_id,
 				                                object_id);

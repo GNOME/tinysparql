@@ -50,7 +50,8 @@ struct _TrackerClassClass {
 	GObjectClass parent_class;
 };
 
-typedef void    (*TrackerEventsForeach)                (gint                 subject_id,
+typedef void    (*TrackerEventsForeach)                (gint                 graph_id,
+                                                        gint                 subject_id,
                                                         gint                 pred_id,
                                                         gint                 object_id,
                                                         gpointer             user_data);
@@ -102,10 +103,12 @@ void              tracker_class_reset_ready_events     (TrackerClass        *cla
 void              tracker_class_reset_pending_events   (TrackerClass        *class);
 void              tracker_class_transact_events        (TrackerClass        *class);
 void              tracker_class_add_delete_event       (TrackerClass        *class,
+                                                        gint                 graph_id,
                                                         gint                 subject_id,
                                                         gint                 pred_id,
                                                         gint                 object_id);
 void              tracker_class_add_insert_event       (TrackerClass        *class,
+                                                        gint                 graph_id,
                                                         gint                 subject_id,
                                                         gint                 pred_id,
                                                         gint                 object_id);
