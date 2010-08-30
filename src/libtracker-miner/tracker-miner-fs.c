@@ -1506,7 +1506,7 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
                                                         full_sparql,
-                                                        G_PRIORITY_DEFAULT, 
+                                                        G_PRIORITY_DEFAULT,
                                                         NULL,
                                                         sparql_update_cb, data);
 		g_free (full_sparql);
@@ -1643,7 +1643,7 @@ item_remove (TrackerMinerFS *fs,
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
                                                 sparql->str,
-                                                G_PRIORITY_DEFAULT, 
+                                                G_PRIORITY_DEFAULT,
                                                 NULL,
                                                 sparql_update_cb, data);
 
@@ -1725,10 +1725,10 @@ item_ignore_next_update (TrackerMinerFS *fs,
 		                         uri, tracker_sparql_builder_get_result (sparql));
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-                                                        query, 
-                                                        G_PRIORITY_DEFAULT, 
-                                                        NULL, 
-                                                        NULL, 
+                                                        query,
+                                                        G_PRIORITY_DEFAULT,
+                                                        NULL,
+                                                        NULL,
                                                         NULL);
 
 		g_free (query);
@@ -1958,7 +1958,7 @@ item_move (TrackerMinerFS *fs,
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
                                                 sparql->str,
-                                                G_PRIORITY_DEFAULT, 
+                                                G_PRIORITY_DEFAULT,
                                                 NULL,
                                                 sparql_update_cb, data);
 
@@ -3642,7 +3642,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
                              GFile          *file,
                              gboolean        do_checks)
 {
-	gboolean should_process;
+	gboolean should_process = TRUE;
 	gchar *path;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
@@ -3687,7 +3687,7 @@ tracker_miner_fs_check_directory (TrackerMinerFS *fs,
                                   GFile          *file,
                                   gboolean        do_checks)
 {
-	gboolean should_process;
+	gboolean should_process = TRUE;
 	gchar *path;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
