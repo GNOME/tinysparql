@@ -679,7 +679,7 @@ on_statements_rolled_back (gpointer user_data)
 	tracker_writeback_reset_pending ();
 }
 
-static gboolean
+static void
 check_graph_updated_signal (TrackerResources *object)
 {
 	TrackerResourcesPrivate *priv;
@@ -699,11 +699,7 @@ check_graph_updated_signal (TrackerResources *object)
 
 		/* Reset counter */
 		tracker_events_get_total (TRUE);
-
-		return TRUE;
 	}
-
-	return FALSE;
 }
 
 static void

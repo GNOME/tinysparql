@@ -56,7 +56,7 @@ array_free (GArray *array)
 	g_array_free (array, TRUE);
 }
 
-gboolean
+void
 tracker_writeback_check (gint         graph_id,
                          const gchar *graph,
                          gint         subject_id,
@@ -73,10 +73,10 @@ tracker_writeback_check (gint         graph_id,
 
 	if (graph != NULL) {
 		/* g_debug ("Not doing writeback check, no graph"); */
-		return FALSE;
+		return;
 	}
 
-	g_return_val_if_fail (private != NULL, FALSE);
+	g_return_if_fail (private != NULL);
 
 	if (g_hash_table_lookup (private->allowances, GINT_TO_POINTER (pred_id))) {
 		if (!private->pending_events) {
@@ -88,10 +88,7 @@ tracker_writeback_check (gint         graph_id,
 		g_hash_table_insert (private->pending_events,
 		                     GINT_TO_POINTER (subject_id),
 		                     rdf_types_to_array (rdf_types));
-		return TRUE;
 	}
-
-	return FALSE;
 }
 
 void
