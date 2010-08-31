@@ -3306,6 +3306,12 @@ crawl_directories_cb (gpointer user_data)
 static void
 crawl_directories_start (TrackerMinerFS *fs)
 {
+	if (!fs->private->initial_crawling) {
+		/* Do not perform initial crawling */
+		g_message ("Crawling is disabled, waiting for DBus events");
+		return;
+	}
+
 	if (fs->private->crawl_directories_id != 0 ||
 	    fs->private->current_directory) {
 		/* Processing ALREADY going on */
