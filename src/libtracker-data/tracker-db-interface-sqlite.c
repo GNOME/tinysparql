@@ -661,7 +661,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 
 	g_free (db_interface->filename);
 
-	tracker_collation_deinit (db_interface->collator);
+	tracker_collation_shutdown (db_interface->collator);
 
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
 }

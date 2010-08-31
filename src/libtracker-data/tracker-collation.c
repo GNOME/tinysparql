@@ -74,7 +74,7 @@ tracker_collation_init (void)
 }
 
 void
-tracker_collation_deinit (gpointer collator)
+tracker_collation_shutdown (gpointer collator)
 {
 	/* Nothing to do */
 }
@@ -134,7 +134,7 @@ tracker_collation_init (void)
 }
 
 void
-tracker_collation_deinit (gpointer collator)
+tracker_collation_shutdown (gpointer collator)
 {
 	if (collator)
 		ucol_close ((UCollator *)collator);
@@ -205,7 +205,7 @@ tracker_collation_init (void)
 }
 
 void
-tracker_collation_deinit (gpointer collator)
+tracker_collation_shutdown (gpointer collator)
 {
 	/* Nothing to do */
 }

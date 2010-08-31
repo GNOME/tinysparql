@@ -26,13 +26,13 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-gpointer tracker_collation_init   (void);
-void     tracker_collation_deinit (gpointer      collator);
-gint     tracker_collation_utf8   (gpointer      collator,
-                                   gint          len1,
-                                   gconstpointer str1,
-                                   gint          len2,
-                                   gconstpointer str2);
+gpointer tracker_collation_init     (void);
+void     tracker_collation_shutdown (gpointer      collator);
+gint     tracker_collation_utf8     (gpointer      collator,
+                                     gint          len1,
+                                     gconstpointer str1,
+                                     gint          len2,
+                                     gconstpointer str2);
 
 G_END_DECLS
 
