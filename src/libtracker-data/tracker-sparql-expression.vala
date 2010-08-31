@@ -568,18 +568,12 @@ class Tracker.Sparql.Expression : Object {
 
 			return PropertyType.INTEGER;
 		} else if (uri == TRACKER_NS + "uri") {
-			
-			if (current () == SparqlTokenType.INTEGER) {
-				next ();
-				sql.append ("(SELECT Uri FROM Resource WHERE ID = ?)");
-				var binding = new LiteralBinding ();
-				binding.literal = get_last_string ();
-				query.bindings.append (binding);
-			} else {
-				throw get_error ("expected ID");
+			var type = translate_expression (sql);
+			if (type != PropertyType.INTEGER) {
+				throw get_error ("expected integer ID");
 			}
 
-			return PropertyType.STRING;
+			return PropertyType.RESOURCE;
 		} else if (uri == TRACKER_NS + "cartesian-distance") {
 			sql.append ("SparqlCartesianDistance(");
 			translate_expression (sql);
