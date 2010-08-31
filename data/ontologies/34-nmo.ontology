@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2010-06-17T15:42:00Z" .
+	nao:lastModified "2010-08-31T10:17:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -141,6 +141,11 @@ nmo:isRead a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmo:isSent a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:boolean .
+
+nmo:isEmergency a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
