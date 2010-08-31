@@ -20,7 +20,7 @@
 using Tracker;
 using Tracker.Sparql;
 
-const int max_signals = 10000;
+const int max_signals = 10;
 const string title_data = "title";
 
 

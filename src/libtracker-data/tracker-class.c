@@ -613,7 +613,7 @@ insert_vals_into_arrays (GArray *sub_pred_ids,
                          gint    pred_id,
                          gint    object_id)
 {
-	guint i, j, k;
+	gint i, j, k;
 	gint64 tmp;
 	gint64 sub_pred_id;
 	gint64 obj_graph_id;
@@ -624,33 +624,22 @@ insert_vals_into_arrays (GArray *sub_pred_ids,
 	obj_graph_id = obj_graph_id << 32 | graph_id;
 
 	i = 0;
-	if (sub_pred_ids->len == 0 || g_array_index (sub_pred_ids, gint64, i) > sub_pred_id) {
-		g_array_prepend_val (sub_pred_ids, sub_pred_id);
-		g_array_prepend_val (obj_graph_ids, obj_graph_id);
-		return;
-	}
-
 	j = sub_pred_ids->len - 1;
-	if (g_array_index (sub_pred_ids, gint64, j) <= sub_pred_id) {
-		g_array_append_val (sub_pred_ids, sub_pred_id);
-		g_array_append_val (obj_graph_ids, obj_graph_id);
-		return;
-	}
 
-	while (j - i > 1) {
+	while (j - i > 0) {
 		k = (i + j) / 2;
 		tmp = g_array_index (sub_pred_ids, gint64, k);
 		if (tmp == sub_pred_id) {
-			j = k + 1;
+			i = k + 1;
 			break;
 		} else if (tmp > sub_pred_id)
 			j = k;
 		else
-			i = k;
+			i = k + 1;
 	}
 
-	g_array_insert_val (sub_pred_ids, j, sub_pred_id);
-	g_array_insert_val (obj_graph_ids, j, obj_graph_id);
+	g_array_insert_val (sub_pred_ids, i, sub_pred_id);
+	g_array_insert_val (obj_graph_ids, i, obj_graph_id);
 }
 
 void
