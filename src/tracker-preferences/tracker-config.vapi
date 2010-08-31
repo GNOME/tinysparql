@@ -27,8 +27,6 @@ namespace Tracker {
 		public int verbosity { get; set; }
 		public int initial_sleep { get; set; }
 		public bool enable_monitors { get; set; }
-		public int scan_timeout { get; set; }
-		public int cache_timeout { get; set; }
 		public int throttle { get; set; }
 		public bool enable_thumbnails { get; set; }
 		public bool index_on_battery { get; set; }

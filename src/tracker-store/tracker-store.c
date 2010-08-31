@@ -426,6 +426,7 @@ tracker_store_init (void)
 
 #ifdef __USE_GNU
         if (g_getenv ("TRACKER_STORE_DISABLE_CPU_AFFINITY") == NULL) {
+		sched_getcpu ();
                 main_cpu = sched_getcpu ();
                 CPU_ZERO (&cpuset);
                 CPU_SET (main_cpu, &cpuset);

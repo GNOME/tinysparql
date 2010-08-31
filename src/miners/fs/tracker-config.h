@@ -54,8 +54,6 @@ gboolean       tracker_config_save                                 (TrackerConfi
 gint           tracker_config_get_verbosity                        (TrackerConfig *config);
 gint           tracker_config_get_initial_sleep                    (TrackerConfig *config);
 gboolean       tracker_config_get_enable_monitors                  (TrackerConfig *config);
-gint           tracker_config_get_scan_timeout                     (TrackerConfig *config);
-gint           tracker_config_get_cache_timeout                    (TrackerConfig *config);
 gint           tracker_config_get_throttle                         (TrackerConfig *config);
 gboolean       tracker_config_get_index_on_battery                 (TrackerConfig *config);
 gboolean       tracker_config_get_index_on_battery_first_time      (TrackerConfig *config);
@@ -78,10 +76,6 @@ void           tracker_config_set_initial_sleep                    (TrackerConfi
                                                                     gint           value);
 void           tracker_config_set_enable_monitors                  (TrackerConfig *config,
                                                                     gboolean       value);
-void           tracker_config_set_scan_timeout                     (TrackerConfig *config,
-                                                                    gint           value);
-void           tracker_config_set_cache_timeout                    (TrackerConfig *config,
-                                                                    gint           value);
 void           tracker_config_set_throttle                         (TrackerConfig *config,
                                                                     gint           value);
 void           tracker_config_set_index_on_battery                 (TrackerConfig *config,
