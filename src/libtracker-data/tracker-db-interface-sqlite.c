@@ -83,12 +83,6 @@ struct TrackerDBStatementClass {
 	GObjectClass parent_class;
 };
 
-typedef gint (* TrackerDBCollationFunc) (gpointer      collator,
-                                         gint          len1,
-                                         gconstpointer str1,
-                                         gint          len2,
-                                         gconstpointer str2);
-
 static TrackerDBStatement       * tracker_db_statement_sqlite_new (TrackerDBInterface     *db_interface,
                                                                    sqlite3_stmt           *sqlite_stmt);
 static TrackerDBCursor          * tracker_db_cursor_sqlite_new    (sqlite3_stmt           *sqlite_stmt,
@@ -490,20 +484,6 @@ check_interrupt (void *user_data)
 	return g_cancellable_is_cancelled (db_interface->cancellable) ? 1 : 0;
 }
 
-static gboolean
-set_collation_function (TrackerDBInterface     *interface,
-                        const gchar            *name,
-                        TrackerDBCollationFunc  func)
-{
-	gint result;
-
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (interface), FALSE);
-
-	result = sqlite3_create_collation (interface->db, name, SQLITE_UTF8, interface->collator, func);
-
-	return (result == SQLITE_OK);
-}
-
 static void
 open_database (TrackerDBInterface *db_interface)
 {
@@ -526,9 +506,15 @@ open_database (TrackerDBInterface *db_interface)
 	/* Set our unicode collation function */
 	if (!db_interface->collator) {
 		db_interface->collator = tracker_collation_init ();
-		set_collation_function (db_interface,
-		                        TRACKER_COLLATION_NAME,
-		                        tracker_collation_utf8);
+		if (sqlite3_create_collation (db_interface->db,
+		                              TRACKER_COLLATION_NAME,
+		                              SQLITE_UTF8,
+		                              db_interface->collator,
+		                              tracker_collation_utf8) != SQLITE_OK)
+		{
+			g_critical ("Couldn't set collation function: %s",
+			            sqlite3_errmsg (db_interface->db));
+		}
 	}
 
 	sqlite3_progress_handler (db_interface->db, 100,
