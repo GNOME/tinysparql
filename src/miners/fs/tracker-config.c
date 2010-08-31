@@ -44,7 +44,6 @@
 #define DEFAULT_INITIAL_SLEEP                    15       /* 0->1000 */
 #define DEFAULT_ENABLE_MONITORS                  TRUE
 #define DEFAULT_THROTTLE                         0        /* 0->20 */
-#define DEFAULT_SCAN_TIMEOUT                     0        /* 0->1000 */
 #define DEFAULT_CACHE_TIMEOUT                    60       /* 0->1000 */
 #define DEFAULT_INDEX_REMOVABLE_DEVICES          TRUE
 #define DEFAULT_INDEX_OPTICAL_DISCS              FALSE
@@ -60,7 +59,6 @@ typedef struct {
 
 	/* Monitors */
 	gboolean  enable_monitors;
-	gint      scan_timeout;
 	gint      cache_timeout;
 
 	/* Indexing */
@@ -120,7 +118,6 @@ enum {
 
 	/* Monitors */
 	PROP_ENABLE_MONITORS,
-	PROP_SCAN_TIMEOUT,
 	PROP_CACHE_TIMEOUT,
 
 	/* Indexing */
@@ -204,15 +201,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                       " Set to false to completely disable any monitoring",
 	                                                       DEFAULT_ENABLE_MONITORS,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-	                                 PROP_SCAN_TIMEOUT,
-	                                 g_param_spec_int ("scan-timeout",
-	                                                   "Scan Timeout",
-	                                                   " Time in seconds between same events to prevent flooding (0->1000)",
-	                                                   0,
-	                                                   1000,
-	                                                   DEFAULT_SCAN_TIMEOUT,
-	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 	                                 PROP_CACHE_TIMEOUT,
 	                                 g_param_spec_int ("cache-timeout",
@@ -356,10 +344,6 @@ config_set_property (GObject      *object,
 		tracker_config_set_enable_monitors (TRACKER_CONFIG (object),
 		                                    g_value_get_boolean (value));
 		break;
-	case PROP_SCAN_TIMEOUT:
-		tracker_config_set_scan_timeout (TRACKER_CONFIG (object),
-		                                 g_value_get_int (value));
-		break;
 	case PROP_CACHE_TIMEOUT:
 		tracker_config_set_cache_timeout (TRACKER_CONFIG (object),
 		                                  g_value_get_int (value));
@@ -443,9 +427,6 @@ config_get_property (GObject    *object,
 		/* Montors */
 	case PROP_ENABLE_MONITORS:
 		g_value_set_boolean (value, priv->enable_monitors);
-		break;
-	case PROP_SCAN_TIMEOUT:
-		g_value_set_int (value, priv->scan_timeout);
 		break;
 	case PROP_CACHE_TIMEOUT:
 		g_value_set_int (value, priv->cache_timeout);
@@ -1110,18 +1091,6 @@ tracker_config_get_enable_monitors (TrackerConfig *config)
 }
 
 gint
-tracker_config_get_scan_timeout (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_SCAN_TIMEOUT);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->scan_timeout;
-}
-
-gint
 tracker_config_get_cache_timeout (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
@@ -1349,24 +1318,6 @@ tracker_config_set_enable_monitors (TrackerConfig *config,
 
 	priv->enable_monitors = value;
 	g_object_notify (G_OBJECT (config), "enable-monitors");
-}
-
-void
-tracker_config_set_scan_timeout (TrackerConfig *config,
-                                 gint           value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	if (!tracker_keyfile_object_validate_int (config, "scan-timeout", value)) {
-		return;
-	}
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->scan_timeout = value;
-	g_object_notify (G_OBJECT (config), "scan-timeout");
 }
 
 void
