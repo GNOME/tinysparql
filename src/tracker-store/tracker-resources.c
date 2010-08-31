@@ -721,7 +721,7 @@ on_statement_inserted (gint         graph_id,
 	a = tracker_writeback_check (graph_id, graph, subject_id,
 	                             subject, pred_id, object_id,
 	                             object, rdf_types);
-	b = check_graph_updated_signal (user_data);
+	b = !(check_graph_updated_signal (user_data));
 
 	if ((a || b) && priv->signal_timeout == 0) {
 		priv->signal_timeout = g_timeout_add_seconds (TRACKER_SIGNALS_SECONDS_PER_EMIT,
@@ -752,7 +752,7 @@ on_statement_deleted (gint         graph_id,
 	a = tracker_writeback_check (graph_id, graph, subject_id,
 	                             subject, pred_id, object_id,
 	                             object, rdf_types);
-	b = check_graph_updated_signal (user_data);
+	b = !(check_graph_updated_signal (user_data));
 
 	if ((a || b) && priv->signal_timeout == 0) {
 		priv->signal_timeout = g_timeout_add_seconds (TRACKER_SIGNALS_SECONDS_PER_EMIT,
