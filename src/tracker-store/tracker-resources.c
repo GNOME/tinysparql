@@ -661,6 +661,12 @@ on_statements_committed (gpointer user_data)
 		tracker_class_transact_events (class);
 	}
 
+	if (priv->signal_timeout == 0) {
+		priv->signal_timeout = g_timeout_add_seconds (TRACKER_SIGNALS_SECONDS_PER_EMIT,
+		                                              on_emit_signals,
+		                                              user_data);
+	}
+
 	/* Writeback feature */
 	tracker_writeback_transact ();
 }
@@ -711,24 +717,16 @@ on_statement_inserted (gint         graph_id,
                        GPtrArray   *rdf_types,
                        gpointer     user_data)
 {
-	gboolean a, b;
 	TrackerResourcesPrivate *priv;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (user_data);
 
 	tracker_events_add_insert (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
-	a = tracker_writeback_check (graph_id, graph, subject_id,
-	                             subject, pred_id, object_id,
-	                             object, rdf_types);
-	b = !(check_graph_updated_signal (user_data));
-
-	if ((a || b) && priv->signal_timeout == 0) {
-		priv->signal_timeout = g_timeout_add_seconds (TRACKER_SIGNALS_SECONDS_PER_EMIT,
-		                                              on_emit_signals,
-		                                              user_data);
-	}
-
+	tracker_writeback_check (graph_id, graph, subject_id,
+	                         subject, pred_id, object_id,
+	                         object, rdf_types);
+	check_graph_updated_signal (user_data);
 }
 
 static void
@@ -742,23 +740,16 @@ on_statement_deleted (gint         graph_id,
                       GPtrArray   *rdf_types,
                       gpointer     user_data)
 {
-	gboolean a, b;
 	TrackerResourcesPrivate *priv;
 
 	priv = TRACKER_RESOURCES_GET_PRIVATE (user_data);
 
 	tracker_events_add_delete (graph_id, subject_id, subject, pred_id,
 	                           object_id, object, rdf_types);
-	a = tracker_writeback_check (graph_id, graph, subject_id,
-	                             subject, pred_id, object_id,
-	                             object, rdf_types);
-	b = !(check_graph_updated_signal (user_data));
-
-	if ((a || b) && priv->signal_timeout == 0) {
-		priv->signal_timeout = g_timeout_add_seconds (TRACKER_SIGNALS_SECONDS_PER_EMIT,
-		                                              on_emit_signals,
-		                                              user_data);
-	}
+	tracker_writeback_check (graph_id, graph, subject_id,
+	                         subject, pred_id, object_id,
+	                         object, rdf_types);
+	check_graph_updated_signal (user_data);
 }
 
 void
