@@ -44,7 +44,7 @@
 
 static GQuark miner_error_quark = 0;
 
-struct TrackerMinerPrivate {
+struct _TrackerMinerPrivate {
 	TrackerSparqlConnection *connection;
 
 	GHashTable *pauses;

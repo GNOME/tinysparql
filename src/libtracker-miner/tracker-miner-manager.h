@@ -37,21 +37,20 @@ G_BEGIN_DECLS
 
 #define TRACKER_MINER_MANAGER_ERROR tracker_miner_manager_error_quark ()
 
-typedef struct TrackerMinerManager TrackerMinerManager;
-typedef struct TrackerMinerManagerClass TrackerMinerManagerClass;
-typedef enum TrackerMinerManagerError TrackerMinerManagerError;
+typedef struct _TrackerMinerManager TrackerMinerManager;
+typedef struct _TrackerMinerManagerClass TrackerMinerManagerClass;
 
-enum TrackerMinerManagerError {
+typedef enum {
 	TRACKER_MINER_MANAGER_ERROR_NOT_AVAILABLE,
 	TRACKER_MINER_MANAGER_ERROR_NOENT
-};
+} TrackerMinerManagerError;
 
 /**
  * TrackerMinerManager:
  *
  * Object to query and control miners.
  **/
-struct TrackerMinerManager {
+struct _TrackerMinerManager {
 	GObject parent_instance;
 };
 
@@ -60,7 +59,7 @@ struct TrackerMinerManager {
  *
  * #TrackerMinerManager class.
  **/
-struct TrackerMinerManagerClass {
+struct _TrackerMinerManagerClass {
 	GObjectClass parent_class;
 
 	void (* miner_progress)    (TrackerMinerManager *manager,

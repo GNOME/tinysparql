@@ -98,7 +98,7 @@ typedef struct {
 	guint n_items_processed;
 } CrawledDirectoryData;
 
-struct TrackerMinerFSPrivate {
+struct _TrackerMinerFSPrivate {
 	TrackerMonitor *monitor;
 	TrackerCrawler *crawler;
 

@@ -41,15 +41,15 @@ G_BEGIN_DECLS
 #define TRACKER_MINER_ERROR_DOMAIN "TrackerMiner"
 #define TRACKER_MINER_ERROR        tracker_miner_error_quark()
 
-typedef struct TrackerMiner TrackerMiner;
-typedef struct TrackerMinerPrivate TrackerMinerPrivate;
+typedef struct _TrackerMiner TrackerMiner;
+typedef struct _TrackerMinerPrivate TrackerMinerPrivate;
 
 /**
  * TrackerMiner:
  *
  * Abstract miner object.
  **/
-struct TrackerMiner {
+struct _TrackerMiner {
 	GObject parent_instance;
 	TrackerMinerPrivate *private;
 };

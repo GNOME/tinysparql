@@ -42,8 +42,8 @@ G_BEGIN_DECLS
 #define TRACKER_IS_MINER_FS_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_FS))
 #define TRACKER_MINER_FS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSClass))
 
-typedef struct TrackerMinerFS        TrackerMinerFS;
-typedef struct TrackerMinerFSPrivate TrackerMinerFSPrivate;
+typedef struct _TrackerMinerFS        TrackerMinerFS;
+typedef struct _TrackerMinerFSPrivate TrackerMinerFSPrivate;
 
 /**
  * TrackerMinerFS:
@@ -51,7 +51,7 @@ typedef struct TrackerMinerFSPrivate TrackerMinerFSPrivate;
  * Abstract miner abstract implementation to get data
  * from the filesystem.
  **/
-struct TrackerMinerFS {
+struct _TrackerMinerFS {
 	TrackerMiner parent;
 	TrackerMinerFSPrivate *private;
 };
