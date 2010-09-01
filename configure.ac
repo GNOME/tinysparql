@@ -606,6 +606,23 @@ AC_ARG_ENABLE(maemo,
 
 AM_CONDITIONAL(HAVE_MAEMO, test "x$enable_maemo" = "xyes")
 
+if test "x$enable_maemo" = "xyes" ; then
+
+   AC_DEFINE(HAVE_MAEMO, 1, [Define if we enable Maemo specific features])
+
+   PKG_CHECK_MODULES(GCONF,
+                     [gconf-2.0],
+                     [have_gconf=yes],
+                     [have_gconf=no])
+
+   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $GCONF_CFLAGS"
+   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $GCONF_LIBS"
+
+   if test "x$have_gconf" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find gconf, needed when enabling maemo support])
+   fi
+fi
+
 ####################################################################
 # Check for SQLite
 ####################################################################

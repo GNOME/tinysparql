@@ -41,6 +41,7 @@
 #include "tracker-power.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"
+#include "tracker-locale.h"
 
 #undef __LIBTRACKER_COMMON_INSIDE__
 

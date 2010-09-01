@@ -43,7 +43,8 @@ libtracker_common_la_SOURCES =                         \
 	tracker-log.c                                  \
 	tracker-type-utils.c                           \
 	tracker-utils.c                                \
-	tracker-crc32.c
+	tracker-crc32.c                                \
+	tracker-locale.c
 
 noinst_HEADERS =                                       \
 	$(power_headers)                               \
@@ -59,7 +60,8 @@ noinst_HEADERS =                                       \
 	tracker-ontologies.h                           \
 	tracker-type-utils.h                           \
 	tracker-utils.h                                \
-	tracker-crc32.h
+	tracker-crc32.h                                \
+	tracker-locale.h
 
 if HAVE_TRACKER_FTS
 libtracker_common_la_SOURCES +=                        \
