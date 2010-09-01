@@ -112,6 +112,7 @@ struct TrackerMinerFSPrivate {
 	GHashTable     *items_ignore_next_update;
 
 	GQuark          quark_ignore_file;
+	GQuark          quark_force_cache_regeneration;
 
 	GList          *config_directories;
 
@@ -559,6 +560,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  object);
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
+	priv->quark_force_cache_regeneration =
+		g_quark_from_static_string ("tracker-force-cache-regeneration");
 
 	priv->iri_cache = g_hash_table_new_full (g_file_hash,
 	                                         (GEqualFunc) g_file_equal,
@@ -1517,8 +1520,7 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 static gboolean
 item_add_or_update (TrackerMinerFS *fs,
-                    GFile          *file,
-                    gboolean        force_cache_update)
+                    GFile          *file)
 {
 	TrackerMinerFSPrivate *priv;
 	TrackerSparqlBuilder *sparql;
@@ -1539,7 +1541,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	parent = g_file_get_parent (file);
 
 	if (parent) {
-		if (force_cache_update ||
+		if (g_object_steal_qdata (G_OBJECT (file), fs->private->quark_force_cache_regeneration) ||
 		    !fs->private->current_iri_cache_parent ||
 		    !g_file_equal (parent, fs->private->current_iri_cache_parent)) {
 			/* Cache the URN for the new current parent, processing
@@ -1592,26 +1594,6 @@ item_add_or_update (TrackerMinerFS *fs,
 
 	return retval;
 }
-
-static gboolean
-item_add (TrackerMinerFS *fs,
-          GFile          *file)
-{
-	/* We force cache update when new item creations, so that we try to
-	 * avoid duplicates if the item was already created in the store by
-	 * an external application */
-	return item_add_or_update (fs, file, TRUE);
-}
-
-static gboolean
-item_update (TrackerMinerFS *fs,
-             GFile          *file)
-{
-	/* When getting UPDATE events, don't force cache updates, just follow
-	 * the standard rules. */
-	return item_add_or_update (fs, file, FALSE);
-}
-
 
 static gboolean
 item_remove (TrackerMinerFS *fs,
@@ -1909,7 +1891,7 @@ item_move (TrackerMinerFS *fs,
 			tracker_miner_fs_directory_add_internal (fs, file);
 			retval = TRUE;
 		} else {
-			retval = item_add (fs, file);
+			retval = item_add_or_update (fs, file);
 		}
 
 		g_free (source_uri);
@@ -2395,10 +2377,8 @@ item_queue_handlers_cb (gpointer user_data)
 		keep_processing = item_remove (fs, file);
 		break;
 	case QUEUE_CREATED:
-		keep_processing = item_add (fs, file);
-		break;
 	case QUEUE_UPDATED:
-		keep_processing = item_update (fs, file);
+		keep_processing = item_add_or_update (fs, file);
 		break;
 	case QUEUE_IGNORE_NEXT_UPDATE:
 		keep_processing = item_ignore_next_update (fs, file, source_file);
@@ -2802,6 +2782,15 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 		    should_recurse_for_directory (fs, file)) {
 			tracker_miner_fs_directory_add_internal (fs, file);
 		} else {
+			/* On new item events, force a cache regeneration.
+			 * This is done to avoid issues when other applications
+			 * insert resources in the store, then we get the created
+			 * events, and we assume the previous cache was still
+			 * valid. */
+			g_object_set_qdata (G_OBJECT (file),
+			                    fs->private->quark_force_cache_regeneration,
+			                    GINT_TO_POINTER (TRUE));
+
 			g_queue_push_tail (fs->private->items_created,
 			                   g_object_ref (file));
 
