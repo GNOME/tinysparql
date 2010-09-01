@@ -141,7 +141,7 @@ print_variablelist_entry_list (FILE        *f,
         g_fprintf (f, "</varlistentry>\n");
 }
 
-
+#if 0
 static void
 print_deprecated_message (FILE *f)
 {
@@ -150,6 +150,7 @@ print_deprecated_message (FILE *f)
         g_fprintf (f, "<para>This item is deprecated</para>\n");
         g_fprintf (f, "</note>\n");
 }
+#endif
 
 static void
 print_sgml_header (FILE *f, OntologyDescription *desc)
