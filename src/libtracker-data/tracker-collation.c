@@ -22,6 +22,7 @@
 #include <string.h>
 #include <locale.h>
 
+#include <libtracker-common/tracker-locale.h>
 #include "tracker-collation.h"
 
 /* If defined, will dump additional traces */
@@ -48,9 +49,12 @@
 gpointer
 tracker_collation_init (void)
 {
-	const gchar *locale = setlocale (LC_COLLATE, NULL);
+	gchar *locale;
 
+	/* Get locale! */
+	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 	g_debug ("[libunistring collation] Initializing collator for locale '%s'", locale);
+	g_free (locale);
 	/* Nothing to do */
 	return NULL;
 }
@@ -98,7 +102,10 @@ tracker_collation_init (void)
 {
 	UCollator *collator = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-	const gchar *locale = setlocale (LC_COLLATE, NULL);
+	gchar *locale;
+
+	/* Get locale! */
+	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 
 	g_debug ("[ICU collation] Initializing collator for locale '%s'", locale);
 	collator = ucol_open (locale, &status);
@@ -113,6 +120,7 @@ tracker_collation_init (void)
 			            u_errorName (status));
 		}
 	}
+	g_free (locale);
 	return collator;
 }
 
@@ -183,9 +191,12 @@ tracker_collation_utf8 (gpointer      collator,
 gpointer
 tracker_collation_init (void)
 {
-	const gchar *locale = setlocale (LC_COLLATE, NULL);
+	gchar *locale;
 
+	/* Get locale! */
+	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 	g_debug ("[GLib collation] Initializing collator for locale '%s'", locale);
+	g_free (locale);
 	/* Nothing to do */
 	return NULL;
 }

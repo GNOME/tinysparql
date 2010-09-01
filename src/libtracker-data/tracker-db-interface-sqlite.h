@@ -38,6 +38,7 @@ gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerD
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 void                tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
                                                                         gboolean                  create);
+void                tracker_db_interface_sqlite_reset_collator         (TrackerDBInterface       *interface);
 
 #if HAVE_TRACKER_FTS
 int                 tracker_db_interface_sqlite_fts_update_init        (TrackerDBInterface       *interface,

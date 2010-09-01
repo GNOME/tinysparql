@@ -3741,6 +3741,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	/* If locale changed, re-create indexes */
 	if (!read_only && tracker_db_manager_locale_changed ()) {
+		/* No need to reset the collator in the db interface,
+		 * as this is only executed during startup, which should
+		 * already have the proper locale set in the collator */
 		tracker_data_manager_recreate_indexes ();
 		tracker_db_manager_set_current_locale ();
 	}

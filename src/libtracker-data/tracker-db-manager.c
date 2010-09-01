@@ -36,6 +36,7 @@
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-locale.h>
 
 #if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
@@ -587,7 +588,7 @@ tracker_db_manager_locale_changed (void)
 	gboolean changed;
 
 	/* Get current collation locale */
-	current_locale = setlocale (LC_COLLATE, NULL);
+	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 
 	/* Get db locale */
 	db_locale = db_get_locale ();
@@ -605,20 +606,20 @@ tracker_db_manager_locale_changed (void)
 	}
 
 	g_free (db_locale);
+	g_free (current_locale);
 	return changed;
 }
 
 void
 tracker_db_manager_set_current_locale (void)
 {
-	const gchar *current_locale;
+	gchar *current_locale;
 
 	/* Get current collation locale */
-	current_locale = setlocale (LC_COLLATE, NULL);
-
+	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 	g_message ("Changing db locale to: '%s'", current_locale);
-
 	db_set_locale (current_locale);
+	g_free (current_locale);
 }
 
 static void
@@ -662,6 +663,7 @@ static void
 db_recreate_all (void)
 {
 	guint i;
+	gchar *locale;
 
 	/* We call an internal version of this function here
 	 * because at the time 'initialized' = FALSE and that
@@ -687,8 +689,10 @@ db_recreate_all (void)
 		dbs[i].iface = NULL;
 	}
 
+	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 	/* Initialize locale file */
-	db_set_locale (setlocale (LC_COLLATE, NULL));
+	db_set_locale (locale);
+	g_free (locale);
 }
 
 void

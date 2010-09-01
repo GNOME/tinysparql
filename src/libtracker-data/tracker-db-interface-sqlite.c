@@ -549,16 +549,7 @@ open_database (TrackerDBInterface *db_interface)
 
 	/* Set our unicode collation function */
 	if (!db_interface->collator) {
-		db_interface->collator = tracker_collation_init ();
-		if (sqlite3_create_collation (db_interface->db,
-		                              TRACKER_COLLATION_NAME,
-		                              SQLITE_UTF8,
-		                              db_interface->collator,
-		                              tracker_collation_utf8) != SQLITE_OK)
-		{
-			g_critical ("Couldn't set collation function: %s",
-			            sqlite3_errmsg (db_interface->db));
-		}
+		tracker_db_interface_sqlite_reset_collator (db_interface);
 	}
 
 	sqlite3_progress_handler (db_interface->db, 100,
@@ -605,8 +596,8 @@ tracker_db_interface_sqlite_constructor (GType                  type,
 	TrackerDBInterface *db_iface;
 
 	object = (* G_OBJECT_CLASS (tracker_db_interface_parent_class)->constructor) (type,
-		               n_construct_properties,
-		               construct_params);
+		        n_construct_properties,
+		        construct_params);
 	db_iface = TRACKER_DB_INTERFACE (object);
 
 	open_database (db_iface);
@@ -721,6 +712,25 @@ tracker_db_interface_sqlite_fts_update_rollback (TrackerDBInterface *db_interfac
 	return tracker_fts_update_rollback (db_interface->fts);
 }
 #endif
+
+void
+tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
+{
+	if (db_interface->collator)
+		tracker_collation_shutdown (db_interface->collator);
+
+	db_interface->collator = tracker_collation_init ();
+	/* This will overwrite any other collation set before, if any */
+	if (sqlite3_create_collation (db_interface->db,
+	                              TRACKER_COLLATION_NAME,
+	                              SQLITE_UTF8,
+	                              db_interface->collator,
+	                              tracker_collation_utf8) != SQLITE_OK)
+	{
+		g_critical ("Couldn't set collation function: %s",
+		            sqlite3_errmsg (db_interface->db));
+	}
+}
 
 static void
 tracker_db_interface_sqlite_finalize (GObject *object)
@@ -902,12 +912,12 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	full_query = g_strdup_vprintf (query, args);
 	va_end (args);
 
-	/* There are three kinds of queries: 
-	  * a) Cached queries: SELECT and UPDATE ones (cache_type)
-	  * b) Non-Cached queries: NONE ones (cache_type)
-	  * c) Forced Non-Cached: in case of a stmt being already in use, we can't
-	  *    reuse it (you can't use two different loops on a sqlite3_stmt, of
-	  *    course). This happens with recursive uses of a cursor, for example */
+	/* There are three kinds of queries:
+	 * a) Cached queries: SELECT and UPDATE ones (cache_type)
+	 * b) Non-Cached queries: NONE ones (cache_type)
+	 * c) Forced Non-Cached: in case of a stmt being already in use, we can't
+	 *    reuse it (you can't use two different loops on a sqlite3_stmt, of
+	 *    course). This happens with recursive uses of a cursor, for example */
 
 	if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
 		stmt = g_hash_table_lookup (db_interface->dynamic_statements, full_query);
