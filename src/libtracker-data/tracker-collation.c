@@ -23,26 +23,6 @@
 
 #include "tracker-collation.h"
 
-/* If defined, will dump some additional logs as prints,
- * instead of debugs. Why would you want to do so? Well,
- * using direct-access reading with tracker-sparql, I
- * don't want logs, I want output to stdout.
- */
-#ifdef PRINT_INSTEADOF_LOG
-#undef g_debug
-#define g_debug(message, ...) \
-	g_print ("(debug) %s:%d: " message "\n", \
-	         __FILE__, __LINE__, ##__VA_ARGS__)
-#undef g_warning
-#define g_warning(message, ...) \
-	g_print ("(warning) %s:%d: " message "\n", \
-	         __FILE__, __LINE__, ##__VA_ARGS__)
-#undef g_critical
-#define g_critical(message, ...) \
-	g_print ("(critical) %s:%d: " message "\n", \
-	         __FILE__, __LINE__, ##__VA_ARGS__)
-#endif /* PRINT_INSTEADOF_LOG */
-
 /* If defined, will dump additional traces */
 #ifdef ENABLE_TRACE
 #define trace(message, ...) \
@@ -121,13 +101,13 @@ tracker_collation_init (void)
 	collator = ucol_open (locale, &status);
 	if (!collator) {
 		g_warning ("[ICU collation] Collator for locale '%s' cannot be created: %s",
-		               locale, u_errorName (status));
+		           locale, u_errorName (status));
 		/* Try to get UCA collator then... */
 		status = U_ZERO_ERROR;
 		collator = ucol_open ("root", &status);
 		if (!collator) {
 			g_critical ("[ICU collation] UCA Collator cannot be created: %s",
-			                u_errorName (status));
+			            u_errorName (status));
 		}
 	}
 	return collator;
