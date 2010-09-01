@@ -544,7 +544,7 @@ main (int argc, char **argv)
 		TrackerMinerManager *manager;
 
 		manager = tracker_miner_manager_new ();
-		tracker_miner_manager_reindex_by_mimetype (manager, reindex_mime_types, &error);
+		tracker_miner_manager_reindex_by_mimetype (manager, (GStrv)reindex_mime_types, &error);
 
 		if (error) {
 			g_printerr ("%s: %s\n",
