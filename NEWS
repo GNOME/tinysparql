@@ -7,6 +7,7 @@ The changes are:
   * Ontology: Added nmo:isEmergency property
   * libtracker-miner: if CREATED event is received from a monitor, force IRI cache update
   * tracker-extract: Fixed xine, mplayer and totem backends
+  * tracker-miner-fs: Do not index dirs unconditionally when adding monitors
   * ttl_sgml: avoid compiler warning
 
 Translations:
