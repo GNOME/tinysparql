@@ -1,3 +1,38 @@
+NEW in 0.9.19 - 2010-09-02
+==========================
+
+The changes are:
+
+  * NEW Feature: Collation support
+  * NEW Feature: Refactored signal notification API
+  * Fixes: NB#184505, Video files without audio are listed as music clips.
+  * Fixes: NB#179465, Cannot sort lower and upper cases for under same letter
+  * Fixes: GB#628535, "make check" fails with LDFLAGS=-Wl,--as-needed -Wl,-Bsymbolic
+  * Fixes: GB#628536, Don't install ui files for example utils
+  * Ontology: Added nmo:isEmergency property
+  * functional-tests: Avoid FTS tests if FTS is disabled
+  * functional-tests: Don't include TTL files in dist (tarball was 26Mb vs. 6Mb)
+  * libtracker-data: Fixed memory leak when setting journal_mode pragma
+  * libtracker-miner: If CREATED event is received from a monitor, force IRI cache update
+  * libtracker-miner: Avoid gtk-doc warnings: multiple IDs for constraint linkend
+  * libtracker-miner: Don't print paths as they may not be in UTF-8, print URIs
+  * tracker-extract: Fixed xine, mplayer and totem backends
+  * tracker-miner-fs: Removed CacheTimeout option from config, unused
+  * tracker-miner-fs: Removed ScanTimeout from config, unused
+  * tracker-miner-fs: Disable crawling entirely if !initial_crawl
+  * tracker-control: Avoid compiler warning
+  * ttl_sgml: Avoid compiler warning
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.9.18 - 2010-08-26
 ==========================
 
