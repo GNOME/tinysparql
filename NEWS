@@ -3,6 +3,7 @@ NEW in 0.9.19 - 2010-09-02
 
 The changes are:
 
+  * Require libicu or libunistring (GLib unicode support has performance issues)
   * NEW Feature: Collation support
   * NEW Feature: Refactored signal notification API
   * Fixes: NB#184505, Video files without audio are listed as music clips.
@@ -30,7 +31,11 @@ Translations:
 
 Notes:
 
-  None
+  The unicode parser will no longer default to GLib and configure will
+  error if no libicu or libunistring is available. This is due to
+  serious performance issues that are witnessed using GLib. It can
+  still be used if explicitly forced using the switch
+  --with-unicode-support=glib 
 
 
 NEW in 0.9.18 - 2010-08-26
