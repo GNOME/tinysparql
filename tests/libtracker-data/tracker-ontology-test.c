@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -240,7 +241,7 @@ test_query (gconstpointer test_data)
 	/* initialization */
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           NULL,
-	                           NULL, 
+	                           NULL,
 	                           FALSE,
 	                           NULL,
 	                           NULL,
@@ -284,6 +285,10 @@ main (int argc, char **argv)
 	g_test_init (&argc, &argv, NULL);
 
 	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
+
+	/* Warning warning!!! We need to impose a proper LC_COLLATE here, so
+	 * that the expected order in the test results is always the same! */
+	setlocale (LC_COLLATE, "en_US.utf8");
 
 	g_setenv ("XDG_DATA_HOME", data_dir, TRUE);
 	g_setenv ("XDG_CACHE_HOME", data_dir, TRUE);
