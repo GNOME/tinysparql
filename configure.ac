@@ -833,7 +833,8 @@ AM_CONDITIONAL(HAVE_MINER_FLICKR, test "x$have_miner_flickr" = "xyes")
 # By default, AUTO with this order of preference:
 #  1)  libunistring
 #  2)  libicu
-#  3)  glib
+#
+# Note that glib can only be used if explicitly requested for it.
 ##################################################################
 
 # Check for libunistring...
@@ -863,7 +864,7 @@ PKG_CHECK_MODULES(PANGO,
 # Configure option
 AC_ARG_WITH([unicode-support],
             AS_HELP_STRING([--with-unicode-support],
-                           [Unicode support library? (libunistring|libicu|glib) [[default=auto]]]),,
+                           [Unicode support library? (libunistring|libicu|glib) [[default=auto (!glib)]]]),,
             [with_unicode_support=auto])
 
 # If auto, decide ourselves
@@ -874,11 +875,10 @@ if test "x$with_unicode_support" = "xauto"; then
       if test "x$have_libicu" = "xyes"; then
          with_unicode_support=libicu
       else
-         if test "x$have_pango" = "xyes"; then
-            with_unicode_support=glib
-         else
-            AC_MSG_ERROR([Couldn't find a supporting unicode library (libunistring/libicu/libpango)])
-         fi
+         AC_MSG_ERROR([Couldn't find neither libunistring nor libicu. You can still compile tracker
+                       without any of these two, using glib instead, but be warned that the FTS parsing
+                       performance will be much worse. If you still want to use glib as Unicode support
+                       library, enable it with an explicit --with-unicode-support=glib])
       fi
    fi
 fi
