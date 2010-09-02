@@ -238,7 +238,7 @@ tracker_extract_xine (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (metadata, title);
 	}
 
-	year = tracker_extract_guess_date (xine_get_meta_info (stream, XINE_META_INFO_YEAR));
+	year = tracker_date_guess (xine_get_meta_info (stream, XINE_META_INFO_YEAR));
 	if (year) {
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, year);
