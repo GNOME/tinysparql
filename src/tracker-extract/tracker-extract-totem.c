@@ -85,7 +85,7 @@ extract_totem (const gchar          *uri,
 	                                      (GDestroyNotify) g_free,
 	                                      (GDestroyNotify) g_free);
 
-	if (tracker_spawn (argv, 10, &totem, NULL)) {
+	if (tracker_spawn (argv, 10, &totem, NULL, NULL)) {
 		gchar **lines, **line;
 		gchar *artist = NULL, *album = NULL;
 		gchar *artist_uri = NULL, *album_uri = NULL;

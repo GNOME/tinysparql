@@ -129,7 +129,7 @@ extract_mplayer (const gchar          *uri,
 	argv[8] = g_filename_from_uri (uri, NULL, NULL);
 	argv[9] = NULL;
 
-	if (tracker_spawn (argv, 10, &mplayer, NULL)) {
+	if (tracker_spawn (argv, 10, &mplayer, NULL, NULL)) {
 		GPatternSpec  *pattern_ID_AUDIO_ID;
 		GPatternSpec  *pattern_ID_VIDEO_ID;
 		GPatternSpec  *pattern_ID_AUDIO;
@@ -211,7 +211,7 @@ extract_mplayer (const gchar          *uri,
 								equal_char_pos = strchr (next_line, '=');
 
 								if (g_strcmp0 (info_tags[i][0], "Year") == 0)
-									data = tracker_extract_guess_date (equal_char_pos + 1);
+									data = tracker_date_guess (equal_char_pos + 1);
 								else
 									data = g_strdup (equal_char_pos + 1);
 
