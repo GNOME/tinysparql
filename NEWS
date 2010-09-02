@@ -1,3 +1,23 @@
+NEW in 0.8.17 - 2010-09-02
+==========================
+
+The changes are:
+
+  * Fixes: NB#184505, Video files without audio are listed as music clips.
+  * Ontology: Added nmo:isEmergency property
+  * libtracker-miner: if CREATED event is received from a monitor, force IRI cache update
+  * tracker-extract: Fixed xine, mplayer and totem backends
+  * ttl_sgml: avoid compiler warning
+
+Translations:
+
+  * Updated fr: Bruno Brouard
+
+Notes:
+
+  None
+
+
 NEW in 0.8.16 - 2010-08-19
 ==========================
 
