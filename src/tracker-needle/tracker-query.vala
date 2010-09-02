@@ -62,7 +62,7 @@ public class Tracker.Query {
 			return null;
 		}
 
-		string criteria_escaped = tracker_sparql_escape_string (criteria);
+		string criteria_escaped = Tracker.Sparql.escape_string (criteria);
 
 		switch (query_type) {
 		case Type.ALL:
