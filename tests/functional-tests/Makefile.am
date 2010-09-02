@@ -166,7 +166,14 @@ class-signal-test.vala.stamp: $(class_signal_test_VALASOURCES) $(direct_vapi_sou
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 $^
 	$(AM_V_GEN)touch $@
 
-class_signal_test_LDADD = $(direct_query_test_LDADD)
+class_signal_test_LDADD = \
+	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
+	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(GIO_LIBS) \
+	$(GLIB2_LIBS) \
+	$(DBUS_LIBS)
 
 class_signal_performance_test_VALASOURCES = class-signal-performance-test.vala
 
@@ -178,7 +185,14 @@ class-signal-performance-test.vala.stamp: $(class_signal_performance_test_VALASO
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 $^
 	$(AM_V_GEN)touch $@
 
-class_signal_performance_test_LDADD = $(direct_query_test_LDADD)
+class_signal_performance_test_LDADD = \
+	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
+	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(GIO_LIBS) \
+	$(GLIB2_LIBS) \
+	$(DBUS_LIBS)
 
 BUILT_SOURCES = 				\
 	busy-handling-test.vala.stamp 		\
