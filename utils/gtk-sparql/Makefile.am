@@ -1,10 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
-uidir = $(datadir)/tracker
-ui_DATA = gtk-sparql.ui
-
 EXTRA_DIST = 				\
-	$(ui_DATA)			\
+	gtk-sparql.ui			\
 	completion.py			\
 	completion_engine.py		\
 	gtk-sparql.py			\
