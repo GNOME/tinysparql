@@ -3,10 +3,14 @@ NEW in 0.8.17 - 2010-09-02
 
 The changes are:
 
-  * Fixes: NB#184505, Video files without audio are listed as music clips.
+  * Fixes NB#184505, Video files without audio are listed as music clips.
+  * Fixes GB#628090, Tracker plugin for PPSX files
+  * Fixes GB#628535, 'make check' fails with LDFLAGS=-Wl,--as-needed -Wl,-Bsymbolic
+  * Fixes GB#628537, toplevel Makefile.am references non-existing files
+  * Fixes GB#628536, Don't install ui files for example utils
   * Ontology: Added nmo:isEmergency property
   * libtracker-miner: if CREATED event is received from a monitor, force IRI cache update
-  * tracker-extract: Fixed xine, mplayer and totem backends
+  * tracker-extract: Fixed xine, mplayer and totem backends failing to build 
   * tracker-miner-fs: Do not index dirs unconditionally when adding monitors
   * ttl_sgml: avoid compiler warning
 
