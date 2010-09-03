@@ -73,7 +73,7 @@ tracker_events_add_insert (gint         graph_id,
                            const gchar *object,
                            GPtrArray   *rdf_types)
 {
-	TrackerProperty *rdf_type;
+	guint i;
 
 	g_return_if_fail (rdf_types != NULL);
 	g_return_if_fail (private != NULL);
@@ -82,47 +82,14 @@ tracker_events_add_insert (gint         graph_id,
 		return;
 	}
 
-	rdf_type = tracker_ontologies_get_rdf_type ();
-
-	if (object_id != 0 && pred_id == tracker_property_get_id (rdf_type)) {
-		/* Resource create
-		 * In case of create, object is the rdf:type */
-		if (is_allowed (private, NULL, object_id)) {
-			TrackerClass *class = NULL;
-
-			if (rdf_types->len == 1 && tracker_class_get_id (rdf_types->pdata[0]) == object_id) {
-				class = rdf_types->pdata[0];
-			} else {
-				if (object == NULL) {
-					const gchar *uri = tracker_ontologies_get_uri_by_id (object_id);
-					if (uri != NULL)
-						class = tracker_ontologies_get_class_by_uri (uri);
-				} else {
-					class = tracker_ontologies_get_class_by_uri (object);
-				}
-			}
-
-			if (class) {
-				tracker_class_add_insert_event (class,
-				                                graph_id,
-				                                subject_id,
-				                                pred_id,
-				                                object_id);
-				private->total++;
-			}
-		}
-	} else {
-		guint i;
-
-		for (i = 0; i < rdf_types->len; i++) {
-			if (is_allowed (private, rdf_types->pdata[i], 0)) {
-				tracker_class_add_insert_event (rdf_types->pdata[i],
-				                                graph_id,
-				                                subject_id,
-				                                pred_id,
-				                                object_id);
-				private->total++;
-			}
+	for (i = 0; i < rdf_types->len; i++) {
+		if (is_allowed (private, rdf_types->pdata[i], 0)) {
+			tracker_class_add_insert_event (rdf_types->pdata[i],
+			                                graph_id,
+			                                subject_id,
+			                                pred_id,
+			                                object_id);
+			private->total++;
 		}
 	}
 }
@@ -136,7 +103,7 @@ tracker_events_add_delete (gint         graph_id,
                            const gchar *object,
                            GPtrArray   *rdf_types)
 {
-	TrackerProperty *rdf_type;
+	guint i;
 
 	g_return_if_fail (rdf_types != NULL);
 	g_return_if_fail (private != NULL);
@@ -145,50 +112,16 @@ tracker_events_add_delete (gint         graph_id,
 		return;
 	}
 
-	rdf_type = tracker_ontologies_get_rdf_type ();
-
-	if (object_id != 0 && pred_id == tracker_property_get_id (rdf_type)) {
-		/* Resource delete
-		 * In case of delete, object is the rdf:type */
-		if (is_allowed (private, NULL, object_id)) {
-			TrackerClass *class = NULL;
-
-			if (rdf_types->len == 1 && tracker_class_get_id (rdf_types->pdata[0]) == object_id) {
-				class = rdf_types->pdata[0];
-			} else {
-				if (object == NULL) {
-					const gchar *uri = tracker_ontologies_get_uri_by_id (object_id);
-					if (uri != NULL)
-						class = tracker_ontologies_get_class_by_uri (uri);
-				} else {
-					class = tracker_ontologies_get_class_by_uri (object);
-				}
-			}
-
-			if (class) {
-				tracker_class_add_delete_event (class,
-				                                graph_id,
-				                                subject_id,
-				                                pred_id,
-				                                object_id);
-				private->total++;
-			}
-		}
-	} else {
-		guint i;
-
-		for (i = 0; i < rdf_types->len; i++) {
-			if (is_allowed (private, rdf_types->pdata[i], 0)) {
-				tracker_class_add_delete_event (rdf_types->pdata[i],
-				                                graph_id,
-				                                subject_id,
-				                                pred_id,
-				                                object_id);
-				private->total++;
-			}
+	for (i = 0; i < rdf_types->len; i++) {
+		if (is_allowed (private, rdf_types->pdata[i], 0)) {
+			tracker_class_add_delete_event (rdf_types->pdata[i],
+			                                graph_id,
+			                                subject_id,
+			                                pred_id,
+			                                object_id);
+			private->total++;
 		}
 	}
-
 }
 
 void
