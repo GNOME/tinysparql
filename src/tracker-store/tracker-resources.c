@@ -530,7 +530,8 @@ tracker_resources_batch_commit (TrackerResources         *self,
                                 DBusGMethodInvocation    *context,
                                 GError                  **error)
 {
-	/* no longer needed */
+	/* no longer needed, just return */
+	dbus_g_method_return (context);
 }
 
 static void
