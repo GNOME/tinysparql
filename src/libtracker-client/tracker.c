@@ -1920,10 +1920,13 @@ tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
 gboolean
 tracker_result_iterator_next (TrackerResultIterator *iterator)
 {
+#ifdef HAVE_DBUS_FD_PASSING
+	int last_offset;
+#endif
+
 	g_return_val_if_fail (iterator != NULL, FALSE);
 
 #ifdef HAVE_DBUS_FD_PASSING
-	int last_offset;
 
 	if (iterator->buffer_index >= iterator->buffer_size) {
 		return FALSE;
