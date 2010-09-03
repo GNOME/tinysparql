@@ -1632,7 +1632,7 @@ cache_delete_resource_type (TrackerClass *class,
 		const gchar        *table_name;
 		const gchar        *field_name;
 		GValueArray        *old_values;
-		gint                i;
+		gint                y;
 
 		prop = properties[p];
 
@@ -1646,11 +1646,11 @@ cache_delete_resource_type (TrackerClass *class,
 
 		old_values = get_old_property_values (prop, NULL);
 
-		for (i = old_values->n_values - 1; i >= 0 ; i--) {
+		for (y = old_values->n_values - 1; y >= 0 ; y--) {
 			GValue *old_gvalue;
 			GValue  gvalue = { 0 };
 
-			old_gvalue = g_value_array_get_nth (old_values, i);
+			old_gvalue = g_value_array_get_nth (old_values, y);
 			g_value_init (&gvalue, G_VALUE_TYPE (old_gvalue));
 			g_value_copy (old_gvalue, &gvalue);
 
