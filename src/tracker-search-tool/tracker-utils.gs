@@ -48,7 +48,7 @@ const  extern static  UIDIR : string
 const  extern static  SRCDIR : string
 
 
-class TrackerUtils
+namespace TrackerUtils
 /* static methods only as this is a utility class that wont ever get substantiated */
 
     def static EscapeSparql (sparql : string, add_wildcard : bool) : string
