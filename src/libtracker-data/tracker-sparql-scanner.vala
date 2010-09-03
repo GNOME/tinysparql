@@ -645,7 +645,7 @@ public class Tracker.SparqlScanner : Object {
 							line++;
 							column = 1;
 							token_length_in_chars = 3;
-						} else if (current[0] <= 0x7f) {
+						} else if ((uchar) current[0] <= 0x7f) {
 							// ASCII
 							current++;
 							token_length_in_chars++;
@@ -700,7 +700,7 @@ public class Tracker.SparqlScanner : Object {
 						}
 					} else if (current[0] == '\n') {
 						break;
-					} else if (current[0] <= 0x7f) {
+					} else if ((uchar) current[0] <= 0x7f) {
 						// ASCII
 						current++;
 						token_length_in_chars++;
