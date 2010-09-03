@@ -26,9 +26,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* I don't know why, but this prototype ain't in my math.h */
-long long int llroundl(long double x);
-
 #include <glib.h>
 #include <glib/gstdio.h>
 
@@ -330,7 +327,7 @@ add_time_gst_tag (TrackerSparqlBuilder   *metadata,
 	if (ret) {
 		gint64 duration;
 
-		duration = llroundl ((long double) n / (long double) GST_SECOND);
+		duration = (n + (GST_SECOND / 2)) / GST_SECOND;
 
 		tracker_sparql_builder_predicate (metadata, key);
 		tracker_sparql_builder_object_int64 (metadata, duration);
