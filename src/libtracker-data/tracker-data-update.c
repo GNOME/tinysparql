@@ -1582,6 +1582,7 @@ cache_delete_resource_type (TrackerClass *class,
 	for (i = 0; i < resource_buffer->types->len; i++) {
 		if (g_ptr_array_index (resource_buffer->types, i) == class) {
 			found = TRUE;
+			break;
 		}
 	}
 
@@ -1700,6 +1701,7 @@ cache_delete_resource_type (TrackerClass *class,
 		}
 	}
 
+	g_ptr_array_remove (resource_buffer->types, class);
 }
 
 static void
