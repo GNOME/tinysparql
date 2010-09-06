@@ -112,7 +112,6 @@ struct _TrackerMinerFSPrivate {
 	GHashTable     *items_ignore_next_update;
 
 	GQuark          quark_ignore_file;
-	GQuark          quark_force_cache_regeneration;
 
 	GList          *config_directories;
 
@@ -560,8 +559,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  object);
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
-	priv->quark_force_cache_regeneration =
-		g_quark_from_static_string ("tracker-force-cache-regeneration");
 
 	priv->iri_cache = g_hash_table_new_full (g_file_hash,
 	                                         (GEqualFunc) g_file_equal,
@@ -1367,35 +1364,46 @@ ensure_iri_cache (TrackerMinerFS *fs,
 
 static const gchar *
 iri_cache_lookup (TrackerMinerFS *fs,
-                  GFile          *file)
+                  GFile          *file,
+                  gboolean        force_direct_iri_query)
 {
-	gpointer value;
-	const gchar *iri;
+	gpointer in_cache_value;
+	gboolean in_cache;
+	gchar *query_iri;
 
-	if (!g_hash_table_lookup_extended (fs->private->iri_cache, file, NULL, &value)) {
-		/* Item doesn't exist in cache */
+	/* Look for item in IRI cache */
+	in_cache = g_hash_table_lookup_extended (fs->private->iri_cache,
+	                                         file,
+	                                         NULL,
+	                                         &in_cache_value);
+
+	/* Item found with a proper value. If value is NULL, we need
+	 * to do a direct IRI query as it was a cache miss (item was added
+	 * after the last iri cache update) */
+	if (in_cache && in_cache_value)
+		return (const gchar *) in_cache_value;
+
+	/* Item doesn't exist in cache. If we don't need to force iri query,
+	 * just return. */
+	if (!in_cache && !force_direct_iri_query)
 		return NULL;
+
+	/* Independent direct IRI query */
+	if (item_query_exists (fs, file, &query_iri, NULL)) {
+		/* Replace! as we may already have an item in the cache with
+		 * NULL value! */
+		g_hash_table_replace (fs->private->iri_cache,
+		                      g_object_ref (file),
+		                      query_iri);
+		/* Set iri to return */
+		return query_iri;
 	}
 
-	iri = value;
+	/* Not in store, remove item from cache if any */
+	if (in_cache)
+		g_hash_table_remove (fs->private->iri_cache, file);
 
-	if (!iri) {
-		gchar *query_iri;
-
-		/* Cache miss, this item was added after the last
-		 * iri cache update, so query it independently
-		 */
-		if (item_query_exists (fs, file, &query_iri, NULL)) {
-			g_hash_table_insert (fs->private->iri_cache,
-			                     g_object_ref (file), query_iri);
-			iri = query_iri;
-		} else {
-			g_hash_table_remove (fs->private->iri_cache, file);
-			iri = NULL;
-		}
-	}
-
-	return iri;
+	return NULL;
 }
 
 static void
@@ -1541,8 +1549,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	parent = g_file_get_parent (file);
 
 	if (parent) {
-		if (g_object_steal_qdata (G_OBJECT (file), fs->private->quark_force_cache_regeneration) ||
-		    !fs->private->current_iri_cache_parent ||
+		if (!fs->private->current_iri_cache_parent ||
 		    !g_file_equal (parent, fs->private->current_iri_cache_parent)) {
 			/* Cache the URN for the new current parent, processing
 			 * order guarantees that all contents for a folder are
@@ -1571,7 +1578,10 @@ item_add_or_update (TrackerMinerFS *fs,
 		g_object_unref (parent);
 	}
 
-	urn = iri_cache_lookup (fs, file);
+	/* Force a direct URN query if not found in the cache. This is to handle
+	 * situations where an application inserted items in the store after we
+	 * updated the cache, or without a proper nfo:belongsToContainer */
+	urn = iri_cache_lookup (fs, file, TRUE);
 
 	data = process_data_new (TRACKER_MINER (fs), file, urn, parent_urn, cancellable, sparql);
 	priv->processing_pool = g_list_prepend (priv->processing_pool, data);
@@ -2783,15 +2793,6 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 		    should_recurse_for_directory (fs, file)) {
 			tracker_miner_fs_directory_add_internal (fs, file);
 		} else {
-			/* On new item events, force a cache regeneration.
-			 * This is done to avoid issues when other applications
-			 * insert resources in the store, then we get the created
-			 * events, and we assume the previous cache was still
-			 * valid. */
-			g_object_set_qdata (G_OBJECT (file),
-			                    fs->private->quark_force_cache_regeneration,
-			                    GINT_TO_POINTER (TRUE));
-
 			g_queue_push_tail (fs->private->items_created,
 			                   g_object_ref (file));
 
