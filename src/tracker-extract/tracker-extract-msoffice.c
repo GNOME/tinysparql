@@ -1687,9 +1687,15 @@ extract_msoffice (const gchar          *uri,
 		content = extract_msword_content (infile, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-powerpoint") == 0) {
 		/* PowerPoint file */
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nfo:Presentation");
+
 		content = extract_powerpoint_content (infile, max_bytes, &is_encrypted);
 	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.ms-excel") == 0) {
 		/* Excel File */
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nfo:Spreadsheet");
+
 		content = extract_excel_content (infile, max_bytes, &is_encrypted);
 	} else {
 		g_message ("Mime type was not recognised:'%s'", mime_used);
