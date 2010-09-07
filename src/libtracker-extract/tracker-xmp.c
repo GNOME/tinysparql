@@ -655,7 +655,8 @@ tracker_xmp_free (TrackerXmpData *data)
  * Since: 0.8
  **/
 gboolean
-tracker_xmp_apply (TrackerSparqlBuilder *metadata,
+tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
+                   TrackerSparqlBuilder *metadata,
                    const gchar          *uri,
                    TrackerXmpData       *data)
 {
@@ -750,19 +751,29 @@ tracker_xmp_apply (TrackerSparqlBuilder *metadata,
 	}
 
 	if (data->make || data->model) {
-		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
-		tracker_sparql_builder_object_blank_open (metadata);
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:Equipment");
-		if (data->model) {
-			tracker_sparql_builder_predicate (metadata, "nco:model");
-			tracker_sparql_builder_object_unvalidated (metadata, data->model);
-		}
+		gchar *equip_uri;
+
+		equip_uri = tracker_sparql_escape_uri_printf ("urn:equipment:%s:%s:",
+		                                              data->make ? data->make : "",
+		                                              data->model ? data->model : "");
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, equip_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nfo:Equipment");
+
 		if (data->make) {
-			tracker_sparql_builder_predicate (metadata, "nco:make");
-			tracker_sparql_builder_object_unvalidated (metadata, data->make);
+			tracker_sparql_builder_predicate (preupdate, "nfo:manufacturer");
+			tracker_sparql_builder_object_unvalidated (preupdate, data->make);
 		}
-		tracker_sparql_builder_object_blank_close (metadata);
+		if (data->model) {
+			tracker_sparql_builder_predicate (preupdate, "nfo:model");
+			tracker_sparql_builder_object_unvalidated (preupdate, data->model);
+		}
+		tracker_sparql_builder_insert_close (preupdate);
+		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+		tracker_sparql_builder_object_iri (metadata, equip_uri);
+		g_free (equip_uri);
 	}
 
 	if (data->title || data->title2 || data->pdf_title) {

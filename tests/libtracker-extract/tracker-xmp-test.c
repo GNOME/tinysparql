@@ -272,22 +272,23 @@ test_xmp_orientation (void)
 static void
 test_xmp_apply (void)
 {
-        TrackerSparqlBuilder *metadata;
-        TrackerXmpData *data;
+	TrackerSparqlBuilder *metadata, *preupdate;
+	TrackerXmpData *data;
 
-        metadata = tracker_sparql_builder_new_update ();;
+	metadata = tracker_sparql_builder_new_update ();;
+	preupdate = tracker_sparql_builder_new_update ();;
 
-        data = tracker_xmp_new (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "urn:uuid:test");
+	data = tracker_xmp_new (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "urn:uuid:test");
 	g_assert (data != NULL);
 
-        tracker_sparql_builder_insert_open (metadata, NULL);
-        tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
+	tracker_sparql_builder_insert_open (metadata, NULL);
+	tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
 
-        g_assert (tracker_xmp_apply (metadata, "urn:uuid:test", data));
+	g_assert (tracker_xmp_apply (preupdate, metadata, "urn:uuid:test", data));
 
-        tracker_sparql_builder_insert_close (metadata);
+	tracker_sparql_builder_insert_close (metadata);
 
-        /* This is the only way to check the sparql is kinda correct */
+	/* This is the only way to check the sparql is kinda correct */
 
 	/* Disabled this for 0.8.5. It was reporting 41 not 50, this
 	 * test is not credible and I can't see how it can be trusted
@@ -296,31 +297,32 @@ test_xmp_apply (void)
 	 * -mr
 	 */
 
-        /* g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 50); */
+	/* g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 50); */
 }
 
 static void
 test_xmp_apply_location (void)
 {
-        TrackerXmpData data = { 0, };
-        TrackerSparqlBuilder *metadata;
+	TrackerXmpData data = { 0, };
+	TrackerSparqlBuilder *metadata, *preupdate;
 
-        data.address = g_strdup ("Itamerenkatu 11-13");
-        data.city = g_strdup ("Helsinki");
-        data.state = g_strdup ("N/A");
-        data.country = g_strdup ("Findland");
+	data.address = g_strdup ("Itamerenkatu 11-13");
+	data.city = g_strdup ("Helsinki");
+	data.state = g_strdup ("N/A");
+	data.country = g_strdup ("Findland");
 
-        metadata = tracker_sparql_builder_new_update ();
+	metadata = tracker_sparql_builder_new_update ();
+	preupdate = tracker_sparql_builder_new_update ();
 
-        tracker_sparql_builder_insert_open (metadata, NULL);
-        tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
+	tracker_sparql_builder_insert_open (metadata, NULL);
+	tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
 
-        g_assert (tracker_xmp_apply (metadata, "urn:uuid:test", &data));
+	g_assert (tracker_xmp_apply (preupdate, metadata, "urn:uuid:test", &data));
 
-        tracker_sparql_builder_insert_close (metadata);
+	tracker_sparql_builder_insert_close (metadata);
 
-        /* This is the only way to check the sparql is kinda correct */
-        g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 6);
+	/* This is the only way to check the sparql is kinda correct */
+	g_assert_cmpint (tracker_sparql_builder_get_length (metadata), ==, 6);
 }
 
 int

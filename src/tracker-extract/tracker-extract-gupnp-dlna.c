@@ -667,19 +667,30 @@ extract_metadata (MetadataExtractor      *extractor,
 		gst_tag_list_get_string (extractor->tags, GST_TAG_DEVICE_MANUFACTURER, &manuf);
 
 		if (make || model || manuf) {
-			tracker_sparql_builder_predicate (metadata, "nfo:equipment");
-			tracker_sparql_builder_object_blank_open (metadata);
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nco:Equipment");
-			if (model) {
-				tracker_sparql_builder_predicate (metadata, "nco:model");
-				tracker_sparql_builder_object_unvalidated (metadata, model);
-			}
+			gchar *equip_uri;
+
+			equip_uri = tracker_sparql_escape_uri_printf ("urn:equipment:%s:%s:",
+			                                              manuf ? manuf : make ? make : "",
+			                                              model ? model : "");
+
+			tracker_sparql_builder_insert_open (preupdate, NULL);
+			tracker_sparql_builder_subject_iri (preupdate, equip_uri);
+			tracker_sparql_builder_predicate (preupdate, "a");
+			tracker_sparql_builder_object (preupdate, "nfo:Equipment");
+
 			if (make || manuf) {
-				tracker_sparql_builder_predicate (metadata, "nco:make");
-				tracker_sparql_builder_object_unvalidated (metadata, manuf ? manuf : make);
+				tracker_sparql_builder_predicate (preupdate, "nfo:manufacturer");
+				tracker_sparql_builder_object_unvalidated (preupdate, manuf ? manuf : make);
 			}
-			tracker_sparql_builder_object_blank_close (metadata);
+			if (model) {
+				tracker_sparql_builder_predicate (preupdate, "nfo:model");
+				tracker_sparql_builder_object_unvalidated (preupdate, model);
+			}
+			tracker_sparql_builder_insert_close (preupdate);
+
+			tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+			tracker_sparql_builder_object_iri (metadata, equip_uri);
+			g_free (equip_uri);
 		}
 
 		g_free (make);

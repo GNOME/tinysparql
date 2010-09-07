@@ -154,7 +154,7 @@ extract_xmp (const gchar          *uri,
 		                      original_uri ? original_uri : uri);
 
 		if (xd) {
-			tracker_xmp_apply (metadata, uri, xd);
+			tracker_xmp_apply (preupdate, metadata, uri, xd);
 		}
 
 		g_free (original_uri);

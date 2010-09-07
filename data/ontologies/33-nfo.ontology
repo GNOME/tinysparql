@@ -958,9 +958,9 @@ nfo:equipment a rdf:Property ;
 	rdfs:domain nfo:Media ;
 	rdfs:range nfo:Equipment .
 
-nfo:make a rdf:Property ;
-	rdfs:label "Make" ;
-	rdfs:comment "The make of the equipment" ;
+nfo:manufacturer a rdf:Property ;
+	rdfs:label "Manufacturer" ;
+	rdfs:comment "The manufacturer of the equipment" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Equipment ;
 	rdfs:range xsd:string .

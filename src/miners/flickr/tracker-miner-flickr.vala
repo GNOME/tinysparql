@@ -46,7 +46,8 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 	/* Values taken from the EXIF spec */
 	private enum ExifTag {
-		CAMERA = 271,
+		CAMERA_MAKE = 271,
+		CAMERA_MODEL = 272,
 		FLASH = 37385,
 		FNUMBER = 33437,
 		FOCAL_LENGTH = 37386,
@@ -371,6 +372,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		Rest.XmlNode root_node;
 		Rest.XmlNode exif_node;
 		string exif_value;
+		string make = null, model = null;
 
 		exif_call.add_params ("method", "flickr.photos.getExif",
 		                      "photo_id", photo_node.get_attr ("id"));
@@ -390,8 +392,11 @@ public class MinerFlickr : Tracker.MinerWeb {
 			exif_value = exif_node.find ("raw").content;
 
 			switch (exif_node.get_attr ("tag").to_int ()) {
-				case ExifTag.CAMERA:
-					update_triple_string (builder, graph, urn, "nfo:device", exif_value);
+				case ExifTag.CAMERA_MAKE:
+					make = exif_value;
+					break;
+				case ExifTag.CAMERA_MODEL:
+					model = exif_value;
 					break;
 				case ExifTag.FLASH:
 					update_triple_object (builder, graph, urn, "nmm:flash", exif_value.to_int ()%2 == 1 ? "nmm:flash-on" : "nmm:flash-off");
@@ -444,6 +449,33 @@ public class MinerFlickr : Tracker.MinerWeb {
 					break;
 			}
 			exif_node = exif_node.next;
+		}
+
+		if (make != null || model != null) {
+			string equip_uri;
+
+			equip_uri = Sparql.escape_uri_printf ("urn:equipment:%s:%s:",
+			                                       make != null ? make : "",
+			                                       model != null ? model : "");
+
+			builder.insert_open (graph);
+			builder.subject_iri (equip_uri);
+			builder.predicate ("a");
+			builder.object ("nfo:Equipment");
+
+			if (make != null) {
+				builder.predicate ("nfo:manufacturer");
+				builder.object_unvalidated (make);
+			}
+
+			if (model != null) {
+				builder.predicate ("nfo:model");
+				builder.object_unvalidated (model);
+			}
+
+			builder.insert_close ();
+
+			update_triple_object (builder, graph, urn, "nfo:equipment", equip_uri);
 		}
 	}
 

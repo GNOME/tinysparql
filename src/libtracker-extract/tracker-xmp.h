@@ -88,7 +88,8 @@ TrackerXmpData * tracker_xmp_new   (const gchar          *buffer,
                                     gsize                 len,
                                     const gchar          *uri);
 void             tracker_xmp_free  (TrackerXmpData       *data);
-gboolean         tracker_xmp_apply (TrackerSparqlBuilder *metadata,
+gboolean         tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
+                                    TrackerSparqlBuilder *metadata,
                                     const gchar          *uri,
                                     TrackerXmpData       *data);
 
