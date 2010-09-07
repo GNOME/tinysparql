@@ -360,6 +360,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 		}
 
 
+		/* Totally deprecated: this uses nfo:Equipment nowadays */
 		if (g_strcmp0 (row[2], TRACKER_NMM_PREFIX "camera") == 0) {
 			gchar *work_on = g_strdup (row[3]);
 			gchar *ptr = strchr (work_on, ' ');

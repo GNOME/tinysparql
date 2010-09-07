@@ -40,7 +40,8 @@ typedef struct {
 	const gchar *date;
 	const gchar *license;
 	const gchar *artist;
-	gchar *camera;
+	const gchar *make;
+	const gchar *model;
 	const gchar *orientation;
 	const gchar *white_balance;
 	const gchar *fnumber;
@@ -189,23 +190,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		xd = g_new0 (TrackerXmpData, 1);
 	}
 
-	/* Don't merge if the make is in the model */
-	if ((xd->make == NULL || xd->model == NULL) ||
-	    (xd->make && xd->model && strstr (xd->model, xd->make) == NULL)) {
-		md.camera = tracker_merge_const (" ", 2, xd->make, xd->model);
-	} else {
-		md.camera = g_strdup (xd->model);
-	}
-
-	if (!md.camera) {
-		if ((ed->make == NULL || ed->model == NULL) ||
-		    (ed->make && ed->model && strstr (ed->model, ed->make) == NULL)) {
-			md.camera = tracker_merge_const (" ", 2, ed->make, ed->model);
-		} else {
-			md.camera = g_strdup (ed->model);
-		}
-	}
-
 	md.creator = tracker_coalesce_strip (3, xd->creator, pd.creator, pd.author);
 	md.title = tracker_coalesce_strip (5, xd->title, pd.title, ed->document_name, xd->title2, xd->pdf_title);
 	md.copyright = tracker_coalesce_strip (3, xd->rights, pd.copyright, ed->copyright);
@@ -222,6 +206,8 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	md.focal_length = tracker_coalesce_strip (2, xd->focal_length, ed->focal_length);
 	md.metering_mode = tracker_coalesce_strip (2, xd->metering_mode, ed->metering_mode);
 	md.white_balance = tracker_coalesce_strip (2, xd->white_balance, ed->white_balance);
+	md.make = tracker_coalesce_strip (2, xd->make, ed->make);
+	md.model = tracker_coalesce_strip (2, xd->model, ed->model);
 
 	keywords = g_ptr_array_new ();
 
@@ -274,9 +260,20 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_unvalidated (metadata, md.title);
 	}
 
-	if (md.camera) {
-		tracker_sparql_builder_predicate (metadata, "nfo:device");
-		tracker_sparql_builder_object_unvalidated (metadata, md.camera);
+	if (md.make || md.model) {
+		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Equipment");
+		if (md.model) {
+			tracker_sparql_builder_predicate (metadata, "nco:model");
+			tracker_sparql_builder_object_unvalidated (metadata, md.model);
+		}
+		if (md.make) {
+			tracker_sparql_builder_predicate (metadata, "nco:make");
+			tracker_sparql_builder_object_unvalidated (metadata, md.make);
+		}
+		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
 	if (md.artist) {
@@ -470,7 +467,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	tracker_exif_free (ed);
 	tracker_xmp_free (xd);
 	g_free (pd.creation_time);
-	g_free (md.camera);
 }
 
 static void

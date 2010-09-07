@@ -36,7 +36,6 @@ typedef struct {
 	const gchar *title;
 	const gchar *date;
 	const gchar *artist;
-	gchar *camera;
 } MergeData;
 
 typedef struct {
@@ -178,14 +177,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		xd = g_new0 (TrackerXmpData, 1);
 	}
 
-	/* Don't merge if the make is in the model */
-	if ((xd->make == NULL || xd->model == NULL) ||
-	    (xd->make && xd->model && strstr (xd->model, xd->make) == NULL)) {
-		md.camera = tracker_merge_const (" ", 2, xd->make, xd->model);
-	} else {
-		md.camera = g_strdup (xd->model);
-	}
-
 	md.title = tracker_coalesce_strip (3, xd->title, xd->title2, xd->pdf_title);
 	md.date = tracker_coalesce_strip (2, xd->date, xd->time_original);
 	md.artist = tracker_coalesce_strip (2, xd->artist, xd->contributor);
@@ -231,14 +222,25 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_unvalidated (metadata, xd->copyright);
 	}
 
+	if (xd->make || xd->model) {
+		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Equipment");
+		if (xd->model) {
+			tracker_sparql_builder_predicate (metadata, "nco:model");
+			tracker_sparql_builder_object_unvalidated (metadata, xd->model);
+		}
+		if (xd->make) {
+			tracker_sparql_builder_predicate (metadata, "nco:make");
+			tracker_sparql_builder_object_unvalidated (metadata, xd->make);
+		}
+		tracker_sparql_builder_object_blank_close (metadata);
+	}
+
 	if (md.title) {
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, md.title);
-	}
-
-	if (md.camera) {
-		tracker_sparql_builder_predicate (metadata, "nfo:device");
-		tracker_sparql_builder_object_unvalidated (metadata, md.camera);
 	}
 
 	if (md.artist) {
@@ -425,7 +427,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 
 	tracker_xmp_free (xd);
-	g_free (md.camera);
 }
 
 

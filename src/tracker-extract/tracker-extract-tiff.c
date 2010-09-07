@@ -38,7 +38,8 @@ typedef enum {
 } TagType;
 
 typedef struct {
-	gchar *camera;
+	const gchar *make;
+	const gchar *model;
 	const gchar *title;
 	const gchar *orientation;
 	const gchar *copyright;
@@ -354,16 +355,6 @@ extract_tiff (const gchar          *uri,
 	TIFFClose (image);
 	g_free (filename);
 
-	md.camera = tracker_merge_const (" ", 2, xd->make, xd->model);
-
-	if (!md.camera) {
-		md.camera = tracker_merge_const (" ", 2, td.make, td.model);
-
-		if (!md.camera) {
-			md.camera = tracker_merge_const (" ", 2, ed->make, ed->model);
-		}
-	}
-
 	md.title = tracker_coalesce_strip (5, xd->title, xd->pdf_title, td.title, ed->document_name, xd->title2);
 	md.orientation = tracker_coalesce_strip (4, xd->orientation, td.orientation, ed->orientation, id->image_orientation);
 	md.copyright = tracker_coalesce_strip (4, xd->rights, td.copyright, ed->copyright, id->copyright_notice);
@@ -384,6 +375,8 @@ extract_tiff (const gchar          *uri,
 	md.creator = tracker_coalesce_strip (3, xd->creator, id->byline, id->credit);
 	md.x_dimension = tracker_coalesce_strip (2, td.width, ed->x_dimension);
 	md.y_dimension = tracker_coalesce_strip (2, td.length, ed->y_dimension);
+	md.make = tracker_coalesce_strip (3, xd->make, td.make, ed->make);
+	md.model = tracker_coalesce_strip (3, xd->model, td.model, ed->model);
 
 	keywords = g_ptr_array_new ();
 
@@ -542,9 +535,20 @@ extract_tiff (const gchar          *uri,
 	}
 	g_ptr_array_free (keywords, TRUE);
 
-	if (md.camera) {
-		tracker_sparql_builder_predicate (metadata, "nfo:device");
-		tracker_sparql_builder_object_unvalidated (metadata, md.camera);
+	if (md.make || md.model) {
+		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Equipment");
+		if (md.model) {
+			tracker_sparql_builder_predicate (metadata, "nco:model");
+			tracker_sparql_builder_object_unvalidated (metadata, md.model);
+		}
+		if (md.make) {
+			tracker_sparql_builder_predicate (metadata, "nco:make");
+			tracker_sparql_builder_object_unvalidated (metadata, md.make);
+		}
+		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
 	if (md.title) {
@@ -678,7 +682,6 @@ extract_tiff (const gchar          *uri,
 		tracker_sparql_builder_object_double (metadata, value);
 	}
 
-	g_free (md.camera);
 	tiff_data_free (&td);
 	tracker_exif_free (ed);
 	tracker_xmp_free (xd);

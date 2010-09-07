@@ -54,7 +54,8 @@
 #endif /* HAVE_LIBIPTCDATA */
 
 typedef struct {
-	gchar *camera;
+	const gchar *make;
+	const gchar *model;
 	const gchar *title;
 	const gchar *orientation;
 	const gchar *copyright;
@@ -233,23 +234,6 @@ extract_jpeg (const gchar          *uri,
 		id = g_new0 (TrackerIptcData, 1);
 	}
 
-	/* Don't merge if the make is in the model */
-	if ((xd->make == NULL || xd->model == NULL) ||
-	    (xd->make && xd->model && strstr (xd->model, xd->make) == NULL)) {
-		md.camera = tracker_merge_const (" ", 2, xd->make, xd->model);
-	} else {
-		md.camera = g_strdup (xd->model);
-	}
-
-	if (!md.camera) {
-		if ((ed->make == NULL || ed->model == NULL) ||
-		    (ed->make && ed->model && strstr (ed->model, ed->make) == NULL)) {
-			md.camera = tracker_merge_const (" ", 2, ed->make, ed->model);
-		} else {
-			md.camera = g_strdup (ed->model);
-		}
-	}
-
 	md.title = tracker_coalesce_strip (4, xd->title, ed->document_name, xd->title2, xd->pdf_title);
 	md.orientation = tracker_coalesce_strip (3, xd->orientation, ed->orientation, id->image_orientation);
 	md.copyright = tracker_coalesce_strip (4, xd->copyright, xd->rights, ed->copyright, id->copyright_notice);
@@ -269,6 +253,8 @@ extract_jpeg (const gchar          *uri,
 	md.country = tracker_coalesce_strip (2, xd->country, id->country_name);
 	md.creator = tracker_coalesce_strip (3, xd->creator, id->byline, id->credit);
 	md.comment = tracker_coalesce_strip (2, comment, ed->user_comment);
+	md.make = tracker_coalesce_strip (2, xd->make, ed->make);
+	md.model = tracker_coalesce_strip (2, xd->model, ed->model);
 
 	/* Prioritize on native dimention in all cases */
 	tracker_sparql_builder_predicate (metadata, "nfo:width");
@@ -391,9 +377,20 @@ extract_jpeg (const gchar          *uri,
 	}
 	g_ptr_array_free (keywords, TRUE);
 
-	if (md.camera) {
-		tracker_sparql_builder_predicate (metadata, "nfo:device");
-		tracker_sparql_builder_object_unvalidated (metadata, md.camera);
+	if (md.make || md.model) {
+		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Equipment");
+		if (md.model) {
+			tracker_sparql_builder_predicate (metadata, "nco:model");
+			tracker_sparql_builder_object_unvalidated (metadata, md.model);
+		}
+		if (md.make) {
+			tracker_sparql_builder_predicate (metadata, "nco:make");
+			tracker_sparql_builder_object_unvalidated (metadata, md.make);
+		}
+		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
 	if (md.title) {
@@ -597,8 +594,6 @@ extract_jpeg (const gchar          *uri,
 	}
 
 	jpeg_destroy_decompress (&cinfo);
-
-	g_free (md.camera);
 
 	tracker_exif_free (ed);
 	tracker_xmp_free (xd);

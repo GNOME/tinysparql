@@ -496,7 +496,7 @@ extract_metadata (MetadataExtractor      *extractor,
                   gchar                 **scount)
 {
 	const gchar *temp;
-	gchar *s, *make = NULL, *model = NULL, *manuf = NULL, *make_model = NULL;
+	gchar *s, *make = NULL, *model = NULL, *manuf = NULL;
 	gboolean ret;
 	gint count;
 	gboolean needs_audio = FALSE;
@@ -761,26 +761,21 @@ extract_metadata (MetadataExtractor      *extractor,
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MAKE, &make);
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_DEVICE_MANUFACTURER, &manuf);
 
-		if (make && model && manuf) {
-			make_model = tracker_merge_const (" ", 3, manuf, make, model);
-		} else if (make && model) {
-			make_model = tracker_merge_const (" ", 2, make, model);
-		} else if (make && manuf) {
-			make_model = tracker_merge_const (" ", 2, manuf, make);
-		} else if (model && manuf) {
-			make_model = tracker_merge_const (" ", 2, manuf, model);
-		} else if (model) {
-			make_model = g_strdup (model);
-		} else if (make) {
-			make_model = g_strdup (make);
-		} else if (manuf) {
-			make_model = g_strdup (manuf);
-		}
 
-		if (make_model) {
-			tracker_sparql_builder_predicate (metadata, "nfo:device");
-			tracker_sparql_builder_object_unvalidated (metadata, make_model);
-			g_free (make_model);
+		if (make || model || manuf) {
+			tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+			tracker_sparql_builder_object_blank_open (metadata);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nco:Equipment");
+			if (model) {
+				tracker_sparql_builder_predicate (metadata, "nco:model");
+				tracker_sparql_builder_object_unvalidated (metadata, model);
+			}
+			if (make || manuf) {
+				tracker_sparql_builder_predicate (metadata, "nco:make");
+				tracker_sparql_builder_object_unvalidated (metadata, manuf ? manuf : make);
+			}
+			tracker_sparql_builder_object_blank_close (metadata);
 		}
 
 		g_free (make);

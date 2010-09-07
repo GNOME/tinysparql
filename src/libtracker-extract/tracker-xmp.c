@@ -750,11 +750,19 @@ tracker_xmp_apply (TrackerSparqlBuilder *metadata,
 	}
 
 	if (data->make || data->model) {
-		gchar *final_camera = tracker_merge_const (" ", 2, data->make, data->model);
-
-		tracker_sparql_builder_predicate (metadata, "nfo:device");
-		tracker_sparql_builder_object_unvalidated (metadata, final_camera);
-		g_free (final_camera);
+		tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+		tracker_sparql_builder_object_blank_open (metadata);
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:Equipment");
+		if (data->model) {
+			tracker_sparql_builder_predicate (metadata, "nco:model");
+			tracker_sparql_builder_object_unvalidated (metadata, data->model);
+		}
+		if (data->make) {
+			tracker_sparql_builder_predicate (metadata, "nco:make");
+			tracker_sparql_builder_object_unvalidated (metadata, data->make);
+		}
+		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
 	if (data->title || data->title2 || data->pdf_title) {
