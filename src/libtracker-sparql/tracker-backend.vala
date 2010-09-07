@@ -17,7 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-class Tracker.Sparql.PluginLoader : Connection {
+class Tracker.Sparql.Backend : Connection {
 	static bool initialized = false;
 	static Tracker.Sparql.Connection direct = null;
 	static Tracker.Sparql.Connection bus = null;
@@ -29,7 +29,7 @@ class Tracker.Sparql.PluginLoader : Connection {
 
 	private delegate Tracker.Sparql.Connection ModuleInitFunc ();
 
-	public PluginLoader (bool direct_only = false) throws Sparql.Error
+	public Backend (bool direct_only = false) throws Sparql.Error
 	requires (!initialized) {
 		if (!Module.supported ()) {
 		    return;

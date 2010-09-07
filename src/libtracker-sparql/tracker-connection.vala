@@ -116,7 +116,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 		} else {
 			log_init ();
 
-			var result = new PluginLoader ();
+			var result = new Backend ();
 			singleton = result;
 			result.add_weak_pointer ((void**) (&singleton));
 			return result;
@@ -145,7 +145,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 		} else {
 			log_init ();
 
-			var result = new PluginLoader (true /* direct_only */);
+			var result = new Backend (true /* direct_only */);
 			direct_only = true;
 			singleton = result;
 			result.add_weak_pointer ((void**) (&singleton));
