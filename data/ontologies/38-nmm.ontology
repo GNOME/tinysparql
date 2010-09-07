@@ -321,6 +321,7 @@ nmm:Photo a rdfs:Class ;
 # Properties
 # Photo location is waiting for the Location ontology
 
+# Deprecated, use nfo:Equipment
 nmm:camera a rdf:Property ;
 	rdfs:label "Camera" ;
 	rdfs:comment "The maker and model of the camera used to take the photograph. DEPRECATED (check nfo:device)" ;

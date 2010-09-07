@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2010-08-12T21:30:00Z" .
+	nao:lastModified "2010-09-07T13:00:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -302,13 +302,14 @@ nfo:duration a rdf:Property ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:integer .
 
-# This property needs to be submitted to NEPOMUK
+# Deprecated, use nfo:Equipment
 nfo:device a rdf:Property ;
-         rdfs:label "Device" ;
-         rdfs:comment "Device (maker/model) used to capture the image/video" ;
-         nrl:maxCardinality 1 ;
-         rdfs:domain nfo:Media ;
-         rdfs:range xsd:string .
+	rdfs:label "Device" ;
+	rdfs:comment "Device (maker/model) used to capture the image/video" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Media ;
+	nao:deprecated true ;
+	rdfs:range xsd:string .
 
 nfo:wordCount a rdf:Property ;
 	rdfs:label "wordCount" ;
@@ -941,3 +942,39 @@ nfo:isContentEncrypted a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:boolean .
+
+
+# Ontology request by Alexander Bokovoy, replaces nfo:device
+# These classes and properties need to be submitted to NEPOMUK
+nfo:Equipment a rdfs:Class ;
+	rdfs:label "Equipment" ;
+	rdfs:comment "The equipment used to create media" ;
+	rdfs:subClassOf nie:InformationElement .
+
+nfo:equipment a rdf:Property ;
+	rdfs:label "Device" ;
+	rdfs:comment "Equipment used to create the media" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Media ;
+	rdfs:range nfo:Equipment .
+
+nfo:make a rdf:Property ;
+	rdfs:label "Make" ;
+	rdfs:comment "The make of the equipment" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Equipment ;
+	rdfs:range xsd:string .
+
+nfo:model a rdf:Property ;
+	rdfs:label "Model" ;
+	rdfs:comment "The model of the equipment" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Equipment ;
+	rdfs:range xsd:string .
+
+nfo:equipmentSoftware a rdf:Property ;
+	rdfs:label "Equipment software" ;
+	rdfs:comment "The software of the equipment" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Equipment ;
+	rdfs:range xsd:string .

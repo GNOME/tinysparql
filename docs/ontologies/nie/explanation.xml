@@ -131,18 +131,18 @@ its album).
 
 <programlisting>
 &lt;urn:uuid:10293801928301293&gt; a nmm:Photo, nfo:FileDataObject ;
-         # Properties as nmm:Photo
+	# Properties as nmm:Photo
 	 nfo:width 49 ;
 	 nfo:height 36 ;
-         nmm:flash &lt;nmm:flash-off&gt;;
-         nmm:whiteBalance &lt;nmm:white-balance-automatic&gt; ;
-         nfo:device "Tracknon N900" ;
+	nmm:flash &lt;nmm:flash-off&gt;;
+	nmm:whiteBalance &lt;nmm:white-balance-automatic&gt; ;
+	nfo:equipment [ a nfo:Equipment ; nfo:make 'Nokia'; nfo:model 'N900'; nfo:equipmentSoftware 'Tracknon' ] ;
 
-         # Properties from nfo:FileDataObject
-         nfo:fileSize 12341234 ;
+	# Properties from nfo:FileDataObject
+	nfo:fileSize 12341234 ;
 
-         # Mandatory for any nfo:DataObject
-         nie:url &lt;file:///home/ivan/test/CC-test-big.png&gt; .
+	# Mandatory for any nfo:DataObject
+	nie:url &lt;file:///home/ivan/test/CC-test-big.png&gt; .
 
 </programlisting>
 
