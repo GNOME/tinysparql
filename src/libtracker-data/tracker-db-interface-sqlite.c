@@ -1172,6 +1172,8 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 
 	object_class->finalize = tracker_db_cursor_finalize;
 
+	sparql_cursor_class->get_value_type = (TrackerSparqlValueType (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_value_type;
+	sparql_cursor_class->get_variable_name = (const gchar * (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_variable_name;
 	sparql_cursor_class->get_n_columns = (gint (*) (TrackerSparqlCursor *)) tracker_db_cursor_get_n_columns;
 	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, gint, glong*)) tracker_db_cursor_get_string;
 	sparql_cursor_class->next = (gboolean (*) (TrackerSparqlCursor *, GCancellable *, GError **)) tracker_db_cursor_iter_next;
@@ -1356,6 +1358,29 @@ tracker_db_cursor_get_double (TrackerDBCursor *cursor,  guint column)
 	return (gdouble) sqlite3_column_double (cursor->stmt, column);
 }
 
+TrackerSparqlValueType
+tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,  guint column)
+{
+	/* TODO: Implement */
+
+	g_critical ("Unimplemented");
+
+	g_return_val_if_reached (TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
+
+	return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
+}
+
+const gchar*
+tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor,  guint column)
+{
+	/* TODO: Implement */
+
+	g_critical ("Unimplemented");
+
+	g_return_val_if_reached (NULL);
+
+	return NULL;
+}
 
 const gchar*
 tracker_db_cursor_get_string (TrackerDBCursor *cursor,  guint column, glong *length)

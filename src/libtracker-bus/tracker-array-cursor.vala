@@ -31,6 +31,24 @@ internal class Tracker.Bus.ArrayCursor : Tracker.Sparql.Cursor {
 
 	public override int n_columns { get { return cols; } }
 
+	public override Sparql.ValueType get_value_type (int column)
+	requires (current_row >= 0) {
+
+		// TODO: Implement
+		critical ("Unimplemented");
+
+		return Sparql.ValueType.UNBOUND;
+	}
+
+	public override unowned string? get_variable_name (int column)
+	requires (current_row >= 0) {
+
+		// TODO: Implement
+		critical ("Unimplemented");
+
+		return null;
+	}
+
 	public override unowned string? get_string (int column, out long length = null)
 	requires (current_row >= 0) {
 		unowned string str;

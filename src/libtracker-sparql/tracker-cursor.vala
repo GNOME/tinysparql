@@ -30,6 +30,27 @@
  * </para>
  */
 
+/**
+ * TrackerSparqlValueType:
+ * @TRACKER_SPARQL_VALUE_TYPE_UNBOUND: Unbound value type
+ * @TRACKER_SPARQL_VALUE_TYPE_URI: Uri value type, rdfs:Resource
+ * @TRACKER_SPARQL_VALUE_TYPE_STRING: String value type, xsd:string
+ * @TRACKER_SPARQL_VALUE_TYPE_INTEGER: Integer value type, xsd:integer
+ * @TRACKER_SPARQL_VALUE_TYPE_DOUBLE: Double value type, xsd:double
+ * @TRACKER_SPARQL_VALUE_TYPE_DATETIME: Datetime value type, xsd:dateTime
+ * @TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE: Blank node value type
+ *
+ * Enumeration with the possible types of the cursor's cells
+ */
+public enum Tracker.Sparql.ValueType {
+	UNBOUND ,
+	URI,
+	STRING,
+	INTEGER,
+	DOUBLE,
+	DATETIME,
+	BLANK_NODE
+}
 
 /**
  * TrackerSparqlCursor:
@@ -79,6 +100,28 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		 */
 		get;
 	}
+
+	/**
+	 * tracker_sparql_cursor_get_value_type:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the value type at @column in the current row being iterated.
+	 *
+	 * Returns: a value type
+	 */
+	public abstract ValueType get_value_type (int column);
+
+	/**
+	 * tracker_sparql_cursor_get_variable_name:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the variable name at @column.
+	 *
+	 * Returns: a string, which should not be freed by the caller.
+	 */
+	public abstract unowned string? get_variable_name (int column);
 
 	/**
 	 * tracker_sparql_cursor_get_string:
