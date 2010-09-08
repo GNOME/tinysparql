@@ -1383,13 +1383,28 @@ tracker_db_cursor_get_double (TrackerDBCursor *cursor,  guint column)
 TrackerSparqlValueType
 tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,  guint column)
 {
-	/* TODO: Implement */
+	gint n_columns = sqlite3_column_count (cursor->stmt);
 
-	g_critical ("Unimplemented");
+	g_return_val_if_fail (column >= 0 && column < n_columns, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
 
-	g_return_val_if_reached (TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
-
-	return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
+	if (sqlite3_column_type (cursor->stmt, column) == SQLITE_NULL) {
+		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
+	} else if (column < cursor->n_types) {
+		switch (cursor->types[column]) {
+		case TRACKER_PROPERTY_TYPE_RESOURCE:
+			return TRACKER_SPARQL_VALUE_TYPE_URI;
+		case TRACKER_PROPERTY_TYPE_INTEGER:
+			return TRACKER_SPARQL_VALUE_TYPE_INTEGER;
+		case TRACKER_PROPERTY_TYPE_DOUBLE:
+			return TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
+		case TRACKER_PROPERTY_TYPE_DATETIME:
+			return TRACKER_SPARQL_VALUE_TYPE_DATETIME;
+		default:
+			return TRACKER_SPARQL_VALUE_TYPE_STRING;
+		}
+	} else {
+		return TRACKER_SPARQL_VALUE_TYPE_STRING;
+	}
 }
 
 const gchar*
