@@ -70,6 +70,7 @@ struct TrackerDBCursor {
 	sqlite3_stmt *stmt;
 	TrackerDBStatement *ref_stmt;
 	gboolean finished;
+	gchar **variable_names;
 };
 
 struct TrackerDBCursorClass {
@@ -1089,6 +1090,9 @@ tracker_db_cursor_finalize (GObject *object)
 
 	cursor = TRACKER_DB_CURSOR (object);
 
+	g_strfreev (cursor->variable_names);
+	cursor->variable_names = NULL;
+
 	if (cursor->ref_stmt) {
 		cursor->ref_stmt->stmt_is_sunk = FALSE;
 		tracker_db_statement_sqlite_reset (cursor->ref_stmt);
@@ -1371,15 +1375,27 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,  guint column)
 }
 
 const gchar*
-tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor,  guint column)
+tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor, guint column)
 {
-	/* TODO: Implement */
+	gint n_columns = sqlite3_column_count (cursor->stmt);
 
-	g_critical ("Unimplemented");
+	g_return_val_if_fail (column >= 0 && column < n_columns, NULL);
 
-	g_return_val_if_reached (NULL);
+	if (cursor->variable_names == NULL) {
+		gint i;
 
-	return NULL;
+		cursor->variable_names = g_new0 (gchar *, n_columns);
+
+		for (i = 0 ; i < n_columns; i++) {
+			const char *sqlite_name = sqlite3_column_name (cursor->stmt, column);
+			if (g_str_has_suffix (sqlite_name, "_u")) {
+				/* SPARQL variable */
+				cursor->variable_names[i] = g_strndup (sqlite_name, strlen (sqlite_name - strlen ("_u")));
+			}
+		}
+	}
+
+	return cursor->variable_names[column];
 }
 
 const gchar*
