@@ -68,7 +68,7 @@
       <listitem>A <link linkend="nmo-SMSMessage">nmo:SMSMessage</link> instance to represent the message itself</listitem>
       <listitem><link linkend="nmo-to">nmo:to</link> and <link linkend="nmo-from">nmo:from</link> linking the contacts (one of them "me", the other a nco:Contact or even a nco:PersonContact if the software is able to identify him).</listitem>
       <listitem>For some implementations, is usefull to save the original vcards. For that <link linkend="nmo-fromVCard">nmo:fromVCard</link> and <link linkend="nmo-toVCard">nmo:toVCard</link> properties can be used. Those properties point to files in the file system with the vcards</listitem>
-      <listitem><link linkend="nmo-plainTextMessageContent">nmo:plainTextMessageContent</link> inherited from <link linkend="nmo-Message.">nmo:Message for the content.</link></listitem>
+      <listitem><link linkend="nmo-plainTextContent">nmo:plainTextContent</link> inherited from <link linkend="nie-InformationElement">nie:InformationElement</link> for the content.</listitem>
       <listitem><link linkend="nmo-containsSMS">nmo:containsSMS</link> property will link the message with the relevant <link linkend="nmo-SMSFolder">nmo:SMSFolder</link>.</listitem>
       <listitem>If needed, language and characterSet are inherited from NIE (<link linkend="nie-language">nie:language</link>, <link linkend="nie-characterSet">nie:characterSet</link>), but there is a specific <link linkend="nmo-encoding">nmo:encoding</link> property.</listitem>
       <listitem>Note that nmo:SMSMessage is a subclass of <link linkend="nmo-Message">nmo:Message</link> and inherits all its properties, including <link linkend="nmo-isDeleted">nmo:isDeleted</link></listitem>
@@ -88,7 +88,7 @@
  &lt;test://1&gt; a nmo:SMSMessage ;
         nmo:from &lt;nco:default-contact-me&gt; ;
         nmo:to  &lt;urn:uuid:here-some-uri-of-a-contact&gt; ;
-        nmo:plainTextMessageContent "Forgot the keys. Are you at home?" ;
+        nmo:plainTextContent "Forgot the keys. Are you at home?" ;
         nie:characterSet "utf-8" ;
         nmo:toVCard &lt;file:///home/user/.sms/vcards/123098.vcard&gt; ;
         nmo:isDeleted false .
