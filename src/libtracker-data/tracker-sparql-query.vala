@@ -158,6 +158,7 @@ namespace Tracker.Sparql {
 
 	class SelectContext : Context {
 		public PropertyType type;
+		public PropertyType[] types = {};
 
 		public SelectContext (Context? parent_context = null) {
 			base (parent_context);
@@ -517,18 +518,18 @@ public class Tracker.Sparql.Query : Object {
 		return stmt.execute ();
 	}
 
-	DBCursor? exec_sql_cursor (string sql) throws DBInterfaceError, Sparql.Error, DateError {
+	DBCursor? exec_sql_cursor (string sql, PropertyType[] types) throws DBInterfaceError, Sparql.Error, DateError {
 		var stmt = prepare_for_exec (sql);
 
-		return stmt.start_cursor ();
+		return stmt.start_sparql_cursor (types);
 	}
 
-	string get_select_query () throws DBInterfaceError, Sparql.Error, DateError {
+	string get_select_query (out SelectContext context) throws DBInterfaceError, Sparql.Error, DateError {
 		// SELECT query
 
 		// build SQL
 		var sql = new StringBuilder ();
-		pattern.translate_select (sql);
+		context = pattern.translate_select (sql);
 
 		expect (SparqlTokenType.EOF);
 
@@ -536,11 +537,15 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 	DBResultSet? execute_select () throws DBInterfaceError, Sparql.Error, DateError {
-		return exec_sql (get_select_query ());
+		SelectContext context;
+		return exec_sql (get_select_query (out context));
 	}
 
 	DBCursor? execute_select_cursor () throws DBInterfaceError, Sparql.Error, DateError {
-		return exec_sql_cursor (get_select_query ());
+		SelectContext context;
+		string sql = get_select_query (out context);
+
+		return exec_sql_cursor (sql, context.types);
 	}
 
 	string get_ask_query () throws DBInterfaceError, Sparql.Error, DateError {
@@ -575,7 +580,7 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 	DBCursor? execute_ask_cursor () throws DBInterfaceError, Sparql.Error, DateError {
-		return exec_sql_cursor (get_ask_query ());
+		return exec_sql_cursor (get_ask_query (), new PropertyType[] { PropertyType.BOOLEAN });
 	}
 
 	private void parse_from_or_into_param () throws Sparql.Error {

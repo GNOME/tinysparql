@@ -296,6 +296,7 @@ class Tracker.Sparql.Pattern : Object {
 				} else {
 					Expression.append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
 				}
+				result.types += variable.binding.data_type;
 			}
 		} else {
 			while (true) {
@@ -306,6 +307,7 @@ class Tracker.Sparql.Pattern : Object {
 				}
 
 				type = expression.translate_select_expression (sql, subquery);
+				result.types += type;
 
 				switch (current ()) {
 				case SparqlTokenType.FROM:

@@ -25,6 +25,8 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
+#include "tracker-property.h"
+
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
@@ -114,6 +116,10 @@ void                    tracker_db_statement_bind_text          (TrackerDBStatem
 TrackerDBResultSet *    tracker_db_statement_execute            (TrackerDBStatement  *stmt,
                                                                  GError             **error);
 TrackerDBCursor *       tracker_db_statement_start_cursor       (TrackerDBStatement  *stmt,
+                                                                 GError             **error);
+TrackerDBCursor *       tracker_db_statement_start_sparql_cursor(TrackerDBStatement  *stmt,
+                                                                 TrackerPropertyType *types,
+                                                                 gint                 n_types,
                                                                  GError             **error);
 
 /* Semi private TrackerDBResultSet functions */

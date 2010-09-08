@@ -72,7 +72,7 @@ namespace Tracker {
 		public abstract void bind_int (int index, int value);
 		public abstract void bind_text (int index, string value);
 		public abstract DBResultSet execute () throws DBInterfaceError;
-		public abstract DBCursor start_cursor () throws DBInterfaceError;
+		public abstract DBCursor start_sparql_cursor (PropertyType[] types) throws DBInterfaceError;
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-class.h")]
