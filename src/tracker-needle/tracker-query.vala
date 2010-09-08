@@ -92,20 +92,28 @@ public class Tracker.Query {
 		case Type.MUSIC:
 			query = @"
 			        SELECT
-			          ?urn 
-			          nie:url(?urn) 
-			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
-			          fn:string-join((?performer, ?album), \" - \") 
-			          nfo:duration(?urn)
+			          ?song
+			          nie:url(?song)
+			          tracker:coalesce(nie:title(?song), nfo:fileName(?song), \"Unknown\")
+			          fn:string-join((?performer, ?album), \" - \")
+			          nfo:duration(?song)
 			          ?tooltip
 			        WHERE {
-			          ?urn a nfo:Audio ;
-			          nmm:performer [ nmm:artistName ?performer ] ;
-			          nmm:musicAlbum [ nie:title ?album ] ;
-			          nfo:belongsToContainer [ nie:url ?tooltip ] .
-			          ?urn fts:match \"$criteria_escaped\" 
+			          ?match fts:match \"$criteria_escaped\"
+			          {
+			            ?song nmm:musicAlbum ?match
+			          } UNION {
+			            ?song nmm:performer ?match
+			          } UNION {
+			            ?song a nfo:Audio .
+			            ?match a nfo:Audio
+			            FILTER (?song = ?match)
+			          }
+			          ?song nmm:performer [ nmm:artistName ?performer ] ;
+			                nmm:musicAlbum [ nie:title ?album ] ;
+			                nfo:belongsToContainer [ nie:url ?tooltip ]
 			        }
-			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
+			        ORDER BY DESC(fts:rank(?song)) DESC(nie:title(?song))
 			        OFFSET $offset LIMIT $limit
 			        ";
 			break;
