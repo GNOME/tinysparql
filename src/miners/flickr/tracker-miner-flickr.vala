@@ -307,7 +307,6 @@ public class MinerFlickr : Tracker.MinerWeb {
 				insert_photo_info (photo_node, builder, photo_url, photo_urn);
 				insert_exif_data (photo_node, builder, photo_url, photo_urn);
 
-
 				get_connection ().update (builder.result);
 			} catch (Error err) {
 				warning ("Couldn't insert photo %s: %s", photo_url, err.message);
@@ -348,23 +347,25 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 		tag_node = root_node.find ("tags").find ("tag");
 
-		builder.insert_open (graph);
-		builder.subject_iri (urn);
+		if (tag_node != null) {
+			builder.insert_open (graph);
+			builder.subject_iri (urn);
 
-		while (tag_node != null) {
-			builder.predicate ("nao:hasTag");
+			while (tag_node != null) {
+				builder.predicate ("nao:hasTag");
 
-			builder.object_blank_open ();
-			builder.predicate ("a");
-			builder.object ("nao:Tag");
-			builder.predicate ("nao:prefLabel");
-			builder.object_string (tag_node.get_attr ("raw"));
-			builder.object_blank_close ();
+				builder.object_blank_open ();
+				builder.predicate ("a");
+				builder.object ("nao:Tag");
+				builder.predicate ("nao:prefLabel");
+				builder.object_string (tag_node.get_attr ("raw"));
+				builder.object_blank_close ();
 
-			tag_node = tag_node.next;
+				tag_node = tag_node.next;
+			}
+
+			builder.insert_close ();
 		}
-
-		builder.insert_close ();
 	}
 
 	private void insert_exif_data (Rest.XmlNode photo_node, Tracker.Sparql.Builder builder, string graph, string urn) {
