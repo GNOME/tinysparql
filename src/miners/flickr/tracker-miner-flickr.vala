@@ -92,7 +92,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		name = MINER_NAME;
 		associated = false;
 		status = "Not authenticated";
-		progress = 0.0;
+		progress = 1.0;
 
 		rest = new Rest.Proxy (FLICKR_REST_URL, false);
 
