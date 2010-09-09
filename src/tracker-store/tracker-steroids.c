@@ -265,9 +265,9 @@ query_inthread (TrackerDBCursor *cursor,
 
 	n_columns = tracker_db_cursor_get_n_columns (cursor);
 
-	column_sizes = g_malloc (n_columns * sizeof (gint));
-	column_offsets = g_malloc (n_columns * sizeof (gint));
-	column_data = g_malloc (n_columns * sizeof (gchar*));
+	column_sizes = alloca (n_columns * sizeof (gint));
+	column_offsets = alloca (n_columns * sizeof (gint));
+	column_data = alloca (n_columns * sizeof (gchar*));
 
 	while (tracker_db_cursor_iter_next (cursor, cancellable, &loop_error)) {
 		gint i;
@@ -342,10 +342,6 @@ end_query_inthread:
 	if (loop_error) {
 		ptr->error = loop_error;
 	}
-
-	g_free (column_sizes);
-	g_free (column_offsets);
-	g_free (column_data);
 
 	return ptr;
 }
