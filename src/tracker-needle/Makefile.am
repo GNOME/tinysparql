@@ -7,7 +7,8 @@ tracker_needle_VALASOURCES = 					\
 	tracker-needle.vala \
 	tracker-query.vala \
 	tracker-stats.vala \
-	tracker-utils.vala
+	tracker-utils.vala \
+	tracker-view.vala
 
 tracker_needle_SOURCES = 					\
 	$(tracker_needle_VALASOURCES:.vala=.c)

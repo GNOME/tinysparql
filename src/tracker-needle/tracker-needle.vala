@@ -19,6 +19,7 @@
 
 using Gtk;
 using Tracker.Sparql;
+using Tracker.View;
 
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
@@ -37,9 +38,11 @@ public class TrackerNeedle {
 	private ToggleToolButton find_in_titles;
 	private Entry search;
 	private ToolButton show_stats;
-	private ScrolledWindow sw_treeview;
+	private HBox view;
+	private Tracker.View sw_noresults;
+	private Tracker.View sw_treeview;
 	private TreeView treeview;
-	private ScrolledWindow sw_iconview;
+	private Tracker.View sw_iconview;
 	private IconView iconview;
 	private uint last_search_id = 0;
 	private ListStore store;
@@ -107,10 +110,23 @@ public class TrackerNeedle {
 		show_stats = builder.get_object ("toolbutton_show_stats") as ToolButton;
 		show_stats.clicked.connect (show_stats_clicked);
 
-		sw_treeview = builder.get_object ("scrolledwindow_treeview") as ScrolledWindow;
-		treeview = builder.get_object ("treeview_results") as TreeView;
-		sw_iconview = builder.get_object ("scrolledwindow_iconview") as ScrolledWindow;
-		iconview = builder.get_object ("iconview_results") as IconView;
+		view = builder.get_object ("hbox_view") as HBox;
+
+		sw_noresults = new Tracker.View (Tracker.View.Display.NO_RESULTS);
+		view.pack_start (sw_noresults, true, true, 0);
+
+		sw_treeview = new Tracker.View (Tracker.View.Display.CATEGORIES);
+		treeview = (TreeView) sw_treeview.get_child ();
+		view.pack_start (sw_treeview, true, true, 0);
+		//sw_treeview = builder.get_object ("scrolledwindow_treeview") as ScrolledWindow;
+		//treeview = builder.get_object ("treeview_results") as TreeView;
+
+		sw_iconview = new Tracker.View (Tracker.View.Display.FILE_ICONS);
+		iconview = (IconView) sw_iconview.get_child ();
+		view.pack_start (sw_iconview, true, true, 0);
+		//sw_iconview = builder.get_object ("scrolledwindow_iconview") as ScrolledWindow;
+		//iconview = builder.get_object ("iconview_results") as IconView;
+		
 		setup_ui_results (treeview, iconview);
 
 		view_details.set_active (true);
@@ -432,7 +448,25 @@ public class TrackerNeedle {
 		last_search_id = 0;
 
 		if (search.get_text ().length < 1) {
+			// Show no results window
+			sw_noresults.show ();
+			sw_iconview.hide ();
+			sw_treeview.hide ();
+
 			return false;
+		}
+
+		// Show correct window
+		bool rows = view_list.active || view_details.active;
+		
+		if (rows) {
+			sw_noresults.hide ();
+			sw_iconview.hide ();
+			sw_treeview.show ();
+		} else {
+			sw_noresults.hide ();
+			sw_iconview.show ();
+			sw_treeview.hide ();
 		}
 
 		if (view_details.active) {
@@ -449,15 +483,16 @@ public class TrackerNeedle {
 		bool show_find_in;
 
 		rows = view_list.active || view_details.active;
-		
+
 		if (current_view == rows) {
 			return;
 		}
 
 		if (rows) {
 			// FIXME: if list/details changes, re-run query
-			sw_iconview.hide ();
-			sw_treeview.show_all ();
+
+			// Was: sw_treeview.show_all ();
+
 			debug ("View toggled to 'list' or 'details'");
 			
 			if (view_details.active) {
@@ -472,11 +507,15 @@ public class TrackerNeedle {
 				show_find_in = true;
 			}
 		} else {
-			sw_iconview.show_all ();
-			sw_treeview.hide ();
+			// Was: sw_iconview.show_all ();
 			show_find_in = true;
 			debug ("View toggled to 'icons'");
 		}
+
+		// Show no results Window when switching
+		sw_noresults.show ();
+		sw_iconview.hide ();
+		sw_treeview.hide ();
 
 		// Show/Hide secondary widgets
 		separator_secondary.visible = show_find_in;
