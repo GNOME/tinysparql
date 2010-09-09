@@ -58,7 +58,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSeparatorToolItem" id="toolbutton2">
+              <object class="GtkSeparatorToolItem" id="separator_secondary">
                 <property name="visible">True</property>
               </object>
               <packing>

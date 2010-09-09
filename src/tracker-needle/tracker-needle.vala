@@ -32,6 +32,7 @@ public class TrackerNeedle {
 	private ToggleToolButton view_list;
 	private ToggleToolButton view_icons;
 	private ToggleToolButton view_details;
+	private SeparatorToolItem separator_secondary;
 	private ToggleToolButton find_in_contents;
 	private ToggleToolButton find_in_titles;
 	private Entry search;
@@ -91,6 +92,8 @@ public class TrackerNeedle {
 
 		view_details = builder.get_object ("toolbutton_view_details") as ToggleToolButton;
 		view_details.toggled.connect (view_toggled);
+
+		separator_secondary = builder.get_object ("separator_secondary") as SeparatorToolItem;
 
 		find_in_contents = builder.get_object ("toolbutton_find_in_contents") as ToggleToolButton;
 		find_in_contents.toggled.connect (find_in_toggled);
@@ -443,6 +446,7 @@ public class TrackerNeedle {
 
 	private void view_toggled () {
 		bool rows;
+		bool show_find_in;
 
 		rows = view_list.active || view_details.active;
 		
@@ -460,22 +464,24 @@ public class TrackerNeedle {
 				treeview.set_grid_lines (Gtk.TreeViewGridLines.NONE);
 				treeview.get_column (2).visible = false;
 				treeview.set_headers_visible (false);
-				find_in_contents.sensitive = false;
-				find_in_titles.sensitive = false;
+				show_find_in = false;
 			} else {
 				treeview.set_grid_lines (Gtk.TreeViewGridLines.VERTICAL);
 				treeview.get_column (2).visible = true;
 				treeview.set_headers_visible (true);
-				find_in_contents.sensitive = true;
-				find_in_titles.sensitive = true;
+				show_find_in = true;
 			}
 		} else {
 			sw_iconview.show_all ();
 			sw_treeview.hide ();
-			find_in_contents.sensitive = true;
-			find_in_titles.sensitive = true;
+			show_find_in = true;
 			debug ("View toggled to 'icons'");
 		}
+
+		// Show/Hide secondary widgets
+		separator_secondary.visible = show_find_in;
+		find_in_contents.visible = show_find_in;
+		find_in_titles.visible = show_find_in;
 
 		search_run ();
 		current_view = rows;
