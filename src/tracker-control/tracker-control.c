@@ -341,7 +341,8 @@ main (int argc, char **argv)
 
 				if ((g_str_has_prefix (basename, "tracker") == TRUE ||
 				     g_str_has_prefix (basename, "lt-tracker") == TRUE) &&
-				    g_str_has_suffix (basename, "-control") == FALSE) {
+				    g_str_has_suffix (basename, "-control") == FALSE &&
+				    g_str_has_suffix (basename, "-status-icon") == FALSE) {
 					pid_t pid;
 
 					pid = atoi (l->data);
