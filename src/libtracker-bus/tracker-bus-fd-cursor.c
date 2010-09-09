@@ -51,6 +51,7 @@ struct TrackerBusFDCursor {
 
 	guint n_columns;
 	int *offsets;
+	int *types;
 	char *data;
 };
 
@@ -95,15 +96,23 @@ tracker_bus_fd_cursor_iter_next (TrackerBusFDCursor  *cursor,
 	/* So, the make up on each cursor segment is:
 	 *
 	 * iteration = [4 bytes for number of columns,
-	 *              4 bytes for last offset]
+	 *              columns x 4 bytes for types
+	 *              columns x 4 bytes for offsets]
 	 */
 
 	cursor->n_columns = buffer_read_int (cursor);
+
+	/* Storage of ints that will be casted to TrackerSparqlValueType enums,
+	 * also see tracker_bus_fd_cursor_get_value_type */
+	cursor->types = (int *)(cursor->buffer + cursor->buffer_index);
+	cursor->buffer_index += sizeof (int) * (cursor->n_columns);
+
 	cursor->offsets = (int *)(cursor->buffer + cursor->buffer_index);
 	cursor->buffer_index += sizeof (int) * (cursor->n_columns - 1);
-
 	last_offset = buffer_read_int (cursor);
+
 	cursor->data = cursor->buffer + cursor->buffer_index;
+
 	cursor->buffer_index += last_offset + 1;
 
 	return TRUE;
@@ -161,13 +170,8 @@ tracker_bus_fd_cursor_get_n_columns (TrackerBusFDCursor *cursor)
 static TrackerSparqlValueType
 tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
 {
-	/* TODO: Implement */
-
-	g_critical ("Unimplemented");
-
-	g_return_val_if_reached (TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
-
-	return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
+	/* Cast from int to enum */
+	return (TrackerSparqlValueType) cursor->types[column - 1];
 }
 
 static const gchar*
@@ -282,12 +286,15 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 
 	cursor = g_object_new (TRACKER_TYPE_BUS_FD_CURSOR, NULL);
 
+	/* Cast from long* to gssize*, no idea why the API isn't matching. Silencing
+	 * compiler-warning. In tracker.c it's gssize* all the way */
+
 	tracker_dbus_send_and_splice (connection,
 	                              message,
 	                              pipefd[0],
 	                              cancellable,
 	                              (void **) &cursor->buffer,
-	                              &cursor->buffer_size,
+	                              (gssize *) &cursor->buffer_size,
 	                              &inner_error);
 	/* message is destroyed by tracker_dbus_send_and_splice */
 
@@ -300,8 +307,8 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	}
 	return TRACKER_SPARQL_CURSOR (cursor);
 #else  /* HAVE_DBUS_FD_PASSING */
-        g_assert_not_reached ();
-        return NULL;
+	g_assert_not_reached ();
+	return NULL;
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 
@@ -389,7 +396,7 @@ tracker_bus_fd_query_async (DBusGConnection     *gconnection,
 	                                    query_async_cb, res);
 	/* message is destroyed by tracker_dbus_send_and_splice_async */
 #else  /* HAVE_DBUS_FD_PASSING */
-        g_assert_not_reached ();
+	g_assert_not_reached ();
 #endif /* HAVE_DBUS_FD_PASSING */
 }
 

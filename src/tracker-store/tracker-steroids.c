@@ -245,6 +245,7 @@ query_inthread (TrackerDBCursor *cursor,
 	guint n_columns;
 	gint *column_sizes;
 	gint *column_offsets;
+	gint *column_types;
 	const gchar **column_data;
 
 	ptr = g_slice_new0 (InThreadPtr);
@@ -268,6 +269,7 @@ query_inthread (TrackerDBCursor *cursor,
 	column_sizes = alloca (n_columns * sizeof (gint));
 	column_offsets = alloca (n_columns * sizeof (gint));
 	column_data = alloca (n_columns * sizeof (gchar*));
+	column_types = alloca (n_columns * sizeof (gchar*));
 
 	while (tracker_db_cursor_iter_next (cursor, cancellable, &loop_error)) {
 		gint i;
@@ -284,6 +286,9 @@ query_inthread (TrackerDBCursor *cursor,
 
 			column_sizes[i] = str ? strlen (str) : 0;
 			column_data[i]  = str;
+
+			/* Cast from enum to int */
+			column_types[i] = (gint) tracker_db_cursor_get_value_type (cursor, i);
 
 			last_offset += column_sizes[i] + 1;
 			column_offsets[i] = last_offset;
@@ -303,6 +308,14 @@ query_inthread (TrackerDBCursor *cursor,
 		}
 
 		for (i = 0; i < n_columns; i++) {
+			g_data_output_stream_put_int32 (data_output_stream,
+			                                column_types[i],
+			                                NULL,
+			                                &loop_error);
+			if (loop_error) {
+				goto end_query_inthread;
+			}
+
 			g_data_output_stream_put_int32 (data_output_stream,
 			                                column_offsets[i],
 			                                NULL,
