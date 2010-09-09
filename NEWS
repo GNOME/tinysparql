@@ -1,3 +1,36 @@
+NEW in 0.9.20 - 2010-09-09
+==========================
+
+The changes are:
+
+  * Fixes GB#628859, Ship examples/rss-reader/initial-data.ttl in tarballs
+  * Fixes GB#628872, tracker-control -t or -k shouldn't kill tracker-status-icon
+  * Fixes NB#187558, nfo:belongsToContainer not set for music files synchronized from Ovi Suite to the device
+  * Fixes NB#189896, BatchCommit doesn't send reply
+  * Ontology: Added slo:categoryIconUrl for category icons in the location ontology
+  * Ontology: Added slo:iconUrl for landmark icons in the location ontology
+  * Ontology: Added nfo:manufacturer to replace nfo:make
+  * Ontology: Updated documentation, use plainTextContent instead of plainTextMessageContent
+  * libtracker-data: Fixed signed char comparison in SPARQL scanner
+  * tracker-store: Fixed class-signaling rdf_types array after delete
+  * tracker-store: Fixed class-signaling to emit all triples for rdf:type predicates
+  * tracker-extract: MSOffice, fixed to set nfo:Presentation & nfo:Spreadsheet
+  * tracker-extract: GStreamer, use integer division for rounding duration
+  * tracker-extract: Tiff, updated to use canonical uris with new nfo:manufacturer ontology
+  * tracker-miner-flickr: Fixed so tracker-search-icon doesn't show constant polling
+  * tracker-miner-flickr: Fixed criticals for photos with no tags
+  * tracker-miner-rss: Fixed so tracker-search-icon doesn't show constant polling
+
+Translations:
+
+  * Updated de: Christian Kirbach
+  * Updated se: Daniel Nylander
+
+Notes:
+
+  None
+
+
 NEW in 0.9.19 - 2010-09-02
 ==========================
 
