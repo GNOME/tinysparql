@@ -1,6 +1,7 @@
 tracker-builder.c
 tracker-connection.c
 tracker-cursor.c
+tracker-backend.c
 tracker-plugin-loader.c
 tracker-query.c
 tracker-sparql-*.deps
