@@ -10,7 +10,7 @@
 
 slo: a tracker:Namespace, tracker:Ontology ;
     tracker:prefix "slo" ;
-    nao:lastModified "2010-09-08T11:00:00Z" .
+    nao:lastModified "2010-09-09T11:00:00Z" .
 
 slo:LandmarkCategory a rdfs:Class ;
     rdfs:label "Landmark category";
@@ -22,6 +22,12 @@ slo:isRemovable a rdf:Property ;
     rdfs:comment "Flag to indicate if this instance is removable. This restriction is not enforced by tracker; it is API responsability to honor the value";
     rdfs:domain slo:LandmarkCategory ;
     rdfs:range xsd:boolean.
+
+slo:categoryIconUrl a rdf:Property ;
+    rdfs:label "Landmark category icon" ;
+    rdfs:comment "Url of the icon that corresponds to this category." ;
+    rdfs:domain slo:LandmarkCategory ;
+    rdfs:range rdfs:Resource .
 
 slo:Landmark a rdfs:Class ;
     rdfs:label "Point with special relevance for the user" ;
