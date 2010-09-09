@@ -2,7 +2,6 @@
 <interface>
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
-  <object class="GtkListStore" id="liststore_results"/>
   <object class="GtkWindow" id="window_needle">
     <property name="title" translatable="yes">Needle</property>
     <property name="default_width">640</property>
@@ -110,10 +109,8 @@
                 <child>
                   <object class="GtkLabel" id="label_search">
                     <property name="visible">True</property>
-                    <property name="xpad">4</property>
                     <property name="label" translatable="yes">_Search:</property>
                     <property name="use_underline">True</property>
-                    <property name="mnemonic_widget">entry_search</property>
                   </object>
                 </child>
               </object>
@@ -127,17 +124,35 @@
                 <property name="visible">True</property>
                 <property name="is_important">True</property>
                 <child>
-                  <object class="GtkEntry" id="entry_search">
+                  <object class="GtkAlignment" id="alignment1">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="has_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                    <property name="activates_default">True</property>
+                    <property name="left_padding">4</property>
+                    <property name="right_padding">4</property>
+                    <child>
+                      <object class="GtkEntry" id="entry_search">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="activates_default">True</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
               <packing>
                 <property name="expand">True</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolItem" id="toolcustom_spinner">
+                <property name="border_width">8</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
                 <property name="homogeneous">True</property>
               </packing>
             </child>

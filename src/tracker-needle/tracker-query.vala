@@ -48,7 +48,7 @@ public class Tracker.Query {
 		}
 	}
 
-	public Sparql.Cursor? perform (Type query_type)
+	public async Sparql.Cursor? perform_async (Type query_type, Cancellable? cancellable = null) throws IOError
 	requires (connection != null) {
 		Sparql.Cursor cursor = null;
 
@@ -186,7 +186,7 @@ public class Tracker.Query {
 		debug ("Running query: '%s'", query);
 
 		try {
-			cursor = connection.query (query, null);
+			cursor = yield connection.query_async (query, null);
 		} catch (Sparql.Error ea) {
 			warning ("Could not run Sparql query: %s", ea.message);
 		} catch (GLib.IOError eb) {

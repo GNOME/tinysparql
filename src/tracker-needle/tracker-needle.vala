@@ -37,6 +37,8 @@ public class TrackerNeedle {
 	private ToggleToolButton find_in_contents;
 	private ToggleToolButton find_in_titles;
 	private Entry search;
+	private Spinner spinner;
+	private ToolItem spinner_shell;
 	private ToolButton show_stats;
 	private HBox view;
 	private Tracker.View sw_noresults;
@@ -107,26 +109,28 @@ public class TrackerNeedle {
 		search = builder.get_object ("entry_search") as Entry;
 		search.changed.connect (search_changed);
 
+		spinner = new Spinner ();
+		spinner_shell = builder.get_object ("toolcustom_spinner") as ToolItem;
+		spinner_shell.add (spinner);
+
 		show_stats = builder.get_object ("toolbutton_show_stats") as ToolButton;
 		show_stats.clicked.connect (show_stats_clicked);
 
 		view = builder.get_object ("hbox_view") as HBox;
 
+		// Set up views
 		sw_noresults = new Tracker.View (Tracker.View.Display.NO_RESULTS);
 		view.pack_start (sw_noresults, true, true, 0);
 
 		sw_treeview = new Tracker.View (Tracker.View.Display.CATEGORIES);
 		treeview = (TreeView) sw_treeview.get_child ();
 		view.pack_start (sw_treeview, true, true, 0);
-		//sw_treeview = builder.get_object ("scrolledwindow_treeview") as ScrolledWindow;
-		//treeview = builder.get_object ("treeview_results") as TreeView;
 
 		sw_iconview = new Tracker.View (Tracker.View.Display.FILE_ICONS);
 		iconview = (IconView) sw_iconview.get_child ();
 		view.pack_start (sw_iconview, true, true, 0);
-		//sw_iconview = builder.get_object ("scrolledwindow_iconview") as ScrolledWindow;
-		//iconview = builder.get_object ("iconview_results") as IconView;
-		
+
+		// Set up view models
 		setup_ui_results (treeview, iconview);
 
 		view_details.set_active (true);
@@ -248,31 +252,31 @@ public class TrackerNeedle {
 		last_search_id = Timeout.add_seconds (1, search_run);
 	}
 
-	private void search_simple () {
+	private async void search_simple () {
 		Tracker.Query query = new Tracker.Query ();
 		Tracker.Sparql.Cursor cursor = null;
 
 		query.limit = 100;
 		query.criteria = search.get_text ();
 
-		if (find_in_contents.active) {
-			cursor = query.perform (query.Type.ALL);
-		} else {
-			cursor = query.perform (query.Type.ALL_ONLY_IN_TITLES);
-		}
-
-		if (cursor == null) {
-			// FIXME: Print "no results" some where
-			return;
-		}
-
-		store.clear ();
-
-		var screen = window.get_screen ();
-		var theme = IconTheme.get_for_screen (screen);
-
 		try {
-			while (cursor.next()) {
+			if (find_in_contents.active) {
+				cursor = yield query.perform_async (query.Type.ALL);
+			} else {
+				cursor = yield query.perform_async (query.Type.ALL_ONLY_IN_TITLES);
+			}
+
+			if (cursor == null) {
+				// FIXME: Print "no results" some where
+				return;
+			}
+
+			store.clear ();
+
+			var screen = window.get_screen ();
+			var theme = IconTheme.get_for_screen (screen);
+
+			while (cursor.next ()) {
 				int i;
 
 				for (i = 0; i < cursor.n_columns; i++) {
@@ -318,7 +322,7 @@ public class TrackerNeedle {
 		}
 	}
 
-	private void search_detailed () {
+	private async void search_detailed () {
 		Tracker.Query.Type[] categories = { 
 			Tracker.Query.Type.APPLICATIONS,
 			Tracker.Query.Type.MUSIC,
@@ -342,15 +346,15 @@ public class TrackerNeedle {
 			query.limit = 100;
 			query.criteria = search.get_text ();
 
-			cursor = query.perform (type);
-
-			if (cursor == null) {
-				// FIXME: Print "no results" some where
-				return;
-			}
-
 			try {
-				while (cursor.next()) {
+				cursor = yield query.perform_async (type);
+
+				if (cursor == null) {
+					// FIXME: Print "no results" some where
+					return;
+				}
+
+				while (cursor.next ()) {
 					int i;
 
 					for (i = 0; i < cursor.n_columns; i++) {
@@ -453,6 +457,10 @@ public class TrackerNeedle {
 			sw_iconview.hide ();
 			sw_treeview.hide ();
 
+			// Hide spinner
+			spinner.stop ();
+			spinner_shell.hide ();
+
 			return false;
 		}
 
@@ -469,11 +477,19 @@ public class TrackerNeedle {
 			sw_treeview.hide ();
 		}
 
+		// Show spinner
+		spinner_shell.show_all ();
+		spinner.start ();
+
 		if (view_details.active) {
 			search_detailed ();
 		} else {
 			search_simple ();
 		}
+
+		// Hide spinner
+		spinner.stop ();
+		spinner_shell.hide ();
 
 		return false;
 	}
