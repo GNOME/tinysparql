@@ -141,6 +141,9 @@ query_callback (gpointer  inthread_data,
 	}
 
 	if (ptr) {
+		if (ptr->variable_names) {
+			g_strfreev (ptr->variable_names);
+		}
 		g_slice_free (InThreadPtr, ptr);
 	}
 }
