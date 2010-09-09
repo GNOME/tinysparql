@@ -40,6 +40,7 @@ typedef struct _TrackerMinerRSSPrivate TrackerMinerRSSPrivate;
 struct _TrackerMinerRSSPrivate {
 	gboolean paused;
 	gboolean stopped;
+	gchar *last_status;
 
 	FeedsPool *pool;
 	gint now_fetching;
@@ -69,6 +70,7 @@ tracker_miner_rss_finalize (GObject *object)
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (object);
 
 	priv->stopped = TRUE;
+	g_free (priv->last_status);
 	g_object_unref (priv->pool);
 
 	G_OBJECT_CLASS (tracker_miner_rss_parent_class)->finalize (object);
@@ -160,8 +162,6 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 	g_signal_connect (priv->pool, "feed-fetching", G_CALLBACK (change_status), object);
 	g_signal_connect (priv->pool, "feed-ready", G_CALLBACK (feed_fetched), object);
 	priv->now_fetching = 0;
-
-	g_object_set (object, "progress", 0.0, "status", _("Initializing"), NULL);
 
 	g_message ("Listening for feed changes on D-Bus interface...");
 	g_message ("  Path:'%s'", TRACKER_DBUS_OBJECT_FEED);
@@ -462,6 +462,9 @@ feed_fetched (FeedsPool   *pool,
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 
 	priv->now_fetching--;
+
+	g_debug ("Feed fetched, %d remaining", priv->now_fetching);
+
 	if (priv->now_fetching <= 0) {
 		priv->now_fetching = 0;
 		g_object_set (miner, "progress", 1.0, "status", "Idle", NULL);
@@ -490,10 +493,11 @@ feeds_retrieve_cb (GObject      *source_object,
 	GError *error = NULL;
 	TrackerMinerRSSPrivate *priv;
 	FeedChannel *chan;
+	gint count;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
-	                                                     res,
-	                                                     &error);
+	                                                 res,
+	                                                 &error);
 
 	if (error != NULL) {
 		g_message ("Could not retrieve feeds, %s", error->message);
@@ -505,6 +509,7 @@ feeds_retrieve_cb (GObject      *source_object,
 	}
 
 	channels = NULL;
+	count = 0;
 
 	g_message ("Found feeds");
 
@@ -513,6 +518,8 @@ feeds_retrieve_cb (GObject      *source_object,
 		const gchar *interval;
 		const gchar *subject;
 		gint mins;
+
+		count++;
 
 		source = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 		interval = tracker_sparql_cursor_get_string (cursor, 1, NULL);
@@ -541,6 +548,10 @@ feeds_retrieve_cb (GObject      *source_object,
 	feeds_pool_listen (priv->pool, channels);
 
 	g_object_unref (cursor);
+
+	if (count == 0) {
+		g_object_set (user_data, "progress", 1.0, "status", "Idle", NULL);
+	}
 }
 
 static void
@@ -584,8 +595,6 @@ miner_started (TrackerMiner *miner)
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	retrieve_and_schedule_feeds (TRACKER_MINER_RSS (miner));
 	feeds_pool_switch (priv->pool, TRUE);
-
-	g_object_set (miner, "status", "Idle", NULL);
 }
 
 static void
@@ -605,6 +614,12 @@ miner_paused (TrackerMiner *miner)
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	feeds_pool_switch (priv->pool, FALSE);
+
+	/* Save last status */
+	g_free (priv->last_status);
+	g_object_get (miner, "status", &priv->last_status, NULL);
+
+	/* Set paused */
 	g_object_set (miner, "status", "Paused", NULL);
 }
 
@@ -615,5 +630,7 @@ miner_resumed (TrackerMiner *miner)
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
 	feeds_pool_switch (priv->pool, TRUE);
-	g_object_set (miner, "status", "Idle", NULL);
+
+	/* Resume */
+	g_object_set (miner, "status", priv->last_status ? priv->last_status : "Idle", NULL);
 }
