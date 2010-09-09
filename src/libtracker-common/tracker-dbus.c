@@ -718,6 +718,7 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
                               GCancellable    *cancellable,
                               void           **dest_buffer,
                               gssize          *dest_buffer_size,
+                              GStrv           *variable_names,
                               GError         **error)
 {
 	DBusPendingCall *call;
@@ -782,6 +783,32 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 
 			if (dest_buffer_size) {
 				*dest_buffer_size = g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (output_stream));
+			}
+
+			if (variable_names) {
+				GStrv v_names;
+				guint i;
+				GPtrArray *found = g_ptr_array_new ();
+				DBusMessageIter iter, arr;
+
+				dbus_message_iter_init (reply, &iter);
+				dbus_message_iter_recurse (&iter, &arr);
+
+				while (dbus_message_iter_has_next(&arr)) {
+					gchar *str;
+
+					dbus_message_iter_get_basic (&arr, &str);
+					g_ptr_array_add (found, str);
+					dbus_message_iter_next (&arr);
+				}
+
+				v_names = g_new0 (gchar *, found->len + 1);
+				for (i = 0; i < found->len; i++) {
+					v_names[i] = g_ptr_array_index (found, i);
+				}
+
+				*variable_names = v_names;
+				g_ptr_array_free (found, FALSE);
 			}
 
 			ret_value = TRUE;

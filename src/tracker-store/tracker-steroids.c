@@ -32,7 +32,7 @@
 #include "tracker-store.h"
 
 #define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on " \
-	                       "interface \"%s\" doesn't exist, expected \"%s\""
+                               "interface \"%s\" doesn't exist, expected \"%s\""
 
 /**
  * /!\ IMPORTANT WARNING /!\
@@ -56,6 +56,7 @@ typedef struct {
 typedef struct {
 	GError *error;
 	gpointer user_data;
+	GStrv variable_names;
 } InThreadPtr;
 
 static void
@@ -118,9 +119,23 @@ query_callback (gpointer  inthread_data,
 		dbus_connection_send (info->connection, reply, NULL);
 		dbus_message_unref (reply);
 	} else {
+		GStrv variable_names = ptr->variable_names;
+		DBusMessageIter iter, subiter;
+		guint i;
+
 		tracker_dbus_request_success (info->request_id,
 		                              NULL);
 		reply = dbus_message_new_method_return (info->call_message);
+
+		dbus_message_iter_init_append (reply, &iter);
+
+		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, "s", &subiter);
+		for (i = 0; variable_names[i] != NULL; i++) {
+			gchar *variable_name = variable_names[i];
+			dbus_message_iter_append_basic (&subiter, DBUS_TYPE_STRING, &variable_name);
+		}
+		dbus_message_iter_close_container (&iter, &subiter);
+
 		dbus_connection_send (info->connection, reply, NULL);
 		dbus_message_unref (reply);
 	}
@@ -355,6 +370,8 @@ end_query_inthread:
 
 	if (loop_error) {
 		ptr->error = loop_error;
+	} else {
+		ptr->variable_names = g_strdupv ((gchar **) tracker_db_cursor_get_variable_names (cursor));
 	}
 
 	return ptr;

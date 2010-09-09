@@ -1813,6 +1813,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	                              NULL,
 	                              (void **) &iterator->buffer,
 	                              &iterator->buffer_size,
+	                              NULL /* Not interested in variable_names */,
 	                              &inner_error);
 	/* message is destroyed by tracker_dbus_send_and_splice */
 

@@ -53,6 +53,7 @@ struct TrackerBusFDCursor {
 	int *offsets;
 	int *types;
 	char *data;
+	GStrv variable_names;
 };
 
 struct TrackerBusFDCursorClass {
@@ -177,13 +178,7 @@ tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
 static const gchar*
 tracker_bus_fd_cursor_get_variable_name (TrackerBusFDCursor *cursor,  guint column)
 {
-	/* TODO: Implement */
-
-	g_critical ("Unimplemented");
-
-	g_return_val_if_reached (NULL);
-
-	return NULL;
+	return cursor->variable_names[column - 1];
 }
 
 static const gchar *
@@ -295,6 +290,7 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	                              cancellable,
 	                              (void **) &cursor->buffer,
 	                              (gssize *) &cursor->buffer_size,
+	                              &cursor->variable_names,
 	                              &inner_error);
 	/* message is destroyed by tracker_dbus_send_and_splice */
 
