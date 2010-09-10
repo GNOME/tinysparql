@@ -1432,14 +1432,7 @@ tracker_db_cursor_get_variable_names (TrackerDBCursor *cursor)
 const gchar*
 tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor, guint column)
 {
-	const gchar **variable_names;
-	gint n_columns = sqlite3_column_count (cursor->stmt);
-
-	g_return_val_if_fail (column < n_columns, NULL);
-
-	variable_names = tracker_db_cursor_get_variable_names (cursor);
-
-	return variable_names[column];
+	return sqlite3_column_name (cursor->stmt, column);
 }
 
 const gchar*
