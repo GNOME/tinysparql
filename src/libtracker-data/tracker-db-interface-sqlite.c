@@ -70,7 +70,6 @@ struct TrackerDBCursor {
 	sqlite3_stmt *stmt;
 	TrackerDBStatement *ref_stmt;
 	gboolean finished;
-	gchar **variable_names;
 	TrackerPropertyType *types;
 	gint n_types;
 };
@@ -1096,9 +1095,6 @@ tracker_db_cursor_finalize (GObject *object)
 
 	g_free (cursor->types);
 
-	g_strfreev (cursor->variable_names);
-	cursor->variable_names = NULL;
-
 	if (cursor->ref_stmt) {
 		cursor->ref_stmt->stmt_is_sunk = FALSE;
 		tracker_db_statement_sqlite_reset (cursor->ref_stmt);
@@ -1405,28 +1401,6 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,  guint column)
 	} else {
 		return TRACKER_SPARQL_VALUE_TYPE_STRING;
 	}
-}
-
-const gchar**
-tracker_db_cursor_get_variable_names (TrackerDBCursor *cursor)
-{
-	gint n_columns = sqlite3_column_count (cursor->stmt);
-
-	if (cursor->variable_names == NULL) {
-		gint i;
-
-		cursor->variable_names = g_new0 (gchar *, n_columns);
-
-		for (i = 0 ; i < n_columns; i++) {
-			const char *sqlite_name = sqlite3_column_name (cursor->stmt, i);
-			if (g_str_has_suffix (sqlite_name, "_u")) {
-				/* SPARQL variable */
-				cursor->variable_names[i] = g_strndup (sqlite_name, strlen (sqlite_name - strlen ("_u")));
-			}
-		}
-	}
-
-	return (const gchar **) cursor->variable_names;
 }
 
 const gchar*

@@ -266,6 +266,8 @@ query_inthread (TrackerDBCursor *cursor,
 	gint *column_offsets;
 	gint *column_types;
 	const gchar **column_data;
+	guint i;
+	GStrv variable_names = NULL;
 
 	ptr = g_slice_new0 (InThreadPtr);
 	info = user_data;
@@ -289,6 +291,11 @@ query_inthread (TrackerDBCursor *cursor,
 	column_offsets = alloca (n_columns * sizeof (gint));
 	column_data = alloca (n_columns * sizeof (gchar*));
 	column_types = alloca (n_columns * sizeof (gchar*));
+
+	variable_names = g_new0 (gchar *, n_columns);
+	for (i = 0; i < n_columns; i++) {
+		variable_names[i] = g_strdup (tracker_db_cursor_get_variable_name (cursor, i));
+	}
 
 	while (tracker_db_cursor_iter_next (cursor, cancellable, &loop_error)) {
 		gint i;
@@ -373,8 +380,11 @@ end_query_inthread:
 
 	if (loop_error) {
 		ptr->error = loop_error;
+		if (variable_names) {
+			g_strfreev (variable_names);
+		}
 	} else {
-		ptr->variable_names = g_strdupv ((gchar **) tracker_db_cursor_get_variable_names (cursor));
+		ptr->variable_names = variable_names;
 	}
 
 	return ptr;

@@ -11,9 +11,14 @@ public class TestApp : GLib.Object {
 	}
 
 	int iter_cursor (Cursor cursor) {
+		int i;
+
+		for (i = 0; i < cursor.n_columns; i++) {
+			print ("%s%s", i != 0 ? " | " : "", cursor.get_variable_name (i));
+		}
+
 		try {
 			while (cursor.next()) {
-				int i;
 
 				for (i = 0; i < cursor.n_columns; i++) {
 					print ("%s%s", i != 0 ? ",":"", cursor.get_string (i));

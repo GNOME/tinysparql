@@ -641,6 +641,7 @@ iterator_buffer_read_int (TrackerResultIterator *iterator)
 static void
 callback_iterator (void     *buffer,
                    gssize    buffer_size,
+                   GStrv     variable_names,
                    GError   *error,
                    gpointer  user_data)
 {
@@ -2408,6 +2409,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	tracker_dbus_send_and_splice_async (connection,
 	                                    message,
 	                                    pipefd[0],
+	                                    TRUE,
 	                                    cancellable,
 	                                    callback_iterator,
 	                                    fad);

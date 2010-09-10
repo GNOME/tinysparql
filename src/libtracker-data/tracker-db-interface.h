@@ -148,7 +148,6 @@ gboolean                tracker_db_cursor_iter_next             (TrackerDBCursor
 guint                   tracker_db_cursor_get_n_columns         (TrackerDBCursor     *cursor);
 const gchar*            tracker_db_cursor_get_variable_name     (TrackerDBCursor     *cursor,
                                                                  guint                column);
-const gchar**           tracker_db_cursor_get_variable_names    (TrackerDBCursor     *cursor);
 TrackerSparqlValueType  tracker_db_cursor_get_value_type        (TrackerDBCursor     *cursor,
                                                                  guint                column);
 void                    tracker_db_cursor_get_value             (TrackerDBCursor     *cursor,

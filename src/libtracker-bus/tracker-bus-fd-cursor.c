@@ -313,6 +313,7 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 static void
 query_async_cb (gpointer  buffer,
                 gssize    buffer_size,
+                GStrv     variable_names,
                 GError   *error,
                 gpointer  user_data)
 {
@@ -331,6 +332,7 @@ query_async_cb (gpointer  buffer,
 
 		cursor->buffer = buffer;
 		cursor->buffer_size = buffer_size;
+		cursor->variable_names = g_strdupv (variable_names);
 
 		g_simple_async_result_set_op_res_gpointer (res, cursor, g_object_unref);
 	}
@@ -388,6 +390,7 @@ tracker_bus_fd_query_async (DBusGConnection     *gconnection,
 	tracker_dbus_send_and_splice_async (connection,
 	                                    message,
 	                                    pipefd[0],
+	                                    TRUE,
 	                                    cancellable,
 	                                    query_async_cb, res);
 	/* message is destroyed by tracker_dbus_send_and_splice_async */

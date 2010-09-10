@@ -56,6 +56,7 @@ typedef struct {
 	DBusPendingCall *call;
 	TrackerDBusSendAndSpliceCallback callback;
 	gpointer user_data;
+	gboolean expect_variable_names;
 } SendAndSpliceData;
 
 static GSList *hooks;
@@ -841,6 +842,7 @@ static SendAndSpliceData *
 send_and_splice_data_new (GInputStream                     *unix_input_stream,
                           GInputStream                     *buffered_input_stream,
                           GOutputStream                    *output_stream,
+                          gboolean                          expect_variable_names,
                           DBusPendingCall                  *call,
                           TrackerDBusSendAndSpliceCallback  callback,
                           gpointer                          user_data)
@@ -854,6 +856,7 @@ send_and_splice_data_new (GInputStream                     *unix_input_stream,
 	data->call = call;
 	data->callback = callback;
 	data->user_data = user_data;
+	data->expect_variable_names = expect_variable_names;
 
 	return data;
 }
@@ -897,25 +900,55 @@ send_and_splice_async_callback (GObject      *source,
 			dbus_set_g_error (&error, &dbus_error);
 			dbus_error_free (&dbus_error);
 
-			(* data->callback) (NULL, -1, error, data->user_data);
+			(* data->callback) (NULL, -1, NULL, error, data->user_data);
 
 			/* Note: GError should be freed by callback. We do this to be aligned
 			 * with the behavior of dbus-glib, where if an error happens, the
 			 * GError passed to the callback is supposed to be disposed by the
 			 * callback itself. */
 		} else {
+			GStrv v_names = NULL;
+
+			if (data->expect_variable_names) {
+				guint i;
+				GPtrArray *found = g_ptr_array_new ();
+				DBusMessageIter iter, arr;
+
+				dbus_message_iter_init (reply, &iter);
+				dbus_message_iter_recurse (&iter, &arr);
+
+				while (dbus_message_iter_has_next(&arr)) {
+					gchar *str;
+
+					dbus_message_iter_get_basic (&arr, &str);
+					g_ptr_array_add (found, str);
+					dbus_message_iter_next (&arr);
+				}
+
+				v_names = g_new0 (gchar *, found->len + 1);
+				for (i = 0; i < found->len; i++) {
+					v_names[i] = g_ptr_array_index (found, i);
+				}
+
+				g_ptr_array_free (found, FALSE);
+			}
+
 			dbus_pending_call_cancel (data->call);
+
 			(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
 			                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
+			                    v_names,
 			                    NULL,
 			                    data->user_data);
+
+			g_strfreev (v_names);
 		}
 	} else {
 		/* If any error happened, we're not passing any received data, so we
 		 * need to free it */
 		g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)));
 
-		(* data->callback) (NULL, -1, error, data->user_data);
+		(* data->callback) (NULL, -1, NULL, error, data->user_data);
 
 		/* Note: GError should be freed by callback. We do this to be aligned
 		 * with the behavior of dbus-glib, where if an error happens, the
@@ -934,6 +967,7 @@ gboolean
 tracker_dbus_send_and_splice_async (DBusConnection                   *connection,
                                     DBusMessage                      *message,
                                     int                               fd,
+                                    gboolean                          expect_variable_names,
                                     GCancellable                     *cancellable,
                                     TrackerDBusSendAndSpliceCallback  callback,
                                     gpointer                          user_data)
@@ -968,6 +1002,7 @@ tracker_dbus_send_and_splice_async (DBusConnection                   *connection
 	data = send_and_splice_data_new (unix_input_stream,
 	                                 buffered_input_stream,
 	                                 output_stream,
+	                                 expect_variable_names,
 	                                 call,
 	                                 callback,
 	                                 user_data);
