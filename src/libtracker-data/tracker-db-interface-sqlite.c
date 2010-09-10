@@ -52,7 +52,7 @@ struct TrackerDBInterface {
 
 	guint ro : 1;
 #if HAVE_TRACKER_FTS
-	guint fts_initialized : 1;
+	TrackerFts *fts;
 #endif
 	GCancellable *cancellable;
 };
@@ -627,8 +627,8 @@ close_database (TrackerDBInterface *db_interface)
 	db_interface->function_data = NULL;
 
 #if HAVE_TRACKER_FTS
-	if (db_interface->fts_initialized) {
-		tracker_fts_shutdown (G_OBJECT (db_interface));
+	if (db_interface->fts) {
+		tracker_fts_free (db_interface->fts);
 	}
 #endif
 
@@ -641,12 +641,42 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface *db_interface,
                                       gboolean            create)
 {
 #if HAVE_TRACKER_FTS
-	tracker_fts_init (db_interface->db, create, G_OBJECT (db_interface));
-	db_interface->fts_initialized = TRUE;
+	db_interface->fts = tracker_fts_new (db_interface->db, create);
 #else
 	g_message ("FTS support is disabled");
 #endif
 }
+
+#if HAVE_TRACKER_FTS
+int
+tracker_db_interface_sqlite_fts_update_init (TrackerDBInterface *db_interface,
+                                             int                 id)
+{
+	return tracker_fts_update_init (db_interface->fts, id);
+}
+
+int
+tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface *db_interface,
+                                             int                 id,
+                                             int                 column_id,
+                                             const char         *text,
+                                             gboolean            limit_word_length)
+{
+	return tracker_fts_update_text (db_interface->fts, id, column_id, text, limit_word_length);
+}
+
+void
+tracker_db_interface_sqlite_fts_update_commit (TrackerDBInterface *db_interface)
+{
+	return tracker_fts_update_commit (db_interface->fts);
+}
+
+void
+tracker_db_interface_sqlite_fts_update_rollback (TrackerDBInterface *db_interface)
+{
+	return tracker_fts_update_rollback (db_interface->fts);
+}
+#endif
 
 static void
 tracker_db_interface_sqlite_finalize (GObject *object)

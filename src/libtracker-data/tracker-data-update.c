@@ -29,14 +29,11 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontologies.h>
 
-#if HAVE_TRACKER_FTS
-#include <libtracker-fts/tracker-fts.h>
-#endif
-
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
 #include "tracker-data-query.h"
+#include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
 #include "tracker-db-dbus.h"
 #include "tracker-db-journal.h"
@@ -849,7 +846,7 @@ tracker_data_resource_buffer_flush (GError **error)
 		TrackerProperty *prop;
 		GValueArray *values;
 
-		tracker_fts_update_init (resource_buffer->id);
+		tracker_db_interface_sqlite_fts_update_init (iface, resource_buffer->id);
 
 		g_hash_table_iter_init (&iter, resource_buffer->predicates);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
@@ -861,12 +858,14 @@ tracker_data_resource_buffer_flush (GError **error)
 					g_string_append (fts, g_value_get_string (g_value_array_get_nth (values, i)));
 					g_string_append_c (fts, ' ');
 				}
-				tracker_fts_update_text (resource_buffer->id,
-							 tracker_data_query_resource_id (tracker_property_get_uri (prop)),
-							 fts->str, !tracker_property_get_fulltext_no_limit (prop));
+				tracker_db_interface_sqlite_fts_update_text (iface,
+					resource_buffer->id,
+					tracker_data_query_resource_id (tracker_property_get_uri (prop)),
+					fts->str,
+					!tracker_property_get_fulltext_no_limit (prop));
 				g_string_free (fts, TRUE);
 
-				/* Set that we ever updated FTS, so that tracker_fts_update_commit()
+				/* Set that we ever updated FTS, so that tracker_db_interface_sqlite_fts_update_commit()
 				 * gets called */
 				update_buffer.fts_ever_updated = TRUE;
 			}
@@ -932,12 +931,16 @@ tracker_data_update_buffer_might_flush (GError **error)
 static void
 tracker_data_update_buffer_clear (void)
 {
+	TrackerDBInterface *iface;
+
+	iface = tracker_db_manager_get_db_interface ();
+
 	g_hash_table_remove_all (update_buffer.resources);
 	g_hash_table_remove_all (update_buffer.resources_by_id);
 	resource_buffer = NULL;
 
 #if HAVE_TRACKER_FTS
-	tracker_fts_update_rollback ();
+	tracker_db_interface_sqlite_fts_update_rollback (iface);
 	update_buffer.fts_ever_updated = FALSE;
 #endif
 
@@ -1263,6 +1266,10 @@ get_old_property_values (TrackerProperty  *property,
 
 #if HAVE_TRACKER_FTS
 		if (tracker_property_get_fulltext_indexed (property)) {
+			TrackerDBInterface *iface;
+
+			iface = tracker_db_manager_get_db_interface ();
+
 			if (!resource_buffer->fts_updated && !resource_buffer->create) {
 				guint i, n_props;
 				TrackerProperty   **properties, *prop;
@@ -1270,7 +1277,7 @@ get_old_property_values (TrackerProperty  *property,
 				/* first fulltext indexed property to be modified
 				 * retrieve values of all fulltext indexed properties
 				 */
-				tracker_fts_update_init (resource_buffer->id);
+				tracker_db_interface_sqlite_fts_update_init (iface, resource_buffer->id);
 
 				properties = tracker_ontologies_get_properties (&n_props);
 
@@ -1285,9 +1292,11 @@ get_old_property_values (TrackerProperty  *property,
 
 						/* delete old fts entries */
 						for (i = 0; i < old_values->n_values; i++) {
-							tracker_fts_update_text (resource_buffer->id, -1,
-							                         g_value_get_string (g_value_array_get_nth (old_values, i)),
-							                         !tracker_property_get_fulltext_no_limit (prop));
+							tracker_db_interface_sqlite_fts_update_text (iface,
+								resource_buffer->id,
+								-1,
+								g_value_get_string (g_value_array_get_nth (old_values, i)),
+								!tracker_property_get_fulltext_no_limit (prop));
 						}
 					}
 				}
@@ -2249,7 +2258,7 @@ tracker_data_commit_transaction (GError **error)
 
 #if HAVE_TRACKER_FTS
 	if (update_buffer.fts_ever_updated) {
-		tracker_fts_update_commit ();
+		tracker_db_interface_sqlite_fts_update_commit (iface);
 		update_buffer.fts_ever_updated = FALSE;
 	}
 #endif

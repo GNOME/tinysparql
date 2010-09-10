@@ -1031,14 +1031,6 @@ tracker_db_manager_shutdown (void)
 	sys_tmp_dir = NULL;
 	g_free (sql_dir);
 
-#if HAVE_TRACKER_FTS
-	/* shutdown fts in all threads
-	 * needs to be done before shutting down all db interfaces as
-	 * shutdown does not happen in thread where interface was created
-	 */
-	tracker_fts_shutdown_all ();
-#endif
-
 	/* shutdown db interfaces in all threads */
 	g_static_private_free (&interface_data_key);
 

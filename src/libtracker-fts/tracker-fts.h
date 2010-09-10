@@ -25,14 +25,21 @@ G_BEGIN_DECLS
 
 typedef const gchar *(*TrackerFtsMapFunc) (gint id);
 
-int tracker_fts_init (sqlite3 *db, int create, GObject *object);
-void tracker_fts_shutdown (GObject *object);
-void tracker_fts_shutdown_all (void);
-void tracker_fts_set_map_function (TrackerFtsMapFunc map_func);
-int tracker_fts_update_init (int id);
-int tracker_fts_update_text (int id, int column_id, const char *text, gboolean limit_word_length);
-void tracker_fts_update_commit (void);
-void tracker_fts_update_rollback (void);
+typedef struct fulltext_vtab TrackerFts;
+
+TrackerFts *tracker_fts_new              (sqlite3           *db,
+                                          int                create);
+void        tracker_fts_free             (TrackerFts        *fts);
+void        tracker_fts_set_map_function (TrackerFtsMapFunc  map_func);
+int         tracker_fts_update_init      (TrackerFts        *fts,
+                                          int                id);
+int         tracker_fts_update_text      (TrackerFts        *fts,
+                                          int                id,
+                                          int                column_id,
+                                          const char        *text,
+                                          gboolean           limit_word_length);
+void        tracker_fts_update_commit    (TrackerFts        *fts);
+void        tracker_fts_update_rollback  (TrackerFts        *fts);
 
 G_END_DECLS
 

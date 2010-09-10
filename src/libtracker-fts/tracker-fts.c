@@ -2133,8 +2133,6 @@ static int sql_prepare(sqlite3 *db, const char *zDb, const char *zName,
 typedef struct fulltext_vtab fulltext_vtab;
 typedef struct fulltext_sqlite_vtab fulltext_sqlite_vtab;
 
-static GStaticPrivate tracker_fts_vtab_key = G_STATIC_PRIVATE_INIT;
-static GQuark quark_fulltext_vtab = 0;
 static TrackerFtsMapFunc map_function = NULL;
 
 /* A single term in a query is represented by an instances of
@@ -3327,22 +3325,11 @@ static fulltext_vtab *constructVtab(
   sqlite3 *db,		    /* The SQLite database connection */
   const char *zDb,
   const char *zName,
-  char **pzErr,             /* Write any error message here */
-  GObject *object
+  char **pzErr              /* Write any error message here */
 ){
   fulltext_vtab *v = 0;
   TrackerFTSConfig *config;
   TrackerLanguage *language;
-
-  if (G_UNLIKELY (quark_fulltext_vtab == 0)) {
-    quark_fulltext_vtab = g_quark_from_static_string ("quark_fulltext_vtab");
-  }
-
-  v = g_object_get_qdata (object, quark_fulltext_vtab);
-
-  if(v) {
-    return v;
-  }
 
   v = (fulltext_vtab *) sqlite3_malloc(sizeof(fulltext_vtab));
   if( v==0 ) return NULL;
@@ -3412,10 +3399,6 @@ static fulltext_vtab *constructVtab(
   v->nPendingData = -1;
 
   FTSTRACE(("FTS3 Connect %p\n", v));
-
-  g_static_private_set (&tracker_fts_vtab_key, v, NULL);
-  g_object_set_qdata_full (object, quark_fulltext_vtab, v,
-                           (GDestroyNotify) fulltext_vtab_destroy);
 
   /* Config no longer needed */
   g_object_unref (config);
@@ -7917,7 +7900,7 @@ int sqlite3Fts3InitHashTable(sqlite3 *, fts3Hash *, const char *);
 ** SQLite. If fts3 is built as a dynamically loadable extension, this
 ** function is called by the sqlite3_extension_init() entry point.
 */
-int tracker_fts_init(sqlite3 *db, int create, GObject *object){
+TrackerFts *tracker_fts_new(sqlite3 *db, int create){
   int rc = SQLITE_OK;
   fulltext_vtab *v;
 
@@ -7925,7 +7908,11 @@ int tracker_fts_init(sqlite3 *db, int create, GObject *object){
     createTables (db, "main", "fts");
   }
 
-  v = constructVtab(db, "main", "fts", NULL, object);
+  v = constructVtab(db, "main", "fts", NULL);
+
+  if (v == NULL) {
+    return NULL;
+  }
 
   /* Create the virtual table wrapper around the hash-table and overload
   ** the two scalar functions. If this is successful, register the
@@ -7944,52 +7931,47 @@ int tracker_fts_init(sqlite3 *db, int create, GObject *object){
     rc = sqlite3_create_module_v2(
 	db, "trackerfts", &fts3Module, v, NULL
     );
-    if (SQLITE_OK != rc)
-      return rc;
+    if (SQLITE_OK != rc){
+      fulltext_vtab_destroy (v);
+      return NULL;
+    }
 
     if (create){
         rc = sqlite3_exec(db, "CREATE VIRTUAL TABLE fts USING trackerfts", NULL, 0, NULL);
     }
   }
 
-  return rc;
+  if (SQLITE_OK != rc){
+    fulltext_vtab_destroy (v);
+    return NULL;
+  }
+
+  return v;
 }
 
-void tracker_fts_shutdown (GObject *object){
-  g_object_set_qdata (object, quark_fulltext_vtab, NULL);
-}
-
-void tracker_fts_shutdown_all (void){
-  g_static_private_free (&tracker_fts_vtab_key);
+void tracker_fts_free (TrackerFts *fts){
+  fulltext_vtab_destroy (fts);
 }
 
 void tracker_fts_set_map_function(TrackerFtsMapFunc map_func){
   map_function = map_func;
 }
 
-int tracker_fts_update_init(int id){
-  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
-
-  return initPendingTerms(v, id);
+int tracker_fts_update_init(TrackerFts *fts, int id){
+  return initPendingTerms(fts, id);
 }
 
-int tracker_fts_update_text(int id, int column_id,
+int tracker_fts_update_text(TrackerFts *fts, int id, int column_id,
 			    const char *text, gboolean limit_word_length){
-  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
-
-  return buildTerms(v, id, text, column_id, limit_word_length);
+  return buildTerms(fts, id, text, column_id, limit_word_length);
 }
 
-void tracker_fts_update_commit(void){
-  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
-
-  flushPendingTerms(v);
-  clearPendingTerms(v);
+void tracker_fts_update_commit(TrackerFts *fts){
+  flushPendingTerms(fts);
+  clearPendingTerms(fts);
 }
 
-void tracker_fts_update_rollback(void){
-  fulltext_vtab *v = g_static_private_get (&tracker_fts_vtab_key);
-
-  clearPendingTerms(v);
+void tracker_fts_update_rollback(TrackerFts *fts){
+  clearPendingTerms(fts);
 }
 

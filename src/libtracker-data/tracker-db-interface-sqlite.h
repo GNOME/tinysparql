@@ -37,6 +37,18 @@ void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 void                tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
                                                                         gboolean                  create);
 
+#if HAVE_TRACKER_FTS
+int                 tracker_db_interface_sqlite_fts_update_init        (TrackerDBInterface       *interface,
+                                                                        int                       id);
+int                 tracker_db_interface_sqlite_fts_update_text        (TrackerDBInterface       *interface,
+                                                                        int                       id,
+                                                                        int                       column_id,
+                                                                        const char               *text,
+                                                                        gboolean                  limit_word_length);
+void                tracker_db_interface_sqlite_fts_update_commit      (TrackerDBInterface       *interface);
+void                tracker_db_interface_sqlite_fts_update_rollback    (TrackerDBInterface       *interface);
+#endif
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DB_INTERFACE_SQLITE_H__ */
