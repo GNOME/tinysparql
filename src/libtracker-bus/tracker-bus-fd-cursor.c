@@ -237,6 +237,8 @@ tracker_bus_fd_cursor_finalize (GObject *object)
 
 	cursor = TRACKER_BUS_FD_CURSOR (object);
 
+	if (cursor->variable_names)
+		g_strfreev (cursor->variable_names);
 	g_free (cursor->buffer);
 
 	G_OBJECT_CLASS (tracker_bus_fd_cursor_parent_class)->finalize (object);
