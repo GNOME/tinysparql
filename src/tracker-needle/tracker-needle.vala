@@ -276,10 +276,13 @@ public class TrackerNeedle {
 			var screen = window.get_screen ();
 			var theme = IconTheme.get_for_screen (screen);
 
-			while (cursor.next ()) {
-				int i;
+			while (true) {
+				bool b = yield cursor.next_async ();
+				if (!b) {
+					break;
+				}
 
-				for (i = 0; i < cursor.n_columns; i++) {
+				for (int i = 0; i < cursor.n_columns; i++) {
 					if (i == 0) {
 						debug ("--> %s", cursor.get_string (i));
 					} else {
@@ -354,10 +357,13 @@ public class TrackerNeedle {
 					return;
 				}
 
-				while (cursor.next ()) {
-					int i;
+				while (true) {
+					bool b = yield cursor.next_async ();
+					if (!b) {
+						break;
+					}
 
-					for (i = 0; i < cursor.n_columns; i++) {
+					for (int i = 0; i < cursor.n_columns; i++) {
 						if (i == 0) {
 							debug ("--> %s", cursor.get_string (i));
 						} else {
