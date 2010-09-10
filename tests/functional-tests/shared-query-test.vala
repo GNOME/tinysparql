@@ -10,6 +10,28 @@ public class TestApp : GLib.Object {
 		con = connection;
 	}
 
+	string type_to_string (Sparql.ValueType type) {
+		switch (type) {
+			case Sparql.ValueType.UNBOUND:
+				return "unbound";
+			case Sparql.ValueType.URI:
+				return "uri";
+			case Sparql.ValueType.STRING:
+				return "string";
+			case Sparql.ValueType.INTEGER:
+				return "integer";
+			case Sparql.ValueType.DOUBLE:
+				return "double";
+			case Sparql.ValueType.DATETIME:
+				return "datetime";
+			case Sparql.ValueType.BLANK_NODE:
+				return "blank-node";
+			default:
+				break;
+		}
+		return "unknown";
+	}
+
 	int iter_cursor (Cursor cursor) {
 		int i;
 
@@ -22,7 +44,9 @@ public class TestApp : GLib.Object {
 			while (cursor.next()) {
 
 				for (i = 0; i < cursor.n_columns; i++) {
-					print ("%s%s", i != 0 ? ",":"", cursor.get_string (i));
+					print ("%s%s a %s", i != 0 ? ",":"",
+					       cursor.get_string (i),
+					       type_to_string (cursor.get_value_type (i)));
 				}
 
 				print ("\n");
