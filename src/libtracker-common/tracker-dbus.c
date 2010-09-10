@@ -795,11 +795,11 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 				dbus_message_iter_init (reply, &iter);
 				dbus_message_iter_recurse (&iter, &arr);
 
-				while (dbus_message_iter_has_next(&arr)) {
+				while (dbus_message_iter_get_arg_type (&arr) != DBUS_TYPE_INVALID) {
 					gchar *str;
-
 					dbus_message_iter_get_basic (&arr, &str);
-					g_ptr_array_add (found, str);
+					/* Make a copy here, we wont own when returning */
+					g_ptr_array_add (found, g_strdup (str));
 					dbus_message_iter_next (&arr);
 				}
 
@@ -809,7 +809,7 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 				}
 
 				*variable_names = v_names;
-				g_ptr_array_free (found, FALSE);
+				g_ptr_array_free (found, TRUE);
 			}
 
 			ret_value = TRUE;
@@ -917,9 +917,11 @@ send_and_splice_async_callback (GObject      *source,
 				dbus_message_iter_init (reply, &iter);
 				dbus_message_iter_recurse (&iter, &arr);
 
-				while (dbus_message_iter_has_next(&arr)) {
+				while (dbus_message_iter_get_arg_type (&arr) != DBUS_TYPE_INVALID) {
 					gchar *str;
 
+					/* No need for a copy here, we own it. But then don't use
+					 * g_strfreev lower */
 					dbus_message_iter_get_basic (&arr, &str);
 					g_ptr_array_add (found, str);
 					dbus_message_iter_next (&arr);
@@ -930,7 +932,7 @@ send_and_splice_async_callback (GObject      *source,
 					v_names[i] = g_ptr_array_index (found, i);
 				}
 
-				g_ptr_array_free (found, FALSE);
+				g_ptr_array_free (found, TRUE);
 			}
 
 			dbus_pending_call_cancel (data->call);
@@ -941,7 +943,8 @@ send_and_splice_async_callback (GObject      *source,
 			                    NULL,
 			                    data->user_data);
 
-			g_strfreev (v_names);
+			/* Don't use g_strfreev here, see above */
+			g_free (v_names);
 		}
 	} else {
 		/* If any error happened, we're not passing any received data, so we

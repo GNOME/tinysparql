@@ -178,7 +178,7 @@ tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
 static const gchar*
 tracker_bus_fd_cursor_get_variable_name (TrackerBusFDCursor *cursor,  guint column)
 {
-	return cursor->variable_names[column - 1];
+	return cursor->variable_names[column];
 }
 
 static const gchar *
