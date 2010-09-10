@@ -292,6 +292,9 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	                              (gssize *) &cursor->buffer_size,
 	                              &cursor->variable_names,
 	                              &inner_error);
+
+	cursor->n_columns = g_strv_length (cursor->variable_names);
+
 	/* message is destroyed by tracker_dbus_send_and_splice */
 
 	if (G_UNLIKELY (inner_error)) {
@@ -333,6 +336,7 @@ query_async_cb (gpointer  buffer,
 		cursor->buffer = buffer;
 		cursor->buffer_size = buffer_size;
 		cursor->variable_names = g_strdupv (variable_names);
+		cursor->n_columns = g_strv_length (cursor->variable_names);
 
 		g_simple_async_result_set_op_res_gpointer (res, cursor, g_object_unref);
 	}

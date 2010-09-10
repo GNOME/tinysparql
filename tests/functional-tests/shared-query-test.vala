@@ -11,22 +11,15 @@ public class TestApp : GLib.Object {
 	}
 
 	int iter_cursor (Cursor cursor) {
-		bool first = true;
+		int i;
 
 		try {
+			for (i = 0; i < cursor.n_columns; i++) {
+				print ("| %s ", cursor.get_variable_name (i));
+			}
+			print ("| -> %d columns\n", cursor.n_columns);
+
 			while (cursor.next()) {
-				int i;
-
-				// Apparently for async I need to do a first cursor.next()
-				// before cursor.n_columns is correct :-\
-
-				if (first) {
-					for (i = 0; i < cursor.n_columns; i++) {
-						print ("| %s ", cursor.get_variable_name (i));
-					}
-					print ("| -> %d columns\n", cursor.n_columns);
-					first = false;
-				}
 
 				for (i = 0; i < cursor.n_columns; i++) {
 					print ("%s%s", i != 0 ? ",":"", cursor.get_string (i));
