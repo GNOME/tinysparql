@@ -232,7 +232,9 @@ test_tracker_sparql_query_iterate_empty ()
 	g_assert_no_error (error);
 
 	g_assert (!tracker_sparql_cursor_next (cursor, NULL, NULL));
-	g_assert (!tracker_sparql_cursor_get_n_columns (cursor));
+	/* This should be 1, the original test had it wrong: there's one column,
+	 * no matter if there are no results*/
+	g_assert (tracker_sparql_cursor_get_n_columns (cursor) == 1);
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
 		tracker_sparql_cursor_get_string (cursor, 0, NULL);
 		exit (0);

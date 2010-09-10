@@ -178,6 +178,9 @@ tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
 static const gchar*
 tracker_bus_fd_cursor_get_variable_name (TrackerBusFDCursor *cursor,  guint column)
 {
+	if (!cursor->variable_names)
+		return NULL;
+
 	return cursor->variable_names[column];
 }
 
@@ -193,6 +196,7 @@ tracker_bus_fd_cursor_get_string (TrackerBusFDCursor *cursor,
 	}
 
 	g_return_val_if_fail (column < tracker_bus_fd_cursor_get_n_columns (cursor), NULL);
+	g_return_val_if_fail (cursor->data != NULL, NULL);
 
 	if (column == 0) {
 		str = cursor->data;
@@ -295,7 +299,12 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	                              &cursor->variable_names,
 	                              &inner_error);
 
-	cursor->n_columns = g_strv_length (cursor->variable_names);
+	if (cursor->variable_names) {
+		cursor->n_columns = g_strv_length (cursor->variable_names);
+	} else {
+		cursor->variable_names = NULL;
+		cursor->n_columns = 0;
+	}
 
 	/* message is destroyed by tracker_dbus_send_and_splice */
 
@@ -337,8 +346,13 @@ query_async_cb (gpointer  buffer,
 
 		cursor->buffer = buffer;
 		cursor->buffer_size = buffer_size;
-		cursor->variable_names = g_strdupv (variable_names);
-		cursor->n_columns = g_strv_length (cursor->variable_names);
+		if (variable_names) {
+			cursor->variable_names = g_strdupv (variable_names);
+			cursor->n_columns = g_strv_length (cursor->variable_names);
+		} else {
+			cursor->variable_names = NULL;
+			cursor->n_columns = 0;
+		}
 
 		g_simple_async_result_set_op_res_gpointer (res, cursor, g_object_unref);
 	}

@@ -135,7 +135,6 @@ class Tracker.Sparql.Expression : Object {
 
 		if (!subquery) {
 			convert_expression_to_string (sql, type, begin);
-			type = PropertyType.STRING;
 		}
 
 		if (accept (SparqlTokenType.AS)) {
