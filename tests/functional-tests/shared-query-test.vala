@@ -17,6 +17,9 @@ public class TestApp : GLib.Object {
 			while (cursor.next()) {
 				int i;
 
+				// Apparently for async I need to do a first cursor.next()
+				// before cursor.n_columns is correct :-\
+
 				if (first) {
 					for (i = 0; i < cursor.n_columns; i++) {
 						print ("| %s ", cursor.get_variable_name (i));
@@ -42,6 +45,7 @@ public class TestApp : GLib.Object {
 	private void test_query () {
 		Cursor cursor;
 
+		print ("Sync test\n");
 		try {
 			cursor = con.query ("SELECT ?u WHERE { ?u a rdfs:Class }");
 		} catch (GLib.Error e) {
@@ -65,6 +69,7 @@ public class TestApp : GLib.Object {
 	private async void test_query_async () {
 		Cursor cursor;
 
+		print ("Async test\n");
 		try {
 			cursor = yield con.query_async ("SELECT ?u WHERE { ?u a rdfs:Class }");
 		} catch (GLib.Error e) {
