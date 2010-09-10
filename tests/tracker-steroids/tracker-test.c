@@ -617,7 +617,7 @@ main (gint argc, gchar **argv)
 	/* do not require prior installation */
 	g_setenv ("TRACKER_SPARQL_MODULE_PATH", "../../src/libtracker-bus/.libs", TRUE);
 
-	connection = tracker_sparql_connection_get (NULL);
+	connection = tracker_sparql_connection_get (NULL, NULL);
 
 	insert_test_data ();
 

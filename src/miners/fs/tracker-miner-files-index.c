@@ -242,7 +242,7 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
 	                          __FUNCTION__,
 	                          len);
 
-	connection = tracker_sparql_connection_get (&inner_error);
+	connection = tracker_sparql_connection_get (NULL, &inner_error);
 
 	if (!connection) {
 		tracker_dbus_request_failed (request_id,

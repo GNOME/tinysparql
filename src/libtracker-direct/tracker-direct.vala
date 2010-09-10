@@ -20,6 +20,7 @@
 [DBus (name = "org.freedesktop.Tracker1.Status", timeout = 2147483647 /* INT_MAX */)]
 interface Tracker.Direct.Status : GLib.Object {
 	public abstract void wait () throws DBus.Error;
+	public abstract async void wait_async () throws DBus.Error;
 }
 
 public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
@@ -32,10 +33,10 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 
 		try {
 			var connection = DBus.Bus.get (DBus.BusType.SESSION);
-
 			var status = (Status) connection.get_object (TRACKER_DBUS_SERVICE,
 			                                             TRACKER_DBUS_OBJECT_STATUS,
 			                                             TRACKER_DBUS_INTERFACE_STATUS);
+
 			status.wait ();
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL ("Unable to initialize database");

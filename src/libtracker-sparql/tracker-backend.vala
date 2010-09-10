@@ -29,13 +29,40 @@ class Tracker.Sparql.Backend : Connection {
 
 	private delegate Tracker.Sparql.Connection ModuleInitFunc ();
 
-	public Backend (bool direct_only = false) throws Sparql.Error
-	requires (!initialized) {
-		if (!Module.supported ()) {
-		    return;
+	public Backend () throws Sparql.Error
+	requires (Module.supported ()) {
+	}
+
+	public override void init (bool direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		if (initialized) {
+			// Don't error or require this, > 1 new Tracker.Sparql.Connection
+			// objects can be created and if they are, then we don't need to do
+			// anything on subsequent init() calls. We just return the already
+			// created direct or bus objects
+			return;
+		}
+		
+		try {
+			debug ("%s(): direct_only=%s", Log.METHOD, direct_only ? "true" : "false");
+			load_plugins (direct_only);
+		} catch (GLib.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
+
+		initialized = true;
+	}
+
+	public async override void init_async (bool direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		if (initialized) {
+			// Don't error or require this, > 1 new Tracker.Sparql.Connection
+			// objects can be created and if they are, then we don't need to do
+			// anything on subsequent init() calls. We just return the already
+			// created direct or bus objects
+			return;
 		}
 
 		try {
+			debug ("%s(): direct_only=%s", Log.METHOD, direct_only ? "true" : "false");
 			load_plugins (direct_only);
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
@@ -232,6 +259,7 @@ class Tracker.Sparql.Backend : Connection {
 			}
 
 			ModuleInitFunc module_init = (ModuleInitFunc) function;
+			
 			assert (module_init != null);
 
 			// We don't want our modules to ever unload

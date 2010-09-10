@@ -84,8 +84,75 @@ public abstract class Tracker.Sparql.Connection : Object {
 	static weak Connection? singleton;
 	static bool log_initialized;
 
+	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		if (singleton != null) {
+			assert (direct_only == is_direct_only);
+			return singleton;
+		}
+
+		log_init ();
+
+		if (cancellable != null && cancellable.is_cancelled ()) {
+			throw new IOError.CANCELLED ("Operation was cancelled");
+		}
+
+		/* the True is to assert that direct only is required */
+		Connection result = new Backend ();
+		result.init (is_direct_only, cancellable);
+
+		if (cancellable != null && cancellable.is_cancelled ()) {
+			throw new IOError.CANCELLED ("Operation was cancelled");
+		}
+
+		direct_only = is_direct_only;
+		singleton = result;
+		result.add_weak_pointer ((void**) (&singleton));
+		return singleton;
+	}
+
+	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		if (singleton != null) {
+			assert (direct_only == is_direct_only);
+			return singleton;
+		}
+
+		log_init ();
+
+		if (cancellable != null && cancellable.is_cancelled ()) {
+			throw new IOError.CANCELLED ("Operation was cancelled");
+		}
+
+		/* the True is to assert that direct only is required */
+		Connection result = new Backend ();
+		yield result.init_async (is_direct_only, cancellable);
+
+		if (cancellable != null && cancellable.is_cancelled ()) {
+			throw new IOError.CANCELLED ("Operation was cancelled");
+		}
+
+		direct_only = true;
+		singleton = result;
+		result.add_weak_pointer ((void**) (&singleton));
+		return singleton;
+	}
+
+	/**
+	 * tracker_sparql_connection_get_direct_async:
+	 * @cancellable: a #GCancellable used to cancel the operation
+	 * @error: #GError for error reporting.
+	 *
+	 * See tracker_sparql_connection_get().
+	 *
+	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
+	 * object when no longer used.
+	 */
+	public async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		return yield get_internal_async (false, cancellable);
+	}
+
 	/**
 	 * tracker_sparql_connection_get:
+	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
 	 * Returns a new #TrackerSparqlConnection, which will use the best method
@@ -105,22 +172,27 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
 	 */
-	public static new Connection get () throws Sparql.Error {
-		if (singleton != null) {
-			assert (!direct_only);
-			return singleton;
-		} else {
-			log_init ();
+	public static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		return get_internal (false, cancellable);
+	}
 
-			var result = new Backend ();
-			singleton = result;
-			result.add_weak_pointer ((void**) (&singleton));
-			return result;
-		}
+	/**
+	 * tracker_sparql_connection_get_direct_async:
+	 * @cancellable: a #GCancellable used to cancel the operation
+	 * @error: #GError for error reporting.
+	 *
+	 * See tracker_sparql_connection_get_direct().
+	 *
+	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
+	 * object when no longer used.
+	 */
+	public async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		return yield get_internal_async (true, cancellable);
 	}
 
 	/**
 	 * tracker_sparql_connection_get_direct:
+	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
 	 * Returns a new #TrackerSparqlConnection, which uses direct-access method
@@ -134,19 +206,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
 	 */
-	public static Connection get_direct () throws Sparql.Error {
-		if (singleton != null) {
-			assert (direct_only);
-			return singleton;
-		} else {
-			log_init ();
-
-			var result = new Backend (true /* direct_only */);
-			direct_only = true;
-			singleton = result;
-			result.add_weak_pointer ((void**) (&singleton));
-			return result;
-		}
+	public static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		return get_internal (true, cancellable);
 	}
 
 	private static void log_init () {
@@ -196,6 +257,14 @@ public abstract class Tracker.Sparql.Connection : Object {
 
 	private static void remove_log_handler (string? log_domain, LogLevelFlags log_level, string message) {
 		/* do nothing */
+	}
+
+	public virtual void init (bool direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		warning ("Interface 'init' not implemented");
+	}
+
+	public async virtual void init_async (bool direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		warning ("Interface 'init_async' not implemented");
 	}
 
 	/**

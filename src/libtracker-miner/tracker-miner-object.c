@@ -255,7 +255,7 @@ tracker_miner_init (TrackerMiner *miner)
 
 	miner->private = priv = TRACKER_MINER_GET_PRIVATE (miner);
 
-	priv->connection = tracker_sparql_connection_get (&error);
+	priv->connection = tracker_sparql_connection_get (NULL, &error);
 	g_assert_no_error (error);
 
 	priv->pauses = g_hash_table_new_full (g_direct_hash,
