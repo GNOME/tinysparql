@@ -172,7 +172,7 @@ static TrackerSparqlValueType
 tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
 {
 	/* Cast from int to enum */
-	return (TrackerSparqlValueType) cursor->types[column - 1];
+	return (TrackerSparqlValueType) cursor->types[column];
 }
 
 static const gchar*
