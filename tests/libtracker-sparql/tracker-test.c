@@ -85,6 +85,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 	}
 }
 
+#if HAVE_TRACKER_FTS
 static void
 test_tracker_sparql_cursor_next_async (void)
 {
@@ -148,6 +149,7 @@ test_tracker_sparql_cursor_next_async (void)
 	g_assert (cursor != NULL);
 	tracker_sparql_cursor_next_async (cursor, NULL, test_tracker_sparql_cursor_next_async_cb, GINT_TO_POINTER(2));
 }
+#endif
 
 gint
 main (gint argc, gchar **argv)
@@ -171,12 +173,16 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_escape_string);
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_escape_uri_vprintf",
 	                 test_tracker_sparql_escape_uri_vprintf);
+#if HAVE_TRACKER_FTS
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_cursor_next_async",
 	                 test_tracker_sparql_cursor_next_async);
+#endif
 
 	result = g_test_run ();
 
+#if HAVE_TRACKER_FTS
 	g_main_loop_run (main_loop);
+#endif
 
 	g_object_unref (connection);
 
