@@ -97,8 +97,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 		}
 
 		/* the True is to assert that direct only is required */
-		Connection result = new Backend ();
-		result.init (is_direct_only, cancellable);
+		Connection result = new Backend (is_direct_only);
+		result.init ();
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
 			throw new IOError.CANCELLED ("Operation was cancelled");
@@ -123,8 +123,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 		}
 
 		/* the True is to assert that direct only is required */
-		Connection result = new Backend ();
-		yield result.init_async (is_direct_only, cancellable);
+		Connection result = new Backend (is_direct_only);
+		yield result.init_async ();
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
 			throw new IOError.CANCELLED ("Operation was cancelled");
@@ -259,11 +259,11 @@ public abstract class Tracker.Sparql.Connection : Object {
 		/* do nothing */
 	}
 
-	public virtual void init (bool direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public virtual void init () throws Sparql.Error {
 		warning ("Interface 'init' not implemented");
 	}
 
-	public async virtual void init_async (bool direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async virtual void init_async () throws Sparql.Error {
 		warning ("Interface 'init_async' not implemented");
 	}
 

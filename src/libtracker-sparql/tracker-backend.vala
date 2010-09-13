@@ -17,8 +17,16 @@
  * Boston, MA  02110-1301, USA.
  */
 
+[DBus (name = "org.freedesktop.Tracker1.Status", timeout = 2147483647 /* INT_MAX */)]
+interface Tracker.Backend.Status : GLib.Object {
+	public abstract void wait () throws DBus.Error;
+	[DBus (name = "Wait")]
+	public abstract async void wait_async () throws DBus.Error;
+}
+
 class Tracker.Sparql.Backend : Connection {
-	static bool initialized = false;
+	static bool is_constructed = false;
+	static bool is_initialized = false;
 	static Tracker.Sparql.Connection direct = null;
 	static Tracker.Sparql.Connection bus = null;
 	static enum Backend {
@@ -29,31 +37,9 @@ class Tracker.Sparql.Backend : Connection {
 
 	private delegate Tracker.Sparql.Connection ModuleInitFunc ();
 
-	public Backend () throws Sparql.Error
+	public Backend (bool direct_only = false) throws Sparql.Error
 	requires (Module.supported ()) {
-	}
-
-	public override void init (bool direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
-		if (initialized) {
-			// Don't error or require this, > 1 new Tracker.Sparql.Connection
-			// objects can be created and if they are, then we don't need to do
-			// anything on subsequent init() calls. We just return the already
-			// created direct or bus objects
-			return;
-		}
-		
-		try {
-			debug ("%s(): direct_only=%s", Log.METHOD, direct_only ? "true" : "false");
-			load_plugins (direct_only);
-		} catch (GLib.Error e) {
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
-
-		initialized = true;
-	}
-
-	public async override void init_async (bool direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
-		if (initialized) {
+		if (is_constructed) {
 			// Don't error or require this, > 1 new Tracker.Sparql.Connection
 			// objects can be created and if they are, then we don't need to do
 			// anything on subsequent init() calls. We just return the already
@@ -62,13 +48,53 @@ class Tracker.Sparql.Backend : Connection {
 		}
 
 		try {
-			debug ("%s(): direct_only=%s", Log.METHOD, direct_only ? "true" : "false");
+			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
 			load_plugins (direct_only);
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
 
-		initialized = true;
+		is_constructed = true;
+	}
+
+	public override void init () throws Sparql.Error
+	requires (is_constructed) {
+		try {
+			var connection = DBus.Bus.get (DBus.BusType.SESSION);
+			var status = (Tracker.Backend.Status) connection.get_object (TRACKER_DBUS_SERVICE,
+			                                                             TRACKER_DBUS_OBJECT_STATUS,
+			                                                             TRACKER_DBUS_INTERFACE_STATUS);
+
+			// Makes sure the sevice is available
+			debug ("Waiting for service to become available synchronously...");
+			status.wait ();
+			debug ("Service is ready");
+		} catch (DBus.Error e) {
+			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
+
+		is_initialized = true;
+	}
+
+	public async override void init_async () throws Sparql.Error
+	requires (is_constructed) {
+		try {
+			var connection = DBus.Bus.get (DBus.BusType.SESSION);
+			var status = (Tracker.Backend.Status) connection.get_object (TRACKER_DBUS_SERVICE,
+			                                                             TRACKER_DBUS_OBJECT_STATUS,
+			                                                             TRACKER_DBUS_INTERFACE_STATUS);
+
+			// Makes sure the sevice is available
+			debug ("Waiting for service to become available asynchronously...");
+			yield status.wait_async ();
+			debug ("Service is ready");
+		} catch (DBus.Error e) {
+			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
+
+		is_initialized = true;
 	}
 
 	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError
