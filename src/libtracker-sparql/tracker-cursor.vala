@@ -43,13 +43,14 @@
  * Enumeration with the possible types of the cursor's cells
  */
 public enum Tracker.Sparql.ValueType {
-	UNBOUND ,
+	UNBOUND,
 	URI,
 	STRING,
 	INTEGER,
 	DOUBLE,
 	DATETIME,
-	BLANK_NODE
+	BLANK_NODE,
+	BOOLEAN
 }
 
 /**
@@ -179,4 +180,70 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Resets the iterator to point back to the first result.
 	 */
 	public abstract void rewind ();
+
+
+	/**
+	 * tracker_sparql_cursor_get_integer:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the integer at @column in the current row being iterated.
+	 *
+	 * Returns: a integer.
+	 */
+	public virtual int get_integer (int column) {
+		return_val_if_fail (get_value_type (column) == ValueType.INTEGER, 0);
+		unowned string as_str = get_string (column);
+		return_val_if_fail (as_str != null, 0);
+		return as_str.to_int();
+	}
+
+	/**
+	 * tracker_sparql_cursor_get_double:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the double at @column in the current row being iterated.
+	 *
+	 * Returns: a double.
+	 */
+	public virtual double get_double (int column) {
+		return_val_if_fail (get_value_type (column) == ValueType.DOUBLE, 0);
+		unowned string as_str = get_string (column);
+		return_val_if_fail (as_str != null, 0);
+		return as_str.to_double();
+	}
+
+	/**
+	 * tracker_sparql_cursor_get_boolean:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the boolean at @column in the current row being iterated.
+	 *
+	 * Returns: a boolean.
+	 */
+	public virtual bool get_boolean (int column) {
+		ValueType type = get_value_type (column);
+		return_val_if_fail (type == ValueType.BOOLEAN, 0);
+		unowned string as_str = get_string (column);
+		return_val_if_fail (as_str != null, false);
+		return (strcmp (as_str, "true") == 0);
+	}
+
+	/**
+	 * tracker_sparql_cursor_get_unbound:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns true when @column at the current row being iterated is unbound
+	 *
+	 * Returns: a boolean.
+	 */
+	public virtual bool get_unbound (int column) {
+		if (get_value_type (column) == ValueType.UNBOUND) {
+			return true;
+		}
+		return false;
+	}
 }

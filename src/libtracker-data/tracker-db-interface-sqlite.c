@@ -1395,6 +1395,8 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,  guint column)
 			return TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
 		case TRACKER_PROPERTY_TYPE_DATETIME:
 			return TRACKER_SPARQL_VALUE_TYPE_DATETIME;
+		case TRACKER_PROPERTY_TYPE_BOOLEAN:
+			return TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
 		default:
 			return TRACKER_SPARQL_VALUE_TYPE_STRING;
 		}
