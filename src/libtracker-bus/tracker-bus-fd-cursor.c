@@ -299,13 +299,6 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	                              &cursor->variable_names,
 	                              &inner_error);
 
-	if (cursor->variable_names) {
-		cursor->n_columns = g_strv_length (cursor->variable_names);
-	} else {
-		cursor->variable_names = NULL;
-		cursor->n_columns = 0;
-	}
-
 	/* message is destroyed by tracker_dbus_send_and_splice */
 
 	if (G_UNLIKELY (inner_error)) {
@@ -314,7 +307,10 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 		g_propagate_error (error, inner_error);
 		g_object_unref (cursor);
 		cursor = NULL;
+	} else {
+		cursor->n_columns = g_strv_length (cursor->variable_names);
 	}
+
 	return TRACKER_SPARQL_CURSOR (cursor);
 #else  /* HAVE_DBUS_FD_PASSING */
 	g_assert_not_reached ();
@@ -346,13 +342,8 @@ query_async_cb (gpointer  buffer,
 
 		cursor->buffer = buffer;
 		cursor->buffer_size = buffer_size;
-		if (variable_names) {
-			cursor->variable_names = g_strdupv (variable_names);
-			cursor->n_columns = g_strv_length (cursor->variable_names);
-		} else {
-			cursor->variable_names = NULL;
-			cursor->n_columns = 0;
-		}
+		cursor->variable_names = g_strdupv (variable_names);
+		cursor->n_columns = g_strv_length (cursor->variable_names);
 
 		g_simple_async_result_set_op_res_gpointer (res, cursor, g_object_unref);
 	}
