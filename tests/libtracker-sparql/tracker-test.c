@@ -90,31 +90,50 @@ test_tracker_sparql_cursor_next_async (void)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
-	const gchar *query1 = "SELECT ?p WHERE { ?p tracker:indexed true }";
-	const gchar *query2 = "SELECT"
-			     "  ?song"
-			     "  nie:url(?song)"
-			     "  tracker:coalesce(nie:title(?song), nfo:fileName(?song), \"Unknown\")"
-			     "  fn:string-join((?performer, ?album), \" - \")"
-			     "  nfo:duration(?song)"
-			     "  ?tooltip "
-			     "WHERE {"
-			     "  ?match fts:match \"love\""
-			     "  {"
-			     "    ?song nmm:musicAlbum ?match"
-			     "  } UNION {"
-			     "    ?song nmm:performer ?match"
-			     "  } UNION {"
-			     "    ?song a nfo:Audio ."
-			     "    ?match a nfo:Audio"
-			     "    FILTER (?song = ?match)"
-			     "  }"
-			     "  ?song nmm:performer [ nmm:artistName ?performer ] ;"
-			     "        nmm:musicAlbum [ nie:title ?album ] ;"
-			     "        nfo:belongsToContainer [ nie:url ?tooltip ]"
-			     "} "
-			     "ORDER BY DESC(fts:rank(?song)) DESC(nie:title(?song)) "
-			     "OFFSET 0 LIMIT 100";
+
+	/* OK:   query 0 with either query 1 or 2.
+	 * FAIL: query 1 and 2 together
+	 */
+	const gchar *query0 = "SELECT ?p WHERE { ?p tracker:indexed true }";
+        const gchar *query1 = \
+	        "SELECT"
+	        "  ?u nie:url(?u)"
+	        "  tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\")"
+	        "  nfo:fileLastModified(?u)"
+	        "  nfo:fileSize(?u)"
+	        "  nie:url(?c) "
+	        "WHERE { "
+	        "  ?u fts:match \"love\" . "
+	        "  ?u nfo:belongsToContainer ?c ; "
+	        "     tracker:available true . "
+	        "} "
+	        "ORDER BY DESC(fts:rank(?u)) "
+	        "OFFSET 0 LIMIT 100";
+	const gchar *query2 = \
+		"SELECT"
+		"  ?song"
+		"  nie:url(?song)"
+		"  tracker:coalesce(nie:title(?song), nfo:fileName(?song), \"Unknown\")"
+		"  fn:string-join((?performer, ?album), \" - \")"
+		"  nfo:duration(?song)"
+		"  ?tooltip "
+		"WHERE {"
+		"  ?match fts:match \"love\""
+		"  {"
+		"    ?song nmm:musicAlbum ?match"
+		"  } UNION {"
+		"    ?song nmm:performer ?match"
+		"  } UNION {"
+		"    ?song a nfo:Audio ."
+		"    ?match a nfo:Audio"
+		"    FILTER (?song = ?match)"
+		"  }"
+		"  ?song nmm:performer [ nmm:artistName ?performer ] ;"
+		"        nmm:musicAlbum [ nie:title ?album ] ;"
+		"        nfo:belongsToContainer [ nie:url ?tooltip ]"
+		"} "
+		"ORDER BY DESC(fts:rank(?song)) DESC(nie:title(?song)) "
+		"OFFSET 0 LIMIT 100";
 
 	
 	g_print ("ASYNC query 1 starting:\n");
