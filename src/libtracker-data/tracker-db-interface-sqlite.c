@@ -55,6 +55,9 @@ struct TrackerDBInterface {
 	TrackerFts *fts;
 #endif
 	GCancellable *cancellable;
+
+	/* async operation pending */
+	gboolean pending;
 };
 
 struct TrackerDBInterfaceClass {
@@ -810,6 +813,7 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 	gchar *full_query;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (db_interface), NULL);
+	g_return_val_if_fail (!db_interface->pending, NULL);
 
 	va_start (args, query);
 	full_query = g_strdup_vprintf (query, args);
@@ -1099,15 +1103,18 @@ tracker_db_cursor_iter_next_thread (GSimpleAsyncResult *res,
 {
 	/* run in thread */
 
+	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (object);
 	GError *error = NULL;
 	gboolean result;
 
-	result = tracker_db_cursor_iter_next (TRACKER_DB_CURSOR (object), cancellable, &error);
+	result = tracker_db_cursor_iter_next (cursor, cancellable, &error);
 	if (error) {
 		g_simple_async_result_set_from_error (res, error);
 	} else {
 		g_simple_async_result_set_op_res_gboolean (res, result);
 	}
+
+	cursor->ref_stmt->db_interface->pending = FALSE;
 }
 
 static void
@@ -1117,6 +1124,9 @@ tracker_db_cursor_iter_next_async (TrackerDBCursor     *cursor,
                                    gpointer             user_data)
 {
 	GSimpleAsyncResult *res;
+
+	g_return_if_fail (!cursor->ref_stmt->db_interface->pending);
+	cursor->ref_stmt->db_interface->pending = TRUE;
 
 	res = g_simple_async_result_new (G_OBJECT (cursor), callback, user_data, tracker_db_cursor_iter_next_async);
 	g_simple_async_result_run_in_thread (res, tracker_db_cursor_iter_next_thread, 0, cancellable);
@@ -1221,6 +1231,7 @@ void
 tracker_db_cursor_rewind (TrackerDBCursor *cursor)
 {
 	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
+	g_return_if_fail (!cursor->ref_stmt->db_interface->pending);
 
 	sqlite3_reset (cursor->stmt);
 	cursor->finished = FALSE;
@@ -1233,6 +1244,8 @@ tracker_db_cursor_iter_next (TrackerDBCursor *cursor,
 {
 	TrackerDBStatement *stmt = cursor->ref_stmt;
 	TrackerDBInterface *iface = stmt->db_interface;
+
+	g_return_val_if_fail (!cursor->ref_stmt->db_interface->pending, FALSE);
 
 	if (!cursor->finished) {
 		guint result;
