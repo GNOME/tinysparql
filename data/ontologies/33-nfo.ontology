@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2010-09-07T13:00:00Z" .
+	nao:lastModified "2010-09-13T11:49:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -978,3 +978,11 @@ nfo:equipmentSoftware a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Equipment ;
 	rdfs:range xsd:string .
+
+# This class needs to be submitted to NEPOMUK
+nfo:HelpDocument a rdfs:Class ;
+        rdfs:label "Help document" ;
+        rdfs:comment "User guides and similar to assist the user" ;
+	rdfs:subClassOf nfo:Document .
+        
+        
