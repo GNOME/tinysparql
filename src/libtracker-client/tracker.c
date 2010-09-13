@@ -119,9 +119,7 @@ typedef struct {
 	DBusGProxy *proxy_resources;
 
 	GHashTable *slow_pending_calls;
-#ifdef HAVE_DBUS_FD_PASSING
 	GHashTable *fast_pending_calls;
-#endif /* HAVE_DBUS_FS_PASSING */
 
 	guint last_call;
 
@@ -171,7 +169,6 @@ typedef struct {
 #endif /* TRACKER_DISABLE_DEPRECATED */
 
 struct TrackerResultIterator {
-#ifdef HAVE_DBUS_FD_PASSING
 	gchar *buffer;
 	gint buffer_index;
 	gssize buffer_size;
@@ -180,13 +177,7 @@ struct TrackerResultIterator {
 	gint *offsets;
 	gint *types;
 	gchar *data;
-#else  /* HAVE_DBUS_FD_PASSING */
-	GPtrArray *results;
-	gint current_row;
-#endif /* HAVE_DBUS_FD_PASSING */
 };
-
-#ifdef HAVE_DBUS_FD_PASSING
 
 typedef enum {
 	FAST_QUERY,
@@ -218,15 +209,6 @@ typedef struct {
 	GCancellable *cancellable;
 	FastAsyncData *data;
 } FastPendingCallData;
-
-#else  /* HAVE_DBUS_FD_PASSING */
-
-typedef struct {
-	TrackerReplyIterator callback;
-	gpointer user_data;
-} FastQueryAsyncCompatData;
-
-#endif /* HAVE_DBUS_FD_PASSING */
 
 static gboolean is_service_available (void);
 static void     client_finalize      (GObject      *object);
@@ -303,8 +285,6 @@ slow_pending_call_new (TrackerClient  *client,
 	return id;
 }
 
-#ifdef HAVE_DBUS_FD_PASSING
-
 static void
 fast_pending_call_destroy (gpointer data)
 {
@@ -378,8 +358,6 @@ fast_async_data_new (TrackerClient     *client,
 	return data;
 }
 
-#endif /* HAVE_DBUS_FD_PASSING */
-
 static void
 writeback_cb (DBusGProxy       *proxy,
               const GHashTable *resources,
@@ -445,12 +423,10 @@ tracker_client_init (TrackerClient *client)
 	                                                     NULL,
 	                                                     (GDestroyNotify) slow_pending_call_destroy);
 
-#ifdef HAVE_DBUS_FD_PASSING
 	private->fast_pending_calls = g_hash_table_new_full (NULL,
 	                                                     NULL,
 	                                                     NULL,
 	                                                     (GDestroyNotify) fast_pending_call_destroy);
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static void
@@ -470,11 +446,9 @@ client_finalize (GObject *object)
 		g_hash_table_unref (private->slow_pending_calls);
 	}
 
-#ifdef HAVE_DBUS_FD_PASSING
 	if (private->fast_pending_calls) {
 		g_hash_table_unref (private->fast_pending_calls);
 	}
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static void
@@ -626,8 +600,6 @@ callback_with_void (DBusGProxy *proxy,
 	g_slice_free (CallbackVoid, cb);
 }
 
-#ifdef HAVE_DBUS_FD_PASSING
-
 static inline int
 iterator_buffer_read_int (TrackerResultIterator *iterator)
 {
@@ -688,38 +660,6 @@ callback_iterator (void     *buffer,
 
 	fast_async_data_free (fad);
 }
-
-#else  /* HAVE_DBUS_FD_PASSING */
-
-static void
-callback_iterator_compat (GPtrArray *results,
-                          GError    *error,
-                          gpointer   user_data)
-{
-	FastQueryAsyncCompatData *data = user_data;
-	TrackerResultIterator *iterator;
-
-	if (!data->callback) {
-		g_slice_free (FastQueryAsyncCompatData, data);
-		return;
-	}
-
-	if (error) {
-		(* data->callback) (NULL, error, data->user_data);
-	} else {
-		iterator = g_slice_new0 (TrackerResultIterator);
-		iterator->results = results;
-		iterator->current_row = -1;
-
-		(* data->callback) (iterator, error, data->user_data);
-
-		tracker_result_iterator_free (iterator);
-	}
-
-	g_slice_free (FastQueryAsyncCompatData, data);
-}
-
-#endif /* HAVE_DBUS_FD_PASSING */
 
 /* Deprecated and only used for 0.6 API */
 static void
@@ -976,8 +916,6 @@ find_conversion (const char  *format,
 	*after = cp;
 	return start;
 }
-
-#ifdef HAVE_DBUS_FD_PASSING
 
 static GHashTable *
 unmarshal_hash_table (DBusMessageIter *iter)
@@ -1256,8 +1194,6 @@ sparql_update_fast_async (TrackerClient  *client,
 	dbus_pending_call_set_notify (call, sparql_update_fast_callback, fad, NULL);
 }
 
-#endif /* HAVE_DBUS_FD_PASSING */
-
 /**
  * tracker_uri_vprintf_escaped:
  * @format: a standard printf() format string, but notice
@@ -1469,7 +1405,6 @@ tracker_cancel_call (TrackerClient *client,
 		return TRUE;
 	}
 
-#ifdef HAVE_DBUS_FD_PASSING
 	/* Check fast pending data last */
 	data = g_hash_table_lookup (private->fast_pending_calls,
 	                            GUINT_TO_POINTER (call_id));
@@ -1513,7 +1448,6 @@ tracker_cancel_call (TrackerClient *client,
 		                     GUINT_TO_POINTER (call_id));
 		return TRUE;
 	}
-#endif /* HAVE_DBUS_FD_PASSING */
 
 	return FALSE;
 }
@@ -1771,7 +1705,6 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
                                         const gchar    *query,
                                         GError        **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	TrackerClientPrivate *private;
 	TrackerResultIterator *iterator;
 	DBusConnection *connection;
@@ -1825,26 +1758,6 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	}
 
 	return iterator;
-#else  /* HAVE_DBUS_FD_PASSING */
-	TrackerResultIterator *iterator;
-	GError *inner_error = NULL;
-
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), NULL);
-	g_return_val_if_fail (query, NULL);
-
-	iterator = g_slice_new0 (TrackerResultIterator);
-
-	iterator->results = tracker_resources_sparql_query (client, query, &inner_error);
-	iterator->current_row = -1;
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		g_slice_free (TrackerResultIterator, iterator);
-		iterator = NULL;
-	}
-
-	return iterator;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1862,13 +1775,8 @@ tracker_result_iterator_free (TrackerResultIterator *iterator)
 {
 	g_return_if_fail (iterator != NULL);
 
-#ifndef HAVE_DBUS_FD_PASSING
-	g_ptr_array_foreach (iterator->results, (GFunc) g_free, NULL);
-	g_ptr_array_free (iterator->results, TRUE);
-#else  /* HAVE_DBUS_FD_PASSING */
 	g_free (iterator->buffer);
 	g_slice_free (TrackerResultIterator, iterator);
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1884,28 +1792,9 @@ tracker_result_iterator_free (TrackerResultIterator *iterator)
 guint
 tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
 {
-#ifdef HAVE_DBUS_FD_PASSING
-
 	g_return_val_if_fail (iterator != NULL, 0);
 
 	return iterator->n_columns;
-#else  /* HAVE_DBUS_FD_PASSING */
-	GStrv row;
-	guint i = 0;
-
-	g_return_val_if_fail (iterator != NULL, 0);
-
-	if (!iterator->results->len) {
-		return 0;
-	}
-
-	row = g_ptr_array_index (iterator->results, 0);
-
-	while (row[i++]) {
-	}
-
-	return i - 1;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1923,13 +1812,9 @@ tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
 gboolean
 tracker_result_iterator_next (TrackerResultIterator *iterator)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	int last_offset;
-#endif
 
 	g_return_val_if_fail (iterator != NULL, FALSE);
-
-#ifdef HAVE_DBUS_FD_PASSING
 
 	if (iterator->buffer_index >= iterator->buffer_size) {
 		return FALSE;
@@ -1954,14 +1839,6 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
 	iterator->buffer_index += last_offset + 1;
 
 	return TRUE;
-#else  /* HAVE_DBUS_FD_PASSING */
-	if (iterator->current_row < (gint)iterator->results->len - 1) {
-		iterator->current_row++;
-		return TRUE;
-	} else {
-		return FALSE;
-	}
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -1982,7 +1859,6 @@ const gchar *
 tracker_result_iterator_value (TrackerResultIterator *iterator,
                                guint                  column)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	g_return_val_if_fail (iterator != NULL, NULL);
 	g_return_val_if_fail (column < tracker_result_iterator_n_columns (iterator), NULL);
 
@@ -1991,22 +1867,6 @@ tracker_result_iterator_value (TrackerResultIterator *iterator,
 	} else {
 		return iterator->data + iterator->offsets[column - 1] + 1;
 	}
-#else  /* HAVE_DBUS_FD_PASSING */
-	GStrv row;
-
-	g_return_val_if_fail (iterator != NULL, NULL);
-	g_return_val_if_fail (column < tracker_result_iterator_n_columns (iterator), NULL);
-
-	if (!iterator->results->len) {
-		return NULL;
-	}
-
-	g_return_val_if_fail (iterator->current_row < (gint) iterator->results->len, NULL);
-
-	row = g_ptr_array_index (iterator->results, iterator->current_row);
-
-	return row[column];
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2032,7 +1892,6 @@ tracker_resources_sparql_update (TrackerClient  *client,
                                  const gchar    *query,
                                  GError        **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
 
 	g_return_if_fail (TRACKER_IS_CLIENT (client));
@@ -2045,18 +1904,6 @@ tracker_resources_sparql_update (TrackerClient  *client,
 	}
 
 	dbus_message_unref (reply);
-#else  /* HAVE_DBUS_FD_PASSING */
-	TrackerClientPrivate *private;
-
-	g_return_if_fail (TRACKER_IS_CLIENT (client));
-	g_return_if_fail (query != NULL);
-
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	org_freedesktop_Tracker1_Resources_sparql_update (private->proxy_resources,
-	                                                  query,
-	                                                  error);
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2074,7 +1921,6 @@ tracker_resources_sparql_update_blank (TrackerClient  *client,
                                        const gchar    *query,
                                        GError        **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
 	DBusMessageIter iter, subiter, subsubiter;
 	GPtrArray *result;
@@ -2119,24 +1965,6 @@ tracker_resources_sparql_update_blank (TrackerClient  *client,
 	dbus_message_unref (reply);
 
 	return result;
-#else  /* HAVE_DBUS_FD_PASSING */
-	TrackerClientPrivate *private;
-	GPtrArray *result;
-
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), NULL);
-	g_return_val_if_fail (query != NULL, NULL);
-
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	if (!org_freedesktop_Tracker1_Resources_sparql_update_blank (private->proxy_resources,
-	                                                             query,
-	                                                             &result,
-	                                                             error)) {
-		return NULL;
-	}
-
-	return result;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2159,7 +1987,6 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
                                        const gchar    *query,
                                        GError        **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
 
 	reply = sparql_update_fast (client, query, FAST_UPDATE_BATCH, error);
@@ -2169,18 +1996,6 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
 	}
 
 	dbus_message_unref (reply);
-#else  /* HAVE_DBUS_FD_PASSING */
-	TrackerClientPrivate *private;
-
-	g_return_if_fail (TRACKER_IS_CLIENT (client));
-	g_return_if_fail (query != NULL);
-
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	org_freedesktop_Tracker1_Resources_batch_sparql_update (private->proxy_resources,
-	                                                        query,
-	                                                        error);
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2352,7 +2167,6 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
                                               TrackerReplyIterator   callback,
                                               gpointer               user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	TrackerClientPrivate *private;
 	DBusConnection *connection;
 	DBusMessage *message;
@@ -2415,18 +2229,6 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                                    fad);
 
 	return fad->request_id;
-#else  /* HAVE_DBUS_FD_PASSING */
-	FastQueryAsyncCompatData *data;
-
-	data = g_slice_new0 (FastQueryAsyncCompatData);
-	data->callback = callback;
-	data->user_data = user_data;
-
-	return tracker_resources_sparql_query_async (client,
-	                                             query,
-	                                             callback_iterator_compat,
-	                                             data);
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2449,7 +2251,6 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
                                        TrackerReplyVoid  callback,
                                        gpointer          user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *fad;
 	GError *error = NULL;
 
@@ -2475,31 +2276,6 @@ tracker_resources_sparql_update_async (TrackerClient    *client,
 	}
 
 	return fad->request_id;
-#else  /* HAVE_DBUS_FD_PASSING */
-	TrackerClientPrivate *private;
-	CallbackVoid *cb;
-	DBusGProxyCall *call;
-
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
-	g_return_val_if_fail (query != NULL, 0);
-	g_return_val_if_fail (callback != NULL, 0);
-
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	cb = g_slice_new0 (CallbackVoid);
-	cb->func = callback;
-	cb->data = user_data;
-	cb->client = g_object_ref (client);
-
-	call = org_freedesktop_Tracker1_Resources_sparql_update_async (private->proxy_resources,
-	                                                               query,
-	                                                               callback_with_void,
-	                                                               cb);
-
-	cb->id = slow_pending_call_new (client, private->proxy_resources, call);
-
-	return cb->id;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2522,7 +2298,6 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
                                              TrackerReplyGPtrArray  callback,
                                              gpointer               user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *fad;
 	GError *error = NULL;
 
@@ -2548,31 +2323,6 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
 	}
 
 	return fad->request_id;
-#else  /* HAVE_DBUS_FD_PASSING */
-	TrackerClientPrivate *private;
-	CallbackGPtrArray *cb;
-	DBusGProxyCall *call;
-
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
-	g_return_val_if_fail (query != NULL, 0);
-	g_return_val_if_fail (callback != NULL, 0);
-
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	cb = g_slice_new0 (CallbackGPtrArray);
-	cb->func = callback;
-	cb->data = user_data;
-	cb->client = g_object_ref (client);
-
-	call = org_freedesktop_Tracker1_Resources_sparql_update_blank_async (private->proxy_resources,
-	                                                                     query,
-	                                                                     callback_with_gptrarray,
-	                                                                     cb);
-
-	cb->id = slow_pending_call_new (client, private->proxy_resources, call);
-
-	return cb->id;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**
@@ -2597,7 +2347,6 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
                                              TrackerReplyVoid  callback,
                                              gpointer          user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *fad;
 	GError *error = NULL;
 
@@ -2623,31 +2372,6 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
 	}
 
 	return fad->request_id;
-#else  /* HAVE_DBUS_FD_PASSING */
-	TrackerClientPrivate *private;
-	CallbackVoid *cb;
-	DBusGProxyCall *call;
-
-	g_return_val_if_fail (TRACKER_IS_CLIENT (client), 0);
-	g_return_val_if_fail (query != NULL, 0);
-	g_return_val_if_fail (callback != NULL, 0);
-
-	private = TRACKER_CLIENT_GET_PRIVATE (client);
-
-	cb = g_slice_new0 (CallbackVoid);
-	cb->func = callback;
-	cb->data = user_data;
-	cb->client = g_object_ref (client);
-
-	call = org_freedesktop_Tracker1_Resources_batch_sparql_update_async (private->proxy_resources,
-	                                                                     query,
-	                                                                     callback_with_void,
-	                                                                     cb);
-
-	cb->id = slow_pending_call_new (client, private->proxy_resources, call);
-
-	return cb->id;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 /**

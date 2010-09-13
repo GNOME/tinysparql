@@ -440,10 +440,8 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-#ifdef HAVE_DBUS_FD_PASSING
 	tracker_dbus_connection_add_filter (tracker_extract_connection_filter,
 	                                    object);
-#endif
 
 	g_message ("Waiting for D-Bus requests...");
 

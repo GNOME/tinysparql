@@ -15,12 +15,6 @@ INCLUDES =								\
 	$(GCOV_CFLAGS)							\
 	$(GIO_CFLAGS)
 
-if HAVE_DBUS_FD_PASSING
-INCLUDES += -DHAVE_DBUS_FD_PASSING_IN_VALA=\"1\"
-else
-INCLUDES += -DHAVE_DBUS_FD_PASSING_IN_VALA=\"0\"
-endif
-
 modules_LTLIBRARIES = libtracker-bus.la
 
 libtracker_bus_la_VALASOURCES = 		\
@@ -34,8 +28,6 @@ libtracker_bus_la_SOURCES = 	\
 	tracker-bus-fd-cursor.c				\
 	tracker-bus-fd-update.c				\
 	tracker-bus-fd-update.h				\
-	tracker-bus-array-update.c			\
-	tracker-bus-array-update.h			\
 	tracker-bus-shared.c				\
 	tracker-bus-shared.h
 
@@ -47,12 +39,10 @@ noinst_HEADERS = 			\
 
 # Vala sources
 vapi_sources =						\
-	config.vapi					\
 	$(top_builddir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi 	\
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi 				\
 	tracker-bus-fd-cursor.vapi 			\
-	tracker-bus-fd-update.vapi 			\
-	tracker-bus-array-update.vapi
+	tracker-bus-fd-update.vapi
 
 libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
 	$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus.vapi $^
@@ -75,10 +65,9 @@ MAINTAINERCLEANFILES =					\
 	tracker-bus.h
 
 EXTRA_DIST = 						\
-	config.vapi \
 	$(libtracker_bus_la_VALASOURCES) \
 	libtracker-bus.vala.stamp \
 	tracker-bus.vapi \
 	tracker-bus-fd-cursor.vapi \
-	tracker-bus-fd-update.vapi \
-	tracker-bus-array-update.vapi
+	tracker-bus-fd-update.vapi
+

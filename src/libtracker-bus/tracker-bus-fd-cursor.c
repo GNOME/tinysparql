@@ -257,7 +257,6 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
                       GCancellable     *cancellable,
                       GError          **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusConnection *connection;
 	DBusMessage *message;
 	DBusMessageIter iter;
@@ -313,13 +312,7 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	}
 
 	return TRACKER_SPARQL_CURSOR (cursor);
-#else  /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-	return NULL;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
-
-#ifdef HAVE_DBUS_FD_PASSING
 
 static void
 query_async_cb (gpointer  buffer,
@@ -353,8 +346,6 @@ query_async_cb (gpointer  buffer,
 	g_object_unref (res);
 }
 
-#endif /* HAVE_DBUS_FD_PASSING */
-
 void
 tracker_bus_fd_query_async (DBusGConnection     *gconnection,
                             const gchar         *query,
@@ -362,7 +353,6 @@ tracker_bus_fd_query_async (DBusGConnection     *gconnection,
                             GAsyncReadyCallback  callback,
                             gpointer             user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	GSimpleAsyncResult *res;
 	DBusConnection *connection;
 	DBusMessage *message;
@@ -406,9 +396,6 @@ tracker_bus_fd_query_async (DBusGConnection     *gconnection,
 	                                    cancellable,
 	                                    query_async_cb, res);
 	/* message is destroyed by tracker_dbus_send_and_splice_async */
-#else  /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 TrackerSparqlCursor *

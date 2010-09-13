@@ -656,7 +656,6 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 	}
 }
 
-#ifdef HAVE_DBUS_FD_PASSING
 static void
 get_metadata_fast (TrackerExtract *object,
                    DBusConnection *connection,
@@ -872,4 +871,3 @@ tracker_extract_connection_filter (DBusConnection *connection,
 
 	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 }
-#endif /* HAVE_DBUS_FD_PASSING */

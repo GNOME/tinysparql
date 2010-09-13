@@ -39,19 +39,14 @@
 #include "tracker-backup.h"
 #include "tracker-backup-glue.h"
 #include "tracker-marshal.h"
-
-#ifdef HAVE_DBUS_FD_PASSING
 #include "tracker-steroids.h"
-#endif
 
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
 static GSList          *objects;
 static TrackerStatus   *notifier;
 static TrackerBackup   *backup;
-#ifdef HAVE_DBUS_FD_PASSING
 static TrackerSteroids *steroids;
-#endif
 
 static gboolean
 dbus_register_service (DBusGProxy  *proxy,
@@ -185,32 +180,31 @@ dbus_set_available (gboolean available)
 			tracker_dbus_register_objects ();
 		}
 	} else {
-                GSList *l;
+		GSList *l;
 
-                if (objects) {
-                        dbus_g_proxy_disconnect_signal (gproxy,
-                                                        "NameOwnerChanged",
-                                                        G_CALLBACK (name_owner_changed_cb),
-                                                        tracker_dbus_get_object (TRACKER_TYPE_RESOURCES));
-                }
+		if (objects) {
+			dbus_g_proxy_disconnect_signal (gproxy,
+			                                "NameOwnerChanged",
+			                                G_CALLBACK (name_owner_changed_cb),
+			                                tracker_dbus_get_object (TRACKER_TYPE_RESOURCES));
+		}
 
-#ifdef HAVE_DBUS_FD_PASSING
-                if (steroids) {
+		if (steroids) {
 			dbus_connection_remove_filter (dbus_g_connection_get_connection (connection),
 			                               tracker_steroids_connection_filter,
 			                               steroids);
 			g_object_unref (steroids);
 			steroids = NULL;
-                }
-#endif
+		}
 
-                for (l = objects; l; l = l->next) {
-                        dbus_g_connection_unregister_g_object (connection, l->data);
-                        g_object_unref (l->data);
-                }
 
-                g_slist_free (objects);
-                objects = NULL;
+		for (l = objects; l; l = l->next) {
+			dbus_g_connection_unregister_g_object (connection, l->data);
+			g_object_unref (l->data);
+		}
+
+		g_slist_free (objects);
+		objects = NULL;
 	}
 }
 
@@ -304,7 +298,6 @@ tracker_dbus_register_objects (void)
 	                      TRACKER_RESOURCES_PATH);
 	objects = g_slist_prepend (objects, object);
 
-#ifdef HAVE_DBUS_FD_PASSING
 	if (!steroids) {
 		/* Add org.freedesktop.Tracker1.Steroids */
 		steroids = tracker_steroids_new ();
@@ -320,7 +313,6 @@ tracker_dbus_register_objects (void)
 		/* Note: TrackerSteroids should not go to the 'objects' list, as it is
 		 * a filter, not an object registered */
 	}
-#endif
 
 	/* Reverse list since we added objects at the top each time */
 	objects = g_slist_reverse (objects);
@@ -373,11 +365,9 @@ tracker_dbus_get_object (GType type)
 		}
 	}
 
-#ifdef HAVE_DBUS_FD_PASSING
 	if (steroids && type == TRACKER_TYPE_STEROIDS) {
 		return G_OBJECT (steroids);
 	}
-#endif /* HAVE_DBUS_FD_PASSING */
 
 	if (notifier && type == TRACKER_TYPE_STATUS) {
 		return G_OBJECT (notifier);
