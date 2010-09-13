@@ -96,6 +96,10 @@ static TrackerDBCursor    *tracker_db_cursor_sqlite_new      (sqlite3_stmt      
                                                               TrackerPropertyType  *types,
                                                               gint                  n_types);
 static void                tracker_db_statement_sqlite_reset (TrackerDBStatement   *stmt);
+static gint                tracker_db_cursor_get_integer     (TrackerSparqlCursor  *cursor,
+                                                              guint                 column);
+static gboolean            tracker_db_cursor_get_boolean     (TrackerSparqlCursor  *cursor,
+                                                              guint                 column);
 static gboolean            db_cursor_iter_next               (TrackerDBCursor      *cursor,
                                                               GCancellable         *cancellable,
                                                               GError              **error);
@@ -1186,6 +1190,10 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 	sparql_cursor_class->next_async = (void (*) (TrackerSparqlCursor *, GCancellable *, GAsyncReadyCallback, gpointer)) tracker_db_cursor_iter_next_async;
 	sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_db_cursor_iter_next_finish;
 	sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_db_cursor_rewind;
+
+	sparql_cursor_class->get_integer = (gint (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_integer;
+	sparql_cursor_class->get_double = (gdouble (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_double;
+	sparql_cursor_class->get_boolean = (gboolean (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_boolean;
 }
 
 static TrackerDBCursor *
@@ -1374,6 +1382,21 @@ gdouble
 tracker_db_cursor_get_double (TrackerDBCursor *cursor,  guint column)
 {
 	return (gdouble) sqlite3_column_double (cursor->stmt, column);
+}
+
+
+static gint
+tracker_db_cursor_get_integer (TrackerSparqlCursor *sparql_cursor,  guint column)
+{
+	TrackerDBCursor *cursor = (TrackerDBCursor *) sparql_cursor;
+	return (gint) sqlite3_column_int64 (cursor->stmt, column);
+}
+
+static gboolean
+tracker_db_cursor_get_boolean (TrackerSparqlCursor *sparql_cursor,  guint column)
+{
+	TrackerDBCursor *cursor = (TrackerDBCursor *) sparql_cursor;
+	return (g_strcmp0 (sqlite3_column_text (cursor->stmt, column), "true") == 0);
 }
 
 TrackerSparqlValueType
