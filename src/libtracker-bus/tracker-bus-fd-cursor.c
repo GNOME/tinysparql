@@ -171,6 +171,8 @@ tracker_bus_fd_cursor_get_n_columns (TrackerBusFDCursor *cursor)
 static TrackerSparqlValueType
 tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
 {
+	g_return_val_if_fail (cursor->types != NULL, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
+
 	/* Cast from int to enum */
 	return (TrackerSparqlValueType) cursor->types[column];
 }
@@ -178,8 +180,7 @@ tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
 static const gchar*
 tracker_bus_fd_cursor_get_variable_name (TrackerBusFDCursor *cursor,  guint column)
 {
-	if (!cursor->variable_names)
-		return NULL;
+	g_return_val_if_fail (cursor->variable_names != NULL, NULL);
 
 	return cursor->variable_names[column];
 }
