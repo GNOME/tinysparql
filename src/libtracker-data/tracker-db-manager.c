@@ -153,9 +153,6 @@ static gchar                *in_use_filename = NULL;
 static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
 
-static GHashTable           *thread_ifaces = NULL; /* Needed for cross-thread cancellation */
-static GStaticMutex          thread_ifaces_mutex = G_STATIC_MUTEX_INIT;
-
 static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 
 static const gchar *
@@ -682,29 +679,6 @@ tracker_db_manager_init_locations (void)
 	locations_initialized = TRUE;
 }
 
-static void
-free_thread_interface (gpointer data)
-{
-	TrackerDBInterface *interface = data;
-	GHashTableIter iter;
-	gpointer value;
-
-	g_static_mutex_lock (&thread_ifaces_mutex);
-
-	g_hash_table_iter_init (&iter, thread_ifaces);
-
-	while (g_hash_table_iter_next (&iter, NULL, &value)) {
-		if (value == data) {
-			g_hash_table_iter_remove (&iter);
-			break;
-		}
-	}
-
-	g_static_mutex_unlock (&thread_ifaces_mutex);
-
-	g_object_unref (interface);
-}
-
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
@@ -983,8 +957,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 	initialized = TRUE;
 
-	thread_ifaces = g_hash_table_new (NULL, NULL);
-
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
 		resources_iface = tracker_db_manager_get_db_interfaces_ro (1,
 		                                                           TRACKER_DB_METADATA);
@@ -993,11 +965,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		                                                        TRACKER_DB_METADATA);
 	}
 
-	g_static_private_set (&interface_data_key, resources_iface, free_thread_interface);
-
-	g_static_mutex_lock (&thread_ifaces_mutex);
-	g_hash_table_insert (thread_ifaces, g_thread_self (), resources_iface);
-	g_static_mutex_unlock (&thread_ifaces_mutex);
+	g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
 
 	return TRUE;
 }
@@ -1033,11 +1001,6 @@ tracker_db_manager_shutdown (void)
 
 	/* shutdown db interfaces in all threads */
 	g_static_private_free (&interface_data_key);
-
-	if (thread_ifaces) {
-		g_hash_table_destroy (thread_ifaces);
-		thread_ifaces = NULL;
-	}
 
 	/* Since we don't reference this enum anywhere, we do
 	 * it here to make sure it exists when we call
@@ -1421,11 +1384,7 @@ tracker_db_manager_get_db_interface (void)
 
 		tracker_db_interface_sqlite_fts_init (interface, FALSE);
 
-		g_static_private_set (&interface_data_key, interface, free_thread_interface);
-
-		g_static_mutex_lock (&thread_ifaces_mutex);
-		g_hash_table_insert (thread_ifaces, g_thread_self (), interface);
-		g_static_mutex_unlock (&thread_ifaces_mutex);
+		g_static_private_set (&interface_data_key, interface, (GDestroyNotify) g_object_unref);
 	}
 
 	return interface;
