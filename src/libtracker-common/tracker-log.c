@@ -247,13 +247,16 @@ tracker_log_shutdown (void)
 		return;
 	}
 
-	if (fd) {
-		fclose (fd);
-	}
+	/* Reset default log handler */
+	g_log_set_default_handler (g_log_default_handler, NULL);
 
 	if (log_handler_id) {
 		g_log_remove_handler (G_LOG_DOMAIN, log_handler_id);
 		log_handler_id = 0;
+	}
+
+	if (fd) {
+		fclose (fd);
 	}
 
 	g_mutex_free (mutex);
