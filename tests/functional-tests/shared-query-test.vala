@@ -26,6 +26,8 @@ public class TestApp : GLib.Object {
 				return "datetime";
 			case Sparql.ValueType.BLANK_NODE:
 				return "blank-node";
+			case Sparql.ValueType.BOOLEAN:
+				return "boolean";
 			default:
 				break;
 		}

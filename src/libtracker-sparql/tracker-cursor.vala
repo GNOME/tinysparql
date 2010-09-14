@@ -39,6 +39,7 @@
  * @TRACKER_SPARQL_VALUE_TYPE_DOUBLE: Double value type, xsd:double
  * @TRACKER_SPARQL_VALUE_TYPE_DATETIME: Datetime value type, xsd:dateTime
  * @TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE: Blank node value type
+ * @TRACKER_SPARQL_VALUE_TYPE_BOOLEAN: Boolean value type, xsd:boolean
  *
  * Enumeration with the possible types of the cursor's cells
  */
@@ -191,11 +192,10 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a integer.
 	 */
-	public virtual int get_integer (int column) {
+	public virtual int64 get_integer (int column) {
 		return_val_if_fail (get_value_type (column) == ValueType.INTEGER, 0);
 		unowned string as_str = get_string (column);
-		return_val_if_fail (as_str != null, 0);
-		return as_str.to_int();
+		return as_str.to_int64();
 	}
 
 	/**
@@ -210,7 +210,6 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	public virtual double get_double (int column) {
 		return_val_if_fail (get_value_type (column) == ValueType.DOUBLE, 0);
 		unowned string as_str = get_string (column);
-		return_val_if_fail (as_str != null, 0);
 		return as_str.to_double();
 	}
 
@@ -227,7 +226,6 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		ValueType type = get_value_type (column);
 		return_val_if_fail (type == ValueType.BOOLEAN, 0);
 		unowned string as_str = get_string (column);
-		return_val_if_fail (as_str != null, false);
 		return (strcmp (as_str, "true") == 0);
 	}
 
@@ -240,8 +238,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a boolean.
 	 */
-	public virtual bool get_unbound (int column) {
-		if (get_value_type (column) == ValueType.UNBOUND) {
+	public virtual bool is_bound (int column) {
+		if (get_value_type (column) != ValueType.UNBOUND) {
 			return true;
 		}
 		return false;

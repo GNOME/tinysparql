@@ -91,13 +91,11 @@ struct TrackerDBStatementClass {
 
 static TrackerDBStatement *tracker_db_statement_sqlite_new   (TrackerDBInterface   *db_interface,
                                                               sqlite3_stmt         *sqlite_stmt);
+static void                tracker_db_statement_sqlite_reset (TrackerDBStatement   *stmt);
 static TrackerDBCursor    *tracker_db_cursor_sqlite_new      (sqlite3_stmt         *sqlite_stmt,
                                                               TrackerDBStatement   *ref_stmt,
                                                               TrackerPropertyType  *types,
                                                               gint                  n_types);
-static void                tracker_db_statement_sqlite_reset (TrackerDBStatement   *stmt);
-static gint                tracker_db_cursor_get_integer     (TrackerSparqlCursor  *cursor,
-                                                              guint                 column);
 static gboolean            tracker_db_cursor_get_boolean     (TrackerSparqlCursor  *cursor,
                                                               guint                 column);
 static gboolean            db_cursor_iter_next               (TrackerDBCursor      *cursor,
@@ -1191,7 +1189,7 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 	sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_db_cursor_iter_next_finish;
 	sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_db_cursor_rewind;
 
-	sparql_cursor_class->get_integer = (gint (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_integer;
+	sparql_cursor_class->get_integer = (gint64 (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_int;
 	sparql_cursor_class->get_double = (gdouble (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_double;
 	sparql_cursor_class->get_boolean = (gboolean (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_boolean;
 }
@@ -1382,14 +1380,6 @@ gdouble
 tracker_db_cursor_get_double (TrackerDBCursor *cursor,  guint column)
 {
 	return (gdouble) sqlite3_column_double (cursor->stmt, column);
-}
-
-
-static gint
-tracker_db_cursor_get_integer (TrackerSparqlCursor *sparql_cursor,  guint column)
-{
-	TrackerDBCursor *cursor = (TrackerDBCursor *) sparql_cursor;
-	return (gint) sqlite3_column_int64 (cursor->stmt, column);
 }
 
 static gboolean
