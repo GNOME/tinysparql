@@ -58,6 +58,7 @@ struct TrackerDBInterface {
 
 	/* async operation pending */
 	gboolean pending;
+	GAsyncReadyCallback outstanding_callback;
 };
 
 struct TrackerDBInterfaceClass {
@@ -86,11 +87,14 @@ struct TrackerDBStatementClass {
 	GObjectClass parent_class;
 };
 
-static TrackerDBStatement       * tracker_db_statement_sqlite_new (TrackerDBInterface     *db_interface,
+static TrackerDBStatement     * tracker_db_statement_sqlite_new   (TrackerDBInterface     *db_interface,
                                                                    sqlite3_stmt           *sqlite_stmt);
-static TrackerDBCursor          * tracker_db_cursor_sqlite_new    (sqlite3_stmt           *sqlite_stmt,
+static TrackerDBCursor        * tracker_db_cursor_sqlite_new      (sqlite3_stmt           *sqlite_stmt,
                                                                    TrackerDBStatement     *ref_stmt);
-static void tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt);
+static void                     tracker_db_statement_sqlite_reset (TrackerDBStatement     *stmt);
+static gboolean                 db_cursor_iter_next               (TrackerDBCursor        *cursor,
+                                                                   GCancellable           *cancellable,
+                                                                   GError                **error);
 
 enum {
 	PROP_0,
@@ -1107,14 +1111,28 @@ tracker_db_cursor_iter_next_thread (GSimpleAsyncResult *res,
 	GError *error = NULL;
 	gboolean result;
 
-	result = tracker_db_cursor_iter_next (cursor, cancellable, &error);
+	result = db_cursor_iter_next (cursor, cancellable, &error);
 	if (error) {
 		g_simple_async_result_set_from_error (res, error);
 	} else {
 		g_simple_async_result_set_op_res_gboolean (res, result);
 	}
+}
 
-	cursor->ref_stmt->db_interface->pending = FALSE;
+static void
+async_ready_callback_wrapper (GObject      *source_object,
+                              GAsyncResult *res,
+                              gpointer      user_data)
+{
+	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (source_object);
+	TrackerDBInterface *iface = cursor->ref_stmt->db_interface;
+
+	iface->pending = FALSE;
+	if (iface->outstanding_callback) {
+		iface->outstanding_callback (source_object, res, user_data);
+		iface->outstanding_callback = NULL;
+	}
+	g_object_unref (cursor);
 }
 
 static void
@@ -1127,8 +1145,9 @@ tracker_db_cursor_iter_next_async (TrackerDBCursor     *cursor,
 
 	g_return_if_fail (!cursor->ref_stmt->db_interface->pending);
 	cursor->ref_stmt->db_interface->pending = TRUE;
+	cursor->ref_stmt->db_interface->outstanding_callback = callback;
 
-	res = g_simple_async_result_new (G_OBJECT (cursor), callback, user_data, tracker_db_cursor_iter_next_async);
+	res = g_simple_async_result_new (g_object_ref (cursor), async_ready_callback_wrapper, user_data, tracker_db_cursor_iter_next_async);
 	g_simple_async_result_run_in_thread (res, tracker_db_cursor_iter_next_thread, 0, cancellable);
 }
 
@@ -1242,10 +1261,19 @@ tracker_db_cursor_iter_next (TrackerDBCursor *cursor,
                              GCancellable    *cancellable,
                              GError         **error)
 {
+	g_return_val_if_fail (!cursor->ref_stmt->db_interface->pending, FALSE);
+
+	return db_cursor_iter_next (cursor, cancellable, error);
+}
+
+
+static gboolean
+db_cursor_iter_next (TrackerDBCursor *cursor,
+                     GCancellable    *cancellable,
+                     GError         **error)
+{
 	TrackerDBStatement *stmt = cursor->ref_stmt;
 	TrackerDBInterface *iface = stmt->db_interface;
-
-	g_return_val_if_fail (!cursor->ref_stmt->db_interface->pending, FALSE);
 
 	if (!cursor->finished) {
 		guint result;
