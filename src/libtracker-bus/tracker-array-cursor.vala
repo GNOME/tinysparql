@@ -21,32 +21,28 @@ internal class Tracker.Bus.ArrayCursor : Tracker.Sparql.Cursor {
 	int rows;
 	int current_row = -1;
 	string[,] results;
+	string[] var_names;
+	Sparql.ValueType[] types;
 	int cols;
 
-	public ArrayCursor (owned string[,] results, int rows, int cols) {
+	public ArrayCursor (owned string[,] results, int rows, int cols, string[] var_names, Sparql.ValueType[] types) {
 		this.rows = rows;
 		this.cols = cols;
 		this.results = (owned) results;
+		this.types = types;
+		this.var_names = var_names;
 	}
 
 	public override int n_columns { get { return cols; } }
 
 	public override Sparql.ValueType get_value_type (int column)
 	requires (current_row >= 0) {
-
-		// TODO: Implement
-		critical ("Unimplemented");
-
-		return Sparql.ValueType.UNBOUND;
+		return this.types[column];
 	}
 
 	public override unowned string? get_variable_name (int column)
 	requires (current_row >= 0) {
-
-		// TODO: Implement
-		critical ("Unimplemented");
-
-		return null;
+		return this.var_names[column];
 	}
 
 	public override unowned string? get_string (int column, out long length = null)

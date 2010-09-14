@@ -153,12 +153,23 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public override Sparql.Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			string[,] results = statistics_object.Get ();
+			Sparql.ValueType[] types = new Sparql.ValueType[2];
+			string[] var_names = new string[2];
 
 			if (cancellable != null && cancellable.is_cancelled ()) {
 				throw new IOError.CANCELLED ("Operation was cancelled");
 			}
 
-			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+			var_names[0] = "class";
+			var_names[1] = "count";
+			types[0] = Sparql.ValueType.STRING;
+			types[1] = Sparql.ValueType.INTEGER;
+
+			return new Tracker.Bus.ArrayCursor ((owned) results,
+			                                    results.length[0],
+			                                    results.length[1],
+			                                    var_names,
+			                                    types);
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
@@ -167,12 +178,23 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public async override Sparql.Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			string[,] results = yield statistics_object.Get_async ();
+			Sparql.ValueType[] types = new Sparql.ValueType[2];
+			string[] var_names = new string[2];
 
 			if (cancellable != null && cancellable.is_cancelled ()) {
 				throw new IOError.CANCELLED ("Operation was cancelled");
 			}
 
-			return new Tracker.Bus.ArrayCursor ((owned) results, results.length[0], results.length[1]);
+			var_names[0] = "class";
+			var_names[1] = "count";
+			types[0] = Sparql.ValueType.STRING;
+			types[1] = Sparql.ValueType.INTEGER;
+
+			return new Tracker.Bus.ArrayCursor ((owned) results,
+			                                    results.length[0],
+			                                    results.length[1],
+			                                    var_names,
+			                                    types);
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
