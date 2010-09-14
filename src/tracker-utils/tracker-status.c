@@ -345,7 +345,7 @@ store_print_state (void)
 	} else {
 		progress_str = g_strdup_printf ("✓   ");
 	}
-	
+
 	g_print ("%s  %s  %-*.*s    %s %s\n",
 	         time_str,
 	         progress_str,
@@ -354,6 +354,8 @@ store_print_state (void)
 	         _("Journal replay"),
 	         status ? "-" : "",
 	         status ? _(status) : "");
+
+	g_free (progress_str);
 }
 
 static void
