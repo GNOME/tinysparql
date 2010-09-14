@@ -1129,8 +1129,10 @@ async_ready_callback_wrapper (GObject      *source_object,
 
 	iface->pending = FALSE;
 	if (iface->outstanding_callback) {
-		iface->outstanding_callback (source_object, res, user_data);
+		GAsyncReadyCallback callback = iface->outstanding_callback;
+
 		iface->outstanding_callback = NULL;
+		(callback) (source_object, res, user_data);
 	}
 	g_object_unref (cursor);
 }
