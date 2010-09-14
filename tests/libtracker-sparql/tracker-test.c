@@ -35,6 +35,64 @@ ESCAPE_TEST_DATA test_data []  = {
 static TrackerSparqlConnection *connection;
 static GMainLoop *main_loop;
 
+#if HAVE_TRACKER_FTS
+
+static GCancellable *cancellables[6] = { NULL, NULL, NULL, NULL };
+
+/* OK:   query 0 with either query 4 or 5.
+ * FAIL: query 4 and 5 together (requires data to exist)
+ */
+static const gchar *queries[6] = {
+	/* #1 */
+	"SELECT ?p WHERE { ?p tracker:indexed true }",
+	/* #2 */
+	"SELECT ?prefix ?ns WHERE { ?ns a tracker:Namespace ; tracker:prefix ?prefix }",
+	/* #3 */
+	"SELECT ?p WHERE { ?p tracker:fulltextIndexed true }",
+	/* #4 */
+	"SELECT"
+	"  ?u nie:url(?u)"
+	"  tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\")"
+	"  nfo:fileLastModified(?u)"
+	"  nfo:fileSize(?u)"
+	"  nie:url(?c) "
+	"WHERE { "
+	"  ?u fts:match \"love\" . "
+	"  ?u nfo:belongsToContainer ?c ; "
+	"     tracker:available true . "
+	"} "
+	"ORDER BY DESC(fts:rank(?u)) "
+	"OFFSET 0 LIMIT 100",
+	/* #5 */
+	"SELECT"
+	"  ?song"
+	"  nie:url(?song)"
+	"  tracker:coalesce(nie:title(?song), nfo:fileName(?song), \"Unknown\")"
+	"  fn:string-join((?performer, ?album), \" - \")"
+	"  nfo:duration(?song)"
+	"  ?tooltip "
+	"WHERE {"
+	"  ?match fts:match \"love\""
+	"  {"
+	"    ?song nmm:musicAlbum ?match"
+	"  } UNION {"
+	"    ?song nmm:performer ?match"
+	"  } UNION {"
+	"    ?song a nfo:Audio ."
+	"    ?match a nfo:Audio"
+	"    FILTER (?song = ?match)"
+	"  }"
+	"  ?song nmm:performer [ nmm:artistName ?performer ] ;"
+	"        nmm:musicAlbum [ nie:title ?album ] ;"
+	"        nfo:belongsToContainer [ nie:url ?tooltip ]"
+	"} "
+	"ORDER BY DESC(fts:rank(?song)) DESC(nie:title(?song)) "
+	"OFFSET 0 LIMIT 100",
+	NULL
+};
+
+#endif
+
 static void
 test_tracker_sparql_escape_string (void)
 {
@@ -58,6 +116,10 @@ test_tracker_sparql_escape_uri_vprintf (void)
 	g_free (result);
 }
 
+#if HAVE_TRACKER_FTS
+
+static void test_tracker_sparql_cursor_next_async_query (gint query);
+
 static void
 test_tracker_sparql_cursor_next_async_cb (GObject      *source,
                                           GAsyncResult *result,
@@ -66,91 +128,99 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	gboolean success;
-	static gint successes = 0;
+	static gint finished = 0;
+	static gint next = 0;
+	gint next_to_cancel = 1;
+	gint query;
+
+	query = GPOINTER_TO_INT(user_data);
 
 	g_assert (result != NULL);
-	success = tracker_sparql_cursor_next_finish (TRACKER_SPARQL_CURSOR (source), result, &error);
-	g_assert_no_error (error);
+	success = tracker_sparql_cursor_next_finish (TRACKER_SPARQL_CURSOR (source),
+	                                             result,
+	                                             &error);
+
+	if (finished == 1 && next == next_to_cancel) {
+		g_assert (error != NULL);
+		g_print ("Got Cancellation GError\n");
+	} else {
+		g_assert_no_error (error);
+	}
 
 	cursor = TRACKER_SPARQL_CURSOR (source);
 	g_assert (cursor != NULL);
 
-	g_print ("  %p: %s\n", user_data, tracker_sparql_cursor_get_string (cursor, 0, NULL));
+	g_print ("  %d: %s\n",
+	         query,
+	         tracker_sparql_cursor_get_string (cursor, 0, NULL));
 
 	if (!success) {
-		successes++;
-		if (successes > 1) {
+		finished++;
+		next = 0;
+
+		g_print ("Finished %d\n", finished);
+
+		if (finished == 1 || finished == 2) {
+			test_tracker_sparql_cursor_next_async_query (finished);
+		} else if (finished == 3) {
 			g_main_loop_quit (main_loop);
 		}
 	} else {
-		tracker_sparql_cursor_next_async (cursor, NULL, test_tracker_sparql_cursor_next_async_cb, user_data);
+		tracker_sparql_cursor_next_async (cursor,
+		                                  cancellables[query],
+		                                  test_tracker_sparql_cursor_next_async_cb,
+		                                  user_data);
+
+		next++;
+
+		/* Random number here for next_count_to_cancel is "2",
+		 * just want to do this mid-cursor iteration
+		 */
+		if (next == next_to_cancel && finished == 1) {
+			/* Cancel */
+			g_print ("Cancelling cancellable:%p at count:%d\n",
+			         cancellables[query],
+			         next);
+			g_cancellable_cancel (cancellables[query]);
+		}
 	}
 }
 
-#if HAVE_TRACKER_FTS
 static void
-test_tracker_sparql_cursor_next_async (void)
+test_tracker_sparql_cursor_next_async_query (gint query)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
-	/* OK:   query 0 with either query 1 or 2.
-	 * FAIL: query 1 and 2 together
-	 */
-	const gchar *query0 = "SELECT ?p WHERE { ?p tracker:indexed true }";
-        const gchar *query1 = \
-	        "SELECT"
-	        "  ?u nie:url(?u)"
-	        "  tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\")"
-	        "  nfo:fileLastModified(?u)"
-	        "  nfo:fileSize(?u)"
-	        "  nie:url(?c) "
-	        "WHERE { "
-	        "  ?u fts:match \"love\" . "
-	        "  ?u nfo:belongsToContainer ?c ; "
-	        "     tracker:available true . "
-	        "} "
-	        "ORDER BY DESC(fts:rank(?u)) "
-	        "OFFSET 0 LIMIT 100";
-	const gchar *query2 = \
-		"SELECT"
-		"  ?song"
-		"  nie:url(?song)"
-		"  tracker:coalesce(nie:title(?song), nfo:fileName(?song), \"Unknown\")"
-		"  fn:string-join((?performer, ?album), \" - \")"
-		"  nfo:duration(?song)"
-		"  ?tooltip "
-		"WHERE {"
-		"  ?match fts:match \"love\""
-		"  {"
-		"    ?song nmm:musicAlbum ?match"
-		"  } UNION {"
-		"    ?song nmm:performer ?match"
-		"  } UNION {"
-		"    ?song a nfo:Audio ."
-		"    ?match a nfo:Audio"
-		"    FILTER (?song = ?match)"
-		"  }"
-		"  ?song nmm:performer [ nmm:artistName ?performer ] ;"
-		"        nmm:musicAlbum [ nie:title ?album ] ;"
-		"        nfo:belongsToContainer [ nie:url ?tooltip ]"
-		"} "
-		"ORDER BY DESC(fts:rank(?song)) DESC(nie:title(?song)) "
-		"OFFSET 0 LIMIT 100";
+	g_print ("ASYNC query %d starting:\n", query);
 
-	
-	g_print ("ASYNC query 1 starting:\n");
-	cursor = tracker_sparql_connection_query (connection, query1, NULL, &error);
+	cancellables[query] = g_cancellable_new ();
+	g_assert (cancellables[query] != NULL);
+
+	cursor = tracker_sparql_connection_query (connection,
+	                                          queries[query],
+	                                          NULL,
+	                                          &error);
 	g_assert_no_error (error);
 	g_assert (cursor != NULL);
-	tracker_sparql_cursor_next_async (cursor, NULL, test_tracker_sparql_cursor_next_async_cb, GINT_TO_POINTER(1));
 
-	g_print ("ASYNC query 2 starting:\n");
-	cursor = tracker_sparql_connection_query (connection, query2, NULL, &error);
-	g_assert_no_error (error);
-	g_assert (cursor != NULL);
-	tracker_sparql_cursor_next_async (cursor, NULL, test_tracker_sparql_cursor_next_async_cb, GINT_TO_POINTER(2));
+	tracker_sparql_cursor_next_async (cursor,
+	                                  cancellables[query],
+	                                  test_tracker_sparql_cursor_next_async_cb,
+	                                  GINT_TO_POINTER(query));
 }
+
+static void
+test_tracker_sparql_cursor_next_async (void)
+{
+	/* So, the idea here:
+	 * 1. Test async cursor_next() call.
+	 * 2. Make sure we can cancel a cursor_next() call and start a new query (was failing)
+	 * 3. Handle multiple async queries + async cursor_next() calls.
+	 */
+	test_tracker_sparql_cursor_next_async_query (0);
+}
+
 #endif
 
 gint
