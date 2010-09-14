@@ -371,7 +371,7 @@ miner_constructed (GObject *object)
 
 	_tracker_miner_dbus_init (miner, &dbus_glib__tracker_miner_object_info);
 	_tracker_miner_dbus_add_name_watch (miner, "org.freedesktop.Tracker1",
-                                            store_name_monitor_cb);
+	                                    store_name_monitor_cb);
 }
 
 static void
