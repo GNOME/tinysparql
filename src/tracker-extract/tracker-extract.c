@@ -62,6 +62,7 @@ typedef struct {
 typedef struct {
 	const GModule *module;
 	const TrackerExtractData *edata;
+	GPatternSpec *pattern; /* For a fast g_pattern_match() */
 }  ModuleData;
 
 
@@ -92,6 +93,7 @@ tracker_extract_init (TrackerExtract *object)
 static void
 tracker_extract_finalize (GObject *object)
 {
+	guint i;
 	TrackerExtractPrivate *priv;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
@@ -100,7 +102,20 @@ tracker_extract_finalize (GObject *object)
 	tracker_topanalyzer_shutdown ();
 #endif /* HAVE_STREAMANALYZER */
 
+	for (i = 0; i < priv->specific_extractors->len; i++) {
+		ModuleData mdata;
+
+		mdata = g_array_index (priv->specific_extractors, ModuleData, i);
+		g_pattern_spec_free (mdata.pattern);
+	}
 	g_array_free (priv->specific_extractors, TRUE);
+
+	for (i = 0; i < priv->generic_extractors->len; i++) {
+		ModuleData mdata;
+
+		mdata = g_array_index (priv->generic_extractors, ModuleData, i);
+		g_pattern_spec_free (mdata.pattern);
+	}
 	g_array_free (priv->generic_extractors, TRUE);
 
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
@@ -201,6 +216,9 @@ load_modules (const gchar  *force_module,
 			           g_module_name ((GModule*) mdata.module));
 
 			for (; mdata.edata->mime; mdata.edata++) {
+				/* Compile pattern from mime */
+				mdata.pattern = g_pattern_spec_new (mdata.edata->mime);
+
 				if (G_UNLIKELY (strchr (mdata.edata->mime, '*') != NULL)) {
 					g_message ("  Generic  match for mime:'%s'",
 					           mdata.edata->mime);
@@ -380,6 +398,15 @@ get_file_metadata (TrackerExtract         *extract,
 	 */
 	if (mime_used) {
 		guint i;
+		glong length;
+		gchar *reversed;
+
+		/* Using a reversed string while pattern matching is faster
+		 * if we have lots of patterns with wildcards. Probably
+		 * not needed to assume the mime type could be non-ASCII,
+		 * but anyway... */
+		reversed = g_utf8_strreverse (mime_used, -1);
+		length = g_utf8_strlen (mime_used, -1);
 
 		for (i = 0; i < priv->specific_extractors->len; i++) {
 			const TrackerExtractData *edata;
@@ -388,7 +415,7 @@ get_file_metadata (TrackerExtract         *extract,
 			mdata = g_array_index (priv->specific_extractors, ModuleData, i);
 			edata = mdata.edata;
 
-			if (g_pattern_match_simple (edata->mime, mime_used)) {
+			if (g_pattern_match (mdata.pattern, length, mime_used, reversed)) {
 				gint items;
 
 				tracker_dbus_request_comment (request_id,
@@ -411,10 +438,10 @@ get_file_metadata (TrackerExtract         *extract,
 				tracker_sparql_builder_insert_close (statements);
 
 				g_free (mime_used);
+				g_free (reversed);
 
 				*preupdate_out = preupdate;
 				*statements_out = statements;
-
 				return TRUE;
 			}
 		}
@@ -426,7 +453,7 @@ get_file_metadata (TrackerExtract         *extract,
 			mdata = g_array_index (priv->generic_extractors, ModuleData, i);
 			edata = mdata.edata;
 
-			if (g_pattern_match_simple (edata->mime, mime_used)) {
+			if (g_pattern_match (mdata.pattern, length, mime_used, reversed)) {
 				gint items;
 
 				tracker_dbus_request_comment (request_id,
@@ -449,6 +476,7 @@ get_file_metadata (TrackerExtract         *extract,
 				tracker_sparql_builder_insert_close (statements);
 
 				g_free (mime_used);
+				g_free (reversed);
 
 				*preupdate_out = preupdate;
 				*statements_out = statements;
@@ -457,11 +485,14 @@ get_file_metadata (TrackerExtract         *extract,
 			}
 		}
 
-		g_free (mime_used);
-
 		tracker_dbus_request_comment (request_id,
 		                              context,
-		                              "  Could not find any extractors to handle metadata type");
+		                              "  Could not find any extractors to handle metadata type "
+		                              "(mime: %s)",
+		                              mime_used);
+
+		g_free (mime_used);
+		g_free (reversed);
 	} else {
 		tracker_dbus_request_comment (request_id,
 		                              context,
