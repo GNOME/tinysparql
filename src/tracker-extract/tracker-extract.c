@@ -405,7 +405,8 @@ get_file_metadata (TrackerExtract         *extract,
 		 * if we have lots of patterns with wildcards.
 		 * We are assuming here that mime_used is ASCII always, so
 		 * we avoid g_utf8_strreverse() */
-		reversed = g_strreverse (mime_used);
+		reversed = g_strdup (mime_used);
+		g_strreverse (reversed);
 		length = strlen (mime_used);
 
 		for (i = 0; i < priv->specific_extractors->len; i++) {
