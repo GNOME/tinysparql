@@ -366,10 +366,8 @@ get_emails (TrackerSparqlConnection *connection,
 {
 	gchar *fts;
 	gchar *query;
-	const gchar *show_all_str;
 	gboolean success;
 
-	show_all_str = show_all ? "" : "?email tracker:available true .";
 	fts = get_fts_string (search_terms, use_or_operator);
 
 	if (fts) {
@@ -377,25 +375,21 @@ get_emails (TrackerSparqlConnection *connection,
 		                         "WHERE { "
 		                         "  ?email a nmo:Email ;"
 		                         "  fts:match \"%s\" ."
-		                         "  %s"
 		                         "} "
 		                         "ORDER BY ASC(nmo:messageSubject(?email)) ASC(nmo:receivedDate(?email))"
 		                         "OFFSET %d "
 		                         "LIMIT %d",
 		                         fts,
-		                         show_all_str,
 		                         search_offset,
 		                         search_limit);
 	} else {
 		query = g_strdup_printf ("SELECT nmo:receivedDate(?email) nmo:messageSubject(?email) nie:url(?email) "
 		                         "WHERE { "
 		                         "  ?email a nmo:Email ."
-		                         "  %s"
 		                         "} "
 		                         "ORDER BY ASC(nmo:messageSubject(?email)) ASC(nmo:receivedDate(?email))"
 		                         "OFFSET %d "
 		                         "LIMIT %d",
-		                         show_all_str,
 		                         search_offset,
 		                         search_limit);
 	}
