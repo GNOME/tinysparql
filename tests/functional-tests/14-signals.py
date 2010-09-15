@@ -31,13 +31,14 @@ import gobject
 import glib
 import dbus
 from dbus.mainloop.glib import DBusGMainLoop
+import time
 
-SUBJECTS_ADDED_SIGNAL = "SubjectsAdded"
-SUBJECTS_REMOVED_SIGNAL = "SubjectsRemoved"
-SUBJECTS_CHANGED_SIGNAL = "SubjectsChanged"
+GRAPH_UPDATED_SIGNAL = "GraphUpdated"
 
-NCO_CONTACT_PATH = "/org/freedesktop/Tracker1/Resources/Classes/nco/Contact"
-SIGNALS_IFACE = "org.freedesktop.Tracker1.Resources.Class"
+SIGNALS_PATH = "/org/freedesktop/Tracker1/Resources"
+SIGNALS_IFACE = "org.freedesktop.Tracker1.Resources"
+
+CONTACT_CLASS_URI = "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact"
 
 REASONABLE_TIMEOUT = 10 # Time waiting for the signal to be emitted
 
@@ -47,24 +48,32 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
     and check that the signals are emitted
     """
     def setUp (self):
+        self.clean_up_list = []
         self.loop = gobject.MainLoop()
         dbus_loop = DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SessionBus (dbus_loop)
         self.timeout_id = 0
 
-    def __connect_signal (self, signal_name, callback):
+        self.results_classname = None
+        self.results_deletes = None
+        self.results_inserts = None
+
+    def tearDown (self):
+        for uri in self.clean_up_list:
+            self.tracker.update ("DELETE { <%s> a rdfs:Resource }" % uri)
+
+        self.clean_up_list = []
+        # Wait a bit to avoid noise in the signals
+        time.sleep (2)
+
+        
+    def __connect_signal (self):
         """
         After connecting to the signal, call self.__wait_for_signal.
-        That function will wait in a loop, so make sure that the callback
-        calls self.loop.quit ()
         """
-        if not signal_name in [SUBJECTS_ADDED_SIGNAL, SUBJECTS_REMOVED_SIGNAL, SUBJECTS_CHANGED_SIGNAL]:
-            print "What kind of signal are you trying to connect?!"
-            assert False
-
-        self.cb_id = self.bus.add_signal_receiver (callback,
-                                                   signal_name=signal_name,
-                                                   path = NCO_CONTACT_PATH,
+        self.cb_id = self.bus.add_signal_receiver (self.__signal_received_cb,
+                                                   signal_name=GRAPH_UPDATED_SIGNAL,
+                                                   path = SIGNALS_PATH,
                                                    dbus_interface = SIGNALS_IFACE)
 
     def __wait_for_signal (self):
@@ -78,37 +87,31 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.loop.quit ()
         self.fail ("Timeout, the signal never came!")
 
-
-    def __disconnect_signals_after_test (fn):
+    def __pretty_print_array (self, array):
+        for g, s, o, p in array:
+            uri, prop, value = self.tracker.query ("SELECT tracker:uri (%s), tracker:uri (%s), tracker:uri (%s) WHERE {}" % (s, o, p))
+            print " - (", "-".join ([g, uri, prop, value]), ")"
+                                    
+    def __signal_received_cb (self, classname, deletes, inserts):
         """
-        Here maybe i got a bit carried away with python instrospection.
-        This decorator makes the function run in a try/finally, and disconnect
-        all the signals afterwards.
-
-        It means that the signal callbacks just need to ensure the results are fine.
-        Don't touch this unless you know what are you doing.
+        Save the content of the signal and disconnect the callback
         """
-        def new (self, *args):
-            try:
-                fn (self, *args)
-            finally:
-                if (self.timeout_id != 0):
-                    glib.source_remove (self.timeout_id )
-                    self.timeout_id = 0
-                self.loop.quit ()
-                self.bus._clean_up_signal_match (self.cb_id)
-        return new
-        
-        
-    @__disconnect_signals_after_test 
-    def __contact_added_cb (self, contacts_added):
-        self.assertEquals (len (contacts_added), 1)
-        self.assertIn ("test://signals-contact-add", contacts_added)
+        self.results_classname = classname
+        self.results_deletes = deletes
+        self.results_inserts = inserts
+
+        if (self.timeout_id != 0):
+            glib.source_remove (self.timeout_id )
+            self.timeout_id = 0
+        self.loop.quit ()
+        self.bus._clean_up_signal_match (self.cb_id)
+
 
     def test_01_insert_contact (self):
+        self.clean_up_list.append ("test://signals-contact-add")
         CONTACT = """
         INSERT {
-         <test://signals-contact-add> a nco:PersonContact ;
+        <test://signals-contact-add> a nco:PersonContact ;
              nco:nameGiven 'Contact-name added';
              nco:nameFamily 'Contact-family added';
              nie:generator 'test-14-signals' ;
@@ -116,20 +119,16 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
              nco:hasPhoneNumber <tel:555555555> .
         }
         """
-        self.__connect_signal (SUBJECTS_ADDED_SIGNAL, self.__contact_added_cb)
+        self.__connect_signal ()
         self.tracker.update (CONTACT)
+        time.sleep (1)
         self.__wait_for_signal ()
 
-        self.tracker.update ("""
-        DELETE { <test://signals-contact-add> a rdfs:Resource }
-        """)
-
-
-    @__disconnect_signals_after_test
-    def __contact_removed_cb (self, contacts_removed):
-        self.assertEquals (len (contacts_removed), 1)
-        self.assertIn ("test://signals-contact-remove", contacts_removed)
-
+        # validate results
+        self.assertEquals (self.results_classname, CONTACT_CLASS_URI)
+        self.assertEquals (len (self.results_deletes), 0)
+        self.assertEquals (len (self.results_inserts), 7)
+        
     def test_02_remove_contact (self):
         CONTACT = """
         INSERT {
@@ -139,32 +138,54 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         }
         """
         self.tracker.update (CONTACT)
-
-        self.__connect_signal (SUBJECTS_REMOVED_SIGNAL, self.__contact_removed_cb)
+        time.sleep (1)
+        
+        self.__connect_signal ()
         self.tracker.update ("""
             DELETE { <test://signals-contact-remove> a rdfs:Resource }
             """)
         self.__wait_for_signal ()
-        
 
+        # Validate results:
+        self.assertEquals (self.results_classname, CONTACT_CLASS_URI)
+        self.assertEquals (len (self.results_deletes), 2)
+        self.assertEquals (len (self.results_inserts), 0)
 
-    @__disconnect_signals_after_test
-    def __contact_updated_cb (self, contacts_updated, props_updated):
-        self.assertEquals (len (contacts_updated), 1)
-        self.assertIn ("test://signals-contact-update", contacts_updated)
-
-        self.assertEquals (len (props_updated), 1)
-        self.assertIn ("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", props_updated)
 
     def test_03_update_contact (self):
-        self.tracker.update ("INSERT { <test://signals-contact-update> a nco:PersonContact }")
+        self.clean_up_list.append ("test://signals-contact-update")
         
-        self.__connect_signal (SUBJECTS_CHANGED_SIGNAL, self.__contact_updated_cb)
+        self.tracker.update ("INSERT { <test://signals-contact-update> a nco:PersonContact }")
+        time.sleep (1)
+        
+        self.__connect_signal ()
         self.tracker.update ("INSERT { <test://signals-contact-update> nco:fullname 'wohoo'}")
         self.__wait_for_signal ()
 
-        self.tracker.update ("DELETE { <test://signals-contact-update> a rdfs:Resource}")
+        self.assertEquals (self.results_classname, CONTACT_CLASS_URI)
+        self.assertEquals (len (self.results_deletes), 0)
+        self.assertEquals (len (self.results_inserts), 1)
 
+
+    def test_04_fullupdate_contact (self):
+        self.clean_up_list.append ("test://signals-contact-fullupdate")
+        
+        self.tracker.update ("INSERT { <test://signals-contact-fullupdate> a nco:PersonContact; nco:fullname 'first value' }")
+        time.sleep (1)
+        
+        self.__connect_signal ()
+        self.tracker.update ("""
+               DELETE { <test://signals-contact-fullupdate> nco:fullname ?x }
+               WHERE { <test://signals-contact-fullupdate> a nco:PersonContact; nco:fullname ?x }
+               
+               INSERT { <test://signals-contact-fullupdate> nco:fullname 'second value'}
+               """)
+        self.__wait_for_signal ()
+
+        self.assertEquals (self.results_classname, CONTACT_CLASS_URI)
+        self.assertEquals (len (self.results_deletes), 1)
+        self.assertEquals (len (self.results_inserts), 1)
+        
 
 if __name__ == "__main__":
     ut.main()
