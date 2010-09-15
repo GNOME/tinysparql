@@ -33,6 +33,9 @@ MINER_IFACE = "org.freedesktop.Tracker1.Miner"
 TRACKER_BACKUP_OBJ_PATH = "/org/freedesktop/Tracker1/Backup"                                            
 BACKUP_IFACE = "org.freedesktop.Tracker1.Backup"
 
+TRACKER_STATS_OBJ_PATH = "/org/freedesktop/Tracker1/Statistics"
+STATS_IFACE = "org.freedesktop.Tracker1.Statistics"
+
 TRACKER_EXTRACT_BUSNAME = "org.freedesktop.Tracker1.Extract"
 TRACKER_EXTRACT_OBJ_PATH = "/org/freedesktop/Tracker1/Extract"
 TRACKER_EXTRACT_IFACE = "org.freedesktop.Tracker1.Extract"
