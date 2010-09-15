@@ -402,11 +402,11 @@ get_file_metadata (TrackerExtract         *extract,
 		gchar *reversed;
 
 		/* Using a reversed string while pattern matching is faster
-		 * if we have lots of patterns with wildcards. Probably
-		 * not needed to assume the mime type could be non-ASCII,
-		 * but anyway... */
-		reversed = g_utf8_strreverse (mime_used, -1);
-		length = g_utf8_strlen (mime_used, -1);
+		 * if we have lots of patterns with wildcards.
+		 * We are assuming here that mime_used is ASCII always, so
+		 * we avoid g_utf8_strreverse() */
+		reversed = g_strreverse (mime_used);
+		length = strlen (mime_used);
 
 		for (i = 0; i < priv->specific_extractors->len; i++) {
 			const TrackerExtractData *edata;
