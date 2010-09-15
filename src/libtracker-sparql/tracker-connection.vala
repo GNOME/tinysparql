@@ -130,7 +130,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 			throw new IOError.CANCELLED ("Operation was cancelled");
 		}
 
-		direct_only = true;
+		direct_only = is_direct_only;
 		singleton = result;
 		result.add_weak_pointer ((void**) (&singleton));
 		return singleton;
