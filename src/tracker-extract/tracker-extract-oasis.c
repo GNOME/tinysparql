@@ -128,6 +128,11 @@ extract_oasis_content (const gchar          *uri,
 		NULL
 	};
 
+	/* If no content requested, return */
+	if (total_bytes == 0) {
+		return;
+	}
+
 	/* Create parse info */
 	info.current = ODT_TAG_TYPE_UNKNOWN;
 	info.file_type = file_type;

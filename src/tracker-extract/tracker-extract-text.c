@@ -50,6 +50,11 @@ get_file_content (const gchar *uri,
 	GError     *error = NULL;
 	gchar      *text;
 
+	/* If no content requested, return */
+	if (n_bytes == 0) {
+		return NULL;
+	}
+
 	/* Get filename from URI */
 	file = g_file_new_for_uri (uri);
 	stream = g_file_read (file, NULL, &error);

@@ -647,6 +647,11 @@ extract_powerpoint_content (GsfInfile *infile,
 	GString *all_texts = NULL;
 	gsf_off_t last_document_container;
 
+	/* If no content requested, return */
+	if (max_bytes == 0) {
+		return NULL;
+	}
+
 	stream = gsf_infile_child_by_name (infile, "PowerPoint Document");
 
 	if (is_encrypted) {
@@ -800,6 +805,11 @@ extract_msword_content (GsfInfile *infile,
 	guint8 *text_buffer = NULL;
 	gint text_buffer_size = 0;
 	gsize n_bytes_remaining;
+
+	/* If no content requested, return */
+	if (n_bytes == 0) {
+		return NULL;
+	}
 
 	document_stream = gsf_infile_child_by_name (infile, "WordDocument");
 	if (document_stream == NULL) {
@@ -1426,6 +1436,11 @@ extract_excel_content (GsfInfile *infile,
 	GsfInput *stream;
 	guint saved_offset;
 	gsize n_bytes_remaining = n_bytes;
+
+	/* If no content requested, return */
+	if (n_bytes == 0) {
+		return NULL;
+	}
 
 	stream = gsf_infile_child_by_name (infile, "Workbook");
 
