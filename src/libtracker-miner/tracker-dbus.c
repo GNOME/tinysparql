@@ -30,7 +30,6 @@
 
 typedef struct {
 	DBusGConnection *connection;
-	DBusGProxy *gproxy;
 	GHashTable *name_monitors;
 } DBusData;
 
@@ -171,10 +170,6 @@ dbus_data_destroy (gpointer data)
 
 	dd = data;
 
-	if (dd->gproxy) {
-		g_object_unref (dd->gproxy);
-	}
-
 	if (dd->connection) {
 		dbus_g_connection_unref (dd->connection);
 	}
@@ -243,11 +238,12 @@ dbus_data_create (TrackerMiner          *miner,
 	/* Connection object is a shared one, so we need to keep our own
 	 * reference to it */
 	data->connection = dbus_g_connection_ref (connection);
-	data->gproxy = gproxy;
 	data->name_monitors = g_hash_table_new_full (g_str_hash,
 	                                             g_str_equal,
 	                                             (GDestroyNotify) g_free,
 	                                             NULL);
+
+	g_object_unref (gproxy);
 
 	return data;
 }
