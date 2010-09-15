@@ -1180,18 +1180,18 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 
 	object_class->finalize = tracker_db_cursor_finalize;
 
-	sparql_cursor_class->get_value_type = (TrackerSparqlValueType (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_value_type;
-	sparql_cursor_class->get_variable_name = (const gchar * (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_variable_name;
-	sparql_cursor_class->get_n_columns = (gint (*) (TrackerSparqlCursor *)) tracker_db_cursor_get_n_columns;
-	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, gint, glong*)) tracker_db_cursor_get_string;
+	sparql_cursor_class->get_value_type = (TrackerSparqlValueType (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_value_type;
+	sparql_cursor_class->get_variable_name = (const gchar * (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_variable_name;
+	sparql_cursor_class->get_n_columns = (guint (*) (TrackerSparqlCursor *)) tracker_db_cursor_get_n_columns;
+	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, guint, glong*)) tracker_db_cursor_get_string;
 	sparql_cursor_class->next = (gboolean (*) (TrackerSparqlCursor *, GCancellable *, GError **)) tracker_db_cursor_iter_next;
 	sparql_cursor_class->next_async = (void (*) (TrackerSparqlCursor *, GCancellable *, GAsyncReadyCallback, gpointer)) tracker_db_cursor_iter_next_async;
 	sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_db_cursor_iter_next_finish;
 	sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_db_cursor_rewind;
 
-	sparql_cursor_class->get_integer = (gint64 (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_int;
-	sparql_cursor_class->get_double = (gdouble (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_double;
-	sparql_cursor_class->get_boolean = (gboolean (*) (TrackerSparqlCursor *, gint)) tracker_db_cursor_get_boolean;
+	sparql_cursor_class->get_integer = (gint64 (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_int;
+	sparql_cursor_class->get_double = (gdouble (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_double;
+	sparql_cursor_class->get_boolean = (gboolean (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_boolean;
 }
 
 static TrackerDBCursor *

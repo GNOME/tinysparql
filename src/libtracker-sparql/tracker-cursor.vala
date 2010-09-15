@@ -88,7 +88,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Number of columns available in the results to iterate.
 	 */
-	public abstract int n_columns {
+	public abstract uint n_columns {
 		/**
 		 * tracker_sparql_cursor_get_n_columns:
 		 * @self: a #TrackerSparqlCursor
@@ -98,7 +98,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		 * tracker_sparql_cursor_next(); otherwise its return value will be
 		 * undefined.
 		 *
-		 * Returns: a #gint with the number of columns.
+		 * Returns: a #guint with the number of columns.
 		 */
 		get;
 	}
@@ -112,7 +112,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a value type
 	 */
-	public abstract ValueType get_value_type (int column);
+	public abstract ValueType get_value_type (uint column);
 
 	/**
 	 * tracker_sparql_cursor_get_variable_name:
@@ -123,7 +123,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a string, which should not be freed by the caller.
 	 */
-	public abstract unowned string? get_variable_name (int column);
+	public abstract unowned string? get_variable_name (uint column);
 
 	/**
 	 * tracker_sparql_cursor_get_string:
@@ -136,7 +136,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Returns: a string, which should not be freed by the caller. #NULL
 	 * is returned if the column number is in the [0,#n_columns] range.
 	 */
-	public abstract unowned string? get_string (int column, out long length = null);
+	public abstract unowned string? get_string (uint column, out long length = null);
 
 	/**
 	 * tracker_sparql_cursor_next:
@@ -192,7 +192,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a integer.
 	 */
-	public virtual int64 get_integer (int column) {
+	public virtual int64 get_integer (uint column) {
 		return_val_if_fail (get_value_type (column) == ValueType.INTEGER, 0);
 		unowned string as_str = get_string (column);
 		return as_str.to_int64();
@@ -207,7 +207,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a double.
 	 */
-	public virtual double get_double (int column) {
+	public virtual double get_double (uint column) {
 		return_val_if_fail (get_value_type (column) == ValueType.DOUBLE, 0);
 		unowned string as_str = get_string (column);
 		return as_str.to_double();
@@ -222,7 +222,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a boolean.
 	 */
-	public virtual bool get_boolean (int column) {
+	public virtual bool get_boolean (uint column) {
 		ValueType type = get_value_type (column);
 		return_val_if_fail (type == ValueType.BOOLEAN, 0);
 		unowned string as_str = get_string (column);
@@ -238,7 +238,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a boolean.
 	 */
-	public virtual bool is_bound (int column) {
+	public virtual bool is_bound (uint column) {
 		if (get_value_type (column) != ValueType.UNBOUND) {
 			return true;
 		}

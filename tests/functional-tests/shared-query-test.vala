@@ -35,13 +35,13 @@ public class TestApp : GLib.Object {
 	}
 
 	int iter_cursor (Cursor cursor) {
-		int i;
+		uint i;
 
 		try {
 			for (i = 0; i < cursor.n_columns; i++) {
 				print ("| %s ", cursor.get_variable_name (i));
 			}
-			print ("| -> %d columns\n", cursor.n_columns);
+			print ("| -> %u columns\n", cursor.n_columns);
 
 			while (cursor.next()) {
 
