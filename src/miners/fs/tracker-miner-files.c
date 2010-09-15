@@ -72,11 +72,7 @@ struct ProcessFileData {
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
 	GFile *file;
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusPendingCall *call;
-#else /* HAVE_DBUS_FD_PASSING */
-	DBusGProxyCall *call;
-#endif /* HAVE_DBUS_FD_PASSING */
 };
 
 typedef struct {
@@ -1962,11 +1958,6 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
 
 	process_file_data_free (data);
-#ifndef HAVE_DBUS_FD_PASSING
-	/* When using DBus FD passing, we let the caller free */
-	g_free (preupdate);
-	g_free (sparql);
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 static void
@@ -1976,10 +1967,6 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 	GError *error;
 
 	/* Cancel extractor call */
-#ifndef HAVE_DBUS_FD_PASSING
-	dbus_g_proxy_cancel_call (data->miner->private->extractor_proxy,
-	                          data->call);
-#endif /* HAVE_DBUS_FD_PASSING */
 
 	error = g_error_new_literal (miner_files_error_quark, 0, "Embedded metadata extraction was cancelled");
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
@@ -1988,7 +1975,6 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 	g_error_free (error);
 }
 
-#ifdef HAVE_DBUS_FD_PASSING
 static FastAsyncData*
 fast_async_data_new (org_freedesktop_Tracker1_Extract_get_metadata_reply callback,
                      gpointer       user_data)
@@ -2011,6 +1997,7 @@ fast_async_data_free (FastAsyncData *data)
 static void
 get_metadata_fast_cb (void     *buffer,
                       gssize    buffer_size,
+                      GStrv     variable_names,
                       GError   *error,
                       gpointer  user_data)
 {
@@ -2083,18 +2070,17 @@ get_metadata_fast_async (DBusConnection  *connection,
 	tracker_dbus_send_and_splice_async (connection,
 	                                    message,
 	                                    pipefd[0],
+	                                    FALSE,
 	                                    cancellable,
 	                                    get_metadata_fast_cb,
 	                                    data);
 }
-#endif /* HAVE_DBUS_FD_PASSING */
 
 static void
 extractor_get_embedded_metadata (ProcessFileData *data,
                                  const gchar     *uri,
                                  const gchar     *mime_type)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	get_metadata_fast_async (dbus_g_connection_get_connection (data->miner->private->connection),
 	                         uri,
 	                         mime_type,
@@ -2102,13 +2088,7 @@ extractor_get_embedded_metadata (ProcessFileData *data,
 	                         extractor_get_embedded_metadata_cb,
 	                         data);
 	data->call = NULL;
-#else /* HAVE_DBUS_FD_PASSING */
-	data->call = org_freedesktop_Tracker1_Extract_get_metadata_async (data->miner->private->extractor_proxy,
-	                                                                  uri,
-	                                                                  mime_type,
-	                                                                  extractor_get_embedded_metadata_cb,
-	                                                                  data);
-#endif
+
 	g_signal_connect (data->cancellable, "cancelled",
 	                  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
 }

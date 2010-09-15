@@ -36,8 +36,6 @@
 #include "tracker-bus.h"
 #include "tracker-bus-shared.h"
 
-#ifdef HAVE_DBUS_FD_PASSING
-
 typedef enum {
 	FAST_UPDATE,
 	FAST_UPDATE_BLANK,
@@ -347,8 +345,6 @@ sparql_update_fast_async (DBusConnection      *connection,
 	dbus_pending_call_set_notify (call, sparql_update_fast_callback, fad, NULL);
 }
 
-#endif /* HAVE_DBUS_FD_PASSING */
-
 /* Public API */
 
 void
@@ -356,7 +352,6 @@ tracker_bus_fd_sparql_update (DBusGConnection *connection,
                               const char      *query,
                               GError         **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
 
 	g_return_if_fail (query != NULL);
@@ -369,9 +364,6 @@ tracker_bus_fd_sparql_update (DBusGConnection *connection,
 	}
 
 	dbus_message_unref (reply);
-#else
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 void
@@ -381,7 +373,6 @@ tracker_bus_fd_sparql_update_async (DBusGConnection       *connection,
                                     GAsyncReadyCallback    callback,
                                     gpointer               user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *fad;
 	GError *error = NULL;
 
@@ -402,30 +393,21 @@ tracker_bus_fd_sparql_update_async (DBusGConnection       *connection,
 		g_object_unref (fad->res);
 		fast_async_data_free (fad);
 	}
-
-#else
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 void
 tracker_bus_fd_sparql_update_finish (GAsyncResult     *res,
                                      GError          **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	g_return_if_fail (res != NULL);
 
 	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
-#else /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 GVariant *
 tracker_bus_fd_sparql_update_blank_finish (GAsyncResult     *res,
                                            GError          **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	g_return_val_if_fail (res != NULL, NULL);
 
 	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
@@ -433,10 +415,6 @@ tracker_bus_fd_sparql_update_blank_finish (GAsyncResult     *res,
 	}
 
 	return g_variant_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
-#else /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-	return NULL;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 GVariant *
@@ -444,7 +422,6 @@ tracker_bus_fd_sparql_update_blank (DBusGConnection *connection,
                                     const gchar     *query,
                                     GError         **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
 	GVariant *result;
 
@@ -470,10 +447,6 @@ tracker_bus_fd_sparql_update_blank (DBusGConnection *connection,
 	dbus_message_unref (reply);
 
 	return result;
-#else  /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-	return NULL;
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 void
@@ -483,7 +456,6 @@ tracker_bus_fd_sparql_update_blank_async (DBusGConnection       *connection,
                                           GAsyncReadyCallback    callback,
                                           gpointer               user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *fad;
 	GError *error = NULL;
 
@@ -507,10 +479,6 @@ tracker_bus_fd_sparql_update_blank_async (DBusGConnection       *connection,
 		g_object_unref (fad->res);
 		fast_async_data_free (fad);
 	}
-
-#else  /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 void
@@ -518,7 +486,6 @@ tracker_bus_fd_sparql_batch_update (DBusGConnection *connection,
                                     const char      *query,
                                     GError         **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	DBusMessage *reply;
 
 	g_return_if_fail (query != NULL);
@@ -531,9 +498,6 @@ tracker_bus_fd_sparql_batch_update (DBusGConnection *connection,
 	}
 
 	dbus_message_unref (reply);
-#else
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 void
@@ -543,7 +507,6 @@ tracker_bus_fd_sparql_batch_update_async (DBusGConnection       *connection,
                                           GAsyncReadyCallback    callback,
                                           gpointer               user_data)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	FastAsyncData *fad;
 	GError *error = NULL;
 
@@ -564,21 +527,13 @@ tracker_bus_fd_sparql_batch_update_async (DBusGConnection       *connection,
 		g_object_unref (fad->res);
 		fast_async_data_free (fad);
 	}
-
-#else
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }
 
 void
 tracker_bus_fd_sparql_batch_update_finish (GAsyncResult     *res,
                                            GError          **error)
 {
-#ifdef HAVE_DBUS_FD_PASSING
 	g_return_if_fail (res != NULL);
 
 	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
-#else /* HAVE_DBUS_FD_PASSING */
-	g_assert_not_reached ();
-#endif /* HAVE_DBUS_FD_PASSING */
 }

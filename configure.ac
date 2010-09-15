@@ -131,7 +131,7 @@ if test "x$have_function" = "xno" ; then
 fi
 
 # Library required versions
-DBUS_REQUIRED=1.0
+DBUS_REQUIRED=1.3.1
 DBUS_GLIB_REQUIRED=0.82
 GLIB_REQUIRED=2.24.0
 PANGO_REQUIRED=1.0.0
@@ -1694,35 +1694,6 @@ if test "x$enable_playlist" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
-
-####################################################################
-# Check for DBus > 1.3.1 for Steroids (query over pipe) support
-####################################################################
-
-AC_ARG_ENABLE(dbus-fd-passing,
-	      AS_HELP_STRING([--enable-dbus-fd-passing],
-			     [enable DBus FD passing for faster IPC [[default=auto]]]),,
-	      [enable_dbus_fd_passing=auto])
-
-if test "x$enable_dbus_fd_passing" != "xno" ; then
-   PKG_CHECK_EXISTS([dbus-1 >= 1.3.1],
-                    [have_dbus_fd_passing=yes],
-                    [have_dbus_fd_passing=no])
-
-   if test "x$have_dbus_fd_passing" = "xyes"; then
-      AC_DEFINE(HAVE_DBUS_FD_PASSING, 1, [Define if we have DBus >= 1.3 and want DBus FD passing])
-   fi
-else
-   have_dbus_fd_passing="no  (disabled)"
-fi
-
-if test "x$enable_dbus_fd_passing" = "xyes"; then
-   if test "x$have_dbus_fd_passing" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find a recent enough DBus for FD passing.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_DBUS_FD_PASSING, test "x$have_dbus_fd_passing" = "xyes")
 
 ##################################################################
 # Enable mockup extractor module?

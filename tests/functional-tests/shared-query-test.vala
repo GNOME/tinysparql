@@ -10,13 +10,45 @@ public class TestApp : GLib.Object {
 		con = connection;
 	}
 
+	string type_to_string (Sparql.ValueType type) {
+		switch (type) {
+			case Sparql.ValueType.UNBOUND:
+				return "unbound";
+			case Sparql.ValueType.URI:
+				return "uri";
+			case Sparql.ValueType.STRING:
+				return "string";
+			case Sparql.ValueType.INTEGER:
+				return "integer";
+			case Sparql.ValueType.DOUBLE:
+				return "double";
+			case Sparql.ValueType.DATETIME:
+				return "datetime";
+			case Sparql.ValueType.BLANK_NODE:
+				return "blank-node";
+			case Sparql.ValueType.BOOLEAN:
+				return "boolean";
+			default:
+				break;
+		}
+		return "unknown";
+	}
+
 	int iter_cursor (Cursor cursor) {
+		uint i;
+
 		try {
+			for (i = 0; i < cursor.n_columns; i++) {
+				print ("| %s ", cursor.get_variable_name (i));
+			}
+			print ("| -> %u columns\n", cursor.n_columns);
+
 			while (cursor.next()) {
-				int i;
 
 				for (i = 0; i < cursor.n_columns; i++) {
-					print ("%s%s", i != 0 ? ",":"", cursor.get_string (i));
+					print ("%s%s a %s", i != 0 ? ",":"",
+					       cursor.get_string (i),
+					       type_to_string (cursor.get_value_type (i)));
 				}
 
 				print ("\n");
@@ -32,6 +64,7 @@ public class TestApp : GLib.Object {
 	private void test_query () {
 		Cursor cursor;
 
+		print ("Sync test\n");
 		try {
 			cursor = con.query ("SELECT ?u WHERE { ?u a rdfs:Class }");
 		} catch (GLib.Error e) {
@@ -55,6 +88,7 @@ public class TestApp : GLib.Object {
 	private async void test_query_async () {
 		Cursor cursor;
 
+		print ("Async test\n");
 		try {
 			cursor = yield con.query_async ("SELECT ?u WHERE { ?u a rdfs:Class }");
 		} catch (GLib.Error e) {

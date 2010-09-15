@@ -116,7 +116,7 @@ class Tracker.Sparql.Expression : Object {
 		}
 	}
 
-	internal PropertyType translate_select_expression (StringBuilder sql, bool subquery) throws Sparql.Error {
+	internal PropertyType translate_select_expression (StringBuilder sql, bool subquery, int variable_index) throws Sparql.Error {
 		Variable variable = null;
 
 		long begin = sql.len;
@@ -135,7 +135,6 @@ class Tracker.Sparql.Expression : Object {
 
 		if (!subquery) {
 			convert_expression_to_string (sql, type, begin);
-			type = PropertyType.STRING;
 		}
 
 		if (accept (SparqlTokenType.AS)) {
@@ -149,9 +148,10 @@ class Tracker.Sparql.Expression : Object {
 				expect (SparqlTokenType.VAR);
 				variable = context.get_variable (get_last_string ().substring (1));
 			}
-			sql.append_printf (" AS %s", variable.sql_expression);
 
 			if (subquery) {
+				sql.append_printf (" AS %s", variable.sql_expression);
+
 				var binding = new VariableBinding ();
 				binding.data_type = type;
 				binding.variable = variable;
@@ -166,6 +166,14 @@ class Tracker.Sparql.Expression : Object {
 				state = VariableState.BOUND;
 			}
 			context.select_var_set.insert (variable, state);
+
+			if (!subquery) {
+				sql.append_printf (" AS \"%s\"", variable.name);
+			}
+		} else {
+			if (!subquery) {
+				sql.append_printf (" AS \"var%d\"", variable_index + 1);
+			}
 		}
 
 		return type;

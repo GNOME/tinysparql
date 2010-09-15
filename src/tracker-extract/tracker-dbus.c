@@ -177,8 +177,6 @@ tracker_dbus_register_objects (gpointer object)
 	return TRUE;
 }
 
-#ifdef HAVE_DBUS_FD_PASSING
-
 gboolean
 tracker_dbus_connection_add_filter (DBusHandleMessageFunction  function,
                                     void                      *user_data)
@@ -195,8 +193,6 @@ tracker_dbus_connection_add_filter (DBusHandleMessageFunction  function,
 
 	return TRUE;
 }
-
-#endif /* HAVE_DBUS_FD_PASSING */
 
 GObject *
 tracker_dbus_get_object (GType type)

@@ -30,6 +30,29 @@
  * </para>
  */
 
+/**
+ * TrackerSparqlValueType:
+ * @TRACKER_SPARQL_VALUE_TYPE_UNBOUND: Unbound value type
+ * @TRACKER_SPARQL_VALUE_TYPE_URI: Uri value type, rdfs:Resource
+ * @TRACKER_SPARQL_VALUE_TYPE_STRING: String value type, xsd:string
+ * @TRACKER_SPARQL_VALUE_TYPE_INTEGER: Integer value type, xsd:integer
+ * @TRACKER_SPARQL_VALUE_TYPE_DOUBLE: Double value type, xsd:double
+ * @TRACKER_SPARQL_VALUE_TYPE_DATETIME: Datetime value type, xsd:dateTime
+ * @TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE: Blank node value type
+ * @TRACKER_SPARQL_VALUE_TYPE_BOOLEAN: Boolean value type, xsd:boolean
+ *
+ * Enumeration with the possible types of the cursor's cells
+ */
+public enum Tracker.Sparql.ValueType {
+	UNBOUND,
+	URI,
+	STRING,
+	INTEGER,
+	DOUBLE,
+	DATETIME,
+	BLANK_NODE,
+	BOOLEAN
+}
 
 /**
  * TrackerSparqlCursor:
@@ -65,7 +88,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Number of columns available in the results to iterate.
 	 */
-	public abstract int n_columns {
+	public abstract uint n_columns {
 		/**
 		 * tracker_sparql_cursor_get_n_columns:
 		 * @self: a #TrackerSparqlCursor
@@ -75,10 +98,32 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		 * tracker_sparql_cursor_next(); otherwise its return value will be
 		 * undefined.
 		 *
-		 * Returns: a #gint with the number of columns.
+		 * Returns: a #guint with the number of columns.
 		 */
 		get;
 	}
+
+	/**
+	 * tracker_sparql_cursor_get_value_type:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the value type at @column in the current row being iterated.
+	 *
+	 * Returns: a value type
+	 */
+	public abstract ValueType get_value_type (uint column);
+
+	/**
+	 * tracker_sparql_cursor_get_variable_name:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the variable name at @column.
+	 *
+	 * Returns: a string, which should not be freed by the caller.
+	 */
+	public abstract unowned string? get_variable_name (uint column);
 
 	/**
 	 * tracker_sparql_cursor_get_string:
@@ -91,7 +136,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Returns: a string, which should not be freed by the caller. #NULL
 	 * is returned if the column number is in the [0,#n_columns] range.
 	 */
-	public abstract unowned string? get_string (int column, out long length = null);
+	public abstract unowned string? get_string (uint column, out long length = null);
 
 	/**
 	 * tracker_sparql_cursor_next:
@@ -136,4 +181,67 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Resets the iterator to point back to the first result.
 	 */
 	public abstract void rewind ();
+
+
+	/**
+	 * tracker_sparql_cursor_get_integer:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the integer at @column in the current row being iterated.
+	 *
+	 * Returns: a integer.
+	 */
+	public virtual int64 get_integer (uint column) {
+		return_val_if_fail (get_value_type (column) == ValueType.INTEGER, 0);
+		unowned string as_str = get_string (column);
+		return as_str.to_int64();
+	}
+
+	/**
+	 * tracker_sparql_cursor_get_double:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the double at @column in the current row being iterated.
+	 *
+	 * Returns: a double.
+	 */
+	public virtual double get_double (uint column) {
+		return_val_if_fail (get_value_type (column) == ValueType.DOUBLE, 0);
+		unowned string as_str = get_string (column);
+		return as_str.to_double();
+	}
+
+	/**
+	 * tracker_sparql_cursor_get_boolean:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns the boolean at @column in the current row being iterated.
+	 *
+	 * Returns: a boolean.
+	 */
+	public virtual bool get_boolean (uint column) {
+		ValueType type = get_value_type (column);
+		return_val_if_fail (type == ValueType.BOOLEAN, 0);
+		unowned string as_str = get_string (column);
+		return (strcmp (as_str, "true") == 0);
+	}
+
+	/**
+	 * tracker_sparql_cursor_get_unbound:
+	 * @self: a #TrackerSparqlCursor
+	 * @column: column number to retrieve (first one is 0)
+	 *
+	 * Returns true when @column at the current row being iterated is unbound
+	 *
+	 * Returns: a boolean.
+	 */
+	public virtual bool is_bound (uint column) {
+		if (get_value_type (column) != ValueType.UNBOUND) {
+			return true;
+		}
+		return false;
+	}
 }

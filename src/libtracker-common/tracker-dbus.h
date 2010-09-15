@@ -105,6 +105,7 @@ typedef void (*TrackerDBusRequestFunc) (guint    request_id,
 
 typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
                                                   gssize    buffer_size,
+                                                  GStrv     variable_names,
                                                   GError   *error,
                                                   gpointer  user_data);
 
@@ -185,11 +186,13 @@ gboolean         tracker_dbus_send_and_splice        (DBusConnection            
                                                       GCancellable               *cancellable,
                                                       void                      **dest_buffer,
                                                       gssize                     *dest_buffer_size,
+                                                      GStrv                      *variable_names,
                                                       GError                    **error);
 
 gboolean         tracker_dbus_send_and_splice_async  (DBusConnection             *connection,
                                                       DBusMessage                *message,
                                                       int                         fd,
+                                                      gboolean                    expect_variable_names,
                                                       GCancellable               *cancellable,
                                                       TrackerDBusSendAndSpliceCallback callback,
                                                       gpointer                    user_data);

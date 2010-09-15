@@ -96,10 +96,6 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * backends are used to set up the connection. If no environment variables are
 	 * provided, then both backends are loaded and chosen based on their merits.
 	 *
-	 * The TRACKER_BUS_BACKEND environment variable can be set to "dbus-glib" to
-	 * force the D-Bus backend to use non-FD (File Descriptor) passing (the
-	 * original communication method Tracker used).
-	 *
 	 * The TRACKER_SPARQL_BACKEND environment variable also allows the caller to
 	 * switch between "auto" (the default), "direct" (for direct access) and
 	 * "bus" for D-Bus backends. If you force a backend which does not support

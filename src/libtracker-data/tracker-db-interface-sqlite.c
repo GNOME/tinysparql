@@ -70,6 +70,8 @@ struct TrackerDBCursor {
 	sqlite3_stmt *stmt;
 	TrackerDBStatement *ref_stmt;
 	gboolean finished;
+	TrackerPropertyType *types;
+	gint n_types;
 };
 
 struct TrackerDBCursorClass {
@@ -87,14 +89,18 @@ struct TrackerDBStatementClass {
 	GObjectClass parent_class;
 };
 
-static TrackerDBStatement     * tracker_db_statement_sqlite_new   (TrackerDBInterface     *db_interface,
-                                                                   sqlite3_stmt           *sqlite_stmt);
-static TrackerDBCursor        * tracker_db_cursor_sqlite_new      (sqlite3_stmt           *sqlite_stmt,
-                                                                   TrackerDBStatement     *ref_stmt);
-static void                     tracker_db_statement_sqlite_reset (TrackerDBStatement     *stmt);
-static gboolean                 db_cursor_iter_next               (TrackerDBCursor        *cursor,
-                                                                   GCancellable           *cancellable,
-                                                                   GError                **error);
+static TrackerDBStatement *tracker_db_statement_sqlite_new   (TrackerDBInterface   *db_interface,
+                                                              sqlite3_stmt         *sqlite_stmt);
+static void                tracker_db_statement_sqlite_reset (TrackerDBStatement   *stmt);
+static TrackerDBCursor    *tracker_db_cursor_sqlite_new      (sqlite3_stmt         *sqlite_stmt,
+                                                              TrackerDBStatement   *ref_stmt,
+                                                              TrackerPropertyType  *types,
+                                                              gint                  n_types);
+static gboolean            tracker_db_cursor_get_boolean     (TrackerSparqlCursor  *cursor,
+                                                              guint                 column);
+static gboolean            db_cursor_iter_next               (TrackerDBCursor      *cursor,
+                                                              GCancellable         *cancellable,
+                                                              GError              **error);
 
 enum {
 	PROP_0,
@@ -1068,8 +1074,8 @@ tracker_db_statement_class_init (TrackerDBStatementClass *class)
 }
 
 static TrackerDBStatement *
-tracker_db_statement_sqlite_new (TrackerDBInterface       *db_interface,
-                                 sqlite3_stmt             *sqlite_stmt)
+tracker_db_statement_sqlite_new (TrackerDBInterface *db_interface,
+                                 sqlite3_stmt       *sqlite_stmt)
 {
 	TrackerDBStatement *stmt;
 
@@ -1088,6 +1094,8 @@ tracker_db_cursor_finalize (GObject *object)
 	TrackerDBCursor *cursor;
 
 	cursor = TRACKER_DB_CURSOR (object);
+
+	g_free (cursor->types);
 
 	if (cursor->ref_stmt) {
 		cursor->ref_stmt->stmt_is_sunk = FALSE;
@@ -1172,17 +1180,25 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 
 	object_class->finalize = tracker_db_cursor_finalize;
 
-	sparql_cursor_class->get_n_columns = (gint (*) (TrackerSparqlCursor *)) tracker_db_cursor_get_n_columns;
-	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, gint, glong*)) tracker_db_cursor_get_string;
+	sparql_cursor_class->get_value_type = (TrackerSparqlValueType (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_value_type;
+	sparql_cursor_class->get_variable_name = (const gchar * (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_variable_name;
+	sparql_cursor_class->get_n_columns = (guint (*) (TrackerSparqlCursor *)) tracker_db_cursor_get_n_columns;
+	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, guint, glong*)) tracker_db_cursor_get_string;
 	sparql_cursor_class->next = (gboolean (*) (TrackerSparqlCursor *, GCancellable *, GError **)) tracker_db_cursor_iter_next;
 	sparql_cursor_class->next_async = (void (*) (TrackerSparqlCursor *, GCancellable *, GAsyncReadyCallback, gpointer)) tracker_db_cursor_iter_next_async;
 	sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_db_cursor_iter_next_finish;
 	sparql_cursor_class->rewind = (void (*) (TrackerSparqlCursor *)) tracker_db_cursor_rewind;
+
+	sparql_cursor_class->get_integer = (gint64 (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_int;
+	sparql_cursor_class->get_double = (gdouble (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_double;
+	sparql_cursor_class->get_boolean = (gboolean (*) (TrackerSparqlCursor *, guint)) tracker_db_cursor_get_boolean;
 }
 
 static TrackerDBCursor *
-tracker_db_cursor_sqlite_new (sqlite3_stmt              *sqlite_stmt,
-                              TrackerDBStatement        *ref_stmt)
+tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
+                              TrackerDBStatement  *ref_stmt,
+                              TrackerPropertyType *types,
+                              gint                 n_types)
 {
 	TrackerDBCursor *cursor;
 
@@ -1198,13 +1214,23 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt              *sqlite_stmt,
 		cursor->ref_stmt = NULL;
 	}
 
+	if (types) {
+		gint i;
+
+		cursor->types = g_new (TrackerPropertyType, n_types);
+		cursor->n_types = n_types;
+		for (i = 0; i < n_types; i++) {
+			cursor->types[i] = types[i];
+		}
+	}
+
 	return cursor;
 }
 
 void
-tracker_db_statement_bind_double (TrackerDBStatement      *stmt,
-                                  int                      index,
-                                  double                   value)
+tracker_db_statement_bind_double (TrackerDBStatement *stmt,
+                                  int                 index,
+                                  double              value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -1214,9 +1240,9 @@ tracker_db_statement_bind_double (TrackerDBStatement      *stmt,
 }
 
 void
-tracker_db_statement_bind_int (TrackerDBStatement       *stmt,
-                               int                       index,
-                               gint64                    value)
+tracker_db_statement_bind_int (TrackerDBStatement *stmt,
+                               int                 index,
+                               gint64              value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -1226,8 +1252,8 @@ tracker_db_statement_bind_int (TrackerDBStatement       *stmt,
 }
 
 void
-tracker_db_statement_bind_null (TrackerDBStatement        *stmt,
-                                int                        index)
+tracker_db_statement_bind_null (TrackerDBStatement *stmt,
+                                int                 index)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -1237,9 +1263,9 @@ tracker_db_statement_bind_null (TrackerDBStatement        *stmt,
 }
 
 void
-tracker_db_statement_bind_text (TrackerDBStatement        *stmt,
-                                int                        index,
-                                const gchar               *value)
+tracker_db_statement_bind_text (TrackerDBStatement *stmt,
+                                int                 index,
+                                const gchar        *value)
 {
 	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
 
@@ -1316,7 +1342,9 @@ tracker_db_cursor_get_n_columns (TrackerDBCursor *cursor)
 }
 
 void
-tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *value)
+tracker_db_cursor_get_value (TrackerDBCursor *cursor,
+                             guint            column,
+                             GValue          *value)
 {
 	gint col_type;
 
@@ -1345,20 +1373,68 @@ tracker_db_cursor_get_value (TrackerDBCursor *cursor,  guint column, GValue *val
 }
 
 gint64
-tracker_db_cursor_get_int (TrackerDBCursor *cursor,  guint column)
+tracker_db_cursor_get_int (TrackerDBCursor *cursor,
+                           guint            column)
 {
 	return (gint64) sqlite3_column_int64 (cursor->stmt, column);
 }
 
 gdouble
-tracker_db_cursor_get_double (TrackerDBCursor *cursor,  guint column)
+tracker_db_cursor_get_double (TrackerDBCursor *cursor,
+                              guint            column)
 {
 	return (gdouble) sqlite3_column_double (cursor->stmt, column);
 }
 
+static gboolean
+tracker_db_cursor_get_boolean (TrackerSparqlCursor *sparql_cursor,
+                               guint                column)
+{
+	TrackerDBCursor *cursor = (TrackerDBCursor *) sparql_cursor;
+	return (g_strcmp0 (sqlite3_column_text (cursor->stmt, column), "true") == 0);
+}
+
+TrackerSparqlValueType
+tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
+                                  guint            column)
+{
+	gint n_columns = sqlite3_column_count (cursor->stmt);
+
+	g_return_val_if_fail (column < n_columns, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
+
+	if (sqlite3_column_type (cursor->stmt, column) == SQLITE_NULL) {
+		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
+	} else if (column < cursor->n_types) {
+		switch (cursor->types[column]) {
+		case TRACKER_PROPERTY_TYPE_RESOURCE:
+			return TRACKER_SPARQL_VALUE_TYPE_URI;
+		case TRACKER_PROPERTY_TYPE_INTEGER:
+			return TRACKER_SPARQL_VALUE_TYPE_INTEGER;
+		case TRACKER_PROPERTY_TYPE_DOUBLE:
+			return TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
+		case TRACKER_PROPERTY_TYPE_DATETIME:
+			return TRACKER_SPARQL_VALUE_TYPE_DATETIME;
+		case TRACKER_PROPERTY_TYPE_BOOLEAN:
+			return TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
+		default:
+			return TRACKER_SPARQL_VALUE_TYPE_STRING;
+		}
+	} else {
+		return TRACKER_SPARQL_VALUE_TYPE_STRING;
+	}
+}
 
 const gchar*
-tracker_db_cursor_get_string (TrackerDBCursor *cursor,  guint column, glong *length)
+tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor,
+                                     guint            column)
+{
+	return sqlite3_column_name (cursor->stmt, column);
+}
+
+const gchar*
+tracker_db_cursor_get_string (TrackerDBCursor *cursor,
+                              guint            column,
+                              glong           *length)
 {
 	if (length) {
 		sqlite3_value *val = sqlite3_column_value (cursor->stmt, column);
@@ -1370,10 +1446,9 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor,  guint column, glong *len
 	}
 }
 
-
 TrackerDBResultSet *
-tracker_db_statement_execute (TrackerDBStatement          *stmt,
-                              GError                     **error)
+tracker_db_statement_execute (TrackerDBStatement  *stmt,
+                              GError             **error)
 {
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
@@ -1381,14 +1456,24 @@ tracker_db_statement_execute (TrackerDBStatement          *stmt,
 }
 
 TrackerDBCursor *
-tracker_db_statement_start_cursor (TrackerDBStatement             *stmt,
-                                   GError                        **error)
+tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
+                                   GError             **error)
 {
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt);
+	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, NULL, 0);
 }
 
+TrackerDBCursor *
+tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
+                                          TrackerPropertyType  *types,
+                                          gint                  n_types,
+                                          GError              **error)
+{
+	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
+
+	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, types, n_types);
+}
 
 static void
 tracker_db_statement_init (TrackerDBStatement *stmt)

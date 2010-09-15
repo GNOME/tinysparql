@@ -295,17 +295,18 @@ class Tracker.Sparql.Pattern : Object {
 					sql.append (variable.sql_expression);
 				} else {
 					Expression.append_expression_as_string (sql, variable.sql_expression, variable.binding.data_type);
+					sql.append_printf (" AS \"%s\"", variable.name);
 				}
+				result.types += variable.binding.data_type;
 			}
 		} else {
-			while (true) {
-				if (!first) {
+			for (int i = 0; ; i++) {
+				if (i > 0) {
 					sql.append (", ");
-				} else {
-					first = false;
 				}
 
-				type = expression.translate_select_expression (sql, subquery);
+				type = expression.translate_select_expression (sql, subquery, i);
+				result.types += type;
 
 				switch (current ()) {
 				case SparqlTokenType.FROM:

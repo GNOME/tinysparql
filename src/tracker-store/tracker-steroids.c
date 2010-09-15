@@ -20,6 +20,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <alloca.h>
 
 #include <dbus/dbus.h>
 
@@ -31,7 +32,7 @@
 #include "tracker-store.h"
 
 #define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on " \
-	                       "interface \"%s\" doesn't exist, expected \"%s\""
+                               "interface \"%s\" doesn't exist, expected \"%s\""
 
 /**
  * /!\ IMPORTANT WARNING /!\
@@ -55,6 +56,7 @@ typedef struct {
 typedef struct {
 	GError *error;
 	gpointer user_data;
+	GStrv variable_names;
 } InThreadPtr;
 
 static void
@@ -117,14 +119,31 @@ query_callback (gpointer  inthread_data,
 		dbus_connection_send (info->connection, reply, NULL);
 		dbus_message_unref (reply);
 	} else {
+		GStrv variable_names = ptr->variable_names;
+		DBusMessageIter iter, subiter;
+		guint i;
+
 		tracker_dbus_request_success (info->request_id,
 		                              NULL);
 		reply = dbus_message_new_method_return (info->call_message);
+
+		dbus_message_iter_init_append (reply, &iter);
+
+		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, "s", &subiter);
+		for (i = 0; variable_names[i] != NULL; i++) {
+			gchar *variable_name = variable_names[i];
+			dbus_message_iter_append_basic (&subiter, DBUS_TYPE_STRING, &variable_name);
+		}
+		dbus_message_iter_close_container (&iter, &subiter);
+
 		dbus_connection_send (info->connection, reply, NULL);
 		dbus_message_unref (reply);
 	}
 
 	if (ptr) {
+		if (ptr->variable_names) {
+			g_strfreev (ptr->variable_names);
+		}
 		g_slice_free (InThreadPtr, ptr);
 	}
 }
@@ -245,7 +264,10 @@ query_inthread (TrackerDBCursor *cursor,
 	guint n_columns;
 	gint *column_sizes;
 	gint *column_offsets;
+	gint *column_types;
 	const gchar **column_data;
+	guint i;
+	GStrv variable_names = NULL;
 
 	ptr = g_slice_new0 (InThreadPtr);
 	info = user_data;
@@ -265,9 +287,15 @@ query_inthread (TrackerDBCursor *cursor,
 
 	n_columns = tracker_db_cursor_get_n_columns (cursor);
 
-	column_sizes = g_malloc (n_columns * sizeof (gint));
-	column_offsets = g_malloc (n_columns * sizeof (gint));
-	column_data = g_malloc (n_columns * sizeof (gchar*));
+	column_sizes = alloca (n_columns * sizeof (gint));
+	column_offsets = alloca (n_columns * sizeof (gint));
+	column_data = alloca (n_columns * sizeof (gchar*));
+	column_types = alloca (n_columns * sizeof (gchar*));
+
+	variable_names = g_new0 (gchar *, n_columns);
+	for (i = 0; i < n_columns; i++) {
+		variable_names[i] = g_strdup (tracker_db_cursor_get_variable_name (cursor, i));
+	}
 
 	while (tracker_db_cursor_iter_next (cursor, cancellable, &loop_error)) {
 		gint i;
@@ -284,6 +312,9 @@ query_inthread (TrackerDBCursor *cursor,
 
 			column_sizes[i] = str ? strlen (str) : 0;
 			column_data[i]  = str;
+
+			/* Cast from enum to int */
+			column_types[i] = (gint) tracker_db_cursor_get_value_type (cursor, i);
 
 			last_offset += column_sizes[i] + 1;
 			column_offsets[i] = last_offset;
@@ -303,6 +334,14 @@ query_inthread (TrackerDBCursor *cursor,
 		}
 
 		for (i = 0; i < n_columns; i++) {
+			g_data_output_stream_put_int32 (data_output_stream,
+			                                column_types[i],
+			                                NULL,
+			                                &loop_error);
+			if (loop_error) {
+				goto end_query_inthread;
+			}
+
 			g_data_output_stream_put_int32 (data_output_stream,
 			                                column_offsets[i],
 			                                NULL,
@@ -341,11 +380,12 @@ end_query_inthread:
 
 	if (loop_error) {
 		ptr->error = loop_error;
+		if (variable_names) {
+			g_strfreev (variable_names);
+		}
+	} else {
+		ptr->variable_names = variable_names;
 	}
-
-	g_free (column_sizes);
-	g_free (column_offsets);
-	g_free (column_data);
 
 	return ptr;
 }
