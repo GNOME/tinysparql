@@ -23,6 +23,8 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
+#include <libtracker-common/tracker-utils.h>
+
 #include "tracker-dbus.h"
 #include "tracker-miner-dbus.h"
 
@@ -129,16 +131,6 @@ name_owner_changed_cb (const gchar      *name,
 	available = (new_owner && *new_owner);
 
 	(func) (miner, name, available);
-
-	if (g_strcmp0 (new_owner, "") == 0 && g_strcmp0 (name, old_owner) == 0) {
-		gchar *match_rule;
-		/* "name" disappeared from the bus and we have a registry for it */
-		g_hash_table_remove (data->name_monitors, name);
-		match_rule = get_name_owner_changed_match_rule (name);
-		dbus_bus_remove_match (dbus_g_connection_get_connection (data->connection),
-		                       match_rule, NULL);
-		g_free (match_rule);
-	}
 }
 
 static DBusHandlerResult
@@ -317,6 +309,34 @@ _tracker_miner_dbus_shutdown (TrackerMiner *miner)
 	}
 
 	g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
+}
+
+void
+_tracker_miner_dbus_remove_name_watch (TrackerMiner             *miner,
+                                       const gchar              *name,
+                                       TrackerMinerDBusNameFunc  func)
+{
+	DBusData *data;
+	gchar *match_rule;
+
+	g_return_if_fail (TRACKER_IS_MINER (miner));
+	g_return_if_fail (name != NULL);
+
+	data = g_object_get_qdata (G_OBJECT (miner), dbus_data);
+
+	if (!data) {
+		g_critical ("Miner '%s' was not registered on "
+		            "DBus, can watch for owner changes",
+		            G_OBJECT_TYPE_NAME (miner));
+		return;
+	}
+
+	g_hash_table_remove (data->name_monitors, name);
+
+	match_rule = get_name_owner_changed_match_rule (name);
+	dbus_bus_remove_match (dbus_g_connection_get_connection (data->connection),
+	                       match_rule, NULL);
+	g_free (match_rule);
 }
 
 void

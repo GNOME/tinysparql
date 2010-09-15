@@ -359,6 +359,8 @@ miner_finalize (GObject *object)
 
 	g_hash_table_unref (miner->private->pauses);
 
+	_tracker_miner_dbus_remove_name_watch (miner, "org.freedesktop.Tracker1",
+	                                       store_name_monitor_cb);
 	_tracker_miner_dbus_shutdown (miner);
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
