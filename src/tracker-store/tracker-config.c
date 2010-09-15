@@ -34,8 +34,8 @@
 /* GKeyFile defines */
 #define GROUP_GENERAL     "General"
 
-/* Default values */
-#define DEFAULT_VERBOSITY                    2
+/* Default values (only critical logs by default) */
+#define DEFAULT_VERBOSITY 0
 
 /* typedef struct TrackerConfigPrivate TrackerConfigPrivate; */
 
