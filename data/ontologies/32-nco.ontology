@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2010-02-24T16:00:00Z" .
+	nao:lastModified "2010-09-15T15:00:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -417,8 +417,6 @@ nco:addressLocation a rdf:Property ;
 nco:note a rdf:Property ;
 	rdfs:label "note" ;
 	rdfs:comment "A note about the object represented by this Contact. An equivalent for the 'NOTE' property defined in RFC 2426 Sec. 3.6.2" ;
-	rdfs:subPropertyOf nie:description ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
