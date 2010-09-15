@@ -1823,15 +1823,15 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
 	/* So, the make up on each iterator segment is:
 	 *
 	 * iteration = [4 bytes for number of columns,
-	 *              columns x 4 bytes for types 
+	 *              columns x 4 bytes for types
 	 *              columns x 4 bytes for offsets]
 	 */
 	iterator->n_columns = iterator_buffer_read_int (iterator);
 
-	iterator->types = (int *)(iterator->buffer + iterator->buffer_index);
+	iterator->types = (int*) iterator->buffer + iterator->buffer_index;
 	iterator->buffer_index += sizeof (int) * (iterator->n_columns);
 
-	iterator->offsets = (int *)(iterator->buffer + iterator->buffer_index);
+	iterator->offsets = (int*) iterator->buffer + iterator->buffer_index;
 	iterator->buffer_index += sizeof (int) * (iterator->n_columns - 1);
 
 	last_offset = iterator_buffer_read_int (iterator);

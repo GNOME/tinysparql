@@ -105,10 +105,10 @@ tracker_bus_fd_cursor_iter_next (TrackerBusFDCursor  *cursor,
 
 	/* Storage of ints that will be casted to TrackerSparqlValueType enums,
 	 * also see tracker_bus_fd_cursor_get_value_type */
-	cursor->types = (int *)(cursor->buffer + cursor->buffer_index);
+	cursor->types = (int*) cursor->buffer + cursor->buffer_index;
 	cursor->buffer_index += sizeof (int) * (cursor->n_columns);
 
-	cursor->offsets = (int *)(cursor->buffer + cursor->buffer_index);
+	cursor->offsets = (int*) cursor->buffer + cursor->buffer_index;
 	cursor->buffer_index += sizeof (int) * (cursor->n_columns - 1);
 	last_offset = buffer_read_int (cursor);
 
@@ -169,7 +169,8 @@ tracker_bus_fd_cursor_get_n_columns (TrackerBusFDCursor *cursor)
 }
 
 static TrackerSparqlValueType
-tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
+tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,
+                                      guint               column)
 {
 	g_return_val_if_fail (cursor->types != NULL, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
 
@@ -177,8 +178,9 @@ tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,  guint column)
 	return (TrackerSparqlValueType) cursor->types[column];
 }
 
-static const gchar*
-tracker_bus_fd_cursor_get_variable_name (TrackerBusFDCursor *cursor,  guint column)
+static const gchar *
+tracker_bus_fd_cursor_get_variable_name (TrackerBusFDCursor *cursor,
+                                         guint               column)
 {
 	g_return_val_if_fail (cursor->variable_names != NULL, NULL);
 
@@ -242,8 +244,10 @@ tracker_bus_fd_cursor_finalize (GObject *object)
 
 	cursor = TRACKER_BUS_FD_CURSOR (object);
 
-	if (cursor->variable_names)
+	if (cursor->variable_names) {
 		g_strfreev (cursor->variable_names);
+	}
+
 	g_free (cursor->buffer);
 
 	G_OBJECT_CLASS (tracker_bus_fd_cursor_parent_class)->finalize (object);
@@ -288,14 +292,14 @@ tracker_bus_fd_query (DBusGConnection  *gconnection,
 	cursor = g_object_new (TRACKER_TYPE_BUS_FD_CURSOR, NULL);
 
 	/* Cast from long* to gssize*, no idea why the API isn't matching. Silencing
-	 * compiler-warning. In tracker.c it's gssize* all the way */
-
+	 * compiler-warning. In tracker.c it's gssize* all the way
+	 */
 	tracker_dbus_send_and_splice (connection,
 	                              message,
 	                              pipefd[0],
 	                              cancellable,
 	                              (void **) &cursor->buffer,
-	                              (gssize *) &cursor->buffer_size,
+	                              &cursor->buffer_size,
 	                              &cursor->variable_names,
 	                              &inner_error);
 

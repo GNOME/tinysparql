@@ -706,6 +706,39 @@ tracker_dbus_enable_client_lookup (gboolean enabled)
 	client_lookup_enabled = enabled;
 }
 
+static GStrv
+dbus_send_and_splice_get_variable_names (DBusMessage *message,
+                                         gboolean     copy_strings)
+{
+	GStrv v_names;
+	GPtrArray *found;
+	DBusMessageIter iter, arr;
+	guint i;
+
+	dbus_message_iter_init (message, &iter);
+	dbus_message_iter_recurse (&iter, &arr);
+
+	found = g_ptr_array_new ();
+
+	while (dbus_message_iter_get_arg_type (&arr) != DBUS_TYPE_INVALID) {
+		gchar *str;
+
+		/* Make a copy here, we wont own when returning */
+		dbus_message_iter_get_basic (&arr, &str);
+		g_ptr_array_add (found, copy_strings ? g_strdup (str) : str);
+		dbus_message_iter_next (&arr);
+	}
+
+	v_names = g_new0 (gchar *, found->len + 1);
+	for (i = 0; i < found->len; i++) {
+		v_names[i] = g_ptr_array_index (found, i);
+	}
+
+	g_ptr_array_free (found, TRUE);
+
+	return v_names;
+}
+
 /*
  * /!\ BIG FAT WARNING /!\
  * The message must be destroyed for this function to succeed, so pass a
@@ -787,29 +820,7 @@ tracker_dbus_send_and_splice (DBusConnection  *connection,
 			}
 
 			if (variable_names) {
-				GStrv v_names;
-				guint i;
-				GPtrArray *found = g_ptr_array_new ();
-				DBusMessageIter iter, arr;
-
-				dbus_message_iter_init (reply, &iter);
-				dbus_message_iter_recurse (&iter, &arr);
-
-				while (dbus_message_iter_get_arg_type (&arr) != DBUS_TYPE_INVALID) {
-					gchar *str;
-					dbus_message_iter_get_basic (&arr, &str);
-					/* Make a copy here, we wont own when returning */
-					g_ptr_array_add (found, g_strdup (str));
-					dbus_message_iter_next (&arr);
-				}
-
-				v_names = g_new0 (gchar *, found->len + 1);
-				for (i = 0; i < found->len; i++) {
-					v_names[i] = g_ptr_array_index (found, i);
-				}
-
-				*variable_names = v_names;
-				g_ptr_array_free (found, TRUE);
+				*variable_names = dbus_send_and_splice_get_variable_names (reply, TRUE);
 			}
 
 			ret_value = TRUE;
@@ -910,29 +921,7 @@ send_and_splice_async_callback (GObject      *source,
 			GStrv v_names = NULL;
 
 			if (data->expect_variable_names) {
-				guint i;
-				GPtrArray *found = g_ptr_array_new ();
-				DBusMessageIter iter, arr;
-
-				dbus_message_iter_init (reply, &iter);
-				dbus_message_iter_recurse (&iter, &arr);
-
-				while (dbus_message_iter_get_arg_type (&arr) != DBUS_TYPE_INVALID) {
-					gchar *str;
-
-					/* No need for a copy here, we own it. But then don't use
-					 * g_strfreev lower */
-					dbus_message_iter_get_basic (&arr, &str);
-					g_ptr_array_add (found, str);
-					dbus_message_iter_next (&arr);
-				}
-
-				v_names = g_new0 (gchar *, found->len + 1);
-				for (i = 0; i < found->len; i++) {
-					v_names[i] = g_ptr_array_index (found, i);
-				}
-
-				g_ptr_array_free (found, TRUE);
+				v_names = dbus_send_and_splice_get_variable_names (reply, FALSE);
 			}
 
 			dbus_pending_call_cancel (data->call);
