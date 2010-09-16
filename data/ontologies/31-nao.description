@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:31-nao.ontology> a dsc:Ontology ;
       dsc:title "Nepomuk Annotation Ontology (NAO)" ;
+      dsc:description "Tags, ratings and other common annotations to all classes" ;
 
       dsc:author "Simon Scerri, DERI/NUIG, &lt;simon.scerri@deri.org&gt;";
       dsc:author "Michael Sintek, DFKI, &lt;michael.sintek@dfki.de&gt;";

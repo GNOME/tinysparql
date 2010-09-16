@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:41-mfo.ontology> a dsc:Ontology ;
       dsc:title "Maemo Feeds Ontology (MFO)" ;
+      dsc:description "Model for feeds and alike online streams" ;
 
       dsc:author "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;
       dsc:author "Jitendra Kumar &lt;jitendra.1.kumar@nokia.com&gt;" ;

@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:39-mto.ontology> a dsc:Ontology ;
       dsc:title "Maemo Transfer Ontology (MTO)" ;
+      dsc:description "Representation of download and upload operations in the system" ;
 
       dsc:author "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;
       dsc:author "Divya Subramanian &lt;divya.subramanian@sasken.com&gt;" ;

@@ -2,6 +2,8 @@
 
 <virtual-ontology-uri:34-nmo.ontology> a dsc:Ontology ;
       dsc:title "Nepomuk Messaging Ontology (NMO)" ;
+      dsc:description "Model for messages and communications, including Email, SMS, MMS and phone calls" ;
+
       dsc:author "Antoni Mylka, DFKI, &lt;antoni.mylka@dfki.de&gt;";
       dsc:author "Leo Sauermann, DFKI,  &lt;leo.sauermann@dfki.de&gt;";
       dsc:author "Michael Sintek, DFKI,  &lt;michael.sintek@dfki.de&gt;";

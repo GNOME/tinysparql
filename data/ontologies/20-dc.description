@@ -2,6 +2,8 @@
 
 <virtual-ontology-uri:20-dc.description> a dsc:Ontology ;
       dsc:title "Dublin Core metadata (DC)" ;
+      dsc:description "Common superproperties for documents" ;
+
       dsc:author "Dublin Core consortium" ;
       dsc:editor "Tracker developers (translation into turtle)" ;
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/20-dc.ontology";

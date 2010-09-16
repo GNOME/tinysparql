@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:35-ncal.ontology> a dsc:Ontology ;
       dsc:title "Nepomuk Calendar Ontology (NCAL)" ;
+      dsc:description "Automatic translation of the ICAL standard into ontology. Too complex for our taste. Please check SCAL" ;
 
       dsc:author "Antoni Mylka, DFKI, &lt;antoni.mylka@dfki.de&gt;";
       dsc:author "Leo Sauermann, DFKI,  &lt;leo.sauermann@dfki.de&gt;";

@@ -2,6 +2,8 @@
 
 <virtual-ontology-uri:90-tracker.ontology> a dsc:Ontology ;
       dsc:title "Tracker-specific annotations Ontology" ;
+      dsc:description "Internal tracker properties" ;
+
       dsc:author "Tracker developers" ;
       dsc:editor "Tracker developers" ;
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/90-tracker.ontology";

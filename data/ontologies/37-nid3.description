@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:37-nid3.ontology> a dsc:Ontology ;
       dsc:title "Nepomuk IDE3 copy (NID3)" ;
+      dsc:description "Deprecated ontology to describe music. Please check NMM." ;
       dsc:author "Nepomuk people" ;
       dsc:editor "Tracker Developers (turtle translation)" ;
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/37-nid3.ontology";

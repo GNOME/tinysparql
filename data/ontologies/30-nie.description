@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:30-nie.ontology> a dsc:Ontology ;
       dsc:title "Nepomuk Information Element (NIE)" ;
+      dsc:description "Top classes in the ontology. Almost everything else is subclass of these." ;
       dsc:upstream "http://www.semanticdesktop.org/ontologies/nie/";
       dsc:author "Antoni Mylka, DFKI, &lt;antoni.mylka@dfki.de&gt;";
       dsc:author "Leo Sauermann, DFKI, &lt;leo.sauermann@dfki.de&gt;";

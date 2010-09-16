@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:40-mlo.ontology> a dsc:Ontology ;
       dsc:title "Simplified Maemo Location Ontology (SLO) (experimental/for testing)" ;
+      dsc:description "Simpler, faster, better ontology for locations and landmarks" ;
 
       dsc:author "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;
       dsc:editor "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;

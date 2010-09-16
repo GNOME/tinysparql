@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:38-nmm.ontology> a dsc:Ontology ;
       dsc:title "Nepomuk MultiMedia (NMM)" ;
+      dsc:description "Description of multimedia objects like Music, Video and Images" ;
 
       dsc:author "Urho Konttori &lt;urho.konttori@nokia.com&gt;" ;
 

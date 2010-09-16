@@ -2,6 +2,8 @@
 
 <virtual-ontology-uri:10-xsd.ontology> a dsc:Ontology ;
       dsc:title "XML schema (XSD)" ;
+      dsc:description "Basic types definitions (int, double,...)" ;
+
       dsc:author "W3C XML Schema Working group" ;
       dsc:editor "David C. Fallside, IBM &lt;fallside@us.ibm.com&gt;";
       dsc:editor "Priscilla Walmsley &lt;pwalmsley@datypic.com&gt; - Second Edition";

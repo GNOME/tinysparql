@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:40-mlo.ontology> a dsc:Ontology ;
       dsc:title "Maemo Location Ontology (MLO)" ;
+      dsc:description "Deprecated ontology for location and landmarks. Please check SLO" ;
 
       dsc:author "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;
       dsc:editor "Ivan Frade &lt;ivan.frade@nokia.com&gt;" ;

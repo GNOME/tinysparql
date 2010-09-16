@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:11-rdf.ontology> a dsc:Ontology ;
       dsc:title "Resource Description Framework (RDF)" ;
+      dsc:description "Core RDF classes to keep the internal consistency of the ontology" ;
       dsc:author "W3C" ;
       dsc:editor "Tracker developers (translation into turtle)" ;
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/11-rdf.ontology";

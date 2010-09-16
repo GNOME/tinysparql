@@ -2,6 +2,8 @@
 
 <virtual-ontology-uri:89-mtp.ontology> a dsc:Ontology ;
       dsc:title "Multimetida Transfer Protocol (MTP) Ontology" ;
+      dsc:description "Extra properties to add MTP information to the objects in the ontology" ;
+
       dsc:author "Ivan Frade <ivan.frade@nokia.com>" ;
       dsc:editor "Ivan Frade <ivan.frade@nokia.com>" ;
       dsc:gitlog "http://git.gnome.org/cgit/tracker/log/data/ontologies/89-mtp.ontology";

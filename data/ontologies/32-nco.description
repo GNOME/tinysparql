@@ -2,6 +2,7 @@
 
 <virtual-ontology-uri:32-nco.ontology> a dsc:Ontology ;
       dsc:title "Nepomuk Contacts Ontology (NCO)" ;
+      dsc:description "All about contacts. Rough equivalent of the VCARD standard." ;
 
       dsc:author "Antoni Mylka, DFKI, &lt;antoni.mylka@dfki.de&gt;";
       dsc:author "Leo Sauermann, DFKI,  &lt;leo.sauermann@dfki.de&gt;";
