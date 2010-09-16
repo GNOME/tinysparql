@@ -48,6 +48,7 @@
 
 #define DSC_ONTOLOGY DSC_PREFIX "Ontology"
 #define DSC_TITLE DSC_PREFIX "title"
+#define DSC_DESCRIPTION DSC_PREFIX "description"
 #define DSC_AUTHOR DSC_PREFIX "author"
 #define DSC_EDITOR DSC_PREFIX "editor"
 #define DSC_CONTRIBUTOR DSC_PREFIX "contributor"
@@ -298,6 +299,8 @@ load_description (OntologyDescription *desc,
 		g_assert (!g_strcmp0 (turtle_object, DSC_ONTOLOGY));
 	} else if (!g_strcmp0 (turtle_predicate, DSC_TITLE)) {
 		desc->title = g_strdup (turtle_object);
+	} else if (!g_strcmp0 (turtle_predicate, DSC_DESCRIPTION)) {
+		desc->description = g_strdup (turtle_object);
 	} else if (!g_strcmp0 (turtle_predicate, DSC_UPSTREAM)) {
 		desc->upstream = g_strdup (turtle_object);
 	} else if (!g_strcmp0 (turtle_predicate, DSC_AUTHOR)) {

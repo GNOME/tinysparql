@@ -52,6 +52,7 @@ typedef struct {
 
 typedef struct {
 	gchar *title;
+        gchar *description;
 	GList *authors;
 	GList *editors;
 	GList *contributors;

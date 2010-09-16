@@ -162,7 +162,7 @@ print_sgml_header (FILE *f, OntologyDescription *desc)
         g_fprintf (f, "<chapter id='%s-ontology'>\n", desc->localPrefix);
 
         upper_name = g_ascii_strup (desc->localPrefix, -1);
-        g_fprintf (f, "<title>%s Ontology</title>\n", upper_name);
+        g_fprintf (f, "<title>%s: %s</title>\n", desc->title, desc->description ? desc->description : "");
         g_free (upper_name);
 
         print_people_list (f, "Authors:", desc->authors);
