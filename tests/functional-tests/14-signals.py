@@ -74,7 +74,8 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.cb_id = self.bus.add_signal_receiver (self.__signal_received_cb,
                                                    signal_name=GRAPH_UPDATED_SIGNAL,
                                                    path = SIGNALS_PATH,
-                                                   dbus_interface = SIGNALS_IFACE)
+                                                   dbus_interface = SIGNALS_IFACE,
+                                                   arg0 = CONTACT_CLASS_URI)
 
     def __wait_for_signal (self):
         """
@@ -125,7 +126,6 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.__wait_for_signal ()
 
         # validate results
-        self.assertEquals (self.results_classname, CONTACT_CLASS_URI)
         self.assertEquals (len (self.results_deletes), 0)
         self.assertEquals (len (self.results_inserts), 7)
         
@@ -147,7 +147,6 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.__wait_for_signal ()
 
         # Validate results:
-        self.assertEquals (self.results_classname, CONTACT_CLASS_URI)
         self.assertEquals (len (self.results_deletes), 2)
         self.assertEquals (len (self.results_inserts), 0)
 
@@ -162,7 +161,6 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.tracker.update ("INSERT { <test://signals-contact-update> nco:fullname 'wohoo'}")
         self.__wait_for_signal ()
 
-        self.assertEquals (self.results_classname, CONTACT_CLASS_URI)
         self.assertEquals (len (self.results_deletes), 0)
         self.assertEquals (len (self.results_inserts), 1)
 
@@ -182,7 +180,6 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
                """)
         self.__wait_for_signal ()
 
-        self.assertEquals (self.results_classname, CONTACT_CLASS_URI)
         self.assertEquals (len (self.results_deletes), 1)
         self.assertEquals (len (self.results_inserts), 1)
         
