@@ -150,7 +150,6 @@ LIBFLAC_REQUIRED=1.2.1
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
 EXEMPI_REQUIRED=2.1.0
-HILDON_THUMBNAIL_REQUIRED=3.0.10
 EVO_REQUIRED=2.25.5
 EDS_REQUIRED=2.25.5
 # Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
