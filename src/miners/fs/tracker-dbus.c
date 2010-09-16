@@ -26,7 +26,6 @@
 #include "tracker-miner-files-index-glue.h"
 
 static DBusGConnection *connection;
-static DBusGProxy      *gproxy;
 static GSList          *objects;
 
 static gboolean
@@ -81,6 +80,7 @@ static gboolean
 dbus_register_names (void)
 {
 	GError *error = NULL;
+	DBusGProxy *gproxy;
 
 	if (connection) {
 		g_critical ("The DBusGConnection is already set, have we already initialized?");
@@ -111,8 +111,11 @@ dbus_register_names (void)
 
 	/* Register the service name for org.freedesktop.Tracker1.Miner.Files.Index */
 	if (!dbus_register_service (gproxy, TRACKER_MINER_FILES_INDEX_SERVICE)) {
+		g_object_unref (gproxy);
 		return FALSE;
 	}
+
+	g_object_unref (gproxy);
 
 	return TRUE;
 }
@@ -142,20 +145,17 @@ tracker_dbus_shutdown (void)
 		objects = NULL;
 	}
 
-	if (gproxy) {
-		g_object_unref (gproxy);
-		gproxy = NULL;
-	}
-
 	connection = NULL;
 }
 
 gboolean
 tracker_dbus_register_objects (gpointer object)
 {
+	DBusGProxy *gproxy;
+
 	g_return_val_if_fail (TRACKER_IS_MINER_FILES_INDEX (object), FALSE);
 
-	if (!connection || !gproxy) {
+	if (!connection) {
 		g_critical ("D-Bus support must be initialized before registering objects!");
 		return FALSE;
 	}
@@ -166,12 +166,19 @@ tracker_dbus_register_objects (gpointer object)
 		return FALSE;
 	}
 
+	gproxy = dbus_g_proxy_new_for_name (connection,
+	                                    DBUS_SERVICE_DBUS,
+	                                    DBUS_PATH_DBUS,
+	                                    DBUS_INTERFACE_DBUS);
+
 	dbus_register_object (connection,
 	                      gproxy,
 	                      G_OBJECT (object),
 	                      &dbus_glib_tracker_miner_files_index_object_info,
 	                      TRACKER_MINER_FILES_INDEX_PATH);
 	objects = g_slist_prepend (objects, object);
+
+	g_object_unref (gproxy);
 
 	return TRUE;
 }
