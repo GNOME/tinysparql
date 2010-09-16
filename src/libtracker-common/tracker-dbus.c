@@ -710,10 +710,8 @@ static GStrv
 dbus_send_and_splice_get_variable_names (DBusMessage *message,
                                          gboolean     copy_strings)
 {
-	GStrv v_names;
 	GPtrArray *found;
 	DBusMessageIter iter, arr;
-	guint i;
 
 	dbus_message_iter_init (message, &iter);
 	dbus_message_iter_recurse (&iter, &arr);
@@ -723,20 +721,14 @@ dbus_send_and_splice_get_variable_names (DBusMessage *message,
 	while (dbus_message_iter_get_arg_type (&arr) != DBUS_TYPE_INVALID) {
 		gchar *str;
 
-		/* Make a copy here, we wont own when returning */
 		dbus_message_iter_get_basic (&arr, &str);
 		g_ptr_array_add (found, copy_strings ? g_strdup (str) : str);
 		dbus_message_iter_next (&arr);
 	}
 
-	v_names = g_new0 (gchar *, found->len + 1);
-	for (i = 0; i < found->len; i++) {
-		v_names[i] = g_ptr_array_index (found, i);
-	}
+	g_ptr_array_add (found, NULL);
 
-	g_ptr_array_free (found, TRUE);
-
-	return v_names;
+	return g_ptr_array_free (found, FALSE);
 }
 
 /*
