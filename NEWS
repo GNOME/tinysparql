@@ -1,3 +1,41 @@
+NEW in 0.9.21 - 2010-09-16
+==========================
+
+The changes are:
+
+  * Require D-Bus 1.3.1 or higher
+  * NEW Feature: Return types in TrackerSparqlCursor API (previously just strings)
+  * Fixes: NB#186055, Please make nco:note multi valued
+  * Fixes: NB#192326, Tracker-store pollutes syslog with debug messages which are mostly only useful for tracker devs
+  * Fixes: NB#188031, Tracker-store and tracker-miner-fs are listening to all serviceOwnerChanged messages on DBus  * Ontology: Added nfo:HelpDocument
+  * Ontology: Added brief description to the ontologies documentation index page
+  * functional-tests: Fixed signal tests by using arg0 correctly to get the right signal
+  * functional-tests: Added tests for the stats API
+  * functional-tests: Updated tests for the signals API
+  * libtracker-fts: Do not use TLS for queries
+  * libtracker-common: Reset default log handler in tracker_log_shutdown()
+  * libtracker-data: Fixed parallel cursor_next_async() call segfaults
+  * libtracker-miner: Removed Pango requirement in tracker-miner.pc
+  * libtracker-miner: Improved debugging to avoid store availability confusion in log
+  * libtracker-sparql: Added test case for cursor_next_async() segfaults
+  * tracker-miner-flickr: Fixed desktop file not having the correct prefix for its icon
+  * tracker-extract: On shutdown a summary is logged with extraction/failure count per module
+  * tracker-extract: Fixed compilation error for quill support
+  * tracker-extract: Don't extract content if config has max bytes set to 0
+  * tracker-extract: Use g_pattern_match() instead of g_pattern_match_simple(), ~5% speed increase
+  * tracker-search: Do not use tracker:available for emails
+  * tracker-status: Fixed memory leak when printing state
+
+Translations:
+
+  * Updated hu: Gabor Kelemen
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.9.20 - 2010-09-09
 ==========================
 
