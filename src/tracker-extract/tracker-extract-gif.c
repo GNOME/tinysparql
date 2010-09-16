@@ -445,11 +445,9 @@ extract_gif (const gchar          *uri,
              TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
-	goffset        size;
-
-	GifFileType   *gifFile = NULL;
-
-	gchar         *filename;
+	goffset      size;
+	GifFileType *gifFile = NULL;
+	gchar       *filename;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 	size = tracker_file_get_size (filename);
@@ -459,8 +457,8 @@ extract_gif (const gchar          *uri,
 		return;
 	}
 
-	if ( ( gifFile = DGifOpenFileName(filename) ) == NULL) {
-		PrintGifError();
+	if ((gifFile = DGifOpenFileName (filename)) == NULL) {
+		PrintGifError ();
 		return;
 	}
 
@@ -472,8 +470,8 @@ extract_gif (const gchar          *uri,
 
 	read_metadata (preupdate, metadata, gifFile, uri);
 
-	if(DGifCloseFile(gifFile) != GIF_OK) {
-		PrintGifError();
+	if (DGifCloseFile (gifFile) != GIF_OK) {
+		PrintGifError ();
 	}
 
 }
