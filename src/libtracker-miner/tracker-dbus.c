@@ -99,10 +99,10 @@ get_name_owner_changed_match_rule (const gchar *name)
 }
 
 static void
-name_owner_changed_cb (const gchar      *name,
-                       const gchar      *old_owner,
-                       const gchar      *new_owner,
-                       gpointer          user_data)
+name_owner_changed_cb (const gchar *name,
+                       const gchar *old_owner,
+                       const gchar *new_owner,
+                       gpointer     user_data)
 {
 	TrackerMinerDBusNameFunc func;
 	TrackerMiner *miner;
@@ -148,14 +148,15 @@ message_filter (DBusConnection *connection,
 	message_type = dbus_message_get_type (message);
 
 	if (interface == dbus_interface_quark &&
-		message_type == DBUS_MESSAGE_TYPE_SIGNAL &&
-		member == name_owner_changed_signal_quark) {
-			const gchar *name, *prev_owner, *new_owner;
-			if (dbus_message_get_args (message, NULL,
-			                           DBUS_TYPE_STRING, &name,
-			                           DBUS_TYPE_STRING, &prev_owner,
-			                           DBUS_TYPE_STRING, &new_owner,
-			                           DBUS_TYPE_INVALID)) {
+	    message_type == DBUS_MESSAGE_TYPE_SIGNAL &&
+	    member == name_owner_changed_signal_quark) {
+		const gchar *name, *prev_owner, *new_owner;
+
+		if (dbus_message_get_args (message, NULL,
+		                           DBUS_TYPE_STRING, &name,
+		                           DBUS_TYPE_STRING, &prev_owner,
+		                           DBUS_TYPE_STRING, &new_owner,
+		                           DBUS_TYPE_INVALID)) {
 			name_owner_changed_cb (name, prev_owner, new_owner, user_data);
 		}
 	}
@@ -220,7 +221,8 @@ dbus_data_create (TrackerMiner          *miner,
 	full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX, name, NULL);
 
 	if (!dbus_register_object (G_OBJECT (miner),
-	                           connection, gproxy,
+	                           connection,
+	                           gproxy,
 	                           info,
 	                           full_path)) {
 		g_object_unref (gproxy);
@@ -231,12 +233,16 @@ dbus_data_create (TrackerMiner          *miner,
 	g_free (full_path);
 
 	dbus_connection_add_filter (dbus_g_connection_get_connection (connection),
-	                            message_filter, miner, NULL);
+	                            message_filter,
+	                            miner,
+	                            NULL);
 
 	/* Now we're successfully connected and registered, create the data */
 	data = g_slice_new0 (DBusData);
+
 	/* Connection object is a shared one, so we need to keep our own
-	 * reference to it */
+	 * reference to it
+	 */
 	data->connection = dbus_g_connection_ref (connection);
 	data->name_monitors = g_hash_table_new_full (g_str_hash,
 	                                             g_str_equal,
@@ -331,7 +337,8 @@ _tracker_miner_dbus_remove_name_watch (TrackerMiner             *miner,
 
 	match_rule = get_name_owner_changed_match_rule (name);
 	dbus_bus_remove_match (dbus_g_connection_get_connection (data->connection),
-	                       match_rule, NULL);
+	                       match_rule,
+	                       NULL);
 	g_free (match_rule);
 }
 
@@ -341,6 +348,7 @@ _tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
                                     TrackerMinerDBusNameFunc  func)
 {
 	DBusData *data;
+	DBusConnection *connection;
 	gchar *match_rule;
 
 	g_return_if_fail (TRACKER_IS_MINER (miner));
@@ -361,12 +369,15 @@ _tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
 	                     func);
 
 	match_rule = get_name_owner_changed_match_rule (name);
-	dbus_bus_add_match (dbus_g_connection_get_connection (data->connection),
-	                    match_rule, NULL);
-	if (!dbus_bus_name_has_owner (dbus_g_connection_get_connection (data->connection),
-	                              name, NULL)) {
-		/* Ops, the name went away before we could receive NameOwnerChanged for it */
+	connection = dbus_g_connection_get_connection (data->connection);
+	dbus_bus_add_match (connection, match_rule, NULL);
+
+	if (!dbus_bus_name_has_owner (connection, name, NULL)) {
+		/* Ops, the name went away before we could receive
+		 * NameOwnerChanged for it.
+		 */
 		name_owner_changed_cb ("", name, name, miner);
 	}
+
 	g_free (match_rule);
 }
