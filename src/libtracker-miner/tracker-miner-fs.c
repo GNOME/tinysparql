@@ -148,8 +148,8 @@ struct _TrackerMinerFSPrivate {
 	guint           shown_totals : 1;
 	guint           is_paused : 1;
 	guint           is_crawling : 1;
-	guint		mtime_checking : 1;
-	guint		initial_crawling : 1;
+	guint           mtime_checking : 1;
+	guint           initial_crawling : 1;
 
 	/* Statistics */
 	guint           total_directories_found;
