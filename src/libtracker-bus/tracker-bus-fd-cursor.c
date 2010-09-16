@@ -105,10 +105,10 @@ tracker_bus_fd_cursor_iter_next (TrackerBusFDCursor  *cursor,
 
 	/* Storage of ints that will be casted to TrackerSparqlValueType enums,
 	 * also see tracker_bus_fd_cursor_get_value_type */
-	cursor->types = (int*) cursor->buffer + cursor->buffer_index;
+	cursor->types = (int*) (cursor->buffer + cursor->buffer_index);
 	cursor->buffer_index += sizeof (int) * (cursor->n_columns);
 
-	cursor->offsets = (int*) cursor->buffer + cursor->buffer_index;
+	cursor->offsets = (int*) (cursor->buffer + cursor->buffer_index);
 	cursor->buffer_index += sizeof (int) * (cursor->n_columns - 1);
 	last_offset = buffer_read_int (cursor);
 

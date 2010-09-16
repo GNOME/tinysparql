@@ -1828,10 +1828,10 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
 	 */
 	iterator->n_columns = iterator_buffer_read_int (iterator);
 
-	iterator->types = (int*) iterator->buffer + iterator->buffer_index;
+	iterator->types = (int*) (iterator->buffer + iterator->buffer_index);
 	iterator->buffer_index += sizeof (int) * (iterator->n_columns);
 
-	iterator->offsets = (int*) iterator->buffer + iterator->buffer_index;
+	iterator->offsets = (int*) (iterator->buffer + iterator->buffer_index);
 	iterator->buffer_index += sizeof (int) * (iterator->n_columns - 1);
 
 	last_offset = iterator_buffer_read_int (iterator);
