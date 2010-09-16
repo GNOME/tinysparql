@@ -96,9 +96,9 @@ static void       miner_constructed            (GObject       *object);
 static void       pause_data_destroy           (gpointer       data);
 static PauseData *pause_data_new               (const gchar   *application,
                                                 const gchar   *reason);
-static void       store_name_monitor_cb (TrackerMiner *miner,
-                                         const gchar  *name,
-                                         gboolean      available);
+static void       store_name_monitor_cb        (TrackerMiner  *miner,
+                                                const gchar   *name,
+                                                gboolean       available);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMiner, tracker_miner, G_TYPE_OBJECT)
 
@@ -373,7 +373,8 @@ miner_constructed (GObject *object)
 	TrackerMiner *miner = TRACKER_MINER (object);
 
 	_tracker_miner_dbus_init (miner, &dbus_glib__tracker_miner_object_info);
-	_tracker_miner_dbus_add_name_watch (miner, "org.freedesktop.Tracker1",
+	_tracker_miner_dbus_add_name_watch (miner, 
+	                                    "org.freedesktop.Tracker1",
 	                                    store_name_monitor_cb);
 }
 
@@ -384,8 +385,9 @@ store_name_monitor_cb (TrackerMiner *miner,
 {
 	GError *error = NULL;
 
-	g_debug ("Store availability has changed to %s",
-		 available ? "AVAILABLE" : "UNAVAILABLE");
+	g_debug ("Miner:'%s' noticed store availability has changed to %s",
+	         miner->private->name,
+	         available ? "AVAILABLE" : "UNAVAILABLE");
 
 	if (available && miner->private->availability_cookie != 0) {
 		tracker_miner_resume (miner,
@@ -554,7 +556,7 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
 
 	if (g_hash_table_size (miner->private->pauses) == 1) {
 		/* Pause */
-		g_message ("Miner is pausing");
+		g_message ("Miner:'%s' is pausing", miner->private->name);
 		g_signal_emit (miner, signals[PAUSED], 0);
 	}
 
@@ -619,7 +621,7 @@ tracker_miner_resume (TrackerMiner  *miner,
 
 	if (g_hash_table_size (miner->private->pauses) == 0) {
 		/* Resume */
-		g_message ("Miner is resuming");
+		g_message ("Miner:'%s' is resuming", miner->private->name);
 		g_signal_emit (miner, signals[RESUMED], 0);
 	}
 
