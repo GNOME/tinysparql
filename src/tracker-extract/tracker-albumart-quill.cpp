@@ -44,7 +44,6 @@ tracker_albumart_file_to_jpeg (const gchar *filename,
                                const gchar *target)
 {
 	if (!init) {
-		QuillImageFilter::registerAll();
 		init = TRUE;
 	}
 
@@ -106,7 +105,6 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 	const gchar *qt_format;
 
 	if (!init) {
-		QuillImageFilter::registerAll();
 		init = TRUE;
 	}
 	QImageReader *reader = NULL;
