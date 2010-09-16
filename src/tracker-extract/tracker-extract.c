@@ -57,16 +57,19 @@ typedef struct {
 	GArray *generic_extractors;
 	gboolean disable_shutdown;
 	gboolean force_internal_extractors;
+	gboolean disable_summary_on_finalize;
 } TrackerExtractPrivate;
 
 typedef struct {
 	const GModule *module;
 	const TrackerExtractData *edata;
 	GPatternSpec *pattern; /* For a fast g_pattern_match() */
-}  ModuleData;
-
+	guint extracted_count;
+	guint failed_count;
+} ModuleData;
 
 static void tracker_extract_finalize (GObject *object);
+static void report_statistics        (GObject *object);
 
 G_DEFINE_TYPE(TrackerExtract, tracker_extract, G_TYPE_OBJECT)
 
@@ -93,32 +96,107 @@ tracker_extract_init (TrackerExtract *object)
 static void
 tracker_extract_finalize (GObject *object)
 {
-	guint i;
 	TrackerExtractPrivate *priv;
+	gint i;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
+
+	if (!priv->disable_summary_on_finalize) {
+		report_statistics (object);
+	}
 
 #ifdef HAVE_LIBSTREAMANALYZER
 	tracker_topanalyzer_shutdown ();
 #endif /* HAVE_STREAMANALYZER */
 
 	for (i = 0; i < priv->specific_extractors->len; i++) {
-		ModuleData mdata;
+		ModuleData *mdata;
 
-		mdata = g_array_index (priv->specific_extractors, ModuleData, i);
-		g_pattern_spec_free (mdata.pattern);
+		mdata = &g_array_index (priv->specific_extractors, ModuleData, i);
+		g_pattern_spec_free (mdata->pattern);
 	}
 	g_array_free (priv->specific_extractors, TRUE);
 
 	for (i = 0; i < priv->generic_extractors->len; i++) {
-		ModuleData mdata;
+		ModuleData *mdata;
 
-		mdata = g_array_index (priv->generic_extractors, ModuleData, i);
-		g_pattern_spec_free (mdata.pattern);
+		mdata = &g_array_index (priv->generic_extractors, ModuleData, i);
+		g_pattern_spec_free (mdata->pattern);
 	}
 	g_array_free (priv->generic_extractors, TRUE);
 
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
+}
+
+static void
+report_statistics (GObject *object)
+{
+	TrackerExtractPrivate *priv;
+	GHashTable *reported = NULL;
+	gint i;
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
+
+
+#ifdef HAVE_LIBSTREAMANALYZER
+	tracker_topanalyzer_shutdown ();
+#endif /* HAVE_STREAMANALYZER */
+
+	g_message ("--------------------------------------------------");
+	g_message ("Statistics:");
+	g_message ("  Specific Extractors:");
+
+	reported = g_hash_table_new (g_direct_hash, g_direct_equal);
+
+	for (i = 0; i < priv->specific_extractors->len; i++) {
+		ModuleData *mdata;
+		const gchar *name;
+
+		mdata = &g_array_index (priv->specific_extractors, ModuleData, i);
+		name = g_module_name ((GModule*) mdata->module);
+
+		if ((mdata->extracted_count > 0 || mdata->failed_count > 0) &&
+		    !g_hash_table_lookup (reported, name)) {
+			const gchar *name_without_path;
+			
+			name_without_path = strrchr (name, G_DIR_SEPARATOR) + 1;
+
+			g_message ("    Module:'%s', extracted:%d, failures:%d",
+			           name_without_path,
+			           mdata->extracted_count,
+			           mdata->failed_count);
+			g_hash_table_insert (reported, (gpointer) name, GINT_TO_POINTER(1));
+		}
+	}
+
+	g_hash_table_remove_all (reported);
+
+	g_message ("Generic Extractors:");
+
+	for (i = 0; i < priv->generic_extractors->len; i++) {
+		ModuleData *mdata;
+		const gchar *name;
+
+		mdata = &g_array_index (priv->generic_extractors, ModuleData, i);
+		name = g_module_name ((GModule*) mdata->module);
+
+		if ((mdata->extracted_count > 0 || mdata->failed_count > 0) &&
+		    !g_hash_table_lookup (reported, name)) {
+			const gchar *name_without_path;
+			
+			name_without_path = strrchr (name, G_DIR_SEPARATOR) + 1;
+
+			g_message ("    Module:'%s', extracted:%d, failed:%d",
+			           name_without_path,
+			           mdata->extracted_count,
+			           mdata->failed_count);
+			g_hash_table_insert (reported, (gpointer) name, GINT_TO_POINTER(1));
+		}
+	}
+
+	g_message ("--------------------------------------------------");
+
+	g_hash_table_unref (reported);
 }
 
 static gboolean
@@ -411,18 +489,18 @@ get_file_metadata (TrackerExtract         *extract,
 
 		for (i = 0; i < priv->specific_extractors->len; i++) {
 			const TrackerExtractData *edata;
-			ModuleData mdata;
+			ModuleData *mdata;
 
-			mdata = g_array_index (priv->specific_extractors, ModuleData, i);
-			edata = mdata.edata;
+			mdata = &g_array_index (priv->specific_extractors, ModuleData, i);
+			edata = mdata->edata;
 
-			if (g_pattern_match (mdata.pattern, length, mime_used, reversed)) {
+			if (g_pattern_match (mdata->pattern, length, mime_used, reversed)) {
 				gint items;
 
 				tracker_dbus_request_comment (request_id,
 				                              context,
 				                              "  Extracting with module:'%s'",
-				                              g_module_name ((GModule*) mdata.module));
+				                              g_module_name ((GModule*) mdata->module));
 
 				(*edata->func) (uri, preupdate, statements);
 
@@ -432,7 +510,11 @@ get_file_metadata (TrackerExtract         *extract,
 				                              context,
 				                              "  Found %d metadata items",
 				                              items);
+
+				mdata->extracted_count++;
+
 				if (items == 0) {
+					mdata->failed_count++;
 					continue;
 				}
 
@@ -449,18 +531,18 @@ get_file_metadata (TrackerExtract         *extract,
 
 		for (i = 0; i < priv->generic_extractors->len; i++) {
 			const TrackerExtractData *edata;
-			ModuleData mdata;
+			ModuleData *mdata;
 
-			mdata = g_array_index (priv->generic_extractors, ModuleData, i);
-			edata = mdata.edata;
+			mdata = &g_array_index (priv->generic_extractors, ModuleData, i);
+			edata = mdata->edata;
 
-			if (g_pattern_match (mdata.pattern, length, mime_used, reversed)) {
+			if (g_pattern_match (mdata->pattern, length, mime_used, reversed)) {
 				gint items;
 
 				tracker_dbus_request_comment (request_id,
 				                              context,
 				                              "  Extracting with module:'%s'",
-				                              g_module_name ((GModule*) mdata.module));
+				                              g_module_name ((GModule*) mdata->module));
 
 				(*edata->func) (uri, preupdate, statements);
 
@@ -470,7 +552,11 @@ get_file_metadata (TrackerExtract         *extract,
 				                              context,
 				                              "  Found %d metadata items",
 				                              items);
+
+				mdata->extracted_count++;
+
 				if (items == 0) {
+					mdata->failed_count++;
 					continue;
 				}
 
@@ -517,8 +603,12 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 {
 	guint request_id;
 	TrackerSparqlBuilder *statements, *preupdate;
+	TrackerExtractPrivate *priv;
 
 	request_id = tracker_dbus_get_next_request_id ();
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
+	priv->disable_summary_on_finalize = TRUE;
 
 	g_return_if_fail (uri != NULL);
 
