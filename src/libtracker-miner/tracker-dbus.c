@@ -148,8 +148,8 @@ message_filter (DBusConnection *connection,
 	message_type = dbus_message_get_type (message);
 
 	if (interface == dbus_interface_quark &&
-		message_type == DBUS_MESSAGE_TYPE_SIGNAL &&
-		member == name_owner_changed_signal_quark) {
+	    message_type == DBUS_MESSAGE_TYPE_SIGNAL &&
+	    member == name_owner_changed_signal_quark) {
 		const gchar *name, *prev_owner, *new_owner;
 
 		if (dbus_message_get_args (message, NULL,
