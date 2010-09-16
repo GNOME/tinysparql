@@ -56,7 +56,7 @@
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_9_19
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_0_9_21
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 #define TRACKER_DB_LOCALE_FILE        "db-locale.txt"
 
@@ -92,7 +92,8 @@ typedef enum {
 	TRACKER_DB_VERSION_0_9_8,   /* affiliation cardinality + volumes */
 	TRACKER_DB_VERSION_0_9_15,  /* mtp:hidden */
 	TRACKER_DB_VERSION_0_9_16,  /* Fix for NB#184823 */
-	TRACKER_DB_VERSION_0_9_19   /* collation */
+	TRACKER_DB_VERSION_0_9_19,  /* collation */
+	TRACKER_DB_VERSION_0_9_21   /* Fix for NB#186055 */
 } TrackerDBVersion;
 
 typedef struct {
