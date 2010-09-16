@@ -233,6 +233,9 @@ main (gint argc, gchar **argv)
 	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
+        /* do not require prior installation */
+        g_setenv ("TRACKER_SPARQL_MODULE_PATH", "../../src/libtracker-bus/.libs", TRUE);
+
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_assert (main_loop != NULL);
 
