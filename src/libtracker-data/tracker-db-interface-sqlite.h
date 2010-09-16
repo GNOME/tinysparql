@@ -20,6 +20,8 @@
 #ifndef __LIBTRACKER_DB_INTERFACE_SQLITE_H__
 #define __LIBTRACKER_DB_INTERFACE_SQLITE_H__
 
+#include "config.h"
+
 #include "tracker-db-interface.h"
 
 G_BEGIN_DECLS

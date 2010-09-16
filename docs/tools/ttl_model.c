@@ -35,24 +35,22 @@ ttl_model_class_new (const gchar *classname)
 	def->instances = NULL;
 	def->notify = FALSE;
 	def->deprecated = FALSE;
+
 	return def;
 }
 
 void
 ttl_model_class_free (OntologyClass *def)
 {
-	if (def->classname) {
-		g_free (def->classname);
-	}
+	g_free (def->classname);
 
 	g_list_foreach (def->superclasses, (GFunc) g_free, NULL);
 	g_list_foreach (def->subclasses, (GFunc) g_free, NULL);
 	g_list_foreach (def->in_domain_of, (GFunc) g_free, NULL);
 	g_list_foreach (def->in_range_of, (GFunc) g_free, NULL);
 
-	if (def->description) {
-		g_free (def->description);
-	}
+	g_free (def->description);
+
 	g_list_foreach (def->instances, (GFunc) g_free, NULL);
 
 	g_free (def);
@@ -74,17 +72,16 @@ ttl_model_property_new (const gchar *propname)
 	prop->max_cardinality = NULL;
 	prop->description = NULL;
 	prop->deprecated = FALSE;
-        prop->fulltextIndexed = FALSE ;
-        prop->weight = NULL;
+	prop->fulltextIndexed = FALSE ;
+	prop->weight = NULL;
+
 	return prop;
 }
 
 void
 ttl_model_property_free (OntologyProperty *def)
 {
-	if (def->propertyname) {
-		g_free (def->propertyname);
-	}
+	g_free (def->propertyname);
 
 	g_list_foreach (def->type, (GFunc) g_free, NULL);
 	g_list_foreach (def->domain, (GFunc) g_free, NULL);
@@ -92,18 +89,9 @@ ttl_model_property_free (OntologyProperty *def)
 	g_list_foreach (def->superproperties, (GFunc) g_free, NULL);
 	g_list_foreach (def->subproperties, (GFunc) g_free, NULL);
 
-	if (def->max_cardinality) {
-		g_free (def->max_cardinality);
-	}
-
-	if (def->description) {
-		g_free (def->description);
-	}
-
-        if (def->weight) {
-                g_free (def->weight);
-        }
-
+	g_free (def->max_cardinality);
+	g_free (def->description);
+	g_free (def->weight);
 	g_free (def);
 }
 

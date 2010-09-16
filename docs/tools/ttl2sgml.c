@@ -59,7 +59,7 @@ main (gint argc, gchar **argv)
 	gchar *ttl_file = NULL;
 	gchar *dirname = NULL;
 	FILE *f = NULL;
-        FILE *fts = NULL;
+	FILE *fts = NULL;
 
 	g_type_init ();
 
@@ -93,9 +93,9 @@ main (gint argc, gchar **argv)
 	}
 	g_assert (f != NULL);
 
-        if (fts_properties_file) {
+	if (fts_properties_file) {
 		fts = fopen (fts_properties_file, "a");
-        } 
+	} 
 
 	description = ttl_loader_load_description (desc_file);
 
@@ -116,7 +116,7 @@ main (gint argc, gchar **argv)
 	g_option_context_free (context);
 
 	fclose (f);
-        fclose (fts);
+	fclose (fts);
 
 	return 0;
 }

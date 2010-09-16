@@ -70,14 +70,14 @@ typedef struct {
 } Ontology;
 
 
-OntologyClass * ttl_model_class_new (const gchar *classname);
-void            ttl_model_class_free (OntologyClass *klass);
+OntologyClass *       ttl_model_class_new        (const gchar *classname);
+void                  ttl_model_class_free       (OntologyClass *klass);
 
-OntologyDescription *ttl_model_description_new (void);
-void                 ttl_model_description_free (OntologyDescription *desc);
+OntologyDescription * ttl_model_description_new  (void);
+void                  ttl_model_description_free (OntologyDescription *desc);
 
-OntologyProperty *ttl_model_property_new (const gchar *propname);
-void              ttl_model_property_free (OntologyProperty *property);
+OntologyProperty *    ttl_model_property_new     (const gchar *propname);
+void                  ttl_model_property_free    (OntologyProperty *property);
 
 G_END_DECLS
 

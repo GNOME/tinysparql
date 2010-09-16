@@ -46,26 +46,26 @@ static gint   indenting = 0;
 static GList *context = NULL;
 
 enum {
-        CONTEXT_GRAPH,
-        CONTEXT_SUBGRAPH,
-        CONTEXT_PROPERTY
+	CONTEXT_GRAPH,
+	CONTEXT_SUBGRAPH,
+	CONTEXT_PROPERTY
 };
 
-static gchar *colors[] = {
-        "#dd0000",
-        "#00dd00",
-        "#0000dd",
-        "#dd00dd",
-        "#dddd00",
-        "#00dddd",
-        "#dddddd"
-        "#bb0000",
-        "#00bb00",
-        "#0000bb",
-        "#bb00bb",
-        "#bbbb00",
-        "#00bbbb",
-        "#bbbbbb"
+static const gchar *colors[] = {
+	"#dd0000",
+	"#00dd00",
+	"#0000dd",
+	"#dd00dd",
+	"#dddd00",
+	"#00dddd",
+	"#dddddd"
+	"#bb0000",
+	"#00bb00",
+	"#0000bb",
+	"#bb00bb",
+	"#bbbb00",
+	"#00bbbb",
+	"#bbbbbb"
 };
 
 static GOptionEntry   entries[] = {
@@ -85,7 +85,7 @@ static void
 load_ontology_file_from_path (const gchar	 *ontology_file)
 {
 	TrackerTurtleReader *reader;
-	GError              *error = NULL;
+	GError *error = NULL;
 
 	reader = tracker_turtle_reader_new (ontology_file, &error);
 	if (error) {
@@ -299,80 +299,80 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 static void
 load_ontology_file (GFile *file)
 {
-        gchar *path;
+	gchar *path;
 
-        path = g_file_get_path (file);
-        load_ontology_file_from_path (path);
-        g_free (path);
+	path = g_file_get_path (file);
+	load_ontology_file_from_path (path);
+	g_free (path);
 }
 
 static gboolean
 load_ontology_dir (GFile *dir)
 {
-        GFileEnumerator *enumerator;
-        GFileInfo *info;
-        GList *files, *f;
-        const gchar *name;
+	GFileEnumerator *enumerator;
+	GFileInfo *info;
+	GList *files, *f;
+	const gchar *name;
 
-        enumerator = g_file_enumerate_children (dir,
-                                                G_FILE_ATTRIBUTE_STANDARD_NAME,
-                                                G_FILE_QUERY_INFO_NONE,
-                                                NULL, NULL);
+	enumerator = g_file_enumerate_children (dir,
+	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
+	                                        G_FILE_QUERY_INFO_NONE,
+	                                        NULL, NULL);
+	
+	if (!enumerator) {
+		return FALSE;
+	}
 
-        if (!enumerator) {
-                return FALSE;
-        }
+	files = NULL;
+	
+	while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
+		name = g_file_info_get_name (info);
 
-        files = NULL;
+		if (g_str_has_suffix (name, ".ontology")) {
+			files = g_list_insert_sorted (files, g_strdup (name),
+			                              (GCompareFunc) g_strcmp0);
+		}
 
-        while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
-                name = g_file_info_get_name (info);
+		g_object_unref (info);
+	}
 
-                if (g_str_has_suffix (name, ".ontology")) {
-                        files = g_list_insert_sorted (files, g_strdup (name),
-                                                      (GCompareFunc) g_strcmp0);
-                }
+	g_object_unref (enumerator);
 
-                g_object_unref (info);
-        }
+	for (f = files; f; f = f->next) {
+		GFile *child;
 
-        g_object_unref (enumerator);
+		child = g_file_get_child (dir, f->data);
+		load_ontology_file (child);
+		g_object_unref (child);
+	}
 
-        for (f = files; f; f = f->next) {
-                GFile *child;
+	g_list_foreach (files, (GFunc) g_free, NULL);
+	g_list_free (files);
 
-                child = g_file_get_child (dir, f->data);
-                load_ontology_file (child);
-                g_object_unref (child);
-        }
-
-        g_list_foreach (files, (GFunc) g_free, NULL);
-        g_list_free (files);
-
-        return TRUE;
+	return TRUE;
 }
 
 static const gchar *
 snip_name (const gchar *name)
 {
-        const gchar *subname;
+	const gchar *subname;
 
-        subname = strchr (name, ':');
-        subname++;
+	subname = strchr (name, ':');
+	subname++;
 
-        return subname;
+	return subname;
 }
 
 static gchar *
 get_prefix (const gchar *name)
 {
-        const gchar *str;
-        gchar *prefix;
+	const gchar *str;
+	gchar *prefix;
 
-        str = strchr (name, ':');
-        prefix = g_strndup (name, str - name);
+	str = strchr (name, ':');
+	prefix = g_strndup (name, str - name);
 
-        return prefix;
+	return prefix;
 }
 
 static void
@@ -380,17 +380,17 @@ print_string (FILE        *f,
               const gchar *format,
               ...)
 {
-        va_list args;
+	va_list args;
 
-        va_start (args, format);
+	va_start (args, format);
+	
+	if (indenting > 0) {
+		g_fprintf (f, "%*s", indenting, " ");
+	}
+	g_vfprintf (f, format, args);
+	g_fprintf (f, "\n");
 
-        if (indenting > 0) {
-                g_fprintf (f, "%*s", indenting, " ");
-        }
-        g_vfprintf (f, format, args);
-        g_fprintf (f, "\n");
-
-        va_end (args);
+	va_end (args);
 }
 
 static void
@@ -398,50 +398,49 @@ push_context_graph (FILE        *f,
                     const gchar *name,
                     gboolean     directed)
 {
-        if (directed) {
-                print_string (f, "digraph %s {", name);
-        } else {
-                print_string (f, "graph %s {", name);
-        }
+	if (directed) {
+		print_string (f, "digraph %s {", name);
+	} else {
+		print_string (f, "graph %s {", name);
+	}
 
-        indenting += 2;
-        context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_GRAPH));
+	indenting += 2;
+	context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_GRAPH));
 }
 
 static void
 push_context_subgraph (FILE        *f,
                        const gchar *name)
 {
-        print_string (f, "subgraph \"%s\" {", name);
-        indenting += 2;
-        context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_SUBGRAPH));
+	print_string (f, "subgraph \"%s\" {", name);
+	indenting += 2;
+	context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_SUBGRAPH));
 }
 
 static void
 pop_context (FILE *f)
 {
-        guint c;
+	guint c;
 
-        g_assert (context != NULL);
+	g_assert (context != NULL);
 
-        c = GPOINTER_TO_INT (context->data);
-        context = g_list_remove (context, context);
+	c = GPOINTER_TO_INT (context->data);
+	context = g_list_remove (context, context);
 
-        indenting -= 2;
-        g_assert (indenting >= 0);
+	indenting -= 2;
+	g_assert (indenting >= 0);
 
-        switch (c) {
-        case CONTEXT_GRAPH:
-        case CONTEXT_SUBGRAPH:
-                print_string (f, "}\n");
-                break;
-        case CONTEXT_PROPERTY:
-                print_string (f, "];\n");
-                break;
-        default:
-                g_assert_not_reached ();
-        }
-
+	switch (c) {
+	case CONTEXT_GRAPH:
+	case CONTEXT_SUBGRAPH:
+		print_string (f, "}\n");
+		break;
+	case CONTEXT_PROPERTY:
+		print_string (f, "];\n");
+		break;
+	default:
+		g_assert_not_reached ();
+	}
 }
 
 static void
@@ -449,22 +448,20 @@ print_properties (FILE        *f,
                   const gchar *separator,
                   ...)
 {
-        va_list args;
-        const gchar *prop, *value;
+	va_list args;
+	const gchar *prop, *value;
 
-        va_start (args, separator);
+	va_start (args, separator);
 
-        prop = va_arg (args, gchar *);
+	prop = va_arg (args, gchar *);
 
-        while (prop) {
-                value = va_arg (args, gchar *);
+	while (prop) {
+		value = va_arg (args, gchar *);
+		print_string (f, "%s = \"%s\"%s", prop, value, separator);
+		prop = va_arg (args, gchar *);
+	}
 
-                print_string (f, "%s = \"%s\"%s", prop, value, separator);
-
-                prop = va_arg (args, gchar *);
-        }
-
-        va_end (args);
+	va_end (args);
 }
 
 static void
@@ -472,13 +469,13 @@ print_element (FILE        *f,
                const gchar *name,
                gboolean     push_property)
 {
-        if (push_property) {
-                print_string (f, "%s [", name);
-                context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_PROPERTY));
-                indenting += 2;
-        } else {
-                print_string (f, "%s;", name);
-        }
+	if (push_property) {
+		print_string (f, "%s [", name);
+		context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_PROPERTY));
+		indenting += 2;
+	} else {
+		print_string (f, "%s;", name);
+	}
 }
 
 static void
@@ -488,168 +485,168 @@ print_relation (FILE        *f,
                 gboolean     directed,
                 gboolean     push_property)
 {
-        if (directed) {
-                if (push_property) {
-                        print_string (f, "%s -> %s [", from, to);
-                } else {
-                        print_string (f, "%s -> %s;", from, to);
-                }
-        } else {
-                if (push_property) {
-                        print_string (f, "%s -- %s [", from, to);
-                } else {
-                        print_string (f, "%s -- %s;", from, to);
-                }
-        }
+	if (directed) {
+		if (push_property) {
+			print_string (f, "%s -> %s [", from, to);
+		} else {
+			print_string (f, "%s -> %s;", from, to);
+		}
+	} else {
+		if (push_property) {
+			print_string (f, "%s -- %s [", from, to);
+		} else {
+			print_string (f, "%s -- %s;", from, to);
+		}
+	}
 
-        if (push_property) {
-                context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_PROPERTY));
-                indenting += 2;
-        }
+	if (push_property) {
+		context = g_list_prepend (context, GINT_TO_POINTER (CONTEXT_PROPERTY));
+		indenting += 2;
+	}
 }
 
 static void
 generate_class_info (FILE *f)
 {
-        TrackerClass **classes;
-        GHashTable *info;
-        guint length, i, j;
-        GHashTableIter iter;
-        gpointer key, value;
-        gint cur_color = 0;
+	TrackerClass **classes;
+	GHashTable *info;
+	guint length, i, j;
+	GHashTableIter iter;
+	gpointer key, value;
+	gint cur_color = 0;
 
-        info = g_hash_table_new_full (g_str_hash,
-                                      g_str_equal,
-                                      NULL, NULL);
+	info = g_hash_table_new_full (g_str_hash,
+	                              g_str_equal,
+	                              NULL, NULL);
 
-        classes = tracker_ontologies_get_classes (&length);
+	classes = tracker_ontologies_get_classes (&length);
 
-        push_context_graph (f, "G", FALSE);
+	push_context_graph (f, "G", FALSE);
 
-        print_properties (f, ";",
-                          "size", "22,22",
-                          "shape", "record",
-                          "ratio", "1.0",
-                          "concentrate", "true",
-                          "compound", "true",
-                          "dim", "10",
-                          "rankdir", "LR",
-                          NULL);
+	print_properties (f, ";",
+	                  "size", "22,22",
+	                  "shape", "record",
+	                  "ratio", "1.0",
+	                  "concentrate", "true",
+	                  "compound", "true",
+	                  "dim", "10",
+	                  "rankdir", "LR",
+	                  NULL);
 
-        for (i = 0; i < length; i++) {
-                const gchar *name;
-                TrackerClass **superclasses;
-                gchar *prefix;
-                GList *subgraph_elements;
-                gchar *elem_name, *elem_label;
+	for (i = 0; i < length; i++) {
+		const gchar *name;
+		TrackerClass **superclasses;
+		gchar *prefix;
+		GList *subgraph_elements;
+		gchar *elem_name, *elem_label;
 
-                name = snip_name (tracker_class_get_name (classes[i]));
-                prefix = get_prefix (tracker_class_get_name (classes[i]));
-                superclasses = tracker_class_get_super_classes (classes[i]);
+		name = snip_name (tracker_class_get_name (classes[i]));
+		prefix = get_prefix (tracker_class_get_name (classes[i]));
+		superclasses = tracker_class_get_super_classes (classes[i]);
 
-                subgraph_elements = g_hash_table_lookup (info, prefix);
-                subgraph_elements = g_list_prepend (subgraph_elements, (gpointer) name);
-                g_hash_table_replace (info, prefix, subgraph_elements);
+		subgraph_elements = g_hash_table_lookup (info, prefix);
+		subgraph_elements = g_list_prepend (subgraph_elements, (gpointer) name);
+		g_hash_table_replace (info, prefix, subgraph_elements);
 
-                elem_name = g_strdup_printf ("%s_%s", prefix, name);
-                elem_label = g_strdup_printf ("%s:%s", prefix, name);
+		elem_name = g_strdup_printf ("%s_%s", prefix, name);
+		elem_label = g_strdup_printf ("%s:%s", prefix, name);
 
-                print_element (f, elem_name, TRUE);
+		print_element (f, elem_name, TRUE);
 
-                print_properties (f, ",",
-                                  "label", elem_label,
-                                  "style", "filled",
-                                  NULL);
+		print_properties (f, ",",
+		                  "label", elem_label,
+		                  "style", "filled",
+		                  NULL);
 
-                pop_context (f);
+		pop_context (f);
 
-                g_free (elem_name);
-                g_free (elem_label);
+		g_free (elem_name);
+		g_free (elem_label);
 
-                for (j = 0; superclasses[j]; j++) {
-                        const gchar *super_name;
-                        gchar *super_prefix;
-                        gchar *from_name, *to_name;
+		for (j = 0; superclasses[j]; j++) {
+			const gchar *super_name;
+			gchar *super_prefix;
+			gchar *from_name, *to_name;
 
-                        super_name = snip_name (tracker_class_get_name (superclasses[j]));
-                        super_prefix = get_prefix (tracker_class_get_name (superclasses[j]));
+			super_name = snip_name (tracker_class_get_name (superclasses[j]));
+			super_prefix = get_prefix (tracker_class_get_name (superclasses[j]));
 
-                        from_name = g_strdup_printf ("%s_%s", prefix, name);
-                        to_name = g_strdup_printf ("%s_%s", super_prefix, super_name);
+			from_name = g_strdup_printf ("%s_%s", prefix, name);
+			to_name = g_strdup_printf ("%s_%s", super_prefix, super_name);
+	
+			print_relation (f, from_name, to_name, FALSE, TRUE);
+			print_properties (f, ",", "dir", "forward", NULL);
 
-                        print_relation (f, from_name, to_name, FALSE, TRUE);
-                        print_properties (f, ",", "dir", "forward", NULL);
+			if (g_strcmp0 (prefix, super_prefix) != 0) {
+				gchar *cluster_from, *cluster_to;
+	
+				cluster_from = g_strdup_printf ("cluster_%s", prefix);
+				cluster_to = g_strdup_printf ("cluster_%s", super_prefix);
 
-                        if (g_strcmp0 (prefix, super_prefix) != 0) {
-                                gchar *cluster_from, *cluster_to;
+					print_properties (f, ",",
+					                  "ltail", cluster_from,
+					                  "lhead", cluster_to,
+					                  NULL);
 
-                                cluster_from = g_strdup_printf ("cluster_%s", prefix);
-                                cluster_to = g_strdup_printf ("cluster_%s", super_prefix);
+				g_free (cluster_from);
+				g_free (cluster_to);
+			}
 
-                                print_properties (f, ",",
-                                                  "ltail", cluster_from,
-                                                  "lhead", cluster_to,
-                                                  NULL);
+			pop_context (f);
+			g_free (super_prefix);
+		}
+	}
 
-                                g_free (cluster_from);
-                                g_free (cluster_to);
-                        }
+	g_hash_table_iter_init (&iter, info);
 
-                        pop_context (f);
-                        g_free (super_prefix);
-                }
-        }
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		gchar *prefix = key;
+		gchar *subgraph_name, *subgraph_label;
+		GList *subgraph_elements = value;
 
-        g_hash_table_iter_init (&iter, info);
+		subgraph_name = g_strdup_printf ("cluster_%s", prefix);
+		subgraph_label = g_strdup_printf ("%s ontology", prefix);
 
-        while (g_hash_table_iter_next (&iter, &key, &value)) {
-                gchar *prefix = key;
-                gchar *subgraph_name, *subgraph_label;
-                GList *subgraph_elements = value;
+		push_context_subgraph (f, subgraph_name);
 
-                subgraph_name = g_strdup_printf ("cluster_%s", prefix);
-                subgraph_label = g_strdup_printf ("%s ontology", prefix);
+		print_properties (f, ";",
+		                  "label", subgraph_label,
+		                  "fontsize", "30",
+		                  "bgcolor", colors[cur_color],
+		                  NULL);
 
-                push_context_subgraph (f, subgraph_name);
+		while (subgraph_elements) {
+			gchar *subelement_name;
 
-                print_properties (f, ";",
-                                  "label", subgraph_label,
-                                  "fontsize", "30",
-                                  "bgcolor", colors[cur_color],
-                                  NULL);
+			subelement_name = g_strdup_printf ("%s_%s", prefix, (gchar *) subgraph_elements->data);
+			print_element (f, subelement_name, FALSE);
+			g_free (subelement_name);
 
-                while (subgraph_elements) {
-                        gchar *subelement_name;
+			subgraph_elements = subgraph_elements->next;
+		}
 
-                        subelement_name = g_strdup_printf ("%s_%s", prefix, (gchar *) subgraph_elements->data);
-                        print_element (f, subelement_name, FALSE);
-                        g_free (subelement_name);
+		pop_context (f);
 
-                        subgraph_elements = subgraph_elements->next;
-                }
+		cur_color++;
 
-                pop_context (f);
+		if (cur_color >= G_N_ELEMENTS (colors)) {
+				cur_color = 0;
+		}
+	}
 
-                cur_color++;
+	g_hash_table_destroy (info);
 
-                if (cur_color >= G_N_ELEMENTS (colors)) {
-                        cur_color = 0;
-                }
-        }
-
-        g_hash_table_destroy (info);
-
-        pop_context (f);
+	pop_context (f);
 }
 
 int
 main (int argc, char *argv[])
 {
-        GOptionContext *context;
-        FILE *f = NULL;
-        GFile *dir;
+	GOptionContext *context;
+	FILE *f = NULL;
+	GFile *dir;
 
-        g_type_init ();
+	g_type_init ();
 
 	/* Translators: this messagge will apper immediately after the	*/
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
@@ -660,11 +657,11 @@ main (int argc, char *argv[])
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-        if (!ontology_dir) {
+	if (!ontology_dir) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    "Ontology dir is mandatory");
+		            "Ontology dir is mandatory");
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -672,26 +669,26 @@ main (int argc, char *argv[])
 		g_free (help);
 
 		return -1;
-        }
+	}
 
-        if (output_file) {
-                f = fopen (output_file, "w");
-        } else {
-                f = stdout;
-        }
-        g_assert (f != NULL);
+	if (output_file) {
+		f = fopen (output_file, "w");
+	} else {
+		f = stdout;
+	}
+	g_assert (f != NULL);
 
-        tracker_ontologies_init ();
+	tracker_ontologies_init ();
 
-        dir = g_file_new_for_commandline_arg (ontology_dir);
-        load_ontology_dir (dir);
-        g_object_unref (dir);
+	dir = g_file_new_for_commandline_arg (ontology_dir);
+	load_ontology_dir (dir);
+	g_object_unref (dir);
 
-        generate_class_info (f);
+	generate_class_info (f);
 
-        tracker_ontologies_shutdown ();
+	tracker_ontologies_shutdown ();
 
-        fclose (f);
+	fclose (f);
 
-        return 0;
+	return 0;
 }
