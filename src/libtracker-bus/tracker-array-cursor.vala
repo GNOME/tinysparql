@@ -33,19 +33,19 @@ internal class Tracker.Bus.ArrayCursor : Tracker.Sparql.Cursor {
 		this.var_names = var_names;
 	}
 
-	public override uint n_columns { get { return cols; } }
+	public override int n_columns { get { return cols; } }
 
-	public override Sparql.ValueType get_value_type (uint column)
+	public override Sparql.ValueType get_value_type (int column)
 	requires (current_row >= 0) {
 		return this.types[column];
 	}
 
-	public override unowned string? get_variable_name (uint column)
+	public override unowned string? get_variable_name (int column)
 	requires (current_row >= 0) {
 		return this.var_names[column];
 	}
 
-	public override unowned string? get_string (uint column, out long length = null)
+	public override unowned string? get_string (int column, out long length = null)
 	requires (current_row >= 0) {
 		unowned string str;
 

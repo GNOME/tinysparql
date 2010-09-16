@@ -35,16 +35,15 @@ public class TestApp : GLib.Object {
 	}
 
 	int iter_cursor (Cursor cursor) {
-		uint i;
+		int i;
 
 		try {
 			for (i = 0; i < cursor.n_columns; i++) {
 				print ("| %s ", cursor.get_variable_name (i));
 			}
-			print ("| -> %u columns\n", cursor.n_columns);
+			print ("| -> %d columns\n", cursor.n_columns);
 
 			while (cursor.next()) {
-
 				for (i = 0; i < cursor.n_columns; i++) {
 					print ("%s%s a %s", i != 0 ? ",":"",
 					       cursor.get_string (i),

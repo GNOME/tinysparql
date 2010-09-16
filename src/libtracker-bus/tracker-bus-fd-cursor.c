@@ -49,7 +49,7 @@ struct TrackerBusFDCursor {
 	int buffer_index;
 	long buffer_size;
 
-	guint n_columns;
+	gint n_columns;
 	int *offsets;
 	int *types;
 	char *data;
@@ -162,7 +162,7 @@ tracker_bus_fd_cursor_iter_next_finish (TrackerBusFDCursor *cursor,
 	return g_simple_async_result_get_op_res_gboolean (G_SIMPLE_ASYNC_RESULT (res));
 }
 
-static guint
+static gint
 tracker_bus_fd_cursor_get_n_columns (TrackerBusFDCursor *cursor)
 {
 	return cursor->n_columns;
@@ -170,7 +170,7 @@ tracker_bus_fd_cursor_get_n_columns (TrackerBusFDCursor *cursor)
 
 static TrackerSparqlValueType
 tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,
-                                      guint               column)
+                                      gint                column)
 {
 	g_return_val_if_fail (cursor->types != NULL, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
 
@@ -180,7 +180,7 @@ tracker_bus_fd_cursor_get_value_type (TrackerBusFDCursor *cursor,
 
 static const gchar *
 tracker_bus_fd_cursor_get_variable_name (TrackerBusFDCursor *cursor,
-                                         guint               column)
+                                         gint                column)
 {
 	g_return_val_if_fail (cursor->variable_names != NULL, NULL);
 
@@ -189,7 +189,7 @@ tracker_bus_fd_cursor_get_variable_name (TrackerBusFDCursor *cursor,
 
 static const gchar *
 tracker_bus_fd_cursor_get_string (TrackerBusFDCursor *cursor,
-                                  guint               column,
+                                  gint                column,
                                   glong              *length)
 {
 	const gchar *str = NULL;
@@ -222,10 +222,10 @@ tracker_bus_fd_cursor_class_init (TrackerBusFDCursorClass *class)
 
 	object_class->finalize = tracker_bus_fd_cursor_finalize;
 
-	sparql_cursor_class->get_value_type = (TrackerSparqlValueType (*) (TrackerSparqlCursor *, guint)) tracker_bus_fd_cursor_get_value_type;
-	sparql_cursor_class->get_variable_name = (const gchar * (*) (TrackerSparqlCursor *, guint)) tracker_bus_fd_cursor_get_variable_name;
-	sparql_cursor_class->get_n_columns = (guint (*) (TrackerSparqlCursor *)) tracker_bus_fd_cursor_get_n_columns;
-	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, guint, glong*)) tracker_bus_fd_cursor_get_string;
+	sparql_cursor_class->get_value_type = (TrackerSparqlValueType (*) (TrackerSparqlCursor *, gint)) tracker_bus_fd_cursor_get_value_type;
+	sparql_cursor_class->get_variable_name = (const gchar * (*) (TrackerSparqlCursor *, gint)) tracker_bus_fd_cursor_get_variable_name;
+	sparql_cursor_class->get_n_columns = (gint (*) (TrackerSparqlCursor *)) tracker_bus_fd_cursor_get_n_columns;
+	sparql_cursor_class->get_string = (const gchar * (*) (TrackerSparqlCursor *, gint, glong*)) tracker_bus_fd_cursor_get_string;
 	sparql_cursor_class->next = (gboolean (*) (TrackerSparqlCursor *, GCancellable *, GError **)) tracker_bus_fd_cursor_iter_next;
 	sparql_cursor_class->next_async = (void (*) (TrackerSparqlCursor *, GCancellable *, GAsyncReadyCallback, gpointer)) tracker_bus_fd_cursor_iter_next_async;
 	sparql_cursor_class->next_finish = (gboolean (*) (TrackerSparqlCursor *, GAsyncResult *, GError **)) tracker_bus_fd_cursor_iter_next_finish;
