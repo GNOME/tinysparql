@@ -292,7 +292,8 @@ query_inthread (TrackerDBCursor *cursor,
 	column_data = alloca (n_columns * sizeof (gchar*));
 	column_types = alloca (n_columns * sizeof (gchar*));
 
-	variable_names = g_new0 (gchar *, n_columns);
+	/* n_columns + 1 for NULL termination */
+	variable_names = g_new0 (gchar *, n_columns + 1);
 	for (i = 0; i < n_columns; i++) {
 		variable_names[i] = g_strdup (tracker_db_cursor_get_variable_name (cursor, i));
 	}
