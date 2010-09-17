@@ -87,11 +87,6 @@ dbus_register_names (void)
 		return FALSE;
 	}
 
-	if (gproxy) {
-		g_critical ("The DBusGProxy is already set, have we already initialized?");
-		return FALSE;
-	}
-
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!connection) {
