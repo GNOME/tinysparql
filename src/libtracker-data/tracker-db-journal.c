@@ -1828,6 +1828,7 @@ tracker_db_journal_rotate (void)
 	g_output_stream_splice_async (cstream, istream, 0, 0, NULL, on_chunk_copied_delete, source);
 	g_object_unref (istream);
 	g_object_unref (ostream);
+	g_object_unref (converter);
 	g_object_unref (cstream);
 
 	g_object_unref (destination);
