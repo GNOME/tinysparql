@@ -29,6 +29,8 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
 	public class ConfigFile : GLib.Object {
+		[CCode (has_construct_function = false)]
+		public ConfigFile ();
 		[NoAccessorMethod]
 		public string domain { get; construct; }
 		public bool save ();

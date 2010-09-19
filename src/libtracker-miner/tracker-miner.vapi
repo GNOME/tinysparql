@@ -21,6 +21,8 @@
 namespace Tracker {
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class Miner : GLib.Object {
+		[CCode (has_construct_function = false)]
+		public Miner ();
 		[NoAccessorMethod]
 		public string name { get; construct; }
 		[NoAccessorMethod]
