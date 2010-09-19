@@ -808,7 +808,7 @@ msgid "Unable to retrieve URN for URI"
 msgstr "URI jaoks ei suudetud hankida URN-i"
 
 msgid "Unable to retrieve data for URI"
-msgstr "URI andmete hankimine polnud võimalik"
+msgstr "URI andmete hankimine pole võimalik"
 
 msgid "No metadata available for that URI"
 msgstr "Selle URI jaoks puuduvad metaandmed"
@@ -991,7 +991,7 @@ msgid " - Show statistics for all Nepomuk defined ontology classes"
 msgstr " - Nepomuki defineeritud ontoloogiaklasside statistika näitamine"
 
 msgid "Could not get Tracker statistics"
-msgstr "Trackeri statistikat polnud võimalik hankida"
+msgstr "Trackeri statistikat pole võimalik hankida"
 
 msgid "No statistics available"
 msgstr "Statistikat pole saadaval"
