@@ -256,7 +256,7 @@ public class TrackerNeedle {
 		Tracker.Query query = new Tracker.Query ();
 		Tracker.Sparql.Cursor cursor = null;
 
-		query.limit = 100;
+		query.limit = 1000;
 		query.criteria = search.get_text ();
 
 		try {
@@ -267,7 +267,7 @@ public class TrackerNeedle {
 			}
 
 			if (cursor == null) {
-				// FIXME: Print "no results" some where
+				search_finished ();
 				return;
 			}
 
@@ -321,8 +321,11 @@ public class TrackerNeedle {
 			}
 		} catch (GLib.Error e) {
 			warning ("Could not iterate query results: %s", e.message);
+			search_finished ();
 			return;
 		}
+
+		search_finished ();
 	}
 
 	private async void search_detailed () {
@@ -346,14 +349,14 @@ public class TrackerNeedle {
 
 			Tracker.Sparql.Cursor cursor;
 
-			query.limit = 100;
+			query.limit = 1000;
 			query.criteria = search.get_text ();
 
 			try {
 				cursor = yield query.perform_async (type);
 
 				if (cursor == null) {
-					// FIXME: Print "no results" some where
+					search_finished ();
 					return;
 				}
 
@@ -445,6 +448,7 @@ public class TrackerNeedle {
 				}
 			} catch (GLib.Error e) {
 				warning ("Could not iterate query results: %s", e.message);
+				search_finished ();
 				return;
 			}
 
@@ -452,6 +456,14 @@ public class TrackerNeedle {
 				odd = !odd;
 			}
 		}
+
+		search_finished ();
+	}
+
+	private void search_finished () {
+		// Hide spinner
+		spinner.stop ();
+		spinner_shell.hide ();
 	}
 
 	private bool search_run () {
@@ -463,9 +475,7 @@ public class TrackerNeedle {
 			sw_iconview.hide ();
 			sw_treeview.hide ();
 
-			// Hide spinner
-			spinner.stop ();
-			spinner_shell.hide ();
+			search_finished ();
 
 			return false;
 		}
@@ -492,10 +502,6 @@ public class TrackerNeedle {
 		} else {
 			search_simple ();
 		}
-
-		// Hide spinner
-		spinner.stop ();
-		spinner_shell.hide ();
 
 		return false;
 	}
