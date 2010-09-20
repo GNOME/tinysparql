@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2010-09-15T15:00:00Z" .
+	nao:lastModified "2010-09-20T16:00:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -37,7 +37,8 @@ nco:ContactGroup a rdfs:Class ;
 nco:ContactList a rdfs:Class ;
 	rdfs:label "ContactList" ;
 	rdfs:comment "A contact list, this class represents an addressbook or a contact list of an IM application. Contacts inside a contact list can belong to contact groups." ;
-	rdfs:subClassOf nie:InformationElement .
+	rdfs:subClassOf nie:InformationElement ;
+	tracker:notify true .
 
 # Maybe a bug? Shouldnt it be a subclass of nie:InformationElement?
 nco:ContactMedium a rdfs:Class ;
