@@ -12,7 +12,7 @@
 
 zg: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "zg" ;
-	nao:lastModified "2010-05-11T13:39:00Z" .
+	nao:lastModified "2010-09-20T09:11:00Z" .
 
 
 zg:EventInterpretation a rdfs:Class ;
