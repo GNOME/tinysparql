@@ -20,44 +20,44 @@ zg:EventInterpretation a rdfs:Class ;
     rdfs:subClassOf nie:InformationElement .
 
 zg:create-event a zg:EventInterpretation;
-    rdfs:comment "Event type triggered when an item is created" ;
+    rdfs:comment "Event type triggered when an item is created" .
 
 zg:access-event a zg:EventInterpretation ;
-    rdfs:comment "Event triggered by opening, accessing, or starting a resource. Most zg:AccessEvents will have an accompanying zg:LeaveEvent, but this need not always be the case" ;
+    rdfs:comment "Event triggered by opening, accessing, or starting a resource. Most zg:AccessEvents will have an accompanying zg:LeaveEvent, but this need not always be the case" .
 
 zg:leave-event a zg:EventInterpretation ;
-    rdfs:comment "Event triggered by closing, leaving, or stopping a resource. Most zg:LeaveEvents will be following a zg:Access event, but this need not always be the case" ;
+    rdfs:comment "Event triggered by closing, leaving, or stopping a resource. Most zg:LeaveEvents will be following a zg:Access event, but this need not always be the case" .
 
 zg:modify-event a zg:EventInterpretation;
-    rdfs:comment "Event triggered by modifying an existing resources. Fx. when editing and saving a file on disk or correcting a typo in the name of a contact" ;
+    rdfs:comment "Event triggered by modifying an existing resources. Fx. when editing and saving a file on disk or correcting a typo in the name of a contact" .
 
 zg:delete-event a zg:EventInterpretation;
-    rdfs:comment "Event triggered because a resource has been deleted or otherwise made permanently unavailable. Fx. when deleting a file. FIXME: How about when moving to trash?" ;
+    rdfs:comment "Event triggered because a resource has been deleted or otherwise made permanently unavailable. Fx. when deleting a file. FIXME: How about when moving to trash?" .
 
 zg:receive-event a zg:EventInterpretation;
-    rdfs:comment "Event triggered when something is received from an external party. The event manifestation must be set according to the world view of the receiving party. Most often the item that is being received will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" ;
+    rdfs:comment "Event triggered when something is received from an external party. The event manifestation must be set according to the world view of the receiving party. Most often the item that is being received will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" .
 
 zg:send-event a zg:EventInterpretation;
-    rdfs:comment "Event triggered when something is send to an external party. The event manifestation must be set according to the world view of the sending party. Most often the item that is being send will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" ;
+    rdfs:comment "Event triggered when something is send to an external party. The event manifestation must be set according to the world view of the sending party. Most often the item that is being send will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" .
 
 zg:EventManifestation a rdfs:Class ;
     rdfs:comment "Class for event manifestation types. The manifestation of an event describes 'how it happened'. Fx. 'the user did this' or 'the system notified the user'" ;
     rdfs:subClassOf nie:DataObject .
 
 zg:user-activity a zg:EventManifestation;
-    rdfs:comment "An event that was actively performed by the user. For example saving or opening a file by clicking on it in the file manager" ;
+    rdfs:comment "An event that was actively performed by the user. For example saving or opening a file by clicking on it in the file manager" .
 
 zg:heuristic-activity a zg:EventManifestation;
-    rdfs:comment "An event that is caused indirectly from user activity or deducted via analysis of other events. Fx. if an algorithm divides a user workflow into disjoint 'projects' based on temporal analysis it could insert heuristic events when the user changed project" ;
+    rdfs:comment "An event that is caused indirectly from user activity or deducted via analysis of other events. Fx. if an algorithm divides a user workflow into disjoint 'projects' based on temporal analysis it could insert heuristic events when the user changed project" .
 
 zg:scheduled-activity a zg:EventManifestation;
-    rdfs:comment "An event that was directly triggered by some user initiated sequence of actions. For example a music player automatically changing to the next song in a playlist" ;
+    rdfs:comment "An event that was directly triggered by some user initiated sequence of actions. For example a music player automatically changing to the next song in a playlist" .
 
 zg:world-activity a zg:EventManifestation;
-    rdfs:comment "An event that was performed by an entity, usually human or organization, other than the user. An example could be logging the activities of other people in a team" ;
+    rdfs:comment "An event that was performed by an entity, usually human or organization, other than the user. An example could be logging the activities of other people in a team" .
 
 zg:system-notification a zg:EventManifestation;
-    rdfs:comment "An event send to the user by the operating system. Examples could include when the user inserts a USB stick or when the system warns that the hard disk is full" ;
+    rdfs:comment "An event send to the user by the operating system. Examples could include when the user inserts a USB stick or when the system warns that the hard disk is full" .
 
 zg:Event a rdfs:Class ;
     rdfs:comment "Something that happened at a point in time. Events are categorized by two primary factors 'what happened' - called the interpretation and 'how did it happen' - called the manifestation. Aside from a timestamp, events can also carry a reference to the entity responsible for instantiating it - called the actor. Normally the event actor is an application, but it need not be. Events happen to zero or more subjects. The subjects are described using the Nepomuk ontologies." ;
@@ -95,33 +95,26 @@ zg:hasSubject a rdf:Property ;
     rdfs:label "subject" ;
     rdfs:range nie:InformationElement.
 
-zg:Relation a rdf:Class ;
+zg:Relation a rdfs:Class ;
     rdfs:comment "a weighted relationship" ;
     rdfs:subClassOf nie:InformationElement .
 
 zg:relationFrom a rdf:Property ;
     nrl:maxCardinality 1 ;
     rdfs:domain zg:Relation ;
-    rdfs:range nie:InformationElement;
+    rdfs:range nie:InformationElement .
 
 zg:relationTo a rdf:Property ;
     nrl:maxCardinality 1 ;
     rdfs:domain zg:Relation ;
-    rdfs:range nie:InformationElement;
+    rdfs:range nie:InformationElement .
 
 zg:relationWeight a rdf:Property;
     nrl:maxCardinality 1 ;
     rdfs:domain zg:Relation ;
-    rdfs:range xsd:double;
+    rdfs:range xsd:double .
 
 zg:relationExpires  a rdf:Property;
     nrl:maxCardinality 1 ;
     rdfs:domain zg:Relation ;
-    rdfa:range xsd:dateTime;
-
-
-
-
-
-
-
+    rdfs:range xsd:dateTime .
