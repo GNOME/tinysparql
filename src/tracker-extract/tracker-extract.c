@@ -137,7 +137,6 @@ report_statistics (GObject *object)
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
-
 #ifdef HAVE_LIBSTREAMANALYZER
 	tracker_topanalyzer_shutdown ();
 #endif /* HAVE_STREAMANALYZER */
@@ -169,9 +168,13 @@ report_statistics (GObject *object)
 		}
 	}
 
+	if (g_hash_table_size (reported) < 1) {
+		g_message ("    No files handled");
+	}
+
 	g_hash_table_remove_all (reported);
 
-	g_message ("Generic Extractors:");
+	g_message ("  Generic Extractors:");
 
 	for (i = 0; i < priv->generic_extractors->len; i++) {
 		ModuleData *mdata;
@@ -192,6 +195,10 @@ report_statistics (GObject *object)
 			           mdata->failed_count);
 			g_hash_table_insert (reported, (gpointer) name, GINT_TO_POINTER(1));
 		}
+	}
+
+	if (g_hash_table_size (reported) < 1) {
+		g_message ("    No files handled");
 	}
 
 	g_message ("--------------------------------------------------");
