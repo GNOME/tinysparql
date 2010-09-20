@@ -59,7 +59,7 @@ tracker_albumart_file_to_jpeg (const gchar *filename,
 		if (reader.canRead()) {
 			QImage image = reader.read();
 			QuillImageFilter *filter =
-			    QuillImageFilterFactory::createImageFilter("Save");
+			    QuillImageFilterFactory::createImageFilter("org.maemo.save");
 			filter->setOption(QuillImageFilter::FileFormat, QVariant(QString("jpeg")));
 			filter->setOption(QuillImageFilter::FileName, QVariant(QString(target)));
 			filter->apply(image);
@@ -69,41 +69,12 @@ tracker_albumart_file_to_jpeg (const gchar *filename,
 	return TRUE;
 }
 
-static const gchar*
-convert_content_type_to_qt (const gchar *content_type)
-{
-  guint i;
-  static const gchar *conversions[12][2]  = { { "image/jpeg", "jpg" },
-                                              { "image/png",  "png" },
-                                              { "image/ppm",  "ppm" },
-                                              { "image/xbm",  "xbm" },
-                                              { "image/xpm",  "xpm" },
-                                              { "image/mng",  "mng" },
-                                              { "image/tiff", "tif" },
-                                              { "image/bmp",  "bmp" },
-                                              { "image/gif",  "gif" },
-                                              { "image/pgm",  "pgm" },
-                                              { "image/svg",  "svg" },
-                                              { NULL, NULL }
-                                            };
-
-  for (i = 0; conversions[i][0] != NULL; i++)
-    {
-      if (g_strcmp0 (conversions[i][0], content_type) == 0)
-        return conversions[i][1];
-    }
-
-  return NULL;
-}
-
 gboolean
 tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
                                  size_t               len,
                                  const gchar         *buffer_mime,
                                  const gchar         *target)
 {
-	const gchar *qt_format;
-
 	if (!init) {
 		init = TRUE;
 	}
@@ -111,9 +82,9 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 	QByteArray array = QByteArray ((const char *) buffer, (int) len);
 	QBuffer qbuffer(&array);
 	qbuffer.open(QIODevice::ReadOnly);
-	qt_format = convert_content_type_to_qt (buffer_mime);
-	if (qt_format != NULL) {
-		reader = new QImageReader::QImageReader (&qbuffer, QByteArray(qt_format));
+
+	if (buffer_mime != NULL) {
+		reader = new QImageReader::QImageReader (&qbuffer, QByteArray(buffer_mime));
 	} else {
 		QByteArray format = QImageReader::imageFormat(&qbuffer);
 		if (!format.isEmpty ())
@@ -121,7 +92,7 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 	}
 	if (reader != NULL) {
 		QImage image = reader->read();
-		QuillImageFilter *filter = QuillImageFilterFactory::createImageFilter("Save");
+		QuillImageFilter *filter = QuillImageFilterFactory::createImageFilter("org.maemo.save");
 		filter->setOption(QuillImageFilter::FileFormat, QVariant(QString("jpeg")));
 		filter->setOption(QuillImageFilter::FileName, QVariant(QString(target)));
 		filter->apply(image);
