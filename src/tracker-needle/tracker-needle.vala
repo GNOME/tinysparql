@@ -36,6 +36,7 @@ public class TrackerNeedle {
 	private SeparatorToolItem separator_secondary;
 	private ToggleToolButton find_in_contents;
 	private ToggleToolButton find_in_titles;
+	private ComboBoxEntry search_list;
 	private Entry search;
 	private Spinner spinner;
 	private ToolItem spinner_shell;
@@ -106,7 +107,8 @@ public class TrackerNeedle {
 		find_in_titles = builder.get_object ("toolbutton_find_in_titles") as ToggleToolButton;
 		find_in_titles.toggled.connect (find_in_toggled);
 
-		search = builder.get_object ("entry_search") as Entry;
+		search_list = builder.get_object ("comboboxentry_search") as ComboBoxEntry;
+		search = search_list.get_child () as Entry;
 		search.changed.connect (search_changed);
 
 		spinner = new Spinner ();
@@ -466,10 +468,49 @@ public class TrackerNeedle {
 		spinner_shell.hide ();
 	}
 
+	private TreeIter? search_ran_before (string criteria, bool? add_to_model = false) {
+		if (criteria.length < 1) {
+			return null;
+		}
+
+		ComboBox combo = search_list as ComboBox;
+		TreeModel model = combo.get_model ();
+		string criteria_folded = criteria.casefold ();
+
+		TreeIter iter;
+		bool valid = model.iter_children (out iter, null);
+
+		while (valid) {
+			string text;
+
+			model.get (iter, 0, out text, -1);
+
+			string text_folded = text.casefold ();
+
+			if (text_folded == criteria_folded) {
+				return iter;
+			}
+
+			valid = model.iter_next (ref iter);
+		}
+
+		if (add_to_model) {
+			TreeIter new_iter;
+			
+			ListStore store = (ListStore) model;
+			store.prepend (out new_iter);
+			store.set (new_iter, 0, criteria, -1);
+		}
+
+		return null;
+	}
+
 	private bool search_run () {
 		last_search_id = 0;
 
-		if (search.get_text ().length < 1) {
+		string criteria = search.get_text ();
+
+		if (criteria.length < 1) {
 			// Show no results window
 			sw_noresults.show ();
 			sw_iconview.hide ();
@@ -479,6 +520,8 @@ public class TrackerNeedle {
 
 			return false;
 		}
+
+		search_ran_before (criteria, true);
 
 		// Show correct window
 		bool rows = view_list.active || view_details.active;
