@@ -496,7 +496,7 @@ public class TrackerNeedle {
 
 		if (add_to_model) {
 			TreeIter new_iter;
-			
+
 			ListStore store = (ListStore) model;
 			store.prepend (out new_iter);
 			store.set (new_iter, 0, criteria, -1);
@@ -508,7 +508,8 @@ public class TrackerNeedle {
 	private bool search_run () {
 		last_search_id = 0;
 
-		string criteria = search.get_text ();
+		string str = search.get_text ();
+		string criteria = str.strip ();
 
 		if (criteria.length < 1) {
 			// Show no results window
