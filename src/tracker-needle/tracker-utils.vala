@@ -98,9 +98,8 @@ public string tracker_time_format_from_seconds (string seconds_str) {
 		output.append ("%s%.2d".printf (h > 0 ? ":" : "", m));
 	}
 
-	if (s > 0) {
-		output.append ("%s%.2d".printf (m > 0 ? ":" : "0:", s));
-	}
+	// Always show seconds
+	output.append ("%s%.2d".printf (m > 0 ? ":" : "0:", s));
 
 	if (output.len < 1) {
 		return _("Less than one second");
