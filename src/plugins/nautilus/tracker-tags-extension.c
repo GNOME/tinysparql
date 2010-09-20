@@ -125,7 +125,11 @@ menu_tags_activate_cb (NautilusMenuItem *menu_item,
 	                                      window,
 	                                      GTK_DIALOG_MODAL | 
 	                                      GTK_DIALOG_DESTROY_WITH_PARENT | 
+#if GTK_CHECK_VERSION (2,90,7)
+	                                      0,
+#else
 	                                      GTK_DIALOG_NO_SEPARATOR,
+#endif
 	                                      GTK_STOCK_CLOSE,
 	                                      GTK_RESPONSE_CLOSE,
 	                                      NULL);
