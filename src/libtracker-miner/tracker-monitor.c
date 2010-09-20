@@ -821,23 +821,37 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 				/* Get previous event data, if any */
 				previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
 
-				/* If there is a previous ATTRIBUTE_CHANGED still not notified,
-				 * remove it, as we know there will be a CHANGES_DONE_HINT afterwards
-				 */
-				if (previous_update_event_data &&
-				    previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED) {
-					g_hash_table_remove (monitor->private->pre_update, file);
+				if (previous_update_event_data) {
+					if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED) {
+						/* If there is a previous ATTRIBUTE_CHANGED still not notified,
+						 * remove it, as we know there will be a CHANGES_DONE_HINT afterwards
+						 */
+						g_hash_table_remove (monitor->private->pre_update, file);
+					} else if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_CREATED) {
+						/* Update the start_time of the original CREATED event that we're refreshing until
+						 * there is a CHANGES_DONE_HINT. */
+						g_get_current_time (&(previous_update_event_data->start_time));
+					}
+					break;
 				}
-
-				break;
 			}
 		} /* Else, Fall through and treat as an ATTRIBUTE_CHANGED */
 
 		case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED: {
-			if (!g_hash_table_lookup (monitor->private->pre_update, file)) {
+			EventData *previous_update_event_data;
+
+			/* Get previous event data, if any */
+			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
+			if (!previous_update_event_data) {
+				/* If no previous one, insert it */
 				g_hash_table_insert (monitor->private->pre_update,
 				                     g_object_ref (file),
 				                     event_data_new (file, NULL, FALSE, event_type));
+			} else {
+				/* Update the start_time of the previous one.
+				 * This could be the original CREATED event that we're refreshing until
+				 * there is a CHANGES_DONE_HINT. */
+				g_get_current_time (&(previous_update_event_data->start_time));
 			}
 
 			break;
