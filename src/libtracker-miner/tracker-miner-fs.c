@@ -112,6 +112,7 @@ struct _TrackerMinerFSPrivate {
 	GHashTable     *items_ignore_next_update;
 
 	GQuark          quark_ignore_file;
+	GQuark          quark_attribute_updated;
 
 	GList          *config_directories;
 
@@ -228,6 +229,10 @@ static void           monitor_item_created_cb             (TrackerMonitor       
                                                            gboolean              is_directory,
                                                            gpointer              user_data);
 static void           monitor_item_updated_cb             (TrackerMonitor       *monitor,
+                                                           GFile                *file,
+                                                           gboolean              is_directory,
+                                                           gpointer              user_data);
+static void           monitor_item_attribute_updated_cb   (TrackerMonitor       *monitor,
                                                            GFile                *file,
                                                            gboolean              is_directory,
                                                            gpointer              user_data);
@@ -551,6 +556,9 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	g_signal_connect (priv->monitor, "item-updated",
 	                  G_CALLBACK (monitor_item_updated_cb),
 	                  object);
+	g_signal_connect (priv->monitor, "item-attribute-updated",
+	                  G_CALLBACK (monitor_item_attribute_updated_cb),
+	                  object);
 	g_signal_connect (priv->monitor, "item-deleted",
 	                  G_CALLBACK (monitor_item_deleted_cb),
 	                  object);
@@ -559,6 +567,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  object);
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
+	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
 
 	priv->iri_cache = g_hash_table_new_full (g_file_hash,
 	                                         (GEqualFunc) g_file_equal,
@@ -2824,6 +2833,41 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	         is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
+		g_queue_push_tail (fs->private->items_updated,
+		                   g_object_ref (file));
+
+		item_queue_handlers_set_up (fs);
+	}
+
+	g_free (uri);
+}
+
+static void
+monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
+                                   GFile          *file,
+                                   gboolean        is_directory,
+                                   gpointer        user_data)
+{
+	TrackerMinerFS *fs;
+	gboolean should_process;
+	gchar *uri;
+
+	fs = user_data;
+	should_process = should_check_file (fs, file, is_directory);
+
+	uri = g_file_get_uri (file);
+
+	g_debug ("%s:'%s' (%s) (attribute update monitor event or user request)",
+	         should_process ? "Found " : "Ignored",
+	         uri,
+	         is_directory ? "DIR" : "FILE");
+
+	if (should_process) {
+		/* Set the Quark specifying that ONLY attributes were
+		 * modified */
+		g_object_set_qdata (G_OBJECT (file),
+		                    fs->private->quark_attribute_updated,
+		                    GINT_TO_POINTER (TRUE));
 		g_queue_push_tail (fs->private->items_updated,
 		                   g_object_ref (file));
 

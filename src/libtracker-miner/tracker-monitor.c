@@ -81,6 +81,7 @@ typedef struct {
 enum {
 	ITEM_CREATED,
 	ITEM_UPDATED,
+	ITEM_ATTRIBUTE_UPDATED,
 	ITEM_DELETED,
 	ITEM_MOVED,
 	LAST_SIGNAL
@@ -138,6 +139,17 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 		              G_TYPE_BOOLEAN);
 	signals[ITEM_UPDATED] =
 		g_signal_new ("item-updated",
+		              G_TYPE_FROM_CLASS (klass),
+		              G_SIGNAL_RUN_LAST,
+		              0,
+		              NULL, NULL,
+		              tracker_marshal_VOID__OBJECT_BOOLEAN,
+		              G_TYPE_NONE,
+		              2,
+		              G_TYPE_OBJECT,
+		              G_TYPE_BOOLEAN);
+	signals[ITEM_ATTRIBUTE_UPDATED] =
+		g_signal_new ("item-attribute-updated",
 		              G_TYPE_FROM_CLASS (klass),
 		              G_SIGNAL_RUN_LAST,
 		              0,
@@ -613,12 +625,21 @@ emit_signal_for_event (TrackerMonitor *monitor,
 
 	case G_FILE_MONITOR_EVENT_CHANGED:
 	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
-	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
 		g_debug ("Emitting ITEM_UPDATED for (%s) '%s'",
 		         event_data->is_directory ? "DIRECTORY" : "FILE",
 		         event_data->file_uri);
 		g_signal_emit (monitor,
 			       signals[ITEM_UPDATED], 0,
+			       event_data->file,
+			       event_data->is_directory);
+		break;
+
+	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
+		g_debug ("Emitting ITEM_ATTRIBUTE_UPDATED for (%s) '%s'",
+		         event_data->is_directory ? "DIRECTORY" : "FILE",
+		         event_data->file_uri);
+		g_signal_emit (monitor,
+			       signals[ITEM_ATTRIBUTE_UPDATED], 0,
 			       event_data->file,
 			       event_data->is_directory);
 		break;
