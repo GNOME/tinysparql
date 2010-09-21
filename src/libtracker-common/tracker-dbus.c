@@ -728,7 +728,7 @@ dbus_send_and_splice_get_variable_names (DBusMessage *message,
 
 	g_ptr_array_add (found, NULL);
 
-	return g_ptr_array_free (found, FALSE);
+	return (GStrv) g_ptr_array_free (found, FALSE);
 }
 
 /*
