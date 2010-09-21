@@ -38,6 +38,15 @@
 
 #include "tracker-db-interface-sqlite.h"
 
+/* Increase this after testing is done */
+#define TRACKER_STMT_LRU_SIZE	3
+
+typedef struct {
+	TrackerDBStatement *head;
+	TrackerDBStatement *tail;
+	guint size;
+} TrackerDBStatementLru;
+
 struct TrackerDBInterface {
 	GObject parent_instance;
 
@@ -59,6 +68,8 @@ struct TrackerDBInterface {
 	/* async operation pending */
 	gboolean pending;
 	GAsyncReadyCallback outstanding_callback;
+
+	TrackerDBStatementLru stmt_lru;
 };
 
 struct TrackerDBInterfaceClass {
@@ -85,6 +96,7 @@ struct TrackerDBStatement {
 	TrackerDBInterface *db_interface;
 	sqlite3_stmt *stmt;
 	gboolean stmt_is_sunk;
+	TrackerDBStatement *next, *prev;
 };
 
 struct TrackerDBStatementClass {
@@ -823,6 +835,7 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
                                        const gchar         *query,
                                        ...)
 {
+	TrackerDBStatementLru *stmt_lru = &db_interface->stmt_lru;
 	TrackerDBStatement *stmt;
 	va_list args;
 	gchar *full_query;
@@ -882,9 +895,49 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 			g_hash_table_replace (db_interface->dynamic_statements,
 			                      (gpointer) sqlite3_sql (sqlite_stmt),
 			                      stmt);
+
+			if (stmt_lru->size >= TRACKER_STMT_LRU_SIZE) {
+				TrackerDBStatement *new_head;
+				/* Destroy old stmt_lru.head and fix the ring */
+				new_head = stmt_lru->head->next;
+				g_hash_table_remove (db_interface->dynamic_statements,
+				                     (gpointer) sqlite3_sql (stmt_lru->head->stmt));
+				stmt_lru->size--;
+				stmt_lru->head = new_head;
+			} else {
+				if (stmt_lru->size == 0) {
+					stmt_lru->head = stmt;
+					stmt_lru->tail = stmt;
+				}
+			}
+
+			stmt_lru->size++;
+			/* Put stmt as new tail (new most recent used) */
+			stmt->next = stmt_lru->head;
+			stmt_lru->head->prev = stmt;
+
+			stmt_lru->tail->next = stmt;
+			stmt->prev = stmt_lru->tail;
+			stmt_lru->tail = stmt;
 		}
 	} else {
 		tracker_db_statement_sqlite_reset (stmt);
+
+		if (stmt == stmt_lru->head) {
+			/* Current stmt is least used, shift the ring */
+			stmt_lru->head = stmt_lru->head->next;
+			stmt_lru->tail = stmt_lru->tail->next;
+		} else if (stmt != stmt_lru->tail) {
+			/* Take stmt out of the list */
+			stmt->prev->next = stmt->next;
+			stmt->next->prev = stmt->prev;
+			/* Put stmt as tail (most recent used) */
+			stmt->next = stmt_lru->head;
+			stmt_lru->head->prev = stmt;
+			stmt->prev = stmt_lru->tail;
+			stmt_lru->tail->next = stmt;
+			stmt_lru->tail = stmt;
+		} /* if (stmt == tail), do nothing, of course */
 	}
 
 	g_free (full_query);
