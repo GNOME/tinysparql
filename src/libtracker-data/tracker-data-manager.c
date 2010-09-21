@@ -1445,7 +1445,7 @@ class_add_super_classes_from_db (TrackerDBInterface *iface,
 	TrackerDBCursor *cursor;
 	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:subClassOf\") "
 	                                              "FROM \"rdfs:Class_rdfs:subClassOf\" "
 	                                              "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
@@ -1483,7 +1483,7 @@ class_add_domain_indexes_from_db (TrackerDBInterface *iface,
 	TrackerDBCursor *cursor;
 	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:domainIndex\") "
 	                                              "FROM \"rdfs:Class_tracker:domainIndex\" "
 	                                              "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
@@ -1521,7 +1521,7 @@ property_add_super_properties_from_db (TrackerDBInterface *iface,
 	TrackerDBCursor *cursor;
 	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:subPropertyOf\") "
 	                                              "FROM \"rdf:Property_rdfs:subPropertyOf\" "
 	                                              "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
@@ -1560,7 +1560,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	guint n_classes, i;
 	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:Ontology\".ID), "
 	                                              "\"nao:lastModified\" "
 	                                              "FROM \"tracker:Ontology\"");
@@ -1598,7 +1598,7 @@ db_get_static_data (TrackerDBInterface *iface)
 		g_clear_error (&error);
 	}
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:Namespace\".ID), "
 	                                              "\"tracker:prefix\" "
 	                                              "FROM \"tracker:Namespace\"");
@@ -1636,7 +1636,7 @@ db_get_static_data (TrackerDBInterface *iface)
 		g_clear_error (&error);
 	}
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT \"rdfs:Class\".ID, "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:Class\".ID), "
 	                                              "\"tracker:notify\" "
@@ -1690,7 +1690,9 @@ db_get_static_data (TrackerDBInterface *iface)
 			if (!g_str_has_prefix (tracker_class_get_name (class), "xsd:") &&
 			    (tracker_db_manager_get_flags () & TRACKER_DB_MANAGER_READONLY) == 0) {
 				/* update statistics */
-				stmt = tracker_db_interface_create_statement (iface, &error, "SELECT COUNT(1) FROM \"%s\"", tracker_class_get_name (class));
+				stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
+				                                              "SELECT COUNT(1) FROM \"%s\"",
+				                                              tracker_class_get_name (class));
 
 				if (error) {
 					g_warning ("%s", error->message);
@@ -1716,7 +1718,7 @@ db_get_static_data (TrackerDBInterface *iface)
 		g_clear_error (&error);
 	}
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT \"rdf:Property\".ID, (SELECT Uri FROM Resource WHERE ID = \"rdf:Property\".ID), "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:domain\"), "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:range\"), "
@@ -1899,7 +1901,7 @@ insert_uri_in_resource_table (TrackerDBInterface *iface,
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "INSERT "
 	                                              "INTO Resource "
 	                                              "(ID, Uri) "
@@ -2690,7 +2692,7 @@ get_new_service_id (TrackerDBInterface *iface)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT MAX(ID) AS A FROM Resource");
 
 	if (stmt) {
@@ -2973,7 +2975,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		 * for all the ontology files in ontologies_dir whether the last-modified
 		 * has changed since we dealt with the file last time. */
 
-		stmt = tracker_db_interface_create_statement (iface, &error,
+		stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\""
 		        "INNER JOIN Resource ON Resource.ID = \"tracker:Ontology\".ID "
 		        "INNER JOIN \"rdfs:Resource\" ON \"tracker:Ontology\".ID = \"rdfs:Resource\".ID");
@@ -3070,7 +3072,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 			if (update_nao) {
 				/* Update the nao:lastModified in the database */
-				stmt = tracker_db_interface_create_statement (iface, &error,
+				stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 				        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
 				        "WHERE \"rdfs:Resource\".ID = "
 				        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "

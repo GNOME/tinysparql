@@ -88,9 +88,10 @@ GType                   tracker_db_result_set_get_type          (void);
 
 /* Functions to create queries/procedures */
 TrackerDBStatement *    tracker_db_interface_create_statement   (TrackerDBInterface   *interface,
+                                                                 gboolean              cache_stmt,
                                                                  GError              **error,
                                                                  const gchar          *query,
-                                                                 ...) G_GNUC_PRINTF (3, 4);
+                                                                 ...) G_GNUC_PRINTF (4, 5);
 TrackerDBResultSet *    tracker_db_interface_execute_vquery     (TrackerDBInterface   *interface,
                                                                  GError              **error,
                                                                  const gchar          *query,

@@ -47,7 +47,7 @@ tracker_data_query_rdf_type (gint id)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
 	                                              "FROM \"rdfs:Resource_rdf:type\" "
 	                                              "WHERE ID = ?");
@@ -106,7 +106,7 @@ tracker_data_query_resource_id (const gchar *uri)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (iface, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
 	                                              "SELECT ID FROM Resource WHERE Uri = ?");
 
 	if (stmt) {

@@ -895,7 +895,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 				loaded = TRUE;
 
-				stmt = tracker_db_interface_create_statement (dbs[i].iface, NULL,
+				stmt = tracker_db_interface_create_statement (dbs[i].iface, FALSE, NULL,
 				                                              "PRAGMA integrity_check(1)");
 
 				if (stmt) {

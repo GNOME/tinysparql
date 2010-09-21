@@ -220,7 +220,10 @@ public class Tracker.Sparql.Query : Object {
 	uchar[] base_uuid;
 	HashTable<string,string> blank_nodes;
 
+	public bool has_regex { get; set; }
+
 	public Query (string query) {
+		has_regex = false; /* Start with false, expression sets it */
 		tokens = new TokenInfo[BUFFER_SIZE];
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 
@@ -487,7 +490,7 @@ public class Tracker.Sparql.Query : Object {
 
 	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, Sparql.Error, DateError {
 		var iface = DBManager.get_db_interface ();
-		var stmt = iface.create_statement ("%s", sql);
+		var stmt = iface.create_statement (!has_regex, "%s", sql);
 
 		// set literals specified in query
 		int i = 0;

@@ -935,6 +935,7 @@ class Tracker.Sparql.Expression : Object {
 			return PropertyType.BOOLEAN;
 		case SparqlTokenType.REGEX:
 			translate_regex (sql);
+			query.has_regex = true;
 			return PropertyType.BOOLEAN;
 		case SparqlTokenType.EXISTS:
 		case SparqlTokenType.NOT:

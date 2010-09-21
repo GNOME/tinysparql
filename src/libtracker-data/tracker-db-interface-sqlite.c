@@ -818,6 +818,7 @@ add_row (TrackerDBResultSet *result_set,
 
 TrackerDBStatement *
 tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
+                                       gboolean             cache_stmt,
                                        GError             **error,
                                        const gchar         *query,
                                        ...)
@@ -833,10 +834,14 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 	full_query = g_strdup_vprintf (query, args);
 	va_end (args);
 
-	stmt = g_hash_table_lookup (db_interface->dynamic_statements, full_query);
+	if (cache_stmt) {
+		stmt = g_hash_table_lookup (db_interface->dynamic_statements, full_query);
 
-	if (stmt && stmt->stmt_is_sunk) {
-		/* prepared statement is still in use, create new one */
+		if (stmt && stmt->stmt_is_sunk) {
+			/* prepared statement is still in use, create new one */
+			stmt = NULL;
+		}
+	} else {
 		stmt = NULL;
 	}
 
@@ -870,19 +875,21 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 
 		stmt = tracker_db_statement_sqlite_new (db_interface, sqlite_stmt);
 
-		/* use replace instead of insert to make sure we store the string that
-		   belongs to the right sqlite statement to ensure the lifetime of the string
-		   matches the statement */
-		g_hash_table_replace (db_interface->dynamic_statements,
-		                      (gpointer) sqlite3_sql (sqlite_stmt),
-		                      stmt);
+		if (cache_stmt) {
+			/* use replace instead of insert to make sure we store the string that
+			   belongs to the right sqlite statement to ensure the lifetime of the string
+			   matches the statement */
+			g_hash_table_replace (db_interface->dynamic_statements,
+			                      (gpointer) sqlite3_sql (sqlite_stmt),
+			                      stmt);
+		}
 	} else {
 		tracker_db_statement_sqlite_reset (stmt);
 	}
 
 	g_free (full_query);
 
-	return g_object_ref (stmt);
+	return cache_stmt ? g_object_ref (stmt) : stmt;
 }
 
 static TrackerDBResultSet *

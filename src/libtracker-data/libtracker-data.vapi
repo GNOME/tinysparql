@@ -37,7 +37,7 @@ namespace Tracker {
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public interface DBInterface : GLib.Object {
 		[PrintfFormat]
-		public abstract DBStatement create_statement (...) throws DBInterfaceError;
+		public abstract DBStatement create_statement (bool cache_stmt, ...) throws DBInterfaceError;
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
