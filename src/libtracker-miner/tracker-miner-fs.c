@@ -184,6 +184,7 @@ enum {
 	CHECK_DIRECTORY_CONTENTS,
 	MONITOR_DIRECTORY,
 	PROCESS_FILE,
+	PROCESS_FILE_ATTRIBUTES,
 	IGNORE_NEXT_UPDATE_FILE,
 	FINISHED,
 	LAST_SIGNAL
@@ -449,6 +450,40 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_OBJECT_CLASS_TYPE (object_class),
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerFSClass, process_file),
+		              NULL, NULL,
+		              tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
+		              G_TYPE_BOOLEAN,
+		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
+
+	/**
+	 * TrackerMinerFS::process-file-attributes:
+	 * @miner_fs: the #TrackerMinerFS
+	 * @file: a #GFile
+	 * @builder: a #TrackerSparqlBuilder
+	 * @cancellable: a #GCancellable
+	 *
+	 * The ::process-file-attributes signal is emitted whenever a file should
+	 * be processed, but only the attribute-related metadata extracted.
+	 *
+	 * @builder is the #TrackerSparqlBuilder where all sparql updates
+	 * to be performed for @file will be appended. For the properties being
+	 * updated, the DELETE statements should be included as well.
+	 *
+	 * This signal allows both synchronous and asynchronous extraction,
+	 * in the synchronous case @cancellable can be safely ignored. In
+	 * either case, on successful metadata extraction, implementations
+	 * must call tracker_miner_fs_file_notify() to indicate that
+	 * processing has finished on @file, so the miner can execute
+	 * the SPARQL updates and continue processing other files.
+	 *
+	 * Returns: %TRUE if the file is accepted for processing,
+	 *          %FALSE if the file should be ignored.
+	 **/
+	signals[PROCESS_FILE_ATTRIBUTES] =
+		g_signal_new ("process-file-attributes",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerFSClass, process_file_attributes),
 		              NULL, NULL,
 		              tracker_marshal_BOOLEAN__OBJECT_OBJECT_OBJECT,
 		              G_TYPE_BOOLEAN,
@@ -1428,18 +1463,28 @@ do_process_file (TrackerMinerFS *fs,
 {
 	TrackerMinerFSPrivate *priv;
 	gboolean processing;
+	gboolean attribute_update_only;
+	gchar *uri;
 
+	uri = g_file_get_uri (data->file);
 	priv = fs->private;
 
-	g_signal_emit (fs, signals[PROCESS_FILE], 0,
-	               data->file, data->builder, data->cancellable,
-	               &processing);
+	attribute_update_only = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (data->file),
+	                                                             priv->quark_attribute_updated));
+
+	if (!attribute_update_only) {
+		g_debug ("Processing file '%s'...", uri);
+		g_signal_emit (fs, signals[PROCESS_FILE], 0,
+		               data->file, data->builder, data->cancellable,
+		               &processing);
+	} else {
+		g_debug ("Processing attributes in file '%s'...", uri);
+		g_signal_emit (fs, signals[PROCESS_FILE_ATTRIBUTES], 0,
+		               data->file, data->builder, data->cancellable,
+		               &processing);
+	}
 
 	if (!processing) {
-		gchar *uri;
-
-		uri = g_file_get_uri (data->file);
-
 		/* Re-fetch data, since it might have been
 		 * removed in broken implementations
 		 */
@@ -1456,9 +1501,9 @@ do_process_file (TrackerMinerFS *fs,
 			priv->processing_pool = g_list_remove (priv->processing_pool, data);
 			process_data_free (data);
 		}
-
-		g_free (uri);
 	}
+
+	g_free (uri);
 
 	return processing;
 }
@@ -1510,13 +1555,31 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		gchar *full_sparql;
 
 		if (data->urn) {
-			g_debug ("Updating item '%s' with urn '%s'", uri, data->urn);
+			gboolean attribute_update_only;
 
-			/* update, delete all statements inserted by miner
-			   except for rdf:type statements as they could cause implicit deletion of user data */
-			full_sparql = g_strdup_printf ("DELETE { GRAPH <%s> { <%s> ?p ?o } } WHERE { GRAPH <%s> { <%s> ?p ?o FILTER (?p != rdf:type) } } %s",
-			                               TRACKER_MINER_FS_GRAPH_URN, data->urn, TRACKER_MINER_FS_GRAPH_URN,
-			                               data->urn, tracker_sparql_builder_get_result (data->builder));
+			attribute_update_only = GPOINTER_TO_INT (g_object_steal_qdata (G_OBJECT (data->file),
+			                                                               fs->private->quark_attribute_updated));
+			g_debug ("Updating item '%s' with urn '%s'%s",
+			         uri,
+			         data->urn,
+			         attribute_update_only ? " (attributes only)" : "");
+
+			if (!attribute_update_only) {
+				/* update, delete all statements inserted by miner
+				 * except for rdf:type statements as they could cause implicit deletion of user data */
+				full_sparql = g_strdup_printf ("DELETE { GRAPH <%s> { <%s> ?p ?o } } "
+				                               "WHERE { GRAPH <%s> { <%s> ?p ?o FILTER (?p != rdf:type) } } %s",
+				                               TRACKER_MINER_FS_GRAPH_URN,
+				                               data->urn,
+				                               TRACKER_MINER_FS_GRAPH_URN,
+				                               data->urn,
+				                               tracker_sparql_builder_get_result (data->builder));
+			} else {
+				/* Do not drop graph if only updating attributes, the SPARQL builder
+				 * will already contain the necessary DELETE statements for the properties
+				 * being updated */
+				full_sparql = g_strdup (tracker_sparql_builder_get_result (data->builder));
+			}
 		} else {
 			g_debug ("Creating new item '%s'", uri);
 

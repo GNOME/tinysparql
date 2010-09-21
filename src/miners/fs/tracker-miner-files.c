@@ -187,6 +187,10 @@ static gboolean    miner_files_process_file             (TrackerMinerFS       *f
                                                          GFile                *file,
                                                          TrackerSparqlBuilder *sparql,
                                                          GCancellable         *cancellable);
+static gboolean    miner_files_process_file_attributes  (TrackerMinerFS       *fs,
+                                                         GFile                *file,
+                                                         TrackerSparqlBuilder *sparql,
+                                                         GCancellable         *cancellable);
 static gboolean    miner_files_monitor_directory        (TrackerMinerFS       *fs,
                                                          GFile                *file);
 static gboolean    miner_files_ignore_next_update_file  (TrackerMinerFS       *fs,
@@ -233,6 +237,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_fs_class->check_directory_contents = miner_files_check_directory_contents;
 	miner_fs_class->monitor_directory = miner_files_monitor_directory;
 	miner_fs_class->process_file = miner_files_process_file;
+	miner_fs_class->process_file_attributes = miner_files_process_file_attributes;
 	miner_fs_class->ignore_next_update_file = miner_files_ignore_next_update_file;
         miner_fs_class->finished = miner_files_finished;
 
@@ -2214,6 +2219,119 @@ miner_files_process_file (TrackerMinerFS       *fs,
 	                         G_PRIORITY_DEFAULT,
 	                         cancellable,
 	                         process_file_cb,
+	                         data);
+
+	return TRUE;
+}
+
+static void
+process_file_attributes_cb (GObject      *object,
+                            GAsyncResult *result,
+                            gpointer      user_data)
+{
+	TrackerSparqlBuilder *sparql;
+	ProcessFileData *data;
+	const gchar *urn;
+	GFileInfo *file_info;
+	guint64 time_;
+	GFile *file;
+	gchar *uri;
+	GError *error = NULL;
+	gboolean is_iri;
+
+	data = user_data;
+	file = G_FILE (object);
+	sparql = data->sparql;
+	file_info = g_file_query_info_finish (file, result, &error);
+
+	if (error) {
+		/* Something bad happened, notify about the error */
+		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
+		process_file_data_free (data);
+		g_error_free (error);
+		return;
+	}
+
+	uri = g_file_get_uri (file);
+	urn = miner_files_get_file_urn (TRACKER_MINER_FILES (data->miner), file, &is_iri);
+
+	/* We MUST have an IRI in attributes updating */
+	if (!is_iri) {
+		error = g_error_new_literal (miner_files_error_quark,
+		                             0,
+		                             "Received request to update attributes but no IRI available!");
+		/* Notify about the error */
+		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
+		process_file_data_free (data);
+		g_error_free (error);
+		return;
+	}
+
+	/* DELETE old property values */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_subject_iri (sparql, urn);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
+	tracker_sparql_builder_object_variable (sparql, "lastmodified");
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
+	tracker_sparql_builder_object_variable (sparql, "lastaccessed");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_iri (sparql, urn);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
+	tracker_sparql_builder_object_variable (sparql, "lastmodified");
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
+	tracker_sparql_builder_object_variable (sparql, "lastaccessed");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* INSERT new property values */
+	tracker_sparql_builder_insert_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_subject_iri (sparql, urn);
+
+	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
+	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
+
+	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
+	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
+
+	tracker_sparql_builder_insert_close (sparql);
+
+	g_object_unref (file_info);
+	g_free (uri);
+
+	/* Notify about the success */
+	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
+
+	process_file_data_free (data);
+}
+
+static gboolean
+miner_files_process_file_attributes (TrackerMinerFS       *fs,
+                                     GFile                *file,
+                                     TrackerSparqlBuilder *sparql,
+                                     GCancellable         *cancellable)
+{
+	ProcessFileData *data;
+	const gchar *attrs;
+
+	data = g_slice_new0 (ProcessFileData);
+	data->miner = g_object_ref (fs);
+	data->cancellable = g_object_ref (cancellable);
+	data->sparql = g_object_ref (sparql);
+	data->file = g_object_ref (file);
+
+	/* Query only attributes that may change in an ATTRIBUTES_UPDATED event */
+	attrs = G_FILE_ATTRIBUTE_TIME_MODIFIED ","
+		G_FILE_ATTRIBUTE_TIME_ACCESS;
+
+	g_file_query_info_async (file,
+	                         attrs,
+	                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                         G_PRIORITY_DEFAULT,
+	                         cancellable,
+	                         process_file_attributes_cb,
 	                         data);
 
 	return TRUE;

@@ -92,6 +92,10 @@ typedef struct {
 	gboolean (* monitor_directory)        (TrackerMinerFS       *fs,
 	                                       GFile                *file);
 	void     (* finished)                 (TrackerMinerFS       *fs);
+	gboolean (* process_file_attributes)  (TrackerMinerFS       *fs,
+	                                       GFile                *file,
+	                                       TrackerSparqlBuilder *builder,
+	                                       GCancellable         *cancellable);
 } TrackerMinerFSClass;
 
 GType                 tracker_miner_fs_get_type             (void) G_GNUC_CONST;

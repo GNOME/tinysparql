@@ -31,19 +31,23 @@
 #define SOFTWARE_CATEGORY_URN_PREFIX "urn:software-category:"
 #define THEME_ICON_URN_PREFIX        "urn:theme-icon:"
 
-static void     miner_applications_finalize          (GObject              *object);
-static void     miner_applications_constructed       (GObject              *object);
+static void     miner_applications_finalize                (GObject              *object);
+static void     miner_applications_constructed             (GObject              *object);
 
-static gboolean miner_applications_check_file        (TrackerMinerFS       *fs,
-                                                      GFile                *file);
-static gboolean miner_applications_check_directory   (TrackerMinerFS       *fs,
-                                                      GFile                *file);
-static gboolean miner_applications_process_file      (TrackerMinerFS       *fs,
-                                                      GFile                *file,
-                                                      TrackerSparqlBuilder *sparql,
-                                                      GCancellable         *cancellable);
-static gboolean miner_applications_monitor_directory (TrackerMinerFS       *fs,
-                                                      GFile                *file);
+static gboolean miner_applications_check_file              (TrackerMinerFS       *fs,
+                                                            GFile                *file);
+static gboolean miner_applications_check_directory         (TrackerMinerFS       *fs,
+                                                            GFile                *file);
+static gboolean miner_applications_process_file            (TrackerMinerFS       *fs,
+                                                            GFile                *file,
+                                                            TrackerSparqlBuilder *sparql,
+                                                            GCancellable         *cancellable);
+static gboolean miner_applications_process_file_attributes (TrackerMinerFS       *fs,
+                                                            GFile                *file,
+                                                            TrackerSparqlBuilder *sparql,
+                                                            GCancellable         *cancellable);
+static gboolean miner_applications_monitor_directory       (TrackerMinerFS       *fs,
+                                                            GFile                *file);
 
 static GQuark miner_applications_error_quark = 0;
 
@@ -73,6 +77,7 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 	miner_fs_class->check_directory = miner_applications_check_directory;
 	miner_fs_class->monitor_directory = miner_applications_monitor_directory;
 	miner_fs_class->process_file = miner_applications_process_file;
+	miner_fs_class->process_file_attributes = miner_applications_process_file_attributes;
 
 	miner_applications_error_quark = g_quark_from_static_string ("TrackerMinerApplications");
 }
@@ -613,6 +618,22 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 	                         data);
 
 	return TRUE;
+}
+
+static gboolean
+miner_applications_process_file_attributes (TrackerMinerFS       *fs,
+                                            GFile                *file,
+                                            TrackerSparqlBuilder *sparql,
+                                            GCancellable         *cancellable)
+{
+	gchar *uri;
+
+	/* We don't care about file attribute changes here */
+	uri = g_file_get_uri (file);
+	g_debug ("Ignoring file attribute changes in '%s'", uri);
+	g_free (uri);
+
+	return FALSE;
 }
 
 TrackerMiner *
