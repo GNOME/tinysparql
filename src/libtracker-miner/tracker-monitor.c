@@ -28,6 +28,13 @@
 
 #define TRACKER_MONITOR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MONITOR, TrackerMonitorPrivate))
 
+/* If blacklisting enabled, CREATED events won't be directly notified, and
+ * instead, they will be pushed to the events cache; so that if a DELETED event
+ * comes during the CACHE_LIFETIME of the event, both will cancel each other and
+ * no event will be notified. This also enables some additional event mergings
+ * that can be done with MOVED events. */
+#define ENABLE_FILE_BLACKLISTING TRUE
+
 /* The life time of an item in the cache */
 #define CACHE_LIFETIME_SECONDS 1
 
@@ -884,6 +891,18 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 			/* Get previous event data, if any */
 			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
 
+#if ENABLE_FILE_BLACKLISTING
+			if (previous_update_event_data) {
+				/* Refresh event timer */
+				g_get_current_time (&(previous_update_event_data->start_time));
+			} else {
+				/* Insert new update item in cache */
+				g_hash_table_insert (monitor->private->pre_update,
+				                     g_object_ref (file),
+				                     event_data_new (file, NULL, FALSE, event_type));
+			}
+#else
+			/* If no blacklisting desired, emit event right away */
 			if (previous_update_event_data) {
 				emit_signal_for_event (monitor, previous_update_event_data);
 				g_hash_table_remove (monitor->private->pre_update, file);
@@ -894,28 +913,105 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 				emit_signal_for_event (monitor, new_event);
 				event_data_free (new_event);
 			}
-
+#endif /* ENABLE_FILE_BLACKLISTING */
 			break;
 		}
 
 		case G_FILE_MONITOR_EVENT_DELETED: {
 			EventData *new_event;
+#if ENABLE_FILE_BLACKLISTING
+			EventData *previous_update_event_data;
+
+			/* Get previous event data, if any */
+			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
+
+			if (previous_update_event_data &&
+			    previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_CREATED) {
+				/* Oh, oh, oh, we got a previous CREATED event waiting in the event
+				 * cache... so we cancel it with the DELETED and don't notify anything */
+				g_hash_table_remove (monitor->private->pre_update, file);
+				break;
+			}
+
+			/* Remove any previous pending event (if blacklisting enabled, there may be some)
+			 *  and issue the DELETED one */
+			if (previous_update_event_data) {
+				g_hash_table_remove (monitor->private->pre_update, file);
+			}
+#endif /* ENABLE_FILE_BLACKLISTING */
 
 			new_event = event_data_new (file, NULL, FALSE, event_type);
 			emit_signal_for_event (monitor, new_event);
 			event_data_free (new_event);
-
 			break;
 		}
+
 		case G_FILE_MONITOR_EVENT_MOVED: {
 			EventData *new_event;
+#if ENABLE_FILE_BLACKLISTING
+			EventData *previous_update_event_data;
+
+			/* Get previous event data, if any */
+			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
+
+			/* Some event-merging that can also be enabled if doing blacklisting, as we are
+			 * queueing the CHANGES_DONE_HINT in the cache :
+			 *   (a) CREATED(A)      + MOVED(A->B)  = CREATED (B)
+			 *   (b) UPDATED(A)      + MOVED(A->B)  = MOVED(A->B) + UPDATED(B)
+			 *   (c) ATTR_UPDATED(A) + MOVED(A->B)  = MOVED(A->B) + UPDATED(B)
+			 * Notes:
+			 *  - In case (a), the CREATED event is queued in the cache.
+			 *  - In case (a), note that B may already exist before, so instead of a CREATED
+			 *    we should be issuing an UPDATED instead... we don't do it as at the end we
+			 *    don't really mind, and we save a call to g_file_query_exists().
+			 *  - In case (b), the MOVED event is emitted right away, while the UPDATED
+			 *    one is queued in the cache.
+			 *  - In case (c), we issue an UPDATED instead of ATTR_UPDATED, because there may
+			 *    already be another UPDATED or CREATED event for B, so we make sure in this
+			 *    way that not only attributes get checked at the end.
+			 * */
+			if (previous_update_event_data) {
+				if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_CREATED) {
+					/* (a) CREATED(A) + MOVED(A->B)  = CREATED (B)
+					 *
+					 * Oh, oh, oh, we got a previous created event
+					 * waiting in the event cache... so we remove it, and we
+					 * convert the MOVE event into a CREATED(other_file) */
+					g_hash_table_remove (monitor->private->pre_update, file);
+					g_hash_table_replace (monitor->private->pre_update,
+					                      g_object_ref (other_file),
+					                      event_data_new (other_file,
+					                                      NULL,
+					                                      FALSE,
+					                                      G_FILE_MONITOR_EVENT_CREATED));
+
+					/* Do not notify the moved event now */
+					break;
+				} else {
+					/*   (b) UPDATED(A)      + MOVED(A->B)  = MOVED(A->B) + UPDATED(B)
+					 *   (c) ATTR_UPDATED(A) + MOVED(A->B)  = MOVED(A->B) + UPDATED(B)
+					 *
+					 * We setup here the UPDATED(B) event, added to the cache */
+					g_hash_table_replace (monitor->private->pre_update,
+					                      g_object_ref (other_file),
+					                      event_data_new (other_file,
+					                                      NULL,
+					                                      FALSE,
+					                                      G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT));
+					/* Remove previous event */
+					g_hash_table_remove (monitor->private->pre_update, file);
+
+					/* And keep on notifying the MOVED event */
+				}
+			}
+#endif /* ENABLE_FILE_BLACKLISTING */
 
 			new_event = event_data_new (file, other_file, FALSE, event_type);
 			emit_signal_for_event (monitor, new_event);
 			event_data_free (new_event);
-
 			break;
 		}
+
 		case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
 		case G_FILE_MONITOR_EVENT_UNMOUNTED:
 			/* Do nothing */
