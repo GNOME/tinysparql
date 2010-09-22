@@ -416,7 +416,7 @@ tracker_store_init (void)
 	                                          TRUE, NULL);
 	private->query_pool = g_thread_pool_new (pool_dispatch_cb,
 	                                         private, TRACKER_STORE_MAX_CONCURRENT_QUERIES,
-	                                         FALSE, NULL);
+	                                         TRUE, NULL);
 
 	/* as the following settings are global for unknown reasons,
 	   let's use the same settings as gio, otherwise the used settings
