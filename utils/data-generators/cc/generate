@@ -51,6 +51,12 @@ except Exception, e:
   sys.exit (-1)
 
 
+def get_counter (section, option):
+  if config.has_option (section, option):
+    return config.getint (section, option)
+  else:
+    return 1
+
 # set up all known types
 tools.addType( 'nco#EmailAddress', 10 )
 tools.addType( 'nco#PostalAddress', 11 )
@@ -91,7 +97,7 @@ tools.addType( 'mto#TransferElement', 90 )
 tools.addType( 'mto#UploadTransfer', 91 )
 
 print "Generating Contacts",
-count_contacts = config.getint('counts','contacts')
+count_contacts = get_counter('counts','contacts')
 for contact in xrange(1, count_contacts+1):
   if (contact % 10 == 0):
     sys.stdout.write('.')
@@ -107,7 +113,7 @@ for contact in xrange(1, count_contacts+1):
 print "Done"
 
 print "Generating Locations and landmarks",
-count_locations = config.getint('counts','locations')
+count_locations = get_counter('counts','locations')
 for location in xrange(1, count_locations+1):
   if (location % 10 == 0):
     sys.stdout.write('.')
@@ -119,9 +125,9 @@ for location in xrange(1, count_locations+1):
 print "Done"
 
 print "Generate Emails",
-count_accounts = config.getint('counts','accounts')
-count_folders = config.getint('counts','folders')
-count_emails = config.getint('counts','emails')
+count_accounts = get_counter('counts','accounts')
+count_folders = get_counter('counts','folders')
+count_emails = get_counter('counts','emails')
 for account in xrange(1, count_accounts+1):
   sys.stdout.write('.')
   sys.stdout.flush()
@@ -133,8 +139,8 @@ for account in xrange(1, count_accounts+1):
 print "Done"
 
 print "Generate IM messages",
-count_comchans = config.getint('counts','comchans')
-count_ims = config.getint('counts','ims')
+count_comchans = get_counter('counts','comchans')
+count_ims = get_counter('counts','ims')
 for comchannel in xrange(1, count_comchans+1):
   sys.stdout.write('.')
   sys.stdout.flush()
@@ -144,7 +150,7 @@ for comchannel in xrange(1, count_comchans+1):
 print "Done"
 
 print "Generate SMS messages",
-count_sms = config.getint('counts','sms')
+count_sms = get_counter('counts','sms')
 for sms in xrange(1, count_sms+1):
   if (sms % 10 == 0):
     sys.stdout.write('.')
@@ -153,7 +159,7 @@ for sms in xrange(1, count_sms+1):
 print "Done"
 
 print "Generate calls",
-count_calls = config.getint('counts','calls')
+count_calls = get_counter('counts','calls')
 for call in xrange(1, count_calls+1):
   if (call % 10 == 0):
     sys.stdout.write('.')
@@ -164,7 +170,7 @@ print "Done"
 print "* Starting with file system based content"
 
 print "Generate volumes",
-count_volumes = config.getint('counts','volumes')
+count_volumes = get_counter('counts','volumes')
 for volume in xrange(1, count_volumes+1):
   sys.stdout.write('.')
   sys.stdout.flush()
@@ -172,9 +178,9 @@ for volume in xrange(1, count_volumes+1):
 print "Done"
 
 print "Generating Music",
-count_artists = config.getint('counts','artists')
-count_albums = config.getint('counts','albums')
-count_songs = config.getint('counts','songs')
+count_artists = get_counter('counts','artists')
+count_albums = get_counter('counts','albums')
+count_songs = get_counter('counts','songs')
 for artist in xrange(1, count_artists+1):
   sys.stdout.write('.')
   sys.stdout.flush()
@@ -186,7 +192,7 @@ for artist in xrange(1, count_artists+1):
 print "Done"
 
 print "Generate Photos",
-count_images = config.getint('counts','images')
+count_images = get_counter('counts','images')
 for photo in xrange(1, count_images+1):
   if (photo % 10 == 0):
     sys.stdout.write('.')
@@ -195,7 +201,7 @@ for photo in xrange(1, count_images+1):
 print "Done"
 
 print "Generate Videos",
-count_videos = config.getint('counts','videos')
+count_videos = get_counter('counts','videos')
 for video in xrange(1, count_videos+1):
   if (video % 10 == 0):
     sys.stdout.write('.')
@@ -204,7 +210,7 @@ for video in xrange(1, count_videos+1):
 print "Done"
 
 print "Generate plain text documents",
-count_docs = config.getint('counts','docs')
+count_docs = get_counter('counts','docs')
 for doc in xrange(1, count_docs+1):
   if (doc % 10 == 0):
     sys.stdout.write('.')
@@ -213,8 +219,8 @@ for doc in xrange(1, count_docs+1):
 print "Done"
 
 print "Generate feeds",
-count_fchans = config.getint('counts','fchans')
-count_fms = config.getint('counts','fms')
+count_fchans = get_counter('counts','fchans')
+count_fms = get_counter('counts','fms')
 for fchan in xrange(1, count_fchans+1):
   sys.stdout.write('.')
   sys.stdout.flush()
@@ -224,8 +230,8 @@ for fchan in xrange(1, count_fchans+1):
 print "Done"
 
 print "Generate software",
-count_softcats = config.getint('counts','softcats')
-count_softapps = config.getint('counts','softapps')
+count_softcats = get_counter('counts','softcats')
+count_softapps = get_counter('counts','softapps')
 for softcat in xrange(1, count_softcats+1):
   sys.stdout.write('.')
   sys.stdout.flush()
@@ -235,7 +241,7 @@ for softcat in xrange(1, count_softcats+1):
 print "Done"
 
 print "Generate something for the rest",
-count_others = config.getint('counts','others')
+count_others = get_counter('counts','others')
 for index in xrange(1,count_others+1):
   if (index % 10 == 0):
     sys.stdout.write('.')
