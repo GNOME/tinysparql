@@ -69,7 +69,8 @@ struct TrackerDBInterface {
 	gboolean pending;
 	GAsyncReadyCallback outstanding_callback;
 
-	TrackerDBStatementLru stmt_lru;
+	TrackerDBStatementLru select_stmt_lru;
+	TrackerDBStatementLru update_stmt_lru;
 };
 
 struct TrackerDBInterfaceClass {
@@ -829,13 +830,13 @@ add_row (TrackerDBResultSet *result_set,
 
 
 TrackerDBStatement *
-tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
-                                       gboolean             cache_stmt,
-                                       GError             **error,
-                                       const gchar         *query,
+tracker_db_interface_create_statement (TrackerDBInterface           *db_interface,
+                                       TrackerDBStatementCacheType   cache_type,
+                                       GError                      **error,
+                                       const gchar                  *query,
                                        ...)
 {
-	TrackerDBStatementLru *stmt_lru = &db_interface->stmt_lru;
+	TrackerDBStatementLru *stmt_lru;
 	TrackerDBStatement *stmt;
 	va_list args;
 	gchar *full_query;
@@ -847,13 +848,20 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 	full_query = g_strdup_vprintf (query, args);
 	va_end (args);
 
-	if (cache_stmt) {
+	if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
 		stmt = g_hash_table_lookup (db_interface->dynamic_statements, full_query);
 
 		if (stmt && stmt->stmt_is_sunk) {
 			/* prepared statement is still in use, create new one */
 			stmt = NULL;
 		}
+
+		if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE) {
+			stmt_lru = &db_interface->update_stmt_lru;
+		} else {
+			stmt_lru = &db_interface->select_stmt_lru;
+		}
+
 	} else {
 		stmt = NULL;
 	}
@@ -888,7 +896,7 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 
 		stmt = tracker_db_statement_sqlite_new (db_interface, sqlite_stmt);
 
-		if (cache_stmt) {
+		if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
 			/* use replace instead of insert to make sure we store the string that
 			   belongs to the right sqlite statement to ensure the lifetime of the string
 			   matches the statement */
@@ -942,7 +950,7 @@ tracker_db_interface_create_statement (TrackerDBInterface  *db_interface,
 
 	g_free (full_query);
 
-	return cache_stmt ? g_object_ref (stmt) : stmt;
+	return (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) ? g_object_ref (stmt) : stmt;
 }
 
 static TrackerDBResultSet *

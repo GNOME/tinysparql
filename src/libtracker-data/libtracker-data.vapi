@@ -34,10 +34,17 @@ namespace Tracker {
 		INTERRUPTED
 	}
 
+	[CCode (cprefix = "TRACKER_DB_STATEMENT_CACHE_TYPE_", cheader_filename = "libtracker-data/tracker-db-interface.h")]
+	public enum DBStatementCacheType {
+		SELECT,
+		UPDATE,
+		NONE
+	}
+
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public interface DBInterface : GLib.Object {
 		[PrintfFormat]
-		public abstract DBStatement create_statement (bool cache_stmt, ...) throws DBInterfaceError;
+		public abstract DBStatement create_statement (DBStatementCacheType cache_type, ...) throws DBInterfaceError;
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]

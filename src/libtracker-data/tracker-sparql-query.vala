@@ -490,7 +490,7 @@ public class Tracker.Sparql.Query : Object {
 
 	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, Sparql.Error, DateError {
 		var iface = DBManager.get_db_interface ();
-		var stmt = iface.create_statement (!has_regex, "%s", sql);
+		var stmt = iface.create_statement (has_regex ? DBStatementCacheType.NONE : DBStatementCacheType.SELECT, "%s", sql);
 
 		// set literals specified in query
 		int i = 0;

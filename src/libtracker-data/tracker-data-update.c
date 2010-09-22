@@ -344,7 +344,7 @@ tracker_data_update_get_new_service_id (void)
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT MAX(ID) AS A FROM Resource");
 
 	if (stmt) {
@@ -389,7 +389,7 @@ tracker_data_update_get_next_modseq (void)
 
 	temp_iface = tracker_db_manager_get_db_interface ();
 
-	stmt = tracker_db_interface_create_statement (temp_iface, TRUE, &error,
+	stmt = tracker_db_interface_create_statement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT MAX(\"tracker:modified\") AS A FROM \"rdfs:Resource\"");
 
 	if (stmt) {
@@ -565,7 +565,7 @@ ensure_resource_id (const gchar *uri,
 		iface = tracker_db_manager_get_db_interface ();
 
 		id = tracker_data_update_get_new_service_id ();
-		stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
 		                                              "INSERT INTO Resource (ID, Uri) VALUES (?, ?)");
 
 		if (stmt) {
@@ -661,12 +661,12 @@ tracker_data_resource_buffer_flush (GError **error)
 
 				if (table->delete_value) {
 					/* delete rows for multiple value properties */
-					stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 					                                              "DELETE FROM \"%s\" WHERE ID = ? AND \"%s\" = ?",
 					                                              table_name,
 					                                              property->name);
 				} else if (property->date_time) {
-					stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 					                                              "INSERT OR IGNORE INTO \"%s\" (ID, \"%s\", \"%s:localDate\", \"%s:localTime\", \"%s:graph\") VALUES (?, ?, ?, ?, ?)",
 					                                              table_name,
 					                                              property->name,
@@ -674,7 +674,7 @@ tracker_data_resource_buffer_flush (GError **error)
 					                                              property->name,
 					                                              property->name);
 				} else {
-					stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 					                                              "INSERT OR IGNORE INTO \"%s\" (ID, \"%s\", \"%s:graph\") VALUES (?, ?, ?)",
 					                                              table_name,
 					                                              property->name,
@@ -708,7 +708,7 @@ tracker_data_resource_buffer_flush (GError **error)
 		} else {
 			if (table->delete_row) {
 				/* remove entry from rdf:type table */
-				stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 				                                              "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
 
 				if (stmt) {
@@ -728,7 +728,7 @@ tracker_data_resource_buffer_flush (GError **error)
 				}
 
 				/* remove row from class table */
-				stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 				                                              "DELETE FROM \"%s\" WHERE ID = ?", table_name);
 
 				if (stmt) {
@@ -748,7 +748,7 @@ tracker_data_resource_buffer_flush (GError **error)
 			if (table->insert) {
 				if (strcmp (table_name, "rdfs:Resource") == 0) {
 					/* ensure we have a row for the subject id */
-					stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 						                                      "INSERT OR IGNORE INTO \"%s\" (ID, \"tracker:added\", \"tracker:modified\", Available) VALUES (?, ?, ?, 1)",
 						                                      table_name);
 
@@ -762,7 +762,7 @@ tracker_data_resource_buffer_flush (GError **error)
 					}
 				} else {
 					/* ensure we have a row for the subject id */
-					stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 						                                      "INSERT OR IGNORE INTO \"%s\" (ID) VALUES (?)",
 						                                      table_name);
 
@@ -803,7 +803,7 @@ tracker_data_resource_buffer_flush (GError **error)
 
 			g_string_append (sql, " WHERE ID = ?");
 
-			stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 			                                              "%s", sql->str);
 			g_string_free (sql, TRUE);
 
@@ -1203,7 +1203,7 @@ get_property_values (TrackerProperty *property)
 
 		iface = tracker_db_manager_get_db_interface ();
 
-		stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 		                                              "SELECT \"%s\" FROM \"%s\" WHERE ID = ?",
 		                                              field_name, table_name);
 
@@ -1608,7 +1608,7 @@ cache_delete_resource_type (TrackerClass *class,
 
 	/* retrieve all subclasses we need to remove from the subject
 	 * before we can remove the class specified as object of the statement */
-	stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:Class_rdfs:subClassOf\".ID) "
 	                                              "FROM \"rdfs:Resource_rdf:type\" INNER JOIN \"rdfs:Class_rdfs:subClassOf\" ON (\"rdf:type\" = \"rdfs:Class_rdfs:subClassOf\".ID) "
 	                                              "WHERE \"rdfs:Resource_rdf:type\".ID = ? AND \"rdfs:subClassOf\" = (SELECT ID FROM Resource WHERE Uri = ?)");
@@ -2346,7 +2346,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 
 	/* DROP GRAPH <url> - url here is nie:url */
 
-	stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &actual_error,
 	                                              "SELECT ID, (SELECT Uri FROM Resource WHERE ID = \"nie:DataObject\".ID) FROM \"nie:DataObject\" WHERE \"nie:DataObject\".\"nie:url\" = ?");
 
 	if (stmt) {
@@ -2372,7 +2372,7 @@ tracker_data_delete_resource_description (const gchar *graph,
 
 	properties = tracker_ontologies_get_properties (&n_props);
 
-	stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &actual_error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
 
 	if (stmt) {
@@ -2429,7 +2429,8 @@ tracker_data_delete_resource_description (const gchar *graph,
 			single_result = NULL;
 			if (!first) {
 				g_string_append_printf (sql, " FROM \"%s\" WHERE ID = ?", tracker_class_get_name (class));
-				stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error, "%s", sql->str);
+				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
+				                                              &actual_error, "%s", sql->str);
 
 				if (stmt) {
 					tracker_db_statement_bind_int (stmt, 0, resource_id);
@@ -2494,7 +2495,8 @@ tracker_data_delete_resource_description (const gchar *graph,
 					                        " FROM \"%s\" WHERE ID = ?",
 					                        tracker_property_get_table_name (property));
 
-					stmt = tracker_db_interface_create_statement (iface, TRUE, &actual_error, "%s", sql->str);
+					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
+					                                              &actual_error, "%s", sql->str);
 
 					if (stmt) {
 						tracker_db_statement_bind_int (stmt, 0, resource_id);
@@ -2726,7 +2728,7 @@ ontology_transaction_end (GList *ontology_queue,
 			 * db. See tracker-data-manager.c for more info. */
 			last_mod = (gint) tracker_ontology_get_last_modified (ontology);
 
-			stmt = tracker_db_interface_create_statement (iface, TRUE, &error,
+			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
 			        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
 			        "WHERE \"rdfs:Resource\".ID = "
 			        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
@@ -2834,7 +2836,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 
 			iface = tracker_db_manager_get_db_interface ();
 
-			stmt = tracker_db_interface_create_statement (iface, TRUE, &new_error,
+			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &new_error,
 					                              "INSERT "
 					                              "INTO Resource "
 					                              "(ID, Uri) "
