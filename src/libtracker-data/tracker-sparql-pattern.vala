@@ -298,6 +298,7 @@ class Tracker.Sparql.Pattern : Object {
 					sql.append_printf (" AS \"%s\"", variable.name);
 				}
 				result.types += variable.binding.data_type;
+				result.variable_names += variable.name;
 			}
 		} else {
 			for (int i = 0; ; i++) {

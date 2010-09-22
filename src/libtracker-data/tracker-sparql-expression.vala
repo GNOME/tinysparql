@@ -148,10 +148,9 @@ class Tracker.Sparql.Expression : Object {
 				expect (SparqlTokenType.VAR);
 				variable = context.get_variable (get_last_string ().substring (1));
 			}
+			sql.append_printf (" AS %s", variable.sql_expression);
 
 			if (subquery) {
-				sql.append_printf (" AS %s", variable.sql_expression);
-
 				var binding = new VariableBinding ();
 				binding.data_type = type;
 				binding.variable = variable;
@@ -167,13 +166,9 @@ class Tracker.Sparql.Expression : Object {
 			}
 			context.select_var_set.insert (variable, state);
 
-			if (!subquery) {
-				sql.append_printf (" AS \"%s\"", variable.name);
-			}
+			((SelectContext) context).variable_names += variable.name;
 		} else {
-			if (!subquery) {
-				sql.append_printf (" AS \"var%d\"", variable_index + 1);
-			}
+			((SelectContext) context).variable_names += "var%d".printf (variable_index + 1);
 		}
 
 		return type;
