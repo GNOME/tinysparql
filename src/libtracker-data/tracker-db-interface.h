@@ -85,89 +85,93 @@ typedef struct TrackerDBCursor         TrackerDBCursor;
 typedef struct TrackerDBCursorClass    TrackerDBCursorClass;
 typedef struct TrackerDBResultSetPrivate TrackerDBResultSetPrivate;
 
-GQuark                  tracker_db_interface_error_quark        (void);
+GQuark                  tracker_db_interface_error_quark             (void);
 
-GType                   tracker_db_interface_get_type           (void);
-GType                   tracker_db_statement_get_type           (void);
-GType                   tracker_db_cursor_get_type              (void);
-GType                   tracker_db_result_set_get_type          (void);
+GType                   tracker_db_interface_get_type                (void);
+GType                   tracker_db_statement_get_type                (void);
+GType                   tracker_db_cursor_get_type                   (void);
+GType                   tracker_db_result_set_get_type               (void);
+
+void                    tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_interface,
+                                                                      TrackerDBStatementCacheType cache_type,
+                                                                      guint                       max_size);
 
 /* Functions to create queries/procedures */
-TrackerDBStatement *    tracker_db_interface_create_statement   (TrackerDBInterface          *interface,
-                                                                 TrackerDBStatementCacheType  cache_type,
-                                                                 GError                     **error,
-                                                                 const gchar                 *query,
-                                                                 ...) G_GNUC_PRINTF (4, 5);
-TrackerDBResultSet *    tracker_db_interface_execute_vquery     (TrackerDBInterface          *interface,
-                                                                 GError                     **error,
-                                                                 const gchar                 *query,
-                                                                 va_list                      args);
-TrackerDBResultSet *    tracker_db_interface_execute_query      (TrackerDBInterface          *interface,
-                                                                 GError                     **error,
-                                                                 const gchar                 *query,
-                                                                  ...) G_GNUC_PRINTF (3, 4);
-gboolean                tracker_db_interface_start_transaction  (TrackerDBInterface         *interface);
-gboolean                tracker_db_interface_end_db_transaction (TrackerDBInterface         *interface);
-void                    tracker_db_statement_bind_double        (TrackerDBStatement         *stmt,
-                                                                 int                         index,
-                                                                 double                      value);
-void                    tracker_db_statement_bind_int           (TrackerDBStatement         *stmt,
-                                                                 int                         index,
-                                                                 gint64                      value);
-void                    tracker_db_statement_bind_null          (TrackerDBStatement         *stmt,
-                                                                 int                         index);
-void                    tracker_db_statement_bind_text          (TrackerDBStatement         *stmt,
-                                                                 int                         index,
-                                                                 const gchar                *value);
-TrackerDBResultSet *    tracker_db_statement_execute            (TrackerDBStatement         *stmt,
-                                                                 GError                    **error);
-TrackerDBCursor *       tracker_db_statement_start_cursor       (TrackerDBStatement         *stmt,
-                                                                 GError                    **error);
-TrackerDBCursor *       tracker_db_statement_start_sparql_cursor(TrackerDBStatement         *stmt,
-                                                                 TrackerPropertyType        *types,
-                                                                 gint                        n_types,
-                                                                 const gchar               **variable_names,
-                                                                 gint                        n_variable_names,
-                                                                 GError                    **error);
+TrackerDBStatement *    tracker_db_interface_create_statement        (TrackerDBInterface          *interface,
+                                                                      TrackerDBStatementCacheType  cache_type,
+                                                                      GError                     **error,
+                                                                      const gchar                 *query,
+                                                                      ...) G_GNUC_PRINTF (4, 5);
+TrackerDBResultSet *    tracker_db_interface_execute_vquery          (TrackerDBInterface          *interface,
+                                                                      GError                     **error,
+                                                                      const gchar                 *query,
+                                                                      va_list                      args);
+TrackerDBResultSet *    tracker_db_interface_execute_query           (TrackerDBInterface          *interface,
+                                                                      GError                     **error,
+                                                                      const gchar                 *query,
+                                                                       ...) G_GNUC_PRINTF (3, 4);
 
+gboolean                tracker_db_interface_start_transaction       (TrackerDBInterface         *interface);
+gboolean                tracker_db_interface_end_db_transaction      (TrackerDBInterface         *interface);
+void                    tracker_db_statement_bind_double             (TrackerDBStatement         *stmt,
+                                                                      int                         index,
+                                                                      double                      value);
+void                    tracker_db_statement_bind_int                (TrackerDBStatement         *stmt,
+                                                                      int                         index,
+                                                                      gint64                      value);
+void                    tracker_db_statement_bind_null               (TrackerDBStatement         *stmt,
+                                                                      int                         index);
+void                    tracker_db_statement_bind_text               (TrackerDBStatement         *stmt,
+                                                                      int                         index,
+                                                                      const gchar                *value);
+TrackerDBResultSet *    tracker_db_statement_execute                 (TrackerDBStatement         *stmt,
+                                                                      GError                    **error);
+TrackerDBCursor *       tracker_db_statement_start_cursor            (TrackerDBStatement         *stmt,
+                                                                      GError                    **error);
+TrackerDBCursor *       tracker_db_statement_start_sparql_cursor     (TrackerDBStatement         *stmt,
+                                                                      TrackerPropertyType        *types,
+                                                                      gint                        n_types,
+                                                                      const gchar               **variable_names,
+                                                                      gint                        n_variable_names,
+                                                                      GError                    **error);
 /* Semi private TrackerDBResultSet functions */
-TrackerDBResultSet *    _tracker_db_result_set_new              (guint                       cols);
-void                    _tracker_db_result_set_append           (TrackerDBResultSet         *result_set);
-void                    _tracker_db_result_set_set_value        (TrackerDBResultSet         *result_set,
-                                                                 guint                       column,
-                                                                 const GValue               *value);
-void                    _tracker_db_result_set_get_value        (TrackerDBResultSet         *result_set,
-                                                                 guint                       column,
-                                                                 GValue                     *value);
+TrackerDBResultSet *    _tracker_db_result_set_new                   (guint                       cols);
+void                    _tracker_db_result_set_append                (TrackerDBResultSet         *result_set);
+void                    _tracker_db_result_set_set_value             (TrackerDBResultSet         *result_set,
+                                                                      guint                       column,
+                                                                      const GValue               *value);
+void                    _tracker_db_result_set_get_value             (TrackerDBResultSet         *result_set,
+                                                                      guint                       column,
+                                                                      GValue                     *value);
 
 /* Functions to deal with the resultset */
-void                    tracker_db_result_set_get               (TrackerDBResultSet         *result_set,
-                                                                 ...);
-void                    tracker_db_result_set_rewind            (TrackerDBResultSet         *result_set);
-gboolean                tracker_db_result_set_iter_next         (TrackerDBResultSet         *result_set);
-guint                   tracker_db_result_set_get_n_columns     (TrackerDBResultSet         *result_set);
-guint                   tracker_db_result_set_get_n_rows        (TrackerDBResultSet         *result_set);
+void                    tracker_db_result_set_get                    (TrackerDBResultSet         *result_set,
+                                                                      ...);
+void                    tracker_db_result_set_rewind                 (TrackerDBResultSet         *result_set);
+gboolean                tracker_db_result_set_iter_next              (TrackerDBResultSet         *result_set);
+guint                   tracker_db_result_set_get_n_columns          (TrackerDBResultSet         *result_set);
+guint                   tracker_db_result_set_get_n_rows             (TrackerDBResultSet         *result_set);
 
 /* Functions to deal with a cursor */
-void                    tracker_db_cursor_rewind                (TrackerDBCursor            *cursor);
-gboolean                tracker_db_cursor_iter_next             (TrackerDBCursor            *cursor,
-                                                                 GCancellable               *cancellable,
-                                                                 GError                    **error);
-guint                   tracker_db_cursor_get_n_columns         (TrackerDBCursor            *cursor);
-const gchar*            tracker_db_cursor_get_variable_name     (TrackerDBCursor            *cursor,
-                                                                 guint                       column);
-TrackerSparqlValueType  tracker_db_cursor_get_value_type        (TrackerDBCursor            *cursor,
-                                                                 guint                       column);
-void                    tracker_db_cursor_get_value             (TrackerDBCursor            *cursor,
-                                                                 guint                       column,
-                                                                 GValue                     *value);
-const gchar*            tracker_db_cursor_get_string            (TrackerDBCursor            *cursor,
-                                                                 guint                       column,
-                                                                 glong                      *length);
-gint64                  tracker_db_cursor_get_int               (TrackerDBCursor            *cursor,
-                                                                 guint                       column);
-gdouble                 tracker_db_cursor_get_double            (TrackerDBCursor            *cursor,
-                                                                 guint                       column);
+void                    tracker_db_cursor_rewind                     (TrackerDBCursor            *cursor);
+gboolean                tracker_db_cursor_iter_next                  (TrackerDBCursor            *cursor,
+                                                                      GCancellable               *cancellable,
+                                                                      GError                    **error);
+guint                   tracker_db_cursor_get_n_columns              (TrackerDBCursor            *cursor);
+const gchar*            tracker_db_cursor_get_variable_name          (TrackerDBCursor            *cursor,
+                                                                      guint                       column);
+TrackerSparqlValueType  tracker_db_cursor_get_value_type             (TrackerDBCursor            *cursor,
+                                                                      guint                       column);
+void                    tracker_db_cursor_get_value                  (TrackerDBCursor            *cursor,
+                                                                      guint                       column,
+                                                                      GValue                     *value);
+const gchar*            tracker_db_cursor_get_string                 (TrackerDBCursor            *cursor,
+                                                                      guint                       column,
+                                                                      glong                      *length);
+gint64                  tracker_db_cursor_get_int                    (TrackerDBCursor            *cursor,
+                                                                      guint                       column);
+gdouble                 tracker_db_cursor_get_double                 (TrackerDBCursor            *cursor,
+                                                                      guint                       column);
 
 G_END_DECLS
 

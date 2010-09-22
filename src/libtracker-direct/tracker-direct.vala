@@ -39,9 +39,10 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 			throw new Sparql.Error.INTERNAL ("Unable to initialize database");
 		}
 
-		if (!Data.Manager.init (DBManagerFlags.READONLY, null, null, false, null, null)) {
+		if (!Data.Manager.init (DBManagerFlags.READONLY, null, null, false, 100, 0, null, null)) {
 			throw new Sparql.Error.INTERNAL ("Unable to initialize database");
 		}
+
 		initialized = true;
 	}
 

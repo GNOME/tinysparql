@@ -42,6 +42,8 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  fla
                                                       const gchar          **test_schema,
                                                       gboolean              *first_time,
                                                       gboolean               journal_check,
+                                                      guint                  select_cache_size,
+                                                      guint                  update_cache_size,
                                                       TrackerBusyCallback    busy_callback,
                                                       gpointer               busy_user_data,
                                                       const gchar           *busy_status);

@@ -344,13 +344,16 @@ tracker_data_backup_restore (GFile *journal,
 	info->destroy = destroy;
 
 	if (g_file_query_exists (info->journal, NULL)) {
-		TrackerDBManagerFlags flags = tracker_db_manager_get_flags ();
+		TrackerDBManagerFlags flags;
 		gboolean is_first;
 		GFile *parent = g_file_get_parent (info->destination);
 		gchar *tmp_stdout = NULL;
 		gchar *tmp_stderr = NULL;
 		gchar **argv;
 		gint exit_status;
+		guint select_cache_size, update_cache_size;
+
+		flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
 
 		tracker_db_manager_move_to_temp ();
 		tracker_data_manager_shutdown ();
@@ -401,6 +404,7 @@ tracker_data_backup_restore (GFile *journal,
 		tracker_db_journal_shutdown ();
 
 		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE,
+		                           select_cache_size, update_cache_size,
 		                           busy_callback, busy_user_data,
 		                           "Restoring backup");
 

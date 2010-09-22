@@ -74,7 +74,7 @@ test_sparql_query (gconstpointer test_data)
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           test_schemas,
-	                           NULL, FALSE, NULL, NULL, NULL);
+	                           NULL, FALSE, 100, 100, NULL, NULL, NULL);
 
 	/* load data / perform updates */
 

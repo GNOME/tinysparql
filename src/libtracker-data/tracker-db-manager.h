@@ -49,7 +49,9 @@ typedef enum {
 GType               tracker_db_get_type                       (void) G_GNUC_CONST;
 gboolean            tracker_db_manager_init                   (TrackerDBManagerFlags  flags,
                                                                gboolean              *first_time,
-                                                               gboolean               shared_cache);
+                                                               gboolean               shared_cache,
+                                                               guint                  select_cache_size,
+                                                               guint                  update_cache_size);
 void                tracker_db_manager_shutdown               (void);
 void                tracker_db_manager_remove_all             (gboolean               rm_journal);
 void                tracker_db_manager_optimize               (void);
@@ -62,7 +64,8 @@ void                tracker_db_manager_init_locations         (void);
 gboolean            tracker_db_manager_has_enough_space       (void);
 
 TrackerDBManagerFlags
-                    tracker_db_manager_get_flags              (void);
+                    tracker_db_manager_get_flags              (guint *select_cache_size,
+                                                               guint *update_cache_size);
 
 gboolean            tracker_db_manager_get_first_index_done   (void);
 guint64             tracker_db_manager_get_last_crawl_done    (void);

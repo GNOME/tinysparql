@@ -250,7 +250,7 @@ test_sparql_query (gconstpointer test_data)
 
 	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
 	                           test_schemas,
-	                           NULL, FALSE, NULL, NULL, NULL);
+	                           NULL, FALSE, 100, 100, NULL, NULL, NULL);
 
 	/* data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL); */
 

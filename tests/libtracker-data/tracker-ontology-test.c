@@ -197,6 +197,8 @@ test_ontology_init (void)
 	                           NULL,
 	                           NULL,
 	                           FALSE,
+	                           100,
+	                           100,
 	                           NULL,
 	                           NULL,
 	                           NULL);
@@ -210,6 +212,8 @@ test_ontology_init (void)
 	                           NULL,
 	                           NULL,
 	                           FALSE,
+	                           100,
+	                           100,
 	                           NULL,
 	                           NULL,
 	                           NULL);
@@ -243,6 +247,8 @@ test_query (gconstpointer test_data)
 	                           NULL,
 	                           NULL,
 	                           FALSE,
+	                           100,
+	                           100,
 	                           NULL,
 	                           NULL,
 	                           NULL);

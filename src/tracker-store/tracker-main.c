@@ -67,6 +67,9 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
+#define TRACKER_STORE_SELECT_CACHE_SIZE		100
+#define TRACKER_STORE_UPDATE_CACHE_SIZE		100
+
 typedef struct {
 	GMainLoop *main_loop;
 	gchar *log_filename;
@@ -478,6 +481,8 @@ main (gint argc, gchar *argv[])
 	                                NULL,
 	                                &is_first_time_index,
 	                                TRUE,
+	                                TRACKER_STORE_SELECT_CACHE_SIZE,
+	                                TRACKER_STORE_UPDATE_CACHE_SIZE,
 	                                busy_callback,
 	                                busy_user_data,
 	                                "Journal replaying")) {

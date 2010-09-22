@@ -38,13 +38,11 @@
 
 #include "tracker-db-interface-sqlite.h"
 
-/* Increase this after testing is done */
-#define TRACKER_STMT_LRU_SIZE	3
-
 typedef struct {
 	TrackerDBStatement *head;
 	TrackerDBStatement *tail;
 	guint size;
+	guint max;
 } TrackerDBStatementLru;
 
 struct TrackerDBInterface {
@@ -828,6 +826,23 @@ add_row (TrackerDBResultSet *result_set,
 	}
 }
 
+void
+tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_interface,
+                                              TrackerDBStatementCacheType cache_type,
+                                              guint                       max_size)
+{
+	TrackerDBStatementLru *stmt_lru;
+
+	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE) {
+		stmt_lru = &db_interface->update_stmt_lru;
+	} else if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT) {
+		stmt_lru = &db_interface->select_stmt_lru;
+	} else {
+		return;
+	}
+
+	stmt_lru->max = max_size;
+}
 
 TrackerDBStatement *
 tracker_db_interface_create_statement (TrackerDBInterface           *db_interface,
@@ -904,7 +919,7 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 			                      (gpointer) sqlite3_sql (sqlite_stmt),
 			                      stmt);
 
-			if (stmt_lru->size >= TRACKER_STMT_LRU_SIZE) {
+			if (stmt_lru->size >= stmt_lru->max) {
 				TrackerDBStatement *new_head;
 				/* Destroy old stmt_lru.head and fix the ring */
 				new_head = stmt_lru->head->next;

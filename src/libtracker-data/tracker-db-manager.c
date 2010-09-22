@@ -153,6 +153,8 @@ static gchar                *sys_tmp_dir = NULL;
 static gchar                *in_use_filename = NULL;
 static gpointer              db_type_enum_class_pointer;
 static TrackerDBManagerFlags old_flags = 0;
+static guint                 s_cache_size;
+static guint                 u_cache_size;
 
 static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 
@@ -191,8 +193,14 @@ db_exec_no_reply (TrackerDBInterface *iface,
 }
 
 TrackerDBManagerFlags
-tracker_db_manager_get_flags (void)
+tracker_db_manager_get_flags (guint *select_cache_size, guint *update_cache_size)
 {
+	if (select_cache_size)
+		*select_cache_size = s_cache_size;
+
+	if (update_cache_size)
+		*update_cache_size = u_cache_size;
+
 	return old_flags;
 }
 
@@ -683,7 +691,9 @@ tracker_db_manager_init_locations (void)
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
-                         gboolean               shared_cache)
+                         gboolean               shared_cache,
+                         guint                  select_cache_size,
+                         guint                  update_cache_size)
 {
 	GType               etype;
 	TrackerDBVersion    version;
@@ -966,6 +976,17 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 		                                                        TRACKER_DB_METADATA);
 	}
 
+	tracker_db_interface_set_max_stmt_cache_size (resources_iface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
+	                                              select_cache_size);
+
+	tracker_db_interface_set_max_stmt_cache_size (resources_iface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              update_cache_size);
+
+	s_cache_size = select_cache_size;
+	u_cache_size = update_cache_size;
+
 	g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
 
 	return TRUE;
@@ -1018,13 +1039,13 @@ tracker_db_manager_shutdown (void)
 	initialized = FALSE;
 	locations_initialized = FALSE;
 
-	if ((tracker_db_manager_get_flags () & TRACKER_DB_MANAGER_READONLY) == 0) {
+	if ((tracker_db_manager_get_flags (NULL, NULL) & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not delete in-use file for read-only mode (direct access) */
 		g_unlink (in_use_filename);
 	}
 
 	g_free (in_use_filename);
-        in_use_filename = NULL;
+	in_use_filename = NULL;
 }
 
 void

@@ -46,6 +46,8 @@ test_blank (void)
 	                           NULL,
 	                           NULL,
 	                           FALSE,
+	                           100,
+	                           100,
 	                           NULL,
 	                           NULL,
 	                           NULL);

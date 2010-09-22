@@ -438,8 +438,8 @@ main (int argc, char **argv)
 
 		g_object_unref (db_config);
 
-		/* Clean up */
-		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE)) {
+		/* Clean up (select_cache_size and update_cache_size don't matter here) */
+		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE, 100, 100)) {
 			return EXIT_FAILURE;
 		}
 
