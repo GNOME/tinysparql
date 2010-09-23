@@ -950,21 +950,23 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	} else {
 		tracker_db_statement_sqlite_reset (stmt);
 
-		if (stmt == stmt_lru->head) {
-			/* Current stmt is least used, shift the ring */
-			stmt_lru->head = stmt_lru->head->next;
-			stmt_lru->tail = stmt_lru->tail->next;
-		} else if (stmt != stmt_lru->tail) {
-			/* Take stmt out of the list */
-			stmt->prev->next = stmt->next;
-			stmt->next->prev = stmt->prev;
-			/* Put stmt as tail (most recent used) */
-			stmt->next = stmt_lru->head;
-			stmt_lru->head->prev = stmt;
-			stmt->prev = stmt_lru->tail;
-			stmt_lru->tail->next = stmt;
-			stmt_lru->tail = stmt;
-		} /* if (stmt == tail), do nothing, of course */
+		if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
+			if (stmt == stmt_lru->head) {
+				/* Current stmt is least used, shift the ring */
+				stmt_lru->head = stmt_lru->head->next;
+				stmt_lru->tail = stmt_lru->tail->next;
+			} else if (stmt != stmt_lru->tail) {
+				/* Take stmt out of the list */
+				stmt->prev->next = stmt->next;
+				stmt->next->prev = stmt->prev;
+				/* Put stmt as tail (most recent used) */
+				stmt->next = stmt_lru->head;
+				stmt_lru->head->prev = stmt;
+				stmt->prev = stmt_lru->tail;
+				stmt_lru->tail->next = stmt;
+				stmt_lru->tail = stmt;
+			} /* if (stmt == tail), do nothing, of course */
+		}
 	}
 
 	g_free (full_query);
