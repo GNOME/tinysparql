@@ -95,7 +95,8 @@ struct TrackerDBStatement {
 	TrackerDBInterface *db_interface;
 	sqlite3_stmt *stmt;
 	gboolean stmt_is_sunk;
-	TrackerDBStatement *next, *prev;
+	TrackerDBStatement *next;
+	TrackerDBStatement *prev;
 };
 
 struct TrackerDBStatementClass {
@@ -867,22 +868,35 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	full_query = g_strdup_vprintf (query, args);
 	va_end (args);
 
+	/* There are three kinds of queries: 
+	  * a) Cached queries: SELECT and UPDATE ones (cache_type)
+	  * b) Non-Cached queries: NONE ones (cache_type)
+	  * c) Forced Non-Cached: in case of a stmt being already in use, we can't
+	  *    reuse it (you can't use two different loops on a sqlite3_stmt, of
+	  *    course). This happens with recursive uses of a cursor, for example */
+
 	if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
 		stmt = g_hash_table_lookup (db_interface->dynamic_statements, full_query);
 
 		if (stmt && stmt->stmt_is_sunk) {
-			/* prepared statement is still in use, create new uncached one */
+			/* c) Forced non-cached
+			 * prepared statement is still in use, create new uncached one */
 			stmt = NULL;
+			/* Make sure to set cache_type here, to ensure the right flow in the
+			 * LRU-cache below */
 			cache_type = TRACKER_DB_STATEMENT_CACHE_TYPE_NONE;
 		}
 
 		if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE) {
+			/* a) Cached */
 			stmt_lru = &db_interface->update_stmt_lru;
 		} else {
+			/* a) Cached */
 			stmt_lru = &db_interface->select_stmt_lru;
 		}
 
 	} else {
+		/* b) Non-Cached */
 		stmt = NULL;
 	}
 
@@ -924,9 +938,23 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 			                      (gpointer) sqlite3_sql (sqlite_stmt),
 			                      stmt);
 
+			/* So the ring looks a bit like this: *
+			 *                                    *
+			 *    .--tail  .--head                *
+			 *    |        |                      *
+			 *  [p-n] -> [p-n] -> [p-n] -> [p-n]  *
+			 *    ^                          |    *
+			 *    `- [n-p] <- [n-p] <--------'    *
+			 *                                    */
+
 			if (stmt_lru->size >= stmt_lru->max) {
 				TrackerDBStatement *new_head;
-				/* Destroy old stmt_lru.head and fix the ring */
+
+				/* We reached max-size of the LRU stmt cache. Destroy current
+				 * least recently used (stmt_lru.head) and fix the ring. For
+				 * that we take out the current head, and close the ring.
+				 * Then we assign head->next as new head. */
+
 				new_head = stmt_lru->head->next;
 				g_hash_table_remove (db_interface->dynamic_statements,
 				                     (gpointer) sqlite3_sql (stmt_lru->head->stmt));
@@ -939,8 +967,11 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 				}
 			}
 
+			/* Set the current stmt (which is always new here) as the new tail
+			 * (new most recent used). We insert current stmt between head and
+			 * current tail, and we set tail to current stmt. */
+
 			stmt_lru->size++;
-			/* Put stmt as new tail (new most recent used) */
 			stmt->next = stmt_lru->head;
 			stmt_lru->head->prev = stmt;
 
@@ -953,20 +984,31 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 
 		if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
 			if (stmt == stmt_lru->head) {
-				/* Current stmt is least used, shift the ring */
+
+				/* Current stmt is least recently used, shift head and tail
+				 * of the ring to efficiently make it most recently used. */
+
 				stmt_lru->head = stmt_lru->head->next;
 				stmt_lru->tail = stmt_lru->tail->next;
 			} else if (stmt != stmt_lru->tail) {
-				/* Take stmt out of the list */
+
+				/* Current statement isn't most recently used, make it most
+				 * recently used now (less efficient way than above). */
+
+				/* Take stmt out of the list and close the ring */
 				stmt->prev->next = stmt->next;
 				stmt->next->prev = stmt->prev;
+
 				/* Put stmt as tail (most recent used) */
 				stmt->next = stmt_lru->head;
 				stmt_lru->head->prev = stmt;
 				stmt->prev = stmt_lru->tail;
 				stmt_lru->tail->next = stmt;
 				stmt_lru->tail = stmt;
-			} /* if (stmt == tail), do nothing, of course */
+			}
+
+			/* if (stmt == tail), it's already the most recently used in the
+			 * ring, so in this case we do nothing of course */
 		}
 	}
 
