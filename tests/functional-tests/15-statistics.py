@@ -90,7 +90,11 @@ class TrackerStoreStatisticsTests (CommonTrackerStoreTest):
             if k in increased_classes:
                 self.assertEquals (old_stats [k]+1, new_stats[k])
             elif k in new_classes:
-                self.assertEquals (new_stats [k], 1)
+                # This classes could exists previous or not!
+                if old_stats.has_key (k):
+                    self.assertEquals (old_stats [k]+1, new_stats [k])
+                else:
+                    self.assertEquals (new_stats [k], 1)
             else:
                 self.assertEquals (old_stats [k], new_stats[k])
 
@@ -103,11 +107,14 @@ class TrackerStoreStatisticsTests (CommonTrackerStoreTest):
         new_stats = self.__get_stats ()
 
         decreased_classes = [NIE_IE, RDFS_RESOURCE]
-        # These classes shouldn't have any instance, so they are not in the results
+        # These classes could have no instance
         no_instances_classes = ["nmm:Photo", "nfo:Visual", "nfo:Image", "nfo:Media"]
 
         for c in no_instances_classes:
-            self.assertNotIn (c, new_stats)
+            if (old_stats[c] == 1):
+                self.assertNotIn (c, new_stats)
+            else:
+                self.assertEquals (old_stats[c]-1, new_stats[c])
 
         for k, v in new_stats.iteritems ():
             if k in decreased_classes:
