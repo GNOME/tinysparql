@@ -37,6 +37,7 @@ standard_tests +=			\
 	09-concurrent-query.py		\
 	14-signals.py			\
 	15-statistics.py		\
+	16-collation.py			\
 	200-backup-restore.py		\
 	300-miner-basic-ops.py
 if HAVE_TRACKER_FTS
