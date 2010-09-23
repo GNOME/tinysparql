@@ -1,3 +1,38 @@
+NEW in 0.9.22 - 2010-09-23
+==========================
+
+The changes are:
+
+  * NEW Feature: LRU for database statement cache (huge memory footprint difference)
+  * NEW Feature: Monitor event black listing and events are condensed (less event spam up the stack)
+  * Fixes: NB#192537, Insane memory usage in tracker-store
+  * Fixes: NB#193796, tracker-extract crashes when extracting audio files due to an integration issue with Quill
+  * Fixes: GB#630176, Build failure with GTK 2.90.7 (no GTK_DIALOG_NO_SEPARATOR available anymore)
+  * SPARQL: Rework variable name support to fix regression
+  * Ontology: NCO: Set tracker:notify to true for nco:ContactList
+  * data-generators: Added a default value for undefined categories
+  * functional-tests: Added collation tests
+  * functional-tests: Set exec permissions to stats test
+  * libtracker-data: Fixed regression SELECT ... AS ?var not being honored in ORDER BY
+  * libtracker-data: Don't cache stmt if the query contains a regular expression
+  * libtracker-data: Fixed memory leak in journal rotation
+  * libtracker-sparql: Make it possible to set the max LRU cache size per connection
+  * libtracker-sparql: Added an "environment variables" section to documentation
+  * tracker-store: Added TRACKER_STORE_{SELECT|UPDATE}_CACHE_SIZE environment variables to control new LRU feature
+  * tracker-store: Fixed crash when accessing variable_names array
+  * tracker-extract: remove unneeded call to tracker_topanalyzer_shutdown()
+  * tracker-extract: Fixed QUILLimagefilter support
+  * tracker-miner-fs: Fixed use of uninitialized variable
+
+Translations:
+
+  * Updated et: Mattias Põldaru
+
+Notes:
+
+  None
+
+
 NEW in 0.9.21 - 2010-09-16
 ==========================
 
