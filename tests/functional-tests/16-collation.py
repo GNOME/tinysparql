@@ -50,6 +50,9 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
 
     def __insert_text (self, text):
         uri = "test://collation-01-%d" % (random.randint (1, 1000))
+        # There is a remote chance to get a duplicate int
+        while (uri in self.clean_up_instances):
+            uri = "test://collation-01-%d" % (random.randint (1, 1000))
         self.clean_up_instances.append (uri)
         
         self.tracker.update ("""
@@ -115,6 +118,11 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         self.__collation_test (input_dt, expected)
 
 if __name__ == "__main__":
+    print """
+    TODO:
+      * Check what happens in non-english encoding
+      * Dynamic change of collation (not implemented yet in tracker)
+    """
     ut.main ()
 
     
