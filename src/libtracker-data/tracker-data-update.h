@@ -72,6 +72,7 @@ void     tracker_data_insert_statement_with_string  (const gchar               *
                                                      const gchar               *object,
                                                      GError                   **error);
 void     tracker_data_begin_transaction             (GError                   **error);
+void     tracker_data_begin_ontology_transaction    (GError                   **error);
 void     tracker_data_begin_transaction_for_replay  (time_t                     time,
                                                      GError                   **error);
 void     tracker_data_commit_transaction            (GError                   **error);

@@ -34,6 +34,8 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
+#define TRACKER_ONTOLOGIES_MAX_ID 100000
+
 void               tracker_ontologies_init                 (void);
 void               tracker_ontologies_shutdown             (void);
 

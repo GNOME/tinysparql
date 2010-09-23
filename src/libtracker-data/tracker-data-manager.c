@@ -2701,7 +2701,7 @@ get_new_service_id (TrackerDBInterface *iface)
 	iface = tracker_db_manager_get_db_interface ();
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-	                                              "SELECT MAX(ID) AS A FROM Resource");
+	                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
 
 	if (stmt) {
 		cursor = tracker_db_statement_start_cursor (stmt, &error);
@@ -2897,7 +2897,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			}
 		}
 
-		tracker_data_begin_transaction (NULL);
+		tracker_data_begin_ontology_transaction (NULL);
 
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, TRUE);
@@ -2975,7 +2975,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		/* check ontology against database */
 
-		tracker_data_begin_transaction (NULL);
+		tracker_data_begin_ontology_transaction (NULL);
 
 		/* This _is_ an ontology transaction, it represents a change to the
 		 * ontology. We mark it up as such in the journal, so that replay_journal

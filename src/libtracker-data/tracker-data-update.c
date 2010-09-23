@@ -145,6 +145,7 @@ typedef struct {
 } QueuedStatement;
 
 static gboolean in_transaction = FALSE;
+static gboolean in_ontology_transaction = FALSE;
 static gboolean in_journal_replay = FALSE;
 static TrackerDataUpdateBuffer update_buffer;
 /* current resource */
@@ -157,6 +158,7 @@ static GPtrArray *delete_callbacks = NULL;
 static GPtrArray *commit_callbacks = NULL;
 static GPtrArray *rollback_callbacks = NULL;
 static gint max_service_id = 0;
+static gint max_ontology_id = 0;
 static gint max_modseq = 0;
 
 static gint ensure_resource_id (const gchar *uri, gboolean    *create);
@@ -338,40 +340,74 @@ tracker_data_update_get_new_service_id (void)
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
 
-	if (G_LIKELY (max_service_id != 0)) {
-		return ++max_service_id;
-	}
-
-	iface = tracker_db_manager_get_db_interface ();
-
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-	                                              "SELECT MAX(ID) AS A FROM Resource");
-
-	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
-		g_object_unref (stmt);
-	}
-
-	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
-			max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), max_service_id);
+	if (in_ontology_transaction) {
+		if (G_LIKELY (max_ontology_id != 0)) {
+			return ++max_ontology_id;
 		}
 
-		g_object_unref (cursor);
-	}
+		iface = tracker_db_manager_get_db_interface ();
 
-	if (G_UNLIKELY (error)) {
-		g_warning ("Could not get new resource ID: %s\n", error->message);
-		g_error_free (error);
-	}
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+			                                      "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
 
-	return ++max_service_id;
+		if (stmt) {
+			cursor = tracker_db_statement_start_cursor (stmt, &error);
+			g_object_unref (stmt);
+		}
+
+		if (cursor) {
+			if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+				max_ontology_id = MAX (tracker_db_cursor_get_int (cursor, 0), max_ontology_id);
+			}
+
+			g_object_unref (cursor);
+		}
+
+		if (G_UNLIKELY (error)) {
+			g_warning ("Could not get new resource ID: %s\n", error->message);
+			g_error_free (error);
+		}
+
+		return ++max_ontology_id;
+	} else {
+		if (G_LIKELY (max_service_id != 0)) {
+			return ++max_service_id;
+		}
+
+		max_service_id = TRACKER_ONTOLOGIES_MAX_ID;
+
+		iface = tracker_db_manager_get_db_interface ();
+
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+			                                      "SELECT MAX(ID) AS A FROM Resource");
+
+		if (stmt) {
+			cursor = tracker_db_statement_start_cursor (stmt, &error);
+			g_object_unref (stmt);
+		}
+
+		if (cursor) {
+			if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+				max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), max_service_id);
+			}
+
+			g_object_unref (cursor);
+		}
+
+		if (G_UNLIKELY (error)) {
+			g_warning ("Could not get new resource ID: %s\n", error->message);
+			g_error_free (error);
+		}
+
+		return ++max_service_id;
+	}
 }
 
 void
 tracker_data_update_shutdown (void)
 {
 	max_service_id = 0;
+	max_ontology_id = 0;
 	max_modseq = 0;
 }
 
@@ -2228,6 +2264,13 @@ tracker_data_begin_transaction (GError **error)
 }
 
 void
+tracker_data_begin_ontology_transaction (GError **error)
+{
+	tracker_data_begin_transaction (error);
+	in_ontology_transaction = TRUE;
+}
+
+void
 tracker_data_begin_transaction_for_replay (time_t time, GError **error)
 {
 	in_journal_replay = TRUE;
@@ -2252,6 +2295,7 @@ tracker_data_commit_transaction (GError **error)
 	}
 
 	in_transaction = FALSE;
+	in_ontology_transaction = FALSE;
 
 	if (!in_journal_replay) {
 		tracker_db_journal_commit_db_transaction ();
@@ -2562,6 +2606,7 @@ tracker_data_rollback_transaction (void)
 	g_return_if_fail (in_transaction);
 
 	in_transaction = FALSE;
+	in_ontology_transaction = FALSE;
 
 	iface = tracker_db_manager_get_db_interface ();
 
