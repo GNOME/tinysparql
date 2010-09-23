@@ -841,7 +841,11 @@ tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_int
 		return;
 	}
 
-	stmt_lru->max = max_size;
+	/* Must be larger than 2 to make sense (to have a tail and head) */
+	if (max_size > 2)
+		stmt_lru->max = max_size;
+	else
+		stmt_lru->max = 3;
 }
 
 TrackerDBStatement *

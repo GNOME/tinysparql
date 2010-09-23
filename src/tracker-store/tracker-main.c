@@ -341,6 +341,9 @@ main (gint argc, gchar *argv[])
 	const gchar *rotate_to;
 	TrackerDBConfig *db_config;
 	gboolean do_rotating;
+	const gchar *cache_size_s;
+	guint select_cache_size;
+	guint update_cache_size;
 
 	g_type_init ();
 
@@ -477,12 +480,26 @@ main (gint argc, gchar *argv[])
 
 	tracker_db_journal_set_rotating (do_rotating, chunk_size, rotate_to);
 
+	cache_size_s = g_getenv ("TRACKER_STORE_SELECT_CACHE_SIZE");
+	if (cache_size_s != NULL && cache_size_s[0] != '\0') {
+		select_cache_size = atoi (cache_size_s);
+	} else {
+		select_cache_size = TRACKER_STORE_SELECT_CACHE_SIZE;
+	}
+
+	cache_size_s = g_getenv ("TRACKER_STORE_UPDATE_CACHE_SIZE");
+	if (cache_size_s != NULL && cache_size_s[0] != '\0') {
+		update_cache_size = atoi (cache_size_s);
+	} else {
+		update_cache_size = TRACKER_STORE_UPDATE_CACHE_SIZE;
+	}
+
 	if (!tracker_data_manager_init (flags,
 	                                NULL,
 	                                &is_first_time_index,
 	                                TRUE,
-	                                TRACKER_STORE_SELECT_CACHE_SIZE,
-	                                TRACKER_STORE_UPDATE_CACHE_SIZE,
+	                                select_cache_size,
+	                                update_cache_size,
 	                                busy_callback,
 	                                busy_user_data,
 	                                "Journal replaying")) {
