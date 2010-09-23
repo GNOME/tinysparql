@@ -82,6 +82,15 @@ checks. The value 0 indicates no interruption.
 This environment variable is used mainly for testing purposes.
 
 .TP
+.B TRACKER_STORE_SELECT_CACHE_SIZE / TRACKER_STORE_UPDATE_CACHE_SIZE
+Tracker caches database statements which occur frequently to make
+subsequent repeat queries much faster. The cache size is set to 100 by
+default for each type (select and update queries). This must be at
+least 2 as a minimum, any less and a value of 3 is used instead. The
+number represents the number of cached statements to keep around.
+This environment variable is used mainly for testing purposes.
+
+.TP
 .B TRACKER_STORE_DISABLE_CPU_AFFINITY
 Tracker currently uses CPU affinity to improve query times by making
 sure that certain operations are done on the same CPU. This is only
