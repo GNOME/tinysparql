@@ -1,0 +1,23 @@
+[TestFile]
+Filename=xmp-loaded-1.gif
+Bugzilla=
+Comment=GIF with XMP metadata (injected with exiftool)
+
+[Metadata]
+a=nfo:Image
+a=nmm:Photo
+nie_description=Test file for the tracker XMP extraction
+nie_title=A random GIF
+nao_hasTag_prefLabel=Cool
+nao_hasTag_prefLabel=favourite
+nao_hasTag_prefLabel=nice
+dc_identifier=test-file-01-world-domination-path
+dc_source=http://www.fotonatura.org/revista/articulos/293/3/
+dc_language=es_ES 
+dc_coverage=from Helsinki all around the world
+nfo_width=165
+nfo_height=66
+
+[Meego]
+nfo_height=144
+nfo_width=192
