@@ -768,10 +768,10 @@ event_pairs_timeout_cb (gpointer user_data)
 
 static void
 monitor_event_cb (GFileMonitor	    *file_monitor,
-		  GFile		    *file,
-		  GFile		    *other_file,
-		  GFileMonitorEvent  event_type,
-		  gpointer	     user_data)
+                  GFile		    *file,
+                  GFile		    *other_file,
+                  GFileMonitorEvent  event_type,
+                  gpointer	     user_data)
 {
 	TrackerMonitor *monitor;
 	gchar *file_uri;
@@ -925,18 +925,19 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 			/* Get previous event data, if any */
 			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
 
-			if (previous_update_event_data &&
-			    previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_CREATED) {
-				/* Oh, oh, oh, we got a previous CREATED event waiting in the event
-				 * cache... so we cancel it with the DELETED and don't notify anything */
-				g_hash_table_remove (monitor->private->pre_update, file);
-				break;
-			}
-
-			/* Remove any previous pending event (if blacklisting enabled, there may be some)
-			 *  and issue the DELETED one */
+			/* Remove any previous pending event (if blacklisting enabled, there may be some) */
 			if (previous_update_event_data) {
+				GFileMonitorEvent previous_update_event_type;
+
+				previous_update_event_type = previous_update_event_data->event_type;
 				g_hash_table_remove (monitor->private->pre_update, file);
+
+				if (previous_update_event_type == G_FILE_MONITOR_EVENT_CREATED) {
+					/* Oh, oh, oh, we got a previous CREATED event waiting in the event
+					 * cache... so we cancel it with the DELETED and don't notify anything */
+					break;
+				}
+				/* else, keep on notifying the event */
 			}
 #endif /* ENABLE_FILE_BLACKLISTING */
 
