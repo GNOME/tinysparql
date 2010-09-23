@@ -246,7 +246,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 """ % (testId, datestring))
 
 		result = self.tracker.query ("""
-                SELECT ?s fn:year-from-dateTime (?v) 
+                SELECT    fn:year-from-dateTime (?v) 
 		          fn:month-from-dateTime (?v) 
                           fn:day-from-dateTime (?v) 
                           fn:hours-from-dateTime (?v) 
@@ -254,20 +254,19 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                           fn:seconds-from-dateTime (?v) 
                           fn:timezone-from-dateTime (?v) 
 		WHERE {
-                  ?s a nie:InformationElement; 
+                  <test://instance-insert-date-%d> a nie:InformationElement; 
 		        nie:informationElementDate ?v . 
 		}
-                 """)
+                 """ % (testId))
                 try:
                         self.assertEquals (len (result), 1)
-                        self.assertEquals (len (result[0]), 8)
-                        self.assertEquals (result[0][0], "test://instance-insert-date-%d" % (testId))
-                        self.assertEquals (result[0][1], year)
-                        self.assertEquals (result[0][2], month)
-                        self.assertEquals (result[0][3], day)
-                        self.assertEquals (result[0][4], hours)
-                        self.assertEquals (result[0][5], minutes)
-                        self.assertEquals (result[0][6], seconds)
+                        self.assertEquals (len (result[0]), 7)
+                        self.assertEquals (result[0][0], year)
+                        self.assertEquals (result[0][1], month)
+                        self.assertEquals (result[0][2], day)
+                        self.assertEquals (result[0][3], hours)
+                        self.assertEquals (result[0][4], minutes)
+                        self.assertEquals (result[0][5], seconds)
                         # FIXME To validate this we need to take into account the locale
                         # self.assertEquals (result[0][7], timezone)
                 finally:
@@ -333,7 +332,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                         """)
 
 		result = self.tracker.query ("""
-                SELECT ?s fn:year-from-dateTime (?v) 
+                SELECT    fn:year-from-dateTime (?v) 
 		          fn:month-from-dateTime (?v) 
                           fn:day-from-dateTime (?v) 
                           fn:hours-from-dateTime (?v) 
@@ -341,7 +340,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                           fn:seconds-from-dateTime (?v) 
                           fn:timezone-from-dateTime (?v) 
 		WHERE {
-                   ?s a nie:InformationElement ;
+                   <test://instances-insert-invalid-date-01> a nie:InformationElement ;
 		        nie:informationElementDate ?v . 
 		}
                 """)
