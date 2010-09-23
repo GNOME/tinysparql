@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -111,7 +111,7 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         Spanish test in english locale
         """
         input_dt = ["ä", "ö", "a", "e", "i", "o", "u"]
-        expected = ["a", "ä", "e", "i", "o", "u", "ü"]
+        expected = ["a", u"ä", "e", "i", "o", u"ö", "u"]
         self.__collation_test (input_dt, expected)
 
 if __name__ == "__main__":
