@@ -855,7 +855,7 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
                                        const gchar                  *query,
                                        ...)
 {
-	TrackerDBStatementLru *stmt_lru;
+	TrackerDBStatementLru *stmt_lru = NULL;
 	TrackerDBStatement *stmt;
 	va_list args;
 	gchar *full_query;
