@@ -871,8 +871,9 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 		stmt = g_hash_table_lookup (db_interface->dynamic_statements, full_query);
 
 		if (stmt && stmt->stmt_is_sunk) {
-			/* prepared statement is still in use, create new one */
+			/* prepared statement is still in use, create new uncached one */
 			stmt = NULL;
+			cache_type = TRACKER_DB_STATEMENT_CACHE_TYPE_NONE;
 		}
 
 		if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE) {
