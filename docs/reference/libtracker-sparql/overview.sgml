@@ -110,5 +110,84 @@ $ pkg-config --libs tracker-sparql-0.9
 
   </chapter>
 
+  <chapter id="tracker-overview-environment-variables">
+    <title>Environment Variables</title>
+
+    <para>
+      There are a number of environment variables which affect the way
+      that the libtracker-sparql library will do its work. Those
+      environment variables are described here.
+
+      <itemizedlist>
+	<listitem>
+	  <emphasis>TRACKER_SPARQL_BACKEND</emphasis>
+	  <para>
+	    Backends for libtracker-sparql are dynamically loaded at
+	    run time. Currently there are only two backends which are
+	    <link linkend="overview-tracker-connection-methods">explained
+	    more closely</link> in the previous chapter. In short,
+	    this environment variable gives the client the ability to
+	    directly mandate which backend they want to use. The
+	    value can be set to either "direct" or "bus". A "direct"
+	    value means the direct access approach will be forced. A
+	    "bus" value means a D-Bus / IPC approach will be forced.
+	  </para>
+	</listitem>
+	<listitem>
+	  <emphasis>TRACKER_SPARQL_MODULE_PATH</emphasis>
+	  <para>
+	    As explained in the last paragraph, the backends are
+	    dynamically loaded at run time. The location for these
+	    backends is usually in a set
+	    place: <emphasis>$prefix/lib/tracker-$version/sparql-modules</emphasis>.
+	    This environment variable is mostly useful for the unit
+	    tests and general debugging to override this location.
+	  </para>
+	</listitem>
+	<listitem>
+	  <emphasis>TRACKER_SPARQL_CACHE_SIZE</emphasis>
+	  <para>
+	    Tracker caches database statements which occur frequently to make
+	    subsequent repeat queries much faster. The cache size is
+	    set to <emphasis>100</emphasis> by default for each type
+	    (select and update queries). This must be at
+	    least <emphasis>2</emphasis> as a minimum, any less and a
+	    value of <emphasis>3</emphasis> is used instead. The
+	    number represents the number of cached statements to keep
+	    around. This environment variable is used mainly for
+	    testing purposes.
+	  </para>
+	  <para>
+	    Tracker's store also has environment variables to control
+	    this behavior, see the manual pages
+	    for <emphasis>tracker-store</emphasis>
+	    regarding <emphasis>TRACKER_STORE_SELECT_CACHE_SIZE</emphasis>
+	    and <emphasis>TRACKER_STORE_UPDATE_CACHE_SIZE</emphasis>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <emphasis>TRACKER_VERBOSITY</emphasis>
+	  <para>
+	    Historically, all queries would go
+	    through <emphasis>tracker-store</emphasis> and all
+	    requests would be logged according to the verbosity set
+	    in <emphasis>tracker-store.cfg</emphasis> (see manual
+	    pages for <emphasis>tracker-store.cfg</emphasis>). Since
+	    libtracker-sparql may
+	    circumvent <emphasis>tracker-store</emphasis> if using the
+	    direct access backend, this environment variable was added
+	    to let clients choose the log level. The same values apply
+	    to all other processes which have logging and a
+	    configuration to control it. Values range
+	    from <emphasis>0</emphasis> to <emphasis>3</emphasis>,
+	    0=errors, 1=minimal, 2=detailed, 3=debug. By default it
+	    is <emphasis>0</emphasis>.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+
+  </chapter>
+
 </part>
 
