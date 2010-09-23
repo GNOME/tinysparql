@@ -37,6 +37,7 @@ coverage-report: coverage
 		libtracker-sparql/tracker-cursor.c \
 		libtracker-sparql/tracker-plugin-loader.c \
 		libtracker-sparql/tracker-utils.c \
+		tracker-control/tracker-miner-files-index-client.h \
 		"*.vapi" \
 		"*-glue.h" \
 		"tracker-marshal.*" \
