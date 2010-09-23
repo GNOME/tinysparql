@@ -1,5 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
+if HAVE_TOTEM_PL_PARSER
 playlisttestdir = $(datadir)/tracker-tests/test-extraction-data/playlists
 
 playlisttest_DATA =		\
@@ -7,3 +8,4 @@ playlisttest_DATA =		\
 	playlist-test-1.expected
 
 EXTRA_DIST = $(playlisttest_DATA)
+endif

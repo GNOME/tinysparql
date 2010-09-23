@@ -1937,6 +1937,7 @@ AC_CONFIG_FILES([
 	tests/functional-tests/test-extraction-data/images/Makefile
 	tests/functional-tests/test-extraction-data/office/Makefile
 	tests/functional-tests/test-extraction-data/video/Makefile
+	tests/functional-tests/test-extraction-data/playlists/Makefile
 	tests/functional-tests/test-writeback-data/Makefile
 	tests/functional-tests/test-configurations/Makefile
 	tests/functional-tests/test-configurations/miner-basic-ops/Makefile
