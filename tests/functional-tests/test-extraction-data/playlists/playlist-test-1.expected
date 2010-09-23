@@ -1,0 +1,13 @@
+[TestFile]
+Filename=playlist-test-1.m3u
+Bugzilla=
+Comment=Regular m3u playlist file
+
+[Metadata]
+a=nmm:Playlist
+nfo_entryCounter=5
+nfo_hasMediaFileListEntry_entryUrl=http://www.apnaradio.com/live/ApnaRadio.mp3
+nfo_hasMediaFileListEntry_entryUrl=http://live.apnaradio.com:6464
+nfo_hasMediaFileListEntry_entryUrl=http://live.apnaradio.com:2424
+nfo_hasMediaFileListEntry_entryUrl=http://www.apnaradio.com/live/MaintenanceE.mp3
+nfo_hasMediaFileListEntry_entryUrl=http://www.apnaradio.com/live/MaintenanceP.mp3

@@ -226,6 +226,10 @@ class ExtractorHelper ():
         mlo:location [a mlo:GeoPoint; mlo:city "Delhi"; mlo:country "India"]
                 -> mlo:location:city "Delhi"
                 -> mlo:location:country "India"
+                
+        nfo:hasMediaFileListEntry [ a nfo:MediaFileListEntry ; nfo:entryUrl "file://x.mp3"; nfo:listPosition 1]
+                -> nfo:hasMediaFileListEntry:entryUrl "file://x.mp3"
+
         """
         
         # hasTag case
@@ -271,8 +275,31 @@ class ExtractorHelper ():
             else:
                 print "Something special in this line '%s'" % (line)
 
+        elif line.startswith ("nfo:hasMediaFileListEntry"):
+            return self.__handle_playlist_entries (line)
+        
         else:
             return [line]
+
+    def __handle_playlist_entries (self, line):
+        """
+        Playlist entries come in one big line:
+        nfo:hMFLE [ a nfo:MFLE; nfo:entryUrl '...'; nfo:listPosition X] , [ ... ], [ ... ]
+          -> nfo:hMFLE:entryUrl '...'
+          -> nfo:hMFLE:entryUrl '...'
+          ...
+        """
+        geturl = re.compile ("nfo:entryUrl \"([\w\.\:\/]+)\"")
+        entries = line.strip () [len ("nfo:hasMediaFileListEntry"):]
+        results = []
+        for entry in entries.split (","):
+            url_match = geturl.search (entry)
+            if (url_match):
+                new_line = 'nfo:hasMediaFileListEntry:entryUrl "%s" ;' % (url_match.group (1))
+                results.append (new_line)
+            else:
+                print " *** Something special in this line '%s'" % (entry)
+        return results
 
     def __clean_value (self, value):
         """
