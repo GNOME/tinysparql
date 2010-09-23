@@ -137,10 +137,6 @@ report_statistics (GObject *object)
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
-#ifdef HAVE_LIBSTREAMANALYZER
-	tracker_topanalyzer_shutdown ();
-#endif /* HAVE_STREAMANALYZER */
-
 	g_message ("--------------------------------------------------");
 	g_message ("Statistics:");
 	g_message ("  Specific Extractors:");
@@ -157,7 +153,7 @@ report_statistics (GObject *object)
 		if ((mdata->extracted_count > 0 || mdata->failed_count > 0) &&
 		    !g_hash_table_lookup (reported, name)) {
 			const gchar *name_without_path;
-			
+
 			name_without_path = strrchr (name, G_DIR_SEPARATOR) + 1;
 
 			g_message ("    Module:'%s', extracted:%d, failures:%d",
@@ -186,7 +182,7 @@ report_statistics (GObject *object)
 		if ((mdata->extracted_count > 0 || mdata->failed_count > 0) &&
 		    !g_hash_table_lookup (reported, name)) {
 			const gchar *name_without_path;
-			
+
 			name_without_path = strrchr (name, G_DIR_SEPARATOR) + 1;
 
 			g_message ("    Module:'%s', extracted:%d, failed:%d",
