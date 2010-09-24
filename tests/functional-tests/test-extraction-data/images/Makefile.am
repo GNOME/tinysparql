@@ -9,7 +9,7 @@ imagestest_DATA =			\
 	test-image-2.expected 		\
 	test-image-3.tif		\
 	test-image-3.expected		\
-	xml-loaded-1.gif		\
+	xmp-loaded-1.gif		\
 	xmp-loaded-1.expected 		\
 	corrupted-image.gif		\
 	corrupted-image.expected
