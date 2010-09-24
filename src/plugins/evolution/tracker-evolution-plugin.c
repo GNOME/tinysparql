@@ -837,7 +837,7 @@ on_folder_summary_changed (CamelFolder *folder,
 			/* This is not a path but a URI, don't use the
 			 * OS's directory separator here */
 
-			uri = tracker_sparql_escape_uri_printf ("%s/%s/%s",
+			uri = tracker_sparql_escape_uri_printf ("%s/%s?uid=%s",
 			                                        em_uri,
 			                                        camel_folder_get_full_name (folder),
 			                                        uid);
