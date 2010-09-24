@@ -993,6 +993,41 @@ mp3_parse (const gchar          *data,
 	} while (counter < MAX_MP3_SCAN_DEEP);
 }
 
+static gssize
+id3v2_nul_size (const gchar encoding)
+{
+	switch (encoding) {
+	case 0x01:
+	case 0x02:
+		/* UTF-16, string terminated by two NUL bytes */
+		return 2;
+	default:
+		return 1;
+	}
+}
+
+static gssize
+id3v2_strlen (const gchar  encoding,
+              const gchar *text,
+              gssize       len)
+{
+	const gchar *pos;
+
+	switch (encoding) {
+	case 0x01:
+	case 0x02:
+		/* UTF-16, string terminated by two NUL bytes */
+		pos = memmem (text, len, "\0\0", 2);
+		if (pos != NULL) {
+			return pos - text;
+		} else {
+			return len;
+		}
+	default:
+		return strnlen (text, len);
+	}
+}
+
 static gchar *
 id3v24_text_to_utf8 (const gchar  encoding,
                      const gchar *text,
@@ -1160,17 +1195,18 @@ get_id3v24_tags (id3v24frame           frame,
 
 		text_type =  data[pos + 0];
 		mime      = &data[pos + 1];
-		mime_len  = strlen (mime);
+		mime_len  = strnlen (mime, csize - 1);
 		pic_type  =  data[pos + 1 + mime_len + 1];
 		desc      = &data[pos + 1 + mime_len + 1 + 1];
 
 		if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
-			offset = pos + 1 + mime_len + 2 + strlen (desc) + 1;
+			offset = pos + 1 + mime_len + 2;
+			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->albumart_data = g_malloc0 (csize);
-			filedata->albumart_mime = g_strdup (mime);
-			memcpy (filedata->albumart_data, &data[offset], csize);
-			filedata->albumart_size = csize;
+			filedata->albumart_data = g_malloc0 (csize - offset);
+			filedata->albumart_mime = g_strndup (mime, mime_len);
+			memcpy (filedata->albumart_data, &data[offset], csize - offset);
+			filedata->albumart_size = csize - offset;
 		}
 		break;
 	}
@@ -1187,10 +1223,10 @@ get_id3v24_tags (id3v24frame           frame,
 		text_encode   =  data[pos + 0]; /* $xx */
 		text_language = &data[pos + 1]; /* $xx xx xx */
 		text_desc     = &data[pos + 4]; /* <text string according to encoding> $00 (00) */
-		text_desc_len = strlen (text_desc);
-		text          = &data[pos + 4 + text_desc_len + 1]; /* <full text string according to encoding> */
+		text_desc_len = id3v2_strlen (text_encode, text_desc, csize - 4);
 
-		offset = 4 + text_desc_len + 1;
+		offset        = 4 + text_desc_len + id3v2_nul_size (text_encode);
+		text          = &data[pos + offset]; /* <full text string according to encoding> */
 
 		word = id3v24_text_to_utf8 (text_encode, text, csize - offset);
 
@@ -1330,17 +1366,18 @@ get_id3v23_tags (id3v24frame           frame,
 
 		text_type =  data[pos + 0];
 		mime      = &data[pos + 1];
-		mime_len  = strlen (mime);
+		mime_len  = strnlen (mime, csize - 1);
 		pic_type  =  data[pos + 1 + mime_len + 1];
 		desc      = &data[pos + 1 + mime_len + 1 + 1];
 
 		if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
-			offset = pos + 1 + mime_len + 2 + strlen (desc) + 1;
+			offset = pos + 1 + mime_len + 2;
+			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->albumart_data = g_malloc0 (csize);
-			filedata->albumart_mime = g_strdup (mime);
-			memcpy (filedata->albumart_data, &data[offset], csize);
-			filedata->albumart_size = csize;
+			filedata->albumart_data = g_malloc0 (csize - offset);
+			filedata->albumart_mime = g_strndup (mime, mime_len);
+			memcpy (filedata->albumart_data, &data[offset], csize - offset);
+			filedata->albumart_size = csize - offset;
 		}
 		break;
 	}
@@ -1357,10 +1394,10 @@ get_id3v23_tags (id3v24frame           frame,
 		text_encode   =  data[pos + 0]; /* $xx */
 		text_language = &data[pos + 1]; /* $xx xx xx */
 		text_desc     = &data[pos + 4]; /* <text string according to encoding> $00 (00) */
-		text_desc_len = strlen (text_desc);
-		text          = &data[pos + 4 + text_desc_len + 1]; /* <full text string according to encoding> */
+		text_desc_len = id3v2_strlen (text_encode, text_desc, csize - 4);
 
-		offset = 4 + text_desc_len + 1;
+		offset        = 4 + text_desc_len + id3v2_nul_size (text_encode);
+		text          = &data[pos + offset]; /* <full text string according to encoding> */
 
 		word = id3v2_text_to_utf8 (text_encode, text, csize - offset);
 
@@ -1479,22 +1516,25 @@ get_id3v20_tags (id3v2frame            frame,
 
 	if (frame == ID3V2_PIC) {
 		/* embedded image */
+		gchar          text_type;
 		gchar          pic_type;
 		const gchar   *desc;
 		guint          offset;
 		const gchar   *mime;
 
-		mime      = &data[pos + 3 + 1];
-		pic_type  =  data[pos + 3 + 1 + 3];
-		desc      = &data[pos + 3 + 1 + 3 + 1];
+		text_type =  data[pos + 0];
+		mime      = &data[pos + 1];
+		pic_type  =  data[pos + 1 + 3];
+		desc      = &data[pos + 1 + 3 + 1];
 
 		if (pic_type == 3 || (pic_type == 0 && filedata->albumart_size == 0)) {
-			offset = pos + 3 + 1 + 3 + 1 + strlen (desc) + 1;
+			offset = pos + 1 + 3 + 1;
+			offset += id3v2_strlen (text_type, desc, csize - offset) + id3v2_nul_size (text_type);
 
-			filedata->albumart_mime = g_strdup (mime);
-			filedata->albumart_data = g_malloc0 (csize);
-			memcpy (filedata->albumart_data, &data[offset], csize);
-			filedata->albumart_size = csize;
+			filedata->albumart_mime = g_strndup (mime, 3);
+			filedata->albumart_data = g_malloc0 (csize - offset);
+			memcpy (filedata->albumart_data, &data[offset], csize - offset);
+			filedata->albumart_size = csize - offset;
 		}
 	} else {
 		/* text frames */
