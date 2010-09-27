@@ -2587,7 +2587,8 @@ add_to_check_removed_cb (gpointer key,
 
 static void
 ensure_mtime_cache (TrackerMinerFS *fs,
-                    GFile          *file)
+                    GFile          *file,
+                    gboolean        is_parent)
 {
 	gchar *query, *uri;
 	GFile *parent;
@@ -2600,10 +2601,16 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                                                  (GDestroyNotify) g_free);
 	}
 
-	/* Note: parent may be NULL if the file represents
-	 * the root directory of the file system (applies to
-	 * .gvfs mounts also!) */
-	parent = g_file_get_parent (file);
+	/* Is input file already the parent dir? */
+	if (is_parent) {
+		g_return_if_fail (file != NULL);
+		parent = g_object_ref (file);
+	} else {
+		/* Note: parent may be NULL if the file represents
+		 * the root directory of the file system (applies to
+		 * .gvfs mounts also!) */
+		parent = g_file_get_parent (file);
+	}
 	query = NULL;
 
 	if (fs->private->current_mtime_cache_parent) {
@@ -2621,7 +2628,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_hash_table_remove_all (fs->private->mtime_cache);
 
-	if (!parent || file_is_crawl_directory (fs, file)) {
+	if (!parent || (!is_parent && file_is_crawl_directory (fs, file))) {
 		/* File is a crawl directory itself, query its mtime directly */
 		uri = g_file_get_uri (file);
 
@@ -2750,7 +2757,7 @@ should_change_index_for_file (TrackerMinerFS *fs,
 	/* Make sure mtime cache contains the mtimes of all files in the
 	 * same directory as the given file
 	 */
-	ensure_mtime_cache (fs, file);
+	ensure_mtime_cache (fs, file, FALSE);
 
 	/* Remove the file from the list of files to be checked if removed */
 	g_hash_table_remove (fs->private->check_removed, file);
@@ -2825,7 +2832,7 @@ should_process_file (TrackerMinerFS *fs,
                      gboolean        is_dir)
 {
 	if (!should_check_file (fs, file, is_dir)) {
-		ensure_mtime_cache (fs, file);
+		ensure_mtime_cache (fs, file, FALSE);
 
 		if (g_hash_table_lookup (fs->private->mtime_cache, file) != NULL) {
 			/* File is told not to be checked, but exists
@@ -3109,7 +3116,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 		tracker_monitor_remove (fs->private->monitor, file);
 
 		/* Put item in deleted queue if it existed in the store */
-		ensure_mtime_cache (fs, file);
+		ensure_mtime_cache (fs, file, FALSE);
 
 		if (g_hash_table_lookup (fs->private->mtime_cache, file) != NULL) {
 			/* File is told not to be checked, but exists
@@ -3165,6 +3172,17 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 
 	if (process) {
 		g_signal_emit (fs, signals[MONITOR_DIRECTORY], 0, parent, &add_monitor);
+
+		/* If the directory crawled doesn't have ANY file, we need to
+		 * force a mtime cache reload using the given directory as input
+		 * parent to mtime_cache. This is done in order to track any
+		 * possible deleted file on the directory if the directory is fully
+		 * empty (if there is at least one file in the directory,
+		 * ensure_mtime_cache() will be called using the given file as input,
+		 * and thus reloading the mtime cache at least once). */
+		if (!children) {
+			ensure_mtime_cache (fs, parent, TRUE);
+		}
 	}
 
 	/* FIXME: Should we add here or when we process the queue in
