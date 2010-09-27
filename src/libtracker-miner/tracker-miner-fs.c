@@ -2590,7 +2590,6 @@ ensure_mtime_cache (TrackerMinerFS *fs,
                     GFile          *file)
 {
 	gchar *query, *uri;
-	CacheQueryData data;
 	GFile *parent;
 	guint cache_size;
 
@@ -2622,10 +2621,6 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 	g_hash_table_remove_all (fs->private->mtime_cache);
 
-	/* Initialize data contents */
-	data.main_loop = g_main_loop_new (NULL, FALSE);
-	data.values = g_hash_table_ref (fs->private->mtime_cache);
-
 	if (!parent || file_is_crawl_directory (fs, file)) {
 		/* File is a crawl directory itself, query its mtime directly */
 		uri = g_file_get_uri (file);
@@ -2655,6 +2650,12 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	}
 
 	if (query) {
+		CacheQueryData data;
+
+		/* Initialize data contents */
+		data.main_loop = g_main_loop_new (NULL, FALSE);
+		data.values = g_hash_table_ref (fs->private->mtime_cache);
+
 		tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
 		                                       query,
 		                                       NULL,
@@ -2662,10 +2663,9 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		                                       &data);
 		g_free (query);
 		g_main_loop_run (data.main_loop);
+		g_main_loop_unref (data.main_loop);
+		g_hash_table_unref (data.values);
 	}
-
-	g_main_loop_unref (data.main_loop);
-	g_hash_table_unref (data.values);
 
 	cache_size = g_hash_table_size (fs->private->mtime_cache);
 
@@ -2677,6 +2677,8 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	if (parent &&
 	    cache_size == 0 &&
 	    miner_fs_has_children_without_parent (fs, parent)) {
+		CacheQueryData data;
+
 		/* Initialize data contents */
 		data.main_loop = g_main_loop_new (NULL, FALSE);
 		data.values = g_hash_table_ref (fs->private->mtime_cache);
