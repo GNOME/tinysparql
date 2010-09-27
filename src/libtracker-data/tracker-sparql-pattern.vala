@@ -79,7 +79,7 @@ namespace Tracker.Sparql {
 						} while (result_set.iter_next ());
 					} else {
 						/* no match */
-						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\"");
+						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\", NULL AS \"graph\"");
 					}
 				} else if (object != null) {
 					// single object
@@ -120,7 +120,7 @@ namespace Tracker.Sparql {
 						} while (result_set.iter_next ());
 					} else {
 						/* no match */
-						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\"");
+						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\", NULL AS \"graph\"");
 					}
 				} else if (domain != null) {
 					// any subject, predicates limited to a specific domain
@@ -136,8 +136,11 @@ namespace Tracker.Sparql {
 
 							Expression.append_expression_as_string (sql, "\"%s\"".printf (prop.name), prop.data_type);
 
-							sql.append (" AS \"object\" FROM ");
-							sql.append_printf ("\"%s\"", prop.table_name);
+							sql.append (" AS \"object\"");
+							if (return_graph) {
+								sql.append_printf (", \"%s:graph\" AS \"graph\"", prop.name);
+							}
+							sql.append_printf (" FROM \"%s\"", prop.table_name);
 						}
 					}
 				} else {
