@@ -641,13 +641,7 @@ public class Tracker.Sparql.Query : Object {
 		skip_braces ();
 
 		if (accept (SparqlTokenType.WHERE)) {
-			// graph only applies to actual insert, not to WHERE part
-			var old_graph = current_graph;
-			current_graph = null;
-
 			context = pattern.translate_group_graph_pattern (pattern_sql);
-
-			current_graph = old_graph;
 		} else {
 			context = new Context ();
 		}
