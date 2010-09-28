@@ -461,10 +461,9 @@ albumart_heuristic (const gchar *artist,
 					found_file = g_file_new_for_path (found);
 					g_free (found);
 
-					g_file_copy (found_file, file, 0, NULL, NULL, NULL, &error);
+					retval = g_file_copy (found_file, file, 0, NULL, NULL, NULL, &error);
 					g_object_unref (found_file);
 
-					retval = error != NULL;
 					g_clear_error (&error);
 				}
 			} else if (g_str_has_suffix (name_strdown, "png")) {
