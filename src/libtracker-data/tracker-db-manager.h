@@ -30,6 +30,9 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
+#define TRACKER_DB_CACHE_SIZE_DEFAULT 250
+#define TRACKER_DB_CACHE_SIZE_UPDATE 2000
+
 #define TRACKER_TYPE_DB (tracker_db_get_type ())
 
 typedef enum {

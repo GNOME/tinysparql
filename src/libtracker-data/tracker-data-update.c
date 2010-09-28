@@ -2214,6 +2214,8 @@ tracker_data_begin_transaction (GError **error)
 
 	iface = tracker_db_manager_get_db_interface ();
 
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_UPDATE);
+
 	tracker_db_interface_start_transaction (iface);
 
 	if (!in_journal_replay) {
@@ -2270,6 +2272,8 @@ tracker_data_commit_transaction (GError **error)
 #endif
 
 	tracker_db_interface_end_db_transaction (iface);
+
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
 	g_hash_table_remove_all (update_buffer.resources);
 	g_hash_table_remove_all (update_buffer.resources_by_id);
@@ -2563,6 +2567,7 @@ tracker_data_rollback_transaction (void)
 
 	tracker_data_update_buffer_clear ();
 	tracker_db_interface_execute_query (iface, NULL, "ROLLBACK");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 	tracker_db_journal_rollback_transaction ();
 
 	if (rollback_callbacks) {
