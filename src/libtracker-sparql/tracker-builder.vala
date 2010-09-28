@@ -66,6 +66,7 @@ public class Tracker.Sparql.Builder : Object {
 	 * @TRACKER_SPARQL_BUILDER_STATE_BLANK: Builder is generating a blank node subject
 	 * @TRACKER_SPARQL_BUILDER_STATE_WHERE: Builder is generating the WHERE clause contents
 	 * @TRACKER_SPARQL_BUILDER_STATE_EMBEDDED_INSERT: Builder is generating an embedded INSERT
+	 * @TRACKER_SPARQL_BUILDER_STATE_GRAPH: Builder is generating the GRAPH clause contents
 	 *
 	 * Enumeration with the possible states of the SPARQL Builder
 	 */
@@ -78,7 +79,8 @@ public class Tracker.Sparql.Builder : Object {
 		OBJECT,
 		BLANK,
 		WHERE,
-		EMBEDDED_INSERT
+		EMBEDDED_INSERT,
+		GRAPH
 	}
 
 	/**
@@ -295,6 +297,38 @@ public class Tracker.Sparql.Builder : Object {
 	}
 
 	/**
+	 * tracker_sparql_builder_graph_open:
+	 * @self: a #TrackerSparqlBuilder
+	 * @graph: graph name.
+	 *
+	 * Opens a GRAPH clause within INSERT, DELETE, or WHERE.
+	 */
+	public void graph_open (string graph)
+		requires (state == State.INSERT || state == State.DELETE || state == State.OBJECT || state == State.WHERE || state == State.GRAPH)
+	{
+		states += State.GRAPH;
+		str.append_printf ("GRAPH <%s> {\n", graph);
+	}
+
+	/**
+	 * tracker_sparql_builder_graph_close:
+	 * @self: a #TrackerSparqlBuilder
+	 *
+	 * Closes a GRAPH clause opened through tracker_sparql_builder_graph_open().
+	 */
+	public void graph_close ()
+		requires (state == State.GRAPH || state == State.OBJECT)
+	{
+		if (state == State.OBJECT) {
+			str.append (" .\n");
+			states.length -= 3;
+		}
+		states.length--;
+
+		str.append ("}\n");
+	}
+
+	/**
 	 * tracker_sparql_builder_where_open:
 	 * @self: a #TrackerSparqlBuilder
 	 *
@@ -379,7 +413,7 @@ public class Tracker.Sparql.Builder : Object {
 	 * Since: 0.8
 	 */
 	public void subject (string s)
-		requires (state == State.INSERT || state == State.OBJECT || state == State.EMBEDDED_INSERT || state == State.DELETE || state == State.WHERE)
+		requires (state == State.INSERT || state == State.OBJECT || state == State.EMBEDDED_INSERT || state == State.DELETE || state == State.WHERE || state == State.GRAPH)
 	{
 		if (state == State.OBJECT) {
 			str.append (" .\n");
