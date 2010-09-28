@@ -127,8 +127,8 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
             else
                 print("error: '%s' is not writable", histfilename)
 
-    def sync_action_properties (action : Action)
+    def sync_action_properties (action : Gtk.Action)
         return
 
-    def update (action : Action, prop : string)
+    def update (action : Gtk.Action, prop : string)
         return
