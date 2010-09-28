@@ -2931,7 +2931,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		/* First time, no need to check ontology */
 		check_ontology = FALSE;
 	} else {
-		tracker_db_journal_init (NULL, FALSE);
+		if (!read_only) {
+			tracker_db_journal_init (NULL, FALSE);
+		}
 
 		/* Load ontology from database into memory */
 		db_get_static_data (iface);
