@@ -690,16 +690,16 @@ set_up_mount_point_type (TrackerMinerFiles *miner,
 	         removable_device_urn);
 
 	g_string_append_printf (accumulator,
-	                        "DELETE FROM <%s> { <%s> tracker:isRemovable ?unknown } WHERE { <%s> a tracker:Volume; tracker:isRemovable ?unknown } ",
-	                        removable_device_urn, removable_device_urn, removable_device_urn);
+	                        "DELETE { <%s> tracker:isRemovable ?unknown } WHERE { <%s> a tracker:Volume; tracker:isRemovable ?unknown } ",
+	                        removable_device_urn, removable_device_urn);
 
 	g_string_append_printf (accumulator,
 	                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isRemovable %s } ",
 	                        removable_device_urn, removable_device_urn, removable ? "true" : "false");
 
 	g_string_append_printf (accumulator,
-	                        "DELETE FROM <%s> { <%s> tracker:isOptical ?unknown } WHERE { <%s> a tracker:Volume; tracker:isOptical ?unknown } ",
-	                        removable_device_urn, removable_device_urn, removable_device_urn);
+	                        "DELETE { <%s> tracker:isOptical ?unknown } WHERE { <%s> a tracker:Volume; tracker:isOptical ?unknown } ",
+	                        removable_device_urn, removable_device_urn);
 
 	g_string_append_printf (accumulator,
 	                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isOptical %s } ",
@@ -734,7 +734,7 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			ensure_mount_point_exists (miner, file, queries);
 
 			g_string_append_printf (queries,
-			                        "DELETE FROM <%s> { "
+			                        "DELETE { "
 			                        "  <%s> tracker:mountPoint ?u "
 			                        "} WHERE { "
 			                        "  ?u a nfo:FileDataObject; "
@@ -744,29 +744,29 @@ set_up_mount_point (TrackerMinerFiles *miner,
 
 			g_string_append_printf (queries,
 			                        "DELETE { <%s> a rdfs:Resource }  "
-			                        "INSERT INTO <%s> { "
+			                        "INSERT { "
 			                        "  <%s> a tracker:Volume; "
 			                        "       tracker:mountPoint ?u "
 			                        "} WHERE { "
 			                        "  ?u a nfo:FileDataObject; "
 			                        "     nie:url \"%s\" "
 			                        "}",
-			                        removable_device_urn, removable_device_urn, removable_device_urn, uri);
+			                        removable_device_urn, removable_device_urn, uri);
 
 			g_object_unref (file);
 			g_free (uri);
 		}
 
 		g_string_append_printf (queries,
-		                        "DELETE FROM <%s> { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
-		                        removable_device_urn, removable_device_urn, removable_device_urn);
+		                        "DELETE { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
+		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
 		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true } ",
 		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
-		                        "INSERT INTO <%s> { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> OPTIONAL { ?do tracker:available ?available } FILTER (!bound(?available)) } ",
+		                        "INSERT { GRAPH <%s> { ?do tracker:available true } } WHERE { ?do nie:dataSource <%s> OPTIONAL { ?do tracker:available ?available } FILTER (!bound(?available)) } ",
 		                        removable_device_urn, removable_device_urn);
 	} else {
 		gchar *now;
@@ -777,24 +777,24 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		now = tracker_date_to_string (time (NULL));
 
 		g_string_append_printf (queries,
-		                        "DELETE FROM <%s> { <%s> tracker:unmountDate ?unknown } WHERE { <%s> a tracker:Volume; tracker:unmountDate ?unknown } ",
-		                        removable_device_urn, removable_device_urn, removable_device_urn);
+		                        "DELETE { <%s> tracker:unmountDate ?unknown } WHERE { <%s> a tracker:Volume; tracker:unmountDate ?unknown } ",
+		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
 		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:unmountDate \"%s\" } ",
 		                        removable_device_urn, removable_device_urn, now);
 
 		g_string_append_printf (queries,
-		                        "DELETE FROM <%s> { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
-		                        removable_device_urn, removable_device_urn, removable_device_urn);
+		                        "DELETE { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
+		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
 		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted false } ",
 		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
-		                        "DELETE FROM <%s> { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> ; tracker:available true } ",
-		                        removable_device_urn, removable_device_urn);
+		                        "DELETE { ?do tracker:available true } WHERE { ?do nie:dataSource <%s> ; tracker:available true } ",
+		                        removable_device_urn);
 		g_free (now);
 	}
 
@@ -1935,19 +1935,19 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 		queries = g_string_new ("");
 
 		g_string_append_printf (queries,
-		                        "DELETE FROM <%s> { "
+		                        "DELETE { "
 		                        "  <%s> tracker:mountPoint ?unknown "
 		                        "} WHERE { "
 		                        "  <%s> a tracker:Volume; "
 		                        "       tracker:mountPoint ?unknown "
 		                        "} ",
-		                        removable_device_urn, removable_device_urn, removable_device_urn);
+		                        removable_device_urn, removable_device_urn);
 
 		g_string_append_printf (queries,
-		                        "INSERT INTO <%s> { "
+		                        "INSERT { GRAPH <%s> {"
 		                        "  <%s> a tracker:Volume; "
 		                        "       tracker:mountPoint ?u "
-		                        "} WHERE { "
+		                        "} } WHERE { "
 		                        "  ?u a nfo:FileDataObject; "
 		                        "     nie:url \"%s\" "
 		                        "} ",
@@ -2268,7 +2268,7 @@ process_file_attributes_cb (GObject      *object,
 	}
 
 	/* DELETE old property values */
-	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_delete_open (sparql, NULL);
 	tracker_sparql_builder_subject_iri (sparql, urn);
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
 	tracker_sparql_builder_object_variable (sparql, "lastmodified");
@@ -2285,7 +2285,8 @@ process_file_attributes_cb (GObject      *object,
 	tracker_sparql_builder_where_close (sparql);
 
 	/* INSERT new property values */
-	tracker_sparql_builder_insert_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_insert_open (sparql, NULL);
+	tracker_sparql_builder_graph_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 	tracker_sparql_builder_subject_iri (sparql, urn);
 
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
@@ -2296,6 +2297,7 @@ process_file_attributes_cb (GObject      *object,
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
 
+	tracker_sparql_builder_graph_close (sparql);
 	tracker_sparql_builder_insert_close (sparql);
 
 	g_object_unref (file_info);

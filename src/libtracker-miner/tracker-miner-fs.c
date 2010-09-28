@@ -1867,12 +1867,12 @@ item_update_children_uri_cb (GObject      *object,
 			child_uri = g_strdup_printf ("%s%s", data->uri, child_source_uri + strlen (data->source_uri));
 
 			g_string_append_printf (data->sparql,
-			                        "DELETE FROM <%s> { "
+			                        "DELETE { "
 			                        "  <%s> nie:url ?u "
 			                        "} WHERE { "
 			                        "  <%s> nie:url ?u "
 			                        "} ",
-			                        child_urn, child_urn, child_urn);
+			                        child_urn, child_urn);
 
 			g_string_append_printf (data->sparql,
 			                        "INSERT INTO <%s> {"
@@ -2004,7 +2004,7 @@ item_move (TrackerMinerFS *fs,
 	                        uri);
 
 	g_string_append_printf (sparql,
-	                        "DELETE FROM <%s> { "
+	                        "DELETE { "
 	                        "  <%s> nfo:fileName ?f ; "
 	                        "       nie:url ?u ; "
 	                        "       nie:isStoredAs ?s "
@@ -2013,7 +2013,7 @@ item_move (TrackerMinerFS *fs,
 	                        "       nie:url ?u ; "
 	                        "       nie:isStoredAs ?s "
 	                        "} ",
-	                        source_iri, source_iri, source_iri);
+	                        source_iri, source_iri);
 
 	display_name = tracker_sparql_escape_string (g_file_info_get_display_name (file_info));
 
