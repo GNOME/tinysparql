@@ -62,6 +62,7 @@ typedef enum {
 } DataFormat;
 
 typedef enum {
+	TRANSACTION_FORMAT_NONE      = 0,
 	TRANSACTION_FORMAT_DATA      = 1 << 0,
 	TRANSACTION_FORMAT_ONTOLOGY  = 1 << 1,
 } TransactionFormat;
@@ -111,6 +112,9 @@ static struct {
 
 static JournalReader reader = {0};
 static JournalWriter writer = {0};
+static JournalWriter ontology_writer = {0};
+
+static TransactionFormat current_transaction_format;
 
 #if GLIB_CHECK_VERSION (2, 24, 2)
 static gboolean tracker_db_journal_rotate (void);
@@ -550,6 +554,26 @@ tracker_db_journal_init (const gchar *filename,
 }
 
 static gboolean
+db_journal_ontology_init (void)
+{
+	gboolean ret;
+	gchar *filename;
+
+	g_return_val_if_fail (ontology_writer.journal == 0, FALSE);
+
+	filename = g_build_filename (g_get_user_data_dir (),
+	                             "tracker",
+	                             "data",
+	                             TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME,
+	                             NULL);
+
+	ret = db_journal_writer_init (&ontology_writer, FALSE, FALSE, filename);
+	g_free (filename);
+
+	return ret;
+}
+
+static gboolean
 db_journal_writer_shutdown (JournalWriter *jwriter)
 {
 	g_free (jwriter->journal_filename);
@@ -600,6 +624,9 @@ db_journal_writer_start_transaction (JournalWriter    *jwriter,
 	guint size;
 
 	g_return_val_if_fail (jwriter->journal > 0, FALSE);
+	g_return_val_if_fail (current_transaction_format == TRANSACTION_FORMAT_NONE, FALSE);
+
+	current_transaction_format = kind;
 
 	size = sizeof (guint32) * 3;
 	cur_block_maybe_expand (jwriter, size);
@@ -636,7 +663,11 @@ tracker_db_journal_start_transaction (time_t time)
 gboolean
 tracker_db_journal_start_ontology_transaction (time_t time)
 {
-	return db_journal_writer_start_transaction (&writer, time,
+	if (!db_journal_ontology_init ()) {
+		return FALSE;
+	}
+
+	return db_journal_writer_start_transaction (&ontology_writer, time,
 	                                            TRANSACTION_FORMAT_ONTOLOGY);
 }
 
@@ -882,8 +913,16 @@ gboolean
 tracker_db_journal_rollback_transaction (void)
 {
 	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
 
 	cur_block_kill (&writer);
+
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		cur_block_kill (&ontology_writer);
+		db_journal_writer_shutdown (&ontology_writer);
+	}
+
+	current_transaction_format = TRANSACTION_FORMAT_NONE;
 
 	return TRUE;
 }
@@ -949,7 +988,16 @@ tracker_db_journal_commit_db_transaction (void)
 {
 	gboolean ret;
 
+	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
+
 	ret = db_journal_writer_commit_db_transaction (&writer);
+
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		db_journal_writer_commit_db_transaction (&ontology_writer);
+		db_journal_writer_shutdown (&ontology_writer);
+	}
+
+	current_transaction_format = TRANSACTION_FORMAT_NONE;
 
 #if GLIB_CHECK_VERSION (2, 24, 2)
 	if (ret) {

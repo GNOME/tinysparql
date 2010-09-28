@@ -27,9 +27,10 @@
 
 G_BEGIN_DECLS
 
-#define TRACKER_DB_JOURNAL_ERROR_DOMAIN "TrackerDBJournal"
-#define TRACKER_DB_JOURNAL_ERROR        tracker_db_journal_error_quark()
-#define TRACKER_DB_JOURNAL_FILENAME     "tracker-store.journal"
+#define TRACKER_DB_JOURNAL_ERROR_DOMAIN       "TrackerDBJournal"
+#define TRACKER_DB_JOURNAL_ERROR              tracker_db_journal_error_quark()
+#define TRACKER_DB_JOURNAL_FILENAME          "tracker-store.journal"
+#define TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME "tracker-store.ontology.journal"
 
 typedef enum {
 	TRACKER_DB_JOURNAL_START,
