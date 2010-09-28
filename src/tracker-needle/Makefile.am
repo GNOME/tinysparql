@@ -4,6 +4,7 @@ bin_PROGRAMS = tracker-needle
 
 tracker_needle_VALASOURCES = 					\
 	tracker-cell-renderer-text.vala				\
+	tracker-config.vala \
 	tracker-needle.vala \
 	tracker-query.vala \
 	tracker-stats.vala \

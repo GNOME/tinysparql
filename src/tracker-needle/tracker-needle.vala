@@ -20,6 +20,7 @@
 using Gtk;
 using Tracker.Sparql;
 using Tracker.View;
+using Tracker.Config;
 
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
@@ -27,8 +28,9 @@ extern static const string UIDIR;
 [CCode (cname = "SRCDIR")]
 extern static const string SRCDIR;
 
-public class TrackerNeedle {
+public class Tracker.Needle {
 	private const string UI_FILE = "tracker-needle.ui";
+	private Tracker.Config config;
 	private Window window;
 	private ToggleToolButton view_list;
 	private ToggleToolButton view_icons;
@@ -54,6 +56,10 @@ public class TrackerNeedle {
 	private int size_big = 0;
 	static bool current_view = true;
 	static bool current_find_in = true;
+
+	public Needle () {
+		config = new Tracker.Config ();
+	}
 
 	public void show () {
 		setup_ui ();
@@ -110,6 +116,7 @@ public class TrackerNeedle {
 		search_list = builder.get_object ("comboboxentry_search") as ComboBoxEntry;
 		search = search_list.get_child () as Entry;
 		search.changed.connect (search_changed);
+		search_history_insert (config.get_history ());
 
 		spinner = new Spinner ();
 		spinner_shell = builder.get_object ("toolcustom_spinner") as ToolItem;
@@ -468,7 +475,7 @@ public class TrackerNeedle {
 		spinner_shell.hide ();
 	}
 
-	private TreeIter? search_ran_before (string criteria, bool? add_to_model = false) {
+	private TreeIter? search_history_find_or_insert (string criteria, bool? add_to_model = false) {
 		if (criteria.length < 1) {
 			return null;
 		}
@@ -500,9 +507,17 @@ public class TrackerNeedle {
 			ListStore store = (ListStore) model;
 			store.prepend (out new_iter);
 			store.set (new_iter, 0, criteria, -1);
+
+			config.add_history (criteria);
 		}
 
 		return null;
+	}
+
+	private void search_history_insert (string[] history) {
+		foreach (string criteria in history) {
+			search_history_find_or_insert (criteria, true);
+		}
 	}
 
 	private bool search_run () {
@@ -522,7 +537,7 @@ public class TrackerNeedle {
 			return false;
 		}
 
-		search_ran_before (criteria, true);
+		search_history_find_or_insert (criteria, true);
 
 		// Show correct window
 		bool rows = view_list.active || view_details.active;
@@ -646,7 +661,7 @@ static int main (string[] args) {
 	Intl.bind_textdomain_codeset (Config.GETTEXT_PACKAGE, "UTF-8");
 	Intl.textdomain (Config.GETTEXT_PACKAGE);
 
-	TrackerNeedle n = new TrackerNeedle ();
+	Tracker.Needle n = new Tracker.Needle ();
 	n.show();
 	Gtk.main ();
 
