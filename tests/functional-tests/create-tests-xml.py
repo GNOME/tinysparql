@@ -47,6 +47,7 @@ PRE_STEPS = """        <pre_steps>
            <step>pidof call-history|xargs kill -9</step>
            <step>initctl stop xsession/relevanced</step>
            <step>initctl stop xsession/tracker-miner</step>
+           <step>su - user -c "tracker-control -k"</step>
        </pre_steps>
 """
 
