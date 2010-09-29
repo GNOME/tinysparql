@@ -83,56 +83,63 @@ public abstract class Tracker.Sparql.Connection : Object {
 	static bool direct_only;
 	static weak Connection? singleton;
 	static bool log_initialized;
+	static StaticMutex door;
 
 	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		door.lock ();
+
 		if (singleton != null) {
 			assert (direct_only == is_direct_only);
+			door.unlock ();
 			return singleton;
 		}
 
 		log_init ();
-
-		if (cancellable != null && cancellable.is_cancelled ()) {
-			throw new IOError.CANCELLED ("Operation was cancelled");
-		}
 
 		/* the True is to assert that direct only is required */
 		Connection result = new Backend (is_direct_only);
 		result.init ();
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
+			door.unlock ();
 			throw new IOError.CANCELLED ("Operation was cancelled");
 		}
 
 		direct_only = is_direct_only;
 		singleton = result;
 		result.add_weak_pointer ((void**) (&singleton));
+
+		door.unlock ();
+
 		return singleton;
 	}
 
 	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+		door.lock ();
+
 		if (singleton != null) {
 			assert (direct_only == is_direct_only);
+			door.unlock ();
 			return singleton;
 		}
 
 		log_init ();
-
-		if (cancellable != null && cancellable.is_cancelled ()) {
-			throw new IOError.CANCELLED ("Operation was cancelled");
-		}
 
 		/* the True is to assert that direct only is required */
 		Connection result = new Backend (is_direct_only);
 		yield result.init_async ();
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
+			door.unlock ();
 			throw new IOError.CANCELLED ("Operation was cancelled");
 		}
 
 		direct_only = is_direct_only;
 		singleton = result;
 		result.add_weak_pointer ((void**) (&singleton));
+
+		door.unlock ();
+
 		return singleton;
 	}
 
@@ -147,6 +154,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * object when no longer used.
 	 */
 	public async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+
 		return yield get_internal_async (false, cancellable);
 	}
 
