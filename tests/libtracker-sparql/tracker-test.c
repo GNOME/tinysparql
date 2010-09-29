@@ -239,7 +239,7 @@ main (gint argc, gchar **argv)
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_assert (main_loop != NULL);
 
-	connection = tracker_sparql_connection_get (&error);
+	connection = tracker_sparql_connection_get (NULL, &error);
 
 	g_assert_no_error (error);
 	g_assert (connection != NULL);
