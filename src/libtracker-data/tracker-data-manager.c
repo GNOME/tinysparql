@@ -2979,12 +2979,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		tracker_data_begin_ontology_transaction (NULL);
 
-		/* This _is_ an ontology transaction, it represents a change to the
-		 * ontology. We mark it up as such in the journal, so that replay_journal
-		 * can recognize it and deal with it properly. */
-
-		tracker_db_journal_start_ontology_transaction (time (NULL));
-
 		/* Get a map of tracker:Ontology v. nao:lastModified so that we can test
 		 * for all the ontology files in ontologies_dir whether the last-modified
 		 * has changed since we dealt with the file last time. */

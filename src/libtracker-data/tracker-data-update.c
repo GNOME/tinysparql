@@ -2255,7 +2255,11 @@ tracker_data_begin_transaction (GError **error)
 	tracker_db_interface_start_transaction (iface);
 
 	if (!in_journal_replay) {
-		tracker_db_journal_start_transaction (resource_time);
+		if (in_ontology_transaction) {
+			tracker_db_journal_start_ontology_transaction (resource_time);
+		} else {
+			tracker_db_journal_start_transaction (resource_time);
+		}
 	}
 
 	iface = tracker_db_manager_get_db_interface ();
@@ -2266,8 +2270,8 @@ tracker_data_begin_transaction (GError **error)
 void
 tracker_data_begin_ontology_transaction (GError **error)
 {
-	tracker_data_begin_transaction (error);
 	in_ontology_transaction = TRUE;
+	tracker_data_begin_transaction (error);
 }
 
 void
