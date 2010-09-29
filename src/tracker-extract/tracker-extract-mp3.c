@@ -673,7 +673,10 @@ get_encoding (const char *data,
 #endif
 
 	if (!encoding) {
-		encoding = g_strdup ("ISO-8859-1");
+		/* Use Windows-1252 instead of ISO-8859-1 as the former is a
+		   superset in terms of printable characters and some
+		   applications use it to encode characters in ID3 tags */
+		encoding = g_strdup ("Windows-1252");
 	}
 
 	return encoding;
@@ -1041,10 +1044,13 @@ id3v24_text_to_utf8 (const gchar  encoding,
 
 	switch (encoding) {
 	case 0x00:
+		/* Use Windows-1252 instead of ISO-8859-1 as the former is a
+		   superset in terms of printable characters and some
+		   applications use it to encode characters in ID3 tags */
 		return convert_to_encoding (text,
 		                            len,
 		                            "UTF-8",
-		                            "ISO-8859-1",
+		                            "Windows-1252",
 		                            NULL, NULL, NULL);
 	case 0x01 :
 		return convert_to_encoding (text,
@@ -1064,12 +1070,12 @@ id3v24_text_to_utf8 (const gchar  encoding,
 	default:
 		/* Bad encoding byte,
 		 * try to convert from
-		 * iso-8859-1
+		 * Windows-1252
 		 */
 		return convert_to_encoding (text,
 		                            len,
 		                            "UTF-8",
-		                            "ISO-8859-1",
+		                            "Windows-1252",
 		                            NULL, NULL, NULL);
 	}
 }
@@ -1087,10 +1093,13 @@ id3v2_text_to_utf8 (const gchar  encoding,
 
 	switch (encoding) {
 	case 0x00:
+		/* Use Windows-1252 instead of ISO-8859-1 as the former is a
+		   superset in terms of printable characters and some
+		   applications use it to encode characters in ID3 tags */
 		return convert_to_encoding (text,
 		                            len,
 		                            "UTF-8",
-		                            "ISO-8859-1",
+		                            "Windows-1252",
 		                            NULL, NULL, NULL);
 	case 0x01 :
 		/*              return g_convert (text, */
@@ -1103,12 +1112,12 @@ id3v2_text_to_utf8 (const gchar  encoding,
 	default:
 		/* Bad encoding byte,
 		 * try to convert from
-		 * iso-8859-1
+		 * Windows-1252
 		 */
 		return convert_to_encoding (text,
 		                            len,
 		                            "UTF-8",
-		                            "ISO-8859-1",
+		                            "Windows-1252",
 		                            NULL, NULL, NULL);
 	}
 }
