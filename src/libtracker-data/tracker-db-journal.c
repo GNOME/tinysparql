@@ -906,7 +906,17 @@ gboolean
 tracker_db_journal_append_resource (gint         s_id,
                                     const gchar *uri)
 {
-	return db_journal_writer_append_resource (&writer, s_id, uri);
+	gboolean ret;
+
+	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
+
+	ret = db_journal_writer_append_resource (&writer, s_id, uri);
+
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		db_journal_writer_append_resource (&ontology_writer, s_id, uri);
+	}
+
+	return ret;
 }
 
 gboolean
