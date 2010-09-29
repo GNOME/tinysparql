@@ -422,10 +422,14 @@ test_monitor_file_event_created (TrackerMonitorTestFixture *fixture,
 	/* Fail if we didn't get the CREATE signal */
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), >, 0);
 
-	/* Fail if we got a MOVE or DELETE signal (update may actually happen) */
+	/* Fail if we got a MOVE or DELETE signal */
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* A single CREATED event should now never trigger an UPDATED event */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
 
 	/* Cleanup environment */
 	tracker_monitor_set_enabled (fixture->monitor, FALSE);
