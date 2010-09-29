@@ -764,6 +764,447 @@ test_monitor_file_event_moved_from_not_monitored (TrackerMonitorTestFixture *fix
 	g_free (dest_path);
 }
 
+/* ----------------------------- FILE EVENT BLACKLISTING TESTS -------------- */
+
+static void
+test_monitor_file_event_blacklisting_created_updated (TrackerMonitorTestFixture *fixture,
+                                                      gconstpointer              data)
+{
+	GFile *test_file;
+	guint file_events;
+	guint i;
+
+	/*
+	 * Event merging:
+	 *  CREATED + N*UPDATED = CREATED
+	 */
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &test_file);
+	g_assert (test_file != NULL);
+
+	/* Now, trigger 10 updates of the already created file.
+	 * This will generate 10 CHANGED+CHANGES_DONE_HINT events in GIO
+	 */
+	for (i=0; i<10; i++) {
+		set_file_contents (fixture->monitored_directory, "created.txt", "barrrr", NULL);
+	}
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (test_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, test_file));
+
+	/* Fail if we didn't get the CREATED signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), >, 0);
+
+	/* Fail if we got a UPDATE, MOVE or DELETE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+
+	/* Remove the test file */
+	g_assert_cmpint (g_file_delete (test_file, NULL, NULL), ==, TRUE);
+	g_object_unref (test_file);
+}
+
+static void
+test_monitor_file_event_blacklisting_created_deleted (TrackerMonitorTestFixture *fixture,
+                                                      gconstpointer              data)
+{
+	GFile *test_file;
+	guint file_events;
+
+	/*
+	 * Event merging:
+	 *  CREATED + DELETED = <nothing>
+	 */
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &test_file);
+	g_assert (test_file != NULL);
+
+	/* Remove the test file */
+	g_assert_cmpint (g_file_delete (test_file, NULL, NULL), ==, TRUE);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (test_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, test_file));
+
+	/* Fail if we got any signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+
+	g_object_unref (test_file);
+}
+
+static void
+test_monitor_file_event_blacklisting_created_updated_deleted (TrackerMonitorTestFixture *fixture,
+                                                              gconstpointer              data)
+{
+	GFile *test_file;
+	guint file_events;
+	guint i;
+
+	/*
+	 * Event merging:
+	 *  CREATED + N*UPDATED + DELETED = <nothing>
+	 */
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &test_file);
+	g_assert (test_file != NULL);
+
+	/* Now, trigger 10 updates of the already created file.
+	 * This will generate 10 CHANGED+CHANGES_DONE_HINT events in GIO
+	 */
+	for (i=0; i<10; i++) {
+		set_file_contents (fixture->monitored_directory, "created.txt", "barrrr", NULL);
+	}
+
+	/* Remove the test file */
+	g_assert_cmpint (g_file_delete (test_file, NULL, NULL), ==, TRUE);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (test_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, test_file));
+
+	/* Fail if we got any signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+
+	g_object_unref (test_file);
+}
+
+static void
+test_monitor_file_event_blacklisting_created_moved (TrackerMonitorTestFixture *fixture,
+                                                    gconstpointer              data)
+{
+	GFile *source_file;
+	gchar *source_path;
+	GFile *dest_file;
+	gchar *dest_path;
+	guint file_events;
+
+	/*
+	 * Event merging:
+	 *  CREATED(A) + MOVED(A->B) = CREATED(B)
+	 */
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &source_file);
+	g_assert (source_file != NULL);
+
+	/* Now, rename the file */
+	source_path = g_file_get_path (source_file);
+	dest_path = g_build_filename (fixture->monitored_directory, "renamed.txt", NULL);
+	dest_file = g_file_new_for_path (dest_path);
+	g_assert (dest_file != NULL);
+
+	g_assert_cmpint (g_rename (source_path, dest_path), ==, 0);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (source_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (dest_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the source file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, source_file));
+
+	/* Fail if we got ANY event */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Get events in the dest file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, dest_file));
+
+	/* Fail if we didn't get the CREATED signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), >, 0);
+
+	/* Fail if we got a CREATE, UPDATE, DELETE or MOVE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_assert_cmpint (g_file_delete (dest_file, NULL, NULL), ==, TRUE);
+	g_object_unref (source_file);
+	g_object_unref (dest_file);
+	g_free (source_path);
+	g_free (dest_path);
+}
+
+static void
+test_monitor_file_event_blacklisting_updated_deleted (TrackerMonitorTestFixture *fixture,
+                                                      gconstpointer              data)
+{
+	GFile *test_file;
+	guint file_events;
+	guint i;
+
+	/*
+	 * Event merging:
+	 *  N*UPDATED + DELETED = DELETED
+	 */
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &test_file);
+	g_assert (test_file != NULL);
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Now, trigger 10 updates of the already created file.
+	 * This will generate 10 CHANGED+CHANGES_DONE_HINT events in GIO
+	 */
+	for (i=0; i<10; i++) {
+		set_file_contents (fixture->monitored_directory, "created.txt", "barrrr", NULL);
+	}
+
+	/* Remove the test file */
+	g_assert_cmpint (g_file_delete (test_file, NULL, NULL), ==, TRUE);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (test_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, test_file));
+
+	/* Fail if we didn't get the DELETED signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), >, 0);
+
+	/* Fail if we got any signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+
+	g_object_unref (test_file);
+}
+
+static void
+test_monitor_file_event_blacklisting_updated_moved (TrackerMonitorTestFixture *fixture,
+                                                    gconstpointer              data)
+{
+	GFile *source_file;
+	gchar *source_path;
+	GFile *dest_file;
+	gchar *dest_path;
+	guint file_events;
+
+	/*
+	 * Event merging:
+	 *  UPDATED(A) + MOVED(A->B) = MOVED(A->B) + UPDATED(B)
+	 */
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &source_file);
+	g_assert (source_file != NULL);
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Update the file */
+	set_file_contents (fixture->monitored_directory, "created.txt", "barrrr", NULL);
+
+	/* Now, rename the file */
+	source_path = g_file_get_path (source_file);
+	dest_path = g_build_filename (fixture->monitored_directory, "renamed.txt", NULL);
+	dest_file = g_file_new_for_path (dest_path);
+	g_assert (dest_file != NULL);
+
+	g_assert_cmpint (g_rename (source_path, dest_path), ==, 0);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (source_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (dest_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the source file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, source_file));
+
+	/* Fail if we didn't get the MOVED_FROM event */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), >, 0);
+
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Get events in the dest file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, dest_file));
+
+	/* Fail if we didn't get the MOVED_TO and UPDATED signals */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), >, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), >, 0);
+
+	/* Fail if we got a CREATE, UPDATE, DELETE or MOVE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_assert_cmpint (g_file_delete (dest_file, NULL, NULL), ==, TRUE);
+	g_object_unref (source_file);
+	g_object_unref (dest_file);
+	g_free (source_path);
+	g_free (dest_path);
+}
+
+static void
+test_monitor_file_event_blacklisting_attribute_updated_moved (TrackerMonitorTestFixture *fixture,
+                                                              gconstpointer              data)
+{
+	GFile *source_file;
+	gchar *source_path;
+	GFile *dest_file;
+	gchar *dest_path;
+	guint file_events;
+
+	/*
+	 * Event merging:
+	 *  ATTRIBUTE_UPDATED(A) + MOVED(A->B) = MOVED(A->B) + UPDATED(B)
+	 */
+
+	/* Create file to test with, before setting up environment */
+	set_file_contents (fixture->monitored_directory, "created.txt", "foo", &source_file);
+	g_assert (source_file != NULL);
+
+	/* Set up environment */
+	tracker_monitor_set_enabled (fixture->monitor, TRUE);
+
+	/* Now, trigger attribute update of the already created file */
+	set_file_permissions (fixture->monitored_directory,
+	                      "created.txt",
+	                      S_IRWXU);
+	set_file_contents (fixture->monitored_directory, "created.txt", "barrrr", NULL);
+
+	/* Now, rename the file */
+	source_path = g_file_get_path (source_file);
+	dest_path = g_build_filename (fixture->monitored_directory, "renamed.txt", NULL);
+	dest_file = g_file_new_for_path (dest_path);
+	g_assert (dest_file != NULL);
+
+	g_assert_cmpint (g_rename (source_path, dest_path), ==, 0);
+
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (source_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+	g_hash_table_insert (fixture->events,
+	                     g_object_ref (dest_file),
+	                     GUINT_TO_POINTER (MONITOR_SIGNAL_NONE));
+
+	/* Wait for events */
+	events_wait (fixture);
+
+	/* Get events in the source file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, source_file));
+
+	/* Fail if we didn't get the MOVED_FROM event */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), >, 0);
+
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Get events in the dest file */
+	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, dest_file));
+
+	/* Fail if we didn't get the UPDATED signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), >, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), >, 0);
+
+	/* Fail if we got a CREATE, UPDATE, DELETE or MOVE signal */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_CREATED), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
+
+	/* Cleanup environment */
+	tracker_monitor_set_enabled (fixture->monitor, FALSE);
+	g_assert_cmpint (g_file_delete (dest_file, NULL, NULL), ==, TRUE);
+	g_object_unref (source_file);
+	g_object_unref (dest_file);
+	g_free (source_path);
+	g_free (dest_path);
+}
+
 /* ----------------------------- DIRECTORY EVENT TESTS --------------------------------- */
 
 static void
@@ -1476,6 +1917,50 @@ main (gint    argc,
 	            NULL,
 	            test_monitor_common_setup,
 	            test_monitor_file_event_moved_from_not_monitored,
+	            test_monitor_common_teardown);
+
+	/* File event blacklisting tests */
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/blacklisting/created-updated",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_blacklisting_created_updated,
+	            test_monitor_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/blacklisting/created-deleted",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_blacklisting_created_deleted,
+	            test_monitor_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/blacklisting/created-updated-deleted",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_blacklisting_created_updated_deleted,
+	            test_monitor_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/blacklisting/created-moved",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_blacklisting_created_moved,
+	            test_monitor_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/blacklisting/updated-deleted",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_blacklisting_updated_deleted,
+	            test_monitor_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/blacklisting/updated-moved",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_blacklisting_updated_moved,
+	            test_monitor_common_teardown);
+	g_test_add ("/libtracker-miner/tracker-monitor/file-event/blacklisting/attribute-updated-moved",
+	            TrackerMonitorTestFixture,
+	            NULL,
+	            test_monitor_common_setup,
+	            test_monitor_file_event_blacklisting_attribute_updated_moved,
 	            test_monitor_common_teardown);
 
 	/* Directory Event tests */
