@@ -342,7 +342,9 @@ query_inthread (TrackerDBCursor *cursor,
 			if (loop_error) {
 				goto end_query_inthread;
 			}
+		}
 
+		for (i = 0; i < n_columns; i++) {
 			g_data_output_stream_put_int32 (data_output_stream,
 			                                column_offsets[i],
 			                                NULL,
