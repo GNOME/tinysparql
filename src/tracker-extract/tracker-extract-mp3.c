@@ -2290,6 +2290,7 @@ extract_mp3 (const gchar          *uri,
 	                          md.performer,
 	                          md.album,
 	                          filename);
+	g_free (md.albumart_data);
 
 	id3v2tag_free (&md.id3v22);
 	id3v2tag_free (&md.id3v23);
