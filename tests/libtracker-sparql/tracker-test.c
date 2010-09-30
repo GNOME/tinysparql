@@ -91,7 +91,7 @@ static const gchar *queries[6] = {
 	NULL
 };
 
-#endif
+#endif /* HAVE_TRACKER_FTS */
 
 static void
 test_tracker_sparql_escape_string (void)
@@ -221,6 +221,8 @@ test_tracker_sparql_cursor_next_async (void)
 	test_tracker_sparql_cursor_next_async_query (0);
 }
 
+#endif /* HAVE_TRACKER_FTS */
+
 static void
 test_tracker_sparql_connection_locking_sync (void)
 {
@@ -275,8 +277,6 @@ test_tracker_sparql_connection_locking_async (void)
 	c3 = tracker_sparql_connection_get (NULL, NULL);
 	g_assert (c3 != NULL);
 }
-
-#endif
 
 gint
 main (gint argc, gchar **argv)
