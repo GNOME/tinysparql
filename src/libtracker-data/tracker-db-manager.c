@@ -218,9 +218,12 @@ db_set_params (TrackerDBInterface *iface,
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
 
 	result_set = tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_mode = WAL;");
-        if (result_set) {
-                g_object_unref (result_set);
-        }
+	if (result_set == NULL) {
+		/* Don't just silence the problem. This pragma must return 'WAL' */
+		g_message ("Can't set journal mode to WAL");
+	} else {
+		g_object_unref (result_set);
+	}
 
 	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
 		g_message ("  Setting page size to %d", page_size);
@@ -862,7 +865,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 	} else if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not do shutdown check for read-only mode (direct access) */
-
 		gboolean must_recreate;
 		gchar *journal_filename;
 
@@ -886,9 +888,9 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 			g_message ("Didn't shut down cleanly last time, doing integrity checks");
 
 			for (i = 1; i < G_N_ELEMENTS (dbs) && !must_recreate; i++) {
-				TrackerDBCursor *cursor = NULL;
-				TrackerDBStatement *stmt;
 				struct stat st;
+				GError *error = NULL;
+				TrackerDBStatement *stmt;
 
 				if (g_stat (dbs[i].abs_filename, &st) == 0) {
 					size = st.st_size;
@@ -907,26 +909,42 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 				loaded = TRUE;
 
-				stmt = tracker_db_interface_create_statement (dbs[i].iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, NULL,
+				stmt = tracker_db_interface_create_statement (dbs[i].iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &error,
 				                                              "PRAGMA integrity_check(1)");
 
-				if (stmt) {
-					cursor = tracker_db_statement_start_cursor (stmt, NULL);
-					g_object_unref (stmt);
-				}
-
-				if (cursor) {
-					if (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
-						if (g_strcmp0 (tracker_db_cursor_get_string (cursor, 0, NULL), "ok") != 0) {
-							must_recreate = TRUE;
-						}
+				if (error != NULL) {
+					if (error->domain == TRACKER_DB_INTERFACE_ERROR &&
+					    error->code == TRACKER_DB_QUERY_ERROR) {
+						must_recreate = TRUE;
+					} else {
+						g_critical ("%s", error->message);
 					}
-					g_object_unref (cursor);
+					g_error_free (error);
+				} else {
+					TrackerDBCursor *cursor = NULL;
+
+					if (stmt) {
+						cursor = tracker_db_statement_start_cursor (stmt, NULL);
+						g_object_unref (stmt);
+					} else {
+						g_critical ("Can't create stmt for integrity_check, no error given");
+					}
+
+					if (cursor) {
+						if (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+							if (g_strcmp0 (tracker_db_cursor_get_string (cursor, 0, NULL), "ok") != 0) {
+								must_recreate = TRUE;
+							}
+						}
+						g_object_unref (cursor);
+					}
 				}
 			}
 		}
 
 		if (must_recreate) {
+
+			g_message ("Database severely damaged. We will recreate it and replay the journal if available.");
 
 			if (first_time) {
 				*first_time = TRUE;
