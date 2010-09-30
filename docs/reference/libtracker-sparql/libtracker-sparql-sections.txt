@@ -111,8 +111,11 @@ TRACKER_DBUS_OBJECT_STEROIDS
 TRACKER_DBUS_OBJECT_STATUS
 TRACKER_DBUS_SERVICE
 TrackerSparqlConnectionPrivate
-tracker_sparql_connection_construct
 tracker_sparql_error_quark
+tracker_sparql_connection_construct
+tracker_sparql_connection_init
+tracker_sparql_connection_init_async
+tracker_sparql_connection_init_finish
 </SECTION>
 
 
@@ -134,7 +137,6 @@ tracker_sparql_cursor_next
 tracker_sparql_cursor_next_async
 tracker_sparql_cursor_next_finish
 tracker_sparql_cursor_rewind
-tracker_sparql_cursor_set_connection
 <SUBSECTION Standard>
 TrackerSparqlCursorClass
 TRACKER_SPARQL_CURSOR
@@ -149,4 +151,5 @@ tracker_sparql_value_type_get_type
 <SUBSECTION Private>
 TrackerSparqlCursorPrivate
 tracker_sparql_cursor_construct
+tracker_sparql_cursor_set_connection
 </SECTION>

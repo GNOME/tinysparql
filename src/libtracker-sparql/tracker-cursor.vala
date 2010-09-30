@@ -74,10 +74,9 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		 * tracker_sparql_cursor_get_connection:
 		 * @self: a #TrackerSparqlCursor
 		 *
-		 * Returns the connection used to retrieve the results.
-		 *
-		 * Returns: a #TrackerSparqlConnection. The returned object must not
-		 * be freed by the caller.
+		 * Returns: the #TrackerSparqlConnection associated with this
+		 * #TrackerSparqlCursor. The returned object must not be unreferenced
+		 * by the caller.
 		 *
 		 * Since: 0.10
 		 */
@@ -97,12 +96,12 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		 * tracker_sparql_cursor_get_n_columns:
 		 * @self: a #TrackerSparqlCursor
 		 *
-		 * Returns the number of columns available in the results to iterate.
 		 * This method should only be called after a successful
-		 * tracker_sparql_cursor_next(); otherwise its return value will be
-		 * undefined.
+		 * tracker_sparql_cursor_next(); otherwise its return value
+		 * will be undefined.
 		 *
-		 * Returns: a #gint with the number of columns.
+		 * Returns: a #gint representing the number of columns available in the
+		 * results to iterate.
 		 *
 		 * Since: 0.10
 		 */
@@ -114,9 +113,9 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * @self: a #TrackerSparqlCursor
 	 * @column: column number to retrieve (first one is 0)
 	 *
-	 * Returns the value type at @column in the current row being iterated.
+	 * The data type bound to the current row in @column is returned.
 	 *
-	 * Returns: a value type
+	 * Returns: a #TrackerSparqlValueType.
 	 *
 	 * Since: 0.10
 	 */
@@ -127,9 +126,9 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * @self: a #TrackerSparqlCursor
 	 * @column: column number to retrieve (first one is 0)
 	 *
-	 * Returns the variable name at @column.
+	 * Retrieves the variable name for the current row in @column.
 	 *
-	 * Returns: a string, which should not be freed by the caller.
+	 * Returns: a string which must not be freed.
 	 *
 	 * Since: 0.10
 	 */
@@ -141,10 +140,11 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * @column: column number to retrieve (first one is 0)
 	 * @length: length of the returned string
 	 *
-	 * Returns the string at @column in the current row being iterated.
+	 * Retrieves a string representation of the data in the current
+	 * row in @column.
 	 *
-	 * Returns: a string, which should not be freed by the caller. #NULL
-	 * is returned if the column number is in the [0,#n_columns] range.
+	 * Returns: a string which must not be freed. %NULL is returned if
+	 * the column is not in the [0,#n_columns] range.
 	 *
 	 * Since: 0.10
 	 */
@@ -156,27 +156,14 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
-	 * Iterates to the next result. The API call is completely synchronous, so
+	 * Iterates to the next result. This is completely synchronous and
 	 * it may block.
 	 *
-	 * Returns: #FALSE if no more results found, #TRUE otherwise.
+	 * Returns: %FALSE if no more results found, otherwise %TRUE.
 	 *
 	 * Since: 0.10
 	 */
 	public abstract bool next (Cancellable? cancellable = null) throws GLib.Error;
-
-	/**
-	 * tracker_sparql_cursor_next_async:
-	 * @self: a #TrackerSparqlCursor
-	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
-	 *              asynchronous operation is finished.
-	 * @_user_data_: user-defined data to be passed to @_callback_
-	 * @cancellable: a #GCancellable used to cancel the operation
-	 *
-	 * Iterates, asynchronously, to the next result.
-	 *
-	 * Since: 0.10
-	 */
 
 	/**
 	 * tracker_sparql_cursor_next_finish:
@@ -186,7 +173,20 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Finishes the asynchronous iteration to the next result.
 	 *
-	 * Returns: #FALSE if no more results found, #TRUE otherwise.
+	 * Returns: %FALSE if no more results found, otherwise %TRUE.
+	 *
+	 * Since: 0.10
+	 */
+
+	/**
+	 * tracker_sparql_cursor_next_async:
+	 * @self: a #TrackerSparqlCursor
+	 * @cancellable: a #GCancellable used to cancel the operation
+	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
+	 *              asynchronous operation is finished.
+	 * @_user_data_: user-defined data to be passed to @_callback_
+	 *
+	 * Iterates, asynchronously, to the next result.
 	 *
 	 * Since: 0.10
 	 */
@@ -202,15 +202,14 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 */
 	public abstract void rewind ();
 
-
 	/**
 	 * tracker_sparql_cursor_get_integer:
 	 * @self: a #TrackerSparqlCursor
 	 * @column: column number to retrieve (first one is 0)
 	 *
-	 * Returns the integer at @column in the current row being iterated.
+	 * Retrieve an integer for the current row in @column.
 	 *
-	 * Returns: a integer.
+	 * Returns: a #gint64.
 	 *
 	 * Since: 0.10
 	 */
@@ -225,7 +224,7 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * @self: a #TrackerSparqlCursor
 	 * @column: column number to retrieve (first one is 0)
 	 *
-	 * Returns the double at @column in the current row being iterated.
+	 * Retrieve a double for the current row in @column.
 	 *
 	 * Returns: a double.
 	 *
@@ -242,9 +241,9 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * @self: a #TrackerSparqlCursor
 	 * @column: column number to retrieve (first one is 0)
 	 *
-	 * Returns the boolean at @column in the current row being iterated.
+	 * Retrieve a boolean for the current row in @column.
 	 *
-	 * Returns: a boolean.
+	 * Returns: a #gboolean.
 	 *
 	 * Since: 0.10
 	 */
@@ -256,13 +255,13 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	}
 
 	/**
-	 * tracker_sparql_cursor_get_unbound:
+	 * tracker_sparql_cursor_is_bound:
 	 * @self: a #TrackerSparqlCursor
 	 * @column: column number to retrieve (first one is 0)
 	 *
-	 * Returns true when @column at the current row being iterated is unbound
+	 * If the current row and @column are bound to a value, %TRUE is returned.
 	 *
-	 * Returns: a boolean.
+	 * Returns: a %TRUE or %FALSE.
 	 *
 	 * Since: 0.10
 	 */

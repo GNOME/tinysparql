@@ -82,22 +82,23 @@ public class Tracker.Sparql.Builder : Object {
 	}
 
 	/**
+	 * tracker_sparql_builder_get_result:
+	 * @self: a #TrackerSparqlBuilder
+	 *
+	 * Retrieves a string representation of the constructed SPARQL query.
+	 *
+	 * Returns: the created SPARQL query. The string is contained in the
+	 * #TrackerSparqlBuilder object, and should not be freed by the caller.
+	 *
+	 * Since: 0.8
+	 */
+
+	/**
 	 * TrackerSparqlBuilder:result:
 	 *
 	 * String containing the constructed SPARQL in the #TrackerSparqlBuilder.
 	 */
 	public string result {
-		/**
-		 * tracker_sparql_builder_get_result:
-		 * @self: a #TrackerSparqlBuilder
-		 *
-		 * Returns the constructed SPARQL query as a string.
-		 *
-		 * Returns: the created SPARQL query. The string is contained in the
-		 * #TrackerSparqlBuilder object, and should not be freed by the caller.
-		 *
-		 * Since: 0.8
-		 */
 		get {
 			warn_if_fail (states.length == 1);
 			return str.str;
@@ -105,24 +106,36 @@ public class Tracker.Sparql.Builder : Object {
 	}
 
 	/**
+	 * tracker_sparql_builder_get_length:
+	 * @self: a #TrackerSparqlBuilder
+	 *
+	 * Returns the number of objects added to @self.
+	 *
+	 * Returns: the number of objects contained.
+	 *
+	 * Since: 0.8
+	 */
+
+	/**
 	 * TrackerSparqlBuilder:length:
 	 *
 	 * Number of objects added to the #TrackerSparqlBuilder.
 	 */
 	public int length {
-		/**
-		 * tracker_sparql_builder_get_length:
-		 * @self: a #TrackerSparqlBuilder
-		 *
-		 * Returns the number of objects added to @self.
-		 *
-		 * Returns: the number of objects contained.
-		 *
-		 * Since: 0.8
-		 */
 		get;
 		private set;
 	}
+
+	/**
+	 * tracker_sparql_builder_get_state:
+	 * @self: a #TrackerSparqlBuilder
+	 *
+	 * Returns the current state of @self
+	 *
+	 * Returns: a #TrackerSparqlBuilderState defining the current state of @self
+	 *
+	 * Since: 0.8
+	 */
 
 	/**
 	 * TrackerSparqlBuilder:state:
@@ -130,16 +143,6 @@ public class Tracker.Sparql.Builder : Object {
 	 * Current state of the #TrackerSparqlBuilder.
 	 */
 	public State state {
-		/**
-		 * tracker_sparql_builder_get_state:
-		 * @self: a #TrackerSparqlBuilder
-		 *
-		 * Returns the current state of @self
-		 *
-		 * Returns: a #TrackerSparqlBuilderState defining the current state of @self
-		 *
-		 * Since: 0.8
-		 */
 		get { return states[states.length - 1]; }
 	}
 

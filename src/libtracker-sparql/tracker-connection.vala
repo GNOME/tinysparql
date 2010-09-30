@@ -332,8 +332,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
-	 * Executes a SPARQL query on the store. The API call is completely
-	 * synchronous, so it may block.
+	 * Executes a SPARQL query on. The API call is completely synchronous, so
+	 * it may block.
 	 *
 	 * Returns: a #TrackerSparqlCursor if results were found, #NULL otherwise.
 	 * On error, #NULL is returned and the @error is set accordingly.
@@ -342,20 +342,6 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Since 0.10
 	 */
 	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError;
-
-	/**
-	 * tracker_sparql_connection_query_async:
-	 * @self: a #TrackerSparqlConnection
-	 * @sparql: string containing the SPARQL query
-	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
-	 *              asynchronous operation is finished.
-	 * @_user_data_: user-defined data to be passed to @_callback_
-	 * @cancellable: a #GCancellable used to cancel the operation
-	 *
-	 * Executes asynchronously a SPARQL query on the store.
-	 *
-	 * Since: 0.10
-	 */
 
 	/**
 	 * tracker_sparql_connection_query_finish:
@@ -371,6 +357,20 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since 0.10
 	 */
+
+	/**
+	 * tracker_sparql_connection_query_async:
+	 * @self: a #TrackerSparqlConnection
+	 * @sparql: string containing the SPARQL query
+	 * @cancellable: a #GCancellable used to cancel the operation
+	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
+	 *              asynchronous operation is finished.
+	 * @_user_data_: user-defined data to be passed to @_callback_
+	 *
+	 * Executes asynchronously a SPARQL query.
+	 *
+	 * Since: 0.10
+	 */
 	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError;
 
 	/**
@@ -381,7 +381,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
-	 * Executes a SPARQL update on the store. The API call is completely
+	 * Executes a SPARQL update. The API call is completely
 	 * synchronous, so it may block.
 	 *
 	 * Since: 0.10
@@ -400,7 +400,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @_user_data_: user-defined data to be passed to @_callback_
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
-	 * Executes asynchronously a SPARQL update on the store.
+	 * Executes asynchronously a SPARQL update.
 	 *
 	 * Since: 0.10
 	 */
@@ -427,9 +427,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
-	 * Executes a SPARQL update on the store, and returns the URNs of the
-	 * generated nodes, if any. The API call is completely synchronous, so it
-	 * may block.
+	 * Executes a SPARQL update and returns the URNs of the generated nodes,
+	 * if any. The API call is completely synchronous, so it may block.
 	 *
 	 * Returns: a #GVariant with the generated URNs, which should be freed with
 	 * g_variant_unref() when no longer used.
@@ -451,7 +450,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @_user_data_: user-defined data to be passed to @_callback_
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
-	 * Executes asynchronously a SPARQL update on the store.
+	 * Executes asynchronously a SPARQL update.
 	 *
 	 * Since: 0.10
 	 */
