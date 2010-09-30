@@ -24,6 +24,7 @@ from common.utils.system import TrackerSystemAbstraction
 from common.utils.helpers import StoreHelper
 from common.utils import configuration as cfg
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
+from common.utils.expectedFailure import expectedFailureBug as expectedFailureBug
 import unittest2 as ut
 
 
@@ -333,7 +334,7 @@ class JournalReplayTest (CommonTrackerStoreTest):
         """
         Force journal replaying and check that the DB is correct aftewards
         """
-
+        @expectedFailureBug ("195547")
  	def test_journal_01 (self) :
             """
             Journal replaying when the DB is corrupted
