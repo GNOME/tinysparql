@@ -34,7 +34,7 @@
  * the network as connected, no matter what the connectivity status actually
  * is.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 
 static void

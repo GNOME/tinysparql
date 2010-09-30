@@ -4018,7 +4018,7 @@ tracker_miner_fs_get_urn (TrackerMinerFS *fs,
  * Returns: A newly allocated string with the URN containing the data associated
  *          to @file, or %NULL.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 gchar *
 tracker_miner_fs_query_urn (TrackerMinerFS *fs,

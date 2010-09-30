@@ -94,7 +94,9 @@ public class Tracker.Sparql.Builder : Object {
 		 * Returns the constructed SPARQL query as a string.
 		 *
 		 * Returns: the created SPARQL query. The string is contained in the
-		 *  #TrackerSparqlBuilder object, and should not be freed by the caller.
+		 * #TrackerSparqlBuilder object, and should not be freed by the caller.
+		 *
+		 * Since: 0.8
 		 */
 		get {
 			warn_if_fail (states.length == 1);
@@ -115,6 +117,8 @@ public class Tracker.Sparql.Builder : Object {
 		 * Returns the number of objects added to @self.
 		 *
 		 * Returns: the number of objects contained.
+		 *
+		 * Since: 0.8
 		 */
 		get;
 		private set;
@@ -133,6 +137,8 @@ public class Tracker.Sparql.Builder : Object {
 		 * Returns the current state of @self
 		 *
 		 * Returns: a #TrackerSparqlBuilderState defining the current state of @self
+		 *
+		 * Since: 0.8
 		 */
 		get { return states[states.length - 1]; }
 	}
@@ -146,6 +152,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * Creates an empty #TrackerSparqlBuilder for an update query.
 	 *
 	 * Returns: a newly created #TrackerSparqlBuilder. Free with g_object_unref() when done
+	 *
+	 * Since: 0.10
 	 */
 	public Builder.update () {
 		states += State.UPDATE;
@@ -159,6 +167,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * append predicates and objects for the given subject are allowed.
 	 *
 	 * Returns: a newly created #TrackerSparqlBuilder. Free with g_object_unref() when done
+	 *
+	 * Since: 0.10
 	 */
 	public Builder.embedded_insert () {
 		states += State.EMBEDDED_INSERT;
@@ -172,6 +182,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @iri: a graph name.
 	 *
 	 * Appends a DROP GRAPH clause.
+	 *
+	 * Since: 0.8
 	 */
 	public void drop_graph (string iri)
 		requires (state == State.UPDATE)
@@ -185,6 +197,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @graph: graph name, or %NULL.
 	 *
 	 * Opens an insertion statement.
+	 *
+	 * Since: 0.8
 	 */
 	public void insert_open (string? graph)
 		requires (state == State.UPDATE)
@@ -202,6 +216,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @graph: graph name, or %NULL.
 	 *
 	 * Opens a silent insertion statement.
+	 *
+	 * Since: 0.10
 	 */
 	public void insert_silent_open (string? graph)
 		requires (state == State.UPDATE)
@@ -218,6 +234,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @self: a #TrackerSparqlBuilder
 	 *
 	 * Closes an insertion statement opened with tracker_sparql_builder_insert_open().
+	 *
+	 * Since: 0.8
 	 */
 	public void insert_close ()
 		requires (state == State.INSERT || state == State.OBJECT)
@@ -240,6 +258,8 @@ public class Tracker.Sparql.Builder : Object {
 	 *
 	 * Opens a DELETE clause. Data triples may be appended in order to prepare
 	 * a query to delete them.
+	 *
+	 * Since: 0.8
 	 */
 	public void delete_open (string? graph)
 		requires (state == State.UPDATE)
@@ -256,6 +276,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @self: a #TrackerSparqlBuilder
 	 *
 	 * Closes a DELETE clause opened through tracker_sparql_builder_delete_open().
+	 *
+	 * Since: 0.8
 	 */
 	public void delete_close ()
 		requires (state == State.DELETE || state == State.OBJECT)
@@ -275,6 +297,8 @@ public class Tracker.Sparql.Builder : Object {
 	 *
 	 * Opens a WHERE clause. Data triples may be appended then to narrow the scope
 	 * to which the update query applies.
+	 *
+	 * Since: 0.8
 	 */
 	public void where_open ()
 	       requires (state == State.UPDATE)
@@ -288,6 +312,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @self: a #TrackerSparqlBuilder
 	 *
 	 * Closes a WHERE clause opened through tracker_sparql_builder_where_open().
+	 *
+	 * Since: 0.8
 	 */
 	public void where_close ()
 		requires (state == State.WHERE || state == State.OBJECT)
@@ -306,6 +332,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @var_name: variable name, without leading '?'
 	 *
 	 * Appends a subject as a SPARQL variable, such as "?urn".
+	 *
+	 * Since: 0.8
 	 */
 	public void subject_variable (string var_name) {
 		subject ("?%s".printf (var_name));
@@ -317,6 +345,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @var_name: variable name, without leading '?'
 	 *
 	 * Appends an object as a SparQL variable, such as "?urn".
+	 *
+	 * Since: 0.8
 	 */
 	public void object_variable (string var_name) {
 		object ("?%s".printf (var_name));
@@ -329,6 +359,8 @@ public class Tracker.Sparql.Builder : Object {
 	 *
 	 * Appends a subject as an IRI, such as "&lt;urn:file:1234-5678&gt;". IRIs
 	 * univocally identify a resource in tracker-store.
+	 *
+	 * Since: 0.8
 	 */
 	public void subject_iri (string iri) {
 		subject ("<%s>".printf (iri));
@@ -340,6 +372,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @s: subject string
 	 *
 	 * Appends a subject.
+	 *
+	 * Since: 0.8
 	 */
 	public void subject (string s)
 		requires (state == State.INSERT || state == State.OBJECT || state == State.EMBEDDED_INSERT || state == State.DELETE || state == State.WHERE)
@@ -358,6 +392,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @iri: IRI name, without leading and trailing greater/less than symbols.
 	 *
 	 * Appends a predicate as an IRI.
+	 *
+	 * Since: 0.8
 	 */
 	public void predicate_iri (string iri) {
 		predicate ("<%s>".printf (iri));
@@ -369,6 +405,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @s: predicate string
 	 *
 	 * Appends a predicate for the previously appended subject.
+	 *
+	 * Since: 0.8
 	 */
 	public void predicate (string s)
 		requires (state == State.SUBJECT || state == State.OBJECT || state == State.BLANK)
@@ -388,6 +426,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @iri: IRI name, without leading and trailing greater/less than symbols.
 	 *
 	 * Appends an object as an IRI.
+	 *
+	 * Since: 0.8
 	 */
 	public void object_iri (string iri) {
 		object ("<%s>".printf (iri));
@@ -399,6 +439,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @s: object string
 	 *
 	 * Appends a free-form object for the previously appended subject and predicate.
+	 *
+	 * Since: 0.8
 	 */
 	public void object (string s)
 		requires (state == State.PREDICATE || state == State.OBJECT)
@@ -421,6 +463,8 @@ public class Tracker.Sparql.Builder : Object {
 	 *
 	 * Appends an object formatted as an string. @literal will be escaped and surrounded
 	 * by double quotes.
+	 *
+	 * Since: 0.8
 	 */
 	public void object_string (string literal)
 		requires (state == State.PREDICATE || state == State.OBJECT)
@@ -472,6 +516,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @value: possibly UTF-8 invalid string.
 	 *
 	 * Appends a string not validated as UTF-8 as an object.
+	 *
+	 * Since: 0.8
 	 */
 	public void object_unvalidated (string value) {
 		char* end;
@@ -495,6 +541,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @literal: object as a #gboolean
 	 *
 	 * Appends a #gboolean value as an object.
+	 *
+	 * Since: 0.8
 	 */
 	public void object_boolean (bool literal) {
 		object (literal ? "true" : "false");
@@ -506,6 +554,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @literal: object as a #gint64
 	 *
 	 * Appends a #gint64 value as an object.
+	 *
+	 * Since: 0.8
 	 */
 	public void object_int64 (int64 literal) {
 		object (literal.to_string ());
@@ -518,6 +568,8 @@ public class Tracker.Sparql.Builder : Object {
 	 *
 	 * Appends a #time_t value as an object. @literal will be converted
 	 * to a string in the date format used by tracker-store.
+	 *
+	 * Since: 0.8
 	 */
 	public void object_date (ref time_t literal) {
 		var tm = Time.gm (literal);
@@ -531,6 +583,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @literal: object as a #gdouble
 	 *
 	 * Appends a #gdouble value as an object.
+	 *
+	 * Since: 0.8
 	 */
 	public void object_double (double literal) {
 		object (literal.to_string ());
@@ -543,6 +597,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * Opens an anonymous blank node. In insertions this can be used to create
 	 * anonymous nodes for not previously known data without the need of a
 	 * separate insertion.
+	 *
+	 * Since: 0.8
 	 */
 	public void object_blank_open ()
 		requires (state == State.PREDICATE || state == State.OBJECT)
@@ -560,6 +616,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @self: a #TrackerSparqlBuilder
 	 *
 	 * Closes an anomymous blank node opened with tracker_sparql_builder_object_blank_open()
+	 *
+	 * Since: 0.8
 	 */
 	public void object_blank_close ()
 		requires (state == State.OBJECT && states[states.length - 3] == state.BLANK)
@@ -577,6 +635,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @raw: raw content to prepend.
 	 *
 	 * Prepends raw, unvalidated content to @self.
+	 *
+	 * Since: 0.8
 	 */
 	public void prepend (string raw)
 	{
@@ -589,6 +649,8 @@ public class Tracker.Sparql.Builder : Object {
 	 * @raw: raw content to append.
 	 *
 	 * Appends raw, unvalidated content to @self.
+	 *
+	 * Since: 0.8
 	 */
 	public void append (string raw)
 	{

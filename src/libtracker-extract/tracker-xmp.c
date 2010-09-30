@@ -562,7 +562,7 @@ tracker_xmp_read (const gchar    *buffer,
  * Returns: a newly allocated #TrackerXmpData struct if XMP data was
  * found, %NULL otherwise. Free the returned struct with tracker_xmp_free().
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 TrackerXmpData *
 tracker_xmp_new (const gchar *buffer,
@@ -592,7 +592,7 @@ tracker_xmp_new (const gchar *buffer,
  * Frees @data and all #TrackerXmpData members. %NULL will produce a
  * a warning.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 void
 tracker_xmp_free (TrackerXmpData *data)

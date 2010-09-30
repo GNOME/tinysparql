@@ -89,7 +89,7 @@ static const char imonths[] = {
  * Returns: the first string pointer from those provided which
  * matches, otherwise %NULL.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 const gchar *
 tracker_coalesce_strip (gint n_values,
@@ -180,7 +180,7 @@ tracker_coalesce (gint n_values,
  * Returns: a newly-allocated string holding the result which should
  * be freed with g_free() when finished with, otherwise %NULL.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 gchar *
 tracker_merge_const (const gchar *delimiter,
@@ -371,7 +371,7 @@ tracker_text_normalize (const gchar *text,
  *
  * Returns: %TRUE if some bytes were found to be valid, %FALSE otherwise.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 gboolean
 tracker_text_validate_utf8 (const gchar  *text,
@@ -907,7 +907,7 @@ my_igetdelim (gchar  **linebuf,
  * can be used to handle embedded %NULL bytes in the line read. Upon
  * failure, -1 is returned.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 gssize
 tracker_getline (gchar **lineptr,
@@ -936,7 +936,7 @@ tracker_getline (gchar **lineptr,
  * can be used to handle embedded %NULL bytes in the line read. Upon
  * failure, -1 is returned.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 gssize
 tracker_getline (gchar **lineptr,
@@ -957,7 +957,7 @@ tracker_getline (gchar **lineptr,
  * Parses a keywords line into store, avoiding duplicates and stripping leading
  * and trailing spaces from keywords. Allowed delimiters are , and ;
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 void
 tracker_keywords_parse (GPtrArray   *store,

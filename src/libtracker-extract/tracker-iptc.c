@@ -268,7 +268,7 @@ tracker_iptc_read (const unsigned char *buffer,
  * found, %NULL otherwise. Free the returned struct with
  * tracker_iptc_free().
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 TrackerIptcData *
 tracker_iptc_new (const guchar *buffer,
@@ -298,7 +298,7 @@ tracker_iptc_new (const guchar *buffer,
  * Frees @data and all #TrackerIptcData members. %NULL will produce a
  * a warning.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 void
 tracker_iptc_free (TrackerIptcData *data)

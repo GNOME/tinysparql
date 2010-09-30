@@ -41,7 +41,9 @@ namespace Tracker.Sparql {
 	 * Escapes a string so that it can be used in a SPARQL query.
 	 *
 	 * Returns: a newly-allocated string with the escaped version of @literal.
-	 *  The returned string should be freed with g_free() when no longer needed.
+	 * The returned string should be freed with g_free() when no longer needed.
+	 *
+	 * Since: 0.10
 	 */
 	public string escape_string (string literal) {
 		StringBuilder str = new StringBuilder ();

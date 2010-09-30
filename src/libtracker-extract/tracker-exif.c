@@ -455,7 +455,7 @@ tracker_exif_read (const unsigned char *buffer,
  * Returns: a newly allocated #TrackerExifData struct if EXIF data was
  * found, %NULL otherwise. Free the returned struct with tracker_exif_free().
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 TrackerExifData *
 tracker_exif_new (const guchar *buffer,
@@ -485,7 +485,7 @@ tracker_exif_new (const guchar *buffer,
  * Frees @data and all #TrackerExifData members. %NULL will produce a
  * a warning.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 void
 tracker_exif_free (TrackerExifData *data)

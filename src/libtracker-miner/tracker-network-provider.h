@@ -51,7 +51,7 @@ typedef struct TrackerNetworkProvider TrackerNetworkProvider;
  * @TRACKER_NETWORK_PROVIDER_LAN: Network is connected over a local network
  * connection. This can be ethernet, wifi, etc.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 typedef enum {
 	TRACKER_NETWORK_PROVIDER_DISCONNECTED,
@@ -67,7 +67,7 @@ typedef enum {
  * @parent_iface: parent object interface
  * @get_status: get the network status
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 typedef struct {
 	GTypeInterface parent_iface;
@@ -94,7 +94,7 @@ TrackerNetworkProviderStatus
  *
  * Returns: a %TrackerNetworkProvider.
  *
- * Since: 0.9
+ * Since: 0.10
  **/
 TrackerNetworkProvider *
         tracker_network_provider_get        (void);

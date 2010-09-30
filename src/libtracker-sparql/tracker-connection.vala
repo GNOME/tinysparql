@@ -353,6 +353,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Executes asynchronously a SPARQL query on the store.
+	 *
+	 * Since: 0.10
 	 */
 
 	/**
@@ -381,6 +383,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Executes a SPARQL update on the store. The API call is completely
 	 * synchronous, so it may block.
+	 *
+	 * Since: 0.10
 	 */
 	public virtual void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'update' not implemented");
@@ -397,6 +401,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Executes asynchronously a SPARQL update on the store.
+	 *
+	 * Since: 0.10
 	 */
 
 	/**
@@ -406,6 +412,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @error: #GError for error reporting.
 	 *
 	 * Finishes the asynchronous SPARQL update operation.
+	 *
+	 * Since: 0.10
 	 */
 	public async virtual void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'update_async' not implemented");
@@ -425,6 +433,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Returns: a #GVariant with the generated URNs, which should be freed with
 	 * g_variant_unref() when no longer used.
+	 *
+	 * Since: 0.10
 	 */
 	public virtual GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'update_blank' not implemented");
@@ -442,6 +452,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Executes asynchronously a SPARQL update on the store.
+	 *
+	 * Since: 0.10
 	 */
 
 	/**
@@ -455,6 +467,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Returns: a #GVariant with the generated URNs, which should be freed with
 	 * g_variant_unref() when no longer used.
+	 *
+	 * Since: 0.10
 	 */
 	public async virtual GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'update_blank_async' not implemented");
@@ -470,6 +484,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Loads a Turtle file (TTL) into the store. The API call is completely
 	 * synchronous, so it may block.
+	 *
+	 * Since: 0.10
 	 */
 	public virtual void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'load' not implemented");
@@ -485,6 +501,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Loads, asynchronously, a Turtle file (TTL) into the store.
+	 *
+	 * Since: 0.10
 	 */
 
 	/**
@@ -494,6 +512,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @error: #GError for error reporting.
 	 *
 	 * Finishes the asynchronous load of the Turtle file.
+	 *
+	 * Since: 0.10
 	 */
 	public async virtual void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'load_async' not implemented");
@@ -511,6 +531,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a #TrackerSparqlCursor to iterate the reply if successful, #NULL
 	 * on error. Call g_object_unref() on the returned cursor when no longer
 	 * needed.
+	 *
+	 * Since: 0.10
 	 */
 	public virtual Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'statistics' not implemented");
@@ -526,6 +548,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Retrieves, asynchronously, the statistics from the Store.
+	 *
+	 * Since: 0.10
 	 */
 
 	/**
@@ -539,6 +563,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a #TrackerSparqlCursor to iterate the reply if successful, #NULL
 	 * on error. Call g_object_unref() on the returned cursor when no longer
 	 * needed.
+	 *
+	 * Since: 0.10
 	 */
 	public async virtual Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'statistics_async' not implemented");

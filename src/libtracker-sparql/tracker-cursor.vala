@@ -42,6 +42,8 @@
  * @TRACKER_SPARQL_VALUE_TYPE_BOOLEAN: Boolean value type, xsd:boolean
  *
  * Enumeration with the possible types of the cursor's cells
+ *
+ * Since: 0.10
  */
 public enum Tracker.Sparql.ValueType {
 	UNBOUND,
@@ -76,10 +78,12 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		 *
 		 * Returns: a #TrackerSparqlConnection. The returned object must not
 		 * be freed by the caller.
+		 *
+		 * Since: 0.10
 		 */
 		get;
 		// Note: set method hidden in the documentation as the user of the
-		//  library should never use it.
+		// library should never use it.
 		set;
 	}
 
@@ -99,6 +103,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 		 * undefined.
 		 *
 		 * Returns: a #gint with the number of columns.
+		 *
+		 * Since: 0.10
 		 */
 		get;
 	}
@@ -111,6 +117,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Returns the value type at @column in the current row being iterated.
 	 *
 	 * Returns: a value type
+	 *
+	 * Since: 0.10
 	 */
 	public abstract ValueType get_value_type (int column);
 
@@ -122,6 +130,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Returns the variable name at @column.
 	 *
 	 * Returns: a string, which should not be freed by the caller.
+	 *
+	 * Since: 0.10
 	 */
 	public abstract unowned string? get_variable_name (int column);
 
@@ -135,6 +145,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 *
 	 * Returns: a string, which should not be freed by the caller. #NULL
 	 * is returned if the column number is in the [0,#n_columns] range.
+	 *
+	 * Since: 0.10
 	 */
 	public abstract unowned string? get_string (int column, out long length = null);
 
@@ -148,6 +160,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * it may block.
 	 *
 	 * Returns: #FALSE if no more results found, #TRUE otherwise.
+	 *
+	 * Since: 0.10
 	 */
 	public abstract bool next (Cancellable? cancellable = null) throws GLib.Error;
 
@@ -160,6 +174,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Iterates, asynchronously, to the next result.
+	 *
+	 * Since: 0.10
 	 */
 
 	/**
@@ -171,6 +187,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Finishes the asynchronous iteration to the next result.
 	 *
 	 * Returns: #FALSE if no more results found, #TRUE otherwise.
+	 *
+	 * Since: 0.10
 	 */
 	public async abstract bool next_async (Cancellable? cancellable = null) throws GLib.Error;
 
@@ -179,6 +197,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * @self: a #TrackerSparqlCursor
 	 *
 	 * Resets the iterator to point back to the first result.
+	 *
+	 * Since: 0.10
 	 */
 	public abstract void rewind ();
 
@@ -191,6 +211,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Returns the integer at @column in the current row being iterated.
 	 *
 	 * Returns: a integer.
+	 *
+	 * Since: 0.10
 	 */
 	public virtual int64 get_integer (int column) {
 		return_val_if_fail (get_value_type (column) == ValueType.INTEGER, 0);
@@ -206,6 +228,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Returns the double at @column in the current row being iterated.
 	 *
 	 * Returns: a double.
+	 *
+	 * Since: 0.10
 	 */
 	public virtual double get_double (int column) {
 		return_val_if_fail (get_value_type (column) == ValueType.DOUBLE, 0);
@@ -221,6 +245,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Returns the boolean at @column in the current row being iterated.
 	 *
 	 * Returns: a boolean.
+	 *
+	 * Since: 0.10
 	 */
 	public virtual bool get_boolean (int column) {
 		ValueType type = get_value_type (column);
@@ -237,6 +263,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * Returns true when @column at the current row being iterated is unbound
 	 *
 	 * Returns: a boolean.
+	 *
+	 * Since: 0.10
 	 */
 	public virtual bool is_bound (int column) {
 		if (get_value_type (column) != ValueType.UNBOUND) {
