@@ -1,3 +1,44 @@
+NEW in 0.9.23 - 2010-09-30
+==========================
+
+The changes are:
+
+  * Fixes: NB#193061, Music; §qtn_musi_comments_md§ string is indicated incorrectly in file details for MP3 files.
+  * Fixes: NB#193044, Device doesn't do file list updates after uploading to device or delete from device procedures.
+  * Fixes: NB#194746, DELETE statement fails with SQL error when GRAPH pattern is used
+  * Ontology: Added nco:AuthorizationStatus class
+  * Ontology: Set tracker:notify for nmm:MusicAlbum
+  * Ontology: Set tracker:notify for nmm:Artist
+  * Ontology: Set tracker:notify for nmm:ImageList
+  * SPARQL: Fix SQL for GRAPH with predicate variable and empty database
+  * coverage: ignore dbus-binding-tool generated files
+  * functional-tests: Parse correctly playlist output from the extractor
+  * functional-tests: Include playlists tests if totem-pl-parser is enabled
+  * functional-tests: Added GIF with XMP metadata
+  * libtracker-data: Log failure to set journal mode to WAL
+  * libtracker-data: Fixed unchecked pointer unref when setting journal_mode pragma
+  * libtracker-data: Change SQLite page and cache size
+  * libtracker-sparql: Added connection_get_{async|direct_async}() APIs
+  * libtracker-sparql: Various documentation fixes and additions.
+  * libtracker-miner: Added new unit tests for blacklisting and event merging
+  * libtracker-miner: Don't create inner loop until needed
+  * tracker-store: Fixed corruption in FD passing D-Bus implementation
+  * tracker-extract: MP3: Fixed a huge memory leak in albumart data
+  * tracker-extract: MP3: Support Windows-1252 character encoding
+  * tracker-extract: MP3: Fix string handling in comment and picture tags
+  * tracker-extract: Album art: Stop looking for cover if we already 
+  * tracker-search-tool: Fixed compilation error with the latest Vala
+  * plugins: Evolution: Fixed the UID format of the URL
+
+Translations:
+
+  * Updated pl: Piotr Drąg
+
+Notes:
+
+  None
+
+
 NEW in 0.9.22 - 2010-09-23
 ==========================
 
