@@ -1262,7 +1262,7 @@ main (int argc, char **argv)
 
 	g_option_context_free (context);
 
-	connection = tracker_sparql_connection_get (&error);
+	connection = tracker_sparql_connection_get (NULL, &error);
 
 	if (!connection) {
 		g_printerr ("%s: %s\n",

@@ -221,6 +221,61 @@ test_tracker_sparql_cursor_next_async (void)
 	test_tracker_sparql_cursor_next_async_query (0);
 }
 
+static void
+test_tracker_sparql_connection_locking_sync (void)
+{
+	TrackerSparqlConnection *c1, *c2, *c3;
+
+	c1 = tracker_sparql_connection_get (NULL, NULL);
+	c2 = tracker_sparql_connection_get (NULL, NULL);
+	c3 = tracker_sparql_connection_get (NULL, NULL);
+	g_assert (c1 == c2);
+	g_assert (c2 == c3);
+
+	g_object_unref (c1);
+	g_object_unref (c2);
+	g_object_unref (c3);
+}
+
+static TrackerSparqlConnection *c1 = NULL;
+static TrackerSparqlConnection *c2 = NULL;
+static TrackerSparqlConnection *c3 = NULL;
+
+static void
+test_tracker_sparql_connection_locking_async_cb (GObject      *source,
+                                                 GAsyncResult *result,
+                                                 gpointer      user_data)
+{
+	TrackerSparqlConnection *connection;
+	TrackerSparqlConnection *connection_waiting;
+	GError *error = NULL;
+
+	g_assert (result != NULL);
+	connection = tracker_sparql_connection_get_finish (result, &error);
+	g_assert_no_error (error);
+	g_assert (connection != NULL);
+
+	if (!c1) {
+		g_message ("GOT connection #1, waiting connection:%p (expecting NULL)", user_data);
+		c1 = connection;
+	} else if (!c2) {
+		g_message ("GOT connection #2, waiting connection:%p (expecting NULL)", user_data);
+		c2 = connection;
+	}
+
+	connection_waiting = user_data;
+	g_assert (connection_waiting == NULL);
+}
+
+static void
+test_tracker_sparql_connection_locking_async (void)
+{
+	tracker_sparql_connection_get_async (NULL, test_tracker_sparql_connection_locking_async_cb, c2);
+	tracker_sparql_connection_get_async (NULL, test_tracker_sparql_connection_locking_async_cb, c3);
+	c3 = tracker_sparql_connection_get (NULL, NULL);
+	g_assert (c3 != NULL);
+}
+
 #endif
 
 gint
@@ -239,7 +294,7 @@ main (gint argc, gchar **argv)
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_assert (main_loop != NULL);
 
-	connection = tracker_sparql_connection_get (&error);
+	connection = tracker_sparql_connection_get (NULL, &error);
 
 	g_assert_no_error (error);
 	g_assert (connection != NULL);
@@ -248,6 +303,10 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_escape_string);
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_escape_uri_vprintf",
 	                 test_tracker_sparql_escape_uri_vprintf);
+	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_locking_sync",
+	                 test_tracker_sparql_connection_locking_sync);
+	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_locking_async",
+	                 test_tracker_sparql_connection_locking_async);
 #if HAVE_TRACKER_FTS
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_cursor_next_async",
 	                 test_tracker_sparql_cursor_next_async);

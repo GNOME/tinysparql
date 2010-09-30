@@ -111,7 +111,7 @@ main (gint argc, gchar *argv[])
 
 	g_type_init ();
 	loop = g_main_loop_new (NULL, FALSE);
-	con = tracker_sparql_connection_get (&error);
+	con = tracker_sparql_connection_get (NULL, &error);
 	connection = dbus_bus_get_private (DBUS_BUS_SESSION, NULL);
 	dbus_bus_request_name (connection, TRACKER_SERVICE, 0, NULL);
 	dbus_connection_add_filter (connection, message_filter, NULL, NULL);

@@ -108,7 +108,7 @@ main (int argc, char **argv)
 		g_thread_init (NULL);
 	}
 
-	connection = tracker_sparql_connection_get (&error);
+	connection = tracker_sparql_connection_get (NULL, &error);
 
 	if (!connection) {
 		g_printerr ("%s: %s\n",

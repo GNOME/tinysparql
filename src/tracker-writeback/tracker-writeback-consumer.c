@@ -82,7 +82,7 @@ tracker_writeback_consumer_init (TrackerWritebackConsumer *consumer)
 
 	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
 
-	priv->connection = tracker_sparql_connection_get (&error);
+	priv->connection = tracker_sparql_connection_get (NULL, &error);
 
 	if (!priv->connection) {
 		g_printerr ("%s: %s\n",
