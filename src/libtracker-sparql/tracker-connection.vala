@@ -41,25 +41,24 @@ public const string TRACKER_DBUS_OBJECT_STATUS = "/org/freedesktop/Tracker1/Stat
 public const string TRACKER_DBUS_INTERFACE_STEROIDS = TRACKER_DBUS_SERVICE + ".Steroids";
 public const string TRACKER_DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/Steroids";
 
-
-/**
- * TRACKER_SPARQL_ERROR:
- *
- * Error domain for Tracker Sparql. Errors in this domain will be from the
- * #TrackerSparqlError enumeration. See #GError for more information on error
- * domains.
- */
-
 /**
  * TrackerSparqlError:
  * @TRACKER_SPARQL_ERROR_PARSE: Error parsing the SPARQL string.
  * @TRACKER_SPARQL_UNKNOWN_CLASS: Unknown class.
  * @TRACKER_SPARQL_UNKNOWN_PROPERTY: Unknown property.
  * @TRACKER_SPARQL_TYPE: Wrong type.
+ * @TRACKER_SPARQL_CONSTRAINT: Subject is not in the domain of a property or
+ *                             trying to set multiple values for a single valued
+ *                             property.
+ * @TRACKER_SPARQL_NO_SPACE: There was no disk space available to perform the request.
  * @TRACKER_SPARQL_INTERNAL: Internal error.
  * @TRACKER_SPARQL_UNSUPPORTED: Unsupported feature or method.
  *
- * Possible errors reported in the operations with the #TrackerSparqlConnection.
+ * Error domain for Tracker Sparql. Errors in this domain will be from the
+ * #TrackerSparqlError enumeration. See #GError for more information on error
+ * domains.
+ *
+ * Since: 0.10
  */
 [DBus (name = "org.freedesktop.DBus.GLib.UnmappedError.TrackerSparqlErrorQuark")]
 public errordomain Tracker.Sparql.Error {
@@ -77,7 +76,8 @@ public errordomain Tracker.Sparql.Error {
  * TrackerSparqlConnection:
  *
  * The <structname>TrackerSparqlConnection</structname> object represents a
- * connection with the Tracker Store.
+ * connection with the Tracker store or databases depending on direct or
+ * non-direct requests.
  */
 public abstract class Tracker.Sparql.Connection : Object {
 	static bool direct_only;
@@ -144,17 +144,36 @@ public abstract class Tracker.Sparql.Connection : Object {
 	}
 
 	/**
-	 * tracker_sparql_connection_get_direct_async:
-	 * @cancellable: a #GCancellable used to cancel the operation
-	 * @error: #GError for error reporting.
+	 * tracker_sparql_connection_get_finish:
+	 * @_res_: The #GAsyncResult from the callback used to return the #TrackerSparqlConnection
+	 * @error: The error which occurred or %NULL
 	 *
-	 * See tracker_sparql_connection_get().
+	 * This function is called from the callback provided for
+	 * tracker_sparql_connection_get_async() to return the connection requested
+	 * or an error in cases of failure.
 	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
+	 *
+	 * Since: 0.10
+	 */
+
+	/**
+	 * tracker_sparql_connection_get_async:
+	 * @cancellable: a #GCancellable used to cancel the operation
+	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
+	 *              asynchronous operation is finished.
+	 * @_user_data_: user-defined data to be passed to @_callback_
+	 *
+	 * A #TrackerSparqlConnection is returned asynchronously in the @_callback_ of
+	 * your choosing. You must call tracker_sparql_connection_get_finish() to
+	 * find out if the connection was returned without error.
+	 *
+	 * See also: tracker_sparql_connection_get().
+	 *
+	 * Since: 0.10
 	 */
 	public async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
-
 		return yield get_internal_async (false, cancellable);
 	}
 
@@ -163,36 +182,67 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
-	 * Returns a new #TrackerSparqlConnection, which will use the best method
-	 * available to connect to the Tracker Store (direct-access for Read-Only
-	 * queries, and D-Bus otherwise).
+	 * This function is used to give the caller a connection to Tracker they can
+	 * use for future requests. The best backend available to connect to
+	 * Tracker is returned. These backends include direct-access (for read-only
+	 * queries) and D-Bus (for both read and write queries).
 	 *
-	 * There are 2 environment variables which can be used to control which
-	 * backends are used to set up the connection. If no environment variables are
-	 * provided, then both backends are loaded and chosen based on their merits.
+	 * You can use <link linkend="tracker-overview-environment-variables">
+	 * environment variables</link> to influence how backends are used. If
+	 * no environment variables are provided, both backends are loaded and
+	 * chosen based on their merits. If you try to force a backend for a query
+	 * which it won't support (i.e. an update for a read-only backend), you will
+	 * see critical warnings.
 	 *
-	 * The TRACKER_SPARQL_BACKEND environment variable also allows the caller to
-	 * switch between "auto" (the default), "direct" (for direct access) and
-	 * "bus" for D-Bus backends. If you force a backend which does not support
-	 * what you're doing (for example, using the "direct" backend for a SPARQL
-	 * update) then you will see critical warnings in your code.
+	 * When calling either tracker_sparql_connection_get(),
+	 * tracker_sparql_connection_get_direct() or the asynchronous variants of
+	 * these functions, a mutex is used to protect the loading of backends
+	 * against potential race conditions. For synchronous calls, this function
+	 * will always block if a previous connection get method has been called.
+	 * For asynchronous calls, this <emphasis>may</emphasis> block if another
+	 * synchronous or asynchronous call has been previously dispatched and is
+	 * still pending. We don't expect this to be a normal programming model when
+	 * using this API.
 	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
+	 *
+	 * Since: 0.10
 	 */
 	public static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		return get_internal (false, cancellable);
 	}
 
 	/**
-	 * tracker_sparql_connection_get_direct_async:
-	 * @cancellable: a #GCancellable used to cancel the operation
-	 * @error: #GError for error reporting.
+	 * tracker_sparql_connection_get_direct_finish:
+	 * @_res_: The #GAsyncResult from the callback used to return the #TrackerSparqlConnection
+	 * @error: The error which occurred or %NULL
 	 *
-	 * See tracker_sparql_connection_get_direct().
+	 * This function is called from the callback provided for
+	 * tracker_sparql_connection_get_direct_async() to return the connection
+	 * requested or an error in cases of failure.
 	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
+	 *
+	 * Since: 0.10
+	 */
+
+	/**
+	 * tracker_sparql_connection_get_direct_async:
+	 * @cancellable: a #GCancellable used to cancel the operation
+	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
+	 *              asynchronous operation is finished.
+	 * @_user_data_: user-defined data to be passed to @_callback_
+	 *
+	 * A #TrackerSparqlConnection is returned asynchronously in the @_callback_ of
+	 * your choosing. You must call
+	 * tracker_sparql_connection_get_direct_finish() to find out if the
+	 * connection was returned without error.
+	 *
+	 * See also: tracker_sparql_connection_get_direct().
+	 *
+	 * Since: 0.10
 	 */
 	public async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		return yield get_internal_async (true, cancellable);
@@ -203,16 +253,16 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @error: #GError for error reporting.
 	 *
-	 * Returns a new #TrackerSparqlConnection, which uses direct-access method
-	 * to connect to the Tracker Store. Note that this connection will only be
-	 * able to perform Read-Only queries in the store.
-	 *
-	 * If the TRACKER_SPARQL_BACKEND environment variable is set, it may
-	 * override the choice to use a direct access connection here, for more
-	 * details, see tracker_sparql_connection_get().
+	 * This behaves the same way tracker_sparql_connection_get() does, however,
+	 * the #TrackerSparqlConnection can only be used for read-only requests.
+	 * The advantage to this API over the tracker_sparql_connection_get()
+	 * function is that it will use direct-access. This is faster than using
+	 * D-Bus which may be the case with tracker_sparql_connection_get().
 	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
+	 *
+	 * Since 0.10
 	 */
 	public static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		return get_internal (true, cancellable);
@@ -288,6 +338,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a #TrackerSparqlCursor if results were found, #NULL otherwise.
 	 * On error, #NULL is returned and the @error is set accordingly.
 	 * Call g_object_unref() on the returned cursor when no longer needed.
+	 *
+	 * Since 0.10
 	 */
 	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError;
 
@@ -314,6 +366,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a #TrackerSparqlCursor if results were found, #NULL otherwise.
 	 * On error, #NULL is returned and the @error is set accordingly.
 	 * Call g_object_unref() on the returned cursor when no longer needed.
+	 *
+	 * Since 0.10
 	 */
 	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError;
 
