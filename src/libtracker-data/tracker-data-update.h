@@ -44,9 +44,6 @@ typedef void (*TrackerStatementCallback) (gint         graph_id,
                                           GPtrArray   *rdf_types,
                                           gpointer     user_data);
 typedef void (*TrackerCommitCallback)    (gpointer     user_data);
-typedef void (*TrackerBusyCallback)      (const gchar *status,
-                                          gdouble      progress,
-                                          gpointer     user_data);
 
 GQuark   tracker_data_error_quark                   (void);
 

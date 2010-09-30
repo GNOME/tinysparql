@@ -63,6 +63,10 @@ G_BEGIN_DECLS
 
 #define TRACKER_DB_INTERFACE_ERROR          (tracker_db_interface_error_quark ())
 
+typedef void (*TrackerBusyCallback)      (const gchar *status,
+                                          gdouble      progress,
+                                          gpointer     user_data);
+
 typedef enum {
 	TRACKER_DB_QUERY_ERROR,
 	TRACKER_DB_CORRUPT,
@@ -134,6 +138,11 @@ TrackerDBCursor *       tracker_db_statement_start_sparql_cursor     (TrackerDBS
                                                                       const gchar               **variable_names,
                                                                       gint                        n_variable_names,
                                                                       GError                    **error);
+void                    tracker_db_interface_set_busy_handler        (TrackerDBInterface         *db_interface,
+                                                                      TrackerBusyCallback         busy_callback,
+                                                                      const gchar                *busy_status,
+                                                                      gpointer                    busy_user_data);
+
 /* Semi private TrackerDBResultSet functions */
 TrackerDBResultSet *    _tracker_db_result_set_new                   (guint                       cols);
 void                    _tracker_db_result_set_append                (TrackerDBResultSet         *result_set);

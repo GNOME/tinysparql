@@ -54,7 +54,9 @@ gboolean            tracker_db_manager_init                   (TrackerDBManagerF
                                                                gboolean              *first_time,
                                                                gboolean               shared_cache,
                                                                guint                  select_cache_size,
-                                                               guint                  update_cache_size);
+                                                               guint                  update_cache_size,
+                                                               TrackerBusyCallback    busy_callback,
+                                                               gpointer               busy_user_data);
 void                tracker_db_manager_shutdown               (void);
 void                tracker_db_manager_remove_all             (gboolean               rm_journal);
 void                tracker_db_manager_optimize               (void);

@@ -2794,7 +2794,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	read_journal = FALSE;
 
 	if (!tracker_db_manager_init (flags, &is_first_time_index, FALSE,
-	                              select_cache_size, update_cache_size)) {
+	                              select_cache_size, update_cache_size,
+	                              busy_callback, busy_user_data)) {
 		return FALSE;
 	}
 

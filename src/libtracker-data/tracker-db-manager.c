@@ -699,7 +699,9 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          gboolean              *first_time,
                          gboolean               shared_cache,
                          guint                  select_cache_size,
-                         guint                  update_cache_size)
+                         guint                  update_cache_size,
+                         TrackerBusyCallback    busy_callback,
+                         gpointer               busy_user_data)
 {
 	GType               etype;
 	TrackerDBVersion    version;
@@ -910,6 +912,11 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 				loaded = TRUE;
 
+				tracker_db_interface_set_busy_handler (dbs[i].iface,
+				                                       busy_callback,
+				                                       "Integrity checking",
+				                                       busy_user_data);
+
 				stmt = tracker_db_interface_create_statement (dbs[i].iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &error,
 				                                              "PRAGMA integrity_check(1)");
 
@@ -940,6 +947,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 						g_object_unref (cursor);
 					}
 				}
+
+				tracker_db_interface_set_busy_handler (dbs[i].iface, NULL, NULL, NULL);
 			}
 		}
 
