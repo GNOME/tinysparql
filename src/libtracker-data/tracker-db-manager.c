@@ -218,7 +218,9 @@ db_set_params (TrackerDBInterface *iface,
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
 
 	result_set = tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_mode = WAL;");
-	g_object_unref (result_set);
+        if (result_set) {
+                g_object_unref (result_set);
+        }
 
 	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
 		g_message ("  Setting page size to %d", page_size);
