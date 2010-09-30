@@ -334,7 +334,6 @@ class JournalReplayTest (CommonTrackerStoreTest):
         """
         Force journal replaying and check that the DB is correct aftewards
         """
-        @expectedFailureBug ("195547")
  	def test_journal_01 (self) :
             """
             Journal replaying when the DB is corrupted
