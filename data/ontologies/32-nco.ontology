@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2010-09-20T16:00:00Z" .
+	nao:lastModified "2010-09-30T16:00:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -819,6 +819,33 @@ nco:hasIMAddress a rdf:Property ;
 	rdfs:subPropertyOf nco:hasContactMedium ;
 	rdfs:domain nco:Role ;
 	rdfs:range nco:IMAddress .
+
+#
+# Authorization flow between IM Accounts
+#
+nco:AuthorizationStatus a rdfs:Class ;
+       rdfs:label "IM Address approval status" ;
+       rdfs:comment "Predefined instances to indicate the auth status: yes, no, requested" ;
+       rdfs:subClassOf rdfs:Resource .
+
+nco:predefined-auth-status-yes a nco:AuthorizationStatus .
+nco:predefined-auth-status-no a nco:AuthorizationStatus .
+nco:predefined-auth-status-requested a nco:AuthorizationStatus .
+
+nco:imAddressAuthStatusFrom a rdf:Property ;
+       rdfs:label "IM Address authorization status in the remote end" ;
+       rdfs:comment "Has the other end authorize to receive information about his changes" ;
+       nrl:maxCardinality 1 ;
+       rdfs:domain nco:IMAddress ;
+       rdfs:range nco:AuthorizationStatus .
+
+nco:imAddressAuthStatusTo a rdf:Property ;
+       rdfs:label "IM Address authorization status in the local end" ;
+       rdfs:comment "Do i authorize this im Account to receive my information" ;
+       nrl:maxCardinality 1 ;
+       rdfs:domain nco:IMAddress ;
+       rdfs:range nco:AuthorizationStatus .
+
 
 # Proposal for Nepomuk
 nco:video a rdf:Property ;
