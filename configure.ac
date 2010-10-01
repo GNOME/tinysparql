@@ -947,7 +947,8 @@ if test "x$enable_miner_evolution" != "xno"; then
        PKG_CHECK_MODULES(EVOLUTION_PLUGIN,
                          [evolution-plugin-3.0 >= $EVO_REQUIRED
                           evolution-data-server-1.2 >= $EDS_REQUIRED],
-                         have_miner_evolution=yes)
+                         have_miner_evolution=yes,
+                         have_miner_evolution=no)
        evolution_plugin=evolution-plugin-3.0
    fi
 
