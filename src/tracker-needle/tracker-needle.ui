@@ -4,7 +4,7 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window_needle">
     <property name="title" translatable="yes">Needle</property>
-    <property name="default_width">640</property>
+    <property name="default_width">720</property>
     <property name="default_height">480</property>
     <child>
       <object class="GtkVBox" id="vbox_main">
@@ -69,7 +69,6 @@
               <object class="GtkRadioToolButton" id="toolbutton_find_in_contents">
                 <property name="visible">True</property>
                 <property name="tooltip_text" translatable="yes">Find search criteria inside files</property>
-                <property name="label" translatable="yes">toolbutton3</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-find</property>
                 <property name="active">True</property>
@@ -83,7 +82,6 @@
               <object class="GtkRadioToolButton" id="toolbutton_find_in_titles">
                 <property name="visible">True</property>
                 <property name="tooltip_text" translatable="yes">Find search criteria in file titles</property>
-                <property name="label" translatable="yes">toolbutton4</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-bold</property>
                 <property name="group">toolbutton_find_in_contents</property>
@@ -168,6 +166,18 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToggleToolButton" id="toolbutton_show_tags">
+                <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Tags</property>
+                <property name="use_underline">True</property>
+                <property name="icon_name">emblem-default</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToolButton" id="toolbutton_show_stats">
                 <property name="visible">True</property>
                 <property name="tooltip_text" translatable="yes">Show statistics about the data stored</property>
@@ -188,6 +198,7 @@
         <child>
           <object class="GtkHBox" id="hbox_view">
             <property name="visible">True</property>
+            <property name="spacing">6</property>
             <child>
               <placeholder/>
             </child>

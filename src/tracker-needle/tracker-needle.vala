@@ -19,8 +19,10 @@
 
 using Gtk;
 using Tracker.Sparql;
-using Tracker.View;
 using Tracker.Config;
+using Tracker.Stats;
+using Tracker.TagList;
+using Tracker.View;
 
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
@@ -42,6 +44,7 @@ public class Tracker.Needle {
 	private Entry search;
 	private Spinner spinner;
 	private ToolItem spinner_shell;
+	private ToggleToolButton show_tags;
 	private ToolButton show_stats;
 	private HBox view;
 	private Tracker.View sw_noresults;
@@ -49,6 +52,7 @@ public class Tracker.Needle {
 	private TreeView treeview;
 	private Tracker.View sw_iconview;
 	private IconView iconview;
+	private Tracker.TagList taglist;
 	private uint last_search_id = 0;
 	private ListStore store;
 	private int size_small = 0;
@@ -122,6 +126,9 @@ public class Tracker.Needle {
 		spinner_shell = builder.get_object ("toolcustom_spinner") as ToolItem;
 		spinner_shell.add (spinner);
 
+		show_tags = builder.get_object ("toolbutton_show_tags") as ToggleToolButton;
+		show_tags.clicked.connect (show_tags_clicked);
+
 		show_stats = builder.get_object ("toolbutton_show_stats") as ToolButton;
 		show_stats.clicked.connect (show_stats_clicked);
 
@@ -141,6 +148,11 @@ public class Tracker.Needle {
 
 		// Set up view models
 		setup_ui_results (treeview, iconview);
+		
+		// Set up taglist
+		taglist = new Tracker.TagList ();
+		taglist.hide ();
+		view.pack_end (taglist, false, true, 0);
 
 		view_details.set_active (true);
 	}
@@ -473,6 +485,13 @@ public class Tracker.Needle {
 		// Hide spinner
 		spinner.stop ();
 		spinner_shell.hide ();
+
+		// Check if we have any results, if we don't change the view
+		if (store.iter_n_children (null) < 1) {
+			sw_noresults.show ();
+			sw_iconview.hide ();
+			sw_treeview.hide ();
+		}
 	}
 
 	private TreeIter? search_history_find_or_insert (string criteria, bool? add_to_model = false) {
@@ -527,11 +546,6 @@ public class Tracker.Needle {
 		string criteria = str.strip ();
 
 		if (criteria.length < 1) {
-			// Show no results window
-			sw_noresults.show ();
-			sw_iconview.hide ();
-			sw_treeview.hide ();
-
 			search_finished ();
 
 			return false;
@@ -647,9 +661,19 @@ public class Tracker.Needle {
 		}
 	}
 
+	private void show_tags_clicked () {
+		if (show_tags.active) {
+			debug ("Showing tags");
+			taglist.show ();
+		} else {
+			debug ("Hiding tags");
+			taglist.hide ();
+		}
+	}
+
 	private void show_stats_clicked () {
 		debug ("Showing stats dialog");
-		TrackerStats s = new TrackerStats ();
+		Tracker.Stats s = new Tracker.Stats ();
 		s.show ();
 	}
 }

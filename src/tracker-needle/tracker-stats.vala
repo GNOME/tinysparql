@@ -27,10 +27,10 @@ interface Statistics : GLib.Object {
 	public abstract string[,] Get () throws DBus.Error;
 }
 
-public class TrackerStats : Dialog {
+public class Tracker.Stats : Dialog {
 	private Statistics tracker;
 
-	public TrackerStats () {
+	public Stats () {
 		this.title = "Statistics";
 		this.has_separator = false;
 		this.border_width = 12;

@@ -8,6 +8,7 @@ tracker_needle_VALASOURCES = 					\
 	tracker-needle.vala \
 	tracker-query.vala \
 	tracker-stats.vala \
+	tracker-taglist.vala \
 	tracker-utils.vala \
 	tracker-view.vala
 
