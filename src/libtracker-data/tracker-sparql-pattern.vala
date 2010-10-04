@@ -222,8 +222,8 @@ class Tracker.Sparql.Pattern : Object {
 		public List<Variable> variables;
 		public HashTable<Variable,VariableBindingList> var_bindings;
 
-		public TripleContext (Context parent_context) {
-			base (parent_context);
+		public TripleContext (Query query, Context parent_context) {
+			base (query, parent_context);
 
 			tables = new List<DataTable> ();
 			table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
@@ -240,9 +240,9 @@ class Tracker.Sparql.Pattern : Object {
 	internal SelectContext translate_select (StringBuilder sql, bool subquery = false, bool scalar_subquery = false) throws Sparql.Error {
 		SelectContext result;
 		if (scalar_subquery) {
-			result = new SelectContext.subquery (context);
+			result = new SelectContext.subquery (query, context);
 		} else {
-			result = new SelectContext (context);
+			result = new SelectContext (query, context);
 		}
 		context = result;
 		var type = PropertyType.UNKNOWN;
@@ -430,7 +430,7 @@ class Tracker.Sparql.Pattern : Object {
 		expect (SparqlTokenType.EXISTS);
 
 		SelectContext result;
-		result = new SelectContext.subquery (context);
+		result = new SelectContext.subquery (query, context);
 		context = result;
 
 		var pattern_sql = new StringBuilder ();
@@ -630,7 +630,7 @@ class Tracker.Sparql.Pattern : Object {
 	}
 
 	void start_triples_block (StringBuilder sql) throws Sparql.Error {
-		context = triple_context = new TripleContext (context);
+		context = triple_context = new TripleContext (query, context);
 
 		sql.append ("SELECT ");
 	}
@@ -881,7 +881,7 @@ class Tracker.Sparql.Pattern : Object {
 			return result;
 		}
 
-		var result = new Context (context);
+		var result = new Context (query, context);
 		context = result;
 
 		SourceLocation[] filters = { };

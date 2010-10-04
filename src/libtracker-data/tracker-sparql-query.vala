@@ -89,6 +89,8 @@ namespace Tracker.Sparql {
 	}
 
 	class Context {
+		public weak Query query;
+
 		public Context? parent_context;
 		// All SPARQL variables within a subgraph pattern (used by UNION)
 		// value is VariableState
@@ -101,12 +103,10 @@ namespace Tracker.Sparql {
 		// Variables used as predicates
 		public HashTable<Variable,PredicateVariable> predicate_variable_map;
 
-		// Keep track of used sql identifiers to avoid using the same for multiple SPARQL variables
-		public HashTable<string,bool> used_sql_identifiers;
-
 		public bool scalar_subquery;
 
-		public Context (Context? parent_context = null) {
+		public Context (Query query, Context? parent_context = null) {
+			this.query = query;
 			this.parent_context = parent_context;
 			this.var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
@@ -114,38 +114,28 @@ namespace Tracker.Sparql {
 				select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 				var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
 				predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
-				used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 			} else {
 				select_var_set = parent_context.select_var_set;
 				var_map = parent_context.var_map;
 				predicate_variable_map = parent_context.predicate_variable_map;
-				used_sql_identifiers = parent_context.used_sql_identifiers;
 			}
 		}
 
-		public Context.subquery (Context parent_context) {
+		public Context.subquery (Query query, Context parent_context) {
+			this.query = query;
 			this.parent_context = parent_context;
 			this.var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 
 			select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
 			var_map = parent_context.var_map;
 			predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
-			used_sql_identifiers = new HashTable<string,bool>.full (str_hash, str_equal, g_free, null);
 			scalar_subquery = true;
 		}
 
 		internal unowned Variable get_variable (string name) {
 			unowned Variable result = this.var_map.lookup (name);
 			if (result == null) {
-				// use lowercase as SQLite is never case sensitive (not conforming to SQL)
-				string sql_identifier = "%s_u".printf (name).down ();
-
-				// ensure SQL identifier is unique to avoid conflicts between
-				// case sensitive SPARQL and case insensitive SQLite
-				for (int i = 1; this.used_sql_identifiers.lookup (sql_identifier); i++) {
-					sql_identifier = "%s_%d_u".printf (name, i).down ();
-				}
-				this.used_sql_identifiers.insert (sql_identifier, true);
+				string sql_identifier = "%d_u".printf (++query.last_var_index);
 
 				var variable = new Variable (name, sql_identifier);
 				this.var_map.insert (name, variable);
@@ -161,12 +151,12 @@ namespace Tracker.Sparql {
 		public PropertyType[] types = {};
 		public string[] variable_names = {};
 
-		public SelectContext (Context? parent_context = null) {
-			base (parent_context);
+		public SelectContext (Query query, Context? parent_context = null) {
+			base (query, parent_context);
 		}
 
-		public SelectContext.subquery (Context parent_context) {
-			base.subquery (parent_context);
+		public SelectContext.subquery (Query query, Context parent_context) {
+			base.subquery (query, parent_context);
 		}
 	}
 }
@@ -219,6 +209,9 @@ public class Tracker.Sparql.Query : Object {
 	// base UUID used for blank nodes
 	uchar[] base_uuid;
 	HashTable<string,string> blank_nodes;
+
+	// Keep track of used SQL identifiers for SPARQL variables
+	public int last_var_index;
 
 	public bool has_regex { get; set; }
 
@@ -643,7 +636,7 @@ public class Tracker.Sparql.Query : Object {
 		if (accept (SparqlTokenType.WHERE)) {
 			context = pattern.translate_group_graph_pattern (pattern_sql);
 		} else {
-			context = new Context ();
+			context = new Context (this);
 		}
 
 		var after_where = get_location ();
