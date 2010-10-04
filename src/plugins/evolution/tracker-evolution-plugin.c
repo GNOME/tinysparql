@@ -2189,7 +2189,7 @@ name_owner_changed_cb (DBusGProxy *proxy,
 
 		if (tracker_is_empty_string (old_owner) && !tracker_is_empty_string (new_owner)) {
 			if (!priv->connection) {
-				priv->connection = tracker_sparql_connection_get (NULL);
+				priv->connection = tracker_sparql_connection_get (NULL, NULL);
 			}
 			register_client (user_data);
 		}
@@ -2406,7 +2406,7 @@ miner_started (TrackerMiner *miner)
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
 
 	if (!priv->connection) {
-		priv->connection = tracker_sparql_connection_get (NULL);
+		priv->connection = tracker_sparql_connection_get (NULL, NULL);
 	}
 
 	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
@@ -2505,7 +2505,7 @@ miner_resumed (TrackerMiner *miner)
 	priv->of_total = 0;
 
 	if (!priv->connection) {
-		priv->connection = tracker_sparql_connection_get (NULL);
+		priv->connection = tracker_sparql_connection_get (NULL, NULL);
 	}
 
 	g_object_set (miner,  "progress", 0.0,  "status", _("Processing…"), NULL);
