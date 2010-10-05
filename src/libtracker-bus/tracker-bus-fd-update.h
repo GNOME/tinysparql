@@ -23,35 +23,50 @@
 
 G_BEGIN_DECLS
 
-void        tracker_bus_fd_sparql_update                 (DBusGConnection       *connection,
-                                                          const char            *query,
-                                                          GError               **error);
-void        tracker_bus_fd_sparql_update_async           (DBusGConnection       *connection,
-                                                          const char            *query,
-                                                          GCancellable          *cancellable,
-                                                          GAsyncReadyCallback    callback,
-                                                          gpointer               user_data);
-GVariant *  tracker_bus_fd_sparql_update_blank           (DBusGConnection       *connection,
-                                                          const gchar           *query,
-                                                          GError               **error);
-void        tracker_bus_fd_sparql_update_blank_async     (DBusGConnection       *connection,
-                                                          const gchar           *query,
-                                                          GCancellable          *cancellable,
-                                                          GAsyncReadyCallback    callback,
-                                                          gpointer               user_data);
-void        tracker_bus_fd_sparql_batch_update           (DBusGConnection       *connection,
-                                                          const char            *query,
-                                                          GError               **error);
-void        tracker_bus_fd_sparql_batch_update_async     (DBusGConnection       *connection,
-                                                          const char            *query,
-                                                          GCancellable          *cancellable,
-                                                          GAsyncReadyCallback    callback,
-                                                          gpointer               user_data);
-void        tracker_bus_fd_sparql_update_finish          (GAsyncResult          *res,
-                                                          GError               **error);
-GVariant *  tracker_bus_fd_sparql_update_blank_finish    (GAsyncResult          *res,
-                                                          GError               **error);
-void        tracker_bus_fd_sparql_batch_update_finish    (GAsyncResult          *res,
-                                                          GError               **error);
+void        tracker_bus_fd_sparql_update                    (DBusGConnection       *connection,
+                                                             const char            *query,
+                                                             GError               **error);
+void        tracker_bus_fd_sparql_update_async              (DBusGConnection       *connection,
+                                                             const char            *query,
+                                                             GCancellable          *cancellable,
+                                                             GAsyncReadyCallback    callback,
+                                                             gpointer               user_data);
+void        tracker_bus_fd_sparql_update_array_async        (DBusGConnection       *connection,
+                                                             const char           **queries,
+                                                             guint                  queries_len,
+                                                             GCancellable          *cancellable,
+                                                             GAsyncReadyCallback    callback,
+                                                             gpointer               user_data);
+GVariant *  tracker_bus_fd_sparql_update_blank              (DBusGConnection       *connection,
+                                                             const gchar           *query,
+                                                             GError               **error);
+void        tracker_bus_fd_sparql_update_blank_async        (DBusGConnection       *connection,
+                                                             const gchar           *query,
+                                                             GCancellable          *cancellable,
+                                                             GAsyncReadyCallback    callback,
+                                                             gpointer               user_data);
+void        tracker_bus_fd_sparql_batch_update              (DBusGConnection       *connection,
+                                                             const char            *query,
+                                                             GError               **error);
+void        tracker_bus_fd_sparql_batch_update_async        (DBusGConnection       *connection,
+                                                             const char            *query,
+                                                             GCancellable          *cancellable,
+                                                             GAsyncReadyCallback    callback,
+                                                             gpointer               user_data);
+void        tracker_bus_fd_sparql_batch_update_array_async  (DBusGConnection       *connection,
+                                                             const char           **queries,
+                                                             guint                  queries_len,
+                                                             GCancellable          *cancellable,
+                                                             GAsyncReadyCallback    callback,
+                                                             gpointer               user_data);
+void        tracker_bus_fd_sparql_update_finish             (GAsyncResult          *res,
+                                                             GError               **error);
+GVariant *  tracker_bus_fd_sparql_update_blank_finish       (GAsyncResult          *res,
+                                                             GError               **error);
+void        tracker_bus_fd_sparql_batch_update_finish       (GAsyncResult          *res,
+                                                             GError               **error);
+
+GPtrArray*  tracker_bus_fd_sparql_update_array_finish       (GAsyncResult          *res);
+GPtrArray*  tracker_bus_fd_sparql_batch_update_array_finish (GAsyncResult          *res);
 
 G_END_DECLS

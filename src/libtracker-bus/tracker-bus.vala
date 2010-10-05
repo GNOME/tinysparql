@@ -107,6 +107,18 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
+	public async override GLib.PtrArray? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) {
+		try {
+			if (priority >= GLib.Priority.DEFAULT) {
+				return yield tracker_bus_fd_sparql_update_array_async (connection, sparql, cancellable);
+			} else {
+				return yield tracker_bus_fd_sparql_batch_update_array_async (connection, sparql, cancellable);
+			}
+		} catch (DBus.Error e) {
+			critical (e.message);
+		}
+	}
+
 	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
 			GLib.Variant res = null;

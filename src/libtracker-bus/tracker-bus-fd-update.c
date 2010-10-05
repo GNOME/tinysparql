@@ -396,6 +396,17 @@ tracker_bus_fd_sparql_update_async (DBusGConnection       *connection,
 }
 
 void
+tracker_bus_fd_sparql_update_array_async (DBusGConnection       *connection,
+                                          const char            **queries,
+                                          guint                   queries_len,
+                                          GCancellable          *cancellable,
+                                          GAsyncReadyCallback    callback,
+                                          gpointer               user_data)
+{
+	// todo
+}
+
+void
 tracker_bus_fd_sparql_update_finish (GAsyncResult     *res,
                                      GError          **error)
 {
@@ -403,6 +414,7 @@ tracker_bus_fd_sparql_update_finish (GAsyncResult     *res,
 
 	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
 }
+
 
 GVariant *
 tracker_bus_fd_sparql_update_blank_finish (GAsyncResult     *res,
@@ -529,6 +541,18 @@ tracker_bus_fd_sparql_batch_update_async (DBusGConnection       *connection,
 	}
 }
 
+
+void
+tracker_bus_fd_sparql_batch_update_array_async (DBusGConnection        *connection,
+                                                const char            **queries,
+                                                guint                   queries_len,
+                                                GCancellable           *cancellable,
+                                                GAsyncReadyCallback     callback,
+                                                gpointer                 user_data)
+{
+	// todo
+}
+
 void
 tracker_bus_fd_sparql_batch_update_finish (GAsyncResult     *res,
                                            GError          **error)
@@ -536,4 +560,22 @@ tracker_bus_fd_sparql_batch_update_finish (GAsyncResult     *res,
 	g_return_if_fail (res != NULL);
 
 	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
+}
+
+GPtrArray*
+tracker_bus_fd_sparql_update_array_finish (GAsyncResult *res)
+{
+	g_return_if_fail (res != NULL);
+
+	// todo: check if ref is needed here 
+	return g_ptr_array_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
+}
+
+GPtrArray*
+tracker_bus_fd_sparql_batch_update_array_finish (GAsyncResult *res)
+{
+	g_return_if_fail (res != NULL);
+
+	// todo: check if ref is needed here 
+	return g_ptr_array_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
 }
