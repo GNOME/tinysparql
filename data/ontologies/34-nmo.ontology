@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2010-08-31T10:17:00Z" .
+	nao:lastModified "2010-10-05T10:17:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
