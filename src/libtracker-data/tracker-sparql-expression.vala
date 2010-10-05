@@ -73,6 +73,10 @@ class Tracker.Sparql.Expression : Object {
 		return (type == PropertyType.INTEGER || type == PropertyType.DOUBLE || type == PropertyType.DATETIME || type == PropertyType.UNKNOWN);
 	}
 
+	void append_collate (StringBuilder sql) {
+		sql.append_printf (" COLLATE %s", COLLATION_NAME);
+	}
+
 	void skip_bracketted_expression () throws Sparql.Error {
 		expect (SparqlTokenType.OPEN_PARENS);
 		while (true) {
@@ -668,6 +672,10 @@ class Tracker.Sparql.Expression : Object {
 				translate_expression (sql);
 				sql.append (")");
 
+				if (prop.data_type == PropertyType.STRING) {
+					append_collate (sql);
+				}
+
 				return prop.data_type;
 			}
 		}
@@ -888,6 +896,9 @@ class Tracker.Sparql.Expression : Object {
 			if (variable.binding == null) {
 				return PropertyType.UNKNOWN;
 			} else {
+				if (variable.binding.data_type == PropertyType.STRING) {
+					append_collate (sql);
+				}
 				return variable.binding.data_type;
 			}
 		case SparqlTokenType.STR:

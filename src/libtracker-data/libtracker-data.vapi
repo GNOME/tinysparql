@@ -153,5 +153,8 @@ namespace Tracker {
 		public bool init (DBManagerFlags flags, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status);
 		public void shutdown ();
 	}
+
+	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
+	public const string COLLATION_NAME;
 }
 
