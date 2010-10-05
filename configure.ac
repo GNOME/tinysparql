@@ -1987,7 +1987,6 @@ Build Configuration:
 	Support for Cyrillic languages (enca):  $have_enca
 	Support for network status detection:   $have_network_manager
 	Unicode support library:                $with_unicode_support
-	Support for DBus FD passing:		$have_dbus_fd_passing
 
 Applications:
 
