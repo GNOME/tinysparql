@@ -142,6 +142,7 @@ HAL_REQUIRED=0.5
 UPOWER_REQUIRED=0.9.0
 GDKPIXBUF_REQUIRED=2.12.0
 QUILL_REQUIRED=1.0.0
+MEEGOTOUCH_REQUIRED=0.20
 POPPLER_REQUIRED=0.12.2
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
@@ -372,7 +373,6 @@ fi
 
 AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
 
-
 ####################################################################
 # Should we install Maemo specific ontologies
 ####################################################################
@@ -384,6 +384,27 @@ AC_ARG_ENABLE(maemo,
              [enable_maemo=no])
 
 AM_CONDITIONAL(HAVE_MAEMO, test "x$enable_maemo" = "xyes")
+
+####################################################################
+# Should we include MeeGo desktop-files
+####################################################################
+
+if test "x$enable_maemo" != "xno"; then
+   PKG_CHECK_MODULES(MEEGOTOUCH,
+                     [meegotouch >= $MEEGOTOUCH_REQUIRED],
+                     [have_meegotouch=yes],
+                     [have_meegotouch=no])
+   AC_SUBST(MEEGOTOUCH_CFLAGS)
+   AC_SUBST(MEEGOTOUCH_LIBS)
+
+   if test "x$have_meegotouch" = "xyes"; then
+      AC_DEFINE(HAVE_MEEGOTOUCH, [], [Define if we have meegotouch])
+   fi
+else
+   have_meegotouch="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_MEEGOTOUCH, test "x$have_meegotouch" = "xyes")
 
 ####################################################################
 # Use tagreadbin in gstreamer extraction?
@@ -398,7 +419,6 @@ AC_ARG_ENABLE(gstreamer-tagreadbin,
 if test "x$enable_tagreadbin" != "xno"; then
   AC_DEFINE(TRACKER_EXTRACT_GSTREAMER_USE_TAGREADBIN, 1, [Use tagreadbin in gstreamer extraction])
 fi
-
 
 ##################################################################
 # Check for UPower
@@ -2029,6 +2049,8 @@ Metadata Extractors:
 
 Data Miners:
 
+	Applications:                           yes
+          MeeGo                                 $have_meegotouch
 	RSS:                                    $have_miner_rss
 	Evolution:                              $have_miner_evolution ($evolution_plugins_dir)
 	Flickr:                                 $have_miner_flickr

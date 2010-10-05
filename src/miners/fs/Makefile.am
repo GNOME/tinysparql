@@ -51,6 +51,12 @@ tracker_miner_fs_LDADD =						\
 	-lz								\
 	-lm
 
+if HAVE_MEEGOTOUCH
+INCLUDES += $(MEEGOTOUCH_CFLAGS)
+tracker_miner_fs_SOURCES += tracker-miner-applications-meego.cpp
+tracker_miner_fs_LDADD += $(MEEGOTOUCH_LIBS)
+endif
+
 marshal_sources =							\
 	tracker-marshal.h						\
 	tracker-marshal.c

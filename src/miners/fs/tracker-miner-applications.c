@@ -24,6 +24,10 @@
 
 #include "tracker-miner-applications.h"
 
+#ifdef HAVE_MEEGOTOUCH
+#include "tracker-miner-applications-meego.h"
+#endif
+
 #define GROUP_DESKTOP_ENTRY          "Desktop Entry"
 
 #define APPLICATION_DATASOURCE_URN   "urn:nepomuk:datasource:84f20000-1241-11de-8c30-0800200c9a66"
@@ -108,6 +112,12 @@ miner_applications_constructed (GObject *object)
 	tracker_miner_fs_directory_add (TRACKER_MINER_FS (object), file, TRUE);
 	g_object_unref (file);
 
+#ifdef HAVE_MEEGOTOUCH
+	file = g_file_new_for_path ("/usr/lib/duicontrolpanel/");
+	tracker_miner_fs_directory_add (TRACKER_MINER_FS (object), file, TRUE);
+	g_object_unref (file);
+#endif /* HAVE_MEEGOTOUCH */
+
 	/* FIXME: Check XDG_DATA_DIRS and also process applications in there */
 }
 
@@ -117,7 +127,7 @@ insert_data_from_desktop_file (TrackerSparqlBuilder *sparql,
                                const gchar          *metadata_key,
                                GKeyFile             *desktop_file,
                                const gchar          *key,
-                               gboolean                      use_locale)
+                               gboolean              use_locale)
 {
 	gchar *str;
 
@@ -271,11 +281,19 @@ process_desktop_file (ProcessApplicationData  *data,
 {
 	TrackerSparqlBuilder *sparql;
 	GKeyFile *key_file;
-	gchar *path, *type, *filename, *name, *uri = NULL;
+	gchar *name = NULL;
+	gchar *path;
+	gchar *type;
+	gchar *filename;
+	gchar *uri = NULL;
 	GStrv cats;
 	gsize cats_len;
 	gboolean is_software = TRUE;
 	const gchar *parent_urn;
+#ifdef HAVE_MEEGOTOUCH
+	gchar *logical_id = NULL;
+	gchar *translation_catalog = NULL;
+#endif /* HAVE_MEEGOTOUCH */
 
 	sparql = data->sparql;
 	key_file = data->key_file;
@@ -291,8 +309,23 @@ process_desktop_file (ProcessApplicationData  *data,
 
 	/* NOTE: We sanitize categories later on when iterating them */
 
-	/* Try to get the name with locale, then without if that fails */
-	name = g_key_file_get_locale_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL, NULL);
+#ifdef HAVE_MEEGOTOUCH
+	/* If defined, start with the logical strings */
+	logical_id = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "X-MeeGo-Logical-Id", NULL);
+	translation_catalog = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "X-MeeGo-Translation-Catalog", NULL);
+
+	if (logical_id && translation_catalog) {
+		name = tracker_miner_applications_meego_translate (translation_catalog, logical_id);
+	}
+
+	g_free (logical_id);
+	g_free (translation_catalog);
+#endif /* HAVE_MEEGOTOUCH */
+
+	if (!name) {
+		/* Try to get the name with locale, then without if that fails */
+		name = g_key_file_get_locale_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL, NULL);
+	}
 
 	if (!name) {
 		name = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL);
@@ -335,7 +368,6 @@ process_desktop_file (ProcessApplicationData  *data,
 		}
 
 		is_software = FALSE;
-
 	} else if (name && g_ascii_strcasecmp (type, "Application") == 0) {
 		uri = g_file_get_uri (data->file);
 		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
@@ -352,6 +384,25 @@ process_desktop_file (ProcessApplicationData  *data,
 
 		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
+#ifdef HAVE_MEEGOTOUCH
+	} else if (name && g_ascii_strcasecmp (type, "ControlPanelApplet") == 0) {
+		/* Special case control panel applets */
+		/* The URI of the InformationElement should be a UUID URN */
+		uri = g_file_get_uri (data->file);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+
+		tracker_sparql_builder_subject_iri (sparql, APPLET_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nie:DataSource");
+
+		/* TODO This is atm specific for Maemo */
+		tracker_sparql_builder_subject_iri (sparql, uri);
+
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "maemo:ControlPanelApplet");
+
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, APPLET_DATASOURCE_URN);
 
 		/* This matches SomeApplet as Type= */
 	} else if (name && g_str_has_suffix (type, "Applet")) {
@@ -371,6 +422,25 @@ process_desktop_file (ProcessApplicationData  *data,
 
 		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
 		tracker_sparql_builder_object_iri (sparql, APPLET_DATASOURCE_URN);
+
+	} else if (name && g_ascii_strcasecmp (type, "DUIApplication") == 0) {
+
+		uri = g_file_get_uri (data->file);
+		tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+
+		tracker_sparql_builder_subject_iri (sparql, APPLICATION_DATASOURCE_URN);
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nie:DataSource");
+
+		tracker_sparql_builder_subject_iri (sparql, uri);
+
+		tracker_sparql_builder_predicate (sparql, "a");
+		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplication");
+		tracker_sparql_builder_object (sparql, "nie:DataObject");
+
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
+#endif /* HAVE_MEEGOTOUCH */
 	} else {
 		/* Invalid type, all valid types are already listed above */
 		uri = g_file_get_uri (data->file);

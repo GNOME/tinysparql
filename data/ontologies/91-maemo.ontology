@@ -24,6 +24,11 @@ maemo:SoftwareApplet a rdfs:Class ;
 	rdfs:comment "A widget" ;
 	rdfs:subClassOf nfo:Software .
 
+maemo:ControlPanelApplet a rdfs:Class ;
+	rdfs:label "Control Panel Applet for Meego" ;
+	rdfs:comment "A control panel applet for Meego" ;
+	rdfs:subClassOf maemo:SoftwareApplet .
+
 maemo:DesktopBookmark a rdfs:Class ;
 	rdfs:label "Desktop bookmark" ;
 	rdfs:subClassOf nie:InformationElement .
