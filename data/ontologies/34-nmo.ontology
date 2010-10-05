@@ -34,10 +34,14 @@ nmo:Message a rdfs:Class ;
 
 # FIXME Extension requested in Nepomuk
 nmo:Email a rdfs:Class;
+        rdfs:label "Email envelope" ;
+        rdfs:comment "Root node in a MIME Email" ;
 	rdfs:subClassOf nmo:Message .
 
 # FIXME Extension requested in Nepomuk
 nmo:hasContent a rdf:Property ;
+        rdfs:label "Has content" ;
+        rdfs:comment "Link between the root node and the first MIME node in the Email tree" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Email ;
 	rdfs:range nmo:MimePart .
@@ -59,6 +63,8 @@ nmo:MailboxDataObject a rdfs:Class ;
 	rdfs:subClassOf nie:DataObject .
 
 nmo:MessageHeader a rdfs:Class ;
+        rdfs:label "Message header" ;
+        rdfs:comment "Pairs key=value to store arbitrary message header. Note that if a property exists already in the ontology for those headers it should be used. This is just a safe guard mechanism." ;
 	rdfs:subClassOf rdfs:Resource .
 
 nmo:IMMessage a rdfs:Class ;
@@ -73,13 +79,17 @@ nmo:CommunicationChannel a rdfs:Class ;
 	rdfs:subClassOf nie:InformationElement .
 
 nmo:PermanentChannel a rdfs:Class ;
+        rdfs:comment "Well-known stable channel like an IRC room in a specific server. Predefined URL schema for the instances is recommended" ;
 	rdfs:subClassOf nmo:CommunicationChannel .
 
 nmo:TransientChannel a rdfs:Class ;
+        rdfs:comment "Channel created ad-hoc for the communication like a multi chat in some systems" ;
 	rdfs:subClassOf nmo:CommunicationChannel .
 
 nmo:Call a rdfs:Class ;
-	rdfs:subClassOf nmo:Message .
+         rdfs:label "Call" ;
+         rdfs:comment "Phone call. Voice communication with the user with somebody else." ;
+         rdfs:subClassOf nmo:Message .
 
 # required for backward compatibility
 nmo:VOIPCall a rdfs:Class ;
@@ -100,18 +110,21 @@ nmo:from a rdf:Property ;
 	rdfs:range nco:Contact .
 
 nmo:headerName a rdf:Property ;
+        rdfs:comment "Key of the message header key-value pair" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MessageHeader ;
 	rdfs:range xsd:string ;
 	tracker:weight 3 .
 
 nmo:headerValue a rdf:Property ;
+        rdfs:comment "Value of the message header key-value pair" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MessageHeader ;
 	rdfs:range xsd:string ;
 	tracker:weight 4 .
 
 nmo:isAnswered a rdf:Property ;
+        rdfs:comment "True when the user has sent a replay to this message" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
@@ -122,11 +135,13 @@ nmo:isFlagged a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmo:isDeleted a rdf:Property ;
+        rdfs:comment "True when the user has removed the Email in the UI but still exists in the DB. Usually a purge or confirmation from the user will actually remove the data." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
 
 nmo:isDraft a rdf:Property ;
+        rdfs:comment "The user hasn't finished editing the message and might want to continue later" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
@@ -137,6 +152,7 @@ nmo:isRecent a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmo:isRead a rdf:Property ;
+        rdfs:comment "The messsage has been readed. The user has opened the message or has marked it directly as readed" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
@@ -147,6 +163,7 @@ nmo:isSent a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmo:isEmergency a rdf:Property ;
+        rdfs:comment "Special message from the network, probably coming via Cell broadcasting with emergency information" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
