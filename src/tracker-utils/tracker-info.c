@@ -126,6 +126,20 @@ get_prefixes (TrackerSparqlConnection *connection)
 
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
+	if (error) {
+		g_printerr ("%s, %s\n",
+			    _("Unable to retrieve namespace prefixes"),
+			    error->message);
+
+		g_error_free (error);
+		return retval;
+	}
+
+	if (!cursor) {
+		g_printerr ("%s\n", _("No namespace prefixes were returned"));
+		return retval;
+	}
+
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *key, *value;
 
