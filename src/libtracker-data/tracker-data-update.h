@@ -89,10 +89,7 @@ void     tracker_data_load_turtle_file              (GFile                     *
                                                      GError                   **error);
 
 void     tracker_data_sync                          (void);
-void     tracker_data_replay_journal                (GHashTable                *classes,
-                                                     GHashTable                *properties,
-                                                     GHashTable                *id_uri_map,
-                                                     TrackerBusyCallback        busy_callback,
+void     tracker_data_replay_journal                (TrackerBusyCallback        busy_callback,
                                                      gpointer                   busy_user_data,
                                                      const gchar               *busy_status);
 

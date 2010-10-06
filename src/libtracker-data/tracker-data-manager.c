@@ -1123,7 +1123,8 @@ load_ontology_file_from_path (const gchar        *ontology_path,
                               gint               *max_id,
                               gboolean            in_update,
                               GPtrArray          *seen_classes,
-                              GPtrArray          *seen_properties)
+                              GPtrArray          *seen_properties,
+                              GHashTable         *uri_id_map)
 {
 	TrackerTurtleReader *reader;
 	GError              *error = NULL;
@@ -1140,10 +1141,15 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		const gchar *subject, *predicate, *object;
+		gint subject_id;
 
 		subject = tracker_turtle_reader_get_subject (reader);
 		predicate = tracker_turtle_reader_get_predicate (reader);
 		object = tracker_turtle_reader_get_object (reader);
+
+		if (uri_id_map) {
+			subject_id = GPOINTER_TO_INT (g_hash_table_lookup (uri_id_map, subject));
+		}
 
 		tracker_data_ontology_load_statement (ontology_path, 0, subject, predicate, object,
 		                                      max_id, in_update, NULL, NULL,
@@ -1230,21 +1236,12 @@ get_ontology_from_path (const gchar *ontology_path)
 }
 
 static void
-load_ontology_from_journal (GHashTable **classes_out,
-                            GHashTable **properties_out,
-                            GHashTable **id_uri_map_out)
+load_ontology_ids_from_journal (GHashTable **uri_id_map_out)
 {
-	GHashTable *id_uri_map;
-	GHashTable *classes, *properties;
+	GHashTable *uri_id_map;
 
-	classes = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-	                                 NULL, (GDestroyNotify) g_object_unref);
-
-	properties = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-	                                    NULL, (GDestroyNotify) g_object_unref);
-
-	id_uri_map = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-	                                    NULL, g_free);
+	uri_id_map = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                    g_free, NULL);
 
 	while (tracker_db_journal_reader_next (NULL)) {
 		TrackerDBJournalEntryType type;
@@ -1255,38 +1252,11 @@ load_ontology_from_journal (GHashTable **classes_out,
 			const gchar *uri;
 
 			tracker_db_journal_reader_get_resource (&id, &uri);
-			g_hash_table_insert (id_uri_map, GINT_TO_POINTER (id), g_strdup (uri));
-		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
-			/* end of initial transaction => end of ontology */
-			break;
-		} else {
-			const gchar *subject, *predicate, *object;
-			gint subject_id, predicate_id, object_id;
-
-			if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
-				tracker_db_journal_reader_get_statement (NULL, &subject_id, &predicate_id, &object);
-			} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
-				tracker_db_journal_reader_get_statement_id (NULL, &subject_id, &predicate_id, &object_id);
-				object = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (object_id));
-			} else {
-				continue;
-			}
-
-			subject = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (subject_id));
-			predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
-
-			/* Post checks are only needed for ontology updates, not the initial
-			 * ontology */
-
-			tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate,
-			                                      object, NULL, FALSE, classes, properties,
-			                                      NULL, NULL);
+			g_hash_table_insert (uri_id_map, g_strdup (uri), GINT_TO_POINTER (id));
 		}
 	}
 
-	*classes_out = classes;
-	*properties_out = properties;
-	*id_uri_map_out = id_uri_map;
+	*uri_id_map_out = uri_id_map;
 }
 
 void
@@ -2774,6 +2744,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	const gchar *env_path;
 	gint max_id = 0;
 	gboolean read_only;
+	GHashTable *uri_id_map = NULL;
 
 	tracker_data_update_init ();
 
@@ -2815,9 +2786,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				/* journal with at least one valid transaction
 				   is required to trigger journal replay */
 				read_journal = TRUE;
-			} else {
-				tracker_db_journal_reader_shutdown ();
 			}
+			tracker_db_journal_reader_shutdown ();
 		}
 	}
 
@@ -2833,46 +2803,24 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	if (read_journal) {
-		GHashTable *classes = NULL, *properties = NULL;
-		GHashTable *id_uri_map = NULL;
-
 		in_journal_replay = TRUE;
 
-		/* Load ontology from journal into memory and cache ID v. uri mappings */
-		load_ontology_from_journal (&classes, &properties, &id_uri_map);
+		tracker_db_journal_reader_ontology_init (NULL);
 
-		/* Read first ontology and commit it into the DB */
-		tracker_data_begin_transaction_for_replay (tracker_db_journal_reader_get_time (), NULL);
+		/* Load ontology IDs from journal into memory */
+		load_ontology_ids_from_journal (&uri_id_map);
 
-		/* This is a no-op when FTS is disabled */
-		tracker_db_interface_sqlite_fts_init (iface, TRUE);
-
-		tracker_data_ontology_import_into_db (FALSE);
-		tracker_data_commit_transaction (NULL);
 		tracker_db_journal_reader_shutdown ();
+	}
 
-		/* Start replay. Ontology changes might happen during replay of the journal. */
-
-		tracker_data_replay_journal (classes, properties, id_uri_map,
-		                             busy_callback, busy_user_data, busy_status);
-
-		in_journal_replay = FALSE;
-
-		/* open journal for writing */
-		tracker_db_journal_init (NULL, FALSE);
-
-		check_ontology = TRUE;
-
-		g_hash_table_unref (classes);
-		g_hash_table_unref (properties);
-		g_hash_table_unref (id_uri_map);
-
-	} else if (is_first_time_index && !read_only) {
+	if (is_first_time_index && !read_only) {
 		sorted = get_ontologies (test_schemas != NULL, ontologies_dir);
 
-		/* Truncate journal as it does not even contain a single valid transaction
-		 * or is explicitly ignored (journal_check == FALSE, only for test cases) */
-		tracker_db_journal_init (NULL, TRUE);
+		if (!read_journal) {
+			/* Truncate journal as it does not even contain a single valid transaction
+			 * or is explicitly ignored (journal_check == FALSE, only for test cases) */
+			tracker_db_journal_init (NULL, TRUE);
+		}
 
 		/* load ontology from files into memory (max_id starts at zero: first-time) */
 
@@ -2880,7 +2828,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			gchar *ontology_path;
 			g_debug ("Loading ontology %s", (char *) l->data);
 			ontology_path = g_build_filename (ontologies_dir, l->data, NULL);
-			load_ontology_file_from_path (ontology_path, &max_id, FALSE, NULL, NULL);
+			load_ontology_file_from_path (ontology_path, &max_id, FALSE, NULL, NULL, uri_id_map);
 			g_free (ontology_path);
 		}
 
@@ -2892,7 +2840,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 				g_debug ("Loading ontology:'%s' (TEST ONTOLOGY)", test_schema_path);
 
-				load_ontology_file_from_path (test_schema_path, &max_id, FALSE, NULL, NULL);
+				load_ontology_file_from_path (test_schema_path, &max_id, FALSE, NULL, NULL, uri_id_map);
 				g_free (test_schema_path);
 			}
 		}
@@ -3060,7 +3008,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					/* load ontology from files into memory, set all new's
 					 * is_new to TRUE */
 					load_ontology_file_from_path (ontology_path, &max_id, TRUE,
-					                              seen_classes, seen_properties);
+					                              seen_classes, seen_properties, uri_id_map);
 					to_reload = g_list_prepend (to_reload, l->data);
 					update_nao = TRUE;
 				}
@@ -3073,7 +3021,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				/* load ontology from files into memory, set all new's
 				 * is_new to TRUE */
 				load_ontology_file_from_path (ontology_path, &max_id, TRUE,
-				                              seen_classes, seen_properties);
+				                              seen_classes, seen_properties, uri_id_map);
 				to_reload = g_list_prepend (to_reload, l->data);
 				update_nao = TRUE;
 			}
@@ -3134,6 +3082,19 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		g_list_foreach (ontos, (GFunc) g_free, NULL);
 		g_list_free (ontos);
+	}
+
+	if (read_journal) {
+		/* Start replay */
+
+		tracker_data_replay_journal (busy_callback, busy_user_data, busy_status);
+
+		in_journal_replay = FALSE;
+
+		/* open journal for writing */
+		tracker_db_journal_init (NULL, FALSE);
+
+		g_hash_table_unref (uri_id_map);
 	}
 
 	/* If locale changed, re-create indexes */

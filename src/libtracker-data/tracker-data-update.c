@@ -2699,161 +2699,14 @@ tracker_data_sync (void)
 	tracker_db_journal_fsync ();
 }
 
-static void
-free_queued_statement (QueuedStatement *queued)
-{
-	g_free (queued->subject);
-	g_free (queued->predicate);
-	g_free (queued->object);
-	g_free (queued->graph);
-	g_free (queued);
-}
-
-static GList*
-queue_statement (GList *queue,
-                 const gchar *graph,
-                 const gchar *subject,
-                 const gchar *predicate,
-                 const gchar *object,
-                 gboolean     is_uri)
-{
-	QueuedStatement *queued = g_new (QueuedStatement, 1);
-
-	queued->subject = g_strdup (subject);
-	queued->predicate = g_strdup (predicate);
-	queued->object = g_strdup (object);
-	queued->is_uri = is_uri;
-	queued->graph = graph ? g_strdup (graph) : NULL;
-
-	queue = g_list_append (queue, queued);
-
-	return queue;
-}
-
-static void
-ontology_transaction_end (GList *ontology_queue,
-                          GPtrArray *seen_classes,
-                          GPtrArray *seen_properties)
-{
-	GList *l;
-	const gchar *ontology_uri = NULL;
-
-	tracker_data_ontology_process_changes_pre_db (seen_classes, seen_properties);
-
-	/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
-	tracker_data_ontology_import_into_db (TRUE);
-
-	tracker_data_ontology_process_changes_post_db (seen_classes, seen_properties);
-
-	for (l = ontology_queue; l; l = l->next) {
-		QueuedStatement *queued = ontology_queue->data;
-
-		if (g_strcmp0 (queued->predicate, RDF_TYPE) == 0) {
-			if (g_strcmp0 (queued->object, TRACKER_PREFIX "Ontology") == 0) {
-				ontology_uri = queued->subject;
-			}
-		}
-
-		/* store ontology in database */
-		tracker_data_ontology_process_statement (queued->graph,
-		                                         queued->subject,
-		                                         queued->predicate,
-		                                         queued->object,
-		                                         queued->is_uri,
-		                                         TRUE, TRUE);
-
-	}
-
-	tracker_data_ontology_process_changes_post_import (seen_classes, seen_properties);
-
-	/* Update the nao:lastModified in the database */
-	if (ontology_uri) {
-		TrackerOntology *ontology;
-		ontology = tracker_ontologies_get_ontology_by_uri (ontology_uri);
-		if (ontology) {
-			gint last_mod = 0;
-			TrackerDBInterface *iface;
-			TrackerDBStatement *stmt;
-			GError *error = NULL;
-
-			iface = tracker_db_manager_get_db_interface ();
-
-			/* We can't do better than this cast, it's stored as an int in the
-			 * db. See tracker-data-manager.c for more info. */
-			last_mod = (gint) tracker_ontology_get_last_modified (ontology);
-
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-			        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
-			        "WHERE \"rdfs:Resource\".ID = "
-			        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
-			        "ON \"rdfs:Resource\".ID = Resource.ID WHERE "
-			        "Resource.Uri = ?)");
-
-			if (stmt) {
-				tracker_db_statement_bind_int (stmt, 0, last_mod);
-				tracker_db_statement_bind_text (stmt, 1, ontology_uri);
-				tracker_db_statement_execute (stmt, NULL);
-			} else {
-				g_warning ("%s", error->message);
-				g_error_free (error);
-			}
-		}
-	}
-
-	/* Reset the is_new flag for all classes and properties */
-	tracker_data_ontology_import_finished ();
-}
-
-static GList*
-ontology_statement_insert (GList       *ontology_queue,
-                           gint         graph_id,
-                           gint         subject_id,
-                           gint         predicate_id,
-                           const gchar *object,
-                           GHashTable  *classes,
-                           GHashTable  *properties,
-                           GHashTable  *id_uri_map,
-                           gboolean     is_uri,
-                           GPtrArray   *seen_classes,
-                           GPtrArray   *seen_properties)
-{
-	const gchar *graph, *subject, *predicate;
-
-	if (graph_id > 0) {
-		graph = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (graph_id));
-	} else {
-		graph = NULL;
-	}
-
-	subject = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (subject_id));
-	predicate = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (predicate_id));
-
-	/* load ontology from journal into memory, set all new's is_new to TRUE */
-	tracker_data_ontology_load_statement ("journal", subject_id, subject, predicate,
-	                                      object, NULL, TRUE, classes, properties,
-	                                      seen_classes, seen_properties);
-
-	/* Queue the statement for processing after ALTER in ontology_transaction_end */
-	ontology_queue = queue_statement (ontology_queue, graph, subject, predicate, object, is_uri);
-
-	return ontology_queue;
-}
-
 void
-tracker_data_replay_journal (GHashTable          *classes,
-                             GHashTable          *properties,
-                             GHashTable          *id_uri_map,
-                             TrackerBusyCallback  busy_callback,
+tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
                              gpointer             busy_user_data,
                              const gchar         *busy_status)
 {
 	GError *journal_error = NULL;
 	TrackerProperty *rdf_type = NULL;
 	gint last_operation_type = 0;
-	gboolean in_ontology = FALSE;
-	GList *ontology_queue = NULL;
-	GPtrArray *seen_classes = NULL;
-	GPtrArray *seen_properties = NULL;
 
 	rdf_type = tracker_ontologies_get_rdf_type ();
 
@@ -2871,22 +2724,8 @@ tracker_data_replay_journal (GHashTable          *classes,
 			TrackerDBStatement *stmt;
 			gint id;
 			const gchar *uri;
-			TrackerProperty *property = NULL;
-			TrackerClass *class;
 
 			tracker_db_journal_reader_get_resource (&id, &uri);
-
-			if (in_ontology) {
-				g_hash_table_insert (id_uri_map, GINT_TO_POINTER (id), g_strdup (uri));
-				continue;
-			}
-
-			class = g_hash_table_lookup (classes, GINT_TO_POINTER (id));
-			if (!class)
-				property = g_hash_table_lookup (properties, GINT_TO_POINTER (id));
-
-			if (property || class)
-				continue;
 
 			iface = tracker_db_manager_get_db_interface ();
 
@@ -2908,26 +2747,11 @@ tracker_data_replay_journal (GHashTable          *classes,
 				g_error_free (new_error);
 			}
 
-		} else if (type == TRACKER_DB_JOURNAL_START_ONTOLOGY_TRANSACTION) {
-			tracker_data_begin_transaction_for_replay (tracker_db_journal_reader_get_time (), NULL);
-			in_ontology = TRUE;
 		} else if (type == TRACKER_DB_JOURNAL_START_TRANSACTION) {
 			tracker_data_begin_transaction_for_replay (tracker_db_journal_reader_get_time (), NULL);
 		} else if (type == TRACKER_DB_JOURNAL_END_TRANSACTION) {
 			GError *new_error = NULL;
 			tracker_data_update_buffer_might_flush (&new_error);
-
-			if (in_ontology) {
-				ontology_transaction_end (ontology_queue, seen_classes, seen_properties);
-				g_list_foreach (ontology_queue, (GFunc) free_queued_statement, NULL);
-				g_list_free (ontology_queue);
-				ontology_queue = NULL;
-				in_ontology = FALSE;
-				tracker_data_ontology_free_seen (seen_classes);
-				seen_classes = NULL;
-				tracker_data_ontology_free_seen (seen_properties);
-				seen_properties = NULL;
-			}
 
 			tracker_data_commit_transaction (&new_error);
 			if (new_error) {
@@ -2940,27 +2764,6 @@ tracker_data_replay_journal (GHashTable          *classes,
 
 			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
-			if (in_ontology) {
-
-				if (!seen_classes)
-					seen_classes = g_ptr_array_new ();
-				if (!seen_properties)
-					seen_properties = g_ptr_array_new ();
-
-				ontology_queue = ontology_statement_insert (ontology_queue,
-				                                            graph_id,
-				                                            subject_id,
-				                                            predicate_id,
-				                                            object,
-				                                            classes,
-				                                            properties,
-				                                            id_uri_map,
-				                                            FALSE,
-				                                            seen_classes,
-				                                            seen_properties);
-				continue;
-			}
-
 			if (last_operation_type == -1) {
 				tracker_data_update_buffer_flush (&new_error);
 				if (new_error) {
@@ -2970,7 +2773,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 			}
 			last_operation_type = 1;
 
-			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
+			property = tracker_ontologies_get_property_by_uri (tracker_ontologies_get_uri_by_id (predicate_id));
 
 			if (property) {
 				resource_buffer_switch (NULL, graph_id, NULL, subject_id);
@@ -2993,29 +2796,6 @@ tracker_data_replay_journal (GHashTable          *classes,
 
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
-			if (in_ontology) {
-				const gchar *object_n;
-				object_n = g_hash_table_lookup (id_uri_map, GINT_TO_POINTER (object_id));
-
-				if (!seen_classes)
-					seen_classes = g_ptr_array_new ();
-				if (!seen_properties)
-					seen_properties = g_ptr_array_new ();
-
-				ontology_queue = ontology_statement_insert (ontology_queue,
-				                                            graph_id,
-				                                            subject_id,
-				                                            predicate_id,
-				                                            object_n,
-				                                            classes,
-				                                            properties,
-				                                            id_uri_map,
-				                                            TRUE,
-				                                            seen_classes,
-				                                            seen_properties);
-				continue;
-			}
-
 			if (last_operation_type == -1) {
 				tracker_data_update_buffer_flush (&new_error);
 				if (new_error) {
@@ -3025,7 +2805,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 			}
 			last_operation_type = 1;
 
-			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
+			property = tracker_ontologies_get_property_by_uri (tracker_ontologies_get_uri_by_id (predicate_id));
 
 			if (property) {
 				if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
@@ -3034,7 +2814,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 					resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
 					if (property == rdf_type) {
-						class = g_hash_table_lookup (classes, GINT_TO_POINTER (object_id));
+						class = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_uri_by_id (object_id));
 						if (class) {
 							cache_create_service_decomposed (class, NULL, graph_id);
 						} else {
@@ -3062,10 +2842,6 @@ tracker_data_replay_journal (GHashTable          *classes,
 
 			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
-			if (in_ontology) {
-				continue;
-			}
-
 			if (last_operation_type == 1) {
 				tracker_data_update_buffer_flush (&new_error);
 				if (new_error) {
@@ -3077,7 +2853,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 
 			resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
-			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
+			property = tracker_ontologies_get_property_by_uri (tracker_ontologies_get_uri_by_id (predicate_id));
 
 			if (property) {
 				GError *new_error = NULL;
@@ -3085,7 +2861,7 @@ tracker_data_replay_journal (GHashTable          *classes,
 				if (object && rdf_type == property) {
 					TrackerClass *class;
 
-					class = tracker_ontologies_get_class_by_uri (object);
+					class = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_uri_by_id (object_id));
 					if (class != NULL) {
 						cache_delete_resource_type (class, NULL, graph_id);
 					} else {
@@ -3111,10 +2887,6 @@ tracker_data_replay_journal (GHashTable          *classes,
 
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
-			if (in_ontology) {
-				continue;
-			}
-
 			if (last_operation_type == 1) {
 				tracker_data_update_buffer_flush (&new_error);
 				if (new_error) {
@@ -3124,14 +2896,14 @@ tracker_data_replay_journal (GHashTable          *classes,
 			}
 			last_operation_type = -1;
 
-			property = g_hash_table_lookup (properties, GINT_TO_POINTER (predicate_id));
+			property = tracker_ontologies_get_property_by_uri (tracker_ontologies_get_uri_by_id (predicate_id));
 
 			if (property) {
 
 				resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
 				if (property == rdf_type) {
-					class = g_hash_table_lookup (classes, GINT_TO_POINTER (object_id));
+					class = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_uri_by_id (object_id));
 					if (class) {
 						cache_delete_resource_type (class, NULL, graph_id);
 					} else {

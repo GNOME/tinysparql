@@ -1208,6 +1208,29 @@ tracker_db_journal_reader_init (const gchar *filename)
 	return db_journal_reader_init (&reader, TRUE, filename);
 }
 
+gboolean
+tracker_db_journal_reader_ontology_init (const gchar *filename) {
+	gchar *filename_used;
+	gboolean result;
+
+	/* Used mostly for testing */
+	if (G_UNLIKELY (filename)) {
+		filename_used = g_strdup (filename);
+	} else {
+		filename_used = g_build_filename (g_get_user_data_dir (),
+		                                  "tracker",
+		                                  "data",
+		                                  TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME,
+		                                  NULL);
+	}
+
+	result = tracker_db_journal_reader_init (filename_used);
+
+	g_free (filename_used);
+
+	return result;
+}
+
 gsize
 tracker_db_journal_reader_get_size_of_correct (void)
 {
