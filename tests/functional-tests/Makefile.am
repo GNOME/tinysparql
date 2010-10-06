@@ -19,9 +19,15 @@ configdir = $(datadir)/tracker-tests
 
 config_SCRIPTS =			\
 	__init__.py			\
-	tests.xml			\
 	$(slow_tests)			\
 	$(standard_tests)
+
+if HAVE_MAEMO
+config_SCRIPTS += 			\
+	tests.xml 			\
+	tracker-tests.aegis		
+endif
+
 
 standard_tests = 			\
 	01-insertion.py
@@ -61,6 +67,12 @@ tests.xml:
 		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
 	fi;
 	./create-tests-xml.py $(standard_tests) > tests.xml
+
+tracker-tests.aegis:
+	@if test -h /targets/links/scratchbox.config ; then \
+		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
+	fi;
+	./create-tests-aegis.py $(standard_tests) > tracker-tests.aegis
 
 10-sqlite-misused.py: ttl/gen-test-data.stamp
 11-sqlite-misused-batch.py: ttl/gen-test-data.stamp
@@ -240,6 +252,12 @@ EXTRA_DIST = 					\
 	$(default_update_test_VALASOURCES)	\
 	$(bus_query_test_VALASOURCES)		\
 	$(bus_update_test_VALASOURCES)
+
+if HAVE_MAEMO
+CLEANFILES = 					\
+	tests.xml				\
+	tracker-tests.aegis				
+endif
 
 MAINTAINERCLEANFILES =					\
 	$(BUILT_SOURCES)				\
