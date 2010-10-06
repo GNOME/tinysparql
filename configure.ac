@@ -739,6 +739,12 @@ PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
 AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
 
+# Make sure SQLite is compiled thread-safe
+AX_SQLITE_THREADSAFE
+if test "x$ax_cv_sqlite_threadsafe" != "xyes"; then
+  AC_MSG_ERROR([sqlite3 is not compiled thread-safe])
+fi
+
 ##################################################################
 # Enable Gnome Keyring support to store credentials (for web miners)
 ##################################################################
@@ -2034,14 +2040,17 @@ Writeback:
 Frameworks:
 
 	Support Maemo                           $enable_maemo
+"
 
-Warning:
-
-	You must make sure SQLite is compiled with --enable-threadsafe
+if test "x$old_exec_message" != "x" -o \
+        "x$old_data_message" != "x" -o \
+        "x$old_file_action"  != "x"; then
+echo "
+Warnings:
 
 	$old_exec_message
 	$old_data_message
 	$old_file_action
 
-
 "
+fi
