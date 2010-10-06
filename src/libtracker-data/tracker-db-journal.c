@@ -719,6 +719,10 @@ tracker_db_journal_append_delete_statement (gint         g_id,
                                             gint         p_id,
                                             const gchar *object)
 {
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
+
 	return db_journal_writer_append_delete_statement (&writer,
 	                                                  g_id, s_id, p_id, object);
 }
@@ -769,6 +773,10 @@ tracker_db_journal_append_delete_statement_id (gint g_id,
                                                gint p_id,
                                                gint o_id)
 {
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
+
 	return db_journal_writer_append_delete_statement_id (&writer,
 	                                                     g_id, s_id, p_id, o_id);
 }
@@ -821,6 +829,10 @@ tracker_db_journal_append_insert_statement (gint         g_id,
                                             gint         p_id,
                                             const gchar *object)
 {
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
+
 	return db_journal_writer_append_insert_statement (&writer,
 	                                                  g_id, s_id, p_id, object);
 }
@@ -871,6 +883,10 @@ tracker_db_journal_append_insert_statement_id (gint g_id,
                                                gint p_id,
                                                gint o_id)
 {
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
+
 	return db_journal_writer_append_insert_statement_id (&writer,
 	                                                     g_id, s_id, p_id, o_id);
 }
@@ -910,10 +926,11 @@ tracker_db_journal_append_resource (gint         s_id,
 
 	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
 
-	ret = db_journal_writer_append_resource (&writer, s_id, uri);
 
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		db_journal_writer_append_resource (&ontology_writer, s_id, uri);
+		ret = db_journal_writer_append_resource (&ontology_writer, s_id, uri);
+	} else {
+		ret = db_journal_writer_append_resource (&writer, s_id, uri);
 	}
 
 	return ret;
@@ -1000,25 +1017,25 @@ tracker_db_journal_commit_db_transaction (void)
 
 	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
 
-	ret = db_journal_writer_commit_db_transaction (&writer);
-
 	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		db_journal_writer_commit_db_transaction (&ontology_writer);
+		ret = db_journal_writer_commit_db_transaction (&ontology_writer);
 		db_journal_writer_shutdown (&ontology_writer);
+	} else {
+		ret = db_journal_writer_commit_db_transaction (&writer);
+
+#if GLIB_CHECK_VERSION (2, 24, 2)
+		if (ret) {
+			if (rotating_settings.do_rotating && (writer.cur_size > rotating_settings.chunk_size)) {
+				if (!tracker_db_journal_rotate ()) {
+					g_critical ("Could not rotate journal, %s", g_strerror (errno));
+					ret = FALSE;
+				}
+			}
+		}
+#endif /* GLib check */
 	}
 
 	current_transaction_format = TRANSACTION_FORMAT_NONE;
-
-#if GLIB_CHECK_VERSION (2, 24, 2)
-	if (ret) {
-		if (rotating_settings.do_rotating && (writer.cur_size > rotating_settings.chunk_size)) {
-			if (!tracker_db_journal_rotate ()) {
-				g_critical ("Could not rotate journal, %s", g_strerror (errno));
-				ret = FALSE;
-			}
-		}
-	}
-#endif /* GLib check */
 
 	return ret;
 }
