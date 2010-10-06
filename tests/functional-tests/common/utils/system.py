@@ -248,7 +248,6 @@ class TrackerSystemAbstraction:
         self.__stop_tracker_processes ()
         self.set_up_environment (confdir)
 
-        self.tracker_running = self.__start_tracker_store ()
         self.miner_fs = TrackerMinerFsLifeCycle ()
         self.miner_fs.start ()
 
