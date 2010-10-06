@@ -49,6 +49,9 @@ class StoreHelper:
         tracker_stats = bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_STATS_OBJ_PATH)
         self.stats_iface = dbus.Interface (tracker_stats, dbus_interface=cfg.STATS_IFACE)
 
+        tracker_status = bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_STATUS_OBJ_PATH)
+        self.status_iface = dbus.Interface (tracker_status, dbus_interface=cfg.STATUS_IFACE)
+
     def query (self, query, timeout=5000):
         try:
             return self.resources.SparqlQuery (query, timeout=timeout)
@@ -93,6 +96,14 @@ class StoreHelper:
         except dbus.DBusException:
             self.connect ()
             return self.stats_iface.Get ()
+
+    def wait (self):
+        try:
+            return self.status_iface.Wait ()
+        except dbus.DBusException:
+            self.connect ()
+            return self.status_iface.Wait ()
+
 
     def get_tracker_iface (self):
         return self.resources
