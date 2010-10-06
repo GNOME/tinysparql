@@ -211,6 +211,7 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 	DBusMessage *reply;
 	GError *error = NULL;
 	GPtrArray *errors;
+	DBusMessageIter iter, subiter;
 
 	/* Check for errors */
 	reply = dbus_pending_call_steal_reply (call);
@@ -235,7 +236,23 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 	switch (fad->operation_type) {
 	case FAST_UPDATE:
 	case FAST_UPDATE_BATCH:
-		// todo: read errors into errors
+		dbus_message_iter_init (reply, &iter);
+		dbus_message_iter_recurse (&iter, &subiter);
+
+		errors = g_ptr_array_new_with_free_func ((GDestroyNotify) g_error_free);
+
+		while (dbus_message_iter_get_arg_type (&subiter) != DBUS_TYPE_INVALID) {
+			gchar *code, *message;
+			GError *error;
+
+			dbus_message_iter_get_basic (&subiter, &code);
+			dbus_message_iter_next (&subiter);
+			dbus_message_iter_get_basic (&subiter, &message);
+			error = g_error_new_literal (TRACKER_SPARQL_ERROR, 0, message);
+			g_free (code);
+			g_free (message);
+			g_ptr_array_add (errors, error);
+		}
 
 		g_simple_async_result_set_op_res_gpointer (fad->res, errors, NULL);
 		g_simple_async_result_complete (fad->res);
@@ -780,7 +797,6 @@ tracker_bus_fd_sparql_update_array_finish (GAsyncResult *res)
 {
 	g_return_val_if_fail (res != NULL, NULL);
 
-	// todo: check if ref is needed here 
 	return g_ptr_array_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
 }
 
@@ -789,6 +805,5 @@ tracker_bus_fd_sparql_batch_update_array_finish (GAsyncResult *res)
 {
 	g_return_val_if_fail (res != NULL, NULL);
 
-	// todo: check if ref is needed here 
 	return g_ptr_array_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
 }
