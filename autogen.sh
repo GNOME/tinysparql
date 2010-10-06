@@ -7,7 +7,7 @@ srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
 PKG_NAME="tracker"
-REQUIRED_AUTOMAKE_VERSION=1.9
+REQUIRED_AUTOMAKE_VERSION=1.11
 REQUIRED_VALA_VERSION=0.9.4
 
 (test -f $srcdir/configure.ac \
