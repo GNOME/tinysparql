@@ -7,6 +7,7 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
+	-I$(top_srcdir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
