@@ -338,6 +338,8 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
+	setlocale (LC_COLLATE, "en_US.utf8");
+
 	current_dir = g_get_current_dir ();
 
 	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
