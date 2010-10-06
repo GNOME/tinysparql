@@ -495,24 +495,24 @@ nmo:containsSMS a rdf:Property ;
 
 nmo:predefined-phone-msg-folder-inbox a nmo:PhoneMessageFolder ;
                              nie:title "Inbox" ;
-			     nmo:smsFolderId "0x1002" .
+			     nmo:phoneMessageFolderId "0x1002" .
 
 nmo:predefined-phone-msg-folder-outbox a nmo:PhoneMessageFolder ;
 			     nie:title "Outbox" ;
-			     nmo:smsFolderId "0x1003" .
+			     nmo:phoneMessageFolderId "0x1003" .
 
 nmo:predefined-phone-msg-folder-draft a nmo:PhoneMessageFolder ;
 			     nie:title "Draft" ;
-			     nmo:smsFolderId "0x1004" .
+			     nmo:phoneMessageFolderId "0x1004" .
 
 nmo:predefined-phone-msg-folder-sent a nmo:PhoneMessageFolder ;
 			     nie:title "Sent" ;
-			     nmo:smsFolderId "0x1005" .
+			     nmo:phoneMessageFolderId "0x1005" .
 
 
 nmo:predefined-phone-msg-folder-myfolder a nmo:PhoneMessageFolder ;
 			     nie:title "MyFolder" ;
-			     nmo:smsFolderId "0x1008" .
+			     nmo:phoneMessageFolderId "0x1008" .
 
 #
 # All these instances are deprecated
