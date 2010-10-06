@@ -740,7 +740,7 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			                        "  ?u a nfo:FileDataObject; "
 			                        "     nie:url \"%s\" "
 			                        "} ",
-			                        removable_device_urn, removable_device_urn, uri);
+			                        removable_device_urn, uri);
 
 			g_string_append_printf (queries,
 			                        "DELETE { <%s> a rdfs:Resource }  "
