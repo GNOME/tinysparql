@@ -90,6 +90,7 @@ class CommonTrackerMinerTest (ut.TestCase):
         self.system.tracker_miner_fs_testing_start (confdir)
         # Returns when ready
         self.tracker = StoreHelper ()
+        self.tracker.wait ()
         print "Ready to go!"
         
     @classmethod
