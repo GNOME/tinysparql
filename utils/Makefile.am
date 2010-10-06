@@ -5,4 +5,5 @@ SUBDIRS = 			\
 	lyrics			\
 	services		\
 	playlists		\
-	data-generators
+	data-generators		\
+	mtp
