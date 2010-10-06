@@ -791,9 +791,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	if (need_reindex) {
-		tracker_db_journal_init (NULL, FALSE);
-		db_manager_remove_journal ();
-		tracker_db_journal_shutdown ();
 		db_set_version ();
 	}
 
