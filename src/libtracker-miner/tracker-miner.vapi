@@ -79,6 +79,8 @@ namespace Tracker {
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class MinerWeb : Tracker.Miner {
+		[CCode (has_construct_function = false)]
+		public MinerWeb ();
 		[NoAccessorMethod]
 		public bool associated { get; set; }
 		public virtual void associate (GLib.HashTable association_data) throws Tracker.MinerWebError;
