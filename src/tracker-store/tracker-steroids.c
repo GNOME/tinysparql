@@ -186,9 +186,10 @@ update_array_callback (GError *error, gpointer user_data)
 
 	info->array_info.seen++;
 
+	if (!info->array_info.errors)
+		info->array_info.errors = g_ptr_array_new ();
+
 	if (error) {
-		if (!info->array_info.errors)
-			info->array_info.errors = g_ptr_array_new ();
 		g_ptr_array_add (info->array_info.errors, g_error_copy (error));
 	} else {
 		g_ptr_array_add (info->array_info.errors, NULL);
@@ -204,7 +205,7 @@ update_array_callback (GError *error, gpointer user_data)
 		dbus_message_iter_init_append (reply, &iter);
 		dbus_message_iter_open_container (&iter, DBUS_TYPE_ARRAY, "ss", &subiter);
 
-		for (i = 0; info->array_info.errors->len; i++) {
+		for (i = 0; i < info->array_info.errors->len; i++) {
 			GError *error = g_ptr_array_index (info->array_info.errors, i);
 			const gchar *str = "";
 			const gchar *message = "";
@@ -526,7 +527,7 @@ steroids_query (TrackerSteroids *steroids,
 		return;
 	}
 
-	info = g_slice_new (ClientInfo);
+	info = g_slice_new0 (ClientInfo);
 	info->connection = dbus_connection_ref (connection);
 	info->call_message = dbus_message_ref (message);
 	info->request_id = request_id;
@@ -632,7 +633,7 @@ steroids_update (TrackerSteroids *steroids,
 	                          __FUNCTION__,
 	                          fd);
 
-	info = g_slice_new (ClientInfo);
+	info = g_slice_new0 (ClientInfo);
 	info->connection = dbus_connection_ref (connection);
 	info->call_message = dbus_message_ref (message);
 	info->request_id = request_id;
@@ -809,7 +810,7 @@ steroids_update_array (TrackerSteroids *steroids,
 	                          __FUNCTION__,
 	                          fd);
 
-	info = g_slice_new (ClientInfo);
+	info = g_slice_new0 (ClientInfo);
 	info->connection = dbus_connection_ref (connection);
 	info->call_message = dbus_message_ref (message);
 	info->request_id = request_id;
@@ -822,9 +823,29 @@ steroids_update_array (TrackerSteroids *steroids,
 	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (data_input_stream),
 	                                         TRACKER_STEROIDS_BUFFER_SIZE);
 
-	info->array_info.query_count = g_data_input_stream_read_int32 (data_input_stream,
-	                                                               NULL,
-	                                                               &error);
+	info->array_info.query_count = g_data_input_stream_read_uint32 (data_input_stream,
+	                                                                NULL,
+	                                                                &error);
+
+	if (error) {
+		reply = dbus_message_new_error (info->call_message,
+		                                TRACKER_STEROIDS_INTERFACE ".UpdateError",
+		                                error->message);
+		dbus_connection_send (connection, reply, NULL);
+		dbus_message_unref (reply);
+
+		tracker_dbus_request_failed (request_id,
+		                             NULL,
+		                             NULL,
+		                             error->message);
+
+		g_object_unref (data_input_stream);
+		g_object_unref (input_stream);
+		g_error_free (error);
+		client_info_destroy (info);
+
+		return;
+	}
 
 	info->array_info.seen = 0;
 	query_array = g_new0 (gchar*, info->array_info.query_count + 1);
@@ -889,11 +910,10 @@ steroids_update_array (TrackerSteroids *steroids,
 			return;
 		}
 
-		g_object_unref (data_input_stream);
-		g_object_unref (input_stream);
-
-		info->array_info.query_count++;
 	}
+
+	g_object_unref (data_input_stream);
+	g_object_unref (input_stream);
 
 	for (i = 0; query_array[i] != NULL; i++) {
 
