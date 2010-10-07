@@ -137,9 +137,10 @@ int main (int argc, const char **argv)
   g_type_init ();
 
   /* As we know only read-only queries will be done, it's enough
-   * to use a connection with only direct-access setup. 
+   * to use a connection with only direct-access setup. The NULL
+   * represents a possible GCancellable.
    */
-  connection = <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function> (&amp;error);
+  connection = <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function> (NULL, &amp;error);
   if (!connection) {
     g_printerr ("Couldn't obtain a direct connection to the Tracker store: %s",
                 error ? error-&gt;message : "unknown error");
@@ -239,10 +240,11 @@ int main (int argc, const char **argv)
   /* Initialize GLib type system */
   g_type_init ();
 
-  /* Do NOT get a direct connection if you're going to
-   * do some write operation in the Store
+  /* Do NOT get a direct connection if you're going to do some write
+   * operation in the Store. The NULL represents a possible
+   * GCancellable.
    */
-  connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (&amp;error);
+  connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (NULL, &amp;error);
   if (!connection) {
     g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
                 error ? error-&gt;message : "unknown error");
@@ -334,10 +336,11 @@ int main (int argc, const char **argv)
   /* Initialize GLib type system */
   g_type_init ();
 
-  /* Do NOT get a direct connection if you're going to
-   * do some write operation in the Store
+  /* Do NOT get a direct connection if you're going to do some write
+   * operation in the Store. The NULL represents a possible
+   * GCancellable.
    */
-  connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (&amp;error);
+  connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (NULL, &amp;error);
   if (!connection) {
     g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
                 error ? error-&gt;message : "unknown error");

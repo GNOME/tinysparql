@@ -204,6 +204,13 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * still pending. We don't expect this to be a normal programming model when
 	 * using this API.
 	 *
+	 * All backends will call the D-Bus tracker-store API Wait() to make sure
+	 * the store and databases are in the right state before any user based
+	 * requests can proceed. There may be a small delay during this call if the
+	 * databases weren't shutdown cleanly and need to be checked on start up. If
+	 * the journal needs to be replayed in such an event, the delay may be
+	 * substantial while data is restored as best as possible.
+	 *
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
 	 *
