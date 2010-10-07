@@ -245,6 +245,7 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 	case FAST_UPDATE:
 	case FAST_UPDATE_BATCH:
 		dbus_message_iter_init (reply, &iter);
+
 		dbus_message_iter_recurse (&iter, &subiter);
 
 		errors = g_ptr_array_new_with_free_func (sparql_update_array_error_free);
@@ -256,12 +257,12 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 			dbus_message_iter_get_basic (&subiter, &code);
 			dbus_message_iter_next (&subiter);
 			dbus_message_iter_get_basic (&subiter, &message);
+			dbus_message_iter_next (&subiter);
+
 			if (code && code[0] != '\0' && message && message[0] != '\0')
 				error = g_error_new_literal (TRACKER_SPARQL_ERROR, 0, message);
 			else
 				error = NULL;
-			g_free (code);
-			g_free (message);
 			g_ptr_array_add (errors, error);
 		}
 
@@ -407,10 +408,10 @@ sparql_update_array_fast_send (DBusConnection     *connection,
 
 	switch (type) {
 	case FAST_UPDATE:
-		dbus_method = "Update";
+		dbus_method = "UpdateArray";
 		break;
 	case FAST_UPDATE_BATCH:
-		dbus_method = "BatchUpdate";
+		dbus_method = "BatchUpdateArray";
 		break;
 	default:
 		g_assert_not_reached ();
