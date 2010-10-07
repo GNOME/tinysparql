@@ -1,3 +1,46 @@
+NEW in 0.9.24 - 2010-10-07
+==========================
+
+The changes are:
+
+  * Depend on automake 1.11 for Vala support amongst things
+  * Depend on SQLite being compiled threadsafe (was previously a warning)
+  * Build: Don't fail to build if Evolution headers are absent
+  * Fixes: NB#195394, Adding a favorite tag column to a song query makes the ordering or results case sensitive, when sorted by title
+  * Fixes: NB#196143, tracker-info core dumps with NULL cursor getting prefixes
+  * Fixes: NB#195547, Corrupted DB prevents tracker-store from booting
+  * Fixes: NB#192790, Music: Character (œ) is not supported in MP3 file
+  * Ontology: Added comments to document more NMO classes and properties
+  * Ontology: Added nmo:PhoneMessage, nmo:PhoneMessageFolder classes
+  * Ontology: Added nmo:mmsHasContent property for nmo:MMSMessage
+  * Ontology: Added predefined nmo:PhoneMessageFolder items for inbox, outbox, draft, sent, myfolder
+  * Ontology: Changed domain to nmo:PhoneMessage for nmo:encoding, nmo:fromVCard, nmo:toVCard
+  * Ontolgoy: Changed subclass to nmo:PhoneMessage for nmo:MMSMessage
+  * Ontology: Deprecated nmo:containsSMSFolder, nmo:containsSMS, nmo:smsFolderId
+  * SPARQL: Use COLLATE in SQL for variables and property functions
+  * SPARQL: Use named graph of WITH clause in WHERE pattern for updates
+  * functional-tests: Added verbosity on errors.
+  * functional-tests: Don't start manually the store, let the miner-fs invoke it
+  * functional-tests: Wait for the store before starting the tests
+  * functional-tests: Create AEGIS security file at build time
+  * libtracker-data: Add test case for ORDER BY property function
+  * libtracker-miner: Make vapi file compatible with Vala 0.11.0
+  * libtracker-sparql: Assume en_US.utf8_locale for test cases for proper collation
+  * libtracker-sparql: Support GRAPH in SPARQL builder API
+  * tracker-miner-fs: Fixed regression when deleting nfo:FileDataObject resources for a mount point
+  * utils: mtp-dummy: Added a test case to synthesis an mtp daemon
+  * plugins: Evolution: Fixed build error with updated tracker_sparql_connection*() API
+
+Translations:
+
+  None
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.9.23 - 2010-09-30
 ==========================
 
