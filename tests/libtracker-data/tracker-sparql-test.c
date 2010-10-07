@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <gio/gio.h>
