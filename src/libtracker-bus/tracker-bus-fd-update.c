@@ -268,7 +268,7 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 
 		g_simple_async_result_set_op_res_gpointer (fad->res, errors, NULL);
 		g_simple_async_result_complete (fad->res);
-		g_ptr_array_free (errors, TRUE);
+		g_ptr_array_unref (errors);
 		break;
 	default:
 		g_assert_not_reached ();
