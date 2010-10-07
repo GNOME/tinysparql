@@ -295,6 +295,62 @@ test_tracker_sparql_update_fast_large ()
 }
 
 static void
+async_update_array_callback (GObject      *source_object,
+                             GAsyncResult *result,
+                             gpointer      user_data)
+{
+	AsyncData *data = user_data;
+	GPtrArray *errors;
+
+	errors = tracker_sparql_connection_update_array_finish (connection, result);
+
+	g_assert (errors->len == 6);
+
+	g_assert (g_ptr_array_index (errors, 0) == NULL);
+	g_assert (g_ptr_array_index (errors, 1) == NULL);
+	g_assert (g_ptr_array_index (errors, 2) == NULL);
+	g_assert (g_ptr_array_index (errors, 3) != NULL);
+	g_assert (g_ptr_array_index (errors, 4) == NULL);
+	g_assert (g_ptr_array_index (errors, 5) == NULL);
+
+	g_ptr_array_unref (errors);
+
+	g_main_loop_quit (data->main_loop);
+}
+
+
+static void
+test_tracker_sparql_update_array_fast ()
+{
+	const gchar *queries[6] = { "INSERT { _:a a nmo:Message }",
+	                            "INSERT { _:b a nmo:Message }",
+	                            "INSERT { _:c a nmo:Message }",
+	                            "INSERT { _:d syntax error a nmo:Message }",
+	                            "INSERT { _:e a nmo:Message }",
+	                            "INSERT { _:f a nmo:Message }" };
+
+	GMainLoop *main_loop;
+	AsyncData *data;
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	data = g_slice_new (AsyncData);
+	data->main_loop = main_loop;
+
+	tracker_sparql_connection_update_array_async (connection,
+	                                              queries, 6,
+	                                              0, NULL,
+	                                              async_update_array_callback,
+	                                              data);
+
+	g_main_loop_run (main_loop);
+
+	g_slice_free (AsyncData, data);
+	g_main_loop_unref (main_loop);
+
+}
+
+static void
 test_tracker_sparql_update_fast_error ()
 {
 	GError *error = NULL;
