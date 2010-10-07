@@ -38,11 +38,11 @@ insert_test_data ()
 {
 	GError *error = NULL;
 	const char *delete_query = "DELETE { "
-                               "<urn:testdata1> a rdfs:Resource ."
-                               "<urn:testdata2> a rdfs:Resource ."
-                               "<urn:testdata3> a rdfs:Resource ."
-                               "<urn:testdata4> a rdfs:Resource ."
-                               "}";
+	                           "<urn:testdata1> a rdfs:Resource ."
+	                           "<urn:testdata2> a rdfs:Resource ."
+	                           "<urn:testdata3> a rdfs:Resource ."
+	                           "<urn:testdata4> a rdfs:Resource ."
+	                           "}";
 	char *longName = g_malloc (LONG_NAME_SIZE);
 	char *filled_query;
 
@@ -337,8 +337,9 @@ test_tracker_sparql_update_array_async ()
 	data = g_slice_new (AsyncData);
 	data->main_loop = main_loop;
 
+	/* Cast here is because vala doesn't make const-char-** possible :( */
 	tracker_sparql_connection_update_array_async (connection,
-	                                              queries, 6,
+	                                              (char**) queries, 6,
 	                                              0, NULL,
 	                                              async_update_array_callback,
 	                                              data);
