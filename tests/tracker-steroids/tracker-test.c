@@ -320,7 +320,7 @@ async_update_array_callback (GObject      *source_object,
 
 
 static void
-test_tracker_sparql_update_array_fast ()
+test_tracker_sparql_update_array_async ()
 {
 	const gchar *queries[6] = { "INSERT { _:a a nmo:Message }",
 	                            "INSERT { _:b a nmo:Message }",
@@ -695,6 +695,7 @@ main (gint argc, gchar **argv)
 	g_test_add_func ("/steroids/tracker/tracker_sparql_update_async", test_tracker_sparql_update_async);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_update_async_cancel", test_tracker_sparql_update_async_cancel);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_async", test_tracker_sparql_update_blank_async);
+	g_test_add_func ("/steroids/tracker/tracker_sparql_update_array_async", test_tracker_sparql_update_array_async);
 
 	return g_test_run ();
 }
