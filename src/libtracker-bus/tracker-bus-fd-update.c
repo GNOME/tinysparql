@@ -204,6 +204,14 @@ sparql_update_fast_callback (DBusPendingCall *call,
 }
 
 static void
+sparql_update_array_error_free (gpointer data)
+{
+	if (data) {
+		g_error_free (data);
+	}
+}
+
+static void
 sparql_update_array_fast_callback (DBusPendingCall *call,
                                    void            *user_data)
 {
@@ -239,7 +247,7 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 		dbus_message_iter_init (reply, &iter);
 		dbus_message_iter_recurse (&iter, &subiter);
 
-		errors = g_ptr_array_new_with_free_func ((GDestroyNotify) g_error_free);
+		errors = g_ptr_array_new_with_free_func (sparql_update_array_error_free);
 
 		while (dbus_message_iter_get_arg_type (&subiter) != DBUS_TYPE_INVALID) {
 			gchar *code, *message;
@@ -248,7 +256,10 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 			dbus_message_iter_get_basic (&subiter, &code);
 			dbus_message_iter_next (&subiter);
 			dbus_message_iter_get_basic (&subiter, &message);
-			error = g_error_new_literal (TRACKER_SPARQL_ERROR, 0, message);
+			if (code && code[0] != '\0' && message && message[0] != '\0')
+				error = g_error_new_literal (TRACKER_SPARQL_ERROR, 0, message);
+			else
+				error = NULL;
 			g_free (code);
 			g_free (message);
 			g_ptr_array_add (errors, error);
