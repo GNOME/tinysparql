@@ -125,6 +125,8 @@ busy_notification_timeout (gpointer user_data)
 	               priv->status,
 	               priv->progress);
 
+	priv->timer_id = 0;
+
 	return FALSE;
 }
 
