@@ -32,6 +32,7 @@ static gchar *file_uri;
 static GFile *destdir;
 static gchar *destdir_uri;
 static gboolean use_hidden;
+static gboolean use_batch;
 
 /* copy_rate*1024*COPY_TIMEOUT_MS/1000 */
 static gint timeout_copy_rate;
@@ -42,6 +43,8 @@ static gsize  buffer_size;
 static GMainLoop *loop;
 static GList *task_list;
 static GList *task_list_li;
+
+TrackerSparqlConnection *connection;
 
 /* Note: don't use a GOutputStream, as that actually
  * creates a hidden temporary file */
@@ -67,6 +70,10 @@ static GOptionEntry entries[] = {
 	  "Use a hidden temp file while copying",
 	  NULL,
 	},
+	{ "batch", 'b', 0, G_OPTION_ARG_NONE, &use_batch,
+	  "Use a batch copy, using hidden temp files, and only rename the files when the batch is finished.",
+	  NULL,
+	},
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_STRING_ARRAY, &remaining,
 	  "file destdir",
@@ -75,25 +82,66 @@ static GOptionEntry entries[] = {
 	{ NULL }
 };
 
-static void
-update_store (GFile *destfile)
+static gchar **
+query_urns_by_url (const gchar *uri)
 {
-	gchar *sparql;
 	GError *error = NULL;
-	TrackerSparqlConnection *connection;
-	gchar *uri;
+	TrackerSparqlCursor *cursor;
+	gchar *sparql;
+	gchar **urns;
 
-	uri = g_file_get_uri (destfile);
-	sparql = g_strdup_printf ("DELETE {?file a rdfs:Resource} "
-	                          "WHERE {?file nie:url <%s> } "
-	                          "INSERT { _:x a nfo:FileDataObject;"
-	                          "             nie:url <%s> }",
-	                          uri, uri);
+	sparql = g_strdup_printf ("SELECT ?urn WHERE { ?urn nie:url \"%s\" }",
+	                          uri);
 
-	g_print ("  Updating store with new resource '%s'\n", uri);
+	/* Make a synchronous query to the store */
+	cursor = tracker_sparql_connection_query (connection,
+	                                          sparql,
+	                                          NULL,
+	                                          &error);
+	if (error) {
+		/* Some error happened performing the query, not good */
+		g_error ("Couldn't query the Tracker Store: '%s'",
+		         error ? error->message : "unknown error");
+	}
 
-	/* Get connection */
-	connection = tracker_sparql_connection_get (NULL, &error);
+	/* Check results... */
+	if (!cursor) {
+		urns = NULL;
+	} else {
+		gchar *urns_mixed;
+		GString *urns_string;
+		gint i = 0;
+
+		urns_string = g_string_new ("");
+		/* Iterate, synchronously, the results... */
+		while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
+			g_string_append_printf (urns_string,
+			                        "%s%s",
+			                        i==0 ? "" : ";",
+			                        tracker_sparql_cursor_get_string (cursor, 0, NULL));
+			i++;
+		}
+
+		if (error) {
+			g_error ("Error iterating cursor: %s",
+			         error->message);
+		}
+
+		urns_mixed = g_string_free (urns_string, FALSE);
+		urns = g_strsplit (urns_mixed, ";", -1);
+		g_free (urns_mixed);
+		g_object_unref (cursor);
+	}
+
+	g_free (sparql);
+
+	return urns;
+}
+
+static void
+update_store (const gchar *sparql)
+{
+	GError *error = NULL;
 
 	/* Run a synchronous update query */
 	tracker_sparql_connection_update (connection,
@@ -105,13 +153,63 @@ update_store (GFile *destfile)
 	if (error) {
 		/* Some error happened performing the query, not good */
 		g_error ("Couldn't update store for '%s': %s",
-		         uri,
+		         sparql,
 		         error ? error->message : "unknown error");
 	}
+}
+
+static void
+insert_element_in_store (GFile *destfile)
+{
+	gchar *sparql;
+	gchar *uri;
+
+	uri = g_file_get_uri (destfile);
+	sparql = g_strdup_printf ("DELETE { ?file a rdfs:Resource} "
+	                          "WHERE { ?file nie:url \"%s\" } "
+	                          "INSERT { _:x a nfo:FileDataObject;"
+	                          "             nie:url \"%s\" }",
+	                          uri, uri);
+
+	g_print ("  Updating store with new resource '%s'\n", uri);
+
+	update_store (sparql);
 
 	g_free (uri);
 	g_free (sparql);
-	g_object_unref (connection);
+}
+
+static void
+replace_url_element_in_store (GFile *sourcefile, GFile *destfile)
+{
+	gchar *sparql;
+	gchar *source_uri;
+	gchar *dest_uri;
+	gchar **urns;
+
+	source_uri = g_file_get_uri (sourcefile);
+	dest_uri = g_file_get_uri (destfile);
+
+
+	urns = query_urns_by_url (source_uri);
+	if (!urns || g_strv_length (urns) != 1) {
+		g_error ("Expected only 1 item with url '%s' at this point! (got %d)",
+		         source_uri,
+		         urns ? g_strv_length (urns) : 0);
+	}
+
+	sparql = g_strdup_printf ("DELETE { <%s> nie:url ?url} WHERE { <%s> nie:url ?url } "
+	                          "INSERT INTO <%s> { <%s> nie:url \"%s\" }",
+	                          urns[0], urns[0], urns[0], urns[0], dest_uri);
+
+	g_print ("  Changing nie:url from '%s' to '%s'\n", source_uri, dest_uri);
+
+	update_store (sparql);
+
+	g_strfreev (urns);
+	g_free (source_uri);
+	g_free (dest_uri);
+	g_free (sparql);
 }
 
 static gboolean
@@ -184,19 +282,29 @@ context_init (gint    argc,
 		         error ? error->message : "unknown error");
 	}
 
+	/* Get connection */
+	connection = tracker_sparql_connection_get (NULL, &error);
+	if (!connection) {
+		/* Some error happened performing the query, not good */
+		g_error ("Couldn't get sparql connection: %s",
+		         error ? error->message : "unknown error");
+	}
+
 	g_print ("\
 Simulating MTP daemon with:\n\
   * File:    %s (%" G_GSIZE_FORMAT " bytes)\n\
   * Destdir: %s\n\
   * Copies:  %d\n\
-  * Rate:    %d KBytes/s (%d bytes every %d ms)\n",
+  * Rate:    %d KBytes/s (%d bytes every %d ms)\n\
+  * Mode:    %s\n",
 	         file_uri,
 	         buffer_size,
 	         destdir_uri,
 	         n_copies,
 	         copy_rate,
 	         timeout_copy_rate,
-	         COPY_TIMEOUT_MS);
+	         COPY_TIMEOUT_MS,
+	         use_batch ? "Hidden & Batch" : use_hidden ? "Hidden" : "Normal");
 
 	return TRUE;
 }
@@ -209,6 +317,7 @@ context_deinit (void)
 	g_object_unref (destdir);
 	g_free (destdir_uri);
 	g_free (buffer);
+	g_object_unref (connection);
 }
 
 static gboolean
@@ -233,7 +342,7 @@ task_run_cb (gpointer data)
 
 		g_print ("Running new copy task...\n");
 
-		destfile_path = (use_hidden ?
+		destfile_path = (use_hidden || use_batch ?
 		                 g_file_get_path (current->destfile_hidden) :
 		                 g_file_get_path (current->destfile));
 
@@ -246,9 +355,9 @@ task_run_cb (gpointer data)
 		}
 
 		/* Create new item in the store right away */
-		update_store (use_hidden ?
-		              current->destfile_hidden :
-		              current->destfile);
+		insert_element_in_store (use_hidden || use_batch ?
+		                         current->destfile_hidden :
+		                         current->destfile);
 		g_free (destfile_path);
 	}
 
@@ -270,8 +379,12 @@ task_run_cb (gpointer data)
 		fclose (current->fp);
 		current->fp = NULL;
 
-		if (use_hidden) {
+		if (use_hidden && !use_batch) {
 			GError *error = NULL;
+
+			/* Change nie:url in the store */
+			replace_url_element_in_store (current->destfile_hidden,
+			                              current->destfile);
 
 			/* Copying finished, now MOVE to the final path */
 			if (!g_file_move (current->destfile_hidden,
@@ -288,6 +401,33 @@ task_run_cb (gpointer data)
 
 		/* Setup next task */
 		task_list_li = g_list_next (task_list_li);
+
+		/* If this is the LAST task the one we just processed, perform the
+		 * batch renaming if required. */
+		if (!task_list_li && use_batch) {
+			for (task_list_li = task_list;
+			     task_list_li;
+			     task_list_li = g_list_next (task_list_li)) {
+				GError *error = NULL;
+
+				current = task_list_li->data;
+				/* Change nie:url in the store */
+				replace_url_element_in_store (current->destfile_hidden,
+				                              current->destfile);
+
+				/* Copying finished, now MOVE to the final path */
+				if (!g_file_move (current->destfile_hidden,
+				                  current->destfile,
+				                  G_FILE_COPY_OVERWRITE,
+				                  NULL,
+				                  NULL,
+				                  NULL,
+				                  &error)) {
+					g_error ("Couldn't copy file to the final destination (batch): %s",
+					         error ? error->message : "unknown error");
+				}
+			}
+		}
 	}
 
 	return TRUE;
@@ -313,7 +453,7 @@ setup_tasks (void)
 		task->destfile = g_file_get_child (destdir, basename);
 		task->bytes_remaining = buffer_size;
 
-		if (use_hidden) {
+		if (use_hidden || use_batch) {
 			gchar *basename_hidden;
 
 			basename_hidden = g_strdup_printf (".mtp-dummy.file-copy-%d-%s",
@@ -340,59 +480,28 @@ setup_tasks (void)
 static void
 check_duplicates_for_uri (const gchar *uri)
 {
-	GError *error = NULL;
-	TrackerSparqlConnection *connection;
-	TrackerSparqlCursor *cursor;
-	gchar *sparql;
+	gchar **urns;
 
-	sparql = g_strdup_printf ("SELECT ?u WHERE { ?u nie:url <%s> }",
-	                          uri);
-
-	/* As we know only read-only queries will be done, it's enough
-	 * to use a connection with only direct-access setup.
-	 */
-	connection = tracker_sparql_connection_get_direct (NULL, &error);
-	if (!connection) {
-		g_error ("Couldn't obtain a direct connection to the Tracker store: %s",
-		         error ? error->message : "unknown error");
-	}
-
-	/* Make a synchronous query to the store */
-	cursor = tracker_sparql_connection_query (connection,
-	                                          sparql,
-	                                          NULL,
-	                                          &error);
-	if (error) {
-		/* Some error happened performing the query, not good */
-		g_error ("Couldn't query the Tracker Store: '%s'",
-		         error ? error->message : "unknown error");
-	}
+	urns = query_urns_by_url (uri);
 
 	/* Check results... */
-	if (!cursor) {
+	if (!urns) {
 		g_print ("  For '%s' found 0 results!\n", uri);
 	} else {
-		gint i = 0;
+		gint i;
 
-		g_print ("  For '%s' found:\n", uri);
-		/* Iterate, synchronously, the results... */
-		while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
-			g_print ("    [%d]: %s\n",
-			         i++,
-			         tracker_sparql_cursor_get_string (cursor, 0, NULL));
+		g_print ("  A total of '%d results where found for '%s':\n",
+		         g_strv_length (urns), uri);
+		for (i=0; urns[i]; i++) {
+			g_print ("    [%d]: %s\n", i, urns[i]);
 		}
-		g_print ("    A total of '%d' results were found\n", i);
-
-		g_object_unref (cursor);
+		g_strfreev (urns);
 	}
-
-	g_object_unref (connection);
 }
 
 static void
 check_duplicates (void)
 {
-
 	g_print ("\nChecking duplicates...\n");
 
 	task_list_li = task_list;
