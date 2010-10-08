@@ -73,18 +73,28 @@ namespace Tracker.Sparql {
 
 	class Variable : Object {
 		public string name { get; private set; }
+		public int index { get; private set; }
 		public string sql_expression { get; private set; }
 		public VariableBinding binding;
 		string sql_identifier;
 
-		public Variable (string name, string sql_identifier) {
+		public Variable (string name, int index) {
 			this.name = name;
-			this.sql_identifier = sql_identifier;
+			this.index = index;
+			this.sql_identifier = "%d_u".printf (index);
 			this.sql_expression = "\"%s\"".printf (sql_identifier);
 		}
 
 		public string get_extra_sql_expression (string suffix) {
 			return "\"%s:%s\"".printf (sql_identifier, suffix);
+		}
+
+		public static bool equal (Variable a, Variable b) {
+			return a.index == b.index;
+		}
+
+		public static uint hash (Variable variable) {
+			return (uint) variable.index;
 		}
 	}
 
@@ -108,12 +118,12 @@ namespace Tracker.Sparql {
 		public Context (Query query, Context? parent_context = null) {
 			this.query = query;
 			this.parent_context = parent_context;
-			this.var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+			this.var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
 
 			if (parent_context == null) {
-				select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+				select_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
 				var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
-				predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+				predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (Variable.hash, Variable.equal, g_object_unref, g_object_unref);
 			} else {
 				select_var_set = parent_context.select_var_set;
 				var_map = parent_context.var_map;
@@ -124,20 +134,18 @@ namespace Tracker.Sparql {
 		public Context.subquery (Query query, Context parent_context) {
 			this.query = query;
 			this.parent_context = parent_context;
-			this.var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+			this.var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
 
-			select_var_set = new HashTable<Variable,int>.full (direct_hash, direct_equal, g_object_unref, null);
+			select_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
 			var_map = parent_context.var_map;
-			predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (direct_hash, direct_equal, g_object_unref, g_object_unref);
+			predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (Variable.hash, Variable.equal, g_object_unref, g_object_unref);
 			scalar_subquery = true;
 		}
 
 		internal unowned Variable get_variable (string name) {
 			unowned Variable result = this.var_map.lookup (name);
 			if (result == null) {
-				string sql_identifier = "%d_u".printf (++query.last_var_index);
-
-				var variable = new Variable (name, sql_identifier);
+				var variable = new Variable (name, ++query.last_var_index);
 				this.var_map.insert (name, variable);
 
 				result = variable;
