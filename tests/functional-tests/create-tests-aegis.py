@@ -48,7 +48,7 @@ def print_aegis_perm_request (filename):
     print '      <credential name="tracker::tracker-extract-access" />' 
     print '      <credential name="tracker::tracker-miner-fs-access" />' 
     print '      <credential name="GRP::metadata-users" />' 
-    print '      <for path="%s">' % (install_path)
+    print '      <for path="%s" />' % (install_path)
     print "   </request>"
 
 
