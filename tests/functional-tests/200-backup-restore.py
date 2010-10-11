@@ -381,7 +381,9 @@ class JournalReplayTest (CommonTrackerStoreTest):
             ie = self.tracker.count_instances ("nie:InformationElement")
             contacts = self.tracker.count_instances ("nco:Contact")
 
-            self.system.tracker_store_remove_dbs ()
+
+            self.system.tracker_store_prepare_journal_replay ()
+        
             self.system.tracker_store_brutal_restart ()
 
             emails_now = self.tracker.count_instances ("nmo:Email")

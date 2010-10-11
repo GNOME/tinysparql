@@ -21,6 +21,84 @@ XDG_CONFIG_HOME_DIR = os.path.join (cfg.TEST_TMP_DIR, "xdg-config-home")
 
 REASONABLE_TIMEOUT = 30
 
+class TrackerStoreLifeCycle ():
+
+    def __init__ (self):
+        self.timeout_id = 0
+
+    def start (self):
+        """
+        call this method to start and instance of tracker-store. It will return when the store is ready
+        """
+        self.loop = gobject.MainLoop()
+        dbus_loop = DBusGMainLoop(set_as_default=True)
+        self.bus = dbus.SessionBus (dbus_loop)
+
+        obj = self.bus.get_object ("org.freedesktop.DBus",
+                                   "/org/freedesktop/DBus")
+        self.admin = dbus.Interface (obj, dbus_interface="org.freedesktop.DBus")
+        if (self.admin.NameHasOwner (cfg.TRACKER_BUSNAME)):
+            raise Exception ("Store is already running! kill it before starting this one")
+
+        self.name_owner_match = self.bus.add_signal_receiver (self.__name_owner_changed_cb,
+                                                         signal_name="NameOwnerChanged",
+                                                         path="/org/freedesktop/DBus",
+                                                         dbus_interface="org.freedesktop.DBus")
+        self.store_proc = self.__start_tracker_store ()
+        
+        # It should step out of this loop when the miner is visible in DBus
+        self.loop.run ()
+
+        tracker = self.bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_OBJ_PATH)
+        tracker_status = self.bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_STATUS_OBJ_PATH)
+        self.status_iface = dbus.Interface (tracker_status, dbus_interface=cfg.STATUS_IFACE)
+        print "Waiting for the store to be ready"
+        self.status_iface.Wait ()
+        print "Store is ready"
+
+        
+    def stop (self):
+        self.__stop_tracker_store ()
+        # It should step out of this loop when the miner disappear from the bus
+        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
+        self.loop.run ()
+
+        print "Store stopped"
+        # Disconnect the signals of the next start we get duplicated messages
+        self.bus._clean_up_signal_match (self.name_owner_match)
+
+    def kill (self):
+        self.store_proc.kill ()
+        self.loop.run ()
+        # Name owner changed cb should take us out from this loop
+
+        print "Store killed."
+        self.bus._clean_up_signal_match (self.name_owner_match)
+
+    def __timeout_on_idle (self):
+        print "Timeout (store)... asumming idle"
+        self.loop.quit ()
+        return False
+
+    def __name_owner_changed_cb (self, name, old_owner, new_owner):
+        if name == cfg.TRACKER_BUSNAME:
+            print "Store name change %s -> %s" % (old_owner, new_owner)
+            self.loop.quit ()
+
+    def __start_tracker_store (self):
+        tracker_binary = os.path.join (cfg.EXEC_PREFIX, "tracker-store")
+        tracker = [tracker_binary]
+        # The env variables can be passed as parameters!
+        FNULL = open('/dev/null', 'w')
+        return subprocess.Popen (tracker, stdout=FNULL, stderr=FNULL)
+
+    def __stop_tracker_store (self):
+        #control_binary = os.path.join (cfg.BINDIR, "tracker-control")
+        #FNULL = open('/dev/null', 'w')
+        #subprocess.call ([control_binary, "-t"], stdout=FNULL)
+        self.store_proc.terminate ()
+
+
 class TrackerMinerFsLifeCycle():
     """
     Starts and monitors the miner-fs life cycle
@@ -207,18 +285,24 @@ class TrackerSystemAbstraction:
         self.__stop_tracker_processes ()
         self.set_up_environment (confdir)
         
-        self.tracker_running = self.__start_tracker_store ()
+        self.store = TrackerStoreLifeCycle ()
+        self.store.start ()
+
+    def tracker_store_start (self):
+        self.store.start ()
 
     def tracker_store_brutal_restart (self):
-        self.tracker_running.kill ()
-        time.sleep (1)
-        self.tracker_running = self.__start_tracker_store ()
-        time.sleep (1)
+        self.store.kill ()
+        self.store.start ()
 
-    def tracker_store_remove_dbs (self):
-        db_location = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker")
-        shutil.rmtree (db_location)
-        os.mkdir (db_location)
+    def tracker_store_prepare_journal_replay (self):
+        db_location = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker", "meta.db")
+        os.unlink (db_location)
+
+        lockfile = os.path.join (TEST_ENV_VARS ['XDG_DATA_HOME'], "tracker", "data", ".ismeta.running")
+        f = open (lockfile, 'w')
+        f.write (" ")
+        f.close ()
 
     def tracker_store_corrupt_dbs (self):
         db_path = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker", "meta.db")
@@ -236,7 +320,8 @@ class TrackerSystemAbstraction:
         """
         Stops a running tracker-store and unset all the XDG_*_HOME vars
         """
-        self.__stop_tracker_processes ()
+        assert self.store
+        self.store.stop ()
         self.unset_up_environment ()
 
 
@@ -282,14 +367,6 @@ class TrackerSystemAbstraction:
     #
     # Private API
     #
-    def __start_tracker_store (self):
-        tracker_binary = os.path.join (cfg.EXEC_PREFIX, "tracker-store")
-        tracker = [tracker_binary]
-        # The env variables can be passed as parameters!
-        FNULL = open('/dev/null', 'w')
-        return subprocess.Popen (tracker, stdout=FNULL, stderr=FNULL)
-
-
     def __stop_tracker_processes (self):
         control_binary = os.path.join (cfg.BINDIR, "tracker-control")
         FNULL = open('/dev/null', 'w')
