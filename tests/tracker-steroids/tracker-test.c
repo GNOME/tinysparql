@@ -299,10 +299,14 @@ async_update_array_callback (GObject      *source_object,
                              GAsyncResult *result,
                              gpointer      user_data)
 {
+	GError *error = NULL;
 	AsyncData *data = user_data;
 	GPtrArray *errors;
 
-	errors = tracker_sparql_connection_update_array_finish (connection, result);
+	errors = tracker_sparql_connection_update_array_finish (connection, result, &error);
+
+	/* main error is only set on fatal (D-Bus) errors that apply to the whole update */
+	g_assert_no_error (error);
 
 	g_assert (errors->len == 6);
 

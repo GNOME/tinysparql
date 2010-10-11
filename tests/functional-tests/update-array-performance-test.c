@@ -73,9 +73,11 @@ async_update_array_callback (GObject      *source_object,
                              gpointer      user_data)
 {
 	AsyncData *data = user_data;
+	GError *error = NULL;
 	GPtrArray *errors;
 
-	errors = tracker_sparql_connection_update_array_finish (connection, result);
+	errors = tracker_sparql_connection_update_array_finish (connection, result, &error);
+	g_assert_no_error (error);
 	g_ptr_array_unref (errors);
 	g_main_loop_quit (data->main_loop);
 }
