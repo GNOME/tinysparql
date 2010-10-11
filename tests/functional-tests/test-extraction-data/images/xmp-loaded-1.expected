@@ -17,7 +17,3 @@ dc_language=es_ES
 dc_coverage=from Helsinki all around the world
 nfo_width=165
 nfo_height=66
-
-[Meego]
-nfo_height=144
-nfo_width=192
