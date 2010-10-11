@@ -437,6 +437,10 @@ extract_vorbis (const char *uri,
 	g_free (vd.album_artist);
 	g_free (vd.performer);
 
+#ifdef HAVE_POSIX_FADVISE
+	posix_fadvise (fileno (f), 0, 0, POSIX_FADV_DONTNEED);
+#endif /* HAVE_POSIX_FADVISE */
+
 	/* NOTE: This calls fclose on the file */
 	ov_clear (&vf);
 }

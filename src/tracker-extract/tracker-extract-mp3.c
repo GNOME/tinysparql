@@ -2031,6 +2031,10 @@ extract_mp3 (const gchar          *uri,
 
 	id3v1_buffer = read_id3v1_buffer (fd, size);
 
+#ifdef HAVE_POSIX_FADVISE
+	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+#endif /* HAVE_POSIX_FADVISE */
+
 	close (fd);
 
 	if (buffer == NULL || buffer == (void*) -1) {

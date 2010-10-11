@@ -17,8 +17,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -272,6 +275,9 @@ tracker_read_text_from_fd (gint     fd,
 	}
 
 	/* Close the file here */
+#ifdef HAVE_POSIX_FADVISE
+	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+#endif /* HAVE_POSIX_FADVISE */
 	fclose (fz);
 
 	/* Validate UTF-8 if something was read, and return it */

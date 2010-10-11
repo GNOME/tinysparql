@@ -88,6 +88,12 @@ tracker_file_close (FILE     *file,
 {
 	g_return_if_fail (file != NULL);
 
+#ifdef HAVE_POSIX_FADVISE
+	if (!need_again_soon) {
+		posix_fadvise (fileno (file), 0, 0, POSIX_FADV_DONTNEED);
+	}
+#endif /* HAVE_POSIX_FADVISE */
+
 	fclose (file);
 }
 

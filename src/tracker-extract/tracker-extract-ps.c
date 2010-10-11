@@ -284,6 +284,9 @@ extract_ps_gz (const gchar          *uri,
 	{
 		g_debug ("Extracting compressed PS '%s'...", uri);
 		extract_ps_from_filestream (fz, preupdate, metadata);
+#ifdef HAVE_POSIX_FADVISE
+		posix_fadvise (fdz, 0, 0, POSIX_FADV_DONTNEED);
+#endif /* HAVE_POSIX_FADVISE */
 		fclose (fz);
 	}
 
