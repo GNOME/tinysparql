@@ -109,11 +109,14 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 
 	public async override GLib.PtrArray? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		try {
+			// helper variable necessary to work around bug in vala < 0.11
+			PtrArray result;
 			if (priority >= GLib.Priority.DEFAULT) {
-				return yield tracker_bus_fd_sparql_update_array_async (connection, sparql, cancellable);
+				result = yield tracker_bus_fd_sparql_update_array_async (connection, sparql, cancellable);
 			} else {
-				return yield tracker_bus_fd_sparql_batch_update_array_async (connection, sparql, cancellable);
+				result = yield tracker_bus_fd_sparql_batch_update_array_async (connection, sparql, cancellable);
 			}
+			return result;
 		} catch (DBus.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
