@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2010-09-30T16:00:00Z" .
+	nao:lastModified "2010-10-11T15:00:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -32,7 +32,8 @@ nco:Contact a rdfs:Class ;
 nco:ContactGroup a rdfs:Class ;
 	rdfs:label "ContactGroup" ;
 	rdfs:comment "A group of Contacts. Could be used to express a group in an addressbook or on a contact list of an IM application. One contact can belong to many groups." ;
-	rdfs:subClassOf nie:InformationElement .
+	rdfs:subClassOf nie:InformationElement ;
+	tracker:notify true .
 
 nco:ContactList a rdfs:Class ;
 	rdfs:label "ContactList" ;
