@@ -526,7 +526,7 @@ selected_for_albumart="no  (disabled)"
 
 if test "x$enable_quill" != "xno" && test "x$enable_gdkpixbuf" != "xyes"; then
    PKG_CHECK_MODULES(QUILL,
-                     [quill >= $QUILL_REQUIRED],
+                     [quillimagefilter >= $QUILL_REQUIRED],
                      [have_quill=yes],
                      [have_quill=no])
    AC_SUBST(QUILL_LIBS)
