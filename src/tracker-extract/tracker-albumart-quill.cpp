@@ -21,8 +21,6 @@
  * Philip Van Hoof <philip@codeminded.be>
  */
 
-#include <quill.h>
-#include <quillfile.h>
 
 #include <QFile>
 #include <QBuffer>
