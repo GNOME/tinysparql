@@ -1871,7 +1871,11 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_fulltext_no_limit (property, fulltext_no_limit);
 			tracker_property_set_embedded (property, !annotation);
 			tracker_property_set_is_inverse_functional_property (property, is_inverse_functional_property);
-			property_add_super_properties_from_db (iface, property);
+
+			/* super properties are only used in updates, never for queries */
+			if ((tracker_db_manager_get_flags (NULL, NULL) & TRACKER_DB_MANAGER_READONLY) == 0) {
+				property_add_super_properties_from_db (iface, property);
+			}
 
 			tracker_ontologies_add_property (property);
 			tracker_ontologies_add_id_uri_pair (id, uri);
