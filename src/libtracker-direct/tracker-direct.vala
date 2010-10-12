@@ -24,13 +24,6 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	public Connection () throws Sparql.Error
 	requires (!initialized) {
 		uint select_cache_size = 100;
-
-		try {
-			var connection = DBus.Bus.get (DBus.BusType.SESSION);
-		} catch (DBus.Error e) {
-			throw new Sparql.Error.INTERNAL ("Unable to initialize database");
-		}
-
 		string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
 
 		if (env_cache_size != null) {
