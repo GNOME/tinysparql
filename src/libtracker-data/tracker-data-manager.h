@@ -49,36 +49,6 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  fla
                                                       const gchar           *busy_status);
 void     tracker_data_manager_shutdown               (void);
 
-void     tracker_data_ontology_load_statement        (const gchar           *ontology_file,
-                                                      gint                   subject_id,
-                                                      const gchar           *subject,
-                                                      const gchar           *predicate,
-                                                      const gchar           *object,
-                                                      gint                  *max_id,
-                                                      gboolean               in_update,
-                                                      GHashTable            *classes,
-                                                      GHashTable            *properties,
-                                                      GPtrArray             *seen_classes,
-                                                      GPtrArray             *seen_properties);
-void     tracker_data_ontology_import_into_db        (gboolean               is_new);
-void     tracker_data_ontology_process_statement     (const gchar           *graph,
-                                                      const gchar           *subject,
-                                                      const gchar           *predicate,
-                                                      const gchar           *object,
-                                                      gboolean               is_uri,
-                                                      gboolean               in_update,
-                                                      gboolean               ignore_nao_last_modified);
-void    tracker_data_ontology_import_finished        (void);
-void    tracker_data_ontology_process_changes_pre_db (GPtrArray             *seen_classes,
-                                                      GPtrArray             *seen_properties);
-void    tracker_data_ontology_process_changes_post_db
-                                                     (GPtrArray             *seen_classes,
-                                                      GPtrArray             *seen_properties);
-void    tracker_data_ontology_process_changes_post_import
-                                                     (GPtrArray             *seen_classes,
-                                                      GPtrArray             *seen_properties);
-void    tracker_data_ontology_free_seen              (GPtrArray             *seen);
-
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_MANAGER_H__ */

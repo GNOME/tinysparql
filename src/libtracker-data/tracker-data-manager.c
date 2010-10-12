@@ -405,7 +405,7 @@ fix_indexed (TrackerProperty *property)
 	}
 }
 
-void
+static void
 tracker_data_ontology_load_statement (const gchar *ontology_path,
                                       gint         subject_id,
                                       const gchar *subject,
@@ -966,7 +966,7 @@ check_for_deleted_domain_index (TrackerClass *class)
 	g_slist_free (hfound);
 }
 
-void
+static void
 tracker_data_ontology_process_changes_pre_db (GPtrArray *seen_classes,
                                                GPtrArray *seen_properties)
 {
@@ -980,7 +980,7 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray *seen_classes,
 	}
 }
 
-void
+static void
 tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
                                                GPtrArray *seen_properties)
 {
@@ -1102,14 +1102,14 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 	}
 }
 
-void
+static void
 tracker_data_ontology_process_changes_post_import (GPtrArray *seen_classes,
                                                    GPtrArray *seen_properties)
 {
 	return;
 }
 
-void
+static void
 tracker_data_ontology_free_seen (GPtrArray *seen)
 {
 	if (seen) {
@@ -1259,7 +1259,7 @@ load_ontology_ids_from_journal (GHashTable **uri_id_map_out)
 	*uri_id_map_out = uri_id_map;
 }
 
-void
+static void
 tracker_data_ontology_process_statement (const gchar *graph,
                                          const gchar *subject,
                                          const gchar *predicate,
@@ -2562,7 +2562,7 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 	}
 }
 
-void
+static void
 tracker_data_ontology_import_finished (void)
 {
 	TrackerClass **classes;
@@ -2584,7 +2584,7 @@ tracker_data_ontology_import_finished (void)
 	}
 }
 
-void
+static void
 tracker_data_ontology_import_into_db (gboolean in_update)
 {
 	TrackerDBInterface *iface;
