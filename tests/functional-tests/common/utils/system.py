@@ -316,6 +316,12 @@ class TrackerSystemAbstraction:
         shutil.rmtree (db_location)
         os.mkdir (db_location)
 
+    def tracker_store_remove_dbs (self):
+        db_location = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker")
+        shutil.rmtree (db_location)
+        os.mkdir (db_location)
+        
+
     def tracker_store_testing_stop (self):
         """
         Stops a running tracker-store and unset all the XDG_*_HOME vars
