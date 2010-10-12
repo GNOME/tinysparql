@@ -1884,7 +1884,7 @@ insert_uri_in_resource_table (TrackerDBInterface *iface,
 	GError *error = NULL;
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-	                                              "INSERT "
+	                                              "INSERT OR IGNORE "
 	                                              "INTO Resource "
 	                                              "(ID, Uri) "
 	                                              "VALUES (?, ?)");
@@ -2855,6 +2855,17 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		tracker_db_interface_sqlite_fts_init (iface, TRUE);
 
 		tracker_data_ontology_import_into_db (FALSE);
+
+		if (uri_id_map) {
+			/* restore all IDs from ontology journal */
+			GHashTableIter iter;
+			gpointer key, value;
+
+			g_hash_table_iter_init (&iter, uri_id_map);
+			while (g_hash_table_iter_next (&iter, &key, &value)) {
+				insert_uri_in_resource_table (iface, key, GPOINTER_TO_INT (value));
+			}
+		}
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
