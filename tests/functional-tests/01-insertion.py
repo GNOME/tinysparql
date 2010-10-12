@@ -89,7 +89,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                    nfo:fileLastModified '2008-10-23T13:47:02' ; 
                    nfo:fileCreated '2008-12-16T12:41:20' ; 
                    nfo:fileSize 17630 ; 
-                   nmm:length 219252 ;
+                   nfo:duration 219252 ;
                    nie:title 'Subterranean homesick blues';
                    nmm:performer <urn:uuid:bob-dylan>.
                    }
@@ -100,7 +100,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                     ?uri a nmm:MusicPiece ;
                          nmm:performer <urn:uuid:bob-dylan> ;
                          nie:title ?title ;
-                         nmm:length ?length .
+                         nfo:duration ?length .
                 }
                 """
 
@@ -139,7 +139,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                     nfo:fileSize 17630; 
                     nmm:musicAlbum <urn:uuid:123123123>; 
                     nmm:trackNumber '11'; 
-                    nmm:length 219252; 
+                    nfo:duration 219252; 
                     nmm:performer <urn:uuid:7646004>.
                     }
 
@@ -149,7 +149,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 SELECT ?artist ?length ?trackN ?album ?size ?flm ?fc ?filename  WHERE {
                     <file:///a/b/c/imagine.mp3> a nmm:MusicPiece ;
                         nmm:performer ?x ;
-                        nmm:length ?length ;
+                        nfo:duration ?length ;
                         nmm:trackNumber ?trackN ;
                         nmm:musicAlbum ?y ;
                         nfo:fileSize ?size ;
