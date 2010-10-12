@@ -2707,6 +2707,7 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 	GError *journal_error = NULL;
 	TrackerProperty *rdf_type = NULL;
 	gint last_operation_type = 0;
+	const gchar *uri;
 
 	rdf_type = tracker_ontologies_get_rdf_type ();
 
@@ -2723,7 +2724,6 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 			TrackerDBInterface *iface;
 			TrackerDBStatement *stmt;
 			gint id;
-			const gchar *uri;
 
 			tracker_db_journal_reader_get_resource (&id, &uri);
 
@@ -2760,7 +2760,7 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 			}
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
 			GError *new_error = NULL;
-			TrackerProperty *property;
+			TrackerProperty *property = NULL;
 
 			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
@@ -2773,7 +2773,10 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 			}
 			last_operation_type = 1;
 
-			property = tracker_ontologies_get_property_by_uri (tracker_ontologies_get_uri_by_id (predicate_id));
+			uri = tracker_ontologies_get_uri_by_id (predicate_id);
+			if (uri) {
+				property = tracker_ontologies_get_property_by_uri (uri);
+			}
 
 			if (property) {
 				resource_buffer_switch (NULL, graph_id, NULL, subject_id);
@@ -2792,7 +2795,7 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
 			GError *new_error = NULL;
 			TrackerClass *class = NULL;
-			TrackerProperty *property;
+			TrackerProperty *property = NULL;
 
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
@@ -2805,7 +2808,10 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 			}
 			last_operation_type = 1;
 
-			property = tracker_ontologies_get_property_by_uri (tracker_ontologies_get_uri_by_id (predicate_id));
+			uri = tracker_ontologies_get_uri_by_id (predicate_id);
+			if (uri) {
+				property = tracker_ontologies_get_property_by_uri (uri);
+			}
 
 			if (property) {
 				if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
@@ -2814,7 +2820,10 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 					resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
 					if (property == rdf_type) {
-						class = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_uri_by_id (object_id));
+						uri = tracker_ontologies_get_uri_by_id (object_id);
+						if (uri) {
+							class = tracker_ontologies_get_class_by_uri (uri);
+						}
 						if (class) {
 							cache_create_service_decomposed (class, NULL, graph_id);
 						} else {
@@ -2838,7 +2847,7 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT) {
 			GError *new_error = NULL;
-			TrackerProperty *property;
+			TrackerProperty *property = NULL;
 
 			tracker_db_journal_reader_get_statement (&graph_id, &subject_id, &predicate_id, &object);
 
@@ -2853,15 +2862,21 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 
 			resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
-			property = tracker_ontologies_get_property_by_uri (tracker_ontologies_get_uri_by_id (predicate_id));
+			uri = tracker_ontologies_get_uri_by_id (predicate_id);
+			if (uri) {
+				property = tracker_ontologies_get_property_by_uri (uri);
+			}
 
 			if (property) {
 				GError *new_error = NULL;
 
 				if (object && rdf_type == property) {
-					TrackerClass *class;
+					TrackerClass *class = NULL;
 
-					class = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_uri_by_id (object_id));
+					uri = tracker_ontologies_get_uri_by_id (object_id);
+					if (uri) {
+						class = tracker_ontologies_get_class_by_uri (uri);
+					}
 					if (class != NULL) {
 						cache_delete_resource_type (class, NULL, graph_id);
 					} else {
@@ -2883,7 +2898,7 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 		} else if (type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID) {
 			GError *new_error = NULL;
 			TrackerClass *class = NULL;
-			TrackerProperty *property;
+			TrackerProperty *property = NULL;
 
 			tracker_db_journal_reader_get_statement_id (&graph_id, &subject_id, &predicate_id, &object_id);
 
@@ -2896,14 +2911,20 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 			}
 			last_operation_type = -1;
 
-			property = tracker_ontologies_get_property_by_uri (tracker_ontologies_get_uri_by_id (predicate_id));
+			uri = tracker_ontologies_get_uri_by_id (predicate_id);
+			if (uri) {
+				property = tracker_ontologies_get_property_by_uri (uri);
+			}
 
 			if (property) {
 
 				resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
 				if (property == rdf_type) {
-					class = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_uri_by_id (object_id));
+					uri = tracker_ontologies_get_uri_by_id (object_id);
+					if (uri) {
+						class = tracker_ontologies_get_class_by_uri (uri);
+					}
 					if (class) {
 						cache_delete_resource_type (class, NULL, graph_id);
 					} else {
