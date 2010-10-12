@@ -436,7 +436,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				return;
 			}
 
-			if (max_id) {
+			if (subject_id == 0) {
 				subject_id = ++(*max_id);
 			}
 
@@ -476,7 +476,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				return;
 			}
 
-			if (max_id) {
+			if (subject_id == 0) {
 				subject_id = ++(*max_id);
 			}
 
@@ -1141,7 +1141,7 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		const gchar *subject, *predicate, *object;
-		gint subject_id;
+		gint subject_id = 0;
 
 		subject = tracker_turtle_reader_get_subject (reader);
 		predicate = tracker_turtle_reader_get_predicate (reader);
@@ -1151,7 +1151,7 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 			subject_id = GPOINTER_TO_INT (g_hash_table_lookup (uri_id_map, subject));
 		}
 
-		tracker_data_ontology_load_statement (ontology_path, 0, subject, predicate, object,
+		tracker_data_ontology_load_statement (ontology_path, subject_id, subject, predicate, object,
 		                                      max_id, in_update, NULL, NULL,
 		                                      seen_classes, seen_properties);
 	}
