@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2011-01-20T12:45:00Z" .
+	nao:lastModified "2011-01-25T13:30:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -53,11 +53,6 @@ nmo:Attachment a rdfs:Class ;
 
 nmo:MailAccount a rdfs:Class ;
 	rdfs:subClassOf nie:InformationElement .
-
-# FIXME Remove this one next release
-nmo:Mailbox a rdfs:Class ;
-	nao:deprecated true ;
-	rdfs:subClassOf nmo:MailAccount .
 
 nmo:MailboxDataObject a rdfs:Class ;
 	rdfs:subClassOf nie:DataObject .
@@ -176,13 +171,6 @@ nmo:isEmergency a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
-
-nmo:plainTextMessageContent a rdf:Property ;
-	rdfs:comment "nmo:plainTextMessageContent is deprecated, use nie:plainTextContent instead" ;
-	nao:deprecated true ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Message ;
-	rdfs:range xsd:string .
 
 nmo:htmlMessageContent a rdf:Property ;
 	nrl:maxCardinality 1 ;

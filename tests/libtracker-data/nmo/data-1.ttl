@@ -25,7 +25,7 @@ _:a1 a nmo:Message .
 
 _:a1 nmo:messageSubject "stringly data for nmo:messageSubject" .
 _:a1 nmo:isRead "stringly data for nmo:isRead" .
-_:a1 nmo:plainTextMessageContent "stringly data for nmo:plainTextMessageContent" .
+_:a1 nie:plainTextContent "stringly data for nie:plainTextContent" .
 _:a1 nmo:messageId "stringly data for nmo:messageId" .
 
 _:a2 a nmo:MailAccount .

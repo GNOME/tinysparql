@@ -66,7 +66,7 @@ QUERY_FOR_URI = """
 
 QUERY_FOR_TEXT = """
     SELECT ?text WHERE {
-    <%s> nmo:plainTextMessageContent ?text .
+    <%s> nie:plainTextContent ?text .
     }
 """
 

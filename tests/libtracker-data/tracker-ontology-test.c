@@ -78,7 +78,6 @@ const TestInfo nmo_tests[] = {
 	{ "nmo/filter-isrecent-1", "nmo/data-1" },
 	{ "nmo/filter-messageid-1", "nmo/data-1" },
 	{ "nmo/filter-messagesubject-1", "nmo/data-1" },
-	{ "nmo/filter-plaintextmessagecontent-1", "nmo/data-1" },
 	{ NULL }
 };
 

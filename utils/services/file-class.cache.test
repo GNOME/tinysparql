@@ -720,7 +720,6 @@ nmo nmo:isDeleted
 nmo nmo:isDraft
 nmo nmo:isRecent
 nmo nmo:isRead
-nmo nmo:plainTextMessageContent
 nmo nmo:htmlMessageContent
 nmo nmo:references
 nmo nmo:inReplyTo

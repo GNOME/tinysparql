@@ -574,7 +574,7 @@ class TrackerStorePhoneNumberTest (CommonTrackerStoreTest):
                     <test://test_phone_1/message> a nmo:Message ; 
                          nmo:from [a nco:Contact ; nco:hasPhoneNumber <tel:123456789>];
                          nmo:receivedDate '2010-01-02T10:13:00Z' ; 
-                         nmo:plainTextMessageContent 'hello'
+                         nie:plainTextContent 'hello'
                 }
                 """
                 self.tracker.update (INSERT_MESSAGE)

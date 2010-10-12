@@ -346,7 +346,7 @@ item_verify_reply_cb (GObject      *source_object,
 
 	tmp_string = feed_item_get_description (item);
 	if (tmp_string != NULL) {
-		tracker_sparql_builder_predicate (sparql, "nmo:plainTextMessageContent");
+		tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
 	}
 

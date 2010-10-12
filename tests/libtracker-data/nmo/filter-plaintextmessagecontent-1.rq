@@ -1,3 +1,0 @@
-SELECT ?plainTextMessageContent
-WHERE { ?x nmo:plainTextMessageContent ?plainTextMessageContent }
-ORDER BY ?plainTextMessageContent

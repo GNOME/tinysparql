@@ -118,7 +118,7 @@ def generateSMS (many):
         sys.stdout.write('\tnmo:receivedDate "' + getPseudoRandomDate () + '";\n')
         if (random.randint(0, 4) > 3):
             sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' +  getRandomTag () +'];\n')
-        sys.stdout.write('\tnmo:plainTextMessageContent "' + str.replace(gen_data.create_paragraphs(1, 5, 8), "\n", "") + '".\n')
+        sys.stdout.write('\tnie:plainTextContent "' + str.replace(gen_data.create_paragraphs(1, 5, 8), "\n", "") + '".\n')
         sys.stdout.write('\n')
 
 def generateEmailAddress():
@@ -164,7 +164,7 @@ def generateEmail(sys, gen_data, str, random):
         sys.stdout.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel ' +  getRandomTag () +'];\n')
 
     sys.stdout.write('\tnmo:messageSubject "' + str.replace(gen_data.create_paragraphs(1, 2, 2), "\n", "") + '";\n')
-    sys.stdout.write('\tnmo:plainTextMessageContent "' + str.replace(gen_data.create_paragraphs(1, 2, 3), "\n", "") + '".\n')
+    sys.stdout.write('\tnie:plainTextContent "' + str.replace(gen_data.create_paragraphs(1, 2, 3), "\n", "") + '".\n')
 
 # BEGIN CREATING.
 if (len(sys.argv) < 2):

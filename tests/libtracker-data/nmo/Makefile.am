@@ -31,6 +31,4 @@ EXTRA_DIST =                                           \
 	filter-messageid-1.out                         \
 	filter-messageid-1.rq                          \
 	filter-messagesubject-1.out                    \
-	filter-messagesubject-1.rq                     \
-	filter-plaintextmessagecontent-1.out           \
-	filter-plaintextmessagecontent-1.rq
+	filter-messagesubject-1.rq

@@ -42,7 +42,7 @@ INSERT {
 <%s> a mfo:FeedMessage ;
  nie:contentLastModified "%s" ;
  nmo:communicationChannel <http://maemo.org/news/planet-maemo/atom.xml>;
- nmo:plainTextMessageContent "%s" ;
+ nie:plainTextContent "%s" ;
  nie:title "%s".
  }
 """
