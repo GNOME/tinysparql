@@ -38,6 +38,8 @@
 
 #include "tracker-db-interface-sqlite.h"
 
+#define UNKNOWN_STATUS 0.5
+
 typedef struct {
 	TrackerDBStatement *head;
 	TrackerDBStatement *tail;
@@ -517,7 +519,7 @@ check_interrupt (void *user_data)
 
 	if (db_interface->busy_callback) {
 		db_interface->busy_callback (db_interface->busy_status,
-		                             0.5, /* No idea to get the status from SQLite */
+		                             UNKNOWN_STATUS, /* No idea to get the status from SQLite */
 		                             db_interface->busy_user_data);
 	}
 
@@ -855,10 +857,11 @@ tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_int
 	}
 
 	/* Must be larger than 2 to make sense (to have a tail and head) */
-	if (max_size > 2)
+	if (max_size > 2) {
 		stmt_lru->max = max_size;
-	else
+	} else {
 		stmt_lru->max = 3;
+	}
 }
 
 void
@@ -871,10 +874,12 @@ tracker_db_interface_set_busy_handler (TrackerDBInterface  *db_interface,
 	db_interface->busy_callback = busy_callback;
 	db_interface->busy_user_data = busy_user_data;
 	g_free (db_interface->busy_status);
-	if (busy_status)
+
+	if (busy_status) {
 		db_interface->busy_status = g_strdup (busy_status);
-	else
+	} else {
 		db_interface->busy_status = NULL;
+	}
 }
 
 TrackerDBStatement *
