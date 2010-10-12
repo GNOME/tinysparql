@@ -597,7 +597,8 @@ tracker_db_manager_set_current_locale (void)
 }
 
 static void
-db_manager_analyze (TrackerDB db)
+db_manager_analyze (TrackerDB           db,
+                    TrackerDBInterface *iface)
 {
 	guint64             current_mtime;
 
@@ -605,7 +606,7 @@ db_manager_analyze (TrackerDB db)
 
 	if (current_mtime > dbs[db].mtime) {
 		g_message ("  Analyzing DB:'%s'", dbs[db].name);
-		db_exec_no_reply (dbs[db].iface, "ANALYZE %s.Services", dbs[db].name);
+		db_exec_no_reply (iface, "ANALYZE %s.Services", dbs[db].name);
 
 		/* Remember current mtime for future */
 		dbs[db].mtime = current_mtime;
@@ -969,7 +970,6 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 	if (!loaded) {
 		for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-			dbs[i].iface = db_interface_create (i);
 			dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
 		}
 	}
@@ -1288,32 +1288,31 @@ void
 tracker_db_manager_optimize (void)
 {
 	gboolean dbs_are_open = FALSE;
-	guint    i;
+	TrackerDBInterface *iface;
 
 	g_return_if_fail (initialized != FALSE);
 
-	g_message ("Optimizing databases...");
+	g_message ("Optimizing database...");
 
-	g_message ("  Checking DBs are not open");
+	g_message ("  Checking database is not in use");
+
+	iface = tracker_db_manager_get_db_interface ();
 
 	/* Check if any connections are open? */
-	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		if (G_OBJECT (dbs[i].iface)->ref_count > 1) {
-			g_message ("  DB:'%s' is still open with %d references!",
-			           dbs[i].name,
-			           G_OBJECT (dbs[i].iface)->ref_count);
+	if (G_OBJECT (iface)->ref_count > 1) {
+		g_message ("  database is still in use with %d references!",
+		           G_OBJECT (iface)->ref_count);
 
-			dbs_are_open = TRUE;
-		}
+		dbs_are_open = TRUE;
 	}
 
 	if (dbs_are_open) {
-		g_message ("  Not optimizing DBs, some are still open with > 1 reference");
+		g_message ("  Not optimizing database, still in use with > 1 reference");
 		return;
 	}
 
 	/* Optimize the metadata database */
-	db_manager_analyze (TRACKER_DB_METADATA);
+	db_manager_analyze (TRACKER_DB_METADATA, iface);
 }
 
 const gchar *
