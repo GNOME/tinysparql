@@ -292,6 +292,8 @@ update_property_value (const gchar     *kind,
 			} else {
 
 				if (allowed && !is_allowed_conversion (str, object, allowed)) {
+					/* force reindex on restart */
+					tracker_db_manager_remove_version_file ();
 					g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
 					         str, object, predicate, subject);
 				}
@@ -357,6 +359,8 @@ check_range_conversion_is_allowed (const gchar *subject,
 
 		if (g_strcmp0 (object, str) != 0) {
 			if (!is_allowed_conversion (str, object, allowed_range_conversions)) {
+				/* force reindex on restart */
+				tracker_db_manager_remove_version_file ();
 				g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
 				         str, object, predicate, subject);
 			}

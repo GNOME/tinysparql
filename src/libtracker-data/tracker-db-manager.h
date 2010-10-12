@@ -65,6 +65,7 @@ void                tracker_db_manager_move_to_temp           (void);
 void                tracker_db_manager_restore_from_temp      (void);
 void                tracker_db_manager_init_locations         (void);
 gboolean            tracker_db_manager_has_enough_space       (void);
+void                tracker_db_manager_remove_version_file    (void);
 
 TrackerDBManagerFlags
                     tracker_db_manager_get_flags              (guint *select_cache_size,

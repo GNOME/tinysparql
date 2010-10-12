@@ -142,7 +142,6 @@ static gboolean            db_exec_no_reply    (TrackerDBInterface *iface,
 static TrackerDBInterface *db_interface_create (TrackerDB           db);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces     (gint num, ...);
 static TrackerDBInterface *tracker_db_manager_get_db_interfaces_ro  (gint num, ...);
-static void                db_remove_version_file (void);
 static void                db_remove_locale_file  (void);
 
 static gboolean              initialized;
@@ -411,15 +410,15 @@ db_manager_remove_all (gboolean rm_journal)
 
 		/* If also the journal is gone, we can also remove db-version.txt, it
 		 * would have no more relevance whatsoever. */
-		db_remove_version_file ();
+		tracker_db_manager_remove_version_file ();
 	}
 
 	/* Remove locale file also */
 	db_remove_locale_file ();
 }
 
-static void
-db_remove_version_file (void)
+void
+tracker_db_manager_remove_version_file (void)
 {
 	gchar *filename;
 
