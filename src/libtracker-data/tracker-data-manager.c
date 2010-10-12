@@ -1236,7 +1236,8 @@ get_ontology_from_path (const gchar *ontology_path)
 }
 
 static void
-load_ontology_ids_from_journal (GHashTable **uri_id_map_out)
+load_ontology_ids_from_journal (GHashTable **uri_id_map_out,
+                                gint        *max_id)
 {
 	GHashTable *uri_id_map;
 
@@ -1253,6 +1254,9 @@ load_ontology_ids_from_journal (GHashTable **uri_id_map_out)
 
 			tracker_db_journal_reader_get_resource (&id, &uri);
 			g_hash_table_insert (uri_id_map, g_strdup (uri), GINT_TO_POINTER (id));
+			if (id > *max_id) {
+				*max_id = id;
+			}
 		}
 	}
 
@@ -2808,7 +2812,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		tracker_db_journal_reader_ontology_init (NULL);
 
 		/* Load ontology IDs from journal into memory */
-		load_ontology_ids_from_journal (&uri_id_map);
+		load_ontology_ids_from_journal (&uri_id_map, &max_id);
 
 		tracker_db_journal_reader_shutdown ();
 	}
