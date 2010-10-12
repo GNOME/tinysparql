@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2010-12-02T12:00:00Z" .
+	nao:lastModified "2011-01-25T13:30:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -555,14 +555,6 @@ nfo:hasMediaStream a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range nie:DataObject .
-
-nfo:fileUrl a rdf:Property ;
-	rdfs:label "fileUrl" ;
-	rdfs:comment "URL of the file. It points at the location of the file. In cases where creating a simple file:// or http:// URL for a file is difficult (e.g. for files inside compressed archives) the applications are encouraged to use conventions defined by Apache Commons VFS Project at http://jakarta.apache.org/  commons/ vfs/ filesystems.html." ;
-	nrl:maxCardinality 1 ;
-	nao:deprecated true ;
-	rdfs:domain nfo:FileDataObject ;
-	rdfs:range rdfs:Resource .
 
 nfo:width a rdf:Property ;
 	rdfs:label "width" ;
