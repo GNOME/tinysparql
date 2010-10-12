@@ -268,7 +268,8 @@ class Tracker.Sparql.Backend : Connection {
 				                          expected_mime);
 			}
 
-			Module module = Module.open (path, ModuleFlags.BIND_LOCAL);
+			// lazy resolving reduces initialization time
+			Module module = Module.open (path, ModuleFlags.BIND_LOCAL | ModuleFlags.BIND_LAZY);
 			if (module == null) {
 				throw new IOError.FAILED ("Failed to load module from path '%s': %s",
 				                          path,
