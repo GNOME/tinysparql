@@ -227,7 +227,7 @@ class WritebackMonitoredTest (CommonTrackerWritebackTest):
         
 
     # PNG tests
-    ## @expectedFailureBug ("NB#185070")
+    @expectedFailureBug ("NB#185070")
     def test_021_png_title (self):
         FILENAME = "test-writeback-monitored/writeback-test-4.png"
         self.__writeback_test (FILENAME, "image/png", "nie:title")
