@@ -43,7 +43,7 @@ class TestCoalesce (CommonTrackerStoreTest):
         # nco:nickname and nco:note are not set
         #
         insert = """
-        INSERT { <%s> a nco:IMContact;
+        INSERT { <%s> a nco:PersonContact;
                       nco:fullname \"full name\" ;
                       nco:nameFamily \"family name\" .
          }
@@ -67,11 +67,12 @@ class TestCoalesce (CommonTrackerStoreTest):
 
         query = """
         SELECT tracker:coalesce (?full, ?family, ?nickname, ?note, 'test_coalesce') WHERE {
-           ?c a nco:IMContact .
+           ?c a nco:PersonContact .
            OPTIONAL { ?c nco:fullname ?full }
            OPTIONAL { ?c nco:nameFamily ?family }
            OPTIONAL { ?c nco:nickname ?nickname }
            OPTIONAL { ?c nco:note ?note }
+           FILTER (?c != nco:default-contact-me && ?c != nco:default-contact-emergency)
         }
         """ 
         results = self.tracker.query (query)
@@ -88,11 +89,12 @@ class TestCoalesce (CommonTrackerStoreTest):
 
         query = """
         SELECT tracker:coalesce (?nickname, ?family, ?full, ?note, 'test_coalesce') WHERE {
-           ?c a nco:IMContact .
+           ?c a nco:PersonContact .
            OPTIONAL { ?c nco:fullname ?full }
            OPTIONAL { ?c nco:nameFamily ?family }
            OPTIONAL { ?c nco:nickname ?nickname }
            OPTIONAL { ?c nco:note ?note }
+           FILTER (?c != nco:default-contact-me && ?c != nco:default-contact-emergency)
         }
         """ 
         results = self.tracker.query (query)
@@ -109,11 +111,12 @@ class TestCoalesce (CommonTrackerStoreTest):
 
         query = """
         SELECT tracker:coalesce (?nickname, ?note, 'test_coalesce') WHERE {
-           ?c a nco:IMContact .
+           ?c a nco:PersonContact .
            OPTIONAL { ?c nco:fullname ?full }
            OPTIONAL { ?c nco:nameFamily ?family }
            OPTIONAL { ?c nco:nickname ?nickname }
            OPTIONAL { ?c nco:note ?note }
+           FILTER (?c != nco:default-contact-me && ?c != nco:default-contact-emergency)
         }
         """ 
         results = self.tracker.query (query)
