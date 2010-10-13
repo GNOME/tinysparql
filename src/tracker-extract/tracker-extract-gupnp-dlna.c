@@ -444,7 +444,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			gst_tag_list_get_string (extractor->tags, GST_TAG_ARTIST, &artist_local);
 
 			if (artist_local) {
-				artist_uri = tracker_uri_printf_escaped ("urn:artist:%s", artist_local);
+				artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", artist_local);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 				tracker_sparql_builder_subject_iri (preupdate, artist_uri);
@@ -458,7 +458,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			temp = tracker_coalesce_strip (2, performer, artist_local);
 
 			if (temp) {
-				performer_uri = tracker_uri_printf_escaped ("urn:artist:%s", temp);
+				performer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", temp);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 				tracker_sparql_builder_subject_iri (preupdate, performer_uri);
@@ -478,7 +478,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			gst_tag_list_get_string (extractor->tags, GST_TAG_COMPOSER, &s);
 
 			if (s) {
-				composer_uri = tracker_uri_printf_escaped ("urn:artist:%s", s);
+				composer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", s);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 
@@ -506,7 +506,7 @@ extract_metadata (MetadataExtractor      *extractor,
 
 			needs_audio = TRUE;
 
-			album_uri = tracker_uri_printf_escaped ("urn:album:%s", s);
+			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", s);
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
 
