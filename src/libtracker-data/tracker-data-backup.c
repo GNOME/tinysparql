@@ -259,7 +259,7 @@ tracker_data_backup_save (GFile *destination,
 
 	g_dir_close (journal_dir);
 
-	argv = g_new0 (gchar*, files->len + 7);
+	argv = g_new0 (gchar*, files->len + 8);
 
 	argv[0] = g_strdup ("tar");
 	argv[1] = g_strdup ("-zcf");
@@ -267,9 +267,10 @@ tracker_data_backup_save (GFile *destination,
 	argv[3] = g_strdup ("-C");
 	argv[4] = directory;
 	argv[5] = g_strdup (TRACKER_DB_JOURNAL_FILENAME);
+	argv[6] = g_strdup (TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME);
 
 	for (i = 0; i < files->len; i++) {
-		argv[i+6] = g_ptr_array_index (files, i);
+		argv[i+7] = g_ptr_array_index (files, i);
 	}
 
 	/* It's fine to untar this asynchronous: the journal replay code can or
