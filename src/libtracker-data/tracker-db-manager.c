@@ -1088,6 +1088,7 @@ tracker_db_manager_move_to_temp (void)
 {
 	guint i;
 	gchar *cpath, *new_filename;
+	gchar *fullpath;
 	gchar *directory, *rotate_to = NULL;
 	const gchar *dirs[3] = { NULL, NULL, NULL };
 	gsize chunk_size = 0;
@@ -1122,8 +1123,6 @@ tracker_db_manager_move_to_temp (void)
 		f_name = g_dir_read_name (journal_dir);
 
 		while (f_name) {
-			gchar *fullpath;
-
 			if (f_name) {
 				if (!g_str_has_prefix (f_name, TRACKER_DB_JOURNAL_FILENAME ".")) {
 					f_name = g_dir_read_name (journal_dir);
@@ -1142,6 +1141,12 @@ tracker_db_manager_move_to_temp (void)
 		g_dir_close (journal_dir);
 	}
 
+	fullpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
+	new_filename = g_strdup_printf ("%s.tmp", fullpath);
+	g_rename (fullpath, new_filename);
+	g_free (new_filename);
+	g_free (fullpath);
+
 	g_free (rotate_to);
 	g_free (directory);
 
@@ -1159,6 +1164,7 @@ tracker_db_manager_restore_from_temp (void)
 {
 	guint i;
 	gchar *cpath, *new_filename;
+	gchar *fullpath;
 	gchar *directory, *rotate_to = NULL;
 	const gchar *dirs[3] = { NULL, NULL, NULL };
 	gsize chunk_size = 0;
@@ -1186,6 +1192,12 @@ tracker_db_manager_restore_from_temp (void)
 	directory = g_path_get_dirname (cpath);
 	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
 
+	fullpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
+	new_filename = g_strdup_printf ("%s.tmp", fullpath);
+	g_rename (new_filename, fullpath);
+	g_free (new_filename);
+	g_free (fullpath);
+
 	dirs[0] = directory;
 	dirs[1] = do_rotate ? rotate_to : NULL;
 
@@ -1197,7 +1209,7 @@ tracker_db_manager_restore_from_temp (void)
 		f_name = g_dir_read_name (journal_dir);
 
 		while (f_name) {
-			gchar *fullpath, *ptr;
+			gchar *ptr;
 
 			if (f_name) {
 				if (!g_str_has_suffix (f_name, ".tmp")) {
@@ -1256,6 +1268,13 @@ tracker_db_manager_remove_temp (void)
 
 	directory = g_path_get_dirname (cpath);
 	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
+	g_free (cpath);
+
+	cpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
+	new_filename = g_strdup_printf ("%s.tmp", cpath);
+	g_unlink (new_filename);
+	g_free (new_filename);
+	g_free (cpath);
 
 	dirs[0] = directory;
 	dirs[1] = do_rotate ? rotate_to : NULL;
@@ -1287,7 +1306,6 @@ tracker_db_manager_remove_temp (void)
 
 	g_free (rotate_to);
 	g_free (directory);
-	g_free (cpath);
 }
 
 void
