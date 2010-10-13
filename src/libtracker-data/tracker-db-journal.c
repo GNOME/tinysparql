@@ -1654,18 +1654,23 @@ tracker_db_journal_reader_verify_last (const gchar  *filename,
 	JournalReader jreader = { 0 };
 
 	if (db_journal_reader_init (&jreader, FALSE, filename)) {
-		entry_size_check = read_uint32 (jreader.end - 4);
 
-		if (jreader.end - entry_size_check < jreader.current) {
-			g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
-			             "Damaged journal entry at end of journal");
+		if (jreader.end != jreader.current) {
+			entry_size_check = read_uint32 (jreader.end - 4);
+
+			if (jreader.end - entry_size_check < jreader.current) {
+				g_set_error (error, TRACKER_DB_JOURNAL_ERROR, 0, 
+				             "Damaged journal entry at end of journal");
+				db_journal_reader_shutdown (&jreader);
+				return FALSE;
+			}
+
+			jreader.current = jreader.end - entry_size_check;
+			success = db_journal_reader_next (&jreader, FALSE, NULL);
 			db_journal_reader_shutdown (&jreader);
-			return FALSE;
+		} else {
+			success = TRUE;
 		}
-
-		jreader.current = jreader.end - entry_size_check;
-		success = db_journal_reader_next (&jreader, FALSE, NULL);
-		db_journal_reader_shutdown (&jreader);
 	}
 
 	return success;
