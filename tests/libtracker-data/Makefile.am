@@ -80,7 +80,10 @@ common_ldadd =								\
 	$(GCOV_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)
+	$(GLIB2_LIBS)							\
+	$(GOBJECT_LIBS)							\
+	$(GIO_LIBS)							\
+	$(GTYPE_LIBS)
 
 tracker_sparql_SOURCES = 						\
 	tracker-sparql-test.c
@@ -119,6 +122,7 @@ tracker_db_journal_LDADD =						\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(GOBJECT_LIBS)							\
 	$(GCOV_LIBS)							\
 	-lz
 
@@ -133,6 +137,7 @@ tracker_db_dbus_LDADD =						\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(GOBJECT_LIBS)							\
 	$(GCOV_LIBS)							\
 	-lz
 
