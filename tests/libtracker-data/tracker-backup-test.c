@@ -151,6 +151,10 @@ test_backup_and_restore_helper (gboolean journal)
 		meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", "tracker-store.journal", NULL);
 		g_unlink (meta_db);
 		g_free (meta_db);
+
+		meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", "tracker-store.ontology.journal", NULL);
+		g_unlink (meta_db);
+		g_free (meta_db);
 	}
 
 	meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", ".meta.isrunning", NULL);
