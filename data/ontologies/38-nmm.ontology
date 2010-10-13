@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-09-30T10:51:50Z" .
+	nao:lastModified "2010-10-13T13:34:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -517,11 +517,13 @@ nmm:alternativeMedia a rdf:Property ;
 nmm:dlnaProfile a rdf:Property ;
 	rdfs:label "DLNA profile" ;
 	rdfs:comment "DLNA profile of the content, like MP3, MPEG_TS_HD_US, LPCM etc" ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:string .
 
 nmm:uPnPShared a rdf:Property ;
 	rdfs:label "uPnP shared" ;
 	rdfs:comment "Tells the uPnP MediaServer (e.g. Rygel) whether to export/share the resource or not" ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:boolean .
