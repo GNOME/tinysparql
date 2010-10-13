@@ -1186,7 +1186,7 @@ tracker_db_manager_restore_from_temp (void)
 	new_filename = g_strdup_printf ("%s.tmp", cpath);
 	g_message ("  Renaming journal:'%s' -> '%s'",
 	           cpath, new_filename);
-	g_rename (cpath, new_filename);
+	g_rename (new_filename, cpath);
 	g_free (new_filename);
 
 	directory = g_path_get_dirname (cpath);
