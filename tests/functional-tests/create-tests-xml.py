@@ -67,6 +67,9 @@ def print_as_xml (filename):
     print "        <description>%s</description>" % (__get_doc (module))
     print PRE_STEPS
     for name, obj in inspect.getmembers (module):
+        if name.startswith ("Common") or name.endswith ("Template"):
+            continue
+        
         if (inspect.isclass (obj)
             and obj.__module__ == filename[:-3]):
             script = os.path.join (cfg.DATADIR, "tracker-tests", filename)
