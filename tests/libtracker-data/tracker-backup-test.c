@@ -168,12 +168,13 @@ test_backup_and_restore_helper (gboolean journal)
 	                           NULL, FALSE, 100, 100, NULL, NULL, NULL);
 	check_content_in_db (0, 0);
 
-	test_schemas[0] = data_prefix;
 	tracker_data_backup_restore (backup_file, backup_finished_cb, NULL, NULL, (const gchar **) test_schemas, NULL, NULL);
 	check_content_in_db (3, 1);
 
 	g_free (test_schemas[0]);
 	g_free (test_schemas[1]);
+	g_free (test_schemas[2]);
+	g_free (test_schemas[3]);
 
 	g_assert_cmpint (backup_calls, ==, 2);
 
