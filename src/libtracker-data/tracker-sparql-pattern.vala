@@ -461,6 +461,8 @@ class Tracker.Sparql.Pattern : Object {
 		sql.append (" FROM (");
 		sql.append (pattern_sql.str);
 		sql.append (")");
+
+		context = context.parent_context;
 	}
 
 	internal string parse_var_or_term (StringBuilder? sql, out bool is_var) throws Sparql.Error {
