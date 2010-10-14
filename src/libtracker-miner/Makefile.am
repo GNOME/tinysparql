@@ -33,6 +33,8 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
 	tracker-miner-dbus.h 				\
 	tracker-miner-object.c				\
 	tracker-miner-fs.c				\
+	tracker-miner-fs-processing-pool.h		\
+	tracker-miner-fs-processing-pool.c		\
 	tracker-miner-manager.c				\
 	tracker-miner-web.c				\
 	tracker-miner-web-dbus.h			\
