@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS=common test-configurations test-extraction-data test-writeback-data ttl unittest2
+SUBDIRS=common test-configurations test-extraction-data test-writeback-data ttl unittest2 test-ontologies
 
 INCLUDES =					\
 	-I$(top_srcdir)/src/libtracker-sparql	\
@@ -44,6 +44,7 @@ standard_tests +=			\
 	14-signals.py			\
 	15-statistics.py		\
 	16-collation.py			\
+	17-ontology-changes.py		\
 	200-backup-restore.py		\
 	300-miner-basic-ops.py
 if HAVE_TRACKER_FTS

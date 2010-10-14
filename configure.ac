@@ -1949,6 +1949,10 @@ AC_CONFIG_FILES([
 	tests/functional-tests/test-configurations/Makefile
 	tests/functional-tests/test-configurations/miner-basic-ops/Makefile
 	tests/functional-tests/test-configurations/writeback/Makefile
+        tests/functional-tests/test-ontologies/Makefile
+        tests/functional-tests/test-ontologies/basic/Makefile
+        tests/functional-tests/test-ontologies/property-range-int-to-string/Makefile
+        tests/functional-tests/test-ontologies/property-range-string-to-date/Makefile
 	tests/functional-tests/ttl/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
