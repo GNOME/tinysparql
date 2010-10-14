@@ -19,3 +19,4 @@ helper-test-data.sh
 busy-handling-test
 busy-handling-test.c
 tests.xml
+tracker-tests.aegis
