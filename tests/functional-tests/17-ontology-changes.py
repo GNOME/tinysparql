@@ -266,7 +266,7 @@ class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance))
         self.assertEquals (str(result[0][0]), "some text")
 
-class PropertyNotifySet (OntologyChangeTestTemplate):
+class ClassNotifySet (OntologyChangeTestTemplate):
     """
     Set tracker:notify to true in a class and check there is no data loss
     """
@@ -289,7 +289,7 @@ class PropertyNotifySet (OntologyChangeTestTemplate):
         result = self.tracker.query ("SELECT ?u WHERE { ?u a test:A. }")
         self.assertEquals (str(result[0][0]), self.instance)
 
-class PropertyNotifyUnset (OntologyChangeTestTemplate):
+class ClassNotifyUnset (OntologyChangeTestTemplate):
     """
     Set tracker:notify to true in a class and check there is no data loss
     """
