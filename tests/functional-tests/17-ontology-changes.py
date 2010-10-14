@@ -315,7 +315,92 @@ class ClassNotifyUnset (OntologyChangeTestTemplate):
         
         result = self.tracker.query ("SELECT ?u WHERE { ?u a test:A. }")
         self.assertEquals (str(result[0][0]), self.instance)
-                
+
+
+class PropertyIndexedSet (OntologyChangeTestTemplate):
+    """
+    Set tracker:indexed true to single and multiple valued properties.
+    Check that instances and content of the property are still in the DB
+    """
+    def test_indexed_set (self):
+        self.template_test_ontology_change ()
+
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "indexed"
+
+    def insert_data (self):
+        # Instance with value in the single valued property
+        self.instance_single_valued = "test://ontology-change/indexed/single/true"
+        self.tracker.update ("INSERT { <%s> a test:A ; test:a_string 'anything 1'. }"
+                             % (self.instance_single_valued))
+
+        # Instance with value in the n valued property
+        self.instance_n_valued = "test://ontology-change/indexed/multiple/true"
+        self.tracker.update ("INSERT { <%s> a test:A ; test:a_n_cardinality 'anything n'. }"
+                             % (self.instance_n_valued))
+
+    def validate_status (self):
+        # Check ontology and instance for the single valued property
+        result = self.tracker.query ("SELECT ?indexed WHERE { test:a_string tracker:indexed ?indexed}")
+        self.assertEquals (str(result[0][0]), "true")
+
+        result = self.tracker.query ("SELECT ?content WHERE { <%s> a test:A; test:a_string ?content. }"
+                                     % (self.instance_single_valued))
+        self.assertEquals (str(result[0][0]), "anything 1")
+
+        # Check ontology and instance for the multiple valued property
+        result = self.tracker.query ("SELECT ?indexed WHERE { test:a_n_cardinality tracker:indexed ?indexed}")
+        self.assertEquals (str(result[0][0]), "true")
+
+        result = self.tracker.query ("SELECT ?content WHERE { <%s> a test:A; test:a_n_cardinality ?content. }"
+                                     % (self.instance_n_valued))
+        self.assertEquals (str(result[0][0]), "anything n")
+
+class PropertyIndexedUnset (OntologyChangeTestTemplate):
+    """
+    tracker:indexed property from true to false in single and multiple valued properties.
+    Check that instances and content of the property are still in the DB.
+    """
+    def test_ (self):
+        self.template_test_ontology_change ()
+
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "indexed"
+        self.SECOND_ONTOLOGY_DIR = "basic"
+
+    def insert_data (self):
+        # Instance with value in the single valued property
+        self.instance_single_valued = "test://ontology-change/indexed/single/true"
+        self.tracker.update ("INSERT { <%s> a test:A ; test:a_string 'anything 1'. }"
+                             % (self.instance_single_valued))
+
+        # Instance with value in the n valued property
+        self.instance_n_valued = "test://ontology-change/indexed/multiple/true"
+        self.tracker.update ("INSERT { <%s> a test:A ; test:a_n_cardinality 'anything n'. }"
+                             % (self.instance_n_valued))
+
+    def validate_status (self):
+        #
+        # NOTE: tracker:indexed can be 'false' or None. In both cases is fine.
+        # 
+        
+        # Check ontology and instance for the single valued property
+        result = self.tracker.query ("SELECT ?indexed WHERE { test:a_string tracker:indexed ?indexed}")
+        self.assertEquals (str(result[0][0]), "false")
+
+        result = self.tracker.query ("SELECT ?content WHERE { <%s> a test:A; test:a_string ?content. }"
+                                     % (self.instance_single_valued))
+        self.assertEquals (str(result[0][0]), "anything 1")
+
+        # Check ontology and instance for the multiple valued property
+        result = self.tracker.query ("SELECT ?indexed WHERE { test:a_n_cardinality tracker:indexed ?indexed}")
+        self.assertEquals (str(result[0][0]), "false")
+
+        result = self.tracker.query ("SELECT ?content WHERE { <%s> a test:A; test:a_n_cardinality ?content. }"
+                                     % (self.instance_n_valued))
+        self.assertEquals (str(result[0][0]), "anything n")
+
     
 
 if __name__ == "__main__":

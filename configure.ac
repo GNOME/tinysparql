@@ -1975,6 +1975,7 @@ AC_CONFIG_FILES([
         tests/functional-tests/test-ontologies/property-range-string-to-date/Makefile
         tests/functional-tests/test-ontologies/cardinality/Makefile
         tests/functional-tests/test-ontologies/notify/Makefile
+        tests/functional-tests/test-ontologies/indexed/Makefile
 	tests/functional-tests/ttl/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile

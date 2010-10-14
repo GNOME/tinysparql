@@ -4,4 +4,5 @@ SUBDIRS = basic				\
 	property-range-int-to-string 	\
 	property-range-string-to-date 	\
 	cardinality			\
-	notify
+	notify				\
+	indexed
