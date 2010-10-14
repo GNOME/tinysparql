@@ -17,6 +17,86 @@
  * Boston, MA  02110-1301, USA.
  */
 
+
+/*
+ * How the processing pool works.
+ *
+ * 1. This processing pool is used to determine which files are being currently
+ *    processed by tracker-miner-fs, and there are currently 2 kind of tasks
+ *    considered in this pool:
+ *   1.1. "WAIT" tasks are those used to specify tasks which still do not have a
+ *        full SPARQL built. Currently, tasks in the WAIT status could be:
+ *         o Tasks added while checking if the upper layer needs to process the
+ *           given file (checked using the 'process-file' or
+ *           'process-file-attributes' signals in TrackerMinerFS).
+ *         o Tasks added while the upper layer is actually processing the given
+ *           files (until the tracker_miner_fs_file_notify() is called by the
+ *           upper layer).
+ *   1.2. "PROCESS" tasks are those used to specify tasks which have a proper
+ *         SPARQL string ready to be pushed to tracker-store.
+ *
+ * 2. The current possible flows for tasks added to the processing pool are:
+ *   2.1. Full SPARQL is ready before pushing the task to the pool. This is
+ *        currently the case for DELETED or MOVED events, and the flow would be
+ *        like this:
+ *         - processing_task_new() to create a new task
+ *         - processing_task_set_sparql() to set the full SPARQL in the task.
+ *         - processing_pool_process_task() to push the newly created task
+ *           into the processing pool as a "PROCESS" task.
+ *
+ *   2.2. The full SPARQL is still not available, as the upper layers need to
+ *        process the file (like extracting metadata using tracker-extract
+ *        in the case of TrackerMinerFiles). This case would correspond to
+ *        CREATED or UPDATED events:
+ *         - processing_task_new() to create a new task
+ *         - processing_pool_wait_task() to push the newly created task into
+ *           the processing pool as a "WAIT" task.
+ *         - processing_task_set_sparql() to set the full SPARQL in the task
+ *           (when the upper layers finished building it).
+ *         - processing_pool_process_task() to push the newly created task
+ *           into the processing pool as a "PROCESS" task.
+ *
+ * 3. The number of tasks pushed to the pull as "WAIT" tasks is limited to the
+ *    number set while creating the pool. This value corresponds to the
+ *    "wait-pool-limit" property in the TrackerMinerFS object, and currently is
+ *    set to 1 for TrackerMinerApplications and to 10 to TrackerMinerFiles. In
+ *    the case of TrackerMinerFiles, this number specifies the maximum number of
+ *    extraction requests that can be managed in parallel.
+ *
+ * 4. The number of tasks pushed to the pull as "PROCESS" tasks is limited to
+ *    the number set while creating the pool. This value corresponds to the
+ *    "process-pool-limit" property in the TrackerMinerFS object, and currently
+ *    is set to 1 for TrackerMinerApplications and to 100 to TrackerMinerFiles.
+ *    In the case of TrackerMinerFiles, this number specifies the maximum number
+ *    of SPARQL updates that can be merged into a single multi-insert SPARQL
+ *    connection.
+ *
+ * 5. When a task is pushed to the pool as a "PROCESS" task, the pool will be in
+ *    charge of executing the SPARQL update into the store.
+ *
+ * 6. If buffering was requested when processing_pool_process_task() was used to
+ *    push the new task in the pool as a "PROCESS" task, this task will be added
+ *    internally into a SPARQL buffer. This SPARQL buffer will be flushed
+ *    (pushing all collected SPARQL updates into the store) if one of these
+ *    conditions is met:
+ *      (a) The file corresponding to the task pushed doesn't have a parent.
+ *      (b) The parent of the file corresponding to the task pushed is different
+ *          to the parent of the last file pushed to the buffer.
+ *      (c) The limit for "PROCESS" tasks in the pool was reached.
+ *      (d) The buffer was not flushed in the last MAX_SPARQL_BUFFER_TIME (=15)
+ *          seconds.
+ *    The buffer is flushed using a single multi-insert SPARQL connection. This
+ *    means that an array of SPARQLs is sent to tracker-store, which replies
+ *    with an array of GErrors specifying which update failed, if any.
+ *
+ * 7. If buffering is not requested when processing_pool_process_task() is
+ *    called, first the previous buffer is flushed (if any) and then the current
+ *    task is updated in the store.
+ *
+ * 8. May the gods be with you if you need to fix a bug in here.
+ *
+ */
+
 #include "config.h"
 #include "tracker-miner-fs-processing-pool.h"
 
