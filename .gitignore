@@ -19,6 +19,7 @@ Makefile.in
 Makefile
 compile
 configure
+coverage
 depcomp
 gtk-doc.make
 install-sh
