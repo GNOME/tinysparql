@@ -985,6 +985,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextNoLimit") == 0) {
 		TrackerProperty *property;
+		gboolean is_new;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
 		if (property == NULL) {
@@ -992,7 +993,22 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		if (tracker_property_get_is_new (property) != in_update) {
+		is_new = tracker_property_get_is_new (property);
+		if (is_new != in_update) {
+			/* Detect unsupported ontology change (this needs a journal replay) */
+			if (in_update == TRUE && is_new == FALSE) {
+				if (check_unsupported_property_value_change (ontology_path,
+				                                             "tracker:fulltextNoLimit",
+				                                             subject,
+				                                             predicate,
+				                                             object)) {
+					handle_unsupported_ontology_change (ontology_path,
+					                                    tracker_property_get_name (property),
+					                                    "tracker:fulltextNoLimit",
+					                                    tracker_property_get_fulltext_no_limit (property) ? "true" : "false",
+					                                    g_strcmp0 (object, "true") == 0 ? "true" : "false");
+				}
+			}
 			return;
 		}
 
