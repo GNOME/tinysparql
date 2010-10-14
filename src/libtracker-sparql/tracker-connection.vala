@@ -441,11 +441,45 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * array is its own transaction. This means that update n+1 is not halted
 	 * due to an error in update n.
 	 *
+	 * Since: 0.10
+	 */
+
+	/**
+	 * tracker_sparql_connection_update_array_finish:
+	 * @self: a #TrackerSparqlConnection
+	 * @_res_: a #GAsyncResult with the result of the operation
+	 * @error: #GError for error reporting.
+	 *
+	 * Finishes the asynchronous SPARQL update_array operation.
+	 * 
+	 * <example>
+	 * <programlisting>
+	 * static void
+	 * async_update_array_callback (GObject      *source_object,
+	 *                              GAsyncResult *result,
+	 *                              gpointer      user_data)
+	 * {
+	 *     GError *error = NULL;
+	 *     AsyncData *data = user_data;
+	 *     GPtrArray *errors;
+	 *     guint i;
+	 *     errors = tracker_sparql_connection_update_array_finish (connection, result, &error);
+	 *     g_assert_no_error (error);
+	 *     for (i = 0; i < errors->len; i++) {
+	 *         const GError = g_ptr_array_index (errors, i);
+	 *     }
+	 *     g_ptr_array_unref (errors);
+	 * }
+	 * </programlisting>
+	 * </example>
+	 * 
 	 * Returns: a #GPtrArray of size @sparql_length1 with elements that are
 	 * either NULL or a GError instance. The returned array should be freed with
 	 * g_ptr_array_unref when no longer used, not with g_ptr_array_free. When
 	 * you use errors of the array, you must g_error_copy them. Errors inside of
-	 * the array must be considered as const data and not freed.
+	 * the array must be considered as const data and not freed. The index of
+	 * the error corresponds to the index of the update query in the array that
+	 * you passed to tracker_sparql_connection_update_array_async.
 	 *
 	 * Since: 0.10
 	 */
