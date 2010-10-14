@@ -848,8 +848,8 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					handle_unsupported_ontology_change (ontology_path,
 					                                    tracker_property_get_name (property),
 					                                    "nrl:maxCardinality",
-					                                    tracker_property_get_multiple_values (property) ? "true" : "false",
-					                                    (atoi (object) == 1)  ? "false" : "true");
+					                                    tracker_property_get_multiple_values (property) ? "1" : "0",
+					                                    (atoi (object) == 1)  ? "1" : "0");
 				}
 			}
 			return;
@@ -921,6 +921,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "isAnnotation") == 0) {
 		TrackerProperty *property;
+		gboolean is_new;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
 		if (property == NULL) {
@@ -928,7 +929,22 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		if (tracker_property_get_is_new (property) != in_update) {
+		is_new = tracker_property_get_is_new (property);
+		if (is_new != in_update) {
+			/* Detect unsupported ontology change (this needs a journal replay) */
+			if (in_update == TRUE && is_new == FALSE) {
+				if (check_unsupported_property_value_change (ontology_path,
+				                                             "tracker:isAnnotation",
+				                                             subject,
+				                                             predicate,
+				                                             object)) {
+					handle_unsupported_ontology_change (ontology_path,
+					                                    tracker_property_get_name (property),
+					                                    "tracker:isAnnotation",
+					                                    !tracker_property_get_embedded (property) ? "true" : "false",
+					                                    object);
+				}
+			}
 			return;
 		}
 
