@@ -194,7 +194,64 @@ class PropertyRangeStringToInt (OntologyChangeTestTemplate):
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_int ?o .}" % (self.instance))
         self.assertEquals (result[0][0], "12")
         
+class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
+
+    @expectedFailureBug ("New journal is gonna work it out")
+    def test_property_cardinality_1_to_n (self):
+        self.template_test_ontology_change ()
+
+    def set_ontology_dirs (self):
+        #self.FIRST_ONTOLOGY_DIR = "basic"
+        #self.SECOND_ONTOLOGY_DIR = "cardinality"
+
+        self.FIRST_ONTOLOGY_DIR = "cardinality"
+        self.SECOND_ONTOLOGY_DIR = "basic"
+
+    def insert_data (self):
+        self.instance = "test://ontology-change/cardinality/1-to-n"
+        self.tracker.update ("INSERT { <%s> a test:A; test:a_n_cardinality 'some text'. }" % (self.instance))
+
+        result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
+        self.assertEquals (int (result[0][0]), 1)
+
+                
+    def validate_status (self):
+        result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
+        self.assertEquals (len (result), 0, "Cardinality should be 0")
         
+        # Check the value is there
+        result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance))
+        self.assertEquals (str(result[0][0]), "some text")
+
+class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
+
+    @expectedFailureBug ("New journal is gonna work it out")
+    def test_property_cardinality_n_to_1 (self):
+        self.template_test_ontology_change ()
+
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "cardinality"
+
+    def insert_data (self):
+        self.instance = "test://ontology-change/cardinality/1-to-n"
+        self.tracker.update ("INSERT { <%s> a test:A; test:a_n_cardinality 'some text'. }" % (self.instance))
+
+        result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
+        self.assertEquals (len (result), 0, "Cardinality should be 0")
+
+                
+    def validate_status (self):
+        result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
+        print result
+        self.assertEquals (int (result[0][0]), 1, "Cardinality should be 1")
+        
+        # Check the value is there
+        result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance))
+        self.assertEquals (str(result[0][0]), "some text")
+                
+                
+    
 
 if __name__ == "__main__":
     ut.main ()
