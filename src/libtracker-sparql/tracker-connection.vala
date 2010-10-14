@@ -460,7 +460,6 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *                              gpointer      user_data)
 	 * {
 	 *     GError *error = NULL;
-	 *     AsyncData *data = user_data;
 	 *     GPtrArray *errors;
 	 *     guint i;
 	 *     errors = tracker_sparql_connection_update_array_finish (connection, result, &error);
