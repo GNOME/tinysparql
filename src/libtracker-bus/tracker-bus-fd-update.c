@@ -52,7 +52,6 @@ typedef struct {
 	gulong cancelid;
 } FastAsyncData;
 
-
 static void
 fast_async_data_free (gpointer data)
 {
@@ -89,7 +88,6 @@ on_cancel_idle (gpointer data)
 	                     "Operation was cancelled");
 
 	g_simple_async_result_set_from_error (fad->res, error);
-
 	g_simple_async_result_complete (fad->res);
 
 	g_error_free (error);
@@ -123,11 +121,15 @@ fast_async_data_new (DBusConnection    *connection,
 
 	data->connection = dbus_connection_ref (connection);
 	data->operation_type = operation_type;
+
 	if (cancellable) {
 		data->cancellable = g_object_ref (cancellable);
-
-		data->cancelid = g_cancellable_connect (cancellable, G_CALLBACK (on_cancel), data, NULL);
+		data->cancelid = g_cancellable_connect (cancellable,
+		                                        G_CALLBACK (on_cancel),
+		                                        data,
+		                                        NULL);
 	}
+
 	data->user_data = user_data;
 
 	return data;
@@ -165,13 +167,9 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		error = sparql_error_from_dbus_message (reply);
 
 		g_simple_async_result_set_from_error (fad->res, error);
-
 		dbus_message_unref (reply);
-
 		g_simple_async_result_complete (fad->res);
-
 		fast_async_data_free (fad);
-
 		dbus_pending_call_unref (call);
 
 		return;
@@ -262,14 +260,15 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 			dbus_message_iter_get_basic (&subiter, &message);
 			dbus_message_iter_next (&subiter);
 
-			if (code && code[0] != '\0' && message && message[0] != '\0')
+			if (code && code[0] != '\0' && message && message[0] != '\0') {
 				error = g_error_new_literal (TRACKER_SPARQL_ERROR, 0, message);
-			else
+			} else {
 				error = NULL;
+			}
+
 			g_ptr_array_add (errors, error);
 		}
 
-			
 		g_simple_async_result_set_op_res_gpointer (fad->res,
 		                                           g_ptr_array_ref (errors),
 		                                           (GDestroyNotify) g_ptr_array_unref);
@@ -284,9 +283,7 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 
 	/* Clean up */
 	dbus_message_unref (reply);
-
 	fast_async_data_free (fad);
-
 	dbus_pending_call_unref (call);
 }
 
@@ -360,242 +357,295 @@ sparql_update_fast_send (DBusConnection     *connection,
 		g_propagate_error (error, inner_error);
 		g_object_unref (data_output_stream);
 		g_object_unref (buffered_output_stream);
-		g_object_unref (output_stream);
-		return NULL;
-	}
+		 g_object_unref (output_stream);
 
-	g_data_output_stream_put_string (data_output_stream,
-	                                 query,
-	                                 NULL,
-	                                 &inner_error);
+		 return NULL;
+	 }
 
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		g_object_unref (data_output_stream);
-		g_object_unref (buffered_output_stream);
-		g_object_unref (output_stream);
-		return NULL;
-	}
+	 g_data_output_stream_put_string (data_output_stream,
+					  query,
+					  NULL,
+					  &inner_error);
 
-	g_object_unref (data_output_stream);
-	g_object_unref (buffered_output_stream);
-	g_object_unref (output_stream);
+	 if (inner_error) {
+		 g_propagate_error (error, inner_error);
+		 g_object_unref (data_output_stream);
+		 g_object_unref (buffered_output_stream);
+		 g_object_unref (output_stream);
+		 return NULL;
+	 }
 
-	return call;
-}
+	 g_object_unref (data_output_stream);
+	 g_object_unref (buffered_output_stream);
+	 g_object_unref (output_stream);
 
+	 return call;
+ }
 
-static DBusPendingCall *
-sparql_update_array_fast_send (DBusConnection     *connection,
-                               const gchar       **queries,
-                               guint               queries_len,
-                               FastOperationType   type,
-                               GError            **error)
-{
-	const gchar *dbus_method;
-	DBusMessage *message;
-	DBusMessageIter iter;
-	DBusPendingCall *call;
-	int pipefd[2], i;
-	GOutputStream *output_stream;
-	GOutputStream *buffered_output_stream;
-	GDataOutputStream *data_output_stream;
-	GError *inner_error = NULL;
+ static DBusPendingCall *
+ sparql_update_array_fast_send (DBusConnection     *connection,
+				const gchar       **queries,
+				guint               queries_len,
+				FastOperationType   type,
+				GError            **error)
+ {
+	 const gchar *dbus_method;
+	 DBusMessage *message;
+	 DBusMessageIter iter;
+	 DBusPendingCall *call;
+	 int pipefd[2], i;
+	 GOutputStream *output_stream;
+	 GOutputStream *buffered_output_stream;
+	 GDataOutputStream *data_output_stream;
+	 GError *inner_error = NULL;
 
-	g_return_val_if_fail (queries != NULL, NULL);
-	g_return_val_if_fail (queries_len != 0, NULL);
+	 g_return_val_if_fail (queries != NULL, NULL);
+	 g_return_val_if_fail (queries_len != 0, NULL);
 
-	if (pipe (pipefd) < 0) {
-		g_set_error (error,
-		             TRACKER_SPARQL_ERROR,
-		             TRACKER_SPARQL_ERROR_UNSUPPORTED,
-		             "Cannot open pipe");
-		return NULL;
-	}
+	 if (pipe (pipefd) < 0) {
+		 g_set_error (error,
+			      TRACKER_SPARQL_ERROR,
+			      TRACKER_SPARQL_ERROR_UNSUPPORTED,
+			      "Cannot open pipe");
+		 return NULL;
+	 }
 
-	switch (type) {
-	case FAST_UPDATE:
-		dbus_method = "UpdateArray";
-		break;
-	case FAST_UPDATE_BATCH:
-		dbus_method = "BatchUpdateArray";
-		break;
-	default:
-		g_assert_not_reached ();
-	}
+	 switch (type) {
+	 case FAST_UPDATE:
+		 dbus_method = "UpdateArray";
+		 break;
+	 case FAST_UPDATE_BATCH:
+		 dbus_method = "BatchUpdateArray";
+		 break;
+	 default:
+		 g_assert_not_reached ();
+	 }
 
-	message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE,
-	                                        TRACKER_DBUS_OBJECT_STEROIDS,
-	                                        TRACKER_DBUS_INTERFACE_STEROIDS,
-	                                        dbus_method);
-	dbus_message_iter_init_append (message, &iter);
-	dbus_message_iter_append_basic (&iter, DBUS_TYPE_UNIX_FD, &pipefd[0]);
-	dbus_connection_send_with_reply (connection, message, &call, -1);
-	dbus_message_unref (message);
-	close (pipefd[0]);
+	 message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE,
+						 TRACKER_DBUS_OBJECT_STEROIDS,
+						 TRACKER_DBUS_INTERFACE_STEROIDS,
+						 dbus_method);
+	 dbus_message_iter_init_append (message, &iter);
+	 dbus_message_iter_append_basic (&iter, DBUS_TYPE_UNIX_FD, &pipefd[0]);
+	 dbus_connection_send_with_reply (connection, message, &call, -1);
+	 dbus_message_unref (message);
+	 close (pipefd[0]);
 
-	if (!call) {
-		g_set_error (error,
-		             TRACKER_SPARQL_ERROR,
-		             TRACKER_SPARQL_ERROR_UNSUPPORTED,
-		             "FD passing unsupported or connection disconnected");
-		return NULL;
-	}
+	 if (!call) {
+		 g_set_error (error,
+			      TRACKER_SPARQL_ERROR,
+			      TRACKER_SPARQL_ERROR_UNSUPPORTED,
+			      "FD passing unsupported or connection disconnected");
+		 return NULL;
+	 }
 
-	output_stream = g_unix_output_stream_new (pipefd[1], TRUE);
-	buffered_output_stream = g_buffered_output_stream_new_sized (output_stream,
-	                                                             TRACKER_DBUS_PIPE_BUFFER_SIZE);
-	data_output_stream = g_data_output_stream_new (buffered_output_stream);
+	 output_stream = g_unix_output_stream_new (pipefd[1], TRUE);
+	 buffered_output_stream = g_buffered_output_stream_new_sized (output_stream,
+								      TRACKER_DBUS_PIPE_BUFFER_SIZE);
+	 data_output_stream = g_data_output_stream_new (buffered_output_stream);
 
-	g_data_output_stream_put_uint32 (data_output_stream,
-	                                 queries_len,
-	                                 NULL,
-	                                 &inner_error);
+	 g_data_output_stream_put_uint32 (data_output_stream,
+					  queries_len,
+					  NULL,
+					  &inner_error);
 
-	for (i = 0; i < queries_len; i++) {
-		const gchar *query = queries[i];
+	 for (i = 0; i < queries_len; i++) {
+		 const gchar *query = queries[i];
 
-		g_data_output_stream_put_int32 (data_output_stream, strlen (query),
-		                                NULL, &inner_error);
-
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
-			g_object_unref (data_output_stream);
-			g_object_unref (buffered_output_stream);
-			g_object_unref (output_stream);
-			return NULL;
-		}
-
-		g_data_output_stream_put_string (data_output_stream,
-		                                 query,
-		                                 NULL,
+		 g_data_output_stream_put_int32 (data_output_stream,
+		                                 strlen (query),
+						 NULL,
 		                                 &inner_error);
 
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
-			g_object_unref (data_output_stream);
-			g_object_unref (buffered_output_stream);
-			g_object_unref (output_stream);
-			return NULL;
-		}
-	}
+		 if (inner_error) {
+			 g_propagate_error (error, inner_error);
+			 g_object_unref (data_output_stream);
+			 g_object_unref (buffered_output_stream);
+			 g_object_unref (output_stream);
+			 return NULL;
+		 }
 
-	g_object_unref (data_output_stream);
-	g_object_unref (buffered_output_stream);
-	g_object_unref (output_stream);
+		 g_data_output_stream_put_string (data_output_stream,
+						  query,
+						  NULL,
+						  &inner_error);
 
-	return call;
-}
+		 if (inner_error) {
+			 g_propagate_error (error, inner_error);
+			 g_object_unref (data_output_stream);
+			 g_object_unref (buffered_output_stream);
+			 g_object_unref (output_stream);
+			 return NULL;
+		 }
+	 }
 
-static DBusMessage *
-sparql_update_fast (DBusConnection     *connection,
-                    const gchar        *query,
-                    FastOperationType   type,
-                    GError            **error)
-{
-	DBusPendingCall *call;
-	DBusMessage *reply;
+	 g_object_unref (data_output_stream);
+	 g_object_unref (buffered_output_stream);
+	 g_object_unref (output_stream);
 
-	call = sparql_update_fast_send (connection, query, type, error);
-	if (!call) {
-		return NULL;
-	}
+	 return call;
+ }
 
-	dbus_pending_call_block (call);
+ static DBusMessage *
+ sparql_update_fast (DBusConnection     *connection,
+		     const gchar        *query,
+		     FastOperationType   type,
+		     GError            **error)
+ {
+	 DBusPendingCall *call;
+	 DBusMessage *reply;
 
-	reply = dbus_pending_call_steal_reply (call);
+	 call = sparql_update_fast_send (connection, query, type, error);
+	 if (!call) {
+		 return NULL;
+	 }
 
-	if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
-		g_propagate_error (error, sparql_error_from_dbus_message (reply));
+	 dbus_pending_call_block (call);
 
-		return NULL;
-	}
+	 reply = dbus_pending_call_steal_reply (call);
 
-	dbus_pending_call_unref (call);
+	 if (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR) {
+		 g_propagate_error (error, sparql_error_from_dbus_message (reply));
 
-	return reply;
-}
+		 return NULL;
+	 }
 
-static void
-sparql_update_fast_async (DBusConnection      *connection,
-                          const gchar         *query,
-                          FastAsyncData       *fad,
-                          GError             **error)
-{
-	DBusPendingCall *call;
+	 dbus_pending_call_unref (call);
 
-	call = sparql_update_fast_send (connection, query, fad->operation_type, error);
-	if (!call) {
-		/* Do some clean up ?*/
-		return;
-	}
+	 return reply;
+ }
 
-	fad->dbus_call = call;
+ static void
+ sparql_update_fast_async (DBusConnection  *connection,
+			   const gchar     *query,
+			   FastAsyncData   *fad,
+			   GError         **error)
+ {
+	 DBusPendingCall *call;
 
-	dbus_pending_call_set_notify (call, sparql_update_fast_callback, fad, NULL);
-}
+	 call = sparql_update_fast_send (connection, query, fad->operation_type, error);
+	 if (!call) {
+		 /* Do some clean up ?*/
+		 return;
+	 }
 
-static void
-sparql_update_array_fast_async (DBusConnection      *connection,
-                                const gchar        **queries,
-                                guint                queries_len,
-                                FastAsyncData       *fad,
-                                GError             **error)
-{
-	DBusPendingCall *call;
+	 fad->dbus_call = call;
 
-	call = sparql_update_array_fast_send (connection, queries, queries_len, fad->operation_type, error);
-	if (!call) {
-		/* Do some clean up ?*/
-		return;
-	}
+	 dbus_pending_call_set_notify (call, sparql_update_fast_callback, fad, NULL);
+ }
 
-	fad->dbus_call = call;
+ static void
+ sparql_update_array_fast_async (DBusConnection      *connection,
+				 const gchar        **queries,
+				 guint                queries_len,
+				 FastAsyncData       *fad,
+				 GError             **error)
+ {
+	 DBusPendingCall *call;
 
-	dbus_pending_call_set_notify (call, sparql_update_array_fast_callback, fad, NULL);
-}
+	 call = sparql_update_array_fast_send (connection,
+	                                       queries,
+	                                       queries_len,
+	                                       fad->operation_type,
+	                                       error);
 
-/* Public API */
+	 if (!call) {
+		 /* Do some clean up ?*/
+		 return;
+	 }
 
-void
-tracker_bus_fd_sparql_update (DBusGConnection *connection,
-                              const char      *query,
-                              GError         **error)
-{
-	DBusMessage *reply;
+	 fad->dbus_call = call;
 
-	g_return_if_fail (query != NULL);
+	 dbus_pending_call_set_notify (call, sparql_update_array_fast_callback, fad, NULL);
+ }
 
-	reply = sparql_update_fast (dbus_g_connection_get_connection (connection),
-	                            query, FAST_UPDATE, error);
+ /* Public API */
 
-	if (!reply) {
-		return;
-	}
+ void
+ tracker_bus_fd_sparql_update (DBusGConnection *connection,
+			       const char      *query,
+			       GError         **error)
+ {
+	 DBusMessage *reply;
 
-	dbus_message_unref (reply);
-}
+	 g_return_if_fail (query != NULL);
 
-void
-tracker_bus_fd_sparql_update_async (DBusGConnection       *connection,
-                                    const char            *query,
-                                    GCancellable          *cancellable,
-                                    GAsyncReadyCallback    callback,
-                                    gpointer               user_data)
-{
-	FastAsyncData *fad;
-	GError *error = NULL;
+	 reply = sparql_update_fast (dbus_g_connection_get_connection (connection),
+				     query,
+	                             FAST_UPDATE,
+	                             error);
 
-	g_return_if_fail (query != NULL);
+	 if (!reply) {
+		 return;
+	 }
 
-	fad = fast_async_data_new (dbus_g_connection_get_connection (connection),
-	                           FAST_UPDATE, cancellable, user_data);
+	 dbus_message_unref (reply);
+ }
 
-	fad->res = g_simple_async_result_new (NULL, callback, user_data,
-	                                      tracker_bus_fd_sparql_update_async);
+ void
+ tracker_bus_fd_sparql_update_async (DBusGConnection       *connection,
+				     const char            *query,
+				     GCancellable          *cancellable,
+				     GAsyncReadyCallback    callback,
+				     gpointer               user_data)
+ {
+	 FastAsyncData *fad;
+	 GError *error = NULL;
 
-	sparql_update_fast_async (dbus_g_connection_get_connection (connection),
-	                          query, fad, &error);
+	 g_return_if_fail (query != NULL);
+
+	 fad = fast_async_data_new (dbus_g_connection_get_connection (connection),
+	                            FAST_UPDATE,
+	                            cancellable,
+	                            user_data);
+
+	 fad->res = g_simple_async_result_new (NULL,
+	                                       callback,
+	                                       user_data,
+					       tracker_bus_fd_sparql_update_async);
+
+	 sparql_update_fast_async (dbus_g_connection_get_connection (connection),
+				   query,
+	                           fad,
+	                           &error);
+
+	 if (error) {
+		 g_critical ("Could not initiate update: %s", error->message);
+		 g_error_free (error);
+		 g_object_unref (fad->res);
+		 fast_async_data_free (fad);
+	 }
+ }
+
+ void
+ tracker_bus_fd_sparql_update_array_async (DBusGConnection      *connection,
+					   const char          **queries,
+					   guint                 queries_len,
+					   GCancellable         *cancellable,
+					   GAsyncReadyCallback   callback,
+					   gpointer              user_data)
+ {
+	 FastAsyncData *fad;
+	 GError *error = NULL;
+
+	 g_return_if_fail (queries != NULL);
+	 g_return_if_fail (queries_len != 0);
+
+	 fad = fast_async_data_new (dbus_g_connection_get_connection (connection),
+				    FAST_UPDATE,
+				    cancellable,
+				    user_data);
+
+	 fad->res = g_simple_async_result_new (NULL,
+					       callback,
+					       user_data,
+					       tracker_bus_fd_sparql_update_async);
+
+	 sparql_update_array_fast_async (dbus_g_connection_get_connection (connection),
+					 queries,
+					 queries_len,
+					 fad,
+	                                 &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
@@ -606,57 +656,32 @@ tracker_bus_fd_sparql_update_async (DBusGConnection       *connection,
 }
 
 void
-tracker_bus_fd_sparql_update_array_async (DBusGConnection       *connection,
-                                          const char            **queries,
-                                          guint                   queries_len,
-                                          GCancellable          *cancellable,
-                                          GAsyncReadyCallback    callback,
-                                          gpointer               user_data)
-{
-	FastAsyncData *fad;
-	GError *error = NULL;
-
-	g_return_if_fail (queries != NULL);
-	g_return_if_fail (queries_len != 0);
-
-	fad = fast_async_data_new (dbus_g_connection_get_connection (connection),
-	                           FAST_UPDATE, cancellable, user_data);
-
-	fad->res = g_simple_async_result_new (NULL, callback, user_data,
-	                                      tracker_bus_fd_sparql_update_async);
-
-	sparql_update_array_fast_async (dbus_g_connection_get_connection (connection),
-	                                queries, queries_len, fad, &error);
-
-	if (error) {
-		g_critical ("Could not initiate update: %s", error->message);
-		g_error_free (error);
-		g_object_unref (fad->res);
-		fast_async_data_free (fad);
-	}
-}
-
-void
-tracker_bus_fd_sparql_update_finish (GAsyncResult     *res,
-                                     GError          **error)
+tracker_bus_fd_sparql_update_finish (GAsyncResult  *res,
+                                     GError       **error)
 {
 	g_return_if_fail (res != NULL);
 
 	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
 }
 
-
 GVariant *
-tracker_bus_fd_sparql_update_blank_finish (GAsyncResult     *res,
-                                           GError          **error)
+tracker_bus_fd_sparql_update_blank_finish (GAsyncResult  *res,
+                                           GError       **error)
 {
+	GSimpleAsyncResult *simple_res;
+	gpointer p;
+
 	g_return_val_if_fail (res != NULL, NULL);
 
-	if (g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error)) {
+	simple_res = G_SIMPLE_ASYNC_RESULT (res);
+
+	if (g_simple_async_result_propagate_error (simple_res, error)) {
 		return NULL;
 	}
 
-	return g_variant_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
+	p = g_simple_async_result_get_op_res_gpointer (simple_res);
+
+	return g_variant_ref (p);
 }
 
 GVariant *
@@ -670,7 +695,9 @@ tracker_bus_fd_sparql_update_blank (DBusGConnection *connection,
 	g_return_val_if_fail (query != NULL, NULL);
 
 	reply = sparql_update_fast (dbus_g_connection_get_connection (connection),
-	                            query, FAST_UPDATE_BLANK, error);
+	                            query,
+	                            FAST_UPDATE_BLANK,
+	                            error);
 
 	if (!reply) {
 		return NULL;
@@ -692,11 +719,11 @@ tracker_bus_fd_sparql_update_blank (DBusGConnection *connection,
 }
 
 void
-tracker_bus_fd_sparql_update_blank_async (DBusGConnection       *connection,
-                                          const gchar           *query,
-                                          GCancellable          *cancellable,
-                                          GAsyncReadyCallback    callback,
-                                          gpointer               user_data)
+tracker_bus_fd_sparql_update_blank_async (DBusGConnection     *connection,
+                                          const gchar         *query,
+                                          GCancellable        *cancellable,
+                                          GAsyncReadyCallback  callback,
+                                          gpointer             user_data)
 {
 	FastAsyncData *fad;
 	GError *error = NULL;
@@ -709,11 +736,15 @@ tracker_bus_fd_sparql_update_blank_async (DBusGConnection       *connection,
 	                           cancellable,
 	                           user_data);
 
-	fad->res = g_simple_async_result_new (NULL, callback, user_data,
+	fad->res = g_simple_async_result_new (NULL,
+	                                      callback,
+	                                      user_data,
 	                                      tracker_bus_fd_sparql_update_blank_async);
 
 	sparql_update_fast_async (dbus_g_connection_get_connection (connection),
-	                          query, fad, &error);
+	                          query,
+	                          fad,
+	                          &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
@@ -733,7 +764,9 @@ tracker_bus_fd_sparql_batch_update (DBusGConnection *connection,
 	g_return_if_fail (query != NULL);
 
 	reply = sparql_update_fast (dbus_g_connection_get_connection (connection),
-	                            query, FAST_UPDATE_BATCH, error);
+	                            query,
+	                            FAST_UPDATE_BATCH,
+	                            error);
 
 	if (!reply) {
 		return;
@@ -771,14 +804,13 @@ tracker_bus_fd_sparql_batch_update_async (DBusGConnection       *connection,
 	}
 }
 
-
 void
-tracker_bus_fd_sparql_batch_update_array_async (DBusGConnection        *connection,
-                                                const char            **queries,
-                                                guint                   queries_len,
-                                                GCancellable           *cancellable,
-                                                GAsyncReadyCallback     callback,
-                                                gpointer                 user_data)
+tracker_bus_fd_sparql_batch_update_array_async (DBusGConnection      *connection,
+                                                const char          **queries,
+                                                guint                 queries_len,
+                                                GCancellable         *cancellable,
+                                                GAsyncReadyCallback   callback,
+                                                gpointer              user_data)
 {
 	FastAsyncData *fad;
 	GError *error = NULL;
@@ -787,13 +819,20 @@ tracker_bus_fd_sparql_batch_update_array_async (DBusGConnection        *connecti
 	g_return_if_fail (queries_len != 0);
 
 	fad = fast_async_data_new (dbus_g_connection_get_connection (connection),
-	                           FAST_UPDATE_BATCH, cancellable, user_data);
+	                           FAST_UPDATE_BATCH,
+	                           cancellable,
+	                           user_data);
 
-	fad->res = g_simple_async_result_new (NULL, callback, user_data,
+	fad->res = g_simple_async_result_new (NULL,
+	                                      callback,
+	                                      user_data,
 	                                      tracker_bus_fd_sparql_batch_update_async);
 
 	sparql_update_array_fast_async (dbus_g_connection_get_connection (connection),
-	                                queries, queries_len, fad, &error);
+	                                queries,
+	                                queries_len,
+	                                fad,
+	                                &error);
 
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
@@ -804,26 +843,34 @@ tracker_bus_fd_sparql_batch_update_array_async (DBusGConnection        *connecti
 }
 
 void
-tracker_bus_fd_sparql_batch_update_finish (GAsyncResult     *res,
-                                           GError          **error)
+tracker_bus_fd_sparql_batch_update_finish (GAsyncResult  *res,
+                                           GError       **error)
 {
 	g_return_if_fail (res != NULL);
 
 	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
 }
 
-GPtrArray*
+GPtrArray *
 tracker_bus_fd_sparql_update_array_finish (GAsyncResult *res)
 {
+	gpointer p;
+
 	g_return_val_if_fail (res != NULL, NULL);
 
-	return g_ptr_array_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
+	p = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
+
+	return g_ptr_array_ref (p);
 }
 
-GPtrArray*
+GPtrArray *
 tracker_bus_fd_sparql_batch_update_array_finish (GAsyncResult *res)
 {
+	gpointer p;
+
 	g_return_val_if_fail (res != NULL, NULL);
 
-	return g_ptr_array_ref (g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res)));
+	p = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
+
+	return g_ptr_array_ref (p);
 }

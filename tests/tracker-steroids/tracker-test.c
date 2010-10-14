@@ -324,7 +324,7 @@ async_update_array_callback (GObject      *source_object,
 
 
 static void
-test_tracker_sparql_update_array_async ()
+test_tracker_sparql_update_array_async (void)
 {
 	const gchar *queries[6] = { "INSERT { _:a a nmo:Message }",
 	                            "INSERT { _:b a nmo:Message }",
@@ -343,8 +343,10 @@ test_tracker_sparql_update_array_async ()
 
 	/* Cast here is because vala doesn't make const-char-** possible :( */
 	tracker_sparql_connection_update_array_async (connection,
-	                                              (char**) queries, 6,
-	                                              0, NULL,
+	                                              (char**) queries,
+	                                              6,
+	                                              0,
+	                                              NULL,
 	                                              async_update_array_callback,
 	                                              data);
 
@@ -408,7 +410,7 @@ test_tracker_sparql_update_blank_fast_large ()
 }
 
 static void
-test_tracker_sparql_update_blank_fast_error ()
+test_tracker_sparql_update_blank_fast_error (void)
 {
 	GError *error = NULL;
 	const gchar *query = "blork blork blork";
@@ -423,7 +425,7 @@ test_tracker_sparql_update_blank_fast_error ()
 }
 
 static void
-test_tracker_sparql_update_blank_fast_no_blanks ()
+test_tracker_sparql_update_blank_fast_no_blanks (void)
 {
 	GError *error = NULL;
 	const gchar *query = "INSERT { <urn:not_blank> a nmo:Message }";
@@ -438,7 +440,7 @@ test_tracker_sparql_update_blank_fast_no_blanks ()
 }
 
 static void
-test_tracker_batch_sparql_update_fast ()
+test_tracker_batch_sparql_update_fast (void)
 {
 	/* GError *error = NULL; */
 	/* const gchar *query = "INSERT { _:x a nmo:Message }"; */
@@ -473,7 +475,8 @@ async_query_cb (GObject      *source_object,
 	g_assert_no_error (error);
 	g_assert (cursor_glib != NULL);
 
-	while (tracker_sparql_cursor_next (cursor_fd, NULL, NULL) && tracker_sparql_cursor_next (cursor_glib, NULL, NULL)) {
+	while (tracker_sparql_cursor_next (cursor_fd, NULL, NULL) &&
+	       tracker_sparql_cursor_next (cursor_glib, NULL, NULL)) {
 		g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor_fd, 0, NULL),
 				 ==,
 				 tracker_sparql_cursor_get_string (cursor_glib, 0, NULL));
@@ -487,7 +490,7 @@ async_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async ()
+test_tracker_sparql_query_iterate_async (void)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -528,7 +531,7 @@ cancel_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async_cancel ()
+test_tracker_sparql_query_iterate_async_cancel (void)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -565,7 +568,7 @@ async_update_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_async ()
+test_tracker_sparql_update_async (void)
 {
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 	GMainLoop *main_loop;
@@ -606,7 +609,7 @@ cancel_update_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_async_cancel ()
+test_tracker_sparql_update_async_cancel (void)
 {
 	GCancellable *cancellable = g_cancellable_new ();
 	const gchar *query = "INSERT { _:x a nmo:Message }";
@@ -645,7 +648,7 @@ async_update_blank_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_blank_async ()
+test_tracker_sparql_update_blank_async (void)
 {
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 	GMainLoop *main_loop;

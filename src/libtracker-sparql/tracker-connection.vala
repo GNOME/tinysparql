@@ -451,7 +451,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @error: #GError for error reporting.
 	 *
 	 * Finishes the asynchronous SPARQL update_array operation.
-	 * 
+	 *
 	 * <example>
 	 * <programlisting>
 	 * static void
@@ -471,7 +471,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * }
 	 * </programlisting>
 	 * </example>
-	 * 
+	 *
 	 * Returns: a #GPtrArray of size @sparql_length1 with elements that are
 	 * either NULL or a GError instance. The returned array should be freed with
 	 * g_ptr_array_unref when no longer used, not with g_ptr_array_free. When

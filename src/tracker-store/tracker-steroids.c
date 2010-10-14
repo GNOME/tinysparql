@@ -186,8 +186,9 @@ update_array_callback (GError *error, gpointer user_data)
 
 	info->array_info.seen++;
 
-	if (!info->array_info.errors)
+	if (!info->array_info.errors) {
 		info->array_info.errors = g_ptr_array_new ();
+	}
 
 	if (error) {
 		g_ptr_array_add (info->array_info.errors, g_error_copy (error));
@@ -218,9 +219,11 @@ update_array_callback (GError *error, gpointer user_data)
 			dbus_message_iter_append_basic (&subiter, DBUS_TYPE_STRING, &str);
 			dbus_message_iter_append_basic (&subiter, DBUS_TYPE_STRING, &message);
 
-			if (error)
+			if (error) {
 				g_error_free (error);
+			}
 		}
+
 		g_ptr_array_free (info->array_info.errors, TRUE);
 
 		dbus_message_iter_close_container (&iter, &subiter);
