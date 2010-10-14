@@ -245,12 +245,12 @@ class TrackerWritebackLifeCycle():
 
 class TrackerSystemAbstraction:
 
-    def set_up_environment (self, confdir):
+    def set_up_environment (self, confdir, ontodir):
         """
         Sets up the XDG_*_HOME variables and make sure the directories exist
         """
         for var, directory in TEST_ENV_VARS.iteritems ():
-            print "Setting %s - %s" %(var, directory)
+            print "[Conf] Setting %s - %s" %(var, directory)
             self.__recreate_directory (directory)
             os.environ [var] = directory
 
@@ -275,21 +275,33 @@ class TrackerSystemAbstraction:
                 
         if (os.environ.has_key ("XDG_CONFIG_HOME")):
             del os.environ ["XDG_CONFIG_HOME"]
-        
 
-    def tracker_store_testing_start (self, confdir=None):
+        if (os.environ.has_key ("TRACKER_DB_ONTOLOGIES_DIR")):
+            del os.environ ["TRACKER_DB_ONTOLOGIES_DIR"]
+
+    def tracker_store_testing_start (self, confdir=None, ontodir=None):
         """
         Stops any previous instance of the store, calls set_up_environment,
         and starts a new instances of the store
         """
         self.__stop_tracker_processes ()
-        self.set_up_environment (confdir)
+        self.set_up_environment (confdir, ontodir)
         
         self.store = TrackerStoreLifeCycle ()
         self.store.start ()
 
     def tracker_store_start (self):
         self.store.start ()
+
+    def tracker_store_restart_with_new_ontologies (self, ontodir):
+        self.store.stop ()
+        if ontodir:
+            print "[Conf] Setting %s - %s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir)
+            os.environ ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
+        try:
+            self.store.start ()
+        except dbus.DBusException, e:
+            raise UnableToBootException ("Unable to boot the store \n(" + str(e) + ")")
 
     def tracker_store_brutal_restart (self):
         self.store.kill ()
@@ -337,7 +349,7 @@ class TrackerSystemAbstraction:
         and starts a new instance of the store and miner-fs
         """
         self.__stop_tracker_processes ()
-        self.set_up_environment (confdir)
+        self.set_up_environment (confdir, None)
 
         self.miner_fs = TrackerMinerFsLifeCycle ()
         self.miner_fs.start ()
