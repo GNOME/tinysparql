@@ -21,6 +21,9 @@ XDG_CONFIG_HOME_DIR = os.path.join (cfg.TEST_TMP_DIR, "xdg-config-home")
 
 REASONABLE_TIMEOUT = 30
 
+class UnableToBootException (Exception):
+    pass
+
 class TrackerStoreLifeCycle ():
 
     def __init__ (self):
@@ -52,9 +55,9 @@ class TrackerStoreLifeCycle ():
         tracker = self.bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_OBJ_PATH)
         tracker_status = self.bus.get_object (cfg.TRACKER_BUSNAME, cfg.TRACKER_STATUS_OBJ_PATH)
         self.status_iface = dbus.Interface (tracker_status, dbus_interface=cfg.STATUS_IFACE)
-        print "Waiting for the store to be ready"
+        print "[store] booting..."
         self.status_iface.Wait ()
-        print "Store is ready"
+        print "[store] ready."
 
         
     def stop (self):
@@ -63,7 +66,7 @@ class TrackerStoreLifeCycle ():
         self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
         self.loop.run ()
 
-        print "Store stopped"
+        print "[store] stop."
         # Disconnect the signals of the next start we get duplicated messages
         self.bus._clean_up_signal_match (self.name_owner_match)
 
@@ -72,17 +75,22 @@ class TrackerStoreLifeCycle ():
         self.loop.run ()
         # Name owner changed cb should take us out from this loop
 
-        print "Store killed."
+        print "[store] killed."
         self.bus._clean_up_signal_match (self.name_owner_match)
 
     def __timeout_on_idle (self):
-        print "Timeout (store)... asumming idle"
+        print "[store] Timeout waiting... asumming idle."
         self.loop.quit ()
         return False
 
     def __name_owner_changed_cb (self, name, old_owner, new_owner):
         if name == cfg.TRACKER_BUSNAME:
-            print "Store name change %s -> %s" % (old_owner, new_owner)
+            if old_owner == '' and new_owner != '':
+                print "[store] appears in the bus"
+            elif old_owner != ''  and new_owner == '':
+                print "[store] disappears from the bus"
+            else:
+                print "[store] name change %s -> %s" % (old_owner, new_owner)
             self.loop.quit ()
 
     def __start_tracker_store (self):
@@ -152,17 +160,17 @@ class TrackerMinerFsLifeCycle():
 
     def wait_for_idle (self, timeout=REASONABLE_TIMEOUT):
         # The signal is already connected
-        print "Waiting for Idle"
+        print "[miner-fs] waiting for Idle"
         self.timeout_id = glib.timeout_add_seconds (timeout, self.__timeout_on_idle)
         self.loop.run ()
 
     def __timeout_on_idle (self):
-        print "Timeout... asumming idle"
+        print "[miner-fs] timeout... asumming idle"
         self.loop.quit ()
         return False
 
     def __minerfs_status_cb (self, status, handle):
-        print "Miner status is now", status.encode ("utf-8")
+        print "[miner-fs] status is now", status.encode ("utf-8")
         if (status == "Idle"):
             if (self.timeout_id != 0):
                 glib.source_remove (self.timeout_id)
@@ -172,7 +180,12 @@ class TrackerMinerFsLifeCycle():
 
     def __name_owner_changed_cb (self, name, old_owner, new_owner):
         if name == cfg.MINERFS_BUSNAME:
-            print "Miner name change %s -> %s" % (old_owner, new_owner)
+            if old_owner == '' and new_owner != '':
+                print "[miner-fs] appears in the bus"
+            elif old_owner != ''  and new_owner == '':
+                print "[miner-fs] disappears from the bus"
+            else:
+                print "[miner-fs] name change %s -> %s" % (old_owner, new_owner)
             self.loop.quit ()
 
     def __start_tracker_miner_fs (self):
@@ -261,9 +274,13 @@ class TrackerSystemAbstraction:
             self.__recreate_directory (XDG_CONFIG_HOME_DIR)
             shutil.copytree (os.path.join (confdir, "tracker"),
                              os.path.join (XDG_CONFIG_HOME_DIR, "tracker"))
-            print "Setting %s - %s" % ("XDG_CONFIG_HOME", XDG_CONFIG_HOME_DIR)
-            print "  taking configuration from", confdir
+            print "[Conf] Setting %s - %s" % ("XDG_CONFIG_HOME", XDG_CONFIG_HOME_DIR)
+            print "[Conf]   taking conf from", confdir
             os.environ ["XDG_CONFIG_HOME"] = XDG_CONFIG_HOME_DIR
+
+        if ontodir:
+            print "[Conf] Setting %s - %s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir)
+            os.environ ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
 
     def unset_up_environment (self):
         """
