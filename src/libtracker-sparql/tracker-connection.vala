@@ -462,11 +462,16 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *     GError *error = NULL;
 	 *     GPtrArray *errors;
 	 *     guint i;
+	 *
 	 *     errors = tracker_sparql_connection_update_array_finish (connection, result, &error);
 	 *     g_assert_no_error (error);
+	 *
 	 *     for (i = 0; i < errors->len; i++) {
-	 *         const GError *a_error = g_ptr_array_index (errors, i);
+	 *         const GError *e = g_ptr_array_index (errors, i);
+	 *
+	 *         ...
 	 *     }
+	 *
 	 *     g_ptr_array_unref (errors);
 	 * }
 	 * </programlisting>
@@ -482,7 +487,6 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-
 	public async virtual GLib.PtrArray? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'update_array_async' not implemented");
 		return null;
