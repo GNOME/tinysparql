@@ -104,6 +104,24 @@ static Conversion allowed_range_conversions[] = {
 	{ NULL, NULL }
 };
 
+
+static void
+handle_unsupported_ontology_change (const gchar *ontology_path,
+                                    const gchar *subject,
+                                    const gchar *change,
+                                    const gchar *old,
+                                    const gchar *attempted_new)
+{
+	/* force reindex on restart */
+	tracker_db_manager_remove_version_file ();
+	g_error ("%s: Unsupported ontology change for %s: can't change %s (old=%s, attempted new=%s)",
+	         ontology_path != NULL ? ontology_path : "Unknown",
+	         subject != NULL ? subject : "Unknown",
+	         change != NULL ? change : "Unknown",
+	         old != NULL ? old : "Unknown",
+	         attempted_new != NULL ? attempted_new : "Uknown");
+}
+
 static void
 set_secondary_index_for_single_value_property (TrackerDBInterface *iface,
                                                const gchar        *service_name,
@@ -254,7 +272,8 @@ is_allowed_conversion (const gchar *oldv,
 }
 
 static gboolean
-update_property_value (const gchar     *kind,
+update_property_value (const gchar     *ontology_path,
+                       const gchar     *kind,
                        const gchar     *subject,
                        const gchar     *predicate,
                        const gchar     *object,
@@ -292,10 +311,11 @@ update_property_value (const gchar     *kind,
 			} else {
 
 				if (allowed && !is_allowed_conversion (str, object, allowed)) {
-					/* force reindex on restart */
-					tracker_db_manager_remove_version_file ();
-					g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
-					         str, object, predicate, subject);
+					handle_unsupported_ontology_change (ontology_path,
+					                                    subject,
+					                                    kind,
+					                                    str,
+					                                    object);
 				}
 
 				tracker_data_delete_statement (NULL, subject, predicate, str, &error);
@@ -336,9 +356,9 @@ update_property_value (const gchar     *kind,
 	return needed;
 }
 
-
 static void
-check_range_conversion_is_allowed (const gchar *subject,
+check_range_conversion_is_allowed (const gchar *ontology_path,
+                                   const gchar *subject,
                                    const gchar *predicate,
                                    const gchar *object)
 {
@@ -359,10 +379,11 @@ check_range_conversion_is_allowed (const gchar *subject,
 
 		if (g_strcmp0 (object, str) != 0) {
 			if (!is_allowed_conversion (str, object, allowed_range_conversions)) {
-				/* force reindex on restart */
-				tracker_db_manager_remove_version_file ();
-				g_error ("Ontology change conversion not allowed '%s' -> '%s' in '%s' of '%s'",
-				         str, object, predicate, subject);
+				handle_unsupported_ontology_change (ontology_path,
+				                                    subject,
+				                                    "rdfs:range",
+				                                    str,
+				                                    object);
 			}
 		}
 		g_free (str);
@@ -683,6 +704,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 	} else if (g_strcmp0 (predicate, RDFS_DOMAIN) == 0) {
 		TrackerProperty *property;
 		TrackerClass *domain;
+		gboolean is_new;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
 		if (property == NULL) {
@@ -690,13 +712,25 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		if (tracker_property_get_is_new (property) != in_update) {
-			return;
-		}
-
 		domain = tracker_ontologies_get_class_by_uri (object);
 		if (domain == NULL) {
 			g_critical ("%s: Unknown class %s", ontology_path, object);
+			return;
+		}
+
+		is_new = tracker_property_get_is_new (property);
+		if (is_new != in_update) {
+			/* Detect unsupported ontology change (this needs a journal replay) */
+			if (in_update == TRUE && is_new == FALSE) {
+				TrackerClass *old_domain = tracker_property_get_domain (property);
+				if (old_domain != domain) {
+					handle_unsupported_ontology_change (ontology_path,
+					                                    tracker_property_get_name (property),
+					                                    "rdfs:domain",
+					                                    tracker_class_get_name (old_domain),
+					                                    tracker_class_get_name (domain));
+				}
+			}
 			return;
 		}
 
@@ -712,7 +746,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		if (tracker_property_get_is_new (property) != in_update) {
-			check_range_conversion_is_allowed (subject, predicate, object);
+			check_range_conversion_is_allowed (ontology_path, subject, predicate, object);
 		}
 
 		range = tracker_ontologies_get_class_by_uri (object);
@@ -968,14 +1002,13 @@ check_for_deleted_domain_index (TrackerClass *class)
 
 static void
 tracker_data_ontology_process_changes_pre_db (GPtrArray *seen_classes,
-                                               GPtrArray *seen_properties)
+                                              GPtrArray *seen_properties)
 {
 	gint i;
 	if (seen_classes) {
 		for (i = 0; i < seen_classes->len; i++) {
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
 			check_for_deleted_domain_index (class);
-
 		}
 	}
 }
@@ -985,6 +1018,8 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
                                                GPtrArray *seen_properties)
 {
 	gint i;
+	/* TODO: Collect the ontology-paths of the seen events for proper error reporting */
+	const gchar *ontology_path = "Unknown";
 
 	/* This updates property-property changes and marks classes for necessity
 	 * of having their tables recreated later. There's support for
@@ -998,13 +1033,15 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 			subject = tracker_class_get_uri (class);
 
 			if (tracker_class_get_notify (class)) {
-				update_property_value ("tracker:notify",
+				update_property_value (ontology_path,
+				                       "tracker:notify",
 				                       subject,
 				                       TRACKER_PREFIX "notify",
 				                       "true", allowed_boolean_conversions,
 				                       class, NULL);
 			} else {
-				update_property_value ("tracker:notify",
+				update_property_value (ontology_path,
+				                       "tracker:notify",
 				                       subject,
 				                       TRACKER_PREFIX "notify",
 				                       "false", allowed_boolean_conversions,
@@ -1023,13 +1060,15 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 			subject = tracker_property_get_uri (property);
 
 			if (tracker_property_get_writeback (property)) {
-				update_property_value ("tracker:writeback",
+				update_property_value (ontology_path,
+				                       "tracker:writeback",
 				                       subject,
 				                       TRACKER_PREFIX "writeback",
 				                       "true", allowed_boolean_conversions,
 				                       NULL, property);
 			} else {
-				update_property_value ("tracker:writeback",
+				update_property_value (ontology_path,
+				                       "tracker:writeback",
 				                       subject,
 				                       TRACKER_PREFIX "writeback",
 				                       "false", allowed_boolean_conversions,
@@ -1037,7 +1076,8 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 			}
 
 			if (tracker_property_get_indexed (property)) {
-				if (update_property_value ("tracker:indexed",
+				if (update_property_value (ontology_path,
+				                           "tracker:indexed",
 				                           subject,
 				                           TRACKER_PREFIX "indexed",
 				                           "true", allowed_boolean_conversions,
@@ -1046,7 +1086,8 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 					indexed_set = TRUE;
 				}
 			} else {
-				if (update_property_value ("tracker:indexed",
+				if (update_property_value (ontology_path,
+				                           "tracker:indexed",
 				                           subject,
 				                           TRACKER_PREFIX "indexed",
 				                           "false", allowed_boolean_conversions,
@@ -1059,7 +1100,8 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 			secondary_index = tracker_property_get_secondary_index (property);
 
 			if (secondary_index) {
-				if (update_property_value ("tracker:secondaryIndex",
+				if (update_property_value (ontology_path,
+				                           "tracker:secondaryIndex",
 				                           subject,
 				                           TRACKER_PREFIX "secondaryIndex",
 				                           tracker_property_get_uri (secondary_index), NULL,
@@ -1068,7 +1110,8 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 						fix_indexed (property);
 				}
 			} else {
-				if (update_property_value ("tracker:secondaryIndex",
+				if (update_property_value (ontology_path,
+				                           "tracker:secondaryIndex",
 				                           subject,
 				                           TRACKER_PREFIX "secondaryIndex",
 				                           NULL, NULL,
@@ -1078,7 +1121,8 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 				}
 			}
 
-			if (update_property_value ("rdfs:range", subject, RDFS_PREFIX "range",
+			if (update_property_value (ontology_path,
+			                           "rdfs:range", subject, RDFS_PREFIX "range",
 			                           tracker_class_get_uri (tracker_property_get_range (property)),
 			                           allowed_range_conversions,
 			                           NULL, property)) {
@@ -1089,7 +1133,8 @@ tracker_data_ontology_process_changes_post_db (GPtrArray *seen_classes,
 				tracker_property_set_db_schema_changed (property, TRUE);
 			}
 
-			if (update_property_value ("tracker:defaultValue", subject, TRACKER_PREFIX "defaultValue",
+			if (update_property_value (ontology_path,
+			                           "tracker:defaultValue", subject, TRACKER_PREFIX "defaultValue",
 			                           tracker_property_get_default_value (property),
 			                           NULL, NULL, property)) {
 				TrackerClass *class;
@@ -1230,6 +1275,10 @@ get_ontology_from_path (const gchar *ontology_path)
 	if (error) {
 		g_critical ("Turtle parse error: %s", error->message);
 		g_error_free (error);
+	}
+
+	if (ret == NULL) {
+		g_critical ("Ontology file has no nao:lastModified header: %s", ontology_path);
 	}
 
 	return ret;
