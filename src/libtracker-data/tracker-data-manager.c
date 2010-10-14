@@ -272,6 +272,76 @@ is_allowed_conversion (const gchar *oldv,
 }
 
 static gboolean
+check_unsupported_property_value_change (const gchar     *ontology_path,
+                                         const gchar     *kind,
+                                         const gchar     *subject,
+                                         const gchar     *predicate,
+                                         const gchar     *object)
+{
+	GError *error = NULL;
+	gboolean needed = TRUE;
+	gchar *query = NULL;
+	TrackerDBResultSet *result_set;
+
+	query = g_strdup_printf ("SELECT ?old_value WHERE { "
+	                           "<%s> %s ?old_value "
+	                         "}", subject, kind);
+
+	result_set = tracker_data_query_sparql (query, &error);
+
+	if (!error && result_set) {
+		gchar *str = NULL;
+		GValue value = { 0 };
+
+		_tracker_db_result_set_get_value (result_set, 0, &value);
+
+		switch (G_VALUE_TYPE (&value)) {
+			case G_TYPE_INT64:
+				str = g_strdup_printf ("%" G_GINT64_FORMAT, g_value_get_int64 (&value));
+			break;
+			case G_TYPE_DOUBLE:
+				str = g_strdup_printf ("%f", g_value_get_double (&value));
+			break;
+			case G_TYPE_STRING:
+				str = g_value_dup_string (&value);
+			break;
+			default:
+				g_warning ("Unknown type for resultset: %s\n", G_VALUE_TYPE_NAME (&value));
+				str = g_strdup ("");
+				break;
+		}
+
+		if (g_strcmp0 (object, str) == 0) {
+			needed = FALSE;
+		} else {
+			needed = TRUE;
+		}
+
+		g_value_unset (&value);
+		g_free (str);
+	} else {
+		if (object && (g_strcmp0 (object, "false") == 0)) {
+			needed = FALSE;
+		} else {
+			needed = (object != NULL);
+		}
+	}
+
+	g_free (query);
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+
+	if (error) {
+		g_critical ("Ontology change, %s", error->message);
+		g_clear_error (&error);
+	}
+
+	return needed;
+}
+
+
+static gboolean
 update_property_value (const gchar     *ontology_path,
                        const gchar     *kind,
                        const gchar     *subject,
@@ -758,6 +828,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		tracker_property_set_range (property, range);
 	} else if (g_strcmp0 (predicate, NRL_MAX_CARDINALITY) == 0) {
 		TrackerProperty *property;
+		gboolean is_new;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
 		if (property == NULL) {
@@ -765,7 +836,22 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		if (tracker_property_get_is_new (property) != in_update) {
+		is_new = tracker_property_get_is_new (property);
+		if (is_new != in_update) {
+			/* Detect unsupported ontology change (this needs a journal replay) */
+			if (in_update == TRUE && is_new == FALSE) {
+				if (check_unsupported_property_value_change (ontology_path,
+				                                             "nrl:maxCardinality",
+				                                             subject,
+				                                             predicate,
+				                                             object)) {
+					handle_unsupported_ontology_change (ontology_path,
+					                                    tracker_property_get_name (property),
+					                                    "nrl:maxCardinality",
+					                                    tracker_property_get_multiple_values (property) ? "true" : "false",
+					                                    (atoi (object) == 1)  ? "false" : "true");
+				}
+			}
 			return;
 		}
 
