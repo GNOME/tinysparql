@@ -88,7 +88,8 @@ noinst_PROGRAMS = busy-handling-test \
 	default-update-test \
 	bus-update-test \
 	class-signal-test \
-	class-signal-performance-test
+	class-signal-performance-test \
+	update-array-performance-test
 
 busy_handling_test_VALASOURCES = busy-handling-test.vala
 
@@ -118,6 +119,8 @@ default_update_test_SOURCES = \
 	$(default_update_test_VALASOURCES:.vala=.c)
 
 bus_query_test_VALASOURCES = shared-query-test.vala bus-query-test.vala
+
+update_array_performance_test_SOURCES = update-array-performance-test.c
 
 bus_query_test_SOURCES = \
 	bus-query-test.vala.stamp \
@@ -201,6 +204,15 @@ class-signal-performance-test.vala.stamp: $(class_signal_performance_test_VALASO
 	$(AM_V_GEN)touch $@
 
 class_signal_performance_test_LDADD = \
+	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
+	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(GIO_LIBS) \
+	$(GLIB2_LIBS) \
+	$(DBUS_LIBS)
+
+update_array_performance_test_LDADD = \
 	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
 	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \

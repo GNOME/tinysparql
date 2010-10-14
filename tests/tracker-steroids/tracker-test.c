@@ -38,11 +38,11 @@ insert_test_data ()
 {
 	GError *error = NULL;
 	const char *delete_query = "DELETE { "
-                               "<urn:testdata1> a rdfs:Resource ."
-                               "<urn:testdata2> a rdfs:Resource ."
-                               "<urn:testdata3> a rdfs:Resource ."
-                               "<urn:testdata4> a rdfs:Resource ."
-                               "}";
+	                           "<urn:testdata1> a rdfs:Resource ."
+	                           "<urn:testdata2> a rdfs:Resource ."
+	                           "<urn:testdata3> a rdfs:Resource ."
+	                           "<urn:testdata4> a rdfs:Resource ."
+	                           "}";
 	char *longName = g_malloc (LONG_NAME_SIZE);
 	char *filled_query;
 
@@ -295,6 +295,69 @@ test_tracker_sparql_update_fast_large ()
 }
 
 static void
+async_update_array_callback (GObject      *source_object,
+                             GAsyncResult *result,
+                             gpointer      user_data)
+{
+	GError *error = NULL;
+	AsyncData *data = user_data;
+	GPtrArray *errors;
+
+	errors = tracker_sparql_connection_update_array_finish (connection, result, &error);
+
+	/* main error is only set on fatal (D-Bus) errors that apply to the whole update */
+	g_assert_no_error (error);
+
+	g_assert (errors->len == 6);
+
+	g_assert (g_ptr_array_index (errors, 0) == NULL);
+	g_assert (g_ptr_array_index (errors, 1) == NULL);
+	g_assert (g_ptr_array_index (errors, 2) == NULL);
+	g_assert (g_ptr_array_index (errors, 3) != NULL);
+	g_assert (g_ptr_array_index (errors, 4) == NULL);
+	g_assert (g_ptr_array_index (errors, 5) == NULL);
+
+	g_ptr_array_unref (errors);
+
+	g_main_loop_quit (data->main_loop);
+}
+
+
+static void
+test_tracker_sparql_update_array_async (void)
+{
+	const gchar *queries[6] = { "INSERT { _:a a nmo:Message }",
+	                            "INSERT { _:b a nmo:Message }",
+	                            "INSERT { _:c a nmo:Message }",
+	                            "INSERT { _:d syntax error a nmo:Message }",
+	                            "INSERT { _:e a nmo:Message }",
+	                            "INSERT { _:f a nmo:Message }" };
+
+	GMainLoop *main_loop;
+	AsyncData *data;
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	data = g_slice_new (AsyncData);
+	data->main_loop = main_loop;
+
+	/* Cast here is because vala doesn't make const-char-** possible :( */
+	tracker_sparql_connection_update_array_async (connection,
+	                                              (char**) queries,
+	                                              6,
+	                                              0,
+	                                              NULL,
+	                                              async_update_array_callback,
+	                                              data);
+
+	g_main_loop_run (main_loop);
+
+	g_slice_free (AsyncData, data);
+	g_main_loop_unref (main_loop);
+
+}
+
+static void
 test_tracker_sparql_update_fast_error ()
 {
 	GError *error = NULL;
@@ -347,7 +410,7 @@ test_tracker_sparql_update_blank_fast_large ()
 }
 
 static void
-test_tracker_sparql_update_blank_fast_error ()
+test_tracker_sparql_update_blank_fast_error (void)
 {
 	GError *error = NULL;
 	const gchar *query = "blork blork blork";
@@ -362,7 +425,7 @@ test_tracker_sparql_update_blank_fast_error ()
 }
 
 static void
-test_tracker_sparql_update_blank_fast_no_blanks ()
+test_tracker_sparql_update_blank_fast_no_blanks (void)
 {
 	GError *error = NULL;
 	const gchar *query = "INSERT { <urn:not_blank> a nmo:Message }";
@@ -377,7 +440,7 @@ test_tracker_sparql_update_blank_fast_no_blanks ()
 }
 
 static void
-test_tracker_batch_sparql_update_fast ()
+test_tracker_batch_sparql_update_fast (void)
 {
 	/* GError *error = NULL; */
 	/* const gchar *query = "INSERT { _:x a nmo:Message }"; */
@@ -412,7 +475,8 @@ async_query_cb (GObject      *source_object,
 	g_assert_no_error (error);
 	g_assert (cursor_glib != NULL);
 
-	while (tracker_sparql_cursor_next (cursor_fd, NULL, NULL) && tracker_sparql_cursor_next (cursor_glib, NULL, NULL)) {
+	while (tracker_sparql_cursor_next (cursor_fd, NULL, NULL) &&
+	       tracker_sparql_cursor_next (cursor_glib, NULL, NULL)) {
 		g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor_fd, 0, NULL),
 				 ==,
 				 tracker_sparql_cursor_get_string (cursor_glib, 0, NULL));
@@ -426,7 +490,7 @@ async_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async ()
+test_tracker_sparql_query_iterate_async (void)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -467,7 +531,7 @@ cancel_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async_cancel ()
+test_tracker_sparql_query_iterate_async_cancel (void)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -504,7 +568,7 @@ async_update_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_async ()
+test_tracker_sparql_update_async (void)
 {
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 	GMainLoop *main_loop;
@@ -545,7 +609,7 @@ cancel_update_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_async_cancel ()
+test_tracker_sparql_update_async_cancel (void)
 {
 	GCancellable *cancellable = g_cancellable_new ();
 	const gchar *query = "INSERT { _:x a nmo:Message }";
@@ -584,7 +648,7 @@ async_update_blank_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_blank_async ()
+test_tracker_sparql_update_blank_async (void)
 {
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 	GMainLoop *main_loop;
@@ -639,6 +703,7 @@ main (gint argc, gchar **argv)
 	g_test_add_func ("/steroids/tracker/tracker_sparql_update_async", test_tracker_sparql_update_async);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_update_async_cancel", test_tracker_sparql_update_async_cancel);
 	g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_async", test_tracker_sparql_update_blank_async);
+	g_test_add_func ("/steroids/tracker/tracker_sparql_update_array_async", test_tracker_sparql_update_array_async);
 
 	return g_test_run ();
 }
