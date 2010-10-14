@@ -466,7 +466,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *     errors = tracker_sparql_connection_update_array_finish (connection, result, &error);
 	 *     g_assert_no_error (error);
 	 *     for (i = 0; i < errors->len; i++) {
-	 *         const GError *error = g_ptr_array_index (errors, i);
+	 *         const GError *a_error = g_ptr_array_index (errors, i);
 	 *     }
 	 *     g_ptr_array_unref (errors);
 	 * }
