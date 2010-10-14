@@ -402,10 +402,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @self: a #TrackerSparqlConnection
 	 * @sparql: string containing the SPARQL update query
 	 * @priority: the priority for the asynchronous operation
+	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
 	 *              asynchronous operation is finished.
 	 * @_user_data_: user-defined data to be passed to @_callback_
-	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Executes asynchronously a SPARQL update.
 	 *
@@ -426,7 +426,30 @@ public abstract class Tracker.Sparql.Connection : Object {
 		warning ("Interface 'update_async' not implemented");
 	}
 
-	/* Private API */
+	/**
+	 * tracker_sparql_connection_update_array_async:
+	 * @self: a #TrackerSparqlConnection
+	 * @sparql: an array of strings containing the SPARQL update queries
+	 * @sparql_length1: the amount of strings you pass as @sparql
+	 * @priority: the priority for the asynchronous operation
+	 * @cancellable: a #GCancellable used to cancel the operation
+	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
+	 *              asynchronous operation is finished.
+	 * @_user_data_: user-defined data to be passed to @_callback_
+	 *
+	 * Executes asynchronously an array of SPARQL updates. Each update in the
+	 * array is its own transaction. This means that update n+1 is not halted
+	 * due to an error in update n.
+	 *
+	 * Returns: a #GPtrArray of size @sparql_length1 with elements that are
+	 * either NULL or a GError instance. The returned array should be freed with
+	 * g_ptr_array_unref when no longer used, not with g_ptr_array_free. When
+	 * you use errors of the array, you must g_error_copy them. Errors inside of
+	 * the array must be considered as const data and not freed.
+	 *
+	 * Since: 0.10
+	 */
+
 	public async virtual GLib.PtrArray? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'update_array_async' not implemented");
 		return null;
@@ -458,10 +481,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * @self: a #TrackerSparqlConnection
 	 * @sparql: string containing the SPARQL update query
 	 * @priority: the priority for the asynchronous operation
+	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
 	 *              asynchronous operation is finished.
 	 * @_user_data_: user-defined data to be passed to @_callback_
-	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Executes asynchronously a SPARQL update.
 	 *
@@ -507,10 +530,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * tracker_sparql_connection_load_async:
 	 * @self: a #TrackerSparqlConnection
 	 * @file: a #GFile
+	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
 	 *              asynchronous operation is finished.
 	 * @_user_data_: user-defined data to be passed to @_callback_
-	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Loads, asynchronously, a Turtle file (TTL) into the store.
 	 *
@@ -554,10 +577,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	/**
 	 * tracker_sparql_connection_statistics_async:
 	 * @self: a #TrackerSparqlConnection
+	 * @cancellable: a #GCancellable used to cancel the operation
 	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
 	 *              asynchronous operation is finished.
 	 * @_user_data_: user-defined data to be passed to @_callback_
-	 * @cancellable: a #GCancellable used to cancel the operation
 	 *
 	 * Retrieves, asynchronously, the statistics from the Store.
 	 *
