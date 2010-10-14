@@ -103,6 +103,9 @@ class OntologyChangeTestTemplate (ut.TestCase):
 
 
 class PropertyRangeStringToDate (OntologyChangeTestTemplate):
+    """
+    Change the range of a property from string to date. There shouldn't be any data loss.
+    """
 
     @expectedFailureBug ("New journal is gonna work it out")
     def test_property_range_string_to_date (self):
@@ -129,6 +132,9 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
 
 
 class PropertyRangeDateToString (OntologyChangeTestTemplate):
+    """
+    Change the range of a property from date to string. There shouldn't be any data loss.
+    """
 
     @expectedFailureBug ("New journal is gonna work it out")
     def test_property_range_date_to_string (self):
@@ -153,7 +159,9 @@ class PropertyRangeDateToString (OntologyChangeTestTemplate):
         self.assertEquals (result[0][0], "2010-10-12T13:30:00Z")
 
 class PropertyRangeIntToString (OntologyChangeTestTemplate):
-
+    """
+    Change the range of a property from int to string. There shouldn't be any data loss.
+    """
     def test_property_range_int_to_str (self):
         self.template_test_ontology_change ()
 
@@ -174,6 +182,9 @@ class PropertyRangeIntToString (OntologyChangeTestTemplate):
         self.assertEquals (result[0][0], "12")
 
 class PropertyRangeStringToInt (OntologyChangeTestTemplate):
+    """
+    Change the range of a property from string to int. There shouldn't be any data loss.
+    """
 
     def test_property_range_str_to_int (self):
         self.template_test_ontology_change ()
@@ -195,6 +206,9 @@ class PropertyRangeStringToInt (OntologyChangeTestTemplate):
         self.assertEquals (result[0][0], "12")
         
 class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
+    """
+    Change cardinality of a property from 1 to N. There shouldn't be any data loss
+    """
 
     @expectedFailureBug ("New journal is gonna work it out")
     def test_property_cardinality_1_to_n (self):
@@ -224,6 +238,9 @@ class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
         self.assertEquals (str(result[0][0]), "some text")
 
 class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
+    """
+    Change the cardinality of a property for N to 1.
+    """
 
     @expectedFailureBug ("New journal is gonna work it out")
     def test_property_cardinality_n_to_1 (self):
@@ -243,13 +260,61 @@ class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
                 
     def validate_status (self):
         result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
-        print result
         self.assertEquals (int (result[0][0]), 1, "Cardinality should be 1")
         
         # Check the value is there
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance))
         self.assertEquals (str(result[0][0]), "some text")
-                
+
+class PropertyNotifySet (OntologyChangeTestTemplate):
+    """
+    Set tracker:notify to true in a class and check there is no data loss
+    """
+    def test_property_notify_set (self):
+        self.template_test_ontology_change ()
+
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "notify"
+
+    def insert_data (self):
+        self.instance = "test://ontology-change/notify/true"
+        self.tracker.update ("INSERT { <%s> a test:A; test:a_string 'some text'. }" % (self.instance))
+
+
+    def validate_status (self):
+        result = self.tracker.query ("SELECT ?notify WHERE { test:A tracker:notify ?notify}")
+        self.assertEquals (str(result[0][0]), "true")
+        
+        result = self.tracker.query ("SELECT ?u WHERE { ?u a test:A. }")
+        self.assertEquals (str(result[0][0]), self.instance)
+
+class PropertyNotifyUnset (OntologyChangeTestTemplate):
+    """
+    Set tracker:notify to true in a class and check there is no data loss
+    """
+    def test_property_notify_set (self):
+        self.template_test_ontology_change ()
+
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "notify"
+        self.SECOND_ONTOLOGY_DIR = "basic"
+
+    def insert_data (self):
+        self.instance = "test://ontology-change/notify/true"
+        self.tracker.update ("INSERT { <%s> a test:A; test:a_string 'some text'. }" % (self.instance))
+
+
+    def validate_status (self):
+        result = self.tracker.query ("SELECT ?notify WHERE { test:A tracker:notify ?notify}")
+        if (len (result) == 1):
+            # Usually is (none) but it was "true" before so now has value.
+            self.assertEquals (result[0][0], "false")
+        else:
+            self.assertEquals (len (result), 0)
+        
+        result = self.tracker.query ("SELECT ?u WHERE { ?u a test:A. }")
+        self.assertEquals (str(result[0][0]), self.instance)
                 
     
 
