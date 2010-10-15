@@ -630,6 +630,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 	} else if (g_strcmp0 (predicate, RDFS_SUB_CLASS_OF) == 0) {
 		TrackerClass *class, *super_class;
+		gboolean is_new;
 
 		class = tracker_ontologies_get_class_by_uri (subject);
 		if (class == NULL) {
@@ -637,7 +638,38 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		if (tracker_class_get_is_new (class) != in_update) {
+		is_new = tracker_class_get_is_new (class);
+		if (is_new != in_update) {
+			/* Detect unsupported ontology change (this needs a journal replay) */
+			if (in_update == TRUE && is_new == FALSE) {
+				TrackerClass **super_classes = tracker_class_get_super_classes (class);
+				gboolean found = FALSE;
+
+				super_class = tracker_ontologies_get_class_by_uri (object);
+				if (super_class == NULL) {
+					g_critical ("%s: Unknown class %s", ontology_path, object);
+					return;
+				}
+
+				while (*super_classes) {
+					if (*super_classes == super_class) {
+						found = TRUE;
+						break;
+					}
+					super_classes++;
+				}
+
+				/* This doesn't detect removed rdfs:subClassOf situations, it
+				 * only checks whether no new ones are being added */
+
+				if (found == FALSE) {
+					handle_unsupported_ontology_change (ontology_path,
+					                                    tracker_class_get_name (class),
+					                                    "rdfs:subClassOf",
+					                                    "-",
+					                                    tracker_class_get_name (super_class));
+				}
+			}
 			return;
 		}
 
