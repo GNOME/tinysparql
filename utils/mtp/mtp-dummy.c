@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <locale.h>
 #include <glib.h>
 #include <tracker-sparql.h>
 
@@ -529,6 +530,9 @@ int main (int argc, char **argv)
 	/* Initialize stuff */
 	g_thread_init (NULL);
 	g_type_init ();
+
+	/* Initialize locale support! */
+	setlocale (LC_ALL, "");
 
 	/* Initialize context */
 	if (!context_init (argc, argv)) {
