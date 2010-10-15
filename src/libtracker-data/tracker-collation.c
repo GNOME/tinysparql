@@ -77,9 +77,10 @@ tracker_collation_utf8 (gpointer      collator,
 	memcpy (aux1, str1, len1); aux1[len1] = '\0';
 	memcpy (aux2, str2, len2); aux2[len2] = '\0';
 
-	trace ("(libunistring) Collating '%s' and '%s'", aux1, aux2);
-
 	result = u8_strcoll (aux1, aux2);
+
+	trace ("(libunistring) Collating '%s' and '%s' (%d)",
+	       aux1, aux2, result);
 
 	if (len1 >= MAX_STACK_STR_SIZE)
 		g_free (aux1);
@@ -135,6 +136,17 @@ tracker_collation_utf8 (gpointer      collator,
 	/* Collator must be created before trying to collate */
 	g_return_val_if_fail (collator, -1);
 
+	/* Setup iterators */
+	uiter_setUTF8 (&iter1, str1, len1);
+	uiter_setUTF8 (&iter2, str2, len2);
+
+	result = ucol_strcollIter ((UCollator *)collator,
+	                           &iter1,
+	                           &iter2,
+	                           &status);
+	if (status != U_ZERO_ERROR)
+		g_critical ("Error collating: %s", u_errorName (status));
+
 #ifdef ENABLE_TRACE
 	{
 		gchar *aux1;
@@ -147,7 +159,8 @@ tracker_collation_utf8 (gpointer      collator,
 		memcpy (aux1, str1, len1); aux1[len1] = '\0';
 		memcpy (aux2, str2, len2); aux2[len2] = '\0';
 
-		trace ("(ICU) Collating '%s' and '%s'", aux1, aux2);
+		trace ("(ICU) Collating '%s' and '%s' (%d)",
+		       aux1, aux2, result);
 
 		if (len1 >= MAX_STACK_STR_SIZE)
 			g_free (aux1);
@@ -155,17 +168,6 @@ tracker_collation_utf8 (gpointer      collator,
 			g_free (aux2);
 	}
 #endif /* ENABLE_TRACE */
-
-	/* Setup iterators */
-	uiter_setUTF8 (&iter1, str1, len1);
-	uiter_setUTF8 (&iter2, str2, len2);
-
-	result = ucol_strcollIter ((UCollator *)collator,
-	                           &iter1,
-	                           &iter2,
-	                           &status);
-	if (status != U_ZERO_ERROR)
-		g_critical ("Error collating: %s", u_errorName (status));
 
 	if (result == UCOL_GREATER)
 		return 1;
@@ -208,9 +210,10 @@ tracker_collation_utf8 (gpointer      collator,
 	memcpy (aux1, str1, len1); aux1[len1] = '\0';
 	memcpy (aux2, str2, len2); aux2[len2] = '\0';
 
-	trace ("(GLib) Collating '%s' and '%s'", aux1, aux2);
-
 	result = g_utf8_collate (aux1, aux2);
+
+	trace ("(GLib) Collating '%s' and '%s' (%d)",
+	       aux1, aux2, result);
 
 	if (len1 >= MAX_STACK_STR_SIZE)
 		g_free (aux1);
