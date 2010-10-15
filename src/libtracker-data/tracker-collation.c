@@ -20,6 +20,7 @@
 #include "config.h"
 #include <glib.h>
 #include <string.h>
+#include <locale.h>
 
 #include "tracker-collation.h"
 
@@ -36,7 +37,6 @@
 #define _UNUSED_PARAMETER_
 #include <unistr.h>
 #elif HAVE_LIBICU
-#include <locale.h>
 #include <unicode/ucol.h>
 #endif
 
@@ -48,7 +48,9 @@
 gpointer
 tracker_collation_init (void)
 {
-	g_debug ("[libunistring collation] Initializing collator");
+	const gchar *locale = setlocale (LC_COLLATE, NULL);
+
+	g_debug ("[libunistring collation] Initializing collator for locale '%s'", locale);
 	/* Nothing to do */
 	return NULL;
 }
@@ -181,7 +183,9 @@ tracker_collation_utf8 (gpointer      collator,
 gpointer
 tracker_collation_init (void)
 {
-	g_debug ("[GLib collation] Initializing collator");
+	const gchar *locale = setlocale (LC_COLLATE, NULL);
+
+	g_debug ("[GLib collation] Initializing collator for locale '%s'", locale);
 	/* Nothing to do */
 	return NULL;
 }
