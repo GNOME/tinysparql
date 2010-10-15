@@ -753,6 +753,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		tracker_property_set_writeback (property, (strcmp (object, "true") == 0));
 	} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0) {
 		TrackerProperty *property, *super_property;
+		gboolean is_new;
 
 		property = tracker_ontologies_get_property_by_uri (subject);
 		if (property == NULL) {
@@ -760,14 +761,47 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
-		if (tracker_property_get_is_new (property) != in_update) {
+		is_new = tracker_property_get_is_new (property);
+		if (is_new != in_update) {
+			/* Detect unsupported ontology change (this needs a journal replay) */
+			if (in_update == TRUE && is_new == FALSE) {
+				TrackerProperty **super_properties = tracker_property_get_super_properties (property);
+				gboolean found = FALSE;
+
+				super_property = tracker_ontologies_get_property_by_uri (object);
+				if (super_property == NULL) {
+					g_critical ("%s: Unknown property %s", ontology_path, object);
+					return;
+				}
+
+				while (*super_properties) {
+					if (*super_properties == super_property) {
+						found = TRUE;
+						break;
+					}
+					super_properties++;
+				}
+
+				/* This doesn't detect removed rdfs:subPropertyOf situations, it
+				 * only checks whether no new ones are being added */
+
+				if (found == FALSE) {
+					handle_unsupported_ontology_change (ontology_path,
+					                                    tracker_property_get_name (property),
+					                                    "rdfs:subPropertyOf",
+					                                    "-",
+					                                    tracker_property_get_name (super_property));
+				}
+			}
 			return;
 		}
 
-		super_property = tracker_ontologies_get_property_by_uri (object);
 		if (super_property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, object);
-			return;
+			super_property = tracker_ontologies_get_property_by_uri (object);
+			if (super_property == NULL) {
+				g_critical ("%s: Unknown property %s", ontology_path, object);
+				return;
+			}
 		}
 
 		tracker_property_add_super_property (property, super_property);
