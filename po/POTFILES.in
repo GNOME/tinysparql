@@ -1,12 +1,11 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 [encoding: UTF-8]
-
-data/miners/tracker-miner-applications.desktop.in
-data/miners/tracker-miner-evolution.desktop.in
-data/miners/tracker-miner-files.desktop.in
-data/miners/tracker-miner-flickr.desktop.in
-data/miners/tracker-miner-rss.desktop.in
+data/miners/tracker-miner-applications.desktop.in.in
+data/miners/tracker-miner-evolution.desktop.in.in
+data/miners/tracker-miner-files.desktop.in.in
+data/miners/tracker-miner-flickr.desktop.in.in
+data/miners/tracker-miner-rss.desktop.in.in
 data/tracker-miner-flickr.desktop.in.in
 data/tracker-miner-fs.desktop.in.in
 data/tracker-miner-rss.desktop.in.in
