@@ -155,7 +155,7 @@ class WritebackMonitoredTest (CommonTrackerWritebackTest):
         
         results = self.extractor.get_metadata (uri (filename), mimetype)
         keyDict = expectedKey or prop
-        self.assertEquals (results[keyDict][0], TEST_VALUE)
+        self.assertIn (TEST_VALUE, results[keyDict])
         self.__clean_property (prop, uri(filename), False)
 
 
