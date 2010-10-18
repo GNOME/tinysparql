@@ -457,7 +457,57 @@ class PropertyIndexedUnset (OntologyChangeTestTemplate):
                                      % (self.instance_n_valued))
         self.assertEquals (str(result[0][0]), "anything n")
 
-    
+class OntologyAddClassTest (OntologyChangeTestTemplate):
+    """
+    Add a class in the ontology.
+    """
+    def test_ontology_add_class (self):
+        self.template_test_ontology_change ()
+
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "add-class"
+
+    def insert_data (self):
+        # No need, adding a class
+        pass
+
+    def validate_status (self):
+        # check the class is there
+        result = self.tracker.query ("SELECT ?k WHERE { ?k a rdfs:Class. }")
+        self.assertInDbusResult (TEST_PREFIX + "D", result)
+
+        result = self.tracker.query ("SELECT ?k WHERE { ?k a rdfs:Class. }")
+        self.assertInDbusResult (TEST_PREFIX + "E", result)
+
+
+class OntologyRemoveClassTest (OntologyChangeTestTemplate):
+    """
+    Remove a class from the ontology. With and without superclasses.
+    """
+    def test_ontology_remove_class (self):
+        self.template_test_ontology_change ()
+
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "add-class"
+        self.SECOND_ONTOLOGY_DIR = "basic-future"
+
+    def insert_data (self):
+        self.instance_e = "test://ontology-change/removal/class/1"
+        self.tracker.update ("INSERT { <%s> a test:E. }" % self.instance_e)
+
+        self.instance_d = "test://ontology-change/removal/class/2"
+        self.tracker.update ("INSERT { <%s> a test:D. }" % self.instance_d)
+
+    def validate_status (self):
+        result = self.tracker.query ("SELECT ?k WHERE { ?k a rdfs:Class. }")
+        self.assertNotInDbusResult (TEST_PREFIX + "E", result)
+        self.assertNotInDbusResult (TEST_PREFIX + "D", result)
+
+        # D is a subclass of A, removing D should keep the A instances
+        result = self.tracker.query ("SELECT ?i WHERE { ?i a test:A. }")
+        self.assertEquals (result[0][0], self.instance_e)
+            
 
 if __name__ == "__main__":
     ut.main ()

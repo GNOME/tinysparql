@@ -6,4 +6,5 @@ SUBDIRS = basic				\
 	cardinality			\
 	notify				\
 	indexed				\
+	add-class			\
 	basic-future

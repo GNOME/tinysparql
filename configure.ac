@@ -1938,6 +1938,8 @@ AC_CONFIG_FILES([
         tests/functional-tests/test-ontologies/cardinality/Makefile
         tests/functional-tests/test-ontologies/notify/Makefile
         tests/functional-tests/test-ontologies/indexed/Makefile
+        tests/functional-tests/test-ontologies/add-class/Makefile
+        tests/functional-tests/test-ontologies/basic-future/Makefile
 	tests/functional-tests/ttl/Makefile
 	tests/Makefile
 	tests/tracker-miner-fs/Makefile
