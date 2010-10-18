@@ -327,7 +327,7 @@ processing_pool_find_task (ProcessingPool *pool,
 	guint i;
 
 	for (i = PROCESSING_TASK_STATUS_WAIT;
-	     i < PROCESSING_TASK_STATUS_PROCESS;
+	     i < PROCESSING_TASK_STATUS_LAST;
 	     i++) {
 		GList *l;
 
@@ -635,7 +635,7 @@ processing_pool_foreach (ProcessingPool *pool,
 	guint i;
 
 	for (i = PROCESSING_TASK_STATUS_WAIT;
-	     i < PROCESSING_TASK_STATUS_PROCESS;
+	     i < PROCESSING_TASK_STATUS_LAST;
 	     i++) {
 		g_queue_foreach (pool->tasks[i], func, user_data);
 	}
