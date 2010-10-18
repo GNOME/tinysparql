@@ -26,6 +26,7 @@ tracker_search_bar_CFLAGS = \
 
 tracker_search_bar_LDADD = 					\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(TRACKER_APPS_LIBS)					\
 	$(TRACKER_APPLETS_LIBS)					\
 	$(GDKPIXBUF_LIBS)					\

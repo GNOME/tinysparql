@@ -23,6 +23,7 @@ ontology_graph_SOURCES =						\
 ontology_graph_LDADD =							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(DBUS_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
@@ -41,6 +42,7 @@ ttl2sgml_SOURCES =							\
 ttl2sgml_LDADD = 							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GIO_LIBS)

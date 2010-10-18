@@ -22,6 +22,7 @@ ontology_validator_SOURCES =						\
 ontology_validator_LDADD =						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(DBUS_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
@@ -32,6 +33,7 @@ data_validator_SOURCES = 						\
 data_validator_LDADD =							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GIO_LIBS)
