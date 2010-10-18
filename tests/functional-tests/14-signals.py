@@ -63,8 +63,6 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
             self.tracker.update ("DELETE { <%s> a rdfs:Resource }" % uri)
 
         self.clean_up_list = []
-        # Wait a bit to avoid noise in the signals
-        time.sleep (2)
 
         
     def __connect_signal (self):
@@ -137,8 +135,9 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
              nco:nameFamily 'Contact-family removed'.
         }
         """
+        self.__connect_signal ()
         self.tracker.update (CONTACT)
-        time.sleep (1)
+        self.__wait_for_signal ()
         
         self.__connect_signal ()
         self.tracker.update ("""
@@ -153,9 +152,10 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
 
     def test_03_update_contact (self):
         self.clean_up_list.append ("test://signals-contact-update")
-        
+
+        self.__connect_signal ()
         self.tracker.update ("INSERT { <test://signals-contact-update> a nco:PersonContact }")
-        time.sleep (1)
+        self.__wait_for_signal ()
         
         self.__connect_signal ()
         self.tracker.update ("INSERT { <test://signals-contact-update> nco:fullname 'wohoo'}")
@@ -168,8 +168,9 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
     def test_04_fullupdate_contact (self):
         self.clean_up_list.append ("test://signals-contact-fullupdate")
         
+        self.__connect_signal ()
         self.tracker.update ("INSERT { <test://signals-contact-fullupdate> a nco:PersonContact; nco:fullname 'first value' }")
-        time.sleep (1)
+        self.__wait_for_signal ()
         
         self.__connect_signal ()
         self.tracker.update ("""
