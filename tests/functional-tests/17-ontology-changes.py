@@ -39,6 +39,11 @@ XSD_DATETIME = "http://www.w3.org/2001/XMLSchema#dateTime"
 XSD_STRING = "http://www.w3.org/2001/XMLSchema#string"
 XSD_INTEGER = "http://www.w3.org/2001/XMLSchema#integer"
 
+TEST_PREFIX = "http://example.org/ns#"
+
+import re
+import time
+
 class OntologyChangeTestTemplate (ut.TestCase):
 
     def tearDown (self):
@@ -62,8 +67,14 @@ class OntologyChangeTestTemplate (ut.TestCase):
     def template_test_ontology_change (self):
 
         self.set_ontology_dirs ()
+
         
         basic_ontologies = self.get_ontology_dir (self.FIRST_ONTOLOGY_DIR)
+        modified_ontologies = self.get_ontology_dir (self.SECOND_ONTOLOGY_DIR)
+
+        self.__assert_ontology_dates (basic_ontologies, modified_ontologies)
+
+
         self.system.tracker_store_testing_start (ontodir=basic_ontologies)
         self.tracker = StoreHelper ()
         self.tracker.wait () #Safe guard. Returns when the store is ready
@@ -72,7 +83,6 @@ class OntologyChangeTestTemplate (ut.TestCase):
 
         try:
             # Boot the second set of ontologies
-            modified_ontologies = self.get_ontology_dir (self.SECOND_ONTOLOGY_DIR)
             self.system.tracker_store_restart_with_new_ontologies (modified_ontologies)
         except UnableToBootException, e:
             self.fail (str(self.__class__) + " " + str(e))
@@ -101,6 +111,52 @@ class OntologyChangeTestTemplate (ut.TestCase):
         """
         raise Exception ("Subclasses must implement 'validate_status'")
 
+
+    def assertInDbusResult (self, member, dbus_result, column=0):
+        """
+        Convenience assertion used in these tests
+        """
+        for row in dbus_result:
+            if member == row[column]:
+                return
+        # This is going to fail with pretty printing
+        self.assertIn (member, dbus_result) 
+
+    def assertNotInDbusResult (self, member, dbus_result, column=0):
+        """
+        Convenience assertion used in these tests
+        """
+        for row in dbus_result:
+            if member == row[column]:
+                # This is going to fail with pretty printing
+                self.assertNotIn (member, dbus_result)
+        return
+
+    def __assert_ontology_dates (self, first_dir, second_dir):
+
+        ISO9601_REGEX = "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)"
+
+        def get_ontology_date (ontology):
+            for line in open (ontology, 'r'):
+                if "nao:lastModified" in line:
+                    getmodtime = re.compile ('nao:lastModified\ \"' + ISO9601_REGEX + '\"')
+                    modtime_match = getmodtime.search (line)
+
+                    if (modtime_match):
+                        nao_date = modtime_match.group (1)
+                        return time.strptime(nao_date, "%Y-%m-%dT%H:%M:%SZ")  
+                    else:
+                        print "something funky in", line
+                    break
+
+
+        first_date = get_ontology_date (os.path.join (first_dir, "91-test.ontology"))
+        second_date = get_ontology_date (os.path.join (second_dir, "91-test.ontology"))
+        if first_date >= second_date:
+            self.fail ("nao:modifiedTime in second ontology equal or earlier than in the first ontology")
+        
+
+        
 
 class PropertyRangeStringToDate (OntologyChangeTestTemplate):
     """
@@ -142,7 +198,7 @@ class PropertyRangeDateToString (OntologyChangeTestTemplate):
 
     def set_ontology_dirs (self):
         self.FIRST_ONTOLOGY_DIR = "property-range-string-to-date"
-        self.SECOND_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "basic-future"
         
     def insert_data (self):
         self.instance = "test://ontology-change/property-range/date-to-string"
@@ -191,7 +247,7 @@ class PropertyRangeStringToInt (OntologyChangeTestTemplate):
 
     def set_ontology_dirs (self):
         self.FIRST_ONTOLOGY_DIR = "property-range-int-to-string"
-        self.SECOND_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "basic-future"
 
     def insert_data (self):
         self.instance = "test://ontology-change/property-range/string-to-int"
@@ -219,7 +275,7 @@ class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
         #self.SECOND_ONTOLOGY_DIR = "cardinality"
 
         self.FIRST_ONTOLOGY_DIR = "cardinality"
-        self.SECOND_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "basic-future"
 
     def insert_data (self):
         self.instance = "test://ontology-change/cardinality/1-to-n"
@@ -298,7 +354,7 @@ class ClassNotifyUnset (OntologyChangeTestTemplate):
 
     def set_ontology_dirs (self):
         self.FIRST_ONTOLOGY_DIR = "notify"
-        self.SECOND_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "basic-future"
 
     def insert_data (self):
         self.instance = "test://ontology-change/notify/true"
@@ -362,12 +418,12 @@ class PropertyIndexedUnset (OntologyChangeTestTemplate):
     tracker:indexed property from true to false in single and multiple valued properties.
     Check that instances and content of the property are still in the DB.
     """
-    def test_ (self):
+    def test_indexer_unset (self):
         self.template_test_ontology_change ()
 
     def set_ontology_dirs (self):
         self.FIRST_ONTOLOGY_DIR = "indexed"
-        self.SECOND_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "basic-future"
 
     def insert_data (self):
         # Instance with value in the single valued property

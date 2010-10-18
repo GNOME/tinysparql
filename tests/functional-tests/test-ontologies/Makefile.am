@@ -5,4 +5,5 @@ SUBDIRS = basic				\
 	property-range-string-to-date 	\
 	cardinality			\
 	notify				\
-	indexed
+	indexed				\
+	basic-future
