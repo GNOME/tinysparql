@@ -41,7 +41,7 @@ m4_define([tracker_lt_current_minus_age],
 m4_define([tracker_binary_version], [0.9.0])
 
 AC_INIT([tracker], [tracker_version],
-        [http://bugzilla.gnome.org/enter_bug.cgi?product=tracker],
+        [http://bugzilla.gnome.org/],
         [tracker])
 
 AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.c])
