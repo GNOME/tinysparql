@@ -69,7 +69,7 @@ fast_async_data_free (gpointer data)
 		}
 
 		if (fad->res) {
-			/* Don't free, weak */
+			g_object_unref (fad->res);
 		}
 
 		g_slice_free (FastAsyncData, fad);
@@ -187,7 +187,6 @@ sparql_update_fast_callback (DBusPendingCall *call,
 		                                           g_variant_ref (result),
 		                                           (GDestroyNotify) g_variant_unref);
 		g_simple_async_result_complete (fad->res);
-		fad->res = NULL;
 		g_variant_unref (result);
 
 		break;
@@ -273,7 +272,6 @@ sparql_update_array_fast_callback (DBusPendingCall *call,
 		                                           g_ptr_array_ref (errors),
 		                                           (GDestroyNotify) g_ptr_array_unref);
 		g_simple_async_result_complete (fad->res);
-		fad->res = NULL;
 		g_ptr_array_unref (errors);
 		break;
 	default:
@@ -612,7 +610,6 @@ sparql_update_fast_send (DBusConnection     *connection,
 	 if (error) {
 		 g_critical ("Could not initiate update: %s", error->message);
 		 g_error_free (error);
-		 g_object_unref (fad->res);
 		 fast_async_data_free (fad);
 	 }
  }
@@ -650,7 +647,6 @@ sparql_update_fast_send (DBusConnection     *connection,
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
 		g_error_free (error);
-		g_object_unref (fad->res);
 		fast_async_data_free (fad);
 	}
 }
@@ -749,7 +745,6 @@ tracker_bus_fd_sparql_update_blank_async (DBusGConnection     *connection,
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
 		g_error_free (error);
-		g_object_unref (fad->res);
 		fast_async_data_free (fad);
 	}
 }
@@ -799,7 +794,6 @@ tracker_bus_fd_sparql_batch_update_async (DBusGConnection       *connection,
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
 		g_error_free (error);
-		g_object_unref (fad->res);
 		fast_async_data_free (fad);
 	}
 }
@@ -837,7 +831,6 @@ tracker_bus_fd_sparql_batch_update_array_async (DBusGConnection      *connection
 	if (error) {
 		g_critical ("Could not initiate update: %s", error->message);
 		g_error_free (error);
-		g_object_unref (fad->res);
 		fast_async_data_free (fad);
 	}
 }
