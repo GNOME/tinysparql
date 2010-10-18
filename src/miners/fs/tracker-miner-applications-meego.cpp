@@ -22,7 +22,7 @@
 #include <QApplication>
 #include <MLocale>
 
-#include <glib.h>
+#include <glib-object.h>
 
 #include "tracker-miner-applications-meego.h"
 
