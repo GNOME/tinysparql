@@ -376,7 +376,6 @@ class TrackerSystemAbstraction:
         Copy the files physically in the filesyste and wait for the miner to complete the work
         """
         self.miner_fs.wait_for_idle (timeout)
-        time.sleep (1)
 
 
     def tracker_miner_fs_testing_stop (self):
