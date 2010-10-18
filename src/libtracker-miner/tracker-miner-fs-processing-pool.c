@@ -216,7 +216,13 @@ static void
 pool_queue_free_foreach (gpointer data,
                          gpointer user_data)
 {
-	processing_task_free (data);
+	GPtrArray *sparql_buffer = user_data;
+
+	/* If found in the SPARQL buffer, remove it (will call task_free itself) */
+	if (!g_ptr_array_remove (sparql_buffer, data)) {
+		/* If not removed from the array, free it ourselves */
+		processing_task_free (data);
+	}
 }
 
 void
@@ -234,7 +240,7 @@ processing_pool_free (ProcessingPool *pool)
 	     i++) {
 		g_queue_foreach (pool->tasks[i],
 		                 pool_queue_free_foreach,
-		                 NULL);
+		                 pool->sparql_buffer);
 		g_queue_free (pool->tasks[i]);
 	}
 
