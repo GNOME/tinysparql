@@ -41,7 +41,7 @@
 
 /* Default processing pool limits to be set */
 #define DEFAULT_WAIT_POOL_LIMIT 1
-#define DEFAULT_PROCESS_POOL_LIMIT 1
+#define DEFAULT_READY_POOL_LIMIT 1
 
 /**
  * SECTION:tracker-miner-fs
@@ -197,7 +197,7 @@ enum {
 	PROP_0,
 	PROP_THROTTLE,
 	PROP_WAIT_POOL_LIMIT,
-	PROP_PROCESS_POOL_LIMIT,
+	PROP_READY_POOL_LIMIT,
 	PROP_MTIME_CHECKING,
 	PROP_INITIAL_CRAWLING
 };
@@ -323,19 +323,19 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                      G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_WAIT_POOL_LIMIT,
-	                                 g_param_spec_uint ("wait-pool-limit",
+	                                 g_param_spec_uint ("processing-pool-wait-limit",
 	                                                    "Processing pool limit for WAIT tasks",
 	                                                    "Maximum number of files that can be concurrently "
 	                                                    "processed by the upper layer",
 	                                                    1, G_MAXUINT, DEFAULT_WAIT_POOL_LIMIT,
 	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-	                                 PROP_PROCESS_POOL_LIMIT,
-	                                 g_param_spec_uint ("process-pool-limit",
-	                                                    "Processing pool limit for PROCESS tasks",
+	                                 PROP_READY_POOL_LIMIT,
+	                                 g_param_spec_uint ("processing-pool-ready-limit",
+	                                                    "Processing pool limit for READY tasks",
 	                                                    "Maximum number of SPARQL updates that can be merged "
 	                                                    "in a single connection to the store",
-	                                                    1, G_MAXUINT, DEFAULT_PROCESS_POOL_LIMIT,
+	                                                    1, G_MAXUINT, DEFAULT_READY_POOL_LIMIT,
 	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 	                                 PROP_MTIME_CHECKING,
@@ -579,7 +579,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	/* Create processing pool */
 	priv->processing_pool = processing_pool_new (tracker_miner_get_connection (TRACKER_MINER (object)),
 	                                             DEFAULT_WAIT_POOL_LIMIT,
-	                                             DEFAULT_PROCESS_POOL_LIMIT);
+	                                             DEFAULT_READY_POOL_LIMIT);
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
@@ -728,9 +728,9 @@ fs_set_property (GObject      *object,
 		processing_pool_set_wait_limit (fs->private->processing_pool,
 		                                g_value_get_uint (value));
 		break;
-	case PROP_PROCESS_POOL_LIMIT:
-		processing_pool_set_process_limit (fs->private->processing_pool,
-		                                   g_value_get_uint (value));
+	case PROP_READY_POOL_LIMIT:
+		processing_pool_set_ready_limit (fs->private->processing_pool,
+		                                 g_value_get_uint (value));
 		break;
 	case PROP_MTIME_CHECKING:
 		fs->private->mtime_checking = g_value_get_boolean (value);
@@ -762,9 +762,9 @@ fs_get_property (GObject    *object,
 		g_value_set_uint (value,
 		                  processing_pool_get_wait_limit (fs->private->processing_pool));
 		break;
-	case PROP_PROCESS_POOL_LIMIT:
+	case PROP_READY_POOL_LIMIT:
 		g_value_set_uint (value,
-		                  processing_pool_get_process_limit (fs->private->processing_pool));
+		                  processing_pool_get_ready_limit (fs->private->processing_pool));
 		break;
 	case PROP_MTIME_CHECKING:
 		g_value_set_boolean (value, fs->private->mtime_checking);
@@ -1582,13 +1582,13 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 		}
 
 		processing_task_set_sparql (task, full_sparql);
-		/* If process_task() returns FALSE, it means the actual db update was delayed,
+		/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 		 * and in this case we need to setup queue handlers again */
-		if (!processing_pool_process_task (fs->private->processing_pool,
-		                                   task,
-		                                   TRUE, /* buffer! */
-		                                   processing_pool_task_finished_cb,
-		                                   fs)) {
+		if (!processing_pool_push_ready_task (fs->private->processing_pool,
+		                                      task,
+		                                      TRUE, /* buffer! */
+		                                      processing_pool_task_finished_cb,
+		                                      fs)) {
 			item_queue_handlers_set_up (fs);
 		}
 		g_free (full_sparql);
@@ -1664,7 +1664,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	                                                              cancellable,
 	                                                              sparql),
 	                             (GFreeFunc) update_process_task_context_free);
-	processing_pool_wait_task (priv->processing_pool, task);
+	processing_pool_push_wait_task (priv->processing_pool, task);
 
 	if (do_process_file (fs, task)) {
 		fs->private->total_files_processed++;
@@ -1731,13 +1731,13 @@ item_remove (TrackerMinerFS *fs,
 	/* Add new task to processing pool */
 	task = processing_task_new (file);
 	processing_task_set_sparql (task, sparql->str);
-	/* If process_task() returns FALSE, it means the actual db update was delayed,
+	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 	 * and in this case we need to setup queue handlers again */
-	if (!processing_pool_process_task (fs->private->processing_pool,
-	                                   task,
-	                                   FALSE,
-	                                   processing_pool_task_finished_cb,
-	                                   fs)) {
+	if (!processing_pool_push_ready_task (fs->private->processing_pool,
+	                                      task,
+	                                      FALSE,
+	                                      processing_pool_task_finished_cb,
+	                                      fs)) {
 		item_queue_handlers_set_up (fs);
 	}
 
@@ -2052,13 +2052,13 @@ item_move (TrackerMinerFS *fs,
 	/* Add new task to processing pool */
 	task = processing_task_new (file);
 	processing_task_set_sparql (task, sparql->str);
-	/* If process_task() returns FALSE, it means the actual db update was delayed,
+	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 	 * and in this case we need to setup queue handlers again */
-	if (!processing_pool_process_task (fs->private->processing_pool,
-	                                   task,
-	                                   FALSE,
-	                                   processing_pool_task_finished_cb,
-	                                   fs)) {
+	if (!processing_pool_push_ready_task (fs->private->processing_pool,
+	                                      task,
+	                                      FALSE,
+	                                      processing_pool_task_finished_cb,
+	                                      fs)) {
 		item_queue_handlers_set_up (fs);
 	}
 
@@ -2465,8 +2465,7 @@ item_queue_handlers_cb (gpointer user_data)
 	case QUEUE_NONE:
 		/* Print stats and signal finished */
 		if (!fs->private->is_crawling &&
-		    processing_pool_get_wait_task_count (fs->private->processing_pool) == 0 &&
-		    processing_pool_get_process_task_count (fs->private->processing_pool) == 0) {
+		    processing_pool_get_total_task_count (fs->private->processing_pool) == 0) {
 			process_stop (fs);
 		}
 

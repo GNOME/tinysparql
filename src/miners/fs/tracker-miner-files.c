@@ -2460,8 +2460,8 @@ tracker_miner_files_new (TrackerConfig *config)
 	return g_object_new (TRACKER_TYPE_MINER_FILES,
 	                     "name", "Files",
 	                     "config", config,
-	                     "wait-pool-limit", 10,
-	                     "process-pool-limit", 100,
+	                     "processing-pool-wait-limit", 10,
+	                     "processing-pool-ready-limit", 100,
 	                     "mtime-checking", should_check_mtime (config),
 	                     NULL);
 }
