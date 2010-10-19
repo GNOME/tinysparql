@@ -38,6 +38,13 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
+#define TRACKER_DATA_ONTOLOGY_ERROR                  (tracker_data_ontology_error_quark ())
+
+typedef enum {
+	TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE
+} TrackerDataOntologyError;
+
+GQuark   tracker_data_ontology_error_quark           (void);
 gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  flags,
                                                       const gchar          **test_schema,
                                                       gboolean              *first_time,
