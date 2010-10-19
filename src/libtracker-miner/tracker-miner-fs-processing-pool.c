@@ -115,6 +115,8 @@ typedef enum {
 struct _ProcessingTask {
 	/* The file being processed */
 	GFile *file;
+	/* File URI, useful for logs */
+	gchar *file_uri;
 	/* The FULL sparql to be updated in the store */
 	gchar *sparql;
 	/* The context of the task */
@@ -139,6 +141,7 @@ processing_task_new (GFile *file)
 
 	task = g_slice_new0 (ProcessingTask);
 	task->file = g_object_ref (file);
+	task->file_uri = g_file_get_uri (task->file);
 	task->status = PROCESSING_TASK_STATUS_NO_POOL;
 	return task;
 }
@@ -155,6 +158,7 @@ processing_task_free (ProcessingTask *task)
 		task->context_free_func (task->context);
 	}
 	g_free (task->sparql);
+	g_free (task->file_uri);
 	g_object_unref (task->file);
 	g_slice_free (ProcessingTask, task);
 }
@@ -374,6 +378,9 @@ processing_pool_wait_task (ProcessingPool *pool,
 	/* Set status of the task as WAIT */
 	task->status = PROCESSING_TASK_STATUS_WAIT;
 
+	g_debug ("(Processing Pool) Pushed WAIT task %p for file '%s'",
+	         task, task->file_uri);
+
 	/* Push a new task in WAIT status (so just add it to the tasks queue,
 	 * and don't process it. */
 	g_queue_push_head (pool->tasks[PROCESSING_TASK_STATUS_WAIT], task);
@@ -395,6 +402,9 @@ processing_pool_sparql_update_cb (GObject      *object,
 		return;
 
 	task = user_data;
+
+	g_debug ("(Processing Pool) Finished update of task %p for file '%s'",
+	         task, task->file_uri);
 
 	/* Before calling user-provided callback, REMOVE the task from the pool;
 	 * as the user-provided callback may actually modify the pool again */
@@ -420,11 +430,16 @@ processing_pool_sparql_update_array_cb (GObject      *object,
 
 	/* Get arrays of errors and queries */
 	sparql_array = user_data;
+
+	g_debug ("(Processing Pool) Finished array-update of tasks %p",
+	         sparql_array);
+
 	sparql_array_errors = tracker_sparql_connection_update_array_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                                     result,
 	                                                                     &global_error);
 	if (global_error) {
-		g_critical ("(Sparql buffer) Could not execute array-update with '%u' items: %s",
+		g_critical ("(Sparql buffer) Could not execute array-update of tasks %p with '%u' items: %s",
+		            sparql_array,
 		            sparql_array->len,
 		            global_error->message);
 	}
@@ -476,8 +491,9 @@ processing_pool_buffer_flush (ProcessingPool *pool)
 		g_ptr_array_add (sparql_array, task->sparql);
 	}
 
-	g_debug ("(Sparql buffer) Flushing buffer with '%u' items",
-	         pool->sparql_buffer->len);
+	g_debug ("(Processing Pool) Flushing array-update of tasks %p with %u items",
+	         pool->sparql_buffer, pool->sparql_buffer->len);
+
 	tracker_sparql_connection_update_array_async (pool->connection,
 	                                              (gchar **)(sparql_array->pdata),
 	                                              sparql_array->len,
@@ -534,6 +550,9 @@ processing_pool_process_task (ProcessingPool                     *pool,
 
 	/* If buffering not requested, flush previous buffer and then the new update */
 	if (!buffer) {
+		g_debug ("(Processing Pool) Pushed PROCESS task %p for file '%s'",
+		         task, task->file_uri);
+
 		/* Flush previous */
 		processing_pool_buffer_flush (pool);
 		/* And update the new one */
@@ -562,6 +581,9 @@ processing_pool_process_task (ProcessingPool                     *pool,
 		if (!pool->sparql_buffer_current_parent && parent) {
 			pool->sparql_buffer_current_parent = g_object_ref (parent);
 		}
+
+		g_debug ("(Processing Pool) Pushed PROCESS task %p for file '%s' into array %p",
+		         task, task->file_uri, pool->sparql_buffer);
 
 		/* Add task to array */
 		g_ptr_array_add (pool->sparql_buffer, task);

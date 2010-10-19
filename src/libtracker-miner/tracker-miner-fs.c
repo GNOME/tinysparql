@@ -2390,6 +2390,13 @@ item_queue_handlers_cb (gpointer user_data)
 		 * the next directories batch.
 		 */
 		fs->private->item_queues_handler_id = 0;
+
+		/* We should flush the processing pool buffer here, because
+		 * if there was a previous task on the same file we want to
+		 * process now, we want it to get finished before we can go
+		 * on with the queues... */
+		processing_pool_buffer_flush (fs->private->processing_pool);
+
 		return FALSE;
 	}
 
