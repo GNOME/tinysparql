@@ -3422,6 +3422,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 						if (uri_id_map) {
 							g_hash_table_unref (uri_id_map);
 						}
+						initialized = TRUE;
 						tracker_data_manager_shutdown ();
 
 						return tracker_data_manager_init (flags,
@@ -3475,6 +3476,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					if (uri_id_map) {
 						g_hash_table_unref (uri_id_map);
 					}
+					initialized = TRUE;
 					tracker_data_manager_shutdown ();
 
 					return tracker_data_manager_init (flags,
@@ -3548,6 +3550,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				if (uri_id_map) {
 					g_hash_table_unref (uri_id_map);
 				}
+				initialized = TRUE;
 				tracker_data_manager_shutdown ();
 
 				return tracker_data_manager_init (flags,
