@@ -179,6 +179,7 @@ void             tracker_dbus_request_unblock_hooks  (void);
 
 void             tracker_dbus_enable_client_lookup   (gboolean                    enable);
 
+#ifndef NO_LIBDBUS
 /* File descriptor convenience API */
 gboolean         tracker_dbus_send_and_splice        (DBusConnection             *connection,
                                                       DBusMessage                *message,
@@ -196,6 +197,7 @@ gboolean         tracker_dbus_send_and_splice_async  (DBusConnection            
                                                       GCancellable               *cancellable,
                                                       TrackerDBusSendAndSpliceCallback callback,
                                                       gpointer                    user_data);
+#endif
 
 G_END_DECLS
 

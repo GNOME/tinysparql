@@ -206,9 +206,7 @@ AC_SUBST(LIBPNG_LIBS)
 
 # Check requirements for libtracker-bus
 LIBTRACKER_BUS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                         gio-unix-2.0 >= $GLIB_REQUIRED
-                         dbus-1       >= $DBUS_REQUIRED
-                         dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                         gio-unix-2.0 >= $GLIB_REQUIRED"
 PKG_CHECK_MODULES(LIBTRACKER_BUS, [$LIBTRACKER_BUS_REQUIRED])
 
 # Check requirements for libtracker-client
@@ -241,9 +239,7 @@ LIBTRACKER_DATA_LIBS="$LIBTRACKER_DATA_LIBS -lz -lm"
 
 # Check requirements for libtracker-direct
 LIBTRACKER_DIRECT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
-                            dbus-1       >= $DBUS_REQUIRED
-                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                            gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_DIRECT, [$LIBTRACKER_DIRECT_REQUIRED])
 
@@ -275,9 +271,7 @@ PKG_CHECK_MODULES(LIBTRACKER_MINER, [$LIBTRACKER_MINER_REQUIRED])
 
 # Check requirements for libtracker-sparql
 LIBTRACKER_SPARQL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
-                            dbus-1       >= $DBUS_REQUIRED
-                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                            gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
 

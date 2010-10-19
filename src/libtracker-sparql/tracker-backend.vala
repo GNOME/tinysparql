@@ -17,11 +17,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
-[DBus (name = "org.freedesktop.Tracker1.Status", timeout = 2147483647 /* INT_MAX */)]
-interface Tracker.Backend.Status : GLib.Object {
-	public abstract void wait () throws DBus.Error;
+[DBus (name = "org.freedesktop.Tracker1.Status")]
+interface Tracker.Backend.Status : DBusProxy {
+	public abstract void wait () throws DBusError;
 	[DBus (name = "Wait")]
-	public abstract async void wait_async () throws DBus.Error;
+	public abstract async void wait_async () throws DBusError;
 }
 
 class Tracker.Sparql.Backend : Connection {
@@ -60,16 +60,16 @@ class Tracker.Sparql.Backend : Connection {
 	public override void init () throws Sparql.Error
 	requires (is_constructed) {
 		try {
-			var connection = DBus.Bus.get (DBus.BusType.SESSION);
-			var status = (Tracker.Backend.Status) connection.get_object (TRACKER_DBUS_SERVICE,
-			                                                             TRACKER_DBUS_OBJECT_STATUS,
-			                                                             TRACKER_DBUS_INTERFACE_STATUS);
+			Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
+			                                                    TRACKER_DBUS_SERVICE,
+			                                                    TRACKER_DBUS_OBJECT_STATUS);
+			status.set_default_timeout (int.MAX);
 
 			// Makes sure the sevice is available
 			debug ("Waiting for service to become available synchronously...");
 			status.wait ();
 			debug ("Service is ready");
-		} catch (DBus.Error e) {
+		} catch (DBusError e) {
 			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
@@ -80,16 +80,16 @@ class Tracker.Sparql.Backend : Connection {
 	public async override void init_async () throws Sparql.Error
 	requires (is_constructed) {
 		try {
-			var connection = DBus.Bus.get (DBus.BusType.SESSION);
-			var status = (Tracker.Backend.Status) connection.get_object (TRACKER_DBUS_SERVICE,
-			                                                             TRACKER_DBUS_OBJECT_STATUS,
-			                                                             TRACKER_DBUS_INTERFACE_STATUS);
+			Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
+			                                                    TRACKER_DBUS_SERVICE,
+			                                                    TRACKER_DBUS_OBJECT_STATUS);
+			status.set_default_timeout (int.MAX);
 
 			// Makes sure the sevice is available
 			debug ("Waiting for service to become available asynchronously...");
 			yield status.wait_async ();
 			debug ("Service is ready");
-		} catch (DBus.Error e) {
+		} catch (DBusError e) {
 			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
@@ -135,7 +135,7 @@ class Tracker.Sparql.Backend : Connection {
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public async override GLib.PtrArray? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
 	requires (bus != null) {
 		return yield bus.update_array_async (sparql, priority, cancellable);
 	}

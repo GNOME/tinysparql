@@ -60,7 +60,7 @@ public const string TRACKER_DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/St
  *
  * Since: 0.10
  */
-[DBus (name = "org.freedesktop.DBus.GLib.UnmappedError.TrackerSparqlErrorQuark")]
+[DBus (name = "org.freedesktop.Tracker1.SparqlError")]
 public errordomain Tracker.Sparql.Error {
 	PARSE,
 	UNKNOWN_CLASS,
@@ -487,7 +487,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async virtual GLib.PtrArray? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async virtual GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
 		warning ("Interface 'update_array_async' not implemented");
 		return null;
 	}
