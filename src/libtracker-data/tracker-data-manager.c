@@ -3404,10 +3404,20 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					                              &ontology_error);
 
 					if (ontology_error) {
-						g_error ("Ontology change (%s): %s",
-						         ontology_path,
-						         ontology_error->message);
+						g_debug ("\nUnsupported ontology change, replaying journal\n");
 						g_error_free (ontology_error);
+
+						tracker_data_manager_shutdown ();
+
+						return tracker_data_manager_init (flags,
+						                                  test_schemas,
+						                                  first_time,
+						                                  journal_check,
+						                                  select_cache_size,
+						                                  update_cache_size,
+						                                  busy_callback,
+						                                  busy_user_data,
+						                                  busy_status);
 					}
 
 					to_reload = g_list_prepend (to_reload, l->data);
@@ -3432,10 +3442,20 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				                              &ontology_error);
 
 				if (ontology_error) {
-					g_error ("Ontology change (%s): %s",
-					         ontology_path,
-					         ontology_error->message);
+					g_debug ("\nUnsupported ontology change, replaying journal\n");
 					g_error_free (ontology_error);
+
+					tracker_data_manager_shutdown ();
+
+					return tracker_data_manager_init (flags,
+					                                  test_schemas,
+					                                  first_time,
+					                                  journal_check,
+					                                  select_cache_size,
+					                                  update_cache_size,
+					                                  busy_callback,
+					                                  busy_user_data,
+					                                  busy_status);
 				}
 
 				to_reload = g_list_prepend (to_reload, l->data);
@@ -3480,9 +3500,20 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			                                               &ontology_error);
 
 			if (ontology_error) {
-				g_error ("Ontology change: %s",
-				         ontology_error->message);
+				g_debug ("\nUnsupported ontology change, replaying journal\n");
 				g_error_free (ontology_error);
+
+				tracker_data_manager_shutdown ();
+
+				return tracker_data_manager_init (flags,
+				                                  test_schemas,
+				                                  first_time,
+				                                  journal_check,
+				                                  select_cache_size,
+				                                  update_cache_size,
+				                                  busy_callback,
+				                                  busy_user_data,
+				                                  busy_status);
 			}
 
 			for (l = to_reload; l; l = l->next) {
