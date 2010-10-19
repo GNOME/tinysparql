@@ -3407,6 +3407,21 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 						g_debug ("\nUnsupported ontology change, replaying journal\n");
 						g_error_free (ontology_error);
 
+						tracker_data_ontology_free_seen (seen_classes);
+						tracker_data_ontology_free_seen (seen_properties);
+						tracker_data_ontology_import_finished ();
+						tracker_data_commit_transaction (NULL);
+						if (ontos_table) {
+							g_hash_table_unref (ontos_table);
+						}
+						if (ontos) {
+							g_list_foreach (ontos, (GFunc) g_free, NULL);
+							g_list_free (ontos);
+						}
+						g_free (ontologies_dir);
+						if (uri_id_map) {
+							g_hash_table_unref (uri_id_map);
+						}
 						tracker_data_manager_shutdown ();
 
 						return tracker_data_manager_init (flags,
@@ -3445,6 +3460,21 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					g_debug ("\nUnsupported ontology change, replaying journal\n");
 					g_error_free (ontology_error);
 
+					tracker_data_ontology_free_seen (seen_classes);
+					tracker_data_ontology_free_seen (seen_properties);
+					tracker_data_ontology_import_finished ();
+					tracker_data_commit_transaction (NULL);
+					if (ontos_table) {
+						g_hash_table_unref (ontos_table);
+					}
+					if (ontos) {
+						g_list_foreach (ontos, (GFunc) g_free, NULL);
+						g_list_free (ontos);
+					}
+					g_free (ontologies_dir);
+					if (uri_id_map) {
+						g_hash_table_unref (uri_id_map);
+					}
 					tracker_data_manager_shutdown ();
 
 					return tracker_data_manager_init (flags,
@@ -3503,6 +3533,21 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				g_debug ("\nUnsupported ontology change, replaying journal\n");
 				g_error_free (ontology_error);
 
+				tracker_data_ontology_free_seen (seen_classes);
+				tracker_data_ontology_free_seen (seen_properties);
+				tracker_data_ontology_import_finished ();
+				tracker_data_commit_transaction (NULL);
+				if (ontos_table) {
+					g_hash_table_unref (ontos_table);
+				}
+				if (ontos) {
+					g_list_foreach (ontos, (GFunc) g_free, NULL);
+					g_list_free (ontos);
+				}
+				g_free (ontologies_dir);
+				if (uri_id_map) {
+					g_hash_table_unref (uri_id_map);
+				}
 				tracker_data_manager_shutdown ();
 
 				return tracker_data_manager_init (flags,
