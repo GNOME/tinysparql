@@ -270,6 +270,21 @@ scal:journalStatus a rdf:Property ;
 	rdfs:domain scal:Journal ;
 	rdfs:range scal:JournalStatus .
 
+#
+# Link of contacts with Events
+#
+scal:birthday a rdf:Property ;
+        rdfs:label "birthday event" ;
+        rdfs:comment "links a contact with the calendar event of his birthday. (SCAL version)" ;
+        rdfs:domain nco:Contact ;
+        rdfs:range scal:Event .
+
+scal:anniversary a rdf:Property ;
+        rdfs:label "anniversary event" ;
+        rdfs:comment "links a contact with the calendar event of an anniversary. (SCAL version)" ;
+        rdfs:domain nco:Contact ;
+        rdfs:range scal:Event .
+
 
 #
 # Alarms:
