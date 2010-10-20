@@ -21,12 +21,13 @@ test: a tracker:Namespace, tracker:Ontology ;
 
 test:A a rdfs:Class .
 
-test:a_string a rdf:Property ;
-    rdfs:comment "Property to test the conversions from string" ;
-    rdfs:domain test:A ;
-    rdfs:range  xsd:string ;
-    tracker:indexed true ;
-    nrl:maxCardinality 1 .
+# ****** TEST CHANGE ***********
+#test:a_string a rdf:Property ;
+#    rdfs:comment "Property to test the conversions from string" ;
+#    rdfs:domain test:A ;
+#    rdfs:range  xsd:string ;
+#    nrl:maxCardinality 1 .
+# *******************************
 
 test:a_datetime a rdf:Property ;
     rdfs:comment "Property to test the changes string/date" ;
@@ -40,18 +41,25 @@ test:a_int a rdf:Property ;
     rdfs:range  xsd:integer ;
     nrl:maxCardinality 1 .
 
-test:a_n_cardinality a rdf:Property ;
-    rdfs:comment "Property to test the cardinality changes" ;
-    rdfs:domain test:A ;
-    tracker:indexed true ;
-    rdfs:range xsd:string .
+# ******* TEST CHANGE ***********
+#test:a_n_cardinality a rdf:Property ;
+#    rdfs:comment "Property to test the cardinality changes" ;
+#    rdfs:domain test:A ;
+#    rdfs:range xsd:string .
 # Max cardinality N because is not specified
+# *******************************
 
 test:a_superprop a rdf:Property ;
     rdfs:comment "To use as superproperty and test the superproperty changes in the subprop." ;
     rdfs:domain test:A ;
-    rdfs:range xsd:string .
- 
+    rdfs:range xsd:string ;
+    nrl:maxCardinality 1 .
+
+test:a_superprop_n a rdf:Property ;
+    rdfs:comment "To use as superproperty and test the superproperty changes in the subprop. cardinality N" ;
+    rdfs:domain test:A ;
+    rdfs:range xsd:string ;
+    nrl:maxCardinality 1 .
 
 test:B a rdfs:Class ;
     rdfs:subClassOf test:A .
@@ -63,4 +71,28 @@ test:c_subprop a rdf:Property ;
      rdfs:comment "To test changes in the superproperty" ;
      rdfs:subPropertyOf test:a_superprop ;
      rdfs:domain test:C ;
+     rdfs:range xsd:string ;
+     nrl:maxCardinality 1 .
+
+test:c_subprop_n a rdf:Property ;
+     rdfs:comment "To test changes in the superproperty" ;
+     rdfs:subPropertyOf test:a_superprop_n ;
+     rdfs:domain test:C ;
      rdfs:range xsd:string .
+
+# ******* TEST CHANGE ***********
+test:a_n_cardinality a rdf:Property ;
+    rdfs:comment "Property to test the cardinality changes. indexed is false in basic" ;
+    rdfs:domain test:A ;
+    tracker:indexed true ;
+    rdfs:range xsd:string .
+# Max cardinality N because is not specified
+
+test:a_string a rdf:Property ;
+    rdfs:comment "Property to test the conversions from string" ;
+    rdfs:domain test:A ;
+    rdfs:range  xsd:string ;
+    tracker:indexed true ;
+    nrl:maxCardinality 1 .
+
+# *******************************

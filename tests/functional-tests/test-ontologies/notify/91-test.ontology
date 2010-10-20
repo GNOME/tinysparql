@@ -19,8 +19,12 @@ test: a tracker:Namespace, tracker:Ontology ;
         nao:lastModified "2010-03-24T11:00:04Z" ;
         tracker:prefix "test" .
 
+# ***** TEST CHANGE ******
+# test:A a rdfs:Class .
+
 test:A a rdfs:Class ;
        tracker:notify true .
+# ***************************
 
 test:a_string a rdf:Property ;
     rdfs:comment "Property to test the conversions from string" ;
@@ -49,8 +53,14 @@ test:a_n_cardinality a rdf:Property ;
 test:a_superprop a rdf:Property ;
     rdfs:comment "To use as superproperty and test the superproperty changes in the subprop." ;
     rdfs:domain test:A ;
-    rdfs:range xsd:string .
- 
+    rdfs:range xsd:string ;
+    nrl:maxCardinality 1 .
+
+test:a_superprop_n a rdf:Property ;
+    rdfs:comment "To use as superproperty and test the superproperty changes in the subprop. cardinality N" ;
+    rdfs:domain test:A ;
+    rdfs:range xsd:string ;
+    nrl:maxCardinality 1 .
 
 test:B a rdfs:Class ;
     rdfs:subClassOf test:A .
@@ -61,5 +71,12 @@ test:C a rdfs:Class ;
 test:c_subprop a rdf:Property ;
      rdfs:comment "To test changes in the superproperty" ;
      rdfs:subPropertyOf test:a_superprop ;
+     rdfs:domain test:C ;
+     rdfs:range xsd:string ;
+     nrl:maxCardinality 1 .
+
+test:c_subprop_n a rdf:Property ;
+     rdfs:comment "To test changes in the superproperty" ;
+     rdfs:subPropertyOf test:a_superprop_n ;
      rdfs:domain test:C ;
      rdfs:range xsd:string .
