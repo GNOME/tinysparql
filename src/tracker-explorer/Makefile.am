@@ -13,17 +13,14 @@ tracker_explorer.vala.stamp: $(tracker_explorer_VALASOURCES)
 	touch tracker_explorer.vala.stamp
 
 tracker_explorer_CFLAGS = 					\
+	$(BUILD_CFLAGS)						\
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
 	-DSRCDIR=\"$(abs_srcdir)/\"				\
-	$(TRACKER_APPS_CFLAGS)					\
-	$(TRACKER_VALA_CFLAGS)					\
-	$(WARN_CFLAGS)						\
-	$(GCOV_CFLAGS)
+	$(TRACKER_EXPLORER_CFLAGS)
 
 tracker_explorer_LDADD = 					\
-	$(TRACKER_APPS_LIBS)					\
-	$(TRACKER_VALA_LIBS)					\
-	$(GCOV_LIBS)
+	$(BUILD_LIBS)						\
+	$(TRACKER_EXPLORER_LIBS)
 
 uidir = $(datadir)/tracker
 ui_DATA = tracker-explorer.ui

@@ -289,6 +289,20 @@ LIBTRACKER_SPARQL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
 
+# Check requirements for tracker-explorer
+TRACKER_EXPLORER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                           gio-unix-2.0 >= $GLIB_REQUIRED
+                           gthread-2.0  >= $GLIB_REQUIRED
+                           gmodule-2.0  >= $GLIB_REQUIRED
+                           gtk+-2.0     >= $GTK_REQUIRED
+                           dbus-1       >= $DBUS_REQUIRED
+                           dbus-glib-1  >= $DBUS_GLIB_REQUIRED
+			   gee-1.0      >= $GEE_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_EXPLORER, [$TRACKER_EXPLORER_REQUIRED],
+                  [have_tracker_explorer=yes],
+                  [have_tracker_explorer=no])
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],
@@ -1208,26 +1222,11 @@ AC_ARG_ENABLE([tracker-explorer],
               [enable_tracker_explorer=auto])
 
 if test "x$enable_tracker_explorer" != "xno" ; then
-   if test "x$have_app_requirements" != "xyes" -o \
-           "x$have_vala_requirements" != "xyes"; then
-      have_tracker_explorer="no"
-   else
-      have_tracker_explorer="yes"
+   if test "x$have_tracker_explorer" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies ($TRACKER_EXPLORER_REQUIRED).])
    fi
 else
    have_tracker_explorer="no  (disabled)"
-fi
-
-if test "x$enable_tracker_explorer" = "xyes"; then
-   if test "x$have_tracker_explorer" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-explorer dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
-   fi
-fi
-
-if test "x$have_tracker_explorer" = "xyes"; then
-   AC_DEFINE(HAVE_TRACKER_EXPLORER, [1], [Define to 1 if tracker explorer is compiled])
-else
-   AC_DEFINE(HAVE_TRACKER_EXPLORER, [0], [Define to 0 if tracker explorer is not compiled])
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
