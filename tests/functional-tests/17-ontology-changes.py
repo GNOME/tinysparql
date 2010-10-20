@@ -45,9 +45,18 @@ import re
 import time
 
 class OntologyChangeTestTemplate (ut.TestCase):
-
-    def tearDown (self):
-        print "*******"
+    """
+    Template class for the ontology changes tests. The tests are subclasses
+    of this, implementing these methods:
+    
+       * set_ontology_dirs
+       * insert_data
+       * validate_status
+       
+    and adding a method 'test_x_y_z' to be invoked by unittest.
+   
+    Check doc in those methods for the specific details.
+    """
         
     def get_ontology_dir (self, param):
         local = os.path.join (os.getcwd (), "test-ontologies", param)
@@ -133,7 +142,10 @@ class OntologyChangeTestTemplate (ut.TestCase):
         return
 
     def __assert_ontology_dates (self, first_dir, second_dir):
-
+        """
+        Asserts that 91-test.ontology in second_dir has a more recent
+        modification time than in first_dir
+        """
         ISO9601_REGEX = "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)"
 
         def get_ontology_date (ontology):
@@ -148,7 +160,6 @@ class OntologyChangeTestTemplate (ut.TestCase):
                     else:
                         print "something funky in", line
                     break
-
 
         first_date = get_ontology_date (os.path.join (first_dir, "91-test.ontology"))
         second_date = get_ontology_date (os.path.join (second_dir, "91-test.ontology"))
