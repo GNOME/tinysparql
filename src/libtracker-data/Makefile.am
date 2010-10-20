@@ -9,11 +9,8 @@ INCLUDES =								\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(UUID_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
-	$(SQLITE3_CFLAGS)						\
+	$(LIBTRACKER_DATA_CFLAGS)					\
 	$(UNICODE_SUPPORT_CFLAGS)
 
 BUILT_SOURCES = libtracker-data.vala.stamp
@@ -85,14 +82,9 @@ libtracker_data_la_LDFLAGS =						\
 libtracker_data_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(SQLITE3_LIBS)							\
-	$(DBUS_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(UUID_LIBS)							\
-	$(GCOV_LIBS)							\
-	$(UNICODE_SUPPORT_LIBS)						\
-	-lz								\
-	-lm
+	$(BUILD_LIBS)							\
+	$(LIBTRACKER_DATA_LIBS)						\
+	$(UNICODE_SUPPORT_LIBS)
 
 if HAVE_TRACKER_FTS
 libtracker_data_la_LIBADD += 						\

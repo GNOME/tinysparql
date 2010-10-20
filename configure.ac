@@ -222,6 +222,17 @@ LIBTRACKER_COMMON_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
 PKG_CHECK_MODULES(LIBTRACKER_COMMON, [$LIBTRACKER_COMMON_REQUIRED])
 
+# Check requirements for libtracker-data
+LIBTRACKER_DATA_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                          gio-unix-2.0 >= $GLIB_REQUIRED
+                          dbus-1       >= $DBUS_REQUIRED
+                          dbus-glib-1  >= $DBUS_GLIB_REQUIRED
+                          sqlite3      >= $SQLITE_REQUIRED
+                          uuid"
+PKG_CHECK_MODULES(LIBTRACKER_DATA, [$LIBTRACKER_DATA_REQUIRED])
+
+LIBTRACKER_DATA_LIBS="$LIBTRACKER_DATA_LIBS -lz -lm"
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],

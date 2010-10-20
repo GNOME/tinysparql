@@ -118,12 +118,12 @@ tracker_db_journal_LDADD =						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(BUILD_LIBS)							\
 	$(SQLITE3_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GOBJECT_LIBS)							\
-	$(GCOV_LIBS)							\
 	-lz
 
 tracker_db_dbus_SOURCES = 						\
@@ -189,7 +189,7 @@ tracker_db_dbus_LDADD =						\
 
 
 
-EXTRA_DIST = \
+EXTRA_DIST = 					\
 	dawg-testcases				\
 	change/source/99-example.ontology.v1	\
 	change/source/99-example.ontology.v2	\
