@@ -9,9 +9,8 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
 	$(WARN_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)							\
+	$(LIBTRACKER_SPARQL_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-sparql-@TRACKER_API_VERSION@.la
 
@@ -59,10 +58,8 @@ vapi_DATA =						\
 	tracker-sparql-$(TRACKER_API_VERSION).deps
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_LIBADD = 	\
-	$(GLIB2_LIBS)					\
-	$(DBUS_LIBS) 					\
 	$(GCOV_LIBS)					\
-	$(GIO_LIBS)
+	$(LIBTRACKER_SPARQL_LIBS)
 
 MAINTAINERCLEANFILES =					\
 	$(libtracker_sparql_la_VALASOURCES:.vala=.c) 	\
