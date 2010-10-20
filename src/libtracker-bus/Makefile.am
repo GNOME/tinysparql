@@ -10,10 +10,8 @@ INCLUDES =								\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
-	$(GIO_CFLAGS)
+	$(LIBTRACKER_BUS_CFLAGS)
 
 modules_LTLIBRARIES = libtracker-bus.la
 
@@ -50,13 +48,11 @@ libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
 
 BUILT_SOURCES = libtracker-bus.vala.stamp
 
-libtracker_bus_la_LIBADD = 						\
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la 	\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(GLIB2_LIBS) \
-	$(DBUS_LIBS) \
-	$(GCOV_LIBS) \
-	$(GIO_LIBS)
+libtracker_bus_la_LIBADD = 				\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(GCOV_LIBS) 					\
+	$(LIBTRACKER_BUS_LIBS)
 
 MAINTAINERCLEANFILES =					\
 	$(libtracker_bus_la_VALASOURCES:.vala=.c) 	\
