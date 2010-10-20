@@ -130,7 +130,7 @@ struct _TrackerMinerFSPrivate {
 
 	gdouble         throttle;
 
-	ProcessingPool *processing_pool;
+	TrackerProcessingPool *processing_pool;
 
 	/* URI mtime cache */
 	GFile          *current_mtime_cache_parent;
@@ -577,9 +577,9 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                                                        (GDestroyNotify) NULL);
 
 	/* Create processing pool */
-	priv->processing_pool = processing_pool_new (tracker_miner_get_connection (TRACKER_MINER (object)),
-	                                             DEFAULT_WAIT_POOL_LIMIT,
-	                                             DEFAULT_READY_POOL_LIMIT);
+	priv->processing_pool = tracker_processing_pool_new (tracker_miner_get_connection (TRACKER_MINER (object)),
+                                                             DEFAULT_WAIT_POOL_LIMIT,
+                                                             DEFAULT_READY_POOL_LIMIT);
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
@@ -677,7 +677,7 @@ fs_finalize (GObject *object)
 	g_queue_foreach (priv->crawled_directories, (GFunc) crawled_directory_data_free, NULL);
 	g_queue_free (priv->crawled_directories);
 
-	processing_pool_free (priv->processing_pool);
+	tracker_processing_pool_free (priv->processing_pool);
 
 	g_queue_foreach (priv->items_moved, (GFunc) item_moved_data_free, NULL);
 	g_queue_free (priv->items_moved);
@@ -725,12 +725,12 @@ fs_set_property (GObject      *object,
 		                               g_value_get_double (value));
 		break;
 	case PROP_WAIT_POOL_LIMIT:
-		processing_pool_set_wait_limit (fs->private->processing_pool,
-		                                g_value_get_uint (value));
+		tracker_processing_pool_set_wait_limit (fs->private->processing_pool,
+                                                        g_value_get_uint (value));
 		break;
 	case PROP_READY_POOL_LIMIT:
-		processing_pool_set_ready_limit (fs->private->processing_pool,
-		                                 g_value_get_uint (value));
+		tracker_processing_pool_set_ready_limit (fs->private->processing_pool,
+                                                         g_value_get_uint (value));
 		break;
 	case PROP_MTIME_CHECKING:
 		fs->private->mtime_checking = g_value_get_boolean (value);
@@ -760,11 +760,11 @@ fs_get_property (GObject    *object,
 		break;
 	case PROP_WAIT_POOL_LIMIT:
 		g_value_set_uint (value,
-		                  processing_pool_get_wait_limit (fs->private->processing_pool));
+		                  tracker_processing_pool_get_wait_limit (fs->private->processing_pool));
 		break;
 	case PROP_READY_POOL_LIMIT:
 		g_value_set_uint (value,
-		                  processing_pool_get_ready_limit (fs->private->processing_pool));
+		                  tracker_processing_pool_get_ready_limit (fs->private->processing_pool));
 		break;
 	case PROP_MTIME_CHECKING:
 		g_value_set_boolean (value, fs->private->mtime_checking);
@@ -996,9 +996,9 @@ item_moved_data_free (ItemMovedData *data)
 }
 
 static void
-processing_pool_task_finished_cb (ProcessingTask *task,
-                                  gpointer        user_data,
-                                  const GError   *error)
+processing_pool_task_finished_cb (TrackerProcessingTask *task,
+                                  gpointer               user_data,
+                                  const GError          *error)
 {
 	TrackerMinerFS *fs;
 	TrackerMinerFSPrivate *priv;
@@ -1014,7 +1014,7 @@ processing_pool_task_finished_cb (ProcessingTask *task,
 			GFile *parent;
 			GFile *task_file;
 
-			task_file = processing_task_get_file (task);
+			task_file = tracker_processing_task_get_file (task);
 
 			/* Note: parent may be NULL if the file represents
 			 * the root directory of the file system (applies to
@@ -1400,11 +1400,11 @@ iri_cache_invalidate (TrackerMinerFS *fs,
 }
 
 static UpdateProcessingTaskContext *
-update_process_task_context_new (TrackerMiner         *miner,
-                                 const gchar          *urn,
-                                 const gchar          *parent_urn,
-                                 GCancellable         *cancellable,
-                                 TrackerSparqlBuilder *builder)
+update_processing_task_context_new (TrackerMiner         *miner,
+                                    const gchar          *urn,
+                                    const gchar          *parent_urn,
+                                    GCancellable         *cancellable,
+                                    TrackerSparqlBuilder *builder)
 {
 	UpdateProcessingTaskContext *ctxt;
 
@@ -1425,7 +1425,7 @@ update_process_task_context_new (TrackerMiner         *miner,
 }
 
 static void
-update_process_task_context_free (UpdateProcessingTaskContext *ctxt)
+update_processing_task_context_free (UpdateProcessingTaskContext *ctxt)
 {
 	g_free (ctxt->urn);
 	g_free (ctxt->parent_urn);
@@ -1442,8 +1442,8 @@ update_process_task_context_free (UpdateProcessingTaskContext *ctxt)
 }
 
 static gboolean
-do_process_file (TrackerMinerFS *fs,
-                 ProcessingTask *task)
+do_process_file (TrackerMinerFS        *fs,
+                 TrackerProcessingTask *task)
 {
 	TrackerMinerFSPrivate *priv;
 	gboolean processing;
@@ -1452,8 +1452,8 @@ do_process_file (TrackerMinerFS *fs,
 	GFile *task_file;
 	UpdateProcessingTaskContext *ctxt;
 
-	ctxt = processing_task_get_context (task);
-	task_file = processing_task_get_file (task);
+	ctxt = tracker_processing_task_get_context (task);
+	task_file = tracker_processing_task_get_file (task);
 	uri = g_file_get_uri (task_file);
 	priv = fs->private;
 
@@ -1480,7 +1480,7 @@ do_process_file (TrackerMinerFS *fs,
 		/* Re-fetch data, since it might have been
 		 * removed in broken implementations
 		 */
-		task = processing_pool_find_task (priv->processing_pool, task_file, FALSE);
+		task = tracker_processing_pool_find_task (priv->processing_pool, task_file, FALSE);
 
 		g_message ("%s refused to process '%s'", G_OBJECT_TYPE_NAME (fs), uri);
 
@@ -1490,8 +1490,8 @@ do_process_file (TrackerMinerFS *fs,
 			            "tracker_miner_fs_file_notify(), this is an "
 			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
 		} else {
-			processing_pool_remove_task (priv->processing_pool, task);
-			processing_task_free (task);
+			tracker_processing_pool_remove_task (priv->processing_pool, task);
+			tracker_processing_task_free (task);
 		}
 	}
 
@@ -1501,22 +1501,22 @@ do_process_file (TrackerMinerFS *fs,
 }
 
 static void
-item_add_or_update_cb (TrackerMinerFS *fs,
-                       ProcessingTask *task,
-                       const GError   *error)
+item_add_or_update_cb (TrackerMinerFS        *fs,
+                       TrackerProcessingTask *task,
+                       const GError          *error)
 {
 	UpdateProcessingTaskContext *ctxt;
 	GFile *task_file;
 	gchar *uri;
 
-	ctxt = processing_task_get_context (task);
-	task_file = processing_task_get_file (task);
+	ctxt = tracker_processing_task_get_context (task);
+	task_file = tracker_processing_task_get_file (task);
 	uri = g_file_get_uri (task_file);
 
 	if (error) {
-		ProcessingTask *first_item_task;
+		TrackerProcessingTask *first_item_task;
 
-		first_item_task = processing_pool_get_last_wait (fs->private->processing_pool);
+		first_item_task = tracker_processing_pool_get_last_wait (fs->private->processing_pool);
 
 		/* Perhaps this is too specific to TrackerMinerFiles, if the extractor
 		 * is choking on some file, the miner will get a timeout for all files
@@ -1540,8 +1540,8 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 
 			fs->private->total_files_notified_error++;
 
-			processing_pool_remove_task (fs->private->processing_pool, task);
-			processing_task_free (task);
+			tracker_processing_pool_remove_task (fs->private->processing_pool, task);
+			tracker_processing_task_free (task);
 
 			item_queue_handlers_set_up (fs);
 		}
@@ -1581,14 +1581,14 @@ item_add_or_update_cb (TrackerMinerFS *fs,
 			full_sparql = g_strdup (tracker_sparql_builder_get_result (ctxt->builder));
 		}
 
-		processing_task_set_sparql (task, full_sparql);
+		tracker_processing_task_set_sparql (task, full_sparql);
 		/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 		 * and in this case we need to setup queue handlers again */
-		if (!processing_pool_push_ready_task (fs->private->processing_pool,
-		                                      task,
-		                                      TRUE, /* buffer! */
-		                                      processing_pool_task_finished_cb,
-		                                      fs)) {
+		if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
+                                                              task,
+                                                              TRUE, /* buffer! */
+                                                              processing_pool_task_finished_cb,
+                                                              fs)) {
 			item_queue_handlers_set_up (fs);
 		}
 		g_free (full_sparql);
@@ -1605,7 +1605,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
 	gboolean retval;
-	ProcessingTask *task;
+	TrackerProcessingTask *task;
 	GFile *parent;
 	const gchar *urn;
 	const gchar *parent_urn = NULL;
@@ -1656,20 +1656,20 @@ item_add_or_update (TrackerMinerFS *fs,
 
 	/* Create task and add it to the pool as a WAIT task (we need to extract
 	 * the file metadata and such) */
-	task = processing_task_new (file);
-	processing_task_set_context (task,
-	                             update_process_task_context_new (TRACKER_MINER (fs),
-	                                                              urn,
-	                                                              parent_urn,
-	                                                              cancellable,
-	                                                              sparql),
-	                             (GFreeFunc) update_process_task_context_free);
-	processing_pool_push_wait_task (priv->processing_pool, task);
+	task = tracker_processing_task_new (file);
+	tracker_processing_task_set_context (task,
+                                             update_processing_task_context_new (TRACKER_MINER (fs),
+                                                                                 urn,
+                                                                                 parent_urn,
+                                                                                 cancellable,
+                                                                                 sparql),
+                                             (GFreeFunc) update_processing_task_context_free);
+	tracker_processing_pool_push_wait_task (priv->processing_pool, task);
 
 	if (do_process_file (fs, task)) {
 		fs->private->total_files_processed++;
 
-		if (processing_pool_wait_limit_reached (priv->processing_pool)) {
+		if (tracker_processing_pool_wait_limit_reached (priv->processing_pool)) {
 			retval = FALSE;
 		}
 	}
@@ -1688,7 +1688,7 @@ item_remove (TrackerMinerFS *fs,
 	GString *sparql;
 	gchar *uri;
 	gchar *mime = NULL;
-	ProcessingTask *task;
+	TrackerProcessingTask *task;
 
 	iri_cache_invalidate (fs, file);
 	uri = g_file_get_uri (file);
@@ -1729,15 +1729,15 @@ item_remove (TrackerMinerFS *fs,
 	                        uri);
 
 	/* Add new task to processing pool */
-	task = processing_task_new (file);
-	processing_task_set_sparql (task, sparql->str);
+	task = tracker_processing_task_new (file);
+	tracker_processing_task_set_sparql (task, sparql->str);
 	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 	 * and in this case we need to setup queue handlers again */
-	if (!processing_pool_push_ready_task (fs->private->processing_pool,
-	                                      task,
-	                                      FALSE,
-	                                      processing_pool_task_finished_cb,
-	                                      fs)) {
+	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
+                                                      task,
+                                                      FALSE,
+                                                      processing_pool_task_finished_cb,
+                                                      fs)) {
 		item_queue_handlers_set_up (fs);
 	}
 
@@ -1932,7 +1932,7 @@ item_move (TrackerMinerFS *fs,
 	GFileInfo *file_info;
 	GString   *sparql;
 	RecursiveMoveData move_data;
-	ProcessingTask *task;
+	TrackerProcessingTask *task;
 	gchar *source_iri;
 	gchar *display_name;
 	gboolean source_exists;
@@ -2050,15 +2050,15 @@ item_move (TrackerMinerFS *fs,
 	g_main_loop_unref (move_data.main_loop);
 
 	/* Add new task to processing pool */
-	task = processing_task_new (file);
-	processing_task_set_sparql (task, sparql->str);
+	task = tracker_processing_task_new (file);
+	tracker_processing_task_set_sparql (task, sparql->str);
 	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 	 * and in this case we need to setup queue handlers again */
-	if (!processing_pool_push_ready_task (fs->private->processing_pool,
-	                                      task,
-	                                      FALSE,
-	                                      processing_pool_task_finished_cb,
-	                                      fs)) {
+	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
+                                                      task,
+                                                      FALSE,
+                                                      processing_pool_task_finished_cb,
+                                                      fs)) {
 		item_queue_handlers_set_up (fs);
 	}
 
@@ -2166,7 +2166,9 @@ should_wait (TrackerMinerFS *fs,
 	GFile *parent;
 
 	/* Is the item already being processed? */
-	if (processing_pool_find_task (fs->private->processing_pool, file, TRUE)) {
+	if (tracker_processing_pool_find_task (fs->private->processing_pool,
+                                               file,
+                                               TRUE)) {
 		/* Yes, a previous event on same item currently
 		 * being processed */
 		return TRUE;
@@ -2175,7 +2177,9 @@ should_wait (TrackerMinerFS *fs,
 	/* Is the item's parent being processed right now? */
 	parent = g_file_get_parent (file);
 	if (parent) {
-		if (processing_pool_find_task (fs->private->processing_pool, parent, TRUE)) {
+		if (tracker_processing_pool_find_task (fs->private->processing_pool,
+                                                       parent,
+                                                       TRUE)) {
 			/* Yes, a previous event on the parent of this item
 			 * currently being processed */
 			g_object_unref (parent);
@@ -2227,7 +2231,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		 * info is inserted to the store before the children are
 		 * inspected.
 		 */
-		if (processing_pool_get_wait_task_count (fs->private->processing_pool) > 0) {
+		if (tracker_processing_pool_get_wait_task_count (fs->private->processing_pool) > 0) {
 			/* Items still being processed */
 			*file = NULL;
 			*source_file = NULL;
@@ -2395,7 +2399,7 @@ item_queue_handlers_cb (gpointer user_data)
 		 * if there was a previous task on the same file we want to
 		 * process now, we want it to get finished before we can go
 		 * on with the queues... */
-		processing_pool_buffer_flush (fs->private->processing_pool);
+		tracker_processing_pool_buffer_flush (fs->private->processing_pool);
 
 		return FALSE;
 	}
@@ -2465,12 +2469,12 @@ item_queue_handlers_cb (gpointer user_data)
 	case QUEUE_NONE:
 		/* Print stats and signal finished */
 		if (!fs->private->is_crawling &&
-		    processing_pool_get_total_task_count (fs->private->processing_pool) == 0) {
+		    tracker_processing_pool_get_total_task_count (fs->private->processing_pool) == 0) {
 			process_stop (fs);
 		}
 
 		/* Flush any possible pending update here */
-		processing_pool_buffer_flush (fs->private->processing_pool);
+		tracker_processing_pool_buffer_flush (fs->private->processing_pool);
 
 		tracker_thumbnailer_send ();
 		/* No more files left to process */
@@ -2538,7 +2542,7 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		return;
 	}
 
-	if (processing_pool_wait_limit_reached (fs->private->processing_pool)) {
+	if (tracker_processing_pool_wait_limit_reached (fs->private->processing_pool)) {
 		/* There is no room in the pool for more files */
 		return;
 	}
@@ -3636,13 +3640,13 @@ static void
 processing_pool_cancel_foreach (gpointer data,
                                 gpointer user_data)
 {
-	ProcessingTask *task = data;
+	TrackerProcessingTask *task = data;
 	GFile *file = user_data;
 	GFile *task_file;
 	UpdateProcessingTaskContext *ctxt;
 
-	task_file = processing_task_get_file (task);
-	ctxt = processing_task_get_context (task);
+	task_file = tracker_processing_task_get_file (task);
+	ctxt = tracker_processing_task_get_context (task);
 
 	if (ctxt &&
 	    ctxt->cancellable &&
@@ -3727,9 +3731,9 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 	check_files_removal (priv->items_created, file);
 
 	/* Cancel all pending tasks on files inside the path given by file */
-	processing_pool_foreach (fs->private->processing_pool,
-	                         processing_pool_cancel_foreach,
-	                         file);
+	tracker_processing_pool_foreach (fs->private->processing_pool,
+                                         processing_pool_cancel_foreach,
+                                         file);
 
 	/* Remove all monitors */
 	tracker_monitor_remove_recursively (fs->private->monitor, file);
@@ -3913,14 +3917,16 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
                               GFile          *file,
                               const GError   *error)
 {
-	ProcessingTask *task;
+	TrackerProcessingTask *task;
 
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
 	fs->private->total_files_notified++;
 
-	task = processing_pool_find_task (fs->private->processing_pool, file, FALSE);
+	task = tracker_processing_pool_find_task (fs->private->processing_pool,
+                                                  file,
+                                                  FALSE);
 
 	if (!task) {
 		gchar *uri;
@@ -4017,13 +4023,15 @@ G_CONST_RETURN gchar *
 tracker_miner_fs_get_urn (TrackerMinerFS *fs,
                           GFile          *file)
 {
-	ProcessingTask *task;
+	TrackerProcessingTask *task;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
 	/* Check if found in currently processed data */
-	task = processing_pool_find_task (fs->private->processing_pool, file, FALSE);
+	task = tracker_processing_pool_find_task (fs->private->processing_pool,
+                                                  file,
+                                                  FALSE);
 
 	if (!task) {
 		gchar *uri;
@@ -4039,7 +4047,7 @@ tracker_miner_fs_get_urn (TrackerMinerFS *fs,
 		UpdateProcessingTaskContext *ctxt;
 
 		/* We are only storing the URN in the created/updated tasks */
-		ctxt = processing_task_get_context (task);
+		ctxt = tracker_processing_task_get_context (task);
 		if (!ctxt) {
 			gchar *uri;
 
@@ -4105,13 +4113,15 @@ G_CONST_RETURN gchar *
 tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
                                  GFile          *file)
 {
-	ProcessingTask *task;
+	TrackerProcessingTask *task;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
 	/* Check if found in currently processed data */
-	task = processing_pool_find_task (fs->private->processing_pool, file, FALSE);
+	task = tracker_processing_pool_find_task (fs->private->processing_pool,
+                                                  file,
+                                                  FALSE);
 
 	if (!task) {
 		gchar *uri;
@@ -4127,7 +4137,7 @@ tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
 		UpdateProcessingTaskContext *ctxt;
 
 		/* We are only storing the URN in the created/updated tasks */
-		ctxt = processing_task_get_context (task);
+		ctxt = tracker_processing_task_get_context (task);
 		if (!ctxt) {
 			gchar *uri;
 

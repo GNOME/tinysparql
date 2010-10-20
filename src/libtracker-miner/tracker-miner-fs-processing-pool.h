@@ -29,57 +29,57 @@
 G_BEGIN_DECLS
 
 
-typedef struct _ProcessingTask ProcessingTask;
-typedef struct _ProcessingPool ProcessingPool;
-typedef void  (* ProcessingPoolTaskFinishedCallback) (ProcessingTask *task,
-                                                      gpointer        user_data,
-                                                      const GError   *error);
+typedef struct _TrackerProcessingTask TrackerProcessingTask;
+typedef struct _TrackerProcessingPool TrackerProcessingPool;
+typedef void  (* TrackerProcessingPoolTaskFinishedCallback) (TrackerProcessingTask *task,
+                                                             gpointer               user_data,
+                                                             const GError          *error);
 
 
-ProcessingTask *processing_task_new         (GFile          *file);
-void            processing_task_free        (ProcessingTask *task);
-GFile          *processing_task_get_file    (ProcessingTask *task);
-gpointer        processing_task_get_context (ProcessingTask *task);
-void            processing_task_set_context (ProcessingTask *task,
-                                             gpointer        context,
-                                             GFreeFunc       context_free_func);
-void            processing_task_set_sparql  (ProcessingTask *task,
-                                             gchar          *sparql);
+TrackerProcessingTask *tracker_processing_task_new         (GFile          *file);
+void                   tracker_processing_task_free        (TrackerProcessingTask *task);
+GFile                 *tracker_processing_task_get_file    (TrackerProcessingTask *task);
+gpointer               tracker_processing_task_get_context (TrackerProcessingTask *task);
+void                   tracker_processing_task_set_context (TrackerProcessingTask *task,
+                                                            gpointer               context,
+                                                            GFreeFunc              context_free_func);
+void                   tracker_processing_task_set_sparql  (TrackerProcessingTask *task,
+                                                            gchar                 *sparql);
 
 
-ProcessingPool *processing_pool_new                   (TrackerSparqlConnection *connection,
-                                                       guint                    limit_wait,
-                                                       guint                    limit_process);
-void            processing_pool_free                  (ProcessingPool          *pool);
-void            processing_pool_set_wait_limit        (ProcessingPool          *pool,
-                                                       guint                    limit);
-void            processing_pool_set_ready_limit       (ProcessingPool          *pool,
-                                                       guint                    limit);
-guint           processing_pool_get_wait_limit        (ProcessingPool          *pool);
-guint           processing_pool_get_ready_limit       (ProcessingPool          *pool);
-ProcessingTask *processing_pool_find_task             (ProcessingPool          *pool,
-                                                       GFile                   *file,
-                                                       gboolean                 path_search);
-gboolean        processing_pool_wait_limit_reached    (ProcessingPool          *pool);
-gboolean        processing_pool_ready_limit_reached   (ProcessingPool          *pool);
+TrackerProcessingPool *tracker_processing_pool_new                   (TrackerSparqlConnection *connection,
+                                                                      guint                    limit_wait,
+                                                                      guint                    limit_process);
+void                   tracker_processing_pool_free                  (TrackerProcessingPool   *pool);
+void                   tracker_processing_pool_set_wait_limit        (TrackerProcessingPool   *pool,
+                                                                      guint                    limit);
+void                   tracker_processing_pool_set_ready_limit       (TrackerProcessingPool   *pool,
+                                                                      guint                    limit);
+guint                  tracker_processing_pool_get_wait_limit        (TrackerProcessingPool   *pool);
+guint                  tracker_processing_pool_get_ready_limit       (TrackerProcessingPool   *pool);
+TrackerProcessingTask *tracker_processing_pool_find_task             (TrackerProcessingPool   *pool,
+                                                                      GFile                   *file,
+                                                                      gboolean                 path_search);
+gboolean               tracker_processing_pool_wait_limit_reached    (TrackerProcessingPool   *pool);
+gboolean               tracker_processing_pool_ready_limit_reached   (TrackerProcessingPool   *pool);
 
-void            processing_pool_remove_task           (ProcessingPool          *pool,
-                                                       ProcessingTask          *task);
-void            processing_pool_push_wait_task        (ProcessingPool          *pool,
-                                                       ProcessingTask          *task);
-gboolean        processing_pool_push_ready_task       (ProcessingPool          *pool,
-                                                       ProcessingTask          *task,
-                                                       gboolean                 buffer,
-                                                       ProcessingPoolTaskFinishedCallback  finished_handler,
-                                                       gpointer                 user_data);
-guint           processing_pool_get_wait_task_count    (ProcessingPool         *pool);
-guint           processing_pool_get_ready_task_count   (ProcessingPool         *pool);
-guint           processing_pool_get_total_task_count   (ProcessingPool         *pool);
-ProcessingTask *processing_pool_get_last_wait          (ProcessingPool         *pool);
-void            processing_pool_foreach                (ProcessingPool         *pool,
-                                                        GFunc                   func,
-                                                        gpointer                user_data);
-void            processing_pool_buffer_flush           (ProcessingPool         *pool);
+void                   tracker_processing_pool_remove_task           (TrackerProcessingPool   *pool,
+                                                                      TrackerProcessingTask   *task);
+void                   tracker_processing_pool_push_wait_task        (TrackerProcessingPool   *pool,
+                                                                      TrackerProcessingTask   *task);
+gboolean               tracker_processing_pool_push_ready_task       (TrackerProcessingPool   *pool,
+                                                                      TrackerProcessingTask   *task,
+                                                                      gboolean                 buffer,
+                                                                      TrackerProcessingPoolTaskFinishedCallback finished_handler,
+                                                                      gpointer                 user_data);
+guint                  tracker_processing_pool_get_wait_task_count   (TrackerProcessingPool   *pool);
+guint                  tracker_processing_pool_get_ready_task_count  (TrackerProcessingPool   *pool);
+guint                  tracker_processing_pool_get_total_task_count  (TrackerProcessingPool   *pool);
+TrackerProcessingTask *tracker_processing_pool_get_last_wait         (TrackerProcessingPool   *pool);
+void                   tracker_processing_pool_foreach               (TrackerProcessingPool   *pool,
+                                                                      GFunc                    func,
+                                                                      gpointer                 user_data);
+void                   tracker_processing_pool_buffer_flush          (TrackerProcessingPool   *pool);
 
 G_END_DECLS
 

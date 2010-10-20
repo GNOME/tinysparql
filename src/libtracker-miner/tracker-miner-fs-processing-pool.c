@@ -43,20 +43,20 @@
  *        like this:
  *         - processing_task_new() to create a new task
  *         - processing_task_set_sparql() to set the full SPARQL in the task.
- *         - processing_pool_push_ready_task() to push the newly created task
- *           into the processing pool as a "READY" task.
+ *         - tracker_processing_pool_push_ready_task() to push the newly created
+ *           task into the processing pool as a "READY" task.
  *
  *   2.2. The full SPARQL is still not available, as the upper layers need to
  *        process the file (like extracting metadata using tracker-extract
  *        in the case of TrackerMinerFiles). This case would correspond to
  *        CREATED or UPDATED events:
  *         - processing_task_new() to create a new task
- *         - processing_pool_push_wait_task() to push the newly created task
- *           into the processing pool as a "WAIT" task.
+ *         - tracker_processing_pool_push_wait_task() to push the newly created
+ *           task into the processing pool as a "WAIT" task.
  *         - processing_task_set_sparql() to set the full SPARQL in the task
  *           (when the upper layers finished building it).
- *         - processing_pool_push_ready_task() to push the newly created task
- *           into the processing pool as a "READY" task.
+ *         - tracker_processing_pool_push_ready_task() to push the newly created
+ *           task into the processing pool as a "READY" task.
  *
  *   2.3. Note that "PROCESSING" tasks are an internal status of the pool, the
  *        user of the processing pool cannot push a task with this status.
@@ -79,11 +79,11 @@
  * 5. When a task is pushed to the pool as a "READY" task, the pool will be in
  *    charge of executing the SPARQL update into the store.
  *
- * 6. If buffering was requested when processing_pool_push_ready_task() was used
- *    to push the new task in the pool as a "READY" task, this task will be
- *    added internally into a SPARQL buffer. This SPARQL buffer will be flushed
- *    (pushing all collected SPARQL updates into the store) if one of these
- *    conditions is met:
+ * 6. If buffering was requested when tracker_processing_pool_push_ready_task()
+ *    was used to push the new task in the pool as a "READY" task, this task
+ *    will be added internally into a SPARQL buffer. This SPARQL buffer will be
+ *    flushed (pushing all collected SPARQL updates into the store) if one of
+ *    these conditions is met:
  *      (a) The file corresponding to the task pushed doesn't have a parent.
  *      (b) The parent of the file corresponding to the task pushed is different
  *          to the parent of the last file pushed to the buffer.
@@ -97,12 +97,13 @@
  *    converted to "PROCESSING" state, until the reply from the store is
  *    received.
  *
- * 7. If buffering is not requested when processing_pool_push_ready_task() is
- *    called, first the previous buffer is flushed (if any) and then the current
- *    task is updated in the store, so this task goes directly from "READY" to
- *    "PROCESSING" state without going through the intermediate buffer.
+ * 7. If buffering is not requested when
+ *    tracker_processing_pool_push_ready_task() is called, first the previous
+ *    buffer is flushed (if any) and then the current task is updated in the
+ *    store, so this task goes directly from "READY" to "PROCESSING" state
+ *    without going through the intermediate buffer.
  *
- * 8. May the gods be with you if you need to fix a bug in here.
+ * 8. May the gods be with you if you need to fix a bug in here. So say we all.
  *
  */
 
@@ -112,17 +113,15 @@
 /* Maximum time (seconds) before forcing a sparql buffer flush */
 #define MAX_SPARQL_BUFFER_TIME  15
 
-/*------------------- PROCESSING TASK ----------------------*/
-
 typedef enum {
-	PROCESSING_TASK_STATUS_NO_POOL,
-	PROCESSING_TASK_STATUS_WAIT = 0,
-	PROCESSING_TASK_STATUS_READY,
-	PROCESSING_TASK_STATUS_PROCESSING,
-	PROCESSING_TASK_STATUS_LAST
-} ProcessingTaskStatus;
+	TRACKER_PROCESSING_TASK_STATUS_NO_POOL,
+	TRACKER_PROCESSING_TASK_STATUS_WAIT = 0,
+	TRACKER_PROCESSING_TASK_STATUS_READY,
+	TRACKER_PROCESSING_TASK_STATUS_PROCESSING,
+	TRACKER_PROCESSING_TASK_STATUS_LAST
+} TrackerProcessingTaskStatus;
 
-struct _ProcessingTask {
+struct _TrackerProcessingTask {
 	/* The file being processed */
 	GFile *file;
 	/* File URI, useful for logs */
@@ -135,29 +134,46 @@ struct _ProcessingTask {
 	GFreeFunc context_free_func;
 
 	/* Internal status of the task */
-	ProcessingTaskStatus status;
+	TrackerProcessingTaskStatus status;
 	/* The pool where the task was added */
-	ProcessingPool *pool;
+	TrackerProcessingPool *pool;
 
 	/* Handler and user_data to use when task is fully processed */
-	ProcessingPoolTaskFinishedCallback finished_handler;
-	gpointer                           finished_user_data;
+	TrackerProcessingPoolTaskFinishedCallback finished_handler;
+	gpointer finished_user_data;
 };
 
-ProcessingTask *
-processing_task_new (GFile *file)
-{
-	ProcessingTask *task;
+struct _TrackerProcessingPool {
+	/* Connection to the Store */
+	TrackerSparqlConnection *connection;
 
-	task = g_slice_new0 (ProcessingTask);
+	/* The tasks currently in WAIT or PROCESS status */
+	GQueue *tasks[TRACKER_PROCESSING_TASK_STATUS_LAST];
+	/* The processing pool limits */
+	guint  limit[TRACKER_PROCESSING_TASK_STATUS_LAST];
+
+	/* SPARQL buffer to pile up several UPDATEs */
+	GPtrArray      *sparql_buffer;
+	GFile          *sparql_buffer_current_parent;
+	time_t          sparql_buffer_start_time;
+};
+
+/*------------------- PROCESSING TASK ----------------------*/
+
+TrackerProcessingTask *
+tracker_processing_task_new (GFile *file)
+{
+	TrackerProcessingTask *task;
+
+	task = g_slice_new0 (TrackerProcessingTask);
 	task->file = g_object_ref (file);
 	task->file_uri = g_file_get_uri (task->file);
-	task->status = PROCESSING_TASK_STATUS_NO_POOL;
+	task->status = TRACKER_PROCESSING_TASK_STATUS_NO_POOL;
 	return task;
 }
 
 void
-processing_task_free (ProcessingTask *task)
+tracker_processing_task_free (TrackerProcessingTask *task)
 {
 	if (!task)
 		return;
@@ -170,25 +186,25 @@ processing_task_free (ProcessingTask *task)
 	g_free (task->sparql);
 	g_free (task->file_uri);
 	g_object_unref (task->file);
-	g_slice_free (ProcessingTask, task);
+	g_slice_free (TrackerProcessingTask, task);
 }
 
 GFile *
-processing_task_get_file (ProcessingTask *task)
+tracker_processing_task_get_file (TrackerProcessingTask *task)
 {
 	return task->file;
 }
 
 gpointer
-processing_task_get_context (ProcessingTask *task)
+tracker_processing_task_get_context (TrackerProcessingTask *task)
 {
 	return task->context;
 }
 
 void
-processing_task_set_context (ProcessingTask *task,
-                             gpointer        context,
-                             GFreeFunc       context_free_func)
+tracker_processing_task_set_context (TrackerProcessingTask *task,
+                                     gpointer               context,
+                                     GFreeFunc              context_free_func)
 {
 	/* Free previous context if any and if requested to do so */
 	if (task->context &&
@@ -201,8 +217,8 @@ processing_task_set_context (ProcessingTask *task,
 }
 
 void
-processing_task_set_sparql (ProcessingTask *task,
-                            gchar          *sparql)
+tracker_processing_task_set_sparql (TrackerProcessingTask *task,
+                                    gchar                 *sparql)
 {
 	g_free (task->sparql);
 	task->sparql = g_strdup (sparql);
@@ -210,21 +226,6 @@ processing_task_set_sparql (ProcessingTask *task,
 
 
 /*------------------- PROCESSING POOL ----------------------*/
-
-struct _ProcessingPool {
-	/* Connection to the Store */
-	TrackerSparqlConnection *connection;
-
-	/* The tasks currently in WAIT or PROCESS status */
-	GQueue *tasks[PROCESSING_TASK_STATUS_LAST];
-	/* The processing pool limits */
-	guint  limit[PROCESSING_TASK_STATUS_LAST];
-
-	/* SPARQL buffer to pile up several UPDATEs */
-	GPtrArray      *sparql_buffer;
-	GFile          *sparql_buffer_current_parent;
-	time_t          sparql_buffer_start_time;
-};
 
 static void
 pool_queue_free_foreach (gpointer data,
@@ -235,12 +236,12 @@ pool_queue_free_foreach (gpointer data,
 	/* If found in the SPARQL buffer, remove it (will call task_free itself) */
 	if (!g_ptr_array_remove (sparql_buffer, data)) {
 		/* If not removed from the array, free it ourselves */
-		processing_task_free (data);
+		tracker_processing_task_free (data);
 	}
 }
 
 void
-processing_pool_free (ProcessingPool *pool)
+tracker_processing_pool_free (TrackerProcessingPool *pool)
 {
 	guint i;
 
@@ -249,8 +250,8 @@ processing_pool_free (ProcessingPool *pool)
 
 	/* Free any pending task here... shouldn't really
 	 * be any */
-	for (i = PROCESSING_TASK_STATUS_WAIT;
-	     i < PROCESSING_TASK_STATUS_LAST;
+	for (i = TRACKER_PROCESSING_TASK_STATUS_WAIT;
+	     i < TRACKER_PROCESSING_TASK_STATUS_LAST;
 	     i++) {
 		g_queue_foreach (pool->tasks[i],
 		                 pool_queue_free_foreach,
@@ -270,24 +271,24 @@ processing_pool_free (ProcessingPool *pool)
 	g_free (pool);
 }
 
-ProcessingPool *
-processing_pool_new (TrackerSparqlConnection *connection,
-                     guint                    limit_wait,
-                     guint                    limit_ready)
+TrackerProcessingPool *
+tracker_processing_pool_new (TrackerSparqlConnection *connection,
+                             guint                    limit_wait,
+                             guint                    limit_ready)
 {
-	ProcessingPool *pool;
+	TrackerProcessingPool *pool;
 
-	pool = g_new0 (ProcessingPool, 1);
+	pool = g_new0 (TrackerProcessingPool, 1);
 
 	pool->connection = g_object_ref (connection);
-	pool->limit[PROCESSING_TASK_STATUS_WAIT] = limit_wait;
-	pool->limit[PROCESSING_TASK_STATUS_READY] = limit_ready;
+	pool->limit[TRACKER_PROCESSING_TASK_STATUS_WAIT] = limit_wait;
+	pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] = limit_ready;
 	/* convenience limit, not really used currently */
-	pool->limit[PROCESSING_TASK_STATUS_PROCESSING] = G_MAXUINT;
+	pool->limit[TRACKER_PROCESSING_TASK_STATUS_PROCESSING] = G_MAXUINT;
 
-	pool->tasks[PROCESSING_TASK_STATUS_WAIT] = g_queue_new ();
-	pool->tasks[PROCESSING_TASK_STATUS_READY] = g_queue_new ();
-	pool->tasks[PROCESSING_TASK_STATUS_PROCESSING] = g_queue_new ();
+	pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT] = g_queue_new ();
+	pool->tasks[TRACKER_PROCESSING_TASK_STATUS_READY] = g_queue_new ();
+	pool->tasks[TRACKER_PROCESSING_TASK_STATUS_PROCESSING] = g_queue_new ();
 
 	g_debug ("Processing pool created with a limit of "
 	         "%u tasks in WAIT status and "
@@ -299,63 +300,63 @@ processing_pool_new (TrackerSparqlConnection *connection,
 }
 
 void
-processing_pool_set_wait_limit (ProcessingPool *pool,
-                                guint           limit)
+tracker_processing_pool_set_wait_limit (TrackerProcessingPool *pool,
+                                        guint                  limit)
 {
 	g_message ("Processing pool limit for WAIT tasks set to %u", limit);
-	pool->limit[PROCESSING_TASK_STATUS_WAIT] = limit;
+	pool->limit[TRACKER_PROCESSING_TASK_STATUS_WAIT] = limit;
 }
 
 void
-processing_pool_set_ready_limit (ProcessingPool *pool,
-                                 guint           limit)
+tracker_processing_pool_set_ready_limit (TrackerProcessingPool *pool,
+                                         guint                  limit)
 {
 	g_message ("Processing pool limit for READY tasks set to %u", limit);
-	pool->limit[PROCESSING_TASK_STATUS_READY] = limit;
+	pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] = limit;
 }
 
 guint
-processing_pool_get_wait_limit (ProcessingPool *pool)
+tracker_processing_pool_get_wait_limit (TrackerProcessingPool *pool)
 {
-	return pool->limit[PROCESSING_TASK_STATUS_WAIT];
+	return pool->limit[TRACKER_PROCESSING_TASK_STATUS_WAIT];
 }
 
 guint
-processing_pool_get_ready_limit (ProcessingPool *pool)
+tracker_processing_pool_get_ready_limit (TrackerProcessingPool *pool)
 {
-	return pool->limit[PROCESSING_TASK_STATUS_READY];
+	return pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY];
 }
 
 gboolean
-processing_pool_wait_limit_reached (ProcessingPool *pool)
+tracker_processing_pool_wait_limit_reached (TrackerProcessingPool *pool)
 {
-	return ((g_queue_get_length (pool->tasks[PROCESSING_TASK_STATUS_WAIT]) >=
-	         pool->limit[PROCESSING_TASK_STATUS_WAIT]) ?
+	return ((g_queue_get_length (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT]) >=
+	         pool->limit[TRACKER_PROCESSING_TASK_STATUS_WAIT]) ?
 	        TRUE : FALSE);
 }
 
 gboolean
-processing_pool_ready_limit_reached (ProcessingPool *pool)
+tracker_processing_pool_ready_limit_reached (TrackerProcessingPool *pool)
 {
-	return ((g_queue_get_length (pool->tasks[PROCESSING_TASK_STATUS_READY]) >=
-	         pool->limit[PROCESSING_TASK_STATUS_READY]) ?
+	return ((g_queue_get_length (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_READY]) >=
+	         pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY]) ?
 	        TRUE : FALSE);
 }
 
-ProcessingTask *
-processing_pool_find_task (ProcessingPool *pool,
-                           GFile          *file,
-                           gboolean        path_search)
+TrackerProcessingTask *
+tracker_processing_pool_find_task (TrackerProcessingPool *pool,
+                                   GFile                 *file,
+                                   gboolean               path_search)
 {
 	guint i;
 
-	for (i = PROCESSING_TASK_STATUS_WAIT;
-	     i < PROCESSING_TASK_STATUS_LAST;
+	for (i = TRACKER_PROCESSING_TASK_STATUS_WAIT;
+	     i < TRACKER_PROCESSING_TASK_STATUS_LAST;
 	     i++) {
 		GList *l;
 
 		for (l = pool->tasks[i]->head; l; l = g_list_next (l)) {
-			ProcessingTask *task = l->data;
+			TrackerProcessingTask *task = l->data;
 
 			if (!path_search) {
 				/* Different operations for the same file URI could be
@@ -383,29 +384,29 @@ processing_pool_find_task (ProcessingPool *pool,
 }
 
 void
-processing_pool_push_wait_task (ProcessingPool *pool,
-                                ProcessingTask *task)
+tracker_processing_pool_push_wait_task (TrackerProcessingPool *pool,
+                                        TrackerProcessingTask *task)
 {
-	g_assert (task->status == PROCESSING_TASK_STATUS_NO_POOL);
+	g_assert (task->status == TRACKER_PROCESSING_TASK_STATUS_NO_POOL);
 
 	/* Set status of the task as WAIT */
-	task->status = PROCESSING_TASK_STATUS_WAIT;
+	task->status = TRACKER_PROCESSING_TASK_STATUS_WAIT;
 
 	g_debug ("(Processing Pool) Pushed WAIT task %p for file '%s'",
 	         task, task->file_uri);
 
 	/* Push a new task in WAIT status (so just add it to the tasks queue,
 	 * and don't process it. */
-	g_queue_push_head (pool->tasks[PROCESSING_TASK_STATUS_WAIT], task);
+	g_queue_push_head (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT], task);
 	task->pool = pool;
 }
 
 static void
-processing_pool_sparql_update_cb (GObject      *object,
-                                  GAsyncResult *result,
-                                  gpointer      user_data)
+tracker_processing_pool_sparql_update_cb (GObject      *object,
+                                          GAsyncResult *result,
+                                          gpointer      user_data)
 {
-	ProcessingTask *task;
+	TrackerProcessingTask *task;
 	GError *error = NULL;
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
@@ -421,20 +422,20 @@ processing_pool_sparql_update_cb (GObject      *object,
 
 	/* Before calling user-provided callback, REMOVE the task from the pool;
 	 * as the user-provided callback may actually modify the pool again */
-	processing_pool_remove_task (task->pool, task);
+	tracker_processing_pool_remove_task (task->pool, task);
 
 	/* Call finished handler with the error, if any */
 	task->finished_handler (task, task->finished_user_data, error);
 
 	/* Deallocate unneeded stuff */
-	processing_task_free (task);
+	tracker_processing_task_free (task);
 	g_clear_error (&error);
 }
 
 static void
-processing_pool_sparql_update_array_cb (GObject      *object,
-                                        GAsyncResult *result,
-                                        gpointer      user_data)
+tracker_processing_pool_sparql_update_array_cb (GObject      *object,
+                                                GAsyncResult *result,
+                                                gpointer      user_data)
 {
 	GError *global_error = NULL;
 	GPtrArray *sparql_array_errors;
@@ -459,13 +460,13 @@ processing_pool_sparql_update_array_cb (GObject      *object,
 
 	/* Report status on each task of the batch update */
 	for (i = 0; i < sparql_array->len; i++) {
-		ProcessingTask *task;
+		TrackerProcessingTask *task;
 
 		task = g_ptr_array_index (sparql_array, i);
 
 		/* Before calling user-provided callback, REMOVE the task from the pool;
 		 * as the user-provided callback may actually modify the pool again */
-		processing_pool_remove_task (task->pool, task);
+		tracker_processing_pool_remove_task (task->pool, task);
 
 		/* Call finished handler with the error, if any */
 		task->finished_handler (task, task->finished_user_data,
@@ -486,7 +487,7 @@ processing_pool_sparql_update_array_cb (GObject      *object,
 }
 
 void
-processing_pool_buffer_flush (ProcessingPool *pool)
+tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool)
 {
 	guint i;
 	gchar **sparql_array;
@@ -497,19 +498,19 @@ processing_pool_buffer_flush (ProcessingPool *pool)
 	/* Loop buffer and construct array of strings */
 	sparql_array = g_new (gchar *, pool->sparql_buffer->len);
 	for (i = 0; i < pool->sparql_buffer->len; i++) {
-		ProcessingTask *task;
+		TrackerProcessingTask *task;
 
 		task = g_ptr_array_index (pool->sparql_buffer, i);
 
 		/* Make sure it was a READY task */
-		g_assert (task->status == PROCESSING_TASK_STATUS_READY);
+		g_assert (task->status == TRACKER_PROCESSING_TASK_STATUS_READY);
 
 		/* Remove the task from the READY queue and add it to the
 		 * PROCESSING one. */
-		processing_pool_remove_task (pool, task);
-		task->status = PROCESSING_TASK_STATUS_PROCESSING;
+		tracker_processing_pool_remove_task (pool, task);
+		task->status = TRACKER_PROCESSING_TASK_STATUS_PROCESSING;
 		task->pool = pool;
-		g_queue_push_head (pool->tasks[PROCESSING_TASK_STATUS_PROCESSING], task);
+		g_queue_push_head (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_PROCESSING], task);
 
 		/* Add original string, not a duplicate */
 		sparql_array[i] = task->sparql;
@@ -523,7 +524,7 @@ processing_pool_buffer_flush (ProcessingPool *pool)
 	                                              pool->sparql_buffer->len,
 	                                              G_PRIORITY_DEFAULT,
 	                                              NULL,
-	                                              processing_pool_sparql_update_array_cb,
+	                                              tracker_processing_pool_sparql_update_array_cb,
 	                                              pool->sparql_buffer);
 
 	/* Clear current parent */
@@ -541,11 +542,11 @@ processing_pool_buffer_flush (ProcessingPool *pool)
 }
 
 gboolean
-processing_pool_push_ready_task (ProcessingPool                     *pool,
-                                 ProcessingTask                     *task,
-                                 gboolean                            buffer,
-                                 ProcessingPoolTaskFinishedCallback  finished_handler,
-                                 gpointer                            user_data)
+tracker_processing_pool_push_ready_task (TrackerProcessingPool                     *pool,
+                                         TrackerProcessingTask                     *task,
+                                         gboolean                                   buffer,
+                                         TrackerProcessingPoolTaskFinishedCallback  finished_handler,
+                                         gpointer                                   user_data)
 {
 	GList *previous;
 
@@ -553,12 +554,12 @@ processing_pool_push_ready_task (ProcessingPool                     *pool,
 	g_assert (task->sparql != NULL);
 
 	/* First, check if the task was already added as being WAITING */
-	previous = g_queue_find (pool->tasks[PROCESSING_TASK_STATUS_WAIT], task);
+	previous = g_queue_find (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT], task);
 	if (previous) {
 		/* Make sure it was a WAIT task */
-		g_assert (task->status == PROCESSING_TASK_STATUS_WAIT);
+		g_assert (task->status == TRACKER_PROCESSING_TASK_STATUS_WAIT);
 		/* Remove task from WAIT queue */
-		g_queue_delete_link (pool->tasks[PROCESSING_TASK_STATUS_WAIT], previous);
+		g_queue_delete_link (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT], previous);
 	} else {
 		/* Set pool */
 		task->pool = pool;
@@ -569,23 +570,23 @@ processing_pool_push_ready_task (ProcessingPool                     *pool,
 
 	/* If buffering not requested, OR the limit of READY tasks is actually 1,
 	 * flush previous buffer (if any) and then the new update */
-	if (!buffer || pool->limit[PROCESSING_TASK_STATUS_READY] == 1) {
+	if (!buffer || pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] == 1) {
 		g_debug ("(Processing Pool) Pushed READY/PROCESSING task %p for file '%s'",
 		         task, task->file_uri);
 
 		/* Flush previous */
-		processing_pool_buffer_flush (pool);
+		tracker_processing_pool_buffer_flush (pool);
 
 		/* Set status of the task as PROCESSING (No READY status here!) */
-		task->status = PROCESSING_TASK_STATUS_PROCESSING;
-		g_queue_push_head (pool->tasks[PROCESSING_TASK_STATUS_PROCESSING], task);
+		task->status = TRACKER_PROCESSING_TASK_STATUS_PROCESSING;
+		g_queue_push_head (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_PROCESSING], task);
 
 		/* And update the new one */
 		tracker_sparql_connection_update_async (pool->connection,
 		                                        task->sparql,
 		                                        G_PRIORITY_DEFAULT,
 		                                        NULL,
-		                                        processing_pool_sparql_update_cb,
+		                                        tracker_processing_pool_sparql_update_cb,
 		                                        task);
 
 		return TRUE;
@@ -594,15 +595,16 @@ processing_pool_push_ready_task (ProcessingPool                     *pool,
 		gboolean flushed = FALSE;
 
 		/* Set status of the task as READY */
-		task->status = PROCESSING_TASK_STATUS_READY;
-		g_queue_push_head (pool->tasks[PROCESSING_TASK_STATUS_READY], task);
+		task->status = TRACKER_PROCESSING_TASK_STATUS_READY;
+		g_queue_push_head (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_READY], task);
 
 		/* Get parent of this file we're updating/creating */
 		parent = g_file_get_parent (task->file);
 
 		/* Start buffer if not already done */
 		if (!pool->sparql_buffer) {
-			pool->sparql_buffer = g_ptr_array_new_with_free_func ((GDestroyNotify) processing_task_free);
+			pool->sparql_buffer =
+				g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_processing_task_free);
 			pool->sparql_buffer_start_time = time (NULL);
 		}
 
@@ -625,10 +627,10 @@ processing_pool_push_ready_task (ProcessingPool                     *pool,
 		 */
 		if (!parent ||
 		    !g_file_equal (parent, pool->sparql_buffer_current_parent) ||
-		    processing_pool_ready_limit_reached (pool) ||
+		    tracker_processing_pool_ready_limit_reached (pool) ||
 		    (time (NULL) - pool->sparql_buffer_start_time > MAX_SPARQL_BUFFER_TIME)) {
 			/* Flush! */
-			processing_pool_buffer_flush (pool);
+			tracker_processing_pool_buffer_flush (pool);
 			flushed = TRUE;
 		}
 
@@ -640,8 +642,8 @@ processing_pool_push_ready_task (ProcessingPool                     *pool,
 }
 
 void
-processing_pool_remove_task (ProcessingPool *pool,
-                             ProcessingTask *task)
+tracker_processing_pool_remove_task (TrackerProcessingPool *pool,
+                                     TrackerProcessingTask *task)
 {
 	/* Remove from pool without freeing it */
 	GList *in_pool;
@@ -654,44 +656,44 @@ processing_pool_remove_task (ProcessingPool *pool,
 
 	g_queue_delete_link (pool->tasks[task->status], in_pool);
 	task->pool = NULL;
-	task->status = PROCESSING_TASK_STATUS_NO_POOL;
+	task->status = TRACKER_PROCESSING_TASK_STATUS_NO_POOL;
 }
 
 guint
-processing_pool_get_wait_task_count (ProcessingPool *pool)
+tracker_processing_pool_get_wait_task_count (TrackerProcessingPool *pool)
 {
-	return g_queue_get_length (pool->tasks[PROCESSING_TASK_STATUS_WAIT]);
+	return g_queue_get_length (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT]);
 }
 
 guint
-processing_pool_get_ready_task_count (ProcessingPool *pool)
+tracker_processing_pool_get_ready_task_count (TrackerProcessingPool *pool)
 {
-	return g_queue_get_length (pool->tasks[PROCESSING_TASK_STATUS_READY]);
+	return g_queue_get_length (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_READY]);
 }
 
 guint
-processing_pool_get_total_task_count (ProcessingPool *pool)
+tracker_processing_pool_get_total_task_count (TrackerProcessingPool *pool)
 {
 	guint total = 0;
 	guint i;
 
-	for (i = PROCESSING_TASK_STATUS_WAIT;
-	     i < PROCESSING_TASK_STATUS_LAST;
+	for (i = TRACKER_PROCESSING_TASK_STATUS_WAIT;
+	     i < TRACKER_PROCESSING_TASK_STATUS_LAST;
 	     i++) {
 		total += g_queue_get_length (pool->tasks[i]);
 	}
 	return total;
 }
 
-ProcessingTask *
-processing_pool_get_last_wait (ProcessingPool *pool)
+TrackerProcessingTask *
+tracker_processing_pool_get_last_wait (TrackerProcessingPool *pool)
 {
 	GList *li;
 
-	for (li = pool->tasks[PROCESSING_TASK_STATUS_WAIT]->tail; li; li = g_list_previous (li)) {
-		ProcessingTask *task = li->data;
+	for (li = pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT]->tail; li; li = g_list_previous (li)) {
+		TrackerProcessingTask *task = li->data;
 
-		if (task->status == PROCESSING_TASK_STATUS_WAIT) {
+		if (task->status == TRACKER_PROCESSING_TASK_STATUS_WAIT) {
 			return task;
 		}
 	}
@@ -699,14 +701,14 @@ processing_pool_get_last_wait (ProcessingPool *pool)
 }
 
 void
-processing_pool_foreach (ProcessingPool *pool,
-                         GFunc           func,
-                         gpointer        user_data)
+tracker_processing_pool_foreach (TrackerProcessingPool *pool,
+                                 GFunc                  func,
+                                 gpointer               user_data)
 {
 	guint i;
 
-	for (i = PROCESSING_TASK_STATUS_WAIT;
-	     i < PROCESSING_TASK_STATUS_LAST;
+	for (i = TRACKER_PROCESSING_TASK_STATUS_WAIT;
+	     i < TRACKER_PROCESSING_TASK_STATUS_LAST;
 	     i++) {
 		g_queue_foreach (pool->tasks[i], func, user_data);
 	}
