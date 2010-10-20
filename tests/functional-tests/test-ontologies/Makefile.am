@@ -8,4 +8,5 @@ SUBDIRS = basic				\
 	indexed				\
 	add-class			\
 	add-prop			\
+	add-domainIndex			\
 	basic-future
