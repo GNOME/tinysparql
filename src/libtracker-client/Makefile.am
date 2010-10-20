@@ -7,9 +7,8 @@ INCLUDES = 						\
 	-I$(top_srcdir)/src				\
 	-I$(top_builddir)/src/libtracker-client		\
 	$(WARN_CFLAGS)					\
-	$(GLIB2_CFLAGS)					\
-	$(GIO_CFLAGS)					\
-	$(DBUS_CFLAGS)
+	$(GCOV_CFLAGS)					\
+	$(LIBTRACKER_CLIENT_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-client-@TRACKER_API_VERSION@.la
 
@@ -32,10 +31,8 @@ libtracker_client_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 
 libtracker_client_@TRACKER_API_VERSION@_la_LIBADD =	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(GLIB2_LIBS) 					\
-	$(GIO_LIBS)					\
-	$(DBUS_LIBS)					\
-	$(GOBJECT_LIBS)
+	$(BUILD_LIBS)					\
+	$(LIBTRACKER_CLIENT_LIBS)
 
 libtracker_clientinclude_HEADERS = 			\
 	tracker.h					\

@@ -221,6 +221,14 @@ LIBTRACKER_BUS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                          dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
 PKG_CHECK_MODULES(LIBTRACKER_BUS, [$LIBTRACKER_BUS_REQUIRED])
 
+# Check requirements for libtracker-client
+LIBTRACKER_CLIENT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                            gobject-2.0  >= $GLIB_REQUIRED
+                            gio-unix-2.0 >= $GLIB_REQUIRED
+                            dbus-1       >= $DBUS_REQUIRED
+                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+PKG_CHECK_MODULES(LIBTRACKER_CLIENT, [$LIBTRACKER_CLIENT_REQUIRED])
+
 # Check requirements for libtracker-common
 LIBTRACKER_COMMON_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             gio-unix-2.0 >= $GLIB_REQUIRED
