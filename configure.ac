@@ -168,6 +168,12 @@ LIBGRSS_REQUIRED=0.3
 REST_REQUIRED=0.6
 NETWORK_MANAGER_REQUIRED=0.8
 
+# 3.6.11 for sqlite_backup API
+# 3.6.16 to fix test failures
+# 3.6.17 for shared cache mode with virtual tables
+# 3.7.0 for WAL
+SQLITE_REQUIRED=3.7.0
+
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GLIB2_CFLAGS)
@@ -248,6 +254,16 @@ LIBTRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                              dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_EXTRACT, [$LIBTRACKER_EXTRACT_REQUIRED])
+
+# Check requirements for libtracker-fts
+LIBTRACKER_FTS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                         gio-unix-2.0 >= $GLIB_REQUIRED
+                         gthread-2.0  >= $GLIB_REQUIRED
+                         dbus-1       >= $DBUS_REQUIRED
+                         dbus-glib-1  >= $DBUS_GLIB_REQUIRED
+                         sqlite3      >= $SQLITE_REQUIRED"
+
+PKG_CHECK_MODULES(LIBTRACKER_FTS, [$LIBTRACKER_FTS_REQUIRED])
 
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
@@ -794,13 +810,6 @@ fi
 ####################################################################
 #  SQLite check
 ####################################################################
-
-# 3.6.11 for sqlite_backup API
-# 3.6.16 to fix test failures
-# 3.6.17 for shared cache mode with virtual tables
-# 3.7.0 for WAL
-
-SQLITE_REQUIRED=3.7.0
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
 AC_SUBST(SQLITE3_CFLAGS)

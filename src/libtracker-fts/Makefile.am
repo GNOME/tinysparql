@@ -5,11 +5,8 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-DNDEBUG							\
 	$(WARN_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(UNAC_CFLAGS)							\
-	$(SQLITE3_CFLAGS)						\
+	$(LIBTRACKER_FTS_CFLAGS)					\
 	$(UNICODE_SUPPORT_CFLAGS)
 
 noinst_LTLIBRARIES = libtracker-fts.la
@@ -37,10 +34,6 @@ endif
 
 libtracker_fts_la_LIBADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(SQLITE3_LIBS)							\
-	$(DBUS_LIBS)							\
-	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(UNAC_LIBS)							\
-	$(GLIB2_LIBS)							\
+	$(LIBTRACKER_FTS_LIBS)						\
 	$(UNICODE_SUPPORT_LIBS)
