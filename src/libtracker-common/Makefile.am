@@ -6,12 +6,10 @@ INCLUDES =						\
 	-DTRACKER_COMPILATION				\
 	-I$(top_srcdir)/src				\
 	$(WARN_CFLAGS)					\
-	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\
-	$(GIO_CFLAGS)					\
 	$(HAL_CFLAGS)					\
 	$(UPOWER_CFLAGS)				\
-	$(DBUS_CFLAGS)
+	$(LIBTRACKER_COMMON_CFLAGS)
 
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_common_LTLIBRARIES = libtracker-common.la
@@ -79,12 +77,10 @@ libtracker_common_la_LDFLAGS = 				\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 libtracker_common_la_LIBADD = 				\
-	$(HAL_LIBS)					\
-	$(UPOWER_LIBS)					\
-	$(DBUS_LIBS)					\
-	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\
-	$(GLIB2_LIBS)
+	$(LIBTRACKER_COMMON_LIBS)			\
+	$(HAL_LIBS)					\
+	$(UPOWER_LIBS)
 
 if HAVE_TRACKER_FTS
 libtracker_common_la_LIBADD += 				\
