@@ -12,7 +12,7 @@
 
 ncal: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "ncal" ;
-	nao:lastModified "2010-02-16T11:00:00Z" .
+	nao:lastModified "2010-10-20T11:22:00Z" .
 
 ncal:UnionParentClass a rdfs:Class ;
 	rdfs:label "UnionParentClass" ;
