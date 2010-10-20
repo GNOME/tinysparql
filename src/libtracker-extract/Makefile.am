@@ -8,9 +8,8 @@ INCLUDES =						\
 	-I$(top_builddir)/src				\
 	-I$(top_builddir)/src/libtracker-sparql		\
 	$(WARN_CFLAGS)					\
-	$(GLIB2_CFLAGS)					\
 	$(GCOV_CFLAGS)					\
-	$(GIO_CFLAGS)					\
+	$(LIBTRACKER_EXTRACT_CFLAGS)			\
 	$(LIBIPTCDATA_CFLAGS)				\
 	$(LIBEXIF_CFLAGS) 				\
 	$(EXEMPI_CFLAGS)
@@ -46,9 +45,8 @@ libtracker_extract_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(GIO_LIBS)					\
 	$(GCOV_LIBS)					\
-	$(GLIB2_LIBS)					\
+	$(LIBTRACKER_EXTRACT_LIBS)			\
 	$(LIBIPTCDATA_LIBS)				\
 	$(LIBEXIF_LIBS)					\
 	$(EXEMPI_LIBS)
