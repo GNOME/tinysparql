@@ -36,15 +36,17 @@ typedef void  (* TrackerProcessingPoolTaskFinishedCallback) (TrackerProcessingTa
                                                              const GError          *error);
 
 
-TrackerProcessingTask *tracker_processing_task_new         (GFile          *file);
-void                   tracker_processing_task_free        (TrackerProcessingTask *task);
-GFile                 *tracker_processing_task_get_file    (TrackerProcessingTask *task);
-gpointer               tracker_processing_task_get_context (TrackerProcessingTask *task);
-void                   tracker_processing_task_set_context (TrackerProcessingTask *task,
-                                                            gpointer               context,
-                                                            GFreeFunc              context_free_func);
-void                   tracker_processing_task_set_sparql  (TrackerProcessingTask *task,
-                                                            gchar                 *sparql);
+TrackerProcessingTask *tracker_processing_task_new               (GFile          *file);
+void                   tracker_processing_task_free              (TrackerProcessingTask *task);
+GFile                 *tracker_processing_task_get_file          (TrackerProcessingTask *task);
+gpointer               tracker_processing_task_get_context       (TrackerProcessingTask *task);
+void                   tracker_processing_task_set_context       (TrackerProcessingTask *task,
+                                                                  gpointer               context,
+                                                                  GFreeFunc              context_free_func);
+void                   tracker_processing_task_set_sparql        (TrackerProcessingTask *task,
+                                                                  TrackerSparqlBuilder  *sparql);
+void                   tracker_processing_task_set_sparql_string (TrackerProcessingTask *task,
+                                                                  gchar                 *sparql_string);
 
 
 TrackerProcessingPool *tracker_processing_pool_new                   (TrackerSparqlConnection *connection,

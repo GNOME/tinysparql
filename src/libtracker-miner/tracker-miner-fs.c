@@ -578,8 +578,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 
 	/* Create processing pool */
 	priv->processing_pool = tracker_processing_pool_new (tracker_miner_get_connection (TRACKER_MINER (object)),
-                                                             DEFAULT_WAIT_POOL_LIMIT,
-                                                             DEFAULT_READY_POOL_LIMIT);
+	                                                     DEFAULT_WAIT_POOL_LIMIT,
+	                                                     DEFAULT_READY_POOL_LIMIT);
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
@@ -726,11 +726,11 @@ fs_set_property (GObject      *object,
 		break;
 	case PROP_WAIT_POOL_LIMIT:
 		tracker_processing_pool_set_wait_limit (fs->private->processing_pool,
-                                                        g_value_get_uint (value));
+		                                        g_value_get_uint (value));
 		break;
 	case PROP_READY_POOL_LIMIT:
 		tracker_processing_pool_set_ready_limit (fs->private->processing_pool,
-                                                         g_value_get_uint (value));
+		                                         g_value_get_uint (value));
 		break;
 	case PROP_MTIME_CHECKING:
 		fs->private->mtime_checking = g_value_get_boolean (value);
@@ -1546,8 +1546,6 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 			item_queue_handlers_set_up (fs);
 		}
 	} else {
-		gchar *full_sparql;
-
 		if (ctxt->urn) {
 			gboolean attribute_update_only;
 
@@ -1559,6 +1557,8 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 			         attribute_update_only ? " (attributes only)" : "");
 
 			if (!attribute_update_only) {
+				gchar *full_sparql;
+
 				/* update, delete all statements inserted by miner
 				 * except for rdf:type statements as they could cause implicit deletion of user data */
 				full_sparql = g_strdup_printf ("DELETE { GRAPH <%s> { <%s> ?p ?o } } "
@@ -1568,30 +1568,29 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 				                               TRACKER_MINER_FS_GRAPH_URN,
 				                               ctxt->urn,
 				                               tracker_sparql_builder_get_result (ctxt->builder));
+
+				/* Note that set_sparql_string() takes ownership of the passed string */
+				tracker_processing_task_set_sparql_string (task, full_sparql);
 			} else {
 				/* Do not drop graph if only updating attributes, the SPARQL builder
 				 * will already contain the necessary DELETE statements for the properties
 				 * being updated */
-				full_sparql = g_strdup (tracker_sparql_builder_get_result (ctxt->builder));
+				tracker_processing_task_set_sparql (task, ctxt->builder);
 			}
 		} else {
 			g_debug ("Creating new item '%s'", uri);
-
-			/* new file */
-			full_sparql = g_strdup (tracker_sparql_builder_get_result (ctxt->builder));
+			tracker_processing_task_set_sparql (task, ctxt->builder);
 		}
 
-		tracker_processing_task_set_sparql (task, full_sparql);
 		/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 		 * and in this case we need to setup queue handlers again */
 		if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
-                                                              task,
-                                                              TRUE, /* buffer! */
-                                                              processing_pool_task_finished_cb,
-                                                              fs)) {
+		                                              task,
+		                                              TRUE, /* buffer! */
+		                                              processing_pool_task_finished_cb,
+		                                              fs)) {
 			item_queue_handlers_set_up (fs);
 		}
-		g_free (full_sparql);
 	}
 
 	g_free (uri);
@@ -1658,12 +1657,12 @@ item_add_or_update (TrackerMinerFS *fs,
 	 * the file metadata and such) */
 	task = tracker_processing_task_new (file);
 	tracker_processing_task_set_context (task,
-                                             update_processing_task_context_new (TRACKER_MINER (fs),
-                                                                                 urn,
-                                                                                 parent_urn,
-                                                                                 cancellable,
-                                                                                 sparql),
-                                             (GFreeFunc) update_processing_task_context_free);
+	                                     update_processing_task_context_new (TRACKER_MINER (fs),
+		   urn,
+		   parent_urn,
+		   cancellable,
+		   sparql),
+	                                     (GFreeFunc) update_processing_task_context_free);
 	tracker_processing_pool_push_wait_task (priv->processing_pool, task);
 
 	if (do_process_file (fs, task)) {
@@ -1730,19 +1729,20 @@ item_remove (TrackerMinerFS *fs,
 
 	/* Add new task to processing pool */
 	task = tracker_processing_task_new (file);
-	tracker_processing_task_set_sparql (task, sparql->str);
+	/* Note that set_sparql_string() takes ownership of the passed string */
+	tracker_processing_task_set_sparql_string (task,
+	                                           g_string_free (sparql, FALSE));
+
 	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 	 * and in this case we need to setup queue handlers again */
 	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
-                                                      task,
-                                                      FALSE,
-                                                      processing_pool_task_finished_cb,
-                                                      fs)) {
+	                                              task,
+	                                              FALSE,
+	                                              processing_pool_task_finished_cb,
+	                                              fs)) {
 		item_queue_handlers_set_up (fs);
 	}
 
-
-	g_string_free (sparql, TRUE);
 	g_free (uri);
 
 	return FALSE;
@@ -2051,21 +2051,22 @@ item_move (TrackerMinerFS *fs,
 
 	/* Add new task to processing pool */
 	task = tracker_processing_task_new (file);
-	tracker_processing_task_set_sparql (task, sparql->str);
+	/* Note that set_sparql_string() takes ownership of the passed string */
+	tracker_processing_task_set_sparql_string (task,
+	                                           g_string_free (sparql, FALSE));
 	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 	 * and in this case we need to setup queue handlers again */
 	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
-                                                      task,
-                                                      FALSE,
-                                                      processing_pool_task_finished_cb,
-                                                      fs)) {
+	                                              task,
+	                                              FALSE,
+	                                              processing_pool_task_finished_cb,
+	                                              fs)) {
 		item_queue_handlers_set_up (fs);
 	}
 
 	g_free (uri);
 	g_free (source_uri);
 	g_object_unref (file_info);
-	g_string_free (sparql, TRUE);
 	g_free (source_iri);
 
 	return TRUE;
@@ -2167,8 +2168,8 @@ should_wait (TrackerMinerFS *fs,
 
 	/* Is the item already being processed? */
 	if (tracker_processing_pool_find_task (fs->private->processing_pool,
-                                               file,
-                                               TRUE)) {
+	                                       file,
+	                                       TRUE)) {
 		/* Yes, a previous event on same item currently
 		 * being processed */
 		return TRUE;
@@ -2178,8 +2179,8 @@ should_wait (TrackerMinerFS *fs,
 	parent = g_file_get_parent (file);
 	if (parent) {
 		if (tracker_processing_pool_find_task (fs->private->processing_pool,
-                                                       parent,
-                                                       TRUE)) {
+		                                       parent,
+		                                       TRUE)) {
 			/* Yes, a previous event on the parent of this item
 			 * currently being processed */
 			g_object_unref (parent);
@@ -3732,8 +3733,8 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 
 	/* Cancel all pending tasks on files inside the path given by file */
 	tracker_processing_pool_foreach (fs->private->processing_pool,
-                                         processing_pool_cancel_foreach,
-                                         file);
+	                                 processing_pool_cancel_foreach,
+	                                 file);
 
 	/* Remove all monitors */
 	tracker_monitor_remove_recursively (fs->private->monitor, file);
@@ -3925,8 +3926,8 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
 	fs->private->total_files_notified++;
 
 	task = tracker_processing_pool_find_task (fs->private->processing_pool,
-                                                  file,
-                                                  FALSE);
+	                                          file,
+	                                          FALSE);
 
 	if (!task) {
 		gchar *uri;
@@ -4030,8 +4031,8 @@ tracker_miner_fs_get_urn (TrackerMinerFS *fs,
 
 	/* Check if found in currently processed data */
 	task = tracker_processing_pool_find_task (fs->private->processing_pool,
-                                                  file,
-                                                  FALSE);
+	                                          file,
+	                                          FALSE);
 
 	if (!task) {
 		gchar *uri;
@@ -4120,8 +4121,8 @@ tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
 
 	/* Check if found in currently processed data */
 	task = tracker_processing_pool_find_task (fs->private->processing_pool,
-                                                  file,
-                                                  FALSE);
+	                                          file,
+	                                          FALSE);
 
 	if (!task) {
 		gchar *uri;

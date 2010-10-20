@@ -132,7 +132,9 @@ struct _TrackerProcessingTask {
 	/* The file being processed */
 	GFile *file;
 	/* The FULL sparql to be updated in the store */
-	gchar *sparql;
+	TrackerSparqlBuilder *sparql;
+	gchar *sparql_string;
+
 	/* The context of the task */
 	gpointer context;
 	/* The context deallocation method, if any */
@@ -201,7 +203,10 @@ tracker_processing_task_free (TrackerProcessingTask *task)
 	    task->context_free_func) {
 		task->context_free_func (task->context);
 	}
-	g_free (task->sparql);
+	if (task->sparql) {
+		g_object_unref (task->sparql);
+	}
+	g_free (task->sparql_string);
 	g_object_unref (task->file);
 	g_slice_free (TrackerProcessingTask, task);
 }
@@ -235,10 +240,31 @@ tracker_processing_task_set_context (TrackerProcessingTask *task,
 
 void
 tracker_processing_task_set_sparql (TrackerProcessingTask *task,
-                                    gchar                 *sparql)
+                                    TrackerSparqlBuilder  *sparql)
 {
-	g_free (task->sparql);
-	task->sparql = g_strdup (sparql);
+	if (task->sparql) {
+		g_object_unref (task->sparql);
+	}
+	if (task->sparql_string) {
+		g_free (task->sparql_string);
+		task->sparql_string = NULL;
+	}
+	task->sparql = g_object_ref (sparql);
+}
+
+void
+tracker_processing_task_set_sparql_string (TrackerProcessingTask *task,
+                                           gchar                 *sparql_string)
+{
+	if (task->sparql) {
+		g_object_unref (task->sparql);
+		task->sparql = NULL;
+	}
+	if (task->sparql_string) {
+		g_free (task->sparql_string);
+	}
+	/* We take ownership of the input string! */
+	task->sparql_string = sparql_string;
 }
 
 
@@ -411,7 +437,7 @@ tracker_processing_pool_push_wait_task (TrackerProcessingPool *pool,
 
 
 	trace ("(Processing Pool) Pushed WAIT task %p for file '%s'",
-               task, task->file_uri);
+	       task, task->file_uri);
 
 	/* Push a new task in WAIT status (so just add it to the tasks queue,
 	 * and don't process it. */
@@ -436,7 +462,7 @@ tracker_processing_pool_sparql_update_cb (GObject      *object,
 	task = user_data;
 
 	trace ("(Processing Pool) Finished update of task %p for file '%s'",
-               task, task->file_uri);
+	       task, task->file_uri);
 
 	/* Before calling user-provided callback, REMOVE the task from the pool;
 	 * as the user-provided callback may actually modify the pool again */
@@ -464,7 +490,7 @@ tracker_processing_pool_sparql_update_array_cb (GObject      *object,
 	sparql_array = user_data;
 
 	trace ("(Processing Pool) Finished array-update of tasks %p",
-               sparql_array);
+	       sparql_array);
 
 	sparql_array_errors = tracker_sparql_connection_update_array_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                                     result,
@@ -531,11 +557,13 @@ tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool)
 		g_queue_push_head (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_PROCESSING], task);
 
 		/* Add original string, not a duplicate */
-		sparql_array[i] = task->sparql;
+		sparql_array[i] = (task->sparql ?
+		                   (gchar *) tracker_sparql_builder_get_result (task->sparql) :
+		                   task->sparql_string);
 	}
 
 	trace ("(Processing Pool) Flushing array-update of tasks %p with %u items",
-               pool->sparql_buffer, pool->sparql_buffer->len);
+	       pool->sparql_buffer, pool->sparql_buffer->len);
 
 	tracker_sparql_connection_update_array_async (pool->connection,
 	                                              sparql_array,
@@ -569,7 +597,7 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 	GList *previous;
 
 	/* The task MUST have a proper SPARQL here */
-	g_assert (task->sparql != NULL);
+	g_assert (task->sparql != NULL || task->sparql_string != NULL);
 
 	/* First, check if the task was already added as being WAITING */
 	previous = g_queue_find (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT], task);
@@ -590,7 +618,7 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 	 * flush previous buffer (if any) and then the new update */
 	if (!buffer || pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] == 1) {
 		trace ("(Processing Pool) Pushed READY/PROCESSING task %p for file '%s'",
-                       task, task->file_uri);
+		       task, task->file_uri);
 
 		/* Flush previous */
 		tracker_processing_pool_buffer_flush (pool);
@@ -601,7 +629,9 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 
 		/* And update the new one */
 		tracker_sparql_connection_update_async (pool->connection,
-		                                        task->sparql,
+		                                        (task->sparql ?
+		                                         tracker_sparql_builder_get_result (task->sparql) :
+		                                         task->sparql_string),
 		                                        G_PRIORITY_DEFAULT,
 		                                        NULL,
 		                                        tracker_processing_pool_sparql_update_cb,
@@ -632,7 +662,7 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 		}
 
 		trace ("(Processing Pool) Pushed READY task %p for file '%s' into array %p",
-                       task, task->file_uri, pool->sparql_buffer);
+		       task, task->file_uri, pool->sparql_buffer);
 
 		/* Add task to array */
 		g_ptr_array_add (pool->sparql_buffer, task);
