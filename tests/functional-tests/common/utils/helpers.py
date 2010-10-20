@@ -126,6 +126,20 @@ class StoreHelper:
             return -1
 
 
+    def ask (self, ask_query):
+        assert ask_query.strip ().startswith ("ASK")
+        result = self.query (ask_query)
+        assert len (result) == 1
+        if result[0][0] == "1":
+            return True
+        elif result[0][0] == "0":
+            return False
+        else:
+            raise Exception ("Something fishy is going on")
+            
+        
+
+        
 class MinerHelper ():
 
     def __init__ (self):
