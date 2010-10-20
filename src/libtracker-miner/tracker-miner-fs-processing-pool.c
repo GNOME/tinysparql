@@ -110,6 +110,13 @@
 #include "config.h"
 #include "tracker-miner-fs-processing-pool.h"
 
+/* If defined, will dump additional traces */
+#ifdef PROCESSING_POOL_ENABLE_TRACE
+#define trace(message, ...) g_debug (message, ##__VA_ARGS__)
+#else
+#define trace(...)
+#endif /* PROCESSING_POOL_ENABLE_TRACE */
+
 /* Maximum time (seconds) before forcing a sparql buffer flush */
 #define MAX_SPARQL_BUFFER_TIME  15
 
@@ -124,8 +131,6 @@ typedef enum {
 struct _TrackerProcessingTask {
 	/* The file being processed */
 	GFile *file;
-	/* File URI, useful for logs */
-	gchar *file_uri;
 	/* The FULL sparql to be updated in the store */
 	gchar *sparql;
 	/* The context of the task */
@@ -141,6 +146,11 @@ struct _TrackerProcessingTask {
 	/* Handler and user_data to use when task is fully processed */
 	TrackerProcessingPoolTaskFinishedCallback finished_handler;
 	gpointer finished_user_data;
+
+#ifdef PROCESSING_POOL_ENABLE_TRACE
+	/* File URI, useful for logs */
+	gchar *file_uri;
+#endif /* PROCESSING_POOL_ENABLE_TRACE */
 };
 
 struct _TrackerProcessingPool {
@@ -167,8 +177,12 @@ tracker_processing_task_new (GFile *file)
 
 	task = g_slice_new0 (TrackerProcessingTask);
 	task->file = g_object_ref (file);
-	task->file_uri = g_file_get_uri (task->file);
 	task->status = TRACKER_PROCESSING_TASK_STATUS_NO_POOL;
+
+#ifdef PROCESSING_POOL_ENABLE_TRACE
+	task->file_uri = g_file_get_uri (task->file);
+#endif /* PROCESSING_POOL_ENABLE_TRACE */
+
 	return task;
 }
 
@@ -178,13 +192,16 @@ tracker_processing_task_free (TrackerProcessingTask *task)
 	if (!task)
 		return;
 
+#ifdef PROCESSING_POOL_ENABLE_TRACE
+	g_free (task->file_uri);
+#endif /* PROCESSING_POOL_ENABLE_TRACE */
+
 	/* Free context if requested to do so */
 	if (task->context &&
 	    task->context_free_func) {
 		task->context_free_func (task->context);
 	}
 	g_free (task->sparql);
-	g_free (task->file_uri);
 	g_object_unref (task->file);
 	g_slice_free (TrackerProcessingTask, task);
 }
@@ -392,8 +409,9 @@ tracker_processing_pool_push_wait_task (TrackerProcessingPool *pool,
 	/* Set status of the task as WAIT */
 	task->status = TRACKER_PROCESSING_TASK_STATUS_WAIT;
 
-	g_debug ("(Processing Pool) Pushed WAIT task %p for file '%s'",
-	         task, task->file_uri);
+
+	trace ("(Processing Pool) Pushed WAIT task %p for file '%s'",
+               task, task->file_uri);
 
 	/* Push a new task in WAIT status (so just add it to the tasks queue,
 	 * and don't process it. */
@@ -417,8 +435,8 @@ tracker_processing_pool_sparql_update_cb (GObject      *object,
 
 	task = user_data;
 
-	g_debug ("(Processing Pool) Finished update of task %p for file '%s'",
-	         task, task->file_uri);
+	trace ("(Processing Pool) Finished update of task %p for file '%s'",
+               task, task->file_uri);
 
 	/* Before calling user-provided callback, REMOVE the task from the pool;
 	 * as the user-provided callback may actually modify the pool again */
@@ -445,8 +463,8 @@ tracker_processing_pool_sparql_update_array_cb (GObject      *object,
 	/* Get arrays of errors and queries */
 	sparql_array = user_data;
 
-	g_debug ("(Processing Pool) Finished array-update of tasks %p",
-	         sparql_array);
+	trace ("(Processing Pool) Finished array-update of tasks %p",
+               sparql_array);
 
 	sparql_array_errors = tracker_sparql_connection_update_array_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                                     result,
@@ -516,8 +534,8 @@ tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool)
 		sparql_array[i] = task->sparql;
 	}
 
-	g_debug ("(Processing Pool) Flushing array-update of tasks %p with %u items",
-	         pool->sparql_buffer, pool->sparql_buffer->len);
+	trace ("(Processing Pool) Flushing array-update of tasks %p with %u items",
+               pool->sparql_buffer, pool->sparql_buffer->len);
 
 	tracker_sparql_connection_update_array_async (pool->connection,
 	                                              sparql_array,
@@ -571,8 +589,8 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 	/* If buffering not requested, OR the limit of READY tasks is actually 1,
 	 * flush previous buffer (if any) and then the new update */
 	if (!buffer || pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] == 1) {
-		g_debug ("(Processing Pool) Pushed READY/PROCESSING task %p for file '%s'",
-		         task, task->file_uri);
+		trace ("(Processing Pool) Pushed READY/PROCESSING task %p for file '%s'",
+                       task, task->file_uri);
 
 		/* Flush previous */
 		tracker_processing_pool_buffer_flush (pool);
@@ -613,8 +631,8 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 			pool->sparql_buffer_current_parent = g_object_ref (parent);
 		}
 
-		g_debug ("(Processing Pool) Pushed READY task %p for file '%s' into array %p",
-		         task, task->file_uri, pool->sparql_buffer);
+		trace ("(Processing Pool) Pushed READY task %p for file '%s' into array %p",
+                       task, task->file_uri, pool->sparql_buffer);
 
 		/* Add task to array */
 		g_ptr_array_add (pool->sparql_buffer, task);
