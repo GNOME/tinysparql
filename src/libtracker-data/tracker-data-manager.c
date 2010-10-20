@@ -3403,7 +3403,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					                              uri_id_map,
 					                              &ontology_error);
 
-					if (ontology_error) {
+					if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
 						g_debug ("\nUnsupported ontology change, replaying journal\n");
 						g_error_free (ontology_error);
 
@@ -3436,6 +3436,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 						                                  busy_status);
 					}
 
+					if (ontology_error) {
+						g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
+						g_error_free (ontology_error);
+					}
+
 					to_reload = g_list_prepend (to_reload, l->data);
 					update_nao = TRUE;
 				}
@@ -3457,7 +3462,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				                              uri_id_map,
 				                              &ontology_error);
 
-				if (ontology_error) {
+				if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
 					g_debug ("\nUnsupported ontology change, replaying journal\n");
 					g_error_free (ontology_error);
 
@@ -3488,6 +3493,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					                                  busy_callback,
 					                                  busy_user_data,
 					                                  busy_status);
+				}
+
+				if (ontology_error) {
+					g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
+					g_error_free (ontology_error);
 				}
 
 				to_reload = g_list_prepend (to_reload, l->data);
@@ -3531,7 +3541,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			                                               seen_properties,
 			                                               &ontology_error);
 
-			if (ontology_error) {
+			if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
 				g_debug ("\nUnsupported ontology change, replaying journal\n");
 				g_error_free (ontology_error);
 
@@ -3562,6 +3572,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				                                  busy_callback,
 				                                  busy_user_data,
 				                                  busy_status);
+			}
+
+			if (ontology_error) {
+				g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
+				g_error_free (ontology_error);
 			}
 
 			for (l = to_reload; l; l = l->next) {
