@@ -313,6 +313,19 @@ PKG_CHECK_MODULES(TRACKER_EXPLORER, [$TRACKER_EXPLORER_REQUIRED],
                   [have_tracker_explorer=yes],
                   [have_tracker_explorer=no])
 
+# Check requirements for tracker-store
+TRACKER_STORE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                        gio-unix-2.0 >= $GLIB_REQUIRED
+                        gthread-2.0  >= $GLIB_REQUIRED
+                        gmodule-2.0  >= $GLIB_REQUIRED
+                        dbus-1       >= $DBUS_REQUIRED
+                        dbus-glib-1  >= $DBUS_GLIB_REQUIRED
+                        sqlite3      >= $SQLITE_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_STORE, [$TRACKER_STORE_REQUIRED])
+
+TRACKER_STORE_LIBS="$TRACKER_STORE_LIBS -lz -lm"
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],

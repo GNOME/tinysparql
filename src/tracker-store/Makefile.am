@@ -14,14 +14,8 @@ INCLUDES =								\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-data				\
 	$(WARN_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
-	$(GTHREAD_CFLAGS)						\
-	$(GMODULE_CFLAGS)						\
-	$(GIO_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(FAM_CFLAGS)							\
-	$(SQLITE3_CFLAGS)
+	$(TRACKER_STORE_CFLAGS)
 
 #
 # Daemon sources
@@ -53,25 +47,13 @@ tracker_store_SOURCES =							\
 	tracker-steroids.c						\
 	tracker-steroids.h
 
-if OS_WIN32
-tracker_store_win_libs = -lws2_32 -lkernel32
-endif
-
 tracker_store_LDADD =							\
 	$(plugin_libs)							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(SQLITE3_LIBS)							\
-	$(DBUS_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(tracker_store_win_libs)					\
-	-lz								\
-	-lm
+	$(TRACKER_STORE_LIBS)
 
 marshal_sources =                                         		\
         tracker-marshal.h                             			\
