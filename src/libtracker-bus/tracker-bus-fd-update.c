@@ -347,6 +347,7 @@ sparql_update_fast_send (DBusConnection     *connection,
 	buffered_output_stream = g_buffered_output_stream_new_sized (output_stream,
 	                                                             TRACKER_DBUS_PIPE_BUFFER_SIZE);
 	data_output_stream = g_data_output_stream_new (buffered_output_stream);
+	g_data_output_stream_set_byte_order (data_output_stream, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
 	g_data_output_stream_put_int32 (data_output_stream, strlen (query),
 	                                NULL, &inner_error);
@@ -441,6 +442,7 @@ sparql_update_fast_send (DBusConnection     *connection,
 	 buffered_output_stream = g_buffered_output_stream_new_sized (output_stream,
 								      TRACKER_DBUS_PIPE_BUFFER_SIZE);
 	 data_output_stream = g_data_output_stream_new (buffered_output_stream);
+	 g_data_output_stream_set_byte_order (data_output_stream, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
 	 g_data_output_stream_put_uint32 (data_output_stream,
 					  queries_len,

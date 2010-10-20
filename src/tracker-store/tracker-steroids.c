@@ -648,6 +648,7 @@ steroids_update (TrackerSteroids *steroids,
 	data_input_stream = g_data_input_stream_new (input_stream);
 	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (data_input_stream),
 	                                         TRACKER_STEROIDS_BUFFER_SIZE);
+	g_data_input_stream_set_byte_order (data_input_stream, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
 	query_size = g_data_input_stream_read_int32 (data_input_stream,
 	                                             NULL,
@@ -823,6 +824,7 @@ steroids_update_array (TrackerSteroids *steroids,
 
 	input_stream = g_unix_input_stream_new (info->fd, TRUE);
 	data_input_stream = g_data_input_stream_new (input_stream);
+	g_data_input_stream_set_byte_order (data_input_stream, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (data_input_stream),
 	                                         TRACKER_STEROIDS_BUFFER_SIZE);
 
