@@ -489,13 +489,13 @@ void
 processing_pool_buffer_flush (ProcessingPool *pool)
 {
 	guint i;
-	GPtrArray *sparql_array;
+	gchar **sparql_array;
 
 	if (!pool->sparql_buffer)
 		return;
 
 	/* Loop buffer and construct array of strings */
-	sparql_array = g_ptr_array_new ();
+	sparql_array = g_new (gchar *, pool->sparql_buffer->len);
 	for (i = 0; i < pool->sparql_buffer->len; i++) {
 		ProcessingTask *task;
 
@@ -512,15 +512,15 @@ processing_pool_buffer_flush (ProcessingPool *pool)
 		g_queue_push_head (pool->tasks[PROCESSING_TASK_STATUS_PROCESSING], task);
 
 		/* Add original string, not a duplicate */
-		g_ptr_array_add (sparql_array, task->sparql);
+		sparql_array[i] = task->sparql;
 	}
 
 	g_debug ("(Processing Pool) Flushing array-update of tasks %p with %u items",
 	         pool->sparql_buffer, pool->sparql_buffer->len);
 
 	tracker_sparql_connection_update_array_async (pool->connection,
-	                                              (gchar **)(sparql_array->pdata),
-	                                              sparql_array->len,
+	                                              sparql_array,
+	                                              pool->sparql_buffer->len,
 	                                              G_PRIORITY_DEFAULT,
 	                                              NULL,
 	                                              processing_pool_sparql_update_array_cb,
@@ -533,7 +533,7 @@ processing_pool_buffer_flush (ProcessingPool *pool)
 	}
 
 	/* Clear temp buffer */
-	g_ptr_array_free (sparql_array, TRUE);
+	g_free (sparql_array);
 	pool->sparql_buffer_start_time = 0;
 	/* Note the whole buffer is passed to the update_array callback,
 	 * so no need to free it. */
@@ -602,7 +602,7 @@ processing_pool_push_ready_task (ProcessingPool                     *pool,
 
 		/* Start buffer if not already done */
 		if (!pool->sparql_buffer) {
-			pool->sparql_buffer = g_ptr_array_new_with_free_func ((GDestroyNotify)processing_task_free);
+			pool->sparql_buffer = g_ptr_array_new_with_free_func ((GDestroyNotify) processing_task_free);
 			pool->sparql_buffer_start_time = time (NULL);
 		}
 
