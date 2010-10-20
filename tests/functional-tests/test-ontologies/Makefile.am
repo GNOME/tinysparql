@@ -7,4 +7,5 @@ SUBDIRS = basic				\
 	notify				\
 	indexed				\
 	add-class			\
+	add-prop			\
 	basic-future
