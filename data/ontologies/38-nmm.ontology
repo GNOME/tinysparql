@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-10-13T13:34:00Z" .
+	nao:lastModified "2010-10-20T07:42:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -345,7 +345,8 @@ nmm:exposureTime a rdf:Property ;
 
 nmm:Flash a rdfs:Class ;
 	rdfs:label "Flash values" ;
-	rdfs:comment "Enumeration of the possible values of flash property" .
+	rdfs:comment "Enumeration of the possible values of flash property" ;
+	rdfs:subClassOf rdfs:Resource .
 
 nmm:flash-on a nmm:Flash .
 nmm:flash-off a nmm:Flash .
@@ -384,7 +385,8 @@ nmm:isoSpeed a rdf:Property ;
 
 nmm:MeteringMode a rdfs:Class ;
 	rdfs:label "Metering mode values" ;
-	rdfs:comment "Enumeration of different ways a camera determines exposure." .
+	rdfs:comment "Enumeration of different ways a camera determines exposure." ;
+	rdfs:subClassOf rdfs:Resource .
 
 nmm:metering-mode-average a nmm:MeteringMode .
 nmm:metering-mode-center-weighted-average a nmm:MeteringMode .
@@ -403,7 +405,8 @@ nmm:meteringMode a rdf:Property ;
 
 nmm:WhiteBalance a rdfs:Class ;
 	rdfs:label "White balance" ;
-	rdfs:comment "Camera's white balance setting" .
+	rdfs:comment "Camera's white balance setting" ;
+	rdfs:subClassOf rdfs:Resource .
 
 nmm:white-balance-auto a nmm:WhiteBalance .
 nmm:white-balance-manual a nmm:WhiteBalance .
@@ -464,7 +467,8 @@ nmm:AnalogRadio a rdfs:Class ;
 
 nmm:RadioModulation a rdfs:Class ;
  	rdfs:label "Radio modulation" ;
-	rdfs:comment "Set of instances for analog radio modulation".
+	rdfs:comment "Set of instances for analog radio modulation";
+	rdfs:subClassOf rdfs:Resource .
 
 nmm:radio-modulation-am a nmm:RadioModulation.
 nmm:radio-modulation-fm a nmm:RadioModulation.

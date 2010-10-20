@@ -10,7 +10,7 @@
 
 scal: a tracker:Namespace, tracker:Ontology ;
       tracker:prefix "scal" ;
-      nao:lastModified "2010-02-16T11:00:00Z" .
+      nao:lastModified "2010-10-20T07:42:00Z" .
 
 scal:Calendar a rdfs:Class ;
       rdfs:label "Calendar" ;
@@ -344,7 +344,8 @@ scal:TimeZone a rdf:Property ;
 #
 scal:AccessLevel a rdfs:Class ;
       rdfs:label "Access level" ;
-      rdfs:comment "Access classification for a calendar item: public, private or confidential. Use the predefined instances in the ontology" .
+      rdfs:comment "Access classification for a calendar item: public, private or confidential. Use the predefined instances in the ontology" ;
+      rdfs:subClassOf rdfs:Resource .
 
 scal:access-level-private a scal:AccessLevel .
 scal:access-level-public a scal:AccessLevel .

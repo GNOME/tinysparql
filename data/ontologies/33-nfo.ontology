@@ -12,7 +12,7 @@
 
 nfo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nfo" ;
-	nao:lastModified "2010-09-13T11:49:00Z" .
+	nao:lastModified "2010-10-20T07:42:00Z" .
 
 nfo:Document a rdfs:Class ;
 	rdfs:label "Document" ;
@@ -898,7 +898,8 @@ nfo:softwareCmdLine a rdf:Property ;
 
 nfo:Orientation a rdfs:Class ;
 	rdfs:label "Orientation enum" ;
-	rdfs:comment "Orientation enum" .
+	rdfs:comment "Orientation enum" ;
+	rdfs:subClassOf rdfs:Resource .
 
 nfo:orientation-top a nfo:Orientation .
 nfo:orientation-top-mirror a nfo:Orientation .
@@ -921,7 +922,8 @@ poi: a tracker:Namespace ;
 	tracker:prefix "poi" .
 
 # TDB
-poi:ObjectOfInterest a rdfs:Class .
+poi:ObjectOfInterest a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
 
 nfo:depicts a rdf:Property ;
 	rdfs:domain nfo:Image ;

@@ -10,7 +10,7 @@
 
 mto: a tracker:Namespace, tracker:Ontology ;
     tracker:prefix "mto" ;
-    nao:lastModified "2010-02-16T11:00:00Z" .
+    nao:lastModified "2010-10-20T07:42:00Z" .
 
 mto:TransferElement a rdfs:Class ;
     rdfs:label "Transfer element" ;
@@ -96,7 +96,8 @@ mto:transferState a rdf:Property ;
     rdfs:range mto:State .
 
 mto:TransferMethod a rdfs:Class ;
-    rdfs:comment "Class with a restricted set of instances to enumarate transfer methods" .
+    rdfs:comment "Class with a restricted set of instances to enumarate transfer methods" ;
+    rdfs:subClassOf rdfs:Resource .
 
 mto:transfer-method-bluetooth a mto:TransferMethod .
 mto:transfer-method-web a mto:TransferMethod .
