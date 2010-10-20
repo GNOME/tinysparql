@@ -9,20 +9,14 @@ INCLUDES =								\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(GIO_CFLAGS)							\
-	$(GTHREAD_CFLAGS)						\
-	$(GLIB2_CFLAGS)
+	$(TRACKER_UTILS_CFLAGS)
 
 libs = 									\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(DBUS_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(GCOV_LIBS)
+	$(GCOV_LIBS)							\
+	$(TRACKER_UTILS_LIBS)
 
 bin_PROGRAMS = 								\
 	tracker-import							\
