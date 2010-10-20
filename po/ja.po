@@ -3,19 +3,22 @@
 # This file is distributed under the same license as the tracker package.
 # Takao Fujiwara <takao.fujiwara@sun.com>, 2008.
 # Takeshi AIHANA <takeshi.aihana@gmail.com>, 2010.
+# Takayuki KUSANO <AE5T-KSN@asahi-net.or.jp>, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker tracker-0.8\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-17 12:07+0900\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&component=general\n"
+"POT-Creation-Date: 2010-09-25 14:03+0000\n"
 "PO-Revision-Date: 2010-07-17 12:06+0900\n"
-"Last-Translator: Takeshi AIHANA <takeshi.aihana@gmail.com>\n"
-"Language-Team: Japanese <takeshi.aihana@gmail.com>\n"
+"Last-Translator: Takayuki KUSANO <AE5T-KSN@asahi-net.or.jp>\n"
+"Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural= (n != 1);\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural= 0;\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.h:1
 #: ../src/tracker-search-bar/tracker-results-window.c:666
@@ -86,7 +89,7 @@ msgstr "Tracker ストア"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
-msgstr "全ての投稿"
+msgstr "すべての投稿"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:2
 msgid "By usage"
@@ -102,8 +105,7 @@ msgstr "エラーはありませんでした"
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
-msgstr[0] "選択した%d個のアイテムに関連づけるタグを指定して下さい(_S)"
-msgstr[1] "選択した%d個のアイテムに関連づけるタグを指定して下さい(_S)"
+msgstr[0] "選択した%d個のアイテムに関連づけるタグを指定してください(_S)"
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
 #: ../src/plugins/nautilus/tracker-tags-extension.c:233
@@ -119,7 +121,7 @@ msgstr "タグの付与..."
 #: ../src/plugins/nautilus/tracker-tags-extension.c:172
 #: ../src/plugins/nautilus/tracker-tags-extension.c:199
 msgid "Tag one or more files"
-msgstr "１個以上のファイルにタグを付与します"
+msgstr "1個以上のファイルにタグを付与します"
 
 #: ../src/libtracker-common/tracker-dbus.c:586
 msgid "No error given"
@@ -164,28 +166,24 @@ msgstr " %2.2d秒"
 msgid " %d day"
 msgid_plural " %d days"
 msgstr[0] " %d日間"
-msgstr[1] " %d日間"
 
 #: ../src/libtracker-common/tracker-utils.c:128
 #, c-format
 msgid " %2.2d hour"
 msgid_plural " %2.2d hours"
 msgstr[0] " %2.2d時間"
-msgstr[1] " %2.2d時間"
 
 #: ../src/libtracker-common/tracker-utils.c:132
 #, c-format
 msgid " %2.2d minute"
 msgid_plural " %2.2d minutes"
 msgstr[0] " %2.2d分"
-msgstr[1] " %2.2d分"
 
 #: ../src/libtracker-common/tracker-utils.c:136
 #, c-format
 msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d秒"
-msgstr[1] " %2.2d秒"
 
 #: ../src/libtracker-miner/tracker-miner-object.c:443
 msgid "Data store is not available"
@@ -208,7 +206,7 @@ msgstr "検索できるようデータを Tracker に送信します"
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2461
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2498
 #: ../src/tracker-utils/tracker-status.c:70
 msgid "Processing…"
 msgstr "処理中..."
@@ -285,15 +283,15 @@ msgstr "バージョン情報を表示する"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:349
+#: ../src/tracker-extract/tracker-main.c:351
 msgid "- Extract file meta data"
 msgstr "- ファイルのメタデータを展開する"
 
-#: ../src/tracker-extract/tracker-main.c:358
+#: ../src/tracker-extract/tracker-main.c:360
 msgid "Filename and mime type must be provided together"
-msgstr "ファイル名と MIME 型を一緒に指定して下さい"
+msgstr "ファイル名と MIME 型を一緒に指定してください"
 
-#: ../src/tracker-extract/tracker-main.c:372
+#: ../src/tracker-extract/tracker-main.c:374
 msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr ""
@@ -408,11 +406,11 @@ msgstr "メタデータの収集"
 msgid "- start the tracker indexer"
 msgstr "- Tracker 用のインデックス生成デーモン"
 
-#: ../src/miners/fs/tracker-miner-files.c:1053
+#: ../src/miners/fs/tracker-miner-files.c:1057
 msgid "Low battery"
 msgstr "バッテリーが少なくなっています"
 
-#: ../src/miners/fs/tracker-miner-files.c:1181
+#: ../src/miners/fs/tracker-miner-files.c:1185
 msgid "Low disk space"
 msgstr "ディスクの空き容量が少なくなっています"
 
@@ -471,7 +469,7 @@ msgstr "ファイル"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "<b>Notification area</b>"
-msgstr "<b>通知スペース</b>"
+msgstr "<b>通知領域</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:2
 msgid "Al_ways display icon"
@@ -589,7 +587,7 @@ msgstr "ディスク使用量が次の値になったら停止する(_D):"
 #: ../src/tracker-preferences/tracker-preferences.ui.h:30
 msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 msgstr ""
-"これは全てのリムーバブル・メディア、メモリ・カード、CD、DVD などを含みます"
+"これはすべてのリムーバブル・メディア、メモリ・カード、CD、DVD などを含みます"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:31
 msgid ""
@@ -749,11 +747,11 @@ msgstr ""
 "\n"
 "Tracker は有用とは思いますが、その頒布にあたり商用での利用や特定の目的に対す"
 "る適用については暗黙の保証を含めて、いかなる保証も行ないません。詳細には GNU "
-"一般公衆利用許諾契約書をご覧下さい。\n"
+"一般公衆利用許諾契約書をご覧ください。\n"
 "\n"
 "あなたは本プログラムと一緒に GNU 一般公衆利用許諾契約書の写しを受け取っている"
 "はずです。そうでない場合は、Free Software Foundation, Inc., 51 Franklin "
-"Street, Fifth Floor, Boston, MA 02110-1301, USA まで連絡して下さい。"
+"Street, Fifth Floor, Boston, MA 02110-1301, USA まで連絡してください。"
 
 #: ../src/tracker-search-tool/tracker-category-view.gs:55
 msgid "All Files"
@@ -933,7 +931,7 @@ msgid ""
 msgstr ""
 "Tracker は有用とは思いますが、その頒布にあたり商用での利用や特定の目的に対す"
 "る適用については暗黙の保証を含めて、いかなる保証も行ないません。詳細には GNU "
-"一般公衆利用許諾契約書をご覧下さい。"
+"一般公衆利用許諾契約書をご覧ください。"
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:790
 msgid ""
@@ -943,7 +941,7 @@ msgid ""
 msgstr ""
 "あなたは本プログラムと一緒に GNU 一般公衆利用許諾契約書の写しを受け取っている"
 "はずです。そうでない場合は、Free Software Foundation, Inc., 51 Franklin "
-"Street, Fifth Floor, Boston, MA 02110-1301, USA まで連絡して下さい。"
+"Street, Fifth Floor, Boston, MA 02110-1301, USA まで連絡してください。"
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:805
 msgid "A notification icon application to monitor data miners for Tracker"
@@ -957,7 +955,9 @@ msgstr "Tracker の収集デーモンを監視する通知アイコンです。"
 msgid "translator-credits"
 msgstr ""
 "相花 毅 <takeshi.aihana@gmail.com>\n"
-"Takao Fujiwara <takao.fujiwara@sun.com>"
+"Takao Fujiwara <takao.fujiwara@sun.com>\n"
+"草野 貴之 <AE5T-KSN@asahi-net.or.jp>\n"
+"日本GNOMEユーザー会 <http://www.gnome.gr.jp/>"
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:835
 msgid "_Search"
@@ -981,7 +981,7 @@ msgstr "Tracker アプレット"
 
 #: ../src/tracker-store/tracker-main.c:106
 msgid "Force a re-index of all content"
-msgstr "全ての情報に対して強制的に再インデックス化を実施する"
+msgstr "すべての情報に対して強制的に再インデックス化を実施する"
 
 #: ../src/tracker-store/tracker-main.c:110
 msgid "Only allow read based actions on the database"
@@ -1017,7 +1017,7 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control.c:84
 msgid "Kill all Tracker processes and remove all databases"
-msgstr "全ての Tracker プロセスを強制終了してデータベースを全て削除する"
+msgstr "すべての Tracker プロセスを強制終了してデータベースをすべて削除する"
 
 #: ../src/tracker-control/tracker-control.c:87
 msgid ""
@@ -1026,7 +1026,7 @@ msgstr "--hard-reset に加え再起動後にバックアップしたジャー�
 
 #: ../src/tracker-control/tracker-control.c:90
 msgid "Remove all configuration files so they are re-generated on next start"
-msgstr "全ての設定ファイルを削除する (そのため次回起動した時に再生成される)"
+msgstr "すべての設定ファイルを削除する (そのため次回起動した時に再生成される)"
 
 #: ../src/tracker-control/tracker-control.c:93
 msgid "Starts miners (which indirectly starts tracker-store too)"
@@ -1118,7 +1118,7 @@ msgstr "収集デーモンの起動中..."
 
 #: ../src/tracker-control/tracker-control.c:506
 msgid "perhaps a disabled plugin?"
-msgstr "プラグインが無効になっているかも？"
+msgstr "プラグインが無効になっているかも?"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -1129,7 +1129,7 @@ msgstr "- タートル・ファイルを使ってデータをインポートす�
 #: ../src/tracker-utils/tracker-import.c:93
 #: ../src/tracker-utils/tracker-info.c:215
 msgid "One or more files have not been specified"
-msgstr "1個以上のファイルを指定して下さい"
+msgstr "1個以上のファイルを指定してください"
 
 #: ../src/tracker-utils/tracker-import.c:109
 #: ../src/tracker-utils/tracker-info.c:231
@@ -1155,13 +1155,13 @@ msgstr "完了"
 
 #: ../src/tracker-utils/tracker-info.c:54
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
-msgstr "名前空間を全て表示する (i.e. nie:title 表記ではなく URL 表記)"
+msgstr "名前空間をすべて表示する (i.e. nie:title 表記ではなく URL 表記)"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-info.c:197
 msgid "- Get all information about one or more files"
-msgstr "- 1個以上のファイルに関する情報を全て取得する"
+msgstr "- 1個以上のファイルに関する情報をすべて取得する"
 
 #: ../src/tracker-utils/tracker-info.c:245
 msgid "Querying information for entity"
@@ -1215,7 +1215,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-search.c:80
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
-"実在しないが検索条件を満足するものを全て表示する (i.e. アンマウントしたボ"
+"実在しないが検索条件を満足するものをすべて表示する (i.e. アンマウントしたボ"
 "リュームのものが含まれる)"
 
 #: ../src/tracker-utils/tracker-search.c:84
@@ -1321,7 +1321,7 @@ msgstr "検索条件を満足する結果が見つかりませんでした"
 #.
 #: ../src/tracker-utils/tracker-search.c:1204
 msgid "- Search for terms in all data"
-msgstr "- 全てのデータから検索する"
+msgstr "- すべてのデータから検索する"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
@@ -1338,12 +1338,12 @@ msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
 msgstr ""
-"これは 'foo' と 'bar' の検索を行った場合、それらが＊両方とも存在している＊こ"
-"とが検索条件になる (但し --or-operator を指定した場合を除く)"
+"これは 'foo' と 'bar' の検索を行った場合、それらが*両方とも*存在していること"
+"が検索条件になる (但し --or-operator を指定した場合を除く)"
 
 #: ../src/tracker-utils/tracker-search.c:1241
 msgid "Search terms are missing"
-msgstr "検索する文字列を指定して下さい"
+msgstr "検索する文字列を指定してください"
 
 #: ../src/tracker-utils/tracker-search.c:1284
 #, c-format
@@ -1426,7 +1426,7 @@ msgstr "- SPARQL を使ってデータベースを検索したり更新する"
 
 #: ../src/tracker-utils/tracker-sparql.c:218
 msgid "An argument must be supplied"
-msgstr "引数を指定して下さい"
+msgstr "引数を指定してください"
 
 #: ../src/tracker-utils/tracker-sparql.c:220
 msgid "File and query can not be used together"
@@ -1566,7 +1566,7 @@ msgstr "現在実行中の収集デーモンの一覧を表示する"
 
 #: ../src/tracker-utils/tracker-status.c:96
 msgid "List all miners installed"
-msgstr "インストール済の全ての収集デーモンを一覧表示する"
+msgstr "インストール済のすべての収集デーモンを一覧表示する"
 
 #: ../src/tracker-utils/tracker-status.c:100
 msgid "List pause reasons and applications for a miner"
@@ -1654,11 +1654,11 @@ msgstr "一時停止と再開のオプションを一緒に指定することは
 
 #: ../src/tracker-utils/tracker-status.c:508
 msgid "You must provide the miner for pause or resume commands"
-msgstr "一時停止または再開する収集デーモンを指定して下さい"
+msgstr "一時停止または再開する収集デーモンを指定してください"
 
 #: ../src/tracker-utils/tracker-status.c:522
 msgid "You must provide a pause or resume command for the miner"
-msgstr "収集デーモンに対して一時停止または再開のオプションを指定して下さい"
+msgstr "収集デーモンに対して一時停止または再開のオプションを指定してください"
 
 #: ../src/tracker-utils/tracker-status.c:556
 msgid "Common statuses include"
@@ -1702,7 +1702,7 @@ msgstr "データ格納デーモン"
 
 #: ../src/tracker-utils/tracker-tag.c:68
 msgid "List all tags (using FILTER if specified)"
-msgstr "全てのタグを一覧表示する (FILTER が指定されている場合は利用する)"
+msgstr "すべてのタグを一覧表示する (FILTER が指定されている場合は利用する)"
 
 #: ../src/tracker-utils/tracker-tag.c:72
 msgid "Show files associated with each tag (this is only used with --list)"
@@ -1720,7 +1720,8 @@ msgstr "TAG"
 
 #: ../src/tracker-utils/tracker-tag.c:80
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
-msgstr "タグを削除する (FILE を省略した場合は全てのファイルからTAG を削除する)"
+msgstr ""
+"タグを削除する (FILE を省略した場合はすべてのファイルからTAG を削除する)"
 
 #: ../src/tracker-utils/tracker-tag.c:84
 msgid "Description for a tag (this is only used with --add)"
@@ -1749,7 +1750,7 @@ msgstr "タグに関連づけられたファイルを取得できませんでし
 #: ../src/tracker-utils/tracker-tag.c:463
 #: ../src/tracker-utils/tracker-tag.c:816
 msgid "Could not get all tags"
-msgstr "全てのタグを取得できませんでした"
+msgstr "すべてのタグを取得できませんでした"
 
 #: ../src/tracker-utils/tracker-tag.c:472
 #: ../src/tracker-utils/tracker-tag.c:825
