@@ -426,7 +426,7 @@ update_property_value (const gchar      *ontology_path,
 	}
 
 
-	if (!error && needed) {
+	if (!error && needed && object) {
 		tracker_data_insert_statement (NULL, subject,
 		                               predicate, object,
 		                               &error);
