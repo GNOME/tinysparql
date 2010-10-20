@@ -10,9 +10,8 @@ INCLUDES =								\
 	-I$(top_srcdir)/src/libtracker-data				\
 	-I$(top_builddir)/src						\
 	$(WARN_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)							\
+	$(LIBTRACKER_DIRECT_CFLAGS)
 
 modules_LTLIBRARIES = libtracker-direct.la
 
@@ -42,11 +41,10 @@ libtracker-direct.vala.stamp: $(libtracker_direct_la_VALASOURCES) $(vapi_sources
 
 BUILT_SOURCES = libtracker-direct.vala.stamp
 
-libtracker_direct_la_LIBADD = 						\
+libtracker_direct_la_LIBADD = 				\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la	\
-	$(GLIB2_LIBS)						\
-	$(DBUS_LIBS) \
-	$(GCOV_LIBS)
+	$(GCOV_LIBS)					\
+	$(LIBTRACKER_DIRECT_LIBS)
 
 MAINTAINERCLEANFILES =					\
 	$(libtracker_direct_la_VALASOURCES:.vala=.c) 	\
