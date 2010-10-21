@@ -1,3 +1,40 @@
+NEW in 0.9.26 - 2010-10-21
+==========================
+
+The changes are:
+
+  * Fixes: GB#629850, Undefined reference errors during build
+  * Fixes: GB#632399, [PATCH] configure.ac: Skip `AC_CHECK_FILE` when cross compiling
+  * Fixes: NB#194548, Property needed to link nco:Contact with ncal:Event
+  * build: Distribute .in.in files since they're needed for dist $prefix != target $prefix
+  * build: Fixed warning with recent autoconf versions for AC_INIT
+  * build: Fixed POTFILES.in, missing miner desktop files (was .in, not .in.in)
+  * Ontology: Derive from rdfs:Resource for nao:Property, nfo:Orientation, poi:ObjectOfInterest, scal:AccessLevel, nmm:Flash, nmm:MeteringMode, nmm:WhiteBalance, nmm:RadioModulation, mto:TransferMethod
+  * functional-tests: Test adding/removing properties in the ontology
+  * functional-tests: Test adding/removing classes in the ontology
+  * functional-tests: Rebased test-ontologies to latest data/ontologies
+  * functional-tests: Removed sleep() calls, since we use D-Bus Wait() methods anyway, improves test speeds.
+  * tracker-extract: Port QuillImageFilter usage to QImage
+  * libtracker-data: Notify locales being used also for libunistring
+  * libtracker-data: Improved collation related debugging traces
+  * libtracker-bus: Handle error properly in array_update_finish()
+  * libtracker-bus: Use host endian byte order for updates in steroids interface
+  * libtracker-bus: Fixed memory leak when updating, GAsyncResult should always be unref-ed
+  * tracker-miner-fs: Fixed MeeGo app miner, missing include for GStrv and glib collators
+  * utils, mtp-dummy: Fixed missing locale initialization
+
+Translations:
+
+  * ja: Takayuki KUSANO
+  * es: Jorge González
+  * et: Mattias Põldaru
+  * nb: Kjartan Maraas
+
+Notes:
+
+  None
+
+
 NEW in 0.9.25 - 2010-10-14
 ==========================
 
