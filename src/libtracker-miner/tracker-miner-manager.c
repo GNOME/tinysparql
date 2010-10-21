@@ -449,7 +449,7 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 			/* Special case miner-fs which has
 			 * additional D-Bus interface.
 			 */
-			if (strcmp (*p, "org.freedesktop.Tracker1.Miner.Files.Reindex") == 0) {
+			if (strcmp (*p, "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
 				continue;
 			}
 
