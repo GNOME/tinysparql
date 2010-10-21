@@ -29,8 +29,7 @@ public extern async void tracker_bus_fd_sparql_update_async (DBus.Connection con
 public extern async GLib.Variant tracker_bus_fd_sparql_update_blank_async (DBus.Connection connection, string query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
 public extern async void tracker_bus_fd_sparql_batch_update_async (DBus.Connection connection, string query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;
-
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
-public extern async GLib.PtrArray? tracker_bus_fd_sparql_update_array_async (DBus.Connection connection, string query[], GLib.Cancellable? cancellable = null);
+public extern async GLib.PtrArray? tracker_bus_fd_sparql_update_array_async (DBus.Connection connection, string query[], GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;
 [CCode (cheader_filename = "tracker-bus-fd-update.h")]
-public extern async GLib.PtrArray? tracker_bus_fd_sparql_batch_update_array_async (DBus.Connection connection, string[] query, GLib.Cancellable? cancellable = null);
+public extern async GLib.PtrArray? tracker_bus_fd_sparql_batch_update_array_async (DBus.Connection connection, string[] query, GLib.Cancellable? cancellable = null) throws Tracker.Sparql.Error, DBus.Error, GLib.IOError;

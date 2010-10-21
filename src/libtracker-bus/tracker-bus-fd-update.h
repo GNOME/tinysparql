@@ -66,7 +66,9 @@ GVariant *  tracker_bus_fd_sparql_update_blank_finish       (GAsyncResult       
 void        tracker_bus_fd_sparql_batch_update_finish       (GAsyncResult          *res,
                                                              GError               **error);
 
-GPtrArray*  tracker_bus_fd_sparql_update_array_finish       (GAsyncResult          *res);
-GPtrArray*  tracker_bus_fd_sparql_batch_update_array_finish (GAsyncResult          *res);
+GPtrArray*  tracker_bus_fd_sparql_update_array_finish       (GAsyncResult          *res,
+                                                             GError               **error);
+GPtrArray*  tracker_bus_fd_sparql_batch_update_array_finish (GAsyncResult          *res,
+                                                             GError               **error);
 
 G_END_DECLS

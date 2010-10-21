@@ -847,25 +847,31 @@ tracker_bus_fd_sparql_batch_update_finish (GAsyncResult  *res,
 }
 
 GPtrArray *
-tracker_bus_fd_sparql_update_array_finish (GAsyncResult *res)
+tracker_bus_fd_sparql_update_array_finish (GAsyncResult *res,
+                                           GError       **error)
 {
 	gpointer p;
 
 	g_return_val_if_fail (res != NULL, NULL);
 
+	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
+
 	p = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
 
-	return g_ptr_array_ref (p);
+	return p ? g_ptr_array_ref (p) : NULL;
 }
 
 GPtrArray *
-tracker_bus_fd_sparql_batch_update_array_finish (GAsyncResult *res)
+tracker_bus_fd_sparql_batch_update_array_finish (GAsyncResult *res,
+                                                 GError       **error)
 {
 	gpointer p;
 
 	g_return_val_if_fail (res != NULL, NULL);
 
+	g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), error);
+
 	p = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
 
-	return g_ptr_array_ref (p);
+	return p ? g_ptr_array_ref (p) : NULL;
 }
