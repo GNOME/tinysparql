@@ -3,6 +3,7 @@ NEW in 0.9.26 - 2010-10-21
 
 The changes are:
 
+  * NEW feature: Task pool in libtracker-miner for store updates/metadata extractions, 10-20% speed increase indexing thanks to the work from Zhenqiang Chen
   * Fixes: GB#629850, Undefined reference errors during build
   * Fixes: GB#632399, [PATCH] configure.ac: Skip `AC_CHECK_FILE` when cross compiling
   * Fixes: NB#194548, Property needed to link nco:Contact with ncal:Event
@@ -20,6 +21,7 @@ The changes are:
   * libtracker-bus: Handle error properly in array_update_finish()
   * libtracker-bus: Use host endian byte order for updates in steroids interface
   * libtracker-bus: Fixed memory leak when updating, GAsyncResult should always be unref-ed
+  * libtracker-miner: Fixed critical warning when calling tracker-status -i
   * tracker-miner-fs: Fixed MeeGo app miner, missing include for GStrv and glib collators
   * utils, mtp-dummy: Fixed missing locale initialization
 
