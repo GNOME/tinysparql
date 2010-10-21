@@ -162,12 +162,12 @@ struct _TrackerProcessingPool {
 	/* The tasks currently in WAIT or PROCESS status */
 	GQueue *tasks[TRACKER_PROCESSING_TASK_STATUS_LAST];
 	/* The processing pool limits */
-	guint  limit[TRACKER_PROCESSING_TASK_STATUS_LAST];
+	guint limit[TRACKER_PROCESSING_TASK_STATUS_LAST];
 
 	/* SPARQL buffer to pile up several UPDATEs */
-	GPtrArray      *sparql_buffer;
-	GFile          *sparql_buffer_current_parent;
-	time_t          sparql_buffer_start_time;
+	GPtrArray *sparql_buffer;
+	GFile *sparql_buffer_current_parent;
+	time_t sparql_buffer_start_time;
 };
 
 /*------------------- PROCESSING TASK ----------------------*/
