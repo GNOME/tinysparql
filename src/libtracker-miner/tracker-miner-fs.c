@@ -1608,6 +1608,7 @@ item_add_or_update (TrackerMinerFS *fs,
 	GFile *parent;
 	const gchar *urn;
 	const gchar *parent_urn = NULL;
+	UpdateProcessingTaskContext *ctxt;
 
 	priv = fs->private;
 	retval = TRUE;
@@ -1656,12 +1657,13 @@ item_add_or_update (TrackerMinerFS *fs,
 	/* Create task and add it to the pool as a WAIT task (we need to extract
 	 * the file metadata and such) */
 	task = tracker_processing_task_new (file);
+	ctxt = update_processing_task_context_new (TRACKER_MINER (fs),
+	                                           urn,
+	                                           parent_urn,
+	                                           cancellable,
+	                                           sparql);
 	tracker_processing_task_set_context (task,
-	                                     update_processing_task_context_new (TRACKER_MINER (fs),
-		   urn,
-		   parent_urn,
-		   cancellable,
-		   sparql),
+	                                     ctxt,
 	                                     (GFreeFunc) update_processing_task_context_free);
 	tracker_processing_pool_push_wait_task (priv->processing_pool, task);
 
