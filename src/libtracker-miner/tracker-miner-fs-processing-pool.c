@@ -408,7 +408,7 @@ tracker_processing_pool_find_task (TrackerProcessingPool *pool,
 				 * same GFile object that's being passed, so we check for
 				 * pointer equality here, rather than doing path comparisons
 				 */
-				if(task->file == file)
+				if (task->file == file)
 					return task;
 			} else {
 				/* Note that if there are different GFiles being
@@ -454,10 +454,6 @@ tracker_processing_pool_sparql_update_cb (GObject      *object,
 	GError *error = NULL;
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
-
-	/* If update was done when crawling finished, no task will be given */
-	if (!user_data)
-		return;
 
 	task = user_data;
 
