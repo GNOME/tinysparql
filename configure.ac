@@ -335,6 +335,16 @@ TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(TRACKER_UTILS, [$TRACKER_UTILS_REQUIRED])
 
+# Check requirements for tracker-writeback
+TRACKER_WRITEBACK_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                            gio-unix-2.0 >= $GLIB_REQUIRED
+                            gmodule-2.0  >= $GLIB_REQUIRED
+                            gthread-2.0  >= $GLIB_REQUIRED
+                            dbus-1       >= $DBUS_REQUIRED
+                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_WRITEBACK, [$TRACKER_WRITEBACK_REQUIRED])
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],

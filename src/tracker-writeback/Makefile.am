@@ -12,12 +12,9 @@ INCLUDES = 								\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(TRACKER_APPS_CFLAGS)						\
 	$(WARN_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
-	$(GMODULE_CFLAGS) 						\
-	$(DBUS_CFLAGS)							\
+	$(TRACKER_WRITEBACK_CFLAGS)					\
 	$(TAGLIB_CFLAGS)						\
 	$(EXEMPI_CFLAGS)						\
 	$(TOTEM_PL_PARSER_CFLAGS)
@@ -76,12 +73,8 @@ tracker_writeback_LDADD = 						\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(TRACKER_APPS_LIBS)						\
-	$(DBUS_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(GLIB2_LIBS)
+	$(TRACKER_WRITEBACK_LIBS)
 
 dbus_sources = 								\
 	tracker-writeback-glue.h
