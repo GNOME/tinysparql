@@ -2407,11 +2407,31 @@ item_queue_handlers_cb (gpointer user_data)
 
 		time_last = time_now;
 
-		/* Update progress */
+		/* Update progress? */
 		progress_now = item_queue_get_progress (fs,
 		                                        &items_processed,
 		                                        &items_remaining);
-		g_object_set (fs, "progress", progress_now, NULL);
+
+		if (!fs->private->is_crawling) {
+			gchar *status;
+
+			g_object_get (fs, "status", &status, NULL);
+
+			if (g_strcmp0 (status, "Processing…") != 0) {
+				/* Don't spam this */
+				g_message ("Processing…");
+				g_object_set (fs,
+				              "status", "Processing…",
+				              "progress", progress_now,
+				              NULL);
+			} else {
+				g_object_set (fs,
+				              "progress", progress_now,
+				              NULL);
+			}
+
+			g_free (status);
+		}
 
 		if (++info_last >= 5 &&
 		    (gint) (progress_last * 100) != (gint) (progress_now * 100)) {
@@ -2505,8 +2525,6 @@ _tracker_idle_add (TrackerMinerFS *fs,
 static void
 item_queue_handlers_set_up (TrackerMinerFS *fs)
 {
-	gchar *status;
-
 	if (fs->private->item_queues_handler_id != 0) {
 		return;
 	}
@@ -2520,15 +2538,19 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		return;
 	}
 
-	g_object_get (fs, "status", &status, NULL);
+	if (!fs->private->is_crawling) {
+		gchar *status;
 
-	if (g_strcmp0 (status, "Processing…") != 0) {
-		/* Don't spam this */
-		g_message ("Processing…");
-		g_object_set (fs, "status", "Processing…", NULL);
+		g_object_get (fs, "status", &status, NULL);
+
+		if (g_strcmp0 (status, "Processing…") != 0) {
+			/* Don't spam this */
+			g_message ("Processing…");
+			g_object_set (fs, "status", "Processing…", NULL);
+		}
+
+		g_free (status);
 	}
-
-	g_free (status);
 
 	fs->private->item_queues_handler_id =
 		_tracker_idle_add (fs,
