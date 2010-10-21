@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2010, Nokia
  *
@@ -25,14 +24,12 @@
 #include <QFile>
 #include <QBuffer>
 #include <QImageReader>
-#include <QuillImageFilterFactory>
+#include <QImageWriter>
 
 #include <glib.h>
 #include <gio/gio.h>
 
 #include "tracker-albumart-generic.h"
-
-#define TRACKER_ALBUMART_QUILL_SAVE "org.maemo.save"
 
 G_BEGIN_DECLS
 
@@ -43,8 +40,7 @@ tracker_albumart_file_to_jpeg (const gchar *filename,
 	QFile file (filename);
 
 	if (!file.open (QIODevice::ReadOnly)) {
-		g_message ("Could not get QFile from JPEG file:'%s'",
-		           filename);
+		g_message ("Could not get QFile from file: '%s'", filename);
 		return FALSE;
 	}
 
@@ -56,28 +52,15 @@ tracker_albumart_file_to_jpeg (const gchar *filename,
 	QImageReader reader (&buffer);
 
 	if (!reader.canRead ()) {
-		g_message ("Could not get QImageReader from JPEG file, canRead was FALSE");
+		g_message ("Could not get QImageReader from file: '%s', reader.canRead was FALSE",
+		           filename);
 		return FALSE;
 	}
 
 	QImage image;
-	QuillImageFilter *filter;
 
 	image = reader.read ();
-	filter = QuillImageFilterFactory::createImageFilter (TRACKER_ALBUMART_QUILL_SAVE);
-
-	if (!filter) {
-		g_message ("Could not get QuillImageFilter from JPEG file using:'%s'",
-		           TRACKER_ALBUMART_QUILL_SAVE);
-
-		return FALSE;
-	}
-
-	filter->setOption (QuillImageFilter::FileFormat, QVariant (QString ("jpeg")));
-	filter->setOption (QuillImageFilter::FileName, QVariant (QString (target)));
-	filter->apply (image);
-
-	delete filter;
+	image.save (QString (target), "jpeg");
 
 	return TRUE;
 }
@@ -107,30 +90,16 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 	}
 
 	if (!reader) {
-		g_message ("Could not get QImageReader from JPEG buffer");
+		g_message ("Could not get QImageReader from buffer");
 		return FALSE;
 	}
 
 	QImage image;
-	QuillImageFilter *filter;
 
 	image = reader->read ();
-	filter = QuillImageFilterFactory::createImageFilter (TRACKER_ALBUMART_QUILL_SAVE);
-
-	if (!filter) {
-		g_message ("Could not get QuillImageFilter from JPEG buffer using:'%s'",
-		           TRACKER_ALBUMART_QUILL_SAVE);
-		delete reader;
-
-		return FALSE;
-	}
-
-	filter->setOption (QuillImageFilter::FileFormat, QVariant (QString ("jpeg")));
-	filter->setOption (QuillImageFilter::FileName, QVariant (QString (target)));
-	filter->apply (image);
+	image.save (QString (target), "jpeg");
 
 	delete reader;
-	delete filter;
 
 	return TRUE;
 }

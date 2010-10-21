@@ -371,10 +371,10 @@ if HAVE_GDKPIXBUF
 tracker_extract_LDADD += $(GDKPIXBUF_LIBS)
 tracker_extract_SOURCES += tracker-albumart-pixbuf.c
 else
-if HAVE_QUILL
-INCLUDES += $(QUILL_CFLAGS)
-tracker_extract_SOURCES += tracker-albumart-quill.cpp
-tracker_extract_LDADD += $(QUILL_LIBS)
+if HAVE_QT
+INCLUDES += $(QT_CFLAGS)
+tracker_extract_SOURCES += tracker-albumart-qt.cpp
+tracker_extract_LDADD += $(QT_LIBS)
 else
 tracker_extract_SOURCES += tracker-albumart-dummy.c
 endif

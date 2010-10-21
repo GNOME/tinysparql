@@ -141,7 +141,7 @@ LIBNOTIFY_REQUIRED=0.4.3
 HAL_REQUIRED=0.5
 UPOWER_REQUIRED=0.9.0
 GDKPIXBUF_REQUIRED=2.12.0
-QUILL_REQUIRED=1.0.0
+QT_REQUIRED=4.7.1
 MEEGOTOUCH_REQUIRED=0.20
 POPPLER_REQUIRED=0.12.2
 CAIRO_REQUIRED=1.0
@@ -528,45 +528,45 @@ AC_ARG_ENABLE(gdkpixbuf,
               [enable_gdkpixbuf=auto])
 
 ##################################################################
-# Check for QUILL needed for the MP3 album art extractor
+# Check for Qt needed for the MP3 album art extractor
 ##################################################################
 
-AC_ARG_ENABLE(quill,
-              AS_HELP_STRING([--enable-quill],
-                             [enable QUILL support, (MP3 album art) [[default=auto]]]),,
-              [enable_quill=auto])
+AC_ARG_ENABLE(qt,
+              AS_HELP_STRING([--enable-qt],
+                             [enable Qt support, (MP3 album art) [[default=auto]]]),,
+              [enable_qt=auto])
 
 selected_for_albumart="no  (disabled)"
 
 
 ##################################################################
-# Check for QUILL needed for the MP3 album art extractor cont
+# Check for Qt needed for the MP3 album art extractor cont
 ##################################################################
 
 
-if test "x$enable_quill" != "xno" && test "x$enable_gdkpixbuf" != "xyes"; then
-   PKG_CHECK_MODULES(QUILL,
-                     [quillimagefilter >= $QUILL_REQUIRED],
-                     [have_quill=yes],
-                     [have_quill=no])
-   AC_SUBST(QUILL_LIBS)
-   AC_SUBST(QUILL_CFLAGS)
+if test "x$enable_qt" != "xno" && test "x$enable_gdkpixbuf" != "xyes"; then
+   PKG_CHECK_MODULES(QT,
+                     [QtGui >= $QT_REQUIRED],
+                     [have_qt=yes],
+                     [have_qt=no])
+   AC_SUBST(QT_LIBS)
+   AC_SUBST(QT_CFLAGS)
 
-   if test "x$have_quill" = "xyes"; then
-      AC_DEFINE(HAVE_QUILL, [], [Define if we have QUILL])
-      selected_for_albumart="yes (libquill)"
+   if test "x$have_qt" = "xyes"; then
+      AC_DEFINE(HAVE_QT, [], [Define if we have Qt])
+      selected_for_albumart="yes (qt)"
    fi
 else
-   have_quill="no  (disabled)"
+   have_qt="no  (disabled)"
 fi
 
-if test "x$enable_quill" = "xyes"; then
-   if test "x$have_quill" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find QUILL >= $QUILL_REQUIRED.])
+if test "x$enable_qt" = "xyes"; then
+   if test "x$have_qt" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Qt >= $QT_REQUIRED.])
    fi
 fi
 
-AM_CONDITIONAL(HAVE_QUILL, test "x$have_quill" = "xyes")
+AM_CONDITIONAL(HAVE_QT, test "x$have_qt" = "xyes")
 
 ##################################################################
 # Check for GdkPixbuf, needed for the MP3 album art extractor cont
