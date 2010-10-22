@@ -361,6 +361,19 @@ PKG_CHECK_MODULES(TRACKER_SEARCH_TOOL, [$TRACKER_SEARCH_TOOL_REQUIRED],
                   [have_tracker_search_tool=yes],
                   [have_tracker_search_tool=no])
 
+# Check requirements for tracker-preferences
+TRACKER_PREFERENCES_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
+                              gio-unix-2.0   >= $GLIB_REQUIRED
+                              gthread-2.0    >= $GLIB_REQUIRED
+                              gmodule-2.0    >= $GLIB_REQUIRED
+                              gtk+-2.0       >= $GTK_REQUIRED
+                              dbus-1         >= $DBUS_REQUIRED
+                              dbus-glib-1    >= $DBUS_GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
+                  [have_tracker_preferences=yes],
+                  [have_tracker_preferences=no])
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],
@@ -1359,19 +1372,13 @@ AC_ARG_ENABLE([tracker-preferences],
                              [enable the tracker preferences dialog [[default=auto]]]),,
               [enable_tracker_preferences=auto])
 
-if test "x$enable_tracker_preferences" != "xno" ; then
-   if test "x$have_app_requirements" != "xyes"; then
-      have_tracker_preferences="no"
-   else
-      have_tracker_preferences="yes"
+if test "x$enable_tracker_preferences" = "xyes" ; then
+   if test "x$have_tracker_preferences" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($TRACKER_PREFERENCES_REQUIRED).])
    fi
 else
-   have_tracker_preferences="no  (disabled)"
-fi
-
-if test "x$enable_tracker_preferences" = "xyes"; then
-   if test "x$have_tracker_preferences" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($APP_REQUIREMENTS).])
+   if text "x$enable_tracker_preferences" = "xno"; then
+      have_tracker_preferences="no  (disabled)"
    fi
 fi
 

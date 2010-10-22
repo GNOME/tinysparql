@@ -10,17 +10,15 @@ desktop_DATA =  tracker-preferences.desktop
 pkgdata_DATA = tracker-preferences.ui
 
 INCLUDES = 								\
+	$(BUILD_CFLAGS)							\
+	-I$(top_srcdir)/src						\
+	-I$(top_builddir)/src						\
 	-DTRACKER_DATADIR=\""$(datadir)/tracker"\" 			\
 	-DTRACKER_LOCALEDIR=\""$(localedir)"\" 				\
 	-DTRACKER_BINDIR=\""$(bindir)"\" 				\
 	-DTRACKER_LIBEXECDIR=\""$(libexecdir)"\" 			\
-	-DTRACKER_COMPILATION 						\
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"			\
-	-I$(top_srcdir)/src						\
-	-I$(top_builddir)						\
-	$(TRACKER_APPS_CFLAGS)						\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)
+	$(TRACKER_PREFERENCES_CFLAGS)
 
 BUILT_SOURCES = 							\
 	tracker-preferences.vala.stamp
@@ -39,13 +37,12 @@ tracker_preferences_SOURCES = 						\
 
 tracker_preferences_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(TRACKER_APPS_LIBS)						\
-	$(GCOV_LIBS)
+	$(BUILD_LIBS)							\
+	$(TRACKER_PREFERENCES_LIBS)
 
 MAINTAINERCLEANFILES =							\
 	tracker-preferences.vala.stamp					\
-	$(tracker_preferences_VALASOURCES:.vala=.c)			\
-	$(NULL)
+	$(tracker_preferences_VALASOURCES:.vala=.c)
 
 EXTRA_DIST = 								\
 	$(pkgdata_DATA) 						\
