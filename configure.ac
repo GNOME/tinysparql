@@ -326,6 +326,16 @@ PKG_CHECK_MODULES(TRACKER_STORE, [$TRACKER_STORE_REQUIRED])
 
 TRACKER_STORE_LIBS="$TRACKER_STORE_LIBS -lz -lm"
 
+# Check requirements for tracker-extract
+TRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                          gio-unix-2.0 >= $GLIB_REQUIRED
+                          gthread-2.0  >= $GLIB_REQUIRED
+                          gmodule-2.0  >= $GLIB_REQUIRED
+                          dbus-1       >= $DBUS_REQUIRED
+                          dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_EXTRACT, [$TRACKER_EXTRACT_REQUIRED])
+
 # Check requirements for tracker-utils
 TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         gio-unix-2.0 >= $GLIB_REQUIRED

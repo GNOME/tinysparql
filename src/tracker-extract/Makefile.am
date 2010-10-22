@@ -3,9 +3,6 @@ include $(top_srcdir)/Makefile.decl
 module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
-AM_CFLAGS = $(WARN_CFLAGS)
-AM_CXXFLAGS = $(WARN_CXXFLAGS)
-
 INCLUDES = 								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DTRACKER_EXTRACTORS_DIR=\"$(modulesdir)\"			\
@@ -15,12 +12,10 @@ INCLUDES = 								\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(GLIB2_CFLAGS)							\
-	$(GIO_CFLAGS)							\
 	$(GCOV_CFLAGS)							\
+	$(WARN_CFLAGS)							\
+	$(TRACKER_EXTRACT_CFLAGS)					\
 	$(GDKPIXBUF_CFLAGS)						\
-	$(GMODULE_CFLAGS) 						\
-	$(DBUS_CFLAGS)							\
 	$(LIBGIF_CFLAGS)						\
 	$(LIBJPEG_CFLAGS) 						\
 	$(LIBTIFF_CFLAGS) 						\
@@ -350,12 +345,8 @@ tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(DBUS_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(GLIB2_LIBS)
+	$(TRACKER_EXTRACT_LIBS)
 
 if HAVE_LIBGSF
 tracker_extract_SOURCES += tracker-gsf.c tracker-gsf.h
