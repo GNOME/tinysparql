@@ -28,7 +28,7 @@ if HAVE_TRACKER_MINER_RSS
 tracker_miners_DATA += tracker-miner-rss.desktop
 endif
 
-if HAVE_MINER_FLICKR
+if HAVE_TRACKER_MINER_FLICKR
 tracker_miners_DATA += tracker-miner-flickr.desktop
 endif
 

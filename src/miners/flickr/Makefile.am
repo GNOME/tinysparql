@@ -10,13 +10,10 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-sparql		\
+	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
-	$(GMODULE_CFLAGS)						\
-	$(PANGO_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(MINER_FLICKR_CFLAGS)						\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)							\
+	$(TRACKER_MINER_FLICKR_CFLAGS)
 
 VALAFLAGS =								\
 	--pkg gio-2.0							\
@@ -39,15 +36,8 @@ tracker_miner_flickr_SOURCES =						\
 tracker_miner_flickr_LDADD =						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(DBUS_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(MINER_FLICKR_LIBS)						\
-	-lz								\
-	-lm
+	$(TRACKER_MINER_FLICKR_LIBS)
 
 vapi_sources =								\
 	$(top_srcdir)/src/libtracker-miner/tracker-miner.vapi

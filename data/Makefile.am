@@ -52,7 +52,7 @@ if HAVE_TRACKER_MINER_RSS
 autostart_DATA += tracker-miner-rss.desktop
 endif
 
-if HAVE_MINER_FLICKR
+if HAVE_TRACKER_MINER_FLICKR
 autostart_DATA += tracker-miner-flickr.desktop
 endif
 

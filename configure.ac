@@ -358,6 +358,18 @@ PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
                   [have_tracker_miner_rss=yes],
                   [have_tracker_miner_rss=no])
 
+# Check requirements for tracker-miner-flickr
+TRACKER_MINER_FLICKR_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                               dbus-1       >= $DBUS_REQUIRED
+                               dbus-glib-1  >= $DBUS_GLIB_REQUIRED
+                               rest-0.6     >= $REST_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_MINER_FLICKR, [$TRACKER_MINER_FLICKR_REQUIRED],
+                  [have_tracker_miner_flickr=yes],
+                  [have_tracker_miner_flickr=no])
+
+TRACKER_MINER_FLICKR_LIBS="$TRACKER_MINER_FLICKR_LIBS -lz -lm"
+
 # Check requirements for tracker-utils
 TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         gio-unix-2.0 >= $GLIB_REQUIRED
@@ -1062,26 +1074,19 @@ AM_CONDITIONAL(HAVE_NETWORK_MANAGER, test "x$have_network_manager" = "xyes")
 AC_ARG_ENABLE(miner_flickr,
               AS_HELP_STRING([--enable-miner-flickr],
                              [enable Flickr miner [[default=auto]]]),,
-                             [enable_miner_flickr=auto])
+                             [enable_tracker_miner_flickr=auto])
 
-if test "x$enable_miner_flickr" != "xno"; then
-   PKG_CHECK_MODULES(MINER_FLICKR,
-                     [rest-0.6 >= $REST_REQUIRED],
-                     [have_miner_flickr=yes],
-                     [have_miner_flickr=no])
-   AC_SUBST(MINER_FLICKR_LIBS)
-   AC_SUBST(MINER_FLICKR_CFLAGS)
+if test "x$enable_tracker_miner_flickr" = "xyes"; then
+   if test "x$have_tracker_miner_flickr" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-miner-flickr dependencies ($TRACKER_MINER_FLICKR_REQUIRED).])
+   fi
 else
-   have_miner_flickr="no  (disabled)"
-fi
-
-if test "x$enable_miner_flickr" = "xyes"; then
-   if test "x$have_miner_flickr" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find rest-0.6 >= $REST_REQUIRED for Flickr miner.])
+   if test "x$enable_tracker_miner_flickr" = "xno"; then
+      have_miner_flickr="no  (disabled)"
    fi
 fi
 
-AM_CONDITIONAL(HAVE_MINER_FLICKR, test "x$have_miner_flickr" = "xyes")
+AM_CONDITIONAL(HAVE_TRACKER_MINER_FLICKR, test "x$have_tracker_miner_flickr" = "xyes")
 
 ##################################################################
 # GLib, libunistring or libicu?
@@ -2191,7 +2196,7 @@ Data Miners:
           MeeGo                                 $have_meegotouch
 	RSS:                                    $have_tracker_miner_rss
 	Evolution:                              $have_miner_evolution ($evolution_plugins_dir)
-	Flickr:                                 $have_miner_flickr
+	Flickr:                                 $have_tracker_miner_flickr
 
 Plugins:
 
