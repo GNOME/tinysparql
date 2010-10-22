@@ -18,19 +18,15 @@ tracker_search_bar_CFLAGS = \
 	-I$(top_srcdir)/src					\
 	-I$(top_builddir)/src					\
 	-I$(top_builddir)/src/libtracker-client			\
-	$(TRACKER_APPS_CFLAGS)					\
-	$(TRACKER_APPLETS_CFLAGS)				\
-	$(GDKPIXBUF_CFLAGS)					\
 	$(WARN_CFLAGS)						\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)						\
+	$(TRACKER_SEARCH_BAR_CFLAGS)
 
 tracker_search_bar_LDADD = 					\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(TRACKER_APPS_LIBS)					\
-	$(TRACKER_APPLETS_LIBS)					\
-	$(GDKPIXBUF_LIBS)					\
-	$(GCOV_LIBS)
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(GCOV_LIBS)						\
+	$(TRACKER_SEARCH_BAR_LIBS)
 
 uidir = $(datadir)/tracker
 ui_DATA = tracker-search-bar.ui

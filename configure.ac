@@ -390,6 +390,23 @@ PKG_CHECK_MODULES(TRACKER_STATUS_ICON, [$TRACKER_STATUS_ICON_REQUIRED],
 
 TRACKER_STATUS_ICON_LIBS="$TRACKER_STATUS_ICON_LIBS -lX11"
 
+# Check requirements for tracker-search-bar
+TRACKER_SEARCH_BAR_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
+                             gio-unix-2.0   >= $GLIB_REQUIRED
+                             gthread-2.0    >= $GLIB_REQUIRED
+                             gmodule-2.0    >= $GLIB_REQUIRED
+                             gtk+-2.0       >= $GTK_REQUIRED
+                             gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED
+                             pango          >= $PANGO_REQUIRED
+                             dbus-1         >= $DBUS_REQUIRED
+                             dbus-glib-1    >= $DBUS_GLIB_REQUIRED
+			     gee-1.0        >= $GEE_REQUIRED
+                             libpanelapplet-2.0"
+
+PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
+                  [have_tracker_search_bar=yes],
+                  [have_tracker_search_bar=no])
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],
@@ -1321,27 +1338,14 @@ AC_ARG_ENABLE([tracker-search-bar],
                              [enable tracker-search-bar[[default=auto]]]),,
               [enable_tracker_search_bar=auto])
 
-if test "x$enable_tracker_search_bar" != "xno" ; then
-   if test "x$have_app_requirements" != "xyes" -o \
-           "x$have_applet_requirements" != "xyes"; then
-      have_tracker_search_bar="no"
-   else
-      have_tracker_search_bar="yes"
-   fi
-else
-   have_tracker_search_bar="no  (disabled)"
-fi
-
-if test "x$enable_tracker_search_bar" = "xyes"; then
+if test "x$enable_tracker_search_bar" = "xyes" ; then
    if test "x$have_tracker_search_bar" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($APP_REQUIREMENTS $APPLET_REQUIREMENTS).])
+      AC_MSG_ERROR([Couldn't find tracker-search-bar dependencies ($TRACKER_SEARCH_BAR_REQUIRED).])
    fi
-fi
-
-if test "x$have_tracker_search_bar" = "xyes"; then
-   AC_DEFINE(HAVE_TRACKER_SEARCH_BAR, [1], [Define to 1 if t-s-b is compiled])
 else
-   AC_DEFINE(HAVE_TRACKER_SEARCH_BAR, [0], [Define to 0 if t-s-b is not compiled])
+   if test "x$enable_tracker_search_bar" = "xno"; then
+      have_tracker_search_bar="no  (disabled)"
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_SEARCH_BAR, test "$have_tracker_search_bar" = "yes")
