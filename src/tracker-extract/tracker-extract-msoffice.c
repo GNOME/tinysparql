@@ -1900,42 +1900,12 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
                                 GError              **error)
 {
 	MsOfficeXMLParserInfo *info = user_data;
-	static gboolean found = FALSE;
 	static gboolean added = FALSE;
 
 	switch (info->tag_type) {
 	case MS_OFFICE_XML_TAG_WORD_TEXT:
-		if (info->style_element_present) {
-			if (atoi (text) == 0) {
-				tracker_text_validate_utf8 (text, -1, &info->content, NULL);
-				g_string_append_c (info->content, ' ');
-			}
-		}
-
-		if (info->preserve_attribute_present) {
-			gchar *keywords = g_strdup (text);
-			if (found) {
-				tracker_text_validate_utf8 (text, -1, &info->content, NULL);
-				g_string_append_c (info->content, ' ');
-				found = FALSE;
-			} else {
-				gchar *lasts;
-				gchar *keyw;
-
-				for (keyw = strtok_r (keywords, ",; ", &lasts);
-				     keyw;
-				     keyw = strtok_r (NULL, ",; ", &lasts)) {
-					if ((g_ascii_strncasecmp (keyw, "Table", 6) == 0) ||
-					    (g_ascii_strncasecmp (keyw, "Figure", 6) == 0) ||
-					    (g_ascii_strncasecmp (keyw, "Section", 7) == 0) ||
-					    (g_ascii_strncasecmp (keyw, "Index", 5) == 0)) {
-						found = TRUE;
-					}
-				}
-			}
-
-			g_free (keywords);
-		}
+		tracker_text_validate_utf8 (text, -1, &info->content, NULL);
+		g_string_append_c (info->content, ' ');
 		break;
 
 	case MS_OFFICE_XML_TAG_SLIDE_TEXT:
