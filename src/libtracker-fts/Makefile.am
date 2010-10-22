@@ -1,11 +1,9 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
+	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
-	-DTRACKER_COMPILATION						\
 	-DNDEBUG							\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(LIBTRACKER_FTS_CFLAGS)					\
 	$(UNICODE_SUPPORT_CFLAGS)
 
@@ -34,6 +32,6 @@ endif
 
 libtracker_fts_la_LIBADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(GCOV_LIBS)							\
+	$(BUILD_LIBS)							\
 	$(LIBTRACKER_FTS_LIBS)						\
 	$(UNICODE_SUPPORT_LIBS)

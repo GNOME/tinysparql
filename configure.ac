@@ -451,6 +451,13 @@ PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
                   [have_tracker_search_bar=yes],
                   [have_tracker_search_bar=no])
 
+# General CFLAGS/LIBS
+BUILD_CFLAGS="${WARN_CFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
+BUILD_LIBS="${GCOV_LIBS}"
+
+AC_SUBST(BUILD_CFLAGS)
+AC_SUBST(BUILD_LIBS)
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],

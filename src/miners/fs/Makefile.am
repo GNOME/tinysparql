@@ -1,12 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
-	-Wall								\
+	$(BUILD_CFLAGS)							\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
@@ -16,8 +14,6 @@ INCLUDES =								\
 	-I$(top_builddir)/src/libtracker-data				\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(TRACKER_MINER_FS_CFLAGS)
 
 libexec_PROGRAMS = tracker-miner-fs
@@ -40,7 +36,7 @@ tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(GCOV_LIBS)							\
+	$(BUILD_LIBS)							\
 	$(TRACKER_MINER_FS_LIBS)
 
 if HAVE_MEEGOTOUCH

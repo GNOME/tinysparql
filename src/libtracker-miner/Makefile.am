@@ -6,15 +6,12 @@ include $(top_srcdir)/Makefile.decl
 include Makefile-shared-sources.decl
 
 INCLUDES =						\
+	$(BUILD_CFLAGS)					\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
-	-DG_LOG_DOMAIN=\"Tracker\"			\
-	-DTRACKER_COMPILATION				\
 	-DTRACKER_MINERS_DIR=\""$(datadir)/tracker/miners"\" 	\
 	-I$(top_srcdir)/src				\
 	-I$(top_builddir)/src				\
-	$(WARN_CFLAGS)					\
-	$(GCOV_CFLAGS)					\
 	$(LIBTRACKER_MINER_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
@@ -62,7 +59,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(GCOV_LIBS)					\
+	$(BUILD_LIBS)					\
 	$(LIBTRACKER_MINER_LIBS)
 
 if HAVE_GNOME_KEYRING

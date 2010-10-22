@@ -1,21 +1,18 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
+	$(BUILD_CFLAGS)							\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(TRACKER_UTILS_CFLAGS)
 
 libs = 									\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(GCOV_LIBS)							\
+	$(BUILD_LIBS)							\
 	$(TRACKER_UTILS_LIBS)
 
 bin_PROGRAMS = 								\

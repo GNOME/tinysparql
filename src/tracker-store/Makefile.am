@@ -1,20 +1,17 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
+	$(BUILD_CFLAGS)							\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker-$(TRACKER_API_VERSION)/mail-modules\"         \
 	-DPUSH_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/daemon"\"	\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_srcdir)/src/libtracker-data				\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-data				\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(TRACKER_STORE_CFLAGS)
 
 #
@@ -48,11 +45,10 @@ tracker_store_SOURCES =							\
 	tracker-steroids.h
 
 tracker_store_LDADD =							\
-	$(plugin_libs)							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(GCOV_LIBS)							\
+	$(BUILD_LIBS)							\
 	$(TRACKER_STORE_LIBS)
 
 marshal_sources =                                         		\

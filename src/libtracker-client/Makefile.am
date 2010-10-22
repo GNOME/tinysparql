@@ -1,13 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES = 						\
+	$(BUILD_CFLAGS)					\
 	-DLOCALEDIR=\""$(localedir)"\" 			\
-	-DG_LOG_DOMAIN=\"Tracker\"			\
-	-DTRACKER_COMPILATION				\
 	-I$(top_srcdir)/src				\
 	-I$(top_builddir)/src/libtracker-client		\
-	$(WARN_CFLAGS)					\
-	$(GCOV_CFLAGS)					\
 	$(LIBTRACKER_CLIENT_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-client-@TRACKER_API_VERSION@.la

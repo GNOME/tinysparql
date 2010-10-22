@@ -5,18 +5,15 @@ noinst_PROGRAMS = $(TEST_PROGS)
 TEST_PROGS += tracker-metadata-utils
 
 INCLUDES = 									\
+	$(BUILD_CFLAGS)								\
 	-DTEST									\
-	-DG_LOG_DOMAIN=\"Tracker\"						\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/indexer-modules"\"	\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\
-	-DTRACKER_COMPILATION							\
 	-I$(top_srcdir)/src							\
 	-I$(top_srcdir)/tests/common						\
 	-I$(top_builddir)/src/tracker-store					\
 	-I$(top_builddir)/src/miners/fs						\
-	$(WARN_CFLAGS)								\
 	$(GLIB2_CFLAGS)								\
-	$(GCOV_CFLAGS)								\
 	$(GMODULE_CFLAGS)							\
 	$(GTHREAD_CFLAGS)							\
 	$(DBUS_CFLAGS)
@@ -31,9 +28,9 @@ tracker_metadata_utils_LDADD =	                                        	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/tests/common/libtracker-testcommon.la           	\
+	$(BUILD_LIBS)								\
 	$(DBUS_LIBS)								\
 	$(GMODULE_LIBS)								\
 	$(GTHREAD_LIBS)								\
 	$(GIO_LIBS)								\
-	$(GCOV_LIBS)								\
 	$(GLIB2_LIBS)

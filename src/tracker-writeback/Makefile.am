@@ -4,16 +4,13 @@ module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/writeback-modules
 
 INCLUDES = 								\
+	$(BUILD_CFLAGS)							\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DMODULESDIR=\"$(modulesdir)\"					\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
 	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\" 			\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(TRACKER_WRITEBACK_CFLAGS)					\
 	$(TAGLIB_CFLAGS)						\
 	$(EXEMPI_CFLAGS)						\
@@ -27,7 +24,7 @@ if HAVE_TAGLIB
 modules_LTLIBRARIES += libwriteback-taglib.la
 libwriteback_taglib_la_SOURCES = tracker-writeback-taglib.c
 libwriteback_taglib_la_LDFLAGS = $(module_flags)
-libwriteback_taglib_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(TAGLIB_LIBS)
+libwriteback_taglib_la_LIBADD = $(BUILD_LIBS) $(GLIB2_LIBS) $(TAGLIB_LIBS)
 endif
 
 # XMP
@@ -35,7 +32,7 @@ if HAVE_EXEMPI
 modules_LTLIBRARIES += libwriteback-xmp.la
 libwriteback_xmp_la_SOURCES = tracker-writeback-xmp.c
 libwriteback_xmp_la_LDFLAGS = $(module_flags)
-libwriteback_xmp_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(EXEMPI_LIBS)
+libwriteback_xmp_la_LIBADD = $(BUILD_LIBS) $(GLIB2_LIBS) $(EXEMPI_LIBS)
 endif
 
 # Playlists
@@ -43,7 +40,7 @@ endif
 #modules_LTLIBRARIES += libwriteback-playlist.la
 #libwriteback_playlist_la_SOURCES = tracker-writeback-playlist.c
 #libwriteback_playlist_la_LDFLAGS = $(module_flags)
-#libwriteback_playlist_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS) $(TOTEM_PL_PARSER_LIBS)
+#libwriteback_playlist_la_LIBADD = $(BUILD_LIBS) $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS)
 #endif
 
 #
@@ -73,7 +70,7 @@ tracker_writeback_LDADD = 						\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la 	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(GCOV_LIBS)							\
+	$(BUILD_LIBS)							\
 	$(TRACKER_WRITEBACK_LIBS)
 
 dbus_sources = 								\

@@ -24,15 +24,12 @@ noinst_PROGRAMS = $(TEST_PROGS)
 # endif
 
 INCLUDES = 								\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
+	$(BUILD_CFLAGS)							\
 	-DMODULESDIR=\"$(modulesdir)\"					\
 	-DTEST_DATA_DIR=\""$(abs_top_builddir)/tests/tracker-extract/data"\"\
-	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
-	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
 	$(DBUS_CFLAGS)

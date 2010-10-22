@@ -1,12 +1,9 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =						\
+	$(BUILD_CFLAGS)					\
 	-DSHAREDIR=\""$(datadir)"\"			\
-	-DG_LOG_DOMAIN=\"Tracker\"			\
-	-DTRACKER_COMPILATION				\
 	-I$(top_srcdir)/src				\
-	$(WARN_CFLAGS)					\
-	$(GCOV_CFLAGS)					\
 	$(HAL_CFLAGS)					\
 	$(UPOWER_CFLAGS)				\
 	$(LIBTRACKER_COMMON_CFLAGS)
@@ -77,7 +74,7 @@ libtracker_common_la_LDFLAGS = 				\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 libtracker_common_la_LIBADD = 				\
-	$(GCOV_LIBS)					\
+	$(BUILD_LIBS)					\
 	$(LIBTRACKER_COMMON_LIBS)			\
 	$(HAL_LIBS)					\
 	$(UPOWER_LIBS)

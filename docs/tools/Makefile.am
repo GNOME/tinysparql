@@ -3,8 +3,7 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = ontology-graph ttl2sgml
 
 INCLUDES = 								\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
+	$(BUILD_CFLAGS)							\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/src/libtracker-sparql				\
@@ -12,7 +11,6 @@ INCLUDES = 								\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-data				\
-	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GIO_CFLAGS)							\
 	$(DBUS_CFLAGS)

@@ -15,10 +15,9 @@ TEST_PROGS +=									\
 	tracker-monitor-test
 
 INCLUDES =									\
+	$(BUILD_CFLAGS)								\
 	-DTEST									\
-	-DG_LOG_DOMAIN=\"Tracker\"						\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\
-	-DTRACKER_COMPILATION							\
 	-DTEST_DATA_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/data"\"	\
 	-DTEST_MINERS_DIR=\""$(abs_top_srcdir)/tests/libtracker-miner/mock-miners"\"	\
 	-I$(top_srcdir)/src							\
@@ -30,8 +29,6 @@ INCLUDES =									\
 	-I$(top_builddir)/src/libtracker-miner					\
 	-I$(top_srcdir)/src/libtracker-sparql					\
 	-I$(top_builddir)/src/libtracker-sparql					\
-	$(WARN_CFLAGS)								\
-	$(GCOV_CFLAGS)								\
 	$(GLIB2_CFLAGS)								\
 	$(GIO_CFLAGS)								\
 	$(GMODULE_CFLAGS)							\
@@ -42,8 +39,8 @@ LIBS =										\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la		\
+	$(BUILD_LIBS)                                                           \
 	$(DBUS_LIBS)                                                            \
-	$(GCOV_LIBS)                                                            \
 	$(GMODULE_LIBS)                                                         \
 	$(GTHREAD_LIBS)                                                         \
 	$(GIO_LIBS)                                                             \

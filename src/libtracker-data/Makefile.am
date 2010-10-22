@@ -1,15 +1,12 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
+	$(BUILD_CFLAGS)							\
 	-DSHAREDIR=\""$(datadir)"\"					\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(LIBTRACKER_DATA_CFLAGS)					\
 	$(UNICODE_SUPPORT_CFLAGS)
 

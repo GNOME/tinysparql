@@ -5,13 +5,11 @@ noinst_PROGRAMS = ontology-validator data-validator $(TEST_PROGS)
 #TEST_PROGS += qname-test
 
 INCLUDES = 								\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
+	$(BUILD_CFLAGS)							\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
-	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GIO_CFLAGS)							\
 	$(DBUS_CFLAGS)
@@ -23,6 +21,7 @@ ontology_validator_LDADD =						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(BUILD_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
@@ -34,6 +33,7 @@ data_validator_LDADD =							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(BUILD_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GIO_LIBS)

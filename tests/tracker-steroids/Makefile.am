@@ -6,13 +6,10 @@ TEST_PROGS += 								\
 	tracker-test
 
 INCLUDES = 								\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
+	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
-	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
 	$(DBUS_CFLAGS)
@@ -23,9 +20,9 @@ tracker_test_SOURCES = 							\
 tracker_test_LDADD = 							\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GIO_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(GCOV_LIBS)
+	$(GLIB2_LIBS)

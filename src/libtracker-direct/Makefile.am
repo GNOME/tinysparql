@@ -3,14 +3,11 @@ include $(top_srcdir)/Makefile.decl
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
 
 INCLUDES =								\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
+	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_srcdir)/src/libtracker-data				\
 	-I$(top_builddir)/src						\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(LIBTRACKER_DIRECT_CFLAGS)
 
 modules_LTLIBRARIES = libtracker-direct.la
@@ -43,7 +40,7 @@ BUILT_SOURCES = libtracker-direct.vala.stamp
 
 libtracker_direct_la_LIBADD = 				\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la	\
-	$(GCOV_LIBS)					\
+	$(BUILD_LIBS)					\
 	$(LIBTRACKER_DIRECT_LIBS)
 
 MAINTAINERCLEANFILES =					\

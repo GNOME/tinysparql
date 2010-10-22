@@ -1,18 +1,14 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
-	-Wall								\
+	$(BUILD_CFLAGS)							\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(TRACKER_MINER_FLICKR_CFLAGS)
 
 VALAFLAGS =								\
@@ -36,7 +32,7 @@ tracker_miner_flickr_SOURCES =						\
 tracker_miner_flickr_LDADD =						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(GCOV_LIBS)							\
+	$(BUILD_LIBS)							\
 	$(TRACKER_MINER_FLICKR_LIBS)
 
 vapi_sources =								\

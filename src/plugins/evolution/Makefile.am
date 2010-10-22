@@ -1,17 +1,13 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
+	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""			\
 	-DLOCALEDIR="\"$(localedir)\""					\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
-	-DTRACKER_COMPILATION						\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(WARN_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(EVOLUTION_PLUGIN_CFLAGS)					\
-	$(GCOV_CFLAGS)
+	$(EVOLUTION_PLUGIN_CFLAGS)
 
 %.eplug.in: %.eplug.xml
 	LC_ALL=C $(INTLTOOL_MERGE) -x -u /tmp $< $@
@@ -39,9 +35,9 @@ liborg_freedesktop_Tracker_evolution_plugin_la_LIBADD = 		\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(BUILD_LIBS)							\
 	$(EVOLUTION_PLUGIN_LIBS)					\
-	$(DBUS_LIBS)							\
-	$(GCOV_LIBS)
+	$(DBUS_LIBS)
 
 @INTLTOOL_DESKTOP_RULE@
 

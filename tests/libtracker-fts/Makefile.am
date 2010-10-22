@@ -14,10 +14,9 @@ TEST_PROGS += 								\
 	tracker-parser-test
 
 INCLUDES = 								\
-	-DTRACKER_COMPILATION						\
+	$(BUILD_CFLAGS)							\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-DTOP_BUILDDIR=\"$(top_builddir)\"				\
-	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
 	-I$(top_builddir)/src						\
@@ -27,8 +26,6 @@ INCLUDES = 								\
 	-I$(top_builddir)/src/libtracker-data				\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-sparql				\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(SQLITE3_CFLAGS)						\
 	$(GMODULE_CFLAGS)						\
@@ -39,7 +36,7 @@ common_ldadd =								\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la	 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(GCOV_LIBS)							\
+	$(BUILD_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)
