@@ -48,7 +48,7 @@ if HAVE_TRACKER_STATUS_ICON
 autostart_DATA += tracker-status-icon.desktop
 endif
 
-if HAVE_MINER_RSS
+if HAVE_TRACKER_MINER_RSS
 autostart_DATA += tracker-miner-rss.desktop
 endif
 

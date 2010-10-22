@@ -348,6 +348,16 @@ PKG_CHECK_MODULES(TRACKER_MINER_FS, [$TRACKER_MINER_FS_REQUIRED])
 
 TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
 
+# Check requirements for tracker-miner-rss
+TRACKER_MINER_RSS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                            dbus-1       >= $DBUS_REQUIRED
+                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED
+                            libgrss-0    >= $LIBGRSS_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
+                  [have_tracker_miner_rss=yes],
+                  [have_tracker_miner_rss=no])
+
 # Check requirements for tracker-utils
 TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         gio-unix-2.0 >= $GLIB_REQUIRED
@@ -1244,27 +1254,19 @@ AM_CONDITIONAL(HAVE_MINER_EVOLUTION, test "x$have_miner_evolution" = "xyes")
 AC_ARG_ENABLE([miner_rss],
               AS_HELP_STRING([--enable-miner-rss],
                              [enable RSS data miner [[default=auto]]]),,
-              [enable_miner_rss=auto])
+              [enable_tracker_miner_rss=auto])
 
-if test "x$enable_miner_rss" != "xno" ; then
-   PKG_CHECK_MODULES(LIBGRSS,
-                     [libgrss-0 >= $LIBGRSS_REQUIRED],
-                     [have_miner_rss=yes],
-                     [have_miner_rss=no])
-
-   AC_SUBST(MINER_RSS_CFLAGS)
-   AC_SUBST(MINER_RSS_LIBS)
+if test "x$enable_tracker_miner_rss" = "xyes" ; then
+   if test "x$have_tracker_miner_rss" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-miner-rss dependencies ($TRACKER_MINER_RSS_REQUIRED).])
+   fi
 else
-   have_miner_rss="no  (disabled)"
-fi
-
-if test "x$enable_miner_rss" = "xyes"; then
-   if test "x$have_miner_rss" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libgrss >= $LIBGRSS_REQUIRED for RSS miner.])
+   if test "x$enable_tracker_miner_rss" = "xno" ; then
+      have_tracker_miner_rss="no  (disabled)"
    fi
 fi
 
-AM_CONDITIONAL(HAVE_MINER_RSS, test "x$have_miner_rss" = "xyes")
+AM_CONDITIONAL(HAVE_TRACKER_MINER_RSS, test "x$have_tracker_miner_rss" = "xyes")
 
 ####################################################################
 # Application and Vala requirements
@@ -2187,7 +2189,7 @@ Data Miners:
 
 	Applications:                           yes
           MeeGo                                 $have_meegotouch
-	RSS:                                    $have_miner_rss
+	RSS:                                    $have_tracker_miner_rss
 	Evolution:                              $have_miner_evolution ($evolution_plugins_dir)
 	Flickr:                                 $have_miner_flickr
 

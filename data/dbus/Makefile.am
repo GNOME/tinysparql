@@ -40,7 +40,7 @@ if HAVE_MINER_EVOLUTION
 service_DATA += org.freedesktop.Tracker1.Miner.EMails.service
 endif
 
-if HAVE_MINER_RSS
+if HAVE_TRACKER_MINER_RSS
 service_DATA += org.freedesktop.Tracker1.Miner.RSS.service
 endif
 

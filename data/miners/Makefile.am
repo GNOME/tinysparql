@@ -24,7 +24,7 @@ if HAVE_MINER_EVOLUTION
 tracker_miners_DATA += tracker-miner-evolution.desktop
 endif
 
-if HAVE_MINER_RSS
+if HAVE_TRACKER_MINER_RSS
 tracker_miners_DATA += tracker-miner-rss.desktop
 endif
 

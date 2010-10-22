@@ -12,10 +12,8 @@ INCLUDES =								\
 	-I$(top_builddir)/src						\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
-	$(GMODULE_CFLAGS)						\
-	$(DBUS_CFLAGS)							\
-	$(LIBGRSS_CFLAGS)						\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)							\
+	$(TRACKER_MINER_RSS_CFLAGS)
 
 libexec_PROGRAMS = tracker-miner-rss
 
@@ -28,7 +26,5 @@ tracker_miner_rss_LDADD =						\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(LIBGRSS_LIBS)							\
-	$(DBUS_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(GTHREAD_LIBS)
+	$(GCOV_LIBS)							\
+	$(TRACKER_MINER_RSS_LIBS)
