@@ -165,6 +165,7 @@ typedef struct {
 	const gchar *uri;
 	GString *content;
 	gboolean title_already_set;
+	gboolean generator_already_set;
 } MsOfficeXMLParserInfo;
 
 typedef struct {
@@ -1900,7 +1901,6 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
                                 GError              **error)
 {
 	MsOfficeXMLParserInfo *info = user_data;
-	static gboolean added = FALSE;
 
 	switch (info->tag_type) {
 	case MS_OFFICE_XML_TAG_WORD_TEXT:
@@ -1964,10 +1964,13 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 	}
 
 	case MS_OFFICE_XML_TAG_GENERATOR:
-		if (!added) {
+		if (info->generator_already_set) {
+			g_warning ("Avoiding additional generator (%s) in MsOffice XML document '%s'",
+			           text, info->uri);
+		} else {
+			info->generator_already_set = TRUE;
 			tracker_sparql_builder_predicate (info->metadata, "nie:generator");
 			tracker_sparql_builder_object_unvalidated (info->metadata, text);
-			added = TRUE;
 		}
 		break;
 
