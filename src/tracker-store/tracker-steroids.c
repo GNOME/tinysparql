@@ -34,6 +34,8 @@
 #define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on " \
                                "interface \"%s\" doesn't exist, expected \"%s\""
 
+#define TRACKER_SPARQL_DBUS_ERROR "org.freedesktop.Tracker1.SparqlError.Internal"
+
 /**
  * /!\ IMPORTANT WARNING /!\
  *
@@ -107,7 +109,7 @@ query_callback (gpointer  inthread_data,
 		                             &ptr->error,
 		                             NULL);
 		reply = dbus_message_new_error (info->call_message,
-		                                TRACKER_STEROIDS_INTERFACE ".QueryError",
+		                                TRACKER_SPARQL_DBUS_ERROR,
 		                                ptr->error->message);
 		dbus_connection_send (info->connection, reply, NULL);
 		dbus_message_unref (reply);
@@ -119,7 +121,7 @@ query_callback (gpointer  inthread_data,
 		                             &error,
 		                             NULL);
 		reply = dbus_message_new_error (info->call_message,
-		                                TRACKER_STEROIDS_INTERFACE ".QueryError",
+		                                TRACKER_SPARQL_DBUS_ERROR,
 		                                error->message);
 		dbus_connection_send (info->connection, reply, NULL);
 		dbus_message_unref (reply);
@@ -165,7 +167,7 @@ update_callback (GError *error, gpointer user_data)
 		                             &error,
 		                             NULL);
 		reply = dbus_message_new_error (info->call_message,
-		                                TRACKER_STEROIDS_INTERFACE ".UpdateError",
+		                                TRACKER_SPARQL_DBUS_ERROR,
 		                                error->message);
 		dbus_connection_send (info->connection, reply, NULL);
 		dbus_message_unref (reply);
@@ -212,7 +214,7 @@ update_array_callback (GError *error, gpointer user_data)
 			const gchar *message = "";
 
 			if (error) {
-				str = TRACKER_STEROIDS_INTERFACE ".UpdateError";
+				str = TRACKER_SPARQL_DBUS_ERROR;
 				message = error->message;
 			}
 
@@ -280,7 +282,7 @@ update_blank_callback (GPtrArray *blank_nodes,
 		                             &error,
 		                             NULL);
 		reply = dbus_message_new_error (info->call_message,
-		                                TRACKER_STEROIDS_INTERFACE ".UpdateBlankError",
+		                                TRACKER_SPARQL_DBUS_ERROR,
 		                                error->message);
 		dbus_connection_send (info->connection, reply, NULL);
 		dbus_message_unref (reply);
@@ -656,7 +658,7 @@ steroids_update (TrackerSteroids *steroids,
 
 	if (error) {
 		reply = dbus_message_new_error (info->call_message,
-		                                TRACKER_STEROIDS_INTERFACE ".UpdateError",
+		                                TRACKER_SPARQL_DBUS_ERROR,
 		                                error->message);
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
@@ -686,7 +688,7 @@ steroids_update (TrackerSteroids *steroids,
 
 	if (error) {
 		reply = dbus_message_new_error (info->call_message,
-		                                TRACKER_STEROIDS_INTERFACE ".UpdateError",
+		                                TRACKER_SPARQL_DBUS_ERROR,
 		                                error->message);
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
@@ -834,7 +836,7 @@ steroids_update_array (TrackerSteroids *steroids,
 
 	if (error) {
 		reply = dbus_message_new_error (info->call_message,
-		                                TRACKER_STEROIDS_INTERFACE ".UpdateError",
+		                                TRACKER_SPARQL_DBUS_ERROR,
 		                                error->message);
 		dbus_connection_send (connection, reply, NULL);
 		dbus_message_unref (reply);
@@ -865,7 +867,7 @@ steroids_update_array (TrackerSteroids *steroids,
 
 		if (error) {
 			reply = dbus_message_new_error (info->call_message,
-			                                TRACKER_STEROIDS_INTERFACE ".UpdateError",
+			                                TRACKER_SPARQL_DBUS_ERROR,
 			                                error->message);
 			dbus_connection_send (connection, reply, NULL);
 			dbus_message_unref (reply);
@@ -896,7 +898,7 @@ steroids_update_array (TrackerSteroids *steroids,
 
 		if (error) {
 			reply = dbus_message_new_error (info->call_message,
-			                                TRACKER_STEROIDS_INTERFACE ".UpdateError",
+			                                TRACKER_SPARQL_DBUS_ERROR,
 			                                error->message);
 			dbus_connection_send (connection, reply, NULL);
 			dbus_message_unref (reply);
