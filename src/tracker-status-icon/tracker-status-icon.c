@@ -824,7 +824,7 @@ context_menu_about_cb (GtkMenuItem *item,
 static void
 status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 {
-	GtkWidget *item, *image;
+	GtkWidget *item;
 	TrackerStatusIconPrivate *priv;
 	GSList *miners, *m;
 
@@ -832,6 +832,8 @@ status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 
 #if HAVE_TRACKER_SEARCH_TOOL
 	if (g_find_program_in_path ("tracker-search-tool")) {
+		GtkWidget *image;
+
 		item = gtk_image_menu_item_new_with_mnemonic (_("_Search"));
 		image = gtk_image_new_from_icon_name (GTK_STOCK_FIND,
 						      GTK_ICON_SIZE_MENU);

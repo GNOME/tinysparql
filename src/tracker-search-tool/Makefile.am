@@ -20,24 +20,16 @@ tracker_search_tool.gs.stamp: $(tracker_search_tool_VALASOURCES)
 	$(VALAC) -C -g --pkg dbus-glib-1 --pkg gee-1.0 --pkg gio-unix-2.0 --pkg gtk+-2.0 $^
 	touch tracker_search_tool.gs.stamp
 
-tracker_search_tool_CFLAGS = \
+tracker_search_tool_CFLAGS = 					\
+	$(BUILD_CFLAGS)						\
 	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"		\
 	-DSRCDIR=\"$(abs_srcdir)/\"				\
-	$(TRACKER_APPS_CFLAGS)					\
-	$(TRACKER_VALA_CFLAGS)					\
-	$(PANGO_CFLAGS)						\
-	$(GDKPIXBUF_CFLAGS)					\
-	$(WARN_CFLAGS)						\
-	$(GCOV_CFLAGS)						\
 	-include$(top_builddir)/config.h  			\
-	$(NULL)
+	$(TRACKER_SEARCH_TOOL_CFLAGS)
 
 tracker_search_tool_LDADD = 					\
-	$(TRACKER_APPS_LIBS)					\
-	$(TRACKER_VALA_LIBS)					\
-	$(GDKPIXBUF_LIBS)					\
-	$(GCOV_LIBS)						\
-	$(NULL)
+	$(BUILD_LIBS)						\
+	$(TRACKER_SEARCH_TOOL_LIBS)
 
 uidir = $(datadir)/tracker
 ui_DATA = tst.ui

@@ -345,6 +345,22 @@ TRACKER_WRITEBACK_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(TRACKER_WRITEBACK, [$TRACKER_WRITEBACK_REQUIRED])
 
+# Check requirements for tracker-search-tool
+TRACKER_SEARCH_TOOL_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
+                              gio-unix-2.0   >= $GLIB_REQUIRED
+                              gthread-2.0    >= $GLIB_REQUIRED
+                              gmodule-2.0    >= $GLIB_REQUIRED
+                              gtk+-2.0       >= $GTK_REQUIRED
+                              gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED
+                              pango          >= $PANGO_REQUIRED
+                              dbus-1         >= $DBUS_REQUIRED
+                              dbus-glib-1    >= $DBUS_GLIB_REQUIRED
+			      gee-1.0        >= $GEE_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_SEARCH_TOOL, [$TRACKER_SEARCH_TOOL_REQUIRED],
+                  [have_tracker_search_tool=yes],
+                  [have_tracker_search_tool=no])
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],
@@ -1316,20 +1332,13 @@ AC_ARG_ENABLE(tracker-search-tool,
                              [enable tracker-search-tool [[default=auto]]]),,
               [enable_tracker_search_tool=auto])
 
-if test "x$enable_tracker_search_tool" != "xno"; then
-   if test "x$have_app_requirements" != "xyes" -o \
-           "x$have_vala_requirements" != "xyes"; then
-      have_tracker_search_tool="no"
-   else
-      have_tracker_search_tool="yes"
-   fi
-else
-   have_tracker_search_tool="no  (disabled)"
-fi
-
 if test "x$enable_tracker_search_tool" = "xyes"; then
    if test "x$have_tracker_search_tool" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($APP_REQUIREMENTS $VALA_REQUIREMENTS).])
+      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($TRACKER_SEARCH_TOOL_REQUIRED).])
+   fi
+else
+   if test "xenable_tracker_search_tool" = "xno"; then
+      have_tracker_search_tool="no  (disabled)"
    fi
 fi
 
@@ -1364,12 +1373,6 @@ if test "x$enable_tracker_preferences" = "xyes"; then
    if test "x$have_tracker_preferences" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($APP_REQUIREMENTS).])
    fi
-fi
-
-if test "x$have_tracker_preferences" = "xyes"; then
-   AC_DEFINE(HAVE_TRACKER_PREFERENCES, [1], [Define to 1 if tracker preferences is compiled])
-else
-   AC_DEFINE(HAVE_TRACKER_PREFERENCES, [0], [Define to 0 if tracker preferences is not compiled])
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
