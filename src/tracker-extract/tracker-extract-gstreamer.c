@@ -156,9 +156,9 @@ const gboolean use_tagreadbin = FALSE;
 
 static void
 add_int64_info (TrackerSparqlBuilder *metadata,
-                const gchar *uri,
-                const gchar *key,
-                gint64      info)
+                const gchar          *uri,
+                const gchar          *key,
+                gint64                info)
 {
 	tracker_sparql_builder_predicate (metadata, key);
 	tracker_sparql_builder_object_int64 (metadata, info);
@@ -166,9 +166,9 @@ add_int64_info (TrackerSparqlBuilder *metadata,
 
 static void
 add_uint_info (TrackerSparqlBuilder *metadata,
-               const gchar *uri,
-               const gchar *key,
-               guint       info)
+               const gchar          *uri,
+               const gchar          *key,
+               guint                 info)
 {
 	tracker_sparql_builder_predicate (metadata, key);
 	tracker_sparql_builder_object_int64 (metadata, info);
@@ -198,11 +198,11 @@ add_string_gst_tag (TrackerSparqlBuilder *metadata,
 }
 
 static void
-add_uint_gst_tag (TrackerSparqlBuilder   *metadata,
-                  const gchar *uri,
-                  const gchar *key,
-                  GstTagList  *tag_list,
-                  const gchar *tag)
+add_uint_gst_tag (TrackerSparqlBuilder  *metadata,
+                  const gchar           *uri,
+                  const gchar           *key,
+                  GstTagList            *tag_list,
+                  const gchar           *tag)
 {
 	gboolean ret;
 	guint    n;
@@ -216,11 +216,11 @@ add_uint_gst_tag (TrackerSparqlBuilder   *metadata,
 }
 
 static void
-add_int_gst_tag (TrackerSparqlBuilder   *metadata,
-                 const gchar *uri,
-                 const gchar *key,
-                 GstTagList  *tag_list,
-                 const gchar *tag)
+add_int_gst_tag (TrackerSparqlBuilder  *metadata,
+                 const gchar           *uri,
+                 const gchar           *key,
+                 GstTagList            *tag_list,
+                 const gchar           *tag)
 {
 	gboolean ret;
 	gint     n;
@@ -234,11 +234,11 @@ add_int_gst_tag (TrackerSparqlBuilder   *metadata,
 }
 
 static void
-add_double_gst_tag (TrackerSparqlBuilder        *metadata,
-                    const gchar *uri,
-                    const gchar *key,
-                    GstTagList  *tag_list,
-                    const gchar *tag)
+add_double_gst_tag (TrackerSparqlBuilder  *metadata,
+                    const gchar           *uri,
+                    const gchar           *key,
+                    GstTagList            *tag_list,
+                    const gchar           *tag)
 {
 	gboolean ret;
 	gdouble          n;
@@ -252,11 +252,11 @@ add_double_gst_tag (TrackerSparqlBuilder        *metadata,
 }
 
 static void
-add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
-                      const gchar       *uri,
-                      const gchar       *key,
-                      GstTagList        *tag_list,
-                      const gchar       *tag)
+add_fraction_gst_tag (TrackerSparqlBuilder  *metadata,
+                      const gchar           *uri,
+                      const gchar           *key,
+                      GstTagList            *tag_list,
+                      const gchar           *tag)
 {
 	gboolean ret;
 	GValue   n = {0,};
@@ -277,10 +277,10 @@ add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
 
 static void
 add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
-                    const gchar *uri,
-                    const gchar *key,
-                    GstTagList  *tag_list,
-                    const gchar *tag)
+                    const gchar           *uri,
+                    const gchar           *key,
+                    GstTagList            *tag_list,
+                    const gchar           *tag)
 {
 	GDate    *date;
 	gboolean  ret;
@@ -422,9 +422,9 @@ get_embedded_album_art(MetadataExtractor *extractor)
 }
 
 static void
-extract_stream_metadata_tagreadbin (MetadataExtractor *extractor,
-                                    const gchar       *uri,
-                                    TrackerSparqlBuilder         *metadata)
+extract_stream_metadata_tagreadbin (MetadataExtractor     *extractor,
+                                    const gchar           *uri,
+                                    TrackerSparqlBuilder  *metadata)
 {
 	if (extractor->mime != EXTRACT_MIME_IMAGE) {
 		add_int_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
@@ -505,7 +505,7 @@ extract_metadata (MetadataExtractor      *extractor,
 	g_return_if_fail (metadata != NULL);
 
 	if (extractor->tagcache) {
-		/* gchar *artist_uri = NULL; */
+		gchar *artist_uri = NULL;
 		gchar *performer_uri = NULL;
 		gchar *composer_uri = NULL;
 		gchar *album_uri = NULL;
@@ -534,7 +534,6 @@ extract_metadata (MetadataExtractor      *extractor,
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_PERFORMER, &performer);
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_ARTIST, &artist_local);
 
-			/*
 			if (artist_local) {
 				artist_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", artist_local);
 
@@ -545,7 +544,7 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
 				tracker_sparql_builder_object_unvalidated (preupdate, artist_local);
 				tracker_sparql_builder_insert_close (preupdate);
-			} */
+			}
 
 			temp = tracker_coalesce_strip (2, performer, artist_local);
 
@@ -612,11 +611,10 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 			tracker_sparql_builder_object_unvalidated (preupdate, s);
 
-			/*
 			if (artist_uri) {
 				tracker_sparql_builder_predicate (preupdate, "nmm:albumArtist");
 				tracker_sparql_builder_object_iri (preupdate, artist_uri);
-			} */
+			}
 
 			tracker_sparql_builder_insert_close (preupdate);
 
@@ -1006,9 +1004,9 @@ add_tags (GstTagList *new_tags, MetadataExtractor *extractor)
 
 static gboolean
 poll_for_ready (MetadataExtractor *extractor,
-                GstState state,
-                gboolean ready_with_state,
-                gboolean ready_with_eos)
+                GstState           state,
+                gboolean           ready_with_state,
+                gboolean           ready_with_eos)
 {
 	gint64              timeout   = 5 * GST_SECOND;
 	GstBus             *bus       = extractor->bus;
@@ -1104,7 +1102,8 @@ poll_for_ready (MetadataExtractor *extractor,
 }
 
 static GstElement *
-create_decodebin_pipeline (MetadataExtractor *extractor, const gchar *uri)
+create_decodebin_pipeline (MetadataExtractor *extractor,
+                           const gchar *uri)
 {
 	GstElement *pipeline = NULL;
 
@@ -1154,7 +1153,8 @@ create_decodebin_pipeline (MetadataExtractor *extractor, const gchar *uri)
 }
 
 static GstElement *
-create_tagreadbin_pipeline (MetadataExtractor *extractor, const gchar *uri)
+create_tagreadbin_pipeline (MetadataExtractor *extractor,
+                            const gchar *uri)
 {
 	GstElement *pipeline = NULL;
 
@@ -1282,7 +1282,7 @@ tracker_extract_gstreamer (const gchar *uri,
 static void
 extract_gstreamer_audio (const gchar          *uri,
                          TrackerSparqlBuilder *preupdate,
-			 TrackerSparqlBuilder *metadata)
+                         TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_AUDIO);
 }
@@ -1290,7 +1290,7 @@ extract_gstreamer_audio (const gchar          *uri,
 static void
 extract_gstreamer_video (const gchar          *uri,
                          TrackerSparqlBuilder *preupdate,
-			 TrackerSparqlBuilder *metadata)
+                         TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_VIDEO);
 }
@@ -1298,7 +1298,7 @@ extract_gstreamer_video (const gchar          *uri,
 static void
 extract_gstreamer_image (const gchar          *uri,
                          TrackerSparqlBuilder *preupdate,
-			 TrackerSparqlBuilder *metadata)
+                         TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_IMAGE);
 }
@@ -1306,7 +1306,7 @@ extract_gstreamer_image (const gchar          *uri,
 static void
 extract_gstreamer_guess (const gchar          *uri,
                         TrackerSparqlBuilder *preupdate,
-			TrackerSparqlBuilder *metadata)
+                         TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS);
 }
