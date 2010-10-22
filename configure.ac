@@ -374,6 +374,22 @@ PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
                   [have_tracker_preferences=yes],
                   [have_tracker_preferences=no])
 
+# Check requirements for tracker-status-icon
+TRACKER_STATUS_ICON_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
+                              gio-unix-2.0   >= $GLIB_REQUIRED
+                              gthread-2.0    >= $GLIB_REQUIRED
+                              gmodule-2.0    >= $GLIB_REQUIRED
+                              gtk+-2.0       >= $GTK_REQUIRED
+                              pango          >= $PANGO_REQUIRED
+                              dbus-1         >= $DBUS_REQUIRED
+                              dbus-glib-1    >= $DBUS_GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_STATUS_ICON, [$TRACKER_STATUS_ICON_REQUIRED],
+                  [have_tracker_status_icon=yes],
+                  [have_tracker_status_icon=no])
+
+TRACKER_STATUS_ICON_LIBS="$TRACKER_STATUS_ICON_LIBS -lX11"
+
 # Check for enca, detects defect Russian or Cyrillic language specifics in mp3s
 AC_ARG_WITH(enca,
             AS_HELP_STRING([--with-enca],
@@ -1259,19 +1275,13 @@ AC_ARG_ENABLE([tracker-status-icon],
                              [enable tracker-status-icon [[default=auto]]]),,
               [enable_tracker_status_icon=auto])
 
-if test "x$enable_tracker_status_icon" != "xno" ; then
-   if test "x$have_app_requirements" != "xyes"; then
-      have_tracker_status_icon="no"
-   else
-      have_tracker_status_icon="yes"
+if test "x$enable_tracker_status_icon" = "xyes" ; then
+   if test "x$have_tracker_status_icon" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies ($TRACKER_STATUS_ICON_REQUIRED).])
    fi
 else
-   have_tracker_status_icon="no  (disabled)"
-fi
-
-if test "x$enable_tracker_status_icon" = "xyes"; then
-   if test "x$have_tracker_status_icon" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies ($APP_REQUIREMENTS).])
+   if test "x$enable_tracker_status_icon" = "xno" ; then
+      have_tracker_status_icon="no  (disabled)"
    fi
 fi
 

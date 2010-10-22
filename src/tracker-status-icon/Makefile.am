@@ -1,17 +1,14 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
+	$(BUILD_CFLAGS)							\
+	-I$(top_srcdir)/src						\
+	-I$(top_builddir)/src						\
 	-DICONS_DIR=\""$(datadir)/tracker/icons/"\"			\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DTRACKER_LIBEXECDIR=\""$(libexecdir)"\" 			\
-	-DTRACKER_COMPILATION						\
-	-I$(top_srcdir)/src						\
-	-I$(top_builddir)/src						\
-	$(TRACKER_APPS_CFLAGS)						\
-	$(PANGO_CFLAGS)							\
-	$(WARN_CFLAGS)							\
-	$(GCOV_CFLAGS)
+	$(TRACKER_STATUS_ICON_CFLAGS)
 
 bin_PROGRAMS = tracker-status-icon
 
@@ -20,10 +17,8 @@ tracker_status_icon_LDADD = 						\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la 	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(TRACKER_APPS_LIBS)						\
-	$(PANGO_LIBS)							\
-	$(GCOV_LIBS)							\
-	-lX11
+	$(BUILD_LIBS)							\
+	$(TRACKER_STATUS_ICON_LIBS)
 
 tracker_status_icon_SOURCES =						\
 	tomboykeybinder.c						\
