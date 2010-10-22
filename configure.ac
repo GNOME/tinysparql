@@ -336,6 +336,18 @@ TRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(TRACKER_EXTRACT, [$TRACKER_EXTRACT_REQUIRED])
 
+# Check requirements for tracker-miner-fs
+TRACKER_MINER_FS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                           gio-unix-2.0 >= $GLIB_REQUIRED
+                           gthread-2.0  >= $GLIB_REQUIRED
+                           gmodule-2.0  >= $GLIB_REQUIRED
+                           dbus-1       >= $DBUS_REQUIRED
+                           dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_MINER_FS, [$TRACKER_MINER_FS_REQUIRED])
+
+TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
+
 # Check requirements for tracker-utils
 TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         gio-unix-2.0 >= $GLIB_REQUIRED

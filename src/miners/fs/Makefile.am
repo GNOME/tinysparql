@@ -17,10 +17,8 @@ INCLUDES =								\
 	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src/libtracker-sparql				\
 	$(WARN_CFLAGS)							\
-	$(GMODULE_CFLAGS)						\
-	$(GIO_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(GCOV_CFLAGS)
+	$(GCOV_CFLAGS)							\
+	$(TRACKER_MINER_FS_CFLAGS)
 
 libexec_PROGRAMS = tracker-miner-fs
 
@@ -42,14 +40,8 @@ tracker_miner_fs_LDADD =						\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(DBUS_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(GLIB2_LIBS)							\
-	-lz								\
-	-lm
+	$(TRACKER_MINER_FS_LIBS)
 
 if HAVE_MEEGOTOUCH
 INCLUDES += $(MEEGOTOUCH_CFLAGS)
