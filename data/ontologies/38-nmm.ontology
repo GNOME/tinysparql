@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-10-20T07:42:00Z" .
+	nao:lastModified "2010-11-22T13:15:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -27,7 +27,7 @@ nmm:SynchronizedText a rdfs:Class ;
 
 nmm:MusicAlbum a rdfs:Class ;
 	rdfs:label "Music album" ;
-        tracker:notify true ;
+	tracker:notify true ;
 	rdfs:subClassOf nfo:MediaList .
 
 nmm:Video a rdfs:Class ;
@@ -39,13 +39,13 @@ nmm:Video a rdfs:Class ;
 nmm:Artist a rdfs:Class ;
 	rdfs:label "Artist" ;
 	rdfs:comment "An artist." ;
-        tracker:notify true ;
+	tracker:notify true ;
 	rdfs:subClassOf nie:InformationElement , nco:Role .
 
 nmm:Playlist a rdfs:Class ;
 	rdfs:label "Media playlist" ;
 	rdfs:comment "Specific class to split MediaList in Albums and playlists." ;
-        tracker:notify true ;
+	tracker:notify true ;
 	rdfs:subClassOf nfo:MediaList .
 
 nmm:artistName a rdf:Property ;
@@ -74,7 +74,6 @@ nmm:musicAlbum a rdf:Property ;
 nmm:albumArtist a rdf:Property ;
 	rdfs:label "artist" ;
 	rdfs:comment "main artists of the album" ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbum ;
 	rdfs:range nmm:Artist ;
 	tracker:weight 6 .
@@ -435,7 +434,7 @@ nmm:RadioStation a rdfs:Class ;
 	tracker:notify true .
 
 nmm:radioIcon a rdf:Property ;
-        rdfs:label "Radio station icon" ;
+	rdfs:label "Radio station icon" ;
 	rdfs:comment "Image used as logo for a radio station" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:RadioStation ;
@@ -456,7 +455,7 @@ nmm:carrier a rdf:Property ;
 
 # Radio (DO part)
 nmm:DigitalRadio a rdfs:Class ;
-        rdfs:label "Online Radio Stream" ;
+	rdfs:label "Online Radio Stream" ;
 	rdfs:comment "Online Radio Stream data object (i.e. as a raw flow of bytes)" ;
 	rdfs:subClassOf nfo:MediaStream .
 
@@ -489,7 +488,7 @@ nmm:frequency a rdf:Property ;
 
 
 nmm:streamingBitrate a rdf:Property ;
- 	rdfs:label "Streaming bitrate" ;
+	rdfs:label "Streaming bitrate" ;
 	rdfs:comment "Bitrate indicating the quality of the stream in Kbits (usual values 32, 64, 128...)" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:DigitalRadio ;
@@ -513,7 +512,7 @@ nmm:protocol a rdf:Property ;
 
 # Upnp related resources
 nmm:alternativeMedia a rdf:Property ;
-        rdfs:label "Alternative media" ;
+	rdfs:label "Alternative media" ;
 	rdfs:comment "Link between to different version of the same media. This is used for instances in uPnp where the server can provide the same video in different resolutions and codecs" ;
 	rdfs:domain nfo:Media ;
 	rdfs:range nfo:Media .
