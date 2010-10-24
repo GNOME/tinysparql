@@ -77,8 +77,11 @@ public class Tracker.TagList : ScrolledWindow {
 		// Add data
 		try {
 			connection = Sparql.Connection.get ();
-		} catch (Sparql.Error e) {
-			warning ("Could not get Sparql connection: %s", e.message);
+		} catch (Sparql.Error ea) {
+			warning ("Could not get Sparql connection: %s", ea.message);
+			return;
+		} catch (GLib.IOError eb) {
+			warning ("Could not get Sparql connection: %s", eb.message);
 			return;
 		}
 

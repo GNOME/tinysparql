@@ -43,8 +43,10 @@ public class Tracker.Query {
 	public Query () {
 		try {
 			connection = Sparql.Connection.get ();
-		} catch (Sparql.Error e) {
-			warning ("Could not get Sparql connection: %s", e.message);
+		} catch (Sparql.Error ea) {
+			warning ("Could not get Sparql connection: %s", ea.message);
+		} catch (GLib.IOError eb) {
+			warning ("Could not get Sparql connection: %s", eb.message);
 		}
 	}
 
