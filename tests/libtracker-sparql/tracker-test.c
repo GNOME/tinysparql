@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include <tracker-sparql.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 typedef struct {
 	const gchar *input ;
