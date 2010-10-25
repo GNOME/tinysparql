@@ -348,7 +348,7 @@ tracker_data_update_get_new_service_id (void)
 		iface = tracker_db_manager_get_db_interface ();
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-			                                      "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
+		                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
 
 		if (stmt) {
 			cursor = tracker_db_statement_start_cursor (stmt, &error);
@@ -379,7 +379,7 @@ tracker_data_update_get_new_service_id (void)
 		iface = tracker_db_manager_get_db_interface ();
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-			                                      "SELECT MAX(ID) AS A FROM Resource");
+		                                              "SELECT MAX(ID) AS A FROM Resource");
 
 		if (stmt) {
 			cursor = tracker_db_statement_start_cursor (stmt, &error);
