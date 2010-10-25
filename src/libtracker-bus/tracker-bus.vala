@@ -139,7 +139,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 			output = null;
 
 			// receive query results via FD
-			var mem_stream = new MemoryOutputStream (null, 0, GLib.realloc, GLib.free);
+			var mem_stream = new MemoryOutputStream (null, GLib.realloc, GLib.free);
 			yield mem_stream.splice_async (input, OutputStreamSpliceFlags.CLOSE_SOURCE | OutputStreamSpliceFlags.CLOSE_TARGET, Priority.DEFAULT, cancellable);
 
 			// wait for D-Bus reply
