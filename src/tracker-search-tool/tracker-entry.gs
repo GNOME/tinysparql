@@ -41,7 +41,7 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
 
     init
         entry = get_child() as Entry
-        entry.set_icon_from_stock (EntryIconPosition.SECONDARY, STOCK_CLEAR)
+        entry.set_icon_from_stock (EntryIconPosition.SECONDARY, Stock.CLEAR)
         entry.set_icon_sensitive (EntryIconPosition.SECONDARY, true)
         entry.set_icon_tooltip_text (EntryIconPosition.SECONDARY,
                                      _("Clear the search text"))
