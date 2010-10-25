@@ -364,7 +364,7 @@ tracker_data_update_get_new_service_id (void)
 		}
 
 		if (G_UNLIKELY (error)) {
-			g_warning ("Could not get new resource ID: %s\n", error->message);
+			g_warning ("Could not get new resource ID for ontology transaction: %s\n", error->message);
 			g_error_free (error);
 		}
 
