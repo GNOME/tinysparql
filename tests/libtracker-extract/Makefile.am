@@ -3,43 +3,24 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
-	tracker-utils 							\
-	tracker-xmp
+	tracker-test-utils						\
+	tracker-test-xmp
 
 INCLUDES = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
 	-I$(top_srcdir)/tests/common					\
-	$(GLIB2_CFLAGS)							\
-	$(GMODULE_CFLAGS)						\
-	$(GTHREAD_CFLAGS)						\
-	$(DBUS_CFLAGS)
+	$(LIBTRACKER_EXTRACT_CFLAGS)
 
-tracker_utils_SOURCES = \
-	tracker-utils-test.c
-
-tracker_utils_LDADD =							\
+LDADD =									\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la   \
 	$(BUILD_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GOBJECT_LIBS)							\
-	$(GLIB2_LIBS)
+	$(LIBTRACKER_EXTRACT_LIBS)
 
-tracker_xmp_SOURCES = \
-	tracker-xmp-test.c
+tracker_test_utils_SOURCES = tracker-test-utils.c
 
-tracker_xmp_LDADD =							\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la   \
-	$(BUILD_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GOBJECT_LIBS)							\
-	$(GLIB2_LIBS)
+tracker_test_xmp_SOURCES = tracker-test-xmp.c
+

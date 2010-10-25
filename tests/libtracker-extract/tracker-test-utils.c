@@ -19,13 +19,14 @@
  * Authors: Philip Van Hoof <philip@codeminded.be>
  */
 
+#include "config.h"
+
 #include <time.h>
 #include <string.h>
 
 #include <glib-object.h>
 
-#include <libtracker-common/tracker-date-time.h>
-#include <libtracker-extract/tracker-utils.h>
+#include <libtracker-extract/tracker-extract.h>
 
 #include <tracker-test-helpers.h>
 

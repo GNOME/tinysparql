@@ -19,7 +19,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <glib-object.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -276,8 +275,8 @@ test_xmp_apply (void)
 	TrackerSparqlBuilder *metadata, *preupdate;
 	TrackerXmpData *data;
 
-	metadata = tracker_sparql_builder_new_update ();;
-	preupdate = tracker_sparql_builder_new_update ();;
+	metadata = tracker_sparql_builder_new_update ();
+	preupdate = tracker_sparql_builder_new_update ();
 
 	data = tracker_xmp_new (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "urn:uuid:test");
 	g_assert (data != NULL);
