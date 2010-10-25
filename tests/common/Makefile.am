@@ -3,9 +3,8 @@ include $(top_srcdir)/Makefile.decl
 noinst_LTLIBRARIES = libtracker-testcommon.la
 
 INCLUDES = 									\
+	$(BUILD)								\
 	-DTEST_TEXT=\""$(top_srcdir)"/tests/libtracker-common/non-utf8.txt\"	\
-	$(WARN_CFLAGS)								\
-	$(GCOV_CFLAGS)								\
 	$(GLIB2_CFLAGS)
 
 libtracker_testcommon_la_SOURCES = 						\
@@ -13,6 +12,6 @@ libtracker_testcommon_la_SOURCES = 						\
 	tracker-test-helpers.h
 
 libtracker_testcommon_la_LIBDADD = 						\
-	$(GLIB2_LIBS)                                                           \
-	$(GCOV_LIBS)
+	$(BUILD_LIBS)                                                           \
+	$(GLIB_LIBS)
 
