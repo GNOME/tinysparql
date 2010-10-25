@@ -17,12 +17,15 @@
  * 02110-1301, USA.
  */
 
+#include "config.h"
+
+#include <string.h>
+
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <gio/gio.h>
-#include <string.h>
 
-#include <libtracker-data/tracker-sparql-query.h>
+#include <libtracker-data/tracker-data.h>
 
 static gchar         *ontology_dir = NULL;
 
