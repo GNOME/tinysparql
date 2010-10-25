@@ -5,9 +5,7 @@ INCLUDES =							\
 	-DSHAREDIR=\""$(datadir)"\"				\
 	-I$(top_srcdir)/src					\
 	-I$(top_builddir)/src					\
-	$(GLIB2_CFLAGS)						\
-	$(GIO_CFLAGS)						\
-	$(DBUS_CFLAGS)
+	$(LIBTRACKER_MINER_CFLAGS)
 
 noinst_PROGRAMS = tracker-miner-test
 
@@ -22,10 +20,4 @@ tracker_miner_test_LDADD =                             		\
        $(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
        $(top_builddir)/src/libtracker-common/libtracker-common.la \
        $(BUILD_LIBS)                                   		\
-       $(DBUS_LIBS)                                    		\
-       $(GMODULE_LIBS)                                 		\
-       $(GTHREAD_LIBS)                                 		\
-       $(GIO_LIBS)                                     		\
-       $(GLIB2_LIBS)                                   		\
-       -lz                                             		\
-       -lm
+       $(LIBTRACKER_MINER_LIBS)
