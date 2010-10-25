@@ -87,7 +87,7 @@ nao:lastModified a rdf:Property ;
 	rdfs:range xsd:dateTime .
 
 nao:isRelated a rdf:Property ;
-        rdfs:label "Is related" ;
-        rdfs:comment "This property defines a symmetric relation between any two resources. In order for this property to be used legally, the relationship must be symmetric." ;
-        rdfs:domain rdfs:Resource ;
-        rdfs:range rdfs:Resource .
+	rdfs:label "Is related" ;
+	rdfs:comment "This property defines a symmetric relation between any two resources. In order for this property to be used legally, the relationship must be symmetric." ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
