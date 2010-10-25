@@ -74,9 +74,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                            TRACKER_DBUS_SERVICE,
 		                                            TRACKER_DBUS_OBJECT_RESOURCES);
+		resources_object.set_default_timeout (int.MAX);
 		steroids_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                           TRACKER_DBUS_SERVICE,
 		                                           TRACKER_DBUS_OBJECT_STEROIDS);
+		steroids_object.set_default_timeout (int.MAX);
 		statistics_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                             TRACKER_DBUS_SERVICE,
 		                                             TRACKER_DBUS_OBJECT_STATISTICS);
