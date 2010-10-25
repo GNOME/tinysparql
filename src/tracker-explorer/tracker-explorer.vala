@@ -207,7 +207,7 @@ public class Explorer {
 			var result = tracker.SparqlQuery(query);
 			for (int i=0; i<result.length[0]; i++) {
 				string _namespace = result[i,0];
-				_namespace = _namespace.substring(0, _namespace.len() -1);
+				_namespace = _namespace.substring(0, _namespace.length -1);
 				namespaces[_namespace] = result[i,1];
 			}
 		} catch (DBus.Error e) {
