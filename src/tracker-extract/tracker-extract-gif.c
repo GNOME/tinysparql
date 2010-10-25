@@ -39,10 +39,9 @@ typedef struct {
 } MergeData;
 
 typedef struct {
-	const gchar *width;
-	const gchar *height;
-	const gchar *comment;
-
+	gchar *width;
+	gchar *height;
+	gchar *comment;
 } GifData;
 
 static void extract_gif (const gchar          *filename,
@@ -457,11 +456,13 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	if (gd.width) {
 		tracker_sparql_builder_predicate (metadata, "nfo:width");
 		tracker_sparql_builder_object_unvalidated (metadata, gd.width);
+		g_free (gd.width);
 	}
 
 	if (gd.height) {
 		tracker_sparql_builder_predicate (metadata, "nfo:height");
 		tracker_sparql_builder_object_unvalidated (metadata, gd.height);
+		g_free (gd.height);
 	}
 
 	tracker_xmp_free (xd);
