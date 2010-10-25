@@ -22,14 +22,11 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-#define TRACKER_SERVICE                 "org.freedesktop.Tracker1"
-#define TRACKER_RESOURCES_OBJECT        "/org/freedesktop/Tracker1/Resources"
-#define TRACKER_INTERFACE_RESOURCES     "org.freedesktop.Tracker1.Resources"
-
-#define DBUS_MATCH_STR	"type='signal', " \
-	"sender='" TRACKER_SERVICE "', " \
-	"path='" TRACKER_RESOURCES_OBJECT "', " \
-	"interface='" TRACKER_INTERFACE_RESOURCES "'"
+#define DBUS_MATCH_STR	                                  \
+	"type='signal', "                                 \
+	"sender='" TRACKER_DBUS_SERVICE "', "             \
+	"path='" TRACKER_DBUS_OBJECT_RESOURCES "', "      \
+	"interface='" TRACKER_DBUS_INTERFACE_RESOURCES "'"
 
 static TrackerSparqlConnection *con;
 
@@ -94,7 +91,7 @@ class_signal_cb (DBusMessage *message)
 static DBusHandlerResult
 message_filter (DBusConnection *connection, DBusMessage *message, gpointer ud)
 {
-	if (dbus_message_is_signal (message, TRACKER_INTERFACE_RESOURCES, "GraphUpdated")) {
+	if (dbus_message_is_signal (message, TRACKER_DBUS_INTERFACE_RESOURCES, "GraphUpdated")) {
 		class_signal_cb (message);
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
@@ -113,7 +110,7 @@ main (gint argc, gchar *argv[])
 	loop = g_main_loop_new (NULL, FALSE);
 	con = tracker_sparql_connection_get (NULL, &error);
 	connection = dbus_bus_get_private (DBUS_BUS_SESSION, NULL);
-	dbus_bus_request_name (connection, TRACKER_SERVICE, 0, NULL);
+	dbus_bus_request_name (connection, TRACKER_DBUS_SERVICE, 0, NULL);
 	dbus_connection_add_filter (connection, message_filter, NULL, NULL);
 	dbus_bus_add_match (connection, DBUS_MATCH_STR, NULL);
 	dbus_connection_setup_with_g_main (connection, NULL);
