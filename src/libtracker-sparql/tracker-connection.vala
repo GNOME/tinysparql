@@ -85,7 +85,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	static bool log_initialized;
 	static StaticMutex door;
 
-	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		door.lock ();
 
 		if (singleton != null) {
@@ -114,7 +114,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 		return singleton;
 	}
 
-	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		door.lock ();
 
 		if (singleton != null) {
@@ -173,7 +173,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return yield get_internal_async (false, cancellable);
 	}
 
@@ -216,7 +216,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return get_internal (false, cancellable);
 	}
 
@@ -251,7 +251,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return yield get_internal_async (true, cancellable);
 	}
 
@@ -271,7 +271,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since 0.10
 	 */
-	public static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return get_internal (true, cancellable);
 	}
 
@@ -324,11 +324,11 @@ public abstract class Tracker.Sparql.Connection : Object {
 		/* do nothing */
 	}
 
-	public virtual void init () throws Sparql.Error {
+	public virtual void init () throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'init' not implemented");
 	}
 
-	public async virtual void init_async () throws Sparql.Error {
+	public async virtual void init_async () throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'init_async' not implemented");
 	}
 

@@ -57,42 +57,32 @@ class Tracker.Sparql.Backend : Connection {
 		is_constructed = true;
 	}
 
-	public override void init () throws Sparql.Error
+	public override void init () throws Sparql.Error, IOError, DBusError
 	requires (is_constructed) {
-		try {
-			Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
-			                                                    TRACKER_DBUS_SERVICE,
-			                                                    TRACKER_DBUS_OBJECT_STATUS);
-			status.set_default_timeout (int.MAX);
+		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
+		                                                    TRACKER_DBUS_SERVICE,
+		                                                    TRACKER_DBUS_OBJECT_STATUS);
+		status.set_default_timeout (int.MAX);
 
-			// Makes sure the sevice is available
-			debug ("Waiting for service to become available synchronously...");
-			status.wait ();
-			debug ("Service is ready");
-		} catch (DBusError e) {
-			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
+		// Makes sure the sevice is available
+		debug ("Waiting for service to become available synchronously...");
+		status.wait ();
+		debug ("Service is ready");
 
 		is_initialized = true;
 	}
 
-	public async override void init_async () throws Sparql.Error
+	public async override void init_async () throws Sparql.Error, IOError, DBusError
 	requires (is_constructed) {
-		try {
-			Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
-			                                                    TRACKER_DBUS_SERVICE,
-			                                                    TRACKER_DBUS_OBJECT_STATUS);
-			status.set_default_timeout (int.MAX);
+		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
+		                                                    TRACKER_DBUS_SERVICE,
+		                                                    TRACKER_DBUS_OBJECT_STATUS);
+		status.set_default_timeout (int.MAX);
 
-			// Makes sure the sevice is available
-			debug ("Waiting for service to become available asynchronously...");
-			yield status.wait_async ();
-			debug ("Service is ready");
-		} catch (DBusError e) {
-			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
+		// Makes sure the sevice is available
+		debug ("Waiting for service to become available asynchronously...");
+		yield status.wait_async ();
+		debug ("Service is ready");
 
 		is_initialized = true;
 	}
