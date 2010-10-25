@@ -11,12 +11,7 @@ SUBDIRS = 			\
 	tracker-miner-fs	\
 	tracker-extract		\
 	tracker-steroids	\
-	tracker-store		\
 	tracker-writeback
-
-# Disabled until it works again
-# Note: re-enable the generation of the Makefile in configure.ac
-#	tracker-steroids
 
 if DIST_FUNCTIONAL_TESTS
 SUBDIRS += functional-tests
