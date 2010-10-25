@@ -1,8 +1,8 @@
 include $(top_srcdir)/Makefile.decl
 
 # Include list of shared sources:
-#  Defines $(libtracker_miner_marshal_sources) and
-#  $(libtracker_miner_monitor_sources)
+# Defines $(libtracker_miner_marshal_sources) and
+# $(libtracker_miner_monitor_sources)
 include $(top_srcdir)/src/libtracker-miner/Makefile-shared-sources.decl
 
 noinst_PROGRAMS = $(TEST_PROGS)
