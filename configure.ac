@@ -348,6 +348,33 @@ PKG_CHECK_MODULES(TRACKER_MINER_FS, [$TRACKER_MINER_FS_REQUIRED])
 
 TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
 
+# Check requirements for tracker-miner-evolution
+evolution_plugin_name="evolution-plugin"
+
+TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
+                                  dbus-1                    >= $DBUS_REQUIRED
+                                  dbus-glib-1               >= $DBUS_GLIB_REQUIRED
+                                  evolution-plugin          >= $EVO_REQUIRED
+                                  evolution-data-server-1.2 >= $EDS_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
+                  [have_tracker_miner_evolution=yes],
+                  [have_tracker_miner_evolution=no])
+
+if test "x$have_tracker_miner_evolution" != "xyes"; then
+   evolution_plugin_name="evolution-plugin-3.0"
+
+   TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
+                                     dbus-1                    >= $DBUS_REQUIRED
+                                     dbus-glib-1               >= $DBUS_GLIB_REQUIRED
+                                     evolution-plugin-3.0      >= $EVO_REQUIRED
+                                     evolution-data-server-1.2 >= $EDS_REQUIRED"
+
+   PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
+                     [have_tracker_miner_evolution=yes],
+                     [have_tracker_miner_evolution=no])
+fi
+
 # Check requirements for tracker-miner-rss
 TRACKER_MINER_RSS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             dbus-1       >= $DBUS_REQUIRED
@@ -1209,68 +1236,47 @@ AC_SUBST(UNICODE_SUPPORT_LIBS)
 # Miner Evolution
 ####################################################################
 
-evolution_plugins_dir="/dev/null"
+tracker_miner_evolution_install_dir="/dev/null"
 
 AC_ARG_ENABLE([miner_evolution],
               AS_HELP_STRING([--enable-miner-evolution],
                              [enable Evolution email data miner [[default=auto]]]),,
-              [enable_miner_evolution=auto])
+              [enable_tracker_miner_evolution=auto])
 
-if test "x$enable_miner_evolution" != "xno"; then
-   PKG_CHECK_MODULES(EVOLUTION_PLUGIN,
-                     [evolution-plugin >= $EVO_REQUIRED
-                      evolution-data-server-1.2 >= $EDS_REQUIRED],
-                     have_miner_evolution=yes,
-                     have_miner_evolution=no)
-   if test "x$have_miner_evolution" = "xyes"; then
-       evolution_plugin=evolution-plugin
-   else
-       PKG_CHECK_MODULES(EVOLUTION_PLUGIN,
-                         [evolution-plugin-3.0 >= $EVO_REQUIRED
-                          evolution-data-server-1.2 >= $EDS_REQUIRED],
-                         have_miner_evolution=yes,
-                         have_miner_evolution=no)
-       evolution_plugin=evolution-plugin-3.0
+if test "x$enable_tracker_miner_evolution" = "xyes"; then
+   if test "x$have_tracker_miner_evolution" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Tracker Evolution plugin ($TRACKER_EVOLUTION_PLUGIN_REQUIRED).])
    fi
+else
+   if test "x$enable_tracker_miner_evolution" = "xno"; then
+      have_tracker_miner_evolution="no  (disabled)"
+   fi
+fi
 
+if test "x$have_tracker_miner_evolution" = "xyes"; then
    PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.29.1],
                     [AC_DEFINE(HAVE_EDS_2_29_1, 1, [Define if we have eds 2.29.1 or newer])])
    PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.31.2],
                     [AC_DEFINE(HAVE_EDS_2_31_2, 1, [Define if we have eds 2.31.2 or newer])])
 
-   AC_SUBST(EVOLUTION_PLUGIN_CFLAGS)
-   AC_SUBST(EVOLUTION_PLUGIN_LIBS)
-
-   if test "x$have_miner_evolution" = "xyes"; then
-      dnl Evolution plugins dir
-      AC_ARG_WITH([evolution_plugins_dir],
-                  AS_HELP_STRING([--with-evolution-plugins-dir],
-                                 [path to Evolution plugins directory]))
-      if test "x$with_evolution_plugins_dir" = "x" ; then
-         evolution_plugins_dir=`$PKG_CONFIG $evolution_plugin --variable=plugindir`
-      else
-         evolution_plugins_dir="$with_evolution_plugins_dir"
-      fi
-
-      if test -z $evolution_plugins_dir; then
-         AC_MSG_ERROR([Couldn't find evolution plugins dir, consider using --with-evolution-plugins-dir.])
-      fi
+   AC_ARG_WITH([evolution_plugin_dir],
+               AS_HELP_STRING([--with-evolution-plugin-dir],
+                              [path to Evolution plugin directory]))
+   if test "x$with_evolution_plugin_dir" = "x" ; then
+      tracker_miner_evolution_install_dir=`$PKG_CONFIG $evolution_plugin_name --variable=plugindir`
+   else
+      tracker_miner_evolution_install_dir="$with_tracker_miner_evolution_install_dir"
    fi
-else
-   have_miner_evolution="no  (disabled)"
-fi
 
-if test "x$enable_miner_evolution" = "xyes"; then
-   if test "x$have_miner_evolution" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find evolution-dev and evolution-data-server-dev for Evolution miner.])
+   if test -z $tracker_miner_evolution_install_dir; then
+      AC_MSG_ERROR([Couldn't find evolution plugin dir, consider using --with-evolution-plugin-dir.])
    fi
 fi
 
-EVOLUTION_PLUGIN_INSTALL_DIR=$evolution_plugins_dir
-AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
+TRACKER_MINER_EVOLUTION_INSTALL_DIR=$tracker_miner_evolution_install_dir
+AC_SUBST(TRACKER_MINER_EVOLUTION_INSTALL_DIR)
 
-AM_CONDITIONAL(HAVE_MINER_EVOLUTION, test "x$have_miner_evolution" = "xyes")
-
+AM_CONDITIONAL(HAVE_TRACKER_MINER_EVOLUTION, test "x$have_tracker_miner_evolution" = "xyes")
 
 ##################################################################
 # Miner RSS
@@ -2203,7 +2209,7 @@ Data Miners:
 	Applications:                           yes
           MeeGo                                 $have_meegotouch
 	RSS:                                    $have_tracker_miner_rss
-	Evolution:                              $have_miner_evolution ($evolution_plugins_dir)
+	Evolution:                              $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
 	Flickr:                                 $have_tracker_miner_flickr
 
 Plugins:

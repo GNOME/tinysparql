@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS =
 
-if HAVE_MINER_EVOLUTION
+if HAVE_TRACKER_MINER_EVOLUTION
 SUBDIRS += evolution
 endif
 

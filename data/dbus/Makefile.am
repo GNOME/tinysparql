@@ -36,7 +36,7 @@ service_DATA =							\
 	org.freedesktop.Tracker1.Miner.Files.service		\
 	org.freedesktop.Tracker1.Extract.service
 
-if HAVE_MINER_EVOLUTION
+if HAVE_TRACKER_MINER_EVOLUTION
 service_DATA += org.freedesktop.Tracker1.Miner.EMails.service
 endif
 

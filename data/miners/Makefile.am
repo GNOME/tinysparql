@@ -20,7 +20,7 @@ tracker_miners_DATA =                           \
 	tracker-miner-applications.desktop      \
 	tracker-miner-files.desktop
 
-if HAVE_MINER_EVOLUTION
+if HAVE_TRACKER_MINER_EVOLUTION
 tracker_miners_DATA += tracker-miner-evolution.desktop
 endif
 
