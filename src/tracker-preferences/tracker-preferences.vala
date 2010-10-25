@@ -120,8 +120,8 @@ public static void add_freevalue (ListStore model) {
 	dialog = new Dialog.with_buttons (_("Enter value"),
 	                                  window,
 	                                  DialogFlags.DESTROY_WITH_PARENT | DialogFlags.NO_SEPARATOR,
-	                                  STOCK_CANCEL, ResponseType.CANCEL,
-	                                  STOCK_OK, ResponseType.ACCEPT);
+	                                  Stock.CANCEL, ResponseType.CANCEL,
+	                                  Stock.OK, ResponseType.ACCEPT);
 
 	dialog.set_default_response(ResponseType.ACCEPT);
 	content_area = (Container) dialog.get_content_area ();
@@ -150,8 +150,8 @@ public static void add_dir (ListStore model)
 {
 	FileChooserDialog dialog = new FileChooserDialog (_("Select directory"), window,
 	                                              FileChooserAction.SELECT_FOLDER,
-	                                              STOCK_CANCEL, ResponseType.CANCEL,
-	                                              STOCK_OK, ResponseType.ACCEPT);
+	                                              Stock.CANCEL, ResponseType.CANCEL,
+	                                              Stock.OK, ResponseType.ACCEPT);
 
 	if (dialog.run () == ResponseType.ACCEPT) {
 		TreeIter iter;
