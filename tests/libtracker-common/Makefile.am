@@ -12,10 +12,13 @@ INCLUDES = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
-	$(GLIB2_CFLAGS)							\
-	$(GMODULE_CFLAGS)						\
-	$(GTHREAD_CFLAGS)						\
-	$(DBUS_CFLAGS)
+	$(LIBTRACKER_COMMON_CFLAGS)
+
+LDADD =									\
+	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(BUILD_LIBS)							\
+	$(LIBTRACKER_COMMON_LIBS)
 
 tracker_dbus_SOURCES = 							\
 	tracker-dbus-test.c						\
@@ -23,49 +26,10 @@ tracker_dbus_SOURCES = 							\
 	mock-dbus-gproxy.h						\
 	mock-dbus-gproxy.c
 
-tracker_dbus_LDADD =							\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(BUILD_LIBS)							\
-	$(DBUS_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GLIB2_LIBS)
+tracker_type_utils_SOURCES = tracker-type-utils-test.c
 
-tracker_type_utils_SOURCES = \
-	tracker-type-utils-test.c
+tracker_file_utils_SOURCES = tracker-file-utils-test.c
 
-tracker_type_utils_LDADD =						\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(BUILD_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GOBJECT_LIBS)							\
-	$(GLIB2_LIBS)
-
-tracker_file_utils_SOURCES = 						\
-	tracker-file-utils-test.c
-
-tracker_file_utils_LDADD =						\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(BUILD_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GLIB2_LIBS)
-
-tracker_utils_SOURCES = 						\
-	tracker-utils-test.c
-
-tracker_utils_LDADD =							\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(BUILD_LIBS)							\
-	$(DBUS_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)
+tracker_utils_SOURCES = tracker-utils-test.c
 
 EXTRA_DIST = non-utf8.txt
