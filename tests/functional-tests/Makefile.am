@@ -1,14 +1,21 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS=common test-configurations test-extraction-data test-writeback-data ttl unittest2 test-ontologies
+SUBDIRS = 				\
+	common				\
+	test-configurations 		\
+	test-extraction-data 		\
+	test-writeback-data		\
+	ttl				\
+	unittest2			\
+	test-ontologies
 
-INCLUDES =					\
-	-I$(top_srcdir)/src			\
-	-I$(top_builddir)/src			\
-	$(WARN_CFLAGS)				\
-	$(DBUS_CFLAGS)				\
-	$(GLIB2_CFLAGS)				\
-	$(GIO_CFLAGS)				\
+INCLUDES =				\
+	$(BUILD_CFLAGS)			\
+	-I$(top_srcdir)/src		\
+	-I$(top_builddir)/src		\
+	$(DBUS_CFLAGS)			\
+	$(GLIB2_CFLAGS)			\
+	$(GIO_CFLAGS)			\
 	$(GTHREAD_CFLAGS)
 
 configdir = $(datadir)/tracker-tests
@@ -78,57 +85,58 @@ tracker-tests.aegis:
 ttl/gen-test-data.stamp:
 	cd ttl && $(MAKE) $(AM_MAKEFLAGS)
 
-noinst_PROGRAMS = busy-handling-test \
-	direct-query-test \
-	bus-query-test \
-	default-update-test \
-	bus-update-test \
-	class-signal-test \
-	class-signal-performance-test \
+noinst_PROGRAMS = busy-handling-test 	\
+	direct-query-test 		\
+	bus-query-test 			\
+	default-update-test 		\
+	bus-update-test 		\
+	class-signal-test 		\
+	class-signal-performance-test 	\
 	update-array-performance-test
 
 busy_handling_test_VALASOURCES = busy-handling-test.vala
 
-busy_handling_test_SOURCES = \
-	busy-handling-test.vala.stamp \
+busy_handling_test_SOURCES = 		\
+	busy-handling-test.vala.stamp 	\
 	$(busy_handling_test_VALASOURCES:.vala=.c)
 
 busy-handling-test.vala.stamp: $(busy_handling_test_VALASOURCES)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 $^
 	$(AM_V_GEN)touch $@
 
-busy_handling_test_LDADD = \
-	$(GIO_LIBS) \
-	$(GLIB2_LIBS) \
+busy_handling_test_LDADD = 		\
+	$(BUILD_LIBS)			\
+	$(GIO_LIBS) 			\
+	$(GLIB2_LIBS) 			\
 	$(DBUS_LIBS)
 
 direct_query_test_VALASOURCES = shared-query-test.vala direct-query-test.vala
 
-direct_query_test_SOURCES = \
-	direct-query-test.vala.stamp \
+direct_query_test_SOURCES = 		\
+	direct-query-test.vala.stamp 	\
 	$(direct_query_test_VALASOURCES:.vala=.c)
 
 default_update_test_VALASOURCES = shared-update-test.vala default-update-test.vala
 
-default_update_test_SOURCES = \
-	default-update-test.vala.stamp \
+default_update_test_SOURCES = 		\
+	default-update-test.vala.stamp 	\
 	$(default_update_test_VALASOURCES:.vala=.c)
 
 bus_query_test_VALASOURCES = shared-query-test.vala bus-query-test.vala
 
 update_array_performance_test_SOURCES = update-array-performance-test.c
 
-bus_query_test_SOURCES = \
-	bus-query-test.vala.stamp \
+bus_query_test_SOURCES = 		\
+	bus-query-test.vala.stamp 	\
 	$(bus_query_test_VALASOURCES:.vala=.c)
 
 bus_update_test_VALASOURCES = shared-update-test.vala bus-update-test.vala
 
-bus_update_test_SOURCES = \
-	bus-update-test.vala.stamp \
+bus_update_test_SOURCES = 		\
+	bus-update-test.vala.stamp 	\
 	$(bus_update_test_VALASOURCES:.vala=.c)
 
-direct_vapi_sources = \
+direct_vapi_sources = 			\
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	$(top_srcdir)/src/libtracker-direct/tracker-direct.vapi
 
@@ -136,10 +144,11 @@ direct-query-test.vala.stamp: $(direct_query_test_VALASOURCES) $(direct_vapi_sou
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 $^
 	$(AM_V_GEN)touch $@
 
-direct_query_test_LDADD = \
+direct_query_test_LDADD = 		\
 	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
-	$(GIO_LIBS) \
+	$(BUILD_LIBS)			\
+	$(GIO_LIBS)			\
 	$(GLIB2_LIBS)
 
 default-update-test.vala.stamp: $(default_update_test_VALASOURCES) $(direct_vapi_sources)
@@ -160,33 +169,35 @@ bus-update-test.vala.stamp: $(bus_update_test_VALASOURCES) $(bus_vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 $^
 	$(AM_V_GEN)touch $@
 
-bus_query_test_LDADD = \
+bus_query_test_LDADD = 			\
 	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(GIO_LIBS) \
-	$(GLIB2_LIBS) \
+	$(BUILD_LIBS)			\
+	$(GIO_LIBS) 			\
+	$(GLIB2_LIBS) 			\
 	$(DBUS_LIBS)
 
 bus_update_test_LDADD = $(bus_query_test_LDADD)
 
 class_signal_test_VALASOURCES = class-signal-test.vala
 
-class_signal_test_SOURCES = \
-	class-signal-test.vala.stamp \
+class_signal_test_SOURCES = 		\
+	class-signal-test.vala.stamp 	\
 	$(class_signal_test_VALASOURCES:.vala=.c)
 
 class-signal-test.vala.stamp: $(class_signal_test_VALASOURCES) $(direct_vapi_sources)
 	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 $^
 	$(AM_V_GEN)touch $@
 
-class_signal_test_LDADD = \
+class_signal_test_LDADD = 		\
 	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
 	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(GIO_LIBS) \
-	$(GLIB2_LIBS) \
+	$(BUILD_LIBS)			\
+	$(GIO_LIBS) 			\
+	$(GLIB2_LIBS) 			\
 	$(DBUS_LIBS)
 
 class_signal_performance_test_VALASOURCES = class-signal-performance-test.vala
@@ -204,28 +215,29 @@ class_signal_performance_test_LDADD = \
 	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(GIO_LIBS) \
-	$(GLIB2_LIBS) \
+	$(BUILD_LIBS)			\
+	$(GIO_LIBS) 			\
+	$(GLIB2_LIBS) 			\
 	$(DBUS_LIBS)
 
-update_array_performance_test_LDADD = \
+update_array_performance_test_LDADD = 	\
 	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
 	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(GIO_LIBS) \
-	$(GLIB2_LIBS) \
+	$(BUILD_LIBS)			\
+	$(GIO_LIBS) 			\
+	$(GLIB2_LIBS) 			\
 	$(DBUS_LIBS)
 
-BUILT_SOURCES = 				\
-	busy-handling-test.vala.stamp 		\
-	class-signal-test.vala.stamp 		\
+BUILT_SOURCES = 			\
+	busy-handling-test.vala.stamp 	\
+	class-signal-test.vala.stamp 	\
 	class-signal-performance-test.vala.stamp \
-	direct-query-test.vala.stamp 		\
-	bus-query-test.vala.stamp 		\
-	default-update-test.vala.stamp 		\
+	direct-query-test.vala.stamp 	\
+	bus-query-test.vala.stamp 	\
+	default-update-test.vala.stamp 	\
 	bus-update-test.vala.stamp
-
 
 functional-test: ${standard_tests}
 	@if test -h /targets/links/scratchbox.config ; then \
