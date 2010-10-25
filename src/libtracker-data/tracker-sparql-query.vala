@@ -89,9 +89,6 @@ namespace Tracker.Sparql {
 			return "\"%s:%s\"".printf (sql_identifier, suffix);
 		}
 
-#if VALA_0_12
-		// GLib.HashFunc and GLib.EqualFunc are generic delegates in Vala 0.11.0 and later
-
 		public static bool equal (Variable a, Variable b) {
 			return a.index == b.index;
 		}
@@ -99,15 +96,6 @@ namespace Tracker.Sparql {
 		public static uint hash (Variable variable) {
 			return (uint) variable.index;
 		}
-#else
-		public static bool equal (void* a, void* b) {
-			return ((Variable) a).index == ((Variable) b).index;
-		}
-
-		public static uint hash (void* variable) {
-			return (uint) ((Variable) variable).index;
-		}
-#endif
 	}
 
 	class Context {
