@@ -331,7 +331,7 @@ sparql_update_fast_send (DBusConnection     *connection,
 	                                        dbus_method);
 	dbus_message_iter_init_append (message, &iter);
 	dbus_message_iter_append_basic (&iter, DBUS_TYPE_UNIX_FD, &pipefd[0]);
-	dbus_connection_send_with_reply (connection, message, &call, -1);
+	dbus_connection_send_with_reply (connection, message, &call, G_MAXINT);
 	dbus_message_unref (message);
 	close (pipefd[0]);
 
@@ -426,7 +426,7 @@ sparql_update_fast_send (DBusConnection     *connection,
 						 dbus_method);
 	 dbus_message_iter_init_append (message, &iter);
 	 dbus_message_iter_append_basic (&iter, DBUS_TYPE_UNIX_FD, &pipefd[0]);
-	 dbus_connection_send_with_reply (connection, message, &call, -1);
+	 dbus_connection_send_with_reply (connection, message, &call, G_MAXINT);
 	 dbus_message_unref (message);
 	 close (pipefd[0]);
 
