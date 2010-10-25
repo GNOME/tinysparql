@@ -12,7 +12,11 @@ private void test_async () {
 		print ("Getting connection asynchronously\n");
 		loop = new MainLoop (null, false);
 		Connection.get_async.begin (null, (o, res) => {
-			c = Connection.get_async.end (res);
+			try {
+				c = Connection.get_async.end (res);
+			} catch (GLib.Error e) {
+				warning ("Couldn't perform test: %s", e.message);
+			}
 			loop.quit ();
 		});
 		loop.run ();
@@ -24,10 +28,8 @@ private void test_async () {
 
 		print ("Running app\n");
 		res = app.run();
-	} catch (GLib.IOError e1) {
-		warning ("Couldn't perform test: %s", e1.message);
-	} catch (Tracker.Sparql.Error e2) {
-		warning ("Couldn't perform test: %s", e2.message);
+	} catch (GLib.Error e) {
+		warning ("Couldn't perform test: %s", e.message);
 	}
 
 	print ("\n");
@@ -48,10 +50,8 @@ private void test_sync () {
 
 		print ("Running app\n");
 		res = app.run();
-	} catch (GLib.IOError e1) {
-		warning ("Couldn't perform test: %s", e1.message);
-	} catch (Tracker.Sparql.Error e2) {
-		warning ("Couldn't perform test: %s", e2.message);
+	} catch (GLib.Error e) {
+		warning ("Couldn't perform test: %s", e.message);
 	}
 
 	print ("\n");
