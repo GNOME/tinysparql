@@ -2730,10 +2730,7 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 			iface = tracker_db_manager_get_db_interface ();
 
 			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &new_error,
-					                              "INSERT "
-					                              "INTO Resource "
-					                              "(ID, Uri) "
-					                              "VALUES (?, ?)");
+			                                              "INSERT INTO Resource (ID, Uri) VALUES (?, ?)");
 
 			if (stmt) {
 				tracker_db_statement_bind_int (stmt, 0, id);
