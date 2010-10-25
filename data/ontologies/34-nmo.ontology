@@ -34,14 +34,14 @@ nmo:Message a rdfs:Class ;
 
 # FIXME Extension requested in Nepomuk
 nmo:Email a rdfs:Class;
-        rdfs:label "Email envelope" ;
-        rdfs:comment "Root node in a MIME Email" ;
+	rdfs:label "Email envelope" ;
+	rdfs:comment "Root node in a MIME Email" ;
 	rdfs:subClassOf nmo:Message .
 
 # FIXME Extension requested in Nepomuk
 nmo:hasContent a rdf:Property ;
-        rdfs:label "Has content" ;
-        rdfs:comment "Link between the root node and the first MIME node in the Email tree" ;
+	rdfs:label "Has content" ;
+	rdfs:comment "Link between the root node and the first MIME node in the Email tree" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Email ;
 	rdfs:range nmo:MimePart .
@@ -63,8 +63,8 @@ nmo:MailboxDataObject a rdfs:Class ;
 	rdfs:subClassOf nie:DataObject .
 
 nmo:MessageHeader a rdfs:Class ;
-        rdfs:label "Message header" ;
-        rdfs:comment "Pairs key=value to store arbitrary message header. Note that if a property exists already in the ontology for those headers it should be used. This is just a safe guard mechanism." ;
+	rdfs:label "Message header" ;
+	rdfs:comment "Pairs key=value to store arbitrary message header. Note that if a property exists already in the ontology for those headers it should be used. This is just a safe guard mechanism." ;
 	rdfs:subClassOf rdfs:Resource .
 
 nmo:IMMessage a rdfs:Class ;
@@ -79,17 +79,17 @@ nmo:CommunicationChannel a rdfs:Class ;
 	rdfs:subClassOf nie:InformationElement .
 
 nmo:PermanentChannel a rdfs:Class ;
-        rdfs:comment "Well-known stable channel like an IRC room in a specific server. Predefined URL schema for the instances is recommended" ;
+	rdfs:comment "Well-known stable channel like an IRC room in a specific server. Predefined URL schema for the instances is recommended" ;
 	rdfs:subClassOf nmo:CommunicationChannel .
 
 nmo:TransientChannel a rdfs:Class ;
-        rdfs:comment "Channel created ad-hoc for the communication like a multi chat in some systems" ;
+	rdfs:comment "Channel created ad-hoc for the communication like a multi chat in some systems" ;
 	rdfs:subClassOf nmo:CommunicationChannel .
 
 nmo:Call a rdfs:Class ;
-         rdfs:label "Call" ;
-         rdfs:comment "Phone call. Voice communication with the user with somebody else." ;
-         rdfs:subClassOf nmo:Message .
+	rdfs:label "Call" ;
+	rdfs:comment "Phone call. Voice communication with the user with somebody else." ;
+	rdfs:subClassOf nmo:Message .
 
 # required for backward compatibility
 nmo:VOIPCall a rdfs:Class ;
@@ -110,21 +110,21 @@ nmo:from a rdf:Property ;
 	rdfs:range nco:Contact .
 
 nmo:headerName a rdf:Property ;
-        rdfs:comment "Key of the message header key-value pair" ;
+	rdfs:comment "Key of the message header key-value pair" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MessageHeader ;
 	rdfs:range xsd:string ;
 	tracker:weight 3 .
 
 nmo:headerValue a rdf:Property ;
-        rdfs:comment "Value of the message header key-value pair" ;
+	rdfs:comment "Value of the message header key-value pair" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:MessageHeader ;
 	rdfs:range xsd:string ;
 	tracker:weight 4 .
 
 nmo:isAnswered a rdf:Property ;
-        rdfs:comment "True when the user has sent a replay to this message" ;
+	rdfs:comment "True when the user has sent a replay to this message" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
@@ -135,13 +135,13 @@ nmo:isFlagged a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmo:isDeleted a rdf:Property ;
-        rdfs:comment "True when the user has removed the Email in the UI but still exists in the DB. Usually a purge or confirmation from the user will actually remove the data." ;
+	rdfs:comment "True when the user has removed the Email in the UI but still exists in the DB. Usually a purge or confirmation from the user will actually remove the data." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
 
 nmo:isDraft a rdf:Property ;
-        rdfs:comment "The user hasn't finished editing the message and might want to continue later" ;
+	rdfs:comment "The user hasn't finished editing the message and might want to continue later" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
@@ -152,7 +152,7 @@ nmo:isRecent a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmo:isRead a rdf:Property ;
-        rdfs:comment "The messsage has been readed. The user has opened the message or has marked it directly as readed" ;
+	rdfs:comment "The messsage has been readed. The user has opened the message or has marked it directly as readed" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
@@ -163,7 +163,7 @@ nmo:isSent a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 nmo:isEmergency a rdf:Property ;
-        rdfs:comment "Special message from the network, probably coming via Cell broadcasting with emergency information" ;
+	rdfs:comment "Special message from the network, probably coming via Cell broadcasting with emergency information" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range xsd:boolean .
@@ -381,9 +381,9 @@ nmo:contentMimeType a rdf:Property ;
 # SMS support
 #
 nmo:PhoneMessage a rdfs:Class ;
-       rdfs:label "Phone messages (sms and mms)";
-       rdfs:comment "Superclass with shared properties between SMS and MMS.";
-       rdfs:subClassOf nmo:Message .
+	rdfs:label "Phone messages (sms and mms)";
+	rdfs:comment "Superclass with shared properties between SMS and MMS.";
+	rdfs:subClassOf nmo:Message .
 
 
 nmo:SMSMessage a rdfs:Class ;
@@ -394,38 +394,38 @@ nmo:SMSMessage a rdfs:Class ;
 nmo:toVCard a rdf:Property ;
 	rdfs:label "fromVCard" ;
 	rdfs:comment "Reference to a VCard in the filesystem, containing the Contact information of 'to' recipients" ;
-        rdfs:domain nmo:PhoneMessage ;
-        rdfs:range nfo:FileDataObject .
-
+	rdfs:domain nmo:PhoneMessage ;
+	rdfs:range nfo:FileDataObject .
+	
 nmo:fromVCard a rdf:Property ;
 	rdfs:label "fromVCard" ;
 	rdfs:comment "Reference to a VCard in the filesystem, containing the Contact information of the 'from' recipient";
-        nrl:maxCardinality 1 ;
-        rdfs:domain nmo:PhoneMessage ;
-        rdfs:range nfo:FileDataObject .
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:PhoneMessage ;
+	rdfs:range nfo:FileDataObject .
 
 #FIXME unify encoding representation... this is the third encoding property in nepomuk
 nmo:encoding a rdf:Property ;
 	rdfs:label "enconding";
 	rdfs:comment "Encoding of the message" ;
-        nrl:maxCardinality 1 ;
-        rdfs:domain nmo:PhoneMessage ;
-        rdfs:range xsd:string .
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:PhoneMessage ;
+	rdfs:range xsd:string .
 
 
 nmo:phoneMessageId a rdf:Property ;
-        rdfs:label "Phone message Id";
+	rdfs:label "Phone message Id";
 	rdfs:comment "Id assigned in the system when the phone message is received" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:PhoneMessage;
 	rdfs:range xsd:integer.
 
 nmo:smsId a rdf:Property ;
-        rdfs:label "sms Id";
+	rdfs:label "sms Id";
 	rdfs:comment "Id assigned in the system when the message is received. Use phoneMessageId instead" ;
 	nrl:maxCardinality 1 ;
-        nao:deprecated true ;
-        rdfs:subPropertyOf nmo:phoneMessageId ;
+	nao:deprecated true ;
+	rdfs:subPropertyOf nmo:phoneMessageId ;
 	rdfs:domain nmo:PhoneMessage;
 	rdfs:range xsd:integer .
 
@@ -437,8 +437,8 @@ nmo:PhoneMessageFolder a rdfs:Class ;
 nmo:SMSFolder a rdfs:Class ;
 	rdfs:label "SMS Folder";
 	rdfs:comment "Folder for SMS. Not a subclass of nfo:Folder because it would confuse filesystem folders. Use the superclass PhoneMessageFolder and its predefined instances." ;
-        nao:deprecated true ;
-        rdfs:subClassOf nmo:PhoneMessageFolder .
+	nao:deprecated true ;
+	rdfs:subClassOf nmo:PhoneMessageFolder .
 
 nmo:phoneMessageFolderId a rdf:Property ;
 	rdfs:label "folder id";
@@ -452,17 +452,17 @@ nmo:smsFolderId a rdf:Property ;
 	rdfs:label "folder id";
 	rdfs:comment "Id assigned to the folder for sync purpouses" ;
 	nrl:maxCardinality 1 ;
-        nao:deprecated true ;
+	nao:deprecated true ;
 	rdfs:domain nmo:SMSFolder ;
 	rdfs:range xsd:string ;
 	rdfs:subPropertyOf nmo:phoneMessageFolderId .
 
 nmo:validityPeriod a rdf:Property ;
-        rdfs:label "Validity period" ;
-        rdfs:comment "Validity period of an SMS in seconds. It is a value coming from the network" ;
-        nrl:maxCardinality 1 ;
-        rdfs:domain nmo:PhoneMessage ;
-        rdfs:range xsd:integer .
+	rdfs:label "Validity period" ;
+	rdfs:comment "Validity period of an SMS in seconds. It is a value coming from the network" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:PhoneMessage ;
+	rdfs:range xsd:integer .
 
 nmo:containsPhoneMessageFolder a rdf:Property ;
 	rdfs:label "contains Phone Message Folder";
@@ -473,8 +473,8 @@ nmo:containsPhoneMessageFolder a rdf:Property ;
 nmo:containsSMSFolder a rdf:Property ;
 	rdfs:label "contains SMS Folder";
 	rdfs:comment "To link and reconstruct a hierarchy of folders. Use containsPhoneMessageFolder instead." ;
-        rdfs:subPropertyOf nmo:containsPhoneMessageFolder ;
-        nao:deprecated true ;
+	rdfs:subPropertyOf nmo:containsPhoneMessageFolder ;
+	nao:deprecated true ;
 	rdfs:domain nmo:SMSFolder;
 	rdfs:range nmo:SMSFolder .
 
@@ -487,56 +487,56 @@ nmo:containsPhoneMessage a rdf:Property ;
 nmo:containsSMS a rdf:Property ;
 	rdfs:label "Contains SMS";
 	rdfs:comment "Link between an Phone Message and a Folder. Use containsPhoneMessage instead" ;
-        nao:deprecated true ;
-        rdfs:subPropertyOf nmo:containsPhoneMessage ;
+	nao:deprecated true ;
+	rdfs:subPropertyOf nmo:containsPhoneMessage ;
 	rdfs:domain nmo:SMSFolder;
 	rdfs:range nmo:PhoneMessage .
 
 
 nmo:predefined-phone-msg-folder-inbox a nmo:PhoneMessageFolder ;
-                             nie:title "Inbox" ;
-			     nmo:phoneMessageFolderId "0x1002" .
+	nie:title "Inbox" ;
+	nmo:phoneMessageFolderId "0x1002" .
 
 nmo:predefined-phone-msg-folder-outbox a nmo:PhoneMessageFolder ;
-			     nie:title "Outbox" ;
-			     nmo:phoneMessageFolderId "0x1003" .
+	nie:title "Outbox" ;
+	nmo:phoneMessageFolderId "0x1003" .
 
 nmo:predefined-phone-msg-folder-draft a nmo:PhoneMessageFolder ;
-			     nie:title "Draft" ;
-			     nmo:phoneMessageFolderId "0x1004" .
+	nie:title "Draft" ;
+	nmo:phoneMessageFolderId "0x1004" .
 
 nmo:predefined-phone-msg-folder-sent a nmo:PhoneMessageFolder ;
-			     nie:title "Sent" ;
-			     nmo:phoneMessageFolderId "0x1005" .
+	nie:title "Sent" ;
+	nmo:phoneMessageFolderId "0x1005" .
 
 
 nmo:predefined-phone-msg-folder-myfolder a nmo:PhoneMessageFolder ;
-			     nie:title "MyFolder" ;
-			     nmo:phoneMessageFolderId "0x1008" .
+	nie:title "MyFolder" ;
+	nmo:phoneMessageFolderId "0x1008" .
 
 #
 # All these instances are deprecated
 #
 nmo:default-sms-folder-inbox a nmo:SMSFolder ;
-			     nie:title "Inbox (deprecated)" ;
-			     nmo:smsFolderId "0x1002" .
+	nie:title "Inbox (deprecated)" ;
+	nmo:smsFolderId "0x1002" .
 
 nmo:default-sms-folder-outbox a nmo:SMSFolder ;
-			     nie:title "Outbox (deprecated)" ;
-			     nmo:smsFolderId "0x1003" .
+	nie:title "Outbox (deprecated)" ;
+	nmo:smsFolderId "0x1003" .
 
 nmo:default-sms-folder-draft a nmo:SMSFolder ;
-			     nie:title "Draft (deprecated)" ;
-			     nmo:smsFolderId "0x1004" .
+	nie:title "Draft (deprecated)" ;
+	nmo:smsFolderId "0x1004" .
 
 nmo:default-sms-folder-sent a nmo:SMSFolder ;
-			     nie:title "Sent (deprecated)" ;
-			     nmo:smsFolderId "0x1005" .
+	nie:title "Sent (deprecated)" ;
+	nmo:smsFolderId "0x1005" .
 
 
 nmo:default-sms-folder-myfolder a nmo:SMSFolder ;
-			     nie:title "MyFolder (deprecated)" ;
-			     nmo:smsFolderId "0x1008" .
+	nie:title "MyFolder (deprecated)" ;
+	nmo:smsFolderId "0x1008" .
 
 nmo:DeliveryStatus a rdfs:Class ;
 	rdfs:label "Delivery statuses" ;
@@ -556,61 +556,60 @@ nmo:delivery-status-permanently-failed a nmo:DeliveryStatus .
 
 
 nmo:reportDelivery a rdf:Property ;
-         rdfs:label "Report delivery" ;
-         rdfs:comment "Report delivery has been requested for the message" ;
-         nrl:maxCardinality 1 ;
-         rdfs:domain nmo:Message ;
-         rdfs:range xsd:boolean .
+	rdfs:label "Report delivery" ;
+	rdfs:comment "Report delivery has been requested for the message" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:boolean .
 
 # Read report property
 nmo:sentWithReportRead a rdf:Property ;
-         rdfs:label "Report read" ;
-         rdfs:comment "The message has been send with a flag indicating that we want to receive a confirmation when the recipient reads it" ;
-         nrl:maxCardinality 1 ;
-         rdfs:domain nmo:Message ;
-         rdfs:range xsd:boolean .
+	rdfs:label "Report read" ;
+	rdfs:comment "The message has been send with a flag indicating that we want to receive a confirmation when the recipient reads it" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:boolean .
 
 nmo:ReportReadStatus a rdfs:Class ;
-        rdfs:label "Read statuses" ;
-        rdfs:comment "Predefined set of read status instances" ;
-        rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Read statuses" ;
+	rdfs:comment "Predefined set of read status instances" ;
+	rdfs:subClassOf rdfs:Resource .
 
 nmo:reportReadStatus a rdf:Property ;
-        rdfs:label "reportReadStatus" ;
-        rdfs:comment "If the message was sent with report read enable, this property stores the status of that message: if the recipient has read it, delete it, or we are still waiting for an answer" ;
-        nrl:maxCardinality 1 ;
-        rdfs:domain nmo:Message ;
-        rdfs:range nmo:ReportReadStatus .
+	rdfs:label "reportReadStatus" ;
+	rdfs:comment "If the message was sent with report read enable, this property stores the status of that message: if the recipient has read it, delete it, or we are still waiting for an answer" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nmo:ReportReadStatus .
 
 nmo:read-status-read a nmo:ReportReadStatus .
 nmo:read-status-deleted a nmo:ReportReadStatus .
 nmo:read-status-unknown a nmo:ReportReadStatus .
 
 nmo:mustAnswerReportRead a rdf:Property ;
-         rdfs:label "Report read requested" ;
-         rdfs:comment "The message came with the report-read flag enabled, and somebody must be send the answer back. Once the report is sent, this property goes to False.";
-         nrl:maxCardinality 1 ;
-         rdfs:domain nmo:Message ;
-         rdfs:range xsd:boolean .
+	rdfs:label "Report read requested" ;
+	rdfs:comment "The message came with the report-read flag enabled, and somebody must be send the answer back. Once the report is sent, this property goes to False.";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:boolean .
 
 # MMS support
 nmo:MMSMessage a rdfs:Class;
-         rdfs:label "MMS Message" ;
-         rdfs:comment "An MMS message is basically a Email with different envelop. It inherits also from SMS the folders and delivery status" ;
-         rdfs:subClassOf nmo:PhoneMessage .
+	rdfs:label "MMS Message" ;
+	rdfs:comment "An MMS message is basically a Email with different envelop. It inherits also from SMS the folders and delivery status" ;
+	rdfs:subClassOf nmo:PhoneMessage .
 
 nmo:mmsHasContent a rdf:Property ;
-         rdfs:label "MMS has content" ;
-         rdfs:comment "Link to the mimeparts with the multimedia content (miming nmo:hasContent)" ;
-         nrl:maxCardinality 1 ;
-         rdfs:domain nmo:MMSMessage ;
+	rdfs:label "MMS has content" ;
+	rdfs:comment "Link to the mimeparts with the multimedia content (miming nmo:hasContent)" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MMSMessage ;
 	 rdfs:range nmo:MimePart .
-         
 
 nmo:mmsId a rdf:Property ;
-        rdfs:label "mms id";
-        rdfs:comment "Unique identifier of an MMS message. It comes from the server";
-        nrl:maxCardinality 1 ;
-        rdfs:domain nmo:Message ;
-        rdfs:range xsd:string .
+	rdfs:label "mms id";
+	rdfs:comment "Unique identifier of an MMS message. It comes from the server";
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:string .
 

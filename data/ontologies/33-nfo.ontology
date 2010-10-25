@@ -255,9 +255,9 @@ nfo:Website a rdfs:Class ;
 
 nfo:WebHistory a rdfs:Class ;
 	rdfs:label "Web History" ;
-        rdfs:comment "A web history entry" ;
+	rdfs:comment "A web history entry" ;
 	tracker:notify true ;
-        rdfs:subClassOf nie:InformationElement .
+	rdfs:subClassOf nie:InformationElement .
 
 nfo:count a rdf:Property ;
 	rdfs:label "count" ;
@@ -350,18 +350,18 @@ nfo:aspectRatio a rdf:Property ;
 	rdfs:range xsd:double .
 
 nfo:heading a rdf:Property ;
-        rdfs:label "Heading" ;
-        rdfs:comment "Specifies the direction of travelling while capturing image/video. The range of values from 0.00 to 359.99 (where 0 is due North, 90 is East, 180 South and 270 is West)";
-        nrl:maxCardinality 1;
-        rdfs:domain nfo:Visual ;
-        rdfs:range xsd:double .
+	rdfs:label "Heading" ;
+	rdfs:comment "Specifies the direction of travelling while capturing image/video. The range of values from 0.00 to 359.99 (where 0 is due North, 90 is East, 180 South and 270 is West)";
+	nrl:maxCardinality 1;
+	rdfs:domain nfo:Visual ;
+	rdfs:range xsd:double .
 
 nfo:tilt a rdf:Property ;
-         rdfs:label "Tilt" ;
-         rdfs:comment "Vertical inclination of the camera while capturing the image, in angles starting on 0 as horizontal, positive numbers pointing up, negative angles pointing down" ;
-         nrl:maxCardinality 1 ;
-         rdfs:domain nfo:Visual ;
-         rdfs:range xsd:double .
+	rdfs:label "Tilt" ;
+	rdfs:comment "Vertical inclination of the camera while capturing the image, in angles starting on 0 as horizontal, positive numbers pointing up, negative angles pointing down" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Visual ;
+	rdfs:range xsd:double .
 
 nfo:fileSize a rdf:Property ;
 	rdfs:label "fileSize" ;
@@ -983,8 +983,7 @@ nfo:equipmentSoftware a rdf:Property ;
 
 # This class needs to be submitted to NEPOMUK
 nfo:HelpDocument a rdfs:Class ;
-        rdfs:label "Help document" ;
-        rdfs:comment "User guides and similar to assist the user" ;
+	rdfs:label "Help document" ;
+	rdfs:comment "User guides and similar to assist the user" ;
 	rdfs:subClassOf nfo:Document .
-        
-        
+
