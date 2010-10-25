@@ -7,20 +7,14 @@ INCLUDES = 								\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	$(GLIB2_CFLAGS)							\
-	$(GIO_CFLAGS)							\
-	$(DBUS_CFLAGS)
+	$(LIBTRACKER_DATA_CFLAGS)
+
+LDADD =									\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
+	$(LIBTRACKER_DATA_LIBS)
 
 ontology_graph_SOURCES =						\
 	ontology-graph.c
-
-ontology_graph_LDADD =							\
-	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(DBUS_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GLIB2_LIBS)
 
 ttl2sgml_SOURCES =							\
 	ttl2sgml.c							\
@@ -32,13 +26,5 @@ ttl2sgml_SOURCES =							\
 	qname.c								\
 	ttl_sgml.h							\
 	ttl_sgml.c
-
-ttl2sgml_LDADD = 							\
-	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(DBUS_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(GIO_LIBS)
 
 EXTRA_DIST = gen-doc.sh
