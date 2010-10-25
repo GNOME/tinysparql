@@ -264,7 +264,7 @@ class Tracker.Sparql.Backend : Connection {
 				                null);
 
 			string content_type = info.get_content_type ();
-			string mime = g_content_type_get_mime_type (content_type);
+			string mime = ContentType.get_mime_type (content_type);
 			string expected_mime = "application/x-sharedlib";
 		
 			if (mime != expected_mime) {
