@@ -2,24 +2,16 @@ include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
 	$(BUILD_CFLAGS)							\
-	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	$(DBUS_CFLAGS)							\
-	$(GIO_CFLAGS)							\
-	$(GTHREAD_CFLAGS)						\
-	$(GLIB2_CFLAGS)
-
-libs = 									\
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(BUILD_LIBS)							\
-	$(DBUS_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)
+	-DLOCALEDIR=\""$(localedir)"\" 					\
+	$(LIBTRACKER_SPARQL_CFLAGS)
 
 noinst_PROGRAMS = mtp-dummy
 
 mtp_dummy_SOURCES = mtp-dummy.c
-mtp_dummy_LDADD = $(libs)
+mtp_dummy_LDADD =							\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(BUILD_LIBS)							\
+	$(LIBTRACKER_SPARQL_LIBS)
