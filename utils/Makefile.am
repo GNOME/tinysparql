@@ -4,6 +4,9 @@ SUBDIRS = 			\
 	gtk-sparql		\
 	lyrics			\
 	services		\
-	playlists		\
 	data-generators		\
 	mtp
+
+if HAVE_TOTEM_PL_PARSER
+SUBDIRS += playlists
+endif

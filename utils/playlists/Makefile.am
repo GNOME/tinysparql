@@ -1,10 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS =
-
-if HAVE_TOTEM_PL_PARSER
-noinst_PROGRAMS += playlist2ttl
-endif
+noinst_PROGRAMS = playlist2ttl
 
 INCLUDES = 				\
 	$(BUILD_CFLAGS)			\
