@@ -261,7 +261,7 @@ public class Tracker.TurtleReader : Object {
 
 					string s = get_last_string (1);
 					string* p = s;
-					string* end = p + s.size ();
+					string* end = p + s.length;
 					while ((long) p < (long) end) {
 						string* q = Posix.strchr (p, '\\');
 						if (q == null) {

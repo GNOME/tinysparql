@@ -387,7 +387,7 @@ public class Tracker.Sparql.Query : Object {
 	void prepare_execute () throws DBInterfaceError, Sparql.Error, DateError {
 		assert (!update_extensions);
 
-		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
+		scanner = new SparqlScanner ((char*) query_string, (long) query_string.length);
 		next ();
 
 		// declare fn prefix for XPath functions
@@ -452,7 +452,7 @@ public class Tracker.Sparql.Query : Object {
 	public PtrArray? execute_update (bool blank) throws DBInterfaceError, Sparql.Error, DateError {
 		assert (update_extensions);
 
-		scanner = new SparqlScanner ((char*) query_string, (long) query_string.size ());
+		scanner = new SparqlScanner ((char*) query_string, (long) query_string.length);
 		next ();
 
 		// declare fn prefix for XPath functions
