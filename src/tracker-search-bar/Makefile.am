@@ -17,7 +17,6 @@ tracker_search_bar_CFLAGS = \
 	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
 	-I$(top_srcdir)/src					\
 	-I$(top_builddir)/src					\
-	-I$(top_builddir)/src/libtracker-client			\
 	$(WARN_CFLAGS)						\
 	$(GCOV_CFLAGS)						\
 	$(TRACKER_SEARCH_BAR_CFLAGS)

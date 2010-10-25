@@ -20,8 +20,10 @@
 #include <stdio.h>
 #include <errno.h>
 #include <locale.h>
+
 #include <glib.h>
-#include <tracker-sparql.h>
+
+#include <libtracker-sparql/tracker-sparql.h>
 
 #define COPY_TIMEOUT_MS 100
 

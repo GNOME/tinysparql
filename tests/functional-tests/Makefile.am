@@ -3,12 +3,8 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS=common test-configurations test-extraction-data test-writeback-data ttl unittest2 test-ontologies
 
 INCLUDES =					\
-	-I$(top_srcdir)/src/libtracker-sparql	\
-	-I$(top_srcdir)/src/libtracker-direct	\
-	-I$(top_srcdir)/src/libtracker-bus	\
-	-I$(top_builddir)/src/libtracker-sparql	\
-	-I$(top_builddir)/src/libtracker-direct	\
-	-I$(top_builddir)/src/libtracker-bus	\
+	-I$(top_srcdir)/src			\
+	-I$(top_builddir)/src			\
 	$(WARN_CFLAGS)				\
 	$(DBUS_CFLAGS)				\
 	$(GLIB2_CFLAGS)				\

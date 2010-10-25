@@ -22,8 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <tracker-bus.h>
-#include <tracker-sparql.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 typedef struct {
 	GMainLoop *main_loop;

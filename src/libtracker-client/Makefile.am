@@ -4,7 +4,7 @@ INCLUDES = 						\
 	$(BUILD_CFLAGS)					\
 	-DLOCALEDIR=\""$(localedir)"\" 			\
 	-I$(top_srcdir)/src				\
-	-I$(top_builddir)/src/libtracker-client		\
+	-I$(top_builddir)/src				\
 	$(LIBTRACKER_CLIENT_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-client-@TRACKER_API_VERSION@.la

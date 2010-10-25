@@ -6,14 +6,7 @@ INCLUDES =								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
 	-I$(top_srcdir)/src						\
-	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
-	-I$(top_srcdir)/src/libtracker-client				\
-	-I$(top_builddir)/src/libtracker-client				\
-	-I$(top_srcdir)/src/libtracker-data				\
-	-I$(top_builddir)/src/libtracker-data				\
-	-I$(top_srcdir)/src/libtracker-sparql				\
-	-I$(top_builddir)/src/libtracker-sparql				\
 	$(TRACKER_MINER_FS_CFLAGS)
 
 libexec_PROGRAMS = tracker-miner-fs

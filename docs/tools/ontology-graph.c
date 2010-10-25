@@ -18,8 +18,9 @@
  */
 
 #include <glib-object.h>
-#include <gio/gio.h>
 #include <glib/gprintf.h>
+#include <gio/gio.h>
+
 #include <libtracker-data/tracker-data.h>
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX

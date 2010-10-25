@@ -5,7 +5,6 @@ INCLUDES =							\
 	-DSHAREDIR=\""$(datadir)"\"				\
 	-I$(top_srcdir)/src					\
 	-I$(top_builddir)/src					\
-	-I$(top_builddir)/src/libtracker-client			\
 	$(GLIB2_CFLAGS)						\
 	$(GIO_CFLAGS)						\
 	$(DBUS_CFLAGS)

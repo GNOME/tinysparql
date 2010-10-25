@@ -5,9 +5,7 @@ modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
 INCLUDES =								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
-	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-sparql				\
 	$(LIBTRACKER_BUS_CFLAGS)
 
 modules_LTLIBRARIES = libtracker-bus.la
@@ -40,7 +38,7 @@ vapi_sources =						\
 	tracker-bus-fd-update.vapi
 
 libtracker-bus.vala.stamp: $(libtracker_bus_la_VALASOURCES) $(vapi_sources)
-	$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus.vapi $^
+	$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --includedir=libtracker-bus --pkg gio-2.0 --pkg dbus-glib-1 -H tracker-bus.h --vapi tracker-bus.vapi $^
 	$(AM_V_GEN)touch $@
 
 BUILT_SOURCES = libtracker-bus.vala.stamp

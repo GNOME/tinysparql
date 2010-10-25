@@ -5,8 +5,6 @@ INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	-I$(top_srcdir)/src/libtracker-sparql				\
-	-I$(top_builddir)/src/libtracker-sparql				\
 	$(LIBTRACKER_DATA_CFLAGS)					\
 	$(UNICODE_SUPPORT_CFLAGS)
 
@@ -70,7 +68,7 @@ vapi_sources =								\
 	libtracker-data.vapi
 
 libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) -H tracker-sparql-query.h --vapi tracker-sparql-query.vapi --pkg gio-2.0 $^
+	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) --includedir=libtracker-data -H tracker-sparql-query.h --vapi tracker-sparql-query.vapi --pkg gio-2.0 $^
 	touch $@
 
 libtracker_data_la_LDFLAGS =						\

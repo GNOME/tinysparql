@@ -8,9 +8,7 @@ INCLUDES = 								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DTRACKER_EXTRACTORS_DIR=\"$(modulesdir)\"			\
 	-I$(top_srcdir)/src 						\
-	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-sparql				\
 	$(TRACKER_EXTRACT_CFLAGS)					\
 	$(GDKPIXBUF_CFLAGS)						\
 	$(LIBGIF_CFLAGS)						\

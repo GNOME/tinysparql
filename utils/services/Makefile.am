@@ -8,7 +8,6 @@ INCLUDES = 								\
 	$(BUILD_CFLAGS)							\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\
-	-I$(top_srcdir)/src/libtracker-sparql				\
 	-I$(top_builddir)/src						\
 	$(GLIB2_CFLAGS)							\
 	$(GIO_CFLAGS)							\

@@ -6,7 +6,6 @@ INCLUDES =								\
 	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""			\
 	-DLOCALEDIR="\"$(localedir)\""					\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-sparql				\
 	$(EVOLUTION_PLUGIN_CFLAGS)
 
 %.eplug.in: %.eplug.xml

@@ -5,7 +5,6 @@ INCLUDES =						\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-I$(top_srcdir)/src				\
 	-I$(top_builddir)/src				\
-	-I$(top_builddir)/src/libtracker-sparql		\
 	$(LIBTRACKER_EXTRACT_CFLAGS)			\
 	$(LIBIPTCDATA_CFLAGS)				\
 	$(LIBEXIF_CFLAGS) 				\

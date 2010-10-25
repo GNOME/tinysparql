@@ -5,8 +5,6 @@ INCLUDES =								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-sparql				\
-	-I$(top_srcdir)/src/libtracker-sparql				\
 	$(DBUS_CFLAGS)							\
 	$(GIO_CFLAGS)							\
 	$(GTHREAD_CFLAGS)						\

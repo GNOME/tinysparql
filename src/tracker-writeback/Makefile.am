@@ -10,7 +10,6 @@ INCLUDES = 								\
 	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\" 			\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-sparql				\
 	$(TRACKER_WRITEBACK_CFLAGS)					\
 	$(TAGLIB_CFLAGS)						\
 	$(EXEMPI_CFLAGS)						\

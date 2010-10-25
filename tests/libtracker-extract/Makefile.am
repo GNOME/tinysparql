@@ -9,9 +9,8 @@ TEST_PROGS += 								\
 INCLUDES = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
-	-I$(top_srcdir)/tests/common					\
 	-I$(top_builddir)/src						\
-	-I$(top_builddir)/src/libtracker-sparql				\
+	-I$(top_srcdir)/tests/common					\
 	$(GLIB2_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
