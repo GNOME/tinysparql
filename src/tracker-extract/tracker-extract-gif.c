@@ -31,6 +31,7 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #define XMP_MAGIC_TRAILER_LENGTH 256
+#define EXTENSION_RECORD_COMMENT_BLOCK_CODE 0xFE
 
 typedef struct {
 	const gchar *title;
@@ -131,17 +132,17 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 				extBlock.bytes = NULL;
 				extBlock.byteCount = 0;
 
-				if ((status = DGifGetExtension(gifFile, &ExtCode, &ExtData)) != GIF_OK) {
+				if ((status = DGifGetExtension (gifFile, &ExtCode, &ExtData)) != GIF_OK) {
 					g_warning ("Problem getting the extension");
 					return;
 				}
 #if defined(HAVE_EXEMPI)
 				if (ExtData && *ExtData &&
-				    strncmp(&ExtData[1],"XMP Data",8) == 0) {
+				    strncmp (&ExtData[1],"XMP Data",8) == 0) {
 					while (ExtData != NULL && status == GIF_OK ) {
-						if ((status = DGifGetExtensionNext(gifFile, &ExtData)) == GIF_OK) {
+						if ((status = DGifGetExtensionNext (gifFile, &ExtData)) == GIF_OK) {
 							if (ExtData != NULL) {
-								if (ext_block_append(&extBlock, ExtData[0]+1, (char*)&(ExtData[0])) != GIF_OK) {
+								if (ext_block_append (&extBlock, ExtData[0]+1, (char *) &(ExtData[0])) != GIF_OK) {
 									g_warning ("Problem with extension data");
 									return;
 								}
@@ -154,10 +155,37 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 							      uri);
 
 					g_free (extBlock.bytes);
-				} else {
-#else
-				{
+				} else
 #endif
+				/* See Section 24. Comment Extension. in the GIF format definition */
+				if (ExtCode == EXTENSION_RECORD_COMMENT_BLOCK_CODE &&
+				    ExtData && *ExtData) {
+					guint block_count = 0;
+
+					/* Merge all blocks */
+					do {
+						block_count++;
+
+						g_debug ("Comment Extension block found (#%u, %u bytes)",
+						         block_count,
+						         ExtData[0]);
+						if (ext_block_append (&extBlock, ExtData[0], (char *) &(ExtData[1])) != GIF_OK) {
+							g_warning ("Problem with Comment extension data");
+							return;
+						}
+					} while (((status = DGifGetExtensionNext(gifFile, &ExtData)) == GIF_OK) &&
+					         ExtData != NULL);
+
+					/* Add last NUL byte */
+					g_debug ("Comment Extension blocks found (%u) with %u bytes",
+					         block_count,
+					         extBlock.byteCount);
+					extBlock.bytes = g_realloc (extBlock.bytes, extBlock.byteCount + 1);
+					extBlock.bytes[extBlock.byteCount] = '\0';
+
+					/* Set commentt */
+					gd.comment = extBlock.bytes;
+				} else {
 					do {
 						status = DGifGetExtensionNext(gifFile, &ExtData);
 					} while ( status == GIF_OK && ExtData != NULL);
@@ -179,11 +207,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	md.title = tracker_coalesce_strip (3, xd->title, xd->title2, xd->pdf_title);
 	md.date = tracker_coalesce_strip (2, xd->date, xd->time_original);
 	md.artist = tracker_coalesce_strip (2, xd->artist, xd->contributor);
-
-	/* if (gd.comment) { */
-	/* 	tracker_sparql_builder_predicate (metadata, "nie:comment"); */
-	/* 	tracker_sparql_builder_object_unvalidated (metadata, md.comment); */
-	/* } */
 
 	if (xd->license) {
 		tracker_sparql_builder_predicate (metadata, "nie:license");
@@ -463,6 +486,12 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_predicate (metadata, "nfo:height");
 		tracker_sparql_builder_object_unvalidated (metadata, gd.height);
 		g_free (gd.height);
+	}
+
+	if (gd.comment) {
+		tracker_sparql_builder_predicate (metadata, "nie:comment");
+		tracker_sparql_builder_object_unvalidated (metadata, gd.comment);
+		g_free (gd.comment);
 	}
 
 	tracker_xmp_free (xd);
