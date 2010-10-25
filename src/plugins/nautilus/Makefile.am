@@ -1,15 +1,12 @@
 include $(top_srcdir)/Makefile.decl
 
 INCLUDES =											\
+	$(BUILD_CFLAGS)										\
 	-I$(top_srcdir)/src									\
 	-I$(top_builddir)/src									\
-	$(GCOV_CFLAGS)										\
-	$(WARN_CFLAGS)										\
-	$(NAUTILUS_EXTENSION_CFLAGS)								\
-	$(TRACKER_APPS_CFLAGS)									\
-	$(DBUS_CFLAGS)
+	$(TRACKER_NAUTILUS_EXTENSION_CFLAGS)
 
-nautilus_extensiondir = $(NAUTILUS_EXTENSION_INSTALL_DIR)
+nautilus_extensiondir = $(TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR)
 
 nautilus_extension_LTLIBRARIES = libnautilus-tracker-tags.la
 
@@ -23,6 +20,5 @@ libnautilus_tracker_tags_la_SOURCES =								\
 libnautilus_tracker_tags_la_LDFLAGS = -module -avoid-version
 libnautilus_tracker_tags_la_LIBADD =								\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la	\
-	$(GCOV_LIBS)										\
-	$(NAUTILUS_EXTENSION_LIBS)								\
-	$(TRACKER_APPS_LIBS)
+	$(BUILD_LIBS)										\
+	$(TRACKER_NAUTILUS_EXTENSION_LIBS)

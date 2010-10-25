@@ -451,6 +451,19 @@ PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
                   [have_tracker_search_bar=yes],
                   [have_tracker_search_bar=no])
 
+# Check requirements for Nautilus extension
+TRACKER_NAUTILUS_EXTENSION_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
+                                     gio-unix-2.0   >= $GLIB_REQUIRED
+                                     gthread-2.0    >= $GLIB_REQUIRED
+                                     gtk+-2.0       >= $GTK_REQUIRED
+                                     dbus-1         >= $DBUS_REQUIRED
+                                     dbus-glib-1    >= $DBUS_GLIB_REQUIRED
+                                     libnautilus-extension"
+
+PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUIRED],
+                  [have_tracker_nautilus_extension=yes],
+                  [have_tracker_nautilus_extension=no])
+
 # General CFLAGS/LIBS
 BUILD_CFLAGS="${WARN_CFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
 BUILD_LIBS="${GCOV_LIBS}"
@@ -1918,49 +1931,37 @@ AM_CONDITIONAL(HAVE_MOCKUP, test "x$have_mockup" = "xyes")
 AC_ARG_ENABLE([nautilus-extension],
               AS_HELP_STRING([--enable-nautilus-extension],
                              [enable the nautilus extension [[default=auto]]]),,
-              [enable_nautilus_extension=auto])
+              [enable_tracker_nautilus=auto])
 
-if test "x$enable_nautilus_extension" != "xno"; then
-   PKG_CHECK_MODULES([NAUTILUS_EXTENSION],
-                     [libnautilus-extension],
-                     [have_nautilus_extension=yes],
-                     [have_nautilus_extension=no])
+if test "x$enable_tracker_nautilus_extension" = "xyes"; then
+   if test "x$have_tracker_nautilus_extension" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Tracker Nautilus extension dependencies ($TRACKER_NAUTILUS_EXTENSION_REQUIRED).])
+   fi
+else
+   if test "x$enable_tracker_nautilus_extension" = "xno"; then
+     have_tracker_nautilus_extension="no  (disabled)"
+   fi
+fi
 
-   AC_SUBST(NAUTILUS_EXTENSION_CFLAGS)
-   AC_SUBST(NAUTILUS_EXTENSION_LIBS)
-
-   if test "x$have_nautilus_extension" = "xyes"; then
-      AC_ARG_WITH([nautilus-extensions-dir],
+if test "x$have_tracker_nautilus_extension" = "xyes"; then
+   AC_ARG_WITH([nautilus-extensions-dir],
                   AS_HELP_STRING([--with-nautilus-extensions-dir],
                                  [path to Nautilus extensions directory]))
 
-      if test "x$with_nautilus_extensions_dir" = "x"; then
-         nautilus_extensions_dir=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
-      else
-         nautilus_extensions_dir="$with_nautilus_extensions_dir"
-      fi
-
-      NAUTILUS_EXTENSION_INSTALL_DIR="$nautilus_extensions_dir"
+   if test "x$with_nautilus_extensions_dir" = "x"; then
+      tracker_nautilus_extension_install_dir=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
    else
-      NAUTILUS_EXTENSION_INSTALL_DIR="/dev/null"
+      tracker_nautilus_extension_install_dir="$with_nautilus_extension_install_dir"
    fi
 
-   AC_SUBST([NAUTILUS_EXTENSION_INSTALL_DIR])
-
-   if test "x$have_nautilus_extension" = "xyes"; then
-      AC_DEFINE(HAVE_NAUTILUS_EXTENSION, 1, [Define if we have Nautilus extension])
-   fi
+   TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR="$tracker_nautilus_extension_install_dir"
 else
-   have_nautilus_extension="no  (disabled)"
+   TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR="/dev/null"
 fi
 
-if test "x$enable_nautilus_extension" = "xyes"; then
-   if test "x$have_nautilus_extension" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Nautilus extension requirements (libnautilus-extension-dev).])
-   fi
-fi
+AC_SUBST([TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR])
 
-AM_CONDITIONAL(HAVE_NAUTILUS_EXTENSION, test "$have_nautilus_extension" = "yes")
+AM_CONDITIONAL(HAVE_TRACKER_NAUTILUS_EXTENSION, test "$have_tracker_nautilus_extension" = "yes")
 
 ####################################################################
 # Include/Exclude functional tests
@@ -2207,7 +2208,7 @@ Data Miners:
 
 Plugins:
 
-	Nautilus: (tagging widget)              $have_nautilus_extension
+	Nautilus: (tagging widget)              $have_tracker_nautilus_extension ($tracker_nautilus_extension_install_dir)
 
 Writeback:
 
