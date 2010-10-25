@@ -31,30 +31,37 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-FILE*    tracker_file_open                         (const gchar  *uri,
-                                                    const gchar  *how,
-                                                    gboolean      sequential);
-void     tracker_file_close                        (FILE         *file,
-                                                    gboolean      need_again_soon);
-goffset  tracker_file_get_size                     (const gchar  *uri);
-guint64  tracker_file_get_mtime                    (const gchar  *uri);
-gchar *  tracker_file_get_mime_type                (GFile        *file);
-gboolean tracker_file_system_has_enough_space      (const gchar  *path,
-                                                    gulong        required_bytes,
-                                                    gboolean      creating_db);
-gboolean tracker_path_is_in_path                   (const gchar  *path,
-                                                    const gchar  *in_path);
-GSList * tracker_path_list_filter_duplicates       (GSList       *roots,
-                                                    const gchar  *basename_exception_prefix,
-                                                    gboolean      is_recursive);
-gchar *  tracker_path_evaluate_name                (const gchar  *uri);
+/* File utils */
+FILE*    tracker_file_open          (const gchar  *uri,
+                                     const gchar  *how,
+                                     gboolean      sequential);
+void     tracker_file_close         (FILE         *file,
+                                     gboolean      need_again_soon);
+goffset  tracker_file_get_size      (const gchar  *uri);
+guint64  tracker_file_get_mtime     (const gchar  *uri);
+gchar *  tracker_file_get_mime_type (GFile        *file);
+gboolean tracker_file_lock          (GFile        *file);
+gboolean tracker_file_unlock        (GFile        *file);
+gboolean tracker_file_is_locked     (GFile        *file);
 
-gboolean tracker_path_has_write_access_or_was_created (const gchar *path);
-gboolean tracker_env_check_xdg_dirs                (void);
+/* Path utils */
+gboolean tracker_path_is_in_path                      (const gchar  *path,
+                                                       const gchar  *in_path);
+GSList * tracker_path_list_filter_duplicates          (GSList       *roots,
+                                                       const gchar  *basename_exception_prefix,
+                                                       gboolean      is_recursive);
+gchar *  tracker_path_evaluate_name                   (const gchar  *uri);
+gboolean tracker_path_has_write_access_or_was_created (const gchar  *path);
 
-gboolean tracker_file_lock                         (GFile *file);
-gboolean tracker_file_unlock                       (GFile *file);
-gboolean tracker_file_is_locked                    (GFile *file);
+/* File system utils */
+gboolean tracker_file_system_has_enough_space               (const gchar  *path,
+                                                             gulong        required_bytes,
+                                                             gboolean      creating_db);
+guint64  tracker_file_system_get_remaining_space            (const gchar  *path);
+gdouble  tracker_file_system_get_remaining_space_percentage (const gchar  *path);
+
+/* Environment path utils */
+gboolean tracker_env_check_xdg_dirs (void);
 
 G_END_DECLS
 

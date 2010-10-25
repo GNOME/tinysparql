@@ -191,28 +191,66 @@ tracker_file_get_mime_type (GFile *file)
 	return content_type ? content_type : g_strdup ("unknown");
 }
 
+#if HAVE_STATVFS64
+#define __statvfs statvfs64
+#else
+#define __statvfs statvfs
+#endif
+
+guint64
+tracker_file_system_get_remaining_space (const gchar *path)
+{
+	guint64 remaining;
+	struct __statvfs st;
+
+	if (__statvfs (path, &st) == -1) {
+		remaining = 0;
+		g_critical ("Could not statvfs() '%s': %s",
+		            path,
+		            g_strerror (errno));
+	} else {
+		remaining = st.f_bsize * st.f_bavail;
+	}
+
+	return remaining;
+}
+
+gdouble
+tracker_file_system_get_remaining_space_percentage (const gchar *path)
+{
+	gdouble remaining;
+	struct __statvfs st;
+
+	if (__statvfs (path, &st) == -1) {
+		remaining = 0.0;
+		g_critical ("Could not statvfs() '%s': %s",
+		            path,
+		            g_strerror (errno));
+	} else {
+		remaining = (st.f_bavail * 100.0 / st.f_blocks);
+	}
+
+	return remaining;
+}
+
 gboolean
 tracker_file_system_has_enough_space (const gchar *path,
                                       gulong       required_bytes,
                                       gboolean     creating_db)
 {
-	struct statvfs st;
 	gchar *str1;
 	gchar *str2;
 	gboolean enough;
+	guint64 remaining;
 
 	g_return_val_if_fail (path != NULL, FALSE);
 
-	if (statvfs (path, &st) == -1) {
-		g_critical ("Could not statvfs() '%s'", path);
-		return FALSE;
-	}
-
-	enough = ((long long) st.f_bsize * st.f_bavail) >= required_bytes;
+	remaining = tracker_file_system_get_remaining_space (path);
+	enough = (remaining >= required_bytes);
 
 	if (creating_db) {
 		str1 = g_format_size_for_display (required_bytes);
-		str2 = g_format_size_for_display (st.f_bsize * st.f_bavail);
+		str2 = g_format_size_for_display (remaining);
 
 		if (!enough) {
 			g_critical ("Not enough disk space to create databases, "

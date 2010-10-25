@@ -41,6 +41,7 @@
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
 
 #include <libtracker-data/tracker-db-manager.h>
 
@@ -1325,9 +1326,9 @@ mount_pre_unmount_cb (GVolumeMonitor    *volume_monitor,
 static gboolean
 disk_space_check (TrackerMinerFiles *mf)
 {
-	struct statvfs st;
 	gint limit;
 	gchar *data_dir;
+	gdouble remaining;
 
 	limit = tracker_config_get_low_disk_space_limit (mf->private->config);
 
@@ -1335,20 +1336,15 @@ disk_space_check (TrackerMinerFiles *mf)
 		return FALSE;
 	}
 
+	/* Get % of remaining space in the partition where the cache is */
 	data_dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
-
-	if (statvfs (data_dir, &st) == -1) {
-		g_warning ("Could not statvfs() '%s'", data_dir);
-		g_free (data_dir);
-		return FALSE;
-	}
-
+	remaining = tracker_file_system_get_remaining_space_percentage (data_dir);
 	g_free (data_dir);
 
-	if (((long long) st.f_bavail * 100 / st.f_blocks) <= limit) {
-		g_message ("WARNING: Available disk space is below configured "
-		           "threshold for acceptable working (%d%%)",
-		           limit);
+	if (remaining <= limit) {
+		g_message ("WARNING: Available disk space (%lf%%) is below "
+		           "configured threshold for acceptable working (%d%%)",
+		           remaining, limit);
 		return TRUE;
 	}
 

@@ -99,7 +99,7 @@ CFLAGS="$CFLAGS"
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h linux/unistd.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h sys/time.h unistd.h linux/unistd.h sys/statvfs.h])
 
 AC_CHECK_HEADER([zlib.h],
                 [],
@@ -113,6 +113,12 @@ AC_CHECK_DECLS(posix_fadvise, [], [], [
 # Checks for functions
 AC_CHECK_FUNCS([posix_fadvise])
 AC_CHECK_FUNCS([getline])
+
+# if statvfs64() is available, enable the 64-bit API extensions
+AC_CHECK_FUNCS([statvfs64], [have_statvfs64=yes], [have_statvfs64=no])
+if test "x$have_statvfs" = "xyes" ; then
+   CFLAGS="$CFLAGS -D_LARGEFILE64_SOURCE"
+fi
 
 # Check for defines we expect
 AC_TRY_COMPILE(,
