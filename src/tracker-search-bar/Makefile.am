@@ -13,18 +13,17 @@ tracker_search_bar_SOURCES = 					\
 	tracker-utils.h
 
 tracker_search_bar_CFLAGS = \
-	-DPKGDATADIR=\""$(pkgdatadir)"\"	 		\
-	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
+	$(BUILD_CFLAGS)						\
 	-I$(top_srcdir)/src					\
 	-I$(top_builddir)/src					\
-	$(WARN_CFLAGS)						\
-	$(GCOV_CFLAGS)						\
+	-DPKGDATADIR=\""$(pkgdatadir)"\"	 		\
+	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
 	$(TRACKER_SEARCH_BAR_CFLAGS)
 
 tracker_search_bar_LDADD = 					\
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(GCOV_LIBS)						\
+	$(BUILD_LIBS)						\
 	$(TRACKER_SEARCH_BAR_LIBS)
 
 uidir = $(datadir)/tracker
