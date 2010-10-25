@@ -68,30 +68,22 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	static Statistics statistics_object;
 	static bool initialized;
 
-	public Connection ()
+	public Connection () throws Sparql.Error, IOError, DBusError
 	requires (!initialized) {
-		initialized = true;
-		
-		try {
-			// FIXME: Ideally we would just get these as and when we need them
-			resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
-			                                            TRACKER_DBUS_SERVICE,
-			                                            TRACKER_DBUS_OBJECT_RESOURCES);
-			steroids_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
-			                                           TRACKER_DBUS_SERVICE,
-			                                           TRACKER_DBUS_OBJECT_STEROIDS);
-			statistics_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
-			                                             TRACKER_DBUS_SERVICE,
-			                                             TRACKER_DBUS_OBJECT_STATISTICS);
-		} catch (DBusError e) {
-			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
-			initialized = false;
-			return;
-		}
-		
+		// FIXME: Ideally we would just get these as and when we need them
+		resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
+		                                            TRACKER_DBUS_SERVICE,
+		                                            TRACKER_DBUS_OBJECT_RESOURCES);
+		steroids_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
+		                                           TRACKER_DBUS_SERVICE,
+		                                           TRACKER_DBUS_OBJECT_STEROIDS);
+		statistics_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
+		                                             TRACKER_DBUS_SERVICE,
+		                                             TRACKER_DBUS_OBJECT_STATISTICS);
+
 		initialized = true;
 	}
- 
+
 	~Connection () {
 		initialized = false;
 	}
@@ -383,6 +375,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 }
 
 public Tracker.Sparql.Connection module_init () {
-	Tracker.Sparql.Connection plugin = new Tracker.Bus.Connection ();
-	return plugin;
+	try {
+		Tracker.Sparql.Connection plugin = new Tracker.Bus.Connection ();
+		return plugin;
+	} catch {
+		return null;
+	}
 }
