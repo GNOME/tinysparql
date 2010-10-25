@@ -11,7 +11,7 @@ noinst_PROGRAMS =                                      \
 	test-update-array-performance
 
 AM_VALAFLAGS =                                         \
-	--pkg gio-2.0 --pkg dbus-glib-1                \
+	--pkg gio-2.0                                  \
 	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	$(top_srcdir)/src/libtracker-bus/tracker-bus.vapi

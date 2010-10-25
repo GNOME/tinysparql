@@ -35,10 +35,7 @@ libtracker_bus_la_LDFLAGS =                            \
 	-module -avoid-version -no-undefined
 
 noinst_HEADERS =                                       \
-	tracker-bus.h                                  \
-	tracker-bus-fd-cursor.h                        \
-	tracker-bus-fd-update.h                        \
-	tracker-bus-shared.h
+	tracker-bus.h
 
 BUILT_SOURCES =                                        \
 	libtracker_bus_la_vala.stamp

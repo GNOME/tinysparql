@@ -477,6 +477,14 @@ PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUI
                   [have_tracker_nautilus_extension=yes],
                   [have_tracker_nautilus_extension=no])
 
+# Check for D-Bus requirements (for tests/examples only)
+PKG_CHECK_MODULES(TRACKER_DBUS,
+                  [gio-unix-2.0 >= $GLIB_REQUIRED
+                   dbus-1       >= $DBUS_REQUIRED 
+                   dbus-glib-1  >= $DBUS_GLIB_REQUIRED],
+                  [have_tracker_dbus=yes],
+                  [have_tracker_dbus=no])
+
 # General VALAFLAGS/CFLAGS/LIBS
 BUILD_VALAFLAGS="-g"
 BUILD_CFLAGS="${WARN_CFLAGS} ${GCOV_CFLAGS} -DG_LOG_DOMAIN=\\\"Tracker\\\" -DTRACKER_COMPILATION"
