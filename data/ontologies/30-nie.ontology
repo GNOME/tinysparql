@@ -183,8 +183,8 @@ nie:contentCreated a rdf:Property ;
 	tracker:writeback true .
 
 nie:contentAccessed a rdf:Property ;
-        rdfs:subPropertyOf nie:informationElementDate ;
-        nrl:maxCardinality 1 ;
+	rdfs:subPropertyOf nie:informationElementDate ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:dateTime .
 
@@ -196,7 +196,7 @@ nie:lastRefreshed a rdf:Property ;
 
 # Bug in nepomuk specification. Taking domain from superproperty
 nie:license a rdf:Property ;
-        rdfs:comment "Terms and intellectual property rights licensing conditions.";
+	rdfs:comment "Terms and intellectual property rights licensing conditions.";
 	rdfs:subPropertyOf dc:rights , nie:legal ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
