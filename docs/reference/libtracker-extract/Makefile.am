@@ -29,13 +29,12 @@ IGNORE_HFILES =
 INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
-	$(GLIB2_CFLAGS)
+	$(LIBTRACKER_EXTRACT_CFLAGS)
 
 GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(GLIB2_LIBS)
-
+	$(LIBTRACKER_EXTRACT_LIBS)
 
 # Extra options to supply to gtkdoc-mkdb
 MKDB_OPTIONS = --sgml-mode --output-format=xml

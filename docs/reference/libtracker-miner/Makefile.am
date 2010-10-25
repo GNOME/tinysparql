@@ -40,18 +40,13 @@ IGNORE_HFILES=								\
 INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
-	$(GLIB2_CFLAGS)							\
-	$(GIO_CFLAGS)							\
-	$(DBUS_CFLAGS)
+	$(LIBTRACKER_MINER_CFLAGS)
 
 GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	 \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(DBUS_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GLIB2_LIBS)
-
+	$(LIBTRACKER_MINER_LIBS)
 
 # Extra options to supply to gtkdoc-mkdb
 MKDB_OPTIONS=--sgml-mode --output-format=xml
