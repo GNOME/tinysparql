@@ -88,7 +88,7 @@ nco:IMContact a rdfs:Class ;
 	rdfs:subClassOf nco:PersonContact .
 
 nco:MetaContact a rdfs:Class ;
-        rdfs:label "MetaContact" ;
+	rdfs:label "MetaContact" ;
 	rdfs:comment "A metacontact groups PersonContacts and IMContacts coming from different sources, indicating that are the same entity in the real world. This has been deprecated in favor of merged contacts. Linking multiple contacts to a single person without merging is the task of pimo:Person and pimo:groundingOccurrence." ;
 	nao:deprecated true ;
 	rdfs:subClassOf rdfs:Resource.
@@ -214,7 +214,7 @@ nco:url a rdf:Property ;
 	tracker:weight 4 .
 
 nco:metacontact a rdf:Property ;
-        rdfs:label "metacontact" ;
+	rdfs:label "metacontact" ;
 	rdfs:comment "Link a single contact with a metacontact" ;
 	nrl:maxCardinality 1 ;
 	nao:deprecated true ;
@@ -282,11 +282,11 @@ nco:contactUID a rdf:Property ;
 	tracker:weight 5 .
 
 nco:contactLocalUID a rdf:Property;
-        rdfs:label "local contact UID";
-        rdfs:comment "Unique ID for the contact in the local storage" ;
-        nrl:maxCardinality 1;
-        rdfs:domain nco:Contact ;
-        rdfs:range xsd:string .
+	rdfs:label "local contact UID";
+	rdfs:comment "Unique ID for the contact in the local storage" ;
+	nrl:maxCardinality 1;
+	rdfs:domain nco:Contact ;
+	rdfs:range xsd:string .
 
 nco:publisher a rdf:Property ;
 	rdfs:label "publisher" ;
@@ -780,14 +780,14 @@ nco:imPresence a rdf:Property ;
 	rdfs:range nco:PresenceStatus .
 
 nco:presenceLastModified a rdf:Property ;
-        rdfs:label "Presence last modified";
-        rdfs:comment "Timestamp of the last change in the presence status";
-        nrl:maxCardinality 1;
-        rdfs:domain nco:IMAddress ;
-        rdfs:range xsd:dateTime .
+	rdfs:label "Presence last modified";
+	rdfs:comment "Timestamp of the last change in the presence status";
+	nrl:maxCardinality 1;
+	rdfs:domain nco:IMAddress ;
+	rdfs:range xsd:dateTime .
 
 nco:IMCapability a rdfs:Class ;
-        rdfs:label "IM Capabilities" ;
+	rdfs:label "IM Capabilities" ;
 	rdfs:comment "Features of a certain IM connection (depends on the IMAccount implementation used by the Contact)" ;
 	rdfs:subClassOf rdfs:Resource .
 
@@ -825,32 +825,32 @@ nco:hasIMAddress a rdf:Property ;
 # Authorization flow between IM Accounts
 #
 nco:AuthorizationStatus a rdfs:Class ;
-       rdfs:label "IM Address approval status" ;
-       rdfs:comment "Predefined instances to indicate the auth status: yes, no, requested" ;
-       rdfs:subClassOf rdfs:Resource .
+	rdfs:label "IM Address approval status" ;
+	rdfs:comment "Predefined instances to indicate the auth status: yes, no, requested" ;
+	rdfs:subClassOf rdfs:Resource .
 
 nco:predefined-auth-status-yes a nco:AuthorizationStatus .
 nco:predefined-auth-status-no a nco:AuthorizationStatus .
 nco:predefined-auth-status-requested a nco:AuthorizationStatus .
 
 nco:imAddressAuthStatusFrom a rdf:Property ;
-       rdfs:label "IM Address authorization status in the remote end" ;
-       rdfs:comment "Has the other end authorize to receive information about his changes" ;
-       nrl:maxCardinality 1 ;
-       rdfs:domain nco:IMAddress ;
-       rdfs:range nco:AuthorizationStatus .
+	rdfs:label "IM Address authorization status in the remote end" ;
+	rdfs:comment "Has the other end authorize to receive information about his changes" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:IMAddress ;
+	rdfs:range nco:AuthorizationStatus .
 
 nco:imAddressAuthStatusTo a rdf:Property ;
-       rdfs:label "IM Address authorization status in the local end" ;
-       rdfs:comment "Do i authorize this im Account to receive my information" ;
-       nrl:maxCardinality 1 ;
-       rdfs:domain nco:IMAddress ;
-       rdfs:range nco:AuthorizationStatus .
+	rdfs:label "IM Address authorization status in the local end" ;
+	rdfs:comment "Do i authorize this im Account to receive my information" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:IMAddress ;
+	rdfs:range nco:AuthorizationStatus .
 
 
 # Proposal for Nepomuk
 nco:video a rdf:Property ;
-        rdfs:label "Contact video";
-        rdfs:comment "Video avatar of a contact. Note that is an icon/avatar, not a generic 'present in video' property";
-        rdfs:domain nco:Role ;
-        rdfs:range nie:DataObject.
+	rdfs:label "Contact video";
+	rdfs:comment "Video avatar of a contact. Note that is an icon/avatar, not a generic 'present in video' property";
+	rdfs:domain nco:Role ;
+	rdfs:range nie:DataObject.
