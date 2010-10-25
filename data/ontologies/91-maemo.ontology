@@ -40,12 +40,12 @@ maemo:BrowserBookmarkFolder a nfo:BookmarkFolder .
 # Property to support thumbnails of the bookmarks
 # It is not nfo:Image to avoid unnecessary resources in the DB
 maemo:bookmarkThumbnail a rdf:Property ;
-   rdfs:domain nfo:Bookmark ;
-   rdfs:range  xsd:string .
+	rdfs:domain nfo:Bookmark ;
+	rdfs:range  xsd:string .
 
 maemo:webhistoryThumbnail a rdf:Property ;
-   rdfs:domain nfo:WebHistory ;
-   rdfs:range  xsd:string.
+	rdfs:domain nfo:WebHistory ;
+	rdfs:range  xsd:string.
 
 # Denotes how relevant an item is for the user
 maemo:relevance a rdf:Property ;

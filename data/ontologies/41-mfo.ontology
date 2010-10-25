@@ -33,7 +33,7 @@ mfo:FeedMessage a rdfs:Class ;
 mfo:Enclosure a rdfs:Class ;
 	rdfs:label "Message enclosure" ;
 	rdfs:comment "Represents an enclosure of a feed message" ;
-        tracker:notify true ;
+	tracker:notify true ;
 	rdfs:subClassOf mfo:FeedElement .
 
 mfo:FeedSettings a rdfs:Class ;
@@ -44,19 +44,19 @@ mfo:FeedSettings a rdfs:Class ;
 
 # PROPERTIES OF CHANNEL
 mfo:image a rdf:Property ;
-        nrl:maxCardinality 1 ;
-        rdfs:domain mfo:FeedChannel ;
-        rdfs:range xsd:string .
+	nrl:maxCardinality 1 ;
+	rdfs:domain mfo:FeedChannel ;
+	rdfs:range xsd:string .
 
 # updateTime is used to store a local timestamp of feed message
 # remote time is stored using nie:contentLastModified
 
 mfo:updatedTime a rdf:Property ;
-    	nrl:maxCardinality 1 ;
-    	rdfs:label "Updated" ;
-    	rdfs:comment "Captures the updated date and time when the channel is updated" ;
-    	rdfs:domain mfo:FeedChannel ;
-    	rdfs:range xsd:dateTime .
+	nrl:maxCardinality 1 ;
+	rdfs:label "Updated" ;
+	rdfs:comment "Captures the updated date and time when the channel is updated" ;
+	rdfs:domain mfo:FeedChannel ;
+	rdfs:range xsd:dateTime .
 
 mfo:unreadCount a rdf:Property;
 	rdfs:label " Unread count";
@@ -75,17 +75,17 @@ mfo:totalCount a rdf:Property;
 
 #PROPERTIES OF MESSAGE
 mfo:downloadedTime a rdf:Property ;
-    rdfs:label "Downloaded" ;
-    rdfs:comment "Captures the time stamp when message was downloaded" ;
-    nrl:maxCardinality 1 ;
-    rdfs:domain mfo:FeedMessage ;
-    rdfs:range xsd:dateTime .
+	rdfs:label "Downloaded" ;
+	rdfs:comment "Captures the time stamp when message was downloaded" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain mfo:FeedMessage ;
+	rdfs:range xsd:dateTime .
 
 mfo:enclosureList a rdf:Property ;
-    rdfs:label "Enclosure List" ;
-    rdfs:comment "A list of enclosures" ;
-    rdfs:domain mfo:FeedMessage ;
-    rdfs:range mfo:Enclosure .
+	rdfs:label "Enclosure List" ;
+	rdfs:comment "A list of enclosures" ;
+	rdfs:domain mfo:FeedMessage ;
+	rdfs:range mfo:Enclosure .
 
 # String? Resource? RemoteDataObject?
 mfo:remoteLink a rdf:Property ;
@@ -96,11 +96,11 @@ mfo:remoteLink a rdf:Property ;
 	rdfs:range nfo:RemoteDataObject .
 
 mfo:groupDefault a rdf:Property ;
-        rdfs:label "Default in group";
-        rdfs:comment "Different enclosures can represent the same resource in different formats/resolutions. This representations are grouped using the nie:identifier property and this property identify the default between them.";
-        rdfs:domain mfo:Enclosure ;
-        nrl:maxCardinality 1 ;
-        rdfs:range xsd:boolean .
+	rdfs:label "Default in group";
+	rdfs:comment "Different enclosures can represent the same resource in different formats/resolutions. This representations are grouped using the nie:identifier property and this property identify the default between them.";
+	rdfs:domain mfo:Enclosure ;
+	nrl:maxCardinality 1 ;
+	rdfs:range xsd:boolean .
 
 mfo:localLink a rdf:Property ;
 	rdfs:label "Local link" ;
@@ -166,36 +166,36 @@ mfo:Action a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
 
 mfo:action a rdf:Property ;
-    rdfs:label "Action" ;
-    rdfs:comment "Captures the current action for the channel: Refresh Now" ;
-    nrl:maxCardinality 1 ;
-    rdfs:domain mfo:FeedChannel ;
-    rdfs:range mfo:Action .
-
+	rdfs:label "Action" ;
+	rdfs:comment "Captures the current action for the channel: Refresh Now" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain mfo:FeedChannel ;
+	rdfs:range mfo:Action .
+	
 mfo:refresh-now a mfo:Action .
 
 # Feed types
 mfo:FeedType a rdfs:Class ;
-    rdfs:label "Feed fomat type " ;
-    rdfs:comment "class with a restricted set of feed types" ;
-    rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Feed fomat type " ;
+	rdfs:comment "class with a restricted set of feed types" ;
+	rdfs:subClassOf rdfs:Resource .
 
 #mfo:flickr a mfo:FeedType .
 #mfo:rss-atom a mfo:FeedType .
 
 mfo:name a rdf:Property ;
-    rdfs:label "Feed type name or plugin name" ;
-    rdfs:comment "Feed format name like rss-atom,flickr,facebook" ;
-    nrl:maxCardinality 1 ;
-    rdfs:domain mfo:FeedType ;
-    rdfs:range xsd:string .
+	rdfs:label "Feed type name or plugin name" ;
+	rdfs:comment "Feed format name like rss-atom,flickr,facebook" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain mfo:FeedType ;
+	rdfs:range xsd:string .
 
 mfo:type a rdf:Property ;
-    rdfs:label "Feed formats type" ;
-    rdfs:comment " Feeds format type which is mapped to plugin used in engine: flickr,rss-atom " ;
-    nrl:maxCardinality 1;
-    rdfs:domain mfo:FeedChannel ;
-    rdfs:range mfo:FeedType .
+	rdfs:label "Feed formats type" ;
+	rdfs:comment " Feeds format type which is mapped to plugin used in engine: flickr,rss-atom " ;
+	nrl:maxCardinality 1;
+	rdfs:domain mfo:FeedChannel ;
+	rdfs:range mfo:FeedType .
 
 
 

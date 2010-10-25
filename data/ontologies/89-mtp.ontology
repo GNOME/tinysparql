@@ -45,10 +45,10 @@ mtp:scantype a rdf:Property ;
 
 
 mtp:hidden a rdf:Property ;
-	 rdfs:label "Hidden" ;
-	 rdfs:comment "Hidden for the MTP protocol" ;
-	 rdfs:domain nfo:Media ;
-	 rdfs:range xsd:boolean .
+	rdfs:label "Hidden" ;
+	rdfs:comment "Hidden for the MTP protocol" ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:boolean .
 
 mtp:credits a rdf:Property ;
 	rdfs:label "MTP credits" ;
