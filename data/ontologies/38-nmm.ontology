@@ -311,7 +311,7 @@ nmm:skipCounter a rdf:Property ;
 nmm:ImageList a rdfs:Class ;
 	rdfs:subClassOf nfo:MediaList ;
 	rdfs:label "Image album" ;
-        tracker:notify true ;
+	tracker:notify true ;
 	rdfs:comment "An album of images" .
 
 nmm:Photo a rdfs:Class ;
