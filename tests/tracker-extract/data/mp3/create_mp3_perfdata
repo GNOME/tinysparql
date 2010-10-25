@@ -1,9 +1,0 @@
-#!/bin/sh
-
-# *** cbr id3v1 tags ***
-
-for i in $(seq 1000)
-do
-    echo Performance cbr id3v1 $i| text2wave - | lame --resample 48 - "perf_cbr_id3v1_$i.mp3"
-    id3v2 --id3v1-only -t "The title $i"  -a "The Artist" -A "The album name" -y 1969 -c "This is a basic comment"  -T 5 -g 5 "id3v1_basic_1_$i.mp3"
-done

@@ -1,7 +1,0 @@
-http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title          = "The titlev23"
-#Audio:Artist      = "The artistv23"
-#Audio:Album       = "The album namev23"
-http://www.semanticdesktop.org/ontologies/2007/01/19/nie#comment        = " - "
-http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#genre          = "This is a basic commentv23"
-http://www.semanticdesktop.org/ontologies/2007/01/19/nie#contentCreated = "1969"
-http://www.tracker-project.org/temp/nmm#trackNumber                     = "8"

@@ -1,7 +1,0 @@
-#!/bin/sh
-
-for i in $(seq 1000)
-do
-    convert -size 320x240   pattern:checkerboard perf_tiff_$i.tif
-    exiftool -exif:Orientation=1 -xmp:Location=Perfora_$i -Rating=5 perf_tiff_$i.tif
-done
