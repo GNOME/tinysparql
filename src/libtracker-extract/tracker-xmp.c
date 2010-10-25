@@ -897,7 +897,35 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 			tracker_sparql_builder_predicate (metadata, "mlo:country");
 			tracker_sparql_builder_object_unvalidated (metadata, data->country);
 		}
-	
+
+		tracker_sparql_builder_predicate (metadata, "mlo:asPostalAddress");
+		tracker_sparql_builder_object_blank_open (metadata); /* PostalAddress */
+
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nco:PostalAddress");
+
+		if (data->address) {
+			tracker_sparql_builder_predicate (metadata, "nco:streetAddress");
+			tracker_sparql_builder_object_unvalidated (metadata, data->address);
+		}
+
+		if (data->state) {
+			tracker_sparql_builder_predicate (metadata, "nco:region");
+			tracker_sparql_builder_object_unvalidated (metadata, data->state);
+		}
+
+		if (data->city) {
+			tracker_sparql_builder_predicate (metadata, "nco:locality");
+			tracker_sparql_builder_object_unvalidated (metadata, data->city);
+		}
+
+		if (data->country) {
+			tracker_sparql_builder_predicate (metadata, "nco:country");
+			tracker_sparql_builder_object_unvalidated (metadata, data->country);
+		}
+
+		tracker_sparql_builder_object_blank_close (metadata); /* PostalAddress */
+
 		tracker_sparql_builder_object_blank_close (metadata);
 	}
 
