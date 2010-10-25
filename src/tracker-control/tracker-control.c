@@ -434,7 +434,6 @@ main (int argc, char **argv)
 		tracker_db_journal_set_rotating ((chunk_size_mb != -1),
 		                                 chunk_size, rotate_to);
 
-		tracker_db_journal_init (NULL, FALSE);
 
 		g_object_unref (db_config);
 
@@ -442,6 +441,8 @@ main (int argc, char **argv)
 		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE, 100, 100, NULL, NULL)) {
 			return EXIT_FAILURE;
 		}
+
+		tracker_db_journal_init (NULL, FALSE);
 
 		tracker_db_manager_remove_all (hard_reset);
 		tracker_db_manager_shutdown ();
