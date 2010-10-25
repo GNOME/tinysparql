@@ -7,7 +7,7 @@ INCLUDES = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\
-	$(GLIB2_CFLAGS)
+	$(LIBTRACKER_EXTRACT_CFLAGS)
 
 noinst_LTLIBRARIES = libextract-mockup.la
 
@@ -17,5 +17,5 @@ libextract_mockup_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)							\
-	$(GLIB2_LIBS)
+	$(LIBTRACKER_EXTRACT_LIBS)
 
