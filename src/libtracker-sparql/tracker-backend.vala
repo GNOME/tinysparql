@@ -87,7 +87,7 @@ class Tracker.Sparql.Backend : Connection {
 		is_initialized = true;
 	}
 
-	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null || direct != null) {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
 		if (direct != null) {
@@ -97,7 +97,7 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
-	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null || direct != null) {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
 		if (direct != null) {
@@ -107,56 +107,56 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
-	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		bus.update (sparql, priority, cancellable);
 	}
 
-	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		return bus.update_blank (sparql, priority, cancellable);
 	}
 
-	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public async override GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		return yield bus.update_array_async (sparql, priority, cancellable);
 	}
 
-	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		return yield bus.update_blank_async (sparql, priority, cancellable);
 	}
 
-	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		var uri = file.get_uri ();
 		debug ("%s(): '%s'", Log.METHOD, uri);
 		bus.load (file, cancellable);
 	}
 
-	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		var uri = file.get_uri ();
 		debug ("%s(): '%s'", Log.METHOD, uri);
 		yield bus.load_async (file, cancellable);
 	}
 
-	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s()", Log.METHOD);
 		return bus.statistics (cancellable);
 	}
 
-	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s()", Log.METHOD);
 		return yield bus.statistics_async (cancellable);
