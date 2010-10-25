@@ -70,7 +70,7 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
         try
             FileUtils.get_contents(histfilename, out temp)
             for item in temp.split("\n")
-                if item.len() > TOO_SHORT
+                if item.length > TOO_SHORT
                     prepend_text(item)
                     history.add(item)
         except e : FileError
@@ -112,7 +112,7 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
          */
         txt = txt.normalize(-1, NormalizeMode.NFC)
 
-        if txt.len() > TOO_SHORT
+        if txt.length > TOO_SHORT
 
             /* do not store duplicate items in history */
             for item in history
