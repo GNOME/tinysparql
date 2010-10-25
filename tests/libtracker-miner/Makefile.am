@@ -23,28 +23,14 @@ INCLUDES =									\
 	-I$(top_srcdir)/src							\
 	-I$(top_builddir)/src							\
 	-I$(top_srcdir)/tests/common						\
-	-I$(top_srcdir)/src/libtracker-client					\
-	-I$(top_builddir)/src/libtracker-client					\
-	-I$(top_srcdir)/src/libtracker-miner					\
-	-I$(top_builddir)/src/libtracker-miner					\
-	-I$(top_srcdir)/src/libtracker-sparql					\
-	-I$(top_builddir)/src/libtracker-sparql					\
-	$(GLIB2_CFLAGS)								\
-	$(GIO_CFLAGS)								\
-	$(GMODULE_CFLAGS)							\
-	$(GTHREAD_CFLAGS)							\
-	$(DBUS_CFLAGS)
+	$(LIBTRACKER_MINER_CFLAGS)
 
-LIBS =										\
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+LDADD =										\
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la		\
 	$(BUILD_LIBS)                                                           \
-	$(DBUS_LIBS)                                                            \
-	$(GMODULE_LIBS)                                                         \
-	$(GTHREAD_LIBS)                                                         \
-	$(GIO_LIBS)                                                             \
-	$(GLIB2_LIBS)
+	$(LIBTRACKER_MINER_LIBS)
 
 tracker_crawler_test_SOURCES =							\
 	tracker-crawler-test.c
