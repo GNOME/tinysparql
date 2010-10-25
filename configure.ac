@@ -229,6 +229,8 @@ LIBTRACKER_CLIENT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
 PKG_CHECK_MODULES(LIBTRACKER_CLIENT, [$LIBTRACKER_CLIENT_REQUIRED])
 
+LIBTRACKER_CLIENT_CFLAGS="$LIBTRACKER_CLIENT_CFLAGS -Wno-deprecated-declarations"
+
 # Check requirements for libtracker-common
 LIBTRACKER_COMMON_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             gio-unix-2.0 >= $GLIB_REQUIRED
