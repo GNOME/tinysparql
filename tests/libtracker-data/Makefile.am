@@ -1,123 +1,61 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = 			\
-	aggregates		\
-	algebra			\
-	anon			\
-	ask			\
-	basic			\
-	bnode-coreference	\
-	bound 			\
-	datetime		\
-	expr-ops		\
-	functions		\
-	graph			\
-	nie			\
-	nmo			\
-	optional		\
-	regex			\
-	sort			\
-	subqueries		\
-	error			\
-	backup			\
+SUBDIRS = 					\
+	aggregates				\
+	algebra					\
+	anon					\
+	ask					\
+	basic					\
+	bnode-coreference			\
+	bound 					\
+	datetime				\
+	expr-ops				\
+	functions				\
+	graph					\
+	nie					\
+	nmo					\
+	optional				\
+	regex					\
+	sort					\
+	subqueries				\
+	error					\
+	backup					\
 	turtle
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-TEST_PROGS += 								\
-	tracker-sparql							\
-	tracker-sparql-blank						\
-	tracker-ontology						\
-	tracker-backup							\
-	tracker-ontology-change						\
-	tracker-db-journal						\
+TEST_PROGS += 					\
+	tracker-sparql				\
+	tracker-sparql-blank			\
+	tracker-ontology			\
+	tracker-backup				\
+	tracker-ontology-change			\
+	tracker-db-journal			\
 	tracker-db-dbus
 
-INCLUDES = 								\
-	$(BUILD_CFLAGS)							\
-	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"				\
-	-DTOP_BUILDDIR=\"$(abs_top_builddir)\"				\
-	-I$(top_srcdir)/src						\
-	-I$(top_srcdir)/tests/common					\
-	-I$(top_builddir)/src						\
-	-I$(top_srcdir)/src/libtracker-client				\
-	-I$(top_builddir)/src/libtracker-client				\
-	-I$(top_srcdir)/src/libtracker-data				\
-	-I$(top_builddir)/src/libtracker-data				\
-	-I$(top_srcdir)/src/libtracker-sparql				\
-	-I$(top_builddir)/src/libtracker-sparql				\
-	$(DBUS_CFLAGS)							\
-	$(SQLITE3_CFLAGS)						\
-	$(GMODULE_CFLAGS)						\
-	$(GTHREAD_CFLAGS)						\
-	$(GLIB2_CFLAGS)
+INCLUDES = 					\
+	$(BUILD_CFLAGS)				\
+	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"	\
+	-DTOP_BUILDDIR=\"$(abs_top_builddir)\"	\
+	-I$(top_srcdir)/src			\
+	-I$(top_builddir)/src			\
+	-I$(top_srcdir)/tests/common		\
+	$(LIBTRACKER_DATA_CFLAGS)
 
-common_ldadd =								\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/libtracker-data/libtracker-data.la	 	\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(BUILD_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(GOBJECT_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GTYPE_LIBS)
+LDADD =						\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(top_builddir)/src/libtracker-data/libtracker-data.la \
+	$(top_builddir)/tests/common/libtracker-testcommon.la \
+	$(BUILD_LIBS)				\
+	$(LIBTRACKER_DATA_LIBS)
 
-tracker_sparql_SOURCES = 						\
-	tracker-sparql-test.c
-
-tracker_sparql_LDADD = $(common_ldadd)
-
-tracker_sparql_blank_SOURCES = 						\
-	tracker-sparql-blank-test.c
-
-tracker_sparql_blank_LDADD = $(common_ldadd)
-
-tracker_ontology_SOURCES =						\
-	tracker-ontology-test.c
-
-tracker_ontology_LDADD = $(common_ldadd)
-
-tracker_ontology_change_SOURCES =					\
-        tracker-ontology-change-test.c
-
-tracker_ontology_change_LDADD = $(common_ldadd)
-
-tracker_backup_SOURCES = 						\
-	tracker-backup-test.c
-
-tracker_backup_LDADD = $(common_ldadd)
-
-tracker_db_journal_SOURCES = 						\
-	tracker-db-journal.c
-
-tracker_db_journal_LDADD =						\
-	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(BUILD_LIBS)							\
-	$(SQLITE3_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(GOBJECT_LIBS)							\
-	-lz
-
-tracker_db_dbus_SOURCES = 						\
-	tracker-db-dbus-test.c
-
-tracker_db_dbus_LDADD =						\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
-	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
-	$(BUILD_LIBS)							\
-	$(SQLITE3_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GLIB2_LIBS)							\
-	$(GOBJECT_LIBS)							\
-	-lz
+tracker_sparql_SOURCES = tracker-sparql-test.c
+tracker_sparql_blank_SOURCES = tracker-sparql-blank-test.c
+tracker_ontology_SOURCES = tracker-ontology-test.c
+tracker_ontology_change_SOURCES = tracker-ontology-change-test.c
+tracker_backup_SOURCES = tracker-backup-test.c
+tracker_db_journal_SOURCES = tracker-db-journal.c
+tracker_db_dbus_SOURCES = tracker-db-dbus-test.c
 
 EXTRA_DIST = 					\
 	dawg-testcases				\
