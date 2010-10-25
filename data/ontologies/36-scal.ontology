@@ -9,56 +9,56 @@
 @prefix scal: <http://www.tracker-project.org/temp/scal#> .
 
 scal: a tracker:Namespace, tracker:Ontology ;
-      tracker:prefix "scal" ;
-      nao:lastModified "2010-10-20T07:42:00Z" .
+	tracker:prefix "scal" ;
+	nao:lastModified "2010-10-20T07:42:00Z" .
 
 scal:Calendar a rdfs:Class ;
-      rdfs:label "Calendar" ;
-      rdfs:comment "Group calendar items" ;
-      rdfs:subClassOf nie:InformationElement .
+	rdfs:label "Calendar" ;
+	rdfs:comment "Group calendar items" ;
+	rdfs:subClassOf nie:InformationElement .
 
 scal:CalendarItem a rdfs:Class ;
-      rdfs:label "Calendar item" ;
-      rdfs:comment "Superclass of the calendar entities" ;
-      rdfs:subClassOf nie:InformationElement .
+	rdfs:label "Calendar item" ;
+	rdfs:comment "Superclass of the calendar entities" ;
+	rdfs:subClassOf nie:InformationElement .
 
 # FIXME Should we define the inverse property?
 scal:belongsToCalendar a rdf:Property ;
-      rdfs:label "Belongs to calentar" ;
-      rdfs:comment "Relation between a calendar item and a calendar." ;
-      rdfs:subPropertyOf nie:isLogicalPartOf ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range scal:Calendar .
+	rdfs:label "Belongs to calentar" ;
+	rdfs:comment "Relation between a calendar item and a calendar." ;
+	rdfs:subPropertyOf nie:isLogicalPartOf ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range scal:Calendar .
 
 scal:textLocation a rdf:Property ;
-      rdfs:label "Text Location";
-      rdfs:comment "Textual description of location for an item. Sec. 4.8.1.7. Use better mlo:location" ;
-      rdfs:domain scal:CalendarItem ;
-      nrl:maxCardinality 1 ;
-      rdfs:range xsd:integer .
+	rdfs:label "Text Location";
+	rdfs:comment "Textual description of location for an item. Sec. 4.8.1.7. Use better mlo:location" ;
+	rdfs:domain scal:CalendarItem ;
+	nrl:maxCardinality 1 ;
+	rdfs:range xsd:integer .
 
 scal:resources a rdf:Property ;
-      rdfs:label "Resources";
-      rdfs:comment "Resources required for the calendar item (equipment, installations...)" ;
-      rdfs:domain scal:CalendarItem ;
-      nrl:maxCardinality 1 ;
-      rdfs:range xsd:string .
+	rdfs:label "Resources";
+	rdfs:comment "Resources required for the calendar item (equipment, installations...)" ;
+	rdfs:domain scal:CalendarItem ;
+	nrl:maxCardinality 1 ;
+	rdfs:range xsd:string .
 
 # Transparency for every calendar item
 scal:TransparencyValues a rdfs:Class ;
-      rdfs:label "Transparency values" ;
-      rdfs:comment "Predefined instances of time transparency for the calendar items" ;
-      rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Transparency values" ;
+	rdfs:comment "Predefined instances of time transparency for the calendar items" ;
+	rdfs:subClassOf rdfs:Resource .
 
 scal:transparency-transparent a scal:TransparencyValues .
 scal:transparency-opaque a scal:TransparencyValues .
 
 scal:transparency a rdf:Property ;
-      rdfs:label "Transparency" ;
-      rdfs:comment "Time transparency for the item (busy time or transparent)";
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range scal:TransparencyValues .
+	rdfs:label "Transparency" ;
+	rdfs:comment "Time transparency for the item (busy time or transparent)";
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range scal:TransparencyValues .
 
 
 #
@@ -70,15 +70,15 @@ scal:transparency a rdf:Property ;
 # Contacts involved in a Calendar Item
 #
 scal:Attendee a rdfs:Class ;
-      rdfs:label "Event attendee" ;
-      rdfs:comment "Contact related with a calendar item" ;
-      rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Event attendee" ;
+	rdfs:comment "Contact related with a calendar item" ;
+	rdfs:subClassOf rdfs:Resource .
 
 # Status of an attendee
 scal:AttendanceStatus a rdfs:Class ;
-      rdfs:label "Attendance status values (partstat in ical spec)" ;
-      rdfs:comment "Predefined set of instances: needs-action, accepted..." ;
-      rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Attendance status values (partstat in ical spec)" ;
+	rdfs:comment "Predefined set of instances: needs-action, accepted..." ;
+	rdfs:subClassOf rdfs:Resource .
 
 scal:attendance-needs-action a scal:AttendanceStatus .
 scal:attendance-accepted a scal:AttendanceStatus .
@@ -89,17 +89,17 @@ scal:attendance-completed a scal:AttendanceStatus .
 scal:attendance-in-process a scal:AttendanceStatus .
 
 scal:attendanceStatus a rdf:Property ;
-      rdfs:label "Attendance status" ;
-      rdfs:comment "Status of contact's assitance to the event" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range scal:AttendanceStatus .
+	rdfs:label "Attendance status" ;
+	rdfs:comment "Status of contact's assitance to the event" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range scal:AttendanceStatus .
 
 # Role of an attendee
 scal:AttendeeRole a rdfs:Class ;
-      rdfs:label "Attendee role in the event (Role in ical spec)" ;
-      rdfs:comment "Predefined set of instances: chain, req-participant..." ;
-      rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Attendee role in the event (Role in ical spec)" ;
+	rdfs:comment "Predefined set of instances: chain, req-participant..." ;
+	rdfs:subClassOf rdfs:Resource .
 
 scal:attendee-role-chair a scal:AttendeeRole .
 scal:attendee-role-req-participant a scal:AttendeeRole .
@@ -107,54 +107,54 @@ scal:attendee-role-opt-participant a scal:AttendeeRole .
 scal:attendee-role-non-participant a scal:AttendeeRole .
 
 scal:attendeeRole a rdf:Property ;
-      rdfs:label "Attendee role in the event" ;
-      rdfs:comment "Property to link with an attendee role instance" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range scal:AttendeeRole .
+	rdfs:label "Attendee role in the event" ;
+	rdfs:comment "Property to link with an attendee role instance" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range scal:AttendeeRole .
 
 
 scal:attendeeContact a rdf:Property ;
-      rdfs:label "Link to contact" ;
-      rdfs:comment "Link from the attendee to the actual contact" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range nco:Contact .
+	rdfs:label "Link to contact" ;
+	rdfs:comment "Link from the attendee to the actual contact" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range nco:Contact .
 
 # RSVP of an attendee
 scal:RSVPValues a rdfs:Class ;
-      rdfs:label "RSVP Values" ;
-      rdfs:comment "Predefined set of instances: Yes/No (not boolean to allow undefined values)" ;
-      rdfs:subClassOf rdfs:Resource .
+	rdfs:label "RSVP Values" ;
+	rdfs:comment "Predefined set of instances: Yes/No (not boolean to allow undefined values)" ;
+	rdfs:subClassOf rdfs:Resource .
 
 scal:rsvp-value-true a scal:RSVPValues .
 scal:rsvp-value-false a scal:RSVPValues .
 
 scal:rsvp a rdf:Property ;
-      rdfs:label "rsvp" ;
-      rdfs:comment "Link an attendee with his rsvp status" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range scal:RSVPValues .
+	rdfs:label "rsvp" ;
+	rdfs:comment "Link an attendee with his rsvp status" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range scal:RSVPValues .
 
 
 scal:attendee a rdf:Property ;
-      rdfs:label "Attendee" ;
-      rdfs:comment "Link of an Calendar item with an attendee, that can have different status" ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range scal:Attendee .
+	rdfs:label "Attendee" ;
+	rdfs:comment "Link of an Calendar item with an attendee, that can have different status" ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range scal:Attendee .
 
 scal:contact a rdf:Property ;
-      rdfs:label "Contact" ;
-      rdfs:comment "Contact related with the Calendar Item (spec 4.8.4.2)" ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range scal:Attendee .
+	rdfs:label "Contact" ;
+	rdfs:comment "Contact related with the Calendar Item (spec 4.8.4.2)" ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range scal:Attendee .
 
 # Calendar User Type
 scal:CalendarUserType a rdfs:Class ;
-      rdfs:label "Calendar user type instances (CUTYPE in ical spec)";
-      rdfs:comment "Predefined set of instance for calendar user types";
-      rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Calendar user type instances (CUTYPE in ical spec)";
+	rdfs:comment "Predefined set of instance for calendar user types";
+	rdfs:subClassOf rdfs:Resource .
 
 #
 # Individual/Group is not nco:PersonContact /nco:OrganizationContact ?
@@ -168,39 +168,36 @@ scal:cutype-resource a scal:CalendarUserType .
 scal:cutype-unknown a scal:CalendarUserType .
 
 scal:calendarUserType a rdf:Property ;
-      rdfs:label "Calendar user type" ;
-      rdfs:comment "Link an attendee instance with a cutype" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range scal:CalendarUserType .
+	rdfs:label "Calendar user type" ;
+	rdfs:comment "Link an attendee instance with a cutype" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range scal:CalendarUserType .
 
 # Do we need more fine-grained description of these properties?
 scal:member a rdf:Property ;
-      rdfs:label "Member" ;
-      rdfs:comment "To specify the group or list membership of the calendar user specified by the property" ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range nco:Contact .
+	rdfs:label "Member" ;
+	rdfs:comment "To specify the group or list membership of the calendar user specified by the property" ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range nco:Contact .
 
 scal:delegated-to a rdf:Property ;
-      rdfs:label "Delegated-to" ;
-      rdfs:comment "to indicate the calendar users that the original request was delegated to" ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range nco:Contact .
+	rdfs:label "Delegated-to" ;
+	rdfs:comment "to indicate the calendar users that the original request was delegated to" ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range nco:Contact .
 
 scal:delegated-from a rdf:Property ;
-      rdfs:label "Delegated-from" ;
-      rdfs:comment "to indicate the calendar users whom the request was delegated from" ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range nco:Contact .
+	rdfs:label "Delegated-from" ;
+	rdfs:comment "to indicate the calendar users whom the request was delegated from" ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range nco:Contact .
 
 scal:sent-by a rdf:Property ;
-      rdfs:label "Sent-by" ;
-      rdfs:comment "to indicate whom is acting on behalf of the ATTENDEE" ;
-      rdfs:domain scal:Attendee ;
-      rdfs:range nco:Contact .
-
-
-
+	rdfs:label "Sent-by" ;
+	rdfs:comment "to indicate whom is acting on behalf of the ATTENDEE" ;
+	rdfs:domain scal:Attendee ;
+	rdfs:range nco:Contact .
 
 scal:Event a rdfs:Class ;
       rdfs:label "Event" ;
@@ -208,14 +205,14 @@ scal:Event a rdfs:Class ;
       rdfs:subClassOf scal:CalendarItem .
 
 scal:Todo a rdfs:Class ;
-      rdfs:label "Todo" ;
-      rdfs:comment "A ToDo according the ical definition" ;
-      rdfs:subClassOf scal:CalendarItem .
+	rdfs:label "Todo" ;
+	rdfs:comment "A ToDo according the ical definition" ;
+	rdfs:subClassOf scal:CalendarItem .
 
 scal:Journal a rdfs:Class ;
-      rdfs:label "Journal" ;
-      rdfs:comment "A Journal entry according to the ical definition" ;
-      rdfs:subClassOf scal:CalendarItem .
+	rdfs:label "Journal" ;
+	rdfs:comment "A Journal entry according to the ical definition" ;
+	rdfs:subClassOf scal:CalendarItem .
 
 # Status for event
 scal:EventStatus a rdfs:Class ;
@@ -274,16 +271,16 @@ scal:journalStatus a rdf:Property ;
 # Link of contacts with Events
 #
 scal:birthday a rdf:Property ;
-        rdfs:label "birthday event" ;
-        rdfs:comment "links a contact with the calendar event of his birthday. (SCAL version)" ;
-        rdfs:domain nco:Contact ;
-        rdfs:range scal:Event .
+	rdfs:label "birthday event" ;
+	rdfs:comment "links a contact with the calendar event of his birthday. (SCAL version)" ;
+	rdfs:domain nco:Contact ;
+	rdfs:range scal:Event .
 
 scal:anniversary a rdf:Property ;
-        rdfs:label "anniversary event" ;
-        rdfs:comment "links a contact with the calendar event of an anniversary. (SCAL version)" ;
-        rdfs:domain nco:Contact ;
-        rdfs:range scal:Event .
+	rdfs:label "anniversary event" ;
+	rdfs:comment "links a contact with the calendar event of an anniversary. (SCAL version)" ;
+	rdfs:domain nco:Contact ;
+	rdfs:range scal:Event .
 
 
 #
@@ -293,59 +290,59 @@ scal:anniversary a rdf:Property ;
 #      (This one is always linked with an Event)
 #
 scal:CalendarAlarm a rdfs:Class ;
-      rdfs:label "Alarm" ;
-      rdfs:comment "An alam according to the ical definition" ;
-      rdfs:subClassOf nie:InformationElement .
+	rdfs:label "Alarm" ;
+	rdfs:comment "An alam according to the ical definition" ;
+	rdfs:subClassOf nie:InformationElement .
 
 scal:alarmOffset a rdf:Property ;
-      rdfs:label "Alarm offset";
-      rdfs:comment "Offset of the alarm respect to the Calendar item start time. In minutes" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:CalendarAlarm ;
-      rdfs:range xsd:integer .
+	rdfs:label "Alarm offset";
+	rdfs:comment "Offset of the alarm respect to the Calendar item start time. In minutes" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:CalendarAlarm ;
+	rdfs:range xsd:integer .
 
 scal:calendarItemAlarm a rdf:Property ;
-      rdfs:label "CalendarItem-alarm link" ;
-      rdfs:comment "Link between calendar item and alarm" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range scal:CalendarAlarm .
+	rdfs:label "CalendarItem-alarm link" ;
+	rdfs:comment "Link between calendar item and alarm" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range scal:CalendarAlarm .
 
 scal:alarmAttendee a rdf:Property ;
-      rdfs:label "Alarm attendee" ;
-      rdfs:comment "Alarms can have attendees. RFC has told" ;
-      rdfs:domain scal:CalendarAlarm ;
-      rdfs:range scal:Attendee .
+	rdfs:label "Alarm attendee" ;
+	rdfs:comment "Alarms can have attendees. RFC has told" ;
+	rdfs:domain scal:CalendarAlarm ;
+	rdfs:range scal:Attendee .
 
 #
 # Time point
 #
 scal:TimePoint a rdfs:Class ;
-      rdfs:label "Time item" ;
-      rdfs:comment "Point in time" ;
-      rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Time item" ;
+	rdfs:comment "Point in time" ;
+	rdfs:subClassOf rdfs:Resource .
 
 scal:dateTime a rdf:Property ;
-      rdfs:label "Time" ;
-      rdfs:comment "Date and time in UTC" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:TimePoint ;
-      rdfs:range xsd:dateTime .
+	rdfs:label "Time" ;
+	rdfs:comment "Date and time in UTC" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:TimePoint ;
+	rdfs:range xsd:dateTime .
 
 scal:TimeZone a rdf:Property ;
-      rdfs:label "Reference time zone" ;
-      rdfs:comment "Timezone in the OLSON DB used as reference in the time. Use 'floating' for floating times or study the convenience of a boolean 'isFloating' attribute." ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:TimePoint ;
-      rdfs:range xsd:string .
+	rdfs:label "Reference time zone" ;
+	rdfs:comment "Timezone in the OLSON DB used as reference in the time. Use 'floating' for floating times or study the convenience of a boolean 'isFloating' attribute." ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:TimePoint ;
+	rdfs:range xsd:string .
 
 #
 # Access status
 #
 scal:AccessLevel a rdfs:Class ;
-      rdfs:label "Access level" ;
-      rdfs:comment "Access classification for a calendar item: public, private or confidential. Use the predefined instances in the ontology" ;
-      rdfs:subClassOf rdfs:Resource .
+	rdfs:label "Access level" ;
+	rdfs:comment "Access classification for a calendar item: public, private or confidential. Use the predefined instances in the ontology" ;
+	rdfs:subClassOf rdfs:Resource .
 
 scal:access-level-private a scal:AccessLevel .
 scal:access-level-public a scal:AccessLevel .
@@ -361,72 +358,72 @@ scal:access a rdf:Property ;
 # Todo properties
 #
 scal:due a rdf:Property ;
-      rdfs:label "Due" ;
-      rdfs:comment "Due time for a task to be completed" ;
-      rdfs:domain scal:Todo ;
-      rdfs:range scal:TimePoint ;
-      nrl:maxCardinality 1 .
+	rdfs:label "Due" ;
+	rdfs:comment "Due time for a task to be completed" ;
+	rdfs:domain scal:Todo ;
+	rdfs:range scal:TimePoint ;
+	nrl:maxCardinality 1 .
 
 scal:completed a rdf:Property ;
-      rdfs:label "Completed" ;
-      rdfs:comment "Time when the task was completed" ;
-      rdfs:domain scal:Todo ;
-      rdfs:range scal:TimePoint ;
-      nrl:maxCardinality 1 .
+	rdfs:label "Completed" ;
+	rdfs:comment "Time when the task was completed" ;
+	rdfs:domain scal:Todo ;
+	rdfs:range scal:TimePoint ;
+	nrl:maxCardinality 1 .
 
 scal:percentComplete a rdf:Property ;
-      rdfs:label "Percentage completed" ;
-      rdfs:comment "% of the task completed" ;
-      rdfs:domain scal:Todo ;
-      rdfs:range xsd:integer ;
-      nrl:maxCardinality 1 .
+	rdfs:label "Percentage completed" ;
+	rdfs:comment "% of the task completed" ;
+	rdfs:domain scal:Todo ;
+	rdfs:range xsd:integer ;
+	nrl:maxCardinality 1 .
 
 #
 # Every Calendar item has start and end time points + all-day boolean
 #
 scal:start a rdf:Property ;
-      rdfs:label "start time";
-      rdfs:comment "Start time of a calendar item" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range scal:TimePoint .
+	rdfs:label "start time";
+	rdfs:comment "Start time of a calendar item" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range scal:TimePoint .
 
 scal:end a rdf:Property ;
-      rdfs:label "end time" ;
-      rdfs:comment "End time of a calendar item. Set always a value to avoid OPTIONALS";
-      nrl:maxCardinality 1;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range scal:TimePoint .
+	rdfs:label "end time" ;
+	rdfs:comment "End time of a calendar item. Set always a value to avoid OPTIONALS";
+	nrl:maxCardinality 1;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range scal:TimePoint .
 
 scal:isAllDay a rdf:Property ;
-      rdfs:label "Whole day calendar item" ;
-      rdfs:comment "True if the event applies to the whole day" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range xsd:boolean .
+	rdfs:label "Whole day calendar item" ;
+	rdfs:comment "True if the event applies to the whole day" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range xsd:boolean .
 
 
 #
 # General Calendar item properties
 #
 scal:priority a rdf:Property ;
-      rdfs:label "Priority" ;
-      rdfs:comment "Relative priority of th event" ;
-      nrl:maxCardinality 1 ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range xsd:integer .
+	rdfs:label "Priority" ;
+	rdfs:comment "Relative priority of th event" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range xsd:integer .
 
 scal:attachment a rdf:Property ;
-      rdfs:label "Attachment" ;
-      rdfs:comment "Item attached to a calendar item" ;
-      rdfs:domain scal:CalendarItem ;
-      rdfs:range  nie:DataObject .
+	rdfs:label "Attachment" ;
+	rdfs:comment "Item attached to a calendar item" ;
+	rdfs:domain scal:CalendarItem ;
+	rdfs:range  nie:DataObject .
 
 #
 # Recurrence rules
 #
 scal:RecurrenceRule a rdfs:Class ;
-        rdfs:label "Recurrence rule" ;
+	rdfs:label "Recurrence rule" ;
 	rdfs:comment "Representation of repeating patterns" ;
 	rdfs:subClassOf rdfs:Resource .
 
@@ -463,14 +460,14 @@ scal:exception a rdf:Property ;
 	rdfs:range xsd:boolean .
 
 scal:rdate a rdf:Property ;
-        rdfs:label "Recurrence date" ;
+	rdfs:label "Recurrence date" ;
 	rdfs:comment "One of more concrete ocurrences of the calendar item using ';' as separator. Included for backward compatibility. Use rrule instead" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain scal:CalendarItem ;
 	rdfs:range xsd:integer .
 
 scal:exceptionRDate a rdf:Property ;
-        rdfs:label "Recurrence date exception" ;
+	rdfs:label "Recurrence date exception" ;
 	rdfs:comment "One of more concrete exceptions of the calendar item using ';' as separator. Included for backward compatibility. Use rrule with exception='true' instead" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain scal:CalendarItem ;

@@ -963,13 +963,13 @@ ncal:relatedToParent a rdf:Property ;
 
 # Pending of Nepomuk approval
 ncal:birthday a rdf:Property ;
-        rdfs:label "birthday event" ;
-        rdfs:comment "links a contact with the calendar event of his birthday. (NCAL version)" ;
-        rdfs:domain nco:Contact ;
-        rdfs:range ncal:Event .
+	rdfs:label "birthday event" ;
+	rdfs:comment "links a contact with the calendar event of his birthday. (NCAL version)" ;
+	rdfs:domain nco:Contact ;
+	rdfs:range ncal:Event .
 
 ncal:anniversary a rdf:Property ;
-        rdfs:label "anniversary event" ;
-        rdfs:comment "links a contact with the calendar event of an anniversary. (NCAL version)" ;
-        rdfs:domain nco:Contact ;
-        rdfs:range ncal:Event .
+	rdfs:label "anniversary event" ;
+	rdfs:comment "links a contact with the calendar event of an anniversary. (NCAL version)" ;
+	rdfs:domain nco:Contact ;
+	rdfs:range ncal:Event .
