@@ -8,21 +8,16 @@ TEST_PROGS += 								\
 INCLUDES = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
+	-I$(top_builddir)/src						\
 	-I$(top_srcdir)/tests/common					\
-	$(GLIB2_CFLAGS)							\
-	$(GMODULE_CFLAGS)						\
-	$(GTHREAD_CFLAGS)						\
-	$(DBUS_CFLAGS)
+	$(LIBTRACKER_SPARQL_CFLAGS)
+
+LDADD = 								\
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(BUILD_LIBS)							\
+	$(LIBTRACKER_SPARQL_LIBS)
 
 tracker_test_SOURCES = 							\
 	tracker-test.c
 
-tracker_test_LDADD = 							\
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(BUILD_LIBS)							\
-	$(DBUS_LIBS)							\
-	$(GMODULE_LIBS)							\
-	$(GTHREAD_LIBS)							\
-	$(GIO_LIBS)							\
-	$(GLIB2_LIBS)

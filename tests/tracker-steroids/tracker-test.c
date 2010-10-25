@@ -17,11 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <string.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
-#include <libtracker-common/tracker-common.h>
 
 /* This MUST be larger than TRACKER_STEROIDS_BUFFER_SIZE */
 #define LONG_NAME_SIZE 128 * 1024 * sizeof(char)
