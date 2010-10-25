@@ -358,7 +358,9 @@ db_manager_remove_journal (void)
 			}
 
 			fullpath = g_build_filename (dirs[i], f, NULL);
-			g_unlink (fullpath);
+			if (g_unlink (fullpath) == -1) {
+				g_message ("%s", g_strerror (errno));
+			}
 			g_free (fullpath);
 		}
 
@@ -369,7 +371,9 @@ db_manager_remove_journal (void)
 	g_free (directory);
 
 	/* Remove active journal */
-	g_unlink (path);
+	if (g_unlink (path) == -1) {
+		g_message ("%s", g_strerror (errno));
+	}
 	g_free (path);
 }
 
@@ -1087,7 +1091,7 @@ void
 tracker_db_manager_move_to_temp (void)
 {
 	guint i;
-	gchar *cpath, *new_filename;
+	gchar *cpath, *filename;
 	gchar *fullpath;
 	gchar *directory, *rotate_to = NULL;
 	const gchar *dirs[3] = { NULL, NULL, NULL };
@@ -1099,11 +1103,13 @@ tracker_db_manager_move_to_temp (void)
 	g_message ("Moving all database files");
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		new_filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
+		filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
 		g_message ("  Renaming database:'%s' -> '%s'",
-		           dbs[i].abs_filename, new_filename);
-		g_rename (dbs[i].abs_filename, new_filename);
-		g_free (new_filename);
+		           dbs[i].abs_filename, filename);
+		if (g_rename (dbs[i].abs_filename, filename) == -1) {
+			g_critical ("%s", g_strerror (errno));
+		}
+		g_free (filename);
 	}
 
 	cpath = g_strdup (tracker_db_journal_get_filename ());
@@ -1131,9 +1137,11 @@ tracker_db_manager_move_to_temp (void)
 			}
 
 			fullpath = g_build_filename (dirs[i], f_name, NULL);
-			new_filename = g_strdup_printf ("%s.tmp", fullpath);
-			g_rename (fullpath, new_filename);
-			g_free (new_filename);
+			filename = g_strdup_printf ("%s.tmp", fullpath);
+			if (g_rename (fullpath, filename) == -1) {
+				g_critical ("%s", g_strerror (errno));
+			}
+			g_free (filename);
 			g_free (fullpath);
 			f_name = g_dir_read_name (journal_dir);
 		}
@@ -1142,20 +1150,24 @@ tracker_db_manager_move_to_temp (void)
 	}
 
 	fullpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
-	new_filename = g_strdup_printf ("%s.tmp", fullpath);
-	g_rename (fullpath, new_filename);
-	g_free (new_filename);
+	filename = g_strdup_printf ("%s.tmp", fullpath);
+	if (g_rename (fullpath, filename) == -1) {
+		g_critical ("%s", g_strerror (errno));
+	}
+	g_free (filename);
 	g_free (fullpath);
 
 	g_free (rotate_to);
 	g_free (directory);
 
-	new_filename = g_strdup_printf ("%s.tmp", cpath);
+	filename = g_strdup_printf ("%s.tmp", cpath);
 	g_message ("  Renaming journal:'%s' -> '%s'",
-	           cpath, new_filename);
-	g_rename (cpath, new_filename);
+	           cpath, filename);
+	if (g_rename (cpath, filename) == -1) {
+		g_critical ("%s", g_strerror (errno));
+	}
 	g_free (cpath);
-	g_free (new_filename);
+	g_free (filename);
 }
 
 
@@ -1163,7 +1175,7 @@ void
 tracker_db_manager_restore_from_temp (void)
 {
 	guint i;
-	gchar *cpath, *new_filename;
+	gchar *cpath, *filename;
 	gchar *fullpath;
 	gchar *directory, *rotate_to = NULL;
 	const gchar *dirs[3] = { NULL, NULL, NULL };
@@ -1175,27 +1187,33 @@ tracker_db_manager_restore_from_temp (void)
 	g_message ("Moving all database files");
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		new_filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
+		filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
 		g_message ("  Renaming database:'%s' -> '%s'",
-		           dbs[i].abs_filename, new_filename);
-		g_rename (dbs[i].abs_filename, new_filename);
-		g_free (new_filename);
+		           dbs[i].abs_filename, filename);
+		if (g_rename (dbs[i].abs_filename, filename) == -1) {
+			g_critical ("%s", g_strerror (errno));
+		}
+		g_free (filename);
 	}
 
 	cpath = g_strdup (tracker_db_journal_get_filename ());
-	new_filename = g_strdup_printf ("%s.tmp", cpath);
+	filename = g_strdup_printf ("%s.tmp", cpath);
 	g_message ("  Renaming journal:'%s' -> '%s'",
-	           cpath, new_filename);
-	g_rename (new_filename, cpath);
-	g_free (new_filename);
+	           filename, cpath);
+	if (g_rename (filename, cpath) == -1) {
+		g_critical ("%s", g_strerror (errno));
+	}
+	g_free (filename);
 
 	directory = g_path_get_dirname (cpath);
 	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
 
 	fullpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
-	new_filename = g_strdup_printf ("%s.tmp", fullpath);
-	g_rename (new_filename, fullpath);
-	g_free (new_filename);
+	filename = g_strdup_printf ("%s.tmp", fullpath);
+	if (g_rename (filename, fullpath) == -1) {
+		g_critical ("%s", g_strerror (errno));
+	}
+	g_free (filename);
 	g_free (fullpath);
 
 	dirs[0] = directory;
@@ -1219,13 +1237,15 @@ tracker_db_manager_restore_from_temp (void)
 			}
 
 			fullpath = g_build_filename (dirs[i], f_name, NULL);
-			new_filename = g_strdup (fullpath);
-			ptr = strstr (new_filename, ".tmp");
+			filename = g_strdup (fullpath);
+			ptr = strstr (filename, ".tmp");
 			if (ptr) {
 				*ptr = '\0';
-				g_rename (fullpath, new_filename);
+				if (g_rename (fullpath, filename) == -1) {
+					g_critical ("%s", g_strerror (errno));
+				}
 			}
-			g_free (new_filename);
+			g_free (filename);
 			g_free (fullpath);
 			f_name = g_dir_read_name (journal_dir);
 		}
@@ -1241,7 +1261,7 @@ void
 tracker_db_manager_remove_temp (void)
 {
 	guint i;
-	gchar *cpath, *new_filename;
+	gchar *cpath, *filename;
 	gchar *directory, *rotate_to = NULL;
 	gsize chunk_size = 0;
 	gboolean do_rotate = FALSE;
@@ -1252,28 +1272,34 @@ tracker_db_manager_remove_temp (void)
 	g_message ("Removing all temp database files");
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		new_filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
+		filename = g_strdup_printf ("%s.tmp", dbs[i].abs_filename);
 		g_message ("  Removing temp database:'%s'",
-		           new_filename);
-		g_unlink (new_filename);
-		g_free (new_filename);
+		           filename);
+		if (g_unlink (filename) == -1) {
+			g_message ("%s", g_strerror (errno));
+		}
+		g_free (filename);
 	}
 
 	cpath = g_strdup (tracker_db_journal_get_filename ());
-	new_filename = g_strdup_printf ("%s.tmp", cpath);
+	filename = g_strdup_printf ("%s.tmp", cpath);
 	g_message ("  Removing temp journal:'%s'",
-	           new_filename);
-	g_unlink (new_filename);
-	g_free (new_filename);
+	           filename);
+	if (g_unlink (filename) == -1) {
+		g_message ("%s", g_strerror (errno));
+	}
+	g_free (filename);
 
 	directory = g_path_get_dirname (cpath);
 	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
 	g_free (cpath);
 
 	cpath = g_build_filename (directory, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME, NULL);
-	new_filename = g_strdup_printf ("%s.tmp", cpath);
-	g_unlink (new_filename);
-	g_free (new_filename);
+	filename = g_strdup_printf ("%s.tmp", cpath);
+	if (g_unlink (filename) == -1) {
+		g_message ("%s", g_strerror (errno));
+	}
+	g_free (filename);
 	g_free (cpath);
 
 	dirs[0] = directory;
@@ -1294,9 +1320,11 @@ tracker_db_manager_remove_temp (void)
 				}
 			}
 
-			new_filename = g_build_filename (dirs[i], f_name, NULL);
-			g_unlink (new_filename);
-			g_free (new_filename);
+			filename = g_build_filename (dirs[i], f_name, NULL);
+			if (g_unlink (filename) == -1) {
+				g_message ("%s", g_strerror (errno));
+			}
+			g_free (filename);
 
 			f_name = g_dir_read_name (journal_dir);
 		}
