@@ -65,12 +65,7 @@ public class TestApp {
 
 			resources_object.graph_updated.connect (on_graph_updated_received);
 
-		} catch (Sparql.Error e) {
-			warning ("Could not connect to D-Bus service: %s", e.message);
-			initialized = false;
-			res = -1;
-			return;
-		} catch (DBus.Error e) {
+		} catch (GLib.Error e) {
 			warning ("Could not connect to D-Bus service: %s", e.message);
 			initialized = false;
 			res = -1;
