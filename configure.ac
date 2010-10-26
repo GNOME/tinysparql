@@ -1543,8 +1543,8 @@ if test "x$enable_libexif" != "xno" ; then
                      [have_libexif=yes],
                      [have_libexif=no])
 
-   AC_SUBST(LIBEXIF_CFLAGS)
-   AC_SUBST(LIBEXIF_LIBS)
+   LIBTRACKER_EXTRACT_CFLAGS="$LIBTRACKER_EXTRACT_CFLAGS $LIBEXIF_CFLAGS"
+   LIBTRACKER_EXTRACT_LIBS="$LIBTRACKER_EXTRACT_LIBS $LIBEXIF_LIBS"
 
    if test "x$have_libexif" = "xyes"; then
       AC_DEFINE(HAVE_LIBEXIF, [], [Define if we have libexif])
@@ -1576,8 +1576,8 @@ if test "x$enable_libiptcdata" != "xno" ; then
                      [have_libiptcdata=yes],
                      [have_libiptcdata=no])
 
-   AC_SUBST(LIBIPTCDATA_CFLAGS)
-   AC_SUBST(LIBIPTCDATA_LIBS)
+   LIBTRACKER_EXTRACT_CFLAGS="$LIBTRACKER_EXTRACT_CFLAGS $LIBIPTCDATA_CFLAGS"
+   LIBTRACKER_EXTRACT_LIBS="$LIBTRACKER_EXTRACT_LIBS $LIBIPTCDATA_LIBS"
 
    if test "x$have_libiptcdata" = "xyes"; then
       AC_DEFINE(HAVE_LIBIPTCDATA, [], [Define if we have libiptcdata])
@@ -1878,9 +1878,9 @@ if test "x$enable_exempi" != "xno" ; then
 
    TRACKER_WRITEBACK_CFLAGS="$TRACKER_WRITEBACK_CFLAGS $EXEMPI_CFLAGS"
    TRACKER_WRITEBACK_LIBS="$TRACKER_WRITEBACK_LIBS $EXEMPI_LIBS"
-  
-   AC_SUBST(EXEMPI_CFLAGS)
-   AC_SUBST(EXEMPI_LIBS)
+
+   LIBTRACKER_EXTRACT_CFLAGS="$LIBTRACKER_EXTRACT_CFLAGS $EXEMPI_CFLAGS"
+   LIBTRACKER_EXTRACT_LIBS="$LIBTRACKER_EXTRACT_LIBS $EXEMPI_LIBS"
 
    if test "x$have_exempi" = "xyes"; then
       AC_DEFINE(HAVE_EXEMPI, [], [Define if we have exempi])

@@ -2,13 +2,10 @@ include $(top_srcdir)/Makefile.decl
 
 AM_CPPFLAGS =						\
 	$(BUILD_CFLAGS)					\
-	-DSHAREDIR=\""$(datadir)"\"			\
 	-I$(top_srcdir)/src				\
 	-I$(top_builddir)/src				\
-	$(LIBTRACKER_EXTRACT_CFLAGS)			\
-	$(LIBIPTCDATA_CFLAGS)				\
-	$(LIBEXIF_CFLAGS) 				\
-	$(EXEMPI_CFLAGS)
+	-DSHAREDIR=\""$(datadir)"\"			\
+	$(LIBTRACKER_EXTRACT_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-extract-@TRACKER_API_VERSION@.la
 
@@ -42,7 +39,4 @@ libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)					\
-	$(LIBTRACKER_EXTRACT_LIBS)			\
-	$(LIBIPTCDATA_LIBS)				\
-	$(LIBEXIF_LIBS)					\
-	$(EXEMPI_LIBS)
+	$(LIBTRACKER_EXTRACT_LIBS)
