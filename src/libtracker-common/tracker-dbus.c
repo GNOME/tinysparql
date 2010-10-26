@@ -33,9 +33,6 @@
  */
 #define CLIENT_CLEAN_UP_TIME  300
 
-/* How often we check for stale client cache (in seconds) */
-#define CLIENT_CLEAN_UP_CHECK 60
-
 struct TrackerDBusRequestHandler {
 	TrackerDBusRequestFunc new;
 	TrackerDBusRequestFunc done;
@@ -47,6 +44,7 @@ typedef struct {
 	gchar *binary;
 	gulong pid;
 	GTimeVal last_time;
+	guint clean_up_id;
 } ClientData;
 
 typedef struct {
@@ -66,10 +64,9 @@ static gboolean client_lookup_enabled;
 static DBusGConnection *freedesktop_connection;
 static DBusGProxy *freedesktop_proxy;
 static GHashTable *clients;
-static guint clients_clean_up_id;
 
 static void     client_data_free    (gpointer data);
-static gboolean clients_clean_up_cb (gpointer data);
+static gboolean client_clean_up_cb (gpointer data);
 
 static void
 request_handler_call_for_new (guint request_id)
@@ -145,8 +142,6 @@ clients_init (void)
 	                                 g_str_equal,
 	                                 NULL,
 	                                 client_data_free);
-	clients_clean_up_id =
-		g_timeout_add_seconds (CLIENT_CLEAN_UP_CHECK, clients_clean_up_cb, NULL);
 
 	return TRUE;
 }
@@ -162,11 +157,6 @@ clients_shutdown (void)
 	if (freedesktop_connection) {
 		dbus_g_connection_unref (freedesktop_connection);
 		freedesktop_connection = NULL;
-	}
-
-	if (clients_clean_up_id != 0) {
-		g_source_remove (clients_clean_up_id);
-		clients_clean_up_id = 0;
 	}
 
 	if (clients) {
@@ -185,6 +175,8 @@ client_data_free (gpointer data)
 	if (!cd) {
 		return;
 	}
+
+	g_source_remove (cd->clean_up_id);
 
 	g_free (cd->sender);
 	g_free (cd->binary);
@@ -249,44 +241,22 @@ client_data_new (gchar *sender)
 }
 
 static gboolean
-clients_clean_up_cb (gpointer data)
+client_clean_up_cb (gpointer data)
 {
-	GTimeVal now;
-	GHashTableIter iter;
-	gpointer key, value;
+	ClientData *cd;
 
-	g_get_current_time (&now);
+	cd = data;
 
-	g_hash_table_iter_init (&iter, clients);
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		ClientData *cd;
-		glong diff;
-
-		cd = value;
-
-		diff = now.tv_sec - cd->last_time.tv_sec;
-
-		/* 5 Minutes */
-		if (diff >= CLIENT_CLEAN_UP_TIME) {
-			g_debug ("Removing D-Bus client data for '%s' with id:'%s'",
-			         cd->binary, cd->sender);
-			g_hash_table_iter_remove (&iter);
-		}
-	}
+	g_debug ("Removing D-Bus client data for '%s' with id:'%s'",
+	         cd->binary, cd->sender);
+	g_hash_table_remove (clients, cd->sender);
 
 	if (g_hash_table_size (clients) < 1) {
-		/* This must be before the clients_shutdown which will
-		 * attempt to clean up the the timeout too.
-		 */
-		clients_clean_up_id = 0;
-
-		/* Clean everything else up. */
+		/* Clean everything up. */
 		clients_shutdown ();
-
-		return FALSE;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 static ClientData *
@@ -321,7 +291,10 @@ client_get_for_context (DBusGMethodInvocation *context)
 		g_hash_table_insert (clients, sender, cd);
 	} else {
 		g_free (sender);
+		g_source_remove (cd->clean_up_id);
 	}
+
+	cd->clean_up_id = g_timeout_add_seconds (CLIENT_CLEAN_UP_TIME, client_clean_up_cb, cd);
 
 	g_get_current_time (&cd->last_time);
 
