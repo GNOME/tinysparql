@@ -849,12 +849,10 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			return;
 		}
 
+		super_property = tracker_ontologies_get_property_by_uri (object);
 		if (super_property == NULL) {
-			super_property = tracker_ontologies_get_property_by_uri (object);
-			if (super_property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_path, object);
-				return;
-			}
+			g_critical ("%s: Unknown property %s", ontology_path, object);
+			return;
 		}
 
 		tracker_property_add_super_property (property, super_property);
