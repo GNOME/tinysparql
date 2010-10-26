@@ -1,33 +1,33 @@
 include $(top_srcdir)/Makefile.decl
 
-modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
-
 AM_CPPFLAGS =						\
 	$(BUILD_CFLAGS)					\
 	-I$(top_srcdir)/src				\
 	-I$(top_builddir)/src				\
 	$(LIBTRACKER_DIRECT_CFLAGS)
 
+modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
+
 modules_LTLIBRARIES = libtracker-direct.la
 
-libtracker_direct_la_VALASOURCES = \
+libtracker_direct_la_VALASOURCES = 			\
 	tracker-direct.vala
 
-libtracker_direct_la_SOURCES = 	\
+libtracker_direct_la_SOURCES = 				\
 	libtracker-direct.vala.stamp			\
 	$(libtracker_direct_la_VALASOURCES:.vala=.c)
 
-libtracker_direct_la_LDFLAGS = 	\
+libtracker_direct_la_LDFLAGS = 				\
 	-module -avoid-version -no-undefined
 
-noinst_HEADERS = 			\
+noinst_HEADERS = 					\
 	tracker-direct.h
 
 # Vala sources
 vapi_sources =						\
-	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi	\
-	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi	\
-	$(top_srcdir)/src/libtracker-data/libtracker-data.vapi	\
+	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
+	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi \
+	$(top_srcdir)/src/libtracker-data/libtracker-data.vapi \
 	$(top_srcdir)/src/libtracker-data/tracker-sparql-query.vapi
 
 libtracker-direct.vala.stamp: $(libtracker_direct_la_VALASOURCES) $(vapi_sources)
