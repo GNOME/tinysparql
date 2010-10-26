@@ -652,8 +652,9 @@ if test "x$enable_maemo" != "xno"; then
                      [meegotouch >= $MEEGOTOUCH_REQUIRED],
                      [have_meegotouch=yes],
                      [have_meegotouch=no])
-   AC_SUBST(MEEGOTOUCH_CFLAGS)
-   AC_SUBST(MEEGOTOUCH_LIBS)
+
+   TRACKER_MINER_FS_CFLAGS="$TRACKER_MINER_FS_CFLAGS $MEEGOTOUCH_CFLAGS"
+   TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $MEEGOTOUCH_LIBS"
 
    if test "x$have_meegotouch" = "xyes"; then
       AC_DEFINE(HAVE_MEEGOTOUCH, [], [Define if we have meegotouch])

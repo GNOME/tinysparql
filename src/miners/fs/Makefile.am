@@ -2,11 +2,11 @@ include $(top_srcdir)/Makefile.decl
 
 AM_CPPFLAGS =								\
 	$(BUILD_CFLAGS)							\
+	-I$(top_srcdir)/src						\
+	-I$(top_builddir)/src						\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
-	-I$(top_srcdir)/src						\
-	-I$(top_builddir)/src						\
 	$(TRACKER_MINER_FS_CFLAGS)
 
 libexec_PROGRAMS = tracker-miner-fs
@@ -33,9 +33,7 @@ tracker_miner_fs_LDADD =						\
 	$(TRACKER_MINER_FS_LIBS)
 
 if HAVE_MEEGOTOUCH
-AM_CPPFLAGS += $(MEEGOTOUCH_CFLAGS)
 tracker_miner_fs_SOURCES += tracker-miner-applications-meego.cpp
-tracker_miner_fs_LDADD += $(MEEGOTOUCH_LIBS)
 endif
 
 marshal_sources =							\
