@@ -353,9 +353,10 @@ public class Tracker.Needle {
 		Tracker.Query.Type[] categories = { 
 			Tracker.Query.Type.APPLICATIONS,
 			Tracker.Query.Type.MUSIC,
-			Tracker.Query.Type.IMAGES,
 			Tracker.Query.Type.VIDEOS,
-			Tracker.Query.Type.DOCUMENTS
+			Tracker.Query.Type.DOCUMENTS,
+			Tracker.Query.Type.MAIL,
+			Tracker.Query.Type.IMAGES
 		};
 		Tracker.Query query = new Tracker.Query ();
 
@@ -433,6 +434,12 @@ public class Tracker.Needle {
 						if (count == 0) {
 							pixbuf_small = tracker_pixbuf_new_from_name (theme, "x-office-presentation", size_medium);
 						}
+						break;
+					case Tracker.Query.Type.MAIL:
+						if (count == 0) {
+							pixbuf_small = tracker_pixbuf_new_from_name (theme, "emblem-mail", size_medium);
+						}
+						column2 = tracker_time_format_from_iso8601 (cursor.get_string (4));
 						break;
 
 					default:

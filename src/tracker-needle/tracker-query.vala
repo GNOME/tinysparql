@@ -181,6 +181,29 @@ public class Tracker.Query {
 			        ";
 			break;
 
+		case Type.MAIL:
+			string no_subject = _("No Subject");
+			string to = _("To");
+			
+			query = @"
+			        SELECT
+			          ?urn
+			          nie:url(?urn)
+			          tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender), \"Unknown\")
+			          tracker:coalesce(nmo:messageSubject(?urn), \"$no_subject\")
+			          nmo:receivedDate(?urn)
+			          fn:concat(\"$to: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to), \"Unknown\"))
+			        WHERE {
+			          ?urn a nmo:Email ;
+			          nmo:from ?sender ;
+			          nmo:to ?to ;
+			          fts:match \"$criteria_escaped\" .
+			        }
+			        ORDER BY DESC(fts:rank(?urn)) DESC(nmo:messageSubject(?urn)) DESC(nmo:receivedDate(?urn))
+			        OFFSET $offset LIMIT $limit
+			        ";
+			break;
+
 		default:
 			assert_not_reached ();
 		}
