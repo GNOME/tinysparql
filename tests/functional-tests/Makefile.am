@@ -1,61 +1,61 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = 				\
-	ipc				\
-	common				\
-	test-configurations 		\
-	test-extraction-data 		\
-	test-writeback-data		\
-	ttl				\
-	unittest2			\
+SUBDIRS =                                              \
+	ipc                                            \
+	common                                         \
+	test-configurations                            \
+	test-extraction-data                           \
+	test-writeback-data                            \
+	ttl                                            \
+	unittest2                                      \
 	test-ontologies
 
 configdir = $(datadir)/tracker-tests
 
-config_SCRIPTS =			\
-	__init__.py			\
-	$(slow_tests)			\
+config_SCRIPTS =                                       \
+	__init__.py                                    \
+	$(slow_tests)                                  \
 	$(standard_tests)
 
 if HAVE_MAEMO
-config_SCRIPTS += 			\
-	tests.xml 			\
-	tracker-tests.aegis		
+config_SCRIPTS +=                                      \
+	tests.xml                                      \
+	tracker-tests.aegis
 endif
 
 
-standard_tests = 			\
+standard_tests =                                       \
 	01-insertion.py
 if HAVE_TRACKER_FTS
 standard_tests += 03-fts-functions.py
 endif
-standard_tests +=			\
-	04-group-concat.py		\
-	05-coalesce.py			\
-	06-distance.py			\
-	07-graph.py			\
-	08-unique-insertions.py		\
-	09-concurrent-query.py		\
-	14-signals.py			\
-	15-statistics.py		\
-	16-collation.py			\
-	17-ontology-changes.py		\
-	200-backup-restore.py		\
+standard_tests +=                                      \
+	04-group-concat.py                             \
+	05-coalesce.py                                 \
+	06-distance.py                                 \
+	07-graph.py                                    \
+	08-unique-insertions.py                        \
+	09-concurrent-query.py                         \
+	14-signals.py                                  \
+	15-statistics.py                               \
+	16-collation.py                                \
+	17-ontology-changes.py                         \
+	200-backup-restore.py                          \
 	300-miner-basic-ops.py
 if HAVE_TRACKER_FTS
 standard_tests += 310-fts-indexing.py
 endif
-standard_tests +=			\
-	400-extractor.py		\
-	500-writeback.py		\
-	mass-storage-mode.py		\
-	performance-tc-modified.py	\
+standard_tests +=                                      \
+	400-extractor.py                               \
+	500-writeback.py                               \
+	mass-storage-mode.py                           \
+	performance-tc-modified.py                     \
 	virtual-files-tc.py
 
-slow_tests = 				\
-	10-sqlite-misused.py		\
-	11-sqlite-batch-misused.py	\
-	12-transactions.py		\
+slow_tests =                                           \
+	10-sqlite-misused.py                           \
+	11-sqlite-batch-misused.py                     \
+	12-transactions.py                             \
 	13-threaded-store.py
 
 tests.xml:
@@ -80,11 +80,11 @@ ttl/gen-test-data.stamp:
 functional-test: ${standard_tests}
 	@if test -h /targets/links/scratchbox.config ; then \
 		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
-		ENV_COMMAND_WRAPPER=meego-run ;\
-	else \
-		ENV_COMMAND_WRAPPER="" ; \
-	fi ; \
-	for testfile in ${standard_tests} ; do \
+		ENV_COMMAND_WRAPPER=meego-run ;
+	else                                           \
+		ENV_COMMAND_WRAPPER="" ;                      \
+	fi ;                                           \
+	for testfile in ${standard_tests} ; do         \
 	  echo "Trying with" $$ENV_COMMAND_WRAPPER $$testfile ; \
 	  test ! -x $$testfile  || $$ENV_COMMAND_WRAPPER ./$$testfile > /dev/null; \
 	 done
@@ -92,20 +92,20 @@ functional-test: ${standard_tests}
 functional-test-slow: ${slow_tests}
 	@if test -h /targets/links/scratchbox.config ; then \
 		export SBOX_REDIRECT_IGNORE=/usr/bin/python ; \
-		ENV_COMMAND_WRAPPER=meego-run ;\
-	else \
-		ENV_COMMAND_WRAPPER="" ; \
-	fi ; \
-	@for test in ${slow_tests} ; do \
+		ENV_COMMAND_WRAPPER=meego-run ;
+	else                                           \
+		ENV_COMMAND_WRAPPER="" ;                      \
+	fi ;                                           \
+	@for test in ${slow_tests} ; do                \
 	  echo "Trying with" $$ENV_COMMAND_WRAPPER $$test ; \
 	  test ! -x $$test  || $$ENV_COMMAND_WRAPPER ./$$test > /dev/null; \
 	 done
 
-EXTRA_DIST = 				\
+EXTRA_DIST =                                           \
 	$(config_SCRIPTS)
 
 if HAVE_MAEMO
-CLEANFILES =				\
-	tests.xml			\
+CLEANFILES =                                           \
+	tests.xml                                      \
 	tracker-tests.aegis
 endif

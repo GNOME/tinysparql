@@ -5,13 +5,13 @@ include $(top_srcdir)/Makefile.decl
 #  $(libtracker_miner_monitor_sources)
 include Makefile-shared-sources.decl
 
-AM_CPPFLAGS =						\
-	$(BUILD_CFLAGS)					\
-	-I$(top_srcdir)/src				\
-	-I$(top_builddir)/src				\
-	-DSHAREDIR=\""$(datadir)"\"			\
-	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
-	-DTRACKER_MINERS_DIR=\""$(datadir)/tracker/miners"\" 	\
+AM_CPPFLAGS =                                          \
+	$(BUILD_CFLAGS)                                \
+	-I$(top_srcdir)/src                            \
+	-I$(top_builddir)/src                          \
+	-DSHAREDIR=\""$(datadir)"\"                    \
+	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\" \
+	-DTRACKER_MINERS_DIR=\""$(datadir)/tracker/miners"\" \
 	$(LIBTRACKER_MINER_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
@@ -19,47 +19,47 @@ lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
 libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES = 	\
-	$(libtracker_miner_marshal_sources)		\
-	$(libtracker_miner_monitor_sources)		\
-	tracker-crawler.c				\
-	tracker-dbus.c					\
-	tracker-dbus.h					\
-	tracker-miner-dbus.h 				\
-	tracker-miner-object.c				\
-	tracker-miner-fs.c				\
-	tracker-miner-fs-processing-pool.h		\
-	tracker-miner-fs-processing-pool.c		\
-	tracker-miner-manager.c				\
-	tracker-miner-web.c				\
-	tracker-miner-web-dbus.h			\
-	tracker-network-provider.c			\
-	tracker-password-provider.c			\
-	tracker-storage.c				\
-	tracker-thumbnailer.c				\
-	tracker-utils.c					\
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
+	$(libtracker_miner_marshal_sources)            \
+	$(libtracker_miner_monitor_sources)            \
+	tracker-crawler.c                              \
+	tracker-dbus.c                                 \
+	tracker-dbus.h                                 \
+	tracker-miner-dbus.h                           \
+	tracker-miner-object.c                         \
+	tracker-miner-fs.c                             \
+	tracker-miner-fs-processing-pool.h             \
+	tracker-miner-fs-processing-pool.c             \
+	tracker-miner-manager.c                        \
+	tracker-miner-web.c                            \
+	tracker-miner-web-dbus.h                       \
+	tracker-network-provider.c                     \
+	tracker-password-provider.c                    \
+	tracker-storage.c                              \
+	tracker-thumbnailer.c                          \
+	tracker-utils.c                                \
 	tracker-utils.h
 
-libtracker_minerinclude_HEADERS = 			\
-	tracker-crawler.h				\
-	tracker-miner.h					\
-	tracker-miner-object.h 				\
-	tracker-miner-fs.h				\
-	tracker-miner-manager.h				\
-	tracker-miner-web.h				\
-	tracker-network-provider.h			\
-	tracker-password-provider.h			\
-	tracker-storage.h				\
+libtracker_minerinclude_HEADERS =                      \
+	tracker-crawler.h                              \
+	tracker-miner.h                                \
+	tracker-miner-object.h                         \
+	tracker-miner-fs.h                             \
+	tracker-miner-manager.h                        \
+	tracker-miner-web.h                            \
+	tracker-network-provider.h                     \
+	tracker-password-provider.h                    \
+	tracker-storage.h                              \
 	tracker-thumbnailer.h
 
-libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS = 	\
+libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
 	-export-symbols-regex '^tracker_(miner|thumbnailer|crawler|storage|password_provider|network_provider)_.*'
 
-libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
+libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(BUILD_LIBS)					\
+	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_MINER_LIBS)
 
 if HAVE_GNOME_KEYRING
@@ -82,10 +82,10 @@ $(top_builddir)/src/libtracker-miner/tracker-marshal.c: tracker-marshal.list
 		    $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body) > $@
 
 # Generate DBus files from XML data.
-dbus_sources = 						\
-	tracker-miner-glue.h				\
-	tracker-miner-web-glue.h			\
-	tracker-miner-files-index-client.h		\
+dbus_sources =                                         \
+	tracker-miner-glue.h                           \
+	tracker-miner-web-glue.h                       \
+	tracker-miner-files-index-client.h             \
 	tracker-miner-client.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
@@ -96,8 +96,8 @@ dbus_sources = 						\
 
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
-vapi_DATA =                     			\
-	tracker-miner-$(TRACKER_API_VERSION).vapi	\
+vapi_DATA =                                            \
+	tracker-miner-$(TRACKER_API_VERSION).vapi      \
 	tracker-miner-$(TRACKER_API_VERSION).deps
 
 tracker-miner-$(TRACKER_API_VERSION).vapi: tracker-miner.vapi
@@ -119,17 +119,17 @@ tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_sr
 
 tracker-miner-web-full.xml: tracker-miner-web-glue.h
 
-BUILT_SOURCES = 					\
-	$(dbus_sources) 				\
-	$(libtracker_miner_marshal_sources) 		\
+BUILT_SOURCES =                                        \
+	$(dbus_sources)                                \
+	$(libtracker_miner_marshal_sources)            \
 	$(vapi_DATA)
 
 CLEANFILES = $(BUILT_SOURCES)
 
 DISTCLEANFILES = tracker-miner-web-full.xml
 
-EXTRA_DIST = 						\
-	tracker-marshal.list				\
-	tracker-miner.vapi				\
-	tracker-miner.deps				\
+EXTRA_DIST =                                           \
+	tracker-marshal.list                           \
+	tracker-miner.vapi                             \
+	tracker-miner.deps                             \
 	tracker-miner-web-full.xml

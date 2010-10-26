@@ -22,30 +22,30 @@ HFILE_GLOB=$(top_srcdir)/src/libtracker-miner/*.h
 CFILE_GLOB=$(top_srcdir)/src/libtracker-miner/*.c
 
 # Header files to ignore when scanning
-IGNORE_HFILES=								\
-	tracker-crawler.h						\
-	tracker-dbus.h							\
-	tracker-marshal.h						\
-	tracker-miner-client.h						\
-	tracker-miner-dbus.h						\
-	tracker-miner-glue.h						\
-	tracker-miner-web-dbus.h					\
-	tracker-miner-web-glue.h					\
-	tracker-miner-web-glue.h					\
-	tracker-monitor.h						\
+IGNORE_HFILES=                                         \
+	tracker-crawler.h                              \
+	tracker-dbus.h                                 \
+	tracker-marshal.h                              \
+	tracker-miner-client.h                         \
+	tracker-miner-dbus.h                           \
+	tracker-miner-glue.h                           \
+	tracker-miner-web-dbus.h                       \
+	tracker-miner-web-glue.h                       \
+	tracker-miner-web-glue.h                       \
+	tracker-monitor.h                              \
 	tracker-utils.h
 
 # CFLAGS and LDFLAGS for compiling scan program. Only needed
 # if $(DOC_MODULE).types is non-empty.
-AM_CPPFLAGS = 								\
-	-DTRACKER_COMPILATION						\
-	-I$(top_srcdir)/src						\
+AM_CPPFLAGS =                                          \
+	-DTRACKER_COMPILATION                          \
+	-I$(top_srcdir)/src                            \
 	$(LIBTRACKER_MINER_CFLAGS)
 
-GTKDOC_LIBS =								\
-	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	 \
+GTKDOC_LIBS =                                          \
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(LIBTRACKER_MINER_LIBS)
 
 # Extra options to supply to gtkdoc-mkdb
@@ -55,7 +55,7 @@ MKDB_OPTIONS=--sgml-mode --output-format=xml
 MKHTML_OPTIONS=--path="$(abs_builddir)"
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE)
-content_files =						\
+content_files =                                        \
 	version.xml
 
 expand_content_files =

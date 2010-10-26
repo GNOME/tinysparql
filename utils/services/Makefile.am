@@ -2,17 +2,17 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = ontology-validator data-validator
 
-AM_CPPFLAGS = 								\
-	$(BUILD_CFLAGS)							\
-	-I$(top_srcdir)/src						\
-	-I$(top_builddir)/src						\
-	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
+AM_CPPFLAGS =                                          \
+	$(BUILD_CFLAGS)                                \
+	-I$(top_srcdir)/src                            \
+	-I$(top_builddir)/src                          \
+	-DTOP_SRCDIR=\"$(top_srcdir)\"                 \
 	$(LIBTRACKER_DATA_CFLAGS)
 
-LDADD =									\
-	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(BUILD_LIBS)							\
+LDADD =                                                \
+	$(top_builddir)/src/libtracker-data/libtracker-data.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_DATA_LIBS)
 
 ontology_validator_SOURCES = ontology-validator.c

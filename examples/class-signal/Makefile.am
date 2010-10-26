@@ -2,14 +2,14 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = class-signal
 
-AM_CPPFLAGS = 				\
-	$(BUILD_CFLAGS) 		\
-	-I$(top_srcdir)/src 		\
+AM_CPPFLAGS =                                          \
+	$(BUILD_CFLAGS)                                \
+	-I$(top_srcdir)/src                            \
 	$(LIBTRACKER_SPARQL_CFLAGS)
 
-LDADD = 			\
+LDADD =                                                \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
-	$(BUILD_LIBS) 			\
+	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_SPARQL_LIBS)
 
 class_signal_SOURCES = class-signal.c

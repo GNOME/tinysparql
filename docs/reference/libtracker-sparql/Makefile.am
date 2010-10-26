@@ -26,14 +26,14 @@ IGNORE_HFILES =
 
 # CFLAGS and LDFLAGS for compiling scan program. Only needed
 # if $(DOC_MODULE).types is non-empty.
-AM_CPPFLAGS = 								\
-	-DTRACKER_COMPILATION						\
-	-I$(top_srcdir)/src						\
+AM_CPPFLAGS =                                          \
+	-DTRACKER_COMPILATION                          \
+	-I$(top_srcdir)/src                            \
 	$(LIBTRACKER_SPARQL_CFLAGS)
 
-GTKDOC_LIBS =								\
+GTKDOC_LIBS =                                          \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(LIBTRACKER_SPARQL_LIBS)
 
 # Extra options to supply to gtkdoc-mkdb

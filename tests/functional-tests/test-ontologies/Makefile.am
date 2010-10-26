@@ -1,12 +1,12 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = basic				\
-	property-range-int-to-string 	\
-	property-range-string-to-date 	\
-	cardinality			\
-	notify				\
-	indexed				\
-	add-class			\
-	add-prop			\
-	add-domainIndex			\
+SUBDIRS = basic                                        \
+	property-range-int-to-string                   \
+	property-range-string-to-date                  \
+	cardinality                                    \
+	notify                                         \
+	indexed                                        \
+	add-class                                      \
+	add-prop                                       \
+	add-domainIndex                                \
 	basic-future

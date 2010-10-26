@@ -2,28 +2,28 @@ include $(top_srcdir)/Makefile.decl
 
 libexec_PROGRAMS = tracker-search-bar
 
-tracker_search_bar_SOURCES = 					\
-	tracker-applet.c 					\
-	tracker-applet.h					\
-	tracker-aligned-window.c				\
-	tracker-aligned-window.h				\
-	tracker-results-window.c				\
-	tracker-results-window.h				\
-	tracker-utils.c						\
+tracker_search_bar_SOURCES =                           \
+	tracker-applet.c                               \
+	tracker-applet.h                               \
+	tracker-aligned-window.c                       \
+	tracker-aligned-window.h                       \
+	tracker-results-window.c                       \
+	tracker-results-window.h                       \
+	tracker-utils.c                                \
 	tracker-utils.h
 
-tracker_search_bar_CFLAGS = \
-	$(BUILD_CFLAGS)						\
-	-I$(top_srcdir)/src					\
-	-I$(top_builddir)/src					\
-	-DPKGDATADIR=\""$(pkgdatadir)"\"	 		\
-	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
+tracker_search_bar_CFLAGS =                            \
+	$(BUILD_CFLAGS)                                \
+	-I$(top_srcdir)/src                            \
+	-I$(top_builddir)/src                          \
+	-DPKGDATADIR=\""$(pkgdatadir)"\"               \
+	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	$(TRACKER_SEARCH_BAR_CFLAGS)
 
-tracker_search_bar_LDADD = 					\
+tracker_search_bar_LDADD =                             \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(BUILD_LIBS)						\
+	$(BUILD_LIBS)                                  \
 	$(TRACKER_SEARCH_BAR_LIBS)
 
 uidir = $(datadir)/tracker
@@ -36,7 +36,7 @@ server_DATA = $(server_in_files:.server.in=.server)
 
 # Misc data
 resourcesdir = $(pkgdatadir)
-resources_DATA =						\
+resources_DATA =                                       \
 	GNOME_Search_Bar_Applet.xml
 
 # Build rules
@@ -46,11 +46,11 @@ resources_DATA =						\
 $(server_in_files): $(server_in_files:.server.in=.server.in.in)
 	$(AM_V_GEN)sed -e "s|\@LIBEXECDIR\@|$(libexecdir)|" $< > $@
 
-EXTRA_DIST = 							\
-	$(resources_DATA)					\
-	tracker-search-bar.ui					\
+EXTRA_DIST =                                           \
+	$(resources_DATA)                              \
+	tracker-search-bar.ui                          \
 	GNOME_Search_Bar_Applet.server.in.in
 
-DISTCLEANFILES = 						\
-	$(server_DATA) 						\
+DISTCLEANFILES =                                       \
+	$(server_DATA)                                 \
 	$(server_in_files)

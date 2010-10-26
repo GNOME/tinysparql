@@ -1,14 +1,14 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = 			\
-	common 			\
-	libtracker-common	\
-	libtracker-client	\
-	libtracker-extract	\
-	libtracker-miner	\
-	libtracker-data		\
-	libtracker-sparql	\
-	tracker-steroids	\
+SUBDIRS =                                              \
+	common                                         \
+	libtracker-common                              \
+	libtracker-client                              \
+	libtracker-extract                             \
+	libtracker-miner                               \
+	libtracker-data                                \
+	libtracker-sparql                              \
+	tracker-steroids                               \
 	tracker-writeback
 
 if DIST_FUNCTIONAL_TESTS

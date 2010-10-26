@@ -3,13 +3,13 @@ include $(top_srcdir)/Makefile.decl
 module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/writeback-modules
 
-AM_CPPFLAGS = 								\
-	$(BUILD_CFLAGS)							\
-	-I$(top_srcdir)/src 						\
-	-I$(top_builddir)/src						\
-	-DLOCALEDIR=\""$(localedir)"\" 					\
-	-DMODULESDIR=\"$(modulesdir)\"					\
-	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\" 			\
+AM_CPPFLAGS =                                          \
+	$(BUILD_CFLAGS)                                \
+	-I$(top_srcdir)/src                            \
+	-I$(top_builddir)/src                          \
+	-DLOCALEDIR=\""$(localedir)"\"                 \
+	-DMODULESDIR=\"$(modulesdir)\"                 \
+	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\"    \
 	$(TRACKER_WRITEBACK_CFLAGS)
 
 modules_LTLIBRARIES =
@@ -44,50 +44,50 @@ endif
 #
 libexec_PROGRAMS = tracker-writeback
 
-tracker_writeback_SOURCES = 						\
-	$(marshal_sources)						\
-	$(dbus_sources)							\
-	tracker-config.c						\
-	tracker-config.h						\
-	tracker-writeback-consumer.c					\
-	tracker-writeback-consumer.h					\
-	tracker-writeback-dbus.h					\
-	tracker-writeback-dispatcher.c					\
-	tracker-writeback-dispatcher.h					\
-	tracker-writeback-file.c					\
-	tracker-writeback-file.h					\
-	tracker-writeback-module.c					\
-	tracker-writeback-module.h					\
-	tracker-writeback.c						\
-	tracker-writeback.h						\
+tracker_writeback_SOURCES =                            \
+	$(marshal_sources)                             \
+	$(dbus_sources)                                \
+	tracker-config.c                               \
+	tracker-config.h                               \
+	tracker-writeback-consumer.c                   \
+	tracker-writeback-consumer.h                   \
+	tracker-writeback-dbus.h                       \
+	tracker-writeback-dispatcher.c                 \
+	tracker-writeback-dispatcher.h                 \
+	tracker-writeback-file.c                       \
+	tracker-writeback-file.h                       \
+	tracker-writeback-module.c                     \
+	tracker-writeback-module.h                     \
+	tracker-writeback.c                            \
+	tracker-writeback.h                            \
 	tracker-main.c
 
-tracker_writeback_LDADD = 						\
+tracker_writeback_LDADD =                              \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la 	\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(BUILD_LIBS)							\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS)                                  \
 	$(TRACKER_WRITEBACK_LIBS)
 
-dbus_sources = 								\
+dbus_sources =                                         \
 	tracker-writeback-glue.h
 
-marshal_sources =							\
-	tracker-marshal.h						\
+marshal_sources =                                      \
+	tracker-marshal.h                              \
 	tracker-marshal.c
 
 tracker-marshal.h: tracker-marshal.list
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
 tracker-marshal.c: tracker-marshal.list
-	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ &&        \
+	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
 		$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
-BUILT_SOURCES = 							\
-	$(dbus_sources)							\
+BUILT_SOURCES =                                        \
+	$(dbus_sources)                                \
 	$(marshal_sources)
 
 CLEANFILES = $(BUILT_SOURCES)

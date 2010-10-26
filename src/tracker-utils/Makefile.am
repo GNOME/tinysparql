@@ -1,26 +1,26 @@
 include $(top_srcdir)/Makefile.decl
 
-AM_CPPFLAGS =								\
-	$(BUILD_CFLAGS)							\
-	-DLOCALEDIR=\""$(localedir)"\" 					\
-	-I$(top_srcdir)/src						\
-	-I$(top_builddir)/src						\
+AM_CPPFLAGS =                                          \
+	$(BUILD_CFLAGS)                                \
+	-DLOCALEDIR=\""$(localedir)"\"                 \
+	-I$(top_srcdir)/src                            \
+	-I$(top_builddir)/src                          \
 	$(TRACKER_UTILS_CFLAGS)
 
-libs = 									\
+libs =                                                 \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la	\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(BUILD_LIBS)							\
+	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS)                                  \
 	$(TRACKER_UTILS_LIBS)
 
-bin_PROGRAMS = 								\
-	tracker-import							\
-	tracker-info							\
-	tracker-search 							\
-	tracker-sparql							\
-	tracker-stats							\
-	tracker-status							\
+bin_PROGRAMS =                                         \
+	tracker-import                                 \
+	tracker-info                                   \
+	tracker-search                                 \
+	tracker-sparql                                 \
+	tracker-stats                                  \
+	tracker-status                                 \
 	tracker-tag
 
 tracker_search_SOURCES = tracker-search.c
@@ -44,13 +44,13 @@ tracker_sparql_LDADD = $(libs)
 tracker_import_SOURCES = tracker-import.c
 tracker_import_LDADD = $(libs)
 
-dbus_sources = 								\
+dbus_sources =                                         \
 	tracker-status-client.h
 
 %-client.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
-BUILT_SOURCES = 							\
+BUILT_SOURCES =                                        \
 	$(dbus_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
