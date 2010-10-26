@@ -42,7 +42,6 @@
 
 #define TRACKER_STORE_MAX_CONCURRENT_QUERIES               2
 
-#define TRACKER_STORE_QUERY_WATCHDOG_TIMEOUT 10
 #define TRACKER_STORE_MAX_TASK_TIME          30
 
 typedef struct {
@@ -54,7 +53,6 @@ typedef struct {
 	GThreadPool *update_pool;
 	GThreadPool *query_pool;
 	GSList      *running_tasks;
-	guint        watchdog_id;
 	guint        max_task_time;
 	gboolean     active;
 } TrackerStorePrivate;
@@ -72,8 +70,8 @@ typedef struct {
 		struct {
 			gchar        *query;
 			GCancellable *cancellable;
-			GTimer       *timer;
 			gpointer      thread_data;
+			guint         watchdog_id;
 		} query;
 		struct {
 			gchar        *query;
@@ -125,8 +123,8 @@ store_task_free (TrackerStoreTask *task)
 		g_free (task->data.turtle.path);
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_QUERY) {
 		g_free (task->data.query.query);
-		if (task->data.query.timer) {
-			g_timer_destroy (task->data.query.timer);
+		if (task->data.query.watchdog_id) {
+			g_source_remove (task->data.query.watchdog_id);
 		}
 		if (task->data.query.cancellable) {
 			g_object_unref (task->data.query.cancellable);
@@ -142,51 +140,11 @@ store_task_free (TrackerStoreTask *task)
 static gboolean
 watchdog_cb (gpointer user_data)
 {
-	TrackerStorePrivate *private = user_data;
-	GSList *running;
+	TrackerStoreTask *task = user_data;
 
-	private = user_data;
-	running = private->running_tasks;
+	g_cancellable_cancel (task->data.query.cancellable);
 
-	if (!running) {
-		private->watchdog_id = 0;
-		return FALSE;
-	}
-
-	while (running) {
-		TrackerStoreTask *task;
-		GCancellable *cancellable;
-
-		task = running->data;
-		running = running->next;
-		cancellable = task->data.query.cancellable;
-
-		if (cancellable && private->max_task_time &&
-		    g_timer_elapsed (task->data.query.timer, NULL) > private->max_task_time) {
-			g_cancellable_cancel (cancellable);
-		}
-	}
-
-	return TRUE;
-}
-
-static void
-ensure_running_tasks_watchdog (TrackerStorePrivate *private)
-{
-	if (private->watchdog_id == 0) {
-		private->watchdog_id = g_timeout_add_seconds (TRACKER_STORE_QUERY_WATCHDOG_TIMEOUT,
-		                                              watchdog_cb, private);
-	}
-}
-
-static void
-check_running_tasks_watchdog (TrackerStorePrivate *private)
-{
-	if (private->running_tasks == NULL &&
-	    private->watchdog_id != 0) {
-		g_source_remove (private->watchdog_id);
-		private->watchdog_id = 0;
-	}
+	return FALSE;
 }
 
 static void
@@ -214,10 +172,13 @@ sched (TrackerStorePrivate *private)
 		}
 
 		private->running_tasks = g_slist_prepend (private->running_tasks, task);
-		ensure_running_tasks_watchdog (private);
-		private->n_queries_running++;
 
-		task->data.query.timer = g_timer_new ();
+		if (private->max_task_time) {
+			task->data.query.watchdog_id = g_timeout_add_seconds (private->max_task_time,
+			                                                      watchdog_cb, task);
+		}
+
+		private->n_queries_running++;
 
 		g_thread_pool_push (private->query_pool, task, NULL);
 	}
@@ -260,9 +221,7 @@ task_finish_cb (gpointer data)
 			g_clear_error (&task->error);
 		}
 
-		task->data.query.cancellable = g_cancellable_new ();
 		private->running_tasks = g_slist_remove (private->running_tasks, task);
-		check_running_tasks_watchdog (private);
 		private->n_queries_running--;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (!task->error) {
@@ -479,6 +438,7 @@ tracker_store_sparql_query (const gchar *sparql,
 	task = g_slice_new0 (TrackerStoreTask);
 	task->type = TRACKER_STORE_TASK_TYPE_QUERY;
 	task->data.query.query = g_strdup (sparql);
+	task->data.query.cancellable = g_cancellable_new ();
 	task->user_data = user_data;
 	task->callback.query.query_callback = callback;
 	task->callback.query.in_thread = in_thread;
