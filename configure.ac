@@ -1055,6 +1055,8 @@ AC_ARG_ENABLE(miner_flickr,
                              [enable Flickr miner [[default=auto]]]),,
                              [enable_tracker_miner_flickr=auto])
 
+enable_tracker_miner_flickr=$enable_miner_flickr
+
 if test "x$enable_tracker_miner_flickr" = "xyes"; then
    if test "x$have_tracker_miner_flickr" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-miner-flickr dependencies ($TRACKER_MINER_FLICKR_REQUIRED).])
@@ -1075,6 +1077,8 @@ AC_ARG_ENABLE([miner_rss],
               AS_HELP_STRING([--enable-miner-rss],
                              [enable RSS data miner [[default=auto]]]),,
               [enable_tracker_miner_rss=auto])
+
+enable_tracker_miner_rss=$enable_miner_rss
 
 if test "x$enable_tracker_miner_rss" = "xyes" ; then
    if test "x$have_tracker_miner_rss" != "xyes"; then
@@ -1097,7 +1101,9 @@ tracker_miner_evolution_install_dir="/dev/null"
 AC_ARG_ENABLE([miner_evolution],
               AS_HELP_STRING([--enable-miner-evolution],
                              [enable Evolution email data miner [[default=auto]]]),,
-              [enable_tracker_miner_evolution=auto])
+              [enable_miner_evolution=auto])
+
+enable_tracker_miner_evolution=$enable_miner_evolution
 
 if test "x$enable_tracker_miner_evolution" = "xyes"; then
    if test "x$have_tracker_miner_evolution" != "xyes"; then
@@ -1142,6 +1148,8 @@ AC_ARG_ENABLE([nautilus-extension],
               AS_HELP_STRING([--enable-nautilus-extension],
                              [enable the nautilus extension [[default=auto]]]),,
               [enable_tracker_nautilus=auto])
+
+enable_tracker_nautilus_extension=$enable_nautilus_extension
 
 if test "x$enable_tracker_nautilus_extension" = "xyes"; then
    if test "x$have_tracker_nautilus_extension" != "xyes"; then
