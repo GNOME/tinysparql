@@ -2,11 +2,10 @@ include $(top_srcdir)/Makefile.decl
 
 AM_CPPFLAGS =								\
 	$(BUILD_CFLAGS)							\
-	-DSHAREDIR=\""$(datadir)"\"					\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\
-	$(LIBTRACKER_DATA_CFLAGS)					\
-	$(UNICODE_SUPPORT_CFLAGS)
+	-DSHAREDIR=\""$(datadir)"\"					\
+	$(LIBTRACKER_DATA_CFLAGS)
 
 BUILT_SOURCES = libtracker-data.vala.stamp
 
@@ -78,8 +77,7 @@ libtracker_data_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)							\
-	$(LIBTRACKER_DATA_LIBS)						\
-	$(UNICODE_SUPPORT_LIBS)
+	$(LIBTRACKER_DATA_LIBS)
 
 if HAVE_TRACKER_FTS
 libtracker_data_la_LIBADD += 						\

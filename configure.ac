@@ -1061,89 +1061,6 @@ if test "x$ax_cv_sqlite_threadsafe" != "xyes"; then
 fi
 
 ##################################################################
-# Enable Gnome Keyring support to store credentials (for web miners)
-##################################################################
-
-AC_ARG_ENABLE(gnome_keyring,
-              AS_HELP_STRING([--enable-gnome-keyring],
-                             [enable Gnome Keyring support to store credentials [[default=auto]]]),,
-              [enable_gnome_keyring=auto])
-
-if test "x$enable_gnome_keyring" != "xno"; then
-   PKG_CHECK_MODULES(GNOME_KEYRING,
-                     [gnome-keyring-1 >= $GNOME_KEYRING_REQUIRED],
-                     [have_gnome_keyring=yes],
-                     [have_gnome_keyring=no])
-
-   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $GNOME_KEYRING_CFLAGS"
-   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $GNOME_KEYRING_LIBS"
-
-   if test "x$have_gnome_keyring" = "xyes"; then
-      AC_DEFINE(HAVE_GNOME_KEYRING, [], [Define if we have Gnome Keyring for password storage])
-   fi
-fi
-
-if test "x$enable_gnome_keyring" = "xyes"; then
-   if test "x$have_gnome_keyring" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Gnome Keyring >= $GNOME_KEYRING_REQUIRED.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_GNOME_KEYRING, test "x$have_gnome_keyring" = "xyes")
-
-##################################################################
-# Enable NetworkManager for network status detection (for web miners)
-##################################################################
-
-AC_ARG_ENABLE(network_manager,
-              AS_HELP_STRING([--enable-network-manager],
-                             [enable NetworkManager support to detect network status [[default=auto]]]),,
-              [enable_network_manager=auto])
-
-if test "x$enable_network_manager" != "xno"; then
-   PKG_CHECK_MODULES(NETWORK_MANAGER,
-                     [libnm-glib >= $NETWORK_MANAGER_REQUIRED],
-                     [have_network_manager=yes],
-                     [have_network_manager=no])
-
-   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $NETWORK_MANAGER_CFLAGS"
-   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $NETWORK_MANAGER_LIBS"
-
-   if test "x$have_network_manager" = "xyes"; then
-      AC_DEFINE(HAVE_NETWORK_MANAGER, [], [Define if we have NetworkManager for network status detection])
-   fi
-fi
-
-if test "x$enable_network_manager" = "xyes"; then
-   if test "x$have_network_manager" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libnm-glib >= $NETWORK_MANAGER_REQUIRED.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_NETWORK_MANAGER, test "x$have_network_manager" = "xyes")
-
-##################################################################
-# Flickr miner
-##################################################################
-
-AC_ARG_ENABLE(miner_flickr,
-              AS_HELP_STRING([--enable-miner-flickr],
-                             [enable Flickr miner [[default=auto]]]),,
-                             [enable_tracker_miner_flickr=auto])
-
-if test "x$enable_tracker_miner_flickr" = "xyes"; then
-   if test "x$have_tracker_miner_flickr" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-miner-flickr dependencies ($TRACKER_MINER_FLICKR_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_flickr" = "xno"; then
-      have_miner_flickr="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_FLICKR, test "x$have_tracker_miner_flickr" = "xyes")
-
-##################################################################
 # GLib, libunistring or libicu?
 # By default, AUTO with this order of preference:
 #  1)  libunistring
@@ -1234,11 +1151,99 @@ case "x$with_unicode_support" in
      *) AC_MSG_ERROR([Wrong value for --with-unicode-support: $with_unicode_support]) ;;
 esac
 
+# Add to libtracker-fts
+LIBTRACKER_FTS_CFLAGS="$LIBTRACKER_FTS_CFLAGS $UNICODE_SUPPORT_CFLAGS"
+LIBTRACKER_FTS_LIBS="$LIBTRACKER_FTS_LIBS $UNICODE_SUPPORT_LIBS"
+
+# Add to libtracker-data
+LIBTRACKER_DATA_CFLAGS="$LIBTRACKER_DATA_CFLAGS $UNICODE_SUPPORT_CFLAGS"
+LIBTRACKER_DATA_LIBS="$LIBTRACKER_DATA_LIBS $UNICODE_SUPPORT_LIBS"
+
 AM_CONDITIONAL(BUILD_LIBUNISTRING_PARSER, test "x$with_unicode_support" = "xlibunistring")
 AM_CONDITIONAL(BUILD_LIBICU_PARSER, test "x$with_unicode_support" = "xlibicu")
 
-AC_SUBST(UNICODE_SUPPORT_CFLAGS)
-AC_SUBST(UNICODE_SUPPORT_LIBS)
+##################################################################
+# Enable Gnome Keyring support to store credentials (for web miners)
+##################################################################
+
+AC_ARG_ENABLE(gnome_keyring,
+              AS_HELP_STRING([--enable-gnome-keyring],
+                             [enable Gnome Keyring support to store credentials [[default=auto]]]),,
+              [enable_gnome_keyring=auto])
+
+if test "x$enable_gnome_keyring" != "xno"; then
+   PKG_CHECK_MODULES(GNOME_KEYRING,
+                     [gnome-keyring-1 >= $GNOME_KEYRING_REQUIRED],
+                     [have_gnome_keyring=yes],
+                     [have_gnome_keyring=no])
+
+   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $GNOME_KEYRING_CFLAGS"
+   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $GNOME_KEYRING_LIBS"
+
+   if test "x$have_gnome_keyring" = "xyes"; then
+      AC_DEFINE(HAVE_GNOME_KEYRING, [], [Define if we have Gnome Keyring for password storage])
+   fi
+fi
+
+if test "x$enable_gnome_keyring" = "xyes"; then
+   if test "x$have_gnome_keyring" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Gnome Keyring >= $GNOME_KEYRING_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_GNOME_KEYRING, test "x$have_gnome_keyring" = "xyes")
+
+##################################################################
+# Enable NetworkManager for network status detection (for web miners)
+##################################################################
+
+AC_ARG_ENABLE(network_manager,
+              AS_HELP_STRING([--enable-network-manager],
+                             [enable NetworkManager support to detect network status [[default=auto]]]),,
+              [enable_network_manager=auto])
+
+if test "x$enable_network_manager" != "xno"; then
+   PKG_CHECK_MODULES(NETWORK_MANAGER,
+                     [libnm-glib >= $NETWORK_MANAGER_REQUIRED],
+                     [have_network_manager=yes],
+                     [have_network_manager=no])
+
+   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $NETWORK_MANAGER_CFLAGS"
+   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $NETWORK_MANAGER_LIBS"
+
+   if test "x$have_network_manager" = "xyes"; then
+      AC_DEFINE(HAVE_NETWORK_MANAGER, [], [Define if we have NetworkManager for network status detection])
+   fi
+fi
+
+if test "x$enable_network_manager" = "xyes"; then
+   if test "x$have_network_manager" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libnm-glib >= $NETWORK_MANAGER_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_NETWORK_MANAGER, test "x$have_network_manager" = "xyes")
+
+##################################################################
+# Flickr miner
+##################################################################
+
+AC_ARG_ENABLE(miner_flickr,
+              AS_HELP_STRING([--enable-miner-flickr],
+                             [enable Flickr miner [[default=auto]]]),,
+                             [enable_tracker_miner_flickr=auto])
+
+if test "x$enable_tracker_miner_flickr" = "xyes"; then
+   if test "x$have_tracker_miner_flickr" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-miner-flickr dependencies ($TRACKER_MINER_FLICKR_REQUIRED).])
+   fi
+else
+   if test "x$enable_tracker_miner_flickr" = "xno"; then
+      have_miner_flickr="no  (disabled)"
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_MINER_FLICKR, test "x$have_tracker_miner_flickr" = "xyes")
 
 ####################################################################
 # Miner Evolution

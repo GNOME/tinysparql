@@ -4,8 +4,7 @@ AM_CPPFLAGS =								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-DNDEBUG							\
-	$(LIBTRACKER_FTS_CFLAGS)					\
-	$(UNICODE_SUPPORT_CFLAGS)
+	$(LIBTRACKER_FTS_CFLAGS)
 
 noinst_LTLIBRARIES = libtracker-fts.la
 
@@ -33,5 +32,4 @@ endif
 libtracker_fts_la_LIBADD =						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(BUILD_LIBS)							\
-	$(LIBTRACKER_FTS_LIBS)						\
-	$(UNICODE_SUPPORT_LIBS)
+	$(LIBTRACKER_FTS_LIBS)
