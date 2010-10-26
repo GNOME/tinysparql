@@ -5,15 +5,12 @@ modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/writeback-modules
 
 INCLUDES = 								\
 	$(BUILD_CFLAGS)							\
+	-I$(top_srcdir)/src 						\
+	-I$(top_builddir)/src						\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DMODULESDIR=\"$(modulesdir)\"					\
 	-DWRITEBACK_MODULES_DIR=\""$(modulesdir)"\" 			\
-	-I$(top_srcdir)/src 						\
-	-I$(top_builddir)/src						\
-	$(TRACKER_WRITEBACK_CFLAGS)					\
-	$(TAGLIB_CFLAGS)						\
-	$(EXEMPI_CFLAGS)						\
-	$(TOTEM_PL_PARSER_CFLAGS)
+	$(TRACKER_WRITEBACK_CFLAGS)
 
 modules_LTLIBRARIES =
 

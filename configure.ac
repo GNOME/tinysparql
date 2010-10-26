@@ -338,6 +338,16 @@ TRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(TRACKER_EXTRACT, [$TRACKER_EXTRACT_REQUIRED])
 
+# Check requirements for tracker-writeback
+TRACKER_WRITEBACK_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                            gio-unix-2.0 >= $GLIB_REQUIRED
+                            gthread-2.0  >= $GLIB_REQUIRED
+                            gmodule-2.0  >= $GLIB_REQUIRED
+                            dbus-1       >= $DBUS_REQUIRED
+                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_WRITEBACK, [$TRACKER_WRITEBACK_REQUIRED])
+
 # Check requirements for tracker-miner-fs
 TRACKER_MINER_FS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                            gio-unix-2.0 >= $GLIB_REQUIRED
@@ -407,16 +417,6 @@ TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_UTILS, [$TRACKER_UTILS_REQUIRED])
-
-# Check requirements for tracker-writeback
-TRACKER_WRITEBACK_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
-                            gmodule-2.0  >= $GLIB_REQUIRED
-                            gthread-2.0  >= $GLIB_REQUIRED
-                            dbus-1       >= $DBUS_REQUIRED
-                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_WRITEBACK, [$TRACKER_WRITEBACK_REQUIRED])
 
 # Check requirements for tracker-search-tool
 TRACKER_SEARCH_TOOL_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
@@ -554,8 +554,9 @@ if test "x$enable_taglib" != "xno" ; then
                      [taglib_c >= $TAGLIB_REQUIRED],
                      [have_taglib=yes],
                      [have_taglib=no])
-   AC_SUBST(TAGLIB_CFLAGS)
-   AC_SUBST(TAGLIB_LIBS)
+
+   TRACKER_WRITEBACK_CFLAGS="$TRACKER_WRITEBACK_CFLAGS $TAGLIB_CFLAGS"
+   TRACKER_WRITEBACK_LIBS="$TRACKER_WRITEBACK_LIBS $TAGLIB_LIBS"
 else
    have_taglib="no  (disabled)"
 fi
@@ -1872,6 +1873,9 @@ if test "x$enable_exempi" != "xno" ; then
                      [have_exempi=yes],
                      [have_exempi=no])
 
+   TRACKER_WRITEBACK_CFLAGS="$TRACKER_WRITEBACK_CFLAGS $EXEMPI_CFLAGS"
+   TRACKER_WRITEBACK_LIBS="$TRACKER_WRITEBACK_LIBS $EXEMPI_LIBS"
+  
    AC_SUBST(EXEMPI_CFLAGS)
    AC_SUBST(EXEMPI_LIBS)
 
@@ -1904,6 +1908,9 @@ if test "x$enable_playlist" != "xno" ; then
                      [totem-plparser],
                      [have_playlist=yes],
                      [have_playlist=no])
+
+   TRACKER_WRITEBACK_CFLAGS="$TRACKER_WRITEBACK_CFLAGS $TOTEM_PL_PARSER_CFLAGS"
+   TRACKER_WRITEBACK_LIBS="$TRACKER_WRITEBACK_LIBS $TOTEM_PL_PARSER_LIBS"
 
    AC_SUBST(TOTEM_PL_PARSER_CFLAGS)
    AC_SUBST(TOTEM_PL_PARSER_LIBS)
