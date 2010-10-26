@@ -740,6 +740,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 		} else if (!needs_audio) {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
+			tracker_sparql_builder_object (metadata, "nmm:Photo");
 		}
 
 		s = NULL;
@@ -861,6 +862,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 		} else if (!needs_audio) {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
+			tracker_sparql_builder_object (metadata, "nmm:Photo");
 		}
 	}
 
