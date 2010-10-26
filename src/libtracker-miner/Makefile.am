@@ -7,11 +7,11 @@ include Makefile-shared-sources.decl
 
 AM_CPPFLAGS =						\
 	$(BUILD_CFLAGS)					\
+	-I$(top_srcdir)/src				\
+	-I$(top_builddir)/src				\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
 	-DTRACKER_MINERS_DIR=\""$(datadir)/tracker/miners"\" 	\
-	-I$(top_srcdir)/src				\
-	-I$(top_builddir)/src				\
 	$(LIBTRACKER_MINER_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
@@ -63,31 +63,15 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD = 	\
 	$(LIBTRACKER_MINER_LIBS)
 
 if HAVE_GNOME_KEYRING
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
-	tracker-password-provider-gnome.c
-
-libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
-	$(GNOME_KEYRING_LIBS)
-
-AM_CPPFLAGS +=						\
-	$(GNOME_KEYRING_CFLAGS)
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += tracker-password-provider-gnome.c
 else
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
-	tracker-password-provider-keyfile.c
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += tracker-password-provider-keyfile.c
 endif
 
 if HAVE_NETWORK_MANAGER
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES +=	\
-	tracker-network-provider-network-manager.c
-
-libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
-	$(NETWORK_MANAGER_LIBS)
-
-AM_CPPFLAGS +=						\
-	$(NETWORK_MANAGER_CFLAGS)
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += tracker-network-provider-network-manager.c
 else
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES +=	\
-	tracker-network-provider-dummy.c
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += tracker-network-provider-dummy.c
 endif
 
 $(top_builddir)/src/libtracker-miner/tracker-marshal.h: tracker-marshal.list
@@ -135,14 +119,17 @@ tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_sr
 
 tracker-miner-web-full.xml: tracker-miner-web-glue.h
 
-BUILT_SOURCES = $(dbus_sources) $(libtracker_miner_marshal_sources) $(vapi_DATA)
+BUILT_SOURCES = 					\
+	$(dbus_sources) 				\
+	$(libtracker_miner_marshal_sources) 		\
+	$(vapi_DATA)
 
 CLEANFILES = $(BUILT_SOURCES)
 
 DISTCLEANFILES = tracker-miner-web-full.xml
 
-EXTRA_DIST = 				\
-	tracker-marshal.list		\
-	tracker-miner.vapi		\
-	tracker-miner.deps		\
+EXTRA_DIST = 						\
+	tracker-marshal.list				\
+	tracker-miner.vapi				\
+	tracker-miner.deps				\
 	tracker-miner-web-full.xml

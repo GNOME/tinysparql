@@ -1071,11 +1071,12 @@ AC_ARG_ENABLE(gnome_keyring,
 
 if test "x$enable_gnome_keyring" != "xno"; then
    PKG_CHECK_MODULES(GNOME_KEYRING,
-                     [ gnome-keyring-1 >= $GNOME_KEYRING_REQUIRED ],
+                     [gnome-keyring-1 >= $GNOME_KEYRING_REQUIRED],
                      [have_gnome_keyring=yes],
                      [have_gnome_keyring=no])
-   AC_SUBST(GNOME_KEYRING_LIBS)
-   AC_SUBST(GNOME_KEYRING_CFLAGS)
+
+   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $GNOME_KEYRING_CFLAGS"
+   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $GNOME_KEYRING_LIBS"
 
    if test "x$have_gnome_keyring" = "xyes"; then
       AC_DEFINE(HAVE_GNOME_KEYRING, [], [Define if we have Gnome Keyring for password storage])
@@ -1101,11 +1102,12 @@ AC_ARG_ENABLE(network_manager,
 
 if test "x$enable_network_manager" != "xno"; then
    PKG_CHECK_MODULES(NETWORK_MANAGER,
-                     [ libnm-glib >= $NETWORK_MANAGER_REQUIRED ],
+                     [libnm-glib >= $NETWORK_MANAGER_REQUIRED],
                      [have_network_manager=yes],
                      [have_network_manager=no])
-   AC_SUBST(NETWORK_MANAGER_LIBS)
-   AC_SUBST(NETWORK_MANAGER_CFLAGS)
+
+   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $NETWORK_MANAGER_CFLAGS"
+   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $NETWORK_MANAGER_LIBS"
 
    if test "x$have_network_manager" = "xyes"; then
       AC_DEFINE(HAVE_NETWORK_MANAGER, [], [Define if we have NetworkManager for network status detection])
