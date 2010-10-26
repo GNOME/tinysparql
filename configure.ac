@@ -569,7 +569,7 @@ AM_CONDITIONAL(HAVE_TAGLIB, test "x$have_taglib" = "xyes")
 
 AC_ARG_ENABLE(libstreamanalyzer,
               AS_HELP_STRING([--enable-libstreamanalyzer],
-                             [enable libstreamananalyzer [[default=no]]]), ,
+                             [enable libstreamananalyzer [[default=no]]]),,
               [enable_libstreamanalyzer=no])
 
 if test "x$enable_libstreamanalyzer" != "xno"; then
@@ -577,8 +577,9 @@ if test "x$enable_libstreamanalyzer" != "xno"; then
                      [libstreamanalyzer >= $LIBSTREAMANALYZER_REQUIRED],
                      [have_libstreamanalyzer=yes],
                      [have_libstreamanalyzer=no])
-   AC_SUBST(LIBSTREAMANALYZER_CFLAGS)
-   AC_SUBST(LIBSTREAMANALYZER_LIBS)
+
+   TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $LIBSTREAMANALYZER_CFLAGS"
+   TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $LIBSTREAMANALYZER_LIBS"
 
    if test "x$have_libstreamanalyzer" = "xyes"; then
       AC_DEFINE(HAVE_LIBSTREAMANALYZER, [], [Define if we have libstreamanalyzer])
@@ -788,7 +789,7 @@ fi
 AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
 ##################################################################
-# Check for libxml2
+# Check for libxml2, needed for the HTML extractor
 ##################################################################
 
 AC_ARG_ENABLE(libxml2,
@@ -839,19 +840,18 @@ AC_ARG_ENABLE(qt,
 
 selected_for_albumart="no  (disabled)"
 
-
 ##################################################################
 # Check for Qt needed for the MP3 album art extractor cont
 ##################################################################
-
 
 if test "x$enable_qt" != "xno" && test "x$enable_gdkpixbuf" != "xyes"; then
    PKG_CHECK_MODULES(QT,
                      [QtGui >= $QT_REQUIRED],
                      [have_qt=yes],
                      [have_qt=no])
-   AC_SUBST(QT_LIBS)
-   AC_SUBST(QT_CFLAGS)
+
+   TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $QT_CFLAGS"
+   TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $QT_LIBS"
 
    if test "x$have_qt" = "xyes"; then
       AC_DEFINE(HAVE_QT, [], [Define if we have Qt])
@@ -878,8 +878,9 @@ if test "x$enable_gdkpixbuf" != "xno" && test "x$enable_quill" != "xyes"; then
                      [gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED],
                      [have_gdkpixbuf=yes],
                      [have_gdkpixbuf=no])
-   AC_SUBST(GDKPIXBUF_LIBS)
-   AC_SUBST(GDKPIXBUF_CFLAGS)
+
+   TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $GDKPIXBUF_CFLAGS"
+   TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $GDKPIXBUF_LIBS"
 
    if test "x$have_gdkpixbuf" = "xyes"; then
       AC_DEFINE(HAVE_GDKPIXBUF, [], [Define if we have GdkPixbuf])

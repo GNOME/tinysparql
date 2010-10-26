@@ -11,10 +11,6 @@ AM_CPPFLAGS = 								\
 	-DTRACKER_EXTRACTORS_DIR=\"$(modulesdir)\"			\
 	$(TRACKER_EXTRACT_CFLAGS)
 
-if HAVE_LIBSTREAMANALYZER
-AM_CPPFLAGS += $(LIBSTREAMANALYZER_CFLAGS)
-endif
-
 # NOTE:
 # We don't always link with libtracker-common, we only link
 # against it if we directly use functions in the .so
@@ -351,18 +347,13 @@ endif
 
 if HAVE_LIBSTREAMANALYZER
 tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
-tracker_extract_LDADD += $(LIBSTREAMANALYZER_LIBS)
 endif
 
 if HAVE_GDKPIXBUF
 tracker_extract_SOURCES += tracker-albumart-pixbuf.c
-tracker_extract_CPPFLAGS = $(GDKPIXBUF_CFLAGS)
-tracker_extract_LDADD += $(GDKPIXBUF_LIBS)
 else
 if HAVE_QT
 tracker_extract_SOURCES += tracker-albumart-qt.cpp
-tracker_extract_CPPFLAGS = $(QT_CFLAGS)
-tracker_extract_LDADD += $(QT_LIBS)
 else
 tracker_extract_SOURCES += tracker-albumart-dummy.c
 endif
