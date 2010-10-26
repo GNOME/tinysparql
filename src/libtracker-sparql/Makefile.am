@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
 
-INCLUDES =								\
+AM_CPPFLAGS =								\
 	$(BUILD_CFLAGS)							\
 	-DSPARQL_MODULES_DIR=\""$(modulesdir)"\" 			\
 	-I$(top_srcdir)/src						\

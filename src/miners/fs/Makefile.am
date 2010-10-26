@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES =								\
+AM_CPPFLAGS =								\
 	$(BUILD_CFLAGS)							\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
@@ -33,7 +33,7 @@ tracker_miner_fs_LDADD =						\
 	$(TRACKER_MINER_FS_LIBS)
 
 if HAVE_MEEGOTOUCH
-INCLUDES += $(MEEGOTOUCH_CFLAGS)
+AM_CPPFLAGS += $(MEEGOTOUCH_CFLAGS)
 tracker_miner_fs_SOURCES += tracker-miner-applications-meego.cpp
 tracker_miner_fs_LDADD += $(MEEGOTOUCH_LIBS)
 endif

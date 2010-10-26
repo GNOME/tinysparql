@@ -8,7 +8,7 @@ TEST_PROGS += 								\
 	tracker-file-utils						\
 	tracker-utils
 
-INCLUDES = 								\
+AM_CPPFLAGS = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\

@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
-INCLUDES = 								\
+AM_CPPFLAGS = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\

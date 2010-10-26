@@ -10,7 +10,7 @@ noinst_PROGRAMS =					\
 	test-class-signal-performance			\
 	test-update-array-performance
 
-INCLUDES =						\
+AM_CPPFLAGS =						\
 	$(BUILD_CFLAGS)					\
 	-I$(top_srcdir)/src				\
 	-I$(top_builddir)/src				\

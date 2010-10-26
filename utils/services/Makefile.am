@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = ontology-validator data-validator
 
-INCLUDES = 								\
+AM_CPPFLAGS = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\

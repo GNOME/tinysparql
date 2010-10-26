@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
-INCLUDES = 								\
+AM_CPPFLAGS = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src 						\
 	-I$(top_builddir)/src						\
@@ -12,7 +12,7 @@ INCLUDES = 								\
 	$(TRACKER_EXTRACT_CFLAGS)
 
 if HAVE_LIBSTREAMANALYZER
-INCLUDES += $(LIBSTREAMANALYZER_CFLAGS)
+AM_CPPFLAGS += $(LIBSTREAMANALYZER_CFLAGS)
 endif
 
 # NOTE:
@@ -211,7 +211,7 @@ libextract_msoffice_la_LIBADD = 					\
 
 # PDF
 libextract_pdf_la_SOURCES = tracker-extract-pdf.cpp
-libextract_pdf_la_CPPFLAGS = $(POPPLER_CFLAGS)
+libextract_pdf_la_CXXFLAGS = $(POPPLER_CFLAGS)
 libextract_pdf_la_LDFLAGS = $(module_flags)
 libextract_pdf_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
@@ -333,8 +333,6 @@ tracker_extract_SOURCES = 						\
 	tracker-main.h							\
 	tracker-albumart-generic.h
 
-tracker_extract_CFLAGS =
-
 tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
@@ -342,6 +340,8 @@ tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(BUILD_LIBS)							\
 	$(TRACKER_EXTRACT_LIBS)
+
+tracker_extract_CFLAGS = $(AM_CPPFLAGS)
 
 if HAVE_LIBGSF
 tracker_extract_SOURCES += tracker-gsf.c tracker-gsf.h
@@ -356,12 +356,12 @@ endif
 
 if HAVE_GDKPIXBUF
 tracker_extract_SOURCES += tracker-albumart-pixbuf.c
-tracker_extract_CFLAGS += $(GDKPIXBUF_CFLAGS)
+tracker_extract_CPPFLAGS = $(GDKPIXBUF_CFLAGS)
 tracker_extract_LDADD += $(GDKPIXBUF_LIBS)
 else
 if HAVE_QT
-INCLUDES += $(QT_CFLAGS)
 tracker_extract_SOURCES += tracker-albumart-qt.cpp
+tracker_extract_CPPFLAGS = $(QT_CFLAGS)
 tracker_extract_LDADD += $(QT_LIBS)
 else
 tracker_extract_SOURCES += tracker-albumart-dummy.c

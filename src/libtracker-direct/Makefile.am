@@ -2,10 +2,10 @@ include $(top_srcdir)/Makefile.decl
 
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
 
-INCLUDES =								\
-	$(BUILD_CFLAGS)							\
-	-I$(top_srcdir)/src						\
-	-I$(top_builddir)/src						\
+AM_CPPFLAGS =						\
+	$(BUILD_CFLAGS)					\
+	-I$(top_srcdir)/src				\
+	-I$(top_builddir)/src				\
 	$(LIBTRACKER_DIRECT_CFLAGS)
 
 modules_LTLIBRARIES = libtracker-direct.la

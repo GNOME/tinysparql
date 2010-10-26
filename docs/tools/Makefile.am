@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = ontology-graph ttl2sgml
 
-INCLUDES = 								\
+AM_CPPFLAGS = 								\
 	$(BUILD_CFLAGS)							\
 	-DTOP_SRCDIR=\"$(top_srcdir)\"					\
 	-I$(top_srcdir)/src						\

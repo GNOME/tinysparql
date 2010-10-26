@@ -5,7 +5,7 @@ include $(top_srcdir)/Makefile.decl
 #  $(libtracker_miner_monitor_sources)
 include Makefile-shared-sources.decl
 
-INCLUDES =						\
+AM_CPPFLAGS =						\
 	$(BUILD_CFLAGS)					\
 	-DSHAREDIR=\""$(datadir)"\"			\
 	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\"	\
@@ -69,7 +69,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
 	$(GNOME_KEYRING_LIBS)
 
-INCLUDES +=						\
+AM_CPPFLAGS +=						\
 	$(GNOME_KEYRING_CFLAGS)
 else
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += 	\
@@ -83,7 +83,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES +=	\
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD +=	\
 	$(NETWORK_MANAGER_LIBS)
 
-INCLUDES +=						\
+AM_CPPFLAGS +=						\
 	$(NETWORK_MANAGER_CFLAGS)
 else
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES +=	\

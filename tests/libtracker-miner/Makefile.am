@@ -14,7 +14,7 @@ TEST_PROGS +=									\
 	tracker-thumbnailer-test						\
 	tracker-monitor-test
 
-INCLUDES =									\
+AM_CPPFLAGS =									\
 	$(BUILD_CFLAGS)								\
 	-DTEST									\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\

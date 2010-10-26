@@ -33,7 +33,7 @@ TEST_PROGS += 					\
 	tracker-db-journal			\
 	tracker-db-dbus
 
-INCLUDES = 					\
+AM_CPPFLAGS = 					\
 	$(BUILD_CFLAGS)				\
 	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"	\
 	-DTOP_BUILDDIR=\"$(abs_top_builddir)\"	\

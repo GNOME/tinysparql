@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES =								\
+AM_CPPFLAGS =								\
 	$(BUILD_CFLAGS)							\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-I$(top_srcdir)/src						\

@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_LTLIBRARIES = libtracker-testcommon.la
 
-INCLUDES = 					\
+AM_CPPFLAGS = 					\
 	$(BUILD)				\
 	-DTEST_TEXT=\""$(top_srcdir)"/tests/libtracker-common/non-utf8.txt\"	\
 	$(LIBTRACKER_COMMON_CFLAGS)

@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES =								\
+AM_CPPFLAGS =								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-DNDEBUG							\

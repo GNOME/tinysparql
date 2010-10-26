@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = playlist2ttl
 
-INCLUDES = 				\
+AM_CPPFLAGS = 				\
 	$(BUILD_CFLAGS)			\
 	$(TOTEM_PL_PARSER_CFLAGS)
 

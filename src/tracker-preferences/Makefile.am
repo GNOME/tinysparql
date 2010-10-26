@@ -9,7 +9,7 @@ desktop_DATA =  tracker-preferences.desktop
 
 pkgdata_DATA = tracker-preferences.ui
 
-INCLUDES = 								\
+AM_CPPFLAGS = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\

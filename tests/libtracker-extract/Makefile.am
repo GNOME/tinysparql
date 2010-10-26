@@ -6,7 +6,7 @@ TEST_PROGS += 								\
 	tracker-test-utils						\
 	tracker-test-xmp
 
-INCLUDES = 								\
+AM_CPPFLAGS = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_builddir)/src						\

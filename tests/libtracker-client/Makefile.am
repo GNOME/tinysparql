@@ -5,7 +5,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 TEST_PROGS += 								\
 	tracker-test
 
-INCLUDES = 								\
+AM_CPPFLAGS = 								\
 	$(BUILD_CFLAGS)							\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
