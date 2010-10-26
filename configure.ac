@@ -731,10 +731,11 @@ AC_ARG_ENABLE(upower,
 if test "x$enable_upower" != "xno"; then
    PKG_CHECK_MODULES(UPOWER,
                      [upower-glib >= $UPOWER_REQUIRED],
-                     [have_upower=yes] ,
+                     [have_upower=yes],
                      [have_upower=no])
-   AC_SUBST(UPOWER_CFLAGS)
-   AC_SUBST(UPOWER_LIBS)
+
+   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $UPOWER_CFLAGS"
+   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $UPOWER_LIBS"
 
    if test "x$have_upower" = "xyes"; then
       AC_DEFINE(HAVE_UPOWER, [], [Define if we have UPOWER])
@@ -765,8 +766,9 @@ if test "x$have_upower" != "xyes" && test "x$enable_hal" != "xno"; then
                      [hal >= $HAL_REQUIRED],
                      [have_hal=yes] ,
                      [have_hal=no])
-   AC_SUBST(HAL_CFLAGS)
-   AC_SUBST(HAL_LIBS)
+
+   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $HAL_CFLAGS"
+   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $HAL_LIBS"
 
    if test "x$have_hal" = "xyes"; then
       AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
