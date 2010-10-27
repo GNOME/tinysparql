@@ -407,6 +407,19 @@ TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(TRACKER_UTILS, [$TRACKER_UTILS_REQUIRED])
 
+# Check requirements for tracker-needle
+TRACKER_NEEDLE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                         gio-unix-2.0 >= $GLIB_REQUIRED
+                         gthread-2.0  >= $GLIB_REQUIRED
+                         gmodule-2.0  >= $GLIB_REQUIRED
+                         gtk+-2.0     >= $GTK_REQUIRED
+                         dbus-1       >= $DBUS_REQUIRED
+                         dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_NEEDLE, [$TRACKER_NEEDLE_REQUIRED],
+                  [have_tracker_needle=yes],
+                  [have_tracker_needle=no])
+
 # Check requirements for tracker-search-tool
 TRACKER_SEARCH_TOOL_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                               gio-unix-2.0   >= $GLIB_REQUIRED
@@ -1293,6 +1306,25 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_SEARCH_BAR, test "$have_tracker_search_bar" = "yes")
+
+##################################################################
+# Check for tracker-needle
+##################################################################
+
+AC_ARG_ENABLE([tracker-needle],
+              AS_HELP_STRING([--enable-tracker-needle],
+                             [enable tracker-needle[[default=auto]]]),,
+              [enable_tracker_needle=auto])
+
+if test "x$enable_tracker_needle" != "xno" ; then
+   if test "x$have_tracker_needle" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-needle dependencies ($TRACKER_NEEDLE_REQUIRED).])
+   fi
+else
+   have_tracker_needle="no  (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_NEEDLE, test "$have_tracker_needle" = "yes")
 
 ##################################################################
 # Check for tracker-search-tool
@@ -2183,6 +2215,7 @@ Applications:
 	Build tracker-preferences:              $have_tracker_preferences
 	Build tracker-status-icon:              $have_tracker_status_icon
 	Build tracker-explorer:                 $have_tracker_explorer
+	Build tracker-needle:                   $have_tracker_needle
 	Build tracker-search-bar:               $have_tracker_search_bar
 
 Metadata Extractors:
