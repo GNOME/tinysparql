@@ -66,7 +66,7 @@ BUILT_SOURCES =                                        \
 	libtracker-client.vala.stamp
 
 CLEANFILES =                                           \
-	$(BUILT_SOURCES)                               \
+	$(dbus_sources)                                \
 	$(vapi_DATA)
 
 MAINTAINERCLEANFILES =                                 \
