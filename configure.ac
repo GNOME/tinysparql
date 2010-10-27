@@ -1063,7 +1063,7 @@ if test "x$enable_tracker_miner_flickr" = "xyes"; then
    fi
 else
    if test "x$enable_tracker_miner_flickr" = "xno"; then
-      have_miner_flickr="no  (disabled)"
+      have_tracker_miner_flickr="no  (disabled)"
    fi
 fi
 
