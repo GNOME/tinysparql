@@ -43,9 +43,6 @@ tracker-miner-flickr.vala.stamp: $(tracker_miner_flickr_VALASOURCES) $(vapi_sour
 BUILT_SOURCES =                                        \
 	tracker-miner-flickr.vala.stamp
 
-CLEANFILES =                                           \
-	$(BUILT_SOURCES)
-
 MAINTAINERCLEANFILES =                                 \
 	$(tracker_miner_flickr_VALASOURCES:.vala=.c)   \
 	tracker-miner-flickr.vala.stamp
