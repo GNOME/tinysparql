@@ -642,6 +642,27 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 #endif
 }
 
+static gchar*
+convert_url_to_whatever (CamelURL *a_url, const gchar *path, const gchar *uid)
+{
+	CamelURL *url;
+	gchar *uri, *qry, *ppath = g_strdup_printf ("/%s", path);
+
+	url = camel_url_copy (a_url);
+	qry = g_strdup_printf ("uid=%s", uid);
+	camel_url_set_query (url, qry);
+	g_free (qry);
+	camel_url_set_path (url, ppath);
+	g_free (ppath);
+	uri = camel_url_to_string (url, CAMEL_URL_HIDE_ALL);
+
+	qry = em_uri_from_camel (uri);
+	g_free (uri);
+	camel_url_free (url);
+
+	return qry;
+}
+
 /* When new messages arrive to- or got deleted from the summary, called in
  * mainloop or by a thread (unknown, depends on Camel and Evolution code that
  * executes the reason why this signal gets emitted).
@@ -655,17 +676,16 @@ on_folder_summary_changed (CamelFolder *folder,
 {
 	OnSummaryChangedInfo *info = user_data;
 	CamelFolderSummary *summary;
-	gchar *account_uri = info->account_uri;
 	GPtrArray *merged;
 	guint i;
-	gchar *em_uri;
+	CamelURL *a_url;
 
 	if (!folder)
 		return;
 
 	summary = folder->summary;
-	em_uri = em_uri_from_camel (account_uri);
-	em_uri [strlen (em_uri) - 1] = '\0';
+
+	a_url = CAMEL_SERVICE (camel_folder_get_parent_store (folder))->url;
 
 	merged = g_ptr_array_new ();
 
@@ -700,7 +720,6 @@ on_folder_summary_changed (CamelFolder *folder,
 
 	for (i = 0; i< merged->len; i++) {
 		const gchar *subject, *to, *from, *cc, *uid = NULL;
-		gchar *size;
 		time_t sent;
 		guint flags;
 		CamelMessageInfo *linfo;
@@ -715,6 +734,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 		if (linfo && uid) {
 			gchar *uri;
+			gchar *size;
 			TrackerSparqlBuilder *sparql;
 
 			subject = camel_message_info_subject (linfo);
@@ -732,10 +752,7 @@ on_folder_summary_changed (CamelFolder *folder,
 			/* This is not a path but a URI, don't use the
 			 * OS's directory separator here */
 
-			uri = tracker_sparql_escape_uri_printf ("%s/%s?uid=%s",
-			                                        em_uri,
-			                                        camel_folder_get_full_name (folder),
-			                                        uid);
+			uri = convert_url_to_whatever (a_url, camel_folder_get_full_name (folder), uid);
 
 			sparql = tracker_sparql_builder_new_update ();
 
@@ -817,10 +834,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 			/* This is not a path but a URI, don't use the OS's
 			 * directory separator here */
-			uri = tracker_sparql_escape_uri_printf ("%s/%s/%s",
-			                                        em_uri,
-			                                        camel_folder_get_full_name (folder),
-			                                        (char*) changes->uid_removed->pdata[i]);
+			uri = convert_url_to_whatever (a_url, camel_folder_get_full_name (folder), (char*) changes->uid_removed->pdata[i]);
 
 			g_string_append_printf (sparql, "DELETE FROM <%s> { <%s> a rdfs:Resource }\n ", uri, uri);
 			g_free (uri);
@@ -834,8 +848,6 @@ on_folder_summary_changed (CamelFolder *folder,
 
 	g_object_set (info->self, "progress",
 	              1.0, NULL);
-
-	g_free (em_uri);
 }
 
 
@@ -849,14 +861,13 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
                                   GCancellable *cancel)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
-	gchar *em_uri;
+	CamelURL *a_url;
 
 	if (g_cancellable_is_cancelled (cancel)) {
 		return;
 	}
 
-	em_uri = em_uri_from_camel (account_uri);
-	em_uri [strlen (em_uri) - 1] = '\0';
+	a_url = CAMEL_SERVICE (store)->url;
 
 	while (iter) {
 		guint count = 0;
@@ -937,7 +948,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 				folder = g_hash_table_lookup (priv->cached_folders, iter->full_name);
 
-				uri = tracker_sparql_escape_uri_printf ("%s/%s/%s", em_uri, iter->full_name, uid);
+				uri = convert_url_to_whatever (a_url, iter->full_name, uid);
 
 				if (!sparql) {
 					sparql = tracker_sparql_builder_new_update ();
@@ -1041,8 +1052,6 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 		iter = iter->next;
 	}
-
-	g_free (em_uri);
 }
 
 /* Initial notify of deletes that are more recent than last_checkout, called in
@@ -1060,10 +1069,9 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 	sqlite3_stmt *stmt = NULL;
 	CamelDB *cdb_r;
 	guint i, ret;
-	gchar *em_uri;
+	CamelURL *a_url;
 
-	em_uri = em_uri_from_camel (account_uri);
-	em_uri [strlen (em_uri) - 1] = '\0';
+	a_url = CAMEL_SERVICE (store)->url;
 
 	query = sqlite3_mprintf ("SELECT uid, mailbox "
 	                         "FROM Deletes "
@@ -1106,8 +1114,7 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 			 * directory separator here */
 
 			g_ptr_array_add (subjects_a,
-			                 tracker_sparql_escape_uri_printf ("%s/%s/%s", em_uri,
-			                                                   mailbox, uid));
+			                 convert_url_to_whatever (a_url, mailbox, uid));
 
 			if (count > 100) {
 				more = TRUE;
@@ -1148,8 +1155,6 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 	sqlite3_free (query);
 
 	camel_db_close (cdb_r);
-
-	g_free (em_uri);
 }
 
 /* Get the oldest date in all of the deleted-tables, called in the mainloop. We
