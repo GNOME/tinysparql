@@ -840,7 +840,7 @@ on_folder_summary_changed (CamelFolder *folder,
 		g_string_free (sparql, TRUE);
 	}
 
-	send_sparql_commit (info->self, TRUE);
+	send_sparql_commit (info->self, FALSE);
 
 	g_object_set (info->self, "progress",
 	              1.0, NULL);
@@ -1094,7 +1094,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 			sqlite3_free (query);
 		}
 
-		send_sparql_commit (self, TRUE);
+		send_sparql_commit (self, FALSE);
 
 		if (iter->child) {
 			introduce_walk_folders_in_folder (self, iter->child,
@@ -1506,6 +1506,8 @@ folder_worker (gpointer data, gpointer user_data)
 	                                  winfo->intro_info->account_uri,
 	                                  winfo->intro_info->info,
 	                                  user_data);
+
+	send_sparql_commit (winfo->intro_info->self, TRUE);
 
 	return;
 }
