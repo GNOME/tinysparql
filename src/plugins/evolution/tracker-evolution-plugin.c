@@ -458,7 +458,7 @@ add_contact (TrackerSparqlBuilder *sparql, const gchar *predicate, const gchar *
 		}
 
 		tracker_sparql_builder_predicate (sparql, "nco:hasEmailAddress");
-		tracker_sparql_builder_object_iri (sparql, email);
+		tracker_sparql_builder_object_iri (sparql, email_uri);
 
 		tracker_sparql_builder_object_blank_close (sparql);
 		g_free (email_uri);
