@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-10-21 08:56+0000\n"
+"POT-Creation-Date: 2010-10-28 10:18+0000\n"
 "PO-Revision-Date: 2010-05-23 23:58+0200\n"
 "Last-Translator: Bruno Brouard <annoa.b@gmail.com>\n"
 "Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
@@ -148,11 +148,11 @@ msgstr "Étiquettes..."
 msgid "Tag one or more files"
 msgstr "Étiqueter un ou plusieurs fichiers"
 
-#: ../src/libtracker-common/tracker-dbus.c:598
+#: ../src/libtracker-common/tracker-dbus.c:571
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
 #: ../src/tracker-utils/tracker-search.c:1270
-#: ../src/tracker-utils/tracker-sparql.c:268
+#: ../src/tracker-utils/tracker-sparql.c:292
 #: ../src/tracker-utils/tracker-stats.c:93
 #: ../src/tracker-utils/tracker-tag.c:945
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:90
@@ -249,8 +249,8 @@ msgid "Processing…"
 msgstr "Traitement en cours…"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
-#: ../src/tracker-utils/tracker-sparql.c:380
-#: ../src/tracker-utils/tracker-sparql.c:465
+#: ../src/tracker-utils/tracker-sparql.c:404
+#: ../src/tracker-utils/tracker-sparql.c:523
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -282,7 +282,7 @@ msgstr "Fichier duquel extraire les métadonnées"
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:57
 #: ../src/tracker-utils/tracker-info.c:58
-#: ../src/tracker-utils/tracker-sparql.c:60
+#: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "FICHIER"
 
@@ -451,11 +451,11 @@ msgstr "Devra être surveillé"
 msgid "- start the tracker indexer"
 msgstr "- démarre l'indexeur de tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1240
+#: ../src/miners/fs/tracker-miner-files.c:1241
 msgid "Low battery"
 msgstr "Batterie faible"
 
-#: ../src/miners/fs/tracker-miner-files.c:1368
+#: ../src/miners/fs/tracker-miner-files.c:1364
 msgid "Low disk space"
 msgstr "Espace disque faible"
 
@@ -687,7 +687,7 @@ msgstr "Barre de recherche"
 #. G_CALLBACK (statistics_menu_activated), icon);
 #.
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
-#: ../src/tracker-status-icon/tracker-status-icon.c:915
+#: ../src/tracker-status-icon/tracker-status-icon.c:917
 msgid "_About"
 msgstr "À _propos"
 
@@ -936,7 +936,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
 #: ../src/tracker-utils/tracker-search.c:129
-#: ../src/tracker-utils/tracker-sparql.c:91
+#: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:115
 #: ../src/tracker-utils/tracker-tag.c:87
@@ -1010,15 +1010,15 @@ msgstr ""
 "Stéphane Raimbault <stephane.raimbault@gmail.com>, 2008.\n"
 "Marc Veillet <scouigne@gmail.com>, 2008."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:835
+#: ../src/tracker-status-icon/tracker-status-icon.c:837
 msgid "_Search"
 msgstr "R_echercher"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:864
+#: ../src/tracker-status-icon/tracker-status-icon.c:866
 msgid "_Pause All Indexing"
 msgstr "Sus_pendre toutes les indexations"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:884
+#: ../src/tracker-status-icon/tracker-status-icon.c:886
 msgid "_Preferences"
 msgstr "_Préférences"
 
@@ -1171,35 +1171,35 @@ msgstr "Impossible de tuer le processus %d"
 msgid "Killed process %d"
 msgstr "Processus %d tué"
 
-#: ../src/tracker-control/tracker-control.c:493
+#: ../src/tracker-control/tracker-control.c:494
 msgid "Removing configuration files…"
 msgstr "Suppression des fichiers de configuration…"
 
-#: ../src/tracker-control/tracker-control.c:510
+#: ../src/tracker-control/tracker-control.c:511
 msgid "Waiting one second before starting miners…"
 msgstr "Attente d'une seconde avant le démarrage des extracteurs…"
 
-#: ../src/tracker-control/tracker-control.c:516
+#: ../src/tracker-control/tracker-control.c:517
 msgid "Starting miners…"
 msgstr "Démarrage des extracteurs…"
 
-#: ../src/tracker-control/tracker-control.c:531
+#: ../src/tracker-control/tracker-control.c:532
 msgid "perhaps a disabled plugin?"
 msgstr "peut-être un greffon désactivé ?"
 
-#: ../src/tracker-control/tracker-control.c:552
+#: ../src/tracker-control/tracker-control.c:553
 msgid "Could not reindex mimetypes"
 msgstr "Impossible de réindexer les types MIME"
 
-#: ../src/tracker-control/tracker-control.c:558
+#: ../src/tracker-control/tracker-control.c:559
 msgid "Reindexing mime types was successful"
 msgstr "La réindexation des types MIME a été réalisée avec succès"
 
-#: ../src/tracker-control/tracker-control.c:575
+#: ../src/tracker-control/tracker-control.c:576
 msgid "Could not (re)index file"
 msgstr "Impossible de (ré)indexer le fichier"
 
-#: ../src/tracker-control/tracker-control.c:581
+#: ../src/tracker-control/tracker-control.c:582
 msgid "(Re)indexing file was successful"
 msgstr "La (ré)indexation du fichier a été réalisée avec succès"
 
@@ -1217,7 +1217,7 @@ msgstr "Un ou plusieurs fichiers n'ont pas été indiqués"
 #: ../src/tracker-utils/tracker-import.c:115
 #: ../src/tracker-utils/tracker-info.c:222
 #: ../src/tracker-utils/tracker-search.c:1269
-#: ../src/tracker-utils/tracker-sparql.c:267
+#: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:89
@@ -1233,7 +1233,7 @@ msgid "Unable to import Turtle file"
 msgstr "Impossible d'importer le fichier Turtle"
 
 #: ../src/tracker-utils/tracker-import.c:142
-#: ../src/tracker-utils/tracker-sparql.c:513
+#: ../src/tracker-utils/tracker-sparql.c:571
 #: ../src/tracker-utils/tracker-status.c:210
 msgid "Done"
 msgstr "Terminé"
@@ -1277,7 +1277,7 @@ msgstr "Aucune métadonnée disponible pour cet URI"
 
 #: ../src/tracker-utils/tracker-info.c:305
 #: ../src/tracker-utils/tracker-search.c:1091
-#: ../src/tracker-utils/tracker-sparql.c:555
+#: ../src/tracker-utils/tracker-sparql.c:613
 msgid "Results"
 msgstr "Résultats"
 
@@ -1484,35 +1484,35 @@ msgstr ""
 "Les mots ignorés sont des mots communs qui peuvent ne pas être pris en "
 "compte dans le processus d'indexation."
 
-#: ../src/tracker-utils/tracker-sparql.c:59
+#: ../src/tracker-utils/tracker-sparql.c:64
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Chemin à utiliser pour lancer une requête ou une mise à jour à partir d'un "
 "fichier"
 
-#: ../src/tracker-utils/tracker-sparql.c:63
+#: ../src/tracker-utils/tracker-sparql.c:68
 msgid "SPARQL query"
 msgstr "Requête SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:64
+#: ../src/tracker-utils/tracker-sparql.c:69
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:67
+#: ../src/tracker-utils/tracker-sparql.c:72
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "Ceci est utilisé avec --query et uniquement pour les mises à jour de base de "
 "données."
 
-#: ../src/tracker-utils/tracker-sparql.c:71
+#: ../src/tracker-utils/tracker-sparql.c:76
 msgid "Retrieve classes"
 msgstr "Récupère les classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:75
+#: ../src/tracker-utils/tracker-sparql.c:80
 msgid "Retrieve class prefixes"
 msgstr "Récupère les préfixes de classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:79
+#: ../src/tracker-utils/tracker-sparql.c:84
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -1520,38 +1520,50 @@ msgstr ""
 "Récupère les propriétés d'une classe, les préfixes peuvent aussi être "
 "utilisés (par ex. rdfs:Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:80
-#: ../src/tracker-utils/tracker-sparql.c:84
+#: ../src/tracker-utils/tracker-sparql.c:85
+#: ../src/tracker-utils/tracker-sparql.c:89
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: ../src/tracker-utils/tracker-sparql.c:83
+#: ../src/tracker-utils/tracker-sparql.c:88
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Récupère les classes qui avertissent des changements dans la base de données "
 "(CLASSE est facultatif)"
 
-#: ../src/tracker-utils/tracker-sparql.c:87
+#: ../src/tracker-utils/tracker-sparql.c:92
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional) "
+msgstr ""
+"Récupère les indexes utilisés dans la base de données pour améliorer la "
+"performance (PROPRIÉTÉ est facultatif)"
+
+#: ../src/tracker-utils/tracker-sparql.c:93
+msgid "PROPERTY"
+msgstr "PROPRIÉTÉ"
+
+#: ../src/tracker-utils/tracker-sparql.c:96
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Recherche une classe ou une propriété et affiche plus d'informations (par "
 "ex. Document)"
 
-#: ../src/tracker-utils/tracker-sparql.c:88
+#: ../src/tracker-utils/tracker-sparql.c:97
 msgid "CLASS/PROPERTY"
 msgstr "CLASSE/PROPRIÉTÉ"
 
-#: ../src/tracker-utils/tracker-sparql.c:117
+#: ../src/tracker-utils/tracker-sparql.c:126
 msgid "Could not get namespace prefixes"
 msgstr "Impossible d'obtenir les préfixes d'espace de noms"
 
-#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:135
 msgid "No namespace prefixes were found"
 msgstr "Aucun préfixe d'espace de noms n'a été trouvé"
 
-#: ../src/tracker-utils/tracker-sparql.c:197
+#: ../src/tracker-utils/tracker-sparql.c:221
 #: ../src/tracker-utils/tracker-stats.c:123
 #: ../src/tracker-utils/tracker-tag.c:370
 #: ../src/tracker-utils/tracker-tag.c:494
@@ -1559,103 +1571,115 @@ msgstr "Aucun préfixe d'espace de noms n'a été trouvé"
 msgid "None"
 msgstr "Aucun"
 
-#: ../src/tracker-utils/tracker-sparql.c:221
+#: ../src/tracker-utils/tracker-sparql.c:245
 msgid "- Query or update using SPARQL"
 msgstr "- Effectue des requêtes ou des mises à jour avec SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:235
+#: ../src/tracker-utils/tracker-sparql.c:259
 msgid "An argument must be supplied"
 msgstr "Un paramètre doit être fourni"
 
-#: ../src/tracker-utils/tracker-sparql.c:237
+#: ../src/tracker-utils/tracker-sparql.c:261
 msgid "File and query can not be used together"
 msgstr "Les paramètres file et query ne peuvent être employés simultanément"
 
-#: ../src/tracker-utils/tracker-sparql.c:281
+#: ../src/tracker-utils/tracker-sparql.c:305
 msgid "Could not list classes"
 msgstr "Impossible d'énumérer les classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:289
+#: ../src/tracker-utils/tracker-sparql.c:313
 msgid "No classes were found"
 msgstr "Aucune classe n'a été trouvée"
 
-#: ../src/tracker-utils/tracker-sparql.c:289
-#: ../src/tracker-utils/tracker-sparql.c:442
+#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:500
 msgid "Classes"
 msgstr "Classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:305
+#: ../src/tracker-utils/tracker-sparql.c:329
 msgid "Could not list class prefixes"
 msgstr "Impossible d'énumérer les préfixes de classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:337
 msgid "No class prefixes were found"
 msgstr "Aucun préfixe de classe n'a été trouvé"
 
-#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:337
 msgid "Prefixes"
 msgstr "Préfixes"
 
-#: ../src/tracker-utils/tracker-sparql.c:333
+#: ../src/tracker-utils/tracker-sparql.c:357
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Impossible de trouver la propriété du préfixe de classe, par ex. : Resource "
 "dans « rdfs:Resource »"
 
-#: ../src/tracker-utils/tracker-sparql.c:372
+#: ../src/tracker-utils/tracker-sparql.c:396
 msgid "Could not list properties"
 msgstr "Impossible d'énumérer les propriétés"
 
-#: ../src/tracker-utils/tracker-sparql.c:380
+#: ../src/tracker-utils/tracker-sparql.c:404
 msgid "No properties were found"
 msgstr "Aucune propriété n'a été trouvée"
 
-#: ../src/tracker-utils/tracker-sparql.c:408
+#: ../src/tracker-utils/tracker-sparql.c:432
 msgid "Could not find notify classes"
 msgstr "Impossible de trouver les classes de notification"
 
-#: ../src/tracker-utils/tracker-sparql.c:416
+#: ../src/tracker-utils/tracker-sparql.c:440
 msgid "No notifies were found"
 msgstr "Aucune notification n'a été trouvée"
 
-#: ../src/tracker-utils/tracker-sparql.c:416
+#: ../src/tracker-utils/tracker-sparql.c:440
 msgid "Notifies"
 msgstr "Notifications"
 
-#: ../src/tracker-utils/tracker-sparql.c:434
+#: ../src/tracker-utils/tracker-sparql.c:466
+msgid "Could not find indexed properties"
+msgstr "Impossible de trouver les propriétés indexées"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+msgid "No indexes were found"
+msgstr "Aucun index n'a été trouvé"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+msgid "Indexes"
+msgstr "Indexes"
+
+#: ../src/tracker-utils/tracker-sparql.c:492
 msgid "Could not search classes"
 msgstr "Impossible de rechercher des classes"
 
-#: ../src/tracker-utils/tracker-sparql.c:442
+#: ../src/tracker-utils/tracker-sparql.c:500
 msgid "No classes were found to match search term"
 msgstr "Aucune classe ne correspond au texte recherché"
 
-#: ../src/tracker-utils/tracker-sparql.c:457
+#: ../src/tracker-utils/tracker-sparql.c:515
 msgid "Could not search properties"
 msgstr "Impossible de rechercher des propriétés"
 
-#: ../src/tracker-utils/tracker-sparql.c:465
+#: ../src/tracker-utils/tracker-sparql.c:523
 msgid "No properties were found to match search term"
 msgstr "Aucune propriété ne correspond au texte recherché"
 
-#: ../src/tracker-utils/tracker-sparql.c:475
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "Could not get UTF-8 path from path"
 msgstr "Impossible d'obtenir le chemin UTF-8 à partir du chemin"
 
-#: ../src/tracker-utils/tracker-sparql.c:487
+#: ../src/tracker-utils/tracker-sparql.c:545
 msgid "Could not read file"
 msgstr "Impossible de lire le fichier"
 
-#: ../src/tracker-utils/tracker-sparql.c:506
+#: ../src/tracker-utils/tracker-sparql.c:564
 msgid "Could not run update"
 msgstr "Impossible de lancer la mise à jour"
 
-#: ../src/tracker-utils/tracker-sparql.c:548
+#: ../src/tracker-utils/tracker-sparql.c:606
 msgid "Could not run query"
 msgstr "Impossible de lancer la requête"
 
-#: ../src/tracker-utils/tracker-sparql.c:555
+#: ../src/tracker-utils/tracker-sparql.c:613
 msgid "No results found matching your query"
 msgstr "Aucun résultat ne correspond à votre requête"
 
@@ -2014,4 +2038,3 @@ msgstr "- démarre le service de réécriture de tracker"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Requêtes enregistrées"
-
