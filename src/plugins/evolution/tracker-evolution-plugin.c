@@ -334,22 +334,6 @@ thread_pool_exec (gpointer data, gpointer user_data)
 		pool->freeup (data, pool->cancel);
 }
 
-static void
-reply_void (GObject *source_object,
-            GAsyncResult *result,
-            gpointer user_data)
-{
-	GError *error = NULL;
-
-	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source_object),
-	                                         result, &error);
-
-	if (error) {
-		g_debug ("Tracker plugin: Error updating data: %s\n", error->message);
-		g_error_free (error);
-	}
-}
-
 static ThreadPool*
 thread_pool_new (GFunc func, GFunc freeup, GCompareDataFunc sorter)
 {
@@ -411,11 +395,12 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql, gint prio
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 
 	if (priv->connection) {
-		tracker_sparql_connection_update_async (priv->connection,
-		                                        sparql,
-		                                        G_PRIORITY_DEFAULT,
-		                                        NULL,
-		                                        reply_void, NULL);
+		tracker_sparql_connection_update (priv->connection,
+		                                  sparql,
+		                                  G_PRIORITY_DEFAULT,
+		                                  NULL,
+		                                  NULL);
+
 	}
 }
 
