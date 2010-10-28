@@ -649,18 +649,25 @@ convert_url_to_whatever (CamelURL *a_url, const gchar *path, const gchar *uid)
 	gchar *uri, *qry, *ppath = g_strdup_printf ("/%s", path);
 
 	url = camel_url_copy (a_url);
-	qry = g_strdup_printf ("uid=%s", uid);
-	camel_url_set_query (url, qry);
-	g_free (qry);
+
+	/* This would be the right way, but em_uri_from_camel ignores ?uid=x parts,
+	 * so instead we append it manually with a g_strdup_printf lower
+	 *
+	 * qry = g_strdup_printf ("uid=%s", uid);
+	 * camel_url_set_query (url, qry);
+	 * g_free (qry); */
+
 	camel_url_set_path (url, ppath);
 	g_free (ppath);
 	uri = camel_url_to_string (url, CAMEL_URL_HIDE_ALL);
 
 	qry = em_uri_from_camel (uri);
 	g_free (uri);
+	uri = g_strdup_printf ("%s?uid=%s", qry, uid);
+	g_free (qry);
 	camel_url_free (url);
 
-	return qry;
+	return uri;
 }
 
 /* When new messages arrive to- or got deleted from the summary, called in
