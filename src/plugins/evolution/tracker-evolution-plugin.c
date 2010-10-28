@@ -2097,7 +2097,7 @@ static void
 enable_plugin_real (void)
 {
 	manager = g_object_new (TRACKER_TYPE_EVOLUTION_PLUGIN,
-		                        "name", "Emails", NULL);
+	                        "name", "Emails", NULL);
 
 	g_signal_emit_by_name (manager, "started");
 }
