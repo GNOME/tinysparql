@@ -434,45 +434,41 @@ static void
 add_contact (TrackerSparqlBuilder *sparql, const gchar *predicate, const gchar *uri, const gchar *value)
 {
 	gchar *email = NULL, *fullname = NULL;
+	gchar *email_uri;
 
 	get_email_and_fullname (value, &email, &fullname);
 
-	if ((email && g_utf8_validate (email, -1, NULL)) && (fullname && g_utf8_validate (fullname, -1, NULL))) {
-		gchar *email_uri;
+	email_uri = g_strdup_printf ("mailto:%s", email);
 
-		email_uri = g_strdup_printf ("mailto:%s", email);
+	tracker_sparql_builder_subject_iri (sparql, email_uri);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nco:EmailAddress");
 
-		tracker_sparql_builder_subject_iri (sparql, email_uri);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "nco:EmailAddress");
+	tracker_sparql_builder_subject_iri (sparql, email_uri);
+	tracker_sparql_builder_predicate (sparql, "nco:emailAddress");
+	tracker_sparql_builder_object_string (sparql, email);
 
-		tracker_sparql_builder_subject_iri (sparql, email_uri);
-		tracker_sparql_builder_predicate (sparql, "nco:emailAddress");
-		tracker_sparql_builder_object_string (sparql, email);
+	tracker_sparql_builder_subject_iri (sparql, uri);
+	tracker_sparql_builder_predicate (sparql, predicate);
 
-		tracker_sparql_builder_subject_iri (sparql, uri);
-		tracker_sparql_builder_predicate (sparql, predicate);
+	tracker_sparql_builder_object_blank_open (sparql);
 
-		tracker_sparql_builder_object_blank_open (sparql);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nco:Contact");
 
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "nco:Contact");
-
-		if (fullname) {
-			tracker_sparql_builder_predicate (sparql, "nco:fullname");
-			tracker_sparql_builder_object_string (sparql, fullname);
-		}
-
-		tracker_sparql_builder_predicate (sparql, "nco:hasEmailAddress");
-		tracker_sparql_builder_object_iri (sparql, email_uri);
-
-		tracker_sparql_builder_object_blank_close (sparql);
-		g_free (email_uri);
+	if (fullname) {
+		tracker_sparql_builder_predicate (sparql, "nco:fullname");
+		tracker_sparql_builder_object_string (sparql, fullname);
 	}
+
+	tracker_sparql_builder_predicate (sparql, "nco:hasEmailAddress");
+	tracker_sparql_builder_object_iri (sparql, email_uri);
+
+	tracker_sparql_builder_object_blank_close (sparql);
+	g_free (email_uri);
 
 	g_free (email);
 	g_free (fullname);
-
 }
 
 static void
