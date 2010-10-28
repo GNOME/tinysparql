@@ -175,7 +175,6 @@ typedef struct {
 typedef struct {
 	IntroductionInfo *intro_info;
 	CamelStore *store;
-	CamelDB *cdb_r;
 	CamelFolderInfo *iter;
 } TryAgainInfo;
 
@@ -847,208 +846,264 @@ on_folder_summary_changed (CamelFolder *folder,
 	              1.0, NULL);
 }
 
+#define UIDS_CHUNK_SIZE 200
+
+static gchar *
+uids_to_chunk (GPtrArray *uids, guint cur, guint max)
+{
+	guint i;
+	GString *str = g_string_new ("");
+
+	for (i = 0; i < max && i < uids->len; i++) {
+		if (i != 0) {
+			g_string_append (str, ", ");
+		}
+		g_string_append (str, g_ptr_array_index (uids, i));
+	}
+
+	return g_string_free (str, FALSE);
+}
 
 /* Initial upload of more recent than last_checkout items, called in the mainloop */
 static void
 introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
                                   CamelFolderInfo *iter,
-                                  CamelStore *store, CamelDB *cdb_r,
+                                  CamelStore *store,
                                   gchar *account_uri,
                                   ClientRegistry *info,
                                   GCancellable *cancel)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 	CamelURL *a_url;
+	CamelDB *cdb_r;
 
 	if (g_cancellable_is_cancelled (cancel)) {
 		return;
 	}
 
+	cdb_r = camel_db_clone (store->cdb_r, NULL);
+
 	a_url = CAMEL_SERVICE (store)->url;
 
 	while (iter) {
+		guint uids_i;
 		guint count = 0;
 		guint ret = SQLITE_OK;
 		gchar *query;
 		sqlite3_stmt *stmt = NULL;
+		GPtrArray *uids = g_ptr_array_new ();
 
-		/* This query is the culprint of the functionality: it fetches
-		 * all the metadata from the summary table where modified is
-		 * more recent than the client-registry's modseq. Note that we
-		 * pass time(NULL) to all methods, which is why comparing
-		 * against the modified column that Evolution > 2.25.5 stores
-		 * works (otherwise this wouldn't work, of course).
-		 *
-		 * The idea is that only the changes must initially be pushed,
-		 * not everything each time (which would be unefficient). The
-		 * specification (http://live.gnome.org/Evolution/Metadata)
-		 * allows this 'modseq' optimization (is in fact recommending
-		 * it over using Cleanup() each time) */
-
-		/* TODO: add bodystructure and then prepare a full MIME structure
-		 * using the NMO ontology, by parsing the bodystructure.
-		 * Bodystructures can be found in %s_bodystructure when they
-		 * exist (not guaranteed). In IMAP BODYSTRUCTURE format. */
-
-		query = sqlite3_mprintf ("SELECT uid, flags, read, deleted, "            /* 0  - 3  */
-		                         "replied, important, junk, attachment, " /* 4  - 7  */
-		                         "size, dsent, dreceived, subject, "      /* 8  - 11 */
-		                         "mail_from, mail_to, mail_cc, mlist, "   /* 12 - 15 */
-		                         "labels, usertags "                      /* 16 - 17 */
-		                         "FROM %Q "
+		query = sqlite3_mprintf ("SELECT uid FROM %Q "
 		                         "WHERE modified > %"G_GUINT64_FORMAT,
-
 		                         iter->full_name,
 		                         info->last_checkout);
 
-
 		ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
-
 		while (ret == SQLITE_OK || ret == SQLITE_BUSY || ret == SQLITE_ROW) {
-			TrackerSparqlBuilder *sparql = NULL;
-			gchar *subject, *to, *from, *cc, *uid, *size;
-			time_t sent;
-			gchar *part, *label, *p;
-			guint flags;
+			gchar *uid;
 
-			if (g_cancellable_is_cancelled (cancel)) {
+			if (g_cancellable_is_cancelled (cancel))
 				break;
-			}
-
 			ret = sqlite3_step (stmt);
-
 			if (ret == SQLITE_BUSY) {
 				usleep (10);
 				continue;
 			}
-
-			if ((ret != SQLITE_OK && ret != SQLITE_ROW) || ret == SQLITE_DONE) {
+			if ((ret != SQLITE_OK && ret != SQLITE_ROW) || ret == SQLITE_DONE)
 				break;
-			}
 
 			uid = (gchar *) sqlite3_column_text (stmt, 0);
 
 			if (uid) {
-				const gchar *query;
-				CamelFolder *folder;
-				guint max = 0, j;
-				gchar *uri;
-				gboolean opened = FALSE;
+				g_ptr_array_add (uids, g_strdup (uid));
+			}
+		}
 
-				flags =   (guint  ) sqlite3_column_int  (stmt, 1);
-				size =    (gchar *) sqlite3_column_text (stmt, 8);
-				sent =    (time_t)  sqlite3_column_int64 (stmt, 9);
-				subject = (gchar *) sqlite3_column_text (stmt, 11);
-				from =    (gchar *) sqlite3_column_text (stmt, 12);
-				to =      (gchar *) sqlite3_column_text (stmt, 13);
-				cc =      (gchar *) sqlite3_column_text (stmt, 14);
+		sqlite3_finalize (stmt);
+		sqlite3_free (query);
 
-				folder = g_hash_table_lookup (priv->cached_folders, iter->full_name);
+		for (uids_i = 0; uids_i < uids->len; uids_i += UIDS_CHUNK_SIZE) {
+			gchar *uids_chunk = uids_to_chunk (uids, uids_i, UIDS_CHUNK_SIZE);
 
-				uri = convert_url_to_whatever (a_url, iter->full_name, uid);
+			/* This query is the culprint of the functionality: it fetches
+			 * all the metadata from the summary table where modified is
+			 * more recent than the client-registry's modseq. Note that we
+			 * pass time(NULL) to all methods, which is why comparing
+			 * against the modified column that Evolution > 2.25.5 stores
+			 * works (otherwise this wouldn't work, of course).
+			 *
+			 * The idea is that only the changes must initially be pushed,
+			 * not everything each time (which would be unefficient). The
+			 * specification (http://live.gnome.org/Evolution/Metadata)
+			 * allows this 'modseq' optimization (is in fact recommending
+			 * it over using Cleanup() each time) */
 
-				if (!sparql) {
-					sparql = tracker_sparql_builder_new_update ();
+			/* TODO: add bodystructure and then prepare a full MIME structure
+			 * using the NMO ontology, by parsing the bodystructure.
+			 * Bodystructures can be found in %s_bodystructure when they
+			 * exist (not guaranteed). In IMAP BODYSTRUCTURE format. */
+
+			query = sqlite3_mprintf ("SELECT uid, flags, read, deleted, "     /* 0  - 3  */
+			                         "replied, important, junk, attachment, " /* 4  - 7  */
+			                         "size, dsent, dreceived, subject, "      /* 8  - 11 */
+			                         "mail_from, mail_to, mail_cc, mlist, "   /* 12 - 15 */
+			                         "labels, usertags "                      /* 16 - 17 */
+			                         "FROM %Q "
+			                         "WHERE modified > %"G_GUINT64_FORMAT" "
+			                         "AND uid IN (%s)",
+			                         iter->full_name,
+			                         info->last_checkout,
+			                         uids_chunk);
+
+			g_free (uids_chunk);
+
+			ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
+
+			while (ret == SQLITE_OK || ret == SQLITE_BUSY || ret == SQLITE_ROW) {
+				TrackerSparqlBuilder *sparql = NULL;
+				gchar *subject, *to, *from, *cc, *uid, *size;
+				time_t sent;
+				gchar *part, *label, *p;
+				guint flags;
+
+				if (g_cancellable_is_cancelled (cancel))
+					break;
+				ret = sqlite3_step (stmt);
+				if (ret == SQLITE_BUSY) {
+					usleep (10);
+					continue;
 				}
+				if ((ret != SQLITE_OK && ret != SQLITE_ROW) || ret == SQLITE_DONE)
+					break;
 
-				tracker_sparql_builder_drop_graph (sparql, uri);
+				uid = (gchar *) sqlite3_column_text (stmt, 0);
 
-				tracker_sparql_builder_insert_open (sparql, uri);
+				if (uid) {
+					const gchar *query;
+					CamelFolder *folder;
+					guint max = 0, j;
+					gchar *uri;
+					gboolean opened = FALSE;
 
-				process_fields (sparql, uid, flags, sent,
-				                subject, from, to, cc, size,
-				                folder, uri);
+					flags =   (guint  ) sqlite3_column_int  (stmt, 1);
+					size =    (gchar *) sqlite3_column_text (stmt, 8);
+					sent =    (time_t)  sqlite3_column_int64 (stmt, 9);
+					subject = (gchar *) sqlite3_column_text (stmt, 11);
+					from =    (gchar *) sqlite3_column_text (stmt, 12);
+					to =      (gchar *) sqlite3_column_text (stmt, 13);
+					cc =      (gchar *) sqlite3_column_text (stmt, 14);
 
-				/* Extract User flags/labels */
-				p = part = g_strdup ((const gchar *) sqlite3_column_text (stmt, 16));
-				if (part) {
-					label = part;
-					for (j=0; part[j]; j++) {
+					folder = g_hash_table_lookup (priv->cached_folders, iter->full_name);
 
-						if (part[j] == ' ') {
-							part[j] = 0;
+					uri = convert_url_to_whatever (a_url, iter->full_name, uid);
 
-							if (!opened) {
-								tracker_sparql_builder_subject_iri (sparql, uri);
-								opened = TRUE;
-							}
-
-							tracker_sparql_builder_predicate (sparql, "nao:hasTag");
-							tracker_sparql_builder_object_blank_open (sparql);
-
-							tracker_sparql_builder_predicate (sparql, "rdf:type");
-							tracker_sparql_builder_object (sparql, "nao:Tag");
-
-							tracker_sparql_builder_predicate (sparql, "nao:prefLabel");
-							tracker_sparql_builder_object_string (sparql, label);
-							tracker_sparql_builder_object_blank_close (sparql);
-							label = &(part[j+1]);
-						}
+					if (!sparql) {
+						sparql = tracker_sparql_builder_new_update ();
 					}
-				}
-				g_free (p);
 
-				/* Extract User tags */
-				p = part = g_strdup ((const gchar *) sqlite3_column_text (stmt, 17));
-				EXTRACT_FIRST_DIGIT (max)
-					for (j = 0; j < max; j++) {
-						int len;
-						char *name, *value;
-						EXTRACT_STRING (name)
-							EXTRACT_STRING (value)
-							if (name && g_utf8_validate (name, -1, NULL) &&
-							    value && g_utf8_validate (value, -1, NULL)) {
+					tracker_sparql_builder_drop_graph (sparql, uri);
+
+					tracker_sparql_builder_insert_open (sparql, uri);
+
+					process_fields (sparql, uid, flags, sent,
+					                subject, from, to, cc, size,
+					                folder, uri);
+
+					/* Extract User flags/labels */
+					p = part = g_strdup ((const gchar *) sqlite3_column_text (stmt, 16));
+					if (part) {
+						label = part;
+						for (j=0; part[j]; j++) {
+
+							if (part[j] == ' ') {
+								part[j] = 0;
 
 								if (!opened) {
 									tracker_sparql_builder_subject_iri (sparql, uri);
 									opened = TRUE;
 								}
 
-								tracker_sparql_builder_predicate (sparql, "nao:hasProperty");
+								tracker_sparql_builder_predicate (sparql, "nao:hasTag");
 								tracker_sparql_builder_object_blank_open (sparql);
 
 								tracker_sparql_builder_predicate (sparql, "rdf:type");
-								tracker_sparql_builder_object (sparql, "nao:Property");
+								tracker_sparql_builder_object (sparql, "nao:Tag");
 
-								tracker_sparql_builder_predicate (sparql, "nao:propertyName");
-								tracker_sparql_builder_object_string (sparql, name);
-
-								tracker_sparql_builder_predicate (sparql, "nao:propertyValue");
-								tracker_sparql_builder_object_string (sparql, value);
-
+								tracker_sparql_builder_predicate (sparql, "nao:prefLabel");
+								tracker_sparql_builder_object_string (sparql, label);
 								tracker_sparql_builder_object_blank_close (sparql);
+								label = &(part[j+1]);
 							}
-						g_free(name);
-						g_free(value);
+						}
 					}
+					g_free (p);
 
-				g_free (uri);
-				g_free (p);
+					/* Extract User tags */
+					p = part = g_strdup ((const gchar *) sqlite3_column_text (stmt, 17));
+					EXTRACT_FIRST_DIGIT (max)
+						for (j = 0; j < max; j++) {
+							int len;
+							char *name, *value;
+							EXTRACT_STRING (name)
+								EXTRACT_STRING (value)
+								if (name && g_utf8_validate (name, -1, NULL) &&
+									value && g_utf8_validate (value, -1, NULL)) {
 
-				tracker_sparql_builder_insert_close (sparql);
-				query = tracker_sparql_builder_get_result (sparql);
-				count++;
-				send_sparql_update (self, query, 0);
-				g_object_unref (sparql);
+									if (!opened) {
+										tracker_sparql_builder_subject_iri (sparql, uri);
+										opened = TRUE;
+									}
+
+									tracker_sparql_builder_predicate (sparql, "nao:hasProperty");
+									tracker_sparql_builder_object_blank_open (sparql);
+
+									tracker_sparql_builder_predicate (sparql, "rdf:type");
+									tracker_sparql_builder_object (sparql, "nao:Property");
+
+									tracker_sparql_builder_predicate (sparql, "nao:propertyName");
+									tracker_sparql_builder_object_string (sparql, name);
+
+									tracker_sparql_builder_predicate (sparql, "nao:propertyValue");
+									tracker_sparql_builder_object_string (sparql, value);
+
+									tracker_sparql_builder_object_blank_close (sparql);
+								}
+							g_free(name);
+							g_free(value);
+						}
+
+					g_free (uri);
+					g_free (p);
+
+					tracker_sparql_builder_insert_close (sparql);
+					query = tracker_sparql_builder_get_result (sparql);
+					count++;
+					send_sparql_update (self, query, 0);
+					g_object_unref (sparql);
+				}
 			}
+
+			g_object_set (self, "progress",
+			              ((gdouble) uids_i / (gdouble) uids->len),
+			              NULL);
+
+			sqlite3_finalize (stmt);
+			sqlite3_free (query);
 		}
 
 		send_sparql_commit (self, TRUE);
-		g_object_set (self, "progress",
-		              1.0, NULL);
-
-		sqlite3_finalize (stmt);
-		sqlite3_free (query);
 
 		if (iter->child) {
 			introduce_walk_folders_in_folder (self, iter->child,
-			                                  store, cdb_r,
+			                                  store,
 			                                  account_uri, info,
 			                                  cancel);
 		}
 
 		iter = iter->next;
 	}
+
+	camel_db_close (cdb_r);
 }
 
 /* Initial notify of deletes that are more recent than last_checkout, called in
@@ -1408,7 +1463,6 @@ typedef struct {
 	IntroductionInfo *intro_info;
 	CamelFolderInfo *iter;
 	CamelStore *store;
-	CamelDB *cdb_r;
 } WorkerThreadinfo;
 
 static void
@@ -1427,7 +1481,6 @@ free_worker_thread_info (gpointer data, gpointer user_data)
 
 	/* Ownership was transfered to us in try_again */
 	free_introduction_info (winfo->intro_info);
-	camel_db_close (winfo->cdb_r);
 #ifdef HAVE_EDS_2_31_2
 	g_object_unref (winfo->store);
 #else
@@ -1445,7 +1498,6 @@ folder_worker (gpointer data, gpointer user_data)
 	introduce_walk_folders_in_folder (winfo->intro_info->self,
 	                                  winfo->iter,
 	                                  winfo->store,
-	                                  winfo->cdb_r,
 	                                  winfo->intro_info->account_uri,
 	                                  winfo->intro_info->info,
 	                                  user_data);
@@ -1465,7 +1517,6 @@ try_again (gpointer user_data)
 		winfo->intro_info = info->intro_info; /* owner transfer */
 		winfo->iter = info->iter; /* owner transfer */
 		winfo->store = info->store; /* owner transfer */
-		winfo->cdb_r = info->cdb_r; /* owner transfer */
 
 		if (!folder_pool)
 			folder_pool = thread_pool_new (folder_worker, free_worker_thread_info, NULL);
@@ -1494,7 +1545,6 @@ on_got_folderinfo_introduce (CamelStore *store,
 #endif
 	info->store = store;
 	/* This apparently creates a thread */
-	info->cdb_r = camel_db_clone (store->cdb_r, NULL);
 	info->iter = camel_folder_info_clone (iter);
 	info->intro_info = data;
 
