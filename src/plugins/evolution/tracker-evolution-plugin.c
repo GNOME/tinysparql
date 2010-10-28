@@ -2218,6 +2218,8 @@ tracker_evolution_plugin_class_init (TrackerEvolutionPluginClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerClass *miner_class = TRACKER_MINER_CLASS (klass);
 
+	g_setenv ("TRACKER_SPARQL_BACKEND", "bus", TRUE);
+
 	miner_class->started = miner_started;
 	miner_class->stopped = miner_stopped;
 	miner_class->paused  = miner_paused;
