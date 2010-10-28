@@ -211,27 +211,25 @@ camel_stream_format_text (CamelDataWrapper *dw, CamelStream *stream)
 	CamelMimeFilterWindows *windows = NULL;
 	ssize_t bytes = -1;
 
-	if (dw->mime_type && (charset = camel_content_type_param
-	                      (dw->mime_type, "charset")) &&
-	    g_ascii_strncasecmp(charset, "iso-8859-", 9) == 0)
-		{
-			CamelStream *null;
+	if (dw->mime_type && (charset = camel_content_type_param (dw->mime_type, "charset")) &&
+	    g_ascii_strncasecmp(charset, "iso-8859-", 9) == 0) {
+		CamelStream *null;
 
-			/* Since a few Windows mailers like to claim they sent
-			 * out iso-8859-# encoded text when they really sent
-			 * out windows-cp125#, do some simple sanity checking
-			 * before we move on... */
+		/* Since a few Windows mailers like to claim they sent
+		 * out iso-8859-# encoded text when they really sent
+		 * out windows-cp125#, do some simple sanity checking
+		 * before we move on... */
 
-			null = camel_stream_null_new();
-			filter_stream = camel_stream_filter_new_with_stream(null);
-			camel_object_unref(null);
-			windows = (CamelMimeFilterWindows *)camel_mime_filter_windows_new(charset);
-			camel_stream_filter_add (filter_stream, (CamelMimeFilter *)windows);
-			camel_data_wrapper_decode_to_stream (dw, (CamelStream *)filter_stream);
-			camel_stream_flush ((CamelStream *)filter_stream);
-			camel_object_unref (filter_stream);
-			charset = camel_mime_filter_windows_real_charset (windows);
-		}
+		null = camel_stream_null_new();
+		filter_stream = camel_stream_filter_new_with_stream(null);
+		camel_object_unref(null);
+		windows = (CamelMimeFilterWindows *)camel_mime_filter_windows_new(charset);
+		camel_stream_filter_add (filter_stream, (CamelMimeFilter *)windows);
+		camel_data_wrapper_decode_to_stream (dw, (CamelStream *)filter_stream);
+		camel_stream_flush ((CamelStream *)filter_stream);
+		camel_object_unref (filter_stream);
+		charset = camel_mime_filter_windows_real_charset (windows);
+	}
 
 	filter_stream = camel_stream_filter_new_with_stream (stream);
 
@@ -244,8 +242,9 @@ camel_stream_format_text (CamelDataWrapper *dw, CamelStream *stream)
 	camel_stream_flush ((CamelStream *)filter_stream);
 	camel_object_unref (filter_stream);
 
-	if (windows)
+	if (windows) {
 		camel_object_unref(windows);
+	}
 
 	return bytes;
 }
@@ -326,7 +325,6 @@ thread_pool_exec (gpointer data, gpointer user_data)
 	pool->items = g_list_remove (pool->items, data);
 	g_mutex_unlock (pool->mutex);
 
-
 	if (!dying)
 		pool->func (data, pool->cancel);
 
@@ -401,7 +399,6 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql, gint prio
 		                                  G_PRIORITY_DEFAULT,
 		                                  NULL,
 		                                  NULL);
-
 	}
 }
 
@@ -646,6 +643,9 @@ convert_url_to_whatever (CamelURL *a_url, const gchar *path, const gchar *uid)
 	CamelURL *url;
 	gchar *uri, *qry, *ppath = g_strdup_printf ("/%s", path);
 
+	/* This converts a CamelURL plus path and uid components to a Evolution
+	 * compatible URL. Evolution has its own strange URL format, so .. ok */
+
 	url = camel_url_copy (a_url);
 
 	/* This would be the right way, but em_uri_from_camel ignores ?uid=x parts,
@@ -811,6 +811,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 			g_object_set (info->self, "progress",
 			              (gdouble) i / merged->len,
+			              "status", "Updating an E-mail",
 			              NULL);
 
 			g_object_unref (sparql);
@@ -851,8 +852,7 @@ on_folder_summary_changed (CamelFolder *folder,
 
 	send_sparql_commit (info->self, FALSE);
 
-	g_object_set (info->self, "progress",
-	              1.0, NULL);
+	g_object_set (info->self, "progress", 1.0, "status", "Idle", NULL);
 }
 
 #define UIDS_CHUNK_SIZE 200
@@ -906,6 +906,9 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		                         "WHERE modified > %"G_GUINT64_FORMAT,
 		                         iter->full_name,
 		                         info->last_checkout);
+
+		status = g_strdup_printf ("Processing folder %s", iter->name);
+		g_object_set (self,  "progress", 0.0, "status", status, NULL);
 
 		ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
 		while (ret == SQLITE_OK || ret == SQLITE_BUSY || ret == SQLITE_ROW) {
@@ -1092,12 +1095,10 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 				}
 			}
 
-			status = g_strdup_printf ("Processing %s", iter->name);
 			g_object_set (self, "progress",
 			              ((gdouble) uids_i / (gdouble) uids->len),
 			              "status", status,
 			              NULL);
-			g_free (status);
 
 			sqlite3_finalize (stmt);
 			sqlite3_free (query);
@@ -1114,6 +1115,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 		iter = iter->next;
 		g_ptr_array_unref (uids);
+		g_free (status);
 	}
 
 	g_object_set (self, "progress", 1.0, "status", "Idle", NULL);
@@ -2388,7 +2390,7 @@ miner_started (TrackerMiner *miner)
 	                         G_TYPE_INVALID,
 	                         G_TYPE_INVALID);
 
-	g_object_set (miner,  "progress", 0.0,  "status", "Initializing", NULL);
+	g_object_set (miner,  "progress", 0.0, "status", "Initializing", NULL);
 }
 
 static void
@@ -2482,7 +2484,7 @@ miner_resumed (TrackerMiner *miner)
 		priv->connection = tracker_sparql_connection_get (NULL, NULL);
 	}
 
-	g_object_set (miner,  "progress", 0.0,  "status", _("Processing…"), NULL);
+	g_object_set (miner,  "progress", 0.0, "status", _("Processing…"), NULL);
 
 	/* TODO: Port this to gdbus */
 	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
