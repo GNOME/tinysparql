@@ -3193,6 +3193,30 @@ tracker_data_manager_recreate_indexes (void)
 }
 
 gboolean
+tracker_data_manager_reload (TrackerBusyCallback busy_callback,
+                             gpointer            busy_user_data)
+{
+	TrackerDBManagerFlags flags;
+	guint select_cache_size;
+	guint update_cache_size;
+	gboolean is_first;
+
+	/* Shutdown data manager... */
+	flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
+	tracker_data_manager_shutdown ();
+
+	return tracker_data_manager_init (flags,
+	                                  NULL,
+	                                  &is_first,
+	                                  TRUE,
+	                                  select_cache_size,
+	                                  update_cache_size,
+	                                  busy_callback,
+	                                  busy_user_data,
+	                                  "Reloading data manager");
+}
+
+gboolean
 tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            const gchar          **test_schemas,
                            gboolean              *first_time,

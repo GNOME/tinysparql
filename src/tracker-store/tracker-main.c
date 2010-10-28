@@ -41,6 +41,7 @@
 #include <libtracker-common/tracker-ioprio.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-common/tracker-locale.h>
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-backup.h>
@@ -83,6 +84,7 @@ typedef struct {
 
 /* Private */
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
+static gpointer locale_notification_id;
 
 /* Private command line parameters */
 static gboolean version;
@@ -259,6 +261,48 @@ shutdown_directories (void)
 	if (private->reindex_on_shutdown) {
 		tracker_db_manager_remove_all (FALSE);
 	}
+}
+
+static void
+tracker_locale_notify_cb (TrackerLocaleID id,
+                          gpointer        user_data)
+{
+	TrackerStatus *notifier;
+	TrackerBusyCallback busy_callback;
+	gpointer busy_user_data;
+
+	tracker_store_set_active (FALSE);
+
+	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
+
+	busy_callback = tracker_status_get_callback (notifier,
+	                                             &busy_user_data);
+
+	tracker_data_manager_reload (NULL, NULL);
+
+	tracker_store_set_active (TRUE);
+}
+
+static void
+initialize_locale_subscription (void)
+{
+	gchar *collation_locale;
+
+	collation_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
+
+	g_debug ("Initial collation locale is '%s', subscribing for updates...",
+	         collation_locale);
+
+	locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_COLLATE,
+	                                                    tracker_locale_notify_cb,
+	                                                    NULL,
+	                                                    NULL);
+}
+
+static void
+shutdown_locale_subscription (void)
+{
+	tracker_locale_notify_remove (locale_notification_id);
 }
 
 static GStrv
@@ -516,6 +560,9 @@ main (gint argc, gchar *argv[])
 		goto shutdown;
 	}
 
+	/* Setup subscription to get notified of locale changes */
+	initialize_locale_subscription ();
+
 	tracker_dbus_register_prepare_class_signal ();
 
 	tracker_events_init (get_notifiable_classes);
@@ -551,6 +598,8 @@ main (gint argc, gchar *argv[])
 	/* Shutdown major subsystems */
 	tracker_writeback_shutdown ();
 	tracker_events_shutdown ();
+
+	shutdown_locale_subscription ();
 
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();

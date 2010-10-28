@@ -55,6 +55,8 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  fla
                                                       gpointer               busy_user_data,
                                                       const gchar           *busy_status);
 void     tracker_data_manager_shutdown               (void);
+gboolean tracker_data_manager_reload                 (TrackerBusyCallback    busy_callback,
+                                                      gpointer               busy_user_data);
 
 G_END_DECLS
 
