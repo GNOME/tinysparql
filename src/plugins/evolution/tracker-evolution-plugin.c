@@ -891,7 +891,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		guint ret = SQLITE_OK;
 		gchar *query, *status;
 		sqlite3_stmt *stmt = NULL;
-		GPtrArray *uids = g_ptr_array_new ();
+		GPtrArray *uids = g_ptr_array_new_with_free_func (g_free);
 
 		query = sqlite3_mprintf ("SELECT uid FROM %Q "
 		                         "WHERE modified > %"G_GUINT64_FORMAT,
@@ -1104,6 +1104,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		}
 
 		iter = iter->next;
+		g_ptr_array_unref (uids);
 	}
 
 	g_object_set (self, "progress", 1.0, "status", "Idle", NULL);
