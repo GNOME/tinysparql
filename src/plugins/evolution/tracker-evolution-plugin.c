@@ -413,6 +413,13 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 	if (priv->connection) {
 		if (update) {
 			gchar *date_s = tracker_date_to_string (time (NULL));
+
+			/* TODO: We should probably do this per folder instead of a datasource
+			 * for the entire Evolution store. This way if the user interrupts
+			 * the synchronization, then at least the folders that are already
+			 * finished don't have to be repeated next time. Right now an interrupt
+			 * means starting over from scratch. */
+
 			gchar *update = g_strdup_printf ("DELETE FROM <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
 			                                 "WHERE { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified ?d } \n"
 			                                 "INSERT INTO <"DATASOURCE_URN"> { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified \"%s\" }",
