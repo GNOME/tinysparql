@@ -282,12 +282,9 @@ folder_registry_free (FolderRegistry *registry)
 {
 #ifdef HAVE_EDS_2_31_2
 	g_signal_handler_disconnect (registry->folder, registry->hook_info->hook_id);
-#else
-	camel_object_remove_event (registry->folder, registry->hook_info->hook_id);
-#endif
-#ifdef HAVE_EDS_2_31_2
 	g_object_unref (registry->folder);
 #else
+	camel_object_remove_event (registry->folder, registry->hook_info->hook_id);
 	camel_object_unref (registry->folder);
 #endif
 	g_free (registry->hook_info->account_uri);
@@ -1342,8 +1339,8 @@ register_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 
 #ifdef HAVE_EDS_2_31_2
 	hook_id = g_signal_connect (folder, "changed",
-				    G_CALLBACK (on_folder_summary_changed),
-				    registry->hook_info);
+	                            G_CALLBACK (on_folder_summary_changed),
+	                            registry->hook_info);
 #else
 	hook_id = camel_object_hook_event (folder, "folder_changed",
 	                                   CAMEL_CALLBACK (on_folder_summary_changed),
