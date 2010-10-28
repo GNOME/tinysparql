@@ -77,6 +77,14 @@ supplied here. This is optional and filters the results according to
 any argument supplied. With no \fICLASS\fR, all classes are listed.
 
 .TP
+.B \-i, \-\-list-indexes=PROPERTY
+Returns a list of properties which are indexed in the database.
+Indexes improves query speed but also add an indexing penalty.
+\fIPROPERTY\fR does not have to be supplied here. This is optional and
+filters the results according to any argument supplied. With no
+\fIPROPERTY\fR, all properties are listed.
+
+.TP
 .B \-s, \-\-search=TERM
 Returns a list of classes and properties which partially match
 \fITERM\fR in the ontology. This is a case insensitive match, for

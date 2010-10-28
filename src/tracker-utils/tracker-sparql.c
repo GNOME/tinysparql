@@ -43,6 +43,10 @@ static gboolean parse_list_notifies (const gchar  *option_name,
                                      const gchar  *value,
                                      gpointer      data,
                                      GError      **error);
+static gboolean parse_list_indexes  (const gchar  *option_name,
+                                     const gchar  *value,
+                                     gpointer      data,
+                                     GError      **error);
 
 static gchar *file;
 static gchar *query;
@@ -51,6 +55,7 @@ static gboolean list_classes;
 static gboolean list_class_prefixes;
 static gchar *list_properties;
 static gchar *list_notifies;
+static gchar *list_indexes;
 static gboolean print_version;
 static gchar *search;
 
@@ -82,6 +87,10 @@ static GOptionEntry   entries[] = {
 	{ "list-notifies", 'n', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, parse_list_notifies,
 	  N_("Retrieve classes which notify changes in the database (CLASS is optional)"),
 	  N_("CLASS"),
+	},
+	{ "list-indexes", 'i', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, parse_list_indexes,
+	  N_("Retrieve indexes used in database to improve performance (PROPERTY is optional) "),
+	  N_("PROPERTY"),
 	},
 	{ "search", 's', 0, G_OPTION_ARG_STRING, &search,
 	  N_("Search for a class or property and display more information (e.g. Document)"),
@@ -159,6 +168,21 @@ parse_list_notifies (const gchar  *option_name,
 	return TRUE;
 }
 
+static gboolean
+parse_list_indexes (const gchar  *option_name,
+                    const gchar  *value,
+                    gpointer      data,
+                    GError      **error)
+{
+	if (!value) {
+		list_indexes = g_strdup ("");
+	} else {
+		list_indexes = g_strdup (value);
+	}
+
+	return TRUE;
+}
+
 static void
 print_cursor (TrackerSparqlCursor *cursor,
               const gchar         *none_found,
@@ -231,7 +255,7 @@ main (int argc, char **argv)
 	}
 
 	if (!list_classes && !list_class_prefixes && !list_properties &&
-	    !list_notifies && !search && !file && !query) {
+	    !list_notifies && !list_indexes && !search && !file && !query) {
 		error_message = _("An argument must be supplied");
 	} else if (file && query) {
 		error_message = _("File and query can not be used together");
@@ -414,6 +438,40 @@ main (int argc, char **argv)
 		}
 
 		print_cursor (cursor, _("No notifies were found"), _("Notifies"), TRUE);
+	}
+
+	if (list_indexes) {
+		gchar *query;
+
+		/* First list classes */
+		if (*list_indexes == '\0') {
+			query = g_strdup_printf ("SELECT ?p "
+			                         "WHERE {"
+			                         "  ?p tracker:indexed true ."
+			                         "}");
+		} else {
+			query = g_strdup_printf ("SELECT ?p "
+			                         "WHERE {"
+			                         "  ?p tracker:indexed true "
+			                         "  FILTER regex (?p, \"%s\", \"i\") "
+			                         "}",
+			                         list_indexes);
+		}
+
+		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+		g_free (query);
+
+		if (error) {
+			g_printerr ("%s, %s\n",
+			            _("Could not find indexed properties"),
+			            error->message);
+			g_error_free (error);
+			g_object_unref (connection);
+
+			return EXIT_FAILURE;
+		}
+
+		print_cursor (cursor, _("No indexes were found"), _("Indexes"), TRUE);
 	}
 
 	if (search) {
