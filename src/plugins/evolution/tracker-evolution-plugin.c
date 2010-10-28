@@ -313,16 +313,6 @@ folder_registry_new (const gchar *account_uri,
 	return registry;
 }
 
-
-static void
-free_pool_item (gpointer data, gpointer user_data)
-{
-	PoolItem *item = data;
-	g_free (item->sparql);
-	g_object_unref (item->connection);
-	g_slice_free (PoolItem, item);
-}
-
 static void
 thread_pool_exec (gpointer data, gpointer user_data)
 {
@@ -349,8 +339,6 @@ reply_void (GObject *source_object,
             GAsyncResult *result,
             gpointer user_data)
 {
-	PoolItem *item = user_data;
-	ThreadPool *pool = item->pool;
 	GError *error = NULL;
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source_object),
@@ -360,68 +348,6 @@ reply_void (GObject *source_object,
 		g_debug ("Tracker plugin: Error updating data: %s\n", error->message);
 		g_error_free (error);
 	}
-
-	g_mutex_lock (item->mutex);
-	g_cond_broadcast (item->cond);
-	item->has_happened = TRUE;
-	g_mutex_unlock (item->mutex);
-
-	if (item->dont_free)
-		pool->freeup (item, pool->cancel);
-}
-
-static void
-exec_update (gpointer data, gpointer user_data)
-{
-	PoolItem *item = data;
-	GCancellable *cancel = user_data;
-	gboolean no_patience = TRUE;
-
-	if (g_cancellable_is_cancelled (cancel))
-		return;
-
-	item->mutex = g_mutex_new ();
-	item->cond = g_cond_new ();
-	item->has_happened = FALSE;
-
-	if (item->commit) {
-		/* tracker_resources_batch_commit_async (item->client, reply_void, item); */
-	} else {
-
-		tracker_sparql_connection_update_async (item->connection,
-		                                        item->sparql,
-		                                        G_PRIORITY_DEFAULT,
-		                                        NULL,
-		                                        reply_void, item);
-
-	}
-
-	g_mutex_lock (item->mutex);
-	if (!item->has_happened) {
-		GTimeVal val;
-		g_get_current_time (&val);
-		g_time_val_add (&val, 5 * 1000000); /* 5 seconds worth of patience */
-		no_patience = g_cond_timed_wait (item->cond, item->mutex, &val);
-		item->dont_free = !no_patience;
-	}
-	g_mutex_unlock (item->mutex);
-
-	/* Don't hammer DBus too much, else Evolution's UI sometimes becomes slugish
-	 * due to a dbus_watch_handle call on its mainloop */
-
-	if (no_patience)
-		g_usleep (300);
-}
-
-static gint 
-pool_sort_func (gconstpointer a,
-                gconstpointer b,
-                gpointer user_data)
-{
-	PoolItem *item_a = (PoolItem *) a;
-	PoolItem *item_b = (PoolItem *) b;
-
-	return item_a->prio - item_b->prio;
 }
 
 static ThreadPool*
@@ -485,19 +411,11 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql, gint prio
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 
 	if (priv->connection) {
-		PoolItem *item = g_slice_new (PoolItem);
-
-		if (!sparql_pool)
-			sparql_pool = thread_pool_new (exec_update, free_pool_item, pool_sort_func);
-
-		item->pool = sparql_pool;
-		item->dont_free = FALSE;
-		item->prio = prio;
-		item->commit = FALSE;
-		item->connection = g_object_ref (priv->connection);
-		item->sparql = g_strdup (sparql);
-
-		thread_pool_push (sparql_pool, item, NULL);
+		tracker_sparql_connection_update_async (priv->connection,
+		                                        sparql,
+		                                        G_PRIORITY_DEFAULT,
+		                                        NULL,
+		                                        reply_void, NULL);
 	}
 }
 
@@ -507,8 +425,6 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 
 	if (priv->connection) {
-		PoolItem *item = g_slice_new (PoolItem);
-
 		if (update) {
 			gchar *date_s = tracker_date_to_string (time (NULL));
 			gchar *update = g_strdup_printf ("DELETE FROM <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
@@ -521,18 +437,6 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 			g_free (update);
 			g_free (date_s);
 		}
-
-		if (!sparql_pool)
-			sparql_pool = thread_pool_new (exec_update, free_pool_item, pool_sort_func);
-
-		item->pool = sparql_pool;
-		item->dont_free = FALSE;
-		item->prio = 0;
-		item->commit = TRUE;
-		item->connection = g_object_ref (priv->connection);
-		item->sparql = NULL;
-
-		thread_pool_push (sparql_pool, item, NULL);
 	}
 }
 
