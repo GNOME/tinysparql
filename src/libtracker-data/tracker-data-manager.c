@@ -3200,21 +3200,29 @@ tracker_data_manager_reload (TrackerBusyCallback busy_callback,
 	guint select_cache_size;
 	guint update_cache_size;
 	gboolean is_first;
+	gboolean status;
 
+	g_message ("Reloading data manager...");
 	/* Shutdown data manager... */
 	flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
 	tracker_data_manager_shutdown ();
 
+	g_message ("  Data manager shut down, now initializing again...");
+
 	/* And initialize it again, this actually triggers index recreation. */
-	return tracker_data_manager_init (flags,
-	                                  NULL,
-	                                  &is_first,
-	                                  TRUE,
-	                                  select_cache_size,
-	                                  update_cache_size,
-	                                  busy_callback,
-	                                  busy_user_data,
-	                                  "Reloading data manager");
+	status = tracker_data_manager_init (flags,
+	                                    NULL,
+	                                    &is_first,
+	                                    TRUE,
+	                                    select_cache_size,
+	                                    update_cache_size,
+	                                    busy_callback,
+	                                    busy_user_data,
+	                                    "Reloading data manager");
+
+	g_message ("  %s reloading data manager",
+	           status ? "Succeeded" : "Failed");
+	return status;
 }
 
 gboolean

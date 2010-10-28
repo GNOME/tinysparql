@@ -85,6 +85,7 @@ typedef struct {
 /* Private */
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 static gpointer locale_notification_id;
+static gboolean locale_change_notified;
 
 /* Private command line parameters */
 static gboolean version;
@@ -264,14 +265,11 @@ shutdown_directories (void)
 }
 
 static void
-tracker_locale_notify_cb (TrackerLocaleID id,
-                          gpointer        user_data)
+tracker_locale_change_process_cb (gpointer user_data)
 {
 	TrackerStatus *notifier;
 	TrackerBusyCallback busy_callback;
 	gpointer busy_user_data;
-
-	tracker_store_set_active (FALSE);
 
 	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
 
@@ -280,7 +278,38 @@ tracker_locale_notify_cb (TrackerLocaleID id,
 
 	tracker_data_manager_reload (NULL, NULL);
 
-	tracker_store_set_active (TRUE);
+	tracker_store_set_active (TRUE, FALSE, NULL);
+
+	locale_change_notified = FALSE;
+}
+
+static gboolean
+tracker_locale_change_process_idle_cb (gpointer data)
+{
+	/* Note: Right now, the passed callback may be called instantly and not
+	 * in an idle. */
+	tracker_store_set_active (FALSE, tracker_locale_change_process_cb, NULL);
+
+	return FALSE;
+}
+
+static void
+tracker_locale_notify_cb (TrackerLocaleID id,
+                          gpointer        user_data)
+{
+	if (locale_change_notified) {
+		g_message ("Locale change was already notified, not doing it again");
+	} else {
+		locale_change_notified = TRUE;
+		/* Set an idle callback to process the locale change.
+		 * NOTE: We cannot process it right here because we will be
+		 * closing and opening new connections to the DB while doing it,
+		 * and the DB connections are also part of the subscriber list
+		 * for locale changes, so we may end up waiting to acquire an
+		 * already locked mutex.
+		 */
+		g_idle_add (tracker_locale_change_process_idle_cb, NULL);
+	}
 }
 
 static void
