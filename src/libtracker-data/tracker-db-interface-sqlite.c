@@ -58,7 +58,10 @@ struct TrackerDBInterface {
 
 	GSList *function_data;
 
+	/* Collation and locale change */
 	gpointer collator;
+	gpointer locale_notification_id;
+	gboolean collator_reset_requested;
 
 	guint ro : 1;
 #if HAVE_TRACKER_FTS
@@ -84,6 +87,7 @@ struct TrackerDBCursor {
 	TrackerSparqlCursor parent_instance;
 	sqlite3_stmt *stmt;
 	TrackerDBStatement *ref_stmt;
+	gboolean started;
 	gboolean finished;
 	TrackerPropertyType *types;
 	gint n_types;
@@ -529,6 +533,16 @@ check_interrupt (void *user_data)
 }
 
 static void
+tracker_locale_notify_cb (TrackerLocaleID id,
+                          gpointer        user_data)
+{
+	TrackerDBInterface *db_interface = user_data;
+
+	/* Request a collator reset. */
+	db_interface->collator_reset_requested = TRUE;
+}
+
+static void
 open_database (TrackerDBInterface *db_interface)
 {
 	int mode;
@@ -548,9 +562,12 @@ open_database (TrackerDBInterface *db_interface)
 	}
 
 	/* Set our unicode collation function */
-	if (!db_interface->collator) {
-		tracker_db_interface_sqlite_reset_collator (db_interface);
-	}
+	tracker_db_interface_sqlite_reset_collator (db_interface);
+	/* And register for updates on locale changes */
+	db_interface->locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_COLLATE,
+	                                                                  tracker_locale_notify_cb,
+	                                                                  db_interface,
+	                                                                  NULL);
 
 	sqlite3_progress_handler (db_interface->db, 100,
 	                          check_interrupt, db_interface);
@@ -732,6 +749,8 @@ tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 	}
 }
 
+
+
 static void
 tracker_db_interface_sqlite_finalize (GObject *object)
 {
@@ -746,6 +765,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	g_free (db_interface->filename);
 	g_free (db_interface->busy_status);
 
+	tracker_locale_notify_remove (db_interface->locale_notification_id);
 	tracker_collation_shutdown (db_interface->collator);
 
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
@@ -1073,6 +1093,13 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 	columns = sqlite3_column_count (stmt);
 	result = SQLITE_OK;
 
+	/* Statement is going to start, check if we got a request to reset the
+	 * collator, and if so, do it. */
+	if (interface->collator_reset_requested) {
+		tracker_db_interface_sqlite_reset_collator (interface);
+		interface->collator_reset_requested = FALSE;
+	}
+
 	while (result == SQLITE_OK  ||
 	       result == SQLITE_ROW) {
 
@@ -1103,8 +1130,14 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 		}
 	}
 
-	if (result != SQLITE_DONE) {
-
+	if (result == SQLITE_DONE) {
+		/* Statement finished, check if we got a request to reset the
+		 * collator, and if so, do it. */
+		if (interface->collator_reset_requested) {
+			tracker_db_interface_sqlite_reset_collator (interface);
+			interface->collator_reset_requested = FALSE;
+		}
+	} else {
 		/* This is rather fatal */
 		if (sqlite3_errcode (interface->db) == SQLITE_IOERR ||
 		    sqlite3_errcode (interface->db) == SQLITE_CORRUPT ||
@@ -1498,6 +1531,17 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 	TrackerDBStatement *stmt = cursor->ref_stmt;
 	TrackerDBInterface *iface = stmt->db_interface;
 
+	if (!cursor->started) {
+		/* Statement is going to start, check if we got a request to reset the
+		 * collator, and if so, do it. */
+		if (iface->collator_reset_requested) {
+			tracker_db_interface_sqlite_reset_collator (iface);
+			iface->collator_reset_requested = FALSE;
+		}
+
+		cursor->started = TRUE;
+	}
+
 	if (!cursor->finished) {
 		guint result;
 
@@ -1533,6 +1577,14 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 		if (cursor->threadsafe) {
 			tracker_db_manager_unlock ();
 		}
+	}
+
+	/* Statement finished, check if we got a request to reset the
+	 * collator, and if so, do it. */
+	if (cursor->finished &&
+	    iface->collator_reset_requested) {
+		tracker_db_interface_sqlite_reset_collator (iface);
+		iface->collator_reset_requested = FALSE;
 	}
 
 	return (!cursor->finished);

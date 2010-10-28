@@ -3205,6 +3205,7 @@ tracker_data_manager_reload (TrackerBusyCallback busy_callback,
 	flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
 	tracker_data_manager_shutdown ();
 
+	/* And initialize it again, this actually triggers index recreation. */
 	return tracker_data_manager_init (flags,
 	                                  NULL,
 	                                  &is_first,
