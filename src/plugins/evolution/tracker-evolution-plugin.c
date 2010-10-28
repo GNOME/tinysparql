@@ -413,7 +413,7 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 			gchar *date_s = tracker_date_to_string (time (NULL));
 			gchar *update = g_strdup_printf ("DELETE FROM <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
 			                                 "WHERE { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified ?d } \n"
-			                                 "INSERT INTO <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified \"%s\" }",
+			                                 "INSERT INTO <"DATASOURCE_URN"> { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified \"%s\" }",
 			                                 date_s);
 
 			send_sparql_update (self, update, 0);
