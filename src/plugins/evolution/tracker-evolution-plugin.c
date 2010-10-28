@@ -165,7 +165,9 @@ typedef struct {
 	GList *registered_clients;
 	EAccountList *accounts;
 	TrackerSparqlConnection *connection;
+	/* TODO: Port this to gdbus */
 	DBusGProxy *dbus_proxy;
+	/* TODO: Port this to gdbus */
 	DBusGConnection *dbusconnection;
 	time_t last_time;
 	gboolean resuming, paused;
@@ -1791,13 +1793,13 @@ on_folder_deleted (CamelStore *store,
 }
 
 static void
-on_folder_renamed (CamelStore *store,
+on_folder_renamed (CamelStore      *store,
 #ifdef HAVE_EDS_2_31_2
-		   gchar *old_name,
+                   gchar           *old_name,
 #else
                    CamelRenameInfo *info,
 #endif
-                   StoreRegistry *registry)
+                   StoreRegistry   *registry)
 {
 	unregister_account (registry->self, registry->account);
 	register_account (registry->self, registry->account);
@@ -1828,12 +1830,9 @@ store_registry_free (StoreRegistry *registry)
 {
 #ifdef HAVE_EDS_2_31_2
 	g_signal_handler_disconnect (registry->store, registry->hook_id);
-#else
-	camel_object_remove_event (registry->store, registry->hook_id);
-#endif
-#ifdef HAVE_EDS_2_31_2
 	g_object_unref (registry->store);
 #else
+	camel_object_remove_event (registry->store, registry->hook_id);
 	camel_object_unref (registry->store);
 #endif
 	g_slice_free (StoreRegistry, registry);
@@ -1865,8 +1864,8 @@ on_got_folderinfo_register (CamelStore *store,
 	registry = store_registry_new (store, account, self);
 #ifdef HAVE_EDS_2_31_2
 	hook_id = g_signal_connect (store, "folder-created",
-				    G_CALLBACK (on_folder_created),
-				    registry);
+	                            G_CALLBACK (on_folder_created),
+	                            registry);
 #else
 	hook_id = camel_object_hook_event (store, "folder_created",
 	                                   CAMEL_CALLBACK (on_folder_created),
@@ -1880,8 +1879,8 @@ on_got_folderinfo_register (CamelStore *store,
 	registry = store_registry_new (store, account, self);
 #ifdef HAVE_EDS_2_31_2
 	hook_id = g_signal_connect (store, "folder-renamed",
-				    G_CALLBACK (on_folder_renamed),
-				    registry);
+	                            G_CALLBACK (on_folder_renamed),
+	                            registry);
 #else
 	hook_id = camel_object_hook_event (store, "folder_renamed",
 	                                   CAMEL_CALLBACK (on_folder_renamed),
@@ -1895,8 +1894,8 @@ on_got_folderinfo_register (CamelStore *store,
 	registry = store_registry_new (store, account, self);
 #ifdef HAVE_EDS_2_31_2
 	hook_id = g_signal_connect (store, "folder-deleted",
-				    G_CALLBACK (on_folder_deleted),
-				    registry);
+	                            G_CALLBACK (on_folder_deleted),
+	                            registry);
 #else
 	hook_id = camel_object_hook_event (store, "folder_deleted",
 	                                   CAMEL_CALLBACK (on_folder_deleted),
@@ -2086,6 +2085,8 @@ list_names_reply_cb (DBusGProxy     *proxy,
 	GStrv names = NULL;
 	guint i = 0;
 
+	/* TODO: Port this to gdbus */
+
 	dbus_g_proxy_end_call (proxy, call, &error,
 	                       G_TYPE_STRV, &names,
 	                       G_TYPE_INVALID);
@@ -2118,6 +2119,8 @@ name_owner_changed_cb (DBusGProxy *proxy,
                        gpointer user_data)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (user_data);
+
+	/* TODO: Port this to gdbus */
 
 	if (g_strcmp0 (name, TRACKER_SERVICE) == 0) {
 		 if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
@@ -2302,17 +2305,20 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 	priv->registered_stores = NULL;
 	priv->registered_clients = NULL;
 
+	/* TODO: Port this to gdbus */
 	priv->dbusconnection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (error) {
 		goto error_handler;
 	}
 
+	/* TODO: Port this to gdbus */
 	priv->dbus_proxy = dbus_g_proxy_new_for_name (priv->dbusconnection,
 	                                              DBUS_SERVICE_DBUS,
 	                                              DBUS_PATH_DBUS,
 	                                              DBUS_INTERFACE_DBUS);
 
+	/* TODO: Port this to gdbus */
 	dbus_g_proxy_add_signal (priv->dbus_proxy, "NameOwnerChanged",
 	                         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
 	                         G_TYPE_INVALID);
@@ -2349,6 +2355,7 @@ listnames_fini (gpointer data)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (data);
 
+	/* TODO: Port this to gdbus */
 	dbus_g_proxy_connect_signal (priv->dbus_proxy, "NameOwnerChanged",
 	                             G_CALLBACK (name_owner_changed_cb),
 	                             data,
@@ -2366,6 +2373,7 @@ miner_started (TrackerMiner *miner)
 		priv->connection = tracker_sparql_connection_get (NULL, NULL);
 	}
 
+	/* TODO: Port this to gdbus */
 	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
 	                         list_names_reply_cb,
 	                         g_object_ref (miner),
@@ -2391,6 +2399,7 @@ miner_paused (TrackerMiner *miner)
 
 	/* We don't really pause, we just completely stop */
 
+	/* TODO: Port this to gdbus */
 	dbus_g_proxy_disconnect_signal (priv->dbus_proxy, "NameOwnerChanged",
 	                                G_CALLBACK (name_owner_changed_cb),
 	                                miner);
@@ -2441,6 +2450,7 @@ resuming_fini (gpointer data)
 
 	g_timeout_add_seconds (1, unset_resuming, g_object_ref (data));
 
+	/* TODO: Port this to gdbus */
 	dbus_g_proxy_connect_signal (priv->dbus_proxy, "NameOwnerChanged",
 	                             G_CALLBACK (name_owner_changed_cb),
 	                             data,
@@ -2467,6 +2477,7 @@ miner_resumed (TrackerMiner *miner)
 
 	g_object_set (miner,  "progress", 0.0,  "status", _("Processing…"), NULL);
 
+	/* TODO: Port this to gdbus */
 	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
 	                         list_names_reply_cb,
 	                         g_object_ref (miner),
