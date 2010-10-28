@@ -889,7 +889,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		guint uids_i;
 		guint count = 0;
 		guint ret = SQLITE_OK;
-		gchar *query;
+		gchar *query, *status;
 		sqlite3_stmt *stmt = NULL;
 		GPtrArray *uids = g_ptr_array_new ();
 
@@ -1083,9 +1083,12 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 				}
 			}
 
+			status = g_strdup_printf ("Processing %s", iter->name);
 			g_object_set (self, "progress",
 			              ((gdouble) uids_i / (gdouble) uids->len),
+			              "status", status,
 			              NULL);
+			g_free (status);
 
 			sqlite3_finalize (stmt);
 			sqlite3_free (query);
@@ -1102,6 +1105,8 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 
 		iter = iter->next;
 	}
+
+	g_object_set (self, "progress", 1.0, "status", "Idle", NULL);
 
 	camel_db_close (cdb_r);
 }
