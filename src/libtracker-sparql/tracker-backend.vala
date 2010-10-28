@@ -240,29 +240,6 @@ class Tracker.Sparql.Backend : Connection {
 
 	private Tracker.Sparql.Connection? load_plugins_from_path (string path, bool required) throws GLib.Error {
 		try {
-			File file = File.new_for_path (path);
-			assert (file != null);
-
-			FileInfo info = null;
-
-			string attributes = FILE_ATTRIBUTE_STANDARD_NAME + "," +
-				            FILE_ATTRIBUTE_STANDARD_TYPE + "," +
-				            FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE;
-
-			info = file.query_info (attributes,
-				                FileQueryInfoFlags.NONE,
-				                null);
-
-			string content_type = info.get_content_type ();
-			string mime = ContentType.get_mime_type (content_type);
-			string expected_mime = "application/x-sharedlib";
-		
-			if (mime != expected_mime) {
-				throw new IOError.FAILED ("Could not load plugin, mime type was '%s', expected:'%s'",
-				                          mime,
-				                          expected_mime);
-			}
-
 			// lazy resolving reduces initialization time
 			Module module = Module.open (path, ModuleFlags.BIND_LOCAL | ModuleFlags.BIND_LAZY);
 			if (module == null) {
