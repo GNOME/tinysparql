@@ -80,12 +80,6 @@
  * code involved in Camel's cruel inneryard of having to lock the db_r ptr. */
 
 #define TRACKER_SERVICE                 "org.freedesktop.Tracker1"
-
-#define NIE_DATASOURCE                  TRACKER_NIE_PREFIX "DataSource"
-#define RDF_PREFIX                      TRACKER_RDF_PREFIX
-#define NMO_PREFIX                      TRACKER_NMO_PREFIX
-#define NCO_PREFIX                      TRACKER_NCO_PREFIX
-#define NAO_PREFIX                      TRACKER_NAO_PREFIX
 #define DATASOURCE_URN                  "urn:nepomuk:datasource:1cb1eb90-1241-11de-8c30-0800200c9a66"
 
 G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, TRACKER_TYPE_MINER)
@@ -555,7 +549,7 @@ add_contact (TrackerSparqlBuilder *sparql, const gchar *predicate, const gchar *
 	email_uri = tracker_sparql_escape_uri_printf ("mailto:%s", email);
 
 	tracker_sparql_builder_subject_iri (sparql, email_uri);
-	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nco:EmailAddress");
 
 	tracker_sparql_builder_subject_iri (sparql, email_uri);
@@ -567,7 +561,7 @@ add_contact (TrackerSparqlBuilder *sparql, const gchar *predicate, const gchar *
 
 	tracker_sparql_builder_object_blank_open (sparql);
 
-	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nco:Contact");
 
 	if (fullname) {
@@ -594,18 +588,18 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 	guint i;
 
 	tracker_sparql_builder_subject_iri (sparql, DATASOURCE_URN);
-	tracker_sparql_builder_predicate (sparql, "rdf:type");
-	tracker_sparql_builder_object_iri (sparql, NIE_DATASOURCE);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nie:DataSource");
 
 	/* for contentLastModified */
-	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nie:InformationElement");
 
 	tracker_sparql_builder_subject_iri (sparql, uri);
-	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nmo:Email");
 
-	tracker_sparql_builder_predicate (sparql, "rdf:type");
+	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nmo:MailboxDataObject");
 
 	tracker_sparql_builder_predicate (sparql, "tracker:available");
