@@ -1,3 +1,41 @@
+NEW in 0.9.27 - 2010-10-21
+==========================
+
+The changes are:
+
+  * NEW feature: New journal format to separate ontology from data for improved data integrity
+  * Fixes: NB#199131, Geotags are not displayed for the images
+  * Fixes: NB#194908, Compilation albums (multiple albumArtist in the same Album) doesn't work properly
+  * Fixes: NB#200310, BMP files should also be registered as nmm:Photo
+  * Fixes: GB#633118, Read comments embedded in GIF files
+  * Fixes: GB#633093, Use statvfs64() if available to check for free space
+  * Fixes: GB#631391, MsOffice-XML content extraction doesn't work properly
+  * build: Don't check for 'tar' command
+  * functional-tests: Moved all IPC tests to ipc/
+  * libtracker-common: Use per-client timeouts to avoid unnecessary wake ups
+  * libtracker-client: Disable deprecation warnings when building this library
+  * libtracker-data: Identify unsupported ontology change coping more broadly
+  * libtracker-bus: Disable dbus timeouts in updates to the store
+  * tracker-sparql: Added --list-indexes to show database indexes 
+  * tracker-store: Use per-query watchdogs to avoid unnecessary wake ups
+  * tracker-extract: Removed all tests, they've been commented out for some time
+  * tracker-extract: GIF: Fixed memory leak for height and width
+  * tracker-extract: GStreamer: Write multiple nmm:albumArtist if there are more than one
+  * tracker-extract: MSOffice: Don't use a static var to check if nie:generator was already set
+  * tracker-miner-fs: Removed all tests, test source file was just a main()
+  * tracker-control: Fix runtime critical when journal file doesn't exist
+
+Translations:
+
+  * de: Mario Blättermann
+  * sl: Andrej Žnidaršič
+  * fr: Bruno Brouard
+
+Notes:
+
+  None
+
+
 NEW in 0.9.26 - 2010-10-21
 ==========================
 
