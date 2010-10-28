@@ -2160,7 +2160,7 @@ Metadata Extractors:
 Data Miners:
 
 	Applications:                           yes
-          MeeGo                                 $have_meegotouch
+	MeeGo                                   $have_meegotouch
 	RSS:                                    $have_tracker_miner_rss
 	Evolution:                              $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
 	Flickr:                                 $have_tracker_miner_flickr
