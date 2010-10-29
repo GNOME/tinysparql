@@ -1,0 +1,17 @@
+test-update-array-performance
+test-class-signal-performance
+test-class-signal-performance.c
+test-class-signal
+test-class-signal.c
+test-shared-query.c
+test-shared-update.c
+test-bus-query
+test-bus-query.c
+test-direct-query
+test-direct-query.c
+test-bus-update
+test-bus-update.c
+test-default-update
+test-default-update.c
+test-busy-handling
+test-busy-handling.c
