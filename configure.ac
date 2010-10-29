@@ -1293,7 +1293,7 @@ if test "x$enable_tracker_preferences" = "xyes" ; then
       AC_MSG_ERROR([Couldn't find tracker-preferences dependencies ($TRACKER_PREFERENCES_REQUIRED).])
    fi
 else
-   if text "x$enable_tracker_preferences" = "xno"; then
+   if test "x$enable_tracker_preferences" = "xno"; then
       have_tracker_preferences="no  (disabled)"
    fi
 fi
