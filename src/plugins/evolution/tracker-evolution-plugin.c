@@ -165,13 +165,12 @@ typedef struct {
 	GList *registered_clients;
 	EAccountList *accounts;
 	TrackerSparqlConnection *connection;
-	/* TODO: Port this to gdbus */
-	DBusGProxy *dbus_proxy;
-	/* TODO: Port this to gdbus */
-	DBusGConnection *dbusconnection;
 	time_t last_time;
 	gboolean resuming, paused;
 	guint total_popped, of_total;
+	guint watch_name_id;
+	GCancellable *sparql_cancel;
+	GTimer *timer_since_stopped;
 } TrackerEvolutionPluginPrivate;
 
 typedef struct {
@@ -189,7 +188,7 @@ typedef struct {
 static TrackerEvolutionPlugin *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
 static guint register_count = 0, walk_count = 0;
-static ThreadPool *sparql_pool = NULL, *folder_pool = NULL;
+static ThreadPool *folder_pool = NULL;
 
 /* Prototype declarations */
 static void register_account (TrackerEvolutionPlugin *self, EAccount *account);
@@ -199,6 +198,8 @@ static void miner_started (TrackerMiner *miner);
 static void miner_stopped (TrackerMiner *miner);
 static void miner_paused (TrackerMiner *miner);
 static void miner_resumed (TrackerMiner *miner);
+static void miner_start_watching (TrackerMiner *miner);
+static void miner_stop_watching (TrackerMiner *miner);
 
 /* First a bunch of helper functions. */
 #if 0
@@ -393,13 +394,17 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql, gint prio
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
 
+	g_static_rec_mutex_lock (&glock);
 	if (priv->connection) {
-		tracker_sparql_connection_update (priv->connection,
-		                                  sparql,
-		                                  G_PRIORITY_DEFAULT,
-		                                  NULL,
-		                                  NULL);
+		if (!priv->timer_since_stopped || g_timer_elapsed (priv->timer_since_stopped, NULL) > 5) {
+			tracker_sparql_connection_update (priv->connection,
+			                                  sparql,
+			                                  G_PRIORITY_DEFAULT,
+			                                  priv->sparql_cancel,
+			                                  NULL);
+		}
 	}
+	g_static_rec_mutex_unlock (&glock);
 }
 
 static void
@@ -2062,12 +2067,6 @@ on_account_changed (EAccountList *list,
 static void
 disable_plugin (void)
 {
-	if (sparql_pool) {
-		ThreadPool *pool = sparql_pool;
-		sparql_pool = NULL;
-		thread_pool_destroy (pool);
-	}
-
 	if (folder_pool) {
 		ThreadPool *pool = folder_pool;
 		folder_pool = NULL;
@@ -2077,85 +2076,6 @@ disable_plugin (void)
 	if (manager) {
 		g_object_unref (manager);
 		manager = NULL;
-	}
-}
-
-
-static void
-list_names_reply_cb (DBusGProxy     *proxy,
-                     DBusGProxyCall *call,
-                     gpointer        user_data)
-{
-	GError *error = NULL;
-	GStrv names = NULL;
-	guint i = 0;
-
-	/* TODO: Port this to gdbus */
-
-	dbus_g_proxy_end_call (proxy, call, &error,
-	                       G_TYPE_STRV, &names,
-	                       G_TYPE_INVALID);
-
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
-		if (names)
-			g_strfreev (names);
-		return;
-	}
-
-	while (names[i] != NULL) {
-		if (g_strcmp0 (names[i], TRACKER_SERVICE) == 0) {
-			register_client (user_data);
-			break;
-		}
-		i++;
-	}
-
-	g_strfreev (names);
-}
-
-
-static void
-name_owner_changed_cb (DBusGProxy *proxy,
-                       gchar *name,
-                       gchar *old_owner,
-                       gchar *new_owner,
-                       gpointer user_data)
-{
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (user_data);
-
-	/* TODO: Port this to gdbus */
-
-	if (g_strcmp0 (name, TRACKER_SERVICE) == 0) {
-		 if (tracker_is_empty_string (new_owner) && !tracker_is_empty_string (old_owner)) {
-			if (priv->connection) {
-				TrackerSparqlConnection *connection = priv->connection;
-
-				priv->connection = NULL; 
-
-				if (sparql_pool) {
-					ThreadPool *pool = sparql_pool;
-					sparql_pool = NULL;
-					thread_pool_destroy (pool);
-				}
-
-				if (folder_pool) {
-					ThreadPool *pool = folder_pool;
-					folder_pool = NULL;
-					thread_pool_destroy (pool);
-				}
-
-				g_object_unref (connection);
-			}
-		}
-
-		if (tracker_is_empty_string (old_owner) && !tracker_is_empty_string (new_owner)) {
-			if (!priv->connection) {
-				priv->connection = tracker_sparql_connection_get (NULL, NULL);
-			}
-			register_client (user_data);
-		}
 	}
 }
 
@@ -2180,15 +2100,43 @@ enable_plugin_try (gpointer user_data)
 }
 
 static void
-enable_plugin (void)
+ensure_connection (TrackerEvolutionPluginPrivate *priv)
 {
-	/* Deal with https://bugzilla.gnome.org/show_bug.cgi?id=606940 */
+	g_static_rec_mutex_lock (&glock);
 
-	if (sparql_pool) {
-		ThreadPool *pool = sparql_pool;
-		sparql_pool = NULL;
-		thread_pool_destroy (pool);
+	if (!priv->connection) {
+		if (priv->sparql_cancel) {
+			g_object_unref (priv->sparql_cancel);
+		}
+		priv->connection = tracker_sparql_connection_get (NULL, NULL);
+		priv->sparql_cancel = g_cancellable_new ();
 	}
+
+	if (priv->timer_since_stopped && g_timer_elapsed (priv->timer_since_stopped, NULL) > 5) {
+		g_timer_destroy (priv->timer_since_stopped);
+		priv->timer_since_stopped = NULL;
+	}
+
+	g_static_rec_mutex_unlock (&glock);
+}
+
+static void
+ensure_no_connection (TrackerEvolutionPluginPrivate *priv)
+{
+	TrackerSparqlConnection *connection;
+
+	g_static_rec_mutex_lock (&glock);
+
+	connection = priv->connection;
+	if (!priv->timer_since_stopped) {
+		priv->timer_since_stopped = g_timer_new ();
+	}
+	if (priv->sparql_cancel) {
+		g_cancellable_cancel (priv->sparql_cancel);
+	}
+	priv->connection = NULL; 
+
+	g_static_rec_mutex_unlock (&glock);
 
 	if (folder_pool) {
 		ThreadPool *pool = folder_pool;
@@ -2196,7 +2144,19 @@ enable_plugin (void)
 		thread_pool_destroy (pool);
 	}
 
+	if (connection) {
+		g_object_unref (connection);
+	}
+}
+
+static void
+enable_plugin (void)
+{
+	/* Deal with https://bugzilla.gnome.org/show_bug.cgi?id=606940 */
+
 	if (manager) {
+		TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (manager);
+		ensure_no_connection (priv);
 		g_object_unref (manager);
 	}
 
@@ -2243,33 +2203,16 @@ tracker_evolution_plugin_finalize (GObject *plugin)
 
 	g_object_unref (priv->accounts);
 
-	if (priv->connection) {
-		TrackerSparqlConnection *connection = priv->connection;
+	ensure_no_connection (priv);
 
-		priv->connection = NULL;
+	g_static_rec_mutex_lock (&glock);
 
-		if (sparql_pool) {
-			ThreadPool *pool = sparql_pool;
-			sparql_pool = NULL;
-			thread_pool_destroy (pool);
-		}
-
-		if (folder_pool) {
-			ThreadPool *pool = folder_pool;
-			folder_pool = NULL;
-			thread_pool_destroy (pool);
-		}
-
-		g_object_unref (connection);
+	if (priv->timer_since_stopped) {
+		g_timer_destroy (priv->timer_since_stopped);
+		priv->timer_since_stopped = NULL;
 	}
 
-	if (priv->dbus_proxy) {
-		g_object_unref (priv->dbus_proxy);
-	}
-
-	if (priv->connection) {
-		dbus_g_connection_unref (priv->dbusconnection);
-	}
+	g_static_rec_mutex_unlock (&glock);
 
 	G_OBJECT_CLASS (tracker_evolution_plugin_parent_class)->finalize (plugin);
 }
@@ -2298,7 +2241,6 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (plugin);
 	EIterator *it;
-	GError *error = NULL;
 
 	priv->connection = NULL;
 	priv->last_time = 0;
@@ -2309,24 +2251,6 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 	priv->registered_folders = NULL;
 	priv->registered_stores = NULL;
 	priv->registered_clients = NULL;
-
-	/* TODO: Port this to gdbus */
-	priv->dbusconnection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-	if (error) {
-		goto error_handler;
-	}
-
-	/* TODO: Port this to gdbus */
-	priv->dbus_proxy = dbus_g_proxy_new_for_name (priv->dbusconnection,
-	                                              DBUS_SERVICE_DBUS,
-	                                              DBUS_PATH_DBUS,
-	                                              DBUS_INTERFACE_DBUS);
-
-	/* TODO: Port this to gdbus */
-	dbus_g_proxy_add_signal (priv->dbus_proxy, "NameOwnerChanged",
-	                         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-	                         G_TYPE_INVALID);
 
 #ifdef HAVE_EDS_2_29_1
 	priv->accounts = g_object_ref (e_get_account_list ());
@@ -2346,27 +2270,45 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 	                  G_CALLBACK (on_account_removed), plugin);
 	g_signal_connect (priv->accounts, "account-changed",
 	                  G_CALLBACK (on_account_changed), plugin);
- error_handler:
-
-	if (error) {
-		g_warning ("Could not setup DBus for Tracker plugin, %s\n", error->message);
-		g_signal_emit_by_name (plugin, "error");
-		g_error_free (error);
-	}
 }
 
 static void
-listnames_fini (gpointer data)
+on_tracker_store_appeared (GDBusConnection *d_connection,
+                           const gchar     *name,
+                           const gchar     *name_owner,
+                           gpointer         user_data)
+
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (data);
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (user_data);
 
-	/* TODO: Port this to gdbus */
-	dbus_g_proxy_connect_signal (priv->dbus_proxy, "NameOwnerChanged",
-	                             G_CALLBACK (name_owner_changed_cb),
-	                             data,
-	                             NULL);
+	ensure_connection (priv);
 
-	g_object_unref (data);
+	register_client (user_data);
+}
+
+static void
+miner_start_watching (TrackerMiner *miner)
+{
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+
+	priv->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+	                                        TRACKER_SERVICE,
+	                                        G_BUS_NAME_WATCHER_FLAGS_NONE,
+	                                        on_tracker_store_appeared,
+	                                        NULL,
+	                                        miner,
+	                                        NULL);
+}
+
+static void
+miner_stop_watching (TrackerMiner *miner)
+{
+	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+
+	if (priv->watch_name_id != 0)
+		g_bus_unwatch_name (priv->watch_name_id);
+
+	ensure_no_connection (priv);
 }
 
 static void
@@ -2374,17 +2316,9 @@ miner_started (TrackerMiner *miner)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
 
-	if (!priv->connection) {
-		priv->connection = tracker_sparql_connection_get (NULL, NULL);
-	}
+	ensure_connection (priv);
 
-	/* TODO: Port this to gdbus */
-	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
-	                         list_names_reply_cb,
-	                         g_object_ref (miner),
-	                         listnames_fini,
-	                         G_TYPE_INVALID,
-	                         G_TYPE_INVALID);
+	miner_start_watching (miner);
 
 	g_object_set (miner,  "progress", 0.0, "status", "Initializing", NULL);
 }
@@ -2393,6 +2327,7 @@ static void
 miner_stopped (TrackerMiner *miner)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+
 	miner_paused (miner);
 	priv->paused = FALSE;
 }
@@ -2404,64 +2339,23 @@ miner_paused (TrackerMiner *miner)
 
 	/* We don't really pause, we just completely stop */
 
-	/* TODO: Port this to gdbus */
-	dbus_g_proxy_disconnect_signal (priv->dbus_proxy, "NameOwnerChanged",
-	                                G_CALLBACK (name_owner_changed_cb),
-	                                miner);
+	miner_stop_watching (miner);
 
 	priv->paused = TRUE;
 	priv->last_time = 0;
 
-	if (priv->connection) {
-		TrackerSparqlConnection *connection = priv->connection;
-
-		priv->connection = NULL;
-
-		if (sparql_pool) {
-			ThreadPool *pool = sparql_pool;
-			sparql_pool = NULL;
-			thread_pool_destroy (pool);
-		}
-
-		if (folder_pool) {
-			ThreadPool *pool = folder_pool;
-			folder_pool = NULL;
-			thread_pool_destroy (pool);
-		}
-
-		g_object_unref (connection);
-
-		/* By setting this to NULL, events will still be catched by our
-		 * handlers, but the send_sparql_* calls will just ignore it.
-		 * This is fine as a solution (at least for now). It allows us
-		 * to avoid having to unregister everything and risk the chance
-		 * of missing something (like a folder or account creation). */
-	}
+	ensure_no_connection (priv);
 }
 
 static gboolean
 unset_resuming (gpointer data)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (data);
+
 	priv->resuming = FALSE;
 	g_object_unref (data);
+
 	return FALSE;
-}
-
-static void
-resuming_fini (gpointer data)
-{
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (data);
-
-	g_timeout_add_seconds (1, unset_resuming, g_object_ref (data));
-
-	/* TODO: Port this to gdbus */
-	dbus_g_proxy_connect_signal (priv->dbus_proxy, "NameOwnerChanged",
-	                             G_CALLBACK (name_owner_changed_cb),
-	                             data,
-	                             NULL);
-
-	g_object_unref (data);
 }
 
 static void
@@ -2471,22 +2365,16 @@ miner_resumed (TrackerMiner *miner)
 
 	/* We don't really resume, we just completely restart */
 
+	ensure_connection (priv);
+
 	priv->resuming = TRUE;
 	priv->paused = FALSE;
 	priv->total_popped = 0;
 	priv->of_total = 0;
 
-	if (!priv->connection) {
-		priv->connection = tracker_sparql_connection_get (NULL, NULL);
-	}
-
 	g_object_set (miner,  "progress", 0.0, "status", _("Processing…"), NULL);
 
-	/* TODO: Port this to gdbus */
-	dbus_g_proxy_begin_call (priv->dbus_proxy, "ListNames",
-	                         list_names_reply_cb,
-	                         g_object_ref (miner),
-	                         resuming_fini,
-	                         G_TYPE_INVALID,
-	                         G_TYPE_INVALID);
+	miner_start_watching (miner);
+
+	g_timeout_add_seconds (1, unset_resuming, g_object_ref (miner));
 }
