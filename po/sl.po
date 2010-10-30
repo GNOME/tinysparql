@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2010-10-22 11:42+0000\n"
-"PO-Revision-Date: 2010-10-22 15:05+0100\n"
+"POT-Creation-Date: 2010-10-29 22:46+0000\n"
+"PO-Revision-Date: 2010-10-30 08:17+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -146,11 +146,11 @@ msgstr "Oznake ..."
 msgid "Tag one or more files"
 msgstr "Označi eno ali več datotek"
 
-#: ../src/libtracker-common/tracker-dbus.c:598
+#: ../src/libtracker-common/tracker-dbus.c:571
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
 #: ../src/tracker-utils/tracker-search.c:1270
-#: ../src/tracker-utils/tracker-sparql.c:268
+#: ../src/tracker-utils/tracker-sparql.c:292
 #: ../src/tracker-utils/tracker-stats.c:93
 #: ../src/tracker-utils/tracker-tag.c:945
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:90
@@ -253,8 +253,8 @@ msgid "Processing…"
 msgstr "Obdelovanje ..."
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
-#: ../src/tracker-utils/tracker-sparql.c:380
-#: ../src/tracker-utils/tracker-sparql.c:465
+#: ../src/tracker-utils/tracker-sparql.c:404
+#: ../src/tracker-utils/tracker-sparql.c:523
 msgid "Properties"
 msgstr "Lastnosti"
 
@@ -283,7 +283,7 @@ msgstr "Datoteka za razširitev metapodatkov"
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:57
 #: ../src/tracker-utils/tracker-info.c:58
-#: ../src/tracker-utils/tracker-sparql.c:60
+#: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "DATOTEKA"
 
@@ -430,11 +430,11 @@ msgstr "Bi bilo nadzirano"
 msgid "- start the tracker indexer"
 msgstr "- začne pripravljalnik kazala tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1240
+#: ../src/miners/fs/tracker-miner-files.c:1241
 msgid "Low battery"
 msgstr "Nizka napetost baterije"
 
-#: ../src/miners/fs/tracker-miner-files.c:1368
+#: ../src/miners/fs/tracker-miner-files.c:1364
 msgid "Low disk space"
 msgstr "Malo prostora na disku"
 
@@ -662,7 +662,7 @@ msgstr "Iskalna vrstica"
 #. G_CALLBACK (statistics_menu_activated), icon);
 #.
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
-#: ../src/tracker-status-icon/tracker-status-icon.c:915
+#: ../src/tracker-status-icon/tracker-status-icon.c:917
 msgid "_About"
 msgstr "_O Programu"
 
@@ -890,7 +890,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
 #: ../src/tracker-utils/tracker-search.c:129
-#: ../src/tracker-utils/tracker-sparql.c:91
+#: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:115
 #: ../src/tracker-utils/tracker-tag.c:87
@@ -939,15 +939,15 @@ msgstr ""
 "Matej Urbančič <mateju@svn.gnome.org>\n"
 "Andrej Žnidaršič <andrej.znidarsic@gmail.com>"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:835
+#: ../src/tracker-status-icon/tracker-status-icon.c:837
 msgid "_Search"
 msgstr "I_skanje"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:864
+#: ../src/tracker-status-icon/tracker-status-icon.c:866
 msgid "_Pause All Indexing"
 msgstr "Naredi _premor vseh priprav kazala"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:884
+#: ../src/tracker-status-icon/tracker-status-icon.c:886
 msgid "_Preferences"
 msgstr "_Možnosti"
 
@@ -1070,35 +1070,35 @@ msgstr "Opravila %d ni mogoče uničiti"
 msgid "Killed process %d"
 msgstr "Opravilo %d je bilo uničeno"
 
-#: ../src/tracker-control/tracker-control.c:493
+#: ../src/tracker-control/tracker-control.c:494
 msgid "Removing configuration files…"
 msgstr "Odstranjevanje namestitvenih datotek ..."
 
-#: ../src/tracker-control/tracker-control.c:510
+#: ../src/tracker-control/tracker-control.c:511
 msgid "Waiting one second before starting miners…"
 msgstr "Čakanje eno sekundo pred začetkom podatkovnih kopalnikov ..."
 
-#: ../src/tracker-control/tracker-control.c:516
+#: ../src/tracker-control/tracker-control.c:517
 msgid "Starting miners…"
 msgstr "Začenjanje podatkovnih kopalnikov ..."
 
-#: ../src/tracker-control/tracker-control.c:531
+#: ../src/tracker-control/tracker-control.c:532
 msgid "perhaps a disabled plugin?"
 msgstr "morda onemogočen vstavek?"
 
-#: ../src/tracker-control/tracker-control.c:552
+#: ../src/tracker-control/tracker-control.c:553
 msgid "Could not reindex mimetypes"
 msgstr "Iz vrst mime ni mogoče znova pripraviti kazala"
 
-#: ../src/tracker-control/tracker-control.c:558
+#: ../src/tracker-control/tracker-control.c:559
 msgid "Reindexing mime types was successful"
 msgstr "Ponovna priprava kazala vrst mime je bila uspešna"
 
-#: ../src/tracker-control/tracker-control.c:575
+#: ../src/tracker-control/tracker-control.c:576
 msgid "Could not (re)index file"
 msgstr "Ni mogoče (znova) pripraviti kazala datoteke"
 
-#: ../src/tracker-control/tracker-control.c:581
+#: ../src/tracker-control/tracker-control.c:582
 msgid "(Re)indexing file was successful"
 msgstr "(Ponovna) priprava kazala je bila uspešna"
 
@@ -1116,7 +1116,7 @@ msgstr "Ena ali več datotek ni bilo navedenih"
 #: ../src/tracker-utils/tracker-import.c:115
 #: ../src/tracker-utils/tracker-info.c:222
 #: ../src/tracker-utils/tracker-search.c:1269
-#: ../src/tracker-utils/tracker-sparql.c:267
+#: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:89
@@ -1132,7 +1132,7 @@ msgid "Unable to import Turtle file"
 msgstr "Datoteke Turtle ni mogoče uvoziti"
 
 #: ../src/tracker-utils/tracker-import.c:142
-#: ../src/tracker-utils/tracker-sparql.c:513
+#: ../src/tracker-utils/tracker-sparql.c:571
 #: ../src/tracker-utils/tracker-status.c:210
 msgid "Done"
 msgstr "Končano"
@@ -1174,7 +1174,7 @@ msgstr "Za URI ni razpoložljivih metapodakov"
 
 #: ../src/tracker-utils/tracker-info.c:305
 #: ../src/tracker-utils/tracker-search.c:1091
-#: ../src/tracker-utils/tracker-sparql.c:555
+#: ../src/tracker-utils/tracker-sparql.c:613
 msgid "Results"
 msgstr "Rezultati"
 
@@ -1360,60 +1360,68 @@ msgstr "Iskani izraz '%s' je zaustavitvena beseda."
 msgid "Stop words are common words which may be ignored during the indexing process."
 msgstr "Zaustavitvene besede so pogoste besede, ki so lahko med izgradnjo kazala prezrte."
 
-#: ../src/tracker-utils/tracker-sparql.c:59
+#: ../src/tracker-utils/tracker-sparql.c:64
 msgid "Path to use to run a query or update from file"
 msgstr "Pot za zagon poizvedbe ali posodobitve iz datoteke"
 
-#: ../src/tracker-utils/tracker-sparql.c:63
+#: ../src/tracker-utils/tracker-sparql.c:68
 msgid "SPARQL query"
 msgstr "poizvedba SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:64
+#: ../src/tracker-utils/tracker-sparql.c:69
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:67
+#: ../src/tracker-utils/tracker-sparql.c:72
 msgid "This is used with --query and for database updates only."
 msgstr "To je uporabljeno s --query in le za posodobitve podatkovne zbirke."
 
-#: ../src/tracker-utils/tracker-sparql.c:71
+#: ../src/tracker-utils/tracker-sparql.c:76
 msgid "Retrieve classes"
 msgstr "Pridobi razrede"
 
-#: ../src/tracker-utils/tracker-sparql.c:75
+#: ../src/tracker-utils/tracker-sparql.c:80
 msgid "Retrieve class prefixes"
 msgstr "Pridobi predpone razredov"
 
-#: ../src/tracker-utils/tracker-sparql.c:79
+#: ../src/tracker-utils/tracker-sparql.c:84
 msgid "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
 msgstr "Pridobi lastnosti za razred, lahko se uporabi tudi predpone (na primer rdfs:Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:80
-#: ../src/tracker-utils/tracker-sparql.c:84
+#: ../src/tracker-utils/tracker-sparql.c:85
+#: ../src/tracker-utils/tracker-sparql.c:89
 msgid "CLASS"
 msgstr "RAZRED"
 
-#: ../src/tracker-utils/tracker-sparql.c:83
+#: ../src/tracker-utils/tracker-sparql.c:88
 msgid "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr "Pridobi razrede, ki obveščajo o spremembah v podatkovni zbirki (RAZRED je izbiren)"
 
-#: ../src/tracker-utils/tracker-sparql.c:87
+#: ../src/tracker-utils/tracker-sparql.c:92
+msgid "Retrieve indexes used in database to improve performance (PROPERTY is optional) "
+msgstr "Pridobi kazala uporabljena v podatkovni zbirki za izboljšanje zmogljivosti (LASTNOST je izbirna)"
+
+#: ../src/tracker-utils/tracker-sparql.c:93
+msgid "PROPERTY"
+msgstr "LASTNOST"
+
+#: ../src/tracker-utils/tracker-sparql.c:96
 msgid "Search for a class or property and display more information (e.g. Document)"
 msgstr "Iskanje za razred ali lastnost in prikaz več podatkov (na primer dokument)"
 
-#: ../src/tracker-utils/tracker-sparql.c:88
+#: ../src/tracker-utils/tracker-sparql.c:97
 msgid "CLASS/PROPERTY"
 msgstr "RAZRED/LASTNOST"
 
-#: ../src/tracker-utils/tracker-sparql.c:117
+#: ../src/tracker-utils/tracker-sparql.c:126
 msgid "Could not get namespace prefixes"
 msgstr "Predpon imenskega prostora ni mogoče dobiti"
 
-#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:135
 msgid "No namespace prefixes were found"
 msgstr "Predpon imenskega prostora ni mogoče najti"
 
-#: ../src/tracker-utils/tracker-sparql.c:197
+#: ../src/tracker-utils/tracker-sparql.c:221
 #: ../src/tracker-utils/tracker-stats.c:123
 #: ../src/tracker-utils/tracker-tag.c:370
 #: ../src/tracker-utils/tracker-tag.c:494
@@ -1421,100 +1429,112 @@ msgstr "Predpon imenskega prostora ni mogoče najti"
 msgid "None"
 msgstr "Brez"
 
-#: ../src/tracker-utils/tracker-sparql.c:221
+#: ../src/tracker-utils/tracker-sparql.c:245
 msgid "- Query or update using SPARQL"
 msgstr "- Poizvedba ali posodobitev s SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:235
+#: ../src/tracker-utils/tracker-sparql.c:259
 msgid "An argument must be supplied"
 msgstr "Zagotoviti je treba argument"
 
-#: ../src/tracker-utils/tracker-sparql.c:237
+#: ../src/tracker-utils/tracker-sparql.c:261
 msgid "File and query can not be used together"
 msgstr "Datoteke in poizvedbe ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-utils/tracker-sparql.c:281
+#: ../src/tracker-utils/tracker-sparql.c:305
 msgid "Could not list classes"
 msgstr "Razredov ni mogoče izpisati"
 
-#: ../src/tracker-utils/tracker-sparql.c:289
+#: ../src/tracker-utils/tracker-sparql.c:313
 msgid "No classes were found"
 msgstr "Razredov ni mogoče najti"
 
-#: ../src/tracker-utils/tracker-sparql.c:289
-#: ../src/tracker-utils/tracker-sparql.c:442
+#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:500
 msgid "Classes"
 msgstr "Razredi"
 
-#: ../src/tracker-utils/tracker-sparql.c:305
+#: ../src/tracker-utils/tracker-sparql.c:329
 msgid "Could not list class prefixes"
 msgstr "Predpon razredov ni mogoče izpisati"
 
-#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:337
 msgid "No class prefixes were found"
 msgstr "Predpon razredov ni mogoče najti"
 
-#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:337
 msgid "Prefixes"
 msgstr "Predpona"
 
-#: ../src/tracker-utils/tracker-sparql.c:333
+#: ../src/tracker-utils/tracker-sparql.c:357
 msgid "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr "Ni mogoče najti lastnostii za predpono razreda, na primer :Resource v 'rdfs:Resource'"
 
-#: ../src/tracker-utils/tracker-sparql.c:372
+#: ../src/tracker-utils/tracker-sparql.c:396
 msgid "Could not list properties"
 msgstr "Lastnosti ni mogoče izpisati"
 
-#: ../src/tracker-utils/tracker-sparql.c:380
+#: ../src/tracker-utils/tracker-sparql.c:404
 msgid "No properties were found"
 msgstr "Lastnosti ni mogoče najti"
 
-#: ../src/tracker-utils/tracker-sparql.c:408
+#: ../src/tracker-utils/tracker-sparql.c:432
 msgid "Could not find notify classes"
 msgstr "Ni mogoče najti razredov obvestil"
 
-#: ../src/tracker-utils/tracker-sparql.c:416
+#: ../src/tracker-utils/tracker-sparql.c:440
 msgid "No notifies were found"
 msgstr "Ni najdenih obvestil"
 
-#: ../src/tracker-utils/tracker-sparql.c:416
+#: ../src/tracker-utils/tracker-sparql.c:440
 msgid "Notifies"
 msgstr "Obvestila"
 
-#: ../src/tracker-utils/tracker-sparql.c:434
+#: ../src/tracker-utils/tracker-sparql.c:466
+msgid "Could not find indexed properties"
+msgstr "Ni mogoče najti lastnosti v kazalu"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+msgid "No indexes were found"
+msgstr "Kazal ni bilo mogoče najti"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+msgid "Indexes"
+msgstr "Kazala"
+
+#: ../src/tracker-utils/tracker-sparql.c:492
 msgid "Could not search classes"
 msgstr "Ni mogoče iskati razredov"
 
-#: ../src/tracker-utils/tracker-sparql.c:442
+#: ../src/tracker-utils/tracker-sparql.c:500
 msgid "No classes were found to match search term"
 msgstr "Ni mogoče najti razredov za skladanje iskalnega niza"
 
-#: ../src/tracker-utils/tracker-sparql.c:457
+#: ../src/tracker-utils/tracker-sparql.c:515
 msgid "Could not search properties"
 msgstr "Ni mogoče iskati lastnosti"
 
-#: ../src/tracker-utils/tracker-sparql.c:465
+#: ../src/tracker-utils/tracker-sparql.c:523
 msgid "No properties were found to match search term"
 msgstr "Ni mogoče najti lastnosti za skladanje iskalnega niza"
 
-#: ../src/tracker-utils/tracker-sparql.c:475
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "Could not get UTF-8 path from path"
 msgstr "Iz poti ni mogoče dobiti poti UTF-8 "
 
-#: ../src/tracker-utils/tracker-sparql.c:487
+#: ../src/tracker-utils/tracker-sparql.c:545
 msgid "Could not read file"
 msgstr "Ni mogoče prebrati datoteke"
 
-#: ../src/tracker-utils/tracker-sparql.c:506
+#: ../src/tracker-utils/tracker-sparql.c:564
 msgid "Could not run update"
 msgstr "Posodobitve ni mogoče zagnati"
 
-#: ../src/tracker-utils/tracker-sparql.c:548
+#: ../src/tracker-utils/tracker-sparql.c:606
 msgid "Could not run query"
 msgstr "Poizvedbe ni mogoče zagnati"
 
-#: ../src/tracker-utils/tracker-sparql.c:555
+#: ../src/tracker-utils/tracker-sparql.c:613
 msgid "No results found matching your query"
 msgstr "Ni zadetkov skladnih s poizvedbo"
 
