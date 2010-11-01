@@ -683,7 +683,6 @@ tracker_data_resource_buffer_flush (GError **error)
 	TrackerDataUpdateBufferProperty *property;
 	GHashTableIter                  iter;
 	const gchar                    *table_name;
-	GString                        *sql;
 	gint                            i, param;
 	GError                         *actual_error = NULL;
 
@@ -742,6 +741,8 @@ tracker_data_resource_buffer_flush (GError **error)
 				}
 			}
 		} else {
+			GString *sql, *values_sql;
+
 			if (table->delete_row) {
 				/* remove entry from rdf:type table */
 				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
@@ -782,73 +783,92 @@ tracker_data_resource_buffer_flush (GError **error)
 			}
 
 			if (table->insert) {
+				sql = g_string_new ("INSERT INTO \"");
+				values_sql = g_string_new ("VALUES (?");
+			} else {
+				sql = g_string_new ("UPDATE \"");
+				values_sql = NULL;
+			}
+
+			g_string_append (sql, table_name);
+
+			if (table->insert) {
+				g_string_append (sql, "\" (ID");
+
 				if (strcmp (table_name, "rdfs:Resource") == 0) {
-					/* ensure we have a row for the subject id */
-					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-						                                      "INSERT OR IGNORE INTO \"%s\" (ID, \"tracker:added\", \"tracker:modified\", Available) VALUES (?, ?, ?, 1)",
-						                                      table_name);
-
-					if (stmt) {
-						tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
-						g_warn_if_fail	(resource_time != 0);
-						tracker_db_statement_bind_int (stmt, 1, (gint64) resource_time);
-						tracker_db_statement_bind_int (stmt, 3, tracker_data_update_get_next_modseq ());
-						tracker_db_statement_execute (stmt, &actual_error);
-						g_object_unref (stmt);
-					}
+					g_string_append (sql, ", \"tracker:added\", \"tracker:modified\", Available");
+					g_string_append (values_sql, ", ?, ?, 1");
 				} else {
-					/* ensure we have a row for the subject id */
-					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-						                                      "INSERT OR IGNORE INTO \"%s\" (ID) VALUES (?)",
-						                                      table_name);
-
-					if (stmt) {
-						tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
-						tracker_db_statement_execute (stmt, &actual_error);
-						g_object_unref (stmt);
-					}
 				}
-
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
-				}
+			} else {
+				g_string_append (sql, "\" SET ");
 			}
-
-			if (table->properties->len == 0) {
-				continue;
-			}
-
-			sql = g_string_new ("UPDATE ");
-			g_string_append_printf (sql, "\"%s\" SET ", table_name);
 
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-				if (i > 0) {
-					g_string_append (sql, ", ");
-				}
-				g_string_append_printf (sql, "\"%s\" = ?", property->name);
+				if (table->insert) {
+					g_string_append_printf (sql, ", \"%s\"", property->name);
+					g_string_append (values_sql, ", ?");
 
-				if (property->date_time) {
-					g_string_append_printf (sql, ", \"%s:localDate\" = ?", property->name);
-					g_string_append_printf (sql, ", \"%s:localTime\" = ?", property->name);
-				}
+					if (property->date_time) {
+						g_string_append_printf (sql, ", \"%s:localDate\"", property->name);
+						g_string_append_printf (sql, ", \"%s:localTime\"", property->name);
+						g_string_append (values_sql, ", ?, ?");
+					}
 
-				g_string_append_printf (sql, ", \"%s:graph\" = ?", property->name);
+					g_string_append_printf (sql, ", \"%s:graph\"", property->name);
+					g_string_append (values_sql, ", ?");
+				} else {
+					if (i > 0) {
+						g_string_append (sql, ", ");
+					}
+					g_string_append_printf (sql, "\"%s\" = ?", property->name);
+
+					if (property->date_time) {
+						g_string_append_printf (sql, ", \"%s:localDate\" = ?", property->name);
+						g_string_append_printf (sql, ", \"%s:localTime\" = ?", property->name);
+					}
+
+					g_string_append_printf (sql, ", \"%s:graph\" = ?", property->name);
+				}
 			}
 
-			g_string_append (sql, " WHERE ID = ?");
+			if (table->insert) {
+				g_string_append (sql, ")");
+				g_string_append (values_sql, ")");
 
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-			                                              "%s", sql->str);
-			g_string_free (sql, TRUE);
+				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
+					                                      "%s %s", sql->str, values_sql->str);
+				g_string_free (sql, TRUE);
+				g_string_free (values_sql, TRUE);
+			} else {
+				g_string_append (sql, " WHERE ID = ?");
+
+				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
+					                                      "%s", sql->str);
+				g_string_free (sql, TRUE);
+			}
 
 			if (actual_error) {
 				g_propagate_error (error, actual_error);
 				return;
 			}
 
-			param = 0;
+			if (table->insert) {
+				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
+
+				if (strcmp (table_name, "rdfs:Resource") == 0) {
+					g_warn_if_fail	(resource_time != 0);
+					tracker_db_statement_bind_int (stmt, 1, (gint64) resource_time);
+					tracker_db_statement_bind_int (stmt, 2, tracker_data_update_get_next_modseq ());
+					param = 3;
+				} else {
+					param = 1;
+				}
+			} else {
+				param = 0;
+			}
+
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 				if (table->delete_value) {
@@ -869,7 +889,9 @@ tracker_data_resource_buffer_flush (GError **error)
 				}
 			}
 
-			tracker_db_statement_bind_int (stmt, param++, resource_buffer->id);
+			if (!table->insert) {
+				tracker_db_statement_bind_int (stmt, param++, resource_buffer->id);
+			}
 
 			tracker_db_statement_execute (stmt, &actual_error);
 			g_object_unref (stmt);
