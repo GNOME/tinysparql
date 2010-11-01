@@ -31,7 +31,8 @@ import os
 data_dir = os.path.join (os.path.dirname (__file__), "source-data")
 simple_files_to_process = ['street-names.txt', 'street-types.txt', 'latin-words.txt',
                             'email-domains.txt', 'job-titles.txt', 'company-names.txt',
-                            'company-types.txt']
+                            'company-types.txt',
+                           'equipment-manufacturers.txt','equipment-models.txt']
 
 def load_files():
     # Process Zip Codes

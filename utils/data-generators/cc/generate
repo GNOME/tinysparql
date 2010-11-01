@@ -80,6 +80,7 @@ tools.addType( 'nmo#Call', 38 )
 tools.addType( 'nmm#Artist', 40 )
 tools.addType( 'nmm#MusicAlbum', 41 )
 tools.addType( 'nmm#MusicPiece', 42 )
+tools.addType( 'nfo#Equipment', 44 )
 tools.addType( 'nmm#Photo', 45 )
 tools.addType( 'nmm#Video', 46 )
 tools.addType( 'tracker#Volume', 50 )
@@ -189,6 +190,16 @@ for artist in xrange(1, count_artists+1):
     nmm.generateAlbum( artist*count_albums*count_songs+album )
     for song in xrange(1, count_songs+1):
       nmm.generateMusicPiece( artist*count_albums*count_songs+album*count_songs+song )
+print "Done"
+
+print "Generate Equipment",
+count_equipment = get_counter('counts','equipment')
+nmm.generateOwnEquipment ()
+for equipment in xrange(1, count_equipment):
+  if (equipment % 2 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  nmm.generateEquipment( equipment )
 print "Done"
 
 print "Generate Photos",

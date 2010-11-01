@@ -53,6 +53,8 @@ email_domains = pickle.load(source_file)
 job_titles = pickle.load(source_file)
 company_names = pickle.load(source_file)
 company_types = pickle.load(source_file)
+equipment_manufacturers = pickle.load(source_file)
+equipment_models = pickle.load(source_file)
 
 source_file.close()
 
@@ -159,6 +161,12 @@ def create_company_name(biz_type=None):
         elif len(name) < 3:
             name.append(random.choice(company_names))
     return " ".join(name)
+
+def create_equipment_manufacturer():
+    return random.choice(equipment_manufacturers)
+
+def create_equipment_model(manufacturer=create_equipment_manufacturer()):
+    return random.choice(equipment_models)
 
 if __name__ == "__main__":
     first, last = create_name()

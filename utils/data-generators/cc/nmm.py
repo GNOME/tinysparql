@@ -1,6 +1,31 @@
 # -*- coding: utf-8 -*-
 
 import tools
+import gen_data as gen
+
+####################################################################################
+nfo_Equipment = '''
+<%(equipment_uri)s> a nfo:Equipment;
+    nfo:manufacturer "%(equipment_manufacturer)s";
+    nfo:model "%(equipment_model)s".
+'''
+def generateEquipment(index):
+  me = 'nfo#Equipment'
+  equipment_manufacturer = gen.create_equipment_manufacturer()
+  equipment_model = gen.create_equipment_model(equipment_manufacturer)
+  equipment_uri = 'urn:equipment:%s:%s:' % (equipment_manufacturer,equipment_model)
+
+  tools.addItem( me, equipment_uri, nfo_Equipment % locals() )
+
+def generateOwnEquipment():
+  me = 'nfo#Equipment'
+  equipment_manufacturer = 'NOKIA'
+  equipment_model = ''
+  equipment_uri = 'urn:equipment:%s:%s:' % (equipment_manufacturer,equipment_model)
+
+  tools.addItem( me, equipment_uri, nfo_Equipment % locals() )  
+
+
 ####################################################################################
 nmm_Photo = '''
 <%(photo_uri)s> a nie:DataObject, nfo:FileDataObject, nfo:Media, nfo:Visual, nfo:Image, nmm:Photo ;
@@ -15,7 +40,7 @@ nmm_Photo = '''
     nfo:fileLastAccessed "%(photo_date)s";
     nfo:fileSize         "%(photo_size)s";
     nfo:fileName         "%(photo_filename)s" ;
-    nfo:equipment        [a nfo:Equipment ; nfo:model "%(photo_camera)s"];
+    nfo:equipment        <%(photo_equipment)s> ;
     nmm:exposureTime     "%(photo_exposure)s";
     nmm:fnumber          "%(photo_fnumber)s";
     nmm:focalLength      "%(photo_focal_length)s";
@@ -30,10 +55,7 @@ def generatePhoto(index):
   photo_filename     = 'photo%d.jpg' % index
   photo_url          = 'file:///path/' + photo_filename
   photo_size         = str(1000000 + index)
-  if (index % 10 == 0):
-    photo_camera     = "NOKIA"
-  else:
-    photo_camera     = 'Canikon 1000 Ultra Mega'
+  photo_equipment    = tools.getRandomUri( 'nfo#Equipment' )
   photo_exposure     = '0.%d' % index
   photo_fnumber      = '%d.0' % (1 + (index % 20))
   photo_focal_length = '%d.0' % (1 + (index % 500))
@@ -55,6 +77,7 @@ nmm_Video = '''
     nfo:fileLastAccessed "%(video_date)s";
     nfo:fileSize         "%(video_size)s";
     nfo:fileName         "%(video_filename)s" ;
+    nfo:equipment        <%(video_equipment)s> ;
     nfo:sampleRate       "%(video_samplerate)s" ;
     nfo:duration         "%(video_duration)s" ;
     nao:hasTag           [a nao:Tag ; nao:prefLabel "%(video_tag)s"] .
@@ -66,6 +89,7 @@ def generateVideo(index):
   video_url          = 'file:///path/' + video_filename
   video_size         = str(1000000 + index)
   video_date         = '%d-%02d-%02dT01:01:01Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
+  video_equipment    = tools.getRandomUri( 'nfo#Equipment' )
   video_samplerate   = str(index)
   video_duration     = str(index)
   video_tag          = ('TEST', 'nomatch') [index %2]
