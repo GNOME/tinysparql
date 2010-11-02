@@ -24,8 +24,6 @@
 
 #include <glib.h>
 
-#include "tracker-sparql.h"
-
 static const char *
 find_conversion (const char  *format,
                  const char **after)
