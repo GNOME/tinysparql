@@ -11,7 +11,9 @@ imagestest_DATA =                                      \
 	test-image-3.expected                          \
 	xmp-loaded-1.gif                               \
 	xmp-loaded-1.expected                          \
-	corrupted-image.gif                            \
+	comment-extension-block.expected	       \
+	comment-extension-block.gif		       \
+	corrupted-image.gif                    	       \
 	corrupted-image.expected
 
 EXTRA_DIST = $(imagestest_DATA)

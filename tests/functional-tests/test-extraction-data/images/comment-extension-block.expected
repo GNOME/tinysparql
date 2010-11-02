@@ -1,0 +1,13 @@
+[TestFile]
+Filename=comment-extension-block.gif
+Bugzilla=GB#633118
+Comment=In GIF comments can come in a special block that needs to be handled manually
+
+[Metadata]
+a=nfo:Image 
+a=nmm:Photo
+nfo_width=600
+nfo_height=450
+nie_comment=GIF image format only supports comments in 7-bit ASCII encoding!
+
+[Meego]
