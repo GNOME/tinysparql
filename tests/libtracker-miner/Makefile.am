@@ -14,6 +14,10 @@ TEST_PROGS +=                                          \
 	tracker-thumbnailer-test                       \
 	tracker-monitor-test
 
+AM_VALAFLAGS =                                         \
+	-g                                             \
+	--pkg glib-2.0 -H $(<:.vala=.h)
+
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-DTEST                                         \
@@ -35,11 +39,18 @@ LDADD =                                                \
 tracker_crawler_test_SOURCES =                         \
 	tracker-crawler-test.c
 
-tracker_thumbnailer_test_SOURCES =                     \
-	tracker-thumbnailer-test.c                     \
+tracker_miner_mock_SOURCES =                           \
+	tracker-miner-mock.vala
+
+noinst_HEADERS =                                       \
 	thumbnailer-mock.h                             \
+	miners-mock.h                                  \
+	empty-gobject.h
+
+tracker_thumbnailer_test_SOURCES =                     \
+	$(tracker_miner_mock_SOURCES)                  \
+	tracker-thumbnailer-test.c                     \
 	thumbnailer-mock.c                             \
-	empty-gobject.h                                \
 	empty-gobject.c
 
 tracker_monitor_test_SOURCES =                         \
@@ -47,33 +58,16 @@ tracker_monitor_test_SOURCES =                         \
 	$(libtracker_miner_marshal_sources)            \
 	$(libtracker_miner_monitor_sources)
 
-tracker_miner_manager_test_VALASOURCES =               \
-	tracker-miner-mock.vala
-
 tracker_miner_manager_test_SOURCES =                   \
+	$(tracker_miner_mock_SOURCES)                  \
 	tracker-miner-manager-test.c                   \
 	miners-mock.c                                  \
-	miners-mock.h                                  \
-	$(tracker_miner_manager_test_VALASOURCES:.vala=.c) \
-	$(tracker_miner_manager_test_VALASOURCES:.vala=.h) \
-	empty-gobject.h                                \
 	empty-gobject.c
 
 tracker_password_provider_test_SOURCES =               \
 	tracker-password-provider-test.c
 
-libtracker-miner-test.vala.stamp: $(tracker_miner_manager_test_VALASOURCES)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) --pkg glib-2.0 -C $(VALAFLAGS) -H $(<:.vala=.h) $<
-	touch $@
-
-BUILT_SOURCES = libtracker-miner-test.vala.stamp
-
-MAINTAINERCLEANFILES =                                 \
-	libtracker-miner-test.vala.stamp               \
-	$(tracker_miner_manager_test_VALASOURCES:.vala=.c)
-
-EXTRA_DIST = $(tracker_miner_manager_test_VALASOURCES) \
-	libtracker-miner-test.vala.stamp               \
+EXTRA_DIST =                                           \
 	data/empty-dir/.hidden                         \
 	data/file1                                     \
 	data/dir/empty-dir/.hidden                     \
