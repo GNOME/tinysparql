@@ -276,7 +276,7 @@ tracker_locale_change_process_cb (gpointer user_data)
 	busy_callback = tracker_status_get_callback (notifier,
 	                                             &busy_user_data);
 
-	tracker_data_manager_reload (NULL, NULL);
+	tracker_data_manager_reload (busy_callback, busy_user_data);
 
 	tracker_store_set_active (TRUE, FALSE, NULL);
 
