@@ -202,7 +202,6 @@ class PropertyRangeDateToString (OntologyChangeTestTemplate):
     Change the range of a property from date to string. There shouldn't be any data loss.
     """
 
-    @expectedFailureBug ("New journal is gonna work it out")
     def test_property_range_date_to_string (self):
         self.template_test_ontology_change ()
 
@@ -212,16 +211,16 @@ class PropertyRangeDateToString (OntologyChangeTestTemplate):
         
     def insert_data (self):
         self.instance = "test://ontology-change/property-range/date-to-string"
-        self.tracker.update ("INSERT { <%s> a test:classA ; test:propertyString '2010-10-12T13:30:00Z' }"
+        self.tracker.update ("INSERT { <%s> a test:A ; test:a_string '2010-10-12T13:30:00Z' }"
                              % (self.instance))
 
     def validate_status (self):
         # Query the ontology itself
-        result = self.tracker.query ("SELECT ?o WHERE { test:propertyString rdfs:range ?o }")
+        result = self.tracker.query ("SELECT ?o WHERE { test:a_string rdfs:range ?o }")
         self.assertEquals (result[0][0], XSD_STRING)
 
         # Check the value is there
-        result = self.tracker.query ("SELECT ?o WHERE { <%s> test:propertyString ?o . }" % (self.instance))
+        result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_string ?o . }" % (self.instance))
         self.assertEquals (result[0][0], "2010-10-12T13:30:00Z")
 
 class PropertyRangeIntToString (OntologyChangeTestTemplate):
