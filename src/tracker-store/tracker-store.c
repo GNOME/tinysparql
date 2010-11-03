@@ -288,7 +288,10 @@ task_finish_cb (gpointer data)
 
 	store_task_free (task);
 
-	if (private->n_queries_running == 0 && !private->update_running && private->active_callback) {
+	if (private->n_queries_running == 0 &&
+	    !private->update_running &&
+	    private->active_callback)
+	{
 		private->active_callback (private->active_user_data);
 		private->active_callback = NULL;
 	}
