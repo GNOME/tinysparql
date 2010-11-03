@@ -155,6 +155,7 @@ sched (TrackerStorePrivate *private)
 	GQueue              *queue;
 	TrackerStoreTask    *task;
 	gint                 i;
+	gboolean             ran_one = FALSE;
 
 	if (!private->active) {
 		return;
@@ -182,6 +183,7 @@ sched (TrackerStorePrivate *private)
 
 		private->n_queries_running++;
 
+		ran_one = TRUE;
 		g_thread_pool_push (private->query_pool, task, NULL);
 	}
 
@@ -196,8 +198,14 @@ sched (TrackerStorePrivate *private)
 		if (task != NULL) {
 			private->update_running = TRUE;
 
+			ran_one = TRUE;
 			g_thread_pool_push (private->update_pool, task, NULL);
 		}
+	}
+
+	if (!ran_one && private->active_callback) {
+		private->active_callback (private->active_user_data);
+		private->active_callback = NULL;
 	}
 }
 
