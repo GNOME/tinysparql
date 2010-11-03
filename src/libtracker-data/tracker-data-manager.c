@@ -2708,7 +2708,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					                        sql_type_for_single_value);
 
 					if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0) {
-						g_string_append (create_sql, " COLLATE " TRACKER_COLLATION_NAME);
+						g_string_append (alter_sql, " COLLATE " TRACKER_COLLATION_NAME);
 					}
 
 					/* add DEFAULT in case that the ontology specifies a default value,
