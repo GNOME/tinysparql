@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-10-22T13:15:00Z" .
+	nao:lastModified "2010-11-03T13:15:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -28,6 +28,7 @@ nmm:SynchronizedText a rdfs:Class ;
 nmm:MusicAlbum a rdfs:Class ;
 	rdfs:label "Music album" ;
 	tracker:notify true ;
+	tracker:domainIndex nie:title ;
 	rdfs:subClassOf nfo:MediaList .
 
 nmm:Video a rdfs:Class ;
