@@ -521,7 +521,7 @@ main (gint argc, gchar *argv[])
 	tracker_events_init (get_notifiable_classes);
 	tracker_writeback_init (get_writeback_predicates);
 
-	tracker_store_set_active (TRUE);
+	tracker_store_set_active (TRUE, NULL, NULL);
 
 	g_message ("Waiting for D-Bus requests...");
 

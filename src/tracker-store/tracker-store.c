@@ -45,16 +45,18 @@
 #define TRACKER_STORE_MAX_TASK_TIME          30
 
 typedef struct {
-	gboolean     start_log;
-	GQueue      *query_queues[TRACKER_STORE_N_PRIORITIES];
-	GQueue      *update_queues[TRACKER_STORE_N_PRIORITIES];
-	guint        n_queries_running;
-	gboolean     update_running;
-	GThreadPool *update_pool;
-	GThreadPool *query_pool;
-	GSList      *running_tasks;
-	guint        max_task_time;
-	gboolean     active;
+	gboolean       start_log;
+	GQueue        *query_queues[TRACKER_STORE_N_PRIORITIES];
+	GQueue        *update_queues[TRACKER_STORE_N_PRIORITIES];
+	guint          n_queries_running;
+	gboolean       update_running;
+	GThreadPool   *update_pool;
+	GThreadPool   *query_pool;
+	GSList        *running_tasks;
+	guint          max_task_time;
+	gboolean       active;
+	GDestroyNotify active_callback;
+	gpointer       active_user_data;
 } TrackerStorePrivate;
 
 typedef enum {
@@ -287,6 +289,11 @@ task_finish_cb (gpointer data)
 	}
 
 	store_task_free (task);
+
+	if (private->active_callback) {
+		private->active_callback (private->active_user_data);
+		private->active_callback = NULL;
+	}
 
 	sched (private);
 
@@ -647,11 +654,16 @@ tracker_store_unreg_batches (const gchar *client_id)
 }
 
 void
-tracker_store_set_active (gboolean active)
+tracker_store_set_active (gboolean       active,
+                          GDestroyNotify callback,
+                          gpointer       user_data)
 {
 	TrackerStorePrivate *private;
 
 	private = g_static_private_get (&private_key);
+
+	private->active_callback = callback;
+	private->active_user_data = user_data;
 	private->active = active;
 
 	sched (private);

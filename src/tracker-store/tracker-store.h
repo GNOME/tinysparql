@@ -83,7 +83,9 @@ guint        tracker_store_get_queue_size         (void);
 
 void         tracker_store_unreg_batches          (const gchar   *client_id);
 
-void         tracker_store_set_active             (gboolean       active);
+void         tracker_store_set_active             (gboolean       active,
+                                                   GDestroyNotify callback,
+                                                   gpointer       user_data);
 
 G_END_DECLS
 
