@@ -174,7 +174,6 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
     Change the range of a property from string to date. There shouldn't be any data loss.
     """
 
-    @expectedFailureBug ("New journal is gonna work it out")
     def test_property_range_string_to_date (self):
         self.template_test_ontology_change ()
 
@@ -309,7 +308,6 @@ class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
     Change the cardinality of a property for N to 1.
     """
 
-    @expectedFailureBug ("New journal is gonna work it out")
     def test_property_cardinality_n_to_1 (self):
         self.template_test_ontology_change ()
 
