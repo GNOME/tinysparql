@@ -57,6 +57,8 @@
 #include "tracker-backup.h"
 #include "tracker-store.h"
 #include "tracker-statistics.h"
+#include "tracker-resources.h"
+#include "tracker-events.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -81,6 +83,11 @@ typedef struct {
 	gboolean reindex_on_shutdown;
 	gboolean shutdown;
 } TrackerMainPrivate;
+
+typedef struct {
+	gpointer resources;
+	TrackerNotifyClassGetter getter;
+} TrackerLocaleChangeContext;
 
 /* Private */
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
@@ -270,6 +277,7 @@ tracker_locale_change_process_cb (gpointer user_data)
 	TrackerStatus *notifier;
 	TrackerBusyCallback busy_callback;
 	gpointer busy_user_data;
+	TrackerLocaleChangeContext *ctxt = user_data;
 
 	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
 
@@ -277,6 +285,13 @@ tracker_locale_change_process_cb (gpointer user_data)
 	                                             &busy_user_data);
 
 	tracker_data_manager_reload (busy_callback, busy_user_data);
+
+	if (ctxt->resources) {
+		tracker_events_init (ctxt->getter);
+		tracker_resources_enable_signals (ctxt->resources);
+		g_object_unref (ctxt->resources);
+	}
+	g_free (ctxt);
 
 	tracker_store_set_active (TRUE, FALSE, NULL);
 
@@ -286,9 +301,20 @@ tracker_locale_change_process_cb (gpointer user_data)
 static gboolean
 tracker_locale_change_process_idle_cb (gpointer data)
 {
+	TrackerLocaleChangeContext *ctxt;
+
+	ctxt = g_new0 (TrackerLocaleChangeContext, 1);
+	ctxt->resources = tracker_dbus_get_object (TRACKER_TYPE_RESOURCES);
+	if (ctxt->resources) {
+		g_object_ref (ctxt->resources);
+		tracker_resources_disable_signals (ctxt->resources);
+		ctxt->getter = tracker_events_get_class_getter ();
+		tracker_events_shutdown ();
+	}
+
 	/* Note: Right now, the passed callback may be called instantly and not
 	 * in an idle. */
-	tracker_store_set_active (FALSE, tracker_locale_change_process_cb, NULL);
+	tracker_store_set_active (FALSE, tracker_locale_change_process_cb, ctxt);
 
 	return FALSE;
 }
