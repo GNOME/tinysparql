@@ -38,7 +38,9 @@ tracker_store_SOURCES =                                \
 	tracker-status.c                               \
 	tracker-status.h                               \
 	tracker-steroids.c                             \
-	tracker-steroids.h
+	tracker-steroids.h                             \
+	tracker-locale-change.h                        \
+	tracker-locale-change.c
 
 tracker_store_LDADD =                                  \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la \

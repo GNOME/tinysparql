@@ -57,8 +57,7 @@
 #include "tracker-backup.h"
 #include "tracker-store.h"
 #include "tracker-statistics.h"
-#include "tracker-resources.h"
-#include "tracker-events.h"
+#include "tracker-locale-change.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -84,15 +83,8 @@ typedef struct {
 	gboolean shutdown;
 } TrackerMainPrivate;
 
-typedef struct {
-	gpointer resources;
-	TrackerNotifyClassGetter getter;
-} TrackerLocaleChangeContext;
-
 /* Private */
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
-static gpointer locale_notification_id;
-static gboolean locale_change_notified;
 
 /* Private command line parameters */
 static gboolean version;
@@ -269,95 +261,6 @@ shutdown_directories (void)
 	if (private->reindex_on_shutdown) {
 		tracker_db_manager_remove_all (FALSE);
 	}
-}
-
-static void
-tracker_locale_change_process_cb (gpointer user_data)
-{
-	TrackerStatus *notifier;
-	TrackerBusyCallback busy_callback;
-	gpointer busy_user_data;
-	TrackerLocaleChangeContext *ctxt = user_data;
-
-	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
-
-	busy_callback = tracker_status_get_callback (notifier,
-	                                             &busy_user_data);
-
-	tracker_data_manager_reload (busy_callback, busy_user_data);
-
-	if (ctxt->resources) {
-		tracker_events_init (ctxt->getter);
-		tracker_resources_enable_signals (ctxt->resources);
-		g_object_unref (ctxt->resources);
-	}
-	g_free (ctxt);
-
-	tracker_store_set_active (TRUE, FALSE, NULL);
-
-	locale_change_notified = FALSE;
-}
-
-static gboolean
-tracker_locale_change_process_idle_cb (gpointer data)
-{
-	TrackerLocaleChangeContext *ctxt;
-
-	ctxt = g_new0 (TrackerLocaleChangeContext, 1);
-	ctxt->resources = tracker_dbus_get_object (TRACKER_TYPE_RESOURCES);
-	if (ctxt->resources) {
-		g_object_ref (ctxt->resources);
-		tracker_resources_disable_signals (ctxt->resources);
-		ctxt->getter = tracker_events_get_class_getter ();
-		tracker_events_shutdown ();
-	}
-
-	/* Note: Right now, the passed callback may be called instantly and not
-	 * in an idle. */
-	tracker_store_set_active (FALSE, tracker_locale_change_process_cb, ctxt);
-
-	return FALSE;
-}
-
-static void
-tracker_locale_notify_cb (TrackerLocaleID id,
-                          gpointer        user_data)
-{
-	if (locale_change_notified) {
-		g_message ("Locale change was already notified, not doing it again");
-	} else {
-		locale_change_notified = TRUE;
-		/* Set an idle callback to process the locale change.
-		 * NOTE: We cannot process it right here because we will be
-		 * closing and opening new connections to the DB while doing it,
-		 * and the DB connections are also part of the subscriber list
-		 * for locale changes, so we may end up waiting to acquire an
-		 * already locked mutex.
-		 */
-		g_idle_add (tracker_locale_change_process_idle_cb, NULL);
-	}
-}
-
-static void
-initialize_locale_subscription (void)
-{
-	gchar *collation_locale;
-
-	collation_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
-
-	g_debug ("Initial collation locale is '%s', subscribing for updates...",
-	         collation_locale);
-
-	locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_COLLATE,
-	                                                    tracker_locale_notify_cb,
-	                                                    NULL,
-	                                                    NULL);
-}
-
-static void
-shutdown_locale_subscription (void)
-{
-	tracker_locale_notify_remove (locale_notification_id);
 }
 
 static GStrv
@@ -616,7 +519,7 @@ main (gint argc, gchar *argv[])
 	}
 
 	/* Setup subscription to get notified of locale changes */
-	initialize_locale_subscription ();
+	tracker_locale_change_initialize_subscription ();
 
 	tracker_dbus_register_prepare_class_signal ();
 
@@ -654,7 +557,7 @@ main (gint argc, gchar *argv[])
 	tracker_writeback_shutdown ();
 	tracker_events_shutdown ();
 
-	shutdown_locale_subscription ();
+	tracker_locale_change_shutdown_subscription ();
 
 	tracker_dbus_shutdown ();
 	tracker_data_manager_shutdown ();
