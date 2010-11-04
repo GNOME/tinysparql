@@ -192,8 +192,8 @@ tracker_status_get_progress  (TrackerStatus    *object,
 	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
-	dbus_g_method_return (context, priv->progress);
 	tracker_dbus_request_success (request_id, context);
+	dbus_g_method_return (context, priv->progress);
 
 	return;
 }
@@ -208,8 +208,9 @@ tracker_status_get_status  (TrackerStatus    *object,
 	guint request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
-	dbus_g_method_return (context, priv->status);
 	tracker_dbus_request_success (request_id, context);
+
+	dbus_g_method_return (context, priv->status);
 
 	return;
 }
