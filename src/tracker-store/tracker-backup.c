@@ -71,10 +71,11 @@ backup_callback (GError *error, gpointer user_data)
 		return;
 	}
 
-	dbus_g_method_return (info->context);
-
 	tracker_dbus_request_success (info->request_id,
 	                              info->context);
+
+	dbus_g_method_return (info->context);
+
 }
 
 static void
@@ -91,6 +92,9 @@ restore_callback (GError *error, gpointer user_data)
 		return;
 	}
 
+	tracker_dbus_request_success (info->request_id,
+	                              info->context);
+
 	dbus_g_method_return (info->context);
 
 	tracker_store_set_active (TRUE, NULL, NULL);
@@ -99,8 +103,6 @@ restore_callback (GError *error, gpointer user_data)
 		g_object_unref (info->resources);
 	}
 
-	tracker_dbus_request_success (info->request_id,
-	                              info->context);
 }
 
 void
