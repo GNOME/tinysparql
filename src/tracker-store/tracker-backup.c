@@ -73,6 +73,12 @@ backup_callback (GError *error, gpointer user_data)
 
 	dbus_g_method_return (info->context);
 
+	tracker_store_set_active (TRUE, NULL, NULL);
+	if (info->resources) {
+		tracker_resources_enable_signals (info->resources);
+		g_object_unref (info->resources);
+	}
+
 	tracker_dbus_request_success (info->request_id,
 	                              info->context);
 }
@@ -135,12 +141,6 @@ backup_idle_set_active_false_cb (gpointer user_data)
 	                             busy_user_data);
 
 	g_object_unref (journal);
-
-	tracker_store_set_active (TRUE, NULL, NULL);
-	if (info->resources) {
-		tracker_resources_enable_signals (info->resources);
-		g_object_unref (info->resources);
-	}
 }
 
 void
