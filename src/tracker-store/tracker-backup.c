@@ -99,13 +99,13 @@ restore_callback (GError *error, gpointer user_data)
 
 	dbus_g_method_return (info->context);
 
-	tracker_store_set_active (TRUE, NULL, NULL);
 	if (info->resources) {
 		tracker_events_init (info->getter);
 		tracker_resources_enable_signals (info->resources);
 		g_object_unref (info->resources);
 	}
 
+	tracker_store_set_active (TRUE, NULL, NULL);
 }
 
 void
