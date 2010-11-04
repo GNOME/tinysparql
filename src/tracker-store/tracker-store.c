@@ -684,7 +684,7 @@ tracker_store_set_active (gboolean       active,
 	if (active == FALSE &&
 	    private->n_queries_running == 0 &&
 	    !private->update_running &&
-	    private->active_callback)
+	    callback)
 	{
 		SetActiveDelegate *data = g_new0 (SetActiveDelegate, 1);
 
