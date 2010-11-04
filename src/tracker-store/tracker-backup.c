@@ -73,6 +73,26 @@ backup_callback (GError *error, gpointer user_data)
 
 	dbus_g_method_return (info->context);
 
+	tracker_dbus_request_success (info->request_id,
+	                              info->context);
+}
+
+static void
+restore_callback (GError *error, gpointer user_data)
+{
+	TrackerDBusMethodInfo *info = user_data;
+
+	if (error) {
+		tracker_dbus_request_failed (info->request_id,
+		                             info->context,
+		                             &error,
+		                             NULL);
+		dbus_g_method_return_error (info->context, error);
+		return;
+	}
+
+	dbus_g_method_return (info->context);
+
 	tracker_store_set_active (TRUE, NULL, NULL);
 	if (info->resources) {
 		tracker_resources_enable_signals (info->resources);
@@ -133,7 +153,7 @@ backup_idle_set_active_false_cb (gpointer user_data)
 	g_free (info->journal_uri);
 
 	tracker_data_backup_restore (journal,
-	                             backup_callback,
+	                             restore_callback,
 	                             info, 
 	                             (GDestroyNotify) g_free,
 	                             NULL,
