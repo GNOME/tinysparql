@@ -31,12 +31,14 @@
 #include "tracker-backup.h"
 #include "tracker-store.h"
 #include "tracker-resources.h"
+#include "tracker-events.h"
 
 typedef struct {
 	DBusGMethodInvocation *context;
 	guint request_id;
 	gchar *journal_uri;
 	TrackerResources *resources;
+	TrackerNotifyClassGetter getter;
 } TrackerDBusMethodInfo;
 
 G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)
@@ -99,6 +101,7 @@ restore_callback (GError *error, gpointer user_data)
 
 	tracker_store_set_active (TRUE, NULL, NULL);
 	if (info->resources) {
+		tracker_events_init (info->getter);
 		tracker_resources_enable_signals (info->resources);
 		g_object_unref (info->resources);
 	}
@@ -191,6 +194,8 @@ tracker_backup_restore (TrackerBackup          *object,
 	if (resources) {
 		info->resources = g_object_ref (resources);
 		tracker_resources_disable_signals (info->resources);
+		info->getter = tracker_events_get_class_getter ();
+		tracker_events_shutdown ();
 	}
 
 	tracker_store_set_active (FALSE, backup_idle_set_active_false_cb, info);

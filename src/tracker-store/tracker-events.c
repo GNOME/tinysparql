@@ -31,6 +31,7 @@ typedef struct {
 	GHashTable *allowances;
 	gboolean frozen;
 	guint total;
+	TrackerNotifyClassGetter getter;
 } EventsPrivate;
 
 static EventsPrivate *private;
@@ -176,6 +177,13 @@ free_private (EventsPrivate *private)
 	g_free (private);
 }
 
+TrackerNotifyClassGetter
+tracker_events_get_class_getter (void)
+{
+	g_return_val_if_fail (private != NULL, NULL);
+	return private->getter;
+}
+
 void
 tracker_events_init (TrackerNotifyClassGetter callback)
 {
@@ -190,6 +198,7 @@ tracker_events_init (TrackerNotifyClassGetter callback)
 
 	private->allowances = g_hash_table_new (g_direct_hash, g_direct_equal);
 	private->allowances_id = g_hash_table_new (g_direct_hash, g_direct_equal);
+	private->getter = callback;
 
 	classes_to_signal = (*callback)();
 

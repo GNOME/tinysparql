@@ -31,6 +31,8 @@ G_BEGIN_DECLS
 typedef GStrv (*TrackerNotifyClassGetter)   (void);
 
 void       tracker_events_init              (TrackerNotifyClassGetter  callback);
+TrackerNotifyClassGetter
+           tracker_events_get_class_getter  (void);
 void       tracker_events_shutdown          (void);
 void       tracker_events_add_insert        (gint                      graph_id,
                                              gint                      subject_id,
