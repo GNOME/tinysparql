@@ -750,7 +750,7 @@ on_statement_deleted (gint         graph_id,
 }
 
 void
-tracker_resources_prepare (TrackerResources *object)
+tracker_resources_enable_signals (TrackerResources *object)
 {
 	TrackerResourcesPrivate *priv;
 
@@ -760,11 +760,10 @@ tracker_resources_prepare (TrackerResources *object)
 	tracker_data_add_delete_statement_callback (on_statement_deleted, object);
 	tracker_data_add_commit_statement_callback (on_statements_committed, object);
 	tracker_data_add_rollback_statement_callback (on_statements_rolled_back, object);
-
 }
 
-static void
-tracker_resources_finalize (GObject      *object)
+void
+tracker_resources_disable_signals (TrackerResources *object)
 {
 	TrackerResourcesPrivate *priv;
 
@@ -778,6 +777,16 @@ tracker_resources_finalize (GObject      *object)
 	if (priv->signal_timeout != 0) {
 		g_source_remove (priv->signal_timeout);
 	}
+}
+
+static void
+tracker_resources_finalize (GObject *object)
+{
+	TrackerResourcesPrivate *priv;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
+
+	tracker_resources_disable_signals ((TrackerResources *) object);
 
 	dbus_connection_unref (priv->connection);
 

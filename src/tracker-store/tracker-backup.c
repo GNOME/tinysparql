@@ -36,6 +36,7 @@ typedef struct {
 	DBusGMethodInvocation *context;
 	guint request_id;
 	gchar *journal_uri;
+	TrackerResources *resources;
 } TrackerDBusMethodInfo;
 
 G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)
@@ -136,6 +137,8 @@ backup_idle_set_active_false_cb (gpointer user_data)
 	g_object_unref (journal);
 
 	tracker_store_set_active (TRUE, NULL, NULL);
+	if (info->resources)
+		tracker_resources_enable_signals (info->resources);
 }
 
 void
@@ -158,7 +161,10 @@ tracker_backup_restore (TrackerBackup          *object,
 	info->request_id = request_id;
 	info->context = context;
 	info->journal_uri = g_strdup (journal_uri);
+	info->resources = TRACKER_RESOURCES (tracker_dbus_get_object (TRACKER_TYPE_RESOURCES));
 
+	if (info->resources)
+		tracker_resources_disable_signals (info->resources);
 	tracker_store_set_active (FALSE, backup_idle_set_active_false_cb, info);
 }
 

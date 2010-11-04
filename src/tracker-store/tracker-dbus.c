@@ -349,7 +349,7 @@ tracker_dbus_register_prepare_class_signal (void)
 		return FALSE;
 	}
 
-	tracker_resources_prepare (resources);
+	tracker_resources_enable_signals (resources);
 
 	return TRUE;
 }

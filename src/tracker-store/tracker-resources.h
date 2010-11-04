@@ -56,8 +56,8 @@ struct TrackerResourcesClass {
 
 GType             tracker_resources_get_type            (void);
 TrackerResources *tracker_resources_new                 (DBusGConnection        *connection);
-void              tracker_resources_prepare             (TrackerResources       *object);
-void              tracker_resources_unprepare           (TrackerResources       *object);
+void              tracker_resources_enable_signals      (TrackerResources       *object);
+void              tracker_resources_disable_signals     (TrackerResources       *object);
 
 void              tracker_resources_unreg_batches       (TrackerResources       *object,
                                                          const gchar            *old_owner);
