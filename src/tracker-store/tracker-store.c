@@ -98,6 +98,11 @@ typedef struct {
 	} callback;
 } TrackerStoreTask;
 
+typedef struct {
+	GDestroyNotify callback;
+	gpointer user_data;
+} SetActiveDelegate;
+
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
 #ifdef __USE_GNU
@@ -654,6 +659,17 @@ tracker_store_unreg_batches (const gchar *client_id)
 	sched (private);
 }
 
+static gboolean
+active_cb_in_idle (gpointer user_data)
+{
+	SetActiveDelegate *data = user_data;
+
+	data->callback (data->user_data);
+	g_free (data);
+
+	return FALSE;
+}
+
 void
 tracker_store_set_active (gboolean       active,
                           GDestroyNotify callback,
@@ -663,8 +679,6 @@ tracker_store_set_active (gboolean       active,
 
 	private = g_static_private_get (&private_key);
 
-	private->active_callback = callback;
-	private->active_user_data = user_data;
 	private->active = active;
 
 	if (active == FALSE &&
@@ -672,8 +686,16 @@ tracker_store_set_active (gboolean       active,
 	    !private->update_running &&
 	    private->active_callback)
 	{
-		private->active_callback (private->active_user_data);
+		SetActiveDelegate *data = g_new0 (SetActiveDelegate, 1);
+
+		data->callback = callback;
+		data->user_data = user_data;
+		g_idle_add (active_cb_in_idle, data);
+
 		private->active_callback = NULL;
+	} else {
+		private->active_callback = callback;
+		private->active_user_data = user_data;
 	}
 
 	if (active) {
