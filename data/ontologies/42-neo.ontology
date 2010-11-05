@@ -8,113 +8,113 @@
 @prefix nmm: <http://www.tracker-project.org/temp/nmm#> .
 @prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
 @prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
-@prefix zg: <http://www.zeitgeist-project.com/ontologies/2010/01/27/zg#> .
+@prefix neo: <http://www.tracker-project.org/temp/neo#> .
 
-zg: a tracker:Namespace, tracker:Ontology ;
-	tracker:prefix "zg" ;
+neo: a tracker:Namespace, tracker:Ontology ;
+	tracker:prefix "neo" ;
 	nao:lastModified "2010-09-20T09:11:00Z" .
 
 
-zg:EventInterpretation a rdfs:Class ;
+neo:EventInterpretation a rdfs:Class ;
     rdfs:comment "Class for event interpretations. The interpretation of an event describes 'what happened' - fx. 'something was created' or 'something was accessed'" ;
     rdfs:subClassOf nie:InformationElement .
 
-zg:create-event a zg:EventInterpretation;
+neo:create-event a neo:EventInterpretation;
     rdfs:comment "Event type triggered when an item is created" .
 
-zg:access-event a zg:EventInterpretation ;
-    rdfs:comment "Event triggered by opening, accessing, or starting a resource. Most zg:AccessEvents will have an accompanying zg:LeaveEvent, but this need not always be the case" .
+neo:access-event a neo:EventInterpretation ;
+    rdfs:comment "Event triggered by opening, accessing, or starting a resource. Most neo:AccessEvents will have an accompanying neo:LeaveEvent, but this need not always be the case" .
 
-zg:leave-event a zg:EventInterpretation ;
-    rdfs:comment "Event triggered by closing, leaving, or stopping a resource. Most zg:LeaveEvents will be following a zg:Access event, but this need not always be the case" .
+neo:leave-event a neo:EventInterpretation ;
+    rdfs:comment "Event triggered by closing, leaving, or stopping a resource. Most neo:LeaveEvents will be following a neo:Access event, but this need not always be the case" .
 
-zg:modify-event a zg:EventInterpretation;
+neo:modify-event a neo:EventInterpretation;
     rdfs:comment "Event triggered by modifying an existing resources. Fx. when editing and saving a file on disk or correcting a typo in the name of a contact" .
 
-zg:delete-event a zg:EventInterpretation;
+neo:delete-event a neo:EventInterpretation;
     rdfs:comment "Event triggered because a resource has been deleted or otherwise made permanently unavailable. Fx. when deleting a file. FIXME: How about when moving to trash?" .
 
-zg:receive-event a zg:EventInterpretation;
+neo:receive-event a neo:EventInterpretation;
     rdfs:comment "Event triggered when something is received from an external party. The event manifestation must be set according to the world view of the receiving party. Most often the item that is being received will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" .
 
-zg:send-event a zg:EventInterpretation;
+neo:send-event a neo:EventInterpretation;
     rdfs:comment "Event triggered when something is send to an external party. The event manifestation must be set according to the world view of the sending party. Most often the item that is being send will be some sort of message - an email, instant message, or broadcasted media such as micro blogging" .
 
-zg:EventManifestation a rdfs:Class ;
+neo:EventManifestation a rdfs:Class ;
     rdfs:comment "Class for event manifestation types. The manifestation of an event describes 'how it happened'. Fx. 'the user did this' or 'the system notified the user'" ;
     rdfs:subClassOf nie:DataObject .
 
-zg:user-activity a zg:EventManifestation;
+neo:user-activity a neo:EventManifestation;
     rdfs:comment "An event that was actively performed by the user. For example saving or opening a file by clicking on it in the file manager" .
 
-zg:heuristic-activity a zg:EventManifestation;
+neo:heuristic-activity a neo:EventManifestation;
     rdfs:comment "An event that is caused indirectly from user activity or deducted via analysis of other events. Fx. if an algorithm divides a user workflow into disjoint 'projects' based on temporal analysis it could insert heuristic events when the user changed project" .
 
-zg:scheduled-activity a zg:EventManifestation;
+neo:scheduled-activity a neo:EventManifestation;
     rdfs:comment "An event that was directly triggered by some user initiated sequence of actions. For example a music player automatically changing to the next song in a playlist" .
 
-zg:world-activity a zg:EventManifestation;
+neo:world-activity a neo:EventManifestation;
     rdfs:comment "An event that was performed by an entity, usually human or organization, other than the user. An example could be logging the activities of other people in a team" .
 
-zg:system-notification a zg:EventManifestation;
+neo:system-notification a neo:EventManifestation;
     rdfs:comment "An event send to the user by the operating system. Examples could include when the user inserts a USB stick or when the system warns that the hard disk is full" .
 
-zg:Event a rdfs:Class ;
+neo:Event a rdfs:Class ;
     rdfs:comment "Something that happened at a point in time. Events are categorized by two primary factors 'what happened' - called the interpretation and 'how did it happen' - called the manifestation. Aside from a timestamp, events can also carry a reference to the entity responsible for instantiating it - called the actor. Normally the event actor is an application, but it need not be. Events happen to zero or more subjects. The subjects are described using the Nepomuk ontologies." ;
     tracker:notify true ;
     rdfs:subClassOf rdfs:Resource .
 
-zg:timestamp a rdf:Property ;
+neo:timestamp a rdf:Property ;
     rdfs:label "timestamp" ;
     rdfs:comment "Timestamp in milliseconds since the Unix Epoch" ;
     nrl:maxCardinality 1 ;
-    rdfs:domain zg:Event ;
+    rdfs:domain neo:Event ;
     rdfs:range xsd:integer .
 
-zg:hasActor a rdf:Property ;
+neo:hasActor a rdf:Property ;
     nrl:maxCardinality 1;
     rdfs:comment "The application or entity responsible for emitting the event. For applications the format of this field is the base filename of the corresponding .desktop file with an app:// URI scheme. For example /usr/share/applications/firefox.desktop is encoded as app://firefox.desktop" ;
-    rdfs:domain zg:Event ;
+    rdfs:domain neo:Event ;
     rdfs:label "actor" ;
     rdfs:range rdfs:Resource .
 
-zg:hasEventInterpretation a rdf:Property ;
+neo:hasEventInterpretation a rdf:Property ;
     nrl:maxCardinality 1;
-    rdfs:domain zg:Event ;
+    rdfs:domain neo:Event ;
     rdfs:label "interpretation" ;
-    rdfs:range zg:EventInterpretation .
+    rdfs:range neo:EventInterpretation .
 
-zg:hasEventManifestation a rdf:Property ;
+neo:hasEventManifestation a rdf:Property ;
     nrl:maxCardinality 1;
-    rdfs:domain zg:Event ;
+    rdfs:domain neo:Event ;
     rdfs:label "manifestation" ;
-    rdfs:range zg:EventManifestation .
+    rdfs:range neo:EventManifestation .
 
-zg:hasSubject a rdf:Property ;
-    rdfs:domain zg:Event ;
+neo:hasSubject a rdf:Property ;
+    rdfs:domain neo:Event ;
     rdfs:label "subject" ;
     rdfs:range nie:InformationElement.
 
-zg:Relation a rdfs:Class ;
+neo:Relation a rdfs:Class ;
     rdfs:comment "a weighted relationship" ;
     rdfs:subClassOf nie:InformationElement .
 
-zg:relationFrom a rdf:Property ;
+neo:relationFrom a rdf:Property ;
     nrl:maxCardinality 1 ;
-    rdfs:domain zg:Relation ;
+    rdfs:domain neo:Relation ;
     rdfs:range nie:InformationElement .
 
-zg:relationTo a rdf:Property ;
+neo:relationTo a rdf:Property ;
     nrl:maxCardinality 1 ;
-    rdfs:domain zg:Relation ;
+    rdfs:domain neo:Relation ;
     rdfs:range nie:InformationElement .
 
-zg:relationWeight a rdf:Property;
+neo:relationWeight a rdf:Property;
     nrl:maxCardinality 1 ;
-    rdfs:domain zg:Relation ;
+    rdfs:domain neo:Relation ;
     rdfs:range xsd:double .
 
-zg:relationExpires  a rdf:Property;
+neo:relationExpires  a rdf:Property;
     nrl:maxCardinality 1 ;
-    rdfs:domain zg:Relation ;
+    rdfs:domain neo:Relation ;
     rdfs:range xsd:dateTime .
