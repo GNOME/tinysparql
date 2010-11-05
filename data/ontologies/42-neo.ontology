@@ -94,27 +94,3 @@ neo:hasSubject a rdf:Property ;
     rdfs:domain neo:Event ;
     rdfs:label "subject" ;
     rdfs:range nie:InformationElement.
-
-neo:Relation a rdfs:Class ;
-    rdfs:comment "a weighted relationship" ;
-    rdfs:subClassOf nie:InformationElement .
-
-neo:relationFrom a rdf:Property ;
-    nrl:maxCardinality 1 ;
-    rdfs:domain neo:Relation ;
-    rdfs:range nie:InformationElement .
-
-neo:relationTo a rdf:Property ;
-    nrl:maxCardinality 1 ;
-    rdfs:domain neo:Relation ;
-    rdfs:range nie:InformationElement .
-
-neo:relationWeight a rdf:Property;
-    nrl:maxCardinality 1 ;
-    rdfs:domain neo:Relation ;
-    rdfs:range xsd:double .
-
-neo:relationExpires  a rdf:Property;
-    nrl:maxCardinality 1 ;
-    rdfs:domain neo:Relation ;
-    rdfs:range xsd:dateTime .
