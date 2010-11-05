@@ -39,6 +39,7 @@ typedef struct {
 	gchar *journal_uri;
 	TrackerResources *resources;
 	TrackerNotifyClassGetter getter;
+	GFile *destination;
 } TrackerDBusMethodInfo;
 
 G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)
@@ -78,6 +79,13 @@ backup_callback (GError *error, gpointer user_data)
 
 	dbus_g_method_return (info->context);
 
+	if (info->resources) {
+		tracker_events_init (info->getter);
+		tracker_resources_enable_signals (info->resources);
+		g_object_unref (info->resources);
+	}
+
+	tracker_store_set_active (TRUE, NULL, NULL);
 }
 
 static void
@@ -108,6 +116,20 @@ restore_callback (GError *error, gpointer user_data)
 	tracker_store_set_active (TRUE, NULL, NULL);
 }
 
+
+static void
+backup_idle_set_active_false_cb (gpointer user_data)
+{
+	TrackerDBusMethodInfo *info = user_data;
+
+	tracker_data_backup_save (info->destination,
+	                          backup_callback,
+	                          info, 
+	                          (GDestroyNotify) g_free);
+
+	g_object_unref (info->destination);
+}
+
 void
 tracker_backup_save (TrackerBackup          *object,
                      const gchar            *destination_uri,
@@ -116,7 +138,7 @@ tracker_backup_save (TrackerBackup          *object,
 {
 	guint request_id;
 	TrackerDBusMethodInfo *info;
-	GFile *destination;
+	gpointer resources;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -129,18 +151,22 @@ tracker_backup_save (TrackerBackup          *object,
 
 	info->request_id = request_id;
 	info->context = context;
-	destination = g_file_new_for_uri (destination_uri);
+	info->destination = g_file_new_for_uri (destination_uri);
 
-	tracker_data_backup_save (destination,
-	                          backup_callback,
-	                          info, 
-	                          (GDestroyNotify) g_free);
+	resources = tracker_dbus_get_object (TRACKER_TYPE_RESOURCES);
 
-	g_object_unref (destination);
+	if (resources) {
+		info->resources = g_object_ref (resources);
+		tracker_resources_disable_signals (info->resources);
+		info->getter = tracker_events_get_class_getter ();
+		tracker_events_shutdown ();
+	}
+
+	tracker_store_set_active (FALSE, backup_idle_set_active_false_cb, info);
 }
 
 static void
-backup_idle_set_active_false_cb (gpointer user_data)
+restore_idle_set_active_false_cb (gpointer user_data)
 {
 	TrackerDBusMethodInfo *info = user_data;
 	GFile *journal;
@@ -153,7 +179,7 @@ backup_idle_set_active_false_cb (gpointer user_data)
 	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
 
 	busy_callback = tracker_status_get_callback (notifier, 
-	                                            &busy_user_data);
+	                                             &busy_user_data);
 
 	g_free (info->journal_uri);
 
@@ -198,6 +224,6 @@ tracker_backup_restore (TrackerBackup          *object,
 		tracker_events_shutdown ();
 	}
 
-	tracker_store_set_active (FALSE, backup_idle_set_active_false_cb, info);
+	tracker_store_set_active (FALSE, restore_idle_set_active_false_cb, info);
 }
 
