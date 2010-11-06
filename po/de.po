@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-10-21 08:56+0000\n"
-"PO-Revision-Date: 2010-10-25 20:45+0100\n"
+"POT-Creation-Date: 2010-10-30 08:30+0000\n"
+"PO-Revision-Date: 2010-10-30 21:08+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -153,11 +153,11 @@ msgstr "Schlagworte …"
 msgid "Tag one or more files"
 msgstr "Einer oder mehreren Dateien Schlagwörter zuordnen"
 
-#: ../src/libtracker-common/tracker-dbus.c:598
+#: ../src/libtracker-common/tracker-dbus.c:571
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
 #: ../src/tracker-utils/tracker-search.c:1270
-#: ../src/tracker-utils/tracker-sparql.c:268
+#: ../src/tracker-utils/tracker-sparql.c:292
 #: ../src/tracker-utils/tracker-stats.c:93
 #: ../src/tracker-utils/tracker-tag.c:945
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:90
@@ -254,8 +254,8 @@ msgid "Processing…"
 msgstr "Verarbeitung läuft …"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
-#: ../src/tracker-utils/tracker-sparql.c:380
-#: ../src/tracker-utils/tracker-sparql.c:465
+#: ../src/tracker-utils/tracker-sparql.c:404
+#: ../src/tracker-utils/tracker-sparql.c:523
 msgid "Properties"
 msgstr "Eigenschaften"
 
@@ -287,7 +287,7 @@ msgstr "Datei zur Ermittlung der Metadaten"
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:57
 #: ../src/tracker-utils/tracker-info.c:58
-#: ../src/tracker-utils/tracker-sparql.c:60
+#: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "DATEI"
 
@@ -319,8 +319,8 @@ msgstr ""
 msgid "MODULE"
 msgstr "MODUL"
 
-#: ../src/tracker-extract/tracker-main.c:111 ../src/miners/fs/tracker-main.c:94
-#: ../src/tracker-store/tracker-main.c:97
+#: ../src/tracker-extract/tracker-main.c:111
+#: ../src/miners/fs/tracker-main.c:94 ../src/tracker-store/tracker-main.c:97
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Versionsinformationen anzeigen"
@@ -385,11 +385,13 @@ msgstr "Ordner kommt für eine Indizierung in Frage (aufgrund des Inhalts)"
 
 #: ../src/miners/fs/tracker-main.c:431
 msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr "Ordner kommt NICHT für eine Indizierung in Frage (aufgrund des Inhalts)"
+msgstr ""
+"Ordner kommt NICHT für eine Indizierung in Frage (aufgrund des Inhalts)"
 
 #: ../src/miners/fs/tracker-main.c:478
 msgid "Directory is eligible to be monitored (based on config)"
-msgstr "Ordner kommt für eine Überwachung in Frage (aufgrund der Konfiguration)"
+msgstr ""
+"Ordner kommt für eine Überwachung in Frage (aufgrund der Konfiguration)"
 
 #: ../src/miners/fs/tracker-main.c:479
 msgid "Directory is NOT eligible to be monitored (based on config)"
@@ -448,11 +450,11 @@ msgstr "Würde überwacht werden"
 msgid "- start the tracker indexer"
 msgstr "- startet die Tracker-Indizierung"
 
-#: ../src/miners/fs/tracker-miner-files.c:1240
+#: ../src/miners/fs/tracker-miner-files.c:1241
 msgid "Low battery"
 msgstr "Akkuzustand niedrig"
 
-#: ../src/miners/fs/tracker-miner-files.c:1368
+#: ../src/miners/fs/tracker-miner-files.c:1364
 msgid "Low disk space"
 msgstr "Wenig Speicherplatz"
 
@@ -684,7 +686,7 @@ msgstr "Suchleiste"
 #. G_CALLBACK (statistics_menu_activated), icon);
 #.
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
-#: ../src/tracker-status-icon/tracker-status-icon.c:915
+#: ../src/tracker-status-icon/tracker-status-icon.c:917
 msgid "_About"
 msgstr "_Über"
 
@@ -774,8 +776,9 @@ msgid ""
 "version.\n"
 "\n"
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
-"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR "
-"A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n"
+"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
+"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
+"details.\n"
 "\n"
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
@@ -783,8 +786,8 @@ msgid ""
 msgstr ""
 "Tracker ist freie Software. Sie können sie weitergeben und/oder verändern, "
 "solange Sie sich an die Regeln der GNU General Public License halten, so wie "
-"sie von der Free Software Foundation festgelegt wurden; entweder in Version 2 "
-"der Lizenz oder (nach Ihrem Ermessen) in jeder folgenden Lizenz.\n"
+"sie von der Free Software Foundation festgelegt wurden; entweder in Version "
+"2 der Lizenz oder (nach Ihrem Ermessen) in jeder folgenden Lizenz.\n"
 "\n"
 "Tracker wurde mit dem Ziel veröffentlicht, dass Sie es nützlich finden, "
 "jedoch OHNE JEDWEDE GARANTIE, sogar ohne eine implizite Garantie der "
@@ -883,7 +886,8 @@ msgstr "Beschreibung:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
 msgid ""
-"Locate documents and folders on this computer by name or content using Tracker"
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
 msgstr ""
 "Tracker erlaubt es, Dokumente ausfindig zu machen, indem Sie nach dem Namen "
 "oder Inhalt suchen"
@@ -934,7 +938,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
 #: ../src/tracker-utils/tracker-search.c:129
-#: ../src/tracker-utils/tracker-sparql.c:91
+#: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:115
 #: ../src/tracker-utils/tracker-tag.c:87
@@ -963,14 +967,15 @@ msgid ""
 msgstr ""
 "Tracker ist freie Software, Sie können sie weitergeben und/oder verändern "
 "solange Sie sich an die Regeln der GNU General Public License halten, so wie "
-"sie von der Free Software Foundation festgelegt wurden; entweder in Version 2 "
-"der Lizenz oder (nach Ihrem Ermessen) in jeder folgenden Lizenz."
+"sie von der Free Software Foundation festgelegt wurden; entweder in Version "
+"2 der Lizenz oder (nach Ihrem Ermessen) in jeder folgenden Lizenz."
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:786
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
-"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR "
-"A PARTICULAR PURPOSE.  See the GNU General Public License for more details."
+"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
+"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
+"details."
 msgstr ""
 "Dieses Programm wurde mit dem Ziel veröffentlicht, dass Sie es nützlich "
 "finden, jedoch OHNE JEDWEDE GARANTIE, sogar ohne eine implizite Garantie der "
@@ -1008,15 +1013,15 @@ msgstr ""
 "Mario Blättermann <mariobl@gnome.org>\n"
 "Christian Kirbach <Christian.Kirbach@googlemail.com>"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:835
+#: ../src/tracker-status-icon/tracker-status-icon.c:837
 msgid "_Search"
 msgstr "_Suchen"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:864
+#: ../src/tracker-status-icon/tracker-status-icon.c:866
 msgid "_Pause All Indexing"
 msgstr "Indizierung _anhalten"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:884
+#: ../src/tracker-status-icon/tracker-status-icon.c:886
 msgid "_Preferences"
 msgstr "_Einstellungen"
 
@@ -1071,7 +1076,8 @@ msgid "Kill all Tracker processes and remove all databases"
 msgstr "Alle Tracker-Prozesse abwürgen und alle Datenbanken löschen"
 
 #: ../src/tracker-control/tracker-control.c:90
-msgid "Same as --hard-reset but the backup & journal are restored after restart"
+msgid ""
+"Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 "Das Gleiche wie »--hard-reset«, wobei jedoch Sicherungen und Journal nach "
 "einem Neustart wiederhergestellt werden"
@@ -1089,8 +1095,8 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control.c:99
 msgid ""
-"Reindex files which match the mime type supplied (for new extractors), use -m "
-"MIME1 -m MIME2"
+"Reindex files which match the mime type supplied (for new extractors), use -"
+"m MIME1 -m MIME2"
 msgstr ""
 "Erneute Indizierung von Dateien, welche dem angegebenen MIME-Typ entsprechen "
 "(für neue Entpacker), verwendet -m MIME1 -m MIME2"
@@ -1126,8 +1132,8 @@ msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
-"Sie können »--terminate« nicht zusammen mit »--hard-reset« oder »--soft-"
-"reset« verwenden, »--kill« ist enthalten"
+"Sie können »--terminate« nicht zusammen mit »--hard-reset« oder »--soft-reset« "
+"verwenden, »--kill« ist enthalten"
 
 #: ../src/tracker-control/tracker-control.c:292
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
@@ -1165,35 +1171,35 @@ msgstr "Prozess %d konnte nicht getötet werden"
 msgid "Killed process %d"
 msgstr "Prozess %d wurde getötet"
 
-#: ../src/tracker-control/tracker-control.c:493
+#: ../src/tracker-control/tracker-control.c:494
 msgid "Removing configuration files…"
 msgstr "Konfigurationsdateien werden entfernt …"
 
-#: ../src/tracker-control/tracker-control.c:510
+#: ../src/tracker-control/tracker-control.c:511
 msgid "Waiting one second before starting miners…"
 msgstr "Eine Sekunde wird gewartet, bevor Indizierer gestartet werden …"
 
-#: ../src/tracker-control/tracker-control.c:516
+#: ../src/tracker-control/tracker-control.c:517
 msgid "Starting miners…"
 msgstr "Indizierung wird gestartet …"
 
-#: ../src/tracker-control/tracker-control.c:531
+#: ../src/tracker-control/tracker-control.c:532
 msgid "perhaps a disabled plugin?"
 msgstr "Plugin könnte deaktiviert sein?"
 
-#: ../src/tracker-control/tracker-control.c:552
+#: ../src/tracker-control/tracker-control.c:553
 msgid "Could not reindex mimetypes"
 msgstr "MIME-Typen konnten nicht erneut indiziert werden"
 
-#: ../src/tracker-control/tracker-control.c:558
+#: ../src/tracker-control/tracker-control.c:559
 msgid "Reindexing mime types was successful"
 msgstr "(Erneute) Indizierung der MIME-Typen war erfolgreich"
 
-#: ../src/tracker-control/tracker-control.c:575
+#: ../src/tracker-control/tracker-control.c:576
 msgid "Could not (re)index file"
 msgstr "Datei konnte nicht (erneut) indiziert werden"
 
-#: ../src/tracker-control/tracker-control.c:581
+#: ../src/tracker-control/tracker-control.c:582
 msgid "(Re)indexing file was successful"
 msgstr "(Erneute) Indizierung der Datei war erfolgreich"
 
@@ -1211,7 +1217,7 @@ msgstr "Eine oder mehrere Dateien wurden nicht angegeben"
 #: ../src/tracker-utils/tracker-import.c:115
 #: ../src/tracker-utils/tracker-info.c:222
 #: ../src/tracker-utils/tracker-search.c:1269
-#: ../src/tracker-utils/tracker-sparql.c:267
+#: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:89
@@ -1227,7 +1233,7 @@ msgid "Unable to import Turtle file"
 msgstr "Turtle-Datei konnte nicht importiert werden"
 
 #: ../src/tracker-utils/tracker-import.c:142
-#: ../src/tracker-utils/tracker-sparql.c:513
+#: ../src/tracker-utils/tracker-sparql.c:571
 #: ../src/tracker-utils/tracker-status.c:210
 msgid "Done"
 msgstr "Abgeschlossen"
@@ -1272,7 +1278,7 @@ msgstr "Keine Metadaten für diese Adresse verfügbar"
 
 #: ../src/tracker-utils/tracker-info.c:305
 #: ../src/tracker-utils/tracker-search.c:1091
-#: ../src/tracker-utils/tracker-sparql.c:555
+#: ../src/tracker-utils/tracker-sparql.c:613
 msgid "Results"
 msgstr "Ergebnisse"
 
@@ -1477,72 +1483,85 @@ msgstr ""
 "Stopp-Wörter sind häufige Begriffe, die während des Indizierungsvorgangs "
 "ignoriert werden können."
 
-#: ../src/tracker-utils/tracker-sparql.c:59
+#: ../src/tracker-utils/tracker-sparql.c:64
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Der zu verwendende Pfad bei Ausführung einer Anfrage oder Aktualisierung von "
 "einer Datei"
 
-#: ../src/tracker-utils/tracker-sparql.c:63
+#: ../src/tracker-utils/tracker-sparql.c:68
 msgid "SPARQL query"
 msgstr "SPARQL-Abfrage"
 
-#: ../src/tracker-utils/tracker-sparql.c:64
+#: ../src/tracker-utils/tracker-sparql.c:69
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:67
+#: ../src/tracker-utils/tracker-sparql.c:72
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "Dies wird mit »--query« und nur zur Aktualisierung der Datenbank verwendet."
 
-#: ../src/tracker-utils/tracker-sparql.c:71
+#: ../src/tracker-utils/tracker-sparql.c:76
 msgid "Retrieve classes"
 msgstr "Klassen erhalten"
 
-#: ../src/tracker-utils/tracker-sparql.c:75
+#: ../src/tracker-utils/tracker-sparql.c:80
 msgid "Retrieve class prefixes"
 msgstr "Klassen-Präfixe erhalten"
 
-#: ../src/tracker-utils/tracker-sparql.c:79
+#: ../src/tracker-utils/tracker-sparql.c:84
 msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
 msgstr ""
 "Eigenschaften für eine Klasse erhalten, Präfixe können auch verwendet werden "
 "(z.B. rdfs:Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:80
-#: ../src/tracker-utils/tracker-sparql.c:84
+#: ../src/tracker-utils/tracker-sparql.c:85
+#: ../src/tracker-utils/tracker-sparql.c:89
 msgid "CLASS"
 msgstr "KLASSE"
 
-#: ../src/tracker-utils/tracker-sparql.c:83
+#: ../src/tracker-utils/tracker-sparql.c:88
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Klassen erhalten, die über Änderungen in der Datenbank benachrichtigen "
 "(KLASSE ist optional)"
 
-#: ../src/tracker-utils/tracker-sparql.c:87
+#: ../src/tracker-utils/tracker-sparql.c:92
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional) "
+msgstr ""
+"In der Datenbank verwendete Indizes ermitteln, um die Leistung zu erhöhen "
+"(EIGENSCHAFT ist optional)"
+
+#: ../src/tracker-utils/tracker-sparql.c:93
+msgid "PROPERTY"
+msgstr "EIGENSCHAFT"
+
+#: ../src/tracker-utils/tracker-sparql.c:96
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Nach einer Klasse oder Eigenschaft suchen und weitere Informationen anzeigen "
 "(z.B. ein Dokument)"
 
-#: ../src/tracker-utils/tracker-sparql.c:88
+#: ../src/tracker-utils/tracker-sparql.c:97
 msgid "CLASS/PROPERTY"
 msgstr "KLASSE/EIGENSCHAFT"
 
-#: ../src/tracker-utils/tracker-sparql.c:117
+#: ../src/tracker-utils/tracker-sparql.c:126
 msgid "Could not get namespace prefixes"
 msgstr "Präfixe des Namensraumes können nicht ermittelt werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:135
 msgid "No namespace prefixes were found"
 msgstr "Es wurden keine Präfixe des Namensraumes gefunden"
 
-#: ../src/tracker-utils/tracker-sparql.c:197
+#: ../src/tracker-utils/tracker-sparql.c:221
 #: ../src/tracker-utils/tracker-stats.c:123
 #: ../src/tracker-utils/tracker-tag.c:370
 #: ../src/tracker-utils/tracker-tag.c:494
@@ -1550,103 +1569,116 @@ msgstr "Es wurden keine Präfixe des Namensraumes gefunden"
 msgid "None"
 msgstr "Nichts"
 
-#: ../src/tracker-utils/tracker-sparql.c:221
+#: ../src/tracker-utils/tracker-sparql.c:245
 msgid "- Query or update using SPARQL"
 msgstr "- Abfrage oder Aktualisierung mittels SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:235
+#: ../src/tracker-utils/tracker-sparql.c:259
 msgid "An argument must be supplied"
 msgstr "Es muss ein Argument angegeben werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:237
+#: ../src/tracker-utils/tracker-sparql.c:261
 msgid "File and query can not be used together"
 msgstr "Datei und Suche können nicht gemeinsam verwendet werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:281
+#: ../src/tracker-utils/tracker-sparql.c:305
 msgid "Could not list classes"
 msgstr "Klassen konnten nicht aufgelistet werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:289
+#: ../src/tracker-utils/tracker-sparql.c:313
 msgid "No classes were found"
 msgstr "Es wurden keine Klassen gefunden"
 
-#: ../src/tracker-utils/tracker-sparql.c:289
-#: ../src/tracker-utils/tracker-sparql.c:442
+#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:500
 msgid "Classes"
 msgstr "Klassen"
 
-#: ../src/tracker-utils/tracker-sparql.c:305
+#: ../src/tracker-utils/tracker-sparql.c:329
 msgid "Could not list class prefixes"
 msgstr "Klassen-Präfixe konnten nicht aufgelistet werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:337
 msgid "No class prefixes were found"
 msgstr "Es wurden keine Klassen-Präfixe gefunden"
 
-#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:337
 msgid "Prefixes"
 msgstr "Präfixe"
 
-#: ../src/tracker-utils/tracker-sparql.c:333
+#: ../src/tracker-utils/tracker-sparql.c:357
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Die Eigenschaft des Klassen-Präfix konnte nicht gefunden werden, z.B.: "
 "Resource in 'rdfsResource'"
 
-#: ../src/tracker-utils/tracker-sparql.c:372
+#: ../src/tracker-utils/tracker-sparql.c:396
 msgid "Could not list properties"
 msgstr "Die Eigenschaften konnten nicht aufgelistet werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:380
+#: ../src/tracker-utils/tracker-sparql.c:404
 msgid "No properties were found"
 msgstr "Es wurden keine Eigenschaften gefunden"
 
-#: ../src/tracker-utils/tracker-sparql.c:408
+#: ../src/tracker-utils/tracker-sparql.c:432
 msgid "Could not find notify classes"
 msgstr "Klassen zur Benachrichtigung konnten nicht gefunden werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:416
+#: ../src/tracker-utils/tracker-sparql.c:440
 msgid "No notifies were found"
 msgstr "Es wurden keine Benachrichtigungen gefunden"
 
-#: ../src/tracker-utils/tracker-sparql.c:416
+#: ../src/tracker-utils/tracker-sparql.c:440
 msgid "Notifies"
 msgstr "Benachrichtigt"
 
-#: ../src/tracker-utils/tracker-sparql.c:434
+#: ../src/tracker-utils/tracker-sparql.c:466
+msgid "Could not find indexed properties"
+msgstr "Indizierte Eigenschaften konnten nicht gefunden werden"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+msgid "No indexes were found"
+msgstr "Es wurden keine Indizes gefunden"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+msgid "Indexes"
+msgstr "Indizes"
+
+#: ../src/tracker-utils/tracker-sparql.c:492
 msgid "Could not search classes"
 msgstr "Klassen konnten nicht gesucht werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:442
+#: ../src/tracker-utils/tracker-sparql.c:500
 msgid "No classes were found to match search term"
 msgstr "Es wurden keine Klassen gefunden, die dem Suchbegriff entsprechen"
 
-#: ../src/tracker-utils/tracker-sparql.c:457
+#: ../src/tracker-utils/tracker-sparql.c:515
 msgid "Could not search properties"
 msgstr "Eigenschaften konnten nicht gesucht werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:465
+#: ../src/tracker-utils/tracker-sparql.c:523
 msgid "No properties were found to match search term"
-msgstr "Es wurden keine Eigenschaften gefunden, die dem Suchbegriff entsprechen"
+msgstr ""
+"Es wurden keine Eigenschaften gefunden, die dem Suchbegriff entsprechen"
 
-#: ../src/tracker-utils/tracker-sparql.c:475
+#: ../src/tracker-utils/tracker-sparql.c:533
 msgid "Could not get UTF-8 path from path"
 msgstr "UTF-8-Pfad konnte aus dem Pfad nicht ermittelt werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:487
+#: ../src/tracker-utils/tracker-sparql.c:545
 msgid "Could not read file"
 msgstr "Datei konnte nicht gelesen werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:506
+#: ../src/tracker-utils/tracker-sparql.c:564
 msgid "Could not run update"
 msgstr "Aktualisierung konnte nicht ausgeführt werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:548
+#: ../src/tracker-utils/tracker-sparql.c:606
 msgid "Could not run query"
 msgstr "Suche konnte nicht ausgeführt werden"
 
-#: ../src/tracker-utils/tracker-sparql.c:555
+#: ../src/tracker-utils/tracker-sparql.c:613
 msgid "No results found matching your query"
 msgstr "Es konnten keine Ergebnisse gefunden werden"
 
@@ -1857,7 +1889,8 @@ msgstr "Speichern"
 
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid "List all tags (using FILTER if specified)"
-msgstr "Alle Schlagworte auflisten (falls angegeben, wird ein FILTER verwendet)"
+msgstr ""
+"Alle Schlagworte auflisten (falls angegeben, wird ein FILTER verwendet)"
 
 #: ../src/tracker-utils/tracker-tag.c:71
 msgid "Show files associated with each tag (this is only used with --list)"
@@ -1878,8 +1911,8 @@ msgstr "SCHLAGWORT"
 #: ../src/tracker-utils/tracker-tag.c:79
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr ""
-"Ein Schlagwort löschen (wenn DATEIen weggelassen wird, so wird das SCHLAGWORT "
-"für alle Dateien gelöscht)"
+"Ein Schlagwort löschen (wenn DATEIen weggelassen wird, so wird das "
+"SCHLAGWORT für alle Dateien gelöscht)"
 
 #: ../src/tracker-utils/tracker-tag.c:83
 msgid "Description for a tag (this is only used with --add)"
@@ -2135,7 +2168,8 @@ msgstr "Gespeicherte Abfragen"
 #~ msgid "Could not get miner status"
 #~ msgstr "Status der Indizierung konnte nicht ermittelt werden"
 
-#~ msgid "Use SIGKILL to stop all tracker processes found - guarantees death :)"
+#~ msgid ""
+#~ "Use SIGKILL to stop all tracker processes found - guarantees death :)"
 #~ msgstr ""
 #~ "SIGKILL zum Stoppen aller Tracker-Prozesse ausführen - garantiert "
 #~ "tödlich :)"
@@ -2327,8 +2361,8 @@ msgstr "Gespeicherte Abfragen"
 #~ "backup and journal (a restart will restore the data)"
 #~ msgstr ""
 #~ "Dies beendet alle Tracker-Prozesse und löscht alle Datenbanken, bis auf "
-#~ "die Sicherheitskopie und das Journal (ein Neustart stellt die Daten wieder "
-#~ "her)"
+#~ "die Sicherheitskopie und das Journal (ein Neustart stellt die Daten "
+#~ "wieder her)"
 
 #~ msgid "Found %d PID…"
 #~ msgid_plural "Found %d PIDs…"
@@ -2385,8 +2419,9 @@ msgstr "Gespeicherte Abfragen"
 #~ "Removable devices are always considered separately. This applies to "
 #~ "directories mounted within the file system which are NOT removable devices"
 #~ msgstr ""
-#~ "Wechseldatenträger werden immer separat betrachtet. Dies trifft auf Ordner "
-#~ "zu, die im Dateisystem eingehängt sind und KEINE Wechseldatenträger sind"
+#~ "Wechseldatenträger werden immer separat betrachtet. Dies trifft auf "
+#~ "Ordner zu, die im Dateisystem eingehängt sind und KEINE "
+#~ "Wechseldatenträger sind"
 
 #~ msgid "Removable devices include memory cards and USB sticks for example"
 #~ msgstr "Wechseldatenträger sind zum Beispiel Speicherkarten und USB-Sticks"
@@ -2408,8 +2443,8 @@ msgstr "Gespeicherte Abfragen"
 #~ msgstr ""
 #~ "Dies ist eine Ausnahme der vorhergehenden Option.\n"
 #~ "\n"
-#~ "Ein Ankreuzen hat zur Folge, dass Tracker beim ersten Start im Akkubetrieb "
-#~ "statt Netzbetrieb nicht angehalten wird"
+#~ "Ein Ankreuzen hat zur Folge, dass Tracker beim ersten Start im "
+#~ "Akkubetrieb statt Netzbetrieb nicht angehalten wird"
 
 #~ msgid ""
 #~ "This represents a percentage of disk capacity which MUST be free to be "
@@ -2447,7 +2482,8 @@ msgstr "Gespeicherte Abfragen"
 #~ msgstr "Applet-Einstellungen"
 
 #~ msgid "_Automatically pause all indexing when computer is in active use"
-#~ msgstr "Indizierung _automatisch unterbrechen, wenn der Rechner benutzt wird"
+#~ msgstr ""
+#~ "Indizierung _automatisch unterbrechen, wenn der Rechner benutzt wird"
 
 #~ msgid "_Hide Icon (except when displaying messages to user)"
 #~ msgstr "_Symbol verbergen (außer bei der Anzeige von Benutzerinfos)"
@@ -2575,8 +2611,8 @@ msgstr "Gespeicherte Abfragen"
 #~ msgstr "Debugmodus (Vorgabe = aus)"
 
 #~ msgid ""
-#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default "
-#~ "= config)"
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = config)"
 #~ msgstr ""
 #~ "Protokollierung, 0 = nur Fehler, 1 = minimal, 2 = detailliert und 3 = "
 #~ "debug (Vorgabe = config)"
@@ -2585,9 +2621,9 @@ msgstr "Gespeicherte Abfragen"
 #~ msgstr "Indexdaten aus allen aktivierten Modulen"
 
 #~ msgid ""
-#~ "In order for your changes to take effect, Tracker must reindex your files. "
-#~ "Click the Reindex button to start reindexing now, otherwise this action "
-#~ "will be performed the next time the Tracker daemon is restarted."
+#~ "In order for your changes to take effect, Tracker must reindex your "
+#~ "files. Click the Reindex button to start reindexing now, otherwise this "
+#~ "action will be performed the next time the Tracker daemon is restarted."
 #~ msgstr ""
 #~ "Damit die Änderungen wirksam werden, muss Tracker ihre Daten neu "
 #~ "indizieren. Klicken Sie auf »Neu indizieren«, um diesen Prozess jetzt zu "
@@ -2604,8 +2640,9 @@ msgstr "Gespeicherte Abfragen"
 #~ "In order for your changes to take effect, the Tracker daemon has to be "
 #~ "restarted. Click the Restart button to restart the daemon now."
 #~ msgstr ""
-#~ "Damit die Änderungen wirksam werden, muss der Tracker Dienst neu gestartet "
-#~ "werden. Klicken Sie auf »Neu starten«, um den Dienst jetzt neu zu starten."
+#~ "Damit die Änderungen wirksam werden, muss der Tracker Dienst neu "
+#~ "gestartet werden. Klicken Sie auf »Neu starten«, um den Dienst jetzt neu "
+#~ "zu starten."
 
 #~ msgid "_Restart"
 #~ msgstr "Neu _starten"
@@ -2860,7 +2897,8 @@ msgstr "Gespeicherte Abfragen"
 #~ "Es konnte keine Verbindung zum Suchdienst aufgenommen werden, da dieser "
 #~ "vermutlich beschäftigt ist"
 
-#~ msgid "Tracker is still indexing so not all search results are available yet"
+#~ msgid ""
+#~ "Tracker is still indexing so not all search results are available yet"
 #~ msgstr ""
 #~ "Indizierung noch nicht abgeschlossen. Suchergebnisse können unvollständig "
 #~ "sein."
@@ -2882,8 +2920,8 @@ msgstr "Gespeicherte Abfragen"
 #~ msgid ""
 #~ "Specifying multiple terms apply an AND operator to the search performed"
 #~ msgstr ""
-#~ "Bei mehreren Begriffen werden diese zur Ausführung der Suche mit einem AND-"
-#~ "Operator verbunden"
+#~ "Bei mehreren Begriffen werden diese zur Ausführung der Suche mit einem "
+#~ "AND-Operator verbunden"
 
 #~ msgid "Path to use in query"
 #~ msgstr "Bei Abfrage zu benutzender Pfad"
@@ -2988,18 +3026,18 @@ msgstr "Gespeicherte Abfragen"
 #~ "(Vorgabe = 45)"
 
 #~ msgid ""
-#~ "Directories to exclude for file change monitoring (you can do -e <path> -e "
-#~ "<path>)"
+#~ "Directories to exclude for file change monitoring (you can do -e <path> -"
+#~ "e <path>)"
 #~ msgstr ""
-#~ "Von der Überwachung der Dateiänderungen auszuschließende Ordner (-e <Pfad> "
-#~ "-e <Pfad>)"
+#~ "Von der Überwachung der Dateiänderungen auszuschließende Ordner (-e "
+#~ "<Pfad> -e <Pfad>)"
 
 #~ msgid ""
-#~ "Directories to include for file change monitoring (you can do -i <path> -i "
-#~ "<path>)"
+#~ "Directories to include for file change monitoring (you can do -i <path> -"
+#~ "i <path>)"
 #~ msgstr ""
-#~ "In die Überwachung der Dateiänderungen einzuschließende Ordner (-i <Pfad> -"
-#~ "i <Pfad>)"
+#~ "In die Überwachung der Dateiänderungen einzuschließende Ordner (-i <Pfad> "
+#~ "-i <Pfad>)"
 
 #~ msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 #~ msgstr "Ordner für die Suche nach Indexdateien (-c <Pfad> c <Pfad>)"
@@ -3082,8 +3120,8 @@ msgstr "Gespeicherte Abfragen"
 #~ msgstr "WERT"
 
 #~ msgid ""
-#~ "Value to use for throttling indexing. Value must be in range 0-99 (default "
-#~ "0) with lower values increasing indexing speed"
+#~ "Value to use for throttling indexing. Value must be in range 0-99 "
+#~ "(default 0) with lower values increasing indexing speed"
 #~ msgstr ""
 #~ "Wert um den die Indizierung gedrosselt wird. Wertebereich 0-99 (Standard "
 #~ "0), niedrigere Werte bedeuten erhöhte Indizierungsgeschwindigkeit."
@@ -3101,8 +3139,8 @@ msgstr "Gespeicherte Abfragen"
 #~ msgstr "VERZEICHNIS"
 
 #~ msgid ""
-#~ "To include or exclude multiple directories at the same time, join multiple "
-#~ "options like:"
+#~ "To include or exclude multiple directories at the same time, join "
+#~ "multiple options like:"
 #~ msgstr ""
 #~ "Um mehrere Verzeichnisse gleichzeitig von der Suche ein- oder "
 #~ "auszuschließen, können mehrere Optionen wie folgt angegeben werden:"
