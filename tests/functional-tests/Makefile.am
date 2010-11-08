@@ -101,8 +101,9 @@ functional-test-slow: ${slow_tests}
 	  test ! -x $$test  || $$ENV_COMMAND_WRAPPER ./$$test > /dev/null; \
 	 done
 
-EXTRA_DIST =                                           \
-	$(config_SCRIPTS)
+EXTRA_DIST =                                           	\
+	$(config_SCRIPTS)				\
+	create-tests-xml.py
 
 if HAVE_MAEMO
 CLEANFILES =                                           \
