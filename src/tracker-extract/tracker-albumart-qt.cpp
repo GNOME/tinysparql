@@ -27,7 +27,6 @@
 #include <QImageWriter>
 
 #include <glib.h>
-#include <gio/gio.h>
 
 #include "tracker-albumart-generic.h"
 
