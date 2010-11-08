@@ -47,9 +47,6 @@ neo:EventManifestation a rdfs:Class ;
 neo:user-activity a neo:EventManifestation;
     rdfs:comment "An event that was actively performed by the user. For example saving or opening a file by clicking on it in the file manager" .
 
-neo:heuristic-activity a neo:EventManifestation;
-    rdfs:comment "An event that is caused indirectly from user activity or deducted via analysis of other events. Fx. if an algorithm divides a user workflow into disjoint 'projects' based on temporal analysis it could insert heuristic events when the user changed project" .
-
 neo:scheduled-activity a neo:EventManifestation;
     rdfs:comment "An event that was directly triggered by some user initiated sequence of actions. For example a music player automatically changing to the next song in a playlist" .
 
