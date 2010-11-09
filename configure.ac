@@ -2085,6 +2085,7 @@ AC_CONFIG_FILES([
         tests/functional-tests/test-ontologies/add-class/Makefile
         tests/functional-tests/test-ontologies/add-prop/Makefile
         tests/functional-tests/test-ontologies/add-domainIndex/Makefile
+        tests/functional-tests/test-ontologies/superclass-remove/Makefile
         tests/functional-tests/test-ontologies/basic-future/Makefile
 	tests/functional-tests/ttl/Makefile
 	tests/Makefile

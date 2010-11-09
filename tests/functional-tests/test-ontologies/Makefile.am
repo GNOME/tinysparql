@@ -9,4 +9,5 @@ SUBDIRS = basic                                        \
 	add-class                                      \
 	add-prop                                       \
 	add-domainIndex                                \
+	superclass-remove			       \
 	basic-future

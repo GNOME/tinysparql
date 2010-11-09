@@ -685,6 +685,90 @@ class DomainIndexRemoveTest (OntologyChangeTestTemplate):
         self.assertTrue (dataok)
 
 
+class SuperclassRemovalTest (OntologyChangeTestTemplate):
+    """
+    Remove the superclass relation between two classes
+    """
+    @expectedFailureBug ("NB#203632")
+    def test_superclass_removal (self):
+        self.template_test_ontology_change ()
+        
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "superclass-remove"
+            
+    def insert_data (self):
+        is_subclass = self.tracker.ask ("ASK {test:B rdfs:subClassOf test:A}")
+        self.assertTrue (is_subclass)
+        
+        self.instance_a = "test://ontology-changes/superclasses/remove-superclass/a"
+        self.tracker.update ("""
+         INSERT { <%s> a test:A . }
+        """ % (self.instance_a))
+
+        self.instance_b = "test://ontology-changes/superclasses/remove-superclass/b"
+        self.tracker.update ("""
+         INSERT { <%s> a test:B . }
+        """ % (self.instance_b))
+
+        result = self.tracker.count_instances ("test:B")
+        self.assertEquals (result, 1)
+
+        result = self.tracker.count_instances ("test:A")
+        self.assertEquals (result, 2)
+
+    def validate_status (self):
+        is_subclass = self.tracker.ask ("ASK {test:B rdfs:subClassOf test:A}")
+        self.assertFalse (is_subclass)
+
+        result = self.tracker.count_instances ("test:B")
+        self.assertEquals (result, 1)
+
+        result = self.tracker.count_instances ("test:A")
+        self.assertEquals (result, 1)
+
+class SuperclassAdditionTest (OntologyChangeTestTemplate):
+    """
+    Add a superclass to a class with no superclass previously
+    """
+    def test_superclass_addition (self):
+        self.template_test_ontology_change ()
+        
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "superclass-remove"
+        self.SECOND_ONTOLOGY_DIR = "basic-future"
+            
+    def insert_data (self):
+        is_subclass = self.tracker.ask ("ASK {test:B rdfs:subClassOf test:A}")
+        self.assertFalse (is_subclass)
+        
+        self.instance_a = "test://ontology-changes/superclasses/remove-superclass/a"
+        self.tracker.update ("""
+         INSERT { <%s> a test:A . }
+        """ % (self.instance_a))
+
+        self.instance_b = "test://ontology-changes/superclasses/remove-superclass/b"
+        self.tracker.update ("""
+         INSERT { <%s> a test:B . }
+        """ % (self.instance_b))
+
+        result = self.tracker.count_instances ("test:B")
+        self.assertEquals (result, 1)
+
+        result = self.tracker.count_instances ("test:A")
+        self.assertEquals (result, 1)
+        
+    def validate_status (self):
+        is_subclass = self.tracker.ask ("ASK {test:B rdfs:subClassOf test:A}")
+        self.assertTrue (is_subclass)
+
+        result = self.tracker.count_instances ("test:B")
+        self.assertEquals (result, 1)
+
+        result = self.tracker.count_instances ("test:A")
+        self.assertEquals (result, 2)
+        
+
 if __name__ == "__main__":
     ut.main ()
 
