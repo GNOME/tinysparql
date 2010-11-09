@@ -50,6 +50,9 @@ vapi_DATA =                                            \
 	tracker-sparql-$(TRACKER_API_VERSION).vapi     \
 	tracker-sparql-$(TRACKER_API_VERSION).deps
 
+BUILT_SOURCES =                                        \
+	libtracker_sparql_$(TRACKER_API_VERSION)_la_vala.stamp
+
 MAINTAINERCLEANFILES =                                 \
 	tracker-sparql-$(TRACKER_API_VERSION).vapi     \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \

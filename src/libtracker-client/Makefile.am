@@ -34,6 +34,8 @@ libtracker_client_@TRACKER_API_VERSION@_la_LDFLAGS =   \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
 	-export-symbols-regex '^tracker_.*'
 
+tracker-sparql-builder.h: libtracker-client-@TRACKER_API_VERSION@.la
+
 libtracker_clientinclude_HEADERS =                     \
 	tracker.h                                      \
 	tracker-client.h                               \
@@ -55,6 +57,7 @@ dbus_sources =                                         \
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES =                                        \
+	libtracker_client_$(TRACKER_API_VERSION)_la_vala.stamp \
 	$(dbus_sources)
 
 CLEANFILES =                                           \

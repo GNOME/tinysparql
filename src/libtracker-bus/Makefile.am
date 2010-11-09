@@ -45,6 +45,9 @@ noinst_HEADERS =                                       \
 	tracker-bus-fd-update.h                        \
 	tracker-bus-shared.h
 
+BUILT_SOURCES =                                        \
+	libtracker_bus_la_vala.stamp
+
 EXTRA_DIST =                                           \
 	tracker-bus-fd-cursor.vapi                     \
 	tracker-bus-fd-update.vapi

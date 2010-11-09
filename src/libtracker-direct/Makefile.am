@@ -36,3 +36,6 @@ libtracker_direct_la_LDFLAGS =                         \
 
 noinst_HEADERS =                                       \
 	tracker-direct.h
+
+BUILT_SOURCES =                                        \
+	libtracker_direct_la_vala.stamp
