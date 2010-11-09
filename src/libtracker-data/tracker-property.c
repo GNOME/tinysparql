@@ -63,7 +63,7 @@ struct _TrackerPropertyPrivate {
 	gboolean       db_schema_changed;
 	gboolean       writeback;
 	gchar         *default_value;
-	gboolean       is_new_domain_index;
+	GPtrArray     *is_new_domain_index;
 
 	GArray        *super_properties;
 	GArray        *domain_indexes;
@@ -152,6 +152,10 @@ property_finalize (GObject *object)
 	g_free (priv->uri);
 	g_free (priv->name);
 	g_free (priv->table_name);
+
+	if (priv->is_new_domain_index) {
+		g_ptr_array_unref (priv->is_new_domain_index);
+	}
 
 	if (priv->domain) {
 		g_object_unref (priv->domain);
@@ -391,15 +395,28 @@ tracker_property_get_is_new (TrackerProperty *property)
 }
 
 gboolean
-tracker_property_get_is_new_domain_index (TrackerProperty *property)
+tracker_property_get_is_new_domain_index (TrackerProperty *property,
+                                          TrackerClass    *class)
 {
 	TrackerPropertyPrivate *priv;
+	guint i;
 
 	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+	g_return_val_if_fail (TRACKER_IS_CLASS (class), FALSE);
 
 	priv = GET_PRIV (property);
 
-	return priv->is_new_domain_index;
+	if (!priv->is_new_domain_index) {
+		return FALSE;
+	}
+
+	for (i = 0; i < priv->is_new_domain_index->len; i++) {
+		if (g_ptr_array_index (priv->is_new_domain_index, i) == class) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 gboolean
@@ -724,15 +741,49 @@ tracker_property_set_is_new (TrackerProperty *property,
 
 void
 tracker_property_set_is_new_domain_index (TrackerProperty *property,
+                                          TrackerClass    *class,
                                           gboolean         value)
 {
 	TrackerPropertyPrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_PROPERTY (property));
 
+	if (class) {
+		g_return_if_fail (TRACKER_IS_CLASS (class));
+	}
+
 	priv = GET_PRIV (property);
 
-	priv->is_new_domain_index = value;
+	if (value) {
+		if (!priv->is_new_domain_index) {
+			priv->is_new_domain_index = g_ptr_array_new_with_free_func ((GDestroyNotify) g_object_unref);
+		}
+		g_ptr_array_add (priv->is_new_domain_index, g_object_ref (class));
+	} else {
+		guint i;
+		gboolean found = FALSE;
+
+		if (!priv->is_new_domain_index) {
+			return;
+		}
+
+		if (!class) {
+			g_ptr_array_unref (priv->is_new_domain_index);
+			priv->is_new_domain_index = NULL;
+			return;
+		}
+
+		for (i = 0; i < priv->is_new_domain_index->len; i++) {
+			if (g_ptr_array_index (priv->is_new_domain_index, i) == class) {
+				found = TRUE;
+				break;
+			}
+		}
+
+		if (found) {
+			g_ptr_array_remove_index (priv->is_new_domain_index, i);
+		}
+	}
 }
 
 void

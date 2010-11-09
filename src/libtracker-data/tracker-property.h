@@ -91,7 +91,8 @@ gboolean            tracker_property_get_embedded            (TrackerProperty   
 gboolean            tracker_property_get_multiple_values     (TrackerProperty      *property);
 gboolean            tracker_property_get_transient           (TrackerProperty      *property);
 gboolean            tracker_property_get_is_new              (TrackerProperty      *property);
-gboolean            tracker_property_get_is_new_domain_index (TrackerProperty      *property);
+gboolean            tracker_property_get_is_new_domain_index (TrackerProperty      *property,
+                                                              TrackerClass         *class);
 gboolean            tracker_property_get_writeback           (TrackerProperty      *property);
 const gchar *       tracker_property_get_default_value       (TrackerProperty      *property);
 gboolean            tracker_property_get_db_schema_changed   (TrackerProperty      *property);
@@ -130,6 +131,7 @@ void                tracker_property_set_transient           (TrackerProperty   
 void                tracker_property_set_is_new              (TrackerProperty      *property,
                                                               gboolean              value);
 void                tracker_property_set_is_new_domain_index (TrackerProperty      *property,
+                                                              TrackerClass         *class,
                                                               gboolean              value);
 void                tracker_property_set_writeback           (TrackerProperty      *property,
                                                                gboolean              value);

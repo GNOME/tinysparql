@@ -786,7 +786,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 		if (!ignore) {
 			if (!had) {
-				tracker_property_set_is_new_domain_index (property, in_update);
+				tracker_property_set_is_new_domain_index (property, class, in_update);
 			}
 			tracker_class_add_domain_index (class, property);
 			tracker_property_add_domain_index (property, class);
@@ -1210,7 +1210,7 @@ check_for_deleted_domain_index (TrackerClass *class)
 				 * functionality that'll recreate the table to know that the
 				 * property must be involved in the recreation and copy */
 
-				tracker_property_set_is_new_domain_index (properties[i], TRUE);
+				tracker_property_set_is_new_domain_index (properties[i], class, TRUE);
 			}
 		}
 
@@ -1218,7 +1218,7 @@ check_for_deleted_domain_index (TrackerClass *class)
 			TrackerProperty *prop = l->data;
 			g_debug ("Ontology change: keeping tracker:domainIndex: %s",
 			         tracker_property_get_name (prop));
-			tracker_property_set_is_new_domain_index (prop, TRUE);
+			tracker_property_set_is_new_domain_index (prop, class, TRUE);
 		}
 
 		for (l = deleted; l != NULL; l = l->next) {
@@ -2167,7 +2167,7 @@ db_get_static_data (TrackerDBInterface *iface)
 
 			default_value = tracker_db_cursor_get_string (cursor, 13, NULL);
 
-			tracker_property_set_is_new_domain_index (property, FALSE);
+			tracker_property_set_is_new_domain_index (property, tracker_ontologies_get_class_by_uri (domain_uri), FALSE);
 			tracker_property_set_is_new (property, FALSE);
 			tracker_property_set_transient (property, transient);
 			tracker_property_set_uri (property, uri);
@@ -2300,6 +2300,7 @@ static void
 create_decomposed_metadata_property_table (TrackerDBInterface *iface,
                                            TrackerProperty    *property,
                                            const gchar        *service_name,
+                                           TrackerClass       *service,
                                            const gchar       **sql_type_for_single_value,
                                            gboolean            in_update,
                                            gboolean            in_change)
@@ -2336,7 +2337,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	}
 
 	if (!in_update || (in_update && (tracker_property_get_is_new (property) ||
-	                                 tracker_property_get_is_new_domain_index (property) ||
+	                                 tracker_property_get_is_new_domain_index (property, service) ||
 	                                 tracker_property_get_db_schema_changed (property)))) {
 		if (transient || tracker_property_get_multiple_values (property)) {
 			GString *sql;
@@ -2622,6 +2623,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 			create_decomposed_metadata_property_table (iface, property,
 			                                           service_name,
+			                                           service,
 			                                           &sql_type_for_single_value,
 			                                           in_update,
 			                                           in_change);
@@ -2655,7 +2657,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						copy_schedule = g_ptr_array_new_with_free_func (g_free);
 					}
 
-					if (is_domain_index && tracker_property_get_is_new_domain_index (property)) {
+					if (is_domain_index && tracker_property_get_is_new_domain_index (property, service)) {
 						schedule_copy (copy_schedule, property, field_name, NULL);
 					}
 
@@ -2676,7 +2678,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					g_string_append_printf (create_sql, ", \"%s:graph\" INTEGER",
 					                        field_name);
 
-					if (is_domain_index && tracker_property_get_is_new_domain_index (property)) {
+					if (is_domain_index && tracker_property_get_is_new_domain_index (property, service)) {
 						schedule_copy (copy_schedule, property, field_name, ":graph");
 					}
 
@@ -2687,7 +2689,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						                        tracker_property_get_name (property),
 						                        tracker_property_get_name (property));
 
-						if (is_domain_index && tracker_property_get_is_new_domain_index (property)) {
+						if (is_domain_index && tracker_property_get_is_new_domain_index (property, service)) {
 							schedule_copy (copy_schedule, property, field_name, ":localTime");
 							schedule_copy (copy_schedule, property, field_name, ":localDate");
 						}
@@ -2695,7 +2697,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					}
 
 				} else if ((!is_domain_index && tracker_property_get_is_new (property)) ||
-				           (is_domain_index && tracker_property_get_is_new_domain_index (property))) {
+				           (is_domain_index && tracker_property_get_is_new_domain_index (property, service))) {
 					GString *alter_sql = NULL;
 
 					put_change = FALSE;
@@ -2904,6 +2906,7 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 			/* create the TEMPORARY table */
 			create_decomposed_metadata_property_table (iface, property,
 			                                           service_name,
+			                                           domain,
 			                                           NULL, FALSE,
 			                                           FALSE);
 		}
@@ -2926,7 +2929,7 @@ tracker_data_ontology_import_finished (void)
 	}
 
 	for (i = 0; i < n_props; i++) {
-		tracker_property_set_is_new_domain_index (properties[i], FALSE);
+		tracker_property_set_is_new_domain_index (properties[i], NULL, FALSE);
 		tracker_property_set_is_new (properties[i], FALSE);
 		tracker_property_set_db_schema_changed (properties[i], FALSE);
 	}
