@@ -275,7 +275,7 @@ class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
     Change cardinality of a property from 1 to N. There shouldn't be any data loss
     """
 
-    @expectedFailureBug ("New journal is gonna work it out")
+    @expectedFailureBug ("NB#202275")
     def test_property_cardinality_1_to_n (self):
         self.template_test_ontology_change ()
 
@@ -604,45 +604,6 @@ class OntologyRemovePropertyTest (OntologyChangeTestTemplate):
         
         check = self.tracker.ask ("ASK { <%s> test:a_superprop_n 'super-prop also keeps this value' }" % (self.instance_b))
         self.assertTrue (check, "This property and value should exist")
-
-class DomainIndexAddTest (OntologyChangeTestTemplate):
-    """
-    Add tracker:domainIndex in properties
-    """
-    def test_DomainIndexAddTest (self):
-        self.template_test_ontology_change ()
-
-    def set_ontology_dirs (self):
-        self.FIRST_ONTOLOGY_DIR = "basic"
-        self.SECOND_ONTOLOGY_DIR = "add-domainIndex"
-
-    def insert_data (self):
-        self.instance_a = "test://ontology-changes/properties/add-domain-index/a"
-        self.tracker.update ("""
-            INSERT { <%s> a test:B ;
-                          test:a_string 'test-value' ;
-                          test:a_n_cardinality 'another-test-value'. }""" % (self.instance_a))
-
-        self.instance_b = "test://ontology-changes/properties/add-domain-index/b"
-        self.tracker.update ("""
-            INSERT { <%s> a test:C ;
-                          test:a_string 'test-value' ;
-                          test:a_n_cardinality 'another-test-value'. }""" % (self.instance_b))
-
-    def validate_status (self):
-        # Check the ontology
-        has_domainIndex = self.tracker.ask ("ASK { test:B tracker:domainIndex test:a_string }")
-        self.assertTrue (has_domainIndex)
-
-        has_domainIndex = self.tracker.ask ("ASK { test:C tracker:domainIndex test:a_n_cardinality }")
-        self.assertTrue (has_domainIndex)
-
-        # Check the data
-        dataok = self.tracker.ask ("ASK { <%s> test:a_string 'test-value' }" % (self.instance_a))
-        self.assertTrue (dataok)
-
-        dataok = self.tracker.ask ("ASK { <%s> test:a_n_cardinality 'another-test-value' }" % (self.instance_b))
-        self.assertTrue (dataok)
 
 class DomainIndexAddTest (OntologyChangeTestTemplate):
     """
