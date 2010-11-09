@@ -61,10 +61,10 @@ BUILT_SOURCES =                                        \
 	$(dbus_sources)
 
 CLEANFILES =                                           \
+	$(vapi_DATA)                                   \
 	$(dbus_sources)
 
 MAINTAINERCLEANFILES =                                 \
-	tracker-client-$(TRACKER_API_VERSION).vapi     \
 	tracker-sparql-builder.h
 
 EXTRA_DIST =                                           \
