@@ -994,6 +994,18 @@ tracker_miner_manager_error_quark (void)
 	return error_quark;
 }
 
+/**
+ * tracker_miner_manager_reindex_by_mimetype:
+ * @manager: a #TrackerMinerManager
+ * @mimetypes: an array of mimetypes (E.G. "text/plain"). All items with a mimetype in that 
+ * list will be reindexed.
+ * @error: return location for errors
+ *
+ * Tells the filesystem miner to reindex any file with a mimetype in the @mimetypes list. 
+ * On failure @error will be set and #FALSE will be returned.
+ *
+ * Returns: #TRUE if everything went fine in the miner.
+ **/
 gboolean
 tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
                                            const GStrv           mimetypes,
@@ -1036,6 +1048,17 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 	return TRUE;
 }
 
+/**
+ * tracker_miner_manager_index_file:
+ * @manager: a #TrackerMinerManager
+ * @file: a URL valid in GIO of a file to give to the miner for processing
+ * @error: return location for errors
+ *
+ * Tells the filesystem miner to index the @file. On failure @error 
+ * will be set and #FALSE will be returned.
+ *
+ * Returns: #TRUE if the miner processed the URL correctly.
+ **/
 gboolean
 tracker_miner_manager_index_file (TrackerMinerManager  *manager,
                                   GFile                *file,
