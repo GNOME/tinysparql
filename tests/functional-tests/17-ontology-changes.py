@@ -25,6 +25,7 @@ changes and checking if the data is still there.
 import time
 
 import os
+import dbus # Just for the Exception
 from common.utils import configuration as cfg
 import unittest2 as ut
 #import unittest as ut
@@ -768,6 +769,75 @@ class SuperclassAdditionTest (OntologyChangeTestTemplate):
         result = self.tracker.count_instances ("test:A")
         self.assertEquals (result, 2)
         
+
+class PropertyPromotionTest (OntologyChangeTestTemplate):
+    """
+    Move a property to the superclass
+    """
+    def test_property_promotion (self):
+        self.template_test_ontology_change ()
+        
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "basic"
+        self.SECOND_ONTOLOGY_DIR = "property-promotion"
+            
+    def insert_data (self):
+        self.instance_b = "test://ontology-change/property/promotion-to-superclass/b"
+        self.tracker.update ("""
+            INSERT { <%s> a test:B; test:b_property 'content-b-test'; test:b_property_n 'b-test-n'. }
+           """ % (self.instance_b))
+
+        self.instance_a = "test://ontology-change/property/promotion-to-superclass/a"
+        self.assertRaises (dbus.DBusException,
+                           self.tracker.update,
+                           "INSERT { <%s> a test:A; test:b_property 'content-a-test'.}" % (self.instance_a))
+        
+    def validate_status (self):
+        # This insertion should work now
+        self.tracker.update ("""
+           INSERT { <%s> a test:A; test:b_property 'content-a-test'.}
+        """ % (self.instance_a))
+
+        # No data loss
+        result = self.tracker.query ("SELECT ?v ?w WHERE { <%s> test:b_property ?v ; test:b_property_n ?w }"
+                                     % (self.instance_b))
+        self.assertEquals (result [0][0], "content-b-test")
+        self.assertEquals (result [0][1], "b-test-n")
+
+class PropertyRelegationTest (OntologyChangeTestTemplate):
+    """
+    Move a property to the subclass
+    """
+    def test_property_relegation (self):
+        self.template_test_ontology_change ()
+        
+    def set_ontology_dirs (self):
+        self.FIRST_ONTOLOGY_DIR = "property-promotion"
+        self.SECOND_ONTOLOGY_DIR = "basic-future"
+            
+    def insert_data (self):
+        self.instance_b = "test://ontology-change/property/promotion-to-superclass/b"
+        self.tracker.update ("""
+            INSERT { <%s> a test:B; test:b_property 'content-b-test'; test:b_property_n 'b-test-n'. }
+           """ % (self.instance_b))
+
+        self.instance_a = "test://ontology-change/property/promotion-to-superclass/a"
+        self.tracker.update ("""
+           INSERT { <%s> a test:A; test:b_property 'content-a-test'.}
+        """ % (self.instance_a))
+        
+    def validate_status (self):
+        # This insertion should fail now
+        self.assertRaises (dbus.DBusException,
+                           self.tracker.update,
+                           "INSERT { <%s> a test:A; test:b_property 'content-a-test'.}" % (self.instance_a))
+        # No data loss
+        result = self.tracker.query ("SELECT ?v ?w WHERE { <%s> test:b_property ?v; test:b_property_n ?w }"
+                                     % (self.instance_b))
+        self.assertEquals (result [0][0], "content-b-test")
+        self.assertEquals (result [0][1], "b-test-n")
+
+
 
 if __name__ == "__main__":
     ut.main ()
