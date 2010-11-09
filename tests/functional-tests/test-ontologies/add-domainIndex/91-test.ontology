@@ -61,7 +61,20 @@ test:a_superprop_n a rdf:Property ;
 test:B a rdfs:Class ;
     tracker:domainIndex test:a_string ;
     rdfs:subClassOf test:A .
+# ************************
 
+test:b_property a rdf:Property ;
+    rdfs:comment "A plain property in B class";
+    rdfs:domain test:B ;
+    rdfs:range xsd:string ;
+    nrl:maxCardinality 1 .
+
+test:b_property_n a rdf:Property ;
+    rdfs:comment "A plain property in B class";
+    rdfs:domain test:B ;
+    rdfs:range xsd:string .
+
+# ****** TEST CHANGE *****
 test:C a rdfs:Class ;
     tracker:domainIndex test:a_n_cardinality ;
     rdfs:subClassOf test:A .
