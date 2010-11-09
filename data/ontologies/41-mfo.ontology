@@ -45,7 +45,7 @@ mfo:FeedSettings a rdfs:Class ;
 # PROPERTIES OF CHANNEL
 mfo:image a rdf:Property ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain mfo:FeedChannel ;
+	rdfs:domain mfo:FeedElement ;
 	rdfs:range xsd:string .
 
 # updateTime is used to store a local timestamp of feed message
