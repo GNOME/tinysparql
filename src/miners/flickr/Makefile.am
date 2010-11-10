@@ -5,8 +5,6 @@ libexec_PROGRAMS = tracker-miner-flickr
 AM_VALAFLAGS =                                         \
 	--thread                                       \
 	--includedir=libtracker-client                 \
-	--header tracker-sparql-builder.h              \
-	--vapi tracker-sparql-query.vapi               \
 	--pkg gio-2.0 --pkg rest-0.6 --pkg posix       \
 	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi     \

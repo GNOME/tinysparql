@@ -3,7 +3,6 @@ include $(top_srcdir)/Makefile.decl
 AM_VALAFLAGS =                                         \
 	--includedir=libtracker-client                 \
 	--header tracker-sparql-builder.h              \
-	--vapi tracker-sparql-query.vapi               \
 	--pkg gio-2.0                                  \
 	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/vapi/posix.vapi              \
