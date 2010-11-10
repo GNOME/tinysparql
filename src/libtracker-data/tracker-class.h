@@ -69,6 +69,7 @@ gboolean          tracker_class_get_notify             (TrackerClass        *ser
 TrackerClass    **tracker_class_get_super_classes      (TrackerClass        *service);
 TrackerProperty **tracker_class_get_domain_indexes     (TrackerClass        *service);
 TrackerProperty **tracker_class_get_last_domain_indexes(TrackerClass        *service);
+TrackerClass    **tracker_class_get_last_super_classes (TrackerClass        *service);
 
 void              tracker_class_set_uri                (TrackerClass        *service,
                                                         const gchar         *value);
@@ -81,6 +82,7 @@ void              tracker_class_add_domain_index       (TrackerClass        *ser
 void              tracker_class_del_domain_index       (TrackerClass        *service,
                                                         TrackerProperty     *value);
 void              tracker_class_reset_domain_indexes   (TrackerClass        *service);
+void              tracker_class_reset_super_classes   (TrackerClass        *service);
 void              tracker_class_set_id                 (TrackerClass        *service,
                                                         gint                 id);
 void              tracker_class_set_is_new             (TrackerClass        *service,
