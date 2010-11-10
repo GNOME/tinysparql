@@ -1,8 +1,15 @@
 include $(top_srcdir)/Makefile.decl
 
 # Include list of shared sources:
-#  Defines $(libtracker_miner_marshal_sources) and
-#  $(libtracker_miner_monitor_sources)
+#  Defines:
+#    $(libtracker_miner_marshal_sources)
+#    $(libtracker_miner_marshal_headers)
+#    $(libtracker_miner_monitor_sources)
+#    $(libtracker_miner_monitor_headers)
+#
+# Headers and sources are split for the tests to build
+# with make distcheck.
+#
 include Makefile-shared-sources.decl
 
 AM_CPPFLAGS =                                          \
@@ -21,7 +28,9 @@ libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtrack
 
 libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(libtracker_miner_marshal_sources)            \
+	$(libtracker_miner_marshal_headers)            \
 	$(libtracker_miner_monitor_sources)            \
+	$(libtracker_miner_monitor_headers)            \
 	tracker-crawler.c                              \
 	tracker-dbus.c                                 \
 	tracker-dbus.h                                 \
@@ -122,6 +131,7 @@ tracker-miner-web-full.xml: tracker-miner-web-glue.h
 BUILT_SOURCES =                                        \
 	$(dbus_sources)                                \
 	$(libtracker_miner_marshal_sources)            \
+	$(libtracker_miner_marshal_headers)            \
 	$(vapi_DATA)
 
 CLEANFILES = $(BUILT_SOURCES)
