@@ -5,11 +5,11 @@ modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
 modules_LTLIBRARIES = libtracker-direct.la
 
 AM_VALAFLAGS =                                         \
-	-g                                             \
 	--includedir=libtracker-direct                 \
 	--header tracker-direct.h                      \
 	--vapi tracker-direct.vapi                     \
 	--pkg gio-2.0 --pkg dbus-glib-1                \
+	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/vapi/posix.vapi              \
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi     \
 	$(top_srcdir)/src/libtracker-data/libtracker-data.vapi \

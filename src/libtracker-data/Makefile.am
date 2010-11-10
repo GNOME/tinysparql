@@ -1,11 +1,11 @@
 include $(top_srcdir)/Makefile.decl
 
 AM_VALAFLAGS =                                         \
-	-g                                             \
 	--includedir=libtracker-data                   \
 	--header tracker-sparql-query.h                \
 	--vapi tracker-sparql-query.vapi               \
 	--pkg gio-2.0                                  \
+	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/vapi/posix.vapi              \
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi     \
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi \

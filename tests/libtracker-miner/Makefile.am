@@ -44,7 +44,7 @@ LDADD =                                                \
 libtracker_miner_tests_la_VALAFLAGS =                  \
 	--header tracker-miner-mock.h                  \
 	--pkg glib-2.0                                 \
-	-g
+	$(BUILD_VALAFLAGS)
 
 libtracker_miner_tests_la_SOURCES =                    \
 	tracker-miner-mock.vala
