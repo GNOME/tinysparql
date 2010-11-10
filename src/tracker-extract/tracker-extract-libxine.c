@@ -121,6 +121,9 @@ tracker_extract_xine (const gchar          *uri,
 		tracker_sparql_builder_subject_iri (preupdate, canonical_uri);
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nmm:MusicAlbum");
+		/* FIXME: nmm:albumTitle is now deprecated
+		 * tracker_sparql_builder_predicate (preupdate, "nie:title");
+		 */
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 		tracker_sparql_builder_object_unvalidated (preupdate, album);
 

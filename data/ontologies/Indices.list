@@ -69,6 +69,12 @@
   - Used for retrieving songs by a performer.
   - Used in cases where fts:match is done against the performer as well as the song.
 
+* nmm:artistName:
+  - Used to improve performance of ORDER BY for music team queries
+
+* nie:title domainIndex for nmm:MusicAlbum
+  - Used to improve performance of ORDER BY on nie:title
+
 * nie:title domainIndex for nmm:MusicPiece
   - Used to improve performance of ORDER BY on nie:title
 

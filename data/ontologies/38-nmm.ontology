@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-10-22T13:15:00Z" .
+	nao:lastModified "2010-11-03T15:01:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -28,6 +28,7 @@ nmm:SynchronizedText a rdfs:Class ;
 nmm:MusicAlbum a rdfs:Class ;
 	rdfs:label "Music album" ;
 	tracker:notify true ;
+	tracker:domainIndex nie:title ;
 	rdfs:subClassOf nfo:MediaList .
 
 nmm:Video a rdfs:Class ;
@@ -55,6 +56,7 @@ nmm:artistName a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:Artist ;
 	rdfs:range xsd:string ;
+	tracker:indexed true ;
 	tracker:fulltextIndexed true ;
 	tracker:fulltextNoLimit true ;
 	tracker:weight 6 .
@@ -166,11 +168,12 @@ nmm:albumTrackCount a rdf:Property ;
 
 nmm:albumTitle a rdf:Property ;
 	rdfs:label "Title" ;
-	rdfs:comment "The title of the album" ;
+	rdfs:comment "nmm:albumTitle is deprecated, use nie:title instead, extractors still need updating" ;
 	rdfs:subPropertyOf nie:title ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbum ;
 	rdfs:range xsd:string ;
+	nao:deprecated true ;
 	tracker:fulltextIndexed true ;
 	tracker:fulltextNoLimit true ;
 	tracker:weight 6 .
