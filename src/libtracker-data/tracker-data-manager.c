@@ -541,7 +541,6 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				} else {
 					/* Reset for a correct post-check */
 					tracker_class_reset_domain_indexes (class);
-					tracker_class_reset_super_classes (class);
 					tracker_class_set_notify (class, FALSE);
 				}
 				return;
@@ -1268,49 +1267,6 @@ check_for_deleted_domain_index (TrackerClass *class)
 }
 
 static void
-check_for_deleted_super_classes (TrackerClass  *class,
-                                 GError       **error)
-{
-	TrackerClass **last_super_classes;
-
-	last_super_classes = tracker_class_get_last_super_classes (class);
-
-	if (!last_super_classes) {
-		return;
-	}
-
-	while (*last_super_classes) {
-		TrackerClass *last_super_class = *last_super_classes;
-		gboolean found = FALSE;
-		TrackerClass **super_classes;
-
-		super_classes = tracker_class_get_super_classes (class);
-
-		while (*super_classes) {
-			TrackerClass *super_class = *super_classes;
-			if (last_super_class == super_class) {
-				found = TRUE;
-				break;
-			}
-			super_classes++;
-		}
-
-		if (!found) {
-			const gchar *ontology_path = "Unknown";
-			const gchar *subject = tracker_class_get_uri (class);
-
-			handle_unsupported_ontology_change (ontology_path,
-			                                    subject,
-			                                    "rdfs:subClassOf", "-", "-",
-			                                    error);
-			return;
-		}
-
-		last_super_classes++;
-	}
-}
-
-static void
 tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
                                               GPtrArray  *seen_properties,
                                               GError    **error)
@@ -1318,16 +1274,8 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
 	gint i;
 	if (seen_classes) {
 		for (i = 0; i < seen_classes->len; i++) {
-			GError *n_error = NULL;
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
-
 			check_for_deleted_domain_index (class);
-			check_for_deleted_super_classes (class, &n_error);
-
-			if (n_error) {
-				g_propagate_error (error, n_error);
-				return;
-			}
 		}
 	}
 
