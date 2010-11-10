@@ -57,7 +57,6 @@ struct _TrackerPropertyPrivate {
 	gboolean       fulltext_no_limit;
 	gboolean       embedded;
 	gboolean       multiple_values;
-	gboolean       last_multiple_values;
 	gboolean       transient;
 	gboolean       is_inverse_functional_property;
 	gboolean       is_new;
@@ -469,18 +468,6 @@ tracker_property_get_multiple_values (TrackerProperty *property)
 }
 
 gboolean
-tracker_property_get_last_multiple_values (TrackerProperty *property)
-{
-	TrackerPropertyPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
-
-	priv = GET_PRIV (property);
-
-	return priv->last_multiple_values;
-}
-
-gboolean
 tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 {
 	TrackerPropertyPrivate *priv;
@@ -879,19 +866,6 @@ tracker_property_set_multiple_values (TrackerProperty *property,
 	} else {
 		priv->multiple_values = value;
 	}
-}
-
-void
-tracker_property_set_last_multiple_values (TrackerProperty *property,
-                                           gboolean         value)
-{
-	TrackerPropertyPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_PROPERTY (property));
-
-	priv = GET_PRIV (property);
-
-	priv->last_multiple_values = TRUE;
 }
 
 void

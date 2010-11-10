@@ -576,10 +576,9 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				if (!in_update) {
 					g_critical ("%s: Duplicate definition of property %s", ontology_path, subject);
 				} else {
-					/* Reset for a correct post and pre-check */
+					/* Reset for a correct post-check */
 					tracker_property_reset_domain_indexes (property);
 					tracker_property_set_indexed (property, FALSE);
-					tracker_property_set_last_multiple_values (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
 					tracker_property_set_writeback (property, FALSE);
 					tracker_property_set_default_value (property, NULL);
@@ -1267,33 +1266,14 @@ check_for_deleted_domain_index (TrackerClass *class)
 }
 
 static void
-tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
-                                              GPtrArray  *seen_properties,
-                                              GError    **error)
+tracker_data_ontology_process_changes_pre_db (GPtrArray *seen_classes,
+                                              GPtrArray *seen_properties)
 {
 	gint i;
 	if (seen_classes) {
 		for (i = 0; i < seen_classes->len; i++) {
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
 			check_for_deleted_domain_index (class);
-		}
-	}
-
-	if (seen_properties) {
-		for (i = 0; i < seen_properties->len; i++) {
-			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
-			gboolean last_multiple_values = tracker_property_get_last_multiple_values (property);
-
-			if (last_multiple_values != tracker_property_get_multiple_values (property)) {
-				const gchar *ontology_path = "Unknown";
-				const gchar *subject = tracker_property_get_uri (property);
-
-				handle_unsupported_ontology_change (ontology_path,
-				                                    subject,
-				                                    "nrl:maxCardinality", "1", "0",
-				                                    error);
-				return;
-			}
 		}
 	}
 }
@@ -2207,7 +2187,6 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_domain (property, tracker_ontologies_get_class_by_uri (domain_uri));
 			tracker_property_set_range (property, tracker_ontologies_get_class_by_uri (range_uri));
 			tracker_property_set_multiple_values (property, multi_valued);
-			tracker_property_set_last_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
 			tracker_property_set_default_value (property, default_value);
 
@@ -3566,18 +3545,14 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		if (to_reload) {
 			GError *ontology_error = NULL;
 
-			tracker_data_ontology_process_changes_pre_db (seen_classes,
-			                                              seen_properties,
-			                                              &ontology_error);
+			tracker_data_ontology_process_changes_pre_db (seen_classes, seen_properties);
 
-			if (!ontology_error) {
-				/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
-				tracker_data_ontology_import_into_db (TRUE);
+			/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
+			tracker_data_ontology_import_into_db (TRUE);
 
-				tracker_data_ontology_process_changes_post_db (seen_classes,
-				                                               seen_properties,
-				                                               &ontology_error);
-			}
+			tracker_data_ontology_process_changes_post_db (seen_classes,
+			                                               seen_properties,
+			                                               &ontology_error);
 
 			if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
 				g_debug ("\nUnsupported ontology change, replaying journal\n");
