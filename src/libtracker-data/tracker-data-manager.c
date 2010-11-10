@@ -681,7 +681,9 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				}
 
 				/* This doesn't detect removed rdfs:subClassOf situations, it
-				 * only checks whether no new ones are being added */
+				 * only checks whether no new ones are being added. For 
+				 * detecting the removal of a rdfs:subClassOf, please check the
+				 * tracker_data_ontology_process_changes_pre_db stuff */
 
 				if (found == FALSE) {
 					handle_unsupported_ontology_change (ontology_path,
@@ -785,6 +787,11 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				properties++;
 			}
 		}
+
+		/* This doesn't detect removed tracker:domainIndex situations, it
+		 * only checks whether no new ones are being added. For 
+		 * detecting the removal of a tracker:domainIndex, please check the
+		 * tracker_data_ontology_process_changes_pre_db stuff */
 
 		if (!ignore) {
 			if (!had) {
@@ -932,6 +939,11 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 			g_critical ("%s: Unknown property %s", ontology_path, subject);
 			return;
 		}
+
+		/* This doesn't detect removed nrl:maxCardinality situations, it
+		 * only checks whether the existing one got changed. For 
+		 * detecting the removal of a nrl:maxCardinality, please check the
+		 * tracker_data_ontology_process_changes_pre_db stuff */
 
 		is_new = tracker_property_get_is_new (property);
 		if (is_new != in_update) {
