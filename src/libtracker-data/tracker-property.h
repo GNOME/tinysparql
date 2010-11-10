@@ -89,6 +89,7 @@ gboolean            tracker_property_get_fulltext_indexed    (TrackerProperty   
 gboolean            tracker_property_get_fulltext_no_limit   (TrackerProperty      *property);
 gboolean            tracker_property_get_embedded            (TrackerProperty      *property);
 gboolean            tracker_property_get_multiple_values     (TrackerProperty      *property);
+gboolean            tracker_property_get_last_multiple_values(TrackerProperty      *property);
 gboolean            tracker_property_get_transient           (TrackerProperty      *property);
 gboolean            tracker_property_get_is_new              (TrackerProperty      *property);
 gboolean            tracker_property_get_is_new_domain_index (TrackerProperty      *property,
@@ -125,6 +126,8 @@ void                tracker_property_set_fulltext_no_limit   (TrackerProperty   
 void                tracker_property_set_embedded            (TrackerProperty      *property,
                                                               gboolean              value);
 void                tracker_property_set_multiple_values     (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_last_multiple_values(TrackerProperty      *property,
                                                               gboolean              value);
 void                tracker_property_set_transient           (TrackerProperty      *property,
                                                               gboolean              value);
