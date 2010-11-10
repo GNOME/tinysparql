@@ -164,7 +164,7 @@ fi
 # Library required versions
 DBUS_REQUIRED=1.3.1
 DBUS_GLIB_REQUIRED=0.82
-GLIB_REQUIRED=2.24.0
+GLIB_REQUIRED=2.26.0
 PANGO_REQUIRED=1.0.0
 GTK_REQUIRED=2.18.0
 LIBXML2_REQUIRED=2.6
@@ -206,9 +206,7 @@ AC_SUBST(LIBPNG_LIBS)
 
 # Check requirements for libtracker-bus
 LIBTRACKER_BUS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                         gio-unix-2.0 >= $GLIB_REQUIRED
-                         dbus-1       >= $DBUS_REQUIRED
-                         dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                         gio-unix-2.0 >= $GLIB_REQUIRED"
 PKG_CHECK_MODULES(LIBTRACKER_BUS, [$LIBTRACKER_BUS_REQUIRED])
 
 # Check requirements for libtracker-client
@@ -241,9 +239,7 @@ LIBTRACKER_DATA_LIBS="$LIBTRACKER_DATA_LIBS -lz -lm"
 
 # Check requirements for libtracker-direct
 LIBTRACKER_DIRECT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
-                            dbus-1       >= $DBUS_REQUIRED
-                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                            gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_DIRECT, [$LIBTRACKER_DIRECT_REQUIRED])
 
@@ -275,9 +271,7 @@ PKG_CHECK_MODULES(LIBTRACKER_MINER, [$LIBTRACKER_MINER_REQUIRED])
 
 # Check requirements for libtracker-sparql
 LIBTRACKER_SPARQL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
-                            dbus-1       >= $DBUS_REQUIRED
-                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                            gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
 
@@ -482,6 +476,14 @@ TRACKER_NAUTILUS_EXTENSION_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
 PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUIRED],
                   [have_tracker_nautilus_extension=yes],
                   [have_tracker_nautilus_extension=no])
+
+# Check for D-Bus requirements (for tests/examples only)
+PKG_CHECK_MODULES(TRACKER_DBUS,
+                  [gio-unix-2.0 >= $GLIB_REQUIRED
+                   dbus-1       >= $DBUS_REQUIRED 
+                   dbus-glib-1  >= $DBUS_GLIB_REQUIRED],
+                  [have_tracker_dbus=yes],
+                  [have_tracker_dbus=no])
 
 # General VALAFLAGS/CFLAGS/LIBS
 BUILD_VALAFLAGS="-g"

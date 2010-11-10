@@ -8,10 +8,8 @@ AM_VALAFLAGS =                                         \
 	--includedir=libtracker-direct                 \
 	--header tracker-direct.h                      \
 	--vapi tracker-direct.vapi                     \
-	--pkg gio-2.0 --pkg dbus-glib-1                \
+	--pkg gio-2.0                                  \
 	$(BUILD_VALAFLAGS)                             \
-	$(top_srcdir)/src/vapi/posix.vapi              \
-	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi     \
 	$(top_srcdir)/src/libtracker-data/libtracker-data.vapi \
 	$(top_srcdir)/src/libtracker-data/tracker-sparql-query.vapi \
 	$(top_srcdir)/src/libtracker-common/libtracker-common.vapi \

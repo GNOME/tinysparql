@@ -3,16 +3,18 @@ using Tracker.Sparql;
 private static int res;
 private static MainLoop loop;
 
-private async void test_async () {
-	// Quite this loo because we start another one in app.run ()
-	loop.quit ();
-
+private void test_async () {
 	try {
-		Connection c;
+		Connection c = null;
 
 		// Test async
 		print ("Getting connection async\n");
-		c = yield Connection.get_async ();
+		loop = new MainLoop (null, false);
+		Connection.get_async.begin (null, (o, res) => {
+			c = Connection.get_async.end (res);
+			loop.quit ();
+		});
+		loop.run ();
 
 		print ("Got it %p\n", c);
 
@@ -58,7 +60,6 @@ int
 main( string[] args )
 {
 	print ("Starting...\n");
-	loop = new MainLoop (null, false);
 
 	test_sync ();
 
@@ -67,9 +68,7 @@ main( string[] args )
 	}
 
 	// Do async second
-	test_async.begin ();
-
-	loop.run ();
+	test_async ();
 
 	return res;
 }

@@ -4,16 +4,22 @@ using Tracker.Sparql;
 private static int res;
 private static MainLoop loop;
 
-private async void test_async () {
-	// Quite this loo because we start another one in app.run ()
-	loop.quit ();
-
+private void test_async () {
 	try {
-		Connection c;
+		Connection c = null;
 
 		// Test async
 		print ("Getting connection asynchronously\n");
-		c = yield Connection.get_async ();
+		loop = new MainLoop (null, false);
+		Connection.get_async.begin (null, (o, res) => {
+			try {
+				c = Connection.get_async.end (res);
+			} catch (GLib.Error e) {
+				warning ("Couldn't perform test: %s", e.message);
+			}
+			loop.quit ();
+		});
+		loop.run ();
 
 		print ("Got it %p\n", c);
 
@@ -22,10 +28,8 @@ private async void test_async () {
 
 		print ("Running app\n");
 		res = app.run();
-	} catch (GLib.IOError e1) {
-		warning ("Couldn't perform test: %s", e1.message);
-	} catch (Tracker.Sparql.Error e2) {
-		warning ("Couldn't perform test: %s", e2.message);
+	} catch (GLib.Error e) {
+		warning ("Couldn't perform test: %s", e.message);
 	}
 
 	print ("\n");
@@ -46,10 +50,8 @@ private void test_sync () {
 
 		print ("Running app\n");
 		res = app.run();
-	} catch (GLib.IOError e1) {
-		warning ("Couldn't perform test: %s", e1.message);
-	} catch (Tracker.Sparql.Error e2) {
-		warning ("Couldn't perform test: %s", e2.message);
+	} catch (GLib.Error e) {
+		warning ("Couldn't perform test: %s", e.message);
 	}
 
 	print ("\n");
@@ -59,7 +61,6 @@ int
 main( string[] args )
 {
 	print ("Starting...\n");
-	loop = new MainLoop (null, false);
 
 	test_sync ();
 
@@ -67,8 +68,7 @@ main( string[] args )
 		return res;
 	}
 
-	test_async.begin ();
-	loop.run ();
+	test_async ();
 
 	return res;
 }

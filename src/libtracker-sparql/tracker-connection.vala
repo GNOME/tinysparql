@@ -60,7 +60,7 @@ public const string TRACKER_DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/St
  *
  * Since: 0.10
  */
-[DBus (name = "org.freedesktop.DBus.GLib.UnmappedError.TrackerSparqlErrorQuark")]
+[DBus (name = "org.freedesktop.Tracker1.SparqlError")]
 public errordomain Tracker.Sparql.Error {
 	PARSE,
 	UNKNOWN_CLASS,
@@ -85,7 +85,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	static bool log_initialized;
 	static StaticMutex door;
 
-	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		door.lock ();
 
 		if (singleton != null) {
@@ -114,7 +114,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 		return singleton;
 	}
 
-	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		door.lock ();
 
 		if (singleton != null) {
@@ -173,7 +173,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return yield get_internal_async (false, cancellable);
 	}
 
@@ -216,7 +216,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return get_internal (false, cancellable);
 	}
 
@@ -251,7 +251,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return yield get_internal_async (true, cancellable);
 	}
 
@@ -271,7 +271,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since 0.10
 	 */
-	public static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return get_internal (true, cancellable);
 	}
 
@@ -324,11 +324,11 @@ public abstract class Tracker.Sparql.Connection : Object {
 		/* do nothing */
 	}
 
-	public virtual void init () throws Sparql.Error {
+	public virtual void init () throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'init' not implemented");
 	}
 
-	public async virtual void init_async () throws Sparql.Error {
+	public async virtual void init_async () throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'init_async' not implemented");
 	}
 
@@ -348,7 +348,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since 0.10
 	 */
-	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError;
+	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError;
 
 	/**
 	 * tracker_sparql_connection_query_finish:
@@ -378,7 +378,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError;
+	public async abstract Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError;
 
 	/**
 	 * tracker_sparql_connection_update:
@@ -393,7 +393,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public virtual void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public virtual void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'update' not implemented");
 	}
 
@@ -422,7 +422,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async virtual void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async virtual void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'update_async' not implemented");
 	}
 
@@ -487,7 +487,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async virtual GLib.PtrArray? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async virtual GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'update_array_async' not implemented");
 		return null;
 	}
@@ -508,7 +508,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public virtual GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public virtual GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'update_blank' not implemented");
 		return null;
 	}
@@ -542,7 +542,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async virtual GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async virtual GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'update_blank_async' not implemented");
 		return null;
 	}
@@ -559,7 +559,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public virtual void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public virtual void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'load' not implemented");
 	}
 
@@ -587,7 +587,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async virtual void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async virtual void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'load_async' not implemented");
 	}
 
@@ -606,7 +606,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public virtual Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public virtual Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'statistics' not implemented");
 		return null;
 	}
@@ -638,7 +638,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async virtual Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async virtual Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'statistics_async' not implemented");
 		return null;
 	}

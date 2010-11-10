@@ -1,5 +1,13 @@
 include $(top_srcdir)/Makefile.decl
 
+# Note: Even though we now use GDBus, we still link with
+# dbus-glib-1 for some of the below tests because we use
+# their raw APIs to test with, specifically:
+#
+#   test-busy-handling
+#   test-class-signal
+#   test-class-signal-performance
+#
 noinst_PROGRAMS =                                      \
 	test-busy-handling                             \
 	test-direct-query                              \
@@ -11,7 +19,7 @@ noinst_PROGRAMS =                                      \
 	test-update-array-performance
 
 AM_VALAFLAGS =                                         \
-	--pkg gio-2.0 --pkg dbus-glib-1                \
+	--pkg gio-2.0                                  \
 	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	$(top_srcdir)/src/libtracker-bus/tracker-bus.vapi
@@ -32,6 +40,15 @@ LDADD =                                                \
 
 test_busy_handling_SOURCES =                           \
 	test-busy-handling.vala
+test_busy_handling_CFLAGS =                            \
+	$(AM_CPPFLAGS)                                 \
+	$(TRACKER_DBUS_CFLAGS)
+test_busy_handling_VALAFLAGS =                         \
+	--pkg dbus-glib-1                              \
+	$(AM_VALAFLAGS)
+test_busy_handling_LDADD =                             \
+	$(LDADD)                                       \
+	$(TRACKER_DBUS_LIBS)
 
 test_direct_query_SOURCES =                            \
 	test-shared-query.vala                         \
@@ -54,6 +71,24 @@ test_bus_update_SOURCES =                              \
 
 test_class_signal_SOURCES =                            \
 	test-class-signal.vala
+test_class_signal_CFLAGS =                             \
+	$(AM_CPPFLAGS)                                 \
+	$(TRACKER_DBUS_CFLAGS)
+test_class_signal_VALAFLAGS =                          \
+	--pkg dbus-glib-1                              \
+	$(AM_VALAFLAGS)
+test_class_signal_LDADD =                              \
+	$(LDADD)                                       \
+	$(TRACKER_DBUS_LIBS)
 
 test_class_signal_performance_SOURCES =                \
 	test-class-signal-performance.vala
+test_class_signal_performance_CFLAGS =                 \
+	$(AM_CPPFLAGS)                                 \
+	$(TRACKER_DBUS_CFLAGS)
+test_class_signal_performance_VALAFLAGS =              \
+	--pkg dbus-glib-1                              \
+	$(AM_VALAFLAGS)
+test_class_signal_performance_LDADD =                  \
+	$(LDADD)                                       \
+	$(TRACKER_DBUS_LIBS)

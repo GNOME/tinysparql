@@ -4,7 +4,12 @@ using Tracker.Sparql;
 int
 main( string[] args )
 {
-	TestApp app = new TestApp (new  Tracker.Bus.Connection ());
+	try {
+		TestApp app = new TestApp (new  Tracker.Bus.Connection ());
 
-	return app.run ();
+		return app.run ();
+	} catch (GLib.Error e) {
+		warning ("Couldn't perform test: %s", e.message);
+		return 1;
+	}
 }

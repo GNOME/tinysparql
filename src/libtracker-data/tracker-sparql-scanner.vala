@@ -514,12 +514,12 @@ public class Tracker.SparqlScanner : Object {
 			case '@':
 				type = SparqlTokenType.NONE;
 				current++;
-				if (current < end - "prefix".size () && matches (current, "PREFIX")) {
+				if (current < end - "prefix".length && matches (current, "PREFIX")) {
 					type = SparqlTokenType.ATPREFIX;
-					current += "prefix".size ();
-				} else if (current < end - "base".size () && matches (current, "BASE")) {
+					current += "prefix".length;
+				} else if (current < end - "base".length && matches (current, "BASE")) {
 					type = SparqlTokenType.ATBASE;
-					current += "base".size ();
+					current += "base".length;
 				}
 				break;
 			case '|':

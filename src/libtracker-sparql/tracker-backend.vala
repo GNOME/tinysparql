@@ -17,11 +17,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
-[DBus (name = "org.freedesktop.Tracker1.Status", timeout = 2147483647 /* INT_MAX */)]
-interface Tracker.Backend.Status : GLib.Object {
-	public abstract void wait () throws DBus.Error;
+[DBus (name = "org.freedesktop.Tracker1.Status")]
+interface Tracker.Backend.Status : DBusProxy {
+	public abstract void wait () throws DBusError;
 	[DBus (name = "Wait")]
-	public abstract async void wait_async () throws DBus.Error;
+	public abstract async void wait_async () throws DBusError;
 }
 
 class Tracker.Sparql.Backend : Connection {
@@ -35,7 +35,7 @@ class Tracker.Sparql.Backend : Connection {
 		BUS
 	}
 
-	private delegate Tracker.Sparql.Connection ModuleInitFunc ();
+	private delegate Tracker.Sparql.Connection? ModuleInitFunc ();
 
 	public Backend (bool direct_only = false) throws Sparql.Error
 	requires (Module.supported ()) {
@@ -57,47 +57,37 @@ class Tracker.Sparql.Backend : Connection {
 		is_constructed = true;
 	}
 
-	public override void init () throws Sparql.Error
+	public override void init () throws Sparql.Error, IOError, DBusError
 	requires (is_constructed) {
-		try {
-			var connection = DBus.Bus.get (DBus.BusType.SESSION);
-			var status = (Tracker.Backend.Status) connection.get_object (TRACKER_DBUS_SERVICE,
-			                                                             TRACKER_DBUS_OBJECT_STATUS,
-			                                                             TRACKER_DBUS_INTERFACE_STATUS);
+		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
+		                                                    TRACKER_DBUS_SERVICE,
+		                                                    TRACKER_DBUS_OBJECT_STATUS);
+		status.set_default_timeout (int.MAX);
 
-			// Makes sure the sevice is available
-			debug ("Waiting for service to become available synchronously...");
-			status.wait ();
-			debug ("Service is ready");
-		} catch (DBus.Error e) {
-			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
+		// Makes sure the sevice is available
+		debug ("Waiting for service to become available synchronously...");
+		status.wait ();
+		debug ("Service is ready");
 
 		is_initialized = true;
 	}
 
-	public async override void init_async () throws Sparql.Error
+	public async override void init_async () throws Sparql.Error, IOError, DBusError
 	requires (is_constructed) {
-		try {
-			var connection = DBus.Bus.get (DBus.BusType.SESSION);
-			var status = (Tracker.Backend.Status) connection.get_object (TRACKER_DBUS_SERVICE,
-			                                                             TRACKER_DBUS_OBJECT_STATUS,
-			                                                             TRACKER_DBUS_INTERFACE_STATUS);
+		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
+		                                                    TRACKER_DBUS_SERVICE,
+		                                                    TRACKER_DBUS_OBJECT_STATUS);
+		status.set_default_timeout (int.MAX);
 
-			// Makes sure the sevice is available
-			debug ("Waiting for service to become available asynchronously...");
-			yield status.wait_async ();
-			debug ("Service is ready");
-		} catch (DBus.Error e) {
-			warning ("Could not connect to D-Bus service:'%s': %s", TRACKER_DBUS_INTERFACE_RESOURCES, e.message);
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
+		// Makes sure the sevice is available
+		debug ("Waiting for service to become available asynchronously...");
+		yield status.wait_async ();
+		debug ("Service is ready");
 
 		is_initialized = true;
 	}
 
-	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null || direct != null) {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
 		if (direct != null) {
@@ -107,7 +97,7 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
-	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null || direct != null) {
 		debug ("%s(): '%s'", Log.METHOD, sparql);
 		if (direct != null) {
@@ -117,56 +107,56 @@ class Tracker.Sparql.Backend : Connection {
 		}
 	}
 
-	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		bus.update (sparql, priority, cancellable);
 	}
 
-	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		return bus.update_blank (sparql, priority, cancellable);
 	}
 
-	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public async override GLib.PtrArray? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		return yield bus.update_array_async (sparql, priority, cancellable);
 	}
 
-	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
 		return yield bus.update_blank_async (sparql, priority, cancellable);
 	}
 
-	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		var uri = file.get_uri ();
 		debug ("%s(): '%s'", Log.METHOD, uri);
 		bus.load (file, cancellable);
 	}
 
-	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		var uri = file.get_uri ();
 		debug ("%s(): '%s'", Log.METHOD, uri);
 		yield bus.load_async (file, cancellable);
 	}
 
-	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s()", Log.METHOD);
 		return bus.statistics (cancellable);
 	}
 
-	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError
+	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		debug ("%s()", Log.METHOD);
 		return yield bus.statistics_async (cancellable);
@@ -250,29 +240,6 @@ class Tracker.Sparql.Backend : Connection {
 
 	private Tracker.Sparql.Connection? load_plugins_from_path (string path, bool required) throws GLib.Error {
 		try {
-			File file = File.new_for_path (path);
-			assert (file != null);
-
-			FileInfo info = null;
-
-			string attributes = FILE_ATTRIBUTE_STANDARD_NAME + "," +
-				            FILE_ATTRIBUTE_STANDARD_TYPE + "," +
-				            FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE;
-
-			info = file.query_info (attributes,
-				                FileQueryInfoFlags.NONE,
-				                null);
-
-			string content_type = info.get_content_type ();
-			string mime = g_content_type_get_mime_type (content_type);
-			string expected_mime = "application/x-sharedlib";
-		
-			if (mime != expected_mime) {
-				throw new IOError.FAILED ("Could not load plugin, mime type was '%s', expected:'%s'",
-				                          mime,
-				                          expected_mime);
-			}
-
 			// lazy resolving reduces initialization time
 			Module module = Module.open (path, ModuleFlags.BIND_LOCAL | ModuleFlags.BIND_LAZY);
 			if (module == null) {

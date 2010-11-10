@@ -23,7 +23,6 @@ config_SCRIPTS +=                                      \
 	tracker-tests.aegis
 endif
 
-
 standard_tests =                                       \
 	01-insertion.py
 if HAVE_TRACKER_FTS

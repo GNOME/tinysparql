@@ -45,7 +45,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError {
+	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
 		try {
 			var query_object = new Sparql.Query (sparql);
 			var cursor = query_object.execute_cursor ();
@@ -58,7 +58,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError {
+	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		// just creating the cursor won't block
 		return query (sparql, cancellable);
 	}
