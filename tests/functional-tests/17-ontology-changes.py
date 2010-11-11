@@ -276,7 +276,6 @@ class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
     Change cardinality of a property from 1 to N. There shouldn't be any data loss
     """
 
-    @expectedFailureBug ("NB#202275")
     def test_property_cardinality_1_to_n (self):
         self.template_test_ontology_change ()
 
@@ -690,7 +689,6 @@ class SuperclassRemovalTest (OntologyChangeTestTemplate):
     """
     Remove the superclass relation between two classes
     """
-    @expectedFailureBug ("NB#203632")
     def test_superclass_removal (self):
         self.template_test_ontology_change ()
         
