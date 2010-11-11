@@ -1,3 +1,50 @@
+NEW in 0.9.28 - 2010-11-11
+==========================
+
+The changes are:
+
+  * Require Vala 0.11.1
+  * Require GLib 2.26
+  * Require Automake 1.11 and use Vala features
+  * NEW feature: GDBus support
+  * New feature: Added utils/tracker-sql to run SQL on the databases directly
+  * Fixes: GB#633118, GIF extractor doesn't extract comments
+  * Fixes: NB#202275, Cardinality change from 1 to N in the ontology is not working fine
+  * Fixes: NB#199968, Use gdbus in Vala to improve communications in Tracker
+  * Fixes: NB#202627, Cannot create backup while updates are being inserted in the journal
+  * Fixes: NB#202581, After backup restore operation: Tracker-CRITICAL **: tracker_class_has_insert_events: assertion `TRACKER_IS_CLASS (class)' failed
+  * Fixes: NB#201122, Tracker store segfaults during backup Restore operation
+  * Fixes: NB#203632, Remove rdfs:subClassOf from a class is not working
+  * build: Fixed check for tracker-preferences which used "text" not "test"
+  * Ontology: Updated mfo:image for mfo:FeedSettings to be in domain mfo:FeedElement
+  * Ontology: Added tracker:indexed true for nmm:artistName
+  * Ontology: Added tracker:domainIndex for nie:title on nmm:MusicAlbum
+  * Ontology: Deprecated nmm:albumTitle for nie:title
+  * functional-tests: Fixed and enabled property range date->string test
+  * functional-tests: Fixed expected failures with new journal
+  * functional-tests: Added property promotion/relegation tests
+  * functional-tests: Added properties in basic ontology to test new changes
+  * functional-tests: Added changing the superclass of a class test
+  * libtracker-data: Combine INSERT and UPDATE statements into one INSERT
+  * libtracker-data: Fixed ontology change coping for tracker:domainIndex
+  * libtracker-miner: Added documentation for _manager_reindex_by_mimetype() and _manager_index_file()
+  * tracker-store: Queue queries while backup is taking place
+
+Translations:
+
+  * Added pa: A S Alam
+  * Updated cs: Marek Cernocky
+  * Updated sl: Andrej Žnidaršič
+  * Updated ca@valencia: Carles Ferrando
+  * Updated es: Jorge González
+  * Updated de: Mario Blättermann
+  * Updated fr: Bruno Brouard
+
+Notes:
+
+  None
+
+
 NEW in 0.9.27 - 2010-10-21
 ==========================
 
