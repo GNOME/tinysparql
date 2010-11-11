@@ -539,7 +539,17 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				if (!in_update) {
 					g_critical ("%s: Duplicate definition of class %s", ontology_path, subject);
 				} else {
+					TrackerProperty **properties;
+					guint n_props, i;
 					/* Reset for a correct post-check */
+
+					properties = tracker_ontologies_get_properties (&n_props);
+					for (i = 0; i < n_props; i++) {
+						if (tracker_property_get_domain (properties[i]) == class) {
+							tracker_property_set_last_multiple_values (properties[i],
+							                                           tracker_property_get_multiple_values (properties[i]));
+						}
+					}
 					tracker_class_reset_domain_indexes (class);
 					tracker_class_set_notify (class, FALSE);
 				}
@@ -576,7 +586,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				if (!in_update) {
 					g_critical ("%s: Duplicate definition of property %s", ontology_path, subject);
 				} else {
-					/* Reset for a correct post-check */
+					/* Reset for a correct post and pre-check */
 					tracker_property_reset_domain_indexes (property);
 					tracker_property_set_indexed (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
@@ -683,6 +693,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				 * detecting the removal of a rdfs:subClassOf, please check the
 				 * tracker_data_ontology_process_changes_pre_db stuff */
 
+
 				if (found == FALSE) {
 					handle_unsupported_ontology_change (ontology_path,
 					                                    tracker_class_get_name (class),
@@ -692,6 +703,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					                                    error);
 				}
 			}
+
 			return;
 		}
 
@@ -1266,14 +1278,33 @@ check_for_deleted_domain_index (TrackerClass *class)
 }
 
 static void
-tracker_data_ontology_process_changes_pre_db (GPtrArray *seen_classes,
-                                              GPtrArray *seen_properties)
+tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
+                                              GPtrArray  *seen_properties,
+                                              GError    **error)
 {
 	gint i;
 	if (seen_classes) {
 		for (i = 0; i < seen_classes->len; i++) {
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
 			check_for_deleted_domain_index (class);
+		}
+	}
+
+	if (seen_properties) {
+		for (i = 0; i < seen_properties->len; i++) {
+			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
+			gboolean last_multiple_values = tracker_property_get_last_multiple_values (property);
+
+			if (last_multiple_values != tracker_property_get_multiple_values (property)) {
+				const gchar *ontology_path = "Unknown";
+				const gchar *subject = tracker_property_get_uri (property);
+
+				handle_unsupported_ontology_change (ontology_path,
+				                                    subject,
+				                                    "nrl:maxCardinality", "1", "0",
+				                                    error);
+				return;
+			}
 		}
 	}
 }
@@ -3331,7 +3362,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		 * has changed since we dealt with the file last time. */
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\""
+		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\" "
 		        "INNER JOIN Resource ON Resource.ID = \"tracker:Ontology\".ID "
 		        "INNER JOIN \"rdfs:Resource\" ON \"tracker:Ontology\".ID = \"rdfs:Resource\".ID");
 
@@ -3545,14 +3576,18 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		if (to_reload) {
 			GError *ontology_error = NULL;
 
-			tracker_data_ontology_process_changes_pre_db (seen_classes, seen_properties);
+			tracker_data_ontology_process_changes_pre_db (seen_classes,
+			                                              seen_properties,
+			                                              &ontology_error);
 
-			/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
-			tracker_data_ontology_import_into_db (TRUE);
+			if (!ontology_error) {
+				/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
+				tracker_data_ontology_import_into_db (TRUE);
 
-			tracker_data_ontology_process_changes_post_db (seen_classes,
-			                                               seen_properties,
-			                                               &ontology_error);
+				tracker_data_ontology_process_changes_post_db (seen_classes,
+				                                               seen_properties,
+				                                               &ontology_error);
+			}
 
 			if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
 				g_debug ("\nUnsupported ontology change, replaying journal\n");
