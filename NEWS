@@ -8,7 +8,6 @@ The changes are:
   * Require Automake 1.11 and use Vala features
   * NEW feature: GDBus support
   * New feature: Added utils/tracker-sql to run SQL on the databases directly
-  * NEW feature: Neo ontology added for Zeitgeist
   * Fixes: GB#633118, GIF extractor doesn't extract comments
   * Fixes: NB#202275, Cardinality change from 1 to N in the ontology is not working fine
   * Fixes: NB#199968, Use gdbus in Vala to improve communications in Tracker
