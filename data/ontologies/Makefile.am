@@ -23,7 +23,6 @@ config_DATA =                                          \
 	39-mto.ontology	    39-mto.description         \
 	40-mlo.ontology	    40-mlo.description         \
 	41-mfo.ontology	    41-mfo.description         \
-	42-neo.ontology      42-neo.description         \
 	89-mtp.ontology	    89-mtp.description         \
 	90-tracker.ontology 90-tracker.description
 
