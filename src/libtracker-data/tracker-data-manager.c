@@ -539,16 +539,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				if (!in_update) {
 					g_critical ("%s: Duplicate definition of class %s", ontology_path, subject);
 				} else {
-					TrackerProperty **properties;
-					guint n_props, i;
 					/* Reset for a correct post-check */
-
-					properties = tracker_ontologies_get_properties (&n_props);
-					for (i = 0; i < n_props; i++) {
-						if (tracker_property_get_domain (properties[i]) == class) {
-							tracker_property_set_last_multiple_values (properties[i], TRUE);
-						}
-					}
 					tracker_class_reset_domain_indexes (class);
 					tracker_class_reset_super_classes (class);
 					tracker_class_set_notify (class, FALSE);
@@ -587,6 +578,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					g_critical ("%s: Duplicate definition of property %s", ontology_path, subject);
 				} else {
 					/* Reset for a correct post and pre-check */
+					tracker_property_set_last_multiple_values (property, TRUE);
 					tracker_property_reset_domain_indexes (property);
 					tracker_property_set_indexed (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
@@ -996,8 +988,10 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 		if (atoi (object) == 1) {
 			tracker_property_set_multiple_values (property, FALSE);
+			tracker_property_set_last_multiple_values (property, FALSE);
 		} else {
 			tracker_property_set_multiple_values (property, TRUE);
+			tracker_property_set_last_multiple_values (property, TRUE);
 		}
 
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "indexed") == 0) {
@@ -1373,7 +1367,9 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
 		for (i = 0; i < seen_properties->len; i++) {
 			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
 			gboolean last_multiple_values = tracker_property_get_last_multiple_values (property);
-			if (last_multiple_values != tracker_property_get_multiple_values (property)) {
+
+			if (tracker_property_get_is_new (property) == FALSE &&
+			    last_multiple_values != tracker_property_get_multiple_values (property)) {
 				const gchar *ontology_path = "Unknown";
 				const gchar *subject = tracker_property_get_uri (property);
 
