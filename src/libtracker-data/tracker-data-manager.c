@@ -551,6 +551,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 						}
 					}
 					tracker_class_reset_domain_indexes (class);
+					tracker_class_reset_super_classes (class);
 					tracker_class_set_notify (class, FALSE);
 				}
 				return;
@@ -669,10 +670,11 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 		is_new = tracker_class_get_is_new (class);
 		if (is_new != in_update) {
+			gboolean ignore = FALSE;
 			/* Detect unsupported ontology change (this needs a journal replay) */
-			if (in_update == TRUE && is_new == FALSE) {
+			if (in_update == TRUE && is_new == FALSE && g_strcmp0 (object, RDFS_PREFIX "Resource") != 0) {
 				TrackerClass **super_classes = tracker_class_get_super_classes (class);
-				gboolean found = FALSE;
+				gboolean had = FALSE;
 
 				super_class = tracker_ontologies_get_class_by_uri (object);
 				if (super_class == NULL) {
@@ -682,10 +684,22 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 
 				while (*super_classes) {
 					if (*super_classes == super_class) {
-						found = TRUE;
+						ignore = TRUE;
+						g_debug ("%s: Class %s already has rdfs:subClassOf in %s",
+						         ontology_path, object, subject);
 						break;
 					}
 					super_classes++;
+				}
+
+				super_classes = tracker_class_get_last_super_classes (class);
+				if (super_classes) {
+					while (*super_classes) {
+						if (super_class == *super_classes) {
+							had = TRUE;
+						}
+						super_classes++;
+					}
 				}
 
 				/* This doesn't detect removed rdfs:subClassOf situations, it
@@ -694,7 +708,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				 * tracker_data_ontology_process_changes_pre_db stuff */
 
 
-				if (found == FALSE) {
+				if (!ignore && !had) {
 					handle_unsupported_ontology_change (ontology_path,
 					                                    tracker_class_get_name (class),
 					                                    "rdfs:subClassOf",
@@ -702,6 +716,11 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					                                    tracker_class_get_name (super_class),
 					                                    error);
 				}
+			}
+
+			if (!ignore) {
+				super_class = tracker_ontologies_get_class_by_uri (object);
+				tracker_class_add_super_class (class, super_class);
 			}
 
 			return;
@@ -714,6 +733,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_class_add_super_class (class, super_class);
+
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "notify") == 0) {
 		TrackerClass *class;
 
@@ -1278,6 +1298,55 @@ check_for_deleted_domain_index (TrackerClass *class)
 }
 
 static void
+check_for_deleted_super_classes (TrackerClass  *class,
+                                 GError       **error)
+{
+	TrackerClass **last_super_classes;
+
+	last_super_classes = tracker_class_get_last_super_classes (class);
+
+	if (!last_super_classes) {
+		return;
+	}
+
+	while (*last_super_classes) {
+		TrackerClass *last_super_class = *last_super_classes;
+		gboolean found = FALSE;
+		TrackerClass **super_classes;
+
+		if (g_strcmp0 (tracker_class_get_uri (last_super_class), RDFS_PREFIX "Resource") == 0) {
+			last_super_classes++;
+			continue;
+		}
+
+		super_classes = tracker_class_get_super_classes (class);
+
+		while (*super_classes) {
+			TrackerClass *super_class = *super_classes;
+
+			if (last_super_class == super_class) {
+				found = TRUE;
+				break;
+			}
+			super_classes++;
+		}
+
+		if (!found) {
+			const gchar *ontology_path = "Unknown";
+			const gchar *subject = tracker_class_get_uri (class);
+
+			handle_unsupported_ontology_change (ontology_path,
+			                                    subject,
+			                                    "rdfs:subClassOf", "-", "-",
+			                                    error);
+			return;
+		}
+
+		last_super_classes++;
+	}
+}
+
+static void
 tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
                                               GPtrArray  *seen_properties,
                                               GError    **error)
@@ -1285,8 +1354,16 @@ tracker_data_ontology_process_changes_pre_db (GPtrArray  *seen_classes,
 	gint i;
 	if (seen_classes) {
 		for (i = 0; i < seen_classes->len; i++) {
+			GError *n_error = NULL;
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
+
 			check_for_deleted_domain_index (class);
+			check_for_deleted_super_classes (class, &n_error);
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
 		}
 	}
 

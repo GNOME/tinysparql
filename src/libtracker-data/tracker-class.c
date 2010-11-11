@@ -44,6 +44,7 @@ struct _TrackerClassPrivate {
 	GArray *super_classes;
 	GArray *domain_indexes;
 	GArray *last_domain_indexes;
+	GArray *last_super_classes;
 
 	struct {
 		struct {
@@ -92,6 +93,7 @@ tracker_class_init (TrackerClass *service)
 	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 	priv->last_domain_indexes = NULL;
+	priv->last_super_classes = NULL;
 
 	priv->deletes.pending.sub_pred_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
 	priv->deletes.pending.obj_graph_ids = g_array_new (FALSE, FALSE, sizeof (gint64));
@@ -130,9 +132,13 @@ class_finalize (GObject *object)
 	g_array_free (priv->inserts.ready.sub_pred_ids, TRUE);
 	g_array_free (priv->inserts.ready.obj_graph_ids, TRUE);
 
-	if (priv->last_domain_indexes)
+	if (priv->last_domain_indexes) {
 		g_array_free (priv->last_domain_indexes, TRUE);
+	}
 
+	if (priv->last_super_classes) {
+		g_array_free (priv->last_super_classes, TRUE);
+	}
 
 	(G_OBJECT_CLASS (tracker_class_parent_class)->finalize) (object);
 }
@@ -230,6 +236,18 @@ tracker_class_get_last_domain_indexes (TrackerClass *service)
 	priv = GET_PRIV (service);
 
 	return (TrackerProperty **) (priv->last_domain_indexes ? priv->last_domain_indexes->data : NULL);
+}
+
+TrackerClass **
+tracker_class_get_last_super_classes (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
+
+	priv = GET_PRIV (service);
+
+	return (TrackerClass **) (priv->last_super_classes ? priv->last_super_classes->data : NULL);
 }
 
 gboolean
@@ -348,6 +366,19 @@ tracker_class_add_super_class (TrackerClass *service,
 	priv = GET_PRIV (service);
 
 	g_array_append_val (priv->super_classes, value);
+}
+
+void
+tracker_class_reset_super_classes (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = GET_PRIV (service);
+
+	priv->last_super_classes = priv->super_classes;
+	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 }
 
 void
