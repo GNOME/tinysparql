@@ -1816,8 +1816,8 @@ tracker_data_ontology_process_statement (const gchar *graph,
 
 	if (is_uri) {
 		tracker_data_insert_statement_with_uri (graph, subject,
-												predicate, object,
-												&error);
+		                                        predicate, object,
+		                                        &error);
 
 		if (error != NULL) {
 			g_critical ("%s", error->message);
@@ -1827,8 +1827,8 @@ tracker_data_ontology_process_statement (const gchar *graph,
 
 	} else {
 		tracker_data_insert_statement_with_string (graph, subject,
-												   predicate, object,
-												   &error);
+		                                           predicate, object,
+		                                           &error);
 
 		if (error != NULL) {
 			g_critical ("%s", error->message);
