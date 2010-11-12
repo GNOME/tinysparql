@@ -127,6 +127,10 @@ public class Tracker.Stats : Dialog {
 				case "nmm:Playlist":
 					key_used = ngettext ("Playlist", "Playlists", val.to_int ());
 					break;
+				case "nmo:Email":
+					key_used = ngettext ("Email", "Emails", val.to_int ());
+					break;
+				
 				default:
 					continue;
 				}
