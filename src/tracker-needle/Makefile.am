@@ -2,6 +2,12 @@ include $(top_srcdir)/Makefile.decl
 
 bin_PROGRAMS = tracker-needle
 
+AM_VALAFLAGS =                                         \
+	--pkg dbus-glib-1 --pkg gtk+-2.0               \
+	$(BUILD_VALAFLAGS)                             \
+	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
+	config.vapi
+
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \
@@ -17,39 +23,23 @@ LDADD =                                                \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_NEEDLE_LIBS)
 
-tracker_needle_VALASOURCES =                           \
+tracker_needle_SOURCES =                               \
 	tracker-cell-renderer-text.vala                \
 	tracker-config.vala                            \
-	tracker-needle.vala                            \
 	tracker-query.vala                             \
 	tracker-stats.vala                             \
 	tracker-taglist.vala                           \
 	tracker-utils.vala                             \
+	tracker-needle.vala                            \
 	tracker-view.vala
-
-tracker_needle_SOURCES =                               \
-	$(tracker_needle_VALASOURCES:.vala=.c)
-
-vapi_sources =                                         \
-	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
-	config.vapi
-
-tracker-needle.vala.stamp: $(tracker_needle_VALASOURCES) $(vapi_sources)
-	$(AM_V_GEN)$(VALAC) $(GCOV_VALAFLAGS) -C $(VALAFLAGS) -g --pkg dbus-glib-1 --pkg gtk+-2.0 $^
-	$(AM_V_GEN)touch $@
 
 uidir = $(datadir)/tracker
 ui_DATA = tracker-needle.ui
 
 BUILT_SOURCES =                                        \
-	tracker-needle.vala.stamp
-
-MAINTAINERCLEANFILES =                                 \
-	$(BUILT_SOURCES)                               \
-	$(tracker_needle_VALASOURCES:.vala=.c)
+	tracker_needle_vala.stamp
 
 EXTRA_DIST =                                           \
-	$(needle_VALASOURCES)                          \
 	$(ui_DATA)                                     \
-	config.vapi                                    \
-	tracker-needle.vala.stamp
+	config.vapi
+
