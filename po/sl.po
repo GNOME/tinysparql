@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2010-10-29 22:46+0000\n"
-"PO-Revision-Date: 2010-10-30 08:17+0100\n"
+"POT-Creation-Date: 2010-11-11 18:49+0000\n"
+"PO-Revision-Date: 2010-11-11 21:56+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -247,7 +247,7 @@ msgstr "Potisk podatkov v Tracker omogoči poizvedbo po podatkih. "
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2511
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2375
 #: ../src/tracker-utils/tracker-status.c:69
 msgid "Processing…"
 msgstr "Obdelovanje ..."
@@ -1175,6 +1175,7 @@ msgstr "Za URI ni razpoložljivih metapodakov"
 #: ../src/tracker-utils/tracker-info.c:305
 #: ../src/tracker-utils/tracker-search.c:1091
 #: ../src/tracker-utils/tracker-sparql.c:613
+#: ../utils/tracker-sql/tracker-sql.c:165
 msgid "Results"
 msgstr "Rezultati"
 
@@ -1434,10 +1435,12 @@ msgid "- Query or update using SPARQL"
 msgstr "- Poizvedba ali posodobitev s SPARQL"
 
 #: ../src/tracker-utils/tracker-sparql.c:259
+#: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Zagotoviti je treba argument"
 
 #: ../src/tracker-utils/tracker-sparql.c:261
+#: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "Datoteke in poizvedbe ni mogoče uporabiti skupaj"
 
@@ -1519,10 +1522,12 @@ msgid "No properties were found to match search term"
 msgstr "Ni mogoče najti lastnosti za skladanje iskalnega niza"
 
 #: ../src/tracker-utils/tracker-sparql.c:533
+#: ../utils/tracker-sql/tracker-sql.c:106
 msgid "Could not get UTF-8 path from path"
 msgstr "Iz poti ni mogoče dobiti poti UTF-8 "
 
 #: ../src/tracker-utils/tracker-sparql.c:545
+#: ../utils/tracker-sql/tracker-sql.c:117
 msgid "Could not read file"
 msgstr "Ni mogoče prebrati datoteke"
 
@@ -1531,6 +1536,7 @@ msgid "Could not run update"
 msgstr "Posodobitve ni mogoče zagnati"
 
 #: ../src/tracker-utils/tracker-sparql.c:606
+#: ../utils/tracker-sql/tracker-sql.c:154
 msgid "Could not run query"
 msgstr "Poizvedbe ni mogoče zagnati"
 
@@ -1876,6 +1882,18 @@ msgstr "- zažene program s podporo zamika zapisovanja"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Shranjene poizvedbe"
+
+#: ../utils/tracker-sql/tracker-sql.c:66
+msgid "- Query or update using SQL"
+msgstr "- Poizvedba ali posodobitev s SQL"
+
+#: ../utils/tracker-sql/tracker-sql.c:142
+msgid "Failed to initialize data manager"
+msgstr "Začenjanje upravljalnika podatkov je spodletelo"
+
+#: ../utils/tracker-sql/tracker-sql.c:198
+msgid "Empty result set"
+msgstr "Prazen niz rezultatov"
 
 #~ msgid "Forces the insertion of FILE into the store"
 #~ msgstr "Prisili vstavitev DATOTEKE v shrambo"
