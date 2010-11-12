@@ -27,7 +27,7 @@ extern static const string SRCDIR;
 
 public class Tracker.Needle {
 	private const string UI_FILE = "tracker-needle.ui";
-	private Tracker.Config config;
+	private History history;
 	private Window window;
 	private ToggleToolButton view_list;
 	private ToggleToolButton view_icons;
@@ -57,7 +57,7 @@ public class Tracker.Needle {
 	static bool current_find_in = true;
 
 	public Needle () {
-		config = new Tracker.Config ();
+		history = new Tracker.History ();
 	}
 
 	public void show () {
@@ -115,7 +115,7 @@ public class Tracker.Needle {
 		search_list = builder.get_object ("comboboxentry_search") as ComboBoxEntry;
 		search = search_list.get_child () as Entry;
 		search.changed.connect (search_changed);
-		search_history_insert (config.get_history ());
+		search_history_insert (history.get ());
 
 		spinner = new Spinner ();
 		spinner_shell = builder.get_object ("toolcustom_spinner") as ToolItem;
@@ -529,7 +529,7 @@ public class Tracker.Needle {
 			store.prepend (out new_iter);
 			store.set (new_iter, 0, criteria, -1);
 
-			config.add_history (criteria);
+			history.add (criteria);
 		}
 
 		return null;

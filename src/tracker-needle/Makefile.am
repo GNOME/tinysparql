@@ -25,7 +25,7 @@ LDADD =                                                \
 
 tracker_needle_SOURCES =                               \
 	tracker-cell-renderer-text.vala                \
-	tracker-config.vala                            \
+	tracker-history.vala                           \
 	tracker-query.vala                             \
 	tracker-stats.vala                             \
 	tracker-taglist.vala                           \

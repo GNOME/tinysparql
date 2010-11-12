@@ -17,24 +17,24 @@
 // 02110-1301, USA.
 //
 
-public class Tracker.Config {
+public class Tracker.History {
 	private KeyFile data;
 	private string filename;
 	private string[] history;
 
-	public Config () {
-		debug ("Loading config");
+	public History () {
+		debug ("Loading history");
 
 		data = new KeyFile ();
-		filename = Path.build_filename (Environment.get_home_dir (), ".config", "tracker", "tracker-needle.cfg", null);
+		filename = Path.build_filename (Environment.get_user_data_dir (), "tracker", "tracker-needle.txt", null);
 
 		try {
 			data.load_from_file (filename, KeyFileFlags.KEEP_COMMENTS | KeyFileFlags.KEEP_TRANSLATIONS);
 		} catch (KeyFileError e1) {
-			warning ("Could not load config from file:'%s': %s", filename, e1.message);
+			warning ("Could not load history from file:'%s': %s", filename, e1.message);
 			return;
 		} catch (FileError e2) {
-			warning ("Could not load config from file:'%s': %s", filename, e2.message);
+			warning ("Could not load history from file:'%s': %s", filename, e2.message);
 			return;
 		}
 
@@ -46,7 +46,7 @@ public class Tracker.Config {
 		try {
 			history = data.get_string_list ("History", "criteria");
 		} catch (KeyFileError e1) {
-			warning ("Could not load config from file:'%s': %s", filename, e1.message);
+			warning ("Could not load history from file:'%s': %s", filename, e1.message);
 			return;
 		}
 
@@ -55,8 +55,8 @@ public class Tracker.Config {
 		debug ("  Done");
 	}
 
-	~Config () {
-		debug ("Saving config");
+	~History () {
+		debug ("Saving history");
 
 		data.set_string_list ("History", "criteria", history);
 
@@ -65,13 +65,13 @@ public class Tracker.Config {
 
 			FileUtils.set_contents (filename, output, -1);
 		} catch (GLib.FileError e1) {
-			warning ("Could not save config to file:'%s': %s", filename, e1.message);
+			warning ("Could not save history to file:'%s': %s", filename, e1.message);
 		}
 
 		debug ("  Done");
 	}
 
-	public void add_history (string criteria)
+	public void add (string criteria)
 	requires (criteria != null && criteria.length > 0) {
 		// Don't add the same item more than once
 		foreach (string check in history) {
@@ -83,7 +83,7 @@ public class Tracker.Config {
 		history += criteria;
 	}
 
-	public string[] get_history () {
+	public string[] get () {
 		return history;
 	}
 
