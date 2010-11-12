@@ -695,6 +695,15 @@ public class Tracker.SparqlScanner : Object {
 							current++;
 							token_length_in_chars++;
 							break;
+						case 'u':
+							for (int i = 0; i < 4; i++) {
+								if (current + i + 1 >= end || !current[i + 1].isxdigit ()) {
+									throw new Sparql.Error.PARSE ("%d.%d: invalid escape sequence", line, column + token_length_in_chars);
+								}
+							}
+							current += 5;
+							token_length_in_chars += 5;
+							break;
 						default:
 							throw new Sparql.Error.PARSE ("%d.%d: invalid escape sequence", line, column + token_length_in_chars);
 						}

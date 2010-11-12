@@ -764,6 +764,12 @@ class Tracker.Sparql.Expression : Object {
 					case 't':
 						sb.append_c ('\t');
 						break;
+					case 'u':
+						char* ptr = (char*) p + 1;
+						unichar c = (((unichar) ptr[0].xdigit_value () * 16 + ptr[1].xdigit_value ()) * 16 + ptr[2].xdigit_value ()) * 16 + ptr[3].xdigit_value ();
+						sb.append_unichar (c);
+						p += 4;
+						break;
 					}
 					p++;
 				}
