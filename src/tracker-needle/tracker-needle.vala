@@ -257,7 +257,7 @@ public class Tracker.Needle {
 		iconview.set_selection_mode (Gtk.SelectionMode.SINGLE);
 		iconview.set_pixbuf_column (1);
 		iconview.set_text_column (4);
-		//iconview.row_activated += view_row_selected;
+		iconview.item_activated.connect (icon_item_selected);
 	}
 
 	private void search_changed (Editable editable) {
@@ -645,15 +645,12 @@ public class Tracker.Needle {
 		current_find_in = find_in_contents.active;
 	}
 
-	private void view_row_selected (TreeView view, TreePath path, TreeViewColumn column) {
+	private void launch_selected (TreeModel model, TreePath path, int col) {
 		TreeIter iter;
-
-		var model = view.get_model ();
 		model.get_iter (out iter, path);
-
+		
 		weak string uri;
-		model.get (iter, 3, out uri);
-
+		model.get (iter, col, out uri);
 		debug ("Selected uri:'%s'", uri);
 
 		try {
@@ -661,6 +658,16 @@ public class Tracker.Needle {
 		} catch (GLib.Error e) {
 			warning ("Could not launch application: " + e.message);
 		}
+	}
+
+	private void view_row_selected (TreeView view, TreePath path, TreeViewColumn column) {
+		var model = view.get_model ();
+		launch_selected (model, path, 3);
+	}
+
+	private void icon_item_selected (IconView view, TreePath path) {
+		var model = view.get_model ();
+		launch_selected (model, path, 3);
 	}
 
 	private void show_tags_clicked () {
