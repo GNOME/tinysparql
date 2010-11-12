@@ -152,7 +152,7 @@ public class Tracker.Stats : Dialog {
 		this.vbox.spacing = 10;
 
 		// Add buttons to button area at the bottom
-		add_button (STOCK_CLOSE, ResponseType.CLOSE);
+		add_button (Stock.CLOSE, ResponseType.CLOSE);
 
 		// Connect signals
 		this.response.connect (on_response);

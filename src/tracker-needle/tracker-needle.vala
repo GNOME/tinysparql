@@ -18,11 +18,6 @@
 //
 
 using Gtk;
-using Tracker.Sparql;
-using Tracker.Config;
-using Tracker.Stats;
-using Tracker.TagList;
-using Tracker.View;
 
 [CCode (cname = "TRACKER_UI_DIR")]
 extern static const string UIDIR;
