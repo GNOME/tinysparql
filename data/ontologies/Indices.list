@@ -21,6 +21,9 @@
   - For use cases where fts:match needs to be done against the postal address
   in addition to the class itself
 
+* nco:nameFamily:
+  - Used for listing contacts sorted by last name
+
 33-nfo:
 * nfo:fileLastModified:
   - The miner-fs uses this property during crawling a lot
