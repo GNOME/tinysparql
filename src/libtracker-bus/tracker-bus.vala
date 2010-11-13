@@ -38,7 +38,7 @@ private interface Tracker.Bus.Steroids : DBusProxy {
 
 	[DBus (visible = false)]
 	public void update_begin (UnixInputStream sparql_stream, int priority, Cancellable? cancellable, AsyncReadyCallback callback) {
-		if (priority >= GLib.Priority.DEFAULT) {
+		if (priority <= GLib.Priority.DEFAULT) {
 			update.begin (sparql_stream, cancellable, callback);
 		} else {
 			batch_update.begin (sparql_stream, cancellable, callback);
@@ -47,7 +47,7 @@ private interface Tracker.Bus.Steroids : DBusProxy {
 
 	[DBus (visible = false)]
 	public void update_array_begin (UnixInputStream sparql_stream, int priority, Cancellable? cancellable, AsyncReadyCallback callback) {
-		if (priority >= GLib.Priority.DEFAULT) {
+		if (priority <= GLib.Priority.DEFAULT) {
 			update_array.begin (sparql_stream, cancellable, callback);
 		} else {
 			batch_update_array.begin (sparql_stream, cancellable, callback);
@@ -188,7 +188,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 			yield;
 		}
 
-		if (priority >= GLib.Priority.DEFAULT) {
+		if (priority <= GLib.Priority.DEFAULT) {
 			steroids_object.update.end (dbus_res);
 		} else {
 			steroids_object.batch_update.end (dbus_res);
@@ -229,7 +229,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// process results (errors)
 		var result = new GenericArray<Error?> ();
 		Variant resultv;
-		if (priority >= GLib.Priority.DEFAULT) {
+		if (priority <= GLib.Priority.DEFAULT) {
 			resultv = steroids_object.update_array.end (dbus_res);
 		} else {
 			resultv = steroids_object.batch_update_array.end (dbus_res);
