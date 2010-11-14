@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-14 13:49+0200\n"
-"PO-Revision-Date: 2010-09-14 13:48+0200\n"
+"POT-Creation-Date: 2010-11-14 17:58+0100\n"
+"PO-Revision-Date: 2010-11-14 17:57+0100\n"
 "Last-Translator: Gabor Kelemen <kelemeng at gnome dot hu>\n"
 "Language-Team: Hungarian <gnome at fsf dot hu>\n"
 "MIME-Version: 1.0\n"
@@ -17,47 +17,47 @@ msgstr ""
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../data/miners/tracker-miner-applications.desktop.in.h:1
+#: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-search-bar/tracker-results-window.c:666
 #: ../src/tracker-search-tool/tracker-category-view.gs:79
 msgid "Applications"
 msgstr "Alkalmazások"
 
-#: ../data/miners/tracker-miner-applications.desktop.in.h:2
+#: ../data/miners/tracker-miner-applications.desktop.in.in.h:2
 msgid "Applications data miner"
 msgstr "Alkalmazások adatbányásza"
 
-#: ../data/miners/tracker-miner-evolution.desktop.in.h:1
+#: ../data/miners/tracker-miner-evolution.desktop.in.in.h:1
 #: ../src/tracker-search-tool/tracker-category-view.gs:83
 #: ../src/tracker-utils/tracker-search.c:329
 msgid "Emails"
 msgstr "E-mailek"
 
-#: ../data/miners/tracker-miner-evolution.desktop.in.h:2
+#: ../data/miners/tracker-miner-evolution.desktop.in.in.h:2
 msgid "Evolution Email miner"
 msgstr "Evolution e-mail bányász"
 
-#: ../data/miners/tracker-miner-files.desktop.in.h:1
+#: ../data/miners/tracker-miner-files.desktop.in.in.h:1
 msgid "File System"
 msgstr "Fájlrendszer"
 
-#: ../data/miners/tracker-miner-files.desktop.in.h:2
+#: ../data/miners/tracker-miner-files.desktop.in.in.h:2
 msgid "File system data miner"
 msgstr "Fájlrendszer-adatbányász"
 
-#: ../data/miners/tracker-miner-flickr.desktop.in.h:1
+#: ../data/miners/tracker-miner-flickr.desktop.in.in.h:1
 msgid "Flickr"
 msgstr "Flickr"
 
-#: ../data/miners/tracker-miner-flickr.desktop.in.h:2
+#: ../data/miners/tracker-miner-flickr.desktop.in.in.h:2
 msgid "Index your Flickr photo albums"
 msgstr "Flickr fotóalbumok indexelése"
 
-#: ../data/miners/tracker-miner-rss.desktop.in.h:1
+#: ../data/miners/tracker-miner-rss.desktop.in.in.h:1
 msgid "Fetch RSS/ATOM Feeds"
 msgstr "RSS/ATOM hírforrások lekérése"
 
-#: ../data/miners/tracker-miner-rss.desktop.in.h:2
+#: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
 msgid "RSS/ATOM Feeds"
 msgstr "RSS/ATOM hírforrások"
 
@@ -123,26 +123,26 @@ msgstr[0] "Állítsa be a kijelölt %d elemhez társítandó _címkéket:"
 msgstr[1] "Állítsa be a kijelölt %d elemhez társítandó _címkéket:"
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
-#: ../src/plugins/nautilus/tracker-tags-extension.c:233
+#: ../src/plugins/nautilus/tracker-tags-extension.c:237
 #: ../src/tracker-search-bar/tracker-results-window.c:663
 msgid "Tags"
 msgstr "Címkék"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:171
-#: ../src/plugins/nautilus/tracker-tags-extension.c:198
+#: ../src/plugins/nautilus/tracker-tags-extension.c:175
+#: ../src/plugins/nautilus/tracker-tags-extension.c:202
 msgid "Tags..."
 msgstr "Címkék…"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:172
-#: ../src/plugins/nautilus/tracker-tags-extension.c:199
+#: ../src/plugins/nautilus/tracker-tags-extension.c:176
+#: ../src/plugins/nautilus/tracker-tags-extension.c:203
 msgid "Tag one or more files"
 msgstr "Fájlok címkézése"
 
-#: ../src/libtracker-common/tracker-dbus.c:597
+#: ../src/libtracker-common/tracker-dbus.c:571
 #: ../src/tracker-utils/tracker-import.c:116
-#: ../src/tracker-utils/tracker-info.c:209
-#: ../src/tracker-utils/tracker-search.c:1276
-#: ../src/tracker-utils/tracker-sparql.c:268
+#: ../src/tracker-utils/tracker-info.c:223
+#: ../src/tracker-utils/tracker-search.c:1270
+#: ../src/tracker-utils/tracker-sparql.c:292
 #: ../src/tracker-utils/tracker-stats.c:93
 #: ../src/tracker-utils/tracker-tag.c:945
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:90
@@ -211,17 +211,17 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d másodperc"
 msgstr[1] " %2.2d másodperc"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:402
+#: ../src/libtracker-miner/tracker-miner-object.c:407
 msgid "Data store is not available"
 msgstr "Nem érhető el az adattároló"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:541
+#: ../src/libtracker-miner/tracker-miner-object.c:546
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "A szüneteltetési kérés és ok megegyezik egy már létező szüneteltetési "
 "kéréssel"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:613
+#: ../src/libtracker-miner/tracker-miner-object.c:618
 msgid "Cookie not recognized to resume paused miner"
 msgstr "A süti nem ismerhető fel a szüneteltetett adatbányász folytatásához"
 
@@ -233,14 +233,14 @@ msgstr "Adatokat küld a Trackernek, hogy lekérdezhetővé tegye azokat."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2511
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2375
 #: ../src/tracker-utils/tracker-status.c:69
 msgid "Processing…"
 msgstr "Feldolgozás…"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:1
-#: ../src/tracker-utils/tracker-sparql.c:380
-#: ../src/tracker-utils/tracker-sparql.c:465
+#: ../src/tracker-utils/tracker-sparql.c:404
+#: ../src/tracker-utils/tracker-sparql.c:523
 msgid "Properties"
 msgstr "Tulajdonságok"
 
@@ -254,7 +254,7 @@ msgid "_URN:"
 msgstr "_URN:"
 
 #: ../src/tracker-extract/tracker-main.c:84
-#: ../src/tracker-store/tracker-main.c:98
+#: ../src/tracker-store/tracker-main.c:101
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -272,7 +272,7 @@ msgstr "Metaadatok kinyerése e fájlból"
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:57
 #: ../src/tracker-utils/tracker-info.c:58
-#: ../src/tracker-utils/tracker-sparql.c:60
+#: ../src/tracker-utils/tracker-sparql.c:65
 msgid "FILE"
 msgstr "FÁJL"
 
@@ -305,7 +305,7 @@ msgid "MODULE"
 msgstr "MODUL"
 
 #: ../src/tracker-extract/tracker-main.c:111
-#: ../src/miners/fs/tracker-main.c:94 ../src/tracker-store/tracker-main.c:94
+#: ../src/miners/fs/tracker-main.c:94 ../src/tracker-store/tracker-main.c:97
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Verzióinformációk megjelenítése"
@@ -426,11 +426,11 @@ msgstr "Meg lesz figyelve"
 msgid "- start the tracker indexer"
 msgstr "– a tracker indexelő elindítása"
 
-#: ../src/miners/fs/tracker-miner-files.c:1239
+#: ../src/miners/fs/tracker-miner-files.c:1241
 msgid "Low battery"
 msgstr "Gyenge akkumulátor"
 
-#: ../src/miners/fs/tracker-miner-files.c:1367
+#: ../src/miners/fs/tracker-miner-files.c:1364
 msgid "Low disk space"
 msgstr "Kevés lemezhely"
 
@@ -515,7 +515,7 @@ msgid "Faster"
 msgstr "Gyorsabb"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:9
-#: ../src/tracker-utils/tracker-search.c:436
+#: ../src/tracker-utils/tracker-search.c:430
 msgid "Files"
 msgstr "Fájlok"
 
@@ -661,7 +661,7 @@ msgstr "Keresősáv"
 #. G_CALLBACK (statistics_menu_activated), icon);
 #.
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
-#: ../src/tracker-status-icon/tracker-status-icon.c:915
+#: ../src/tracker-status-icon/tracker-status-icon.c:917
 msgid "_About"
 msgstr "_Névjegy"
 
@@ -908,7 +908,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
 #: ../src/tracker-utils/tracker-search.c:129
-#: ../src/tracker-utils/tracker-sparql.c:91
+#: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
 #: ../src/tracker-utils/tracker-status.c:115
 #: ../src/tracker-utils/tracker-tag.c:87
@@ -974,15 +974,15 @@ msgstr ""
 msgid "translator-credits"
 msgstr "Kelemen Gábor <kelemeng@gnome.hu>"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:835
+#: ../src/tracker-status-icon/tracker-status-icon.c:837
 msgid "_Search"
 msgstr "_Keresés"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:864
+#: ../src/tracker-status-icon/tracker-status-icon.c:866
 msgid "_Pause All Indexing"
 msgstr "Indexelés s_züneteltetése"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:884
+#: ../src/tracker-status-icon/tracker-status-icon.c:886
 msgid "_Preferences"
 msgstr "_Beállítások"
 
@@ -994,18 +994,18 @@ msgstr "A Tracker kereső- és indexelő szolgáltatás vezérlése és megfigye
 msgid "Tracker Applet"
 msgstr "Tracker kisalkalmazás"
 
-#: ../src/tracker-store/tracker-main.c:105
+#: ../src/tracker-store/tracker-main.c:108
 msgid "Force a re-index of all content"
 msgstr "Minden tartalom újraindexelésének kikényszerítése"
 
-#: ../src/tracker-store/tracker-main.c:109
+#: ../src/tracker-store/tracker-main.c:112
 msgid "Only allow read based actions on the database"
 msgstr "Csak olvasási műveletek engedélyezése az adatbázison"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:367
+#: ../src/tracker-store/tracker-main.c:373
 msgid "- start the tracker daemon"
 msgstr "- a tracker démon elindítása"
 
@@ -1129,35 +1129,35 @@ msgstr "A(z) %d számú folyamat nem lőhető ki"
 msgid "Killed process %d"
 msgstr "A(z) %d számú folyamat kilőve"
 
-#: ../src/tracker-control/tracker-control.c:493
+#: ../src/tracker-control/tracker-control.c:494
 msgid "Removing configuration files…"
 msgstr "Beállítófájlok eltávolítása…"
 
-#: ../src/tracker-control/tracker-control.c:510
+#: ../src/tracker-control/tracker-control.c:511
 msgid "Waiting one second before starting miners…"
 msgstr "Egy másodperc várakozás az adatbányászok indítása előtt…"
 
-#: ../src/tracker-control/tracker-control.c:516
+#: ../src/tracker-control/tracker-control.c:517
 msgid "Starting miners…"
 msgstr "Adatbányászok elindítása…"
 
-#: ../src/tracker-control/tracker-control.c:531
+#: ../src/tracker-control/tracker-control.c:532
 msgid "perhaps a disabled plugin?"
 msgstr "talán egy letiltott bővítmény?"
 
-#: ../src/tracker-control/tracker-control.c:552
+#: ../src/tracker-control/tracker-control.c:553
 msgid "Could not reindex mimetypes"
 msgstr "A MIME-típusok nem indexelhetők újra"
 
-#: ../src/tracker-control/tracker-control.c:558
+#: ../src/tracker-control/tracker-control.c:559
 msgid "Reindexing mime types was successful"
 msgstr "A MIME-típusok újraindexelése sikeres volt"
 
-#: ../src/tracker-control/tracker-control.c:575
+#: ../src/tracker-control/tracker-control.c:576
 msgid "Could not (re)index file"
 msgstr "A fájl nem indexelhető (újra)"
 
-#: ../src/tracker-control/tracker-control.c:581
+#: ../src/tracker-control/tracker-control.c:582
 msgid "(Re)indexing file was successful"
 msgstr "A fájl újraindexelése sikeres volt"
 
@@ -1168,14 +1168,14 @@ msgid "- Import data using Turtle files"
 msgstr "– Adatok importálása Turtle fájlok használatával"
 
 #: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:186
+#: ../src/tracker-utils/tracker-info.c:200
 msgid "One or more files have not been specified"
 msgstr "Néhány fájl nincs megadva"
 
 #: ../src/tracker-utils/tracker-import.c:115
-#: ../src/tracker-utils/tracker-info.c:208
-#: ../src/tracker-utils/tracker-search.c:1275
-#: ../src/tracker-utils/tracker-sparql.c:267
+#: ../src/tracker-utils/tracker-info.c:222
+#: ../src/tracker-utils/tracker-search.c:1269
+#: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:89
@@ -1191,7 +1191,7 @@ msgid "Unable to import Turtle file"
 msgstr "A Turtle fájl nem importálható"
 
 #: ../src/tracker-utils/tracker-import.c:142
-#: ../src/tracker-utils/tracker-sparql.c:513
+#: ../src/tracker-utils/tracker-sparql.c:571
 #: ../src/tracker-utils/tracker-status.c:210
 msgid "Done"
 msgstr "Kész"
@@ -1202,32 +1202,41 @@ msgstr ""
 "Teljes névterek megjelenítése (azaz ne a nie:title típust használja, hanem a "
 "teljes URL-eket)"
 
+#: ../src/tracker-utils/tracker-info.c:131
+msgid "Unable to retrieve namespace prefixes"
+msgstr "Nem kérhetők le a névtérelőtagok"
+
+#: ../src/tracker-utils/tracker-info.c:139
+msgid "No namespace prefixes were returned"
+msgstr "Nem kaptam névtérelőtagokat"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:168
+#: ../src/tracker-utils/tracker-info.c:182
 msgid "- Get all information about one or more files"
 msgstr "– Adott fájlok minden információjának lekérése"
 
-#: ../src/tracker-utils/tracker-info.c:223
+#: ../src/tracker-utils/tracker-info.c:237
 msgid "Querying information for entity"
 msgstr "Entitás információinak lekérése"
 
-#: ../src/tracker-utils/tracker-info.c:243
+#: ../src/tracker-utils/tracker-info.c:257
 msgid "Unable to retrieve URN for URI"
 msgstr "Az URN nem kérhető le az URI címhez"
 
-#: ../src/tracker-utils/tracker-info.c:253
-#: ../src/tracker-utils/tracker-info.c:280
+#: ../src/tracker-utils/tracker-info.c:267
+#: ../src/tracker-utils/tracker-info.c:294
 msgid "Unable to retrieve data for URI"
 msgstr "Az adatok nem kérhetők le az URI címhez"
 
-#: ../src/tracker-utils/tracker-info.c:289
+#: ../src/tracker-utils/tracker-info.c:303
 msgid "No metadata available for that URI"
 msgstr "Nem érhetők el metaadatok ehhez az URI-címhez"
 
-#: ../src/tracker-utils/tracker-info.c:291
-#: ../src/tracker-utils/tracker-search.c:1097
-#: ../src/tracker-utils/tracker-sparql.c:555
+#: ../src/tracker-utils/tracker-info.c:305
+#: ../src/tracker-utils/tracker-search.c:1091
+#: ../src/tracker-utils/tracker-sparql.c:613
+#: ../utils/tracker-sql/tracker-sql.c:165
 msgid "Results"
 msgstr "Eredmények"
 
@@ -1331,11 +1340,11 @@ msgstr ""
 
 #: ../src/tracker-utils/tracker-search.c:211
 #: ../src/tracker-utils/tracker-search.c:316
-#: ../src/tracker-utils/tracker-search.c:423
-#: ../src/tracker-utils/tracker-search.c:719
-#: ../src/tracker-utils/tracker-search.c:804
-#: ../src/tracker-utils/tracker-search.c:888
-#: ../src/tracker-utils/tracker-search.c:1084
+#: ../src/tracker-utils/tracker-search.c:417
+#: ../src/tracker-utils/tracker-search.c:713
+#: ../src/tracker-utils/tracker-search.c:798
+#: ../src/tracker-utils/tracker-search.c:882
+#: ../src/tracker-utils/tracker-search.c:1078
 msgid "Could not get search results"
 msgstr "Nem kérhetők le a keresési eredmények"
 
@@ -1357,56 +1366,56 @@ msgstr "Nincs cím"
 msgid "No emails were found"
 msgstr "Nem találhatók e-mailek"
 
-#: ../src/tracker-utils/tracker-search.c:432
+#: ../src/tracker-utils/tracker-search.c:426
 msgid "No files were found"
 msgstr "Nem találhatók fájlok"
 
-#: ../src/tracker-utils/tracker-search.c:728
+#: ../src/tracker-utils/tracker-search.c:722
 msgid "No artists were found"
 msgstr "Nem találhatók előadók"
 
-#: ../src/tracker-utils/tracker-search.c:732
+#: ../src/tracker-utils/tracker-search.c:726
 msgid "Artists"
 msgstr "Művészek"
 
-#: ../src/tracker-utils/tracker-search.c:813
+#: ../src/tracker-utils/tracker-search.c:807
 msgid "No music was found"
 msgstr "Nem található zene"
 
-#: ../src/tracker-utils/tracker-search.c:817
+#: ../src/tracker-utils/tracker-search.c:811
 msgid "Albums"
 msgstr "Albumok"
 
-#: ../src/tracker-utils/tracker-search.c:897
+#: ../src/tracker-utils/tracker-search.c:891
 msgid "No feeds were found"
 msgstr "Nem találhatók hírforrások"
 
-#: ../src/tracker-utils/tracker-search.c:901
+#: ../src/tracker-utils/tracker-search.c:895
 msgid "Feeds"
 msgstr "Hírforrások"
 
-#: ../src/tracker-utils/tracker-search.c:1093
+#: ../src/tracker-utils/tracker-search.c:1087
 msgid "No results were found matching your query"
 msgstr "Nincs a lekérdezésnek megfelelő találat"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-search.c:1165
+#: ../src/tracker-utils/tracker-search.c:1159
 msgid "- Search for terms in all data"
 msgstr "– Kifejezések keresése minden adatban"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options.
 #.
-#: ../src/tracker-utils/tracker-search.c:1170
+#: ../src/tracker-utils/tracker-search.c:1164
 msgid ""
 "Applies an AND operator to all terms separated by a space (see --or-operator)"
 msgstr ""
 "ÉS operátort alkalmaz minden, szóközzel elválasztott kifejezésre (lásd még: "
 "--or-operator)"
 
-#: ../src/tracker-utils/tracker-search.c:1174
+#: ../src/tracker-utils/tracker-search.c:1168
 msgid ""
 "This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
 "you use --or-operator)"
@@ -1414,16 +1423,16 @@ msgstr ""
 "Más szóval az „izé” és „bigyó” keresése esetén MINDKETTŐNEK léteznie kell "
 "(kivéve ha a --or-operator kapcsolót használja)"
 
-#: ../src/tracker-utils/tracker-search.c:1202
+#: ../src/tracker-utils/tracker-search.c:1196
 msgid "Search terms are missing"
 msgstr "Keresőkifejezések hiányoznak"
 
-#: ../src/tracker-utils/tracker-search.c:1248
+#: ../src/tracker-utils/tracker-search.c:1242
 #, c-format
 msgid "Search term '%s' is a stop word."
 msgstr "A kifejezés („%s”) egy megállítószó"
 
-#: ../src/tracker-utils/tracker-search.c:1259
+#: ../src/tracker-utils/tracker-search.c:1253
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -1431,31 +1440,31 @@ msgstr ""
 "A megállítószavak olyan gyakori szavak, amelyek az indexelési eljárásban "
 "figyelmen kívül hagyhatók."
 
-#: ../src/tracker-utils/tracker-sparql.c:59
+#: ../src/tracker-utils/tracker-sparql.c:64
 msgid "Path to use to run a query or update from file"
 msgstr "Lekérdezés futtatására vagy fájlból frissítésre használandó útvonal"
 
-#: ../src/tracker-utils/tracker-sparql.c:63
+#: ../src/tracker-utils/tracker-sparql.c:68
 msgid "SPARQL query"
 msgstr "SPARQL lekérdezés"
 
-#: ../src/tracker-utils/tracker-sparql.c:64
+#: ../src/tracker-utils/tracker-sparql.c:69
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:67
+#: ../src/tracker-utils/tracker-sparql.c:72
 msgid "This is used with --query and for database updates only."
 msgstr "Ez a --query kapcsolóval és csak adatbázis-frissítésekre használatos."
 
-#: ../src/tracker-utils/tracker-sparql.c:71
+#: ../src/tracker-utils/tracker-sparql.c:76
 msgid "Retrieve classes"
 msgstr "Osztályok lekérése"
 
-#: ../src/tracker-utils/tracker-sparql.c:75
+#: ../src/tracker-utils/tracker-sparql.c:80
 msgid "Retrieve class prefixes"
 msgstr "Osztályelőtagok lekérése"
 
-#: ../src/tracker-utils/tracker-sparql.c:79
+#: ../src/tracker-utils/tracker-sparql.c:84
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -1463,38 +1472,50 @@ msgstr ""
 "Osztály tulajdonságainak lekérése, előtagok is használhatók (például: rdfs:"
 "Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:80
-#: ../src/tracker-utils/tracker-sparql.c:84
+#: ../src/tracker-utils/tracker-sparql.c:85
+#: ../src/tracker-utils/tracker-sparql.c:89
 msgid "CLASS"
 msgstr "OSZTÁLY"
 
-#: ../src/tracker-utils/tracker-sparql.c:83
+#: ../src/tracker-utils/tracker-sparql.c:88
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Osztályok visszaadása, amelyek az adatbázis változásaira figyelmeztetnek (az "
 "OSZTÁLY elhagyható)"
 
-#: ../src/tracker-utils/tracker-sparql.c:87
+#: ../src/tracker-utils/tracker-sparql.c:92
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional) "
+msgstr ""
+"Az adatbázisban használt indexek lekérése a teljesítmény javítása érdekében "
+"(a TULAJDONSÁG elhagyható)"
+
+#: ../src/tracker-utils/tracker-sparql.c:93
+msgid "PROPERTY"
+msgstr "TULAJDONSÁG"
+
+#: ../src/tracker-utils/tracker-sparql.c:96
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Osztály vagy tulajdonság keresése, és további információk megjelenítése "
 "(például dokumentum)"
 
-#: ../src/tracker-utils/tracker-sparql.c:88
+#: ../src/tracker-utils/tracker-sparql.c:97
 msgid "CLASS/PROPERTY"
 msgstr "OSZTÁLY/TULAJDONSÁG"
 
-#: ../src/tracker-utils/tracker-sparql.c:117
+#: ../src/tracker-utils/tracker-sparql.c:126
 msgid "Could not get namespace prefixes"
 msgstr "Nem kérhetők le a névtérelőtagok"
 
-#: ../src/tracker-utils/tracker-sparql.c:126
+#: ../src/tracker-utils/tracker-sparql.c:135
 msgid "No namespace prefixes were found"
 msgstr "Nem találhatók névtér-előtagok"
 
-#: ../src/tracker-utils/tracker-sparql.c:197
+#: ../src/tracker-utils/tracker-sparql.c:221
 #: ../src/tracker-utils/tracker-stats.c:123
 #: ../src/tracker-utils/tracker-tag.c:370
 #: ../src/tracker-utils/tracker-tag.c:494
@@ -1502,103 +1523,120 @@ msgstr "Nem találhatók névtér-előtagok"
 msgid "None"
 msgstr "Nincs"
 
-#: ../src/tracker-utils/tracker-sparql.c:221
+#: ../src/tracker-utils/tracker-sparql.c:245
 msgid "- Query or update using SPARQL"
 msgstr "– Lekérdezés vagy frissítés SPARQL használatával"
 
-#: ../src/tracker-utils/tracker-sparql.c:235
+#: ../src/tracker-utils/tracker-sparql.c:259
+#: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Meg kell adni a paramétert"
 
-#: ../src/tracker-utils/tracker-sparql.c:237
+#: ../src/tracker-utils/tracker-sparql.c:261
+#: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "A tárolás és lekérdezés műveletek nem használhatók egyszerre"
 
-#: ../src/tracker-utils/tracker-sparql.c:281
+#: ../src/tracker-utils/tracker-sparql.c:305
 msgid "Could not list classes"
 msgstr "Az osztályok nem sorolhatók fel"
 
-#: ../src/tracker-utils/tracker-sparql.c:289
+#: ../src/tracker-utils/tracker-sparql.c:313
 msgid "No classes were found"
 msgstr "Nem találhatók osztályok"
 
-#: ../src/tracker-utils/tracker-sparql.c:289
-#: ../src/tracker-utils/tracker-sparql.c:442
+#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:500
 msgid "Classes"
 msgstr "Osztályok"
 
-#: ../src/tracker-utils/tracker-sparql.c:305
+#: ../src/tracker-utils/tracker-sparql.c:329
 msgid "Could not list class prefixes"
 msgstr "Nem sorolhatók fel az osztályelőtagok"
 
-#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:337
 msgid "No class prefixes were found"
 msgstr "Nem találhatók osztályelőtagok"
 
-#: ../src/tracker-utils/tracker-sparql.c:313
+#: ../src/tracker-utils/tracker-sparql.c:337
 msgid "Prefixes"
 msgstr "Előtagok"
 
-#: ../src/tracker-utils/tracker-sparql.c:333
+#: ../src/tracker-utils/tracker-sparql.c:357
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
 msgstr ""
 "Nem található tulajdonság az osztályelőtaghoz, például :Resource az „rdfs:"
 "Resource”-ban"
 
-#: ../src/tracker-utils/tracker-sparql.c:372
+#: ../src/tracker-utils/tracker-sparql.c:396
 msgid "Could not list properties"
 msgstr "A tulajdonságok nem sorolhatók fel"
 
-#: ../src/tracker-utils/tracker-sparql.c:380
+#: ../src/tracker-utils/tracker-sparql.c:404
 msgid "No properties were found"
 msgstr "Nem találhatók tulajdonságok"
 
-#: ../src/tracker-utils/tracker-sparql.c:408
+#: ../src/tracker-utils/tracker-sparql.c:432
 msgid "Could not find notify classes"
 msgstr "Az értesítő osztályok nem találhatók"
 
-#: ../src/tracker-utils/tracker-sparql.c:416
+#: ../src/tracker-utils/tracker-sparql.c:440
 msgid "No notifies were found"
 msgstr "Nem találhatók értesítők"
 
-#: ../src/tracker-utils/tracker-sparql.c:416
+#: ../src/tracker-utils/tracker-sparql.c:440
 msgid "Notifies"
 msgstr "Értesítések"
 
-#: ../src/tracker-utils/tracker-sparql.c:434
+#: ../src/tracker-utils/tracker-sparql.c:466
+msgid "Could not find indexed properties"
+msgstr "Az indexelt tulajdonságok nem találhatók"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+msgid "No indexes were found"
+msgstr "Nem találhatók indexek"
+
+#: ../src/tracker-utils/tracker-sparql.c:474
+msgid "Indexes"
+msgstr "Indexek"
+
+#: ../src/tracker-utils/tracker-sparql.c:492
 msgid "Could not search classes"
 msgstr "Nem kereshetők az osztályok"
 
-#: ../src/tracker-utils/tracker-sparql.c:442
+#: ../src/tracker-utils/tracker-sparql.c:500
 msgid "No classes were found to match search term"
 msgstr "Nem találhatók a keresőkifejezésre illeszkedő osztályok"
 
-#: ../src/tracker-utils/tracker-sparql.c:457
+#: ../src/tracker-utils/tracker-sparql.c:515
 msgid "Could not search properties"
 msgstr "Nem kereshetők a tulajdonságok"
 
-#: ../src/tracker-utils/tracker-sparql.c:465
+#: ../src/tracker-utils/tracker-sparql.c:523
 msgid "No properties were found to match search term"
 msgstr "Nem találhatók a keresőkifejezésre illeszkedő tulajdonságok"
 
-#: ../src/tracker-utils/tracker-sparql.c:475
+#: ../src/tracker-utils/tracker-sparql.c:533
+#: ../utils/tracker-sql/tracker-sql.c:106
 msgid "Could not get UTF-8 path from path"
 msgstr "Nem szerezhető be az UTF-8 útvonal az útvonalból"
 
-#: ../src/tracker-utils/tracker-sparql.c:487
+#: ../src/tracker-utils/tracker-sparql.c:545
+#: ../utils/tracker-sql/tracker-sql.c:117
 msgid "Could not read file"
 msgstr "A fájl nem olvasható"
 
-#: ../src/tracker-utils/tracker-sparql.c:506
+#: ../src/tracker-utils/tracker-sparql.c:564
 msgid "Could not run update"
 msgstr "A frissítés nem futtatható"
 
-#: ../src/tracker-utils/tracker-sparql.c:548
+#: ../src/tracker-utils/tracker-sparql.c:606
+#: ../utils/tracker-sql/tracker-sql.c:154
 msgid "Could not run query"
 msgstr "A lekérdezés nem futtatható"
 
-#: ../src/tracker-utils/tracker-sparql.c:555
+#: ../src/tracker-utils/tracker-sparql.c:613
 msgid "No results found matching your query"
 msgstr "Nincs a lekérdezésnek megfelelő találat"
 
@@ -1952,3 +1990,15 @@ msgstr "– a Tracker visszaíró szolgáltatásának elindítása"
 #: ../utils/gtk-sparql/gtk-sparql.ui.h:1
 msgid "Saved queries"
 msgstr "Mentett lekérdezések"
+
+#: ../utils/tracker-sql/tracker-sql.c:66
+msgid "- Query or update using SQL"
+msgstr "– Lekérdezés vagy frissítés SQL használatával"
+
+#: ../utils/tracker-sql/tracker-sql.c:142
+msgid "Failed to initialize data manager"
+msgstr "Az adatkezelő előkészítése meghiúsult"
+
+#: ../utils/tracker-sql/tracker-sql.c:198
+msgid "Empty result set"
+msgstr "Üres eredményhalmaz"
