@@ -504,7 +504,7 @@ main (gint argc, gchar *argv[])
 	                                update_cache_size,
 	                                busy_callback,
 	                                busy_user_data,
-	                                "Journal replaying")) {
+	                                "Initializing")) {
 
 		g_object_unref (db_config);
 		g_object_unref (notifier);

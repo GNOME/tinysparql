@@ -303,7 +303,7 @@ main (int argc, char **argv)
 	 */
 	if (kill_option != TERM_NONE ||
 	    terminate_option != TERM_NONE ||
-	    (!start && !remove_config && !reindex_mime_types && 
+	    (!start && !remove_config && !reindex_mime_types &&
 	     !print_version && !index_file)) {
 		pids = get_pids ();
 		str = g_strdup_printf (g_dngettext (NULL,
@@ -438,7 +438,14 @@ main (int argc, char **argv)
 		g_object_unref (db_config);
 
 		/* Clean up (select_cache_size and update_cache_size don't matter here) */
-		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE, 100, 100, NULL, NULL)) {
+		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL,
+		                              NULL,
+		                              FALSE,
+		                              100,
+		                              100,
+		                              NULL,
+		                              NULL,
+		                              NULL)) {
 			return EXIT_FAILURE;
 		}
 

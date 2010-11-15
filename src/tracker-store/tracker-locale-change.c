@@ -61,7 +61,9 @@ tracker_locale_change_process_cb (gpointer user_data)
 
 	g_message ("Processing locale change...");
 	/* Reload! This will regenerate indexes with the new locale */
-	tracker_data_manager_reload (busy_callback, busy_user_data);
+	tracker_data_manager_reload (busy_callback,
+	                             busy_user_data,
+	                             "Changing locale");
 
 	if (ctxt->resources) {
 		tracker_events_init (ctxt->getter);

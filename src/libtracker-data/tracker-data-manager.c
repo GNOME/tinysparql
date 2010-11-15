@@ -694,7 +694,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				}
 
 				/* This doesn't detect removed rdfs:subClassOf situations, it
-				 * only checks whether no new ones are being added. For 
+				 * only checks whether no new ones are being added. For
 				 * detecting the removal of a rdfs:subClassOf, please check the
 				 * tracker_data_ontology_process_changes_pre_db stuff */
 
@@ -810,7 +810,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		/* This doesn't detect removed tracker:domainIndex situations, it
-		 * only checks whether no new ones are being added. For 
+		 * only checks whether no new ones are being added. For
 		 * detecting the removal of a tracker:domainIndex, please check the
 		 * tracker_data_ontology_process_changes_pre_db stuff */
 
@@ -962,7 +962,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		/* This doesn't detect removed nrl:maxCardinality situations, it
-		 * only checks whether the existing one got changed. For 
+		 * only checks whether the existing one got changed. For
 		 * detecting the removal of a nrl:maxCardinality, please check the
 		 * tracker_data_ontology_process_changes_pre_db stuff */
 
@@ -3161,7 +3161,9 @@ get_new_service_id (TrackerDBInterface *iface)
 }
 
 static void
-tracker_data_manager_recreate_indexes (void)
+tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
+                                       gpointer               busy_user_data,
+                                       const gchar           *busy_status)
 {
 	TrackerProperty **properties;
 	guint n_properties;
@@ -3188,13 +3190,20 @@ tracker_data_manager_recreate_indexes (void)
 		         field_name);
 
 		fix_indexed (properties [i]);
+
+		if (busy_callback) {
+			busy_callback (busy_status,
+			               (gdouble)((gdouble)i/(gdouble)n_properties),
+			               busy_user_data);
+		}
 	}
 	g_debug ("  Finished index re-creation...");
 }
 
 gboolean
-tracker_data_manager_reload (TrackerBusyCallback busy_callback,
-                             gpointer            busy_user_data)
+tracker_data_manager_reload (TrackerBusyCallback  busy_callback,
+                             gpointer             busy_user_data,
+                             const gchar         *busy_operation)
 {
 	TrackerDBManagerFlags flags;
 	guint select_cache_size;
@@ -3218,7 +3227,7 @@ tracker_data_manager_reload (TrackerBusyCallback busy_callback,
 	                                    update_cache_size,
 	                                    busy_callback,
 	                                    busy_user_data,
-	                                    "Reloading data manager");
+	                                    busy_operation);
 
 	g_message ("  %s reloading data manager",
 	           status ? "Succeeded" : "Failed");
@@ -3234,7 +3243,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            guint                  update_cache_size,
                            TrackerBusyCallback    busy_callback,
                            gpointer               busy_user_data,
-                           const gchar           *busy_status)
+                           const gchar           *busy_operation)
 {
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index, read_journal, check_ontology;
@@ -3246,6 +3255,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	gint max_id = 0;
 	gboolean read_only;
 	GHashTable *uri_id_map = NULL;
+	gchar *busy_status;
 
 	tracker_data_update_init ();
 
@@ -3265,11 +3275,26 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	read_journal = FALSE;
 
-	if (!tracker_db_manager_init (flags, &is_first_time_index, FALSE,
-	                              select_cache_size, update_cache_size,
-	                              busy_callback, busy_user_data)) {
+	if (!tracker_db_manager_init (flags,
+	                              &is_first_time_index,
+	                              FALSE,
+	                              select_cache_size,
+	                              update_cache_size,
+	                              busy_callback,
+	                              busy_user_data,
+	                              busy_operation)) {
 		return FALSE;
 	}
+
+	/* Report OPERATION - STATUS */
+	if (busy_callback) {
+		busy_status = g_strdup_printf ("%s - %s",
+		                               busy_operation,
+		                               "Initializing data manager");
+		busy_callback (busy_status, 0, busy_user_data);
+		g_free (busy_status);
+	}
+
 
 #if HAVE_TRACKER_FTS
 	tracker_fts_set_map_function (tracker_ontologies_get_uri_by_id);
@@ -3584,7 +3609,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 						                                  update_cache_size,
 						                                  busy_callback,
 						                                  busy_user_data,
-						                                  busy_status);
+						                                  busy_operation);
 					}
 
 					if (ontology_error) {
@@ -3643,7 +3668,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					                                  update_cache_size,
 					                                  busy_callback,
 					                                  busy_user_data,
-					                                  busy_status);
+					                                  busy_operation);
 				}
 
 				if (ontology_error) {
@@ -3726,7 +3751,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				                                  update_cache_size,
 				                                  busy_callback,
 				                                  busy_user_data,
-				                                  busy_status);
+				                                  busy_operation);
 			}
 
 			if (ontology_error) {
@@ -3744,7 +3769,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			tracker_data_ontology_process_changes_post_import (seen_classes, seen_properties);
 		}
 
-
 		tracker_data_ontology_free_seen (seen_classes);
 		tracker_data_ontology_free_seen (seen_properties);
 
@@ -3760,9 +3784,15 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	if (read_journal) {
+		/* Report OPERATION - STATUS */
+		busy_status = g_strdup_printf ("%s - %s",
+		                               busy_operation,
+		                               "Replaying journal");
 		/* Start replay */
-
-		tracker_data_replay_journal (busy_callback, busy_user_data, busy_status);
+		tracker_data_replay_journal (busy_callback,
+		                             busy_user_data,
+		                             busy_status);
+		g_free (busy_status);
 
 		in_journal_replay = FALSE;
 
@@ -3774,10 +3804,18 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	/* If locale changed, re-create indexes */
 	if (!read_only && tracker_db_manager_locale_changed ()) {
+		/* Report OPERATION - STATUS */
+		busy_status = g_strdup_printf ("%s - %s",
+		                               busy_operation,
+		                               "Recreating indexes");
 		/* No need to reset the collator in the db interface,
 		 * as this is only executed during startup, which should
 		 * already have the proper locale set in the collator */
-		tracker_data_manager_recreate_indexes ();
+		tracker_data_manager_recreate_indexes (busy_callback,
+		                                       busy_user_data,
+		                                       busy_status);
+		g_free (busy_status);
+
 		tracker_db_manager_set_current_locale ();
 	}
 
@@ -3785,6 +3823,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 	g_free (ontologies_dir);
 
+	/* This is the only one which doesn't show the 'OPERATION' part */
 	if (busy_callback) {
 		busy_callback ("Idle", 1, busy_user_data);
 	}

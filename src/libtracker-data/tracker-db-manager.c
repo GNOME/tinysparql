@@ -730,7 +730,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
                          guint                  select_cache_size,
                          guint                  update_cache_size,
                          TrackerBusyCallback    busy_callback,
-                         gpointer               busy_user_data)
+                         gpointer               busy_user_data,
+                         const gchar           *busy_operation)
 {
 	GType               etype;
 	TrackerDBVersion    version;
@@ -920,6 +921,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 				struct stat st;
 				GError *error = NULL;
 				TrackerDBStatement *stmt;
+				gchar *busy_status;
 
 				if (g_stat (dbs[i].abs_filename, &st) == 0) {
 					size = st.st_size;
@@ -938,10 +940,15 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 				loaded = TRUE;
 
+				/* Report OPERATION - STATUS */
+				busy_status = g_strdup_printf ("%s - %s",
+				                               busy_operation,
+				                               "Integrity checking");
 				tracker_db_interface_set_busy_handler (dbs[i].iface,
 				                                       busy_callback,
-				                                       "Integrity checking",
+				                                       busy_status,
 				                                       busy_user_data);
+				g_free (busy_status);
 
 				stmt = tracker_db_interface_create_statement (dbs[i].iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &error,
 				                                              "PRAGMA integrity_check(1)");

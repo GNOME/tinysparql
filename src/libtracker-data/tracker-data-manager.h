@@ -53,10 +53,11 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags  fla
                                                       guint                  update_cache_size,
                                                       TrackerBusyCallback    busy_callback,
                                                       gpointer               busy_user_data,
-                                                      const gchar           *busy_status);
+                                                      const gchar           *busy_operation);
 void     tracker_data_manager_shutdown               (void);
 gboolean tracker_data_manager_reload                 (TrackerBusyCallback    busy_callback,
-                                                      gpointer               busy_user_data);
+                                                      gpointer               busy_user_data,
+                                                      const gchar           *busy_operation);
 
 G_END_DECLS
 

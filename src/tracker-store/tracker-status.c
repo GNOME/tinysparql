@@ -183,7 +183,7 @@ tracker_status_get_callback (TrackerStatus *object, gpointer *user_data)
 	return tracker_status_callback;
 }
 
-void 
+void
 tracker_status_get_progress  (TrackerStatus    *object,
                               DBusGMethodInvocation  *context,
                               GError                **error)
@@ -199,7 +199,7 @@ tracker_status_get_progress  (TrackerStatus    *object,
 }
 
 
-void 
+void
 tracker_status_get_status  (TrackerStatus    *object,
                             DBusGMethodInvocation  *context,
                             GError                **error)
