@@ -307,6 +307,8 @@ store_print_state (void)
 	GError *error = NULL;
 	gdouble progress;
 	gchar *status;
+	gchar *operation = NULL;
+	gchar *operation_status = NULL;
 	gchar time_str[64];
 	gchar *progress_str;
 
@@ -322,6 +324,21 @@ store_print_state (void)
 	if (error) {
 		g_critical ("Could not retrieve tracker-store status: %s", error->message);
 		return;
+	}
+
+	if (status && strstr (status, "-")) {
+		gchar **status_split;
+
+		status_split = g_strsplit (status, "-", 2);
+		if (status_split[0] && status_split[1]) {
+			operation = status_split[0];
+			operation_status = status_split[1];
+			/* Free the array, not the contents */
+			g_free (status_split);
+		} else {
+			/* Free everything */
+			g_strfreev (status_split);
+		}
 	}
 
 	if (detailed) {
@@ -351,11 +368,13 @@ store_print_state (void)
 	         progress_str,
 	         longest_miner_name_length + paused_length,
 	         longest_miner_name_length + paused_length,
-	         _("Journal replay"),
-	         status ? "-" : "",
-	         status ? _(status) : "");
+	         operation ? _(operation) : _(status),
+	         operation_status ? "-" : "",
+	         operation_status ? _(operation_status) : "");
 
 	g_free (progress_str);
+	g_free (operation);
+	g_free (operation_status);
 }
 
 static void
