@@ -1284,7 +1284,7 @@ tracker_uri_vprintf_escaped (const gchar *format,
 		}
 
 		*op1 = '\0';
-		escaped = g_uri_escape_string (output_start, NULL, FALSE);
+		escaped = g_uri_escape_string (output_start, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH_ELEMENT, FALSE);
 		g_string_append (result, escaped);
 		g_free (escaped);
 
