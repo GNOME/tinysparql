@@ -456,9 +456,22 @@ process_desktop_file (ProcessApplicationData  *data,
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplication");
 		tracker_sparql_builder_object (sparql, "nie:DataObject");
 
-		g_debug ("Invalid desktop file:'%s'", uri);
-		g_debug ("  Type '%s' is not part of the desktop file specification (expected 'Application', 'Link' or 'Directory')", type);
-		g_debug ("  Defaulting to 'Application'");
+		if (name) {
+			/* If we got a name, then the issue comes from the type.
+			 * As we're defaulting to Application here, we just g_debug() the problem. */
+			g_debug ("Invalid desktop file: '%s'", uri);
+			g_debug ("  Type '%s' is not part of the desktop file specification (expected 'Application', 'Link' or 'Directory')", type);
+			g_debug ("  Defaulting to 'Application'");
+		} else {
+			/* If we didn't get a name, the problem is more severe as we don't default it
+			 * to anything, so we g_warning() it.  */
+			g_warning ("Invalid desktop file: '%s'", uri);
+#ifdef HAVE_MEEGOTOUCH
+			g_warning ("  Couldn't get name, missing or wrong key (X-MeeGo-Logical-Id, X-MeeGo-Translation-Catalog or Name)");
+#else
+			g_warning ("  Couldn't get name, missing key (Name)");
+#endif
+		}
 	}
 
 	if (sparql && uri) {
@@ -477,8 +490,14 @@ process_desktop_file (ProcessApplicationData  *data,
 		   tracker_sparql_builder_predicate (sparql, "tracker:available");
 		   tracker_sparql_builder_object_boolean (sparql, TRUE); */
 
-		tracker_sparql_builder_predicate (sparql, "nie:title");
-		tracker_sparql_builder_object_string (sparql, name);
+		/* We should always always have a proper name if the desktop file is correct
+		 * w.r.t to the Meego or Freedesktop specs, but sometimes this is not true,
+		 * so instead of passing wrong stuff to the SPARQL builder, we avoid it.
+		 * If we don't have a proper name, we already warned it before. */
+		if (name) {
+			tracker_sparql_builder_predicate (sparql, "nie:title");
+			tracker_sparql_builder_object_string (sparql, name);
+		}
 
 		if (is_software) {
 			gchar *icon;
