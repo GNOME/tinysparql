@@ -53,7 +53,7 @@ tracker_miner_applications_meego_translate (const gchar *catalogue,
 	MLocale::setDefault (locale);
 
 	GStrv split;
-	split = g_strsplit (qtTrId (id). toAscii ().data (), "\x9C", 2);
+	split = g_strsplit (qtTrId (id). toUtf8 ().data (), "\x9C", 2);
 
 	gchar *ret = g_strdup (split[0]);
 	g_strfreev (split);
