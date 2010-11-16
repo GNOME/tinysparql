@@ -30,14 +30,14 @@
  * localized strings using catalog and string ids. QApplication and
  * MLocale are needed for loading the translation catalogs. The
  * returned string is a multi-string one which has parts of different
- * lenght separated by '\x9C' unicode escape sequences.
+ * length separated by '\x9C' unicode escape sequences.
  *
  * FIXME: This is insane, try to get rid of at least some of the extra
  * layers here.
  */
 gchar *
-tracker_miner_applications_meego_translate (const gchar *catalogue,
-					    const gchar *id)
+tracker_miner_applications_meego_translate (const gchar  *catalogue,
+                                            const gchar  *id)
 {
 	char *argv[] = { "dummy", NULL };
 	int argc = 1;
@@ -52,7 +52,7 @@ tracker_miner_applications_meego_translate (const gchar *catalogue,
 	locale.installTrCatalog (catalogue);
 	MLocale::setDefault (locale);
 
-	gchar *ret = g_strdup (qtTrId (id). toUtf8 ().data ());
+	gchar *ret = g_strdup (qtTrId (id).toUtf8 ().data ());
 
 	/* We only want the first string of the multi-string, so if
 	 * the separator character is found (encoded as C2:9C in UTF-8),
@@ -63,4 +63,13 @@ tracker_miner_applications_meego_translate (const gchar *catalogue,
 	}
 
 	return ret;
+}
+
+gchar *
+tracker_miner_applications_meego_get_locale (void)
+{
+	/* Get the system default locale */
+	MLocale locale;
+
+	return g_strdup (locale.name ().toAscii ().data ());
 }

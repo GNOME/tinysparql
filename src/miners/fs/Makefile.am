@@ -19,6 +19,8 @@ tracker_miner_fs_SOURCES =                             \
 	tracker-main.c                                 \
 	tracker-miner-applications.c                   \
 	tracker-miner-applications.h                   \
+	tracker-miner-applications-locale.c            \
+	tracker-miner-applications-locale.h            \
 	tracker-miner-files.c                          \
 	tracker-miner-files.h                          \
 	tracker-miner-files-index.c                    \

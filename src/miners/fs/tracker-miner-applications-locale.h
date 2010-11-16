@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2010 Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -17,16 +17,13 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_FS_APPLICATIONS_MEEGO_H__
-#define __TRACKER_MINER_FS_APPLICATIONS_MEEGO_H__
+#ifndef __TRACKER_MINER_FS_APPLICATIONS_LOCALE_H__
+#define __TRACKER_MINER_FS_APPLICATIONS_LOCALE_H__
 
 G_BEGIN_DECLS
 
-gchar *tracker_miner_applications_meego_translate (const gchar  *catalogue,
-                                                   const gchar  *id);
-
-gchar *tracker_miner_applications_meego_get_locale (void);
+gboolean tracker_miner_applications_locale_changed (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_MINER_FS_APPLICATIONS_MEEGO_H__ */
+#endif /* __TRACKER_MINER_FS_APPLICATIONS_LOCALE_H__ */

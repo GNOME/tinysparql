@@ -21,8 +21,10 @@
 
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-ontologies.h>
+#include <libtracker-common/tracker-locale.h>
 
 #include "tracker-miner-applications.h"
+#include "tracker-miner-applications-locale.h"
 
 #ifdef HAVE_MEEGOTOUCH
 #include "tracker-miner-applications-meego.h"
@@ -127,12 +129,18 @@ insert_data_from_desktop_file (TrackerSparqlBuilder *sparql,
                                const gchar          *metadata_key,
                                GKeyFile             *desktop_file,
                                const gchar          *key,
-                               gboolean              use_locale)
+                               const gchar          *locale)
 {
 	gchar *str;
 
-	if (use_locale) {
-		str = g_key_file_get_locale_string (desktop_file, GROUP_DESKTOP_ENTRY, key, NULL, NULL);
+	if (locale) {
+		/* Try to get the key with our desired LANG locale... */
+		str = g_key_file_get_locale_string (desktop_file, GROUP_DESKTOP_ENTRY, key, locale, NULL);
+		/* If our desired locale failed, use the list of LANG locales prepared by GLib
+		 * (will return untranslated string if none of the locales available) */
+		if (!str) {
+			str = g_key_file_get_locale_string (desktop_file, GROUP_DESKTOP_ENTRY, key, NULL, NULL);
+		}
 	} else {
 		str = g_key_file_get_string (desktop_file, GROUP_DESKTOP_ENTRY, key, NULL);
 	}
@@ -290,6 +298,7 @@ process_desktop_file (ProcessApplicationData  *data,
 	gsize cats_len;
 	gboolean is_software = TRUE;
 	const gchar *parent_urn;
+	gchar *lang;
 #ifdef HAVE_MEEGOTOUCH
 	gchar *logical_id = NULL;
 	gchar *translation_catalog = NULL;
@@ -301,11 +310,16 @@ process_desktop_file (ProcessApplicationData  *data,
 
 	path = g_file_get_path (data->file);
 
-	/* Try to get the categories with locale, then without if that fails */
-	cats = g_key_file_get_locale_string_list (key_file, GROUP_DESKTOP_ENTRY, "Categories", NULL, &cats_len, NULL);
+	/* Retrieve LANG locale setup */
+	lang = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
 
-	if (!cats)
-		cats = g_key_file_get_string_list (key_file, GROUP_DESKTOP_ENTRY, "Categories", &cats_len, NULL);
+	/* Try to get the categories with our desired LANG locale... */
+	cats = g_key_file_get_locale_string_list (key_file, GROUP_DESKTOP_ENTRY, "Categories", lang, &cats_len, NULL);
+	if (!cats) {
+		/* If our desired locale failed, use the list of LANG locales prepared by GLib
+		 * (will return untranslated string if none of the locales available) */
+		cats = g_key_file_get_locale_string_list (key_file, GROUP_DESKTOP_ENTRY, "Categories", NULL, &cats_len, NULL);
+	}
 
 	/* NOTE: We sanitize categories later on when iterating them */
 
@@ -323,12 +337,13 @@ process_desktop_file (ProcessApplicationData  *data,
 #endif /* HAVE_MEEGOTOUCH */
 
 	if (!name) {
-		/* Try to get the name with locale, then without if that fails */
-		name = g_key_file_get_locale_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL, NULL);
-	}
-
-	if (!name) {
-		name = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL);
+		/* Try to get the name with our desired LANG locale... */
+		name = g_key_file_get_locale_string (key_file, GROUP_DESKTOP_ENTRY, "Name", lang, NULL);
+		if (!name) {
+			/* If our desired locale failed, use the list of LANG locales prepared by GLib
+			 * (will return untranslated string if none of the locales available) */
+			name = g_key_file_get_locale_string (key_file, GROUP_DESKTOP_ENTRY, "Name", NULL, NULL);
+		}
 	}
 
 	/* Sanitize name */
@@ -505,12 +520,18 @@ process_desktop_file (ProcessApplicationData  *data,
 		if (is_software) {
 			gchar *icon;
 
-			insert_data_from_desktop_file (sparql, uri,
-			                               TRACKER_NIE_PREFIX "comment", key_file,
-			                               "Comment", TRUE);
-			insert_data_from_desktop_file (sparql, uri,
-			                               TRACKER_NFO_PREFIX "softwareCmdLine", key_file,
-			                               "Exec", TRUE);
+			insert_data_from_desktop_file (sparql,
+			                               uri,
+			                               TRACKER_NIE_PREFIX "comment",
+			                               key_file,
+			                               "Comment",
+			                               lang);
+			insert_data_from_desktop_file (sparql,
+			                               uri,
+			                               TRACKER_NFO_PREFIX "softwareCmdLine",
+			                               key_file,
+			                               "Exec",
+			                               lang);
 
 			icon = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, "Icon", NULL);
 
@@ -614,6 +635,7 @@ process_desktop_file (ProcessApplicationData  *data,
 	g_free (uri);
 	g_free (path);
 	g_free (name);
+	g_free (lang);
 }
 
 static void
@@ -724,10 +746,113 @@ miner_applications_process_file_attributes (TrackerMinerFS       *fs,
 	return FALSE;
 }
 
+/* If a reset is requested, we will remove from the store all items previously
+ * inserted by the tracker-miner-applications, this is:
+ *  (a) all elements which are nfo:softwareIcon of a given nfo:Software
+ *  (b) all nfo:Software in our graph (includes both applications and maemo applets)
+ *  (c) all elements which are nfo:softwareCategoryIcon of a given nfo:SoftwareCategory
+ *  (d) all nfo:SoftwareCategory in our graph
+ */
+static void
+miner_applications_reset (TrackerMiner *miner)
+{
+	GError *error = NULL;
+	TrackerSparqlBuilder *sparql;
+
+	sparql = tracker_sparql_builder_new_update ();
+
+	/* (a) all elements which are nfo:softwareIcon of a given nfo:Software */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "icon");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "software");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:Software");
+	tracker_sparql_builder_subject_variable (sparql, "icon");
+	tracker_sparql_builder_predicate (sparql, "nfo:softwareIcon");
+	tracker_sparql_builder_object_variable (sparql, "software");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* (b) all nfo:Software in our graph (includes both applications and maemo applets) */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "software");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "software");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:Software");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* (c) all elements which are nfo:softwareCategoryIcon of a given nfo:SoftwareCategory */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "icon");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "category");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
+	tracker_sparql_builder_subject_variable (sparql, "icon");
+	tracker_sparql_builder_predicate (sparql, "nfo:softwareCategoryIcon");
+	tracker_sparql_builder_object_variable (sparql, "category");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* (d) all nfo:SoftwareCategory in our graph */
+	tracker_sparql_builder_delete_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_subject_variable (sparql, "category");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "rdfs:Resource");
+	tracker_sparql_builder_delete_close (sparql);
+
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_variable (sparql, "category");
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "nfo:SoftwareCategory");
+	tracker_sparql_builder_where_close (sparql);
+
+	/* Execute a sync update, we don't want the apps miner to start before
+	 * we finish this. */
+	tracker_sparql_connection_update (tracker_miner_get_connection (miner),
+	                                  tracker_sparql_builder_get_result (sparql),
+	                                  G_PRIORITY_HIGH,
+	                                  NULL,
+	                                  &error);
+
+	if (error) {
+		/* Some error happened performing the query, not good */
+		g_critical ("Couldn't reset mined applications: %s",
+		            error ? error->message : "unknown error");
+		g_error_free (error);
+	}
+
+	g_object_unref (sparql);
+}
+
 TrackerMiner *
 tracker_miner_applications_new (void)
 {
-	return g_object_new (TRACKER_TYPE_MINER_APPLICATIONS,
-	                     "name", "Applications",
-	                     NULL);
+	TrackerMiner *miner;
+
+	miner = g_object_new (TRACKER_TYPE_MINER_APPLICATIONS,
+	                      "name", "Applications",
+	                      NULL);
+
+	/* Before returning the newly created miner, check if we need
+	 * to reset it */
+	if (tracker_miner_applications_locale_changed ()) {
+		g_message ("Locale change detected, so resetting miner to "
+		           "remove all previously created items...");
+		miner_applications_reset (miner);
+	}
+
+	return miner;
 }
