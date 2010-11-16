@@ -118,6 +118,12 @@ def generateContactIM(index):
 
 ####################################################################################
 nco_PersonContact = '''
+<%(contact_uri)s:home> a nco:Affiliation;
+    nco:hasEmailAddress      %(email_address_uri)s ;
+    nco:hasPhoneNumber       %(phonenumber_uri)s ;
+    nco:hasPostalAddress     %(postal_address_uri)s ;
+    nco:hasIMAddress         %(im_address_uri)s .
+
 <%(contact_uri)s> a nco:PersonContact;
     nco:fullname            "%(contact_name_given)s %(contact_name_family)s";
     nco:nameGiven           "%(contact_name_given)s";
@@ -130,12 +136,9 @@ nco_PersonContact = '''
     nco:gender               %(contact_gender)s ;
     nco:contactUID          "%(contact_uid)s" ;
     nco:note                "%(contact_note)s" ;
-    nco:hasEmailAddress      %(email_address_uri)s ;
-    nco:hasPhoneNumber       %(phonenumber_uri)s ;
-    nco:hasPostalAddress     %(postal_address_uri)s ;
-    nco:hasIMAddress         %(im_address_uri)s ;
     nie:contentCreated      "%(contact_created)s" ;
-    nie:contentLastModified "%(contact_modified)s"  .
+    nie:contentLastModified "%(contact_modified)s"  ;
+    nco:hasAffiliation      <%(contact_uri)s:home> .
 '''
 def generatePersonContact(index):
   me = 'nco#PersonContact'
