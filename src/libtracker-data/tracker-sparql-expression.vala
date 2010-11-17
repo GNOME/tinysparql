@@ -880,6 +880,7 @@ class Tracker.Sparql.Expression : Object {
 				return type;
 			default:
 				sql.append ("?");
+				append_collate (sql);
 				return PropertyType.STRING;
 			}
 		case SparqlTokenType.INTEGER:
