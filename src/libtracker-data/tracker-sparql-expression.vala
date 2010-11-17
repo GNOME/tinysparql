@@ -405,18 +405,26 @@ class Tracker.Sparql.Expression : Object {
 
 			return PropertyType.BOOLEAN;
 		} else if (uri == FN_NS + "starts-with") {
-			// fn:starts-with('A','B') => 'A' GLOB 'B*'
-			sql.append ("(");
+			// fn:starts-with('A','B') => 'A' BETWEEN 'B' AND 'B\u0010fffd'
+			// 0010fffd always sorts last
+
 			translate_expression_as_string (sql);
-			sql.append (" GLOB ");
+			sql.append (" BETWEEN ");
+
 			expect (SparqlTokenType.COMMA);
+			string prefix = parse_string_literal ();
 
 			sql.append ("?");
 			var binding = new LiteralBinding ();
-			binding.literal = "%s*".printf (parse_string_literal ());
+			binding.literal = prefix;
 			query.bindings.append (binding);
 
-			sql.append (")");
+			sql.append (" AND ");
+
+			sql.append ("?");
+			binding = new LiteralBinding ();
+			binding.literal = prefix + ((unichar) 0x10fffd).to_string ();
+			query.bindings.append (binding);
 
 			return PropertyType.BOOLEAN;
 		} else if (uri == FN_NS + "ends-with") {
