@@ -1,5 +1,6 @@
 <SECTION>
 <FILE>tracker-miner-manager</FILE>
+<TITLE>TrackerMinerManager</TITLE>
 TrackerMinerManager
 TrackerMinerManagerClass
 miner_progress
@@ -30,6 +31,7 @@ TRACKER_MINER_MANAGER_GET_CLASS
 
 <SECTION>
 <FILE>tracker-miner</FILE>
+<TITLE>TrackerMiner</TITLE>
 TRACKER_MINER_ERROR_DOMAIN
 TRACKER_MINER_ERROR
 TrackerMinerPrivate
@@ -56,7 +58,6 @@ TRACKER_MINER_GET_CLASS
 
 <SECTION>
 <FILE>tracker-miner-fs</FILE>
-TrackerMinerFSPrivate
 <TITLE>TrackerMinerFS</TITLE>
 TrackerMinerFS
 TrackerMinerFSClass
@@ -87,6 +88,7 @@ TRACKER_MINER_FS_GRAPH_URN
 
 <SECTION>
 <FILE>tracker-miner-web</FILE>
+<TITLE>TrackerMinerWeb</TITLE>
 TRACKER_MINER_WEB_ERROR_DOMAIN
 TRACKER_MINER_WEB_ERROR
 TRACKER_MINER_WEB_DBUS_INTERFACE
@@ -136,6 +138,7 @@ tracker_password_provider_get_type
 
 <SECTION>
 <FILE>tracker-network-provider</FILE>
+<TITLE>TrackerNetworkProvider</TITLE>
 TRACKER_NETWORK_PROVIDER_GET_INTERFACE
 TrackerNetworkProvider
 TrackerNetworkProviderIface
@@ -152,6 +155,7 @@ tracker_network_provider_get_type
 
 <SECTION>
 <FILE>tracker-thumbnailer</FILE>
+<TITLE>TrackerThumbnailer</TITLE>
 tracker_thumbnailer_init
 tracker_thumbnailer_shutdown
 tracker_thumbnailer_send
