@@ -52,11 +52,15 @@ tracker_miner_applications_meego_translate (const gchar *catalogue,
 	locale.installTrCatalog (catalogue);
 	MLocale::setDefault (locale);
 
-	GStrv split;
-	split = g_strsplit (qtTrId (id). toUtf8 ().data (), "\x9C", 2);
+	gchar *ret = g_strdup (qtTrId (id). toUtf8 ().data ());
 
-	gchar *ret = g_strdup (split[0]);
-	g_strfreev (split);
+	/* We only want the first string of the multi-string, so if
+	 * the separator character is found (encoded as C2:9C in UTF-8),
+	 * we just end the string in that point */
+	gchar *next_string = strstr (ret, "\xC2\x9C");
+	if (next_string) {
+		*next_string = '\0';
+	}
 
 	return ret;
 }
