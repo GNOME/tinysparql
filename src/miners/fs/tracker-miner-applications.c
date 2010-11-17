@@ -456,6 +456,9 @@ process_desktop_file (ProcessApplicationData  *data,
 		tracker_sparql_builder_object (sparql, "nfo:SoftwareApplication");
 		tracker_sparql_builder_object (sparql, "nie:DataObject");
 
+		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
+		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
+
 		if (name) {
 			/* If we got a name, then the issue comes from the type.
 			 * As we're defaulting to Application here, we just g_debug() the problem. */
