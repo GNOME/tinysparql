@@ -573,10 +573,6 @@ process_desktop_file (ProcessApplicationData  *data,
 			}
 		}
 
-		tracker_sparql_builder_subject_iri (sparql, uri);
-		tracker_sparql_builder_predicate (sparql, "nie:dataSource");
-		tracker_sparql_builder_object_iri (sparql, APPLICATION_DATASOURCE_URN);
-
 		filename = g_filename_display_basename (path);
 		tracker_sparql_builder_predicate (sparql, "nfo:fileName");
 		tracker_sparql_builder_object_string (sparql, filename);
