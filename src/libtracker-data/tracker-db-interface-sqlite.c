@@ -63,6 +63,9 @@ struct TrackerDBInterface {
 	gpointer locale_notification_id;
 	gint collator_reset_requested;
 
+	/* Number of active cursors */
+	gint n_active_cursors;
+
 	guint ro : 1;
 #if HAVE_TRACKER_FTS
 	TrackerFts *fts;
@@ -1096,9 +1099,13 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 
 	/* Statement is going to start, check if we got a request to reset the
 	 * collator, and if so, do it. */
-	if (g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
+	if (interface->n_active_cursors == 0 &&
+	    g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
 		tracker_db_interface_sqlite_reset_collator (interface);
 	}
+	/* Note that we do not need to update n_active_cursors here, as this whole iteration
+	 * is going to be fully sync, so there is no possibility of getting a cursor created
+	 * at the same time */
 
 	while (result == SQLITE_OK  ||
 	       result == SQLITE_ROW) {
@@ -1130,10 +1137,15 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 		}
 	}
 
+
 	if (result == SQLITE_DONE) {
 		/* Statement finished, check if we got a request to reset the
-		 * collator, and if so, do it. */
-		if (g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
+		 * collator, and if so, do it.
+		 * Note that we do not need to update n_active_cursors here, as this whole iteration
+		 * is going to be fully sync, so there is no possibility of getting a cursor created
+		 * at the same time */
+		if (interface->n_active_cursors == 0 &&
+		    g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
 			tracker_db_interface_sqlite_reset_collator (interface);
 		}
 	} else {
@@ -1304,9 +1316,20 @@ static void
 tracker_db_cursor_finalize (GObject *object)
 {
 	TrackerDBCursor *cursor;
+	TrackerDBInterface *iface;
 	int i;
 
 	cursor = TRACKER_DB_CURSOR (object);
+
+	/* As soon as we finalize the cursor, check if we need a collator reset
+	 * and notify the iface about the removed cursor */
+	iface = cursor->ref_stmt->db_interface;
+	iface->n_active_cursors--;
+	g_assert_cmpint (iface->n_active_cursors, >=, 0); /* Just in case we fuck up the count */
+	if (iface->n_active_cursors == 0 &&
+	    g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
+		tracker_db_interface_sqlite_reset_collator (iface);
+	}
 
 	g_free (cursor->types);
 
@@ -1315,13 +1338,9 @@ tracker_db_cursor_finalize (GObject *object)
 	}
 	g_free (cursor->variable_names);
 
-	if (cursor->ref_stmt) {
-		cursor->ref_stmt->stmt_is_sunk = FALSE;
-		tracker_db_statement_sqlite_reset (cursor->ref_stmt);
-		g_object_unref (cursor->ref_stmt);
-	} else {
-		sqlite3_finalize (cursor->stmt);
-	}
+	cursor->ref_stmt->stmt_is_sunk = FALSE;
+	tracker_db_statement_sqlite_reset (cursor->ref_stmt);
+	g_object_unref (cursor->ref_stmt);
 
 	G_OBJECT_CLASS (tracker_db_cursor_parent_class)->finalize (object);
 }
@@ -1419,20 +1438,27 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
                               gboolean             threadsafe)
 {
 	TrackerDBCursor *cursor;
+	TrackerDBInterface *iface;
+
+	/* As soon as we create a cursor, check if we need a collator reset
+	 * and notify the iface about the new cursor */
+	iface = ref_stmt->db_interface;
+	if (iface->n_active_cursors == 0 &&
+	    g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
+		tracker_db_interface_sqlite_reset_collator (iface);
+	}
+	iface->n_active_cursors++;
+	g_assert_cmpint (iface->n_active_cursors, >, 0); /* Just in case we fuck up the count */
 
 	cursor = g_object_new (TRACKER_TYPE_DB_CURSOR, NULL);
 
-	cursor->stmt = sqlite_stmt;
 	cursor->finished = FALSE;
 
 	cursor->threadsafe = threadsafe;
 
-	if (ref_stmt) {
-		ref_stmt->stmt_is_sunk = TRUE;
-		cursor->ref_stmt = g_object_ref (ref_stmt);
-	} else {
-		cursor->ref_stmt = NULL;
-	}
+	cursor->stmt = sqlite_stmt;
+	ref_stmt->stmt_is_sunk = TRUE;
+	cursor->ref_stmt = g_object_ref (ref_stmt);
 
 	if (types) {
 		gint i;
@@ -1531,12 +1557,6 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 	TrackerDBInterface *iface = stmt->db_interface;
 
 	if (!cursor->started) {
-		/* Statement is going to start, check if we got a request to reset the
-		 * collator, and if so, do it. */
-		if (g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
-			tracker_db_interface_sqlite_reset_collator (iface);
-		}
-
 		cursor->started = TRUE;
 	}
 
@@ -1574,13 +1594,6 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 		if (cursor->threadsafe) {
 			tracker_db_manager_unlock ();
 		}
-	}
-
-	/* Statement finished, check if we got a request to reset the
-	 * collator, and if so, do it. */
-	if (cursor->finished &&
-	    g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
-		tracker_db_interface_sqlite_reset_collator (iface);
 	}
 
 	return (!cursor->finished);
