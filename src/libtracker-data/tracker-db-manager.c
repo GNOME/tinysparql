@@ -209,30 +209,45 @@ db_set_params (TrackerDBInterface *iface,
                gint                cache_size,
                gint                page_size)
 {
-	TrackerDBResultSet *result_set;
+	gchar *queries = NULL;
+	const gchar *pragmas_file;
 
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
+	pragmas_file = g_getenv ("TRACKER_PRAGMAS_FILE");
 
-	result_set = tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_mode = WAL;");
-	if (result_set == NULL) {
-		/* Don't just silence the problem. This pragma must return 'WAL' */
-		g_message ("Can't set journal mode to WAL");
+	if (pragmas_file && g_file_get_contents (pragmas_file, &queries, NULL, NULL)) {
+		g_debug ("PRAGMA's from file: %s", pragmas_file);
+		gchar *query = strtok (queries, "\n");
+		while (query) {
+			g_debug ("  INIT query: %s", query);
+			tracker_db_interface_execute_query (iface, NULL, query);
+			query = strtok (NULL, "\n");
+		}
+		g_free (queries);
 	} else {
-		g_object_unref (result_set);
+		TrackerDBResultSet *result_set;
+
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
+
+		result_set = tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_mode = WAL;");
+		if (result_set == NULL) {
+			/* Don't just silence the problem. This pragma must return 'WAL' */
+			g_message ("Can't set journal mode to WAL");
+		} else {
+			g_object_unref (result_set);
+		}
+
+		if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
+			g_message ("  Setting page size to %d", page_size);
+			tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);
+		}
+
+		tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", cache_size);
+		g_message ("  Setting cache size to %d", cache_size);
 	}
-
-	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
-		g_message ("  Setting page size to %d", page_size);
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);
-	}
-
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", cache_size);
-	g_message ("  Setting cache size to %d", cache_size);
-
 }
 
 
