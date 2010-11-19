@@ -548,6 +548,8 @@ public class Tracker.Needle {
 		string criteria = str.strip ();
 
 		if (criteria.length < 1) {
+			store.clear ();
+
 			search_finished ();
 
 			return false;
