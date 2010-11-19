@@ -61,7 +61,7 @@ struct TrackerDBInterface {
 	/* Collation and locale change */
 	gpointer collator;
 	gpointer locale_notification_id;
-	gboolean collator_reset_requested;
+	gint collator_reset_requested;
 
 	guint ro : 1;
 #if HAVE_TRACKER_FTS
@@ -538,8 +538,9 @@ tracker_locale_notify_cb (TrackerLocaleID id,
 {
 	TrackerDBInterface *db_interface = user_data;
 
-	/* Request a collator reset. */
-	db_interface->collator_reset_requested = TRUE;
+	/* Request a collator reset. Use thread-safe methods as this function will get
+	 * called from the main thread */
+	g_atomic_int_compare_and_exchange (&(db_interface->collator_reset_requested), FALSE, TRUE);
 }
 
 static void
@@ -1095,9 +1096,8 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 
 	/* Statement is going to start, check if we got a request to reset the
 	 * collator, and if so, do it. */
-	if (interface->collator_reset_requested) {
+	if (g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
 		tracker_db_interface_sqlite_reset_collator (interface);
-		interface->collator_reset_requested = FALSE;
 	}
 
 	while (result == SQLITE_OK  ||
@@ -1133,9 +1133,8 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 	if (result == SQLITE_DONE) {
 		/* Statement finished, check if we got a request to reset the
 		 * collator, and if so, do it. */
-		if (interface->collator_reset_requested) {
+		if (g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
 			tracker_db_interface_sqlite_reset_collator (interface);
-			interface->collator_reset_requested = FALSE;
 		}
 	} else {
 		/* This is rather fatal */
@@ -1534,9 +1533,8 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 	if (!cursor->started) {
 		/* Statement is going to start, check if we got a request to reset the
 		 * collator, and if so, do it. */
-		if (iface->collator_reset_requested) {
+		if (g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
 			tracker_db_interface_sqlite_reset_collator (iface);
-			iface->collator_reset_requested = FALSE;
 		}
 
 		cursor->started = TRUE;
@@ -1565,7 +1563,6 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 			             TRACKER_DB_INTERRUPTED,
 			             "Interrupted");
 		} else if (result != SQLITE_ROW && result != SQLITE_DONE) {
-
 			g_set_error (error,
 			             TRACKER_DB_INTERFACE_ERROR,
 			             TRACKER_DB_QUERY_ERROR,
@@ -1582,9 +1579,8 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 	/* Statement finished, check if we got a request to reset the
 	 * collator, and if so, do it. */
 	if (cursor->finished &&
-	    iface->collator_reset_requested) {
+	    g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
 		tracker_db_interface_sqlite_reset_collator (iface);
-		iface->collator_reset_requested = FALSE;
 	}
 
 	return (!cursor->finished);
