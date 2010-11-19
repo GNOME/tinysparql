@@ -113,7 +113,7 @@ public class Tracker.Query {
 			          }
 			          ?song nmm:performer [ nmm:artistName ?performer ] ;
 			                nmm:musicAlbum [ nie:title ?album ] ;
-			                nfo:belongsToContainer [ nie:url ?tooltip ]
+			                nie:url ?tooltip
 			        }
 			        ORDER BY DESC(fts:rank(?song)) DESC(nie:title(?song))
 			        OFFSET $offset LIMIT $limit
@@ -131,8 +131,8 @@ public class Tracker.Query {
 			          ?tooltip
 			        WHERE {
 			          ?urn a nfo:Image ;
-			          nfo:belongsToContainer [ nie:url ?tooltip ] .
-			          ?urn fts:match \"$criteria_escaped\" 
+			          nie:url ?tooltip ;
+			          fts:match \"$criteria_escaped\" 
 			        }
 			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
 			        OFFSET $offset LIMIT $limit
@@ -150,8 +150,8 @@ public class Tracker.Query {
 			          ?tooltip
 			        WHERE {
 			          ?urn a nfo:Video ;
-			          nfo:belongsToContainer [ nie:url ?tooltip ] .
-			          ?urn fts:match \"$criteria_escaped\" .
+			          nie:url ?tooltip ;
+			          fts:match \"$criteria_escaped\" .
 			        }
 			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
 			        OFFSET $offset LIMIT $limit
@@ -173,8 +173,8 @@ public class Tracker.Query {
 			        WHERE {
 			          ?urn a nfo:Document ;
 			          nco:creator [ nco:fullname ?creator ] ;
-			          nfo:belongsToContainer [ nie:url ?tooltip ] .
-			          ?urn fts:match \"$criteria_escaped\" .
+			          nie:url ?tooltip ;
+			          fts:match \"$criteria_escaped\" .
 			        }
 			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
 			        OFFSET $offset LIMIT $limit
