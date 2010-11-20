@@ -4,6 +4,7 @@ import tools
 ####################################################################################
 nmm_Photo = '''
 <%(photo_uri)s> a nie:DataObject, nfo:FileDataObject, nfo:Media, nfo:Visual, nfo:Image, nmm:Photo ;
+    tracker:available    true ;
     nie:url              "%(photo_url)s";
     nie:byteSize         "%(photo_size)s";
     nie:contentCreated   "%(photo_date)s";
@@ -99,12 +100,13 @@ def generateAlbum(index):
 ####################################################################################
 nmm_MusicPiece = '''
 <%(music_piece_uri)s> a nmm:MusicPiece, nfo:FileDataObject, nfo:Audio;
+    tracker:available          true ;
     nie:byteSize               "%(music_piece_size)s" ;
     nie:url                    "%(music_piece_url)s" ;
     nfo:belongsToContainer     <%(music_piece_container)s> ;
     nie:title                  "%(music_piece_title)s" ;
     nie:mimeType               "%(music_piece_mime)s" ;
-    nie:informationElementDate "%(music_piece_date)s" ;
+    nie:contentCreated         "%(music_piece_date)s" ;
     nie:isLogicalPartOf        <%(music_piece_album)s> ;
     nco:contributor            <%(music_piece_artist)s> ;
     nfo:fileLastAccessed       "%(music_piece_last_accessed)s" ;
@@ -118,16 +120,16 @@ nmm_MusicPiece = '''
     nfo:sampleRate             "%(music_piece_sample_rate)s" ;
     nmm:musicAlbum             <%(music_piece_album)s> ;
     nmm:performer              <%(music_piece_artist)s> ;
-    nmm:length                 "%(music_piece_length)s" ;
+    nfo:duration               "%(music_piece_length)s" ;
     nmm:trackNumber            "%(music_piece_track)s" .
 '''
 def generateMusicPiece(index):
   me = 'nmm#MusicPiece'
   music_piece_uri           = 'urn:music:%d' % index
-  music_piece_title         = 'Song %d' % (index % 1000)
+  music_piece_title         = 'Song %d' % index
   music_piece_size          = str(index)
   music_piece_container     = 'file://music/'
-  music_piece_filename      = 'Song_%d.mp3' % (index % 1000)
+  music_piece_filename      = 'Song_%d.mp3' % index
   music_piece_url           = music_piece_container + music_piece_filename
   music_piece_mime          = 'audio/mpeg'
   music_piece_date          = '%d-%02d-%02dT01:01:01Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
