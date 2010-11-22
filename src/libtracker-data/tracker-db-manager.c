@@ -224,6 +224,7 @@ db_set_params (TrackerDBInterface *iface,
 		}
 		g_free (queries);
 	} else {
+		GError *error = NULL;
 		TrackerDBResultSet *result_set;
 
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
@@ -232,10 +233,12 @@ db_set_params (TrackerDBInterface *iface,
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
 
-		result_set = tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_mode = WAL;");
+		result_set = tracker_db_interface_execute_query (iface, &error, "PRAGMA journal_mode = WAL;");
 		if (result_set == NULL) {
 			/* Don't just silence the problem. This pragma must return 'WAL' */
-			g_message ("Can't set journal mode to WAL");
+			g_message ("Can't set journal mode to WAL: '%s'",
+			           error ? error->message : "unknown error");
+			g_clear_error (&error);
 		} else {
 			g_object_unref (result_set);
 		}
