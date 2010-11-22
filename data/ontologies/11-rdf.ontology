@@ -125,6 +125,7 @@ tracker:added a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:dateTime ;
+	tracker:indexed true ;
 	tracker:isAnnotation true .
 
 # implicitly updated modification time
