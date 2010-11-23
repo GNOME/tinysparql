@@ -1,0 +1,80 @@
+/*
+ * Structural view of Content Framework
+ *
+ * Generate PNG with: dot -Tpng tracker-structural-view.dot
+ * View the diagram: dotty tracker-structural-view.dot
+*/
+
+digraph G {
+
+  graph [size="640,480"];
+  node [shape=box, style=filled, fontsize=11];
+  edge [fontsize=11];
+
+  { rank=source
+    app [label="<<process>>\n\napplication"];
+  }
+
+  subgraph cluster0 { 
+    label="Content Framework"
+
+    qsparql [label="<<library>>\n\nQsparql"];
+    libthumbnailer [label="<<library>>\n\nlibthumbnailer"];
+    libcontentaction [label="<<library>>\n\nlibcontentaction"];
+    trackerutils [label="<<command-line>>\n\ntracker-utils"];
+    tracker [label="<<library>>\n\ntracker\n(see detailed diagram)"];
+
+    trackerextract [label="<<process>>\n\ntracker-extract"];
+    libtrackerextract [label="<<library>>\n\nlibtracker-extract"];
+    trackerextract -> libtrackerextract [label="<<links>>"];
+
+    trackerminerfs [label="<<process>>\n\ntracker-miner-fs"];
+    libtrackerminer [label="<<library>>\n\nlibtracker-miner"];
+
+    tumbler [label="<<process>>\n\ntumbler"];
+
+    {rank=same; tracker; trackerminerfs; libtrackerextract};
+
+    libthumbnailer -> tumbler [label="<<D-Bus>>"]
+    qsparql -> tracker [label="<<link>>"]
+
+    trackerminerfs -> trackerextract [label="<<D-Bus>>"]
+    trackerminerfs -> libtrackerminer [label="<<Implements>>"]
+    trackerminerfs -> tracker [label="<<link>>"]
+
+    trackerutils -> tracker [label="<<D-Bus>>"]
+    trackerutils -> trackerminerfs [label="<<D-Bus>>"]
+    
+  }
+
+  {
+    rank=sink
+    extractionlibs [label="<<libraries>>\n\nextraction-libraries"];
+    gstreamer [label="<<library>>\n\ngstreamer"];
+    libhal [label="<<library>>\n\nlibhal"];
+    libquill [label="<<library>>\n\nlibquill"];
+    libplayback [label="<<library>>\n\nlibplayback"];
+    sqlite [label="<<library>>\n\nsqlite" ];    
+
+    gio [label="<<library>>\n\nGIO"];
+    inotify [label="<<kernel>>\n\ninotify"];
+    gio -> inotify;
+  }
+
+  app -> qsparql [label="<<link>>"]
+  app -> libthumbnailer [label="<<link>>"]
+  app -> libcontentaction [label="<<link>>"]
+
+  trackerextract -> extractionlibs [label="<<link>>"]
+  trackerextract -> gstreamer [label="<<link>>"]
+  trackerextract -> libplayback [label="<<link>>"]
+  
+//  trackerstore -> libhal [label="<<link>>"]
+//  trackerminerfs -> libhal [label="<<link>>"]
+  
+  trackerminerfs -> gio  [label="<<link>>"]
+
+  tumbler -> libquill [label="<<link>>"]
+  tracker -> sqlite 
+  
+}

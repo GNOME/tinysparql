@@ -7,75 +7,33 @@
 
 digraph G {
 
-  graph [size="70,100"];
+  graph [size="640,480"];
   node [shape=box, style=filled, fontsize=11];
   edge [fontsize=11];
 
   { rank=source
-    app [label="<<process>>\n\napplication"];
+    qsparql [label="<<library>>\n\nQSparql"];
   }
 
   subgraph cluster0 { 
-    label="Content Framework"
+    label="Tracker"
 
-    libqttracker [label="<<library>>\n\nlibqttracker"];
-    libthumbnailer [label="<<library>>\n\nlibthumbnailer"];
-    libcontentaction [label="<<library>>\n\nlibcontentaction"];
-    trackerutils [label="<<command-line>>\n\ntracker-utils"];
-    trackerstore [label="<<process>>\n\ntracker-store"];
-    sqlite [label="<<library>>\n\nsqlite" ];    
-
-    trackerextract [label="<<process>>\n\ntracker-extract"];
-    libtrackerextract [label="<<library>>\n\nlibtracker-extract"];
-    trackerextract -> libtrackerextract [label="<<links>>"];
-
-    trackerminerfs [label="<<process>>\n\ntracker-miner-fs"];
-    libtrackerminer [label="<<library>>\n\nlibtracker-miner"];
-
-    tumbler [label="<<process>>\n\ntumbler"];
-
-
-    {rank=same; trackerstore; trackerminerfs; libtrackerextract};
-
-    libthumbnailer -> tumbler [label="<<D-Bus>>"]
-    libqttracker -> trackerstore [label="<<D-Bus>>"]
-
-    trackerminerfs -> trackerextract [label="<<D-Bus>>"]
-    trackerminerfs -> trackerstore [label="<<D-Bus>>"]
-    trackerminerfs -> libtrackerminer [label="<<Implements>>"]
-
-    trackerutils -> trackerstore [label="<<D-Bus>>"]
-    trackerutils -> trackerminerfs [label="<<D-Bus>>"]
-    
-    trackerstore -> sqlite [label="<<link>>"]
+    libtrackersparql [label="<<library>>\n\nlibtracker-sparql"]
+    store [label="<<process>>\n\ntracker-store"]
+    libtrackerdata [label="<<library>>\n\nlibtracker-data"]
   }
 
   {
     rank=sink
-    extractionlibs [label="<<libraries>>\n\nextraction-libraries"];
-    gstreamer [label="<<library>>\n\ngstreamer"];
-    libhal [label="<<library>>\n\nlibhal"];
-    libquill [label="<<library>>\n\nlibquill"];
-    libplayback [label="<<library>>\n\nlibplayback"];
-
-    gio [label="<<library>>\n\nGIO"];
-    inotify [label="<<kernel>>\n\ninotify"];
-    gio -> inotify;
+    sqlite [label="<<library>>\n\nsqlite" ];    
   }
 
-  app -> libqttracker [label="<<link>>"]
-  app -> libthumbnailer [label="<<link>>"]
-  app -> libcontentaction [label="<<link>>"]
+  qsparql -> libtrackersparql [label="<<link>>"]
+  libtrackersparql -> store [label="<<DBus>>\n(write)"]
+  libtrackersparql -> libtrackerdata [label="<<link>>\n(read)"]
+  store -> libtrackerdata [label="<<link>>"]
+  libtrackerdata -> sqlite [label="<<link>>"]
 
-  trackerextract -> extractionlibs [label="<<link>>"]
-  trackerextract -> gstreamer [label="<<link>>"]
-  trackerextract -> libplayback [label="<<link>>"]
   
-//  trackerstore -> libhal [label="<<link>>"]
-//  trackerminerfs -> libhal [label="<<link>>"]
-  
-  trackerminerfs -> gio  [label="<<link>>"]
-
-  tumbler -> libquill [label="<<link>>"]
   
 }
