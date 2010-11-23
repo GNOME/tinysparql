@@ -1461,6 +1461,9 @@ get_id3v23_tags (id3v24frame           frame,
 		case ID3V24_TOLY:
 			tag->toly = word;
 			break;
+		case ID3V24_TCOM:
+			tag->composer = word;
+			break;
 		case ID3V24_TIT1:
 			tag->title1 = word;
 			break;
