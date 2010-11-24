@@ -1270,7 +1270,7 @@ if test "x$enable_tracker_search_tool" = "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($TRACKER_SEARCH_TOOL_REQUIRED).])
    fi
 else
-   if test "xenable_tracker_search_tool" = "xno"; then
+   if test "x$enable_tracker_search_tool" = "xno"; then
       have_tracker_search_tool="no  (disabled)"
    fi
 fi
