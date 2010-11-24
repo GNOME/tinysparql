@@ -1853,11 +1853,11 @@ xml_end_element_handler_document_data (GMarkupParseContext  *context,
 
 static void
 xml_start_element_handler_core_data	(GMarkupParseContext  *context,
-	 const gchar           *element_name,
-	 const gchar          **attribute_names,
-	 const gchar          **attribute_values,
-	 gpointer               user_data,
-	 GError               **error)
+                                     const gchar           *element_name,
+                                     const gchar          **attribute_names,
+                                     const gchar          **attribute_values,
+                                     gpointer               user_data,
+                                     GError               **error)
 {
 	MsOfficeXMLParserInfo *info = user_data;
 
