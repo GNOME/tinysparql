@@ -166,12 +166,15 @@ typedef struct {
 	GString *content;
 	gboolean title_already_set;
 	gboolean generator_already_set;
+	gulong bytes_pending;
 } MsOfficeXMLParserInfo;
 
 typedef struct {
 	TrackerSparqlBuilder *metadata;
 	const gchar *uri;
 } MetadataInfo;
+
+static GQuark maximum_size_error_quark = 0;
 
 static void extract_msoffice     (const gchar          *uri,
                                   TrackerSparqlBuilder *preupdate,
@@ -1894,7 +1897,7 @@ xml_start_element_handler_core_data	(GMarkupParseContext  *context,
 }
 
 static void
-xml_text_handler_document_data (GMarkupParseContext  *context,
+xml_core_handler_document_data (GMarkupParseContext  *context,
                                 const gchar          *text,
                                 gsize                 text_len,
                                 gpointer              user_data,
@@ -1903,21 +1906,10 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 	MsOfficeXMLParserInfo *info = user_data;
 
 	switch (info->tag_type) {
+	/* Ignore tags that may not happen inside the core subdocument */
 	case MS_OFFICE_XML_TAG_WORD_TEXT:
-		tracker_text_validate_utf8 (text, -1, &info->content, NULL);
-		g_string_append_c (info->content, ' ');
-		break;
-
 	case MS_OFFICE_XML_TAG_SLIDE_TEXT:
-		tracker_text_validate_utf8 (text, -1, &info->content, NULL);
-		g_string_append_c (info->content, ' ');
-		break;
-
 	case MS_OFFICE_XML_TAG_XLS_SHARED_TEXT:
-		if (atoi (text) == 0)  {
-			tracker_text_validate_utf8 (text, -1, &info->content, NULL);
-			g_string_append_c (info->content, ' ');
-		}
 		break;
 
 	case MS_OFFICE_XML_TAG_TITLE:
@@ -2026,6 +2018,76 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 	}
 }
 
+static void
+xml_text_handler_document_data (GMarkupParseContext  *context,
+                                const gchar          *text,
+                                gsize                 text_len,
+                                gpointer              user_data,
+                                GError              **error)
+{
+	MsOfficeXMLParserInfo *info = user_data;
+	gsize written_bytes = 0;
+
+	/* If reached max bytes to extract, just return */
+	if (info->bytes_pending == 0) { 
+		g_set_error_literal (error,
+		                     maximum_size_error_quark,
+                             0,
+		                     "Maximum text limit reached");
+		return;
+	}
+
+	switch (info->tag_type) {
+	case MS_OFFICE_XML_TAG_WORD_TEXT:
+		tracker_text_validate_utf8 (text,
+		                            MIN (text_len, info->bytes_pending),
+		                            &info->content,
+		                            &written_bytes);
+		g_string_append_c (info->content, ' ');
+		info->bytes_pending -= written_bytes;
+		break;
+
+	case MS_OFFICE_XML_TAG_SLIDE_TEXT:
+		tracker_text_validate_utf8 (text,
+		                            MIN (text_len, info->bytes_pending),
+		                            &info->content,
+		                            &written_bytes);
+		g_string_append_c (info->content, ' ');
+		info->bytes_pending -= written_bytes;
+		break;
+
+	case MS_OFFICE_XML_TAG_XLS_SHARED_TEXT:
+		if (atoi (text) == 0)  {
+			tracker_text_validate_utf8 (text,
+			                            MIN (text_len, info->bytes_pending),
+			                            &info->content,
+			                            &written_bytes);
+			g_string_append_c (info->content, ' ');
+			info->bytes_pending -= written_bytes;
+		}
+		break;
+
+	/* Ignore tags that may not happen inside the text subdocument */
+	case MS_OFFICE_XML_TAG_TITLE:
+	case MS_OFFICE_XML_TAG_SUBJECT:
+	case MS_OFFICE_XML_TAG_AUTHOR:
+	case MS_OFFICE_XML_TAG_COMMENTS:
+	case MS_OFFICE_XML_TAG_CREATED:
+	case MS_OFFICE_XML_TAG_GENERATOR:
+	case MS_OFFICE_XML_TAG_APPLICATION:
+	case MS_OFFICE_XML_TAG_MODIFIED:
+	case MS_OFFICE_XML_TAG_NUM_OF_PAGES:
+	case MS_OFFICE_XML_TAG_NUM_OF_CHARACTERS:
+	case MS_OFFICE_XML_TAG_NUM_OF_WORDS:
+	case MS_OFFICE_XML_TAG_NUM_OF_LINES:
+	case MS_OFFICE_XML_TAG_NUM_OF_PARAGRAPHS:
+	case MS_OFFICE_XML_TAG_DOCUMENT_CORE_DATA:
+	case MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA:
+	case MS_OFFICE_XML_TAG_INVALID:
+		break;
+	}
+}
+
 static gboolean
 xml_read (MsOfficeXMLParserInfo *parser_info,
           const gchar           *xml_filename,
@@ -2033,6 +2095,10 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 {
 	GMarkupParseContext *context;
 	MsOfficeXMLParserInfo info;
+	TrackerConfig *config;
+
+	/* Setup conf */
+	config = tracker_main_get_config ();
 
 	/* FIXME: Can we use the original info here? */
 	info.metadata = parser_info->metadata;
@@ -2043,13 +2109,13 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 	info.uri = parser_info->uri;
 	info.content = parser_info->content;
 	info.title_already_set = parser_info->title_already_set;
-
+	info.bytes_pending = tracker_config_get_max_bytes (config);
 	switch (type) {
 	case MS_OFFICE_XML_TAG_DOCUMENT_CORE_DATA: {
 		GMarkupParser parser = {
 			xml_start_element_handler_core_data,
 			xml_end_element_handler_document_data,
-			xml_text_handler_document_data,
+			xml_core_handler_document_data,
 			NULL,
 			NULL
 		};
@@ -2174,9 +2240,12 @@ extract_msoffice_xml (const gchar          *uri,
 {
 	MsOfficeXMLParserInfo info;
 	MsOfficeXMLFileType file_type;
+	TrackerConfig *config;
 	GFile *file;
 	GFileInfo *file_info;
 	GMarkupParseContext *context = NULL;
+	GError *error = NULL;
+	gulong  total_bytes;
 	GMarkupParser parser = {
 		xml_start_element_handler_content_types,
 		xml_end_element_handler_document_data,
@@ -2185,6 +2254,10 @@ extract_msoffice_xml (const gchar          *uri,
 		NULL
 	};
 	const gchar *mime_used;
+
+	if (G_UNLIKELY (maximum_size_error_quark == 0)) {
+		maximum_size_error_quark = g_quark_from_static_string ("maximum_size_error");
+	}
 
 	file = g_file_new_for_uri (uri);
 
@@ -2224,12 +2297,14 @@ extract_msoffice_xml (const gchar          *uri,
 
 	g_object_unref (file_info);
 
+	/* Setup conf */
+	config = tracker_main_get_config ();
 
 	g_debug ("Extracting MsOffice XML format...");
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
-
+	total_bytes = tracker_config_get_max_bytes (config);
 	info.metadata = metadata;
 	info.file_type = file_type;
 	info.tag_type = MS_OFFICE_XML_TAG_INVALID;
@@ -2238,15 +2313,15 @@ extract_msoffice_xml (const gchar          *uri,
 	info.uri = uri;
 	info.content = g_string_new ("");
 	info.title_already_set = FALSE;
-
+	info.bytes_pending = total_bytes;
 	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
 
 	/* Load the internal XML file from the Zip archive, and parse it
 	 * using the given context */
 	tracker_gsf_parse_xml_in_zip (uri,
 	                              "[Content_Types].xml",
-	                              context, NULL);
-
+	                              context,
+                                  &error);
 	if (info.content) {
 		gchar *content;
 
