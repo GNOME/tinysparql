@@ -71,23 +71,93 @@ typedef enum {
 } MsOfficeXMLFileType;
 
 typedef struct {
-	TrackerSparqlBuilder *metadata;
-	MsOfficeXMLFileType file_type;
-	MsOfficeXMLTagType tag_type;
-	gboolean style_element_present;
-	gboolean preserve_attribute_present;
+	/* Common constant stuff */
 	const gchar *uri;
-	GString *content;
+	MsOfficeXMLFileType file_type;
+
+	/* Tag type, reused by Content and Metadata parsers */
+	MsOfficeXMLTagType tag_type;
+
+	/* Metadata-parsing specific things */
+	TrackerSparqlBuilder *metadata;
 	gboolean title_already_set;
 	gboolean generator_already_set;
+
+	/* Content-parsing specific things */
+	GString *content;
 	gulong bytes_pending;
+	gboolean style_element_present;
+	gboolean preserve_attribute_present;
 } MsOfficeXMLParserInfo;
 
-static GQuark maximum_size_error_quark = 0;
+static void extract_msoffice_xml                   (const gchar          *uri,
+                                                    TrackerSparqlBuilder *preupdate,
+                                                    TrackerSparqlBuilder *metadata);
 
-static void extract_msoffice_xml (const gchar          *uri,
-                                  TrackerSparqlBuilder *preupdate,
-                                  TrackerSparqlBuilder *metadata);
+static void msoffice_xml_content_parse_start       (GMarkupParseContext  *context,
+                                                    const gchar          *element_name,
+                                                    const gchar         **attribute_names,
+                                                    const gchar         **attribute_values,
+                                                    gpointer              user_data,
+                                                    GError              **error);
+static void msoffice_xml_content_parse_stop        (GMarkupParseContext  *context,
+                                                    const gchar          *element_name,
+                                                    gpointer              user_data,
+                                                    GError              **error);
+static void msoffice_xml_content_parse             (GMarkupParseContext  *context,
+                                                    const gchar          *text,
+                                                    gsize                 text_len,
+                                                    gpointer              user_data,
+                                                    GError              **error);
+
+static void msoffice_xml_metadata_parse_start      (GMarkupParseContext  *context,
+                                                    const gchar           *element_name,
+                                                    const gchar          **attribute_names,
+                                                    const gchar          **attribute_values,
+                                                    gpointer               user_data,
+                                                    GError               **error);
+static void msoffice_xml_metadata_parse_stop       (GMarkupParseContext  *context,
+                                                    const gchar          *element_name,
+                                                    gpointer              user_data,
+                                                    GError              **error);
+static void msoffice_xml_metadata_parse            (GMarkupParseContext  *context,
+                                                    const gchar          *text,
+                                                    gsize                 text_len,
+                                                    gpointer              user_data,
+                                                    GError              **error);
+
+static void msoffice_xml_content_types_parse_start (GMarkupParseContext  *context,
+                                                    const gchar          *element_name,
+                                                    const gchar         **attribute_names,
+                                                    const gchar         **attribute_values,
+                                                    gpointer              user_data,
+                                                    GError              **error);
+
+static const GMarkupParser metadata_parser = {
+	msoffice_xml_metadata_parse_start,
+	msoffice_xml_metadata_parse_stop,
+	msoffice_xml_metadata_parse,
+	NULL,
+	NULL
+};
+
+static const GMarkupParser content_parser = {
+	msoffice_xml_content_parse_start,
+	msoffice_xml_content_parse_stop,
+	msoffice_xml_content_parse,
+	NULL,
+	NULL
+};
+
+static const GMarkupParser content_types_parser = {
+	msoffice_xml_content_types_parse_start,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+static GQuark maximum_size_error_quark = 0;
 
 static TrackerExtractData data[] = {
 	/* MSoffice2007*/
@@ -98,13 +168,15 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
+/* ------------------------- CONTENT files parsing -----------------------------------*/
+
 static void
-xml_start_element_handler_text_data (GMarkupParseContext  *context,
-                                     const gchar          *element_name,
-                                     const gchar         **attribute_names,
-                                     const gchar         **attribute_values,
-                                     gpointer              user_data,
-                                     GError              **error)
+msoffice_xml_content_parse_start (GMarkupParseContext  *context,
+                                  const gchar          *element_name,
+                                  const gchar         **attribute_names,
+                                  const gchar         **attribute_values,
+                                  gpointer              user_data,
+                                  GError              **error)
 {
 	MsOfficeXMLParserInfo *info = user_data;
 	const gchar **a;
@@ -198,10 +270,10 @@ xml_start_element_handler_text_data (GMarkupParseContext  *context,
 }
 
 static void
-xml_end_element_handler_document_data (GMarkupParseContext  *context,
-                                       const gchar          *element_name,
-                                       gpointer              user_data,
-                                       GError              **error)
+msoffice_xml_content_parse_stop (GMarkupParseContext  *context,
+                                 const gchar          *element_name,
+                                 gpointer              user_data,
+                                 GError              **error)
 {
 	MsOfficeXMLParserInfo *info = user_data;
 
@@ -210,19 +282,98 @@ xml_end_element_handler_document_data (GMarkupParseContext  *context,
 		info->preserve_attribute_present = FALSE;
 	}
 
-	((MsOfficeXMLParserInfo*) user_data)->tag_type = MS_OFFICE_XML_TAG_INVALID;
+	/* Reset tag */
+	info->tag_type = MS_OFFICE_XML_TAG_INVALID;
 }
 
 static void
-xml_start_element_handler_core_data (GMarkupParseContext  *context,
-                                     const gchar           *element_name,
-                                     const gchar          **attribute_names,
-                                     const gchar          **attribute_values,
-                                     gpointer               user_data,
-                                     GError               **error)
+msoffice_xml_content_parse (GMarkupParseContext  *context,
+                            const gchar          *text,
+                            gsize                 text_len,
+                            gpointer              user_data,
+                            GError              **error)
+{
+	MsOfficeXMLParserInfo *info = user_data;
+	gsize written_bytes = 0;
+
+	/* If reached max bytes to extract, just return */
+	if (info->bytes_pending == 0) {
+		g_set_error_literal (error,
+		                     maximum_size_error_quark,
+		                     0,
+		                     "Maximum text limit reached");
+		return;
+	}
+
+	/* Create content string if not already done before */
+	if (G_UNLIKELY (info->content == NULL)) {
+		info->content =	g_string_new ("");
+	}
+
+	switch (info->tag_type) {
+	case MS_OFFICE_XML_TAG_WORD_TEXT:
+		tracker_text_validate_utf8 (text,
+		                            MIN (text_len, info->bytes_pending),
+		                            &info->content,
+		                            &written_bytes);
+		g_string_append_c (info->content, ' ');
+		info->bytes_pending -= written_bytes;
+		break;
+
+	case MS_OFFICE_XML_TAG_SLIDE_TEXT:
+		tracker_text_validate_utf8 (text,
+		                            MIN (text_len, info->bytes_pending),
+		                            &info->content,
+		                            &written_bytes);
+		g_string_append_c (info->content, ' ');
+		info->bytes_pending -= written_bytes;
+		break;
+
+	case MS_OFFICE_XML_TAG_XLS_SHARED_TEXT:
+		if (atoi (text) == 0)  {
+			tracker_text_validate_utf8 (text,
+			                            MIN (text_len, info->bytes_pending),
+			                            &info->content,
+			                            &written_bytes);
+			g_string_append_c (info->content, ' ');
+			info->bytes_pending -= written_bytes;
+		}
+		break;
+
+	/* Ignore tags that may not happen inside the text subdocument */
+	case MS_OFFICE_XML_TAG_TITLE:
+	case MS_OFFICE_XML_TAG_SUBJECT:
+	case MS_OFFICE_XML_TAG_AUTHOR:
+	case MS_OFFICE_XML_TAG_COMMENTS:
+	case MS_OFFICE_XML_TAG_CREATED:
+	case MS_OFFICE_XML_TAG_GENERATOR:
+	case MS_OFFICE_XML_TAG_APPLICATION:
+	case MS_OFFICE_XML_TAG_MODIFIED:
+	case MS_OFFICE_XML_TAG_NUM_OF_PAGES:
+	case MS_OFFICE_XML_TAG_NUM_OF_CHARACTERS:
+	case MS_OFFICE_XML_TAG_NUM_OF_WORDS:
+	case MS_OFFICE_XML_TAG_NUM_OF_LINES:
+	case MS_OFFICE_XML_TAG_NUM_OF_PARAGRAPHS:
+	case MS_OFFICE_XML_TAG_DOCUMENT_CORE_DATA:
+	case MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA:
+	case MS_OFFICE_XML_TAG_INVALID:
+		break;
+	}
+}
+
+/* ------------------------- METADATA files parsing -----------------------------------*/
+
+static void
+msoffice_xml_metadata_parse_start (GMarkupParseContext  *context,
+                                   const gchar           *element_name,
+                                   const gchar          **attribute_names,
+                                   const gchar          **attribute_values,
+                                   gpointer               user_data,
+                                   GError               **error)
 {
 	MsOfficeXMLParserInfo *info = user_data;
 
+	/* Setup the proper tag type */
 	if (g_ascii_strcasecmp (element_name, "dc:title") == 0) {
 		info->tag_type = MS_OFFICE_XML_TAG_TITLE;
 	} else if (g_ascii_strcasecmp (element_name, "dc:subject") == 0) {
@@ -237,8 +388,6 @@ xml_start_element_handler_core_data (GMarkupParseContext  *context,
 		info->tag_type = MS_OFFICE_XML_TAG_GENERATOR;
 	} else if (g_ascii_strcasecmp (element_name, "dcterms:modified") == 0) {
 		info->tag_type = MS_OFFICE_XML_TAG_MODIFIED;
-	} else if (g_ascii_strcasecmp (element_name, "cp:lastModifiedBy") == 0) {
-		/* Do nothing ? */
 	} else if (g_ascii_strcasecmp (element_name, "Pages") == 0) {
 		info->tag_type = MS_OFFICE_XML_TAG_NUM_OF_PAGES;
 	} else if (g_ascii_strcasecmp (element_name, "Slides") == 0) {
@@ -259,11 +408,21 @@ xml_start_element_handler_core_data (GMarkupParseContext  *context,
 }
 
 static void
-xml_core_handler_document_data (GMarkupParseContext  *context,
-                                const gchar          *text,
-                                gsize                 text_len,
-                                gpointer              user_data,
-                                GError              **error)
+msoffice_xml_metadata_parse_stop (GMarkupParseContext  *context,
+                                  const gchar          *element_name,
+                                  gpointer              user_data,
+                                  GError              **error)
+{
+	/* Reset tag */
+	((MsOfficeXMLParserInfo *)user_data)->tag_type = MS_OFFICE_XML_TAG_INVALID;
+}
+
+static void
+msoffice_xml_metadata_parse (GMarkupParseContext  *context,
+                             const gchar          *text,
+                             gsize                 text_len,
+                             gpointer              user_data,
+                             GError              **error)
 {
 	MsOfficeXMLParserInfo *info = user_data;
 
@@ -380,80 +539,7 @@ xml_core_handler_document_data (GMarkupParseContext  *context,
 	}
 }
 
-static void
-xml_text_handler_document_data (GMarkupParseContext  *context,
-                                const gchar          *text,
-                                gsize                 text_len,
-                                gpointer              user_data,
-                                GError              **error)
-{
-	MsOfficeXMLParserInfo *info = user_data;
-	gsize written_bytes = 0;
-
-	/* If reached max bytes to extract, just return */
-	if (info->bytes_pending == 0) {
-		g_set_error_literal (error,
-		                     maximum_size_error_quark,
-                             0,
-		                     "Maximum text limit reached");
-		return;
-	}
-
-	/* Create content string if not already done before */
-	if (G_UNLIKELY (info->content == NULL)) {
-		info->content =	g_string_new ("");
-	}
-
-	switch (info->tag_type) {
-	case MS_OFFICE_XML_TAG_WORD_TEXT:
-		tracker_text_validate_utf8 (text,
-		                            MIN (text_len, info->bytes_pending),
-		                            &info->content,
-		                            &written_bytes);
-		g_string_append_c (info->content, ' ');
-		info->bytes_pending -= written_bytes;
-		break;
-
-	case MS_OFFICE_XML_TAG_SLIDE_TEXT:
-		tracker_text_validate_utf8 (text,
-		                            MIN (text_len, info->bytes_pending),
-		                            &info->content,
-		                            &written_bytes);
-		g_string_append_c (info->content, ' ');
-		info->bytes_pending -= written_bytes;
-		break;
-
-	case MS_OFFICE_XML_TAG_XLS_SHARED_TEXT:
-		if (atoi (text) == 0)  {
-			tracker_text_validate_utf8 (text,
-			                            MIN (text_len, info->bytes_pending),
-			                            &info->content,
-			                            &written_bytes);
-			g_string_append_c (info->content, ' ');
-			info->bytes_pending -= written_bytes;
-		}
-		break;
-
-	/* Ignore tags that may not happen inside the text subdocument */
-	case MS_OFFICE_XML_TAG_TITLE:
-	case MS_OFFICE_XML_TAG_SUBJECT:
-	case MS_OFFICE_XML_TAG_AUTHOR:
-	case MS_OFFICE_XML_TAG_COMMENTS:
-	case MS_OFFICE_XML_TAG_CREATED:
-	case MS_OFFICE_XML_TAG_GENERATOR:
-	case MS_OFFICE_XML_TAG_APPLICATION:
-	case MS_OFFICE_XML_TAG_MODIFIED:
-	case MS_OFFICE_XML_TAG_NUM_OF_PAGES:
-	case MS_OFFICE_XML_TAG_NUM_OF_CHARACTERS:
-	case MS_OFFICE_XML_TAG_NUM_OF_WORDS:
-	case MS_OFFICE_XML_TAG_NUM_OF_LINES:
-	case MS_OFFICE_XML_TAG_NUM_OF_PARAGRAPHS:
-	case MS_OFFICE_XML_TAG_DOCUMENT_CORE_DATA:
-	case MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA:
-	case MS_OFFICE_XML_TAG_INVALID:
-		break;
-	}
-}
+/* ------------------------- CONTENT-TYPES file parsing -----------------------------------*/
 
 static gboolean
 xml_read (MsOfficeXMLParserInfo *parser_info,
@@ -461,95 +547,77 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
           MsOfficeXMLTagType     type)
 {
 	GMarkupParseContext *context;
-	MsOfficeXMLParserInfo info;
-	TrackerConfig *config;
 
-	/* Setup conf */
-	config = tracker_main_get_config ();
-
-	/* FIXME: Can we use the original info here? */
-	info.metadata = parser_info->metadata;
-	info.file_type = parser_info->file_type;
-	info.tag_type = MS_OFFICE_XML_TAG_INVALID;
-	info.style_element_present = FALSE;
-	info.preserve_attribute_present = FALSE;
-	info.uri = parser_info->uri;
-	info.content = parser_info->content;
-	info.title_already_set = parser_info->title_already_set;
-	info.bytes_pending = tracker_config_get_max_bytes (config);
 	switch (type) {
 	case MS_OFFICE_XML_TAG_DOCUMENT_CORE_DATA: {
-		GMarkupParser parser = {
-			xml_start_element_handler_core_data,
-			xml_end_element_handler_document_data,
-			xml_core_handler_document_data,
-			NULL,
-			NULL
-		};
+		/* Reset these flags before going on */
+		parser_info->tag_type = MS_OFFICE_XML_TAG_INVALID;
 
-		context = g_markup_parse_context_new (&parser,
+		context = g_markup_parse_context_new (&metadata_parser,
 		                                      0,
-		                                      &info,
+		                                      parser_info,
 		                                      NULL);
 		break;
 	}
-
 	case MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA: {
-		GMarkupParser parser = {
-			xml_start_element_handler_text_data,
-			xml_end_element_handler_document_data,
-			xml_text_handler_document_data,
-			NULL,
-			NULL
-		};
+		/* Reset these flags before going on */
+		parser_info->tag_type = MS_OFFICE_XML_TAG_INVALID;
+		parser_info->style_element_present = FALSE;
+		parser_info->preserve_attribute_present = FALSE;
 
-		context = g_markup_parse_context_new (&parser,
+		context = g_markup_parse_context_new (&content_parser,
 		                                      0,
-		                                      &info,
+		                                      parser_info,
 		                                      NULL);
 		break;
 	}
-
 	default:
 		context = NULL;
 		break;
 	}
 
 	if (context) {
+		GError *error = NULL;
+
 		/* Load the internal XML file from the Zip archive, and parse it
 		 * using the given context */
 		tracker_gsf_parse_xml_in_zip (parser_info->uri,
 		                              xml_filename,
-		                              context, NULL);
+		                              context,
+		                              &error);
 		g_markup_parse_context_free (context);
+
+		if (error) {
+			g_debug ("Parsing internal '%s' gave error: '%s'",
+			         xml_filename,
+			         error->message);
+			g_error_free (error);
+		}
 	}
 
 	return TRUE;
 }
 
 static void
-xml_start_element_handler_content_types (GMarkupParseContext  *context,
-                                         const gchar          *element_name,
-                                         const gchar         **attribute_names,
-                                         const gchar         **attribute_values,
-                                         gpointer              user_data,
-                                         GError              **error)
+msoffice_xml_content_types_parse_start (GMarkupParseContext  *context,
+                                        const gchar          *element_name,
+                                        const gchar         **attribute_names,
+                                        const gchar         **attribute_values,
+                                        gpointer              user_data,
+                                        GError              **error)
 {
 	MsOfficeXMLParserInfo *info;
-	const gchar *part_name;
-	const gchar *content_type;
+	const gchar *part_name = NULL;
+	const gchar *content_type = NULL;
 	gint i;
 
 	info = user_data;
 
 	if (g_ascii_strcasecmp (element_name, "Override") != 0) {
-		info->tag_type = MS_OFFICE_XML_TAG_INVALID;
 		return;
 	}
 
-	part_name = NULL;
-	content_type = NULL;
-
+	/* Look for part name and content type */
 	for (i = 0; attribute_names[i]; i++) {
 		if (g_ascii_strcasecmp (attribute_names[i], "PartName") == 0) {
 			part_name = attribute_values[i];
@@ -566,12 +634,14 @@ xml_start_element_handler_content_types (GMarkupParseContext  *context,
 		return;
 	}
 
+	/* Metadata part? */
 	if ((g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-package.core-properties+xml") == 0) ||
 	    (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.extended-properties+xml") == 0)) {
 		xml_read (info, part_name + 1, MS_OFFICE_XML_TAG_DOCUMENT_CORE_DATA);
 		return;
 	}
 
+	/* Content part? */
 	switch (info->file_type) {
 	case FILE_TYPE_DOCX:
 		if (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml") == 0) {
@@ -599,6 +669,8 @@ xml_start_element_handler_content_types (GMarkupParseContext  *context,
 		break;
 	}
 }
+
+/* ------------------------- Main methods -----------------------------------*/
 
 static MsOfficeXMLFileType
 msoffice_xml_get_file_type (const gchar *uri)
@@ -660,17 +732,8 @@ extract_msoffice_xml (const gchar          *uri,
 	MsOfficeXMLParserInfo info;
 	MsOfficeXMLFileType file_type;
 	TrackerConfig *config;
-
 	GMarkupParseContext *context = NULL;
 	GError *error = NULL;
-	gulong  total_bytes;
-	GMarkupParser parser = {
-		xml_start_element_handler_content_types,
-		xml_end_element_handler_document_data,
-		NULL,
-		NULL,
-		NULL
-	};
 
 	if (G_UNLIKELY (maximum_size_error_quark == 0)) {
 		maximum_size_error_quark = g_quark_from_static_string ("maximum_size_error");
@@ -686,7 +749,8 @@ extract_msoffice_xml (const gchar          *uri,
 
 	tracker_sparql_builder_predicate (metadata, "a");
 	tracker_sparql_builder_object (metadata, "nfo:PaginatedTextDocument");
-	total_bytes = tracker_config_get_max_bytes (config);
+
+	/* Setup Parser info */
 	info.metadata = metadata;
 	info.file_type = file_type;
 	info.tag_type = MS_OFFICE_XML_TAG_INVALID;
@@ -695,8 +759,14 @@ extract_msoffice_xml (const gchar          *uri,
 	info.uri = uri;
 	info.content = NULL;
 	info.title_already_set = FALSE;
-	info.bytes_pending = total_bytes;
-	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
+	info.generator_already_set = FALSE;
+	info.bytes_pending = tracker_config_get_max_bytes (config);
+
+	/* Create content-type parser context */
+	context = g_markup_parse_context_new (&content_types_parser,
+	                                      0,
+	                                      &info,
+	                                      NULL);
 
 	/* Load the internal XML file from the Zip archive, and parse it
 	 * using the given context */
@@ -704,6 +774,11 @@ extract_msoffice_xml (const gchar          *uri,
 	                              "[Content_Types].xml",
 	                              context,
 	                              &error);
+	if (error) {
+		g_debug ("Parsing the content-types file gave an error: '%s'",
+		         error->message);
+		g_error_free (error);
+	}
 
 	/* If we got any content, add it */
 	if (info.content) {
