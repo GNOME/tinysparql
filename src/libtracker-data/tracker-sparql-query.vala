@@ -645,6 +645,8 @@ public class Tracker.Sparql.Query : Object {
 			context = pattern.translate_group_graph_pattern (pattern_sql);
 		} else {
 			context = new Context (this);
+
+			pattern_sql.append ("SELECT 1");
 		}
 
 		var after_where = get_location ();
@@ -667,12 +669,12 @@ public class Tracker.Sparql.Query : Object {
 
 		if (first) {
 			sql.append ("1");
-		} else {
-			// select from results of WHERE clause
-			sql.append (" FROM (");
-			sql.append (pattern_sql.str);
-			sql.append (")");
 		}
+
+		// select from results of WHERE clause
+		sql.append (" FROM (");
+		sql.append (pattern_sql.str);
+		sql.append (")");
 
 		var result_set = exec_sql (sql.str);
 
