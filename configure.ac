@@ -271,7 +271,8 @@ PKG_CHECK_MODULES(LIBTRACKER_MINER, [$LIBTRACKER_MINER_REQUIRED])
 
 # Check requirements for libtracker-sparql
 LIBTRACKER_SPARQL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED"
+                            gio-unix-2.0 >= $GLIB_REQUIRED
+                            uuid"
 
 PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
 
