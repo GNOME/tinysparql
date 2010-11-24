@@ -1,3 +1,47 @@
+NEW in 0.9.29 - 2010-11-24
+==========================
+
+The changes are:
+
+  * Fixes: GB#630244, Use MaxBytes from tracker-extract.cfg for msoffice 2007 files
+  * Fixes: GB#634424, MsOffice metadata extractor is not unicode aware
+  * Fixes: GB#634669, Missing test file in tarball
+  * Fixes: GB#635652, Correction in the --enable-tracker-search-tool configuration flag management
+  * Fixes: NB#195787, libtracker-sparql, libtracker-client: Fix URI escaping
+  * Fixes: NB#197067, tracker-miner-fs crawls open files
+  * Fixes: NB#200980, Ontology: Add index on tracker:added
+  * Fixes: NB#202291, tracker-extract: Fixed nested use of anonymous blank nodes
+  * Fixes: NB#203540, Composer label not extracted in ID3v2.3 mp3 files
+  * Fixes: NB#203593, All libtracker-miner section names in CamelCase in documentation
+  * Fixes: NB#206752, SPARQL: Do not ignore GRAPH around rdf:type statements
+  * Ontology: Add index on nco:nameFamily
+  * SPARQL: Support \u escape sequence in string literals
+  * SPARQL: Fix INSERT/DELETE and SELECT * with WHERE without variables
+  * SPARQL: Use proper collation for string literals and fn:starts-with
+  * libtracker-data: Make it easier to test the PRAGMAs for SQLite
+  * libtracker-bus: Fix handling of priority in update_async
+  * libtracker-sparql: Add function to generate a uuid urn to the client library
+  * tracker-store: Fix crash on client exit and task without destroy notify
+  * tracker-extract: Split msoffice and msoffice-xml extractors and refactor code
+  * tracker-extract-mp3: Fix memory leak
+  * tracker-miner-applications: Fix encoding issues and handling of nie:dataSource
+  * tracker-miner-fs: Use low priority for update_async calls
+  * tracker-search: New --software and --software-categories options
+
+Translations:
+
+  * Updated cs: Marek Cernocky
+  * Updated de: Mario Blättermann
+  * Updated es: Daniel Mustieles
+  * Updated hu: Gabor Kelemen
+  * Updated pt_BR: Djavan Fagundes
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.9.28 - 2010-11-11
 ==========================
 
