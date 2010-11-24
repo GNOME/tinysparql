@@ -579,7 +579,10 @@ unreg_task (TrackerStoreTask *task,
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		task->callback.turtle_callback (error, task->user_data);
 	}
-	task->destroy (task->user_data);
+
+	if (task->destroy) {
+		task->destroy (task->user_data);
+	}
 
 	store_task_free (task);
 }
