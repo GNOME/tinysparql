@@ -673,6 +673,7 @@ msoffice_xml_get_file_type (const gchar *uri)
 	GFile *file;
 	GFileInfo *file_info;
 	const gchar *mime_used;
+	MsOfficeXMLFileType file_type;
 
 	/* Get GFile from uri... */
 	file = g_file_new_for_uri (uri);
@@ -693,30 +694,29 @@ msoffice_xml_get_file_type (const gchar *uri)
 		return FILE_TYPE_INVALID;
 	}
 
-	/* Get Content Type from GFileInfo */
+	/* Get Content Type from GFileInfo. The constant string will be valid
+	 * as long as the file info reference is valid */
 	mime_used = g_file_info_get_content_type (file_info);
+	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.wordprocessingml.document") == 0) {
+		/* MsOffice Word document */
+		file_type = FILE_TYPE_DOCX;
+	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.presentation") == 0) {
+		/* MsOffice Powerpoint document */
+		file_type = FILE_TYPE_PPTX;
+	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.slideshow") == 0) {
+		/* MsOffice Powerpoint (slideshow) document */
+		file_type = FILE_TYPE_PPSX;
+	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") == 0) {
+		/* MsOffice Excel document */
+		file_type = FILE_TYPE_XLSX;
+	} else {
+		g_message ("Mime type was not recognised:'%s'", mime_used);
+		file_type = FILE_TYPE_INVALID;
+	}
+
 	g_object_unref (file_info);
 
-	/* MsOffice Word document? */
-	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.wordprocessingml.document") == 0) {
-		return FILE_TYPE_DOCX;
-	}
-
-	/* MsOffice Powerpoint document? */
-	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.presentation") == 0) {
-		return FILE_TYPE_PPTX;
-	}
-	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.slideshow") == 0) {
-		return FILE_TYPE_PPSX;
-	}
-
-	/* MsOffice Excel document? */
-	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") == 0) {
-		return FILE_TYPE_XLSX;
-	}
-
-	g_message ("Mime type was not recognised:'%s'", mime_used);
-	return FILE_TYPE_INVALID;
+	return file_type;
 }
 
 static void
