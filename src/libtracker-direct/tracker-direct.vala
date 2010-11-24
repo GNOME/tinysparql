@@ -45,10 +45,10 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
+	Sparql.Cursor query_unlocked (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
 		try {
 			var query_object = new Sparql.Query (sparql);
-			var cursor = query_object.execute_cursor ();
+			var cursor = query_object.execute_cursor (true);
 			cursor.connection = this;
 			return cursor;
 		} catch (DBInterfaceError e) {
@@ -58,9 +58,43 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		// just creating the cursor won't block
-		return query (sparql, cancellable);
+	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
+		DBManager.lock ();
+		try {
+			return query_unlocked (sparql, cancellable);
+		} finally {
+			DBManager.unlock ();
+		}
+	}
+
+	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
+		if (!DBManager.trylock ()) {
+			// run in a separate thread
+			Error job_error = null;
+			Sparql.Cursor result = null;
+
+			g_io_scheduler_push_job (job => {
+				try {
+					result = query (sparql, cancellable);
+				} catch (Error e) {
+					job_error = e;
+				}
+				query_async.callback ();
+				return false;
+			});
+			yield;
+
+			if (job_error != null) {
+				throw job_error;
+			} else {
+				return result;
+			}
+		}
+		try {
+			return query_unlocked (sparql, cancellable);
+		} finally {
+			DBManager.unlock ();
+		}
 	}
 }
 

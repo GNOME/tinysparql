@@ -158,6 +158,9 @@ static guint                 u_cache_size;
 
 static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 
+/* mutex used by singleton connection in libtracker-direct, not used by tracker-store */
+static GStaticMutex          global_mutex = G_STATIC_MUTEX_INIT;
+
 static const gchar *
 location_to_directory (TrackerDBLocation location)
 {
@@ -1679,4 +1682,22 @@ tracker_db_manager_set_last_crawl_done (gboolean done)
 	}
 
 	g_free (filename);
+}
+
+void
+tracker_db_manager_lock (void)
+{
+	g_static_mutex_lock (&global_mutex);
+}
+
+gboolean
+tracker_db_manager_trylock (void)
+{
+	return g_static_mutex_trylock (&global_mutex);
+}
+
+void
+tracker_db_manager_unlock (void)
+{
+	g_static_mutex_unlock (&global_mutex);
 }

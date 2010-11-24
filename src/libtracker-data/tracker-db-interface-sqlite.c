@@ -37,6 +37,7 @@
 #include "tracker-collation.h"
 
 #include "tracker-db-interface-sqlite.h"
+#include "tracker-db-manager.h"
 
 #define UNKNOWN_STATUS 0.5
 
@@ -65,8 +66,6 @@ struct TrackerDBInterface {
 #endif
 	GCancellable *cancellable;
 
-	/* async operation pending */
-	gboolean pending;
 	GAsyncReadyCallback outstanding_callback;
 
 	TrackerDBStatementLru select_stmt_lru;
@@ -90,6 +89,8 @@ struct TrackerDBCursor {
 	gint n_types;
 	gchar **variable_names;
 	gint n_variable_names;
+
+	gboolean threadsafe;
 };
 
 struct TrackerDBCursorClass {
@@ -117,7 +118,8 @@ static TrackerDBCursor    *tracker_db_cursor_sqlite_new      (sqlite3_stmt      
                                                               TrackerPropertyType  *types,
                                                               gint                  n_types,
                                                               const gchar         **variable_names,
-                                                              gint                  n_variable_names);
+                                                              gint                  n_variable_names,
+                                                              gboolean              threadsafe);
 static gboolean            tracker_db_cursor_get_boolean     (TrackerSparqlCursor  *cursor,
                                                               guint                 column);
 static gboolean            db_cursor_iter_next               (TrackerDBCursor      *cursor,
@@ -895,7 +897,6 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	gchar *full_query;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (db_interface), NULL);
-	g_return_val_if_fail (!db_interface->pending, NULL);
 
 	va_start (args, query);
 	full_query = g_strdup_vprintf (query, args);
@@ -1310,7 +1311,6 @@ async_ready_callback_wrapper (GObject      *source_object,
 	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (source_object);
 	TrackerDBInterface *iface = cursor->ref_stmt->db_interface;
 
-	iface->pending = FALSE;
 	if (iface->outstanding_callback) {
 		GAsyncReadyCallback callback = iface->outstanding_callback;
 
@@ -1328,8 +1328,6 @@ tracker_db_cursor_iter_next_async (TrackerDBCursor     *cursor,
 {
 	GSimpleAsyncResult *res;
 
-	g_return_if_fail (!cursor->ref_stmt->db_interface->pending);
-	cursor->ref_stmt->db_interface->pending = TRUE;
 	cursor->ref_stmt->db_interface->outstanding_callback = callback;
 
 	res = g_simple_async_result_new (g_object_ref (cursor), async_ready_callback_wrapper, user_data, tracker_db_cursor_iter_next_async);
@@ -1375,7 +1373,8 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
                               TrackerPropertyType *types,
                               gint                 n_types,
                               const gchar        **variable_names,
-                              gint                 n_variable_names)
+                              gint                 n_variable_names,
+                              gboolean             threadsafe)
 {
 	TrackerDBCursor *cursor;
 
@@ -1383,6 +1382,8 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
 
 	cursor->stmt = sqlite_stmt;
 	cursor->finished = FALSE;
+
+	cursor->threadsafe = threadsafe;
 
 	if (ref_stmt) {
 		ref_stmt->stmt_is_sunk = TRUE;
@@ -1465,7 +1466,6 @@ void
 tracker_db_cursor_rewind (TrackerDBCursor *cursor)
 {
 	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
-	g_return_if_fail (!cursor->ref_stmt->db_interface->pending);
 
 	sqlite3_reset (cursor->stmt);
 	cursor->finished = FALSE;
@@ -1476,8 +1476,6 @@ tracker_db_cursor_iter_next (TrackerDBCursor *cursor,
                              GCancellable    *cancellable,
                              GError         **error)
 {
-	g_return_val_if_fail (!cursor->ref_stmt->db_interface->pending, FALSE);
-
 	return db_cursor_iter_next (cursor, cancellable, error);
 }
 
@@ -1492,6 +1490,10 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 
 	if (!cursor->finished) {
 		guint result;
+
+		if (cursor->threadsafe) {
+			tracker_db_manager_lock ();
+		}
 
 		if (g_cancellable_is_cancelled (cancellable)) {
 			result = SQLITE_INTERRUPT;
@@ -1517,6 +1519,10 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 		}
 
 		cursor->finished = (result != SQLITE_ROW);
+
+		if (cursor->threadsafe) {
+			tracker_db_manager_unlock ();
+		}
 	}
 
 	return (!cursor->finished);
@@ -1652,7 +1658,7 @@ tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
 {
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, NULL, 0, NULL, 0);
+	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, NULL, 0, NULL, 0, FALSE);
 }
 
 TrackerDBCursor *
@@ -1661,11 +1667,12 @@ tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
                                           gint                  n_types,
                                           const gchar         **variable_names,
                                           gint                  n_variable_names,
+                                          gboolean              threadsafe,
                                           GError              **error)
 {
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, types, n_types, variable_names, n_variable_names);
+	return tracker_db_cursor_sqlite_new (stmt->stmt, stmt, types, n_types, variable_names, n_variable_names, threadsafe);
 }
 
 static void

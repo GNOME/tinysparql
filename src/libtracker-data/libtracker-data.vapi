@@ -61,6 +61,9 @@ namespace Tracker {
 	[CCode (cheader_filename = "libtracker-data/tracker-db-manager.h")]
 	namespace DBManager {
 		public unowned DBInterface get_db_interface ();
+		public void lock ();
+		public bool trylock ();
+		public void unlock ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
@@ -79,7 +82,7 @@ namespace Tracker {
 		public abstract void bind_int (int index, int value);
 		public abstract void bind_text (int index, string value);
 		public abstract DBResultSet execute () throws DBInterfaceError;
-		public abstract DBCursor start_sparql_cursor (PropertyType[] types, string[] variable_names) throws DBInterfaceError;
+		public abstract DBCursor start_sparql_cursor (PropertyType[] types, string[] variable_names, bool threadsafe) throws DBInterfaceError;
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-class.h")]

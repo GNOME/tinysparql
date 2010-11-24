@@ -161,7 +161,7 @@ tracker_data_query_sparql_cursor (const gchar  *query,
 
 	sparql_query = tracker_sparql_query_new (query);
 
-	cursor = tracker_sparql_query_execute_cursor (sparql_query, error);
+	cursor = tracker_sparql_query_execute_cursor (sparql_query, FALSE, error);
 
 	g_object_unref (sparql_query);
 

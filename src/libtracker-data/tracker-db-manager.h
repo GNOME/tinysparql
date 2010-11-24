@@ -69,6 +69,10 @@ void                tracker_db_manager_init_locations         (void);
 gboolean            tracker_db_manager_has_enough_space       (void);
 void                tracker_db_manager_remove_version_file    (void);
 
+void                tracker_db_manager_lock                   (void);
+gboolean            tracker_db_manager_trylock                (void);
+void                tracker_db_manager_unlock                 (void);
+
 TrackerDBManagerFlags
                     tracker_db_manager_get_flags              (guint *select_cache_size,
                                                                guint *update_cache_size);
