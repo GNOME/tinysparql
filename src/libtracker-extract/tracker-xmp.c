@@ -903,13 +903,14 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		addruri = tracker_sparql_get_uuid_urn ();
 
 		tracker_sparql_builder_predicate (metadata, "mlo:asPostalAddress");
-
 		tracker_sparql_builder_object_iri (metadata, addruri);
 
 		tracker_sparql_builder_object_blank_close (metadata); /* GeoPoint */
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, addruri);
+
+		g_free (addruri);
 
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:PostalAddress");

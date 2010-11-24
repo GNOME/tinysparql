@@ -507,6 +507,8 @@ extract_tiff (const gchar          *uri,
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, addruri);
 
+		g_free (addruri);
+
 		tracker_sparql_builder_predicate (preupdate, "a");
 		tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
 
