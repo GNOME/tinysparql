@@ -52,6 +52,7 @@ endif
 if HAVE_LIBGSF
 modules_LTLIBRARIES +=                                 \
 	libextract-msoffice.la                         \
+	libextract-msoffice-xml.la                     \
 	libextract-oasis.la
 endif
 
@@ -199,6 +200,17 @@ libextract_msoffice_la_SOURCES = tracker-extract-msoffice.c
 libextract_msoffice_la_CFLAGS = $(LIBGSF_CFLAGS)
 libextract_msoffice_la_LDFLAGS = $(module_flags)
 libextract_msoffice_la_LIBADD =                        \
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS)                                  \
+	$(TRACKER_EXTRACT_LIBS)                        \
+	$(LIBGSF_LIBS)
+
+# MS Office XML
+libextract_msoffice_xml_la_SOURCES = tracker-extract-msoffice-xml.c
+libextract_msoffice_xml_la_CFLAGS = $(LIBGSF_CFLAGS)
+libextract_msoffice_xml_la_LDFLAGS = $(module_flags)
+libextract_msoffice_xml_la_LIBADD =                    \
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
