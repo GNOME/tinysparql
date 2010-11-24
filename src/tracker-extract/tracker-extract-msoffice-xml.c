@@ -606,12 +606,10 @@ msoffice_xml_content_types_parse_start (GMarkupParseContext  *context,
                                         gpointer              user_data,
                                         GError              **error)
 {
-	MsOfficeXMLParserInfo *info;
+	MsOfficeXMLParserInfo *info = user_data;
 	const gchar *part_name = NULL;
 	const gchar *content_type = NULL;
 	gint i;
-
-	info = user_data;
 
 	if (g_ascii_strcasecmp (element_name, "Override") != 0) {
 		return;
@@ -641,32 +639,29 @@ msoffice_xml_content_types_parse_start (GMarkupParseContext  *context,
 		return;
 	}
 
+	/* If the file type is unknown, skip trying to extract content */
+	if (info->file_type == FILE_TYPE_INVALID) {
+		g_message ("Invalid file type, not extracting content from '%s'",
+		           part_name + 1);
+		return;
+	}
+
 	/* Content part? */
-	switch (info->file_type) {
-	case FILE_TYPE_DOCX:
-		if (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml") == 0) {
+	if ((info->file_type == FILE_TYPE_DOCX &&
+	     g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml") == 0) ||
+	    ((info->file_type == FILE_TYPE_PPTX || info->file_type == FILE_TYPE_PPSX) &&
+	     (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.presentationml.slide+xml") == 0 ||
+	      g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.drawingml.diagramData+xml") == 0)) ||
+	    (info->file_type == FILE_TYPE_XLSX &&
+	     (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml") == 0 ||
+	      g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml") == 0))) {
+		/* If reached max bytes to extract, don't event start parsing the file... just return */
+		if (info->bytes_pending == 0) {
+			g_debug ("Skipping '%s' as already reached max bytes to extract",
+			         part_name + 1);
+		} else {
 			xml_read (info, part_name + 1, MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA);
 		}
-		break;
-
-	case FILE_TYPE_PPTX:
-	case FILE_TYPE_PPSX:
-		if ((g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.presentationml.slide+xml") == 0) ||
-		    (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.drawingml.diagramData+xml") == 0)) {
-			xml_read (info, part_name + 1, MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA);
-		}
-		break;
-
-	case FILE_TYPE_XLSX:
-		if ((g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml") == 0) ||
-		    (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml") == 0)) {
-			xml_read (info, part_name + 1, MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA);
-		}
-		break;
-
-	case FILE_TYPE_INVALID:
-		g_message ("Invalid file type:'%d'", info->file_type);
-		break;
 	}
 }
 
