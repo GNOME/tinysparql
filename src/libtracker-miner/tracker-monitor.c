@@ -860,10 +860,11 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 						 * there is a CHANGES_DONE_HINT. */
 						g_get_current_time (&(previous_update_event_data->start_time));
 					}
-					break;
 				}
-			}
-		} /* Else, Fall through and treat as an ATTRIBUTE_CHANGED */
+
+				break;
+			} /* Else, Fall through and treat as an ATTRIBUTE_CHANGED */
+		}
 
 		case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED: {
 			EventData *previous_update_event_data;
