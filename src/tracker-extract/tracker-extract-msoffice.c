@@ -147,8 +147,8 @@ static TrackerExtractData data[] = {
 #define octal_ascii_triplet_is_valid(slash, a2, a1, a0) \
 	(slash == '\\' && \
 	 a2 >= '0' && a2 <= '3' && \
-	 a1 >= '0' && a1 <= '8' && \
-	 a0 >= '0' && a0 <= '8')
+	 a1 >= '0' && a1 <= '7' && \
+	 a0 >= '0' && a0 <= '7')
 
 #define octal_ascii_triplet_to_decimal_int(a2, a1, a0) \
 	((a0 - '0') + 8 * ((a1 - '0') + 8 * (a2 - '0')))
