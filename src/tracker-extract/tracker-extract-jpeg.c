@@ -30,8 +30,8 @@
 #include <jpeglib.h>
 
 #include <libtracker-common/tracker-common.h>
-
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-main.h"
 
@@ -536,6 +536,8 @@ extract_jpeg (const gchar          *uri,
 	}
 
 	if (md.city || md.state || md.address || md.country) {
+		gchar *addruri;
+
 		tracker_sparql_builder_predicate (metadata, "mlo:location");
 
 		tracker_sparql_builder_object_blank_open (metadata); /* GeoPoint */
@@ -562,34 +564,41 @@ extract_jpeg (const gchar          *uri,
 			tracker_sparql_builder_object_unvalidated (metadata, md.country);
 		}
 
-		tracker_sparql_builder_predicate (metadata, "mlo:asPostalAddress");
-		tracker_sparql_builder_object_blank_open (metadata); /* PostalAddress */
+		addruri = tracker_sparql_get_uuid_urn ("postal-address");
 
-		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "nco:PostalAddress");
+		tracker_sparql_builder_predicate (metadata, "mlo:asPostalAddress");
+		tracker_sparql_builder_object_iri (metadata, addruri);
+
+		tracker_sparql_builder_object_blank_close (metadata); /* GeoPoint */
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, addruri);
+
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nco:PostalAddress");
 
 		if (md.address) {
-			tracker_sparql_builder_predicate (metadata, "nco:streetAddress");
-			tracker_sparql_builder_object_unvalidated (metadata, md.address);
+			tracker_sparql_builder_predicate (preupdate, "nco:streetAddress");
+			tracker_sparql_builder_object_unvalidated (preupdate, md.address);
 		}
 
 		if (md.state) {
-			tracker_sparql_builder_predicate (metadata, "nco:region");
-			tracker_sparql_builder_object_unvalidated (metadata, md.state);
+			tracker_sparql_builder_predicate (preupdate, "nco:region");
+			tracker_sparql_builder_object_unvalidated (preupdate, md.state);
 		}
 
 		if (md.city) {
-			tracker_sparql_builder_predicate (metadata, "nco:locality");
-			tracker_sparql_builder_object_unvalidated (metadata, md.city);
+			tracker_sparql_builder_predicate (preupdate, "nco:locality");
+			tracker_sparql_builder_object_unvalidated (preupdate, md.city);
 		}
 
 		if (md.country) {
-			tracker_sparql_builder_predicate (metadata, "nco:country");
-			tracker_sparql_builder_object_unvalidated (metadata, md.country);
+			tracker_sparql_builder_predicate (preupdate, "nco:country");
+			tracker_sparql_builder_object_unvalidated (preupdate, md.country);
 		}
 
-		tracker_sparql_builder_object_blank_close (metadata); /* PostalAddress */
-		tracker_sparql_builder_object_blank_close (metadata); /* GeoPoint */
+		tracker_sparql_builder_insert_close (preupdate);
+
 	}
 
 	if (cinfo.density_unit != 0 || ed->x_resolution) {
