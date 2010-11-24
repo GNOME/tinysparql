@@ -309,6 +309,8 @@ class Tracker.Sparql.Pattern : Object {
 			}
 		} else {
 			for (int i = 0; ; i++) {
+				first = false;
+
 				if (i > 0) {
 					sql.append (", ");
 				}
@@ -336,6 +338,10 @@ class Tracker.Sparql.Pattern : Object {
 		// literals in select expressions need to be bound before literals in the where clause
 		foreach (var binding in where_bindings) {
 			query.bindings.append (binding);
+		}
+
+		if (first) {
+			sql.append ("NULL");
 		}
 
 		// select from results of WHERE clause
