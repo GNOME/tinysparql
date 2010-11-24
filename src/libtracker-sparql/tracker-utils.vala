@@ -87,27 +87,19 @@ namespace Tracker.Sparql {
 	}
 
 	[CCode (cname = "uuid_generate")]
-	public extern static void uuid_generate ([CCode (array_length = false)] uchar[] uuid);
+	private extern static void uuid_generate ([CCode (array_length = false)] uchar[] uuid);
 
-	public string get_uuid_urn (string user_bnodeid) {
-		var checksum = new Checksum (ChecksumType.SHA1);
+	[CCode (cname = "uuid_unparse_lower")]
+	private extern static void uuid_unparse_lower ([CCode (array_length = false)] uchar[] uuid, char* out);
+
+	public string get_uuid_urn () {
 		uchar[] base_uuid = new uchar[16];
+		string lower = (string) new char[37];
 
 		uuid_generate (base_uuid);
+		uuid_unparse_lower (base_uuid, (char *) lower);
 
-		// base UUID, unique per file
-		checksum.update (base_uuid, 16);
-
-		// node ID
-		checksum.update ((uchar[]) user_bnodeid, -1);
-
-		string sha1 = checksum.get_string ();
-
-		// generate name based uuid
-		return "urn:uuid:%.8s-%.4s-%.4s-%.4s-%.12s".printf (sha1,
-		                                                    sha1.offset (8),
-		                                                    sha1.offset (12),
-		                                                    sha1.offset (16),
-		                                                    sha1.offset (20));
+		// generate uuid
+		return "urn:uuid:%s".printf (lower);
 	}
 }

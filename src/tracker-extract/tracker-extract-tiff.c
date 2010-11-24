@@ -497,7 +497,7 @@ extract_tiff (const gchar          *uri,
 			tracker_sparql_builder_object_unvalidated (metadata, md.country);
 		}
 
-		addruri = tracker_sparql_get_uuid_urn ("postal-address");
+		addruri = tracker_sparql_get_uuid_urn ();
 
 		tracker_sparql_builder_predicate (metadata, "mlo:asPostalAddress");
 		tracker_sparql_builder_object_iri (metadata, addruri);
