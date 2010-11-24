@@ -143,6 +143,52 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
+/* Valid range from \000 to \377 (0 to 255) */
+#define octal_ascii_triplet_is_valid(slash, a2, a1, a0) \
+	(slash == '\\' && \
+	 a2 >= '0' && a2 <= '3' && \
+	 a1 >= '0' && a1 <= '8' && \
+	 a0 >= '0' && a0 <= '8')
+
+#define octal_ascii_triplet_to_decimal_int(a2, a1, a0) \
+	((a0 - '0') + 8 * ((a1 - '0') + 8 * (a2 - '0')))
+
+/*
+ * So, we may get input strings with UTF-8 characters encoded in OCTAL and
+ * represented in ASCII, like this:
+ *     K\303\230BENHAVNS UNIVERSITET
+ * which is equivalent to:
+ *     KØBENHAVNS UNIVERSITET
+ */
+static void
+msoffice_string_process_octal_triplets (guchar *str)
+{
+	guint i = 0; /* index in original string */
+	guint j = 0; /* index in processed string */
+	guint length = strlen (str);
+
+	/* Changing the string IN PLACE, note that j<=i ALWAYS! */
+	while (i < length) {
+		if (length - i >= 4 &&
+		    octal_ascii_triplet_is_valid (str[i], str[i+1], str[i+2], str[i+3])) {
+			/* Found a new octal triplet */
+			str[j] = octal_ascii_triplet_to_decimal_int (str[i+1], str[i+2], str[i+3]);
+			i += 4;
+		} else if (i != j) {
+			/* We previously found an octal triplet,
+			 * we need to update the string */
+			str[j] = str[i];
+			i++;
+		} else {
+			/* No need to update the string yet */
+			i++;
+		}
+		j++;
+	}
+	/* New end of string */
+	str[j]='\0';
+}
+
 static void
 metadata_add_gvalue (TrackerSparqlBuilder *metadata,
                      const gchar          *uri,
@@ -212,6 +258,9 @@ metadata_add_gvalue (TrackerSparqlBuilder *metadata,
 		}
 
 		if (str_val) {
+			/* Process (in place) octal triplets if found */
+			msoffice_string_process_octal_triplets (str_val);
+
 			if (type && predicate) {
 				tracker_sparql_builder_predicate (metadata, key);
 
