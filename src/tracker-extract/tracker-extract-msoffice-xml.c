@@ -214,7 +214,7 @@ xml_end_element_handler_document_data (GMarkupParseContext  *context,
 }
 
 static void
-xml_start_element_handler_core_data	(GMarkupParseContext  *context,
+xml_start_element_handler_core_data (GMarkupParseContext  *context,
                                      const gchar           *element_name,
                                      const gchar          **attribute_names,
                                      const gchar          **attribute_values,
@@ -600,6 +600,58 @@ xml_start_element_handler_content_types (GMarkupParseContext  *context,
 	}
 }
 
+static MsOfficeXMLFileType
+msoffice_xml_get_file_type (const gchar *uri)
+{
+	GFile *file;
+	GFileInfo *file_info;
+	const gchar *mime_used;
+
+	/* Get GFile from uri... */
+	file = g_file_new_for_uri (uri);
+	if (!file) {
+		g_warning ("Could not create GFile for URI:'%s'", uri);
+		return FILE_TYPE_INVALID;
+	}
+
+	/* Get GFileInfo from GFile... (synchronous) */
+	file_info = g_file_query_info (file,
+	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+	                               G_FILE_QUERY_INFO_NONE,
+	                               NULL,
+	                               NULL);
+	g_object_unref (file);
+	if (!file_info) {
+		g_warning ("Could not get GFileInfo for URI:'%s'", uri);
+		return FILE_TYPE_INVALID;
+	}
+
+	/* Get Content Type from GFileInfo */
+	mime_used = g_file_info_get_content_type (file_info);
+	g_object_unref (file_info);
+
+	/* MsOffice Word document? */
+	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.wordprocessingml.document") == 0) {
+		return FILE_TYPE_DOCX;
+	}
+
+	/* MsOffice Powerpoint document? */
+	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.presentation") == 0) {
+		return FILE_TYPE_PPTX;
+	}
+	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.slideshow") == 0) {
+		return FILE_TYPE_PPSX;
+	}
+
+	/* MsOffice Excel document? */
+	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") == 0) {
+		return FILE_TYPE_XLSX;
+	}
+
+	g_message ("Mime type was not recognised:'%s'", mime_used);
+	return FILE_TYPE_INVALID;
+}
+
 static void
 extract_msoffice_xml (const gchar          *uri,
                       TrackerSparqlBuilder *preupdate,
@@ -608,8 +660,7 @@ extract_msoffice_xml (const gchar          *uri,
 	MsOfficeXMLParserInfo info;
 	MsOfficeXMLFileType file_type;
 	TrackerConfig *config;
-	GFile *file;
-	GFileInfo *file_info;
+
 	GMarkupParseContext *context = NULL;
 	GError *error = NULL;
 	gulong  total_bytes;
@@ -620,49 +671,13 @@ extract_msoffice_xml (const gchar          *uri,
 		NULL,
 		NULL
 	};
-	const gchar *mime_used;
 
 	if (G_UNLIKELY (maximum_size_error_quark == 0)) {
 		maximum_size_error_quark = g_quark_from_static_string ("maximum_size_error");
 	}
 
-	file = g_file_new_for_uri (uri);
-
-	if (!file) {
-		g_warning ("Could not create GFile for URI:'%s'",
-		           uri);
-		return;
-	}
-
-	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-	                               G_FILE_QUERY_INFO_NONE,
-	                               NULL,
-	                               NULL);
-	g_object_unref (file);
-
-	if (!file_info) {
-		g_warning ("Could not get GFileInfo for URI:'%s'",
-		           uri);
-		return;
-	}
-
-	mime_used = g_file_info_get_content_type (file_info);
-
-	if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.wordprocessingml.document") == 0) {
-		file_type = FILE_TYPE_DOCX;
-	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.presentation") == 0) {
-		file_type = FILE_TYPE_PPTX;
-	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.presentationml.slideshow") == 0) {
-		file_type = FILE_TYPE_PPSX;
-	} else if (g_ascii_strcasecmp (mime_used, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") == 0) {
-		file_type = FILE_TYPE_XLSX;
-	} else {
-		g_message ("Mime type was not recognised:'%s'", mime_used);
-		file_type = FILE_TYPE_INVALID;
-	}
-
-	g_object_unref (file_info);
+	/* Get current Content Type */
+	file_type = msoffice_xml_get_file_type (uri);
 
 	/* Setup conf */
 	config = tracker_main_get_config ();
@@ -688,7 +703,7 @@ extract_msoffice_xml (const gchar          *uri,
 	tracker_gsf_parse_xml_in_zip (uri,
 	                              "[Content_Types].xml",
 	                              context,
-                                  &error);
+	                              &error);
 
 	/* If we got any content, add it */
 	if (info.content) {
