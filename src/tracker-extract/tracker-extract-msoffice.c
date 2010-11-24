@@ -2037,6 +2037,11 @@ xml_text_handler_document_data (GMarkupParseContext  *context,
 		return;
 	}
 
+	/* Create content string if not already done before */
+	if (G_UNLIKELY (info->content == NULL)) {
+		info->content =	g_string_new ("");
+	}
+
 	switch (info->tag_type) {
 	case MS_OFFICE_XML_TAG_WORD_TEXT:
 		tracker_text_validate_utf8 (text,
@@ -2311,7 +2316,7 @@ extract_msoffice_xml (const gchar          *uri,
 	info.style_element_present = FALSE;
 	info.preserve_attribute_present = FALSE;
 	info.uri = uri;
-	info.content = g_string_new ("");
+	info.content = NULL;
 	info.title_already_set = FALSE;
 	info.bytes_pending = total_bytes;
 	context = g_markup_parse_context_new (&parser, 0, &info, NULL);
@@ -2322,6 +2327,8 @@ extract_msoffice_xml (const gchar          *uri,
 	                              "[Content_Types].xml",
 	                              context,
                                   &error);
+
+	/* If we got any content, add it */
 	if (info.content) {
 		gchar *content;
 
