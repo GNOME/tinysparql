@@ -1234,8 +1234,9 @@ class Tracker.Sparql.Pattern : Object {
 			prop = Ontologies.get_property_by_uri (current_predicate);
 
 			if (current_predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-			    && !object_is_var) {
+			    && !object_is_var && current_graph == null) {
 				// rdf:type query
+				// avoid special casing if GRAPH is used as graph matching is not supported when using class tables
 				rdftype = true;
 				var cl = Ontologies.get_class_by_uri (object);
 				if (cl == null) {
