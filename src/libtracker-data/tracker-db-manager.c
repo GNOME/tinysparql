@@ -215,11 +215,11 @@ db_set_params (TrackerDBInterface *iface,
 	pragmas_file = g_getenv ("TRACKER_PRAGMAS_FILE");
 
 	if (pragmas_file && g_file_get_contents (pragmas_file, &queries, NULL, NULL)) {
-		g_debug ("PRAGMA's from file: %s", pragmas_file);
 		gchar *query = strtok (queries, "\n");
+		g_debug ("PRAGMA's from file: %s", pragmas_file);
 		while (query) {
 			g_debug ("  INIT query: %s", query);
-			tracker_db_interface_execute_query (iface, NULL, query);
+			tracker_db_interface_execute_query (iface, NULL, "%s", query);
 			query = strtok (NULL, "\n");
 		}
 		g_free (queries);
