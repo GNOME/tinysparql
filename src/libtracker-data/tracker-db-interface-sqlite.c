@@ -737,6 +737,7 @@ tracker_db_interface_sqlite_fts_update_rollback (TrackerDBInterface *db_interfac
 void
 tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 {
+	g_debug ("Resetting collator in db interface %p", db_interface);
 	if (db_interface->collator)
 		tracker_collation_shutdown (db_interface->collator);
 
@@ -1099,13 +1100,10 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 
 	/* Statement is going to start, check if we got a request to reset the
 	 * collator, and if so, do it. */
-	if (interface->n_active_cursors == 0 &&
+	if (g_atomic_int_exchange_and_add (&interface->n_active_cursors, 1) == 0 &&
 	    g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
 		tracker_db_interface_sqlite_reset_collator (interface);
 	}
-	/* Note that we do not need to update n_active_cursors here, as this whole iteration
-	 * is going to be fully sync, so there is no possibility of getting a cursor created
-	 * at the same time */
 
 	while (result == SQLITE_OK  ||
 	       result == SQLITE_ROW) {
@@ -1141,14 +1139,14 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 	if (result == SQLITE_DONE) {
 		/* Statement finished, check if we got a request to reset the
 		 * collator, and if so, do it.
-		 * Note that we do not need to update n_active_cursors here, as this whole iteration
-		 * is going to be fully sync, so there is no possibility of getting a cursor created
-		 * at the same time */
-		if (interface->n_active_cursors == 0 &&
+		 */
+		if (g_atomic_int_dec_and_test (&interface->n_active_cursors) &&
 		    g_atomic_int_compare_and_exchange (&(interface->collator_reset_requested), TRUE, FALSE)) {
 			tracker_db_interface_sqlite_reset_collator (interface);
 		}
 	} else {
+		g_atomic_int_add (&interface->n_active_cursors, -1);
+
 		/* This is rather fatal */
 		if (sqlite3_errcode (interface->db) == SQLITE_IOERR ||
 		    sqlite3_errcode (interface->db) == SQLITE_CORRUPT ||
@@ -1324,9 +1322,7 @@ tracker_db_cursor_finalize (GObject *object)
 	/* As soon as we finalize the cursor, check if we need a collator reset
 	 * and notify the iface about the removed cursor */
 	iface = cursor->ref_stmt->db_interface;
-	iface->n_active_cursors--;
-	g_assert_cmpint (iface->n_active_cursors, >=, 0); /* Just in case we fuck up the count */
-	if (iface->n_active_cursors == 0 &&
+	if (g_atomic_int_dec_and_test (&iface->n_active_cursors) &&
 	    g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
 		tracker_db_interface_sqlite_reset_collator (iface);
 	}
@@ -1443,12 +1439,10 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
 	/* As soon as we create a cursor, check if we need a collator reset
 	 * and notify the iface about the new cursor */
 	iface = ref_stmt->db_interface;
-	if (iface->n_active_cursors == 0 &&
+	if (g_atomic_int_exchange_and_add (&iface->n_active_cursors, 1) == 0 &&
 	    g_atomic_int_compare_and_exchange (&(iface->collator_reset_requested), TRUE, FALSE)) {
 		tracker_db_interface_sqlite_reset_collator (iface);
 	}
-	iface->n_active_cursors++;
-	g_assert_cmpint (iface->n_active_cursors, >, 0); /* Just in case we fuck up the count */
 
 	cursor = g_object_new (TRACKER_TYPE_DB_CURSOR, NULL);
 
