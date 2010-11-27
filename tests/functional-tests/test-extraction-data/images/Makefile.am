@@ -1,31 +1,41 @@
 include $(top_srcdir)/Makefile.decl
 
-imagestestdir = $(datadir)/tracker-tests/test-extraction-data/images
+imagedir = $(datadir)/tracker-tests/test-extraction-data/images
 
-imagestest_DATA =                                      \
+image_DATA =                                           \
 	test-image-2.png                               \
-	test-image-2.expected                          
+	test-image-2.expected
 
-if HAVE_LIBGIF
-imagestest_DATA += 				       \
+gifs =                                                 \
 	xmp-loaded-1.gif                               \
 	xmp-loaded-1.expected                          \
-	comment-extension-block.expected	       \
-	comment-extension-block.gif		       \
-	corrupted-image.gif                    	       \
+	comment-extension-block.expected               \
+	comment-extension-block.gif                    \
+	corrupted-image.gif                            \
 	corrupted-image.expected
+
+tiffs =                                                \
+	test-image-3.tif                               \
+	test-image-3.expected
+
+jpegs =                                                \
+	test-image-1.jpg                               \
+	test-image-1.expected
+
+if HAVE_LIBGIF
+image_DATA += $(gifs)
 endif
 
 if HAVE_LIBTIFF
-imagestest_DATA += 				       \
-	test-image-3.tif                               \
-	test-image-3.expected                          
+image_DATA += $(tiffs)
 endif
 
 if HAVE_LIBJPEG
-imagestest_DATA +=					\
-	test-image-1.jpg                               	\
-	test-image-1.expected                          	
-endif	
+image_DATA += $(jpegs)
+endif
 
-EXTRA_DIST = $(imagestest_DATA)
+EXTRA_DIST =                                           \
+	$(image_DATA)                                  \
+	$(gifs)                                        \
+	$(tiffs                                        \
+	$(jpegs)
