@@ -642,7 +642,9 @@ public class Tracker.Sparql.Query : Object {
 		skip_braces ();
 
 		if (accept (SparqlTokenType.WHERE)) {
+			pattern.current_graph = current_graph;
 			context = pattern.translate_group_graph_pattern (pattern_sql);
+			pattern.current_graph = null;
 		} else {
 			context = new Context (this);
 

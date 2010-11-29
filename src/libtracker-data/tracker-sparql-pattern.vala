@@ -163,7 +163,7 @@ class Tracker.Sparql.Pattern : Object {
 
 	int next_table_index;
 
-	string current_graph;
+	internal string current_graph;
 	bool current_graph_is_var;
 	string current_subject;
 	bool current_subject_is_var;
