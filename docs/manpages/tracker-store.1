@@ -99,6 +99,13 @@ has given a yeild of up to 50% performance improvement. The main
 reason for wanting to disable this is if there is an adverse effect.
 This has been seen by using Valgrind with tracker-store for example.
 
+.TP
+.B TRACKER_PRAGMAS_FILE
+Tracker has a fixed set of PRAGMA settings for creating its SQLite connection.
+With this environment variable pointing to a text file you can override these
+settings. The file is a \n separated list of SQLite queries to execute on any
+newly created SQLite connection in tracker-store.
+
 .SH FILES
 .I $HOME/.config/tracker/tracker-store.cfg
 .I $HOME/.config/tracker/tracker-fts.cfg

@@ -184,6 +184,16 @@ $ pkg-config --libs tracker-sparql-0.9
 	    is <emphasis>0</emphasis>.
 	  </para>
 	</listitem>
+	<listitem>
+	  <emphasis>TRACKER_PRAGMAS_FILE</emphasis>
+	  <para>
+	    Tracker has a fixed set of PRAGMA settings for creating its
+	    SQLite connection. With this environment variable pointing to
+	    a text file you can override these settings. The file is a
+	    \n separated list of SQLite queries to execute on any newly
+	    created SQLite connection in tracker-store.
+	  </para>
+	</listitem>
       </itemizedlist>
     </para>
 
