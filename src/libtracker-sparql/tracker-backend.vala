@@ -61,7 +61,8 @@ class Tracker.Sparql.Backend : Connection {
 	requires (is_constructed) {
 		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
 		                                                    TRACKER_DBUS_SERVICE,
-		                                                    TRACKER_DBUS_OBJECT_STATUS);
+		                                                    TRACKER_DBUS_OBJECT_STATUS,
+		                                                    DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 		status.set_default_timeout (int.MAX);
 
 		// Makes sure the sevice is available
@@ -76,7 +77,8 @@ class Tracker.Sparql.Backend : Connection {
 	requires (is_constructed) {
 		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
 		                                                    TRACKER_DBUS_SERVICE,
-		                                                    TRACKER_DBUS_OBJECT_STATUS);
+		                                                    TRACKER_DBUS_OBJECT_STATUS,
+		                                                    DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 		status.set_default_timeout (int.MAX);
 
 		// Makes sure the sevice is available
