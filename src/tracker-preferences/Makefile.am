@@ -37,6 +37,10 @@ tracker_preferences_SOURCES =                          \
 	$(top_srcdir)/src/miners/fs/tracker-config.c   \
 	$(top_srcdir)/src/tracker-status-icon/tracker-icon-config.c
 
-EXTRA_DIST = $(pkgdata_DATA)
+EXTRA_DIST =                                           \
+	$(pkgdata_DATA)                                \
+	config.vapi                                    \
+	tracker-config.vapi                            \
+	tracker-status-icon-config.vapi
 
 CLEANFILES = $(desktop_DATA)
