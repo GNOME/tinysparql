@@ -31,6 +31,7 @@ AM_CPPFLAGS =                                          \
 	$(LIBTRACKER_SPARQL_CFLAGS)
 
 LDADD =                                                \
+	$(top_builddir)/src/libtracker-data/libtracker-data.la \
 	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
 	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
