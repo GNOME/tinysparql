@@ -73,15 +73,18 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// FIXME: Ideally we would just get these as and when we need them
 		resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                            TRACKER_DBUS_SERVICE,
-		                                            TRACKER_DBUS_OBJECT_RESOURCES);
+		                                            TRACKER_DBUS_OBJECT_RESOURCES,
+		                                            DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 		resources_object.set_default_timeout (int.MAX);
 		steroids_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                           TRACKER_DBUS_SERVICE,
-		                                           TRACKER_DBUS_OBJECT_STEROIDS);
+		                                           TRACKER_DBUS_OBJECT_STEROIDS,
+		                                           DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 		steroids_object.set_default_timeout (int.MAX);
 		statistics_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                             TRACKER_DBUS_SERVICE,
-		                                             TRACKER_DBUS_OBJECT_STATISTICS);
+		                                             TRACKER_DBUS_OBJECT_STATISTICS,
+		                                             DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 
 		initialized = true;
 	}
