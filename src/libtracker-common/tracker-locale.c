@@ -362,7 +362,7 @@ tracker_locale_notify_add (TrackerLocaleID         id,
 #ifdef HAVE_MAEMO
 	TrackerLocaleNotification *data;
 
-	g_assert (func);
+	g_assert (func != NULL);
 
 	data = g_slice_new (TrackerLocaleNotification);
 	data->id = id;

@@ -3193,7 +3193,7 @@ tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
 
 		if (busy_callback) {
 			busy_callback (busy_status,
-			               (gdouble)((gdouble)i/(gdouble)n_properties),
+			               (gdouble) ((gdouble) i / (gdouble) n_properties),
 			               busy_user_data);
 		}
 	}
