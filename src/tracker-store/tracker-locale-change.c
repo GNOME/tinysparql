@@ -47,7 +47,7 @@ static gpointer locale_notification_id;
 static gboolean locale_change_notified;
 
 static void
-tracker_locale_change_process_cb (gpointer user_data)
+locale_change_process_cb (gpointer user_data)
 {
 	TrackerStatus *notifier;
 	TrackerBusyCallback busy_callback;
@@ -78,7 +78,7 @@ tracker_locale_change_process_cb (gpointer user_data)
 }
 
 static gboolean
-tracker_locale_change_process_idle_cb (gpointer data)
+locale_change_process_idle_cb (gpointer data)
 {
 	TrackerLocaleChangeContext *ctxt;
 
@@ -94,14 +94,14 @@ tracker_locale_change_process_idle_cb (gpointer data)
 	/* Note: Right now, the passed callback may be called instantly and not
 	 * in an idle. */
 	g_message ("Setting tracker-store as inactive...");
-	tracker_store_set_active (FALSE, tracker_locale_change_process_cb, ctxt);
+	tracker_store_set_active (FALSE, locale_change_process_cb, ctxt);
 
 	return FALSE;
 }
 
 static void
-tracker_locale_notify_cb (TrackerLocaleID id,
-                          gpointer        user_data)
+locale_notify_cb (TrackerLocaleID id,
+                  gpointer        user_data)
 {
 	if (locale_change_notified) {
 		g_message ("Locale change was already notified, not doing it again");
@@ -115,7 +115,7 @@ tracker_locale_notify_cb (TrackerLocaleID id,
 		 * already locked mutex.
 		 */
 		g_message ("Locale change notified, preparing to rebuild indexes...");
-		g_idle_add (tracker_locale_change_process_idle_cb, NULL);
+		g_idle_add (locale_change_process_idle_cb, NULL);
 	}
 }
 
@@ -130,7 +130,7 @@ tracker_locale_change_initialize_subscription (void)
 	         collation_locale);
 
 	locale_notification_id = tracker_locale_notify_add (TRACKER_LOCALE_COLLATE,
-	                                                    tracker_locale_notify_cb,
+	                                                    locale_notify_cb,
 	                                                    NULL,
 	                                                    NULL);
 }

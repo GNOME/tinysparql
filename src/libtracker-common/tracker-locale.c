@@ -70,7 +70,7 @@ static gboolean initialized;
 #define MEEGOTOUCH_LOCALE_DIR "/meegotouch/i18n"
 
 /* gconf keys for tracker locales, as defined in:
- * http://apidocs.meego.com/mtf/i18n.html
+ * http://apidocs.meego.com/1.0/mtf/i18n.html
  */
 static const gchar *gconf_locales[TRACKER_LOCALE_LAST] = {
 	MEEGOTOUCH_LOCALE_DIR "/language",
@@ -98,8 +98,8 @@ static GConfClient *client;
 
 
 static void
-tracker_locale_set (TrackerLocaleID  id,
-                    const gchar     *value)
+locale_set (TrackerLocaleID  id,
+            const gchar     *value)
 {
 	if (current_locales[id]) {
 		g_debug ("Locale '%s' was changed from '%s' to '%s'",
@@ -141,10 +141,10 @@ tracker_locale_set (TrackerLocaleID  id,
 }
 
 static void
-tracker_locale_gconf_notify_cb (GConfClient *client,
-                                guint cnxn_id,
-                                GConfEntry *entry,
-                                gpointer user_data)
+locale_gconf_notify_cb (GConfClient *client,
+                        guint        cnxn_id,
+                        GConfEntry  *entry,
+                        gpointer     user_data)
 {
 	guint i;
 	GConfValue *value;
@@ -195,7 +195,7 @@ tracker_locale_gconf_notify_cb (GConfClient *client,
 
 	/* Protect the locale change with the lock */
 	LOCK_LOCALES;
-	tracker_locale_set (i, gconf_value_get_string (value));
+	locale_set (i, gconf_value_get_string (value));
 	UNLOCK_LOCALES;
 
 	/* Now, if any subscriber, notify the locale change.
@@ -219,7 +219,7 @@ tracker_locale_gconf_notify_cb (GConfClient *client,
 #endif /* HAVE_MAEMO */
 
 static void
-tracker_locale_init (void)
+locale_init (void)
 {
 	guint i;
 
@@ -248,7 +248,7 @@ tracker_locale_init (void)
 			/* Request notifications */
 			gconf_client_notify_add (client,
 			                         MEEGOTOUCH_LOCALE_DIR,
-			                         tracker_locale_gconf_notify_cb,
+			                         locale_gconf_notify_cb,
 			                         NULL,
 			                         NULL,
 			                         &error);
@@ -284,7 +284,7 @@ tracker_locale_init (void)
 				gconf_value_free (val);
 			} else {
 				/* Set the new locale */
-				tracker_locale_set (i, gconf_value_get_string (val));
+				locale_set (i, gconf_value_get_string (val));
 				gconf_value_free (val);
 			}
 		}
@@ -320,9 +320,9 @@ tracker_locale_init (void)
 
 			if (!env_locale) {
 				g_warning ("Locale '%d' is not set, defaulting to C locale", i);
-				tracker_locale_set (i, "C");
+				locale_set (i, "C");
 			} else {
-				tracker_locale_set (i, env_locale);
+				locale_set (i, env_locale);
 			}
 		}
 	}
@@ -342,7 +342,7 @@ tracker_locale_get (TrackerLocaleID id)
 
 	/* Initialize if not already done */
 	if (!initialized)
-		tracker_locale_init ();
+		locale_init ();
 
 	/* Always return a duplicated string, as the locale may change at any
 	 * moment */
