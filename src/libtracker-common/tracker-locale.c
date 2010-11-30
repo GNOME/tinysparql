@@ -96,6 +96,7 @@ static GSList *subscribers;
  * reachable by Valgrind */
 static GConfClient *client;
 
+#endif /* HAVE_MAEMO */
 
 static void
 locale_set (TrackerLocaleID  id,
@@ -139,6 +140,8 @@ locale_set (TrackerLocaleID  id,
 		break;
 	}
 }
+
+#ifdef HAVE_MAEMO
 
 static void
 locale_gconf_notify_cb (GConfClient *client,
