@@ -90,7 +90,6 @@ struct TrackerDBCursor {
 	TrackerSparqlCursor parent_instance;
 	sqlite3_stmt *stmt;
 	TrackerDBStatement *ref_stmt;
-	gboolean started;
 	gboolean finished;
 	TrackerPropertyType *types;
 	gint n_types;
@@ -1549,10 +1548,6 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 {
 	TrackerDBStatement *stmt = cursor->ref_stmt;
 	TrackerDBInterface *iface = stmt->db_interface;
-
-	if (!cursor->started) {
-		cursor->started = TRUE;
-	}
 
 	if (!cursor->finished) {
 		guint result;
