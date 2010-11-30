@@ -39,7 +39,8 @@ miner_applications_locale_get_previous (const gchar *locale_file)
 
 		/* Check locale is correct */
 		if (G_LIKELY (g_file_get_contents (locale_file, &contents, NULL, NULL))) {
-			if (contents && strlen (contents) == 0) {
+			if (contents &&
+			    contents[0] == '\0') {
 				g_critical ("  Empty locale file found at '%s'", locale_file);
 				g_free (contents);
 			} else {

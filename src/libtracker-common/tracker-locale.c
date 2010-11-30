@@ -186,7 +186,7 @@ locale_gconf_notify_cb (GConfClient *client,
 
 	/* String must have a length > 0 */
 	if (!string_value ||
-	    strlen (string_value) == 0) {
+	    string_value[0] == '\0') {
 		g_warning ("Locale value for '%s' must not be empty, not changing %s",
 		           gconf_locales[i],
 		           locale_names[i]);
