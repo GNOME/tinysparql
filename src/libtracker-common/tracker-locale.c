@@ -64,7 +64,7 @@ static gboolean initialized;
 
 /* If this envvar is set, even if we have meegotouch locales in gconf,
  * we'll still use envvars */
-#define DISABLE_MEEGOTOUCH_LOCALE_ENV "DISABLE_MEEGOTOUCH_LOCALE"
+#define TRACKER_DISABLE_MEEGOTOUCH_LOCALE_ENV "TRACKER_DISABLE_MEEGOTOUCH_LOCALE"
 
 /* Base dir for all gconf locale values */
 #define MEEGOTOUCH_LOCALE_DIR "/meegotouch/i18n"
@@ -224,7 +224,7 @@ tracker_locale_init (void)
 	guint i;
 
 #ifdef HAVE_MAEMO
-	if (g_getenv (DISABLE_MEEGOTOUCH_LOCALE_ENV)) {
+	if (g_getenv (TRACKER_DISABLE_MEEGOTOUCH_LOCALE_ENV)) {
 		g_message ("Retrieving locale from GConf is DISABLED");
 	} else {
 		GError *error = NULL;
