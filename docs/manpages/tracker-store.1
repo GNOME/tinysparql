@@ -106,6 +106,12 @@ With this environment variable pointing to a text file you can override these
 settings. The file is a \n separated list of SQLite queries to execute on any
 newly created SQLite connection in tracker-store.
 
+.TP
+.B TRACKER_DISABLE_MEEGOTOUCH_LOCALE
+If Tracker is compiled with meegotouch locale management support, setting this
+variable in the environment will disable retrieving the locale from GConf, and
+the standard locale settings will be used instead.
+
 .SH FILES
 .I $HOME/.config/tracker/tracker-store.cfg
 .I $HOME/.config/tracker/tracker-fts.cfg

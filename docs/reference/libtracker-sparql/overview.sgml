@@ -194,6 +194,15 @@ $ pkg-config --libs tracker-sparql-0.9
 	    created SQLite connection in tracker-store.
 	  </para>
 	</listitem>
+	<listitem>
+	  <emphasis>TRACKER_DISABLE_MEEGOTOUCH_LOCALE</emphasis>
+	  <para>
+	    If Tracker is compiled with meegotouch locale management support,
+	    setting this variable in the environment will disable retrieving
+	    the locale from GConf, and the standard locale settings will be
+	    used instead.
+	  </para>
+	</listitem>
       </itemizedlist>
     </para>
 
