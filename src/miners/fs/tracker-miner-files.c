@@ -2263,36 +2263,43 @@ process_file_attributes_cb (GObject      *object,
 		return;
 	}
 
-	/* DELETE old property values */
+	/* Update nfo:fileLastModified */
 	tracker_sparql_builder_delete_open (sparql, NULL);
 	tracker_sparql_builder_subject_iri (sparql, urn);
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
 	tracker_sparql_builder_object_variable (sparql, "lastmodified");
-	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
-	tracker_sparql_builder_object_variable (sparql, "lastaccessed");
 	tracker_sparql_builder_delete_close (sparql);
-
 	tracker_sparql_builder_where_open (sparql);
 	tracker_sparql_builder_subject_iri (sparql, urn);
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
 	tracker_sparql_builder_object_variable (sparql, "lastmodified");
-	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
-	tracker_sparql_builder_object_variable (sparql, "lastaccessed");
 	tracker_sparql_builder_where_close (sparql);
-
-	/* INSERT new property values */
 	tracker_sparql_builder_insert_open (sparql, NULL);
 	tracker_sparql_builder_graph_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 	tracker_sparql_builder_subject_iri (sparql, urn);
-
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastModified");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
+	tracker_sparql_builder_graph_close (sparql);
+	tracker_sparql_builder_insert_close (sparql);
 
+	/* Update nfo:fileLastAccessed */
+	tracker_sparql_builder_delete_open (sparql, NULL);
+	tracker_sparql_builder_subject_iri (sparql, urn);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
+	tracker_sparql_builder_object_variable (sparql, "lastaccessed");
+	tracker_sparql_builder_delete_close (sparql);
+	tracker_sparql_builder_where_open (sparql);
+	tracker_sparql_builder_subject_iri (sparql, urn);
+	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
+	tracker_sparql_builder_object_variable (sparql, "lastaccessed");
+	tracker_sparql_builder_where_close (sparql);
+	tracker_sparql_builder_insert_open (sparql, NULL);
+	tracker_sparql_builder_graph_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_subject_iri (sparql, urn);
 	time_ = g_file_info_get_attribute_uint64 (file_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
 	tracker_sparql_builder_predicate (sparql, "nfo:fileLastAccessed");
 	tracker_sparql_builder_object_date (sparql, (time_t *) &time_);
-
 	tracker_sparql_builder_graph_close (sparql);
 	tracker_sparql_builder_insert_close (sparql);
 
