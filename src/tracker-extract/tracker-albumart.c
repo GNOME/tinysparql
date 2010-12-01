@@ -293,14 +293,16 @@ albumart_get_path (const gchar  *artist,
 		}
 
 		parent = g_file_get_parent (file);
-		local_dir = g_file_get_uri (parent);
+		if (parent) {
+			local_dir = g_file_get_uri (parent);
 
-		/* This is a URI, don't use g_build_filename here */
-		*local_uri = g_strdup_printf ("%s/.mediaartlocal/%s", local_dir, art_filename);
+			/* This is a URI, don't use g_build_filename here */
+			*local_uri = g_strdup_printf ("%s/.mediaartlocal/%s", local_dir, art_filename);
 
-		g_free (local_dir);
+			g_free (local_dir);
+			g_object_unref (parent);
+		}
 		g_object_unref (file);
-		g_object_unref (parent);
 	}
 
 	g_free (dir);
@@ -320,7 +322,7 @@ albumart_heuristic (const gchar *artist,
 	GDir *dir;
 	GError *error = NULL;
 	gchar *target = NULL;
-	gchar *dirname;
+	gchar *dirname = NULL;
 	const gchar *name;
 	gboolean retval;
 	gint count;
@@ -380,9 +382,12 @@ albumart_heuristic (const gchar *artist,
 
 	file = g_file_new_for_uri (filename_uri);
 	dirf = g_file_get_parent (file);
-	dirname = g_file_get_path (dirf);
+	if (dirf) {
+		dirname = g_file_get_path (dirf);
+		g_object_unref (dirf);
+	}
 	g_object_unref (file);
-	g_object_unref (dirf);
+
 
 	if (!dirname) {
 		g_debug ("Album art directory could not be used:'%s'", dirname);
@@ -634,8 +639,14 @@ albumart_copy_to_local (TrackerStorage *storage,
 			GFile *dirf;
 
 			dirf = g_file_get_parent (local_file);
-			g_file_make_directory_with_parents (dirf, NULL, NULL);
-			g_object_unref (dirf);
+			if (dirf) {
+				/* Parent file may not exist, as if the file is in the
+				 * root of a gvfs mount. In this case we won't try to
+				 * create the parent directory, just try to copy the
+				 * file there. */
+				g_file_make_directory_with_parents (dirf, NULL, NULL);
+				g_object_unref (dirf);
+			}
 
 			g_debug ("Copying album art from:'%s' to:'%s'",
 			         filename, local_uri);
@@ -803,14 +814,16 @@ tracker_albumart_process (const unsigned char *buffer,
 		} else {
 			/* If not, we perform a heuristic on the dir */
 			gchar *key;
-			gchar *dirname;
+			gchar *dirname = NULL;
 			GFile *file, *dirf;
 
 			file = g_file_new_for_uri (filename_uri);
 			dirf = g_file_get_parent (file);
-			dirname = g_file_get_path (dirf);
+			if (dirf) {
+				dirname = g_file_get_path (dirf);
+				g_object_unref (dirf);
+			}
 			g_object_unref (file);
-			g_object_unref (dirf);
 
 			key = g_strdup_printf ("%s-%s-%s",
 			                       artist ? artist : "",
