@@ -2474,27 +2474,19 @@ tracker_miner_files_check_file (GFile  *file,
                                 GSList *ignored_file_paths,
                                 GSList *ignored_file_patterns)
 {
-	GFileInfo *file_info;
 	GSList *l;
 	gchar *basename;
 	gchar *path;
 	gboolean should_process;
 
-	file_info = NULL;
 	should_process = FALSE;
 	basename = NULL;
 	path = NULL;
 
-	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
-
-	if (file_info && g_file_info_get_is_hidden (file_info)) {
+	if (tracker_file_is_hidden (file)) {
 		/* Ignore hidden files */
 		goto done;
 	}
-
 
 	path = g_file_get_path (file);
 
@@ -2518,10 +2510,6 @@ done:
 	g_free (basename);
 	g_free (path);
 
-	if (file_info) {
-		g_object_unref (file_info);
-	}
-
 	return should_process;
 }
 
@@ -2532,7 +2520,6 @@ tracker_miner_files_check_directory (GFile  *file,
                                      GSList *ignored_directory_paths,
                                      GSList *ignored_directory_patterns)
 {
-	GFileInfo *file_info;
 	GSList *l;
 	gchar *basename;
 	gchar *path;
@@ -2542,18 +2529,12 @@ tracker_miner_files_check_directory (GFile  *file,
 	should_process = FALSE;
 	basename = NULL;
 
-	/* Most common things to ignore */
-	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
-	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-	                               NULL, NULL);
-
 	path = g_file_get_path (file);
 
 	/* First we check the GIO hidden check. This does a number of
 	 * things for us which is good (like checking ".foo" dirs).
 	 */
-	is_hidden = file_info && g_file_info_get_is_hidden (file_info);
+	is_hidden = tracker_file_is_hidden (file);
 
 #ifdef __linux__
 	/* Second we check if the file is on FAT and if the hidden
@@ -2614,10 +2595,6 @@ tracker_miner_files_check_directory (GFile  *file,
  done:
 	g_free (basename);
 	g_free (path);
-
-	if (file_info) {
-		g_object_unref (file_info);
-	}
 
 	return should_process;
 }
