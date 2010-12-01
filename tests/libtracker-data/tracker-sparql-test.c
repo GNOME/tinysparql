@@ -354,6 +354,17 @@ main (int argc, char **argv)
 	for (i = 0; tests[i].test_name; i++) {
 		gchar *testpath;
 
+#ifndef HAVE_LIBICU
+		/* Skip tests which fail collation tests and are known
+		 * to do so. For more details see:
+		 *
+		 * https://bugzilla.gnome.org/show_bug.cgi?id=636074
+		 */
+		if (strcmp (tests[i].test_name, "functions/functions-xpath-2") == 0) {
+			continue;
+		}
+#endif
+
 		testpath = g_strconcat ("/libtracker-data/sparql/", tests[i].test_name, NULL);
 		g_test_add_data_func (testpath, &tests[i], test_sparql_query);
 		g_free (testpath);
