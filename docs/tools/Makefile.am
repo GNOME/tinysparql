@@ -10,6 +10,7 @@ AM_CPPFLAGS =                                          \
 	$(LIBTRACKER_DATA_CFLAGS)
 
 LDADD =                                                \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la \
 	$(LIBTRACKER_DATA_LIBS)
 
