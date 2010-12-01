@@ -59,7 +59,7 @@ def generatePhoto(index):
   photo_exposure     = '0.%d' % index
   photo_fnumber      = '%d.0' % (1 + (index % 20))
   photo_focal_length = '%d.0' % (1 + (index % 500))
-  photo_date         = '%d-%02d-%02dT01:01:01Z' % (2000 + (index % 10), (index % 12) + 1, (index % 25) + 1)
+  photo_date         = '%d-%02d-%02dT%02d:01:01Z' % (1100 + (index % 997), (index % 12) + 1, (index % 31) + 1, (index %24))
   photo_tag          = ('TEST', 'nomatch') [index %2]
 
   tools.addItem( me, photo_uri, nmm_Photo % locals() )
