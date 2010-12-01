@@ -41,6 +41,8 @@ struct _TrackerClassPrivate {
 	gboolean db_schema_changed;
 	gboolean notify;
 
+	gboolean use_gvdb;
+
 	GArray *super_classes;
 	GArray *domain_indexes;
 	GArray *last_domain_indexes;
@@ -144,11 +146,17 @@ class_finalize (GObject *object)
 }
 
 TrackerClass *
-tracker_class_new (void)
+tracker_class_new (gboolean use_gvdb)
 {
 	TrackerClass *service;
+	TrackerClassPrivate *priv;
 
 	service = g_object_new (TRACKER_TYPE_CLASS, NULL);
+
+	if (use_gvdb) {
+		priv = GET_PRIV (service);
+		priv->use_gvdb = use_gvdb;
+	}
 
 	return service;
 }
@@ -209,6 +217,29 @@ tracker_class_get_super_classes (TrackerClass *service)
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
 	priv = GET_PRIV (service);
+
+	if (priv->use_gvdb) {
+		TrackerClass *super_class;
+		GVariant *variant;
+
+		tracker_class_reset_super_classes (service);
+
+		variant = tracker_ontologies_get_class_value_gvdb (priv->uri, "super-classes");
+		if (variant) {
+			GVariantIter iter;
+			gchar *uri;
+
+			g_variant_iter_init (&iter, variant);
+			while (g_variant_iter_loop (&iter, "s", &uri)) {
+				super_class = tracker_ontologies_get_class_by_uri (uri);
+				g_free (uri);
+
+				tracker_class_add_super_class (service, super_class);
+
+				g_object_unref (super_class);
+			}
+		}
+	}
 
 	return (TrackerClass **) priv->super_classes->data;
 }

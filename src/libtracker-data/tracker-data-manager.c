@@ -551,7 +551,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				subject_id = ++(*max_id);
 			}
 
-			class = tracker_class_new ();
+			class = tracker_class_new (FALSE);
 			tracker_class_set_is_new (class, in_update);
 			tracker_class_set_uri (class, subject);
 			tracker_class_set_id (class, subject_id);
@@ -592,7 +592,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				subject_id = ++(*max_id);
 			}
 
-			property = tracker_property_new ();
+			property = tracker_property_new (FALSE);
 			tracker_property_set_is_new (property, in_update);
 			tracker_property_set_uri (property, subject);
 			tracker_property_set_id (property, subject_id);
@@ -627,7 +627,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 				return;
 			}
 
-			namespace = tracker_namespace_new ();
+			namespace = tracker_namespace_new (FALSE);
 			tracker_namespace_set_is_new (namespace, in_update);
 			tracker_namespace_set_uri (namespace, subject);
 			tracker_ontologies_add_namespace (namespace);
@@ -2052,7 +2052,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			TrackerNamespace *namespace;
 			const gchar      *uri, *prefix;
 
-			namespace = tracker_namespace_new ();
+			namespace = tracker_namespace_new (FALSE);
 
 			uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 			prefix = tracker_db_cursor_get_string (cursor, 1, NULL);
@@ -2095,7 +2095,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			GValue        value = { 0 };
 			gboolean      notify;
 
-			class = tracker_class_new ();
+			class = tracker_class_new (FALSE);
 
 			id = tracker_db_cursor_get_int (cursor, 0);
 			uri = tracker_db_cursor_get_string (cursor, 1, NULL);
@@ -2189,7 +2189,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			gboolean         writeback;
 			gint             id;
 
-			property = tracker_property_new ();
+			property = tracker_property_new (FALSE);
 
 			id = tracker_db_cursor_get_int (cursor, 0);
 			uri = tracker_db_cursor_get_string (cursor, 1, NULL);
@@ -3234,6 +3234,36 @@ tracker_data_manager_reload (TrackerBusyCallback  busy_callback,
 	return status;
 }
 
+static void
+write_ontologies_gvdb (GError **error)
+{
+	gchar *filename;
+
+	filename = g_build_filename (g_get_user_cache_dir (),
+	                             "tracker",
+	                             "ontologies.gvdb",
+	                             NULL);
+
+	tracker_ontologies_write_gvdb (filename, error);
+
+	g_free (filename);
+}
+
+static void
+load_ontologies_gvdb (GError **error)
+{
+	gchar *filename;
+
+	filename = g_build_filename (g_get_user_cache_dir (),
+	                             "tracker",
+	                             "ontologies.gvdb",
+	                             NULL);
+
+	tracker_ontologies_load_gvdb (filename, error);
+
+	g_free (filename);
+}
+
 gboolean
 tracker_data_manager_init (TrackerDBManagerFlags  flags,
                            const gchar          **test_schemas,
@@ -3434,6 +3464,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 		tracker_data_commit_transaction (NULL);
 
+		write_ontologies_gvdb (NULL);
+
 		g_list_foreach (sorted, (GFunc) g_free, NULL);
 		g_list_free (sorted);
 		sorted = NULL;
@@ -3443,18 +3475,24 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	} else {
 		if (!read_only) {
 			tracker_db_journal_init (NULL, FALSE);
-		}
 
-		/* Load ontology from database into memory */
-		db_get_static_data (iface);
-		create_decomposed_transient_metadata_tables (iface);
-		check_ontology = TRUE;
+			/* Load ontology from database into memory */
+			db_get_static_data (iface);
+			check_ontology = TRUE;
+
+			/* Skipped in the read-only case as it can't work with direct access and
+			   it reduces initialization time */
+			create_decomposed_transient_metadata_tables (iface);
+		} else {
+			load_ontologies_gvdb (NULL);
+			check_ontology = FALSE;
+		}
 
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, FALSE);
 	}
 
-	if (check_ontology && !read_only) {
+	if (check_ontology) {
 		GList *to_reload = NULL;
 		GList *ontos = NULL;
 		guint p;
@@ -3767,6 +3805,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			g_list_free (to_reload);
 
 			tracker_data_ontology_process_changes_post_import (seen_classes, seen_properties);
+
+			write_ontologies_gvdb (NULL);
 		}
 
 		tracker_data_ontology_free_seen (seen_classes);
