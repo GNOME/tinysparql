@@ -32,6 +32,9 @@
 * nfo:fileLastModified:
   - The miner-fs uses this property during crawling a lot
 
+* nie:contentCreated domainIndex for nfo:Visual
+  - Used to improve performance of ORDER BY on nie:contentCreated
+
 34-nmo:
 * nmo:from:
   - For use cases where fts:match needs to be done against the assosiated

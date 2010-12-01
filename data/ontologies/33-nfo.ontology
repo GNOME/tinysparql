@@ -38,6 +38,7 @@ nfo:Media a rdfs:Class ;
 nfo:Visual a rdfs:Class ;
 	rdfs:label "Visual" ;
 	rdfs:comment "File containing visual content." ;
+	tracker:domainIndex nie:contentCreated ;
 	rdfs:subClassOf nfo:Media .
 
 nfo:Image a rdfs:Class ;
