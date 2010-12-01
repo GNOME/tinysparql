@@ -43,6 +43,7 @@ gchar *  tracker_file_get_mime_type (GFile        *file);
 gboolean tracker_file_lock          (GFile        *file);
 gboolean tracker_file_unlock        (GFile        *file);
 gboolean tracker_file_is_locked     (GFile        *file);
+gboolean tracker_file_is_hidden     (GFile        *file);
 
 /* Path utils */
 gboolean tracker_path_is_in_path                      (const gchar  *path,
