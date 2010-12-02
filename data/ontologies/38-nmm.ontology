@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-12-01T17:24:00Z" .
+	nao:lastModified "2010-12-02T12:52:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -22,15 +22,15 @@ nmm:MusicPiece a rdfs:Class ;
 	rdfs:subClassOf nfo:Media .
 
 # Added Dec 1 2010
-nmm:MusicAlbumDisk a rdfs:Class ;
-	rdfs:label "Music album Disk" .
+nmm:MusicAlbumDisc a rdfs:Class ;
+	rdfs:label "Music album Disc" .
 
 # Added Dec 1 2010
-nmm:albumDiskAlbum a rdf:Property ;
-	rdfs:label "album disk" ;
+nmm:albumDiscAlbum a rdf:Property ;
+	rdfs:label "album disc" ;
 	rdfs:range nmm:MusicAlbum ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmm:MusicAlbumDisk .
+	rdfs:domain nmm:MusicAlbumDisc .
 
 nmm:SynchronizedText a rdfs:Class ;
 	rdfs:label "Synchronized text (use nie:language to set the language). Valid for subtitles and lyrics" ;
@@ -83,13 +83,13 @@ nmm:musicAlbum a rdf:Property ;
 	tracker:indexed true ;
 	tracker:weight 6 .
 
-nmm:musicAlbumDisk a rdf:Property ;
-	rdfs:label "is part of album disk" ;
-	rdfs:comment "album disk the music belongs to" ;
+nmm:musicAlbumDisc a rdf:Property ;
+	rdfs:label "is part of album disc" ;
+	rdfs:comment "album disc the music belongs to" ;
 	rdfs:subPropertyOf nie:isLogicalPartOf ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicPiece ;
-	rdfs:range nmm:MusicAlbumDisk .
+	rdfs:range nmm:MusicAlbumDisc .
 
 # Cardinality could be > 1 if we create one for album collections
 nmm:albumArtist a rdf:Property ;
@@ -168,7 +168,7 @@ nmm:musicCDIdentifier a rdf:Property ;
 	rdfs:comment "Music CD identifier to for databases like FreeDB.org. This frame is intended for music that comes from a CD, so that the CD can be identified in databases such as the CDDB. The frame consists of a binary dump of the Table Of Contents, TOC, from the CD, which is a header of 4 bytes and then 8 bytes/track on the CD plus 8 bytes for the 'lead out' making a maximum of 804 bytes. The offset to the beginning of every track on the CD should be described with a four bytes absolute CD-frame address per track, and not with absolute time." ;
 	rdfs:subPropertyOf nie:identifier ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmm:MusicAlbumDisk ;
+	rdfs:domain nmm:MusicAlbumDisc ;
 	rdfs:range xsd:string .
 
 nmm:internationalStandardRecordingCode a rdf:Property ;
@@ -220,10 +220,10 @@ nmm:albumPeakGain a rdf:Property ;
 	rdfs:range xsd:integer .
 
 nmm:setNumber a rdf:Property ;
-	rdfs:label "Disk number" ;
-	rdfs:comment "Disk number of album" ;
+	rdfs:label "Disc number" ;
+	rdfs:comment "Disc number of album" ;
 	nrl:maxCardinality 1 ;
-	rdfs:domain nmm:MusicAlbumDisk ;
+	rdfs:domain nmm:MusicAlbumDisc ;
 	rdfs:range xsd:integer .
 
 # This property doesn't make sense... it is the other way around
