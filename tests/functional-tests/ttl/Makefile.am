@@ -35,6 +35,7 @@ ttl_DATA =                                             \
 	041-nmm_MusicAlbum.ttl                         \
 	042-nmm_MusicPiece.ttl                         \
 	045-nmm_Photo.ttl                              \
+	044-nfo_Equipment.ttl                          \
 	046-nmm_Video.ttl                              \
 	050-tracker_Volume.ttl                         \
 	051-nfo_PlainTextDocument.ttl                  \
