@@ -109,6 +109,19 @@ def generateArtist(index):
   tools.addItem( me, artist_uri, nmm_Artist % locals() )
 
 ####################################################################################
+nmm_MusicAlbumDisc = '''
+<%(album_disc_uri)s> a nmm:MusicAlbumDisc .
+'''
+def generateMusicAlbumDisc(index):
+  me = 'nmm#MusicAlbumDisc'
+  album_disc_uri = 'urn:album-disk:%d' % index
+  album_disc_name = 'Album Disc %d' % (index % 1000)
+
+  tools.addItem( me, album_disc_uri, nmm_MusicAlbumDisc % locals() )
+
+  return album_disc_uri
+
+####################################################################################
 nmm_MusicAlbum = '''
 <%(album_uri)s> a nmm:MusicAlbum ;
     nie:title        "%(album_name)s" ;
@@ -120,6 +133,7 @@ def generateAlbum(index):
   album_name = 'Album %d' % (index % 1000)
 
   tools.addItem( me, album_uri, nmm_MusicAlbum % locals() )
+
 
 ####################################################################################
 nmm_MusicPiece = '''
@@ -143,11 +157,12 @@ nmm_MusicPiece = '''
     nfo:channels               "%(music_piece_channels)s" ;
     nfo:sampleRate             "%(music_piece_sample_rate)s" ;
     nmm:musicAlbum             <%(music_piece_album)s> ;
+    nmm:musicAlbumDisc         <%(music_piece_album_disk)s> ;
     nmm:performer              <%(music_piece_artist)s> ;
     nfo:duration               "%(music_piece_length)s" ;
     nmm:trackNumber            "%(music_piece_track)s" .
 '''
-def generateMusicPiece(index):
+def generateMusicPiece(index, discUri):
   me = 'nmm#MusicPiece'
   music_piece_uri           = 'urn:music:%d' % index
   music_piece_title         = 'Song %d' % index
@@ -166,6 +181,7 @@ def generateMusicPiece(index):
   music_piece_sample_rate   = '44100.0'
   music_piece_album         = tools.getLastUri( 'nmm#MusicAlbum' )
   music_piece_artist        = tools.getLastUri( 'nmm#Artist' )
+  music_piece_album_disk    = discUri
   music_piece_length        = '%d' % (1 + (index % 1000))
   music_piece_track         = '%d' % (1 + (index % 100))
 

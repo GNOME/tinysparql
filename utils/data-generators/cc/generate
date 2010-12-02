@@ -78,6 +78,7 @@ tools.addType( 'nmo#IMMessage', 36 )
 tools.addType( 'nmo#SMSMessage', 37 )
 tools.addType( 'nmo#Call', 38 )
 tools.addType( 'nmm#Artist', 40 )
+tools.addType( 'nmm#MusicAlbumDisc', 40)
 tools.addType( 'nmm#MusicAlbum', 41 )
 tools.addType( 'nmm#MusicPiece', 42 )
 tools.addType( 'nfo#Equipment', 44 )
@@ -182,14 +183,19 @@ print "Generating Music",
 count_artists = get_counter('counts','artists')
 count_albums = get_counter('counts','albums')
 count_songs = get_counter('counts','songs')
+count_discs = get_counter('counts','discs')
+song_index = 0
 for artist in xrange(1, count_artists+1):
   sys.stdout.write('.')
   sys.stdout.flush()
   nmm.generateArtist( artist*count_albums*count_songs )
   for album in xrange(1, count_albums+1):
     nmm.generateAlbum( artist*count_albums*count_songs+album )
-    for song in xrange(1, count_songs+1):
-      nmm.generateMusicPiece( artist*count_albums*count_songs+album*count_songs+song )
+    for disc in xrange(1, count_discs+1):
+       discUri = nmm.generateMusicAlbumDisc( artist*count_albums*count_songs+album+disc )
+       for song in xrange(1, count_songs+1):
+          nmm.generateMusicPiece( song_index, discUri )
+          song_index = song_index + 1
 print "Done"
 
 print "Generate Equipment",

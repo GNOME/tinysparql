@@ -32,6 +32,7 @@ ttl_DATA =                                             \
 	037-nmo_SMSMessage.ttl                         \
 	038-nmo_Call.ttl                               \
 	040-nmm_Artist.ttl                             \
+	040-nmm_MusicAlbumDisc.ttl                     \
 	041-nmm_MusicAlbum.ttl                         \
 	042-nmm_MusicPiece.ttl                         \
 	045-nmm_Photo.ttl                              \
