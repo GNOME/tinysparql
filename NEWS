@@ -1,3 +1,40 @@
+NEW in 0.9.30 - 2010-12-02
+==========================
+
+The changes are:
+
+  * Requires Vala 0.11.2 was 0.11.1
+  * Fixes: NB#204706, Classes slo:Landmark, slo:LandmarkCategory and slo:GeoLocation should qualify for notifications
+  * Fixes: NB#203538, libtracker-sparql: cannot run 2 async queries at the same time
+  * Fixes: NB#208420, Critical in miner-fs when msyncd and Ovi Suite in operation
+  * Fixes: GB#635757, missing test file in tarball
+  * Fixes: GB#635794, build fails - missing .vapi files?
+  * Ontology: Added domainIndex nie:contentCreated to nfo:Visual
+  * Ontolgoy: Added tracker:notify true for slo:LandmarkCategory, slo:Landmark and slo:GeoLocation
+  * SPARQL: Use WITH/INTO/FROM clause in WHERE pattern of updates
+  * Support MeeGoTouch Locale, recalculating indexes on locale changes
+  * data-generators: Diversify the content creation times
+  * data-generators: Support nfo:Equipment correctly
+  * data-generators: Small fixes to the music data
+  * libtracker-data: Disable fn:starts-with test for !libicu cases
+  * libtracker-data: Document the TRACKER_PRAGMAS_FILE environment variable
+  * libtracker-direct: Make singleton connection thread-safe
+  * libtracker-bus: Reduce D-Bus proxy initialization time
+  * libtracker-sparql: Reduce D-Bus proxy initialization time
+  * tracker-extract, albumart: Don't assume that g_file_get_parent() returns non-NULL
+  * tracker-miner-applications: Re-extract desktop files when locale change detected
+  * tracker-status: Added more granularity to the tracker-store status reporting for the journal replay
+
+Translations:
+
+  * fr: Bruno Brouard
+  * pt_BR: Mateus Zenaide
+
+Notes:
+
+  None
+
+
 NEW in 0.9.29 - 2010-11-24
 ==========================
 
