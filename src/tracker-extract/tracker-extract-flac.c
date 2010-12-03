@@ -326,8 +326,57 @@ extract_flac (const gchar          *uri,
 	add_tuple (metadata, "nie:title", fd.title);
 	add_tuple (metadata, "nmm:trackNumber", fd.tracknumber);
 
-	/* FIXME: This is commented out in vorbis extractor... */
-	add_tuple (metadata, "nmm:setNumber", fd.discno);
+	if (fd.discno && fd.album && album_uri) {
+		gchar *album_disc_uri;
+
+		album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
+		                                                   fd.album, atoi(fd.discno));
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:MusicAlbumDisc");
+		tracker_sparql_builder_insert_close (preupdate);
+
+		tracker_sparql_builder_delete_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
+		tracker_sparql_builder_object_variable (preupdate, "unknown");
+		tracker_sparql_builder_delete_close (preupdate);
+		tracker_sparql_builder_where_open (preupdate);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
+		tracker_sparql_builder_object_variable (preupdate, "unknown");
+		tracker_sparql_builder_where_close (preupdate);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
+		tracker_sparql_builder_object_int64 (preupdate, atoi (fd.discno));
+		tracker_sparql_builder_insert_close (preupdate);
+
+		tracker_sparql_builder_delete_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+		tracker_sparql_builder_object_variable (preupdate, "unknown");
+		tracker_sparql_builder_delete_close (preupdate);
+		tracker_sparql_builder_where_open (preupdate);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+		tracker_sparql_builder_object_variable (preupdate, "unknown");
+		tracker_sparql_builder_where_close (preupdate);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+		tracker_sparql_builder_object_iri (preupdate, album_uri);
+		tracker_sparql_builder_insert_close (preupdate);
+
+		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisk");
+		tracker_sparql_builder_object_iri (metadata, album_disc_uri);
+
+		g_free (album_disc_uri);
+	}
 
 	/* FIXME: Trackgain/Trackpeakgain: commented out in vorbis */
 
@@ -368,7 +417,7 @@ extract_flac (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nfo:duration");
 		tracker_sparql_builder_object_int64 (metadata, 
 		                                     stream->data.stream_info.total_samples / 
-		                                        stream->data.stream_info.sample_rate);
+		                                     stream->data.stream_info.sample_rate);
 	}
 
 	g_free (fd.artist);
