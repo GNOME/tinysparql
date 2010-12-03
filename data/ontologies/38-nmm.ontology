@@ -221,7 +221,7 @@ nmm:albumPeakGain a rdf:Property ;
 
 nmm:setNumber a rdf:Property ;
 	rdfs:label "Disc number" ;
-	rdfs:comment "Disc number of album" ;
+	rdfs:comment "Disc number of album disc" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbumDisc ;
 	rdfs:range xsd:integer .
