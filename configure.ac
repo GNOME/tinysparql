@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 # This file is part of Tracker.
 
-AC_PREREQ(2.59)
+AC_PREREQ([2.64])
 
 # Making releases:
 #   TRACKER_MICRO_VERSION += 1;
@@ -40,17 +40,19 @@ m4_define([tracker_lt_current_minus_age],
 # TRACKER_BINARY_VERSION=$TRACKER_MAJOR_VERSION.$TRACKER_MINOR_VERSION.$LT_CURRENT
 m4_define([tracker_binary_version], [0.9.0])
 
-AC_INIT([tracker], [tracker_version],
+AC_INIT([tracker],
+        [tracker_version],
         [http://bugzilla.gnome.org/],
-        [tracker])
+        [tracker],
+        [http://www.tracker-project.org])
 
 AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.c])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 
-AM_INIT_AUTOMAKE([no-define tar-ustar -Wno-portability])
+AM_INIT_AUTOMAKE([1.11 no-define tar-ustar -Wno-portability])
 
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+AM_SILENT_RULES([yes])
 
 IDT_COMPILE_WARNINGS
 
@@ -71,7 +73,6 @@ AC_SUBST(TRACKER_API_VERSION)
 AC_SUBST(TRACKER_VERSION)
 AC_SUBST(TRACKER_BINARY_VERSION)
 
-AC_SUBST(PACKAGE_URL, [http://www.tracker-project.org])
 
 # libtool versioning
 LT_RELEASE=tracker_lt_release
@@ -92,10 +93,10 @@ AC_PROG_CXX
 AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
 
-CFLAGS="$CFLAGS"
+# Initialize libtool
+LT_PREREQ([2.2])
+LT_INIT([disable-static])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -114,6 +115,8 @@ AC_CHECK_DECLS(posix_fadvise, [], [], [
 AC_CHECK_FUNCS([posix_fadvise])
 AC_CHECK_FUNCS([getline])
 
+CFLAGS="$CFLAGS"
+
 # if statvfs64() is available, enable the 64-bit API extensions
 AC_CHECK_FUNCS([statvfs64], [have_statvfs64=yes], [have_statvfs64=no])
 if test "x$have_statvfs" = "xyes" ; then
@@ -121,14 +124,12 @@ if test "x$have_statvfs" = "xyes" ; then
 fi
 
 # Check for defines we expect
-AC_TRY_COMPILE(,
-   [
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
 #include "stdio.h"
 printf ("%s", __FUNCTION__);
-   ],
-   have_function=yes,
-   have_function=no,
-)
+   ]])],
+   [have_function=yes],
+   [have_function=no])
 
 if test "x$have_function" = "xno" ; then
    AC_DEFINE(__FUNCTION__,
@@ -578,15 +579,13 @@ AM_CONDITIONAL(HAVE_GRAPHVIZ_FDP, test -n "$GRAPHVIZ_FDP")
 ####################################################################
 
 AC_MSG_CHECKING(for WIN32)
-AC_TRY_COMPILE(,
-   [
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
    #ifndef WIN32
    #error
    #endif
-   ],
-   native_win32=yes; AC_MSG_RESULT(yes),
-   native_win32=no; AC_MSG_RESULT(no),
-)
+   ]])],
+   [native_win32=yes; AC_MSG_RESULT(yes)],
+   [native_win32=no; AC_MSG_RESULT(no)])
 
 AM_CONDITIONAL(OS_WIN32, test "$native_win32" = "yes")
 
