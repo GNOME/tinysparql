@@ -117,40 +117,31 @@ typedef enum {
 } ContentType;
 
 typedef struct {
-	ContentType content;
-
-	gboolean    has_image;
-	gboolean    has_audio;
-	gboolean    has_video;
-
-	const gchar *dlna_profile;
-
-	GstTagList *tags;
-
-	guint       width;
-	guint       height;
-	gfloat      frame_rate;
-	gfloat      aspect_ratio;
-
-	guint       sample_rate;
-	guint       bitrate;
-	guint       channels;
-
-	guint       duration;
-
+	ContentType     content;
+	gboolean        has_image;
+	gboolean        has_audio;
+	gboolean        has_video;
+	const gchar    *dlna_profile;
+	GstTagList     *tags;
+	guint           width;
+	guint           height;
+	gfloat          frame_rate;
+	gfloat          aspect_ratio;
+	guint           sample_rate;
+	guint           bitrate;
+	guint           channels;
+	guint           duration;
 	gboolean        is_content_encrypted;
-
 	unsigned char  *album_art_data;
 	guint           album_art_size;
 	const gchar    *album_art_mime;
-
 } MetadataExtractor;
 
 static void
 add_int64_info (TrackerSparqlBuilder *metadata,
-                const gchar *uri,
-                const gchar *key,
-                gint64      info)
+                const gchar          *uri,
+                const gchar          *key,
+                gint64                info)
 {
 	tracker_sparql_builder_predicate (metadata, key);
 	tracker_sparql_builder_object_int64 (metadata, info);
@@ -158,9 +149,9 @@ add_int64_info (TrackerSparqlBuilder *metadata,
 
 static void
 add_uint_info (TrackerSparqlBuilder *metadata,
-               const gchar *uri,
-               const gchar *key,
-               guint       info)
+               const gchar          *uri,
+               const gchar          *key,
+               guint                 info)
 {
 	tracker_sparql_builder_predicate (metadata, key);
 	tracker_sparql_builder_object_int64 (metadata, info);
@@ -173,8 +164,8 @@ add_string_gst_tag (TrackerSparqlBuilder *metadata,
                     GstTagList           *tag_list,
                     const gchar          *tag)
 {
-	gchar    *s;
-	gboolean  ret;
+	gchar *s;
+	gboolean ret;
 
 	s = NULL;
 	ret = gst_tag_list_get_string (tag_list, tag, &s);
@@ -184,17 +175,16 @@ add_string_gst_tag (TrackerSparqlBuilder *metadata,
 			tracker_sparql_builder_predicate (metadata, key);
 			tracker_sparql_builder_object_unvalidated (metadata, s);
 		}
-
 		g_free (s);
 	}
 }
 
 static void
-add_uint_gst_tag (TrackerSparqlBuilder   *metadata,
-                  const gchar *uri,
-                  const gchar *key,
-                  GstTagList  *tag_list,
-                  const gchar *tag)
+add_uint_gst_tag (TrackerSparqlBuilder *metadata,
+                  const gchar          *uri,
+                  const gchar          *key,
+                  GstTagList           *tag_list,
+                  const gchar          *tag)
 {
 	gboolean ret;
 	guint    n;
@@ -208,14 +198,14 @@ add_uint_gst_tag (TrackerSparqlBuilder   *metadata,
 }
 
 static void
-add_int_gst_tag (TrackerSparqlBuilder   *metadata,
-                 const gchar *uri,
-                 const gchar *key,
-                 GstTagList  *tag_list,
-                 const gchar *tag)
+add_int_gst_tag (TrackerSparqlBuilder *metadata,
+                 const gchar          *uri,
+                 const gchar          *key,
+                 GstTagList           *tag_list,
+                 const gchar          *tag)
 {
 	gboolean ret;
-	gint     n;
+	gint n;
 
 	ret = gst_tag_list_get_int (tag_list, tag, &n);
 
@@ -226,14 +216,14 @@ add_int_gst_tag (TrackerSparqlBuilder   *metadata,
 }
 
 static void
-add_double_gst_tag (TrackerSparqlBuilder        *metadata,
-                    const gchar *uri,
-                    const gchar *key,
-                    GstTagList  *tag_list,
-                    const gchar *tag)
+add_double_gst_tag (TrackerSparqlBuilder *metadata,
+                    const gchar          *uri,
+                    const gchar          *key,
+                    GstTagList           *tag_list,
+                    const gchar          *tag)
 {
 	gboolean ret;
-	gdouble          n;
+	gdouble n;
 
 	ret = gst_tag_list_get_double (tag_list, tag, &n);
 
@@ -244,15 +234,15 @@ add_double_gst_tag (TrackerSparqlBuilder        *metadata,
 }
 
 static void
-add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
-                      const gchar       *uri,
-                      const gchar       *key,
-                      GstTagList        *tag_list,
-                      const gchar       *tag)
+add_fraction_gst_tag (TrackerSparqlBuilder *metadata,
+                      const gchar          *uri,
+                      const gchar          *key,
+                      GstTagList           *tag_list,
+                      const gchar          *tag)
 {
 	gboolean ret;
-	GValue   n = {0,};
-	gfloat   f;
+	GValue n = {0,};
+	gfloat f;
 
 	ret = gst_tag_list_copy_value (&n, tag_list, tag);
 
@@ -269,13 +259,13 @@ add_fraction_gst_tag (TrackerSparqlBuilder         *metadata,
 
 static void
 add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
-                    const gchar *uri,
-                    const gchar *key,
-                    GstTagList  *tag_list,
-                    const gchar *tag)
+                    const gchar           *uri,
+                    const gchar           *key,
+                    GstTagList            *tag_list,
+                    const gchar           *tag)
 {
-	GDate    *date;
-	gboolean  ret;
+	GDate *date;
+	gboolean ret;
 
 	date = NULL;
 	ret = gst_tag_list_get_date (tag_list, tag, &date);
@@ -305,14 +295,14 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 }
 
 static void
-add_time_gst_tag (TrackerSparqlBuilder   *metadata,
-                  const gchar *uri,
-                  const gchar *key,
-                  GstTagList  *tag_list,
-                  const gchar *tag)
+add_time_gst_tag (TrackerSparqlBuilder *metadata,
+                  const gchar          *uri,
+                  const gchar          *key,
+                  GstTagList           *tag_list,
+                  const gchar          *tag)
 {
 	gboolean ret;
-	guint64          n;
+	guint64 n;
 
 	ret = gst_tag_list_get_uint64 (tag_list, tag, &n);
 
@@ -352,70 +342,9 @@ add_keywords_gst_tag (TrackerSparqlBuilder *metadata,
 	}
 }
 
-/* static gboolean */
-/* get_embedded_album_art(MetadataExtractor *extractor) */
-/* { */
-/* 	const GValue *value; */
-/* 	guint         lindex; */
-
-/* 	lindex = 0; */
-
-/* 	do { */
-/* 		value = gst_tag_list_get_value_index (extractor->tags, GST_TAG_IMAGE, lindex); */
-
-/* 		if (value) { */
-/* 			GstBuffer    *buffer; */
-/* 			GstCaps      *caps; */
-/* 			GstStructure *caps_struct; */
-/* 			gint          type; */
-
-/* 			buffer = gst_value_get_buffer (value); */
-/* 			caps   = gst_buffer_get_caps (buffer); */
-/* 			caps_struct = gst_caps_get_structure (buffer->caps, 0); */
-
-/* 			gst_structure_get_enum (caps_struct, */
-/* 			                        "image-type", */
-/* 			                        GST_TYPE_TAG_IMAGE_TYPE, */
-/* 			                        &type); */
-
-/* 			if ((type == GST_TAG_IMAGE_TYPE_FRONT_COVER)|| */
-/* 			    ((type == GST_TAG_IMAGE_TYPE_UNDEFINED)&&(extractor->album_art_size == 0))) { */
-/* 				extractor->album_art_data = buffer->data; */
-/* 				extractor->album_art_size = buffer->size; */
-/* 				extractor->album_art_mime = gst_structure_get_name (caps_struct); */
-/* 				gst_caps_unref (caps); */
-/* 				return TRUE; */
-/* 			} */
-
-/* 			gst_caps_unref (caps); */
-
-/* 			lindex++; */
-/* 		} */
-/* 	} while (value); */
-
-/* 	value = gst_tag_list_get_value_index (extractor->tags, GST_TAG_PREVIEW_IMAGE, lindex); */
-
-/* 	if (value) { */
-/* 		GstBuffer    *buffer; */
-/* 		GstStructure *caps_struct; */
-
-/* 		buffer = gst_value_get_buffer (value); */
-/* 		caps_struct = gst_caps_get_structure (buffer->caps, 0); */
-
-/* 		extractor->album_art_data = buffer->data; */
-/* 		extractor->album_art_size = buffer->size; */
-/* 		extractor->album_art_mime = gst_structure_get_name (caps_struct); */
-
-
-/* 		return TRUE; */
-/* 	} */
-
-/* 	return FALSE; */
-/* } */
-
 static void
 extract_metadata (MetadataExtractor      *extractor,
-		  const gchar            *uri,
+                  const gchar            *uri,
                   TrackerSparqlBuilder   *preupdate,
                   TrackerSparqlBuilder   *metadata,
                   gchar                 **artist,
@@ -423,7 +352,8 @@ extract_metadata (MetadataExtractor      *extractor,
                   gchar                 **scount)
 {
 	const gchar *temp;
-	gchar *s, *make = NULL, *model = NULL, *manuf = NULL;
+	gchar *make = NULL, *model = NULL, *manuf = NULL;
+	gchar *albumname = NULL, *composer = NULL, *genre = NULL;
 	gboolean ret;
 	gint count;
 	gboolean needs_audio = FALSE;
@@ -474,11 +404,10 @@ extract_metadata (MetadataExtractor      *extractor,
 			g_free (performer);
 			g_free (artist_local);
 
-			s = NULL;
-			gst_tag_list_get_string (extractor->tags, GST_TAG_COMPOSER, &s);
+			gst_tag_list_get_string (extractor->tags, GST_TAG_COMPOSER, &composer);
 
-			if (s) {
-				composer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", s);
+			if (composer) {
+				composer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", composer);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 
@@ -487,26 +416,25 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_object (preupdate, "nmm:Artist");
 
 				tracker_sparql_builder_predicate (preupdate, "nmm:artistName");
-				tracker_sparql_builder_object_unvalidated (preupdate, s);
+				tracker_sparql_builder_object_unvalidated (preupdate, composer);
 
 				tracker_sparql_builder_insert_close (preupdate);
 
-				g_free (s);
+				g_free (composer);
 			}
 
 		}
 
 		/* Audio */
-		s = NULL;
-		gst_tag_list_get_string (extractor->tags, GST_TAG_ALBUM, &s);
-		if (s) {
+		gst_tag_list_get_string (extractor->tags, GST_TAG_ALBUM, &albumname);
+		if (albumname) {
 			gboolean has_it;
 			guint count;
 			gdouble gain;
 
 			needs_audio = TRUE;
 
-			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", s);
+			album_uri = tracker_sparql_escape_uri_printf ("urn:album:%s", albumname);
 
 			tracker_sparql_builder_insert_open (preupdate, NULL);
 
@@ -517,7 +445,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			 * tracker_sparql_builder_predicate (preupdate, "nie:title");
 			 */
 			tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
-			tracker_sparql_builder_object_unvalidated (preupdate, s);
+			tracker_sparql_builder_object_unvalidated (preupdate, albumname);
 
 			if (artist_uri) {
 				tracker_sparql_builder_predicate (preupdate, "nmm:albumArtist");
@@ -630,7 +558,7 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
-			*album = s;
+			*album = albumname;
 
 		}
 
@@ -650,13 +578,12 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_object (metadata, "nfo:Image");
 		}
 
-		s = NULL;
-		gst_tag_list_get_string (extractor->tags, GST_TAG_GENRE, &s);
-		if (s && strcmp (s, "Unknown") != 0) {
+		gst_tag_list_get_string (extractor->tags, GST_TAG_GENRE, &genre);
+		if (g_strcmp0 (genre, "Unknown") != 0) {
 			tracker_sparql_builder_predicate (metadata, "nfo:genre");
-			tracker_sparql_builder_object_unvalidated (metadata, s);
+			tracker_sparql_builder_object_unvalidated (metadata, genre);
 		}
-		g_free (s);
+		g_free (genre);
 
 		add_string_gst_tag (metadata, uri, "nie:title", extractor->tags, GST_TAG_TITLE);
 		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tags, GST_TAG_COPYRIGHT);
@@ -817,17 +744,13 @@ extract_metadata (MetadataExtractor      *extractor,
 		tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
 		tracker_sparql_builder_object_string (metadata, extractor->dlna_profile);
 	}
-
-	/* if (extractor->content == CONTENT_AUDIO) { */
-	/* 	get_embedded_album_art (extractor); */
-	/* } */
 }
 
 static void
-extract_gupnp_dlna (const gchar *uri,
-		    TrackerSparqlBuilder  *preupdate,
-		    TrackerSparqlBuilder  *metadata,
-		    ContentType            content)
+extract_gupnp_dlna (const gchar           *uri,
+                    TrackerSparqlBuilder  *preupdate,
+                    TrackerSparqlBuilder  *metadata,
+                    ContentType            content)
 {
 	GUPnPDLNADiscoverer  *discoverer = NULL;
 	GUPnPDLNAInformation *dlna_info  = NULL;
@@ -905,11 +828,11 @@ extract_gupnp_dlna (const gchar *uri,
 			case GST_STREAM_VIDEO:
 				extractor.has_video    = TRUE;
 				extractor.frame_rate   = (gfloat)gst_value_get_fraction_numerator (&((GstStreamVideoInformation *)stream)->frame_rate)/
-					gst_value_get_fraction_denominator (&((GstStreamVideoInformation *)stream)->frame_rate);
+				                            gst_value_get_fraction_denominator (&((GstStreamVideoInformation *)stream)->frame_rate);
 				extractor.width        = ((GstStreamVideoInformation *)stream)->width;
 				extractor.height       = ((GstStreamVideoInformation *)stream)->height;
 				extractor.aspect_ratio = (gfloat)gst_value_get_fraction_numerator (&((GstStreamVideoInformation *)stream)->pixel_aspect_ratio)/
-					gst_value_get_fraction_denominator (&((GstStreamVideoInformation *)stream)->pixel_aspect_ratio);
+				                            gst_value_get_fraction_denominator (&((GstStreamVideoInformation *)stream)->pixel_aspect_ratio);
 				break;
 			case GST_STREAM_IMAGE:
 				extractor.has_image = TRUE;
@@ -947,13 +870,6 @@ extract_gupnp_dlna (const gchar *uri,
 
 		extract_metadata (&extractor, uri, preupdate, metadata, &artist, &album, &scount);
 
-		/* tracker_albumart_process (extractor.album_art_data, */
-		/* 			  extractor.album_art_size, */
-		/* 			  extractor.album_art_mime, */
-		/* 			  artist, */
-		/* 			  album, */
-		/* 			  uri); */
-
 		gst_tag_list_free (extractor.tags);
 		g_free (artist);
 		g_free (album);
@@ -963,37 +879,36 @@ extract_gupnp_dlna (const gchar *uri,
 
 	g_object_unref (discoverer);
 	g_object_unref (dlna_info);
-
 }
 
 static void
 extract_gupnp_dlna_audio (const gchar          *uri,
-			  TrackerSparqlBuilder *preupdate,
-			  TrackerSparqlBuilder *metadata)
+                          TrackerSparqlBuilder *preupdate,
+                          TrackerSparqlBuilder *metadata)
 {
 	extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_AUDIO);
 }
 
 static void
 extract_gupnp_dlna_video (const gchar          *uri,
-			  TrackerSparqlBuilder *preupdate,
-			  TrackerSparqlBuilder *metadata)
+                          TrackerSparqlBuilder *preupdate,
+                          TrackerSparqlBuilder *metadata)
 {
 	extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_VIDEO);
 }
 
 static void
 extract_gupnp_dlna_image (const gchar          *uri,
-			  TrackerSparqlBuilder *preupdate,
-			  TrackerSparqlBuilder *metadata)
+                          TrackerSparqlBuilder *preupdate,
+                          TrackerSparqlBuilder *metadata)
 {
 	extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_IMAGE);
 }
 
 static void
 extract_gupnp_dlna_guess (const gchar          *uri,
-			  TrackerSparqlBuilder *preupdate,
-			  TrackerSparqlBuilder *metadata)
+                          TrackerSparqlBuilder *preupdate,
+                          TrackerSparqlBuilder *metadata)
 {
 	extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_GUESS);
 }
