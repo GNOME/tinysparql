@@ -510,6 +510,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		gchar *performer_uri = NULL;
 		gchar *composer_uri = NULL;
 		gchar *album_uri = NULL;
+		gchar *album_disc_uri = NULL;
 
 		if (extractor->mime == EXTRACT_MIME_GUESS) {
 			gchar *video_codec = NULL, *audio_codec = NULL;
@@ -625,7 +626,6 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
 				tracker_sparql_builder_object_variable (preupdate, "unknown");
 				tracker_sparql_builder_delete_close (preupdate);
-
 				tracker_sparql_builder_where_open (preupdate);
 				tracker_sparql_builder_subject_iri (preupdate, album_uri);
 				tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
@@ -633,11 +633,9 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_where_close (preupdate);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
-
 				tracker_sparql_builder_subject_iri (preupdate, album_uri);
 				tracker_sparql_builder_predicate (preupdate, "nmm:albumTrackCount");
 				tracker_sparql_builder_object_int64 (preupdate, count);
-
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
@@ -646,24 +644,47 @@ extract_metadata (MetadataExtractor      *extractor,
 			                                &count);
 
 			if (has_it) {
+				album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
+				                                                   albumname, count);
+
+				tracker_sparql_builder_insert_open (preupdate, NULL);
+				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+				tracker_sparql_builder_predicate (preupdate, "a");
+				tracker_sparql_builder_object (preupdate, "nmm:MusicAlbumDisc");
+				tracker_sparql_builder_insert_close (preupdate);
+
 				tracker_sparql_builder_delete_open (preupdate, NULL);
-				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 				tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
 				tracker_sparql_builder_object_variable (preupdate, "unknown");
 				tracker_sparql_builder_delete_close (preupdate);
-
 				tracker_sparql_builder_where_open (preupdate);
-				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 				tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
 				tracker_sparql_builder_object_variable (preupdate, "unknown");
 				tracker_sparql_builder_where_close (preupdate);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
-
-				tracker_sparql_builder_subject_iri (preupdate, album_uri);
+				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 				tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
 				tracker_sparql_builder_object_int64 (preupdate, count);
+				tracker_sparql_builder_insert_close (preupdate);
 
+				tracker_sparql_builder_delete_open (preupdate, NULL);
+				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+				tracker_sparql_builder_object_variable (preupdate, "unknown");
+				tracker_sparql_builder_delete_close (preupdate);
+				tracker_sparql_builder_where_open (preupdate);
+				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+				tracker_sparql_builder_object_variable (preupdate, "unknown");
+				tracker_sparql_builder_where_close (preupdate);
+
+				tracker_sparql_builder_insert_open (preupdate, NULL);
+				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+				tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+				tracker_sparql_builder_object_iri (preupdate, album_uri);
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
@@ -836,11 +857,17 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_predicate (metadata, "nmm:musicAlbum");
 				tracker_sparql_builder_object_iri (metadata, album_uri);
 			}
+
+			if (album_disc_uri) {
+				tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisk");
+				tracker_sparql_builder_object_iri (metadata, album_disc_uri);
+			}
 		}
 
 		g_free (performer_uri);
 		g_free (composer_uri);
 		g_free (album_uri);
+		g_free (album_disc_uri);
 
 		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	} else {
