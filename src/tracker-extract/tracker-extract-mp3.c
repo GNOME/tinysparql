@@ -99,6 +99,8 @@ typedef struct {
 	gchar *title3;
 	gint track_number;
 	gint track_count;
+	gint set_number;
+	gint set_count;
 } id3v2tag;
 
 typedef enum {
@@ -141,6 +143,7 @@ typedef enum {
 	ID3V24_TPE2,
 	ID3V24_TPUB,
 	ID3V24_TRCK,
+	ID3V24_TPOS,
 	ID3V24_TYER,
 } id3v24frame;
 
@@ -168,6 +171,8 @@ typedef struct {
 	gchar *composer_uri;
 	gint track_number;
 	gint track_count;
+	gint set_number;
+	gint set_count;
 
 	unsigned char *albumart_data;
 	size_t albumart_size;
@@ -219,6 +224,7 @@ static const struct {
 	{ "TOLY", ID3V24_TOLY },
 	{ "TPE1", ID3V24_TPE1 },
 	{ "TPE2", ID3V24_TPE2 },
+	{ "TPOS", ID3V24_TPOS },
 	{ "TPUB", ID3V24_TPUB },
 	{ "TRCK", ID3V24_TRCK },
 	{ "TYER", ID3V24_TYER },
@@ -1338,6 +1344,21 @@ get_id3v24_tags (id3v24frame           frame,
 
 			break;
 		}
+		case ID3V24_TPOS: {
+			gchar **parts;
+
+			parts = g_strsplit (word, "/", 2);
+			if (parts[0]) {
+				tag->set_number = atoi (parts[0]);
+				if (parts[1]) {
+					tag->set_count = atoi (parts[1]);
+				}
+			}
+			g_strfreev (parts);
+			g_free (word);
+
+			break;
+		}
 		case ID3V24_TYER:
 			if (atoi (word) > 0) {
 				tag->recording_time = tracker_date_guess (word);
@@ -1494,6 +1515,21 @@ get_id3v23_tags (id3v24frame           frame,
 				tag->track_number = atoi (parts[0]);
 				if (parts[1]) {
 					tag->track_count = atoi (parts[1]);
+				}
+			}
+			g_strfreev (parts);
+			g_free (word);
+
+			break;
+		}
+		case ID3V24_TPOS: {
+			gchar **parts;
+
+			parts = g_strsplit (word, "/", 2);
+			if (parts[0]) {
+				tag->set_number = atoi (parts[0]);
+				if (parts[1]) {
+					tag->set_count = atoi (parts[1]);
 				}
 			}
 			g_strfreev (parts);
@@ -2135,6 +2171,22 @@ extract_mp3 (const gchar          *uri,
 		md.track_count = md.id3v22.track_count;
 	}
 
+	if (md.id3v24.set_number != 0) {
+		md.set_number = md.id3v24.set_number;
+	} else if (md.id3v23.set_number != 0) {
+		md.set_number = md.id3v23.set_number;
+	} else if (md.id3v22.set_number != 0) {
+		md.set_number = md.id3v22.set_number;
+	}
+
+	if (md.id3v24.set_count != 0) {
+		md.set_count = md.id3v24.set_count;
+	} else if (md.id3v23.set_count != 0) {
+		md.set_count = md.id3v23.set_count;
+	} else if (md.id3v22.set_count != 0) {
+		md.set_count = md.id3v22.set_count;
+	}
+
 	if (md.performer) {
 		md.performer_uri = tracker_sparql_escape_uri_printf ("urn:artist:%s", md.performer);
 
@@ -2244,7 +2296,6 @@ extract_mp3 (const gchar          *uri,
 	if (md.album_uri) {
 		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbum");
 		tracker_sparql_builder_object_iri (metadata, md.album_uri);
-		g_free (md.album_uri);
 	}
 
 	if (md.recording_time) {
@@ -2286,6 +2337,60 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nmm:trackNumber");
 		tracker_sparql_builder_object_int64 (metadata, md.track_number);
 	}
+
+	if (md.set_number > 0) {
+		gchar *album_disc_uri;
+
+		album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
+		                                                   md.album, md.set_number);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "a");
+		tracker_sparql_builder_object (preupdate, "nmm:MusicAlbumDisc");
+		tracker_sparql_builder_insert_close (preupdate);
+
+		tracker_sparql_builder_delete_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
+		tracker_sparql_builder_object_variable (preupdate, "unknown");
+		tracker_sparql_builder_delete_close (preupdate);
+		tracker_sparql_builder_where_open (preupdate);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
+		tracker_sparql_builder_object_variable (preupdate, "unknown");
+		tracker_sparql_builder_where_close (preupdate);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
+		tracker_sparql_builder_object_int64 (preupdate, md.set_number);
+		tracker_sparql_builder_insert_close (preupdate);
+
+		tracker_sparql_builder_delete_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+		tracker_sparql_builder_object_variable (preupdate, "unknown");
+		tracker_sparql_builder_delete_close (preupdate);
+		tracker_sparql_builder_where_open (preupdate);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+		tracker_sparql_builder_object_variable (preupdate, "unknown");
+		tracker_sparql_builder_where_close (preupdate);
+
+		tracker_sparql_builder_insert_open (preupdate, NULL);
+		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
+		tracker_sparql_builder_predicate (preupdate, "nmm:albumDiscAlbum");
+		tracker_sparql_builder_object_iri (preupdate, md.album_uri);
+		tracker_sparql_builder_insert_close (preupdate);
+
+		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisk");
+		tracker_sparql_builder_object_iri (metadata, album_disc_uri);
+
+		g_free (album_disc_uri);
+	}
+
+	g_free (md.album_uri);
 
 	/* FIXME We use a hardcoded value here for now. In reality there's a second option MP3X */
 	tracker_sparql_builder_predicate (metadata, "nmm:dlnaProfile");
