@@ -510,13 +510,14 @@ AC_SUBST(VALAC)
 ####################################################################
 # Check gettext/intltool support
 ####################################################################
+IT_PROG_INTLTOOL([0.40.0])
+
+AM_GNU_GETTEXT_VERSION([0.17])
+AM_GNU_GETTEXT([external])
 
 GETTEXT_PACKAGE=AC_PACKAGE_NAME
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [The gettext translation domain])
-
-AM_GLIB_GNU_GETTEXT
-IT_PROG_INTLTOOL([0.35.0])
 
 ####################################################################
 # Check if we should enable GCOV coverage reporting support
