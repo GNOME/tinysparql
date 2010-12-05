@@ -3,19 +3,7 @@
 #
 # NOTE: compare_versions() is stolen from gnome-autogen.sh
 
-srcdir=`dirname $0`
-test -z "$srcdir" && srcdir=.
-
-PKG_NAME="tracker"
-REQUIRED_AUTOMAKE_VERSION=1.11
 REQUIRED_VALA_VERSION=0.11.2
-
-(test -f $srcdir/configure.ac \
-  && test -f $srcdir/README) || {
-    echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
-    echo " top-level $PKG_NAME directory"
-    exit 1
-}
 
 # Usage:
 #     compare_versions MIN_VERSION ACTUAL_VERSION
@@ -40,18 +28,21 @@ compare_versions() {
 # Vala version check
 test -z "$VALAC" && VALAC=valac
 VALA_VERSION=`$VALAC --version | cut -d" " -f2`
-echo $VALA_VERSION
+echo "Found Vala $VALA_VERSION"
 
 if ! compare_versions $REQUIRED_VALA_VERSION $VALA_VERSION; then
-    echo "**Error**: You must have valac >= $REQUIRED_VALA_VERSION installed to build $PKG_NAME, you have $VALA_VERSION"
+    echo "**Error**: You must have valac >= $REQUIRED_VALA_VERSION installed to build, you have $VALA_VERSION"
     exit 1
 fi
 
-# Automake requires that ChangeLog exist.
-touch ChangeLog
-
-which gnome-autogen.sh || {
-    echo "You need to install gnome-common from the GNOME CVS"
-    exit 1
-}
-. gnome-autogen.sh
+# Generate required files
+test -n "$srcdir" || srcdir=`dirname "$0"`
+test -n "$srcdir" || srcdir=.
+(
+  cd "$srcdir" &&
+  touch ChangeLog && # Automake requires that ChangeLog exist
+  gtkdocize &&
+  autopoint --force &&
+  AUTOPOINT='intltoolize --automake --copy' autoreconf --verbose --force --install
+) || exit
+test -n "$NOCONFIGURE" || "$srcdir/configure" "$@"

@@ -97,4 +97,4 @@ DISTCHECK_CONFIGURE_FLAGS =                            \
 	--enable-tracker-status-icon                   \
 	--with-enca
 
-ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
