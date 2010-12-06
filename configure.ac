@@ -162,6 +162,9 @@ if test "x$tracker_cv_have_ioprio" = "xyes" ; then
    AC_DEFINE(HAVE_IOPRIO, 1, [Define if we have ioprio])
 fi
 
+# Binary required versions
+PYTHON_REQUIRED=2.6
+
 # Library required versions
 DBUS_REQUIRED=1.3.1
 DBUS_GLIB_REQUIRED=0.82
@@ -548,7 +551,16 @@ AC_ARG_ENABLE([functional-tests],
               [enable_functional_tests=yes])
 
 if test x$enable_functional_tests != "xno"; then
-  AC_DEFINE(DIST_FUNCTIONAL_TESTS, 1, [Include functional tests in the installation])
+   # Python check, require >= 2.6
+   AC_PATH_PROG([PYTHON],[python],[:])
+   AS_IF([test "$PYTHON" != ":"],
+         [AM_PYTHON_CHECK_VERSION([$PYTHON],[$PYTHON_REQUIRED],[:],[PYTHON=":"])])
+
+   if test "$PYTHON" = ":"; then
+      AC_MSG_ERROR([Couldn't find Python >= $PYTHON_REQUIRED (for functional-tests, try --disable-functional-tests).])
+   fi
+
+   AC_DEFINE(DIST_FUNCTIONAL_TESTS, 1, [Include functional tests in the installation])
 fi
 
 AM_CONDITIONAL(DIST_FUNCTIONAL_TESTS, test "x$enable_functional_tests" != "xno")
