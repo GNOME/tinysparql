@@ -70,22 +70,32 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError {
 		if (!DBManager.trylock ()) {
 			// run in a separate thread
-			Error job_error = null;
+			Sparql.Error sparql_error = null;
+			IOError io_error = null;
+			DBusError dbus_error = null;
 			Sparql.Cursor result = null;
 
 			g_io_scheduler_push_job (job => {
 				try {
 					result = query (sparql, cancellable);
-				} catch (Error e) {
-					job_error = e;
+				} catch (IOError e_io) {
+					io_error = e_io;
+				} catch (Sparql.Error e_spql) {
+					sparql_error = e_spql;
+				} catch (DBusError e_dbus) {
+					dbus_error = e_dbus;
 				}
 				query_async.callback ();
 				return false;
 			});
 			yield;
 
-			if (job_error != null) {
-				throw job_error;
+			if (sparql_error != null) {
+				throw sparql_error;
+			} else if (io_error != null) {
+				throw io_error;
+			} else if (dbus_error != null) {
+				throw dbus_error;
 			} else {
 				return result;
 			}
