@@ -218,8 +218,12 @@ tracker_status_icon_init (TrackerStatusIcon *icon)
 	g_signal_connect (priv->config, "notify::visibility",
 	                  G_CALLBACK (status_icon_visibility_notify), icon);
 
-	/* FIXME: Make this configurable */
+#if 0
+	/* FIXME: Make this configurable, this has been disabled due to bug:
+	 * https://bugzilla.gnome.org/show_bug.cgi?id=636383
+	 */
 	set_global_keybinding (icon, "<Ctrl><Alt>S");
+#endif
 }
 
 static void
