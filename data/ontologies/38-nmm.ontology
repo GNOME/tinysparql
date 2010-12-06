@@ -21,6 +21,12 @@ nmm:MusicPiece a rdfs:Class ;
 	tracker:domainIndex nie:title ;
 	rdfs:subClassOf nfo:Media .
 
+nmm:MusicAlbum a rdfs:Class ;
+	rdfs:label "Music album" ;
+	tracker:notify true ;
+	tracker:domainIndex nie:title ;
+	rdfs:subClassOf nfo:MediaList .
+
 # Added Dec 1 2010
 nmm:MusicAlbumDisc a rdfs:Class ;
 	rdfs:label "Music album Disc" .
@@ -35,12 +41,6 @@ nmm:albumDiscAlbum a rdf:Property ;
 nmm:SynchronizedText a rdfs:Class ;
 	rdfs:label "Synchronized text (use nie:language to set the language). Valid for subtitles and lyrics" ;
 	rdfs:subClassOf nfo:PlainTextDocument .
-
-nmm:MusicAlbum a rdfs:Class ;
-	rdfs:label "Music album" ;
-	tracker:notify true ;
-	tracker:domainIndex nie:title ;
-	rdfs:subClassOf nfo:MediaList .
 
 nmm:Video a rdfs:Class ;
 	rdfs:label "Video" ;
