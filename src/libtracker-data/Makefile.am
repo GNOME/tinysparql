@@ -81,3 +81,6 @@ noinst_HEADERS =                                       \
 
 BUILT_SOURCES =                                        \
 	libtracker_data_la_vala.stamp
+
+EXTRA_DIST =                                           \
+	libtracker-data.vapi
