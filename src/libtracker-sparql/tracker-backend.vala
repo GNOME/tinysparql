@@ -127,7 +127,7 @@ class Tracker.Sparql.Backend : Connection {
 		yield bus.update_async (sparql, priority, cancellable);
 	}
 
-	public async override GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
+	public async override GenericArray<Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
 	requires (bus != null) {
 		return yield bus.update_array_async (sparql, priority, cancellable);
 	}

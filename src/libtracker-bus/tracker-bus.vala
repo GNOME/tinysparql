@@ -198,7 +198,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	public async override GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public async override GenericArray<Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);

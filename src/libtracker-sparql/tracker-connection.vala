@@ -487,7 +487,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async virtual GenericArray<Error?> update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
+	public async virtual GenericArray<Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'update_array_async' not implemented");
 		return null;
 	}
