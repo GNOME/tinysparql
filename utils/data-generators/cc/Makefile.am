@@ -1,7 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
 EXTRA_DIST =                                           \
-	convert_data.pyc                               \
 	default.cfg                                    \
 	gen_data.py                                    \
 	generate                                       \
