@@ -2338,11 +2338,12 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_object_int64 (metadata, md.track_number);
 	}
 
-	if (md.set_number > 0) {
+	if (md.album) {
 		gchar *album_disc_uri;
 
 		album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-		                                                   md.album, md.set_number);
+		                                                   md.album,
+		                                                   md.set_number > 0 ? md.set_number : 1);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
@@ -2364,7 +2365,7 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
-		tracker_sparql_builder_object_int64 (preupdate, md.set_number);
+		tracker_sparql_builder_object_int64 (preupdate, md.set_number > 0 ? md.set_number : 1);
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_delete_open (preupdate, NULL);
