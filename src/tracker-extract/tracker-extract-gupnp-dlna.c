@@ -701,7 +701,7 @@ extract_metadata (MetadataExtractor      *extractor,
 			}
 
 			if (album_disc_uri) {
-				tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisk");
+				tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisc");
 				tracker_sparql_builder_object_iri (metadata, album_disc_uri);
 			}
 		}

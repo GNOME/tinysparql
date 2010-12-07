@@ -2384,7 +2384,7 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_object_iri (preupdate, md.album_uri);
 		tracker_sparql_builder_insert_close (preupdate);
 
-		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisk");
+		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisc");
 		tracker_sparql_builder_object_iri (metadata, album_disc_uri);
 
 		g_free (album_disc_uri);

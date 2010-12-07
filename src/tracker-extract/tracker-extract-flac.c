@@ -372,7 +372,7 @@ extract_flac (const gchar          *uri,
 		tracker_sparql_builder_object_iri (preupdate, album_uri);
 		tracker_sparql_builder_insert_close (preupdate);
 
-		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisk");
+		tracker_sparql_builder_predicate (metadata, "nmm:musicAlbumDisc");
 		tracker_sparql_builder_object_iri (metadata, album_disc_uri);
 
 		g_free (album_disc_uri);
