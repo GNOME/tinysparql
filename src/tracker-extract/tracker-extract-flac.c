@@ -326,11 +326,12 @@ extract_flac (const gchar          *uri,
 	add_tuple (metadata, "nie:title", fd.title);
 	add_tuple (metadata, "nmm:trackNumber", fd.tracknumber);
 
-	if (fd.discno && fd.album && album_uri) {
+	if (fd.album && album_uri) {
 		gchar *album_disc_uri;
 
 		album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s:Disc%d",
-		                                                   fd.album, atoi(fd.discno));
+		                                                   fd.album,
+		                                                   fd.discno ? atoi(fd.discno) : 1);
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
@@ -352,7 +353,7 @@ extract_flac (const gchar          *uri,
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 		tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
-		tracker_sparql_builder_object_int64 (preupdate, atoi (fd.discno));
+		tracker_sparql_builder_object_int64 (preupdate, fd.discno ? atoi (fd.discno) : 1);
 		tracker_sparql_builder_insert_close (preupdate);
 
 		tracker_sparql_builder_delete_open (preupdate, NULL);
