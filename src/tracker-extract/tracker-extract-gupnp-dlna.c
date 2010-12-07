@@ -481,13 +481,14 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_insert_close (preupdate);
 			}
 
-			has_it = gst_tag_list_get_uint (extractor->tags,
-			                                GST_TAG_ALBUM_VOLUME_NUMBER,
-			                                &count);
+			if (albumname) {
+				has_it = gst_tag_list_get_uint (extractor->tags,
+				                                GST_TAG_ALBUM_VOLUME_NUMBER,
+				                                &count);
 
-			if (has_it) {
 				album_disc_uri = tracker_sparql_escape_uri_printf ("urn:album-disc:%s/%d",
-				                                                   albumname, count);
+				                                                   albumname,
+				                                                   has_it ? count : 1);
 
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
@@ -509,7 +510,7 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_insert_open (preupdate, NULL);
 				tracker_sparql_builder_subject_iri (preupdate, album_disc_uri);
 				tracker_sparql_builder_predicate (preupdate, "nmm:setNumber");
-				tracker_sparql_builder_object_int64 (preupdate, count);
+				tracker_sparql_builder_object_int64 (preupdate, has_it ? count : 1);
 				tracker_sparql_builder_insert_close (preupdate);
 
 				tracker_sparql_builder_delete_open (preupdate, NULL);
