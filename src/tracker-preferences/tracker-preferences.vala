@@ -119,7 +119,7 @@ public static void add_freevalue (ListStore model) {
 
 	dialog = new Dialog.with_buttons (_("Enter value"),
 	                                  window,
-	                                  DialogFlags.DESTROY_WITH_PARENT | DialogFlags.NO_SEPARATOR,
+	                                  DialogFlags.DESTROY_WITH_PARENT,
 	                                  Stock.CANCEL, ResponseType.CANCEL,
 	                                  Stock.OK, ResponseType.ACCEPT);
 
