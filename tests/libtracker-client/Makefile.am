@@ -13,6 +13,7 @@ AM_CPPFLAGS =                                          \
 
 LDADD =                                                \
 	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_CLIENT_LIBS)
 
