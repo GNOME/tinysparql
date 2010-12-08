@@ -29,6 +29,8 @@ IGNORE_HFILES=                                         \
 	tracker-miner-client.h                         \
 	tracker-miner-dbus.h                           \
 	tracker-miner-glue.h                           \
+	tracker-miner-files-index-client.h             \
+	tracker-miner-fs-processing-pool.h             \
 	tracker-miner-web-dbus.h                       \
 	tracker-miner-web-glue.h                       \
 	tracker-miner-web-glue.h                       \

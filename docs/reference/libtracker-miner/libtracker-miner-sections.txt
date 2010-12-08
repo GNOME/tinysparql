@@ -1,13 +1,11 @@
 <SECTION>
 <FILE>tracker-miner-manager</FILE>
 <TITLE>TrackerMinerManager</TITLE>
+TRACKER_MINER_MANAGER_ERROR
+TrackerMinerManagerError
+tracker_miner_manager_error_quark
 TrackerMinerManager
 TrackerMinerManagerClass
-miner_progress
-miner_paused
-miner_resumed
-miner_activated
-miner_deactivated
 tracker_miner_manager_new
 tracker_miner_manager_get_running
 tracker_miner_manager_get_available
@@ -16,9 +14,11 @@ tracker_miner_manager_resume
 tracker_miner_manager_is_active
 tracker_miner_manager_is_paused
 tracker_miner_manager_get_status
-tracker_miner_manager_ignore_next_update
 tracker_miner_manager_get_display_name
 tracker_miner_manager_get_description
+tracker_miner_manager_index_file
+tracker_miner_manager_ignore_next_update
+tracker_miner_manager_reindex_by_mimetype
 <SUBSECTION Standard>
 TRACKER_MINER_MANAGER
 TRACKER_IS_MINER_MANAGER
@@ -31,14 +31,13 @@ TRACKER_MINER_MANAGER_GET_CLASS
 
 <SECTION>
 <FILE>tracker-miner</FILE>
+TrackerMinerPrivate
 <TITLE>TrackerMiner</TITLE>
 TRACKER_MINER_ERROR_DOMAIN
 TRACKER_MINER_ERROR
-TrackerMinerPrivate
-<TITLE>TrackerMiner</TITLE>
+tracker_miner_error_quark
 TrackerMiner
 TrackerMinerClass
-tracker_miner_error_quark
 tracker_miner_start
 tracker_miner_stop
 tracker_miner_ignore_next_update
@@ -58,13 +57,15 @@ TRACKER_MINER_GET_CLASS
 
 <SECTION>
 <FILE>tracker-miner-fs</FILE>
+TrackerMinerFSPrivate
 <TITLE>TrackerMinerFS</TITLE>
 TrackerMinerFS
 TrackerMinerFSClass
+tracker_miner_fs_check_directory
+tracker_miner_fs_check_file
 tracker_miner_fs_directory_add
 tracker_miner_fs_directory_remove
 tracker_miner_fs_directory_remove_full
-tracker_miner_fs_file_add
 tracker_miner_fs_file_notify
 tracker_miner_fs_set_throttle
 tracker_miner_fs_get_throttle
@@ -88,16 +89,15 @@ TRACKER_MINER_FS_GRAPH_URN
 
 <SECTION>
 <FILE>tracker-miner-web</FILE>
+TrackerMinerWebPrivate
 <TITLE>TrackerMinerWeb</TITLE>
 TRACKER_MINER_WEB_ERROR_DOMAIN
 TRACKER_MINER_WEB_ERROR
+TrackerMinerWebError
+tracker_miner_web_error_quark
 TRACKER_MINER_WEB_DBUS_INTERFACE
-TrackerMinerWebPrivate
-<TITLE>TrackerMinerWeb</TITLE>
 TrackerMinerWeb
 TrackerMinerWebClass
-tracker_miner_web_error_quark
-TrackerMinerWebError
 tracker_miner_web_associate
 tracker_miner_web_authenticate
 tracker_miner_web_dissociate
@@ -117,11 +117,11 @@ TRACKER_MINER_WEB_GET_CLASS
 <TITLE>TrackerPasswordProvider</TITLE>
 TRACKER_PASSWORD_PROVIDER_ERROR_DOMAIN
 TRACKER_PASSWORD_PROVIDER_ERROR
+TrackerPasswordProviderError
+tracker_password_provider_error_quark
 TRACKER_PASSWORD_PROVIDER_GET_INTERFACE
 TrackerPasswordProvider
-TrackerPasswordProviderError
 TrackerPasswordProviderIface
-tracker_password_provider_error_quark
 tracker_password_provider_get
 tracker_password_provider_get_name
 tracker_password_provider_store_password

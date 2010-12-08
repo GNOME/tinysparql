@@ -40,6 +40,16 @@ G_BEGIN_DECLS
 typedef struct _TrackerMinerManager TrackerMinerManager;
 typedef struct _TrackerMinerManagerClass TrackerMinerManagerClass;
 
+/**
+ * TrackerMinerManagerError:
+ * @TRACKER_MINER_MANAGER_ERROR_NOT_AVAILABLE: The miner in question
+ * is not active and can so can not be used.
+ * @TRACKER_MINER_MANAGER_ERROR_NOENT: The resource that the
+ * miner is handling (for example a file or URI) does not exist.
+ *
+ * Enumeration values used in errors returned by the
+ * #TrackerMinerManager API.
+ **/
 typedef enum {
 	TRACKER_MINER_MANAGER_ERROR_NOT_AVAILABLE,
 	TRACKER_MINER_MANAGER_ERROR_NOENT
@@ -56,8 +66,14 @@ struct _TrackerMinerManager {
 
 /**
  * TrackerMinerManagerClass:
- *
- * #TrackerMinerManager class.
+ * @miner_progress: The progress signal for all miners including name,
+ * status and progress as a percentage between 0 and 1.
+ * @miner_paused: The paused signal for all miners known about.
+ * @miner_resumed: The resumed signal for all miners known about.
+ * @miner_activated: The activated signal for all miners which
+ * indicates the miner is available on d-bus.
+ * @miner_deactivated: The deactivate for all miners which indicates
+ * the miner is no longer available on d-bus.
  **/
 struct _TrackerMinerManagerClass {
 	GObjectClass parent_class;

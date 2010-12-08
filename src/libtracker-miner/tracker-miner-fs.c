@@ -3844,7 +3844,7 @@ check_file_parents (TrackerMinerFS *fs,
  * tracker_miner_fs_check_file:
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the file to check
- * @do_checks: whether to check parents and eligibility or not
+ * @check_parents: whether to check parents and eligibility or not
  *
  * Tells the filesystem miner to check and index a file,
  * this file must be part of the usual crawling directories
@@ -3853,7 +3853,7 @@ check_file_parents (TrackerMinerFS *fs,
 void
 tracker_miner_fs_check_file (TrackerMinerFS *fs,
                              GFile          *file,
-                             gboolean        do_checks)
+                             gboolean        check_parents)
 {
 	gboolean should_process = TRUE;
 	gchar *path;
@@ -3861,7 +3861,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
-	if (do_checks) {
+	if (check_parents) {
 		should_process = should_check_file (fs, file, FALSE);
 	}
 
@@ -3872,7 +3872,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 	         path);
 
 	if (should_process) {
-		if (do_checks && !check_file_parents (fs, file)) {
+		if (check_parents && !check_file_parents (fs, file)) {
 			return;
 		}
 
@@ -3889,7 +3889,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
  * tracker_miner_fs_check_directory:
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the directory to check
- * @do_checks: whether to check parents and eligibility or not
+ * @check_parents: whether to check parents and eligibility or not
  *
  * Tells the filesystem miner to check and index a directory,
  * this file must be part of the usual crawling directories
@@ -3898,7 +3898,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 void
 tracker_miner_fs_check_directory (TrackerMinerFS *fs,
                                   GFile          *file,
-                                  gboolean        do_checks)
+                                  gboolean        check_parents)
 {
 	gboolean should_process = TRUE;
 	gchar *path;
@@ -3906,7 +3906,7 @@ tracker_miner_fs_check_directory (TrackerMinerFS *fs,
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
 	g_return_if_fail (G_IS_FILE (file));
 
-	if (do_checks) {
+	if (check_parents) {
 		should_process = should_check_file (fs, file, TRUE);
 	}
 
@@ -3917,7 +3917,7 @@ tracker_miner_fs_check_directory (TrackerMinerFS *fs,
 	         path);
 
 	if (should_process) {
-		if (do_checks && !check_file_parents (fs, file)) {
+		if (check_parents && !check_file_parents (fs, file)) {
 			return;
 		}
 

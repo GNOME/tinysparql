@@ -409,10 +409,12 @@ tracker_miner_manager_new (void)
  * tracker_miner_manager_get_running:
  * @manager: a #trackerMinerManager
  *
- * Returns a list of references for all active miners.
+ * Returns a list of references for all active miners. Active miners
+ * are miners which are running within a process.
  *
- * Returns: a #GSList of miner references. This list must be freed
- *          through g_slist_free(), and all contained data with g_free().
+ * Returns: a #GSList which must be freed with g_slist_free() and all
+ * contained data with g_free(). Otherwise %NULL is returned if there
+ * are no miners.
  **/
 GSList *
 tracker_miner_manager_get_running (TrackerMinerManager *manager)
@@ -570,10 +572,13 @@ initialize_miners_data (TrackerMinerManager *manager)
  * tracker_miner_manager_get_available:
  * @manager: a #TrackerMinerManager
  *
- * Returns a list of references for all available miners.
+ * Returns a list of references for all available miners. Available
+ * miners are miners which may or may not be running in a process at
+ * the current time.
  *
- * Returns: a #GSList of miner references. This list must be freed
- *          through g_slist_free(), and all contained data with g_free().
+ * Returns: a #GSList which must be freed with g_slist_free() and all
+ * contained data with g_free(). Otherwise %NULL is returned if there
+ * are no miners.
  **/
 GSList *
 tracker_miner_manager_get_available (TrackerMinerManager *manager)
@@ -604,7 +609,8 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
  * several reasons, and its activity won't be resumed
  * until all pause requests have been resumed.
  *
- * Returns: %TRUE if the miner was paused successfully.
+ * Returns: %TRUE if the miner was paused successfully, otherwise
+ * %FALSE. 
  **/
 gboolean
 tracker_miner_manager_pause (TrackerMinerManager *manager,
@@ -656,9 +662,10 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
  * @cookie: pause cookie
  *
  * Tells @miner to resume activity. The miner won't actually resume
- * operations until all pause requests have been resumed.
+ * operations until all pause requests have been resumed. 
  *
- * Returns: %TRUE if the miner was successfully resumed.
+ * Returns: %TRUE if the miner was successfully resumed, otherwise
+ * %FALSE. 
  **/
 gboolean
 tracker_miner_manager_resume (TrackerMinerManager *manager,
@@ -693,9 +700,9 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
  * @manager: a #TrackerMinerManager
  * @miner: miner reference
  *
- * Returns %TRUE if @miner is currently active.
+ * Returns the miner's current activity.
  *
- * Returns: %TRUE if @miner is active.
+ * Returns: %TRUE if the @miner is active, otherwise %FALSE.
  **/
 gboolean
 tracker_miner_manager_is_active (TrackerMinerManager *manager,
@@ -733,7 +740,8 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
  *
  * Returns the current status and progress for @miner.
  *
- * Returns: %TRUE if the status could be retrieved successfully.
+ * Returns: %TRUE if the status could be retrieved successfully,
+ * otherwise %FALSE
  **/
 gboolean
 tracker_miner_manager_get_status (TrackerMinerManager  *manager,
@@ -808,7 +816,7 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
  * arrays will have the same lengh, and will be sorted so the
  * application/pause reason pairs have the same index.
  *
- * Returns: %TRUE if @miner is paused.
+ * Returns: %TRUE if @miner is paused, otherwise %FALSE.
  **/
 gboolean
 tracker_miner_manager_is_paused (TrackerMinerManager *manager,
@@ -873,7 +881,7 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
  *
  * Returns a translated display name for @miner.
  *
- * Returns: The miner display name.
+ * Returns: A string which should not be freed or %NULL.
  **/
 const gchar *
 tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
@@ -903,9 +911,9 @@ tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
  * @manager: a #TrackerMinerManager
  * @miner: miner reference
  *
- * Returns the description for @miner, or %NULL if none is specified.
+ * Returns the description for the given @miner.
  *
- * Returns: The miner description.
+ * Returns: A string which should not be freed or %NULL if none is specified.
  **/
 const gchar *
 tracker_miner_manager_get_description (TrackerMinerManager *manager,
@@ -933,13 +941,16 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
 
 /**
  * tracker_miner_manager_ignore_next_update:
- * @manager: a #TrackerMinerManager.
+ * @manager: a #TrackerMinerManager
  * @miner: miner reference
- * @urls: subjects to mark as writeback
+ * @urls: the subjects to ignore the next updates of
  *
- * Asks @miner to mark @subjects as writeback
+ * Tells the @miner to ignore any events for the next @urls. This is
+ * used for cases where a file is updated by Tracker by the
+ * tracker-writeback service. This API is used to avoid signalling up
+ * the stack the changes to @urls.
  *
- * Returns: %TRUE if the miner was asked to ignore on next update successfully.
+ * Returns: %TRUE on success, otherwise %FALSE.
  **/
 gboolean
 tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
@@ -982,6 +993,12 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 	return TRUE;
 }
 
+/**
+ * tracker_miner_manager_error_quark:
+ *
+ * Returns: the #GQuark used to identify miner manager errors in
+ * GError structures.
+ **/
 GQuark
 tracker_miner_manager_error_quark (void)
 {
@@ -997,14 +1014,16 @@ tracker_miner_manager_error_quark (void)
 /**
  * tracker_miner_manager_reindex_by_mimetype:
  * @manager: a #TrackerMinerManager
- * @mimetypes: an array of mimetypes (E.G. "text/plain"). All items with a mimetype in that 
- * list will be reindexed.
+ * @mimetypes: an array of mimetypes (E.G. "text/plain"). All items
+ * with a mimetype in that list will be reindexed.
  * @error: return location for errors
  *
- * Tells the filesystem miner to reindex any file with a mimetype in the @mimetypes list. 
- * On failure @error will be set and #FALSE will be returned.
+ * Tells the filesystem miner to reindex any file with a mimetype in
+ * the @mimetypes list.
  *
- * Returns: #TRUE if everything went fine in the miner.
+ * On failure @error will be set.
+ *
+ * Returns: %TRUE on success, otherwise %FALSE.
  **/
 gboolean
 tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
@@ -1054,10 +1073,11 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
  * @file: a URL valid in GIO of a file to give to the miner for processing
  * @error: return location for errors
  *
- * Tells the filesystem miner to index the @file. On failure @error 
- * will be set and #FALSE will be returned.
+ * Tells the filesystem miner to index the @file.
+ * 
+ * On failure @error will be set.
  *
- * Returns: #TRUE if the miner processed the URL correctly.
+ * Returns: %TRUE on success, otherwise %FALSE.
  **/
 gboolean
 tracker_miner_manager_index_file (TrackerMinerManager  *manager,

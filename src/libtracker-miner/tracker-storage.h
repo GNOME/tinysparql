@@ -72,10 +72,22 @@ typedef enum {
 typedef struct _TrackerStorage TrackerStorage;
 typedef struct _TrackerStorageClass TrackerStorageClass;
 
+/**
+ * TrackerStorage:
+ * @parent: parent object
+ *
+ * A storage API for using mount points and devices
+ **/
 struct _TrackerStorage {
 	GObject parent;
 };
 
+/**
+ * TrackerStorageClass:
+ * @parent_class: parent object class
+ *
+ * A storage class for #TrackerStorage.
+ **/
 struct _TrackerStorageClass {
 	GObjectClass parent_class;
 };

@@ -104,8 +104,8 @@ tracker_network_provider_get_type (void)
  * "NetworkManager". Either of these is what will be returned unless new
  * providers are written.
  *
- * Returns: a newly allocated string representing the #Object:name
- * which must be freed with g_free().
+ * Returns: a newly allocated string representing the name which must
+ * be freed with g_free().
  **/
 gchar *
 tracker_network_provider_get_name (TrackerNetworkProvider *provider)

@@ -37,19 +37,20 @@ typedef struct TrackerNetworkProvider TrackerNetworkProvider;
 
 /**
  * TrackerNetworkProviderStatus:
- *
- * Enumerates the different types of connections that the device might use when
- * connected to internet. Note that not all providers might provide this
- * information.
- *
  * @TRACKER_NETWORK_PROVIDER_DISCONNECTED: Network is disconnected
  * @TRACKER_NETWORK_PROVIDER_UNKNOWN: Network status is unknown
- * @TRACKER_NETWORK_PROVIDER_GPRS: Network is connected over a GPRS connection
- * @TRACKER_NETWORK_PROVIDER_EDGE: Network is connected over an EDGE connection
- * @TRACKER_NETWORK_PROVIDER_3G: Network is connected over a 3G or faster
- * (HSDPA, UMTS, ...) connection
- * @TRACKER_NETWORK_PROVIDER_LAN: Network is connected over a local network
- * connection. This can be ethernet, wifi, etc.
+ * @TRACKER_NETWORK_PROVIDER_GPRS: Network is connected over a GPRS
+ * connection
+ * @TRACKER_NETWORK_PROVIDER_EDGE: Network is connected over an EDGE
+ * connection
+ * @TRACKER_NETWORK_PROVIDER_3G: Network is connected over a 3G or
+ * faster (HSDPA, UMTS, ...) connection
+ * @TRACKER_NETWORK_PROVIDER_LAN: Network is connected over a local
+ * network connection. This can be ethernet, wifi, etc.
+ *
+ * Enumerates the different types of connections that the device might
+ * use when connected to internet. Note that not all providers might
+ * provide this information.
  *
  * Since: 0.10
  **/
