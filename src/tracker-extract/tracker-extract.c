@@ -64,8 +64,8 @@ typedef struct {
 	const GModule *module;
 	const TrackerExtractData *edata;
 	GPatternSpec *pattern; /* For a fast g_pattern_match() */
-	guint extracted_count;
-	guint failed_count;
+	gint extracted_count;
+	gint failed_count;
 } ModuleData;
 
 static void tracker_extract_finalize (GObject *object);
