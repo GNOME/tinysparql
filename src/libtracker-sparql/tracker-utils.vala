@@ -92,6 +92,19 @@ namespace Tracker.Sparql {
 	[CCode (cname = "uuid_unparse_lower")]
 	private extern static void uuid_unparse_lower ([CCode (array_length = false)] uchar[] uuid, char* out);
 
+	/**
+	 * tracker_sparql_get_uuid_urn:
+	 *
+	 * Generates a unique universal identifier to be used for urns
+	 * when inserting SPARQL into the database. The string returned is
+	 * in lower case and has the format "urn:uuid:&percnt;s" where
+	 * &percnt;s is the uuid generated.
+	 *
+	 * Returns: a newly-allocated string. The returned string should
+	 * be freed with g_free() when no longer needed.
+	 *
+	 * Since: 0.10
+	 */
 	public string get_uuid_urn () {
 		uchar[] base_uuid = new uchar[16];
 		string lower = (string) new char[37];
