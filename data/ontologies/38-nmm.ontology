@@ -13,7 +13,7 @@
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2010-12-02T12:52:00Z" .
+	nao:lastModified "2010-12-09T14:26:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;
@@ -29,11 +29,13 @@ nmm:MusicAlbum a rdfs:Class ;
 
 # Added Dec 1 2010
 nmm:MusicAlbumDisc a rdfs:Class ;
-	rdfs:label "Music album Disc" .
+	rdfs:label "Music album Disc" ;
+	rdfs:subClassOf nie:InformationElement .
 
 # Added Dec 1 2010
 nmm:albumDiscAlbum a rdf:Property ;
-	rdfs:label "album disc" ;
+	rdfs:label "album disc's album" ;
+	rdfs:comment "Album of the disc" ;
 	rdfs:range nmm:MusicAlbum ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmm:MusicAlbumDisc .
