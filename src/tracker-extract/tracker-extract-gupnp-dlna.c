@@ -35,8 +35,8 @@ long long int llroundl(long double x);
 
 #include <gst/tag/tag.h>
 
-#include <libtracker-client/tracker.h>
-
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"
@@ -292,6 +292,23 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 	if (date) {
 		g_date_free (date);
 	}
+#ifdef GUARANTEE_METADATA
+	else {
+		gchar *datestr;
+		guint64 mtime;
+
+		gchar  *filename = g_filename_from_uri (uri, NULL, NULL);
+
+		mtime = tracker_file_get_mtime (filename);
+		datestr = tracker_date_to_string ((time_t) mtime);
+
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_unvalidated (metadata, datestr);
+
+		g_free (datestr);
+		g_free (filename);
+	}
+#endif
 }
 
 static void
@@ -366,6 +383,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		gchar *composer_uri = NULL;
 		gchar *album_uri = NULL;
 		gchar *album_disc_uri = NULL;
+		gchar *s;
 
 		/* General */
 		if (extractor->content == CONTENT_AUDIO || extractor->content == CONTENT_VIDEO) {
@@ -600,7 +618,35 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 		g_free (genre);
 
-		add_string_gst_tag (metadata, uri, "nie:title", extractor->tags, GST_TAG_TITLE);
+		s = NULL;
+		ret = gst_tag_list_get_string (extractor->tags, GST_TAG_TITLE, &s);
+		if (s) {
+			if (ret && s[0] != '\0') {
+				tracker_sparql_builder_predicate (metadata, "nie:title");
+				tracker_sparql_builder_object_unvalidated (metadata, s);
+			}
+			g_free (s);
+		}
+#ifdef GUARANTEE_METADATA
+		else {	
+			gchar  *filename = g_filename_from_uri (uri, NULL, NULL);
+			gchar  *basename = g_filename_display_basename (filename);
+			gchar **parts    = g_strsplit (basename, ".", -1);
+			gchar  *title    = g_strdup (parts[0]);
+			
+			g_strfreev (parts);
+			g_free (basename);
+			g_free (filename);
+			
+			title = g_strdelimit (title, "_", ' ');
+			
+			tracker_sparql_builder_predicate (metadata, "nie:title");
+			tracker_sparql_builder_object_unvalidated (metadata, title);
+			
+			g_free (title);
+		}
+#endif
+
 		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tags, GST_TAG_COPYRIGHT);
 		add_string_gst_tag (metadata, uri, "nie:license", extractor->tags, GST_TAG_LICENSE);
 		add_string_gst_tag (metadata, uri, "dc:coverage", extractor->tags, GST_TAG_LOCATION);
@@ -803,6 +849,10 @@ extract_gupnp_dlna (const gchar           *uri,
 	extractor.album_art_mime = NULL;
 
 	discoverer = gupnp_dlna_discoverer_new (5*GST_SECOND, TRUE, FALSE);
+
+	/* Uri is const, the API should be const, but it isn't and it
+	 * calls gst_discoverer_discover_uri()
+	 */
 	dlna_info = gupnp_dlna_discoverer_discover_uri_sync (discoverer,
 							     uri,
 							     &error);
@@ -939,4 +989,3 @@ tracker_extract_get_data (void)
 {
 	return data;
 }
-

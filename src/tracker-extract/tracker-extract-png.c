@@ -27,6 +27,7 @@
 #include <png.h>
 
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-date-time.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
@@ -244,7 +245,23 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, md.date);
 	}
+#ifdef GUARANTEE_METADATA
+	else {
+		gchar *date;
+		guint64 mtime;
 
+		gchar *filename = g_filename_from_uri (uri, NULL, NULL);
+
+		mtime = tracker_file_get_mtime (filename);
+		date = tracker_date_to_string ((time_t) mtime);
+
+		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
+		tracker_sparql_builder_object_unvalidated (metadata, date);
+
+		g_free (date);
+		g_free (filename);
+	}
+#endif
 	if (md.description) {
 		tracker_sparql_builder_predicate (metadata, "nie:description");
 		tracker_sparql_builder_object_unvalidated (metadata, md.description);
@@ -259,7 +276,25 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, md.title);
 	}
+#ifdef GUARANTEE_METADATA
+	else {
+		gchar *filename = g_filename_from_uri (uri, NULL, NULL);
+		gchar  *basename = g_filename_display_basename (filename);
+		gchar **parts    = g_strsplit (basename, ".", -1);
+		gchar  *title    = g_strdup (parts[0]);
 
+		g_strfreev (parts);
+		g_free (basename);
+		g_free (filename);
+
+		title = g_strdelimit (title, "_", ' ');
+
+		tracker_sparql_builder_predicate (metadata, "nie:title");
+		tracker_sparql_builder_object_unvalidated (metadata, title);
+
+		g_free (title);
+	}
+#endif
 	if (md.make || md.model) {
 		gchar *equip_uri;
 

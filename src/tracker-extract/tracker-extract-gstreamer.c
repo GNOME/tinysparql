@@ -31,7 +31,7 @@
 
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
-
+#include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"
@@ -310,6 +310,24 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 	if (date) {
 		g_date_free (date);
 	}
+#ifdef GUARANTEE_METADATA
+	else {
+		gchar *datestr;
+		guint64 mtime;
+
+		gchar  *filename = g_filename_from_uri (uri, NULL, NULL);
+
+		mtime = tracker_file_get_mtime (filename);
+		datestr = tracker_date_to_string ((time_t) mtime);
+
+		tracker_sparql_builder_predicate (metadata, key);
+		tracker_sparql_builder_object_unvalidated (metadata, datestr);
+
+		g_free (datestr);
+		g_free (filename);
+	}
+#endif
+
 }
 
 static void
@@ -759,7 +777,34 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 		g_free (genre);
 
-		add_string_gst_tag (metadata, uri, "nie:title", extractor->tagcache, GST_TAG_TITLE);
+		s = NULL;
+		gst_tag_list_get_string (extractor->tagcache, GST_TAG_TITLE, &s);
+		if (s) {
+			if (ret && s[0] != '\0') {
+				tracker_sparql_builder_predicate (metadata, "nie:title");
+				tracker_sparql_builder_object_unvalidated (metadata, s);
+			}
+			g_free (s);
+		}
+#ifdef GUARANTEE_METADATA
+		else {	
+			gchar  *filename = g_filename_from_uri (uri, NULL, NULL);
+			gchar  *basename = g_filename_display_basename (filename);
+			gchar **parts    = g_strsplit (basename, ".", -1);
+			gchar  *title    = g_strdup (parts[0]);
+			
+			g_strfreev (parts);
+			g_free (basename);
+			g_free (filename);
+			
+			title = g_strdelimit (title, "_", ' ');
+			
+			tracker_sparql_builder_predicate (metadata, "nie:title");
+			tracker_sparql_builder_object_unvalidated (metadata, title);
+			
+			g_free (title);
+		}
+#endif
 		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
 		add_string_gst_tag (metadata, uri, "nie:license", extractor->tagcache, GST_TAG_LICENSE);
 		add_string_gst_tag (metadata, uri, "dc:coverage", extractor->tagcache, GST_TAG_LOCATION);
