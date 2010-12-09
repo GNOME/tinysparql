@@ -17,4 +17,5 @@ EXTRA_DIST =                                           \
 	ontology_prefixes.py                           \
 	tools.py                                       \
 	tracker.py                                     \
+	convert_data.py                                \
 	source-data
