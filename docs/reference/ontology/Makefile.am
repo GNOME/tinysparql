@@ -27,7 +27,7 @@ ONTOLOGY_DIAGRAMS_PNG = $(notdir $(ONTOLOGY_DIAGRAMS:.dia=.png))
 
 # DIA to PNG conversion
 $(ONTOLOGY_DIAGRAMS_PNG): $(ONTOLOGY_DIAGRAMS)
-	dia -t png $^ 2>/dev/null
+	$(AM_V_GEN) $(DIA) -t png $^ 2>/dev/null
 
 # The original Ontology explanation files
 ONTOLOGY_EXPLANATIONS =                                \
