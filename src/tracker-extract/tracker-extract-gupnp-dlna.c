@@ -723,7 +723,7 @@ extract_metadata (MetadataExtractor      *extractor,
 
 	if (extractor->content != CONTENT_IMAGE) {
 		if (extractor->channels) {
-			tracker_sparql_builder_predicate (metadata, "nfo.channels");
+			tracker_sparql_builder_predicate (metadata, "nfo:channels");
 			tracker_sparql_builder_object_int64 (metadata, extractor->channels);
 		}
 
