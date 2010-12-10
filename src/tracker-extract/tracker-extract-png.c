@@ -241,20 +241,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		g_free (uri);
 	}
 
-	if (md.date) {
-		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, md.date);
-	}
-#ifdef GUARANTEE_METADATA
-	else {
-		gchar *date;
+	tracker_guarantee_date_from_filename_mtime (metadata,
+	                                            "nie:contentCreated",
+	                                            md.date,
+	                                            uri);
 
-		date = tracker_guarantee_date_from_filename_mtime (uri);
-		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, date);
-		g_free (date);
-	}
-#endif
 	if (md.description) {
 		tracker_sparql_builder_predicate (metadata, "nie:description");
 		tracker_sparql_builder_object_unvalidated (metadata, md.description);
@@ -265,20 +256,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_unvalidated (metadata, md.copyright);
 	}
 
-	if (md.title) {
-		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, md.title);
-	}
-#ifdef GUARANTEE_METADATA
-	else {
-		gchar *title;
+	tracker_guarantee_title_from_filename (metadata,
+	                                       "nie:title",
+	                                       md.title,
+	                                       uri);
 
-		title = tracker_guarantee_title_from_filename (uri);
-		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, title);
-		g_free (title);
-	}
-#endif
 	if (md.make || md.model) {
 		gchar *equip_uri;
 

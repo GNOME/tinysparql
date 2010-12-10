@@ -26,10 +26,18 @@
 #error "only <libtracker-extract/tracker-extract.h> must be included directly."
 #endif
 
+#include "tracker-data.h"
+
 G_BEGIN_DECLS
 
-gchar *tracker_guarantee_title_from_filename      (const gchar *uri);
-gchar *tracker_guarantee_date_from_filename_mtime (const gchar *uri);
+gboolean tracker_guarantee_title_from_filename      (TrackerSparqlBuilder *metadata,
+                                                     const gchar          *key,
+                                                     const gchar          *current_value,
+                                                     const gchar          *uri);
+gboolean tracker_guarantee_date_from_filename_mtime (TrackerSparqlBuilder *metadata,
+                                                     const gchar          *key,
+                                                     const gchar          *current_value,
+                                                     const gchar          *uri);
 
 G_END_DECLS
 

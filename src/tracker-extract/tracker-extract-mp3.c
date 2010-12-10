@@ -2269,20 +2269,10 @@ extract_mp3 (const gchar          *uri,
 	tracker_sparql_builder_object (metadata, "nmm:MusicPiece");
 	tracker_sparql_builder_object (metadata, "nfo:Audio");
 
-	if (md.title) {
-		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, md.title);
-	}
-#ifdef GUARANTEE_METADATA
-	else {
-		gchar *title;
-
-		title = tracker_guarantee_title_from_filename (uri);
-		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, title);
-		g_free (title);
-	}
-#endif
+	tracker_guarantee_title_from_filename (metadata,
+	                                       "nie:title",
+	                                       md.title,
+	                                       uri);
 
 	if (md.lyricist_uri) {
 		tracker_sparql_builder_predicate (metadata, "nmm:lyricist");
@@ -2307,20 +2297,10 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_object_iri (metadata, md.album_uri);
 	}
 
-	if (md.recording_time) {
-		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, md.recording_time);
-	}
-#ifdef GUARANTEE_METADATA
-	else {
-		gchar *date;
-
-		date = tracker_guarantee_date_from_filename_mtime (uri);
-		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, date);
-		g_free (date);
-	}
-#endif
+	tracker_guarantee_date_from_filename_mtime (metadata,
+	                                            "nie:contentCreated",
+	                                            md.recording_time,
+	                                            uri);
 
 	if (md.genre) {
 		tracker_sparql_builder_predicate (metadata, "nfo:genre");
