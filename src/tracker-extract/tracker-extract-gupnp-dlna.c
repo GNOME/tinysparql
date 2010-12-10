@@ -294,19 +294,12 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 	}
 #ifdef GUARANTEE_METADATA
 	else {
-		gchar *datestr;
-		guint64 mtime;
+		gchar *date;
 
-		gchar  *filename = g_filename_from_uri (uri, NULL, NULL);
-
-		mtime = tracker_file_get_mtime (filename);
-		datestr = tracker_date_to_string ((time_t) mtime);
-
+		date = tracker_guarantee_date_from_filename_mtime (uri);
 		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_unvalidated (metadata, datestr);
-
-		g_free (datestr);
-		g_free (filename);
+		tracker_sparql_builder_object_unvalidated (metadata, date);
+		g_free (date);
 	}
 #endif
 }
@@ -629,20 +622,11 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 #ifdef GUARANTEE_METADATA
 		else {	
-			gchar  *filename = g_filename_from_uri (uri, NULL, NULL);
-			gchar  *basename = g_filename_display_basename (filename);
-			gchar **parts    = g_strsplit (basename, ".", -1);
-			gchar  *title    = g_strdup (parts[0]);
-			
-			g_strfreev (parts);
-			g_free (basename);
-			g_free (filename);
-			
-			title = g_strdelimit (title, "_", ' ');
-			
+			gchar *title;
+
+			title = tracker_guarantee_title_from_filename (uri);
 			tracker_sparql_builder_predicate (metadata, "nie:title");
 			tracker_sparql_builder_object_unvalidated (metadata, title);
-			
 			g_free (title);
 		}
 #endif

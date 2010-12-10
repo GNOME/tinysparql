@@ -248,18 +248,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 #ifdef GUARANTEE_METADATA
 	else {
 		gchar *date;
-		guint64 mtime;
 
-		gchar *filename = g_filename_from_uri (uri, NULL, NULL);
-
-		mtime = tracker_file_get_mtime (filename);
-		date = tracker_date_to_string ((time_t) mtime);
-
+		date = tracker_guarantee_date_from_filename_mtime (uri);
 		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
 		tracker_sparql_builder_object_unvalidated (metadata, date);
-
 		g_free (date);
-		g_free (filename);
 	}
 #endif
 	if (md.description) {
@@ -278,20 +271,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	}
 #ifdef GUARANTEE_METADATA
 	else {
-		gchar *filename = g_filename_from_uri (uri, NULL, NULL);
-		gchar  *basename = g_filename_display_basename (filename);
-		gchar **parts    = g_strsplit (basename, ".", -1);
-		gchar  *title    = g_strdup (parts[0]);
+		gchar *title;
 
-		g_strfreev (parts);
-		g_free (basename);
-		g_free (filename);
-
-		title = g_strdelimit (title, "_", ' ');
-
+		title = tracker_guarantee_title_from_filename (uri);
 		tracker_sparql_builder_predicate (metadata, "nie:title");
 		tracker_sparql_builder_object_unvalidated (metadata, title);
-
 		g_free (title);
 	}
 #endif

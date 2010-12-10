@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,20 +17,20 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_EXTRACT_H__
-#define __LIBTRACKER_EXTRACT_H__
+#include <stdio.h>
 
-#include <glib.h>
+#ifndef __LIBTRACKER_EXTRACT_GUARANTEE__
+#define __LIBTRACKER_EXTRACT_GUARANTEE_H__
 
-#define __LIBTRACKER_EXTRACT_INSIDE__
+#if !defined (__LIBTRACKER_EXTRACT_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-extract/tracker-extract.h> must be included directly."
+#endif
 
-#include "tracker-data.h"
-#include "tracker-exif.h"
-#include "tracker-guarantee.h"
-#include "tracker-iptc.h"
-#include "tracker-utils.h"
-#include "tracker-xmp.h"
+G_BEGIN_DECLS
 
-#undef __LIBTRACKER_EXTRACT_INSIDE__
+gchar *tracker_guarantee_title_from_filename      (const gchar *uri);
+gchar *tracker_guarantee_date_from_filename_mtime (const gchar *uri);
 
-#endif /* __LIBTRACKER_EXTRACT_H__ */
+G_END_DECLS
+
+#endif /*  __LIBTRACKER_EXTRACT_GUARANTEE_H__ */

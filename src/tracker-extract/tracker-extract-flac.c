@@ -326,17 +326,10 @@ extract_flac (const gchar          *uri,
 	add_tuple (metadata, "nie:title", fd.title);
 #ifdef GUARANTEE_METADATA
 	if (!fd.title) {
-		gchar  *basename = g_filename_display_basename (filename);
-		gchar **parts    = g_strsplit (basename, ".", -1);
-		gchar  *title    = g_strdup (parts[0]);
+		gchar *title;
 
-		g_strfreev (parts);
-		g_free (basename);
-
-		title = g_strdelimit (title, "_", ' ');
-
+		title = tracker_guarantee_title_from_filename (uri);
 		add_tuple (metadata, "nie:title", title);
-
 		g_free (title);
 	}
 #endif
@@ -394,13 +387,9 @@ extract_flac (const gchar          *uri,
 #ifdef GUARANTEE_METADATA
 	if (!fd.date) {
 		gchar *date;
-		guint64 mtime;
 
-		mtime = tracker_file_get_mtime (filename);
-		date = tracker_date_to_string ((time_t) mtime);
-
+		date = tracker_guarantee_date_from_filename_mtime (uri);
 		add_tuple (metadata, "nie:contentCreated", date);
-
 		g_free (date);
 	}
 #endif
