@@ -1,3 +1,39 @@
+NEW in 0.9.31 - 2010-12-10
+==========================
+
+The changes are:
+
+  * Require: autoconf >= 2.64 was 2.59
+  * Require: libtool >= 2.2 (previously no required version)
+  * build: Require Dia with --enable-gtk-doc
+  * build: Require Python >= 2.6 with --enable-functional-test
+  * build: Binaries built now use *stable* named versions only (i.e. 0.10 not 0.9)
+  * Fixes: GB#636936, Require dia if we want to generate the documentation
+  * Fixes: GB#624041, Port tracker to gtk+ 3.0
+  * Fixes: GB#636604, tracker-0.9.30 linking errors.
+  * Fixes: GB#635756, Include libtracker-data.vapi in tarball
+  * Fixes: GB#636383, tracker-status-icon grabs control+alt+S keybinding unconditionally which causes issues for emacs
+  * Fixes: GB#636520, Use upstream gettext instead the Glib one
+  * Fixes: GB#636527, Use autoreconf instead gnome-autogen.sh
+  * Fixes: NB#207918, ICO image formats are displayed in ...
+  * Ontology: Added nmm:MusicAlbumDisk, nmm:musicAlbumDisk, nmm:albumDiskAlbum classes
+  * Ontology: Changed nmm:performer rdfs:domain from nmm:MusicAlbum to nmm:MusicAlbumDisk
+  * Ontology: Changed nmm:setNumber rdfs:domain from nmm:MusicAlbum to nmm:MusicAlbumDisk
+  * Ontology: Changed nmm:internationalStandardRecordingCode rdfs:domain from nmm:MusicAlbum to nmm:MusicPiece
+  * libtracker-sparql: Fixed documentation to include tracker_sparql_get_uuid_urn()
+  * libtracker-miner: Fixed documentation missing but written
+  * tracker-extract: Fixed GUPNP-DLNA extractor, was using "nfo.channels" not "nfo:channels"
+  * functional-tests: Don't hardcode python version in scripts
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.9.30 - 2010-12-02
 ==========================
 
