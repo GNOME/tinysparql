@@ -5,4 +5,4 @@ SELECT fn:string-join((?s,?t,?u),"|")
 { OPTIONAL { ?_x ex:s ?s . }
   OPTIONAL { ?_x ex:t ?t . }
   OPTIONAL { ?_x ex:u ?u . }
-}
+} ORDER BY ?s ?t ?u

@@ -4,4 +4,4 @@ PREFIX ns: <http://www.w3.org/2005/xpath-functions#>
 SELECT fn:concat(?s,"-",?t)
 { ?_x ex:s ?s .
   ?_x ex:t ?t .
-}
+} ORDER BY ?s ?t
