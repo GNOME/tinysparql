@@ -44,6 +44,8 @@ gboolean tracker_file_lock          (GFile        *file);
 gboolean tracker_file_unlock        (GFile        *file);
 gboolean tracker_file_is_locked     (GFile        *file);
 gboolean tracker_file_is_hidden     (GFile        *file);
+gint     tracker_file_cmp           (GFile        *file_a,
+                                     GFile        *file_b);
 
 /* Path utils */
 gboolean tracker_path_is_in_path                      (const gchar  *path,

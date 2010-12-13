@@ -802,3 +802,12 @@ tracker_file_is_hidden (GFile *file)
 
 	return is_hidden;
 }
+
+gint
+tracker_file_cmp (GFile *file_a,
+                  GFile *file_b)
+{
+	/* Returns 0 if files are equal.
+	 * Useful to be used in g_list_find_custom() or g_queue_find_custom() */
+	return !g_file_equal (file_a, file_b);
+}
