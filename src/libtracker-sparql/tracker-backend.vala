@@ -25,6 +25,8 @@ interface Tracker.Backend.Status : DBusProxy {
 }
 
 class Tracker.Sparql.Backend : Connection {
+	bool direct_only;
+
 	static bool is_constructed = false;
 	static bool is_initialized = false;
 	static Tracker.Sparql.Connection direct = null;
@@ -47,12 +49,7 @@ class Tracker.Sparql.Backend : Connection {
 			return;
 		}
 
-		try {
-			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
-			load_plugins (direct_only);
-		} catch (GLib.Error e) {
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
+		this.direct_only = direct_only;
 
 		is_constructed = true;
 	}
@@ -70,6 +67,13 @@ class Tracker.Sparql.Backend : Connection {
 		status.wait ();
 		debug ("Service is ready");
 
+		try {
+			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
+			load_plugins (direct_only);
+		} catch (GLib.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
+
 		is_initialized = true;
 	}
 
@@ -85,6 +89,13 @@ class Tracker.Sparql.Backend : Connection {
 		debug ("Waiting for service to become available asynchronously...");
 		yield status.wait_async ();
 		debug ("Service is ready");
+
+		try {
+			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
+			load_plugins (direct_only);
+		} catch (GLib.Error e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 
 		is_initialized = true;
 	}
