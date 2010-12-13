@@ -657,15 +657,15 @@ emit_signal_for_event (TrackerMonitor *monitor,
 		g_debug ("Emitting ITEM_DELETED for (%s) '%s'",
 		         event_data->is_directory ? "DIRECTORY" : "FILE",
 		         event_data->file_uri);
-		g_signal_emit (monitor,
-		               signals[ITEM_DELETED], 0,
-		               event_data->file,
-		               event_data->is_directory);
 		/* Remove monitors recursively */
 		if (event_data->is_directory) {
 			tracker_monitor_remove_recursively (monitor,
 							    event_data->file);
 		}
+		g_signal_emit (monitor,
+		               signals[ITEM_DELETED], 0,
+		               event_data->file,
+		               event_data->is_directory);
 		break;
 
 	case G_FILE_MONITOR_EVENT_MOVED:
