@@ -117,6 +117,8 @@ static void           directory_monitor_cancel     (GFileMonitor     *dir_monito
 static void           event_data_free              (gpointer        data);
 static void           emit_signal_for_event        (TrackerMonitor *monitor,
                                                     EventData      *event_data);
+static gboolean       monitor_cancel_recursively   (TrackerMonitor *monitor,
+                                                    GFile          *file);
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
@@ -671,15 +673,20 @@ emit_signal_for_event (TrackerMonitor *monitor,
 		         event_data->is_directory ? "DIRECTORY" : "FILE",
 		         event_data->file_uri,
 		         event_data->other_file_uri);
+		/* Note that in any case we should be moving the monitors
+		 * here to the new place, as the new place may be ignored.
+		 * We should leave this to the upper layers. But one thing
+		 * we must do is actually CANCEL all these monitors. */
+		if (event_data->is_directory) {
+			monitor_cancel_recursively (monitor,
+			                            event_data->file);
+		}
 		g_signal_emit (monitor,
 		               signals[ITEM_MOVED], 0,
 		               event_data->file,
 		               event_data->other_file,
 		               event_data->is_directory,
 		               TRUE);
-		/* Note that in any case we should be moving the monitors
-		 * here to the new place, as the new place may be ignored.
-		 * We should leave this to the upper layers. */
 		break;
 
 	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
@@ -1362,6 +1369,37 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 	}
 
 	return items_removed > 0;
+}
+
+static gboolean
+monitor_cancel_recursively (TrackerMonitor *monitor,
+                            GFile          *file)
+{
+	GHashTableIter iter;
+	gpointer iter_file, iter_file_monitor;
+	guint items_cancelled = 0;
+
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	g_hash_table_iter_init (&iter, monitor->private->monitors);
+	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
+		gchar *uri;
+
+		if (!g_file_has_prefix (iter_file, file) &&
+		    !g_file_equal (iter_file, file)) {
+			continue;
+		}
+
+		uri = g_file_get_uri (iter_file);
+		g_file_monitor_cancel (G_FILE_MONITOR (iter_file_monitor));
+		g_debug ("Cancelled monitor for path:'%s'", uri);
+		g_free (uri);
+
+		items_cancelled++;
+	}
+
+	return items_cancelled > 0;
 }
 
 gboolean
