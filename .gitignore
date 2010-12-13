@@ -12,9 +12,11 @@
 .deps
 .libs
 config.*
+ABOUT-NLS
 aclocal.m4
 autom4te.cache
 ChangeLog
+INSTALL
 Makefile.in
 Makefile
 compile

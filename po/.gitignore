@@ -1,6 +1,13 @@
 *.gmo
+*.header
 *.pot
 .intltool-merge-cache
+boldquot.sed
+insert-header.sin
 Makefile.in.in
+Makevars.template
 POTFILES
+quot.sed
+remove-potcdate.sin
+Rules-quot
 stamp-it
