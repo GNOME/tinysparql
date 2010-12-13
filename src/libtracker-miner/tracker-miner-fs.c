@@ -2402,7 +2402,8 @@ item_queue_handlers_cb (gpointer user_data)
 		 * if there was a previous task on the same file we want to
 		 * process now, we want it to get finished before we can go
 		 * on with the queues... */
-		tracker_processing_pool_buffer_flush (fs->private->processing_pool);
+		tracker_processing_pool_buffer_flush (fs->private->processing_pool,
+		                                      "Queue handlers WAIT");
 
 		return FALSE;
 	}
@@ -2497,7 +2498,8 @@ item_queue_handlers_cb (gpointer user_data)
 		}
 
 		/* Flush any possible pending update here */
-		tracker_processing_pool_buffer_flush (fs->private->processing_pool);
+		tracker_processing_pool_buffer_flush (fs->private->processing_pool,
+		                                      "Queue handlers NONE");
 
 		tracker_thumbnailer_send ();
 		/* No more files left to process */

@@ -112,6 +112,7 @@
 
 /* If defined, will dump additional traces */
 #ifdef PROCESSING_POOL_ENABLE_TRACE
+#warning Processing pool traces are enabled
 #define trace(message, ...) g_debug (message, ##__VA_ARGS__)
 #else
 #define trace(...)
@@ -527,7 +528,8 @@ tracker_processing_pool_sparql_update_array_cb (GObject      *object,
 }
 
 void
-tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool)
+tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool,
+                                      const gchar           *reason)
 {
 	guint i;
 	gchar **sparql_array;
@@ -558,8 +560,10 @@ tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool)
 		                   task->sparql_string);
 	}
 
-	trace ("(Processing Pool) Flushing array-update of tasks %p with %u items",
-	       pool->sparql_buffer, pool->sparql_buffer->len);
+	trace ("(Processing Pool) Flushing array-update of tasks %p with %u items (%s)",
+	       pool->sparql_buffer,
+	       pool->sparql_buffer->len,
+	       reason ? reason : "Unknown reason");
 
 	tracker_sparql_connection_update_array_async (pool->connection,
 	                                              sparql_array,
@@ -617,11 +621,14 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 		       task, task->file_uri);
 
 		/* Flush previous */
-		tracker_processing_pool_buffer_flush (pool);
+		tracker_processing_pool_buffer_flush (pool,
+		                                      "Before unbuffered task");
 
 		/* Set status of the task as PROCESSING (No READY status here!) */
 		task->status = TRACKER_PROCESSING_TASK_STATUS_PROCESSING;
 		g_queue_push_head (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_PROCESSING], task);
+
+		trace ("(Processing Pool) Flushing single task %p", task);
 
 		/* And update the new one */
 		tracker_sparql_connection_update_async (pool->connection,
@@ -669,12 +676,21 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 		 *  - Maximum number of READY items reached
 		 *  - Not flushed in the last MAX_SPARQL_BUFFER_TIME seconds
 		 */
-		if (!parent ||
-		    !g_file_equal (parent, pool->sparql_buffer_current_parent) ||
-		    tracker_processing_pool_ready_limit_reached (pool) ||
-		    (time (NULL) - pool->sparql_buffer_start_time > MAX_SPARQL_BUFFER_TIME)) {
-			/* Flush! */
-			tracker_processing_pool_buffer_flush (pool);
+		if (!parent) {
+			tracker_processing_pool_buffer_flush (pool,
+			                                      "File with no parent");
+			flushed = TRUE;
+		} else if (!g_file_equal (parent, pool->sparql_buffer_current_parent)) {
+			tracker_processing_pool_buffer_flush (pool,
+			                                      "Different parent");
+			flushed = TRUE;
+		} else if (tracker_processing_pool_ready_limit_reached (pool)) {
+			tracker_processing_pool_buffer_flush (pool,
+			                                      "Ready limit reached");
+			flushed = TRUE;
+		} else if (time (NULL) - pool->sparql_buffer_start_time > MAX_SPARQL_BUFFER_TIME) {
+			tracker_processing_pool_buffer_flush (pool,
+			                                      "Buffer time reached");
 			flushed = TRUE;
 		}
 

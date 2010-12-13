@@ -81,7 +81,8 @@ TrackerProcessingTask *tracker_processing_pool_get_last_wait         (TrackerPro
 void                   tracker_processing_pool_foreach               (TrackerProcessingPool   *pool,
                                                                       GFunc                    func,
                                                                       gpointer                 user_data);
-void                   tracker_processing_pool_buffer_flush          (TrackerProcessingPool   *pool);
+void                   tracker_processing_pool_buffer_flush          (TrackerProcessingPool   *pool,
+                                                                      const gchar             *reason);
 
 G_END_DECLS
 
