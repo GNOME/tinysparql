@@ -61,6 +61,9 @@ gboolean        tracker_monitor_remove               (TrackerMonitor *monitor,
                                                       GFile          *file);
 gboolean        tracker_monitor_remove_recursively   (TrackerMonitor *monitor,
                                                       GFile          *file);
+gboolean        tracker_monitor_move                 (TrackerMonitor *monitor,
+                                                      GFile          *old_file,
+                                                      GFile          *new_file);
 gboolean        tracker_monitor_is_watched           (TrackerMonitor *monitor,
                                                       GFile          *file);
 gboolean        tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,

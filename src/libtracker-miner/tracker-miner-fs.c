@@ -3120,15 +3120,26 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				tracker_miner_fs_directory_add_internal (fs, other_file);
 			}
 		} else if (!should_process_other) {
-			/* Delete old file */
-			g_queue_push_tail (fs->private->items_deleted, g_object_ref (file));
+			/* Remove monitors if any */
+			if (is_directory) {
+				tracker_monitor_remove_recursively (fs->private->monitor,
+				                                    file);
+			}
 
+			/* Delete old file */
+			g_queue_push_tail (fs->private->items_deleted,
+			                   g_object_ref (file));
 			item_queue_handlers_set_up (fs);
 		} else {
+			/* Move monitors to the new place */
+			if (is_directory) {
+				tracker_monitor_move (fs->private->monitor,
+				                      file,
+				                      other_file);
+			}
 			/* Move old file to new file */
 			g_queue_push_tail (fs->private->items_moved,
 			                   item_moved_data_new (other_file, file));
-
 			item_queue_handlers_set_up (fs);
 		}
 

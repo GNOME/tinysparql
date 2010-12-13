@@ -495,7 +495,7 @@ event_data_free (gpointer data)
 	g_slice_free (EventData, data);
 }
 
-static gboolean
+gboolean
 tracker_monitor_move (TrackerMonitor *monitor,
                       GFile          *old_file,
                       GFile          *new_file)
@@ -677,12 +677,9 @@ emit_signal_for_event (TrackerMonitor *monitor,
 		               event_data->other_file,
 		               event_data->is_directory,
 		               TRUE);
-		/* Move monitors to the new place */
-		if (event_data->is_directory) {
-			tracker_monitor_move (monitor,
-			                      event_data->file,
-			                      event_data->other_file);
-		}
+		/* Note that in any case we should be moving the monitors
+		 * here to the new place, as the new place may be ignored.
+		 * We should leave this to the upper layers. */
 		break;
 
 	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
