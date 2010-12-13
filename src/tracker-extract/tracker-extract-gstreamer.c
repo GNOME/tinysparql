@@ -753,7 +753,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &genre);
-		if (g_strcmp0 (genre, "Unknown") != 0) {
+		if (genre && g_strcmp0 (genre, "Unknown") != 0) {
 			tracker_sparql_builder_predicate (metadata, "nfo:genre");
 			tracker_sparql_builder_object_unvalidated (metadata, genre);
 		}
