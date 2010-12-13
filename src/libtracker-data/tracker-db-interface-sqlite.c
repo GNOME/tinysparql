@@ -72,8 +72,6 @@ struct TrackerDBInterface {
 #endif
 	GCancellable *cancellable;
 
-	GAsyncReadyCallback outstanding_callback;
-
 	TrackerDBStatementLru select_stmt_lru;
 	TrackerDBStatementLru update_stmt_lru;
 
@@ -1360,23 +1358,6 @@ tracker_db_cursor_iter_next_thread (GSimpleAsyncResult *res,
 }
 
 static void
-async_ready_callback_wrapper (GObject      *source_object,
-                              GAsyncResult *res,
-                              gpointer      user_data)
-{
-	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (source_object);
-	TrackerDBInterface *iface = cursor->ref_stmt->db_interface;
-
-	if (iface->outstanding_callback) {
-		GAsyncReadyCallback callback = iface->outstanding_callback;
-
-		iface->outstanding_callback = NULL;
-		(callback) (source_object, res, user_data);
-	}
-	g_object_unref (cursor);
-}
-
-static void
 tracker_db_cursor_iter_next_async (TrackerDBCursor     *cursor,
                                    GCancellable        *cancellable,
                                    GAsyncReadyCallback  callback,
@@ -1384,9 +1365,7 @@ tracker_db_cursor_iter_next_async (TrackerDBCursor     *cursor,
 {
 	GSimpleAsyncResult *res;
 
-	cursor->ref_stmt->db_interface->outstanding_callback = callback;
-
-	res = g_simple_async_result_new (g_object_ref (cursor), async_ready_callback_wrapper, user_data, tracker_db_cursor_iter_next_async);
+	res = g_simple_async_result_new (G_OBJECT (cursor), callback, user_data, tracker_db_cursor_iter_next_async);
 	g_simple_async_result_run_in_thread (res, tracker_db_cursor_iter_next_thread, 0, cancellable);
 }
 
