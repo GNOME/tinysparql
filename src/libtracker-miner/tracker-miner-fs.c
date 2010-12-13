@@ -117,6 +117,7 @@ struct _TrackerMinerFSPrivate {
 
 	GQuark          quark_ignore_file;
 	GQuark          quark_attribute_updated;
+	GQuark          quark_check_existence;
 
 	GList          *config_directories;
 
@@ -620,6 +621,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  object);
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
+	priv->quark_check_existence = g_quark_from_static_string ("tracker-check-existence");
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
 
 	priv->iri_cache = g_hash_table_new_full (g_file_hash,
@@ -2512,6 +2514,24 @@ item_queue_handlers_cb (gpointer user_data)
 		keep_processing = item_remove (fs, file);
 		break;
 	case QUEUE_CREATED:
+		/* Check existence before processing, if requested to do so. */
+		if (g_object_get_qdata (G_OBJECT (file),
+		                        fs->private->quark_check_existence)) {
+			/* Clear the qdata */
+			g_object_set_qdata (G_OBJECT (file),
+			                    fs->private->quark_check_existence,
+			                    GINT_TO_POINTER (FALSE));
+			/* Avoid adding items that already exist, when processing
+			 * a CREATED task (as those generated when crawling) */
+			if (!item_query_exists (fs, file, NULL, NULL)) {
+				keep_processing = item_add_or_update (fs, file);
+				break;
+			}
+			/* If already in store, skip processing the CREATED task */
+			keep_processing = TRUE;
+			break;
+		}
+		/* Else, fall down and treat as QUEUE_UPDATED */
 	case QUEUE_UPDATED:
 		keep_processing = item_add_or_update (fs, file);
 		break;
@@ -2681,6 +2701,21 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 	fs->private->current_mtime_cache_parent = parent;
 
 	g_hash_table_remove_all (fs->private->mtime_cache);
+
+	/* Hack hack alert!
+	 * Before querying the store, check if the parent directory is scheduled to
+	 * be added, and if so, leave the mtime cache empty.
+	 */
+	if (g_queue_find_custom (fs->private->items_created,
+	                         parent,
+	                         (GCompareFunc)tracker_file_cmp) != NULL) {
+		uri = g_file_get_uri (file);
+		g_debug ("Empty mtime cache for URI '%s' "
+		         "(parent scheduled to be created)",
+		         uri);
+		g_free (uri);
+		return;
+	}
 
 	if (!parent || (!is_parent && file_is_crawl_directory (fs, file))) {
 		/* File is a crawl directory itself, query its mtime directly */
@@ -2877,6 +2912,7 @@ should_check_file (TrackerMinerFS *fs,
 	} else {
 		g_signal_emit (fs, signals[CHECK_FILE], 0, file, &should_check);
 	}
+
 	return should_check;
 }
 
@@ -2895,7 +2931,6 @@ should_process_file (TrackerMinerFS *fs,
 			g_queue_push_tail (fs->private->items_deleted,
 			                   g_object_ref (file));
 		}
-
 		return FALSE;
 	}
 
@@ -3254,14 +3289,17 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	 * the finished sig?
 	 */
 	if (add_monitor) {
-		if (!item_query_exists (fs, parent, NULL, NULL)) {
-			/* Before adding the monitor, start notifying the store
-			 * about the new directory, so that if any file event comes
-			 * afterwards, the directory is already in store. */
-			g_queue_push_tail (fs->private->items_created,
-			                   g_object_ref (parent));
-			item_queue_handlers_set_up (fs);
-		}
+		/* Set quark so that before trying to add the item we first
+		 * check for its existence. */
+		g_object_set_qdata (G_OBJECT (parent),
+		                    fs->private->quark_check_existence,
+		                    GINT_TO_POINTER (TRUE));
+		/* Before adding the monitor, start notifying the store
+		 * about the new directory, so that if any file event comes
+		 * afterwards, the directory is already in store. */
+		g_queue_push_tail (fs->private->items_created,
+		                   g_object_ref (parent));
+		item_queue_handlers_set_up (fs);
 
 		/* As we already added here, specify that it shouldn't be added
 		 * any more */
