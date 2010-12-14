@@ -88,6 +88,7 @@ typedef enum {
 	EXTRACT_MIME_VIDEO,
 	EXTRACT_MIME_IMAGE,
 	EXTRACT_MIME_GUESS,
+	EXTRACT_MIME_SVG,
 } ExtractMime;
 
 typedef struct {
@@ -132,6 +133,9 @@ static void extract_gstreamer_video (const gchar          *uri,
 static void extract_gstreamer_image (const gchar          *uri,
                                      TrackerSparqlBuilder *preupdate,
                                      TrackerSparqlBuilder *metadata);
+static void extract_gstreamer_svg   (const gchar          *uri,
+                                     TrackerSparqlBuilder *preupdate,
+                                     TrackerSparqlBuilder *metadata);
 static void extract_gstreamer_guess (const gchar          *uri,
                                      TrackerSparqlBuilder *preupdate,
                                      TrackerSparqlBuilder *metadata);
@@ -141,6 +145,7 @@ static TrackerExtractData data[] = {
 	{ "video/*", extract_gstreamer_video },
 	{ "image/*", extract_gstreamer_image },
 	/* Tell gstreamer to guess if mimetype guessing returns video also for audio files */
+	{ "image/svg+xml", extract_gstreamer_svg },
 	{ "video/3gpp", extract_gstreamer_guess },
 	{ "video/mp4", extract_gstreamer_guess },
 	{ "video/x-ms-asf", extract_gstreamer_guess },
@@ -426,13 +431,13 @@ extract_stream_metadata_tagreadbin (MetadataExtractor     *extractor,
                                     const gchar           *uri,
                                     TrackerSparqlBuilder  *metadata)
 {
-	if (extractor->mime != EXTRACT_MIME_IMAGE) {
+	if (extractor->mime != EXTRACT_MIME_IMAGE && extractor->mime != EXTRACT_MIME_SVG) {
 		add_int_gst_tag (metadata, uri, "nfo:channels", extractor->tagcache, GST_TAG_CHANNEL);
 		add_int_gst_tag (metadata, uri, "nfo:sampleRate", extractor->tagcache, GST_TAG_RATE);
 		add_time_gst_tag (metadata, uri, "nfo:duration", extractor->tagcache, GST_TAG_DURATION);
 	}
 
-	if (extractor->mime == EXTRACT_MIME_IMAGE || extractor->mime == EXTRACT_MIME_VIDEO) {
+	if (extractor->mime == EXTRACT_MIME_IMAGE || extractor->mime == EXTRACT_MIME_SVG || extractor->mime == EXTRACT_MIME_VIDEO) {
 		add_fraction_gst_tag (metadata, uri, "nfo:aspectRatio", extractor->tagcache, GST_TAG_PIXEL_RATIO);
 	}
 
@@ -449,7 +454,7 @@ extract_stream_metadata_decodebin (MetadataExtractor *extractor,
                                    const gchar       *uri,
                                    TrackerSparqlBuilder         *metadata)
 {
-	if (extractor->mime != EXTRACT_MIME_IMAGE) {
+	if (extractor->mime != EXTRACT_MIME_IMAGE && extractor->mime != EXTRACT_MIME_SVG) {
 
 		if (extractor->audio_channels >= 0) {
 			add_uint_info (metadata, uri, "nfo:channels", extractor->audio_channels);
@@ -749,7 +754,12 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 		} else if (!needs_audio) {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
-			tracker_sparql_builder_object (metadata, "nmm:Photo");
+
+			if (extractor->mime != EXTRACT_MIME_SVG) {
+				tracker_sparql_builder_object (metadata, "nmm:Photo");
+			} else {
+				tracker_sparql_builder_object (metadata, "nfo:VectorImage");
+			}
 		}
 
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_GENRE, &genre);
@@ -876,7 +886,12 @@ extract_metadata (MetadataExtractor      *extractor,
 			tracker_sparql_builder_object (metadata, "nmm:Video");
 		} else if (!needs_audio) {
 			tracker_sparql_builder_object (metadata, "nfo:Image");
-			tracker_sparql_builder_object (metadata, "nmm:Photo");
+
+			if (extractor->mime != EXTRACT_MIME_SVG) {
+				tracker_sparql_builder_object (metadata, "nmm:Photo");
+			} else {
+				tracker_sparql_builder_object (metadata, "nfo:VectorImage");
+			}
 		}
 	}
 
@@ -1317,6 +1332,14 @@ extract_gstreamer_image (const gchar          *uri,
                          TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_IMAGE);
+}
+
+static void
+extract_gstreamer_svg (const gchar          *uri,
+                       TrackerSparqlBuilder *preupdate,
+                       TrackerSparqlBuilder *metadata)
+{
+	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_SVG);
 }
 
 static void
