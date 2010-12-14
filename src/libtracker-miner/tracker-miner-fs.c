@@ -3102,35 +3102,38 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 	fs = user_data;
 
 	if (!is_source_monitored) {
-		if (is_directory &&
-		    should_recurse_for_directory (fs, other_file)) {
-			gchar *path;
+		if (is_directory) {
+			/* Remove monitors if any */
+			tracker_monitor_remove_recursively (fs->private->monitor,
+			                                    file);
+			if (should_recurse_for_directory (fs, other_file)) {
+				gchar *uri;
 
-			path = g_file_get_path (other_file);
-
-			g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source unknown)",
-			         path);
-
-			/* If the source is not monitored, we need to crawl it. */
-			tracker_miner_fs_directory_add_internal (fs, other_file);
-
-			g_free (path);
+				uri = g_file_get_uri (other_file);
+				g_debug ("Not in store:'?'->'%s' (DIR) "
+				         "(move monitor event, source unknown)",
+				         uri);
+				/* If the source is not monitored, we need to crawl it. */
+				tracker_miner_fs_directory_add_internal (fs, other_file);
+				g_free (uri);
+			}
 		}
+		/* else, file, do nothing */
 	} else {
-		gchar *path;
-		gchar *other_path;
+		gchar *uri;
+		gchar *other_uri;
 		gboolean source_stored, should_process_other;
 
-		path = g_file_get_path (file);
-		other_path = g_file_get_path (other_file);
+		uri = g_file_get_uri (file);
+		other_uri = g_file_get_uri (other_file);
 
 		source_stored = item_query_exists (fs, file, NULL, NULL);
 		should_process_other = should_check_file (fs, other_file, is_directory);
 
 		g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
 		         source_stored ? "In store" : "Not in store",
-		         path,
-		         other_path,
+		         uri,
+		         other_uri,
 		         should_process_other ? "Found " : "Ignored",
 		         is_directory ? "DIR" : "FILE");
 
@@ -3140,22 +3143,26 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		 *        Most of these decisions should be taken when the event is
 		 *        actually being processed.
 		 */
-		if (!source_stored && !should_process_other) {
-			/* Do nothing */
-		} else if (!source_stored) {
-			/* Source file was not stored, check dest file as new */
-			if (!is_directory ||
-			    !should_recurse_for_directory (fs, other_file)) {
-				g_queue_push_tail (fs->private->items_created,
-				                   g_object_ref (other_file));
-
-				item_queue_handlers_set_up (fs);
-			} else {
-				g_debug ("Not in store:'?'->'%s' (DIR) (move monitor event, source monitored)",
-				         path);
-
-				tracker_miner_fs_directory_add_internal (fs, other_file);
+		if (!source_stored) {
+			/* Remove monitors if any */
+			if (is_directory) {
+				tracker_monitor_remove_recursively (fs->private->monitor,
+				                                    file);
 			}
+
+			if (should_process_other) {
+				/* Source file was not stored, check dest file as new */
+				if (!is_directory ||
+				    !should_recurse_for_directory (fs, other_file)) {
+					g_queue_push_tail (fs->private->items_created,
+					                   g_object_ref (other_file));
+
+					item_queue_handlers_set_up (fs);
+				} else {
+					tracker_miner_fs_directory_add_internal (fs, other_file);
+				}
+			}
+			/* Else, do nothing else */
 		} else if (!should_process_other) {
 			/* Remove monitors if any */
 			if (is_directory) {
@@ -3180,8 +3187,8 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			item_queue_handlers_set_up (fs);
 		}
 
-		g_free (other_path);
-		g_free (path);
+		g_free (other_uri);
+		g_free (uri);
 	}
 }
 
