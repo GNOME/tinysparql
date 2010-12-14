@@ -36,7 +36,7 @@ typedef void  (* TrackerProcessingPoolTaskFinishedCallback) (TrackerProcessingTa
                                                              const GError          *error);
 
 
-TrackerProcessingTask *tracker_processing_task_new               (GFile          *file);
+TrackerProcessingTask *tracker_processing_task_new               (GFile                 *file);
 void                   tracker_processing_task_free              (TrackerProcessingTask *task);
 GFile                 *tracker_processing_task_get_file          (TrackerProcessingTask *task);
 gpointer               tracker_processing_task_get_context       (TrackerProcessingTask *task);
@@ -49,7 +49,8 @@ void                   tracker_processing_task_set_sparql_string (TrackerProcess
                                                                   gchar                 *sparql_string);
 
 
-TrackerProcessingPool *tracker_processing_pool_new                   (TrackerSparqlConnection *connection,
+TrackerProcessingPool *tracker_processing_pool_new                   (GObject                 *owner,
+                                                                      TrackerSparqlConnection *connection,
                                                                       guint                    limit_wait,
                                                                       guint                    limit_process);
 void                   tracker_processing_pool_free                  (TrackerProcessingPool   *pool);

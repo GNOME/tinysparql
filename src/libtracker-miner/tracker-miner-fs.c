@@ -578,7 +578,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                                                        (GDestroyNotify) NULL);
 
 	/* Create processing pool */
-	priv->processing_pool = tracker_processing_pool_new (tracker_miner_get_connection (TRACKER_MINER (object)),
+	priv->processing_pool = tracker_processing_pool_new (G_OBJECT (object),
+	                                                     tracker_miner_get_connection (TRACKER_MINER (object)),
 	                                                     DEFAULT_WAIT_POOL_LIMIT,
 	                                                     DEFAULT_READY_POOL_LIMIT);
 
