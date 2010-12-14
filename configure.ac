@@ -420,22 +420,6 @@ PKG_CHECK_MODULES(TRACKER_NEEDLE, [$TRACKER_NEEDLE_REQUIRED],
                   [have_tracker_needle=yes],
                   [have_tracker_needle=no])
 
-# Check requirements for tracker-search-tool
-TRACKER_SEARCH_TOOL_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
-                              gio-unix-2.0   >= $GLIB_REQUIRED
-                              gthread-2.0    >= $GLIB_REQUIRED
-                              gmodule-2.0    >= $GLIB_REQUIRED
-                              gtk+-2.0       >= $GTK_REQUIRED
-                              gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED
-                              pango          >= $PANGO_REQUIRED
-                              dbus-1         >= $DBUS_REQUIRED
-                              dbus-glib-1    >= $DBUS_GLIB_REQUIRED
-			      gee-1.0        >= $GEE_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_SEARCH_TOOL, [$TRACKER_SEARCH_TOOL_REQUIRED],
-                  [have_tracker_search_tool=yes],
-                  [have_tracker_search_tool=no])
-
 # Check requirements for tracker-preferences
 TRACKER_PREFERENCES_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                               gio-unix-2.0   >= $GLIB_REQUIRED
@@ -1324,34 +1308,13 @@ else
    have_tracker_needle="no  (disabled)"
 fi
 
+if test "x$have_tracker_needle" = "xyes"; then
+   AC_DEFINE(HAVE_TRACKER_NEEDLE, [1], [Define to 1 if tracker-needle is compiled])
+else
+   AC_DEFINE(HAVE_TRACKER_NEEDLE, [0], [Define to 0 if tracker-needle is not compiled])
+fi
+
 AM_CONDITIONAL(HAVE_TRACKER_NEEDLE, test "$have_tracker_needle" = "yes")
-
-##################################################################
-# Check for tracker-search-tool
-##################################################################
-
-AC_ARG_ENABLE(tracker-search-tool,
-              AS_HELP_STRING([--enable-tracker-search-tool],
-                             [enable tracker-search-tool [[default=auto]]]),,
-              [enable_tracker_search_tool=auto])
-
-if test "x$enable_tracker_search_tool" = "xyes"; then
-   if test "x$have_tracker_search_tool" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-search-tool dependencies ($TRACKER_SEARCH_TOOL_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_search_tool" = "xno"; then
-      have_tracker_search_tool="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_search_tool" = "xyes"; then
-   AC_DEFINE(HAVE_TRACKER_SEARCH_TOOL, [1], [Define to 1 if t-s-t is compiled])
-else
-   AC_DEFINE(HAVE_TRACKER_SEARCH_TOOL, [0], [Define to 0 if t-s-t is not compiled])
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_SEARCH_TOOL, test "$have_tracker_search_tool" = "yes")
 
 ##################################################################
 # Check for tracker-preferences
@@ -2094,10 +2057,9 @@ AC_CONFIG_FILES([
 	src/tracker-preferences/Makefile
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-bar/Makefile
-	src/tracker-search-tool/Makefile
-	src/tracker-search-tool/tracker-search-tool.desktop.in
 	src/tracker-explorer/Makefile
 	src/tracker-needle/Makefile
+	src/tracker-needle/tracker-needle.desktop.in
 	src/tracker-utils/Makefile
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
@@ -2211,7 +2173,6 @@ Applications:
 
 	Build with SQLite FTS support:          $have_tracker_fts
 
-	Build tracker-search-tool:              $have_tracker_search_tool
 	Build tracker-preferences:              $have_tracker_preferences
 	Build tracker-status-icon:              $have_tracker_status_icon
 	Build tracker-explorer:                 $have_tracker_explorer

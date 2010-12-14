@@ -26,7 +26,6 @@ SUBDIRS =                                              \
 	tracker-utils                                  \
 	tracker-extract                                \
 	tracker-writeback                              \
-	tracker-needle                                 \
 	vapi
 
 if HAVE_TRACKER_PREFERENCES
@@ -37,8 +36,8 @@ if HAVE_TRACKER_STATUS_ICON
 SUBDIRS += tracker-status-icon
 endif
 
-if HAVE_TRACKER_SEARCH_TOOL
-SUBDIRS += tracker-search-tool
+if HAVE_TRACKER_NEEDLE
+SUBDIRS += tracker-needle
 endif
 
 if HAVE_TRACKER_SEARCH_BAR

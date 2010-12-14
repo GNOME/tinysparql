@@ -7,11 +7,6 @@ data/tracker-status-icon.desktop.in
 data/tracker-store.desktop.in
 src/tracker-preferences/tracker-preferences.c
 src/tracker-preferences/tracker-preferences.desktop.in
+src/tracker-needle/tracker-needle.desktop.in
 src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in
-src/tracker-search-tool/tracker-category-view.c
-src/tracker-search-tool/tracker-entry.c
-src/tracker-search-tool/tracker-metadata-tile.c
-src/tracker-search-tool/tracker-search-tool.c
-src/tracker-search-tool/tracker-search-tool.desktop.in
-src/tracker-search-tool/tracker-utils.c
 src/tracker-status-icon/tracker-status-icon.desktop.in

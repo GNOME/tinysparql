@@ -1,7 +1,7 @@
 [Desktop Entry]
-_Name=Tracker Search Tool
-_Comment=Locate documents and folders on this computer by name or content using Tracker
-Exec=tracker-search-tool
+_Name=Desktop Search
+_Comment=Find what you're looking for on this computer by name or content using Tracker
+Exec=tracker-needle
 Icon=system-search
 Terminal=false
 Type=Application
@@ -9,6 +9,6 @@ Categories=GTK;Utility;
 StartupNotify=true
 X-GNOME-Bugzilla-Bugzilla=GNOME
 X-GNOME-Bugzilla-Product=tracker
-X-GNOME-Bugzilla-Component=Tracker Search Tool
+X-GNOME-Bugzilla-Component=Tracker Needle
 X-GNOME-Bugzilla-Version=@VERSION@
 

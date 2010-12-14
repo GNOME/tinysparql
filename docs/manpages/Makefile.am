@@ -4,16 +4,16 @@ if HAVE_TRACKER_SEARCH_BAR
 tsb = tracker-search-bar.1
 endif
 
-if HAVE_TRACKER_SEARCH_TOOL
-tst = tracker-search-tool.1
-endif
-
 if HAVE_TRACKER_STATUS_ICON
 ta = tracker-status-icon.1
 endif
 
 if HAVE_TRACKER_PREFERENCES
 tp = tracker-preferences.1
+endif
+
+if HAVE_TRACKER_NEEDLE
+tn = tracker-needle.1
 endif
 
 man_MANS =                                             \
@@ -33,7 +33,7 @@ man_MANS =                                             \
 	tracker-store.cfg.5                            \
 	tracker-tag.1                                  \
 	$(tsb)                                         \
-	$(tst)                                         \
+	$(tn)                                          \
 	$(ta)                                          \
 	$(tp)
 

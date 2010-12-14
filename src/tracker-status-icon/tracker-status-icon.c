@@ -152,7 +152,7 @@ keybinding_activated_cb (gchar    *keybinding,
 	GdkScreen *screen;
 
 	screen = gtk_status_icon_get_screen (GTK_STATUS_ICON (icon));
-	launch_application_on_screen (screen, "tracker-search-tool");
+	launch_application_on_screen (screen, "tracker-needle");
 }
 
 static void
@@ -709,13 +709,13 @@ context_menu_pause_cb (GtkMenuItem *item,
 	update_icon_status (icon);
 }
 
-#if HAVE_TRACKER_SEARCH_TOOL
+#if HAVE_TRACKER_NEEDLE
 static void
 context_menu_search_cb (GtkMenuItem *item,
                         gpointer     user_data)
 {
 	launch_application_on_screen (gtk_widget_get_screen (GTK_WIDGET (item)),
-	                              "tracker-search-tool");
+	                              "tracker-needle");
 }
 #endif
 
@@ -834,8 +834,8 @@ status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 
 	priv = TRACKER_STATUS_ICON_GET_PRIVATE (icon);
 
-#if HAVE_TRACKER_SEARCH_TOOL
-	if (g_find_program_in_path ("tracker-search-tool")) {
+#if HAVE_TRACKER_NEEDLE
+	if (g_find_program_in_path ("tracker-needle")) {
 		GtkWidget *image;
 
 		item = gtk_image_menu_item_new_with_mnemonic (_("_Search"));
@@ -852,7 +852,7 @@ status_icon_initialize_miners_menu (TrackerStatusIcon *icon)
 		gtk_menu_shell_append (GTK_MENU_SHELL (priv->miner_menu), item);
 		gtk_widget_show (item);
 	}
-#endif
+#endif /* HAVE_TRACKER_NEEDLE */
 
 	/* miner entries */
 	miners = tracker_miner_manager_get_available (priv->manager);

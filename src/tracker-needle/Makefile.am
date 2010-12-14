@@ -33,13 +33,22 @@ tracker_needle_SOURCES =                               \
 	tracker-needle.vala                            \
 	tracker-view.vala
 
+@INTLTOOL_DESKTOP_RULE@
+
 uidir = $(datadir)/tracker
 ui_DATA = tracker-needle.ui
+
+desktopdir = $(datadir)/applications
+desktop_DATA = tracker-needle.desktop
 
 BUILT_SOURCES =                                        \
 	tracker_needle_vala.stamp
 
+CLEANFILES =                                           \
+	$(desktop_DATA)
+
 EXTRA_DIST =                                           \
 	$(ui_DATA)                                     \
+	$(desktop_DATA)                                \
 	config.vapi
 
