@@ -1711,8 +1711,52 @@ item_remove (TrackerMinerFS *fs,
 
 	g_free (mime);
 
+	/* FIRST:
+	 * Remove tracker:available for the resources we're going to remove.
+	 * This is done so that unavailability of the resources is marked as soon
+	 * as possible, as the actual delete may take reaaaally a long time
+	 * (removing resources for 30GB of files takes even 30minutes in a 1-CPU
+	 * device). */
 	sparql = g_string_new ("");
+	/* Mark unavailable all children */
+	g_string_append_printf (sparql,
+				"DELETE { "
+				"  ?child tracker:available true "
+				"} WHERE { "
+				"  ?child nie:url ?u . "
+				"  FILTER (tracker:uri-is-descendant (\"%s\", ?u)) "
+				"}",
+				uri);
+	/* Mark unavailable the resource itself */
+	g_string_append_printf (sparql,
+				"DELETE { "
+				"  ?u tracker:available true "
+				"} WHERE { "
+				"  ?u nie:url \"%s\""
+				"}",
+				uri);
 
+	/* Add new task to processing pool */
+	task = tracker_processing_task_new (file);
+	/* Note that set_sparql_string() takes ownership of the passed string */
+	tracker_processing_task_set_sparql_string (task,
+	                                           g_string_free (sparql, FALSE));
+
+	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
+	 * and in this case we need to setup queue handlers again */
+	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
+	                                              task,
+	                                              FALSE,
+	                                              processing_pool_task_finished_cb,
+	                                              fs)) {
+		item_queue_handlers_set_up (fs);
+	}
+
+	/* SECOND:
+	 * Actually remove all resources. This operation is the one which may take
+	 * a long time.
+	 */
+	sparql = g_string_new ("");
 	/* Delete all children */
 	g_string_append_printf (sparql,
 	                        "DELETE { "
@@ -1722,7 +1766,6 @@ item_remove (TrackerMinerFS *fs,
 	                        "  FILTER (tracker:uri-is-descendant (\"%s\", ?u)) "
 	                        "}",
 	                        uri);
-
 	/* Delete resource itself */
 	g_string_append_printf (sparql,
 	                        "DELETE { "
