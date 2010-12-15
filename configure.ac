@@ -2231,7 +2231,8 @@ Writeback:
 	Audio files using Taglib:               $have_taglib
 	XMP:                                    $have_exempi
 
-Frameworks:
+Frameworks / Options:
 
 	Support Maemo                           $enable_maemo
+        Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
 "
