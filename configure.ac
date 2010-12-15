@@ -545,8 +545,8 @@ AC_SUBST(GCOV_LIBS)
 ####################################################################
 AC_ARG_ENABLE([functional-tests],
               AS_HELP_STRING([--enable-functional-tests],
-                             [enable functional tests [[default=yes]]]),,
-              [enable_functional_tests=yes])
+                             [enable functional tests [[default=no]]]),,
+              [enable_functional_tests=no])
 
 if test x$enable_functional_tests != "xno"; then
    # Python check, require >= 2.6
