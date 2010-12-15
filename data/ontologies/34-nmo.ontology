@@ -89,7 +89,8 @@ nmo:TransientChannel a rdfs:Class ;
 nmo:Call a rdfs:Class ;
 	rdfs:label "Call" ;
 	rdfs:comment "Phone call. Voice communication with the user with somebody else." ;
-	rdfs:subClassOf nmo:Message .
+	rdfs:subClassOf nmo:Message ;
+	tracker:notify true .
 
 # required for backward compatibility
 nmo:VOIPCall a rdfs:Class ;
