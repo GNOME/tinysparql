@@ -27,6 +27,7 @@
 #include <png.h>
 
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-date-time.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
@@ -240,10 +241,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		g_free (uri);
 	}
 
-	if (md.date) {
-		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, md.date);
-	}
+	tracker_guarantee_date_from_file_mtime (metadata,
+	                                        "nie:contentCreated",
+	                                        md.date,
+	                                        uri);
 
 	if (md.description) {
 		tracker_sparql_builder_predicate (metadata, "nie:description");
@@ -255,10 +256,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_unvalidated (metadata, md.copyright);
 	}
 
-	if (md.title) {
-		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, md.title);
-	}
+	tracker_guarantee_title_from_file (metadata,
+	                                   "nie:title",
+	                                   md.title,
+	                                   uri);
 
 	if (md.make || md.model) {
 		gchar *equip_uri;

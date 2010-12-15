@@ -31,7 +31,7 @@
 
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
-
+#include <libtracker-common/tracker-common.h>
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"
@@ -287,34 +287,40 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
                     GstTagList            *tag_list,
                     const gchar           *tag)
 {
-	GDate    *date;
-	gboolean  ret;
+	GDate *date;
+	gchar buf[25];
 
 	date = NULL;
-	ret = gst_tag_list_get_date (tag_list, tag, &date);
+	buf[0] = '\0';
 
-	if (ret) {
+	if (gst_tag_list_get_date (tag_list, tag, &date)) {
+		gboolean ret;
+
 		if (date && g_date_valid (date)) {
 			if (date->julian)
 				ret = g_date_valid_julian (date->julian_days);
 			if (date->dmy)
 				ret = g_date_valid_dmy (date->day, date->month, date->year);
-		} else
+		} else {
 			ret = FALSE;
-	}
+		}
 
-	if (ret) {
-		gchar buf[25];
-
-		if (g_date_strftime (buf, 25, "%Y-%m-%dT%H:%M:%S%z", date)) {
-			tracker_sparql_builder_predicate (metadata, key);
-			tracker_sparql_builder_object_unvalidated (metadata, buf);
+		if (ret) {
+			if (g_date_strftime (buf, 25, "%Y-%m-%dT%H:%M:%S%z", date)) {
+				tracker_sparql_builder_predicate (metadata, key);
+				tracker_sparql_builder_object_unvalidated (metadata, buf);
+			}
 		}
 	}
 
 	if (date) {
 		g_date_free (date);
 	}
+
+	tracker_guarantee_date_from_filename_mtime (metadata,
+	                                            key,
+	                                            buf,
+	                                            uri);
 }
 
 static void
@@ -516,6 +522,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		gchar *composer_uri = NULL;
 		gchar *album_uri = NULL;
 		gchar *album_disc_uri = NULL;
+		gchar *s;
 
 		if (extractor->mime == EXTRACT_MIME_GUESS) {
 			gchar *video_codec = NULL, *audio_codec = NULL;
@@ -769,7 +776,14 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 		g_free (genre);
 
-		add_string_gst_tag (metadata, uri, "nie:title", extractor->tagcache, GST_TAG_TITLE);
+		s = NULL;
+		gst_tag_list_get_string (extractor->tagcache, GST_TAG_TITLE, &s);
+		tracker_guarantee_title_from_filename (metadata,
+		                                       "nie:title",
+		                                       s,
+		                                       uri);
+		g_free (s);
+
 		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
 		add_string_gst_tag (metadata, uri, "nie:license", extractor->tagcache, GST_TAG_LICENSE);
 		add_string_gst_tag (metadata, uri, "dc:coverage", extractor->tagcache, GST_TAG_LOCATION);

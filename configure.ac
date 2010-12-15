@@ -1988,6 +1988,24 @@ fi
 
 AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 
+#####################################################################
+# Check for tracker-extract: Guarantee existence of certain metadata
+#####################################################################
+
+# Currently guarantees (for extraction):
+# - nie:title for music and video files
+# - nie:contentCreated for music, video and image files
+
+AC_ARG_ENABLE(guarantee-metadata,
+             AS_HELP_STRING([--enable-guarantee-metadata],
+                            [enable guaranteed existence of some metadata [[default=no]]]),
+                            [enable_guarantee_metadata=yes],
+                            [enable_guarantee_metadata=no])
+
+if test "x$enable_guarantee_metadata" != "xno"; then
+  AC_DEFINE(GUARANTEE_METADATA, 1, [Guarantee existence of certain metadata])
+fi
+
 ##################################################################
 # Check for tracker-extract: enable mockup extractor module?
 ##################################################################
@@ -2213,7 +2231,8 @@ Writeback:
 	Audio files using Taglib:               $have_taglib
 	XMP:                                    $have_exempi
 
-Frameworks:
+Frameworks / Options:
 
 	Support Maemo                           $enable_maemo
+        Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
 "

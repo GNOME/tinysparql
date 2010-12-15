@@ -229,10 +229,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		g_free (uri);
 	}
 
-	if (md.date) {
-		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
-		tracker_sparql_builder_object_unvalidated (metadata, md.date);
-	}
+	tracker_guarantee_date_from_file_mtime (metadata,
+	                                        "nie:contentCreated",
+	                                        md.date,
+	                                        uri);
 
 	if (xd->description) {
 		tracker_sparql_builder_predicate (metadata, "nie:description");
@@ -270,10 +270,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		g_free (equip_uri);
 	}
 
-	if (md.title) {
-		tracker_sparql_builder_predicate (metadata, "nie:title");
-		tracker_sparql_builder_object_unvalidated (metadata, md.title);
-	}
+	tracker_guarantee_title_from_file (metadata,
+	                                   "nie:title",
+	                                   md.title,
+	                                   uri);
 
 	if (md.artist) {
 		gchar *uri = tracker_sparql_escape_uri_printf ("urn:contact:%s", md.artist);
