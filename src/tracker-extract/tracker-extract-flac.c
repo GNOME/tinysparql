@@ -323,7 +323,7 @@ extract_flac (const gchar          *uri,
 	add_tuple (metadata, "nmm:musicAlbum", album_uri);
 	g_free (album_uri);
 
-	tracker_guarantee_title_from_filename (metadata, "nie:title", fd.title, uri);
+	tracker_guarantee_title_from_file (metadata, "nie:title", fd.title, uri);
 	add_tuple (metadata, "nmm:trackNumber", fd.tracknumber);
 
 	if (fd.album && album_uri) {
@@ -374,7 +374,7 @@ extract_flac (const gchar          *uri,
 	/* FIXME: Trackgain/Trackpeakgain: commented out in vorbis */
 
 	add_tuple (metadata, "nie:comment", fd.comment);
-	tracker_guarantee_date_from_filename_mtime (metadata, "nie:contentCreated", fd.date, uri);
+	tracker_guarantee_date_from_file_mtime (metadata, "nie:contentCreated", fd.date, uri);
 	add_tuple (metadata, "nfo:genre", fd.genre);
 	add_tuple (metadata, "nie:plainTextContent", fd.lyrics);
 	add_tuple (metadata, "nie:copyright", fd.copyright);

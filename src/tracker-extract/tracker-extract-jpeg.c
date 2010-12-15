@@ -403,10 +403,10 @@ extract_jpeg (const gchar          *uri,
 		g_free (equip_uri);
 	}
 
-	tracker_guarantee_title_from_filename (metadata,
-	                                       "nie:title",
-	                                       md.title,
-	                                       uri);
+	tracker_guarantee_title_from_file (metadata,
+	                                   "nie:title",
+	                                   md.title,
+	                                   uri);
 
 	if (md.orientation) {
 		tracker_sparql_builder_predicate (metadata, "nfo:orientation");
@@ -476,10 +476,10 @@ extract_jpeg (const gchar          *uri,
 		tracker_sparql_builder_object_double (metadata, value);
 	}
 
-	tracker_guarantee_date_from_filename_mtime (metadata,
-	                                            "nie:contentCreated",
-	                                            md.date,
-	                                            uri);
+	tracker_guarantee_date_from_file_mtime (metadata,
+	                                        "nie:contentCreated",
+	                                        md.date,
+	                                        uri);
 
 	if (md.description) {
 		tracker_sparql_builder_predicate (metadata, "nie:description");

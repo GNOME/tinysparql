@@ -27,8 +27,10 @@
 
 #include "tracker-guarantee.h"
 
+#ifdef GUARANTEE_METADATA
+
 static gchar *
-get_title_from_filename (const gchar *uri)
+get_title_from_file (const gchar *uri)
 {
 	gchar *filename;
 	gchar *basename;
@@ -47,7 +49,7 @@ get_title_from_filename (const gchar *uri)
 }
 
 static gchar *
-get_date_from_filename_mtime (const gchar *uri)
+get_date_from_file_mtime (const gchar *uri)
 {
 	gchar *filename;
 	gchar *date;
@@ -62,8 +64,10 @@ get_date_from_filename_mtime (const gchar *uri)
 	return date;
 }
 
+#endif /* GUARANTEE_METADATA */
+
 /**
- * tracker_guarantee_title_from_filename:
+ * tracker_guarantee_title_from_file:
  * @metadata: the metadata object to insert the data into
  * @key: the key to insert into @metadata
  * @current_value: the current data to check before looking at @uri
@@ -73,7 +77,7 @@ get_date_from_filename_mtime (const gchar *uri)
  * empty string). If it is, then @uri is parsed to guarantee a
  * metadata value for @key.
  *
- * Parses the filename pointed to by @uri and uses the basename
+ * Parses the file pointed to by @uri and uses the basename
  * (before the "." and extension of the file) as the title. If the
  * title has any "_" characters, they are also converted into spaces.
  *
@@ -82,10 +86,10 @@ get_date_from_filename_mtime (const gchar *uri)
  * Since: 0.10
  **/
 gboolean
-tracker_guarantee_title_from_filename (TrackerSparqlBuilder *metadata,
-                                       const gchar          *key,
-                                       const gchar          *current_value,
-                                       const gchar          *uri)
+tracker_guarantee_title_from_file (TrackerSparqlBuilder *metadata,
+                                   const gchar          *key,
+                                   const gchar          *current_value,
+                                   const gchar          *uri)
 {
 #ifdef GUARANTEE_METADATA
 	g_return_val_if_fail (metadata != NULL, FALSE);
@@ -99,7 +103,7 @@ tracker_guarantee_title_from_filename (TrackerSparqlBuilder *metadata,
 	} else {
 		gchar *value;
 
-		value = get_title_from_filename (uri);
+		value = get_title_from_file (uri);
 		tracker_sparql_builder_object_unvalidated (metadata, value);
 		g_free (value);
 	}
@@ -114,7 +118,7 @@ tracker_guarantee_title_from_filename (TrackerSparqlBuilder *metadata,
 }
 
 /**
- * tracker_guarantee_date_from_filename_mtime:
+ * tracker_guarantee_date_from_file_mtime:
  * @metadata: the metadata object to insert the data into
  * @key: the key to insert into @metadata
  * @current_value: the current data to check before looking at @uri
@@ -124,7 +128,7 @@ tracker_guarantee_title_from_filename (TrackerSparqlBuilder *metadata,
  * empty string). If it is, then @uri is parsed to guarantee a
  * metadata value for @key.
  *
- * When parsing @uri, stat() is called on the filename to create a
+ * When parsing @uri, stat() is called on the file to create a
  * date based on the file's mtime.
  *
  * Returns: %TRUE on success, otherwise %FALSE.
@@ -132,10 +136,10 @@ tracker_guarantee_title_from_filename (TrackerSparqlBuilder *metadata,
  * Since: 0.10
  **/
 gboolean
-tracker_guarantee_date_from_filename_mtime (TrackerSparqlBuilder *metadata,
-                                            const gchar          *key,
-                                            const gchar          *current_value,
-                                            const gchar          *uri)
+tracker_guarantee_date_from_file_mtime (TrackerSparqlBuilder *metadata,
+                                        const gchar          *key,
+                                        const gchar          *current_value,
+                                        const gchar          *uri)
 {
 #ifdef GUARANTEE_METADATA
 	g_return_val_if_fail (metadata != NULL, FALSE);
@@ -149,7 +153,7 @@ tracker_guarantee_date_from_filename_mtime (TrackerSparqlBuilder *metadata,
 	} else {
 		gchar *value;
 
-		value = get_date_from_filename_mtime (uri);
+		value = get_date_from_file_mtime (uri);
 		tracker_sparql_builder_object_unvalidated (metadata, value);
 		g_free (value);
 	}

@@ -241,10 +241,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		g_free (uri);
 	}
 
-	tracker_guarantee_date_from_filename_mtime (metadata,
-	                                            "nie:contentCreated",
-	                                            md.date,
-	                                            uri);
+	tracker_guarantee_date_from_file_mtime (metadata,
+	                                        "nie:contentCreated",
+	                                        md.date,
+	                                        uri);
 
 	if (md.description) {
 		tracker_sparql_builder_predicate (metadata, "nie:description");
@@ -256,10 +256,10 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_object_unvalidated (metadata, md.copyright);
 	}
 
-	tracker_guarantee_title_from_filename (metadata,
-	                                       "nie:title",
-	                                       md.title,
-	                                       uri);
+	tracker_guarantee_title_from_file (metadata,
+	                                   "nie:title",
+	                                   md.title,
+	                                   uri);
 
 	if (md.make || md.model) {
 		gchar *equip_uri;

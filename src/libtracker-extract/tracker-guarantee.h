@@ -30,14 +30,14 @@
 
 G_BEGIN_DECLS
 
-gboolean tracker_guarantee_title_from_filename      (TrackerSparqlBuilder *metadata,
-                                                     const gchar          *key,
-                                                     const gchar          *current_value,
-                                                     const gchar          *uri);
-gboolean tracker_guarantee_date_from_filename_mtime (TrackerSparqlBuilder *metadata,
-                                                     const gchar          *key,
-                                                     const gchar          *current_value,
-                                                     const gchar          *uri);
+gboolean tracker_guarantee_title_from_file      (TrackerSparqlBuilder *metadata,
+                                                 const gchar          *key,
+                                                 const gchar          *current_value,
+                                                 const gchar          *uri);
+gboolean tracker_guarantee_date_from_file_mtime (TrackerSparqlBuilder *metadata,
+                                                 const gchar          *key,
+                                                 const gchar          *current_value,
+                                                 const gchar          *uri);
 
 G_END_DECLS
 

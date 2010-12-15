@@ -294,10 +294,10 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 		g_date_free (date);
 	}
 
-	tracker_guarantee_date_from_filename_mtime (metadata,
-	                                            key,
-	                                            buf,
-	                                            uri);
+	tracker_guarantee_date_from_file_mtime (metadata,
+	                                        key,
+	                                        buf,
+	                                        uri);
 }
 
 static void
@@ -609,10 +609,10 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		s = NULL;
 		ret = gst_tag_list_get_string (extractor->tags, GST_TAG_TITLE, &s);
-		tracker_guarantee_title_from_filename (metadata,
-		                                       "nie:title",
-		                                       s,
-		                                       uri);
+		tracker_guarantee_title_from_file (metadata,
+		                                   "nie:title",
+		                                   s,
+		                                   uri);
 		g_free (s);
 
 		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tags, GST_TAG_COPYRIGHT);
