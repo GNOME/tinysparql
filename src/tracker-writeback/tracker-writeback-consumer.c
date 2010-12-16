@@ -333,6 +333,8 @@ sparql_query_cb (GObject      *object,
 		g_error_free (error);
 	}
 
+	priv->idle_id = g_idle_add (process_queue_cb, consumer);
+
 	g_strfreev (data->rdf_types);
 	g_slice_free (QueryData, data);
 	g_free (s_and_c->subject);
