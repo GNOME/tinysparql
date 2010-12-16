@@ -33,19 +33,21 @@
 /* Size of the buffer to use when reading, in bytes */
 #define BUFFER_SIZE 65535
 
-static GString *
-get_string_in_locale (GString *s)
+static gchar *
+get_string_in_locale (const gchar *locale_str,
+                      gsize        locale_str_len,
+                      gsize       *utf8_len)
 {
 	GError *error = NULL;
-	gchar *str;
-	gsize bytes_read;
-	gsize bytes_written;
+	gchar  *utf8_str;
+	gsize   bytes_read = 0;
+	gsize   bytes_written = 0;
 
-	str = g_locale_to_utf8 (s->str,
-	                        s->len,
-	                        &bytes_read,
-	                        &bytes_written,
-	                        &error);
+	utf8_str = g_locale_to_utf8 (locale_str,
+	                             locale_str_len,
+	                             &bytes_read,
+	                             &bytes_written,
+	                             &error);
 	if (error) {
 		g_debug ("  Conversion to UTF-8 read %" G_GSIZE_FORMAT " bytes, wrote %" G_GSIZE_FORMAT " bytes",
 		         bytes_read,
@@ -53,13 +55,12 @@ get_string_in_locale (GString *s)
 		g_message ("Could not convert string from locale to UTF-8, %s",
 		           error->message);
 		g_error_free (error);
-		g_free (str);
-	} else {
-		g_string_assign (s, str);
-		g_free (str);
+		g_free (utf8_str);
+		return NULL;
 	}
 
-	return s;
+	*utf8_len = bytes_written;
+	return utf8_str;
 }
 
 
@@ -85,18 +86,37 @@ process_chunk (const gchar  *read_bytes,
 	 * check that the buffer has a '\n' to make sure the
 	 * file is worth indexing. Similarly if the file has
 	 * <= 3 bytes then we drop it.
+	 *
+	 * NOTE: We may have non-UTF8 content read (say,
+	 * UTF-16LE), so we can't rely on methods which assume
+	 * NUL-terminated strings, as g_strstr_len().
 	 */
 	if (*s == NULL) {
-		if (read_size == buffer_size &&
-		    g_strstr_len (read_bytes, read_size, "\n") == NULL) {
-			g_debug ("  No '\\n' in the first %" G_GSSIZE_FORMAT " bytes, "
-			         "not indexing file",
-			         read_size);
-			return FALSE;
-		} else if (read_size <= 2) {
+		if (read_size <= 3) {
 			g_debug ("  File has less than 3 characters in it, "
 			         "not indexing file");
 			return FALSE;
+		}
+
+		if (read_size == buffer_size) {
+			const gchar *i;
+			gboolean eol_found = FALSE;
+
+			i = read_bytes;
+			while (i != &read_bytes[read_size - 1]) {
+				if (*i == '\n') {
+					eol_found = TRUE;
+					break;
+				}
+				i++;
+			}
+
+			if (!eol_found) {
+				g_debug ("  No '\\n' in the first %" G_GSSIZE_FORMAT " bytes, "
+				         "not indexing file",
+				         read_size);
+				return FALSE;
+			}
 		}
 	}
 
@@ -121,11 +141,54 @@ static gchar *
 process_whole_string (GString  *s,
                       gboolean  try_locale_if_not_utf8)
 {
+	gchar *utf8 = NULL;
+	gsize  utf8_len = 0;
 	gsize n_valid_utf8_bytes = 0;
 
+	/* Support also UTF-16 encoded text files, as the ones generated in
+	 * Windows OS. We will only accept text files in UTF-16 which come
+	 * with a proper BOM. */
+	if (s->len > 2) {
+		GError *error = NULL;
+
+		if (memcmp (s->str, "\xFF\xFE", 2) == 0) {
+			g_debug ("String comes in UTF-16LE, converting");
+			utf8 = g_convert (&(s->str[2]),
+			                  s->len - 2,
+			                  "UTF-8",
+			                  "UTF-16LE",
+			                  NULL,
+			                  &utf8_len,
+			                  &error);
+
+		} else if (memcmp (s->str, "\xFE\xFF", 2) == 0) {
+			g_debug ("String comes in UTF-16BE, converting");
+			utf8 = g_convert (&(s->str[2]),
+			                  s->len - 2,
+			                  "UTF-8",
+			                  "UTF-16BE",
+			                  NULL,
+			                  &utf8_len,
+			                  &error);
+		}
+
+		if (error) {
+			g_warning ("Couldn't convert string from UTF-16 to UTF-8...: %s",
+			           error->message);
+			g_error_free (error);
+			g_string_free (s, TRUE);
+			return NULL;
+		}
+	}
+
+	if (!utf8) {
+		utf8_len = s->len;
+		utf8 = g_string_free (s, FALSE);
+	}
+
 	/* Get number of valid UTF-8 bytes found */
-	tracker_text_validate_utf8 (s->str,
-	                            s->len,
+	tracker_text_validate_utf8 (utf8,
+	                            utf8_len,
 	                            NULL,
 	                            &n_valid_utf8_bytes);
 
@@ -133,24 +196,35 @@ process_whole_string (GString  *s,
 	 *  with a margin of 3 bytes for the last UTF-8 character which might
 	 *  have been cut. */
 	if (try_locale_if_not_utf8 &&
-	    s->len - n_valid_utf8_bytes > 3) {
+	    utf8_len - n_valid_utf8_bytes > 3) {
+		gchar *from_locale_str;
+		gsize  from_locale_str_len;
+
 		/* If not UTF-8, try to get contents in locale encoding
 		 *  (returns valid UTF-8) */
-		s = get_string_in_locale (s);
-	} else if (n_valid_utf8_bytes < s->len) {
+		from_locale_str = get_string_in_locale (utf8,
+		                                        utf8_len,
+		                                        &from_locale_str_len);
+		g_free (utf8);
+		if (!from_locale_str)
+			return NULL;
+		utf8 = from_locale_str;
+		utf8_len = from_locale_str_len;
+	} else if (n_valid_utf8_bytes < utf8_len) {
 		g_debug ("  Truncating to last valid UTF-8 character "
 		         "(%" G_GSSIZE_FORMAT "/%" G_GSSIZE_FORMAT " bytes)",
 		         n_valid_utf8_bytes,
-		         s->len);
-		s = g_string_truncate (s, n_valid_utf8_bytes);
+		         utf8_len);
+		utf8[n_valid_utf8_bytes] = '\0';
+		utf8_len = n_valid_utf8_bytes;
 	}
 
-	if (s->len < 1) {
-		g_string_free (s, TRUE);
+	if (utf8_len < 1) {
+		g_free (utf8);
 		return NULL;
 	}
 
-	return g_string_free (s, FALSE);
+	return utf8;
 }
 
 /**

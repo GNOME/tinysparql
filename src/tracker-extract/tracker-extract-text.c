@@ -42,8 +42,8 @@ static TrackerExtractData data[] = {
 
 
 static gchar *
-get_file_content (const gchar *uri,
-                  gsize        n_bytes)
+get_file_content (const gchar  *uri,
+                  gsize         n_bytes)
 {
 	GFile *file;
 	GFileInputStream  *stream;
@@ -71,7 +71,7 @@ get_file_content (const gchar *uri,
 	g_debug ("  Starting to read '%s' up to %" G_GSIZE_FORMAT " bytes...",
 	         uri, n_bytes);
 
-	/* Read up to n_bytes from stream */
+	/* Read up to n_bytes from stream. Output is always, always valid UTF-8 */
 	text = tracker_read_text_from_stream (G_INPUT_STREAM (stream),
 	                                      n_bytes,
 	                                      TRY_LOCALE_TO_UTF8_CONVERSION);
