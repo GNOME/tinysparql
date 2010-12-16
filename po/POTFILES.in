@@ -30,6 +30,11 @@ src/miners/rss/tracker-miner-rss.c
 src/tracker-preferences/tracker-preferences.desktop.in.in
 src/tracker-preferences/tracker-preferences.vala
 [type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
+src/tracker-needle/tracker-needle.c
+src/tracker-needle/tracker-query.c
+src/tracker-needle/tracker-taglist.c
+src/tracker-needle/tracker-utils.c
+src/tracker-needle/tracker-view.c
 src/tracker-needle/tracker-needle.desktop.in.in
 [type: gettext/glade]src/tracker-needle/tracker-needle.ui
 src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in
