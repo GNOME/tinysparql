@@ -30,6 +30,12 @@
 #include "tracker-writeback-module.h"
 #include "tracker-marshal.h"
 
+/* Known exception for which linking with libtracker-miner isn't necessary,
+ * include is needed for the TRACKER_MINER_FS_GRAPH_URN define which is
+ * shared between tracker-writeback and tracker-miner-fs */
+
+#include "libtracker-miner/tracker-miner-common.h"
+
 #define TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_WRITEBACK_CONSUMER, TrackerWritebackConsumerPrivate))
 
 #define TRACKER_SERVICE             "org.freedesktop.Tracker1"
@@ -166,20 +172,26 @@ sparql_rdf_types_match (const gchar * const *module_types,
 	return FALSE;
 }
 
-static void
-sparql_query_cb (GObject      *object,
-                 GAsyncResult *result,
-                 gpointer      user_data)
-{
-	TrackerWritebackConsumerPrivate *priv;
+typedef struct {
 	TrackerWritebackConsumer *consumer;
+	GPtrArray *unwanted_results;
 	QueryData *data;
+} DiffData;
+
+static void
+sparql_query_cb_diff (GObject      *object,
+                      GAsyncResult *result,
+                      gpointer      user_data)
+{
+	DiffData *diff_data = user_data;
+	TrackerWritebackConsumerPrivate *priv;
+	TrackerWritebackConsumer *consumer = diff_data->consumer;
+	QueryData *data = diff_data->data;
 	GError *error = NULL;
 	TrackerSparqlCursor *cursor;
+	GPtrArray *unwanted_results = diff_data->unwanted_results;
 
-	consumer = TRACKER_WRITEBACK_CONSUMER (user_data);
 	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
-	data = g_queue_pop_head (priv->process_queue);
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
@@ -187,12 +199,29 @@ sparql_query_cb (GObject      *object,
 		GPtrArray *results = g_ptr_array_new ();
 		guint cols = tracker_sparql_cursor_get_n_columns (cursor);
 
+		g_assert (cols >= 2);
+
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			GStrv row = g_new0 (gchar*, cols);
-			guint i;
-			for (i = 0; i < cols; i++)
-				row[i] = g_strdup (tracker_sparql_cursor_get_string (cursor, i, NULL));
-			g_ptr_array_add (results, row);
+			gboolean unwanted = FALSE;
+			const gchar *predicate = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+			guint y;
+
+			for (y = 0; y < unwanted_results->len; y++) {
+				GStrv unwanted_row = g_ptr_array_index (unwanted_results, y);
+				if (g_strcmp0 (unwanted_row[2], predicate) == 0) {
+					unwanted = TRUE;
+					break;
+				}
+			}
+
+			if (!unwanted) {
+				GStrv row = g_new0 (gchar*, cols);
+				guint i;
+
+				for (i = 0; i < cols; i++)
+					row[i] = g_strdup (tracker_sparql_cursor_get_string (cursor, i, NULL));
+				g_ptr_array_add (results, row);
+			}
 		}
 
 		if (results->len > 0) {
@@ -234,10 +263,85 @@ sparql_query_cb (GObject      *object,
 		g_error_free (error);
 	}
 
+	g_ptr_array_unref (unwanted_results);
 	g_strfreev (data->rdf_types);
 	g_slice_free (QueryData, data);
+	g_free (diff_data);
 
 	priv->idle_id = g_idle_add (process_queue_cb, consumer);
+}
+
+typedef struct {
+	gchar *subject;
+	TrackerWritebackConsumer *consumer;
+} SubjectAndConsumer;
+
+static void
+sparql_query_cb (GObject      *object,
+                 GAsyncResult *result,
+                 gpointer      user_data)
+{
+	SubjectAndConsumer *s_and_c = user_data;
+	TrackerWritebackConsumerPrivate *priv;
+	QueryData *data;
+	GError *error = NULL;
+	TrackerSparqlCursor *cursor;
+	TrackerWritebackConsumer *consumer = s_and_c->consumer;
+
+	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
+	data = g_queue_pop_head (priv->process_queue);
+
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
+
+	if (!error) {
+		GPtrArray *unwanted_results = g_ptr_array_new ();
+		guint cols = tracker_sparql_cursor_get_n_columns (cursor);
+
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+			GStrv row = g_new0 (gchar*, cols);
+			guint i;
+			for (i = 0; i < cols; i++) {
+				row[i] = g_strdup (tracker_sparql_cursor_get_string (cursor, i, NULL));
+			}
+			g_ptr_array_add (unwanted_results, row);
+		}
+
+		if (unwanted_results->len > 0) {
+			DiffData *diff_data = g_new0 (DiffData, 1);
+			gchar *query;
+
+			diff_data->consumer = consumer;
+			diff_data->data = data;
+			diff_data->unwanted_results = unwanted_results;
+
+			query = g_strdup_printf ("SELECT ?url '%s' ?predicate ?object {"
+			                         "  <%s> ?predicate ?object ; "
+			                         "       nie:url ?url ."
+			                         "  ?predicate tracker:writeback true . "
+			                         "}",
+			                         s_and_c->subject, s_and_c->subject);
+
+			tracker_sparql_connection_query_async (priv->connection,
+			                                       query,
+			                                       NULL,
+			                                       sparql_query_cb_diff,
+			                                       diff_data);
+
+			g_free (s_and_c->subject);
+			g_free (s_and_c);
+			g_free (query);
+
+			return;
+		} else {
+			g_ptr_array_unref (unwanted_results);
+		}
+	}
+
+	g_strfreev (data->rdf_types);
+	g_slice_free (QueryData, data);
+	g_free (s_and_c->subject);
+	g_free (s_and_c);
+
 }
 
 static void
@@ -265,6 +369,7 @@ rdf_types_to_uris_cb (GObject      *object,
 		const gchar *subject;
 		GArray *rdf_types;
 		guint i;
+		SubjectAndConsumer *s_and_c;
 
 		rdf_types = g_array_new (TRUE, TRUE, sizeof (gchar *));
 
@@ -298,17 +403,21 @@ rdf_types_to_uris_cb (GObject      *object,
 		}
 
 		query = g_strdup_printf ("SELECT ?url '%s' ?predicate ?object {"
-		                         "  <%s> ?predicate ?object ; "
-		                         "       nie:url ?url ."
-		                         "  ?predicate tracker:writeback true "
+		                         " GRAPH <" TRACKER_MINER_FS_GRAPH_URN "> { <%s> ?predicate ?object . } "
+		                         "  <%s> nie:url ?url ."
+		                         "  ?predicate tracker:writeback true . "
 		                         "}",
-		                         subject, subject);
+		                         subject, subject, subject);
+
+		s_and_c = g_new0 (SubjectAndConsumer, 1);
+		s_and_c->subject = g_strdup (subject);
+		s_and_c->consumer = consumer;
 
 		tracker_sparql_connection_query_async (priv->connection,
 		                                       query,
 		                                       NULL,
 		                                       sparql_query_cb,
-		                                       consumer);
+		                                       s_and_c);
 
 		g_free (query);
 		g_object_unref (cursor);
