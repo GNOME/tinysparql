@@ -295,6 +295,8 @@ sparql_query_cb (GObject      *object,
 	if (!error) {
 		GPtrArray *unwanted_results = g_ptr_array_new_with_free_func ((GDestroyNotify) g_strfreev);
 		guint cols = tracker_sparql_cursor_get_n_columns (cursor);
+		DiffData *diff_data = g_new0 (DiffData, 1);
+		gchar *query;
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			GStrv row = g_new0 (gchar*, cols);
@@ -305,35 +307,31 @@ sparql_query_cb (GObject      *object,
 			g_ptr_array_add (unwanted_results, row);
 		}
 
-		if (unwanted_results->len > 0) {
-			DiffData *diff_data = g_new0 (DiffData, 1);
-			gchar *query;
+		diff_data->consumer = consumer;
+		diff_data->data = data;
+		diff_data->unwanted_results = unwanted_results;
 
-			diff_data->consumer = consumer;
-			diff_data->data = data;
-			diff_data->unwanted_results = unwanted_results;
+		query = g_strdup_printf ("SELECT ?url '%s' ?predicate ?object {"
+		                         "  <%s> ?predicate ?object ; "
+		                         "       nie:url ?url ."
+		                         "  ?predicate tracker:writeback true . "
+		                         "}",
+		                         s_and_c->subject, s_and_c->subject);
 
-			query = g_strdup_printf ("SELECT ?url '%s' ?predicate ?object {"
-			                         "  <%s> ?predicate ?object ; "
-			                         "       nie:url ?url ."
-			                         "  ?predicate tracker:writeback true . "
-			                         "}",
-			                         s_and_c->subject, s_and_c->subject);
+		tracker_sparql_connection_query_async (priv->connection,
+		                                       query,
+		                                       NULL,
+		                                       sparql_query_cb_diff,
+		                                       diff_data);
 
-			tracker_sparql_connection_query_async (priv->connection,
-			                                       query,
-			                                       NULL,
-			                                       sparql_query_cb_diff,
-			                                       diff_data);
+		g_free (s_and_c->subject);
+		g_free (s_and_c);
+		g_free (query);
 
-			g_free (s_and_c->subject);
-			g_free (s_and_c);
-			g_free (query);
-
-			return;
-		} else {
-			g_ptr_array_unref (unwanted_results);
-		}
+		return;
+	} else {
+		g_message ("  No files qualify for updates (%s)", error->message);
+		g_error_free (error);
 	}
 
 	g_strfreev (data->rdf_types);
