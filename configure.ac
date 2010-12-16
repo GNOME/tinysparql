@@ -1300,7 +1300,7 @@ AC_ARG_ENABLE([tracker-needle],
                              [enable tracker-needle[[default=auto]]]),,
               [enable_tracker_needle=auto])
 
-if test "x$enable_tracker_needle" != "xno" ; then
+if test "x$enable_tracker_needle" = "xyes" ; then
    if test "x$have_tracker_needle" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-needle dependencies ($TRACKER_NEEDLE_REQUIRED).])
    fi
