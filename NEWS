@@ -1,3 +1,26 @@
+NEW in 0.9.32 - 2010-12-16
+==========================
+
+The changes are:
+
+  * New feature: Added tracker-needle to replace tracker-search-tool
+  * New feature: Added --enable-guarantee-metadata to ensure nie:title and other metadata when missing
+  * build: disable functional-tests by default
+  * Fixes: NB#210217, Notification of nmo:Call class changes needed
+  * Fixes: NB#211926, SVG images are represented as nmm:Photo not nfo:VectorImage
+  * Fixes: NB#198155, libtracker-sparql doesn't return results if multiple async queries are run in parallel in direct back-end
+  * Ontology: Add tracker:notify true for nmo:Call
+  * libtracker-data: Sort function test results to avoid test failures
+  * libtracker-sparql: Wait for tracker-store before loading plugins
+
+Translations:
+  * Updated cs: Petr Kovar
+
+Notes:
+
+  None
+
+
 NEW in 0.9.31 - 2010-12-10
 ==========================
 
