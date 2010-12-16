@@ -57,6 +57,17 @@ typedef struct {
 	guint state;
 } TrackerWritebackConsumerPrivate;
 
+typedef struct {
+	TrackerWritebackConsumer *consumer;
+	GPtrArray *unwanted_results;
+	QueryData *data;
+} DiffData;
+
+typedef struct {
+	gchar *subject;
+	TrackerWritebackConsumer *consumer;
+} SubjectAndConsumer;
+
 enum {
 	STATE_IDLE,
 	STATE_PROCESSING
@@ -172,12 +183,6 @@ sparql_rdf_types_match (const gchar * const *module_types,
 	return FALSE;
 }
 
-typedef struct {
-	TrackerWritebackConsumer *consumer;
-	GPtrArray *unwanted_results;
-	QueryData *data;
-} DiffData;
-
 static void
 sparql_query_cb_diff (GObject      *object,
                       GAsyncResult *result,
@@ -269,11 +274,6 @@ sparql_query_cb_diff (GObject      *object,
 
 	priv->idle_id = g_idle_add (process_queue_cb, consumer);
 }
-
-typedef struct {
-	gchar *subject;
-	TrackerWritebackConsumer *consumer;
-} SubjectAndConsumer;
 
 static void
 sparql_query_cb (GObject      *object,
