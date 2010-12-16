@@ -31,8 +31,8 @@
 #include "tracker-marshal.h"
 
 /* Known exception for which linking with libtracker-miner isn't necessary,
- * include is needed for the TRACKER_MINER_FS_GRAPH_URN define which is
- * shared between tracker-writeback and tracker-miner-fs */
+ * include is needed for the TRACKER_MINER_FS_GRAPH_URN define which is shared
+ * between tracker-writeback and tracker-miner-fs */
 
 #include "libtracker-miner/tracker-miner-common.h"
 
@@ -76,7 +76,6 @@ enum {
 static void tracker_writeback_consumer_finalize    (GObject       *object);
 static void tracker_writeback_consumer_constructed (GObject       *object);
 static gboolean process_queue_cb                   (gpointer       user_data);
-
 
 G_DEFINE_TYPE (TrackerWritebackConsumer, tracker_writeback_consumer, G_TYPE_OBJECT)
 
@@ -338,7 +337,6 @@ sparql_query_cb (GObject      *object,
 	g_slice_free (QueryData, data);
 	g_free (s_and_c->subject);
 	g_free (s_and_c);
-
 }
 
 static void
@@ -485,6 +483,7 @@ process_queue_cb (gpointer user_data)
 
 	/* Keep "processing" state */
 	priv->idle_id = 0;
+
 	return FALSE;
 }
 
