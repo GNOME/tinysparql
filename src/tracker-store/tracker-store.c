@@ -339,18 +339,18 @@ pool_dispatch_cb (gpointer data,
 	TrackerStoreTask *task;
 
 #ifdef __USE_GNU
-        /* special task, only ever sent to main pool */
-        if (GPOINTER_TO_INT (data) == 1) {
-                if (g_getenv ("TRACKER_STORE_DISABLE_CPU_AFFINITY") == NULL) {
-                        cpu_set_t cpuset;
-                        CPU_ZERO (&cpuset);
-                        CPU_SET (main_cpu, &cpuset);
+	/* special task, only ever sent to main pool */
+	if (GPOINTER_TO_INT (data) == 1) {
+		if (g_getenv ("TRACKER_STORE_DISABLE_CPU_AFFINITY") == NULL) {
+			cpu_set_t cpuset;
+			CPU_ZERO (&cpuset);
+			CPU_SET (main_cpu, &cpuset);
 
-                        /* avoid cpu hopping which can lead to significantly worse performance */
-                        pthread_setaffinity_np (pthread_self (), sizeof (cpu_set_t), &cpuset);
-                        return;
-                }
-        }
+			/* avoid cpu hopping which can lead to significantly worse performance */
+			pthread_setaffinity_np (pthread_self (), sizeof (cpu_set_t), &cpuset);
+			return;
+		}
+	}
 #endif /* __USE_GNU */
 
 	private = user_data;
@@ -422,18 +422,18 @@ tracker_store_init (void)
 	g_thread_pool_set_max_unused_threads (2);
 
 #ifdef __USE_GNU
-        if (g_getenv ("TRACKER_STORE_DISABLE_CPU_AFFINITY") == NULL) {
+	if (g_getenv ("TRACKER_STORE_DISABLE_CPU_AFFINITY") == NULL) {
 		sched_getcpu ();
-                main_cpu = sched_getcpu ();
-                CPU_ZERO (&cpuset);
-                CPU_SET (main_cpu, &cpuset);
+		main_cpu = sched_getcpu ();
+		CPU_ZERO (&cpuset);
+		CPU_SET (main_cpu, &cpuset);
 
-                /* avoid cpu hopping which can lead to significantly worse performance */
-                pthread_setaffinity_np (pthread_self (), sizeof (cpu_set_t), &cpuset);
-                /* lock main update/query thread to same cpu to improve overall performance
-                   main loop thread is essentially idle during query execution */
-                g_thread_pool_push (private->update_pool, GINT_TO_POINTER (1), NULL);
-        }
+		/* avoid cpu hopping which can lead to significantly worse performance */
+		pthread_setaffinity_np (pthread_self (), sizeof (cpu_set_t), &cpuset);
+		/* lock main update/query thread to same cpu to improve overall performance
+		   main loop thread is essentially idle during query execution */
+		g_thread_pool_push (private->update_pool, GINT_TO_POINTER (1), NULL);
+	}
 #endif /* __USE_GNU */
 
 	g_static_private_set (&private_key,
