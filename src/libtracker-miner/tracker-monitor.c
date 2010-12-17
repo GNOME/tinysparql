@@ -1379,9 +1379,6 @@ monitor_cancel_recursively (TrackerMonitor *monitor,
 	gpointer iter_file, iter_file_monitor;
 	guint items_cancelled = 0;
 
-	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
 	g_hash_table_iter_init (&iter, monitor->private->monitors);
 	while (g_hash_table_iter_next (&iter, &iter_file, &iter_file_monitor)) {
 		gchar *uri;
