@@ -481,7 +481,7 @@ nfo:listPosition a rdf:Property ;
 # This property is very impractical
 nfo:entryContent a rdf:Property ;
 	rdfs:label "Entry content" ;
-	rdfs:comment "URI to the element in certain position of the list" ;
+	rdfs:comment "URL to the element in certain position of the list" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:MediaFileListEntry ;
 	rdfs:range nie:InformationElement ;
@@ -491,7 +491,7 @@ nfo:entryContent a rdf:Property ;
 # This one makes more sense
 nfo:entryUrl a rdf:Property ;
 	rdfs:label "Entry URL" ;
-	rdfs:comment "URI to the element in certain position of the list" ;
+	rdfs:comment "URL to the element in certain position of the list" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:MediaFileListEntry ;
 	rdfs:range xsd:string ;
@@ -778,7 +778,7 @@ nfo:deletionDate a rdf:Property ;
 
 nfo:bookmarks a rdf:Property ;
 	rdfs:label "link" ;
-	rdfs:comment "The address of the linked object. Usually a web URI." ;
+	rdfs:comment "The address of the linked object. Usually a web URL." ;
 	rdfs:subPropertyOf nie:links ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Bookmark ;
