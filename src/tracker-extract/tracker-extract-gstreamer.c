@@ -317,7 +317,7 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 		g_date_free (date);
 	}
 
-	tracker_guarantee_date_from_filename_mtime (metadata,
+	tracker_guarantee_date_from_file_mtime (metadata,
 	                                            key,
 	                                            buf,
 	                                            uri);
@@ -778,7 +778,7 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		s = NULL;
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_TITLE, &s);
-		tracker_guarantee_title_from_filename (metadata,
+		tracker_guarantee_title_from_file (metadata,
 		                                       "nie:title",
 		                                       s,
 		                                       uri);
