@@ -78,9 +78,10 @@ typedef struct {
 		struct {
 			gchar        *query;
 			GPtrArray    *blank_nodes;
+			TrackerStorePriority priority;
 		} update;
 		struct {
-			gchar               *path;
+			gchar        *path;
 		} turtle;
 	} data;
 	gchar                *client_id;
@@ -205,6 +206,30 @@ sched (TrackerStorePrivate *private)
 }
 
 static gboolean
+start_timer_or_not (TrackerStorePrivate *private,
+                    TrackerStoreTask    *task)
+{
+	gboolean result;
+
+	switch (task->type) {
+		case TRACKER_STORE_TASK_TYPE_UPDATE:
+		case TRACKER_STORE_TASK_TYPE_UPDATE_BLANK:
+			result = !(task->data.update.priority == TRACKER_STORE_PRIORITY_LOW &&
+			           g_queue_get_length (private->update_queues[TRACKER_STORE_PRIORITY_LOW]) > 0);
+			break;
+		case TRACKER_STORE_TASK_TYPE_TURTLE:
+			result = g_queue_get_length (private->update_queues[TRACKER_STORE_PRIORITY_TURTLE]) == 0;
+			break;
+		case TRACKER_STORE_TASK_TYPE_QUERY:
+		default:
+			result = FALSE;
+			break;
+	}
+
+	return result;
+}
+
+static gboolean
 task_finish_cb (gpointer data)
 {
 	TrackerStorePrivate *private;
@@ -230,7 +255,7 @@ task_finish_cb (gpointer data)
 		private->n_queries_running--;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE) {
 		if (!task->error) {
-			tracker_data_notify_transaction ();
+			tracker_data_notify_transaction (start_timer_or_not (private, task));
 		}
 
 		if (task->callback.update_callback) {
@@ -244,7 +269,7 @@ task_finish_cb (gpointer data)
 		private->update_running = FALSE;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_UPDATE_BLANK) {
 		if (!task->error) {
-			tracker_data_notify_transaction ();
+			tracker_data_notify_transaction (start_timer_or_not (private, task));
 		}
 
 		if (task->callback.update_blank_callback) {
@@ -273,7 +298,7 @@ task_finish_cb (gpointer data)
 		private->update_running = FALSE;
 	} else if (task->type == TRACKER_STORE_TASK_TYPE_TURTLE) {
 		if (!task->error) {
-			tracker_data_notify_transaction ();
+			tracker_data_notify_transaction (start_timer_or_not (private, task));
 		}
 
 		if (task->callback.turtle_callback) {
@@ -482,6 +507,7 @@ tracker_store_sparql_update (const gchar *sparql,
 	task = g_slice_new0 (TrackerStoreTask);
 	task->type = TRACKER_STORE_TASK_TYPE_UPDATE;
 	task->data.update.query = g_strdup (sparql);
+	task->data.update.priority = priority;
 	task->user_data = user_data;
 	task->callback.update_callback = callback;
 	task->destroy = destroy;

@@ -2353,14 +2353,14 @@ tracker_data_commit_transaction (GError **error)
 }
 
 void
-tracker_data_notify_transaction (void)
+tracker_data_notify_transaction (gboolean start_timer)
 {
 	if (commit_callbacks) {
 		guint n;
 		for (n = 0; n < commit_callbacks->len; n++) {
 			TrackerCommitDelegate *delegate;
 			delegate = g_ptr_array_index (commit_callbacks, n);
-			delegate->callback (delegate->user_data);
+			delegate->callback (start_timer, delegate->user_data);
 		}
 	}
 }
@@ -2646,7 +2646,7 @@ tracker_data_rollback_transaction (void)
 		for (n = 0; n < rollback_callbacks->len; n++) {
 			TrackerCommitDelegate *delegate;
 			delegate = g_ptr_array_index (rollback_callbacks, n);
-			delegate->callback (delegate->user_data);
+			delegate->callback (TRUE, delegate->user_data);
 		}
 	}
 }

@@ -43,7 +43,8 @@ typedef void (*TrackerStatementCallback) (gint         graph_id,
                                           const gchar *object,
                                           GPtrArray   *rdf_types,
                                           gpointer     user_data);
-typedef void (*TrackerCommitCallback)    (gpointer     user_data);
+typedef void (*TrackerCommitCallback)    (gboolean     start_timer,
+                                          gpointer     user_data);
 
 GQuark   tracker_data_error_quark                   (void);
 
@@ -76,7 +77,7 @@ void     tracker_data_begin_ontology_transaction    (GError                   **
 void     tracker_data_begin_transaction_for_replay  (time_t                     time,
                                                      GError                   **error);
 void     tracker_data_commit_transaction            (GError                   **error);
-void     tracker_data_notify_transaction            (void);
+void     tracker_data_notify_transaction            (gboolean                   start_timer);
 void     tracker_data_rollback_transaction          (void);
 void     tracker_data_update_sparql                 (const gchar               *update,
                                                      GError                   **error);

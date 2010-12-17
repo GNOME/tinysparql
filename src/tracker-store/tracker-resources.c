@@ -643,7 +643,8 @@ on_emit_signals (gpointer user_data)
 }
 
 static void
-on_statements_committed (gpointer user_data)
+on_statements_committed (gboolean start_timer,
+                         gpointer user_data)
 {
 	TrackerResources *resources = user_data;
 	TrackerResourcesPrivate *priv;
@@ -662,7 +663,7 @@ on_statements_committed (gpointer user_data)
 		tracker_class_transact_events (class);
 	}
 
-	if (priv->signal_timeout == 0) {
+	if (start_timer && priv->signal_timeout == 0) {
 		priv->signal_timeout = g_timeout_add_seconds (TRACKER_SIGNALS_SECONDS_PER_EMIT,
 		                                              on_emit_signals,
 		                                              user_data);
@@ -674,7 +675,8 @@ on_statements_committed (gpointer user_data)
 
 
 static void
-on_statements_rolled_back (gpointer user_data)
+on_statements_rolled_back (gboolean start_timer,
+                           gpointer user_data)
 {
 	tracker_events_reset_pending ();
 	tracker_writeback_reset_pending ();
