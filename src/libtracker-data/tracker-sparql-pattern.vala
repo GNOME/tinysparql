@@ -439,11 +439,15 @@ class Tracker.Sparql.Pattern : Object {
 		result = new SelectContext.subquery (query, context);
 		context = result;
 
-		var pattern_sql = new StringBuilder ();
+		if (not) {
+			// NOT EXISTS
+			sql.append ("NOT EXISTS (");
+		} else {
+			// EXISTS
+			sql.append ("EXISTS (");
+		}
 
-		sql.append ("SELECT ");
-
-		var pattern = translate_group_graph_pattern (pattern_sql);
+		var pattern = translate_group_graph_pattern (sql);
 		foreach (var key in pattern.var_set.get_keys ()) {
 			context.var_set.insert (key, VariableState.BOUND);
 		}
@@ -455,17 +459,6 @@ class Tracker.Sparql.Pattern : Object {
 			}
 		}
 
-		if (not) {
-			// NOT EXISTS
-			sql.append ("COUNT(1) = 0");
-		} else {
-			// EXISTS
-			sql.append ("COUNT(1) > 0");
-		}
-
-		// select from results of WHERE clause
-		sql.append (" FROM (");
-		sql.append (pattern_sql.str);
 		sql.append (")");
 
 		context = context.parent_context;
