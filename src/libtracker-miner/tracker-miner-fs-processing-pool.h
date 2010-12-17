@@ -49,8 +49,7 @@ void                   tracker_processing_task_set_sparql_string (TrackerProcess
                                                                   gchar                 *sparql_string);
 
 
-TrackerProcessingPool *tracker_processing_pool_new                   (GObject                 *owner,
-                                                                      TrackerSparqlConnection *connection,
+TrackerProcessingPool *tracker_processing_pool_new                   (TrackerSparqlConnection *connection,
                                                                       guint                    limit_wait,
                                                                       guint                    limit_process);
 void                   tracker_processing_pool_free                  (TrackerProcessingPool   *pool);
@@ -84,6 +83,11 @@ void                   tracker_processing_pool_foreach               (TrackerPro
                                                                       gpointer                 user_data);
 void                   tracker_processing_pool_buffer_flush          (TrackerProcessingPool   *pool,
                                                                       const gchar             *reason);
+
+#ifdef PROCESSING_POOL_ENABLE_TRACE
+void                   tracker_processing_pool_set_owner             (TrackerProcessingPool   *pool,
+                                                                      GObject                 *owner);
+#endif
 
 G_END_DECLS
 

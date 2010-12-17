@@ -158,8 +158,6 @@ struct _TrackerProcessingTask {
 };
 
 struct _TrackerProcessingPool {
-	/* Owner of the pool */
-	GObject *owner;
 	/* Connection to the Store */
 	TrackerSparqlConnection *connection;
 
@@ -173,10 +171,12 @@ struct _TrackerProcessingPool {
 	GFile *sparql_buffer_current_parent;
 	time_t sparql_buffer_start_time;
 
+#ifdef PROCESSING_POOL_ENABLE_TRACE
 	/* Timeout to notify status of the queues, if traces
 	 * enabled only. */
-#ifdef PROCESSING_POOL_ENABLE_TRACE
 	guint timeout_id;
+	/* Owner of the pool */
+	GObject *owner;
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
 };
 
@@ -315,6 +315,15 @@ pool_status_trace_timeout_cb (gpointer data)
 	}
 	return TRUE;
 }
+
+void
+tracker_processing_pool_set_owner (TrackerProcessingPool *pool,
+                                   GObject               *owner)
+{
+	/* Used only for logging, to differenciate between the
+	 * apps and fs miners. */
+	pool->owner = owner;
+}
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
 
 static void
@@ -367,8 +376,7 @@ tracker_processing_pool_free (TrackerProcessingPool *pool)
 }
 
 TrackerProcessingPool *
-tracker_processing_pool_new (GObject                 *owner,
-                             TrackerSparqlConnection *connection,
+tracker_processing_pool_new (TrackerSparqlConnection *connection,
                              guint                    limit_wait,
                              guint                    limit_ready)
 {
@@ -376,7 +384,6 @@ tracker_processing_pool_new (GObject                 *owner,
 
 	pool = g_new0 (TrackerProcessingPool, 1);
 
-	pool->owner = owner;
 	pool->connection = g_object_ref (connection);
 	pool->limit[TRACKER_PROCESSING_TASK_STATUS_WAIT] = limit_wait;
 	pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] = limit_ready;
