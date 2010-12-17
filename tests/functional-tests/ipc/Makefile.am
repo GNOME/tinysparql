@@ -7,6 +7,7 @@ include $(top_srcdir)/Makefile.decl
 #   test-busy-handling
 #   test-class-signal
 #   test-class-signal-performance
+#   test-class-signal-performance-batch
 #
 noinst_PROGRAMS =                                      \
 	test-busy-handling                             \
@@ -16,6 +17,7 @@ noinst_PROGRAMS =                                      \
 	test-bus-update                                \
 	test-class-signal                              \
 	test-class-signal-performance                  \
+	test-class-signal-performance-batch            \
 	test-update-array-performance
 
 AM_VALAFLAGS =                                         \
@@ -93,3 +95,16 @@ test_class_signal_performance_VALAFLAGS =              \
 test_class_signal_performance_LDADD =                  \
 	$(LDADD)                                       \
 	$(TRACKER_DBUS_LIBS)
+
+test_class_signal_performance_batch_SOURCES =          \
+	test-class-signal-performance-batch.vala
+test_class_signal_performance_batch_CFLAGS =           \
+	$(AM_CPPFLAGS)                                 \
+	$(TRACKER_DBUS_CFLAGS)
+test_class_signal_performance_batch_VALAFLAGS =        \
+	--pkg dbus-glib-1                              \
+	$(AM_VALAFLAGS)
+test_class_signal_performance_batch_LDADD =            \
+	$(LDADD)                                       \
+	$(TRACKER_DBUS_LIBS)
+
