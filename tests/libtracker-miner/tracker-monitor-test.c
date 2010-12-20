@@ -1395,8 +1395,11 @@ test_monitor_directory_event_moved_to_monitored (TrackerMonitorTestFixture *fixt
 
 	/* Cleanup environment */
 	tracker_monitor_set_enabled (fixture->monitor, FALSE);
-	/* Note that monitor is now in dest_dir */
-	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, dest_dir), ==, TRUE);
+	/* Since tracker 0.9.33, monitors are NOT moved to the new location directly when the
+	 * directory is moved, that is done by the upper layers.
+	 * Note that monitor is now in dest_dir */
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, source_dir), ==, TRUE);
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, dest_dir), !=, TRUE);
 	g_assert_cmpint (g_file_delete (file_in_dest_dir, NULL, NULL), ==, TRUE);
 	g_assert_cmpint (g_file_delete (dest_dir, NULL, NULL), ==, TRUE);
 	g_object_unref (source_dir);
@@ -1511,8 +1514,11 @@ test_monitor_directory_event_moved_to_monitored_after_file_create (TrackerMonito
 
 	/* Cleanup environment */
 	tracker_monitor_set_enabled (fixture->monitor, FALSE);
-	/* Note that monitor is now in dest_dir */
-	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, dest_dir), ==, TRUE);
+	/* Since tracker 0.9.33, monitors are NOT moved to the new location directly when the
+	 * directory is moved, that is done by the upper layers.
+	 * Note that monitor is now in dest_dir */
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, source_dir), ==, TRUE);
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, dest_dir), !=, TRUE);
 	g_assert_cmpint (g_file_delete (file_in_dest_dir, NULL, NULL), ==, TRUE);
 	g_assert_cmpint (g_file_delete (dest_dir, NULL, NULL), ==, TRUE);
 	g_object_unref (source_dir);
@@ -1631,8 +1637,11 @@ test_monitor_directory_event_moved_to_monitored_after_file_update (TrackerMonito
 
 	/* Cleanup environment */
 	tracker_monitor_set_enabled (fixture->monitor, FALSE);
-	/* Note that monitor is now in dest_dir */
-	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, dest_dir), ==, TRUE);
+	/* Since tracker 0.9.33, monitors are NOT moved to the new location directly when the
+	 * directory is moved, that is done by the upper layers.
+	 * Note that monitor is now in dest_dir */
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, source_dir), ==, TRUE);
+	g_assert_cmpint (tracker_monitor_remove (fixture->monitor, dest_dir), !=, TRUE);
 	g_assert_cmpint (g_file_delete (file_in_dest_dir, NULL, NULL), ==, TRUE);
 	g_assert_cmpint (g_file_delete (dest_dir, NULL, NULL), ==, TRUE);
 	g_object_unref (source_dir);
