@@ -52,6 +52,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 libtracker_minerinclude_HEADERS =                      \
 	tracker-crawler.h                              \
 	tracker-miner.h                                \
+	tracker-miner-common.h
 	tracker-miner-object.h                         \
 	tracker-miner-fs.h                             \
 	tracker-miner-manager.h                        \
@@ -59,8 +60,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-network-provider.h                     \
 	tracker-password-provider.h                    \
 	tracker-storage.h                              \
-	tracker-thumbnailer.h                          \
-	tracker-miner-common.h
+	tracker-thumbnailer.h                          
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
