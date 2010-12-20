@@ -668,22 +668,50 @@ class Tracker.Sparql.Expression : Object {
 			var expr = new StringBuilder ();
 			translate_expression (expr);
 
+			string value_separator = ",";
+			string? graph_separator = null;
+
+			if (accept (SparqlTokenType.COMMA)) {
+				value_separator = parse_string_literal ();
+
+				if (accept (SparqlTokenType.COMMA)) {
+					graph_separator = parse_string_literal ();
+				}
+			}
+
 			if (prop.multiple_values) {
+				// multi-valued property
 				sql.append ("(SELECT GROUP_CONCAT(");
 				long begin = sql.len;
 				sql.append_printf ("\"%s\"", prop.name);
 				convert_expression_to_string (sql, prop.data_type, begin);
-				sql.append_printf (",',') FROM \"%s\" WHERE ID = %s)", prop.table_name, expr.str);
+				if (graph_separator != null) {
+					sql.append_printf (" || %s || COALESCE((SELECT Uri FROM Resource WHERE ID = \"%s:graph\"), '')", escape_sql_string_literal (graph_separator), prop.name);
+				}
+				sql.append_printf (",%s)", escape_sql_string_literal (value_separator));
+				sql.append_printf (" FROM \"%s\" WHERE ID = %s)", prop.table_name, expr.str);
 
 				return PropertyType.STRING;
 			} else {
-				sql.append_printf ("(SELECT \"%s\" FROM \"%s\" WHERE ID = %s)", prop.name, prop.table_name, expr.str);
+				// single-valued property
+				if (graph_separator == null) {
+					sql.append_printf ("(SELECT \"%s\" FROM \"%s\" WHERE ID = %s)", prop.name, prop.table_name, expr.str);
 
-				if (prop.data_type == PropertyType.STRING) {
-					append_collate (sql);
+					if (prop.data_type == PropertyType.STRING) {
+						append_collate (sql);
+					}
+
+					return prop.data_type;
+				} else {
+					sql.append ("(SELECT ");
+					long begin = sql.len;
+					sql.append_printf ("\"%s\"", prop.name);
+					convert_expression_to_string (sql, prop.data_type, begin);
+					sql.append_printf (" || %s || COALESCE((SELECT Uri FROM Resource WHERE ID = \"%s:graph\"), '')", escape_sql_string_literal (graph_separator), prop.name);
+					sql.append_printf (" FROM \"%s\" WHERE ID = %s)", prop.table_name, expr.str);
+
+					return PropertyType.STRING;
 				}
-
-				return prop.data_type;
 			}
 		}
 	}
