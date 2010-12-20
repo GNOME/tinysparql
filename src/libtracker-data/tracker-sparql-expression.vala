@@ -459,10 +459,10 @@ class Tracker.Sparql.Expression : Object {
 
 			return PropertyType.STRING;
 		} else if (uri == FN_NS + "concat") {
-			translate_expression (sql);
+			translate_expression_as_string (sql);
 			sql.append ("||");
 			expect (SparqlTokenType.COMMA);
-			translate_expression (sql);
+			translate_expression_as_string (sql);
 			while (accept (SparqlTokenType.COMMA)) {
 			      sql.append ("||");
 			      translate_expression (sql);
