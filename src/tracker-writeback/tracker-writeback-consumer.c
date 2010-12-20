@@ -190,7 +190,7 @@ sparql_query_cb (GObject      *object,
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
 
 	if (!error) {
-		GPtrArray *results = g_ptr_array_new ();
+		GPtrArray *results = g_ptr_array_new_with_free_func ((GDestroyNotify) g_strfreev);
 		guint cols = tracker_sparql_cursor_get_n_columns (cursor);
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
@@ -229,11 +229,10 @@ sparql_query_cb (GObject      *object,
 					g_object_unref (writeback);
 				}
 			}
-			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
 		} else {
 			g_message ("  No files qualify for updates");
 		}
-		g_ptr_array_free (results, TRUE);
+		g_ptr_array_unref (results);
 		g_object_unref (cursor);
 	} else {
 		g_message ("  No files qualify for updates (%s)", error->message);
