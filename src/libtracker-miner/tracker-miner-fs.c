@@ -33,11 +33,19 @@
 #include "tracker-miner-fs-processing-pool.h"
 
 /* If defined will print the tree from GNode while running */
-#undef ENABLE_TREE_DEBUGGING
+#ifdef ENABLE_TREE_DEBUGGING
+#warning Tree debugging traces enabled
+#endif /* ENABLE_TREE_DEBUGGING */
+
 /* If defined will print contents of populated IRI cache while running */
-#undef PRINT_IRI_CACHE_CONTENTS
+#ifdef PRINT_IRI_CACHE_CONTENTS
+#warning IRI cache contents traces enabled
+#endif /* PRINT_IRI_CACHE_CONTENTS */
+
 /* If defined will print contents of populated mtime cache while running */
-#undef PRINT_MTIME_CACHE_CONTENTS
+#ifdef PRINT_MTIME_CACHE_CONTENTS
+#warning MTIME cache contents traces enabled
+#endif /* PRINT_MTIME_CACHE_CONTENTS */
 
 /* Default processing pool limits to be set */
 #define DEFAULT_WAIT_POOL_LIMIT 1
@@ -1072,6 +1080,11 @@ item_query_exists_cb (GObject      *object,
 	}
 
 	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+#ifdef PRINT_IRI_CACHE_CONTENTS
+		g_debug ("Querying for resources with uri '%s', NONE found",
+		         data->uri);
+#endif /* PRINT_IRI_CACHE_CONTENTS */
+
 		g_object_unref (cursor);
 		return;
 	}
@@ -1080,6 +1093,12 @@ item_query_exists_cb (GObject      *object,
 	data->iri = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 	if (data->get_mime)
 		data->mime = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
+
+#ifdef PRINT_IRI_CACHE_CONTENTS
+	g_debug ("Querying for resources with uri '%s', ONE found: '%s'",
+	         data->uri,
+	         data->iri);
+#endif /* PRINT_IRI_CACHE_CONTENTS */
 
 	/* Any additional result must be logged as critical */
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
