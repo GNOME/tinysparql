@@ -52,7 +52,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 libtracker_minerinclude_HEADERS =                      \
 	tracker-crawler.h                              \
 	tracker-miner.h                                \
-	tracker-miner-common.h
+	tracker-miner-common.h                         \
 	tracker-miner-object.h                         \
 	tracker-miner-fs.h                             \
 	tracker-miner-manager.h                        \
