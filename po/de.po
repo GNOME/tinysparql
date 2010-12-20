@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-11-17 11:19+0000\n"
-"PO-Revision-Date: 2010-11-23 19:53+0100\n"
+"POT-Creation-Date: 2010-12-14 11:40+0000\n"
+"PO-Revision-Date: 2010-12-20 15:13+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -31,7 +31,6 @@ msgstr ""
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-search-bar/tracker-results-window.c:666
-#: ../src/tracker-search-tool/tracker-category-view.gs:79
 msgid "Applications"
 msgstr "Anwendungen"
 
@@ -40,7 +39,6 @@ msgid "Applications data miner"
 msgstr "Indizierung von Anwendungen"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:1
-#: ../src/tracker-search-tool/tracker-category-view.gs:83
 #: ../src/tracker-utils/tracker-search.c:339
 msgid "Emails"
 msgstr "E-Mails"
@@ -139,6 +137,7 @@ msgstr[1] ""
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
 #: ../src/plugins/nautilus/tracker-tags-extension.c:237
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 #: ../src/tracker-search-bar/tracker-results-window.c:663
 msgid "Tags"
 msgstr "Schlagworte"
@@ -260,7 +259,7 @@ msgid "Properties"
 msgstr "Eigenschaften"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:2
-#: ../src/tracker-search-tool/tst.ui.h:2
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "_Search:"
 msgstr "S_uchen:"
 
@@ -269,7 +268,7 @@ msgid "_URN:"
 msgstr "_URN:"
 
 #: ../src/tracker-extract/tracker-main.c:84
-#: ../src/tracker-store/tracker-main.c:101
+#: ../src/tracker-store/tracker-main.c:103
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -320,7 +319,7 @@ msgid "MODULE"
 msgstr "MODUL"
 
 #: ../src/tracker-extract/tracker-main.c:111 ../src/miners/fs/tracker-main.c:94
-#: ../src/tracker-store/tracker-main.c:97
+#: ../src/tracker-store/tracker-main.c:99
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Versionsinformationen anzeigen"
@@ -657,6 +656,46 @@ msgstr "Nur _beim Indizieren von Inhalten anzeigen"
 msgid "seconds"
 msgstr "Sekunden"
 
+#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
+msgid "Desktop Search"
+msgstr "Desktop-Suche"
+
+#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
+msgid ""
+"Find what you're looking for on this computer by name or content using Tracker"
+msgstr ""
+"Tracker erlaubt es, auf diesem Rechner nach dem Namen oder Inhalten suchen"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:1
+msgid ""
+"Display results by category, for example, Music, Videos, Applications, etc."
+msgstr ""
+"Ergebnisse nach Kategorie anzeigen, z.B. Musik, Videos, Anwendungen usw."
+
+#: ../src/tracker-needle/tracker-needle.ui.h:2
+msgid "Display results by files found in a grid view"
+msgstr "Ergebnisse nach Dateien in einer Rasteransicht anzeigen"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:3
+msgid "Display results by files found in a list"
+msgstr "Ergebnisse nach Dateien in einer Liste anzeigen"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:4
+msgid "Find search criteria in file titles"
+msgstr "Suchkriterien auf Dateinamen anwenden"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:5
+msgid "Find search criteria inside files"
+msgstr "Suchkriterien auf Dateiinhalte anwenden"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:6
+msgid "Needle"
+msgstr "Nadel"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Show statistics about the data stored"
+msgstr "Statistiken zu den gespeicherten Daten anzeigen"
+
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:1
 msgid "Desktop search tool using Tracker"
 msgstr "Dateisuche mit Tracker"
@@ -684,7 +723,7 @@ msgstr "Suchleiste"
 #. G_CALLBACK (statistics_menu_activated), icon);
 #.
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
-#: ../src/tracker-status-icon/tracker-status-icon.c:917
+#: ../src/tracker-status-icon/tracker-status-icon.c:921
 msgid "_About"
 msgstr "_Über"
 
@@ -703,12 +742,10 @@ msgid "Email Addresses"
 msgstr "E-Mail-Adressen"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:665
-#: ../src/tracker-search-tool/tracker-category-view.gs:63
 msgid "Documents"
 msgstr "Dokumente"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:667
-#: ../src/tracker-search-tool/tracker-category-view.gs:67
 msgid "Images"
 msgstr "Bilder"
 
@@ -717,7 +754,6 @@ msgid "Audio"
 msgstr "Audio"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:669
-#: ../src/tracker-search-tool/tracker-category-view.gs:59
 msgid "Folders"
 msgstr "Ordner"
 
@@ -726,7 +762,6 @@ msgid "Fonts"
 msgstr "Schriften"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:671
-#: ../src/tracker-search-tool/tracker-category-view.gs:75
 msgid "Videos"
 msgstr "Videos"
 
@@ -762,7 +797,7 @@ msgstr ""
 "gespeichert sind"
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
-#: ../src/tracker-status-icon/tracker-status-icon.c:806
+#: ../src/tracker-status-icon/tracker-status-icon.c:810
 msgid "Copyright Tracker Authors 2005-2010"
 msgstr "Copyright © 2005-2010 Die Tracker-Autoren"
 
@@ -797,138 +832,6 @@ msgstr ""
 "Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA "
 "02110-1301, USA."
 
-#: ../src/tracker-search-tool/tracker-category-view.gs:55
-msgid "All Files"
-msgstr "Alle Dateien"
-
-#: ../src/tracker-search-tool/tracker-category-view.gs:71
-msgid "Music"
-msgstr "Musik"
-
-#: ../src/tracker-search-tool/tracker-entry.gs:47
-msgid "Clear the search text"
-msgstr "Suchfeld leeren"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:95
-msgid "Name:"
-msgstr "Name:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:101
-msgid "Folder:"
-msgstr "Ordner:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:105
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:209
-msgid "Type:"
-msgstr "Typ:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:110
-msgid "Size:"
-msgstr "Größe:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:115
-msgid "Modified:"
-msgstr "Geändert:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
-msgid "Height:"
-msgstr "Höhe:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
-msgid "Width:"
-msgstr "Breite:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:390
-msgid "Title:"
-msgstr "Titel:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
-msgid "Artist:"
-msgstr "Künstler:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
-msgid "Album:"
-msgstr "Album:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:356
-msgid "Duration:"
-msgstr "Dauer:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:375
-msgid "Subject:"
-msgstr "Betreff:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:376
-msgid "From:"
-msgstr "Von:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:377
-msgid "Received:"
-msgstr "Empfangen: "
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:391
-msgid "Author:"
-msgstr "Autor:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:392
-msgid "Page count:"
-msgstr "Seitenanzahl:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:418
-msgid "Description:"
-msgstr "Beschreibung:"
-
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
-msgid ""
-"Locate documents and folders on this computer by name or content using Tracker"
-msgstr ""
-"Tracker erlaubt es, Dokumente ausfindig zu machen, indem Sie nach dem Namen "
-"oder Inhalt suchen"
-
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
-#: ../src/tracker-search-tool/tst.ui.h:1
-msgid "Tracker Search Tool"
-msgstr "Tracker Suche"
-
-#: ../src/tracker-search-tool/tracker-search-tool.gs:110
-#, c-format
-msgid ""
-"Failed to load UI\n"
-"%s"
-msgstr ""
-"Laden der Benutzeroberfläche ist fehlgeschlagen\n"
-"%s"
-
-#: ../src/tracker-search-tool/tracker-utils.gs:101
-#, c-format
-msgid ""
-"Could not launch \"%s\"\n"
-"Error: %s\n"
-msgstr ""
-"»%s« konnte nicht gestartet werden\n"
-"Fehler: %s\n"
-
-#: ../src/tracker-search-tool/tracker-utils.gs:117
-#, c-format
-msgid ""
-"Could not get application info for %s\n"
-"Error: %s\n"
-msgstr ""
-"Anwendungsdaten von %s konnten nicht gelesen werden\n"
-"Fehler: %s\n"
-
-#: ../src/tracker-search-tool/tracker-utils.gs:125
-#, c-format
-msgid ""
-"Could not lauch %s\n"
-"Error: %s\n"
-msgstr ""
-"»%s« konnte nicht gestartet werden\n"
-"Fehler: %s\n"
-
 #: ../src/tracker-status-icon/tracker-main.c:46
 #: ../src/tracker-control/tracker-control.c:105
 #: ../src/tracker-utils/tracker-import.c:50
@@ -945,16 +848,16 @@ msgstr "Version ausgeben"
 msgid "- Miner status and control notification area icon"
 msgstr "- Benachrichtigungssymbol für Indizierungsstatus und Steuerung"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:523
+#: ../src/tracker-status-icon/tracker-status-icon.c:527
 msgid "Miner is not running"
 msgstr "Indizierung wird nicht ausgeführt"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:564
-#: ../src/tracker-status-icon/tracker-status-icon.c:695
+#: ../src/tracker-status-icon/tracker-status-icon.c:568
+#: ../src/tracker-status-icon/tracker-status-icon.c:699
 msgid "Paused by user"
 msgstr "Angehalten durch Benutzer"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:782
+#: ../src/tracker-status-icon/tracker-status-icon.c:786
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -966,7 +869,7 @@ msgstr ""
 "sie von der Free Software Foundation festgelegt wurden; entweder in Version 2 "
 "der Lizenz oder (nach Ihrem Ermessen) in jeder folgenden Lizenz."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:786
+#: ../src/tracker-status-icon/tracker-status-icon.c:790
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR "
@@ -978,7 +881,7 @@ msgstr ""
 "für weitere Informationen bitte in der GNU General Public License (GNU GPL) "
 "nach."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:790
+#: ../src/tracker-status-icon/tracker-status-icon.c:794
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
@@ -989,7 +892,7 @@ msgstr ""
 "Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA "
 "02110-1301, USA."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:805
+#: ../src/tracker-status-icon/tracker-status-icon.c:809
 msgid "A notification icon application to monitor data miners for Tracker"
 msgstr ""
 "Eine Anwendung mit Benachrichtigungssymbol zum Überwachen der Indizierung "
@@ -999,7 +902,7 @@ msgstr ""
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-status-icon/tracker-status-icon.c:815
+#: ../src/tracker-status-icon/tracker-status-icon.c:819
 msgid "translator-credits"
 msgstr ""
 "Hendrik Richter <hendrikr@gnome.org>\n"
@@ -1008,15 +911,15 @@ msgstr ""
 "Mario Blättermann <mariobl@gnome.org>\n"
 "Christian Kirbach <Christian.Kirbach@googlemail.com>"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:837
+#: ../src/tracker-status-icon/tracker-status-icon.c:841
 msgid "_Search"
 msgstr "_Suchen"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:866
+#: ../src/tracker-status-icon/tracker-status-icon.c:870
 msgid "_Pause All Indexing"
 msgstr "Indizierung _anhalten"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:886
+#: ../src/tracker-status-icon/tracker-status-icon.c:890
 msgid "_Preferences"
 msgstr "_Einstellungen"
 
@@ -1028,18 +931,18 @@ msgstr "Statusanzeige für Tracker Such- und Indizierungsdienst"
 msgid "Tracker Applet"
 msgstr "Tracker Applet"
 
-#: ../src/tracker-store/tracker-main.c:108
+#: ../src/tracker-store/tracker-main.c:110
 msgid "Force a re-index of all content"
 msgstr "Eine erneute Indizierung aller Inhalte erzwingen"
 
-#: ../src/tracker-store/tracker-main.c:112
+#: ../src/tracker-store/tracker-main.c:114
 msgid "Only allow read based actions on the database"
 msgstr "Nur Lesevorgänge in der Datenbank erlauben"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:373
+#: ../src/tracker-store/tracker-main.c:375
 msgid "- start the tracker daemon"
 msgstr "- startet den Tracker-Dienst"
 
@@ -1165,35 +1068,35 @@ msgstr "Prozess %d konnte nicht getötet werden"
 msgid "Killed process %d"
 msgstr "Prozess %d wurde getötet"
 
-#: ../src/tracker-control/tracker-control.c:494
+#: ../src/tracker-control/tracker-control.c:501
 msgid "Removing configuration files…"
 msgstr "Konfigurationsdateien werden entfernt …"
 
-#: ../src/tracker-control/tracker-control.c:511
+#: ../src/tracker-control/tracker-control.c:518
 msgid "Waiting one second before starting miners…"
 msgstr "Eine Sekunde wird gewartet, bevor Indizierer gestartet werden …"
 
-#: ../src/tracker-control/tracker-control.c:517
+#: ../src/tracker-control/tracker-control.c:524
 msgid "Starting miners…"
 msgstr "Indizierung wird gestartet …"
 
-#: ../src/tracker-control/tracker-control.c:532
+#: ../src/tracker-control/tracker-control.c:539
 msgid "perhaps a disabled plugin?"
 msgstr "Plugin könnte deaktiviert sein?"
 
-#: ../src/tracker-control/tracker-control.c:553
+#: ../src/tracker-control/tracker-control.c:560
 msgid "Could not reindex mimetypes"
 msgstr "MIME-Typen konnten nicht erneut indiziert werden"
 
-#: ../src/tracker-control/tracker-control.c:559
+#: ../src/tracker-control/tracker-control.c:566
 msgid "Reindexing mime types was successful"
 msgstr "(Erneute) Indizierung der MIME-Typen war erfolgreich"
 
-#: ../src/tracker-control/tracker-control.c:576
+#: ../src/tracker-control/tracker-control.c:583
 msgid "Could not (re)index file"
 msgstr "Datei konnte nicht (erneut) indiziert werden"
 
-#: ../src/tracker-control/tracker-control.c:582
+#: ../src/tracker-control/tracker-control.c:589
 msgid "(Re)indexing file was successful"
 msgstr "(Erneute) Indizierung der Datei war erfolgreich"
 
@@ -1838,7 +1741,7 @@ msgstr "Der Status vom Indizierer konnte nicht erhalten werden: %s"
 
 #. Work out lengths for output spacing
 #: ../src/tracker-utils/tracker-status.c:284
-#: ../src/tracker-utils/tracker-status.c:678
+#: ../src/tracker-utils/tracker-status.c:697
 msgid "PAUSED"
 msgstr "UNTERBROCHEN"
 
@@ -1846,68 +1749,64 @@ msgstr "UNTERBROCHEN"
 msgid "Not running or is a disabled plugin"
 msgstr "Läuft nicht oder Plugin ist deaktiviert"
 
-#: ../src/tracker-utils/tracker-status.c:354
-msgid "Journal replay"
-msgstr "Journal verarbeiten"
-
-#: ../src/tracker-utils/tracker-status.c:479
+#: ../src/tracker-utils/tracker-status.c:498
 msgid "- Monitor and control status"
 msgstr "- Status von Überwachung und Steuerung"
 
-#: ../src/tracker-utils/tracker-status.c:494
+#: ../src/tracker-utils/tracker-status.c:513
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Die Argumente zum Anhalten und Fortsetzen des Indizierers können nicht "
 "zugleich verwendet werden"
 
-#: ../src/tracker-utils/tracker-status.c:508
+#: ../src/tracker-utils/tracker-status.c:527
 msgid "You must provide the miner for pause or resume commands"
 msgstr ""
 "Der Indizierer muss für die Befehle zum Anhalten und Fortsetzen angegeben "
 "werden"
 
-#: ../src/tracker-utils/tracker-status.c:522
+#: ../src/tracker-utils/tracker-status.c:541
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
 "Sie müssen die Befehle zum Anhalten und Fortsetzen für den Indizierer angeben"
 
-#: ../src/tracker-utils/tracker-status.c:547
+#: ../src/tracker-utils/tracker-status.c:566
 msgid "Common statuses include"
 msgstr "Häufige Status einschließen"
 
-#: ../src/tracker-utils/tracker-status.c:559
+#: ../src/tracker-utils/tracker-status.c:578
 #, c-format
 msgid "Found %d miners installed"
 msgstr "Es wurden %d installierte Indizierer gefunden"
 
-#: ../src/tracker-utils/tracker-status.c:571
+#: ../src/tracker-utils/tracker-status.c:590
 #, c-format
 msgid "Found %d miners running"
 msgstr "Es wurden %d laufende Indizierer gefunden"
 
-#: ../src/tracker-utils/tracker-status.c:607
+#: ../src/tracker-utils/tracker-status.c:626
 msgid "No miners are running"
 msgstr "Es laufen derzeit keine Indizierer"
 
-#: ../src/tracker-utils/tracker-status.c:647
-#: ../src/tracker-utils/tracker-status.c:694
+#: ../src/tracker-utils/tracker-status.c:666
+#: ../src/tracker-utils/tracker-status.c:713
 msgid "Miners"
 msgstr "Indizierer"
 
-#: ../src/tracker-utils/tracker-status.c:654
+#: ../src/tracker-utils/tracker-status.c:673
 msgid "Application"
 msgstr "Anwendung"
 
-#: ../src/tracker-utils/tracker-status.c:656
+#: ../src/tracker-utils/tracker-status.c:675
 msgid "Reason"
 msgstr "Grund"
 
-#: ../src/tracker-utils/tracker-status.c:665
+#: ../src/tracker-utils/tracker-status.c:684
 msgid "No miners are paused"
 msgstr "Es sind keine Indizierer angehalten"
 
 #. Display states
-#: ../src/tracker-utils/tracker-status.c:688
+#: ../src/tracker-utils/tracker-status.c:707
 msgid "Store"
 msgstr "Speichern"
 
@@ -2076,6 +1975,100 @@ msgstr "Datenverwaltung konnte nicht initialisiert werden"
 #: ../utils/tracker-sql/tracker-sql.c:198
 msgid "Empty result set"
 msgstr "Leeres Ergebnis gesetzt"
+
+#~ msgid "All Files"
+#~ msgstr "Alle Dateien"
+
+#~ msgid "Music"
+#~ msgstr "Musik"
+
+#~ msgid "Clear the search text"
+#~ msgstr "Suchfeld leeren"
+
+#~ msgid "Name:"
+#~ msgstr "Name:"
+
+#~ msgid "Folder:"
+#~ msgstr "Ordner:"
+
+#~ msgid "Type:"
+#~ msgstr "Typ:"
+
+#~ msgid "Size:"
+#~ msgstr "Größe:"
+
+#~ msgid "Modified:"
+#~ msgstr "Geändert:"
+
+#~ msgid "Height:"
+#~ msgstr "Höhe:"
+
+#~ msgid "Width:"
+#~ msgstr "Breite:"
+
+#~ msgid "Title:"
+#~ msgstr "Titel:"
+
+#~ msgid "Artist:"
+#~ msgstr "Künstler:"
+
+#~ msgid "Album:"
+#~ msgstr "Album:"
+
+#~ msgid "Duration:"
+#~ msgstr "Dauer:"
+
+#~ msgid "Subject:"
+#~ msgstr "Betreff:"
+
+#~ msgid "From:"
+#~ msgstr "Von:"
+
+#~ msgid "Received:"
+#~ msgstr "Empfangen: "
+
+#~ msgid "Author:"
+#~ msgstr "Autor:"
+
+#~ msgid "Page count:"
+#~ msgstr "Seitenanzahl:"
+
+#~ msgid "Description:"
+#~ msgstr "Beschreibung:"
+
+#~ msgid "Tracker Search Tool"
+#~ msgstr "Tracker Suche"
+
+#~ msgid ""
+#~ "Failed to load UI\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Laden der Benutzeroberfläche ist fehlgeschlagen\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Could not launch \"%s\"\n"
+#~ "Error: %s\n"
+#~ msgstr ""
+#~ "»%s« konnte nicht gestartet werden\n"
+#~ "Fehler: %s\n"
+
+#~ msgid ""
+#~ "Could not get application info for %s\n"
+#~ "Error: %s\n"
+#~ msgstr ""
+#~ "Anwendungsdaten von %s konnten nicht gelesen werden\n"
+#~ "Fehler: %s\n"
+
+#~ msgid ""
+#~ "Could not lauch %s\n"
+#~ "Error: %s\n"
+#~ msgstr ""
+#~ "»%s« konnte nicht gestartet werden\n"
+#~ "Fehler: %s\n"
+
+#~ msgid "Journal replay"
+#~ msgstr "Journal verarbeiten"
 
 #~ msgid "Forces the insertion of FILE into the store"
 #~ msgstr "Erzwingt das Einfügen von DATEI in den Speicher"
@@ -2958,9 +2951,6 @@ msgstr "Leeres Ergebnis gesetzt"
 
 #~ msgid "SPARQL update extensions"
 #~ msgstr "SPARQL-Aktualisierungserweiterungen"
-
-#~ msgid "Statistics have been updated"
-#~ msgstr "Statistiken wurden aktualisiert"
 
 #~ msgid "Updating '%s' with new count:%s"
 #~ msgstr "»%s« wird mit neuer Anzahl aktualisiert:%s"
