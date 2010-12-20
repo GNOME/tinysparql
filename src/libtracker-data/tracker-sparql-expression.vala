@@ -665,20 +665,19 @@ class Tracker.Sparql.Expression : Object {
 				throw get_error ("Unknown function");
 			}
 
+			var expr = new StringBuilder ();
+			translate_expression (expr);
+
 			if (prop.multiple_values) {
 				sql.append ("(SELECT GROUP_CONCAT(");
 				long begin = sql.len;
 				sql.append_printf ("\"%s\"", prop.name);
 				convert_expression_to_string (sql, prop.data_type, begin);
-				sql.append_printf (",',') FROM \"%s\" WHERE ID = ", prop.table_name);
-				translate_expression (sql);
-				sql.append (")");
+				sql.append_printf (",',') FROM \"%s\" WHERE ID = %s)", prop.table_name, expr.str);
 
 				return PropertyType.STRING;
 			} else {
-				sql.append_printf ("(SELECT \"%s\" FROM \"%s\" WHERE ID = ", prop.name, prop.table_name);
-				translate_expression (sql);
-				sql.append (")");
+				sql.append_printf ("(SELECT \"%s\" FROM \"%s\" WHERE ID = %s)", prop.name, prop.table_name, expr.str);
 
 				if (prop.data_type == PropertyType.STRING) {
 					append_collate (sql);
