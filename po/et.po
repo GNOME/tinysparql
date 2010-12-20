@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Tracker MASTER\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-10-16 18:51+0000\n"
+"POT-Creation-Date: 2010-12-15 09:46+0000\n"
 "PO-Revision-Date: 2010-10-17 19:36+0300\n"
 "Last-Translator: Mattias Põldaru <mahfiaz gmail com>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"
@@ -470,6 +470,40 @@ msgstr "_Ainult indekseerimise ajal"
 msgid "seconds"
 msgstr "sekundit"
 
+msgid "Desktop Search"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Find what you're looking for on this computer by name or content using "
+"Tracker"
+msgstr ""
+"Trackeriga selles arvutis asuvate dokumentide ja kataloogide leidmine nime "
+"või sisu järgi "
+
+msgid ""
+"Display results by category, for example, Music, Videos, Applications, etc."
+msgstr ""
+
+msgid "Display results by files found in a grid view"
+msgstr ""
+
+msgid "Display results by files found in a list"
+msgstr ""
+
+msgid "Find search criteria in file titles"
+msgstr ""
+
+#, fuzzy
+msgid "Find search criteria inside files"
+msgstr "Videofailide otsing"
+
+msgid "Needle"
+msgstr ""
+
+msgid "Show statistics about the data stored"
+msgstr ""
+
 msgid "Desktop search tool using Tracker"
 msgstr "Trackerit kasutav töölauaotsing"
 
@@ -578,108 +612,6 @@ msgstr ""
 "Litsentsist; juhul kui sa seda ei saanud, siis kirjuta aadressil Free "
 "Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA "
 "02110-1301 USA"
-
-msgid "All Files"
-msgstr "Kõik failid"
-
-msgid "Music"
-msgstr "Muusika"
-
-msgid "Clear the search text"
-msgstr "Otsisõne puhastamine"
-
-msgid "Name:"
-msgstr "Nimi:"
-
-msgid "Folder:"
-msgstr "Kaust:"
-
-msgid "Type:"
-msgstr "Liik:"
-
-msgid "Size:"
-msgstr "Suurus:"
-
-msgid "Modified:"
-msgstr "Muudetud:"
-
-msgid "Height:"
-msgstr "Kõrgus:"
-
-msgid "Width:"
-msgstr "Laius:"
-
-msgid "Title:"
-msgstr "Pealkiri:"
-
-msgid "Artist:"
-msgstr "Esitaja:"
-
-msgid "Album:"
-msgstr "Album:"
-
-msgid "Duration:"
-msgstr "Kestus:"
-
-msgid "Subject:"
-msgstr "Teema:"
-
-msgid "From:"
-msgstr "Saatja:"
-
-msgid "Received:"
-msgstr "Saabus:"
-
-msgid "Author:"
-msgstr "Autor:"
-
-msgid "Page count:"
-msgstr "Lehtede arv:"
-
-msgid "Description:"
-msgstr "Kirjeldus:"
-
-msgid ""
-"Locate documents and folders on this computer by name or content using "
-"Tracker"
-msgstr ""
-"Trackeriga selles arvutis asuvate dokumentide ja kataloogide leidmine nime "
-"või sisu järgi "
-
-msgid "Tracker Search Tool"
-msgstr "Tracker otsinguvahend"
-
-#, c-format
-msgid ""
-"Failed to load UI\n"
-"%s"
-msgstr ""
-"Kasutajaliidese laadimine nurjus\n"
-"%s"
-
-#, c-format
-msgid ""
-"Could not launch \"%s\"\n"
-"Error: %s\n"
-msgstr ""
-"\"%s\" ei suudetud käivitada\n"
-"Viga: %s\n"
-
-#, c-format
-msgid ""
-"Could not get application info for %s\n"
-"Error: %s\n"
-msgstr ""
-"Rakenduse %s andmeid ei suudetud leida\n"
-"Viga: %s\n"
-
-#, c-format
-msgid ""
-"Could not lauch %s\n"
-"Error: %s\n"
-msgstr ""
-"%s ei suudetud käivitada\n"
-"Viga: %s\n"
 
 msgid "Print version"
 msgstr "Versiooni trükkimine"
@@ -945,9 +877,10 @@ msgstr "0"
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Otsisõnadega kasutatakse vaikimisi JA asemel VÕI-d"
 
+#, fuzzy
 msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
-"feeds)"
+"feeds, --software, --software-categories)"
 msgstr ""
 "Tulemuste URN-ide kuvamine (ei kehti --music-albums, --music-artists, --"
 "feeds kohta)"
@@ -969,7 +902,8 @@ msgstr "Muusikafailide otsimine"
 msgid "Search for music albums (--all has no effect on this)"
 msgstr "Muusikaalbumite otsing (--all sellele ei mõju)"
 
-msgid "Search for music artists (--all has no effect on this) "
+#, fuzzy
+msgid "Search for music artists (--all has no effect on this)"
 msgstr "Muusikaartistide otsing (--all sellele ei mõju)"
 
 msgid "Search for image files"
@@ -987,7 +921,16 @@ msgstr "Meilide otsimine"
 msgid "Search for contacts"
 msgstr "Kontaktide otsimine"
 
-msgid "Search for feeds (--all has no effect on this) "
+#, fuzzy
+msgid "Search for software (--all has no effect on this)"
+msgstr "Voogude otsimine (--all seda ei mõjuta)"
+
+#, fuzzy
+msgid "Search for software categories (--all has no effect on this)"
+msgstr "Voogude otsimine (--all seda ei mõjuta)"
+
+#, fuzzy
+msgid "Search for feeds (--all has no effect on this)"
 msgstr "Voogude otsimine (--all seda ei mõjuta)"
 
 msgid "search terms"
@@ -1037,6 +980,20 @@ msgstr "Ühtegi voogu ei leitud määratud"
 
 msgid "Feeds"
 msgstr "Vood"
+
+#, fuzzy
+msgid "No software was found"
+msgstr "Muusikat ei leitud"
+
+msgid "Software"
+msgstr ""
+
+#, fuzzy
+msgid "No software categories were found"
+msgstr "Kontakte ei leitud"
+
+msgid "Software Categories"
+msgstr ""
 
 msgid "No results were found matching your query"
 msgstr "Sinu päringuga klappivaid tulemusi ei leitud"
@@ -1109,6 +1066,15 @@ msgstr ""
 "valikuline)"
 
 msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional) "
+msgstr ""
+
+#, fuzzy
+msgid "PROPERTY"
+msgstr "KLASS/OMADUS"
+
+msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "Klassi või omaduse otsimine ja lisateabe kuvamine (nt dokunment)"
 
@@ -1171,6 +1137,18 @@ msgstr "Märguandeid ei leitud"
 
 msgid "Notifies"
 msgstr "Teated"
+
+#, fuzzy
+msgid "Could not find indexed properties"
+msgstr "Omadusi pole võimalik loetleda"
+
+#, fuzzy
+msgid "No indexes were found"
+msgstr "Ühtegi faili pole määratud"
+
+#, fuzzy
+msgid "Indexes"
+msgstr "Indekseerimine"
 
 msgid "Could not search classes"
 msgstr "Klasse pole võimalik otsida"
@@ -1305,10 +1283,6 @@ msgstr "PAUSITUD"
 
 msgid "Not running or is a disabled plugin"
 msgstr "Plugin ei tööta või on keelatud"
-
-#, fuzzy
-msgid "Journal replay"
-msgstr "Žurnaali kordusesitus (šurnaalist taastamine)"
 
 msgid "- Monitor and control status"
 msgstr "- monitooring ja juhtimine"
@@ -1465,3 +1439,109 @@ msgstr "- trackeri tagasikirjutamise teenuse käivitamine"
 
 msgid "Saved queries"
 msgstr "Salvestatud otsingud"
+
+#, fuzzy
+msgid "- Query or update using SQL"
+msgstr "- Päring või uuendus SPARQL-i kasutades"
+
+#, fuzzy
+msgid "Failed to initialize data manager"
+msgstr "Failisüsteemi andmekaevur"
+
+msgid "Empty result set"
+msgstr ""
+
+#~ msgid "All Files"
+#~ msgstr "Kõik failid"
+
+#~ msgid "Music"
+#~ msgstr "Muusika"
+
+#~ msgid "Clear the search text"
+#~ msgstr "Otsisõne puhastamine"
+
+#~ msgid "Name:"
+#~ msgstr "Nimi:"
+
+#~ msgid "Folder:"
+#~ msgstr "Kaust:"
+
+#~ msgid "Type:"
+#~ msgstr "Liik:"
+
+#~ msgid "Size:"
+#~ msgstr "Suurus:"
+
+#~ msgid "Modified:"
+#~ msgstr "Muudetud:"
+
+#~ msgid "Height:"
+#~ msgstr "Kõrgus:"
+
+#~ msgid "Width:"
+#~ msgstr "Laius:"
+
+#~ msgid "Title:"
+#~ msgstr "Pealkiri:"
+
+#~ msgid "Artist:"
+#~ msgstr "Esitaja:"
+
+#~ msgid "Album:"
+#~ msgstr "Album:"
+
+#~ msgid "Duration:"
+#~ msgstr "Kestus:"
+
+#~ msgid "Subject:"
+#~ msgstr "Teema:"
+
+#~ msgid "From:"
+#~ msgstr "Saatja:"
+
+#~ msgid "Received:"
+#~ msgstr "Saabus:"
+
+#~ msgid "Author:"
+#~ msgstr "Autor:"
+
+#~ msgid "Page count:"
+#~ msgstr "Lehtede arv:"
+
+#~ msgid "Description:"
+#~ msgstr "Kirjeldus:"
+
+#~ msgid "Tracker Search Tool"
+#~ msgstr "Tracker otsinguvahend"
+
+#~ msgid ""
+#~ "Failed to load UI\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Kasutajaliidese laadimine nurjus\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Could not launch \"%s\"\n"
+#~ "Error: %s\n"
+#~ msgstr ""
+#~ "\"%s\" ei suudetud käivitada\n"
+#~ "Viga: %s\n"
+
+#~ msgid ""
+#~ "Could not get application info for %s\n"
+#~ "Error: %s\n"
+#~ msgstr ""
+#~ "Rakenduse %s andmeid ei suudetud leida\n"
+#~ "Viga: %s\n"
+
+#~ msgid ""
+#~ "Could not lauch %s\n"
+#~ "Error: %s\n"
+#~ msgstr ""
+#~ "%s ei suudetud käivitada\n"
+#~ "Viga: %s\n"
+
+#, fuzzy
+#~ msgid "Journal replay"
+#~ msgstr "Žurnaali kordusesitus (šurnaalist taastamine)"
