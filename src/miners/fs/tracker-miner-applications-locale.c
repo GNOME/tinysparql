@@ -51,7 +51,7 @@ miner_applications_locale_get_previous (const gchar *locale_file)
 			g_critical ("  Could not get content of file '%s'", locale_file);
 		}
 	} else {
-		g_critical ("  Could not find locale file:'%s'", locale_file);
+		g_message ("  Could not find locale file:'%s'", locale_file);
 	}
 
 	return locale;
