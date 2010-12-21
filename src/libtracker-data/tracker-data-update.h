@@ -49,9 +49,6 @@ typedef void (*TrackerCommitCallback)    (gboolean     start_timer,
 GQuark   tracker_data_error_quark                   (void);
 
 /* Metadata */
-void     tracker_data_delete_resource_description   (const gchar               *graph,
-                                                     const gchar               *url,
-                                                     GError                   **error);
 void     tracker_data_delete_statement              (const gchar               *graph,
                                                      const gchar               *subject,
                                                      const gchar               *predicate,

@@ -146,7 +146,6 @@ namespace Tracker {
 		public void insert_statement (string graph, string subject, string predicate, string object) throws Sparql.Error, DateError;
 		public void insert_statement_with_uri (string graph, string subject, string predicate, string object) throws Sparql.Error;
 		public void insert_statement_with_string (string graph, string subject, string predicate, string object) throws Sparql.Error, DateError;
-		public void delete_resource_description (string graph, string uri) throws Sparql.Error;
 		public void update_buffer_flush () throws DBInterfaceError;
 		public void update_buffer_might_flush () throws DBInterfaceError;
 	}
