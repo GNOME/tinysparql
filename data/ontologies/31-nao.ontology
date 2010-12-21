@@ -9,7 +9,7 @@
 
 nao: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nao" ;
-	nao:lastModified "2010-10-20T07:42:00Z" .
+	nao:lastModified "2010-12-22T10:00:00Z" .
 
 nao:Tag a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource ;
@@ -36,8 +36,7 @@ nao:hasTag a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range rdfs:Resource ;
 	tracker:writeback true ;
-	tracker:indexed true ;
-	tracker:isAnnotation true .
+	tracker:indexed true .
 
 nao:identifier a rdf:Property ;
 	nrl:maxCardinality 1 ;

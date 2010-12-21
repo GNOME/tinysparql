@@ -105,12 +105,6 @@ tracker:transient a rdf:Property ;
 	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
 
-tracker:isAnnotation a rdf:Property ;
-	rdfs:comment "The property is never embedded on physical files" ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain rdf:Property ;
-	rdfs:range xsd:boolean .
-
 tracker:weight a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdf:Property ;
@@ -124,13 +118,11 @@ tracker:defaultValue a rdf:Property ;
 tracker:added a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:dateTime ;
-	tracker:isAnnotation true .
+	rdfs:range xsd:dateTime .
 
 # implicitly updated modification time
 tracker:modified a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:integer ;
-	tracker:isAnnotation true .
+	rdfs:range xsd:integer .
 

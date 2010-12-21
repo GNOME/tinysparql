@@ -252,18 +252,6 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 			if (g_strcmp0 (object, "true") == 0) {
 				tracker_property_set_transient (property, TRUE);
 			}
-		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "isAnnotation") == 0) {
-			TrackerProperty *property;
-
-			property = tracker_ontologies_get_property_by_uri (subject);
-			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_file, subject);
-				continue;
-			}
-
-			if (g_strcmp0 (object, "true") == 0) {
-				tracker_property_set_embedded (property, FALSE);
-			}
 		} else if (g_strcmp0 (predicate, TRACKER_PREFIX "fulltextIndexed") == 0) {
 			TrackerProperty *property;
 

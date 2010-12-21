@@ -652,7 +652,6 @@ rdf tracker:prefix
 rdf tracker:indexed
 rdf tracker:fulltextIndexed
 rdf tracker:transient
-rdf tracker:isAnnotation
 rdf tracker:weight
 rdf tracker:added
 rdf tracker:modified
