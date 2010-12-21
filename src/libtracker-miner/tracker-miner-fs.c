@@ -2324,10 +2324,22 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	/* Created items next */
 	queue_file = g_queue_pop_head (fs->private->items_created);
 	if (queue_file) {
+		/* Note:
+		 * We won't be considering an IgnoreNextUpdate request if
+		 * the event being processed is a CREATED event. This is a fast
+		 * and dirty solution for the situation where tracker-writeback
+		 * sends an IgnoreNextUpdate event and miner-fs had never indexed
+		 * the file before.
+		 */
 		if (check_ignore_next_update (fs, queue_file)) {
-			*file = NULL;
-			*source_file = queue_file;
-			return QUEUE_IGNORE_NEXT_UPDATE;
+			gchar *uri;
+
+			/* Just remove the IgnoreNextUpdate request */
+			uri = g_file_get_uri (queue_file);
+			g_message ("Skipping the IgnoreNextUpdate request on CREATED event for '%s'",
+			           uri);
+			g_hash_table_remove (fs->private->items_ignore_next_update, uri);
+			g_free (uri);
 		}
 
 		/* If the same item OR its first parent is currently being processed,
