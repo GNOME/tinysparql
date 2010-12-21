@@ -247,8 +247,8 @@ client_clean_up_cb (gpointer data)
 
 	cd = data;
 
-	g_debug ("Removing D-Bus client data for '%s' with id:'%s'",
-	         cd->binary, cd->sender);
+	g_debug ("Removing D-Bus client data for '%s' (pid: %lu) with id:'%s'",
+	         cd->binary, cd->pid, cd->sender);
 	g_hash_table_remove (clients, cd->sender);
 
 	if (g_hash_table_size (clients) < 1) {
@@ -519,10 +519,11 @@ tracker_dbus_request_new (gint                   request_id,
 
 	cd = client_get_for_context (context);
 
-	g_debug ("<--- [%d%s%s] %s",
+	g_debug ("<--- [%d%s%s|%lu] %s",
 	         request_id,
 	         cd ? "|" : "",
 	         cd ? cd->binary : "",
+	         cd ? cd->pid : 0,
 	         str);
 
 	g_free (str);
@@ -540,10 +541,11 @@ tracker_dbus_request_success (gint                   request_id,
 
 	cd = client_get_for_context (context);
 
-	g_debug ("---> [%d%s%s] Success, no error given",
+	g_debug ("---> [%d%s%s|%lu] Success, no error given",
 	         request_id,
 	         cd ? "|" : "",
-	         cd ? cd->binary : "");
+	         cd ? cd->binary : "",
+	         cd ? cd->pid : 0);
 }
 
 void
@@ -574,10 +576,11 @@ tracker_dbus_request_failed (gint                    request_id,
 
 	cd = client_get_for_context (context);
 
-	g_message ("---> [%d%s%s] Failed, %s",
+	g_message ("---> [%d%s%s|%lu] Failed, %s",
 	           request_id,
 	           cd ? "|" : "",
 	           cd ? cd->binary : "",
+	           cd ? cd->pid : 0,
 	           str);
 	g_free (str);
 }
@@ -598,10 +601,11 @@ tracker_dbus_request_info (gint                   request_id,
 
 	cd = client_get_for_context (context);
 
-	tracker_info ("---- [%d%s%s] %s",
+	tracker_info ("---- [%d%s%s|%lu] %s",
 	              request_id,
 	              cd ? "|" : "",
 	              cd ? cd->binary : "",
+	              cd ? cd->pid : 0,
 	              str);
 	g_free (str);
 }
@@ -622,10 +626,11 @@ tracker_dbus_request_comment (gint                   request_id,
 
 	cd = client_get_for_context (context);
 
-	g_message ("---- [%d%s%s] %s",
+	g_message ("---- [%d%s%s|%lu] %s",
 	           request_id,
 	           cd ? "|" : "",
 	           cd ? cd->binary : "",
+	           cd ? cd->pid : 0,
 	           str);
 	g_free (str);
 }
@@ -646,10 +651,11 @@ tracker_dbus_request_debug (gint                   request_id,
 
 	cd = client_get_for_context (context);
 
-	g_debug ("---- [%d%s%s] %s",
+	g_debug ("---- [%d%s%s|%lu] %s",
 	         request_id,
 	         cd ? "|" : "",
 	         cd ? cd->binary : "",
+	         cd ? cd->pid : 0,
 	         str);
 	g_free (str);
 }
