@@ -634,18 +634,30 @@ public class Tracker.Sparql.Query : Object {
 			}
 		}
 
+		// INSERT/DELETE DATA are simpler variants that don't support variables
+		bool data = (current_graph == null && accept (SparqlTokenType.DATA));
+
 		var pattern_sql = new StringBuilder ();
 
 		var sql = new StringBuilder ();
 
 		var template_location = get_location ();
-		skip_braces ();
 
-		if (accept (SparqlTokenType.WHERE)) {
-			pattern.current_graph = current_graph;
-			context = pattern.translate_group_graph_pattern (pattern_sql);
-			pattern.current_graph = null;
+		if (!data) {
+			skip_braces ();
+
+			if (accept (SparqlTokenType.WHERE)) {
+				pattern.current_graph = current_graph;
+				context = pattern.translate_group_graph_pattern (pattern_sql);
+				pattern.current_graph = null;
+			} else {
+				context = new Context (this);
+
+				pattern_sql.append ("SELECT 1");
+			}
 		} else {
+			// WHERE pattern not supported for INSERT/DELETE DATA
+
 			context = new Context (this);
 
 			pattern_sql.append ("SELECT 1");
@@ -719,8 +731,10 @@ public class Tracker.Sparql.Query : Object {
 			} while (result_set.iter_next ());
 		}
 
-		// reset location to the end of the update
-		set_location (after_where);
+		if (!data) {
+			// reset location to the end of the update
+			set_location (after_where);
+		}
 
 		// ensure possible WHERE clause in next part gets the correct results
 		Data.update_buffer_flush ();

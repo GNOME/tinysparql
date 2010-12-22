@@ -130,6 +130,10 @@ public class Tracker.SparqlScanner : Object {
 			case 'D':
 			case 'd':
 				switch (begin[1]) {
+				case 'A':
+				case 'a':
+					if (matches (begin, "DATA")) return SparqlTokenType.DATA;
+					break;
 				case 'E':
 				case 'e':
 					if (matches (begin, "DESC")) return SparqlTokenType.DESC;
@@ -839,6 +843,7 @@ public enum Tracker.SparqlTokenType {
 	COMMA,
 	CONSTRUCT,
 	COUNT,
+	DATA,
 	DATATYPE,
 	DECIMAL,
 	DELETE,
