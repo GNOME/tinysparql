@@ -73,7 +73,7 @@ struct _TrackerPropertyClass {
 };
 
 GType               tracker_property_get_type                (void) G_GNUC_CONST;
-TrackerProperty *   tracker_property_new                     (void);
+TrackerProperty *   tracker_property_new                     (gboolean              use_gvdb);
 const gchar *       tracker_property_get_uri                 (TrackerProperty      *property);
 const gchar *       tracker_property_get_name                (TrackerProperty      *property);
 const gchar *       tracker_property_get_table_name          (TrackerProperty      *property);

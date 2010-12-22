@@ -57,7 +57,7 @@ typedef void    (*TrackerEventsForeach)                (gint                 gra
                                                         gpointer             user_data);
 
 GType             tracker_class_get_type               (void) G_GNUC_CONST;
-TrackerClass *    tracker_class_new                    (void);
+TrackerClass *    tracker_class_new                    (gboolean             use_gvdb);
 const gchar *     tracker_class_get_uri                (TrackerClass        *service);
 const gchar *     tracker_class_get_name               (TrackerClass        *service);
 gint              tracker_class_get_count              (TrackerClass        *service);

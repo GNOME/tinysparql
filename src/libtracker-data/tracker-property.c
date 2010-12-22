@@ -45,6 +45,8 @@ struct _TrackerPropertyPrivate {
 	gchar         *name;
 	gchar         *table_name;
 
+	gboolean       use_gvdb;
+
 	TrackerPropertyType  data_type;
 	TrackerClass   *domain;
 	TrackerClass   *domain_index;
@@ -186,11 +188,17 @@ property_finalize (GObject *object)
  * Returns: The newly created #TrackerProperty
  **/
 TrackerProperty *
-tracker_property_new (void)
+tracker_property_new (gboolean use_gvdb)
 {
 	TrackerProperty *property;
+	TrackerPropertyPrivate *priv;
 
 	property = g_object_new (TRACKER_TYPE_PROPERTY, NULL);
+
+	if (use_gvdb) {
+		priv = GET_PRIV (property);
+		priv->use_gvdb = use_gvdb;
+	}
 
 	return property;
 }
@@ -242,12 +250,12 @@ tracker_property_get_table_name (TrackerProperty *property)
 	priv = GET_PRIV (property);
 
 	if (!priv->table_name) {
-		if (priv->multiple_values) {
+		if (tracker_property_get_multiple_values (property)) {
 			priv->table_name = g_strdup_printf ("%s_%s",
-				tracker_class_get_name (priv->domain),
-				priv->name);
+				tracker_class_get_name (tracker_property_get_domain (property)),
+				tracker_property_get_name (property));
 		} else {
-			priv->table_name = g_strdup (tracker_class_get_name (priv->domain));
+			priv->table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
 		}
 	}
 
@@ -262,6 +270,27 @@ tracker_property_get_data_type (TrackerProperty *property)
 	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), TRACKER_PROPERTY_TYPE_STRING); //FIXME
 
 	priv = GET_PRIV (property);
+
+	if (priv->use_gvdb) {
+		const gchar *range_uri;
+
+		range_uri = tracker_ontologies_get_property_string_gvdb (priv->uri, "range");
+		if (strcmp (range_uri, XSD_STRING) == 0) {
+			priv->data_type = TRACKER_PROPERTY_TYPE_STRING;
+		} else if (strcmp (range_uri, XSD_BOOLEAN) == 0) {
+			priv->data_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
+		} else if (strcmp (range_uri, XSD_INTEGER) == 0) {
+			priv->data_type = TRACKER_PROPERTY_TYPE_INTEGER;
+		} else if (strcmp (range_uri, XSD_DOUBLE) == 0) {
+			priv->data_type = TRACKER_PROPERTY_TYPE_DOUBLE;
+		} else if (strcmp (range_uri, XSD_DATE) == 0) {
+			priv->data_type = TRACKER_PROPERTY_TYPE_DATE;
+		} else if (strcmp (range_uri, XSD_DATETIME) == 0) {
+			priv->data_type = TRACKER_PROPERTY_TYPE_DATETIME;
+		} else {
+			priv->data_type = TRACKER_PROPERTY_TYPE_RESOURCE;
+		}
+	}
 
 	return priv->data_type;
 }
@@ -278,6 +307,10 @@ tracker_property_get_domain (TrackerProperty *property)
 
 	priv = GET_PRIV (property);
 
+	if (!priv->domain && priv->use_gvdb) {
+		priv->domain = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_property_string_gvdb (priv->uri, "domain"));
+	}
+
 	return priv->domain;
 }
 
@@ -293,6 +326,29 @@ tracker_property_get_domain_indexes (TrackerProperty *property)
 
 	priv = GET_PRIV (property);
 
+	if (priv->use_gvdb) {
+		TrackerClass *domain_index;
+		GVariant *variant;
+
+		tracker_property_reset_domain_indexes (property);
+
+		variant = tracker_ontologies_get_property_value_gvdb (priv->uri, "domain-indexes");
+		if (variant) {
+			GVariantIter iter;
+			gchar *uri;
+
+			g_variant_iter_init (&iter, variant);
+			while (g_variant_iter_loop (&iter, "s", &uri)) {
+				domain_index = tracker_ontologies_get_class_by_uri (uri);
+				g_free (uri);
+
+				tracker_property_add_domain_index (property, domain_index);
+
+				g_object_unref (domain_index);
+			}
+		}
+	}
+
 	return (TrackerClass ** ) priv->domain_indexes->data;
 }
 
@@ -304,6 +360,10 @@ tracker_property_get_range (TrackerProperty *property)
 	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL);
 
 	priv = GET_PRIV (property);
+
+	if (!priv->range && priv->use_gvdb) {
+		priv->range = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_property_string_gvdb (priv->uri, "range"));
+	}
 
 	return priv->range;
 }
@@ -465,6 +525,21 @@ tracker_property_get_multiple_values (TrackerProperty *property)
 
 	priv = GET_PRIV (property);
 
+	if (priv->use_gvdb) {
+		GVariant *value;
+		gboolean result;
+
+		value = tracker_ontologies_get_property_value_gvdb (priv->uri, "max-cardinality");
+		if (value != NULL) {
+			result = FALSE;
+			g_variant_unref (value);
+		} else {
+			result = TRUE;
+		}
+
+		return result;
+	}
+
 	return priv->multiple_values;
 }
 
@@ -488,6 +563,21 @@ tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
 
 	priv = GET_PRIV (property);
+
+	if (priv->use_gvdb) {
+		GVariant *value;
+		gboolean result;
+
+		value = tracker_ontologies_get_property_value_gvdb (priv->uri, "inverse-functional");
+		if (value != NULL) {
+			result = g_variant_get_boolean (value);
+			g_variant_unref (value);
+		} else {
+			result = FALSE;
+		}
+
+		return result;
+	}
 
 	return priv->is_inverse_functional_property;
 }

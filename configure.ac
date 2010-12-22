@@ -208,6 +208,10 @@ PKG_CHECK_MODULES(LIBPNG, [libpng >= 1.2])
 AC_SUBST(LIBPNG_CFLAGS)
 AC_SUBST(LIBPNG_LIBS)
 
+# Check requirements for gvdb
+GVDB_REQUIRED="glib-2.0 >= $GLIB_REQUIRED"
+PKG_CHECK_MODULES(GVDB, [$GVDB_REQUIRED])
+
 # Check requirements for libtracker-bus
 LIBTRACKER_BUS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                          gio-unix-2.0 >= $GLIB_REQUIRED"
@@ -2050,6 +2054,7 @@ AC_CONFIG_FILES([
 	docs/tools/Makefile
 	Makefile
 	po/Makefile.in
+	src/gvdb/Makefile
 	src/libstemmer/Makefile
 	src/libtracker-common/Makefile
 	src/libtracker-sparql/Makefile

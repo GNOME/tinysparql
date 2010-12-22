@@ -25,12 +25,16 @@
 #include <glib.h>
 
 #include "tracker-namespace.h"
+#include "tracker-ontologies.h"
 
 #define GET_PRIV(obj) (((TrackerNamespace*)obj)->priv)
 #define TRACKER_NAMESPACE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_NAMESPACE, TrackerNamespacePrivate))
 
 struct _TrackerNamespacePrivate {
 	gchar *uri;
+
+	gboolean use_gvdb;
+
 	gchar *prefix;
 	gboolean is_new;
 };
@@ -69,11 +73,17 @@ namespace_finalize (GObject *object)
 }
 
 TrackerNamespace *
-tracker_namespace_new (void)
+tracker_namespace_new (gboolean use_gvdb)
 {
 	TrackerNamespace *namespace;
+	TrackerNamespacePrivate *priv;
 
 	namespace = g_object_new (TRACKER_TYPE_NAMESPACE, NULL);
+
+	if (use_gvdb) {
+		priv = GET_PRIV (namespace);
+		priv->use_gvdb = use_gvdb;
+	}
 
 	return namespace;
 }
@@ -98,6 +108,10 @@ tracker_namespace_get_prefix (TrackerNamespace *namespace)
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), NULL);
 
 	priv = GET_PRIV (namespace);
+
+	if (!priv->prefix && priv->use_gvdb) {
+		priv->prefix = g_strdup (tracker_ontologies_get_namespace_string_gvdb (priv->uri, "prefix"));
+	}
 
 	return priv->prefix;
 }
