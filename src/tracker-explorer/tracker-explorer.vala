@@ -139,10 +139,10 @@ public class Explorer {
 		}
 
 		var window = builder.get_object ("explorer") as Window;
-		window.destroy += Gtk.main_quit;
+		window.destroy.connect (Gtk.main_quit);
 
 		var entry = builder.get_object ("text-search") as Entry;
-		entry.changed += entry_changed;
+		entry.changed.connect (entry_changed);
 
 		var urisview = builder.get_object ("uris") as TreeView;
 		setup_uris(urisview);
@@ -154,14 +154,14 @@ public class Explorer {
 
 		types = builder.get_object ("types") as Notebook;
 
-		types.set_focus_child += update_types_page;
+		types.set_focus_child.connect (update_types_page);
 
 		forward = builder.get_object("forward") as Button;
-		forward.clicked += forward_clicked;
+		forward.clicked.connect (forward_clicked);
 		forward.set_sensitive(false);
 
 		back = builder.get_object("back") as Button;
-		back.clicked += back_clicked;
+		back.clicked.connect (back_clicked);
 		back.set_sensitive(false);
 
 		fetch_prefixes();
@@ -174,7 +174,7 @@ public class Explorer {
 		urisview.set_model (uris);
 
 		urisview.insert_column_with_attributes (-1, "URI", new CellRendererText (), "text", 0, null);
-		urisview.row_activated += row_selected;
+		urisview.row_activated.connect (row_selected);
 	}
 
 	private void setup_relationships(TreeView relationshipsview) {
@@ -183,7 +183,7 @@ public class Explorer {
 
 		relationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 1, null);
 		relationshipsview.insert_column_with_attributes (-1, "Object", new CellRendererText (), "text", 2, null);
-		relationshipsview.row_activated += row_selected;
+		relationshipsview.row_activated.connect (row_selected);
 	}
 
 	private TreeView setup_reverserelationships() {
@@ -195,7 +195,7 @@ public class Explorer {
 
 		reverserelationshipsview.insert_column_with_attributes (-1, "Subject", new CellRendererText (), "text", 1, null);
 		reverserelationshipsview.insert_column_with_attributes (-1, "Relationship", new CellRendererText (), "text", 2, null);
-		reverserelationshipsview.row_activated += row_selected;
+		reverserelationshipsview.row_activated.connect (row_selected);
 
 		return reverserelationshipsview;
 	}
