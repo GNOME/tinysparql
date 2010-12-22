@@ -2008,6 +2008,8 @@ item_move (TrackerMinerFS *fs,
 	gchar *source_iri;
 	gchar *display_name;
 	gboolean source_exists;
+	GFile *new_parent;
+	gchar *new_parent_iri;
 
 	iri_cache_invalidate (fs, file);
 	iri_cache_invalidate (fs, source_file);
@@ -2088,26 +2090,51 @@ item_move (TrackerMinerFS *fs,
 	                        "DELETE { "
 	                        "  <%s> nfo:fileName ?f ; "
 	                        "       nie:url ?u ; "
-	                        "       nie:isStoredAs ?s "
+	                        "       nie:isStoredAs ?s ; "
+	                        "       nfo:belongsToContainer ?b"
 	                        "} WHERE { "
 	                        "  <%s> nfo:fileName ?f ; "
 	                        "       nie:url ?u ; "
-	                        "       nie:isStoredAs ?s "
+	                        "       nie:isStoredAs ?s ; "
+	                        "       nfo:belongsToContainer ?b"
 	                        "} ",
 	                        source_iri, source_iri);
 
 	display_name = tracker_sparql_escape_string (g_file_info_get_display_name (file_info));
 
-	g_string_append_printf (sparql,
-	                        "INSERT INTO <%s> {"
-	                        "  <%s> nfo:fileName \"%s\" ; "
-	                        "       nie:url \"%s\" ; "
-	                        "       nie:isStoredAs <%s> "
-	                        "} ",
-	                        source_iri, source_iri,
-	                        display_name, uri,
-	                        source_iri);
+	/* Get new parent information */
+	new_parent = g_file_get_parent (file);
 
+	if (new_parent &&
+	    item_query_exists (fs, new_parent, &new_parent_iri, NULL)) {
+		g_string_append_printf (sparql,
+		                        "INSERT INTO <%s> {"
+		                        "  <%s> nfo:fileName \"%s\" ; "
+		                        "       nie:url \"%s\" ; "
+		                        "       nie:isStoredAs <%s> ; "
+		                        "       nfo:belongsToContainer \"%s\""
+		                        "}"   ,
+		                        source_iri, source_iri,
+		                        display_name, uri,
+		                        source_iri,
+		                        new_parent_iri);
+		g_free (new_parent_iri);
+	} else {
+		g_warning ("Adding moved item '%s' without nfo:belongsToContainer (new_parent: %p)",
+		           uri, new_parent);
+		g_string_append_printf (sparql,
+		                        "INSERT INTO <%s> {"
+		                        "  <%s> nfo:fileName \"%s\" ; "
+		                        "       nie:url \"%s\" ; "
+		                        "       nie:isStoredAs <%s>"
+		                        "} ",
+		                        source_iri, source_iri,
+		                        display_name, uri,
+		                        source_iri);
+	}
+
+	if (new_parent)
+		g_object_unref (new_parent);
 	g_free (display_name);
 
 	move_data.main_loop = g_main_loop_new (NULL, FALSE);
