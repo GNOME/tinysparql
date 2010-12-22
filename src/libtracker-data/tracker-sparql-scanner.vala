@@ -160,6 +160,10 @@ public class Tracker.SparqlScanner : Object {
 			case 't':
 				if (matches (begin, "TRUE")) return SparqlTokenType.TRUE;
 				break;
+			case 'W':
+			case 'w':
+				if (matches (begin, "WITH")) return SparqlTokenType.WITH;
+				break;
 			}
 			break;
 		case 5:
@@ -207,16 +211,7 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'W':
 			case 'w':
-				switch (begin[1]) {
-				case 'H':
-				case 'h':
-					if (matches (begin, "WHERE")) return SparqlTokenType.WHERE;
-					break;
-				case 'I':
-				case 'i':
-					if (matches (begin, "WITH")) return SparqlTokenType.WITH;
-					break;
-				}
+				if (matches (begin, "WHERE")) return SparqlTokenType.WHERE;
 				break;
 			case 'F':
 			case 'f':
