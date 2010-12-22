@@ -111,7 +111,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 					continue;
 				}
 
-				class = tracker_class_new ();
+				class = tracker_class_new (FALSE);
 				tracker_class_set_uri (class, subject);
 				tracker_ontologies_add_class (class);
 				g_object_unref (class);
@@ -123,7 +123,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 					continue;
 				}
 
-				property = tracker_property_new ();
+				property = tracker_property_new (FALSE);
 				tracker_property_set_uri (property, subject);
 				tracker_ontologies_add_property (property);
 				g_object_unref (property);
@@ -145,7 +145,7 @@ load_ontology_file_from_path (const gchar	 *ontology_file)
 					continue;
 				}
 
-				namespace = tracker_namespace_new ();
+				namespace = tracker_namespace_new (FALSE);
 				tracker_namespace_set_uri (namespace, subject);
 				tracker_ontologies_add_namespace (namespace);
 				g_object_unref (namespace);
