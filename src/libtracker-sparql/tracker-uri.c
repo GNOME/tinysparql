@@ -24,6 +24,13 @@
 
 #include <glib.h>
 
+gchar *
+tracker_sparql_escape_uri_vprintf (const gchar *format,
+                                   va_list      args);
+gchar *
+tracker_sparql_escape_uri_printf  (const gchar* format,
+                                   ...);
+
 static const char *
 find_conversion (const char  *format,
                  const char **after)
