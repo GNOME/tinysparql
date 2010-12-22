@@ -33,19 +33,19 @@
 #include "tracker-miner-fs-processing-pool.h"
 
 /* If defined will print the tree from GNode while running */
-#ifdef ENABLE_TREE_DEBUGGING
+#ifdef CRAWLED_TREE_ENABLE_TRACE
 #warning Tree debugging traces enabled
-#endif /* ENABLE_TREE_DEBUGGING */
+#endif /* CRAWLED_TREE_ENABLE_TRACE */
 
 /* If defined will print contents of populated IRI cache while running */
-#ifdef PRINT_IRI_CACHE_CONTENTS
+#ifdef IRI_CACHE_ENABLE_TRACE
 #warning IRI cache contents traces enabled
-#endif /* PRINT_IRI_CACHE_CONTENTS */
+#endif /* IRI_CACHE_ENABLE_TRACE */
 
 /* If defined will print contents of populated mtime cache while running */
-#ifdef PRINT_MTIME_CACHE_CONTENTS
+#ifdef MTIME_CACHE_ENABLE_TRACE
 #warning MTIME cache contents traces enabled
-#endif /* PRINT_MTIME_CACHE_CONTENTS */
+#endif /* MTIME_CACHE_ENABLE_TRACE */
 
 /* Default processing pool limits to be set */
 #define DEFAULT_WAIT_POOL_LIMIT 1
@@ -1080,10 +1080,10 @@ item_query_exists_cb (GObject      *object,
 	}
 
 	if (!tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-#ifdef PRINT_IRI_CACHE_CONTENTS
+#ifdef IRI_CACHE_ENABLE_TRACE
 		g_debug ("Querying for resources with uri '%s', NONE found",
 		         data->uri);
-#endif /* PRINT_IRI_CACHE_CONTENTS */
+#endif /* IRI_CACHE_ENABLE_TRACE */
 
 		g_object_unref (cursor);
 		return;
@@ -1094,11 +1094,11 @@ item_query_exists_cb (GObject      *object,
 	if (data->get_mime)
 		data->mime = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
 
-#ifdef PRINT_IRI_CACHE_CONTENTS
+#ifdef IRI_CACHE_ENABLE_TRACE
 	g_debug ("Querying for resources with uri '%s', ONE found: '%s'",
 	         data->uri,
 	         data->iri);
-#endif /* PRINT_IRI_CACHE_CONTENTS */
+#endif /* IRI_CACHE_ENABLE_TRACE */
 
 	/* Any additional result must be logged as critical */
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
@@ -1354,7 +1354,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 		}
 	}
 
-#ifdef PRINT_IRI_CACHE_CONTENTS
+#ifdef IRI_CACHE_ENABLE_TRACE
 	g_debug ("Populated IRI cache with '%u' items", cache_size);
 	if (cache_size > 0) {
 		GHashTableIter iter;
@@ -1369,7 +1369,7 @@ ensure_iri_cache (TrackerMinerFS *fs,
 			g_free (fileuri);
 		}
 	}
-#endif /* PRINT_IRI_CACHE_CONTENTS */
+#endif /* IRI_CACHE_ENABLE_TRACE */
 
 	g_object_unref (parent);
 	g_free (uri);
@@ -2917,7 +2917,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 		cache_size = g_hash_table_size (fs->private->mtime_cache);
 	}
 
-#ifdef PRINT_MTIME_CACHE_CONTENTS
+#ifdef MTIME_CACHE_ENABLE_TRACE
 	g_debug ("Populated mtime cache with '%u' items", cache_size);
 	if (cache_size > 0) {
 		GHashTableIter iter;
@@ -2932,7 +2932,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 			g_free (fileuri);
 		}
 	}
-#endif /* PRINT_MTIME_CACHE_CONTENTS */
+#endif /* MTIME_CACHE_ENABLE_TRACE */
 
 	/* Iterate repopulated HT and add all to the check_removed HT */
 	g_hash_table_foreach (fs->private->mtime_cache,
@@ -3429,7 +3429,7 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	return process;
 }
 
-#ifdef ENABLE_TREE_DEBUGGING
+#ifdef CRAWLED_TREE_ENABLE_TRACE
 
 static gboolean
 print_file_tree (GNode    *node,
@@ -3451,7 +3451,7 @@ print_file_tree (GNode    *node,
 	return FALSE;
 }
 
-#endif /* ENABLE_TREE_DEBUGGING */
+#endif /* CRAWLED_TREE_ENABLE_TRACE */
 
 static CrawledDirectoryData *
 crawled_directory_data_new (GNode *tree)
@@ -3505,11 +3505,11 @@ crawler_directory_crawled_cb (TrackerCrawler *crawler,
 	TrackerMinerFS *fs = user_data;
 	CrawledDirectoryData *dir_data;
 
-#ifdef ENABLE_TREE_DEBUGGING
+#ifdef CRAWLED_TREE_ENABLE_TRACE
 	/* Debug printing of the directory tree */
 	g_node_traverse (tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
 	                 print_file_tree, NULL);
-#endif /* ENABLE_TREE_DEBUGGING */
+#endif /* CRAWLED_TREE_ENABLE_TRACE */
 
 	/* Add tree to the crawled directories queue, this queue
 	 * will be used to fill priv->items_created in when no
