@@ -47,7 +47,7 @@ class TestMinerInsertBehaviour (CommonTrackerStoreTest):
         resource = 'graph://test/resource/1'
 
         insert_sparql = """
-        DROP GRAPH <graph://test/resource/1>
+        DELETE { ?r a rdfs:Resource } WHERE { GRAPH <graph://test/resource/1> { ?r a rdfs:Resource } }
         INSERT INTO <graph://test/resource/1> {
            _:resource a nie:DataObject ;
                       nie:url "%s" .
@@ -59,7 +59,7 @@ class TestMinerInsertBehaviour (CommonTrackerStoreTest):
         """ % resource
 
         delete_sparql = """
-        DROP GRAPH <graph://test/resource/1>
+        DELETE { ?r a rdfs:Resource } WHERE { GRAPH <graph://test/resource/1> { ?r a rdfs:Resource } }
         """
 
         ''' First insertion '''
