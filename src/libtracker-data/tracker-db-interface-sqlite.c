@@ -1367,6 +1367,7 @@ tracker_db_cursor_iter_next_async (TrackerDBCursor     *cursor,
 
 	res = g_simple_async_result_new (G_OBJECT (cursor), callback, user_data, tracker_db_cursor_iter_next_async);
 	g_simple_async_result_run_in_thread (res, tracker_db_cursor_iter_next_thread, 0, cancellable);
+	g_object_unref (res);
 }
 
 static gboolean
