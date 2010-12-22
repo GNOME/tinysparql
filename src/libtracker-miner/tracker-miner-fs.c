@@ -47,6 +47,53 @@
 #warning MTIME cache contents traces enabled
 #endif /* MTIME_CACHE_ENABLE_TRACE */
 
+/* If defined will print push/pop actions on queues */
+#ifdef EVENT_QUEUE_ENABLE_TRACE
+#warning Event Queue traces enabled
+#define EVENT_QUEUE_LOG_PREFIX "[Event Queues] "
+#define EVENT_QUEUE_STATUS_TIMEOUT_SECS 30
+#define trace_eq(message, ...) g_debug (EVENT_QUEUE_LOG_PREFIX message, ##__VA_ARGS__)
+#define trace_eq_action(pushed, queue_name, position, gfile1, gfile2, reason) \
+	do { \
+		gchar *uri1 = g_file_get_uri (gfile1); \
+		gchar *uri2 = gfile2 ? g_file_get_uri (gfile2) : NULL; \
+		g_debug ("%s%s '%s%s%s' %s %s of queue '%s'%s%s", \
+		         EVENT_QUEUE_LOG_PREFIX, \
+		         pushed ? "Pushed" : "Popped", \
+		         uri1, \
+		         uri2 ? "->" : "", \
+		         uri2 ? uri2 : "", \
+		         pushed ? "to" : "from", \
+		         position, \
+		         queue_name, \
+		         reason ? ": " : "", \
+		         reason ? reason : ""); \
+		g_free (uri1); \
+		g_free (uri2); \
+	} while (0)
+#define trace_eq_push_tail(queue_name, gfile, reason)	  \
+	trace_eq_action (TRUE, queue_name, "tail", gfile, NULL, reason)
+#define trace_eq_push_head(queue_name, gfile, reason)	  \
+	trace_eq_action (TRUE, queue_name, "head", gfile, NULL, reason)
+#define trace_eq_push_tail_2(queue_name, gfile1, gfile2, reason)	  \
+	trace_eq_action (TRUE, queue_name, "tail", gfile1, gfile2, reason)
+#define trace_eq_push_head_2(queue_name, gfile1, gfile2, reason)	  \
+	trace_eq_action (TRUE, queue_name, "head", gfile1, gfile2, reason)
+#define trace_eq_pop_head(queue_name, gfile)	  \
+	trace_eq_action (FALSE, queue_name, "head", gfile, NULL, NULL)
+#define trace_eq_pop_head_2(queue_name, gfile1, gfile2)	  \
+	trace_eq_action (FALSE, queue_name, "head", gfile1, gfile2, NULL)
+static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
+#else
+#define trace_eq(...)
+#define trace_eq_push_tail(...)
+#define trace_eq_push_head(...)
+#define trace_eq_push_tail_2(...)
+#define trace_eq_push_head_2(...)
+#define trace_eq_pop_head(...)
+#define trace_eq_pop_head_2(...)
+#endif /* EVENT_QUEUE_ENABLE_TRACE */
+
 /* Default processing pool limits to be set */
 #define DEFAULT_WAIT_POOL_LIMIT 1
 #define DEFAULT_READY_POOL_LIMIT 1
@@ -121,6 +168,10 @@ struct _TrackerMinerFSPrivate {
 	GQueue         *items_updated;
 	GQueue         *items_deleted;
 	GQueue         *items_moved;
+#ifdef EVENT_QUEUE_ENABLE_TRACE
+	guint           queue_status_timeout_id;
+#endif /* EVENT_QUEUE_ENABLE_TRACE */
+
 	GHashTable     *items_ignore_next_update;
 
 	GQuark          quark_ignore_file;
@@ -581,6 +632,13 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->items_updated = g_queue_new ();
 	priv->items_deleted = g_queue_new ();
 	priv->items_moved = g_queue_new ();
+
+#ifdef EVENT_QUEUE_ENABLE_TRACE
+	priv->queue_status_timeout_id = g_timeout_add_seconds (EVENT_QUEUE_STATUS_TIMEOUT_SECS,
+	                                                       miner_fs_queues_status_trace_timeout_cb,
+	                                                       object);
+#endif /* PROCESSING_POOL_ENABLE_TRACE */
+
 	priv->items_ignore_next_update = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                                        (GDestroyNotify) g_free,
 	                                                        (GDestroyNotify) NULL);
@@ -723,6 +781,11 @@ fs_finalize (GObject *object)
 	if (priv->check_removed) {
 		g_hash_table_unref (priv->check_removed);
 	}
+
+#ifdef EVENT_QUEUE_ENABLE_TRACE
+	if (priv->queue_status_timeout_id)
+		g_source_remove (priv->queue_status_timeout_id);
+#endif /* PROCESSING_POOL_ENABLE_TRACE */
 
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->finalize (object);
 }
@@ -2184,8 +2247,7 @@ check_ignore_next_update (TrackerMinerFS *fs, GFile *queue_file)
 }
 
 static void
-fill_in_queue (TrackerMinerFS       *fs,
-               GQueue               *queue)
+fill_in_items_created_queue (TrackerMinerFS *fs)
 {
 	CrawledDirectoryData *dir_data;
 	GList *l, *post_nodes = NULL;
@@ -2203,7 +2265,8 @@ fill_in_queue (TrackerMinerFS       *fs,
 		g_queue_push_tail (dir_data->nodes, node);
 
 		if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
-			g_queue_push_tail (queue, g_object_ref (file));
+			trace_eq_push_tail ("CREATED", file, "Root directory of tree");
+			g_queue_push_tail (fs->private->items_created, g_object_ref (file));
 			return;
 		}
 	}
@@ -2229,7 +2292,8 @@ fill_in_queue (TrackerMinerFS       *fs,
 			dir_data->n_items_processed++;
 
 			if (!g_object_get_qdata (G_OBJECT (file), fs->private->quark_ignore_file)) {
-				g_queue_push_tail (queue, g_object_ref (file));
+				trace_eq_push_tail ("CREATED", file, NULL);
+				g_queue_push_tail (fs->private->items_created, g_object_ref (file));
 			}
 
 			if (children->children) {
@@ -2304,8 +2368,20 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	if (queue_file) {
 		*source_file = NULL;
 
+		trace_eq_pop_head ("DELETED", queue_file);
+
+		/* TODO: Really check whether this makes sense... do
+		 * we really need to fully ignore the Delete event
+		 * and treat it as a IgnoreNextUpdate? */
 		if (check_ignore_next_update (fs, queue_file)) {
-			*file = NULL;
+			gchar *uri;
+
+			uri = g_file_get_uri (queue_file);
+			g_debug ("DELETED event ignored on file '%s', "
+			         " processing as IgnoreNextUpdate...",
+			         uri);
+			g_free (uri);
+
 			return QUEUE_IGNORE_NEXT_UPDATE;
 		}
 
@@ -2313,6 +2389,9 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		 * we need to wait for this event */
 		if (should_wait (fs, queue_file)) {
 			*file = NULL;
+
+			trace_eq_push_head ("DELETED", queue_file, "Should wait");
+
 			/* Need to postpone event... */
 			g_queue_push_head (fs->private->items_deleted,
 			                   queue_file);
@@ -2325,6 +2404,10 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 	if (g_queue_is_empty (fs->private->items_created) &&
 	    !g_queue_is_empty (fs->private->crawled_directories)) {
+
+		trace_eq ("Created items queue empty, but still crawling (%d tasks in WAIT state)",
+		          tracker_processing_pool_get_wait_task_count (fs->private->processing_pool));
+
 		/* The items_created queue is empty, but there are pending
 		 * items from the crawler to be processed. We feed the queue
 		 * in this manner so it's ensured that the parent directory
@@ -2343,7 +2426,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 			 */
 			while (g_queue_is_empty (fs->private->items_created) &&
 			       !g_queue_is_empty (fs->private->crawled_directories)) {
-				fill_in_queue (fs, fs->private->items_created);
+				fill_in_items_created_queue (fs);
 			}
 		}
 	}
@@ -2351,6 +2434,10 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	/* Created items next */
 	queue_file = g_queue_pop_head (fs->private->items_created);
 	if (queue_file) {
+		*source_file = NULL;
+
+		trace_eq_pop_head ("CREATED", queue_file);
+
 		/* Note:
 		 * We won't be considering an IgnoreNextUpdate request if
 		 * the event being processed is a CREATED event. This is a fast
@@ -2363,8 +2450,8 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 			/* Just remove the IgnoreNextUpdate request */
 			uri = g_file_get_uri (queue_file);
-			g_message ("Skipping the IgnoreNextUpdate request on CREATED event for '%s'",
-			           uri);
+			g_debug ("Skipping the IgnoreNextUpdate request on CREATED event for '%s'",
+			         uri);
 			g_hash_table_remove (fs->private->items_ignore_next_update, uri);
 			g_free (uri);
 		}
@@ -2373,6 +2460,9 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		 * we need to wait for this event */
 		if (should_wait (fs, queue_file)) {
 			*file = NULL;
+
+			trace_eq_push_head ("CREATED", queue_file, "Should wait");
+
 			/* Need to postpone event... */
 			g_queue_push_head (fs->private->items_created,
 			                   queue_file);
@@ -2380,7 +2470,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		}
 
 		*file = queue_file;
-		*source_file = NULL;
 		return QUEUE_CREATED;
 	}
 
@@ -2390,13 +2479,27 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		*file = queue_file;
 		*source_file = NULL;
 
-		if (check_ignore_next_update (fs, queue_file))
+		trace_eq_pop_head ("UPDATED", queue_file);
+
+		if (check_ignore_next_update (fs, queue_file)) {
+			gchar *uri;
+
+			uri = g_file_get_uri (queue_file);
+			g_debug ("UPDATED event ignored on file '%s', "
+			         " processing as IgnoreNextUpdate...",
+			         uri);
+			g_free (uri);
+
 			return QUEUE_IGNORE_NEXT_UPDATE;
+		}
 
 		/* If the same item OR its first parent is currently being processed,
 		 * we need to wait for this event */
 		if (should_wait (fs, queue_file)) {
 			*file = NULL;
+
+			trace_eq_push_head ("UPDATED", queue_file, "Should wait");
+
 			/* Need to postpone event... */
 			g_queue_push_head (fs->private->items_updated,
 			                   queue_file);
@@ -2409,7 +2512,20 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	/* Moved items next */
 	data = g_queue_pop_head (fs->private->items_moved);
 	if (data) {
+		trace_eq_pop_head_2 ("MOVED", data->file, data->source_file);
+
 		if (check_ignore_next_update (fs, data->file)) {
+			gchar *uri;
+			gchar *source_uri;
+
+			uri = g_file_get_uri (queue_file);
+			source_uri = g_file_get_uri (data->source_file);
+			g_debug ("MOVED event ignored on files '%s->%s', "
+			         " processing as IgnoreNextUpdate on '%s'",
+			         source_uri, uri, uri);
+			g_free (uri);
+			g_free (source_uri);
+
 			*file = g_object_ref (data->file);
 			*source_file = g_object_ref (data->source_file);
 			item_moved_data_free (data);
@@ -2422,6 +2538,9 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 		    should_wait (fs, data->source_file)) {
 			*file = NULL;
 			*source_file = NULL;
+
+			trace_eq_push_head_2 ("MOVED", data->source_file, data->file, "Should wait");
+
 			/* Need to postpone event... */
 			g_queue_push_head (fs->private->items_moved,
 			                   data); /* no need to create again */
@@ -2490,7 +2609,8 @@ static gboolean
 item_queue_handlers_cb (gpointer user_data)
 {
 	TrackerMinerFS *fs;
-	GFile *file, *source_file;
+	GFile *file = NULL;
+	GFile *source_file = NULL;
 	QueueState queue;
 	GTimeVal time_now;
 	static GTimeVal time_last = { 0 };
@@ -2733,6 +2853,7 @@ remove_unexisting_file_cb (gpointer key,
 		g_debug ("  Marking file which no longer exists in FS for removal: %s", uri);
 		g_free (uri);
 
+		trace_eq_push_tail ("DELETED", file, "No longer exists");
 		g_queue_push_tail (fs->private->items_deleted,
 		                   g_object_ref (file));
 
@@ -3035,6 +3156,7 @@ should_process_file (TrackerMinerFS *fs,
 			/* File is told not to be checked, but exists
 			 * in the store, put in deleted queue.
 			 */
+			trace_eq_push_tail ("DELETED", file, "No longer to be indexed");
 			g_queue_push_tail (fs->private->items_deleted,
 			                   g_object_ref (file));
 		}
@@ -3070,6 +3192,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 		    should_recurse_for_directory (fs, file)) {
 			tracker_miner_fs_directory_add_internal (fs, file);
 		} else {
+			trace_eq_push_tail ("CREATED", file, "On monitor event");
 			g_queue_push_tail (fs->private->items_created,
 			                   g_object_ref (file));
 
@@ -3101,6 +3224,7 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 	         is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
+		trace_eq_push_tail ("UPDATED", file, "On monitor event");
 		g_queue_push_tail (fs->private->items_updated,
 		                   g_object_ref (file));
 
@@ -3136,6 +3260,7 @@ monitor_item_attribute_updated_cb (TrackerMonitor *monitor,
 		g_object_set_qdata (G_OBJECT (file),
 		                    fs->private->quark_attribute_updated,
 		                    GINT_TO_POINTER (TRUE));
+		trace_eq_push_tail ("UPDATED", file, "On monitor event (attributes)");
 		g_queue_push_tail (fs->private->items_updated,
 		                   g_object_ref (file));
 
@@ -3166,6 +3291,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	         is_directory ? "DIR" : "FILE");
 
 	if (should_process) {
+		trace_eq_push_tail ("DELETED", file, "On monitor event");
 		g_queue_push_tail (fs->private->items_deleted,
 		                   g_object_ref (file));
 
@@ -3261,6 +3387,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				/* Source file was not stored, check dest file as new */
 				if (!is_directory ||
 				    !should_recurse_for_directory (fs, other_file)) {
+					trace_eq_push_tail ("CREATED", other_file, "On move monitor event");
 					g_queue_push_tail (fs->private->items_created,
 					                   g_object_ref (other_file));
 
@@ -3278,6 +3405,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			}
 
 			/* Delete old file */
+			trace_eq_push_tail ("DELETED", file, "On move monitor event");
 			g_queue_push_tail (fs->private->items_deleted,
 			                   g_object_ref (file));
 			item_queue_handlers_set_up (fs);
@@ -3289,6 +3417,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 				                      other_file);
 			}
 			/* Move old file to new file */
+			trace_eq_push_tail_2 ("MOVED", file, other_file, "On monitor event");
 			g_queue_push_tail (fs->private->items_moved,
 			                   item_moved_data_new (other_file, file));
 			item_queue_handlers_set_up (fs);
@@ -3336,6 +3465,7 @@ crawler_check_directory_cb (TrackerCrawler *crawler,
 			/* File is told not to be checked, but exists
 			 * in the store, put in deleted queue.
 			 */
+			trace_eq_push_tail ("DELETED", file, "while crawling directory");
 			g_queue_push_tail (fs->private->items_deleted,
 			                   g_object_ref (file));
 		}
@@ -3411,6 +3541,7 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 		/* Before adding the monitor, start notifying the store
 		 * about the new directory, so that if any file event comes
 		 * afterwards, the directory is already in store. */
+		trace_eq_push_tail ("CREATED", parent, "while crawling directory, parent");
 		g_queue_push_tail (fs->private->items_created,
 		                   g_object_ref (parent));
 		item_queue_handlers_set_up (fs);
@@ -3913,7 +4044,6 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
 		}
 	}
 
-
 	/* Remove anything contained in the removed directory
 	 * from all relevant processing queues.
 	 */
@@ -3954,6 +4084,7 @@ tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
 	if (tracker_miner_fs_directory_remove (fs, file)) {
 		/* And remove all info about the directory (recursively)
 		 * from the store... */
+		trace_eq_push_tail ("DELETED", file, "on remove full");
 		g_queue_push_tail (fs->private->items_deleted,
 		                   g_object_ref (file));
 		item_queue_handlers_set_up (fs);
@@ -3997,6 +4128,7 @@ check_file_parents (TrackerMinerFS *fs,
 	}
 
 	for (p = parents; p; p = p->next) {
+		trace_eq_push_tail ("UPDATED", p->data, "checking file parents");
 		g_queue_push_tail (fs->private->items_updated, p->data);
 	}
 
@@ -4041,6 +4173,7 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 			return;
 		}
 
+		trace_eq_push_tail ("UPDATED", file, "Requested by application");
 		g_queue_push_tail (fs->private->items_updated,
 		                   g_object_ref (file));
 
@@ -4439,3 +4572,74 @@ miner_fs_has_children_without_parent (TrackerMinerFS *fs,
 	}
 	return FALSE;
 }
+
+#ifdef EVENT_QUEUE_ENABLE_TRACE
+
+static void
+miner_fs_trace_queue_with_files (TrackerMinerFS *fs,
+                                 const gchar    *queue_name,
+                                 GQueue         *queue)
+{
+	GList *li;
+
+	trace_eq ("(%s) Queue '%s' has %u elements:",
+	          G_OBJECT_TYPE_NAME (fs),
+	          queue_name,
+	          queue->length);
+
+	for (li = queue->head; li; li = g_list_next (li)) {
+		gchar *uri;
+
+		uri = g_file_get_uri (li->data);
+		trace_eq ("(%s)     Queue '%s' has '%s'",
+		          G_OBJECT_TYPE_NAME (fs),
+		          queue_name,
+		          uri);
+		g_free (uri);
+	}
+}
+
+static void
+miner_fs_trace_queue_with_data (TrackerMinerFS *fs,
+                                const gchar    *queue_name,
+                                GQueue         *queue)
+{
+	GList *li;
+
+	trace_eq ("(%s) Queue '%s' has %u elements:",
+	          G_OBJECT_TYPE_NAME (fs),
+	          queue_name,
+	          queue->length);
+
+	for (li = queue->head; li; li = g_list_next (li)) {
+		ItemMovedData *data = li->data;
+		gchar *source_uri;
+		gchar *dest_uri;
+
+		source_uri = g_file_get_uri (data->source_file);
+		dest_uri = g_file_get_uri (data->file);
+		trace_eq ("(%s)     Queue '%s' has '%s->%s'",
+		          G_OBJECT_TYPE_NAME (fs),
+		          queue_name,
+		          source_uri,
+		          dest_uri);
+		g_free (source_uri);
+		g_free (dest_uri);
+	}
+}
+
+static gboolean
+miner_fs_queues_status_trace_timeout_cb (gpointer data)
+{
+	TrackerMinerFS *fs = data;
+
+	trace_eq ("(%s) ------------", G_OBJECT_TYPE_NAME (fs));
+	miner_fs_trace_queue_with_files (fs, "CREATED", fs->private->items_created);
+	miner_fs_trace_queue_with_files (fs, "UPDATED", fs->private->items_updated);
+	miner_fs_trace_queue_with_files (fs, "DELETED", fs->private->items_deleted);
+	miner_fs_trace_queue_with_data  (fs, "MOVED",   fs->private->items_moved);
+
+	return TRUE;
+}
+
+#endif /* EVENT_QUEUE_ENABLE_TRACE */
