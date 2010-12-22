@@ -26,8 +26,8 @@ extern static const string UIDIR;
 extern static const string SRCDIR;
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
-interface Resources : GLib.Object {
-	public abstract string[,] SparqlQuery (string query) throws DBus.Error;
+interface Resources : DBusProxy {
+	public abstract string[,] SparqlQuery (string query) throws Error;
 }
 
 public class HistoryItem {
@@ -107,11 +107,11 @@ public class Explorer {
 	public void show() {
 
 		try {
-			var conn = DBus.Bus.get (DBus.BusType.SESSION);
-			tracker = (Resources) conn.get_object ("org.freedesktop.Tracker1",
-							       "/org/freedesktop/Tracker1/Resources",
-							       "org.freedesktop.Tracker1.Resources");
-		} catch (DBus.Error e) {
+			tracker = Bus.get_proxy_sync (BusType.SESSION,
+			                              "org.freedesktop.Tracker1",
+			                              "/org/freedesktop/Tracker1/Resources",
+			                              DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
+		} catch (Error e) {
 			var msg = new MessageDialog (null, DialogFlags.MODAL,
 					 MessageType.ERROR, ButtonsType.CANCEL,
 					 "Error connecting to D-Bus session bus\n%s", e.message);
@@ -210,7 +210,7 @@ public class Explorer {
 				_namespace = _namespace.substring(0, _namespace.length -1);
 				namespaces[_namespace] = result[i,1];
 			}
-		} catch (DBus.Error e) {
+		} catch (Error e) {
 		}
 	}
 
@@ -228,7 +228,7 @@ public class Explorer {
 				uris.set (iter, 0, s, -1);
 			}
 
-		} catch (DBus.Error e) {
+		} catch (Error e) {
 		}
 	}
 
@@ -286,7 +286,7 @@ public class Explorer {
 				}
 
 			}
-		} catch (DBus.Error e) {
+		} catch (Error e) {
 		}
 	}
 
@@ -342,7 +342,7 @@ public class Explorer {
 			types.set_current_page(types.get_n_pages() - 1);
 			update_types_page(null);
 
-		} catch (DBus.Error e) {
+		} catch (Error e) {
 		}
 	}
 

@@ -296,8 +296,6 @@ TRACKER_EXPLORER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                            gthread-2.0  >= $GLIB_REQUIRED
                            gmodule-2.0  >= $GLIB_REQUIRED
                            gtk+-2.0     >= $GTK_REQUIRED
-                           dbus-1       >= $DBUS_REQUIRED
-                           dbus-glib-1  >= $DBUS_GLIB_REQUIRED
 			   gee-1.0      >= $GEE_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_EXPLORER, [$TRACKER_EXPLORER_REQUIRED],

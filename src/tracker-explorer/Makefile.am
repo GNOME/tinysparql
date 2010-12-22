@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 bin_PROGRAMS = tracker-explorer
 
 AM_VALAFLAGS =                                         \
-	--pkg dbus-glib-1 --pkg gee-1.0 --pkg gtk+-2.0 \
+	--pkg gio-2.0 --pkg gee-1.0 --pkg gtk+-2.0 \
 	$(BUILD_VALAFLAGS)
 
 AM_CPPFLAGS =                                          \
