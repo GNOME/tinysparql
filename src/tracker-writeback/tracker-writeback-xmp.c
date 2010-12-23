@@ -394,11 +394,14 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 			GError *error = NULL;
 			gchar *query;
 
-			query = g_strdup_printf ("SELECT mlo:city (?location) mlo:state (?location) "
-			                               " mlo:address (?location) "
-			                               " mlo:country (?location) "
+			query = g_strdup_printf ("SELECT "
+			                         "tracker:coalesce (mlo:city (?location), nco:locality (mlo:asPostalAddress (?location)))  "
+			                         "tracker:coalesce (mlo:state (?location), nco:region (mlo:asPostalAddress (?location)))  "
+			                         "tracker:coalesce (mlo:address (?location), nco:streetAddress (mlo:asPostalAddress (?location)))  "
+			                         "tracker:coalesce (mlo:country (?location), nco:country (mlo:asPostalAddress (?location)))  "
 			                         "WHERE { <%s> mlo:location ?location }",
 			                         row[1]); /* The urn is at 1 */
+
 			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 			g_free (query);
 			if (!error) {
