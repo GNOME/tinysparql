@@ -8,5 +8,10 @@ data/tracker-store.desktop.in
 src/tracker-preferences/tracker-preferences.c
 src/tracker-preferences/tracker-preferences.desktop.in
 src/tracker-needle/tracker-needle.desktop.in
+src/tracker-needle/tracker-needle.c
+src/tracker-needle/tracker-query.c
+src/tracker-needle/tracker-taglist.c
+src/tracker-needle/tracker-utils.c
+src/tracker-needle/tracker-view.c
 src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in
 src/tracker-status-icon/tracker-status-icon.desktop.in
