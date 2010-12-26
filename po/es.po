@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-12-14 11:40+0000\n"
-"PO-Revision-Date: 2010-12-17 13:28+0100\n"
+"POT-Creation-Date: 2010-12-26 00:41+0000\n"
+"PO-Revision-Date: 2010-12-26 21:03+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -128,6 +128,7 @@ msgstr[1] ""
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
 #: ../src/plugins/nautilus/tracker-tags-extension.c:237
+#: ../src/tracker-needle/tracker-taglist.vala:50
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 #: ../src/tracker-search-bar/tracker-results-window.c:663
 msgid "Tags"
@@ -143,14 +144,14 @@ msgstr "Etiquetas…"
 msgid "Tag one or more files"
 msgstr "Etiquetar uno o más archivos"
 
-#: ../src/libtracker-common/tracker-dbus.c:571
+#: ../src/libtracker-common/tracker-dbus.c:573
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
 #: ../src/tracker-utils/tracker-search.c:1442
 #: ../src/tracker-utils/tracker-sparql.c:292
 #: ../src/tracker-utils/tracker-stats.c:93
 #: ../src/tracker-utils/tracker-tag.c:945
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:90
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:96
 msgid "No error given"
 msgstr "No se proporcionó ningún error"
 
@@ -487,6 +488,7 @@ msgid "Directory"
 msgstr "Directorio"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:400
+#: ../src/tracker-needle/tracker-needle.vala:228
 msgid "File"
 msgstr "Archivo"
 
@@ -648,15 +650,65 @@ msgid "Desktop Search"
 msgstr "Búsquedas de Escritorio"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
-#| msgid ""
-#| "Locate documents and folders on this computer by name or content using "
-#| "Tracker"
 msgid ""
 "Find what you're looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
 "Encuentre lo que está buscando por nombre o contenido en este equipo usando "
 "Tracker"
+
+#: ../src/tracker-needle/tracker-needle.vala:240
+msgid "Last Changed"
+msgstr "Último cambio"
+
+#: ../src/tracker-needle/tracker-needle.vala:248
+#| msgid "Size:"
+msgid "Size"
+msgstr "Tamaño"
+
+#. fn:concat(nco:pageCount(?urn), \" pages\")
+#: ../src/tracker-needle/tracker-query.vala:163
+#| msgid "Images"
+msgid "Pages"
+msgstr "Páginas"
+
+#: ../src/tracker-needle/tracker-query.vala:185
+#| msgid "Subject:"
+msgid "No Subject"
+msgstr "Sin asunto"
+
+#: ../src/tracker-needle/tracker-query.vala:186
+msgid "To"
+msgstr "Para"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:61
+#, c-format
+msgid "%ld day from now"
+msgid_plural "%ld days from now"
+msgstr[0] "%ld día desde ahora"
+msgstr[1] "%ld días desde ahora"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:64
+#, c-format
+#| msgid " %d day"
+#| msgid_plural " %d days"
+msgid "%ld day ago"
+msgid_plural "%ld days ago"
+msgstr[0] "hace %ld día"
+msgstr[1] "hace %ld días"
+
+#: ../src/tracker-needle/tracker-utils.vala:76
+#: ../src/tracker-needle/tracker-utils.vala:105
+#| msgid "less than one second"
+msgid "Less than one second"
+msgstr "Menos de un segundo"
+
+#: ../src/tracker-needle/tracker-view.vala:48
+#| msgid "Search _results: "
+msgid "No Search Results"
+msgstr "No se han encontrado resultados"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid ""
@@ -679,17 +731,14 @@ msgid "Find search criteria in file titles"
 msgstr "Buscar criterios de búsqueda en los nombres de archivo"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:5
-#| msgid "Search for video files"
 msgid "Find search criteria inside files"
 msgstr "Buscar criterios de búsqueda dentro de archivos"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:6
-#| msgid "Idle"
 msgid "Needle"
 msgstr "Aguja"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
-#| msgid "Statistics have been updated"
 msgid "Show statistics about the data stored"
 msgstr "Mostrar estadísticas de los datos almacenados"
 
@@ -899,7 +948,9 @@ msgstr ""
 #.
 #: ../src/tracker-status-icon/tracker-status-icon.c:819
 msgid "translator-credits"
-msgstr "Jorge González <jorgegonz@svn.gnome.org>, 2007-2010"
+msgstr ""
+"Daniel Mustieles <daniel.mustieles@gmail.com>, 2010\n"
+"Jorge González <jorgegonz@svn.gnome.org>, 2007-2010"
 
 #: ../src/tracker-status-icon/tracker-status-icon.c:841
 msgid "_Search"
@@ -1016,8 +1067,8 @@ msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
-"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» está "
-"implicado"
+"No puede usar «--terminate» con «--hard-reset» o «--soft-reset», «--kill» "
+"está implicado"
 
 #: ../src/tracker-control/tracker-control.c:292
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
@@ -1102,7 +1153,7 @@ msgstr "No se especificó uno o más archivos"
 #: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:89
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:95
 msgid "Could not establish a connection to Tracker"
 msgstr "No se pudo establecer una conexión con Tracker"
 
@@ -1194,8 +1245,8 @@ msgid ""
 "Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
-"Mostrar URN para los resultados (no se aplica para «--music-albums», «--music-"
-"artists», «--feeds», «--software», «--software-categories»)"
+"Mostrar URN para los resultados (no se aplica para «--music-albums», «--"
+"music-artists», «--feeds», «--software», «--software-categories»)"
 
 #: ../src/tracker-utils/tracker-search.c:83
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
@@ -1964,9 +2015,6 @@ msgstr "Conjunto de resultados vacío"
 #~ msgid "Type:"
 #~ msgstr "Tipo:"
 
-#~ msgid "Size:"
-#~ msgstr "Tamaño:"
-
 #~ msgid "Modified:"
 #~ msgstr "Modificado:"
 
@@ -1987,9 +2035,6 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "Duration:"
 #~ msgstr "Duración:"
-
-#~ msgid "Subject:"
-#~ msgstr "Asunto:"
 
 #~ msgid "From:"
 #~ msgstr "De:"
@@ -2472,7 +2517,8 @@ msgstr "Conjunto de resultados vacío"
 #~ "backup and journal (a restart will restore the data)"
 #~ msgstr ""
 #~ "Esto matará todos los procesos de Tracker y borrará todas las bases de "
-#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los datos)"
+#~ "datos excepto el respaldo y el «journal» (reiniciarlo restaurará los "
+#~ "datos)"
 
 #~ msgid "Could not connect to the D-Bus session bus"
 #~ msgstr "No se pudo conectar con el bus de la sesión D-Bus"
@@ -2671,9 +2717,6 @@ msgstr "Conjunto de resultados vacío"
 
 #~ msgid "Tracker Search Tool-"
 #~ msgstr "Herramienta de búsqueda Tracker-"
-
-#~ msgid "Search _results: "
-#~ msgstr "_Resultados de la búsqueda: "
 
 #~ msgid "no search performed"
 #~ msgstr "no se realizó ninguna búsqueda"
@@ -3029,7 +3072,8 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "Actualizando «%s» con el nuevo conteo: %s"
 
 #~ msgid "Processed %d/%d, current service:'%s', %s left, %s elapsed"
-#~ msgstr "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
+#~ msgstr ""
+#~ "Procesados %d/%d, servicio actual: «%s», queda «%s», %s transcurrido"
 
 #~ msgid "Last file to be indexed was '%s'"
 #~ msgstr "El último archivo indexado fue «%s»"
@@ -3430,7 +3474,8 @@ msgstr "Conjunto de resultados vacío"
 #~ msgstr "¿Quiere borrar «%s» permanentemente?"
 
 #~ msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-#~ msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
+#~ msgstr ""
+#~ "La papelera no está disponible. No se pudo mover «%s» a la papelera."
 
 #~ msgid "Could not delete \"%s\"."
 #~ msgstr "No se pudo borrar «%s»."
