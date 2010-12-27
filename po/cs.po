@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-14 21:03+0100\n"
-"PO-Revision-Date: 2010-12-05 14:31+0100\n"
+"POT-Creation-Date: 2010-12-27 20:39+0100\n"
+"PO-Revision-Date: 2010-12-15 15:25+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -127,6 +127,7 @@ msgstr[2] "Na_stavit štítky, které chcete přiřadit k %d vybraným položká
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
 #: ../src/plugins/nautilus/tracker-tags-extension.c:237
+#: ../src/tracker-needle/tracker-taglist.vala:50
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 #: ../src/tracker-search-bar/tracker-results-window.c:663
 msgid "Tags"
@@ -142,14 +143,14 @@ msgstr "Štítky…"
 msgid "Tag one or more files"
 msgstr "Přiřadit štítek jednomu nebo více souborům"
 
-#: ../src/libtracker-common/tracker-dbus.c:571
+#: ../src/libtracker-common/tracker-dbus.c:573
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
 #: ../src/tracker-utils/tracker-search.c:1442
 #: ../src/tracker-utils/tracker-sparql.c:292
 #: ../src/tracker-utils/tracker-stats.c:93
 #: ../src/tracker-utils/tracker-tag.c:945
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:90
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:96
 msgid "No error given"
 msgstr "Není uvedena žádná chyba"
 
@@ -219,17 +220,17 @@ msgstr[0] " %2.2d sekunda"
 msgstr[1] " %2.2d sekundy"
 msgstr[2] " %2.2d sekund"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:407
+#: ../src/libtracker-miner/tracker-miner-object.c:423
 msgid "Data store is not available"
 msgstr "Datové úložiště není dostupné"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:546
+#: ../src/libtracker-miner/tracker-miner-object.c:562
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Pozastavit aplikaci a odůvodnit shodu s již existujícím požadavkem na "
 "pozastavení"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:618
+#: ../src/libtracker-miner/tracker-miner-object.c:634
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 "Cookie pozastaveného nástroje získávání dat nutná k obnovení běhu nebyla "
@@ -487,6 +488,7 @@ msgid "Directory"
 msgstr "Složka"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:400
+#: ../src/tracker-needle/tracker-needle.vala:228
 msgid "File"
 msgstr "Soubor"
 
@@ -643,46 +645,97 @@ msgstr "sekund"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
 msgid "Desktop Search"
-msgstr ""
+msgstr "Prohledávání pracovního prostředí"
 
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
-#, fuzzy
 msgid ""
 "Find what you're looking for on this computer by name or content using "
 "Tracker"
 msgstr ""
-"Nalézt dokumenty a složky na tomto počítači podle názvu nebo obsahu pomocí "
+"Nalézt to, co hledáte, na tomto počítači podle názvu nebo obsahu pomocí "
 "vyhledávače Tracker"
+
+#: ../src/tracker-needle/tracker-needle.vala:240
+msgid "Last Changed"
+msgstr ""
+
+#: ../src/tracker-needle/tracker-needle.vala:248
+#, fuzzy
+msgid "Size"
+msgstr "Velikost:"
+
+#. fn:concat(nco:pageCount(?urn), \" pages\")
+#: ../src/tracker-needle/tracker-query.vala:163
+#, fuzzy
+msgid "Pages"
+msgstr "Obrázky"
+
+#: ../src/tracker-needle/tracker-query.vala:185
+#, fuzzy
+msgid "No Subject"
+msgstr "Předmět:"
+
+#: ../src/tracker-needle/tracker-query.vala:186
+msgid "To"
+msgstr ""
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:61
+#, c-format
+msgid "%ld day from now"
+msgid_plural "%ld days from now"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:64
+#, fuzzy, c-format
+msgid "%ld day ago"
+msgid_plural "%ld days ago"
+msgstr[0] " %d den"
+msgstr[1] " %d dny"
+msgstr[2] " %d dní"
+
+#: ../src/tracker-needle/tracker-utils.vala:76
+#: ../src/tracker-needle/tracker-utils.vala:105
+#, fuzzy
+msgid "Less than one second"
+msgstr "méně než jedna sekunda"
+
+#: ../src/tracker-needle/tracker-view.vala:48
+#, fuzzy
+msgid "No Search Results"
+msgstr "Nelze získat výsledky hledání"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid ""
 "Display results by category, for example, Music, Videos, Applications, etc."
-msgstr ""
+msgstr "Zobrazit výsledky podle kategorie, např. hudba, videa, aplikace atd."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid "Display results by files found in a grid view"
-msgstr ""
+msgstr "Zobrazit výsledky v zobrazovací mřížce podle nalezených souborů"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid "Display results by files found in a list"
-msgstr ""
+msgstr "Zobrazit výsledky v seznamu podle nalezených souborů"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:4
 msgid "Find search criteria in file titles"
-msgstr ""
+msgstr "Najít vyhledávaná kritéria v názvech souborů"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:5
-#, fuzzy
 msgid "Find search criteria inside files"
-msgstr "Hledat soubory s videem"
+msgstr "Najít vyhledávaná kritéria uvnitř souborů"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:6
 msgid "Needle"
-msgstr ""
+msgstr "Needle"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
 msgid "Show statistics about the data stored"
-msgstr ""
+msgstr "Zobrazit statistiky o uchovaných datech"
 
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:1
 msgid "Desktop search tool using Tracker"
@@ -1098,7 +1151,7 @@ msgstr "Musí být uveden jeden nebo více souborů"
 #: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:89
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:95
 msgid "Could not establish a connection to Tracker"
 msgstr "Nelze vytvořit spojení k prohledávači Tracker"
 
@@ -1963,9 +2016,6 @@ msgstr "Prázdná sada výsledků"
 #~ msgid "Type:"
 #~ msgstr "Typ:"
 
-#~ msgid "Size:"
-#~ msgstr "Velikost:"
-
 #~ msgid "Modified:"
 #~ msgstr "Změněno:"
 
@@ -1986,9 +2036,6 @@ msgstr "Prázdná sada výsledků"
 
 #~ msgid "Duration:"
 #~ msgstr "Délka:"
-
-#~ msgid "Subject:"
-#~ msgstr "Předmět:"
 
 #~ msgid "From:"
 #~ msgstr "Od:"
