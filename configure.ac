@@ -1299,7 +1299,7 @@ AM_CONDITIONAL(HAVE_TRACKER_SEARCH_BAR, test "$have_tracker_search_bar" = "yes")
 
 AC_ARG_ENABLE([tracker-needle],
               AS_HELP_STRING([--enable-tracker-needle],
-                             [enable tracker-needle[[default=auto]]]),,
+                             [enable tracker-needle [[default=auto]]]),,
               [enable_tracker_needle=auto])
 
 if test "x$enable_tracker_needle" = "xyes" ; then
@@ -1307,7 +1307,9 @@ if test "x$enable_tracker_needle" = "xyes" ; then
       AC_MSG_ERROR([Couldn't find tracker-needle dependencies ($TRACKER_NEEDLE_REQUIRED).])
    fi
 else
-   have_tracker_needle="no  (disabled)"
+   if test "x$enable_tracker_needle" = "xno"; then
+      have_tracker_needle="no  (disabled)"
+   fi
 fi
 
 if test "x$have_tracker_needle" = "xyes"; then
