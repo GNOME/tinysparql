@@ -1251,7 +1251,7 @@ get_property_values (TrackerProperty *property)
 	if (!resource_buffer->create) {
 		TrackerDBInterface *iface;
 		TrackerDBStatement *stmt;
-		TrackerDBResultSet *result_set = NULL;
+		TrackerDBCursor    *cursor = NULL;
 		const gchar        *table_name;
 		const gchar        *field_name;
 		GError             *error = NULL;
@@ -1267,7 +1267,7 @@ get_property_values (TrackerProperty *property)
 
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
-			result_set = tracker_db_statement_execute (stmt, &error);
+			cursor = tracker_db_statement_start_cursor (stmt, &error);
 			g_object_unref (stmt);
 		}
 
@@ -1276,18 +1276,10 @@ get_property_values (TrackerProperty *property)
 			g_error_free (error);
 		}
 
-		/* We use a result_set instead of a cursor here because it's
-		 * possible that otherwise the cursor would remain open during
-		 * the call from delete_resource_description. In future we want
-		 * to allow having the same query open on multiple cursors,
-		 * right now we don't support this. Which is why this workaround */
-
-		if (result_set) {
-			gboolean valid = TRUE;
-
-			while (valid) {
+		if (cursor) {
+			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 				GValue gvalue = { 0 };
-				_tracker_db_result_set_get_value (result_set, 0, &gvalue);
+				tracker_db_cursor_get_value (cursor, 0, &gvalue);
 				if (G_VALUE_TYPE (&gvalue)) {
 					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
 						gint time;
@@ -1301,9 +1293,8 @@ get_property_values (TrackerProperty *property)
 					g_value_array_append (old_values, &gvalue);
 					g_value_unset (&gvalue);
 				}
-				valid = tracker_db_result_set_iter_next (result_set);
 			}
-			g_object_unref (result_set);
+			g_object_unref (cursor);
 		}
 	}
 
