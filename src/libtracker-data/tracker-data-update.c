@@ -2365,31 +2365,6 @@ tracker_data_notify_transaction (gboolean start_timer)
 	}
 }
 
-
-static void
-format_sql_value_as_string (GString         *sql,
-                            TrackerProperty *property)
-{
-	switch (tracker_property_get_data_type (property)) {
-	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		g_string_append_printf (sql, "(SELECT Uri FROM Resource WHERE ID = \"%s\")", tracker_property_get_name (property));
-		break;
-	case TRACKER_PROPERTY_TYPE_INTEGER:
-	case TRACKER_PROPERTY_TYPE_DOUBLE:
-		g_string_append_printf (sql, "CAST (\"%s\" AS TEXT)", tracker_property_get_name (property));
-		break;
-	case TRACKER_PROPERTY_TYPE_BOOLEAN:
-		g_string_append_printf (sql, "CASE \"%s\" WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END", tracker_property_get_name (property));
-		break;
-	case TRACKER_PROPERTY_TYPE_DATETIME:
-		g_string_append_printf (sql, "strftime (\"%%Y-%%m-%%dT%%H:%%M:%%SZ\", \"%s\", \"unixepoch\")", tracker_property_get_name (property));
-		break;
-	default:
-		g_string_append_printf (sql, "\"%s\"", tracker_property_get_name (property));
-		break;
-	}
-}
-
 void
 tracker_data_rollback_transaction (void)
 {
