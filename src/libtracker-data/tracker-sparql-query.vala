@@ -483,6 +483,10 @@ public class Tracker.Sparql.Query : Object {
 			default:
 				throw get_error ("expected INSERT or DELETE");
 			}
+
+			// semicolon is used to separate multiple operations in the current SPARQL Update draft
+			// keep it optional for now to reatin backward compatibility
+			accept (SparqlTokenType.SEMICOLON);
 		}
 
 		return blank_nodes;
