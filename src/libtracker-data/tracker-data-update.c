@@ -80,6 +80,7 @@ struct _TrackerDataUpdateBufferResource {
 	const gchar *subject;
 	gint id;
 	gboolean create;
+	gboolean modified;
 	/* TrackerProperty -> GValueArray */
 	GHashTable *predicates;
 	/* string -> TrackerDataUpdateBufferTable */
@@ -162,6 +163,13 @@ static gint max_ontology_id = 0;
 static gint max_modseq = 0;
 
 static gint ensure_resource_id (const gchar *uri, gboolean    *create);
+static void cache_insert_value (const gchar *table_name,
+                                const gchar *field_name,
+                                GValue      *value,
+                                gint         graph,
+                                gboolean     multiple_values,
+                                gboolean     fts,
+                                gboolean     date_time);
 
 void
 tracker_data_add_commit_statement_callback (TrackerCommitCallback    callback,
@@ -482,6 +490,20 @@ cache_ensure_table (const gchar            *table_name,
                     gboolean                multiple_values)
 {
 	TrackerDataUpdateBufferTable *table;
+
+	if (!resource_buffer->modified) {
+		/* first modification of this particular resource, update tracker:modified */
+
+		GValue gvalue = { 0 };
+
+		resource_buffer->modified = TRUE;
+
+		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_set_int64 (&gvalue, tracker_data_update_get_next_modseq ());
+		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue,
+			            0,
+			            FALSE, FALSE, FALSE);
+	}
 
 	table = g_hash_table_lookup (resource_buffer->tables, table_name);
 	if (table == NULL) {
@@ -1790,7 +1812,6 @@ resource_buffer_switch (const gchar *graph,
 	}
 
 	if (resource_buffer == NULL) {
-		GValue gvalue = { 0 };
 		gchar *subject_dup = NULL;
 
 		/* large INSERTs with thousands of resources could lead to
@@ -1829,12 +1850,6 @@ resource_buffer_switch (const gchar *graph,
 				graph_id = ensure_resource_id (graph, NULL);
 			}
 		}
-
-		g_value_init (&gvalue, G_TYPE_INT64);
-		g_value_set_int64 (&gvalue, tracker_data_update_get_next_modseq ());
-		cache_insert_value ("rdfs:Resource", "tracker:modified", &gvalue,
-		                    0,
-		                    FALSE, FALSE, FALSE);
 	}
 }
 
