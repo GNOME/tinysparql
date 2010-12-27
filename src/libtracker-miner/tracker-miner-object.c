@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include <math.h>
+
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-type-utils.h>
 
@@ -27,6 +29,15 @@
 #include "tracker-miner-dbus.h"
 #include "tracker-miner-glue.h"
 #include "tracker-dbus.h"
+
+/* Here we use ceil() to eliminate decimal points beyond what we're
+ * interested in, which is 2 decimal places for the progress. The
+ * ceil() call will also round up the last decimal place.
+ *
+ * The 0.49 value is used for rounding correctness, because ceil()
+ * rounds up if the number is > 0.0.
+ */
+#define PROGRESS_ROUNDED(x) (ceil (((x) * 100) - 0.49) / 100)
 
 /**
  * SECTION:tracker-miner
@@ -303,10 +314,15 @@ miner_set_property (GObject      *object,
 	case PROP_PROGRESS: {
 		gdouble new_progress;
 
-		new_progress = g_value_get_double (value);
+		new_progress = PROGRESS_ROUNDED (g_value_get_double (value));
 
-		/* Only notify 1% changes */
-		if ((gint) (miner->private->progress * 100) == (gint) (new_progress * 100)) {
+		/* NOTE: We don't round the current progress before
+		 * comparison because we use the rounded value when
+		 * we set it last.
+		 *
+		 * Only notify 1% changes
+		 */ 
+		if (new_progress == miner->private->progress) {
 			/* Same, do nothing */
 			break;
 		}
