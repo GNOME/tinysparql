@@ -124,8 +124,6 @@ typedef enum {
 GQuark           tracker_dbus_error_quark            (void);
 
 /* Utils */
-GValue *         tracker_dbus_gvalue_slice_new       (GType                       type);
-void             tracker_dbus_gvalue_slice_free      (GValue                     *value);
 gchar **         tracker_dbus_slist_to_strv          (GSList                     *list);
 gchar **         tracker_dbus_str_to_strv            (const gchar                *str);
 gchar **         tracker_dbus_queue_str_to_strv      (GQueue                     *queue,

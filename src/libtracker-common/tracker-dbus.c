@@ -301,24 +301,6 @@ client_get_for_context (DBusGMethodInvocation *context)
 	return cd;
 }
 
-GValue *
-tracker_dbus_gvalue_slice_new (GType type)
-{
-	GValue *value;
-
-	value = g_slice_new0 (GValue);
-	g_value_init (value, type);
-
-	return value;
-}
-
-void
-tracker_dbus_gvalue_slice_free (GValue *value)
-{
-	g_value_unset (value);
-	g_slice_free (GValue, value);
-}
-
 GQuark
 tracker_dbus_error_quark (void)
 {

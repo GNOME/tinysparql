@@ -195,18 +195,6 @@ test_dbus_request_failed (void)
 }
 
 static void
-test_dbus_gvalue ()
-{
-        GValue *result = NULL;
-        
-        result = tracker_dbus_gvalue_slice_new (G_TYPE_INT);
-        g_assert (G_VALUE_TYPE (result) == G_TYPE_INT);
-        g_assert (result);
-
-        tracker_dbus_gvalue_slice_free (result);
-}
-
-static void
 test_dbus_utils_str_to_strv ()
 {
         const gchar *str = "test string";
@@ -535,8 +523,6 @@ main (int argc, char **argv) {
                          test_async_queue_to_strv);
 	g_test_add_func ("/libtracker-common/tracker-dbus/free_ptr_array", 
                          test_results_ptr_array_free);
-        g_test_add_func ("/libtracker-common/tracker-dbus/gvalue",
-                         test_dbus_gvalue);
         g_test_add_func ("/libtracker-common/tracker-dbus/utils",
                          test_dbus_utils_str_to_strv);
         g_test_add_func ("/libtracker-common/tracker-dbus/gfile_queue_to_strv",
