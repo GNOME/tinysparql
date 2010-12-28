@@ -48,8 +48,9 @@
 #define THUMBMAN_INTERFACE      "org.freedesktop.thumbnails.Thumbnailer1"
 
 typedef struct {
-	DBusGProxy *cache_proxy;
-	DBusGProxy *manager_proxy;
+	GDBusProxy *cache_proxy;
+	GDBusProxy *manager_proxy;
+	GDBusConnection *connection;
 
 	GStrv supported_mime_types;
 
@@ -76,6 +77,10 @@ private_free (gpointer data)
 
 	if (private->manager_proxy) {
 		g_object_unref (private->manager_proxy);
+	}
+
+	if (private->connection) {
+		g_object_unref (private->connection);
 	}
 
 	g_strfreev (private->supported_mime_types);
@@ -118,10 +123,8 @@ gboolean
 tracker_thumbnailer_init (void)
 {
 	TrackerThumbnailerPrivate *private;
-	DBusGConnection *connection;
-	GStrv mime_types = NULL;
-	GStrv uri_schemes = NULL;
 	GError *error = NULL;
+	GVariant *v;
 
 	private = g_new0 (TrackerThumbnailerPrivate, 1);
 
@@ -134,9 +137,9 @@ tracker_thumbnailer_init (void)
 
 	g_message ("Thumbnailer connections being set up...");
 
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	private->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
-	if (!connection) {
+	if (!private->connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
 		            error ? error->message : "no error given.");
 		g_clear_error (&error);
@@ -146,24 +149,41 @@ tracker_thumbnailer_init (void)
 		return FALSE;
 	}
 
-	private->cache_proxy =
-		dbus_g_proxy_new_for_name (connection,
-		                           THUMBCACHE_SERVICE,
-		                           THUMBCACHE_PATH,
-		                           THUMBCACHE_INTERFACE);
+	private->cache_proxy = g_dbus_proxy_new_sync (private->connection,
+	                                              G_DBUS_PROXY_FLAGS_NONE,
+	                                              NULL,
+	                                              THUMBCACHE_SERVICE,
+	                                              THUMBCACHE_PATH,
+	                                              THUMBCACHE_INTERFACE,
+	                                              NULL,
+	                                              &error);
 
-	private->manager_proxy =
-		dbus_g_proxy_new_for_name (connection,
-		                           THUMBMAN_SERVICE,
-		                           THUMBMAN_PATH,
-		                           THUMBMAN_INTERFACE);
+	if (error) {
+		goto error_handler;
+	}
 
-	dbus_g_proxy_call (private->manager_proxy,
-	                   "GetSupported", &error,
-	                   G_TYPE_INVALID,
-	                   G_TYPE_STRV, &uri_schemes,
-	                   G_TYPE_STRV, &mime_types,
-	                   G_TYPE_INVALID);
+	private->manager_proxy = g_dbus_proxy_new_sync (private->connection,
+	                                                G_DBUS_PROXY_FLAGS_NONE,
+	                                                NULL,
+	                                                THUMBMAN_SERVICE,
+	                                                THUMBMAN_PATH,
+	                                                THUMBMAN_INTERFACE,
+	                                                NULL,
+	                                                &error);
+
+	if (error) {
+		goto error_handler;
+	}
+
+	v = g_dbus_proxy_call_sync (private->manager_proxy,
+	                            "GetSupported",
+	                            NULL,
+	                            G_DBUS_CALL_FLAGS_NONE,
+	                            -1,
+	                            NULL,
+	                            &error);
+
+error_handler:
 
 	if (error) {
 		g_message ("Thumbnailer service did not return supported mime types, %s",
@@ -182,40 +202,47 @@ tracker_thumbnailer_init (void)
 		}
 
 		return FALSE;
-	} else if (mime_types) {
-		GHashTable *hash;
-		GHashTableIter iter;
-		gpointer key, value;
-		guint i;
+	} else if (v) {
+		GStrv mime_types = NULL;
+		GStrv uri_schemes = NULL;
 
-		/* The table that you receive may contain duplicate mime-types, because
-		 * they are grouped against the uri_schemes table */
+		g_variant_get (v, "(^a&s^a&s)", &uri_schemes, &mime_types);
 
-		hash = g_hash_table_new (g_str_hash, g_str_equal);
+		if (mime_types) {
+			GHashTable *hash;
+			GHashTableIter iter;
+			gpointer key, value;
+			guint i;
 
-		for (i = 0; mime_types[i] != NULL; i++) {
-			g_hash_table_insert (hash, mime_types[i], NULL);
+			/* The table that you receive may contain duplicate mime-types, because
+		 	* they are grouped against the uri_schemes table */
+
+			hash = g_hash_table_new (g_str_hash, g_str_equal);
+
+			for (i = 0; mime_types[i] != NULL; i++) {
+				g_hash_table_insert (hash, mime_types[i], NULL);
+			}
+
+			i = g_hash_table_size (hash);
+			g_message ("Thumbnailer supports %d mime types", i);
+
+			g_hash_table_iter_init (&iter, hash);
+			private->supported_mime_types = (GStrv) g_new0 (gchar *, i + 1);
+
+			i = 0;
+			while (g_hash_table_iter_next (&iter, &key, &value)) {
+				private->supported_mime_types[i] = g_strdup (key);
+				i++;
+			}
+
+			g_hash_table_unref (hash);
+
+			private->service_is_available = TRUE;
 		}
 
-		i = g_hash_table_size (hash);
-		g_message ("Thumbnailer supports %d mime types", i);
 
-		g_hash_table_iter_init (&iter, hash);
-		private->supported_mime_types = (GStrv) g_new0 (gchar *, i + 1);
-
-		i = 0;
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			private->supported_mime_types[i] = g_strdup (key);
-			i++;
-		}
-
-		g_hash_table_unref (hash);
-
-		private->service_is_available = TRUE;
+		g_variant_unref (v);
 	}
-
-	g_strfreev (mime_types);
-	g_strfreev (uri_schemes);
 
 	return TRUE;
 }
@@ -308,12 +335,14 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 	         uri_prefix,
 	         private->request_id);
 
-	dbus_g_proxy_call_no_reply (private->cache_proxy,
-	                            "Cleanup",
-	                            G_TYPE_STRING, uri_prefix,
-	                            G_TYPE_UINT, 0,
-	                            G_TYPE_INVALID,
-	                            G_TYPE_INVALID);
+	g_dbus_proxy_call (private->cache_proxy,
+	                   "Cleanup",
+	                   g_variant_new ("s", uri_prefix),
+	                   G_DBUS_CALL_FLAGS_NONE,
+	                   -1,
+	                   NULL,
+	                   NULL,
+	                   NULL);
 
 	return TRUE;
 }
@@ -338,11 +367,14 @@ tracker_thumbnailer_send (void)
 
 		uri_strv = tracker_dbus_slist_to_strv (private->removes);
 
-		dbus_g_proxy_call_no_reply (private->cache_proxy,
-		                            "Delete",
-		                            G_TYPE_STRV, uri_strv,
-		                            G_TYPE_INVALID,
-		                            G_TYPE_INVALID);
+		g_dbus_proxy_call (private->cache_proxy,
+		                   "Delete",
+		                   g_variant_new ("as", uri_strv),
+		                   G_DBUS_CALL_FLAGS_NONE,
+		                   -1,
+		                   NULL,
+		                   NULL,
+		                   NULL);
 
 		g_message ("Thumbnailer removes queue sent with %d items to thumbnailer daemon, request ID:%d...",
 		           list_len,
@@ -367,12 +399,14 @@ tracker_thumbnailer_send (void)
 		from_strv = tracker_dbus_slist_to_strv (private->moves_from);
 		to_strv = tracker_dbus_slist_to_strv (private->moves_to);
 
-		dbus_g_proxy_call_no_reply (private->cache_proxy,
-		                            "Move",
-		                            G_TYPE_STRV, from_strv,
-		                            G_TYPE_STRV, to_strv,
-		                            G_TYPE_INVALID,
-		                            G_TYPE_INVALID);
+		g_dbus_proxy_call (private->cache_proxy,
+		                   "Move",
+		                   g_variant_new ("(^as^as)", from_strv, to_strv),
+		                   G_DBUS_CALL_FLAGS_NONE,
+		                   -1,
+		                   NULL,
+		                   NULL,
+		                   NULL);
 
 		g_message ("Thumbnailer moves queue sent with %d items to thumbnailer daemon, request ID:%d...",
 		           list_len,
