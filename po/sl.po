@@ -340,7 +340,7 @@ msgstr "Beleženje, 0 = samo napake, 1 = najmanjše, 2 = podrobno in 3 = razhro�
 
 #: ../src/miners/fs/tracker-main.c:85
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
-msgstr "Začetno spanje v sekundah, 0->1000 (privzeto=15)"
+msgstr "Začetno stanje pripravljenosti v sekundah, 0->1000 (privzeto=15)"
 
 #: ../src/miners/fs/tracker-main.c:90
 msgid "Checks if FILE is eligible for being mined based on configuration"
