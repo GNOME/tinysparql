@@ -441,50 +441,60 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 {
 	TrackerMinerManagerPrivate *priv;
 	GSList *list = NULL;
-//	GError *error = NULL;
-	gchar **p, **result;
+	GError *error = NULL;
+	GVariant *v;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
 
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
-// TODO implement
+	if (!priv->connection) {
+		return NULL;
+	}
 
-//	if (!priv->connection || !priv->proxy) {
-//		return NULL;
-//	}
+	v = g_dbus_connection_call_sync (priv->connection,
+	                                 "org.freedesktop.DBus",
+	                                 "/org/freedesktop/DBus",
+	                                 "org.freedesktop.DBus",
+	                                 "ListNames",
+	                                 NULL,
+	                                 NULL,
+	                                 G_DBUS_CALL_FLAGS_NONE,
+	                                 -1,
+	                                 NULL,
+	                                 &error);
 
-//
-//	if (!dbus_g_proxy_call (priv->proxy, "ListNames", &error,
-//	                        G_TYPE_INVALID,
-//	                        G_TYPE_STRV, &result,
-//	                        G_TYPE_INVALID)) {
-//		g_critical ("Could not get a list of names registered on the session bus, %s",
-//		            error ? error->message : "no error given");
-//		g_clear_error (&error);
-//		return NULL;
-//	}
+	if (error) {
+		g_critical ("Could not get a list of names registered on the session bus, %s",
+		            error ? error->message : "no error given");
+		g_clear_error (&error);
+		if (v) {
+			g_variant_unref (v);
+		}
+	}
 
+	if (v) {
+		const gchar **result;
+		gsize len, i;
 
-	if (result) {
-		for (p = result; *p; p++) {
-			if (!g_str_has_prefix (*p, TRACKER_MINER_DBUS_NAME_PREFIX)) {
+		result = g_variant_get_strv (v, &len);
+		for (i = 0; i < len; i++) {
+			if (!g_str_has_prefix (result[i], TRACKER_MINER_DBUS_NAME_PREFIX)) {
 				continue;
 			}
 
 			/* Special case miner-fs which has
 			 * additional D-Bus interface.
 			 */
-			if (strcmp (*p, "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
+			if (strcmp (result[i], "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
 				continue;
 			}
 
-			list = g_slist_prepend (list, g_strdup (*p));
+			list = g_slist_prepend (list, g_strdup (result[i]));
 		}
 
 		list = g_slist_reverse (list);
-
-		g_strfreev (result);
+		g_variant_unref (v);
 	}
 
 	return list;
@@ -757,25 +767,38 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
                                  const gchar         *miner)
 {
 	TrackerMinerManagerPrivate *priv;
-//	GError *error = NULL;
+	GError *error = NULL;
 	gboolean active = FALSE;
+	GVariant *v;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (miner != NULL, FALSE);
 
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
-// TODO
-//	if (!dbus_g_proxy_call (priv->proxy, "NameHasOwner", &error,
-//	                        G_TYPE_STRING, miner,
-//	                        G_TYPE_INVALID,
-//	                        G_TYPE_BOOLEAN, &active,
-//	                        G_TYPE_INVALID)) {
-//		g_critical ("Could not check whether miner '%s' is currently active: %s",
-//		            miner, error ? error->message : "no error given");
-//		g_error_free (error);
-//		return FALSE;
-//	}
+	v = g_dbus_connection_call_sync (priv->connection,
+	                                 "org.freedesktop.DBus",
+	                                 "/org/freedesktop/DBus",
+	                                 "org.freedesktop.DBus",
+	                                 "NameHasOwner",
+	                                 g_variant_new ("s", miner),
+	                                 NULL,
+	                                 G_DBUS_CALL_FLAGS_NONE,
+	                                 -1,
+	                                 NULL,
+	                                 &error);
+
+	if (v) {
+		active = g_variant_get_boolean (v);
+		g_variant_unref (v);
+	}
+
+	if (error) {
+		g_critical ("Could not check whether miner '%s' is currently active: %s",
+		            miner, error ? error->message : "no error given");
+		g_error_free (error);
+		return FALSE;
+	}
 
 	return active;
 }
