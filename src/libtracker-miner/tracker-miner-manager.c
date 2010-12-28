@@ -63,7 +63,7 @@ struct MinerData {
 	guint progress_signal;
 	guint paused_signal;
 	guint resumed_signal;
-	guint watch_name_signal;
+	guint watch_name_id;
 };
 
 struct TrackerMinerManagerPrivate {
@@ -361,13 +361,13 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 
 		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (data->dbus_name));
 
-		data->watch_name_signal = g_bus_watch_name (G_BUS_TYPE_SESSION,
-		                                            data->dbus_name,
-		                                            G_BUS_NAME_WATCHER_FLAGS_NONE,
-		                                            miner_appears,
-		                                            miner_disappears,
-		                                            manager,
-		                                            NULL);
+		data->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+		                                        data->dbus_name,
+		                                        G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                        miner_appears,
+		                                        miner_disappears,
+		                                        manager,
+		                                        NULL);
 
 	}
 }
@@ -375,19 +375,28 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 static void
 miner_data_free (MinerData *data)
 {
-	if (data->watch_name_signal)
-		g_bus_unwatch_name (data->watch_name_signal);
-	if (data->progress_signal)
+	if (data->watch_name_id != 0) {
+		g_bus_unwatch_name (data->watch_name_id);
+	}
+
+	if (data->progress_signal) {
 		g_dbus_connection_signal_unsubscribe (data->connection,
 		                                      data->progress_signal);
-	if (data->paused_signal)
+	}
+
+	if (data->paused_signal) {
 		g_dbus_connection_signal_unsubscribe (data->connection,
 		                                      data->paused_signal);
-	if (data->resumed_signal)
+	}
+
+	if (data->resumed_signal) {
 		g_dbus_connection_signal_unsubscribe (data->connection,
 		                                      data->resumed_signal);
-	if (data->connection)
+	}
+
+	if (data->connection) {
 		g_object_unref (data->connection);
+	}
 
 	g_free (data->dbus_path);
 	g_free (data->display_name);
