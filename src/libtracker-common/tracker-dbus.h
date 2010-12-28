@@ -125,7 +125,6 @@ GQuark           tracker_dbus_error_quark            (void);
 
 /* Utils */
 gchar **         tracker_dbus_slist_to_strv          (GSList                     *list);
-gchar **         tracker_dbus_str_to_strv            (const gchar                *str);
 gchar **         tracker_dbus_queue_str_to_strv      (GQueue                     *queue,
                                                       gint                        max);
 gchar **         tracker_dbus_queue_gfile_to_strv    (GQueue                     *queue,

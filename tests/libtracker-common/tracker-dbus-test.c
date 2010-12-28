@@ -194,19 +194,6 @@ test_dbus_request_failed (void)
 	g_test_trap_assert_stderr ("*Unset error and no error message*");
 }
 
-static void
-test_dbus_utils_str_to_strv ()
-{
-        const gchar *str = "test string";
-        gchar **result = NULL;
-
-        result = tracker_dbus_str_to_strv (str);
-        g_assert (result);
-        g_assert_cmpint (g_strv_length (result), ==, 1);
-        g_strfreev (result);
-        
-}
-
 static GQueue *
 helper_get_queue_with_gfiles (int n)
 {
@@ -523,8 +510,6 @@ main (int argc, char **argv) {
                          test_async_queue_to_strv);
 	g_test_add_func ("/libtracker-common/tracker-dbus/free_ptr_array", 
                          test_results_ptr_array_free);
-        g_test_add_func ("/libtracker-common/tracker-dbus/utils",
-                         test_dbus_utils_str_to_strv);
         g_test_add_func ("/libtracker-common/tracker-dbus/gfile_queue_to_strv",
                          test_dbus_gfile_queue_to_strv);
         g_test_add_func ("/libtracker-common/tracker-dbus/request",

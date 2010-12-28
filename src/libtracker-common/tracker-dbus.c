@@ -332,18 +332,6 @@ tracker_dbus_slist_to_strv (GSList *list)
 }
 
 gchar **
-tracker_dbus_str_to_strv (const gchar *str)
-{
-	gchar **strv;
-
-	strv = g_new (gchar*, 2);
-	strv[0] = g_strdup (str);
-	strv[1] = NULL;
-
-	return strv;
-}
-
-gchar **
 tracker_dbus_queue_str_to_strv (GQueue *queue,
                                 gint    max)
 {
