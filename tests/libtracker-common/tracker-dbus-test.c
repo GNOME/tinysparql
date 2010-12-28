@@ -86,29 +86,6 @@ test_async_queue_to_strv_nonutf8 (void)
 #endif
 
 static void
-test_results_ptr_array_free (void)
-{
-	GPtrArray *array = NULL;
-
-	/* NULL */
-	tracker_dbus_results_ptr_array_free (&array);
-
-	/* Empty */
-	array = g_ptr_array_new ();
-	g_assert (array != NULL);
-
-	tracker_dbus_results_ptr_array_free (&array);
-	g_assert (array == NULL);
-
-	/* With contents */
-	array = g_ptr_array_new ();
-	g_ptr_array_add (array, g_strsplit ("one two three", " ", -1));
-
-	tracker_dbus_results_ptr_array_free (&array);
-	g_assert (array == NULL);
-}
-
-static void
 test_dbus_request_failed (void)
 {
 	GError *error = NULL;
@@ -412,8 +389,6 @@ main (int argc, char **argv) {
 
 	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_ok", 
                          test_slist_to_strv);
-	g_test_add_func ("/libtracker-common/tracker-dbus/free_ptr_array", 
-                         test_results_ptr_array_free);
         g_test_add_func ("/libtracker-common/tracker-dbus/request",
                          test_dbus_request);
         g_test_add_func ("/libtracker-common/tracker-dbus/request-client-lookup",

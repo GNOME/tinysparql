@@ -331,18 +331,6 @@ tracker_dbus_slist_to_strv (GSList *list)
 	return strv;
 }
 
-void
-tracker_dbus_results_ptr_array_free (GPtrArray **ptr_array)
-{
-	if (!ptr_array || !(*ptr_array)) {
-		return;
-	}
-
-	g_ptr_array_foreach (*ptr_array, (GFunc) g_strfreev, NULL);
-	g_ptr_array_free (*ptr_array, TRUE);
-	*ptr_array = NULL;
-}
-
 guint
 tracker_dbus_get_next_request_id (void)
 {

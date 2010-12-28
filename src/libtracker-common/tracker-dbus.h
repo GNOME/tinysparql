@@ -125,7 +125,6 @@ GQuark           tracker_dbus_error_quark            (void);
 
 /* Utils */
 gchar **         tracker_dbus_slist_to_strv          (GSList                     *list);
-void             tracker_dbus_results_ptr_array_free (GPtrArray                 **ptr_array);
 
 /* Requests */
 guint            tracker_dbus_get_next_request_id    (void);
