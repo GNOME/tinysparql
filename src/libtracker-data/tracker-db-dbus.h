@@ -34,7 +34,6 @@ G_BEGIN_DECLS
 gchar **    tracker_dbus_query_result_to_strv            (TrackerDBResultSet *result_set,
                                                           gint                column,
                                                           gint               *count);
-GPtrArray * tracker_dbus_query_result_to_ptr_array       (TrackerDBResultSet *result_set);
 
 G_END_DECLS
 
