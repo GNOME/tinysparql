@@ -109,12 +109,6 @@ typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
                                                   GError   *error,
                                                   gpointer  user_data);
 
-typedef struct {
-	guint    id;
-	gpointer data1;
-	gpointer data2;
-} TrackerDBusData;
-
 typedef enum {
 	TRACKER_DBUS_EVENTS_TYPE_ADD,
 	TRACKER_DBUS_EVENTS_TYPE_UPDATE,
@@ -128,8 +122,6 @@ typedef enum {
 } TrackerDBusError;
 
 GQuark           tracker_dbus_error_quark            (void);
-TrackerDBusData *tracker_dbus_data_new               (const gpointer              arg1,
-                                                      const gpointer              arg2);
 
 /* Utils */
 GValue *         tracker_dbus_gvalue_slice_new       (GType                       type);

@@ -325,22 +325,6 @@ tracker_dbus_error_quark (void)
 	return g_quark_from_static_string (TRACKER_DBUS_ERROR_DOMAIN);
 }
 
-TrackerDBusData *
-tracker_dbus_data_new (const gpointer arg1,
-                       const gpointer arg2)
-{
-	TrackerDBusData *data;
-
-	data = g_new0 (TrackerDBusData, 1);
-
-	data->id = tracker_dbus_get_next_request_id ();
-
-	data->data1 = arg1;
-	data->data2 = arg2;
-
-	return data;
-}
-
 gchar **
 tracker_dbus_slist_to_strv (GSList *list)
 {

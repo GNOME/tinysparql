@@ -516,25 +516,6 @@ test_dbus_hooks ()
         g_assert_cmpint (hook_done_called, ==, 2);
 }
 
-static void
-test_dbus_dbus_data ()
-{
-        /* just for coverage numbers... nothing to test here */
-        const gchar     *one = "one";
-        const gchar     *two = "two";
-        TrackerDBusData *data = NULL;
-        gint             request_id;
-
-        request_id = tracker_dbus_get_next_request_id ();
-        data = tracker_dbus_data_new ((const gpointer)one, (const gpointer)two);
-        
-        g_assert (data);
-        g_assert_cmpint (data->id, ==, request_id+1);
-        g_assert_cmpstr ((gchar *)data->data1, ==, one);
-        g_assert_cmpstr ((gchar *)data->data2, ==, two);
-
-}
-
 int
 main (int argc, char **argv) {
 
@@ -572,8 +553,6 @@ main (int argc, char **argv) {
                          test_dbus_request_failed_coverage);
         g_test_add_func ("/libtracker-common/tracker-dbus/hooks",
                          test_dbus_hooks);
-        g_test_add_func ("/libtracker-common/tracker-dbus/dbus_data",
-                         test_dbus_dbus_data);
 
 	result = g_test_run ();
 
