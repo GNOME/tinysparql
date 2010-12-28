@@ -299,81 +299,6 @@ test_dbus_request_failed_coverage ()
         g_test_trap_assert_passed ();
 }
 
-static gint hook_new_called = 0;
-static gint hook_done_called = 0;
-
-static void
-hook_test_new_request (guint request_id,
-                       gpointer user_data)
-{
-        hook_new_called += 1;
-}
-
-static void
-hook_test_done_request (guint request_id,
-                        gpointer user_data)
-{
-        hook_done_called += 1;
-}
-
-static void
-test_dbus_hooks ()
-{
-        gint request_id;
-        DBusGMethodInvocation *context = (DBusGMethodInvocation *)g_strdup ("aaa");
-        TrackerDBusRequestHandler *handler;
-
-        tracker_dbus_request_unblock_hooks ();
-
-        handler = tracker_dbus_request_add_hook (hook_test_new_request,
-                                                 hook_test_done_request,
-                                                 NULL);
-        g_assert (hook_new_called == 0 && hook_done_called == 0);
-
-        request_id = tracker_dbus_get_next_request_id ();
-        tracker_dbus_request_new (request_id, context, "Test Message. Is OK");
-        
-        g_assert_cmpint (hook_new_called, ==, 1);
-        g_assert_cmpint (hook_done_called, ==, 0);
-
-        tracker_dbus_request_success (request_id, context);
-        g_assert_cmpint (hook_new_called, ==, 1);
-        g_assert_cmpint (hook_done_called, ==, 1);
-
-        tracker_dbus_request_failed (request_id, context, NULL, "Test Message. Is OK");
-        g_assert_cmpint (hook_new_called, ==, 1);
-        g_assert_cmpint (hook_done_called, ==, 2);
-
-        /* Block the hooks and check that the callbacks are not invoked */
-        tracker_dbus_request_block_hooks ();
-
-        request_id = tracker_dbus_get_next_request_id ();
-        tracker_dbus_request_new (request_id, context, "Test Message. Is OK");
-        g_assert_cmpint (hook_new_called, ==, 1);
-        g_assert_cmpint (hook_done_called, ==, 2);
-
-        tracker_dbus_request_success (request_id, context);
-        g_assert_cmpint (hook_new_called, ==, 1);
-        g_assert_cmpint (hook_done_called, ==, 2);
-
-        tracker_dbus_request_failed (request_id, context, NULL, "Test Message. Is OK");
-        g_assert_cmpint (hook_new_called, ==, 1);
-        g_assert_cmpint (hook_done_called, ==, 2);
-
-        /* Unlock, but remove the hooks */
-        tracker_dbus_request_unblock_hooks ();
-        tracker_dbus_request_remove_hook (handler);
-
-        request_id = tracker_dbus_get_next_request_id ();
-        tracker_dbus_request_new (request_id, context, "Test Message. Is OK");
-        g_assert_cmpint (hook_new_called, ==, 1);
-        g_assert_cmpint (hook_done_called, ==, 2);
-
-        tracker_dbus_request_failed (request_id, context, NULL, "Test Message. Is OK");
-        g_assert_cmpint (hook_new_called, ==, 1);
-        g_assert_cmpint (hook_done_called, ==, 2);
-}
-
 int
 main (int argc, char **argv) {
 
@@ -399,8 +324,6 @@ main (int argc, char **argv) {
                          test_dbus_request_failed);
         g_test_add_func ("/libtracker-common/tracker-dbus/request_failed_coverage",
                          test_dbus_request_failed_coverage);
-        g_test_add_func ("/libtracker-common/tracker-dbus/hooks",
-                         test_dbus_hooks);
 
 	result = g_test_run ();
 

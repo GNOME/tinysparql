@@ -81,7 +81,6 @@ tracker_statistics_get (TrackerStatistics      *object,
 
 	request_id = tracker_dbus_get_next_request_id ();
 
-	tracker_dbus_request_block_hooks ();
 	tracker_dbus_request_new (request_id, context, "%s()", __FUNCTION__);
 
 	values = g_ptr_array_new ();
@@ -114,6 +113,4 @@ tracker_statistics_get (TrackerStatistics      *object,
 
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
 	g_ptr_array_free (values, TRUE);
-
-	tracker_dbus_request_unblock_hooks ();
 }

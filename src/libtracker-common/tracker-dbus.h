@@ -98,11 +98,6 @@ G_BEGIN_DECLS
 #define TRACKER_DBUS_PATH_EXTRACT      "/org/freedesktop/Tracker1/Extract"
 #define TRACKER_DBUS_INTERFACE_EXTRACT "org.freedesktop.Tracker1.Extract"
 
-typedef struct TrackerDBusRequestHandler TrackerDBusRequestHandler;
-
-typedef void (*TrackerDBusRequestFunc) (guint    request_id,
-                                        gpointer user_data);
-
 typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
                                                   gssize    buffer_size,
                                                   GStrv     variable_names,
@@ -129,12 +124,6 @@ gchar **         tracker_dbus_slist_to_strv          (GSList                    
 /* Requests */
 guint            tracker_dbus_get_next_request_id    (void);
 
-TrackerDBusRequestHandler *
-                 tracker_dbus_request_add_hook       (TrackerDBusRequestFunc      new,
-                                                      TrackerDBusRequestFunc      done,
-                                                      gpointer                    user_data);
-void             tracker_dbus_request_remove_hook    (TrackerDBusRequestHandler  *handler);
-
 void             tracker_dbus_request_new            (gint                        request_id,
                                                       DBusGMethodInvocation      *context,
                                                       const gchar                *format,
@@ -158,8 +147,6 @@ void             tracker_dbus_request_debug          (gint                      
                                                       DBusGMethodInvocation      *context,
                                                       const gchar                *format,
                                                       ...);
-void             tracker_dbus_request_block_hooks    (void);
-void             tracker_dbus_request_unblock_hooks  (void);
 
 void             tracker_dbus_enable_client_lookup   (gboolean                    enable);
 

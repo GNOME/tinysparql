@@ -33,12 +33,6 @@
  */
 #define CLIENT_CLEAN_UP_TIME  300
 
-struct TrackerDBusRequestHandler {
-	TrackerDBusRequestFunc new;
-	TrackerDBusRequestFunc done;
-	gpointer               user_data;
-};
-
 typedef struct {
 	gchar *sender;
 	gchar *binary;
@@ -57,9 +51,6 @@ typedef struct {
 	gboolean expect_variable_names;
 } SendAndSpliceData;
 
-static GSList *hooks;
-static gboolean block_hooks;
-
 static gboolean client_lookup_enabled;
 static DBusGConnection *freedesktop_connection;
 static DBusGProxy *freedesktop_proxy;
@@ -67,46 +58,6 @@ static GHashTable *clients;
 
 static void     client_data_free    (gpointer data);
 static gboolean client_clean_up_cb (gpointer data);
-
-static void
-request_handler_call_for_new (guint request_id)
-{
-	GSList *l;
-
-	if (block_hooks) {
-		return;
-	}
-
-	for (l = hooks; l; l = l->next) {
-		TrackerDBusRequestHandler *handler;
-
-		handler = l->data;
-
-		if (handler->new) {
-			(handler->new)(request_id, handler->user_data);
-		}
-	}
-}
-
-static void
-request_handler_call_for_done (guint request_id)
-{
-	GSList *l;
-
-	if (block_hooks) {
-		return;
-	}
-
-	for (l = hooks; l; l = l->next) {
-		TrackerDBusRequestHandler *handler;
-
-		handler = l->data;
-
-		if (handler->done) {
-			(handler->done)(request_id, handler->user_data);
-		}
-	}
-}
 
 static gboolean
 clients_init (void)
@@ -339,32 +290,6 @@ tracker_dbus_get_next_request_id (void)
 	return request_id++;
 }
 
-TrackerDBusRequestHandler *
-tracker_dbus_request_add_hook (TrackerDBusRequestFunc new,
-                               TrackerDBusRequestFunc done,
-                               gpointer                       user_data)
-{
-	TrackerDBusRequestHandler *handler;
-
-	handler = g_slice_new0 (TrackerDBusRequestHandler);
-	handler->new = new;
-	handler->done = done;
-	handler->user_data = user_data;
-
-	hooks = g_slist_append (hooks, handler);
-
-	return handler;
-}
-
-void
-tracker_dbus_request_remove_hook (TrackerDBusRequestHandler *handler)
-{
-	g_return_if_fail (handler != NULL);
-
-	hooks = g_slist_remove (hooks, handler);
-	g_slice_free (TrackerDBusRequestHandler, handler);
-}
-
 void
 tracker_dbus_request_new (gint                   request_id,
                           DBusGMethodInvocation *context,
@@ -389,8 +314,6 @@ tracker_dbus_request_new (gint                   request_id,
 	         str);
 
 	g_free (str);
-
-	request_handler_call_for_new (request_id);
 }
 
 void
@@ -398,8 +321,6 @@ tracker_dbus_request_success (gint                   request_id,
                               DBusGMethodInvocation *context)
 {
 	ClientData *cd;
-
-	request_handler_call_for_done (request_id);
 
 	cd = client_get_for_context (context);
 
@@ -420,8 +341,6 @@ tracker_dbus_request_failed (gint                    request_id,
 	ClientData *cd;
 	gchar *str;
 	va_list args;
-
-	request_handler_call_for_done (request_id);
 
 	if (format) {
 		va_start (args, format);
@@ -520,18 +439,6 @@ tracker_dbus_request_debug (gint                   request_id,
 	         cd ? cd->pid : 0,
 	         str);
 	g_free (str);
-}
-
-void
-tracker_dbus_request_block_hooks (void)
-{
-	block_hooks = TRUE;
-}
-
-void
-tracker_dbus_request_unblock_hooks (void)
-{
-	block_hooks = FALSE;
 }
 
 void
