@@ -75,50 +75,6 @@ test_slist_to_strv_nonutf8 (void)
 
 #endif
 
-static void
-async_queue_to_strv (gboolean utf8)
-{
-	GQueue *queue;
-	gint i;
-	gchar **queue_as_strv;
-	gint strings = 5;
-
-	queue = g_queue_new ();
-
-	for (i = 0; i < strings; i++) {
-		if (utf8) {
-			g_queue_push_tail (queue, g_strdup_printf ("%d", i));
-		} else {
-			g_queue_push_tail (queue, g_strdup (tracker_test_helpers_get_nonutf8 ()));
-		}
-	}
-	g_assert_cmpint (g_queue_get_length (queue), ==, strings);
-
-	if (utf8) {
-		queue_as_strv = tracker_dbus_queue_str_to_strv (queue, g_queue_get_length (queue));
-		g_assert_cmpint (g_strv_length (queue_as_strv), ==, strings);
-		g_strfreev (queue_as_strv);
-	} else {
-		if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-			queue_as_strv = tracker_dbus_queue_str_to_strv (queue, g_queue_get_length (queue));
-			g_strfreev (queue_as_strv);
-		}
-		/* Error message:
-		 *   Could not add string:'/invalid/file/\xe4\xf6\xe590808.' to GStrv, invalid UTF-8
-		 */
-		g_test_trap_assert_stderr ("*Could not add string:*");
-	}
-
-	/* Queue empty by tracker_dbus_async_queue_to_strv */
-	g_queue_free (queue);
-}
-
-static void
-test_async_queue_to_strv (void)
-{
-	async_queue_to_strv (TRUE);
-}
-
 #if 0
 
 static void
@@ -192,56 +148,6 @@ test_dbus_request_failed (void)
 	}
 
 	g_test_trap_assert_stderr ("*Unset error and no error message*");
-}
-
-static GQueue *
-helper_get_queue_with_gfiles (int n)
-{
-        GQueue *queue;
-        gchar *filename;
-        GFile       *file;
-        gint    i;
-
-        queue = g_queue_new ();
-        for (i = 0; i < n; i++) {
-                filename = g_strdup_printf ("/test/file/%d", i);
-                file = g_file_new_for_path (filename);
-                g_queue_push_head (queue, file);
-                g_free (filename);
-        }
-        return queue;
-}
-
-static void
-test_dbus_gfile_queue_to_strv ()
-{
-        GQueue *queue;
-        int     i;
-        gchar  *filename;
-        gchar **result = NULL;
-
-        queue = helper_get_queue_with_gfiles (10);
-        result = tracker_dbus_queue_gfile_to_strv (queue, 100);
-        g_assert (result);
-        g_assert_cmpint (g_strv_length (result), ==, 10);
-        g_assert_cmpint (g_queue_get_length (queue), ==, 0);
-
-        /* 
-         * It is a FILO queue
-         */
-        for (i = 0; i < 10; i++) {
-                filename = g_strdup_printf ("/test/file/%d", 9 - i);
-                g_assert_cmpstr (result[i], ==, filename);
-                g_free (filename);
-        }
-
-        /* test max < number of elements in the queue */
-        queue = helper_get_queue_with_gfiles (10);
-        result = tracker_dbus_queue_gfile_to_strv (queue, 5);
-        g_assert (result);
-        g_assert_cmpint (g_strv_length (result), ==, 5);
-        g_assert_cmpint (g_queue_get_length (queue), ==, 5);
-        
 }
 
 static void
@@ -506,12 +412,8 @@ main (int argc, char **argv) {
 
 	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_ok", 
                          test_slist_to_strv);
-	g_test_add_func ("/libtracker-common/tracker-dbus/async_queue_to_strv_ok", 
-                         test_async_queue_to_strv);
 	g_test_add_func ("/libtracker-common/tracker-dbus/free_ptr_array", 
                          test_results_ptr_array_free);
-        g_test_add_func ("/libtracker-common/tracker-dbus/gfile_queue_to_strv",
-                         test_dbus_gfile_queue_to_strv);
         g_test_add_func ("/libtracker-common/tracker-dbus/request",
                          test_dbus_request);
         g_test_add_func ("/libtracker-common/tracker-dbus/request-client-lookup",
