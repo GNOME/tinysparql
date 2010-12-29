@@ -78,6 +78,25 @@ G_BEGIN_DECLS
 		}; \
 	} G_STMT_END
 
+
+#define tracker_gdbus_async_return_if_fail(expr,invocation)	\
+	G_STMT_START { \
+		if G_LIKELY(expr) { } else { \
+			GError *assert_error = NULL; \
+	  \
+			g_set_error (&assert_error, \
+			             TRACKER_DBUS_ERROR, \
+			             TRACKER_DBUS_ERROR_ASSERTION_FAILED, \
+			             _("Assertion `%s' failed"), \
+			             #expr); \
+	  \
+			g_dbus_method_invocation_return_gerror (invocation, assert_error); \
+			g_clear_error (&assert_error); \
+	  \
+			return; \
+		}; \
+	} G_STMT_END
+
 #define tracker_dbus_return_val_if_fail(expr,val,error)	\
 	G_STMT_START { \
 		if G_LIKELY(expr) { } else { \
@@ -124,7 +143,6 @@ GQuark              tracker_dbus_error_quark           (void);
 gchar **            tracker_dbus_slist_to_strv         (GSList                     *list);
 
 /* Requests */
-
 TrackerDBusRequest *tracker_dbus_request_begin         (const gchar                *sender,
                                                         const gchar                *format,
                                                         ...);
@@ -142,8 +160,12 @@ void                tracker_dbus_request_debug         (TrackerDBusRequest      
 
 void                tracker_dbus_enable_client_lookup  (gboolean                    enable);
 
-
 #ifndef NO_LIBDBUS
+/* GDBus convenience API */
+TrackerDBusRequest *tracker_g_dbus_request_begin       (GDBusMethodInvocation      *invocation,
+                                                        const gchar                *format,
+                                                        ...);
+
 /* dbus-glib convenience API */
 TrackerDBusRequest *tracker_dbus_g_request_begin       (DBusGMethodInvocation      *context,
                                                         const gchar                *format,
