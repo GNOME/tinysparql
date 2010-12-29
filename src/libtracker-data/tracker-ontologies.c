@@ -223,12 +223,14 @@ tracker_ontologies_get_class_by_uri (const gchar *class_uri)
 	class = g_hash_table_lookup (class_uris, class_uri);
 
 	if (!class && gvdb_table) {
-		class = tracker_class_new (TRUE);
-		tracker_class_set_uri (class, class_uri);
+		if (tracker_ontologies_get_class_string_gvdb (class_uri, "name") != NULL) {
+			class = tracker_class_new (TRUE);
+			tracker_class_set_uri (class, class_uri);
 
-		g_hash_table_insert (class_uris,
-		                     g_strdup (class_uri),
-		                     class);
+			g_hash_table_insert (class_uris,
+				             g_strdup (class_uri),
+				             class);
+		}
 	}
 
 	return class;
@@ -360,12 +362,14 @@ tracker_ontologies_get_property_by_uri (const gchar *uri)
 	property = g_hash_table_lookup (property_uris, uri);
 
 	if (!property && gvdb_table) {
-		property = tracker_property_new (TRUE);
-		tracker_property_set_uri (property, uri);
+		if (tracker_ontologies_get_property_string_gvdb (uri, "name") != NULL) {
+			property = tracker_property_new (TRUE);
+			tracker_property_set_uri (property, uri);
 
-		g_hash_table_insert (property_uris,
-		                     g_strdup (uri),
-		                     property);
+			g_hash_table_insert (property_uris,
+				             g_strdup (uri),
+				             property);
+		}
 	}
 
 	return property;
@@ -413,12 +417,14 @@ tracker_ontologies_get_namespace_by_uri (const gchar *uri)
 	namespace = g_hash_table_lookup (namespace_uris, uri);
 
 	if (!namespace && gvdb_table) {
-		namespace = tracker_namespace_new (TRUE);
-		tracker_namespace_set_uri (namespace, uri);
+		if (tracker_ontologies_get_namespace_string_gvdb (uri, "prefix") != NULL) {
+			namespace = tracker_namespace_new (TRUE);
+			tracker_namespace_set_uri (namespace, uri);
 
-		g_hash_table_insert (namespace_uris,
-			             g_strdup (uri),
-			             namespace);
+			g_hash_table_insert (namespace_uris,
+					     g_strdup (uri),
+					     namespace);
+		}
 	}
 
 	return namespace;
@@ -603,6 +609,11 @@ tracker_ontologies_get_namespace_string_gvdb (const gchar *uri,
 	const gchar *result;
 
 	value = tracker_ontologies_get_namespace_value_gvdb (uri, predicate);
+
+	if (value == NULL) {
+		return NULL;
+	}
+
 	result = g_variant_get_string (value, NULL);
 	g_variant_unref (value);
 
@@ -631,6 +642,11 @@ tracker_ontologies_get_class_string_gvdb (const gchar *uri,
 	const gchar *result;
 
 	value = tracker_ontologies_get_class_value_gvdb (uri, predicate);
+
+	if (value == NULL) {
+		return NULL;
+	}
+
 	result = g_variant_get_string (value, NULL);
 	g_variant_unref (value);
 
@@ -659,6 +675,11 @@ tracker_ontologies_get_property_string_gvdb (const gchar *uri,
 	const gchar *result;
 
 	value = tracker_ontologies_get_property_value_gvdb (uri, predicate);
+
+	if (value == NULL) {
+		return NULL;
+	}
+
 	result = g_variant_get_string (value, NULL);
 	g_variant_unref (value);
 
