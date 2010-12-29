@@ -87,83 +87,6 @@ dbus_register_object (GObject               *object,
 	return TRUE;
 }
 
-static gchar *
-get_name_owner_changed_match_rule (const gchar *name)
-{
-	return g_strdup_printf ("type='signal',"
-	                        "sender='" DBUS_SERVICE_DBUS "',"
-	                        "interface='" DBUS_INTERFACE_DBUS "',"
-	                        "path='" DBUS_PATH_DBUS "',"
-	                        "member='NameOwnerChanged',"
-	                        "arg0='%s'", name);
-}
-
-static void
-name_owner_changed_cb (const gchar *name,
-                       const gchar *old_owner,
-                       const gchar *new_owner,
-                       gpointer     user_data)
-{
-	TrackerMinerDBusNameFunc func;
-	TrackerMiner *miner;
-	gboolean available;
-	DBusData *data;
-
-	miner = user_data;
-
-	if (!name || !*name) {
-		return;
-	}
-
-	data = g_object_get_qdata (G_OBJECT (miner), dbus_data);
-
-	if (!data) {
-		return;
-	}
-
-	func = g_hash_table_lookup (data->name_monitors, name);
-
-	if (!func) {
-		return;
-	}
-
-	available = (new_owner && *new_owner);
-
-	(func) (miner, name, available);
-}
-
-static DBusHandlerResult
-message_filter (DBusConnection *connection,
-                DBusMessage    *message,
-                gpointer        user_data)
-{
-	const char *tmp;
-	GQuark interface, member;
-	int message_type;
-
-	tmp = dbus_message_get_interface (message);
-	interface = tmp ? g_quark_try_string (tmp) : 0;
-	tmp = dbus_message_get_member (message);
-	member = tmp ? g_quark_try_string (tmp) : 0;
-	message_type = dbus_message_get_type (message);
-
-	if (interface == dbus_interface_quark &&
-	    message_type == DBUS_MESSAGE_TYPE_SIGNAL &&
-	    member == name_owner_changed_signal_quark) {
-		const gchar *name, *prev_owner, *new_owner;
-
-		if (dbus_message_get_args (message, NULL,
-		                           DBUS_TYPE_STRING, &name,
-		                           DBUS_TYPE_STRING, &prev_owner,
-		                           DBUS_TYPE_STRING, &new_owner,
-		                           DBUS_TYPE_INVALID)) {
-			name_owner_changed_cb (name, prev_owner, new_owner, user_data);
-		}
-	}
-
-	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
-
 static void
 dbus_data_destroy (gpointer data)
 {
@@ -231,11 +154,6 @@ dbus_data_create (TrackerMiner          *miner,
 	}
 
 	g_free (full_path);
-
-	dbus_connection_add_filter (dbus_g_connection_get_connection (connection),
-	                            message_filter,
-	                            miner,
-	                            NULL);
 
 	/* Now we're successfully connected and registered, create the data */
 	data = g_slice_new0 (DBusData);
@@ -313,71 +231,3 @@ _tracker_miner_dbus_shutdown (TrackerMiner *miner)
 	g_object_set_qdata (G_OBJECT (miner), dbus_data, NULL);
 }
 
-void
-_tracker_miner_dbus_remove_name_watch (TrackerMiner             *miner,
-                                       const gchar              *name,
-                                       TrackerMinerDBusNameFunc  func)
-{
-	DBusData *data;
-	gchar *match_rule;
-
-	g_return_if_fail (TRACKER_IS_MINER (miner));
-	g_return_if_fail (name != NULL);
-
-	data = g_object_get_qdata (G_OBJECT (miner), dbus_data);
-
-	if (!data) {
-		g_critical ("Miner '%s' was not registered on "
-		            "DBus, can watch for owner changes",
-		            G_OBJECT_TYPE_NAME (miner));
-		return;
-	}
-
-	g_hash_table_remove (data->name_monitors, name);
-
-	match_rule = get_name_owner_changed_match_rule (name);
-	dbus_bus_remove_match (dbus_g_connection_get_connection (data->connection),
-	                       match_rule,
-	                       NULL);
-	g_free (match_rule);
-}
-
-void
-_tracker_miner_dbus_add_name_watch (TrackerMiner             *miner,
-                                    const gchar              *name,
-                                    TrackerMinerDBusNameFunc  func)
-{
-	DBusData *data;
-	DBusConnection *connection;
-	gchar *match_rule;
-
-	g_return_if_fail (TRACKER_IS_MINER (miner));
-	g_return_if_fail (name != NULL);
-	g_return_if_fail (func != NULL);
-
-	data = g_object_get_qdata (G_OBJECT (miner), dbus_data);
-
-	if (!data) {
-		g_critical ("Miner '%s' was not registered on "
-		            "DBus, can watch for owner changes",
-		            G_OBJECT_TYPE_NAME (miner));
-		return;
-	}
-
-	g_hash_table_insert (data->name_monitors,
-	                     g_strdup (name),
-	                     func);
-
-	match_rule = get_name_owner_changed_match_rule (name);
-	connection = dbus_g_connection_get_connection (data->connection);
-	dbus_bus_add_match (connection, match_rule, NULL);
-
-	if (!dbus_bus_name_has_owner (connection, name, NULL)) {
-		/* Ops, the name went away before we could receive
-		 * NameOwnerChanged for it.
-		 */
-		name_owner_changed_cb ("", name, name, miner);
-	}
-
-	g_free (match_rule);
-}
