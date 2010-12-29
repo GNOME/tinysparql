@@ -659,6 +659,7 @@ class Tracker.Sparql.Pattern : Object {
 		foreach (var variable in triple_context.variables) {
 			bool maybe_null = true;
 			bool in_simple_optional = false;
+			PropertyType last_type = PropertyType.UNKNOWN;
 			string last_name = null;
 			foreach (VariableBinding binding in triple_context.var_bindings.lookup (variable).list) {
 				string name;
@@ -669,6 +670,7 @@ class Tracker.Sparql.Pattern : Object {
 					// always first in loop as variable is required to be unbound
 					name = variable.sql_expression;
 				}
+				var type = binding.data_type;
 				if (last_name != null) {
 					if (!first_where) {
 						sql.append (" AND ");
@@ -676,11 +678,23 @@ class Tracker.Sparql.Pattern : Object {
 						sql.append (" WHERE ");
 						first_where = false;
 					}
-					sql.append (last_name);
+
+					if (last_type == PropertyType.STRING && type == PropertyType.RESOURCE) {
+						sql.append_printf ("(SELECT ID FROM Resource WHERE Uri = %s)", last_name);
+					} else {
+						sql.append (last_name);
+					}
+
 					sql.append (" = ");
-					sql.append (name);
+
+					if (last_type == PropertyType.RESOURCE && type == PropertyType.STRING) {
+						sql.append_printf ("(SELECT ID FROM Resource WHERE Uri = %s)", name);
+					} else {
+						sql.append (name);
+					}
 				}
 				last_name = name;
+				last_type = type;
 				if (!binding.maybe_null) {
 					maybe_null = false;
 				}
@@ -1409,6 +1423,7 @@ class Tracker.Sparql.Pattern : Object {
 					}
 				} else {
 					// variable as predicate
+					binding.data_type = PropertyType.STRING;
 					binding.sql_db_column_name = "object";
 					binding.maybe_null = true;
 				}
