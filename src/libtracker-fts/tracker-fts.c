@@ -2133,8 +2133,6 @@ static int sql_prepare(sqlite3 *db, const char *zDb, const char *zName,
 typedef struct fulltext_vtab fulltext_vtab;
 typedef struct fulltext_sqlite_vtab fulltext_sqlite_vtab;
 
-static TrackerFtsMapFunc map_function = NULL;
-
 /* A single term in a query is represented by an instances of
 ** the following structure. Each word which may match against
 ** document content is a term. Operators, like NEAR or OR, are
@@ -2317,7 +2315,7 @@ static const char *const fulltext_zStatement[MAX_STMT] = {
   /* SEGDIR_DELETE_ALL */ "delete from %_segdir",
   /* SEGDIR_COUNT */ "select count(*), ifnull(max(level),0) from %_segdir",
 
-  /* PROPERTY_WEIGHT */ "SELECT \"tracker:weight\" FROM \"rdf:Property\" WHERE ID = ?",
+  /* PROPERTY_WEIGHT */ "SELECT \"tracker:weight\", (SELECT Uri FROM Resource WHERE ID = \"rdf:Property\".ID) FROM \"rdf:Property\" WHERE ID = ?",
 };
 
 /*
@@ -2478,7 +2476,7 @@ static int sql_get_statement(fulltext_vtab *v, fulltext_statement iStmt,
 
 /* Function from Tracker */
 static inline int
-get_metadata_weight (fulltext_vtab *v, int id)
+get_metadata_weight (fulltext_vtab *v, int id, gchar **uri)
 {
   sqlite3_stmt *stmt;
   int rc;
@@ -2499,6 +2497,8 @@ get_metadata_weight (fulltext_vtab *v, int id)
   if (weight == 0) {
     weight = 1;
   }
+
+  *uri = g_strdup (sqlite3_column_text (stmt, 1));
 
   /* We expect only one row.  We must execute another sqlite3_step()
    * to complete the iteration; otherwise the table will remain locked. */
@@ -4217,11 +4217,10 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
 
 
     for ( ; !plrAtEnd(&plReader); plrStep(&plReader) ){
-      const gchar *uri;
+      gchar *uri = NULL;
       int col = plrColumn (&plReader);
 
-      uri = map_function (col);
-      c->rank += get_metadata_weight (v, col);
+      c->rank += get_metadata_weight (v, col, &uri);
 
       if (uri && first_pos) {
         g_string_append_printf (c->offsets, "%s,%d", uri, plrPosition (&plReader));
@@ -4231,6 +4230,8 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
       } else {
         g_warning ("Type '%d' for FTS offset doesn't exist in ontology", col);
       }
+
+      g_free (uri);
     }
 
     plrDestroy(&plReader);
@@ -7951,10 +7952,6 @@ TrackerFts *tracker_fts_new(sqlite3 *db, int create){
 
 void tracker_fts_free (TrackerFts *fts){
   fulltext_vtab_destroy (fts);
-}
-
-void tracker_fts_set_map_function(TrackerFtsMapFunc map_func){
-  map_function = map_func;
 }
 
 int tracker_fts_update_init(TrackerFts *fts, int id){

@@ -3279,10 +3279,6 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 
-#if HAVE_TRACKER_FTS
-	tracker_fts_set_map_function (tracker_ontologies_get_uri_by_id);
-#endif
-
 	if (first_time != NULL) {
 		*first_time = is_first_time_index;
 	}
