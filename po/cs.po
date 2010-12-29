@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-27 20:39+0100\n"
-"PO-Revision-Date: 2010-12-15 15:25+0100\n"
+"POT-Creation-Date: 2010-12-29 23:44+0100\n"
+"PO-Revision-Date: 2010-12-28 08:40+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -143,7 +143,7 @@ msgstr "Štítky…"
 msgid "Tag one or more files"
 msgstr "Přiřadit štítek jednomu nebo více souborům"
 
-#: ../src/libtracker-common/tracker-dbus.c:573
+#: ../src/libtracker-common/tracker-dbus.c:354
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
 #: ../src/tracker-utils/tracker-search.c:1442
@@ -657,56 +657,51 @@ msgstr ""
 
 #: ../src/tracker-needle/tracker-needle.vala:240
 msgid "Last Changed"
-msgstr ""
+msgstr "Naposledy změněno"
 
 #: ../src/tracker-needle/tracker-needle.vala:248
-#, fuzzy
 msgid "Size"
-msgstr "Velikost:"
+msgstr "Velikost"
 
 #. fn:concat(nco:pageCount(?urn), \" pages\")
 #: ../src/tracker-needle/tracker-query.vala:163
-#, fuzzy
 msgid "Pages"
-msgstr "Obrázky"
+msgstr "Stránek"
 
 #: ../src/tracker-needle/tracker-query.vala:185
-#, fuzzy
 msgid "No Subject"
-msgstr "Předmět:"
+msgstr "Bez předmětu"
 
 #: ../src/tracker-needle/tracker-query.vala:186
 msgid "To"
-msgstr ""
+msgstr "Komu"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
 #: ../src/tracker-needle/tracker-utils.vala:61
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "%ld den od teď"
+msgstr[1] "%ld dny od teď"
+msgstr[2] "%ld dní od teď"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
 #: ../src/tracker-needle/tracker-utils.vala:64
-#, fuzzy, c-format
+#, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
-msgstr[0] " %d den"
-msgstr[1] " %d dny"
-msgstr[2] " %d dní"
+msgstr[0] "před %ld dnem"
+msgstr[1] "před %ld dny"
+msgstr[2] "před %ld dny"
 
 #: ../src/tracker-needle/tracker-utils.vala:76
 #: ../src/tracker-needle/tracker-utils.vala:105
-#, fuzzy
 msgid "Less than one second"
 msgstr "méně než jedna sekunda"
 
 #: ../src/tracker-needle/tracker-view.vala:48
-#, fuzzy
 msgid "No Search Results"
-msgstr "Nelze získat výsledky hledání"
+msgstr "Žádné výsledky hledání"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid ""
