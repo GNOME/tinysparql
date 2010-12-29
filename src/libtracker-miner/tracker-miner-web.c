@@ -22,7 +22,10 @@
 #include "tracker-dbus.h"
 #include "tracker-miner-web.h"
 #include "tracker-miner-web-dbus.h"
+
+#if 0
 #include "tracker-miner-web-glue.h"
+#endif
 
 /**
  * SECTION:tracker-miner-web
@@ -127,8 +130,10 @@ miner_web_get_property (GObject    *object,
 static void
 miner_web_constructed (GObject *object)
 {
+#if 0
 	_tracker_miner_dbus_init (TRACKER_MINER (object),
 	                          &dbus_glib__tracker_miner_web_dbus_object_info);
+#endif
 
 	G_OBJECT_CLASS (tracker_miner_web_parent_class)->constructed (object);
 }
@@ -145,6 +150,7 @@ tracker_miner_web_error_quark (void)
 	return g_quark_from_static_string (TRACKER_MINER_WEB_ERROR_DOMAIN);
 }
 
+#if 0
 /* DBus methods */
 void
 _tracker_miner_web_dbus_authenticate (TrackerMinerWeb        *miner,
@@ -309,3 +315,4 @@ tracker_miner_web_dissociate (TrackerMinerWeb   *miner,
 
 	TRACKER_MINER_WEB_GET_CLASS (miner)->dissociate (miner, error);
 }
+#endif
