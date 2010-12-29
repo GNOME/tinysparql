@@ -419,6 +419,28 @@ tracker_dbus_enable_client_lookup (gboolean enabled)
 }
 
 TrackerDBusRequest *
+tracker_g_dbus_request_begin (GDBusMethodInvocation *invocation,
+                              const gchar           *format,
+                              ...)
+{
+	TrackerDBusRequest *request;
+	gchar *str;
+	const gchar *sender;
+	va_list args;
+
+	va_start (args, format);
+	str = g_strdup_vprintf (format, args);
+	va_end (args);
+
+	sender = g_dbus_method_invocation_get_sender (invocation);
+	request = tracker_dbus_request_begin (sender, "%s", str);
+
+	g_free (str);
+
+	return request;
+}
+
+TrackerDBusRequest *
 tracker_dbus_g_request_begin (DBusGMethodInvocation *context,
                               const gchar           *format,
                               ...)
