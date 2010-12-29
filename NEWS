@@ -1,3 +1,52 @@
+NEW in 0.9.33 - 2010-12-29
+==========================
+
+The changes are:
+
+  * Fixes NB#211928: SPARQL: Do not use nested subquery for EXISTS / NOT EXISTS
+  * Fixes NB#212736: SPARQL: Improve predicate variable support
+  * Fixes NB#213419: SPARQL: Implicitly convert fn:concat arguments to string
+  * Fixes NB#214478: libtracker-data: Fix memory leak in cursor_next_async
+  * Fixes GB#638159: libtracker-data: Fix gvdb lookup for not existing ontology resources
+  * Ontology: Remove tracker:isAnnotation property
+  * SPARQL: Support graph retrieval using property functions
+  * SPARQL: Accept semicolon as separator between update operations
+  * SPARQL: Add support for INSERT/DELETE DATA
+  * SPARQL: Fix WITH support
+  * SPARQL: Drop deprecated support for DROP GRAPH
+  * libtracker-data: Add ontology cache
+  * libtracker-data: Bypass update buffer for rdf:type deletes if possible
+  * tracker-store, libtracker-data: Enhance signal behaviour for batch updates
+  * libtracker-common: Print PID of process in dbus requests
+  * libtracker-miner: Set proper nfo:belongsToContainer on file move operations
+  * libtracker-miner: Skip IgnoreNextUpdate requests on CREATED events
+  * libtracker-miner: When deleting resources, first mark unavailable and then fully remove them
+  * libtracker-miner: Make sure original monitors are removed during a move operation
+  * libtracker-miner: On directory remove, first remove monitors, then notify event
+  * libtracker-miner: When a moved dir event detected, cancel all monitors in the dir
+  * libtracker-miner: Don't add monitors when renaming a directory to a hidden name
+  * tracker-extract-gstreamer: Fix undefined references
+  * tracker-extract-txt: Support text files encoded in UTF-16 if BOM available
+  * tracker-writeback: XMP: Take into account mlo:asPostalAddress
+  * tracker-writeback: Fix a memoryleak on unwanted_results and cleanup
+  * tracker-writeback, libtracker-miner: Don't writeback non-strict mined values
+  * tracker-explorer: Port to GDBus
+
+Translations:
+  * Updated cs: Marek Cernocky
+  * Updated de: Mario Blättermann
+  * Updated es: Daniel Mustieles
+  * Updated et: Mattias Põldaru
+  * Updated hu: Gabor Kelemen
+  * Updated se: Daniel Nylander
+  * Updated sl: Andrej Žnidaršič
+  * Updated zh_CN: Aron Xu
+
+Notes:
+
+  None
+
+
 NEW in 0.9.32 - 2010-12-16
 ==========================
 
