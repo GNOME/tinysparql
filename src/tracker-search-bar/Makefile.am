@@ -12,6 +12,8 @@ tracker_search_bar_SOURCES =                           \
 	tracker-utils.c                                \
 	tracker-utils.h
 
+# -DMENU_UI_DIR=\""$(xmluidir)"\"                
+
 tracker_search_bar_CFLAGS =                            \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \
@@ -26,31 +28,45 @@ tracker_search_bar_LDADD =                             \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_SEARCH_BAR_LIBS)
 
-uidir = $(datadir)/tracker
-ui_DATA = tracker-search-bar.ui
+# Panel applet
+appletdir = $(datadir)/gnome-panel/applets
+applet_in_files = org.gnome.panel.SearchBar.panel-applet.in
+applet_DATA = $(applet_in_files:.panel-applet.in=.panel-applet)
 
-# Panel applet bonobo stuff
-serverdir = $(libdir)/bonobo/servers
-server_in_files = GNOME_Search_Bar_Applet.server.in
-server_DATA = $(server_in_files:.server.in=.server)
+$(applet_in_files): $(applet_in_files).in Makefile
+	$(AM_V_GEN)sed                                 \
+	  -e "s|\@LIBEXECDIR\@|$(libexecdir)|"         \
+	  -e "s|\@VERSION\@|$(PACKAGE_VERSION)|"       \
+	  $< > $@
 
-# Misc data
-resourcesdir = $(pkgdatadir)
-resources_DATA =                                       \
-	GNOME_Search_Bar_Applet.xml
+%.panel-applet: %.panel-applet.in $(INTLTOOL_MERGE) $(wildcard $(top_srcdir)/po/*po) ; $(INTLTOOL_MERGE) $(top_srcdir)/po $< $@ -d -u -c $(top_builddir)/po/.intltool-merge-cache
 
-# Build rules
-@INTLTOOL_SERVER_RULE@
-@INTLTOOL_SCHEMAS_RULE@
+# Applet UIs and menu
+uidir = $(pkgdatadir)
+ui_DATA =                                             \
+	tracker-search-bar.ui                         \
+	tracker-search-bar-menu.xml
 
-$(server_in_files): $(server_in_files:.server.in=.server.in.in)
-	$(AM_V_GEN)sed -e "s|\@LIBEXECDIR\@|$(libexecdir)|" $< > $@
+# DBus service file
+servicedir = $(datadir)/dbus-1/services
+service_in_files = org.gnome.panel.applet.SearchBarFactory.service.in
+service_DATA = $(service_in_files:.service.in=.service)
 
+org.gnome.panel.applet.SearchBarFactory.service: $(service_in_files)
+	$(AM_V_GEN)sed                                \
+	  -e "s|\@LIBEXECDIR\@|$(libexecdir)|"        \
+	  $< > $@
+
+# Distribution details
 EXTRA_DIST =                                           \
-	$(resources_DATA)                              \
-	tracker-search-bar.ui                          \
-	GNOME_Search_Bar_Applet.server.in.in
+	org.gnome.panel.SearchBar.panel-applet.in      \
+	$(applet_DATA)                                 \
+	$(ui_DATA)                                     \
+	$(service_in_files)
 
-DISTCLEANFILES =                                       \
-	$(server_DATA)                                 \
-	$(server_in_files)
+CLEANFILES =                                           \
+	$(applet_DATA)                                 \
+	$(applet_DATA).in                              \
+	$(service_DATA)
+
+@INTLTOOL_SCHEMAS_RULE@
