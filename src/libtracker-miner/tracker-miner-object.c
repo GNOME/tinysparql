@@ -769,10 +769,10 @@ handle_method_call_pause (TrackerMiner          *miner,
 {
 	GError *local_error = NULL;
 	gint cookie;
-	gchar *application = NULL, *reason = NULL;
+	const gchar *application = NULL, *reason = NULL;
 	TrackerDBusRequest *request;
 
-	g_variant_get (parameters, "(ss)", &application, &reason);
+	g_variant_get (parameters, "(&s&s)", &application, &reason);
 
 	tracker_gdbus_async_return_if_fail (application != NULL, invocation);
 	tracker_gdbus_async_return_if_fail (reason != NULL, invocation);
