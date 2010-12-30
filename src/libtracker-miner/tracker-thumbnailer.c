@@ -403,7 +403,7 @@ tracker_thumbnailer_send (void)
 
 		g_dbus_proxy_call (private->cache_proxy,
 		                   "Move",
-		                   g_variant_new ("(asas)", from_strv, to_strv),
+		                   g_variant_new ("(^as^as)", from_strv, to_strv),
 		                   G_DBUS_CALL_FLAGS_NONE,
 		                   -1,
 		                   NULL,
