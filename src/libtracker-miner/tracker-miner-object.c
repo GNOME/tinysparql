@@ -843,7 +843,7 @@ handle_method_call_get_progress (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
-	                                       g_variant_new ("(i)", miner->private->progress));
+	                                       g_variant_new ("(d)", miner->private->progress));
 }
 
 static void
