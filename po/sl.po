@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2010-12-15 09:46+0000\n"
-"PO-Revision-Date: 2010-12-25 15:59+0100\n"
-"Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
+"POT-Creation-Date: 2010-12-30 10:45+0000\n"
+"PO-Revision-Date: 2010-12-30 21:08+0100\n"
+"Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -39,7 +39,7 @@ msgstr "Elektronska pošta"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:2
 msgid "Evolution Email miner"
-msgstr "Kopalnik elektronske pošte evolution"
+msgstr "Kopalnik elektronske pošte Evolution"
 
 #: ../data/miners/tracker-miner-files.desktop.in.in.h:1
 msgid "File System"
@@ -130,6 +130,7 @@ msgstr[3] "_Nastavi oznake za povezavo s %d izbranimi predmeti:"
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
 #: ../src/plugins/nautilus/tracker-tags-extension.c:237
+#: ../src/tracker-needle/tracker-taglist.vala:50
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 #: ../src/tracker-search-bar/tracker-results-window.c:663
 msgid "Tags"
@@ -145,14 +146,14 @@ msgstr "Oznake ..."
 msgid "Tag one or more files"
 msgstr "Označi eno ali več datotek"
 
-#: ../src/libtracker-common/tracker-dbus.c:571
+#: ../src/libtracker-common/tracker-dbus.c:354
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
 #: ../src/tracker-utils/tracker-search.c:1442
 #: ../src/tracker-utils/tracker-sparql.c:292
 #: ../src/tracker-utils/tracker-stats.c:93
 #: ../src/tracker-utils/tracker-tag.c:945
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:90
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:96
 msgid "No error given"
 msgstr "Ni dane napake"
 
@@ -226,15 +227,15 @@ msgstr[1] " %2.2d sekunda"
 msgstr[2] " %2.2d sekundi"
 msgstr[3] " %2.2d sekunde"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:407
+#: ../src/libtracker-miner/tracker-miner-object.c:423
 msgid "Data store is not available"
 msgstr "Shramba podatkov ni na voljo"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:546
+#: ../src/libtracker-miner/tracker-miner-object.c:562
 msgid "Pause application and reason match an already existing pause request"
 msgstr "Premor programa in skladanje razloga za že obstoječo zahtevo po premoru"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:618
+#: ../src/libtracker-miner/tracker-miner-object.c:634
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Piškotek za nadaljevanje podatkovnega kopalnika v premoru ni prepoznan"
 
@@ -260,7 +261,7 @@ msgstr "Lastnosti"
 #: ../src/tracker-explorer/tracker-explorer.ui.h:2
 #: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "_Search:"
-msgstr "_Išči:"
+msgstr "_Poišči:"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:3
 msgid "_URN:"
@@ -482,6 +483,7 @@ msgid "Directory"
 msgstr "Mapa"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:400
+#: ../src/tracker-needle/tracker-needle.vala:228
 msgid "File"
 msgstr "Datoteka"
 
@@ -535,8 +537,8 @@ msgid ""
 "Globbing patterns can be used here, for example: \"*bar*\".\n"
 "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 msgstr ""
-"Mogoče je uporabiti splošne vzorce kot na primer: \"*bar*\".\n"
-"To je najpogosteje uporabljeno za prezrtje map kot *~, *.o, *.la, itd "
+"Mogoče je uporabiti splošne vzorce kot je na primer: \"*bar*\".\n"
+"To je najpogosteje uporabljeno za izpuščanje map z imeni *~, *.o, *.la, in drugo. "
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:14
 msgid "Ignored Content"
@@ -641,6 +643,56 @@ msgstr "Namizno iskanje"
 #: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
 msgid "Find what you're looking for on this computer by name or content using Tracker"
 msgstr "Poiščite kar iščete na tem računalniku po imenu ali vsebini z uporabo Trackerja"
+
+#: ../src/tracker-needle/tracker-needle.vala:240
+msgid "Last Changed"
+msgstr "Nazadnje spremenjeno"
+
+#: ../src/tracker-needle/tracker-needle.vala:248
+msgid "Size"
+msgstr "Velikost"
+
+#. fn:concat(nco:pageCount(?urn), \" pages\")
+#: ../src/tracker-needle/tracker-query.vala:163
+msgid "Pages"
+msgstr "Strani"
+
+#: ../src/tracker-needle/tracker-query.vala:185
+msgid "No Subject"
+msgstr "Ni naslova"
+
+#: ../src/tracker-needle/tracker-query.vala:186
+msgid "To"
+msgstr "Za"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:61
+#, c-format
+msgid "%ld day from now"
+msgid_plural "%ld days from now"
+msgstr[0] "čez %ld dni\n"
+msgstr[1] "čez %ld dan\n"
+msgstr[2] "čez %ld dni\n"
+msgstr[3] "čez %ld dni\n"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:64
+#, c-format
+msgid "%ld day ago"
+msgid_plural "%ld days ago"
+msgstr[0] "pred %ld dnevi\n"
+msgstr[1] "pred %ld dnevom\n"
+msgstr[2] "pred %ld dnevoma\n"
+msgstr[3] "pred %ld dnevi\n"
+
+#: ../src/tracker-needle/tracker-utils.vala:76
+#: ../src/tracker-needle/tracker-utils.vala:105
+msgid "Less than one second"
+msgstr "Pred manj kot eno sekundo"
+
+#: ../src/tracker-needle/tracker-view.vala:48
+msgid "No Search Results"
+msgstr "Iskanje ni vrnilo rezultatov"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid "Display results by category, for example, Music, Videos, Applications, etc."
@@ -781,9 +833,9 @@ msgid ""
 "\n"
 "You should have received a copy of the GNU General Public License along with Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
 msgstr ""
-"Tracker je prosta programska oprema; lahko ga redistribuirate in/ali spreminjate pod pogoji GNU General Public Licence kot je objavljena s Free Software Foundation; ali različico 2 Licence ali (na vašo željo) katerakoli kasnejša različica.\n"
+"Tracker je prosta programska oprema; lahko ga razširjate in/ali spreminjate pod pogoji Splošnega Javnega Dovoljenja GNU (General Public Licence) kot je objavljeno s strani Free Software Foundation; različice 2 dovoljenja ali (na vašo željo) katerakoli kasnejše različice.\n"
 "\n"
-"Tracker je distribuiran v upanju da bo uporaben, toda BREZ KAKRŠNIHKOLI ZAGOTOVIL; tudi brez impliciranih zagotovila za PRODAJO ali PRIMERNOST ZA DOLOČEN NAMEN. Oglejte si GNU General Public Licence za več podrobnosti.\n"
+"Program Tracker je se razširja v upanju da bo uporaben, toda BREZ KAKRŠNIHKOLI ZAGOTOVIL; tudi brez impliciranih zagotovila za PRODAJO ali PRIMERNOST ZA DOLOČEN NAMEN. Oglejte si GNU General Public Licence za več podrobnosti.\n"
 "\n"
 "Skupaj s programom bi morali prejeti tudi kopijo splošnega javnega potrdila; v primeru, da kopije niste prejeli, pišite na Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
 
@@ -1021,7 +1073,7 @@ msgstr "Ena ali več datotek ni bilo navedenih"
 #: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:89
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:95
 msgid "Could not establish a connection to Tracker"
 msgstr "Povezave s Trackerjem ni mogoče vzpostaviti"
 
@@ -1831,8 +1883,6 @@ msgstr "Prazen niz rezultatov"
 #~ msgstr "Mapa:"
 #~ msgid "Type:"
 #~ msgstr "Vrsta:"
-#~ msgid "Size:"
-#~ msgstr "Velikost:"
 #~ msgid "Modified:"
 #~ msgstr "Spremenjeno:"
 #~ msgid "Height:"
@@ -1847,8 +1897,6 @@ msgstr "Prazen niz rezultatov"
 #~ msgstr "Album:"
 #~ msgid "Duration:"
 #~ msgstr "Trajanje:"
-#~ msgid "Subject:"
-#~ msgstr "Zadeva:"
 #~ msgid "From:"
 #~ msgstr "Od:"
 #~ msgid "Received:"
