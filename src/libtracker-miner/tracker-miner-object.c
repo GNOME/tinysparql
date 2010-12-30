@@ -83,9 +83,7 @@ static const gchar introspection_xml[] =
   "      <arg type='as' name='urls' direction='in' />"
   "    </method>"
   "    <signal name='Started' />"
-  "    <signal name='Stopped'>"
-  "      <arg type='b' name='interrupted' />"
-  "    </signal>"
+  "    <signal name='Stopped' />"
   "    <signal name='Paused' />"
   "    <signal name='Resumed' />"
   "    <signal name='Progress'>"
@@ -108,6 +106,8 @@ struct _TrackerMinerPrivate {
 	guint watch_name_id;
 	guint registration_id;
 	guint own_id;
+	gchar *full_name;
+	gchar *full_path;
 };
 
 typedef struct {
@@ -319,6 +319,16 @@ miner_update_progress (TrackerMiner *miner)
 	g_signal_emit (miner, signals[PROGRESS], 0,
 	               miner->private->status,
 	               miner->private->progress);
+
+	g_dbus_connection_emit_signal (miner->private->d_connection,
+	                               NULL,
+	                               miner->private->full_path,
+	                               TRACKER_MINER_DBUS_INTERFACE,
+	                               "Progress",
+	                               g_variant_new ("(sd)",
+	                                              miner->private->status,
+	                                              miner->private->progress),
+	                               NULL);
 }
 
 static void
@@ -456,6 +466,14 @@ tracker_miner_start (TrackerMiner *miner)
 	miner->private->started = TRUE;
 
 	g_signal_emit (miner, signals[STARTED], 0);
+
+	g_dbus_connection_emit_signal (miner->private->d_connection,
+	                               NULL,
+	                               miner->private->full_path,
+	                               TRACKER_MINER_DBUS_INTERFACE,
+	                               "Started",
+	                               NULL,
+	                               NULL);
 }
 
 /**
@@ -473,6 +491,14 @@ tracker_miner_stop (TrackerMiner *miner)
 	miner->private->started = FALSE;
 
 	g_signal_emit (miner, signals[STOPPED], 0);
+
+	g_dbus_connection_emit_signal (miner->private->d_connection,
+	                               NULL,
+	                               miner->private->full_path,
+	                               TRACKER_MINER_DBUS_INTERFACE,
+	                               "Stopped",
+	                               NULL,
+	                               NULL);
 }
 
 /**
@@ -541,6 +567,14 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
 		/* Pause */
 		g_message ("Miner:'%s' is pausing", miner->private->name);
 		g_signal_emit (miner, signals[PAUSED], 0);
+
+		g_dbus_connection_emit_signal (miner->private->d_connection,
+		                               NULL,
+		                               miner->private->full_path,
+		                               TRACKER_MINER_DBUS_INTERFACE,
+		                               "Paused",
+		                               NULL,
+		                               NULL);
 	}
 
 	return pd->cookie;
@@ -606,6 +640,14 @@ tracker_miner_resume (TrackerMiner  *miner,
 		/* Resume */
 		g_message ("Miner:'%s' is resuming", miner->private->name);
 		g_signal_emit (miner, signals[RESUMED], 0);
+
+		g_dbus_connection_emit_signal (miner->private->d_connection,
+		                               NULL,
+		                               miner->private->full_path,
+		                               TRACKER_MINER_DBUS_INTERFACE,
+		                               "Resumed",
+		                               NULL,
+		                               NULL);
 	}
 
 	return TRUE;
@@ -645,6 +687,8 @@ miner_finalize (GObject *object)
 
 	g_free (miner->private->status);
 	g_free (miner->private->name);
+	g_free (miner->private->full_name);
+	g_free (miner->private->full_path);
 
 	if (miner->private->connection) {
 		g_object_unref (miner->private->connection);
@@ -965,8 +1009,7 @@ miner_constructed (GObject *object)
 	                                                       full_name,
 	                                                       G_BUS_NAME_OWNER_FLAGS_NONE,
 	                                                       NULL, NULL, NULL, NULL);
-
-	g_free (full_name);
+	miner->private->full_name = full_name;
 
 	/* Register the service name for the miner */
 	full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX, name, NULL);
@@ -993,7 +1036,8 @@ miner_constructed (GObject *object)
 	}
 
 	g_free (name);
-	g_free (full_path);
+
+	miner->private->full_path = full_path;
 
 	miner->private->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
 	                                                  TRACKER_SERVICE,
