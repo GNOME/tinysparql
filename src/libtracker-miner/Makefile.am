@@ -32,8 +32,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(libtracker_miner_monitor_sources)            \
 	$(libtracker_miner_monitor_headers)            \
 	tracker-crawler.c                              \
-	tracker-dbus.c                                 \
-	tracker-dbus.h                                 \
 	tracker-miner-dbus.h                           \
 	tracker-miner-object.c                         \
 	tracker-miner-fs.c                             \

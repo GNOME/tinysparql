@@ -27,7 +27,6 @@
 #include "tracker-marshal.h"
 #include "tracker-miner-object.h"
 #include "tracker-miner-dbus.h"
-#include "tracker-dbus.h"
 
 /* Here we use ceil() to eliminate decimal points beyond what we're
  * interested in, which is 2 decimal places for the progress. The

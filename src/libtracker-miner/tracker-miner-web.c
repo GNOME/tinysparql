@@ -21,7 +21,6 @@
 
 #include <libtracker-common/tracker-dbus.h>
 
-#include "tracker-dbus.h"
 #include "tracker-miner-web.h"
 #include "tracker-miner-web-dbus.h"
 
