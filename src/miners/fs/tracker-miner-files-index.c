@@ -20,12 +20,25 @@
 #include "config.h"
 
 #include <libtracker-common/tracker-dbus.h>
-
 #include <libtracker-sparql/tracker-sparql.h>
+#include <libtracker-miner/tracker-miner-dbus.h>
 
 #include "tracker-miner-files-index.h"
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"
+
+
+static const gchar introspection_xml[] =
+  "<node>"
+  "  <interface name='org.freedesktop.Tracker1.Miner.Files.Index'>"
+  "    <method name='ReindexMimeTypes'>"
+  "      <arg type='as' name='mime_types' direction='in' />"
+  "    </method>"
+  "    <method name='IndexFile'>"
+  "      <arg type='s' name='file_uri' direction='in' />"
+  "    </method>"
+  "  </interface>"
+  "</node>";
 
 /* If defined, then a file provided to be indexed MUST be a child in
  * an configured path. if undefined, any file can be indexed, however
@@ -43,6 +56,12 @@ typedef struct {
 
 typedef struct {
 	TrackerMinerFiles *files_miner;
+	GDBusConnection *d_connection;
+	GDBusNodeInfo *introspection_data;
+	guint registration_id;
+	guint own_id;
+	gchar *full_name;
+	gchar *full_path;
 } TrackerMinerFilesIndexPrivate;
 
 enum {
@@ -61,6 +80,7 @@ static void     index_get_property        (GObject              *object,
                                            GValue               *value,
                                            GParamSpec           *pspec);
 static void     index_finalize            (GObject              *object);
+static void     index_constructed         (GObject              *object);
 
 G_DEFINE_TYPE(TrackerMinerFilesIndex, tracker_miner_files_index, G_TYPE_OBJECT)
 
@@ -74,6 +94,7 @@ tracker_miner_files_index_class_init (TrackerMinerFilesIndexClass *klass)
 	object_class->finalize = index_finalize;
 	object_class->set_property = index_set_property;
 	object_class->get_property = index_get_property;
+	object_class->constructed  = index_constructed;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_FILES_MINER,
@@ -131,7 +152,185 @@ static void
 index_finalize (GObject *object)
 {
 	TrackerMinerFilesIndexPrivate *priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
+
+	if (priv->own_id != 0) {
+		g_bus_unown_name (priv->own_id);
+	}
+
+	if (priv->registration_id != 0) {
+		g_dbus_connection_unregister_object (priv->d_connection,
+		                                     priv->registration_id);
+	}
+
+	if (priv->introspection_data) {
+		g_dbus_node_info_unref (priv->introspection_data);
+	}
+
+	if (priv->d_connection) {
+		g_object_unref (priv->d_connection);
+	}
+
+	g_free (priv->full_name);
+	g_free (priv->full_path);
+
 	g_object_unref (priv->files_miner);
+
+	G_OBJECT_CLASS (tracker_miner_files_index_parent_class)->finalize (object);
+}
+
+static void
+handle_method_call_XXXXXXXXXX (TrackerMinerWeb       *miner,
+                               GDBusMethodInvocation *invocation,
+                               GVariant              *parameters)
+{
+	GError *local_error = NULL;
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	// code
+
+	if (local_error != NULL) {
+		GError *actual_error = NULL;
+
+		tracker_gdbus_request_failed (request_id,
+		                              invocation,
+		                              &actual_error,
+		                              local_error ? local_error->message : NULL);
+
+		g_dbus_method_invocation_return_gerror (invocation, actual_error);
+
+		g_error_free (actual_error);
+		g_error_free (local_error);
+	} else {
+		tracker_gdbus_request_success (request_id, invocation);
+		g_dbus_method_invocation_return_value (invocation, NULL);
+	}
+}
+
+static void
+handle_method_call (GDBusConnection       *connection,
+                    const gchar           *sender,
+                    const gchar           *object_path,
+                    const gchar           *interface_name,
+                    const gchar           *method_name,
+                    GVariant              *parameters,
+                    GDBusMethodInvocation *invocation,
+                    gpointer               user_data)
+{
+	TrackerMinerWeb *miner = user_data;
+
+	tracker_gdbus_async_return_if_fail (miner != NULL, invocation);
+	tracker_gdbus_async_return_if_fail (TRACKER_IS_MINER_WEB (miner), invocation);
+
+	if (g_strcmp0 (method_name, "XXXXXXXXXX") == 0) {
+		handle_method_call_XXXXXXXXXX (miner, invocation, parameters);
+	} else
+	if (g_strcmp0 (method_name, "YYYYYYYYYY") == 0) {
+		handle_method_call_XXXXXXXXXX (miner, invocation, parameters);
+	} else {
+		g_assert_not_reached ();
+	}
+}
+
+static GVariant *
+handle_get_property (GDBusConnection  *connection,
+                     const gchar      *sender,
+                     const gchar      *object_path,
+                     const gchar      *interface_name,
+                     const gchar      *property_name,
+                     GError          **error,
+                     gpointer          user_data)
+{
+	g_assert_not_reached ();
+	return NULL;
+}
+
+static gboolean
+handle_set_property (GDBusConnection  *connection,
+                     const gchar      *sender,
+                     const gchar      *object_path,
+                     const gchar      *interface_name,
+                     const gchar      *property_name,
+                     GVariant         *value,
+                     GError          **error,
+                     gpointer          user_data)
+{
+	g_assert_not_reached ();
+	return TRUE;
+}
+
+static const GDBusInterfaceVTable interface_vtable = {
+	handle_method_call,
+	handle_get_property,
+	handle_set_property
+};
+
+static void
+index_constructed (GObject *miner)
+{
+	TrackerMinerFilesIndexPrivate *priv;
+	gchar *name, *full_path, *full_name;
+	GError *error = NULL;
+
+	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (miner);
+
+	priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+
+	if (!priv->d_connection) {
+		g_critical ("Could not connect to the D-Bus session bus, %s",
+		            error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return;
+	}
+
+	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
+
+	g_object_get (miner, "name", &name, NULL);
+
+	if (!name) {
+		g_critical ("Miner '%s' should have been given a name, bailing out",
+		            G_OBJECT_TYPE_NAME (miner));
+		g_assert_not_reached ();
+	}
+
+	full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, name, NULL);
+
+	priv->own_id = g_bus_own_name_on_connection (priv->d_connection,
+	                                             full_name,
+	                                             G_BUS_NAME_OWNER_FLAGS_NONE,
+	                                             NULL, NULL, NULL, NULL);
+	priv->full_name = full_name;
+
+	/* Register the service name for the miner */
+	full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX, name, NULL);
+
+	g_message ("Registering D-Bus object...");
+	g_message ("  Path:'%s'", full_path);
+	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (miner));
+
+	priv->registration_id =
+		g_dbus_connection_register_object (priv->d_connection,
+	                                       full_path,
+	                                       priv->introspection_data->interfaces[0],
+	                                       &interface_vtable,
+	                                       miner,
+	                                       NULL,
+	                                       &error);
+
+	if (error) {
+		g_critical ("Could not register the D-Bus object %s, %s",
+		            full_path,
+		            error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return;
+	}
+
+	g_free (name);
+
+	priv->full_path = full_path;
+
+	G_OBJECT_CLASS (tracker_miner_files_index_parent_class)->constructed (miner);
 }
 
 static void
