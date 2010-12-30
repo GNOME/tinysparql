@@ -657,6 +657,159 @@ miner_finalize (GObject *object)
 
 
 static void
+handle_method_call_ignore_next_update (TrackerMiner          *miner,
+                                       GDBusMethodInvocation *invocation,
+                                       GVariant              *parameters)
+{
+	GStrv urls;
+	TrackerDBusRequest *request;
+
+	g_variant_get (parameters, "as", &urls);
+
+	request = tracker_g_dbus_request_begin (invocation,
+	                                        "%s", __PRETTY_FUNCTION__);
+
+	tracker_miner_ignore_next_update (miner, urls);
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation, NULL);
+}
+
+static void
+handle_method_call_resume (TrackerMiner          *miner,
+                           GDBusMethodInvocation *invocation,
+                           GVariant              *parameters)
+{
+	GError *local_error = NULL;
+	gint cookie;
+	TrackerDBusRequest *request;
+
+	g_variant_get (parameters, "i", &cookie);
+
+	request = tracker_g_dbus_request_begin (invocation,
+	                                        "%s(cookie:%d)",
+	                                        __PRETTY_FUNCTION__,
+	                                        cookie);
+
+	if (!tracker_miner_resume (miner, cookie, &local_error)) {
+		tracker_dbus_request_end (request, local_error);
+
+		g_dbus_method_invocation_return_gerror (invocation, local_error);
+
+		g_error_free (local_error);
+		return;
+	}
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation, NULL);
+}
+
+static void
+handle_method_call_pause (TrackerMiner          *miner,
+                          GDBusMethodInvocation *invocation,
+                          GVariant              *parameters)
+{
+	GError *local_error = NULL;
+	gint cookie;
+	gchar *application = NULL, *reason = NULL;
+	TrackerDBusRequest *request;
+
+	g_variant_get (parameters, "ss", &application, &reason);
+
+	tracker_gdbus_async_return_if_fail (application != NULL, invocation);
+	tracker_gdbus_async_return_if_fail (reason != NULL, invocation);
+
+	request = tracker_g_dbus_request_begin (invocation,
+	                                        "%s(application:'%s', reason:'%s')",
+	                                        __PRETTY_FUNCTION__,
+	                                        application,
+	                                        reason);
+
+	cookie = tracker_miner_pause_internal (miner, application, reason, &local_error);
+	if (cookie == -1) {
+		tracker_dbus_request_end (request, local_error);
+
+		g_dbus_method_invocation_return_gerror (invocation, local_error);
+
+		g_error_free (local_error);
+
+		return;
+	}
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation,
+	                                       g_variant_new ("i", cookie));
+}
+
+static void
+handle_method_call_get_pause_details (TrackerMiner          *miner,
+                                      GDBusMethodInvocation *invocation,
+                                      GVariant              *parameters)
+{
+	GSList *applications, *reasons;
+	GStrv applications_strv, reasons_strv;
+	GHashTableIter iter;
+	gpointer key, value;
+	TrackerDBusRequest *request;
+
+	request = tracker_g_dbus_request_begin (invocation, "%s()", __PRETTY_FUNCTION__);
+
+	applications = NULL;
+	reasons = NULL;
+	g_hash_table_iter_init (&iter, miner->private->pauses);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		PauseData *pd = value;
+
+		applications = g_slist_prepend (applications, pd->application);
+		reasons = g_slist_prepend (reasons, pd->reason);
+	}
+	applications = g_slist_reverse (applications);
+	reasons = g_slist_reverse (reasons);
+	applications_strv = tracker_gslist_to_string_list (applications);
+	reasons_strv = tracker_gslist_to_string_list (reasons);
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation,
+	                                       g_variant_new ("asas",
+	                                                      applications_strv,
+	                                                      reasons_strv));
+
+	g_strfreev (applications_strv);
+	g_strfreev (reasons_strv);
+	g_slist_free (applications);
+	g_slist_free (reasons);
+}
+
+static void
+handle_method_call_get_progress (TrackerMiner          *miner,
+                                 GDBusMethodInvocation *invocation,
+                                 GVariant              *parameters)
+{
+	TrackerDBusRequest *request;
+
+	request = tracker_g_dbus_request_begin (invocation, "%s()", __PRETTY_FUNCTION__);
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation,
+	                                       g_variant_new ("i", miner->private->progress));
+}
+
+static void
+handle_method_call_get_status (TrackerMiner          *miner,
+                               GDBusMethodInvocation *invocation,
+                               GVariant              *parameters)
+{
+	TrackerDBusRequest *request;
+
+	request = tracker_g_dbus_request_begin (invocation, "%s()", __PRETTY_FUNCTION__);
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation,
+	                                       g_variant_new ("s", miner->private->status));
+
+}
+
+static void
 handle_method_call (GDBusConnection       *connection,
                     const gchar           *sender,
                     const gchar           *object_path,
@@ -667,127 +820,28 @@ handle_method_call (GDBusConnection       *connection,
                     gpointer               user_data)
 {
 	TrackerMiner *miner = user_data;
-	TrackerDBusRequest *request;
 
 	tracker_gdbus_async_return_if_fail (miner != NULL, invocation);
 
 	if (g_strcmp0 (method_name, "IgnoreNextUpdate") == 0) {
-		GStrv urls;
-
-		g_variant_get (parameters, "as", &urls);
-
-		request = tracker_g_dbus_request_begin (invocation,
-		                                        "%s", __PRETTY_FUNCTION__);
-
-		tracker_miner_ignore_next_update (miner, urls);
-
-		tracker_dbus_request_end (request, NULL);
-		g_dbus_method_invocation_return_value (invocation, NULL);
+		handle_method_call_ignore_next_update (miner, invocation, parameters);
 	} else
 	if (g_strcmp0 (method_name, "Resume") == 0) {
-		GError *local_error = NULL;
-		gint cookie;
-
-		g_variant_get (parameters, "i", &cookie);
-
-		request = tracker_g_dbus_request_begin (invocation,
-		                                        "%s(cookie:%d)",
-		                                        __PRETTY_FUNCTION__,
-		                                        cookie);
-
-		if (!tracker_miner_resume (miner, cookie, &local_error)) {
-			tracker_dbus_request_end (request, local_error);
-
-			g_dbus_method_invocation_return_gerror (invocation, local_error);
-
-			g_error_free (local_error);
-			return;
-		}
-
-		tracker_dbus_request_end (request, NULL);
-		g_dbus_method_invocation_return_value (invocation, NULL);
+		handle_method_call_resume (miner, invocation, parameters);
 	} else
 	if (g_strcmp0 (method_name, "Pause") == 0) {
-		GError *local_error = NULL;
-		gint cookie;
-		gchar *application = NULL, *reason = NULL;
-
-		g_variant_get (parameters, "ss", &application, &reason);
-
-		tracker_gdbus_async_return_if_fail (application != NULL, invocation);
-		tracker_gdbus_async_return_if_fail (reason != NULL, invocation);
-
-		request = tracker_g_dbus_request_begin (invocation,
-		                                        "%s(application:'%s', reason:'%s')",
-		                                        __PRETTY_FUNCTION__,
-		                                        application,
-		                                        reason);
-
-		cookie = tracker_miner_pause_internal (miner, application, reason, &local_error);
-		if (cookie == -1) {
-			tracker_dbus_request_end (request, local_error);
-
-			g_dbus_method_invocation_return_gerror (invocation, local_error);
-
-			g_error_free (local_error);
-
-			return;
-		}
-
-		tracker_dbus_request_end (request, NULL);
-		g_dbus_method_invocation_return_value (invocation,
-		                                       g_variant_new ("i", cookie));
+		handle_method_call_pause (miner, invocation, parameters);
 	} else
 	if (g_strcmp0 (method_name, "GetPauseDetails") == 0) {
-		GSList *applications, *reasons;
-		GStrv applications_strv, reasons_strv;
-		GHashTableIter iter;
-		gpointer key, value;
-		TrackerDBusRequest *request;
-
-		request = tracker_g_dbus_request_begin (invocation, "%s()", __PRETTY_FUNCTION__);
-
-		applications = NULL;
-		reasons = NULL;
-		g_hash_table_iter_init (&iter, miner->private->pauses);
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			PauseData *pd = value;
-
-			applications = g_slist_prepend (applications, pd->application);
-			reasons = g_slist_prepend (reasons, pd->reason);
-		}
-		applications = g_slist_reverse (applications);
-		reasons = g_slist_reverse (reasons);
-		applications_strv = tracker_gslist_to_string_list (applications);
-		reasons_strv = tracker_gslist_to_string_list (reasons);
-
-		tracker_dbus_request_end (request, NULL);
-		g_dbus_method_invocation_return_value (invocation,
-		                                       g_variant_new ("asas",
-		                                                      applications_strv,
-		                                                      reasons_strv));
-
-		g_strfreev (applications_strv);
-		g_strfreev (reasons_strv);
-		g_slist_free (applications);
-		g_slist_free (reasons);
+		handle_method_call_get_pause_details (miner, invocation, parameters);
 	} else
 	if (g_strcmp0 (method_name, "GetProgress") == 0) {
-
-		request = tracker_g_dbus_request_begin (invocation, "%s()", __PRETTY_FUNCTION__);
-
-		tracker_dbus_request_end (request, NULL);
-		g_dbus_method_invocation_return_value (invocation,
-		                                       g_variant_new ("i", miner->private->progress));
+		handle_method_call_get_progress (miner, invocation, parameters);
 	} else
 	if (g_strcmp0 (method_name, "GetStatus") == 0) {
-
-
-		request = tracker_g_dbus_request_begin (invocation, "%s()", __PRETTY_FUNCTION__);
-
-		tracker_dbus_request_end (request, NULL);
-		g_dbus_method_invocation_return_value (invocation,
-		                                       g_variant_new ("s", miner->private->status));
+		handle_method_call_get_status (miner, invocation, parameters);
+	} else {
+		g_assert_not_reached ();
 	}
 }
 
@@ -800,6 +854,7 @@ handle_get_property (GDBusConnection  *connection,
                      GError          **error,
                      gpointer          user_data)
 {
+	g_assert_not_reached ();
 	return NULL;
 }
 
@@ -813,6 +868,7 @@ handle_set_property (GDBusConnection  *connection,
                      GError          **error,
                      gpointer          user_data)
 {
+	g_assert_not_reached ();
 	return TRUE;
 }
 
