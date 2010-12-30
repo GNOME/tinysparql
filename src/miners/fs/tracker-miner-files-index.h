@@ -22,10 +22,6 @@
 
 #include <glib-object.h>
 
-#define TRACKER_MINER_FILES_INDEX_SERVICE         "org.freedesktop.Tracker1.Miner.Files.Index"
-#define TRACKER_MINER_FILES_INDEX_PATH            "/org/freedesktop/Tracker1/Miner/Files/Index"
-#define TRACKER_MINER_FILES_INDEX_INTERFACE       "org.freedesktop.Tracker1.Miner.Files.Index"
-
 #include "tracker-miner-files.h"
 
 G_BEGIN_DECLS
@@ -48,17 +44,8 @@ struct TrackerMinerFilesIndexClass {
 	GObjectClass parent;
 };
 
-GType                     tracker_miner_files_index_get_type           (void);
-TrackerMinerFilesIndex   *tracker_miner_files_index_new                (TrackerMinerFiles         *miner_files);
-void                      tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex    *object,
-	                                                                gchar                    **mime_types,
-	                                                                DBusGMethodInvocation     *context,
-                                                                        GError                   **error);
-
-void                      tracker_miner_files_index_index_file         (TrackerMinerFilesIndex    *object,
-	                                                                gchar                     *file_uri,
-	                                                                DBusGMethodInvocation     *context,
-	                                                                GError                   **error);
+GType                   tracker_miner_files_index_get_type (void);
+TrackerMinerFilesIndex *tracker_miner_files_index_new      (TrackerMinerFiles *miner_files);
 
 G_END_DECLS
 

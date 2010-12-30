@@ -43,8 +43,6 @@ marshal_sources =                                      \
 	tracker-marshal.c
 
 dbus_sources =                                         \
-	tracker-miner-glue.h                           \
-	tracker-miner-files-index-glue.h               \
 	tracker-extract-client.h
 
 tracker-marshal.h: tracker-marshal.list
@@ -53,9 +51,6 @@ tracker-marshal.h: tracker-marshal.list
 tracker-marshal.c: tracker-marshal.list
 	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
 		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
-
-%-glue.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 %-client.h: $(top_srcdir)/data/dbus/%.xml
 	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
