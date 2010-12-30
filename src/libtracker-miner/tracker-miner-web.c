@@ -77,7 +77,7 @@ static void miner_web_get_property (GObject      *object,
                                     GValue       *value,
                                     GParamSpec   *pspec);
 static void miner_web_constructed  (GObject      *object);
-static void miner_web_finalize     (GObject       *object);
+static void miner_web_finalize     (GObject      *object);
 
 G_DEFINE_ABSTRACT_TYPE (TrackerMinerWeb, tracker_miner_web, TRACKER_TYPE_MINER)
 
