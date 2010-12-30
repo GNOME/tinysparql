@@ -365,8 +365,19 @@ handle_get_property (GDBusConnection  *connection,
                      GError          **error,
                      gpointer          user_data)
 {
-	g_assert_not_reached ();
-	return NULL;
+	GVariant *ret = NULL;
+	TrackerMinerWeb *miner = user_data;
+	TrackerMinerWebPrivate *priv;
+
+	priv = TRACKER_MINER_WEB_GET_PRIVATE (miner);
+
+	if (g_strcmp0 (property_name, "Associated") == 0) {
+		ret = g_variant_new ("(b)", priv->associated);
+	} else {
+		g_assert_not_reached ();
+	}
+
+	return ret;
 }
 
 static gboolean
