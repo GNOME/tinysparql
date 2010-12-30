@@ -206,7 +206,7 @@ error_handler:
 		GStrv mime_types = NULL;
 		GStrv uri_schemes = NULL;
 
-		g_variant_get (v, "(^as^as)", &uri_schemes, &mime_types);
+		g_variant_get (v, "(^a&s^a&s)", &uri_schemes, &mime_types);
 
 		if (mime_types) {
 			GHashTable *hash;
@@ -240,8 +240,6 @@ error_handler:
 			private->service_is_available = TRUE;
 		}
 
-		g_strfreev (mime_types);
-		g_strfreev (uri_schemes);
 
 		g_variant_unref (v);
 	}
