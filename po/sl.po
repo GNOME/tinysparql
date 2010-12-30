@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
 "POT-Creation-Date: 2010-12-30 10:45+0000\n"
-"PO-Revision-Date: 2010-12-30 21:08+0100\n"
+"PO-Revision-Date: 2010-12-30 21:26+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -670,20 +670,20 @@ msgstr "Za"
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
-msgstr[0] "čez %ld dni\n"
-msgstr[1] "čez %ld dan\n"
-msgstr[2] "čez %ld dni\n"
-msgstr[3] "čez %ld dni\n"
+msgstr[0] "čez %ld dni"
+msgstr[1] "čez %ld dan"
+msgstr[2] "čez %ld dni"
+msgstr[3] "čez %ld dni"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
 #: ../src/tracker-needle/tracker-utils.vala:64
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
-msgstr[0] "pred %ld dnevi\n"
-msgstr[1] "pred %ld dnevom\n"
-msgstr[2] "pred %ld dnevoma\n"
-msgstr[3] "pred %ld dnevi\n"
+msgstr[0] "pred %ld dnevi"
+msgstr[1] "pred %ld dnevom"
+msgstr[2] "pred %ld dnevoma"
+msgstr[3] "pred %ld dnevi"
 
 #: ../src/tracker-needle/tracker-utils.vala:76
 #: ../src/tracker-needle/tracker-utils.vala:105
