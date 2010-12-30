@@ -664,7 +664,7 @@ handle_method_call_ignore_next_update (TrackerMiner          *miner,
 	GStrv urls;
 	TrackerDBusRequest *request;
 
-	g_variant_get (parameters, "as", &urls);
+	g_variant_get (parameters, "(^a&s)", &urls);
 
 	request = tracker_g_dbus_request_begin (invocation,
 	                                        "%s", __PRETTY_FUNCTION__);
@@ -684,7 +684,7 @@ handle_method_call_resume (TrackerMiner          *miner,
 	gint cookie;
 	TrackerDBusRequest *request;
 
-	g_variant_get (parameters, "i", &cookie);
+	g_variant_get (parameters, "(i)", &cookie);
 
 	request = tracker_g_dbus_request_begin (invocation,
 	                                        "%s(cookie:%d)",
@@ -714,7 +714,7 @@ handle_method_call_pause (TrackerMiner          *miner,
 	gchar *application = NULL, *reason = NULL;
 	TrackerDBusRequest *request;
 
-	g_variant_get (parameters, "ss", &application, &reason);
+	g_variant_get (parameters, "(ss)", &application, &reason);
 
 	tracker_gdbus_async_return_if_fail (application != NULL, invocation);
 	tracker_gdbus_async_return_if_fail (reason != NULL, invocation);
@@ -738,7 +738,7 @@ handle_method_call_pause (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
-	                                       g_variant_new ("i", cookie));
+	                                       g_variant_new ("(i)", cookie));
 }
 
 static void
@@ -770,7 +770,7 @@ handle_method_call_get_pause_details (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
-	                                       g_variant_new ("asas",
+	                                       g_variant_new ("(^as^as)",
 	                                                      applications_strv,
 	                                                      reasons_strv));
 
@@ -791,7 +791,7 @@ handle_method_call_get_progress (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
-	                                       g_variant_new ("i", miner->private->progress));
+	                                       g_variant_new ("(i)", miner->private->progress));
 }
 
 static void
@@ -805,7 +805,7 @@ handle_method_call_get_status (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
-	                                       g_variant_new ("s", miner->private->status));
+	                                       g_variant_new ("(s)", miner->private->status));
 
 }
 
