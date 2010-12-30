@@ -24,17 +24,7 @@
 #error "Only <libtracker-miner/tracker-miner.h> can be included directly."
 #endif
 
-#include <libtracker-common/tracker-dbus.h>
 
-#include "tracker-miner-object.h"
-
-typedef void (* TrackerMinerDBusNameFunc)   (TrackerMiner             *miner,
-                                             const gchar              *name,
-                                             gboolean                  available);
-
-void _tracker_miner_dbus_init               (TrackerMiner             *miner,
-                                             const DBusGObjectInfo    *info);
-void _tracker_miner_dbus_shutdown           (TrackerMiner             *miner);
 
 
 #endif /* __LIBTRACKER_MINER_DBUS_H__ */
