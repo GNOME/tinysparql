@@ -23,7 +23,6 @@
 
 #include "tracker-dbus.h"
 #include "tracker-miner-files-index.h"
-#include "tracker-miner-files-index-glue.h"
 
 static DBusGConnection *connection;
 static GSList          *objects;
@@ -61,6 +60,7 @@ dbus_register_service (DBusGProxy  *proxy,
 	return TRUE;
 }
 
+/*
 static void
 dbus_register_object (DBusGConnection       *lconnection,
                       DBusGProxy            *proxy,
@@ -75,6 +75,7 @@ dbus_register_object (DBusGConnection       *lconnection,
 	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), info);
 	dbus_g_connection_register_g_object (lconnection, path, object);
 }
+*/
 
 static gboolean
 dbus_register_names (void)
@@ -103,12 +104,12 @@ dbus_register_names (void)
 	                                    DBUS_SERVICE_DBUS,
 	                                    DBUS_PATH_DBUS,
 	                                    DBUS_INTERFACE_DBUS);
-
-	/* Register the service name for org.freedesktop.Tracker1.Miner.Files.Index */
+/*
+	* Register the service name for org.freedesktop.Tracker1.Miner.Files.Index *
 	if (!dbus_register_service (gproxy, TRACKER_MINER_FILES_INDEX_SERVICE)) {
 		g_object_unref (gproxy);
 		return FALSE;
-	}
+	}*/
 
 	g_object_unref (gproxy);
 
@@ -166,12 +167,14 @@ tracker_dbus_register_objects (gpointer object)
 	                                    DBUS_PATH_DBUS,
 	                                    DBUS_INTERFACE_DBUS);
 
+/*
 	dbus_register_object (connection,
 	                      gproxy,
 	                      G_OBJECT (object),
 	                      &dbus_glib_tracker_miner_files_index_object_info,
 	                      TRACKER_MINER_FILES_INDEX_PATH);
 	objects = g_slist_prepend (objects, object);
+*/
 
 	g_object_unref (gproxy);
 
