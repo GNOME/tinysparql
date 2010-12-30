@@ -206,7 +206,7 @@ error_handler:
 		GStrv mime_types = NULL;
 		GStrv uri_schemes = NULL;
 
-		g_variant_get (v, "asas", &mime_types, &uri_schemes);
+		g_variant_get (v, "(^as^as)", &uri_schemes, &mime_types);
 
 		if (mime_types) {
 			GHashTable *hash;
@@ -239,6 +239,9 @@ error_handler:
 
 			private->service_is_available = TRUE;
 		}
+
+		g_strfreev (mime_types);
+		g_strfreev (uri_schemes);
 
 		g_variant_unref (v);
 	}
@@ -400,7 +403,7 @@ tracker_thumbnailer_send (void)
 
 		g_dbus_proxy_call (private->cache_proxy,
 		                   "Move",
-		                   g_variant_new ("asas", from_strv, to_strv),
+		                   g_variant_new ("(asas)", from_strv, to_strv),
 		                   G_DBUS_CALL_FLAGS_NONE,
 		                   -1,
 		                   NULL,
