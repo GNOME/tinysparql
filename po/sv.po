@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-29 15:09+0100\n"
-"PO-Revision-Date: 2010-12-29 17:43+0100\n"
+"POT-Creation-Date: 2010-12-30 11:42+0100\n"
+"PO-Revision-Date: 2010-12-30 11:44+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -53,11 +53,11 @@ msgstr "Indexera dina Flickr-fotoalbum"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:1
 msgid "Fetch RSS/ATOM Feeds"
-msgstr "Hämta RSS/ATOM-kanaler"
+msgstr "Hämta RSS/ATOM-webbkanaler"
 
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
 msgid "RSS/ATOM Feeds"
-msgstr "RSS/ATOM-kanaler"
+msgstr "RSS/ATOM-webbkanaler"
 
 #: ../data/tracker-miner-flickr.desktop.in.in.h:1
 msgid "Processes images and albums on Flickr"
@@ -77,11 +77,11 @@ msgstr "Trackers filsystemsinsamlare"
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:1
 msgid "Fetch RSS/ATOM feeds"
-msgstr "Hämta RSS/ATOM-kanaler"
+msgstr "Hämta RSS/ATOM-webbkanaler"
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:2
 msgid "Tracker RSS/ATOM Feeds Miner"
-msgstr "Trackers RSS/ATOM-kanalinsamlare"
+msgstr "Trackers RSS/ATOM-webbkanalsinsamlare"
 
 #: ../data/tracker-status-icon.desktop.in.in.h:1
 msgid "Tracker Status Icon"
@@ -427,7 +427,7 @@ msgstr "Lågt diskutrymme"
 #.
 #: ../src/miners/rss/tracker-main.c:64
 msgid "- start the feeds indexer"
-msgstr "- starta kanalindexeraren"
+msgstr "- starta webbkanalsindexeraren"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -688,16 +688,15 @@ msgstr "Visa resultat efter filer hittade i en lista"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:4
 msgid "Find search criteria in file titles"
-msgstr ""
+msgstr "Hitta sökkriteriet i filtitlar"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:5
-#, fuzzy
 msgid "Find search criteria inside files"
-msgstr "Sök efter videofiler"
+msgstr "Hitta sökkriteriet inuti filer"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:6
 msgid "Needle"
-msgstr ""
+msgstr "Nål"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:7
 msgid "Show statistics about the data stored"
@@ -1196,7 +1195,7 @@ msgstr "Sök efter programkategorier (--all har ingen effekt på denna)"
 
 #: ../src/tracker-utils/tracker-search.c:135
 msgid "Search for feeds (--all has no effect on this)"
-msgstr "Sök efter kanaler (--all har ingen effekt på denna)"
+msgstr "Sök efter webbkanaler (--all har ingen effekt på denna)"
 
 #: ../src/tracker-utils/tracker-search.c:144
 msgid "search terms"
@@ -1263,11 +1262,11 @@ msgstr "Album"
 
 #: ../src/tracker-utils/tracker-search.c:901
 msgid "No feeds were found"
-msgstr "Inga kanaler hittades"
+msgstr "Inga webbkanaler hittades"
 
 #: ../src/tracker-utils/tracker-search.c:905
 msgid "Feeds"
-msgstr "Kanaler"
+msgstr "Webbkanaler"
 
 #: ../src/tracker-utils/tracker-search.c:981
 msgid "No software was found"
@@ -1360,7 +1359,7 @@ msgstr "Hämta klasser som notifierar ändringar i databasen (KLASS är valfritt
 
 #: ../src/tracker-utils/tracker-sparql.c:92
 msgid "Retrieve indexes used in database to improve performance (PROPERTY is optional) "
-msgstr ""
+msgstr "Hämta index som används i databasen för att förbättra prestandan (EGENSKAP är valfri) "
 
 #: ../src/tracker-utils/tracker-sparql.c:93
 msgid "PROPERTY"
@@ -1848,7 +1847,7 @@ msgstr "Misslyckades med att initiera datahanterare"
 
 #: ../utils/tracker-sql/tracker-sql.c:198
 msgid "Empty result set"
-msgstr ""
+msgstr "Inga resultat"
 
 #~ msgid "All Files"
 #~ msgstr "Alla filer"
