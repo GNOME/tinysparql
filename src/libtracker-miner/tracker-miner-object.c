@@ -56,7 +56,6 @@
 
 static GQuark miner_error_quark = 0;
 
-
 /* Introspection data for the service we are exporting */
 static const gchar introspection_xml[] =
   "<node>"
@@ -320,15 +319,17 @@ miner_update_progress (TrackerMiner *miner)
 	               miner->private->status,
 	               miner->private->progress);
 
-	g_dbus_connection_emit_signal (miner->private->d_connection,
-	                               NULL,
-	                               miner->private->full_path,
-	                               TRACKER_MINER_DBUS_INTERFACE,
-	                               "Progress",
-	                               g_variant_new ("(sd)",
-	                                              miner->private->status,
-	                                              miner->private->progress),
-	                               NULL);
+	if (miner->private->d_connection) {
+		g_dbus_connection_emit_signal (miner->private->d_connection,
+		                               NULL,
+		                               miner->private->full_path,
+		                               TRACKER_MINER_DBUS_INTERFACE,
+		                               "Progress",
+		                               g_variant_new ("(sd)",
+		                                              miner->private->status,
+		                                              miner->private->progress),
+		                               NULL);
+	}
 }
 
 static void
@@ -467,13 +468,15 @@ tracker_miner_start (TrackerMiner *miner)
 
 	g_signal_emit (miner, signals[STARTED], 0);
 
-	g_dbus_connection_emit_signal (miner->private->d_connection,
-	                               NULL,
-	                               miner->private->full_path,
-	                               TRACKER_MINER_DBUS_INTERFACE,
-	                               "Started",
-	                               NULL,
-	                               NULL);
+	if (miner->private->d_connection) {
+		g_dbus_connection_emit_signal (miner->private->d_connection,
+		                               NULL,
+		                               miner->private->full_path,
+		                               TRACKER_MINER_DBUS_INTERFACE,
+		                               "Started",
+		                               NULL,
+		                               NULL);
+	}
 }
 
 /**
@@ -492,13 +495,15 @@ tracker_miner_stop (TrackerMiner *miner)
 
 	g_signal_emit (miner, signals[STOPPED], 0);
 
-	g_dbus_connection_emit_signal (miner->private->d_connection,
-	                               NULL,
-	                               miner->private->full_path,
-	                               TRACKER_MINER_DBUS_INTERFACE,
-	                               "Stopped",
-	                               NULL,
-	                               NULL);
+	if (miner->private->d_connection) {
+		g_dbus_connection_emit_signal (miner->private->d_connection,
+		                               NULL,
+		                               miner->private->full_path,
+		                               TRACKER_MINER_DBUS_INTERFACE,
+		                               "Stopped",
+		                               NULL,
+		                               NULL);
+	}
 }
 
 /**
@@ -568,13 +573,15 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
 		g_message ("Miner:'%s' is pausing", miner->private->name);
 		g_signal_emit (miner, signals[PAUSED], 0);
 
-		g_dbus_connection_emit_signal (miner->private->d_connection,
-		                               NULL,
-		                               miner->private->full_path,
-		                               TRACKER_MINER_DBUS_INTERFACE,
-		                               "Paused",
-		                               NULL,
-		                               NULL);
+		if (miner->private->d_connection) {
+			g_dbus_connection_emit_signal (miner->private->d_connection,
+			                               NULL,
+			                               miner->private->full_path,
+			                               TRACKER_MINER_DBUS_INTERFACE,
+			                               "Paused",
+			                               NULL,
+			                               NULL);
+		}
 	}
 
 	return pd->cookie;
@@ -641,13 +648,15 @@ tracker_miner_resume (TrackerMiner  *miner,
 		g_message ("Miner:'%s' is resuming", miner->private->name);
 		g_signal_emit (miner, signals[RESUMED], 0);
 
-		g_dbus_connection_emit_signal (miner->private->d_connection,
-		                               NULL,
-		                               miner->private->full_path,
-		                               TRACKER_MINER_DBUS_INTERFACE,
-		                               "Resumed",
-		                               NULL,
-		                               NULL);
+		if (miner->private->d_connection) {
+			g_dbus_connection_emit_signal (miner->private->d_connection,
+			                               NULL,
+			                               miner->private->full_path,
+			                               TRACKER_MINER_DBUS_INTERFACE,
+			                               "Resumed",
+			                               NULL,
+			                               NULL);
+		}
 	}
 
 	return TRUE;
@@ -698,7 +707,6 @@ miner_finalize (GObject *object)
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
 }
-
 
 static void
 handle_method_call_ignore_next_update (TrackerMiner          *miner,
