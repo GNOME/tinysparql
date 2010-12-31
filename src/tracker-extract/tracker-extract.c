@@ -232,12 +232,12 @@ load_modules (const gchar  *force_module,
 	gboolean success;
 	const gchar *extractors_dir;
 
-        extractors_dir = g_getenv ("TRACKER_EXTRACTORS_DIR");
-        if (G_LIKELY (extractors_dir == NULL)) {
-                extractors_dir = TRACKER_EXTRACTORS_DIR;
-        } else {
-                g_message ("Extractor modules directory is '%s' (set in env)", extractors_dir);
-        }
+	extractors_dir = g_getenv ("TRACKER_EXTRACTORS_DIR");
+	if (G_LIKELY (extractors_dir == NULL)) {
+		extractors_dir = TRACKER_EXTRACTORS_DIR;
+	} else {
+		g_message ("Extractor modules directory is '%s' (set in env)", extractors_dir);
+	}
 
 	dir = g_dir_open (extractors_dir, 0, &error);
 
@@ -647,9 +647,9 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 		}
 
 		tracker_dbus_request_info (request, "%s",
-					   preupdate_str ? preupdate_str : "");
+		                           preupdate_str ? preupdate_str : "");
 		tracker_dbus_request_info (request, "%s",
-					   statements_str ? statements_str : "");
+		                           statements_str ? statements_str : "");
 
 		g_object_unref (statements);
 		g_object_unref (preupdate);
