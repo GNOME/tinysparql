@@ -240,6 +240,8 @@ error_handler:
 			private->service_is_available = TRUE;
 		}
 
+		g_free (mime_types);
+		g_free (uri_schemes);
 
 		g_variant_unref (v);
 	}
