@@ -32,7 +32,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#include "tracker-dbus.h"
 #include "tracker-extract.h"
 #include "tracker-main.h"
 #include "tracker-marshal.h"
@@ -48,6 +47,21 @@
 #define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on " \
                                "interface \"%s\" doesn't exist, expected \"%s\""
 
+static const gchar introspection_xml[] =
+  "<node>"
+  "  <interface name='org.freedesktop.Tracker1.Extract'>"
+  "    <method name='GetPid'>"
+  "      <arg type='i' name='value' direction='out' />"
+  "    </method>"
+  "    <method name='GetMetadata'>"
+  "      <arg type='s' name='uri' direction='in' />"
+  "      <arg type='s' name='mime' direction='in' />"
+  "      <arg type='s' name='preupdate' direction='out' />"
+  "      <arg type='s' name='embedded' direction='out' />"
+  "    </method>"
+  "  </interface>"
+  "</node>";
+
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
 extern gboolean debug;
@@ -58,6 +72,10 @@ typedef struct {
 	gboolean disable_shutdown;
 	gboolean force_internal_extractors;
 	gboolean disable_summary_on_finalize;
+	GDBusConnection *d_connection;
+	GDBusNodeInfo *introspection_data;
+	guint registration_id;
+	guint own_id;
 } TrackerExtractPrivate;
 
 typedef struct {
@@ -369,11 +387,11 @@ tracker_extract_new (gboolean     disable_shutdown,
 static gboolean
 get_file_metadata (TrackerExtract         *extract,
                    TrackerDBusRequest     *request,
-                   DBusGMethodInvocation  *context,
+                   GDBusMethodInvocation  *invocation,
                    const gchar            *uri,
                    const gchar            *mime,
-		   TrackerSparqlBuilder  **preupdate_out,
-		   TrackerSparqlBuilder  **statements_out)
+                   TrackerSparqlBuilder  **preupdate_out,
+                   TrackerSparqlBuilder  **statements_out)
 {
 	TrackerExtractPrivate *priv;
 	TrackerSparqlBuilder *statements, *preupdate;
@@ -640,15 +658,15 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 	tracker_dbus_request_end (request, NULL);
 }
 
-void
-tracker_extract_get_pid (TrackerExtract         *object,
-                         DBusGMethodInvocation  *context,
-                         GError                **error)
+static void
+handle_method_call_get_pid (TrackerExtract        *object,
+                            GDBusMethodInvocation *invocation,
+                            GVariant              *parameters)
 {
 	TrackerDBusRequest *request;
 	pid_t value;
 
-	request = tracker_dbus_g_request_begin (context,
+	request = tracker_g_dbus_request_begin (invocation,
 	                                        "%s()",
 	                                        __FUNCTION__);
 
@@ -658,25 +676,27 @@ tracker_extract_get_pid (TrackerExtract         *object,
 	                            value);
 
 	tracker_dbus_request_end (request, NULL);
-	dbus_g_method_return (context, value);
+
+	g_dbus_method_invocation_return_value (invocation,
+	                                       g_variant_new ("(i)", (gint) value));
 }
 
-void
-tracker_extract_get_metadata (TrackerExtract         *object,
-                              const gchar            *uri,
-                              const gchar            *mime,
-                              DBusGMethodInvocation  *context,
-                              GError                **error)
+static void
+handle_method_call_get_metadata (TrackerExtract        *object,
+                                 GDBusMethodInvocation *invocation,
+                                 GVariant              *parameters)
 {
 	TrackerDBusRequest *request;
 	TrackerExtractPrivate *priv;
 	TrackerSparqlBuilder *sparql, *preupdate;
 	gboolean extracted = FALSE;
+	const gchar *uri = NULL, *mime = NULL;
 
+	g_variant_get (parameters, "(&s&s)", &uri, &mime);
 
-	tracker_dbus_async_return_if_fail (uri != NULL, context);
+	tracker_gdbus_async_return_if_fail (uri != NULL, invocation);
 
-	request = tracker_dbus_g_request_begin (context,
+	request = tracker_g_dbus_request_begin (invocation,
 	                                        "%s(uri:'%s', mime:%s)",
 	                                        __FUNCTION__,
 	                                        uri,
@@ -692,7 +712,13 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 		alarm (MAX_EXTRACT_TIME);
 	}
 
-	extracted = get_file_metadata (object, request, context, uri, mime, &preupdate, &sparql);
+	extracted = get_file_metadata (object,
+	                               request,
+	                               invocation,
+	                               uri,
+	                               mime,
+	                               &preupdate,
+	                               &sparql);
 
 	if (extracted) {
 		tracker_dbus_request_end (request, NULL);
@@ -704,11 +730,13 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 				preupdate_str = tracker_sparql_builder_get_result (preupdate);
 			}
 
-			dbus_g_method_return (context,
-			                      preupdate_str ? preupdate_str : "",
-			                      tracker_sparql_builder_get_result (sparql));
+			g_dbus_method_invocation_return_value (invocation,
+			                                       g_variant_new ("(ss)",
+			                                                      preupdate_str ? preupdate_str : "",
+			                                                      tracker_sparql_builder_get_result (sparql)));
 		} else {
-			dbus_g_method_return (context, "", "");
+			g_dbus_method_invocation_return_value (invocation,
+			                                       g_variant_new ("(ss)", "", ""));
 		}
 
 		g_object_unref (sparql);
@@ -721,7 +749,7 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 		                            uri,
 		                            mime);
 		tracker_dbus_request_end (request, actual_error);
-		dbus_g_method_return_error (context, actual_error);
+		g_dbus_method_invocation_return_gerror (invocation, actual_error);
 		g_error_free (actual_error);
 	}
 
@@ -731,11 +759,14 @@ tracker_extract_get_metadata (TrackerExtract         *object,
 	}
 }
 
+#if 0
 static void
 get_metadata_fast (TrackerExtract *object,
                    DBusConnection *connection,
                    DBusMessage    *message)
 {
+	// todo: port to GDBus
+
 	TrackerDBusRequest *request;
 	const gchar *expected_signature;
 	TrackerExtractPrivate *priv;
@@ -887,34 +918,135 @@ get_metadata_fast (TrackerExtract *object,
 		alarm (0);
 	}
 }
+#endif
 
-DBusHandlerResult
-tracker_extract_connection_filter (DBusConnection *connection,
-                                   DBusMessage    *message,
-                                   void           *user_data)
+static void
+handle_method_call (GDBusConnection       *connection,
+                    const gchar           *sender,
+                    const gchar           *object_path,
+                    const gchar           *interface_name,
+                    const gchar           *method_name,
+                    GVariant              *parameters,
+                    GDBusMethodInvocation *invocation,
+                    gpointer               user_data)
 {
-	TrackerExtract *extract;
+	TrackerExtract *extract = user_data;
 
-	g_return_val_if_fail (connection != NULL, DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
-	g_return_val_if_fail (message != NULL, DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
-
-	if (g_strcmp0 (TRACKER_EXTRACT_PATH, dbus_message_get_path (message))) {
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-	}
-
-	if (g_strcmp0 (TRACKER_EXTRACT_INTERFACE, dbus_message_get_interface (message))) {
-		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-	}
-
-	/* Only check if the user_data is our TrackerExtract AFTER having checked that
-	 * the message matches expected path and interface. */
-	extract = user_data;
-	g_return_val_if_fail (TRACKER_IS_EXTRACT (extract), DBUS_HANDLER_RESULT_NOT_YET_HANDLED);
-
-	if (!g_strcmp0 ("GetMetadataFast", dbus_message_get_member (message))) {
+	if (g_strcmp0 (method_name, "GetPid") == 0) {
+		handle_method_call_get_pid (extract, invocation, parameters);
+	} else
+	if (g_strcmp0 (method_name, "GetMetadataFast") == 0) {
+#if 0
+		// todo
 		get_metadata_fast (extract, connection, message);
-		return DBUS_HANDLER_RESULT_HANDLED;
+#endif
+	} else
+	if (g_strcmp0 (method_name, "GetMetadata") == 0) {
+		handle_method_call_get_metadata (extract, invocation, parameters);
+	} else {
+		g_assert_not_reached ();
+	}
+}
+
+static GVariant *
+handle_get_property (GDBusConnection  *connection,
+                     const gchar      *sender,
+                     const gchar      *object_path,
+                     const gchar      *interface_name,
+                     const gchar      *property_name,
+                     GError          **error,
+                     gpointer          user_data)
+{
+	g_assert_not_reached ();
+	return NULL;
+}
+
+static gboolean
+handle_set_property (GDBusConnection  *connection,
+                     const gchar      *sender,
+                     const gchar      *object_path,
+                     const gchar      *interface_name,
+                     const gchar      *property_name,
+                     GVariant         *value,
+                     GError          **error,
+                     gpointer          user_data)
+{
+	g_assert_not_reached ();
+	return TRUE;
+}
+
+static const GDBusInterfaceVTable interface_vtable = {
+	handle_method_call,
+	handle_get_property,
+	handle_set_property
+};
+
+void
+tracker_extract_dbus_start (TrackerExtract *extract)
+{
+	TrackerExtractPrivate *priv;
+	GError *error = NULL;
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
+
+	priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+
+	if (!priv->d_connection) {
+		g_critical ("Could not connect to the D-Bus session bus, %s",
+		            error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return;
 	}
 
-	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
+	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
+
+	priv->own_id = g_bus_own_name_on_connection (priv->d_connection,
+	                                             TRACKER_EXTRACT_SERVICE,
+	                                             G_BUS_NAME_OWNER_FLAGS_NONE,
+	                                             NULL, NULL, NULL, NULL);
+
+	g_message ("Registering D-Bus object...");
+	g_message ("  Path:'" TRACKER_EXTRACT_PATH "'");
+	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (extract));
+
+	priv->registration_id =
+		g_dbus_connection_register_object (priv->d_connection,
+	                                       TRACKER_EXTRACT_PATH,
+	                                       priv->introspection_data->interfaces[0],
+	                                       &interface_vtable,
+	                                       extract,
+	                                       NULL,
+	                                       &error);
+
+	if (error) {
+		g_critical ("Could not register the D-Bus object "TRACKER_EXTRACT_PATH", %s",
+		            error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return;
+	}
+}
+
+void
+tracker_extract_dbus_stop (TrackerExtract *extract)
+{
+	TrackerExtractPrivate *priv;
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
+
+	if (priv->own_id != 0) {
+		g_bus_unown_name (priv->own_id);
+	}
+
+	if (priv->registration_id != 0) {
+		g_dbus_connection_unregister_object (priv->d_connection,
+		                                     priv->registration_id);
+	}
+
+	if (priv->introspection_data) {
+		g_dbus_node_info_unref (priv->introspection_data);
+	}
+
+	if (priv->d_connection) {
+		g_object_unref (priv->d_connection);
+	}
 }
