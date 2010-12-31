@@ -167,14 +167,19 @@ public class Tracker.Query {
 			          ?urn 
 			          nie:url(?urn) 
 			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
-			          ?creator
+			          tracker:coalesce(nco:fullname(?creator), nco:fullname(?publisher), \"\")
 			          fn:concat(nfo:pageCount(?urn), \" $pages\")
 			          ?tooltip
 			        WHERE {
 			          ?urn a nfo:Document ;
-			          nco:creator [ nco:fullname ?creator ] ;
 			          nie:url ?tooltip ;
 			          fts:match \"$criteria_escaped\" .
+			          OPTIONAL {
+			            ?urn nco:creator ?creator .
+			          }
+			          OPTIONAL {
+			            ?urn nco:publisher ?publisher .
+			          }
 			        }
 			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
 			        OFFSET $offset LIMIT $limit
