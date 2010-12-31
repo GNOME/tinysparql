@@ -35,7 +35,6 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"
-#include "tracker-dbus.h"
 
 /* We wait this long (seconds) for NULL state before freeing */
 #define TRACKER_EXTRACT_GUARD_TIMEOUT 3

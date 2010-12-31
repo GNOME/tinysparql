@@ -335,13 +335,10 @@ libexec_PROGRAMS = tracker-extract
 
 tracker_extract_SOURCES = \
 	$(marshal_sources) \
-	$(dbus_sources) \
 	tracker-albumart.c \
 	tracker-albumart.h \
 	tracker-config.c \
 	tracker-config.h \
-	tracker-dbus.c \
-	tracker-dbus.h \
 	tracker-extract.c \
 	tracker-extract.h \
 	tracker-read.c \
@@ -384,8 +381,6 @@ marshal_sources = \
         tracker-marshal.h \
         tracker-marshal.c
 
-dbus_sources = tracker-extract-glue.h
-
 tracker-marshal.h: tracker-marshal.list
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
@@ -393,12 +388,8 @@ tracker-marshal.c: tracker-marshal.list
 	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
 		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
-%-glue.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
-
 BUILT_SOURCES =                                        \
-	$(marshal_sources)                             \
-	$(dbus_sources)
+	$(marshal_sources)                             
 
 CLEANFILES = $(BUILT_SOURCES)
 
