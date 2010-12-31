@@ -575,7 +575,7 @@ albumart_request_download (TrackerStorage *storage,
 		                        -1,
 		                        NULL,
 		                        albumart_queue_cb,
-		                        NULL);
+		                        info);
 	}
 }
 
