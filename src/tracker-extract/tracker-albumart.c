@@ -36,7 +36,6 @@
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-albumart.h"
-#include "tracker-dbus.h"
 #include "tracker-extract.h"
 #include "tracker-marshal.h"
 #include "tracker-albumart-generic.h"
@@ -51,15 +50,17 @@ typedef struct {
 	gchar *local_uri;
 } GetFileInfo;
 
-static void albumart_queue_cb (DBusGProxy     *proxy,
-                               DBusGProxyCall *call,
-                               gpointer        user_data);
 
 static gboolean initialized;
 static gboolean disable_requests;
 static TrackerStorage *albumart_storage;
 static GHashTable *albumart_cache;
-static DBusGProxy *albumart_proxy;
+static GDBusConnection *connection;
+
+static void
+albumart_queue_cb (GObject      *source_object,
+                   GAsyncResult *res,
+                   gpointer      user_data);
 
 static gboolean
 albumart_strip_find_next_block (const gchar    *original,
@@ -549,45 +550,33 @@ albumart_request_download (TrackerStorage *storage,
                            const gchar    *local_uri,
                            const gchar    *art_path)
 {
-	GetFileInfo *info;
+	if (connection) {
+		GetFileInfo *info;
 
-	if (disable_requests) {
-		return;
-	}
-
-	info = g_slice_new (GetFileInfo);
-
-	info->storage = storage ? g_object_ref (storage) : NULL;
-
-	info->local_uri = g_strdup (local_uri);
-	info->art_path = g_strdup (art_path);
-
-	if (!albumart_proxy) {
-		GError          *error = NULL;
-		DBusGConnection *connection;
-
-		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-		if (!error) {
-			albumart_proxy = dbus_g_proxy_new_for_name (connection,
-			                                            ALBUMARTER_SERVICE,
-			                                            ALBUMARTER_PATH,
-			                                            ALBUMARTER_INTERFACE);
-		} else {
-			g_error_free (error);
+		if (disable_requests) {
+			return;
 		}
-	}
 
-	dbus_g_proxy_begin_call (albumart_proxy,
-	                         "Queue",
-	                         albumart_queue_cb,
-	                         info,
-	                         NULL,
-	                         G_TYPE_STRING, artist,
-	                         G_TYPE_STRING, album,
-	                         G_TYPE_STRING, "album",
-	                         G_TYPE_UINT, 0,
-	                         G_TYPE_INVALID);
+		info = g_slice_new (GetFileInfo);
+
+		info->storage = storage ? g_object_ref (storage) : NULL;
+
+		info->local_uri = g_strdup (local_uri);
+		info->art_path = g_strdup (art_path);
+
+		g_dbus_connection_call (connection,
+		                        ALBUMARTER_SERVICE,
+		                        ALBUMARTER_PATH,
+		                        ALBUMARTER_INTERFACE,
+		                        "Queue",
+		                        g_variant_new ("(sssu)", artist, album, "album", 0),
+		                        NULL,
+		                        G_DBUS_CALL_FLAGS_NONE,
+		                        -1,
+		                        NULL,
+		                        albumart_queue_cb,
+		                        info);
+	}
 }
 
 static void
@@ -661,19 +650,17 @@ albumart_copy_to_local (TrackerStorage *storage,
 }
 
 static void
-albumart_queue_cb (DBusGProxy     *proxy,
-                   DBusGProxyCall *call,
-                   gpointer        user_data)
+albumart_queue_cb (GObject      *source_object,
+                   GAsyncResult *res,
+                   gpointer      user_data)
 {
-	GError      *error = NULL;
-	guint        handle;
+	GError *error = NULL;
 	GetFileInfo *info;
+	GVariant *v;
 
 	info = user_data;
 
-	dbus_g_proxy_end_call (proxy, call, &error,
-	                       G_TYPE_UINT, &handle,
-	                       G_TYPE_INVALID);
+	v = g_dbus_connection_call_finish ((GDBusConnection *) source_object, res, &error);
 
 	if (error) {
 		if (error->code == DBUS_GERROR_SERVICE_UNKNOWN) {
@@ -681,8 +668,11 @@ albumart_queue_cb (DBusGProxy     *proxy,
 		} else {
 			g_warning ("%s", error->message);
 		}
-
 		g_clear_error (&error);
+	}
+
+	if (v) {
+		g_variant_unref (v);
 	}
 
 	if (info->storage && info->art_path &&
@@ -706,7 +696,6 @@ albumart_queue_cb (DBusGProxy     *proxy,
 gboolean
 tracker_albumart_init (void)
 {
-	DBusGConnection *connection;
 	GError *error = NULL;
 
 	g_return_val_if_fail (initialized == FALSE, FALSE);
@@ -720,7 +709,7 @@ tracker_albumart_init (void)
 	                                        NULL);
 
 	/* Signal handler for new album art from the extractor */
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
 	if (!connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
@@ -728,12 +717,6 @@ tracker_albumart_init (void)
 		g_clear_error (&error);
 		return FALSE;
 	}
-
-	/* Get album art downloader proxy */
-	albumart_proxy = dbus_g_proxy_new_for_name (connection,
-	                                            ALBUMARTER_SERVICE,
-	                                            ALBUMARTER_PATH,
-	                                            ALBUMARTER_INTERFACE);
 
 	initialized = TRUE;
 
@@ -745,8 +728,8 @@ tracker_albumart_shutdown (void)
 {
 	g_return_if_fail (initialized == TRUE);
 
-	if (albumart_proxy) {
-		g_object_unref (albumart_proxy);
+	if (connection) {
+		g_object_unref (connection);
 	}
 
 	if (albumart_cache) {
