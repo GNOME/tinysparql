@@ -712,7 +712,7 @@ handle_method_call_ignore_next_update (TrackerMiner          *miner,
                                        GDBusMethodInvocation *invocation,
                                        GVariant              *parameters)
 {
-	GStrv urls;
+	GStrv urls = NULL;
 	TrackerDBusRequest *request;
 
 	g_variant_get (parameters, "(^a&s)", &urls);
@@ -724,6 +724,7 @@ handle_method_call_ignore_next_update (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation, NULL);
+	g_free (urls);
 }
 
 static void
