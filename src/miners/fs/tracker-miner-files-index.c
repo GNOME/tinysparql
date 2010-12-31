@@ -272,6 +272,7 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex *miner,
 	connection = tracker_sparql_connection_get (NULL, &inner_error);
 
 	if (!connection) {
+		g_free (mime_types);
 		tracker_dbus_request_end (request, inner_error);
 		g_dbus_method_invocation_return_gerror (invocation, inner_error);
 		g_error_free (inner_error);
@@ -313,6 +314,7 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex *miner,
 
 	g_string_free (query, TRUE);
 	g_object_unref (connection);
+	g_free (mime_types);
 }
 
 static void
