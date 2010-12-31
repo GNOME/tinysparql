@@ -26,10 +26,7 @@
 
 G_BEGIN_DECLS
 
-gboolean tracker_dbus_init             (void);
-void     tracker_dbus_shutdown         (void);
-gboolean tracker_dbus_register_objects (gpointer object);
-GObject *tracker_dbus_get_object       (GType    type);
+
 
 G_END_DECLS
 
