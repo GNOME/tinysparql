@@ -24,7 +24,6 @@
 #include <libtracker-miner/tracker-miner-dbus.h>
 
 #include "tracker-miner-files-index.h"
-#include "tracker-dbus.h"
 #include "tracker-marshal.h"
 
 

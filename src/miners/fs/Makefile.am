@@ -14,8 +14,6 @@ libexec_PROGRAMS = tracker-miner-fs
 tracker_miner_fs_SOURCES =                             \
 	tracker-config.c                               \
 	tracker-config.h                               \
-	tracker-dbus.c                                 \
-	tracker-dbus.h                                 \
 	tracker-main.c                                 \
 	tracker-miner-applications.c                   \
 	tracker-miner-applications.h                   \
