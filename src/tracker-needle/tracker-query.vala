@@ -67,14 +67,15 @@ public class Tracker.Query {
 		}
 
 		string criteria_escaped = Tracker.Sparql.escape_string (criteria);
+		string unknown = _("Unknown");
 
 		switch (query_type) {
 		case Type.ALL:
-			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u fts:match \"$criteria_escaped\" . ?u nfo:belongsToContainer ?c ; tracker:available true . } ORDER BY DESC(fts:rank(?u)) OFFSET $offset LIMIT $limit";
+			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"$unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u fts:match \"$criteria_escaped\" . ?u nfo:belongsToContainer ?c ; tracker:available true . } ORDER BY DESC(fts:rank(?u)) OFFSET $offset LIMIT $limit";
 			break;
 			
 		case Type.ALL_ONLY_IN_TITLES:
-			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"Unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c ; tracker:available true . FILTER(fn:contains(nfo:fileName(?u), \"$criteria_escaped\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET $offset LIMIT $limit";
+			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"$unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c ; tracker:available true . FILTER(fn:contains(nfo:fileName(?u), \"$criteria_escaped\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET $offset LIMIT $limit";
 			break;
 
 		case Type.APPLICATIONS:
@@ -82,7 +83,7 @@ public class Tracker.Query {
 			        SELECT
 			          ?urn 
 			          nie:url(?urn) 
-			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"$unknown\") 
 			          nie:comment(?urn)
 			        WHERE {
 			          ?urn a nfo:Software .
@@ -98,7 +99,7 @@ public class Tracker.Query {
 			        SELECT
 			          ?song
 			          nie:url(?song)
-			          tracker:coalesce(nie:title(?song), nfo:fileName(?song), \"Unknown\")
+			          tracker:coalesce(nie:title(?song), nfo:fileName(?song), \"$unknown\")
 			          fn:string-join((?performer, ?album), \" - \")
 			          nfo:duration(?song)
 			          ?tooltip
@@ -127,7 +128,7 @@ public class Tracker.Query {
 			        SELECT
 			          ?urn 
 			          nie:url(?urn) 
-			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"$unknown\") 
 			          fn:string-join((nfo:height(?urn), nfo:width(?urn)), \" x \") 
 			          nfo:fileSize(?urn)
 			          ?tooltip
@@ -146,7 +147,7 @@ public class Tracker.Query {
 			        SELECT
 			          ?urn 
 			          nie:url(?urn) 
-			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"$unknown\") 
 			          \"\"
 			          nfo:duration(?urn)
 			          ?tooltip
@@ -168,7 +169,7 @@ public class Tracker.Query {
 			        SELECT
 			          ?urn 
 			          nie:url(?urn) 
-			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"Unknown\") 
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"$unknown\") 
 			          tracker:coalesce(nco:fullname(?creator), nco:fullname(?publisher), \"\")
 			          fn:concat(nfo:pageCount(?urn), \" $pages\")
 			          ?tooltip
@@ -196,10 +197,10 @@ public class Tracker.Query {
 			        SELECT
 			          ?urn
 			          nie:url(?urn)
-			          tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender), \"Unknown\")
+			          tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender), \"$unknown\")
 			          tracker:coalesce(nmo:messageSubject(?urn), \"$no_subject\")
 			          nmo:receivedDate(?urn)
-			          fn:concat(\"$to: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to), \"Unknown\"))
+			          fn:concat(\"$to: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to), \"$unknown\"))
 			        WHERE {
 			          ?urn a nmo:Email ;
 			          nmo:from ?sender ;
