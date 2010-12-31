@@ -215,7 +215,7 @@ error_handler:
 			guint i;
 
 			/* The table that you receive may contain duplicate mime-types, because
-		 	* they are grouped against the uri_schemes table */
+			 * they are grouped against the uri_schemes table */
 
 			hash = g_hash_table_new (g_str_hash, g_str_equal);
 
@@ -240,6 +240,8 @@ error_handler:
 			private->service_is_available = TRUE;
 		}
 
+		g_free (mime_types);
+		g_free (uri_schemes);
 
 		g_variant_unref (v);
 	}
