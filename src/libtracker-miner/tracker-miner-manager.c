@@ -28,8 +28,6 @@
 #include "tracker-miner-object.h"
 #include "tracker-miner-manager.h"
 #include "tracker-marshal.h"
-#include "tracker-miner-client.h"
-#include "tracker-miner-files-index-client.h"
 #include "tracker-miner-dbus.h"
 
 /**
