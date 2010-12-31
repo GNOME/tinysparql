@@ -102,7 +102,6 @@ tracker-miner-$(TRACKER_API_VERSION).deps: tracker-miner.deps
 	cp $< $@
 
 BUILT_SOURCES =                                        \
-	$(dbus_sources)                                \
 	$(libtracker_miner_marshal_sources)            \
 	$(libtracker_miner_marshal_headers)            \
 	$(vapi_DATA)
