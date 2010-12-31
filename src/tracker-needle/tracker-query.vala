@@ -47,6 +47,8 @@ public class Tracker.Query {
 			warning ("Could not get Sparql connection: %s", ea.message);
 		} catch (GLib.IOError eb) {
 			warning ("Could not get Sparql connection: %s", eb.message);
+		} catch (GLib.DBusError ec) {
+			warning ("Could not get Sparql connection: %s", ec.message);
 		}
 	}
 
@@ -221,6 +223,8 @@ public class Tracker.Query {
 			warning ("Could not run Sparql query: %s", ea.message);
 		} catch (GLib.IOError eb) {
 			warning ("Could not run Sparql query: %s", eb.message);
+		} catch (GLib.DBusError ec) {
+			warning ("Could not run Sparql query: %s", ec.message);
 		}
 
 		debug ("Done");

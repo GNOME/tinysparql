@@ -83,6 +83,8 @@ public class Tracker.TagList : ScrolledWindow {
 		} catch (GLib.IOError eb) {
 			warning ("Could not get Sparql connection: %s", eb.message);
 			return;
+		} catch (GLib.DBusError ec) {
+			warning ("Could not run Sparql query: %s", ec.message);
 		}
 
 		get_tags.begin ();
