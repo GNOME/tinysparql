@@ -22,7 +22,7 @@
 #include <libtracker-common/tracker-dbus.h>
 
 #include "tracker-miner-web.h"
-#include "tracker-miner-web-dbus.h"
+#include "tracker-miner-dbus.h"
 
 /* Introspection data for the service we are exporting */
 static const gchar introspection_xml[] =

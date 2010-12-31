@@ -24,26 +24,8 @@
 #error "Only <libtracker-miner/tracker-miner.h> can be included directly."
 #endif
 
-#include <glib-object.h>
-
-#include "tracker-miner-dbus.h"
-#include "tracker-miner-web.h"
-
 G_BEGIN_DECLS
 
-void _tracker_miner_web_dbus_authenticate         (TrackerMinerWeb        *miner,
-                                                   DBusGMethodInvocation  *context,
-                                                   GError                **error);
-void _tracker_miner_web_dbus_get_association_data (TrackerMinerWeb        *miner,
-                                                   DBusGMethodInvocation  *context,
-                                                   GError                **error);
-void _tracker_miner_web_dbus_associate            (TrackerMinerWeb        *miner,
-                                                   GHashTable             *association_data,
-                                                   DBusGMethodInvocation  *context,
-                                                   GError                **error);
-void _tracker_miner_web_dbus_dissociate           (TrackerMinerWeb        *miner,
-                                                   DBusGMethodInvocation  *context,
-                                                   GError                **error);
 
 G_END_DECLS
 
