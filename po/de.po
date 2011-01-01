@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-12-14 11:40+0000\n"
-"PO-Revision-Date: 2010-12-20 15:13+0100\n"
+"POT-Creation-Date: 2010-12-31 18:15+0000\n"
+"PO-Revision-Date: 2011-01-01 21:28+0100\n"
 "Last-Translator: Mario Blättermann <mariobl@gnome.org>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -137,6 +137,7 @@ msgstr[1] ""
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
 #: ../src/plugins/nautilus/tracker-tags-extension.c:237
+#: ../src/tracker-needle/tracker-taglist.vala:50
 #: ../src/tracker-needle/tracker-needle.ui.h:8
 #: ../src/tracker-search-bar/tracker-results-window.c:663
 msgid "Tags"
@@ -152,14 +153,14 @@ msgstr "Schlagworte …"
 msgid "Tag one or more files"
 msgstr "Einer oder mehreren Dateien Schlagwörter zuordnen"
 
-#: ../src/libtracker-common/tracker-dbus.c:571
+#: ../src/libtracker-common/tracker-dbus.c:354
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
 #: ../src/tracker-utils/tracker-search.c:1442
 #: ../src/tracker-utils/tracker-sparql.c:292
 #: ../src/tracker-utils/tracker-stats.c:93
 #: ../src/tracker-utils/tracker-tag.c:945
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:90
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:96
 msgid "No error given"
 msgstr "Kein Fehler angegeben"
 
@@ -225,17 +226,17 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d Sekunde"
 msgstr[1] " %2.2d Sekunden"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:407
+#: ../src/libtracker-miner/tracker-miner-object.c:423
 msgid "Data store is not available"
 msgstr "Datenspeicher ist nicht verfügbar"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:546
+#: ../src/libtracker-miner/tracker-miner-object.c:562
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Anfrage zum Anhalten der Anwendung und Grund entsprechen einer bereits "
 "bestehenden Anforderung zum Pausieren"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:618
+#: ../src/libtracker-miner/tracker-miner-object.c:634
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Cookie zur Fortsetzung der Indizierung nicht erkannt"
 
@@ -500,6 +501,7 @@ msgid "Directory"
 msgstr "Ordner"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:400
+#: ../src/tracker-needle/tracker-needle.vala:228
 msgid "File"
 msgstr "Datei"
 
@@ -665,6 +667,56 @@ msgid ""
 "Find what you're looking for on this computer by name or content using Tracker"
 msgstr ""
 "Tracker erlaubt es, auf diesem Rechner nach dem Namen oder Inhalten suchen"
+
+#: ../src/tracker-needle/tracker-needle.vala:240
+msgid "Last Changed"
+msgstr "Zuletzt geändert"
+
+#: ../src/tracker-needle/tracker-needle.vala:248
+msgid "Size"
+msgstr "Größe"
+
+#: ../src/tracker-needle/tracker-query.vala:70
+msgid "Unknown"
+msgstr "Unbekannt"
+
+#. fn:concat(nco:pageCount(?urn), \" pages\")
+#: ../src/tracker-needle/tracker-query.vala:166
+msgid "Pages"
+msgstr "Seiten"
+
+#: ../src/tracker-needle/tracker-query.vala:193
+msgid "No Subject"
+msgstr "Kein Betreff"
+
+#: ../src/tracker-needle/tracker-query.vala:194
+msgid "To"
+msgstr "An"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:61
+#, c-format
+msgid "%ld day from now"
+msgid_plural "%ld days from now"
+msgstr[0] "%ld Tag von jetzt an"
+msgstr[1] "%ld Tage von jetzt an"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:64
+#, c-format
+msgid "%ld day ago"
+msgid_plural "%ld days ago"
+msgstr[0] "vor %ld Tag"
+msgstr[1] "vor %ld Tagen"
+
+#: ../src/tracker-needle/tracker-utils.vala:76
+#: ../src/tracker-needle/tracker-utils.vala:105
+msgid "Less than one second"
+msgstr "weniger als eine Sekunde"
+
+#: ../src/tracker-needle/tracker-view.vala:48
+msgid "No Search Results"
+msgstr "Keine Suchergebnisse"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:1
 msgid ""
@@ -1117,7 +1169,7 @@ msgstr "Eine oder mehrere Dateien wurden nicht angegeben"
 #: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:89
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:95
 msgid "Could not establish a connection to Tracker"
 msgstr "Es konnte keine Verbindung zu Tracker aufgebaut werden"
 
@@ -1994,9 +2046,6 @@ msgstr "Leeres Ergebnis gesetzt"
 #~ msgid "Type:"
 #~ msgstr "Typ:"
 
-#~ msgid "Size:"
-#~ msgstr "Größe:"
-
 #~ msgid "Modified:"
 #~ msgstr "Geändert:"
 
@@ -2017,9 +2066,6 @@ msgstr "Leeres Ergebnis gesetzt"
 
 #~ msgid "Duration:"
 #~ msgstr "Dauer:"
-
-#~ msgid "Subject:"
-#~ msgstr "Betreff:"
 
 #~ msgid "From:"
 #~ msgstr "Von:"
@@ -2314,9 +2360,6 @@ msgstr "Leeres Ergebnis gesetzt"
 
 #~ msgid "%.1f GB"
 #~ msgstr "%.1f GB"
-
-#~ msgid "Unknown"
-#~ msgstr "Unbekannt"
 
 #~ msgid "Type tags you want to add here, separated by commas"
 #~ msgstr "Geben Sie eine durch Kommas getrennte Liste von Schlagworten ein"
@@ -2894,9 +2937,6 @@ msgstr "Leeres Ergebnis gesetzt"
 
 #~ msgid "Tracker Search Tool-"
 #~ msgstr "Tracker Suche-"
-
-#~ msgid "Search _results: "
-#~ msgstr "Such_ergebnisse: "
 
 #~ msgid "no search performed"
 #~ msgstr "keine Suche ausgeführt"
