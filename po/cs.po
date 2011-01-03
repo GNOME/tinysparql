@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the tracker package.
 # Kamil Páral <ripper42@gmail.com>, 2008.
 # Petr Kovar <pknbe@volny.cz>, 2010.
-# Marek Černocký <marek@manet.cz>, 2009, 2010.
+# Marek Černocký <marek@manet.cz>, 2009, 2010, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-29 23:44+0100\n"
-"PO-Revision-Date: 2010-12-28 08:40+0100\n"
+"POT-Creation-Date: 2011-01-03 21:42+0100\n"
+"PO-Revision-Date: 2011-01-02 16:02+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -663,16 +663,20 @@ msgstr "Naposledy změněno"
 msgid "Size"
 msgstr "Velikost"
 
+#: ../src/tracker-needle/tracker-query.vala:70
+msgid "Unknown"
+msgstr "Neznámý"
+
 #. fn:concat(nco:pageCount(?urn), \" pages\")
-#: ../src/tracker-needle/tracker-query.vala:163
+#: ../src/tracker-needle/tracker-query.vala:166
 msgid "Pages"
 msgstr "Stránek"
 
-#: ../src/tracker-needle/tracker-query.vala:185
+#: ../src/tracker-needle/tracker-query.vala:193
 msgid "No Subject"
 msgstr "Bez předmětu"
 
-#: ../src/tracker-needle/tracker-query.vala:186
+#: ../src/tracker-needle/tracker-query.vala:194
 msgid "To"
 msgstr "Komu"
 
