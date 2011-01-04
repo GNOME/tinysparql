@@ -481,8 +481,7 @@ handle_method_call (GDBusConnection       *connection,
 
 	if (g_strcmp0 (method_name, "ReindexMimeTypes") == 0) {
 		tracker_miner_files_index_reindex_mime_types (miner, invocation, parameters);
-	} else
-	if (g_strcmp0 (method_name, "IndexFile") == 0) {
+	} else if (g_strcmp0 (method_name, "IndexFile") == 0) {
 		handle_method_call_index_file (miner, invocation, parameters);
 	} else {
 		g_assert_not_reached ();

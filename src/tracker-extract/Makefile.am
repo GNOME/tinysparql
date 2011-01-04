@@ -388,8 +388,7 @@ tracker-marshal.c: tracker-marshal.list
 	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
 		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
-BUILT_SOURCES =                                        \
-	$(marshal_sources)                             
+BUILT_SOURCES = $(marshal_sources)
 
 CLEANFILES = $(BUILT_SOURCES)
 

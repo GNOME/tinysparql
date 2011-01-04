@@ -57,7 +57,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-network-provider.h                     \
 	tracker-password-provider.h                    \
 	tracker-storage.h                              \
-	tracker-thumbnailer.h                          
+	tracker-thumbnailer.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
@@ -111,4 +111,4 @@ CLEANFILES = $(BUILT_SOURCES)
 EXTRA_DIST =                                           \
 	tracker-marshal.list                           \
 	tracker-miner.vapi                             \
-	tracker-miner.deps                             
+	tracker-miner.deps

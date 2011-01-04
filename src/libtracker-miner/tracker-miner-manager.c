@@ -244,7 +244,7 @@ miner_progress_changed (GDBusConnection *connection,
 	const gchar *status = NULL;
 	gdouble progress = 0;
 
-	// todo test this g_variant_get
+	/* FIXME: todo test this g_variant_get */
 	g_variant_get (parameters, "^sd", &status, &progress);
 	g_signal_emit (user_data, signals[MINER_PROGRESS], 0, sender_name, status, progress);
 }
@@ -282,7 +282,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
-	priv->connection =  g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+	priv->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
 	if (!priv->connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
@@ -304,7 +304,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		data = m->data;
 		data->connection = g_object_ref (priv->connection);
 
-		// todo test all these routines
+		/* FIXME: todo test all these routines */
 
 		proxy = g_dbus_proxy_new_sync (priv->connection,
 		                               G_DBUS_PROXY_FLAGS_NONE,
@@ -581,7 +581,8 @@ initialize_miners_data (TrackerMinerManager *manager)
 	GMainLoop *main_loop;
 	GFile *file;
 	TrackerCrawler *crawler;
-	const gchar    *miners_dir;
+	const gchar *miners_dir;
+
 	crawler = tracker_crawler_new ();
 	main_loop = g_main_loop_new (NULL, FALSE);
 
@@ -595,7 +596,7 @@ initialize_miners_data (TrackerMinerManager *manager)
 	/* Go through service files */
 	miners_dir = g_getenv ("TRACKER_MINERS_DIR");
 	if (G_LIKELY (miners_dir == NULL)) {
-		miners_dir = TRACKER_MINERS_DIR ;
+		miners_dir = TRACKER_MINERS_DIR;
 	} else {
 		g_message ("Crawling miners in '%s' (set in env)", miners_dir);
 	}
@@ -651,7 +652,7 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
  * until all pause requests have been resumed.
  *
  * Returns: %TRUE if the miner was paused successfully, otherwise
- * %FALSE. 
+ * %FALSE.
  **/
 gboolean
 tracker_miner_manager_pause (TrackerMinerManager *manager,
@@ -686,7 +687,7 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 		app_name = "TrackerMinerManager client";
 	}
 
-	// todo test this call
+	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "Pause",
 	                            g_variant_new ("ssi", app_name, reason, (gint) cookie),
@@ -715,10 +716,10 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
  * @cookie: pause cookie
  *
  * Tells @miner to resume activity. The miner won't actually resume
- * operations until all pause requests have been resumed. 
+ * operations until all pause requests have been resumed.
  *
  * Returns: %TRUE if the miner was successfully resumed, otherwise
- * %FALSE. 
+ * %FALSE.
  **/
 gboolean
 tracker_miner_manager_resume (TrackerMinerManager *manager,
@@ -738,7 +739,7 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
 		return FALSE;
 	}
 
-	// todo test this call
+	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "Resume",
 	                            g_variant_new ("i", (gint) cookie),
@@ -870,7 +871,7 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 		return FALSE;
 	}
 
-	// todo test this call
+	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "GetStatus",
 	                            NULL,
@@ -891,6 +892,7 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 
 	if (v && status) {
 		gsize len;
+
 		*status = g_variant_dup_string (v, &len);
 	}
 
@@ -950,7 +952,7 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 		return FALSE;
 	}
 
-	// todo test this call
+	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "GetPauseDetails",
 	                            NULL,
@@ -972,7 +974,7 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 	}
 
 	if (v) {
-		// todo test this format string
+		/* FIXME: todo test this format string */
 		g_variant_get (v, "^as^as", &apps, &r);
 		g_variant_unref (v);
 	}
