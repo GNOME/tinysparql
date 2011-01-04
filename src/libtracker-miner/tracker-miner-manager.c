@@ -299,7 +299,6 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 	for (m = priv->miners; m; m = m->next) {
 		GDBusProxy *proxy;
 		MinerData *data;
-		GError *p_error = NULL;
 
 		data = m->data;
 		data->connection = g_object_ref (priv->connection);
@@ -313,13 +312,13 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		                               data->dbus_path,
 		                               TRACKER_MINER_DBUS_INTERFACE,
 		                               NULL,
-		                               &p_error);
+		                               &error);
 
 
-		if (p_error) {
+		if (error) {
 			g_critical ("Could not create proxy on the D-Bus session bus, %s",
-			            p_error ? p_error->message : "no error given.");
-			g_clear_error (&p_error);
+			            error ? error->message : "no error given.");
+			g_clear_error (&error);
 			continue;
 		}
 
