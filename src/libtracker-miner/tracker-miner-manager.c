@@ -1151,7 +1151,6 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
                                            GError              **error)
 {
 	TrackerMinerManagerPrivate *priv;
-	GError *internal_error = NULL;
 	GVariant *v;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
@@ -1178,18 +1177,14 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
 	                                 NULL,
-	                                 &internal_error);
+	                                 error);
 
 	if (v) {
 		g_variant_unref (v);
+		return TRUE;
 	}
 
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return FALSE;
-	}
-
-	return TRUE;
+	return FALSE;
 }
 
 /**
@@ -1210,7 +1205,6 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
                                   GError              **error)
 {
 	TrackerMinerManagerPrivate *priv;
-	GError *internal_error = NULL;
 	gchar *uri;
 	GVariant *v;
 
@@ -1248,18 +1242,14 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
 	                                 NULL,
-	                                 &internal_error);
-
-	if (v) {
-		g_variant_unref (v);
-	}
+	                                 error);
 
 	g_free (uri);
 
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return FALSE;
+	if (v) {
+		g_variant_unref (v);
+		return TRUE;
 	}
 
-	return TRUE;
+	return FALSE;
 }
