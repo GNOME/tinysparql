@@ -975,17 +975,16 @@ handle_set_property (GDBusConnection  *connection,
 	return TRUE;
 }
 
-static const GDBusInterfaceVTable interface_vtable = {
-	handle_method_call,
-	handle_get_property,
-	handle_set_property
-};
-
 void
 tracker_extract_dbus_start (TrackerExtract *extract)
 {
 	TrackerExtractPrivate *priv;
 	GError *error = NULL;
+	GDBusInterfaceVTable interface_vtable = {
+		handle_method_call,
+		handle_get_property,
+		handle_set_property
+	};
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
@@ -1011,12 +1010,12 @@ tracker_extract_dbus_start (TrackerExtract *extract)
 
 	priv->registration_id =
 		g_dbus_connection_register_object (priv->d_connection,
-	                                       TRACKER_EXTRACT_PATH,
-	                                       priv->introspection_data->interfaces[0],
-	                                       &interface_vtable,
-	                                       extract,
-	                                       NULL,
-	                                       &error);
+		                                   TRACKER_EXTRACT_PATH,
+		                                   priv->introspection_data->interfaces[0],
+		                                   &interface_vtable,
+		                                   extract,
+		                                   NULL,
+		                                   &error);
 
 	if (error) {
 		g_critical ("Could not register the D-Bus object "TRACKER_EXTRACT_PATH", %s",
