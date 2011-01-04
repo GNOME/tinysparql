@@ -394,18 +394,17 @@ handle_set_property (GDBusConnection  *connection,
 	return TRUE;
 }
 
-static const GDBusInterfaceVTable interface_vtable = {
-	handle_method_call,
-	handle_get_property,
-	handle_set_property
-};
-
 static void
 miner_web_constructed (GObject *miner)
 {
 	TrackerMinerWebPrivate *priv;
 	gchar *name, *full_path, *full_name;
 	GError *error = NULL;
+	GDBusInterfaceVTable interface_vtable = {
+		handle_method_call,
+		handle_get_property,
+		handle_set_property
+	};
 
 	priv = TRACKER_MINER_WEB_GET_PRIVATE (miner);
 
@@ -445,12 +444,12 @@ miner_web_constructed (GObject *miner)
 
 	priv->registration_id =
 		g_dbus_connection_register_object (priv->d_connection,
-	                                       full_path,
-	                                       priv->introspection_data->interfaces[0],
-	                                       &interface_vtable,
-	                                       miner,
-	                                       NULL,
-	                                       &error);
+		                                   full_path,
+		                                   priv->introspection_data->interfaces[0],
+		                                   &interface_vtable,
+		                                   miner,
+		                                   NULL,
+		                                   &error);
 
 	if (error) {
 		g_critical ("Could not register the D-Bus object %s, %s",
