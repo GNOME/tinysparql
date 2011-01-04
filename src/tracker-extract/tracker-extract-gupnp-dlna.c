@@ -40,7 +40,6 @@ long long int llroundl(long double x);
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"
-#include "tracker-dbus.h"
 
 /* An additional tag in gstreamer for the content source. Remove when in upstream */
 #ifndef GST_TAG_CLASSIFICATION
