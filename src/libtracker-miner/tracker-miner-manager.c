@@ -891,13 +891,11 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 		return FALSE;
 	}
 
-	if (v && status) {
-		gsize len;
-
-		*status = g_variant_dup_string (v, &len);
-	}
-
 	if (v) {
+		if (status) {
+			*status = g_variant_dup_string (v, NULL);
+		}
+
 		g_variant_unref (v);
 	}
 
