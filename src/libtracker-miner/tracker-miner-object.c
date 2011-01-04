@@ -931,12 +931,6 @@ handle_set_property (GDBusConnection  *connection,
 	return TRUE;
 }
 
-static const GDBusInterfaceVTable interface_vtable = {
-	handle_method_call,
-	handle_get_property,
-	handle_set_property
-};
-
 static void
 on_tracker_store_appeared (GDBusConnection *connection,
                            const gchar     *name,
@@ -995,10 +989,16 @@ on_tracker_store_disappeared (GDBusConnection *connection,
 static void
 miner_constructed (GObject *object)
 {
-	TrackerMiner *miner = TRACKER_MINER (object);
+	TrackerMiner *miner;
 	gchar *name, *full_path, *full_name;
 	GError *error = NULL;
+	GDBusInterfaceVTable interface_vtable = {
+		handle_method_call,
+		handle_get_property,
+		handle_set_property
+	};
 
+	miner = TRACKER_MINER (object);
 	miner->private->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
 	if (!miner->private->d_connection) {
