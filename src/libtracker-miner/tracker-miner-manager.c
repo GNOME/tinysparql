@@ -477,6 +477,8 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 		if (v) {
 			g_variant_unref (v);
 		}
+
+		return NULL;
 	}
 
 	if (v) {
