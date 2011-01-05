@@ -464,7 +464,7 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	                                 "org.freedesktop.DBus",
 	                                 "ListNames",
 	                                 NULL,
-	                                 NULL,
+	                                 G_VARIANT_TYPE ("(as)"),
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
 	                                 NULL,
@@ -482,27 +482,29 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	}
 
 	if (v) {
-		const gchar **result;
-		gsize len, i;
+		GVariantIter *iter;
+		gchar *str;
 
-		result = g_variant_get_strv (v, &len);
-		for (i = 0; i < len; i++) {
-			if (!g_str_has_prefix (result[i], TRACKER_MINER_DBUS_NAME_PREFIX)) {
+		g_variant_get (v, "(as)", &iter);
+		while (g_variant_iter_loop (iter, "s", &str)) {
+			if (!g_str_has_prefix (str, TRACKER_MINER_DBUS_NAME_PREFIX)) {
 				continue;
 			}
 
 			/* Special case miner-fs which has
 			 * additional D-Bus interface.
 			 */
-			if (strcmp (result[i], "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
+			if (strcmp (str, "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
 				continue;
 			}
 
-			list = g_slist_prepend (list, g_strdup (result[i]));
+			list = g_slist_prepend (list, g_strdup (str));
 		}
 
-		list = g_slist_reverse (list);
+		g_variant_iter_free (iter);
 		g_variant_unref (v);
+
+		list = g_slist_reverse (list);
 	}
 
 	return list;
