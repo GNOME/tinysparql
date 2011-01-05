@@ -35,7 +35,7 @@
 
 typedef struct {
 	DBusGMethodInvocation *context;
-	guint request_id;
+	TrackerDBusRequest *request;
 	gchar *journal_uri;
 	TrackerResources *resources;
 	TrackerNotifyClassGetter getter;
@@ -66,16 +66,12 @@ backup_callback (GError *error, gpointer user_data)
 	TrackerDBusMethodInfo *info = user_data;
 
 	if (error) {
-		tracker_dbus_request_failed (info->request_id,
-		                             info->context,
-		                             &error,
-		                             NULL);
+		tracker_dbus_request_end (info->request, error);
 		dbus_g_method_return_error (info->context, error);
 		return;
 	}
 
-	tracker_dbus_request_success (info->request_id,
-	                              info->context);
+	tracker_dbus_request_end (info->request, NULL);
 
 	dbus_g_method_return (info->context);
 
@@ -94,16 +90,12 @@ restore_callback (GError *error, gpointer user_data)
 	TrackerDBusMethodInfo *info = user_data;
 
 	if (error) {
-		tracker_dbus_request_failed (info->request_id,
-		                             info->context,
-		                             &error,
-		                             NULL);
+		tracker_dbus_request_end (info->request, error);
 		dbus_g_method_return_error (info->context, error);
 		return;
 	}
 
-	tracker_dbus_request_success (info->request_id,
-	                              info->context);
+	tracker_dbus_request_end (info->request, NULL);
 
 	dbus_g_method_return (info->context);
 
@@ -136,20 +128,17 @@ tracker_backup_save (TrackerBackup          *object,
                      DBusGMethodInvocation  *context,
                      GError                **error)
 {
-	guint request_id;
+	TrackerDBusRequest *request;
 	TrackerDBusMethodInfo *info;
 	gpointer resources;
 
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id,
-	                          context,
-	                          "D-Bus request to save backup into '%s'",
-	                          destination_uri);
+	request = tracker_dbus_g_request_begin (context,
+	                                        "D-Bus request to save backup into '%s'",
+	                                        destination_uri);
 
 	info = g_new0 (TrackerDBusMethodInfo, 1);
 
-	info->request_id = request_id;
+	info->request = request;
 	info->context = context;
 	info->destination = g_file_new_for_uri (destination_uri);
 
@@ -200,19 +189,16 @@ tracker_backup_restore (TrackerBackup          *object,
                         DBusGMethodInvocation  *context,
                         GError                **error)
 {
-	guint request_id;
+	TrackerDBusRequest *request;
 	TrackerDBusMethodInfo *info;
 	gpointer resources;
 
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id,
-	                          context,
-	                          "D-Bus request to restore backup from '%s'",
-	                          journal_uri);
+	request = tracker_dbus_g_request_begin (context,
+	                                        "D-Bus request to restore backup from '%s'",
+	                                        journal_uri);
 
 	info = g_new0 (TrackerDBusMethodInfo, 1);
-	info->request_id = request_id;
+	info->request = request;
 	info->context = context;
 	info->journal_uri = g_strdup (journal_uri);
 	resources = tracker_dbus_get_object (TRACKER_TYPE_RESOURCES);

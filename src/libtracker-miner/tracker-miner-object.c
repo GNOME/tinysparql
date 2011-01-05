@@ -656,15 +656,13 @@ _tracker_miner_dbus_get_status (TrackerMiner           *miner,
                                 DBusGMethodInvocation  *context,
                                 GError                **error)
 {
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
+	TrackerDBusRequest *request;
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
+	request = tracker_dbus_g_request_begin (context, "%s()", __PRETTY_FUNCTION__);
 
-	tracker_dbus_request_success (request_id, context);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context, miner->private->status);
 }
 
@@ -673,15 +671,13 @@ _tracker_miner_dbus_get_progress (TrackerMiner           *miner,
                                   DBusGMethodInvocation  *context,
                                   GError                **error)
 {
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
+	TrackerDBusRequest *request;
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
+	request = tracker_dbus_g_request_begin (context, "%s()", __PRETTY_FUNCTION__);
 
-	tracker_dbus_request_success (request_id, context);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context, miner->private->progress);
 }
 
@@ -694,13 +690,11 @@ _tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
 	GStrv applications_strv, reasons_strv;
 	GHashTableIter iter;
 	gpointer key, value;
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
+	TrackerDBusRequest *request;
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
+	request = tracker_dbus_g_request_begin (context, "%s()", __PRETTY_FUNCTION__);
 
 	applications = NULL;
 	reasons = NULL;
@@ -719,7 +713,7 @@ _tracker_miner_dbus_get_pause_details (TrackerMiner           *miner,
 	applications_strv = tracker_gslist_to_string_list (applications);
 	reasons_strv = tracker_gslist_to_string_list (reasons);
 
-	tracker_dbus_request_success (request_id, context);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context, applications_strv, reasons_strv);
 
 	g_strfreev (applications_strv);
@@ -737,38 +731,30 @@ _tracker_miner_dbus_pause (TrackerMiner           *miner,
                            GError                **error)
 {
 	GError *local_error = NULL;
-	guint request_id;
+	TrackerDBusRequest *request;
 	gint cookie;
-
-	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 	tracker_dbus_async_return_if_fail (application != NULL, context);
 	tracker_dbus_async_return_if_fail (reason != NULL, context);
 
-	tracker_dbus_request_new (request_id, context,
-	                          "%s(application:'%s', reason:'%s')",
-	                          __PRETTY_FUNCTION__,
-	                          application,
-	                          reason);
+	request = tracker_dbus_g_request_begin (context,
+	                                        "%s(application:'%s', reason:'%s')",
+	                                        __PRETTY_FUNCTION__,
+	                                        application,
+	                                        reason);
 
 	cookie = tracker_miner_pause_internal (miner, application, reason, &local_error);
 	if (cookie == -1) {
-		GError *actual_error = NULL;
+		tracker_dbus_request_end (request, local_error);
+		dbus_g_method_return_error (context, local_error);
 
-		tracker_dbus_request_failed (request_id,
-		                             context,
-		                             &actual_error,
-		                             local_error ? local_error->message : NULL);
-		dbus_g_method_return_error (context, actual_error);
-
-		g_error_free (actual_error);
 		g_error_free (local_error);
 
 		return;
 	}
 
-	tracker_dbus_request_success (request_id, context);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context, cookie);
 }
 
@@ -779,34 +765,25 @@ _tracker_miner_dbus_resume (TrackerMiner           *miner,
                             GError                **error)
 {
 	GError *local_error = NULL;
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
+	TrackerDBusRequest *request;
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id,
-	                          context,
-	                          "%s(cookie:%d)",
-	                          __PRETTY_FUNCTION__,
-	                          cookie);
+	request = tracker_dbus_g_request_begin (context,
+	                                        "%s(cookie:%d)",
+	                                        __PRETTY_FUNCTION__,
+	                                        cookie);
 
 	if (!tracker_miner_resume (miner, cookie, &local_error)) {
-		GError *actual_error = NULL;
+		tracker_dbus_request_end (request, local_error);
+		dbus_g_method_return_error (context, local_error);
 
-		tracker_dbus_request_failed (request_id,
-		                             context,
-		                             &actual_error,
-		                             local_error ? local_error->message : NULL);
-		dbus_g_method_return_error (context, actual_error);
-
-		g_error_free (actual_error);
 		g_error_free (local_error);
 
 		return;
 	}
 
-	tracker_dbus_request_success (request_id, context);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context);
 }
 
@@ -816,16 +793,14 @@ _tracker_miner_dbus_ignore_next_update (TrackerMiner           *miner,
                                         DBusGMethodInvocation  *context,
                                         GError                **error)
 {
-	guint request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
+	TrackerDBusRequest *request;
 
 	tracker_dbus_async_return_if_fail (miner != NULL, context);
 
-	tracker_dbus_request_new (request_id, context, "%s()", __PRETTY_FUNCTION__);
+	request = tracker_dbus_g_request_begin (context, "%s()", __PRETTY_FUNCTION__);
 
 	tracker_miner_ignore_next_update (miner, urls);
 
-	tracker_dbus_request_success (request_id, context);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context);
 }

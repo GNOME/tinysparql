@@ -189,10 +189,10 @@ tracker_status_get_progress  (TrackerStatus    *object,
                               GError                **error)
 {
 	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
-	guint request_id;
+	TrackerDBusRequest *request;
 
-	request_id = tracker_dbus_get_next_request_id ();
-	tracker_dbus_request_success (request_id, context);
+	request = tracker_dbus_g_request_begin (context, "%s()", __FUNCTION__);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context, priv->progress);
 
 	return;
@@ -205,10 +205,10 @@ tracker_status_get_status  (TrackerStatus    *object,
                             GError                **error)
 {
 	TrackerStatusPrivate *priv = TRACKER_STATUS_GET_PRIVATE (object);
-	guint request_id;
+	TrackerDBusRequest *request;
 
-	request_id = tracker_dbus_get_next_request_id ();
-	tracker_dbus_request_success (request_id, context);
+	request = tracker_dbus_g_request_begin (context, "%s()", __FUNCTION__);
+	tracker_dbus_request_end (request, NULL);
 
 	dbus_g_method_return (context, priv->status);
 

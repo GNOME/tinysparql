@@ -41,6 +41,11 @@ typedef struct {
 	guint clean_up_id;
 } ClientData;
 
+struct _TrackerDBusRequest {
+	guint request_id;
+	ClientData *cd;
+};
+
 typedef struct {
 	GInputStream *unix_input_stream;
 	GInputStream *buffered_input_stream;
@@ -211,10 +216,9 @@ client_clean_up_cb (gpointer data)
 }
 
 static ClientData *
-client_get_for_context (DBusGMethodInvocation *context)
+client_get_for_sender (const gchar *sender)
 {
 	ClientData *cd;
-	gchar *sender;
 
 	if (!client_lookup_enabled) {
 		return NULL;
@@ -223,14 +227,9 @@ client_get_for_context (DBusGMethodInvocation *context)
 	/* Only really done with tracker-extract where we use
 	 * functions from the command line with dbus code in them.
 	 */
-	if (!context) {
+	if (!sender) {
 		return NULL;
 	}
-
-	/* Shame we have to allocate memory in any condition here,
-	 * sucky glib D-Bus API is to blame here :/
-	 */
-	sender = dbus_g_method_get_sender (context);
 
 	if (G_UNLIKELY (!clients)) {
 		clients_init ();
@@ -238,10 +237,12 @@ client_get_for_context (DBusGMethodInvocation *context)
 
 	cd = g_hash_table_lookup (clients, sender);
 	if (!cd) {
-		cd = client_data_new (sender);
-		g_hash_table_insert (clients, sender, cd);
+		gchar *sender_dup;
+
+		sender_dup = g_strdup (sender);
+		cd = client_data_new (sender_dup);
+		g_hash_table_insert (clients, sender_dup, cd);
 	} else {
-		g_free (sender);
 		g_source_remove (cd->clean_up_id);
 	}
 
@@ -282,21 +283,20 @@ tracker_dbus_slist_to_strv (GSList *list)
 	return strv;
 }
 
-guint
-tracker_dbus_get_next_request_id (void)
+static guint
+get_next_request_id (void)
 {
 	static guint request_id = 1;
 
 	return request_id++;
 }
 
-void
-tracker_dbus_request_new (gint                   request_id,
-                          DBusGMethodInvocation *context,
-                          const gchar           *format,
-                          ...)
+TrackerDBusRequest *
+tracker_dbus_request_begin (const gchar *sender,
+                            const gchar *format,
+                            ...)
 {
-	ClientData *cd;
+	TrackerDBusRequest *request;
 	gchar *str;
 	va_list args;
 
@@ -304,75 +304,49 @@ tracker_dbus_request_new (gint                   request_id,
 	str = g_strdup_vprintf (format, args);
 	va_end (args);
 
-	cd = client_get_for_context (context);
+	request = g_slice_new (TrackerDBusRequest);
+	request->request_id = get_next_request_id ();
+	request->cd = client_get_for_sender (sender);
 
 	g_debug ("<--- [%d%s%s|%lu] %s",
-	         request_id,
-	         cd ? "|" : "",
-	         cd ? cd->binary : "",
-	         cd ? cd->pid : 0,
+	         request->request_id,
+	         request->cd ? "|" : "",
+	         request->cd ? request->cd->binary : "",
+	         request->cd ? request->cd->pid : 0,
 	         str);
 
 	g_free (str);
+
+	return request;
 }
 
 void
-tracker_dbus_request_success (gint                   request_id,
-                              DBusGMethodInvocation *context)
+tracker_dbus_request_end (TrackerDBusRequest *request,
+                          GError             *error)
 {
-	ClientData *cd;
-
-	cd = client_get_for_context (context);
-
-	g_debug ("---> [%d%s%s|%lu] Success, no error given",
-	         request_id,
-	         cd ? "|" : "",
-	         cd ? cd->binary : "",
-	         cd ? cd->pid : 0);
-}
-
-void
-tracker_dbus_request_failed (gint                    request_id,
-                             DBusGMethodInvocation  *context,
-                             GError                **error,
-                             const gchar            *format,
-                             ...)
-{
-	ClientData *cd;
-	gchar *str;
-	va_list args;
-
-	if (format) {
-		va_start (args, format);
-		str = g_strdup_vprintf (format, args);
-		va_end (args);
-
-		g_set_error (error, TRACKER_DBUS_ERROR, 0, "%s", str);
-	} else if (*error != NULL) {
-		str = g_strdup ((*error)->message);
+	if (!error) {
+		g_debug ("---> [%d%s%s|%lu] Success, no error given",
+			 request->request_id,
+			 request->cd ? "|" : "",
+			 request->cd ? request->cd->binary : "",
+			 request->cd ? request->cd->pid : 0);
 	} else {
-		str = g_strdup (_("No error given"));
-		g_warning ("Unset error and no error message.");
+		g_message ("---> [%d%s%s|%lu] Failed, %s",
+			   request->request_id,
+			   request->cd ? "|" : "",
+			   request->cd ? request->cd->binary : "",
+			   request->cd ? request->cd->pid : 0,
+			   error->message);
 	}
 
-	cd = client_get_for_context (context);
-
-	g_message ("---> [%d%s%s|%lu] Failed, %s",
-	           request_id,
-	           cd ? "|" : "",
-	           cd ? cd->binary : "",
-	           cd ? cd->pid : 0,
-	           str);
-	g_free (str);
+	g_slice_free (TrackerDBusRequest, request);
 }
 
 void
-tracker_dbus_request_info (gint                   request_id,
-                           DBusGMethodInvocation *context,
+tracker_dbus_request_info (TrackerDBusRequest    *request,
                            const gchar           *format,
                            ...)
 {
-	ClientData *cd;
 	gchar *str;
 	va_list args;
 
@@ -380,24 +354,20 @@ tracker_dbus_request_info (gint                   request_id,
 	str = g_strdup_vprintf (format, args);
 	va_end (args);
 
-	cd = client_get_for_context (context);
-
 	tracker_info ("---- [%d%s%s|%lu] %s",
-	              request_id,
-	              cd ? "|" : "",
-	              cd ? cd->binary : "",
-	              cd ? cd->pid : 0,
+	              request->request_id,
+	              request->cd ? "|" : "",
+	              request->cd ? request->cd->binary : "",
+	              request->cd ? request->cd->pid : 0,
 	              str);
 	g_free (str);
 }
 
 void
-tracker_dbus_request_comment (gint                   request_id,
-                              DBusGMethodInvocation *context,
+tracker_dbus_request_comment (TrackerDBusRequest    *request,
                               const gchar           *format,
                               ...)
 {
-	ClientData *cd;
 	gchar *str;
 	va_list args;
 
@@ -405,24 +375,20 @@ tracker_dbus_request_comment (gint                   request_id,
 	str = g_strdup_vprintf (format, args);
 	va_end (args);
 
-	cd = client_get_for_context (context);
-
 	g_message ("---- [%d%s%s|%lu] %s",
-	           request_id,
-	           cd ? "|" : "",
-	           cd ? cd->binary : "",
-	           cd ? cd->pid : 0,
+	           request->request_id,
+	           request->cd ? "|" : "",
+	           request->cd ? request->cd->binary : "",
+	           request->cd ? request->cd->pid : 0,
 	           str);
 	g_free (str);
 }
 
 void
-tracker_dbus_request_debug (gint                   request_id,
-                            DBusGMethodInvocation *context,
+tracker_dbus_request_debug (TrackerDBusRequest    *request,
                             const gchar           *format,
                             ...)
 {
-	ClientData *cd;
 	gchar *str;
 	va_list args;
 
@@ -430,13 +396,11 @@ tracker_dbus_request_debug (gint                   request_id,
 	str = g_strdup_vprintf (format, args);
 	va_end (args);
 
-	cd = client_get_for_context (context);
-
 	g_debug ("---- [%d%s%s|%lu] %s",
-	         request_id,
-	         cd ? "|" : "",
-	         cd ? cd->binary : "",
-	         cd ? cd->pid : 0,
+	         request->request_id,
+	         request->cd ? "|" : "",
+	         request->cd ? request->cd->binary : "",
+	         request->cd ? request->cd->pid : 0,
 	         str);
 	g_free (str);
 }
@@ -452,6 +416,30 @@ tracker_dbus_enable_client_lookup (gboolean enabled)
 	}
 
 	client_lookup_enabled = enabled;
+}
+
+TrackerDBusRequest *
+tracker_dbus_g_request_begin (DBusGMethodInvocation *context,
+                              const gchar           *format,
+                              ...)
+{
+	TrackerDBusRequest *request;
+	gchar *str, *sender;
+	va_list args;
+
+	va_start (args, format);
+	str = g_strdup_vprintf (format, args);
+	va_end (args);
+
+	sender = dbus_g_method_get_sender (context);
+
+	request = tracker_dbus_request_begin (sender, "%s", str);
+
+	g_free (sender);
+
+	g_free (str);
+
+	return request;
 }
 
 static GStrv

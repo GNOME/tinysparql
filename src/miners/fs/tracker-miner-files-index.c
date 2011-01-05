@@ -35,7 +35,7 @@
 #undef REQUIRE_LOCATION_IN_CONFIG
 
 typedef struct {
-	guint request_id;
+	TrackerDBusRequest *request;
 	DBusGMethodInvocation *context;
 	TrackerSparqlConnection *connection;
 	TrackerMinerFiles *miner_files;
@@ -140,7 +140,7 @@ tracker_miner_files_index_init (TrackerMinerFilesIndex *object)
 }
 
 static MimeTypesData *
-mime_types_data_new (guint                    request_id,
+mime_types_data_new (TrackerDBusRequest      *request,
                      DBusGMethodInvocation   *context,
                      TrackerSparqlConnection *connection,
                      TrackerMinerFiles       *miner_files)
@@ -150,7 +150,7 @@ mime_types_data_new (guint                    request_id,
 	mtd = g_slice_new0 (MimeTypesData);
 
 	mtd->miner_files = g_object_ref (miner_files);
-	mtd->request_id = request_id;
+	mtd->request = request;
 	mtd->context = context;
 	mtd->connection = g_object_ref (connection);
 
@@ -184,7 +184,7 @@ mime_types_cb (GObject      *object,
 	                                                 &error);
 
 	if (cursor) {
-		tracker_dbus_request_comment (mtd->request_id, mtd->context,
+		tracker_dbus_request_comment (mtd->request,
 		                              "Found files that will need reindexing");
 
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
@@ -197,13 +197,10 @@ mime_types_cb (GObject      *object,
 			g_object_unref (file);
 		}
 
-		tracker_dbus_request_success (mtd->request_id, mtd->context);
+		tracker_dbus_request_end (mtd->request, NULL);
 		dbus_g_method_return (mtd->context);
 	} else {
-		tracker_dbus_request_failed (mtd->request_id,
-		                             mtd->context,
-		                             &error,
-		                             NULL);
+		tracker_dbus_request_end (mtd->request, error);
 		dbus_g_method_return_error (mtd->context, error);
 	}
 
@@ -228,33 +225,28 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
 	GString *query;
 	GError *inner_error = NULL;
 	TrackerSparqlConnection *connection;
-	guint request_id;
+	TrackerDBusRequest *request;
 	gint len, i;
-
-	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_async_return_if_fail (mime_types != NULL, context);
 
 	len = g_strv_length (mime_types);
 	tracker_dbus_async_return_if_fail (len > 0, context);
 
-	tracker_dbus_request_new (request_id, context, "%s(%d mime types)",
-	                          __FUNCTION__,
-	                          len);
+	request = tracker_dbus_g_request_begin (context, "%s(%d mime types)",
+	                                        __FUNCTION__,
+	                                        len);
 
 	connection = tracker_sparql_connection_get (NULL, &inner_error);
 
 	if (!connection) {
-		tracker_dbus_request_failed (request_id,
-		                             context,
-		                             &inner_error,
-		                             NULL);
+		tracker_dbus_request_end (request, inner_error);
 		dbus_g_method_return_error (context, inner_error);
 		g_error_free (inner_error);
 		return;
 	}
 
-	tracker_dbus_request_comment (request_id, context,
+	tracker_dbus_request_comment (request,
 	                              "Attempting to reindex the following mime types:");
 
 
@@ -265,7 +257,7 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
 	                      "  FILTER(");
 
 	for (i = 0; i < len; i++) {
-		tracker_dbus_request_comment (request_id, context, "  %s", mime_types[i]);
+		tracker_dbus_request_comment (request, "  %s", mime_types[i]);
 		g_string_append_printf (query, "?mime = '%s'", mime_types[i]);
 
 		if (i < len - 1) {
@@ -282,7 +274,7 @@ tracker_miner_files_index_reindex_mime_types (TrackerMinerFilesIndex  *object,
 	                                       query->str,
 	                                       NULL,
 	                                       mime_types_cb,
-	                                       mime_types_data_new (request_id,
+	                                       mime_types_data_new (request,
 	                                                            context,
 	                                                            connection,
 	                                                            priv->files_miner));
@@ -299,7 +291,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 {
 	TrackerMinerFilesIndexPrivate *priv;
 	TrackerConfig *config;
-	guint request_id;
+	TrackerDBusRequest *request;
 	GFile *file, *dir;
 	GFileInfo *file_info;
 	gboolean is_dir;
@@ -308,8 +300,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 
 	tracker_dbus_async_return_if_fail (file_uri != NULL, context);
 
-	request_id = tracker_dbus_get_next_request_id ();
-	tracker_dbus_request_new (request_id, context, "%s(uri:'%s')", __FUNCTION__, file_uri);
+	request = tracker_dbus_g_request_begin (context, "%s(uri:'%s')", __FUNCTION__, file_uri);
 
 	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
 	file = g_file_new_for_uri (file_uri);
@@ -325,7 +316,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 
 	if (!file_info) {
 		internal_error = g_error_new_literal (1, 0, "File does not exist");
-		tracker_dbus_request_failed (request_id, context, &internal_error, NULL);
+		tracker_dbus_request_end (request, internal_error);
 		dbus_g_method_return_error (context, internal_error);
 
 		g_error_free (internal_error);
@@ -348,7 +339,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 		                                     tracker_config_get_ignored_file_paths (config),
 		                                     tracker_config_get_ignored_file_patterns (config))) {
 			internal_error = g_error_new_literal (1, 0, "File is not eligible to be indexed");
-			tracker_dbus_request_failed (request_id, context, &internal_error, NULL);
+			tracker_dbus_request_end (request, internal_error);
 			dbus_g_method_return_error (context, internal_error);
 
 			g_error_free (internal_error);
@@ -371,7 +362,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 		                                          tracker_config_get_ignored_directory_paths (config),
 		                                          tracker_config_get_ignored_directory_patterns (config))) {
 			internal_error = g_error_new_literal (1, 0, "File is not eligible to be indexed");
-			tracker_dbus_request_failed (request_id, context, &internal_error, NULL);
+			tracker_dbus_request_end (request, internal_error);
 			dbus_g_method_return_error (context, internal_error);
 
 			g_error_free (internal_error);
@@ -412,7 +403,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 
 		if (!found) {
 			internal_error = g_error_new_literal (1, 0, "File is not eligible to be indexed");
-			tracker_dbus_request_failed (request_id, context, &internal_error, NULL);
+			tracker_dbus_request_end (request, internal_error);
 			dbus_g_method_return_error (context, internal_error);
 
 			g_error_free (internal_error);
@@ -430,7 +421,7 @@ tracker_miner_files_index_index_file (TrackerMinerFilesIndex  *object,
 		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner), file, do_checks);
 	}
 
-	tracker_dbus_request_success (request_id, context);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context);
 
 	g_object_unref (file);

@@ -75,13 +75,11 @@ tracker_statistics_get (TrackerStatistics      *object,
                         GError                **error)
 {
 	TrackerClass **classes, *cl;
-	guint                     request_id;
-	GPtrArray                *values;
-	guint                     i, n_classes;
+	TrackerDBusRequest *request;
+	GPtrArray *values;
+	guint i, n_classes;
 
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id, context, "%s()", __FUNCTION__);
+	request = tracker_dbus_g_request_begin (context, "%s()", __FUNCTION__);
 
 	values = g_ptr_array_new ();
 
@@ -108,7 +106,7 @@ tracker_statistics_get (TrackerStatistics      *object,
 	/* Sort result so it is alphabetical */
 	g_ptr_array_sort (values, cache_sort_func);
 
-	tracker_dbus_request_success (request_id, context);
+	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context, values);
 
 	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);

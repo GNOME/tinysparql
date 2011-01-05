@@ -104,6 +104,8 @@ typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
                                                   GError   *error,
                                                   gpointer  user_data);
 
+typedef struct _TrackerDBusRequest TrackerDBusRequest;
+
 typedef enum {
 	TRACKER_DBUS_EVENTS_TYPE_ADD,
 	TRACKER_DBUS_EVENTS_TYPE_UPDATE,
@@ -116,58 +118,54 @@ typedef enum {
 	TRACKER_DBUS_ERROR_BROKEN_PIPE
 } TrackerDBusError;
 
-GQuark           tracker_dbus_error_quark            (void);
+GQuark              tracker_dbus_error_quark           (void);
 
 /* Utils */
-gchar **         tracker_dbus_slist_to_strv          (GSList                     *list);
+gchar **            tracker_dbus_slist_to_strv         (GSList                     *list);
 
 /* Requests */
-guint            tracker_dbus_get_next_request_id    (void);
 
-void             tracker_dbus_request_new            (gint                        request_id,
-                                                      DBusGMethodInvocation      *context,
-                                                      const gchar                *format,
-                                                      ...);
-void             tracker_dbus_request_success        (gint                        request_id,
-                                                      DBusGMethodInvocation      *context);
-void             tracker_dbus_request_failed         (gint                        request_id,
-                                                      DBusGMethodInvocation      *context,
-                                                      GError                    **error,
-                                                      const gchar                *format,
-                                                      ...);
-void             tracker_dbus_request_comment        (gint                        request_id,
-                                                      DBusGMethodInvocation      *context,
-                                                      const gchar                *format,
-                                                      ...);
-void             tracker_dbus_request_info           (gint                        request_id,
-                                                      DBusGMethodInvocation      *context,
-                                                      const gchar                *format,
-                                                      ...);
-void             tracker_dbus_request_debug          (gint                        request_id,
-                                                      DBusGMethodInvocation      *context,
-                                                      const gchar                *format,
-                                                      ...);
+TrackerDBusRequest *tracker_dbus_request_begin         (const gchar                *sender,
+                                                        const gchar                *format,
+                                                        ...);
+void                tracker_dbus_request_end           (TrackerDBusRequest         *request,
+                                                        GError                     *error);
+void                tracker_dbus_request_comment       (TrackerDBusRequest         *request,
+                                                        const gchar                *format,
+                                                        ...);
+void                tracker_dbus_request_info          (TrackerDBusRequest         *request,
+                                                        const gchar                *format,
+                                                        ...);
+void                tracker_dbus_request_debug         (TrackerDBusRequest         *request,
+                                                        const gchar                *format,
+                                                        ...);
 
-void             tracker_dbus_enable_client_lookup   (gboolean                    enable);
+void                tracker_dbus_enable_client_lookup  (gboolean                    enable);
+
 
 #ifndef NO_LIBDBUS
-/* File descriptor convenience API */
-gboolean         tracker_dbus_send_and_splice        (DBusConnection             *connection,
-                                                      DBusMessage                *message,
-                                                      int                         fd,
-                                                      GCancellable               *cancellable,
-                                                      void                      **dest_buffer,
-                                                      gssize                     *dest_buffer_size,
-                                                      GStrv                      *variable_names,
-                                                      GError                    **error);
+/* dbus-glib convenience API */
+TrackerDBusRequest *tracker_dbus_g_request_begin       (DBusGMethodInvocation      *context,
+                                                        const gchar                *format,
+                                                        ...);
 
-gboolean         tracker_dbus_send_and_splice_async  (DBusConnection             *connection,
-                                                      DBusMessage                *message,
-                                                      int                         fd,
-                                                      gboolean                    expect_variable_names,
-                                                      GCancellable               *cancellable,
-                                                      TrackerDBusSendAndSpliceCallback callback,
-                                                      gpointer                    user_data);
+/* File descriptor convenience API */
+gboolean            tracker_dbus_send_and_splice       (DBusConnection             *connection,
+                                                        DBusMessage                *message,
+                                                        int                         fd,
+                                                        GCancellable               *cancellable,
+                                                        void                      **dest_buffer,
+                                                        gssize                     *dest_buffer_size,
+                                                        GStrv                      *variable_names,
+                                                        GError                    **error);
+
+gboolean            tracker_dbus_send_and_splice_async (DBusConnection             *connection,
+                                                        DBusMessage                *message,
+                                                        int                         fd,
+                                                        gboolean                    expect_variable_names,
+                                                        GCancellable               *cancellable,
+                                                        TrackerDBusSendAndSpliceCallback callback,
+                                                        gpointer                    user_data);
 #endif
 
 G_END_DECLS
