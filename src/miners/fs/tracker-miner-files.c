@@ -243,7 +243,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_fs_class->process_file = miner_files_process_file;
 	miner_fs_class->process_file_attributes = miner_files_process_file_attributes;
 	miner_fs_class->ignore_next_update_file = miner_files_ignore_next_update_file;
-        miner_fs_class->finished = miner_files_finished;
+	miner_fs_class->finished = miner_files_finished;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_CONFIG,
@@ -288,8 +288,8 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 	priv->finished_handler = g_signal_connect_after (mf, "finished",
-							 G_CALLBACK (miner_finished_cb),
-							 NULL);
+	                                                 G_CALLBACK (miner_finished_cb),
+	                                                 NULL);
 
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
@@ -368,15 +368,15 @@ miner_files_finalize (GObject *object)
 
 	disk_space_check_stop (TRACKER_MINER_FILES (object));
 
-        if (priv->index_recursive_directories) {
-                g_slist_foreach (priv->index_recursive_directories, (GFunc) g_free, NULL);
-                g_slist_free (priv->index_recursive_directories);
-        }
+	if (priv->index_recursive_directories) {
+		g_slist_foreach (priv->index_recursive_directories, (GFunc) g_free, NULL);
+		g_slist_free (priv->index_recursive_directories);
+	}
 
-        if (priv->index_single_directories) {
-                g_slist_foreach (priv->index_single_directories, (GFunc) g_free, NULL);
-                g_slist_free (priv->index_single_directories);
-        }
+	if (priv->index_single_directories) {
+		g_slist_foreach (priv->index_single_directories, (GFunc) g_free, NULL);
+		g_slist_free (priv->index_single_directories);
+	}
 
 #if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 	g_object_unref (priv->power);
@@ -451,8 +451,8 @@ miner_files_constructed (GObject *object)
 	/* Fill in directories to inspect */
 	dirs = tracker_config_get_index_single_directories (mf->private->config);
 
-        /* Copy in case of config changes */
-        mf->private->index_single_directories = tracker_gslist_copy_with_string_data (dirs);
+	/* Copy in case of config changes */
+	mf->private->index_single_directories = tracker_gslist_copy_with_string_data (dirs);
 
 	for (; dirs; dirs = dirs->next) {
 		GFile *file;
@@ -499,8 +499,8 @@ miner_files_constructed (GObject *object)
 
 	dirs = tracker_config_get_index_recursive_directories (mf->private->config);
 
-        /* Copy in case of config changes */
-        mf->private->index_recursive_directories = tracker_gslist_copy_with_string_data (dirs);
+	/* Copy in case of config changes */
+	mf->private->index_recursive_directories = tracker_gslist_copy_with_string_data (dirs);
 
 	for (; dirs; dirs = dirs->next) {
 		GFile *file;
@@ -668,7 +668,7 @@ set_up_mount_point_cb (GObject      *source,
 	if (error) {
 		g_critical ("Could not set mount point in database '%s', %s",
 		            removable_device_urn,
-			    error->message);
+		            error->message);
 		g_error_free (error);
 	}
 
@@ -802,11 +802,11 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		g_string_append_printf (accumulator, "%s ", queries->str);
 	} else {
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                        queries->str,
-                                                        G_PRIORITY_LOW,
-                                                        NULL,
-                                                        set_up_mount_point_cb,
-                                                        g_strdup (removable_device_urn));
+		                                        queries->str,
+		                                        G_PRIORITY_LOW,
+		                                        NULL,
+		                                        set_up_mount_point_cb,
+		                                        g_strdup (removable_device_urn));
 	}
 
 	g_string_free (queries, TRUE);
@@ -820,8 +820,8 @@ init_mount_points_cb (GObject      *source,
 	GError *error = NULL;
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source),
-	                                     result,
-	                                     &error);
+	                                         result,
+	                                         &error);
 
 	if (error) {
 		g_critical ("Could not initialize currently active mount points: %s",
@@ -870,9 +870,9 @@ init_mount_points (TrackerMinerFiles *miner_files)
 
 	/* Make sure the root partition is always set to mounted, as GIO won't
 	 * report it as a proper mount */
-        g_hash_table_insert (volumes,
-                             g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
-                             GINT_TO_POINTER (VOLUME_MOUNTED));
+	g_hash_table_insert (volumes,
+	                     g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
+	                     GINT_TO_POINTER (VOLUME_MOUNTED));
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		gint state;
@@ -967,10 +967,10 @@ init_mount_points (TrackerMinerFiles *miner_files)
 
 				/* Set mount point state */
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
-						    urn,
-						    mount_point,
-						    TRUE,
-						    accumulator);
+				                    urn,
+				                    mount_point,
+				                    TRUE,
+				                    accumulator);
 
 				/* Set mount point type */
 				set_up_mount_point_type (TRACKER_MINER_FILES (miner),
@@ -987,21 +987,21 @@ init_mount_points (TrackerMinerFiles *miner_files)
 					 "currently it is NOT mounted",
 					 urn);
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
-						    urn,
-						    NULL,
-						    FALSE,
-						    accumulator);
+				                    urn,
+				                    NULL,
+				                    FALSE,
+				                    accumulator);
 			}
 		}
 	}
 
 	if (accumulator->str[0] != '\0') {
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (miner),
-                                                        accumulator->str,
-                                                        G_PRIORITY_LOW,
-                                                        NULL,
-                                                        init_mount_points_cb,
-                                                        miner);
+		                                        accumulator->str,
+		                                        G_PRIORITY_LOW,
+		                                        NULL,
+		                                        init_mount_points_cb,
+		                                        miner);
 	} else {
 		/* If no further mount point initialization was needed,
 		 * initialize stale volume removal here. */
@@ -1162,11 +1162,11 @@ mount_point_added_cb (TrackerStorage *storage,
 	set_up_mount_point (miner, urn, mount_point, TRUE, queries);
 	set_up_mount_point_type (miner, urn, removable, optical, queries);
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                queries->str,
-                                                G_PRIORITY_LOW,
-                                                NULL,
-                                                set_up_mount_point_cb,
-                                                g_strdup (urn));
+	                                        queries->str,
+	                                        G_PRIORITY_LOW,
+	                                        NULL,
+	                                        set_up_mount_point_cb,
+	                                        g_strdup (urn));
 	g_string_free (queries, TRUE);
 	g_free (urn);
 }
@@ -1431,53 +1431,53 @@ update_directories_from_new_config (TrackerMinerFS *mf,
                                     gboolean        recurse)
 {
 	TrackerMinerFilesPrivate *priv;
-        GSList *sl;
+	GSList *sl;
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
-        g_message ("Updating %s directories changed from configuration",
-                   recurse ? "recursive" : "single");
+	g_message ("Updating %s directories changed from configuration",
+	           recurse ? "recursive" : "single");
 
-        /* First remove all directories removed from the config */
-        for (sl = old_dirs; sl; sl = sl->next) {
-                const gchar *path;
+	/* First remove all directories removed from the config */
+	for (sl = old_dirs; sl; sl = sl->next) {
+		const gchar *path;
 
-                path = sl->data;
+		path = sl->data;
 
-                /* If we are not still in the list, remove the dir */
-                if (!tracker_string_in_gslist (path, new_dirs)) {
-                        GFile *file;
+		/* If we are not still in the list, remove the dir */
+		if (!tracker_string_in_gslist (path, new_dirs)) {
+			GFile *file;
 
-                        g_message ("  Removing directory: '%s'", path);
+			g_message ("  Removing directory: '%s'", path);
 
-                        file = g_file_new_for_path (path);
-                        /* Fully remove item (monitors and from store) */
-                        tracker_miner_fs_directory_remove_full (TRACKER_MINER_FS (mf), file);
-                        g_object_unref (file);
-                }
-        }
+			file = g_file_new_for_path (path);
+			/* Fully remove item (monitors and from store) */
+			tracker_miner_fs_directory_remove_full (TRACKER_MINER_FS (mf), file);
+			g_object_unref (file);
+		}
+	}
 
-        /* Second add directories which are new */
-        for (sl = new_dirs; sl; sl = sl->next) {
-                const gchar *path;
+	/* Second add directories which are new */
+	for (sl = new_dirs; sl; sl = sl->next) {
+		const gchar *path;
 
-                path = sl->data;
+		path = sl->data;
 
-                /* If we are now in the list, add the dir */
-                if (!tracker_string_in_gslist (path, old_dirs)) {
-                        GFile *file;
+		/* If we are now in the list, add the dir */
+		if (!tracker_string_in_gslist (path, old_dirs)) {
+			GFile *file;
 
-                        g_message ("  Adding directory:'%s'", path);
+			g_message ("  Adding directory:'%s'", path);
 
-                        file = g_file_new_for_path (path);
+			file = g_file_new_for_path (path);
 			g_object_set_qdata (G_OBJECT (file),
 			                    priv->quark_directory_config_root,
 			                    GINT_TO_POINTER (TRUE));
 
 			tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf), file, recurse);
-                        g_object_unref (file);
-                }
-        }
+			g_object_unref (file);
+		}
+	}
 }
 
 static void
@@ -1485,26 +1485,26 @@ index_recursive_directories_cb (GObject    *gobject,
                                 GParamSpec *arg1,
                                 gpointer    user_data)
 {
-        TrackerMinerFilesPrivate *private;
-        GSList *new_dirs, *old_dirs;
+	TrackerMinerFilesPrivate *private;
+	GSList *new_dirs, *old_dirs;
 
-        private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
+	private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
 
-        new_dirs = tracker_config_get_index_recursive_directories (private->config);
-        old_dirs = private->index_recursive_directories;
+	new_dirs = tracker_config_get_index_recursive_directories (private->config);
+	old_dirs = private->index_recursive_directories;
 
-        update_directories_from_new_config (TRACKER_MINER_FS (user_data),
-                                            new_dirs,
-                                            old_dirs,
-                                            TRUE);
+	update_directories_from_new_config (TRACKER_MINER_FS (user_data),
+	                                    new_dirs,
+	                                    old_dirs,
+	                                    TRUE);
 
-        /* Re-set the stored config in case it changes again */
-        if (private->index_recursive_directories) {
-                g_slist_foreach (private->index_recursive_directories, (GFunc) g_free, NULL);
-                g_slist_free (private->index_recursive_directories);
-        }
+	/* Re-set the stored config in case it changes again */
+	if (private->index_recursive_directories) {
+		g_slist_foreach (private->index_recursive_directories, (GFunc) g_free, NULL);
+		g_slist_free (private->index_recursive_directories);
+	}
 
-        private->index_recursive_directories = tracker_gslist_copy_with_string_data (new_dirs);
+	private->index_recursive_directories = tracker_gslist_copy_with_string_data (new_dirs);
 }
 
 static void
@@ -1512,26 +1512,26 @@ index_single_directories_cb (GObject    *gobject,
                              GParamSpec *arg1,
                              gpointer    user_data)
 {
-        TrackerMinerFilesPrivate *private;
-        GSList *new_dirs, *old_dirs;
+	TrackerMinerFilesPrivate *private;
+	GSList *new_dirs, *old_dirs;
 
-        private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
+	private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
 
-        new_dirs = tracker_config_get_index_single_directories (private->config);
-        old_dirs = private->index_single_directories;
+	new_dirs = tracker_config_get_index_single_directories (private->config);
+	old_dirs = private->index_single_directories;
 
-        update_directories_from_new_config (TRACKER_MINER_FS (user_data),
-                                            new_dirs,
-                                            old_dirs,
-                                            FALSE);
+	update_directories_from_new_config (TRACKER_MINER_FS (user_data),
+	                                    new_dirs,
+	                                    old_dirs,
+	                                    FALSE);
 
-        /* Re-set the stored config in case it changes again */
-        if (private->index_single_directories) {
-                g_slist_foreach (private->index_single_directories, (GFunc) g_free, NULL);
-                g_slist_free (private->index_single_directories);
-        }
+	/* Re-set the stored config in case it changes again */
+	if (private->index_single_directories) {
+		g_slist_foreach (private->index_single_directories, (GFunc) g_free, NULL);
+		g_slist_free (private->index_single_directories);
+	}
 
-        private->index_single_directories = tracker_gslist_copy_with_string_data (new_dirs);
+	private->index_single_directories = tracker_gslist_copy_with_string_data (new_dirs);
 }
 
 static gboolean
@@ -1767,7 +1767,7 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 static const gchar *
 miner_files_get_file_urn (TrackerMinerFiles *miner,
                           GFile             *file,
-			  gboolean          *is_iri)
+                          gboolean          *is_iri)
 {
 	const gchar *urn;
 
@@ -2436,7 +2436,7 @@ should_check_mtime (TrackerConfig *config)
 static void
 miner_files_finished (TrackerMinerFS *fs)
 {
-        tracker_db_manager_set_last_crawl_done (TRUE);
+	tracker_db_manager_set_last_crawl_done (TRUE);
 }
 
 TrackerMiner *
@@ -2630,8 +2630,8 @@ tracker_miner_files_monitor_directory (GFile    *file,
 
 	/* We'll only get this signal for the directories where check_directory()
 	 * and check_directory_contents() returned TRUE, so by default we want
-	 * these directories to be indexed.
-         */
+	 * these directories to be indexed. */
+
 	return TRUE;
 }
 
@@ -2684,11 +2684,11 @@ miner_files_in_removable_media_remove_by_type (TrackerMinerFiles  *miner,
 		                        optical ? "true" : "false");
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                        queries->str,
-                                                        G_PRIORITY_LOW,
-                                                        NULL,
-                                                        remove_files_in_removable_media_cb,
-                                                        NULL);
+		                                        queries->str,
+		                                        G_PRIORITY_LOW,
+		                                        NULL,
+		                                        remove_files_in_removable_media_cb,
+		                                        NULL);
 
 		g_string_free (queries, TRUE);
 
@@ -2726,11 +2726,11 @@ miner_files_in_removable_media_remove_by_date (TrackerMinerFiles  *miner,
 	                        date);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                queries->str,
-                                                G_PRIORITY_LOW,
-                                                NULL,
-                                                remove_files_in_removable_media_cb,
-                                                NULL);
+	                                        queries->str,
+	                                        G_PRIORITY_LOW,
+	                                        NULL,
+	                                        remove_files_in_removable_media_cb,
+	                                        NULL);
 
 	g_string_free (queries, TRUE);
 }
