@@ -178,8 +178,8 @@ static void        trigger_recheck_cb                   (GObject              *g
                                                          GParamSpec           *arg1,
                                                          gpointer              user_data);
 static void        index_volumes_changed_cb             (GObject              *gobject,
-							 GParamSpec           *arg1,
-							 gpointer              user_data);
+                                                         GParamSpec           *arg1,
+                                                         gpointer              user_data);
 static gboolean    miner_files_check_file               (TrackerMinerFS       *fs,
                                                          GFile                *file);
 static gboolean    miner_files_check_directory          (TrackerMinerFS       *fs,
