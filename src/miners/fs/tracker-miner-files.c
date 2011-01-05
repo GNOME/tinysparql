@@ -49,7 +49,6 @@
 
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
-#include "tracker-extract-client.h"
 #include "tracker-marshal.h"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10

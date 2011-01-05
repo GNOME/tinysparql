@@ -40,9 +40,6 @@ marshal_sources =                                      \
 	tracker-marshal.h                              \
 	tracker-marshal.c
 
-dbus_sources =                                         \
-	tracker-extract-client.h
-
 tracker-marshal.h: tracker-marshal.list
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
@@ -50,12 +47,8 @@ tracker-marshal.c: tracker-marshal.list
 	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
 		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
-%-client.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
-
 BUILT_SOURCES =                                        \
-	$(marshal_sources)                             \
-	$(dbus_sources)
+	$(marshal_sources)                             
 
 CLEANFILES = $(BUILT_SOURCES)
 
