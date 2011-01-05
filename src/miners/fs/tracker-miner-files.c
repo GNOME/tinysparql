@@ -2034,7 +2034,7 @@ get_metadata_fast_async (GDBusConnection *connection,
 
 	fd_list = g_unix_fd_list_new ();
 
-	g_variant_builder_add (&arguments_builder, "ssh",
+	g_variant_builder_add (&arguments_builder, "(ssh)",
 	                       uri,
 	                       mime_type,
 	                       g_unix_fd_list_append (fd_list,
