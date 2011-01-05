@@ -687,7 +687,7 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "Pause",
-	                            g_variant_new ("(ssi)", app_name, reason, (gint) cookie),
+	                            g_variant_new ("(ss)", app_name, reason),
 	                            G_DBUS_CALL_FLAGS_NONE,
 	                            -1,
 	                            NULL,
@@ -697,6 +697,10 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 		g_critical ("Could not pause miner '%s': %s", miner, error->message);
 		g_error_free (error);
 		return FALSE;
+	}
+
+	if (cookie) {
+		g_variant_get (v, "(i)", cookie);
 	}
 
 	g_variant_unref (v);
