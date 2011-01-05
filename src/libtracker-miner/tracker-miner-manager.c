@@ -244,7 +244,7 @@ miner_progress_changed (GDBusConnection *connection,
 	const gchar *status = NULL;
 	gdouble progress = 0;
 
-	g_variant_get (parameters, "(sd)", &status, &progress);
+	g_variant_get (parameters, "(&sd)", &status, &progress);
 	g_signal_emit (user_data, signals[MINER_PROGRESS], 0, sender_name, status, progress);
 }
 
