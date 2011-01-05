@@ -54,7 +54,6 @@ typedef struct {
 	TrackerDBusSendAndSpliceCallback callback;
 	GCancellable *cancellable;
 	gpointer user_data;
-	gboolean expect_variable_names;
 } SendAndSpliceData;
 
 static gboolean client_lookup_enabled;
@@ -491,123 +490,10 @@ dbus_send_and_splice_get_variable_names (DBusMessage  *message,
 	return (GStrv) g_ptr_array_free (found, FALSE);
 }
 
-/*
- * /!\ BIG FAT WARNING /!\
- * The message must be destroyed for this function to succeed, so pass a
- * message with a refcount of 1 (and say goodbye to it, 'cause you'll never
- * see it again
- */
-
-// todo remove
-gboolean
-tracker_dbus_send_and_splice (DBusConnection  *connection,
-                              DBusMessage     *message,
-                              int              fd,
-                              GCancellable    *cancellable,
-                              void           **dest_buffer,
-                              gssize          *dest_buffer_size,
-                              GStrv           *variable_names,
-                              GError         **error)
-{
-	DBusPendingCall *call;
-	DBusMessage *reply = NULL;
-	GInputStream *unix_input_stream;
-	GInputStream *buffered_input_stream;
-	GOutputStream *output_stream;
-	GError *inner_error = NULL;
-	gboolean ret_value = FALSE;
-
-	g_return_val_if_fail (connection != NULL, FALSE);
-	g_return_val_if_fail (message != NULL, FALSE);
-	g_return_val_if_fail (fd > 0, FALSE);
-	g_return_val_if_fail (dest_buffer != NULL, FALSE);
-
-	dbus_connection_send_with_reply (connection,
-	                                 message,
-	                                 &call,
-	                                 -1);
-	dbus_message_unref (message);
-
-	if (!call) {
-		g_set_error (error,
-		             TRACKER_DBUS_ERROR,
-		             TRACKER_DBUS_ERROR_UNSUPPORTED,
-		             "FD passing unsupported or connection disconnected");
-		return FALSE;
-	}
-
-	unix_input_stream = g_unix_input_stream_new (fd, TRUE);
-	buffered_input_stream = g_buffered_input_stream_new_sized (unix_input_stream,
-	                                                           TRACKER_DBUS_PIPE_BUFFER_SIZE);
-	output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
-
-	g_output_stream_splice (output_stream,
-	                        buffered_input_stream,
-	                        G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
-	                        G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
-	                        cancellable,
-	                        &inner_error);
-
-	if (G_LIKELY (!inner_error)) {
-		/* Wait for any current d-bus call to finish */
-		dbus_pending_call_block (call);
-
-		/* Check we didn't get an error */
-		reply = dbus_pending_call_steal_reply (call);
-
-		if (G_UNLIKELY (dbus_message_get_type (reply) == DBUS_MESSAGE_TYPE_ERROR)) {
-			DBusError dbus_error;
-
-			dbus_error_init (&dbus_error);
-			dbus_set_error_from_message (&dbus_error, reply);
-			dbus_set_g_error (error, &dbus_error);
-			dbus_error_free (&dbus_error);
-
-			/* If any error happened, we're not passing any received data, so we
-			 * need to free it */
-			g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (output_stream)));
-		} else {
-			*dest_buffer = g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (output_stream));
-
-			if (dest_buffer_size) {
-				*dest_buffer_size = g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (output_stream));
-			}
-
-			if (variable_names) {
-				*variable_names = dbus_send_and_splice_get_variable_names (reply, TRUE);
-			}
-
-			ret_value = TRUE;
-		}
-	} else {
-		g_set_error (error,
-		             TRACKER_DBUS_ERROR,
-		             TRACKER_DBUS_ERROR_BROKEN_PIPE,
-		             "Couldn't get results from server");
-		g_error_free (inner_error);
-		/* If any error happened, we're not passing any received data, so we
-		 * need to free it */
-		g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (output_stream)));
-	}
-
-	g_object_unref (output_stream);
-	g_object_unref (buffered_input_stream);
-	g_object_unref (unix_input_stream);
-
-	if (reply) {
-		dbus_message_unref (reply);
-	}
-
-	dbus_pending_call_unref (call);
-
-	return ret_value;
-}
-
 static SendAndSpliceData *
 send_and_splice_data_new (GInputStream                     *unix_input_stream,
                           GInputStream                     *buffered_input_stream,
                           GOutputStream                    *output_stream,
-                          gboolean                          expect_variable_names,
                           GCancellable                     *cancellable,
                           TrackerDBusSendAndSpliceCallback  callback,
                           gpointer                          user_data)
@@ -623,7 +509,6 @@ send_and_splice_data_new (GInputStream                     *unix_input_stream,
 	}
 	data->callback = callback;
 	data->user_data = user_data;
-	data->expect_variable_names = expect_variable_names;
 
 	return data;
 }
@@ -671,9 +556,6 @@ tracker_dbus_send_and_splice_async_finish (GObject      *source,
 	                                                                result, &error);
 
 	if (!error) {
-		/* dbus_pending_call_block (data->call);
-		   reply = dbus_pending_call_steal_reply (data->call); */
-
 		if (g_dbus_message_get_message_type (data->reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
 
 			/* If any error happened, we're not passing any received data, so we
@@ -688,15 +570,6 @@ tracker_dbus_send_and_splice_async_finish (GObject      *source,
 			 * callback itself. */
 		} else {
 			GStrv v_names = NULL;
-
-			if (data->expect_variable_names) {
-#if 0
-				todo: port this function
-				v_names = dbus_send_and_splice_get_variable_names (reply, FALSE);
-#endif
-			}
-
-			/* dbus_pending_call_cancel (data->call); */
 
 			(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
 			                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
@@ -737,7 +610,6 @@ gboolean
 tracker_dbus_send_and_splice_async (GDBusConnection                  *connection,
                                     GDBusMessage                     *message,
                                     int                               fd,
-                                    gboolean                          expect_variable_names,
                                     GCancellable                     *cancellable,
                                     TrackerDBusSendAndSpliceCallback  callback,
                                     gpointer                          user_data)
@@ -760,7 +632,6 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	data = send_and_splice_data_new (unix_input_stream,
 	                                 buffered_input_stream,
 	                                 output_stream,
-	                                 expect_variable_names,
 	                                 cancellable,
 	                                 callback,
 	                                 user_data);

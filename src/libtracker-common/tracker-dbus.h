@@ -160,7 +160,6 @@ void                tracker_dbus_request_debug         (TrackerDBusRequest      
 
 void                tracker_dbus_enable_client_lookup  (gboolean                    enable);
 
-#ifndef NO_LIBDBUS
 /* GDBus convenience API */
 TrackerDBusRequest *tracker_g_dbus_request_begin       (GDBusMethodInvocation      *invocation,
                                                         const gchar                *format,
@@ -171,25 +170,12 @@ TrackerDBusRequest *tracker_dbus_g_request_begin       (DBusGMethodInvocation   
                                                         const gchar                *format,
                                                         ...);
 
-/* File descriptor convenience API */
-// todo: remove this api, only used by libtracker-client
-gboolean            tracker_dbus_send_and_splice       (DBusConnection             *connection,
-                                                        DBusMessage                *message,
-                                                        int                         fd,
-                                                        GCancellable               *cancellable,
-                                                        void                      **dest_buffer,
-                                                        gssize                     *dest_buffer_size,
-                                                        GStrv                      *variable_names,
-                                                        GError                    **error);
-
 gboolean            tracker_dbus_send_and_splice_async (GDBusConnection            *connection,
                                                         GDBusMessage               *message,
                                                         int                         fd,
-                                                        gboolean                    expect_variable_names,
                                                         GCancellable               *cancellable,
                                                         TrackerDBusSendAndSpliceCallback callback,
                                                         gpointer                    user_data);
-#endif
 
 G_END_DECLS
 

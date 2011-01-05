@@ -1742,7 +1742,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 
 	iterator = g_slice_new0 (TrackerResultIterator);
 
-	// todo remove
+#if 0
 	tracker_dbus_send_and_splice (connection,
 	                              message,
 	                              pipefd[0],
@@ -1752,6 +1752,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 	                              NULL /* Not interested in variable_names */,
 	                              &inner_error);
 	/* message is destroyed by tracker_dbus_send_and_splice */
+#endif
 
 	if (G_UNLIKELY (inner_error)) {
 		g_propagate_error (error, inner_error);
@@ -2222,6 +2223,7 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                           user_data);
 	fad->iterator_callback = callback;
 
+#if 0
 	tracker_dbus_send_and_splice_async (connection,
 	                                    message,
 	                                    pipefd[0],
@@ -2229,6 +2231,8 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                                    cancellable,
 	                                    callback_iterator,
 	                                    fad);
+
+#endif
 
 	return fad->request_id;
 }
