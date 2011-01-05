@@ -464,32 +464,6 @@ tracker_dbus_g_request_begin (DBusGMethodInvocation *context,
 	return request;
 }
 
-// todo remove
-static GStrv
-dbus_send_and_splice_get_variable_names (DBusMessage  *message,
-                                         gboolean      copy_strings)
-{
-	GPtrArray *found;
-	DBusMessageIter iter, arr;
-
-	dbus_message_iter_init (message, &iter);
-	dbus_message_iter_recurse (&iter, &arr);
-
-	found = g_ptr_array_new ();
-
-	while (dbus_message_iter_get_arg_type (&arr) != DBUS_TYPE_INVALID) {
-		gchar *str;
-
-		dbus_message_iter_get_basic (&arr, &str);
-		g_ptr_array_add (found, copy_strings ? g_strdup (str) : str);
-		dbus_message_iter_next (&arr);
-	}
-
-	g_ptr_array_add (found, NULL);
-
-	return (GStrv) g_ptr_array_free (found, FALSE);
-}
-
 static SendAndSpliceData *
 send_and_splice_data_new (GInputStream                     *unix_input_stream,
                           GInputStream                     *buffered_input_stream,
