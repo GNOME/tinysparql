@@ -172,6 +172,7 @@ TrackerDBusRequest *tracker_dbus_g_request_begin       (DBusGMethodInvocation   
                                                         ...);
 
 /* File descriptor convenience API */
+// todo: remove this api, only used by libtracker-client
 gboolean            tracker_dbus_send_and_splice       (DBusConnection             *connection,
                                                         DBusMessage                *message,
                                                         int                         fd,
@@ -181,10 +182,9 @@ gboolean            tracker_dbus_send_and_splice       (DBusConnection          
                                                         GStrv                      *variable_names,
                                                         GError                    **error);
 
-gboolean            tracker_dbus_send_and_splice_async (DBusConnection             *connection,
-                                                        DBusMessage                *message,
+gboolean            tracker_dbus_send_and_splice_async (GDBusConnection            *connection,
+                                                        GDBusMessage               *message,
                                                         int                         fd,
-                                                        gboolean                    expect_variable_names,
                                                         GCancellable               *cancellable,
                                                         TrackerDBusSendAndSpliceCallback callback,
                                                         gpointer                    user_data);

@@ -30,6 +30,8 @@
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
+#include <gio/gio.h>
+#include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
 
 #include <dbus/dbus-glib-lowlevel.h>
@@ -73,11 +75,15 @@ struct ProcessFileData {
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
 	GFile *file;
-	DBusPendingCall *call;
 };
 
+typedef void (*fast_async_cb) (gchar    *preupdate,
+                               gchar    *sparql,
+                               GError   *error,
+                               gpointer  user_data);
+
 typedef struct {
-	org_freedesktop_Tracker1_Extract_get_metadata_reply callback;
+	fast_async_cb callback;
 	gpointer user_data;
 } FastAsyncData;
 
@@ -100,8 +106,7 @@ struct TrackerMinerFilesPrivate {
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 	gulong finished_handler;
 
-	DBusGConnection *connection;
-	DBusGProxy *extractor_proxy;
+	GDBusConnection *connection;
 
 	GQuark quark_mount_point_uuid;
 	GQuark quark_directory_config_root;
@@ -176,7 +181,6 @@ static void        trigger_recheck_cb                   (GObject              *g
 static void        index_volumes_changed_cb             (GObject              *gobject,
 							 GParamSpec           *arg1,
 							 gpointer              user_data);
-static DBusGProxy *extractor_create_proxy               (DBusGConnection      *connection);
 static gboolean    miner_files_check_file               (TrackerMinerFS       *fs,
                                                          GFile                *file);
 static gboolean    miner_files_check_directory          (TrackerMinerFS       *fs,
@@ -294,15 +298,13 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	                  mf);
 
 	/* Set up extractor and signals */
-	priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	priv->connection =  g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
 	if (!priv->connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
 		            error ? error->message : "no error given.");
 		g_error_free (error);
 	}
-
-	priv->extractor_proxy = extractor_create_proxy (priv->connection);
 
 	priv->quark_mount_point_uuid = g_quark_from_static_string ("tracker-mount-point-uuid");
 	priv->quark_directory_config_root = g_quark_from_static_string ("tracker-directory-config-root");
@@ -358,8 +360,6 @@ miner_files_finalize (GObject *object)
 
 	mf = TRACKER_MINER_FILES (object);
 	priv = mf->private;
-
-	g_object_unref (priv->extractor_proxy);
 
 	g_signal_handlers_disconnect_by_func (priv->config,
 	                                      low_disk_space_limit_cb,
@@ -1842,42 +1842,11 @@ process_file_data_free (ProcessFileData *data)
 	g_slice_free (ProcessFileData, data);
 }
 
-static DBusGProxy *
-extractor_create_proxy (DBusGConnection *connection)
-{
-	DBusGProxy *proxy;
-
-	g_return_val_if_fail (connection, NULL);
-
-	/* Get proxy for the extractor */
-	proxy = dbus_g_proxy_new_for_name (connection,
-	                                   "org.freedesktop.Tracker1.Extract",
-	                                   "/org/freedesktop/Tracker1/Extract",
-	                                   "org.freedesktop.Tracker1.Extract");
-
-	if (!proxy) {
-		g_critical ("Could not create a DBusGProxy to the extract service");
-	} else {
-		/* Set default timeout for DBus requests to be around 60s.
-		 * Assuming that the files which need more time to get extracted are PDFs
-		 * using libpoppler, we already have a limit in the PDF extractor not to
-		 * spend more than 5s extraction contents. And, assuming the default
-		 * value of 10 in process-pool-limit, it means we may end up queueing up
-		 * to 10 PDF files which may need 5s each, so in order not to have dbus
-		 * timeouts in this case, any value greater than 5*10 would be good.
-		 */
-		dbus_g_proxy_set_default_timeout (proxy, EXTRACTOR_DBUS_TIMEOUT);
-	}
-
-	return proxy;
-}
-
 static void
-extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
-                                    gchar      *preupdate,
-                                    gchar      *sparql,
-                                    GError     *error,
-                                    gpointer    user_data)
+extractor_get_embedded_metadata_cb (gchar    *preupdate,
+                                    gchar    *sparql,
+                                    GError   *error,
+                                    gpointer  user_data)
 {
 	ProcessFileData *data = user_data;
 	const gchar *uuid;
@@ -1919,7 +1888,7 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 	}
 
 	uuid = g_object_get_qdata (G_OBJECT (data->file),
-				  data->miner->private->quark_mount_point_uuid);
+	                           data->miner->private->quark_mount_point_uuid);
 
 	/* File represents a mount point */
 	if (G_UNLIKELY (uuid)) {
@@ -1977,7 +1946,7 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 }
 
 static FastAsyncData*
-fast_async_data_new (org_freedesktop_Tracker1_Extract_get_metadata_reply callback,
+fast_async_data_new (fast_async_cb  callback,
                      gpointer       user_data)
 {
 	FastAsyncData *data;
@@ -2014,7 +1983,7 @@ get_metadata_fast_cb (void     *buffer,
 	if (G_UNLIKELY (error)) {
 		if (error->code != G_IO_ERROR_CANCELLED) {
 			/* ProcessFileData and error are freed in the callback */
-			(* data->callback) (NULL, NULL, NULL, error, process_data);
+			(* data->callback) (NULL, NULL, error, process_data);
 		} else {
 			/* Free error ourselves */
 			g_error_free (error);
@@ -2025,7 +1994,7 @@ get_metadata_fast_cb (void     *buffer,
 			sparql = preupdate + strlen (preupdate) + 1;
 		}
 
-		(* data->callback) (NULL, preupdate, sparql, NULL, data->user_data);
+		(* data->callback) (preupdate, sparql, NULL, data->user_data);
 		g_free (preupdate);
 	}
 
@@ -2033,16 +2002,19 @@ get_metadata_fast_cb (void     *buffer,
 }
 
 static void
-get_metadata_fast_async (DBusConnection  *connection,
+get_metadata_fast_async (GDBusConnection *connection,
                          const gchar     *uri,
                          const gchar     *mime_type,
                          GCancellable    *cancellable,
-                         org_freedesktop_Tracker1_Extract_get_metadata_reply callback,
+                         fast_async_cb    callback,
                          ProcessFileData *user_data)
 {
-	int pipefd[2];
-	DBusMessage *message;
+	GDBusMessage *message;
+	GVariant *arguments;
+	GVariantBuilder arguments_builder;
+	GUnixFDList *fd_list;
 	FastAsyncData *data;
+	int pipefd[2];
 
 	g_return_if_fail (connection);
 	g_return_if_fail (uri);
@@ -2054,16 +2026,29 @@ get_metadata_fast_async (DBusConnection  *connection,
 		return;
 	}
 
-	message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE_EXTRACT,
-	                                        TRACKER_DBUS_PATH_EXTRACT,
-	                                        TRACKER_DBUS_INTERFACE_EXTRACT,
-	                                        "GetMetadataFast");
-	dbus_message_append_args (message,
-	                          DBUS_TYPE_STRING, &uri,
-	                          DBUS_TYPE_STRING, &mime_type,
-	                          DBUS_TYPE_UNIX_FD, &pipefd[1],
-	                          DBUS_TYPE_INVALID);
+	message = g_dbus_message_new_method_call (TRACKER_DBUS_SERVICE_EXTRACT,
+	                                          TRACKER_DBUS_PATH_EXTRACT,
+	                                          TRACKER_DBUS_INTERFACE_EXTRACT,
+	                                          "GetMetadataFast");
+
+	g_variant_builder_init (&arguments_builder, G_VARIANT_TYPE_TUPLE);
+
+	fd_list = g_unix_fd_list_new ();
+
+	g_variant_builder_add (&arguments_builder, "ssh",
+	                       uri,
+	                       mime_type,
+	                       g_unix_fd_list_append (fd_list,
+	                                              pipefd[1],
+	                                              NULL));
+
 	close (pipefd[1]);
+
+	arguments = g_variant_builder_end (&arguments_builder);
+	g_dbus_message_set_body (message, arguments);
+	g_dbus_message_set_unix_fd_list (message, fd_list);
+
+	g_object_unref (fd_list);
 
 	data = fast_async_data_new (callback,
 	                            user_data);
@@ -2071,7 +2056,6 @@ get_metadata_fast_async (DBusConnection  *connection,
 	tracker_dbus_send_and_splice_async (connection,
 	                                    message,
 	                                    pipefd[0],
-	                                    FALSE,
 	                                    cancellable,
 	                                    get_metadata_fast_cb,
 	                                    data);
@@ -2082,13 +2066,12 @@ extractor_get_embedded_metadata (ProcessFileData *data,
                                  const gchar     *uri,
                                  const gchar     *mime_type)
 {
-	get_metadata_fast_async (dbus_g_connection_get_connection (data->miner->private->connection),
+	get_metadata_fast_async (data->miner->private->connection,
 	                         uri,
 	                         mime_type,
 	                         data->cancellable,
 	                         extractor_get_embedded_metadata_cb,
 	                         data);
-	data->call = NULL;
 
 	g_signal_connect (data->cancellable, "cancelled",
 	                  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
