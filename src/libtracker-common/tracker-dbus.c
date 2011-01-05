@@ -601,6 +601,7 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	GInputStream *unix_input_stream;
 	GInputStream *buffered_input_stream;
 	GOutputStream *output_stream;
+	GSimpleAsyncResult *result;
 
 	g_return_val_if_fail (connection != NULL, FALSE);
 	g_return_val_if_fail (message != NULL, FALSE);
@@ -612,12 +613,10 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	                                                           TRACKER_DBUS_PIPE_BUFFER_SIZE);
 	output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
 
-	data = send_and_splice_data_new (unix_input_stream,
-	                                 buffered_input_stream,
-	                                 output_stream,
-	                                 cancellable,
-	                                 callback,
-	                                 user_data);
+	result = g_simple_async_result_new (G_OBJECT (connection),
+	                                    tracker_dbus_send_and_splice_async_finish,
+	                                    user_data,
+	                                    g_dbus_connection_send_message_with_reply);
 
 	g_dbus_connection_send_message_with_reply (connection,
 	                                           message,
@@ -626,9 +625,14 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	                                           NULL,
 	                                           cancellable,
 	                                           tracker_g_async_ready_callback,
-	                                           g_simple_async_result_new (G_OBJECT (connection),
-	                                                                      tracker_dbus_send_and_splice_async_finish,
-	                                                                      user_data, NULL));
+	                                           result);
+
+	data = send_and_splice_data_new (unix_input_stream,
+	                                 buffered_input_stream,
+	                                 output_stream,
+	                                 cancellable,
+	                                 callback,
+	                                 user_data);
 
 	g_output_stream_splice_async (data->output_stream,
 	                              data->buffered_input_stream,
