@@ -956,12 +956,12 @@ init_mount_points (TrackerMinerFiles *miner_files)
 			if (urn) {
 				if (mount_point) {
 					g_debug ("Mount point state incorrect in DB for URN '%s', "
-						 "currently it is mounted on '%s'",
+					         "currently it is mounted on '%s'",
 					         urn,
-						 mount_point);
+					         mount_point);
 				} else {
 					g_debug ("Mount point state incorrect in DB for URN '%s', "
-						 "currently it is mounted",
+					         "currently it is mounted",
 					         urn);
 				}
 
@@ -984,8 +984,8 @@ init_mount_points (TrackerMinerFiles *miner_files)
 		           (state & VOLUME_MOUNTED_IN_STORE)) {
 			if (urn) {
 				g_debug ("Mount point state incorrect in DB for URN '%s', "
-					 "currently it is NOT mounted",
-					 urn);
+				         "currently it is NOT mounted",
+				         urn);
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
 				                    urn,
 				                    NULL,
