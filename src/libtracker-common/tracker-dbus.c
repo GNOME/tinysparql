@@ -645,18 +645,33 @@ send_and_splice_async_callback (GObject      *source,
                                 GAsyncResult *result,
                                 gpointer      user_data)
 {
+	GError *error = NULL;
+
+	g_output_stream_splice_finish (G_OUTPUT_STREAM (source), result, &error);
+
+	if (error) {
+		g_critical ("Error while splicing: %s",
+		            error ? error->message : "Error not specified");
+		g_error_free (error);
+	}
+}
+
+static void
+tracker_dbus_send_and_splice_async_finish (GObject      *source,
+                                           GAsyncResult *result,
+                                           gpointer      user_data)
+{
 	SendAndSpliceData *data = user_data;
 	GError *error = NULL;
 
-	g_output_stream_splice_finish (data->output_stream,
-	                               result,
-	                               &error);
+	data->reply = g_dbus_connection_send_message_with_reply_finish (G_DBUS_CONNECTION (source),
+	                                                                result, &error);
 
-	if (G_LIKELY (!error)) {
+	if (!error) {
 		/* dbus_pending_call_block (data->call);
 		   reply = dbus_pending_call_steal_reply (data->call); */
 
-		if (G_UNLIKELY (g_dbus_message_get_message_type (data->reply) == G_DBUS_MESSAGE_TYPE_ERROR)) {
+		if (g_dbus_message_get_message_type (data->reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
 
 			/* If any error happened, we're not passing any received data, so we
 			 * need to free it */
@@ -696,34 +711,6 @@ send_and_splice_async_callback (GObject      *source,
 	}
 
 	send_and_splice_data_free (data);
-}
-
-static void
-tracker_dbus_send_and_splice_async_finish (GObject      *source,
-                                           GAsyncResult *result,
-                                           gpointer      user_data)
-{
-	SendAndSpliceData *data = user_data;
-	GError *error = NULL;
-
-	data->reply = g_dbus_connection_send_message_with_reply_finish ((GDBusConnection *) source,
-	                                                                result, &error);
-
-	if (error) {
-		g_critical ("FD passing unsupported or connection disconnected: %s",
-		            error ? error->message : "No error provided");
-		g_error_free (error);
-		return;
-	}
-
-	g_output_stream_splice_async (data->output_stream,
-	                              data->buffered_input_stream,
-	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
-	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
-	                              0,
-	                              data->cancellable,
-	                              send_and_splice_async_callback,
-	                              data);
 }
 
 static void
@@ -776,6 +763,15 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	                                           g_simple_async_result_new (G_OBJECT (connection),
 	                                                                      tracker_dbus_send_and_splice_async_finish,
 	                                                                      user_data, NULL));
+
+	g_output_stream_splice_async (data->output_stream,
+	                              data->buffered_input_stream,
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+	                              0,
+	                              data->cancellable,
+	                              send_and_splice_async_callback,
+	                              data);
 
 	return TRUE;
 }
