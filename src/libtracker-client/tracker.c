@@ -610,7 +610,6 @@ iterator_buffer_read_int (TrackerResultIterator *iterator)
 	return v;
 }
 
-#if 0
 static void
 callback_iterator (void     *buffer,
                    gssize    buffer_size,
@@ -661,7 +660,6 @@ callback_iterator (void     *buffer,
 
 	fast_async_data_free (fad);
 }
-#endif
 
 /* Deprecated and only used for 0.6 API */
 static void
@@ -2224,16 +2222,13 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
 	                           user_data);
 	fad->iterator_callback = callback;
 
-	// todo: port to gdbus or remove this function
-	g_critical ("Unsupported call, not ported to GDBus");
-
-//	tracker_dbus_send_and_splice_async (connection,
-//	                                    message,
-//	                                    pipefd[0],
-//	                                    TRUE,
-//	                                    cancellable,
-//	                                    callback_iterator,
-//	                                    fad);
+	tracker_dbus_send_and_splice_async (connection,
+	                                    message,
+	                                    pipefd[0],
+	                                    TRUE,
+	                                    cancellable,
+	                                    callback_iterator,
+	                                    fad);
 
 	return fad->request_id;
 }

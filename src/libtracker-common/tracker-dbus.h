@@ -185,6 +185,7 @@ gboolean            tracker_dbus_send_and_splice       (DBusConnection          
 gboolean            tracker_dbus_send_and_splice_async (GDBusConnection            *connection,
                                                         GDBusMessage               *message,
                                                         int                         fd,
+                                                        gboolean                    expect_variable_names,
                                                         GCancellable               *cancellable,
                                                         TrackerDBusSendAndSpliceCallback callback,
                                                         gpointer                    user_data);

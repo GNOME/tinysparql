@@ -54,6 +54,7 @@ typedef struct {
 	TrackerDBusSendAndSpliceCallback callback;
 	GCancellable *cancellable;
 	gpointer user_data;
+	gboolean expect_variable_names;
 } SendAndSpliceData;
 
 static gboolean client_lookup_enabled;
@@ -606,6 +607,7 @@ static SendAndSpliceData *
 send_and_splice_data_new (GInputStream                     *unix_input_stream,
                           GInputStream                     *buffered_input_stream,
                           GOutputStream                    *output_stream,
+                          gboolean                          expect_variable_names,
                           GCancellable                     *cancellable,
                           TrackerDBusSendAndSpliceCallback  callback,
                           gpointer                          user_data)
@@ -621,6 +623,7 @@ send_and_splice_data_new (GInputStream                     *unix_input_stream,
 	}
 	data->callback = callback;
 	data->user_data = user_data;
+	data->expect_variable_names = expect_variable_names;
 
 	return data;
 }
@@ -686,6 +689,13 @@ tracker_dbus_send_and_splice_async_finish (GObject      *source,
 		} else {
 			GStrv v_names = NULL;
 
+			if (data->expect_variable_names) {
+#if 0
+				todo: port this function
+				v_names = dbus_send_and_splice_get_variable_names (reply, FALSE);
+#endif
+			}
+
 			/* dbus_pending_call_cancel (data->call); */
 
 			(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
@@ -727,6 +737,7 @@ gboolean
 tracker_dbus_send_and_splice_async (GDBusConnection                  *connection,
                                     GDBusMessage                     *message,
                                     int                               fd,
+                                    gboolean                          expect_variable_names,
                                     GCancellable                     *cancellable,
                                     TrackerDBusSendAndSpliceCallback  callback,
                                     gpointer                          user_data)
@@ -749,6 +760,7 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	data = send_and_splice_data_new (unix_input_stream,
 	                                 buffered_input_stream,
 	                                 output_stream,
+	                                 expect_variable_names,
 	                                 cancellable,
 	                                 callback,
 	                                 user_data);

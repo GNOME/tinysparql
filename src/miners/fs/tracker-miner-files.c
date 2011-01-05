@@ -2056,6 +2056,7 @@ get_metadata_fast_async (GDBusConnection *connection,
 	tracker_dbus_send_and_splice_async (connection,
 	                                    message,
 	                                    pipefd[0],
+	                                    FALSE,
 	                                    cancellable,
 	                                    get_metadata_fast_cb,
 	                                    data);
