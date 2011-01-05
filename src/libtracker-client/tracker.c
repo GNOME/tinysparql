@@ -1742,6 +1742,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
 
 	iterator = g_slice_new0 (TrackerResultIterator);
 
+	// todo remove
 	tracker_dbus_send_and_splice (connection,
 	                              message,
 	                              pipefd[0],
