@@ -244,8 +244,7 @@ miner_progress_changed (GDBusConnection *connection,
 	const gchar *status = NULL;
 	gdouble progress = 0;
 
-	/* FIXME: todo test this g_variant_get */
-	g_variant_get (parameters, "^sd", &status, &progress);
+	g_variant_get (parameters, "(sd)", &status, &progress);
 	g_signal_emit (user_data, signals[MINER_PROGRESS], 0, sender_name, status, progress);
 }
 
@@ -474,10 +473,6 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 		g_critical ("Could not get a list of names registered on the session bus, %s",
 		            error ? error->message : "no error given");
 		g_clear_error (&error);
-		if (v) {
-			g_variant_unref (v);
-		}
-
 		return NULL;
 	}
 
@@ -690,24 +685,21 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
 		app_name = "TrackerMinerManager client";
 	}
 
-	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "Pause",
-	                            g_variant_new ("ssi", app_name, reason, (gint) cookie),
+	                            g_variant_new ("(ssi)", app_name, reason, (gint) cookie),
 	                            G_DBUS_CALL_FLAGS_NONE,
 	                            -1,
 	                            NULL,
 	                            &error);
-
-	if (v) {
-		g_variant_unref (v);
-	}
 
 	if (error) {
 		g_critical ("Could not pause miner '%s': %s", miner, error->message);
 		g_error_free (error);
 		return FALSE;
 	}
+
+	g_variant_unref (v);
 
 	return TRUE;
 }
@@ -745,21 +737,19 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
 	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "Resume",
-	                            g_variant_new ("i", (gint) cookie),
+	                            g_variant_new ("(i)", (gint) cookie),
 	                            G_DBUS_CALL_FLAGS_NONE,
 	                            -1,
 	                            NULL,
 	                            &error);
-
-	if (v) {
-		g_variant_unref (v);
-	}
 
 	if (error) {
 		g_critical ("Could not resume miner '%s': %s", miner, error->message);
 		g_error_free (error);
 		return FALSE;
 	}
+
+	g_variant_unref (v);
 
 	return TRUE;
 }
@@ -792,23 +782,23 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
 	                                 "/org/freedesktop/DBus",
 	                                 "org.freedesktop.DBus",
 	                                 "NameHasOwner",
-	                                 g_variant_new ("s", miner),
+	                                 g_variant_new ("(s)", miner),
 	                                 NULL,
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
 	                                 NULL,
 	                                 &error);
 
-	if (v) {
-		active = g_variant_get_boolean (v);
-		g_variant_unref (v);
-	}
-
 	if (error) {
 		g_critical ("Could not check whether miner '%s' is currently active: %s",
 		            miner, error ? error->message : "no error given");
 		g_error_free (error);
 		return FALSE;
+	}
+
+	if (v) {
+		g_variant_get (v, "(b)", &active);
+		g_variant_unref (v);
 	}
 
 	return active;
@@ -856,7 +846,7 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 	                            &error);
 
 	if (v) {
-		p = g_variant_get_double (v);
+		g_variant_get (v, "(d)", &p);
 		g_variant_unref (v);
 	}
 
@@ -874,7 +864,6 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 		return FALSE;
 	}
 
-	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "GetStatus",
 	                            NULL,
@@ -887,15 +876,12 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 		g_critical ("Could not get miner status for '%s': %s", miner,
 		            error->message);
 		g_error_free (error);
-		if (v) {
-			g_variant_unref (v);
-		}
 		return FALSE;
 	}
 
 	if (v) {
 		if (status) {
-			*status = g_variant_dup_string (v, NULL);
+			g_variant_get (v, "(s)", status);
 		}
 
 		g_variant_unref (v);
@@ -966,17 +952,11 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 		g_critical ("Could not get pause details for miner '%s': %s", miner,
 		            error->message);
 		g_error_free (error);
-
-		if (v) {
-			g_variant_unref (v);
-		}
-
 		return TRUE;
 	}
 
 	if (v) {
-		/* FIXME: todo test this format string */
-		g_variant_get (v, "^as^as", &apps, &r);
+		g_variant_get (v, "(^as^as)", &apps, &r);
 		g_variant_unref (v);
 	}
 
@@ -1096,21 +1076,19 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "IgnoreNextUpdate",
-	                            g_variant_new ("as", urls),
+	                            g_variant_new ("(as)", urls),
 	                            G_DBUS_CALL_FLAGS_NONE,
 	                            -1,
 	                            NULL,
 	                            &error);
-
-	if (v) {
-		g_variant_unref (v);
-	}
 
 	if (error) {
 		g_warning ("Could not ignore next update for miner '%s': %s", miner, error->message);
 		g_error_free (error);
 		return FALSE;
 	}
+
+	g_variant_unref (v);
 
 	return TRUE;
 }
@@ -1174,7 +1152,7 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 	                                 "/org/freedesktop/Tracker1/Miner/Files/Index",
 	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
 	                                 "ReindexMimeTypes",
-	                                 g_variant_new ("as", mimetypes),
+	                                 g_variant_new ("(as)", mimetypes),
 	                                 NULL,
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
@@ -1239,7 +1217,7 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 	                                 "/org/freedesktop/Tracker1/Miner/Files/Index",
 	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
 	                                 "IndexFile",
-	                                 g_variant_new ("s", uri),
+	                                 g_variant_new ("(s)", uri),
 	                                 NULL,
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
