@@ -1932,9 +1932,13 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 {
 	GError *error;
 
-	/* Cancel extractor call */
+	/* TODO: Cancel extractor call
+	 * Isn't this as simple as g_cancellable_cancel (cancellable) now after the
+	 * GDBus port? The original dbus-glib code didn't have this so I have not
+	 * yet implemented it as part of the GDBus port. */
 
-	error = g_error_new_literal (miner_files_error_quark, 0, "Embedded metadata extraction was cancelled");
+	error = g_error_new_literal (miner_files_error_quark, 0,
+	                             "Embedded metadata extraction was cancelled");
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 
 	process_file_data_free (data);
@@ -1982,7 +1986,7 @@ get_metadata_fast_cb (void     *buffer,
 		}
 	} else {
 		if (buffer_size) {
-		/* sparql is stored just after preupdate in the original buffer */
+			/* sparql is stored just after preupdate in the original buffer */
 			sparql = preupdate + strlen (preupdate) + 1;
 		}
 
@@ -2030,6 +2034,10 @@ get_metadata_fast_async (GDBusConnection *connection,
 	                                                                        pipefd[1],
 	                                                                        NULL)));
 	g_dbus_message_set_unix_fd_list (message, fd_list);
+
+	/* Note from Philip to reviewer:
+	 * I'm not sure if we have to close pipefd[1] here, or if the unref of
+	 * fd_list will do it. */
 
 	close (pipefd[1]);
 
