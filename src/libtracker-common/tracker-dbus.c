@@ -50,7 +50,6 @@ typedef struct {
 	GInputStream *unix_input_stream;
 	GInputStream *buffered_input_stream;
 	GOutputStream *output_stream;
-	GDBusMessage *reply;
 	TrackerDBusSendAndSpliceCallback callback;
 	GCancellable *cancellable;
 	gpointer user_data;
@@ -505,9 +504,6 @@ send_and_splice_data_free (SendAndSpliceData *data)
 	if (data->cancellable) {
 		g_object_unref (data->cancellable);
 	}
-	if (data->reply) {
-		g_object_unref (data->reply);
-	}
 	g_slice_free (SendAndSpliceData, data);
 }
 
@@ -533,38 +529,33 @@ tracker_dbus_send_and_splice_async_finish (GObject      *source,
                                            gpointer      user_data)
 {
 	SendAndSpliceData *data = user_data;
+	GDBusMessage *reply;
 	GError *error = NULL;
 
-	data->reply = g_dbus_connection_send_message_with_reply_finish (G_DBUS_CONNECTION (source),
-	                                                                result, &error);
+	reply = g_dbus_connection_send_message_with_reply_finish (G_DBUS_CONNECTION (source),
+	                                                          result, &error);
 
 	if (!error) {
-		if (g_dbus_message_get_message_type (data->reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
-			gchar *print;
+		if (g_dbus_message_get_message_type (reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
 
-			print = g_dbus_message_print (data->reply, 0);
-			g_set_error (&error,
-			             TRACKER_DBUS_ERROR,
-			             TRACKER_DBUS_ERROR_UNSUPPORTED,
-			             "%s", print);
-			g_free (print);
-
+			g_dbus_message_to_gerror (reply, &error);
 			g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)));
-
 			(* data->callback) (NULL, -1, error, data->user_data);
-
 			g_error_free (error);
 		} else {
 			(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
 			                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
 			                    NULL,
 			                    data->user_data);
-
 		}
 	} else {
 		g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)));
 		(* data->callback) (NULL, -1, error, data->user_data);
 		g_error_free (error);
+	}
+
+	if (reply) {
+		g_object_unref (reply);
 	}
 
 	send_and_splice_data_free (data);
