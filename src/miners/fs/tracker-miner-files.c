@@ -1854,9 +1854,6 @@ extractor_get_embedded_metadata_cb (gchar    *preupdate,
 		/* Something bad happened, notify about the error */
 		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 		process_file_data_free (data);
-		/* Always free input GError. We want to behave exactly as if this
-		 * callback were one used in an async dbus-glib query.  */
-		g_error_free (error);
 		return;
 	}
 
@@ -1951,6 +1948,7 @@ fast_async_data_new (fast_async_cb  callback,
 	FastAsyncData *data;
 
 	data = g_slice_new0 (FastAsyncData);
+
 	data->callback = callback;
 	data->user_data = user_data;
 
@@ -1966,7 +1964,6 @@ fast_async_data_free (FastAsyncData *data)
 static void
 get_metadata_fast_cb (void     *buffer,
                       gssize    buffer_size,
-                      GStrv     variable_names,
                       GError   *error,
                       gpointer  user_data)
 {
@@ -1981,11 +1978,7 @@ get_metadata_fast_cb (void     *buffer,
 	preupdate = buffer;
 	if (G_UNLIKELY (error)) {
 		if (error->code != G_IO_ERROR_CANCELLED) {
-			/* ProcessFileData and error are freed in the callback */
 			(* data->callback) (NULL, NULL, error, process_data);
-		} else {
-			/* Free error ourselves */
-			g_error_free (error);
 		}
 	} else {
 		if (buffer_size) {

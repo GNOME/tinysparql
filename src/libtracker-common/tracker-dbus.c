@@ -540,53 +540,34 @@ tracker_dbus_send_and_splice_async_finish (GObject      *source,
 
 	if (!error) {
 		if (g_dbus_message_get_message_type (data->reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
+			gchar *print;
 
-			/* If any error happened, we're not passing any received data, so we
-			 * need to free it */
+			print = g_dbus_message_print (data->reply, 0);
+			g_set_error (&error,
+			             TRACKER_DBUS_ERROR,
+			             TRACKER_DBUS_ERROR_UNSUPPORTED,
+			             "%s", print);
+			g_free (print);
+
 			g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)));
 
-			(* data->callback) (NULL, -1, NULL, error, data->user_data);
+			(* data->callback) (NULL, -1, error, data->user_data);
 
-			/* Note: GError should be freed by callback. We do this to be aligned
-			 * with the behavior of dbus-glib, where if an error happens, the
-			 * GError passed to the callback is supposed to be disposed by the
-			 * callback itself. */
+			g_error_free (error);
 		} else {
-			GStrv v_names = NULL;
-
 			(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
 			                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
-			                    v_names,
 			                    NULL,
 			                    data->user_data);
 
-			/* Don't use g_strfreev here, see above */
-			g_free (v_names);
 		}
 	} else {
-		/* If any error happened, we're not passing any received data, so we
-		 * need to free it */
 		g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)));
-
-		(* data->callback) (NULL, -1, NULL, error, data->user_data);
-
-		/* Note: GError should be freed by callback. We do this to be aligned
-		 * with the behavior of dbus-glib, where if an error happens, the
-		 * GError passed to the callback is supposed to be disposed by the
-		 * callback itself. */
+		(* data->callback) (NULL, -1, error, data->user_data);
+		g_error_free (error);
 	}
 
 	send_and_splice_data_free (data);
-}
-
-static void
-tracker_g_async_ready_callback (GObject      *source_object,
-                                GAsyncResult *res,
-                                gpointer      user_data)
-{
-	g_simple_async_result_set_op_res_gpointer (user_data, g_object_ref (res), g_object_unref);
-	g_simple_async_result_complete (user_data);
-	g_object_unref (user_data);
 }
 
 gboolean
@@ -601,7 +582,6 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	GInputStream *unix_input_stream;
 	GInputStream *buffered_input_stream;
 	GOutputStream *output_stream;
-	GSimpleAsyncResult *result;
 
 	g_return_val_if_fail (connection != NULL, FALSE);
 	g_return_val_if_fail (message != NULL, FALSE);
@@ -613,10 +593,12 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	                                                           TRACKER_DBUS_PIPE_BUFFER_SIZE);
 	output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
 
-	result = g_simple_async_result_new (G_OBJECT (connection),
-	                                    tracker_dbus_send_and_splice_async_finish,
-	                                    user_data,
-	                                    g_dbus_connection_send_message_with_reply);
+	data = send_and_splice_data_new (unix_input_stream,
+	                                 buffered_input_stream,
+	                                 output_stream,
+	                                 cancellable,
+	                                 callback,
+	                                 user_data);
 
 	g_dbus_connection_send_message_with_reply (connection,
 	                                           message,
@@ -624,15 +606,8 @@ tracker_dbus_send_and_splice_async (GDBusConnection                  *connection
 	                                           -1,
 	                                           NULL,
 	                                           cancellable,
-	                                           tracker_g_async_ready_callback,
-	                                           result);
-
-	data = send_and_splice_data_new (unix_input_stream,
-	                                 buffered_input_stream,
-	                                 output_stream,
-	                                 cancellable,
-	                                 callback,
-	                                 user_data);
+	                                           tracker_dbus_send_and_splice_async_finish,
+	                                           data);
 
 	g_output_stream_splice_async (data->output_stream,
 	                              data->buffered_input_stream,
