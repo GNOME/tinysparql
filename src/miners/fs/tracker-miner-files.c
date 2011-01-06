@@ -2002,8 +2002,6 @@ get_metadata_fast_async (GDBusConnection *connection,
                          ProcessFileData *user_data)
 {
 	GDBusMessage *message;
-	GVariant *arguments;
-	GVariantBuilder arguments_builder;
 	GUnixFDList *fd_list;
 	FastAsyncData *data;
 	int pipefd[2];
@@ -2023,22 +2021,17 @@ get_metadata_fast_async (GDBusConnection *connection,
 	                                          TRACKER_DBUS_INTERFACE_EXTRACT,
 	                                          "GetMetadataFast");
 
-	g_variant_builder_init (&arguments_builder, G_VARIANT_TYPE_TUPLE);
-
 	fd_list = g_unix_fd_list_new ();
 
-	g_variant_builder_add (&arguments_builder, "(ssh)",
-	                       uri,
-	                       mime_type,
-	                       g_unix_fd_list_append (fd_list,
-	                                              pipefd[1],
-	                                              NULL));
+	g_dbus_message_set_body (message, g_variant_new ("(ssh)",
+	                                                 uri,
+	                                                 mime_type,
+	                                                 g_unix_fd_list_append (fd_list,
+	                                                                        pipefd[1],
+	                                                                        NULL)));
+	g_dbus_message_set_unix_fd_list (message, fd_list);
 
 	close (pipefd[1]);
-
-	arguments = g_variant_builder_end (&arguments_builder);
-	g_dbus_message_set_body (message, arguments);
-	g_dbus_message_set_unix_fd_list (message, fd_list);
 
 	g_object_unref (fd_list);
 
