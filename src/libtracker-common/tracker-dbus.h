@@ -119,8 +119,7 @@ G_BEGIN_DECLS
 
 typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
                                                   gssize    buffer_size,
-                                                  GStrv     variable_names,
-                                                  GError   *error,
+                                                  GError   *error, /* Don't free */
                                                   gpointer  user_data);
 
 typedef struct _TrackerDBusRequest TrackerDBusRequest;
