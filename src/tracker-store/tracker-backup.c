@@ -22,7 +22,7 @@
 #include <glib-object.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-dbus.h>
+#include <libtracker-common/tracker-dbus-glib.h>
 
 #include <libtracker-data/tracker-data-backup.h>
 #include <libtracker-data/tracker-data-update.h>

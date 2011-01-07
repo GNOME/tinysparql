@@ -16,10 +16,14 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+
+#include <stdlib.h>
+
 #include <glib.h>
 #include <gio/gio.h>
-#include <libtracker-common/tracker-dbus.h>
-#include <stdlib.h>
+
+#include <libtracker-common/tracker-dbus-glib.h>
+
 #include <tracker-test-helpers.h>
 
 static void

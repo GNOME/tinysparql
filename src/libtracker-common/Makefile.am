@@ -37,6 +37,7 @@ libtracker_common_la_SOURCES =                         \
 	tracker-config-file.c                          \
 	tracker-date-time.c                            \
 	tracker-dbus.c                                 \
+	tracker-dbus-glib.c                            \
 	tracker-file-utils.c                           \
 	tracker-ioprio.c                               \
 	tracker-keyfile-object.c                       \
@@ -49,6 +50,7 @@ libtracker_common_la_SOURCES =                         \
 noinst_HEADERS =                                       \
 	$(power_headers)                               \
 	tracker-dbus.h                                 \
+	tracker-dbus-glib.h                            \
 	tracker-ioprio.h                               \
 	tracker-log.h                                  \
 	tracker-os-dependant.h                         \

@@ -279,7 +279,7 @@
 #include <ctype.h>
 #include <sqlite3.h>
 
-#include <libtracker-common/tracker-common.h>
+#include <libtracker-common/tracker-language.h>
 #include <libtracker-data/tracker-db-manager.h>
 
 #include "tracker-fts.h"

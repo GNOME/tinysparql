@@ -22,6 +22,8 @@
 
 #include <glib-object.h>
 
+#include <libtracker-common/tracker-dbus-glib.h>
+
 #define TRACKER_STEROIDS_SERVICE   "org.freedesktop.Tracker1"
 #define TRACKER_STEROIDS_PATH      "/org/freedesktop/Tracker1/Steroids"
 #define TRACKER_STEROIDS_INTERFACE "org.freedesktop.Tracker1.Steroids"

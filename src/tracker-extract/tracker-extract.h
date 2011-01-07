@@ -22,9 +22,6 @@
 
 #include <glib-object.h>
 
-#include <dbus/dbus-glib-bindings.h>
-#include <dbus/dbus.h>
-
 #define TRACKER_EXTRACT_SERVICE        "org.freedesktop.Tracker1.Extract"
 #define TRACKER_EXTRACT_PATH           "/org/freedesktop/Tracker1/Extract"
 #define TRACKER_EXTRACT_INTERFACE      "org.freedesktop.Tracker1.Extract"

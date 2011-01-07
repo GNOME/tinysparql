@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,23 +17,32 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_MINER_MINER_DBUS_H__
-#define __LIBTRACKER_MINER_MINER_DBUS_H__
+#include "config.h"
 
-#if !defined (__LIBTRACKER_MINER_H_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "Only <libtracker-miner/tracker-miner.h> can be included directly."
-#endif
+#include <dbus/dbus-glib-bindings.h>
 
-#include <glib-object.h>
+#include "tracker-dbus-glib.h"
 
-#include "tracker-miner-object.h"
+TrackerDBusRequest *
+tracker_dbus_g_request_begin (DBusGMethodInvocation *context,
+                              const gchar           *format,
+                              ...)
+{
+	TrackerDBusRequest *request;
+	gchar *str, *sender;
+	va_list args;
 
-G_BEGIN_DECLS
+	va_start (args, format);
+	str = g_strdup_vprintf (format, args);
+	va_end (args);
 
-#define TRACKER_MINER_DBUS_INTERFACE   "org.freedesktop.Tracker1.Miner"
-#define TRACKER_MINER_DBUS_NAME_PREFIX "org.freedesktop.Tracker1.Miner."
-#define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker1/Miner/"
+	sender = dbus_g_method_get_sender (context);
 
-G_END_DECLS
+	request = tracker_dbus_request_begin (sender, "%s", str);
 
-#endif /* __LIBTRACKER_MINER_MINER_DBUS_H__ */
+	g_free (sender);
+
+	g_free (str);
+
+	return request;
+}

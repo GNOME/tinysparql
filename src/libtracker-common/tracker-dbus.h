@@ -24,10 +24,6 @@
 
 #include <gio/gio.h>
 
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib-lowlevel.h>
-#include <dbus/dbus-glib.h>
-
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
@@ -60,25 +56,6 @@ G_BEGIN_DECLS
 #define TRACKER_TYPE_G_STRV_ARRAY	\
 	dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV)
 
-#define tracker_dbus_async_return_if_fail(expr,context)	\
-	G_STMT_START { \
-		if G_LIKELY(expr) { } else { \
-			GError *assert_error = NULL; \
-	  \
-			g_set_error (&assert_error, \
-			             TRACKER_DBUS_ERROR, \
-			             TRACKER_DBUS_ERROR_ASSERTION_FAILED, \
-			             _("Assertion `%s' failed"), \
-			             #expr); \
-	  \
-			dbus_g_method_return_error (context, assert_error); \
-			g_clear_error (&assert_error); \
-	  \
-			return; \
-		}; \
-	} G_STMT_END
-
-
 #define tracker_gdbus_async_return_if_fail(expr,invocation)	\
 	G_STMT_START { \
 		if G_LIKELY(expr) { } else { \
@@ -96,26 +73,6 @@ G_BEGIN_DECLS
 			return; \
 		}; \
 	} G_STMT_END
-
-#define tracker_dbus_return_val_if_fail(expr,val,error)	\
-	G_STMT_START { \
-		if G_LIKELY(expr) { } else { \
-			g_set_error (error, \
-			             TRACKER_DBUS_ERROR, \
-			             TRACKER_DBUS_ERROR_ASSERTION_FAILED, \
-			             _("Assertion `%s' failed"), \
-			             #expr); \
-	  \
-			return val; \
-		}; \
-	} G_STMT_END
-
-/* Size of buffers used when sending data over a pipe, using DBus FD passing */
-#define TRACKER_DBUS_PIPE_BUFFER_SIZE 65536
-
-#define TRACKER_DBUS_SERVICE_EXTRACT   "org.freedesktop.Tracker1.Extract"
-#define TRACKER_DBUS_PATH_EXTRACT      "/org/freedesktop/Tracker1/Extract"
-#define TRACKER_DBUS_INTERFACE_EXTRACT "org.freedesktop.Tracker1.Extract"
 
 typedef struct _TrackerDBusRequest TrackerDBusRequest;
 
@@ -156,11 +113,6 @@ void                tracker_dbus_enable_client_lookup  (gboolean                
 
 /* GDBus convenience API */
 TrackerDBusRequest *tracker_g_dbus_request_begin       (GDBusMethodInvocation      *invocation,
-                                                        const gchar                *format,
-                                                        ...);
-
-/* dbus-glib convenience API */
-TrackerDBusRequest *tracker_dbus_g_request_begin       (DBusGMethodInvocation      *context,
                                                         const gchar                *format,
                                                         ...);
 

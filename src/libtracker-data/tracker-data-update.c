@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <libtracker-common/tracker-common.h>
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontologies.h>

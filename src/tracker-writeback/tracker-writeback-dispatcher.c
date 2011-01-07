@@ -17,7 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <libtracker-common/tracker-dbus.h>
+#include "config.h"
+
+#include <libtracker-common/tracker-dbus-glib.h>
 
 #include "tracker-writeback-dispatcher.h"
 #include "tracker-writeback-dbus.h"
