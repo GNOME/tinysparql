@@ -31,8 +31,6 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#include <dbus/dbus-glib-bindings.h>
-
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-albumart.h"
@@ -663,7 +661,7 @@ albumart_queue_cb (GObject      *source_object,
 	v = g_dbus_connection_call_finish ((GDBusConnection *) source_object, res, &error);
 
 	if (error) {
-		if (error->code == DBUS_GERROR_SERVICE_UNKNOWN) {
+		if (error->code == G_DBUS_ERROR_SERVICE_UNKNOWN) {
 			disable_requests = TRUE;
 		} else {
 			g_warning ("%s", error->message);

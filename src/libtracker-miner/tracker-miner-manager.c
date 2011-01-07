@@ -858,7 +858,7 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 		/* We handle this error as a special case, some
 		 * plugins don't have .service files.
 		 */
-		if (error->code != DBUS_GERROR_SERVICE_UNKNOWN) {
+		if (error->code != G_DBUS_ERROR_SERVICE_UNKNOWN) {
 			g_critical ("Could not get miner progress for '%s': %s", miner,
 			            error->message);
 		}
