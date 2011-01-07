@@ -79,7 +79,6 @@ typedef struct {
 	gchar *ttl_backup_file;
 
 	gboolean first_time_index;
-	gboolean reindex_on_shutdown;
 	gboolean shutdown;
 } TrackerMainPrivate;
 
@@ -231,36 +230,6 @@ initialize_directories (void)
 	/* NOTE: We don't create the database directories here, the
 	 * tracker-db-manager does that for us.
 	 */
-}
-
-static void
-shutdown_databases (void)
-{
-#if 0
-	TrackerMainPrivate *private;
-
-	private = g_static_private_get (&private_key);
-
-	/* TODO port backup support */
-
-	/* If we are reindexing, save the user metadata  */
-	if (private->reindex_on_shutdown) {
-		tracker_data_backup_save (private->ttl_backup_file, NULL);
-	}
-#endif
-}
-
-static void
-shutdown_directories (void)
-{
-	TrackerMainPrivate *private;
-
-	private = g_static_private_get (&private_key);
-
-	/* If we are reindexing, just remove the databases */
-	if (private->reindex_on_shutdown) {
-		tracker_db_manager_remove_all (FALSE);
-	}
 }
 
 static GStrv
@@ -549,9 +518,6 @@ main (gint argc, gchar *argv[])
 	g_timeout_add_full (G_PRIORITY_LOW, 5000, shutdown_timeout_cb, NULL, NULL);
 
 	g_message ("Cleaning up");
-
-	shutdown_databases ();
-	shutdown_directories ();
 
 	/* Shutdown major subsystems */
 	tracker_writeback_shutdown ();
