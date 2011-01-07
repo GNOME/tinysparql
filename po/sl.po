@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2010-12-30 10:45+0000\n"
-"PO-Revision-Date: 2010-12-30 21:26+0100\n"
-"Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
+"POT-Creation-Date: 2011-01-07 11:39+0000\n"
+"PO-Revision-Date: 2011-01-07 19:21+0100\n"
+"Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -146,17 +146,6 @@ msgstr "Oznake ..."
 msgid "Tag one or more files"
 msgstr "Označi eno ali več datotek"
 
-#: ../src/libtracker-common/tracker-dbus.c:354
-#: ../src/tracker-utils/tracker-import.c:116
-#: ../src/tracker-utils/tracker-info.c:223
-#: ../src/tracker-utils/tracker-search.c:1442
-#: ../src/tracker-utils/tracker-sparql.c:292
-#: ../src/tracker-utils/tracker-stats.c:93
-#: ../src/tracker-utils/tracker-tag.c:945
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:96
-msgid "No error given"
-msgstr "Ni dane napake"
-
 #: ../src/libtracker-common/tracker-utils.c:69
 #: ../src/libtracker-common/tracker-utils.c:76
 msgid "unknown time"
@@ -268,7 +257,7 @@ msgid "_URN:"
 msgstr "_URN:"
 
 #: ../src/tracker-extract/tracker-main.c:84
-#: ../src/tracker-store/tracker-main.c:103
+#: ../src/tracker-store/tracker-main.c:100
 msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
 msgstr "Beleženje, 0 = samo napake, 1 = najmanjše, 2 = podrobno in 3 = razhroščevanje (privzeto = 0)"
 
@@ -314,7 +303,7 @@ msgstr "MODUL"
 
 #: ../src/tracker-extract/tracker-main.c:111
 #: ../src/miners/fs/tracker-main.c:94
-#: ../src/tracker-store/tracker-main.c:99
+#: ../src/tracker-store/tracker-main.c:96
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Pokaže podrobnosti različice"
@@ -652,16 +641,20 @@ msgstr "Nazadnje spremenjeno"
 msgid "Size"
 msgstr "Velikost"
 
+#: ../src/tracker-needle/tracker-query.vala:70
+msgid "Unknown"
+msgstr "Neznano"
+
 #. fn:concat(nco:pageCount(?urn), \" pages\")
-#: ../src/tracker-needle/tracker-query.vala:163
+#: ../src/tracker-needle/tracker-query.vala:166
 msgid "Pages"
 msgstr "Strani"
 
-#: ../src/tracker-needle/tracker-query.vala:185
+#: ../src/tracker-needle/tracker-query.vala:193
 msgid "No Subject"
 msgstr "Ni naslova"
 
-#: ../src/tracker-needle/tracker-query.vala:186
+#: ../src/tracker-needle/tracker-query.vala:194
 msgid "To"
 msgstr "Za"
 
@@ -913,18 +906,18 @@ msgstr "Nadzor in opazovanje storitve iskanja in priprave kazal Tracker"
 msgid "Tracker Applet"
 msgstr "Tracker aplet"
 
-#: ../src/tracker-store/tracker-main.c:110
+#: ../src/tracker-store/tracker-main.c:107
 msgid "Force a re-index of all content"
 msgstr "Vsili pripravo kazala iz vse vsebine"
 
-#: ../src/tracker-store/tracker-main.c:114
+#: ../src/tracker-store/tracker-main.c:111
 msgid "Only allow read based actions on the database"
 msgstr "Na podatkovni zbirki dovoli le dejanja osnovana na branju"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:375
+#: ../src/tracker-store/tracker-main.c:333
 msgid "- start the tracker daemon"
 msgstr "- zažene ozadnji program tracker"
 
@@ -1076,6 +1069,16 @@ msgstr "Ena ali več datotek ni bilo navedenih"
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:95
 msgid "Could not establish a connection to Tracker"
 msgstr "Povezave s Trackerjem ni mogoče vzpostaviti"
+
+#: ../src/tracker-utils/tracker-import.c:116
+#: ../src/tracker-utils/tracker-info.c:223
+#: ../src/tracker-utils/tracker-search.c:1442
+#: ../src/tracker-utils/tracker-sparql.c:292
+#: ../src/tracker-utils/tracker-stats.c:93
+#: ../src/tracker-utils/tracker-tag.c:945
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:96
+msgid "No error given"
+msgstr "Ni dane napake"
 
 #: ../src/tracker-utils/tracker-import.c:126
 msgid "Importing Turtle file"
