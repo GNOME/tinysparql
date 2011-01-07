@@ -31,13 +31,14 @@ typedef struct {
 	gpointer data;
 } WritebackCallback;
 
-static DBusGConnection *connection;
-static DBusGProxy *proxy_resources;
+static GDBusConnection *connection;
+static GDBusProxy *proxy_resources;
 static GList *writeback_callbacks;
 static guint writeback_callback_id;
+static guint signal_id;
 
 static void
-writeback_cb (DBusGProxy       *proxy,
+writeback_cb (GDBusProxy       *proxy,
               const GHashTable *resources,
               gpointer          user_data)
 {
@@ -52,12 +53,52 @@ writeback_cb (DBusGProxy       *proxy,
 	}
 }
 
+
+static GHashTable*
+hashtable_from_variant (GVariant *variant)
+{
+	GHashTable* table;
+	GVariantIter iter;
+	GVariant* variant1;
+	GVariant* variant2;
+
+	table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+	g_variant_iter_init (&iter, variant);
+
+	while (g_variant_iter_loop (&iter, "{?*}", &variant1, &variant2)) {
+		g_hash_table_insert (table,
+		                     g_variant_dup_string (variant1, NULL),
+		                     g_variant_dup_string (variant2, NULL));
+	}
+
+	return table;
+}
+
+
+static void
+on_signal (GDBusProxy *proxy,
+           gchar      *sender_name,
+           gchar      *signal_name,
+           GVariant   *parameters,
+           gpointer    user_data)
+{
+	if (g_strcmp0 (signal_name, "Writeback") == 0) {
+		GHashTable *table;
+
+		table = hashtable_from_variant (parameters);
+		writeback_cb (proxy, table, user_data);
+		g_hash_table_unref (table);
+	} else {
+		g_assert_not_reached ();
+	}
+}
+
 void
 tracker_writeback_init (void)
 {
 	GError *error = NULL;
 
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
 	if (!connection || error) {
 		g_warning ("Could not connect to D-Bus session bus, %s\n",
@@ -67,15 +108,13 @@ tracker_writeback_init (void)
 	}
 
 	proxy_resources =
-		dbus_g_proxy_new_for_name (connection,
-		                           TRACKER_DBUS_SERVICE,
-		                           TRACKER_DBUS_OBJECT_RESOURCES,
-		                           TRACKER_DBUS_INTERFACE_RESOURCES);
-
-	dbus_g_proxy_add_signal (proxy_resources,
-	                         "Writeback",
-	                         TRACKER_TYPE_INT_ARRAY_MAP,
-	                         G_TYPE_INVALID);
+		g_dbus_proxy_new_sync (connection,
+		                       G_DBUS_PROXY_FLAGS_NONE,
+		                       NULL,
+		                       TRACKER_DBUS_SERVICE,
+		                       TRACKER_DBUS_OBJECT_RESOURCES,
+		                       TRACKER_DBUS_INTERFACE_RESOURCES,
+		                       NULL, NULL);
 }
 
 void
@@ -103,7 +142,7 @@ tracker_writeback_shutdown (void)
 
 guint
 tracker_writeback_connect (TrackerWritebackCallback callback,
-			   gpointer                 user_data)
+                           gpointer                 user_data)
 {
 	WritebackCallback *cb;
 
@@ -111,11 +150,10 @@ tracker_writeback_connect (TrackerWritebackCallback callback,
 
 	/* Connect the DBus signal if needed */
 	if (!writeback_callbacks) {
-		dbus_g_proxy_connect_signal (proxy_resources,
-		                             "Writeback",
-		                             G_CALLBACK (writeback_cb),
-		                             NULL,
-		                             NULL);
+		signal_id = g_signal_connect (proxy_resources,
+		                              "g-signal",
+		                              G_CALLBACK (on_signal),
+		                              NULL);
 	}
 
 	cb = g_slice_new0 (WritebackCallback);
@@ -148,9 +186,8 @@ tracker_writeback_disconnect (guint handle)
 
 	/* Disconnect the DBus signal if not needed anymore */
 	if (!writeback_callbacks) {
-		dbus_g_proxy_disconnect_signal (proxy_resources,
-		                                "Writeback",
-		                                G_CALLBACK (writeback_cb),
-		                                NULL);
+		g_signal_handler_disconnect (proxy_resources, signal_id);
 	}
+
+	g_object_unref (connection);
 }
