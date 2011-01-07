@@ -770,7 +770,6 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
                                       GVariant              *parameters)
 {
 	TrackerDBusRequest *request;
-	const gchar *expected_signature;
 	TrackerExtractPrivate *priv;
 	GDBusMessage *reply;
 	const gchar *uri, *mime;
@@ -787,26 +786,7 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 	connection = g_dbus_method_invocation_get_connection (invocation);
 	method_message = g_dbus_method_invocation_get_message (invocation);
 
-	expected_signature = "ssh";
-
-	if (g_strcmp0 (g_dbus_message_get_signature (method_message), expected_signature)) {
-		reply = g_dbus_message_new_method_error (method_message,
-		                                         "Unknown method",
-		                                         UNKNOWN_METHOD_MESSAGE,
-		                                         g_dbus_message_get_signature (method_message),
-		                                         g_dbus_message_get_interface (method_message),
-		                                         expected_signature);
-
-		g_dbus_connection_send_message (connection, reply,
-		                                G_DBUS_SEND_MESSAGE_FLAGS_NONE,
-		                                NULL, NULL);
-
-		g_object_unref (reply);
-		return;
-	}
-
 	g_variant_get (parameters, "(&s&sh)", &uri, &mime, &fd);
-
 
 	request = tracker_g_dbus_request_begin (invocation,
 	                                        "%s(uri:'%s', mime:%s)",
