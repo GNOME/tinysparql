@@ -221,14 +221,6 @@ initialize_priority (void)
 	 */
 }
 
-static void
-initialize_directories (void)
-{
-	/* NOTE: We don't create the database directories here, the
-	 * tracker-db-manager does that for us.
-	 */
-}
-
 static GStrv
 get_notifiable_classes (void)
 {
@@ -382,8 +374,6 @@ main (gint argc, gchar *argv[])
 		/* Make sure we enable/disable the dbus client lookup */
 		config_verbosity_changed_cb (G_OBJECT (config), NULL, NULL);
 	}
-
-	initialize_directories ();
 
 	if (!tracker_dbus_init ()) {
 		g_object_unref (db_config);
