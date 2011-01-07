@@ -285,8 +285,6 @@ PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
 TRACKER_CONTROL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gio-unix-2.0 >= $GLIB_REQUIRED
                           gthread-2.0  >= $GLIB_REQUIRED
-                          dbus-1       >= $DBUS_REQUIRED
-                          dbus-glib-1  >= $DBUS_GLIB_REQUIRED
                           uuid"
 
 PKG_CHECK_MODULES(TRACKER_CONTROL, [$TRACKER_CONTROL_REQUIRED])

@@ -33,12 +33,12 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-common.h>
+
 #include <libtracker-data/tracker-db-config.h>
 #include <libtracker-data/tracker-db-journal.h>
 #include <libtracker-data/tracker-db-manager.h>
-#include <libtracker-miner/tracker-miner.h>
 
-#include "tracker-miner-files-index-client.h"
+#include <libtracker-miner/tracker-miner.h>
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"

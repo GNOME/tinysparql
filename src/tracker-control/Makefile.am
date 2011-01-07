@@ -10,7 +10,6 @@ AM_CPPFLAGS =                                          \
 bin_PROGRAMS = tracker-control
 
 tracker_control_SOURCES =                              \
-	$(dbus_sources)                                \
 	tracker-control.c
 
 tracker_control_LDADD =                                \
@@ -20,14 +19,3 @@ tracker_control_LDADD =                                \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_CONTROL_LIBS)
-
-dbus_sources =                                         \
-	tracker-miner-files-index-client.h
-
-%-client.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
-
-BUILT_SOURCES =                                        \
-	$(dbus_sources)
-
-CLEANFILES = $(BUILT_SOURCES)
