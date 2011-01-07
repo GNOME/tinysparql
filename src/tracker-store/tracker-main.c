@@ -76,8 +76,6 @@ typedef struct {
 	GMainLoop *main_loop;
 	gchar *log_filename;
 
-	gchar *ttl_backup_file;
-
 	gboolean first_time_index;
 	gboolean shutdown;
 } TrackerMainPrivate;
@@ -121,7 +119,6 @@ private_free (gpointer data)
 
 	private = data;
 
-	g_free (private->ttl_backup_file);
 	g_free (private->log_filename);
 
 	g_main_loop_unref (private->main_loop);
@@ -369,14 +366,6 @@ main (gint argc, gchar *argv[])
 
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority ();
-
-	/* Public locations */
-	private->ttl_backup_file =
-		g_build_filename (g_get_user_data_dir (),
-		                  "tracker",
-		                  "data",
-		                  "tracker-userdata-backup.ttl",
-		                  NULL);
 
 	/* Initialize major subsystems */
 	config = tracker_config_new ();
