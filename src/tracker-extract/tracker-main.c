@@ -382,8 +382,6 @@ main (int argc, char *argv[])
 		g_thread_init (NULL);
 	}
 
-	dbus_g_thread_init ();
-
 	g_set_application_name ("tracker-extract");
 
 	setlocale (LC_ALL, "");
