@@ -117,11 +117,6 @@ G_BEGIN_DECLS
 #define TRACKER_DBUS_PATH_EXTRACT      "/org/freedesktop/Tracker1/Extract"
 #define TRACKER_DBUS_INTERFACE_EXTRACT "org.freedesktop.Tracker1.Extract"
 
-typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
-                                                  gssize    buffer_size,
-                                                  GError   *error, /* Don't free */
-                                                  gpointer  user_data);
-
 typedef struct _TrackerDBusRequest TrackerDBusRequest;
 
 typedef enum {
@@ -168,13 +163,6 @@ TrackerDBusRequest *tracker_g_dbus_request_begin       (GDBusMethodInvocation   
 TrackerDBusRequest *tracker_dbus_g_request_begin       (DBusGMethodInvocation      *context,
                                                         const gchar                *format,
                                                         ...);
-
-gboolean            tracker_dbus_send_and_splice_async (GDBusConnection            *connection,
-                                                        GDBusMessage               *message,
-                                                        int                         fd,
-                                                        GCancellable               *cancellable,
-                                                        TrackerDBusSendAndSpliceCallback callback,
-                                                        gpointer                    user_data);
 
 G_END_DECLS
 
