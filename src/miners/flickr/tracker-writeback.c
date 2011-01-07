@@ -53,7 +53,6 @@ writeback_cb (GDBusProxy       *proxy,
 	}
 }
 
-
 static GHashTable*
 hashtable_from_variant (GVariant *variant)
 {
@@ -74,7 +73,6 @@ hashtable_from_variant (GVariant *variant)
 	return table;
 }
 
-
 static void
 on_signal (GDBusProxy *proxy,
            gchar      *sender_name,
@@ -88,8 +86,6 @@ on_signal (GDBusProxy *proxy,
 		table = hashtable_from_variant (parameters);
 		writeback_cb (proxy, table, user_data);
 		g_hash_table_unref (table);
-	} else {
-		g_assert_not_reached ();
 	}
 }
 
