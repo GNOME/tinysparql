@@ -1619,9 +1619,9 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 		 * the others.
 		 */
 		if (task != first_item_task &&
-		    (error->code == DBUS_GERROR_NO_REPLY ||
-		     error->code == DBUS_GERROR_TIMEOUT ||
-		     error->code == DBUS_GERROR_TIMED_OUT)) {
+		    (error->code == G_DBUS_ERROR_NO_REPLY ||
+		     error->code == G_DBUS_ERROR_TIMEOUT ||
+		     error->code == G_DBUS_ERROR_TIMED_OUT)) {
 			g_debug ("  Got DBus timeout error on '%s', but it could not be caused by it. Retrying file.", uri);
 
 			/* Reset the TrackerSparqlBuilder */
