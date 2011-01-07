@@ -44,6 +44,13 @@
 #include "tracker-resources-glue.h"
 #include "tracker-statistics-glue.h"
 
+/* Size of buffers used when sending data over a pipe, using DBus FD passing */
+/* NOTE: This was copied here from libtracker-common/tracker-dbus.h
+ * because it is only needed in one place now, tracker-miner-fs and
+ * libtracker-client is going to be deprecated fairly soon, -mr.
+ */
+#define TRACKER_DBUS_PIPE_BUFFER_SIZE     65536
+
 /* Are defined in src/tracker-store/tracker-steroids.h */
 #define TRACKER_STEROIDS_BUFFER_SIZE      65536
 

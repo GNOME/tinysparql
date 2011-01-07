@@ -215,6 +215,7 @@ PKG_CHECK_MODULES(GVDB, [$GVDB_REQUIRED])
 # Check requirements for libtracker-bus
 LIBTRACKER_BUS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                          gio-unix-2.0 >= $GLIB_REQUIRED"
+
 PKG_CHECK_MODULES(LIBTRACKER_BUS, [$LIBTRACKER_BUS_REQUIRED])
 
 # Check requirements for libtracker-client
@@ -223,6 +224,7 @@ LIBTRACKER_CLIENT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             gio-unix-2.0 >= $GLIB_REQUIRED
                             dbus-1       >= $DBUS_REQUIRED
                             dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+
 PKG_CHECK_MODULES(LIBTRACKER_CLIENT, [$LIBTRACKER_CLIENT_REQUIRED])
 
 LIBTRACKER_CLIENT_CFLAGS="$LIBTRACKER_CLIENT_CFLAGS -Wno-deprecated-declarations"
@@ -232,13 +234,12 @@ LIBTRACKER_COMMON_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             gio-unix-2.0 >= $GLIB_REQUIRED
                             dbus-1       >= $DBUS_REQUIRED
                             dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+
 PKG_CHECK_MODULES(LIBTRACKER_COMMON, [$LIBTRACKER_COMMON_REQUIRED])
 
 # Check requirements for libtracker-data
 LIBTRACKER_DATA_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gio-unix-2.0 >= $GLIB_REQUIRED
-                          dbus-1       >= $DBUS_REQUIRED
-                          dbus-glib-1  >= $DBUS_GLIB_REQUIRED
                           sqlite3      >= $SQLITE_REQUIRED
                           uuid"
 PKG_CHECK_MODULES(LIBTRACKER_DATA, [$LIBTRACKER_DATA_REQUIRED])
@@ -253,9 +254,7 @@ PKG_CHECK_MODULES(LIBTRACKER_DIRECT, [$LIBTRACKER_DIRECT_REQUIRED])
 
 # Check requirements for libtracker-extract
 LIBTRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                             gio-unix-2.0 >= $GLIB_REQUIRED
-                             dbus-1       >= $DBUS_REQUIRED
-                             dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                             gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_EXTRACT, [$LIBTRACKER_EXTRACT_REQUIRED])
 
@@ -263,8 +262,6 @@ PKG_CHECK_MODULES(LIBTRACKER_EXTRACT, [$LIBTRACKER_EXTRACT_REQUIRED])
 LIBTRACKER_FTS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                          gio-unix-2.0 >= $GLIB_REQUIRED
                          gthread-2.0  >= $GLIB_REQUIRED
-                         dbus-1       >= $DBUS_REQUIRED
-                         dbus-glib-1  >= $DBUS_GLIB_REQUIRED
                          sqlite3      >= $SQLITE_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_FTS, [$LIBTRACKER_FTS_REQUIRED])
@@ -288,8 +285,6 @@ PKG_CHECK_MODULES(LIBTRACKER_SPARQL, [$LIBTRACKER_SPARQL_REQUIRED])
 TRACKER_CONTROL_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gio-unix-2.0 >= $GLIB_REQUIRED
                           gthread-2.0  >= $GLIB_REQUIRED
-                          dbus-1       >= $DBUS_REQUIRED
-                          dbus-glib-1  >= $DBUS_GLIB_REQUIRED
                           uuid"
 
 PKG_CHECK_MODULES(TRACKER_CONTROL, [$TRACKER_CONTROL_REQUIRED])
@@ -321,9 +316,7 @@ TRACKER_STORE_LIBS="$TRACKER_STORE_LIBS -lz -lm"
 TRACKER_EXTRACT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                           gio-unix-2.0 >= $GLIB_REQUIRED
                           gthread-2.0  >= $GLIB_REQUIRED
-                          gmodule-2.0  >= $GLIB_REQUIRED
-                          dbus-1       >= $DBUS_REQUIRED
-                          dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                          gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_EXTRACT, [$TRACKER_EXTRACT_REQUIRED])
 
@@ -341,9 +334,7 @@ PKG_CHECK_MODULES(TRACKER_WRITEBACK, [$TRACKER_WRITEBACK_REQUIRED])
 TRACKER_MINER_FS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                            gio-unix-2.0 >= $GLIB_REQUIRED
                            gthread-2.0  >= $GLIB_REQUIRED
-                           gmodule-2.0  >= $GLIB_REQUIRED
-                           dbus-1       >= $DBUS_REQUIRED
-                           dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                           gmodule-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_FS, [$TRACKER_MINER_FS_REQUIRED])
 
@@ -353,8 +344,6 @@ TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
 evolution_plugin_name="evolution-plugin"
 
 TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                  dbus-1                    >= $DBUS_REQUIRED
-                                  dbus-glib-1               >= $DBUS_GLIB_REQUIRED
                                   evolution-plugin          >= $EVO_REQUIRED
                                   evolution-data-server-1.2 >= $EDS_REQUIRED"
 
@@ -366,8 +355,6 @@ if test "x$have_tracker_miner_evolution" != "xyes"; then
    evolution_plugin_name="evolution-plugin-3.0"
 
    TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                     dbus-1                    >= $DBUS_REQUIRED
-                                     dbus-glib-1               >= $DBUS_GLIB_REQUIRED
                                      evolution-plugin-3.0      >= $EVO_REQUIRED
                                      evolution-data-server-1.2 >= $EDS_REQUIRED"
 
@@ -388,8 +375,6 @@ PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
 
 # Check requirements for tracker-miner-flickr
 TRACKER_MINER_FLICKR_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                               dbus-1       >= $DBUS_REQUIRED
-                               dbus-glib-1  >= $DBUS_GLIB_REQUIRED
                                rest-0.6     >= $REST_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_FLICKR, [$TRACKER_MINER_FLICKR_REQUIRED],
@@ -401,9 +386,7 @@ TRACKER_MINER_FLICKR_LIBS="$TRACKER_MINER_FLICKR_LIBS -lz -lm"
 # Check requirements for tracker-utils
 TRACKER_UTILS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         gio-unix-2.0 >= $GLIB_REQUIRED
-                        gthread-2.0  >= $GLIB_REQUIRED
-                        dbus-1       >= $DBUS_REQUIRED
-                        dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                        gthread-2.0  >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_UTILS, [$TRACKER_UTILS_REQUIRED])
 
@@ -425,9 +408,7 @@ TRACKER_PREFERENCES_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                               gio-unix-2.0   >= $GLIB_REQUIRED
                               gthread-2.0    >= $GLIB_REQUIRED
                               gmodule-2.0    >= $GLIB_REQUIRED
-                              gtk+-2.0       >= $GTK_REQUIRED
-                              dbus-1         >= $DBUS_REQUIRED
-                              dbus-glib-1    >= $DBUS_GLIB_REQUIRED"
+                              gtk+-2.0       >= $GTK_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
                   [have_tracker_preferences=yes],
@@ -439,9 +420,7 @@ TRACKER_STATUS_ICON_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                               gthread-2.0    >= $GLIB_REQUIRED
                               gmodule-2.0    >= $GLIB_REQUIRED
                               gtk+-2.0       >= $GTK_REQUIRED
-                              pango          >= $PANGO_REQUIRED
-                              dbus-1         >= $DBUS_REQUIRED
-                              dbus-glib-1    >= $DBUS_GLIB_REQUIRED"
+                              pango          >= $PANGO_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_STATUS_ICON, [$TRACKER_STATUS_ICON_REQUIRED],
                   [have_tracker_status_icon=yes],
@@ -457,8 +436,6 @@ TRACKER_SEARCH_BAR_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                              gtk+-2.0       >= $GTK_REQUIRED
                              gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED
                              pango          >= $PANGO_REQUIRED
-                             dbus-1         >= $DBUS_REQUIRED
-                             dbus-glib-1    >= $DBUS_GLIB_REQUIRED
 			     gee-1.0        >= $GEE_REQUIRED
                              libpanelapplet-2.0"
 
@@ -471,8 +448,6 @@ TRACKER_NAUTILUS_EXTENSION_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                                      gio-unix-2.0   >= $GLIB_REQUIRED
                                      gthread-2.0    >= $GLIB_REQUIRED
                                      gtk+-2.0       >= $GTK_REQUIRED
-                                     dbus-1         >= $DBUS_REQUIRED
-                                     dbus-glib-1    >= $DBUS_GLIB_REQUIRED
                                      libnautilus-extension"
 
 PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUIRED],

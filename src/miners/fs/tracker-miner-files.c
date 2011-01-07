@@ -34,11 +34,7 @@
 #include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
 
-#include <dbus/dbus-glib-lowlevel.h>
-#include <dbus/dbus.h>
-
 #include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-ontologies.h>
 #include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-type-utils.h>
@@ -50,6 +46,13 @@
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
 #include "tracker-marshal.h"
+
+/* Size of buffers used when sending data over a pipe, using DBus FD passing */
+#define DBUS_PIPE_BUFFER_SIZE      65536
+
+#define DBUS_SERVICE_EXTRACT       "org.freedesktop.Tracker1.Extract"
+#define DBUS_PATH_EXTRACT          "/org/freedesktop/Tracker1/Extract"
+#define DBUS_INTERFACE_EXTRACT     "org.freedesktop.Tracker1.Extract"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
 #define SECONDS_PER_DAY 86400
@@ -2068,7 +2071,7 @@ dbus_send_and_splice_async (GDBusConnection                  *connection,
 
 	unix_input_stream = g_unix_input_stream_new (fd, TRUE);
 	buffered_input_stream = g_buffered_input_stream_new_sized (unix_input_stream,
-	                                                           TRACKER_DBUS_PIPE_BUFFER_SIZE);
+	                                                           DBUS_PIPE_BUFFER_SIZE);
 	output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
 
 	data = send_and_splice_data_new (unix_input_stream,
@@ -2174,9 +2177,9 @@ get_metadata_fast_async (GDBusConnection *connection,
 		return;
 	}
 
-	message = g_dbus_message_new_method_call (TRACKER_DBUS_SERVICE_EXTRACT,
-	                                          TRACKER_DBUS_PATH_EXTRACT,
-	                                          TRACKER_DBUS_INTERFACE_EXTRACT,
+	message = g_dbus_message_new_method_call (DBUS_SERVICE_EXTRACT,
+	                                          DBUS_PATH_EXTRACT,
+	                                          DBUS_INTERFACE_EXTRACT,
 	                                          "GetMetadataFast");
 
 	fd_list = g_unix_fd_list_new ();

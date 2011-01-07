@@ -26,7 +26,7 @@
 #include <math.h>
 #include <errno.h>
 
-#include <libtracker-common/tracker-common.h>
+#include <libtracker-common/tracker-locale.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
 

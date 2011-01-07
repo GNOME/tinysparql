@@ -438,27 +438,3 @@ tracker_g_dbus_request_begin (GDBusMethodInvocation *invocation,
 
 	return request;
 }
-
-TrackerDBusRequest *
-tracker_dbus_g_request_begin (DBusGMethodInvocation *context,
-                              const gchar           *format,
-                              ...)
-{
-	TrackerDBusRequest *request;
-	gchar *str, *sender;
-	va_list args;
-
-	va_start (args, format);
-	str = g_strdup_vprintf (format, args);
-	va_end (args);
-
-	sender = dbus_g_method_get_sender (context);
-
-	request = tracker_dbus_request_begin (sender, "%s", str);
-
-	g_free (sender);
-
-	g_free (str);
-
-	return request;
-}

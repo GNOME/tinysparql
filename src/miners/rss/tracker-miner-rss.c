@@ -24,7 +24,7 @@
 
 #include <libgrss.h>
 
-#include <dbus/dbus-glib.h>
+#include <libtracker-common/tracker-dbus-glib.h>
 
 #include <glib/gi18n.h>
 

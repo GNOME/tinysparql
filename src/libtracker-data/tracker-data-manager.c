@@ -30,8 +30,6 @@
 
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-common.h>
-
 #if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
 #endif
