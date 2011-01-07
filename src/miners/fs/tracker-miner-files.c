@@ -2035,9 +2035,7 @@ get_metadata_fast_async (GDBusConnection *connection,
 	                                                                        NULL)));
 	g_dbus_message_set_unix_fd_list (message, fd_list);
 
-	/* Note from Philip to reviewer:
-	 * I'm not sure if we have to close pipefd[1] here, or if the unref of
-	 * fd_list will do it. */
+	/* We need to close the fd as g_unix_fd_list_append duplicates the fd */
 
 	close (pipefd[1]);
 
