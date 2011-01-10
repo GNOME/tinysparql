@@ -45,6 +45,7 @@ G_BEGIN_DECLS
 #define TRACKER_NFO_PREFIX      "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#"
 
 /* Temporary */
+#define TRACKER_SLO_PREFIX      "http://www.tracker-project.org/temp/slo#"
 #define TRACKER_NMM_PREFIX      "http://www.tracker-project.org/temp/nmm#"
 #define TRACKER_MLO_PREFIX      "http://www.tracker-project.org/temp/mlo#"
 
