@@ -65,6 +65,12 @@ backup_callback (GError *error, gpointer user_data)
 {
 	TrackerDBusMethodInfo *info = user_data;
 
+	if (info->resources) {
+		tracker_events_init (info->getter);
+		tracker_resources_enable_signals (info->resources);
+		g_object_unref (info->resources);
+	}
+
 	if (error) {
 		tracker_dbus_request_end (info->request, error);
 		dbus_g_method_return_error (info->context, error);
@@ -74,12 +80,6 @@ backup_callback (GError *error, gpointer user_data)
 	tracker_dbus_request_end (info->request, NULL);
 
 	dbus_g_method_return (info->context);
-
-	if (info->resources) {
-		tracker_events_init (info->getter);
-		tracker_resources_enable_signals (info->resources);
-		g_object_unref (info->resources);
-	}
 
 	tracker_store_set_active (TRUE, NULL, NULL);
 }
@@ -89,6 +89,12 @@ restore_callback (GError *error, gpointer user_data)
 {
 	TrackerDBusMethodInfo *info = user_data;
 
+	if (info->resources) {
+		tracker_events_init (info->getter);
+		tracker_resources_enable_signals (info->resources);
+		g_object_unref (info->resources);
+	}
+
 	if (error) {
 		tracker_dbus_request_end (info->request, error);
 		dbus_g_method_return_error (info->context, error);
@@ -98,12 +104,6 @@ restore_callback (GError *error, gpointer user_data)
 	tracker_dbus_request_end (info->request, NULL);
 
 	dbus_g_method_return (info->context);
-
-	if (info->resources) {
-		tracker_events_init (info->getter);
-		tracker_resources_enable_signals (info->resources);
-		g_object_unref (info->resources);
-	}
 
 	tracker_store_set_active (TRUE, NULL, NULL);
 }
