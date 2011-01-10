@@ -72,6 +72,9 @@ tracker_miner_rss_finalize (GObject *object)
 	g_free (priv->last_status);
 	g_object_unref (priv->pool);
 
+	g_dbus_connection_signal_unsubscribe (priv->connection, priv->graph_updated_id);
+	g_object_unref (priv->connection);
+
 	G_OBJECT_CLASS (tracker_miner_rss_parent_class)->finalize (object);
 }
 
