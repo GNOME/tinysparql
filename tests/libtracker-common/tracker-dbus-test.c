@@ -95,18 +95,19 @@ test_dbus_request_failed (void)
 	TrackerDBusRequest *request;
 	GError *error = NULL;
 
-        /* 
-         * For some (unknown) reason, this calls don't appear in the
-         * coverage evaluation.
-         */
+	/* For some (unknown) reason, this calls don't appear in the
+	 * coverage evaluation. */
 
-	request = tracker_dbus_request_begin (NULL, "%s()", __PRETTY_FUNCTION__);
+	request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+	                                      "%s()",
+	                                      __PRETTY_FUNCTION__);
 
 	/* We have already the error and want only the log line */
 	error = g_error_new (1000, -1, "The indexer founded an error");
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		tracker_dbus_request_end (request, error);
 	}
+
 	g_test_trap_assert_stderr ("*The indexer founded an error*");
 	g_error_free (error);
 }
@@ -114,168 +115,171 @@ test_dbus_request_failed (void)
 static void
 test_dbus_request ()
 {
-        TrackerDBusRequest *request;
-        DBusGMethodInvocation *context = (DBusGMethodInvocation *)g_strdup ("aaa");
+	TrackerDBusRequest *request;
 
-        tracker_dbus_enable_client_lookup (FALSE);
+	tracker_dbus_enable_client_lookup (FALSE);
 
-        /* Checking the logging output */
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-                tracker_dbus_g_request_begin (context,
-                                                        "Test request (%s))", "--TestNewOK--");
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
-        g_test_trap_assert_stdout ("*TestNewOK*");
+	/* Checking the logging output */
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+		                                      "Test request (%s))",
+		                                      "--TestNewOK--");
+		exit (0);
+	}
 
-        request = tracker_dbus_g_request_begin (context,
-                                                "Test request (%s))", "--TestNewOK--");
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stdout ("*TestNewOK*");
 
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                tracker_dbus_request_comment (request,
-                                              "Well (%s)", "--TestCommentOK--");
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
-        g_test_trap_assert_stderr ("*TestCommentOK*");
+	request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+	                                      "Test request (%s))",
+	                                      "--TestNewOK--");
 
-          
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-                tracker_dbus_request_end (request, NULL);
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
-        g_test_trap_assert_stdout ("*Success*");
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+		tracker_dbus_request_comment (request,
+		                              "Well (%s)",
+		                              "--TestCommentOK--");
+		exit (0);
+	}
+
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stderr ("*TestCommentOK*");
+
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		tracker_dbus_request_end (request, NULL);
+		exit (0);
+	}
+
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stdout ("*Success*");
 }
 
 static void
 test_dbus_request_client_lookup ()
 {
-        TrackerDBusRequest *request;
-        DBusGMethodInvocation *context = (DBusGMethodInvocation *)g_strdup ("aaa");
+	TrackerDBusRequest *request;
 
-        tracker_dbus_enable_client_lookup (TRUE);
-
-
-        /* Checking the logging output */
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-                tracker_dbus_g_request_begin (context,
-                                              "Test request (%s))", "--TestNewOK--");
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
-        g_test_trap_assert_stdout ("*TestNewOK*");
-        g_test_trap_assert_stdout ("*lt-tracker-dbus*");
-
-        request = tracker_dbus_g_request_begin (context,
-                                                "Test request (%s))", "--TestNewOK--");
-
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
-                tracker_dbus_request_comment (request,
-                                              "Well (%s)", "--TestCommentOK--");
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
-        g_test_trap_assert_stderr ("*TestCommentOK*");
-        g_test_trap_assert_stderr ("*lt-tracker-dbus*");
+	tracker_dbus_enable_client_lookup (TRUE);
 
 
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-                tracker_dbus_request_info (request,
-                                           "Test info %s", "--TestInfoOK--");
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
-        g_test_trap_assert_stdout ("*TestInfoOK*");
-        g_test_trap_assert_stdout ("*lt-tracker-dbus*");
+	/* Checking the logging output */
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+		                                      "Test request (%s))",
+		                                      "--TestNewOK--");
+		exit (0);
+	}
 
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-                tracker_dbus_request_debug (request,
-                                            "Test debug %s", "--TestDebugOK--");
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
-        g_test_trap_assert_stdout ("*TestDebugOK*");
-        g_test_trap_assert_stdout ("*lt-tracker-dbus*");
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stdout ("*TestNewOK*");
+	g_test_trap_assert_stdout ("*lt-tracker-dbus*");
 
-        if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
-                tracker_dbus_request_end (request, NULL);
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
-        g_test_trap_assert_stdout ("*Success*");
-        g_test_trap_assert_stdout ("*lt-tracker-dbus*");
+	request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+	                                      "Test request (%s))",
+	                                      "--TestNewOK--");
 
-        /* Force client shutdown */
-        tracker_dbus_enable_client_lookup (FALSE);
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
+		tracker_dbus_request_comment (request,
+		                              "Well (%s)",
+		                              "--TestCommentOK--");
+		exit (0);
+	}
 
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stderr ("*TestCommentOK*");
+
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		tracker_dbus_request_info (request,
+		                           "Test info %s",
+		                           "--TestInfoOK--");
+		exit (0);
+	}
+
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stdout ("*TestInfoOK*");
+
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		tracker_dbus_request_debug (request,
+		                            "Test debug %s",
+		                            "--TestDebugOK--");
+		exit (0);
+	}
+
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stdout ("*TestDebugOK*");
+
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT)) {
+		tracker_dbus_request_end (request, NULL);
+		exit (0);
+	}
+
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stdout ("*Success*");
+
+	/* Force client shutdown */
+	tracker_dbus_enable_client_lookup (FALSE);
 }
 
 static void
 test_dbus_request_client_lookup_monothread ()
 {
-        TrackerDBusRequest *request;
-        DBusGMethodInvocation *context = (DBusGMethodInvocation *)g_strdup ("aaa");
+	/* Run everything in the same fork to check the clients_shutdown code */
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
+		TrackerDBusRequest *request;
 
-        /*
-         * Run everything in the same fork to check the clients_shutdown code
-         */
-        if (g_test_trap_fork (0, 
-                              G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
-        
-                tracker_dbus_enable_client_lookup (TRUE);
-
-                request = tracker_dbus_g_request_begin (context,
-                                                        "Test request (%s))", "--TestNewOK--");
-                tracker_dbus_request_comment (request,
-                                              "Well (%s)", "--TestCommentOK--");
+		tracker_dbus_enable_client_lookup (TRUE);
+		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+		                                      "Test request (%s))",
+		                                      "--TestNewOK--");
+		tracker_dbus_request_comment (request,
+		                              "Well (%s)",
+		                              "--TestCommentOK--");
 /*
-                tracker_dbus_request_end (request, NULL,
-                                             "--TestFailedOK--");
-                tracker_quark = tracker_dbus_error_quark ();
-                error = g_error_new (tracker_quark, -1, "test_using_g_error");
-                tracker_dbus_request_end (tracker_quark, error);
-*/                tracker_dbus_request_end (request, NULL);
-                
-                /* Force client shutdown */
-                tracker_dbus_enable_client_lookup (FALSE);
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
+		tracker_dbus_request_end (request, NULL,
+		                          "--TestFailedOK--");
+		tracker_quark = tracker_dbus_error_quark ();
+		error = g_error_new (tracker_quark, -1, "test_using_g_error");
+		tracker_dbus_request_end (tracker_quark, error);
+*/
+
+		tracker_dbus_request_end (request, NULL);
+		/* Force client shutdown */
+		tracker_dbus_enable_client_lookup (FALSE);
+		exit (0);
+	}
+
+	g_test_trap_assert_passed ();
 }
 
 static void
 test_dbus_request_failed_coverage ()
 {
-        GQuark tracker_quark;
-        TrackerDBusRequest *request;
-        GError *error = NULL;
-        DBusGMethodInvocation *context = (DBusGMethodInvocation *)g_strdup ("aaa");
+	/* Repeat the failed test case in one thread to get coverage */
+	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
+		GQuark tracker_quark;
+		GError *error = NULL;
+		TrackerDBusRequest *request;
 
-        /*
-         * Repeat the failed test case in one thread to get coverage
-         */
-        if (g_test_trap_fork (0, 
-                              G_TEST_TRAP_SILENCE_STDOUT | G_TEST_TRAP_SILENCE_STDERR)) {
-        
-                tracker_dbus_enable_client_lookup (TRUE);
+		tracker_dbus_enable_client_lookup (TRUE);
 
-                /* Using GError */
-                request = tracker_dbus_g_request_begin (context,
-                                                        "Test request (%s))", "--TestNewOK--");
-                tracker_quark = tracker_dbus_error_quark ();
-                error = g_error_new (tracker_quark, -1, "test_using_g_error");
-                tracker_dbus_request_end (request, error);
+		/* Using GError */
+		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+		                                      "Test request (%s))",
+		                                      "--TestNewOK--");
+		tracker_quark = tracker_dbus_error_quark ();
+		error = g_error_new (tracker_quark, -1, "test_using_g_error");
+		tracker_dbus_request_end (request, error);
 
-                request = tracker_dbus_g_request_begin (context,
-                                                        "Test request (%s))", "--TestNewOK--");
-                tracker_dbus_request_end (request, NULL);
-                
-                /* Force client shutdown */
-                tracker_dbus_enable_client_lookup (FALSE);
-                exit (0);
-        }
-        g_test_trap_assert_passed ();
+		request = tracker_dbus_request_begin ("tracker-dbus-test.c",
+		                                      "Test request (%s))",
+		                                      "--TestNewOK--");
+		tracker_dbus_request_end (request, NULL);
+
+		/* Force client shutdown */
+		tracker_dbus_enable_client_lookup (FALSE);
+		exit (0);
+	}
+
+	g_test_trap_assert_passed ();
 }
 
 int
@@ -287,22 +291,27 @@ main (int argc, char **argv) {
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
 
-	/* disabled non-UTF-8 tests to not break test report generation */
-	/* g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_nonutf8", test_slist_to_strv_nonutf8); */
-	/* g_test_add_func ("/libtracker-common/tracker-dbus/async_queue_to_strv_nonutf8", test_async_queue_to_strv_nonutf8); */
+/*
+	Disabled non-UTF-8 tests to not break test report generation
+
+	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_nonutf8",
+	                 test_slist_to_strv_nonutf8);
+	g_test_add_func ("/libtracker-common/tracker-dbus/async_queue_to_strv_nonutf8",
+	                 test_async_queue_to_strv_nonutf8);
+*/
 
 	g_test_add_func ("/libtracker-common/tracker-dbus/slist_to_strv_ok", 
-                         test_slist_to_strv);
-        g_test_add_func ("/libtracker-common/tracker-dbus/request",
-                         test_dbus_request);
-        g_test_add_func ("/libtracker-common/tracker-dbus/request-client-lookup",
-                         test_dbus_request_client_lookup);
-        g_test_add_func ("/libtracker-common/tracker-dbus/request-client-lookup",
-                         test_dbus_request_client_lookup_monothread);
-        g_test_add_func ("/libtracker-common/tracker-dbus/request_failed",
-                         test_dbus_request_failed);
-        g_test_add_func ("/libtracker-common/tracker-dbus/request_failed_coverage",
-                         test_dbus_request_failed_coverage);
+	                 test_slist_to_strv);
+	g_test_add_func ("/libtracker-common/tracker-dbus/request",
+	                 test_dbus_request);
+	g_test_add_func ("/libtracker-common/tracker-dbus/request-client-lookup",
+	                 test_dbus_request_client_lookup);
+	g_test_add_func ("/libtracker-common/tracker-dbus/request-client-lookup",
+	                 test_dbus_request_client_lookup_monothread);
+	g_test_add_func ("/libtracker-common/tracker-dbus/request_failed",
+	                 test_dbus_request_failed);
+	g_test_add_func ("/libtracker-common/tracker-dbus/request_failed_coverage",
+	                 test_dbus_request_failed_coverage);
 
 	result = g_test_run ();
 
