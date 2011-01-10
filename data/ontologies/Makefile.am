@@ -1,8 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 maemo_ontology =                                       \
-	91-maemo.ontology   91-maemo.description       \
-	92-slo.ontology     92-slo.description
+	91-maemo.ontology   91-maemo.description       
 
 configdir = $(datadir)/tracker/ontologies
 
@@ -24,6 +23,7 @@ config_DATA =                                          \
 	40-mlo.ontology	    40-mlo.description         \
 	41-mfo.ontology	    41-mfo.description         \
 	89-mtp.ontology	    89-mtp.description         \
+	92-slo.ontology     92-slo.description         \
 	90-tracker.ontology 90-tracker.description
 
 if HAVE_MAEMO
