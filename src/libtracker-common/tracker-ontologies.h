@@ -48,6 +48,7 @@ G_BEGIN_DECLS
 #define TRACKER_SLO_PREFIX      "http://www.tracker-project.org/temp/slo#"
 #define TRACKER_NMM_PREFIX      "http://www.tracker-project.org/temp/nmm#"
 #define TRACKER_MLO_PREFIX      "http://www.tracker-project.org/temp/mlo#"
+#define TRACKER_MFO_PREFIX      "http://www.tracker-project.org/temp/mfo#"
 
 #define TRACKER_DATASOURCE_URN_PREFIX	  \
 	"urn:nepomuk:datasource:"
