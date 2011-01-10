@@ -338,12 +338,11 @@ tracker_property_get_domain_indexes (TrackerProperty *property)
 			g_variant_iter_init (&iter, variant);
 			while (g_variant_iter_loop (&iter, "s", &uri)) {
 				domain_index = tracker_ontologies_get_class_by_uri (uri);
-				g_free (uri);
 
 				tracker_property_add_domain_index (property, domain_index);
-
-				g_object_unref (domain_index);
 			}
+
+			g_variant_unref (variant);
 		}
 	}
 

@@ -232,12 +232,11 @@ tracker_class_get_super_classes (TrackerClass *service)
 			g_variant_iter_init (&iter, variant);
 			while (g_variant_iter_loop (&iter, "s", &uri)) {
 				super_class = tracker_ontologies_get_class_by_uri (uri);
-				g_free (uri);
 
 				tracker_class_add_super_class (service, super_class);
-
-				g_object_unref (super_class);
 			}
+
+			g_variant_unref (variant);
 		}
 	}
 
