@@ -1805,7 +1805,25 @@ cache_delete_resource_type (TrackerClass *class,
 	}
 
 	if (direct_delete) {
+		/* delete row from class table */
 		db_delete_row (iface, tracker_class_get_name (class), resource_buffer->id);
+
+		/* delete row from rdfs:Resource_rdf:type table */
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+			                                      "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
+
+		if (stmt) {
+			tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
+			tracker_db_statement_bind_int (stmt, 1, tracker_class_get_id (class));
+			tracker_db_statement_execute (stmt, &error);
+			g_object_unref (stmt);
+		}
+
+		if (error) {
+			g_warning ("%s", error->message);
+			g_error_free (error);
+			error = NULL;
+		}
 	} else {
 		cache_delete_row (class);
 	}
