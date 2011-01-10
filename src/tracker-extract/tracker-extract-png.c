@@ -415,35 +415,15 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	if (xd->address || xd->country || xd->city) {
 		gchar *addruri;
 
-		tracker_sparql_builder_predicate (metadata, "mlo:location");
+		tracker_sparql_builder_predicate (metadata, "slo:location");
 
 		tracker_sparql_builder_object_blank_open (metadata);
 		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "mlo:GeoPoint"); /* GeoPoint */
-
-		if (xd->address) {
-			tracker_sparql_builder_predicate (metadata, "mlo:address");
-			tracker_sparql_builder_object_unvalidated (metadata, xd->address);
-		}
-
-		if (xd->state) {
-			tracker_sparql_builder_predicate (metadata, "mlo:state");
-			tracker_sparql_builder_object_unvalidated (metadata, xd->state);
-		}
-
-		if (xd->city) {
-			tracker_sparql_builder_predicate (metadata, "mlo:city");
-			tracker_sparql_builder_object_unvalidated (metadata, xd->city);
-		}
-
-		if (xd->country) {
-			tracker_sparql_builder_predicate (metadata, "mlo:country");
-			tracker_sparql_builder_object_unvalidated (metadata, xd->country);
-		}
+		tracker_sparql_builder_object (metadata, "slo:GeoPoint"); /* GeoPoint */
 
 		addruri = tracker_sparql_get_uuid_urn ();
 
-		tracker_sparql_builder_predicate (metadata, "mlo:asPostalAddress");
+		tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
 		tracker_sparql_builder_object_iri (metadata, addruri);
 
 		tracker_sparql_builder_object_blank_close (metadata); /* GeoPoint */
