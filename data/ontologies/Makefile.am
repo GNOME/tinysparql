@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 maemo_ontology =                                       \
-	91-maemo.ontology   91-maemo.description       
+	91-maemo.ontology   91-maemo.description
 
 configdir = $(datadir)/tracker/ontologies
 
