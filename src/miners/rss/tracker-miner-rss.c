@@ -32,9 +32,6 @@
 
 #define TRACKER_MINER_RSS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MINER_RSS, TrackerMinerRSSPrivate))
 
-#define TRACKER_DBUS_INTERFACE_FEED TRACKER_DBUS_INTERFACE_RESOURCES ".Class"
-#define TRACKER_DBUS_OBJECT_FEED    TRACKER_DBUS_OBJECT_RESOURCES "/Classes/mfo/FeedChannel"
-
 typedef struct _TrackerMinerRSSPrivate TrackerMinerRSSPrivate;
 
 struct _TrackerMinerRSSPrivate {
@@ -195,13 +192,13 @@ update_updated_interval (TrackerMinerRSS *miner,
 	tracker_sparql_builder_object_date (sparql, now);
 	tracker_sparql_builder_insert_close (sparql);
 
-        /* FIXME: Should be async */
-        tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                tracker_sparql_builder_get_result (sparql),
-                                                G_PRIORITY_DEFAULT,
-                                                NULL,
-                                                verify_channel_update,
-                                                NULL);
+	/* FIXME: Should be async */
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+	                                        tracker_sparql_builder_get_result (sparql),
+	                                        G_PRIORITY_DEFAULT,
+	                                        NULL,
+	                                        verify_channel_update,
+	                                        NULL);
 	g_object_unref (sparql);
 }
 
@@ -272,8 +269,8 @@ item_verify_reply_cb (GObject      *source_object,
 	miner = TRACKER_MINER_RSS (source_object);
 	error = NULL;
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
-                                                         res,
-                                                         &error);
+	                                                 res,
+	                                                 &error);
 
 	if (error != NULL) {
 		g_message ("Could not verify feed existance, %s", error->message);
@@ -382,11 +379,11 @@ item_verify_reply_cb (GObject      *source_object,
 	tracker_sparql_builder_insert_close (sparql);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                tracker_sparql_builder_get_result (sparql),
-                                                G_PRIORITY_DEFAULT,
-                                                NULL,
-                                                verify_item_insertion,
-                                                NULL);
+	                                        tracker_sparql_builder_get_result (sparql),
+	                                        G_PRIORITY_DEFAULT,
+	                                        NULL,
+	                                        verify_item_insertion,
+	                                        NULL);
 
 	g_object_unref (cursor);
 	g_object_unref (sparql);
@@ -413,10 +410,10 @@ check_if_save (TrackerMinerRSS *miner,
 	                         communication_channel);
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                               query,
-                                               NULL,
-                                               item_verify_reply_cb,
-                                               item);
+	                                       query,
+	                                       NULL,
+	                                       item_verify_reply_cb,
+	                                       item);
 	g_free (query);
 }
 
@@ -537,16 +534,16 @@ retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
 	g_message ("Retrieving and scheduling feeds...");
 
 	sparql = "SELECT ?chanUrl ?interval ?chanUrn WHERE "
-	         "{ ?chanUrn a mfo:FeedChannel . "
-	         "?chanUrn mfo:feedSettings ?settings . "
-	         "?chanUrn nie:url ?chanUrl . "
-	         "?settings mfo:updateInterval ?interval }";
+		"{ ?chanUrn a mfo:FeedChannel . "
+		"?chanUrn mfo:feedSettings ?settings . "
+		"?chanUrn nie:url ?chanUrl . "
+		"?settings mfo:updateInterval ?interval }";
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                               sparql,
-                                               NULL,
-                                               feeds_retrieve_cb,
-                                               miner);
+	                                       sparql,
+	                                       NULL,
+	                                       feeds_retrieve_cb,
+	                                       miner);
 }
 
 static const gchar *
