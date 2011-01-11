@@ -792,6 +792,12 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 
 	fd_list = g_dbus_message_get_unix_fd_list (method_message);
 
+	request = tracker_g_dbus_request_begin (invocation,
+	                                        "%s(uri:'%s', mime:%s)",
+	                                        __FUNCTION__,
+	                                        uri,
+	                                        mime);
+
 	if ((fd = g_unix_fd_list_get (fd_list, index_fd, &error)) == -1) {
 		tracker_dbus_request_end (request, error);
 		reply = g_dbus_message_new_method_error_literal (method_message,
@@ -800,12 +806,6 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 		g_error_free (error);
 		goto bail_out;
 	}
-
-	request = tracker_g_dbus_request_begin (invocation,
-	                                        "%s(uri:'%s', mime:%s)",
-	                                        __FUNCTION__,
-	                                        uri,
-	                                        mime);
 
 	tracker_dbus_request_debug (request,
 	                            "  Resetting shutdown timeout");
