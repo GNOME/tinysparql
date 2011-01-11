@@ -162,14 +162,17 @@ static gint max_service_id = 0;
 static gint max_ontology_id = 0;
 static gint max_modseq = 0;
 
-static gint ensure_resource_id (const gchar *uri, gboolean    *create);
-static void cache_insert_value (const gchar *table_name,
-                                const gchar *field_name,
-                                GValue      *value,
-                                gint         graph,
-                                gboolean     multiple_values,
-                                gboolean     fts,
-                                gboolean     date_time);
+static gint         ensure_resource_id      (const gchar      *uri,
+                                             gboolean         *create);
+static void         cache_insert_value      (const gchar      *table_name,
+                                             const gchar      *field_name,
+                                             GValue           *value,
+                                             gint              graph,
+                                             gboolean          multiple_values,
+                                             gboolean          fts,
+                                             gboolean          date_time);
+static GValueArray *get_old_property_values (TrackerProperty  *property,
+                                             GError          **error);
 
 void
 tracker_data_add_commit_statement_callback (TrackerCommitCallback    callback,
@@ -1121,6 +1124,7 @@ cache_create_service_decomposed (TrackerClass *cl,
                                  gint          graph_id)
 {
 	TrackerClass       **super_classes;
+	TrackerProperty    **domain_indexes;
 	GValue              gvalue = { 0 };
 	gint                i, final_graph_id, class_id;
 
@@ -1172,6 +1176,56 @@ cache_create_service_decomposed (TrackerClass *cl,
 			                    resource_buffer->types,
 			                    delegate->user_data);
 		}
+	}
+
+	/* When a new class created, make sure we propagate to the domain indexes
+	 * the property values already set, if any. */
+	domain_indexes = tracker_class_get_domain_indexes (cl);
+	if (!domain_indexes) {
+		/* Nothing else to do, return */
+		return;
+	}
+
+	while (*domain_indexes) {
+		GError *error = NULL;
+		GValueArray *old_values;
+
+		/* read existing property values */
+		old_values = get_old_property_values (*domain_indexes, &error);
+		if (error) {
+			g_critical ("Couldn't get old values for property '%s': '%s'",
+			            tracker_property_get_name (*domain_indexes),
+			            error->message);
+			g_error_free (error);
+			domain_indexes++;
+			continue;
+		}
+
+		if (old_values &&
+		    old_values->n_values > 0) {
+			GValue gvalue_copy = { 0 };
+
+			/* Don't expect several values for property which is a domain index */
+			g_assert_cmpint (old_values->n_values, ==, 1);
+
+			g_debug ("Propagating '%s' property value from '%s' to domain index in '%s'",
+			         tracker_property_get_name (*domain_indexes),
+			         tracker_property_get_table_name (*domain_indexes),
+			         tracker_class_get_name (cl));
+
+			g_value_init (&gvalue_copy, G_VALUE_TYPE (old_values->values));
+			g_value_copy (old_values->values, &gvalue_copy);
+
+			cache_insert_value (tracker_class_get_name (cl),
+			                    tracker_property_get_name (*domain_indexes),
+			                    &gvalue_copy,
+			                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
+			                    tracker_property_get_multiple_values (*domain_indexes),
+			                    tracker_property_get_fulltext_indexed (*domain_indexes),
+			                    tracker_property_get_data_type (*domain_indexes) == TRACKER_PROPERTY_TYPE_DATETIME);
+		}
+
+		domain_indexes++;
 	}
 }
 
@@ -1538,7 +1592,6 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 		g_value_unset (&gvalue);
 
 	} else {
-
 		cache_insert_value (table_name, field_name, &gvalue,
 		                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
 		                    multiple_values,
@@ -2217,7 +2270,6 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 				}
 			}
 		}
-
 	}
 
 	if (!in_journal_replay && change) {
