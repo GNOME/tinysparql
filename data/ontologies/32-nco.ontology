@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2010-01-14T15:00:00Z" .
+	nao:lastModified "2010-01-18T12:20:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -479,13 +479,12 @@ nco:hasPhoneNumber a rdf:Property ;
 	rdfs:domain nco:Role ;
 	rdfs:range nco:PhoneNumber .
 
-# FIXME why range is not Image? Bug in Nepomuk?
 nco:photo a rdf:Property ;
 	rdfs:label "photo" ;
 	rdfs:comment "Photograph attached to a Contact. The DataObject refered to by this property is usually interpreted as an nfo:Image. Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4" ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
-	rdfs:range nie:DataObject .
+	rdfs:range nfo:Image .
 
 # FIXME why range is not Image? Bug in Nepomuk?
 nco:logo a rdf:Property ;
@@ -866,10 +865,10 @@ nco:imAddressAuthStatusTo a rdf:Property ;
 	rdfs:domain nco:IMAddress ;
 	rdfs:range nco:AuthorizationStatus .
 
-
 # Proposal for Nepomuk
 nco:video a rdf:Property ;
 	rdfs:label "Contact video";
 	rdfs:comment "Video avatar of a contact. Note that is an icon/avatar, not a generic 'present in video' property";
 	rdfs:domain nco:Role ;
-	rdfs:range nie:DataObject.
+	nrl:maxCardinality 1 ;
+	rdfs:range nfo:Video .
