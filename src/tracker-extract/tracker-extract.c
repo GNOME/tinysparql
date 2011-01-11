@@ -27,6 +27,7 @@
 
 #include <gio/gunixoutputstream.h>
 #include <gio/gunixinputstream.h>
+#include <gio/gunixfdlist.h>
 
 #include <libtracker-common/tracker-common.h>
 
@@ -773,7 +774,7 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 	TrackerExtractPrivate *priv;
 	GDBusMessage *reply;
 	const gchar *uri, *mime;
-	int fd;
+	int fd, index_fd;
 	GOutputStream *unix_output_stream;
 	GOutputStream *buffered_output_stream;
 	GDataOutputStream *data_output_stream;
@@ -782,17 +783,29 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 	gboolean extracted = FALSE;
 	GDBusMessage *method_message;
 	GDBusConnection *connection;
+	GUnixFDList *fd_list;
 
 	connection = g_dbus_method_invocation_get_connection (invocation);
 	method_message = g_dbus_method_invocation_get_message (invocation);
 
-	g_variant_get (parameters, "(&s&sh)", &uri, &mime, &fd);
+	g_variant_get (parameters, "(&s&sh)", &uri, &mime, &index_fd);
+
+	fd_list = g_dbus_message_get_unix_fd_list (method_message);
 
 	request = tracker_g_dbus_request_begin (invocation,
 	                                        "%s(uri:'%s', mime:%s)",
 	                                        __FUNCTION__,
 	                                        uri,
 	                                        mime);
+
+	if ((fd = g_unix_fd_list_get (fd_list, index_fd, &error)) == -1) {
+		tracker_dbus_request_end (request, error);
+		reply = g_dbus_message_new_method_error_literal (method_message,
+		                                                 TRACKER_EXTRACT_SERVICE ".GetMetadataFastError",
+		                                                 error->message);
+		g_error_free (error);
+		goto bail_out;
+	}
 
 	tracker_dbus_request_debug (request,
 	                            "  Resetting shutdown timeout");
@@ -875,10 +888,13 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 		close (fd);
 	}
 
+bail_out:
+
 	g_dbus_connection_send_message (connection, reply,
 	                                G_DBUS_SEND_MESSAGE_FLAGS_NONE,
 	                                NULL, NULL);
 
+	g_object_unref (fd_list);
 	g_object_unref (reply);
 
 	if (!priv->disable_shutdown) {
