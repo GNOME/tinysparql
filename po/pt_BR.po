@@ -12,9 +12,9 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2010-11-30 17:56+0000\n"
-"PO-Revision-Date: 2010-11-30 19:11-0300\n"
-"Last-Translator: Mateus Zenaide <mateus.gnome@gmail.com>\n"
+"POT-Creation-Date: 2011-01-10 14:57+0000\n"
+"PO-Revision-Date: 2011-01-10 12:22-0300\n"
+"Last-Translator: Mateus Zenaide <matzenh@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -27,7 +27,6 @@ msgstr ""
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
 #: ../src/tracker-search-bar/tracker-results-window.c:666
-#: ../src/tracker-search-tool/tracker-category-view.gs:79
 msgid "Applications"
 msgstr "Aplicativos"
 
@@ -36,7 +35,6 @@ msgid "Applications data miner"
 msgstr "Mineração de dados de aplicativos"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:1
-#: ../src/tracker-search-tool/tracker-category-view.gs:83
 #: ../src/tracker-utils/tracker-search.c:339
 msgid "Emails"
 msgstr "E-mails"
@@ -134,6 +132,8 @@ msgstr[1] ""
 
 #: ../src/plugins/nautilus/tracker-tags-extension.c:124
 #: ../src/plugins/nautilus/tracker-tags-extension.c:237
+#: ../src/tracker-needle/tracker-taglist.vala:50
+#: ../src/tracker-needle/tracker-needle.ui.h:8
 #: ../src/tracker-search-bar/tracker-results-window.c:663
 msgid "Tags"
 msgstr "Etiquetas"
@@ -147,17 +147,6 @@ msgstr "Etiquetas..."
 #: ../src/plugins/nautilus/tracker-tags-extension.c:203
 msgid "Tag one or more files"
 msgstr "Etiquetar um ou mais arquivos"
-
-#: ../src/libtracker-common/tracker-dbus.c:571
-#: ../src/tracker-utils/tracker-import.c:116
-#: ../src/tracker-utils/tracker-info.c:223
-#: ../src/tracker-utils/tracker-search.c:1442
-#: ../src/tracker-utils/tracker-sparql.c:292
-#: ../src/tracker-utils/tracker-stats.c:93
-#: ../src/tracker-utils/tracker-tag.c:945
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:90
-msgid "No error given"
-msgstr "Nenhum erro informado"
 
 #: ../src/libtracker-common/tracker-utils.c:69
 #: ../src/libtracker-common/tracker-utils.c:76
@@ -221,17 +210,17 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d segundo"
 msgstr[1] " %2.2d segundos"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:407
+#: ../src/libtracker-miner/tracker-miner-object.c:428
 msgid "Data store is not available"
 msgstr "Armazenamento de dados não disponível"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:546
+#: ../src/libtracker-miner/tracker-miner-object.c:567
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Pausar aplicativo e razão da pesquisa por causa de uma requisição de parada "
 "existente"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:618
+#: ../src/libtracker-miner/tracker-miner-object.c:639
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Cookie não reconhecido para retomar a mineração pausada"
 
@@ -255,7 +244,7 @@ msgid "Properties"
 msgstr "Propriedades"
 
 #: ../src/tracker-explorer/tracker-explorer.ui.h:2
-#: ../src/tracker-search-tool/tst.ui.h:2
+#: ../src/tracker-needle/tracker-needle.ui.h:9
 msgid "_Search:"
 msgstr "_Pesquisar:"
 
@@ -264,7 +253,7 @@ msgid "_URN:"
 msgstr "_URN:"
 
 #: ../src/tracker-extract/tracker-main.c:84
-#: ../src/tracker-store/tracker-main.c:103
+#: ../src/tracker-store/tracker-main.c:100
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -314,7 +303,7 @@ msgid "MODULE"
 msgstr "MÓDULO"
 
 #: ../src/tracker-extract/tracker-main.c:111
-#: ../src/miners/fs/tracker-main.c:94 ../src/tracker-store/tracker-main.c:99
+#: ../src/miners/fs/tracker-main.c:94 ../src/tracker-store/tracker-main.c:96
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Exibe informações de versão"
@@ -488,6 +477,7 @@ msgid "Directory"
 msgstr "Diretório"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:400
+#: ../src/tracker-needle/tracker-needle.vala:228
 msgid "File"
 msgstr "Arquivo"
 
@@ -644,6 +634,100 @@ msgstr "S_omente exibir quando indexando conteúdo"
 msgid "seconds"
 msgstr "segundos"
 
+#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
+msgid "Desktop Search"
+msgstr "Pesquisa na área de trabalho"
+
+#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
+msgid ""
+"Find what you're looking for on this computer by name or content using "
+"Tracker"
+msgstr ""
+"Localizar o que você está procurando neste computador por nome ou conteúdo "
+"usando o Tracker"
+
+#: ../src/tracker-needle/tracker-needle.vala:240
+msgid "Last Changed"
+msgstr "Última alteração"
+
+#: ../src/tracker-needle/tracker-needle.vala:248
+msgid "Size"
+msgstr "Tamanho"
+
+#: ../src/tracker-needle/tracker-query.vala:70
+msgid "Unknown"
+msgstr "Desconhecido"
+
+#. fn:concat(nco:pageCount(?urn), \" pages\")
+#: ../src/tracker-needle/tracker-query.vala:166
+msgid "Pages"
+msgstr "Páginas"
+
+#: ../src/tracker-needle/tracker-query.vala:193
+msgid "No Subject"
+msgstr "Sem assunto"
+
+#: ../src/tracker-needle/tracker-query.vala:194
+msgid "To"
+msgstr "Para"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:61
+#, c-format
+msgid "%ld day from now"
+msgid_plural "%ld days from now"
+msgstr[0] "%ld dia a partir de agora"
+msgstr[1] "%ld dias a partir de agora"
+
+#. Translators: %d is replaced with a number of days. It's always greater than 1
+#: ../src/tracker-needle/tracker-utils.vala:64
+#, c-format
+msgid "%ld day ago"
+msgid_plural "%ld days ago"
+msgstr[0] " %ld dia atrás"
+msgstr[1] " %ld dias atrás"
+
+#: ../src/tracker-needle/tracker-utils.vala:76
+#: ../src/tracker-needle/tracker-utils.vala:105
+msgid "Less than one second"
+msgstr "Menos que um segundo"
+
+#: ../src/tracker-needle/tracker-view.vala:48
+msgid "No Search Results"
+msgstr "Nenhum resultado encontrado"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:1
+msgid ""
+"Display results by category, for example, Music, Videos, Applications, etc."
+msgstr ""
+"Exibir resultador por categoria, por exemplo, música, vídeos, aplicativos, "
+"etc."
+
+#: ../src/tracker-needle/tracker-needle.ui.h:2
+msgid "Display results by files found in a grid view"
+msgstr "Exibir resultados de arquivos encontrados em visualização em grade"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:3
+msgid "Display results by files found in a list"
+msgstr "Exibir resultados de arquivos encontrados em uma lista"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:4
+msgid "Find search criteria in file titles"
+msgstr "Localizar critérios de pesquisa nos títulos dos arquivos"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:5
+msgid "Find search criteria inside files"
+msgstr "Localizar critérios de pesquisa dentro dos arquivos"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:6
+#| msgid "Idle"
+msgid "Needle"
+msgstr "Needle"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:7
+msgid "Show statistics about the data stored"
+msgstr "Exibir estatísticas sobre os dados armazenados"
+
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:1
 msgid "Desktop search tool using Tracker"
 msgstr "Ferramenta de busca usando o Tracker"
@@ -671,7 +755,7 @@ msgstr "Barra de pesquisar"
 #. G_CALLBACK (statistics_menu_activated), icon);
 #.
 #: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
-#: ../src/tracker-status-icon/tracker-status-icon.c:917
+#: ../src/tracker-status-icon/tracker-status-icon.c:921
 msgid "_About"
 msgstr "_Sobre"
 
@@ -690,12 +774,10 @@ msgid "Email Addresses"
 msgstr "Endereço de e-mail"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:665
-#: ../src/tracker-search-tool/tracker-category-view.gs:63
 msgid "Documents"
 msgstr "Documentos"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:667
-#: ../src/tracker-search-tool/tracker-category-view.gs:67
 msgid "Images"
 msgstr "Imagens"
 
@@ -704,7 +786,6 @@ msgid "Audio"
 msgstr "Áudio"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:669
-#: ../src/tracker-search-tool/tracker-category-view.gs:59
 msgid "Folders"
 msgstr "Pastas"
 
@@ -713,7 +794,6 @@ msgid "Fonts"
 msgstr "Fontes"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:671
-#: ../src/tracker-search-tool/tracker-category-view.gs:75
 msgid "Videos"
 msgstr "Vídeos"
 
@@ -747,7 +827,7 @@ msgid "A search bar applet for finding content stored in Tracker"
 msgstr "Um miniaplicativo para encontrar conteúdo armazenado no Tracker"
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
-#: ../src/tracker-status-icon/tracker-status-icon.c:806
+#: ../src/tracker-status-icon/tracker-status-icon.c:810
 msgid "Copyright Tracker Authors 2005-2010"
 msgstr "Copyright Autores do Tracker 2005-2010"
 
@@ -781,140 +861,6 @@ msgstr ""
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
 "St, Fifth Floor, Boston, MA  02110-1301  USA"
 
-#: ../src/tracker-search-tool/tracker-category-view.gs:55
-msgid "All Files"
-msgstr "Todos os arquivos"
-
-# N.T.: Não existe plural de "music" em inglês, mas por consistência com o restante, colocamos plural no português.
-#: ../src/tracker-search-tool/tracker-category-view.gs:71
-msgid "Music"
-msgstr "Músicas"
-
-#: ../src/tracker-search-tool/tracker-entry.gs:47
-msgid "Clear the search text"
-msgstr "Limpa o texto de pesquisa"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:95
-msgid "Name:"
-msgstr "Nome:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:101
-msgid "Folder:"
-msgstr "Pastas:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:105
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:209
-msgid "Type:"
-msgstr "Tipo:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:110
-msgid "Size:"
-msgstr "Tamanho:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:115
-msgid "Modified:"
-msgstr "Modificado:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:326
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:354
-msgid "Height:"
-msgstr "Altura:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:327
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:355
-msgid "Width:"
-msgstr "Largura:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:339
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:390
-msgid "Title:"
-msgstr "Título:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:340
-msgid "Artist:"
-msgstr "Artista:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:341
-msgid "Album:"
-msgstr "Álbum:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:356
-msgid "Duration:"
-msgstr "Duração:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:375
-msgid "Subject:"
-msgstr "Assunto:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:376
-msgid "From:"
-msgstr "De:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:377
-msgid "Received:"
-msgstr "Recebido:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:391
-msgid "Author:"
-msgstr "Autor:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:392
-msgid "Page count:"
-msgstr "Número de páginas:"
-
-#: ../src/tracker-search-tool/tracker-metadata-tile.gs:418
-msgid "Description:"
-msgstr "Descrição:"
-
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
-msgid ""
-"Locate documents and folders on this computer by name or content using "
-"Tracker"
-msgstr ""
-"Localizar documentos e pastas neste computador por nome ou conteúdo usando o "
-"Tracker"
-
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
-#: ../src/tracker-search-tool/tst.ui.h:1
-msgid "Tracker Search Tool"
-msgstr "Ferramenta de Pesquisa Tracker"
-
-#: ../src/tracker-search-tool/tracker-search-tool.gs:110
-#, c-format
-msgid ""
-"Failed to load UI\n"
-"%s"
-msgstr ""
-"Falhou ao carregar UI\n"
-"%s"
-
-#: ../src/tracker-search-tool/tracker-utils.gs:101
-#, c-format
-msgid ""
-"Could not launch \"%s\"\n"
-"Error: %s\n"
-msgstr ""
-"Não foi possível iniciar \"%s\"\n"
-"Erro: %s\n"
-
-#: ../src/tracker-search-tool/tracker-utils.gs:117
-#, c-format
-msgid ""
-"Could not get application info for %s\n"
-"Error: %s\n"
-msgstr ""
-"Não foi possível obter informações do aplicativo para %s\n"
-"Erro: %s\n"
-
-#: ../src/tracker-search-tool/tracker-utils.gs:125
-#, c-format
-msgid ""
-"Could not lauch %s\n"
-"Error: %s\n"
-msgstr ""
-"Não foi possível lançar %s\n"
-"Erro: %s\n"
-
 #: ../src/tracker-status-icon/tracker-main.c:46
 #: ../src/tracker-control/tracker-control.c:105
 #: ../src/tracker-utils/tracker-import.c:50
@@ -931,16 +877,16 @@ msgstr "Mostrar versão"
 msgid "- Miner status and control notification area icon"
 msgstr "- Minerar status e controlar o ícone na área de notificação"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:523
+#: ../src/tracker-status-icon/tracker-status-icon.c:527
 msgid "Miner is not running"
 msgstr "A mineração não está em execução"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:564
-#: ../src/tracker-status-icon/tracker-status-icon.c:695
+#: ../src/tracker-status-icon/tracker-status-icon.c:568
+#: ../src/tracker-status-icon/tracker-status-icon.c:699
 msgid "Paused by user"
 msgstr "Pausado pelo usuário"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:782
+#: ../src/tracker-status-icon/tracker-status-icon.c:786
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -952,7 +898,7 @@ msgstr ""
 "Foundation; mesmo na versão 2 da licença ou (se preferir) qualquer versão "
 "posterior."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:786
+#: ../src/tracker-status-icon/tracker-status-icon.c:790
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
@@ -964,7 +910,7 @@ msgstr ""
 "QUALQUER PROPÓSITO PARTICULAR. Veja a Licença Pública Geral GNU para maiores "
 "detalhes."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:790
+#: ../src/tracker-status-icon/tracker-status-icon.c:794
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
@@ -974,7 +920,7 @@ msgstr ""
 "se não, escreva para a Free Software Foundation, Inc., 51 Franklin Street, "
 "Fifth Floor, Boston, MA  02110-1301, USA."
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:805
+#: ../src/tracker-status-icon/tracker-status-icon.c:809
 msgid "A notification icon application to monitor data miners for Tracker"
 msgstr ""
 "Um aplicativo de ícone de notificação para monitorar a mineração de dados "
@@ -984,7 +930,7 @@ msgstr ""
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-status-icon/tracker-status-icon.c:815
+#: ../src/tracker-status-icon/tracker-status-icon.c:819
 msgid "translator-credits"
 msgstr ""
 "Luiz Armesto <luiz.armesto@gmail.com>\n"
@@ -992,15 +938,15 @@ msgstr ""
 "Henrique P Machado <zehrique@gmail.com>\n"
 "Fábio Nogueira <deb-user-ba@ubuntu.com>Djavan Fagundes <djavan@syst.com.br>"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:837
+#: ../src/tracker-status-icon/tracker-status-icon.c:841
 msgid "_Search"
 msgstr "_Pesquisar"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:866
+#: ../src/tracker-status-icon/tracker-status-icon.c:870
 msgid "_Pause All Indexing"
 msgstr "_Pausar toda a indexação"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:886
+#: ../src/tracker-status-icon/tracker-status-icon.c:890
 msgid "_Preferences"
 msgstr "Pre_ferências"
 
@@ -1012,18 +958,18 @@ msgstr "Controle e monitore o serviço de pesquisa e indexação Tracker"
 msgid "Tracker Applet"
 msgstr "Miniaplicativo Tracker"
 
-#: ../src/tracker-store/tracker-main.c:110
+#: ../src/tracker-store/tracker-main.c:107
 msgid "Force a re-index of all content"
 msgstr "Forçar a reindexação de todo o conteúdo"
 
-#: ../src/tracker-store/tracker-main.c:114
+#: ../src/tracker-store/tracker-main.c:111
 msgid "Only allow read based actions on the database"
 msgstr "Somente permitir leituras baseadas em ações no banco de dados"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.c:375
+#: ../src/tracker-store/tracker-main.c:333
 msgid "- start the tracker daemon"
 msgstr "- inicia o serviço tracker"
 
@@ -1196,9 +1142,19 @@ msgstr "Um ou mais arquivos não foram especificados"
 #: ../src/tracker-utils/tracker-sparql.c:291
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
-#: ../src/tracker-writeback/tracker-writeback-consumer.c:89
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:95
 msgid "Could not establish a connection to Tracker"
 msgstr "Não foi possível estabelecer uma conexão com o Tracker"
+
+#: ../src/tracker-utils/tracker-import.c:116
+#: ../src/tracker-utils/tracker-info.c:223
+#: ../src/tracker-utils/tracker-search.c:1442
+#: ../src/tracker-utils/tracker-sparql.c:292
+#: ../src/tracker-utils/tracker-stats.c:93
+#: ../src/tracker-utils/tracker-tag.c:945
+#: ../src/tracker-writeback/tracker-writeback-consumer.c:96
+msgid "No error given"
+msgstr "Nenhum erro informado"
 
 #: ../src/tracker-utils/tracker-import.c:126
 msgid "Importing Turtle file"
@@ -2042,5 +1998,3 @@ msgstr "Falhou ao iniciar gerenciador de dados"
 msgid "Empty result set"
 msgstr "Definição de resultado vazio"
 
-#~ msgid "Journal replay"
-#~ msgstr "Replay do diário"
