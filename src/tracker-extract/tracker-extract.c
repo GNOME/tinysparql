@@ -894,6 +894,7 @@ bail_out:
 	                                G_DBUS_SEND_MESSAGE_FLAGS_NONE,
 	                                NULL, NULL);
 
+	g_object_unref (fd_list);
 	g_object_unref (reply);
 
 	if (!priv->disable_shutdown) {
