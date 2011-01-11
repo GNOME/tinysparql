@@ -275,7 +275,7 @@ tracker_ontologies_get_ontologies (guint *length)
 TrackerClass **
 tracker_ontologies_get_classes (guint *length)
 {
-	if (properties->len == 0 && gvdb_table) {
+	if (classes->len == 0 && gvdb_table) {
 		gchar **class_uris;
 		gint i;
 
