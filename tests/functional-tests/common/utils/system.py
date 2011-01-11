@@ -368,6 +368,10 @@ class TrackerSystemAbstraction:
         self.__stop_tracker_processes ()
         self.set_up_environment (confdir, None)
 
+        # Start also the store. DBus autoactivation ignores the env variables.
+        self.store = TrackerStoreLifeCycle ()
+        self.store.start ()
+
         self.miner_fs = TrackerMinerFsLifeCycle ()
         self.miner_fs.start ()
 
@@ -383,6 +387,8 @@ class TrackerSystemAbstraction:
         Stops the miner-fs and store running and unset all the XDG_*_HOME vars
         """
         self.miner_fs.stop ()
+        self.store.stop ()
+        
         self.__stop_tracker_processes ()
         self.unset_up_environment ()
 
