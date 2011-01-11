@@ -38,6 +38,7 @@ G_BEGIN_DECLS
 
 void               tracker_ontologies_init                 (void);
 void               tracker_ontologies_shutdown             (void);
+void               tracker_ontologies_sort                 (void);
 
 /* Service mechanics */
 void               tracker_ontologies_add_class            (TrackerClass     *service);

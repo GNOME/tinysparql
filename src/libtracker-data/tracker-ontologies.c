@@ -685,3 +685,18 @@ tracker_ontologies_get_property_string_gvdb (const gchar *uri,
 
 	return result;
 }
+
+static gint
+class_sort_func (gconstpointer a,
+                 gconstpointer b)
+{
+	return g_strcmp0 (tracker_class_get_name (*((TrackerClass **) a)),
+	                  tracker_class_get_name (*((TrackerClass **) b)));
+}
+
+void
+tracker_ontologies_sort (void)
+{
+	/* Sort result so it is alphabetical */
+	g_ptr_array_sort (classes, class_sort_func);
+}

@@ -3808,6 +3808,10 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		tracker_db_manager_set_current_locale ();
 	}
 
+	if (!read_only) {
+		tracker_ontologies_sort ();
+	}
+
 	initialized = TRUE;
 
 	g_free (ontologies_dir);

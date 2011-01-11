@@ -56,19 +56,6 @@ tracker_statistics_new (void)
 	return g_object_new (TRACKER_TYPE_STATISTICS, NULL);
 }
 
-static gint
-cache_sort_func (gconstpointer a,
-                 gconstpointer b)
-{
-	const GStrv *strv_a = (GStrv *) a;
-	const GStrv *strv_b = (GStrv *) b;
-
-	g_return_val_if_fail (strv_a != NULL, 0);
-	g_return_val_if_fail (strv_b != NULL, 0);
-
-	return g_strcmp0 (*strv_a[0], *strv_b[0]);
-}
-
 void
 tracker_statistics_get (TrackerStatistics      *object,
                         DBusGMethodInvocation  *context,
@@ -102,9 +89,6 @@ tracker_statistics_get (TrackerStatistics      *object,
 
 		g_ptr_array_add (values, strv);
 	}
-
-	/* Sort result so it is alphabetical */
-	g_ptr_array_sort (values, cache_sort_func);
 
 	tracker_dbus_request_end (request, NULL);
 	dbus_g_method_return (context, values);
