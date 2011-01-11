@@ -448,6 +448,8 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	GSList *list = NULL;
 	GError *error = NULL;
 	GVariant *v;
+	GVariantIter *iter;
+	gchar *str = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
 
@@ -476,31 +478,26 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 		return NULL;
 	}
 
-	if (v) {
-		GVariantIter *iter;
-		gchar *str;
-
-		g_variant_get (v, "(as)", &iter);
-		while (g_variant_iter_loop (iter, "s", &str)) {
-			if (!g_str_has_prefix (str, TRACKER_MINER_DBUS_NAME_PREFIX)) {
-				continue;
-			}
-
-			/* Special case miner-fs which has
-			 * additional D-Bus interface.
-			 */
-			if (strcmp (str, "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
-				continue;
-			}
-
-			list = g_slist_prepend (list, g_strdup (str));
+	g_variant_get (v, "(as)", &iter);
+	while (g_variant_iter_loop (iter, "s", &str)) {
+		if (!g_str_has_prefix (str, TRACKER_MINER_DBUS_NAME_PREFIX)) {
+			continue;
 		}
 
-		g_variant_iter_free (iter);
-		g_variant_unref (v);
+		/* Special case miner-fs which has
+		 * additional D-Bus interface.
+		 */
+		if (strcmp (str, "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
+			continue;
+		}
 
-		list = g_slist_reverse (list);
+		list = g_slist_prepend (list, g_strdup (str));
 	}
+
+	g_variant_iter_free (iter);
+	g_variant_unref (v);
+
+	list = g_slist_reverse (list);
 
 	return list;
 }
@@ -787,7 +784,7 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
 	                                 "org.freedesktop.DBus",
 	                                 "NameHasOwner",
 	                                 g_variant_new ("(s)", miner),
-	                                 NULL,
+	                                 (GVariantType *) "(b)",
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
 	                                 NULL,
@@ -800,10 +797,8 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
 		return FALSE;
 	}
 
-	if (v) {
-		g_variant_get (v, "(b)", &active);
-		g_variant_unref (v);
-	}
+	g_variant_get (v, "(b)", &active);
+	g_variant_unref (v);
 
 	return active;
 }
@@ -849,11 +844,6 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 	                            NULL,
 	                            &error);
 
-	if (v) {
-		g_variant_get (v, "(d)", &p);
-		g_variant_unref (v);
-	}
-
 	if (error) {
 		/* We handle this error as a special case, some
 		 * plugins don't have .service files.
@@ -867,6 +857,9 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 
 		return FALSE;
 	}
+
+	g_variant_get (v, "(d)", &p);
+	g_variant_unref (v);
 
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "GetStatus",
@@ -883,13 +876,11 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 		return FALSE;
 	}
 
-	if (v) {
-		if (status) {
-			g_variant_get (v, "(s)", status);
-		}
-
-		g_variant_unref (v);
+	if (status) {
+		g_variant_get (v, "(s)", status);
 	}
+
+	g_variant_unref (v);
 
 	if (progress) {
 		*progress = p;
@@ -959,10 +950,8 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 		return TRUE;
 	}
 
-	if (v) {
-		g_variant_get (v, "(^as^as)", &apps, &r);
-		g_variant_unref (v);
-	}
+	g_variant_get (v, "(^as^as)", &apps, &r);
+	g_variant_unref (v);
 
 	paused = (g_strv_length (apps) > 0);
 
@@ -1136,6 +1125,7 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 {
 	TrackerMinerManagerPrivate *priv;
 	GVariant *v;
+	GError *new_error = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (mimetypes != NULL, FALSE);
@@ -1161,12 +1151,14 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
 	                                 NULL,
-	                                 error);
+	                                 &new_error);
 
-	if (v) {
-		g_variant_unref (v);
-		return TRUE;
+	if (new_error) {
+		g_propagate_error (error, new_error);
+		return FALSE;
 	}
+
+	g_variant_unref (v);
 
 	return FALSE;
 }
@@ -1191,6 +1183,7 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 	TrackerMinerManagerPrivate *priv;
 	gchar *uri;
 	GVariant *v;
+	GError *new_error = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
@@ -1226,14 +1219,16 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 	                                 G_DBUS_CALL_FLAGS_NONE,
 	                                 -1,
 	                                 NULL,
-	                                 error);
+	                                 &new_error);
 
 	g_free (uri);
 
-	if (v) {
-		g_variant_unref (v);
-		return TRUE;
+	if (new_error) {
+		g_propagate_error (error, new_error);
+		return FALSE;
 	}
+
+	g_variant_unref (v);
 
 	return FALSE;
 }
