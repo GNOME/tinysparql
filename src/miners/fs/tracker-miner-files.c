@@ -2207,6 +2207,8 @@ get_metadata_fast_async (GDBusConnection *connection,
 	                            cancellable,
 	                            get_metadata_fast_cb,
 	                            data);
+
+	g_object_unref (message);
 }
 
 static void
