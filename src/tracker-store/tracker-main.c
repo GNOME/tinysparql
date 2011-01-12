@@ -50,14 +50,11 @@
 #include <libtracker-data/tracker-db-dbus.h>
 #include <libtracker-data/tracker-db-manager.h>
 
-#include "tracker-dbus.h"
 #include "tracker-config.h"
 #include "tracker-events.h"
-#include "tracker-writeback.h"
-#include "tracker-backup.h"
-#include "tracker-store.h"
-#include "tracker-statistics.h"
 #include "tracker-locale-change.h"
+#include "tracker-store.h"
+#include "tracker-writeback.h"
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -296,6 +293,7 @@ main (gint argc, gchar *argv[])
 	TrackerStatus *notifier;
 	gpointer busy_user_data;
 	TrackerBusyCallback busy_callback;
+	GDestroyNotify busy_destroy_notify;
 	gint chunk_size_mb;
 	gsize chunk_size;
 	const gchar *rotate_to;
@@ -315,8 +313,6 @@ main (gint argc, gchar *argv[])
 	g_static_private_set (&private_key,
 	                      private,
 	                      private_free);
-
-	dbus_g_thread_init ();
 
 	setlocale (LC_ALL, "");
 
@@ -398,7 +394,8 @@ main (gint argc, gchar *argv[])
 
 	notifier = tracker_dbus_register_notifier ();
 	busy_callback = tracker_status_get_callback (notifier,
-	                                            &busy_user_data);
+	                                            &busy_user_data,
+	                                            &busy_destroy_notify);
 
 	tracker_store_init ();
 
@@ -474,7 +471,7 @@ main (gint argc, gchar *argv[])
 	tracker_events_init (get_notifiable_classes);
 	tracker_writeback_init (get_writeback_predicates);
 
-	tracker_store_set_active (TRUE, NULL, NULL);
+	tracker_store_resume ();
 
 	g_message ("Waiting for D-Bus requests...");
 
