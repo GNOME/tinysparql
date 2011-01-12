@@ -864,7 +864,7 @@ handle_method_call_get_status (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
-	                                       miner->private->status ? g_variant_new ("(s)", miner->private->status) : NULL);
+	                                       g_variant_new ("(s)", miner->private->status ? miner->private->status : ""));
 
 }
 
