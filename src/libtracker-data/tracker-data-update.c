@@ -1877,6 +1877,8 @@ cache_delete_resource_type (TrackerClass *class,
 			g_error_free (error);
 			error = NULL;
 		}
+
+		add_class_count (class, -1);
 	} else {
 		cache_delete_row (class);
 	}
