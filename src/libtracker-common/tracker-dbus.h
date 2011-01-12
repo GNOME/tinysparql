@@ -24,9 +24,11 @@
 
 #include <gio/gio.h>
 
+#ifndef NO_LIBDBUS
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-glib.h>
+#endif
 
 G_BEGIN_DECLS
 
