@@ -282,12 +282,6 @@ task_finish_cb (gpointer data)
 		}
 
 		if (task->data.update.blank_nodes) {
-			gint i;
-
-			for (i = 0; i < task->data.update.blank_nodes->len; i++) {
-				g_ptr_array_foreach (task->data.update.blank_nodes->pdata[i], (GFunc) g_hash_table_unref, NULL);
-				g_ptr_array_free (task->data.update.blank_nodes->pdata[i], TRUE);
-			}
 			g_ptr_array_free (task->data.update.blank_nodes, TRUE);
 		}
 
