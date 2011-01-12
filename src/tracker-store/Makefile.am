@@ -23,7 +23,7 @@ tracker_store_SOURCES =                                \
 	tracker-dbus.vala                              \
 	tracker-events.c                               \
 	tracker-locale-change.c                        \
-	tracker-main.c                                 \
+	tracker-main.vala                              \
 	tracker-resources.vala                         \
 	tracker-statistics.vala                        \
 	tracker-status.vala                            \

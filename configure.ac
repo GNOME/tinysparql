@@ -46,7 +46,7 @@ AC_INIT([tracker],
         [tracker],
         [http://www.tracker-project.org])
 
-AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.c])
+AC_CONFIG_SRCDIR([src/tracker-store/tracker-main.vala])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 
