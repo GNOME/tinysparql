@@ -1065,7 +1065,7 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "IgnoreNextUpdate",
-	                            g_variant_new ("(as)", urls),
+	                            g_variant_new ("(^as)", urls),
 	                            G_DBUS_CALL_FLAGS_NONE,
 	                            -1,
 	                            NULL,
