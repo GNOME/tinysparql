@@ -502,6 +502,7 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 
 		gvdb_hash_table_insert_statement (table, item, uri, "prefix", tracker_namespace_get_prefix (namespace));
 	}
+	g_hash_table_unref (table);
 
 	table = gvdb_hash_table_new (root_table, "classes");
 	root = gvdb_hash_table_insert (table, "");
@@ -529,6 +530,7 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 			gvdb_hash_table_insert_variant (table, item, uri, "super-classes", g_variant_builder_end (&builder));
 		}
 	}
+	g_hash_table_unref (table);
 
 	table = gvdb_hash_table_new (root_table, "properties");
 	root = gvdb_hash_table_insert (table, "");
@@ -566,6 +568,7 @@ tracker_ontologies_write_gvdb (const gchar  *filename,
 			gvdb_hash_table_insert_variant (table, item, uri, "domain-indexes", g_variant_builder_end (&builder));
 		}
 	}
+	g_hash_table_unref (table);
 
 	gvdb_table_write_contents (root_table, filename, FALSE, error);
 
