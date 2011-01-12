@@ -195,7 +195,6 @@ update_updated_interval (TrackerMinerRSS *miner,
 	tracker_sparql_builder_object_date (sparql, now);
 	tracker_sparql_builder_insert_close (sparql);
 
-	/* FIXME: Should be async */
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                                        tracker_sparql_builder_get_result (sparql),
 	                                        G_PRIORITY_DEFAULT,

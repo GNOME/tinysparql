@@ -302,8 +302,6 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		data = m->data;
 		data->connection = g_object_ref (priv->connection);
 
-		/* FIXME: todo test all these routines */
-
 		proxy = g_dbus_proxy_new_sync (priv->connection,
 		                               G_DBUS_PROXY_FLAGS_NONE,
 		                               NULL,
@@ -735,7 +733,6 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
 		return FALSE;
 	}
 
-	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "Resume",
 	                            g_variant_new ("(i)", (gint) cookie),
@@ -934,7 +931,6 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 		return FALSE;
 	}
 
-	/* FIXME: todo test this call */
 	v = g_dbus_proxy_call_sync (proxy,
 	                            "GetPauseDetails",
 	                            NULL,
