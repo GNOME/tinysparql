@@ -511,9 +511,6 @@ main (int argc, char **argv)
 		TrackerMinerManager *manager;
 		GSList *miners, *l;
 
-		manager = tracker_miner_manager_new ();
-		miners = tracker_miner_manager_get_available (manager);
-
 		if (hard_reset || soft_reset) {
 			g_print ("%s\n", _("Waiting one second before starting miners…"));
 
@@ -522,6 +519,9 @@ main (int argc, char **argv)
 		}
 
 		g_print ("%s\n", _("Starting miners…"));
+
+		manager = tracker_miner_manager_new ();
+		miners = tracker_miner_manager_get_available (manager);
 
 		/* Get the status of all miners, this will start all
 		 * miners not already running.
