@@ -1196,7 +1196,7 @@ cache_create_service_decomposed (TrackerClass *cl,
 			g_critical ("Couldn't get old values for property '%s': '%s'",
 			            tracker_property_get_name (*domain_indexes),
 			            error->message);
-			g_error_free (error);
+			g_clear_error (&error);
 			domain_indexes++;
 			continue;
 		}
