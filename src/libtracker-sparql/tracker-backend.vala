@@ -27,11 +27,9 @@ interface Tracker.Backend.Status : DBusProxy {
 class Tracker.Sparql.Backend : Connection {
 	bool direct_only;
 
-	static bool is_constructed = false;
-	static bool is_initialized = false;
-	static Tracker.Sparql.Connection direct = null;
-	static Tracker.Sparql.Connection bus = null;
-	static enum Backend {
+	Tracker.Sparql.Connection direct = null;
+	Tracker.Sparql.Connection bus = null;
+	enum Backend {
 		AUTO,
 		DIRECT,
 		BUS
@@ -41,21 +39,10 @@ class Tracker.Sparql.Backend : Connection {
 
 	public Backend (bool direct_only = false) throws Sparql.Error
 	requires (Module.supported ()) {
-		if (is_constructed) {
-			// Don't error or require this, > 1 new Tracker.Sparql.Connection
-			// objects can be created and if they are, then we don't need to do
-			// anything on subsequent init() calls. We just return the already
-			// created direct or bus objects
-			return;
-		}
-
 		this.direct_only = direct_only;
-
-		is_constructed = true;
 	}
 
-	public override void init () throws Sparql.Error, IOError, DBusError
-	requires (is_constructed) {
+	public override void init () throws Sparql.Error, IOError, DBusError {
 		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
 		                                                    TRACKER_DBUS_SERVICE,
 		                                                    TRACKER_DBUS_OBJECT_STATUS,
@@ -73,12 +60,9 @@ class Tracker.Sparql.Backend : Connection {
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
-
-		is_initialized = true;
 	}
 
-	public async override void init_async () throws Sparql.Error, IOError, DBusError
-	requires (is_constructed) {
+	public async override void init_async () throws Sparql.Error, IOError, DBusError {
 		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
 		                                                    TRACKER_DBUS_SERVICE,
 		                                                    TRACKER_DBUS_OBJECT_STATUS,
@@ -96,8 +80,6 @@ class Tracker.Sparql.Backend : Connection {
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
-
-		is_initialized = true;
 	}
 
 	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError
