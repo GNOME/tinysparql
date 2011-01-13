@@ -20,8 +20,6 @@
 #ifndef __LIBTRACKER_COMMON_DBUS_H__
 #define __LIBTRACKER_COMMON_DBUS_H__
 
-#include <glib/gi18n.h>
-
 #include <gio/gio.h>
 
 #ifndef NO_LIBDBUS
@@ -70,7 +68,7 @@ G_BEGIN_DECLS
 			g_set_error (&assert_error, \
 			             TRACKER_DBUS_ERROR, \
 			             TRACKER_DBUS_ERROR_ASSERTION_FAILED, \
-			             _("Assertion `%s' failed"), \
+			             "Assertion `%s' failed", \
 			             #expr); \
 	  \
 			dbus_g_method_return_error (context, assert_error); \
@@ -86,7 +84,7 @@ G_BEGIN_DECLS
 			g_set_error (error, \
 			             TRACKER_DBUS_ERROR, \
 			             TRACKER_DBUS_ERROR_ASSERTION_FAILED, \
-			             _("Assertion `%s' failed"), \
+			             "Assertion `%s' failed", \
 			             #expr); \
 	  \
 			return val; \
