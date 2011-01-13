@@ -306,7 +306,10 @@ tracker_property_get_domain (TrackerProperty *property)
 	priv = GET_PRIV (property);
 
 	if (!priv->domain && priv->use_gvdb) {
-		priv->domain = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_property_string_gvdb (priv->uri, "domain"));
+		const gchar *domain_uri;
+
+		domain_uri = tracker_ontologies_get_property_string_gvdb (priv->uri, "domain");
+		priv->domain = g_object_ref (tracker_ontologies_get_class_by_uri (domain_uri));
 	}
 
 	return priv->domain;
@@ -359,7 +362,10 @@ tracker_property_get_range (TrackerProperty *property)
 	priv = GET_PRIV (property);
 
 	if (!priv->range && priv->use_gvdb) {
-		priv->range = tracker_ontologies_get_class_by_uri (tracker_ontologies_get_property_string_gvdb (priv->uri, "range"));
+		const gchar *range_uri;
+
+		range_uri = tracker_ontologies_get_property_string_gvdb (priv->uri, "range");
+		priv->range = g_object_ref (tracker_ontologies_get_class_by_uri (range_uri));
 	}
 
 	return priv->range;
