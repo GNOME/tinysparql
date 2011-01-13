@@ -1,3 +1,44 @@
+NEW in 0.9.34 - 2011-01-13
+==========================
+
+The changes are:
+
+  * Fixes NB#198003: libtracker-miner: Improve SPARQL connection error handling
+  * Fixes NB#211147: libtracker-data: Update domain indexes on type statement insert
+  * Fixes NB#216329: tracker-store: Reinitialize signals after failed backup or restore
+  * Fixes NB#216350: libtracker-data: Fix double free in ontology cache code
+  * Fixes NB#217575: libtracker-data: Update rdf:type table when deleting type statements
+  * Fixes NB#218123: SLO: Fixed maxCardinality of some properties
+  * Fixes NB#218560: Fix assertion failure when ontology cache fails to load
+  * Ontology: Make SLO an ontology that is installed by default
+  * Ontology: Fixed maxCardinality and deprecated annotations in MLO
+  * libtracker-data: Fix double unref on shutdown
+  * libtracker-data: Fix memory leak in gvdb writing
+  * libtracker-data: Update statistics when bypassing buffer for deletes
+  * libtracker-data: Fix tracker_ontologies_get_classes
+  * libtracker-sparql: Shutdown backends when finalizing connection
+  * libtracker-common: Improve tracker_dbus_request_* API
+  * tracker-extract: Relicense from GPL to LGPL
+  * tracker-extract: TIFF: SLO ontology porting
+  * tracker-extract: PNG: SLO ontology porting
+  * tracker-extract: PDF: SLO ontology porting
+  * tracker-extract: JPEG SLO ontology porting
+  * tracker-extract: GIF: SLO ontology porting
+  * tracker-writeback: SLO ontology porting
+  * tracker-needle: Use nco:publisher if nco:creator is not available for documents
+
+Translations:
+  * Updated cz: Marek Cernocky
+  * Updated de: Mario Blättermann
+  * Updated pt_BR: Mateus Zenaide
+  * Updated se: Daniel Nylander
+  * Updated sl: Andrej Žnidaršič, Matej Urbančič
+
+Notes:
+
+  None
+
+
 NEW in 0.9.33 - 2010-12-29
 ==========================
 
