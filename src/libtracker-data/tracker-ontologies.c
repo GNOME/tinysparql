@@ -584,6 +584,9 @@ tracker_ontologies_load_gvdb (const gchar  *filename,
 	tracker_ontologies_init ();
 
 	gvdb_table = gvdb_table_new (filename, TRUE, error);
+	if (!gvdb_table) {
+		return;
+	}
 
 	gvdb_namespaces_table = gvdb_table_get_table (gvdb_table, "namespaces");
 	gvdb_classes_table = gvdb_table_get_table (gvdb_table, "classes");

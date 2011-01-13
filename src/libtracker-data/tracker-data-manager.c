@@ -3433,8 +3433,15 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			   it reduces initialization time */
 			create_decomposed_transient_metadata_tables (iface);
 		} else {
-			load_ontologies_gvdb (NULL);
+			GError *gvdb_error = NULL;
+
+			load_ontologies_gvdb (&gvdb_error);
 			check_ontology = FALSE;
+
+			if (gvdb_error) {
+				g_error ("Error loading ontology cache: %s",
+				         gvdb_error->message);
+			}
 		}
 
 		/* This is a no-op when FTS is disabled */
