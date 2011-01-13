@@ -62,6 +62,7 @@ struct MinerData {
 	guint paused_signal;
 	guint resumed_signal;
 	guint watch_name_id;
+	GObject *manager; /* weak */
 };
 
 struct TrackerMinerManagerPrivate {
@@ -221,7 +222,10 @@ miner_appears (GDBusConnection *connection,
                const gchar     *name_owner,
                gpointer         user_data)
 {
-	g_signal_emit (user_data, signals[MINER_ACTIVATED], 0, name);
+	MinerData *data = user_data;
+	if (data->manager) {
+		g_signal_emit (data->manager, signals[MINER_ACTIVATED], 0, data->dbus_name);
+	}
 }
 
 static void
@@ -229,7 +233,10 @@ miner_disappears (GDBusConnection *connection,
                   const gchar     *name,
                   gpointer         user_data)
 {
-	g_signal_emit (user_data, signals[MINER_DEACTIVATED], 0, name);
+	MinerData *data = user_data;
+	if (data->manager) {
+		g_signal_emit (data->manager, signals[MINER_DEACTIVATED], 0, data->dbus_name);
+	}
 }
 
 static void
@@ -241,11 +248,14 @@ miner_progress_changed (GDBusConnection *connection,
                         GVariant        *parameters,
                         gpointer         user_data)
 {
+	MinerData *data = user_data;
 	const gchar *status = NULL;
 	gdouble progress = 0;
 
 	g_variant_get (parameters, "(&sd)", &status, &progress);
-	g_signal_emit (user_data, signals[MINER_PROGRESS], 0, sender_name, status, progress);
+	if (data->manager) {
+		g_signal_emit (data->manager, signals[MINER_PROGRESS], 0, data->dbus_name, status, progress);
+	}
 }
 
 static void
@@ -257,7 +267,10 @@ miner_paused (GDBusConnection *connection,
               GVariant        *parameters,
               gpointer         user_data)
 {
-	g_signal_emit (user_data, signals[MINER_PAUSED], 0, sender_name);
+	MinerData *data = user_data;
+	if (data->manager) {
+		g_signal_emit (data->manager, signals[MINER_PAUSED], 0, data->dbus_name);
+	}
 }
 
 static void
@@ -269,7 +282,17 @@ miner_resumed (GDBusConnection *connection,
                GVariant        *parameters,
                gpointer         user_data)
 {
-	g_signal_emit (user_data, signals[MINER_RESUMED], 0, sender_name);
+	MinerData *data = user_data;
+	if (data->manager) {
+		g_signal_emit (data->manager, signals[MINER_RESUMED], 0, data->dbus_name);
+	}
+}
+
+static void
+data_manager_weak_notify (gpointer user_data, GObject *old_object)
+{
+	MinerData *data = user_data;
+	data->manager = NULL;
 }
 
 static void
@@ -301,6 +324,8 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 
 		data = m->data;
 		data->connection = g_object_ref (priv->connection);
+		data->manager = G_OBJECT (manager);
+		g_object_weak_ref (data->manager, data_manager_weak_notify, data);
 
 		proxy = g_dbus_proxy_new_sync (priv->connection,
 		                               G_DBUS_PROXY_FLAGS_NONE,
@@ -327,7 +352,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		                                                            NULL,
 		                                                            G_DBUS_SIGNAL_FLAGS_NONE,
 		                                                            miner_progress_changed,
-		                                                            manager,
+		                                                            data,
 		                                                            NULL);
 
 		data->paused_signal = g_dbus_connection_signal_subscribe (priv->connection,
@@ -338,7 +363,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		                                                          NULL,
 		                                                          G_DBUS_SIGNAL_FLAGS_NONE,
 		                                                          miner_paused,
-		                                                          manager,
+		                                                          data,
 		                                                          NULL);
 
 
@@ -350,7 +375,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		                                                           NULL,
 		                                                           G_DBUS_SIGNAL_FLAGS_NONE,
 		                                                           miner_resumed,
-		                                                           manager,
+		                                                           data,
 		                                                           NULL);
 
 		g_hash_table_insert (priv->miner_proxies, proxy, g_strdup (data->dbus_name));
@@ -360,7 +385,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		                                        G_BUS_NAME_WATCHER_FLAGS_NONE,
 		                                        miner_appears,
 		                                        miner_disappears,
-		                                        manager,
+		                                        data,
 		                                        NULL);
 
 	}
@@ -390,6 +415,10 @@ miner_data_free (MinerData *data)
 
 	if (data->connection) {
 		g_object_unref (data->connection);
+	}
+
+	if (data->manager) {
+		g_object_weak_unref (data->manager, data_manager_weak_notify, data);
 	}
 
 	g_free (data->dbus_path);
