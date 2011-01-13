@@ -21,6 +21,8 @@
 
 #include <stdlib.h>
 
+#include <glib/gi18n.h>
+
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
