@@ -31,29 +31,6 @@ G_BEGIN_DECLS
 #define TRACKER_DBUS_ERROR_DOMAIN "TrackerDBus"
 #define TRACKER_DBUS_ERROR        tracker_dbus_error_quark()
 
-
-#define TRACKER_TYPE_INT_ARRAY_MAP	\
-	dbus_g_type_get_map ("GHashTable", G_TYPE_INT, DBUS_TYPE_G_INT_ARRAY)
-
-#define TRACKER_TYPE_FOUR_INT_ARRAY	\
-	dbus_g_type_get_collection ("GPtrArray", \
-	                            dbus_g_type_get_struct("GValueArray", \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INVALID))
-
-#define TRACKER_TYPE_EVENT_ARRAY	\
-	dbus_g_type_get_collection ("GPtrArray", \
-	                            dbus_g_type_get_struct ("GValueArray", \
-	                                                    G_TYPE_STRING, \
-	                                                    G_TYPE_STRING, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INVALID))
-#define TRACKER_TYPE_G_STRV_ARRAY	\
-	dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV)
-
 #define tracker_gdbus_async_return_if_fail(expr,invocation)	\
 	G_STMT_START { \
 		if G_LIKELY(expr) { } else { \

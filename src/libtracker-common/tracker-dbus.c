@@ -23,8 +23,6 @@
 #include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
 
-#include <dbus/dbus-glib-bindings.h>
-
 #include "tracker-dbus.h"
 #include "tracker-log.h"
 
@@ -47,9 +45,8 @@ struct _TrackerDBusRequest {
 };
 
 static gboolean client_lookup_enabled;
-static DBusGConnection *freedesktop_connection;
-static DBusGProxy *freedesktop_proxy;
 static GHashTable *clients;
+static GDBusConnection *connection;
 
 static void     client_data_free    (gpointer data);
 static gboolean client_clean_up_cb (gpointer data);
@@ -58,30 +55,13 @@ static gboolean
 clients_init (void)
 {
 	GError *error = NULL;
-	DBusGConnection *conn;
+	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
-	conn = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-	if (!conn) {
+	if (error) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
 		            error ? error->message : "no error given.");
-		g_error_free (error);
-		return FALSE;
-	}
-
-	freedesktop_connection = dbus_g_connection_ref (conn);
-
-	freedesktop_proxy =
-		dbus_g_proxy_new_for_name (freedesktop_connection,
-		                           DBUS_SERVICE_DBUS,
-		                           DBUS_PATH_DBUS,
-		                           DBUS_INTERFACE_DBUS);
-
-	if (!freedesktop_proxy) {
-		g_critical ("Could not create a proxy for the Freedesktop service, %s",
-		            error ? error->message : "no error given.");
-		g_error_free (error);
-		return FALSE;
+		g_clear_error (&error);
+		connection = NULL;
 	}
 
 	clients = g_hash_table_new_full (g_str_hash,
@@ -95,19 +75,14 @@ clients_init (void)
 static gboolean
 clients_shutdown (void)
 {
-	if (freedesktop_proxy) {
-		g_object_unref (freedesktop_proxy);
-		freedesktop_proxy = NULL;
-	}
-
-	if (freedesktop_connection) {
-		dbus_g_connection_unref (freedesktop_connection);
-		freedesktop_connection = NULL;
-	}
-
 	if (clients) {
 		g_hash_table_unref (clients);
 		clients = NULL;
+	}
+
+	if (connection) {
+		g_object_unref (connection);
+		connection = NULL;
 	}
 
 	return TRUE;
@@ -134,18 +109,33 @@ static ClientData *
 client_data_new (gchar *sender)
 {
 	ClientData *cd;
-	GError *error = NULL;
-	guint pid;
 	gboolean get_binary = TRUE;
+	GError *error = NULL;
 
 	cd = g_slice_new0 (ClientData);
 	cd->sender = sender;
 
-	if (org_freedesktop_DBus_get_connection_unix_process_id (freedesktop_proxy,
-	                                                         sender,
-	                                                         &pid,
-	                                                         &error)) {
-		cd->pid = pid;
+	if (connection) {
+		GVariant *v;
+
+		v = g_dbus_connection_call_sync (connection,
+		                                 "org.freedesktop.DBus",
+		                                 "/org/freedesktop/DBus",
+		                                 "org.freedesktop.DBus",
+		                                 "GetConnectionUnixProcessID",
+		                                 g_variant_new ("(s)", sender),
+		                                 G_VARIANT_TYPE ("(u)"),
+		                                 G_DBUS_CALL_FLAGS_NONE,
+		                                 -1,
+		                                 NULL,
+		                                 &error);
+
+		if (!error) {
+			g_variant_get (v, "(u)", &cd->pid);
+			g_variant_unref (v);
+		} else {
+			g_error_free (error);
+		}
 	}
 
 	if (get_binary) {

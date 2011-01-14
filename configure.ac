@@ -231,9 +231,7 @@ LIBTRACKER_CLIENT_CFLAGS="$LIBTRACKER_CLIENT_CFLAGS -Wno-deprecated-declarations
 
 # Check requirements for libtracker-common
 LIBTRACKER_COMMON_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
-                            dbus-1       >= $DBUS_REQUIRED
-                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                            gio-unix-2.0 >= $GLIB_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_COMMON, [$LIBTRACKER_COMMON_REQUIRED])
 
@@ -269,8 +267,7 @@ PKG_CHECK_MODULES(LIBTRACKER_FTS, [$LIBTRACKER_FTS_REQUIRED])
 # Check requirements for libtracker-miner
 LIBTRACKER_MINER_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                            gio-unix-2.0 >= $GLIB_REQUIRED
-                           dbus-1       >= $DBUS_REQUIRED
-                           dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
+                           dbus-1       >= $DBUS_REQUIRED"
 
 PKG_CHECK_MODULES(LIBTRACKER_MINER, [$LIBTRACKER_MINER_REQUIRED])
 
@@ -716,8 +713,8 @@ if test "x$enable_upower" != "xno"; then
                      [have_upower=yes],
                      [have_upower=no])
 
-   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $UPOWER_CFLAGS"
-   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $UPOWER_LIBS"
+   TRACKER_MINER_FS_CFLAGS="$TRACKER_MINER_FS_CFLAGS $UPOWER_CFLAGS"
+   TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $UPOWER_LIBS"
 
    if test "x$have_upower" = "xyes"; then
       AC_DEFINE(HAVE_UPOWER, [], [Define if we have UPOWER])
@@ -745,12 +742,13 @@ AC_ARG_ENABLE(hal,
 
 if test "x$have_upower" != "xyes" && test "x$enable_hal" != "xno"; then
    PKG_CHECK_MODULES(HAL,
-                     [hal >= $HAL_REQUIRED],
+                     [dbus-1 >= $DBUS_REQUIRED
+                      hal    >= $HAL_REQUIRED],
                      [have_hal=yes] ,
                      [have_hal=no])
 
-   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $HAL_CFLAGS"
-   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $HAL_LIBS"
+   TRACKER_MINER_FS_CFLAGS="$TRACKER_MINER_FS_CFLAGS $HAL_CFLAGS"
+   TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $HAL_LIBS"
 
    if test "x$have_hal" = "xyes"; then
       AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
