@@ -36,13 +36,13 @@
 
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-file-utils.h>
 
 #include <libtracker-data/tracker-db-manager.h>
 
+#include "tracker-power.h"
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
 #include "tracker-marshal.h"

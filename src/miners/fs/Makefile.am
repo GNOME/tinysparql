@@ -11,7 +11,24 @@ AM_CPPFLAGS =                                          \
 
 libexec_PROGRAMS = tracker-miner-fs
 
+# Prefer UPower for the power data if it's available, else fall back to HAL
+if HAVE_UPOWER
+power_headers =                                        \
+	tracker-power.h
+power_sources =                                        \
+	tracker-power-upower.c
+else
+if HAVE_HAL
+power_headers =                                        \
+	tracker-power.h
+power_sources =                                        \
+	tracker-power-hal.c
+endif
+endif
+
 tracker_miner_fs_SOURCES =                             \
+	$(power_sources)                               \
+	$(power_headers)                               \
 	tracker-config.c                               \
 	tracker-config.h                               \
 	tracker-main.c                                 \
