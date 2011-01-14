@@ -57,6 +57,10 @@
 #define TRACKER_DBUS_OBJECT_STEROIDS      "/org/freedesktop/Tracker1/Steroids"
 #define TRACKER_DBUS_INTERFACE_STEROIDS   "org.freedesktop.Tracker1.Steroids"
 
+
+#define TRACKER_TYPE_INT_ARRAY_MAP	\
+	dbus_g_type_get_map ("GHashTable", G_TYPE_INT, DBUS_TYPE_G_INT_ARRAY)
+
 /**
  * SECTION:tracker
  * @short_description: A client library for querying and inserting
