@@ -2643,7 +2643,15 @@ item_queue_handlers_cb (gpointer user_data)
 
 	if (file && queue != QUEUE_DELETED &&
 	    tracker_file_is_locked (file)) {
+		gchar *uri;
+
 		/* File is locked, ignore any updates on it */
+
+		uri = g_file_get_uri (file);
+		g_debug ("File '%s' is currently locked, ignoring updates on it",
+		         uri);
+		g_free (uri);
+
 		g_object_unref (file);
 
 		if (source_file) {
