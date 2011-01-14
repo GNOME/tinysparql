@@ -34,6 +34,10 @@
 #include <limits.h>
 #include <errno.h>
 
+#ifdef __linux__
+#include <sys/statfs.h>
+#endif
+
 #include <glib.h>
 #include <gio/gio.h>
 
@@ -191,11 +195,23 @@ tracker_file_get_mime_type (GFile *file)
 	return content_type ? content_type : g_strdup ("unknown");
 }
 
+#ifdef __linux__
+
+#ifdef __USE_LARGEFILE64
+#define __statvfs statfs64
+#else
+#define __statvfs statfs
+#endif
+
+#else /* __linux__ */
+
 #if HAVE_STATVFS64
 #define __statvfs statvfs64
 #else
 #define __statvfs statvfs
 #endif
+
+#endif /* __linux__ */
 
 guint64
 tracker_file_system_get_remaining_space (const gchar *path)
