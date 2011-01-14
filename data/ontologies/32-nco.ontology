@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2010-10-11T15:00:00Z" .
+	nao:lastModified "2010-01-14T15:00:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -602,6 +602,24 @@ nco:locality a rdf:Property ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
 	tracker:weight 4 .
+
+nco:county a rdf:Property ;
+           rdfs:label "County" ;
+           rdfs:comment "Regional division between state and city. Not in RFC 2426 sec 3.2.1. Added for API compatibility" ;
+           nrl:maxCardinality 1 ;
+           rdfs:domain nco:PostalAddress ;
+           rdfs:range xsd:string ;
+           tracker:fulltextIndexed true ;
+           tracker:weight 2 .
+
+nco:district a rdf:Property ;
+           rdfs:label "District" ;
+           rdfs:comment "Local division inside a city. Not in RFC 2426 sec 3.2.1. Added for API compatibility" ;
+           nrl:maxCardinality 1 ;
+           rdfs:domain nco:PostalAddress ;
+           rdfs:range xsd:string ;
+           tracker:fulltextIndexed true ;
+           tracker:weight 2 .
 
 nco:sound a rdf:Property ;
 	rdfs:label "sound" ;
