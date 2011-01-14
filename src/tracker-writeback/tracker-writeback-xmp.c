@@ -277,7 +277,7 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 		}
 
 #ifdef SET_TYPICAL_CAMERA_FIELDS
-		/* Default we don't do this, we shouldn't overwrite fields that are 
+		/* Default we don't do this, we shouldn't overwrite fields that are
 		 * typically set by the camera itself. What do we know (better) than
 		 * the actual camera did, anyway? Even if the user overwrites them in
 		 * the RDF store ... (does he know what he's doing anyway?) */
@@ -476,7 +476,13 @@ writeback_xmp_update_file_metadata (TrackerWritebackFile    *wbf,
 		xmp_files_put_xmp (xmp_files, xmp);
 	}
 
-	xmp_files_close (xmp_files, XMP_CLOSE_SAFEUPDATE);
+	/* Note: We don't currently use XMP_CLOSE_SAFEUPDATE because it uses
+	 * a hidden temporary file in the same directory, which is then
+	 * renamed to the final name. This triggers two events:
+	 *  - DELETE(A) + MOVE(.hidden->A)
+	 * and we really don't want the first DELETE(A) here
+	 */
+	xmp_files_close (xmp_files, XMP_CLOSE_NOOPTION);
 
 	xmp_free (xmp);
 	xmp_files_free (xmp_files);
