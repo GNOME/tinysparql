@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010, Nokia
+ * Copyright (C) 2008-2011, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -196,7 +196,7 @@ namespace Tracker {
 		public delegate void BackupFinished (GLib.Error error);
 
 		public void backup_save (GLib.File destination, owned BackupFinished callback);
-		public void backup_restore (GLib.File journal, owned BackupFinished callback, [CCode (array_length = false)] string[]? test_schema, BusyCallback busy_callback);
+		public void backup_restore (GLib.File journal, [CCode (array_length = false)] string[]? test_schema, BusyCallback busy_callback) throws GLib.Error;
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]

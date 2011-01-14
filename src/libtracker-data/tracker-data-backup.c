@@ -314,35 +314,18 @@ tracker_data_backup_save (GFile *destination,
 	g_strfreev (argv);
 }
 
-static gboolean
-on_restore_done (BackupSaveInfo *info)
-{
-	if (info->callback) {
-		info->callback (info->error, info->user_data);
-	}
-
-	free_backup_save_info (info);
-
-	return FALSE;
-}
-
 void
-tracker_data_backup_restore (GFile *journal,
-                             TrackerDataBackupFinished callback,
-                             gpointer user_data,
-                             GDestroyNotify destroy,
-                             const gchar **test_schemas,
-                             TrackerBusyCallback busy_callback,
-                             gpointer busy_user_data)
+tracker_data_backup_restore (GFile                *journal,
+                             const gchar         **test_schemas,
+                             TrackerBusyCallback   busy_callback,
+                             gpointer              busy_user_data,
+                             GError              **error)
 {
 	BackupSaveInfo *info;
 
 	info = g_new0 (BackupSaveInfo, 1);
 	info->destination = g_file_new_for_path (tracker_db_journal_get_filename ());
 	info->journal = g_object_ref (journal);
-	info->callback = callback;
-	info->user_data = user_data;
-	info->destroy = destroy;
 
 	if (g_file_query_exists (info->journal, NULL)) {
 		TrackerDBManagerFlags flags;
@@ -414,6 +397,11 @@ tracker_data_backup_restore (GFile *journal,
 		             "Backup file doesn't exist");
 	}
 
-	on_restore_done (info);
+	if (info->error) {
+		g_propagate_error (error, info->error);
+		info->error = NULL;
+	}
+
+	free_backup_save_info (info);
 }
 

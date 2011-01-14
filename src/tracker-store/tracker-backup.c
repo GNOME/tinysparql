@@ -85,31 +85,6 @@ backup_callback (GError *error, gpointer user_data)
 }
 
 static void
-restore_callback (GError *error, gpointer user_data)
-{
-	TrackerDBusMethodInfo *info = user_data;
-
-	if (info->resources) {
-		tracker_events_init (info->getter);
-		tracker_resources_enable_signals (info->resources);
-		g_object_unref (info->resources);
-	}
-
-	if (error) {
-		tracker_dbus_request_end (info->request, error);
-		dbus_g_method_return_error (info->context, error);
-		return;
-	}
-
-	tracker_dbus_request_end (info->request, NULL);
-
-	dbus_g_method_return (info->context);
-
-	tracker_store_set_active (TRUE, NULL, NULL);
-}
-
-
-static void
 backup_idle_set_active_false_cb (gpointer user_data)
 {
 	TrackerDBusMethodInfo *info = user_data;
@@ -162,6 +137,7 @@ restore_idle_set_active_false_cb (gpointer user_data)
 	TrackerStatus *notifier;
 	TrackerBusyCallback busy_callback;
 	gpointer busy_user_data;
+	GError *error = NULL;
 
 	journal = g_file_new_for_uri (info->journal_uri);
 
@@ -173,12 +149,30 @@ restore_idle_set_active_false_cb (gpointer user_data)
 	g_free (info->journal_uri);
 
 	tracker_data_backup_restore (journal,
-	                             restore_callback,
-	                             info, 
-	                             (GDestroyNotify) g_free,
 	                             NULL,
 	                             busy_callback,
-	                             busy_user_data);
+	                             busy_user_data,
+	                             &error);
+
+	if (info->resources) {
+		tracker_events_init (info->getter);
+		tracker_resources_enable_signals (info->resources);
+		g_object_unref (info->resources);
+	}
+
+	if (error) {
+		tracker_dbus_request_end (info->request, error);
+		dbus_g_method_return_error (info->context, error);
+		return;
+	}
+
+	tracker_dbus_request_end (info->request, NULL);
+
+	dbus_g_method_return (info->context);
+
+	tracker_store_set_active (TRUE, NULL, NULL);
+
+	g_free (info);
 
 	g_object_unref (journal);
 }
