@@ -4,11 +4,9 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS +=                                          \
 	tracker-type-utils                             \
+	tracker-dbus                                   \
 	tracker-file-utils                             \
 	tracker-utils
-
-# Disabled test until the mock objects are ported to gdbus
-#       tracker-dbus
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
@@ -24,11 +22,8 @@ LDADD =                                                \
 	$(LIBTRACKER_COMMON_LIBS)                      \
 	$(TRACKER_DBUS_LIBS)
 
-#tracker_dbus_SOURCES =                                 \
-#	tracker-dbus-test.c                            \
-#	mock-dbus.c                                    \
-#	mock-dbus-gproxy.h                             \
-#	mock-dbus-gproxy.c
+tracker_dbus_SOURCES =                                 \
+	tracker-dbus-test.c                            
 
 tracker_type_utils_SOURCES = tracker-type-utils-test.c
 
