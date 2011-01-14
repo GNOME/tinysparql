@@ -129,10 +129,53 @@ tracker_writeback_file_update_metadata (TrackerWriteback        *writeback,
 		                                          "org.freedesktop.Tracker1.Miner.Files",
 		                                          urls);
 
+		/* A note on IgnoreNextUpdate + Writeback. Consider this situation
+		 * I see with an application recording a video:
+		 *  - Application creates a resource for a video in the store and
+		 *    sets slo:location
+		 *  - Application starts writting the new video file.
+		 *  - Store tells writeback to write the new slo:location in the file
+		 *  - Writeback reaches this exact function and sends IgnoreNextUpdate,
+		 *    then tries to update metadata.
+		 *  - Miner-fs gets the IgnoreNextUpdate (sent by the line above).
+		 *  - Application is still recording the video, which gets translated
+		 *    into an original CREATED event plus multiple UPDATE events which
+		 *    are being merged at tracker-monitor level, still not notified to
+		 *    TrackerMinerFS.
+		 *  - TrackerWriteback tries to updte file metadata (line below) but cannot
+		 *    do it yet as application is still updating the file, thus, the real
+		 *    metadata update gets delayed until the application ends writing
+		 *    the video.
+		 *  - Application ends writing the video.
+		 *  - Now TrackerWriteback really updates the file. This happened N seconds
+		 *    after we sent the IgnoreNextUpdate, being N the length of the video...
+		 *  - TrackerMonitor sends the merged CREATED event to TrackerMinerFS,
+		 *    detects the IgnoreNextUpdate request and in this case we ignore the
+		 *    IgnoreNextUpdate request as this is a CREATED event.
+		 *
+		 * Need to review the whole writeback+IgnoreNextUpdate mechanism to cope
+		 * with situations like the one above.
+		 */
+
 		retval = (writeback_file_class->update_file_metadata) (TRACKER_WRITEBACK_FILE (writeback),
 		                                                       file, values, connection);
 
-		g_timeout_add_seconds (3, file_unlock_cb, g_object_ref (file));
+		/*
+		 * This timeout value was 3s before, which could have been in
+		 * order to have miner-fs skip the updates we just made, something
+		 * along the purpose of IgnoreNextUpdate.
+		 *
+		 * But this is a problem when the event being ignored is a CREATED
+		 * event. This is, tracker-writeback modifies a file that was just
+		 * created. If we ignore this in the miner-fs, it will never index
+		 * it, and that is not good. As there is already the
+		 * IgnoreNextUpdate mechanism in place, I'm moving this timeout
+		 * value to 1s. So, once writeback has written the file, only 1s
+		 * after will unlock it. This synchronizes well with the 2s timeout
+		 * in the miner-fs between detecting the file update and the actual
+		 * processing.
+		 */
+		g_timeout_add_seconds (1, file_unlock_cb, g_object_ref (file));
 	}
 
 	g_object_unref (file);
