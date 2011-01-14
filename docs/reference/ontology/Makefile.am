@@ -36,6 +36,7 @@ ONTOLOGY_EXPLANATIONS =                                \
 	$(top_srcdir)/docs/ontologies/mlo/explanation.xml \
 	$(top_srcdir)/docs/ontologies/nie/explanation.xml \
 	$(top_srcdir)/docs/ontologies/nmm/explanation.xml \
+	$(top_srcdir)/docs/ontologies/nco/explanation.xml \
 	$(top_srcdir)/docs/ontologies/nmo/explanation.xml
 
 # The XMLs to generate from the Ontology info

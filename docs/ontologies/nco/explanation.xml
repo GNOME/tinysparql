@@ -1,0 +1,55 @@
+<!--
+ Usual ids:
+
+    xxx-ontology for the whole ontology
+    xxx-explanation 
+    xxx-classes
+    xxx-properties
+-->
+
+<section id="nco-explanation">
+ <title>Overview</title>
+ <sect2 id="nco-introduction">
+   <title>Introduction</title>
+
+   <para>This is the ontology modelling contacts and postal addresses. It also extends the original nepomuk adding the Instant Messaging account details, because an 'identity' in an IM account can be consider also a contact.</para>
+   <para>FIXME This documentation must be completed.</para>
+  <!-- Content -->
+ </sect2>
+
+ <refsect2 id="nco-ContactRepresentation">
+   <title>A contact in this ontology</title>
+
+   <para>Document here how a contact with work and personal details is represented in the ontology. So far the QtContacts API is using this model to store the information internally, document here all the assumptions they are doing in the code, so a client using pure Sparql is completely compatible with that information</para>
+
+   <para>Do not forget contact groups and affiliations</para>
+ </refsect2>
+ 
+
+ <refsect2 id="nco-PostalAddressRepresentation">
+   <title>Postal Address</title>
+
+   <para>Postal address class <link linkend="nco-PostalAddress">nco:PostalAddress</link> represents a point in the space defined by the usual street, number, postal code textual data. Most of its parameters come from the RFC 2426 section 3.2.1 with few extensions for more granular APIs (<link linkend="nco-county">nco:county</link> and <link linkend="nco-district">nco:district</link>)</para>
+ </refsect2>
+
+  <refsect2 id="nco-ImContactsRepresentations">
+   <title>IM Accounts and contacts</title>
+
+   <para>Explain here how to represent the accounts of 'me' and the contacts coming from the accounts. Do not forget to explain how do we merge the same user in different accounts under one 'identity'. Also the authorization flow.</para>
+ </refsect2>
+
+
+ <refsect2 id="nco-special-remarks">
+   <title>Special remarks</title>
+   <para>Maybe we need to add here something</para>
+ </refsect2>
+
+
+ <refsect2 id="nco-related-information">
+   <title>Related information</title>
+   <para>Links to external docs (QT-contacts, Qt-Landmarks would be nice)
+   </para>
+ </refsect2>
+
+
+</section>
