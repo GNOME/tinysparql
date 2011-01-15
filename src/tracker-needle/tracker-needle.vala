@@ -94,6 +94,7 @@ public class Tracker.Needle {
 
 		window = builder.get_object ("window_needle") as Window;
 		window.destroy.connect (Gtk.main_quit);
+		window.key_press_event.connect (window_key_press_event);
 
 		view_list = builder.get_object ("toolbutton_view_list") as ToggleToolButton;
 		view_list.toggled.connect (view_toggled);
@@ -150,6 +151,16 @@ public class Tracker.Needle {
 		view.pack_end (taglist, false, true, 0);
 
 		view_details.set_active (true);
+	}
+
+	private bool window_key_press_event (Gtk.Widget   widget,
+	                                     Gdk.EventKey event) {
+		// Add Ctrl+W close window semantics
+		if (Gdk.ModifierType.CONTROL_MASK in event.state && Gdk.keyval_name (event.keyval) == "w") {
+			widget.destroy();
+		}
+
+		return false;
 	}
 
 	private void cell_renderer_func (Gtk.CellLayout   cell_layout,
