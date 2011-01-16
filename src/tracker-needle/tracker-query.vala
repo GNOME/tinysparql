@@ -30,7 +30,8 @@ public class Tracker.Query {
 		VIDEOS,
 		DOCUMENTS,
 		MAIL,
-		CALENDAR
+		CALENDAR,
+		FOLDERS
 	}
 
 	public string criteria { get; set; }
@@ -208,6 +209,28 @@ public class Tracker.Query {
 			          fts:match \"$criteria_escaped\" .
 			        }
 			        ORDER BY DESC(fts:rank(?urn)) DESC(nmo:messageSubject(?urn)) DESC(nmo:receivedDate(?urn))
+			        OFFSET $offset LIMIT $limit
+			        ";
+			break;
+
+		case Type.FOLDERS:
+			query = @"
+			        SELECT
+			          ?urn
+			          nie:url(?urn)
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"$unknown\")
+			          tracker:coalesce(nie:url(?parent), \"\")
+			          nfo:fileLastModified(?urn)
+			          ?tooltip
+			        WHERE {
+			          ?urn a nfo:Folder ;
+			          nie:url ?tooltip ;
+			          fts:match \"$criteria_escaped\" .
+			          OPTIONAL {
+			            ?urn nfo:belongsToContainer ?parent .
+			          }
+			        }
+			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn))
 			        OFFSET $offset LIMIT $limit
 			        ";
 			break;
