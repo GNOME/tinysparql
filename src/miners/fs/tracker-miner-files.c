@@ -79,10 +79,10 @@ struct ProcessFileData {
 	GFile *file;
 };
 
-typedef void (*fast_async_cb) (gchar    *preupdate,
-                               gchar    *sparql,
-                               GError   *error,
-                               gpointer  user_data);
+typedef void (*fast_async_cb) (const gchar *preupdate,
+                               const gchar *sparql,
+                               GError      *error,
+                               gpointer     user_data);
 
 typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
                                                   gssize    buffer_size,
@@ -1859,10 +1859,10 @@ process_file_data_free (ProcessFileData *data)
 }
 
 static void
-extractor_get_embedded_metadata_cb (gchar    *preupdate,
-                                    gchar    *sparql,
-                                    GError   *error,
-                                    gpointer  user_data)
+extractor_get_embedded_metadata_cb (const gchar *preupdate,
+                                    const gchar *sparql,
+                                    GError      *error,
+                                    gpointer     user_data)
 {
 	ProcessFileData *data = user_data;
 	const gchar *uuid;
@@ -2029,7 +2029,6 @@ dbus_send_and_splice_async_finish (GObject      *source,
 		if (g_dbus_message_get_message_type (reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
 
 			g_dbus_message_to_gerror (reply, &error);
-			g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)));
 			(* data->callback) (NULL, -1, error, data->user_data);
 			g_error_free (error);
 		} else {
@@ -2039,7 +2038,6 @@ dbus_send_and_splice_async_finish (GObject      *source,
 			                    data->user_data);
 		}
 	} else {
-		g_free (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)));
 		(* data->callback) (NULL, -1, error, data->user_data);
 		g_error_free (error);
 	}
@@ -2072,7 +2070,7 @@ dbus_send_and_splice_async (GDBusConnection                  *connection,
 	unix_input_stream = g_unix_input_stream_new (fd, TRUE);
 	buffered_input_stream = g_buffered_input_stream_new_sized (unix_input_stream,
 	                                                           DBUS_PIPE_BUFFER_SIZE);
-	output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, NULL);
+	output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
 
 	data = send_and_splice_data_new (unix_input_stream,
 	                                 buffered_input_stream,
@@ -2130,8 +2128,8 @@ get_metadata_fast_cb (void     *buffer,
 {
 	FastAsyncData *data;
 	ProcessFileData *process_data;
-	gchar *preupdate;
-	gchar *sparql = NULL;
+	const gchar *preupdate;
+	const gchar *sparql = NULL;
 
 	data = user_data;
 	process_data = data->user_data;
@@ -2148,7 +2146,6 @@ get_metadata_fast_cb (void     *buffer,
 		}
 
 		(* data->callback) (preupdate, sparql, NULL, data->user_data);
-		g_free (preupdate);
 	}
 
 	fast_async_data_free (data);
