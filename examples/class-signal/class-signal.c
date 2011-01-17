@@ -17,16 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <dbus/dbus-glib-bindings.h>
-#include <dbus/dbus-glib-lowlevel.h>
+#include <gio/gio.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
-
-#define DBUS_MATCH_STR	                                  \
-	"type='signal', "                                 \
-	"sender='" TRACKER_DBUS_SERVICE "', "             \
-	"path='" TRACKER_DBUS_OBJECT_RESOURCES "', "      \
-	"interface='" TRACKER_DBUS_INTERFACE_RESOURCES "'"
 
 static TrackerSparqlConnection *con;
 
@@ -56,68 +49,63 @@ handle_statement (gint subject, gint predicate)
 }
 
 static void
-class_signal_cb (DBusMessage *message)
-{
-	DBusMessageIter iter, arr;
-	gchar *class_name;
-	gint arg_type, i;
+class_signal_cb (GDBusConnection *connection,
+                 const gchar     *sender_name,
+                 const gchar     *object_path,
+                 const gchar     *interface_name,
+                 const gchar     *signal_name,
+                 GVariant        *parameters,
+                 gpointer         user_data)
 
-	dbus_message_iter_init (message, &iter);
-	dbus_message_iter_get_basic (&iter, &class_name);
+{
+	GVariantIter *iter1, *iter2;
+	gchar *class_name;
+	gint graph = 0, subject = 0, predicate = 0, object = 0;
+
+	g_variant_get (parameters, "(&sa(iiii)a(iiii))", &class_name, &iter1, &iter2);
 	g_print ("%s:\n", class_name);
 
-	for (i = 0; i < 2; i++) {
-		dbus_message_iter_next (&iter);
-		dbus_message_iter_recurse (&iter, &arr);
-
-		while ((arg_type = dbus_message_iter_get_arg_type (&arr)) != DBUS_TYPE_INVALID) {
-			DBusMessageIter strct;
-			gint graph = 0, subject = 0, predicate = 0, object = 0;
-
-			dbus_message_iter_recurse (&arr, &strct);
-			dbus_message_iter_get_basic (&strct, &graph);
-			dbus_message_iter_next (&strct);
-			dbus_message_iter_get_basic (&strct, &subject);
-			dbus_message_iter_next (&strct);
-			dbus_message_iter_get_basic (&strct, &predicate);
-			dbus_message_iter_next (&strct);
-			dbus_message_iter_get_basic (&strct, &object);
-			handle_statement (subject, predicate);
-			dbus_message_iter_next (&arr);
-		}
+	while (g_variant_iter_loop (iter1, "(iiii)", &graph, &subject, &predicate, &object)) {
+		handle_statement (subject, predicate);
 	}
-}
 
-static DBusHandlerResult
-message_filter (DBusConnection *connection, DBusMessage *message, gpointer ud)
-{
-	if (dbus_message_is_signal (message, TRACKER_DBUS_INTERFACE_RESOURCES, "GraphUpdated")) {
-		class_signal_cb (message);
-		return DBUS_HANDLER_RESULT_HANDLED;
+	while (g_variant_iter_loop (iter2, "(iiii)", &graph, &subject, &predicate, &object)) {
+		handle_statement (subject, predicate);
 	}
-	return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
-}
 
+	g_variant_iter_free (iter1);
+	g_variant_iter_free (iter2);
+}
 
 gint
 main (gint argc, gchar *argv[])
 {
 	GMainLoop *loop;
 	GError *error = NULL;
-	DBusConnection *connection;
+	GDBusConnection *connection;
+	guint signal_id;
 
 	g_type_init ();
 	loop = g_main_loop_new (NULL, FALSE);
 	con = tracker_sparql_connection_get (NULL, &error);
-	connection = dbus_bus_get_private (DBUS_BUS_SESSION, NULL);
-	dbus_bus_request_name (connection, TRACKER_DBUS_SERVICE, 0, NULL);
-	dbus_connection_add_filter (connection, message_filter, NULL, NULL);
-	dbus_bus_add_match (connection, DBUS_MATCH_STR, NULL);
-	dbus_connection_setup_with_g_main (connection, NULL);
+	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+
+	signal_id = g_dbus_connection_signal_subscribe (connection,
+	                                                TRACKER_DBUS_SERVICE,
+	                                                TRACKER_DBUS_INTERFACE_RESOURCES,
+	                                                "GraphUpdated",
+	                                                TRACKER_DBUS_OBJECT_RESOURCES,
+	                                                NULL, /* Use class-name here */
+	                                                G_DBUS_SIGNAL_FLAGS_NONE,
+	                                                class_signal_cb,
+	                                                NULL,
+	                                                NULL);
+
 	g_main_loop_run (loop);
+	g_dbus_connection_signal_unsubscribe (connection, signal_id);
 	g_main_loop_unref (loop);
 	g_object_unref (con);
-	dbus_connection_unref (connection);
+	g_object_unref (connection);
 
 	return 0;
 }
