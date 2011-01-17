@@ -34,7 +34,10 @@ public class Tracker.History {
 			warning ("Could not load history from file:'%s': %s", filename, e1.message);
 			return;
 		} catch (FileError e2) {
-			warning ("Could not load history from file:'%s': %s", filename, e2.message);
+			if (e2.code == 4)
+				message ("Creating new history file:'%s'", filename);
+			else
+				warning ("Could not load history from file:'%s': %s", filename, e2.message);
 			return;
 		}
 
