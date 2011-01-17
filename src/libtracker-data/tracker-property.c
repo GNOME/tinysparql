@@ -336,10 +336,10 @@ tracker_property_get_domain_indexes (TrackerProperty *property)
 		variant = tracker_ontologies_get_property_value_gvdb (priv->uri, "domain-indexes");
 		if (variant) {
 			GVariantIter iter;
-			gchar *uri;
+			const gchar *uri;
 
 			g_variant_iter_init (&iter, variant);
-			while (g_variant_iter_loop (&iter, "s", &uri)) {
+			while (g_variant_iter_loop (&iter, "&s", &uri)) {
 				domain_index = tracker_ontologies_get_class_by_uri (uri);
 
 				tracker_property_add_domain_index (property, domain_index);

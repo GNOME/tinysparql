@@ -227,10 +227,10 @@ tracker_class_get_super_classes (TrackerClass *service)
 		variant = tracker_ontologies_get_class_value_gvdb (priv->uri, "super-classes");
 		if (variant) {
 			GVariantIter iter;
-			gchar *uri;
+			const gchar *uri;
 
 			g_variant_iter_init (&iter, variant);
-			while (g_variant_iter_loop (&iter, "s", &uri)) {
+			while (g_variant_iter_loop (&iter, "&s", &uri)) {
 				super_class = tracker_ontologies_get_class_by_uri (uri);
 
 				tracker_class_add_super_class (service, super_class);
