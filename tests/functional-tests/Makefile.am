@@ -24,7 +24,8 @@ config_SCRIPTS +=                                      \
 endif
 
 standard_tests =                                       \
-	01-insertion.py
+	01-insertion.py				       \
+	02-sparql-bugs.py
 if HAVE_TRACKER_FTS
 standard_tests += 03-fts-functions.py
 endif
