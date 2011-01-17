@@ -39,9 +39,6 @@ liborg_freedesktop_Tracker_evolution_plugin_la_LIBADD = \
 
 @INTLTOOL_DESKTOP_RULE@
 
-%-glue.h: %.xml
-	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
-
 BUILT_SOURCES =                                        \
 	$(eplugin_DATA)
 

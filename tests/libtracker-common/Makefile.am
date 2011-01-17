@@ -12,15 +12,13 @@ AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \
 	-I$(top_srcdir)/tests/common                   \
-	$(LIBTRACKER_COMMON_CFLAGS)                    \
-	$(TRACKER_DBUS_CFLAGS)
+	$(LIBTRACKER_COMMON_CFLAGS)                    
 
 LDADD =                                                \
 	$(top_builddir)/tests/common/libtracker-testcommon.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
-	$(LIBTRACKER_COMMON_LIBS)                      \
-	$(TRACKER_DBUS_LIBS)
+	$(LIBTRACKER_COMMON_LIBS)                      
 
 tracker_dbus_SOURCES =                                 \
 	tracker-dbus-test.c                            

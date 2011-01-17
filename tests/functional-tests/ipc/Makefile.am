@@ -35,13 +35,11 @@ LDADD =\
 test_busy_handling_SOURCES = \
 	test-busy-handling.vala
 test_busy_handling_CFLAGS = \
-	$(AM_CPPFLAGS) \
-	$(TRACKER_DBUS_CFLAGS)
+	$(AM_CPPFLAGS)
 test_busy_handling_VALAFLAGS = \
 	$(AM_VALAFLAGS)
 test_busy_handling_LDADD = \
-	$(LDADD) \
-	$(TRACKER_DBUS_LIBS)
+	$(LDADD)
 
 test_direct_query_SOURCES = \
 	test-shared-query.vala \
@@ -65,33 +63,30 @@ test_bus_update_SOURCES = \
 test_class_signal_SOURCES = \
 	test-class-signal.vala
 test_class_signal_CFLAGS = \
-	$(AM_CPPFLAGS) \
-	$(TRACKER_DBUS_CFLAGS)
+	$(AM_CPPFLAGS)
+
 test_class_signal_VALAFLAGS = \
 	$(AM_VALAFLAGS)
 test_class_signal_LDADD = \
-	$(LDADD) \
-	$(TRACKER_DBUS_LIBS)
+	$(LDADD)
 
 test_class_signal_performance_SOURCES = \
 	test-class-signal-performance.vala
 test_class_signal_performance_CFLAGS = \
-	$(AM_CPPFLAGS) \
-	$(TRACKER_DBUS_CFLAGS)
+	$(AM_CPPFLAGS)
+
 test_class_signal_performance_VALAFLAGS = \
 	$(AM_VALAFLAGS)
 test_class_signal_performance_LDADD = \
-	$(LDADD) \
-	$(TRACKER_DBUS_LIBS)
+	$(LDADD)
 
 test_class_signal_performance_batch_SOURCES = \
 	test-class-signal-performance-batch.vala
 test_class_signal_performance_batch_CFLAGS = \
-	$(AM_CPPFLAGS) \
-	$(TRACKER_DBUS_CFLAGS)
+	$(AM_CPPFLAGS)
+
 test_class_signal_performance_batch_VALAFLAGS = \
 	$(AM_VALAFLAGS)
 test_class_signal_performance_batch_LDADD = \
-	$(LDADD) \
-	$(TRACKER_DBUS_LIBS)
+	$(LDADD)
 

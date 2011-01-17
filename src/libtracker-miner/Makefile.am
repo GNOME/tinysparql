@@ -17,7 +17,6 @@ AM_CPPFLAGS =                                          \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	-DSHAREDIR=\""$(datadir)"\"                    \
-	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\" \
 	-DTRACKER_MINERS_DIR=\""$(datadir)/tracker/miners"\" \
 	$(LIBTRACKER_MINER_CFLAGS)
 
