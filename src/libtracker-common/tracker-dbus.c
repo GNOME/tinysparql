@@ -37,7 +37,6 @@ typedef struct {
 	gchar *sender;
 	gchar *binary;
 	gulong pid;
-	GTimeVal last_time;
 	guint clean_up_id;
 } ClientData;
 
@@ -247,8 +246,6 @@ client_get_for_sender (const gchar *sender)
 	}
 
 	cd->clean_up_id = g_timeout_add_seconds (CLIENT_CLEAN_UP_TIME, client_clean_up_cb, cd);
-
-	g_get_current_time (&cd->last_time);
 
 	return cd;
 }
