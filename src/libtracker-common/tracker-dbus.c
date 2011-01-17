@@ -38,6 +38,7 @@ typedef struct {
 	gchar *binary;
 	gulong pid;
 	guint clean_up_id;
+	gint n_active_requests;
 } ClientData;
 
 struct _TrackerDBusRequest {
@@ -241,11 +242,14 @@ client_get_for_sender (const gchar *sender)
 		sender_dup = g_strdup (sender);
 		cd = client_data_new (sender_dup);
 		g_hash_table_insert (clients, sender_dup, cd);
-	} else {
-		g_source_remove (cd->clean_up_id);
 	}
 
-	cd->clean_up_id = g_timeout_add_seconds (CLIENT_CLEAN_UP_TIME, client_clean_up_cb, cd);
+	if (cd->clean_up_id) {
+		g_source_remove (cd->clean_up_id);
+		cd->clean_up_id = 0;
+	}
+
+	cd->n_active_requests++;
 
 	return cd;
 }
@@ -334,6 +338,14 @@ tracker_dbus_request_end (TrackerDBusRequest *request,
 			   request->cd ? request->cd->binary : "",
 			   request->cd ? request->cd->pid : 0,
 			   error->message);
+	}
+
+	if (request->cd) {
+		request->cd->n_active_requests--;
+
+		if (request->cd->n_active_requests == 0) {
+			request->cd->clean_up_id = g_timeout_add_seconds (CLIENT_CLEAN_UP_TIME, client_clean_up_cb, request->cd);
+		}
 	}
 
 	g_slice_free (TrackerDBusRequest, request);
