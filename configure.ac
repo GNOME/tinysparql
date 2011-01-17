@@ -742,8 +742,9 @@ AC_ARG_ENABLE(hal,
 
 if test "x$have_upower" != "xyes" && test "x$enable_hal" != "xno"; then
    PKG_CHECK_MODULES(HAL,
-                     [dbus-1 >= $DBUS_REQUIRED
-                      hal    >= $HAL_REQUIRED],
+                     [dbus-1      >= $DBUS_REQUIRED
+                      dbus-glib-1 >= $DBUS_GLIB_REQUIRED
+                      hal         >= $HAL_REQUIRED],
                      [have_hal=yes] ,
                      [have_hal=no])
 
