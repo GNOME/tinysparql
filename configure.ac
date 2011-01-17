@@ -1514,7 +1514,7 @@ AC_ARG_ENABLE(video-extractor,
               [enable_video_extractor=auto])
 
 PKG_CHECK_MODULES(GUPNP_DLNA,
-                  [gupnp-dlna-1.0 >= 0.3],
+                  [gupnp-dlna-1.0 >= 0.5],
                   [have_gupnp_dlna=yes],
                   [have_gupnp_dlna=no])
 
