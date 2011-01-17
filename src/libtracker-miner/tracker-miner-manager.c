@@ -476,7 +476,7 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	GError *error = NULL;
 	GVariant *v;
 	GVariantIter *iter;
-	gchar *str = NULL;
+	const gchar *str = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
 
@@ -506,7 +506,7 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	}
 
 	g_variant_get (v, "(as)", &iter);
-	while (g_variant_iter_loop (iter, "s", &str)) {
+	while (g_variant_iter_loop (iter, "&s", &str)) {
 		if (!g_str_has_prefix (str, TRACKER_MINER_DBUS_NAME_PREFIX)) {
 			continue;
 		}
