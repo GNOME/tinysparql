@@ -151,8 +151,6 @@ typedef struct {
 	size_t size;
 	size_t id3v2_size;
 
-	guint32 duration;
-
 	const gchar *title;
 	const gchar *performer;
 	gchar *performer_uri;
@@ -895,6 +893,8 @@ mp3_parse_header (const gchar          *data,
 
 	/* We assume mpeg version, layer and channels are constant in frames */
 	do {
+		guint sr;
+
 		frames++;
 		bitrate = 1000 * bitrate_table[(header & bitrate_mask) >> 20][idx_num];
 
@@ -903,8 +903,15 @@ mp3_parse_header (const gchar          *data,
 			return FALSE;
 		}
 
-		sample_rate = freq_table[(header & freq_mask) >> 18][mpeg_ver - 1];
+		sr = freq_table[(header & freq_mask) >> 18][mpeg_ver - 1];
 
+		/* NB#218332: Apparently some MP3s have a table with { 0, 0, 0 }*/
+		if (sr == 0) {
+			frames--;
+			break;
+		}
+
+		sample_rate = sr;
 		frame_size = spfp8 * bitrate / (sample_rate ? sample_rate : 1) + padsize*((header & pad_mask) >> 17);
 		avg_bps += bitrate / 1000;
 
@@ -949,18 +956,16 @@ mp3_parse_header (const gchar          *data,
 
 	avg_bps /= frames;
 
-	if (filedata->duration == 0) {
-		if ((!vbr_flag && frames > VBR_THRESHOLD) || (frames > MAX_FRAMES_SCAN)) {
-			/* If not all frames scanned
-			 * Note that bitrate is always > 0, checked before */
-			length = (filedata->size - filedata->id3v2_size) / (avg_bps ? avg_bps : bitrate) / 125;
-		} else{
-			length = spfp8 * 8 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
-		}
-
-		tracker_sparql_builder_predicate (metadata, "nfo:duration");
-		tracker_sparql_builder_object_int64 (metadata, length);
+	if ((!vbr_flag && frames > VBR_THRESHOLD) || (frames > MAX_FRAMES_SCAN)) {
+		/* If not all frames scanned
+		 * Note that bitrate is always > 0, checked before */
+		length = (filedata->size - filedata->id3v2_size) / (avg_bps ? avg_bps : bitrate) / 125;
+	} else {
+		length = spfp8 * 8 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
 	}
+
+	tracker_sparql_builder_predicate (metadata, "nfo:duration");
+	tracker_sparql_builder_object_int64 (metadata, length);
 
 	tracker_sparql_builder_predicate (metadata, "nfo:sampleRate");
 	tracker_sparql_builder_object_int64 (metadata, sample_rate);
