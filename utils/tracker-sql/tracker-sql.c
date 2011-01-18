@@ -54,8 +54,9 @@ main (int argc, char **argv)
 	GOptionContext *context;
 	GError *error = NULL;
 	const gchar *error_message;
-	TrackerDBResultSet *result_set;
 	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt;
+	TrackerDBCursor *cursor;
 	
 	setlocale (LC_ALL, "");
 
@@ -128,6 +129,7 @@ main (int argc, char **argv)
 	
 	if (query) {
 		gboolean first_time = FALSE;
+		gint n_rows = 0;
 
 		if (!tracker_data_manager_init (0,
 						NULL,
@@ -147,8 +149,13 @@ main (int argc, char **argv)
 		g_print ("\n\n");
 	
 		iface = tracker_db_manager_get_db_interface ();
-		result_set = tracker_db_interface_execute_query (iface, &error, "%s", query);
-		
+
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &error, "%s", query);
+
+		if (stmt) {
+			cursor = tracker_db_statement_start_cursor (stmt, &error);
+		}
+
 		if (error) {
 			g_printerr ("%s: %s\n",
 			            _("Could not run query"),
@@ -158,43 +165,40 @@ main (int argc, char **argv)
 			return EXIT_FAILURE;
 		}
 		
-		if (result_set) {
-			gboolean valid = TRUE;
-			guint columns;
+		g_print ("%s:\n", _("Results"));
 
-			g_print ("%s:\n", _("Results"));
+		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+			guint i;
 			
-			columns = tracker_db_result_set_get_n_columns (result_set);
-			
-			while (valid) {
-				guint i;
+			for (i =  0; i < tracker_db_cursor_get_n_columns (cursor); i++) {
+				const gchar *str;
 				
-				for (i =  0; i < columns; i++) {
-					GValue value = {0, };
-					GValue transform = {0, };
-					
-					if (i)
-						g_print (" | ");
-					
-					g_value_init (&transform, G_TYPE_STRING);
-					_tracker_db_result_set_get_value (result_set, i, &value);
-					if (G_IS_VALUE (&value) && g_value_transform (&value, &transform)) {
-						gchar *str;
-						
-						str = g_value_dup_string (&transform);
-						g_print ("%s", str);
-						g_value_unset (&value);
-					} else {
-						g_print ("(null)");
-					}
-					g_value_unset (&transform);
+				if (i)
+					g_print (" | ");
+
+				str = tracker_db_cursor_get_string (cursor, i, NULL);
+				if (str) {
+					g_print ("%s", str);
+				} else {
+					g_print ("(null)");
 				}
-				
-				g_print ("\n");
-				
-				valid = tracker_db_result_set_iter_next (result_set);
 			}
-		} else {
+			
+			g_print ("\n");
+			
+			n_rows++;
+		}
+
+		if (error) {
+			g_printerr ("%s: %s\n",
+			            _("Could not run query"),
+			            error->message);
+			g_error_free (error);
+
+			return EXIT_FAILURE;
+		}
+
+		if (n_rows == 0) {
 			g_print ("%s\n", _("Empty result set"));
 		}
 	}
