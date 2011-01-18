@@ -816,65 +816,6 @@ tracker_db_interface_init (TrackerDBInterface *db_interface)
 	prepare_database (db_interface);
 }
 
-static TrackerDBResultSet *
-ensure_result_set_state (TrackerDBResultSet *result_set)
-{
-	if (!result_set)
-		return NULL;
-
-	if (tracker_db_result_set_get_n_rows (result_set) == 0) {
-		g_object_unref (result_set);
-		return NULL;
-	}
-
-	/* ensure that it's at the first item */
-	tracker_db_result_set_rewind (result_set);
-
-	return result_set;
-}
-
-static void
-add_row (TrackerDBResultSet *result_set,
-         sqlite3_stmt       *stmt)
-{
-	gint cols, i;
-
-	cols = sqlite3_column_count (stmt);
-	_tracker_db_result_set_append (result_set);
-
-	for (i = 0; i < cols; i++) {
-		GValue value = { 0, };
-		gint col_type;
-
-		col_type = sqlite3_column_type (stmt, i);
-
-		switch (col_type) {
-		case SQLITE_TEXT:
-			g_value_init (&value, G_TYPE_STRING);
-			g_value_set_string (&value, (gchar *) sqlite3_column_text (stmt, i));
-			break;
-		case SQLITE_INTEGER:
-			g_value_init (&value, G_TYPE_INT64);
-			g_value_set_int64 (&value, sqlite3_column_int64 (stmt, i));
-			break;
-		case SQLITE_FLOAT:
-			g_value_init (&value, G_TYPE_DOUBLE);
-			g_value_set_double (&value, sqlite3_column_double (stmt, i));
-			break;
-		case SQLITE_NULL:
-			/* just ignore NULLs */
-			break;
-		default:
-			g_critical ("Unknown sqlite3 database column type:%d", col_type);
-		}
-
-		if (G_VALUE_TYPE (&value) != G_TYPE_INVALID) {
-			_tracker_db_result_set_set_value (result_set, i, &value);
-			g_value_unset (&value);
-		}
-	}
-}
-
 void
 tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_interface,
                                               TrackerDBStatementCacheType cache_type,
@@ -1083,13 +1024,12 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	return (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) ? g_object_ref (stmt) : stmt;
 }
 
-static TrackerDBResultSet *
-create_result_set_from_stmt (TrackerDBInterface  *interface,
-                             sqlite3_stmt        *stmt,
-                             GCancellable        *cancellable,
-                             GError             **error)
+static void
+execute_stmt (TrackerDBInterface  *interface,
+              sqlite3_stmt        *stmt,
+              GCancellable        *cancellable,
+              GError             **error)
 {
-	TrackerDBResultSet *result_set = NULL;
 	gint columns, result;
 
 	columns = sqlite3_column_count (stmt);
@@ -1121,11 +1061,6 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 			sqlite3_reset (stmt);
 			break;
 		case SQLITE_ROW:
-			if (G_UNLIKELY (!result_set)) {
-				result_set = _tracker_db_result_set_new (columns);
-			}
-
-			add_row (result_set, stmt);
 			break;
 		default:
 			break;
@@ -1165,7 +1100,7 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 			         "Shutting down now.",
 			         interface->filename);
 
-			return NULL;
+			return;
 		}
 
 		if (!error) {
@@ -1186,26 +1121,16 @@ create_result_set_from_stmt (TrackerDBInterface  *interface,
 				             sqlite3_errmsg (interface->db));
 			}
 		}
-
-		/* If there was an error, result set may be invalid or incomplete */
-		if (result_set) {
-			g_object_unref (result_set);
-		}
-
-		return NULL;
 	}
-
-	return ensure_result_set_state (result_set);
 }
 
-TrackerDBResultSet *
+void
 tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
                                      GError             **error,
                                      const gchar         *query,
                                      va_list              args)
 {
 	gchar *full_query;
-	TrackerDBResultSet *result_set;
 	sqlite3_stmt *stmt;
 	int retval;
 
@@ -1221,7 +1146,7 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 		             "%s",
 		             sqlite3_errmsg (db_interface->db));
 		g_free (full_query);
-		return NULL;
+		return;
 	} else if (stmt == NULL) {
 		g_set_error (error,
 		             TRACKER_DB_INTERFACE_ERROR,
@@ -1230,14 +1155,13 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 		             full_query);
 
 		g_free (full_query);
-		return NULL;
+		return;
 	}
 
-	result_set = create_result_set_from_stmt (db_interface, stmt, NULL, error);
+	execute_stmt (db_interface, stmt, NULL, error);
 	sqlite3_finalize (stmt);
 
 	g_free (full_query);
-	return result_set;
 }
 
 TrackerDBInterface *
@@ -1683,13 +1607,13 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor,
 	}
 }
 
-TrackerDBResultSet *
+void
 tracker_db_statement_execute (TrackerDBStatement  *stmt,
                               GError             **error)
 {
 	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
 
-	return create_result_set_from_stmt (stmt->db_interface, stmt->stmt, NULL, error);
+	execute_stmt (stmt->db_interface, stmt->stmt, NULL, error);
 }
 
 TrackerDBCursor *

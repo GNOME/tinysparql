@@ -67,12 +67,6 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
-	public class DBResultSet : GLib.Object {
-		public void _get_value (uint column, out GLib.Value value);
-		public bool iter_next ();
-	}
-
-	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public class DBCursor : Sparql.Cursor {
 	}
 
@@ -81,7 +75,6 @@ namespace Tracker {
 		public abstract void bind_double (int index, double value);
 		public abstract void bind_int (int index, int value);
 		public abstract void bind_text (int index, string value);
-		public abstract DBResultSet execute () throws DBInterfaceError;
 		public abstract DBCursor start_cursor () throws DBInterfaceError;
 		public abstract DBCursor start_sparql_cursor (PropertyType[] types, string[] variable_names, bool threadsafe) throws DBInterfaceError;
 	}

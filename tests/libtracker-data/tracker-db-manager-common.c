@@ -32,12 +32,11 @@ test_assert_query_run (TrackerDB db, const gchar *query)
 gboolean
 test_assert_query_run_on_iface (TrackerDBInterface *iface, const gchar *query)
 {
-	TrackerDBResultSet *result_set;
 	GError *error = NULL;
 
-	result_set = tracker_db_interface_execute_query (iface,
-	                                                 &error,
-	                                                 query);
+	tracker_db_interface_execute_query (iface,
+	                                    &error,
+	                                    query);
 
 	if (error && error->message) {
 		g_warning ("Error loading query:'%s' - %s", query, error->message);

@@ -184,16 +184,11 @@ db_exec_no_reply (TrackerDBInterface *iface,
                   const gchar        *query,
                   ...)
 {
-	TrackerDBResultSet *result_set;
 	va_list                     args;
 
 	va_start (args, query);
-	result_set = tracker_db_interface_execute_vquery (iface, NULL, query, args);
+	tracker_db_interface_execute_vquery (iface, NULL, query, args);
 	va_end (args);
-
-	if (result_set) {
-		g_object_unref (result_set);
-	}
 
 	return TRUE;
 }
@@ -231,7 +226,6 @@ db_set_params (TrackerDBInterface *iface,
 		g_free (queries);
 	} else {
 		GError *error = NULL;
-		TrackerDBResultSet *result_set;
 
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
@@ -239,14 +233,12 @@ db_set_params (TrackerDBInterface *iface,
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
 
-		result_set = tracker_db_interface_execute_query (iface, &error, "PRAGMA journal_mode = WAL;");
-		if (result_set == NULL) {
+		tracker_db_interface_execute_query (iface, &error, "PRAGMA journal_mode = WAL;");
+		if (error) {
 			/* Don't just silence the problem. This pragma must return 'WAL' */
 			g_message ("Can't set journal mode to WAL: '%s'",
-			           error ? error->message : "unknown error");
+			           error->message);
 			g_clear_error (&error);
-		} else {
-			g_object_unref (result_set);
 		}
 
 		if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
