@@ -46,7 +46,6 @@
 #include <libtracker-data/tracker-db-dbus.h>
 
 #include "tracker-config.h"
-#include "tracker-dbus.h"
 #include "tracker-marshal.h"
 #include "tracker-miner-applications.h"
 #include "tracker-miner-files.h"
@@ -600,16 +599,6 @@ main (gint argc, gchar *argv[])
 
 	sanity_check_option_values (config);
 
-	/* Make sure we initialize DBus, this shows we are started
-	 * successfully when called upon from the daemon.
-	 */
-	if (!tracker_dbus_init ()) {
-		g_object_unref (config);
-		tracker_log_shutdown ();
-
-		return EXIT_FAILURE;
-	}
-
 	main_loop = g_main_loop_new (NULL, FALSE);
 
 	miner_files = tracker_miner_files_new (config);
@@ -625,18 +614,6 @@ main (gint argc, gchar *argv[])
 	if (!object) {
 		g_object_unref (miner_files);
 		g_object_unref (config);
-		tracker_dbus_shutdown ();
-		tracker_log_shutdown ();
-
-		return EXIT_FAILURE;
-	}
-
-	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_objects (object)) {
-		g_object_unref (miner_files);
-		g_object_unref (object);
-		g_object_unref (config);
-		tracker_dbus_shutdown ();
 		tracker_log_shutdown ();
 
 		return EXIT_FAILURE;
@@ -668,8 +645,6 @@ main (gint argc, gchar *argv[])
 
 	g_slist_foreach (miners, (GFunc) finalize_miner, NULL);
 	g_slist_free (miners);
-
-	tracker_dbus_shutdown ();
 
 	tracker_log_shutdown ();
 

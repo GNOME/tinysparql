@@ -11,11 +11,26 @@ AM_CPPFLAGS =                                          \
 
 libexec_PROGRAMS = tracker-miner-fs
 
+# Prefer UPower for the power data if it's available, else fall back to HAL
+if HAVE_UPOWER
+power_headers =                                        \
+	tracker-power.h
+power_sources =                                        \
+	tracker-power-upower.c
+else
+if HAVE_HAL
+power_headers =                                        \
+	tracker-power.h
+power_sources =                                        \
+	tracker-power-hal.c
+endif
+endif
+
 tracker_miner_fs_SOURCES =                             \
+	$(power_sources)                               \
+	$(power_headers)                               \
 	tracker-config.c                               \
 	tracker-config.h                               \
-	tracker-dbus.c                                 \
-	tracker-dbus.h                                 \
 	tracker-main.c                                 \
 	tracker-miner-applications.c                   \
 	tracker-miner-applications.h                   \
@@ -42,11 +57,6 @@ marshal_sources =                                      \
 	tracker-marshal.h                              \
 	tracker-marshal.c
 
-dbus_sources =                                         \
-	tracker-miner-glue.h                           \
-	tracker-miner-files-index-glue.h               \
-	tracker-extract-client.h
-
 tracker-marshal.h: tracker-marshal.list
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
@@ -54,15 +64,8 @@ tracker-marshal.c: tracker-marshal.list
 	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
 		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
-%-glue.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
-
-%-client.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
-
 BUILT_SOURCES =                                        \
-	$(marshal_sources)                             \
-	$(dbus_sources)
+	$(marshal_sources)                             
 
 CLEANFILES = $(BUILT_SOURCES)
 

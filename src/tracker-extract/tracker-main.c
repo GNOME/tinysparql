@@ -50,7 +50,6 @@
 #include "tracker-albumart.h"
 #include "tracker-config.h"
 #include "tracker-main.h"
-#include "tracker-dbus.h"
 #include "tracker-extract.h"
 
 #define ABOUT	  \
@@ -383,8 +382,6 @@ main (int argc, char *argv[])
 		g_thread_init (NULL);
 	}
 
-	dbus_g_thread_init ();
-
 	g_set_application_name ("tracker-extract");
 
 	setlocale (LC_ALL, "");
@@ -411,13 +408,6 @@ main (int argc, char *argv[])
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority ();
 
-	if (!tracker_dbus_init ()) {
-		g_object_unref (config);
-		tracker_log_shutdown ();
-
-		return EXIT_FAILURE;
-	}
-
 	object = tracker_extract_new (disable_shutdown,
 	                              force_internal_extractors,
 	                              force_module);
@@ -425,23 +415,12 @@ main (int argc, char *argv[])
 	if (!object) {
 		g_object_unref (config);
 		tracker_log_shutdown ();
-
 		return EXIT_FAILURE;
 	}
 
 	tracker_memory_setrlimits ();
 
-	/* Make Tracker available for introspection */
-	if (!tracker_dbus_register_objects (object)) {
-		g_object_unref (object);
-		g_object_unref (config);
-		tracker_log_shutdown ();
-
-		return EXIT_FAILURE;
-	}
-
-	tracker_dbus_connection_add_filter (tracker_extract_connection_filter,
-	                                    object);
+	tracker_extract_dbus_start (object);
 
 	g_message ("Waiting for D-Bus requests...");
 
@@ -460,7 +439,10 @@ main (int argc, char *argv[])
 
 	/* Shutdown subsystems */
 	tracker_albumart_shutdown ();
-	tracker_dbus_shutdown ();
+
+	tracker_extract_dbus_stop (object);
+	g_object_unref (object);
+
 	tracker_log_shutdown ();
 
 	g_object_unref (config);

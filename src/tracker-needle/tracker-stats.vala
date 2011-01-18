@@ -23,8 +23,8 @@ using Gtk;
 private const string b = Config.APPNAME;
 
 [DBus (name = "org.freedesktop.Tracker1.Statistics")]
-interface Statistics : GLib.Object {
-	public abstract string[,] Get () throws DBus.Error;
+interface Statistics : DBusProxy {
+	public abstract string[,] Get () throws DBusError;
 }
 
 public class Tracker.Stats : Dialog {
@@ -44,11 +44,11 @@ public class Tracker.Stats : Dialog {
 		debug ("Setting up statistics D-Bus connection");
 
 		try {
-			var conn = DBus.Bus.get (DBus.BusType.SESSION);
-			tracker = (Statistics) conn.get_object ("org.freedesktop.Tracker1",
-			                                        "/org/freedesktop/Tracker1/Statistics",
-			                                        "org.freedesktop.Tracker1.Statistics");
-		} catch (DBus.Error e) {
+			tracker = GLib.Bus.get_proxy_sync (BusType.SESSION,
+			                                   "org.freedesktop.Tracker1",
+			                                   "/org/freedesktop/Tracker1/Statistics",
+			                                   DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
+		} catch (GLib.IOError e) {
 			var msg = new MessageDialog (null,
 			                             DialogFlags.MODAL,
 			                             MessageType.ERROR,
@@ -112,7 +112,7 @@ public class Tracker.Stats : Dialog {
 					key_used = ngettext ("Application", "Applications", val.to_int ());
 					break;
 				case "nfo:Video":
-//                case "nmm:Video":
+			  //case "nmm:Video":
 					key_used = ngettext ("Video", "Videos", val.to_int ());
 					break;
 				case "nmm:MusicAlbum":
@@ -148,7 +148,7 @@ public class Tracker.Stats : Dialog {
 
 				this.vbox.pack_start (hbox, true, true, 0);
 			}
-		} catch (DBus.Error e) {
+		} catch (DBusError e) {
 			warning ("Could not get Tracker statistics: " + e.message);
 		}
 

@@ -31,17 +31,16 @@ struct Event {
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
-private interface Resources : GLib.Object {
+private interface Resources : DBusProxy {
 	[DBus (name = "GraphUpdated")]
 	public signal void graph_updated (string class_name, Event[] deletes, Event[] inserts);
 	[DBus (name = "BatchSparqlUpdate")]
-	public abstract async void batch_sparql_update_async (string query) throws Sparql.Error, DBus.Error;
+	public abstract async void batch_sparql_update_async (string query) throws Sparql.Error, DBusError;
 	[DBus (name = "SparqlUpdate")]
-	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBus.Error;
+	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBusError;
 }
 
 public class TestApp {
-	static DBus.Connection dbus_connection;
 	static Resources resources_object;
 	MainLoop loop;
 	bool initialized = false;
@@ -53,15 +52,16 @@ public class TestApp {
 	requires (!initialized) {
 		try {
 			con = Tracker.Sparql.Connection.get();
-			dbus_connection = DBus.Bus.get (DBus.BusType.SESSION);
-			resources_object = (Resources) dbus_connection.get_object ("org.freedesktop.Tracker1",
-			                                                           "/org/freedesktop/Tracker1/Resources",
-			                                                           "org.freedesktop.Tracker1.Resources");
+
+			resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
+			                                            "org.freedesktop.Tracker1",
+			                                            "/org/freedesktop/Tracker1/Resources",
+			                                            DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 
 
 			resources_object.graph_updated.connect (on_graph_updated_received);
 			t = new GLib.Timer ();
-			
+
 		} catch (GLib.Error e) {
 			warning ("Could not connect to D-Bus service: %s", e.message);
 			initialized = false;

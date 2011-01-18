@@ -31,8 +31,6 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-miner/tracker-miner.h>
 
-#include "tracker-status-client.h"
-
 #define ABOUT \
 	"Tracker " PACKAGE_VERSION "\n"
 
@@ -43,8 +41,8 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
-static DBusGConnection *connection = NULL;
-static DBusGProxy *proxy = NULL;
+static GDBusConnection *connection = NULL;
+static GDBusProxy *proxy = NULL;
 
 static GMainLoop *main_loop;
 static GHashTable *miners_progress;
@@ -302,29 +300,13 @@ miner_print_state (TrackerMinerManager *manager,
 }
 
 static void
-store_print_state (void)
+store_print_state (const gchar *status,
+                   gdouble      progress)
 {
-	GError *error = NULL;
-	gdouble progress;
-	gchar *status;
 	gchar *operation = NULL;
 	gchar *operation_status = NULL;
 	gchar time_str[64];
 	gchar *progress_str;
-
-	org_freedesktop_Tracker1_Status_get_progress (proxy, &progress, &error);
-
-	if (error) {
-		g_critical ("Could not retrieve tracker-store progress: %s", error->message);
-		return;
-	}
-
-	org_freedesktop_Tracker1_Status_get_status (proxy, &status, &error);
-
-	if (error) {
-		g_critical ("Could not retrieve tracker-store status: %s", error->message);
-		return;
-	}
 
 	if (status && strstr (status, "-")) {
 		gchar **status_split;
@@ -378,6 +360,57 @@ store_print_state (void)
 }
 
 static void
+store_get_and_print_state (void)
+{
+	GVariant *v_status, *v_progress;
+	const gchar *status = NULL;
+	gdouble progress = -1.0;
+	GError *error = NULL;
+
+	/* Status */
+	v_status = g_dbus_proxy_call_sync (proxy,
+	                                   "GetStatus",
+	                                   NULL,
+	                                   G_DBUS_CALL_FLAGS_NONE,
+	                                   -1,
+	                                   NULL,
+	                                   &error);
+
+	g_variant_get (v_status, "(&s)", &status);
+
+	if (!status || error) {
+		g_critical ("Could not retrieve tracker-store status: %s",
+		            error ? error->message : "no error given");
+		g_clear_error (&error);
+		return;
+	}
+
+	/* Progress */
+	v_progress = g_dbus_proxy_call_sync (proxy,
+	                                     "GetProgress",
+	                                     NULL,
+	                                     G_DBUS_CALL_FLAGS_NONE,
+	                                     -1,
+	                                     NULL,
+	                                     &error);
+
+	g_variant_get (v_progress, "(d)", &progress);
+
+	if (progress < 0.0 || error) {
+		g_critical ("Could not retrieve tracker-store progress: %s",
+		            error ? error->message : "no error given");
+		g_clear_error (&error);
+		return;
+	}
+
+	/* Print */
+	store_print_state (status, progress);
+
+	g_variant_unref (v_progress);
+	g_variant_unref (v_status);
+}
+
+static void
 manager_miner_progress_cb (TrackerMinerManager *manager,
                            const gchar         *miner_name,
                            const gchar         *status,
@@ -399,15 +432,6 @@ manager_miner_progress_cb (TrackerMinerManager *manager,
 	                      g_strdup (miner_name),
 	                      gvalue);
 }
-
-static void
-store_progress_cb (TrackerMinerManager *manager,
-                   const gchar         *status,
-                   gdouble              progress)
-{
-	store_print_state ();
-}
-
 
 static void
 manager_miner_paused_cb (TrackerMinerManager *manager,
@@ -449,8 +473,24 @@ miners_progress_destroy_notify (gpointer data)
 	g_slice_free (GValue, value);
 }
 
+static void
+store_progress (GDBusConnection *connection,
+                const gchar     *sender_name,
+                const gchar     *object_path,
+                const gchar     *interface_name,
+                const gchar     *signal_name,
+                GVariant        *parameters,
+                gpointer         user_data)
+{
+	const gchar *status = NULL;
+	gdouble progress = 0.0;
+
+	g_variant_get (parameters, "(sd)", &status, &progress);
+	store_print_state (status, progress);
+}
+
 static gboolean
-init_store_proxy (void)
+store_init (void)
 {
 	GError *error = NULL;
 
@@ -458,25 +498,42 @@ init_store_proxy (void)
 		return TRUE;
 	}
 
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
-	if (error) {
+	if (!connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
 		            error ? error->message : "no error given.");
 		g_clear_error (&error);
 		return FALSE;
 	}
 
-	proxy = dbus_g_proxy_new_for_name (connection,
-	                                   "org.freedesktop.Tracker1",
-	                                   "/org/freedesktop/Tracker1/Status",
-	                                   "org.freedesktop.Tracker1.Status");
+	proxy = g_dbus_proxy_new_sync (connection,
+	                               G_DBUS_PROXY_FLAGS_NONE,
+	                               NULL,
+	                               "org.freedesktop.Tracker1",
+	                               "/org/freedesktop/Tracker1/Status",
+	                               "org.freedesktop.Tracker1.Status",
+	                               NULL,
+	                               &error);
 
-	dbus_g_proxy_add_signal (proxy,
-	                         "Progress",
-	                         G_TYPE_STRING,
-	                         G_TYPE_DOUBLE,
-	                         G_TYPE_INVALID);
+	if (error) {
+		g_critical ("Could not create proxy on the D-Bus session bus, %s",
+		            error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	g_dbus_connection_signal_subscribe (connection,
+	                                    "org.freedesktop.Tracker1",
+	                                    "org.freedesktop.Tracker1.Status",
+	                                    "Progress",
+	                                    "/org/freedesktop/Tracker1/Status",
+	                                    NULL,
+	                                    G_DBUS_SIGNAL_FLAGS_NONE,
+	                                    store_progress,
+	                                    NULL,
+	                                    NULL);
+
 	return TRUE;
 }
 
@@ -705,8 +762,8 @@ main (gint argc, gchar *argv[])
 
 	/* Display states */
 	g_print ("%s:\n", _("Store"));
-	init_store_proxy ();
-	store_print_state ();
+	store_init ();
+	store_get_and_print_state ();
 
 	g_print ("\n");
 
@@ -775,9 +832,6 @@ main (gint argc, gchar *argv[])
 	                  G_CALLBACK (manager_miner_paused_cb), NULL);
 	g_signal_connect (manager, "miner-resumed",
 	                  G_CALLBACK (manager_miner_resumed_cb), NULL);
-	dbus_g_proxy_connect_signal (proxy, "Progress",
-	                             G_CALLBACK (store_progress_cb),
-	                             NULL, NULL);
 
 	initialize_signal_handler ();
 

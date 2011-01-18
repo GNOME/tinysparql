@@ -30,25 +30,29 @@
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
+#include <gio/gio.h>
+#include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
 
-#include <dbus/dbus-glib-lowlevel.h>
-#include <dbus/dbus.h>
-
 #include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-ontologies.h>
-#include <libtracker-common/tracker-power.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 #include <libtracker-common/tracker-file-utils.h>
 
 #include <libtracker-data/tracker-db-manager.h>
 
+#include "tracker-power.h"
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
-#include "tracker-extract-client.h"
 #include "tracker-marshal.h"
+
+/* Size of buffers used when sending data over a pipe, using DBus FD passing */
+#define DBUS_PIPE_BUFFER_SIZE      65536
+
+#define DBUS_SERVICE_EXTRACT       "org.freedesktop.Tracker1.Extract"
+#define DBUS_PATH_EXTRACT          "/org/freedesktop/Tracker1/Extract"
+#define DBUS_INTERFACE_EXTRACT     "org.freedesktop.Tracker1.Extract"
 
 #define DISK_SPACE_CHECK_FREQUENCY 10
 #define SECONDS_PER_DAY 86400
@@ -73,11 +77,29 @@ struct ProcessFileData {
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
 	GFile *file;
-	DBusPendingCall *call;
 };
 
+typedef void (*fast_async_cb) (const gchar *preupdate,
+                               const gchar *sparql,
+                               GError      *error,
+                               gpointer     user_data);
+
+typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
+                                                  gssize    buffer_size,
+                                                  GError   *error, /* Don't free */
+                                                  gpointer  user_data);
+
 typedef struct {
-	org_freedesktop_Tracker1_Extract_get_metadata_reply callback;
+	GInputStream *unix_input_stream;
+	GInputStream *buffered_input_stream;
+	GOutputStream *output_stream;
+	TrackerDBusSendAndSpliceCallback callback;
+	GCancellable *cancellable;
+	gpointer user_data;
+} SendAndSpliceData;
+
+typedef struct {
+	fast_async_cb callback;
 	gpointer user_data;
 } FastAsyncData;
 
@@ -100,8 +122,7 @@ struct TrackerMinerFilesPrivate {
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 	gulong finished_handler;
 
-	DBusGConnection *connection;
-	DBusGProxy *extractor_proxy;
+	GDBusConnection *connection;
 
 	GQuark quark_mount_point_uuid;
 	GQuark quark_directory_config_root;
@@ -174,9 +195,8 @@ static void        trigger_recheck_cb                   (GObject              *g
                                                          GParamSpec           *arg1,
                                                          gpointer              user_data);
 static void        index_volumes_changed_cb             (GObject              *gobject,
-							 GParamSpec           *arg1,
-							 gpointer              user_data);
-static DBusGProxy *extractor_create_proxy               (DBusGConnection      *connection);
+                                                         GParamSpec           *arg1,
+                                                         gpointer              user_data);
 static gboolean    miner_files_check_file               (TrackerMinerFS       *fs,
                                                          GFile                *file);
 static gboolean    miner_files_check_directory          (TrackerMinerFS       *fs,
@@ -240,7 +260,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_fs_class->process_file = miner_files_process_file;
 	miner_fs_class->process_file_attributes = miner_files_process_file_attributes;
 	miner_fs_class->ignore_next_update_file = miner_files_ignore_next_update_file;
-        miner_fs_class->finished = miner_files_finished;
+	miner_fs_class->finished = miner_files_finished;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_CONFIG,
@@ -285,8 +305,8 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
 	priv->finished_handler = g_signal_connect_after (mf, "finished",
-							 G_CALLBACK (miner_finished_cb),
-							 NULL);
+	                                                 G_CALLBACK (miner_finished_cb),
+	                                                 NULL);
 
 	priv->volume_monitor = g_volume_monitor_get ();
 	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
@@ -294,15 +314,13 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	                  mf);
 
 	/* Set up extractor and signals */
-	priv->connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	priv->connection =  g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
 	if (!priv->connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
 		            error ? error->message : "no error given.");
 		g_error_free (error);
 	}
-
-	priv->extractor_proxy = extractor_create_proxy (priv->connection);
 
 	priv->quark_mount_point_uuid = g_quark_from_static_string ("tracker-mount-point-uuid");
 	priv->quark_directory_config_root = g_quark_from_static_string ("tracker-directory-config-root");
@@ -359,8 +377,6 @@ miner_files_finalize (GObject *object)
 	mf = TRACKER_MINER_FILES (object);
 	priv = mf->private;
 
-	g_object_unref (priv->extractor_proxy);
-
 	g_signal_handlers_disconnect_by_func (priv->config,
 	                                      low_disk_space_limit_cb,
 	                                      NULL);
@@ -369,15 +385,15 @@ miner_files_finalize (GObject *object)
 
 	disk_space_check_stop (TRACKER_MINER_FILES (object));
 
-        if (priv->index_recursive_directories) {
-                g_slist_foreach (priv->index_recursive_directories, (GFunc) g_free, NULL);
-                g_slist_free (priv->index_recursive_directories);
-        }
+	if (priv->index_recursive_directories) {
+		g_slist_foreach (priv->index_recursive_directories, (GFunc) g_free, NULL);
+		g_slist_free (priv->index_recursive_directories);
+	}
 
-        if (priv->index_single_directories) {
-                g_slist_foreach (priv->index_single_directories, (GFunc) g_free, NULL);
-                g_slist_free (priv->index_single_directories);
-        }
+	if (priv->index_single_directories) {
+		g_slist_foreach (priv->index_single_directories, (GFunc) g_free, NULL);
+		g_slist_free (priv->index_single_directories);
+	}
 
 #if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 	g_object_unref (priv->power);
@@ -452,8 +468,8 @@ miner_files_constructed (GObject *object)
 	/* Fill in directories to inspect */
 	dirs = tracker_config_get_index_single_directories (mf->private->config);
 
-        /* Copy in case of config changes */
-        mf->private->index_single_directories = tracker_gslist_copy_with_string_data (dirs);
+	/* Copy in case of config changes */
+	mf->private->index_single_directories = tracker_gslist_copy_with_string_data (dirs);
 
 	for (; dirs; dirs = dirs->next) {
 		GFile *file;
@@ -500,8 +516,8 @@ miner_files_constructed (GObject *object)
 
 	dirs = tracker_config_get_index_recursive_directories (mf->private->config);
 
-        /* Copy in case of config changes */
-        mf->private->index_recursive_directories = tracker_gslist_copy_with_string_data (dirs);
+	/* Copy in case of config changes */
+	mf->private->index_recursive_directories = tracker_gslist_copy_with_string_data (dirs);
 
 	for (; dirs; dirs = dirs->next) {
 		GFile *file;
@@ -669,7 +685,7 @@ set_up_mount_point_cb (GObject      *source,
 	if (error) {
 		g_critical ("Could not set mount point in database '%s', %s",
 		            removable_device_urn,
-			    error->message);
+		            error->message);
 		g_error_free (error);
 	}
 
@@ -803,11 +819,11 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		g_string_append_printf (accumulator, "%s ", queries->str);
 	} else {
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                        queries->str,
-                                                        G_PRIORITY_LOW,
-                                                        NULL,
-                                                        set_up_mount_point_cb,
-                                                        g_strdup (removable_device_urn));
+		                                        queries->str,
+		                                        G_PRIORITY_LOW,
+		                                        NULL,
+		                                        set_up_mount_point_cb,
+		                                        g_strdup (removable_device_urn));
 	}
 
 	g_string_free (queries, TRUE);
@@ -821,8 +837,8 @@ init_mount_points_cb (GObject      *source,
 	GError *error = NULL;
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source),
-	                                     result,
-	                                     &error);
+	                                         result,
+	                                         &error);
 
 	if (error) {
 		g_critical ("Could not initialize currently active mount points: %s",
@@ -871,9 +887,9 @@ init_mount_points (TrackerMinerFiles *miner_files)
 
 	/* Make sure the root partition is always set to mounted, as GIO won't
 	 * report it as a proper mount */
-        g_hash_table_insert (volumes,
-                             g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
-                             GINT_TO_POINTER (VOLUME_MOUNTED));
+	g_hash_table_insert (volumes,
+	                     g_strdup (TRACKER_NON_REMOVABLE_MEDIA_DATASOURCE_URN),
+	                     GINT_TO_POINTER (VOLUME_MOUNTED));
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		gint state;
@@ -957,21 +973,21 @@ init_mount_points (TrackerMinerFiles *miner_files)
 			if (urn) {
 				if (mount_point) {
 					g_debug ("Mount point state incorrect in DB for URN '%s', "
-						 "currently it is mounted on '%s'",
+					         "currently it is mounted on '%s'",
 					         urn,
-						 mount_point);
+					         mount_point);
 				} else {
 					g_debug ("Mount point state incorrect in DB for URN '%s', "
-						 "currently it is mounted",
+					         "currently it is mounted",
 					         urn);
 				}
 
 				/* Set mount point state */
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
-						    urn,
-						    mount_point,
-						    TRUE,
-						    accumulator);
+				                    urn,
+				                    mount_point,
+				                    TRUE,
+				                    accumulator);
 
 				/* Set mount point type */
 				set_up_mount_point_type (TRACKER_MINER_FILES (miner),
@@ -985,24 +1001,24 @@ init_mount_points (TrackerMinerFiles *miner_files)
 		           (state & VOLUME_MOUNTED_IN_STORE)) {
 			if (urn) {
 				g_debug ("Mount point state incorrect in DB for URN '%s', "
-					 "currently it is NOT mounted",
-					 urn);
+				         "currently it is NOT mounted",
+				         urn);
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
-						    urn,
-						    NULL,
-						    FALSE,
-						    accumulator);
+				                    urn,
+				                    NULL,
+				                    FALSE,
+				                    accumulator);
 			}
 		}
 	}
 
 	if (accumulator->str[0] != '\0') {
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (miner),
-                                                        accumulator->str,
-                                                        G_PRIORITY_LOW,
-                                                        NULL,
-                                                        init_mount_points_cb,
-                                                        miner);
+		                                        accumulator->str,
+		                                        G_PRIORITY_LOW,
+		                                        NULL,
+		                                        init_mount_points_cb,
+		                                        miner);
 	} else {
 		/* If no further mount point initialization was needed,
 		 * initialize stale volume removal here. */
@@ -1163,11 +1179,11 @@ mount_point_added_cb (TrackerStorage *storage,
 	set_up_mount_point (miner, urn, mount_point, TRUE, queries);
 	set_up_mount_point_type (miner, urn, removable, optical, queries);
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                queries->str,
-                                                G_PRIORITY_LOW,
-                                                NULL,
-                                                set_up_mount_point_cb,
-                                                g_strdup (urn));
+	                                        queries->str,
+	                                        G_PRIORITY_LOW,
+	                                        NULL,
+	                                        set_up_mount_point_cb,
+	                                        g_strdup (urn));
 	g_string_free (queries, TRUE);
 	g_free (urn);
 }
@@ -1432,53 +1448,53 @@ update_directories_from_new_config (TrackerMinerFS *mf,
                                     gboolean        recurse)
 {
 	TrackerMinerFilesPrivate *priv;
-        GSList *sl;
+	GSList *sl;
 
 	priv = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
-        g_message ("Updating %s directories changed from configuration",
-                   recurse ? "recursive" : "single");
+	g_message ("Updating %s directories changed from configuration",
+	           recurse ? "recursive" : "single");
 
-        /* First remove all directories removed from the config */
-        for (sl = old_dirs; sl; sl = sl->next) {
-                const gchar *path;
+	/* First remove all directories removed from the config */
+	for (sl = old_dirs; sl; sl = sl->next) {
+		const gchar *path;
 
-                path = sl->data;
+		path = sl->data;
 
-                /* If we are not still in the list, remove the dir */
-                if (!tracker_string_in_gslist (path, new_dirs)) {
-                        GFile *file;
+		/* If we are not still in the list, remove the dir */
+		if (!tracker_string_in_gslist (path, new_dirs)) {
+			GFile *file;
 
-                        g_message ("  Removing directory: '%s'", path);
+			g_message ("  Removing directory: '%s'", path);
 
-                        file = g_file_new_for_path (path);
-                        /* Fully remove item (monitors and from store) */
-                        tracker_miner_fs_directory_remove_full (TRACKER_MINER_FS (mf), file);
-                        g_object_unref (file);
-                }
-        }
+			file = g_file_new_for_path (path);
+			/* Fully remove item (monitors and from store) */
+			tracker_miner_fs_directory_remove_full (TRACKER_MINER_FS (mf), file);
+			g_object_unref (file);
+		}
+	}
 
-        /* Second add directories which are new */
-        for (sl = new_dirs; sl; sl = sl->next) {
-                const gchar *path;
+	/* Second add directories which are new */
+	for (sl = new_dirs; sl; sl = sl->next) {
+		const gchar *path;
 
-                path = sl->data;
+		path = sl->data;
 
-                /* If we are now in the list, add the dir */
-                if (!tracker_string_in_gslist (path, old_dirs)) {
-                        GFile *file;
+		/* If we are now in the list, add the dir */
+		if (!tracker_string_in_gslist (path, old_dirs)) {
+			GFile *file;
 
-                        g_message ("  Adding directory:'%s'", path);
+			g_message ("  Adding directory:'%s'", path);
 
-                        file = g_file_new_for_path (path);
+			file = g_file_new_for_path (path);
 			g_object_set_qdata (G_OBJECT (file),
 			                    priv->quark_directory_config_root,
 			                    GINT_TO_POINTER (TRUE));
 
 			tracker_miner_fs_directory_add (TRACKER_MINER_FS (mf), file, recurse);
-                        g_object_unref (file);
-                }
-        }
+			g_object_unref (file);
+		}
+	}
 }
 
 static void
@@ -1486,26 +1502,26 @@ index_recursive_directories_cb (GObject    *gobject,
                                 GParamSpec *arg1,
                                 gpointer    user_data)
 {
-        TrackerMinerFilesPrivate *private;
-        GSList *new_dirs, *old_dirs;
+	TrackerMinerFilesPrivate *private;
+	GSList *new_dirs, *old_dirs;
 
-        private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
+	private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
 
-        new_dirs = tracker_config_get_index_recursive_directories (private->config);
-        old_dirs = private->index_recursive_directories;
+	new_dirs = tracker_config_get_index_recursive_directories (private->config);
+	old_dirs = private->index_recursive_directories;
 
-        update_directories_from_new_config (TRACKER_MINER_FS (user_data),
-                                            new_dirs,
-                                            old_dirs,
-                                            TRUE);
+	update_directories_from_new_config (TRACKER_MINER_FS (user_data),
+	                                    new_dirs,
+	                                    old_dirs,
+	                                    TRUE);
 
-        /* Re-set the stored config in case it changes again */
-        if (private->index_recursive_directories) {
-                g_slist_foreach (private->index_recursive_directories, (GFunc) g_free, NULL);
-                g_slist_free (private->index_recursive_directories);
-        }
+	/* Re-set the stored config in case it changes again */
+	if (private->index_recursive_directories) {
+		g_slist_foreach (private->index_recursive_directories, (GFunc) g_free, NULL);
+		g_slist_free (private->index_recursive_directories);
+	}
 
-        private->index_recursive_directories = tracker_gslist_copy_with_string_data (new_dirs);
+	private->index_recursive_directories = tracker_gslist_copy_with_string_data (new_dirs);
 }
 
 static void
@@ -1513,26 +1529,26 @@ index_single_directories_cb (GObject    *gobject,
                              GParamSpec *arg1,
                              gpointer    user_data)
 {
-        TrackerMinerFilesPrivate *private;
-        GSList *new_dirs, *old_dirs;
+	TrackerMinerFilesPrivate *private;
+	GSList *new_dirs, *old_dirs;
 
-        private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
+	private = TRACKER_MINER_FILES_GET_PRIVATE (user_data);
 
-        new_dirs = tracker_config_get_index_single_directories (private->config);
-        old_dirs = private->index_single_directories;
+	new_dirs = tracker_config_get_index_single_directories (private->config);
+	old_dirs = private->index_single_directories;
 
-        update_directories_from_new_config (TRACKER_MINER_FS (user_data),
-                                            new_dirs,
-                                            old_dirs,
-                                            FALSE);
+	update_directories_from_new_config (TRACKER_MINER_FS (user_data),
+	                                    new_dirs,
+	                                    old_dirs,
+	                                    FALSE);
 
-        /* Re-set the stored config in case it changes again */
-        if (private->index_single_directories) {
-                g_slist_foreach (private->index_single_directories, (GFunc) g_free, NULL);
-                g_slist_free (private->index_single_directories);
-        }
+	/* Re-set the stored config in case it changes again */
+	if (private->index_single_directories) {
+		g_slist_foreach (private->index_single_directories, (GFunc) g_free, NULL);
+		g_slist_free (private->index_single_directories);
+	}
 
-        private->index_single_directories = tracker_gslist_copy_with_string_data (new_dirs);
+	private->index_single_directories = tracker_gslist_copy_with_string_data (new_dirs);
 }
 
 static gboolean
@@ -1768,7 +1784,7 @@ miner_files_monitor_directory (TrackerMinerFS *fs,
 static const gchar *
 miner_files_get_file_urn (TrackerMinerFiles *miner,
                           GFile             *file,
-			  gboolean          *is_iri)
+                          gboolean          *is_iri)
 {
 	const gchar *urn;
 
@@ -1842,42 +1858,11 @@ process_file_data_free (ProcessFileData *data)
 	g_slice_free (ProcessFileData, data);
 }
 
-static DBusGProxy *
-extractor_create_proxy (DBusGConnection *connection)
-{
-	DBusGProxy *proxy;
-
-	g_return_val_if_fail (connection, NULL);
-
-	/* Get proxy for the extractor */
-	proxy = dbus_g_proxy_new_for_name (connection,
-	                                   "org.freedesktop.Tracker1.Extract",
-	                                   "/org/freedesktop/Tracker1/Extract",
-	                                   "org.freedesktop.Tracker1.Extract");
-
-	if (!proxy) {
-		g_critical ("Could not create a DBusGProxy to the extract service");
-	} else {
-		/* Set default timeout for DBus requests to be around 60s.
-		 * Assuming that the files which need more time to get extracted are PDFs
-		 * using libpoppler, we already have a limit in the PDF extractor not to
-		 * spend more than 5s extraction contents. And, assuming the default
-		 * value of 10 in process-pool-limit, it means we may end up queueing up
-		 * to 10 PDF files which may need 5s each, so in order not to have dbus
-		 * timeouts in this case, any value greater than 5*10 would be good.
-		 */
-		dbus_g_proxy_set_default_timeout (proxy, EXTRACTOR_DBUS_TIMEOUT);
-	}
-
-	return proxy;
-}
-
 static void
-extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
-                                    gchar      *preupdate,
-                                    gchar      *sparql,
-                                    GError     *error,
-                                    gpointer    user_data)
+extractor_get_embedded_metadata_cb (const gchar *preupdate,
+                                    const gchar *sparql,
+                                    GError      *error,
+                                    gpointer     user_data)
 {
 	ProcessFileData *data = user_data;
 	const gchar *uuid;
@@ -1886,9 +1871,6 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 		/* Something bad happened, notify about the error */
 		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 		process_file_data_free (data);
-		/* Always free input GError. We want to behave exactly as if this
-		 * callback were one used in an async dbus-glib query.  */
-		g_error_free (error);
 		return;
 	}
 
@@ -1919,7 +1901,7 @@ extractor_get_embedded_metadata_cb (DBusGProxy *proxy,
 	}
 
 	uuid = g_object_get_qdata (G_OBJECT (data->file),
-				  data->miner->private->quark_mount_point_uuid);
+	                           data->miner->private->quark_mount_point_uuid);
 
 	/* File represents a mount point */
 	if (G_UNLIKELY (uuid)) {
@@ -1967,22 +1949,165 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 {
 	GError *error;
 
-	/* Cancel extractor call */
+	/* TODO: Cancel extractor call
+	 * Isn't this as simple as g_cancellable_cancel (cancellable) now after the
+	 * GDBus port? The original dbus-glib code didn't have this so I have not
+	 * yet implemented it as part of the GDBus port. */
 
-	error = g_error_new_literal (miner_files_error_quark, 0, "Embedded metadata extraction was cancelled");
+	error = g_error_new_literal (miner_files_error_quark, 0,
+	                             "Embedded metadata extraction was cancelled");
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
 
 	process_file_data_free (data);
 	g_error_free (error);
 }
 
+static SendAndSpliceData *
+send_and_splice_data_new (GInputStream                     *unix_input_stream,
+                          GInputStream                     *buffered_input_stream,
+                          GOutputStream                    *output_stream,
+                          GCancellable                     *cancellable,
+                          TrackerDBusSendAndSpliceCallback  callback,
+                          gpointer                          user_data)
+{
+	SendAndSpliceData *data;
+
+	data = g_slice_new0 (SendAndSpliceData);
+	data->unix_input_stream = unix_input_stream;
+	data->buffered_input_stream = buffered_input_stream;
+	data->output_stream = output_stream;
+	if (cancellable) {
+		data->cancellable = g_object_ref (cancellable);
+	}
+	data->callback = callback;
+	data->user_data = user_data;
+
+	return data;
+}
+
+static void
+send_and_splice_data_free (SendAndSpliceData *data)
+{
+	g_object_unref (data->unix_input_stream);
+	g_object_unref (data->buffered_input_stream);
+	g_object_unref (data->output_stream);
+	if (data->cancellable) {
+		g_object_unref (data->cancellable);
+	}
+	g_slice_free (SendAndSpliceData, data);
+}
+
+static void
+send_and_splice_async_callback (GObject      *source,
+                                GAsyncResult *result,
+                                gpointer      user_data)
+{
+	GError *error = NULL;
+
+	g_output_stream_splice_finish (G_OUTPUT_STREAM (source), result, &error);
+
+	if (error) {
+		g_critical ("Error while splicing: %s",
+		            error ? error->message : "Error not specified");
+		g_error_free (error);
+	}
+}
+
+static void
+dbus_send_and_splice_async_finish (GObject      *source,
+                                   GAsyncResult *result,
+                                   gpointer      user_data)
+{
+	SendAndSpliceData *data = user_data;
+	GDBusMessage *reply;
+	GError *error = NULL;
+
+	reply = g_dbus_connection_send_message_with_reply_finish (G_DBUS_CONNECTION (source),
+	                                                          result, &error);
+
+	if (!error) {
+		if (g_dbus_message_get_message_type (reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
+
+			g_dbus_message_to_gerror (reply, &error);
+			(* data->callback) (NULL, -1, error, data->user_data);
+			g_error_free (error);
+		} else {
+			(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
+			                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
+			                    NULL,
+			                    data->user_data);
+		}
+	} else {
+		(* data->callback) (NULL, -1, error, data->user_data);
+		g_error_free (error);
+	}
+
+	if (reply) {
+		g_object_unref (reply);
+	}
+
+	send_and_splice_data_free (data);
+}
+
+static gboolean
+dbus_send_and_splice_async (GDBusConnection                  *connection,
+                            GDBusMessage                     *message,
+                            int                               fd,
+                            GCancellable                     *cancellable,
+                            TrackerDBusSendAndSpliceCallback  callback,
+                            gpointer                          user_data)
+{
+	SendAndSpliceData *data;
+	GInputStream *unix_input_stream;
+	GInputStream *buffered_input_stream;
+	GOutputStream *output_stream;
+
+	g_return_val_if_fail (connection != NULL, FALSE);
+	g_return_val_if_fail (message != NULL, FALSE);
+	g_return_val_if_fail (fd > 0, FALSE);
+	g_return_val_if_fail (callback != NULL, FALSE);
+
+	unix_input_stream = g_unix_input_stream_new (fd, TRUE);
+	buffered_input_stream = g_buffered_input_stream_new_sized (unix_input_stream,
+	                                                           DBUS_PIPE_BUFFER_SIZE);
+	output_stream = g_memory_output_stream_new (NULL, 0, g_realloc, g_free);
+
+	data = send_and_splice_data_new (unix_input_stream,
+	                                 buffered_input_stream,
+	                                 output_stream,
+	                                 cancellable,
+	                                 callback,
+	                                 user_data);
+
+	g_dbus_connection_send_message_with_reply (connection,
+	                                           message,
+	                                           G_DBUS_SEND_MESSAGE_FLAGS_NONE,
+	                                           -1,
+	                                           NULL,
+	                                           cancellable,
+	                                           dbus_send_and_splice_async_finish,
+	                                           data);
+
+	g_output_stream_splice_async (data->output_stream,
+	                              data->buffered_input_stream,
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+	                              0,
+	                              data->cancellable,
+	                              send_and_splice_async_callback,
+	                              data);
+
+	return TRUE;
+}
+
 static FastAsyncData*
-fast_async_data_new (org_freedesktop_Tracker1_Extract_get_metadata_reply callback,
+fast_async_data_new (fast_async_cb  callback,
                      gpointer       user_data)
 {
 	FastAsyncData *data;
 
 	data = g_slice_new0 (FastAsyncData);
+
 	data->callback = callback;
 	data->user_data = user_data;
 
@@ -1998,14 +2123,13 @@ fast_async_data_free (FastAsyncData *data)
 static void
 get_metadata_fast_cb (void     *buffer,
                       gssize    buffer_size,
-                      GStrv     variable_names,
                       GError   *error,
                       gpointer  user_data)
 {
 	FastAsyncData *data;
 	ProcessFileData *process_data;
-	gchar *preupdate;
-	gchar *sparql = NULL;
+	const gchar *preupdate;
+	const gchar *sparql = NULL;
 
 	data = user_data;
 	process_data = data->user_data;
@@ -2013,36 +2137,32 @@ get_metadata_fast_cb (void     *buffer,
 	preupdate = buffer;
 	if (G_UNLIKELY (error)) {
 		if (error->code != G_IO_ERROR_CANCELLED) {
-			/* ProcessFileData and error are freed in the callback */
-			(* data->callback) (NULL, NULL, NULL, error, process_data);
-		} else {
-			/* Free error ourselves */
-			g_error_free (error);
+			(* data->callback) (NULL, NULL, error, process_data);
 		}
 	} else {
 		if (buffer_size) {
-		/* sparql is stored just after preupdate in the original buffer */
+			/* sparql is stored just after preupdate in the original buffer */
 			sparql = preupdate + strlen (preupdate) + 1;
 		}
 
-		(* data->callback) (NULL, preupdate, sparql, NULL, data->user_data);
-		g_free (preupdate);
+		(* data->callback) (preupdate, sparql, NULL, data->user_data);
 	}
 
 	fast_async_data_free (data);
 }
 
 static void
-get_metadata_fast_async (DBusConnection  *connection,
+get_metadata_fast_async (GDBusConnection *connection,
                          const gchar     *uri,
                          const gchar     *mime_type,
                          GCancellable    *cancellable,
-                         org_freedesktop_Tracker1_Extract_get_metadata_reply callback,
+                         fast_async_cb    callback,
                          ProcessFileData *user_data)
 {
-	int pipefd[2];
-	DBusMessage *message;
+	GDBusMessage *message;
+	GUnixFDList *fd_list;
 	FastAsyncData *data;
+	int pipefd[2];
 
 	g_return_if_fail (connection);
 	g_return_if_fail (uri);
@@ -2054,27 +2174,38 @@ get_metadata_fast_async (DBusConnection  *connection,
 		return;
 	}
 
-	message = dbus_message_new_method_call (TRACKER_DBUS_SERVICE_EXTRACT,
-	                                        TRACKER_DBUS_PATH_EXTRACT,
-	                                        TRACKER_DBUS_INTERFACE_EXTRACT,
-	                                        "GetMetadataFast");
-	dbus_message_append_args (message,
-	                          DBUS_TYPE_STRING, &uri,
-	                          DBUS_TYPE_STRING, &mime_type,
-	                          DBUS_TYPE_UNIX_FD, &pipefd[1],
-	                          DBUS_TYPE_INVALID);
+	message = g_dbus_message_new_method_call (DBUS_SERVICE_EXTRACT,
+	                                          DBUS_PATH_EXTRACT,
+	                                          DBUS_INTERFACE_EXTRACT,
+	                                          "GetMetadataFast");
+
+	fd_list = g_unix_fd_list_new ();
+
+	g_dbus_message_set_body (message, g_variant_new ("(ssh)",
+	                                                 uri,
+	                                                 mime_type,
+	                                                 g_unix_fd_list_append (fd_list,
+	                                                                        pipefd[1],
+	                                                                        NULL)));
+	g_dbus_message_set_unix_fd_list (message, fd_list);
+
+	/* We need to close the fd as g_unix_fd_list_append duplicates the fd */
+
 	close (pipefd[1]);
+
+	g_object_unref (fd_list);
 
 	data = fast_async_data_new (callback,
 	                            user_data);
 
-	tracker_dbus_send_and_splice_async (connection,
-	                                    message,
-	                                    pipefd[0],
-	                                    FALSE,
-	                                    cancellable,
-	                                    get_metadata_fast_cb,
-	                                    data);
+	dbus_send_and_splice_async (connection,
+	                            message,
+	                            pipefd[0],
+	                            cancellable,
+	                            get_metadata_fast_cb,
+	                            data);
+
+	g_object_unref (message);
 }
 
 static void
@@ -2082,13 +2213,12 @@ extractor_get_embedded_metadata (ProcessFileData *data,
                                  const gchar     *uri,
                                  const gchar     *mime_type)
 {
-	get_metadata_fast_async (dbus_g_connection_get_connection (data->miner->private->connection),
+	get_metadata_fast_async (data->miner->private->connection,
 	                         uri,
 	                         mime_type,
 	                         data->cancellable,
 	                         extractor_get_embedded_metadata_cb,
 	                         data);
-	data->call = NULL;
 
 	g_signal_connect (data->cancellable, "cancelled",
 	                  G_CALLBACK (extractor_get_embedded_metadata_cancel), data);
@@ -2454,7 +2584,7 @@ should_check_mtime (TrackerConfig *config)
 static void
 miner_files_finished (TrackerMinerFS *fs)
 {
-        tracker_db_manager_set_last_crawl_done (TRUE);
+	tracker_db_manager_set_last_crawl_done (TRUE);
 }
 
 TrackerMiner *
@@ -2648,8 +2778,8 @@ tracker_miner_files_monitor_directory (GFile    *file,
 
 	/* We'll only get this signal for the directories where check_directory()
 	 * and check_directory_contents() returned TRUE, so by default we want
-	 * these directories to be indexed.
-         */
+	 * these directories to be indexed. */
+
 	return TRUE;
 }
 
@@ -2702,11 +2832,11 @@ miner_files_in_removable_media_remove_by_type (TrackerMinerFiles  *miner,
 		                        optical ? "true" : "false");
 
 		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                        queries->str,
-                                                        G_PRIORITY_LOW,
-                                                        NULL,
-                                                        remove_files_in_removable_media_cb,
-                                                        NULL);
+		                                        queries->str,
+		                                        G_PRIORITY_LOW,
+		                                        NULL,
+		                                        remove_files_in_removable_media_cb,
+		                                        NULL);
 
 		g_string_free (queries, TRUE);
 
@@ -2744,11 +2874,11 @@ miner_files_in_removable_media_remove_by_date (TrackerMinerFiles  *miner,
 	                        date);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                queries->str,
-                                                G_PRIORITY_LOW,
-                                                NULL,
-                                                remove_files_in_removable_media_cb,
-                                                NULL);
+	                                        queries->str,
+	                                        G_PRIORITY_LOW,
+	                                        NULL,
+	                                        remove_files_in_removable_media_cb,
+	                                        NULL);
 
 	g_string_free (queries, TRUE);
 }

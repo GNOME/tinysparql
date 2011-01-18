@@ -49,7 +49,6 @@
 #include <libtracker-extract/tracker-extract.h>
 
 #include "tracker-albumart.h"
-#include "tracker-dbus.h"
 
 /* We mmap the beginning of the file and read separately the last 128
  * bytes for id3v1 tags. While these are probably cornercases the

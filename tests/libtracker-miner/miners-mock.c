@@ -19,7 +19,9 @@
 
 #include <glib-object.h>
 #include <gobject/gvaluecollector.h>
+#if 0
 #include <dbus/dbus-glib.h>
+#endif
 #include "empty-gobject.h"
 #include "miners-mock.h"
 #include "tracker-miner-mock.h"
@@ -47,6 +49,9 @@ miners_mock_init ()
 /*
  * DBus overrides
  */
+#if 0
+/* Todo: port to gdbus */
+
 DBusGConnection *
 dbus_g_bus_get (DBusBusType type, GError **error)
 {
@@ -271,3 +276,5 @@ dbus_g_connection_unref (DBusGConnection *conn)
 	/* It is an EmptyGObject */
 	g_object_unref (conn);
 }
+
+#endif

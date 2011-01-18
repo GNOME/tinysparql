@@ -38,7 +38,6 @@
 #include "tracker-log.h"
 #include "tracker-ontologies.h"
 #include "tracker-os-dependant.h"
-#include "tracker-power.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"
 #include "tracker-locale.h"

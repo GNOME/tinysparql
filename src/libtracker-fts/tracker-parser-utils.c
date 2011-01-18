@@ -21,7 +21,8 @@
 
 #include <string.h>
 
-#include <libtracker-common/tracker-common.h>
+#include <libtracker-common/tracker-utils.h>
+
 #include "tracker-parser-utils.h"
 
 /*

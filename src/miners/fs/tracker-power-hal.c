@@ -28,10 +28,11 @@
 
 #include <dbus/dbus-glib-lowlevel.h>
 
-#include "tracker-log.h"
+#include <libtracker-common/tracker-log.h>
+#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-marshal.h>
+
 #include "tracker-power.h"
-#include "tracker-utils.h"
-#include "tracker-marshal.h"
 
 #define CAPABILITY_AC_ADAPTER  "ac_adapter"
 #define CAPABILITY_BATTERY     "battery"

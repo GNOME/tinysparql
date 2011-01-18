@@ -32,8 +32,6 @@
 #include <libtracker-data/tracker-db-dbus.h>
 
 #include "tracker-store.h"
-#include "tracker-dbus.h"
-#include "tracker-resources.h"
 #include "tracker-events.h"
 #include "tracker-locale-change.h"
 
@@ -47,23 +45,29 @@ static gpointer locale_notification_id;
 static gboolean locale_change_notified;
 
 static void
-locale_change_process_cb (gpointer user_data)
+locale_change_process_cb (GObject      *source,
+                          GAsyncResult *res,
+                          gpointer      user_data)
 {
 	TrackerStatus *notifier;
 	TrackerBusyCallback busy_callback;
 	gpointer busy_user_data;
+	GDestroyNotify busy_destroy_notify;
 	TrackerLocaleChangeContext *ctxt = user_data;
 
 	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
 
 	busy_callback = tracker_status_get_callback (notifier,
-	                                             &busy_user_data);
+	                                             &busy_user_data,
+	                                             &busy_destroy_notify);
 
 	g_message ("Processing locale change...");
 	/* Reload! This will regenerate indexes with the new locale */
 	tracker_data_manager_reload (busy_callback,
 	                             busy_user_data,
 	                             "Changing locale");
+
+	busy_destroy_notify (busy_user_data);
 
 	if (ctxt->resources) {
 		tracker_events_init (ctxt->getter);
@@ -72,7 +76,7 @@ locale_change_process_cb (gpointer user_data)
 	}
 	g_free (ctxt);
 
-	tracker_store_set_active (TRUE, FALSE, NULL);
+	tracker_store_resume ();
 
 	locale_change_notified = FALSE;
 }
@@ -94,7 +98,7 @@ locale_change_process_idle_cb (gpointer data)
 	/* Note: Right now, the passed callback may be called instantly and not
 	 * in an idle. */
 	g_message ("Setting tracker-store as inactive...");
-	tracker_store_set_active (FALSE, locale_change_process_cb, ctxt);
+	tracker_store_pause (locale_change_process_cb, ctxt);
 
 	return FALSE;
 }

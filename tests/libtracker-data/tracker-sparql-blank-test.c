@@ -78,10 +78,6 @@ test_blank (void)
 
 	/* cleanup */
 
-	g_hash_table_unref (blank_nodes[0]);
-	g_hash_table_unref (blank_nodes[1]);
-	g_ptr_array_free (updates->pdata[0], TRUE);
-	g_ptr_array_free (updates->pdata[1], TRUE);
 	g_ptr_array_free (updates, TRUE);
 
 	tracker_data_manager_shutdown ();

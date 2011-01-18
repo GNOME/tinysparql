@@ -437,7 +437,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	public PtrArray? execute_update (bool blank) throws DBInterfaceError, Sparql.Error, DateError {
+	public GenericArray<GenericArray<HashTable<string,string>>>? execute_update (bool blank) throws DBInterfaceError, Sparql.Error, DateError {
 		assert (update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.length);
@@ -456,9 +456,9 @@ public class Tracker.Sparql.Query : Object {
 
 		parse_prologue ();
 
-		PtrArray blank_nodes = null;
+		GenericArray<GenericArray<HashTable<string,string>>> blank_nodes = null;
 		if (blank) {
-			blank_nodes = new PtrArray ();
+			blank_nodes = new GenericArray<GenericArray<HashTable<string,string>>> ();
 		}
 
 		// SPARQL update supports multiple operations in a single query
@@ -468,7 +468,7 @@ public class Tracker.Sparql.Query : Object {
 			case SparqlTokenType.WITH:
 			case SparqlTokenType.INSERT:
 			case SparqlTokenType.DELETE:
-				PtrArray* ptr = execute_insert_or_delete (blank);
+				GenericArray<HashTable<string,string>> ptr = execute_insert_or_delete (blank);
 				if (ptr != null) {
 					blank_nodes.add (ptr);
 				}
@@ -604,7 +604,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	PtrArray? execute_insert_or_delete (bool blank) throws DBInterfaceError, Sparql.Error, DateError {
+	GenericArray<HashTable<string,string>>? execute_insert_or_delete (bool blank) throws DBInterfaceError, Sparql.Error, DateError {
 		// INSERT or DELETE
 
 		if (accept (SparqlTokenType.WITH)) {
@@ -697,10 +697,10 @@ public class Tracker.Sparql.Query : Object {
 
 		this.delete_statements = delete_statements;
 
-		PtrArray update_blank_nodes = null;
+		GenericArray<HashTable<string,string>> update_blank_nodes = null;
 
 		if (blank) {
-			update_blank_nodes = new PtrArray ();
+			update_blank_nodes = new GenericArray<HashTable<string,string>> ();
 		}
 
 		// iterate over all solutions
@@ -726,8 +726,7 @@ public class Tracker.Sparql.Query : Object {
 				parse_construct_triples_block (var_value_map);
 
 				if (blank) {
-					HashTable<string,string>* ptr = (owned) blank_nodes;
-					update_blank_nodes.add (ptr);
+					update_blank_nodes.add ((owned) blank_nodes);
 				}
 
 				Data.update_buffer_might_flush ();

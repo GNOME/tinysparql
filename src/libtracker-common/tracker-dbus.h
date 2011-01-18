@@ -20,13 +20,7 @@
 #ifndef __LIBTRACKER_COMMON_DBUS_H__
 #define __LIBTRACKER_COMMON_DBUS_H__
 
-#include <glib/gi18n.h>
-
 #include <gio/gio.h>
-
-#include <dbus/dbus.h>
-#include <dbus/dbus-glib-lowlevel.h>
-#include <dbus/dbus-glib.h>
 
 G_BEGIN_DECLS
 
@@ -37,30 +31,7 @@ G_BEGIN_DECLS
 #define TRACKER_DBUS_ERROR_DOMAIN "TrackerDBus"
 #define TRACKER_DBUS_ERROR        tracker_dbus_error_quark()
 
-
-#define TRACKER_TYPE_INT_ARRAY_MAP	\
-	dbus_g_type_get_map ("GHashTable", G_TYPE_INT, DBUS_TYPE_G_INT_ARRAY)
-
-#define TRACKER_TYPE_FOUR_INT_ARRAY	\
-	dbus_g_type_get_collection ("GPtrArray", \
-	                            dbus_g_type_get_struct("GValueArray", \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INVALID))
-
-#define TRACKER_TYPE_EVENT_ARRAY	\
-	dbus_g_type_get_collection ("GPtrArray", \
-	                            dbus_g_type_get_struct ("GValueArray", \
-	                                                    G_TYPE_STRING, \
-	                                                    G_TYPE_STRING, \
-	                                                    G_TYPE_INT, \
-	                                                    G_TYPE_INVALID))
-#define TRACKER_TYPE_G_STRV_ARRAY	\
-	dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV)
-
-#define tracker_dbus_async_return_if_fail(expr,context)	\
+#define tracker_gdbus_async_return_if_fail(expr,invocation)	\
 	G_STMT_START { \
 		if G_LIKELY(expr) { } else { \
 			GError *assert_error = NULL; \
@@ -68,41 +39,15 @@ G_BEGIN_DECLS
 			g_set_error (&assert_error, \
 			             TRACKER_DBUS_ERROR, \
 			             TRACKER_DBUS_ERROR_ASSERTION_FAILED, \
-			             _("Assertion `%s' failed"), \
+			             "Assertion `%s' failed", \
 			             #expr); \
 	  \
-			dbus_g_method_return_error (context, assert_error); \
+			g_dbus_method_invocation_return_gerror (invocation, assert_error); \
 			g_clear_error (&assert_error); \
 	  \
 			return; \
 		}; \
 	} G_STMT_END
-
-#define tracker_dbus_return_val_if_fail(expr,val,error)	\
-	G_STMT_START { \
-		if G_LIKELY(expr) { } else { \
-			g_set_error (error, \
-			             TRACKER_DBUS_ERROR, \
-			             TRACKER_DBUS_ERROR_ASSERTION_FAILED, \
-			             _("Assertion `%s' failed"), \
-			             #expr); \
-	  \
-			return val; \
-		}; \
-	} G_STMT_END
-
-/* Size of buffers used when sending data over a pipe, using DBus FD passing */
-#define TRACKER_DBUS_PIPE_BUFFER_SIZE 65536
-
-#define TRACKER_DBUS_SERVICE_EXTRACT   "org.freedesktop.Tracker1.Extract"
-#define TRACKER_DBUS_PATH_EXTRACT      "/org/freedesktop/Tracker1/Extract"
-#define TRACKER_DBUS_INTERFACE_EXTRACT "org.freedesktop.Tracker1.Extract"
-
-typedef void (*TrackerDBusSendAndSpliceCallback) (void     *buffer,
-                                                  gssize    buffer_size,
-                                                  GStrv     variable_names,
-                                                  GError   *error,
-                                                  gpointer  user_data);
 
 typedef struct _TrackerDBusRequest TrackerDBusRequest;
 
@@ -124,7 +69,6 @@ GQuark              tracker_dbus_error_quark           (void);
 gchar **            tracker_dbus_slist_to_strv         (GSList                     *list);
 
 /* Requests */
-
 TrackerDBusRequest *tracker_dbus_request_begin         (const gchar                *sender,
                                                         const gchar                *format,
                                                         ...);
@@ -142,31 +86,10 @@ void                tracker_dbus_request_debug         (TrackerDBusRequest      
 
 void                tracker_dbus_enable_client_lookup  (gboolean                    enable);
 
-
-#ifndef NO_LIBDBUS
-/* dbus-glib convenience API */
-TrackerDBusRequest *tracker_dbus_g_request_begin       (DBusGMethodInvocation      *context,
+/* GDBus convenience API */
+TrackerDBusRequest *tracker_g_dbus_request_begin       (GDBusMethodInvocation      *invocation,
                                                         const gchar                *format,
                                                         ...);
-
-/* File descriptor convenience API */
-gboolean            tracker_dbus_send_and_splice       (DBusConnection             *connection,
-                                                        DBusMessage                *message,
-                                                        int                         fd,
-                                                        GCancellable               *cancellable,
-                                                        void                      **dest_buffer,
-                                                        gssize                     *dest_buffer_size,
-                                                        GStrv                      *variable_names,
-                                                        GError                    **error);
-
-gboolean            tracker_dbus_send_and_splice_async (DBusConnection             *connection,
-                                                        DBusMessage                *message,
-                                                        int                         fd,
-                                                        gboolean                    expect_variable_names,
-                                                        GCancellable               *cancellable,
-                                                        TrackerDBusSendAndSpliceCallback callback,
-                                                        gpointer                    user_data);
-#endif
 
 G_END_DECLS
 

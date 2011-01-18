@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2011, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -8,7 +8,7 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.          See the GNU
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public
@@ -17,20 +17,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_MINER_FS_DBUS_H__
-#define __TRACKER_MINER_FS_DBUS_H__
-
-#include <glib.h>
-
-#include <dbus/dbus-glib-bindings.h>
-
-G_BEGIN_DECLS
-
-gboolean tracker_dbus_init             (void);
-void     tracker_dbus_shutdown         (void);
-gboolean tracker_dbus_register_objects (gpointer object);
-GObject *tracker_dbus_get_object       (GType    type);
-
-G_END_DECLS
-
-#endif /* __TRACKER_MINER_FS_DBUS_H__ */
+namespace Tracker {
+	[CCode (cheader_filename = "tracker-store/tracker-config.h")]
+	public class Config : ConfigFile {
+		public Config ();
+		public bool save ();
+		public int verbosity { get; set; }
+	}
+}

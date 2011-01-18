@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
- * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2011, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,23 +17,30 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DBUS_H__
-#define __TRACKER_DBUS_H__
+[DBus (name = "org.freedesktop.Tracker1.Statistics")]
+public class Tracker.Statistics : Object {
+	public const string PATH = "/org/freedesktop/Tracker1/Statistics";
 
-#include <glib.h>
+	[DBus (signature = "aas")]
+	public new Variant get (BusName sender) {
+		var request = DBusRequest.begin (sender, "Statistics.Get");
 
-#include <dbus/dbus-glib-bindings.h>
-#include <dbus/dbus.h>
+		var builder = new VariantBuilder ((VariantType) "aas");
 
-G_BEGIN_DECLS
+		foreach (var cl in Ontologies.get_classes ()) {
+			if (cl.count == 0) {
+				/* skip classes without resources */
+				continue;
+			}
 
-gboolean tracker_dbus_init             (void);
-void     tracker_dbus_shutdown         (void);
-gboolean tracker_dbus_register_objects (gpointer object);
-gboolean tracker_dbus_connection_add_filter (DBusHandleMessageFunction  function,
-                                             void                      *user_data);
-GObject *tracker_dbus_get_object       (GType    type);
+			builder.open ((VariantType) "as");
+			builder.add ("s", cl.name);
+			builder.add ("s", cl.count.to_string ());
+			builder.close ();
+		}
 
-G_END_DECLS
+		request.end ();
 
-#endif /* __TRACKER_DBUS_H__ */
+		return builder.end ();
+	}
+}

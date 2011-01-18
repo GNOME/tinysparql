@@ -20,8 +20,6 @@
 
 #include <string.h>
 
-#include <libtracker-common/tracker-dbus.h>
-
 #include "tracker-db-dbus.h"
 
 gchar **

@@ -58,5 +58,43 @@ namespace Tracker {
 		public static void save_string_list (void *object, string property, GLib.KeyFile key_file, string group, string key);
 		public static void save_directory_list (void *object, string property, GLib.KeyFile key_file, string group, string key);
 	}
+
+	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
+	namespace Log {
+		public bool init (int verbosity, out string used_filename);
+		public void shutdown ();
+	}
+
+	[Compact]
+	[CCode (ref_function = "", unref_function = "", cheader_filename = "libtracker-common/tracker-common.h")]
+	public class DBusRequest {
+		public static DBusRequest begin (string? sender, string format,...);
+		public void debug (string format,...);
+		public void end (GLib.Error? e = null);
+		[CCode (cname = "tracker_dbus_enable_client_lookup")]
+		public static void enable_client_lookup (bool enable);
+	}
+
+	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
+	public bool env_check_xdg_dirs ();
+	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
+	public void ioprio_init ();
+
+	[CCode (cname = "g_message", cheader_filename = "glib.h")]
+	[PrintfFormat]
+	public void message (string format, ...);
+	[CCode (cname = "g_warning", cheader_filename = "glib.h")]
+	[PrintfFormat]
+	public void warning (string format, ...);
+	[CCode (cname = "g_critical", cheader_filename = "glib.h")]
+	[PrintfFormat]
+	public void critical (string format, ...);
+	[CCode (cname = "g_error", cheader_filename = "glib.h")]
+	[PrintfFormat]
+	[NoReturn]
+	public void error (string format, ...);
+	[CCode (cname = "g_debug", cheader_filename = "glib.h")]
+	[PrintfFormat]
+	public void debug (string format, ...);
 }
 

@@ -15,25 +15,9 @@ else
 os_sources = tracker-os-dependant-unix.c
 endif
 
-# Prefer UPower for the power data if it's available, else fall back to HAL
-if HAVE_UPOWER
-power_headers =                                        \
-	tracker-power.h
-power_sources =                                        \
-	tracker-power-upower.c
-else
-if HAVE_HAL
-power_headers =                                        \
-	tracker-power.h
-power_sources =                                        \
-	tracker-power-hal.c
-endif
-endif
-
 libtracker_common_la_SOURCES =                         \
 	$(marshal_sources)                             \
 	$(os_sources)                                  \
-	$(power_sources)                               \
 	tracker-config-file.c                          \
 	tracker-date-time.c                            \
 	tracker-dbus.c                                 \
@@ -47,7 +31,6 @@ libtracker_common_la_SOURCES =                         \
 	tracker-locale.c
 
 noinst_HEADERS =                                       \
-	$(power_headers)                               \
 	tracker-dbus.h                                 \
 	tracker-ioprio.h                               \
 	tracker-log.h                                  \

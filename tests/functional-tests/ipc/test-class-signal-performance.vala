@@ -52,16 +52,16 @@ struct Event {
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
-private interface Resources : GLib.Object {
+private interface Resources : DBusProxy {
 	[DBus (name = "GraphUpdated")]
 	public signal void graph_updated (string class_name, Event[] deletes, Event[] inserts);
 
 	[DBus (name = "SparqlUpdate")]
-	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBus.Error;
+	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBusError;
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Resources.Class")]
-private interface ResourcesClass : GLib.Object {
+private interface ResourcesClass : DBusProxy {
 	[DBus (name = "SubjectsAdded")]
 	public signal void subjects_added (string [] subjects);
 	[DBus (name = "SubjectsChanged")]
@@ -69,7 +69,6 @@ private interface ResourcesClass : GLib.Object {
 }
 
 public class TestApp {
-	static DBus.Connection dbus_connection;
 	static Resources resources_object;
 	static ResourcesClass class_object;
 	MainLoop loop;
@@ -82,14 +81,16 @@ public class TestApp {
 	requires (!initialized) {
 		try {
 			con = Tracker.Sparql.Connection.get();
-			dbus_connection = DBus.Bus.get (DBus.BusType.SESSION);
-			resources_object = (Resources) dbus_connection.get_object ("org.freedesktop.Tracker1",
-			                                                           "/org/freedesktop/Tracker1/Resources",
-			                                                           "org.freedesktop.Tracker1.Resources");
 
-			class_object = (ResourcesClass) dbus_connection.get_object ("org.freedesktop.Tracker1",
-		                                                                "/org/freedesktop/Tracker1/Resources/Classes/nmm/MusicPiece",
-		                                                                "org.freedesktop.Tracker1.Resources.Class");
+			resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
+			                                            "org.freedesktop.Tracker1",
+			                                            "/org/freedesktop/Tracker1/Resources",
+			                                            DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
+
+			class_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
+			                                        "org.freedesktop.Tracker1",
+			                                        "/org/freedesktop/Tracker1/Resources/Classes/nmm/MusicPiece",
+			                                        DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 
 			class_object.subjects_added.connect (on_subjects_added);
 			class_object.subjects_changed.connect (on_subjects_changed);

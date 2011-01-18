@@ -25,7 +25,6 @@
 #endif
 
 #include <glib-object.h>
-#include <dbus/dbus-glib-bindings.h>
 
 #include "tracker-miner-object.h"
 
@@ -34,35 +33,6 @@ G_BEGIN_DECLS
 #define TRACKER_MINER_DBUS_INTERFACE   "org.freedesktop.Tracker1.Miner"
 #define TRACKER_MINER_DBUS_NAME_PREFIX "org.freedesktop.Tracker1.Miner."
 #define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker1/Miner/"
-
-void _tracker_miner_dbus_get_name           (TrackerMiner           *miner,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error);
-void _tracker_miner_dbus_get_description    (TrackerMiner           *miner,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error);
-void _tracker_miner_dbus_get_status         (TrackerMiner           *miner,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error);
-void _tracker_miner_dbus_get_progress       (TrackerMiner           *miner,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error);
-void _tracker_miner_dbus_get_pause_details  (TrackerMiner           *miner,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error);
-void _tracker_miner_dbus_pause              (TrackerMiner           *miner,
-                                             const gchar            *application,
-                                             const gchar            *name,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error);
-void _tracker_miner_dbus_resume             (TrackerMiner           *miner,
-                                             gint                    cookie,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error);
-void _tracker_miner_dbus_ignore_next_update (TrackerMiner           *miner,
-                                             const GStrv             subjects,
-                                             DBusGMethodInvocation  *context,
-                                             GError                **error);
 
 G_END_DECLS
 

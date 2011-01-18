@@ -24,16 +24,13 @@
 
 #include <libgrss.h>
 
-#include <dbus/dbus-glib.h>
+#include <libtracker-common/tracker-ontologies.h>
 
 #include <glib/gi18n.h>
 
 #include "tracker-miner-rss.h"
 
 #define TRACKER_MINER_RSS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MINER_RSS, TrackerMinerRSSPrivate))
-
-#define TRACKER_DBUS_INTERFACE_FEED TRACKER_DBUS_INTERFACE_RESOURCES ".Class"
-#define TRACKER_DBUS_OBJECT_FEED    TRACKER_DBUS_OBJECT_RESOURCES "/Classes/mfo/FeedChannel"
 
 typedef struct _TrackerMinerRSSPrivate TrackerMinerRSSPrivate;
 
@@ -44,6 +41,8 @@ struct _TrackerMinerRSSPrivate {
 
 	FeedsPool *pool;
 	gint now_fetching;
+	GDBusConnection *connection;
+	guint graph_updated_id;
 };
 
 static void         miner_started               (TrackerMiner    *miner);
@@ -73,6 +72,9 @@ tracker_miner_rss_finalize (GObject *object)
 	g_free (priv->last_status);
 	g_object_unref (priv->pool);
 
+	g_dbus_connection_signal_unsubscribe (priv->connection, priv->graph_updated_id);
+	g_object_unref (priv->connection);
+
 	G_OBJECT_CLASS (tracker_miner_rss_parent_class)->finalize (object);
 }
 
@@ -93,84 +95,57 @@ tracker_miner_rss_class_init (TrackerMinerRSSClass *klass)
 }
 
 static void
-subjects_added_cb (DBusGProxy *proxy,
-                   gchar     **subjects,
-                   gpointer    user_data)
+graph_updated_cb (GDBusConnection *connection,
+                  const gchar     *sender_name,
+                  const gchar     *object_path,
+                  const gchar     *interface_name,
+                  const gchar     *signal_name,
+                  GVariant        *parameters,
+                  gpointer         user_data)
 {
-	TrackerMinerRSS *miner;
+	g_message ("Subjects added or removed");
 
-	miner = TRACKER_MINER_RSS (user_data);
-
-	g_message ("Subjects added: %d", subjects ? g_strv_length (subjects) : 0);
-
-	/* TODO Add only the channels added? */
-	retrieve_and_schedule_feeds (miner);
-}
-
-static void
-subjects_removed_cb (DBusGProxy *proxy,
-                     gchar     **subjects,
-                     gpointer    user_data)
-{
-	TrackerMinerRSS *miner;
-
-	miner = TRACKER_MINER_RSS (user_data);
-
-	g_message ("Subjects removed: %d", subjects ? g_strv_length (subjects) : 0);
-
-	/* TODO Remove only the channels removed? */
-	retrieve_and_schedule_feeds (miner);
+	retrieve_and_schedule_feeds (user_data);
 }
 
 static void
 tracker_miner_rss_init (TrackerMinerRSS *object)
 {
-	DBusGConnection *connection;
-	DBusGProxy *proxy;
 	GError *error = NULL;
 	TrackerMinerRSSPrivate *priv;
 
 	g_message ("Initializing...");
 
-	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+	priv = TRACKER_MINER_RSS_GET_PRIVATE (object);
 
-	if (!connection) {
+	priv->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+
+	if (!priv->connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
 			    error ? error->message : "no error given.");
 		g_error_free (error);
 		return;
 	}
 
-	proxy = dbus_g_proxy_new_for_name (connection,
-	                                   TRACKER_DBUS_SERVICE, /* org.freedesktop.Tracker1 */
-	                                   TRACKER_DBUS_OBJECT_FEED,
-	                                   TRACKER_DBUS_INTERFACE_FEED);
-
-	/* "org.freedesktop.Tracker1", */
-	/*                                   "/org/freedesktop/Tracker1/Resources/Classes/mfo/FeedChannel", */
-	/*                                   "org.freedesktop.Tracker1.Resources.Class"); */
-
-	if (!proxy) {
-		g_message ("Could not create DBusGProxy for interface:'%s'",
-		           TRACKER_DBUS_INTERFACE_FEED);
-		return;
-	}
-
-	priv = TRACKER_MINER_RSS_GET_PRIVATE (object);
-
 	priv->pool = feeds_pool_new ();
 	g_signal_connect (priv->pool, "feed-fetching", G_CALLBACK (change_status), object);
 	g_signal_connect (priv->pool, "feed-ready", G_CALLBACK (feed_fetched), object);
 	priv->now_fetching = 0;
 
-	g_message ("Listening for feed changes on D-Bus interface...");
-	g_message ("  Path:'%s'", TRACKER_DBUS_OBJECT_FEED);
+	g_message ("Listening for GraphUpdated changes on D-Bus interface...");
+	g_message ("  arg0:'%s'", TRACKER_MFO_PREFIX "FeedChannel");
 
-	dbus_g_proxy_add_signal (proxy, "SubjectsAdded", G_TYPE_STRV, G_TYPE_INVALID);
-	dbus_g_proxy_connect_signal (proxy, "SubjectsAdded", G_CALLBACK (subjects_added_cb), object, NULL);
-
-	dbus_g_proxy_add_signal (proxy, "SubjectsRemoved", G_TYPE_STRV, G_TYPE_INVALID);
-	dbus_g_proxy_connect_signal (proxy, "SubjectsRemoved", G_CALLBACK (subjects_removed_cb), object, NULL);
+	priv->graph_updated_id =
+		g_dbus_connection_signal_subscribe  (priv->connection,
+		                                     "org.freedesktop.Tracker1",
+		                                     "org.freedesktop.Tracker1.Resources",
+		                                     "GraphUpdated",
+		                                     "/org/freedesktop/Tracker1/Resources",
+		                                     TRACKER_MFO_PREFIX "FeedChannel",
+		                                     G_DBUS_SIGNAL_FLAGS_NONE,
+		                                     graph_updated_cb,
+		                                     object,
+		                                     NULL);
 }
 
 static void
@@ -220,13 +195,12 @@ update_updated_interval (TrackerMinerRSS *miner,
 	tracker_sparql_builder_object_date (sparql, now);
 	tracker_sparql_builder_insert_close (sparql);
 
-        /* FIXME: Should be async */
-        tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                tracker_sparql_builder_get_result (sparql),
-                                                G_PRIORITY_DEFAULT,
-                                                NULL,
-                                                verify_channel_update,
-                                                NULL);
+	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+	                                        tracker_sparql_builder_get_result (sparql),
+	                                        G_PRIORITY_DEFAULT,
+	                                        NULL,
+	                                        verify_channel_update,
+	                                        NULL);
 	g_object_unref (sparql);
 }
 
@@ -297,8 +271,8 @@ item_verify_reply_cb (GObject      *source_object,
 	miner = TRACKER_MINER_RSS (source_object);
 	error = NULL;
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
-                                                         res,
-                                                         &error);
+	                                                 res,
+	                                                 &error);
 
 	if (error != NULL) {
 		g_message ("Could not verify feed existance, %s", error->message);
@@ -407,11 +381,11 @@ item_verify_reply_cb (GObject      *source_object,
 	tracker_sparql_builder_insert_close (sparql);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                                tracker_sparql_builder_get_result (sparql),
-                                                G_PRIORITY_DEFAULT,
-                                                NULL,
-                                                verify_item_insertion,
-                                                NULL);
+	                                        tracker_sparql_builder_get_result (sparql),
+	                                        G_PRIORITY_DEFAULT,
+	                                        NULL,
+	                                        verify_item_insertion,
+	                                        NULL);
 
 	g_object_unref (cursor);
 	g_object_unref (sparql);
@@ -438,10 +412,10 @@ check_if_save (TrackerMinerRSS *miner,
 	                         communication_channel);
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                               query,
-                                               NULL,
-                                               item_verify_reply_cb,
-                                               item);
+	                                       query,
+	                                       NULL,
+	                                       item_verify_reply_cb,
+	                                       item);
 	g_free (query);
 }
 
@@ -562,16 +536,16 @@ retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
 	g_message ("Retrieving and scheduling feeds...");
 
 	sparql = "SELECT ?chanUrl ?interval ?chanUrn WHERE "
-	         "{ ?chanUrn a mfo:FeedChannel . "
-	         "?chanUrn mfo:feedSettings ?settings . "
-	         "?chanUrn nie:url ?chanUrl . "
-	         "?settings mfo:updateInterval ?interval }";
+		"{ ?chanUrn a mfo:FeedChannel . "
+		"?chanUrn mfo:feedSettings ?settings . "
+		"?chanUrn nie:url ?chanUrl . "
+		"?settings mfo:updateInterval ?interval }";
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-                                               sparql,
-                                               NULL,
-                                               feeds_retrieve_cb,
-                                               miner);
+	                                       sparql,
+	                                       NULL,
+	                                       feeds_retrieve_cb,
+	                                       miner);
 }
 
 static const gchar *

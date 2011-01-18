@@ -22,7 +22,7 @@ libtracker_clientincludedir = $(includedir)/tracker-$(TRACKER_API_VERSION)/libtr
 
 libtracker_client_@TRACKER_API_VERSION@_la_SOURCES =   \
 	tracker-sparql-builder.vala                    \
-	tracker.c
+	tracker.c                                      
 
 libtracker_client_@TRACKER_API_VERSION@_la_LIBADD =    \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \

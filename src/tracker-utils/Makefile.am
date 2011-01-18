@@ -43,14 +43,3 @@ tracker_sparql_LDADD = $(libs)
 
 tracker_import_SOURCES = tracker-import.c
 tracker_import_LDADD = $(libs)
-
-dbus_sources =                                         \
-	tracker-status-client.h
-
-%-client.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=$(subst -,_,$*) $^
-
-BUILT_SOURCES =                                        \
-	$(dbus_sources)
-
-CLEANFILES = $(BUILT_SOURCES)

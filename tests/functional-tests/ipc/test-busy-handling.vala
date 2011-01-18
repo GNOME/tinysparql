@@ -27,20 +27,19 @@
 // ./busy-handling-test
 
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
-private interface Resources : GLib.Object {
+private interface Resources : DBusProxy {
 	[DBus (name = "SparqlQuery", timeout = 99999999999)]
-	public abstract async string[,] sparql_query (string query) throws DBus.Error;
+	public abstract async string[,] sparql_query (string query) throws DBusError;
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Status")]
-private interface Status: GLib.Object {
+private interface Status: DBusProxy {
 	public signal void progress (string status, double progress);
-	public abstract double get_progress () throws DBus.Error;
-	public abstract string get_status () throws DBus.Error;
+	public abstract double get_progress () throws DBusError;
+	public abstract string get_status () throws DBusError;
 }
 
 public class TestApp {
-	static DBus.Connection connection;
 	static Resources resources_object;
 	static Status status_object;
 	int res = -1;
@@ -55,13 +54,15 @@ public class TestApp {
 			double progress;
 			string status;
 
-			connection = DBus.Bus.get (DBus.BusType.SESSION);
-			resources_object = (Resources) connection.get_object ("org.freedesktop.Tracker1",
-			                                                      "/org/freedesktop/Tracker1/Resources",
-			                                                      "org.freedesktop.Tracker1.Resources");
-			status_object = (Status) connection.get_object ("org.freedesktop.Tracker1",
-			                                                "/org/freedesktop/Tracker1/Status",
-			                                                "org.freedesktop.Tracker1.Status");
+			resources_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
+			                                            "org.freedesktop.Tracker1",
+			                                            "/org/freedesktop/Tracker1/Resources",
+			                                            DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
+
+			status_object = GLib.Bus.get_proxy_sync (BusType.SESSION,
+			                                         "org.freedesktop.Tracker1",
+			                                         "/org/freedesktop/Tracker1/Status",
+			                                         DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 
 			status_object.progress.connect (on_status_cb);
 			progress = status_object.get_progress ();
@@ -69,7 +70,7 @@ public class TestApp {
 
 			ready = (progress == 1.0 && status == "Idle");
 
-		} catch (DBus.Error e) {
+		} catch (GLib.Error e) {
 			warning ("Could not connect to D-Bus service: %s", e.message);
 			initialized = false;
 			res = -1;

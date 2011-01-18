@@ -2,13 +2,13 @@ include $(top_srcdir)/Makefile.decl
 
 bin_PROGRAMS = tracker-needle
 
-AM_VALAFLAGS =                                         \
-	--pkg dbus-glib-1 --pkg gtk+-2.0               \
-	$(BUILD_VALAFLAGS)                             \
+AM_VALAFLAGS = \
+	--pkg gtk+-2.0 --pkg gio-2.0 \
+	$(BUILD_VALAFLAGS) \
 	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	config.vapi
 
-AM_CPPFLAGS =                                          \
+AM_CPPFLAGS =                                      \
 	$(BUILD_CFLAGS)                                \
 	-D_XOPEN_SOURCE                                \
 	-I$(top_srcdir)/src                            \
@@ -19,12 +19,12 @@ AM_CPPFLAGS =                                          \
 	$(TRACKER_NEEDLE_CFLAGS)                       \
 	-include config.h
 
-LDADD =                                                \
+LDADD =                                            \
 	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_NEEDLE_LIBS)
 
-tracker_needle_SOURCES =                               \
+tracker_needle_SOURCES =                           \
 	tracker-cell-renderer-text.vala                \
 	tracker-history.vala                           \
 	tracker-query.vala                             \
@@ -42,14 +42,14 @@ ui_DATA = tracker-needle.ui
 desktopdir = $(datadir)/applications
 desktop_DATA = tracker-needle.desktop
 
-BUILT_SOURCES =                                        \
+BUILT_SOURCES = \
 	tracker_needle_vala.stamp
 
-CLEANFILES =                                           \
+CLEANFILES = \
 	$(desktop_DATA)
 
-EXTRA_DIST =                                           \
-	$(ui_DATA)                                     \
-	$(desktop_DATA)                                \
+EXTRA_DIST = \
+	$(ui_DATA) \
+	$(desktop_DATA) \
 	config.vapi
 

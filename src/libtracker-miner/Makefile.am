@@ -17,7 +17,6 @@ AM_CPPFLAGS =                                          \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	-DSHAREDIR=\""$(datadir)"\"                    \
-	-DDBUS_SERVICES_DIR=\""$(DBUS_SERVICES_DIR)"\" \
 	-DTRACKER_MINERS_DIR=\""$(datadir)/tracker/miners"\" \
 	$(LIBTRACKER_MINER_CFLAGS)
 
@@ -32,8 +31,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(libtracker_miner_monitor_sources)            \
 	$(libtracker_miner_monitor_headers)            \
 	tracker-crawler.c                              \
-	tracker-dbus.c                                 \
-	tracker-dbus.h                                 \
 	tracker-miner-dbus.h                           \
 	tracker-miner-object.c                         \
 	tracker-miner-fs.c                             \
@@ -41,7 +38,6 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	tracker-miner-fs-processing-pool.c             \
 	tracker-miner-manager.c                        \
 	tracker-miner-web.c                            \
-	tracker-miner-web-dbus.h                       \
 	tracker-network-provider.c                     \
 	tracker-password-provider.c                    \
 	tracker-storage.c                              \
@@ -60,7 +56,7 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-network-provider.h                     \
 	tracker-password-provider.h                    \
 	tracker-storage.h                              \
-	tracker-thumbnailer.h                          
+	tracker-thumbnailer.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
@@ -92,19 +88,6 @@ $(top_builddir)/src/libtracker-miner/tracker-marshal.c: tracker-marshal.list
 	$(AM_V_GEN)(echo "#include \"tracker-marshal.h\""; \
 		    $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body) > $@
 
-# Generate DBus files from XML data.
-dbus_sources =                                         \
-	tracker-miner-glue.h                           \
-	tracker-miner-web-glue.h                       \
-	tracker-miner-files-index-client.h             \
-	tracker-miner-client.h
-
-%-glue.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_$(subst -,_,$*) $^
-
-%-client.h: $(top_srcdir)/data/dbus/%.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-client --output=$@ --prefix=_$(subst -,_,$*) $^
-
 # Vala bindings
 vapidir = $(datadir)/vala/vapi
 vapi_DATA =                                            \
@@ -117,31 +100,14 @@ tracker-miner-$(TRACKER_API_VERSION).vapi: tracker-miner.vapi
 tracker-miner-$(TRACKER_API_VERSION).deps: tracker-miner.deps
 	cp $< $@
 
-# Custom rule to avoid API duplication. There is also a workaround for bug
-# in dbus-binding-tool where it generates bad code when two files are passed
-# on the command line (though the man page says it supports it)
-# This bug is reported at https://bugs.freedesktop.org/show_bug.cgi?id=25056
-tracker-miner-web-glue.h: $(top_srcdir)/data/dbus/tracker-miner-web.xml $(top_srcdir)/data/dbus/tracker-miner.xml
-	echo '<?xml version="1.0" encoding="UTF-8"?>'        > tracker-miner-web-full.xml
-	echo '<node name="/">'                              >> tracker-miner-web-full.xml
-	cat $^ | grep -v -e '<node' -e '<?xml' -e '</node>' >> tracker-miner-web-full.xml
-	echo '</node>'                                      >> tracker-miner-web-full.xml
-	$(AM_V_GEN)$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=_tracker_miner_web_dbus tracker-miner-web-full.xml
-
-tracker-miner-web-full.xml: tracker-miner-web-glue.h
-
 BUILT_SOURCES =                                        \
-	$(dbus_sources)                                \
 	$(libtracker_miner_marshal_sources)            \
 	$(libtracker_miner_marshal_headers)            \
 	$(vapi_DATA)
 
 CLEANFILES = $(BUILT_SOURCES)
 
-DISTCLEANFILES = tracker-miner-web-full.xml
-
 EXTRA_DIST =                                           \
 	tracker-marshal.list                           \
 	tracker-miner.vapi                             \
-	tracker-miner.deps                             \
-	tracker-miner-web-full.xml
+	tracker-miner.deps
