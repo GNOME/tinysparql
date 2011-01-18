@@ -28,7 +28,6 @@
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-query.h"
-#include "tracker-db-dbus.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
 #include "tracker-ontologies.h"

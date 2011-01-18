@@ -206,7 +206,4 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
 	public const string COLLATION_NAME;
-
-	[CCode (cheader_filename = "libtracker-data/tracker-db-dbus.h")]
-	public string[] dbus_query_result_to_strv (DBResultSet result_set, int column);
 }

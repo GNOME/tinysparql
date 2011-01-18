@@ -34,7 +34,6 @@
 #include "tracker-data-query.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
-#include "tracker-db-dbus.h"
 #include "tracker-db-journal.h"
 #include "tracker-ontologies.h"
 #include "tracker-property.h"

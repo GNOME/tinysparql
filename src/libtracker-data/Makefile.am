@@ -35,7 +35,6 @@ libtracker_data_la_SOURCES =                           \
 	tracker-data-query.c                           \
 	tracker-data-update.c                          \
 	tracker-db-config.c                            \
-	tracker-db-dbus.c                              \
 	tracker-db-interface.c                         \
 	tracker-db-interface-sqlite.c                  \
 	tracker-db-manager.c                           \
@@ -69,7 +68,6 @@ noinst_HEADERS =                                       \
 	tracker-data-query.h                           \
 	tracker-data-update.h                          \
 	tracker-db-config.h                            \
-	tracker-db-dbus.h                              \
 	tracker-db-interface.h                         \
 	tracker-db-interface-sqlite.h                  \
 	tracker-db-manager.h                           \

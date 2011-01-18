@@ -32,7 +32,6 @@
 #include "tracker-data-query.h"
 #include "tracker-data-update.h"
 #include "tracker-db-config.h"
-#include "tracker-db-dbus.h"
 #include "tracker-db-interface.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-journal.h"

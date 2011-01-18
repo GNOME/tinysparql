@@ -29,7 +29,6 @@
 
 #include <libtracker-common/tracker-locale.h>
 #include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-db-dbus.h>
 
 #include "tracker-store.h"
 #include "tracker-events.h"
