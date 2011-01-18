@@ -116,45 +116,25 @@ typedef enum {
 } ContentType;
 
 typedef struct {
-	ContentType     content;
-	gboolean        has_image;
-	gboolean        has_audio;
-	gboolean        has_video;
-	const gchar    *dlna_profile;
-	GstTagList     *tags;
-	guint           width;
-	guint           height;
-	gfloat          frame_rate;
-	gfloat          aspect_ratio;
-	guint           sample_rate;
-	guint           bitrate;
-	guint           channels;
-	guint           duration;
-	gboolean        is_content_encrypted;
-	unsigned char  *album_art_data;
-	guint           album_art_size;
-	const gchar    *album_art_mime;
+	ContentType content;
+	gboolean has_image;
+	gboolean has_audio;
+	gboolean has_video;
+	const gchar *dlna_profile;
+	GstTagList *tags;
+	guint width;
+	guint height;
+	gfloat frame_rate;
+	gfloat aspect_ratio;
+	guint sample_rate;
+	guint bitrate;
+	guint channels;
+	guint duration;
+	gboolean is_content_encrypted;
+	unsigned char *album_art_data;
+	guint album_art_size;
+	const gchar *album_art_mime;
 } MetadataExtractor;
-
-static void
-add_int64_info (TrackerSparqlBuilder *metadata,
-                const gchar          *uri,
-                const gchar          *key,
-                gint64                info)
-{
-	tracker_sparql_builder_predicate (metadata, key);
-	tracker_sparql_builder_object_int64 (metadata, info);
-}
-
-static void
-add_uint_info (TrackerSparqlBuilder *metadata,
-               const gchar          *uri,
-               const gchar          *key,
-               guint                 info)
-{
-	tracker_sparql_builder_predicate (metadata, key);
-	tracker_sparql_builder_object_int64 (metadata, info);
-}
 
 static void
 add_string_gst_tag (TrackerSparqlBuilder *metadata,
@@ -197,24 +177,6 @@ add_uint_gst_tag (TrackerSparqlBuilder *metadata,
 }
 
 static void
-add_int_gst_tag (TrackerSparqlBuilder *metadata,
-                 const gchar          *uri,
-                 const gchar          *key,
-                 GstTagList           *tag_list,
-                 const gchar          *tag)
-{
-	gboolean ret;
-	gint n;
-
-	ret = gst_tag_list_get_int (tag_list, tag, &n);
-
-	if (ret) {
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_int64 (metadata, n);
-	}
-}
-
-static void
 add_double_gst_tag (TrackerSparqlBuilder *metadata,
                     const gchar          *uri,
                     const gchar          *key,
@@ -229,30 +191,6 @@ add_double_gst_tag (TrackerSparqlBuilder *metadata,
 	if (ret) {
 		tracker_sparql_builder_predicate (metadata, key);
 		tracker_sparql_builder_object_int64 (metadata, (gint64) n);
-	}
-}
-
-static void
-add_fraction_gst_tag (TrackerSparqlBuilder *metadata,
-                      const gchar          *uri,
-                      const gchar          *key,
-                      GstTagList           *tag_list,
-                      const gchar          *tag)
-{
-	gboolean ret;
-	GValue n = {0,};
-	gfloat f;
-
-	ret = gst_tag_list_copy_value (&n, tag_list, tag);
-
-	if (ret) {
-		f = (gfloat)gst_value_get_fraction_numerator (&n)/
-		gst_value_get_fraction_denominator (&n);
-
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_double (metadata, (gdouble) f);
-
-		g_value_unset (&n);
 	}
 }
 
@@ -297,28 +235,6 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 	                                        key,
 	                                        buf,
 	                                        uri);
-}
-
-static void
-add_time_gst_tag (TrackerSparqlBuilder *metadata,
-                  const gchar          *uri,
-                  const gchar          *key,
-                  GstTagList           *tag_list,
-                  const gchar          *tag)
-{
-	gboolean ret;
-	guint64 n;
-
-	ret = gst_tag_list_get_uint64 (tag_list, tag, &n);
-
-	if (ret) {
-		gint64 duration;
-
-		duration = llroundl ((long double) n / (long double) GST_SECOND);
-
-		tracker_sparql_builder_predicate (metadata, key);
-		tracker_sparql_builder_object_int64 (metadata, duration);
-	}
 }
 
 static void
@@ -583,8 +499,9 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		}
 
-		if (extractor->content == CONTENT_AUDIO)
+		if (extractor->content == CONTENT_AUDIO) {
 			needs_audio = TRUE;
+		}
 
 		tracker_sparql_builder_predicate (metadata, "a");
 
@@ -640,10 +557,12 @@ extract_metadata (MetadataExtractor      *extractor,
 				tracker_sparql_builder_predicate (preupdate, "nfo:manufacturer");
 				tracker_sparql_builder_object_unvalidated (preupdate, manuf ? manuf : make);
 			}
+
 			if (model) {
 				tracker_sparql_builder_predicate (preupdate, "nfo:model");
 				tracker_sparql_builder_object_unvalidated (preupdate, model);
 			}
+
 			tracker_sparql_builder_insert_close (preupdate);
 
 			tracker_sparql_builder_predicate (metadata, "nfo:equipment");
@@ -780,15 +699,15 @@ extract_metadata (MetadataExtractor      *extractor,
 }
 
 static void
-extract_gupnp_dlna (const gchar           *uri,
-                    TrackerSparqlBuilder  *preupdate,
-                    TrackerSparqlBuilder  *metadata,
-                    ContentType            content)
+extract_gupnp_dlna (const gchar          *uri,
+                    TrackerSparqlBuilder *preupdate,
+                    TrackerSparqlBuilder *metadata,
+                    ContentType           content)
 {
-	GUPnPDLNADiscoverer  *discoverer = NULL;
-	GUPnPDLNAInformation *dlna_info  = NULL;
-	GError               *error      = NULL;
-	MetadataExtractor    extractor;
+	GUPnPDLNADiscoverer *discoverer;
+	GUPnPDLNAInformation *dlna_info;
+	GError *error = NULL;
+	MetadataExtractor extractor;
 
 	gst_init (NULL, NULL);
 
@@ -796,7 +715,7 @@ extract_gupnp_dlna (const gchar           *uri,
 	extractor.has_video = FALSE;
 	extractor.has_audio = FALSE;
 
-	extractor.tags      = NULL;
+	extractor.tags = NULL;
 
 	extractor.width = 0;
 	extractor.height = 0;
@@ -815,7 +734,7 @@ extract_gupnp_dlna (const gchar           *uri,
 	extractor.album_art_size = 0;
 	extractor.album_art_mime = NULL;
 
-	discoverer = gupnp_dlna_discoverer_new (5*GST_SECOND, TRUE, FALSE);
+	discoverer = gupnp_dlna_discoverer_new (5 * GST_SECOND, TRUE, FALSE);
 
 	/* Uri is const, the API should be const, but it isn't and it
 	 * calls gst_discoverer_discover_uri()
@@ -825,67 +744,72 @@ extract_gupnp_dlna (const gchar           *uri,
 							     &error);
 
 	if (error) {
-		g_warning ("Error in gst-discovery: %s", error->message);
-
+		g_warning ("Call to gupnp_dlna_discoverer_discover_uri_sync() failed: %s", error->message);
 		g_error_free (error);
 		return;
 	}
 
 	if (dlna_info) {
-		GstDiscovererInfo *info = NULL;
-		GList             *streams;
-		GList             *iter;
-
+		GstDiscovererInfo *info;
+		GList *streams;
+		GList *iter;
 		gchar *artist, *album, *scount;
 
-		album  = NULL;
+		album = NULL;
 		scount = NULL;
 		artist = NULL;
 
-		info = (GstDiscovererInfo *) gupnp_dlna_information_get_info (dlna_info);
+		info = (GstDiscovererInfo*) gupnp_dlna_information_get_info (dlna_info);
 
 		streams = iter = gst_discoverer_info_get_stream_list (info);
 
 		while (iter != NULL) {
-			GstDiscovererStreamInfo *stream = NULL;
-			GstTagList              *tmp    = NULL;
+			GstDiscovererStreamInfo *stream;
+			GstTagList *tmp;
 
 			stream = iter->data;
 
 			if (G_TYPE_CHECK_INSTANCE_TYPE (stream, GST_TYPE_DISCOVERER_AUDIO_INFO)) {
-				GstDiscovererAudioInfo *audio  = (GstDiscovererAudioInfo *)stream;
-				extractor.has_audio            = TRUE;
-				extractor.sample_rate          = gst_discoverer_audio_info_get_sample_rate (audio);
-				extractor.bitrate              = gst_discoverer_audio_info_get_bitrate (audio);
-				extractor.channels             = gst_discoverer_audio_info_get_channels (audio);
+				GstDiscovererAudioInfo *audio = (GstDiscovererAudioInfo*)stream;
+
+				extractor.has_audio = TRUE;
+				extractor.sample_rate = gst_discoverer_audio_info_get_sample_rate (audio);
+				extractor.bitrate = gst_discoverer_audio_info_get_bitrate (audio);
+				extractor.channels = gst_discoverer_audio_info_get_channels (audio);
 			} else if (G_TYPE_CHECK_INSTANCE_TYPE (stream, GST_TYPE_DISCOVERER_VIDEO_INFO)) {
-				GstDiscovererVideoInfo *video  = (GstDiscovererVideoInfo *)stream;
+				GstDiscovererVideoInfo *video = (GstDiscovererVideoInfo*) stream;
+
 				if (gst_discoverer_video_info_is_image (video)) {
-					extractor.has_image    = TRUE;
+					extractor.has_image = TRUE;
 				} else {
-					extractor.has_video    = TRUE;
-					extractor.frame_rate   = (gfloat)gst_discoverer_video_info_get_framerate_num (video)/
-								gst_discoverer_video_info_get_framerate_denom (video);
-					extractor.width        = gst_discoverer_video_info_get_width (video);
-					extractor.height       = gst_discoverer_video_info_get_height (video);
-					extractor.aspect_ratio = (gfloat)gst_discoverer_video_info_get_par_num (video)/
-								gst_discoverer_video_info_get_par_denom (video);
+					extractor.has_video = TRUE;
+					extractor.frame_rate = (gfloat)
+						gst_discoverer_video_info_get_framerate_num (video) /
+						gst_discoverer_video_info_get_framerate_denom (video);
+					extractor.width = gst_discoverer_video_info_get_width (video);
+					extractor.height = gst_discoverer_video_info_get_height (video);
+					extractor.aspect_ratio = (gfloat)
+						gst_discoverer_video_info_get_par_num (video) /
+						gst_discoverer_video_info_get_par_denom (video);
 				}
 			} else {
 				/* Unknown type - do nothing */
 			}
 
-			tmp = gst_tag_list_merge (extractor.tags, gst_discoverer_stream_info_get_tags (stream), GST_TAG_MERGE_APPEND);
+			tmp = gst_tag_list_merge (extractor.tags,
+			                          gst_discoverer_stream_info_get_tags (stream),
+			                          GST_TAG_MERGE_APPEND);
+
 			if (extractor.tags) {
 				gst_tag_list_free (extractor.tags);
 			}
+
 			extractor.tags = tmp;
 
 			iter = g_list_next (iter);
 		}
 
 		extractor.duration = gst_discoverer_info_get_duration (info) / GST_SECOND;
-
 		extractor.dlna_profile = gupnp_dlna_information_get_name (dlna_info);
 
 		if (content != CONTENT_GUESS) {
@@ -909,7 +833,6 @@ extract_gupnp_dlna (const gchar           *uri,
 		g_free (artist);
 		g_free (album);
 		g_free (scount);
-
 	}
 
 	g_object_unref (discoverer);
