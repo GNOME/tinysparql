@@ -129,7 +129,7 @@ strstr_i (const char *a, const char *b)
 }
 
 static void
-check_result (TrackerDBResultSet *result_set,
+check_result (TrackerDBCursor *cursor,
               const TestInfo *test_info,
               const gchar *results_filename,
               GError *error)
@@ -155,42 +155,25 @@ check_result (TrackerDBResultSet *result_set,
 
 	test_results = g_string_new ("");
 
-	if (result_set) {
-		gboolean valid = TRUE;
-		guint col_count;
+	if (cursor) {
 		gint col;
 
-		col_count = tracker_db_result_set_get_n_columns (result_set);
+		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+			for (col = 0; col < tracker_db_cursor_get_n_columns (cursor); col++) {
+				const gchar *str;
 
-		while (valid) {
-			for (col = 0; col < col_count; col++) {
-				GValue value = { 0 };
-
-				_tracker_db_result_set_get_value (result_set, col, &value);
-
-				switch (G_VALUE_TYPE (&value)) {
-				case G_TYPE_INT64:
-					g_string_append_printf (test_results, "\"%" G_GINT64_FORMAT "\"", g_value_get_int64 (&value));
-					break;
-				case G_TYPE_DOUBLE:
-					g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
-					break;
-				case G_TYPE_STRING:
-					g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
-					break;
-				default:
-					/* unbound variable */
-					break;
+				if (col > 0) {
+					g_string_append (test_results, "\t");
 				}
 
-				if (col < col_count - 1) {
-					g_string_append (test_results, "\t");
+				str = tracker_db_cursor_get_string (cursor, col, NULL);
+				if (str != NULL) {
+					/* bound variable */
+					g_string_append_printf (test_results, "\"%s\"", str);
 				}
 			}
 
 			g_string_append (test_results, "\n");
-
-			valid = tracker_db_result_set_iter_next (result_set);
 		}
 	} else if (test_info->expect_query_error) {
 		g_string_append (test_results, error->message);
@@ -228,7 +211,7 @@ check_result (TrackerDBResultSet *result_set,
 static void
 test_sparql_query (gconstpointer test_data)
 {
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 	const TestInfo *test_info;
 	GError *error;
 	gchar *data_filename;
@@ -290,28 +273,28 @@ test_sparql_query (gconstpointer test_data)
 
 	/* perform actual query */
 
-	result_set = tracker_data_query_sparql (query, &error);
+	cursor = tracker_data_query_sparql_cursor (query, &error);
 
-	check_result (result_set, test_info, results_filename, error);
+	check_result (cursor, test_info, results_filename, error);
 
 	g_free (query_filename);
 	g_free (query);
 
 	query_filename = g_strconcat (test_prefix, ".extra.rq", NULL);
 	if (g_file_get_contents (query_filename, &query, NULL, NULL)) {
-		g_object_unref (result_set);
-		result_set = tracker_data_query_sparql (query, &error);
+		g_object_unref (cursor);
+		cursor = tracker_data_query_sparql_cursor (query, &error);
 		g_assert_no_error (error);
 		g_free (results_filename);
 		results_filename = g_strconcat (test_prefix, ".extra.out", NULL);
-		check_result (result_set, test_info, results_filename, error);
+		check_result (cursor, test_info, results_filename, error);
 	}
 
 	g_free (data_prefix);
 	g_free (test_prefix);
 
-	if (result_set) {
-		g_object_unref (result_set);
+	if (cursor) {
+		g_object_unref (cursor);
 	}
 
 	/* cleanup */
