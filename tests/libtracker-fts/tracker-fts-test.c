@@ -50,7 +50,7 @@ const TestInfo tests[] = {
 static void
 test_sparql_query (gconstpointer test_data)
 {
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 	const TestInfo *test_info;
 	GError *error;
 	GString *test_results;
@@ -99,52 +99,35 @@ test_sparql_query (gconstpointer test_data)
 		g_file_get_contents (results_filename, &results, NULL, &error);
 		g_assert_no_error (error);
 
-		result_set = tracker_data_query_sparql (query, &error);
+		cursor = tracker_data_query_sparql_cursor (query, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
 
 		test_results = g_string_new ("");
 
-		if (result_set) {
-			gboolean valid = TRUE;
-			guint col_count;
+		if (cursor) {
 			gint col;
 
-			col_count = tracker_db_result_set_get_n_columns (result_set);
+			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+				for (col = 0; col < tracker_db_cursor_get_n_columns (cursor); col++) {
+					const gchar *str;
 
-			while (valid) {
-				for (col = 0; col < col_count; col++) {
-					GValue value = { 0 };
-
-					_tracker_db_result_set_get_value (result_set, col, &value);
-
-					switch (G_VALUE_TYPE (&value)) {
-					case G_TYPE_INT:
-						g_string_append_printf (test_results, "\"%d\"", g_value_get_int (&value));
-						break;
-					case G_TYPE_DOUBLE:
-						g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
-						break;
-					case G_TYPE_STRING:
-						g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
-						break;
-					default:
-						/* unbound variable */
-						break;
+					if (col > 0) {
+						g_string_append (test_results, "\t");
 					}
 
-					if (col < col_count - 1) {
-						g_string_append (test_results, "\t");
+					str = tracker_db_cursor_get_string (cursor, col, NULL);
+					if (str != NULL) {
+						/* bound variable */
+						g_string_append_printf (test_results, "\"%s\"", str);
 					}
 				}
 
 				g_string_append (test_results, "\n");
-
-				valid = tracker_db_result_set_iter_next (result_set);
 			}
 
-			g_object_unref (result_set);
+			g_object_unref (cursor);
 		}
 
 		if (strcmp (results, test_results->str)) {
