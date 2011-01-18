@@ -34,22 +34,20 @@ namespace Tracker.Sparql {
 					// single subject
 					var subject_id = Data.query_resource_id (subject);
 
-					DBResultSet result_set = null;
+					DBCursor cursor = null;
 					if (subject_id > 0) {
 						var iface = DBManager.get_db_interface ();
 						var stmt = iface.create_statement (DBStatementCacheType.SELECT,
 						                                   "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") " +
 						                                   "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
 						stmt.bind_int (0, subject_id);
-						result_set = stmt.execute ();
+						cursor = stmt.start_cursor ();
 					}
 
-					if (result_set != null) {
+					if (cursor != null) {
 						bool first = true;
-						do {
-							Value value;
-							result_set._get_value (0, out value);
-							var domain = Ontologies.get_class_by_uri (value.get_string ());
+						while (cursor.next ()) {
+							var domain = Ontologies.get_class_by_uri (cursor.get_string (0));
 
 							foreach (Property prop in Ontologies.get_properties ()) {
 								if (prop.domain == domain) {
@@ -76,7 +74,7 @@ namespace Tracker.Sparql {
 									query.bindings.append (binding);
 								}
 							}
-						} while (result_set.iter_next ());
+						}
 					} else {
 						/* no match */
 						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\", NULL AS \"graph\"");
@@ -90,14 +88,12 @@ namespace Tracker.Sparql {
 					                                   "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") " +
 					                                   "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
 					stmt.bind_int (0, object_id);
-					var result_set = stmt.execute ();
+					var cursor = stmt.start_cursor ();
 
 					bool first = true;
-					if (result_set != null) {
-						do {
-							Value value;
-							result_set._get_value (0, out value);
-							var range = Ontologies.get_class_by_uri (value.get_string ());
+					if (cursor != null) {
+						while (cursor.next ()) {
+							var range = Ontologies.get_class_by_uri (cursor.get_string (0));
 
 							foreach (Property prop in Ontologies.get_properties ()) {
 								if (prop.range == range) {
@@ -117,7 +113,7 @@ namespace Tracker.Sparql {
 									sql.append_printf (" FROM \"%s\"", prop.table_name);
 								}
 							}
-						} while (result_set.iter_next ());
+						}
 					} else {
 						/* no match */
 						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\", NULL AS \"graph\"");
@@ -148,7 +144,7 @@ namespace Tracker.Sparql {
 					throw query.get_internal_error ("Unrestricted predicate variables not supported");
 				}
 				return sql.str;
-			} catch (DBInterfaceError e) {
+			} catch (GLib.Error e) {
 				throw new Sparql.Error.INTERNAL (e.message);
 			}
 		}
