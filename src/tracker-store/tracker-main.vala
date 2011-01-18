@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
- * Copyright (C) 2008, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2008-2011, Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -131,10 +131,10 @@ License which can be viewed at:
 		string[] classes_to_signal = null;
 
 		try {
-			var result_set = Tracker.Data.query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }");
+			var cursor = Tracker.Data.query_sparql_cursor ("SELECT ?class WHERE { ?class tracker:notify true }");
 
-			if (result_set != null) {
-				classes_to_signal = Tracker.dbus_query_result_to_strv (result_set, 0);
+			while (cursor.next ()) {
+				classes_to_signal += cursor.get_string (0);
 			}
 		} catch (Error e) {
 			critical ("Unable to retrieve tracker:notify classes: %s", e.message);
@@ -148,10 +148,10 @@ License which can be viewed at:
 		string[] predicates_to_signal = null;
 
 		try {
-			var result_set = Tracker.Data.query_sparql ("SELECT ?predicate WHERE { ?predicate tracker:writeback true }");
+			var cursor = Tracker.Data.query_sparql_cursor ("SELECT ?predicate WHERE { ?predicate tracker:writeback true }");
 
-			if (result_set != null) {
-				predicates_to_signal = Tracker.dbus_query_result_to_strv (result_set, 0);
+			while (cursor.next ()) {
+				predicates_to_signal += cursor.get_string (0);
 			}
 		} catch (Error e) {
 			critical ("Unable to retrieve tracker:writeback properties: %s", e.message);
