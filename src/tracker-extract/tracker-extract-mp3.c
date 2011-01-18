@@ -409,7 +409,7 @@ static const guint freq_mask = 0xC0000;
 static const guint ch_mask = 0xC0000000;
 static const guint pad_mask = 0x20000;
 
-static guint bitrate_table[16][6] = {
+static gint bitrate_table[16][6] = {
 	{   0,   0,   0,   0,   0,   0 },
 	{  32,  32,  32,  32,   8,   8 },
 	{  64,  48,  40,  48,  16,  16 },
@@ -841,7 +841,7 @@ mp3_parse_header (const gchar          *data,
 	gint spfp8 = 0;
 	guint padsize = 0;
 	gint idx_num = 0;
-	guint bitrate = 0;
+	gint bitrate = 0;
 	guint avg_bps = 0;
 	gint vbr_flag = 0;
 	guint length = 0;
@@ -901,6 +901,7 @@ mp3_parse_header (const gchar          *data,
 
 		bitrate = 1000 * bitrate_table[(header & bitrate_mask) >> 20][idx_num];
 
+		/* Skip frame headers with bitrate index '0000' (free) or '1111' (bad) */
 		if (bitrate <= 0) {
 			frames--;
 			return FALSE;
