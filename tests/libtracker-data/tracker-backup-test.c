@@ -54,25 +54,28 @@ check_content_in_db (gint expected_instances, gint expected_relations)
 	GError *error = NULL;
 	const gchar  *query_instances_1 = "SELECT ?u WHERE { ?u a foo:class1. }";
 	const gchar  *query_relation = "SELECT ?a ?b WHERE { ?a foo:propertyX ?b }";
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
+	gint n_rows;
 
-	result_set = tracker_data_query_sparql (query_instances_1, &error);
+	cursor = tracker_data_query_sparql_cursor (query_instances_1, &error);
 	g_assert_no_error (error);
-	if (expected_instances == 0) {
-		g_assert (result_set == NULL);
-	} else {
-		g_assert_cmpint (tracker_db_result_set_get_n_rows (result_set), ==, expected_instances);
-		g_object_unref (result_set);
+	n_rows = 0;
+	while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		n_rows++;
 	}
+	g_assert_no_error (error);
+	g_assert_cmpint (n_rows, ==, expected_instances);
+	g_object_unref (cursor);
 
-	result_set = tracker_data_query_sparql (query_relation, &error);
+	cursor = tracker_data_query_sparql_cursor (query_relation, &error);
 	g_assert_no_error (error);
-	if (expected_relations == 0) {
-		g_assert (result_set == NULL);
-	} else {
-		g_assert_cmpint (tracker_db_result_set_get_n_rows (result_set), ==, expected_relations);
-		g_object_unref (result_set);
+	n_rows = 0;
+	while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		n_rows++;
 	}
+	g_assert_no_error (error);
+	g_assert_cmpint (n_rows, ==, expected_relations);
+	g_object_unref (cursor);
 
 	return TRUE;
 }
