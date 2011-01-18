@@ -437,7 +437,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	public GenericArray<GenericArray<HashTable<string,string>>>? execute_update (bool blank) throws DBInterfaceError, Sparql.Error, DateError {
+	public GenericArray<GenericArray<HashTable<string,string>>>? execute_update (bool blank) throws GLib.Error {
 		assert (update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.length);
@@ -526,7 +526,7 @@ public class Tracker.Sparql.Query : Object {
 		return stmt.execute ();
 	}
 
-	DBCursor? exec_sql_cursor (string sql, PropertyType[] types, string[] variable_names, bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
+	DBCursor? exec_sql_cursor (string sql, PropertyType[]? types, string[]? variable_names, bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
 		var stmt = prepare_for_exec (sql);
 
 		return stmt.start_sparql_cursor (types, variable_names, threadsafe);
@@ -604,7 +604,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	GenericArray<HashTable<string,string>>? execute_insert_or_delete (bool blank) throws DBInterfaceError, Sparql.Error, DateError {
+	GenericArray<HashTable<string,string>>? execute_insert_or_delete (bool blank) throws GLib.Error {
 		// INSERT or DELETE
 
 		if (accept (SparqlTokenType.WITH)) {
@@ -693,7 +693,7 @@ public class Tracker.Sparql.Query : Object {
 		sql.append (pattern_sql.str);
 		sql.append (")");
 
-		var result_set = exec_sql (sql.str);
+		var cursor = exec_sql_cursor (sql.str, null, null, false);
 
 		this.delete_statements = delete_statements;
 
@@ -704,33 +704,29 @@ public class Tracker.Sparql.Query : Object {
 		}
 
 		// iterate over all solutions
-		if (result_set != null) {
-			do {
-				// blank nodes in construct templates are per solution
+		while (cursor.next ()) {
+			// blank nodes in construct templates are per solution
 
-				uuid_generate (base_uuid);
-				blank_nodes = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
+			uuid_generate (base_uuid);
+			blank_nodes = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 
-				// get values of all variables to be bound
-				var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
-				int var_idx = 0;
-				foreach (var variable in context.var_set.get_keys ()) {
-					Value value;
-					result_set._get_value (var_idx++, out value);
-					var_value_map.insert (variable.name, get_string_for_value (value));
-				}
+			// get values of all variables to be bound
+			var var_value_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
+			int var_idx = 0;
+			foreach (var variable in context.var_set.get_keys ()) {
+				var_value_map.insert (variable.name, cursor.get_string (var_idx++));
+			}
 
-				set_location (template_location);
+			set_location (template_location);
 
-				// iterate over each triple in the template
-				parse_construct_triples_block (var_value_map);
+			// iterate over each triple in the template
+			parse_construct_triples_block (var_value_map);
 
-				if (blank) {
-					update_blank_nodes.add ((owned) blank_nodes);
-				}
+			if (blank) {
+				update_blank_nodes.add ((owned) blank_nodes);
+			}
 
-				Data.update_buffer_might_flush ();
-			} while (result_set.iter_next ());
+			Data.update_buffer_might_flush ();
 		}
 
 		if (!data) {
@@ -959,21 +955,6 @@ public class Tracker.Sparql.Query : Object {
 			if (!silent) {
 				throw e;
 			}
-		}
-	}
-
-	static string? get_string_for_value (Value value)
-	{
-		if (value.type () == typeof (int)) {
-			return value.get_int ().to_string ();
-		} else if (value.type () == typeof (int64)) {
-			return value.get_int64 ().to_string ();
-		} else if (value.type () == typeof (double)) {
-			return value.get_double ().to_string ();
-		} else if (value.type () == typeof (string)) {
-			return value.get_string ();
-		} else {
-			return null;
 		}
 	}
 
