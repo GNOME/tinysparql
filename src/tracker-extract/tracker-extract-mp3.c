@@ -431,7 +431,8 @@ static guint bitrate_table[16][6] = {
 static gint freq_table[4][3] = {
 	{ 44100, 22050, 11025 },
 	{ 48000, 24000, 12000 },
-	{ 32000, 16000, 8000  }
+	{ 32000, 16000,  8000 },
+	{    -1,     -1,   -1 }
 };
 
 static gint spf_table[6] = {
@@ -822,7 +823,10 @@ get_id3 (const gchar *data,
 	return TRUE;
 }
 
-
+/*
+ * For the MP3 frame header description, see
+ * http://www.mp3-tech.org/programmer/frame_header.html
+ */
 static gboolean
 mp3_parse_header (const gchar          *data,
                   size_t                size,
@@ -841,7 +845,7 @@ mp3_parse_header (const gchar          *data,
 	guint avg_bps = 0;
 	gint vbr_flag = 0;
 	guint length = 0;
-	guint sample_rate = 0;
+	gint sample_rate = 0;
 	guint frame_size;
 	guint frames = 0;
 	size_t pos = 0;
@@ -893,9 +897,8 @@ mp3_parse_header (const gchar          *data,
 
 	/* We assume mpeg version, layer and channels are constant in frames */
 	do {
-		guint sr;
-
 		frames++;
+
 		bitrate = 1000 * bitrate_table[(header & bitrate_mask) >> 20][idx_num];
 
 		if (bitrate <= 0) {
@@ -903,16 +906,15 @@ mp3_parse_header (const gchar          *data,
 			return FALSE;
 		}
 
-		sr = freq_table[(header & freq_mask) >> 18][mpeg_ver - 1];
+		sample_rate = freq_table[(header & freq_mask) >> 18][mpeg_ver - 1];
 
-		/* NB#218332: Apparently some MP3s have a table with { 0, 0, 0 }*/
-		if (sr == 0) {
+		/* Skip frame headers with frequency index '11' (reserved) */
+		if (sample_rate <= 0) {
 			frames--;
-			break;
+			return FALSE;
 		}
 
-		sample_rate = sr;
-		frame_size = spfp8 * bitrate / (sample_rate ? sample_rate : 1) + padsize*((header & pad_mask) >> 17);
+		frame_size = spfp8 * bitrate / sample_rate + padsize*((header & pad_mask) >> 17);
 		avg_bps += bitrate / 1000;
 
 		pos += frame_size;
@@ -961,7 +963,8 @@ mp3_parse_header (const gchar          *data,
 		 * Note that bitrate is always > 0, checked before */
 		length = (filedata->size - filedata->id3v2_size) / (avg_bps ? avg_bps : bitrate) / 125;
 	} else {
-		length = spfp8 * 8 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);
+		/* Note that sample_rate is always > 0, checked before */
+		length = spfp8 * 8 * frames / sample_rate;
 	}
 
 	tracker_sparql_builder_predicate (metadata, "nfo:duration");
