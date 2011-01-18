@@ -147,7 +147,6 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                 }
                 """ 
                 
-        @expectedFailureBug ("NB#217636")
         def test_02_NB217636_delete_statements (self):
                 """
                 Bug 217636 - Not able to delete contact using
@@ -172,7 +171,7 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
 
                 problematic_delete = """
                 DELETE { <contact:test-nb217636> ?p ?v }
-                WHERE  { <contact:test-nb217636> ?p ?v }'
+                WHERE  { <contact:test-nb217636> ?p ?v }
                 """
                 self.tracker.update (problematic_delete)
 
