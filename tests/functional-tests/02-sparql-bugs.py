@@ -147,6 +147,48 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                 }
                 """ 
                 
+        @expectedFailureBug ("NB#217636")
+        def test_02_NB217636_delete_statements (self):
+                """
+                Bug 217636 - Not able to delete contact using
+                DELETE {<contact:556> ?p ?v} WHERE {<contact:556> ?p ?v}.
+                """
+                data = """ INSERT {
+                   <contact:test-nb217636> a nco:PersonContact ;
+                          nco:fullname 'Testing bug 217636'
+                }
+                """
+                self.tracker.update (data)
+
+                results = self.tracker.query ("""
+                 SELECT ?u WHERE {
+                    ?u a nco:PersonContact ;
+                      nco:fullname 'Testing bug 217636' .
+                      }
+                      """)
+                self.assertEquals (len (results), 1)
+                self.assertEquals (len (results[0]), 1)
+                self.assertEquals (results[0][0], "contact:test-nb217636")
+
+                problematic_delete = """
+                DELETE { <contact:test-nb217636> ?p ?v }
+                WHERE  { <contact:test-nb217636> ?p ?v }'
+                """
+                self.tracker.update (problematic_delete)
+
+                results_after = self.tracker.query ("""
+                 SELECT ?u WHERE {
+                    ?u a nco:PersonContact ;
+                      nco:fullname 'Testing bug 217636' .
+                      }
+                      """)
+                self.assertEquals (len (results_after), 0)
+
+                # Safe deletion
+                delete = """
+                DELETE { <contact:test-nb217636> a rdfs:Resource. }
+                """
+                self.tracker.update (delete)
 
 if __name__ == "__main__":
 	ut.main()
