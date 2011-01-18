@@ -34,8 +34,6 @@ G_BEGIN_DECLS
 #endif
 
 gint                 tracker_data_query_resource_id   (const gchar  *uri);
-TrackerDBResultSet  *tracker_data_query_sparql        (const gchar  *query,
-                                                       GError      **error);
 TrackerDBCursor     *tracker_data_query_sparql_cursor (const gchar  *query,
                                                        GError      **error);
 

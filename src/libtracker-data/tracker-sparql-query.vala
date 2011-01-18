@@ -392,28 +392,6 @@ public class Tracker.Sparql.Query : Object {
 		parse_prologue ();
 	}
 
-	public DBResultSet? execute () throws DBInterfaceError, Sparql.Error, DateError {
-
-		prepare_execute ();
-
-		switch (current ()) {
-		case SparqlTokenType.SELECT:
-			return execute_select ();
-		case SparqlTokenType.CONSTRUCT:
-			throw get_internal_error ("CONSTRUCT is not supported");
-		case SparqlTokenType.DESCRIBE:
-			throw get_internal_error ("DESCRIBE is not supported");
-		case SparqlTokenType.ASK:
-			return execute_ask ();
-		case SparqlTokenType.INSERT:
-		case SparqlTokenType.DELETE:
-		case SparqlTokenType.DROP:
-			throw get_error ("INSERT and DELETE are not supported in query mode");
-		default:
-			throw get_error ("expected SELECT or ASK");
-		}
-	}
-
 
 	public DBCursor? execute_cursor (bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
 
@@ -520,12 +498,6 @@ public class Tracker.Sparql.Query : Object {
 		return stmt;
 	}
 
-	DBResultSet? exec_sql (string sql) throws DBInterfaceError, Sparql.Error, DateError {
-		var stmt = prepare_for_exec (sql);
-
-		return stmt.execute ();
-	}
-
 	DBCursor? exec_sql_cursor (string sql, PropertyType[]? types, string[]? variable_names, bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
 		var stmt = prepare_for_exec (sql);
 
@@ -542,11 +514,6 @@ public class Tracker.Sparql.Query : Object {
 		expect (SparqlTokenType.EOF);
 
 		return sql.str;
-	}
-
-	DBResultSet? execute_select () throws DBInterfaceError, Sparql.Error, DateError {
-		SelectContext context;
-		return exec_sql (get_select_query (out context));
 	}
 
 	DBCursor? execute_select_cursor (bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {
@@ -581,10 +548,6 @@ public class Tracker.Sparql.Query : Object {
 		context = context.parent_context;
 
 		return sql.str;
-	}
-
-	DBResultSet? execute_ask () throws DBInterfaceError, Sparql.Error, DateError {
-		return exec_sql (get_ask_query ());
 	}
 
 	DBCursor? execute_ask_cursor (bool threadsafe) throws DBInterfaceError, Sparql.Error, DateError {

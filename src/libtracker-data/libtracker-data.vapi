@@ -164,7 +164,6 @@ namespace Tracker {
 	[CCode (cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h,libtracker-data/tracker-data-backup.h")]
 	namespace Data {
 		public int query_resource_id (string uri);
-		public DBResultSet query_sparql (string query) throws Sparql.Error;
 		public DBCursor query_sparql_cursor (string query) throws Sparql.Error;
 		public void begin_db_transaction ();
 		public void commit_db_transaction ();
