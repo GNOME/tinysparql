@@ -208,6 +208,31 @@ class Tracker.Sparql.Expression : Object {
 		expect (SparqlTokenType.CLOSE_PARENS);
 	}
 
+	PropertyType translate_if_call (StringBuilder sql) throws Sparql.Error {
+		expect (SparqlTokenType.IF);
+		expect (SparqlTokenType.OPEN_PARENS);
+
+		// condition
+		sql.append ("(CASE ");
+		translate_expression (sql);
+
+		// if condition is true
+		sql.append (" WHEN 1 THEN ");
+		expect (SparqlTokenType.COMMA);
+		var type = translate_expression (sql);
+
+		// if condition is false
+		sql.append (" WHEN 0 THEN ");
+		expect (SparqlTokenType.COMMA);
+		translate_expression (sql);
+
+		sql.append (" ELSE NULL END)");
+
+		expect (SparqlTokenType.CLOSE_PARENS);
+
+		return type;
+	}
+
 	void translate_regex (StringBuilder sql) throws Sparql.Error {
 		expect (SparqlTokenType.REGEX);
 		expect (SparqlTokenType.OPEN_PARENS);
@@ -962,6 +987,8 @@ class Tracker.Sparql.Expression : Object {
 		case SparqlTokenType.BOUND:
 			translate_bound_call (sql);
 			return PropertyType.BOOLEAN;
+		case SparqlTokenType.IF:
+			return translate_if_call (sql);
 		case SparqlTokenType.SAMETERM:
 			next ();
 			expect (SparqlTokenType.OPEN_PARENS);
@@ -1280,6 +1307,7 @@ class Tracker.Sparql.Expression : Object {
 		case SparqlTokenType.LANGMATCHES:
 		case SparqlTokenType.DATATYPE:
 		case SparqlTokenType.BOUND:
+		case SparqlTokenType.IF:
 		case SparqlTokenType.SAMETERM:
 		case SparqlTokenType.ISIRI:
 		case SparqlTokenType.ISURI:

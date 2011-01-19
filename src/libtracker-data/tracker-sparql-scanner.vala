@@ -61,7 +61,16 @@ public class Tracker.SparqlScanner : Object {
 				break;
 			case 'i':
 			case 'I':
-				if (matches (begin, "IN")) return SparqlTokenType.OP_IN;
+				switch (begin[1]) {
+				case 'F':
+				case 'f':
+					if (matches (begin, "IF")) return SparqlTokenType.IF;
+					break;
+				case 'N':
+				case 'n':
+					if (matches (begin, "IN")) return SparqlTokenType.OP_IN;
+					break;
+				}
 				break;
 			}
 			break;
@@ -858,6 +867,7 @@ public enum Tracker.SparqlTokenType {
 	GRAPH,
 	GROUP,
 	GROUP_CONCAT,
+	IF,
 	INSERT,
 	INTEGER,
 	INTO,
@@ -949,6 +959,7 @@ public enum Tracker.SparqlTokenType {
 		case GRAPH: return "`GRAPH'";
 		case GROUP: return "`GROUP'";
 		case GROUP_CONCAT: return "`GROUP_CONCAT'";
+		case IF: return "`IF'";
 		case INSERT: return "`INSERT'";
 		case INTEGER: return "`INTEGER'";
 		case INTO: return "`INTO'";
