@@ -436,7 +436,8 @@ check_range_conversion_is_allowed (const gchar  *ontology_path,
 	g_free (query);
 
 	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
-		const gchar *str = NULL;
+		const gchar *str;
+
 		str = tracker_db_cursor_get_string (cursor, 0, NULL);
 
 		if (g_strcmp0 (object, str) != 0) {
