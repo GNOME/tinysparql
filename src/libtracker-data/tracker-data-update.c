@@ -34,7 +34,6 @@
 #include "tracker-data-query.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
-#include "tracker-db-dbus.h"
 #include "tracker-db-journal.h"
 #include "tracker-ontologies.h"
 #include "tracker-property.h"
@@ -1732,7 +1731,7 @@ cache_delete_resource_type (TrackerClass *class,
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set = NULL;
+	TrackerDBCursor    *cursor = NULL;
 	TrackerProperty   **properties, *prop;
 	gboolean            found, direct_delete;
 	gint                i;
@@ -1764,27 +1763,26 @@ cache_delete_resource_type (TrackerClass *class,
 	if (stmt) {
 		tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
 		tracker_db_statement_bind_text (stmt, 1, tracker_class_get_uri (class));
-		result_set = tracker_db_statement_execute (stmt, &error);
+		cursor = tracker_db_statement_start_cursor (stmt, &error);
 		g_object_unref (stmt);
 	}
 
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
-		error = NULL;
-	}
+	if (cursor) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+			const gchar *class_uri;
 
-	if (result_set) {
-		do {
-			gchar *class_uri;
-
-			tracker_db_result_set_get (result_set, 0, &class_uri, -1);
+			class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 			cache_delete_resource_type (tracker_ontologies_get_class_by_uri (class_uri),
 			                            graph, graph_id);
-			g_free (class_uri);
-		} while (tracker_db_result_set_iter_next (result_set));
+		}
 
-		g_object_unref (result_set);
+		g_object_unref (cursor);
+	}
+
+	if (error) {
+		g_warning ("Could not delete cache resource (selecting subclasses): %s", error->message);
+		g_error_free (error);
+		error = NULL;
 	}
 
 	/* bypass buffer if possible
@@ -1872,7 +1870,7 @@ cache_delete_resource_type (TrackerClass *class,
 		}
 
 		if (error) {
-			g_warning ("%s", error->message);
+			g_warning ("Could not delete cache resource: %s", error->message);
 			g_error_free (error);
 			error = NULL;
 		}

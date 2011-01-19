@@ -101,9 +101,9 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 	query = strtok (queries, "~");
 
 	while (query) {
-		TrackerDBResultSet *result_set;
+		TrackerDBCursor *cursor;
 
-		result_set = tracker_data_query_sparql (query, &error);
+		cursor = tracker_data_query_sparql_cursor (query, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -114,45 +114,28 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 			g_string_append (test_results, "~\n");
 		}
 
-		if (result_set) {
-			gboolean valid = TRUE;
-			guint col_count;
+		if (cursor) {
 			gint col;
 
-			col_count = tracker_db_result_set_get_n_columns (result_set);
+			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+				for (col = 0; col < tracker_db_cursor_get_n_columns (cursor); col++) {
+					const gchar *str;
 
-			while (valid) {
-				for (col = 0; col < col_count; col++) {
-					GValue value = { 0 };
-
-					_tracker_db_result_set_get_value (result_set, col, &value);
-
-					switch (G_VALUE_TYPE (&value)) {
-					case G_TYPE_INT64:
-						g_string_append_printf (test_results, "\"%" G_GINT64_FORMAT "\"", g_value_get_int64 (&value));
-						break;
-					case G_TYPE_DOUBLE:
-						g_string_append_printf (test_results, "\"%f\"", g_value_get_double (&value));
-						break;
-					case G_TYPE_STRING:
-						g_string_append_printf (test_results, "\"%s\"", g_value_get_string (&value));
-						break;
-					default:
-						/* unbound variable */
-						break;
+					if (col > 0) {
+						g_string_append (test_results, "\t");
 					}
 
-					if (col < col_count - 1) {
-						g_string_append (test_results, "\t");
+					str = tracker_db_cursor_get_string (cursor, col, NULL);
+					if (str != NULL) {
+						/* bound variable */
+						g_string_append_printf (test_results, "\"%s\"", str);
 					}
 				}
 
 				g_string_append (test_results, "\n");
-
-				valid = tracker_db_result_set_iter_next (result_set);
 			}
 
-			g_object_unref (result_set);
+			g_object_unref (cursor);
 		}
 
 		query = strtok (NULL, "~");

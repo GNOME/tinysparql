@@ -30,8 +30,7 @@ TEST_PROGS +=                                          \
 	tracker-ontology                               \
 	tracker-backup                                 \
 	tracker-ontology-change                        \
-	tracker-db-journal                             \
-	tracker-db-dbus
+	tracker-db-journal
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
@@ -56,7 +55,6 @@ tracker_ontology_SOURCES = tracker-ontology-test.c
 tracker_ontology_change_SOURCES = tracker-ontology-change-test.c
 tracker_backup_SOURCES = tracker-backup-test.c
 tracker_db_journal_SOURCES = tracker-db-journal.c
-tracker_db_dbus_SOURCES = tracker-db-dbus-test.c
 
 EXTRA_DIST =                                           \
 	dawg-testcases                                 \

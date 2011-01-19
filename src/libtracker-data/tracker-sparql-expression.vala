@@ -246,7 +246,10 @@ class Tracker.Sparql.Expression : Object {
 	static void convert_expression_to_string (StringBuilder sql, PropertyType type, long begin) {
 		switch (type) {
 		case PropertyType.STRING:
+		case PropertyType.INTEGER:
 			// nothing to convert
+			// do not use CAST to convert integers to strings as this breaks use
+			// of index when sorting by variable introduced in select expression
 			break;
 		case PropertyType.RESOURCE:
 			// ID => Uri

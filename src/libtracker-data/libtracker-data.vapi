@@ -67,12 +67,6 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
-	public class DBResultSet : GLib.Object {
-		public void _get_value (uint column, out GLib.Value value);
-		public bool iter_next ();
-	}
-
-	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public class DBCursor : Sparql.Cursor {
 	}
 
@@ -81,7 +75,7 @@ namespace Tracker {
 		public abstract void bind_double (int index, double value);
 		public abstract void bind_int (int index, int value);
 		public abstract void bind_text (int index, string value);
-		public abstract DBResultSet execute () throws DBInterfaceError;
+		public abstract DBCursor start_cursor () throws DBInterfaceError;
 		public abstract DBCursor start_sparql_cursor (PropertyType[] types, string[] variable_names, bool threadsafe) throws DBInterfaceError;
 	}
 
@@ -164,7 +158,6 @@ namespace Tracker {
 	[CCode (cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h,libtracker-data/tracker-data-backup.h")]
 	namespace Data {
 		public int query_resource_id (string uri);
-		public DBResultSet query_sparql (string query) throws Sparql.Error;
 		public DBCursor query_sparql_cursor (string query) throws Sparql.Error;
 		public void begin_db_transaction ();
 		public void commit_db_transaction ();
@@ -207,7 +200,4 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
 	public const string COLLATION_NAME;
-
-	[CCode (cheader_filename = "libtracker-data/tracker-db-dbus.h")]
-	public string[] dbus_query_result_to_strv (DBResultSet result_set, int column);
 }

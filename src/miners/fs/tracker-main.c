@@ -43,7 +43,6 @@
 #include <libtracker-miner/tracker-miner.h>
 
 #include <libtracker-data/tracker-db-manager.h>
-#include <libtracker-data/tracker-db-dbus.h>
 
 #include "tracker-config.h"
 #include "tracker-marshal.h"

@@ -288,44 +288,22 @@ check_unsupported_property_value_change (const gchar     *ontology_path,
 	GError *error = NULL;
 	gboolean needed = TRUE;
 	gchar *query = NULL;
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 
 	query = g_strdup_printf ("SELECT ?old_value WHERE { "
 	                           "<%s> %s ?old_value "
 	                         "}", subject, kind);
 
-	result_set = tracker_data_query_sparql (query, &error);
+	cursor = tracker_data_query_sparql_cursor (query, &error);
 
-	if (!error && result_set) {
-		gchar *str = NULL;
-		GValue value = { 0 };
 
-		_tracker_db_result_set_get_value (result_set, 0, &value);
-
-		switch (G_VALUE_TYPE (&value)) {
-			case G_TYPE_INT64:
-				str = g_strdup_printf ("%" G_GINT64_FORMAT, g_value_get_int64 (&value));
-			break;
-			case G_TYPE_DOUBLE:
-				str = g_strdup_printf ("%f", g_value_get_double (&value));
-			break;
-			case G_TYPE_STRING:
-				str = g_value_dup_string (&value);
-			break;
-			default:
-				g_warning ("Unknown type for resultset: %s\n", G_VALUE_TYPE_NAME (&value));
-				str = g_strdup ("");
-				break;
-		}
-
-		if (g_strcmp0 (object, str) == 0) {
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		if (g_strcmp0 (object, tracker_db_cursor_get_string (cursor, 0, NULL)) == 0) {
 			needed = FALSE;
 		} else {
 			needed = TRUE;
 		}
 
-		g_value_unset (&value);
-		g_free (str);
 	} else {
 		if (object && (g_strcmp0 (object, "false") == 0)) {
 			needed = FALSE;
@@ -335,8 +313,8 @@ check_unsupported_property_value_change (const gchar     *ontology_path,
 	}
 
 	g_free (query);
-	if (result_set) {
-		g_object_unref (result_set);
+	if (cursor) {
+		g_object_unref (cursor);
 	}
 
 	if (error) {
@@ -371,18 +349,18 @@ update_property_value (const gchar      *ontology_path,
 
 	if (!is_new) {
 		gchar *query = NULL;
-		TrackerDBResultSet *result_set;
+		TrackerDBCursor *cursor;
 
 		query = g_strdup_printf ("SELECT ?old_value WHERE { "
 		                           "<%s> %s ?old_value "
 		                         "}", subject, kind);
 
-		result_set = tracker_data_query_sparql (query, &error);
+		cursor = tracker_data_query_sparql_cursor (query, &error);
 
-		if (!error && result_set) {
-			gchar *str = NULL;
+		if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+			const gchar *str = NULL;
 
-			tracker_db_result_set_get (result_set, 0, &str, -1);
+			str = tracker_db_cursor_get_string (cursor, 0, NULL);
 
 			if (g_strcmp0 (object, str) == 0) {
 				needed = FALSE;
@@ -407,7 +385,6 @@ update_property_value (const gchar      *ontology_path,
 				}
 			}
 
-			g_free (str);
 		} else {
 			if (object && (g_strcmp0 (object, "false") == 0)) {
 				needed = FALSE;
@@ -416,8 +393,8 @@ update_property_value (const gchar      *ontology_path,
 			}
 		}
 		g_free (query);
-		if (result_set) {
-			g_object_unref (result_set);
+		if (cursor) {
+			g_object_unref (cursor);
 		}
 	} else {
 		needed = FALSE;
@@ -447,20 +424,21 @@ check_range_conversion_is_allowed (const gchar  *ontology_path,
                                    const gchar  *object,
                                    GError      **error)
 {
-	TrackerDBResultSet *result_set;
+	TrackerDBCursor *cursor;
 	gchar *query;
 
 	query = g_strdup_printf ("SELECT ?old_value WHERE { "
 	                           "<%s> rdfs:range ?old_value "
 	                         "}", subject);
 
-	result_set = tracker_data_query_sparql (query, NULL);
+	cursor = tracker_data_query_sparql_cursor (query, NULL);
 
 	g_free (query);
 
-	if (result_set) {
-		gchar *str = NULL;
-		tracker_db_result_set_get (result_set, 0, &str, -1);
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		const gchar *str;
+
+		str = tracker_db_cursor_get_string (cursor, 0, NULL);
 
 		if (g_strcmp0 (object, str) != 0) {
 			if (!is_allowed_conversion (str, object, allowed_range_conversions)) {
@@ -472,11 +450,10 @@ check_range_conversion_is_allowed (const gchar  *ontology_path,
 				                                    error);
 			}
 		}
-		g_free (str);
 	}
 
-	if (result_set) {
-		g_object_unref (result_set);
+	if (cursor) {
+		g_object_unref (cursor);
 	}
 }
 
@@ -1958,7 +1935,6 @@ db_get_static_data (TrackerDBInterface *iface)
 {
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor = NULL;
-	TrackerDBResultSet *result_set;
 	TrackerClass **classes;
 	guint n_classes, i;
 	GError *error = NULL;
@@ -2101,10 +2077,13 @@ db_get_static_data (TrackerDBInterface *iface)
 					g_warning ("%s", error->message);
 					g_clear_error (&error);
 				} else {
-					result_set = tracker_db_statement_execute (stmt, NULL);
-					tracker_db_result_set_get (result_set, 0, &count, -1);
+					TrackerDBCursor *stat_cursor;
+
+					stat_cursor = tracker_db_statement_start_cursor (stmt, NULL);
+					tracker_db_cursor_iter_next (stat_cursor, NULL, NULL);
+					count = tracker_db_cursor_get_int (stat_cursor, 0);
 					tracker_class_set_count (class, count);
-					g_object_unref (result_set);
+					g_object_unref (stat_cursor);
 					g_object_unref (stmt);
 				}
 			}

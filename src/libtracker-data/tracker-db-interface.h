@@ -54,13 +54,6 @@ G_BEGIN_DECLS
 #define TRACKER_IS_DB_CURSOR_CLASS(c)       (G_TYPE_CHECK_CLASS_TYPE ((o),      TRACKER_TYPE_DB_CURSOR))
 #define TRACKER_DB_CURSOR_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TRACKER_TYPE_DB_CURSOR, TrackerDBCursorClass))
 
-#define TRACKER_TYPE_DB_RESULT_SET          (tracker_db_result_set_get_type ())
-#define TRACKER_DB_RESULT_SET(o)            (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_RESULT_SET, TrackerDBResultSet))
-#define TRACKER_DB_RESULT_SET_CLASS(c)      (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_RESULT_SET, TrackerDBResultSetClass))
-#define TRACKER_IS_DB_RESULT_SET(o)         (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DB_RESULT_SET))
-#define TRACKER_IS_DB_RESULT_SET_CLASS(c)   (G_TYPE_CHECK_CLASS_TYPE ((o),    TRACKER_TYPE_DB_RESULT_SET))
-#define TRACKER_DB_RESULT_SET_GET_CLASS(o)  (G_TYPE_INSTANCE_GET_CLASS ((o),  TRACKER_TYPE_DB_RESULT_SET, TrackerDBResultSetClass))
-
 #define TRACKER_DB_INTERFACE_ERROR          (tracker_db_interface_error_quark ())
 
 typedef void (*TrackerBusyCallback)      (const gchar *status,
@@ -83,18 +76,14 @@ typedef struct TrackerDBInterface      TrackerDBInterface;
 typedef struct TrackerDBInterfaceClass TrackerDBInterfaceClass;
 typedef struct TrackerDBStatement      TrackerDBStatement;
 typedef struct TrackerDBStatementClass TrackerDBStatementClass;
-typedef struct TrackerDBResultSet      TrackerDBResultSet;
-typedef struct TrackerDBResultSetClass TrackerDBResultSetClass;
 typedef struct TrackerDBCursor         TrackerDBCursor;
 typedef struct TrackerDBCursorClass    TrackerDBCursorClass;
-typedef struct TrackerDBResultSetPrivate TrackerDBResultSetPrivate;
 
 GQuark                  tracker_db_interface_error_quark             (void);
 
 GType                   tracker_db_interface_get_type                (void);
 GType                   tracker_db_statement_get_type                (void);
 GType                   tracker_db_cursor_get_type                   (void);
-GType                   tracker_db_result_set_get_type               (void);
 
 void                    tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_interface,
                                                                       TrackerDBStatementCacheType cache_type,
@@ -106,11 +95,11 @@ TrackerDBStatement *    tracker_db_interface_create_statement        (TrackerDBI
                                                                       GError                     **error,
                                                                       const gchar                 *query,
                                                                       ...) G_GNUC_PRINTF (4, 5);
-TrackerDBResultSet *    tracker_db_interface_execute_vquery          (TrackerDBInterface          *interface,
+void                    tracker_db_interface_execute_vquery          (TrackerDBInterface          *interface,
                                                                       GError                     **error,
                                                                       const gchar                 *query,
                                                                       va_list                      args);
-TrackerDBResultSet *    tracker_db_interface_execute_query           (TrackerDBInterface          *interface,
+void                    tracker_db_interface_execute_query           (TrackerDBInterface          *interface,
                                                                       GError                     **error,
                                                                       const gchar                 *query,
                                                                        ...) G_GNUC_PRINTF (3, 4);
@@ -128,7 +117,7 @@ void                    tracker_db_statement_bind_null               (TrackerDBS
 void                    tracker_db_statement_bind_text               (TrackerDBStatement         *stmt,
                                                                       int                         index,
                                                                       const gchar                *value);
-TrackerDBResultSet *    tracker_db_statement_execute                 (TrackerDBStatement         *stmt,
+void                    tracker_db_statement_execute                 (TrackerDBStatement         *stmt,
                                                                       GError                    **error);
 TrackerDBCursor *       tracker_db_statement_start_cursor            (TrackerDBStatement         *stmt,
                                                                       GError                    **error);
@@ -143,24 +132,6 @@ void                    tracker_db_interface_set_busy_handler        (TrackerDBI
                                                                       TrackerBusyCallback         busy_callback,
                                                                       const gchar                *busy_status,
                                                                       gpointer                    busy_user_data);
-
-/* Semi private TrackerDBResultSet functions */
-TrackerDBResultSet *    _tracker_db_result_set_new                   (guint                       cols);
-void                    _tracker_db_result_set_append                (TrackerDBResultSet         *result_set);
-void                    _tracker_db_result_set_set_value             (TrackerDBResultSet         *result_set,
-                                                                      guint                       column,
-                                                                      const GValue               *value);
-void                    _tracker_db_result_set_get_value             (TrackerDBResultSet         *result_set,
-                                                                      guint                       column,
-                                                                      GValue                     *value);
-
-/* Functions to deal with the resultset */
-void                    tracker_db_result_set_get                    (TrackerDBResultSet         *result_set,
-                                                                      ...);
-void                    tracker_db_result_set_rewind                 (TrackerDBResultSet         *result_set);
-gboolean                tracker_db_result_set_iter_next              (TrackerDBResultSet         *result_set);
-guint                   tracker_db_result_set_get_n_columns          (TrackerDBResultSet         *result_set);
-guint                   tracker_db_result_set_get_n_rows             (TrackerDBResultSet         *result_set);
 
 /* Functions to deal with a cursor */
 void                    tracker_db_cursor_rewind                     (TrackerDBCursor            *cursor);
