@@ -1780,7 +1780,7 @@ cache_delete_resource_type (TrackerClass *class,
 	}
 
 	if (error) {
-		g_warning ("%s", error->message);
+		g_warning ("Could not delete cache resource (selecting subclasses): %s", error->message);
 		g_error_free (error);
 		error = NULL;
 	}
@@ -1870,7 +1870,7 @@ cache_delete_resource_type (TrackerClass *class,
 		}
 
 		if (error) {
-			g_warning ("%s", error->message);
+			g_warning ("Could not delete cache resource: %s", error->message);
 			g_error_free (error);
 			error = NULL;
 		}
