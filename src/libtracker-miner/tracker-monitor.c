@@ -83,6 +83,7 @@ typedef struct {
 	gboolean  is_directory;
 	GTimeVal  start_time;
 	guint32   event_type;
+	gboolean  expirable;
 } EventData;
 
 enum {
@@ -477,6 +478,8 @@ event_data_new (GFile    *file,
 	event->is_directory = is_directory;
 	event->start_time = now;
 	event->event_type = event_type;
+	/* Always expirable when created */
+	event->expirable = TRUE;
 
 	return event;
 }
@@ -717,7 +720,11 @@ event_pairs_process_in_ht (TrackerMonitor *monitor,
 		EventData *event_data = value;
 		glong seconds;
 
-		/* Event didn't expire yet, keep it */
+		/* If event is not yet expirable, keep it */
+		if (!event_data->expirable)
+			continue;
+
+		/* If event is expirable, but didn't expire yet, keep it */
 		seconds = now->tv_sec - event_data->start_time.tv_sec;
 		if (seconds < 2)
 			continue;
@@ -855,6 +862,7 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 			/* If use_changed_event, treat as an ATTRIBUTE_CHANGED. Otherwise,
 			 * assume there will be a CHANGES_DONE_HINT afterwards... */
 			if (!monitor->private->use_changed_event) {
+				/* Process the CHANGED event knowing that there will be a CHANGES_DONE_HINT */
 				if (previous_update_event_data) {
 					if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED) {
 						/* If there is a previous ATTRIBUTE_CHANGED still not notified,
@@ -862,9 +870,10 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 						 */
 						g_hash_table_remove (monitor->private->pre_update, file);
 					} else if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_CREATED) {
-						/* Update the start_time of the original CREATED event that we're refreshing until
-						 * there is a CHANGES_DONE_HINT. */
-						g_get_current_time (&(previous_update_event_data->start_time));
+						/* If we got a CHANGED event before the CREATED was expired,
+						 * set the CREATED as not expirable, as we expect a CHANGES_DONE_HINT
+						 * afterwards. */
+						previous_update_event_data->expirable = FALSE;
 					}
 				}
 			} else {
@@ -878,10 +887,16 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 					                                     NULL,
 					                                     FALSE,
 					                                     G_FILE_MONITOR_EVENT_CHANGED));
+				} else if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED) {
+					/* Replace the previous ATTRIBUTE_CHANGED event with a CHANGED one. */
+					g_hash_table_replace (monitor->private->pre_update,
+					                      g_object_ref (file),
+					                      event_data_new (file,
+					                                      NULL,
+					                                      FALSE,
+					                                      G_FILE_MONITOR_EVENT_CHANGED));
 				} else {
-					/* Update the start_time of the previous one.
-					 * This could be the original CREATED event that we're refreshing until
-					 * there is a CHANGES_DONE_HINT. */
+					/* Update the start_time of the previous one */
 					g_get_current_time (&(previous_update_event_data->start_time));
 				}
 			}
@@ -901,11 +916,14 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 				                                     NULL,
 				                                     FALSE,
 				                                     G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED));
-			} else {
-				/* Update the start_time of the previous one.
-				 * This could be the original CREATED event that we're refreshing until
-				 * there is a CHANGES_DONE_HINT. */
+			} else if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED) {
+				/* Update the start_time of the previous one, if it is an ATTRIBUTE_CHANGED
+				 * event. */
 				g_get_current_time (&(previous_update_event_data->start_time));
+
+				/* No need to update event time in CREATED, as these events
+				 * only expire when there is a CHANGES_DONE_HINT.
+				 */
 			}
 
 			break;
@@ -919,8 +937,9 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 
 #if ENABLE_FILE_BLACKLISTING
 			if (previous_update_event_data) {
-				/* Refresh event timer */
+				/* Refresh event timer, and make sure the event is now set as expirable */
 				g_get_current_time (&(previous_update_event_data->start_time));
+				previous_update_event_data->expirable = TRUE;
 			} else {
 				/* Insert new update item in cache */
 				g_hash_table_insert (monitor->private->pre_update,
