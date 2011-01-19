@@ -23,9 +23,6 @@
 #ifndef __TRACKER_EVOLUTION_PLUGIN_H__
 #define __TRACKER_EVOLUTION_PLUGIN_H__
 
-#include <dbus/dbus-glib-bindings.h>
-#include <dbus/dbus-glib-lowlevel.h>
-
 #include <libtracker-miner/tracker-miner.h>
 
 #define TRACKER_TYPE_EVOLUTION_PLUGIN          (tracker_evolution_plugin_get_type())
