@@ -847,14 +847,14 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		}
 
 		case G_FILE_MONITOR_EVENT_CHANGED: {
+			EventData *previous_update_event_data;
+
+			/* Get previous event data, if any */
+			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
+
 			/* If use_changed_event, treat as an ATTRIBUTE_CHANGED. Otherwise,
 			 * assume there will be a CHANGES_DONE_HINT afterwards... */
 			if (!monitor->private->use_changed_event) {
-				EventData *previous_update_event_data;
-
-				/* Get previous event data, if any */
-				previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
-
 				if (previous_update_event_data) {
 					if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED) {
 						/* If there is a previous ATTRIBUTE_CHANGED still not notified,
@@ -867,9 +867,25 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 						g_get_current_time (&(previous_update_event_data->start_time));
 					}
 				}
-
-				break;
-			} /* Else, Fall through and treat as an ATTRIBUTE_CHANGED */
+			} else {
+				/* For FAM-based monitors, there won't be a CHANGES_DONE_HINT, so use the CHANGED
+				 * events. */
+				if (!previous_update_event_data) {
+					/* If no previous one, insert it */
+					g_hash_table_insert (monitor->private->pre_update,
+					                     g_object_ref (file),
+					                     event_data_new (file,
+					                                     NULL,
+					                                     FALSE,
+					                                     G_FILE_MONITOR_EVENT_CHANGED));
+				} else {
+					/* Update the start_time of the previous one.
+					 * This could be the original CREATED event that we're refreshing until
+					 * there is a CHANGES_DONE_HINT. */
+					g_get_current_time (&(previous_update_event_data->start_time));
+				}
+			}
+			break;
 		}
 
 		case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED: {
@@ -881,7 +897,10 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 				/* If no previous one, insert it */
 				g_hash_table_insert (monitor->private->pre_update,
 				                     g_object_ref (file),
-				                     event_data_new (file, NULL, FALSE, event_type));
+				                     event_data_new (file,
+				                                     NULL,
+				                                     FALSE,
+				                                     G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED));
 			} else {
 				/* Update the start_time of the previous one.
 				 * This could be the original CREATED event that we're refreshing until
