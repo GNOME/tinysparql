@@ -374,7 +374,7 @@ extract_flac (const gchar          *uri,
 	/* FIXME: Trackgain/Trackpeakgain: commented out in vorbis */
 
 	add_tuple (metadata, "nie:comment", fd.comment);
-	tracker_guarantee_date_from_file_mtime (metadata, "nie:contentCreated", fd.date, uri);
+	add_tuple (metadata, "nie:contentCreated", fd.date);
 	add_tuple (metadata, "nfo:genre", fd.genre);
 	add_tuple (metadata, "nie:plainTextContent", fd.lyrics);
 	add_tuple (metadata, "nie:copyright", fd.copyright);

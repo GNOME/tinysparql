@@ -2306,10 +2306,10 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_object_iri (metadata, md.album_uri);
 	}
 
-	tracker_guarantee_date_from_file_mtime (metadata,
-	                                        "nie:contentCreated",
-	                                        md.recording_time,
-	                                        uri);
+	if (md.recording_time) {
+		tracker_sparql_builder_predicate (metadata, "nie:contentCreated");
+		tracker_sparql_builder_object_unvalidated (metadata, md.recording_time);
+	}
 
 	if (md.genre) {
 		tracker_sparql_builder_predicate (metadata, "nfo:genre");
