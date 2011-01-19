@@ -162,6 +162,7 @@ static GStaticPrivate        interface_data_key = G_STATIC_PRIVATE_INIT;
 
 /* mutex used by singleton connection in libtracker-direct, not used by tracker-store */
 static GStaticMutex          global_mutex = G_STATIC_MUTEX_INIT;
+static TrackerDBInterface   *global_iface;
 
 static const gchar *
 location_to_directory (TrackerDBLocation location)
@@ -1034,6 +1035,8 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	if (flags & TRACKER_DB_MANAGER_READONLY) {
 		resources_iface = tracker_db_manager_get_db_interfaces_ro (1,
 		                                                           TRACKER_DB_METADATA);
+		/* libtracker-direct does not use per-thread interfaces */
+		global_iface = resources_iface;
 	} else {
 		resources_iface = tracker_db_manager_get_db_interfaces (1,
 		                                                        TRACKER_DB_METADATA);
@@ -1050,7 +1053,9 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	s_cache_size = select_cache_size;
 	u_cache_size = update_cache_size;
 
-	g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
+	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+		g_static_private_set (&interface_data_key, resources_iface, (GDestroyNotify) g_object_unref);
+	}
 
 	return TRUE;
 }
@@ -1083,6 +1088,12 @@ tracker_db_manager_shutdown (void)
 	g_free (sys_tmp_dir);
 	sys_tmp_dir = NULL;
 	g_free (sql_dir);
+
+	if (global_iface) {
+		/* libtracker-direct */
+		g_object_unref (global_iface);
+		global_iface = NULL;
+	}
 
 	/* shutdown db interfaces in all threads */
 	g_static_private_free (&interface_data_key);
@@ -1501,6 +1512,12 @@ tracker_db_manager_get_db_interface (void)
 	TrackerDBInterface *interface;
 
 	g_return_val_if_fail (initialized != FALSE, NULL);
+
+	if (global_iface) {
+		/* libtracker-direct */
+		return global_iface;
+	}
+
 	interface = g_static_private_get (&interface_data_key);
 
 	/* Ensure the interface is there */
