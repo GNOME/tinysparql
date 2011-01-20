@@ -34,13 +34,23 @@ from common.utils import configuration as cfg
 import unittest2 as ut
 from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest, APPLICATIONS_TMP_DIR, path, uri, slowcopy
 
+MINER_FS_IDLE_TIMEOUT = 5
+
+# Test image
 TEST_IMAGE = "test-image-1.jpg"
 SRC_IMAGE_DIR = os.path.join (cfg.DATADIR,
                               "tracker-tests",
                               "data",
                               "Images")
 SRC_IMAGE_PATH = os.path.join (SRC_IMAGE_DIR, TEST_IMAGE)
-MINER_FS_IDLE_TIMEOUT = 5
+
+# Test video
+TEST_VIDEO = "test-video.mp4"
+SRC_VIDEO_DIR = os.path.join (cfg.DATADIR,
+                              "tracker-tests",
+                              "data",
+                              "Video")
+SRC_VIDEO_PATH = os.path.join (SRC_VIDEO_DIR, TEST_VIDEO)
 
 
 class TrackerApplicationTests (CommonTrackerApplicationTest):
@@ -52,7 +62,7 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         return len (self.tracker.query (select))
 
 
-    def test_camera_insert_01 (self):
+    def test_camera_picture_01 (self):
         """
         Camera simulation:
 
@@ -62,7 +72,7 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         4. Ensure no duplicates are found
         """
 
-        fileurn = "tracker://test_camera_insert_01/" + str(random.randint (0,100))
+        fileurn = "tracker://test_camera_picture_01/" + str(random.randint (0,100))
         filepath = path (TEST_IMAGE)
         fileuri = uri (TEST_IMAGE)
 
@@ -95,7 +105,7 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         self.tracker.update (insert)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
-        # Copy the image to the dest path, simulating the camera writting
+        # Copy the image to the dest path, simulating the camera writing
         slowcopy (SRC_IMAGE_PATH, filepath, 1024)
         assert os.path.exists (filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
@@ -108,7 +118,7 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
 
 
-    def test_camera_insert_02 (self):
+    def test_camera_picture_02_geolocation (self):
         """
         Camera simulation:
 
@@ -119,12 +129,12 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         4. Ensure no duplicates are found
         """
 
-        fileurn = "tracker://test_camera_insert_02/" + str(random.randint (0,100))
+        fileurn = "tracker://test_camera_picture_02/" + str(random.randint (0,100))
         filepath = path (TEST_IMAGE)
         fileuri = uri (TEST_IMAGE)
 
-        geolocationurn = "tracker://test_camera_insert_02_geolocation/" + str(random.randint (0,100))
-        postaladdressurn = "tracker://test_camera_insert_02_postaladdress/" + str(random.randint (0,100))
+        geolocationurn = "tracker://test_camera_picture_02_geolocation/" + str(random.randint (0,100))
+        postaladdressurn = "tracker://test_camera_picture_02_postaladdress/" + str(random.randint (0,100))
 
         print "Storing new image in '%s'..." % (filepath)
 
@@ -156,8 +166,144 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
 
-        # Copy the image to the dest path, simulating the camera writting
+        # Copy the image to the dest path, simulating the camera writing
         slowcopy (SRC_IMAGE_PATH, filepath, 1024)
+        assert os.path.exists (filepath)
+        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
+        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+
+        # Add slo:location to the new resource...
+        location_insert = """
+        INSERT { <%s> a             nco:PostalAddress ;
+                      nco:country  \"SPAIN\" ;
+                      nco:locality \"Tres Cantos\"
+        }
+
+        INSERT { <%s> a                 slo:GeoLocation ;
+                      slo:postalAddress <%s>
+        }
+
+        INSERT { <%s> a            rdfs:Resource ;
+                      slo:location <%s>
+        }
+        """ % (postaladdressurn, geolocationurn, postaladdressurn, fileurn, geolocationurn)
+        self.tracker.update (location_insert)
+        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
+        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+
+        # Clean the new file so the test directory is as before
+        print "Remove and wait"
+        os.remove (filepath)
+        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
+        self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
+
+
+    def test_camera_video_01 (self):
+        """
+        Camera video recording simulation:
+
+        1. Create resource in the store for the new file
+        2. Write the file
+        3. Wait for miner-fs to index it
+        4. Ensure no duplicates are found
+        """
+
+        fileurn = "tracker://test_camera_video_01/" + str(random.randint (0,100))
+        filepath = path (TEST_VIDEO)
+        fileuri = uri (TEST_VIDEO)
+
+        print "Storing new video in '%s'..." % (filepath)
+
+        # Insert new resource in the store, including nie:mimeType and nie:url
+        insert = """
+        INSERT { <%s> a nie:InformationElement,
+                        nie:DataObject,
+                        nfo:Video,
+                        nfo:Media,
+                        nfo:Visual,
+                        nmm:Video
+        }
+
+        DELETE { <%s> nie:mimeType ?_1 }
+        WHERE { <%s> nie:mimeType ?_1 }
+
+        INSERT { <%s> a            rdfs:Resource ;
+                      nie:mimeType \"video/mp4\"
+        }
+
+        DELETE { <%s> nie:url ?_2 }
+        WHERE { <%s> nie:url ?_2 }
+
+        INSERT { <%s> a       rdfs:Resource ;
+                      nie:url \"%s\"
+        }
+        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
+        self.tracker.update (insert)
+        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+
+        # Copy the video to the dest path, simulating the camera writing
+        slowcopy (SRC_VIDEO_PATH, filepath, 1024)
+        assert os.path.exists (filepath)
+        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
+        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+
+        # Clean the new file so the test directory is as before
+        print "Remove and wait"
+        os.remove (filepath)
+        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
+        self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
+
+
+    def test_camera_video_02_geolocation (self):
+        """
+        Camera simulation:
+
+        1. Create resource in the store for the new file
+        2. Set nlo:location
+        2. Write the file
+        3. Wait for miner-fs to index it
+        4. Ensure no duplicates are found
+        """
+
+        fileurn = "tracker://test_camera_video_02/" + str(random.randint (0,100))
+        filepath = path (TEST_IMAGE)
+        fileuri = uri (TEST_IMAGE)
+
+        geolocationurn = "tracker://test_camera_video_02_geolocation/" + str(random.randint (0,100))
+        postaladdressurn = "tracker://test_camera_video_02_postaladdress/" + str(random.randint (0,100))
+
+        print "Storing new video in '%s'..." % (filepath)
+
+        # Insert new resource in the store, including nie:mimeType and nie:url
+        insert = """
+        INSERT { <%s> a nie:InformationElement,
+                        nie:DataObject,
+                        nfo:Video,
+                        nfo:Media,
+                        nfo:Visual,
+                        nmm:Video
+        }
+
+        DELETE { <%s> nie:mimeType ?_1 }
+        WHERE { <%s> nie:mimeType ?_1 }
+
+        INSERT { <%s> a            rdfs:Resource ;
+                      nie:mimeType \"video/mp4\"
+        }
+
+        DELETE { <%s> nie:url ?_2 }
+        WHERE { <%s> nie:url ?_2 }
+
+        INSERT { <%s> a       rdfs:Resource ;
+                      nie:url \"%s\"
+        }
+        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
+        self.tracker.update (insert)
+        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+
+
+        # Copy the video to the dest path, simulating the camera writing
+        slowcopy (SRC_VIDEO_PATH, filepath, 1024)
         assert os.path.exists (filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
