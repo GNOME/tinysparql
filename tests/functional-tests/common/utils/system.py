@@ -12,7 +12,7 @@ import time
 # Don't use /tmp (not enough space there)
 
 TEST_ENV_VARS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home"),
-                   "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home")} 
+                   "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home")}
 EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home", "tracker"),
               os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home", "tracker")]
 
@@ -48,7 +48,7 @@ class TrackerStoreLifeCycle ():
                                                          path="/org/freedesktop/DBus",
                                                          dbus_interface="org.freedesktop.DBus")
         self.store_proc = self.__start_tracker_store ()
-        
+
         # It should step out of this loop when the miner is visible in DBus
         self.loop.run ()
 
@@ -59,7 +59,7 @@ class TrackerStoreLifeCycle ():
         self.status_iface.Wait ()
         print "[store] ready."
 
-        
+
     def stop (self):
         self.__stop_tracker_store ()
         # It should step out of this loop when the miner disappear from the bus
@@ -113,7 +113,7 @@ class TrackerMinerFsLifeCycle():
     """
     def __init__ (self):
         self.timeout_id = 0
-    
+
     def start (self):
         """
         call this method to start and instance of miner-fs. It will return when the miner is 'Idle'
@@ -134,7 +134,7 @@ class TrackerMinerFsLifeCycle():
                                                          path="/org/freedesktop/DBus",
                                                          dbus_interface="org.freedesktop.DBus")
         self.__start_tracker_miner_fs ()
-        
+
         # It should step out of this loop when the miner is visible in DBus
         self.loop.run ()
 
@@ -146,7 +146,7 @@ class TrackerMinerFsLifeCycle():
         self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
         self.loop.run ()
 
-        
+
     def stop (self):
         self.__stop_tracker_miner_fs ()
         # It should step out of this loop when the miner disappear from the bus
@@ -205,7 +205,7 @@ class TrackerWritebackLifeCycle():
     """
     def __init__ (self):
         self.timeout_id = 0
-    
+
     def start (self):
         """
         call this method to start and instance of writeback.
@@ -230,9 +230,9 @@ class TrackerWritebackLifeCycle():
         # It should step out of this loop when the writeback is visible in DBus
         self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
         self.loop.run ()
-        
+
     def stop (self):
-        assert self.process 
+        assert self.process
         self.process.kill ()
 
     def __name_owner_changed_cb (self, name, old_owner, new_owner):
@@ -242,7 +242,7 @@ class TrackerWritebackLifeCycle():
                 glib.source_remove (self.timeout_id)
                 self.timeout_id = 0
             self.loop.quit ()
-            
+
     def __timeout_on_idle (self):
         print "Timeout... asumming idle"
         self.loop.quit ()
@@ -269,7 +269,7 @@ class TrackerSystemAbstraction:
 
         for directory in EXTRA_DIRS:
             self.__recreate_directory (directory)
-            
+
         if confdir :
             self.__recreate_directory (XDG_CONFIG_HOME_DIR)
             shutil.copytree (os.path.join (confdir, "tracker"),
@@ -289,7 +289,7 @@ class TrackerSystemAbstraction:
         for var, directory in TEST_ENV_VARS.iteritems ():
             if os.environ.has_key (var):
                 del os.environ [var]
-                
+
         if (os.environ.has_key ("XDG_CONFIG_HOME")):
             del os.environ ["XDG_CONFIG_HOME"]
 
@@ -303,7 +303,7 @@ class TrackerSystemAbstraction:
         """
         self.__stop_tracker_processes ()
         self.set_up_environment (confdir, ontodir)
-        
+
         self.store = TrackerStoreLifeCycle ()
         self.store.start ()
 
@@ -349,7 +349,7 @@ class TrackerSystemAbstraction:
         db_location = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker")
         shutil.rmtree (db_location)
         os.mkdir (db_location)
-        
+
 
     def tracker_store_testing_stop (self):
         """
@@ -388,7 +388,7 @@ class TrackerSystemAbstraction:
         """
         self.miner_fs.stop ()
         self.store.stop ()
-        
+
         self.__stop_tracker_processes ()
         self.unset_up_environment ()
 
@@ -403,7 +403,15 @@ class TrackerSystemAbstraction:
         # Tracker write must have been started before
         self.writeback.stop ()
         self.tracker_miner_fs_testing_stop ()
-        
+
+    def tracker_all_testing_start (self, confdir=None):
+        # This will start all miner-fs, store and writeback
+        self.tracker_writeback_testing_start (confdir)
+
+    def tracker_all_testing_stop (self):
+        # This will stop all miner-fs, store and writeback
+        self.tracker_writeback_testing_stop ()
+
     #
     # Private API
     #
@@ -435,7 +443,7 @@ if __name__ == "__main__":
     print "   started, waiting 5 sec. to stop it"
     glib.timeout_add_seconds (5, destroy_the_world, a)
     gtk.main ()
-    
+
     print "-- Starting miner-fs --"
     b = TrackerMinerFsLifeCycle ()
     b.start ()
