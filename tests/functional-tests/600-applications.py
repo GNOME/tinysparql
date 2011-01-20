@@ -181,18 +181,6 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
-        query = """
-        SELECT ?locality ?country
-        WHERE { ?o a            nie:DataObject ;
-                   nie:url      \"%s\" ;
-                   slo:location ?u .
-                ?u nco:country  ?country ;
-                   nco:locality ?locality }
-        """ % fileuri
-        result = self.tracker.query (query)
-        print "RESULTS: %s" % (result)
-
-
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
