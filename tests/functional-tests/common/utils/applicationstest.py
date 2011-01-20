@@ -77,7 +77,7 @@ class CommonTrackerApplicationTest (ut.TestCase):
                                     "test-configurations",
                                     "applications")
 
-        self.system.tracker_miner_fs_testing_start (confdir)
+        self.system.tracker_all_testing_start (confdir)
 
         # Returns when ready
         self.tracker = StoreHelper ()
@@ -90,7 +90,7 @@ class CommonTrackerApplicationTest (ut.TestCase):
     @classmethod
     def tearDownClass (self):
         #print "Stopping the daemon in test mode (Doing nothing now)"
-        self.system.tracker_miner_fs_testing_stop ()
+        self.system.tracker_all_testing_stop ()
 
         # Remove monitored directory
         if (os.path.exists (APPLICATIONS_TMP_DIR)):
