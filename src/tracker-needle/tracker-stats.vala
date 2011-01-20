@@ -20,7 +20,7 @@
 using Gtk;
 
 // Added to fix #error for GETTEXT_PACKAGE
-private const string b = Config.APPNAME;
+private const string b = Config.PACKAGE_NAME;
 
 [DBus (name = "org.freedesktop.Tracker1.Statistics")]
 interface Statistics : DBusProxy {

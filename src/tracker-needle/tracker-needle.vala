@@ -66,6 +66,22 @@ public class Tracker.Needle {
 		window.show ();
 	}
 
+	public void set_search (string[]? args) {
+		if (args != null) {
+			string text = "";
+
+			foreach (string s in args) {
+				if (text.length > 1)
+					text += " ";
+
+				text += s;
+			}
+
+			debug ("Setting search criteria to: '%s'\n", text);
+			search.set_text (text);
+		}
+	}
+
 	private void setup_ui () {
 		var builder = new Gtk.Builder ();
 
@@ -707,7 +723,58 @@ public class Tracker.Needle {
 	}
 }
 
+static bool print_version = false;
+[CCode (array_length = false, array_null_terminated = true)]
+static string[] search_criteria = null;
+
+const OptionEntry[] options = {
+	{ "version",
+	  'V',
+	  0,
+	  OptionArg.NONE,
+	  ref print_version,
+	  N_("Print version"),
+	  null },
+	{ "", // G_OPTION_REMAINING
+	  0,
+	  0,
+	  OptionArg.STRING_ARRAY,
+	  ref search_criteria,
+	  N_("[SEARCH-CRITERIA]"),
+	  N_("[SEARCH-CRITERIA]") },
+	{ null }
+};
+
 static int main (string[] args) {
+	OptionContext context = new OptionContext (_("Desktop Search user interface using Tracker"));
+
+	try {
+		context.set_help_enabled (true);
+		context.add_main_entries (options, null);
+		context.add_group (Gtk.get_option_group (true));
+		context.parse (ref args);
+	} catch (Error e) {
+		printerr (e.message + "\n\n");
+		printerr (context.get_help (true, null));
+		return 1;
+	}
+
+	if (print_version) {
+		string about = "";
+		string license = "";
+
+		about   += "Tracker " + Config.PACKAGE_VERSION + "\n";
+
+		license += "This program is free software and comes without any warranty.\n";
+		license += "It is licensed under version 2 or later of the General Public ";
+		license += "License which can be viewed at:\n";
+		license += "\n";
+		license += "  http://www.gnu.org/licenses/gpl.txt\n";
+
+		print ("\n" + about + "\n" + license + "\n");
+		return 0;
+	}
+
 	Gtk.init (ref args);
 
 	Intl.bindtextdomain (Config.GETTEXT_PACKAGE, Config.LOCALEDIR);
@@ -716,6 +783,9 @@ static int main (string[] args) {
 
 	Tracker.Needle n = new Tracker.Needle ();
 	n.show();
+
+	n.set_search (search_criteria);
+
 	Gtk.main ();
 
 	return 0;

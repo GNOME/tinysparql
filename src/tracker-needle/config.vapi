@@ -22,10 +22,10 @@
 namespace Config
 {
 	public const string GETTEXT_PACKAGE;
-	public const string APPNAME;
+	public const string PACKAGE_NAME;
+	public const string PACKAGE_VERSION;
 	public const string APP_PATH;
 	public const string LOCALEDIR;
-	public const string APP_VERSION;
 }
 
 
