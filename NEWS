@@ -1,3 +1,52 @@
+NEW in 0.9.35 - 2011-01-20
+==========================
+
+The changes are:
+
+  * Require: Vala >= 0.11.4 for GDBus sender support and bug fixes
+  * build: All D-Bus use has been ported to GDBus (except libtracker-client and tracker-writeback)
+  * Fixes: NB#220373, nie:contentCreated is set for music files that do not have the year set in metadatas
+  * Fixes: NB#218092, [REG][Performance] Conversation view opening time is above performance target value
+  * Fixes: NB#218332, The song duration is always shown as 0.00 in all views, except the player view
+  * Fixes: NB#217636, Not able to delete contact using DELETE {<contact:556> ?p ?v} WHERE {<contact:556> ?p ?v}
+  * Fixes: NB#218125, Inconsistency between nco:photo and nco:video
+  * Fixes: NB#219309, tracker-store reads /proc/mounts 6 times & does 6*13 stat() calls when swiping to next image in gallery
+  * Fixes: NB#216582, Tracker-store does not handle slo:location tags inserted into virtual file
+  * Fixes: GB#639542, tracker-needle doesn't support any argument
+  * Fixes: GB#622918, Migrate from dbus-glib to glib's GDBus
+  * Fixes: GB#639918, Since merge of gdbus branch, build process is broken in tracker-evolution-plugin.
+  * Fixes: GB#639556, Tracker find only folders
+  * Fixes: GB#639543, Ctrl+W should close the window
+  * Fixes: GB#639552, Give needle window a name that means something
+  * SPARQL: Add support for IF function
+  * Ontology: Added nmo:lastSuccessfulMessageDate property
+  * Ontology: Added domain index on nmo:sentDate to nmo:Call
+  * Ontology: Fixed NCO cyclic dependency with NFO
+  * Ontology: Fixed range of nco:photo and nco:video, fixed maxCardinality of nco:video
+  * Ontology: Added county and district to postal address
+  * Ontology: Draft the NCO documentation page
+  * libtracker-data: Remove unused TrackerDBResultSet
+  * libtracker-common: Use statfs instead of statvfs on Linux
+  * libtracker-miner: Log when an event is ignored because the file is locked
+  * tracker-writeback: unlock file after 1s of update, not 3s
+  * tracker-writeback: xmp: Don't use XMP_CLOSE_SAFEUPDATE
+  * tracker-extract: gupnp-dlna: Update to gupnp-dlna 0.5 API
+  * tracker-extract: mp3: Fixed bitrate table and sample rate table usage
+  * tracker-extract: mp3: Cope with sample_rate = 0
+  * tracker-needle: Support command line arguments -V and search criteria
+  * tracker-needle: List folders in first/initial view
+  * tracker-needle: Add Ctrl+W to close window
+  * tracker-needle: Use a meaningful window title "Desktop Search"
+
+Translations:
+
+  * Updated id: Andika Triwidada
+
+Notes:
+
+  None
+
+
 NEW in 0.9.34 - 2011-01-13
 ==========================
 
