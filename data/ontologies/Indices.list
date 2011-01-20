@@ -51,6 +51,7 @@
 * nmo:sentDate:
   - Used for sorting messages when displaying all messages (or rather the last N).
   - Secondary index for nmo:communicationChannel
+  - Domain index for nmo:Call used for linear call history.
 
 * nmo:conversation:
   - Used for retrieving all messages of a specific conversation.

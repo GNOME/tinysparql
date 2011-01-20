@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2010-10-05T10:17:00Z" .
+	nao:lastModified "2011-01-20T10:30:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -90,6 +90,7 @@ nmo:Call a rdfs:Class ;
 	rdfs:label "Call" ;
 	rdfs:comment "Phone call. Voice communication with the user with somebody else." ;
 	rdfs:subClassOf nmo:Message ;
+	tracker:domainIndex nmo:sentDate ;
 	tracker:notify true .
 
 # required for backward compatibility
