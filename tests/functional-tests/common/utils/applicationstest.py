@@ -45,11 +45,11 @@ def slowcopy_fd (src, dest, fdest, rate):
         buffer = fsrc.read (rate)
 
     fsrc.close ()
-    fdest.close ()
 
 def slowcopy (src, dest, rate):
     fdest = open (dest, 'wb')
     slowcopy_fd (src, dest, fdest, rate)
+    fdest.close ()
 
 
 class CommonTrackerApplicationTest (ut.TestCase):

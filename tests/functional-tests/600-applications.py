@@ -29,12 +29,15 @@ import random
 import string
 import datetime
 import shutil
+import fcntl
 
 from common.utils import configuration as cfg
 import unittest2 as ut
-from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest, APPLICATIONS_TMP_DIR, path, uri, slowcopy
+from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest, APPLICATIONS_TMP_DIR, path, uri, slowcopy, slowcopy_fd
 
 MINER_FS_IDLE_TIMEOUT = 5
+# Copy rate, 10KBps (1024b/100ms)
+SLOWCOPY_RATE = 1024
 
 # Test image
 TEST_IMAGE = "test-image-1.jpg"
@@ -105,15 +108,17 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         self.tracker.update (insert)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
-        # Copy the image to the dest path, simulating the camera writing
-        slowcopy (SRC_IMAGE_PATH, filepath, 1024)
+        # Copy the image to the dest path
+        slowcopy (SRC_IMAGE_PATH, filepath, SLOWCOPY_RATE)
         assert os.path.exists (filepath)
+        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
+        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
 
@@ -165,14 +170,17 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         self.tracker.update (insert)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
+        # FIRST, open the file for writing, and just write some garbage, to simulate that
+        # we already started recording the video...
+        fdest = open (filepath, 'wb')
+        # LOCK the file, as camera-ui seems to do it
+        fcntl.flock(fdest, fcntl.LOCK_EX)
 
-        # Copy the image to the dest path, simulating the camera writing
-        slowcopy (SRC_IMAGE_PATH, filepath, 1024)
-        assert os.path.exists (filepath)
-        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        fdest.write ("some garbage written here")
+        fdest.write ("to simulate we're recording something...")
+        fdest.seek (0)
 
-        # Add slo:location to the new resource...
+        # SECOND, set slo:location
         location_insert = """
         INSERT { <%s> a             nco:PostalAddress ;
                       nco:country  \"SPAIN\" ;
@@ -188,12 +196,21 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         }
         """ % (postaladdressurn, geolocationurn, postaladdressurn, fileurn, geolocationurn)
         self.tracker.update (location_insert)
+
+        #THIRD, start copying the image to the dest path
+        slowcopy_fd (SRC_IMAGE_PATH, filepath, fdest, SLOWCOPY_RATE)
+        fdest.close ()
+        assert os.path.exists (filepath)
+
+        # FOURTH, ensure we have only 1 resource
+        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
+        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
 
@@ -241,8 +258,8 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         self.tracker.update (insert)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
-        # Copy the video to the dest path, simulating the camera writing
-        slowcopy (SRC_VIDEO_PATH, filepath, 1024)
+        # Copy the image to the dest path
+        slowcopy (SRC_VIDEO_PATH, filepath, SLOWCOPY_RATE)
         assert os.path.exists (filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
@@ -250,6 +267,7 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
+        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
 
@@ -266,8 +284,8 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         """
 
         fileurn = "tracker://test_camera_video_02/" + str(random.randint (0,100))
-        filepath = path (TEST_IMAGE)
-        fileuri = uri (TEST_IMAGE)
+        filepath = path (TEST_VIDEO)
+        fileuri = uri (TEST_VIDEO)
 
         geolocationurn = "tracker://test_camera_video_02_geolocation/" + str(random.randint (0,100))
         postaladdressurn = "tracker://test_camera_video_02_postaladdress/" + str(random.randint (0,100))
@@ -301,14 +319,17 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         self.tracker.update (insert)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
+        # FIRST, open the file for writing, and just write some garbage, to simulate that
+        # we already started recording the video...
+        fdest = open (filepath, 'wb')
+        # LOCK the file, as camera-ui seems to do it
+        fcntl.flock(fdest, fcntl.LOCK_EX)
 
-        # Copy the video to the dest path, simulating the camera writing
-        slowcopy (SRC_VIDEO_PATH, filepath, 1024)
-        assert os.path.exists (filepath)
-        self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        fdest.write ("some garbage written here")
+        fdest.write ("to simulate we're recording something...")
+        fdest.seek (0)
 
-        # Add slo:location to the new resource...
+        # SECOND, set slo:location
         location_insert = """
         INSERT { <%s> a             nco:PostalAddress ;
                       nco:country  \"SPAIN\" ;
@@ -324,12 +345,21 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         }
         """ % (postaladdressurn, geolocationurn, postaladdressurn, fileurn, geolocationurn)
         self.tracker.update (location_insert)
+
+        #THIRD, start copying the image to the dest path
+        slowcopy_fd (SRC_VIDEO_PATH, filepath, fdest, SLOWCOPY_RATE)
+        fdest.close ()
+        assert os.path.exists (filepath)
+
+        # FOURTH, ensure we have only 1 resource
+        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
+        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
 
