@@ -203,6 +203,12 @@ NETWORK_MANAGER_REQUIRED=0.8
 # 3.7.0 for WAL
 SQLITE_REQUIRED=3.7.0
 
+# NOTE: dbus and dbus-glib-1 are only used now for libtracker-client
+# which is deprecated and tracker-writeback which will be refactored
+# shortly to use gdbus. The other place which requires dbus-glib-1 is
+# for HAL used in tracker-miner-fs if the alternative libraries are
+# not available.
+
 # Check for libpng 1.2 or higher
 PKG_CHECK_MODULES(LIBPNG, [libpng >= 1.2])
 AC_SUBST(LIBPNG_CFLAGS)
