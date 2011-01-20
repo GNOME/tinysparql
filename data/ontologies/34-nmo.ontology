@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2011-01-20T10:45:00Z" .
+	nao:lastModified "2011-01-20T12:45:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -85,6 +85,13 @@ nmo:PermanentChannel a rdfs:Class ;
 nmo:TransientChannel a rdfs:Class ;
 	rdfs:comment "Channel created ad-hoc for the communication like a multi chat in some systems" ;
 	rdfs:subClassOf nmo:CommunicationChannel .
+
+nmo:sentDate a rdf:Property ;
+	rdfs:comment "Date when this message was sent." ;
+	tracker:indexed true ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:dateTime .
 
 nmo:Call a rdfs:Class ;
 	rdfs:label "Call" ;
@@ -254,13 +261,6 @@ nmo:sender a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nco:Contact .
-
-nmo:sentDate a rdf:Property ;
-	rdfs:comment "Date when this message was sent." ;
-	tracker:indexed true ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nmo:Message ;
-	rdfs:range xsd:dateTime .
 
 nmo:to a rdf:Property ;
 	rdfs:domain nmo:Message ;
