@@ -35,13 +35,11 @@ def uri (filename):
     return "file://" + os.path.join (APPLICATIONS_TMP_DIR, filename)
 
 # Being rate defined in amount of BYTES per 100ms
-def slowcopy (src, dest, rate):
+def slowcopy_fd (src, dest, fdest, rate):
+    print "Copying from '%s' to '%s' at a rate of %u bytes/100ms" % (src, dest, rate)
     fsrc = open (src, 'rb')
-    fdest = open (dest, 'wb')
-
     buffer = fsrc.read (rate)
     while (buffer != ""):
-        print "Slow write..."
         fdest.write (buffer)
         time.sleep (0.1)
         buffer = fsrc.read (rate)
@@ -49,11 +47,15 @@ def slowcopy (src, dest, rate):
     fsrc.close ()
     fdest.close ()
 
+def slowcopy (src, dest, rate):
+    fdest = open (dest, 'wb')
+    slowcopy_fd (src, dest, fdest, rate)
+
 
 class CommonTrackerApplicationTest (ut.TestCase):
 
     @classmethod
-    def setUpClass (self):
+    def setUp (self):
         # Create temp directory to monitor
         if (os.path.exists (APPLICATIONS_TMP_DIR)):
             shutil.rmtree (APPLICATIONS_TMP_DIR)
@@ -88,7 +90,7 @@ class CommonTrackerApplicationTest (ut.TestCase):
         print "    Using temp dir at '%s'..." % (APPLICATIONS_TMP_DIR)
 
     @classmethod
-    def tearDownClass (self):
+    def tearDown (self):
         #print "Stopping the daemon in test mode (Doing nothing now)"
         self.system.tracker_all_testing_stop ()
 
