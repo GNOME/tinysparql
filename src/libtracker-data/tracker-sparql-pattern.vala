@@ -44,8 +44,8 @@ namespace Tracker.Sparql {
 						cursor = stmt.start_cursor ();
 					}
 
+					bool first = true;
 					if (cursor != null) {
-						bool first = true;
 						while (cursor.next ()) {
 							var domain = Ontologies.get_class_by_uri (cursor.get_string (0));
 
@@ -75,7 +75,9 @@ namespace Tracker.Sparql {
 								}
 							}
 						}
-					} else {
+					}
+
+					if (first) {
 						/* no match */
 						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\", NULL AS \"graph\"");
 					}
@@ -114,7 +116,9 @@ namespace Tracker.Sparql {
 								}
 							}
 						}
-					} else {
+					}
+
+					if (first) {
 						/* no match */
 						sql.append ("SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\", NULL AS \"graph\"");
 					}
