@@ -19,7 +19,7 @@
  */
 
 [DBus (name = "org.freedesktop.Tracker1.Backup")]
-class Tracker.Backup : Object {
+public class Tracker.Backup : Object {
 	public const string PATH = "/org/freedesktop/Tracker1/Backup";
 
 	public async void save (BusName sender, string destination_uri) throws Error {

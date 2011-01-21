@@ -23,7 +23,7 @@ using Tracker.Sparql;
 const int max_signals = 1000;
 const string title_data = "title";
 
-struct Event {
+public struct Event {
 	int graph_id;
 	int subject_id;
 	int pred_id;

@@ -24,7 +24,7 @@ const int max_signals = 10;
 const string title_data = "title";
 
 
-struct Event {
+public struct Event {
 	int graph_id;
 	int subject_id;
 	int pred_id;

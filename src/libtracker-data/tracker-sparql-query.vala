@@ -254,7 +254,7 @@ public class Tracker.Sparql.Query : Object {
 
 		// generate name based uuid
 		return "urn:uuid:%.8s-%.4s-%.4s-%.4s-%.12s".printf (
-			sha1, sha1.offset (8), sha1.offset (12), sha1.offset (16), sha1.offset (20));
+			sha1, sha1.substring (8), sha1.substring (12), sha1.substring (16), sha1.substring (20));
 	}
 
 	internal string generate_bnodeid (string? user_bnodeid) {
@@ -353,7 +353,7 @@ public class Tracker.Sparql.Query : Object {
 
 	internal string get_last_string (int strip = 0) {
 		int last_index = (index + BUFFER_SIZE - 1) % BUFFER_SIZE;
-		return ((string) (tokens[last_index].begin.pos + strip)).ndup ((tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
+		return ((string) (tokens[last_index].begin.pos + strip)).substring (0, (int) (tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
 	void parse_prologue () throws Sparql.Error {

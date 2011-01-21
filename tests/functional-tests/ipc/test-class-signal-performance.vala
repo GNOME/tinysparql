@@ -44,7 +44,7 @@ const string title_data = "title";
 // Low: VmRSS: 8868 Kb -- Max: VmRSS: 14060 kB
 
 
-struct Event {
+public struct Event {
 	int graph_id;
 	int subject_id;
 	int pred_id;

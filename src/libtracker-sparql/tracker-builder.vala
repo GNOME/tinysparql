@@ -561,7 +561,7 @@ public class Tracker.Sparql.Builder : Object {
 
 		if (!utf8_validate (value, -1, out end)) {
 			if (value != end) {
-				object_string (value.ndup (end - (char*) value));
+				object_string (value.substring (0, (long) (end - (char*) value)));
 			} else {
 				object_string ("(invalid data)");
 			}

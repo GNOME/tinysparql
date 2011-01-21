@@ -5,32 +5,28 @@ private static int res;
 private static MainLoop loop;
 
 private void test_async () {
-	try {
-		Connection c = null;
+	Connection c = null;
 
-		// Test async
-		print ("Getting connection asynchronously\n");
-		loop = new MainLoop (null, false);
-		Connection.get_async.begin (null, (o, res) => {
-			try {
-				c = Connection.get_async.end (res);
-			} catch (GLib.Error e) {
-				warning ("Couldn't perform test: %s", e.message);
-			}
-			loop.quit ();
-		});
-		loop.run ();
+	// Test async
+	print ("Getting connection asynchronously\n");
+	loop = new MainLoop (null, false);
+	Connection.get_async.begin (null, (o, res) => {
+		try {
+			c = Connection.get_async.end (res);
+		} catch (GLib.Error e) {
+			warning ("Couldn't perform test: %s", e.message);
+		}
+		loop.quit ();
+	});
+	loop.run ();
 
-		print ("Got it %p\n", c);
+	print ("Got it %p\n", c);
 
-		print ("Creating app with connection\n");
-		TestApp app = new TestApp (c);
+	print ("Creating app with connection\n");
+	TestApp app = new TestApp (c);
 
-		print ("Running app\n");
-		res = app.run();
-	} catch (GLib.Error e) {
-		warning ("Couldn't perform test: %s", e.message);
-	}
+	print ("Running app\n");
+	res = app.run();
 
 	print ("\n");
 }
