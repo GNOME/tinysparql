@@ -64,14 +64,15 @@ public class Tracker.Stats : Dialog {
 		debug ("Setting up statistics UI");
 
 		// Spacing between major units
-		this.vbox.spacing = 18;
-		this.vbox.border_width = 0;
+		var vbox = this.get_content_area() as VBox;
+		vbox.set_spacing (18);
+		vbox.set_border_width (0);
 
 		// Label for dialog
 		var label = new Label ("The statistics represented here do not reflect their availability, rather the total data stored:");
 		label.set_line_wrap (true);
 		label.set_alignment (0.0f, 0.5f);
-		this.vbox.pack_start (label, true, true, 0);
+		vbox.pack_start (label, true, true, 0);
 
 		// Size group to line up labels
 		var sizegroup = new SizeGroup (Gtk.SizeGroupMode.HORIZONTAL);
@@ -146,14 +147,14 @@ public class Tracker.Stats : Dialog {
 
 				sizegroup.add_widget (label_key);
 
-				this.vbox.pack_start (hbox, true, true, 0);
+				vbox.pack_start (hbox, true, true, 0);
 			}
 		} catch (DBusError e) {
 			warning ("Could not get Tracker statistics: " + e.message);
 		}
 
 		// Layout widgets
-		this.vbox.spacing = 10;
+		vbox.set_spacing (10);
 
 		// Add buttons to button area at the bottom
 		add_button (Stock.CLOSE, ResponseType.CLOSE);
