@@ -4,20 +4,25 @@
 <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
 <!ENTITY version SYSTEM "version.xml">
 <!ENTITY xsd-ontology SYSTEM "xsd-ontology.xml">
+<!ENTITY rdf-ontology SYSTEM "rdf-ontology.xml">
+<!--<!ENTITY nrl-ontology SYSTEM "nrl-ontology.xml"> - Internal -->
+<!ENTITY dc-ontology SYSTEM "dc-ontology.xml">
 <!ENTITY nie-ontology SYSTEM "nie-ontology.xml">
+<!ENTITY nao-ontology SYSTEM "nao-ontology.xml">
+<!ENTITY nfo-ontology SYSTEM "nfo-ontology.xml">
 <!ENTITY nco-ontology SYSTEM "nco-ontology.xml">
 <!ENTITY nmo-ontology SYSTEM "nmo-ontology.xml">
-<!ENTITY nfo-ontology SYSTEM "nfo-ontology.xml">
-<!ENTITY nao-ontology SYSTEM "nao-ontology.xml">
-<!ENTITY mto-ontology SYSTEM "mto-ontology.xml">
-<!ENTITY nmm-ontology SYSTEM "nmm-ontology.xml">
-<!ENTITY mfo-ontology SYSTEM "mfo-ontology.xml">
-<!ENTITY mlo-ontology SYSTEM "mlo-ontology.xml">
-<!ENTITY tracker-ontology SYSTEM "tracker-ontology.xml">
-<!ENTITY maemo-ontology SYSTEM "maemo-ontology.xml">
 <!ENTITY ncal-ontology SYSTEM "ncal-ontology.xml">
 <!ENTITY scal-ontology SYSTEM "scal-ontology.xml">
-<!ENTITY dc-ontology SYSTEM "dc-ontology.xml">
+<!--<!ENTITY nid3-ontology SYSTEM "nid3-ontology.xml"> - Not using -->
+<!ENTITY nmm-ontology SYSTEM "nmm-ontology.xml">
+<!ENTITY mto-ontology SYSTEM "mto-ontology.xml">
+<!ENTITY mlo-ontology SYSTEM "mlo-ontology.xml">
+<!ENTITY mfo-ontology SYSTEM "mfo-ontology.xml">
+<!ENTITY mtp-ontology SYSTEM "mtp-ontology.xml">
+<!ENTITY slo-ontology SYSTEM "slo-ontology.xml">
+<!ENTITY tracker-ontology SYSTEM "tracker-ontology.xml">
+<!ENTITY maemo-ontology SYSTEM "maemo-ontology.xml">
 <!ENTITY fts-properties SYSTEM "fts-properties.xml">
 ]>
 <book id="index">
@@ -47,21 +52,25 @@
     </partintro>
 
     &xsd-ontology;
+    &rdf-ontology;
+    <!-- &nrl-ontology; - Internal -->
+    &dc-ontology;
     &nie-ontology;
+    &nao-ontology;
+    &nfo-ontology;
     &nco-ontology;
     &nmo-ontology;
-    &nfo-ontology;
-    &nao-ontology;
-    &mto-ontology;
-    &nmm-ontology;
-    &mfo-ontology;
-    &mlo-ontology;
-    &tracker-ontology;
-    &maemo-ontology;
     &ncal-ontology;
     &scal-ontology;
-    &dc-ontology;
-
+    <!-- &nid3-ontology; - Not using -->
+    &nmm-ontology;
+    &mto-ontology;
+    &mlo-ontology;
+    &mfo-ontology;
+    &mtp-ontology;
+    &slo-ontology;
+    &tracker-ontology;
+    &maemo-ontology;
     &fts-properties;
   </part>
 

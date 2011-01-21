@@ -40,23 +40,31 @@ ONTOLOGY_EXPLANATIONS =                                \
 	$(top_srcdir)/docs/ontologies/nmo/explanation.xml
 
 # The XMLs to generate from the Ontology info
+# NOTE:
+#
+#  - nid3 is not used by Nepomuk
+#  - nrl is internal, not public
+#
 ONTOLOGY_INFOS_XML =                                   \
-	fts-properties.xml                             \
+	xsd-ontology.xml                               \
+	rdf-ontology.xml                               \
 	dc-ontology.xml                                \
 	nie-ontology.xml                               \
+	nao-ontology.xml                               \
+	nfo-ontology.xml                               \
 	nco-ontology.xml                               \
 	nmo-ontology.xml                               \
-	nfo-ontology.xml                               \
-	nao-ontology.xml                               \
-	mto-ontology.xml                               \
-	nmm-ontology.xml                               \
-	mfo-ontology.xml                               \
-	mlo-ontology.xml                               \
-	tracker-ontology.xml                           \
-	maemo-ontology.xml                             \
 	ncal-ontology.xml                              \
 	scal-ontology.xml                              \
-	xsd-ontology.xml
+	nmm-ontology.xml                               \
+	mto-ontology.xml                               \
+	mlo-ontology.xml                               \
+	mfo-ontology.xml                               \
+	mtp-ontology.xml                               \
+	slo.ontology.xml                               \
+	tracker-ontology.xml                           \
+	maemo-ontology.xml                             \
+	fts-properties.xml
 
 # Generation of the ontology XML files.
 gen-doc.stamp: $(ONTOLOGY_EXPLANATIONS)
