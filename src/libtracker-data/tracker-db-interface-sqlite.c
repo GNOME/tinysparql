@@ -1611,7 +1611,7 @@ void
 tracker_db_statement_execute (TrackerDBStatement  *stmt,
                               GError             **error)
 {
-	g_return_val_if_fail (!stmt->stmt_is_sunk, NULL);
+	g_return_if_fail (!stmt->stmt_is_sunk);
 
 	execute_stmt (stmt->db_interface, stmt->stmt, NULL, error);
 }
