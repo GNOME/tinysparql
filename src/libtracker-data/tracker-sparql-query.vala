@@ -768,14 +768,11 @@ public class Tracker.Sparql.Query : Object {
 
 	bool anon_blank_node_open = false;
 
-	string parse_construct_var_or_term (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
+	string? parse_construct_var_or_term (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
 		string result = "";
 		if (current () == SparqlTokenType.VAR) {
 			next ();
 			result = var_value_map.lookup (get_last_string ().substring (1));
-			if (result == null) {
-				throw get_error ("use of undefined variable `%s'".printf (get_last_string ().substring (1)));
-			}
 		} else if (current () == SparqlTokenType.IRI_REF) {
 			next ();
 			result = get_last_string (1);
@@ -902,6 +899,11 @@ public class Tracker.Sparql.Query : Object {
 
 	void parse_construct_object (HashTable<string,string> var_value_map) throws Sparql.Error, DateError {
 		string object = parse_construct_var_or_term (var_value_map);
+		if (current_subject == null || current_predicate == null || object == null) {
+			// the SPARQL specification says that triples containing unbound variables
+			// should be excluded from the output RDF graph of CONSTRUCT
+			return;
+		}
 		try {
 			if (delete_statements) {
 				// delete triple from database
