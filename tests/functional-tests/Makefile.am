@@ -48,7 +48,7 @@ endif
 standard_tests += \
 	400-extractor.py \
 	500-writeback.py \
-	600-applications.py \
+	600-applications-camera.py \
 	mass-storage-mode.py \
 	performance-tc-modified.py \
 	virtual-files-tc.py
