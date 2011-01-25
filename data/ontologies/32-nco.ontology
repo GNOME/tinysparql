@@ -185,6 +185,48 @@ nco:DomesticDeliveryAddress a rdfs:Class ;
 	rdfs:comment "Domestic Delivery Addresse. Class inspired by TYPE=dom parameter of the ADR property defined in RFC 2426 sec. 3.2.1" ;
 	rdfs:subClassOf nco:PostalAddress .
 
+nco:nameFamily a rdf:Property ;
+	rdfs:label "nameFamily" ;
+	rdfs:comment "The family name of an Object represented by this Contact. These applies to people that have more than one given name. The 'first' one is considered 'the' given name (see nameGiven) property. All additional ones are considered 'additional' names. The name inherited from parents is the 'family name'. e.g. For Dr. John Phil Paul Stevenson Jr. M.D. A.C.P. we have contact with: honorificPrefix: 'Dr.', nameGiven: 'John', nameAdditional: 'Phil', nameAdditional: 'Paul', nameFamily: 'Stevenson', honorificSuffix: 'Jr.', honorificSuffix: 'M.D.', honorificSuffix: 'A.C.P.'. These properties form an equivalent of the compound 'N' property as defined in RFC 2426 Sec. 3.1.2" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:PersonContact ;
+	rdfs:range xsd:string ;
+	tracker:indexed true ;
+	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
+	tracker:weight 4 .
+
+nco:nameGiven a rdf:Property ;
+	rdfs:label "nameGiven" ;
+	rdfs:comment "The given name for the object represented by this Contact. See documentation for 'nameFamily' property for details." ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:PersonContact ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
+	tracker:weight 5 .
+
+nco:nameAdditional a rdf:Property ;
+	rdfs:label "nameAdditional" ;
+	rdfs:comment "Additional given name of an object represented by this contact. See documentation for 'nameFamily' property for details." ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:PersonContact ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
+	tracker:weight 5 .
+
+nco:fullname a rdf:Property ;
+	rdfs:label "fullname" ;
+	rdfs:comment "To specify the formatted text corresponding to the name of the object the Contact represents. An equivalent of the FN property as defined in RFC 2426 Sec. 3.1.1." ;
+	rdfs:subPropertyOf dc:title ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nco:Contact ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true ;
+	tracker:fulltextNoLimit true ;
+	tracker:weight 6 .
+
 nco:hasContactMedium a rdf:Property ;
 	rdfs:label "hasContactMedium" ;
 	rdfs:comment "A superProperty for all properties linking a Contact to an instance of a contact medium." ;
@@ -239,17 +281,6 @@ nco:nameHonorificSuffix a rdf:Property ;
 	rdfs:domain nco:PersonContact ;
 	rdfs:range xsd:string ;
 	tracker:weight 3 .
-
-nco:nameFamily a rdf:Property ;
-	rdfs:label "nameFamily" ;
-	rdfs:comment "The family name of an Object represented by this Contact. These applies to people that have more than one given name. The 'first' one is considered 'the' given name (see nameGiven) property. All additional ones are considered 'additional' names. The name inherited from parents is the 'family name'. e.g. For Dr. John Phil Paul Stevenson Jr. M.D. A.C.P. we have contact with: honorificPrefix: 'Dr.', nameGiven: 'John', nameAdditional: 'Phil', nameAdditional: 'Paul', nameFamily: 'Stevenson', honorificSuffix: 'Jr.', honorificSuffix: 'M.D.', honorificSuffix: 'A.C.P.'. These properties form an equivalent of the compound 'N' property as defined in RFC 2426 Sec. 3.1.2" ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string ;
-	tracker:indexed true ;
-	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
-	tracker:weight 4 .
 
 nco:contactUID a rdf:Property ;
 	rdfs:label "contactUID" ;
@@ -394,37 +425,6 @@ nco:representative a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:Contact ;
 	rdfs:range nco:Contact .
-
-nco:nameGiven a rdf:Property ;
-	rdfs:label "nameGiven" ;
-	rdfs:comment "The given name for the object represented by this Contact. See documentation for 'nameFamily' property for details." ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
-	tracker:weight 5 .
-
-nco:nameAdditional a rdf:Property ;
-	rdfs:label "nameAdditional" ;
-	rdfs:comment "Additional given name of an object represented by this contact. See documentation for 'nameFamily' property for details." ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nco:PersonContact ;
-	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
-	tracker:weight 5 .
-
-nco:fullname a rdf:Property ;
-	rdfs:label "fullname" ;
-	rdfs:comment "To specify the formatted text corresponding to the name of the object the Contact represents. An equivalent of the FN property as defined in RFC 2426 Sec. 3.1.1." ;
-	rdfs:subPropertyOf dc:title ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nco:Contact ;
-	rdfs:range xsd:string ;
-	tracker:fulltextIndexed true ;
-	tracker:fulltextNoLimit true ;
-	tracker:weight 6 .
 
 nco:streetAddress a rdf:Property ;
 	rdfs:label "streetAddress" ;
