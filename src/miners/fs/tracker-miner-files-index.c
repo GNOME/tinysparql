@@ -79,7 +79,6 @@ static void     index_get_property        (GObject              *object,
                                            GValue               *value,
                                            GParamSpec           *pspec);
 static void     index_finalize            (GObject              *object);
-static void     index_constructed         (GObject              *object);
 
 G_DEFINE_TYPE(TrackerMinerFilesIndex, tracker_miner_files_index, G_TYPE_OBJECT)
 
@@ -93,7 +92,6 @@ tracker_miner_files_index_class_init (TrackerMinerFilesIndexClass *klass)
 	object_class->finalize = index_finalize;
 	object_class->set_property = index_set_property;
 	object_class->get_property = index_get_property;
-	object_class->constructed  = index_constructed;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_FILES_MINER,
@@ -516,8 +514,14 @@ handle_set_property (GDBusConnection  *connection,
 }
 
 static void
-index_constructed (GObject *miner)
+tracker_miner_files_index_init (TrackerMinerFilesIndex *object)
 {
+}
+
+TrackerMinerFilesIndex *
+tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
+{
+	GObject *miner;
 	TrackerMinerFilesIndexPrivate *priv;
 	gchar *full_path, *full_name;
 	GError *error = NULL;
@@ -527,6 +531,10 @@ index_constructed (GObject *miner)
 		handle_set_property
 	};
 
+	miner = g_object_new (TRACKER_TYPE_MINER_FILES_INDEX,
+	                      "files-miner", miner_files,
+	                      NULL);
+
 	priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (miner);
 
 	priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
@@ -535,7 +543,8 @@ index_constructed (GObject *miner)
 		g_critical ("Could not connect to the D-Bus session bus, %s",
 		            error ? error->message : "no error given.");
 		g_clear_error (&error);
-		return;
+		g_object_unref (miner);
+		return NULL;
 	}
 
 	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
@@ -569,21 +578,11 @@ index_constructed (GObject *miner)
 		            full_path,
 		            error ? error->message : "no error given.");
 		g_clear_error (&error);
-		return;
+		g_object_unref (miner);
+		return NULL;
 	}
 
 	priv->full_path = full_path;
-}
 
-static void
-tracker_miner_files_index_init (TrackerMinerFilesIndex *object)
-{
-}
-
-TrackerMinerFilesIndex *
-tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
-{
-	return g_object_new (TRACKER_TYPE_MINER_FILES_INDEX,
-	                     "files-miner", miner_files,
-	                     NULL);
+	return (TrackerMinerFilesIndex *) miner;
 }
