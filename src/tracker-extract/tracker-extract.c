@@ -81,7 +81,6 @@ typedef struct {
 	GDBusConnection *d_connection;
 	GDBusNodeInfo *introspection_data;
 	guint registration_id;
-	guint own_id;
 } TrackerExtractPrivate;
 
 typedef struct {
@@ -959,6 +958,8 @@ void
 tracker_extract_dbus_start (TrackerExtract *extract)
 {
 	TrackerExtractPrivate *priv;
+	GVariant *reply;
+	guint32 rval;
 	GError *error = NULL;
 	GDBusInterfaceVTable interface_vtable = {
 		handle_method_call,
@@ -979,11 +980,6 @@ tracker_extract_dbus_start (TrackerExtract *extract)
 
 	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
 
-	priv->own_id = g_bus_own_name_on_connection (priv->d_connection,
-	                                             TRACKER_EXTRACT_SERVICE,
-	                                             G_BUS_NAME_OWNER_FLAGS_NONE,
-	                                             NULL, NULL, NULL, NULL);
-
 	g_message ("Registering D-Bus object...");
 	g_message ("  Path:'" TRACKER_EXTRACT_PATH "'");
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (extract));
@@ -1003,6 +999,33 @@ tracker_extract_dbus_start (TrackerExtract *extract)
 		g_clear_error (&error);
 		return;
 	}
+
+	reply = g_dbus_connection_call_sync (priv->d_connection,
+	                                     "org.freedesktop.DBus",
+	                                     "/org/freedesktop/DBus",
+	                                     "org.freedesktop.DBus",
+	                                     "RequestName",
+	                                     g_variant_new ("(su)", TRACKER_EXTRACT_SERVICE, 0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
+	                                     G_VARIANT_TYPE ("(u)"),
+	                                     0, -1, NULL, &error);
+
+	if (error) {
+		g_critical ("Could not acquire name:'%s', %s",
+		            TRACKER_EXTRACT_SERVICE,
+		            error->message);
+		g_clear_error (&error);
+		return;
+	}
+
+	g_variant_get (reply, "(u)", &rval);
+	g_variant_unref (reply);
+
+	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
+		g_critical ("D-Bus service name:'%s' is already taken, "
+		            "perhaps the application is already running?",
+		            TRACKER_EXTRACT_SERVICE);
+		return;
+	}
 }
 
 void
@@ -1011,10 +1034,6 @@ tracker_extract_dbus_stop (TrackerExtract *extract)
 	TrackerExtractPrivate *priv;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
-
-	if (priv->own_id != 0) {
-		g_bus_unown_name (priv->own_id);
-	}
 
 	if (priv->registration_id != 0) {
 		g_dbus_connection_unregister_object (priv->d_connection,
