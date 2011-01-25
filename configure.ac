@@ -1932,7 +1932,9 @@ AC_ARG_ENABLE(playlist,
 
 if test "x$enable_playlist" != "xno" ; then
    PKG_CHECK_MODULES(TOTEM_PL_PARSER,
-                     [totem-plparser],
+                     [totem-plparser
+                      glib-2.0     >= $GLIB_REQUIRED
+                      gobject-2.0  >= $GLIB_REQUIRED],
                      [have_playlist=yes],
                      [have_playlist=no])
 
