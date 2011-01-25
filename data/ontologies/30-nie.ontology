@@ -39,6 +39,25 @@ nie:title a rdf:Property ;
 	tracker:weight 10 ;
 	tracker:writeback true .
 
+nie:url a rdf:Property ;
+	rdfs:label "URL" ;
+	rdfs:comment "URL pointing at the location of the resource. In cases where creating a simple file:// or http:// URL for a file is difficult (e.g. for files inside compressed archives) the applications are encouraged to use conventions defined by Apache Commons VFS Project at http://jakarta.apache.org/  commons/ vfs/ filesystems.html." ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:DataObject ;
+	rdfs:range xsd:string ;
+	tracker:indexed true .
+
+nie:informationElementDate a rdf:Property ;
+	rdfs:subPropertyOf dc:date ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:dateTime .
+
+nie:contentLastModified a rdf:Property ;
+	rdfs:subPropertyOf nie:informationElementDate ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:dateTime .
+
 nie:subject a rdf:Property ;
 	rdfs:label "Subject" ;
 	rdfs:comment "The subject or topic of the document" ;
@@ -79,11 +98,6 @@ nie:plainTextContent a rdf:Property ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
 	tracker:weight 2 .
-
-nie:informationElementDate a rdf:Property ;
-	rdfs:subPropertyOf dc:date ;
-	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:dateTime .
 
 nie:legal a rdf:Property ;
 	rdfs:comment "A common superproperty for all properties that point at legal information about an Information Element";
@@ -163,12 +177,6 @@ nie:isStoredAs a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range nie:DataObject .
-
-nie:contentLastModified a rdf:Property ;
-	rdfs:subPropertyOf nie:informationElementDate ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nie:InformationElement ;
-	rdfs:range xsd:dateTime .
 
 nie:version a rdf:Property ;
 	nrl:maxCardinality 1 ;
@@ -269,11 +277,3 @@ nie:usageCounter a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:integer ;
 	tracker:weight 3 .
-
-nie:url a rdf:Property ;
-	rdfs:label "URL" ;
-	rdfs:comment "URL pointing at the location of the resource. In cases where creating a simple file:// or http:// URL for a file is difficult (e.g. for files inside compressed archives) the applications are encouraged to use conventions defined by Apache Commons VFS Project at http://jakarta.apache.org/  commons/ vfs/ filesystems.html." ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nie:DataObject ;
-	rdfs:range xsd:string ;
-	tracker:indexed true .
