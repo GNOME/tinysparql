@@ -44,6 +44,26 @@ class MinerCrawlTest (CommonTrackerMinerTest):
           }
           """)
 
+    def __get_parent_urn (self, filepath):
+        result = self.tracker.query ("""
+          SELECT nfo:belongsToContainer(?u) WHERE {
+              ?u a nfo:FileDataObject ;
+                 nie:url \"%s\" .
+          }
+          """ % (uri (filepath)))
+        self.assertEquals (len (result), 1)
+        return result[0][0]
+
+    def __get_file_urn (self, filepath):
+        result = self.tracker.query ("""
+          SELECT ?u WHERE {
+              ?u a nfo:FileDataObject ;
+                 nie:url \"%s\" .
+          }
+          """ % (uri (filepath)))
+        self.assertEquals (len (result), 1)
+        return result[0][0]
+
     def tearDown (self):
         # Give it a 2 seconds chance
         result = self.__get_text_documents ()
@@ -203,8 +223,20 @@ class MinerCrawlTest (CommonTrackerMinerTest):
         """
         source = os.path.join (BASEDIR, "test-monitored", "dir1", "file2.txt")
         dest = os.path.join (BASEDIR, "test-monitored", "file2.txt")
+
+        source_dir_urn = self.__get_file_urn (os.path.join (BASEDIR, "test-monitored", "dir1"))
+        parent_before = self.__get_parent_urn (source)
+        self.assertEquals (source_dir_urn, parent_before)
+
         shutil.move (source, dest)
         self.system.tracker_miner_fs_wait_for_idle ()
+
+        # Checking fix for NB#214413: After a move operation, nfo:belongsToContainer
+        # should be changed to the new one
+        dest_dir_urn = self.__get_file_urn (os.path.join (BASEDIR, "test-monitored"))
+        parent_after = self.__get_parent_urn (dest)
+        self.assertNotEquals (parent_before, parent_after)
+        self.assertEquals (dest_dir_urn, parent_after)
 
         result = self.__get_text_documents ()
         self.assertEquals (len (result), 3)
