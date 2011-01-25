@@ -2424,7 +2424,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			                             "ID INTEGER NOT NULL, "
 			                             "\"%s\" %s NOT NULL, "
 			                             "\"%s:graph\" INTEGER",
-			                             transient ? "TEMPORARY " : "",
+			                             transient ? "" : "",
 			                             service_name,
 			                             field_name,
 			                             field_name,
@@ -2943,14 +2943,24 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 		property = properties[i];
 
 		if (tracker_property_get_transient (property)) {
-
+			GError *error = NULL;
 			TrackerClass *domain;
 			const gchar *service_name;
 
 			domain = tracker_property_get_domain (property);
 			service_name = tracker_class_get_name (domain);
 
-			/* create the TEMPORARY table */
+			/* create the disposable table */
+			tracker_db_interface_execute_query (iface, &error, "DROP TABLE IF EXISTS \"%s_%s\"",
+			                                    service_name,
+			                                    tracker_property_get_name (property));
+
+			if (error) {
+				g_critical ("Dropping transient table failed: %s",
+				            error->message);
+				g_error_free (error);
+			}
+
 			create_decomposed_metadata_property_table (iface, property,
 			                                           service_name,
 			                                           domain,
