@@ -105,7 +105,6 @@ struct _TrackerMinerPrivate {
 	GDBusNodeInfo *introspection_data;
 	guint watch_name_id;
 	guint registration_id;
-	guint own_id;
 	gchar *full_name;
 	gchar *full_path;
 };
@@ -683,10 +682,6 @@ miner_finalize (GObject *object)
 		g_bus_unwatch_name (miner->private->watch_name_id);
 	}
 
-	if (miner->private->own_id != 0) {
-		g_bus_unown_name (miner->private->own_id);
-	}
-
 	if (miner->private->registration_id != 0) {
 		g_dbus_connection_unregister_object (miner->private->d_connection,
 		                                     miner->private->registration_id);
@@ -991,6 +986,8 @@ miner_constructed (GObject *object)
 {
 	TrackerMiner *miner;
 	gchar *name, *full_path, *full_name;
+	GVariant *reply;
+	guint32 rval;
 	GError *error = NULL;
 	GDBusInterfaceVTable interface_vtable = {
 		handle_method_call,
@@ -1019,11 +1016,6 @@ miner_constructed (GObject *object)
 	}
 
 	full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, name, NULL);
-
-	miner->private->own_id = g_bus_own_name_on_connection (miner->private->d_connection,
-	                                                       full_name,
-	                                                       G_BUS_NAME_OWNER_FLAGS_NONE,
-	                                                       NULL, NULL, NULL, NULL);
 	miner->private->full_name = full_name;
 
 	/* Register the service name for the miner */
@@ -1047,6 +1039,33 @@ miner_constructed (GObject *object)
 		            full_path,
 		            error ? error->message : "no error given.");
 		g_clear_error (&error);
+		return;
+	}
+
+	reply = g_dbus_connection_call_sync (miner->private->d_connection,
+	                                     "org.freedesktop.DBus",
+	                                     "/org/freedesktop/DBus",
+	                                     "org.freedesktop.DBus",
+	                                     "RequestName",
+	                                     g_variant_new ("(su)", full_name, 0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
+	                                     G_VARIANT_TYPE ("(u)"),
+	                                     0, -1, NULL, &error);
+
+	if (error) {
+		g_critical ("Could not acquire name:'%s', %s",
+		            full_name,
+		            error->message);
+		g_clear_error (&error);
+		return;
+	}
+
+	g_variant_get (reply, "(u)", &rval);
+	g_variant_unref (reply);
+
+	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
+		g_critical ("D-Bus service name:'%s' is already taken, "
+		            "perhaps the application is already running?",
+		            full_name);
 		return;
 	}
 
