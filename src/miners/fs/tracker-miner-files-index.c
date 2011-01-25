@@ -58,7 +58,6 @@ typedef struct {
 	GDBusConnection *d_connection;
 	GDBusNodeInfo *introspection_data;
 	guint registration_id;
-	guint own_id;
 	gchar *full_name;
 	gchar *full_path;
 } TrackerMinerFilesIndexPrivate;
@@ -149,10 +148,6 @@ static void
 index_finalize (GObject *object)
 {
 	TrackerMinerFilesIndexPrivate *priv = TRACKER_MINER_FILES_INDEX_GET_PRIVATE (object);
-
-	if (priv->own_id != 0) {
-		g_bus_unown_name (priv->own_id);
-	}
 
 	if (priv->registration_id != 0) {
 		g_dbus_connection_unregister_object (priv->d_connection,
@@ -524,6 +519,8 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 	GObject *miner;
 	TrackerMinerFilesIndexPrivate *priv;
 	gchar *full_path, *full_name;
+	GVariant *reply;
+	guint32 rval;
 	GError *error = NULL;
 	GDBusInterfaceVTable interface_vtable = {
 		handle_method_call,
@@ -550,11 +547,6 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
 
 	full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, "Files.Index", NULL);
-
-	priv->own_id = g_bus_own_name_on_connection (priv->d_connection,
-	                                             full_name,
-	                                             G_BUS_NAME_OWNER_FLAGS_NONE,
-	                                             NULL, NULL, NULL, NULL);
 	priv->full_name = full_name;
 
 	/* Register the service name for the miner */
@@ -578,6 +570,35 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 		            full_path,
 		            error ? error->message : "no error given.");
 		g_clear_error (&error);
+		g_object_unref (miner);
+		return NULL;
+	}
+
+	reply = g_dbus_connection_call_sync (priv->d_connection,
+	                                     "org.freedesktop.DBus",
+	                                     "/org/freedesktop/DBus",
+	                                     "org.freedesktop.DBus",
+	                                     "RequestName",
+	                                     g_variant_new ("(su)", full_name, 0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
+	                                     G_VARIANT_TYPE ("(u)"),
+	                                     0, -1, NULL, &error);
+
+	if (error) {
+		g_critical ("Could not acquire name:'%s', %s",
+		            full_name,
+		            error->message);
+		g_clear_error (&error);
+		g_object_unref (miner);
+		return NULL;
+	}
+
+	g_variant_get (reply, "(u)", &rval);
+	g_variant_unref (reply);
+
+	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
+		g_critical ("D-Bus service name:'%s' is already taken, "
+		            "perhaps the daemon is already running?",
+		            full_name);
 		g_object_unref (miner);
 		return NULL;
 	}
