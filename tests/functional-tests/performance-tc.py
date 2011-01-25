@@ -345,7 +345,7 @@ SELECT ?message ?date ?from ?to \
      nmo:isAnswered(?message) \
      nmo:isDeleted(?message) \
      nmo:messageId(?message) \
-     nmo:smsId(?message) \
+     nmo:phoneMessageId(?message) \
      nmo:sentDate(?message) \
      nmo:receivedDate(?message) \
      nie:contentLastModified(?message) \

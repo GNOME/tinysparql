@@ -12,7 +12,7 @@
 
 nmo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmo" ;
-	nao:lastModified "2011-01-25T13:30:00Z" .
+	nao:lastModified "2011-01-25T14:00:00Z" .
 
 # FIXME Extension requested in Nepomuk
 nmo:MimePart a rdfs:Class ;
@@ -416,25 +416,10 @@ nmo:phoneMessageId a rdf:Property ;
 	rdfs:domain nmo:PhoneMessage;
 	rdfs:range xsd:integer.
 
-nmo:smsId a rdf:Property ;
-	rdfs:label "sms Id";
-	rdfs:comment "Id assigned in the system when the message is received. Use phoneMessageId instead" ;
-	nrl:maxCardinality 1 ;
-	nao:deprecated true ;
-	rdfs:subPropertyOf nmo:phoneMessageId ;
-	rdfs:domain nmo:PhoneMessage;
-	rdfs:range xsd:integer .
-
 nmo:PhoneMessageFolder a rdfs:Class ;
 	rdfs:label "Phone message Folder";
 	rdfs:comment "Folder for phone message (SMS and MMS). Not a subclass of nfo:Folder because it would confuse filesystem folders" ;
 	rdfs:subClassOf nie:InformationElement .
-
-nmo:SMSFolder a rdfs:Class ;
-	rdfs:label "SMS Folder";
-	rdfs:comment "Folder for SMS. Not a subclass of nfo:Folder because it would confuse filesystem folders. Use the superclass PhoneMessageFolder and its predefined instances." ;
-	nao:deprecated true ;
-	rdfs:subClassOf nmo:PhoneMessageFolder .
 
 nmo:phoneMessageFolderId a rdf:Property ;
 	rdfs:label "folder id";
@@ -443,15 +428,6 @@ nmo:phoneMessageFolderId a rdf:Property ;
 	rdfs:domain nmo:PhoneMessageFolder ;
 	rdfs:range xsd:string ;
 	rdfs:subPropertyOf nie:identifier .
-
-nmo:smsFolderId a rdf:Property ;
-	rdfs:label "folder id";
-	rdfs:comment "Id assigned to the folder for sync purpouses" ;
-	nrl:maxCardinality 1 ;
-	nao:deprecated true ;
-	rdfs:domain nmo:SMSFolder ;
-	rdfs:range xsd:string ;
-	rdfs:subPropertyOf nmo:phoneMessageFolderId .
 
 nmo:validityPeriod a rdf:Property ;
 	rdfs:label "Validity period" ;
@@ -466,26 +442,10 @@ nmo:containsPhoneMessageFolder a rdf:Property ;
 	rdfs:domain nmo:PhoneMessageFolder;
 	rdfs:range nmo:PhoneMessageFolder .
 
-nmo:containsSMSFolder a rdf:Property ;
-	rdfs:label "contains SMS Folder";
-	rdfs:comment "To link and reconstruct a hierarchy of folders. Use containsPhoneMessageFolder instead." ;
-	rdfs:subPropertyOf nmo:containsPhoneMessageFolder ;
-	nao:deprecated true ;
-	rdfs:domain nmo:SMSFolder;
-	rdfs:range nmo:SMSFolder .
-
 nmo:containsPhoneMessage a rdf:Property ;
 	rdfs:label "Contains Phone Message";
 	rdfs:comment "Link between an Phone Message and a Folder" ;
 	rdfs:domain nmo:PhoneMessageFolder;
-	rdfs:range nmo:PhoneMessage .
-
-nmo:containsSMS a rdf:Property ;
-	rdfs:label "Contains SMS";
-	rdfs:comment "Link between an Phone Message and a Folder. Use containsPhoneMessage instead" ;
-	nao:deprecated true ;
-	rdfs:subPropertyOf nmo:containsPhoneMessage ;
-	rdfs:domain nmo:SMSFolder;
 	rdfs:range nmo:PhoneMessage .
 
 
@@ -509,30 +469,6 @@ nmo:predefined-phone-msg-folder-sent a nmo:PhoneMessageFolder ;
 nmo:predefined-phone-msg-folder-myfolder a nmo:PhoneMessageFolder ;
 	nie:title "MyFolder" ;
 	nmo:phoneMessageFolderId "0x1008" .
-
-#
-# All these instances are deprecated
-#
-nmo:default-sms-folder-inbox a nmo:SMSFolder ;
-	nie:title "Inbox (deprecated)" ;
-	nmo:smsFolderId "0x1002" .
-
-nmo:default-sms-folder-outbox a nmo:SMSFolder ;
-	nie:title "Outbox (deprecated)" ;
-	nmo:smsFolderId "0x1003" .
-
-nmo:default-sms-folder-draft a nmo:SMSFolder ;
-	nie:title "Draft (deprecated)" ;
-	nmo:smsFolderId "0x1004" .
-
-nmo:default-sms-folder-sent a nmo:SMSFolder ;
-	nie:title "Sent (deprecated)" ;
-	nmo:smsFolderId "0x1005" .
-
-
-nmo:default-sms-folder-myfolder a nmo:SMSFolder ;
-	nie:title "MyFolder (deprecated)" ;
-	nmo:smsFolderId "0x1008" .
 
 nmo:DeliveryStatus a rdfs:Class ;
 	rdfs:label "Delivery statuses" ;

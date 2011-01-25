@@ -137,7 +137,7 @@ def generateIMMessage(index):
 ####################################################################################
 nmo_SMSMessage = '''
 <%(smsmessage_uri)s> a nmo:SMSMessage;
-  nmo:smsId                  "%(smsmessage_id)s" ;
+  nmo:phoneMessageId         "%(smsmessage_id)s" ;
   nie:plainTextContent       "%(smsmessage_content)s";
   nie:informationElementDate "%(smsmessage_date)s";
   nie:contentLastModified    "%(smsmessage_modified)s";
