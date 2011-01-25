@@ -54,6 +54,12 @@ def slowcopy (src, dest, rate):
 
 class CommonTrackerApplicationTest (ut.TestCase):
 
+    def get_urn_count_by_url (self, url):
+        select = """
+        SELECT ?u WHERE { ?u nie:url \"%s\" }
+        """ % (url)
+        return len (self.tracker.query (select))
+
     @classmethod
     def setUp (self):
         # Create temp directory to monitor

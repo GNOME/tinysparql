@@ -56,14 +56,7 @@ SRC_VIDEO_DIR = os.path.join (cfg.DATADIR,
 SRC_VIDEO_PATH = os.path.join (SRC_VIDEO_DIR, TEST_VIDEO)
 
 
-class TrackerApplicationTests (CommonTrackerApplicationTest):
-
-    def __get_urn_count_by_url (self, url):
-        select = """
-        SELECT ?u WHERE { ?u nie:url \"%s\" }
-        """ % (url)
-        return len (self.tracker.query (select))
-
+class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
 
     def test_camera_picture_01 (self):
         """
@@ -106,21 +99,21 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         }
         """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
 
         # Copy the image to the dest path
         slowcopy (SRC_IMAGE_PATH, filepath, SLOWCOPY_RATE)
         assert os.path.exists (filepath)
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
 
 
     def test_camera_picture_02_geolocation (self):
@@ -168,7 +161,7 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         }
         """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
 
         # FIRST, open the file for writing, and just write some garbage, to simulate that
         # we already started recording the video...
@@ -205,14 +198,14 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         # FOURTH, ensure we have only 1 resource
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
 
 
     def test_camera_video_01 (self):
@@ -256,20 +249,20 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         }
         """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
 
         # Copy the image to the dest path
         slowcopy (SRC_VIDEO_PATH, filepath, SLOWCOPY_RATE)
         assert os.path.exists (filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
 
 
     def test_camera_video_02_geolocation (self):
@@ -317,7 +310,7 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         }
         """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
 
         # FIRST, open the file for writing, and just write some garbage, to simulate that
         # we already started recording the video...
@@ -354,14 +347,14 @@ class TrackerApplicationTests (CommonTrackerApplicationTest):
         # FOURTH, ensure we have only 1 resource
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (filepath)
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.__get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
 
 if __name__ == "__main__":
 	ut.main()
