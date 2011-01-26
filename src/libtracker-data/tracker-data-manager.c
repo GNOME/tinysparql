@@ -2354,15 +2354,11 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 {
 	const char *field_name;
 	const char *sql_type;
-	gboolean    transient;
+	gboolean    not_single;
 
 	field_name = tracker_property_get_name (property);
 
-	transient = !sql_type_for_single_value;
-
-	if (!transient) {
-		transient = tracker_property_get_transient (property);
-	}
+	not_single = !sql_type_for_single_value;
 
 	switch (tracker_property_get_data_type (property)) {
 	case TRACKER_PROPERTY_TYPE_STRING:
@@ -2386,7 +2382,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	if (!in_update || (in_update && (tracker_property_get_is_new (property) ||
 	                                 tracker_property_get_is_new_domain_index (property, service) ||
 	                                 tracker_property_get_db_schema_changed (property)))) {
-		if (transient || tracker_property_get_multiple_values (property)) {
+		if (not_single || tracker_property_get_multiple_values (property)) {
 			GString *sql;
 			GString *in_col_sql = NULL;
 			GString *sel_col_sql = NULL;
@@ -2420,11 +2416,10 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			sql = g_string_new ("");
-			g_string_append_printf (sql, "CREATE %sTABLE \"%s_%s\" ("
+			g_string_append_printf (sql, "CREATE TABLE \"%s_%s\" ("
 			                             "ID INTEGER NOT NULL, "
 			                             "\"%s\" %s NOT NULL, "
 			                             "\"%s:graph\" INTEGER",
-			                             transient ? "" : "",
 			                             service_name,
 			                             field_name,
 			                             field_name,
@@ -2515,9 +2510,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			*sql_type_for_single_value = sql_type;
 		}
 	}
-
-
-
 }
 
 static gboolean
@@ -2931,7 +2923,7 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 }
 
 static void
-create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
+clean_decomposed_transient_metadata (TrackerDBInterface *iface)
 {
 	TrackerProperty **properties;
 	TrackerProperty *property;
@@ -2943,29 +2935,34 @@ create_decomposed_transient_metadata_tables (TrackerDBInterface *iface)
 		property = properties[i];
 
 		if (tracker_property_get_transient (property)) {
-			GError *error = NULL;
 			TrackerClass *domain;
 			const gchar *service_name;
+			const gchar *prop_name;
+			GError *error = NULL;
 
 			domain = tracker_property_get_domain (property);
 			service_name = tracker_class_get_name (domain);
+			prop_name = tracker_property_get_name (property);
 
-			/* create the disposable table */
-			tracker_db_interface_execute_query (iface, &error, "DROP TABLE IF EXISTS \"%s_%s\"",
-			                                    service_name,
-			                                    tracker_property_get_name (property));
+			if (tracker_property_get_multiple_values (property)) {
+				/* create the disposable table */
+				tracker_db_interface_execute_query (iface, &error, "DELETE FROM \"%s_%s\"",
+				                                    service_name,
+				                                    prop_name);
+			} else {
+				/* create the disposable table */
+				tracker_db_interface_execute_query (iface, &error, "UPDATE \"%s\" SET \"%s\" = NULL",
+				                                    service_name,
+				                                    prop_name);
+			}
 
 			if (error) {
-				g_critical ("Dropping transient table failed: %s",
+				g_critical ("Cleaning transient propery '%s:%s' failed: %s",
+				            service_name,
+				            prop_name,
 				            error->message);
 				g_error_free (error);
 			}
-
-			create_decomposed_metadata_property_table (iface, property,
-			                                           service_name,
-			                                           domain,
-			                                           NULL, FALSE,
-			                                           FALSE);
 		}
 	}
 }
@@ -3418,7 +3415,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 			/* Skipped in the read-only case as it can't work with direct access and
 			   it reduces initialization time */
-			create_decomposed_transient_metadata_tables (iface);
+			clean_decomposed_transient_metadata (iface);
 		} else {
 			GError *gvdb_error = NULL;
 

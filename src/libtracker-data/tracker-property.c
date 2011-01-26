@@ -649,7 +649,6 @@ tracker_property_set_transient (TrackerProperty *property,
 	priv = GET_PRIV (property);
 
 	priv->transient = value;
-	priv->multiple_values = TRUE;
 }
 
 void
@@ -942,11 +941,7 @@ tracker_property_set_multiple_values (TrackerProperty *property,
 
 	priv = GET_PRIV (property);
 
-	if (priv->transient) {
-		priv->multiple_values = TRUE;
-	} else {
-		priv->multiple_values = value;
-	}
+	priv->multiple_values = value;
 }
 
 void
