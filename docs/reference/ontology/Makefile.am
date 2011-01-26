@@ -61,7 +61,7 @@ ONTOLOGY_INFOS_XML =                                   \
 	mlo-ontology.xml                               \
 	mfo-ontology.xml                               \
 	mtp-ontology.xml                               \
-	slo.ontology.xml                               \
+	slo-ontology.xml                               \
 	tracker-ontology.xml                           \
 	maemo-ontology.xml                             \
 	fts-properties.xml
