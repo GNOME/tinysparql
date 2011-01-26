@@ -340,17 +340,6 @@ nmm:Photo a rdfs:Class ;
 # Properties
 # Photo location is waiting for the Location ontology
 
-# Deprecated, use nfo:Equipment
-nmm:camera a rdf:Property ;
-	rdfs:label "Camera" ;
-	rdfs:comment "The maker and model of the camera used to take the photograph. DEPRECATED (check nfo:device)" ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nmm:Photo ;
-	rdfs:range xsd:string ;
-	nao:deprecated true ;
-	tracker:weight 3 ;
-	tracker:writeback true .
-
 nmm:exposureTime a rdf:Property ;
 	rdfs:label "Exposure time" ;
 	rdfs:comment "Exposure time of the photo" ;
