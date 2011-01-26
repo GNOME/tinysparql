@@ -23,9 +23,5 @@ uidir = $(datadir)/tracker
 ui_DATA = tracker-explorer.ui
 
 EXTRA_DIST =                                           \
-	$(tracker_explorer_SOURCES)                    \
 	$(ui_DATA)
-
-MAINTAINERCLEANFILES =                                 \
-	$(tracker_explorer_SOURCES)
 
