@@ -424,7 +424,6 @@ nfo nfo:hasMediaFileListEntry
 nfo nfo:entryCounter
 nfo nfo:listDuration
 nfo nfo:listPosition
-nfo nfo:entryContent
 nfo nfo:height
 nfo nfo:hashAlgorithm
 nfo nfo:fileName

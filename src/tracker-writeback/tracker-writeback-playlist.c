@@ -155,7 +155,7 @@ rewrite_playlist (TrackerSparqlConnection *connection,
 	path = g_file_get_path (file);
 	query = g_strdup_printf ("SELECT ?entry { ?unknown a nfo:MediaFileListEntry ; "
 	                                                  "nie:url '%s' ; "
-	                                                  "nfo:entryContent ?entry"
+	                                                  "nfo:entryUrl ?entry"
 	                         "}", subject);
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 	g_free (query);

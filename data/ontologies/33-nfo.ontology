@@ -478,17 +478,6 @@ nfo:listPosition a rdf:Property ;
 
 # Propose in nepomuk
 
-# This property is very impractical
-nfo:entryContent a rdf:Property ;
-	rdfs:label "Entry content" ;
-	rdfs:comment "URL to the element in certain position of the list" ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nfo:MediaFileListEntry ;
-	rdfs:range nie:InformationElement ;
-	nao:deprecated true ;
-	tracker:writeback true .
-
-# This one makes more sense
 nfo:entryUrl a rdf:Property ;
 	rdfs:label "Entry URL" ;
 	rdfs:comment "URL to the element in certain position of the list" ;

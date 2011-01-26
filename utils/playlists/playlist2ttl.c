@@ -68,7 +68,7 @@ entry_parsed (TotemPlParser *parser,
 	         playlist_data->playlist);
 	g_print ("\t a nfo:MediaFileListEntry ; \n");
 	g_print ("\t nfo:listPosition %d ; \n", playlist_data->tracks);
-	g_print ("\t nfo:entryContent <%s> ] .\n\n", uri);
+	g_print ("\t nfo:entryUrl \"%s\" ] .\n\n", uri);
 }
 
 int
