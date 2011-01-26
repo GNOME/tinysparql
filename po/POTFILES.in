@@ -44,7 +44,6 @@ src/tracker-search-bar/tracker-results-window.c
 src/tracker-status-icon/tracker-main.c
 src/tracker-status-icon/tracker-status-icon.c
 src/tracker-status-icon/tracker-status-icon.desktop.in.in
-src/tracker-store/tracker-main.c
 src/tracker-control/tracker-control.c
 src/tracker-utils/tracker-import.c
 src/tracker-utils/tracker-info.c
