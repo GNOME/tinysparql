@@ -59,7 +59,7 @@ for index in range(start_id, start_id + count1):
    f.write('\tnfo:fileName          "photo'+`index`+'.jpg";\n')
    if ((index-start_id)<(count1/2)):
 	 f.write ('\tnao:hasTag [a nao:Tag ; nao:prefLabel  "TEST"];\n')
-	 f.write('\tnfo:device            "NOKIA";\n')
+	 f.write('\tnfo:equipment [ a nfo:Equipment ; nfo:make "NOKIA" ];\n')
    f.write('\tnmm:exposureTime      "'+`index`+'";\n') 
    f.write('\tnmm:fnumber           "'+`(1 + (index % 20))`+'";\n')
    f.write('\tnmm:focalLength       "'+` (1 + (index % 500))`+'".\n')

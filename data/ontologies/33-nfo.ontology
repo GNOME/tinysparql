@@ -303,15 +303,6 @@ nfo:duration a rdf:Property ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:integer .
 
-# Deprecated, use nfo:Equipment
-nfo:device a rdf:Property ;
-	rdfs:label "Device" ;
-	rdfs:comment "Device (maker/model) used to capture the image/video" ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nfo:Media ;
-	nao:deprecated true ;
-	rdfs:range xsd:string .
-
 nfo:wordCount a rdf:Property ;
 	rdfs:label "wordCount" ;
 	rdfs:comment "The amount of words in a text document." ;

@@ -865,7 +865,7 @@ class gallery(TestUpdate):
 
 		query = "SELECT ?media WHERE { \
                      	?media a nfo:Visual; \
-                        nfo:device 'NOKIA' }"
+                        nfo:equipment [ a nfo:Equipment; nfo:make 'NOKIA' ] }"
 
 		start=time.time()
 
@@ -882,7 +882,7 @@ class gallery(TestUpdate):
 
 		query = "SELECT ?media WHERE { \
                      	?media a nfo:Visual; \
-                        nfo:device 'NOKIA' } LIMIT 500"
+                        nfo:equipment [ a nfo:Equipment; nfo:make 'NOKIA' ] } LIMIT 500"
 
 		start=time.time()
 
@@ -903,7 +903,7 @@ class gallery(TestUpdate):
 			nie:mimeType ?mime. \
 			OPTIONAL { ?image nfo:height ?height .}\
 			OPTIONAL { ?image nfo:width  ?width .}\
-			OPTIONAL { ?image nfo:device ?camera .}\
+			OPTIONAL { ?image nfo:equipment [ nfo:model ?camera ] .}\
 			OPTIONAL { ?image nmm:exposureTime ?exposuretime .}\
 			OPTIONAL { ?image nmm:fnumber ?fnumber .}\
 			OPTIONAL { ?image nmm:focalLength ?focallength .}} LIMIT 10000"
@@ -930,7 +930,7 @@ class gallery(TestUpdate):
 			nie:mimeType ?mime. \
 			OPTIONAL { ?image nfo:height ?height .}\
 			OPTIONAL { ?image nfo:width  ?width .}\
-			OPTIONAL { ?image nfo:device ?camera .}\
+			OPTIONAL { ?image nfo:equipment [ nfo:model ?camera ] .}\
 			OPTIONAL { ?image nmm:exposureTime ?exposuretime .}\
 			OPTIONAL { ?image nmm:fnumber ?fnumber .}\
 			OPTIONAL { ?image nmm:focalLength ?focallength .}} LIMIT 500"
@@ -971,7 +971,7 @@ class gallery(TestUpdate):
 		"""Querying all images """
 		"""simplified version of test_gallery_09 """
 
-		query = "SELECT nie:url(?image) nfo:height(?image) nfo:width(?image) nie:mimeType(?image) nfo:device(?image) nmm:exposureTime(?image) nmm:fnumber(?image) nmm:focalLength(?image) WHERE { ?image a nmm:Photo . } limit 10000"
+		query = "SELECT nie:url(?image) nfo:height(?image) nfo:width(?image) nie:mimeType(?image) nfo:model (nfo:equipment (?image)) nmm:exposureTime(?image) nmm:fnumber(?image) nmm:focalLength(?image) WHERE { ?image a nmm:Photo . } limit 10000"
 
 
 		start=time.time()
@@ -987,7 +987,7 @@ class gallery(TestUpdate):
 		"""Querying 500 images """
 		"""simplified version of test_gallery_10 """
 
-		query = "SELECT nie:url(?image) nfo:height(?image) nfo:width(?image) nie:mimeType(?image) nfo:device(?image) nmm:exposureTime(?image) nmm:fnumber(?image) nmm:focalLength(?image) WHERE { ?image a nmm:Photo . } limit 500"
+		query = "SELECT nie:url(?image) nfo:height(?image) nfo:width(?image) nie:mimeType(?image) nfo:model (nfo:equipment (?image)) nmm:exposureTime(?image) nmm:fnumber(?image) nmm:focalLength(?image) WHERE { ?image a nmm:Photo . } limit 500"
 
 
 		start=time.time()
