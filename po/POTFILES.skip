@@ -15,3 +15,4 @@ src/tracker-needle/tracker-utils.c
 src/tracker-needle/tracker-view.c
 src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in
 src/tracker-status-icon/tracker-status-icon.desktop.in
+src/tracker-store/tracker-main.c
