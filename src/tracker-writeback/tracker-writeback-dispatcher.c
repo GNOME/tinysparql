@@ -39,7 +39,8 @@
 	"type='signal', " \
 	"sender='" TRACKER_SERVICE "', " \
 	"path='" TRACKER_RESOURCES_OBJECT "', " \
-	"interface='" TRACKER_INTERFACE_RESOURCES "'"
+	"interface='" TRACKER_INTERFACE_RESOURCES "', " \
+	"member='Writeback'"
 
 typedef struct {
 	GMainContext *context;
