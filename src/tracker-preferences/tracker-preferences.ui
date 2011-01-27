@@ -490,6 +490,54 @@
                                     <property name="position">3</property>
                                   </packing>
                                 </child>
+                                <child>
+                                  <object class="GtkLabel" id="label_device_drop_threshold1">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="yalign">0</property>
+                                    <property name="xpad">3</property>
+                                    <property name="ypad">4</property>
+                                    <property name="label" translatable="yes">Drop removable device from database after:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">hscale_drop_device_threshold</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkHBox" id="hbox7">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <object class="GtkHScale" id="hscale_drop_device_threshold">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="adjustment">adjustment_drop_device_threshold</property>
+                                        <property name="digits">0</property>
+                                        <signal name="format_value" handler="hscale_drop_device_threshold_format_value_cb"/>
+                                      </object>
+                                      <packing>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label_days1">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="label" translatable="yes">Day(s)</property>
+                                        <property name="justify">right</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="position">5</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
                                 <property name="position">0</property>
@@ -1296,5 +1344,12 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
     <property name="value">10</property>
     <property name="upper">1000</property>
     <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment_drop_device_threshold">
+    <property name="value">3</property>
+    <property name="upper">2000</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
   </object>
 </interface>

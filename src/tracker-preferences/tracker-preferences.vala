@@ -38,6 +38,7 @@ public static CheckButton checkbutton_index_removable_media;
 public static CheckButton checkbutton_index_optical_discs;
 public static Scale hscale_disk_space_limit;
 public static Scale hscale_throttle;
+public static Scale hscale_drop_device_threshold;
 public static ListStore liststore_index_recursively;
 public static ListStore liststore_index_single;
 public static ListStore liststore_ignored_directories;
@@ -110,6 +111,14 @@ public static string hscale_disk_space_limit_format_value_cb (Scale source, doub
 
 public static string hscale_throttle_format_value_cb (Scale source, double value) {
 	return _("%d/20").printf ((int) value);
+}
+
+public static string hscale_drop_device_threshold_format_value_cb (Scale source, double value) {
+	if (((int) value) == 0) {
+		return _("Disabled");
+	}
+
+	return _("%d").printf ((int) value);
 }
 
 public static void add_freevalue (ListStore model) {
@@ -274,6 +283,7 @@ public static void button_apply_clicked_cb (Button source) {
 
 	config.low_disk_space_limit = (int) hscale_disk_space_limit.get_value ();
 	config.throttle = (int) hscale_throttle.get_value ();
+	config.removable_days_threshold = (int) hscale_drop_device_threshold.get_value ();
 
 	config.save ();
 	icon_config.save ();
@@ -370,6 +380,8 @@ static int main (string[] args) {
 		hscale_disk_space_limit.set_value ((double) config.low_disk_space_limit);
 		hscale_throttle = builder.get_object ("hscale_throttle") as Scale;
 		hscale_throttle.set_value ((double) config.throttle);
+		hscale_drop_device_threshold = builder.get_object ("hscale_drop_device_threshold") as Scale;
+		hscale_drop_device_threshold.set_value ((double) config.removable_days_threshold);
 		togglebutton_home = builder.get_object ("togglebutton_home") as ToggleButton;
 
 		notebook = builder.get_object ("notebook") as Notebook;
