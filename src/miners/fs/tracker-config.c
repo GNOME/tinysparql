@@ -153,7 +153,7 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_POINTER, "ignored-directories",              GROUP_INDEXING, "IgnoredDirectories"        },
 	{ G_TYPE_POINTER, "ignored-directories-with-content", GROUP_INDEXING, "IgnoredDirectoriesWithContent" },
 	{ G_TYPE_POINTER, "ignored-files",                    GROUP_INDEXING, "IgnoredFiles"              },
-	{ G_TYPE_INT,	  "crawling-interval",		      GROUP_INDEXING, "CrawlingInterval"	  }
+	{ G_TYPE_INT,	  "crawling-interval",		      GROUP_INDEXING, "CrawlingInterval"	  },
 	{ G_TYPE_INT,	  "removable-days-threshold",	      GROUP_INDEXING, "RemovableDaysThreshold"	  }
 };
 
@@ -1259,7 +1259,7 @@ tracker_config_get_crawling_interval (TrackerConfig *config)
 }
 
 gint
-tracker_config_get_removable_day_threshold (TrackerConfig *config)
+tracker_config_get_removable_days_threshold (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
 
@@ -1667,8 +1667,8 @@ tracker_config_set_crawling_interval (TrackerConfig *config,
 }
 
 void
-tracker_config_set_crawling_interval (TrackerConfig *config,
-                                      gint           value)
+tracker_config_set_removable_days_threshold (TrackerConfig *config,
+                                             gint           value)
 {
 	TrackerConfigPrivate *priv;
 

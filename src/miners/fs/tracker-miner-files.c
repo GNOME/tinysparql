@@ -57,12 +57,6 @@
 #define DISK_SPACE_CHECK_FREQUENCY 10
 #define SECONDS_PER_DAY 86400
 
-/* If any removable device was not mounted again before the given
- * number of days threshold, it will be removed from the store
- * TODO: Make this value configurable in tracker-miner-fs.cfg
- */
-#define N_DAYS_THRESHOLD 3
-
 /* Default DBus timeout to be used in requests to extractor (milliseconds) */
 #define EXTRACTOR_DBUS_TIMEOUT 60000
 
@@ -1037,16 +1031,20 @@ init_mount_points (TrackerMinerFiles *miner_files)
 static gboolean
 cleanup_stale_removable_volumes_cb (gpointer user_data)
 {
+        TrackerMinerFiles *miner = TRACKER_MINER_FILES (user_data);
+        gint n_days_threshold = tracker_config_get_removable_days_threshold (miner->private->config);
 	time_t n_days_ago;
 	gchar *n_days_ago_as_string;
 
-	n_days_ago = (time (NULL) - (SECONDS_PER_DAY * N_DAYS_THRESHOLD));
+        if (n_days_threshold == 0)
+                return TRUE;
+
+	n_days_ago = (time (NULL) - (SECONDS_PER_DAY * n_days_threshold));
 	n_days_ago_as_string = tracker_date_to_string (n_days_ago);
 
 	g_message ("Running stale volumes check...");
 
-	miner_files_in_removable_media_remove_by_date (TRACKER_MINER_FILES (user_data),
-	                                               n_days_ago_as_string);
+	miner_files_in_removable_media_remove_by_date (miner, n_days_ago_as_string);
 
 	g_free (n_days_ago_as_string);
 

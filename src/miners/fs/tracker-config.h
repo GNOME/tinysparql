@@ -103,7 +103,7 @@ void           tracker_config_set_ignored_files                    (TrackerConfi
                                                                     GSList        *files);
 void           tracker_config_set_crawling_interval                (TrackerConfig *config,
                                                                     gint           interval);
-gint           tracker_config_set_removable_days_threshold         (TrackerConfig *config,
+void           tracker_config_set_removable_days_threshold         (TrackerConfig *config,
                                                                     gint           value);
 
 /*
