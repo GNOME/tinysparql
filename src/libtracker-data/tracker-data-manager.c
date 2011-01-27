@@ -3224,9 +3224,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	GHashTable *uri_id_map = NULL;
 	gchar *busy_status;
 
-	tracker_data_update_init ();
-
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
+
+	tracker_data_update_init ();
 
 	/* First set defaults for return values */
 	if (first_time) {

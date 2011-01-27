@@ -151,6 +151,8 @@ static TrackerDataUpdateBuffer update_buffer;
 static TrackerDataUpdateBufferResource *resource_buffer;
 static TrackerDataBlankBuffer blank_buffer;
 static time_t resource_time = 0;
+static gint transaction_modseq = 0;
+static gboolean has_persistent = TRUE;
 
 static GPtrArray *insert_callbacks = NULL;
 static GPtrArray *delete_callbacks = NULL;
@@ -158,7 +160,6 @@ static GPtrArray *commit_callbacks = NULL;
 static GPtrArray *rollback_callbacks = NULL;
 static gint max_service_id = 0;
 static gint max_ontology_id = 0;
-static gint max_modseq = 0;
 
 static gint         ensure_resource_id      (const gchar      *uri,
                                              gboolean         *create);
@@ -413,14 +414,6 @@ tracker_data_update_get_new_service_id (void)
 	}
 }
 
-void
-tracker_data_update_shutdown (void)
-{
-	max_service_id = 0;
-	max_ontology_id = 0;
-	max_modseq = 0;
-}
-
 static gint
 tracker_data_update_get_next_modseq (void)
 {
@@ -428,10 +421,7 @@ tracker_data_update_get_next_modseq (void)
 	TrackerDBInterface *temp_iface;
 	TrackerDBStatement *stmt;
 	GError             *error = NULL;
-
-	if (G_LIKELY (max_modseq != 0)) {
-		return ++max_modseq;
-	}
+	gint                max_modseq = 0;
 
 	temp_iface = tracker_db_manager_get_db_interface ();
 
@@ -459,6 +449,23 @@ tracker_data_update_get_next_modseq (void)
 	return ++max_modseq;
 }
 
+void
+tracker_data_update_shutdown (void)
+{
+	max_service_id = 0;
+	max_ontology_id = 0;
+	transaction_modseq = 0;
+}
+
+static gint
+get_transaction_modseq (void)
+{
+	if (G_UNLIKELY (transaction_modseq == 0)) {
+		transaction_modseq = tracker_data_update_get_next_modseq ();
+	}
+
+	return transaction_modseq;
+}
 
 static TrackerDataUpdateBufferTable *
 cache_table_new (gboolean multiple_values)
@@ -502,7 +509,7 @@ cache_ensure_table (const gchar *table_name,
 		resource_buffer->modified = TRUE;
 
 		g_value_init (&gvalue, G_TYPE_INT64);
-		g_value_set_int64 (&gvalue, tracker_data_update_get_next_modseq ());
+		g_value_set_int64 (&gvalue, get_transaction_modseq ());
 		cache_insert_value ("rdfs:Resource", "tracker:modified", TRUE, &gvalue,
 		                    0,
 		                    FALSE, FALSE, FALSE);
@@ -552,6 +559,10 @@ cache_insert_value (const gchar            *table_name,
 #endif
 	property.date_time = date_time;
 
+	if (!transient) {
+		has_persistent = TRUE;
+	}
+
 	table = cache_ensure_table (table_name, multiple_values, transient);
 	g_array_append_val (table->properties, property);
 }
@@ -585,6 +596,10 @@ cache_delete_value (const gchar            *table_name,
 	property.fts = fts;
 #endif
 	property.date_time = date_time;
+
+	if (!transient) {
+		has_persistent = TRUE;
+	}
 
 	table = cache_ensure_table (table_name, multiple_values, transient);
 	table->delete_value = TRUE;
@@ -887,7 +902,7 @@ tracker_data_resource_buffer_flush (GError **error)
 				if (strcmp (table_name, "rdfs:Resource") == 0) {
 					g_warn_if_fail	(resource_time != 0);
 					tracker_db_statement_bind_int (stmt, 1, (gint64) resource_time);
-					tracker_db_statement_bind_int (stmt, 2, tracker_data_update_get_next_modseq ());
+					tracker_db_statement_bind_int (stmt, 2, get_transaction_modseq ());
 					param = 3;
 				} else {
 					param = 1;
@@ -2395,6 +2410,8 @@ tracker_data_begin_transaction (GError **error)
 
 	resource_time = time (NULL);
 
+	has_persistent = FALSE;
+
 	if (update_buffer.resource_cache == NULL) {
 		update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 		/* used for normal transactions */
@@ -2459,10 +2476,21 @@ tracker_data_commit_transaction (GError **error)
 	}
 
 	in_transaction = FALSE;
+	get_transaction_modseq ();
+	if (has_persistent) {
+		transaction_modseq++;
+	}
 	in_ontology_transaction = FALSE;
 
 	if (!in_journal_replay) {
-		tracker_db_journal_commit_db_transaction ();
+		if (has_persistent) {
+			tracker_db_journal_commit_db_transaction ();
+		} else {
+			/* If we only had transient properties, then we must not write
+			 * anything to the journal. So we roll it back, but only the
+			 * journal's part. */
+			tracker_db_journal_rollback_transaction ();
+		}
 	}
 	resource_time = 0;
 
