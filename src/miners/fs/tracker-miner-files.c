@@ -170,6 +170,7 @@ static void        mount_point_removed_cb               (TrackerStorage       *s
                                                          const gchar          *uuid,
                                                          const gchar          *mount_point,
                                                          gpointer              user_data);
+#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 static void        check_battery_status                 (TrackerMinerFiles    *fs);
 static void        battery_status_cb                    (GObject              *object,
                                                          GParamSpec           *pspec,
@@ -177,6 +178,7 @@ static void        battery_status_cb                    (GObject              *o
 static void        index_on_battery_cb                  (GObject    *object,
                                                          GParamSpec *pspec,
                                                          gpointer    user_data);
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 static void        init_mount_points                    (TrackerMinerFiles    *miner);
 static void        init_stale_volume_removal            (TrackerMinerFiles    *miner);
 static void        disk_space_check_start               (TrackerMinerFiles    *mf);
