@@ -1,3 +1,29 @@
+NEW in 0.9.36 - 2011-01-27
+==========================
+
+The changes are:
+
+  * Fixes NB#221700: miner-fs: Handle errors when requesting bus names
+  * Fixes NB#222578: tracker-writeback: Add member= to the signal's subscription
+  * Fixes NB#222645: libtracker-data: Fix resource without URI on insert after rollback
+  * Fixes NB#222664: miner-fs: Do not access MemoryOutputStream data before finishing splice
+  * Ontology: Added missing documentation for rdf, mtp and slo
+  * Ontology: Remove long-deprecated classes and properties
+  * SPARQL: Ignore CONSTRUCT/INSERT/DELETE triples with unbound variables
+  * SPARQL: Fix SQL generated for predicate variables and deleted subjects
+  * libtracker-data: Fix transient properties
+  * functional-tests: Ensure nfo:belongsToContainer is changed on file moves
+
+Translations:
+
+  * Updated ar: Khaled Hosny
+  * Updated cz: Marek Cernocky
+
+Notes:
+
+  None
+
+
 NEW in 0.9.35 - 2011-01-20
 ==========================
 
