@@ -35,6 +35,7 @@ namespace Tracker {
 		public bool index_optical_discs { get; set; }
 		public bool index_mounted_directories { get; set; }
 		public int low_disk_space_limit { get; set; }
+		public int removable_days_threshold { get; set; }
 		public GLib.SList<string> index_recursive_directories { get; set; }
 		public GLib.SList<string> index_recursive_directories_unfiltered { get; }
 		public GLib.SList<string> index_single_directories { get; set; }
