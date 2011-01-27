@@ -1026,6 +1026,7 @@ tracker_data_update_buffer_clear (void)
 
 	g_hash_table_remove_all (update_buffer.resources);
 	g_hash_table_remove_all (update_buffer.resources_by_id);
+	g_hash_table_remove_all (update_buffer.resource_cache);
 	resource_buffer = NULL;
 
 #if HAVE_TRACKER_FTS
