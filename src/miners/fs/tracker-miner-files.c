@@ -2130,23 +2130,37 @@ get_metadata_fast_cb (void     *buffer,
 {
 	FastAsyncData *data;
 	ProcessFileData *process_data;
-	const gchar *preupdate;
+	gboolean free_error = FALSE;
+	const gchar *preupdate = NULL;
 	const gchar *sparql = NULL;
 
 	data = user_data;
 	process_data = data->user_data;
 
-	preupdate = buffer;
+	if (!error && buffer_size) {
+		gsize preupdate_length;
+
+		preupdate = buffer;
+		preupdate_length = strnlen (preupdate, buffer_size);
+		if (preupdate_length < buffer_size && preupdate[buffer_size - 1] == '\0') {
+			/* sparql is stored just after preupdate in the original buffer */
+			sparql = preupdate + preupdate_length + 1;
+		} else {
+			error = g_error_new_literal (miner_files_error_quark,
+				                     0,
+				                     "Invalid data received from GetMetadataFast");
+			free_error = TRUE;
+		}
+	}
+
 	if (G_UNLIKELY (error)) {
 		if (error->code != G_IO_ERROR_CANCELLED) {
 			(* data->callback) (NULL, NULL, error, process_data);
 		}
-	} else {
-		if (buffer_size) {
-			/* sparql is stored just after preupdate in the original buffer */
-			sparql = preupdate + strlen (preupdate) + 1;
+		if (free_error) {
+			g_error_free (error);
 		}
-
+	} else {
 		(* data->callback) (preupdate, sparql, NULL, data->user_data);
 	}
 
