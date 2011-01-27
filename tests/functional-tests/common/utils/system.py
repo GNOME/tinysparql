@@ -28,7 +28,8 @@ class TrackerStoreLifeCycle ():
 
     def __init__ (self):
         self.timeout_id = 0
-
+        self.available = False
+        
     def start (self):
         """
         call this method to start and instance of tracker-store. It will return when the store is ready
@@ -62,9 +63,10 @@ class TrackerStoreLifeCycle ():
 
     def stop (self):
         self.__stop_tracker_store ()
-        # It should step out of this loop when the miner disappear from the bus
-        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
-        self.loop.run ()
+        if self.available:
+            # It should step out of this loop when the miner disappear from the bus
+            self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
+            self.loop.run ()
 
         print "[store] stop."
         # Disconnect the signals of the next start we get duplicated messages
@@ -87,8 +89,10 @@ class TrackerStoreLifeCycle ():
         if name == cfg.TRACKER_BUSNAME:
             if old_owner == '' and new_owner != '':
                 print "[store] appears in the bus"
+                self.available = True
             elif old_owner != ''  and new_owner == '':
                 print "[store] disappears from the bus"
+                self.available = False
             else:
                 print "[store] name change %s -> %s" % (old_owner, new_owner)
             self.loop.quit ()
@@ -113,6 +117,7 @@ class TrackerMinerFsLifeCycle():
     """
     def __init__ (self):
         self.timeout_id = 0
+        self.available = False
 
     def start (self):
         """
@@ -150,17 +155,19 @@ class TrackerMinerFsLifeCycle():
     def stop (self):
         self.__stop_tracker_miner_fs ()
         # It should step out of this loop when the miner disappear from the bus
-        self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
-        self.loop.run ()
+        if (self.available):
+            self.timeout_id = glib.timeout_add_seconds (REASONABLE_TIMEOUT, self.__timeout_on_idle)
+            self.loop.run ()
 
         # Disconnect the signals of the next start we get duplicated messages
         self.bus._clean_up_signal_match (self.name_owner_match)
         self.bus._clean_up_signal_match (self.status_match)
+        print "[miner-fs] stop."
 
 
     def wait_for_idle (self, timeout=REASONABLE_TIMEOUT):
         # The signal is already connected
-        print "[miner-fs] waiting for Idle"
+        print "\n[miner-fs] waiting for Idle"
         self.timeout_id = glib.timeout_add_seconds (timeout, self.__timeout_on_idle)
         self.loop.run ()
 
@@ -237,7 +244,12 @@ class TrackerWritebackLifeCycle():
 
     def __name_owner_changed_cb (self, name, old_owner, new_owner):
         if name == cfg.WRITEBACK_BUSNAME:
-            print "Writeback changed named '%s' -> '%s'" % (old_owner, new_owner)
+            if old_owner == '' and new_owner != '':
+                print "[writeback] appears in the bus"
+            elif old_owner != ''  and new_owner == '':
+                print "[writeback] disappears from the bus"
+            else:
+                print "[writeback] name change %s -> %s" % (old_owner, new_owner)
             if (self.timeout_id != 0):
                 glib.source_remove (self.timeout_id)
                 self.timeout_id = 0
