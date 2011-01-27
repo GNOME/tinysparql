@@ -96,6 +96,9 @@ typedef struct {
 	TrackerDBusSendAndSpliceCallback callback;
 	GCancellable *cancellable;
 	gpointer user_data;
+	gboolean splice_finished;
+	gboolean dbus_finished;
+	GError *error;
 } SendAndSpliceData;
 
 typedef struct {
@@ -1996,29 +1999,56 @@ send_and_splice_data_free (SendAndSpliceData *data)
 	if (data->cancellable) {
 		g_object_unref (data->cancellable);
 	}
+	if (data->error) {
+		g_object_unref (data->error);
+	}
 	g_slice_free (SendAndSpliceData, data);
 }
 
 static void
-send_and_splice_async_callback (GObject      *source,
+dbus_send_and_splice_async_finish (SendAndSpliceData *data)
+{
+	if (!data->error) {
+		(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
+		                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
+		                    NULL,
+		                    data->user_data);
+	} else {
+		(* data->callback) (NULL, -1, data->error, data->user_data);
+	}
+
+	send_and_splice_data_free (data);
+}
+
+static void
+send_and_splice_splice_callback (GObject      *source,
                                 GAsyncResult *result,
                                 gpointer      user_data)
 {
+	SendAndSpliceData *data = user_data;
 	GError *error = NULL;
 
 	g_output_stream_splice_finish (G_OUTPUT_STREAM (source), result, &error);
 
 	if (error) {
-		g_critical ("Error while splicing: %s",
-		            error ? error->message : "Error not specified");
-		g_error_free (error);
+		if (!data->error) {
+			data->error = error;
+		} else {
+			g_error_free (error);
+		}
+	}
+
+	data->splice_finished = TRUE;
+
+	if (data->dbus_finished) {
+		dbus_send_and_splice_async_finish (data);
 	}
 }
 
 static void
-dbus_send_and_splice_async_finish (GObject      *source,
-                                   GAsyncResult *result,
-                                   gpointer      user_data)
+send_and_splice_dbus_callback (GObject      *source,
+                               GAsyncResult *result,
+                               gpointer      user_data)
 {
 	SendAndSpliceData *data = user_data;
 	GDBusMessage *reply;
@@ -2027,28 +2057,27 @@ dbus_send_and_splice_async_finish (GObject      *source,
 	reply = g_dbus_connection_send_message_with_reply_finish (G_DBUS_CONNECTION (source),
 	                                                          result, &error);
 
-	if (!error) {
-		if (g_dbus_message_get_message_type (reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
-
-			g_dbus_message_to_gerror (reply, &error);
-			(* data->callback) (NULL, -1, error, data->user_data);
-			g_error_free (error);
-		} else {
-			(* data->callback) (g_memory_output_stream_get_data (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
-			                    g_memory_output_stream_get_data_size (G_MEMORY_OUTPUT_STREAM (data->output_stream)),
-			                    NULL,
-			                    data->user_data);
-		}
-	} else {
-		(* data->callback) (NULL, -1, error, data->user_data);
-		g_error_free (error);
-	}
-
 	if (reply) {
+		if (g_dbus_message_get_message_type (reply) == G_DBUS_MESSAGE_TYPE_ERROR) {
+			g_dbus_message_to_gerror (reply, &error);
+		}
+
 		g_object_unref (reply);
 	}
 
-	send_and_splice_data_free (data);
+	if (error) {
+		if (!data->error) {
+			data->error = error;
+		} else {
+			g_error_free (error);
+		}
+	}
+
+	data->dbus_finished = TRUE;
+
+	if (data->splice_finished) {
+		dbus_send_and_splice_async_finish (data);
+	}
 }
 
 static gboolean
@@ -2087,7 +2116,7 @@ dbus_send_and_splice_async (GDBusConnection                  *connection,
 	                                           -1,
 	                                           NULL,
 	                                           cancellable,
-	                                           dbus_send_and_splice_async_finish,
+	                                           send_and_splice_dbus_callback,
 	                                           data);
 
 	g_output_stream_splice_async (data->output_stream,
@@ -2096,7 +2125,7 @@ dbus_send_and_splice_async (GDBusConnection                  *connection,
 	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
 	                              0,
 	                              data->cancellable,
-	                              send_and_splice_async_callback,
+	                              send_and_splice_splice_callback,
 	                              data);
 
 	return TRUE;
