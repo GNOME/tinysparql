@@ -189,5 +189,27 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                 """
                 self.tracker.update (delete)
 
+
+        def test_03_NB222645_non_existing_class_resource (self):
+                """
+                NB222645 - Inserting a resource using an non-existing class, doesn't rollback completely
+                """
+                query = "SELECT tracker:modified (?u) ?u  WHERE { ?u a nco:Contact }"
+                original_data = self.tracker.query (query)
+
+                wrong_insert = "INSERT { <test://nb222645-wrong-class-contact> a nco:IMContact. } "
+                self.assertRaises (dbus.DBusException,
+                                   self.tracker.update,
+                                   wrong_insert)
+
+                new_data = self.tracker.query (query)
+                self.assertEquals (len (original_data), len (new_data))
+                # We could be more picky, but checking there are the same number of results
+                # is enough to verify the problem described in the bug.
+
+                
+
+                
+
 if __name__ == "__main__":
 	ut.main()
