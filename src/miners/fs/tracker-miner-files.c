@@ -130,6 +130,8 @@ struct TrackerMinerFilesPrivate {
 	gboolean index_optical_discs;
 	guint volumes_changed_id;
 
+	gboolean mount_points_initialized;
+
 	guint stale_volumes_check_id;
 };
 
@@ -434,6 +436,12 @@ miner_files_constructed (GObject *object)
 	if (G_UNLIKELY (!mf->private->config)) {
 		g_message ("No config for miner %p (%s).", object, G_OBJECT_TYPE_NAME (object));
 		return;
+	}
+
+	/* If this happened AFTER we have initialized mount points, initialize
+	 * stale volume removal now. */
+	if (mf->private->mount_points_initialized) {
+		init_stale_volume_removal (mf);
 	}
 
 	/* Setup initial flag for removable devices */
@@ -844,11 +852,13 @@ init_mount_points_cb (GObject      *source,
 		            error->message);
 		g_error_free (error);
 	} else {
-		/* Only initiate stale volume removal AFTER we have initialized
-		 * the mount points, as we need the correct tracker:isMounted value
-		 * for all currently mounted volumes
-		 */
-		init_stale_volume_removal (TRACKER_MINER_FILES (user_data));
+		/* Mount points correctly initialized */
+		(TRACKER_MINER_FILES (user_data))->private->mount_points_initialized = TRUE;
+		/* If this happened AFTER we have a proper config, initialize
+		 * stale volume removal now. */
+		if ((TRACKER_MINER_FILES (user_data))->private->config) {
+			init_stale_volume_removal (TRACKER_MINER_FILES (user_data));
+		}
 	}
 }
 
@@ -1019,9 +1029,9 @@ init_mount_points (TrackerMinerFiles *miner_files)
 		                                        init_mount_points_cb,
 		                                        miner);
 	} else {
-		/* If no further mount point initialization was needed,
-		 * initialize stale volume removal here. */
-		init_stale_volume_removal (TRACKER_MINER_FILES (miner));
+		/* Note. Not initializing stale volume removal timeout because
+		 * we do not have the configuration setup yet */
+		(TRACKER_MINER_FILES (miner))->private->mount_points_initialized = TRUE;
 	}
 
 	g_string_free (accumulator, TRUE);
@@ -1056,8 +1066,16 @@ cleanup_stale_removable_volumes_cb (gpointer user_data)
 static void
 init_stale_volume_removal (TrackerMinerFiles *miner)
 {
+	/* If disabled, make sure we don't do anything */
+	if (tracker_config_get_removable_days_threshold (miner->private->config) == 0) {
+		g_message ("Stale volume check is disabled");
+		return;
+	}
+
 	/* Run right away the first check */
 	cleanup_stale_removable_volumes_cb (miner);
+
+	g_message ("Initializing stale volume check timeout...");
 
 	/* Then, setup new timeout event every day */
 	miner->private->stale_volumes_check_id =
@@ -1695,6 +1713,22 @@ index_volumes_changed_idle (gpointer user_data)
 	}
 
 	mf->private->volumes_changed_id = 0;
+
+	/* Check if the stale volume removal configuration changed from enabled to disabled
+	 * or from disabled to enabled */
+	if (tracker_config_get_removable_days_threshold (mf->private->config) == 0 &&
+	    mf->private->stale_volumes_check_id != 0) {
+		/* From having the check enabled to having it disabled, remove the timeout */
+		g_debug ("  Stale volume removal now disabled, removing timeout");
+		g_source_remove (mf->private->stale_volumes_check_id);
+		mf->private->stale_volumes_check_id = 0;
+	} else if (tracker_config_get_removable_days_threshold (mf->private->config) > 0 &&
+	           mf->private->stale_volumes_check_id == 0) {
+		g_debug ("  Stale volume removal now enabled, initializing timeout");
+		/* From having the check disabled to having it enabled, so fire up the
+		 * timeout. */
+		init_stale_volume_removal (TRACKER_MINER_FILES (mf));
+	}
 
 	return FALSE;
 }
