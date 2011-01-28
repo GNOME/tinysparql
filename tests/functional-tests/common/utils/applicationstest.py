@@ -45,8 +45,12 @@ class CommonTrackerApplicationTest (ut.TestCase):
         return TEST_IMAGE
 
     def get_test_video (self):
-        TEST_VIDEO = "test-video.mp4"
+        TEST_VIDEO = "test-video-1.mp4"
         return TEST_VIDEO
+
+    def get_test_music (self):
+        TEST_AUDIO =  "test-music-1.mp3"
+        return TEST_AUDIO
 
     def get_data_dir (self):
         return self.datadir
