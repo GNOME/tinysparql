@@ -39,7 +39,7 @@ MINER_FS_IDLE_TIMEOUT = 5
 
 class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
 
-    def test_camera_picture_01 (self):
+    def test_01_camera_picture (self):
         """
         Camera simulation:
 
@@ -94,7 +94,7 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 
-    def test_camera_picture_02_geolocation (self):
+    def test_02_camera_picture_geolocation (self):
         """
         Camera simulation:
 
@@ -183,7 +183,7 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 
-    def test_camera_video_01 (self):
+    def test_03_camera_video (self):
         """
         Camera video recording simulation:
 
@@ -238,7 +238,7 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 
-    def test_camera_video_02_geolocation (self):
+    def test_04_camera_video_geolocation (self):
         """
         Camera simulation:
 

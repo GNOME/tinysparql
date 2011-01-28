@@ -39,7 +39,7 @@ MINER_FS_IDLE_TIMEOUT = 5
 
 class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
 
-    def test_sync_audio_01 (self):
+    def test_01_sync_audio_nb219946 (self):
         """
         Sync simulation (after fix for NB#219946):
 
