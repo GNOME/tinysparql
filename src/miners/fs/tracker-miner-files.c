@@ -616,6 +616,9 @@ miner_files_constructed (GObject *object)
 	g_signal_connect (mf->private->config, "notify::index-optical-discs",
 	                  G_CALLBACK (index_volumes_changed_cb),
 	                  mf);
+	g_signal_connect (mf->private->config, "notify::removable-days-threshold",
+	                  G_CALLBACK (index_volumes_changed_cb),
+	                  mf);
 
 #if defined(HAVE_UPOWER) || defined(HAVE_HAL)
 
