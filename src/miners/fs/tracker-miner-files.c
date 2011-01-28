@@ -2000,7 +2000,7 @@ send_and_splice_data_free (SendAndSpliceData *data)
 		g_object_unref (data->cancellable);
 	}
 	if (data->error) {
-		g_object_unref (data->error);
+		g_error_free (data->error);
 	}
 	g_slice_free (SendAndSpliceData, data);
 }
