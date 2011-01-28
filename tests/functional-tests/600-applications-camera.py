@@ -311,14 +311,12 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         assert os.path.exists (dest_filepath)
 
         # FOURTH, ensure we have only 1 resource
-        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
         os.remove (dest_filepath)
-        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
