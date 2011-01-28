@@ -21,85 +21,18 @@
 Write values in tracker and check the actual values are written
 on the files. Note that these tests are highly platform dependant.
 """
-import sys, os, dbus
+import os, dbus
 import time
-import shutil
 
-from common.utils.system import TrackerSystemAbstraction
 from common.utils.helpers import StoreHelper, ExtractorHelper
-from common.utils import configuration as cfg
+from common.utils.writebacktest import CommonTrackerWritebackTest as CommonTrackerWritebackTest
+from common.utils.writebacktest import uri as uri
 import unittest2 as ut
 from common.utils.expectedFailure import expectedFailureBug
 
-BASEDIR = os.environ['HOME']
 REASONABLE_TIMEOUT = 5 # Seconds we wait for tracker-writeback to do the work
 
-def uri (filename):
-    return "file://" + os.path.join (BASEDIR, filename)
-
-
-class CommonTrackerWritebackTest (ut.TestCase):
-    """
-    Superclass to share methods. Shouldn't be run by itself.
-    """
-	     
-    @classmethod
-    def __prepare_directories (self):
-        #
-        #     ~/test-writeback-monitored/
-        #     ~/test-writeback-no-monitored/
-        #
-        
-        for d in ["test-writeback-monitored",
-                  "test-writeback-no-monitored"]:
-            directory = os.path.join (BASEDIR, d)
-            if (os.path.exists (directory)):
-                shutil.rmtree (directory)
-            os.makedirs (directory)
-
-
-        if (os.path.exists (os.getcwd() + "/test-writeback-data")):
-            # Use local directory if available
-            datadir = os.getcwd() + "/test-writeback-data"
-        else:
-            datadir = os.path.join (cfg.DATADIR, "tracker-tests",
-                                    "test-writeback-data")
-
-        for root, dirs, testfile in os.walk (datadir):
-
-            def is_valid_file (f):
-                return not (tf.endswith ("~") or tf.startswith ("Makefile"))
-
-            valid_files = [os.path.join (root, tf) for tf in testfile if is_valid_file (tf)]
-            for f in valid_files:
-                print "Copying", f, os.path.join (BASEDIR, "test-writeback-monitored")
-                shutil.copy (f, os.path.join (BASEDIR, "test-writeback-monitored"))
-
-    
-    @classmethod 
-    def setUpClass (self):
-        #print "Starting the daemon in test mode"
-        self.__prepare_directories ()
-        
-        self.system = TrackerSystemAbstraction ()
-
-        if (os.path.exists (os.getcwd() + "/test-configurations/writeback")):
-            # Use local directory if available
-            confdir = os.getcwd() + "/test-configurations/writeback"
-        else:
-            confdir = os.path.join (cfg.DATADIR, "tracker-tests",
-                                    "test-configurations", "writeback")
-        self.system.tracker_writeback_testing_start (confdir)
-        # Returns when ready
-        print "Ready to go!"
-        
-    @classmethod
-    def tearDownClass (self):
-        #print "Stopping the daemon in test mode (Doing nothing now)"
-        self.system.tracker_writeback_testing_stop ()
-    
-
-class WritebackMonitoredTest (CommonTrackerWritebackTest):
+class WritebackBasicDataTest (CommonTrackerWritebackTest):
     """
     Write in tracker store the properties witih writeback support and check
     that the new values are actually in the file
