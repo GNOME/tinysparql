@@ -1347,7 +1347,7 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
   </object>
   <object class="GtkAdjustment" id="adjustment_drop_device_threshold">
     <property name="value">3</property>
-    <property name="upper">2000</property>
+    <property name="upper">365</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
     <property name="page_size">10</property>

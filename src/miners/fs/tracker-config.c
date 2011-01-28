@@ -50,7 +50,7 @@
 #define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
 #define DEFAULT_LOW_DISK_SPACE_LIMIT             1        /* 0->100 / -1 */
 #define DEFAULT_CRAWLING_INTERVAL                0        /* 0->365 / -1 */
-#define DEFAULT_REMOVABLE_DAYS_THRESHOLD         3        /* 0->365 / -1 */
+#define DEFAULT_REMOVABLE_DAYS_THRESHOLD         3        /* 1->365 / 0  */
 
 typedef struct {
 	/* General */
@@ -309,9 +309,9 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   "Removable days threshold",
 	                                                   " Threshold in days after which files from removables devices"
 	                                                   " will be removed from database if not mounted. 0 means never, "
-	                                                   " maximum is 2000.",
+	                                                   " maximum is 365.",
 	                                                   3,
-	                                                   2000,
+	                                                   365,
 	                                                   DEFAULT_REMOVABLE_DAYS_THRESHOLD,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
