@@ -305,11 +305,12 @@ rdf_types_to_uris_cb (GObject      *object,
 		}
 
 		query = g_strdup_printf ("SELECT ?url '%s' ?predicate ?object { "
+		                            "<%s> a nfo:FileDataObject . "
 		                            "<%s> ?predicate ?object ; nie:url ?url . "
 		                            "?predicate tracker:writeback true . "
 		                            "FILTER (NOT EXISTS { GRAPH <"TRACKER_MINER_FS_GRAPH_URN"> "
 		                              "{ <%s> ?predicate ?object } }) } ",
-		                         subject, subject, subject);
+		                         subject, subject, subject, subject);
 
 		tracker_sparql_connection_query_async (priv->connection,
 		                                       query,
