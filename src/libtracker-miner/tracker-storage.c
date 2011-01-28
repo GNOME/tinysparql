@@ -591,21 +591,28 @@ mount_add (TrackerStorage *storage,
 
 			g_free (content_type);
 		} else {
-			/* Any other removable media will have UUID in the GVolume.
-			 * Note that this also may include some partitions in the machine
-			 * which have GVolumes associated to the GMounts. So, we need to
-			 * explicitly check if the drive is media-removable (machine
-			 * partitions won't be media-removable) */
+			/* Any other removable media will have UUID in the
+			 * GVolume. Note that this also may include some
+			 * partitions in the machine which have GVolumes
+			 * associated to the GMounts. We also check a drive
+			 * exists to be sure the device is local. */
 			GDrive *drive;
 
 			drive = g_volume_get_drive (volume);
+
 			if (drive) {
-				is_removable = g_drive_is_media_removable (drive);
+				/* We can't mount/unmount system volumes, so tag
+				 * them as non removable. */
+				if (g_volume_can_mount (volume)) {
+					is_removable = TRUE;
+				} else {
+					is_removable = FALSE;
+				}
 				g_object_unref (drive);
 			} else {
 				/* Note: not sure when this can happen... */
 				g_debug ("  Assuming GDrive has removable media, if wrong report a bug!");
-				is_removable = TRUE;
+				is_removable = FALSE;
 			}
 		}
 
