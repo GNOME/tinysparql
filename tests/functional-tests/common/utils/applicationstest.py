@@ -28,29 +28,8 @@ import time
 
 APPLICATIONS_TMP_DIR = os.path.join (cfg.TEST_TMP_DIR, "test-applications-monitored")
 
-def path (filename):
-    return os.path.join (APPLICATIONS_TMP_DIR, filename)
-
-def uri (filename):
-    return "file://" + os.path.join (APPLICATIONS_TMP_DIR, filename)
-
-# Being rate defined in amount of BYTES per 100ms
-def slowcopy_fd (src, dest, fdest, rate):
-    print "Copying from '%s' to '%s' at a rate of %u bytes/100ms" % (src, dest, rate)
-    fsrc = open (src, 'rb')
-    buffer = fsrc.read (rate)
-    while (buffer != ""):
-        fdest.write (buffer)
-        time.sleep (0.1)
-        buffer = fsrc.read (rate)
-
-    fsrc.close ()
-
-def slowcopy (src, dest, rate):
-    fdest = open (dest, 'wb')
-    slowcopy_fd (src, dest, fdest, rate)
-    fdest.close ()
-
+# Copy rate, 10KBps (1024b/100ms)
+SLOWCOPY_RATE = 1024
 
 class CommonTrackerApplicationTest (ut.TestCase):
 
@@ -60,12 +39,60 @@ class CommonTrackerApplicationTest (ut.TestCase):
         """ % (url)
         return len (self.tracker.query (select))
 
+
+    def get_test_image (self):
+        TEST_IMAGE = "test-image-1.jpg"
+        return TEST_IMAGE
+
+    def get_test_video (self):
+        TEST_VIDEO = "test-video.mp4"
+        return TEST_VIDEO
+
+    def get_data_dir (self):
+        return self.datadir
+
+    def get_dest_dir (self):
+        return APPLICATIONS_TMP_DIR
+
+    def slowcopy_file_fd (self, src, fdest, rate=SLOWCOPY_RATE):
+        """
+        @rate: bytes per 100ms
+        """
+        print "Copying slowly\n '%s' to\n '%s'" % (src, fdest.name)
+        fsrc = open (src, 'rb')
+        buffer_ = fsrc.read (rate)
+        while (buffer_ != ""):
+            fdest.write (buffer_)
+            time.sleep (0.1)
+            buffer_ = fsrc.read (rate)
+        fsrc.close ()
+        
+
+    def slowcopy_file (self, src, dst, rate=SLOWCOPY_RATE):
+        """
+        @rate: bytes per 100ms
+        """
+        fdest = open (dst, 'wb')
+        self.slowcopy_file_fd (src, fdest, rate)
+        fdest.close ()
+
     @classmethod
     def setUp (self):
         # Create temp directory to monitor
         if (os.path.exists (APPLICATIONS_TMP_DIR)):
             shutil.rmtree (APPLICATIONS_TMP_DIR)
         os.makedirs (APPLICATIONS_TMP_DIR)
+
+        # Use local directory if available. Installation otherwise.
+        if os.path.exists (os.path.join (os.getcwd (),
+                                         "test-apps-data")):
+            self.datadir = os.path.join (os.getcwd (),
+                                         "test-apps-data")
+        else:
+            self.datadir = os.path.join (cfg.DATADIR,
+                                         "tracker-tests",
+                                         "test-apps-data")
+
 
         self.system = TrackerSystemAbstraction ()
 
@@ -77,9 +104,6 @@ class CommonTrackerApplicationTest (ut.TestCase):
                                     "test-configurations",
                                     "applications")
         else:
-            confdir = os.path.join (os.getcwd(),
-                                    "test-configurations",
-                                    "applications")
             confdir = os.path.join (cfg.DATADIR,
                                     "tracker-tests",
                                     "test-configurations",
@@ -92,8 +116,6 @@ class CommonTrackerApplicationTest (ut.TestCase):
         self.tracker.wait ()
 
         print "Ready to go!"
-        print "    Using configuration dir at '%s'..." % (confdir)
-        print "    Using temp dir at '%s'..." % (APPLICATIONS_TMP_DIR)
 
     @classmethod
     def tearDown (self):

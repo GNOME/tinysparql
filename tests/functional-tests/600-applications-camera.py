@@ -33,28 +33,9 @@ import fcntl
 
 from common.utils import configuration as cfg
 import unittest2 as ut
-from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest, APPLICATIONS_TMP_DIR, path, uri, slowcopy, slowcopy_fd
+from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest
 
 MINER_FS_IDLE_TIMEOUT = 5
-# Copy rate, 10KBps (1024b/100ms)
-SLOWCOPY_RATE = 1024
-
-# Test image
-TEST_IMAGE = "test-image-1.jpg"
-SRC_IMAGE_DIR = os.path.join (cfg.DATADIR,
-                              "tracker-tests",
-                              "data",
-                              "Images")
-SRC_IMAGE_PATH = os.path.join (SRC_IMAGE_DIR, TEST_IMAGE)
-
-# Test video
-TEST_VIDEO = "test-video.mp4"
-SRC_VIDEO_DIR = os.path.join (cfg.DATADIR,
-                              "tracker-tests",
-                              "data",
-                              "Video")
-SRC_VIDEO_PATH = os.path.join (SRC_VIDEO_DIR, TEST_VIDEO)
-
 
 class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
 
@@ -69,10 +50,9 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         """
 
         fileurn = "tracker://test_camera_picture_01/" + str(random.randint (0,100))
-        filepath = path (TEST_IMAGE)
-        fileuri = uri (TEST_IMAGE)
-
-        print "Storing new image in '%s'..." % (filepath)
+        origin_filepath = os.path.join (self.get_data_dir (), self.get_test_image ())
+        dest_filepath = os.path.join (self.get_dest_dir (), self.get_test_image ())
+        dest_fileuri = "file://" + dest_filepath
 
         # Insert new resource in the store, including nie:mimeType and nie:url
         insert = """
@@ -97,23 +77,21 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         INSERT { <%s> a       rdfs:Resource ;
                       nie:url \"%s\"
         }
-        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
+        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, dest_fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Copy the image to the dest path
-        slowcopy (SRC_IMAGE_PATH, filepath, SLOWCOPY_RATE)
-        assert os.path.exists (filepath)
-        time.sleep (3)
+        self.slowcopy_file (origin_filepath, dest_filepath)
+        assert os.path.exists (dest_filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
-        os.remove (filepath)
-        time.sleep (3)
+        os.remove (dest_filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 
     def test_camera_picture_02_geolocation (self):
@@ -128,13 +106,11 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         """
 
         fileurn = "tracker://test_camera_picture_02/" + str(random.randint (0,100))
-        filepath = path (TEST_IMAGE)
-        fileuri = uri (TEST_IMAGE)
+        dest_filepath = os.path.join (self.get_dest_dir (), self.get_test_image ())
+        dest_fileuri = "file://" + dest_filepath
 
         geolocationurn = "tracker://test_camera_picture_02_geolocation/" + str(random.randint (0,100))
         postaladdressurn = "tracker://test_camera_picture_02_postaladdress/" + str(random.randint (0,100))
-
-        print "Storing new image in '%s'..." % (filepath)
 
         # Insert new resource in the store, including nie:mimeType and nie:url
         insert = """
@@ -159,13 +135,13 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         INSERT { <%s> a       rdfs:Resource ;
                       nie:url \"%s\"
         }
-        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
+        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, dest_fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # FIRST, open the file for writing, and just write some garbage, to simulate that
         # we already started recording the video...
-        fdest = open (filepath, 'wb')
+        fdest = open (dest_filepath, 'wb')
         # LOCK the file, as camera-ui seems to do it
         fcntl.flock(fdest, fcntl.LOCK_EX)
 
@@ -191,21 +167,20 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         self.tracker.update (location_insert)
 
         #THIRD, start copying the image to the dest path
-        slowcopy_fd (SRC_IMAGE_PATH, filepath, fdest, SLOWCOPY_RATE)
+        original_file = os.path.join (self.get_data_dir (),self.get_test_image ())
+        self.slowcopy_file_fd (original_file, fdest)
         fdest.close ()
-        assert os.path.exists (filepath)
+        assert os.path.exists (dest_filepath)
 
         # FOURTH, ensure we have only 1 resource
-        time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
-        os.remove (filepath)
-        time.sleep (3)
+        os.remove (dest_filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 
     def test_camera_video_01 (self):
@@ -219,10 +194,9 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         """
 
         fileurn = "tracker://test_camera_video_01/" + str(random.randint (0,100))
-        filepath = path (TEST_VIDEO)
-        fileuri = uri (TEST_VIDEO)
-
-        print "Storing new video in '%s'..." % (filepath)
+        origin_filepath = os.path.join (self.get_data_dir (), self.get_test_video ())
+        dest_filepath = os.path.join (self.get_dest_dir (), self.get_test_video ())
+        dest_fileuri = "file://" + dest_filepath
 
         # Insert new resource in the store, including nie:mimeType and nie:url
         insert = """
@@ -247,22 +221,21 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         INSERT { <%s> a       rdfs:Resource ;
                       nie:url \"%s\"
         }
-        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
+        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, dest_fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Copy the image to the dest path
-        slowcopy (SRC_VIDEO_PATH, filepath, SLOWCOPY_RATE)
-        assert os.path.exists (filepath)
+        self.slowcopy_file (origin_filepath, dest_filepath)
+        assert os.path.exists (dest_filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
-        os.remove (filepath)
-        time.sleep (3)
+        os.remove (dest_filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 
     def test_camera_video_02_geolocation (self):
@@ -277,13 +250,12 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         """
 
         fileurn = "tracker://test_camera_video_02/" + str(random.randint (0,100))
-        filepath = path (TEST_VIDEO)
-        fileuri = uri (TEST_VIDEO)
+        origin_filepath = os.path.join (self.get_data_dir (), self.get_test_video ())
+        dest_filepath = os.path.join (self.get_dest_dir (), self.get_test_video ())
+        dest_fileuri = "file://" + dest_filepath
 
         geolocationurn = "tracker://test_camera_video_02_geolocation/" + str(random.randint (0,100))
         postaladdressurn = "tracker://test_camera_video_02_postaladdress/" + str(random.randint (0,100))
-
-        print "Storing new video in '%s'..." % (filepath)
 
         # Insert new resource in the store, including nie:mimeType and nie:url
         insert = """
@@ -308,13 +280,13 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         INSERT { <%s> a       rdfs:Resource ;
                       nie:url \"%s\"
         }
-        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileuri)
+        """ % (fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, fileurn, dest_fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # FIRST, open the file for writing, and just write some garbage, to simulate that
         # we already started recording the video...
-        fdest = open (filepath, 'wb')
+        fdest = open (dest_filepath, 'wb')
         # LOCK the file, as camera-ui seems to do it
         fcntl.flock(fdest, fcntl.LOCK_EX)
 
@@ -340,21 +312,21 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         self.tracker.update (location_insert)
 
         #THIRD, start copying the image to the dest path
-        slowcopy_fd (SRC_VIDEO_PATH, filepath, fdest, SLOWCOPY_RATE)
+        self.slowcopy_file_fd (origin_filepath, fdest)
         fdest.close ()
-        assert os.path.exists (filepath)
+        assert os.path.exists (dest_filepath)
 
         # FOURTH, ensure we have only 1 resource
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
-        os.remove (filepath)
+        os.remove (dest_filepath)
         time.sleep (3)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 if __name__ == "__main__":
 	ut.main()
