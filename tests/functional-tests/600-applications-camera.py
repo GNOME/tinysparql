@@ -142,9 +142,6 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         # FIRST, open the file for writing, and just write some garbage, to simulate that
         # we already started recording the video...
         fdest = open (dest_filepath, 'wb')
-        # LOCK the file, as camera-ui seems to do it
-        fcntl.flock(fdest, fcntl.LOCK_EX)
-
         fdest.write ("some garbage written here")
         fdest.write ("to simulate we're recording something...")
         fdest.seek (0)
@@ -287,9 +284,6 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         # FIRST, open the file for writing, and just write some garbage, to simulate that
         # we already started recording the video...
         fdest = open (dest_filepath, 'wb')
-        # LOCK the file, as camera-ui seems to do it
-        fcntl.flock(fdest, fcntl.LOCK_EX)
-
         fdest.write ("some garbage written here")
         fdest.write ("to simulate we're recording something...")
         fdest.seek (0)
