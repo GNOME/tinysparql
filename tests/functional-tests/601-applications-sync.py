@@ -33,19 +33,9 @@ import fcntl
 
 from common.utils import configuration as cfg
 import unittest2 as ut
-from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest, APPLICATIONS_TMP_DIR, path, uri, slowcopy, slowcopy_fd
+from common.utils.applicationstest import CommonTrackerApplicationTest as CommonTrackerApplicationTest
 
 MINER_FS_IDLE_TIMEOUT = 5
-# Copy rate, 10KBps (1024b/100ms)
-SLOWCOPY_RATE = 1024
-
-# Test audio
-TEST_AUDIO = "tracker-mp3-test.mp3"
-SRC_AUDIO_DIR = os.path.join (cfg.DATADIR,
-                              "tracker-tests",
-                              "data",
-                              "Music")
-SRC_AUDIO_PATH = os.path.join (SRC_AUDIO_DIR, TEST_AUDIO)
 
 class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
 
@@ -59,11 +49,11 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
         4. Ensure no duplicates are found
         """
 
-        fileurn = "tracker://test_sync_audio_01/" + str(random.randint (0,100))
-        filepath = path (TEST_AUDIO)
-        fileuri = uri (TEST_AUDIO)
+        origin_filepath = os.path.join (self.get_data_dir (), self.get_test_music ())
+        dest_filepath = os.path.join (self.get_dest_dir (), self.get_test_music ())
+        dest_fileuri = "file://" + dest_filepath
 
-        print "Synchronizing audio file in '%s'..." % (filepath)
+        print "Synchronizing audio file in '%s'..." % (dest_filepath)
 
         # Insert new resource in the store
         insert = """
@@ -93,23 +83,21 @@ class TrackerSyncApplicationTests (CommonTrackerApplicationTest):
         INSERT { <urn:artist:AbBaby> a              nmm:Artist;
                                      nmm:artistName 'AbBaby'
         }
-        """ % (fileuri, fileuri)
+        """ % (dest_fileuri, dest_fileuri)
         self.tracker.update (insert)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Copy the image to the dest path
-        slowcopy (SRC_AUDIO_PATH, filepath, SLOWCOPY_RATE)
-        assert os.path.exists (filepath)
-        time.sleep (3)
+        self.slowcopy_file (origin_filepath, dest_filepath)
+        assert os.path.exists (dest_filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 1)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 1)
 
         # Clean the new file so the test directory is as before
         print "Remove and wait"
-        os.remove (filepath)
-        time.sleep (3)
+        os.remove (dest_filepath)
         self.system.tracker_miner_fs_wait_for_idle (MINER_FS_IDLE_TIMEOUT)
-        self.assertEquals (self.get_urn_count_by_url (fileuri), 0)
+        self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 if __name__ == "__main__":
 	ut.main()
