@@ -1031,13 +1031,15 @@ init_mount_points (TrackerMinerFiles *miner_files)
 static gboolean
 cleanup_stale_removable_volumes_cb (gpointer user_data)
 {
-        TrackerMinerFiles *miner = TRACKER_MINER_FILES (user_data);
-        gint n_days_threshold = tracker_config_get_removable_days_threshold (miner->private->config);
+	TrackerMinerFiles *miner = TRACKER_MINER_FILES (user_data);
+	gint n_days_threshold;
 	time_t n_days_ago;
 	gchar *n_days_ago_as_string;
 
-        if (n_days_threshold == 0)
-                return TRUE;
+	n_days_threshold = tracker_config_get_removable_days_threshold (miner->private->config);
+
+	if (n_days_threshold == 0)
+		return TRUE;
 
 	n_days_ago = (time (NULL) - (SECONDS_PER_DAY * n_days_threshold));
 	n_days_ago_as_string = tracker_date_to_string (n_days_ago);
@@ -2020,8 +2022,8 @@ dbus_send_and_splice_async_finish (SendAndSpliceData *data)
 
 static void
 send_and_splice_splice_callback (GObject      *source,
-                                GAsyncResult *result,
-                                gpointer      user_data)
+                                 GAsyncResult *result,
+                                 gpointer      user_data)
 {
 	SendAndSpliceData *data = user_data;
 	GError *error = NULL;
@@ -2174,8 +2176,8 @@ get_metadata_fast_cb (void     *buffer,
 			sparql = preupdate + preupdate_length + 1;
 		} else {
 			error = g_error_new_literal (miner_files_error_quark,
-				                     0,
-				                     "Invalid data received from GetMetadataFast");
+			                             0,
+			                             "Invalid data received from GetMetadataFast");
 			free_error = TRUE;
 		}
 	}
@@ -2765,7 +2767,7 @@ tracker_miner_files_check_directory (GFile  *file,
 	/* Check module directory ignore patterns */
 	should_process = TRUE;
 
- done:
+done:
 	g_free (basename);
 	g_free (path);
 

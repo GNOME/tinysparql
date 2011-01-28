@@ -75,7 +75,7 @@ typedef struct {
 	GSList   *ignored_directories_with_content;
 	GSList   *ignored_files;
 	gint	  crawling_interval;
-        gint      removable_days_threshold;
+	gint      removable_days_threshold;
 
 	/* Convenience data */
 	GSList   *ignored_directory_patterns;
@@ -153,8 +153,8 @@ static ObjectToKeyFile conversions[] = {
 	{ G_TYPE_POINTER, "ignored-directories",              GROUP_INDEXING, "IgnoredDirectories"        },
 	{ G_TYPE_POINTER, "ignored-directories-with-content", GROUP_INDEXING, "IgnoredDirectoriesWithContent" },
 	{ G_TYPE_POINTER, "ignored-files",                    GROUP_INDEXING, "IgnoredFiles"              },
-	{ G_TYPE_INT,	  "crawling-interval",		      GROUP_INDEXING, "CrawlingInterval"	  },
-	{ G_TYPE_INT,	  "removable-days-threshold",	      GROUP_INDEXING, "RemovableDaysThreshold"	  }
+	{ G_TYPE_INT,	  "crawling-interval",                GROUP_INDEXING, "CrawlingInterval"          },
+	{ G_TYPE_INT,	  "removable-days-threshold",         GROUP_INDEXING, "RemovableDaysThreshold"    }
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, TRACKER_TYPE_CONFIG_FILE);
@@ -293,23 +293,23 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                       " List of files to NOT index (separator=;)",
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-                                         PROP_CRAWLING_INTERVAL,
+	                                 PROP_CRAWLING_INTERVAL,
 	                                 g_param_spec_int ("crawling-interval",
 	                                                   "Crawling interval",
-                                                           " Interval in days to check the filesystem is up to date in the database."
-                                                           " If set to 0, crawling always occurs on startup, if -1 crawling is"
-                                                           " disabled entirely. Maximum is 365.",
+	                                                   " Interval in days to check the filesystem is up to date in the database."
+	                                                   " If set to 0, crawling always occurs on startup, if -1 crawling is"
+	                                                   " disabled entirely. Maximum is 365.",
 	                                                   -1,
 	                                                   365,
 	                                                   DEFAULT_CRAWLING_INTERVAL,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-                                         PROP_REMOVABLE_DAYS_THRESHOLD,
+	                                 PROP_REMOVABLE_DAYS_THRESHOLD,
 	                                 g_param_spec_int ("removable-days-threshold",
 	                                                   "Removable days threshold",
-                                                           " Threshold in days after which files from removables devices"
-                                                           " will be removed from database if not mounted. 0 means never, "
-                                                           " maximum is 2000.",
+	                                                   " Threshold in days after which files from removables devices"
+	                                                   " will be removed from database if not mounted. 0 means never, "
+	                                                   " maximum is 2000.",
 	                                                   3,
 	                                                   2000,
 	                                                   DEFAULT_REMOVABLE_DAYS_THRESHOLD,
@@ -397,7 +397,7 @@ config_set_property (GObject      *object,
 		break;
 	case PROP_REMOVABLE_DAYS_THRESHOLD:
 		tracker_config_set_removable_days_threshold (TRACKER_CONFIG (object),
-                                                             g_value_get_int (value));
+		                                             g_value_get_int (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -826,9 +826,9 @@ config_load (TrackerConfig *config,
 
 	file = TRACKER_CONFIG_FILE (config);
 
-        if (use_defaults) {
-                config_create_with_defaults (config, file->key_file, FALSE);
-        }
+	if (use_defaults) {
+		config_create_with_defaults (config, file->key_file, FALSE);
+	}
 
 	if (!file->file_exists) {
 		tracker_config_file_save (file);
@@ -920,7 +920,7 @@ config_load (TrackerConfig *config,
 
 			if (!equal) {
 				g_object_set (config, conversions[i].property, new_dirs, NULL);
-                        }
+			}
 
 			g_slist_foreach (new_dirs, (GFunc) g_free, NULL);
 			g_slist_free (new_dirs);
@@ -1426,8 +1426,8 @@ rebuild_filtered_lists (TrackerConfig *config)
 
 	if (priv->index_single_directories_unfiltered) {
 		priv->index_single_directories =
-		        tracker_path_list_filter_duplicates (priv->index_single_directories_unfiltered,
-		                                             ".", FALSE);
+			tracker_path_list_filter_duplicates (priv->index_single_directories_unfiltered,
+			                                     ".", FALSE);
 	}
 
 	if (!tracker_gslist_with_string_data_equal (old_list, priv->index_single_directories)) {
@@ -1462,7 +1462,7 @@ rebuild_filtered_lists (TrackerConfig *config)
 		new_list = g_slist_reverse (new_list);
 
 		priv->index_recursive_directories =
-		        tracker_path_list_filter_duplicates (new_list, ".", TRUE);
+			tracker_path_list_filter_duplicates (new_list, ".", TRUE);
 
 		g_slist_free (new_list);
 	}
@@ -1483,7 +1483,7 @@ tracker_config_set_index_recursive_directories (TrackerConfig *config,
 {
 	TrackerConfigPrivate *priv;
 	GSList *l;
-        gboolean equal;
+	gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
@@ -1491,7 +1491,7 @@ tracker_config_set_index_recursive_directories (TrackerConfig *config,
 
 	l = priv->index_recursive_directories_unfiltered;
 
-        equal = tracker_gslist_with_string_data_equal (roots, l);
+	equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
 		priv->index_recursive_directories_unfiltered = NULL;
@@ -1503,11 +1503,11 @@ tracker_config_set_index_recursive_directories (TrackerConfig *config,
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
-        if (equal) {
-                return;
-        }
+	if (equal) {
+		return;
+	}
 
-        rebuild_filtered_lists (config);
+	rebuild_filtered_lists (config);
 }
 
 void
@@ -1516,7 +1516,7 @@ tracker_config_set_index_single_directories (TrackerConfig *config,
 {
 	TrackerConfigPrivate *priv;
 	GSList *l;
-        gboolean equal;
+	gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
@@ -1524,7 +1524,7 @@ tracker_config_set_index_single_directories (TrackerConfig *config,
 
 	l = priv->index_single_directories_unfiltered;
 
-        equal = tracker_gslist_with_string_data_equal (roots, l);
+	equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
 		priv->index_single_directories_unfiltered = NULL;
@@ -1536,11 +1536,11 @@ tracker_config_set_index_single_directories (TrackerConfig *config,
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
-        if (equal) {
-                return;
-        }
+	if (equal) {
+		return;
+	}
 
-        rebuild_filtered_lists (config);
+	rebuild_filtered_lists (config);
 }
 
 void
@@ -1549,7 +1549,7 @@ tracker_config_set_ignored_directories (TrackerConfig *config,
 {
 	TrackerConfigPrivate *priv;
 	GSList *l;
-        gboolean equal;
+	gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
@@ -1557,7 +1557,7 @@ tracker_config_set_ignored_directories (TrackerConfig *config,
 
 	l = priv->ignored_directories;
 
-        equal = tracker_gslist_with_string_data_equal (roots, l);
+	equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
 		priv->ignored_directories = NULL;
@@ -1569,9 +1569,9 @@ tracker_config_set_ignored_directories (TrackerConfig *config,
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
-        if (equal) {
-                return;
-        }
+	if (equal) {
+		return;
+	}
 
 	/* Re-set up the GPatternSpec list */
 	config_set_ignored_directory_conveniences (config);
@@ -1585,7 +1585,7 @@ tracker_config_set_ignored_directories_with_content (TrackerConfig *config,
 {
 	TrackerConfigPrivate *priv;
 	GSList *l;
-        gboolean equal;
+	gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
@@ -1593,7 +1593,7 @@ tracker_config_set_ignored_directories_with_content (TrackerConfig *config,
 
 	l = priv->ignored_directories_with_content;
 
-        equal = tracker_gslist_with_string_data_equal (roots, l);
+	equal = tracker_gslist_with_string_data_equal (roots, l);
 
 	if (!roots) {
 		priv->ignored_directories_with_content = NULL;
@@ -1605,9 +1605,9 @@ tracker_config_set_ignored_directories_with_content (TrackerConfig *config,
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
-        if (equal) {
-                return;
-        }
+	if (equal) {
+		return;
+	}
 
 	g_object_notify (G_OBJECT (config), "ignored-directories-with-content");
 }
@@ -1618,7 +1618,7 @@ tracker_config_set_ignored_files (TrackerConfig *config,
 {
 	TrackerConfigPrivate *priv;
 	GSList *l;
-        gboolean equal;
+	gboolean equal;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
@@ -1626,7 +1626,7 @@ tracker_config_set_ignored_files (TrackerConfig *config,
 
 	l = priv->ignored_files;
 
-        equal = tracker_gslist_with_string_data_equal (files, l);
+	equal = tracker_gslist_with_string_data_equal (files, l);
 
 	if (!files) {
 		priv->ignored_files = NULL;
@@ -1638,9 +1638,9 @@ tracker_config_set_ignored_files (TrackerConfig *config,
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
-        if (equal) {
-                return;
-        }
+	if (equal) {
+		return;
+	}
 
 	/* Re-set up the GPatternSpec list */
 	config_set_ignored_file_conveniences (config);
