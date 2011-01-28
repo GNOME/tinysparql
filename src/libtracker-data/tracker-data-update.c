@@ -464,6 +464,11 @@ get_transaction_modseq (void)
 		transaction_modseq = tracker_data_update_get_next_modseq ();
 	}
 
+	/* Always use 1 for ontology transactions */
+	if (in_ontology_transaction) {
+		return 1;
+	}
+
 	return transaction_modseq;
 }
 
@@ -2477,7 +2482,7 @@ tracker_data_commit_transaction (GError **error)
 
 	in_transaction = FALSE;
 	get_transaction_modseq ();
-	if (has_persistent) {
+	if (has_persistent && !in_ontology_transaction) {
 		transaction_modseq++;
 	}
 	in_ontology_transaction = FALSE;
