@@ -918,7 +918,7 @@ public class Tracker.Sparql.Query : Object {
 			}
 		} catch (DateError e) {
 			if (!silent) {
-				throw e;
+				throw new Sparql.Error.TYPE (e.message);
 			}
 		}
 	}
