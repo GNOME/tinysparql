@@ -310,7 +310,7 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   " Threshold in days after which files from removables devices"
 	                                                   " will be removed from database if not mounted. 0 means never, "
 	                                                   " maximum is 365.",
-	                                                   3,
+	                                                   0,
 	                                                   365,
 	                                                   DEFAULT_REMOVABLE_DAYS_THRESHOLD,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
