@@ -45,7 +45,8 @@ struct _TrackerMinerRSSClass {
 	TrackerMinerClass parent;
 };
 
-GType    tracker_miner_rss_get_type         (void) G_GNUC_CONST;
+GType            tracker_miner_rss_get_type (void) G_GNUC_CONST;
+TrackerMinerRSS *tracker_miner_rss_new      (void);
 
 G_END_DECLS
 

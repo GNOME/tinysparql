@@ -70,7 +70,12 @@ main (int argc, char **argv)
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
-	miner = g_object_new (TRACKER_TYPE_MINER_RSS, "name", "RSS", NULL);
+	miner = tracker_miner_rss_new ();
+	if (!miner) {
+		g_printerr ("Cannot create new RSS miner, exiting...\n");
+		return -1;
+	}
+
 	tracker_miner_start (TRACKER_MINER (miner));
 
 	loop = g_main_loop_new (NULL, FALSE);
