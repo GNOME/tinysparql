@@ -55,11 +55,8 @@ static const gchar introspection_xml[] =
 
 struct TrackerMinerWebPrivate {
 	gboolean associated;
-	GDBusConnection *d_connection;
 	GDBusNodeInfo *introspection_data;
 	guint registration_id;
-	gchar *full_name;
-	gchar *full_path;
 };
 
 enum {
@@ -67,18 +64,48 @@ enum {
 	PROP_ASSOCIATED
 };
 
-static void miner_web_set_property (GObject      *object,
-                                    guint         param_id,
-                                    const GValue *value,
-                                    GParamSpec   *pspec);
-static void miner_web_get_property (GObject      *object,
-                                    guint         param_id,
-                                    GValue       *value,
-                                    GParamSpec   *pspec);
-static void miner_web_constructed  (GObject      *object);
-static void miner_web_finalize     (GObject      *object);
+static void       miner_web_set_property        (GObject                *object,
+                                                 guint                   param_id,
+                                                 const GValue           *value,
+                                                 GParamSpec             *pspec);
+static void       miner_web_get_property        (GObject                *object,
+                                                 guint                   param_id,
+                                                 GValue                 *value,
+                                                 GParamSpec             *pspec);
+static void       miner_web_initable_iface_init (GInitableIface         *iface);
+static gboolean   miner_web_initable_init       (GInitable              *initable,
+                                                 GCancellable           *cancellable,
+                                                 GError                **error);
+static void       miner_web_finalize            (GObject                *object);
+static void       handle_method_call            (GDBusConnection        *connection,
+                                                 const gchar            *sender,
+                                                 const gchar            *object_path,
+                                                 const gchar            *interface_name,
+                                                 const gchar            *method_name,
+                                                 GVariant               *parameters,
+                                                 GDBusMethodInvocation  *invocation,
+                                                 gpointer                user_data);
+static GVariant  *handle_get_property           (GDBusConnection        *connection,
+                                                 const gchar            *sender,
+                                                 const gchar            *object_path,
+                                                 const gchar            *interface_name,
+                                                 const gchar            *property_name,
+                                                 GError                **error,
+                                                 gpointer                user_data);
+static gboolean   handle_set_property           (GDBusConnection        *connection,
+                                                 const gchar            *sender,
+                                                 const gchar            *object_path,
+                                                 const gchar            *interface_name,
+                                                 const gchar            *property_name,
+                                                 GVariant               *value,
+                                                 GError                **error,
+                                                 gpointer                user_data);
 
-G_DEFINE_ABSTRACT_TYPE (TrackerMinerWeb, tracker_miner_web, TRACKER_TYPE_MINER)
+static GInitableIface* miner_web_initable_parent_iface;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerMinerWeb, tracker_miner_web, TRACKER_TYPE_MINER,
+                                  G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                         miner_web_initable_iface_init));
 
 static void
 tracker_miner_web_class_init (TrackerMinerWebClass *klass)
@@ -88,7 +115,6 @@ tracker_miner_web_class_init (TrackerMinerWebClass *klass)
 	object_class->finalize     = miner_web_finalize;
 	object_class->set_property = miner_web_set_property;
 	object_class->get_property = miner_web_get_property;
-	object_class->constructed  = miner_web_constructed;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_ASSOCIATED,
@@ -104,6 +130,64 @@ tracker_miner_web_class_init (TrackerMinerWebClass *klass)
 static void
 tracker_miner_web_init (TrackerMinerWeb *miner)
 {
+	miner->private = TRACKER_MINER_WEB_GET_PRIVATE (miner);
+}
+
+static void
+miner_web_initable_iface_init (GInitableIface *iface)
+{
+	miner_web_initable_parent_iface = g_type_interface_peek_parent (iface);
+	iface->init = miner_web_initable_init;
+}
+
+static gboolean
+miner_web_initable_init (GInitable     *initable,
+                         GCancellable  *cancellable,
+                         GError       **error)
+{
+	TrackerMiner *miner;
+	TrackerMinerWeb *mw;
+	GError *inner_error = NULL;
+	GDBusInterfaceVTable interface_vtable = {
+		handle_method_call,
+		handle_get_property,
+		handle_set_property
+	};
+
+	miner = TRACKER_MINER (initable);
+	mw = TRACKER_MINER_WEB (initable);
+
+	/* Chain up parent's initable callback before calling child's one */
+	if (!miner_web_initable_parent_iface->init (initable, cancellable, error)) {
+		return FALSE;
+	}
+
+	/* Setup web-interface introspection data */
+	mw->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
+
+	g_message ("Registering Web interface in D-Bus object...");
+	g_message ("  Path:'%s'", tracker_miner_get_dbus_full_path (miner));
+	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (initable));
+
+	mw->private->registration_id =
+		g_dbus_connection_register_object (tracker_miner_get_dbus_connection (miner),
+		                                   tracker_miner_get_dbus_full_path (miner),
+		                                   mw->private->introspection_data->interfaces[0],
+		                                   &interface_vtable,
+		                                   mw,
+		                                   NULL,
+		                                   &inner_error);
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		g_prefix_error (error,
+		                "Could not register the D-Bus object %s. ",
+		                tracker_miner_get_dbus_full_path (miner));
+		return FALSE;
+	}
+
+	/* No need to RequestName again as already done by the parent TrackerMiner object */
+
+	return TRUE;
 }
 
 static void
@@ -155,20 +239,13 @@ miner_web_finalize (GObject *object)
 	priv = TRACKER_MINER_WEB_GET_PRIVATE (object);
 
 	if (priv->registration_id != 0) {
-		g_dbus_connection_unregister_object (priv->d_connection,
+		g_dbus_connection_unregister_object (tracker_miner_get_dbus_connection (TRACKER_MINER (object)),
 		                                     priv->registration_id);
 	}
 
 	if (priv->introspection_data) {
 		g_dbus_node_info_unref (priv->introspection_data);
 	}
-
-	if (priv->d_connection) {
-		g_object_unref (priv->d_connection);
-	}
-
-	g_free (priv->full_name);
-	g_free (priv->full_path);
 
 	G_OBJECT_CLASS (tracker_miner_web_parent_class)->finalize (object);
 }
@@ -387,102 +464,6 @@ handle_set_property (GDBusConnection  *connection,
 {
 	g_assert_not_reached ();
 	return TRUE;
-}
-
-static void
-miner_web_constructed (GObject *miner)
-{
-	TrackerMinerWebPrivate *priv;
-	gchar *name, *full_path, *full_name;
-	GVariant *reply;
-	guint32 rval;
-	GError *error = NULL;
-	GDBusInterfaceVTable interface_vtable = {
-		handle_method_call,
-		handle_get_property,
-		handle_set_property
-	};
-
-	priv = TRACKER_MINER_WEB_GET_PRIVATE (miner);
-
-	priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-
-	if (!priv->d_connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
-		g_clear_error (&error);
-		return;
-	}
-
-	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
-
-	g_object_get (miner, "name", &name, NULL);
-
-	if (!name) {
-		g_critical ("Miner '%s' should have been given a name, bailing out",
-		            G_OBJECT_TYPE_NAME (miner));
-		g_assert_not_reached ();
-	}
-
-	full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, name, NULL);
-	priv->full_name = full_name;
-
-	/* Register the service name for the miner */
-	full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX, name, NULL);
-
-	g_message ("Registering D-Bus object...");
-	g_message ("  Path:'%s'", full_path);
-	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (miner));
-
-	priv->registration_id =
-		g_dbus_connection_register_object (priv->d_connection,
-		                                   full_path,
-		                                   priv->introspection_data->interfaces[0],
-		                                   &interface_vtable,
-		                                   miner,
-		                                   NULL,
-		                                   &error);
-
-	if (error) {
-		g_critical ("Could not register the D-Bus object %s, %s",
-		            full_path,
-		            error ? error->message : "no error given.");
-		g_clear_error (&error);
-		return;
-	}
-
-	reply = g_dbus_connection_call_sync (priv->d_connection,
-	                                     "org.freedesktop.DBus",
-	                                     "/org/freedesktop/DBus",
-	                                     "org.freedesktop.DBus",
-	                                     "RequestName",
-	                                     g_variant_new ("(su)", full_name, 0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
-	                                     G_VARIANT_TYPE ("(u)"),
-	                                     0, -1, NULL, &error);
-
-	if (error) {
-		g_critical ("Could not acquire name:'%s', %s",
-		            full_name,
-		            error->message);
-		g_clear_error (&error);
-		return;
-	}
-
-	g_variant_get (reply, "(u)", &rval);
-	g_variant_unref (reply);
-
-	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
-		g_critical ("D-Bus service name:'%s' is already taken, "
-		            "perhaps the application is already running?",
-		            full_name);
-		return;
-	}
-
-	g_free (name);
-
-	priv->full_path = full_path;
-
-	G_OBJECT_CLASS (tracker_miner_web_parent_class)->constructed (miner);
 }
 
 /**

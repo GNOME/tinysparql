@@ -20,7 +20,7 @@
 [CCode (cprefix = "Tracker", lower_case_cprefix = "tracker_")]
 namespace Tracker {
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public class Miner : GLib.Object {
+	public class Miner : GLib.Object, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		public Miner ();
 		[NoAccessorMethod]
@@ -42,6 +42,9 @@ namespace Tracker {
 		public virtual void stopped ();
 		public signal void error (GLib.Error e);
 		public unowned Tracker.Sparql.Connection? get_connection ();
+		public unowned GLib.DBusConnection? get_dbus_connection ();
+		public unowned string get_dbus_full_name ();
+		public unowned string get_dbus_full_path ();
 	}
 	[CCode (ref_function = "tracker_miner_fs_ref", unref_function = "tracker_miner_fs_unref", cheader_filename = "libtracker-miner/tracker-miner.h")]
 	public class MinerFS {
@@ -80,7 +83,7 @@ namespace Tracker {
 		public virtual void miner_progress (string miner_name, string status, double progress);
 	}
 	[CCode (cheader_filename = "libtracker-miner/tracker-miner.h")]
-	public class MinerWeb : Tracker.Miner {
+	public class MinerWeb : Tracker.Miner, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		public MinerWeb ();
 		[NoAccessorMethod]
