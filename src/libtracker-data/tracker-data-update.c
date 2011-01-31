@@ -564,10 +564,6 @@ cache_insert_value (const gchar            *table_name,
 #endif
 	property.date_time = date_time;
 
-	if (!transient) {
-		has_persistent = TRUE;
-	}
-
 	table = cache_ensure_table (table_name, multiple_values, transient);
 	g_array_append_val (table->properties, property);
 }
@@ -601,10 +597,6 @@ cache_delete_value (const gchar            *table_name,
 	property.fts = fts;
 #endif
 	property.date_time = date_time;
-
-	if (!transient) {
-		has_persistent = TRUE;
-	}
 
 	table = cache_ensure_table (table_name, multiple_values, transient);
 	table->delete_value = TRUE;
@@ -2034,6 +2026,8 @@ tracker_data_delete_statement (const gchar  *graph,
 	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
 		class = tracker_ontologies_get_class_by_uri (object);
 		if (class != NULL) {
+			has_persistent = TRUE;
+
 			if (!in_journal_replay) {
 				tracker_db_journal_append_delete_statement_id (
 				       (graph != NULL ? query_resource_id (graph) : 0),
@@ -2053,6 +2047,10 @@ tracker_data_delete_statement (const gchar  *graph,
 
 		field = tracker_ontologies_get_property_by_uri (predicate);
 		if (field != NULL) {
+			if (!tracker_property_get_transient (field)) {
+				has_persistent = TRUE;
+			}
+
 			change = delete_metadata_decomposed (field, object, 0, error);
 			if (!in_journal_replay && change && !tracker_property_get_transient (field)) {
 				if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
@@ -2219,6 +2217,10 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		prop_id = tracker_property_get_id (property);
 	}
 
+	if (!tracker_property_get_transient (property)) {
+		has_persistent = TRUE;
+	}
+
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
 		/* anonymous blank node used as object in a statement */
@@ -2351,6 +2353,10 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 			return;
 		}
 		pred_id = tracker_property_get_id (property);
+	}
+
+	if (!tracker_property_get_transient (property)) {
+		has_persistent = TRUE;
 	}
 
 	if (!tracker_data_insert_statement_common (graph, subject, predicate, object, &actual_error)) {
