@@ -2979,7 +2979,7 @@ ensure_mtime_cache (TrackerMinerFS *fs,
 
 		g_debug ("Generating mtime cache for URI '%s'", uri);
 
-		query = g_strdup_printf ("SELECT ?url ?last { "
+		query = g_strdup_printf ("SELECT ?url IF(tracker:damaged(?u), '0001-01-01T00:00:00Z', ?last) { "
 		                         "?u nfo:belongsToContainer ?p ; "
 		                         "   nie:url ?url ; "
 		                         "   nfo:fileLastModified ?last . "
