@@ -49,6 +49,7 @@ endif
 standard_tests += \
 	400-extractor.py \
 	500-writeback.py \
+	501-writeback-details.py \
 	600-applications-camera.py \
 	601-applications-sync.py \
 	mass-storage-mode.py \

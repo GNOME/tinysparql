@@ -93,93 +93,101 @@ read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
                png_structp           png_ptr,
                png_infop             info_ptr,
+               png_infop             end_ptr,
                const gchar          *uri)
 {
 	MergeData md = { 0 };
 	PngData pd = { 0 };
 	TrackerExifData *ed = NULL;
 	TrackerXmpData *xd = NULL;
+	png_infop info_ptrs[2];
 	png_textp text_ptr;
+	gint info_index;
 	gint num_text;
 	gint i;
 	gint found;
 	GPtrArray *keywords;
 
-	if ((found = png_get_text (png_ptr, info_ptr, &text_ptr, &num_text)) < 1) {
-		g_debug ("Calling png_get_text() returned %d (< 1)", found);
-		return;
-	}
+	info_ptrs[0] = info_ptr;
+	info_ptrs[1] = end_ptr;
 
-	for (i = 0; i < num_text; i++) {
-		if (!text_ptr[i].key || !text_ptr[i].text || text_ptr[i].text[0] == '\0') {
+	for (info_index = 0; info_index < 2; info_index++) {
+		if ((found = png_get_text (png_ptr, info_ptrs[info_index], &text_ptr, &num_text)) < 1) {
+			g_debug ("Calling png_get_text() returned %d (< 1)", found);
 			continue;
 		}
+
+		for (i = 0; i < num_text; i++) {
+			if (!text_ptr[i].key || !text_ptr[i].text || text_ptr[i].text[0] == '\0') {
+				continue;
+			}
 		
-#if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
-		if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
-			/* ATM tracker_extract_xmp_read supports setting xd
-			 * multiple times, keep it that way as here it's
-			 * theoretically possible that the function gets
-			 * called multiple times 
+	#if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
+			if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
+				/* ATM tracker_extract_xmp_read supports setting xd
+				 * multiple times, keep it that way as here it's
+				 * theoretically possible that the function gets
+				 * called multiple times 
+				 */
+				xd = tracker_xmp_new (text_ptr[i].text,
+					              text_ptr[i].itxt_length,
+					              uri);
+				continue;
+			}
+	#endif
+
+	#if defined(HAVE_LIBEXIF) && defined(PNG_iTXt_SUPPORTED)
+			/* I'm not certain this is the key for EXIF. Using key according to
+			 * this document about exiftool:
+			 * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData 
 			 */
-			xd = tracker_xmp_new (text_ptr[i].text,
-			                      text_ptr[i].itxt_length,
-			                      uri);
-			continue;
-		}
-#endif
+			if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
+				ed = tracker_exif_new (text_ptr[i].text,
+					               text_ptr[i].itxt_length,
+					               uri);
+				continue;
+			}
+	#endif /* HAVE_LIBEXIF */
 
-#if defined(HAVE_LIBEXIF) && defined(PNG_iTXt_SUPPORTED)
-		/* I'm not certain this is the key for EXIF. Using key according to
-		 * this document about exiftool:
-		 * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PNG.html#TextualData 
-		 */
-		if (g_strcmp0 ("Raw profile type exif", text_ptr[i].key) == 0) {
-			ed = tracker_exif_new (text_ptr[i].text,
-			                       text_ptr[i].itxt_length,
-			                       uri);
-			continue;
-		}
-#endif /* HAVE_LIBEXIF */
+			if (g_strcmp0 (text_ptr[i].key, "Author") == 0) {
+				pd.author = text_ptr[i].text;
+				continue;
+			}
 
-		if (g_strcmp0 (text_ptr[i].key, "Author") == 0) {
-			pd.author = text_ptr[i].text;
-			continue;
-		}
+			if (g_strcmp0 (text_ptr[i].key, "Creator") == 0) {
+				pd.creator = text_ptr[i].text;
+				continue;
+			}
 
-		if (g_strcmp0 (text_ptr[i].key, "Creator") == 0) {
-			pd.creator = text_ptr[i].text;
-			continue;
-		}
+			if (g_strcmp0 (text_ptr[i].key, "Description") == 0) {
+				pd.description = text_ptr[i].text;
+				continue;
+			}
 
-		if (g_strcmp0 (text_ptr[i].key, "Description") == 0) {
-			pd.description = text_ptr[i].text;
-			continue;
-		}
+			if (g_strcmp0 (text_ptr[i].key, "Comment") == 0) {
+				pd.comment = text_ptr[i].text;
+				continue;
+			}
 
-		if (g_strcmp0 (text_ptr[i].key, "Comment") == 0) {
-			pd.comment = text_ptr[i].text;
-			continue;
-		}
+			if (g_strcmp0 (text_ptr[i].key, "Copyright") == 0) {
+				pd.copyright = text_ptr[i].text;
+				continue;
+			}
 
-		if (g_strcmp0 (text_ptr[i].key, "Copyright") == 0) {
-			pd.copyright = text_ptr[i].text;
-			continue;
-		}
+			if (g_strcmp0 (text_ptr[i].key, "Creation Time") == 0) {
+				pd.creation_time = rfc1123_to_iso8601_date (text_ptr[i].text);
+				continue;
+			}
 
-		if (g_strcmp0 (text_ptr[i].key, "Creation Time") == 0) {
-			pd.creation_time = rfc1123_to_iso8601_date (text_ptr[i].text);
-			continue;
-		}
+			if (g_strcmp0 (text_ptr[i].key, "Title") == 0) {
+				pd.title = text_ptr[i].text;
+				continue;
+			}
 
-		if (g_strcmp0 (text_ptr[i].key, "Title") == 0) {
-			pd.title = text_ptr[i].text;
-			continue;
-		}
-
-		if (g_strcmp0 (text_ptr[i].key, "Disclaimer") == 0) {
-			pd.disclaimer = text_ptr[i].text;
-			continue;
+			if (g_strcmp0 (text_ptr[i].key, "Disclaimer") == 0) {
+				pd.disclaimer = text_ptr[i].text;
+				continue;
+			}
 		}
 	}
 
@@ -598,8 +606,7 @@ extract_png (const gchar          *uri,
 	tracker_sparql_builder_object (metadata, "nfo:Image");
 	tracker_sparql_builder_object (metadata, "nmm:Photo");
 
-	read_metadata (preupdate, metadata, png_ptr, info_ptr, uri);
-	read_metadata (preupdate, metadata, png_ptr, end_ptr, uri);
+	read_metadata (preupdate, metadata, png_ptr, info_ptr, end_ptr, uri);
 
 	tracker_sparql_builder_predicate (metadata, "nfo:width");
 	tracker_sparql_builder_object_int64 (metadata, width);

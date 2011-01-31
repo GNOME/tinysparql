@@ -34,7 +34,6 @@ class WritebackKeepDateTest (CommonTrackerWritebackTest):
         pass
 
 
-    @expectedFailureBug ("NB#2232382")
     def test_01_NB217627_content_created_date (self):
         """
         NB#217627 - Order if results is different when an image is marked as favorite.
@@ -48,7 +47,6 @@ class WritebackKeepDateTest (CommonTrackerWritebackTest):
         results = self.tracker.query (query_images)
         results_unpacked = [ r[1] for r in results ]
         print results_unpacked
-        # This assertion fail due bug#223282
         self.assertEquals ( len (results), 3, results_unpacked)
 
         # This triggers the writeback
