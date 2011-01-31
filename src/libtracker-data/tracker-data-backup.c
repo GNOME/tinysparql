@@ -392,6 +392,10 @@ tracker_data_backup_restore (GFile                *journal,
 		                           busy_callback, busy_user_data,
 		                           "Restoring backup");
 
+		/* Re-set the DB version file, so that its mtime changes. The mtime of this
+		 * file will change only when the whole DB is recreated (after a hard reset
+		 * or after a backup restoration). */
+		tracker_db_manager_create_version_file ();
 	} else {
 		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0,
 		             "Backup file doesn't exist");

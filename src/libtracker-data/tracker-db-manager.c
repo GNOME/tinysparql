@@ -437,17 +437,6 @@ db_manager_remove_all (gboolean rm_journal)
 	db_remove_locale_file ();
 }
 
-void
-tracker_db_manager_remove_version_file (void)
-{
-	gchar *filename;
-
-	filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
-	g_message ("  Removing db-version file:'%s'", filename);
-	g_unlink (filename);
-	g_free (filename);
-}
-
 static TrackerDBVersion
 db_get_version (void)
 {
@@ -487,8 +476,8 @@ db_get_version (void)
 	return version;
 }
 
-static void
-db_set_version (void)
+void
+tracker_db_manager_create_version_file (void)
 {
 	GError *error = NULL;
 	gchar  *filename;
@@ -506,6 +495,17 @@ db_set_version (void)
 	}
 
 	g_free (str);
+	g_free (filename);
+}
+
+void
+tracker_db_manager_remove_version_file (void)
+{
+	gchar *filename;
+
+	filename = g_build_filename (data_dir, TRACKER_DB_VERSION_FILE, NULL);
+	g_message ("  Removing db-version file:'%s'", filename);
+	g_unlink (filename);
 	g_free (filename);
 }
 
@@ -815,7 +815,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 	}
 
 	if (need_reindex) {
-		db_set_version ();
+		tracker_db_manager_create_version_file ();
 	}
 
 	g_message ("Checking database files exist");
