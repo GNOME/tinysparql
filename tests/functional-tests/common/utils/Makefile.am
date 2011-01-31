@@ -11,6 +11,7 @@ utils_SCRIPTS =                                        \
 	minertest.py                                   \
 	applicationstest.py			       \
 	writebacktest.py			       \
+	options.py				       \
 	system.py
 
 EXTRA_DIST =                                           \

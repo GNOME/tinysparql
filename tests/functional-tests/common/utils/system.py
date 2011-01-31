@@ -9,7 +9,13 @@ import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 import time
 
+import options
+#from common.utils.options import get_start_timeout
+
 # Don't use /tmp (not enough space there)
+
+# Add this after fixing the backup/restore and ontology changes tests
+#"G_DEBUG" : "fatal_criticals",
 
 TEST_ENV_VARS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home"),
                    "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home")}
@@ -102,13 +108,22 @@ class TrackerStoreLifeCycle ():
         tracker = [tracker_binary]
         # The env variables can be passed as parameters!
         FNULL = open('/dev/null', 'w')
-        return subprocess.Popen (tracker, stdout=FNULL, stderr=FNULL)
+        if options.is_manual_start ():
+            print "Start tracker-store manually"
+        else:
+            return subprocess.Popen (tracker, stdout=FNULL, stderr=FNULL)
 
     def __stop_tracker_store (self):
         #control_binary = os.path.join (cfg.BINDIR, "tracker-control")
         #FNULL = open('/dev/null', 'w')
         #subprocess.call ([control_binary, "-t"], stdout=FNULL)
-        self.store_proc.terminate ()
+        if options.is_manual_start ():
+            if self.available:
+                print "Kill tracker-store manually"
+                # Quit when disappearing from the bus
+                self.loop.run ()
+        else:
+            self.store_proc.terminate ()
 
 
 class TrackerMinerFsLifeCycle():
@@ -198,12 +213,19 @@ class TrackerMinerFsLifeCycle():
     def __start_tracker_miner_fs (self):
         miner_fs_binary = os.path.join (cfg.EXEC_PREFIX, "tracker-miner-fs")
         FNULL = open ('/dev/null', 'w')
-        return subprocess.Popen ([miner_fs_binary], stdout=FNULL, stderr=FNULL)
+        if options.is_manual_start ():
+            print "Start tracker-miner-fs manually"
+        else:
+            return subprocess.Popen ([miner_fs_binary], stdout=FNULL, stderr=FNULL)
 
     def __stop_tracker_miner_fs (self):
         control_binary = os.path.join (cfg.BINDIR, "tracker-control")
         FNULL = open('/dev/null', 'w')
-        subprocess.call ([control_binary, "-t"], stdout=FNULL)
+        if options.is_manual_start ():
+            print "Kill miner manually"
+            self.loop.run ()
+        else:
+            subprocess.call ([control_binary, "-t"], stdout=FNULL)
 
 
 class TrackerWritebackLifeCycle():
@@ -265,7 +287,10 @@ class TrackerWritebackLifeCycle():
         writeback = [writeback_binary]
         # The env variables can be passed as parameters!
         FNULL = open('/dev/null', 'w')
-        self.process = subprocess.Popen (writeback, stdout=FNULL, stderr=FNULL)
+        if options.is_manual_start ():
+            print "Start tracker-writeback manually"
+        else:
+            self.process = subprocess.Popen (writeback, stdout=FNULL, stderr=FNULL)
 
 
 class TrackerSystemAbstraction:
