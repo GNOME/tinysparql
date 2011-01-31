@@ -7,7 +7,7 @@
 
 rdf: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "rdf" ;
-	nao:lastModified "2010-12-22T10:00:00Z" .
+	nao:lastModified "2011-01-31T15:00:00Z" .
 
 rdfs: a tracker:Namespace ;
 	tracker:prefix "rdfs" .
@@ -127,3 +127,8 @@ tracker:modified a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:integer .
 
+# used to track resources that have been partially restored and require reextraction
+tracker:damaged a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range xsd:boolean .
