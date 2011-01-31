@@ -38,8 +38,10 @@
 #define THEME_ICON_URN_PREFIX        "urn:theme-icon:"
 
 static void     miner_applications_finalize                (GObject              *object);
-static void     miner_applications_constructed             (GObject              *object);
-
+static void     miner_applications_initable_iface_init     (GInitableIface       *iface);
+static gboolean miner_applications_initable_init           (GInitable            *initable,
+                                                            GCancellable         *cancellable,
+                                                            GError              **error);
 static gboolean miner_applications_check_file              (TrackerMinerFS       *fs,
                                                             GFile                *file);
 static gboolean miner_applications_check_directory         (TrackerMinerFS       *fs,
@@ -68,7 +70,9 @@ struct ProcessApplicationData {
 	gchar *type;
 };
 
-G_DEFINE_TYPE (TrackerMinerApplications, tracker_miner_applications, TRACKER_TYPE_MINER_FS)
+G_DEFINE_TYPE_WITH_CODE (TrackerMinerApplications, tracker_miner_applications, TRACKER_TYPE_MINER_FS,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                miner_applications_initable_iface_init));
 
 static void
 tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
@@ -77,7 +81,6 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 	TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
 
 	object_class->finalize = miner_applications_finalize;
-	object_class->constructed = miner_applications_constructed;
 
 	miner_fs_class->check_file = miner_applications_check_file;
 	miner_fs_class->check_directory = miner_applications_check_directory;
@@ -94,33 +97,53 @@ tracker_miner_applications_init (TrackerMinerApplications *ma)
 }
 
 static void
-miner_applications_finalize (GObject *object)
+miner_applications_initable_iface_init (GInitableIface *iface)
 {
-	G_OBJECT_CLASS (tracker_miner_applications_parent_class)->finalize (object);
+	iface->init = miner_applications_initable_init;
 }
 
-static void
-miner_applications_constructed (GObject *object)
+static gboolean
+miner_applications_initable_init (GInitable     *initable,
+                                  GCancellable  *cancellable,
+                                  GError       **error)
 {
+	GInitableIface *parent_iface;
+	TrackerMinerApplications *ma;
+	TrackerMinerFS *fs;
 	GFile *file;
 
-	G_OBJECT_CLASS (tracker_miner_applications_parent_class)->constructed (object);
+	ma = TRACKER_MINER_APPLICATIONS (initable);
+	fs = TRACKER_MINER_FS (initable);
+
+	/* Chain up parent's initable callback before calling child's one */
+	parent_iface = g_type_interface_peek_parent (TRACKER_MINER_GET_INITABLE_IFACE (initable));
+	if (!parent_iface->init (initable, cancellable, error)) {
+		return FALSE;
+	}
 
 	file = g_file_new_for_path ("/usr/share/applications/");
-	tracker_miner_fs_directory_add (TRACKER_MINER_FS (object), file, TRUE);
+	tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 
 	file = g_file_new_for_path ("/usr/share/desktop-directories/");
-	tracker_miner_fs_directory_add (TRACKER_MINER_FS (object), file, TRUE);
+	tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 
 #ifdef HAVE_MEEGOTOUCH
 	file = g_file_new_for_path ("/usr/lib/duicontrolpanel/");
-	tracker_miner_fs_directory_add (TRACKER_MINER_FS (object), file, TRUE);
+	tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
 #endif /* HAVE_MEEGOTOUCH */
 
 	/* FIXME: Check XDG_DATA_DIRS and also process applications in there */
+
+	return TRUE;
+}
+
+static void
+miner_applications_finalize (GObject *object)
+{
+	G_OBJECT_CLASS (tracker_miner_applications_parent_class)->finalize (object);
 }
 
 static void
@@ -840,15 +863,20 @@ miner_applications_reset (TrackerMiner *miner)
 TrackerMiner *
 tracker_miner_applications_new (void)
 {
+	GError *error = NULL;
 	TrackerMiner *miner;
 
-	miner = g_object_new (TRACKER_TYPE_MINER_APPLICATIONS,
-	                      "name", "Applications",
-	                      NULL);
-
-	/* Before returning the newly created miner, check if we need
-	 * to reset it */
-	if (tracker_miner_applications_locale_changed ()) {
+	miner = g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
+	                        NULL,
+	                        &error,
+	                        "name", "Applications",
+	                        NULL);
+	if (!miner) {
+		g_critical ("Couldn't create new TrackerMinerApplications object: '%s'",
+		            error ? error->message : "Unknown error");
+	} else if (tracker_miner_applications_locale_changed ()) {
+		/* Before returning the newly created miner, check if we need
+		 * to reset it */
 		g_message ("Locale change detected, so resetting miner to "
 		           "remove all previously created items...");
 		miner_applications_reset (miner);
