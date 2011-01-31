@@ -44,10 +44,9 @@ FOOTER = """
 </testdefinition>"""
 
 PRE_STEPS = """        <pre_steps>
-           <step>pidof call-history|xargs kill -9</step>
-           <step>initctl stop xsession/relevanced</step>
+           <step>initctl stop xsession/tracker-writeback</step>
            <step>initctl stop xsession/tracker-miner</step>
-           <step>su - user -c "tracker-control -k"</step>
+           <step>initctl start xsession/tracker-stop</step>
        </pre_steps>
 """
 
