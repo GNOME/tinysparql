@@ -9,6 +9,8 @@ utils_SCRIPTS =                                        \
 	helpers.py                                     \
 	storetest.py                                   \
 	minertest.py                                   \
+	applicationstest.py			       \
+	writebacktest.py			       \
 	system.py
 
 EXTRA_DIST =                                           \
