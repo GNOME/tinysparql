@@ -2480,15 +2480,13 @@ tracker_data_commit_transaction (GError **error)
 		return;
 	}
 
-	in_transaction = FALSE;
 	get_transaction_modseq ();
 	if (has_persistent && !in_ontology_transaction) {
 		transaction_modseq++;
 	}
-	in_ontology_transaction = FALSE;
 
 	if (!in_journal_replay) {
-		if (has_persistent) {
+		if (has_persistent || in_ontology_transaction) {
 			tracker_db_journal_commit_db_transaction ();
 		} else {
 			/* If we only had transient properties, then we must not write
@@ -2497,7 +2495,10 @@ tracker_data_commit_transaction (GError **error)
 			tracker_db_journal_rollback_transaction ();
 		}
 	}
+
 	resource_time = 0;
+	in_transaction = FALSE;
+	in_ontology_transaction = FALSE;
 
 	if (update_buffer.class_counts) {
 		/* successful transaction, no need to rollback class counts,
