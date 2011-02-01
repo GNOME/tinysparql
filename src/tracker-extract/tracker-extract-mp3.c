@@ -115,6 +115,7 @@ typedef enum {
 	ID3V2_TPB,
 	ID3V2_TP1,
 	ID3V2_TP2,
+	ID3V2_TRK,
 	ID3V2_TT1,
 	ID3V2_TT2,
 	ID3V2_TT3,
@@ -243,6 +244,7 @@ static const struct {
 	{ "TP1", ID3V2_TP1 },
 	{ "TP2", ID3V2_TP2 },
 	{ "TPB", ID3V2_TPB },
+	{ "TRK", ID3V2_TRK },
 	{ "TT1", ID3V2_TT1 },
 	{ "TT2", ID3V2_TT2 },
 	{ "TT3", ID3V2_TT3 },
@@ -1644,6 +1646,21 @@ get_id3v20_tags (id3v2frame            frame,
 		case ID3V2_TP2:
 			tag->performer2 = word;
 			break;
+		case ID3V2_TRK: {
+			gchar **parts;
+
+			parts = g_strsplit (word, "/", 2);
+			if (parts[0]) {
+				tag->track_number = atoi (parts[0]);
+				if (parts[1]) {
+					tag->track_count = atoi (parts[1]);
+				}
+			}
+			g_strfreev (parts);
+			g_free (word);
+
+			break;
+		}
 		case ID3V2_TT1:
 			tag->title1 = word;
 			break;
