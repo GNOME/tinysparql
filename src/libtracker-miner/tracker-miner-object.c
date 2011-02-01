@@ -380,7 +380,7 @@ miner_initable_init (GInitable     *initable,
 	                                         miner->private->name,
 	                                         NULL);
 
-	/* Register the service name for the miner */
+	/* Register the D-Bus object */
 	miner->private->full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX,
 	                                         miner->private->name,
 	                                         NULL);
@@ -405,6 +405,7 @@ miner_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
+	/* Request the D-Bus name */
 	reply = g_dbus_connection_call_sync (miner->private->d_connection,
 	                                     "org.freedesktop.DBus",
 	                                     "/org/freedesktop/DBus",
@@ -813,6 +814,24 @@ TrackerSparqlConnection *
 tracker_miner_get_connection (TrackerMiner *miner)
 {
 	return miner->private->connection;
+}
+
+GDBusConnection *
+tracker_miner_get_dbus_connection (TrackerMiner *miner)
+{
+	return miner->private->d_connection;
+}
+
+G_CONST_RETURN gchar *
+tracker_miner_get_dbus_full_name (TrackerMiner *miner)
+{
+	return miner->private->full_name;
+}
+
+G_CONST_RETURN gchar *
+tracker_miner_get_dbus_full_path (TrackerMiner *miner)
+{
+	return miner->private->full_path;
 }
 
 static void
