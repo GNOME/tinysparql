@@ -244,6 +244,8 @@ static void        miner_files_add_removable_or_optical_directory (TrackerMinerF
                                                                    const gchar       *mount_path,
                                                                    const gchar       *uuid);
 
+static GInitableIface* miner_files_initable_parent_iface;
+
 G_DEFINE_TYPE_WITH_CODE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 miner_files_initable_iface_init));
@@ -324,6 +326,7 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 static void
 miner_files_initable_iface_init (GInitableIface *iface)
 {
+	miner_files_initable_parent_iface = g_type_interface_peek_parent (iface);
 	iface->init = miner_files_initable_init;
 }
 
@@ -332,7 +335,6 @@ miner_files_initable_init (GInitable     *initable,
                            GCancellable  *cancellable,
                            GError       **error)
 {
-	GInitableIface *parent_iface;
 	TrackerMinerFiles *mf;
 	TrackerMinerFS *fs;
 	GSList *mounts = NULL;
@@ -343,8 +345,7 @@ miner_files_initable_init (GInitable     *initable,
 	fs = TRACKER_MINER_FS (initable);
 
 	/* Chain up parent's initable callback before calling child's one */
-	parent_iface = g_type_interface_peek_parent (TRACKER_MINER_GET_INITABLE_IFACE (initable));
-	if (!parent_iface->init (initable, cancellable, error)) {
+	if (!miner_files_initable_parent_iface->init (initable, cancellable, error)) {
 		return FALSE;
 	}
 

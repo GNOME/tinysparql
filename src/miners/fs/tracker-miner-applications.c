@@ -70,6 +70,8 @@ struct ProcessApplicationData {
 	gchar *type;
 };
 
+static GInitableIface* miner_applications_initable_parent_iface;
+
 G_DEFINE_TYPE_WITH_CODE (TrackerMinerApplications, tracker_miner_applications, TRACKER_TYPE_MINER_FS,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 miner_applications_initable_iface_init));
@@ -99,6 +101,7 @@ tracker_miner_applications_init (TrackerMinerApplications *ma)
 static void
 miner_applications_initable_iface_init (GInitableIface *iface)
 {
+	miner_applications_initable_parent_iface = g_type_interface_peek_parent (iface);
 	iface->init = miner_applications_initable_init;
 }
 
@@ -107,7 +110,6 @@ miner_applications_initable_init (GInitable     *initable,
                                   GCancellable  *cancellable,
                                   GError       **error)
 {
-	GInitableIface *parent_iface;
 	TrackerMinerApplications *ma;
 	TrackerMinerFS *fs;
 	GFile *file;
@@ -116,8 +118,7 @@ miner_applications_initable_init (GInitable     *initable,
 	fs = TRACKER_MINER_FS (initable);
 
 	/* Chain up parent's initable callback before calling child's one */
-	parent_iface = g_type_interface_peek_parent (TRACKER_MINER_GET_INITABLE_IFACE (initable));
-	if (!parent_iface->init (initable, cancellable, error)) {
+	if (!miner_applications_initable_parent_iface->init (initable, cancellable, error)) {
 		return FALSE;
 	}
 
