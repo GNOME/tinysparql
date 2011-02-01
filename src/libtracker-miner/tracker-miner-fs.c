@@ -1032,7 +1032,7 @@ process_stop (TrackerMinerFS *fs)
 	              NULL);
 
 	g_signal_emit (fs, signals[FINISHED], 0,
-	               g_timer_elapsed (fs->private->timer, NULL),
+	               fs->private->timer ? g_timer_elapsed (fs->private->timer, NULL) : 0.0,
 	               fs->private->total_directories_found,
 	               fs->private->total_directories_ignored,
 	               fs->private->total_files_found,
@@ -3781,6 +3781,7 @@ crawl_directories_start (TrackerMinerFS *fs)
 	if (!fs->private->initial_crawling) {
 		/* Do not perform initial crawling */
 		g_message ("Crawling is disabled, waiting for DBus events");
+		process_stop (fs);
 		return;
 	}
 
