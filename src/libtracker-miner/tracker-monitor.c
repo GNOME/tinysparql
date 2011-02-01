@@ -28,13 +28,6 @@
 
 #define TRACKER_MONITOR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MONITOR, TrackerMonitorPrivate))
 
-/* If blacklisting enabled, CREATED events won't be directly notified, and
- * instead, they will be pushed to the events cache; so that if a DELETED event
- * comes during the CACHE_LIFETIME of the event, both will cancel each other and
- * no event will be notified. This also enables some additional event mergings
- * that can be done with MOVED events. */
-#define ENABLE_FILE_BLACKLISTING TRUE
-
 /* The life time of an item in the cache */
 #define CACHE_LIFETIME_SECONDS 1
 
@@ -935,7 +928,6 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 			/* Get previous event data, if any */
 			previous_update_event_data = g_hash_table_lookup (monitor->private->pre_update, file);
 
-#if ENABLE_FILE_BLACKLISTING
 			if (previous_update_event_data) {
 				/* Refresh event timer, and make sure the event is now set as expirable */
 				g_get_current_time (&(previous_update_event_data->start_time));
@@ -949,28 +941,11 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 				                                     FALSE,
 				                                     G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT));
 			}
-#else
-			/* If no blacklisting desired, emit event right away */
-			if (previous_update_event_data) {
-				emit_signal_for_event (monitor, previous_update_event_data);
-				g_hash_table_remove (monitor->private->pre_update, file);
-			} else {
-				EventData *new_event;
-
-				new_event = event_data_new (file,
-				                            NULL,
-				                            FALSE,
-				                            G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT);
-				emit_signal_for_event (monitor, new_event);
-				event_data_free (new_event);
-			}
-#endif /* ENABLE_FILE_BLACKLISTING */
 			break;
 		}
 
 		case G_FILE_MONITOR_EVENT_DELETED: {
 			EventData *new_event;
-#if ENABLE_FILE_BLACKLISTING
 			EventData *previous_update_event_data;
 
 			/* Get previous event data, if any */
@@ -990,7 +965,6 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 				}
 				/* else, keep on notifying the event */
 			}
-#endif /* ENABLE_FILE_BLACKLISTING */
 
 			new_event = event_data_new (file,
 			                            NULL,
@@ -1003,7 +977,6 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 
 		case G_FILE_MONITOR_EVENT_MOVED: {
 			EventData *new_event;
-#if ENABLE_FILE_BLACKLISTING
 			EventData *previous_update_event_data;
 
 			/* Get previous event data, if any */
@@ -1059,7 +1032,6 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 					/* And keep on notifying the MOVED event */
 				}
 			}
-#endif /* ENABLE_FILE_BLACKLISTING */
 
 			new_event = event_data_new (file,
 			                            other_file,
