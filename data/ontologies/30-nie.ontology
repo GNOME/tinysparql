@@ -10,7 +10,7 @@
 
 nie: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nie" ;
-	nao:lastModified "2010-12-22T10:00:00Z" .
+	nao:lastModified "2011-02-03T13:00:00Z" .
 
 nie:DataObject a rdfs:Class ;
 	rdfs:label "Data Object" ;
@@ -97,7 +97,8 @@ nie:plainTextContent a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
 	tracker:fulltextIndexed true ;
-	tracker:weight 2 .
+	tracker:weight 2 ;
+	tracker:forceJournal false .
 
 nie:legal a rdf:Property ;
 	rdfs:comment "A common superproperty for all properties that point at legal information about an Information Element";
