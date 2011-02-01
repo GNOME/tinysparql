@@ -28,6 +28,21 @@
 
 #define TRACKER_MONITOR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MONITOR, TrackerMonitorPrivate))
 
+/* If this is enabled, we are assuming that GIO is fixed so that after a CREATED
+ * event emitted after a move operation from a non-monitored path to a monitored
+ * one, a CHANGES_DONE_HINT is also emitted. This allows us to NOT send the
+ * CREATED event to upper layers until the file has been fully closed.
+ *
+ * See https://bugzilla.gnome.org/show_bug.cgi?id=640077 and
+ *     https://projects.maemo.org/bugzilla/show_bug.cgi?id=219982
+ * When the upstream bugfix is integrated in GLib/GIO, we will be able to
+ * depend on an specific glib version. Until then, disable this and only
+ * enable in distros which have that patched glib.
+ **/
+#ifdef GIO_ALWAYS_SENDS_CHANGES_DONE_HINT_AFTER_CREATED
+#warning Assuming GLib/GIO always sends CHANGES_DONE_HINT after CREATED...
+#endif /* GIO_ALWAYS_SENDS_CHANGES_DONE_HINT_AFTER_CREATED */
+
 /* The life time of an item in the cache */
 #define CACHE_LIFETIME_SECONDS 1
 
@@ -773,16 +788,28 @@ static void
 monitor_event_file_created (TrackerMonitor *monitor,
                             GFile          *file)
 {
+	EventData *new_event;
+
 	/*  - When a G_FILE_MONITOR_EVENT_CREATED(A) is received,
 	 *    -- Add it to the cache, replacing any previous element
 	 *       (shouldn't be any)
 	 */
+	new_event = event_data_new (file,
+	                            NULL,
+	                            FALSE,
+	                            G_FILE_MONITOR_EVENT_CREATED);
+
+	/* If we know that there always must be a CHANGES_DONE_HINT
+	 * emitted after a CREATED on a file event, set the event
+	 * as non-expirable. Will be set expirable when CHANGES_DONE_HINT
+	 * is actually received */
+#ifdef GIO_ALWAYS_SENDS_CHANGES_DONE_HINT_AFTER_CREATED
+	new_event->expirable = FALSE;
+#endif /* GIO_ALWAYS_SENDS_CHANGES_DONE_HINT_AFTER_CREATED */
+
 	g_hash_table_replace (monitor->private->pre_update,
 	                      g_object_ref (file),
-	                      event_data_new (file,
-	                                      NULL,
-	                                      FALSE,
-	                                      G_FILE_MONITOR_EVENT_CREATED));
+	                      new_event);
 }
 
 static void
@@ -805,10 +832,12 @@ monitor_event_file_changed (TrackerMonitor *monitor,
 				 */
 				g_hash_table_remove (monitor->private->pre_update, file);
 			} else if (previous_update_event_data->event_type == G_FILE_MONITOR_EVENT_CREATED) {
+#ifdef GIO_ALWAYS_SENDS_CHANGES_DONE_HINT_AFTER_CREATED
 				/* If we got a CHANGED event before the CREATED was expired,
 				 * set the CREATED as not expirable, as we expect a CHANGES_DONE_HINT
 				 * afterwards. */
 				previous_update_event_data->expirable = FALSE;
+#endif /* GIO_ALWAYS_SENDS_CHANGES_DONE_HINT_AFTER_CREATED */
 			}
 		}
 		return;
