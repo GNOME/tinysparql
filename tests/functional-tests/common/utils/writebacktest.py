@@ -24,7 +24,11 @@ import os
 from common.utils import configuration as cfg
 import time
 
-BASEDIR = os.environ['HOME']
+BASEDIR = os.path.join (os.environ['HOME'], "test-writeback-monitored")
+
+TEST_FILE_JPEG = "writeback-test-1.jpeg"
+TEST_FILE_TIFF = "writeback-test-2.tif"
+TEST_FILE_PNG = "writeback-test-4.png"
 
 def uri (filename):
     return "file://" + os.path.join (BASEDIR, filename)
@@ -39,11 +43,9 @@ class CommonTrackerWritebackTest (ut.TestCase):
     def __prepare_directories (self):
         #
         #     ~/test-writeback-monitored/
-        #     ~/test-writeback-no-monitored/
         #
         
-        for d in ["test-writeback-monitored",
-                  "test-writeback-no-monitored"]:
+        for d in ["test-writeback-monitored"]:
             directory = os.path.join (BASEDIR, d)
             if (os.path.exists (directory)):
                 shutil.rmtree (directory)
@@ -57,16 +59,11 @@ class CommonTrackerWritebackTest (ut.TestCase):
             datadir = os.path.join (cfg.DATADIR, "tracker-tests",
                                     "test-writeback-data")
 
-        for root, dirs, testfile in os.walk (datadir):
-
-            def is_valid_file (f):
-                return not (tf.endswith ("~") or tf.startswith ("Makefile"))
-
-            valid_files = [os.path.join (root, tf) for tf in testfile if is_valid_file (tf)]
-            for f in valid_files:
-                print "Copying", f, os.path.join (BASEDIR, "test-writeback-monitored")
-                shutil.copy (f, os.path.join (BASEDIR, "test-writeback-monitored"))
-                time.sleep (2)
+        for testfile in [TEST_FILE_JPEG, TEST_FILE_PNG,TEST_FILE_TIFF]:
+            origin = os.path.join (datadir, testfile)
+            print "Copying", origin, BASEDIR
+            shutil.copy (origin, BASEDIR)
+            time.sleep (2)
 
     
     @classmethod 
@@ -93,10 +90,10 @@ class CommonTrackerWritebackTest (ut.TestCase):
     
 
     def get_test_filename_jpeg (self):
-        return uri ("test-writeback-monitored/writeback-test-1.jpeg")
+        return uri (TEST_FILE_JPEG)
 
     def get_test_filename_tiff (self):
-        return uri ("test-writeback-monitored/writeback-test-2.tif")
+        return uri (TEST_FILE_TIFF)
 
     def get_test_filename_png (self):
-        return uri ("test-writeback-monitored/writeback-test-4.png")
+        return uri (TEST_FILE_PNG)
