@@ -22,6 +22,7 @@ import shutil
 import unittest2 as ut
 import os
 from common.utils import configuration as cfg
+import time
 
 BASEDIR = os.environ['HOME']
 
@@ -65,6 +66,7 @@ class CommonTrackerWritebackTest (ut.TestCase):
             for f in valid_files:
                 print "Copying", f, os.path.join (BASEDIR, "test-writeback-monitored")
                 shutil.copy (f, os.path.join (BASEDIR, "test-writeback-monitored"))
+                time.sleep (2)
 
     
     @classmethod 
@@ -89,3 +91,12 @@ class CommonTrackerWritebackTest (ut.TestCase):
         #print "Stopping the daemon in test mode (Doing nothing now)"
         self.system.tracker_writeback_testing_stop ()
     
+
+    def get_test_filename_jpeg (self):
+        return uri ("test-writeback-monitored/writeback-test-1.jpeg")
+
+    def get_test_filename_tiff (self):
+        return uri ("test-writeback-monitored/writeback-test-2.tif")
+
+    def get_test_filename_png (self):
+        return uri ("test-writeback-monitored/writeback-test-4.png")
