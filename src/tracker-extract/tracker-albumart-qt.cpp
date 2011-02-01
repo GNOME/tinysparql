@@ -88,35 +88,44 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
                                  const gchar         *buffer_mime,
                                  const gchar         *target)
 {
-	QImageReader *reader = NULL;
-	QByteArray array;
+	if (g_strcmp0 (buffer_mime, "image/jpeg") == 0 ||
+	    g_strcmp0 (buffer_mime, "JPG") == 0) {
 
-	array = QByteArray ((const char *) buffer, (int) len);
+		g_debug ("Saving album art using raw data as uri:'%s'",
+		         target);
 
-	QBuffer qbuffer (&array);
-	qbuffer.open (QIODevice::ReadOnly);
-
-	if (buffer_mime != NULL) {
-		reader = new QImageReader::QImageReader (&qbuffer, QByteArray (buffer_mime));
+		g_file_set_contents (target, (const gchar*) buffer, (gssize) len, NULL);
 	} else {
-		QByteArray format = QImageReader::imageFormat (&qbuffer);
+		QImageReader *reader = NULL;
+		QByteArray array;
 
-		if (!format.isEmpty ()) {
-			reader = new QImageReader::QImageReader (&qbuffer, format);
+		array = QByteArray ((const char *) buffer, (int) len);
+
+		QBuffer qbuffer (&array);
+		qbuffer.open (QIODevice::ReadOnly);
+
+		if (buffer_mime != NULL) {
+			reader = new QImageReader::QImageReader (&qbuffer, QByteArray (buffer_mime));
+		} else {
+			QByteArray format = QImageReader::imageFormat (&qbuffer);
+
+			if (!format.isEmpty ()) {
+				reader = new QImageReader::QImageReader (&qbuffer, format);
+			}
 		}
+
+		if (!reader) {
+			g_message ("Could not get QImageReader from buffer");
+			return FALSE;
+		}
+
+		QImage image;
+
+		image = reader->read ();
+		image.save (QString (target), "jpeg");
+
+		delete reader;
 	}
-
-	if (!reader) {
-		g_message ("Could not get QImageReader from buffer");
-		return FALSE;
-	}
-
-	QImage image;
-
-	image = reader->read ();
-	image.save (QString (target), "jpeg");
-
-	delete reader;
 
 	return TRUE;
 }
