@@ -396,6 +396,11 @@ tracker_data_backup_restore (GFile                *journal,
 		 * file will change only when the whole DB is recreated (after a hard reset
 		 * or after a backup restoration). */
 		tracker_db_manager_create_version_file ();
+
+		/* Given we're radically changing the database, we
+		 * force a full mtime check against all known files in
+		 * the database for complete synchronisation. */
+		tracker_db_manager_set_need_mtime_check (TRUE);
 	} else {
 		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0,
 		             "Backup file doesn't exist");

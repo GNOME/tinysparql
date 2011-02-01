@@ -81,9 +81,11 @@ TrackerDBManagerFlags
 
 gboolean            tracker_db_manager_get_first_index_done   (void);
 guint64             tracker_db_manager_get_last_crawl_done    (void);
+gboolean            tracker_db_manager_get_need_mtime_check   (void);
 
 void                tracker_db_manager_set_first_index_done   (gboolean done);
 void                tracker_db_manager_set_last_crawl_done    (gboolean done);
+void                tracker_db_manager_set_need_mtime_check   (gboolean needed);
 
 gboolean            tracker_db_manager_locale_changed         (void);
 void                tracker_db_manager_set_current_locale     (void);
