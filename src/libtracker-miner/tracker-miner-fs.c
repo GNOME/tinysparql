@@ -4500,6 +4500,55 @@ tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
 	crawl_directories_start (fs);
 }
 
+/**
+ * tracker_miner_fs_set_mtime_checking:
+ * @fs: a #TrackerMinerFS
+ * @mtime_checking: a #gboolean
+ *
+ * Tells the miner-fs that during the crawling phase, directory mtime
+ * checks should or shouldn't be performed against the database to
+ * make sure we have the most up to date version of the file being
+ * checked at the time. Setting this to #FALSE can dramatically
+ * improve the start up the crawling of the @fs.
+ *
+ * The down side is that using this consistently means that some files
+ * on the disk may be out of date with files in the database.
+ *
+ * The main purpose of this function is for systems where a @fs is
+ * running the entire time and where it is very unlikely that a file
+ * could be changed outside between startup and shutdown of the
+ * process using this API.
+ *
+ * The default if not set directly is that @mtime_checking is #TRUE.
+ *
+ * Since: 0.10
+ **/
+void
+tracker_miner_fs_set_mtime_checking (TrackerMinerFS *fs,
+                                     gboolean        mtime_checking)
+{
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+
+	fs->private->mtime_checking = mtime_checking;
+}
+
+/**
+ * tracker_miner_fs_get_mtime_checking:
+ * @fs: a #TrackerMinerFS
+ *
+ * Returns: #TRUE if mtime checks for directories against the database
+ * are done when @fs crawls the file system, otherwise #FALSE.
+ *
+ * Since: 0.10
+ **/
+gboolean
+tracker_miner_fs_get_mtime_checking (TrackerMinerFS *fs)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
+
+	return fs->private->mtime_checking;
+}
+
 void
 tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
                                        gboolean        do_initial_crawling)
@@ -4515,6 +4564,30 @@ tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
 	return fs->private->initial_crawling;
+}
+
+/**
+ * tracker_miner_fs_has_items_to_process:
+ * @fs: a #TrackerMinerFS
+ *
+ * Returns: #TRUE if there are items to process in the internal
+ * queues, otherwise #FALSE.
+ *
+ * Since: 0.10
+ **/
+gboolean
+tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
+
+	if (g_queue_get_length (fs->private->items_deleted) > 0 ||
+	    g_queue_get_length (fs->private->items_created) > 0 ||
+	    g_queue_get_length (fs->private->items_updated) > 0 ||
+	    g_queue_get_length (fs->private->items_moved) > 0) {
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 /**
