@@ -158,7 +158,8 @@ miner_web_initable_init (GInitable     *initable,
 	mw = TRACKER_MINER_WEB (initable);
 
 	/* Chain up parent's initable callback before calling child's one */
-	if (!miner_web_initable_parent_iface->init (initable, cancellable, error)) {
+	if (!miner_web_initable_parent_iface->init (initable, cancellable, &inner_error)) {
+		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 

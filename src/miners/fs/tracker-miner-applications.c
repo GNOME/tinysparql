@@ -113,12 +113,14 @@ miner_applications_initable_init (GInitable     *initable,
 	TrackerMinerApplications *ma;
 	TrackerMinerFS *fs;
 	GFile *file;
+	GError *inner_error = NULL;
 
 	ma = TRACKER_MINER_APPLICATIONS (initable);
 	fs = TRACKER_MINER_FS (initable);
 
 	/* Chain up parent's initable callback before calling child's one */
-	if (!miner_applications_initable_parent_iface->init (initable, cancellable, error)) {
+	if (!miner_applications_initable_parent_iface->init (initable, cancellable, &inner_error)) {
+		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 

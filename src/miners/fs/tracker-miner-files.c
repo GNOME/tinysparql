@@ -337,6 +337,7 @@ miner_files_initable_init (GInitable     *initable,
 {
 	TrackerMinerFiles *mf;
 	TrackerMinerFS *fs;
+	GError *inner_error = NULL;
 	GSList *mounts = NULL;
 	GSList *dirs;
 	GSList *m;
@@ -345,13 +346,15 @@ miner_files_initable_init (GInitable     *initable,
 	fs = TRACKER_MINER_FS (initable);
 
 	/* Chain up parent's initable callback before calling child's one */
-	if (!miner_files_initable_parent_iface->init (initable, cancellable, error)) {
+	if (!miner_files_initable_parent_iface->init (initable, cancellable, &inner_error)) {
+		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 
 	/* Set up extractor and signals */
-	mf->private->connection =  g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
+	mf->private->connection =  g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
 	if (!mf->private->connection) {
+		g_propagate_error (error, inner_error);
 		g_prefix_error (error,
 		                "Could not connect to the D-Bus session bus. ");
 		return FALSE;

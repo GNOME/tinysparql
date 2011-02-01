@@ -355,14 +355,16 @@ miner_initable_init (GInitable     *initable,
 	};
 
 	/* Try to get SPARQL connection... */
-	miner->private->connection = tracker_sparql_connection_get (NULL, error);
+	miner->private->connection = tracker_sparql_connection_get (NULL, &inner_error);
 	if (!miner->private->connection) {
+		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 
 	/* Try to get DBus connection... */
-	miner->private->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
+	miner->private->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
 	if (!miner->private->d_connection) {
+		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 
