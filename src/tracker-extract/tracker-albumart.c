@@ -702,6 +702,8 @@ tracker_albumart_init (void)
 
 	g_return_val_if_fail (initialized == FALSE, FALSE);
 
+	tracker_albumart_plugin_init ();
+
 	albumart_storage = tracker_storage_new ();
 
 	/* Cache to know if we have already handled uris */
@@ -741,6 +743,8 @@ tracker_albumart_shutdown (void)
 	if (albumart_storage) {
 		g_object_unref (albumart_storage);
 	}
+
+	tracker_albumart_plugin_shutdown ();
 
 	initialized = FALSE;
 }

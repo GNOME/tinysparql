@@ -27,12 +27,15 @@
 
 G_BEGIN_DECLS
 
-gboolean  tracker_albumart_file_to_jpeg   (const gchar         *filename,
-                                           const gchar         *target);
-gboolean  tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
-                                           size_t               len,
-                                           const gchar         *buffer_mime,
-                                           const gchar         *target);
+void      tracker_albumart_plugin_init     (void);
+void      tracker_albumart_plugin_shutdown (void);
+
+gboolean  tracker_albumart_file_to_jpeg    (const gchar         *filename,
+                                            const gchar         *target);
+gboolean  tracker_albumart_buffer_to_jpeg  (const unsigned char *buffer,
+                                            size_t               len,
+                                            const gchar         *buffer_mime,
+                                            const gchar         *target);
 
 G_END_DECLS
 

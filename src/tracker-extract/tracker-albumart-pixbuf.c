@@ -24,6 +24,16 @@
 
 #include "tracker-albumart-generic.h"
 
+void
+tracker_albumart_plugin_init (void)
+{
+}
+
+void
+tracker_albumart_plugin_shutdown (void)
+{
+}
+
 gboolean
 tracker_albumart_file_to_jpeg (const gchar *filename,
                                const gchar *target)

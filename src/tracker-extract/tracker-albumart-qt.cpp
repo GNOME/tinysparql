@@ -25,12 +25,30 @@
 #include <QBuffer>
 #include <QImageReader>
 #include <QImageWriter>
+#include <QApplication>
 
 #include <glib.h>
 
 #include "tracker-albumart-generic.h"
 
 G_BEGIN_DECLS
+
+static QApplication *app = NULL;
+
+void
+tracker_albumart_plugin_init (void)
+{
+	int argc = 0;
+	char **argv = NULL;
+
+	app = new QApplication (argc, argv);
+}
+
+void
+tracker_albumart_plugin_shutdown (void)
+{
+	delete app;
+}
 
 gboolean
 tracker_albumart_file_to_jpeg (const gchar *filename,
