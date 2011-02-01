@@ -47,6 +47,7 @@ main (int argc, char **argv)
 	GMainLoop *loop;
 	GOptionContext *context;
 	TrackerMinerRSS *miner;
+	GError *error = NULL;
 
 	g_type_init ();
 	g_thread_init (NULL);
@@ -70,9 +71,10 @@ main (int argc, char **argv)
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
-	miner = tracker_miner_rss_new ();
+	miner = tracker_miner_rss_new (&error);
 	if (!miner) {
-		g_printerr ("Cannot create new RSS miner, exiting...\n");
+		g_printerr ("Cannot create new RSS miner: '%s', exiting...\n",
+		            error ? error->message : "unknown error");
 		return -1;
 	}
 

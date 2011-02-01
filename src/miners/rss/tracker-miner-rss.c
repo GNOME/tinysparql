@@ -610,20 +610,11 @@ miner_resumed (TrackerMiner *miner)
 }
 
 TrackerMinerRSS *
-tracker_miner_rss_new (void)
+tracker_miner_rss_new (GError **error)
 {
-	GError *error = NULL;
-	TrackerMinerRSS *miner;
-
-	miner = g_initable_new (TRACKER_TYPE_MINER_RSS,
-	                        NULL,
-	                        &error,
-	                        "name", "RSS",
-	                        NULL);
-	if (!miner) {
-		g_critical ("Couldn't create new TrackerMinerRSS object: '%s'",
-		            error ? error->message : "Unknown error");
-	}
-
-	return miner;
+	return g_initable_new (TRACKER_TYPE_MINER_RSS,
+	                       NULL,
+	                       error,
+	                       "name", "RSS",
+	                       NULL);
 }

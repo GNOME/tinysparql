@@ -46,7 +46,7 @@ struct _TrackerMinerRSSClass {
 };
 
 GType            tracker_miner_rss_get_type (void) G_GNUC_CONST;
-TrackerMinerRSS *tracker_miner_rss_new      (void);
+TrackerMinerRSS *tracker_miner_rss_new      (GError **error);
 
 G_END_DECLS
 
