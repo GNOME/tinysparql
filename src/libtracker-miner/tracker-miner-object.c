@@ -51,6 +51,10 @@
  * but provides the basic signaling and operation control so the miners
  * implementing this class are properly recognized by Tracker, and can be
  * controlled properly by external means such as #TrackerMinerManager.
+ *
+ * #TrackerMiner implements the #GInitable interface, and thus, all objects of
+ * types inheriting from #TrackerMiner must be initialized with g_initable_init()
+ * just after creation (or directly created with g_initable_new()).
  **/
 
 #define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
@@ -810,24 +814,56 @@ tracker_miner_resume (TrackerMiner  *miner,
 	return TRUE;
 }
 
+/**
+ * tracker_miner_get_connection:
+ * @miner: a #TrackerMiner
+ *
+ * Gets the #TrackerSparqlConnection initialized by @miner
+ *
+ * Returns: a #TrackerSparqlConnection.
+ **/
 TrackerSparqlConnection *
 tracker_miner_get_connection (TrackerMiner *miner)
 {
 	return miner->private->connection;
 }
 
+/**
+ * tracker_miner_get_dbus_connection:
+ * @miner: a #TrackerMiner
+ *
+ * Gets the #GDBusConnection initialized by @miner
+ *
+ * Returns: a #GDBusConnection.
+ **/
 GDBusConnection *
 tracker_miner_get_dbus_connection (TrackerMiner *miner)
 {
 	return miner->private->d_connection;
 }
 
+/**
+ * tracker_miner_get_dbus_full_name:
+ * @miner: a #TrackerMiner
+ *
+ * Gets the DBus name registered by @miner
+ *
+ * Returns: a constant string which should not be modified by the caller.
+ **/
 G_CONST_RETURN gchar *
 tracker_miner_get_dbus_full_name (TrackerMiner *miner)
 {
 	return miner->private->full_name;
 }
 
+/**
+ * tracker_miner_get_dbus_full_path:
+ * @miner: a #TrackerMiner
+ *
+ * Gets the DBus path registered by @miner
+ *
+ * Returns: a constant string which should not be modified by the caller.
+ **/
 G_CONST_RETURN gchar *
 tracker_miner_get_dbus_full_path (TrackerMiner *miner)
 {
