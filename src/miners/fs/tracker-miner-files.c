@@ -2662,42 +2662,6 @@ miner_files_ignore_next_update_file (TrackerMinerFS       *fs,
 	return TRUE;
 }
 
-static gboolean
-should_check_mtime (TrackerConfig *config)
-{
-	gint crawling_interval;
-
-	crawling_interval = tracker_config_get_crawling_interval (config);
-
-	g_message ("Checking whether to perform mtime checks during crawling:");
-
-	if (crawling_interval == -1) {
-		g_message ("  Disabled");
-		return FALSE;
-	} else if (crawling_interval == 0) {
-		g_message ("  Enabled");
-		return TRUE;
-	} else {
-		guint64 then, now;
-
-		then = tracker_db_manager_get_last_crawl_done ();
-		if (then < 1) {
-			g_message ("  No previous timestamp, crawling forced");
-			return TRUE;
-		}
-
-		now = (guint64) time (NULL);
-
-		if (now < then + (crawling_interval * SECONDS_PER_DAY)) {
-			g_message ("  Postponed");
-			return FALSE;
-		} else {
-			g_message ("Not occurred for %d days, crawling forced", crawling_interval);
-			return FALSE;
-		}
-	}
-}
-
 static void
 miner_files_finished (TrackerMinerFS *fs)
 {
@@ -2715,7 +2679,6 @@ tracker_miner_files_new (TrackerConfig  *config,
 	                       "config", config,
 	                       "processing-pool-wait-limit", 10,
 	                       "processing-pool-ready-limit", 100,
-	                       "mtime-checking", should_check_mtime (config),
 	                       NULL);
 }
 

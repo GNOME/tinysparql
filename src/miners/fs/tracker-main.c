@@ -188,19 +188,28 @@ initialize_priority (void)
 }
 
 static gboolean
-should_crawl (TrackerConfig *config)
+should_crawl (TrackerConfig *config,
+              gboolean      *forced)
 {
 	gint crawling_interval;
 
 	crawling_interval = tracker_config_get_crawling_interval (config);
 
-	g_message ("Checking whether to perform mtime checks during crawling:");
+	g_message ("Checking whether to crawl file system based on configured crawling interval:");
 
-	if (crawling_interval == -1) {
+	if (crawling_interval == -2) {
 		g_message ("  Disabled");
 		return FALSE;
+	} else if (crawling_interval == -1) {
+		g_message ("  Maybe (depends on a clean last shutdown)");
+		return TRUE;
 	} else if (crawling_interval == 0) {
-		g_message ("  Enabled");
+		g_message ("  Forced");
+
+		if (forced) {
+			*forced = TRUE;
+		}
+
 		return TRUE;
 	} else {
 		guint64 then, now;
@@ -533,6 +542,9 @@ main (gint argc, gchar *argv[])
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
+	gboolean do_mtime_checking;
+	gboolean do_crawling;
+	gboolean force_mtime_checking;
 
 	g_type_init ();
 
@@ -600,6 +612,36 @@ main (gint argc, gchar *argv[])
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
+	/* Check if we should crawl and if we should force mtime
+	 * checking based on the config.
+	 */
+	do_crawling = should_crawl (config, &force_mtime_checking);
+
+	/* Get the last shutdown state to see if we need to perform a
+	 * full mtime check against the db or not.
+	 *
+	 * Set to TRUE here in case we crash and miss file system
+	 * events.
+	 */
+	g_message ("Checking whether to force mtime checking during crawling (based on last clean shutdown):");
+
+	/* Override the shutdown state decision based on the config */
+	if (force_mtime_checking) {
+		do_mtime_checking = TRUE;
+	} else {
+		do_mtime_checking = tracker_db_manager_get_need_mtime_check ();
+	}
+
+	g_message ("  %s %s",
+	           do_mtime_checking ? "Yes" : "No",
+	           force_mtime_checking ? "(forced from config)" : "");
+
+	/* Set the need for an mtime check to TRUE so we check in the
+	 * event of a crash, this is changed back on shutdown if
+	 * everything appears to be fine.
+	 */
+	tracker_db_manager_set_need_mtime_check (TRUE);
+
 	/* Create new TrackerMinerFiles object */
 	miner_files = tracker_miner_files_new (config, &error);
 	if (!miner_files) {
@@ -610,8 +652,9 @@ main (gint argc, gchar *argv[])
 
 		return EXIT_FAILURE;
 	}
-	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files),
-	                                       should_crawl (config));
+	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files), do_crawling);
+	tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_files), do_mtime_checking);
+
 	g_signal_connect (miner_files, "finished",
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);
@@ -654,6 +697,15 @@ main (gint argc, gchar *argv[])
 	g_main_loop_run (main_loop);
 
 	g_message ("Shutdown started");
+
+	/* Reasons to not mark ourselves as cleanly shutdown include:
+	 *
+	 * 1. Still have files to process in our queues.
+	 * 2. We crash (out of our control usually anyway).
+	 */
+	if (!tracker_miner_fs_has_items_to_process (TRACKER_MINER_FS (miner_files))) {
+		tracker_db_manager_set_need_mtime_check (FALSE);
+	}
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (config);
