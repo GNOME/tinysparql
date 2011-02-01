@@ -2695,26 +2695,18 @@ miner_files_finished (TrackerMinerFS *fs)
 }
 
 TrackerMiner *
-tracker_miner_files_new (TrackerConfig *config)
+tracker_miner_files_new (TrackerConfig  *config,
+                         GError        **error)
 {
-	GError *error = NULL;
-	TrackerMiner *miner;
-
-	miner = g_initable_new (TRACKER_TYPE_MINER_FILES,
-	                        NULL,
-	                        &error,
-	                        "name", "Files",
-	                        "config", config,
-	                        "processing-pool-wait-limit", 10,
-	                        "processing-pool-ready-limit", 100,
-	                        "mtime-checking", should_check_mtime (config),
-	                        NULL);
-	if (!miner) {
-		g_critical ("Couldn't create new TrackerMinerFiles object: '%s'",
-		            error ? error->message : "Unknown error");
-	}
-
-	return miner;
+	return g_initable_new (TRACKER_TYPE_MINER_FILES,
+	                       NULL,
+	                       error,
+	                       "name", "Files",
+	                       "config", config,
+	                       "processing-pool-wait-limit", 10,
+	                       "processing-pool-ready-limit", 100,
+	                       "mtime-checking", should_check_mtime (config),
+	                       NULL);
 }
 
 gboolean

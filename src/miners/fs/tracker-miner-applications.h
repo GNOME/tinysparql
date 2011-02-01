@@ -44,7 +44,7 @@ struct _TrackerMinerApplicationsClass {
 
 GType          tracker_miner_applications_get_type (void) G_GNUC_CONST;
 
-TrackerMiner * tracker_miner_applications_new (void);
+TrackerMiner * tracker_miner_applications_new (GError **error);
 
 G_END_DECLS
 

@@ -204,7 +204,7 @@ should_crawl (TrackerConfig *config)
 		return TRUE;
 	} else {
 		guint64 then, now;
-		
+
 		then = tracker_db_manager_get_last_crawl_done ();
 
 		if (then < 1) {
@@ -529,7 +529,7 @@ main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
 	TrackerMiner *miner_applications, *miner_files;
-	TrackerMinerFilesIndex *object;
+	TrackerMinerFilesIndex *miner_files_index;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
@@ -600,17 +600,25 @@ main (gint argc, gchar *argv[])
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
-	miner_files = tracker_miner_files_new (config);
+	/* Create new TrackerMinerFiles object */
+	miner_files = tracker_miner_files_new (config, &error);
+	if (!miner_files) {
+		g_critical ("Couldn't create new Files miner: '%s'",
+		            error ? error->message : "unknown error");
+		g_object_unref (config);
+		tracker_log_shutdown ();
+
+		return EXIT_FAILURE;
+	}
 	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files),
 	                                       should_crawl (config));
-
 	g_signal_connect (miner_files, "finished",
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);
 
-	object = tracker_miner_files_index_new (TRACKER_MINER_FILES (miner_files));
-
-	if (!object) {
+	/* Create new TrackerMinerFilesIndex object */
+	miner_files_index = tracker_miner_files_index_new (TRACKER_MINER_FILES (miner_files));
+	if (!miner_files_index) {
 		g_object_unref (miner_files);
 		g_object_unref (config);
 		tracker_log_shutdown ();
@@ -619,26 +627,37 @@ main (gint argc, gchar *argv[])
 	}
 
 	/* Create miner for applications */
-	miner_applications = tracker_miner_applications_new ();
-	miners = g_slist_append (miners, miner_applications);
+	miner_applications = tracker_miner_applications_new (&error);
+	if (!miner_applications) {
+		g_critical ("Couldn't create new Applications miner: '%s'",
+		            error ? error->message : "unknown error");
+		g_object_unref (miner_files_index);
+		g_object_unref (miner_files);
+		g_object_unref (config);
+		tracker_log_shutdown ();
 
+		return EXIT_FAILURE;
+	}
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
 
-	/* Create miner for files */
-	miners = g_slist_append (miners, miner_files);
+	/* Setup miners, applications first in list */
+	miners = g_slist_prepend (miners, miner_files);
+	miners = g_slist_prepend (miners, miner_applications);
 
 	tracker_thumbnailer_init ();
 
 	miner_handle_next ();
 
+	/* Go, go, go! */
 	g_main_loop_run (main_loop);
 
 	g_message ("Shutdown started");
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (config);
+	g_object_unref (miner_files_index);
 
 	tracker_thumbnailer_shutdown ();
 

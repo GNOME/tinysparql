@@ -862,20 +862,17 @@ miner_applications_reset (TrackerMiner *miner)
 }
 
 TrackerMiner *
-tracker_miner_applications_new (void)
+tracker_miner_applications_new (GError **error)
 {
-	GError *error = NULL;
 	TrackerMiner *miner;
 
 	miner = g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
 	                        NULL,
-	                        &error,
+	                        error,
 	                        "name", "Applications",
 	                        NULL);
-	if (!miner) {
-		g_critical ("Couldn't create new TrackerMinerApplications object: '%s'",
-		            error ? error->message : "Unknown error");
-	} else if (tracker_miner_applications_locale_changed ()) {
+	if (miner &&
+	    tracker_miner_applications_locale_changed ()) {
 		/* Before returning the newly created miner, check if we need
 		 * to reset it */
 		g_message ("Locale change detected, so resetting miner to "
