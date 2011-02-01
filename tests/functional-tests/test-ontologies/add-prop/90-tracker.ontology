@@ -8,7 +8,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 tracker: a tracker:Ontology ;
-	nao:lastModified "2010-04-05T11:00:00Z" .
+	nao:lastModified "2011-02-03T16:00:00Z" .
 
 #tracker:indexed a rdf:Property ;
 #	nrl:maxCardinality 1 ;
@@ -25,3 +25,7 @@ tracker:writeback a rdf:Property ;
 	rdfs:domain rdf:Property ;
 	rdfs:range xsd:boolean .
 
+tracker:forceJournal a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdf:Property ;
+	rdfs:range xsd:boolean .

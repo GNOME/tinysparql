@@ -808,6 +808,17 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 		}
 
 		tracker_property_set_writeback (property, (strcmp (object, "true") == 0));
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX "forceJournal") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontologies_get_property_by_uri (subject);
+
+		if (property == NULL) {
+			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			return;
+		}
+
+		tracker_property_set_force_journal (property, (strcmp (object, "true") == 0));
 	} else if (g_strcmp0 (predicate, RDFS_SUB_PROPERTY_OF) == 0) {
 		TrackerProperty *property, *super_property;
 		gboolean is_new;
@@ -2113,6 +2124,7 @@ db_get_static_data (TrackerDBInterface *iface)
 	                                              "\"tracker:writeback\", "
 	                                              "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
 	                                              "\"rdf:type\" = (SELECT ID FROM Resource WHERE Uri = '" NRL_INVERSE_FUNCTIONAL_PROPERTY "')), "
+	                                              "\"tracker:forceJournal\", "
 	                                              "\"tracker:defaultValue\" "
 	                                              "FROM \"rdf:Property\" ORDER BY ID");
 
@@ -2128,7 +2140,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri, *default_value;
 			gboolean         multi_valued, indexed, fulltext_indexed, fulltext_no_limit;
 			gboolean         transient, is_inverse_functional_property;
-			gboolean         writeback;
+			gboolean         writeback, force_journal;
 			gint             id;
 
 			property = tracker_property_new (FALSE);
@@ -2213,7 +2225,18 @@ db_get_static_data (TrackerDBInterface *iface)
 				is_inverse_functional_property = FALSE;
 			}
 
-			default_value = tracker_db_cursor_get_string (cursor, 12, NULL);
+			/* tracker:forceJournal column */
+			tracker_db_cursor_get_value (cursor, 12, &value);
+
+			if (G_VALUE_TYPE (&value) != 0) {
+				force_journal = (g_value_get_int64 (&value) == 1);
+				g_value_unset (&value);
+			} else {
+				/* NULL */
+				force_journal = TRUE;
+			}
+
+			default_value = tracker_db_cursor_get_string (cursor, 13, NULL);
 
 			tracker_property_set_is_new_domain_index (property, tracker_ontologies_get_class_by_uri (domain_uri), FALSE);
 			tracker_property_set_is_new (property, FALSE);
@@ -2225,6 +2248,7 @@ db_get_static_data (TrackerDBInterface *iface)
 			tracker_property_set_multiple_values (property, multi_valued);
 			tracker_property_set_indexed (property, indexed);
 			tracker_property_set_default_value (property, default_value);
+			tracker_property_set_force_journal (property, force_journal);
 
 			tracker_property_set_db_schema_changed (property, FALSE);
 			tracker_property_set_writeback (property, writeback);

@@ -66,6 +66,7 @@ struct _TrackerPropertyPrivate {
 	gboolean       writeback;
 	gchar         *default_value;
 	GPtrArray     *is_new_domain_index;
+	gboolean       force_journal;
 
 	GArray        *super_properties;
 	GArray        *domain_indexes;
@@ -136,6 +137,7 @@ tracker_property_init (TrackerProperty *property)
 	priv->weight = 1;
 	priv->transient = FALSE;
 	priv->multiple_values = TRUE;
+	priv->force_journal = TRUE;
 	priv->super_properties = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 
@@ -573,6 +575,18 @@ tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 	return priv->is_inverse_functional_property;
 }
 
+gboolean
+tracker_property_get_force_journal (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = GET_PRIV (property);
+
+	return priv->force_journal;
+}
+
 TrackerProperty **
 tracker_property_get_super_properties (TrackerProperty *property)
 {
@@ -968,6 +982,19 @@ tracker_property_set_is_inverse_functional_property (TrackerProperty *property,
 	priv = GET_PRIV (property);
 
 	priv->is_inverse_functional_property = value;
+}
+
+void
+tracker_property_set_force_journal (TrackerProperty *property,
+                                    gboolean         value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = GET_PRIV (property);
+
+	priv->force_journal = value;
 }
 
 void

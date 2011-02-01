@@ -98,6 +98,7 @@ const gchar *       tracker_property_get_default_value       (TrackerProperty   
 gboolean            tracker_property_get_db_schema_changed   (TrackerProperty      *property);
 gboolean            tracker_property_get_is_inverse_functional_property
                                                              (TrackerProperty      *property);
+gboolean            tracker_property_get_force_journal       (TrackerProperty      *property);
 TrackerProperty **  tracker_property_get_super_properties    (TrackerProperty      *property);
 void                tracker_property_set_uri                 (TrackerProperty      *property,
                                                               const gchar          *value);
@@ -141,6 +142,8 @@ void                tracker_property_set_db_schema_changed   (TrackerProperty   
                                                               gboolean              value);
 void                tracker_property_set_is_inverse_functional_property
                                                              (TrackerProperty      *property,
+                                                              gboolean              value);
+void                tracker_property_set_force_journal       (TrackerProperty      *property,
                                                               gboolean              value);
 void                tracker_property_add_super_property    (TrackerProperty      *property,
                                                             TrackerProperty      *value);
