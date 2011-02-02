@@ -903,7 +903,9 @@ miner_finalize (GObject *object)
 		g_object_unref (miner->private->connection);
 	}
 
-	g_hash_table_unref (miner->private->pauses);
+	if (miner->private->pauses) {
+		g_hash_table_unref (miner->private->pauses);
+	}
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
 }

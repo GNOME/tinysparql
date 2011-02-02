@@ -623,11 +623,12 @@ miner_files_finalize (GObject *object)
 	mf = TRACKER_MINER_FILES (object);
 	priv = mf->private;
 
-	g_signal_handlers_disconnect_by_func (priv->config,
-	                                      low_disk_space_limit_cb,
-	                                      NULL);
-
-	g_object_unref (priv->config);
+	if (priv->config) {
+		g_signal_handlers_disconnect_by_func (priv->config,
+		                                      low_disk_space_limit_cb,
+		                                      NULL);
+		g_object_unref (priv->config);
+	}
 
 	disk_space_check_stop (TRACKER_MINER_FILES (object));
 
@@ -642,15 +643,21 @@ miner_files_finalize (GObject *object)
 	}
 
 #if defined(HAVE_UPOWER) || defined(HAVE_HAL)
-	g_object_unref (priv->power);
+	if (priv->power) {
+		g_object_unref (priv->power);
+	}
 #endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
 
-	g_object_unref (priv->storage);
+	if (priv->storage) {
+		g_object_unref (priv->storage);
+	}
 
-	g_signal_handlers_disconnect_by_func (priv->volume_monitor,
-	                                      mount_pre_unmount_cb,
-	                                      object);
-	g_object_unref (priv->volume_monitor);
+	if (priv->volume_monitor) {
+		g_signal_handlers_disconnect_by_func (priv->volume_monitor,
+		                                      mount_pre_unmount_cb,
+		                                      object);
+		g_object_unref (priv->volume_monitor);
+	}
 
 	if (priv->force_recheck_id) {
 		g_source_remove (priv->force_recheck_id);
