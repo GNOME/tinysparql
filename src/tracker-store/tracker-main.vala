@@ -290,18 +290,19 @@ License which can be viewed at:
 
 		bool is_first_time_index;
 
-		if (!Tracker.Data.Manager.init (flags,
-			                        null,
-			                        out is_first_time_index,
-			                        true,
-			                        select_cache_size,
-			                        update_cache_size,
-			                        busy_callback,
-			                        "Initializing")) {
-
+		try {
+			Tracker.Data.Manager.init (flags,
+			                           null,
+			                           out is_first_time_index,
+			                           true,
+			                           select_cache_size,
+			                           update_cache_size,
+			                           busy_callback,
+			                           "Initializing");
+		} catch (Tracker.DBInterfaceError e) {
+			critical ("Cannot initialize database: %s", e.message);
 			return 1;
 		}
-
 
 		db_config = null;
 		notifier = null;

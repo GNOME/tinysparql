@@ -63,7 +63,8 @@ typedef void (*TrackerBusyCallback)      (const gchar *status,
 typedef enum {
 	TRACKER_DB_QUERY_ERROR,
 	TRACKER_DB_CORRUPT,
-	TRACKER_DB_INTERRUPTED
+	TRACKER_DB_INTERRUPTED,
+	TRACKER_DB_OPEN_ERROR
 } TrackerDBInterfaceError;
 
 typedef enum {

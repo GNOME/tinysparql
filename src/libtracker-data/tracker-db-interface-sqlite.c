@@ -114,21 +114,22 @@ struct TrackerDBStatementClass {
 	GObjectClass parent_class;
 };
 
-static TrackerDBStatement *tracker_db_statement_sqlite_new   (TrackerDBInterface   *db_interface,
-                                                              sqlite3_stmt         *sqlite_stmt);
-static void                tracker_db_statement_sqlite_reset (TrackerDBStatement   *stmt);
-static TrackerDBCursor    *tracker_db_cursor_sqlite_new      (sqlite3_stmt         *sqlite_stmt,
-                                                              TrackerDBStatement   *ref_stmt,
-                                                              TrackerPropertyType  *types,
-                                                              gint                  n_types,
-                                                              const gchar         **variable_names,
-                                                              gint                  n_variable_names,
-                                                              gboolean              threadsafe);
-static gboolean            tracker_db_cursor_get_boolean     (TrackerSparqlCursor  *cursor,
-                                                              guint                 column);
-static gboolean            db_cursor_iter_next               (TrackerDBCursor      *cursor,
-                                                              GCancellable         *cancellable,
-                                                              GError              **error);
+static void                tracker_db_interface_initable_iface_init (GInitableIface        *iface);
+static TrackerDBStatement *tracker_db_statement_sqlite_new          (TrackerDBInterface    *db_interface,
+                                                                     sqlite3_stmt          *sqlite_stmt);
+static void                tracker_db_statement_sqlite_reset        (TrackerDBStatement    *stmt);
+static TrackerDBCursor    *tracker_db_cursor_sqlite_new             (sqlite3_stmt          *sqlite_stmt,
+                                                                     TrackerDBStatement    *ref_stmt,
+                                                                     TrackerPropertyType   *types,
+                                                                     gint                   n_types,
+                                                                     const gchar          **variable_names,
+                                                                     gint                   n_variable_names,
+                                                                     gboolean               threadsafe);
+static gboolean            tracker_db_cursor_get_boolean            (TrackerSparqlCursor   *cursor,
+                                                                     guint                  column);
+static gboolean            db_cursor_iter_next                      (TrackerDBCursor       *cursor,
+                                                                     GCancellable          *cancellable,
+                                                                     GError               **error);
 
 enum {
 	PROP_0,
@@ -136,7 +137,9 @@ enum {
 	PROP_RO
 };
 
-G_DEFINE_TYPE (TrackerDBInterface, tracker_db_interface, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_CODE (TrackerDBInterface, tracker_db_interface, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                tracker_db_interface_initable_iface_init));
 
 G_DEFINE_TYPE (TrackerDBStatement, tracker_db_statement, G_TYPE_OBJECT)
 
@@ -544,7 +547,8 @@ tracker_locale_notify_cb (TrackerLocaleID id,
 }
 
 static void
-open_database (TrackerDBInterface *db_interface)
+open_database (TrackerDBInterface  *db_interface,
+               GError             **error)
 {
 	int mode;
 
@@ -557,7 +561,11 @@ open_database (TrackerDBInterface *db_interface)
 	}
 
 	if (sqlite3_open_v2 (db_interface->filename, &db_interface->db, mode | SQLITE_OPEN_NOMUTEX, NULL) != SQLITE_OK) {
-		g_critical ("Could not open sqlite3 database:'%s'", db_interface->filename);
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_OPEN_ERROR,
+		             "Could not open sqlite3 database:'%s'", db_interface->filename);
+		return;
 	} else {
 		g_message ("Opened sqlite3 database:'%s'", db_interface->filename);
 	}
@@ -605,22 +613,30 @@ open_database (TrackerDBInterface *db_interface)
 	sqlite3_busy_timeout (db_interface->db, 100000);
 }
 
-static GObject *
-tracker_db_interface_sqlite_constructor (GType                  type,
-                                         guint                  n_construct_properties,
-                                         GObjectConstructParam *construct_params)
+static gboolean
+tracker_db_interface_initable_init (GInitable     *initable,
+                                    GCancellable  *cancellable,
+                                    GError       **error)
 {
-	GObject *object;
 	TrackerDBInterface *db_iface;
+	GError *internal_error = NULL;
 
-	object = (* G_OBJECT_CLASS (tracker_db_interface_parent_class)->constructor) (type,
-		        n_construct_properties,
-		        construct_params);
-	db_iface = TRACKER_DB_INTERFACE (object);
+	db_iface = TRACKER_DB_INTERFACE (initable);
 
-	open_database (db_iface);
+	open_database (db_iface, &internal_error);
 
-	return object;
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void
+tracker_db_interface_initable_iface_init (GInitableIface *iface)
+{
+	iface->init = tracker_db_interface_initable_init;
 }
 
 static void
@@ -778,7 +794,6 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (class);
 
-	object_class->constructor = tracker_db_interface_sqlite_constructor;
 	object_class->set_property = tracker_db_interface_sqlite_set_property;
 	object_class->get_property = tracker_db_interface_sqlite_get_property;
 	object_class->finalize = tracker_db_interface_sqlite_finalize;
@@ -1165,20 +1180,46 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 }
 
 TrackerDBInterface *
-tracker_db_interface_sqlite_new (const gchar *filename)
+tracker_db_interface_sqlite_new (const gchar  *filename,
+                                 GError      **error)
 {
-	return g_object_new (TRACKER_TYPE_DB_INTERFACE,
-	                     "filename", filename,
-	                     NULL);
+	TrackerDBInterface *object;
+	GError *internal_error = NULL;
+
+	object = g_initable_new (TRACKER_TYPE_DB_INTERFACE,
+	                         NULL,
+	                         &internal_error,
+	                         "filename", filename,
+	                         NULL);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return NULL;
+	}
+
+	return object;
 }
 
 TrackerDBInterface *
-tracker_db_interface_sqlite_new_ro (const gchar *filename)
+tracker_db_interface_sqlite_new_ro (const gchar  *filename,
+                                    GError      **error)
 {
-	return g_object_new (TRACKER_TYPE_DB_INTERFACE,
-	                     "filename", filename,
-	                     "read-only", TRUE,
-	                     NULL);
+	TrackerDBInterface *object;
+	GError *internal_error = NULL;
+
+	object = g_initable_new (TRACKER_TYPE_DB_INTERFACE,
+	                         NULL,
+	                         &internal_error,
+	                         "filename", filename,
+	                         "read-only", TRUE,
+	                         NULL);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return NULL;
+	}
+
+	return object;
 }
 
 gint64

@@ -50,7 +50,10 @@ test_blank (void)
 	                           100,
 	                           NULL,
 	                           NULL,
-	                           NULL);
+	                           NULL,
+	                           &error);
+
+	g_assert_no_error (error);
 
 	/* perform update in transaction */
 

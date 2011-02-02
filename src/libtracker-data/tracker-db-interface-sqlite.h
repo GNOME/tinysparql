@@ -32,8 +32,10 @@ G_BEGIN_DECLS
 
 #define TRACKER_COLLATION_NAME "TRACKER"
 
-TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename);
-TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gchar              *filename);
+TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename,
+                                                                        GError                  **error);
+TrackerDBInterface *tracker_db_interface_sqlite_new_ro                 (const gchar              *filename,
+                                                                        GError                  **error);
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 void                tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,

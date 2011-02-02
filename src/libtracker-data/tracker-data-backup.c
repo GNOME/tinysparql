@@ -322,6 +322,7 @@ tracker_data_backup_restore (GFile                *journal,
                              GError              **error)
 {
 	BackupSaveInfo *info;
+	GError *internal_error = NULL;
 
 	info = g_new0 (BackupSaveInfo, 1);
 	info->destination = g_file_new_for_path (tracker_db_journal_get_filename ());
@@ -390,17 +391,21 @@ tracker_data_backup_restore (GFile                *journal,
 		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE,
 		                           select_cache_size, update_cache_size,
 		                           busy_callback, busy_user_data,
-		                           "Restoring backup");
+		                           "Restoring backup", &internal_error);
 
-		/* Re-set the DB version file, so that its mtime changes. The mtime of this
-		 * file will change only when the whole DB is recreated (after a hard reset
-		 * or after a backup restoration). */
-		tracker_db_manager_create_version_file ();
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+		} else {
+			/* Re-set the DB version file, so that its mtime changes. The mtime of this
+			 * file will change only when the whole DB is recreated (after a hard reset
+			 * or after a backup restoration). */
+			tracker_db_manager_create_version_file ();
 
-		/* Given we're radically changing the database, we
-		 * force a full mtime check against all known files in
-		 * the database for complete synchronisation. */
-		tracker_db_manager_set_need_mtime_check (TRUE);
+			/* Given we're radically changing the database, we
+			 * force a full mtime check against all known files in
+			 * the database for complete synchronisation. */
+			tracker_db_manager_set_need_mtime_check (TRUE);
+		}
 	} else {
 		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0,
 		             "Backup file doesn't exist");

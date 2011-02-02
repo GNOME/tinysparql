@@ -50,14 +50,15 @@ typedef enum {
 } TrackerDBManagerFlags;
 
 GType               tracker_db_get_type                       (void) G_GNUC_CONST;
-gboolean            tracker_db_manager_init                   (TrackerDBManagerFlags  flags,
-                                                               gboolean              *first_time,
-                                                               gboolean               shared_cache,
-                                                               guint                  select_cache_size,
-                                                               guint                  update_cache_size,
-                                                               TrackerBusyCallback    busy_callback,
-                                                               gpointer               busy_user_data,
-                                                               const gchar           *busy_operation);
+gboolean            tracker_db_manager_init                   (TrackerDBManagerFlags   flags,
+                                                               gboolean               *first_time,
+                                                               gboolean                shared_cache,
+                                                               guint                   select_cache_size,
+                                                               guint                   update_cache_size,
+                                                               TrackerBusyCallback     busy_callback,
+                                                               gpointer                busy_user_data,
+                                                               const gchar            *busy_operation,
+                                                               GError                **error);
 void                tracker_db_manager_shutdown               (void);
 void                tracker_db_manager_remove_all             (gboolean               rm_journal);
 void                tracker_db_manager_optimize               (void);

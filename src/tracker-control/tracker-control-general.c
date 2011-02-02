@@ -419,7 +419,12 @@ tracker_control_general_run (void)
 		                              100,
 		                              NULL,
 		                              NULL,
-		                              NULL)) {
+		                              NULL,
+		                              &error)) {
+
+			g_message ("Error initializing database: %s", error->message);
+			g_free (error);
+
 			return EXIT_FAILURE;
 		}
 

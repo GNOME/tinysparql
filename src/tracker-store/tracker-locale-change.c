@@ -53,6 +53,7 @@ locale_change_process_cb (GObject      *source,
 	gpointer busy_user_data;
 	GDestroyNotify busy_destroy_notify;
 	TrackerLocaleChangeContext *ctxt = user_data;
+	GError *error = NULL;
 
 	notifier = TRACKER_STATUS (tracker_dbus_get_object (TRACKER_TYPE_STATUS));
 
@@ -64,7 +65,14 @@ locale_change_process_cb (GObject      *source,
 	/* Reload! This will regenerate indexes with the new locale */
 	tracker_data_manager_reload (busy_callback,
 	                             busy_user_data,
-	                             "Changing locale");
+	                             "Changing locale",
+	                             &error);
+
+	if (error) {
+		g_critical ("Error reloading database for locale change: %s",
+		            error->message);
+		g_error_free (error);
+	}
 
 	busy_destroy_notify (busy_user_data);
 

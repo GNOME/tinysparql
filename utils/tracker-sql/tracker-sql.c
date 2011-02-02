@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2010, Nokia
  *
@@ -132,16 +131,19 @@ main (int argc, char **argv)
 		gint n_rows = 0;
 
 		if (!tracker_data_manager_init (0,
-						NULL,
-						&first_time,
-						FALSE,
-						100,
-						100,
-						NULL,
-						NULL,
-						NULL)) {
-			g_printerr ("%s\n",
-			            _("Failed to initialize data manager"));
+		                                NULL,
+		                                &first_time,
+		                                FALSE,
+		                                100,
+		                                100,
+		                                NULL,
+		                                NULL,
+		                                NULL,
+		                                &error)) {
+			g_printerr ("%s: %s\n",
+			            _("Failed to initialize data manager"),
+			            error->message);
+			g_error_free (error);
 			return EXIT_FAILURE;
 		}
 

@@ -3162,15 +3162,17 @@ tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
 }
 
 gboolean
-tracker_data_manager_reload (TrackerBusyCallback  busy_callback,
-                             gpointer             busy_user_data,
-                             const gchar         *busy_operation)
+tracker_data_manager_reload (TrackerBusyCallback   busy_callback,
+                             gpointer              busy_user_data,
+                             const gchar          *busy_operation,
+                             GError              **error)
 {
 	TrackerDBManagerFlags flags;
 	guint select_cache_size;
 	guint update_cache_size;
 	gboolean is_first;
 	gboolean status;
+	GError *internal_error = NULL;
 
 	g_message ("Reloading data manager...");
 	/* Shutdown data manager... */
@@ -3188,10 +3190,16 @@ tracker_data_manager_reload (TrackerBusyCallback  busy_callback,
 	                                    update_cache_size,
 	                                    busy_callback,
 	                                    busy_user_data,
-	                                    busy_operation);
+	                                    busy_operation,
+	                                    &internal_error);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+	}
 
 	g_message ("  %s reloading data manager",
 	           status ? "Succeeded" : "Failed");
+
 	return status;
 }
 
@@ -3226,15 +3234,16 @@ load_ontologies_gvdb (GError **error)
 }
 
 gboolean
-tracker_data_manager_init (TrackerDBManagerFlags  flags,
-                           const gchar          **test_schemas,
-                           gboolean              *first_time,
-                           gboolean               journal_check,
-                           guint                  select_cache_size,
-                           guint                  update_cache_size,
-                           TrackerBusyCallback    busy_callback,
-                           gpointer               busy_user_data,
-                           const gchar           *busy_operation)
+tracker_data_manager_init (TrackerDBManagerFlags   flags,
+                           const gchar           **test_schemas,
+                           gboolean               *first_time,
+                           gboolean                journal_check,
+                           guint                   select_cache_size,
+                           guint                   update_cache_size,
+                           TrackerBusyCallback     busy_callback,
+                           gpointer                busy_user_data,
+                           const gchar            *busy_operation,
+                           GError                **error)
 {
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index, read_journal, check_ontology;
@@ -3247,6 +3256,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	gboolean read_only;
 	GHashTable *uri_id_map = NULL;
 	gchar *busy_status;
+	GError *internal_error = NULL;
 
 	read_only = (flags & TRACKER_DB_MANAGER_READONLY) ? TRUE : FALSE;
 
@@ -3273,7 +3283,11 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 	                              update_cache_size,
 	                              busy_callback,
 	                              busy_user_data,
-	                              busy_operation)) {
+	                              busy_operation,
+	                              &internal_error)) {
+
+		g_propagate_error (error, internal_error);
+
 		return FALSE;
 	}
 
@@ -3462,7 +3476,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		guint p;
 		GPtrArray *seen_classes;
 		GPtrArray *seen_properties;
-		GError *error = NULL;
+		GError *n_error = NULL;
 
 		seen_classes = g_ptr_array_new ();
 		seen_properties = g_ptr_array_new ();
@@ -3495,13 +3509,13 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		 * for all the ontology files in ontologies_dir whether the last-modified
 		 * has changed since we dealt with the file last time. */
 
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &n_error,
 		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\" "
 		        "INNER JOIN Resource ON Resource.ID = \"tracker:Ontology\".ID "
 		        "INNER JOIN \"rdfs:Resource\" ON \"tracker:Ontology\".ID = \"rdfs:Resource\".ID");
 
 		if (stmt) {
-			cursor = tracker_db_statement_start_cursor (stmt, &error);
+			cursor = tracker_db_statement_start_cursor (stmt, &n_error);
 			g_object_unref (stmt);
 		} else {
 			cursor = NULL;
@@ -3513,7 +3527,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 		                                     NULL);
 
 		if (cursor) {
-			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+			while (tracker_db_cursor_iter_next (cursor, NULL, &n_error)) {
 				const gchar *onto_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 				/* It's stored as an int in the db anyway. This is caused by
 				 * string_to_gvalue in tracker-data-update.c */
@@ -3526,9 +3540,9 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 			g_object_unref (cursor);
 		}
 
-		if (error) {
-			g_warning ("%s", error->message);
-			g_clear_error (&error);
+		if (n_error) {
+			g_warning ("%s", n_error->message);
+			g_clear_error (&n_error);
 		}
 
 		for (l = ontos; l; l = l->next) {
@@ -3611,7 +3625,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 						                                  update_cache_size,
 						                                  busy_callback,
 						                                  busy_user_data,
-						                                  busy_operation);
+						                                  busy_operation,
+						                                  error);
 					}
 
 					if (ontology_error) {
@@ -3670,7 +3685,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 					                                  update_cache_size,
 					                                  busy_callback,
 					                                  busy_user_data,
-					                                  busy_operation);
+					                                  busy_operation,
+					                                  error);
 				}
 
 				if (ontology_error) {
@@ -3684,7 +3700,7 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 
 			if (update_nao) {
 				/* Update the nao:lastModified in the database */
-				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &n_error,
 				        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
 				        "WHERE \"rdfs:Resource\".ID = "
 				        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
@@ -3694,13 +3710,13 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				if (stmt) {
 					tracker_db_statement_bind_int (stmt, 0, last_mod);
 					tracker_db_statement_bind_text (stmt, 1, ontology_uri);
-					tracker_db_statement_execute (stmt, &error);
+					tracker_db_statement_execute (stmt, &n_error);
 					g_object_unref (stmt);
 				}
 
-				if (error) {
-					g_critical ("%s", error->message);
-					g_clear_error (&error);
+				if (n_error) {
+					g_critical ("%s", n_error->message);
+					g_clear_error (&n_error);
 				}
 			}
 
@@ -3753,7 +3769,8 @@ tracker_data_manager_init (TrackerDBManagerFlags  flags,
 				                                  update_cache_size,
 				                                  busy_callback,
 				                                  busy_user_data,
-				                                  busy_operation);
+				                                  busy_operation,
+				                                  error);
 			}
 
 			if (ontology_error) {
