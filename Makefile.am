@@ -94,7 +94,6 @@ DISTCHECK_CONFIGURE_FLAGS =                            \
 	--enable-playlist                              \
 	--enable-tracker-preferences                   \
 	--enable-tracker-search-bar                    \
-	--enable-tracker-status-icon                   \
 	--with-enca
 
 ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
