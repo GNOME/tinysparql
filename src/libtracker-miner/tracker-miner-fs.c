@@ -2277,13 +2277,16 @@ fill_in_items_created_queue (TrackerMinerFS *fs)
 	 */
 	while (node) {
 		GNode *children;
-		gchar *uri;
 
-		children = node->children;
+#ifdef EVENT_QUEUE_ENABLE_TRACE
+		gchar *uri;
 
 		uri = g_file_get_uri (node->data);
 		g_message ("Adding files from directory '%s' into the processing queue", uri);
 		g_free (uri);
+#endif /* EVENT_QUEUE_ENABLE_TRACE */
+
+		children = node->children;
 
 		while (children) {
 			file = children->data;
@@ -2754,12 +2757,14 @@ item_queue_handlers_cb (gpointer user_data)
 			g_object_set_qdata (G_OBJECT (file),
 			                    fs->private->quark_check_existence,
 			                    GINT_TO_POINTER (FALSE));
+
 			/* Avoid adding items that already exist, when processing
 			 * a CREATED task (as those generated when crawling) */
 			if (!item_query_exists (fs, file, NULL, NULL)) {
 				keep_processing = item_add_or_update (fs, file);
 				break;
 			}
+
 			/* If already in store, skip processing the CREATED task */
 			keep_processing = TRUE;
 			break;
@@ -3541,22 +3546,25 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	if (add_monitor) {
 		/* Set quark so that before trying to add the item we first
 		 * check for its existence. */
-		g_object_set_qdata (G_OBJECT (parent),
-		                    fs->private->quark_check_existence,
-		                    GINT_TO_POINTER (TRUE));
-		/* Before adding the monitor, start notifying the store
-		 * about the new directory, so that if any file event comes
-		 * afterwards, the directory is already in store. */
-		trace_eq_push_tail ("CREATED", parent, "while crawling directory, parent");
-		g_queue_push_tail (fs->private->items_created,
-		                   g_object_ref (parent));
-		item_queue_handlers_set_up (fs);
+		if (!fs->private->is_crawling || fs->private->mtime_checking) {
+			g_object_set_qdata (G_OBJECT (parent),
+			                    fs->private->quark_check_existence,
+			                    GINT_TO_POINTER (TRUE));
 
-		/* As we already added here, specify that it shouldn't be added
-		 * any more */
-		g_object_set_qdata (G_OBJECT (parent),
-		                    fs->private->quark_ignore_file,
-		                    GINT_TO_POINTER (TRUE));
+			/* Before adding the monitor, start notifying the store
+			 * about the new directory, so that if any file event comes
+			 * afterwards, the directory is already in store. */
+			trace_eq_push_tail ("CREATED", parent, "while crawling directory, parent");
+			g_queue_push_tail (fs->private->items_created,
+			                   g_object_ref (parent));
+			item_queue_handlers_set_up (fs);
+
+			/* As we already added here, specify that it shouldn't be added
+			 * any more */
+			g_object_set_qdata (G_OBJECT (parent),
+			                    fs->private->quark_ignore_file,
+			                    GINT_TO_POINTER (TRUE));
+		}
 
 		tracker_monitor_add (fs->private->monitor, parent);
 	} else {
