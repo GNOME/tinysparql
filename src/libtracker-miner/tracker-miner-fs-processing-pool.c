@@ -158,8 +158,8 @@ struct _TrackerProcessingTask {
 };
 
 struct _TrackerProcessingPool {
-	/* Connection to the Store */
-	TrackerSparqlConnection *connection;
+	/* Owner of the pool */
+	TrackerMinerFS *miner;
 
 	/* The tasks currently in WAIT or PROCESS status */
 	GQueue *tasks[TRACKER_PROCESSING_TASK_STATUS_LAST];
@@ -175,8 +175,6 @@ struct _TrackerProcessingPool {
 	/* Timeout to notify status of the queues, if traces
 	 * enabled only. */
 	guint timeout_id;
-	/* Owner of the pool */
-	GObject *owner;
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
 };
 
@@ -294,7 +292,7 @@ pool_status_trace_timeout_cb (gpointer data)
 	guint i;
 
 	trace ("(Processing Pool %s) ------------",
-	       G_OBJECT_TYPE_NAME (pool->owner));
+	       G_OBJECT_TYPE_NAME (pool->miner));
 	for (i = TRACKER_PROCESSING_TASK_STATUS_WAIT;
 	     i < TRACKER_PROCESSING_TASK_STATUS_LAST;
 	     i++) {
@@ -302,12 +300,12 @@ pool_status_trace_timeout_cb (gpointer data)
 
 		l = g_queue_peek_head_link (pool->tasks[i]);
 		trace ("(Processing Pool %s) Queue %s has %u tasks",
-		       G_OBJECT_TYPE_NAME (pool->owner),
+		       G_OBJECT_TYPE_NAME (pool->miner),
 		       queue_names[i],
 		       g_list_length (l));
 		while (l) {
 			trace ("(Processing Pool %s)     Task %p in queue %s",
-			       G_OBJECT_TYPE_NAME (pool->owner),
+			       G_OBJECT_TYPE_NAME (pool->miner),
 			       l->data,
 			       queue_names[i]);
 			l = g_list_next (l);
@@ -316,14 +314,6 @@ pool_status_trace_timeout_cb (gpointer data)
 	return TRUE;
 }
 
-void
-tracker_processing_pool_set_owner (TrackerProcessingPool *pool,
-                                   GObject               *owner)
-{
-	/* Used only for logging, to differenciate between the
-	 * apps and fs miners. */
-	pool->owner = owner;
-}
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
 
 static void
@@ -371,20 +361,19 @@ tracker_processing_pool_free (TrackerProcessingPool *pool)
 		g_ptr_array_free (pool->sparql_buffer, TRUE);
 	}
 
-	g_object_unref (pool->connection);
 	g_free (pool);
 }
 
 TrackerProcessingPool *
-tracker_processing_pool_new (TrackerSparqlConnection *connection,
-                             guint                    limit_wait,
-                             guint                    limit_ready)
+tracker_processing_pool_new (TrackerMinerFS *miner,
+                             guint           limit_wait,
+                             guint           limit_ready)
 {
 	TrackerProcessingPool *pool;
 
 	pool = g_new0 (TrackerProcessingPool, 1);
 
-	pool->connection = g_object_ref (connection);
+	pool->miner = miner;
 	pool->limit[TRACKER_PROCESSING_TASK_STATUS_WAIT] = limit_wait;
 	pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] = limit_ready;
 	/* convenience limit, not really used currently */
@@ -506,7 +495,7 @@ tracker_processing_pool_push_wait_task (TrackerProcessingPool *pool,
 
 
 	trace ("(Processing Pool %s) Pushed WAIT task %p for file '%s'",
-	       G_OBJECT_TYPE_NAME (pool->owner),
+	       G_OBJECT_TYPE_NAME (pool->miner),
 	       task,
 	       task->file_uri);
 
@@ -632,12 +621,12 @@ tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool,
 	}
 
 	trace ("(Processing Pool %s) Flushing array-update of tasks %p with %u items (%s)",
-	       G_OBJECT_TYPE_NAME (pool->owner),
+	       G_OBJECT_TYPE_NAME (pool->miner),
 	       pool->sparql_buffer,
 	       pool->sparql_buffer->len,
 	       reason ? reason : "Unknown reason");
 
-	tracker_sparql_connection_update_array_async (pool->connection,
+	tracker_sparql_connection_update_array_async (tracker_miner_get_connection (TRACKER_MINER (pool->miner)),
 	                                              sparql_array,
 	                                              pool->sparql_buffer->len,
 	                                              G_PRIORITY_DEFAULT,
@@ -690,7 +679,7 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 	 * flush previous buffer (if any) and then the new update */
 	if (!buffer || pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] == 1) {
 		trace ("(Processing Pool %s) Pushed READY/PROCESSING task %p for file '%s'",
-		       G_OBJECT_TYPE_NAME (pool->owner),
+		       G_OBJECT_TYPE_NAME (pool->miner),
 		       task,
 		       task->file_uri);
 
@@ -703,11 +692,11 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 		g_queue_push_head (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_PROCESSING], task);
 
 		trace ("(Processing Pool %s) Flushing single task %p",
-		       G_OBJECT_TYPE_NAME (pool->owner),
+		       G_OBJECT_TYPE_NAME (pool->miner),
 		       task);
 
 		/* And update the new one */
-		tracker_sparql_connection_update_async (pool->connection,
+		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (pool->miner)),
 		                                        (task->sparql ?
 		                                         tracker_sparql_builder_get_result (task->sparql) :
 		                                         task->sparql_string),
@@ -741,7 +730,7 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 		}
 
 		trace ("(Processing Pool %s) Pushed READY task %p for file '%s' into array %p",
-		       G_OBJECT_TYPE_NAME (pool->owner),
+		       G_OBJECT_TYPE_NAME (pool->miner),
 		       task,
 		       task->file_uri,
 		       pool->sparql_buffer);

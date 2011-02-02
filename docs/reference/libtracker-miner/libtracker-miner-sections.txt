@@ -45,6 +45,9 @@ tracker_miner_is_started
 tracker_miner_pause
 tracker_miner_resume
 tracker_miner_get_connection
+tracker_miner_get_dbus_connection
+tracker_miner_get_dbus_full_name
+tracker_miner_get_dbus_full_path
 <SUBSECTION Standard>
 TRACKER_MINER
 TRACKER_IS_MINER

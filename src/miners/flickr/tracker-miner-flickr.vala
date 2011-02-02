@@ -32,7 +32,7 @@ private errordomain RestCallError {
 	CALL_ERROR        /* Call failed */
 }
 
-public class MinerFlickr : Tracker.MinerWeb {
+public class MinerFlickr : Tracker.MinerWeb, GLib.Initable {
 	private static const string MINER_NAME = "Flickr";
 	private static const string MINER_DESCRIPTION = "Tracker miner for Flickr";
 	/* The API_KEY and SECRET constants identify the application on Flickr */
@@ -95,14 +95,21 @@ public class MinerFlickr : Tracker.MinerWeb {
 		progress = 1.0;
 
 		rest = new Rest.Proxy (FLICKR_REST_URL, false);
+	}
 
-		tracker_writeback_init ();
-		tracker_writeback_connect (writeback, null);
+    public bool init (GLib.Cancellable? cancellable) throws GLib.Error {
+	    //Chain up parent's initable callback
+	    base.init (cancellable);
 
-		init_datasource ();
-		load_nmm_photo_id ();
+	    tracker_writeback_init ();
+	    tracker_writeback_connect (writeback, null);
 
-		this.notify["associated"].connect (association_status_changed);
+	    init_datasource ();
+	    load_nmm_photo_id ();
+
+	    this.notify["associated"].connect (association_status_changed);
+
+	    return true;
 	}
 
 	public void shutdown () {
@@ -831,9 +838,9 @@ public class MinerFlickr : Tracker.MinerWeb {
 
 			VariantIter iter1, iter2, iter3;
 			string key = null, val = null;
-			
+
 			iter1 = v.iterator ();
-			
+
 			while (iter1.next ("aa{ss}", out iter2)) {
 				while (iter2.next ("a{ss}", out iter3)) {
 					while (iter3.next ("{ss}", out key, out val)) {
@@ -842,7 +849,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 					}
 				}
 			}
-			
+
 			return val;
 		} catch (Error tracker_error) {
 			throw tracker_error;
@@ -940,9 +947,17 @@ public class MinerFlickr : Tracker.MinerWeb {
 #endif
 	}
 
-	public static void main (string[] args) {
+	public static int main (string[] args) {
 		Environment.set_application_name ("Flickr tracker miner");
-		MinerFlickr flickr_miner = Object.new (typeof (MinerFlickr)) as MinerFlickr;
+		MinerFlickr flickr_miner;
+
+		try {
+			flickr_miner = Initable.new (typeof (MinerFlickr), null) as MinerFlickr;
+		} catch (Error e) {
+			printerr ("Couldn't create new Flickr Miner: '%s', exiting...\n",
+			          e.message);
+			return -1;
+		}
 
 		init_signals ();
 
@@ -950,6 +965,7 @@ public class MinerFlickr : Tracker.MinerWeb {
 		main_loop.run ();
 
 		flickr_miner.shutdown ();
+		return 0;
 	}
 }
 

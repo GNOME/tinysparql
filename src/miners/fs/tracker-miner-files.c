@@ -154,7 +154,10 @@ static void        miner_files_get_property             (GObject              *o
                                                          GValue               *value,
                                                          GParamSpec           *pspec);
 static void        miner_files_finalize                 (GObject              *object);
-static void        miner_files_constructed              (GObject              *object);
+static void        miner_files_initable_iface_init      (GInitableIface       *iface);
+static gboolean    miner_files_initable_init            (GInitable            *initable,
+                                                         GCancellable         *cancellable,
+                                                         GError              **error);
 static void        mount_pre_unmount_cb                 (GVolumeMonitor       *volume_monitor,
                                                          GMount               *mount,
                                                          TrackerMinerFiles    *mf);
@@ -241,7 +244,11 @@ static void        miner_files_add_removable_or_optical_directory (TrackerMinerF
                                                                    const gchar       *mount_path,
                                                                    const gchar       *uuid);
 
-G_DEFINE_TYPE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS)
+static GInitableIface* miner_files_initable_parent_iface;
+
+G_DEFINE_TYPE_WITH_CODE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MINER_FS,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                miner_files_initable_iface_init));
 
 static void
 tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
@@ -252,7 +259,6 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	object_class->finalize = miner_files_finalize;
 	object_class->get_property = miner_files_get_property;
 	object_class->set_property = miner_files_set_property;
-	object_class->constructed = miner_files_constructed;
 
 	miner_fs_class->check_file = miner_files_check_file;
 	miner_fs_class->check_directory = miner_files_check_directory;
@@ -280,7 +286,6 @@ static void
 tracker_miner_files_init (TrackerMinerFiles *mf)
 {
 	TrackerMinerFilesPrivate *priv;
-	GError *error = NULL;
 
 	priv = mf->private = TRACKER_MINER_FILES_GET_PRIVATE (mf);
 
@@ -314,128 +319,58 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 	                  G_CALLBACK (mount_pre_unmount_cb),
 	                  mf);
 
-	/* Set up extractor and signals */
-	priv->connection =  g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-
-	if (!priv->connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
-		g_error_free (error);
-	}
-
 	priv->quark_mount_point_uuid = g_quark_from_static_string ("tracker-mount-point-uuid");
 	priv->quark_directory_config_root = g_quark_from_static_string ("tracker-directory-config-root");
-
-	init_mount_points (mf);
 }
 
 static void
-miner_files_set_property (GObject      *object,
-                          guint         prop_id,
-                          const GValue *value,
-                          GParamSpec   *pspec)
+miner_files_initable_iface_init (GInitableIface *iface)
 {
-	TrackerMinerFilesPrivate *priv;
-
-	priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
-
-	switch (prop_id) {
-	case PROP_CONFIG:
-		priv->config = g_value_dup_object (value);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
+	miner_files_initable_parent_iface = g_type_interface_peek_parent (iface);
+	iface->init = miner_files_initable_init;
 }
 
-static void
-miner_files_get_property (GObject    *object,
-                          guint       prop_id,
-                          GValue     *value,
-                          GParamSpec *pspec)
-{
-	TrackerMinerFilesPrivate *priv;
-
-	priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
-
-	switch (prop_id) {
-	case PROP_CONFIG:
-		g_value_set_object (value, priv->config);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
-static void
-miner_files_finalize (GObject *object)
-{
-	TrackerMinerFiles *mf;
-	TrackerMinerFilesPrivate *priv;
-
-	mf = TRACKER_MINER_FILES (object);
-	priv = mf->private;
-
-	g_signal_handlers_disconnect_by_func (priv->config,
-	                                      low_disk_space_limit_cb,
-	                                      NULL);
-
-	g_object_unref (priv->config);
-
-	disk_space_check_stop (TRACKER_MINER_FILES (object));
-
-	if (priv->index_recursive_directories) {
-		g_slist_foreach (priv->index_recursive_directories, (GFunc) g_free, NULL);
-		g_slist_free (priv->index_recursive_directories);
-	}
-
-	if (priv->index_single_directories) {
-		g_slist_foreach (priv->index_single_directories, (GFunc) g_free, NULL);
-		g_slist_free (priv->index_single_directories);
-	}
-
-#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
-	g_object_unref (priv->power);
-#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
-
-	g_object_unref (priv->storage);
-
-	g_signal_handlers_disconnect_by_func (priv->volume_monitor,
-	                                      mount_pre_unmount_cb,
-	                                      object);
-	g_object_unref (priv->volume_monitor);
-
-	if (priv->force_recheck_id) {
-		g_source_remove (priv->force_recheck_id);
-		priv->force_recheck_id = 0;
-	}
-
-	if (priv->stale_volumes_check_id) {
-		g_source_remove (priv->stale_volumes_check_id);
-		priv->stale_volumes_check_id = 0;
-	}
-
-	G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
-}
-
-static void
-miner_files_constructed (GObject *object)
+static gboolean
+miner_files_initable_init (GInitable     *initable,
+                           GCancellable  *cancellable,
+                           GError       **error)
 {
 	TrackerMinerFiles *mf;
 	TrackerMinerFS *fs;
+	GError *inner_error = NULL;
+	GSList *mounts = NULL;
 	GSList *dirs;
-	GSList *mounts = NULL, *m;
+	GSList *m;
 
-	G_OBJECT_CLASS (tracker_miner_files_parent_class)->constructed (object);
+	mf = TRACKER_MINER_FILES (initable);
+	fs = TRACKER_MINER_FS (initable);
 
-	mf = TRACKER_MINER_FILES (object);
-	fs = TRACKER_MINER_FS (object);
+	/* Chain up parent's initable callback before calling child's one */
+	if (!miner_files_initable_parent_iface->init (initable, cancellable, &inner_error)) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
 
+	/* Set up extractor and signals */
+	mf->private->connection =  g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
+	if (!mf->private->connection) {
+		g_propagate_error (error, inner_error);
+		g_prefix_error (error,
+		                "Could not connect to the D-Bus session bus. ");
+		return FALSE;
+	}
+
+	/* Setup mount points */
+	init_mount_points (mf);
+
+	/* We must have a configuration setup here */
 	if (G_UNLIKELY (!mf->private->config)) {
-		g_message ("No config for miner %p (%s).", object, G_OBJECT_TYPE_NAME (object));
-		return;
+		g_set_error (error,
+		             TRACKER_MINER_ERROR,
+		             0,
+		             "No config set for miner %s",
+		             G_OBJECT_TYPE_NAME (mf));
+		return FALSE;
 	}
 
 	/* If this happened AFTER we have initialized mount points, initialize
@@ -635,6 +570,106 @@ miner_files_constructed (GObject *object)
 	g_slist_free (mounts);
 
 	disk_space_check_start (mf);
+
+	return TRUE;
+}
+
+static void
+miner_files_set_property (GObject      *object,
+                          guint         prop_id,
+                          const GValue *value,
+                          GParamSpec   *pspec)
+{
+	TrackerMinerFilesPrivate *priv;
+
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
+
+	switch (prop_id) {
+	case PROP_CONFIG:
+		priv->config = g_value_dup_object (value);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+miner_files_get_property (GObject    *object,
+                          guint       prop_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
+{
+	TrackerMinerFilesPrivate *priv;
+
+	priv = TRACKER_MINER_FILES_GET_PRIVATE (object);
+
+	switch (prop_id) {
+	case PROP_CONFIG:
+		g_value_set_object (value, priv->config);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+miner_files_finalize (GObject *object)
+{
+	TrackerMinerFiles *mf;
+	TrackerMinerFilesPrivate *priv;
+
+	mf = TRACKER_MINER_FILES (object);
+	priv = mf->private;
+
+	if (priv->config) {
+		g_signal_handlers_disconnect_by_func (priv->config,
+		                                      low_disk_space_limit_cb,
+		                                      NULL);
+		g_object_unref (priv->config);
+	}
+
+	disk_space_check_stop (TRACKER_MINER_FILES (object));
+
+	if (priv->index_recursive_directories) {
+		g_slist_foreach (priv->index_recursive_directories, (GFunc) g_free, NULL);
+		g_slist_free (priv->index_recursive_directories);
+	}
+
+	if (priv->index_single_directories) {
+		g_slist_foreach (priv->index_single_directories, (GFunc) g_free, NULL);
+		g_slist_free (priv->index_single_directories);
+	}
+
+#if defined(HAVE_UPOWER) || defined(HAVE_HAL)
+	if (priv->power) {
+		g_object_unref (priv->power);
+	}
+#endif /* defined(HAVE_UPOWER) || defined(HAVE_HAL) */
+
+	if (priv->storage) {
+		g_object_unref (priv->storage);
+	}
+
+	if (priv->volume_monitor) {
+		g_signal_handlers_disconnect_by_func (priv->volume_monitor,
+		                                      mount_pre_unmount_cb,
+		                                      object);
+		g_object_unref (priv->volume_monitor);
+	}
+
+	if (priv->force_recheck_id) {
+		g_source_remove (priv->force_recheck_id);
+		priv->force_recheck_id = 0;
+	}
+
+	if (priv->stale_volumes_check_id) {
+		g_source_remove (priv->stale_volumes_check_id);
+		priv->stale_volumes_check_id = 0;
+	}
+
+	G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
 }
 
 static void
@@ -2670,15 +2705,18 @@ miner_files_finished (TrackerMinerFS *fs)
 }
 
 TrackerMiner *
-tracker_miner_files_new (TrackerConfig *config)
+tracker_miner_files_new (TrackerConfig  *config,
+                         GError        **error)
 {
-	return g_object_new (TRACKER_TYPE_MINER_FILES,
-	                     "name", "Files",
-	                     "config", config,
-	                     "processing-pool-wait-limit", 10,
-	                     "processing-pool-ready-limit", 100,
-	                     "mtime-checking", should_check_mtime (config),
-	                     NULL);
+	return g_initable_new (TRACKER_TYPE_MINER_FILES,
+	                       NULL,
+	                       error,
+	                       "name", "Files",
+	                       "config", config,
+	                       "processing-pool-wait-limit", 10,
+	                       "processing-pool-ready-limit", 100,
+	                       "mtime-checking", should_check_mtime (config),
+	                       NULL);
 }
 
 gboolean

@@ -48,23 +48,24 @@ struct TrackerMinerFilesClass {
 
 GType         tracker_miner_files_get_type                 (void) G_GNUC_CONST;
 
-TrackerMiner *tracker_miner_files_new                      (TrackerConfig *config);
+TrackerMiner *tracker_miner_files_new                      (TrackerConfig  *config,
+                                                            GError        **error);
 
 /* Convenience functions for --eligible tracker-miner-fs cmdline */
-gboolean      tracker_miner_files_check_file               (GFile         *file,
-                                                            GSList        *ignored_file_paths,
-                                                            GSList        *ignored_file_patterns);
-gboolean      tracker_miner_files_check_directory          (GFile         *file,
-                                                            GSList        *index_recursive_directories,
-                                                            GSList        *index_single_directories,
-                                                            GSList        *ignored_directory_paths,
-                                                            GSList        *ignored_directory_patterns);
-gboolean      tracker_miner_files_check_directory_contents (GFile         *parent,
-                                                            GList         *children,
-                                                            GSList        *ignored_content);
-gboolean      tracker_miner_files_monitor_directory        (GFile         *file,
-                                                            gboolean       enable_monitors,
-                                                            GSList        *directories_to_check);
+gboolean      tracker_miner_files_check_file               (GFile          *file,
+                                                            GSList         *ignored_file_paths,
+                                                            GSList         *ignored_file_patterns);
+gboolean      tracker_miner_files_check_directory          (GFile          *file,
+                                                            GSList         *index_recursive_directories,
+                                                            GSList         *index_single_directories,
+                                                            GSList         *ignored_directory_paths,
+                                                            GSList         *ignored_directory_patterns);
+gboolean      tracker_miner_files_check_directory_contents (GFile          *parent,
+                                                            GList          *children,
+                                                            GSList         *ignored_content);
+gboolean      tracker_miner_files_monitor_directory        (GFile          *file,
+                                                            gboolean        enable_monitors,
+                                                            GSList         *directories_to_check);
 
 G_END_DECLS
 

@@ -51,6 +51,10 @@
  * but provides the basic signaling and operation control so the miners
  * implementing this class are properly recognized by Tracker, and can be
  * controlled properly by external means such as #TrackerMinerManager.
+ *
+ * #TrackerMiner implements the #GInitable interface, and thus, all objects of
+ * types inheriting from #TrackerMiner must be initialized with g_initable_init()
+ * just after creation (or directly created with g_initable_new()).
  **/
 
 #define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
@@ -134,21 +138,56 @@ enum {
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
-static void       miner_set_property           (GObject       *object,
-                                                guint          param_id,
-                                                const GValue  *value,
-                                                GParamSpec    *pspec);
-static void       miner_get_property           (GObject       *object,
-                                                guint          param_id,
-                                                GValue        *value,
-                                                GParamSpec    *pspec);
-static void       miner_finalize               (GObject       *object);
-static void       miner_constructed            (GObject       *object);
-static void       pause_data_destroy           (gpointer       data);
-static PauseData *pause_data_new               (const gchar   *application,
-                                                const gchar   *reason);
+static void       miner_set_property           (GObject                *object,
+                                                guint                   param_id,
+                                                const GValue           *value,
+                                                GParamSpec             *pspec);
+static void       miner_get_property           (GObject                *object,
+                                                guint                   param_id,
+                                                GValue                 *value,
+                                                GParamSpec             *pspec);
+static void       miner_finalize               (GObject                *object);
+static void       miner_initable_iface_init    (GInitableIface         *iface);
+static gboolean   miner_initable_init          (GInitable              *initable,
+                                                GCancellable           *cancellable,
+                                                GError                **error);
+static void       pause_data_destroy           (gpointer                data);
+static PauseData *pause_data_new               (const gchar            *application,
+                                                const gchar            *reason);
+static void       handle_method_call           (GDBusConnection        *connection,
+                                                const gchar            *sender,
+                                                const gchar            *object_path,
+                                                const gchar            *interface_name,
+                                                const gchar            *method_name,
+                                                GVariant               *parameters,
+                                                GDBusMethodInvocation  *invocation,
+                                                gpointer                user_data);
+static GVariant  *handle_get_property          (GDBusConnection        *connection,
+                                                const gchar            *sender,
+                                                const gchar            *object_path,
+                                                const gchar            *interface_name,
+                                                const gchar            *property_name,
+                                                GError                **error,
+                                                gpointer                user_data);
+static gboolean   handle_set_property          (GDBusConnection        *connection,
+                                                const gchar            *sender,
+                                                const gchar            *object_path,
+                                                const gchar            *interface_name,
+                                                const gchar            *property_name,
+                                                GVariant               *value,
+                                                GError                **error,
+                                                gpointer                user_data);
+static void       on_tracker_store_appeared    (GDBusConnection        *connection,
+                                                const gchar            *name,
+                                                const gchar            *name_owner,
+                                                gpointer                user_data);
+static void       on_tracker_store_disappeared (GDBusConnection        *connection,
+                                                const gchar            *name,
+                                                gpointer                user_data);
 
-G_DEFINE_ABSTRACT_TYPE (TrackerMiner, tracker_miner, G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerMiner, tracker_miner, G_TYPE_OBJECT,
+                                  G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                         miner_initable_iface_init));
 
 static void
 tracker_miner_class_init (TrackerMinerClass *klass)
@@ -158,7 +197,6 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	object_class->set_property = miner_set_property;
 	object_class->get_property = miner_get_property;
 	object_class->finalize     = miner_finalize;
-	object_class->constructed  = miner_constructed;
 
 	/**
 	 * TrackerMiner::started:
@@ -296,20 +334,131 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 }
 
 static void
+miner_initable_iface_init (GInitableIface *iface)
+{
+	iface->init = miner_initable_init;
+}
+
+static gboolean
+miner_initable_init (GInitable     *initable,
+                     GCancellable  *cancellable,
+                     GError       **error)
+{
+	TrackerMiner *miner = TRACKER_MINER (initable);
+	GError *inner_error = NULL;
+	GVariant *reply;
+	guint32 rval;
+	GDBusInterfaceVTable interface_vtable = {
+		handle_method_call,
+		handle_get_property,
+		handle_set_property
+	};
+
+	/* Try to get SPARQL connection... */
+	miner->private->connection = tracker_sparql_connection_get (NULL, &inner_error);
+	if (!miner->private->connection) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	/* Try to get DBus connection... */
+	miner->private->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
+	if (!miner->private->d_connection) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	/* Setup introspection data */
+	miner->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
+
+	/* Check miner has a proper name */
+	if (!miner->private->name) {
+		g_set_error (error,
+		             TRACKER_MINER_ERROR,
+		             0,
+		             "Miner '%s' should have been given a name, bailing out",
+		             G_OBJECT_TYPE_NAME (miner));
+		return FALSE;
+	}
+
+	/* Setup full name */
+	miner->private->full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX,
+	                                         miner->private->name,
+	                                         NULL);
+
+	/* Register the D-Bus object */
+	miner->private->full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX,
+	                                         miner->private->name,
+	                                         NULL);
+
+	g_message ("Registering D-Bus object...");
+	g_message ("  Path:'%s'", miner->private->full_path);
+	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (miner));
+
+	miner->private->registration_id =
+		g_dbus_connection_register_object (miner->private->d_connection,
+		                                   miner->private->full_path,
+	                                       miner->private->introspection_data->interfaces[0],
+	                                       &interface_vtable,
+	                                       miner,
+	                                       NULL,
+		                                   &inner_error);
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		g_prefix_error (error,
+		                "Could not register the D-Bus object '%s'. ",
+		                miner->private->full_path);
+		return FALSE;
+	}
+
+	/* Request the D-Bus name */
+	reply = g_dbus_connection_call_sync (miner->private->d_connection,
+	                                     "org.freedesktop.DBus",
+	                                     "/org/freedesktop/DBus",
+	                                     "org.freedesktop.DBus",
+	                                     "RequestName",
+	                                     g_variant_new ("(su)",
+	                                                    miner->private->full_name,
+	                                                    0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
+	                                     G_VARIANT_TYPE ("(u)"),
+	                                     0, -1, NULL, &inner_error);
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		g_prefix_error (error,
+		                "Could not acquire name:'%s'. ",
+		                miner->private->full_name);
+		return FALSE;
+	}
+
+	g_variant_get (reply, "(u)", &rval);
+	g_variant_unref (reply);
+
+	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
+		g_set_error (error,
+		             TRACKER_MINER_ERROR,
+		             0,
+		             "D-Bus service name:'%s' is already taken, "
+		             "perhaps the application is already running?",
+		             miner->private->full_name);
+		return FALSE;
+	}
+
+	miner->private->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
+	                                                  TRACKER_SERVICE,
+	                                                  G_BUS_NAME_WATCHER_FLAGS_NONE,
+	                                                  on_tracker_store_appeared,
+	                                                  on_tracker_store_disappeared,
+	                                                  miner,
+	                                                  NULL);
+
+	return TRUE;
+}
+
+static void
 tracker_miner_init (TrackerMiner *miner)
 {
 	TrackerMinerPrivate *priv;
-	GError *error = NULL;
-
 	miner->private = priv = TRACKER_MINER_GET_PRIVATE (miner);
-
-	priv->connection = tracker_sparql_connection_get (NULL, &error);
-
-	/* If we couldn't get a proper SPARQL connection, log error and abort */
-	if (!priv->connection) {
-		g_error ("Couldn't get a proper SPARQL connection (%s), exiting...",
-		         error ? error->message : "Unknown error");
-	}
 
 	priv->pauses = g_hash_table_new_full (g_direct_hash,
 	                                      g_direct_equal,
@@ -375,7 +524,7 @@ miner_set_property (GObject      *object,
 		 * we set it last.
 		 *
 		 * Only notify 1% changes
-		 */ 
+		 */
 		if (new_progress == miner->private->progress) {
 			/* Same, do nothing */
 			break;
@@ -667,10 +816,60 @@ tracker_miner_resume (TrackerMiner  *miner,
 	return TRUE;
 }
 
+/**
+ * tracker_miner_get_connection:
+ * @miner: a #TrackerMiner
+ *
+ * Gets the #TrackerSparqlConnection initialized by @miner
+ *
+ * Returns: a #TrackerSparqlConnection.
+ **/
 TrackerSparqlConnection *
 tracker_miner_get_connection (TrackerMiner *miner)
 {
 	return miner->private->connection;
+}
+
+/**
+ * tracker_miner_get_dbus_connection:
+ * @miner: a #TrackerMiner
+ *
+ * Gets the #GDBusConnection initialized by @miner
+ *
+ * Returns: a #GDBusConnection.
+ **/
+GDBusConnection *
+tracker_miner_get_dbus_connection (TrackerMiner *miner)
+{
+	return miner->private->d_connection;
+}
+
+/**
+ * tracker_miner_get_dbus_full_name:
+ * @miner: a #TrackerMiner
+ *
+ * Gets the DBus name registered by @miner
+ *
+ * Returns: a constant string which should not be modified by the caller.
+ **/
+G_CONST_RETURN gchar *
+tracker_miner_get_dbus_full_name (TrackerMiner *miner)
+{
+	return miner->private->full_name;
+}
+
+/**
+ * tracker_miner_get_dbus_full_path:
+ * @miner: a #TrackerMiner
+ *
+ * Gets the DBus path registered by @miner
+ *
+ * Returns: a constant string which should not be modified by the caller.
+ **/
+G_CONST_RETURN gchar *
+tracker_miner_get_dbus_full_path (TrackerMiner *miner)
+{
+	return miner->private->full_path;
 }
 
 static void
@@ -704,7 +903,9 @@ miner_finalize (GObject *object)
 		g_object_unref (miner->private->connection);
 	}
 
-	g_hash_table_unref (miner->private->pauses);
+	if (miner->private->pauses) {
+		g_hash_table_unref (miner->private->pauses);
+	}
 
 	G_OBJECT_CLASS (tracker_miner_parent_class)->finalize (object);
 }
@@ -979,105 +1180,4 @@ on_tracker_store_disappeared (GDBusConnection *connection,
 			miner->private->availability_cookie = cookie_id;
 		}
 	}
-}
-
-static void
-miner_constructed (GObject *object)
-{
-	TrackerMiner *miner;
-	gchar *name, *full_path, *full_name;
-	GVariant *reply;
-	guint32 rval;
-	GError *error = NULL;
-	GDBusInterfaceVTable interface_vtable = {
-		handle_method_call,
-		handle_get_property,
-		handle_set_property
-	};
-
-	miner = TRACKER_MINER (object);
-	miner->private->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-
-	if (!miner->private->d_connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
-		g_clear_error (&error);
-		return;
-	}
-
-	miner->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
-
-	g_object_get (miner, "name", &name, NULL);
-
-	if (!name) {
-		g_critical ("Miner '%s' should have been given a name, bailing out",
-		            G_OBJECT_TYPE_NAME (miner));
-		g_assert_not_reached ();
-	}
-
-	full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, name, NULL);
-	miner->private->full_name = full_name;
-
-	/* Register the service name for the miner */
-	full_path = g_strconcat (TRACKER_MINER_DBUS_PATH_PREFIX, name, NULL);
-
-	g_message ("Registering D-Bus object...");
-	g_message ("  Path:'%s'", full_path);
-	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (miner));
-
-	miner->private->registration_id =
-		g_dbus_connection_register_object (miner->private->d_connection,
-	                                       full_path,
-	                                       miner->private->introspection_data->interfaces[0],
-	                                       &interface_vtable,
-	                                       miner,
-	                                       NULL,
-	                                       &error);
-
-	if (error) {
-		g_critical ("Could not register the D-Bus object %s, %s",
-		            full_path,
-		            error ? error->message : "no error given.");
-		g_clear_error (&error);
-		return;
-	}
-
-	reply = g_dbus_connection_call_sync (miner->private->d_connection,
-	                                     "org.freedesktop.DBus",
-	                                     "/org/freedesktop/DBus",
-	                                     "org.freedesktop.DBus",
-	                                     "RequestName",
-	                                     g_variant_new ("(su)", full_name, 0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
-	                                     G_VARIANT_TYPE ("(u)"),
-	                                     0, -1, NULL, &error);
-
-	if (error) {
-		g_critical ("Could not acquire name:'%s', %s",
-		            full_name,
-		            error->message);
-		g_clear_error (&error);
-		return;
-	}
-
-	g_variant_get (reply, "(u)", &rval);
-	g_variant_unref (reply);
-
-	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
-		g_critical ("D-Bus service name:'%s' is already taken, "
-		            "perhaps the application is already running?",
-		            full_name);
-		return;
-	}
-
-	g_free (name);
-
-	miner->private->full_path = full_path;
-
-	miner->private->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
-	                                                  TRACKER_SERVICE,
-	                                                  G_BUS_NAME_WATCHER_FLAGS_NONE,
-	                                                  on_tracker_store_appeared,
-	                                                  on_tracker_store_disappeared,
-	                                                  miner,
-	                                                  NULL);
 }

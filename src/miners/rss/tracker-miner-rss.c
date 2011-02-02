@@ -223,7 +223,7 @@ change_status (FeedsPool   *pool,
 	if (priv->now_fetching > avail)
 		priv->now_fetching = avail;
 
-	g_message ("Fetching channel '%s' (in progress: %d/%d)", 
+	g_message ("Fetching channel '%s' (in progress: %d/%d)",
 	           feed_channel_get_source (feed),
 	           priv->now_fetching,
 	           avail);
@@ -307,7 +307,7 @@ item_verify_reply_cb (GObject      *source_object,
 	tracker_sparql_builder_insert_open (sparql, url);
 
 	if (has_geopoint) {
-		g_message ("  Geopoint, using longitude:%f, latitude:%f", 
+		g_message ("  Geopoint, using longitude:%f, latitude:%f",
 		           longitude, latitude);
 
 		tracker_sparql_builder_subject (sparql, "_:location");
@@ -607,4 +607,14 @@ miner_resumed (TrackerMiner *miner)
 
 	/* Resume */
 	g_object_set (miner, "status", priv->last_status ? priv->last_status : "Idle", NULL);
+}
+
+TrackerMinerRSS *
+tracker_miner_rss_new (GError **error)
+{
+	return g_initable_new (TRACKER_TYPE_MINER_RSS,
+	                       NULL,
+	                       error,
+	                       "name", "RSS",
+	                       NULL);
 }
