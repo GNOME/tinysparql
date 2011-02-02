@@ -37,7 +37,6 @@
 #define SOFTWARE_CATEGORY_URN_PREFIX "urn:software-category:"
 #define THEME_ICON_URN_PREFIX        "urn:theme-icon:"
 
-static void     miner_applications_finalize                (GObject              *object);
 static void     miner_applications_initable_iface_init     (GInitableIface       *iface);
 static gboolean miner_applications_initable_init           (GInitable            *initable,
                                                             GCancellable         *cancellable,
@@ -79,10 +78,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerMinerApplications, tracker_miner_applications, T
 static void
 tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 {
-	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
-
-	object_class->finalize = miner_applications_finalize;
 
 	miner_fs_class->check_file = miner_applications_check_file;
 	miner_fs_class->check_directory = miner_applications_check_directory;
@@ -141,12 +137,6 @@ miner_applications_initable_init (GInitable     *initable,
 	/* FIXME: Check XDG_DATA_DIRS and also process applications in there */
 
 	return TRUE;
-}
-
-static void
-miner_applications_finalize (GObject *object)
-{
-	G_OBJECT_CLASS (tracker_miner_applications_parent_class)->finalize (object);
 }
 
 static void
