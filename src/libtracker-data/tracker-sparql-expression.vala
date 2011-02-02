@@ -450,7 +450,7 @@ class Tracker.Sparql.Expression : Object {
 
 			sql.append ("?");
 			binding = new LiteralBinding ();
-			binding.literal = prefix + ((unichar) 0x10fffd).to_string ();
+			binding.literal = prefix + COLLATION_LAST_CHAR.to_string ();
 			query.bindings.append (binding);
 
 			return PropertyType.BOOLEAN;

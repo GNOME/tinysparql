@@ -200,4 +200,7 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
 	public const string COLLATION_NAME;
+
+	[CCode (cheader_filename = "libtracker-data/tracker-collation.h")]
+	public const unichar COLLATION_LAST_CHAR;
 }

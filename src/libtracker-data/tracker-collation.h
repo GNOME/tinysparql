@@ -34,6 +34,13 @@ gint     tracker_collation_utf8     (gpointer      collator,
                                      gint          len2,
                                      gconstpointer str2);
 
+#ifdef HAVE_LIBICU
+#define TRACKER_COLLATION_LAST_CHAR ((gunichar) 0x10fffd)
+#else
+/* glibc-based collators do not properly sort private use characters */
+#define TRACKER_COLLATION_LAST_CHAR ((gunichar) 0x9fa5)
+#endif
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_COLLATION_H__ */
