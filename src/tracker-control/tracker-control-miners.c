@@ -78,15 +78,15 @@ static GOptionEntry entries[] = {
 	  N_("Miner to use with --resume or --pause (you can use suffixes, e.g. Files or Applications)"),
 	  N_("MINER")
 	},
-	{ "list-miners-running", 'L', 0, G_OPTION_ARG_NONE, &list_miners_running,
+	{ "list-miners-running", 'l', 0, G_OPTION_ARG_NONE, &list_miners_running,
 	  N_("List all miners currently running"),
 	  NULL
 	},
-	{ "list-miners-available", 'A', 0, G_OPTION_ARG_NONE, &list_miners_available,
+	{ "list-miners-available", 'a', 0, G_OPTION_ARG_NONE, &list_miners_available,
 	  N_("List all miners installed"),
 	  NULL
 	},
-	{ "pause-details", 'I', 0, G_OPTION_ARG_NONE, &pause_details,
+	{ "pause-details", 'i', 0, G_OPTION_ARG_NONE, &pause_details,
 	  N_("List pause reasons"),
 	  NULL
 	},
