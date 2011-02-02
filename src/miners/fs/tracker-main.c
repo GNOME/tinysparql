@@ -649,12 +649,10 @@ main (gint argc, gchar *argv[])
 		            error ? error->message : "unknown error");
 		g_object_unref (config);
 		tracker_log_shutdown ();
-
 		return EXIT_FAILURE;
 	}
 	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files), do_crawling);
 	tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_files), do_mtime_checking);
-
 	g_signal_connect (miner_files, "finished",
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);
@@ -665,7 +663,6 @@ main (gint argc, gchar *argv[])
 		g_object_unref (miner_files);
 		g_object_unref (config);
 		tracker_log_shutdown ();
-
 		return EXIT_FAILURE;
 	}
 
@@ -678,9 +675,10 @@ main (gint argc, gchar *argv[])
 		g_object_unref (miner_files);
 		g_object_unref (config);
 		tracker_log_shutdown ();
-
 		return EXIT_FAILURE;
 	}
+	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_applications), do_crawling);
+	tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), do_mtime_checking);
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
