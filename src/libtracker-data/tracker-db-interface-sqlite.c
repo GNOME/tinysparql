@@ -688,12 +688,16 @@ close_database (TrackerDBInterface *db_interface)
 {
 	gint rc;
 
-	g_hash_table_unref (db_interface->dynamic_statements);
-	db_interface->dynamic_statements = NULL;
+	if (db_interface->dynamic_statements) {
+		g_hash_table_unref (db_interface->dynamic_statements);
+		db_interface->dynamic_statements = NULL;
+	}
 
-	g_slist_foreach (db_interface->function_data, (GFunc) g_free, NULL);
-	g_slist_free (db_interface->function_data);
-	db_interface->function_data = NULL;
+	if (db_interface->function_data) {
+		g_slist_foreach (db_interface->function_data, (GFunc) g_free, NULL);
+		g_slist_free (db_interface->function_data);
+		db_interface->function_data = NULL;
+	}
 
 #if HAVE_TRACKER_FTS
 	if (db_interface->fts) {
@@ -701,8 +705,10 @@ close_database (TrackerDBInterface *db_interface)
 	}
 #endif
 
-	rc = sqlite3_close (db_interface->db);
-	g_warn_if_fail (rc == SQLITE_OK);
+	if (db_interface->db) {
+		rc = sqlite3_close (db_interface->db);
+		g_warn_if_fail (rc == SQLITE_OK);
+	}
 }
 
 void
@@ -751,8 +757,10 @@ void
 tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 {
 	g_debug ("Resetting collator in db interface %p", db_interface);
-	if (db_interface->collator)
+
+	if (db_interface->collator) {
 		tracker_collation_shutdown (db_interface->collator);
+	}
 
 	db_interface->collator = tracker_collation_init ();
 	/* This will overwrite any other collation set before, if any */
@@ -783,8 +791,13 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	g_free (db_interface->filename);
 	g_free (db_interface->busy_status);
 
-	tracker_locale_notify_remove (db_interface->locale_notification_id);
-	tracker_collation_shutdown (db_interface->collator);
+	if (db_interface->locale_notification_id) {
+		tracker_locale_notify_remove (db_interface->locale_notification_id);
+	}
+
+	if (db_interface->collator) {
+		tracker_collation_shutdown (db_interface->collator);
+	}
 
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
 }
