@@ -1,0 +1,15 @@
+[Applet Factory]
+Id=SearchBarFactory
+Location=@LIBEXECDIR@/tracker-search-bar
+_Name=Search Bar
+_Description=Find your data quickly using Tracker
+
+[SearchBar]
+_Name=Tracker Search Bar
+_Description=Find your data quickly using Tracker
+Icon=system-search
+BonoboId=OAFIID:GNOME_SearchBar
+X-GNOME-Bugzilla-Bugzilla=GNOME
+X-GNOME-Bugzilla-Product=tracker
+X-GNOME-Bugzilla-Component=Applet / Search Bar
+X-GNOME-Bugzilla-Version=@VERSION@

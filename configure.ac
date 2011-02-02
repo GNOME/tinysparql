@@ -421,7 +421,7 @@ TRACKER_SEARCH_BAR_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                              gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED
                              pango          >= $PANGO_REQUIRED
 			     gee-1.0        >= $GEE_REQUIRED
-                             libpanelapplet-2.0"
+                             libpanelapplet-3.0"
 
 PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
                   [have_tracker_search_bar=yes],
