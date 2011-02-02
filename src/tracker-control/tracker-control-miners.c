@@ -314,8 +314,8 @@ tracker_control_miners_get_option_group (void)
 
 	/* Status options */
 	group = g_option_group_new ("miners",
-	                            _("Miners options"),
-	                            _("Show miners options"),
+	                            _("Miner options"),
+	                            _("Show miner options"),
 	                            NULL,
 	                            NULL);
 	g_option_group_add_entries (group, entries);
