@@ -3,10 +3,6 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS = dbus languages icons ontologies miners
 
 # First we fix the VERSION and libexecdir in the desktop files
-tracker-status-icon.desktop.in: tracker-status-icon.desktop.in.in
-	@sed -e "s|@bindir[@]|${bindir}|"              \
-	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
-
 tracker-store.desktop.in: tracker-store.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|"      \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
@@ -24,7 +20,6 @@ tracker-miner-rss.desktop.in: tracker-miner-rss.desktop.in.in
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
 desktop_in_in_files =                                  \
-	tracker-status-icon.desktop.in.in              \
 	tracker-store.desktop.in.in                    \
 	tracker-miner-fs.desktop.in.in                 \
 	tracker-miner-flickr.desktop.in.in             \
@@ -32,7 +27,6 @@ desktop_in_in_files =                                  \
 
 # Second take those new .in files and translate them
 desktop_in_files =                                     \
-	tracker-status-icon.desktop.in                 \
 	tracker-store.desktop.in                       \
 	tracker-miner-fs.desktop.in                    \
 	tracker-miner-flickr.desktop.in                \
@@ -43,10 +37,6 @@ autostartdir = $(sysconfdir)/xdg/autostart
 autostart_DATA =                                       \
 	tracker-store.desktop                          \
 	tracker-miner-fs.desktop
-
-if HAVE_TRACKER_STATUS_ICON
-autostart_DATA += tracker-status-icon.desktop
-endif
 
 if HAVE_TRACKER_MINER_RSS
 autostart_DATA += tracker-miner-rss.desktop

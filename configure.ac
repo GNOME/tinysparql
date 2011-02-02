@@ -412,20 +412,6 @@ PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
                   [have_tracker_preferences=yes],
                   [have_tracker_preferences=no])
 
-# Check requirements for tracker-status-icon
-TRACKER_STATUS_ICON_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
-                              gio-unix-2.0   >= $GLIB_REQUIRED
-                              gthread-2.0    >= $GLIB_REQUIRED
-                              gmodule-2.0    >= $GLIB_REQUIRED
-                              gtk+-2.0       >= $GTK_REQUIRED
-                              pango          >= $PANGO_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_STATUS_ICON, [$TRACKER_STATUS_ICON_REQUIRED],
-                  [have_tracker_status_icon=yes],
-                  [have_tracker_status_icon=no])
-
-TRACKER_STATUS_ICON_LIBS="$TRACKER_STATUS_ICON_LIBS -lX11"
-
 # Check requirements for tracker-search-bar
 TRACKER_SEARCH_BAR_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                              gio-unix-2.0   >= $GLIB_REQUIRED
@@ -1209,33 +1195,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TAGLIB, test "x$have_taglib" = "xyes")
-
-##################################################################
-# Check for tracker-status-icon
-##################################################################
-
-AC_ARG_ENABLE([tracker-status-icon],
-              AS_HELP_STRING([--enable-tracker-status-icon],
-                             [enable tracker-status-icon [[default=auto]]]),,
-              [enable_tracker_status_icon=auto])
-
-if test "x$enable_tracker_status_icon" = "xyes" ; then
-   if test "x$have_tracker_status_icon" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find tracker-status-icon dependencies ($TRACKER_STATUS_ICON_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_status_icon" = "xno" ; then
-      have_tracker_status_icon="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_status_icon" = "xyes"; then
-   AC_DEFINE(HAVE_TRACKER_STATUS_ICON, [1], [Define to 1 if status icon is compiled])
-else
-   AC_DEFINE(HAVE_TRACKER_STATUS_ICON, [0], [Define to 0 if status icon is not compiled])
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_STATUS_ICON, test "$have_tracker_status_icon" = "yes")
 
 #################################################################
 # Check for tracker-search-bar
@@ -2039,8 +1998,6 @@ AC_CONFIG_FILES([
 	src/miners/fs/Makefile
 	src/miners/rss/Makefile
 	src/miners/flickr/Makefile
-	src/tracker-status-icon/Makefile
-	src/tracker-status-icon/tracker-status-icon.desktop.in
 	src/tracker-store/Makefile
 	src/tracker-control/Makefile
 	src/tracker-extract/Makefile
@@ -2166,7 +2123,6 @@ Applications:
 	Build with SQLite FTS support:          $have_tracker_fts
 
 	Build tracker-preferences:              $have_tracker_preferences
-	Build tracker-status-icon:              $have_tracker_status_icon
 	Build tracker-explorer:                 $have_tracker_explorer
 	Build tracker-needle:                   $have_tracker_needle
 	Build tracker-search-bar:               $have_tracker_search_bar

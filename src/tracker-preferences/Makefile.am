@@ -13,8 +13,7 @@ AM_VALAFLAGS =                                         \
 	--pkg gtk+-2.0 --pkg gmodule-2.0               \
 	$(BUILD_VALAFLAGS)                             \
 	config.vapi                                    \
-	tracker-config.vapi                            \
-	tracker-status-icon-config.vapi
+	tracker-config.vapi
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
@@ -34,13 +33,11 @@ LDADD =                                                \
 
 tracker_preferences_SOURCES =                          \
 	tracker-preferences.vala                       \
-	$(top_srcdir)/src/miners/fs/tracker-config.c   \
-	$(top_srcdir)/src/tracker-status-icon/tracker-icon-config.c
+	$(top_srcdir)/src/miners/fs/tracker-config.c
 
 EXTRA_DIST =                                           \
 	$(pkgdata_DATA)                                \
 	config.vapi                                    \
-	tracker-config.vapi                            \
-	tracker-status-icon-config.vapi
+	tracker-config.vapi
 
 CLEANFILES = $(desktop_DATA)

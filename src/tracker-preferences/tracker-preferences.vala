@@ -25,7 +25,6 @@ using GLib;
 using Tracker;
 
 public static Config config = null;
-public static IconConfig icon_config = null;
 
 public const string HOME_STRING = "$HOME";
 
@@ -54,26 +53,6 @@ public static Notebook notebook;
 public static RadioButton radiobutton_display_never;
 public static RadioButton radiobutton_display_active;
 public static RadioButton radiobutton_display_always;
-
-public static void radiobutton_visibility_toggled_cb (RadioButton source) {
-	if (radiobutton_display_never.active) {
-		icon_config.visibility = 0;
-	} else if (radiobutton_display_active.active) {
-		icon_config.visibility = 1;
-	} else {
-		icon_config.visibility = 2;
-	}
-}
-
-public static void initialize_visibility_radiobutton () {
-	if (icon_config.visibility == 0) {
-		radiobutton_display_never.active = true;
-	} else if (icon_config.visibility == 1) {
-		radiobutton_display_active.active = true;
-	} else {
-		radiobutton_display_always.active = true;
-	}
-}
 
 public static void spinbutton_delay_value_changed_cb (SpinButton source) {
 	config.initial_sleep = source.get_value_as_int ();
@@ -286,7 +265,6 @@ public static void button_apply_clicked_cb (Button source) {
 	config.removable_days_threshold = (int) hscale_drop_device_threshold.get_value ();
 
 	config.save ();
-	icon_config.save ();
 
 	/* TODO: restart the Application and Files miner (no idea how to cleanly do this atm) */
 }
@@ -355,7 +333,6 @@ static int main (string[] args) {
 
 	try {
 		config = new Config.with_domain ("tracker-miner-fs");
-		icon_config = new IconConfig.with_domain ("tracker-status-icon");
 
 		var builder = new Builder ();
 		builder.add_from_file (TRACKER_DATADIR + Path.DIR_SEPARATOR_S + "tracker-preferences.ui");
@@ -386,18 +363,9 @@ static int main (string[] args) {
 
 		notebook = builder.get_object ("notebook") as Notebook;
 
-		radiobutton_display_never = builder.get_object ("radiobutton_display_never") as RadioButton;
-		radiobutton_display_active = builder.get_object ("radiobutton_display_active") as RadioButton;
-		radiobutton_display_always = builder.get_object ("radiobutton_display_always") as RadioButton;
-		initialize_visibility_radiobutton ();
-
-		/* Note: if the General tab ever has more config parameters than those
-		 *  of the status icon, then don't remove the page, just the status-icon
-		 *  related parameters */
-		if (!HAVE_TRACKER_STATUS_ICON) {
-			/* Page #0 is the Contents page */
-			notebook.remove_page (0);
-		}
+		// We hide this page because it contains the start up
+		// delay which is not necessary to display for most people.
+		notebook.remove_page (0);
 
 		treeview_index_recursively = builder.get_object ("treeview_index_recursively") as TreeView;
 		treeview_index_single = builder.get_object ("treeview_index_single") as TreeView;

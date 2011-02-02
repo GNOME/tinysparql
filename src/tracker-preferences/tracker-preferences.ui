@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy toplevel-contextual -->
@@ -38,13 +38,11 @@
     <property name="title" translatable="yes">Indexing Preferences</property>
     <property name="icon_name">system-search</property>
     <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
     <signal name="close" handler="gtk_main_quit"/>
     <signal name="delete_event" handler="gtk_main_quit"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkNotebook" id="notebook">
@@ -53,9 +51,7 @@
             <property name="border_width">6</property>
             <child>
               <object class="GtkVBox" id="vbox1">
-                <property name="visible">True</property>
                 <property name="border_width">12</property>
-                <property name="orientation">vertical</property>
                 <property name="spacing">18</property>
                 <child>
                   <object class="GtkFrame" id="frame_general">
@@ -70,7 +66,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox_general">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkHBox" id="hbox_delay">
                                 <property name="visible">True</property>
@@ -95,7 +90,7 @@
                                       <object class="GtkSpinButton" id="spinbutton_delay">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="invisible_char">&#x25CF;</property>
+                                        <property name="invisible_char">●</property>
                                         <property name="adjustment">adjustment_delay</property>
                                         <property name="climb_rate">1</property>
                                         <property name="snap_to_ticks">True</property>
@@ -148,86 +143,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkFrame" id="frame1">
-                    <property name="visible">True</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">none</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignment2">
-                        <property name="visible">True</property>
-                        <property name="top_padding">6</property>
-                        <property name="left_padding">12</property>
-                        <child>
-                          <object class="GtkVBox" id="vbox9">
-                            <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkRadioButton" id="radiobutton_display_never">
-                                <property name="label" translatable="yes">_Never display icon</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="has_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_underline">True</property>
-                                <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkRadioButton" id="radiobutton_display_active">
-                                <property name="label" translatable="yes">_Only display when indexing content</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_underline">True</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <property name="group">radiobutton_display_never</property>
-                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkRadioButton" id="radiobutton_display_always">
-                                <property name="label" translatable="yes">Al_ways display icon</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">False</property>
-                                <property name="use_underline">True</property>
-                                <property name="active">True</property>
-                                <property name="draw_indicator">True</property>
-                                <property name="group">radiobutton_display_never</property>
-                                <signal name="toggled" handler="radiobutton_visibility_toggled_cb"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label8">
-                        <property name="visible">True</property>
-                        <property name="xpad">3</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Notification area&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">1</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -247,7 +163,6 @@
               <object class="GtkVBox" id="vbox10">
                 <property name="visible">True</property>
                 <property name="border_width">12</property>
-                <property name="orientation">vertical</property>
                 <property name="spacing">18</property>
                 <child>
                   <object class="GtkFrame" id="frame_indexing">
@@ -262,13 +177,13 @@
                         <child>
                           <object class="GtkVBox" id="vbox_indexing">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkCheckButton" id="checkbutton_enable_monitoring">
                                 <property name="label" translatable="yes">_Monitor file and directory changes</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="has_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
@@ -390,11 +305,9 @@
                         <child>
                           <object class="GtkVBox" id="vbox_general1">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkVBox" id="vbox11">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel" id="label_disk_space_limit">
                                     <property name="visible">True</property>
@@ -581,7 +494,6 @@
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
                 <property name="border_width">12</property>
-                <property name="orientation">vertical</property>
                 <property name="spacing">18</property>
                 <child>
                   <object class="GtkFrame" id="frame_index_recursive_directories">
@@ -596,7 +508,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox7">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkLabel" id="label_index_recursively">
@@ -639,7 +550,6 @@
                                 <child>
                                   <object class="GtkVBox" id="vbox23">
                                     <property name="visible">True</property>
-                                    <property name="orientation">vertical</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkButton" id="button_index_recursively_add">
@@ -740,7 +650,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkLabel" id="label_index_single">
@@ -783,7 +692,6 @@
                                 <child>
                                   <object class="GtkVBox" id="vbox5">
                                     <property name="visible">True</property>
-                                    <property name="orientation">vertical</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkButton" id="button_index_single_add">
@@ -873,7 +781,6 @@
               <object class="GtkVBox" id="vbox4">
                 <property name="visible">True</property>
                 <property name="border_width">12</property>
-                <property name="orientation">vertical</property>
                 <property name="spacing">18</property>
                 <child>
                   <object class="GtkFrame" id="frame_ignored_directories">
@@ -893,7 +800,6 @@
                             <child>
                               <object class="GtkVBox" id="vbox_ignored_directories">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkLabel" id="label10">
@@ -935,7 +841,6 @@
                                     <child>
                                       <object class="GtkVBox" id="vbox25">
                                         <property name="visible">True</property>
-                                        <property name="orientation">vertical</property>
                                         <property name="spacing">6</property>
                                         <child>
                                           <object class="GtkButton" id="button_ignored_directories_globs_add">
@@ -1012,7 +917,6 @@
                             <child>
                               <object class="GtkVBox" id="vbox_ignored_directories_with_content">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkLabel" id="label5">
@@ -1054,7 +958,6 @@
                                     <child>
                                       <object class="GtkVBox" id="vbox8">
                                         <property name="visible">True</property>
-                                        <property name="orientation">vertical</property>
                                         <property name="spacing">6</property>
                                         <child>
                                           <object class="GtkButton" id="button_ignored_directories_with_content_add">
@@ -1142,7 +1045,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox_ignored_files">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkLabel" id="label11">
@@ -1187,7 +1089,6 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                                 <child>
                                   <object class="GtkVBox" id="vbox6">
                                     <property name="visible">True</property>
-                                    <property name="orientation">vertical</property>
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkButton" id="button_ignored_files_add">
