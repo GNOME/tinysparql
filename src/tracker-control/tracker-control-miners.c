@@ -202,6 +202,11 @@ miner_list (gboolean available,
 
 	manager = tracker_miner_manager_new ();
 
+	if (!manager) {
+		g_printerr (_("Could not contact the miner manager"));
+		return EXIT_FAILURE;
+	}
+
 	if (available) {
 		GSList *miners_available;
 		gchar *str;
@@ -241,6 +246,115 @@ miner_list (gboolean available,
 		g_slist_foreach (miners_running, (GFunc) g_free, NULL);
 		g_slist_free (miners_running);
 	}
+
+	g_object_unref (manager);
+
+	return EXIT_SUCCESS;
+}
+
+static gboolean
+miner_get_details (TrackerMinerManager  *manager,
+                   const gchar          *miner,
+                   gchar               **status,
+                   gdouble              *progress,
+                   GStrv                *pause_applications,
+                   GStrv                *pause_reasons)
+{
+	if ((status || progress) &&
+	    !tracker_miner_manager_get_status (manager,
+	                                       miner,
+	                                       status,
+	                                       progress)) {
+		g_printerr (_("Could not get status from miner: %s"), miner);
+		return FALSE;
+	}
+
+	tracker_miner_manager_is_paused (manager,
+	                                 miner,
+	                                 pause_applications,
+	                                 pause_reasons);
+
+	return TRUE;
+}
+
+static gboolean
+miner_pause_details (void)
+{
+	TrackerMinerManager *manager;
+	GSList *miners_running, *l;
+	gint paused_miners = 0;
+
+	manager = tracker_miner_manager_new ();
+	if (!manager) {
+		g_printerr (_("Could not contact the miner manager"));
+		return EXIT_FAILURE;
+	}
+
+	miners_running = tracker_miner_manager_get_running (manager);
+
+	if (!miners_running) {
+		g_print ("%s\n", _("No miners are running"));
+
+		g_slist_foreach (miners_running, (GFunc) g_free, NULL);
+		g_slist_free (miners_running);
+
+		return EXIT_SUCCESS;
+	}
+
+	for (l = miners_running; l; l = l->next) {
+		const gchar *name;
+		GStrv pause_applications, pause_reasons;
+		gint i;
+
+		name = tracker_miner_manager_get_display_name (manager, l->data);
+
+		if (!name) {
+			g_critical ("Could not get name for '%s'", (gchar *) l->data);
+			continue;
+		}
+
+		if (!miner_get_details (manager,
+		                        l->data,
+		                        NULL,
+		                        NULL,
+		                        &pause_applications,
+		                        &pause_reasons)) {
+			continue;
+		}
+
+		if (!(*pause_applications) || !(*pause_reasons)) {
+			g_strfreev (pause_applications);
+			g_strfreev (pause_reasons);
+			continue;
+		}
+
+		paused_miners++;
+		if (paused_miners == 1) {
+			g_print ("%s:\n", _("Miners"));
+		}
+
+		g_print ("  %s:\n", name);
+
+		for (i = 0; pause_applications[i] != NULL; i++) {
+			g_print ("    %s: '%s', %s: '%s'\n",
+			         _("Application"),
+			         pause_applications[i],
+			         _("Reason"),
+			         pause_reasons[i]);
+		}
+
+		g_strfreev (pause_applications);
+		g_strfreev (pause_reasons);
+	}
+
+	if (paused_miners < 1) {
+		g_print ("%s\n", _("No miners are paused"));
+	}
+
+	g_slist_foreach (miners_running, (GFunc) g_free, NULL);
+	g_slist_free (miners_running);
+
+	g_object_unref (manager);
 
 	return EXIT_SUCCESS;
 }
@@ -289,6 +403,10 @@ tracker_control_miners_run (void)
 
 	if (resume_cookie != -1) {
 		return miner_resume (miner_name, resume_cookie);
+	}
+
+	if (pause_details) {
+		return miner_pause_details ();
 	}
 
 	/* All known options have their own exit points */
