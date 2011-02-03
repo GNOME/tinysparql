@@ -1,3 +1,46 @@
+NEW in 0.9.37 - 2011-02-03
+==========================
+
+The changes are:
+
+  * New feature: Don't do mtime checks on start up (dramatically reduces start time for miner-fs)
+  * Fixes: NB#198003, Don't crash in 'tracker_miner_init', support GInitable and handle errors gracefully 
+  * Fixes: NB#224342, tracker-control should have options to pause and resume the miners
+  * Fixes: NB#218525, tracker-miner is too heavy to start
+  * Fixes: NB#224763, GLIB CRITICAL ** GLib-GIO - g_dbus_proxy_call: assertion `parameters == NULL || g_variant_is_of_type (parameters, G_VARIANT_TYPE_TUPLE)' failed
+  * Fixes: NB#197067, tracker-miner-fs crawls open files
+  * Fixes: NB#223938, Don't crash in tracker-extract when using QImage for SVG files
+  * Fixes: NB#185309, Extract track numbers from MP3 ID3v2.2 frames
+  * Fixes: NB#223622, Tracker should update mtime of the "db-version.txt" stamp file after a backup restoration
+  * Fixes: NB#223282, --enable-guarantee-metadata and PNG: no nie:contentCreated
+  * Fixes: NB#223133, GLIB CRITICAL ** Tracker - file tracker-bus.c: line 2700: uncaught error: GDBus.Error:org.gtk.GDBus.UnmappedGError.Quark._tracker_5fdate_5ferror_2dquark.Code1
+  * Fixes: NB#223148, Don't crash in tracker-extract when passing NULL artist/album to g_variant_new()
+  * Fixes: NB#223161, tracker-miner-fs crashes trying to g_object_unref a GError
+  * Fixes: NB#222645, Inserting a resource using an non-existing class, doesn't rollback completely
+  * Fixes: NB#222494, Tracker writeback uses CPU while recording video with camera
+  * Fixes: GB#636074, libunistring and glib collations break fn:starts-with
+  * Fixes: GB#631955, drop status icon use
+  * Fixes: GB#623666, Change the 3 days time for removable media information deletion to a configuration value
+  * Fixes: GB#600081, Get rid of Bonobo
+  * functional-tests: Added tests for interaction with applications creating content
+  * functional-tests: Added parameter to start the tracker processes manually
+  * libtrakcer-data: We now restore tracker:modified values after journal replay and backup restore
+  * libtracker-data: Don't journal non-embedded data (e.g. nie:plainTextContent)
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated es: Daniel Mustieles
+  * Updated et: Ivar Smolin
+  * Updated fr: Bruno Brouard
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  The command 'tracker-status' no longer exists, its command line
+  features have been merged into 'tracker-control'.
+
+
 NEW in 0.9.36 - 2011-01-27
 ==========================
 
