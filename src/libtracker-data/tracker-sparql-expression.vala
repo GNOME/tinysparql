@@ -20,6 +20,7 @@
 class Tracker.Sparql.Expression : Object {
 	weak Query query;
 
+	const int MAX_VARIABLES_FOR_IN = 20;
 	const string XSD_NS = "http://www.w3.org/2001/XMLSchema#";
 	const string FN_NS = "http://www.w3.org/2005/xpath-functions#";
 	const string FTS_NS = "http://www.tracker-project.org/ontologies/fts#";
@@ -897,63 +898,91 @@ class Tracker.Sparql.Expression : Object {
 		case SparqlTokenType.DOUBLE:
 			next ();
 
-			sql.append ("?");
+			if (query.no_cache) {
+				sql.append (get_last_string ());
+			} else {
+				sql.append ("?");
 
-			var binding = new LiteralBinding ();
-			binding.literal = get_last_string ();
-			query.bindings.append (binding);
+				var binding = new LiteralBinding ();
+				binding.literal = get_last_string ();
+				query.bindings.append (binding);
+			}
 
 			return PropertyType.DOUBLE;
 		case SparqlTokenType.TRUE:
 			next ();
 
-			sql.append ("?");
+			if (query.no_cache) {
+				sql.append ("1");
+			} else {
+				sql.append ("?");
 
-			var binding = new LiteralBinding ();
-			binding.literal = "1";
-			binding.data_type = PropertyType.INTEGER;
-			query.bindings.append (binding);
+				var binding = new LiteralBinding ();
+				binding.literal = "1";
+				binding.data_type = PropertyType.INTEGER;
+				query.bindings.append (binding);
+			}
 
 			return PropertyType.BOOLEAN;
 		case SparqlTokenType.FALSE:
 			next ();
 
-			sql.append ("?");
+			if (query.no_cache) {
+				sql.append ("0");
+			} else {
+				sql.append ("?");
 
-			var binding = new LiteralBinding ();
-			binding.literal = "0";
-			binding.data_type = PropertyType.INTEGER;
-			query.bindings.append (binding);
+				var binding = new LiteralBinding ();
+				binding.literal = "0";
+				binding.data_type = PropertyType.INTEGER;
+				query.bindings.append (binding);
+			}
 
 			return PropertyType.BOOLEAN;
 		case SparqlTokenType.STRING_LITERAL1:
 		case SparqlTokenType.STRING_LITERAL2:
 		case SparqlTokenType.STRING_LITERAL_LONG1:
 		case SparqlTokenType.STRING_LITERAL_LONG2:
-			var binding = new LiteralBinding ();
-			binding.literal = parse_string_literal (out type);
-			query.bindings.append (binding);
+			var literal = parse_string_literal (out type);
 
 			switch (type) {
 			case PropertyType.INTEGER:
 			case PropertyType.BOOLEAN:
-				sql.append ("?");
-				binding.data_type = type;
+				if (query.no_cache) {
+					sql.append (escape_sql_string_literal (literal));
+				} else {
+					var binding = new LiteralBinding ();
+					binding.literal = literal;
+					binding.data_type = type;
+					query.bindings.append (binding);
+					sql.append ("?");
+				}
 				return type;
 			default:
-				sql.append ("?");
+				if (query.no_cache) {
+					sql.append (escape_sql_string_literal (literal));
+				} else {
+					var binding = new LiteralBinding ();
+					binding.literal = literal;
+					query.bindings.append (binding);
+					sql.append ("?");
+				}
 				append_collate (sql);
 				return PropertyType.STRING;
 			}
 		case SparqlTokenType.INTEGER:
 			next ();
 
-			sql.append ("?");
+			if (query.no_cache) {
+				sql.append (get_last_string ());
+			} else {
+				sql.append ("?");
 
-			var binding = new LiteralBinding ();
-			binding.literal = get_last_string ();
-			binding.data_type = PropertyType.INTEGER;
-			query.bindings.append (binding);
+				var binding = new LiteralBinding ();
+				binding.literal = get_last_string ();
+				binding.data_type = PropertyType.INTEGER;
+				query.bindings.append (binding);
+			}
 
 			return PropertyType.INTEGER;
 		case SparqlTokenType.VAR:
@@ -1017,7 +1046,7 @@ class Tracker.Sparql.Expression : Object {
 			return PropertyType.BOOLEAN;
 		case SparqlTokenType.REGEX:
 			translate_regex (sql);
-			query.has_regex = true;
+			query.no_cache = true;
 			return PropertyType.BOOLEAN;
 		case SparqlTokenType.EXISTS:
 		case SparqlTokenType.NOT:
@@ -1183,6 +1212,8 @@ class Tracker.Sparql.Expression : Object {
 
 	PropertyType translate_in (StringBuilder sql, bool not) throws Sparql.Error {
 
+		int in_variable_count = 0;
+
 		if (not) {
 			sql.append (" NOT");
 		}
@@ -1190,14 +1221,23 @@ class Tracker.Sparql.Expression : Object {
 		expect (SparqlTokenType.OPEN_PARENS);
 		sql.append (" IN (");
 		if (!accept (SparqlTokenType.CLOSE_PARENS)) {
+			in_variable_count++;
 			translate_expression (sql);
 			while (accept (SparqlTokenType.COMMA)) {
 				sql.append (", ");
+
+				in_variable_count++;
+
+				if (in_variable_count > MAX_VARIABLES_FOR_IN && !query.no_cache) {
+					query.no_cache = true;
+				}
+
 				translate_expression (sql);
 			}
 			expect (SparqlTokenType.CLOSE_PARENS);
 		}
 		sql.append (")");
+
 		return PropertyType.BOOLEAN;
 	}
 
