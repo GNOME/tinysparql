@@ -207,13 +207,17 @@ struct _TrackerMinerFSPrivate {
 	GHashTable     *check_removed;
 
 	/* Status */
-	guint           been_started : 1;
-	guint           been_crawled : 1;
-	guint           shown_totals : 1;
-	guint           is_paused : 1;
-	guint           is_crawling : 1;
-	guint           mtime_checking : 1;
-	guint           initial_crawling : 1;
+	guint           been_started : 1;     /* TRUE if miner has been started */
+	guint           been_crawled : 1;     /* TRUE if initial crawling has been
+	                                       * done */
+	guint           shown_totals : 1;     /* TRUE if totals have been shown */
+	guint           is_paused : 1;        /* TRUE if miner is paused */
+	guint           is_crawling : 1;      /* TRUE if currently is crawling
+	                                       * (initial or non-initial) */
+	guint           mtime_checking : 1;   /* TRUE if mtime checks should be done
+	                                       * during initial crawling. */
+	guint           initial_crawling : 1; /* TRUE if initial crawling should be
+	                                       * done */
 
 	/* Statistics */
 	guint           total_directories_found;
@@ -3544,9 +3548,13 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	 * the finished sig?
 	 */
 	if (add_monitor) {
-		/* Set quark so that before trying to add the item we first
-		 * check for its existence. */
-		if (!fs->private->is_crawling || fs->private->mtime_checking) {
+		/* Only if:
+		 * -First crawl has already been done OR
+		 * -mtime_checking is TRUE.
+		 */
+		if (fs->private->been_crawled || fs->private->mtime_checking) {
+			/* Set quark so that before trying to add the item we first
+			 * check for its existence. */
 			g_object_set_qdata (G_OBJECT (parent),
 			                    fs->private->quark_check_existence,
 			                    GINT_TO_POINTER (TRUE));
