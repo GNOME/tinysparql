@@ -12,7 +12,7 @@ tracker_search_bar_SOURCES =                           \
 	tracker-utils.c                                \
 	tracker-utils.h
 
-# -DMENU_UI_DIR=\""$(xmluidir)"\"                
+# -DMENU_UI_DIR=\""$(xmluidir)"\"
 
 tracker_search_bar_CFLAGS =                            \
 	$(BUILD_CFLAGS)                                \
@@ -58,15 +58,15 @@ org.gnome.panel.applet.SearchBarFactory.service: $(service_in_files)
 	  $< > $@
 
 # Distribution details
-EXTRA_DIST =                                           \
-	org.gnome.panel.SearchBar.panel-applet.in      \
-	$(applet_DATA)                                 \
-	$(ui_DATA)                                     \
+EXTRA_DIST = \
+	org.gnome.panel.SearchBar.panel-applet.in.in \
+	$(applet_DATA) \
+	$(ui_DATA) \
 	$(service_in_files)
 
-CLEANFILES =                                           \
-	$(applet_DATA)                                 \
-	$(applet_DATA).in                              \
+CLEANFILES = \
+	$(applet_DATA) \
+	$(applet_DATA).in \
 	$(service_DATA)
 
 @INTLTOOL_SCHEMAS_RULE@
