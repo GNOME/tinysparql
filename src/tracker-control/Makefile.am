@@ -10,6 +10,7 @@ AM_CPPFLAGS = \
 bin_PROGRAMS = tracker-control
 
 tracker_control_SOURCES = \
+	tracker-control.h \
 	tracker-control-general.c \
 	tracker-control-miners.c \
 	tracker-control-status.c \
