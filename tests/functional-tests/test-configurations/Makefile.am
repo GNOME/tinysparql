@@ -1,3 +1,3 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = miner-basic-ops writeback
+SUBDIRS = applications miner-basic-ops writeback
