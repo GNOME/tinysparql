@@ -700,8 +700,11 @@ main (gint argc, gchar *argv[])
 	 *
 	 * 1. Still have files to process in our queues.
 	 * 2. We crash (out of our control usually anyway).
+	 * 3. At least one of the miners is PAUSED.
 	 */
-	if (!tracker_miner_fs_has_items_to_process (TRACKER_MINER_FS (miner_files))) {
+	if (!tracker_miner_fs_has_items_to_process (TRACKER_MINER_FS (miner_files)) &&
+	    !tracker_miner_is_paused (miner_applications) &&
+	    !tracker_miner_is_paused (miner_files)) {
 		tracker_db_manager_set_need_mtime_check (FALSE);
 	}
 
