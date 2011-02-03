@@ -273,7 +273,7 @@ nmo:conversation a rdf:Property ;
 nmo:communicationChannel a rdf:Property ;
 	rdfs:comment "Connects this message to a communication channel. Every message must only be in a single channel." ;
 	tracker:indexed true ;
-	tracker:secondaryIndex nmo:sentDate ;
+	tracker:secondaryIndex nmo:receivedDate ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nmo:Message ;
 	rdfs:range nmo:CommunicationChannel .

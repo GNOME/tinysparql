@@ -360,7 +360,7 @@ class rtcom(TestUpdate):
 		query = "SELECT ?msg ?date ?text ?contact \
 			WHERE { \
     			?msg nmo:communicationChannel <urn:channel:1> ; \
-        		nmo:sentDate ?date ; \
+        		nmo:receivedDate ?date ; \
         		nie:plainTextContent ?text . \
     			<urn:channel:1> nmo:hasParticipant ?contact . \
 			} ORDER BY DESC(?date) LIMIT 50"
@@ -368,7 +368,7 @@ class rtcom(TestUpdate):
 		#query = "SELECT ?msg ?date ?text ?contact \
 		#	WHERE { \
     		#	?msg nmo:communicationChannel <urn:uuid:7585395544138154780> ; \
-        	#	nmo:sentDate ?date ; \
+        	#	nmo:receivedDate ?date ; \
         	#	nie:plainTextContent ?text ; \
         	#	nmo:from [ nco:hasIMAddress ?fromAddress ] . \
     		#	<urn:uuid:7585395544138154780> nmo:hasParticipant ?contact . \
@@ -419,7 +419,7 @@ class rtcom(TestUpdate):
 			     nmo:isDeleted(?message) \
 			     nmo:messageId(?message) \
 			     nmo:phoneMessageId(?message) \
-			     nmo:sentDate(?message) \
+			     nmo:receivedDate(?message) \
 			     nmo:receivedDate(?message) \
 			     nie:contentLastModified(?message) \
 			     nmo:messageSubject(?message) \
@@ -463,7 +463,7 @@ class rtcom(TestUpdate):
 			    ?message a nmo:Message . \
 			    ?message nmo:isDraft false . \
 			    ?message nmo:isDeleted false . \
-			    ?message nmo:sentDate ?date . \
+			    ?message nmo:receivedDate ?date . \
 			    ?message nmo:from ?fromContact . \
 			    ?message nmo:to ?toContact . \
 			    ?fromContact nco:hasContactMedium ?from . \
@@ -590,7 +590,7 @@ class rtcom(TestUpdate):
     				(SELECT COUNT(?message) AS ?message_count  \
 					WHERE { ?message nmo:communicationChannel ?channel ; nmo:isRead true }) \
 			WHERE { SELECT ?channel ?participant ?last_date  \
-				(SELECT ?message WHERE { ?message nmo:communicationChannel ?channel ; nmo:sentDate ?date } ORDER BY DESC(?date) LIMIT 1) AS ?last_message \
+				(SELECT ?message WHERE { ?message nmo:communicationChannel ?channel ; nmo:receivedDate ?date } ORDER BY DESC(?date) LIMIT 1) AS ?last_message \
     				WHERE { \
         			?channel a nmo:CommunicationChannel ; \
             			nmo:lastMessageDate ?last_date ; \
@@ -627,7 +627,7 @@ class rtcom(TestUpdate):
 		query = "SELECT ?msg ?date ?text ?contact \
 			WHERE { \
 			?msg nmo:communicationChannel <urn:channel:1> ; \
-        		nmo:sentDate ?date ; \
+        		nmo:receivedDate ?date ; \
         		nie:plainTextContent ?text ; \
         		nmo:from [ nco:hasIMAddress ?fromAddress ] . \
     			<urn:channel:1> nmo:hasParticipant ?contact . \
@@ -637,7 +637,7 @@ class rtcom(TestUpdate):
 		#query = "SELECT ?msg ?date ?text ?contact \
 		#	WHERE { \
     		#	?msg nmo:communicationChannel <urn:uuid:7585395544138154780> ; \
-        	#	nmo:sentDate ?date ; \
+        	#	nmo:receivedDate ?date ; \
         	#	nie:plainTextContent ?text ; \
         	#	nmo:from [ nco:hasIMAddress ?fromAddress ] . \
     		#	<urn:uuid:7585395544138154780> nmo:hasParticipant ?contact . \
@@ -686,7 +686,7 @@ class rtcom(TestUpdate):
 			WHERE { \
 			  SELECT ?channel  ?subject  ?lastDate \
 				  \
-				 ( SELECT ?message WHERE {?message nmo:communicationChannel ?channel . ?message nmo:sentDate ?sentDate .} ORDER BY DESC(?sentDate) LIMIT 1) AS ?lastMessage \
+				 ( SELECT ?message WHERE {?message nmo:communicationChannel ?channel . ?message nmo:receivedDate ?receivedDate .} ORDER BY DESC(?receivedDate) LIMIT 1) AS ?lastMessage \
 			      (SELECT ?contact \
 			      WHERE { \
 				    { \
