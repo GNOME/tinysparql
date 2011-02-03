@@ -52,6 +52,7 @@ static gboolean hard_reset;
 static gboolean soft_reset;
 static gboolean remove_config;
 static gboolean start;
+
 #define ENABLED()	  \
 	(list_processes || \
 	 kill_option != TERM_NONE || \
@@ -390,7 +391,6 @@ tracker_control_general_run (void)
 		gsize chunk_size;
 		gint chunk_size_mb;
 
-
 		db_config = tracker_db_config_new ();
 
 		/* Set log handler for library messages */
@@ -406,10 +406,8 @@ tracker_control_general_run (void)
 		rotate_to = tracker_db_config_get_journal_rotate_destination (db_config);
 
 		/* This call is needed to set the journal's filename */
-
 		tracker_db_journal_set_rotating ((chunk_size_mb != -1),
 		                                 chunk_size, rotate_to);
-
 
 		g_object_unref (db_config);
 
@@ -455,7 +453,6 @@ tracker_control_general_run (void)
 
 		/* Go through service files */
 
-
 		/* Check the default XDG_DATA_HOME location */
 		home_conf_dir = g_getenv ("XDG_CONFIG_HOME");
 
@@ -469,7 +466,6 @@ tracker_control_general_run (void)
 			}
 			path = g_build_path (G_DIR_SEPARATOR_S, home_conf_dir, ".config", "tracker", NULL);
 		}
-
 
 		file = g_file_new_for_path (path);
 		g_free (path);
@@ -540,5 +536,6 @@ tracker_control_general_get_option_group (void)
 	                            NULL,
 	                            NULL);
 	g_option_group_add_entries (group, entries);
+
 	return group;
 }

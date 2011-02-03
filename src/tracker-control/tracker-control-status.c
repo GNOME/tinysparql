@@ -42,6 +42,7 @@ static gboolean status;
 static gboolean follow;
 static gboolean detailed;
 static gboolean list_common_statuses;
+
 #define ENABLED()	  \
 	(status || \
 	 follow || \
@@ -60,7 +61,6 @@ static const gchar *statuses[7] = {
 	N_("Idle")
 };
 
-/* ---- STATUS options ---- */
 static GOptionEntry entries[] = {
 	{ "status", 'S', 0, G_OPTION_ARG_NONE, &status,
 	  N_("Show current status"),
@@ -600,7 +600,7 @@ tracker_control_status_run (void)
 	}
 
 	/* All known options have their own exit points */
-	g_warn_if_reached();
+	g_warn_if_reached ();
 
 	return EXIT_FAILURE;
 }
@@ -617,5 +617,6 @@ tracker_control_status_get_option_group (void)
 	                            NULL,
 	                            NULL);
 	g_option_group_add_entries (group, entries);
+
 	return group;
 }

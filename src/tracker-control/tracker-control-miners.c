@@ -38,6 +38,7 @@ static gint resume_cookie = -1;
 static gboolean list_miners_running;
 static gboolean list_miners_available;
 static gboolean pause_details;
+
 #define ENABLED()	  \
 	(reindex_mime_types || \
 	 index_file || \
@@ -291,7 +292,7 @@ tracker_control_miners_run (void)
 	}
 
 	/* All known options have their own exit points */
-	g_warn_if_reached();
+	g_warn_if_reached ();
 
 	return EXIT_FAILURE;
 }
@@ -308,5 +309,6 @@ tracker_control_miners_get_option_group (void)
 	                            NULL,
 	                            NULL);
 	g_option_group_add_entries (group, entries);
+
 	return group;
 }
