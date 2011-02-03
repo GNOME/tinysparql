@@ -46,7 +46,6 @@ src/tracker-utils/tracker-info.c
 src/tracker-utils/tracker-search.c
 src/tracker-utils/tracker-sparql.c
 src/tracker-utils/tracker-stats.c
-src/tracker-utils/tracker-status.c
 src/tracker-utils/tracker-tag.c
 src/tracker-writeback/tracker-main.c
 src/tracker-writeback/tracker-writeback-consumer.c
