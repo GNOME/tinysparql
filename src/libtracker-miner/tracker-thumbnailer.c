@@ -339,7 +339,7 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 
 	g_dbus_proxy_call (private->cache_proxy,
 	                   "Cleanup",
-	                   g_variant_new ("s", uri_prefix),
+	                   g_variant_new ("(s)", uri_prefix),
 	                   G_DBUS_CALL_FLAGS_NONE,
 	                   -1,
 	                   NULL,
@@ -371,7 +371,7 @@ tracker_thumbnailer_send (void)
 
 		g_dbus_proxy_call (private->cache_proxy,
 		                   "Delete",
-		                   g_variant_new ("^as", uri_strv),
+		                   g_variant_new ("(^as)", uri_strv),
 		                   G_DBUS_CALL_FLAGS_NONE,
 		                   -1,
 		                   NULL,
