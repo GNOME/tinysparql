@@ -1274,12 +1274,14 @@ AC_ARG_ENABLE([tracker-explorer],
                              [enable tracker-explorer[[default=auto]]]),,
               [enable_tracker_explorer=auto])
 
-if test "x$enable_tracker_explorer" != "xno" ; then
+if test "x$enable_tracker_explorer" = "xyes" ; then
    if test "x$have_tracker_explorer" != "xyes"; then
       AC_MSG_ERROR([Couldn't find tracker-explorer dependencies ($TRACKER_EXPLORER_REQUIRED).])
    fi
 else
-   have_tracker_explorer="no  (disabled)"
+   if test "x$enable_tracker_explorer" = "xno"; then
+      have_tracker_explorer="no  (disabled)"
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
