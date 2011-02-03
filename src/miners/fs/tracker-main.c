@@ -544,7 +544,7 @@ main (gint argc, gchar *argv[])
 	gchar *log_filename = NULL;
 	gboolean do_mtime_checking;
 	gboolean do_crawling;
-	gboolean force_mtime_checking;
+	gboolean force_mtime_checking = FALSE;
 
 	g_type_init ();
 
