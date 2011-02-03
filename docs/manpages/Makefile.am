@@ -24,7 +24,6 @@ man_MANS =                                             \
 	tracker-search.1                               \
 	tracker-sparql.1                               \
 	tracker-stats.1                                \
-	tracker-status.1                               \
 	tracker-store.1                                \
 	tracker-store.cfg.5                            \
 	tracker-tag.1                                  \
