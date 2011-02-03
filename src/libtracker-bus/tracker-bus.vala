@@ -347,11 +347,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 }
 
-public Tracker.Sparql.Connection? module_init () {
-	try {
-		Tracker.Sparql.Connection plugin = new Tracker.Bus.Connection ();
-		return plugin;
-	} catch {
-		return null;
-	}
+public Tracker.Sparql.Connection? module_init () throws GLib.Error {
+	Tracker.Sparql.Connection plugin = new Tracker.Bus.Connection ();
+	return plugin;
 }

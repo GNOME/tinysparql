@@ -21,7 +21,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	// only single connection is currently supported per process
 	static bool initialized;
 
-	public Connection () throws Sparql.Error
+	public Connection () throws GLib.Error
 	requires (!initialized) {
 		uint select_cache_size = 100;
 		string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
@@ -30,9 +30,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 			select_cache_size = env_cache_size.to_int();
 		}
 
-		if (!Data.Manager.init (DBManagerFlags.READONLY, null, null, false, select_cache_size, 0, null, null)) {
-			throw new Sparql.Error.INTERNAL ("Unable to initialize database");
-		}
+		Data.Manager.init (DBManagerFlags.READONLY, null, null, false, select_cache_size, 0, null, null);
 
 		initialized = true;
 	}
@@ -108,11 +106,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 	}
 }
 
-public Tracker.Sparql.Connection? module_init () {
-	try {
-		Tracker.Sparql.Connection plugin = new Tracker.Direct.Connection ();
-		return plugin;
-	} catch (Tracker.Sparql.Error e) {
-		return null;
-	}
+public Tracker.Sparql.Connection? module_init () throws GLib.Error {
+	Tracker.Sparql.Connection plugin = new Tracker.Direct.Connection ();
+	return plugin;
 }

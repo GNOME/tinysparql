@@ -702,7 +702,7 @@ db_recreate_all (GError **error)
 		if (internal_error) {
 			guint y;
 
-			for (y = 0; y < i - 1; y++) {
+			for (y = 1; y < i; y++) {
 				g_object_unref (dbs[y].iface);
 				dbs[y].iface = NULL;
 			}
@@ -833,39 +833,44 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	                             "tracker",
 	                             NULL);
 
+	g_free (in_use_filename);
 	in_use_filename = g_build_filename (g_get_user_data_dir (),
 	                                    "tracker",
 	                                    "data",
 	                                    IN_USE_FILENAME,
 	                                    NULL);
 
-	/* Make sure the directories exist */
-	g_message ("Checking database directories exist");
+	/* Don't do need_reindex checks for readonly (direct-access) */
+	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 
-	g_mkdir_with_parents (data_dir, 00755);
-	g_mkdir_with_parents (user_data_dir, 00755);
-	g_mkdir_with_parents (sys_tmp_dir, 00755);
+		/* Make sure the directories exist */
+		g_message ("Checking database directories exist");
 
-	g_message ("Checking database version");
+		g_mkdir_with_parents (data_dir, 00755);
+		g_mkdir_with_parents (user_data_dir, 00755);
+		g_mkdir_with_parents (sys_tmp_dir, 00755);
 
-	version = db_get_version ();
+		g_message ("Checking database version");
 
-	if (version < TRACKER_DB_VERSION_NOW) {
-		g_message ("  A reindex will be forced");
-		need_reindex = TRUE;
-	}
+		version = db_get_version ();
 
-	if (need_reindex) {
-		tracker_db_manager_create_version_file ();
-		tracker_db_manager_set_need_mtime_check (TRUE);
+		if (version < TRACKER_DB_VERSION_NOW) {
+			g_message ("  A reindex will be forced");
+			need_reindex = TRUE;
+		}
+
+		if (need_reindex) {
+			tracker_db_manager_create_version_file ();
+			tracker_db_manager_set_need_mtime_check (TRUE);
+		}
 	}
 
 	g_message ("Checking database files exist");
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		/* Fill absolute path for the database */
-		dir = location_to_directory (dbs[i].location);
 
+		dir = location_to_directory (dbs[i].location);
 		g_free (dbs[i].abs_filename);
 		dbs[i].abs_filename = g_build_filename (dir, dbs[i].file, NULL);
 
@@ -873,28 +878,50 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 		 * missing, we reindex.
 		 */
 
-		/* No need to check for other files not existing (for
-		 * reindex) if one is already missing.
-		 */
-		if (need_reindex) {
-			continue;
+		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+			/* No need to check for other files not existing (for
+			 * reindex) if one is already missing.
+			 */
+			if (need_reindex) {
+				continue;
+			}
 		}
 
 		if (!g_file_test (dbs[i].abs_filename, G_FILE_TEST_EXISTS)) {
-			g_message ("Could not find database file:'%s'", dbs[i].abs_filename);
-			g_message ("One or more database files are missing, a reindex will be forced");
-			need_reindex = TRUE;
+			if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+				g_message ("Could not find database file:'%s'", dbs[i].abs_filename);
+				g_message ("One or more database files are missing, a reindex will be forced");
+				need_reindex = TRUE;
+			} else {
+				guint y;
+
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_OPEN_ERROR,
+				             "Could not find database file:'%s'. One or more database files are missing", dbs[i].abs_filename);
+
+				for (y = 1; y <= i; y++) {
+					g_free (dbs[y].abs_filename);
+					dbs[y].abs_filename = NULL;
+				}
+
+				return FALSE;
+			}
 		}
 	}
 
 	locations_initialized = TRUE;
 
-	/* If we are just initializing to remove the databases,
-	 * return here.
-	 */
-	if ((flags & TRACKER_DB_MANAGER_REMOVE_ALL) != 0) {
-		initialized = TRUE;
-		return TRUE;
+	/* Don't do remove-dbs for readonly (direct-access) */
+	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+
+		/* If we are just initializing to remove the databases,
+		 * return here.
+		 */
+		if ((flags & TRACKER_DB_MANAGER_REMOVE_ALL) != 0) {
+			initialized = TRUE;
+			return TRUE;
+		}
 	}
 
 	/* Set general database options */
@@ -908,6 +935,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	 * other things like the nfs lock file.
 	 */
 	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX || need_reindex) {
+
 		if (flags & TRACKER_DB_MANAGER_READONLY) {
 			/* no reindexing supported in read-only mode (direct access) */
 
@@ -992,13 +1020,12 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					guint y;
 
-					for (y = 0; y < i - 1; y++) {
+					for (y = 1; y < i; y++) {
 						g_object_unref (dbs[y].iface);
 						dbs[y].iface = NULL;
 					}
 
 					g_propagate_error (error, internal_error);
-
 					return FALSE;
 				}
 

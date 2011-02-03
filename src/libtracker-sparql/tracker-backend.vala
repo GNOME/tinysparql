@@ -35,7 +35,8 @@ class Tracker.Sparql.Backend : Connection {
 		BUS
 	}
 
-	private delegate Tracker.Sparql.Connection? ModuleInitFunc ();
+	[CCode (has_target = false)]
+	private delegate Tracker.Sparql.Connection? ModuleInitFunc () throws GLib.Error;
 
 	public Backend (bool direct_only = false) throws Sparql.Error
 	requires (Module.supported ()) {
