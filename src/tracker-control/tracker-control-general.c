@@ -19,23 +19,13 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <locale.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <signal.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>
-#include <glib/gprintf.h>
-#include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-common.h>
-#include <libtracker-data/tracker-db-config.h>
-#include <libtracker-data/tracker-db-journal.h>
-#include <libtracker-data/tracker-db-manager.h>
+#include <libtracker-data/tracker-data.h>
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-control.h"
