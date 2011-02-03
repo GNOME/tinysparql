@@ -692,6 +692,22 @@ tracker_miner_is_started (TrackerMiner *miner)
 	return miner->private->started;
 }
 
+/**
+ * tracker_miner_is_paused:
+ * @miner: a #TrackerMiner
+ *
+ * Returns #TRUE if the miner is paused.
+ *
+ * Returns: #TRUE if the miner is paused.
+ **/
+gboolean
+tracker_miner_is_paused (TrackerMiner *miner)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), TRUE);
+
+	return g_hash_table_size (miner->private->pauses) > 0 ? TRUE : FALSE;
+}
+
 static gint
 tracker_miner_pause_internal (TrackerMiner  *miner,
                               const gchar   *application,
