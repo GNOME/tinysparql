@@ -66,7 +66,7 @@
 /* Stamp files to know crawling/indexing state */
 #define FIRST_INDEX_FILENAME          "first-index.txt"
 #define LAST_CRAWL_FILENAME           "last-crawl.txt"
-#define NEED_MTIME_CHECK_FILENAME     "need-mtime-check.txt"
+#define NEED_MTIME_CHECK_FILENAME     "no-need-mtime-check.txt"
 
 typedef enum {
 	TRACKER_DB_LOCATION_DATA_DIR,
