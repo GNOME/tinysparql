@@ -92,6 +92,7 @@ void                     tracker_miner_stop                (TrackerMiner        
 void                     tracker_miner_ignore_next_update  (TrackerMiner         *miner,
                                                             const GStrv           urls);
 gboolean                 tracker_miner_is_started          (TrackerMiner         *miner);
+gboolean                 tracker_miner_is_paused           (TrackerMiner         *miner);
 gint                     tracker_miner_pause               (TrackerMiner         *miner,
                                                             const gchar          *reason,
                                                             GError              **error);

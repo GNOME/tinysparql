@@ -207,13 +207,17 @@ struct _TrackerMinerFSPrivate {
 	GHashTable     *check_removed;
 
 	/* Status */
-	guint           been_started : 1;
-	guint           been_crawled : 1;
-	guint           shown_totals : 1;
-	guint           is_paused : 1;
-	guint           is_crawling : 1;
-	guint           mtime_checking : 1;
-	guint           initial_crawling : 1;
+	guint           been_started : 1;     /* TRUE if miner has been started */
+	guint           been_crawled : 1;     /* TRUE if initial crawling has been
+	                                       * done */
+	guint           shown_totals : 1;     /* TRUE if totals have been shown */
+	guint           is_paused : 1;        /* TRUE if miner is paused */
+	guint           is_crawling : 1;      /* TRUE if currently is crawling
+	                                       * (initial or non-initial) */
+	guint           mtime_checking : 1;   /* TRUE if mtime checks should be done
+	                                       * during initial crawling. */
+	guint           initial_crawling : 1; /* TRUE if initial crawling should be
+	                                       * done */
 
 	/* Statistics */
 	guint           total_directories_found;
@@ -1032,7 +1036,7 @@ process_stop (TrackerMinerFS *fs)
 	              NULL);
 
 	g_signal_emit (fs, signals[FINISHED], 0,
-	               g_timer_elapsed (fs->private->timer, NULL),
+	               fs->private->timer ? g_timer_elapsed (fs->private->timer, NULL) : 0.0,
 	               fs->private->total_directories_found,
 	               fs->private->total_directories_ignored,
 	               fs->private->total_files_found,
@@ -2277,13 +2281,16 @@ fill_in_items_created_queue (TrackerMinerFS *fs)
 	 */
 	while (node) {
 		GNode *children;
-		gchar *uri;
 
-		children = node->children;
+#ifdef EVENT_QUEUE_ENABLE_TRACE
+		gchar *uri;
 
 		uri = g_file_get_uri (node->data);
 		g_message ("Adding files from directory '%s' into the processing queue", uri);
 		g_free (uri);
+#endif /* EVENT_QUEUE_ENABLE_TRACE */
+
+		children = node->children;
 
 		while (children) {
 			file = children->data;
@@ -2754,12 +2761,14 @@ item_queue_handlers_cb (gpointer user_data)
 			g_object_set_qdata (G_OBJECT (file),
 			                    fs->private->quark_check_existence,
 			                    GINT_TO_POINTER (FALSE));
+
 			/* Avoid adding items that already exist, when processing
 			 * a CREATED task (as those generated when crawling) */
 			if (!item_query_exists (fs, file, NULL, NULL)) {
 				keep_processing = item_add_or_update (fs, file);
 				break;
 			}
+
 			/* If already in store, skip processing the CREATED task */
 			keep_processing = TRUE;
 			break;
@@ -3539,24 +3548,31 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	 * the finished sig?
 	 */
 	if (add_monitor) {
-		/* Set quark so that before trying to add the item we first
-		 * check for its existence. */
-		g_object_set_qdata (G_OBJECT (parent),
-		                    fs->private->quark_check_existence,
-		                    GINT_TO_POINTER (TRUE));
-		/* Before adding the monitor, start notifying the store
-		 * about the new directory, so that if any file event comes
-		 * afterwards, the directory is already in store. */
-		trace_eq_push_tail ("CREATED", parent, "while crawling directory, parent");
-		g_queue_push_tail (fs->private->items_created,
-		                   g_object_ref (parent));
-		item_queue_handlers_set_up (fs);
+		/* Only if:
+		 * -First crawl has already been done OR
+		 * -mtime_checking is TRUE.
+		 */
+		if (fs->private->been_crawled || fs->private->mtime_checking) {
+			/* Set quark so that before trying to add the item we first
+			 * check for its existence. */
+			g_object_set_qdata (G_OBJECT (parent),
+			                    fs->private->quark_check_existence,
+			                    GINT_TO_POINTER (TRUE));
 
-		/* As we already added here, specify that it shouldn't be added
-		 * any more */
-		g_object_set_qdata (G_OBJECT (parent),
-		                    fs->private->quark_ignore_file,
-		                    GINT_TO_POINTER (TRUE));
+			/* Before adding the monitor, start notifying the store
+			 * about the new directory, so that if any file event comes
+			 * afterwards, the directory is already in store. */
+			trace_eq_push_tail ("CREATED", parent, "while crawling directory, parent");
+			g_queue_push_tail (fs->private->items_created,
+			                   g_object_ref (parent));
+			item_queue_handlers_set_up (fs);
+
+			/* As we already added here, specify that it shouldn't be added
+			 * any more */
+			g_object_set_qdata (G_OBJECT (parent),
+			                    fs->private->quark_ignore_file,
+			                    GINT_TO_POINTER (TRUE));
+		}
 
 		tracker_monitor_add (fs->private->monitor, parent);
 	} else {
@@ -3781,6 +3797,7 @@ crawl_directories_start (TrackerMinerFS *fs)
 	if (!fs->private->initial_crawling) {
 		/* Do not perform initial crawling */
 		g_message ("Crawling is disabled, waiting for DBus events");
+		process_stop (fs);
 		return;
 	}
 
@@ -4500,6 +4517,55 @@ tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
 	crawl_directories_start (fs);
 }
 
+/**
+ * tracker_miner_fs_set_mtime_checking:
+ * @fs: a #TrackerMinerFS
+ * @mtime_checking: a #gboolean
+ *
+ * Tells the miner-fs that during the crawling phase, directory mtime
+ * checks should or shouldn't be performed against the database to
+ * make sure we have the most up to date version of the file being
+ * checked at the time. Setting this to #FALSE can dramatically
+ * improve the start up the crawling of the @fs.
+ *
+ * The down side is that using this consistently means that some files
+ * on the disk may be out of date with files in the database.
+ *
+ * The main purpose of this function is for systems where a @fs is
+ * running the entire time and where it is very unlikely that a file
+ * could be changed outside between startup and shutdown of the
+ * process using this API.
+ *
+ * The default if not set directly is that @mtime_checking is #TRUE.
+ *
+ * Since: 0.10
+ **/
+void
+tracker_miner_fs_set_mtime_checking (TrackerMinerFS *fs,
+                                     gboolean        mtime_checking)
+{
+	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
+
+	fs->private->mtime_checking = mtime_checking;
+}
+
+/**
+ * tracker_miner_fs_get_mtime_checking:
+ * @fs: a #TrackerMinerFS
+ *
+ * Returns: #TRUE if mtime checks for directories against the database
+ * are done when @fs crawls the file system, otherwise #FALSE.
+ *
+ * Since: 0.10
+ **/
+gboolean
+tracker_miner_fs_get_mtime_checking (TrackerMinerFS *fs)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
+
+	return fs->private->mtime_checking;
+}
+
 void
 tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
                                        gboolean        do_initial_crawling)
@@ -4515,6 +4581,30 @@ tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
 
 	return fs->private->initial_crawling;
+}
+
+/**
+ * tracker_miner_fs_has_items_to_process:
+ * @fs: a #TrackerMinerFS
+ *
+ * Returns: #TRUE if there are items to process in the internal
+ * queues, otherwise #FALSE.
+ *
+ * Since: 0.10
+ **/
+gboolean
+tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
+
+	if (g_queue_get_length (fs->private->items_deleted) > 0 ||
+	    g_queue_get_length (fs->private->items_created) > 0 ||
+	    g_queue_get_length (fs->private->items_updated) > 0 ||
+	    g_queue_get_length (fs->private->items_moved) > 0) {
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 /**

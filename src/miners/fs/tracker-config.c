@@ -49,7 +49,7 @@
 #define DEFAULT_INDEX_ON_BATTERY                 FALSE
 #define DEFAULT_INDEX_ON_BATTERY_FIRST_TIME      TRUE
 #define DEFAULT_LOW_DISK_SPACE_LIMIT             1        /* 0->100 / -1 */
-#define DEFAULT_CRAWLING_INTERVAL                0        /* 0->365 / -1 */
+#define DEFAULT_CRAWLING_INTERVAL                -1       /* 0->365 / -1 / -2 */
 #define DEFAULT_REMOVABLE_DAYS_THRESHOLD         3        /* 1->365 / 0  */
 
 typedef struct {
@@ -296,10 +296,12 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                 PROP_CRAWLING_INTERVAL,
 	                                 g_param_spec_int ("crawling-interval",
 	                                                   "Crawling interval",
-	                                                   " Interval in days to check the filesystem is up to date in the database."
-	                                                   " If set to 0, crawling always occurs on startup, if -1 crawling is"
-	                                                   " disabled entirely. Maximum is 365.",
-	                                                   -1,
+	                                                   " Interval in days to check the filesystem is up to date in the database,"
+	                                                   " maximum is 365, default is -1.\n"
+	                                                   "   -2 = crawling is disabled entirely\n"
+	                                                   "   -1 = crawling *may* occur on startup (if not cleanly shutdown)\n"
+	                                                   "    0 = crawling is forced",
+	                                                   -2,
 	                                                   365,
 	                                                   DEFAULT_CRAWLING_INTERVAL,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));

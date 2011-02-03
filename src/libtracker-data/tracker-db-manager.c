@@ -66,6 +66,7 @@
 /* Stamp files to know crawling/indexing state */
 #define FIRST_INDEX_FILENAME          "first-index.txt"
 #define LAST_CRAWL_FILENAME           "last-crawl.txt"
+#define NEED_MTIME_CHECK_FILENAME     "no-need-mtime-check.txt"
 
 typedef enum {
 	TRACKER_DB_LOCATION_DATA_DIR,
@@ -403,6 +404,7 @@ db_manager_remove_all (gboolean rm_journal)
 	/* Remove stamp files */
 	tracker_db_manager_set_first_index_done (FALSE);
 	tracker_db_manager_set_last_crawl_done (FALSE);
+	tracker_db_manager_set_need_mtime_check (TRUE);
 
 	/* NOTE: We don't have to be initialized for this so we
 	 * calculate the absolute directories here.
@@ -424,8 +426,6 @@ db_manager_remove_all (gboolean rm_journal)
 	}
 
 	if (rm_journal) {
-
-
 		db_manager_remove_journal ();
 
 		/* If also the journal is gone, we can also remove db-version.txt, it
@@ -816,6 +816,7 @@ tracker_db_manager_init (TrackerDBManagerFlags  flags,
 
 	if (need_reindex) {
 		tracker_db_manager_create_version_file ();
+		tracker_db_manager_set_need_mtime_check (TRUE);
 	}
 
 	g_message ("Checking database files exist");
@@ -1694,6 +1695,96 @@ tracker_db_manager_set_last_crawl_done (gboolean done)
 	} else if (!done && already_exists) {
 		/* If NOT done, remove stamp file */
 		g_message ("  Removing last crawl file:'%s'", filename);
+
+		if (g_remove (filename)) {
+			g_warning ("    Could not remove file:'%s', %s",
+			           filename,
+			           g_strerror (errno));
+		}
+	}
+
+	g_free (filename);
+}
+
+inline static gchar *
+get_need_mtime_check_filename (void)
+{
+	return g_build_filename (g_get_user_cache_dir (),
+	                         "tracker",
+	                         NEED_MTIME_CHECK_FILENAME,
+	                         NULL);
+}
+
+/**
+ * tracker_db_manager_get_need_mtime_check:
+ *
+ * Check if the miner-fs was cleanly shutdown or not.
+ *
+ * Returns: %TRUE if we need to check mtimes for directories against
+ * the database on the next start for the miner-fs, %FALSE otherwise.
+ *
+ * Since: 0.10
+ **/
+gboolean
+tracker_db_manager_get_need_mtime_check (void)
+{
+	gboolean exists;
+	gchar *filename;
+
+	filename = get_need_mtime_check_filename ();
+	exists = g_file_test (filename, G_FILE_TEST_EXISTS);
+	g_free (filename);
+
+	/* Existence of the file means we cleanly shutdown before and
+	 * don't need to do the mtime check again on this start.
+	 */
+	return !exists;
+}
+
+/**
+ * tracker_db_manager_set_need_mtime_check:
+ * @needed: a #gboolean
+ *
+ * If the next start of miner-fs should perform a full mtime check
+ * against each directory found and those in the database (for
+ * complete synchronisation), then @needed should be #TRUE, otherwise
+ * #FALSE.
+ *
+ * Creates a file in $HOME/.cache/tracker/ if an mtime check is not
+ * needed. The idea behind this is that a check is forced if the file
+ * is not cleaned up properly on shutdown (i.e. due to a crash or any
+ * other uncontrolled shutdown reason).
+ *
+ * Since: 0.10
+ **/
+void
+tracker_db_manager_set_need_mtime_check (gboolean needed)
+{
+	gboolean already_exists;
+	gchar *filename;
+
+	filename = get_need_mtime_check_filename ();
+	already_exists = g_file_test (filename, G_FILE_TEST_EXISTS);
+
+	/* !needed = add file
+	 *  needed = remove file
+	 */
+	if (!needed && !already_exists) {
+		GError *error = NULL;
+
+		/* Create stamp file if not already there */
+		if (!g_file_set_contents (filename, PACKAGE_VERSION, -1, &error)) {
+			g_warning ("  Could not create file:'%s' failed, %s",
+			           filename,
+			           error->message);
+			g_error_free (error);
+		} else {
+			g_message ("  Need mtime check file:'%s' created",
+			           filename);
+		}
+	} else if (needed && already_exists) {
+		/* Remove stamp file */
+		g_message ("  Removing need mtime check file:'%s'", filename);
 
 		if (g_remove (filename)) {
 			g_warning ("    Could not remove file:'%s', %s",

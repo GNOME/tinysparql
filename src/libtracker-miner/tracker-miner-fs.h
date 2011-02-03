@@ -134,9 +134,14 @@ gchar                *tracker_miner_fs_query_urn            (TrackerMinerFS *fs,
                                                              GFile          *file);
 void                  tracker_miner_fs_force_recheck        (TrackerMinerFS *fs);
 
+void                  tracker_miner_fs_set_mtime_checking   (TrackerMinerFS *fs,
+                                                             gboolean        check_mtimes);
 void                  tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
                                                              gboolean        do_initial_crawling);
+gboolean              tracker_miner_fs_get_mtime_checking   (TrackerMinerFS *fs);
 gboolean              tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs);
+
+gboolean              tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs);
 
 void                  tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
                                                                      GFile          *file);
