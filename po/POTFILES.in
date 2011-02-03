@@ -38,9 +38,13 @@ src/tracker-needle/tracker-view.vala
 [type: gettext/glade]src/tracker-needle/tracker-needle.ui
 src/tracker-search-bar/org.gnome.panel.SearchBar.panel-applet.in.in
 src/tracker-search-bar/tracker-results-window.c
+src/tracker-search-bar/tracker-applet.c
 [type: gettext/glade]src/tracker-search-bar/tracker-search-bar.ui
 src/tracker-store/tracker-main.vala
 src/tracker-control/tracker-control.c
+src/tracker-control/tracker-control-general.c
+src/tracker-control/tracker-control-miners.c
+src/tracker-control/tracker-control-status.c
 src/tracker-utils/tracker-import.c
 src/tracker-utils/tracker-info.c
 src/tracker-utils/tracker-search.c
