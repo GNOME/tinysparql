@@ -1,11 +1,11 @@
 # Trackeri eesti keele tõlge.
 # Estonian translation of Tracker.
 #
-# Copyright (C) 2007, 2009 The GNOME Project.
+# Copyright (C) 2007, 2009–2011 The GNOME Project.
 # This file is distributed under the same license as the tracker package.
 #
-# Ivar Smolin <okul linux ee>, 2007, 2009.
-# Mattias Põldaru <mahfiaz gmail com>, 2009-2010.
+# Ivar Smolin <okul linux ee>, 2007, 2009, 2011.
+# Mattias Põldaru <mahfiaz gmail com>, 2009–2010.
 #
 msgid ""
 msgstr ""
@@ -13,8 +13,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
 "POT-Creation-Date: 2010-12-15 09:46+0000\n"
-"PO-Revision-Date: 2010-10-17 19:36+0300\n"
-"Last-Translator: Mattias Põldaru <mahfiaz gmail com>\n"
+"PO-Revision-Date: 2011-02-03 08:15+0200\n"
+"Last-Translator: Ivar Smolin <okul@linux.ee>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"
 "Language: et\n"
 "MIME-Version: 1.0\n"
@@ -666,7 +666,7 @@ msgstr "Teateikooni rakend Trackeri andmekaevurite monitooringuks"
 msgid "translator-credits"
 msgstr ""
 "Ivar Smolin <okul linux ee>, 2007, 2009.\n"
-"Mattias Põldaru <mahfiaz gmail com>, 2009-2010."
+"Mattias Põldaru <mahfiaz gmail com>, 2009–2010."
 
 msgid "_Search"
 msgstr "_Otsi"
@@ -955,7 +955,7 @@ msgid "No Name"
 msgstr "Nime pole"
 
 msgid "No Address"
-msgstr "Aadressit pole"
+msgstr "Aadressi pole"
 
 msgid "No emails were found"
 msgstr "Meile ei leitud"
@@ -1542,6 +1542,5 @@ msgstr ""
 #~ "%s ei suudetud käivitada\n"
 #~ "Viga: %s\n"
 
-#, fuzzy
-#~ msgid "Journal replay"
-#~ msgstr "Žurnaali kordusesitus (šurnaalist taastamine)"
+#~ msgid "Copyright Tracker Authors 2005-2011"
+#~ msgstr "Autoriõigus kuulub Trackeri autoritele 2005-2011"
