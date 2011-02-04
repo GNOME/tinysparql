@@ -17,6 +17,8 @@ EXTRA_DIST =                                           \
 	filter-in-3.rq                                 \
 	filter-in-4.out                                \
 	filter-in-4.rq                                 \
+	filter-in-5.rq                                 \
+	filter-in-5.out                                \
 	filter-placement-1.out                         \
 	filter-placement-1.rq                          \
 	filter-placement-2.out                         \
