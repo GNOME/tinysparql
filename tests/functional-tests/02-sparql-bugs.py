@@ -207,7 +207,20 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                 # We could be more picky, but checking there are the same number of results
                 # is enough to verify the problem described in the bug.
 
-                
+
+        def test_04_NB224760_too_long_filter (self):
+                """
+                NB#224760 - 'too many sql variables' when filter ?sth in (long list)
+                """
+                query = "SELECT tracker:id (?m) ?m WHERE { ?m a rdfs:Resource. FILTER (tracker:id (?m) in (%s)) }"
+                numbers = ",".join ([str (i) for i in range (1000, 2000)])
+
+                results = self.tracker.query (query % (numbers))
+
+                # The query will raise an exception is the bug is there
+                # If we are here, everything is fine. 
+                self.assertIsNotNone (results)
+                                   
 
                 
 
