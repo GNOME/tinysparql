@@ -37,7 +37,7 @@ from common.utils.applicationstest import CommonTrackerApplicationTest as Common
 
 MINER_FS_IDLE_TIMEOUT = 5
 
-class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
+class TrackerCameraPicturesApplicationTests (CommonTrackerApplicationTest):
 
     def test_01_camera_picture (self):
         """
@@ -180,7 +180,9 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 
-    def test_03_camera_video (self):
+class TrackerCameraVideosApplicationTests (CommonTrackerApplicationTest):
+
+    def test_01_camera_video (self):
         """
         Camera video recording simulation:
 
@@ -235,7 +237,7 @@ class TrackerCameraApplicationTests (CommonTrackerApplicationTest):
         self.assertEquals (self.get_urn_count_by_url (dest_fileuri), 0)
 
 
-    def test_04_camera_video_geolocation (self):
+    def test_02_camera_video_geolocation (self):
         """
         Camera simulation:
 
