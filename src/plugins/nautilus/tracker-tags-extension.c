@@ -26,7 +26,7 @@
 #include <libnautilus-extension/nautilus-menu-provider.h>
 #include <libnautilus-extension/nautilus-property-page-provider.h>
 
-#include <libtracker-client/tracker-client.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-tags-utils.h"
 #include "tracker-tags-view.h"
@@ -53,7 +53,8 @@ struct _TrackerTagsExtensionClass {
 };
 
 struct _TrackerTagsExtensionPrivate {
-	TrackerClient *tracker_client;
+	TrackerSparqlConnection *connection;
+	GCancellable *cancellable;
 };
 
 typedef void (*MenuDataFreeFunc)(gpointer data);
@@ -277,7 +278,10 @@ static void
 tracker_tags_extension_init (TrackerTagsExtension *self)
 {
 	self->private = TRACKER_TAGS_EXTENSION_GET_PRIVATE (self);
-	self->private->tracker_client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, G_MAXINT);
+
+	self->private->cancellable = g_cancellable_new ();
+	self->private->connection = tracker_sparql_connection_get (self->private->cancellable,
+								   NULL);
 }
 
 static void
@@ -285,7 +289,14 @@ tracker_tags_extension_finalize (GObject *object)
 {
 	TrackerTagsExtension *extension = TRACKER_TAGS_EXTENSION (object);
 
-	g_object_unref (extension->private->tracker_client);
+	if (extension->private->cancellable) {
+		g_cancellable_cancel (extension->private->cancellable);
+		g_object_unref (extension->private->cancellable);
+	}
+
+	if (extension->private->connection) {
+		g_object_unref (extension->private->connection);
+	}
 
 	G_OBJECT_CLASS (tracker_tags_extension_parent_class)->finalize (object);
 }
