@@ -242,18 +242,18 @@ class TrackerWritebackLifeCycle():
         """
         self.loop = gobject.MainLoop()
         dbus_loop = DBusGMainLoop(set_as_default=True)
-        bus = dbus.SessionBus (dbus_loop)
+        self.bus = dbus.SessionBus (dbus_loop)
 
-        obj = bus.get_object ("org.freedesktop.DBus",
+        obj = self.bus.get_object ("org.freedesktop.DBus",
                               "/org/freedesktop/DBus")
         self.admin = dbus.Interface (obj, dbus_interface="org.freedesktop.DBus")
         if (self.admin.NameHasOwner (cfg.WRITEBACK_BUSNAME)):
             raise Exception ("Writeback is already running! kill it before starting this one")
 
-        bus.add_signal_receiver (self.__name_owner_changed_cb,
-                                 signal_name="NameOwnerChanged",
-                                 path="/org/freedesktop/DBus",
-                                 dbus_interface="org.freedesktop.DBus")
+        self.name_owner_match = self.bus.add_signal_receiver (self.__name_owner_changed_cb,
+                                                              signal_name="NameOwnerChanged",
+                                                              path="/org/freedesktop/DBus",
+                                                              dbus_interface="org.freedesktop.DBus")
         self.__start_tracker_writeback ()
 
         # It should step out of this loop when the writeback is visible in DBus
@@ -263,6 +263,9 @@ class TrackerWritebackLifeCycle():
     def stop (self):
         assert self.process
         self.process.kill ()
+        self.bus._clean_up_signal_match (self.name_owner_match)
+        print "[writeback] stop."
+        
 
     def __name_owner_changed_cb (self, name, old_owner, new_owner):
         if name == cfg.WRITEBACK_BUSNAME:
