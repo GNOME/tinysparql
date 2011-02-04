@@ -129,6 +129,15 @@ class ExtractionTestCase (ut.TestCase):
             self.fail (self._formatMessage (msg, standardMsg))
         else:
             return
+
+    def assertIsURN (self, supposed_uuid, msg=None):
+        import uuid
+
+        try:
+            uuid.UUID (supposed_uuid)
+        except ValueError:
+            standardMsg = "'%s' is not a valid UUID" % (supposed_uuid)
+            self.fail (self._formatMessage (msg, standardMsg))
         
     def __assert_extraction_ok (self, result):
         self.__check_section ("Metadata", result)
@@ -143,12 +152,18 @@ class ExtractionTestCase (ut.TestCase):
         error_extra_prop = "Property '%s' was explicitely banned for file \n'%s'\n (requested on '%s' [%s])"
         error_extra_prop_v = "Property '%s' with value '%s' was explicitely banned for file \n'%s'\n (requested on %s' [%s])"
 
-        expected_pairs = [ (k.replace ("_", ":"), v)
-                           for (k,v) in self.configParser.items (section)
-                           if not k.startswith ("!")]
-        unexpected_pairs = [ (k[1:].replace ("_", ":"), v)
-                             for (k,v) in self.configParser.items (section)
-                             if k.startswith ("!")]
+        expected_pairs = [] # List of expected (key, value)
+        unexpected_pairs = []  # List of unexpected (key, value)
+        expected_keys = []  # List of expected keys (the key must be there, value doesnt matter)
+
+        for k, v in self.configParser.items (section):
+            if k.startswith ("!"):
+                unexpected_pairs.append ( (k[1:].replace ("_", ":"), v) )
+            elif k.startswith ("@"):
+                expected_keys.append ( k[1:].replace ("_", ":") )
+            else:
+                expected_pairs.append ( (k.replace ("_", ":"), v) )
+
 
         for (prop, value) in expected_pairs:
             self.assertDictHasKey (result, prop,
@@ -156,11 +171,19 @@ class ExtractionTestCase (ut.TestCase):
                                                          self.file_to_extract,
                                                          self.rel_description,
                                                          section))
-            self.assertIn (value, result [prop],
-                           error_wrong_value % (prop,
-                                                self.file_to_extract,
-                                                self.rel_description,
-                                                section))
+            if value == "@URNUUID@":
+                # Watch out! We take only the FIRST element. Incompatible with multiple-valued props.
+                self.assertIsURN (result [prop][0],
+                                  error_wrong_value % (prop,
+                                                       self.file_to_extract,
+                                                       self.rel_description,
+                                                       section))
+            else:
+                self.assertIn (value, result [prop],
+                               error_wrong_value % (prop,
+                                                    self.file_to_extract,
+                                                    self.rel_description,
+                                                    section))
 
         for (prop, value) in unexpected_pairs:
             # There is no prop, or it is but not with that value
@@ -169,12 +192,24 @@ class ExtractionTestCase (ut.TestCase):
                                                                              self.file_to_extract,
                                                                              self.rel_description,
                                                                              section))
+            if (value == "@URNUUID@"):
+                self.assertIsURN (result [prop][0], error_extra_prop % (prop,
+                                                                        self.file_to_extract,
+                                                                        self.rel_description,
+                                                                        section))
             else:
                 self.assertNotIn (value, result [prop], error_extra_prop_v % (prop,
                                                                               value,
                                                                               self.file_to_extract,
                                                                               self.rel_description,
                                                                               section))
+
+        for prop in expected_keys:
+             self.assertDictHasKey (result, prop,
+                                    error_missing_prop % (prop,
+                                                          self.file_to_extract,
+                                                          self.rel_description,
+                                                          section))
 
     
 if __name__ == "__main__":

@@ -13,8 +13,7 @@ nie_title=Kid
 nmm_fnumber=5
 nmm_focalLength=5
 nie_comment=This is a for tracker test
-mlo_location_city=Tig
-mlo_location_country=Banglore
+slo_location_postalAddress=@URNUUID@
 nfo_horizontalResolution=20
 nfo_verticalResolution=20
 

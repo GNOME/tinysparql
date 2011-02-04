@@ -23,7 +23,14 @@ The Metadata section contains pairs of property=values with few special rules:
    E.G.    nfo:duration=5 -> nfo_duration=5
        but a=nmm:Video    -> a=nmm:Video 
 
-2. If the property name is prefixed with '!' then the property is NOT expected in the extraction
+2. If the property name is prefixed with '@' then the property is expected in the extraction, but the value
+   won't be checked. 
+
+   E.G.     The extraction is:    slo:location [a slo:GeoPoint; slo:postalAddress <urn:uuid:123-123>];
+
+       @slo_location=   -> PASS slo:location is in the extraction
+
+3. If the property name is prefixed with '!' then the property is NOT expected in the extraction
    If the negated property has a value, it forbids the exact value. Otherwise, it forbids the property at all.
 
    E.G.   The extraction is:    a nmm:Video; nfo:duration 50.
@@ -32,12 +39,16 @@ The Metadata section contains pairs of property=values with few special rules:
        !nfo_duration=12 -> PASS because duration has a different value
        !nfo_duration=   -> FAIL because there shouldn't be any nfo:duration at all
 
-3. The translation of the extraction results to a python dictionary is very basic. 
+4. The translation of the extraction results to a python dictionary is very basic. 
    It handles a couple of special cases, relevant for testing:
+   E.G.
 
-  mlo:location [a mlo:GeoPoint; mlo:city "XXX"]    -> mlo_location_city=XXX
-  mlo:location [a mlo:GeoPoint; mlo:country "XXX"] -> mlo_location_country=XXX
-  nao:hasTag [a nao:Tag; nao:prefLabel "XXX"]      -> nao_hasTag_prefLabel=XXX
+         nao:hasTag [a nao:Tag; nao:prefLabel "XXX"]      -> nao_hasTag_prefLabel=XXX
+
+5. There is (so far only) one constant defined to use in the values:
+
+   @URNUUID@  meaning an automatic generated urn:uuid:1231-123-123 URL
+     [This constant must not be used with multiple-valued properties. The code only check the first result.]
 
 Example
 ======

@@ -190,6 +190,14 @@ class ExtractorHelper ():
             
     def __process_lines (self, embedded):
         """
+        Translate each line in a "prop value" string, handling anonymous nodes.
+
+        Example:
+             nfo:width 699 ;  -> 'nfo:width 699'
+        or
+             nao:hasTag [ a nao:Tag ;
+             nao:prefLabel "tracker"] ;  -> nao:hasTag:prefLabel 'tracker'
+
         Would be so cool to implement this with yield and generators... :)
         """
         grouped_lines = []
@@ -248,9 +256,8 @@ class ExtractorHelper ():
         nao:hasTag [a nao:Tag; nao:prefLabel "xxx"]
                  -> nao:hasTag:prefLabel "xxx"
                  
-        mlo:location [a mlo:GeoPoint; mlo:city "Delhi"; mlo:country "India"]
-                -> mlo:location:city "Delhi"
-                -> mlo:location:country "India"
+        slo:location [a slo:GeoPoint; slo:postalAddress <urn:uuid:1231-123> .]
+                -> slo:location <urn:uuid:1231-123> 
                 
         nfo:hasMediaFileListEntry [ a nfo:MediaFileListEntry ; nfo:entryUrl "file://x.mp3"; nfo:listPosition 1]
                 -> nfo:hasMediaFileListEntry:entryUrl "file://x.mp3"
@@ -269,24 +276,16 @@ class ExtractorHelper ():
                 return [line]
 
         # location case
-        elif line.startswith ("mlo:location"):
-
+        elif line.startswith ("slo:location"):
             results = []
 
             # Can have country AND/OR city
-            getcountry = re.compile ("mlo:country\ \"(\w+)\"")
-            getcity = re.compile ("mlo:city\ \"(\w+)\"")
+            getpa = re.compile ("slo:postalAddress\ \<([\w:-]+)\>")
+            pa_match = getpa.search (line)
             
-            country_match = getcountry.search (line)
-            city_match = getcity.search (line)
-            
-            if (country_match):
-                results.append ('mlo:location:country "%s" ;' % (country_match.group(1)))
-
-            if (city_match):
-                results.append ('mlo:location:city "%s" ;' % (city_match.group(1)))
-
-            if (not country_match and not city_match):
+            if (pa_match):
+                results.append ('slo:location:postalAddress "%s" ;' % (pa_match.group(1)))
+            else:
                 print "FIXME another location subproperty in ", line
 
             return results
