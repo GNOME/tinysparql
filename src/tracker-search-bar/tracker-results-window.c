@@ -27,7 +27,7 @@
 
 #include <panel-applet.h>
 
-#include <libtracker-client/tracker-client.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-results-window.h"
 #include "tracker-aligned-window.h"
@@ -177,11 +177,13 @@ typedef struct {
 
 	GtkIconTheme *icon_theme;
 
-	TrackerClient *client;
+	TrackerSparqlConnection *connection;
+	GCancellable *cancellable;
 	gchar *query;
 
 	gboolean first_category_populated;
 
+	GList *search_queries;
 	gint queries_pending;
 	gint request_id;
 } TrackerResultsWindowPrivate;
@@ -213,6 +215,7 @@ typedef struct {
 } ItemData;
 
 typedef struct {
+	GCancellable *cancellable;
 	gint request_id;
 	TrackerCategory category;
 	TrackerResultsWindow *window;
@@ -246,6 +249,7 @@ static void     model_set_up                      (TrackerResultsWindow *window)
 static void     search_get                        (TrackerResultsWindow *window,
                                                    TrackerCategory       category);
 static void     search_start                      (TrackerResultsWindow *window);
+static void     search_query_free                 (SearchQuery          *sq);
 static gchar *  category_to_string                (TrackerCategory       category);
 
 enum {
@@ -385,7 +389,9 @@ tracker_results_window_init (TrackerResultsWindow *window)
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
-	priv->client = tracker_client_new (TRACKER_CLIENT_ENABLE_WARNINGS, G_MAXINT);
+	priv->cancellable = g_cancellable_new ();
+	priv->connection = tracker_sparql_connection_get_direct (priv->cancellable,
+								 NULL);
 
 	priv->frame = gtk_frame_new (NULL);
 	gtk_container_add (GTK_CONTAINER (window), priv->frame);
@@ -440,9 +446,20 @@ results_window_finalize (GObject *object)
 
 	g_free (priv->query);
 
-	if (priv->client) {
-		g_object_unref (priv->client);
+	if (priv->cancellable) {
+		g_cancellable_cancel (priv->cancellable);
+		g_object_unref (priv->cancellable);
 	}
+
+	if (priv->connection) {
+		g_object_unref (priv->connection);
+	}
+
+	/* Clean up previous requests, this will call
+	 * g_cancellable_cancel() on each query still running.
+	 */
+	g_list_foreach (priv->search_queries, (GFunc) search_query_free, NULL);
+	g_list_free (priv->search_queries);
 
 	G_OBJECT_CLASS (tracker_results_window_parent_class)->finalize (object);
 }
@@ -638,6 +655,7 @@ search_query_new (gint                  request_id,
 	sq = g_slice_new0 (SearchQuery);
 
 	sq->request_id = request_id;
+	sq->cancellable = g_cancellable_new ();
 	sq->category = category;
 	sq->window = window;
 	sq->results = NULL;
@@ -648,6 +666,11 @@ search_query_new (gint                  request_id,
 static void
 search_query_free (SearchQuery *sq)
 {
+	if (sq->cancellable) {
+		g_cancellable_cancel (sq->cancellable);
+		g_object_unref (sq->cancellable);
+	}
+
 	g_slist_foreach (sq->results, (GFunc) item_data_free, NULL);
 	g_slist_free (sq->results);
 
@@ -1153,23 +1176,18 @@ search_window_ensure_not_blank (TrackerResultsWindow *window)
 }
 
 inline static void
-search_get_foreach (gpointer value,
-                    gpointer user_data)
+search_get_foreach (SearchQuery         *sq,
+		    TrackerSparqlCursor *cursor)
 {
-	SearchQuery *sq;
 	ItemData *id;
-	gchar **metadata;
 	const gchar *urn, *title, *tooltip, *link, *rank, *icon_name;
 
-	sq = user_data;
-	metadata = value;
-
-	urn = metadata[0];
-	title = metadata[1];
-	tooltip = metadata[2];
-	link = metadata[3];
-	rank = metadata[4];
-	icon_name = metadata[5];
+	urn = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+	title = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+	tooltip = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+	link = tracker_sparql_cursor_get_string (cursor, 3, NULL);
+	rank = tracker_sparql_cursor_get_string (cursor, 4, NULL);
+	icon_name = tracker_sparql_cursor_get_string (cursor, 5, NULL);
 
 	/* App queries don't return rank or belongs */
 	if (!rank) {
@@ -1193,13 +1211,15 @@ search_get_foreach (gpointer value,
 }
 
 static void
-search_get_cb (GPtrArray *results,
-               GError    *error,
-               gpointer   user_data)
+search_get_cb (GObject      *source_object,
+	       GAsyncResult *res,
+	       gpointer      user_data)
 {
+	TrackerSparqlCursor *cursor;
 	TrackerResultsWindow *window;
 	TrackerResultsWindowPrivate *priv;
 	SearchQuery *sq;
+	GError *error = NULL;
 
 	sq = user_data;
 	window = sq->window;
@@ -1207,12 +1227,28 @@ search_get_cb (GPtrArray *results,
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 	priv->queries_pending--;
 
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
+							 res,
+							 &error);
+
 	/* If request IDs don't match, data is no longer needed */
 	if (priv->request_id != sq->request_id) {
 		g_message ("Received data from request id:%d, now on request id:%d",
 		           sq->request_id,
 		           priv->request_id);
+
+		priv->search_queries = g_list_remove (priv->search_queries, sq);
 		search_query_free (sq);
+
+		/* We don't care about errors if we're not interested
+		 * in the results.
+		 */
+		g_clear_error (&error);
+
+		if (cursor) {
+			g_object_unref (cursor);
+		}
+
 		return;
 	}
 
@@ -1220,29 +1256,31 @@ search_get_cb (GPtrArray *results,
 		g_printerr ("Could not get search results, %s\n", error->message);
 		g_error_free (error);
 
+		if (cursor) {
+			g_object_unref (cursor);
+		}
+
+		priv->search_queries = g_list_remove (priv->search_queries, sq);
 		search_query_free (sq);
 		search_window_ensure_not_blank (window);
 
 		return;
 	}
 
-	if (!results) {
+	if (!cursor) {
 		g_print ("No results were found matching the query in category:'%s'\n",
 		         category_to_string (sq->category));
 	} else {
 		GSList *l;
 
-		g_print ("Results: %d for category:'%s'\n",
-		         results->len,
+		g_print ("Results: category:'%s'\n",
 		         category_to_string (sq->category));
 
-		if (results->len > 0) {
-			g_ptr_array_foreach (results,
-			                     search_get_foreach,
-			                     sq);
-
-			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-			g_ptr_array_free (results, TRUE);
+		/* FIXME: make async */
+		while (tracker_sparql_cursor_next (cursor,
+						   priv->cancellable,
+						   &error)) {
+			search_get_foreach (sq, cursor);
 
 			/* Add separator */
 			if (priv->first_category_populated) {
@@ -1263,8 +1301,11 @@ search_get_cb (GPtrArray *results,
 
 			priv->first_category_populated = TRUE;
 		}
+
+		g_object_unref (cursor);
 	}
 
+	priv->search_queries = g_list_remove (priv->search_queries, sq);
 	search_query_free (sq);
 	search_window_ensure_not_blank (window);
 
@@ -1325,9 +1366,14 @@ search_get (TrackerResultsWindow *window,
 	}
 
 	sq = search_query_new (priv->request_id, category, window);
+	priv->search_queries = g_list_prepend (priv->search_queries, sq);
 
 	sparql = g_strdup_printf (format, priv->query, MAX_ITEMS);
-	tracker_resources_sparql_query_async (priv->client, sparql, search_get_cb, sq);
+	tracker_sparql_connection_query_async (priv->connection,
+					       sparql,
+					       sq->cancellable,
+					       search_get_cb,
+					       sq);
 	g_free (sparql);
 
 	priv->queries_pending++;
@@ -1360,6 +1406,12 @@ search_start (TrackerResultsWindow *window)
 	}
 
 	priv->first_category_populated = FALSE;
+
+	/* Clean up previous requests, this will call
+	 * g_cancellable_cancel() on each query still running.
+	 */
+	g_list_foreach (priv->search_queries, (GFunc) search_query_free, NULL);
+	g_list_free (priv->search_queries);
 
 	/* SPARQL requests */
 	search_get (window, CATEGORY_IMAGE);

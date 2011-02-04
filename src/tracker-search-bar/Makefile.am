@@ -23,7 +23,7 @@ tracker_search_bar_CFLAGS =                            \
 	$(TRACKER_SEARCH_BAR_CFLAGS)
 
 tracker_search_bar_LDADD =                             \
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_SEARCH_BAR_LIBS)
