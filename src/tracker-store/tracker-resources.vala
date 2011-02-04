@@ -48,7 +48,7 @@ public class Tracker.Resources : Object {
 	 * Note for the debugger of the future, the "Disconnected" signal gets
 	 * sent to us by the bus, which in turn makes libdbus-glib perform exit(). */
 
-	const int DBUS_ARBITRARY_MAX_MSG_SIZE = 1000000;
+	const int DBUS_ARBITRARY_MAX_MSG_SIZE = 10000000;
 
 	DBusConnection connection;
 	uint signal_timeout;
