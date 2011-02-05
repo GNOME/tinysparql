@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-26 21:42+0200\n"
-"PO-Revision-Date: 2011-01-26 21:41+0300\n"
+"POT-Creation-Date: 2011-02-06 00:18+0200\n"
+"PO-Revision-Date: 2011-02-06 00:17+0300\n"
 "Last-Translator: Khaled Hosny <khaledhosny@eglug.org>\n"
 "Language-Team: Arabic <doc@arabeyes.org>\n"
 "MIME-Version: 1.0\n"
@@ -85,14 +85,6 @@ msgstr "اجلب تلقيمات RSS/ATOM"
 #: ../data/tracker-miner-rss.desktop.in.in.h:2
 msgid "Tracker RSS/ATOM Feeds Miner"
 msgstr "مُنقِّب RSS/ATOM للمُقتفِي"
-
-#: ../data/tracker-status-icon.desktop.in.in.h:1
-msgid "Tracker Status Icon"
-msgstr "أيقونة حالة المُقتفي"
-
-#: ../data/tracker-status-icon.desktop.in.in.h:2
-msgid "Tracker Status Notification Application"
-msgstr "تطبيق تنبيهات حالة المقتفي"
 
 #: ../data/tracker-store.desktop.in.in.h:1
 msgid "Metadata database store and lookup manager"
@@ -223,15 +215,15 @@ msgstr[3] " %2.2d ثوان"
 msgstr[4] " %2.2d ثانيةً"
 msgstr[5] " %2.2d ثانية"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:565
+#: ../src/libtracker-miner/tracker-miner-object.c:730
 msgid "Pause application and reason match an already existing pause request"
 msgstr "طلب إلباث التطبيق والسبب يطابقان طلبا موجودا من قبل"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:647
+#: ../src/libtracker-miner/tracker-miner-object.c:812
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 
-#: ../src/libtracker-miner/tracker-miner-object.c:972
+#: ../src/libtracker-miner/tracker-miner-object.c:1189
 msgid "Data store is not available"
 msgstr ""
 
@@ -244,7 +236,7 @@ msgid "Tracker"
 msgstr "المُقتفي"
 
 #: ../src/plugins/evolution/tracker-evolution-plugin.c:2375
-#: ../src/tracker-utils/tracker-status.c:67
+#: ../src/tracker-control/tracker-control-status.c:56
 msgid "Processing…"
 msgstr "يُعالج…"
 
@@ -264,6 +256,7 @@ msgid "_URN:"
 msgstr ""
 
 #: ../src/tracker-extract/tracker-main.c:83
+#: ../src/tracker-store/tracker-main.vala:48
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -275,7 +268,7 @@ msgid "File to extract metadata for"
 msgstr "ملف لاستخراج المعلومات الفوقية منه"
 
 #: ../src/tracker-extract/tracker-main.c:89 ../src/miners/fs/tracker-main.c:89
-#: ../src/tracker-control/tracker-control.c:103
+#: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
 #: ../src/tracker-utils/tracker-info.c:57
@@ -289,13 +282,13 @@ msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "نوع MIME للملف (إذا لم يحدد سيُخمّن)"
 
 #: ../src/tracker-extract/tracker-main.c:93
-#: ../src/tracker-control/tracker-control.c:100
+#: ../src/tracker-control/tracker-control-miners.c:55
 msgid "MIME"
 msgstr "MIME"
 
 #: ../src/tracker-extract/tracker-main.c:98
 msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr ""
+msgstr "عطّل الإغلاق بعد 30 ثانية من عدم النشاط"
 
 #: ../src/tracker-extract/tracker-main.c:102
 msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
@@ -309,8 +302,10 @@ msgstr ""
 msgid "MODULE"
 msgstr ""
 
+#. Daemon options
 #: ../src/tracker-extract/tracker-main.c:110
 #: ../src/miners/fs/tracker-main.c:92
+#: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "يعرض معلومات الإصدارة"
@@ -344,99 +339,99 @@ msgstr ""
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:391
+#: ../src/miners/fs/tracker-main.c:400
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:392
+#: ../src/miners/fs/tracker-main.c:401
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:407
+#: ../src/miners/fs/tracker-main.c:416
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:408
+#: ../src/miners/fs/tracker-main.c:417
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:428
+#: ../src/miners/fs/tracker-main.c:437
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:429
+#: ../src/miners/fs/tracker-main.c:438
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:476
+#: ../src/miners/fs/tracker-main.c:485
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:477
+#: ../src/miners/fs/tracker-main.c:486
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:481
+#: ../src/miners/fs/tracker-main.c:490
 msgid "File is eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:482
+#: ../src/miners/fs/tracker-main.c:491
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:486
+#: ../src/miners/fs/tracker-main.c:495
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:487
+#: ../src/miners/fs/tracker-main.c:496
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:502
+#: ../src/miners/fs/tracker-main.c:511
 msgid "File is eligible to be mined (based on rules)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:503
+#: ../src/miners/fs/tracker-main.c:512
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr ""
 
-#: ../src/miners/fs/tracker-main.c:512
+#: ../src/miners/fs/tracker-main.c:521
 msgid "Would be indexed"
 msgstr "يُمكن فهرسته"
 
-#: ../src/miners/fs/tracker-main.c:513 ../src/miners/fs/tracker-main.c:515
+#: ../src/miners/fs/tracker-main.c:522 ../src/miners/fs/tracker-main.c:524
 msgid "Yes"
 msgstr "نعم"
 
-#: ../src/miners/fs/tracker-main.c:513 ../src/miners/fs/tracker-main.c:515
+#: ../src/miners/fs/tracker-main.c:522 ../src/miners/fs/tracker-main.c:524
 msgid "No"
 msgstr "لا"
 
-#: ../src/miners/fs/tracker-main.c:514
+#: ../src/miners/fs/tracker-main.c:523
 msgid "Would be monitored"
 msgstr "يُمكن مراقبته"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:555
+#: ../src/miners/fs/tracker-main.c:567
 msgid "- start the tracker indexer"
 msgstr "- ابدأ مفهرس المُقتفي"
 
-#: ../src/miners/fs/tracker-miner-files.c:1257
+#: ../src/miners/fs/tracker-miner-files.c:1318
 msgid "Low battery"
 msgstr "البطارية منخفضة"
 
-#: ../src/miners/fs/tracker-miner-files.c:1380
+#: ../src/miners/fs/tracker-miner-files.c:1441
 msgid "Low disk space"
 msgstr "المساحة المتاحة قليلة"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/rss/tracker-main.c:64
+#: ../src/miners/rss/tracker-main.c:65
 msgid "- start the feeds indexer"
 msgstr "- ابدأ مفهرس التلقيمات"
 
@@ -448,59 +443,65 @@ msgstr "اضبط فهرسة الملفات بالمقتفي"
 msgid "Search and Indexing"
 msgstr "البحث والفهرسة"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:105
+#: ../src/tracker-preferences/tracker-preferences.vala:85
+#: ../src/tracker-preferences/tracker-preferences.vala:97
 msgid "Disabled"
 msgstr "مُعَطَّل"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:108
+#: ../src/tracker-preferences/tracker-preferences.vala:88
 #, c-format
 msgid "%d%%"
 msgstr "%d%%"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:112
+#: ../src/tracker-preferences/tracker-preferences.vala:92
 #, c-format
 msgid "%d/20"
 msgstr "%d/20"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:120
+#: ../src/tracker-preferences/tracker-preferences.vala:100
+#, c-format
+msgid "%d"
+msgstr "%d"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:108
 msgid "Enter value"
 msgstr "أدخل قيمة"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:151
+#: ../src/tracker-preferences/tracker-preferences.vala:139
 msgid "Select directory"
 msgstr "اختر دليلا"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:396
-#: ../src/tracker-preferences/tracker-preferences.vala:397
-#: ../src/tracker-preferences/tracker-preferences.vala:398
-#: ../src/tracker-preferences/tracker-preferences.vala:399
+#: ../src/tracker-preferences/tracker-preferences.vala:376
+#: ../src/tracker-preferences/tracker-preferences.vala:377
+#: ../src/tracker-preferences/tracker-preferences.vala:378
+#: ../src/tracker-preferences/tracker-preferences.vala:379
 msgid "Directory"
 msgstr "دليل"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:400
+#: ../src/tracker-preferences/tracker-preferences.vala:380
 #: ../src/tracker-needle/tracker-needle.vala:255
 msgid "File"
 msgstr "ملف"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
-msgid "<b>Notification area</b>"
-msgstr "<b>منطقة التنبيهات</b>"
+msgid "Day(s)"
+msgstr "أيّام"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:2
-msgid "Al_ways display icon"
-msgstr "اعرض أيقونة _دائمًا"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "Directories"
 msgstr "أدلّة"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:4
+#: ../src/tracker-preferences/tracker-preferences.ui.h:3
 msgid "Directories (no sub-directories are indexed):"
 msgstr "الأدلّة (لن تُفهرس الأدلّة الفرعية):"
 
-#: ../src/tracker-preferences/tracker-preferences.ui.h:5
+#: ../src/tracker-preferences/tracker-preferences.ui.h:4
 msgid "Directories:"
 msgstr "الأدلّة:"
+
+#: ../src/tracker-preferences/tracker-preferences.ui.h:5
+msgid "Drop removable device from database after:"
+msgstr "أزِل الأجهزة المنفصلة من قاعدة البيانات بعد:"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:6
 msgid "Enable for _first time"
@@ -621,14 +622,6 @@ msgid "_Monitor file and directory changes"
 msgstr "_راقب تغيرات الملف والدليل"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:35
-msgid "_Never display icon"
-msgstr "لا _تعرض أيقونة أبدًا"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
-msgid "_Only display when indexing content"
-msgstr "اعرض فقط ع_ند فهرسة المحتوى"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:37
 msgid "seconds"
 msgstr "ثوان"
 
@@ -652,14 +645,12 @@ msgid "Size"
 msgstr "الحجم"
 
 #: ../src/tracker-needle/tracker-needle.vala:736
-#: ../src/tracker-status-icon/tracker-main.c:46
-#: ../src/tracker-control/tracker-control.c:105
+#: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
 #: ../src/tracker-utils/tracker-search.c:139
 #: ../src/tracker-utils/tracker-sparql.c:100
 #: ../src/tracker-utils/tracker-stats.c:47
-#: ../src/tracker-utils/tracker-status.c:113
 #: ../src/tracker-utils/tracker-tag.c:87
 msgid "Print version"
 msgstr "اطبع الإصدارة"
@@ -748,37 +739,6 @@ msgstr "ابحث عن معاير البحث داخل الملفات"
 msgid "Show statistics about the data stored"
 msgstr "اعرض إحصائيات عن البيانات المُخزّنة"
 
-#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:1
-msgid "Desktop search tool using Tracker"
-msgstr "أداة بحث لسطح المكتب باستخدام المُقتفي"
-
-#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.server.in.in.h:2
-msgid "Search Bar"
-msgstr "شريط البحث"
-
-#.
-#. item = gtk_image_menu_item_new_with_mnemonic (_("_Indexer Preferences"));
-#. image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES,
-#. GTK_ICON_SIZE_MENU);
-#. gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-#. gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-#. g_signal_connect (G_OBJECT (item), "activate",
-#. G_CALLBACK (preferences_menu_activated), icon);
-#.
-#.
-#. item = gtk_image_menu_item_new_with_mnemonic (_("S_tatistics"));
-#. image = gtk_image_new_from_icon_name (GTK_STOCK_INFO,
-#. GTK_ICON_SIZE_MENU);
-#. gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-#. gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-#. g_signal_connect (G_OBJECT (item), "activate",
-#. G_CALLBACK (statistics_menu_activated), icon);
-#.
-#: ../src/tracker-search-bar/GNOME_Search_Bar_Applet.xml.h:1
-#: ../src/tracker-status-icon/tracker-status-icon.c:921
-msgid "_About"
-msgstr "_عنْ"
-
 #: ../src/tracker-search-bar/tracker-results-window.c:661
 #: ../src/tracker-search-bar/tracker-results-window.c:677
 msgid "Other"
@@ -842,12 +802,15 @@ msgstr "العنوان"
 msgid "No results found for “%s”"
 msgstr "لم يُعثر على نتائِج تُطابِق ”%s“"
 
+#: ../src/tracker-search-bar/tracker-applet.c:40
+msgid "_About"
+msgstr "_عنْ"
+
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:1
 msgid "A search bar applet for finding content stored in Tracker"
 msgstr "بريمح لشريط البحث يعثر على المحتوى المخزن في المُقتفي"
 
 #: ../src/tracker-search-bar/tracker-search-bar.ui.h:2
-#: ../src/tracker-status-icon/tracker-status-icon.c:810
 msgid "Copyright Tracker Authors 2005-2010"
 msgstr "حقوق النشر  2005--2010 لمؤلفي المُقتفي"
 
@@ -885,237 +848,403 @@ msgstr ""
 "Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA \n"
 "02111-1307, USA."
 
-#: ../src/tracker-status-icon/tracker-main.c:63
-msgid "- Miner status and control notification area icon"
+#. Indexer options
+#: ../src/tracker-store/tracker-main.vala:51
+msgid "Force a re-index of all content"
+msgstr "افرض إعادة فهرسة كل المحتوى"
+
+#: ../src/tracker-store/tracker-main.vala:52
+msgid "Only allow read based actions on the database"
 msgstr ""
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:527
-msgid "Miner is not running"
-msgstr "المنقّب لا يعمل"
-
-#: ../src/tracker-status-icon/tracker-status-icon.c:568
-#: ../src/tracker-status-icon/tracker-status-icon.c:699
-msgid "Paused by user"
-msgstr "ألبثها المستخدم"
-
-#: ../src/tracker-status-icon/tracker-status-icon.c:786
-msgid ""
-"Tracker is free software; you can redistribute it and/or modify it under the "
-"terms of the GNU General Public License as published by the Free Software "
-"Foundation; either version 2 of the License, or (at your option) any later "
-"version."
-msgstr ""
-"المقتفي برمجية حرة، يمكنك توزيعها و/أو تعديلها حسب بنود رخصة جنو العمومية "
-"كما نشرتها مؤسسة البرامج الحرة، الإصدار الثاني أو أي إصدار أحدث (حسب رغبتك)."
-
-#: ../src/tracker-status-icon/tracker-status-icon.c:790
-msgid ""
-"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
-"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
-"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
-"details."
-msgstr ""
-"يوزع المقتفي على أمل أن يكون مفيداً، ولكن دون أية ضمانات، بما في ذلك ضمانات "
-"قابلية البرنامج للتسويق أو الملاءمة لغرض معين. انظر نص رخصة جنو العمومية "
-"لمزيد من التفاصيل"
-
-#: ../src/tracker-status-icon/tracker-status-icon.c:794
-msgid ""
-"You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
-"Street, Fifth Floor, Boston, MA  02110-1301, USA."
-msgstr ""
-"من المفترض أنك تلقيت نسخة من رخصة جنو العمومية مع هذا البرنامج؛ إذا لم يحدث "
-"هذا فاكتب إلى:\n"
-"Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  "
-"02110-1301, USA."
-
-#: ../src/tracker-status-icon/tracker-status-icon.c:809
-msgid "A notification icon application to monitor data miners for Tracker"
-msgstr ""
-
-#. Translators should localize the following string
-#. * which will be displayed at the bottom of the about
-#. * box to give credit to the translator(s).
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-status-icon/tracker-status-icon.c:819
-msgid "translator-credits"
+#: ../src/tracker-store/tracker-main.vala:189
+msgid "- start the tracker daemon"
+msgstr "- ابدأ عفريت المُقتفي"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-control/tracker-control.c:77
+msgid " - Manage Tracker processes and data"
+msgstr " - أدِر عمليات وبيانات المقتفي"
+
+#: ../src/tracker-control/tracker-control.c:101
+msgid "General and Status options cannot be used together"
 msgstr ""
-"فريق عرب آيز للترجمة arabeyes.org :\n"
-"خالد حسني\t<khaledhosny@eglug.org>"
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:841
-msgid "_Search"
-msgstr "ا_بحث"
+#: ../src/tracker-control/tracker-control.c:107
+msgid "General and Miners options cannot be used together"
+msgstr ""
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:870
-msgid "_Pause All Indexing"
-msgstr "أل_بث كل الفهرسة"
+#: ../src/tracker-control/tracker-control.c:118
+msgid "Status and Miners options cannot be used together"
+msgstr ""
 
-#: ../src/tracker-status-icon/tracker-status-icon.c:890
-msgid "_Preferences"
-msgstr "ال_تفضيلات"
+#: ../src/tracker-control/tracker-control.c:135
+msgid "Unrecognized options"
+msgstr ""
 
-#: ../src/tracker-status-icon/tracker-status-icon.desktop.in.in.h:1
-msgid "Control and monitor the Tracker search and indexing service"
-msgstr "تحكّم وراقب خدمة بحث وفهرسة المُقتفي"
+#: ../src/tracker-control/tracker-control.c:143
+msgid "No options specified"
+msgstr ""
 
-#: ../src/tracker-status-icon/tracker-status-icon.desktop.in.in.h:2
-msgid "Tracker Applet"
-msgstr "بُريمج المُقتفي"
+#: ../src/tracker-control/tracker-control-general.c:72
+msgid "List all Tracker processes"
+msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:81
+#: ../src/tracker-control/tracker-control-general.c:74
 msgid ""
 "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:82
-#: ../src/tracker-control/tracker-control.c:85
+#: ../src/tracker-control/tracker-control-general.c:75
+#: ../src/tracker-control/tracker-control-general.c:78
 msgid "APPS"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:84
+#: ../src/tracker-control/tracker-control-general.c:77
 msgid ""
 "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:87
+#: ../src/tracker-control/tracker-control-general.c:80
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "اقتل هذا عملية المقتفي واحذف كل قواعد البيانات"
 
-#: ../src/tracker-control/tracker-control.c:90
+#: ../src/tracker-control/tracker-control-general.c:83
 msgid ""
 "Same as --hard-reset but the backup & journal are restored after restart"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:93
+#: ../src/tracker-control/tracker-control-general.c:86
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:96
+#: ../src/tracker-control/tracker-control-general.c:89
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:99
-msgid ""
-"Reindex files which match the mime type supplied (for new extractors), use -"
-"m MIME1 -m MIME2"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control.c:102
-msgid "(Re)Index a given file"
-msgstr ""
-
-#: ../src/tracker-control/tracker-control.c:121
+#: ../src/tracker-control/tracker-control-general.c:111
 msgid "Could not open /proc"
 msgstr "تعذّر فتح ‪/proc‬"
 
-#: ../src/tracker-control/tracker-control.c:122
-#: ../src/tracker-control/tracker-control.c:327
-#: ../src/tracker-control/tracker-control.c:367
-#: ../src/tracker-control/tracker-control.c:388
+#: ../src/tracker-control/tracker-control-general.c:112
+#: ../src/tracker-control/tracker-control-general.c:297
+#: ../src/tracker-control/tracker-control-general.c:337
+#: ../src/tracker-control/tracker-control-general.c:358
 msgid "no error given"
 msgstr "لم يُعطى أي خطأ"
 
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-control/tracker-control.c:272
-msgid " - Manage Tracker processes and data"
-msgstr " - أدِر عمليات وبيانات المقتفي"
-
-#: ../src/tracker-control/tracker-control.c:284
+#: ../src/tracker-control/tracker-control-general.c:251
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:288
+#: ../src/tracker-control/tracker-control-general.c:257
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:292
+#: ../src/tracker-control/tracker-control-general.c:263
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:324
+#: ../src/tracker-control/tracker-control-general.c:294
 #, c-format
 msgid "Could not open '%s'"
 msgstr "تعذّر فتح '%s'"
 
-#: ../src/tracker-control/tracker-control.c:349
+#: ../src/tracker-control/tracker-control-general.c:319
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:364
-#, fuzzy, c-format
+#: ../src/tracker-control/tracker-control-general.c:334
+#, c-format
 msgid "Could not terminate process %d"
-msgstr "تعذّر فتح المستند \"%s\"."
+msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:370
+#: ../src/tracker-control/tracker-control-general.c:340
 #, c-format
 msgid "Terminated process %d"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:385
+#: ../src/tracker-control/tracker-control-general.c:355
 #, c-format
 msgid "Could not kill process %d"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:391
+#: ../src/tracker-control/tracker-control-general.c:361
 #, c-format
 msgid "Killed process %d"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:501
-#, fuzzy
+#: ../src/tracker-control/tracker-control-general.c:478
 msgid "Removing configuration files…"
-msgstr "- اجلب المعلومات من ملف بعينه"
+msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:515
+#: ../src/tracker-control/tracker-control-general.c:492
 msgid "Waiting one second before starting miners…"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:521
+#: ../src/tracker-control/tracker-control-general.c:498
 msgid "Starting miners…"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:539
+#: ../src/tracker-control/tracker-control-general.c:516
 msgid "perhaps a disabled plugin?"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:560
-#, fuzzy
-msgid "Could not reindex mimetypes"
-msgstr "تعذّرت قراءة الملف"
+#: ../src/tracker-control/tracker-control-general.c:539
+msgid "General options"
+msgstr "الخيارات العامّة"
 
-#: ../src/tracker-control/tracker-control.c:566
+#: ../src/tracker-control/tracker-control-general.c:540
+msgid "Show general options"
+msgstr "اعرض الخيارات العامّة"
+
+#: ../src/tracker-control/tracker-control-miners.c:54
+msgid ""
+"Tell miners to reindex files which match the mime type supplied (for new "
+"extractors), use -m MIME1 -m MIME2"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:57
+msgid "Tell miners to (re)index a given file"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:60
+msgid "Pause a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:61
+msgid "REASON"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:64
+msgid "Resume a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:65
+msgid "COOKIE"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:68
+msgid ""
+"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
+"Applications)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:69
+msgid "MINER"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:72
+msgid "List all miners currently running"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:76
+msgid "List all miners installed"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:80
+msgid "List pause reasons"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:101
+#, c-format
+msgid "Attempting to pause miner '%s' with reason '%s'"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:108
+#, c-format
+msgid "Could not pause miner: %s"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:113
+#, c-format
+msgid "Cookie is %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:129
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:136
+#, c-format
+msgid "Could not resume miner: %s"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:140
+#: ../src/tracker-utils/tracker-import.c:142
+#: ../src/tracker-utils/tracker-sparql.c:571
+msgid "Done"
+msgstr "تم"
+
+#: ../src/tracker-control/tracker-control-miners.c:157
+msgid "Could not reindex mimetypes"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:163
 msgid "Reindexing mime types was successful"
 msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:583
-#, fuzzy
+#: ../src/tracker-control/tracker-control-miners.c:183
 msgid "Could not (re)index file"
-msgstr "تعذّرت قراءة الملف"
+msgstr ""
 
-#: ../src/tracker-control/tracker-control.c:589
+#: ../src/tracker-control/tracker-control-miners.c:189
 msgid "(Re)indexing file was successful"
 msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:206
+#: ../src/tracker-control/tracker-control-miners.c:289
+#, c-format
+msgid "Could not contact the miner manager"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:217
+#, c-format
+msgid "Found %d miners installed"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:237
+#, c-format
+msgid "Found %d miners running"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:268
+#: ../src/tracker-control/tracker-control-status.c:145
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:296
+msgid "No miners are running"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:333
+#: ../src/tracker-control/tracker-control-status.c:508
+msgid "Miners"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:340
+msgid "Application"
+msgstr "التطبيقات"
+
+#: ../src/tracker-control/tracker-control-miners.c:342
+msgid "Reason"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:351
+msgid "No miners are paused"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:369
+msgid "You can not use miner pause and resume switches together"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:375
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:381
+msgid "You must provide a pause or resume command for the miner"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-miners.c:425
+msgid "Miner options"
+msgstr "خيارات المُنقِّب"
+
+#: ../src/tracker-control/tracker-control-miners.c:426
+msgid "Show miner options"
+msgstr "اعرض خيارات المُنقِّب"
+
+#: ../src/tracker-control/tracker-control-status.c:55
+msgid "Initializing"
+msgstr "يستبدأ"
+
+#: ../src/tracker-control/tracker-control-status.c:57
+msgid "Fetching…"
+msgstr "يجلب…"
+
+#. miner/rss
+#: ../src/tracker-control/tracker-control-status.c:58
+#, c-format
+msgid "Crawling single directory '%s'"
+msgstr "يزحف داخل المجلد المفرد '%s'"
+
+#: ../src/tracker-control/tracker-control-status.c:59
+#, c-format
+msgid "Crawling recursively directory '%s'"
+msgstr "يزحف تتابعيا داخل المجلد '%s'"
+
+#: ../src/tracker-control/tracker-control-status.c:60
+msgid "Paused"
+msgstr "مُلبَث"
+
+#: ../src/tracker-control/tracker-control-status.c:61
+msgid "Idle"
+msgstr "ساكن"
+
+#: ../src/tracker-control/tracker-control-status.c:66
+msgid "Show current status"
+msgstr "اعرض الحالة الحالية"
+
+#: ../src/tracker-control/tracker-control-status.c:70
+msgid "Follow status changes as they happen"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:74
+msgid "Include details with state updates (only applies to --follow)"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:78
+msgid "List common statuses for miners and the store"
+msgstr ""
+
+#. Work out lengths for output spacing
+#: ../src/tracker-control/tracker-control-status.c:203
+#: ../src/tracker-control/tracker-control-status.c:492
+msgid "PAUSED"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:217
+msgid "Not running or is a disabled plugin"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:481
+msgid "Common statuses include"
+msgstr ""
+
+#. Display states
+#: ../src/tracker-control/tracker-control-status.c:502
+msgid "Store"
+msgstr ""
+
+#: ../src/tracker-control/tracker-control-status.c:615
+msgid "Status options"
+msgstr "خيارات الحالة"
+
+#: ../src/tracker-control/tracker-control-status.c:616
+msgid "Show status options"
+msgstr "اعرض خيارات الحالة"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-import.c:75
-#, fuzzy
 msgid "- Import data using Turtle files"
-msgstr "- استورد الملفات"
+msgstr ""
 
 #: ../src/tracker-utils/tracker-import.c:93
 #: ../src/tracker-utils/tracker-info.c:200
-#, fuzzy
 msgid "One or more files have not been specified"
-msgstr "ابحث عن ملفات بالوسْم المحدد"
+msgstr ""
 
 #: ../src/tracker-utils/tracker-import.c:115
 #: ../src/tracker-utils/tracker-info.c:222
@@ -1124,9 +1253,8 @@ msgstr "ابحث عن ملفات بالوسْم المحدد"
 #: ../src/tracker-utils/tracker-stats.c:92
 #: ../src/tracker-utils/tracker-tag.c:944
 #: ../src/tracker-writeback/tracker-writeback-consumer.c:97
-#, fuzzy
 msgid "Could not establish a connection to Tracker"
-msgstr "تعذّر انشاء اتصال بين DBus و المقتفي"
+msgstr ""
 
 #: ../src/tracker-utils/tracker-import.c:116
 #: ../src/tracker-utils/tracker-info.c:223
@@ -1139,30 +1267,20 @@ msgid "No error given"
 msgstr "لم يُعطى أي خطأ"
 
 #: ../src/tracker-utils/tracker-import.c:126
-#, fuzzy
 msgid "Importing Turtle file"
-msgstr "- استورد الملفات"
+msgstr ""
 
 #: ../src/tracker-utils/tracker-import.c:135
-#, fuzzy
 msgid "Unable to import Turtle file"
-msgstr "تعذّر استيراد الملف"
-
-#: ../src/tracker-utils/tracker-import.c:142
-#: ../src/tracker-utils/tracker-sparql.c:571
-#: ../src/tracker-utils/tracker-status.c:208
-#, fuzzy
-msgid "Done"
-msgstr "لا شيء"
+msgstr ""
 
 #: ../src/tracker-utils/tracker-info.c:53
 msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-info.c:131
-#, fuzzy
 msgid "Unable to retrieve namespace prefixes"
-msgstr "تعذّر فتح المجلّد \"%s\"."
+msgstr ""
 
 #: ../src/tracker-utils/tracker-info.c:139
 msgid "No namespace prefixes were returned"
@@ -1199,7 +1317,7 @@ msgstr "لا تتوفر أي بيانات فوقية"
 #: ../src/tracker-utils/tracker-info.c:305
 #: ../src/tracker-utils/tracker-search.c:1261
 #: ../src/tracker-utils/tracker-sparql.c:613
-#: ../utils/tracker-sql/tracker-sql.c:168
+#: ../utils/tracker-sql/tracker-sql.c:170
 #, fuzzy
 msgid "Results"
 msgstr "النتائج:"
@@ -1525,12 +1643,12 @@ msgid "- Query or update using SPARQL"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:259
-#: ../utils/tracker-sql/tracker-sql.c:73
+#: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:261
-#: ../utils/tracker-sql/tracker-sql.c:75
+#: ../utils/tracker-sql/tracker-sql.c:74
 #, fuzzy
 msgid "File and query can not be used together"
 msgstr "يجب إعطاء اسم الملف ونوع mime معا"
@@ -1629,12 +1747,12 @@ msgid "No properties were found to match search term"
 msgstr "لم يُعثر على نتائِج تُطابِق استعلامك"
 
 #: ../src/tracker-utils/tracker-sparql.c:533
-#: ../utils/tracker-sql/tracker-sql.c:107
+#: ../utils/tracker-sql/tracker-sql.c:106
 msgid "Could not get UTF-8 path from path"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-sparql.c:545
-#: ../utils/tracker-sql/tracker-sql.c:118
+#: ../utils/tracker-sql/tracker-sql.c:117
 msgid "Could not read file"
 msgstr "تعذّرت قراءة الملف"
 
@@ -1644,8 +1762,8 @@ msgid "Could not run update"
 msgstr "تعذّرت قراءة الملف"
 
 #: ../src/tracker-utils/tracker-sparql.c:606
-#: ../utils/tracker-sql/tracker-sql.c:161
-#: ../utils/tracker-sql/tracker-sql.c:194
+#: ../utils/tracker-sql/tracker-sql.c:163
+#: ../utils/tracker-sql/tracker-sql.c:196
 #, fuzzy
 msgid "Could not run query"
 msgstr "تعذّرت قراءة الملف"
@@ -1671,184 +1789,6 @@ msgstr ""
 #: ../src/tracker-utils/tracker-stats.c:113
 msgid "Statistics:"
 msgstr "الإحصائيّات"
-
-#: ../src/tracker-utils/tracker-status.c:66
-msgid "Initializing"
-msgstr "يستبدأ"
-
-#: ../src/tracker-utils/tracker-status.c:68
-msgid "Fetching…"
-msgstr ""
-
-#. miner/rss
-#: ../src/tracker-utils/tracker-status.c:69
-#, c-format
-msgid "Crawling single directory '%s'"
-msgstr "يزحف داخل المجلد المفرد '%s'"
-
-#: ../src/tracker-utils/tracker-status.c:70
-#, c-format
-msgid "Crawling recursively directory '%s'"
-msgstr "يزحف تتابعيا داخل المجلد '%s'"
-
-#: ../src/tracker-utils/tracker-status.c:71
-#, fuzzy
-msgid "Paused"
-msgstr "أُلبِث"
-
-#: ../src/tracker-utils/tracker-status.c:72
-msgid "Idle"
-msgstr "ساكن"
-
-#: ../src/tracker-utils/tracker-status.c:77
-msgid "Follow status changes as they happen"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:81
-msgid "Include details with state updates (only applies to --follow)"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:85
-msgid "List common statuses for miners and the store"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:89
-#, fuzzy
-msgid "List all miners currently running"
-msgstr "اسرُد كل الوُسُوم المعرّفة"
-
-#: ../src/tracker-utils/tracker-status.c:93
-#, fuzzy
-msgid "List all miners installed"
-msgstr "اسرُد كل الوُسُوم المعرّفة"
-
-#: ../src/tracker-utils/tracker-status.c:97
-msgid "List pause reasons and applications for a miner"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:101
-msgid ""
-"Miner to use with other commands (you can use suffixes, e.g. FS or "
-"Applications)"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:102
-#, fuzzy
-msgid "MINER"
-msgstr "MIME"
-
-#: ../src/tracker-utils/tracker-status.c:105
-msgid "Pause a miner (you must use this with --miner)"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:106
-msgid "REASON"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:109
-msgid "Resume a miner (you must use this with --miner)"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:110
-msgid "COOKIE"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:171
-#, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:178
-#, fuzzy, c-format
-msgid "Could not pause miner: %s"
-msgstr "تعذّر فتح '%s'"
-
-#: ../src/tracker-utils/tracker-status.c:183
-#, c-format
-msgid "Cookie is %d"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:197
-#, c-format
-msgid "Attempting to resume miner %s with cookie %d"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:204
-#, fuzzy, c-format
-msgid "Could not resume miner: %s"
-msgstr "تعذّر نقل \"%s\" إلى المهملات."
-
-#: ../src/tracker-utils/tracker-status.c:224
-#, fuzzy, c-format
-msgid "Could not get status from miner: %s"
-msgstr "تعذّر فتح المجلّد \"%s\"."
-
-#. Work out lengths for output spacing
-#: ../src/tracker-utils/tracker-status.c:282
-#: ../src/tracker-utils/tracker-status.c:754
-msgid "PAUSED"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:296
-msgid "Not running or is a disabled plugin"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:555
-msgid "- Monitor and control status"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:570
-msgid "You can not use miner pause and resume switches together"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:584
-msgid "You must provide the miner for pause or resume commands"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:598
-msgid "You must provide a pause or resume command for the miner"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:623
-msgid "Common statuses include"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:635
-#, c-format
-msgid "Found %d miners installed"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:647
-#, c-format
-msgid "Found %d miners running"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:683
-msgid "No miners are running"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:723
-#: ../src/tracker-utils/tracker-status.c:770
-msgid "Miners"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:730
-msgid "Application"
-msgstr "التطبيقات"
-
-#: ../src/tracker-utils/tracker-status.c:732
-msgid "Reason"
-msgstr ""
-
-#: ../src/tracker-utils/tracker-status.c:741
-#, fuzzy
-msgid "No miners are paused"
-msgstr "ابحث عن ملفات بالوسْم المحدد"
-
-#. Display states
-#: ../src/tracker-utils/tracker-status.c:764
-msgid "Store"
-msgstr ""
 
 #: ../src/tracker-utils/tracker-tag.c:67
 msgid "List all tags (using FILTER if specified)"
@@ -2008,7 +1948,7 @@ msgstr "- ابدأ مفهرس المُقتفي"
 msgid "Saved queries"
 msgstr "<b>الاستعلامات المحفوظة</b>"
 
-#: ../utils/tracker-sql/tracker-sql.c:67
+#: ../utils/tracker-sql/tracker-sql.c:66
 msgid "- Query or update using SQL"
 msgstr ""
 
@@ -2016,6 +1956,83 @@ msgstr ""
 msgid "Failed to initialize data manager"
 msgstr ""
 
-#: ../utils/tracker-sql/tracker-sql.c:202
+#: ../utils/tracker-sql/tracker-sql.c:204
 msgid "Empty result set"
 msgstr ""
+
+#~ msgid "Tracker Status Icon"
+#~ msgstr "أيقونة حالة المُقتفي"
+
+#~ msgid "Tracker Status Notification Application"
+#~ msgstr "تطبيق تنبيهات حالة المقتفي"
+
+#~ msgid "<b>Notification area</b>"
+#~ msgstr "<b>منطقة التنبيهات</b>"
+
+#~ msgid "Al_ways display icon"
+#~ msgstr "اعرض أيقونة _دائمًا"
+
+#~ msgid "_Never display icon"
+#~ msgstr "لا _تعرض أيقونة أبدًا"
+
+#~ msgid "_Only display when indexing content"
+#~ msgstr "اعرض فقط ع_ند فهرسة المحتوى"
+
+#~ msgid "Desktop search tool using Tracker"
+#~ msgstr "أداة بحث لسطح المكتب باستخدام المُقتفي"
+
+#~ msgid "Search Bar"
+#~ msgstr "شريط البحث"
+
+#~ msgid "Paused by user"
+#~ msgstr "ألبثها المستخدم"
+
+#~ msgid ""
+#~ "Tracker is free software; you can redistribute it and/or modify it under "
+#~ "the terms of the GNU General Public License as published by the Free "
+#~ "Software Foundation; either version 2 of the License, or (at your option) "
+#~ "any later version."
+#~ msgstr ""
+#~ "المقتفي برمجية حرة، يمكنك توزيعها و/أو تعديلها حسب بنود رخصة جنو العمومية "
+#~ "كما نشرتها مؤسسة البرامج الحرة، الإصدار الثاني أو أي إصدار أحدث (حسب "
+#~ "رغبتك)."
+
+#~ msgid ""
+#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
+#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+#~ "more details."
+#~ msgstr ""
+#~ "يوزع المقتفي على أمل أن يكون مفيداً، ولكن دون أية ضمانات، بما في ذلك "
+#~ "ضمانات قابلية البرنامج للتسويق أو الملاءمة لغرض معين. انظر نص رخصة جنو "
+#~ "العمومية لمزيد من التفاصيل"
+
+#~ msgid ""
+#~ "You should have received a copy of the GNU General Public License along "
+#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 51 "
+#~ "Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
+#~ msgstr ""
+#~ "من المفترض أنك تلقيت نسخة من رخصة جنو العمومية مع هذا البرنامج؛ إذا لم "
+#~ "يحدث هذا فاكتب إلى:\n"
+#~ "Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, "
+#~ "MA  02110-1301, USA."
+
+#~ msgid "translator-credits"
+#~ msgstr ""
+#~ "فريق عرب آيز للترجمة arabeyes.org :\n"
+#~ "خالد حسني\t<khaledhosny@eglug.org>"
+
+#~ msgid "_Search"
+#~ msgstr "ا_بحث"
+
+#~ msgid "_Pause All Indexing"
+#~ msgstr "أل_بث كل الفهرسة"
+
+#~ msgid "_Preferences"
+#~ msgstr "ال_تفضيلات"
+
+#~ msgid "Control and monitor the Tracker search and indexing service"
+#~ msgstr "تحكّم وراقب خدمة بحث وفهرسة المُقتفي"
+
+#~ msgid "Tracker Applet"
+#~ msgstr "بُريمج المُقتفي"
