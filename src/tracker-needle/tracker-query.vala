@@ -82,15 +82,15 @@ public class Tracker.Query {
 		case Type.APPLICATIONS:
 			query = @"
 			        SELECT
-			          ?urn 
-			          nie:url(?urn) 
-			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"$unknown\") 
+			          ?urn
+			          tracker:coalesce(nfo:softwareCmdLine(?urn), ?urn)
+			          tracker:coalesce(nie:title(?urn), nfo:fileName(?urn), \"$unknown\")
 			          nie:comment(?urn)
 			        WHERE {
-			          ?urn a nfo:Software .
-			          ?urn fts:match \"$criteria_escaped\" .
+			          ?urn a nfo:Software ;
+			               fts:match \"$criteria_escaped\"
 			        }
-			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn)) 
+			        ORDER BY DESC(fts:rank(?urn)) DESC(nie:title(?urn))
 			        OFFSET $offset LIMIT $limit
 			        ";
 			break;

@@ -689,7 +689,34 @@ public class Tracker.Needle {
 		model.get (iter, col, out uri);
 		debug ("Selected uri:'%s'", uri);
 
+		// Bit of a hack for now if there is no URI scheme, we assume that
+		// the uri is actually a command line to launch.
+		if (uri.index_of ("://") < 1) {
+			var command = uri.split (" ");
+			debug ("Attempting to spawn_async() '%s'", command[0]);
+
+			Pid child_pid;
+			string[] argv = new string[1];
+			argv[0] = command[0];
+
+			try {
+				Process.spawn_async ("/usr/bin",
+				                     argv,
+				                     null, // environment
+				                     SpawnFlags.SEARCH_PATH,
+				                     null, // child_setup
+				                     out child_pid);
+			} catch (Error e) {
+				warning ("Could not launch '%s', %d->%s", command[0], e.code, GLib.strerror (e.code));
+				return;
+			}
+
+			debug ("Launched application with PID:%d", child_pid);
+			return;
+		}
+
 		try {
+			debug ("Attempting to launch application for uri:'%s'", uri);
 			AppInfo.launch_default_for_uri (uri, null);
 		} catch (GLib.Error e) {
 			warning ("Could not launch application: " + e.message);
