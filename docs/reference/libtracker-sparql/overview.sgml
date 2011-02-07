@@ -74,10 +74,10 @@
       your system may be different):
 <programlisting>
 $ pkg-config --cflags tracker-sparql-0.10
--pthread -I/usr/include/tracker-0.10 -I/usr/include/tracker-0.10/libtracker-sparql -I/usr/include/dbus-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/lib/dbus-1.0/include
+-pthread -I/usr/include/tracker-0.10 -I/usr/include/tracker-0.10/libtracker-sparql -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
 
 $ pkg-config --libs tracker-sparql-0.10
--Wl,--export-dynamic -pthread -L/lib -ltracker-sparql-0.10 -ldbus-glib-1 -lgio-2.0 -ldbus-1 -lpthread -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0
+-Wl,--export-dynamic -pthread -ltracker-sparql-0.10 -lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0
 </programlisting>
     </para>
     <para>
