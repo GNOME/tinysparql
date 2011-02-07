@@ -7,7 +7,7 @@ audiotest_DATA =                                       \
 	audio-test-1.expected                          \
 	audio-test-2.mp3                               \
 	audio-test-2.expected			       \
-	Jazz_Audio_0PLs0.pya			       \
-	Jazz_Audio_0PLs0.expected
+	Jazz_Audio_OPLs0.pya			       \
+	Jazz_Audio_OPLs0.expected
 
 EXTRA_DIST = $(audiotest_DATA)

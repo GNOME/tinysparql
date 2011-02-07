@@ -1,5 +1,5 @@
 [TestFile]
-Filename=Jazz_Audio_0PLs0.pya
+Filename=Jazz_Audio_OPLs0.pya
 Bugzilla=NB#225208
 Comment=DRM protected audio file
 # Downloaded from  http://playready.directtaps.net/pr/public/
