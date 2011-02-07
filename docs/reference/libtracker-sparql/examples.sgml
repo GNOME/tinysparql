@@ -62,9 +62,9 @@ int main (int argc, char **argv)
 
   /* Once builder no longer needed, unref it. Note that after
    * this operation, you must not use the returned query result
-   * any more 
+   * any more
    */
-  g_object_unref (builder)
+  g_object_unref (builder);
 
   return 0;
 }
