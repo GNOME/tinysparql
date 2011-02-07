@@ -1,0 +1,14 @@
+[TestFile]
+Filename=Jazz_Audio_0PLs0.pya
+Bugzilla=NB#225208
+Comment=DRM protected audio file
+# Downloaded from  http://playready.directtaps.net/pr/public/
+ExpectedFailure=
+
+[Metadata]
+a=nmm:MusicPiece
+!a=nmm:Video
+!a=nfo:Image
+!a=nmm:Photo
+
+[Meego]
