@@ -99,14 +99,14 @@ public class Tracker.Resources : Object {
 				}
 			}, sender);
 
-			request.end ();
-
 			var result = builder.end ();
 			if (result.get_size () > DBUS_ARBITRARY_MAX_MSG_SIZE) {
 				throw new DBusError.FAILED ("result set of the query is too large");
-			} else {
-				return result;
 			}
+
+			request.end ();
+
+			return result;
 		} catch (Error e) {
 			request.end (e);
 			throw e;
