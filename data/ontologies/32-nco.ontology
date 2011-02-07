@@ -77,7 +77,6 @@ nco:PersonContact a rdfs:Class ;
 	rdfs:subClassOf nco:Contact .
 
 nco:default-contact-me a nco:PersonContact.
-nco:default-contact-emergency a nco:PersonContact.
 
 nco:PhoneNumber a rdfs:Class ;
 	rdfs:label "PhoneNumber" ;
