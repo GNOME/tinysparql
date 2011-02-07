@@ -176,11 +176,13 @@ albumart_strip_invalid_entities (const gchar *original)
 	str = g_strjoinv (convert_chars_delimiter, strv);
 	g_strfreev (strv);
 
-	/* Now remove double spaces */
-	strv = g_strsplit (str, "  ", -1);
-	g_free (str);
-	str = g_strjoinv (" ", strv);
-	g_strfreev (strv);
+	while (g_strrstr (str, "  ") != NULL) {
+		/* Now remove double spaces */
+		strv = g_strsplit (str, "  ", -1);
+		g_free (str);
+		str = g_strjoinv (" ", strv);
+		g_strfreev (strv);
+	}
 
 	/* Now strip leading/trailing white space */
 	g_strstrip (str);
@@ -250,6 +252,8 @@ albumart_get_path (const gchar  *artist,
 
 	artist_down = g_utf8_strdown (artist_stripped, -1);
 	album_down = g_utf8_strdown (album_stripped, -1);
+
+	/* g_print ("[%s] [%s]\n", artist_down, album_down); */
 
 	g_free (artist_stripped);
 	g_free (album_stripped);
