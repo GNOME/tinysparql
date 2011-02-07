@@ -35,46 +35,28 @@
 	    If you plan to only do Read-Only queries to the store, you can get the
 	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
 	    object using <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function>. Otherwise, if you also plan to use the same connection object
-	    for updates, you must get the connection object with
+	    for <emphasis>Write</emphasis> operations, you must get the connection object with
 	    <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
 	  </para>
 	</listitem>
 	<listitem>
 	  <emphasis>D-Bus FD passing:</emphasis>
 	  <para>
-	    If the system runs a D-Bus &ge; 1.3.1, the
-	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-	    will use the File Descriptor passing method via D-Bus to connect to the Store,
-	    which is faster than the plain D-Bus for queries involving a lot of traffic.
-	    This method will be used for all non read-only queries on
+	    The <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+	    will use the File Descriptor passing method via D-Bus to connect to the Store for all non
+		Read-Only queries on
 	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
 	    objects obtained with
 	    <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
 	  </para>
-	</listitem>
-	<listitem>
-	  <emphasis>D-Bus:</emphasis>
-	  <para>
-	    If the system runs a D-Bus &lt; 1.3.1, the
-	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-	    will use the standard D-Bus method to connect to the Store.
-	    This method will be used for all non read-only queries on
-	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-	    objects obtained with
-	    <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
-	  </para>
+      <para>
+		See the <link linkend="tracker-overview-environment-variables">Environment Variables</link> section
+		to check how you can force also Read-Only queries to be done using D-Bus.
+      </para>
 	</listitem>
       </itemizedlist>
     </para>
-
-    <para>
-      Please note that the user of the library <emphasis>cannot</emphasis> choose a specific
-      method to be used, as that is done automatically by the
-      <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-      depending on the available possibilities.
-    </para>
   </chapter>
-
 
   <chapter id="tracker-overview-compiling">
     <title>Compiling applications</title>
