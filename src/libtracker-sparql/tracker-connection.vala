@@ -269,7 +269,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Returns: a new #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
 	 *
-	 * Since 0.10
+	 * Since: 0.10
 	 */
 	public static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		return get_internal (true, cancellable);
@@ -346,7 +346,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * On error, #NULL is returned and the @error is set accordingly.
 	 * Call g_object_unref() on the returned cursor when no longer needed.
 	 *
-	 * Since 0.10
+	 * Since: 0.10
 	 */
 	public abstract Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError;
 
@@ -362,7 +362,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * On error, #NULL is returned and the @error is set accordingly.
 	 * Call g_object_unref() on the returned cursor when no longer needed.
 	 *
-	 * Since 0.10
+	 * Since: 0.10
 	 */
 
 	/**
