@@ -1082,7 +1082,8 @@ is_service_available (void)
  * Escapes a string so it can be passed as a SPARQL parameter in
  * any query/update.
  *
- * Deprecated: 0.10: For tracker_sparql_escape_string() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_escape_string() in libtracker-sparql
+ * instead.
  *
  * Returns: the newly allocated escaped string which must be freed
  * using g_free().
@@ -1534,7 +1535,8 @@ sparql_update_fast_async (TrackerClient  *client,
  *
  * The result is escaped using g_uri_escape_string().
  *
- * Deprecated: 0.10: For tracker_sparql_escape_uri_vprintf() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_escape_uri_vprintf() in libtracker-sparql
+ * instead.
  *
  * Returns: a newly-allocated string holding the result which should
  * be freed with g_free() when finished with.
@@ -1640,7 +1642,8 @@ cleanup:
  *
  * Calls tracker_uri_vprintf_escaped() with the @Varargs supplied.
  *
- * Deprecated: 0.10: For tracker_sparql_escape_uri_printf() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_escape_uri_printf() in libtracker-sparql
+ * instead.
  *
  * Returns: a newly-allocated string holding the result which should
  * be freed with g_free() when finished with.
@@ -1671,7 +1674,8 @@ tracker_uri_printf_escaped (const gchar *format, ...)
  * The @timeout is only used if it is > 0. If it is, then it is used
  * with dbus_g_proxy_set_default_timeout().
  *
- * Deprecated: 0.10: For tracker_bus_connection_new() or tracker_direct_connection_new() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_bus_connection_new() or
+ * tracker_direct_connection_new() in libtracker-sparql instead
  *
  * Returns: the #TrackerClient which should be freed with
  * g_object_unref() when finished with.
@@ -1825,7 +1829,8 @@ tracker_cancel_last_call (TrackerClient *client)
  *
  * This API call is completely synchronous so it may block.
  *
- * Deprecated: 0.10: For tracker_sparql_stats() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_stats() in libtracker-sparql
+ * instead.
  *
  * Returns: A #GPtrArray with the statistics which must be freed using
  * g_ptr_array_free().
@@ -1860,7 +1865,8 @@ tracker_statistics_get (TrackerClient  *client,
  *
  * Imports SPARQL into the database from a file specified by @uri
  *
- * Deprecated: 0.10: For tracker_sparql_import() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_import() in libtracker-sparql
+ * instead.
  *
  * Since: 0.8
  **/
@@ -1931,7 +1937,8 @@ tracker_resources_load (TrackerClient  *client,
  *
  * This API call is completely synchronous so it may block.
  *
- * Deprecated: 0.10: For tracker_sparql_query() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_query() in libtracker-sparql
+ * instead.
  *
  * Returns: A #GPtrArray with the query results which must be freed
  * using g_ptr_array_free().
@@ -2021,7 +2028,8 @@ tracker_resources_sparql_query (TrackerClient  *client,
  * </programlisting>
  * </example>
  *
- * Deprecated: 0.10: For tracker_sparql_query() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_query() in libtracker-sparql
+ * instead.
  *
  * Returns: A #TrackerResultIterator pointing before the first result row. This
  * iterator must be disposed when done using tracker_result_iterator_free().
@@ -2094,7 +2102,7 @@ tracker_resources_sparql_query_iterate (TrackerClient  *client,
  *
  * Frees a TrackerResultIterator and its associated resources
  *
- * Deprecated: 0.10: For g_object_unref() in libtracker-sparql
+ * Deprecated: 0.10: Use g_object_unref() instead.
  *
  * Since: 0.10
  **/
@@ -2111,7 +2119,8 @@ tracker_result_iterator_free (TrackerResultIterator *iterator)
  * tracker_result_iterator_n_columns:
  * @iterator: A TrackerResultIterator
  *
- * Deprecated: 0.10: For tracker_cursor_n_columns() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_cursor_n_columns() in libtracker-sparql
+ * instead.
  *
  * Returns: the number of columns in the row pointed by @iterator
  *
@@ -2131,7 +2140,8 @@ tracker_result_iterator_n_columns (TrackerResultIterator *iterator)
  *
  * Fetches the next row for the results.
  *
- * Deprecated: 0.10: For tracker_cursor_next() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_cursor_next() in libtracker-sparql
+ * instead.
  *
  * Returns: %TRUE if a rows was fetched, otherwise %FALSE.
  *
@@ -2179,7 +2189,8 @@ tracker_result_iterator_next (TrackerResultIterator *iterator)
  * Returns: the value of the column as a string. The returned string belongs to
  * the iterator and should not be freed.
  *
- * Deprecated: 0.10: For tracker_cursor_get_string() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_cursor_get_string() in libtracker-sparql
+ * instead.
  *
  * Since: 0.10
  **/
@@ -2211,7 +2222,8 @@ tracker_result_iterator_value (TrackerResultIterator *iterator,
  *
  * This API call is completely synchronous so it may block.
  *
- * Deprecated: 0.10: For tracker_sparql_update() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_update() in libtracker-sparql
+ * instead.
  *
  * Since: 0.8
  **/
@@ -2306,7 +2318,8 @@ tracker_resources_sparql_update_blank (TrackerClient  *client,
  * tracker_resources_batch_commit_async(). This API call is synchronous so it may
  * block.
  *
- * Deprecated: 0.10: For tracker_sparql_update() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_update() in libtracker-sparql
+ * instead.
  *
  * Since: 0.8
  **/
@@ -2334,7 +2347,8 @@ tracker_resources_batch_sparql_update (TrackerClient  *client,
  * Commits a batch of already issued SPARQL updates. This API call is
  * synchronous so it may block.
  *
- * Deprecated: 0.10: For tracker_sparql_update_commit() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_update_commit() in libtracker-sparql
+ * instead.
  *
  * Since: 0.8
  **/
@@ -2361,7 +2375,8 @@ tracker_resources_batch_commit (TrackerClient  *client,
  *
  * This behaves exactly as tracker_statistics_get() but asynchronously.
  *
- * Deprecated: 0.10: For tracker_sparql_stats_async() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_stats_async() in libtracker-sparql
+ * instead.
  *
  * Returns: A #guint representing the operation ID. See
  * tracker_cancel_call(). In the event of failure, 0 is returned.
@@ -2437,7 +2452,8 @@ tracker_resources_load_async (TrackerClient    *client,
  * Does an asynchronous SPARQL query. See tracker_resources_sparql_query()
  * to see how an SPARLQL query should be like.
  *
- * Deprecated: 0.10: For tracker_sparql_query_async() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_query_async() in libtracker-sparql
+ * instead.
  *
  * Returns: A #guint representing the operation ID. See
  * tracker_cancel_call(). In the event of failure, 0 is returned.
@@ -2482,7 +2498,8 @@ tracker_resources_sparql_query_async (TrackerClient         *client,
  * @callback: function to be called when the blank update has been performed.
  * @user_data: user data to pass to @callback.
  *
- * Deprecated: 0.10: For tracker_sparql_query_async() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_query_async() in libtracker-sparql
+ * instead.
  *
  * Returns: A #guint representing the operation ID. See
  * tracker_cancel_call(). In the event of failure, 0 is returned.
@@ -2566,7 +2583,8 @@ tracker_resources_sparql_query_iterate_async (TrackerClient         *client,
  * @callback: function to be called when the blank update has been performed.
  * @user_data: user data to pass to @callback.
  *
- * Deprecated: 0.10: For tracker_sparql_update_async() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_update_async() in libtracker-sparql
+ * instead.
  *
  * Returns: A #guint representing the operation ID. See
  * tracker_cancel_call(). In the event of failure, 0 is returned.
@@ -2662,7 +2680,8 @@ tracker_resources_sparql_update_blank_async (TrackerClient         *client,
  *
  * Updates the database using SPARQL. see tracker_resources_batch_sparql_update().
  *
- * Deprecated: 0.10: For tracker_sparql_update_async() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_update_async() in libtracker-sparql
+ * instead.
  *
  * Returns: A #guint representing the operation ID. See
  * tracker_cancel_call(). In the event of failure, 0 is returned.
@@ -2710,7 +2729,8 @@ tracker_resources_batch_sparql_update_async (TrackerClient    *client,
  *
  * Commits a batch of already issued SPARQL updates.
  *
- * Deprecated: 0.10: For tracker_sparql_update_commit_async() in libtracker-sparql
+ * Deprecated: 0.10: Use tracker_sparql_update_commit_async() in libtracker-sparql
+ * instead.
  *
  * Returns: A #guint representing the operation ID. See
  * tracker_cancel_call(). In the event of failure, 0 is returned.
