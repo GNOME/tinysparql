@@ -748,6 +748,8 @@ mount_removed_cb (GVolumeMonitor *monitor,
  * Creates a new instance of #TrackerStorage.
  *
  * Returns: The newly created #TrackerStorage.
+ *
+ * Since: 0.8
  **/
 TrackerStorage *
 tracker_storage_new (void)
@@ -799,6 +801,8 @@ get_mount_point_by_uuid_foreach (gpointer key,
  * Returns: a #GSList of strings containing the root directories for
  * devices with @type based on @exact_match. Each element must be
  * freed using g_free() and the list itself through g_slist_free().
+ *
+ * Since: 0.8
  **/
 GSList *
 tracker_storage_get_device_roots (TrackerStorage     *storage,
@@ -832,6 +836,8 @@ tracker_storage_get_device_roots (TrackerStorage     *storage,
  * Returns: a #GSList of strings containing the UUID for devices with
  * @type based on @exact_match. Each element must be freed using
  * g_free() and the list itself through g_slist_free().
+ *
+ * Since: 0.8
  **/
 GSList *
 tracker_storage_get_device_uuids (TrackerStorage     *storage,
@@ -879,6 +885,8 @@ tracker_storage_get_device_uuids (TrackerStorage     *storage,
  * @uuid: A string pointer to the UUID for the %GVolume.
  *
  * Returns: The mount point for @uuid, this should not be freed.
+ *
+ * Since: 0.8
  **/
 const gchar *
 tracker_storage_get_mount_point_for_uuid (TrackerStorage *storage,
@@ -910,6 +918,8 @@ tracker_storage_get_mount_point_for_uuid (TrackerStorage *storage,
  * @uuid: A string pointer to the UUID for the %GVolume.
  *
  * Returns: The type flags for @uuid.
+ *
+ * Since: 0.10
  **/
 TrackerStorageType
 tracker_storage_get_type_for_uuid (TrackerStorage     *storage,
@@ -951,6 +961,8 @@ tracker_storage_get_type_for_uuid (TrackerStorage     *storage,
  *
  * Returns: Returns the UUID of the removable device for @file, this
  * should not be freed.
+ *
+ * Since: 0.8
  **/
 const gchar *
 tracker_storage_get_uuid_for_file (TrackerStorage *storage,

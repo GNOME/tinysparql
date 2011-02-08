@@ -472,6 +472,8 @@ handle_set_property (GDBusConnection  *connection,
  *
  * Returns: the #GQuark used to identify miner web errors in GError
  * structures.
+ *
+ * Since: 0.8
  **/
 GQuark
 tracker_miner_web_error_quark (void)
@@ -486,6 +488,8 @@ tracker_miner_web_error_quark (void)
  *
  * Asks @miner to authenticate with a remote service. On failure
  * @error will be set.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_web_authenticate (TrackerMinerWeb  *miner,
@@ -508,6 +512,8 @@ tracker_miner_web_authenticate (TrackerMinerWeb  *miner,
  *
  * Returns: a %GHashTable with the data. On failure @error will be set
  * and %NULL will be returned.
+ *
+ * Since: 0.8
  **/
 GHashTable *
 tracker_miner_web_get_association_data (TrackerMinerWeb  *miner,
@@ -531,6 +537,8 @@ tracker_miner_web_get_association_data (TrackerMinerWeb  *miner,
  * information.
  *
  * On failure @error will be set.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_web_associate (TrackerMinerWeb  *miner,
@@ -553,6 +561,8 @@ tracker_miner_web_associate (TrackerMinerWeb  *miner,
  * which could be used to authenticate with the remote service.
  *
  * On failure @error will be set.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_web_dissociate (TrackerMinerWeb   *miner,

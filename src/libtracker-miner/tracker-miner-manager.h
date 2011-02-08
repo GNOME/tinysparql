@@ -49,6 +49,8 @@ typedef struct _TrackerMinerManagerClass TrackerMinerManagerClass;
  *
  * Enumeration values used in errors returned by the
  * #TrackerMinerManager API.
+ *
+ * Since: 0.8
  **/
 typedef enum {
 	TRACKER_MINER_MANAGER_ERROR_NOT_AVAILABLE,

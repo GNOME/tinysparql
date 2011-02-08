@@ -57,6 +57,8 @@ tracker_network_provider_init (gpointer object_class)
 		 *
 		 * the ::status-changed signal is emitted whenever the backend informs
 		 * that the network status changed.
+		 *
+		 * Since: 0.10
 		 **/
 		g_signal_new ("status-changed",
 		              TRACKER_TYPE_NETWORK_PROVIDER,
@@ -106,6 +108,8 @@ tracker_network_provider_get_type (void)
  *
  * Returns: a newly allocated string representing the name which must
  * be freed with g_free().
+ *
+ * Since: 0.10
  **/
 gchar *
 tracker_network_provider_get_name (TrackerNetworkProvider *provider)
@@ -127,6 +131,8 @@ tracker_network_provider_get_name (TrackerNetworkProvider *provider)
  *
  * Returns: a TrackerNetworkProviderStatus decribing the current network
  * status.
+ *
+ * Since: 0.10
  **/
 TrackerNetworkProviderStatus
 tracker_network_provider_get_status (TrackerNetworkProvider *provider)

@@ -35,6 +35,8 @@ G_BEGIN_DECLS
  * @TRACKER_STORAGE_OPTICAL: Storage is an optical disc
  *
  * Flags specifying properties of the type of storage.
+ *
+ * Since: 0.8
  */
 typedef enum {
 	TRACKER_STORAGE_REMOVABLE = 1 << 0,
@@ -48,6 +50,8 @@ typedef enum {
  * Check if the given storage type is marked as being removable media.
  *
  * Returns: %TRUE if the storage is marked as removable media, %FALSE otherwise
+ *
+ * Since: 0.10
  */
 #define TRACKER_STORAGE_TYPE_IS_REMOVABLE(type) ((type & TRACKER_STORAGE_REMOVABLE) ? TRUE : FALSE)
 
@@ -58,6 +62,8 @@ typedef enum {
  * Check if the given storage type is marked as being optical disc
  *
  * Returns: %TRUE if the storage is marked as optical disc, %FALSE otherwise
+ *
+ * Since: 0.10
  */
 #define TRACKER_STORAGE_TYPE_IS_OPTICAL(type) ((type & TRACKER_STORAGE_OPTICAL) ? TRUE : FALSE)
 
