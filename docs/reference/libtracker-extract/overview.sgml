@@ -30,10 +30,10 @@
       your system may be different):
 <programlisting>
 $ pkg-config --cflags tracker-extract-0.10
--I/usr/include/tracker-0.10 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+-pthread -I/usr/include/tracker-0.10 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/tracker-0.10/libtracker-sparql
 
 $ pkg-config --libs tracker-extract-0.10
--ltracker-extract-0.10 -ltracker-client-0.10 -lglib-2.0
+-Wl,--export-dynamic -pthread -ltracker-sparql-0.10 -lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0
 
 </programlisting>
     </para>
