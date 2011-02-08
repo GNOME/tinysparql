@@ -32,7 +32,8 @@ namespace Tracker {
 		QUERY_ERROR,
 		CORRUPT,
 		INTERRUPTED,
-		OPEN_ERROR
+		OPEN_ERROR,
+		NO_SPACE
 	}
 
 	[CCode (cprefix = "TRACKER_DB_STATEMENT_CACHE_TYPE_", cheader_filename = "libtracker-data/tracker-db-interface.h")]

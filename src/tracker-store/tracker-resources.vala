@@ -68,6 +68,8 @@ public class Tracker.Resources : Object {
 			yield Tracker.Store.queue_turtle_import (file, sender);
 
 			request.end ();
+		} catch (DBInterfaceError.NO_SPACE ie) {
+			throw new Sparql.Error.NO_SPACE (ie.message);
 		} catch (Error e) {
 			request.end (e);
 			if (e is Sparql.Error) {
@@ -128,6 +130,8 @@ public class Tracker.Resources : Object {
 			yield Tracker.Store.sparql_update (update, Tracker.Store.Priority.HIGH, sender);
 
 			request.end ();
+		} catch (DBInterfaceError.NO_SPACE ie) {
+			throw new Sparql.Error.NO_SPACE (ie.message);
 		} catch (Error e) {
 			request.end (e);
 			if (e is Sparql.Error) {
@@ -160,6 +164,8 @@ public class Tracker.Resources : Object {
 			}
 
 			return builder.end ();
+		} catch (DBInterfaceError.NO_SPACE ie) {
+			throw new Sparql.Error.NO_SPACE (ie.message);
 		} catch (Error e) {
 			request.end (e);
 			if (e is Sparql.Error) {
@@ -185,6 +191,8 @@ public class Tracker.Resources : Object {
 			yield Tracker.Store.sparql_update (update, Tracker.Store.Priority.LOW, sender);
 
 			request.end ();
+		} catch (DBInterfaceError.NO_SPACE ie) {
+			throw new Sparql.Error.NO_SPACE (ie.message);
 		} catch (Error e) {
 			request.end (e);
 			if (e is Sparql.Error) {

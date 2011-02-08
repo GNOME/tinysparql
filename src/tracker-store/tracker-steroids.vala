@@ -138,6 +138,8 @@ public class Tracker.Steroids : Object {
 
 				return builder.end ();
 			}
+		} catch (DBInterfaceError.NO_SPACE ie) {
+			throw new Sparql.Error.NO_SPACE (ie.message);
 		} catch (Error e) {
 			request.end (e);
 			if (e is Sparql.Error) {
