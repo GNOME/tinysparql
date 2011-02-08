@@ -25,6 +25,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <utime.h>
+#include <time.h>
 
 #include <glib.h>
 #include <glib/gprintf.h>
@@ -32,6 +35,8 @@
 #include <gio/gio.h>
 
 #include <libtracker-miner/tracker-miner.h>
+#include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-date-time.h>
 
 #include "tracker-albumart.h"
 #include "tracker-extract.h"
@@ -753,6 +758,16 @@ tracker_albumart_shutdown (void)
 	initialized = FALSE;
 }
 
+static void
+set_mtime (const gchar *filename, guint64 mtime)
+{
+
+	struct utimbuf buf;
+
+	buf.actime = buf.modtime = mtime;
+	utime (filename, &buf);
+}
+
 gboolean
 tracker_albumart_process (const unsigned char *buffer,
                           size_t               len,
@@ -762,9 +777,10 @@ tracker_albumart_process (const unsigned char *buffer,
                           const gchar         *filename)
 {
 	gchar *art_path;
-	gboolean processed = TRUE;
+	gboolean processed = TRUE, a_exists, created = FALSE;
 	gchar *local_uri = NULL;
 	gchar *filename_uri;
+	guint64 mtime, a_mtime = 0;
 
 	g_debug ("Processing album art, buffer is %ld bytes, artist:'%s', album:'%s', filename:'%s', mime:'%s'",
 	         (long int) len,
@@ -778,6 +794,8 @@ tracker_albumart_process (const unsigned char *buffer,
 	} else {
 		filename_uri = g_filename_to_uri (filename, NULL, NULL);
 	}
+
+	mtime = tracker_file_get_mtime (filename);
 
 	albumart_get_path (artist,
 	                   album,
@@ -795,66 +813,76 @@ tracker_albumart_process (const unsigned char *buffer,
 		return FALSE;
 	}
 
-	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-		/* If we have embedded album art */
-		if (buffer && len > 0) {
-			processed = albumart_set (buffer,
-			                          len,
-			                          mime,
-			                          artist,
-			                          album,
-			                          filename_uri);
-		} else {
-			/* If not, we perform a heuristic on the dir */
-			gchar *key;
-			gchar *dirname = NULL;
-			GFile *file, *dirf;
+	a_exists = g_file_test (art_path, G_FILE_TEST_EXISTS);
 
-			file = g_file_new_for_uri (filename_uri);
-			dirf = g_file_get_parent (file);
-			if (dirf) {
-				dirname = g_file_get_path (dirf);
-				g_object_unref (dirf);
-			}
-			g_object_unref (file);
+	if (a_exists) {
+		a_mtime = tracker_file_get_mtime (art_path);
+	}
 
-			key = g_strdup_printf ("%s-%s-%s",
-			                       artist ? artist : "",
-			                       album ? album : "",
-			                       dirname ? dirname : "");
+	if ((buffer && len > 0) && ((!a_exists) || (a_exists && mtime > a_mtime))) {
+		processed = albumart_set (buffer,
+		                          len,
+		                          mime,
+		                          artist,
+		                          album,
+		                          filename_uri);
+		set_mtime (art_path, mtime);
+		created = TRUE;
+	}
 
-			g_free (dirname);
+	if ((!created) && ((!a_exists) || (a_exists && mtime > a_mtime))) {
+		/* If not, we perform a heuristic on the dir */
+		gchar *key;
+		gchar *dirname = NULL;
+		GFile *file, *dirf;
 
-			if (!g_hash_table_lookup (albumart_cache, key)) {
-				if (!albumart_heuristic (artist,
-				                         album,
-				                         filename_uri,
-				                         local_uri,
-				                         NULL)) {
-					/* If the heuristic failed, we
-					 * request the download the
-					 * media-art to the media-art
-					 * downloaders
-					 */
-					albumart_request_download (albumart_storage,
-					                           artist,
-					                           album,
-					                           local_uri,
-					                           art_path);
-				}
-
-				g_hash_table_insert (albumart_cache,
-				                     key,
-				                     GINT_TO_POINTER(TRUE));
-			} else {
-				g_free (key);
-			}
+		file = g_file_new_for_uri (filename_uri);
+		dirf = g_file_get_parent (file);
+		if (dirf) {
+			dirname = g_file_get_path (dirf);
+			g_object_unref (dirf);
 		}
+		g_object_unref (file);
 
+		key = g_strdup_printf ("%s-%s-%s",
+		                       artist ? artist : "",
+		                       album ? album : "",
+		                       dirname ? dirname : "");
+
+		g_free (dirname);
+
+		if (!g_hash_table_lookup (albumart_cache, key)) {
+			if (!albumart_heuristic (artist,
+			                         album,
+			                         filename_uri,
+			                         local_uri,
+			                         NULL)) {
+				/* If the heuristic failed, we
+				 * request the download the
+				 * media-art to the media-art
+				 * downloaders
+				 */
+				albumart_request_download (albumart_storage,
+				                           artist,
+				                           album,
+				                           local_uri,
+				                           art_path);
+			}
+
+			set_mtime (art_path, mtime);
+
+			g_hash_table_insert (albumart_cache,
+			                     key,
+			                     GINT_TO_POINTER(TRUE));
+		} else {
+			g_free (key);
+		}
 	} else {
-		g_debug ("Album art already exists for uri:'%s' as '%s'",
-		         filename_uri,
-		         art_path);
+		if (!created) {
+			g_debug ("Album art already exists for uri:'%s' as '%s'",
+			         filename_uri,
+			         art_path);
+		}
 	}
 
 	if (local_uri && !g_file_test (local_uri, G_FILE_TEST_EXISTS)) {
