@@ -2577,8 +2577,8 @@ tracker_data_notify_transaction (gboolean start_timer)
 	}
 }
 
-void
-tracker_data_rollback_transaction (void)
+static void
+tracker_data_rollback_journal_transaction (void)
 {
 	TrackerDBInterface *iface;
 
@@ -2596,6 +2596,12 @@ tracker_data_rollback_transaction (void)
 	}
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
+}
+
+void
+tracker_data_rollback_transaction (void)
+{
+	tracker_data_rollback_journal_transaction ();
 	tracker_db_journal_rollback_transaction ();
 
 	if (rollback_callbacks) {
@@ -2731,6 +2737,7 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 
 			tracker_data_commit_transaction (&new_error);
 			if (new_error) {
+				tracker_data_rollback_journal_transaction ();
 				g_warning ("Journal replay error: '%s'", new_error->message);
 				g_clear_error (&new_error);
 			}
