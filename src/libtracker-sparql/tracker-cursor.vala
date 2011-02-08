@@ -68,6 +68,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * TrackerSparqlCursor:connection:
 	 *
 	 * The #TrackerSparqlConnection used to retrieve the results.
+	 *
+	 * Since: 0.10
 	 */
 	public Connection connection {
 		/**
@@ -90,6 +92,8 @@ public abstract class Tracker.Sparql.Cursor : Object {
 	 * TrackerSparqlCursor:n_columns:
 	 *
 	 * Number of columns available in the results to iterate.
+	 *
+	 * Since: 0.10
 	 */
 	public abstract int n_columns {
 		/**
