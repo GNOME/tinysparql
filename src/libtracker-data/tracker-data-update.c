@@ -162,6 +162,7 @@ static GPtrArray *commit_callbacks = NULL;
 static GPtrArray *rollback_callbacks = NULL;
 static gint max_service_id = 0;
 static gint max_ontology_id = 0;
+static gboolean commit_failed = FALSE;
 
 static gint         ensure_resource_id      (const gchar      *uri,
                                              gboolean         *create);
@@ -2516,6 +2517,7 @@ tracker_data_commit_transaction (GError **error)
 	                                         &actual_error);
 
 	if (actual_error) {
+		commit_failed = TRUE;
 		g_propagate_error (error, actual_error);
 		return;
 	}
@@ -2588,7 +2590,11 @@ tracker_data_rollback_transaction (void)
 	iface = tracker_db_manager_get_db_interface ();
 
 	tracker_data_update_buffer_clear ();
-	tracker_db_interface_execute_query (iface, NULL, "ROLLBACK");
+	if (!commit_failed) {
+		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK");
+		commit_failed = FALSE;
+	}
+
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 	tracker_db_journal_rollback_transaction ();
 
