@@ -379,6 +379,39 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 """
                 self.__insert_invalid_date_test ("2004-05-06T1g:14:15-0200")
 
+	def test_insert_duplicated_url_01 (self):
+		"""
+                1. Insert a FileDataObject with a known nie:url, twice
+                """
+
+		url = "file:///some/magic/path/here"
+
+		insert = """
+                INSERT {
+                   _:tag a nfo:FileDataObject;
+		         nie:url '%s'.
+                }
+                """ % (url)
+
+		# First insert should go ok
+		self.tracker.update (insert)
+		# Second insert should not be ok
+		try:
+			self.tracker.update (insert)
+		except Exception:
+			pass
+
+		# Only 1 element must be available with the given nie:url
+		select = """
+                SELECT ?u WHERE { ?u nie:url \"%s\" }
+                """ % (url)
+		self.assertEquals (len (self.tracker.query (select)), 1)
+
+		# Cleanup
+		self.tracker.update ("""
+                DELETE { ?u a rdfs:Resource } WHERE { ?u a rdfs:Resource ; nie:url '%s' }
+                """ % (url))
+
 
 class TrackerStoreDeleteTests (CommonTrackerStoreTest):
         """
