@@ -210,9 +210,10 @@ tracker_db_manager_get_flags (guint *select_cache_size, guint *update_cache_size
 }
 
 static void
-db_set_params (TrackerDBInterface *iface,
-               gint                cache_size,
-               gint                page_size)
+db_set_params (TrackerDBInterface   *iface,
+               gint                  cache_size,
+               gint                  page_size,
+               GError              **error)
 {
 	gchar *queries = NULL;
 	const gchar *pragmas_file;
@@ -229,7 +230,8 @@ db_set_params (TrackerDBInterface *iface,
 		}
 		g_free (queries);
 	} else {
-		GError *error = NULL;
+		GError *internal_error = NULL;
+		TrackerDBStatement *stmt;
 
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = OFF;");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
@@ -237,12 +239,31 @@ db_set_params (TrackerDBInterface *iface,
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0;");
 
-		tracker_db_interface_execute_query (iface, &error, "PRAGMA journal_mode = WAL;");
-		if (error) {
-			/* Don't just silence the problem. This pragma must return 'WAL' */
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+		                                              &internal_error,
+		                                              "PRAGMA journal_mode = WAL;");
+
+		if (internal_error) {
 			g_message ("Can't set journal mode to WAL: '%s'",
-			           error->message);
-			g_clear_error (&error);
+			           internal_error->message);
+			g_propagate_error (error, internal_error);
+		} else {
+			TrackerDBCursor *cursor;
+
+			cursor = tracker_db_statement_start_cursor (stmt, NULL);
+			if (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+				if (g_ascii_strcasecmp (tracker_db_cursor_get_string (cursor, 0, NULL), "WAL") != 0) {
+					g_set_error (error,
+					             TRACKER_DB_INTERFACE_ERROR,
+					             TRACKER_DB_OPEN_ERROR,
+					             "Can't set journal mode to WAL");
+				}
+			}
+			g_object_unref (cursor);
+		}
+
+		if (stmt) {
+			g_object_unref (stmt);
 		}
 
 		if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
@@ -306,7 +327,13 @@ db_interface_get (TrackerDB   type,
 
 	db_set_params (iface,
 	               dbs[type].cache_size,
-	               dbs[type].page_size);
+	               dbs[type].page_size,
+	               &internal_error);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return NULL;
+	}
 
 	return iface;
 }
@@ -1582,7 +1609,14 @@ tracker_db_manager_get_db_interfaces (GError **error,
 
 			db_set_params (connection,
 			               dbs[db].cache_size,
-			               dbs[db].page_size);
+			               dbs[db].page_size,
+			               &internal_error);
+
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				connection = NULL;
+				goto end_on_error;
+			}
 
 		} else {
 			db_exec_no_reply (connection,
@@ -1627,7 +1661,15 @@ tracker_db_manager_get_db_interfaces_ro (GError **error,
 
 			db_set_params (connection,
 			               dbs[db].cache_size,
-			               dbs[db].page_size);
+			               dbs[db].page_size,
+			               &internal_error);
+
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				connection = NULL;
+				goto end_on_error;
+			}
+
 		} else {
 			db_exec_no_reply (connection,
 			                  "ATTACH '%s' as '%s'",
