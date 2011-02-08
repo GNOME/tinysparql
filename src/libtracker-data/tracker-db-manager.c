@@ -1076,6 +1076,19 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 					}
 				}
 
+				/* ensure that database has been initialized by an earlier tracker-store start
+				   by checking whether Resource table exists */
+				stmt = tracker_db_interface_create_statement (dbs[i].iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+				                                              &internal_error,
+				                                              "SELECT 1 FROM Resource");
+				if (internal_error != NULL) {
+					must_recreate = TRUE;
+					g_error_free (internal_error);
+					internal_error = NULL;
+				} else {
+					g_object_unref (stmt);
+				}
+
 				tracker_db_interface_set_busy_handler (dbs[i].iface, NULL, NULL, NULL);
 			}
 		}
