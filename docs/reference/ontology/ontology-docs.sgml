@@ -28,7 +28,13 @@
 <book id="index">
   <bookinfo>
     <title>Tracker Ontology Reference Manual</title>
-    <releaseinfo>for Tracker &version;</releaseinfo>
+    <releaseinfo>
+	  for Tracker &version;.
+	  The latest version of this documentation can be found on-line at
+	  <ulink role="online-location" url="http://library.gnome.org/devel/ontology/unstable">
+		http://library.gnome.org/devel/ontology/unstable
+	  </ulink>.
+	</releaseinfo>
   </bookinfo>
 
   <part id="ontology">

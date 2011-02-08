@@ -15,7 +15,13 @@
 <book id="index">
   <bookinfo>
     <title>Tracker Miner Library Reference Manual</title>
-    <releaseinfo>for libtracker-miner &version;</releaseinfo>
+    <releaseinfo>
+	  for libtracker-miner &version;.
+	  The latest version of this documentation can be found on-line at
+	  <ulink role="online-location" url="http://library.gnome.org/devel/libtracker-miner/unstable/">
+		http://library.gnome.org/devel/libtracker-miner/unstable
+	  </ulink>.
+	</releaseinfo>
   </bookinfo>
 
   <!-- The Library Overview -->

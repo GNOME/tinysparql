@@ -12,7 +12,13 @@
 <book id="index">
   <bookinfo>
     <title>Tracker Extract Library Reference Manual</title>
-    <releaseinfo>for libtracker-extract &version;</releaseinfo>
+    <releaseinfo>
+	  for libtracker-extract &version;.
+	  The latest version of this documentation can be found on-line at
+	  <ulink role="online-location" url="http://library.gnome.org/devel/libtracker-extract/unstable/">
+		http://library.gnome.org/devel/libtracker-extract/unstable
+	  </ulink>.
+	</releaseinfo>
   </bookinfo>
 
   <!-- The Library Overview -->
