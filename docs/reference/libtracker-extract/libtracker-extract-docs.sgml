@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+<!ENTITY tracker-overview SYSTEM "overview.sgml">
 <!ENTITY tracker-data SYSTEM "xml/tracker-data.xml">
 <!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
 <!ENTITY tracker-xmp SYSTEM "xml/tracker-xmp.xml">
 <!ENTITY tracker-iptc SYSTEM "xml/tracker-iptc.xml">
 <!ENTITY tracker-exif SYSTEM "xml/tracker-exif.xml">
-<!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
   <bookinfo>
@@ -14,32 +15,29 @@
     <releaseinfo>for libtracker-extract &version;</releaseinfo>
   </bookinfo>
 
-  <part id="libtracker-extract">
-    <title>Overview</title>
+  <!-- The Library Overview -->
+  &tracker-overview;
+
+  <!-- The API Reference -->
+  <part id="libtracker-extract-reference">
+    <title>Reference</title>
     <partintro>
       <para>
-        The libtracker-extract library is the foundation for Tracker
-        metadata extraction of embedded data in files. Tracker comes
-        with extractors written for the most common file types (like
-        MP3, JPEG, PNG, etc.), however, for more special cases, 3rd
-        party applications may want to write their own plugin to
-        extract their own file formats. This documentation describes
-        how to do that.
-      </para>
-      <para>
+        This section provides the detailed API of the Tracker Extract library.
       </para>
     </partintro>
-  </part>
 
     <chapter>
-      <title>Core</title>
+      <title>Core API</title>
       &tracker-data;
       &tracker-utils;
     </chapter>
+
     <chapter>
-      <title>Common Embedded Support</title>
+      <title>Common Embedded Support API</title>
       &tracker-xmp;
       &tracker-iptc;
       &tracker-exif;
     </chapter>
+  </part>
 </book>

@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding="ISO-8859-1"?>
+
+<part id="tracker-overview">
+  <title>Overview</title>
+  <partintro>
+    <para>
+      The libtracker-extract library is the foundation for Tracker
+      metadata extraction of embedded data in files. Tracker comes
+      with extractors written for the most common file types (like
+      MP3, JPEG, PNG, etc.), however, for more special cases, 3rd
+      party applications may want to write their own plugin to
+      extract their own file formats. This documentation describes
+      how to do that.
+    </para>
+  </partintro>
+
+  <chapter id="tracker-overview-compiling">
+    <title>Compiling applications</title>
+
+    <para>
+      To compile applications using libtracker-extract, you
+      need to tell the compiler where to find the proper header files
+      and libraries. This is done with the
+      <application>pkg-config</application> utility.
+    </para>
+
+    <para>
+      The following interactive shell session demonstrates how
+      <application>pkg-config</application> is used (the actual output on
+      your system may be different):
+<programlisting>
+$ pkg-config --cflags tracker-extract-0.10
+-I/usr/include/tracker-0.10 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+
+$ pkg-config --libs tracker-extract-0.10
+-ltracker-extract-0.10 -ltracker-client-0.10 -lglib-2.0
+
+</programlisting>
+    </para>
+    <para>
+      The simplest way to compile a program is to use the "backticks"
+      feature of the shell. If you enclose a command in backticks
+      (<emphasis>not single quotes</emphasis>), then its output will be
+      substituted into the command line before execution:
+<programlisting>
+ $ cc `pkg-config --cflags --libs tracker-extract-0.10` hello.c -o hello
+</programlisting>
+    </para>
+
+  </chapter>
+</part>
