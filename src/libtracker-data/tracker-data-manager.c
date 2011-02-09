@@ -3035,7 +3035,6 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 
 			secondary_index = tracker_property_get_secondary_index (field);
 			if (secondary_index == NULL) {
-				/* TODO add error handling here */
 				set_index_for_single_value_property (iface, service_name,
 				                                     field_name, TRUE,
 				                                     &internal_error);
@@ -3044,7 +3043,6 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 					goto error_out;
 				}
 			} else {
-				/* TODO add error handling here */
 				set_secondary_index_for_single_value_property (iface, service_name, field_name,
 				                                               tracker_property_get_name (secondary_index),
 				                                               TRUE, &internal_error);
@@ -3088,7 +3086,6 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 		guint i;
 		for (i = 0; i < copy_schedule->len; i++) {
 			ScheduleCopy *sched = g_ptr_array_index (copy_schedule, i);
-			/* TODO add error handling here */
 			copy_from_domain_to_domain_index (iface, sched->prop,
 			                                  sched->field_name, sched->suffix,
 			                                  service,
