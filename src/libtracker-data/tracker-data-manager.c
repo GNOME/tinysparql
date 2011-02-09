@@ -3660,7 +3660,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		tracker_data_commit_transaction (&internal_error);
 		if (internal_error) {
-			tracker_data_rollback_transaction ();
 			g_propagate_error (error, internal_error);
 			return FALSE;
 		}
@@ -3835,7 +3834,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 						tracker_data_commit_transaction (&internal_error);
 						if (internal_error) {
-							tracker_data_rollback_transaction ();
 							g_propagate_error (error, internal_error);
 							return FALSE;
 						}
@@ -3902,7 +3900,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 					tracker_data_commit_transaction (&internal_error);
 					if (internal_error) {
-						tracker_data_rollback_transaction ();
 						g_propagate_error (error, internal_error);
 						return FALSE;
 					}
@@ -3996,7 +3993,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 				tracker_data_commit_transaction (&internal_error);
 				if (internal_error) {
-					tracker_data_rollback_transaction ();
 					g_propagate_error (error, internal_error);
 					return FALSE;
 				}
@@ -4053,7 +4049,6 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 		tracker_data_commit_transaction (&internal_error);
 		if (internal_error) {
-			tracker_data_rollback_transaction ();
 			g_propagate_error (error, internal_error);
 			return FALSE;
 		}

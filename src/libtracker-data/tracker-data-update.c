@@ -162,7 +162,6 @@ static GPtrArray *commit_callbacks = NULL;
 static GPtrArray *rollback_callbacks = NULL;
 static gint max_service_id = 0;
 static gint max_ontology_id = 0;
-static gboolean commit_failed = FALSE;
 
 static gint         ensure_resource_id      (const gchar      *uri,
                                              gboolean         *create);
@@ -2509,6 +2508,7 @@ tracker_data_commit_transaction (GError **error)
 
 	tracker_data_update_buffer_flush (&actual_error);
 	if (actual_error) {
+		tracker_data_rollback_transaction ();
 		g_propagate_error (error, actual_error);
 		return;
 	}
@@ -2517,7 +2517,7 @@ tracker_data_commit_transaction (GError **error)
 	                                         &actual_error);
 
 	if (actual_error) {
-		commit_failed = TRUE;
+		tracker_data_rollback_transaction ();
 		g_propagate_error (error, actual_error);
 		return;
 	}
@@ -2577,10 +2577,11 @@ tracker_data_notify_transaction (gboolean start_timer)
 	}
 }
 
-static void
-tracker_data_rollback_journal_transaction (void)
+void
+tracker_data_rollback_transaction (void)
 {
 	TrackerDBInterface *iface;
+	GError *ignorable = NULL;
 
 	g_return_if_fail (in_transaction);
 
@@ -2590,26 +2591,25 @@ tracker_data_rollback_journal_transaction (void)
 	iface = tracker_db_manager_get_db_interface ();
 
 	tracker_data_update_buffer_clear ();
-	if (!commit_failed) {
-		tracker_db_interface_execute_query (iface, NULL, "ROLLBACK");
-		commit_failed = FALSE;
+
+	tracker_db_interface_execute_query (iface, &ignorable, "ROLLBACK");
+
+	if (ignorable) {
+		g_error_free (ignorable);
 	}
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
-}
 
-void
-tracker_data_rollback_transaction (void)
-{
-	tracker_data_rollback_journal_transaction ();
-	tracker_db_journal_rollback_transaction ();
+	if (!in_journal_replay) {
+		tracker_db_journal_rollback_transaction ();
 
-	if (rollback_callbacks) {
-		guint n;
-		for (n = 0; n < rollback_callbacks->len; n++) {
-			TrackerCommitDelegate *delegate;
-			delegate = g_ptr_array_index (rollback_callbacks, n);
-			delegate->callback (TRUE, delegate->user_data);
+		if (rollback_callbacks) {
+			guint n;
+			for (n = 0; n < rollback_callbacks->len; n++) {
+				TrackerCommitDelegate *delegate;
+				delegate = g_ptr_array_index (rollback_callbacks, n);
+				delegate->callback (TRUE, delegate->user_data);
+			}
 		}
 	}
 }
@@ -2643,7 +2643,6 @@ update_sparql (const gchar  *update,
 
 	tracker_data_commit_transaction (&actual_error);
 	if (actual_error) {
-		tracker_data_rollback_transaction ();
 		g_propagate_error (error, actual_error);
 		return NULL;
 	}
@@ -2738,7 +2737,6 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 
 			tracker_data_commit_transaction (&new_error);
 			if (new_error) {
-				tracker_data_rollback_journal_transaction ();
 				g_warning ("Journal replay error: '%s'", new_error->message);
 
 				/* Oud of disk is an unrecoverable fatal error */
