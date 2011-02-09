@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding="ISO-8859-1"?>
+
+<part id="tracker-overview">
+  <title>Overview</title>
+  <partintro>
+    <para>
+      The libtracker-miner library is the foundation for Tracker data miners,
+      these miners will extract metadata and insert it in SPARQL form to
+      tracker-store, following the Nepomuk ontology.
+    </para>
+  </partintro>
+
+  <chapter id="tracker-overview-compiling">
+    <title>Compiling applications</title>
+
+    <para>
+      To compile applications using libtracker-miner, you
+      need to tell the compiler where to find the proper header files
+      and libraries. This is done with the
+      <application>pkg-config</application> utility.
+    </para>
+
+    <para>
+      The following interactive shell session demonstrates how
+      <application>pkg-config</application> is used (the actual output on
+      your system may be different):
+<programlisting>
+$ pkg-config --cflags tracker-miner-0.10
+-pthread -I/usr/include/tracker-0.10 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/tracker-0.10/libtracker-sparql
+
+$ pkg-config --libs tracker-miner-0.10
+-pthread -Wl,--export-dynamic -ltracker-miner-0.10 -ltracker-sparql-0.10 -lgio-2.0 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0
+
+</programlisting>
+    </para>
+    <para>
+      The simplest way to compile a program is to use the "backticks"
+      feature of the shell. If you enclose a command in backticks
+      (<emphasis>not single quotes</emphasis>), then its output will be
+      substituted into the command line before execution:
+<programlisting>
+ $ cc `pkg-config --cflags --libs tracker-miner-0.10` hello.c -o hello
+</programlisting>
+    </para>
+
+  </chapter>
+</part>

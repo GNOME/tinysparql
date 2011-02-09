@@ -119,6 +119,15 @@ should_be_thumbnailed (GStrv        list,
 	return should_thumbnail;
 }
 
+/**
+ * tracker_thumbnailer_init:
+ *
+ * Initializes the thumbnailer connection.
+ *
+ * Returns: #TRUE if connection was successfully initialized, #FALSE otherwise.
+ *
+ * Since: 0.8
+ */
 gboolean
 tracker_thumbnailer_init (void)
 {
@@ -249,12 +258,32 @@ error_handler:
 	return TRUE;
 }
 
+/**
+ * tracker_thumbnailer_shutdown:
+ *
+ * Shuts down the thumbnailer connection.
+ *
+ * Since: 0.8
+ */
 void
 tracker_thumbnailer_shutdown (void)
 {
 	g_static_private_set (&private_key, NULL, NULL);
 }
 
+/**
+ * tracker_thumbnailer_move_add:
+ * @from_uri: URI of the file before the move
+ * @mime_type: mime-type of the file
+ * @to_uri: URI of the file after the move
+ *
+ * Adds a new request to tell the thumbnailer that @from_uri was moved to
+ * @to_uri. Stored requests can be sent with tracker_thumbnailer_send().
+ *
+ * Returns: #TRUE if successfully stored to be reported, #FALSE otherwise.
+ *
+ * Since: 0.8
+ */
 gboolean
 tracker_thumbnailer_move_add (const gchar *from_uri,
                               const gchar *mime_type,
@@ -289,6 +318,18 @@ tracker_thumbnailer_move_add (const gchar *from_uri,
 	return TRUE;
 }
 
+/**
+ * tracker_thumbnailer_remove_add:
+ * @uri: URI of the file
+ * @mime_type: mime-type of the file
+ *
+ * Adds a new request to tell the thumbnailer that @uri was removed.
+ * Stored requests can be sent with tracker_thumbnailer_send().
+ *
+ * Returns: #TRUE if successfully stored to be reported, #FALSE otherwise.
+ *
+ * Since: 0.8
+ */
 gboolean
 tracker_thumbnailer_remove_add (const gchar *uri,
                                 const gchar *mime_type)
@@ -317,6 +358,16 @@ tracker_thumbnailer_remove_add (const gchar *uri,
 	return TRUE;
 }
 
+/**
+ * tracker_thumbnailer_cleanup:
+ * @uri_prefix: URI prefix
+ *
+ * Tells thumbnailer to cleanup all thumbnails under @uri_prefix.
+ *
+ * Returns: #TRUE if successfully reported, #FALSE otherwise.
+ *
+ * Since: 0.8
+ */
 gboolean
 tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 {
@@ -349,6 +400,13 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 	return TRUE;
 }
 
+/**
+ * tracker_thumbnailer_send:
+ *
+ * Sends to the thumbnailer all stored requests.
+ *
+ * Since: 0.8
+ */
 void
 tracker_thumbnailer_send (void)
 {

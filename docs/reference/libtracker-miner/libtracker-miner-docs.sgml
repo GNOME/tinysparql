@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+<!ENTITY tracker-overview SYSTEM "overview.sgml">
 <!ENTITY tracker-miner SYSTEM "xml/tracker-miner.xml">
 <!ENTITY tracker-miner-fs SYSTEM "xml/tracker-miner-fs.xml">
 <!ENTITY tracker-miner-manager SYSTEM "xml/tracker-miner-manager.xml">
@@ -9,37 +11,39 @@
 <!ENTITY tracker-password-provider SYSTEM "xml/tracker-password-provider.xml">
 <!ENTITY tracker-storage SYSTEM "xml/tracker-storage.xml">
 <!ENTITY tracker-thumbnailer SYSTEM "xml/tracker-thumbnailer.xml">
-<!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
   <bookinfo>
     <title>Tracker Miner Library Reference Manual</title>
-    <releaseinfo>for libtracker-miner &version;</releaseinfo>
+    <releaseinfo>
+	  for libtracker-miner &version;.
+	  The latest version of this documentation can be found on-line at
+	  <ulink role="online-location" url="http://library.gnome.org/devel/libtracker-miner/unstable/">
+		http://library.gnome.org/devel/libtracker-miner/unstable
+	  </ulink>.
+	</releaseinfo>
   </bookinfo>
 
-  <part id="libtracker-miner">
-    <title>Overview</title>
+  <!-- The Library Overview -->
+  &tracker-overview;
+
+  <!-- The API Reference -->
+  <part id="libtracker-miner-reference">
+    <title>Reference</title>
     <partintro>
       <para>
-        The libtracker-miner library is the foundation for Tracker data miners,
-        these miners will extract metadata and insert it in SPARQL form to
-        tracker-store, following the Nepomuk ontology.
-      </para>
-      <para>
+        This section provides the detailed API of the Tracker Miner library.
       </para>
     </partintro>
-  </part>
 
     <chapter>
-      <title>Base abstract miner class</title>
+      <title>Base abstract miners</title>
       &tracker-miner;
       &tracker-miner-web;
-      &tracker-network-provider;
-      &tracker-password-provider;
     </chapter>
 
     <chapter>
-      <title>Helper implementations</title>
+      <title>Additional miners</title>
       &tracker-miner-fs;
     </chapter>
 
@@ -49,8 +53,15 @@
     </chapter>
 
     <chapter>
-      <title>Utilities</title>
+      <title>Base abstract utilities</title>
+      &tracker-network-provider;
+      &tracker-password-provider;
+    </chapter>
+
+    <chapter>
+      <title>Additional utilities</title>
       &tracker-storage;
       &tracker-thumbnailer;
     </chapter>
+  </part>
 </book>

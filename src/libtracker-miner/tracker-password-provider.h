@@ -64,7 +64,7 @@ typedef enum {
  * @forget_password: forget any password associated with a given
  * service
  *
- * Since: 0.8.
+ * Since: 0.8
  **/
 typedef struct {
 	GTypeInterface parent_iface;
@@ -116,6 +116,8 @@ gboolean tracker_password_provider_unlock_password  (gchar                    *p
  * Only one implementation can exist at once.
  *
  * Returns: a %TrackerPasswordProvider.
+ *
+ * Since: 0.8
  **/
 TrackerPasswordProvider *
          tracker_password_provider_get             (void);

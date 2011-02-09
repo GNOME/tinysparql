@@ -102,6 +102,8 @@ Creates a stateless #TrackerSparqlBuilder.
 
 @void: 
 @Returns: a newly created #TrackerSparqlBuilder. Free with g_object_unref() when done
+@Deprecated: 0.10: Use tracker_sparql_builder_new() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_new_embedded_insert ##### -->
@@ -113,6 +115,8 @@ append predicates and objects for the given subject are allowed.
 
 @void: 
 @Returns: a newly created #TrackerSparqlBuilder. Free with g_object_unref() when done
+@Deprecated: 0.10: Use tracker_sparql_builder_new_embedded_insert() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_new_update ##### -->
@@ -122,6 +126,8 @@ Creates an empty #TrackerSparqlBuilder for an update query.
 
 @void: 
 @Returns: a newly created #TrackerSparqlBuilder. Free with g_object_unref() when done
+@Deprecated: 0.10: Use tracker_sparql_builder_new_update() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_construct ##### -->
@@ -131,6 +137,8 @@ Creates an empty #TrackerSparqlBuilder for an update query.
 
 @object_type: 
 @Returns: 
+@Deprecated: 0.10: Use tracker_sparql_builder_construct() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_construct_embedded_insert ##### -->
@@ -140,6 +148,8 @@ Creates an empty #TrackerSparqlBuilder for an update query.
 
 @object_type: 
 @Returns: 
+@Deprecated: 0.10: Use tracker_sparql_builder_construct_embedded_insert() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_construct_update ##### -->
@@ -149,6 +159,8 @@ Creates an empty #TrackerSparqlBuilder for an update query.
 
 @object_type: 
 @Returns: 
+@Deprecated: 0.10: Use tracker_sparql_builder_construct_update() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_get_state ##### -->
@@ -158,6 +170,8 @@ Creates an empty #TrackerSparqlBuilder for an update query.
 
 @self: 
 @Returns: 
+@Deprecated: 0.10: Use tracker_sparql_builder_get_state() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_get_result ##### -->
@@ -167,6 +181,8 @@ Returns the constructed SparQL query as a string.
 
 @self: a #TrackerSparqlBuilder
 @Returns: The created SparQL query.
+@Deprecated: 0.10: Use tracker_sparql_builder_get_result() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_get_length ##### -->
@@ -176,6 +192,8 @@ Returns the number of objects added to @self.
 
 @self: a #TrackerSparqlBuilder
 @Returns: The number of objects contained.
+@Deprecated: 0.10: Use tracker_sparql_builder_get_length() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_append ##### -->
@@ -185,6 +203,8 @@ Appends raw, unvalidated content to @self.
 
 @self: a #TrackerSparqlBuilder
 @raw: raw content to append.
+@Deprecated: 0.10: Use tracker_sparql_builder_append() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_prepend ##### -->
@@ -194,6 +214,8 @@ Prepends raw, unvalidated content to @self.
 
 @self: a #TrackerSparqlBuilder
 @raw: raw content to prepend.
+@Deprecated: 0.10: Use tracker_sparql_builder_prepend() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_insert_open ##### -->
@@ -203,6 +225,8 @@ Opens an insertion statement.
 
 @self: a #TrackerSparqlBuilder
 @graph: Graph name, or %NULL.
+@Deprecated: 0.10: Use tracker_sparql_builder_insert_open() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_insert_close ##### -->
@@ -211,6 +235,8 @@ Closes an insertion statement opened with tracker_sparql_builder_insert_open ().
 </para>
 
 @self: a #TrackerSparqlBuilder
+@Deprecated: 0.10: Use tracker_sparql_builder_insert_close() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_where_open ##### -->
@@ -220,6 +246,8 @@ to which the update query applies.
 </para>
 
 @self: a #TrackerSparqlBuilder
+@Deprecated: 0.10: Use tracker_sparql_builder_where_open() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_where_close ##### -->
@@ -228,6 +256,8 @@ Closes a WHERE clause opened through tracker_sparql_builder_where_open().
 </para>
 
 @self: a #TrackerSparqlBuilder
+@Deprecated: 0.10: Use tracker_sparql_builder_where_close() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_delete_open ##### -->
@@ -238,6 +268,8 @@ a query to delete them.
 
 @self: a #TrackerSparqlBuilder
 @graph: Graph name, or %NULL.
+@Deprecated: 0.10: Use tracker_sparql_builder_delete_open() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_delete_close ##### -->
@@ -246,6 +278,8 @@ Closes a DELETE clause opened through tracker_sparql_builder_delete_close().
 </para>
 
 @self: a #TrackerSparqlBuilder
+@Deprecated: 0.10: Use tracker_sparql_builder_delete_close() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_drop_graph ##### -->
@@ -255,6 +289,8 @@ Appends a DROP GRAPH clause.
 
 @self: a #TrackerSparqlBuilder
 @iri: a graph name.
+@Deprecated: 0.10: Use tracker_sparql_builder_drop_graph() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_subject_variable ##### -->
@@ -264,6 +300,8 @@ Appends a subject as a SparQL variable, such as "?urn".
 
 @self: a #TrackerSparqlBuilder
 @var_name: Variable name, without leading '?'
+@Deprecated: 0.10: Use tracker_sparql_builder_subject_variable() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_subject_iri ##### -->
@@ -274,6 +312,8 @@ univocally identify a resource in tracker-store.
 
 @self: a #TrackerSparqlBuilder
 @iri: IRI name, without leading and trailing greater/less than symbols.
+@Deprecated: 0.10: Use tracker_sparql_builder_subject_iri() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_subject ##### -->
@@ -283,6 +323,8 @@ Appends a subject.
 
 @self: a #TrackerSparqlBuilder
 @s: subject string
+@Deprecated: 0.10: Use tracker_sparql_builder_subject() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_predicate_iri ##### -->
@@ -292,6 +334,8 @@ Appends a predicate as an IRI.
 
 @self: a #TrackerSparqlBuilder
 @iri: IRI name, without leading and trailing greater/less than symbols.
+@Deprecated: 0.10: Use tracker_sparql_builder_predicate_iri() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_predicate ##### -->
@@ -301,6 +345,8 @@ Appends a predicate for the previously appended subject.
 
 @self: a #TrackerSparqlBuilder
 @s: predicate string
+@Deprecated: 0.10: Use tracker_sparql_builder_predicate() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_iri ##### -->
@@ -310,6 +356,8 @@ Appends an object as an IRI.
 
 @self: a #TrackerSparqlBuilder
 @iri: IRI name, without leading and trailing greater/less than symbols.
+@Deprecated: 0.10: Use tracker_sparql_builder_object_iri() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object ##### -->
@@ -319,6 +367,8 @@ Appends a free-form object for the previously appended subject and predicate.
 
 @self: a #TrackerSparqlBuilder
 @s: object string
+@Deprecated: 0.10: Use tracker_sparql_builder_object() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_string ##### -->
@@ -329,6 +379,8 @@ by double quotes.
 
 @self: a #TrackerSparqlBuilder
 @literal: string object
+@Deprecated: 0.10: Use tracker_sparql_builder_object_string() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_boolean ##### -->
@@ -338,6 +390,8 @@ Appends a #gboolean value as an object.
 
 @self: a #TrackerSparqlBuilder
 @literal: boolean object
+@Deprecated: 0.10: Use tracker_sparql_builder_object_boolean() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_int64 ##### -->
@@ -347,6 +401,8 @@ Appends a #gint64 as an object.
 
 @self: a #TrackerSparqlBuilder
 @literal: object as gint64
+@Deprecated: 0.10: Use tracker_sparql_builder_object_int64() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_date ##### -->
@@ -357,6 +413,8 @@ string in the date format used by tracker-store.
 
 @self: a #TrackerSparqlBuilder
 @literal: object as time_t
+@Deprecated: 0.10: Use tracker_sparql_builder_object_date() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_double ##### -->
@@ -366,6 +424,8 @@ Appends a #gdouble as an object.
 
 @self: a TrackerSparqlBuilder
 @literal: object as #gdouble
+@Deprecated: 0.10: Use tracker_sparql_builder_object_double() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_variable ##### -->
@@ -375,6 +435,8 @@ Appends an object as a SparQL variable, such as "?urn".
 
 @self: a #TrackerSparqlBuilder
 @var_name: variable name, without leading '?'
+@Deprecated: 0.10: Use tracker_sparql_builder_object_variable() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_blank_open ##### -->
@@ -385,6 +447,8 @@ separate insertion.
 </para>
 
 @self: a #TrackerSparqlBuilder
+@Deprecated: 0.10: Use tracker_sparql_builder_object_blank_open() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_blank_close ##### -->
@@ -393,6 +457,8 @@ Closes an anomymous blank node opened with tracker_sparql_builder_object_blank_o
 </para>
 
 @self: a #TrackerSparqlBuilder
+@Deprecated: 0.10: Use tracker_sparql_builder_object_blank_close() in libtracker-sparql instead.
+@Since: 0.8
 
 
 <!-- ##### FUNCTION tracker_sparql_builder_object_unvalidated ##### -->
@@ -402,5 +468,7 @@ Appends a string not validated as UTF-8 as an object.
 
 @self: a #TrackerSparqlBuilder
 @value: possibly UTF-8 invalid string.
+@Deprecated: 0.10: Use tracker_sparql_builder_object_unvalidated() in libtracker-sparql instead.
+@Since: 0.8
 
 

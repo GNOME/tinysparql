@@ -103,6 +103,8 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 *
 	 * The ::miner-progress signal is meant to report status/progress changes
 	 * in any tracked miner.
+	 *
+	 * Since: 0.8
 	 **/
 	signals [MINER_PROGRESS] =
 		g_signal_new ("miner-progress",
@@ -122,6 +124,8 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 *
 	 * The ::miner-paused signal will be emitted whenever a miner
 	 * (referenced by @miner) is paused.
+	 *
+	 * Since: 0.8
 	 **/
 	signals [MINER_PAUSED] =
 		g_signal_new ("miner-paused",
@@ -139,6 +143,8 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 *
 	 * The ::miner-resumed signal will be emitted whenever a miner
 	 * (referenced by @miner) is resumed.
+	 *
+	 * Since: 0.8
 	 **/
 	signals [MINER_RESUMED] =
 		g_signal_new ("miner-resumed",
@@ -157,6 +163,8 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 * The ::miner-activated signal will be emitted whenever a miner
 	 * (referenced by @miner) is activated (technically, this means
 	 * the miner has appeared in the session bus).
+	 *
+	 * Since: 0.8
 	 **/
 	signals [MINER_ACTIVATED] =
 		g_signal_new ("miner-activated",
@@ -175,6 +183,8 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 * The ::miner-deactivated signal will be emitted whenever a miner
 	 * (referenced by @miner) is deactivated (technically, this means
 	 * the miner has disappeared from the session bus).
+	 *
+	 * Since: 0.8
 	 **/
 	signals [MINER_DEACTIVATED] =
 		g_signal_new ("miner-deactivated",
@@ -450,6 +460,8 @@ miner_manager_finalize (GObject *object)
  * Creates a new #TrackerMinerManager instance.
  *
  * Returns: a #TrackerMinerManager.
+ *
+ * Since: 0.8
  **/
 TrackerMinerManager *
 tracker_miner_manager_new (void)
@@ -467,6 +479,8 @@ tracker_miner_manager_new (void)
  * Returns: a #GSList which must be freed with g_slist_free() and all
  * contained data with g_free(). Otherwise %NULL is returned if there
  * are no miners.
+ *
+ * Since: 0.8
  **/
 GSList *
 tracker_miner_manager_get_running (TrackerMinerManager *manager)
@@ -643,6 +657,8 @@ initialize_miners_data (TrackerMinerManager *manager)
  * Returns: a #GSList which must be freed with g_slist_free() and all
  * contained data with g_free(). Otherwise %NULL is returned if there
  * are no miners.
+ *
+ * Since: 0.8
  **/
 GSList *
 tracker_miner_manager_get_available (TrackerMinerManager *manager)
@@ -675,6 +691,8 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
  *
  * Returns: %TRUE if the miner was paused successfully, otherwise
  * %FALSE.
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_manager_pause (TrackerMinerManager *manager,
@@ -743,6 +761,8 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
  *
  * Returns: %TRUE if the miner was successfully resumed, otherwise
  * %FALSE.
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_manager_resume (TrackerMinerManager *manager,
@@ -789,6 +809,8 @@ tracker_miner_manager_resume (TrackerMinerManager *manager,
  * Returns the miner's current activity.
  *
  * Returns: %TRUE if the @miner is active, otherwise %FALSE.
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_manager_is_active (TrackerMinerManager *manager,
@@ -840,6 +862,8 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
  *
  * Returns: %TRUE if the status could be retrieved successfully,
  * otherwise %FALSE
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_manager_get_status (TrackerMinerManager  *manager,
@@ -929,6 +953,8 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
  * application/pause reason pairs have the same index.
  *
  * Returns: %TRUE if @miner is paused, otherwise %FALSE.
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_manager_is_paused (TrackerMinerManager *manager,
@@ -1003,6 +1029,8 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
  * Returns a translated display name for @miner.
  *
  * Returns: A string which should not be freed or %NULL.
+ *
+ * Since: 0.8
  **/
 const gchar *
 tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
@@ -1035,6 +1063,8 @@ tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
  * Returns the description for the given @miner.
  *
  * Returns: A string which should not be freed or %NULL if none is specified.
+ *
+ * Since: 0.8
  **/
 const gchar *
 tracker_miner_manager_get_description (TrackerMinerManager *manager,
@@ -1072,6 +1102,8 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
  * the stack the changes to @urls.
  *
  * Returns: %TRUE on success, otherwise %FALSE.
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
@@ -1116,6 +1148,8 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
  *
  * Returns: the #GQuark used to identify miner manager errors in
  * GError structures.
+ *
+ * Since: 0.8
  **/
 GQuark
 tracker_miner_manager_error_quark (void)
@@ -1142,6 +1176,8 @@ tracker_miner_manager_error_quark (void)
  * On failure @error will be set.
  *
  * Returns: %TRUE on success, otherwise %FALSE.
+ *
+ * Since: 0.10
  **/
 gboolean
 tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
@@ -1195,10 +1231,12 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
  * @error: return location for errors
  *
  * Tells the filesystem miner to index the @file.
- * 
+ *
  * On failure @error will be set.
  *
  * Returns: %TRUE on success, otherwise %FALSE.
+ *
+ * Since: 0.10
  **/
 gboolean
 tracker_miner_manager_index_file (TrackerMinerManager  *manager,

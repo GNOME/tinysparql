@@ -205,6 +205,8 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	 * the ::started signal is emitted in the miner
 	 * right after it has been started through
 	 * tracker_miner_start().
+	 *
+	 * Since: 0.8
 	 **/
 	signals[STARTED] =
 		g_signal_new ("started",
@@ -221,6 +223,8 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	 * the ::stopped signal is emitted in the miner
 	 * right after it has been stopped through
 	 * tracker_miner_stop().
+	 *
+	 * Since: 0.8
 	 **/
 	signals[STOPPED] =
 		g_signal_new ("stopped",
@@ -238,6 +242,8 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	 * there is any reason to pause, either
 	 * internal (through tracker_miner_pause()) or
 	 * external (through DBus, see #TrackerMinerManager).
+	 *
+	 * Since: 0.8
 	 **/
 	signals[PAUSED] =
 		g_signal_new ("paused",
@@ -254,6 +260,8 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	 * the ::resumed signal is emitted whenever
 	 * all reasons to pause have disappeared, see
 	 * tracker_miner_resume() and #TrackerMinerManager.
+	 *
+	 * Since: 0.8
 	 **/
 	signals[RESUMED] =
 		g_signal_new ("resumed",
@@ -273,6 +281,8 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	 * to indicate progress about the data mining process. @status will
 	 * contain a translated string with the current miner status and @progress
 	 * will indicate how much has been processed so far.
+	 *
+	 * Since: 0.8
 	 **/
 	signals[PROGRESS] =
 		g_signal_new ("progress",
@@ -293,6 +303,8 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	 * the ::ignore-next-update signal is emitted in the miner
 	 * right after it has been asked to mark @urls as to ignore on next update
 	 * through tracker_miner_ignore_next_update().
+	 *
+	 * Since: 0.8
 	 **/
 	signals[IGNORE_NEXT_UPDATE] =
 		g_signal_new ("ignore-next-update",
@@ -599,6 +611,8 @@ pause_data_destroy (gpointer data)
  * Returns the #GQuark used to identify miner errors in GError structures.
  *
  * Returns: the error #GQuark
+ *
+ * Since: 0.8
  **/
 GQuark
 tracker_miner_error_quark (void)
@@ -611,6 +625,8 @@ tracker_miner_error_quark (void)
  * @miner: a #TrackerMiner
  *
  * Tells the miner to start processing data.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_start (TrackerMiner *miner)
@@ -638,6 +654,8 @@ tracker_miner_start (TrackerMiner *miner)
  * @miner: a #TrackerMiner
  *
  * Tells the miner to stop processing data.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_stop (TrackerMiner *miner)
@@ -666,6 +684,8 @@ tracker_miner_stop (TrackerMiner *miner)
  * @urls: the urls to mark as to ignore on next update
  *
  * Tells the miner to mark @urls are to ignore on next update.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_ignore_next_update (TrackerMiner *miner,
@@ -683,6 +703,8 @@ tracker_miner_ignore_next_update (TrackerMiner *miner,
  * Returns #TRUE if the miner has been started.
  *
  * Returns: #TRUE if the miner is already started.
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_is_started (TrackerMiner *miner)
@@ -699,6 +721,8 @@ tracker_miner_is_started (TrackerMiner *miner)
  * Returns #TRUE if the miner is paused.
  *
  * Returns: #TRUE if the miner is paused.
+ *
+ * Since: 0.10
  **/
 gboolean
 tracker_miner_is_paused (TrackerMiner *miner)
@@ -768,6 +792,8 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
  * operations. On failure @error will be set and -1 will be returned.
  *
  * Returns: The pause cookie ID.
+ *
+ * Since: 0.8
  **/
 gint
 tracker_miner_pause (TrackerMiner  *miner,
@@ -799,6 +825,8 @@ tracker_miner_pause (TrackerMiner  *miner,
  * operations until all pause requests have been resumed.
  *
  * Returns: #TRUE if the cookie was valid.
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_resume (TrackerMiner  *miner,
@@ -839,6 +867,8 @@ tracker_miner_resume (TrackerMiner  *miner,
  * Gets the #TrackerSparqlConnection initialized by @miner
  *
  * Returns: a #TrackerSparqlConnection.
+ *
+ * Since: 0.10
  **/
 TrackerSparqlConnection *
 tracker_miner_get_connection (TrackerMiner *miner)
@@ -853,6 +883,8 @@ tracker_miner_get_connection (TrackerMiner *miner)
  * Gets the #GDBusConnection initialized by @miner
  *
  * Returns: a #GDBusConnection.
+ *
+ * Since: 0.10
  **/
 GDBusConnection *
 tracker_miner_get_dbus_connection (TrackerMiner *miner)
@@ -867,6 +899,8 @@ tracker_miner_get_dbus_connection (TrackerMiner *miner)
  * Gets the DBus name registered by @miner
  *
  * Returns: a constant string which should not be modified by the caller.
+ *
+ * Since: 0.10
  **/
 G_CONST_RETURN gchar *
 tracker_miner_get_dbus_full_name (TrackerMiner *miner)
@@ -881,6 +915,8 @@ tracker_miner_get_dbus_full_name (TrackerMiner *miner)
  * Gets the DBus path registered by @miner
  *
  * Returns: a constant string which should not be modified by the caller.
+ *
+ * Since: 0.10
  **/
 G_CONST_RETURN gchar *
 tracker_miner_get_dbus_full_path (TrackerMiner *miner)

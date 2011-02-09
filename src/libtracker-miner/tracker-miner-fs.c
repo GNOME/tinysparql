@@ -426,6 +426,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * in order to check whether @file must be inspected my @miner_fs.
 	 *
 	 * Returns: %TRUE if @file must be inspected.
+	 *
+	 * Since: 0.8
 	 **/
 	signals[CHECK_FILE] =
 		g_signal_new ("check-file",
@@ -446,6 +448,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * in order to check whether @directory must be inspected my @miner_fs.
 	 *
 	 * Returns: %TRUE if @directory must be inspected.
+	 *
+	 * Since: 0.8
 	 **/
 	signals[CHECK_DIRECTORY] =
 		g_signal_new ("check-directory",
@@ -469,6 +473,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * to discard backup directories for example.
 	 *
 	 * Returns: %TRUE if @directory must be inspected.
+	 *
+	 * Since: 0.8
 	 **/
 	signals[CHECK_DIRECTORY_CONTENTS] =
 		g_signal_new ("check-directory-contents",
@@ -489,6 +495,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * check whether @directory must be monitored for filesystem changes or not.
 	 *
 	 * Returns: %TRUE if the directory must be monitored for changes.
+	 *
+	 * Since: 0.8
 	 **/
 	signals[MONITOR_DIRECTORY] =
 		g_signal_new ("monitor-directory",
@@ -521,6 +529,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 *
 	 * Returns: %TRUE if the file is accepted for processing,
 	 *          %FALSE if the file should be ignored.
+	 *
+	 * Since: 0.8
 	 **/
 	signals[PROCESS_FILE] =
 		g_signal_new ("process-file",
@@ -555,6 +565,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 *
 	 * Returns: %TRUE if the file is accepted for processing,
 	 *          %FALSE if the file should be ignored.
+	 *
+	 * Since: 0.10
 	 **/
 	signals[PROCESS_FILE_ATTRIBUTES] =
 		g_signal_new ("process-file-attributes",
@@ -581,6 +593,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 *
 	 * Returns: %TRUE on success
 	 *          %FALSE on failure
+	 *
+	 * Since: 0.8
 	 **/
 	signals[IGNORE_NEXT_UPDATE_FILE] =
 		g_signal_new ("ignore-next-update-file",
@@ -603,6 +617,8 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 *
 	 * The ::finished signal is emitted when @miner_fs has finished
 	 * all pending processing.
+	 *
+	 * Since: 0.8
 	 **/
 	signals[FINISHED] =
 		g_signal_new ("finished",
@@ -3922,6 +3938,8 @@ tracker_miner_fs_directory_add_internal (TrackerMinerFS *fs,
  * @recurse: whether the directory should be inspected recursively
  *
  * Tells the filesystem miner to inspect a directory.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_fs_directory_add (TrackerMinerFS *fs,
@@ -4009,6 +4027,8 @@ processing_pool_cancel_foreach (gpointer data,
  *  watches are removed.
  *
  * Returns: %TRUE if the directory was successfully removed.
+ *
+ * Since: 0.8
  **/
 gboolean
 tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
@@ -4095,6 +4115,8 @@ tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
  * store.
  *
  * Returns: %TRUE if the directory was successfully removed.
+ *
+ * Since: 0.10
  **/
 gboolean
 tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
@@ -4169,6 +4191,8 @@ check_file_parents (TrackerMinerFS *fs,
  * Tells the filesystem miner to check and index a file,
  * this file must be part of the usual crawling directories
  * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
+ *
+ * Since: 0.10
  **/
 void
 tracker_miner_fs_check_file (TrackerMinerFS *fs,
@@ -4215,6 +4239,8 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
  * Tells the filesystem miner to check and index a directory,
  * this file must be part of the usual crawling directories
  * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
+ *
+ * Since: 0.10
  **/
 void
 tracker_miner_fs_check_directory (TrackerMinerFS *fs,
@@ -4257,6 +4283,8 @@ tracker_miner_fs_check_directory (TrackerMinerFS *fs,
  * Notifies @fs that all processing on @file has been finished, if any error
  * happened during file data processing, it should be passed in @error, else
  * that parameter will contain %NULL to reflect success.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_fs_file_notify (TrackerMinerFS *fs,
@@ -4302,6 +4330,8 @@ tracker_miner_fs_file_notify (TrackerMinerFS *fs,
  * a value of 0 means no throttling at all, so the miner
  * will perform operations at full speed, 1 is the slowest
  * value.
+ *
+ * Since: 0.8
  **/
 void
 tracker_miner_fs_set_throttle (TrackerMinerFS *fs,
@@ -4342,6 +4372,8 @@ tracker_miner_fs_set_throttle (TrackerMinerFS *fs,
  * Gets the current throttle value. see tracker_miner_fs_set_throttle().
  *
  * Returns: current throttle value.
+ *
+ * Since: 0.8
  **/
 gdouble
 tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
@@ -4364,6 +4396,8 @@ tracker_miner_fs_get_throttle (TrackerMinerFS *fs)
  *
  * Returns: The URN containing the data associated to @file,
  *          or %NULL.
+ *
+ * Since: 0.8
  **/
 G_CONST_RETURN gchar *
 tracker_miner_fs_get_urn (TrackerMinerFS *fs,
@@ -4454,6 +4488,8 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
  * return non-%NULL.
  *
  * Returns: The parent folder URN, or %NULL.
+ *
+ * Since: 0.8
  **/
 G_CONST_RETURN gchar *
 tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
@@ -4618,6 +4654,7 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
  * caches, an extra query will be done so that these elements
  * are taken into account.
  *
+ * Since: 0.10
  **/
 void
 tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,

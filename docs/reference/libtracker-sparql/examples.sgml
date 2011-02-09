@@ -62,9 +62,9 @@ int main (int argc, char **argv)
 
   /* Once builder no longer needed, unref it. Note that after
    * this operation, you must not use the returned query result
-   * any more 
+   * any more
    */
-  g_object_unref (builder)
+  g_object_unref (builder);
 
   return 0;
 }
@@ -151,9 +151,9 @@ int main (int argc, const char **argv)
 
   /* Make a synchronous query to the store */
   cursor = <function><link linkend="tracker-sparql-connection-query">tracker_sparql_connection_query</link></function> (connection,
-  					    query,
-  					    NULL,
-  					    &amp;error);
+                                            query,
+                                            NULL,
+                                            &amp;error);
 
   if (error) {
     /* Some error happened performing the query, not good */
@@ -255,10 +255,10 @@ int main (int argc, const char **argv)
 
   /* Run a synchronous update query */
   <function><link linkend="tracker-sparql-connection-update">tracker_sparql_connection_update</link></function> (connection,
-  				    query,
-  				    NULL,
-  				    &amp;error);
-
+                                            query,
+                                            G_PRIORITY_DEFAULT,
+                                            NULL,
+                                            &amp;error);
   if (error) {
     /* Some error happened performing the query, not good */
     g_printerr ("Couldn't update the Tracker store: %s",
