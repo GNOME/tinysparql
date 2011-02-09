@@ -101,11 +101,18 @@ tracker_tags_view_class_init (TrackerTagsViewClass *klass)
 static void
 tracker_tags_view_init (TrackerTagsView *tv)
 {
+	GError *error = NULL;
+
 	tv->private = TRACKER_TAGS_VIEW_GET_PRIVATE (tv);
 
 	tv->private->cancellable = g_cancellable_new ();
 	tv->private->connection = tracker_sparql_connection_get (tv->private->cancellable,
-	                                                         NULL);
+	                                                         &error);
+	if (!tv->private->connection) {
+		g_critical ("Couldn't get a proper SPARQL connection: '%s'",
+		            error ? error->message : "unknown error");
+		g_clear_error (&error);
+	}
 
 	tv->private->files = NULL;
 
@@ -432,6 +439,13 @@ tags_view_query_files_for_tag_id (TagData *td)
 {
 	gchar *query;
 
+	if (!td->tv->private->connection) {
+		g_warning ("Can't query files for tag id '%s', "
+		           "no SPARQL connection available",
+		           td->tag_id);
+		return;
+	}
+
 	query = g_strdup_printf ("SELECT ?url "
 	                         "WHERE {"
 	                         "  ?urn a rdfs:Resource ;"
@@ -595,6 +609,13 @@ tags_view_add_tag (TrackerTagsView *tv,
 	TagData *td;
 	GString *query;
 	gint files;
+
+	if (!tv->private->connection) {
+		g_warning ("Can't add tag '%s', "
+		           "no SPARQL connection available",
+		           tag);
+		return;
+	}
 
 	gtk_widget_set_sensitive (tv->private->entry, FALSE);
 
@@ -763,6 +784,14 @@ tags_view_model_toggle_row (TrackerTagsView *tv,
 
 	gtk_widget_set_sensitive (tv->private->entry, FALSE);
 
+	if (!tv->private->connection) {
+		g_warning ("Can't update tags, "
+		           "no SPARQL connection available");
+		g_free (id);
+		g_free (query);
+		return;
+	}
+
 	g_debug ("Running query:'%s'\n", query);
 
 	td = tag_data_new (id, &iter, TRUE, selection, 1, tv);
@@ -842,6 +871,13 @@ tags_view_remove_tag (TrackerTagsView *tv,
 {
 	TagData *td_copy;
 	gchar *query;
+
+	if (!tv->private->connection) {
+		g_warning ("Can't remove tag '%s', "
+		           "no SPARQL connection available",
+		           td->tag_id);
+		return;
+	}
 
 	query = g_strdup_printf ("DELETE { "
 	                         "  <%s> a rdfs:Resource "
@@ -1043,15 +1079,20 @@ tags_view_create_ui (TrackerTagsView *tv)
 	                  G_CALLBACK (tags_view_model_row_selected_cb),
 	                  tv);
 
-	tracker_sparql_connection_query_async (tv->private->connection,
-	                                       "SELECT ?urn ?label "
-	                                       "WHERE {"
-	                                       "  ?urn a nao:Tag ;"
-	                                       "  nao:prefLabel ?label . "
-	                                       "} ORDER BY ?label",
-	                                       tv->private->cancellable,
-	                                       tags_view_add_tags_cb,
-	                                       tv);
+	if (tv->private->connection) {
+		tracker_sparql_connection_query_async (tv->private->connection,
+		                                       "SELECT ?urn ?label "
+		                                       "WHERE {"
+		                                       "  ?urn a nao:Tag ;"
+		                                       "  nao:prefLabel ?label . "
+		                                       "} ORDER BY ?label",
+		                                       tv->private->cancellable,
+		                                       tags_view_add_tags_cb,
+		                                       tv);
+	} else {
+		g_warning ("Can't query for tags, "
+		           "no SPARQL connection available");
+	}
 
 	gtk_widget_show_all (GTK_WIDGET (tv));
 	gtk_widget_grab_focus (entry);
