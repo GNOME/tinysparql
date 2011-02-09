@@ -43,7 +43,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 	def test_insert_01 (self):
 		"""
                 Simple insert of two triplets.
-                
+
                 1. Insert a InformationElement with title.
                 2. TEST: Query the title of that information element
                 3. Remove the InformationElement to keep everything as it was before
@@ -73,7 +73,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 """ % (uri)
                 self.tracker.update (delete)
 
-		
+
 	def test_insert_02(self):
                 """
                 Insert of a bigger set of triplets (linking two objects)
@@ -81,14 +81,14 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 
                 self.tracker.update("""
                 INSERT {
-                <urn:uuid:bob-dylan> a nmm:Artist; 
+                <urn:uuid:bob-dylan> a nmm:Artist;
                    nmm:artistName 'Bob Dylan'.
-                   
+
                 <file:///a/b/c/10_song3.mp3> a nmm:MusicPiece, nfo:FileDataObject;
-                   nfo:fileName 'subterranean-homesick-blues.mp3'; 
-                   nfo:fileLastModified '2008-10-23T13:47:02' ; 
-                   nfo:fileCreated '2008-12-16T12:41:20' ; 
-                   nfo:fileSize 17630 ; 
+                   nfo:fileName 'subterranean-homesick-blues.mp3';
+                   nfo:fileLastModified '2008-10-23T13:47:02' ;
+                   nfo:fileCreated '2008-12-16T12:41:20' ;
+                   nfo:fileSize 17630 ;
                    nfo:duration 219252 ;
                    nie:title 'Subterranean homesick blues';
                    nmm:performer <urn:uuid:bob-dylan>.
@@ -126,20 +126,20 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 
 		self.tracker.update("""
                 INSERT {
-                <urn:uuid:7646004> a nmm:Artist; 
+                <urn:uuid:7646004> a nmm:Artist;
                     nmm:artistName 'John Lennon' .
 
                 <urn:uuid:123123123> a nmm:MusicAlbum ;
-                    nmm:albumTitle 'Imagine' . 
-                    
+                    nmm:albumTitle 'Imagine' .
+
                 <file:///a/b/c/imagine.mp3> a nmm:MusicPiece, nfo:FileDataObject;
-                    nfo:fileName 'imagine.mp3'; 
-                    nfo:fileCreated '2008-12-16T12:41:20'; 
-                    nfo:fileLastModified '2008-12-23T13:47:02' ; 
-                    nfo:fileSize 17630; 
-                    nmm:musicAlbum <urn:uuid:123123123>; 
-                    nmm:trackNumber '11'; 
-                    nfo:duration 219252; 
+                    nfo:fileName 'imagine.mp3';
+                    nfo:fileCreated '2008-12-16T12:41:20';
+                    nfo:fileLastModified '2008-12-23T13:47:02' ;
+                    nfo:fileSize 17630;
+                    nmm:musicAlbum <urn:uuid:123123123>;
+                    nmm:trackNumber '11';
+                    nfo:duration 219252;
                     nmm:performer <urn:uuid:7646004>.
                     }
 
@@ -156,13 +156,13 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                         nfo:fileLastModified ?flm ;
                         nfo:fileCreated ?fc ;
                         nfo:fileName ?filename.
-                        
+
                     ?x nmm:artistName ?artist .
                     ?y nmm:albumTitle ?album.
                     }
                     """
                 result = self.tracker.query(QUERY)
-                
+
                 self.assertEquals (len (result), 1)
                 self.assertEquals (len (result[0]), 8)
                 self.assertEquals (result[0][0], "John Lennon")
@@ -171,7 +171,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 self.assertEquals (result[0][3], "Imagine")
                 self.assertEquals (result[0][4], "17630")
                 # FIXME Tracker returns this translated to the current timezone
-                #self.assertEquals (result[0][5], "2008-12-23T11:47:02Z") 
+                #self.assertEquals (result[0][5], "2008-12-23T11:47:02Z")
                 #self.assertEquals (result[0][6], "2008-12-16T10:41:20Z")
                 self.assertEquals (result[0][7], "imagine.mp3")
 
@@ -181,10 +181,10 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 }
 
                 DELETE {
-                  <file:///a/b/c/imagine.mp3> a rdfs:Resource. 
+                  <file:///a/b/c/imagine.mp3> a rdfs:Resource.
                 }
                 """)
-                                    
+
 
 
 
@@ -197,7 +197,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                         self.tracker.update("""
                         DELETE {
                           <test://instance-1> nie:usageCounter ?v
-                        } WHERE { 
+                        } WHERE {
                           <test://instance-1> nie:usageCounter ?v .
                         }
                         DELETE {
@@ -206,12 +206,12 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                           <test://instance-1> nie:contentAccessed ?w .
                         }
                         """)
-                        
+
                         # Insert the same single valued properties of music file.
                         self.tracker.update("""
-                        INSERT { 
+                        INSERT {
                            <test://instance-1> a nmm:MusicPiece, nfo:FileDataObject;
-                           nie:usageCounter '%d'; 
+                           nie:usageCounter '%d';
                            nie:contentAccessed '2000-01-01T00:4%d:47Z' .
                         }""" % (i, i))
 
@@ -246,16 +246,16 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 """ % (testId, datestring))
 
 		result = self.tracker.query ("""
-                SELECT    fn:year-from-dateTime (?v) 
-		          fn:month-from-dateTime (?v) 
-                          fn:day-from-dateTime (?v) 
-                          fn:hours-from-dateTime (?v) 
-                          fn:minutes-from-dateTime (?v) 
-                          fn:seconds-from-dateTime (?v) 
-                          fn:timezone-from-dateTime (?v) 
+                SELECT    fn:year-from-dateTime (?v)
+		          fn:month-from-dateTime (?v)
+                          fn:day-from-dateTime (?v)
+                          fn:hours-from-dateTime (?v)
+                          fn:minutes-from-dateTime (?v)
+                          fn:seconds-from-dateTime (?v)
+                          fn:timezone-from-dateTime (?v)
 		WHERE {
-                  <test://instance-insert-date-%d> a nie:InformationElement; 
-		        nie:informationElementDate ?v . 
+                  <test://instance-insert-date-%d> a nie:InformationElement;
+		        nie:informationElementDate ?v .
 		}
                  """ % (testId))
                 try:
@@ -272,8 +272,8 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 finally:
                         self.tracker.update ("""
                         DELETE { <test://instance-insert-date-%d> a rdfs:Resource. }
-                        """ % (testId)) 
-                
+                        """ % (testId))
+
 
 	"""Date-Time storage testing """
 	def test_insert_date_01 (self):
@@ -283,8 +283,8 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 """
                 self.__insert_valid_date_test ("2004-05-06T13:14:15+0400",
                                                "2004", "05", "06", "13", "14", "15", "14400")
-                                               
-                
+
+
 	def test_insert_date_02 (self):
 		"""
                 1. Insert a InformationElement with date ending with "Z" in TZD.
@@ -321,7 +321,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                  """
                 self.__insert_valid_date_test ("2004-05-06T13:14:15-0230",
                                                "2004", "05", "06", "13", "14", "15", "-9000")
-                
+
 
         def __insert_invalid_date_test (self, datestring):
                 self.assertRaises (Exception, self.tracker.update, """
@@ -332,16 +332,16 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                         """)
 
 		result = self.tracker.query ("""
-                SELECT    fn:year-from-dateTime (?v) 
-		          fn:month-from-dateTime (?v) 
-                          fn:day-from-dateTime (?v) 
-                          fn:hours-from-dateTime (?v) 
-                          fn:minutes-from-dateTime (?v) 
-                          fn:seconds-from-dateTime (?v) 
-                          fn:timezone-from-dateTime (?v) 
+                SELECT    fn:year-from-dateTime (?v)
+		          fn:month-from-dateTime (?v)
+                          fn:day-from-dateTime (?v)
+                          fn:hours-from-dateTime (?v)
+                          fn:minutes-from-dateTime (?v)
+                          fn:seconds-from-dateTime (?v)
+                          fn:timezone-from-dateTime (?v)
 		WHERE {
                    <test://instances-insert-invalid-date-01> a nie:InformationElement ;
-		        nie:informationElementDate ?v . 
+		        nie:informationElementDate ?v .
 		}
                 """)
                 self.assertEquals (len (result), 0)
@@ -371,14 +371,47 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 1. Insert a InformationElement with date without time but only the "T" separator.
                 """
                 self.__insert_invalid_date_test ("2004-05-06T")
-			
+
                 #@ut.skipIf (1, "It times out in the daemon. Investigate")
 	def test_insert_invalid_date_04 (self):
 		"""
                 1. Insert a InformationElement with date without time but only the "T" separator.
                 """
                 self.__insert_invalid_date_test ("2004-05-06T1g:14:15-0200")
-			
+
+	def test_insert_duplicated_url_01 (self):
+		"""
+                1. Insert a FileDataObject with a known nie:url, twice
+                """
+
+		url = "file:///some/magic/path/here"
+
+		insert = """
+                INSERT {
+                   _:tag a nfo:FileDataObject;
+		         nie:url '%s'.
+                }
+                """ % (url)
+
+		# First insert should go ok
+		self.tracker.update (insert)
+		# Second insert should not be ok
+		try:
+			self.tracker.update (insert)
+		except Exception:
+			pass
+
+		# Only 1 element must be available with the given nie:url
+		select = """
+                SELECT ?u WHERE { ?u nie:url \"%s\" }
+                """ % (url)
+		self.assertEquals (len (self.tracker.query (select)), 1)
+
+		# Cleanup
+		self.tracker.update ("""
+                DELETE { ?u a rdfs:Resource } WHERE { ?u a rdfs:Resource ; nie:url '%s' }
+                """ % (url))
+
 
 class TrackerStoreDeleteTests (CommonTrackerStoreTest):
         """
@@ -389,15 +422,15 @@ class TrackerStoreDeleteTests (CommonTrackerStoreTest):
                 Insert triples and Delete a triple. Verify the deletion with a query
                 """
 
-		# first insert 
+		# first insert
                 self.tracker.update ("""
                 INSERT {
-                   <urn:uuid:7646001> a nco:Contact; 
-                            nco:fullname 'Artist_1_delete'. 
-                   <test://instance-test-delete-01> a nmm:MusicPiece, nfo:FileDataObject; 
-                            nfo:fileName '11_song_del.mp3'; 
-                            nfo:genre 'Classic delete'; 
-                            nmm:musicAlbum '1_Album_delete'; 
+                   <urn:uuid:7646001> a nco:Contact;
+                            nco:fullname 'Artist_1_delete'.
+                   <test://instance-test-delete-01> a nmm:MusicPiece, nfo:FileDataObject;
+                            nfo:fileName '11_song_del.mp3';
+                            nfo:genre 'Classic delete';
+                            nmm:musicAlbum '1_Album_delete';
                             nmm:performer <urn:uuid:7646001>.
                 }
                 """)
@@ -415,7 +448,7 @@ class TrackerStoreDeleteTests (CommonTrackerStoreTest):
 
 		# now delete
                 self.tracker.update("""
-                DELETE { 
+                DELETE {
                   <test://instance-test-delete-01> a rdfs:Resource.
                 }
                 """)
@@ -433,7 +466,7 @@ class TrackerStoreDeleteTests (CommonTrackerStoreTest):
 	def test_delete_02 (self):
                 """
                 Delete a MusicAlbum and count the album
-		
+
 		1. add a music album.
 		2. count the number of albums
 		3. delete an album
@@ -455,7 +488,7 @@ class TrackerStoreDeleteTests (CommonTrackerStoreTest):
 
 		"""Delete the added music album """
                 self.tracker.update("""
-                DELETE { 
+                DELETE {
                   <test://instance-delete-02> a nmm:MusicAlbum.
                 }
                 """)
@@ -478,7 +511,7 @@ class TrackerStoreBatchUpdateTest (CommonTrackerStoreTest):
 		2. delete the inserted contacts.
 		"""
                 NUMBER_OF_TEST_CONTACTS = 3
-		
+
 		# query no. of existing contacts. (predefined instances in the DB)
 		count_before_insert = self.tracker.count_instances ("nco:PersonContact")
 
@@ -502,13 +535,13 @@ class TrackerStoreBatchUpdateTest (CommonTrackerStoreTest):
                         while contact_counter in contact_list:
                                 contact_counter = random.randint (0, 10000)
                         contact_list.append (contact_counter)
-                        
+
                         return contact_template % (contact_counter,
                                                    contact_counter,
                                                    contact_counter,
                                                    contact_counter,
                                                    random_phone)
-                
+
                 contacts = map (complete_contact, [CONTACT_TEMPLATE] * NUMBER_OF_TEST_CONTACTS)
 		INSERT_SPARQL = "\n".join (["INSERT {"] + contacts +["}"])
        		self.tracker.batch_update (INSERT_SPARQL)
@@ -535,14 +568,14 @@ class TrackerStorePhoneNumberTest (CommonTrackerStoreTest):
         Tests around phone numbers (maemo specific). Inserting correct/incorrect ones
         and running query to get the contact from the number.
 	"""
-	
+
         @ut.skipIf (not cfg.haveMaemo, "This test uses maemo:specific properties")
  	def test_phone_01 (self):
 		"""
                 1. Setting the maemo:localPhoneNumber property to last 7 digits of phone number.
 		2. Receiving a message  from a contact whose localPhoneNumber is saved.
 		3. Query messages from the local phone number
-		"""   
+		"""
 		PhoneNumber = str(random.randint (0, sys.maxint))
 		UUID	    = str(time.time())
 		UUID1	    = str(random.randint (0, sys.maxint))
@@ -555,25 +588,25 @@ class TrackerStorePhoneNumberTest (CommonTrackerStoreTest):
 		Family_Name = 'test_FN_' + `ID`
 
 		INSERT_CONTACT_PHONE = """
-                INSERT { 
-                    <tel:123456789> a nco:PhoneNumber ; 
+                INSERT {
+                    <tel:123456789> a nco:PhoneNumber ;
                           nco:phoneNumber  '00358555444333' ;
                           maemo:localPhoneNumber '5444333'.
-                          
+
                     <test://test_phone_1/contact> a nco:PersonContact;
 			nco:contactUID '112';
-                        nco:nameFamily 'Family-name'  ; 
-                        nco:nameGiven 'Given-name'.  
-                    <test://test_phone_1/contact> nco:hasPhoneNumber <tel:123456789>. 
+                        nco:nameFamily 'Family-name'  ;
+                        nco:nameGiven 'Given-name'.
+                    <test://test_phone_1/contact> nco:hasPhoneNumber <tel:123456789>.
                 }
                 """
                 self.tracker.update (INSERT_CONTACT_PHONE)
 
 		INSERT_MESSAGE = """
-                INSERT { 
-                    <test://test_phone_1/message> a nmo:Message ; 
+                INSERT {
+                    <test://test_phone_1/message> a nmo:Message ;
                          nmo:from [a nco:Contact ; nco:hasPhoneNumber <tel:123456789>];
-                         nmo:receivedDate '2010-01-02T10:13:00Z' ; 
+                         nmo:receivedDate '2010-01-02T10:13:00Z' ;
                          nie:plainTextContent 'hello'
                 }
                 """
@@ -590,7 +623,7 @@ class TrackerStorePhoneNumberTest (CommonTrackerStoreTest):
                 self.assertEquals (len (result), 1)
                 self.assertEquals (len (result[0]), 1)
                 self.assertEquals (result[0][0], "test://test_phone_1/message")
-                                   
+
 
         @ut.skipIf (not cfg.haveMaemo, "This test uses maemo:specific properties")
 	def test_phone_02 (self):
@@ -598,19 +631,19 @@ class TrackerStorePhoneNumberTest (CommonTrackerStoreTest):
                 Inserting a local phone number which have spaces
                 """
 		INSERT_SPARQL = """
-                INSERT { 
-			<tel+3333333333> a nco:PhoneNumber ; 
+                INSERT {
+			<tel+3333333333> a nco:PhoneNumber ;
 				nco:phoneNumber  <tel+3333333333> ;
                                 maemo:localPhoneNumber '333 333'.
-                                
+
 			<test://test_phone_02/contact> a nco:PersonContact;
-				nco:nameFamily 'test_name_01' ; 
+				nco:nameFamily 'test_name_01' ;
 				nco:nameGiven 'test_name_02';
                                 nco:hasPhoneNumber <tel+3333333333> .
                 }
                 """
                 self.assertRaises (Exception, self.tracker.update (INSERT_SPARQL))
 
-	
+
 if __name__ == "__main__":
 	ut.main()
