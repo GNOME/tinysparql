@@ -34,27 +34,19 @@
 #define TRACKER_TYPE_TAGS_EXTENSION (tracker_tags_extension_get_type ())
 #define TRACKER_TAGS_EXTENSION(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_TAGS_EXTENSION, TrackerTagsExtension))
 #define TRACKER_TAGS_EXTENSION_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_TAGS_EXTENSION, TrackerTagsExtensionClass))
-#define TRACKER_TAGS_EXTENSION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), TRACKER_TYPE_TAGS_EXTENSION, TrackerTagsExtensionPrivate))
 
 #define TRACKER_IS_TAGS_EXTENSION(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_TAGS_EXTENSION))
 #define TRACKER_IS_TAGS_EXTENSION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_TAGS_EXTENSION))
 
-typedef struct _TrackerTagsExtensionPrivate TrackerTagsExtensionPrivate;
 typedef struct _TrackerTagsExtension TrackerTagsExtension;
 typedef struct _TrackerTagsExtensionClass TrackerTagsExtensionClass;
 
 struct _TrackerTagsExtension {
 	GObject parent;
-	TrackerTagsExtensionPrivate *private;
 };
 
 struct _TrackerTagsExtensionClass {
 	GObjectClass parent;
-};
-
-struct _TrackerTagsExtensionPrivate {
-	TrackerSparqlConnection *connection;
-	GCancellable *cancellable;
 };
 
 typedef void (*MenuDataFreeFunc)(gpointer data);
@@ -266,7 +258,6 @@ tracker_tags_extension_class_init (TrackerTagsExtensionClass *klass)
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
 	gobject_class->finalize = tracker_tags_extension_finalize;
-	g_type_class_add_private (gobject_class, sizeof (TrackerTagsExtensionPrivate));
 }
 
 static void
@@ -277,27 +268,11 @@ tracker_tags_extension_class_finalize (TrackerTagsExtensionClass *klass)
 static void
 tracker_tags_extension_init (TrackerTagsExtension *self)
 {
-	self->private = TRACKER_TAGS_EXTENSION_GET_PRIVATE (self);
-
-	self->private->cancellable = g_cancellable_new ();
-	self->private->connection = tracker_sparql_connection_get (self->private->cancellable,
-	                                                           NULL);
 }
 
 static void
 tracker_tags_extension_finalize (GObject *object)
 {
-	TrackerTagsExtension *extension = TRACKER_TAGS_EXTENSION (object);
-
-	if (extension->private->cancellable) {
-		g_cancellable_cancel (extension->private->cancellable);
-		g_object_unref (extension->private->cancellable);
-	}
-
-	if (extension->private->connection) {
-		g_object_unref (extension->private->connection);
-	}
-
 	G_OBJECT_CLASS (tracker_tags_extension_parent_class)->finalize (object);
 }
 
