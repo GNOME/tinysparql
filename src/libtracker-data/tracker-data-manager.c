@@ -130,78 +130,111 @@ handle_unsupported_ontology_change (const gchar  *ontology_path,
 }
 
 static void
-set_secondary_index_for_single_value_property (TrackerDBInterface *iface,
-                                               const gchar        *service_name,
-                                               const gchar        *field_name,
-                                               const gchar        *second_field_name,
-                                               gboolean            enabled)
+set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
+                                               const gchar         *service_name,
+                                               const gchar         *field_name,
+                                               const gchar         *second_field_name,
+                                               gboolean             enabled,
+                                               GError             **error)
 {
+	GError *internal_error = NULL;
+
 	g_debug ("Dropping secondary index (single-value property):  "
 	         "DROP INDEX IF EXISTS \"%s_%s\"",
 	         service_name, field_name);
 
-	tracker_db_interface_execute_query (iface, NULL,
+	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s_%s\"",
 	                                    service_name,
 	                                    field_name);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
+	}
 
 	if (enabled) {
 		g_debug ("Creating secondary index (single-value property): "
 		         "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
 		         service_name, field_name, service_name, field_name, second_field_name);
 
-		tracker_db_interface_execute_query (iface, NULL,
+		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
 		                                    service_name,
 		                                    field_name,
 		                                    service_name,
 		                                    field_name,
 		                                    second_field_name);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+		}
 	}
 }
 
 static void
-set_index_for_single_value_property (TrackerDBInterface *iface,
-                                     const gchar        *service_name,
-                                     const gchar        *field_name,
-                                     gboolean            enabled)
+set_index_for_single_value_property (TrackerDBInterface  *iface,
+                                     const gchar         *service_name,
+                                     const gchar         *field_name,
+                                     gboolean             enabled,
+                                     GError             **error)
 {
+	GError *internal_error = NULL;
+
 	g_debug ("Dropping index (single-value property): "
 	         "DROP INDEX IF EXISTS \"%s_%s\"",
 	         service_name, field_name);
 
-	tracker_db_interface_execute_query (iface, NULL,
+	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s_%s\"",
 	                                    service_name,
 	                                    field_name);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
+	}
 
 	if (enabled) {
 		g_debug ("Creating index (single-value property): "
 		         "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
 		         service_name, field_name, service_name, field_name);
 
-		tracker_db_interface_execute_query (iface, NULL,
+		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\")",
 		                                    service_name,
 		                                    field_name,
 		                                    service_name,
 		                                    field_name);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+		}
 	}
 }
 
 static void
-set_index_for_multi_value_property (TrackerDBInterface *iface,
-                                    const gchar        *service_name,
-                                    const gchar        *field_name,
-                                    gboolean            enabled)
+set_index_for_multi_value_property (TrackerDBInterface  *iface,
+                                    const gchar         *service_name,
+                                    const gchar         *field_name,
+                                    gboolean             enabled,
+                                    GError             **error)
 {
+	GError *internal_error = NULL;
+
 	g_debug ("Dropping index (multi-value property): "
 	         "DROP INDEX IF EXISTS \"%s_%s_ID_ID\"",
 	         service_name, field_name);
-	tracker_db_interface_execute_query (iface, NULL,
+
+	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s_%s_ID_ID\"",
 	                                    service_name,
 	                                    field_name);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return;
+		}
 
 	/* Useful to have this here for the cases where we want to fully
 	 * re-create the indexes even without an ontology change (when locale
@@ -210,10 +243,15 @@ set_index_for_multi_value_property (TrackerDBInterface *iface,
 	         "DROP INDEX IF EXISTS \"%s_%s_ID\"",
 	         service_name,
 	         field_name);
-	tracker_db_interface_execute_query (iface, NULL,
+	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s_%s_ID\"",
 	                                    service_name,
 	                                    field_name);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
+	}
 
 	if (enabled) {
 		g_debug ("Creating index (multi-value property): "
@@ -222,12 +260,19 @@ set_index_for_multi_value_property (TrackerDBInterface *iface,
 		         field_name,
 		         service_name,
 		         field_name);
-		tracker_db_interface_execute_query (iface, NULL,
+
+		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
 		                                    service_name,
 		                                    field_name,
 		                                    service_name,
 		                                    field_name);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return;
+		}
+
 		g_debug ("Creating index (multi-value property): "
 		         "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (\"%s\", ID)",
 		         service_name,
@@ -235,13 +280,19 @@ set_index_for_multi_value_property (TrackerDBInterface *iface,
 		         service_name,
 		         field_name,
 		         field_name);
-		tracker_db_interface_execute_query (iface, NULL,
+
+		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (\"%s\", ID)",
 		                                    service_name,
 		                                    field_name,
 		                                    service_name,
 		                                    field_name,
 		                                    field_name);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return;
+		}
 	} else {
 		g_debug ("Creating index (multi-value property): "
 		         "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (ID, \"%s\")",
@@ -250,13 +301,18 @@ set_index_for_multi_value_property (TrackerDBInterface *iface,
 		         service_name,
 		         field_name,
 		         field_name);
-		tracker_db_interface_execute_query (iface, NULL,
+
+		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (ID, \"%s\")",
 		                                    service_name,
 		                                    field_name,
 		                                    service_name,
 		                                    field_name,
 		                                    field_name);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+		}
 	}
 }
 
@@ -296,7 +352,6 @@ check_unsupported_property_value_change (const gchar     *ontology_path,
 
 	cursor = tracker_data_query_sparql_cursor (query, &error);
 
-
 	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
 		if (g_strcmp0 (object, tracker_db_cursor_get_string (cursor, 0, NULL)) == 0) {
 			needed = FALSE;
@@ -324,7 +379,6 @@ check_unsupported_property_value_change (const gchar     *ontology_path,
 
 	return needed;
 }
-
 
 static gboolean
 update_property_value (const gchar      *ontology_path,
@@ -458,8 +512,10 @@ check_range_conversion_is_allowed (const gchar  *ontology_path,
 }
 
 static void
-fix_indexed (TrackerProperty *property)
+fix_indexed (TrackerProperty  *property,
+             GError          **error)
 {
+	GError *internal_error = NULL;
 	TrackerDBInterface *iface;
 	TrackerClass *class;
 	const gchar *service_name;
@@ -473,19 +529,26 @@ fix_indexed (TrackerProperty *property)
 
 	if (tracker_property_get_multiple_values (property)) {
 		set_index_for_multi_value_property (iface, service_name, field_name,
-		                                    tracker_property_get_indexed (property));
+		                                    tracker_property_get_indexed (property),
+		                                    &internal_error);
 	} else {
 		TrackerProperty *secondary_index;
 
 		secondary_index = tracker_property_get_secondary_index (property);
 		if (secondary_index == NULL) {
 			set_index_for_single_value_property (iface, service_name, field_name,
-			                                     tracker_property_get_indexed (property));
+			                                     tracker_property_get_indexed (property),
+			                                     &internal_error);
 		} else {
 			set_secondary_index_for_single_value_property (iface, service_name, field_name,
 			                                               tracker_property_get_name (secondary_index),
-			                                               tracker_property_get_indexed (property));
+			                                               tracker_property_get_indexed (property),
+			                                               &internal_error);
 		}
+	}
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
 	}
 }
 
@@ -1418,7 +1481,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                           TRACKER_PREFIX "indexed",
 				                           "true", allowed_boolean_conversions,
 				                           NULL, property, &n_error)) {
-					fix_indexed (property);
+					fix_indexed (property, &n_error);
 					indexed_set = TRUE;
 				}
 			} else {
@@ -1428,7 +1491,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                           TRACKER_PREFIX "indexed",
 				                           "false", allowed_boolean_conversions,
 				                           NULL, property, &n_error)) {
-					fix_indexed (property);
+					fix_indexed (property, &n_error);
 					indexed_set = TRUE;
 				}
 			}
@@ -1448,7 +1511,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                           tracker_property_get_uri (secondary_index), NULL,
 				                           NULL, property, &n_error)) {
 					if (!indexed_set) {
-						fix_indexed (property);
+						fix_indexed (property, &n_error);
 					}
 				}
 			} else {
@@ -1459,7 +1522,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				                           NULL, NULL,
 				                           NULL, property, &n_error)) {
 					if (!indexed_set) {
-						fix_indexed (property);
+						fix_indexed (property, &n_error);
 					}
 				}
 			}
@@ -1500,7 +1563,6 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 			if (n_error) {
 				g_propagate_error (error, n_error);
 			}
-
 		}
 	}
 }
@@ -2375,8 +2437,10 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
                                            TrackerClass       *service,
                                            const gchar       **sql_type_for_single_value,
                                            gboolean            in_update,
-                                           gboolean            in_change)
+                                           gboolean            in_change,
+                                           GError            **error)
 {
+	GError *internal_error = NULL;
 	const char *field_name;
 	const char *sql_type;
 	gboolean    not_single;
@@ -2408,10 +2472,9 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	                                 tracker_property_get_is_new_domain_index (property, service) ||
 	                                 tracker_property_get_db_schema_changed (property)))) {
 		if (not_single || tracker_property_get_multiple_values (property)) {
-			GString *sql;
+			GString *sql = NULL;
 			GString *in_col_sql = NULL;
 			GString *sel_col_sql = NULL;
-			GError *error = NULL;
 
 			/* multiple values */
 
@@ -2425,18 +2488,23 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				         service_name, field_name, service_name, field_name,
 				         service_name, field_name);
 
-				tracker_db_interface_execute_query (iface, NULL,
+				tracker_db_interface_execute_query (iface, &internal_error,
 				                                    "DROP INDEX IF EXISTS \"%s_%s_ID\"",
 				                                    service_name,
 				                                    field_name);
 
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
 
-				tracker_db_interface_execute_query (iface, &error,
+				tracker_db_interface_execute_query (iface, &internal_error,
 				                                    "ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
 				                                    service_name, field_name, service_name, field_name);
-				if (error) {
-					g_critical ("Ontology change failed while renaming SQL table '%s'", error->message);
-					g_clear_error (&error);
+
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
 				}
 			}
 
@@ -2468,26 +2536,34 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				                        tracker_property_get_name (property));
 			}
 
-			tracker_db_interface_execute_query (iface, &error,
+			tracker_db_interface_execute_query (iface, &internal_error,
 			                                    "%s)", sql->str);
 
-			if (error) {
-				g_critical ("Creating SQL table failed: %s", error->message);
-				g_clear_error (&error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				goto error_out;
 			}
 
 			/* multiple values */
 			if (tracker_property_get_indexed (property)) {
 				/* use different UNIQUE index for properties whose
 				 * value should be indexed to minimize index size */
-				set_index_for_multi_value_property (iface, service_name, field_name, TRUE);
+				set_index_for_multi_value_property (iface, service_name, field_name, TRUE,
+				                                    &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
 			} else {
-				set_index_for_multi_value_property (iface, service_name, field_name, FALSE);
+				set_index_for_multi_value_property (iface, service_name, field_name, FALSE,
+				                                    &internal_error);
 				/* we still have to include the property value in
 				 * the unique index for proper constraints */
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
 			}
-
-			g_string_free (sql, TRUE);
 
 			if (in_change && !tracker_property_get_is_new (property) && in_col_sql && sel_col_sql) {
 				gchar *query;
@@ -2497,40 +2573,58 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				                         service_name, field_name, in_col_sql->str,
 				                         sel_col_sql->str, service_name, field_name);
 
-				tracker_db_interface_execute_query (iface, &error, "%s", query);
+				tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
 
-				if (error) {
-					g_critical ("Ontology change failed while merging data of SQL table '%s'", error->message);
-					g_clear_error (&error);
+				if (internal_error) {
+					g_free (query);
+					g_propagate_error (error, internal_error);
+					goto error_out;
 				}
 
 				g_free (query);
-				tracker_db_interface_execute_query (iface, &error, "DROP TABLE \"%s_%s_TEMP\"",
+				tracker_db_interface_execute_query (iface, &internal_error, "DROP TABLE \"%s_%s_TEMP\"",
 				                                    service_name, field_name);
 
-				if (error) {
-					g_critical ("Ontology change failed while dropping SQL table '%s'", error->message);
-					g_clear_error (&error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
 				}
-
 			}
-
-			if (sel_col_sql)
-				g_string_free (sel_col_sql, TRUE);
-			if (in_col_sql)
-				g_string_free (in_col_sql, TRUE);
 
 			/* multiple values */
 			if (tracker_property_get_indexed (property)) {
 				/* use different UNIQUE index for properties whose
 				 * value should be indexed to minimize index size */
-				set_index_for_multi_value_property (iface, service_name, field_name, TRUE);
+				set_index_for_multi_value_property (iface, service_name, field_name, TRUE,
+				                                    &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
 			} else {
-				set_index_for_multi_value_property (iface, service_name, field_name, FALSE);
+				set_index_for_multi_value_property (iface, service_name, field_name, FALSE,
+				                                    &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
 				/* we still have to include the property value in
 				 * the unique index for proper constraints */
 			}
 
+			error_out:
+
+			if (sql) {
+				g_string_free (sql, TRUE);
+			}
+
+			if (sel_col_sql) {
+				g_string_free (sel_col_sql, TRUE);
+			}
+
+			if (in_col_sql) {
+				g_string_free (in_col_sql, TRUE);
+			}
 		} else if (sql_type_for_single_value) {
 			*sql_type_for_single_value = sql_type;
 		}
@@ -2553,13 +2647,14 @@ is_a_domain_index (TrackerProperty **domain_indexes, TrackerProperty *property)
 }
 
 static void
-copy_from_domain_to_domain_index (TrackerDBInterface *iface,
-                                  TrackerProperty    *domain_index,
-                                  const gchar        *column_name,
-                                  const gchar        *column_suffix,
-                                  TrackerClass       *dest_domain)
+copy_from_domain_to_domain_index (TrackerDBInterface  *iface,
+                                  TrackerProperty     *domain_index,
+                                  const gchar         *column_name,
+                                  const gchar         *column_suffix,
+                                  TrackerClass        *dest_domain,
+                                  GError             **error)
 {
-	GError *error = NULL;
+	GError *internal_error = NULL;
 	TrackerClass *source_domain;
 	const gchar *source_name, *dest_name;
 	gchar *query;
@@ -2582,11 +2677,10 @@ copy_from_domain_to_domain_index (TrackerDBInterface *iface,
 
 	g_debug ("Copying: '%s'", query);
 
-	tracker_db_interface_execute_query (iface, &error, "%s", query);
+	tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
 
-	if (error) {
-		g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
-		g_clear_error (&error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
 	}
 
 	g_free (query);
@@ -2689,7 +2783,13 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 			                                           service,
 			                                           &sql_type_for_single_value,
 			                                           in_update,
-			                                           in_change);
+			                                           in_change,
+			                                           &internal_error);
+
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				goto error_out;
+			}
 
 			field_name = tracker_property_get_name (property);
 
@@ -2795,14 +2895,26 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 					} else if (is_domain_index) {
 						copy_from_domain_to_domain_index (iface, property,
 						                                  field_name, NULL,
-						                                  service);
+						                                  service,
+						                                  &internal_error);
+						if (internal_error) {
+							g_string_free (alter_sql, TRUE);
+							g_propagate_error (error, internal_error);
+							goto error_out;
+						}
+
 						/* This is implicit for all domain-specific-indices */
 						set_index_for_single_value_property (iface, service_name,
-						                                     field_name, TRUE);
+						                                     field_name, TRUE,
+						                                     &internal_error);
+						if (internal_error) {
+							g_string_free (alter_sql, TRUE);
+							g_propagate_error (error, internal_error);
+							goto error_out;
+						}
 					}
 
 					g_string_free (alter_sql, TRUE);
-
 
 					alter_sql = g_string_new ("ALTER TABLE ");
 					g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:graph\" INTEGER",
@@ -2815,10 +2927,15 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 						g_propagate_error (error, internal_error);
 						goto error_out;
 					} else if (is_domain_index) {
-						/* TODO add error handling here */
 						copy_from_domain_to_domain_index (iface, property,
 						                                  field_name, ":graph",
-						                                  service);
+						                                  service,
+						                                  &internal_error);
+						if (internal_error) {
+							g_string_free (alter_sql, TRUE);
+							g_propagate_error (error, internal_error);
+							goto error_out;
+						}
 					}
 
 					g_string_free (alter_sql, TRUE);
@@ -2835,10 +2952,15 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 							g_propagate_error (error, internal_error);
 							goto error_out;
 						}	else if (is_domain_index) {
-							/* TODO add error handling here */
 							copy_from_domain_to_domain_index (iface, property,
 							                                  field_name, ":localDate",
-							                                  service);
+							                                  service,
+							                                  &internal_error);
+							if (internal_error) {
+								g_string_free (alter_sql, TRUE);
+								g_propagate_error (error, internal_error);
+								goto error_out;
+							}
 						}
 
 						g_string_free (alter_sql, TRUE);
@@ -2854,14 +2976,17 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 							g_propagate_error (error, internal_error);
 							goto error_out;
 						} else if (is_domain_index) {
-							/* TODO add error handling here */
 							copy_from_domain_to_domain_index (iface, property,
 							                                  field_name, ":localTime",
-							                                  service);
+							                                  service,
+							                                  &internal_error);
+							if (internal_error) {
+								g_string_free (alter_sql, TRUE);
+								g_propagate_error (error, internal_error);
+								goto error_out;
+							}
 						}
-
 						g_string_free (alter_sql, TRUE);
-
 					}
 				} else {
 					put_change = TRUE;
@@ -2903,12 +3028,21 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 			secondary_index = tracker_property_get_secondary_index (field);
 			if (secondary_index == NULL) {
 				/* TODO add error handling here */
-				set_index_for_single_value_property (iface, service_name, field_name, TRUE);
+				set_index_for_single_value_property (iface, service_name, field_name, TRUE,
+				                                     &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
 			} else {
 				/* TODO add error handling here */
 				set_secondary_index_for_single_value_property (iface, service_name, field_name,
 				                                               tracker_property_get_name (secondary_index),
-				                                               TRUE);
+				                                               TRUE, &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
 			}
 		}
 	}
@@ -2944,7 +3078,12 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 			/* TODO add error handling here */
 			copy_from_domain_to_domain_index (iface, sched->prop,
 			                                  sched->field_name, sched->suffix,
-			                                  service);
+			                                  service,
+			                                  &internal_error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				break;
+			}
 		}
 		g_ptr_array_free (copy_schedule, TRUE);
 	}
@@ -3166,8 +3305,10 @@ get_new_service_id (TrackerDBInterface *iface)
 static void
 tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
                                        gpointer               busy_user_data,
-                                       const gchar           *busy_status)
+                                       const gchar           *busy_status,
+                                       GError               **error)
 {
+	GError *internal_error = NULL;
 	TrackerProperty **properties;
 	guint n_properties;
 	guint i;
@@ -3192,7 +3333,12 @@ tracker_data_manager_recreate_indexes (TrackerBusyCallback    busy_callback,
 		         service_name,
 		         field_name);
 
-		fix_indexed (properties [i]);
+		fix_indexed (properties [i], &internal_error);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return;
+		}
 
 		if (busy_callback) {
 			busy_callback (busy_status,
@@ -3937,8 +4083,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		 * already have the proper locale set in the collator */
 		tracker_data_manager_recreate_indexes (busy_callback,
 		                                       busy_user_data,
-		                                       busy_status);
+		                                       busy_status,
+		                                       &internal_error);
 		g_free (busy_status);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 		tracker_db_manager_set_current_locale ();
 	}
