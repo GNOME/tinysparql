@@ -2739,7 +2739,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 			if (new_error) {
 				g_warning ("Journal replay error: '%s'", new_error->message);
 
-				/* Oud of disk is an unrecoverable fatal error */
+				/* Out of disk is an unrecoverable fatal error */
 				if (g_error_matches (new_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_NO_SPACE)) {
 					g_propagate_error (error, new_error);
 					return;
