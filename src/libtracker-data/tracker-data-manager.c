@@ -231,10 +231,10 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 	                                    service_name,
 	                                    field_name);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return;
-		}
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
+	}
 
 	/* Useful to have this here for the cases where we want to fully
 	 * re-create the indexes even without an ontology change (when locale
@@ -1595,6 +1595,9 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 	TrackerTurtleReader *reader;
 	GError              *ttl_error = NULL;
 
+	/* TODO: Investigate whether or not we can propagate ttl_error instead
+	 * of using critical */
+
 	reader = tracker_turtle_reader_new (ontology_path, &ttl_error);
 	if (ttl_error) {
 		g_critical ("Turtle parse error: %s", ttl_error->message);
@@ -2361,7 +2364,8 @@ insert_uri_in_resource_table (TrackerDBInterface  *iface,
 	TrackerDBStatement *stmt;
 	GError *internal_error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &internal_error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              &internal_error,
 	                                              "INSERT OR IGNORE "
 	                                              "INTO Resource "
 	                                              "(ID, Uri) "
@@ -2739,7 +2743,9 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 
 	if (in_change) {
 		g_debug ("Rename: ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
-		tracker_db_interface_execute_query (iface, &internal_error, "ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"",
+		                                    service_name, service_name);
 		in_col_sql = g_string_new ("ID");
 		sel_col_sql = g_string_new ("ID");
 		if (internal_error) {
@@ -2921,7 +2927,8 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 					                        service_name,
 					                        field_name);
 					g_debug ("Altering: '%s'", alter_sql->str);
-					tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+					tracker_db_interface_execute_query (iface, &internal_error,
+					                                    "%s", alter_sql->str);
 					if (internal_error) {
 						g_string_free (alter_sql, TRUE);
 						g_propagate_error (error, internal_error);
@@ -2946,12 +2953,14 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 						                        service_name,
 						                        field_name);
 						g_debug ("Altering: '%s'", alter_sql->str);
-						tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+						tracker_db_interface_execute_query (iface, &internal_error,
+						                                    "%s", alter_sql->str);
+
 						if (internal_error) {
 							g_string_free (alter_sql, TRUE);
 							g_propagate_error (error, internal_error);
 							goto error_out;
-						}	else if (is_domain_index) {
+						} else if (is_domain_index) {
 							copy_from_domain_to_domain_index (iface, property,
 							                                  field_name, ":localDate",
 							                                  service,
@@ -2970,7 +2979,8 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 						                        service_name,
 						                        field_name);
 						g_debug ("Altering: '%s'", alter_sql->str);
-						tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+						tracker_db_interface_execute_query (iface, &internal_error,
+						                                    "%s", alter_sql->str);
 						if (internal_error) {
 							g_string_free (alter_sql, TRUE);
 							g_propagate_error (error, internal_error);
@@ -3002,7 +3012,9 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 	if (create_sql) {
 		g_string_append (create_sql, ")");
 		g_debug ("Creating: '%s'", create_sql->str);
-		tracker_db_interface_execute_query (iface, &internal_error, "%s", create_sql->str);
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "%s", create_sql->str);
+
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			goto error_out;
@@ -3028,7 +3040,8 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 			secondary_index = tracker_property_get_secondary_index (field);
 			if (secondary_index == NULL) {
 				/* TODO add error handling here */
-				set_index_for_single_value_property (iface, service_name, field_name, TRUE,
+				set_index_for_single_value_property (iface, service_name,
+				                                     field_name, TRUE,
 				                                     &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
@@ -3058,13 +3071,17 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 		g_debug ("Copy: %s", query);
 
 		tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
+
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			goto error_out;
 		}
+
 		g_free (query);
 		g_debug ("Rename (drop): DROP TABLE \"%s_TEMP\"", service_name);
-		tracker_db_interface_execute_query (iface, &internal_error, "DROP TABLE \"%s_TEMP\"", service_name);
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "DROP TABLE \"%s_TEMP\"", service_name);
+
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			goto error_out;
@@ -3080,15 +3097,19 @@ create_decomposed_metadata_tables (TrackerDBInterface  *iface,
 			                                  sched->field_name, sched->suffix,
 			                                  service,
 			                                  &internal_error);
+
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 				break;
 			}
 		}
-		g_ptr_array_free (copy_schedule, TRUE);
 	}
 
 error_out:
+
+	if (copy_schedule) {
+		g_ptr_array_free (copy_schedule, TRUE);
+	}
 
 	if (create_sql) {
 		g_string_free (create_sql, TRUE);
@@ -3096,10 +3117,13 @@ error_out:
 
 	g_slist_free (class_properties);
 
-	if (in_col_sql)
+	if (in_col_sql) {
 		g_string_free (in_col_sql, TRUE);
-	if (sel_col_sql)
+	}
+
+	if (sel_col_sql) {
 		g_string_free (sel_col_sql, TRUE);
+	}
 }
 
 static void
