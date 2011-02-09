@@ -1092,7 +1092,9 @@ poll_for_ready (MetadataExtractor *extractor,
 
 			gst_message_parse_error (message, &lerror, &error_message);
 
-#if (GST_VERSION_MICRO >= 20)
+			/* The first GStreamer version with these encryption related errors
+			 * is 0.10.20 */
+#if (GST_CHECK_VERSION (0,10,20))
 			if (lerror->domain == GST_STREAM_ERROR) {
 				if (lerror->code == GST_STREAM_ERROR_DECRYPT ||
 				    lerror->code == GST_STREAM_ERROR_DECRYPT_NOKEY) {
