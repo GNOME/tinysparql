@@ -75,8 +75,7 @@ tracker_db_interface_end_db_transaction (TrackerDBInterface  *interface,
 		g_message ("%s", internal_error->message);
 		g_propagate_error (error, internal_error);
 
-		/* Now that we propagate the error, ROLLBACK happens later
-		 tracker_db_interface_execute_query (interface, NULL, "ROLLBACK"); */
+		/* We propagate the error, ROLLBACK happens later */
 
 		return FALSE;
 	}
