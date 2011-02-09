@@ -72,11 +72,8 @@ tracker_db_interface_end_db_transaction (TrackerDBInterface  *interface,
 	tracker_db_interface_execute_query (interface, &internal_error, "COMMIT");
 
 	if (internal_error) {
-		g_message ("%s", internal_error->message);
 		g_propagate_error (error, internal_error);
-
 		/* We propagate the error, ROLLBACK happens later */
-
 		return FALSE;
 	}
 
