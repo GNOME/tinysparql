@@ -1595,13 +1595,10 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 	TrackerTurtleReader *reader;
 	GError              *ttl_error = NULL;
 
-	/* TODO: Investigate whether or not we can propagate ttl_error instead
-	 * of using critical */
-
 	reader = tracker_turtle_reader_new (ontology_path, &ttl_error);
+
 	if (ttl_error) {
-		g_critical ("Turtle parse error: %s", ttl_error->message);
-		g_error_free (ttl_error);
+		g_propagate_error (error, ttl_error);
 		return;
 	}
 
@@ -1634,8 +1631,7 @@ load_ontology_file_from_path (const gchar        *ontology_path,
 	g_object_unref (reader);
 
 	if (ttl_error) {
-		g_critical ("Turtle parse error: %s", ttl_error->message);
-		g_error_free (ttl_error);
+		g_propagate_error (error, ttl_error);
 	}
 }
 
