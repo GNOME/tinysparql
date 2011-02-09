@@ -227,30 +227,34 @@ struct FindCategory {
 	gboolean found;
 };
 
-static void     results_window_constructed        (GObject              *object);
-static void     results_window_finalize           (GObject              *object);
-static void     results_window_set_property       (GObject              *object,
-                                                   guint                 prop_id,
-                                                   const GValue         *value,
-                                                   GParamSpec           *pspec);
-static void     results_window_get_property       (GObject              *object,
-                                                   guint                 prop_id,
-                                                   GValue               *value,
-                                                   GParamSpec           *pspec);
-static gboolean results_window_key_press_event    (GtkWidget            *widget,
-                                                   GdkEventKey          *event);
-static gboolean results_window_button_press_event (GtkWidget            *widget,
-                                                   GdkEventButton       *event);
-static void     results_window_size_request       (GtkWidget            *widget,
-                                                   GtkRequisition       *requisition);
-static void     results_window_screen_changed     (GtkWidget            *widget,
-                                                   GdkScreen            *prev_screen);
-static void     model_set_up                      (TrackerResultsWindow *window);
-static void     search_get                        (TrackerResultsWindow *window,
-                                                   TrackerCategory       category);
-static void     search_start                      (TrackerResultsWindow *window);
-static void     search_query_free                 (SearchQuery          *sq);
-static gchar *  category_to_string                (TrackerCategory       category);
+static void     results_window_constructed          (GObject              *object);
+static void     results_window_finalize             (GObject              *object);
+static void     results_window_set_property         (GObject              *object,
+                                                     guint                 prop_id,
+                                                     const GValue         *value,
+                                                     GParamSpec           *pspec);
+static void     results_window_get_property         (GObject              *object,
+                                                     guint                 prop_id,
+                                                     GValue               *value,
+                                                     GParamSpec           *pspec);
+static gboolean results_window_key_press_event      (GtkWidget            *widget,
+                                                     GdkEventKey          *event);
+static gboolean results_window_button_press_event   (GtkWidget            *widget,
+                                                     GdkEventButton       *event);
+static void     results_window_get_preferred_width  (GtkWidget            *widget,
+                                                     gint                 *minimal_width,
+                                                     gint                 *natural_width);
+static void     results_window_get_preferred_height (GtkWidget            *widget,
+                                                     gint                 *minimal_height,
+                                                     gint                 *natural_height);
+static void     results_window_screen_changed       (GtkWidget            *widget,
+                                                     GdkScreen            *prev_screen);
+static void     model_set_up                        (TrackerResultsWindow *window);
+static void     search_get                          (TrackerResultsWindow *window,
+                                                     TrackerCategory       category);
+static void     search_start                        (TrackerResultsWindow *window);
+static void     search_query_free                   (SearchQuery          *sq);
+static gchar *  category_to_string                  (TrackerCategory       category);
 
 enum {
 	COL_CATEGORY_ID,
@@ -284,7 +288,8 @@ tracker_results_window_class_init (TrackerResultsWindowClass *klass)
 
 	widget_class->key_press_event = results_window_key_press_event;
 	widget_class->button_press_event = results_window_button_press_event;
-	widget_class->size_request = results_window_size_request;
+	widget_class->get_preferred_width = results_window_get_preferred_width;
+	widget_class->get_preferred_height = results_window_get_preferred_height;
 	widget_class->screen_changed = results_window_screen_changed;
 
 	g_object_class_install_property (object_class,
@@ -515,7 +520,7 @@ results_window_key_press_event (GtkWidget   *widget,
 {
 	TrackerResultsWindowPrivate *priv;
 
-	if (event->keyval == GDK_Escape) {
+	if (event->keyval == GDK_KEY_Escape) {
 		gtk_widget_hide (widget);
 
 		return TRUE;
@@ -523,9 +528,9 @@ results_window_key_press_event (GtkWidget   *widget,
 
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (widget);
 
-        if (event->keyval != GDK_Return &&
+        if (event->keyval != GDK_KEY_Return &&
             (*event->string != '\0' ||
-             event->keyval == GDK_BackSpace)) {
+             event->keyval == GDK_KEY_BackSpace)) {
                 GtkWidget *entry;
 
                 entry = tracker_aligned_window_get_widget (TRACKER_ALIGNED_WINDOW (widget));
@@ -544,8 +549,12 @@ static gboolean
 results_window_button_press_event (GtkWidget      *widget,
                                    GdkEventButton *event)
 {
-	if (event->x < 0 || event->x > widget->allocation.width ||
-	    event->y < 0 || event->y > widget->allocation.height) {
+	GtkAllocation alloc;
+
+	gtk_widget_get_allocation (widget, &alloc);
+
+	if (event->x < 0 || event->x > alloc.width ||
+	    event->y < 0 || event->y > alloc.height) {
 		/* Click happened outside window, pop it down */
 		gtk_widget_hide (widget);
 		return TRUE;
@@ -566,26 +575,50 @@ results_window_size_request (GtkWidget      *widget,
 	GtkRequisition child_req;
 	guint border_width;
 
-	gtk_widget_size_request (GTK_BIN (widget)->child, &child_req);
+	gtk_widget_size_request (gtk_bin_get_child (GTK_BIN (widget)), &child_req);
 	border_width = gtk_container_get_border_width (GTK_CONTAINER (widget));
 
 	requisition->width = child_req.width + (2 * border_width);
 	requisition->height = child_req.height + (2 * border_width);
 
-	if (GTK_WIDGET_REALIZED (widget)) {
+	if (gtk_widget_get_realized (widget)) {
 		GdkScreen *screen;
 		GdkRectangle monitor_geom;
 		guint monitor_num;
 
 		/* make it no larger than half the monitor size */
 		screen = gtk_widget_get_screen (widget);
-		monitor_num = gdk_screen_get_monitor_at_window (screen, widget->window);
+		monitor_num = gdk_screen_get_monitor_at_window (screen, gtk_widget_get_window (widget));
 
 		gdk_screen_get_monitor_geometry (screen, monitor_num, &monitor_geom);
 
 		requisition->width = MIN (requisition->width, monitor_geom.width / 2);
 		requisition->height = MIN (requisition->height, monitor_geom.height / 2);
 	}
+}
+
+static void
+results_window_get_preferred_width  (GtkWidget *widget,
+                                     gint      *minimal_width,
+                                     gint      *natural_width)
+{
+	GtkRequisition requisition;
+
+	results_window_size_request (widget, &requisition);
+
+	*minimal_width = *natural_width = requisition.width;
+}
+
+static void
+results_window_get_preferred_height (GtkWidget *widget,
+                                     gint      *minimal_height,
+                                     gint      *natural_height)
+{
+	GtkRequisition requisition;
+
+	results_window_size_request (widget, &requisition);
+
+	*minimal_height = *natural_height = requisition.height;
 }
 
 static void
@@ -1439,14 +1472,14 @@ grab_popup_window (TrackerResultsWindow *window)
 	priv = TRACKER_RESULTS_WINDOW_GET_PRIVATE (window);
 
 	/* Grab pointer */
-	status = gdk_pointer_grab (widget->window,
+	status = gdk_pointer_grab (gtk_widget_get_window (widget),
 	                           TRUE,
 	                           GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK,
 	                           NULL, NULL,
 	                           time);
 
 	if (status == GDK_GRAB_SUCCESS) {
-		status = gdk_keyboard_grab (widget->window, TRUE, time);
+		status = gdk_keyboard_grab (gtk_widget_get_window (widget), TRUE, time);
 	}
 
 	if (status == GDK_GRAB_SUCCESS) {
@@ -1486,10 +1519,10 @@ tracker_results_window_popup (TrackerResultsWindow *window)
 
         /* Force scroll to top-left */
         vadj = gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (priv->scrolled_window));
-        gtk_adjustment_set_value (vadj, vadj->lower);
+        gtk_adjustment_set_value (vadj, gtk_adjustment_get_lower (vadj));
 
         hadj = gtk_scrolled_window_get_hadjustment (GTK_SCROLLED_WINDOW (priv->scrolled_window));
-        gtk_adjustment_set_value (hadj, hadj->lower);
+        gtk_adjustment_set_value (hadj, gtk_adjustment_get_lower (hadj));
 
         g_idle_add ((GSourceFunc) grab_popup_window, window);
 }

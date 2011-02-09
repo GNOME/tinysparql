@@ -98,7 +98,7 @@ applet_entry_start_search (TrackerApplet *applet)
 		g_object_set (applet->results, "query", text, NULL);
 	}
 
-	if (!GTK_WIDGET_VISIBLE (applet->results)) {
+	if (!gtk_widget_get_visible (applet->results)) {
 		tracker_results_window_popup (TRACKER_RESULTS_WINDOW (applet->results));
 	}
 }
@@ -158,14 +158,14 @@ applet_entry_key_press_event_cb (GtkWidget     *widget,
                                  GdkEventKey   *event,
                                  TrackerApplet *applet)
 {
-	if (event->keyval == GDK_Escape) {
+	if (event->keyval == GDK_KEY_Escape) {
 		if (!applet->results) {
 			return FALSE;
 		}
 
 		gtk_widget_destroy (applet->results);
 		applet->results = NULL;
-	} else if (event->keyval == GDK_Down) {
+	} else if (event->keyval == GDK_KEY_Down) {
 		if (!applet->results) {
 			return FALSE;
 		}
@@ -252,22 +252,25 @@ applet_change_orient_cb (GtkWidget         *widget,
                          gpointer           user_data)
 {
 	TrackerApplet *applet;
+	GtkAllocation alloc;
 	guint new_size;
 
 	applet = user_data;
         new_size = applet->size;
 
+	gtk_widget_get_allocation (GTK_WIDGET (applet->parent), &alloc);
+
 	switch (orient) {
 	case PANEL_APPLET_ORIENT_LEFT:
 	case PANEL_APPLET_ORIENT_RIGHT:
 		applet->orient = GTK_ORIENTATION_VERTICAL;
-		new_size = GTK_WIDGET (applet->parent)->allocation.width;
+		new_size = alloc.width;
 		break;
 
 	case PANEL_APPLET_ORIENT_UP:
 	case PANEL_APPLET_ORIENT_DOWN:
 		applet->orient = GTK_ORIENTATION_HORIZONTAL;
-		new_size = GTK_WIDGET (applet->parent)->allocation.height;
+		new_size = alloc.height;
 		break;
 	}
 
