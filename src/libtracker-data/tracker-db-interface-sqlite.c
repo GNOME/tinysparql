@@ -1108,9 +1108,10 @@ execute_stmt (TrackerDBInterface  *interface,
 		g_atomic_int_add (&interface->n_active_cursors, -1);
 
 		/* This is rather fatal */
-		if (sqlite3_errcode (interface->db) == SQLITE_IOERR ||
-		    sqlite3_errcode (interface->db) == SQLITE_CORRUPT ||
-		    sqlite3_errcode (interface->db) == SQLITE_NOTADB) {
+		if (errno != ENOSPC &&
+		    (sqlite3_errcode (interface->db) == SQLITE_IOERR ||
+		     sqlite3_errcode (interface->db) == SQLITE_CORRUPT ||
+		     sqlite3_errcode (interface->db) == SQLITE_NOTADB)) {
 
 			g_critical ("SQLite error: %s (errno: %s)",
 			            sqlite3_errmsg (interface->db),
@@ -1145,8 +1146,11 @@ execute_stmt (TrackerDBInterface  *interface,
 				g_set_error (error,
 				             TRACKER_DB_INTERFACE_ERROR,
 				             TRACKER_DB_QUERY_ERROR,
-				             "%s",
-				             sqlite3_errmsg (interface->db));
+				             "%s%s%s%s",
+				             sqlite3_errmsg (interface->db),
+				             errno != 0 ? " (" : "",
+				             errno != 0 ? g_strerror (errno) : "",
+				             errno != 0 ? ")" : "");
 			}
 		}
 	}
