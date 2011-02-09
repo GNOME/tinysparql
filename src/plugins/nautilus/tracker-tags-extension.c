@@ -60,7 +60,6 @@ typedef struct {
 static void  tracker_tags_extension_menu_provider_iface_init          (NautilusMenuProviderIface         *iface);
 static void  tracker_tags_extension_property_page_provider_iface_init (NautilusPropertyPageProviderIface *iface);
 static GType tracker_tags_extension_get_type                          (void);
-static void  tracker_tags_extension_finalize                          (GObject                           *object);
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED (TrackerTagsExtension, tracker_tags_extension, G_TYPE_OBJECT, 0,
                                 G_IMPLEMENT_INTERFACE (NAUTILUS_TYPE_MENU_PROVIDER,
@@ -255,9 +254,6 @@ tracker_tags_extension_property_page_provider_iface_init (NautilusPropertyPagePr
 static void
 tracker_tags_extension_class_init (TrackerTagsExtensionClass *klass)
 {
-	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	gobject_class->finalize = tracker_tags_extension_finalize;
 }
 
 static void
@@ -268,12 +264,6 @@ tracker_tags_extension_class_finalize (TrackerTagsExtensionClass *klass)
 static void
 tracker_tags_extension_init (TrackerTagsExtension *self)
 {
-}
-
-static void
-tracker_tags_extension_finalize (GObject *object)
-{
-	G_OBJECT_CLASS (tracker_tags_extension_parent_class)->finalize (object);
 }
 
 void
