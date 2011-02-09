@@ -2737,15 +2737,14 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 
 			tracker_data_commit_transaction (&new_error);
 			if (new_error) {
-				g_warning ("Journal replay error: '%s'", new_error->message);
-
 				/* Out of disk is an unrecoverable fatal error */
 				if (g_error_matches (new_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_NO_SPACE)) {
 					g_propagate_error (error, new_error);
 					return;
+				} else {
+					g_warning ("Journal replay error: '%s'", new_error->message);
+					g_clear_error (&new_error);
 				}
-
-				g_clear_error (&new_error);
 			}
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
 			GError *new_error = NULL;
