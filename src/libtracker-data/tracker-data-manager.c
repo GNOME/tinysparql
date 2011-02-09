@@ -4060,6 +4060,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				tracker_db_journal_shutdown ();
 			}
 
+			g_hash_table_unref (uri_id_map);
 			g_propagate_error (error, internal_error);
 			return FALSE;
 		}
