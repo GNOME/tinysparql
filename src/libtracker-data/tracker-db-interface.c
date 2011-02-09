@@ -64,17 +64,19 @@ tracker_db_interface_start_transaction (TrackerDBInterface *interface)
 }
 
 gboolean
-tracker_db_interface_end_db_transaction (TrackerDBInterface *interface)
+tracker_db_interface_end_db_transaction (TrackerDBInterface  *interface,
+                                         GError             **error)
 {
-	GError *error = NULL;
+	GError *internal_error = NULL;
 
-	tracker_db_interface_execute_query (interface, &error, "COMMIT");
+	tracker_db_interface_execute_query (interface, &internal_error, "COMMIT");
 
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
+	if (internal_error) {
+		g_message ("%s", internal_error->message);
+		g_propagate_error (error, internal_error);
 
-		tracker_db_interface_execute_query (interface, NULL, "ROLLBACK");
+		/* Now that we propagate the error, ROLLBACK happens later
+		 tracker_db_interface_execute_query (interface, NULL, "ROLLBACK"); */
 
 		return FALSE;
 	}

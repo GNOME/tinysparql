@@ -2512,6 +2512,14 @@ tracker_data_commit_transaction (GError **error)
 		return;
 	}
 
+	tracker_db_interface_end_db_transaction (iface,
+	                                         &actual_error);
+
+	if (actual_error) {
+		g_propagate_error (error, actual_error);
+		return;
+	}
+
 	get_transaction_modseq ();
 	if (has_persistent && !in_ontology_transaction) {
 		transaction_modseq++;
@@ -2544,8 +2552,6 @@ tracker_data_commit_transaction (GError **error)
 		update_buffer.fts_ever_updated = FALSE;
 	}
 #endif
-
-	tracker_db_interface_end_db_transaction (iface);
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
