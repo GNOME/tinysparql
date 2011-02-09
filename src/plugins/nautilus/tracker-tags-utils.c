@@ -123,35 +123,35 @@ tracker_tags_escape_sparql_string (const gchar *str)
 	GString *sparql;
 
 	sparql = g_string_new ("");
-        g_string_append_c (sparql, '"');
+	g_string_append_c (sparql, '"');
 
-        while (*str != '\0') {
-                gsize len = strcspn (str, "\t\n\r\"\\");
-                g_string_append_len (sparql, str, len);
-                str += len;
-                switch (*str) {
-                case '\t':
-                        g_string_append (sparql, "\\t");
-                        break;
-                case '\n':
-                        g_string_append (sparql, "\\n");
-                        break;
-                case '\r':
-                        g_string_append (sparql, "\\r");
-                        break;
-                case '"':
-                        g_string_append (sparql, "\\\"");
-                        break;
-                case '\\':
-                        g_string_append (sparql, "\\\\");
-                        break;
-                default:
-                        continue;
-                }
-                str++;
-        }
+	while (*str != '\0') {
+		gsize len = strcspn (str, "\t\n\r\"\\");
+		g_string_append_len (sparql, str, len);
+		str += len;
+		switch (*str) {
+		case '\t':
+			g_string_append (sparql, "\\t");
+			break;
+		case '\n':
+			g_string_append (sparql, "\\n");
+			break;
+		case '\r':
+			g_string_append (sparql, "\\r");
+			break;
+		case '"':
+			g_string_append (sparql, "\\\"");
+			break;
+		case '\\':
+			g_string_append (sparql, "\\\\");
+			break;
+		default:
+			continue;
+		}
+		str++;
+	}
 
-        g_string_append_c (sparql, '"');
+	g_string_append_c (sparql, '"');
 
 	return g_string_free (sparql, FALSE);
 }
@@ -164,17 +164,17 @@ tracker_tags_add_query (const gchar *tag_label)
 
 	tag_label_escaped = tracker_tags_escape_sparql_string (tag_label);
 	query = g_strdup_printf ("INSERT { "
-				 "  _:tag a nao:Tag ;"
-				 "  nao:prefLabel %s ."
-				 "} "
-				 "WHERE {"
-				 "  OPTIONAL {"
-				 "     ?tag a nao:Tag ;"
-				 "     nao:prefLabel %s"
-				 "  } ."
-				 "  FILTER (!bound(?tag)) "
-				 "}",
-				 tag_label_escaped, 
+	                         "  _:tag a nao:Tag ;"
+	                         "  nao:prefLabel %s ."
+	                         "} "
+	                         "WHERE {"
+	                         "  OPTIONAL {"
+	                         "     ?tag a nao:Tag ;"
+	                         "     nao:prefLabel %s"
+	                         "  } ."
+	                         "  FILTER (!bound(?tag)) "
+	                         "}",
+	                         tag_label_escaped,
 	                         tag_label_escaped);
 	g_free (tag_label_escaped);
 
@@ -189,13 +189,13 @@ tracker_tags_remove_query (const gchar *tag_label)
 
 	tag_label_escaped = tracker_tags_escape_sparql_string (tag_label);
 	query = g_strdup_printf ("DELETE { "
-				 "  ?tag a rdfs:Resource "
-				 "} "
-				 "WHERE {"
-				 "  ?tag a nao:Tag ;"
-				 "  nao:prefLabel %s "
-				 "}",
-				 tag_label_escaped);
+	                         "  ?tag a rdfs:Resource "
+	                         "} "
+	                         "WHERE {"
+	                         "  ?tag a nao:Tag ;"
+	                         "  nao:prefLabel %s "
+	                         "}",
+	                         tag_label_escaped);
 	g_free (tag_label_escaped);
 
 	return query;

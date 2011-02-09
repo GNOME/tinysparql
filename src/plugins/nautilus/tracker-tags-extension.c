@@ -111,7 +111,7 @@ menu_data_destroy (gpointer  data,
 }
 
 static void
-menu_tags_activate_cb (NautilusMenuItem *menu_item, 
+menu_tags_activate_cb (NautilusMenuItem *menu_item,
                        gpointer          user_data)
 {
 	MenuData *md = user_data;
@@ -124,8 +124,8 @@ menu_tags_activate_cb (NautilusMenuItem *menu_item,
 
 	dialog = gtk_dialog_new_with_buttons (N_("Tags"),
 	                                      window,
-	                                      GTK_DIALOG_MODAL | 
-	                                      GTK_DIALOG_DESTROY_WITH_PARENT | 
+	                                      GTK_DIALOG_MODAL |
+	                                      GTK_DIALOG_DESTROY_WITH_PARENT |
 #if GTK_CHECK_VERSION (2,90,7)
 	                                      0,
 #else
@@ -138,8 +138,8 @@ menu_tags_activate_cb (NautilusMenuItem *menu_item,
 	gtk_window_set_default_size (GTK_WINDOW (dialog), 250, 375);
 	gtk_window_set_resizable (GTK_WINDOW (dialog), TRUE);
 	gtk_window_set_transient_for (GTK_WINDOW (dialog), window);
-	g_signal_connect (dialog, "response", 
-	                  G_CALLBACK (gtk_widget_destroy), 
+	g_signal_connect (dialog, "response",
+	                  G_CALLBACK (gtk_widget_destroy),
 	                  NULL);
 
 	action_area = gtk_dialog_get_action_area (GTK_DIALOG (dialog));
@@ -173,13 +173,13 @@ extension_get_background_items (NautilusMenuProvider *provider,
 	}
 
 	menu_item = nautilus_menu_item_new ("tracker-tags-new",
-                                            N_("Tags..."),
-                                            N_("Tag one or more files"),
-                                            NULL);
+	                                    N_("Tags..."),
+	                                    N_("Tag one or more files"),
+	                                    NULL);
 	menu_items = g_list_append (menu_items, menu_item);
 
-	g_signal_connect_data (menu_item, "activate", 
-	                       G_CALLBACK (menu_tags_activate_cb), 
+	g_signal_connect_data (menu_item, "activate",
+	                       G_CALLBACK (menu_tags_activate_cb),
 	                       menu_data_new (provider, FALSE, window),
 	                       menu_data_destroy,
 	                       G_CONNECT_AFTER);
@@ -200,13 +200,13 @@ extension_get_file_items (NautilusMenuProvider *provider,
 	}
 
 	menu_item = nautilus_menu_item_new ("tracker-tags-new",
-                                            N_("Tags..."),
-                                            N_("Tag one or more files"),
-                                            NULL);
+	                                    N_("Tags..."),
+	                                    N_("Tag one or more files"),
+	                                    NULL);
 	menu_items = g_list_append (menu_items, menu_item);
 
-	g_signal_connect_data (menu_item, "activate", 
-	                       G_CALLBACK (menu_tags_activate_cb), 
+	g_signal_connect_data (menu_item, "activate",
+	                       G_CALLBACK (menu_tags_activate_cb),
 	                       menu_data_new (tracker_glist_copy_with_nautilus_files (files), TRUE, window),
 	                       menu_data_destroy,
 	                       G_CONNECT_AFTER);
@@ -246,12 +246,12 @@ extension_get_pages (NautilusPropertyPageProvider *provider,
 static void
 tracker_tags_extension_menu_provider_iface_init (NautilusMenuProviderIface *iface)
 {
-        iface->get_file_items = extension_get_file_items;
-        iface->get_toolbar_items = extension_get_toolbar_items;
+	iface->get_file_items = extension_get_file_items;
+	iface->get_toolbar_items = extension_get_toolbar_items;
 
-        if (0) {
-        iface->get_background_items = extension_get_background_items;
-        }
+	if (0) {
+		iface->get_background_items = extension_get_background_items;
+	}
 }
 
 static void
@@ -281,7 +281,7 @@ tracker_tags_extension_init (TrackerTagsExtension *self)
 
 	self->private->cancellable = g_cancellable_new ();
 	self->private->connection = tracker_sparql_connection_get (self->private->cancellable,
-								   NULL);
+	                                                           NULL);
 }
 
 static void
