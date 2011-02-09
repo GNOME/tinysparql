@@ -89,7 +89,8 @@ void     tracker_data_load_turtle_file              (GFile                     *
 void     tracker_data_sync                          (void);
 void     tracker_data_replay_journal                (TrackerBusyCallback        busy_callback,
                                                      gpointer                   busy_user_data,
-                                                     const gchar               *busy_status);
+                                                     const gchar               *busy_status,
+                                                     GError                   **error);
 
 /* Calling back */
 void     tracker_data_add_insert_statement_callback      (TrackerStatementCallback   callback,

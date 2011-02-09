@@ -2685,9 +2685,10 @@ tracker_data_sync (void)
 }
 
 void
-tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
-                             gpointer             busy_user_data,
-                             const gchar         *busy_status)
+tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
+                             gpointer              busy_user_data,
+                             const gchar          *busy_status,
+                             GError              **error)
 {
 	GError *journal_error = NULL;
 	TrackerProperty *rdf_type = NULL;
@@ -2739,6 +2740,13 @@ tracker_data_replay_journal (TrackerBusyCallback  busy_callback,
 			if (new_error) {
 				tracker_data_rollback_journal_transaction ();
 				g_warning ("Journal replay error: '%s'", new_error->message);
+
+				/* Oud of disk is an unrecoverable fatal error */
+				if (g_error_matches (new_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_NO_SPACE)) {
+					g_propagate_error (error, new_error);
+					return;
+				}
+
 				g_clear_error (&new_error);
 			}
 		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {

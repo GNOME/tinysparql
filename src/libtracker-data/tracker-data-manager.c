@@ -3902,8 +3902,21 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		/* Start replay */
 		tracker_data_replay_journal (busy_callback,
 		                             busy_user_data,
-		                             busy_status);
+		                             busy_status,
+		                             &internal_error);
 		g_free (busy_status);
+
+		if (internal_error) {
+
+			if (g_error_matches (internal_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_NO_SPACE)) {
+				tracker_db_manager_remove_all (FALSE);
+				tracker_db_manager_shutdown ();
+				tracker_db_journal_shutdown ();
+			}
+
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 		in_journal_replay = FALSE;
 
