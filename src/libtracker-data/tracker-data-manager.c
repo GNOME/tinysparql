@@ -2291,31 +2291,32 @@ db_get_static_data (TrackerDBInterface *iface)
 
 
 static void
-insert_uri_in_resource_table (TrackerDBInterface *iface,
-                              const gchar        *uri,
-                              gint                id)
+insert_uri_in_resource_table (TrackerDBInterface  *iface,
+                              const gchar         *uri,
+                              gint                 id,
+                              GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *error = NULL;
+	GError *internal_error = NULL;
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &internal_error,
 	                                              "INSERT OR IGNORE "
 	                                              "INTO Resource "
 	                                              "(ID, Uri) "
 	                                              "VALUES (?, ?)");
-	if (error) {
-		g_critical ("%s", error->message);
-		g_error_free (error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
 		return;
 	}
 
 	tracker_db_statement_bind_int (stmt, 0, id);
 	tracker_db_statement_bind_text (stmt, 1, uri);
-	tracker_db_statement_execute (stmt, &error);
+	tracker_db_statement_execute (stmt, &internal_error);
 
-	if (error) {
-		g_critical ("%s\n", error->message);
-		g_clear_error (&error);
+	if (internal_error) {
+		g_object_unref (stmt);
+		g_propagate_error (error, internal_error);
+		return;
 	}
 
 	if (!in_journal_replay) {
@@ -2611,21 +2612,22 @@ schedule_copy (GPtrArray *schedule,
 }
 
 static void
-create_decomposed_metadata_tables (TrackerDBInterface *iface,
-                                   TrackerClass       *service,
-                                   gboolean            in_update,
-                                   gboolean            in_change)
+create_decomposed_metadata_tables (TrackerDBInterface  *iface,
+                                   TrackerClass        *service,
+                                   gboolean             in_update,
+                                   gboolean             in_change,
+                                   GError             **error)
 {
 	const char       *service_name;
 	GString          *create_sql = NULL;
 	GString          *in_col_sql = NULL;
 	GString          *sel_col_sql = NULL;
 	TrackerProperty **properties, *property, **domain_indexes;
-	GSList           *class_properties, *field_it;
+	GSList           *class_properties = NULL, *field_it;
 	gboolean          main_class;
 	gint              i, n_props;
 	gboolean          in_alter = in_update;
-	GError           *error = NULL;
+	GError           *internal_error = NULL;
 	GPtrArray        *copy_schedule = NULL;
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
@@ -2643,12 +2645,12 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 	if (in_change) {
 		g_debug ("Rename: ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
-		tracker_db_interface_execute_query (iface, &error, "ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
+		tracker_db_interface_execute_query (iface, &internal_error, "ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
 		in_col_sql = g_string_new ("ID");
 		sel_col_sql = g_string_new ("ID");
-		if (error) {
-			g_critical ("Ontology change failed while renaming SQL table '%s'", error->message);
-			g_error_free (error);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			goto error_out;
 		}
 	}
 
@@ -2659,10 +2661,10 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		create_sql = g_string_new ("");
 		g_string_append_printf (create_sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
 		if (main_class) {
-			tracker_db_interface_execute_query (iface, &error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri TEXT NOT NULL, UNIQUE (Uri))");
-			if (error) {
-				g_critical ("Failed creating Resource SQL table: %s", error->message);
-				g_clear_error (&error);
+			tracker_db_interface_execute_query (iface, &internal_error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri TEXT NOT NULL, UNIQUE (Uri))");
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				goto error_out;
 			}
 			g_string_append (create_sql, ", Available INTEGER NOT NULL");
 		}
@@ -2670,8 +2672,6 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 	properties = tracker_ontologies_get_properties (&n_props);
 	domain_indexes = tracker_class_get_domain_indexes (service);
-
-	class_properties = NULL;
 
 	for (i = 0; i < n_props; i++) {
 		gboolean is_domain_index;
@@ -2787,10 +2787,11 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					}
 
 					g_debug ("Altering: '%s'", alter_sql->str);
-					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
-					if (error) {
-						g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
-						g_clear_error (&error);
+					tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+					if (internal_error) {
+						g_string_free (alter_sql, TRUE);
+						g_propagate_error (error, internal_error);
+						goto error_out;
 					} else if (is_domain_index) {
 						copy_from_domain_to_domain_index (iface, property,
 						                                  field_name, NULL,
@@ -2808,11 +2809,13 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 					                        service_name,
 					                        field_name);
 					g_debug ("Altering: '%s'", alter_sql->str);
-					tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
-					if (error) {
-						g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
-						g_clear_error (&error);
+					tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+					if (internal_error) {
+						g_string_free (alter_sql, TRUE);
+						g_propagate_error (error, internal_error);
+						goto error_out;
 					} else if (is_domain_index) {
+						/* TODO add error handling here */
 						copy_from_domain_to_domain_index (iface, property,
 						                                  field_name, ":graph",
 						                                  service);
@@ -2826,11 +2829,13 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 						                        service_name,
 						                        field_name);
 						g_debug ("Altering: '%s'", alter_sql->str);
-						tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
-						if (error) {
-							g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
-							g_clear_error (&error);
+						tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+						if (internal_error) {
+							g_string_free (alter_sql, TRUE);
+							g_propagate_error (error, internal_error);
+							goto error_out;
 						}	else if (is_domain_index) {
+							/* TODO add error handling here */
 							copy_from_domain_to_domain_index (iface, property,
 							                                  field_name, ":localDate",
 							                                  service);
@@ -2838,17 +2843,18 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 						g_string_free (alter_sql, TRUE);
 
-
 						alter_sql = g_string_new ("ALTER TABLE ");
 						g_string_append_printf (alter_sql, "\"%s\" ADD COLUMN \"%s:localTime\" INTEGER",
 						                        service_name,
 						                        field_name);
 						g_debug ("Altering: '%s'", alter_sql->str);
-						tracker_db_interface_execute_query (iface, &error, "%s", alter_sql->str);
-						if (error) {
-							g_critical ("Ontology change failed while altering SQL table '%s'", error->message);
-							g_clear_error (&error);
+						tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+						if (internal_error) {
+							g_string_free (alter_sql, TRUE);
+							g_propagate_error (error, internal_error);
+							goto error_out;
 						} else if (is_domain_index) {
+							/* TODO add error handling here */
 							copy_from_domain_to_domain_index (iface, property,
 							                                  field_name, ":localTime",
 							                                  service);
@@ -2871,8 +2877,11 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 	if (create_sql) {
 		g_string_append (create_sql, ")");
 		g_debug ("Creating: '%s'", create_sql->str);
-		tracker_db_interface_execute_query (iface, NULL, "%s", create_sql->str);
-		g_string_free (create_sql, TRUE);
+		tracker_db_interface_execute_query (iface, &internal_error, "%s", create_sql->str);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			goto error_out;
+		}
 	}
 
 	/* create index for single-valued fields */
@@ -2893,8 +2902,10 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 			secondary_index = tracker_property_get_secondary_index (field);
 			if (secondary_index == NULL) {
+				/* TODO add error handling here */
 				set_index_for_single_value_property (iface, service_name, field_name, TRUE);
 			} else {
+				/* TODO add error handling here */
 				set_secondary_index_for_single_value_property (iface, service_name, field_name,
 				                                               tracker_property_get_name (secondary_index),
 				                                               TRUE);
@@ -2902,11 +2913,8 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 		}
 	}
 
-	g_slist_free (class_properties);
-
 	if (in_change && sel_col_sql && in_col_sql) {
 		gchar *query;
-		GError *error = NULL;
 
 		query = g_strdup_printf ("INSERT INTO \"%s\"(%s) "
 		                         "SELECT %s FROM \"%s_TEMP\"",
@@ -2915,35 +2923,44 @@ create_decomposed_metadata_tables (TrackerDBInterface *iface,
 
 		g_debug ("Copy: %s", query);
 
-		tracker_db_interface_execute_query (iface, &error, "%s", query);
-		if (error) {
-			g_critical ("Ontology change failed while merging SQL table data '%s'", error->message);
-			g_clear_error (&error);
+		tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			goto error_out;
 		}
 		g_free (query);
 		g_debug ("Rename (drop): DROP TABLE \"%s_TEMP\"", service_name);
-		tracker_db_interface_execute_query (iface, &error, "DROP TABLE \"%s_TEMP\"", service_name);
-		if (error) {
-			g_critical ("Ontology change failed while dropping SQL table '%s'", error->message);
-			g_error_free (error);
+		tracker_db_interface_execute_query (iface, &internal_error, "DROP TABLE \"%s_TEMP\"", service_name);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			goto error_out;
 		}
 	}
-
-	if (in_col_sql)
-		g_string_free (in_col_sql, TRUE);
-	if (sel_col_sql)
-		g_string_free (sel_col_sql, TRUE);
 
 	if (copy_schedule) {
 		guint i;
 		for (i = 0; i < copy_schedule->len; i++) {
 			ScheduleCopy *sched = g_ptr_array_index (copy_schedule, i);
+			/* TODO add error handling here */
 			copy_from_domain_to_domain_index (iface, sched->prop,
 			                                  sched->field_name, sched->suffix,
 			                                  service);
 		}
 		g_ptr_array_free (copy_schedule, TRUE);
 	}
+
+error_out:
+
+	if (create_sql) {
+		g_string_free (create_sql, TRUE);
+	}
+
+	g_slist_free (class_properties);
+
+	if (in_col_sql)
+		g_string_free (in_col_sql, TRUE);
+	if (sel_col_sql)
+		g_string_free (sel_col_sql, TRUE);
 }
 
 static void
@@ -3014,7 +3031,8 @@ tracker_data_ontology_import_finished (void)
 }
 
 static void
-tracker_data_ontology_import_into_db (gboolean in_update)
+tracker_data_ontology_import_into_db (gboolean   in_update,
+                                      GError   **error)
 {
 	TrackerDBInterface *iface;
 
@@ -3029,24 +3047,48 @@ tracker_data_ontology_import_into_db (gboolean in_update)
 
 	/* create tables */
 	for (i = 0; i < n_classes; i++) {
+		GError *internal_error = NULL;
+
 		/* Also !is_new classes are processed, they might have new properties */
 		create_decomposed_metadata_tables (iface, classes[i], in_update,
-		                                   tracker_class_get_db_schema_changed (classes[i]));
+		                                   tracker_class_get_db_schema_changed (classes[i]),
+		                                   &internal_error);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return;
+		}
 	}
 
 	/* insert classes into rdfs:Resource table */
 	for (i = 0; i < n_classes; i++) {
 		if (tracker_class_get_is_new (classes[i]) == in_update) {
+			GError *internal_error = NULL;
+
 			insert_uri_in_resource_table (iface, tracker_class_get_uri (classes[i]),
-			                              tracker_class_get_id (classes[i]));
+			                              tracker_class_get_id (classes[i]),
+			                              &internal_error);
+
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return;
+			}
 		}
 	}
 
 	/* insert properties into rdfs:Resource table */
 	for (i = 0; i < n_props; i++) {
 		if (tracker_property_get_is_new (properties[i]) == in_update) {
+			GError *internal_error = NULL;
+
 			insert_uri_in_resource_table (iface, tracker_property_get_uri (properties[i]),
-			                              tracker_property_get_id (properties[i]));
+			                              tracker_property_get_id (properties[i]),
+			                              &internal_error);
+
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return;
+			}
 		}
 	}
 }
@@ -3402,7 +3444,13 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		/* This is a no-op when FTS is disabled */
 		tracker_db_interface_sqlite_fts_init (iface, TRUE);
 
-		tracker_data_ontology_import_into_db (FALSE);
+		tracker_data_ontology_import_into_db (FALSE,
+		                                      &internal_error);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 		if (uri_id_map) {
 			/* restore all IDs from ontology journal */
@@ -3411,7 +3459,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			g_hash_table_iter_init (&iter, uri_id_map);
 			while (g_hash_table_iter_next (&iter, &key, &value)) {
-				insert_uri_in_resource_table (iface, key, GPOINTER_TO_INT (value));
+				insert_uri_in_resource_table (iface,
+				                              key,
+				                              GPOINTER_TO_INT (value),
+				                              &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					return FALSE;
+				}
 			}
 		}
 
@@ -3433,7 +3488,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			}
 		}
 
-		tracker_data_commit_transaction (NULL);
+		tracker_data_commit_transaction (&internal_error);
+		if (internal_error) {
+			tracker_data_rollback_transaction ();
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 		write_ontologies_gvdb (NULL);
 
@@ -3602,7 +3662,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 						tracker_data_ontology_free_seen (seen_classes);
 						tracker_data_ontology_free_seen (seen_properties);
 						tracker_data_ontology_import_finished ();
-						tracker_data_commit_transaction (NULL);
+
+						tracker_data_commit_transaction (&internal_error);
+						if (internal_error) {
+							tracker_data_rollback_transaction ();
+							g_propagate_error (error, internal_error);
+							return FALSE;
+						}
+
 						if (ontos_table) {
 							g_hash_table_unref (ontos_table);
 						}
@@ -3662,7 +3729,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 					tracker_data_ontology_free_seen (seen_classes);
 					tracker_data_ontology_free_seen (seen_properties);
 					tracker_data_ontology_import_finished ();
-					tracker_data_commit_transaction (NULL);
+
+					tracker_data_commit_transaction (&internal_error);
+					if (internal_error) {
+						tracker_data_rollback_transaction ();
+						g_propagate_error (error, internal_error);
+						return FALSE;
+					}
+
 					if (ontos_table) {
 						g_hash_table_unref (ontos_table);
 					}
@@ -3732,11 +3806,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			if (!ontology_error) {
 				/* Perform ALTER-TABLE and CREATE-TABLE calls for all that are is_new */
-				tracker_data_ontology_import_into_db (TRUE);
+				tracker_data_ontology_import_into_db (TRUE,
+				                                      &ontology_error);
 
-				tracker_data_ontology_process_changes_post_db (seen_classes,
-				                                               seen_properties,
-				                                               &ontology_error);
+				if (!ontology_error) {
+					tracker_data_ontology_process_changes_post_db (seen_classes,
+					                                               seen_properties,
+					                                               &ontology_error);
+				}
 			}
 
 			if (ontology_error && ontology_error->code == TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE) {
@@ -3746,7 +3823,14 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 				tracker_data_ontology_free_seen (seen_classes);
 				tracker_data_ontology_free_seen (seen_properties);
 				tracker_data_ontology_import_finished ();
-				tracker_data_commit_transaction (NULL);
+
+				tracker_data_commit_transaction (&internal_error);
+				if (internal_error) {
+					tracker_data_rollback_transaction ();
+					g_propagate_error (error, internal_error);
+					return FALSE;
+				}
+
 				if (ontos_table) {
 					g_hash_table_unref (ontos_table);
 				}
@@ -3775,7 +3859,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 			if (ontology_error) {
 				g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
-				g_error_free (ontology_error);
+				g_propagate_error (error, ontology_error);
+				return FALSE;
 			}
 
 			for (l = to_reload; l; l = l->next) {
@@ -3796,7 +3881,12 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		/* Reset the is_new flag for all classes and properties */
 		tracker_data_ontology_import_finished ();
 
-		tracker_data_commit_transaction (NULL);
+		tracker_data_commit_transaction (&internal_error);
+		if (internal_error) {
+			tracker_data_rollback_transaction ();
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 		g_hash_table_unref (ontos_table);
 
