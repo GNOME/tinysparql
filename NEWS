@@ -1,3 +1,41 @@
+NEW in 0.9.38 - 2011-02-10
+==========================
+
+The changes are:
+
+  * Fixes: NB#208621, SEV-1: 10776 Music GSM-BTR-1-8108 Music Player: Duplicates in the store when synchronizing with Ovi Suite/WMP
+  * Fixes: NB#223536, tracker-extract segfaults when songs without album or artist metadata is copied to device
+  * Fixes: NB#225910, tracker-miner is crashing frequently
+  * Fixes: NB#221340, Modified album art is not updated after synchronizing with WMP.
+  * Fixes: NB#180770, Unusable emergency contact is found in Search application
+  * Fixes: NB#217610, Generated album art shown for some clips with albumart metadata
+  * Fixes: NB#224993, after ~440 smses tracker does not respond any longer
+  * Fixes: NB#222182, tracker_sparql_connection_get_direct should fail if direct access is not possible
+  * Fixes: NB#224760, "too many sql variables" when "filter ?sth in (long list)"
+  * Fixes: GB#640623, Double-click on application result should start the application
+  * ontology: Make nie:url an inverse functional property (essentially making it unique)
+  * functional-tests: Kill/stop the store in a realistic way for backup/restore
+  * documentation: Various fixes for libtracker-{client|miner|extract|sparql}
+  * libtracker-data: Added unit tests for IN with > 20 elements 
+  * libtracker-data: Improve error handling on initialization (especially if the WAL PRAGMA fails)
+  * libtracker-data: Fixed a race condition on shutdown causing criticals with  g_object_unref()
+  * tracker-store: Increase maximum D-Bus result size (1 Mb to 10 Mb)
+  * tracker-store: Don't send unmapped errors in D-Bus replies
+  * nautilus: Plugin has been updated to use libtracker-sparql (was libtracker-client)
+
+Translations:
+
+  * Updated ar: Khaled Hosny
+  * Updated cs: Marek Černocký
+  * Updated es: Daniel Mustieles
+  * Updated sv: Daniel Nylander
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.9.37 - 2011-02-03
 ==========================
 
