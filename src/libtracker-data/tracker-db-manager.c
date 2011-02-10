@@ -787,7 +787,7 @@ tracker_db_manager_init_locations (void)
 static void
 perform_recreate (gboolean *first_time, GError **error)
 {
-	GError *internal_error;
+	GError *internal_error = NULL;
 	guint i;
 
 	if (first_time) {
