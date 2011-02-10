@@ -353,7 +353,8 @@ public class Tracker.Sparql.Query : Object {
 
 	internal string get_last_string (int strip = 0) {
 		int last_index = (index + BUFFER_SIZE - 1) % BUFFER_SIZE;
-		return ((string) (tokens[last_index].begin.pos + strip)).substring (0, (int) (tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
+		// do not switch to substring for performance reasons until we require Vala 0.11.6
+		return ((string) (tokens[last_index].begin.pos + strip)).ndup ((tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
 	void parse_prologue () throws Sparql.Error {
