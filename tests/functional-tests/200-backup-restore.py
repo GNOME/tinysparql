@@ -178,9 +178,10 @@ class BackupRestoreTest (CommonTrackerStoreTest):
               instances_before = self.tracker.count_instances ("nco:Contact")
 	      self.tracker.backup (self.BACKUP_FILE)
 
+              self.system.tracker_store_stop_nicely ()
               self.system.tracker_store_remove_dbs ()
               self.system.tracker_store_remove_journal ()
-              self.system.tracker_store_brutal_restart ()
+              self.system.tracker_store_start ()
               
               instances_before_restore = self.tracker.count_instances ("nco:Contact")
               self.assertNotEqual (instances_before_restore, instances_before)
@@ -204,9 +205,10 @@ class BackupRestoreTest (CommonTrackerStoreTest):
               instances_before = self.tracker.count_instances ("nco:Contact")
 	      self.tracker.backup (self.BACKUP_FILE)
 
+              self.system.tracker_store_stop_brutally ()
               self.system.tracker_store_corrupt_dbs ()
               self.system.tracker_store_remove_journal ()
-              self.system.tracker_store_brutal_restart ()
+              self.system.tracker_store_start ()
               
               instances_before_restore = self.tracker.count_instances ("nco:Contact")
               self.assertNotEqual (instances_before_restore, instances_before)
@@ -257,8 +259,9 @@ class JournalReplayTest (CommonTrackerStoreTest):
             
             Insert few data (to have more than the pre-defined instances)
             Check instances of different classes
+            Kill the store (SIGKILL)
             Replace the DB with a random file
-            Restart the daemon
+            Start the store
             Check instances of different classes
             """
             self.tracker.update ("INSERT { <test://journal-replay/01> a nco:Contact. }")
@@ -267,10 +270,11 @@ class JournalReplayTest (CommonTrackerStoreTest):
             ie = self.tracker.count_instances ("nie:InformationElement")
             contacts = self.tracker.count_instances ("nco:Contact")
 
+            self.system.tracker_store_stop_brutally ()
             self.system.tracker_store_corrupt_dbs ()
-            self.system.tracker_store_brutal_restart ()
+            self.system.tracker_store_start ()
             ## Start it twice... the first time it detects the broken DB and aborts
-            self.system.tracker_store_brutal_restart ()
+            #self.system.tracker_store_start ()
 
             self.tracker.connect ()
 
@@ -290,8 +294,9 @@ class JournalReplayTest (CommonTrackerStoreTest):
             
             Insert few data (to have more than the pre-defined instances)
             Check instances of different classes
-            Remove the DB
-            Restart the daemon
+            KILL the store
+            Force a journal replay (DB missing, .meta.isrunning exists, journal OK)
+            Start the store
             Check instances of different classes
             """
             self.tracker.update ("INSERT { <test://journal-replay/02> a nco:Contact. }")
@@ -300,10 +305,9 @@ class JournalReplayTest (CommonTrackerStoreTest):
             ie = self.tracker.count_instances ("nie:InformationElement")
             contacts = self.tracker.count_instances ("nco:Contact")
 
-
+            self.system.tracker_store_stop_brutally ()
             self.system.tracker_store_prepare_journal_replay ()
-        
-            self.system.tracker_store_brutal_restart ()
+            self.system.tracker_store_start ()
 
             self.tracker.connect ()
 

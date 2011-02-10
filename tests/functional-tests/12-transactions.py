@@ -73,7 +73,8 @@ class TrackerTransactionsTest (CommonTrackerStoreTest):
             NUMBER_OF_INSTANCES = 1000
             self.insert_and_commit (NUMBER_OF_INSTANCES)
 
-            self.system.tracker_store_brutal_restart ()
+            self.system.tracker_store_stop_brutally ()
+            self.system.tracker_store_start ()
             # Reconnect dbus
             self.tracker.connect ()
             try:

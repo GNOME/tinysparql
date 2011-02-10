@@ -350,6 +350,12 @@ class TrackerSystemAbstraction:
     def tracker_store_start (self):
         self.store.start ()
 
+    def tracker_store_stop_nicely (self):
+        self.store.stop ()
+
+    def tracker_store_stop_brutally (self):
+        self.store.kill ()
+
     def tracker_store_restart_with_new_ontologies (self, ontodir):
         self.store.stop ()
         if ontodir:
@@ -359,10 +365,6 @@ class TrackerSystemAbstraction:
             self.store.start ()
         except dbus.DBusException, e:
             raise UnableToBootException ("Unable to boot the store \n(" + str(e) + ")")
-
-    def tracker_store_brutal_restart (self):
-        self.store.kill ()
-        self.store.start ()
 
     def tracker_store_prepare_journal_replay (self):
         db_location = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker", "meta.db")
