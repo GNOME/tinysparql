@@ -81,7 +81,11 @@ public class Tracker.Steroids : Object {
 			return variable_names;
 		} catch (Error e) {
 			request.end (e);
-			throw e;
+			if (e is Sparql.Error) {
+				throw e;
+			} else {
+				throw new Sparql.Error.INTERNAL (e.message);
+			}
 		}
 	}
 
@@ -136,7 +140,11 @@ public class Tracker.Steroids : Object {
 			}
 		} catch (Error e) {
 			request.end (e);
-			throw e;
+			if (e is Sparql.Error) {
+				throw e;
+			} else {
+				throw new Sparql.Error.INTERNAL (e.message);
+			}
 		}
 	}
 
@@ -207,7 +215,11 @@ public class Tracker.Steroids : Object {
 			return builder.end ();
 		} catch (Error e) {
 			request.end (e);
-			throw e;
+			if (e is Sparql.Error) {
+				throw e;
+			} else {
+				throw new Sparql.Error.INTERNAL (e.message);
+			}
 		}
 	}
 }

@@ -70,7 +70,11 @@ public class Tracker.Resources : Object {
 			request.end ();
 		} catch (Error e) {
 			request.end (e);
-			throw e;
+			if (e is Sparql.Error) {
+				throw e;
+			} else {
+				throw new Sparql.Error.INTERNAL (e.message);
+			}
 		}
 	}
 
@@ -109,7 +113,11 @@ public class Tracker.Resources : Object {
 			return result;
 		} catch (Error e) {
 			request.end (e);
-			throw e;
+			if (e is Sparql.Error) {
+				throw e;
+			} else {
+				throw new Sparql.Error.INTERNAL (e.message);
+			}
 		}
 	}
 
@@ -122,7 +130,11 @@ public class Tracker.Resources : Object {
 			request.end ();
 		} catch (Error e) {
 			request.end (e);
-			throw e;
+			if (e is Sparql.Error) {
+				throw e;
+			} else {
+				throw new Sparql.Error.INTERNAL (e.message);
+			}
 		}
 	}
 
@@ -150,7 +162,11 @@ public class Tracker.Resources : Object {
 			return builder.end ();
 		} catch (Error e) {
 			request.end (e);
-			throw e;
+			if (e is Sparql.Error) {
+				throw e;
+			} else {
+				throw new Sparql.Error.INTERNAL (e.message);
+			}
 		}
 	}
 
@@ -171,7 +187,11 @@ public class Tracker.Resources : Object {
 			request.end ();
 		} catch (Error e) {
 			request.end (e);
-			throw e;
+			if (e is Sparql.Error) {
+				throw e;
+			} else {
+				throw new Sparql.Error.INTERNAL (e.message);
+			}
 		}
 	}
 
