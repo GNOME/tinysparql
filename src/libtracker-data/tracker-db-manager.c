@@ -1046,15 +1046,11 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				dbs[i].iface = db_interface_create (i, &internal_error);
 
 				if (internal_error) {
-					guint y;
-
-					for (y = 1; y < i; y++) {
-						g_object_unref (dbs[y].iface);
-						dbs[y].iface = NULL;
-					}
-
-					g_propagate_error (error, internal_error);
-					return FALSE;
+					/* If this already doesn't succeed, then surely the file is
+					 * corrupt. No need to check for integrity anymore. */
+					g_error_free (internal_error);
+					must_recreate = TRUE;
+					continue;
 				}
 
 				dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
