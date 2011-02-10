@@ -1066,7 +1066,7 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 				if (internal_error) {
 					/* If this already doesn't succeed, then surely the file is
 					 * corrupt. No need to check for integrity anymore. */
-					g_error_free (internal_error);
+					g_clear_error (&internal_error);
 					must_recreate = TRUE;
 					continue;
 				}
