@@ -784,6 +784,38 @@ tracker_db_manager_init_locations (void)
 	locations_initialized = TRUE;
 }
 
+static void
+perform_recreate (gboolean *first_time, GError **error)
+{
+	GError *internal_error;
+	guint i;
+
+	if (first_time) {
+		*first_time = TRUE;
+	}
+
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		if (dbs[i].iface) {
+			g_object_unref (dbs[i].iface);
+			dbs[i].iface = NULL;
+		}
+	}
+
+	if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_OPEN_ERROR,
+		             "Filesystem has not enough space");
+		return;
+	}
+
+	db_recreate_all (&internal_error);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+	}
+}
+
 gboolean
 tracker_db_manager_init (TrackerDBManagerFlags   flags,
                          gboolean               *first_time,
@@ -975,24 +1007,10 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
-		if (first_time) {
-			*first_time = TRUE;
-		}
-
-		if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
-
-			g_set_error (error,
-			             TRACKER_DB_INTERFACE_ERROR,
-			             TRACKER_DB_OPEN_ERROR,
-			             "Filesystem has not enough space");
-
-			return FALSE;
-		}
-
 		/* Clear the first-index stamp file */
 		tracker_db_manager_set_first_index_done (FALSE);
 
-		db_recreate_all (&internal_error);
+		perform_recreate (first_time, &internal_error);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -1121,34 +1139,11 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 
 			g_message ("Database severely damaged. We will recreate it and replay the journal if available.");
 
-			if (first_time) {
-				*first_time = TRUE;
-			}
-
-			for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-				if (dbs[i].iface) {
-					g_object_unref (dbs[i].iface);
-					dbs[i].iface = NULL;
-				}
-			}
-
-			if (!tracker_file_system_has_enough_space (data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
-
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             TRACKER_DB_OPEN_ERROR,
-				             "Filesystem has not enough space");
-
-				return FALSE;
-			}
-
-			db_recreate_all (&internal_error);
-
+			perform_recreate (first_time, &internal_error);
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 				return FALSE;
 			}
-
 			loaded = FALSE;
 		}
 
@@ -1185,9 +1180,22 @@ tracker_db_manager_init (TrackerDBManagerFlags   flags,
 	}
 
 	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		initialized = FALSE;
-		return FALSE;
+		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
+			perform_recreate (first_time, &internal_error);
+			if (!internal_error) {
+				resources_iface = tracker_db_manager_get_db_interfaces (&internal_error, 1,
+				                                                        TRACKER_DB_METADATA);
+			}
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				initialized = FALSE;
+				return FALSE;
+			}
+		} else {
+			g_propagate_error (error, internal_error);
+			initialized = FALSE;
+			return FALSE;
+		}
 	}
 
 	tracker_db_interface_set_max_stmt_cache_size (resources_iface,
