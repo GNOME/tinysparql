@@ -143,8 +143,8 @@ static TrackerExtractData data[] = {
 	{ "audio/*", extract_gstreamer_audio },
 	{ "video/*", extract_gstreamer_video },
 	{ "image/*", extract_gstreamer_image },
-	/* Tell gstreamer to guess if mimetype guessing returns video also for audio files */
 	{ "image/svg+xml", extract_gstreamer_svg },
+	/* Tell gstreamer to guess if mimetype guessing returns video also for audio files */
 	{ "video/3gpp", extract_gstreamer_guess },
 	{ "video/mp4", extract_gstreamer_guess },
 	{ "video/x-ms-asf", extract_gstreamer_guess },
@@ -885,6 +885,10 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	} else {
+		if (extractor->mime == EXTRACT_MIME_GUESS) {
+			g_warning ("Cannot guess real stream type if no tags were read!");
+		}
+
 		if (extractor->mime == EXTRACT_MIME_AUDIO)
 			needs_audio = TRUE;
 
@@ -1088,9 +1092,9 @@ poll_for_ready (MetadataExtractor *extractor,
 		}
 		case GST_MESSAGE_ERROR: {
 			GError *lerror = NULL;
-			gchar  *error_message;
+			gchar  *error_debug_message;
 
-			gst_message_parse_error (message, &lerror, &error_message);
+			gst_message_parse_error (message, &lerror, &error_debug_message);
 
 			/* The first GStreamer version with these encryption related errors
 			 * is 0.10.20 */
@@ -1098,20 +1102,26 @@ poll_for_ready (MetadataExtractor *extractor,
 			if (lerror->domain == GST_STREAM_ERROR) {
 				if (lerror->code == GST_STREAM_ERROR_DECRYPT ||
 				    lerror->code == GST_STREAM_ERROR_DECRYPT_NOKEY) {
-					/* also extract metadata from encrypted streams */
-
+					/* Set content as being encrypted */
 					extractor->is_content_encrypted = TRUE;
 
-					g_free (error_message);
+					g_message ("Encrypted stream found: '%s' (%s)",
+					           lerror ? lerror->message : "Unknown error",
+					           error_debug_message);
+
+					g_free (error_debug_message);
 					g_error_free (lerror);
 					break;
 				}
 			}
 #endif
 
+			g_warning ("Error in GStreamer: '%s' (%s)",
+			           lerror ? lerror->message : "Unknown error",
+			           error_debug_message);
+
 			gst_message_unref (message);
-			g_warning ("Got error :%s", error_message);
-			g_free (error_message);
+			g_free (error_debug_message);
 			g_error_free (lerror);
 
 			return FALSE;
