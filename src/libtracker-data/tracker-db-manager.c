@@ -1251,10 +1251,9 @@ tracker_db_manager_shutdown (void)
 		global_iface = NULL;
 	}
 
-	/* shutdown db interface in current thread
-	 * interfaces in other threads are shut down by TLS cleanup
-	 * do not use g_static_private_free as it does not appear to be thread-safe */
-	g_static_private_set (&interface_data_key, NULL, NULL);
+	/* shutdown db interface in all threads
+	 * this can currently cause critical warnings due to a bug in g_static_private_free */
+	g_static_private_free (&interface_data_key);
 
 	/* Since we don't reference this enum anywhere, we do
 	 * it here to make sure it exists when we call
