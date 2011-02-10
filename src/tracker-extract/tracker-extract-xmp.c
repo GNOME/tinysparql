@@ -134,7 +134,7 @@ extract_xmp (const gchar          *uri,
              TrackerSparqlBuilder *metadata)
 {
 	TrackerXmpData *xd = NULL;
-	GError *error;
+	GError *error = NULL;
 	gchar *filename;
 	gchar *contents;
 	gsize length;
