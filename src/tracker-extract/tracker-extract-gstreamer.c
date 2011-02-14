@@ -317,9 +317,9 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 	}
 
 	tracker_guarantee_date_from_file_mtime (metadata,
-	                                            key,
-	                                            buf,
-	                                            uri);
+	                                        key,
+	                                        buf,
+	                                        uri);
 }
 
 static void
@@ -776,9 +776,9 @@ extract_metadata (MetadataExtractor      *extractor,
 		s = NULL;
 		gst_tag_list_get_string (extractor->tagcache, GST_TAG_TITLE, &s);
 		tracker_guarantee_title_from_file (metadata,
-		                                       "nie:title",
-		                                       s,
-		                                       uri);
+		                                   "nie:title",
+		                                   s,
+		                                   uri);
 		g_free (s);
 
 		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
@@ -884,10 +884,10 @@ extract_metadata (MetadataExtractor      *extractor,
 
 		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 	} else if (extractor->mime == EXTRACT_MIME_GUESS) {
-			g_warning ("Cannot guess real stream type if no tags were read! "
-			           "Defaulting to Video.");
-			tracker_sparql_builder_predicate (metadata, "a");
-			tracker_sparql_builder_object (metadata, "nmm:Video");
+		g_warning ("Cannot guess real stream type if no tags were read! "
+		           "Defaulting to Video.");
+		tracker_sparql_builder_predicate (metadata, "a");
+		tracker_sparql_builder_object (metadata, "nmm:Video");
 	} else {
 		if (extractor->mime == EXTRACT_MIME_AUDIO)
 			needs_audio = TRUE;
@@ -1199,9 +1199,9 @@ create_decodebin_pipeline (MetadataExtractor *extractor,
 	}
 
 	g_signal_connect (G_OBJECT (bin),
-			  "new-decoded-pad",
-			  G_CALLBACK (dbin_dpad_cb),
-			  extractor);
+	                  "new-decoded-pad",
+	                  G_CALLBACK (dbin_dpad_cb),
+	                  extractor);
 
 	gst_bin_add (GST_BIN (pipeline), filesrc);
 	gst_bin_add (GST_BIN (pipeline), bin);
@@ -1380,7 +1380,7 @@ extract_gstreamer_svg (const gchar          *uri,
 
 static void
 extract_gstreamer_guess (const gchar          *uri,
-                        TrackerSparqlBuilder *preupdate,
+                         TrackerSparqlBuilder *preupdate,
                          TrackerSparqlBuilder *metadata)
 {
 	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS);
