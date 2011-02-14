@@ -66,7 +66,9 @@ static TrackerExtractData data[] = {
  * version because the TextOutputDev allows us to extract text and metadata much
  * faster than the default CairoOutputDev that poppler-glib uses in case it got
  * compiled with support for Cairo. Regretfully can't this be selected at
- * runtime in the poppler-glib bindings. Apologies to the GObject/GLib fans. */
+ * runtime in the poppler-glib bindings. Apologies to the GObject/GLib fans.
+ * Correction: Since recent versions of poppler-glib this can actually be
+ * selected. */
 
 static gchar *
 unicode_to_char (Unicode *unicode,
@@ -269,23 +271,26 @@ page_get_size (Page    *page,
                gdouble *width,
                gdouble *height)
 {
-  gdouble page_width, page_height;
-  gint rotate;
+	gdouble page_width, page_height;
+	gint rotate;
 
-  rotate = page->getRotate ();
+	rotate = page->getRotate ();
 
-  if (rotate == 90 || rotate == 270) {
-    page_height = page->getCropWidth ();
-    page_width = page->getCropHeight ();
-  } else {
-    page_width = page->getCropWidth ();
-    page_height = page->getCropHeight ();
-  }
+	if (rotate == 90 || rotate == 270) {
+		page_height = page->getCropWidth ();
+		page_width = page->getCropHeight ();
+	} else {
+		page_width = page->getCropWidth ();
+		page_height = page->getCropHeight ();
+	}
 
-  if (width != NULL)
-    *width = page_width;
-  if (height != NULL)
-    *height = page_height;
+	if (width != NULL) {
+		*width = page_width;
+	}
+
+	if (height != NULL) {
+		*height = page_height;
+	}
 }
 
 static gchar *
