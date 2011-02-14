@@ -883,11 +883,12 @@ extract_metadata (MetadataExtractor      *extractor,
 		g_free (album_disc_uri);
 
 		add_string_gst_tag (metadata, uri, "nfo:codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
+	} else if (extractor->mime == EXTRACT_MIME_GUESS) {
+			g_warning ("Cannot guess real stream type if no tags were read! "
+			           "Defaulting to Video.");
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nmm:Video");
 	} else {
-		if (extractor->mime == EXTRACT_MIME_GUESS) {
-			g_warning ("Cannot guess real stream type if no tags were read!");
-		}
-
 		if (extractor->mime == EXTRACT_MIME_AUDIO)
 			needs_audio = TRUE;
 
@@ -911,6 +912,11 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 	}
 
+	/* If content was encrypted, set it. */
+	if (extractor->is_content_encrypted) {
+		tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
+		tracker_sparql_builder_object_boolean (metadata, TRUE);
+	}
 
 	if (use_tagreadbin) {
 		extract_stream_metadata_tagreadbin (extractor, uri, metadata);
@@ -1110,7 +1116,13 @@ poll_for_ready (MetadataExtractor *extractor,
 
 					g_free (error_debug_message);
 					g_error_free (lerror);
-					break;
+
+					/* According to GStreamer guys we shouldn't keep on trying
+					 * to read tags when a _DECRYPT error is received. In this
+					 * case, we should consider all tags read up to the point
+					 * when we received the encryption error. */
+					gst_message_unref (message);
+					return TRUE;
 				}
 			}
 #endif
@@ -1296,7 +1308,7 @@ tracker_extract_gstreamer (const gchar *uri,
 			return;
 		}
 
-		add_stream_tags(extractor);
+		add_stream_tags (extractor);
 		gst_element_set_state (extractor->pipeline, GST_STATE_READY);
 		gst_element_get_state (extractor->pipeline, NULL, NULL, 5 * GST_SECOND);
 		g_list_foreach (extractor->fsinks, unlink_fsink, extractor);
