@@ -104,16 +104,16 @@ albumart_strip_find_next_block (const gchar    *original,
 static gchar *
 albumart_strip_invalid_entities (const gchar *original)
 {
-	GString         *str_no_blocks;
-	gchar          **strv;
-	gchar           *str;
-	gboolean         blocks_done = FALSE;
-	const gchar     *p;
-	const gchar     *invalid_chars = "()[]<>{}_!@#$^&*+=|\\/\"'?~";
-	const gchar     *invalid_chars_delimiter = "*";
-	const gchar     *convert_chars = "\t";
-	const gchar     *convert_chars_delimiter = " ";
-	const gunichar   blocks[5][2] = {
+	GString *str_no_blocks;
+	gchar **strv;
+	gchar *str;
+	gboolean blocks_done = FALSE;
+	const gchar *p;
+	const gchar *invalid_chars = "()[]<>{}_!@#$^&*+=|\\/\"'?~";
+	const gchar *invalid_chars_delimiter = "*";
+	const gchar *convert_chars = "\t";
+	const gchar *convert_chars_delimiter = " ";
+	const gunichar blocks[5][2] = {
 		{ '(', ')' },
 		{ '{', '}' },
 		{ '[', ']' },
