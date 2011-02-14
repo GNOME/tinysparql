@@ -1119,11 +1119,11 @@ id3v2_text_to_utf8 (const gchar  encoding,
 		                            "Windows-1252",
 		                            NULL, NULL, NULL);
 	case 0x01 :
-		/*              return g_convert (text, */
-		/*                                len, */
-		/*                                "UTF-8", */
-		/*                                "UCS-2", */
-		/*                                NULL, NULL, NULL); */
+		/* return g_convert (text, */
+		/*                   len, */
+		/*                   "UTF-8", */
+		/*                   "UCS-2", */
+		/*                   NULL, NULL, NULL); */
 		return ucs2_to_utf8 (text, len - len%2);
 
 	default:
@@ -1153,10 +1153,10 @@ id3v24_get_frame (const gchar *name)
 	do {
 		m = (l + r) / 2;
 		if (strncmp (name, id3v24_frames[m].name, 4) < 0) {
-			// left half
+			/* left half */
 			r = m - 1;
 		} else {
-			// right half
+			/* right half */
 			l = m + 1;
 		}
 	} while (l <= r && strncmp (id3v24_frames[m].name, name, 4) != 0);
@@ -1182,10 +1182,10 @@ id3v2_get_frame (const gchar *name)
 	do {
 		m = (l + r) / 2;
 		if (strncmp (name, id3v2_frames[m].name, 4) < 0) {
-			// left half
+			/* left half */
 			r = m - 1;
 		} else {
-			// right half
+			/* right half */
 			l = m + 1;
 		}
 	} while (l <= r && strncmp (id3v2_frames[m].name, name, 4) != 0);
@@ -1850,10 +1850,10 @@ parse_id3v23 (const gchar          *data,
 		                   ((unsigned char)(data[12]) << 8) |
 		                   ((unsigned char)(data[12]) << 0));
 
-		padding         = (((unsigned char)(data[15]) << 24) |
-		                   ((unsigned char)(data[16]) << 16) |
-		                   ((unsigned char)(data[17]) << 8) |
-		                   ((unsigned char)(data[18]) << 0));
+		padding = (((unsigned char)(data[15]) << 24) |
+		           ((unsigned char)(data[16]) << 16) |
+		           ((unsigned char)(data[17]) << 8) |
+		           ((unsigned char)(data[18]) << 0));
 
 		pos += 4 + ext_header_size;
 
@@ -2176,8 +2176,8 @@ extract_mp3 (const gchar          *uri,
 	                                     md.id3v1.comment);
 
 	md.encoded_by = tracker_coalesce_strip (3, md.id3v24.encoded_by,
-						md.id3v23.encoded_by,
-						md.id3v22.encoded_by);
+	                                        md.id3v23.encoded_by,
+	                                        md.id3v22.encoded_by);
 
 	if (md.id3v24.track_number != 0) {
 		md.track_number = md.id3v24.track_number;
