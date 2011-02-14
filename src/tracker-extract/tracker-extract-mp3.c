@@ -2267,6 +2267,11 @@ extract_mp3 (const gchar          *uri,
 		tracker_sparql_builder_predicate (preupdate, "nmm:albumTitle");
 		tracker_sparql_builder_object_unvalidated (preupdate, md.album);
 
+		if (md.performer_uri) {
+			tracker_sparql_builder_predicate (preupdate, "nmm:albumArtist");
+			tracker_sparql_builder_object_iri (preupdate, md.performer_uri);
+		}
+
 		tracker_sparql_builder_insert_close (preupdate);
 
 		if (md.track_count > 0) {
