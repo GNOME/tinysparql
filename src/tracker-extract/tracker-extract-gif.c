@@ -67,8 +67,9 @@ ext_block_append(ExtBlock *extBlock,
 		 unsigned char extData[])
 {
 	extBlock->bytes = realloc(extBlock->bytes,extBlock->byteCount+len);
-	if (extBlock->bytes == NULL)
+	if (extBlock->bytes == NULL) {
 		return (GIF_ERROR);
+	}
 
 	memcpy(&(extBlock->bytes[extBlock->byteCount]), &extData[0], len);
 	extBlock->byteCount += len;
@@ -82,25 +83,29 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	       GifFileType          *gifFile,
                const gchar          *uri)
 {
-	GifRecordType  RecordType;
-	int            frameheight;
-	int            framewidth;
+	GifRecordType RecordType;
+	int frameheight;
+	int framewidth;
 	unsigned char *framedata = NULL;
-	GPtrArray     *keywords;
-	guint          i;
-	int            status;
+	GPtrArray *keywords;
+	guint i;
+	int status;
 	MergeData md = { 0 };
 	GifData   gd = { 0 };
 	TrackerXmpData *xd = NULL;
 
 	do {
+		GifByteType *ExtData;
+		int ExtCode;
+		ExtBlock extBlock;
+
 		if (DGifGetRecordType(gifFile, &RecordType) == GIF_ERROR) {
 			PrintGifError();
 			return;
 		}
 
 		switch (RecordType) {
-		case IMAGE_DESC_RECORD_TYPE:
+			case IMAGE_DESC_RECORD_TYPE:
 			if (DGifGetImageDesc(gifFile) == GIF_ERROR) {
 				PrintGifError();
 				return;
@@ -122,76 +127,70 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 
 			g_free (framedata);
 
-			break;
+		break;
 		case EXTENSION_RECORD_TYPE:
-			{
-				GifByteType   *ExtData;
-				int            ExtCode;
-				ExtBlock       extBlock;
+			extBlock.bytes = NULL;
+			extBlock.byteCount = 0;
 
-				extBlock.bytes = NULL;
-				extBlock.byteCount = 0;
-
-				if ((status = DGifGetExtension (gifFile, &ExtCode, &ExtData)) != GIF_OK) {
-					g_warning ("Problem getting the extension");
-					return;
-				}
+			if ((status = DGifGetExtension (gifFile, &ExtCode, &ExtData)) != GIF_OK) {
+				g_warning ("Problem getting the extension");
+				return;
+			}
 #if defined(HAVE_EXEMPI)
-				if (ExtData && *ExtData &&
-				    strncmp (&ExtData[1],"XMP Data",8) == 0) {
-					while (ExtData != NULL && status == GIF_OK ) {
-						if ((status = DGifGetExtensionNext (gifFile, &ExtData)) == GIF_OK) {
-							if (ExtData != NULL) {
-								if (ext_block_append (&extBlock, ExtData[0]+1, (char *) &(ExtData[0])) != GIF_OK) {
-									g_warning ("Problem with extension data");
-									return;
-								}
+			if (ExtData && *ExtData &&
+			    strncmp (&ExtData[1],"XMP Data",8) == 0) {
+				while (ExtData != NULL && status == GIF_OK ) {
+					if ((status = DGifGetExtensionNext (gifFile, &ExtData)) == GIF_OK) {
+						if (ExtData != NULL) {
+							if (ext_block_append (&extBlock, ExtData[0]+1, (char *) &(ExtData[0])) != GIF_OK) {
+								g_warning ("Problem with extension data");
+								return;
 							}
 						}
 					}
-
-					xd = tracker_xmp_new (extBlock.bytes,
-							      extBlock.byteCount-XMP_MAGIC_TRAILER_LENGTH,
-							      uri);
-
-					g_free (extBlock.bytes);
-				} else
-#endif
-				/* See Section 24. Comment Extension. in the GIF format definition */
-				if (ExtCode == EXTENSION_RECORD_COMMENT_BLOCK_CODE &&
-				    ExtData && *ExtData) {
-					guint block_count = 0;
-
-					/* Merge all blocks */
-					do {
-						block_count++;
-
-						g_debug ("Comment Extension block found (#%u, %u bytes)",
-						         block_count,
-						         ExtData[0]);
-						if (ext_block_append (&extBlock, ExtData[0], (char *) &(ExtData[1])) != GIF_OK) {
-							g_warning ("Problem with Comment extension data");
-							return;
-						}
-					} while (((status = DGifGetExtensionNext(gifFile, &ExtData)) == GIF_OK) &&
-					         ExtData != NULL);
-
-					/* Add last NUL byte */
-					g_debug ("Comment Extension blocks found (%u) with %u bytes",
-					         block_count,
-					         extBlock.byteCount);
-					extBlock.bytes = g_realloc (extBlock.bytes, extBlock.byteCount + 1);
-					extBlock.bytes[extBlock.byteCount] = '\0';
-
-					/* Set commentt */
-					gd.comment = extBlock.bytes;
-				} else {
-					do {
-						status = DGifGetExtensionNext(gifFile, &ExtData);
-					} while ( status == GIF_OK && ExtData != NULL);
 				}
+
+				xd = tracker_xmp_new (extBlock.bytes,
+						      extBlock.byteCount-XMP_MAGIC_TRAILER_LENGTH,
+						      uri);
+
+				g_free (extBlock.bytes);
+			} else
+#endif
+			/* See Section 24. Comment Extension. in the GIF format definition */
+			if (ExtCode == EXTENSION_RECORD_COMMENT_BLOCK_CODE &&
+			    ExtData && *ExtData) {
+				guint block_count = 0;
+
+				/* Merge all blocks */
+				do {
+					block_count++;
+
+					g_debug ("Comment Extension block found (#%u, %u bytes)",
+					         block_count,
+					         ExtData[0]);
+					if (ext_block_append (&extBlock, ExtData[0], (char *) &(ExtData[1])) != GIF_OK) {
+						g_warning ("Problem with Comment extension data");
+						return;
+					}
+				} while (((status = DGifGetExtensionNext(gifFile, &ExtData)) == GIF_OK) &&
+				         ExtData != NULL);
+
+				/* Add last NUL byte */
+				g_debug ("Comment Extension blocks found (%u) with %u bytes",
+				         block_count,
+				         extBlock.byteCount);
+				extBlock.bytes = g_realloc (extBlock.bytes, extBlock.byteCount + 1);
+				extBlock.bytes[extBlock.byteCount] = '\0';
+
+				/* Set commentt */
+				gd.comment = extBlock.bytes;
+			} else {
+				do {
+					status = DGifGetExtensionNext(gifFile, &ExtData);
+				} while ( status == GIF_OK && ExtData != NULL);
 			}
-			break;
+		break;
 		case TERMINATE_RECORD_TYPE:
 			break;
 		default:
@@ -493,9 +492,9 @@ extract_gif (const gchar          *uri,
              TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
-	goffset      size;
+	goffset size;
 	GifFileType *gifFile = NULL;
-	gchar       *filename;
+	gchar *filename;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 	size = tracker_file_get_size (filename);
