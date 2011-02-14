@@ -508,8 +508,6 @@ extract_metadata (MetadataExtractor      *extractor,
 	const gchar *temp;
 	gchar *make = NULL, *model = NULL, *manuf = NULL;
 	gchar *composer = NULL, *albumname = NULL, *genre = NULL;
-	gboolean ret;
-	gint count;
 	gboolean needs_audio = FALSE;
 
 	g_return_if_fail (extractor != NULL);
@@ -846,9 +844,10 @@ extract_metadata (MetadataExtractor      *extractor,
 		}
 
 		if (needs_audio) {
+			guint count;
+
 			/* Audio */
-			ret = gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &count);
-			if (ret) {
+			if (gst_tag_list_get_uint (extractor->tagcache, GST_TAG_TRACK_COUNT, &count)) {
 				*scount = g_strdup_printf ("%d", count);
 			}
 
