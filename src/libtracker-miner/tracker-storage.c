@@ -347,114 +347,32 @@ mount_add_new (TrackerStorage *storage,
 }
 
 static gchar *
-mount_guess_content_type (GFile    *mount_root,
-                          GVolume  *volume,
+mount_guess_content_type (GMount   *mount,
                           gboolean *is_optical,
                           gboolean *is_multimedia,
                           gboolean *is_blank)
 {
-	GUnixMountEntry *entry;
 	gchar *content_type = NULL;
-	gchar *mount_path;
 	gchar **guess_type;
-
-	/* This function has 2 purposes:
-	 *
-	 * 1. Detect if we are using optical media
-	 * 2. Detect if we are video or music, we can't index those types
-	 */
-
-	if (g_file_has_uri_scheme (mount_root, "cdda")) {
-		g_debug ("  Scheme is CDDA, assuming this is a CD");
-
-		*is_optical = TRUE;
-		*is_multimedia = TRUE;
-
-		return g_strdup ("x-content/audio-cdda");
-	}
 
 	*is_optical = FALSE;
 	*is_multimedia = FALSE;
 	*is_blank = FALSE;
 
-	mount_path = g_file_get_path (mount_root);
-
-	/* FIXME: Try to assume we have a unix mount :(
-	 * EEK, once in a while, I have to write crack, oh well
-	 */
-	if (mount_path &&
-	    (entry = g_unix_mount_at (mount_path, NULL)) != NULL) {
-		const gchar *filesystem_type;
-		gchar *device_path = NULL;
-
-		filesystem_type = g_unix_mount_get_fs_type (entry);
-		g_debug ("  Using filesystem type:'%s'",
-			 filesystem_type);
-
-		/* Volume may be NULL */
-		if (volume) {
-			device_path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
-			g_debug ("  Using device path:'%s'",
-			         device_path);
-		}
-
-		/* NOTE: This code was taken from guess_mount_type()
-		 * in GIO's gunixmounts.c and adapted purely for
-		 * guessing optical media. We don't use the guessing
-		 * code for other types such as MEMSTICKS, ZIPs,
-		 * IPODs, etc.
-		 *
-		 * This code may need updating over time since it is
-		 * very situational depending on how distributions
-		 * mount their devices and how devices are named in
-		 * /dev.
-		 */
-		if (strcmp (filesystem_type, "udf") == 0 ||
-		    strcmp (filesystem_type, "iso9660") == 0 ||
-		    strcmp (filesystem_type, "cd9660") == 0 ||
-		    (device_path &&
-		     (g_str_has_prefix (device_path, "/dev/cdrom") ||
-		      g_str_has_prefix (device_path, "/dev/acd") ||
-		      g_str_has_prefix (device_path, "/dev/cd")))) {
-			*is_optical = TRUE;
-		} else if (device_path &&
-		           g_str_has_prefix (device_path, "/vol/")) {
-			const gchar *name;
-
-			name = mount_path + strlen ("/");
-
-			if (g_str_has_prefix (name, "cdrom")) {
-				*is_optical = TRUE;
-			}
-		} else {
-			gchar *basename = g_path_get_basename (mount_path);
-
-			if (g_str_has_prefix (basename, "cdr") ||
-			    g_str_has_prefix (basename, "cdwriter") ||
-			    g_str_has_prefix (basename, "burn") ||
-			    g_str_has_prefix (basename, "dvdr")) {
-				*is_optical = TRUE;
-			}
-
-			g_free (basename);
-		}
-
-		g_free (device_path);
-		g_free (mount_path);
-		g_unix_mount_free (entry);
-	} else {
-		g_debug ("  No GUnixMountEntry found, needed for detecting if optical media... :(");
-		g_free (mount_path);
-	}
-
-	/* We try to determine the content type because we don't want
+	/* This function has 2 purposes:
+	 *
+	 * 1. Detect if we are using optical media
+	 * 2. Detect if we are video or music, we can't index those types
+	 *
+	 * We try to determine the content type because we don't want
 	 * to store Volume information in Tracker about DVDs and media
 	 * which has no real data for us to mine.
 	 *
 	 * Generally, if is_multimedia is TRUE then we end up ignoring
 	 * the media.
 	 */
-	guess_type = g_content_type_guess_for_tree (mount_root);
+	guess_type = g_mount_guess_content_type_sync (mount, TRUE, NULL, NULL);
+
 	if (guess_type) {
 		gint i = 0;
 
@@ -506,10 +424,96 @@ mount_guess_content_type (GFile    *mount_root,
 		g_strfreev (guess_type);
 	}
 
-	/* If none of the previous methods worked, return NULL content type and
-	 * set is_blank so that it's not indexed */
-	if (!content_type) {
-		*is_blank = TRUE;
+	if (content_type) {
+		if (strstr (content_type, "vcd") ||
+		    strstr (content_type, "cdda") ||
+		    strstr (content_type, "dvd") ||
+		    strstr (content_type, "bluray")) {
+			*is_optical = TRUE;
+		}
+	} else {
+		GUnixMountEntry *entry;
+		gchar *mount_path;
+		GFile *mount_root;
+
+		/* No content type was guessed, try to find out
+		 * at least whether it's an optical media or not
+		 */
+		mount_root = g_mount_get_root (mount);
+		mount_path = g_file_get_path (mount_root);
+
+		/* FIXME: Try to assume we have a unix mount :(
+		 * EEK, once in a while, I have to write crack, oh well
+		 */
+		if (mount_path &&
+		    (entry = g_unix_mount_at (mount_path, NULL)) != NULL) {
+			const gchar *filesystem_type;
+			gchar *device_path = NULL;
+			GVolume *volume;
+
+			volume = g_mount_get_volume (mount);
+			filesystem_type = g_unix_mount_get_fs_type (entry);
+			g_debug ("  Using filesystem type:'%s'",
+				 filesystem_type);
+
+			/* Volume may be NULL */
+			if (volume) {
+				device_path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
+				g_debug ("  Using device path:'%s'",
+					 device_path);
+				g_object_unref (volume);
+			}
+
+			/* NOTE: This code was taken from guess_mount_type()
+			 * in GIO's gunixmounts.c and adapted purely for
+			 * guessing optical media. We don't use the guessing
+			 * code for other types such as MEMSTICKS, ZIPs,
+			 * IPODs, etc.
+			 *
+			 * This code may need updating over time since it is
+			 * very situational depending on how distributions
+			 * mount their devices and how devices are named in
+			 * /dev.
+			 */
+			if (strcmp (filesystem_type, "udf") == 0 ||
+			    strcmp (filesystem_type, "iso9660") == 0 ||
+			    strcmp (filesystem_type, "cd9660") == 0 ||
+			    (device_path &&
+			     (g_str_has_prefix (device_path, "/dev/cdrom") ||
+			      g_str_has_prefix (device_path, "/dev/acd") ||
+			      g_str_has_prefix (device_path, "/dev/cd")))) {
+				*is_optical = TRUE;
+			} else if (device_path &&
+				   g_str_has_prefix (device_path, "/vol/")) {
+				const gchar *name;
+
+				name = mount_path + strlen ("/");
+
+				if (g_str_has_prefix (name, "cdrom")) {
+					*is_optical = TRUE;
+				}
+			} else {
+				gchar *basename = g_path_get_basename (mount_path);
+
+				if (g_str_has_prefix (basename, "cdr") ||
+				    g_str_has_prefix (basename, "cdwriter") ||
+				    g_str_has_prefix (basename, "burn") ||
+				    g_str_has_prefix (basename, "dvdr")) {
+					*is_optical = TRUE;
+				}
+
+				g_free (basename);
+			}
+
+			g_free (device_path);
+			g_free (mount_path);
+			g_unix_mount_free (entry);
+		} else {
+			g_debug ("  No GUnixMountEntry found, needed for detecting if optical media... :(");
+			g_free (mount_path);
+		}
+
+		g_object_unref (mount_root);
 	}
 
 	return content_type;
@@ -564,7 +568,7 @@ mount_add (TrackerStorage *storage,
 			gboolean is_blank;
 
 			/* Optical discs usually won't have UUID in the GVolume */
-			content_type = mount_guess_content_type (root, volume, &is_optical, &is_multimedia, &is_blank);
+			content_type = mount_guess_content_type (mount, &is_optical, &is_multimedia, &is_blank);
 			is_removable = TRUE;
 
 			/* We don't index content which is video, music or blank */
@@ -617,7 +621,7 @@ mount_add (TrackerStorage *storage,
 				gboolean is_multimedia;
 				gboolean is_blank;
 
-				content_type = mount_guess_content_type (root, volume, &is_optical, &is_multimedia, &is_blank);
+				content_type = mount_guess_content_type (mount, &is_optical, &is_multimedia, &is_blank);
 
 				/* Note: for GMounts without GVolume, is_blank should NOT be considered,
 				 * as it may give unwanted results... */
