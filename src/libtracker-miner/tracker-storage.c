@@ -454,13 +454,13 @@ mount_guess_content_type (GMount   *mount,
 			volume = g_mount_get_volume (mount);
 			filesystem_type = g_unix_mount_get_fs_type (entry);
 			g_debug ("  Using filesystem type:'%s'",
-				 filesystem_type);
+			         filesystem_type);
 
 			/* Volume may be NULL */
 			if (volume) {
 				device_path = g_volume_get_identifier (volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
 				g_debug ("  Using device path:'%s'",
-					 device_path);
+				         device_path);
 				g_object_unref (volume);
 			}
 
@@ -484,7 +484,7 @@ mount_guess_content_type (GMount   *mount,
 			      g_str_has_prefix (device_path, "/dev/cd")))) {
 				*is_optical = TRUE;
 			} else if (device_path &&
-				   g_str_has_prefix (device_path, "/vol/")) {
+			           g_str_has_prefix (device_path, "/vol/")) {
 				const gchar *name;
 
 				name = mount_path + strlen ("/");
@@ -539,7 +539,7 @@ mount_add (TrackerStorage *storage,
 
 	g_debug ("Found '%s' mounted on path '%s'",
 	         mount_name,
-		 mount_path);
+	         mount_path);
 
 	/* Do not process shadowed mounts! */
 	if (g_mount_is_shadowed (mount)) {
@@ -574,8 +574,8 @@ mount_add (TrackerStorage *storage,
 			/* We don't index content which is video, music or blank */
 			if (!is_multimedia && !is_blank) {
 				uuid = g_compute_checksum_for_string (G_CHECKSUM_MD5,
-								      mount_name,
-								      -1);
+				                                      mount_name,
+				                                      -1);
 				g_debug ("  No UUID, generated:'%s' (based on mount name)", uuid);
 				g_debug ("  Assuming GVolume has removable media, if wrong report a bug! "
 				         "content type is '%s'",
@@ -627,8 +627,8 @@ mount_add (TrackerStorage *storage,
 				 * as it may give unwanted results... */
 				if (!is_multimedia) {
 					uuid = g_compute_checksum_for_string (G_CHECKSUM_MD5,
-									      mount_path,
-									      -1);
+					                                      mount_path,
+					                                      -1);
 					g_debug ("  No UUID, generated:'%s' (based on mount path)", uuid);
 				} else {
 					g_debug ("  Being ignored because mount is music/video "
