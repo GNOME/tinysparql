@@ -186,8 +186,8 @@ LIBFLAC_REQUIRED=1.2.1
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
 EXEMPI_REQUIRED=2.1.0
-EVO_REQUIRED=2.29.1
-EDS_REQUIRED=2.29.1
+EVO_REQUIRED=2.31.2
+EDS_REQUIRED=2.31.2
 # Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
 LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
@@ -1108,11 +1108,6 @@ else
 fi
 
 if test "x$have_tracker_miner_evolution" = "xyes"; then
-   PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.29.1],
-                    [AC_DEFINE(HAVE_EDS_2_29_1, 1, [Define if we have eds 2.29.1 or newer])])
-   PKG_CHECK_EXISTS([evolution-data-server-1.2 >= 2.31.2],
-                    [AC_DEFINE(HAVE_EDS_2_31_2, 1, [Define if we have eds 2.31.2 or newer])])
-
    AC_ARG_WITH([evolution_plugin_dir],
                AS_HELP_STRING([--with-evolution-plugin-dir],
                               [path to Evolution plugin directory]))

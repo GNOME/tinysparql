@@ -41,9 +41,6 @@
 #include <sqlite3.h>
 
 #include <camel/camel.h>
-#ifndef HAVE_EDS_2_31_2
-#include <camel/camel-db.h>
-#endif
 
 #include <mail/mail-config.h>
 #include <mail/mail-session.h>
@@ -54,10 +51,6 @@
 
 #include <libedataserver/e-account.h>
 #include <libedataserver/e-account-list.h>
-
-#ifdef HAVE_EDS_2_29_1
-#include <e-util/e-account-utils.h>
-#endif
 
 #include <libtracker-sparql/tracker-sparql.h>
 
@@ -281,13 +274,8 @@ get_email_and_fullname (const gchar *line, gchar **email, gchar **fullname)
 static void
 folder_registry_free (FolderRegistry *registry)
 {
-#ifdef HAVE_EDS_2_31_2
 	g_signal_handler_disconnect (registry->folder, registry->hook_info->hook_id);
 	g_object_unref (registry->folder);
-#else
-	camel_object_remove_event (registry->folder, registry->hook_info->hook_id);
-	camel_object_unref (registry->folder);
-#endif
 	g_free (registry->hook_info->account_uri);
 	g_slice_free (OnSummaryChangedInfo, registry->hook_info);
 	g_slice_free (FolderRegistry, registry);
@@ -304,11 +292,7 @@ folder_registry_new (const gchar *account_uri,
 	registry->hook_info->account_uri = g_strdup (account_uri);
 	registry->hook_info->self = self; /* weak */
 	registry->hook_info->hook_id = 0;
-#ifdef HAVE_EDS_2_31_2
 	g_object_ref (folder);
-#else
-	camel_object_ref (folder);
-#endif
 	registry->folder = folder;
 
 	return registry;
@@ -1316,15 +1300,9 @@ register_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 		goto not_ready;
 	}
 
-#ifdef HAVE_EDS_2_31_2
 	hook_id = g_signal_connect (folder, "changed",
 	                            G_CALLBACK (on_folder_summary_changed),
 	                            registry->hook_info);
-#else
-	hook_id = camel_object_hook_event (folder, "folder_changed",
-	                                   CAMEL_CALLBACK (on_folder_summary_changed),
-	                                   registry->hook_info);
-#endif
 	registry->hook_info->hook_id = hook_id;
 
 	g_hash_table_replace (priv->registered_folders,
@@ -1499,11 +1477,7 @@ free_worker_thread_info (gpointer data, gpointer user_data)
 
 	/* Ownership was transfered to us in try_again */
 	free_introduction_info (winfo->intro_info);
-#ifdef HAVE_EDS_2_31_2
 	g_object_unref (winfo->store);
-#else
-	camel_object_unref (winfo->store);
-#endif
 	camel_folder_info_free (winfo->iter);
 	g_free (winfo);
 }
@@ -1558,11 +1532,7 @@ on_got_folderinfo_introduce (CamelStore *store,
 
 	/* Ownership of these is transfered in try_again */
 
-#ifdef HAVE_EDS_2_31_2
 	g_object_ref (store);
-#else
-	camel_object_ref (store);
-#endif
 	info->store = store;
 	/* This apparently creates a thread */
 	info->iter = camel_folder_info_clone (iter);
@@ -1638,11 +1608,7 @@ introduce_account_to (TrackerEvolutionPlugin *self,
 
 	mail_get_folderinfo (store, NULL, on_got_folderinfo_introduce, intro_info);
 
-#ifdef HAVE_EDS_2_31_2
 	g_object_unref (store);
-#else
-	camel_object_unref (store);
-#endif
 
 }
 
@@ -1804,11 +1770,7 @@ on_folder_deleted (CamelStore *store,
 
 static void
 on_folder_renamed (CamelStore      *store,
-#ifdef HAVE_EDS_2_31_2
                    gchar           *old_name,
-#else
-                   CamelRenameInfo *info,
-#endif
                    StoreRegistry   *registry)
 {
 	unregister_account (registry->self, registry->account);
@@ -1826,11 +1788,7 @@ store_registry_new (gpointer co,
 	registry->store = co;
 	registry->account = account; /* weak */
 	registry->self = self; /* weak */
-#ifdef HAVE_EDS_2_31_2
 	g_object_ref (co);
-#else
-	camel_object_ref (co);
-#endif
 
 	return registry;
 }
@@ -1838,13 +1796,8 @@ store_registry_new (gpointer co,
 static void
 store_registry_free (StoreRegistry *registry)
 {
-#ifdef HAVE_EDS_2_31_2
 	g_signal_handler_disconnect (registry->store, registry->hook_id);
 	g_object_unref (registry->store);
-#else
-	camel_object_remove_event (registry->store, registry->hook_id);
-	camel_object_unref (registry->store);
-#endif
 	g_slice_free (StoreRegistry, registry);
 }
 
@@ -1872,45 +1825,27 @@ on_got_folderinfo_register (CamelStore *store,
 
 	/* Hook up catching folder changes in the store */
 	registry = store_registry_new (store, account, self);
-#ifdef HAVE_EDS_2_31_2
 	hook_id = g_signal_connect (store, "folder-created",
 	                            G_CALLBACK (on_folder_created),
 	                            registry);
-#else
-	hook_id = camel_object_hook_event (store, "folder_created",
-	                                   CAMEL_CALLBACK (on_folder_created),
-	                                   registry);
-#endif
 	registry->hook_id = hook_id;
 	g_hash_table_replace (priv->registered_stores,
 	                      GINT_TO_POINTER (hook_id),
 	                      registry);
 
 	registry = store_registry_new (store, account, self);
-#ifdef HAVE_EDS_2_31_2
 	hook_id = g_signal_connect (store, "folder-renamed",
 	                            G_CALLBACK (on_folder_renamed),
 	                            registry);
-#else
-	hook_id = camel_object_hook_event (store, "folder_renamed",
-	                                   CAMEL_CALLBACK (on_folder_renamed),
-	                                   registry);
-#endif
 	registry->hook_id = hook_id;
 	g_hash_table_replace (priv->registered_stores,
 	                      GINT_TO_POINTER (hook_id),
 	                      registry);
 
 	registry = store_registry_new (store, account, self);
-#ifdef HAVE_EDS_2_31_2
 	hook_id = g_signal_connect (store, "folder-deleted",
 	                            G_CALLBACK (on_folder_deleted),
 	                            registry);
-#else
-	hook_id = camel_object_hook_event (store, "folder_deleted",
-	                                   CAMEL_CALLBACK (on_folder_deleted),
-	                                   registry);
-#endif
 	registry->hook_id = hook_id;
 	g_hash_table_replace (priv->registered_stores,
 	                      GINT_TO_POINTER (hook_id),
@@ -1963,11 +1898,7 @@ register_account (TrackerEvolutionPlugin *self,
 	/* Get the account's folder-info and register it asynchronously */
 	mail_get_folderinfo (store, NULL, on_got_folderinfo_register, reg_info);
 
-#ifdef HAVE_EDS_2_31_2
 	g_object_unref (store);
-#else
-	camel_object_unref (store);
-#endif
 }
 
 static gboolean
@@ -2030,11 +1961,7 @@ unregister_account (TrackerEvolutionPlugin *self,
 	/* Get the account's folder-info and unregister asynchronously */
 	mail_get_folderinfo (store, NULL, on_got_folderinfo_unregister, reg_info);
 
-#ifdef HAVE_EDS_2_31_2
 	g_object_unref (store);
-#else
-	camel_object_unref (store);
-#endif
 }
 
 static void
@@ -2252,11 +2179,7 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 	priv->registered_stores = NULL;
 	priv->registered_clients = NULL;
 
-#ifdef HAVE_EDS_2_29_1
 	priv->accounts = g_object_ref (e_get_account_list ());
-#else
-	priv->accounts = g_object_ref (mail_config_get_accounts ());
-#endif
 
 	for (it = e_list_get_iterator (E_LIST (priv->accounts)); e_iterator_is_valid (it); e_iterator_next (it)) {
 		register_account (plugin, (EAccount *) e_iterator_get (it));
