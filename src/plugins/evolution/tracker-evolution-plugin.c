@@ -48,6 +48,7 @@
 #include <mail/mail-ops.h>
 
 #include <e-util/e-config.h>
+#include <e-util/e-account-utils.h>
 
 #include <libedataserver/e-account.h>
 #include <libedataserver/e-account-list.h>
