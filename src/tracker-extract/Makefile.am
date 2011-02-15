@@ -233,8 +233,7 @@ libextract_msoffice_xml_la_LIBADD = \
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
-	$(TRACKER_EXTRACT_MODULES_LIBS) \
-	$(LIBGSF_LIBS)
+	$(TRACKER_EXTRACT_MODULES_LIBS)
 
 # PDF
 libextract_pdf_la_SOURCES = tracker-extract-pdf.cpp
