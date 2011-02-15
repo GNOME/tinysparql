@@ -768,10 +768,10 @@ AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
 # Check for libunistring...
 AC_CHECK_HEADER(uniwbrk.h,
-                AC_SEARCH_LIBS(u8_wordbreaks,
-                               unistring,
-                               [have_libunistring=yes],
-                               [have_libunistring=no]))
+                AC_CHECK_LIB([unistring],
+                             [u8_wordbreaks],
+                             [have_libunistring=yes],
+                             [have_libunistring=no]))
 LIBUNISTRING_CFLAGS=""
 LIBUNISTRING_LIBS="-lunistring"
 
