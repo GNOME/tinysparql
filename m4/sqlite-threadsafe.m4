@@ -1,4 +1,4 @@
-# sqlite-threadsafe.m4 serial 1
+# sqlite-threadsafe.m4 serial 2
 
 dnl Copyright (C) 2010 Aleksander Morgado <aleksander@gnu.org>
 dnl This file is free software; unlimited permission to copy and/or distribute
@@ -23,6 +23,8 @@ AC_DEFUN([AX_SQLITE_THREADSAFE],
 [
   AC_REQUIRE([AC_PROG_CC])
 
+  save_LIBS="$LIBS"
+
   AC_CHECK_HEADERS([sqlite3.h])
   AC_CHECK_LIB([sqlite3],[sqlite3_threadsafe])
 
@@ -44,5 +46,7 @@ int main ()
        [ax_cv_sqlite_threadsafe=yes],
        [ax_cv_sqlite_threadsafe=no],
        [ax_cv_sqlite_threadsafe=no])])
+
+  LIBS="$save_LIBS"
 ])
 
