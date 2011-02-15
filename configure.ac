@@ -178,7 +178,7 @@ UPOWER_REQUIRED=0.9.0
 GDKPIXBUF_REQUIRED=2.12.0
 QT_REQUIRED=4.7.1
 MEEGOTOUCH_REQUIRED=0.20
-POPPLER_REQUIRED=0.12.2
+POPPLER_REQUIRED=0.16.0
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
 LIBVORBIS_REQUIRED=0.22
@@ -1638,7 +1638,7 @@ AC_ARG_ENABLE(poppler,
 
 if test "x$enable_poppler" != "xno" ; then
    PKG_CHECK_MODULES(POPPLER,
-                     [poppler >= $POPPLER_REQUIRED],
+                     [poppler-glib >= $POPPLER_REQUIRED],
                      [have_poppler=yes],
                      [have_poppler=no])
 
@@ -1646,7 +1646,7 @@ if test "x$enable_poppler" != "xno" ; then
    AC_SUBST(POPPLER_LIBS)
 
    if test "x$have_poppler" = "xyes"; then
-      AC_DEFINE(HAVE_POPPLER, [], [Define if we have poppler])
+      AC_DEFINE(HAVE_POPPLER, [], [Define if we have poppler-glib])
    fi
 else
    have_poppler="no  (disabled)"
@@ -1654,7 +1654,7 @@ fi
 
 if test "x$enable_poppler" = "xyes"; then
    if test "x$have_poppler" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find poppler >= $POPPLER_REQUIRED.])
+      AC_MSG_ERROR([Couldn't find poppler-glib >= $POPPLER_REQUIRED.])
    fi
 fi
 

@@ -236,8 +236,8 @@ libextract_msoffice_xml_la_LIBADD = \
 	$(TRACKER_EXTRACT_MODULES_LIBS)
 
 # PDF
-libextract_pdf_la_SOURCES = tracker-extract-pdf.cpp
-libextract_pdf_la_CXXFLAGS = \
+libextract_pdf_la_SOURCES = tracker-extract-pdf.c
+libextract_pdf_la_CFLAGS = \
 	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
 	$(POPPLER_CFLAGS)
 libextract_pdf_la_LDFLAGS = $(module_flags)
