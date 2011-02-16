@@ -256,7 +256,7 @@ class ExtractorHelper ():
         nao:hasTag [a nao:Tag; nao:prefLabel "xxx"]
                  -> nao:hasTag:prefLabel "xxx"
                  
-        slo:location [a slo:GeoPoint; slo:postalAddress <urn:uuid:1231-123> .]
+        slo:location [a slo:GeoLocation; slo:postalAddress <urn:uuid:1231-123> .]
                 -> slo:location <urn:uuid:1231-123> 
                 
         nfo:hasMediaFileListEntry [ a nfo:MediaFileListEntry ; nfo:entryUrl "file://x.mp3"; nfo:listPosition 1]
