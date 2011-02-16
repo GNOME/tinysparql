@@ -540,16 +540,16 @@ extract_jpeg (const gchar          *uri,
 
 		tracker_sparql_builder_predicate (metadata, "slo:location");
 
-		tracker_sparql_builder_object_blank_open (metadata); /* GeoPoint */
+		tracker_sparql_builder_object_blank_open (metadata); /* GeoLocation */
 		tracker_sparql_builder_predicate (metadata, "a");
-		tracker_sparql_builder_object (metadata, "slo:GeoPoint");
+		tracker_sparql_builder_object (metadata, "slo:GeoLocation");
 
 		addruri = tracker_sparql_get_uuid_urn ();
 
 		tracker_sparql_builder_predicate (metadata, "slo:postalAddress");
 		tracker_sparql_builder_object_iri (metadata, addruri);
 
-		tracker_sparql_builder_object_blank_close (metadata); /* GeoPoint */
+		tracker_sparql_builder_object_blank_close (metadata); /* GeoLocation */
 
 		tracker_sparql_builder_insert_open (preupdate, NULL);
 		tracker_sparql_builder_subject_iri (preupdate, addruri);
