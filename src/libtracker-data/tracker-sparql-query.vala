@@ -691,7 +691,7 @@ public class Tracker.Sparql.Query : Object {
 			parse_construct_triples_block (var_value_map);
 
 			if (blank && update_blank_nodes != null) {
-				update_blank_nodes.add_value ((owned) blank_nodes);
+				update_blank_nodes.add_value (blank_nodes);
 			}
 
 			Data.update_buffer_might_flush ();
