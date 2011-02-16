@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = dbus languages icons ontologies miners
+SUBDIRS = dbus languages icons ontologies miners gschemas
 
 # First we fix the VERSION and libexecdir in the desktop files
 tracker-store.desktop.in: tracker-store.desktop.in.in

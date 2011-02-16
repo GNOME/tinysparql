@@ -94,6 +94,8 @@ AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
+GLIB_GSETTINGS
+
 # Initialize libtool
 LT_PREREQ([2.2])
 LT_INIT([disable-static])
@@ -1961,6 +1963,7 @@ AM_CONDITIONAL(HAVE_MOCKUP, test "x$have_mockup" = "xyes")
 
 AC_CONFIG_FILES([
 	data/dbus/Makefile
+	data/gschemas/Makefile
 	data/icons/16x16/Makefile
 	data/icons/22x22/Makefile
 	data/icons/24x24/Makefile

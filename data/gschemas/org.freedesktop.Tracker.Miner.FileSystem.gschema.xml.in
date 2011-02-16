@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2011, Nokia <ivan.frade@nokia.com>
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the
+Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+Boston, MA  02110-1301, USA.
+-->
+<schemalist>
+  <schema id="org.freedesktop.Tracker.Miner.FileSystem" path="/org/freedesktop/tracker/miners/fs/" gettext-domain="tracker">
+    <key name="verbosity" enum="org.freedesktop.Tracker.TrackerVerbosity">
+      <default>'errors'</default>
+      <_summary>Log verbosity</_summary>
+      <_description>Log verbosity.</_description>
+    </key>
+
+    <key name="initial-sleep" type="i">
+      <_summary>Initial sleep</_summary>
+      <_description>Initial sleep time, in seconds.</_description>
+      <range min="0" max="1000"/>
+      <default>15</default>
+    </key>
+
+    <key name="throttle" type="i">
+      <_summary>Throttle</_summary>
+      <_description>Indexing speed, the higher the slower.</_description>
+      <range min="0" max="20"/>
+      <default>0</default>
+    </key>
+
+    <key name="low-disk-space-limit" type="i">
+      <_summary>Low disk space limit</_summary>
+      <_description>Disk space threshold in MB at which to pause indexing, or -1 to disable.</_description>
+      <range min="-1" max="100"/>
+      <default>1</default>
+    </key>
+
+    <key name="crawling-interval" type="i">
+      <_summary>Crawling interval</_summary>
+      <_description>
+        Interval in days to check whether the filesystem is up to date in the database.
+	0 forces crawling anytime, -1 forces it only after unclean shutdowns, and -2
+	disables it entirely.
+      </_description>
+      <range min="-2" max="365"/>
+      <default>-1</default>
+    </key>
+
+    <key name="removable-days-threshold" type="i">
+      <_summary>Removable devices' data permanence threshold</_summary>
+      <_description>
+	Threshold in days after which files from removables devices
+	will be removed from database if not mounted. 0 means never,
+	maximum is 365.
+      </_description>
+      <range min="0" max="365"/>
+      <default>3</default>
+    </key>
+
+    <key name="enable-monitors" type="b">
+      <_summary>Enable monitors</_summary>
+      <_description>Set to false to completely disable any file monitoring</_description>
+      <default>true</default>
+    </key>
+
+    <key name="index-removable-devices" type="b">
+      <_summary>Index removable devices</_summary>
+      <_description>Set to true to enable indexing mounted directories for removable devices.</_description>
+      <default>true</default>
+    </key>
+
+    <key name="index-optical-discs" type="b">
+      <_summary>Index optical discs</_summary>
+      <_description>
+	Set to true to enable indexing CDs, DVDs, and generally optical media
+	(if removable devices are not indexed, optical discs won't be either)
+      </_description>
+      <default>false</default>
+    </key>
+
+    <key name="index-on-battery" type="b">
+      <_summary>Index when running on battery</_summary>
+      <_description>Set to true to index while running on battery</_description>
+      <default>false</default>
+    </key>
+
+    <key name="index-on-battery-first-time" type="b">
+      <_summary>Perform initial indexing when running on battery</_summary>
+      <_description>Set to true to index while running on battery for the first time only</_description>
+      <default>true</default>
+    </key>
+
+    <key name="index-recursive-directories" type="as">
+      <_summary>Directories to index recursively</_summary>
+      <_description>
+	List of directories to index recursively, Special values include:
+	&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES,
+	&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS.
+
+	See /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default
+      </_description>
+      <default>[ '&amp;DESKTOP', '&amp;DOCUMENTS', '&amp;DOWNLOAD', '&amp;MUSIC', '&amp;PICTURES', '&amp;VIDEOS' ]</default>
+    </key>
+
+    <key name="index-single-directories" type="as">
+      <_summary>Directories to index non-recursively</_summary>
+      <_description>
+	List of directories to index without inspecting subfolders, Special values include:
+	&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES,
+	&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS.
+
+	See /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default
+      </_description>
+      <default>[ '$HOME' ]</default>
+    </key>
+
+    <key name="ignored-files" type="as">
+      <_summary>Ignored files</_summary>
+      <_description>List of file patterns to avoid</_description>
+      <default>[ '*~', '*.o', '*.la', '*.lo' , '*.loT', '*.in', '*.csproj', '*.m4', '*.rej', '*.gmo', '*.orig', '*.pc', '*.omf', '*.aux', '*.tmp', '*.po', '*.vmdk', '*.vm*', '*.nvram', '*.part', '*.rcore', '*.lzo', 'autom4te', 'conftest', 'confstat', 'Makefile', 'SCCS', 'ltmain.sh', 'libtool', 'config.status', 'confdefs.h', 'configure' ]</default>
+    </key>
+
+    <key name="ignored-directories" type="as">
+      <_summary>Ignored directories</_summary>
+      <_description>List of directories to avoid</_description>
+      <default>[ 'po', 'CVS', 'core-dumps', 'lost+found' ]</default>
+    </key>
+
+    <key name="ignored-directories-with-content" type="as">
+      <_summary>Ignored directories with content</_summary>
+      <_description>Avoid any directory containing a file blacklisted here</_description>
+      <default>[ 'backup.metadata' ]</default>
+    </key>
+  </schema>
+</schemalist>

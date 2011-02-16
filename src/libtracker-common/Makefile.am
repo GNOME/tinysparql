@@ -33,6 +33,7 @@ libtracker_common_la_SOURCES = \
 
 noinst_HEADERS = \
 	tracker-dbus.h \
+	tracker-enums.h \
 	tracker-ioprio.h \
 	tracker-log.h \
 	tracker-os-dependant.h \
