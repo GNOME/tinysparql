@@ -322,7 +322,13 @@ test_xmp_apply_location (void)
 	tracker_sparql_builder_insert_close (metadata);
 
 	/* This is the only way to check the sparql is kinda correct */
-	g_assert_cmpint (tracker_sparql_builder_get_length (metadata), >=, 6);
+
+	/* The builder just contains this:
+	   <urn:uuid:test> slo:location [ a slo:GeoLocation ;
+		 slo:postalAddress <urn:uuid:c50c4305-c617-4188-b3d3-42ba2291d0de>] .
+	} */
+
+	g_assert_cmpint (tracker_sparql_builder_get_length (metadata), >=, 3);
 }
 
 int
