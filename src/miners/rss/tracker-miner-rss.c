@@ -266,7 +266,7 @@ item_verify_reply_cb (GObject      *source_object,
 	FeedItem *item;
 	FeedChannel *feed;
 	TrackerMinerRSS *miner;
-	gboolean has_geopoint;
+	gboolean has_geolocation;
 
 	miner = TRACKER_MINER_RSS (source_object);
 	error = NULL;
@@ -303,26 +303,21 @@ item_verify_reply_cb (GObject      *source_object,
 
 	sparql = tracker_sparql_builder_new_update ();
 
-	has_geopoint = feed_item_get_geo_point (item, &latitude, &longitude);
+	has_geolocation = feed_item_get_geo_point (item, &latitude, &longitude);
 	tracker_sparql_builder_insert_open (sparql, url);
 
-	if (has_geopoint) {
-		g_message ("  Geopoint, using longitude:%f, latitude:%f",
+	if (has_geolocation) {
+		g_message ("  Geolocation, using longitude:%f, latitude:%f",
 		           longitude, latitude);
 
 		tracker_sparql_builder_subject (sparql, "_:location");
 		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "mlo:GeoLocation");
-		tracker_sparql_builder_predicate (sparql, "mlo:asGeoPoint");
+		tracker_sparql_builder_object (sparql, "slo:GeoLocation");
 
-		tracker_sparql_builder_object_blank_open (sparql);
-		tracker_sparql_builder_predicate (sparql, "a");
-		tracker_sparql_builder_object (sparql, "mlo:GeoPoint");
-		tracker_sparql_builder_predicate (sparql, "mlo:latitude");
+		tracker_sparql_builder_predicate (sparql, "slo:latitude");
 		tracker_sparql_builder_object_double (sparql, latitude);
-		tracker_sparql_builder_predicate (sparql, "mlo:longitude");
+		tracker_sparql_builder_predicate (sparql, "slo:longitude");
 		tracker_sparql_builder_object_double (sparql, longitude);
-		tracker_sparql_builder_object_blank_close (sparql);
 	}
 
 	tracker_sparql_builder_subject (sparql, "_:message");
@@ -331,8 +326,8 @@ item_verify_reply_cb (GObject      *source_object,
 	tracker_sparql_builder_predicate (sparql, "a");
 	tracker_sparql_builder_object (sparql, "nfo:RemoteDataObject");
 
-	if (has_geopoint == TRUE) {
-		tracker_sparql_builder_predicate (sparql, "mlo:location");
+	if (has_geolocation == TRUE) {
+		tracker_sparql_builder_predicate (sparql, "slo:location");
 		tracker_sparql_builder_object (sparql, "_:location");
 	}
 
