@@ -252,6 +252,10 @@ public class Tracker.Needle {
 		col.add_attribute (renderer2, "subtext", 5);
 		renderer2.ellipsize = Pango.EllipsizeMode.MIDDLE;
 
+		// FIXME: We should only set this when we have the list view not the
+		// category view and the list view as it is now.
+		renderer2.show_fixed_height = true;
+
 		col.set_title (_("File"));
 		col.set_resizable (true);
 		col.set_expand (true);
@@ -276,6 +280,7 @@ public class Tracker.Needle {
 		col.set_cell_data_func (renderer4, cell_renderer_func);
 		treeview.append_column (col);
 
+		// Setup signals
 		treeview.row_activated.connect (view_row_selected);
 
 		// Setup iconview

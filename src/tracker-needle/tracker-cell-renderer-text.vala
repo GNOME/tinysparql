@@ -23,8 +23,10 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 	public string subtext { get; set; }
 	public bool show_row_hint { get; set; }
 	public bool show_subtext { get; set; }
+	public bool show_fixed_height { get; set; }
 	private bool is_selected;
 	private bool is_valid;
+	private int fixed_height = -1;
 
 	public override void get_size (Gtk.Widget     widget,
 	                               Gdk.Rectangle? cell_area,
@@ -32,6 +34,19 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 	                               out int        y_offset,
 	                               out int        width,
 	                               out int        height) {
+		// First time only, get the minimum fixed height we can use
+		if (fixed_height == -1) {
+			Pango.Context c = widget.get_pango_context ();
+			Pango.Layout layout = new Pango.Layout (c);
+
+			var style = widget.get_style ();
+			Pango.FontDescription fd = style.font_desc;
+
+			layout.set_text ("Foo\nBar", -1);
+			layout.set_font_description (fd);
+			layout.get_pixel_size (null, out fixed_height);
+		}
+
 		update_text (widget, is_selected);
 
 		base.get_size (widget, cell_area, out x_offset, out y_offset, out width, out height);
@@ -86,6 +101,12 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 			str = text;
 		} else {
 			str = "%s\n%s".printf (text, subtext);
+		}
+
+		// Force all renderers to be the same height so subtext doesn't make some
+		// rows look inconsistent with others height wise.
+		if (show_fixed_height) {
+			this.height = fixed_height;
 		}
 
 		this.visible = true;
