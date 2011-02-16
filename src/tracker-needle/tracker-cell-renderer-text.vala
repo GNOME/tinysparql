@@ -107,6 +107,8 @@ class Tracker.CellRendererText : Gtk.CellRendererText {
 		// rows look inconsistent with others height wise.
 		if (show_fixed_height) {
 			this.height = fixed_height;
+		} else {
+			this.height = -1;
 		}
 
 		this.visible = true;

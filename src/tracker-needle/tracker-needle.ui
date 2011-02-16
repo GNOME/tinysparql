@@ -13,7 +13,7 @@
           <object class="GtkToolbar" id="toolbar_main">
             <property name="visible">True</property>
             <child>
-              <object class="GtkRadioToolButton" id="toolbutton_view_details">
+              <object class="GtkRadioToolButton" id="toolbutton_view_categories">
                 <property name="visible">True</property>
                 <property name="tooltip_text" translatable="yes">Display results by category, for example, Music, Videos, Applications, etc.</property>
                 <property name="is_important">True</property>
@@ -28,7 +28,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkRadioToolButton" id="toolbutton_view_list">
+              <object class="GtkRadioToolButton" id="toolbutton_view_filelist">
                 <property name="visible">True</property>
                 <property name="tooltip_text" translatable="yes">Display results by files found in a list</property>
                 <property name="is_important">True</property>
@@ -134,8 +134,8 @@
                         <property name="has_focus">True</property>
                         <property name="model">liststore_search</property>
                         <property name="text_column">0</property>
-                        <accelerator key="s" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="f" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="s" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                   </object>
