@@ -416,7 +416,8 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	public GenericArray<GenericArray<HashTable<string,string>>>? execute_update (bool blank) throws GLib.Error {
+	public Variant? execute_update (bool blank) throws GLib.Error {
+		Variant result = null;
 		assert (update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.length);
@@ -435,21 +436,24 @@ public class Tracker.Sparql.Query : Object {
 
 		parse_prologue ();
 
-		GenericArray<GenericArray<HashTable<string,string>>> blank_nodes = null;
-		if (blank) {
-			blank_nodes = new GenericArray<GenericArray<HashTable<string,string>>> ();
-		}
-
 		// SPARQL update supports multiple operations in a single query
+		VariantBuilder? ublank_nodes = null;
+
+		if (blank) {
+			ublank_nodes = new VariantBuilder ((VariantType) "aaa{ss}");
+		}
 
 		while (current () != SparqlTokenType.EOF) {
 			switch (current ()) {
 			case SparqlTokenType.WITH:
 			case SparqlTokenType.INSERT:
 			case SparqlTokenType.DELETE:
-				GenericArray<HashTable<string,string>> ptr = execute_insert_or_delete (blank);
-				if (ptr != null) {
-					blank_nodes.add (ptr);
+				if (blank) {
+					ublank_nodes.open ((VariantType) "aa{ss}");
+					execute_insert_or_delete (ublank_nodes);
+					ublank_nodes.close ();
+				} else {
+					execute_insert_or_delete (null);
 				}
 				break;
 			case SparqlTokenType.DROP:
@@ -468,7 +472,11 @@ public class Tracker.Sparql.Query : Object {
 			accept (SparqlTokenType.SEMICOLON);
 		}
 
-		return blank_nodes;
+		if (blank) {
+			result = ublank_nodes.end ();
+		}
+
+		return result;
 	}
 
 	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, Sparql.Error, DateError {
@@ -568,7 +576,9 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	GenericArray<HashTable<string,string>>? execute_insert_or_delete (bool blank) throws GLib.Error {
+	void execute_insert_or_delete (VariantBuilder? update_blank_nodes) throws GLib.Error {
+		bool blank = true;
+
 		// INSERT or DELETE
 
 		if (accept (SparqlTokenType.WITH)) {
@@ -661,12 +671,6 @@ public class Tracker.Sparql.Query : Object {
 
 		this.delete_statements = delete_statements;
 
-		GenericArray<HashTable<string,string>> update_blank_nodes = null;
-
-		if (blank) {
-			update_blank_nodes = new GenericArray<HashTable<string,string>> ();
-		}
-
 		// iterate over all solutions
 		while (cursor.next ()) {
 			// blank nodes in construct templates are per solution
@@ -686,8 +690,8 @@ public class Tracker.Sparql.Query : Object {
 			// iterate over each triple in the template
 			parse_construct_triples_block (var_value_map);
 
-			if (blank) {
-				update_blank_nodes.add ((owned) blank_nodes);
+			if (blank && update_blank_nodes != null) {
+				update_blank_nodes.add_value ((owned) blank_nodes);
 			}
 
 			Data.update_buffer_might_flush ();
@@ -703,8 +707,6 @@ public class Tracker.Sparql.Query : Object {
 		bindings = null;
 
 		context = context.parent_context;
-
-		return update_blank_nodes;
 	}
 
 	internal string resolve_prefixed_name (string prefix, string local_name) throws Sparql.Error {

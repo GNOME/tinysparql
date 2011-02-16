@@ -73,7 +73,7 @@ public class Tracker.Store {
 
 	class UpdateTask : Task {
 		public string query;
-		public GenericArray<GenericArray<HashTable<string,string>>> blank_nodes;
+		public Variant blank_nodes;
 		public Priority priority;
 	}
 
@@ -314,7 +314,7 @@ public class Tracker.Store {
 		}
 	}
 
-	public static async GenericArray<GenericArray<HashTable<string,string>>> sparql_update_blank (string sparql, Priority priority, string client_id) throws Error {
+	public static async Variant sparql_update_blank (string sparql, Priority priority, string client_id) throws Error {
 		var task = new UpdateTask ();
 		task.type = TaskType.UPDATE_BLANK;
 		task.query = sparql;

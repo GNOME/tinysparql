@@ -167,7 +167,7 @@ namespace Tracker {
 		public void commit_transaction () throws DBInterfaceError;
 		public void rollback_transaction ();
 		public void update_sparql (string update) throws Sparql.Error;
-		public GLib.GenericArray<GLib.GenericArray<GLib.HashTable<string,string>>> update_sparql_blank (string update) throws Sparql.Error;
+		public GLib.Variant update_sparql_blank (string update) throws Sparql.Error;
 		public void load_turtle_file (GLib.File file) throws Sparql.Error;
 		public void notify_transaction (bool start_timer);
 		public void delete_statement (string? graph, string subject, string predicate, string object) throws Sparql.Error, DateError;

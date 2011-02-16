@@ -147,23 +147,7 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.SparqlUpdateBlank");
 		request.debug ("query: %s", update);
 		try {
-			var blank_nodes = yield Tracker.Store.sparql_update_blank (update, Tracker.Store.Priority.HIGH, sender);
-
-			request.end ();
-
-			var builder = new VariantBuilder ((VariantType) "aaa{ss}");
-
-			for (int i = 0; i < blank_nodes.length; i++) {
-				var inner_array = blank_nodes[i];
-
-				builder.open ((VariantType) "aa{ss}");
-				for (int j = 0; j < inner_array.length; j++) {
-					builder.add_value (inner_array[j]);
-				}
-				builder.close ();
-			}
-
-			return builder.end ();
+			return yield Tracker.Store.sparql_update_blank (update, Tracker.Store.Priority.HIGH, sender);
 		} catch (DBInterfaceError.NO_SPACE ie) {
 			throw new Sparql.Error.NO_SPACE (ie.message);
 		} catch (Error e) {

@@ -2614,14 +2614,14 @@ tracker_data_rollback_transaction (void)
 	}
 }
 
-static GPtrArray *
+static GVariant *
 update_sparql (const gchar  *update,
                gboolean      blank,
                GError      **error)
 {
 	GError *actual_error = NULL;
 	TrackerSparqlQuery *sparql_query;
-	GPtrArray *blank_nodes;
+	GVariant *blank_nodes;
 
 	g_return_val_if_fail (update != NULL, NULL);
 
@@ -2657,7 +2657,7 @@ tracker_data_update_sparql (const gchar  *update,
 	update_sparql (update, FALSE, error);
 }
 
-GPtrArray *
+GVariant *
 tracker_data_update_sparql_blank (const gchar  *update,
                                   GError      **error)
 {

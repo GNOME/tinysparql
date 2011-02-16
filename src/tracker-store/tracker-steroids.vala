@@ -120,23 +120,7 @@ public class Tracker.Steroids : Object {
 
 				return null;
 			} else {
-				var blank_nodes = yield Tracker.Store.sparql_update_blank ((string) query, priority, sender);
-
-				request.end ();
-
-				var builder = new VariantBuilder ((VariantType) "aaa{ss}");
-
-				for (int i = 0; i < blank_nodes.length; i++) {
-					var inner_array = blank_nodes[i];
-
-					builder.open ((VariantType) "aa{ss}");
-					for (int j = 0; j < inner_array.length; j++) {
-						builder.add_value (inner_array[j]);
-					}
-					builder.close ();
-				}
-
-				return builder.end ();
+				return yield Tracker.Store.sparql_update_blank ((string) query, priority, sender);
 			}
 		} catch (DBInterfaceError.NO_SPACE ie) {
 			throw new Sparql.Error.NO_SPACE (ie.message);

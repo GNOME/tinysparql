@@ -78,7 +78,7 @@ void     tracker_data_notify_transaction            (gboolean                   
 void     tracker_data_rollback_transaction          (void);
 void     tracker_data_update_sparql                 (const gchar               *update,
                                                      GError                   **error);
-GPtrArray *
+GVariant *
          tracker_data_update_sparql_blank           (const gchar               *update,
                                                      GError                   **error);
 void     tracker_data_update_buffer_flush           (GError                   **error);
