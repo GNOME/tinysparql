@@ -1,3 +1,65 @@
+NEW in 0.10.0 - 2011-02-17
+==========================
+
+The changes are:
+
+  * Require: libtool >= 2.2 (previously no required version)
+  * Require: autoconf >= 2.64 was 2.59
+  * Require: automake 1.11 and use Vala features
+  * Require: Vala >= 0.11.4 for GDBus / sender support
+  * Require: GLib 2.26
+  * Require: D-Bus 1.3.1 or higher
+  * Require: SQLite 3.7 (for Write Ahead Logging)
+  * Require: libicu or libunistring (GLib unicode support has performance issues)
+  * Require: poppler 0.12.2 instead of poppler-glib 0.4.5
+  * New Feature: Added GDBus support
+  * New Feature: Added direct access library libtracker-sparql for fast read-only queries
+  * New Feature: Added LRU (Least Recently Used) for database statement cache (huge memory footprint difference)
+  * New Feature: Added a GUPnP DLNA extractor
+  * New Feature: Added domain specific indexes, adding a column to DB tables to avoid full table scans/joins with larger tables for performance.
+  * New Feature: Added metadata guarantee support when key data is missing (e.g. nie:title generation from filename)
+  * New Feature: Added tracker-sql (in utils/) to run SQL on the databases directly (for developers)
+  * New Feature: Added unicode compliance for FTS (Full Text Search)
+  * New Feature: Don't do mtime checks on start up (dramatically reduces start time for miner-fs)
+  * New Feature: Replaced tracker-search-tool with tracker-needle
+  * New Feature: New API methods in libtracker-sparql which allow multiple inserts per DBus call (and yet get multiple errors back).
+  * New Feature: New journal format to separate ontology from data for improved data integrity
+  * New Feature: New journal compression and rotation using 50Mb chunk sizes
+  * New Feature: Task pool in libtracker-miner for store updates/metadata extractions, 10-20% speed increase indexing thanks to the work from Zhenqiang Chen
+  * New Feature: Monitor event black listing and events are condensed (less event spam up the stack)
+  * New Feature: Return types in TrackerSparqlCursor API (previously just strings)
+  * New Feature: Collation support
+  * New Feature: Refactored and much more efficient signal notification API
+  * New Feature: Use libtracker-sparql: Client library for direct/dbus access
+  * New Feature: SPARQL, Add support for EXISTS and NOT EXISTS
+  * New Feature: SPARQL, Add support for IN
+  * New Feature: SPARQL, Add support for INSERT SILENT and DELETE SILENT
+  * Updated totem plugin to use libtracker-sparql
+  * Updated evolution plugin to recent versions of Evolution/EDS
+  * Updated GTK+ search engine to use libtracker-sparql
+  * Updated tracker-search bar to be GTK+ 3 / GNOME 3 compliant
+  * Removed tracker-status-icon
+  * Merged tracker-status into tracker-control
+  * libtracker-client is now marked as deprecated
+
+GNOME bugs fixed (102):
+
+https://bugzilla.gnome.org/buglist.cgi?quicksearch=640845,639547,641906,640623,636074,631955,623666,639542,622918,639918,639556,639543,639552,600081,638159,636936,624041,636604,635756,636383,635794,635757,634424,630244,635652,634669,633118,633093,631391,575993,628872,628859,628090,628536,627893,613252,627281,623005,623207,624731,616199,624346,624071,623836,622702,623203,616809,511474,621070,621987,620354,620362,622351,621108,621110,621015,619244,621183,621112,621001,620353,619498,619929,619535,619826,619801,619615,619630,619271,560220,616540,526346,617812,619487,503366,619061,616845,618822,618707,618821,618544,618011,614728,616808,617515,617082,579051,615930,616493,615836,616165,616403,616329,615948,616158,615868,615035,615178,615563,615184,615313,615182
+
+Nokia bugs fixed (154):
+
+https://projects.maemo.org/bugzilla/buglist.cgi?quicksearch=227977,208621,223536,225910,221340,180770,217610,224993,222182,224760,218525,224763,197067,223938,185309,223622,223282,223133,223148,223161,222645,222494,222664,222578,221700,220373,218092,218332,217636,218125,219309,216582,218560,211147,218123,216329,217575,198003,216350,212736,214163,214478,214413,213419,211928,212116,210217,211926,198155,207918,208420,203538,204706,202291,206752,203540,203593,195787,203632,202275,199968,202627,202581,201122,200310,199131,194908,194548,186096,197546,197097,195394,196143,194677,195547,192790,193044,194746,193061,186055,190480,192326,188031,184220,187558,189896,188494,184505,187149,174794,185950,185070,182948,184882,184823,177663,181421,181112,183307,172390,179570,180803,182788,181538,179894,180236,180679,179434,179559,179798,176090,178599,178825,178808,174590,177447,176932,175723,170915,175957,175712,174591,174333,174162,173673,172818,174248,173589,173164,172414,161449,173206,172652,171657,167647,170142,168740,164822,169460,163155,169254,169105,169119,168742,167616,166767,166717,166684,166080,164958,161047,163544,163715,163480
+
+Translations:
+
+  Many, thank you to everyone involved.
+
+Notes:
+
+  The database version has been incremented, this will force a
+  reindex for any existing Tracker installation.
+
+
 NEW in 0.9.38 - 2011-02-10
 ==========================
 
