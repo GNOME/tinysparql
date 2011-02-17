@@ -67,7 +67,7 @@ enum {
 
 static guint signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_ABSTRACT_TYPE (TrackerConfigFile, tracker_config_file, G_TYPE_OBJECT);
+G_DEFINE_TYPE (TrackerConfigFile, tracker_config_file, G_TYPE_OBJECT);
 
 static void
 tracker_config_file_class_init (TrackerConfigFileClass *klass)
@@ -405,3 +405,91 @@ tracker_config_file_save (TrackerConfigFile *config)
 
 	return config_save (config);
 }
+
+TrackerConfigFile *
+tracker_config_file_new (void)
+{
+	return g_object_new (TRACKER_TYPE_CONFIG_FILE,
+			     NULL);
+}
+
+gboolean
+tracker_config_file_migrate (TrackerConfigFile           *file,
+			     GSettings                   *settings,
+			     TrackerConfigMigrationEntry *entries)
+{
+	gint i;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG_FILE (file), FALSE);
+
+	if (!file->key_file || !file->file_exists) {
+		return TRUE;
+	}
+
+	g_message ("Migrating configuration to GSettings...");
+
+	for (i = 0; entries[i].type != G_TYPE_INVALID; i++) {
+		if (!g_key_file_has_key (file->key_file,
+		                         entries[i].file_section,
+		                         entries[i].file_key,
+		                         NULL)) {
+			continue;
+		}
+
+		switch (entries[i].type) {
+		case G_TYPE_INT:
+		case G_TYPE_ENUM:
+		{
+			gint val;
+			val = g_key_file_get_integer (file->key_file,
+			                              entries[i].file_section,
+			                              entries[i].file_key,
+			                              NULL);
+
+			if (entries[i].type == G_TYPE_INT) {
+				g_settings_set_int (settings, entries[i].settings_key, val);
+			} else {
+				g_settings_set_enum (settings, entries[i].settings_key, val);
+			}
+			break;
+		}
+		case G_TYPE_BOOLEAN:
+		{
+			gboolean val;
+
+			val = g_key_file_get_boolean (file->key_file,
+			                              entries[i].file_section,
+			                              entries[i].file_key,
+			                              NULL);
+			g_settings_set_boolean (settings, entries[i].settings_key, val);
+			break;
+		}
+		case G_TYPE_POINTER:
+		{
+			gchar **vals;
+
+			vals = g_key_file_get_string_list (file->key_file,
+			                                   entries[i].file_section,
+			                                   entries[i].file_key,
+			                                   NULL, NULL);
+
+			if (vals) {
+				g_settings_set_strv (settings, entries[i].settings_key,
+				                     (const gchar * const *) vals);
+				g_strfreev (vals);
+			}
+
+			break;
+		}
+		default:
+			g_assert_not_reached ();
+			break;
+		}
+	}
+
+	g_file_delete (file->file, NULL, NULL);
+	g_message ("Finished migration to GSettings.");
+
+	return TRUE;
+}
+

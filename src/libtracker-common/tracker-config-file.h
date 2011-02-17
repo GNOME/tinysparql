@@ -38,6 +38,7 @@ G_BEGIN_DECLS
 
 typedef struct _TrackerConfigFile TrackerConfigFile;
 typedef struct _TrackerConfigFileClass TrackerConfigFileClass;
+typedef struct _TrackerConfigMigrationEntry TrackerConfigMigrationEntry;
 
 struct _TrackerConfigFile {
 	GObject parent;
@@ -56,7 +57,19 @@ struct _TrackerConfigFileClass {
 	void (* changed) (TrackerConfigFile *file);
 };
 
+struct _TrackerConfigMigrationEntry {
+	GType type;
+	const gchar *file_section;
+	const gchar *file_key;
+	const gchar *settings_key;
+};
+
 GType              tracker_config_file_get_type (void) G_GNUC_CONST;
+
+TrackerConfigFile* tracker_config_file_new     (void);
+gboolean           tracker_config_file_migrate (TrackerConfigFile           *config,
+						GSettings                   *settings,
+						TrackerConfigMigrationEntry *entries);
 
 gboolean           tracker_config_file_save     (TrackerConfigFile *config);
 
