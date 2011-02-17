@@ -43,9 +43,12 @@
 #include <camel/camel.h>
 
 #include <mail/mail-config.h>
-#include <mail/mail-session.h>
 #include <mail/em-utils.h>
 #include <mail/mail-ops.h>
+
+#include <mail/e-mail-session.h>
+#include <mail/e-mail-backend.h>
+#include <shell/e-shell.h>
 
 #include <e-util/e-config.h>
 #include <e-util/e-account-utils.h>
@@ -183,6 +186,7 @@ static TrackerEvolutionPlugin *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
 static guint register_count = 0, walk_count = 0;
 static ThreadPool *folder_pool = NULL;
+static EMailSession *session = NULL;
 
 /* Prototype declarations */
 static void register_account (TrackerEvolutionPlugin *self, EAccount *account);
@@ -2169,6 +2173,15 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 {
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (plugin);
 	EIterator *it;
+
+	if (!session) {
+		EShell *shell;
+		EShellBackend *shell_backend;
+
+		shell = e_shell_get_default ();
+		shell_backend = e_shell_get_backend_by_name (shell, "mail");
+		session = e_mail_backend_get_session (E_MAIL_BACKEND (shell_backend));
+	}
 
 	priv->connection = NULL;
 	priv->last_time = 0;
