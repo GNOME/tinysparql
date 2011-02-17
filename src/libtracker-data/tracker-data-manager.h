@@ -55,6 +55,20 @@ gboolean tracker_data_manager_init                   (TrackerDBManagerFlags   fl
                                                       gpointer                busy_user_data,
                                                       const gchar            *busy_operation,
                                                       GError                **error);
+
+void     tracker_data_manager_init_async             (TrackerDBManagerFlags   flags,
+                                                      const gchar           **test_schema,
+                                                      gboolean                journal_check,
+                                                      guint                   select_cache_size,
+                                                      guint                   update_cache_size,
+                                                      TrackerBusyCallback     busy_callback,
+                                                      gpointer                busy_user_data,
+                                                      const gchar            *busy_operation,
+                                                      GAsyncReadyCallback     callback,
+                                                      gpointer                user_data);
+gboolean tracker_data_manager_init_finish            (GAsyncResult           *result,
+                                                      GError                **error);
+
 void     tracker_data_manager_shutdown               (void);
 gboolean tracker_data_manager_reload                 (TrackerBusyCallback     busy_callback,
                                                       gpointer                busy_user_data,

@@ -23,6 +23,9 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 
 	public Connection () throws GLib.Error
 	requires (!initialized) {
+	}
+
+	public override void init () throws Sparql.Error, IOError, DBusError {
 		uint select_cache_size = 100;
 		string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
 
@@ -30,8 +33,28 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 			select_cache_size = env_cache_size.to_int();
 		}
 
-		Data.Manager.init (DBManagerFlags.READONLY, null, null, false, select_cache_size, 0, null, null);
+		try {
+			Data.Manager.init (DBManagerFlags.READONLY, null, null, false, select_cache_size, 0, null, null);
+		} catch (DBInterfaceError e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 
+		initialized = true;
+	}
+
+	public async override void init_async () throws Sparql.Error, IOError, DBusError {
+		uint select_cache_size = 100;
+		string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
+
+		if (env_cache_size != null) {
+			select_cache_size = env_cache_size.to_int();
+		}
+
+		try {
+			yield Data.Manager.init_async (DBManagerFlags.READONLY, null, false, select_cache_size, 0, null, null);
+		} catch (DBInterfaceError e) {
+			throw new Sparql.Error.INTERNAL (e.message);
+		}
 		initialized = true;
 	}
 
