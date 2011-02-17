@@ -321,7 +321,6 @@ extract_flac (const gchar          *uri,
 	g_free (artist_uri);
 
 	add_tuple (metadata, "nmm:musicAlbum", album_uri);
-	g_free (album_uri);
 
 	tracker_guarantee_title_from_file (metadata, "nie:title", fd.title, uri);
 	add_tuple (metadata, "nmm:trackNumber", fd.tracknumber);
@@ -371,6 +370,8 @@ extract_flac (const gchar          *uri,
 		g_free (album_disc_uri);
 	}
 
+	g_free (album_uri);
+
 	/* FIXME: Trackgain/Trackpeakgain: commented out in vorbis */
 
 	add_tuple (metadata, "nie:comment", fd.comment);
@@ -395,25 +396,26 @@ extract_flac (const gchar          *uri,
 
 	if (stream) {
 		tracker_sparql_builder_predicate (metadata, "nfo:sampleRate");
-		tracker_sparql_builder_object_int64 (metadata, 
+		tracker_sparql_builder_object_int64 (metadata,
 		                                     stream->data.stream_info.sample_rate);
 
 		tracker_sparql_builder_predicate (metadata, "nfo:channels");
-		tracker_sparql_builder_object_int64 (metadata, 
+		tracker_sparql_builder_object_int64 (metadata,
 		                                     stream->data.stream_info.channels);
 
 		tracker_sparql_builder_predicate (metadata,
 		                                  "nfo:averageBitrate");
-		tracker_sparql_builder_object_int64 (metadata, 
+		tracker_sparql_builder_object_int64 (metadata,
 		                                     stream->data.stream_info.bits_per_sample);
 
 		tracker_sparql_builder_predicate (metadata, "nfo:duration");
-		tracker_sparql_builder_object_int64 (metadata, 
-		                                     stream->data.stream_info.total_samples / 
+		tracker_sparql_builder_object_int64 (metadata,
+		                                     stream->data.stream_info.total_samples /
 		                                     stream->data.stream_info.sample_rate);
 	}
 
 	g_free (fd.artist);
+	g_free (fd.album);
 	g_free (fd.albumartist);
 	g_free (fd.performer);
 	g_free (fd.title);
