@@ -37,18 +37,17 @@ typedef struct TrackerConfig      TrackerConfig;
 typedef struct TrackerConfigClass TrackerConfigClass;
 
 struct TrackerConfig {
-	TrackerConfigFile parent;
+	GSettings parent;
+	gpointer priv;
 };
 
 struct TrackerConfigClass {
-	TrackerConfigFileClass parent_class;
+	GSettingsClass parent_class;
 };
 
 GType          tracker_config_get_type                             (void) G_GNUC_CONST;
 
 TrackerConfig *tracker_config_new                                  (void);
-TrackerConfig *tracker_config_new_with_domain                      (const gchar *domain);
-
 gboolean       tracker_config_save                                 (TrackerConfig *config);
 
 gint           tracker_config_get_verbosity                        (TrackerConfig *config);

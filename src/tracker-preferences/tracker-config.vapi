@@ -22,7 +22,7 @@
 namespace Tracker {
 	[CCode (cheader_filename = "miners/fs/tracker-config.h")]
 	public class Config : GLib.Object {
-		public Config.with_domain (string domain);
+		public Config ();
 
 		public int verbosity { get; set; }
 		public int initial_sleep { get; set; }
