@@ -1106,7 +1106,7 @@ enable_tracker_miner_evolution=$enable_miner_evolution
 
 if test "x$enable_tracker_miner_evolution" = "xyes"; then
    if test "x$have_tracker_miner_evolution" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find Tracker Evolution plugin ($TRACKER_EVOLUTION_PLUGIN_REQUIRED).])
+      AC_MSG_ERROR([Couldn't find Tracker Evolution plugin ($TRACKER_MINER_EVOLUTION_REQUIRED).])
    fi
 else
    if test "x$enable_tracker_miner_evolution" = "xno"; then
