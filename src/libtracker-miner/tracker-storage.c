@@ -603,15 +603,17 @@ mount_add (TrackerStorage *storage,
 			if (drive) {
 				/* We can't mount/unmount system volumes, so tag
 				 * them as non removable. */
-				if (g_volume_can_mount (volume)) {
-					is_removable = TRUE;
-				} else {
-					is_removable = FALSE;
-				}
+				is_removable = g_volume_can_mount (volume);
+				g_debug ("  Found mount with volume and drive which %s be mounted: "
+				         "Assuming it's %s removable, if wrong report a bug!",
+				         is_removable ? "can" : "cannot",
+				         is_removable ? "" : "not");
 				g_object_unref (drive);
 			} else {
 				/* Note: not sure when this can happen... */
-				g_debug ("  Assuming GDrive has removable media, if wrong report a bug!");
+				g_debug ("  Mount with volume but no drive, "
+				         "assuming not a removable device, "
+				         "if wrong report a bug!");
 				is_removable = FALSE;
 			}
 		}
