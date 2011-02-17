@@ -186,9 +186,10 @@ LIBFLAC_REQUIRED=1.2.1
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
 EXEMPI_REQUIRED=2.1.0
-EVO_REQUIRED=2.31.2
-EDS_REQUIRED=2.31.2
-CAMEL_REQUIRED=2.31.2
+EVO_REQUIRED=2.91.90
+EVO_SHELL_REQUIRED=2.91.90
+EDS_REQUIRED=2.91.90
+CAMEL_REQUIRED=2.91.90
 # Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
 LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
@@ -352,6 +353,7 @@ TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS -lz -lm"
 evolution_plugin_name="evolution-plugin"
 
 TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
+                                  evolution-shell           >= $EVO_SHELL_REQUIRED
                                   evolution-plugin          >= $EVO_REQUIRED
                                   evolution-data-server-1.2 >= $EDS_REQUIRED
                                   camel-1.2                 >= $CAMEL_REQUIRED"
