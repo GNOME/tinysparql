@@ -1250,7 +1250,10 @@ get_last_deleted_time (TrackerEvolutionPlugin *self)
 				continue;
 			}
 
-			if (!(store = (CamelStore *) camel_session_get_service (session, uri, CAMEL_PROVIDER_STORE, NULL))) {
+			if (!(store = (CamelStore *) camel_session_get_service (CAMEL_SESSION (session),
+			                                                        uri,
+			                                                        CAMEL_PROVIDER_STORE,
+			                                                        NULL))) {
 				continue;
 			}
 
@@ -1361,7 +1364,11 @@ register_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		/* This is asynchronous and hooked to the mail/ API, so nicely
 		 * integrated with the Evolution UI application */
 
-		mail_get_folder (iter->uri, 0, register_on_get_folder, info,
+		mail_get_folder (session,
+		                 iter->uri,
+		                 0,
+		                 register_on_get_folder,
+		                 info,
 		                 mail_msg_unordered_push);
 
 		if (iter->child) {
@@ -1431,7 +1438,11 @@ unregister_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		/* This is asynchronous and hooked to the mail/ API, so nicely
 		 * integrated with the Evolution UI application */
 
-		mail_get_folder (titer->uri, 0, unregister_on_get_folder, info,
+		mail_get_folder (session,
+		                 titer->uri,
+		                 0,
+		                 unregister_on_get_folder,
+		                 info,
 		                 mail_msg_unordered_push);
 
 		if (titer->child) {
@@ -1592,7 +1603,10 @@ introduce_account_to (TrackerEvolutionPlugin *self,
 	if (!(provider->flags & CAMEL_PROVIDER_IS_STORAGE))
 		return;
 
-	if (!(store = (CamelStore *) camel_session_get_service (session, uri, CAMEL_PROVIDER_STORE, NULL))) {
+	if (!(store = (CamelStore *) camel_session_get_service (CAMEL_SESSION (session),
+	                                                        uri,
+	                                                        CAMEL_PROVIDER_STORE,
+	                                                        NULL))) {
 		return;
 	}
 
@@ -1888,7 +1902,10 @@ register_account (TrackerEvolutionPlugin *self,
 	if (!(provider->flags & CAMEL_PROVIDER_IS_STORAGE))
 		return;
 
-	if (!(store = (CamelStore *) camel_session_get_service (session, uri, CAMEL_PROVIDER_STORE, NULL))) {
+	if (!(store = (CamelStore *) camel_session_get_service (CAMEL_SESSION (session),
+	                                                        uri,
+	                                                        CAMEL_PROVIDER_STORE,
+	                                                        NULL))) {
 		return;
 	}
 
@@ -1953,7 +1970,10 @@ unregister_account (TrackerEvolutionPlugin *self,
 	if (!(provider->flags & CAMEL_PROVIDER_IS_STORAGE))
 		return;
 
-	if (!(store = (CamelStore *) camel_session_get_service (session, uri, CAMEL_PROVIDER_STORE, NULL))) {
+	if (!(store = (CamelStore *) camel_session_get_service (CAMEL_SESSION (session),
+	                                                        uri,
+	                                                        CAMEL_PROVIDER_STORE,
+	                                                        NULL))) {
 		return;
 	}
 
