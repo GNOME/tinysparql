@@ -21,7 +21,6 @@ namespace Tracker {
 	[CCode (cheader_filename = "tracker-store/tracker-config.h")]
 	public class Config : ConfigFile {
 		public Config ();
-		public bool save ();
 		public int verbosity { get; set; }
 	}
 }

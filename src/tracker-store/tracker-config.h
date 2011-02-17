@@ -21,8 +21,7 @@
 #define __TRACKER_STORE_CONFIG_H__
 
 #include <glib-object.h>
-
-#include <libtracker-common/tracker-config-file.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
@@ -37,17 +36,16 @@ typedef struct TrackerConfig TrackerConfig;
 typedef struct TrackerConfigClass TrackerConfigClass;
 
 struct TrackerConfig {
-	TrackerConfigFile parent;
+	GSettings parent;
 };
 
 struct TrackerConfigClass {
-	TrackerConfigFileClass parent_class;
+	GSettingsClass parent_class;
 };
 
 GType          tracker_config_get_type                             (void) G_GNUC_CONST;
 
 TrackerConfig *tracker_config_new                                  (void);
-gboolean       tracker_config_save                                 (TrackerConfig *config);
 gint           tracker_config_get_verbosity                        (TrackerConfig *config);
 
 void           tracker_config_set_verbosity                        (TrackerConfig *config,
