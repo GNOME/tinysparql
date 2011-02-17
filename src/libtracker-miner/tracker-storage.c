@@ -650,19 +650,25 @@ mount_add (TrackerStorage *storage,
 				g_free (content_type);
 			} else {
 				g_debug ("  Being ignored because mount has no GVolume (i.e. not user mountable) "
-				         "and has mount root path available");
+				         "and has no mount root path available");
 			}
 		}
 	}
 
 	/* If we got something to be used as UUID, then add the mount
 	 * to the TrackerStorage */
-	if (uuid && !g_hash_table_lookup (priv->mounts_by_uuid, uuid)) {
-		g_debug ("  Adding mount point with UUID:'%s', removable: %s, optical: %s",
+	if (uuid && mount_path && !g_hash_table_lookup (priv->mounts_by_uuid, uuid)) {
+		g_debug ("  Adding mount point with UUID: '%s', removable: %s, optical: %s, path: '%s'",
 		         uuid,
 		         is_removable ? "yes" : "no",
-		         is_optical ? "yes" : "no");
+		         is_optical ? "yes" : "no",
+		         mount_path);
 		mount_add_new (storage, uuid, mount_path, is_removable, is_optical);
+	} else {
+		g_debug ("  Skipping mount point with UUID: '%s', path: '%s', already managed: '%s'",
+		         uuid ? uuid : "none",
+		         mount_path ? mount_path : "none",
+		         (uuid && g_hash_table_lookup (priv->mounts_by_uuid, uuid)) ? "yes" : "no");
 	}
 
 	g_free (mount_name);
