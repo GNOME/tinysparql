@@ -91,8 +91,6 @@ tracker_aligned_window_init (TrackerAlignedWindow *aligned_window)
 	priv->motion_id = 0;
   
 	/* set window properties */
-	window->type = GTK_WINDOW_TOPLEVEL;
-
 	gtk_window_set_decorated (window, FALSE);
 	gtk_window_set_type_hint (window, GDK_WINDOW_TYPE_HINT_DOCK);
 }
@@ -155,12 +153,11 @@ tracker_aligned_window_position (TrackerAlignedWindow *window)
 
 	gdk_flush ();
   
-	gdk_window_get_geometry (GTK_WIDGET (window)->window,
+	gdk_window_get_geometry (gtk_widget_get_window (GTK_WIDGET (window)),
 	                         NULL,
 	                         NULL,
 	                         &our_width,
-	                         &our_height,
-	                         NULL);
+	                         &our_height);
   
 	/* stick, skip taskbar and pager */
 	gtk_window_stick (GTK_WINDOW (window));
@@ -171,15 +168,14 @@ tracker_aligned_window_position (TrackerAlignedWindow *window)
 	gtk_widget_realize (align_widget);
   
 	/* get the positional and dimensional attributes of the align widget */
-	gdk_window_get_origin (align_widget->window,
+	gdk_window_get_origin (gtk_widget_get_window (align_widget),
 	                       &entry_x,
 	                       &entry_y);
-	gdk_window_get_geometry (align_widget->window,
+	gdk_window_get_geometry (gtk_widget_get_window (align_widget),
 	                         NULL,
 	                         NULL,
 	                         &entry_width,
-	                         &entry_height,
-	                         NULL);
+	                         &entry_height);
   
 	if (entry_x + our_width < gdk_screen_width ()) {
 		x = entry_x + 1;
@@ -235,14 +231,14 @@ tracker_aligned_window_motion_notify_cb (GtkWidget            *widget,
 	GtkAllocation alloc;
 	GdkRectangle rect;
 
-	alloc = GTK_WIDGET (aligned_window)->allocation;
+	gtk_widget_get_allocation (GTK_WIDGET (aligned_window), &alloc);
   
 	rect.x = 0;
 	rect.y = 0;
 	rect.width = alloc.width;
 	rect.height = alloc.height;
 
-	gdk_window_invalidate_rect (GTK_WIDGET (aligned_window)->window,
+	gdk_window_invalidate_rect (gtk_widget_get_window (GTK_WIDGET (aligned_window)),
 	                            &rect,
 	                            FALSE);
   

@@ -23,13 +23,13 @@ tracker_search_bar_CFLAGS =                            \
 	$(TRACKER_SEARCH_BAR_CFLAGS)
 
 tracker_search_bar_LDADD =                             \
-	$(top_builddir)/src/libtracker-client/libtracker-client-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_SEARCH_BAR_LIBS)
 
 # Panel applet
-appletdir = $(datadir)/gnome-panel/applets
+appletdir = $(datadir)/gnome-panel/4.0/applets
 applet_in_files = org.gnome.panel.SearchBar.panel-applet.in
 applet_DATA = $(applet_in_files:.panel-applet.in=.panel-applet)
 
