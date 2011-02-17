@@ -57,7 +57,15 @@ class Tracker.Sparql.Backend : Connection {
 
 		try {
 			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
-			load_plugins (direct_only);
+			if (load_plugins (direct_only)) {
+				debug ("Waiting for backend to become available synchronously...");
+				if (direct != null) {
+					direct.init ();
+				} else {
+					bus.init ();
+				}
+				debug ("Backend is ready");
+			}
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
@@ -77,7 +85,15 @@ class Tracker.Sparql.Backend : Connection {
 
 		try {
 			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
-			load_plugins (direct_only);
+			if (load_plugins (direct_only)) {
+				debug ("Waiting for backend to become available asynchronously...");
+				if (direct != null) {
+					yield direct.init_async ();
+				} else {
+					yield bus.init_async ();
+				}
+				debug ("Backend is ready");
+			}
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}

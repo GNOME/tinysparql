@@ -89,6 +89,12 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		initialized = true;
 	}
 
+	public override void init () throws Sparql.Error, IOError, DBusError {
+	}
+
+	public async override void init_async () throws Sparql.Error, IOError, DBusError {
+	}
+
 	~Connection () {
 		initialized = false;
 	}
