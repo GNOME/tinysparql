@@ -16,7 +16,7 @@ os_sources = tracker-os-dependant-unix.c
 endif
 
 libtracker_common_la_SOURCES = \
-	$(marshal_sources) \
+	$(BUILT_SOURCES) \
 	$(os_sources) \
 	tracker-config-file.c \
 	tracker-date-time.c \
@@ -86,11 +86,26 @@ tracker-marshal.c: tracker-marshal.list
 	$(AM_V_GEN)echo "#include \"tracker-marshal.h\"" > $@ && \
 		   $(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body >> $@
 
-BUILT_SOURCES =	$(marshal_sources)
+tracker-enum-types.h: tracker-enum-types.h.template $(NOINST_H_FILES)
+	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-enum-types.h.template $(noinst_HEADERS)) > $@
 
-CLEANFILES = $(marshal_sources)
+tracker-enum-types.c: tracker-enum-types.c.template $(NOINST_H_FILES)
+	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-enum-types.c.template $(noinst_HEADERS)) > $@
 
-EXTRA_DIST = \
-	tracker-marshal.list \
-	libtracker-common.vapi
+
+BUILT_SOURCES =	                                       \
+	$(marshal_sources)                             \
+	tracker-enum-types.c                           \
+	tracker-enum-types.h
+
+CLEANFILES =                                           \
+	$(marshal_sources)                             \
+	tracker-enum-types.c                           \
+	tracker-enum-types.h
+
+EXTRA_DIST =                                           \
+	tracker-marshal.list                           \
+	libtracker-common.vapi                         \
+	tracker-enum-types.c.template                  \
+	tracker-enum-types.h.template
 
