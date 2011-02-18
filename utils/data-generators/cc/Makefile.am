@@ -14,6 +14,7 @@ EXTRA_DIST =                                           \
 	nfo.py                                         \
 	nmm.py                                         \
 	nmo.py                                         \
+	slo.py                                         \
 	ontology_prefixes.py                           \
 	tools.py                                       \
 	tracker.py                                     \

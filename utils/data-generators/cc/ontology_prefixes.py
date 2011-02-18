@@ -17,5 +17,6 @@ ontology_prefixes = """
 @prefix mfo:     <http://www.tracker-project.org/temp/mfo#> .
 @prefix mto:     <http://www.tracker-project.org/temp/mto#> .
 @prefix mlo:     <http://www.tracker-project.org/temp/mlo#> .
+@prefix slo:     <http://www.tracker-project.org/temp/slo#> .
 """
 
