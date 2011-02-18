@@ -20,8 +20,10 @@ ttl_DATA =                                             \
 	015-nco_ContactCall.ttl                        \
 	016-nco_ContactIM.ttl                          \
 	018-nco_PersonContact.ttl                      \
-	020-mlo_GeoPoint.ttl                           \
-	021-mlo_LocationBoundingBox.ttl                \
+	020-slo_GeoLocation.ttl                        \
+	021-slo_Landmark.ttl                           \
+	026-mlo_GeoPoint.ttl                           \
+	027-mlo_LocationBoundingBox.ttl                \
 	028-mlo_GeoLocation.ttl                        \
 	029-mlo_Landmark.ttl                           \
 	030-nmo_MailAccount.ttl                        \

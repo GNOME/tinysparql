@@ -19,6 +19,7 @@ import mfo
 import mto
 import nmo
 import mlo
+import slo
 import tracker
 
 def recent_enough_python ():
@@ -66,8 +67,10 @@ tools.addType( 'nco#ContactEmail', 14 )
 tools.addType( 'nco#ContactCall', 15 )
 tools.addType( 'nco#ContactIM', 16 )
 tools.addType( 'nco#PersonContact', 18 )
-tools.addType( 'mlo#GeoPoint', 20 )
-tools.addType( 'mlo#LocationBoundingBox', 21 )
+tools.addType( 'slo#GeoLocation', 20 )
+tools.addType( 'slo#Landmark', 21 )
+tools.addType( 'mlo#GeoPoint', 26 )
+tools.addType( 'mlo#LocationBoundingBox', 27 )
 tools.addType( 'mlo#GeoLocation', 28 )
 tools.addType( 'mlo#Landmark', 29 )
 tools.addType( 'nmo#MailAccount', 30 )
@@ -115,6 +118,13 @@ for contact in xrange(1, count_contacts+1):
 print "Done"
 
 print "Generating Locations and landmarks",
+count_locations = get_counter('counts','locations')
+for location in xrange(1, count_locations+1):
+  if (location % 10 == 0):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+  slo.generateGeoLocation( location )
+  slo.generateLandmark( location )
 count_locations = get_counter('counts','locations')
 for location in xrange(1, count_locations+1):
   if (location % 10 == 0):
