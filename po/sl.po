@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&component=general\n"
-"POT-Creation-Date: 2011-02-06 11:54+0000\n"
-"PO-Revision-Date: 2011-02-06 14:51+0100\n"
+"POT-Creation-Date: 2011-02-17 16:59+0000\n"
+"PO-Revision-Date: 2011-02-18 13:30+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -24,7 +24,7 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
-#: ../src/tracker-search-bar/tracker-results-window.c:666
+#: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Applications"
 msgstr "Programi"
 
@@ -105,13 +105,11 @@ msgstr "Vse objave"
 msgid "By usage"
 msgstr "Po uporabi"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:284
-#: ../src/plugins/nautilus/tracker-tags-view.c:417
-#: ../src/plugins/nautilus/tracker-tags-view.c:451
+#: ../src/plugins/nautilus/tracker-tags-view.c:231
 msgid "No error was given"
 msgstr "Napaka ni bila podana"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:815
+#: ../src/plugins/nautilus/tracker-tags-view.c:963
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
@@ -120,21 +118,21 @@ msgstr[1] "_Nastavi oznake za povezavo z %d izbranim predmetom:"
 msgstr[2] "_Nastavi oznake za povezavo z %d izbranima predmetoma:"
 msgstr[3] "_Nastavi oznake za povezavo s %d izbranimi predmeti:"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:124
-#: ../src/plugins/nautilus/tracker-tags-extension.c:237
+#: ../src/plugins/nautilus/tracker-tags-extension.c:116
+#: ../src/plugins/nautilus/tracker-tags-extension.c:229
 #: ../src/tracker-needle/tracker-taglist.vala:50
 #: ../src/tracker-needle/tracker-needle.ui.h:8
-#: ../src/tracker-search-bar/tracker-results-window.c:663
+#: ../src/tracker-search-bar/tracker-results-window.c:719
 msgid "Tags"
 msgstr "Oznake"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:175
-#: ../src/plugins/nautilus/tracker-tags-extension.c:202
+#: ../src/plugins/nautilus/tracker-tags-extension.c:167
+#: ../src/plugins/nautilus/tracker-tags-extension.c:194
 msgid "Tags..."
 msgstr "Oznake ..."
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:176
-#: ../src/plugins/nautilus/tracker-tags-extension.c:203
+#: ../src/plugins/nautilus/tracker-tags-extension.c:168
+#: ../src/plugins/nautilus/tracker-tags-extension.c:195
 msgid "Tag one or more files"
 msgstr "Označi eno ali več datotek"
 
@@ -208,15 +206,15 @@ msgstr[1] " %2.2d sekunda"
 msgstr[2] " %2.2d sekundi"
 msgstr[3] " %2.2d sekunde"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:730
+#: ../src/libtracker-miner/tracker-miner-object.c:754
 msgid "Pause application and reason match an already existing pause request"
 msgstr "Premor programa in skladanje razloga za že obstoječo zahtevo po premoru"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:812
+#: ../src/libtracker-miner/tracker-miner-object.c:840
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Piškotek za nadaljevanje podatkovnega kopalnika v premoru ni prepoznan"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1189
+#: ../src/libtracker-miner/tracker-miner-object.c:1225
 msgid "Data store is not available"
 msgstr "Shramba podatkov ni na voljo"
 
@@ -228,7 +226,7 @@ msgstr "Potisk podatkov v Tracker omogoči poizvedbo po podatkih. "
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2375
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2332
 #: ../src/tracker-control/tracker-control-status.c:56
 msgid "Processing…"
 msgstr "Obdelovanje ..."
@@ -471,7 +469,7 @@ msgid "Directory"
 msgstr "Mapa"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:380
-#: ../src/tracker-needle/tracker-needle.vala:255
+#: ../src/tracker-needle/tracker-view.vala:139
 msgid "File"
 msgstr "Datoteka"
 
@@ -625,15 +623,7 @@ msgstr "Namizno iskanje"
 msgid "Find what you're looking for on this computer by name or content using Tracker"
 msgstr "Poiščite kar iščete na tem računalniku po imenu ali vsebini z uporabo Trackerja"
 
-#: ../src/tracker-needle/tracker-needle.vala:267
-msgid "Last Changed"
-msgstr "Nazadnje spremenjeno"
-
-#: ../src/tracker-needle/tracker-needle.vala:275
-msgid "Size"
-msgstr "Velikost"
-
-#: ../src/tracker-needle/tracker-needle.vala:763
+#: ../src/tracker-needle/tracker-needle.vala:669
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
@@ -644,12 +634,12 @@ msgstr "Velikost"
 msgid "Print version"
 msgstr "Izpiši različico"
 
-#: ../src/tracker-needle/tracker-needle.vala:770
-#: ../src/tracker-needle/tracker-needle.vala:771
+#: ../src/tracker-needle/tracker-needle.vala:676
+#: ../src/tracker-needle/tracker-needle.vala:677
 msgid "[SEARCH-CRITERIA]"
 msgstr "[ISKALNI-POGOJI]"
 
-#: ../src/tracker-needle/tracker-needle.vala:776
+#: ../src/tracker-needle/tracker-needle.vala:682
 msgid "Desktop Search user interface using Tracker"
 msgstr "Uporabniški vmesnik namiznega iskanja z uporabo Trackerja"
 
@@ -695,9 +685,22 @@ msgstr[3] "pred %ld dnevi"
 msgid "Less than one second"
 msgstr "Pred manj kot eno sekundo"
 
-#: ../src/tracker-needle/tracker-view.vala:48
+#: ../src/tracker-needle/tracker-view.vala:72
 msgid "No Search Results"
 msgstr "Iskanje ni vrnilo rezultatov"
+
+#: ../src/tracker-needle/tracker-view.vala:151
+msgid "Last Changed"
+msgstr "Nazadnje spremenjeno"
+
+#: ../src/tracker-needle/tracker-view.vala:159
+#: ../src/tracker-needle/tracker-view.vala:211
+msgid "Size"
+msgstr "Velikost"
+
+#: ../src/tracker-needle/tracker-view.vala:191
+msgid "Item"
+msgstr "Predmet"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
 msgid "Display results by category, for example, Music, Videos, Applications, etc."
@@ -723,65 +726,65 @@ msgstr "Najdi kriterije iskanja znotraj datotek"
 msgid "Show statistics about the data stored"
 msgstr "Pokaži statistiko o shranjenih podatkih"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:661
-#: ../src/tracker-search-bar/tracker-results-window.c:677
+#: ../src/tracker-search-bar/tracker-results-window.c:717
+#: ../src/tracker-search-bar/tracker-results-window.c:733
 msgid "Other"
 msgstr "Ostalo"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:662
+#: ../src/tracker-search-bar/tracker-results-window.c:718
 #: ../src/tracker-utils/tracker-search.c:234
 msgid "Contacts"
 msgstr "Stiki"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:664
+#: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Email Addresses"
 msgstr "Naslovi elektronske pošte"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:665
+#: ../src/tracker-search-bar/tracker-results-window.c:721
 msgid "Documents"
 msgstr "Dokumenti"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:667
+#: ../src/tracker-search-bar/tracker-results-window.c:723
 msgid "Images"
 msgstr "Slike"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:668
+#: ../src/tracker-search-bar/tracker-results-window.c:724
 msgid "Audio"
 msgstr "Zvok"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:669
+#: ../src/tracker-search-bar/tracker-results-window.c:725
 msgid "Folders"
 msgstr "Mape"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:670
+#: ../src/tracker-search-bar/tracker-results-window.c:726
 msgid "Fonts"
 msgstr "Pisave"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:671
+#: ../src/tracker-search-bar/tracker-results-window.c:727
 msgid "Videos"
 msgstr "Posnetki"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:672
+#: ../src/tracker-search-bar/tracker-results-window.c:728
 msgid "Archives"
 msgstr "Arhivi"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:673
+#: ../src/tracker-search-bar/tracker-results-window.c:729
 msgid "Bookmarks"
 msgstr "Zaznamki"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:674
+#: ../src/tracker-search-bar/tracker-results-window.c:730
 msgid "Links"
 msgstr "Povezave"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1048
+#: ../src/tracker-search-bar/tracker-results-window.c:1104
 msgid "Category"
 msgstr "Kategorija"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1076
+#: ../src/tracker-search-bar/tracker-results-window.c:1132
 msgid "Title"
 msgstr "Naslov"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1142
+#: ../src/tracker-search-bar/tracker-results-window.c:1198
 #, c-format
 msgid "No results found for “%s”"
 msgstr "Za “%s” ni najdenih rezultatov"
