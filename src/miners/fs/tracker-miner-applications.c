@@ -151,6 +151,8 @@ miner_applications_finalize (GObject *object)
 #ifdef HAVE_MEEGOTOUCH
 	tracker_miner_applications_meego_shutdown ();
 #endif /* HAVE_MEEGOTOUCH */
+
+	G_OBJECT_CLASS (tracker_miner_applications_parent_class)->finalize (object);
 }
 
 static void
