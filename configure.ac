@@ -305,6 +305,13 @@ PKG_CHECK_MODULES(TRACKER_EXPLORER, [$TRACKER_EXPLORER_REQUIRED],
                   [have_tracker_explorer=yes],
                   [have_tracker_explorer=no])
 
+TRACKER_RESDUMP_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
+                          gee-1.0      >= $GEE_REQUIRED"
+
+PKG_CHECK_MODULES(TRACKER_RESDUMP, [$TRACKER_RESDUMP_REQUIRED],
+                  [have_tracker_resdump=yes],
+                  [have_tracker_resdump=no])
+
 # Check requirements for tracker-store
 TRACKER_STORE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                         gio-unix-2.0 >= $GLIB_REQUIRED
@@ -1290,6 +1297,12 @@ fi
 
 AM_CONDITIONAL(HAVE_TRACKER_EXPLORER, test "$have_tracker_explorer" = "yes")
 
+##################################################################
+# Check for tracker-resdump
+##################################################################
+
+AM_CONDITIONAL(HAVE_TRACKER_RESDUMP, test "$have_tracker_resdump" = "yes")
+
 ####################################################################
 ####################################################################
 ####################################################################
@@ -2093,6 +2106,7 @@ AC_CONFIG_FILES([
         utils/data-generators/cc/Makefile
 	utils/mtp/Makefile
 	utils/tracker-sql/Makefile
+	utils/tracker-resdump/Makefile
 	examples/Makefile
 	examples/libtracker-extract/Makefile
 	examples/libtracker-miner/Makefile
