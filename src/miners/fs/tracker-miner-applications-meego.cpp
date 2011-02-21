@@ -26,6 +26,24 @@
 
 #include "tracker-miner-applications-meego.h"
 
+static QCoreApplication *app = NULL;
+
+void
+tracker_miner_applications_meego_init (void)
+{
+	char *argv[] = { "dummy", NULL };
+	int argc = 1;
+
+	/* We need the app for loading translations */
+	app = new QApplication (argc, argv, FALSE);
+}
+
+void
+tracker_miner_applications_meego_shutdown (void)
+{
+	delete app;
+}
+
 /* The meego desktop files are using the qt translation system to get
  * localized strings using catalog and string ids. QApplication and
  * MLocale are needed for loading the translation catalogs. The
@@ -39,18 +57,14 @@ gchar *
 tracker_miner_applications_meego_translate (const gchar  *catalogue,
                                             const gchar  *id)
 {
-	char *argv[] = { "dummy", NULL };
-	int argc = 1;
-
-	/* We need the app for loading translations */
-	QApplication app (argc, argv, FALSE);
-
 	/* Get the system default locale */
 	MLocale locale;
 
-	/* Load the catalog from disk */
-	locale.installTrCatalog (catalogue);
-	MLocale::setDefault (locale);
+	/* Load the catalog from disk if not already there */
+	if(!locale.isInstalledTrCatalog (catalogue)) {
+		locale.installTrCatalog (catalogue);
+		MLocale::setDefault (locale);
+	}
 
 	gchar *ret = g_strdup (qtTrId (id).toUtf8 ().data ());
 

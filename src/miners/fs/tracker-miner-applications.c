@@ -55,6 +55,8 @@ static gboolean miner_applications_process_file_attributes (TrackerMinerFS      
                                                             GCancellable         *cancellable);
 static gboolean miner_applications_monitor_directory       (TrackerMinerFS       *fs,
                                                             GFile                *file);
+static void     miner_applications_finalize                (GObject              *object);
+
 
 static GQuark miner_applications_error_quark = 0;
 
@@ -78,7 +80,10 @@ G_DEFINE_TYPE_WITH_CODE (TrackerMinerApplications, tracker_miner_applications, T
 static void
 tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 {
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerFSClass *miner_fs_class = TRACKER_MINER_FS_CLASS (klass);
+
+	object_class->finalize = miner_applications_finalize;
 
 	miner_fs_class->check_file = miner_applications_check_file;
 	miner_fs_class->check_directory = miner_applications_check_directory;
@@ -132,11 +137,20 @@ miner_applications_initable_init (GInitable     *initable,
 	file = g_file_new_for_path ("/usr/lib/duicontrolpanel/");
 	tracker_miner_fs_directory_add (fs, file, TRUE);
 	g_object_unref (file);
+	tracker_miner_applications_meego_init ();
 #endif /* HAVE_MEEGOTOUCH */
 
 	/* FIXME: Check XDG_DATA_DIRS and also process applications in there */
 
 	return TRUE;
+}
+
+static void
+miner_applications_finalize (GObject *object)
+{
+#ifdef HAVE_MEEGOTOUCH
+	tracker_miner_applications_meego_shutdown ();
+#endif /* HAVE_MEEGOTOUCH */
 }
 
 static void
@@ -736,7 +750,7 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 		G_FILE_ATTRIBUTE_STANDARD_TYPE;
 
 	g_file_query_info_async (file,
-				 attrs,
+	                         attrs,
 	                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                         G_PRIORITY_DEFAULT,
 	                         cancellable,

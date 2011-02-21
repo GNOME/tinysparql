@@ -27,6 +27,9 @@ gchar *tracker_miner_applications_meego_translate (const gchar  *catalogue,
 
 gchar *tracker_miner_applications_meego_get_locale (void);
 
+void   tracker_miner_applications_meego_init       (void);
+void   tracker_miner_applications_meego_shutdown   (void);
+
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_FS_APPLICATIONS_MEEGO_H__ */
