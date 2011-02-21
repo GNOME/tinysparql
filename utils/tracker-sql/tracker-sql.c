@@ -55,7 +55,7 @@ main (int argc, char **argv)
 	const gchar *error_message;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor;
+	TrackerDBCursor *cursor = NULL;
 
 	setlocale (LC_ALL, "");
 
