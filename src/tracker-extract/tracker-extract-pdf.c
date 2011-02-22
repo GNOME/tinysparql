@@ -352,7 +352,7 @@ extract_pdf (const gchar          *uri,
 	              "subject", &pd.subject,
 	              "keywords", &pd.keywords,
 	              "creation-date", &creation_date,
-		      "metadata", &xml,
+	              "metadata", &xml,
 	              NULL);
 
 	if (creation_date > 0) {
@@ -362,7 +362,7 @@ extract_pdf (const gchar          *uri,
 	if (xml &&
 	    (xd = tracker_xmp_new (xml, strlen (xml), uri)) != NULL) {
 		/* The casts here are well understood and known */
-		md.title = (gchar *) tracker_coalesce_strip (3, pd.title, xd->title, xd->title2, xd->pdf_title);
+		md.title = (gchar *) tracker_coalesce_strip (4, pd.title, xd->title, xd->title2, xd->pdf_title);
 		md.subject = (gchar *) tracker_coalesce_strip (2, pd.subject, xd->subject);
 		md.date = (gchar *) tracker_coalesce_strip (3, pd.creation_date, xd->date, xd->time_original);
 		md.author = (gchar *) tracker_coalesce_strip (2, pd.author, xd->creator);
