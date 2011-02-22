@@ -189,13 +189,14 @@ extract_content (PopplerDocument *document,
 	gint n_pages, i = 0;
 	GString *string;
 	GTimer *timer;
+	gsize remaining_bytes = n_bytes;
 
 	n_pages = poppler_document_get_n_pages (document);
 	string = g_string_new ("");
 	timer = g_timer_new ();
 
 	while (i < n_pages &&
-	       n_bytes > 0 &&
+	       remaining_bytes > 0 &&
 	       g_timer_elapsed (timer, NULL) < 5) {
 		PopplerPage *page;
 		gsize written_bytes;
@@ -212,17 +213,25 @@ extract_content (PopplerDocument *document,
 		}
 
 		if (tracker_text_validate_utf8 (text,
-		                                MIN (strlen (text), n_bytes),
+		                                MIN (strlen (text), remaining_bytes),
 		                                &string,
 		                                &written_bytes)) {
 			g_string_append_c (string, ' ');
 		}
 
-		n_bytes -= written_bytes;
+		remaining_bytes -= written_bytes;
+
+		g_debug ("Extracted %" G_GSIZE_FORMAT " bytes from page %d, "
+		         "%" G_GSIZE_FORMAT " bytes remaining",
+		         written_bytes, i, remaining_bytes);
 
 		g_free (text);
 		g_object_unref (page);
 	}
+
+	g_debug ("Content extraction finished: %d/%d pages indexed in %lf seconds, "
+	         "%" G_GSIZE_FORMAT " bytes extracted",
+	         i, n_pages, g_timer_elapsed (timer, NULL), (n_bytes - remaining_bytes));
 
 	g_timer_destroy (timer);
 
