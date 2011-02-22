@@ -2112,6 +2112,7 @@ AC_CONFIG_FILES([
 	examples/libtracker-miner/Makefile
 	examples/rss-reader/Makefile
 	examples/class-signal/Makefile
+	examples/async-connection/Makefile
 ])
 
 AC_OUTPUT
