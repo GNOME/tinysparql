@@ -75,7 +75,7 @@ read_toc (PopplerIndexIter  *index,
 
 		switch (action->type) {
 			case POPPLER_ACTION_GOTO_DEST: {
-				PopplerActionGotoDest *ag = (PopplerActionGotoDest*) action;
+				PopplerActionGotoDest *ag = (PopplerActionGotoDest *)action;
 				PopplerDest *agd = ag->dest;
 
 				if (!tracker_is_empty_string (ag->title)) {
@@ -90,7 +90,7 @@ read_toc (PopplerIndexIter  *index,
 			}
 
 			case POPPLER_ACTION_LAUNCH: {
-				PopplerActionLaunch *al = (PopplerActionLaunch*) action;
+				PopplerActionLaunch *al = (PopplerActionLaunch *)action;
 
 				if (!tracker_is_empty_string (al->title)) {
 					g_string_append_printf (*toc, "%s ", al->title);
@@ -108,7 +108,7 @@ read_toc (PopplerIndexIter  *index,
 			}
 
 			case POPPLER_ACTION_URI: {
-				PopplerActionUri *au = (PopplerActionUri*) action;
+				PopplerActionUri *au = (PopplerActionUri *)action;
 
 				if (!tracker_is_empty_string (au->uri)) {
 					g_string_append_printf (*toc, "%s ", au->uri);
@@ -118,7 +118,7 @@ read_toc (PopplerIndexIter  *index,
 			}
 
 			case POPPLER_ACTION_NAMED: {
-				PopplerActionNamed *an = (PopplerActionNamed*) action;
+				PopplerActionNamed *an = (PopplerActionNamed *)action;
 
 				if (!tracker_is_empty_string (an->title)) {
 					g_string_append_printf (*toc, "%s, ", an->title);
@@ -132,7 +132,7 @@ read_toc (PopplerIndexIter  *index,
 			}
 
 			case POPPLER_ACTION_MOVIE: {
-				PopplerActionNamed *am = (PopplerActionNamed*) action;
+				PopplerActionNamed *am = (PopplerActionNamed *)action;
 
 				if (!tracker_is_empty_string (am->title)) {
 					g_string_append_printf (*toc, "%s ", am->title);
