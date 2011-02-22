@@ -878,6 +878,8 @@ tracker_miner_applications_new (GError **error)
 	                        NULL,
 	                        error,
 	                        "name", "Applications",
+	                        "processing-pool-wait-limit", 10,
+	                        "processing-pool-ready-limit", 100,
 	                        NULL);
 	if (miner &&
 	    tracker_miner_applications_locale_changed ()) {
