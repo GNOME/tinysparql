@@ -397,18 +397,20 @@ extract_pdf (const gchar          *uri,
 		}
 
 		if (xd->make || xd->model) {
-			gchar *camera;
-
-			if ((xd->make == NULL || xd->model == NULL) ||
-			    (xd->make && xd->model && strstr (xd->model, xd->make) == NULL)) {
-				camera = tracker_merge_const (" ", 2, xd->make, xd->model);
-			} else {
-				camera = g_strdup (xd->model);
+			tracker_sparql_builder_predicate (metadata, "nfo:equipment");
+			tracker_sparql_builder_object_blank_open (metadata);
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nco:Equipment");
+			if (xd->model) {
+				tracker_sparql_builder_predicate (metadata, "nco:model");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->model);
 			}
 
-			tracker_sparql_builder_predicate (metadata, "nfo:device");
-			tracker_sparql_builder_object_unvalidated (metadata, camera);
-			g_free (camera);
+			if (xd->make) {
+				tracker_sparql_builder_predicate (metadata, "nco:make");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->make);
+			}
+			tracker_sparql_builder_object_blank_close (metadata);
 		}
 
 		if (xd->orientation) {
