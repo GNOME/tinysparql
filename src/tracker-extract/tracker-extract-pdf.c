@@ -406,7 +406,7 @@ extract_pdf (const gchar          *uri,
 				camera = g_strdup (xd->model);
 			}
 
-			tracker_sparql_builder_predicate (metadata, "nmm:camera");
+			tracker_sparql_builder_predicate (metadata, "nfo:device");
 			tracker_sparql_builder_object_unvalidated (metadata, camera);
 			g_free (camera);
 		}
