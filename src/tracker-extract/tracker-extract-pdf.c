@@ -527,6 +527,34 @@ extract_pdf (const gchar          *uri,
 				tracker_sparql_builder_object_unvalidated (metadata, xd->country);
 			}
 
+			tracker_sparql_builder_predicate (metadata, "mlo:asPostalAddress");
+			tracker_sparql_builder_object_blank_open (metadata); /* PostalAddress */
+
+			tracker_sparql_builder_predicate (metadata, "a");
+			tracker_sparql_builder_object (metadata, "nco:PostalAddress");
+
+			if (xd->address) {
+				tracker_sparql_builder_predicate (metadata, "nco:streetAddress");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->address);
+			}
+
+			if (xd->state) {
+				tracker_sparql_builder_predicate (metadata, "nco:region");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->state);
+			}
+
+			if (xd->city) {
+				tracker_sparql_builder_predicate (metadata, "nco:locality");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->city);
+			}
+
+			if (xd->country) {
+				tracker_sparql_builder_predicate (metadata, "nco:country");
+				tracker_sparql_builder_object_unvalidated (metadata, xd->country);
+			}
+
+			tracker_sparql_builder_object_blank_close (metadata); /* PostalAddress */
+
 			tracker_sparql_builder_object_blank_close (metadata);
 		}
 
