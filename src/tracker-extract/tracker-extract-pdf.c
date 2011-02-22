@@ -207,6 +207,7 @@ extract_content (PopplerDocument *document,
 		text = poppler_page_get_text (page);
 
 		if (!text) {
+			g_object_unref (page);
 			continue;
 		}
 
