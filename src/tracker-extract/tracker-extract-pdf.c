@@ -203,9 +203,9 @@ insert_keywords (TrackerSparqlBuilder *metadata,
 		keywords[len - 1] = '\0';
 	}
 
-	for (p = strtok_r (keywords, ",; ", &saveptr);
+	for (p = strtok_r (keywords, ",;", &saveptr);
 	     p;
-	     p = strtok_r (NULL, ",; ", &saveptr)) {
+	     p = strtok_r (NULL, ",;", &saveptr)) {
 		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
 
 		tracker_sparql_builder_object_blank_open (metadata);
