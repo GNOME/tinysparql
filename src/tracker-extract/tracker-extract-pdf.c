@@ -132,7 +132,7 @@ read_toc (PopplerIndexIter  *index,
 			}
 
 			case POPPLER_ACTION_MOVIE: {
-				PopplerActionNamed *am = (PopplerActionNamed *)action;
+				PopplerActionMovie *am = (PopplerActionMovie *)action;
 
 				if (!tracker_is_empty_string (am->title)) {
 					g_string_append_printf (*toc, "%s ", am->title);
