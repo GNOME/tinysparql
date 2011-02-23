@@ -311,7 +311,7 @@ load_modules (const gchar  *force_module,
 		g_module_make_resident (module);
 
 		if (g_module_symbol (module, EXTRACT_FUNCTION, (gpointer *) &func)) {
-			ModuleData mdata;
+			ModuleData mdata = { 0 };
 
 			mdata.module = module;
 			mdata.edata = (func) ();
