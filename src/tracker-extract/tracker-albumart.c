@@ -781,7 +781,6 @@ tracker_albumart_process (const unsigned char *buffer,
 	gchar *local_uri = NULL;
 	gchar *filename_uri;
 	guint64 mtime, a_mtime = 0;
-	GFile *mfile;
 
 	g_debug ("Processing album art, buffer is %ld bytes, artist:'%s', album:'%s', filename:'%s', mime:'%s'",
 	         (long int) len,
@@ -790,13 +789,13 @@ tracker_albumart_process (const unsigned char *buffer,
 	         filename,
 	         mime);
 
-	if (strstr (filename, "://")) {
-		filename_uri = g_strdup (filename);
-		mtime = tracker_file_get_mtime_uri (filename);
-	} else {
-		filename_uri = g_filename_to_uri (filename, NULL, NULL);
-		mtime = tracker_file_get_mtime (filename);
-	}
+	/* TODO: We can definitely work with GFiles better here */
+
+	filename_uri = (strstr (filename, "://") ?
+	                g_strdup (filename) :
+	                g_filename_to_uri (filename, NULL, NULL));
+
+	mtime = tracker_file_get_mtime_uri (filename_uri);
 
 	albumart_get_path (artist,
 	                   album,
