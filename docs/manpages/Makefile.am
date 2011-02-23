@@ -12,24 +12,33 @@ if HAVE_TRACKER_NEEDLE
 tn = tracker-needle.1
 endif
 
-man_MANS =                                             \
-	tracker-extract.1                              \
-	tracker-extract.cfg.5                          \
-	tracker-fts.cfg.5                              \
-	tracker-import.1                               \
-	tracker-info.1                                 \
-	tracker-miner-fs.1                             \
-	tracker-miner-fs.cfg.5                         \
-	tracker-control.1                              \
-	tracker-search.1                               \
-	tracker-sparql.1                               \
-	tracker-stats.1                                \
-	tracker-store.1                                \
-	tracker-store.cfg.5                            \
-	tracker-tag.1                                  \
-	$(tsb)                                         \
-	$(tn)                                          \
-	$(ta)                                          \
+common = \
+	tracker-extract.1 \
+	tracker-extract.cfg.5 \
+	tracker-fts.cfg.5 \
+	tracker-import.1 \
+	tracker-info.1 \
+	tracker-miner-fs.1 \
+	tracker-miner-fs.cfg.5 \
+	tracker-control.1 \
+	tracker-search.1 \
+	tracker-sparql.1 \
+	tracker-stats.1 \
+	tracker-store.1 \
+	tracker-store.cfg.5 \
+	tracker-tag.1
+
+# Install only common and enabled manpages
+man_MANS = \
+	$(common) \
+	$(tsb) \
+	$(tn) \
+	$(ta) \
 	$(tp)
 
-EXTRA_DIST = $(man_MANS)
+# Make sure even disabled manpages get distributed
+EXTRA_DIST = \
+	$(common) \
+	tracker-search-bar.1 \
+	tracker-preferences.1 \
+	tracker-needle.1
