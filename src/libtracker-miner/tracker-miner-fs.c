@@ -2608,7 +2608,8 @@ item_queue_get_progress (TrackerMinerFS *fs,
 	items_total += fs->private->total_files_found;
 
 	if (n_items_processed) {
-		*n_items_processed = items_total - items_to_process;
+		*n_items_processed = ((items_total >= items_to_process) ?
+		                      (items_total - items_to_process) : 0);
 	}
 
 	if (n_items_remaining) {
@@ -2735,7 +2736,7 @@ item_queue_handlers_cb (gpointer user_data)
 			                                           items_remaining);
 			str2 = tracker_seconds_to_string (seconds_elapsed, TRUE);
 
-			tracker_info ("Processed %d/%d, estimated %s left, %s elapsed",
+			tracker_info ("Processed %u/%u, estimated %s left, %s elapsed",
 			              items_processed,
 			              items_processed + items_remaining,
 			              str1,
