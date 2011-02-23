@@ -37,8 +37,10 @@ FILE*    tracker_file_open          (const gchar  *uri,
                                      gboolean      sequential);
 void     tracker_file_close         (FILE         *file,
                                      gboolean      need_again_soon);
-goffset  tracker_file_get_size      (const gchar  *uri);
-guint64  tracker_file_get_mtime     (const gchar  *uri);
+goffset  tracker_file_get_size      (const gchar  *path);
+guint64  tracker_file_get_mtime     (const gchar  *path);
+guint64  tracker_file_get_mtime_uri (const gchar  *uri);
+
 gchar *  tracker_file_get_mime_type (GFile        *file);
 gboolean tracker_file_lock          (GFile        *file);
 gboolean tracker_file_unlock        (GFile        *file);

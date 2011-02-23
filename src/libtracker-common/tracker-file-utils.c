@@ -134,17 +134,14 @@ tracker_file_get_size (const gchar *path)
 	return size;
 }
 
+static
 guint64
-tracker_file_get_mtime (const gchar *path)
+file_get_mtime (GFile *file)
 {
 	GFileInfo *info;
-	GFile     *file;
 	GError    *error = NULL;
 	guint64    mtime;
 
-	g_return_val_if_fail (path != NULL, 0);
-
-	file = g_file_new_for_path (path);
 	info = g_file_query_info (file,
 	                          G_FILE_ATTRIBUTE_TIME_MODIFIED,
 	                          G_FILE_QUERY_INFO_NONE,
@@ -152,15 +149,50 @@ tracker_file_get_mtime (const gchar *path)
 	                          &error);
 
 	if (G_UNLIKELY (error)) {
+		gchar *path = g_file_get_path (file);
 		g_message ("Could not get mtime for '%s', %s",
 		           path,
 		           error->message);
+		g_free (path);
 		g_error_free (error);
 		mtime = 0;
 	} else {
 		mtime = g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
 		g_object_unref (info);
 	}
+
+	return mtime;
+}
+
+guint64
+tracker_file_get_mtime (const gchar *path)
+{
+	GFile     *file;
+	guint64    mtime;
+
+	g_return_val_if_fail (path != NULL, 0);
+
+	file = g_file_new_for_path (path);
+
+	mtime = file_get_mtime (file);
+
+	g_object_unref (file);
+
+	return mtime;
+}
+
+
+guint64
+tracker_file_get_mtime_uri (const gchar *uri)
+{
+	GFile     *file;
+	guint64    mtime;
+
+	g_return_val_if_fail (uri != NULL, 0);
+
+	file = g_file_new_for_uri (uri);
+
+	mtime = file_get_mtime (file);
 
 	g_object_unref (file);
 
