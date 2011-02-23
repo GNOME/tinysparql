@@ -51,7 +51,7 @@
 static GHashTable *file_locks = NULL;
 
 FILE *
-tracker_file_open (const gchar *uri,
+tracker_file_open (const gchar *path,
                    const gchar *how,
                    gboolean     sequential)
 {
@@ -59,16 +59,16 @@ tracker_file_open (const gchar *uri,
 	gboolean  readonly;
 	int       flags;
 
-	g_return_val_if_fail (uri != NULL, NULL);
+	g_return_val_if_fail (path != NULL, NULL);
 	g_return_val_if_fail (how != NULL, NULL);
 
-	file = fopen (uri, how);
+	file = fopen (path, how);
 	if (!file) {
 		return NULL;
 	}
 
 	/* Are we opening for readonly? */
-	readonly = !strstr (uri, "r+") && strchr (uri, 'r');
+	readonly = !strstr (path, "r+") && strchr (path, 'r');
 
 	if (readonly) {
 		int fd;

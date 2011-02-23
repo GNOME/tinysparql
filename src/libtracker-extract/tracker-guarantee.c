@@ -52,13 +52,10 @@ get_title_from_file (const gchar *uri)
 static gchar *
 get_date_from_file_mtime (const gchar *uri)
 {
-	gchar *filename;
 	gchar *date;
 	guint64 mtime;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
-	mtime = tracker_file_get_mtime (filename);
-	g_free (filename);
+	mtime = tracker_file_get_mtime_uri (uri);
 
 	date = tracker_date_to_string ((time_t) mtime);
 
