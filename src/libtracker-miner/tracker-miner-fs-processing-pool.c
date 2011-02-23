@@ -33,7 +33,7 @@
  *           files (until the tracker_miner_fs_file_notify() is called by the
  *           upper layer).
  *   1.2. "READY" tasks are those used to specify tasks which have a proper
- *         SPARQL string ready to be pushed to tracker-store. If
+ *         SPARQL string ready to be pushed to tracker-store.
  *   1.3. "PROCESSING" tasks are those used to specify tasks that are currently
  *         being pushed to the store.
  *
@@ -64,17 +64,16 @@
  * 3. The number of tasks pushed to the pull as "WAIT" tasks is limited to the
  *    number set while creating the pool. This value corresponds to the
  *    "processing-pool-wait-limit" property in the TrackerMinerFS object, and
- *    currently is set to 1 for TrackerMinerApplications and to 10 to
+ *    currently is set to 10 for both TrackerMinerApplications and
  *    TrackerMinerFiles. In the case of TrackerMinerFiles, this number specifies
  *    the maximum number of extraction requests that can be managed in parallel.
  *
  * 4. The number of tasks pushed to the pull as "READY" tasks is limited to
  *    the number set while creating the pool. This value corresponds to the
  *    "processing-pool-ready-limit" property in the TrackerMinerFS object, and
- *    currently is set to 1 for TrackerMinerApplications and to 100 to
- *    TrackerMinerFiles. In the case of TrackerMinerFiles, this number specifies
- *    the maximum number of SPARQL updates that can be merged into a single
- *    multi-insert SPARQL connection.
+ *    currently is set to 100 for both TrackerMinerApplications and
+ *    TrackerMinerFiles. This number specifies the maximum number of SPARQL
+ *    updates that can be merged into a single multi-insert SPARQL connection.
  *
  * 5. When a task is pushed to the pool as a "READY" task, the pool will be in
  *    charge of executing the SPARQL update into the store.
