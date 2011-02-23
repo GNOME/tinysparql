@@ -206,14 +206,6 @@ extension_get_file_items (NautilusMenuProvider *provider,
 }
 
 static GList *
-extension_get_toolbar_items (NautilusMenuProvider *provider,
-                             GtkWidget            *window,
-                             NautilusFileInfo     *current_folder)
-{
-	return NULL;
-}
-
-static GList *
 extension_get_pages (NautilusPropertyPageProvider *provider,
                      GList                        *files)
 {
@@ -238,7 +230,6 @@ static void
 tracker_tags_extension_menu_provider_iface_init (NautilusMenuProviderIface *iface)
 {
 	iface->get_file_items = extension_get_file_items;
-	iface->get_toolbar_items = extension_get_toolbar_items;
 
 	if (0) {
 		iface->get_background_items = extension_get_background_items;
