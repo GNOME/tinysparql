@@ -119,9 +119,13 @@ tracker_file_get_size (const gchar *path)
 	                          &error);
 
 	if (G_UNLIKELY (error)) {
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
 		g_message ("Could not get size for '%s', %s",
-		           path,
+		           uri,
 		           error->message);
+		g_free (uri);
 		g_error_free (error);
 		size = 0;
 	} else {
@@ -149,11 +153,13 @@ file_get_mtime (GFile *file)
 	                          &error);
 
 	if (G_UNLIKELY (error)) {
-		gchar *path = g_file_get_path (file);
-		g_message ("Could not get mtime for '%s', %s",
-		           path,
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_message ("Could not get mtime for '%s': %s",
+		           uri,
 		           error->message);
-		g_free (path);
+		g_free (uri);
 		g_error_free (error);
 		mtime = 0;
 	} else {
@@ -215,8 +221,13 @@ tracker_file_get_mime_type (GFile *file)
 	                          &error);
 
 	if (G_UNLIKELY (error)) {
-		g_message ("Could not guess mimetype, %s",
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_message ("Could not guess mimetype for '%s', %s",
+		           uri,
 		           error->message);
+		g_free (uri);
 		g_error_free (error);
 		content_type = NULL;
 	} else {
@@ -302,14 +313,14 @@ tracker_file_system_has_enough_space (const gchar *path,
 
 		if (!enough) {
 			g_critical ("Not enough disk space to create databases, "
-				    "%s remaining, %s required as a minimum",
-				    str2,
-				    str1);
+			            "%s remaining, %s required as a minimum",
+			            str2,
+			            str1);
 		} else {
 			g_message ("Checking for adequate disk space to create databases, "
-				   "%s remaining, %s required as a minimum",
-				   str2,
-				   str1);
+			           "%s remaining, %s required as a minimum",
+			           str2,
+			           str1);
 		}
 
 		g_free (str2);
@@ -572,7 +583,6 @@ path_has_write_access (const gchar *path,
 	                          0,
 	                          NULL,
 	                          &error);
-	g_object_unref (file);
 
 	if (G_UNLIKELY (error)) {
 		if (error->code == G_IO_ERROR_NOT_FOUND) {
@@ -580,10 +590,14 @@ path_has_write_access (const gchar *path,
 				*exists = FALSE;
 			}
 		} else {
+			gchar *uri;
+
+			uri = g_file_get_uri (file);
 			g_warning ("Could not check if we have write access for "
-			           "path '%s', %s",
-			           path,
+			           "'%s': %s",
+			           uri,
 			           error->message);
+			g_free (uri);
 		}
 
 		g_error_free (error);
@@ -598,6 +612,8 @@ path_has_write_access (const gchar *path,
 
 		g_object_unref (info);
 	}
+
+	g_object_unref (file);
 
 	return writable;
 }
@@ -709,7 +725,11 @@ tracker_file_lock (GFile *file)
 	fd = open (path, O_RDONLY);
 
 	if (fd < 0) {
-		g_warning ("Could not open '%s'", path);
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_warning ("Could not open '%s'", uri);
+		g_free (uri);
 		g_free (path);
 
 		return FALSE;
@@ -722,7 +742,11 @@ tracker_file_lock (GFile *file)
 		                     g_object_ref (file),
 		                     GINT_TO_POINTER (fd));
 	} else {
-		g_warning ("Could not lock file '%s'", path);
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_warning ("Could not lock file '%s'", uri);
+		g_free (uri);
 		close (fd);
 	}
 
@@ -752,11 +776,11 @@ tracker_file_unlock (GFile *file)
 	retval = flock (fd, LOCK_UN);
 
 	if (retval < 0) {
-		gchar *path;
+		gchar *uri;
 
-		path = g_file_get_path (file);
-		g_warning ("Could not unlock file '%s'", path);
-		g_free (path);
+		uri = g_file_get_uri (file);
+		g_warning ("Could not unlock file '%s'", uri);
+		g_free (uri);
 
 		return FALSE;
 	}
@@ -808,7 +832,11 @@ tracker_file_is_locked (GFile *file)
 	fd = open (path, O_RDONLY);
 
 	if (fd < 0) {
-		g_warning ("Could not open '%s'", path);
+		gchar *uri;
+
+		uri = g_file_get_uri (file);
+		g_warning ("Could not open '%s'", uri);
+		g_free (uri);
 		g_free (path);
 
 		return FALSE;
