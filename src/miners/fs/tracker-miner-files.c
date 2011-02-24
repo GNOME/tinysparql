@@ -2039,6 +2039,13 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 	g_error_free (error);
 }
 
+static gboolean
+extractor_skip_embedded_metadata_idle (gpointer user_data)
+{
+	extractor_get_embedded_metadata_cb (NULL, NULL, NULL, user_data);
+	return FALSE;
+}
+
 static SendAndSpliceData *
 send_and_splice_data_new (GInputStream                     *unix_input_stream,
                           GInputStream                     *buffered_input_stream,
@@ -2355,6 +2362,7 @@ process_file_cb (GObject      *object,
 	gchar *uri;
 	GError *error = NULL;
 	gboolean is_iri;
+	gboolean is_directory;
 
 	data = user_data;
 	file = G_FILE (object);
@@ -2385,7 +2393,9 @@ process_file_cb (GObject      *object,
 	tracker_sparql_builder_object (sparql, "nfo:FileDataObject");
 	tracker_sparql_builder_object (sparql, "nie:InformationElement");
 
-	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+	is_directory = (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY ?
+	                TRUE : FALSE);
+	if (is_directory) {
 		tracker_sparql_builder_object (sparql, "nfo:Folder");
 	}
 
@@ -2427,8 +2437,15 @@ process_file_cb (GObject      *object,
 
 	miner_files_add_to_datasource (data->miner, file, sparql);
 
-	/* Next step, getting embedded metadata */
-	extractor_get_embedded_metadata (data, uri, mime_type);
+	if (!is_directory) {
+		/* Next step, if NOT a directory, get embedded metadata */
+		extractor_get_embedded_metadata (data, uri, mime_type);
+	} else {
+		/* For directories, don't request embedded metadata extraction.
+		 * We setup an idle so that we keep the previous behavior. */
+		g_debug ("Avoiding embedded metadata request for directory '%s'", uri);
+		g_idle_add (extractor_skip_embedded_metadata_idle, data);
+	}
 
 	g_object_unref (file_info);
 	g_free (uri);
