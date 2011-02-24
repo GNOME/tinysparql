@@ -40,9 +40,9 @@
 
 #include <glib/gstdio.h>
 
-#include <libtracker-common/tracker-log.h>
-
 #endif /* HAVE_IOPRIO */
+
+#include <libtracker-common/tracker-log.h>
 
 #include "tracker-ioprio.h"
 
