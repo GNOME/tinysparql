@@ -527,6 +527,10 @@ extract_metadata (MetadataExtractor      *extractor,
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_VIDEO_CODEC, &video_codec);
 			gst_tag_list_get_string (extractor->tagcache, GST_TAG_AUDIO_CODEC, &audio_codec);
 
+			g_debug ("Reading codecs from the stream... audio: '%s', video: '%s'",
+			         audio_codec ? audio_codec : "none",
+			         video_codec ? video_codec : "none");
+
 			if (audio_codec && !video_codec) {
 				extractor->mime = EXTRACT_MIME_AUDIO;
 			} else {
@@ -1117,12 +1121,9 @@ poll_for_ready (MetadataExtractor *extractor,
 					g_free (error_debug_message);
 					g_error_free (lerror);
 
-					/* According to GStreamer guys we shouldn't keep on trying
-					 * to read tags when a _DECRYPT error is received. In this
-					 * case, we should consider all tags read up to the point
-					 * when we received the encryption error. */
-					gst_message_unref (message);
-					return TRUE;
+					/* We really need to keep on reading as tags may come
+					 * afterwards, like codec tags in DRM-ed files. */
+					break;
 				}
 			}
 #endif
