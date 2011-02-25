@@ -52,5 +52,8 @@ tracker_encoding_guess_enca (const gchar *buffer,
 
 	free (langs);
 
+	if (encoding)
+		g_debug ("Guessing charset as '%s'", encoding);
+
 	return encoding;
 }

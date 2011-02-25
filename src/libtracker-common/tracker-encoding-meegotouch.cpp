@@ -52,7 +52,23 @@ tracker_encoding_guess_meegotouch (const gchar *buffer,
 
 	gchar *encoding = g_strdup (bestMatch.name ().toUtf8 ().data ());
 
-	g_debug ("Guessing charset as '%s' with %d confidence",
+#if 0
+	QList<MCharsetMatch> mCharsetMatchList = detector.detectAll();
+
+	if (detector.hasError ()) {
+		g_warning ("Charset detector error when detecting all: %s",
+		           detector.errorString ().toUtf8 (). data ());
+	}
+
+	g_debug ("Detecting all charsets...");
+	for (gint i = 0; i < mCharsetMatchList.size (); ++i) {
+		g_debug ("  Charset '%s' with %d%% confidence...",
+		         mCharsetMatchList[i].name (). toUtf8 ().data (),
+		         mCharsetMatchList[i].confidence ());
+	}
+#endif
+
+	g_debug ("Guessing charset as '%s' with %d%% confidence",
 	         encoding, bestMatch.confidence ());
 
 	return encoding;
