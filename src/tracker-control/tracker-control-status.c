@@ -466,6 +466,11 @@ tracker_control_status_run (void)
 	GSList *miners_running;
 	GSList *l;
 
+	/* --detailed implies --follow */
+	if (detailed) {
+		follow = TRUE;
+	}
+
 	/* --follow implies --status */
 	if (follow) {
 		status = TRUE;
