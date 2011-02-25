@@ -106,11 +106,6 @@ libextract_mp3_la_LIBADD =  \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS)
 
-if HAVE_ENCA
-libextract_mp3_la_CFLAGS += $(ENCA_CFLAGS)
-libextract_mp3_la_LIBADD += $(ENCA_LIBS)
-endif
-
 # Vorbis (OGG)
 libextract_vorbis_la_SOURCES = tracker-extract-vorbis.c $(escape_sources)
 libextract_vorbis_la_CFLAGS = $(TRACKER_EXTRACT_MODULES_CFLAGS)
