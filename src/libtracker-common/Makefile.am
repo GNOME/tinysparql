@@ -53,8 +53,6 @@ libtracker_common_la_SOURCES += tracker-language.c
 noinst_HEADERS += tracker-language.h
 endif
 
-libtracker_common_la_CFLAGS =
-
 libtracker_common_la_LDFLAGS = \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
@@ -64,11 +62,6 @@ libtracker_common_la_LIBADD = \
 
 if HAVE_TRACKER_FTS
 libtracker_common_la_LIBADD += $(top_builddir)/src/libstemmer/libstemmer.la
-endif
-
-if HAVE_ENCA
-libtracker_common_la_CFLAGS += $(ENCA_CFLAGS)
-libtracker_common_la_LIBADD += $(ENCA_LIBS)
 endif
 
 marshal_sources = \

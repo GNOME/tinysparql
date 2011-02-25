@@ -40,10 +40,6 @@
 #include <sys/mman.h>
 #endif /* G_OS_WIN32 */
 
-#ifdef HAVE_ENCA
-#include <enca.h>
-#endif
-
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -639,46 +635,24 @@ un_unsync (const unsigned char *source,
 	*dest_size = new_size;
 }
 
-static char*
-get_encoding (const char *data,
-              gssize      size,
-              gboolean   *encoding_found)
+static gchar *
+get_encoding (const gchar *data,
+              gsize        size,
+              gboolean    *encoding_found)
 {
-	gchar *encoding = NULL;
-#ifdef HAVE_ENCA
-	const char **langs;
-	size_t s, i;
-#endif
+	gchar *encoding;
 
+	/* Try to guess encoding */
+	encoding = (data && size ?
+	            tracker_encoding_guess (data, size) :
+	            NULL);
+
+	/* Notify if a proper detection was done */
 	if (encoding_found) {
-		*encoding_found = FALSE;
+		*encoding_found = (encoding ? TRUE : FALSE);;
 	}
 
-#ifdef HAVE_ENCA
-	langs = enca_get_languages (&s);
-
-	for (i = 0; i < s && !encoding; i++) {
-		EncaAnalyser analyser;
-		EncaEncoding eencoding;
-
-		analyser = enca_analyser_alloc (langs[i]);
-		eencoding = enca_analyse_const (analyser, data, size);
-
-		if (enca_charset_is_known (eencoding.charset)) {
-			if (encoding_found) {
-				*encoding_found = TRUE;
-			}
-
-			encoding = g_strdup (enca_charset_name (eencoding.charset,
-			                                        ENCA_NAME_STYLE_ICONV));
-		}
-
-		enca_analyser_free (analyser);
-	}
-
-	free (langs);
-#endif
-
+	/* If no proper detection was done, return default */
 	if (!encoding) {
 		/* Use Windows-1252 instead of ISO-8859-1 as the former is a
 		   superset in terms of printable characters and some
@@ -737,10 +711,6 @@ get_id3 (const gchar *data,
          size_t       size,
          id3tag      *id3)
 {
-#ifdef HAVE_ENCA
-	GString *s;
-	gboolean encoding_was_found;
-#endif /* HAVE_ENCA */
 	gchar *encoding, *year;
 	const gchar *pos;
 
@@ -765,22 +735,27 @@ get_id3 (const gchar *data,
 	 * have a better way to collect a bit more data before we let
 	 * enca loose on it for v1.
 	 */
-#ifdef HAVE_ENCA
-	/* Get the encoding for ALL the data we are extracting here */
-	s = g_string_new_len (pos, 30);
-	g_string_append_len (s, pos + 30, 30);
-	g_string_append_len (s, pos + 60, 30);
+	if (tracker_encoding_can_guess ()) {
+		GString *s;
+		gboolean encoding_was_found;
 
-	encoding = get_encoding (s->str, 90, &encoding_was_found);
+		/* Get the encoding for ALL the data we are extracting here */
+		s = g_string_new_len (pos, 30);
+		g_string_append_len (s, pos + 30, 30);
+		g_string_append_len (s, pos + 60, 30);
 
-	if (encoding_was_found) {
-		id3->encoding = encoding;
+		encoding = get_encoding (s->str, 90, &encoding_was_found);
+
+		if (encoding_was_found) {
+			id3->encoding = g_strdup (encoding);
+		}
+
+		g_string_free (s, TRUE);
+	} else {
+		/* If we cannot guess encoding, don't even try it, just
+		 * use the default one */
+		encoding = get_encoding (NULL, 0, NULL);
 	}
-
-	g_string_free (s, TRUE);
-#else  /* HAVE_ENCA */
-	encoding = get_encoding (NULL, 0, NULL);
-#endif /* HAVE_ENCA */
 
 	id3->title = g_convert (pos, 30, "UTF-8", encoding, NULL, NULL, NULL);
 
@@ -818,9 +793,7 @@ get_id3 (const gchar *data,
 		id3->genre = g_strdup ("");
 	}
 
-#ifndef HAVE_ENCA
 	g_free (encoding);
-#endif /* HAVE_ENCA */
 
 	return TRUE;
 }

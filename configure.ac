@@ -1312,8 +1312,8 @@ AC_ARG_WITH(enca,
 if test "x$enable_enca" != "xno" ; then
    PKG_CHECK_MODULES(ENCA, [enca >= 1.9], have_enca=yes, have_enca=no)
 
-   AC_SUBST(ENCA_CFLAGS)
-   AC_SUBST(ENCA_LIBS)
+   LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $ENCA_CFLAGS"
+   LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $ENCA_LIBS"
 
    if test "x$have_enca" = "xyes"; then
      AC_DEFINE(HAVE_ENCA, [], [Enca language detection aid])
