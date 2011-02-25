@@ -17,43 +17,17 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "config.h"
+#ifndef __LIBTRACKER_COMMON_ENCODING_MEEGOTOUCH_H__
+#define __LIBTRACKER_COMMON_ENCODING_MEEGOTOUCH_H__
 
 #include <glib.h>
-#include "tracker-encoding.h"
 
-#ifdef HAVE_ENCA
-#include "tracker-encoding-enca.h"
-#endif
+G_BEGIN_DECLS
 
-#ifdef HAVE_MEEGOTOUCH
-#include "tracker-encoding-meegotouch.h"
-#endif
+G_GNUC_INTERNAL
+gchar *tracker_encoding_guess_meegotouch (const gchar *buffer,
+                                          gsize        size);
 
-gboolean
-tracker_encoding_can_guess (void)
-{
-#if defined (HAVE_ENCA) || defined (HAVE_MEEGOTOUCH)
-	return TRUE;
-#else
-	return FALSE;
-#endif
-}
+G_END_DECLS
 
-gchar *
-tracker_encoding_guess (const gchar *buffer,
-                        gsize        size)
-{
-	gchar *encoding = NULL;
-
-#ifdef HAVE_MEEGOTOUCH
-	encoding = tracker_encoding_guess_meegotouch (buffer, size);
-#endif /* HAVE_MEEGOTOUCH */
-
-#ifdef HAVE_ENCA
-	if (!encoding)
-		encoding = tracker_encoding_guess_enca (buffer, size);
-#endif /* HAVE_ENCA */
-
-	return encoding;
-}
+#endif /* __LIBTRACKER_COMMON_ENCODING_MEEGOTOUCH_H__ */
