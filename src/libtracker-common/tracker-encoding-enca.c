@@ -20,33 +20,37 @@
 #include "config.h"
 
 #include <glib.h>
-#include "tracker-encoding.h"
+#include "tracker-encoding-enca.h"
 
-#ifdef HAVE_ENCA
-#include <tracker-encoding-enca.h>
-#endif
-
-
-gboolean
-tracker_encoding_can_guess (void)
-{
-#ifdef HAVE_ENCA
-	return TRUE;
-#else
-	return FALSE;
-#endif
-}
+#include <enca.h>
 
 gchar *
-tracker_encoding_guess (const gchar *buffer,
-                        gsize        size)
+tracker_encoding_guess_enca (const gchar *buffer,
+                             gsize        size)
 {
 	gchar *encoding = NULL;
+	const gchar **langs;
+	gsize s;
+	gsize i;
 
-#ifdef HAVE_ENCA
-	if (!encoding)
-		encoding = tracker_encoding_guess_enca (buffer, size);
-#endif /* HAVE_ENCA */
+	langs = enca_get_languages (&s);
+
+	for (i = 0; i < s && !encoding; i++) {
+		EncaAnalyser analyser;
+		EncaEncoding eencoding;
+
+		analyser = enca_analyser_alloc (langs[i]);
+		eencoding = enca_analyse_const (analyser, (guchar *)buffer, size);
+
+		if (enca_charset_is_known (eencoding.charset)) {
+			encoding = g_strdup (enca_charset_name (eencoding.charset,
+			                                        ENCA_NAME_STYLE_ICONV));
+		}
+
+		enca_analyser_free (analyser);
+	}
+
+	free (langs);
 
 	return encoding;
 }
