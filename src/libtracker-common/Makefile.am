@@ -53,6 +53,11 @@ libtracker_common_la_SOURCES += tracker-encoding-enca.c
 noinst_HEADERS += tracker-encoding-enca.h
 endif
 
+if HAVE_MEEGOTOUCH
+libtracker_common_la_SOURCES += tracker-encoding-meegotouch.cpp
+noinst_HEADERS += tracker-encoding-meegotouch.h
+endif
+
 if HAVE_TRACKER_FTS
 libtracker_common_la_SOURCES += tracker-language.c
 noinst_HEADERS += tracker-language.h

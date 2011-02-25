@@ -19,41 +19,41 @@
 
 #include "config.h"
 
+#include <MCharsetDetector>
+#include <MCharsetMatch>
+
 #include <glib.h>
-#include "tracker-encoding.h"
-
-#ifdef HAVE_ENCA
-#include "tracker-encoding-enca.h"
-#endif
-
-#ifdef HAVE_MEEGOTOUCH
 #include "tracker-encoding-meegotouch.h"
-#endif
 
-gboolean
-tracker_encoding_can_guess (void)
-{
-#if defined (HAVE_ENCA) || defined (HAVE_MEEGOTOUCH)
-	return TRUE;
-#else
-	return FALSE;
-#endif
-}
+/*
+ * See http://apidocs.meego.com/git-tip/mtf/class_m_charset_detector.html
+ */
 
 gchar *
-tracker_encoding_guess (const gchar *buffer,
-                        gsize        size)
+tracker_encoding_guess_meegotouch (const gchar *buffer,
+                                   gsize        size)
 {
-	gchar *encoding = NULL;
+	/* Initialize detector */
+	MCharsetDetector detector ((const char *)buffer, (int)size);
 
-#ifdef HAVE_MEEGOTOUCH
-	encoding = tracker_encoding_guess_meegotouch (buffer, size);
-#endif /* HAVE_MEEGOTOUCH */
+	if (detector.hasError ()) {
+		g_warning ("Charset detector error when creating: %s",
+		           detector.errorString ().toUtf8 (). data ());
+		return NULL;
+	}
 
-#ifdef HAVE_ENCA
-	if (!encoding)
-		encoding = tracker_encoding_guess_enca (buffer, size);
-#endif /* HAVE_ENCA */
+	MCharsetMatch bestMatch = detector.detect ();
+
+	if (detector.hasError ()) {
+		g_warning ("Charset detector error when detecting: %s",
+		           detector.errorString ().toUtf8 (). data ());
+		return NULL;
+	}
+
+	gchar *encoding = g_strdup (bestMatch.name ().toUtf8 ().data ());
+
+	g_debug ("Guessing charset as '%s' with %d confidence",
+	         encoding, bestMatch.confidence ());
 
 	return encoding;
 }
