@@ -25,6 +25,7 @@ tracker:notify a rdf:Property ;
 
 tracker:Volume a rdfs:Class ;
 	rdfs:label "Storage media" ;
+        rdfs:subClassOf nie:InformationElement ;
 	rdfs:subClassOf nie:DataSource .
 
 tracker:isMounted a rdf:Property ;

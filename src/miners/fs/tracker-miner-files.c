@@ -165,6 +165,7 @@ static void        mount_pre_unmount_cb                 (GVolumeMonitor       *v
 static void        mount_point_added_cb                 (TrackerStorage       *storage,
                                                          const gchar          *uuid,
                                                          const gchar          *mount_point,
+                                                         const gchar          *mount_name,
                                                          gboolean              removable,
                                                          gboolean              optical,
                                                          gpointer              user_data);
@@ -772,6 +773,7 @@ static void
 set_up_mount_point (TrackerMinerFiles *miner,
                     const gchar       *removable_device_urn,
                     const gchar       *mount_point,
+                    const gchar       *mount_name,
                     gboolean           mounted,
                     GString           *accumulator)
 {
@@ -812,7 +814,7 @@ set_up_mount_point (TrackerMinerFiles *miner,
 			                        "} WHERE { "
 			                        "  ?u a nfo:FileDataObject; "
 			                        "     nie:url \"%s\" "
-			                        "}",
+			                        "} ",
 			                        removable_device_urn, removable_device_urn, uri);
 
 			g_object_unref (file);
@@ -823,10 +825,15 @@ set_up_mount_point (TrackerMinerFiles *miner,
 		                        "DELETE { <%s> tracker:isMounted ?unknown } WHERE { <%s> a tracker:Volume; tracker:isMounted ?unknown } ",
 		                        removable_device_urn, removable_device_urn);
 
-		g_string_append_printf (queries,
-		                        "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true } ",
-		                        removable_device_urn, removable_device_urn);
-
+                if (mount_name) {
+                        g_string_append_printf (queries,
+                                                "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true; nie:title \"%s\" } ",
+                                                removable_device_urn, removable_device_urn, mount_name);
+                } else {
+                        g_string_append_printf (queries,
+                                                "INSERT INTO <%s> { <%s> a tracker:Volume; tracker:isMounted true } ",
+                                                removable_device_urn, removable_device_urn);
+                }
 		g_string_append_printf (queries,
 		                        "INSERT { GRAPH <%s> { ?do tracker:available true } } WHERE { ?do nie:dataSource <%s> OPTIONAL { ?do tracker:available ?available } FILTER (!bound(?available)) } ",
 		                        removable_device_urn, removable_device_urn);
@@ -1033,6 +1040,7 @@ init_mount_points (TrackerMinerFiles *miner_files)
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
 				                    urn,
 				                    mount_point,
+                                                    NULL,
 				                    TRUE,
 				                    accumulator);
 
@@ -1053,6 +1061,7 @@ init_mount_points (TrackerMinerFiles *miner_files)
 				set_up_mount_point (TRACKER_MINER_FILES (miner),
 				                    urn,
 				                    NULL,
+                                                    NULL,
 				                    FALSE,
 				                    accumulator);
 			}
@@ -1139,7 +1148,7 @@ mount_point_removed_cb (TrackerStorage *storage,
 	mount_point_file = g_file_new_for_path (mount_point);
 
 	/* Set mount point status in tracker-store */
-	set_up_mount_point (miner, urn, mount_point, FALSE, NULL);
+	set_up_mount_point (miner, urn, mount_point, NULL, FALSE, NULL);
 
 	/* Tell TrackerMinerFS to skip monitoring everything under the mount
 	 *  point (in case there was no pre-unmount notification) */
@@ -1153,6 +1162,7 @@ static void
 mount_point_added_cb (TrackerStorage *storage,
                       const gchar    *uuid,
                       const gchar    *mount_point,
+                      const gchar    *mount_name,
                       gboolean        removable,
                       gboolean        optical,
                       gpointer        user_data)
@@ -1237,7 +1247,7 @@ mount_point_added_cb (TrackerStorage *storage,
 	}
 
 	queries = g_string_new ("");
-	set_up_mount_point (miner, urn, mount_point, TRUE, queries);
+	set_up_mount_point (miner, urn, mount_point, mount_name, TRUE, queries);
 	set_up_mount_point_type (miner, urn, removable, optical, queries);
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                                        queries->str,

@@ -104,11 +104,12 @@ tracker_storage_class_init (TrackerStorageClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              0,
 		              NULL, NULL,
-		              tracker_marshal_VOID__STRING_STRING_BOOLEAN_BOOLEAN,
+		              tracker_marshal_VOID__STRING_STRING_STRING_BOOLEAN_BOOLEAN,
 		              G_TYPE_NONE,
-		              4,
+		              5,
 		              G_TYPE_STRING,
 		              G_TYPE_STRING,
+                              G_TYPE_STRING,
 		              G_TYPE_BOOLEAN,
 		              G_TYPE_BOOLEAN);
 
@@ -325,6 +326,7 @@ static void
 mount_add_new (TrackerStorage *storage,
                const gchar    *uuid,
                const gchar    *mount_point,
+               const gchar    *mount_name,
                gboolean        removable_device,
                gboolean        optical_disc)
 {
@@ -341,6 +343,7 @@ mount_add_new (TrackerStorage *storage,
 	               0,
 	               uuid,
 	               mount_point,
+                       mount_name,
 	               removable_device,
 	               optical_disc,
 	               NULL);
@@ -663,7 +666,7 @@ mount_add (TrackerStorage *storage,
 		         is_removable ? "yes" : "no",
 		         is_optical ? "yes" : "no",
 		         mount_path);
-		mount_add_new (storage, uuid, mount_path, is_removable, is_optical);
+		mount_add_new (storage, uuid, mount_path, mount_name, is_removable, is_optical);
 	} else {
 		g_debug ("  Skipping mount point with UUID: '%s', path: '%s', already managed: '%s'",
 		         uuid ? uuid : "none",
