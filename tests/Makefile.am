@@ -3,7 +3,6 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS =                                              \
 	common                                         \
 	libtracker-common                              \
-	libtracker-client                              \
 	libtracker-extract                             \
 	libtracker-miner                               \
 	libtracker-data                                \

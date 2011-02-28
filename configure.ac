@@ -226,17 +226,6 @@ LIBTRACKER_BUS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(LIBTRACKER_BUS, [$LIBTRACKER_BUS_REQUIRED])
 
-# Check requirements for libtracker-client
-LIBTRACKER_CLIENT_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                            gobject-2.0  >= $GLIB_REQUIRED
-                            gio-unix-2.0 >= $GLIB_REQUIRED
-                            dbus-1       >= $DBUS_REQUIRED
-                            dbus-glib-1  >= $DBUS_GLIB_REQUIRED"
-
-PKG_CHECK_MODULES(LIBTRACKER_CLIENT, [$LIBTRACKER_CLIENT_REQUIRED])
-
-LIBTRACKER_CLIENT_CFLAGS="$LIBTRACKER_CLIENT_CFLAGS -Wno-deprecated-declarations"
-
 # Check requirements for libtracker-common
 LIBTRACKER_COMMON_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             gio-unix-2.0 >= $GLIB_REQUIRED"
@@ -1981,15 +1970,12 @@ AC_CONFIG_FILES([
 	data/miners/Makefile
 	data/ontologies/Makefile
 	data/tracker-sparql.pc
-	data/tracker-client.pc
 	data/tracker-extract.pc
 	data/tracker-miner.pc
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile
 	docs/reference/Makefile
-	docs/reference/libtracker-client/Makefile
-	docs/reference/libtracker-client/version.xml
 	docs/reference/libtracker-sparql/Makefile
 	docs/reference/libtracker-sparql/version.xml
 	docs/reference/libtracker-extract/Makefile
@@ -2010,7 +1996,6 @@ AC_CONFIG_FILES([
 	src/libtracker-data/Makefile
 	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile
-	src/libtracker-client/Makefile
 	src/libtracker-miner/Makefile
 	src/Makefile
 	src/miners/Makefile
@@ -2033,7 +2018,6 @@ AC_CONFIG_FILES([
 	src/plugins/nautilus/Makefile
 	src/vapi/Makefile
 	tests/common/Makefile
-	tests/libtracker-client/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-extract/Makefile
 	tests/libtracker-data/Makefile

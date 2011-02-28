@@ -13,7 +13,6 @@ SUBDIRS =                                              \
 	$(libstemmer_dir)                              \
 	libtracker-common                              \
 	libtracker-sparql                              \
-	libtracker-client                              \
 	$(libtrackerfts_dir)                           \
 	libtracker-bus                                 \
 	libtracker-data                                \
