@@ -45,6 +45,7 @@
 typedef struct {
 	GMainContext *context;
 	DBusConnection *connection;
+	gboolean good_init;
 } TrackerWritebackDispatcherPrivate;
 
 enum {
@@ -264,10 +265,12 @@ tracker_writeback_dispatcher_initable_init (GInitable     *initable,
 	                                    &internal_error);
 
 	if (internal_error) {
+		priv->good_init = FALSE;
 		g_propagate_error (error, internal_error);
 		return FALSE;
 	} else {
 		priv->connection = connection;
+		priv->good_init = TRUE;
 	}
 
 	return TRUE;
@@ -319,17 +322,20 @@ tracker_writeback_dispatcher_finalize (GObject *object)
 	DBusError error;
 
 	priv = TRACKER_WRITEBACK_DISPATCHER_GET_PRIVATE (object);
-	dbus_error_init (&error);
 
-	dbus_bus_remove_match (priv->connection, DBUS_MATCH_STR, &error);
+	if (priv->good_init) {
+		dbus_error_init (&error);
 
-	if (dbus_error_is_set (&error)) {
-		g_critical ("Could not remove match rules, %s", error.message);
-		dbus_error_free (&error);
+		dbus_bus_remove_match (priv->connection, DBUS_MATCH_STR, &error);
+
+		if (dbus_error_is_set (&error)) {
+			g_critical ("Could not remove match rules, %s", error.message);
+			dbus_error_free (&error);
+		}
+
+		dbus_connection_remove_filter (priv->connection, message_filter, object);
+		dbus_connection_unref (priv->connection);
 	}
-
-	dbus_connection_remove_filter (priv->connection, message_filter, object);
-	dbus_connection_unref (priv->connection);
 
 	G_OBJECT_CLASS (tracker_writeback_dispatcher_parent_class)->finalize (object);
 }
