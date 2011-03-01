@@ -51,7 +51,8 @@ struct TrackerWritebackDispatcherClass {
 
 GType                        tracker_writeback_dispatcher_get_type (void) G_GNUC_CONST;
 
-TrackerWritebackDispatcher * tracker_writeback_dispatcher_new (GMainContext *context);
+TrackerWritebackDispatcher * tracker_writeback_dispatcher_new (GMainContext  *context,
+                                                               GError       **error);
 
 G_END_DECLS
 

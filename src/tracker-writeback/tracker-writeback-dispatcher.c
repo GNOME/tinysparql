@@ -392,10 +392,21 @@ tracker_writeback_dispatcher_set_property (GObject       *object,
 }
 
 TrackerWritebackDispatcher *
-tracker_writeback_dispatcher_new (GMainContext *context)
+tracker_writeback_dispatcher_new (GMainContext  *context,
+                                  GError       **error)
 {
-	return g_initable_new (TRACKER_TYPE_WRITEBACK_DISPATCHER,
-	                       NULL, NULL,
+	GError *internal_error = NULL;
+	TrackerWritebackDispatcher *ret;
+
+	ret = g_initable_new (TRACKER_TYPE_WRITEBACK_DISPATCHER,
+	                       NULL, &internal_error,
 	                       "context", context,
 	                       NULL);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return NULL;
+	}
+
+	return ret;
 }
