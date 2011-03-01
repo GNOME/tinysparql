@@ -213,7 +213,15 @@ main (int   argc,
 	 * signals initialization. */
 
 	dispatcher_context = g_main_context_new ();
-	dispatcher = tracker_writeback_dispatcher_new (dispatcher_context);
+	dispatcher = tracker_writeback_dispatcher_new (dispatcher_context,
+	                                               &error);
+
+	if (error) {
+		g_critical ("Error creating dispatcher: %s", error->message);
+		g_error_free (error);
+
+		return EXIT_FAILURE;
+	}
 
 	g_thread_create (dispatcher_thread_func, dispatcher, FALSE, &error);
 
