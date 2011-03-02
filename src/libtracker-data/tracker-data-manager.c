@@ -4146,6 +4146,9 @@ tracker_data_manager_init_thread (GSimpleAsyncResult *result,
 	InitAsyncData *data;
 	gboolean result_b;
 	GError *internal_error = NULL;
+	static GStaticMutex my_mutex = G_STATIC_MUTEX_INIT;
+
+	g_static_mutex_lock (&my_mutex);
 
 	data = g_simple_async_result_get_op_res_gpointer (result);
 
@@ -4166,6 +4169,9 @@ tracker_data_manager_init_thread (GSimpleAsyncResult *result,
 	}
 
 	data->result = result_b;
+
+	g_static_mutex_unlock (&my_mutex);
+
 }
 
 static void
