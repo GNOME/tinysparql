@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = async-connection
+noinst_PROGRAMS = async-connection class-signal
 
 AM_CPPFLAGS = $(BUILD_CFLAGS) \
 	-I$(top_srcdir)/src \
@@ -11,3 +11,5 @@ LDADD = $(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VE
 	$(LIBTRACKER_SPARQL_LIBS)
 
 async_connection_SOURCES = async-connection.c
+
+class_signal_SOURCES = class-signal.c
