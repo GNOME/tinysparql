@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, Jamie McCracken <jamiemcc@gnome.org>
- * Copyright (C) 2008-2009, Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2008-2011, Nokia <ivan.frade@nokia.com>
  * Copyright (C) 2010, Amit Aggarwal <amitcs06@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
