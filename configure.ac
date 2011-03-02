@@ -2110,9 +2110,8 @@ AC_CONFIG_FILES([
 	examples/Makefile
 	examples/libtracker-extract/Makefile
 	examples/libtracker-miner/Makefile
+	examples/libtracker-sparql/Makefile
 	examples/rss-reader/Makefile
-	examples/class-signal/Makefile
-	examples/async-connection/Makefile
 ])
 
 AC_OUTPUT

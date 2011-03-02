@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = libtracker-extract \
+SUBDIRS = \
+	libtracker-extract \
 	libtracker-miner \
-	rss-reader \
-	class-signal \
-	async-connection
+	libtracker-sparql \
+	rss-reader
