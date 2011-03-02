@@ -170,5 +170,7 @@ main (gint argc, gchar *argv[])
 	g_timer_destroy (md->timer);
 	g_main_loop_unref (md->loop);
 
+	g_free (md);
+
 	return EXIT_SUCCESS;
 }
