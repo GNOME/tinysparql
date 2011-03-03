@@ -105,12 +105,12 @@ tracker_albumart_buffer_to_jpeg (const unsigned char *buffer,
 		qbuffer.open (QIODevice::ReadOnly);
 
 		if (buffer_mime != NULL) {
-			reader = new QImageReader::QImageReader (&qbuffer, QByteArray (buffer_mime));
+			reader = new QImageReader (&qbuffer, QByteArray (buffer_mime));
 		} else {
 			QByteArray format = QImageReader::imageFormat (&qbuffer);
 
 			if (!format.isEmpty ()) {
-				reader = new QImageReader::QImageReader (&qbuffer, format);
+				reader = new QImageReader (&qbuffer, format);
 			}
 		}
 
