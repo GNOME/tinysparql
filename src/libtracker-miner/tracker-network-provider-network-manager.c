@@ -22,10 +22,20 @@
 #include <glib-object.h>
 
 #include <libnm-glib/nm-client.h>
+
+#ifndef NM_CHECK_VERSION
+#define NM_CHECK_VERSION(x,y,z) (0)
+#endif
+
 #include <libnm-glib/nm-device-ethernet.h>
 #include <libnm-glib/nm-device-wifi.h>
+#if (NM_CHECK_VERSION (0,8,992))
+#include <libnm-glib/nm-device-modem.h>
+#include <libnm-glib/nm-device-wimax.h>
+#else
 #include <libnm-glib/nm-gsm-device.h>
 #include <libnm-glib/nm-cdma-device.h>
+#endif
 
 #include "tracker-network-provider.h"
 
@@ -286,15 +296,15 @@ network_provider_get_status (TrackerNetworkProvider *provider)
 		return TRACKER_NETWORK_PROVIDER_LAN;
 	}
 
-	if (NM_IS_SERIAL_DEVICE (device)) {
-		if (NM_IS_GSM_DEVICE (device)) {
-			return TRACKER_NETWORK_PROVIDER_GPRS;
-		}
-
-		if (NM_IS_CDMA_DEVICE (device)) {
-			return TRACKER_NETWORK_PROVIDER_3G;
-		}
+#if (NM_CHECK_VERSION (0,8,992))
+	if (NM_IS_DEVICE_MODEM (device) || NM_IS_DEVICE_WIMAX (device)) {
+		return TRACKER_NETWORK_PROVIDER_3G;
 	}
+#else
+	if (NM_IS_GSM_DEVICE (device) || NM_IS_CDMA_DEVICE (device)) {
+		return TRACKER_NETWORK_PROVIDER_3G;
+	}
+#endif
 
 	/* We know the device is activated, but we don't know the type of device */
 	return TRACKER_NETWORK_PROVIDER_UNKNOWN;
