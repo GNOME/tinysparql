@@ -30,6 +30,8 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(libtracker_miner_marshal_headers)            \
 	$(libtracker_miner_monitor_sources)            \
 	$(libtracker_miner_monitor_headers)            \
+	$(network_provider_sources)                    \
+	$(password_provider_sources)                   \
 	tracker-crawler.c                              \
 	tracker-miner-dbus.h                           \
 	tracker-miner-object.c                         \
@@ -70,15 +72,15 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
 	$(LIBTRACKER_MINER_LIBS)
 
 if HAVE_GNOME_KEYRING
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += tracker-password-provider-gnome.c
+password_provider_sources = tracker-password-provider-gnome.c
 else
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += tracker-password-provider-keyfile.c
+password_provider_sources = tracker-password-provider-keyfile.c
 endif
 
 if HAVE_NETWORK_MANAGER
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += tracker-network-provider-network-manager.c
+network_provider_sources = tracker-network-provider-network-manager.c
 else
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES += tracker-network-provider-dummy.c
+network_provider_sources = tracker-network-provider-dummy.c
 endif
 
 $(top_builddir)/src/libtracker-miner/tracker-marshal.h: tracker-marshal.list
