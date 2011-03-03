@@ -3451,16 +3451,16 @@ load_ontologies_gvdb (GError **error)
 }
 
 static gboolean
-tracker_data_manager_init_unlocked (TrackerDBManagerFlags   flags,
-                                    const gchar           **test_schemas,
-                                    gboolean               *first_time,
-                                    gboolean                journal_check,
-                                    guint                   select_cache_size,
-                                    guint                   update_cache_size,
-                                    TrackerBusyCallback     busy_callback,
-                                    gpointer                busy_user_data,
-                                    const gchar            *busy_operation,
-                                    GError                **error)
+data_manager_init_unlocked (TrackerDBManagerFlags   flags,
+                            const gchar           **test_schemas,
+                            gboolean               *first_time,
+                            gboolean                journal_check,
+                            guint                   select_cache_size,
+                            guint                   update_cache_size,
+                            TrackerBusyCallback     busy_callback,
+                            gpointer                busy_user_data,
+                            const gchar            *busy_operation,
+                            GError                **error)
 {
 	TrackerDBInterface *iface;
 	gboolean is_first_time_index, read_journal, check_ontology;
@@ -3857,16 +3857,16 @@ tracker_data_manager_init_unlocked (TrackerDBManagerFlags   flags,
 						initialized = TRUE;
 						tracker_data_manager_shutdown ();
 
-						return tracker_data_manager_init_unlocked (flags,
-						                                           test_schemas,
-						                                           first_time,
-						                                           journal_check,
-						                                           select_cache_size,
-						                                           update_cache_size,
-						                                           busy_callback,
-						                                           busy_user_data,
-						                                           busy_operation,
-						                                           error);
+						return data_manager_init_unlocked (flags,
+						                                   test_schemas,
+						                                   first_time,
+						                                   journal_check,
+						                                   select_cache_size,
+						                                   update_cache_size,
+						                                   busy_callback,
+						                                   busy_user_data,
+						                                   busy_operation,
+						                                   error);
 					}
 
 					if (ontology_error) {
@@ -3923,16 +3923,16 @@ tracker_data_manager_init_unlocked (TrackerDBManagerFlags   flags,
 					initialized = TRUE;
 					tracker_data_manager_shutdown ();
 
-					return tracker_data_manager_init_unlocked (flags,
-					                                           test_schemas,
-					                                           first_time,
-					                                           journal_check,
-					                                           select_cache_size,
-					                                           update_cache_size,
-					                                           busy_callback,
-					                                           busy_user_data,
-					                                           busy_operation,
-					                                           error);
+					return data_manager_init_unlocked (flags,
+					                                   test_schemas,
+					                                   first_time,
+					                                   journal_check,
+					                                   select_cache_size,
+					                                   update_cache_size,
+					                                   busy_callback,
+					                                   busy_user_data,
+					                                   busy_operation,
+					                                   error);
 				}
 
 				if (ontology_error) {
@@ -4016,16 +4016,16 @@ tracker_data_manager_init_unlocked (TrackerDBManagerFlags   flags,
 				initialized = TRUE;
 				tracker_data_manager_shutdown ();
 
-				return tracker_data_manager_init_unlocked (flags,
-				                                           test_schemas,
-				                                           first_time,
-				                                           journal_check,
-				                                           select_cache_size,
-				                                           update_cache_size,
-				                                           busy_callback,
-				                                           busy_user_data,
-				                                           busy_operation,
-				                                           error);
+				return data_manager_init_unlocked (flags,
+				                                   test_schemas,
+				                                   first_time,
+				                                   journal_check,
+				                                   select_cache_size,
+				                                   update_cache_size,
+				                                   busy_callback,
+				                                   busy_user_data,
+				                                   busy_operation,
+				                                   error);
 			}
 
 			if (ontology_error) {
@@ -4156,16 +4156,16 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	g_static_mutex_lock (&my_mutex);
 
-	ret = tracker_data_manager_init_unlocked (flags,
-	                                          test_schemas,
-	                                          first_time,
-	                                          journal_check,
-	                                          select_cache_size,
-	                                          update_cache_size,
-	                                          busy_callback,
-	                                          busy_user_data,
-	                                          busy_operation,
-	                                          error);
+	ret = data_manager_init_unlocked (flags,
+	                                  test_schemas,
+	                                  first_time,
+	                                  journal_check,
+	                                  select_cache_size,
+	                                  update_cache_size,
+	                                  busy_callback,
+	                                  busy_user_data,
+	                                  busy_operation,
+	                                  error);
 
 	g_static_mutex_unlock (&my_mutex);
 
