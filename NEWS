@@ -1,3 +1,33 @@
+NEW in 0.10.1 - 2011-03-03
+==========================
+
+The changes are:
+
+  * Require: poppler-glib >= 0.16.0 (was poppler 0.12.2)
+  * Fixes: NB#232981, tracker fails to build with gcc-4.5
+  * Fixes: NB#231631, Handle error propagation in tracker-writeback dispatcher construction properly
+  * Fixes: NB#230255, DRM protected Music files(.pya) files are Listed under videos
+  * Fixes: NB#228760, Initialize QApplication object only once to avoid miner-fs crashes
+  * Fixes: GB#642774, Make "title-only" search non-case sensitive
+  * Fixes: GB#643739, Fixes for NetworkManager 0.9
+  * Fixes: GB#636375, tracker-extract-pdf.cpp: error: GlobalParams.h: No such file or directory
+  * Fixes: GB#643140, 0.10 tarball doesn't have tracker-search-bar.1 manpage
+  * Fixes: GB#642581, Negative processed stats by tracker-miner-fs
+  * Fixes: GB#643090, Wrong tracker-extract statistics
+
+Translations:
+
+  * Updated da: Joe Hansen
+  * Updated es: Daniel Mustieles
+  * Updated hu: Gabor Kelemen
+  * Updated pt_BR: Gabriel F. Vilar
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.10.0 - 2011-02-17
 ==========================
 
