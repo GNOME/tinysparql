@@ -76,7 +76,9 @@ public class Tracker.Query {
 			break;
 			
 		case Type.ALL_ONLY_IN_TITLES:
-			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"$unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c ; tracker:available true . FILTER(fn:contains(nfo:fileName(?u), \"$criteria_escaped\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET $offset LIMIT $limit";
+			string criteria_escaped_down = criteria_escaped.down();
+
+			query = @"SELECT ?u nie:url(?u) tracker:coalesce(nfo:fileName(?u), \"$unknown\") nfo:fileLastModified(?u) nfo:fileSize(?u) nie:url(?c) WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c ; tracker:available true . FILTER(fn:contains(fn:lower-case(nfo:fileName(?u)), \"$criteria_escaped_down\")) } ORDER BY DESC(nfo:fileName(?u)) OFFSET $offset LIMIT $limit";
 			break;
 
 		case Type.APPLICATIONS:
