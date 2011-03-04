@@ -331,6 +331,10 @@ setup_standard_treeview (TreeView view, string title)
 static int main (string[] args) {
 	Gtk.init (ref args);
 
+	Intl.bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+	Intl.bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	Intl.textdomain (GETTEXT_PACKAGE);
+
 	try {
 		config = new Config.with_domain ("tracker-miner-fs");
 
@@ -399,6 +403,7 @@ static int main (string[] args) {
 		builder.connect_signals (null);
 
 		window.show_all ();
+
 		Gtk.main ();
 	} catch (Error e) {
 		stderr.printf ("Could not load UI: %s\n", e.message);
