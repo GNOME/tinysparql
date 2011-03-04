@@ -7,6 +7,3 @@ Comment=Mp3 with empty Artist and album. Made extractor crash.
 a=nmm:MusicPiece
 nie_title=song3
 
-[Meego]
-nfo_height=144
-nfo_width=192
