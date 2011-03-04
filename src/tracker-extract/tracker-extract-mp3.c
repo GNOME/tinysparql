@@ -740,11 +740,11 @@ get_id3 (const gchar *data,
 		gboolean encoding_was_found;
 
 		/* Get the encoding for ALL the data we are extracting here */
-		s = g_string_new_len (pos, 30);
-		g_string_append_len (s, pos + 30, 30);
-		g_string_append_len (s, pos + 60, 30);
-		g_string_append_len (s, pos + 90, (pos[28] != 0) ? 30 : 28);
-		g_string_append_len (s, pos + 120, 30);
+
+		s = g_string_new_len (pos, strnlen (pos, 30));
+		g_string_append_len (s, pos + 30, strnlen (pos+30, 30));
+		g_string_append_len (s, pos + 60, strnlen (pos+60, 30));
+		g_string_append_len (s, pos + 94, strnlen (pos+94, ((pos+94)[28] != 0) ? 30 : 28));
 
 		encoding = get_encoding (s->str, 90, &encoding_was_found);
 
