@@ -24,6 +24,7 @@ Stand-alone tests cases for the store, checking the collation is working
 """
 import time
 import random
+import locale
 
 from common.utils import configuration as cfg
 import unittest2 as ut
@@ -82,7 +83,14 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         
         for r in range (0, len (results)):
             self.assertEquals (results[r], expected_list [r],
-                               "Error:\nExpected : *** %s\nResult   : *** %s" % (expected_list, results))
+                               """Error:
+                                  Expected : *** %s
+                                  Result   : *** %s
+                                  Using locale (%s, %s)
+                               """ % (expected_list,
+                                      results,
+                                      locale.getdefaultlocale ()[0],
+                                      locale.getdefaultlocale ()[1]))
 
     def test_collation_01 (self):
         """

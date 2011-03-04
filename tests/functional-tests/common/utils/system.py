@@ -17,8 +17,12 @@ import options
 # Add this after fixing the backup/restore and ontology changes tests
 #"G_DEBUG" : "fatal_criticals",
 
-TEST_ENV_VARS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home"),
+TEST_ENV_DIRS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home"),
                    "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home")}
+
+TEST_ENV_VARS = {  "TRACKER_DISABLE_MEEGOTOUCH_LOCALE": "",
+                   "LC_COLLATE": "en_GB.utf8"}
+
 EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home", "tracker"),
               os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home", "tracker")]
 
@@ -302,7 +306,7 @@ class TrackerSystemAbstraction:
         """
         Sets up the XDG_*_HOME variables and make sure the directories exist
         """
-        for var, directory in TEST_ENV_VARS.iteritems ():
+        for var, directory in TEST_ENV_DIRS.iteritems ():
             print "[Conf] Setting %s - %s" %(var, directory)
             self.__recreate_directory (directory)
             os.environ [var] = directory
@@ -322,11 +326,18 @@ class TrackerSystemAbstraction:
             print "[Conf] Setting %s - %s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir)
             os.environ ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
 
+        for var, value in TEST_ENV_VARS.iteritems ():
+            os.environ [var] = value
+
     def unset_up_environment (self):
         """
         Unset the XDG_*_HOME variables from the environment
         """
         for var, directory in TEST_ENV_VARS.iteritems ():
+            if os.environ.has_key (var):
+                del os.environ [var]
+
+        for var, directory in TEST_ENV_DIRS.iteritems ():
             if os.environ.has_key (var):
                 del os.environ [var]
 
