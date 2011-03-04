@@ -740,13 +740,14 @@ get_id3 (const gchar *data,
 		gboolean encoding_was_found;
 
 		/* Get the encoding for ALL the data we are extracting here */
-
+		/* This wont work with encodings where a NUL byte may be actually valid,
+		 * like UTF-16 */
 		s = g_string_new_len (pos, strnlen (pos, 30));
 		g_string_append_len (s, pos + 30, strnlen (pos+30, 30));
 		g_string_append_len (s, pos + 60, strnlen (pos+60, 30));
 		g_string_append_len (s, pos + 94, strnlen (pos+94, ((pos+94)[28] != 0) ? 30 : 28));
 
-		encoding = get_encoding (s->str, 90, &encoding_was_found);
+		encoding = get_encoding (s->str, s->len, &encoding_was_found);
 
 		if (encoding_was_found) {
 			id3->encoding = g_strdup (encoding);
