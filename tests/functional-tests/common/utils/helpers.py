@@ -266,7 +266,7 @@ class ExtractorHelper ():
         
         # hasTag case
         if line.startswith ("nao:hasTag"):
-            getlabel = re.compile ("nao:prefLabel\ \"(\w+)\"")
+            getlabel = re.compile ("nao:prefLabel\ \"([\w\ -]+)\"")
             match = getlabel.search (line)
             if (match):
                 line = 'nao:hasTag:prefLabel "%s" ;' % (match.group(1))
@@ -290,7 +290,7 @@ class ExtractorHelper ():
 
             return results
         elif line.startswith ("nco:creator"):
-            getcreator = re.compile ("nco:fullname\ \"(\w+)\"")
+            getcreator = re.compile ("nco:fullname\ \"([\w\ ]+)\"")
             creator_match = getcreator.search (line)
 
             if (creator_match):
