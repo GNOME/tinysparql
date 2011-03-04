@@ -20,9 +20,7 @@ AM_CPPFLAGS =                                          \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	-DTRACKER_DATADIR=\""$(datadir)/tracker"\"     \
-	-DTRACKER_LOCALEDIR=\""$(localedir)"\"         \
-	-DTRACKER_BINDIR=\""$(bindir)"\"               \
-	-DTRACKER_LIBEXECDIR=\""$(libexecdir)"\"       \
+	-DLOCALEDIR=\""$(localedir)"\"                 \
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"       \
 	$(TRACKER_PREFERENCES_CFLAGS)
 
