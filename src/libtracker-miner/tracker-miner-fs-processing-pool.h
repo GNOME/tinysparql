@@ -28,6 +28,11 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+	TRACKER_BULK_MATCH_EQUALS   = 1 << 0,
+	TRACKER_BULK_MATCH_CHILDREN = 1 << 1
+} TrackerBulkMatchType;
+
 
 typedef struct _TrackerProcessingTask TrackerProcessingTask;
 typedef struct _TrackerProcessingPool TrackerProcessingPool;
@@ -47,6 +52,11 @@ void                   tracker_processing_task_set_sparql        (TrackerProcess
                                                                   TrackerSparqlBuilder  *sparql);
 void                   tracker_processing_task_set_sparql_string (TrackerProcessingTask *task,
                                                                   gchar                 *sparql_string);
+
+/* API for bulk operations */
+void                   tracker_processing_task_set_bulk_operation (TrackerProcessingTask *task,
+                                                                   const gchar           *sparql,
+                                                                   TrackerBulkMatchType   match);
 
 
 TrackerProcessingPool *tracker_processing_pool_new                   (TrackerMinerFS          *miner,
