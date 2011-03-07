@@ -300,29 +300,13 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 	sqlite3_result_int (context, match);
 }
 
-static void
-function_sparql_uri_is_descendant (sqlite3_context *context,
-                                   int              argc,
-                                   sqlite3_value   *argv[])
+static gboolean
+check_uri_is_descendant (const gchar *parent,
+                         guint        parent_len,
+                         const gchar *uri)
 {
-	const gchar *uri, *parent, *remaining;
+	const gchar *remaining;
 	gboolean match = FALSE;
-	guint parent_len;
-
-	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
-		return;
-	}
-
-	parent = sqlite3_value_text (argv[0]);
-	uri = sqlite3_value_text (argv[1]);
-
-	if (!parent || !uri) {
-		sqlite3_result_error (context, "Invalid arguments", -1);
-		return;
-	}
-
-	parent_len = sqlite3_value_bytes (argv[0]);
 
 	/* Check only one argument, it's going to
 	 * be compared with the other anyway.
@@ -330,8 +314,7 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 
 	if (!(parent_len >= 7 && (parent[4] == ':' && parent[5] == '/' && parent[6] == '/'))) {
 		if (strstr (parent, "://") == NULL) {
-			sqlite3_result_int (context, FALSE);
-			return;
+			return FALSE;
 		}
 	}
 
@@ -351,6 +334,49 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 
 		if (remaining && *remaining) {
 			match = TRUE;
+		}
+	}
+
+	return match;
+}
+
+static void
+function_sparql_uri_is_descendant (sqlite3_context *context,
+                                   int              argc,
+                                   sqlite3_value   *argv[])
+{
+	const gchar *child;
+	gboolean match = FALSE;
+	gint i;
+
+	/* fn:uri-is-descendant (parent1, parent2, ..., parentN, child) */
+
+	if (argc < 2) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	if (sqlite3_value_type (argv[argc-1]) != SQLITE_TEXT) {
+		sqlite3_result_error (context, "Invalid child", -1);
+		return;
+	}
+
+	if (sqlite3_value_type (argv[0]) != SQLITE_TEXT) {
+		sqlite3_result_error (context, "Invalid first parent", -1);
+		return;
+	}
+
+	child = sqlite3_value_text (argv[argc-1]);
+
+	for (i = 0; i < argc - 1 && match; i++) {
+		if (sqlite3_value_type (argv[i]) == SQLITE_TEXT) {
+			const gchar *parent = sqlite3_value_text (argv[i]);
+			guint parent_len = sqlite3_value_bytes (argv[i]);
+
+			if (!parent)
+				continue;
+
+			match = check_uri_is_descendant (parent, parent_len, child);
 		}
 	}
 
@@ -605,7 +631,7 @@ open_database (TrackerDBInterface  *db_interface,
 	                         db_interface, &function_sparql_uri_is_parent,
 	                         NULL, NULL);
 
-	sqlite3_create_function (db_interface->db, "SparqlUriIsDescendant", 2, SQLITE_ANY,
+	sqlite3_create_function (db_interface->db, "SparqlUriIsDescendant", -1, SQLITE_ANY,
 	                         db_interface, &function_sparql_uri_is_descendant,
 	                         NULL, NULL);
 
