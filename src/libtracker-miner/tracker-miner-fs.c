@@ -1794,7 +1794,6 @@ static gboolean
 item_remove (TrackerMinerFS *fs,
              GFile          *file)
 {
-	GString *sparql;
 	gchar *uri;
 	gchar *mime = NULL;
 	TrackerProcessingTask *task;
@@ -1822,36 +1821,21 @@ item_remove (TrackerMinerFS *fs,
 	 * as possible, as the actual delete may take reaaaally a long time
 	 * (removing resources for 30GB of files takes even 30minutes in a 1-CPU
 	 * device). */
-	sparql = g_string_new ("");
-	/* Mark unavailable all children */
-	g_string_append_printf (sparql,
-				"DELETE { "
-				"  ?child tracker:available true "
-				"} WHERE { "
-				"  ?child nie:url ?u . "
-				"  FILTER (tracker:uri-is-descendant (\"%s\", ?u)) "
-				"}",
-				uri);
-	/* Mark unavailable the resource itself */
-	g_string_append_printf (sparql,
-				"DELETE { "
-				"  ?u tracker:available true "
-				"} WHERE { "
-				"  ?u nie:url \"%s\""
-				"}",
-				uri);
 
 	/* Add new task to processing pool */
 	task = tracker_processing_task_new (file);
-	/* Note that set_sparql_string() takes ownership of the passed string */
-	tracker_processing_task_set_sparql_string (task,
-	                                           g_string_free (sparql, FALSE));
+	tracker_processing_task_set_bulk_operation (task,
+	                                            "DELETE { "
+	                                            "  ?f tracker:available true "
+	                                            "}",
+	                                            TRACKER_BULK_MATCH_EQUALS |
+	                                            TRACKER_BULK_MATCH_CHILDREN);
 
 	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 	 * and in this case we need to setup queue handlers again */
 	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
 	                                              task,
-	                                              FALSE,
+	                                              TRUE,
 	                                              processing_pool_task_finished_cb,
 	                                              fs)) {
 		item_queue_handlers_set_up (fs);
@@ -1861,36 +1845,21 @@ item_remove (TrackerMinerFS *fs,
 	 * Actually remove all resources. This operation is the one which may take
 	 * a long time.
 	 */
-	sparql = g_string_new ("");
-	/* Delete all children */
-	g_string_append_printf (sparql,
-	                        "DELETE { "
-	                        "  ?child a rdfs:Resource "
-	                        "} WHERE {"
-	                        "  ?child nie:url ?u . "
-	                        "  FILTER (tracker:uri-is-descendant (\"%s\", ?u)) "
-	                        "}",
-	                        uri);
-	/* Delete resource itself */
-	g_string_append_printf (sparql,
-	                        "DELETE { "
-	                        "  ?u a rdfs:Resource "
-	                        "} WHERE { "
-	                        "  ?u nie:url \"%s\" "
-	                        "}",
-	                        uri);
 
 	/* Add new task to processing pool */
 	task = tracker_processing_task_new (file);
-	/* Note that set_sparql_string() takes ownership of the passed string */
-	tracker_processing_task_set_sparql_string (task,
-	                                           g_string_free (sparql, FALSE));
+	tracker_processing_task_set_bulk_operation (task,
+	                                            "DELETE { "
+	                                            "  ?f a rdfs:Resource "
+	                                            "}",
+	                                            TRACKER_BULK_MATCH_EQUALS |
+	                                            TRACKER_BULK_MATCH_CHILDREN);
 
 	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 	 * and in this case we need to setup queue handlers again */
 	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
 	                                              task,
-	                                              FALSE,
+	                                              TRUE,
 	                                              processing_pool_task_finished_cb,
 	                                              fs)) {
 		item_queue_handlers_set_up (fs);
@@ -1898,7 +1867,7 @@ item_remove (TrackerMinerFS *fs,
 
 	g_free (uri);
 
-	return FALSE;
+	return TRUE;
 }
 
 static gboolean
