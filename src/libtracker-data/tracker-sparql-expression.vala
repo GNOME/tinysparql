@@ -676,7 +676,11 @@ class Tracker.Sparql.Expression : Object {
 			sql.append (", ");
 			expect (SparqlTokenType.COMMA);
 
-			translate_expression_as_string (sql);
+                        translate_expression_as_string (sql);
+                        while (accept (SparqlTokenType.COMMA)) {
+			      sql.append (", ");
+			      translate_expression_as_string (sql);
+			}
 			sql.append (")");
 
 			return PropertyType.BOOLEAN;
