@@ -879,14 +879,14 @@ tracker_data_resource_buffer_flush (GError **error)
 				g_string_append (values_sql, ")");
 
 				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                      "%s %s", sql->str, values_sql->str);
+				                                              "%s %s", sql->str, values_sql->str);
 				g_string_free (sql, TRUE);
 				g_string_free (values_sql, TRUE);
 			} else {
 				g_string_append (sql, " WHERE ID = ?");
 
 				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                      "%s", sql->str);
+				                                              "%s", sql->str);
 				g_string_free (sql, TRUE);
 			}
 
@@ -1529,12 +1529,12 @@ resource_in_domain_index_class (TrackerClass *domain_index_class)
 }
 
 static gboolean
-cache_set_metadata_decomposed (TrackerProperty  *property,
-                               const gchar      *value,
-                               gint              value_id,
-                               const gchar      *graph,
-                               gint              graph_id,
-                               GError          **error)
+cache_insert_metadata_decomposed (TrackerProperty  *property,
+                                  const gchar      *value,
+                                  gint              value_id,
+                                  const gchar      *graph,
+                                  gint              graph_id,
+                                  GError          **error)
 {
 	gboolean            multiple_values;
 	const gchar        *table_name;
@@ -1548,8 +1548,8 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	/* also insert super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		change |= cache_set_metadata_decomposed (*super_properties, value, value_id,
-		                                         graph, graph_id, &new_error);
+		change |= cache_insert_metadata_decomposed (*super_properties, value, value_id,
+		                                            graph, graph_id, &new_error);
 		if (new_error) {
 			g_propagate_error (error, new_error);
 			return FALSE;
@@ -1650,6 +1650,85 @@ cache_set_metadata_decomposed (TrackerProperty  *property,
 	}
 
 	return change;
+}
+
+
+static gboolean
+cache_update_metadata_decomposed (TrackerProperty  *property,
+                                  const gchar      *value,
+                                  gint              value_id,
+                                  const gchar      *graph,
+                                  gint              graph_id,
+                                  GError          **error)
+{
+	gboolean            multiple_values;
+	const gchar        *table_name;
+	const gchar        *field_name;
+	TrackerProperty   **super_properties;
+	GValue              gvalue = { 0 };
+	GError             *new_error = NULL;
+	gboolean            change = FALSE;
+
+	/* also insert super property values */
+	super_properties = tracker_property_get_super_properties (property);
+	while (*super_properties) {
+		change |= cache_update_metadata_decomposed (*super_properties, value, value_id,
+		                                            graph, graph_id, &new_error);
+		if (new_error) {
+			g_propagate_error (error, new_error);
+			return FALSE;
+		}
+		super_properties++;
+	}
+
+	multiple_values = tracker_property_get_multiple_values (property);
+	table_name = tracker_property_get_table_name (property);
+	field_name = tracker_property_get_name (property);
+
+	if (value) {
+		string_to_gvalue (value, tracker_property_get_data_type (property), &gvalue, &new_error);
+		if (new_error) {
+			g_propagate_error (error, new_error);
+			return FALSE;
+		}
+	} else {
+		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_set_int64 (&gvalue, value_id);
+	}
+
+	cache_insert_value (table_name, field_name,
+	                    tracker_property_get_transient (property),
+	                    &gvalue,
+	                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
+	                    multiple_values,
+	                    tracker_property_get_fulltext_indexed (property),
+	                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+
+	if (!multiple_values) {
+		TrackerClass **domain_index_classes;
+
+		domain_index_classes = tracker_property_get_domain_indexes (property);
+		while (*domain_index_classes) {
+			if (resource_in_domain_index_class (*domain_index_classes)) {
+				GValue gvalue_copy = { 0 };
+
+				g_value_init (&gvalue_copy, G_VALUE_TYPE (&gvalue));
+				g_value_copy (&gvalue, &gvalue_copy);
+
+				cache_insert_value (tracker_class_get_name (*domain_index_classes),
+				                    field_name,
+				                    tracker_property_get_transient (property),
+				                    &gvalue_copy,
+				                    graph != NULL ? ensure_resource_id (graph, NULL) : graph_id,
+				                    multiple_values,
+				                    tracker_property_get_fulltext_indexed (property),
+				                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+			}
+			domain_index_classes++;
+		}
+	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -2340,7 +2419,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		change = TRUE;
 	} else {
 		/* add value to metadata database */
-		change = cache_set_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
+		change = cache_insert_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
 		if (actual_error) {
 			g_propagate_error (error, actual_error);
 			return;
@@ -2422,7 +2501,7 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	}
 
 	/* add value to metadata database */
-	change = cache_set_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
+	change = cache_insert_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
 	if (actual_error) {
 		g_propagate_error (error, actual_error);
 		return;
@@ -2468,6 +2547,293 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 				                                    pred_id,
 				                                    object);
 		}
+	}
+}
+
+static void
+tracker_data_update_statement_with_uri (const gchar            *graph,
+                                        const gchar            *subject,
+                                        const gchar            *predicate,
+                                        const gchar            *object,
+                                        GError                **error)
+{
+	GError          *actual_error = NULL;
+	TrackerClass    *class;
+	TrackerProperty *property;
+	gint             prop_id = 0, graph_id = 0;
+	gint             final_prop_id = 0, object_id = 0;
+	gboolean         change = FALSE;
+
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+	g_return_if_fail (in_transaction);
+
+	property = tracker_ontologies_get_property_by_uri (predicate);
+	if (property == NULL) {
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology", predicate);
+		return;
+	} else {
+		if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_TYPE,
+			             "Property '%s' does not accept URIs", predicate);
+			return;
+		}
+		prop_id = tracker_property_get_id (property);
+	}
+
+	if (!tracker_property_get_transient (property)) {
+		has_persistent = TRUE;
+	}
+
+	/* subjects and objects starting with `:' are anonymous blank nodes */
+	if (g_str_has_prefix (object, ":")) {
+		/* anonymous blank node used as object in a statement */
+		const gchar *blank_uri;
+
+		if (blank_buffer.subject != NULL) {
+			if (strcmp (blank_buffer.subject, object) == 0) {
+				/* object still in blank buffer, need to flush buffer */
+				tracker_data_blank_buffer_flush (&actual_error);
+
+				if (actual_error) {
+					g_propagate_error (error, actual_error);
+					return;
+				}
+			}
+		}
+
+		blank_uri = g_hash_table_lookup (blank_buffer.table, object);
+
+		if (blank_uri != NULL) {
+			/* now insert statement referring to blank node */
+			tracker_data_update_statement (graph, subject, predicate, blank_uri, &actual_error);
+
+			g_hash_table_remove (blank_buffer.table, object);
+
+			if (actual_error) {
+				g_propagate_error (error, actual_error);
+				return;
+			}
+
+			return;
+		} else {
+			g_critical ("Blank node '%s' not found", object);
+		}
+	}
+
+	/* Update and insert share the exact same code here */
+	if (!tracker_data_insert_statement_common (graph, subject, predicate, object, &actual_error)) {
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
+			return;
+		}
+
+		return;
+	}
+
+	if (strcmp (predicate, RDF_PREFIX "type") == 0) {
+		/* handle rdf:type statements specially to
+		   cope with inference and insert blank rows */
+		class = tracker_ontologies_get_class_by_uri (object);
+		if (class != NULL) {
+			/* Create here is fine for Update too */
+			cache_create_service_decomposed (class, graph, 0);
+		} else {
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
+			             "Class '%s' not found in the ontology", object);
+			return;
+		}
+
+		if (!in_journal_replay && !tracker_property_get_transient (property)) {
+			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (predicate);
+			object_id = query_resource_id (object);
+		}
+
+		change = TRUE;
+	} else {
+		/* update or add value to metadata database */
+		change = cache_update_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
+			return;
+		}
+
+		if (change) {
+			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (predicate);
+			object_id = query_resource_id (object);
+
+			if (insert_callbacks) {
+				guint n;
+				for (n = 0; n < delete_callbacks->len; n++) {
+					TrackerStatementDelegate *delegate;
+
+					/* Don't pass object to the delete, it's not correct */
+					delegate = g_ptr_array_index (delete_callbacks, n);
+					delegate->callback (graph_id, graph, resource_buffer->id, subject,
+					                    final_prop_id, 0,
+					                    NULL,
+					                    resource_buffer->types,
+					                    delegate->user_data);
+				}
+				for (n = 0; n < insert_callbacks->len; n++) {
+					TrackerStatementDelegate *delegate;
+
+					delegate = g_ptr_array_index (insert_callbacks, n);
+					delegate->callback (graph_id, graph, resource_buffer->id, subject,
+					                    final_prop_id, object_id,
+					                    object,
+					                    resource_buffer->types,
+					                    delegate->user_data);
+				}
+			}
+		}
+	}
+
+	if (!in_journal_replay && change && !tracker_property_get_transient (property)) {
+		tracker_db_journal_append_update_statement_id (
+			(graph != NULL ? query_resource_id (graph) : 0),
+			resource_buffer->id,
+			final_prop_id,
+			object_id);
+	}
+}
+
+static void
+tracker_data_update_statement_with_string (const gchar            *graph,
+                                           const gchar            *subject,
+                                           const gchar            *predicate,
+                                           const gchar            *object,
+                                           GError                **error)
+{
+	GError          *actual_error = NULL;
+	TrackerProperty *property;
+	gboolean         change, tried = FALSE;
+	gint             graph_id = 0, pred_id = 0;
+
+
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+	g_return_if_fail (in_transaction);
+
+	property = tracker_ontologies_get_property_by_uri (predicate);
+	if (property == NULL) {
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology", predicate);
+		return;
+	} else {
+		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_TYPE,
+			             "Property '%s' only accepts URIs", predicate);
+			return;
+		}
+		pred_id = tracker_property_get_id (property);
+	}
+
+	if (!tracker_property_get_transient (property)) {
+		has_persistent = TRUE;
+	}
+
+	/* Update and insert share the exact same code here */
+	if (!tracker_data_insert_statement_common (graph, subject, predicate, object, &actual_error)) {
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
+			return;
+		}
+
+		return;
+	}
+
+	/* add or update value to metadata database */
+	change = cache_update_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
+	if (actual_error) {
+		g_propagate_error (error, actual_error);
+		return;
+	}
+
+	if (insert_callbacks && change) {
+		guint n;
+
+		graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
+		tried = TRUE;
+
+		for (n = 0; n < delete_callbacks->len; n++) {
+			TrackerStatementDelegate *delegate;
+
+			/* Don't pass object to the delete, it's not correct */
+			delegate = g_ptr_array_index (delete_callbacks, n);
+			delegate->callback (graph_id, graph, resource_buffer->id, subject,
+			                    pred_id, 0 /* Always a literal */,
+			                    NULL,
+			                    resource_buffer->types,
+			                    delegate->user_data);
+		}
+
+		for (n = 0; n < insert_callbacks->len; n++) {
+			TrackerStatementDelegate *delegate;
+
+			delegate = g_ptr_array_index (insert_callbacks, n);
+			delegate->callback (graph_id, graph, resource_buffer->id, subject,
+			                    pred_id, 0 /* Always a literal */,
+			                    object,
+			                    resource_buffer->types,
+			                    delegate->user_data);
+		}
+	}
+
+	if (!in_journal_replay && change && !tracker_property_get_transient (property)) {
+		if (!tried) {
+			graph_id = (graph != NULL ? query_resource_id (graph) : 0);
+			pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
+		}
+		if (!tracker_property_get_force_journal (property) &&
+		    g_strcmp0 (graph, TRACKER_MINER_FS_GRAPH_URN) == 0) {
+			/* do not journal this statement extracted from filesystem */
+			TrackerProperty *damaged;
+
+			damaged = tracker_ontologies_get_property_by_uri (TRACKER_TRACKER_PREFIX "damaged");
+			tracker_db_journal_append_update_statement (graph_id,
+				                                        resource_buffer->id,
+				                                        tracker_property_get_id (damaged),
+				                                        "true");
+		} else {
+			tracker_db_journal_append_update_statement (graph_id,
+				                                        resource_buffer->id,
+				                                        pred_id,
+				                                        object);
+		}
+	}
+}
+
+void
+tracker_data_update_statement (const gchar            *graph,
+                               const gchar            *subject,
+                               const gchar            *predicate,
+                               const gchar            *object,
+                               GError                **error)
+{
+	TrackerProperty *property;
+
+	g_return_if_fail (subject != NULL);
+	g_return_if_fail (predicate != NULL);
+	g_return_if_fail (object != NULL);
+	g_return_if_fail (in_transaction);
+
+	property = tracker_ontologies_get_property_by_uri (predicate);
+	if (property != NULL) {
+		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			tracker_data_update_statement_with_uri (graph, subject, predicate, object, error);
+		} else {
+			tracker_data_update_statement_with_string (graph, subject, predicate, object, error);
+		}
+	} else {
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology", predicate);
 	}
 }
 
@@ -2785,7 +3151,8 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 					g_clear_error (&new_error);
 				}
 			}
-		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT) {
+		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT ||
+		           type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT) {
 			GError *new_error = NULL;
 			TrackerProperty *property = NULL;
 
@@ -2808,8 +3175,11 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 			if (property) {
 				resource_buffer_switch (NULL, graph_id, NULL, subject_id);
 
-				cache_set_metadata_decomposed (property, object, 0, NULL, graph_id, &new_error);
-
+				if (type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT) {
+					cache_update_metadata_decomposed (property, object, 0, NULL, graph_id, &new_error);
+				} else {
+					cache_insert_metadata_decomposed (property, object, 0, NULL, graph_id, &new_error);
+				}
 				if (new_error) {
 					g_warning ("Journal replay error: '%s'", new_error->message);
 					g_clear_error (&new_error);
@@ -2819,7 +3189,8 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 				g_warning ("Journal replay error: 'property with ID %d doesn't exist'", predicate_id);
 			}
 
-		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID) {
+		} else if (type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID ||
+		           type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID) {
 			GError *new_error = NULL;
 			TrackerClass *class = NULL;
 			TrackerProperty *property = NULL;
@@ -2860,7 +3231,11 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 						GError *new_error = NULL;
 
 						/* add value to metadata database */
-						cache_set_metadata_decomposed (property, NULL, object_id, NULL, graph_id, &new_error);
+						if (type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID) {
+							cache_update_metadata_decomposed (property, NULL, object_id, NULL, graph_id, &new_error);
+						} else {
+							cache_insert_metadata_decomposed (property, NULL, object_id, NULL, graph_id, &new_error);
+						}
 
 						if (new_error) {
 							g_warning ("Journal replay error: '%s'", new_error->message);
