@@ -42,6 +42,8 @@ typedef enum {
 	TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID,
 	TRACKER_DB_JOURNAL_DELETE_STATEMENT,
 	TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID,
+	TRACKER_DB_JOURNAL_UPDATE_STATEMENT,
+	TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID,
 } TrackerDBJournalEntryType;
 
 GQuark       tracker_db_journal_error_quark                  (void);
@@ -80,6 +82,14 @@ gboolean     tracker_db_journal_append_insert_statement      (gint         g_id,
                                                               gint         p_id,
                                                               const gchar *object);
 gboolean     tracker_db_journal_append_insert_statement_id   (gint         g_id,
+                                                              gint         s_id,
+                                                              gint         p_id,
+                                                              gint         o_id);
+gboolean     tracker_db_journal_append_update_statement      (gint         g_id,
+                                                              gint         s_id,
+                                                              gint         p_id,
+                                                              const gchar *object);
+gboolean     tracker_db_journal_append_update_statement_id   (gint         g_id,
                                                               gint         s_id,
                                                               gint         p_id,
                                                               gint         o_id);

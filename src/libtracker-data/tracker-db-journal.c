@@ -58,7 +58,8 @@ typedef enum {
 	DATA_FORMAT_RESOURCE_INSERT  = 1 << 0,
 	DATA_FORMAT_OBJECT_ID        = 1 << 1,
 	DATA_FORMAT_OPERATION_DELETE = 1 << 2,
-	DATA_FORMAT_GRAPH            = 1 << 3
+	DATA_FORMAT_GRAPH            = 1 << 3,
+	DATA_FORMAT_OPERATION_UPDATE = 1 << 4
 } DataFormat;
 
 typedef enum {
@@ -271,6 +272,8 @@ journal_verify_header (JournalReader *jreader)
 	gint i;
 	GError *error = NULL;
 
+	/* Version 00003 is identical, it just has no UPDATE operations */
+
 	if (jreader->stream) {
 		for (i = 0; i < sizeof (header); i++) {
 			header[i] = g_data_input_stream_read_byte (jreader->stream, NULL, &error);
@@ -280,7 +283,7 @@ journal_verify_header (JournalReader *jreader)
 			}
 		}
 
-		if (memcmp (header, "trlog\00003", 8)) {
+		if (memcmp (header, "trlog\00004", 8) && memcmp (header, "trlog\00003", 8)) {
 			return FALSE;
 		}
 	} else {
@@ -289,7 +292,7 @@ journal_verify_header (JournalReader *jreader)
 			return FALSE;
 		}
 
-		if (memcmp (jreader->current, "trlog\00003", 8)) {
+		if (memcmp (jreader->current, "trlog\00004", 8) && memcmp (jreader->current, "trlog\00003", 8)) {
 			return FALSE;
 		}
 
@@ -483,7 +486,7 @@ db_journal_init_file (JournalWriter *jwriter, gboolean truncate)
 		jwriter->cur_block[4] = 'g';
 		jwriter->cur_block[5] = '\0';
 		jwriter->cur_block[6] = '0';
-		jwriter->cur_block[7] = '3';
+		jwriter->cur_block[7] = '4';
 
 		if (!write_all_data (jwriter->journal, jwriter->cur_block, 8)) {
 			g_free (jwriter->journal_filename);
@@ -888,6 +891,116 @@ tracker_db_journal_append_insert_statement_id (gint g_id,
 	}
 
 	return db_journal_writer_append_insert_statement_id (&writer,
+	                                                     g_id, s_id, p_id, o_id);
+}
+
+static gboolean
+db_journal_writer_append_update_statement (JournalWriter *jwriter,
+                                           gint           g_id,
+                                           gint           s_id,
+                                           gint           p_id,
+                                           const gchar   *object)
+{
+	gint o_len;
+	DataFormat df;
+	gint size;
+
+	g_return_val_if_fail (jwriter->journal > 0, FALSE);
+	g_return_val_if_fail (g_id >= 0, FALSE);
+	g_return_val_if_fail (s_id > 0, FALSE);
+	g_return_val_if_fail (p_id > 0, FALSE);
+	g_return_val_if_fail (object != NULL, FALSE);
+
+	o_len = strlen (object);
+	if (g_id == 0) {
+		df = DATA_FORMAT_OPERATION_UPDATE;
+		size = (sizeof (guint32) * 3) + o_len + 1;
+	} else {
+		df = DATA_FORMAT_OPERATION_UPDATE | DATA_FORMAT_GRAPH;
+		size = (sizeof (guint32) * 4) + o_len + 1;
+	}
+
+	cur_block_maybe_expand (jwriter, size);
+
+	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), df);
+	if (g_id > 0) {
+		cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), g_id);
+	}
+	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), s_id);
+	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), p_id);
+	cur_setstr (jwriter->cur_block, &(jwriter->cur_pos), object, o_len);
+
+	jwriter->cur_entry_amount++;
+	jwriter->cur_block_len += size;
+
+	return TRUE;
+}
+
+gboolean
+tracker_db_journal_append_update_statement (gint         g_id,
+                                            gint         s_id,
+                                            gint         p_id,
+                                            const gchar *object)
+{
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
+
+	return db_journal_writer_append_update_statement (&writer,
+	                                                  g_id, s_id, p_id, object);
+}
+
+static gboolean
+db_journal_writer_append_update_statement_id (JournalWriter *jwriter,
+                                              gint           g_id,
+                                              gint           s_id,
+                                              gint           p_id,
+                                              gint           o_id)
+{
+	DataFormat df;
+	gint size;
+
+	g_return_val_if_fail (jwriter->journal > 0, FALSE);
+	g_return_val_if_fail (g_id >= 0, FALSE);
+	g_return_val_if_fail (s_id > 0, FALSE);
+	g_return_val_if_fail (p_id > 0, FALSE);
+	g_return_val_if_fail (o_id > 0, FALSE);
+
+	if (g_id == 0) {
+		df = DATA_FORMAT_OPERATION_UPDATE | DATA_FORMAT_OBJECT_ID;
+		size = sizeof (guint32) * 4;
+	} else {
+		df = DATA_FORMAT_OPERATION_UPDATE | DATA_FORMAT_OBJECT_ID | DATA_FORMAT_GRAPH;
+		size = sizeof (guint32) * 5;
+	}
+
+	cur_block_maybe_expand (jwriter, size);
+
+	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), df);
+	if (g_id > 0) {
+		cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), g_id);
+	}
+	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), s_id);
+	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), p_id);
+	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), o_id);
+
+	jwriter->cur_entry_amount++;
+	jwriter->cur_block_len += size;
+
+	return TRUE;
+}
+
+gboolean
+tracker_db_journal_append_update_statement_id (gint g_id,
+                                               gint s_id,
+                                               gint p_id,
+                                               gint o_id)
+{
+	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
+
+	return db_journal_writer_append_update_statement_id (&writer,
 	                                                     g_id, s_id, p_id, o_id);
 }
 
@@ -1587,6 +1700,12 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 				} else {
 					jreader->type = TRACKER_DB_JOURNAL_DELETE_STATEMENT;
 				}
+			} else if (df & DATA_FORMAT_OPERATION_UPDATE) {
+				if (df & DATA_FORMAT_OBJECT_ID) {
+					jreader->type = TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID;
+				} else {
+					jreader->type = TRACKER_DB_JOURNAL_UPDATE_STATEMENT;
+				}
 			} else {
 				if (df & DATA_FORMAT_OBJECT_ID) {
 					jreader->type = TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID;
@@ -1703,7 +1822,8 @@ tracker_db_journal_reader_get_statement (gint         *g_id,
 {
 	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
 	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT ||
-	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT,
+	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT ||
+	                      reader.type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT,
 	                      FALSE);
 
 	if (g_id) {
@@ -1724,7 +1844,8 @@ tracker_db_journal_reader_get_statement_id (gint *g_id,
 {
 	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
 	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID ||
-	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID,
+	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID ||
+	                      reader.type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID,
 	                      FALSE);
 
 	if (g_id) {
