@@ -69,6 +69,11 @@ void     tracker_data_insert_statement_with_string  (const gchar               *
                                                      const gchar               *predicate,
                                                      const gchar               *object,
                                                      GError                   **error);
+void     tracker_data_update_statement              (const gchar               *graph,
+                                                     const gchar               *subject,
+                                                     const gchar               *predicate,
+                                                     const gchar               *object,
+                                                     GError                   **error);
 void     tracker_data_begin_transaction             (GError                   **error);
 void     tracker_data_begin_ontology_transaction    (GError                   **error);
 void     tracker_data_begin_transaction_for_replay  (time_t                     time,

@@ -291,7 +291,16 @@ public class Tracker.SparqlScanner : Object {
 			switch (begin[0]) {
 			case 'R':
 			case 'r':
-				if (matches (begin, "REDUCED")) return SparqlTokenType.REDUCED;
+				switch (begin[2]) {
+				case 'D':
+				case 'd':
+					if (matches (begin, "REDUCED")) return SparqlTokenType.REDUCED;
+					break;
+				case 'P':
+				case 'p':
+					if (matches (begin, "REPLACE")) return SparqlTokenType.REPLACE;
+					break;
+				}
 				break;
 			case 'I':
 			case 'i':
@@ -905,6 +914,7 @@ public enum Tracker.SparqlTokenType {
 	PREFIX,
 	REDUCED,
 	REGEX,
+	REPLACE,
 	SAMETERM,
 	SELECT,
 	SEMICOLON,
@@ -997,6 +1007,7 @@ public enum Tracker.SparqlTokenType {
 		case PREFIX: return "`PREFIX'";
 		case REDUCED: return "`REDUCED'";
 		case REGEX: return "`REGEX'";
+		case REPLACE: return "`REPLACE'";
 		case SAMETERM: return "`SAMETERM'";
 		case SELECT: return "`SELECT'";
 		case SEMICOLON: return "`;'";
