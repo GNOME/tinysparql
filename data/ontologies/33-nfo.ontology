@@ -561,6 +561,12 @@ nfo:tableOfContents a rdf:Property ;
        	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
+# Not in upstream Nepomuk. Pending to submit there.
+nfo:Note a rdfs:Class ;
+         rdfs:label "Note";
+         rdfs:comment "Usually small document with snippets, reminders or frequenly used content.";
+         rdfs:subClassOf nfo:Document .
+
 nfo:lineCount a rdf:Property ;
 	rdfs:label "lineCount" ;
 	rdfs:comment "The amount of lines in a text document" ;
