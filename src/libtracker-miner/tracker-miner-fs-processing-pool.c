@@ -864,6 +864,7 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 	/* If buffering not requested, OR the limit of READY tasks is actually 1,
 	 * flush previous buffer (if any) and then the new update */
 	if (!buffer || pool->limit[TRACKER_PROCESSING_TASK_STATUS_READY] == 1) {
+		BulkOperationMerge *operation = NULL;
 		const gchar *sparql = NULL;
 
 		trace ("(Processing Pool %s) Pushed READY/PROCESSING task %p for file '%s'",
@@ -889,8 +890,6 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 		} else if (task->content == CONTENT_SPARQL_BUILDER) {
 			sparql = tracker_sparql_builder_get_result (task->data.builder);
 		} else if (task->content == CONTENT_BULK_OPERATION) {
-			BulkOperationMerge *operation;
-
 			operation = bulk_operation_merge_new (task->data.bulk.bulk_operation);
 			operation->tasks = g_list_prepend (NULL, task);
 			bulk_operation_merge_finish (operation);
@@ -898,8 +897,6 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 			if (operation->sparql) {
 				sparql = operation->sparql;
 			}
-
-			bulk_operation_merge_free (operation);
 		}
 
 		if (sparql) {
@@ -909,6 +906,10 @@ tracker_processing_pool_push_ready_task (TrackerProcessingPool                  
 			                                        NULL,
 			                                        tracker_processing_pool_sparql_update_cb,
 			                                        task);
+		}
+
+		if (operation) {
+			bulk_operation_merge_free (operation);
 		}
 
 		return TRUE;
