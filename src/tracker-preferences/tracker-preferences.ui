@@ -39,6 +39,7 @@
     <property name="icon_name">system-search</property>
     <property name="type_hint">normal</property>
     <signal name="close" handler="gtk_main_quit"/>
+    <signal name="response" handler="tracker_preferences_response_cb"/>
     <signal name="delete_event" handler="gtk_main_quit"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
@@ -95,7 +96,7 @@
                                         <property name="climb_rate">1</property>
                                         <property name="snap_to_ticks">True</property>
                                         <property name="numeric">True</property>
-                                        <signal name="value_changed" handler="spinbutton_delay_value_changed_cb"/>
+                                        <signal name="value_changed" handler="tracker_preferences_spinbutton_delay_value_changed_cb"/>
                                       </object>
                                       <packing>
                                         <property name="position">0</property>
@@ -188,7 +189,7 @@
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="checkbutton_enable_monitoring_toggled_cb"/>
+                                <signal name="toggled" handler="tracker_preferences_checkbutton_enable_monitoring_toggled_cb"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -204,7 +205,7 @@
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="checkbutton_enable_index_on_battery_toggled_cb"/>
+                                <signal name="toggled" handler="tracker_preferences_checkbutton_enable_index_on_battery_toggled_cb"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -225,7 +226,7 @@
                                     <property name="use_underline">True</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="checkbutton_enable_index_on_battery_first_time_toggled_cb"/>
+                                    <signal name="toggled" handler="tracker_preferences_checkbutton_enable_index_on_battery_first_time_toggled_cb"/>
                                   </object>
                                 </child>
                               </object>
@@ -244,7 +245,7 @@
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="checkbutton_index_removable_media_toggled_cb"/>
+                                <signal name="toggled" handler="tracker_preferences_checkbutton_index_removable_media_toggled_cb"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -265,7 +266,7 @@
                                     <property name="use_underline">True</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="checkbutton_index_optical_discs_toggled_cb"/>
+                                    <signal name="toggled" handler="tracker_preferences_checkbutton_index_optical_discs_toggled_cb"/>
                                   </object>
                                 </child>
                               </object>
@@ -329,7 +330,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">adjustment_disk_space_limit</property>
                                     <property name="digits">0</property>
-                                    <signal name="format_value" handler="hscale_disk_space_limit_format_value_cb"/>
+                                    <signal name="format_value" handler="tracker_preferences_hscale_disk_space_limit_format_value_cb"/>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -392,7 +393,7 @@
                                         <property name="inverted">True</property>
                                         <property name="digits">0</property>
                                         <property name="draw_value">False</property>
-                                        <signal name="format_value" handler="hscale_throttle_format_value_cb"/>
+                                        <signal name="format_value" handler="tracker_preferences_hscale_throttle_format_value_cb"/>
                                       </object>
                                       <packing>
                                         <property name="right_attach">2</property>
@@ -428,7 +429,7 @@
                                         <property name="can_focus">True</property>
                                         <property name="adjustment">adjustment_drop_device_threshold</property>
                                         <property name="digits">0</property>
-                                        <signal name="format_value" handler="hscale_drop_device_threshold_format_value_cb"/>
+                                        <signal name="format_value" handler="tracker_preferences_hscale_drop_device_threshold_format_value_cb"/>
                                       </object>
                                       <packing>
                                         <property name="position">0</property>
@@ -556,7 +557,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <signal name="clicked" handler="button_index_recursively_add_clicked_cb"/>
+                                        <signal name="clicked" handler="tracker_preferences_button_index_recursively_add_clicked_cb"/>
                                         <child>
                                           <object class="GtkImage" id="image3">
                                             <property name="visible">True</property>
@@ -574,7 +575,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <signal name="clicked" handler="button_index_recursively_remove_clicked_cb"/>
+                                        <signal name="clicked" handler="tracker_preferences_button_index_recursively_remove_clicked_cb"/>
                                         <child>
                                           <object class="GtkImage" id="image4">
                                             <property name="visible">True</property>
@@ -594,7 +595,7 @@
                                         <property name="receives_default">True</property>
                                         <property name="tooltip_text" translatable="yes">When toggled, this makes sure your home directory is included in the list.</property>
                                         <property name="active">True</property>
-                                        <signal name="toggled" handler="togglebutton_home_toggled_cb"/>
+                                        <signal name="toggled" handler="tracker_preferences_togglebutton_home_toggled_cb"/>
                                         <child>
                                           <object class="GtkImage" id="image11">
                                             <property name="visible">True</property>
@@ -698,7 +699,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <signal name="clicked" handler="button_index_single_add_clicked_cb"/>
+                                        <signal name="clicked" handler="tracker_preferences_button_index_single_add_clicked_cb"/>
                                         <child>
                                           <object class="GtkImage" id="image5">
                                             <property name="visible">True</property>
@@ -716,7 +717,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <signal name="clicked" handler="button_index_single_remove_clicked_cb"/>
+                                        <signal name="clicked" handler="tracker_preferences_button_index_single_remove_clicked_cb"/>
                                         <child>
                                           <object class="GtkImage" id="image10">
                                             <property name="visible">True</property>
@@ -848,7 +849,7 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">Opens text entry for glob patterns</property>
-                                            <signal name="clicked" handler="button_ignored_directories_globs_add_clicked_cb"/>
+                                            <signal name="clicked" handler="tracker_preferences_button_ignored_directories_globs_add_clicked_cb"/>
                                             <child>
                                               <object class="GtkImage" id="image6">
                                                 <property name="visible">True</property>
@@ -866,7 +867,7 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <signal name="clicked" handler="button_ignored_directories_remove_clicked_cb"/>
+                                            <signal name="clicked" handler="tracker_preferences_button_ignored_directories_remove_clicked_cb"/>
                                             <child>
                                               <object class="GtkImage" id="image7">
                                                 <property name="visible">True</property>
@@ -885,7 +886,7 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">Opens the filechooser dialogue</property>
-                                            <signal name="clicked" handler="button_ignored_directories_add_clicked_cb"/>
+                                            <signal name="clicked" handler="tracker_preferences_button_ignored_directories_add_clicked_cb"/>
                                             <child>
                                               <object class="GtkImage" id="image2">
                                                 <property name="visible">True</property>
@@ -964,7 +965,7 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <signal name="clicked" handler="button_ignored_directories_with_content_add_clicked_cb"/>
+                                            <signal name="clicked" handler="tracker_preferences_button_ignored_directories_with_content_add_clicked_cb"/>
                                             <child>
                                               <object class="GtkImage" id="image12">
                                                 <property name="visible">True</property>
@@ -982,7 +983,7 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <signal name="clicked" handler="button_ignored_directories_with_content_remove_clicked_cb"/>
+                                            <signal name="clicked" handler="tracker_preferences_button_ignored_directories_with_content_remove_clicked_cb"/>
                                             <child>
                                               <object class="GtkImage" id="image13">
                                                 <property name="visible">True</property>
@@ -1095,7 +1096,7 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <signal name="clicked" handler="button_ignored_files_add_clicked_cb"/>
+                                        <signal name="clicked" handler="tracker_preferences_button_ignored_files_add_clicked_cb"/>
                                         <child>
                                           <object class="GtkImage" id="image8">
                                             <property name="visible">True</property>
@@ -1113,7 +1114,7 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <signal name="clicked" handler="button_ignored_files_remove_clicked_cb"/>
+                                        <signal name="clicked" handler="tracker_preferences_button_ignored_files_remove_clicked_cb"/>
                                         <child>
                                           <object class="GtkImage" id="image9">
                                             <property name="visible">True</property>
@@ -1189,7 +1190,6 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="button_apply_clicked_cb"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1204,7 +1204,6 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="button_close_clicked_cb"/>
               </object>
               <packing>
                 <property name="expand">False</property>

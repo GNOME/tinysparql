@@ -19,10 +19,11 @@ AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
-	-DTRACKER_DATADIR=\""$(datadir)/tracker"\"     \
+	-DTRACKER_UI_DIR=\"$(datadir)/tracker/\"       \
 	-DLOCALEDIR=\""$(localedir)"\"                 \
-	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"       \
-	$(TRACKER_PREFERENCES_CFLAGS)
+	-DSRCDIR=\"$(abs_srcdir)/\"                    \
+	$(TRACKER_PREFERENCES_CFLAGS)                  \
+	-include config.h
 
 LDADD =                                                \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
