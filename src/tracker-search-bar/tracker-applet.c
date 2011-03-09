@@ -455,6 +455,5 @@ applet_factory (PanelApplet *applet,
  */
 PANEL_APPLET_OUT_PROCESS_FACTORY ("SearchBarFactory",
                                   PANEL_TYPE_APPLET,
-                                  "SearchBar",
                                   applet_factory,
                                   NULL)
