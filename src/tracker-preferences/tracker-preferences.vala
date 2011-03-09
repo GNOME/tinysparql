@@ -29,7 +29,7 @@ extern static const string UIDIR;
 extern static const string SRCDIR;
 
 public class Tracker.Preferences {
-	private Config config = null;
+	private GLib.Settings settings = null;
 
 	private const string UI_FILE = "tracker-preferences.ui";
 	private const string HOME_STRING = "$HOME";
@@ -58,17 +58,27 @@ public class Tracker.Preferences {
 	private Notebook notebook;
 
 	public Preferences () {
-		config = new Config ();
+		debug ("Getting current settings");
+
+		//config = new Config ();
+		settings = new GLib.Settings ("org.freedesktop.Tracker.Miner.FileSystem");
+
+		// Change notification for any key in the schema
+		settings.changed.connect ((key) => {
+		      print ("Key '%s' changed\n", key);
+		});
 	}
 
 	public void setup_ui () {
 		var builder = new Gtk.Builder ();
 
 		try {
+			debug ("Trying to use UI file:'%s'", SRCDIR + UI_FILE);
 			builder.add_from_file (SRCDIR + UI_FILE);
 		} catch (GLib.Error e) {
 			//now the install location
 			try {
+				debug ("Trying to use UI file:'%s'", UIDIR + UI_FILE);
 				builder.add_from_file (UIDIR + UI_FILE);
 			} catch (GLib.Error e) {
 				var msg = new MessageDialog (null,
@@ -117,24 +127,26 @@ public class Tracker.Preferences {
 		liststore_gnored_directories_with_content = builder.get_object ("liststore_gnored_directories_with_content") as ListStore;
 
 		// Set initial values
-		checkbutton_enable_index_on_battery.active = config.index_on_battery;
+		checkbutton_enable_index_on_battery.active = settings.get_boolean ("index-on-battery");
 		checkbutton_enable_index_on_battery_first_time.set_sensitive (!checkbutton_enable_index_on_battery.active);
-		checkbutton_enable_index_on_battery_first_time.active = config.index_on_battery_first_time;
+		checkbutton_enable_index_on_battery_first_time.active = settings.get_boolean ("index-on-battery-first-time");
 		spinbutton_delay.set_increments (1, 1);
-		spinbutton_delay.value = (double) config.initial_sleep;
-		checkbutton_enable_monitoring.active = config.enable_monitors;
-		checkbutton_index_removable_media.active = config.index_removable_devices;
-		checkbutton_index_optical_discs.active = config.index_optical_discs;
-		hscale_disk_space_limit.set_value ((double) config.low_disk_space_limit);
-		hscale_throttle.set_value ((double) config.throttle);
-		hscale_drop_device_threshold.set_value ((double) config.removable_days_threshold);
+		spinbutton_delay.value = (double) settings.get_int ("initial-sleep");
+		checkbutton_enable_monitoring.active = settings.get_boolean ("enable-monitors");
+		checkbutton_index_removable_media.active = settings.get_boolean ("index-removable-devices");
+		checkbutton_index_optical_discs.active = settings.get_boolean ("index-optical-discs");
+		hscale_disk_space_limit.set_value ((double) settings.get_int ("low-disk-space-limit"));
+		hscale_throttle.set_value ((double) settings.get_int ("throttle"));
+		hscale_drop_device_threshold.set_value ((double) settings.get_int ("removable-days-threshold"));
 
-		fill_in_model (liststore_index_recursively, config.index_recursive_directories_unfiltered);
+		// FIXME: Work out how to do this
+		fill_in_model (liststore_index_recursively, settings.get_strv ("index-recursive-directories"));
+		fill_in_model (liststore_index_single, settings.get_strv ("index-single-directories"));
+		fill_in_model (liststore_ignored_directories, settings.get_strv ("ignored-directories"));
+		fill_in_model (liststore_ignored_files, settings.get_strv ("ignored-files"));
+		fill_in_model (liststore_gnored_directories_with_content, settings.get_strv ("ignored-directories-with-content"));
+
 		togglebutton_home.active = model_contains (liststore_index_recursively, HOME_STRING);
-		fill_in_model (liststore_index_single, config.index_single_directories_unfiltered);
-		fill_in_model (liststore_ignored_directories, config.ignored_directories);
-		fill_in_model (liststore_ignored_files, config.ignored_files);
-		fill_in_model (liststore_gnored_directories_with_content, config.ignored_directories_with_content);
 
 		// We hide this page because it contains the start up
 		// delay which is not necessary to display for most people.
@@ -171,26 +183,31 @@ public class Tracker.Preferences {
 
 	[CCode (instance_pos = -1)]
 	public void response_cb (Dialog source, int response_id) {
+		debug ("Got response id %d (apply:%d, close:%d)", response_id, ResponseType.APPLY, ResponseType.CLOSE);
+
 		switch (response_id) {
 		case ResponseType.APPLY:
-			config.index_single_directories = model_to_slist (liststore_index_single);
-			config.ignored_directories = model_to_slist (liststore_ignored_directories);
-			config.ignored_files = model_to_slist (liststore_ignored_files);
-			config.ignored_directories_with_content = model_to_slist (liststore_gnored_directories_with_content);
-			config.index_recursive_directories = model_to_slist (liststore_index_recursively);
+			debug ("Converting directories for storage");
 
-			config.low_disk_space_limit = (int) hscale_disk_space_limit.get_value ();
-			config.throttle = (int) hscale_throttle.get_value ();
-			config.removable_days_threshold = (int) hscale_drop_device_threshold.get_value ();
+			// FIXME: Work out how to do this.
+			settings.set_strv ("index-single-directories", model_to_strv (liststore_index_single));
+			settings.set_strv ("index-recursive-directories", model_to_strv (liststore_index_recursively));
+			settings.set_strv ("ignored-directories", model_to_strv (liststore_ignored_directories));
+			settings.set_strv ("ignored-files", model_to_strv (liststore_ignored_files));
+			settings.set_strv ("ignored-directories-with-content", model_to_strv (liststore_gnored_directories_with_content));
 
-			config.save ();
+			settings.set_int ("low-disk-space-limit", (int) hscale_disk_space_limit.get_value ());
+			settings.set_int ("throttle", (int) hscale_throttle.get_value ());
+			settings.set_int ("removable-days-threshold", (int) hscale_drop_device_threshold.get_value ());
+
+			debug ("Saving settings...");
+			settings.apply ();
+			debug ("Done");
 
 			// TODO: restart the Application and Files miner (no idea how to cleanly do this atm)
+			return;
 
-			// Fall through on purpose.
-			break;
-
-		case ResponseType.CLOSE:
+		default:
 			break;
 		}
 
@@ -199,34 +216,34 @@ public class Tracker.Preferences {
 
 	[CCode (instance_pos = -1)]
 	public void spinbutton_delay_value_changed_cb (SpinButton source) {
-		config.initial_sleep = source.get_value_as_int ();
+		settings.set_int ("initial-sleep", source.get_value_as_int ());
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_monitoring_toggled_cb (CheckButton source) {
-		config.enable_monitors = source.active;
+		settings.set_boolean ("enable-monitors", source.active);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_index_on_battery_toggled_cb (CheckButton source) {
-		config.index_on_battery = source.active;
+		settings.set_boolean ("index-on-battery", source.active);
 		checkbutton_enable_index_on_battery_first_time.set_sensitive (!source.active);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_enable_index_on_battery_first_time_toggled_cb (CheckButton source) {
-		config.index_on_battery_first_time = source.active;
+		settings.set_boolean ("index-on-battery-first-time", source.active);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_index_removable_media_toggled_cb (CheckButton source) {
-		config.index_removable_devices = source.active;
+		settings.set_boolean ("index-removable-devices", source.active);
 		checkbutton_index_optical_discs.set_sensitive (source.active);
 	}
 
 	[CCode (instance_pos = -1)]
 	public void checkbutton_index_optical_discs_toggled_cb (CheckButton source) {
-		config.index_optical_discs = source.active;
+		settings.set_boolean ("index-optical-discs", source.active);
 	}
 
 	[CCode (instance_pos = -1)]
@@ -407,40 +424,45 @@ public class Tracker.Preferences {
 		}
 	}
 
-	private SList<string> model_to_slist (ListStore model) {
-		bool valid;
-		SList<string> list = new SList<string>();
+	private string[] model_to_strv (ListStore model) {
+		string[] list = {};
 		TreeIter iter;
+		bool valid;
 
-		valid = model.get_iter_first (out iter);
-		while (valid) {
+		for (valid = model.get_iter_first (out iter);
+		     valid;
+		     valid = model.iter_next (ref iter)) {
 			Value value;
+
 			model.get_value (iter, 0, out value);
-			list.append (value.get_string ());
-			valid = model.iter_next (ref iter);
+			list += value.get_string ();
 		}
 
 		return list;
 	}
 
 	public bool model_contains (TreeModel model, string needle) {
-		bool valid;
 		TreeIter iter;
+		bool valid;
 
-		valid = model.get_iter_first (out iter);
-		while (valid) {
+		for (valid = model.get_iter_first (out iter);
+		     valid;
+		     valid = model.iter_next (ref iter)) {
 			Value value;
+
 			model.get_value (iter, 0, out value);
+
 			if (value.get_string () == needle) {
 				return true;
 			}
-			valid = model.iter_next (ref iter);
 		}
+
 		return false;
 	}
 
-	private void fill_in_model (ListStore model, SList<string> list) {
+	private void fill_in_model (ListStore model, string[] list) {
 		int position = 0;
+
 		foreach (string str in list) {
 			try {
 				model.insert_with_values (null,
@@ -451,7 +473,7 @@ public class Tracker.Preferences {
 				                                            null,
 				                                            null));
 			} catch (GLib.ConvertError e) {
-				print ("%s", e.message);
+				print ("Could not convert filename to UTF8: %s", e.message);
 			}
 		}
 	}

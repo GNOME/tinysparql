@@ -1221,8 +1221,8 @@ Most commonly this is used to ignore directories like *~, *.o, *.la, etc</proper
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">button_apply</action-widget>
-      <action-widget response="0">button_close</action-widget>
+      <action-widget response="-10">button_apply</action-widget>
+      <action-widget response="-7">button_close</action-widget>
     </action-widgets>
   </object>
   <object class="GtkAdjustment" id="adjustment_throttle">
