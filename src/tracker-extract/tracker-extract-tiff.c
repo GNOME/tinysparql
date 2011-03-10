@@ -75,15 +75,6 @@ typedef struct {
 	gchar *orientation;
 } TiffData;
 
-static void extract_tiff (const gchar          *filename,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData extract_data[] = {
-	{ "image/tiff", extract_tiff },
-	{ NULL, NULL }
-};
-
 static void
 tiff_data_free (TiffData *tags)
 {
@@ -248,10 +239,11 @@ tag_to_string (TIFF    *image,
 	return NULL;
 }
 
-static void
-extract_tiff (const gchar          *uri,
-              TrackerSparqlBuilder *preupdate,
-              TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	TIFF *image;
 	TrackerXmpData *xd = NULL;
@@ -280,7 +272,7 @@ extract_tiff (const gchar          *uri,
 	if ((image = TIFFOpen (filename, "r")) == NULL){
 		g_warning ("Could not open image:'%s'\n", filename);
 		g_free (filename);
-		return;
+		return FALSE;
 	}
 
 	tracker_sparql_builder_predicate (metadata, "a");
@@ -713,10 +705,6 @@ extract_tiff (const gchar          *uri,
 	tracker_exif_free (ed);
 	tracker_xmp_free (xd);
 	tracker_iptc_free (id);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return extract_data;
+	return TRUE;
 }

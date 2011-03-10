@@ -179,10 +179,6 @@ typedef struct {
 	id3v2tag id3v24;
 } MP3Data;
 
-static void extract_mp3 (const gchar           *uri,
-                         TrackerSparqlBuilder  *preupdate,
-                         TrackerSparqlBuilder  *metadata);
-
 enum {
 	MPEG_ERR,
 	MPEG_V1,
@@ -436,14 +432,6 @@ static gint freq_table[4][3] = {
 static gint spf_table[6] = {
 	48, 144, 144, 48, 144,  72
 };
-
-static TrackerExtractData extract_data[] = {
-	{ "audio/mpeg", extract_mp3 },
-	{ "audio/x-mp3", extract_mp3 },
-	{ NULL, NULL }
-};
-
-
 
 static void
 id3tag_free (id3tag *tags)
@@ -2014,10 +2002,11 @@ parse_id3v2 (const gchar          *data,
 	return offset;
 }
 
-static void
-extract_mp3 (const gchar          *uri,
-             TrackerSparqlBuilder *preupdate,
-             TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	gchar *filename;
 	int fd;
@@ -2034,7 +2023,7 @@ extract_mp3 (const gchar          *uri,
 
 	if (size == 0) {
 		g_free (filename);
-		return;
+		return FALSE;
 	}
 
 	md.size = size;
@@ -2050,13 +2039,13 @@ extract_mp3 (const gchar          *uri,
 		fd = open (filename, O_RDONLY);
 
 		if (fd == -1) {
-			return;
+			return FALSE;
 		}
 	}
 #else
 	fd = open (filename, O_RDONLY);
 	if (fd == -1) {
-		return;
+		return FALSE;
 	}
 #endif
 
@@ -2080,7 +2069,7 @@ extract_mp3 (const gchar          *uri,
 
 	if (buffer == NULL || buffer == (void*) -1) {
 		g_free (filename);
-		return;
+		return FALSE;
 	}
 
 	if (!get_id3 (id3v1_buffer, ID3V1_SIZE, &md.id3v1)) {
@@ -2417,11 +2406,7 @@ extract_mp3 (const gchar          *uri,
 #endif
 
 	g_free (filename);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return extract_data;
+	return TRUE;
 }
 

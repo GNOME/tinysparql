@@ -123,34 +123,6 @@ typedef struct {
 
 } MetadataExtractor;
 
-static void extract_gstreamer_audio (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_video (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_image (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_svg   (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_guess (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "audio/*", extract_gstreamer_audio },
-	{ "video/*", extract_gstreamer_video },
-	{ "image/*", extract_gstreamer_image },
-	{ "image/svg+xml", extract_gstreamer_svg },
-	/* Tell gstreamer to guess if mimetype guessing returns video also for audio files */
-	{ "video/3gpp", extract_gstreamer_guess },
-	{ "video/mp4", extract_gstreamer_guess },
-	{ "video/x-ms-asf", extract_gstreamer_guess },
-	{ NULL, NULL }
-};
-
 /* Not using define directly since we might want to make this dynamic */
 #ifdef TRACKER_EXTRACT_GSTREAMER_USE_TAGREADBIN
 const gboolean use_tagreadbin = TRUE;
@@ -1346,50 +1318,27 @@ tracker_extract_gstreamer (const gchar *uri,
 	g_slice_free (MetadataExtractor, extractor);
 }
 
-
-static void
-extract_gstreamer_audio (const gchar          *uri,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+			      const gchar          *mimetype,
+			      TrackerSparqlBuilder *preupdate,
+			      TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_AUDIO);
-}
+	if (strcmp (mimetype, "image/svg+xml") == 0) {
+		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_SVG);
+	} else if (strcmp (mimetype, "video/3gpp") == 0 ||
+	           strcmp (mimetype, "video/mp4") == 0 ||
+	           strcmp (mimetype, "video/x-ms-asf") == 0) {
+		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS);
+	} else if (g_str_has_prefix (mimetype, "audio/")) {
+		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_AUDIO);
+	} else if (g_str_has_prefix (mimetype, "video/")) {
+		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_VIDEO);
+	} else if (g_str_has_prefix (mimetype, "image/")) {
+		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_IMAGE);
+	} else {
+		return FALSE;
+	}
 
-static void
-extract_gstreamer_video (const gchar          *uri,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata)
-{
-	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_VIDEO);
+	return TRUE;
 }
-
-static void
-extract_gstreamer_image (const gchar          *uri,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata)
-{
-	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_IMAGE);
-}
-
-static void
-extract_gstreamer_svg (const gchar          *uri,
-                       TrackerSparqlBuilder *preupdate,
-                       TrackerSparqlBuilder *metadata)
-{
-	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_SVG);
-}
-
-static void
-extract_gstreamer_guess (const gchar          *uri,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata)
-{
-	tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_GUESS);
-}
-
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
-}
-

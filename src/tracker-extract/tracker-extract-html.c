@@ -45,16 +45,6 @@ typedef struct {
 	guint n_bytes_remaining;
 } parser_data;
 
-static void extract_html (const gchar          *filename,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "text/html",             extract_html },
-	{ "application/xhtml+xml", extract_html },
-	{ NULL, NULL }
-};
-
 static gboolean
 has_attribute (const gchar **attrs,
                const gchar  *attr,
@@ -240,10 +230,11 @@ parser_characters (void          *data,
 	}
 }
 
-static void
-extract_html (const gchar          *uri,
-              TrackerSparqlBuilder *preupdate,
-              TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	TrackerConfig *config;
 	htmlDocPtr doc;
@@ -322,10 +313,6 @@ extract_html (const gchar          *uri,
 
 	g_string_free (pd.plain_text, TRUE);
 	g_string_free (pd.title, TRUE);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

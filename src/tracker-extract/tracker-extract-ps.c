@@ -38,23 +38,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-#ifdef USING_UNZIPPSFILES
-static void extract_ps_gz (const gchar          *uri,
-                           TrackerSparqlBuilder *preupdate,
-                           TrackerSparqlBuilder *metadata);
-#endif
-static void extract_ps    (const gchar          *uri,
-                           TrackerSparqlBuilder *preupdate,
-                           TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-#ifdef USING_UNZIPPSFILES
-	{ "application/x-gzpostscript", extract_ps_gz },
-#endif /* USING_UNZIPPSFILES */
-	{ "application/postscript",     extract_ps    },
-	{ NULL, NULL }
-};
-
 static gchar *
 hour_day_str_day (const gchar *date)
 {
@@ -295,8 +278,20 @@ extract_ps_gz (const gchar          *uri,
 
 #endif /* USING_UNZIPPSFILES */
 
-TrackerExtractData *
-tracker_extract_get_data (void)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
-	return data;
+#ifdef USING_UNZIPPSFILES
+	if (strcmp (mimetype, "application/x-gzpostscript") == 0) {
+		extract_ps_gz (uri, preupdate, metadata);
+	} else
+#endif /* USING_UNZIPPSFILES */
+	{
+		extract_ps (uri, preupdate, metadata);
+	}
+
+	return TRUE;
 }

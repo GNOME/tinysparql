@@ -68,23 +68,6 @@ typedef struct {
 
 } MetadataExtractor;
 
-static void extract_gstreamer_helix_audio (const gchar          *uri,
-                                           TrackerSparqlBuilder *preupdate,
-                                           TrackerSparqlBuilder *metadata);
-static void extract_gstreamer_helix_video (const gchar          *uri,
-                                           TrackerSparqlBuilder *preupdate,
-                                           TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "audio/vnd.rn-realaudio", extract_gstreamer_helix_audio },
-	{ "audio/x-pn-realaudio", extract_gstreamer_helix_audio },
-	{ "audio/x-pn-realaudio-plugin",  extract_gstreamer_helix_audio },
-	{ "video/vnd.rn-realvideo", extract_gstreamer_helix_video },
-	{ "video/x-pn-realvideo", extract_gstreamer_helix_video },
-	{ "application/vnd.rn-realmedia", extract_gstreamer_helix_video },
-	{ NULL, NULL }
-};
-
 static void
 caps_set (GObject           *object,
           MetadataExtractor *extractor,
@@ -858,24 +841,20 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 	g_slice_free (MetadataExtractor, extractor);
 }
 
-static void
-extract_gstreamer_helix_audio (const gchar          *uri,
-                               TrackerSparqlBuilder *preupdate,
-			       TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
-	tracker_extract_gstreamer_helix (uri, preupdate, metadata, EXTRACT_MIME_AUDIO);
-}
+	if (g_str_has_prefix (mimetype, "audio/")) {
+		tracker_extract_gstreamer_helix (uri, preupdate, metadata, EXTRACT_MIME_AUDIO);
+	} else if (g_str_has_prefix (mimetype, "video/") ||
+	           strcmp (mimetype, "application/vnd.rn-realmedia") == 0) {
+		tracker_extract_gstreamer_helix (uri, preupdate, metadata, EXTRACT_MIME_VIDEO);
+	} else {
+		return FALSE;
+	}
 
-static void
-extract_gstreamer_helix_video (const gchar          *uri,
-                               TrackerSparqlBuilder *preupdate,
-			       TrackerSparqlBuilder *metadata)
-{
-	tracker_extract_gstreamer_helix (uri, preupdate, metadata, EXTRACT_MIME_VIDEO);
-}
-
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

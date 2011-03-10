@@ -90,10 +90,6 @@ typedef struct {
 	gboolean preserve_attribute_present;
 } MsOfficeXMLParserInfo;
 
-static void extract_msoffice_xml                   (const gchar          *uri,
-                                                    TrackerSparqlBuilder *preupdate,
-                                                    TrackerSparqlBuilder *metadata);
-
 static void msoffice_xml_content_parse_start       (GMarkupParseContext  *context,
                                                     const gchar          *element_name,
                                                     const gchar         **attribute_names,
@@ -158,15 +154,6 @@ static const GMarkupParser content_types_parser = {
 };
 
 static GQuark maximum_size_error_quark = 0;
-
-static TrackerExtractData data[] = {
-	/* MSoffice2007*/
-	{ "application/vnd.openxmlformats-officedocument.presentationml.presentation", extract_msoffice_xml },
-	{ "application/vnd.openxmlformats-officedocument.presentationml.slideshow",    extract_msoffice_xml },
-	{ "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",         extract_msoffice_xml },
-	{ "application/vnd.openxmlformats-officedocument.wordprocessingml.document",   extract_msoffice_xml },
-	{ NULL, NULL }
-};
 
 /* ------------------------- CONTENT files parsing -----------------------------------*/
 
@@ -719,10 +706,11 @@ msoffice_xml_get_file_type (const gchar *uri)
 	return file_type;
 }
 
-static void
-extract_msoffice_xml (const gchar          *uri,
-                      TrackerSparqlBuilder *preupdate,
-                      TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	MsOfficeXMLParserInfo info;
 	MsOfficeXMLFileType file_type;
@@ -790,10 +778,6 @@ extract_msoffice_xml (const gchar          *uri,
 	}
 
 	g_markup_parse_context_free (context);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

@@ -52,22 +52,6 @@ typedef struct {
 	const gchar *uri;
 } PlaylistMetadata;
 
-static void extract_playlist (const gchar          *uri,
-                              TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData playlist_data[] = {
-	{ "audio/x-mpegurl", extract_playlist },
-	{ "audio/mpegurl", extract_playlist },
-	{ "audio/x-scpls", extract_playlist },
-	{ "audio/x-pn-realaudio", extract_playlist },
-	{ "application/ram", extract_playlist },
-	{ "application/vnd.ms-wpl", extract_playlist },
-	{ "application/smil", extract_playlist },
-	{ "audio/x-ms-asx", extract_playlist },
-	{ NULL, NULL }
-};
-
 static void
 entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadata, gpointer user_data)
 {
@@ -108,10 +92,11 @@ entry_parsed (TotemPlParser *parser, const gchar *to_uri, GHashTable *to_metadat
 	}
 }
 
-static void
-extract_playlist (const gchar          *uri,
-                  TrackerSparqlBuilder *preupdate,
-                  TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	TotemPlParser       *pl;
 	TotemPlParserResult  result;
@@ -153,10 +138,6 @@ extract_playlist (const gchar          *uri,
 	}
 
 	g_object_unref (pl);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return playlist_data;
+	return TRUE;
 }

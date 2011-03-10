@@ -64,15 +64,6 @@ typedef struct {
 	guint64 total;
 } FlacData;
 
-static void extract_flac (const gchar          *uri,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData extract_data[] = {
-        { "audio/x-flac", extract_flac },
-        { NULL, NULL }
-};
-
 static void
 parse_vorbis_comments (FLAC__StreamMetadata_VorbisComment *comment,
                        FlacData                           *fd)
@@ -159,10 +150,11 @@ add_tuple (TrackerSparqlBuilder *metadata,
 	}
 }
 
-static void
-extract_flac (const gchar          *uri,
-              TrackerSparqlBuilder *preupdate,
-              TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+			      const gchar          *mimetype,
+			      TrackerSparqlBuilder *preupdate,
+			      TrackerSparqlBuilder *metadata)
 {
 	FLAC__Metadata_SimpleIterator *iter;
 	FLAC__StreamMetadata *stream = NULL, *vorbis, *picture;
@@ -178,7 +170,7 @@ extract_flac (const gchar          *uri,
 
 	if (size < 18) {
 		g_free (filename);
-		return;
+		return FALSE;
 	}
 
 	iter = FLAC__metadata_simple_iterator_new ();
@@ -187,7 +179,7 @@ extract_flac (const gchar          *uri,
 
 	if (!success) {
 		FLAC__metadata_simple_iterator_delete (iter);
-		return;
+		return FALSE;
 	}
 
 	while (!FLAC__metadata_simple_iterator_is_last (iter)) {
@@ -439,10 +431,6 @@ extract_flac (const gchar          *uri,
 	g_free (fd.organisation);
 	g_free (fd.location);
 	g_free (fd.publisher);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return extract_data;
+	return TRUE;
 }

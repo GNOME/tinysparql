@@ -77,15 +77,6 @@ typedef struct {
 	const gchar *country; 
 } MergeData;
 
-static void extract_jpeg (const gchar          *filename,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "image/jpeg", extract_jpeg },
-	{ NULL, NULL }
-};
-
 struct tej_error_mgr {
 	struct jpeg_error_mgr jpeg;
 	jmp_buf setjmp_buffer;
@@ -99,10 +90,11 @@ extract_jpeg_error_exit (j_common_ptr cinfo)
 	longjmp (h->setjmp_buffer, 1);
 }
 
-static void
-extract_jpeg (const gchar          *uri,
-              TrackerSparqlBuilder *preupdate,
-              TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct tej_error_mgr tejerr;
@@ -116,6 +108,7 @@ extract_jpeg (const gchar          *uri,
 	gchar *filename;
 	gchar *comment = NULL;
 	GPtrArray *keywords;
+	gboolean success = TRUE;
 	guint i;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
@@ -124,14 +117,14 @@ extract_jpeg (const gchar          *uri,
 
 	if (size < 18) {
 		g_free (filename);
-		return;
+		return FALSE;
 	}
 
 	f = tracker_file_open (filename, "rb", FALSE);
 	g_free (filename);
 
 	if (!f) {
-		return;
+		return FALSE;
 	}
 
 	tracker_sparql_builder_predicate (metadata, "a");
@@ -142,6 +135,7 @@ extract_jpeg (const gchar          *uri,
 	cinfo.err = jpeg_std_error (&tejerr.jpeg);
 	tejerr.jpeg.error_exit = extract_jpeg_error_exit;
 	if (setjmp (tejerr.setjmp_buffer)) {
+		success = FALSE;
 		goto fail;
 	}
 
@@ -630,10 +624,6 @@ extract_jpeg (const gchar          *uri,
 
 fail:
 	tracker_file_close (f, FALSE);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return success;
 }
