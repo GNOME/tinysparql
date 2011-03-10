@@ -2659,6 +2659,14 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 		gboolean multiple_values;
 		GError *new_error = NULL;
 
+		if (!check_property_domain (property)) {
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
+			             "Subject `%s' is not in domain `%s' of property `%s'",
+			             resource_buffer->subject,
+			             tracker_class_get_name (tracker_property_get_domain (property)),
+			             tracker_property_get_name (property));
+		}
+
 		multiple_values = tracker_property_get_multiple_values (property);
 
 		/* We can disable correct object-id for deletes array here */
@@ -2775,6 +2783,14 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 		}
 
 		return;
+	}
+
+	if (!check_property_domain (property)) {
+		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
+		             "Subject `%s' is not in domain `%s' of property `%s'",
+		             resource_buffer->subject,
+		             tracker_class_get_name (tracker_property_get_domain (property)),
+		             tracker_property_get_name (property));
 	}
 
 	/* add or update value to metadata database */
