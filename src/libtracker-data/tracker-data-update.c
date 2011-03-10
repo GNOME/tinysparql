@@ -2659,18 +2659,11 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 		gboolean multiple_values;
 		GError *new_error = NULL;
 
-		if (!check_property_domain (property)) {
-			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
-			             "Subject `%s' is not in domain `%s' of property `%s'",
-			             resource_buffer->subject,
-			             tracker_class_get_name (tracker_property_get_domain (property)),
-			             tracker_property_get_name (property));
-		}
-
 		multiple_values = tracker_property_get_multiple_values (property);
 
 		/* We can disable correct object-id for deletes array here */
 		if (!multiple_values) {
+			/* This does a check_property_domain too */
 			old_values = get_old_property_values (property, &new_error);
 			if (!new_error) {
 				if (old_values->n_values > 0) {
@@ -2678,8 +2671,16 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 					old_object_id = (guint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
 				}
 			} else {
-				g_warning ("%s", new_error->message);
-				g_clear_error (&new_error);
+				g_propagate_error (error, new_error);
+				return;
+			}
+		} else {
+			if (!check_property_domain (property)) {
+				g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
+				             "Subject `%s' is not in domain `%s' of property `%s'",
+				             resource_buffer->subject,
+				             tracker_class_get_name (tracker_property_get_domain (property)),
+				             tracker_property_get_name (property));
 			}
 		}
 
