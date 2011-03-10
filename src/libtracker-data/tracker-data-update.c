@@ -2654,6 +2654,27 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 
 		change = TRUE;
 	} else {
+		guint old_object_id = 0;
+		GValueArray *old_values;
+		gboolean multiple_values;
+		GError *new_error = NULL;
+
+		multiple_values = tracker_property_get_multiple_values (property);
+
+		/* We can disable correct object-id for deletes array here */
+		if (!multiple_values) {
+			old_values = get_old_property_values (property, &new_error);
+			if (!new_error) {
+				if (old_values->n_values > 0) {
+					/* evel knievel cast */
+					old_object_id = (guint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
+				}
+			} else {
+				g_warning ("%s", new_error->message);
+				g_clear_error (&new_error);
+			}
+		}
+
 		/* update or add value to metadata database */
 		change = cache_update_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
 		if (actual_error) {
@@ -2666,19 +2687,25 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (predicate);
 			object_id = query_resource_id (object);
 
-			if (insert_callbacks) {
+			if (!multiple_values && delete_callbacks) {
 				guint n;
+
 				for (n = 0; n < delete_callbacks->len; n++) {
 					TrackerStatementDelegate *delegate;
 
 					/* Don't pass object to the delete, it's not correct */
 					delegate = g_ptr_array_index (delete_callbacks, n);
 					delegate->callback (graph_id, graph, resource_buffer->id, subject,
-					                    final_prop_id, 0,
+					                    final_prop_id, old_object_id,
 					                    NULL,
 					                    resource_buffer->types,
 					                    delegate->user_data);
 				}
+			}
+
+			if (insert_callbacks) {
+				guint n;
+
 				for (n = 0; n < insert_callbacks->len; n++) {
 					TrackerStatementDelegate *delegate;
 
@@ -2711,9 +2738,9 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 {
 	GError          *actual_error = NULL;
 	TrackerProperty *property;
-	gboolean         change, tried = FALSE;
-	gint             graph_id = 0, pred_id = 0;
-
+	gboolean change, tried = FALSE;
+	gint graph_id = 0, pred_id = 0;
+	gboolean multiple_values;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2733,6 +2760,8 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 		}
 		pred_id = tracker_property_get_id (property);
 	}
+
+	multiple_values = tracker_property_get_multiple_values (property);
 
 	if (!tracker_property_get_transient (property)) {
 		has_persistent = TRUE;
@@ -2755,12 +2784,14 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 		return;
 	}
 
-	if (insert_callbacks && change) {
-		guint n;
-
+	if (((!multiple_values && delete_callbacks) || insert_callbacks) && change) {
 		graph_id = (graph != NULL ? query_resource_id (graph) : 0);
 		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (predicate);
 		tried = TRUE;
+	}
+
+	if ((!multiple_values && delete_callbacks) && change) {
+		guint n;
 
 		for (n = 0; n < delete_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
@@ -2773,7 +2804,10 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 			                    resource_buffer->types,
 			                    delegate->user_data);
 		}
+	}
 
+	if (insert_callbacks && change) {
+		guint n;
 		for (n = 0; n < insert_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
 
@@ -2798,14 +2832,14 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 
 			damaged = tracker_ontologies_get_property_by_uri (TRACKER_TRACKER_PREFIX "damaged");
 			tracker_db_journal_append_update_statement (graph_id,
-				                                        resource_buffer->id,
-				                                        tracker_property_get_id (damaged),
-				                                        "true");
+			                                            resource_buffer->id,
+			                                            tracker_property_get_id (damaged),
+			                                            "true");
 		} else {
 			tracker_db_journal_append_update_statement (graph_id,
-				                                        resource_buffer->id,
-				                                        pred_id,
-				                                        object);
+			                                            resource_buffer->id,
+			                                            pred_id,
+			                                            object);
 		}
 	}
 }
