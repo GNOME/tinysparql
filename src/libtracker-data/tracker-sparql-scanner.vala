@@ -72,6 +72,10 @@ public class Tracker.SparqlScanner : Object {
 					break;
 				}
 				break;
+			case 'O':
+			case 'o':
+				if (matches (begin, "OR")) return SparqlTokenType.OR;
+				break;
 			}
 			break;
 		case 3:
@@ -908,6 +912,7 @@ public enum Tracker.SparqlTokenType {
 	OPEN_BRACKET,
 	OPEN_PARENS,
 	OPTIONAL,
+	OR,
 	ORDER,
 	PLUS,
 	PN_PREFIX,
@@ -1001,6 +1006,7 @@ public enum Tracker.SparqlTokenType {
 		case OPEN_BRACKET: return "`['";
 		case OPEN_PARENS: return "`('";
 		case OPTIONAL: return "`OPTIONAL'";
+		case OR: return "`OR'";
 		case ORDER: return "`ORDER'";
 		case PLUS: return "`+'";
 		case PN_PREFIX: return "prefixed name";
