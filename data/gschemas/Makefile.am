@@ -1,3 +1,5 @@
+include $(top_srcdir)/Makefile.decl
+
 gsettings_ENUM_NAMESPACE = org.freedesktop.Tracker
 gsettings_ENUM_FILES = $(top_srcdir)/src/libtracker-common/tracker-enums.h
 gsettings_SCHEMAS = \
