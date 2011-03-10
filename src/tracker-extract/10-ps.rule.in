@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-ps.so
+MimeTypes=application/x-gzpostscript;application/postscript;
+

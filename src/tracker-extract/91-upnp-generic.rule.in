@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-gupnp-dlna.so
+MimeTypes=audio/*;video/*;image/*;dlna/*;
+

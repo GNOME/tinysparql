@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-gstreamer.so
+MimeTypes=video/3gpp;video/mp4;video/x-ms-asf;
+
