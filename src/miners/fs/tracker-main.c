@@ -678,7 +678,16 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_applications), do_crawling);
-	tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), do_mtime_checking);
+
+	/* If a locale change was detected, always do mtime checks */
+	if (tracker_miner_applications_detect_locale_changed (miner_applications)) {
+		if (!do_mtime_checking)
+			g_debug ("Forcing mtime check in applications miner as locale change was detected");
+		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), TRUE);
+	} else {
+		tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_applications), do_mtime_checking);
+	}
+
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
