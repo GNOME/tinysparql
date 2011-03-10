@@ -595,14 +595,13 @@ public class Tracker.Sparql.Query : Object {
 			delete_statements = false;
 			update_statements = false;
 
-			// SILENT => ignore (non-syntax) errors
-
 			if (accept (SparqlTokenType.OR)) {
 				expect (SparqlTokenType.REPLACE);
 				update_statements = true;
 			}
 
 			if (!update_statements) {
+				// SILENT => ignore (non-syntax) errors
 				silent = accept (SparqlTokenType.SILENT);
 			}
 
