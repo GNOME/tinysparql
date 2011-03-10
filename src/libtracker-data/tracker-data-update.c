@@ -2681,6 +2681,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 				             resource_buffer->subject,
 				             tracker_class_get_name (tracker_property_get_domain (property)),
 				             tracker_property_get_name (property));
+				return;
 			}
 		}
 
@@ -2792,6 +2793,7 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 		             resource_buffer->subject,
 		             tracker_class_get_name (tracker_property_get_domain (property)),
 		             tracker_property_get_name (property));
+		return;
 	}
 
 	/* add or update value to metadata database */
