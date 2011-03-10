@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """Running tests"""
 
 import sys

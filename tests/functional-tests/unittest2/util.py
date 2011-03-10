@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """Various utility functions."""
 
 def safe_repr(obj):

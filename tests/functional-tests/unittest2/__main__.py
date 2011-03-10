@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """Main entry point"""
 
 import sys
