@@ -1669,8 +1669,18 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 
 				/* update, delete all statements inserted by miner
 				 * except for rdf:type statements as they could cause implicit deletion of user data */
-				full_sparql = g_strdup_printf ("DELETE { GRAPH <%s> { <%s> ?p ?o } } "
-				                               "WHERE { GRAPH <%s> { <%s> ?p ?o FILTER (?p != rdf:type) } } %s",
+				full_sparql = g_strdup_printf ("DELETE {"
+				                               "  GRAPH <%s> {"
+				                               "    <%s> ?p ?o"
+				                               "  } "
+				                               "} "
+				                               "WHERE {"
+				                               "  GRAPH <%s> {"
+				                               "    <%s> ?p ?o"
+				                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
+				                               "  } "
+				                               "} "
+				                               "%s",
 				                               TRACKER_MINER_FS_GRAPH_URN,
 				                               ctxt->urn,
 				                               TRACKER_MINER_FS_GRAPH_URN,
