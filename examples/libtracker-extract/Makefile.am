@@ -19,3 +19,14 @@ libextract_mockup_la_LIBADD =                          \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_EXTRACT_LIBS)
 
+rules_in_files = 01-mockup.rule.in
+
+%.rule: %.rule.in
+	@sed -e "s|@modulesdir[@]|${modulesdir}|" $< > $@
+
+rulesdir = $(datadir)/tracker/extract-rules
+rules_DATA = 01-mockup.rule
+
+CLEANFILES = $(rules_DATA)
+
+EXTRA_DIST = $(rules_in_files)

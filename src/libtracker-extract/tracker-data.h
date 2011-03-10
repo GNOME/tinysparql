@@ -95,16 +95,21 @@ G_BEGIN_DECLS
  *
  */
 
-
 /**
- * TrackerExtractMimeFunc:
+ * tracker_extract_get_metadata:
  * @uri: a string representing a URI.
+ * @mimetype: mimetype for the element contained in URI
  * @preupdate: used to populate with data updates that
  *             are a prerequisite for the actual file
  *             metadata insertion.
  * @metadata: used to populate with file metadata predicate/object(s).
  *
- * Extracts metadata from a file, and inserts it into @metadata.
+ * This function must be provided by ALL extractors. This is merely
+ * the declaration of the function which must be written by each
+ * extractor. 
+ * 
+ * This is checked by tracker-extract by looking up the symbols for
+ * each started plugin and making sure this function exists.
  *
  * The @metadata parameter is a #TrackerSparqlBuilder constructed
  * through tracker_sparql_builder_new_embedded_insert(), the subject
@@ -119,65 +124,15 @@ G_BEGIN_DECLS
  * added to @preupdate, which is a #TrackerSparqlBuilder constructed.
  * through tracker_sparql_builder_new_update().
  *
- * Since: 0.8
- **/
-typedef void (*TrackerExtractMimeFunc) (const gchar          *uri,
-                                        TrackerSparqlBuilder *preupdate,
-                                        TrackerSparqlBuilder *metadata);
-
-/**
- * TrackerExtractData:
- * @mime: a string pointer representing a mime type.
- * @func: a function to extract extract the data in.
- *
- * The @mime is usually in the format of "image/png" for example.
-
- * The @func is called by tracker-extract if an extractor plugin
- * matches the @mime.
- *
- * Since: 0.8
- **/
-typedef struct {
-	const gchar *mime;
-	TrackerExtractMimeFunc func;
-} TrackerExtractData;
-
-/**
- * TrackerExtractDataFunc:
- *
- * This function is used by by tracker-extract to call into each
- * extractor to get a list of mime type and TrackerExtractMimeFunc
- * combinations.
- *
- * Returns: an array of #TrackerExtractData which must be NULL
- * terminated and must NOT be freed.
- *
- * Since: 0.6
- **/
-typedef TrackerExtractData * (*TrackerExtractDataFunc) (void);
-
-/**
- * tracker_extract_get_data:
- *
- *
- * This function must be provided by ALL extractors. This is merely
- * the declaration of the function which must be written by each
- * extractor. 
- * 
- * This is checked by tracker-extract by looking up the symbols for
- * each plugin and making sure this function exists. This is only
- * called by tracker-extract if a mime type in any of the
- * #TrackerExtractData structures returned matches the mime type of
- * the file being handled.
- *
- * Returns: a #TrackerExtractData pointer which should not be freed.
- * This pointer can be an array of #TrackerExtractData structures
- * where multiple mime types are supported.
+ * Returns: %TRUE if the extraction succeeded, %FALSE otherwise.
  *
  * Since: 0.8
  */
-TrackerExtractData *tracker_extract_get_data (void);
-
+gboolean tracker_extract_get_metadata (const gchar          *uri,
+                                       const gchar          *mimetype,
+                                       TrackerSparqlBuilder *preupdate,
+                                       TrackerSparqlBuilder *metadata);
+                                       
 G_END_DECLS
 
 #endif /* __LIBTRACKER_EXTRACT_DATA_H__ */

@@ -32,6 +32,7 @@
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
+#include <libtracker-extract/tracker-extract-module-manager.h>
 
 #include "tracker-extract.h"
 #include "tracker-main.h"
@@ -40,8 +41,6 @@
 #ifdef HAVE_LIBSTREAMANALYZER
 #include "tracker-topanalyzer.h"
 #endif /* HAVE_STREAMANALYZER */
-
-#define EXTRACT_FUNCTION "tracker_extract_get_data"
 
 #define MAX_EXTRACT_TIME 10
 
@@ -73,23 +72,22 @@ static const gchar introspection_xml[] =
 extern gboolean debug;
 
 typedef struct {
-	GArray *specific_extractors;
-	GArray *generic_extractors;
+	gint extracted_count;
+	gint failed_count;
+} StatisticsData;
+
+typedef struct {
+	GHashTable *statistics_data;
+
 	gboolean disable_shutdown;
 	gboolean force_internal_extractors;
 	gboolean disable_summary_on_finalize;
 	GDBusConnection *d_connection;
 	GDBusNodeInfo *introspection_data;
 	guint registration_id;
-} TrackerExtractPrivate;
 
-typedef struct {
-	const GModule *module;
-	const TrackerExtractData *edata;
-	GPatternSpec *pattern; /* For a fast g_pattern_match() */
-	gint extracted_count;
-	gint failed_count;
-} ModuleData;
+	gint unhandled_count;
+} TrackerExtractPrivate;
 
 static void tracker_extract_finalize (GObject *object);
 static void report_statistics        (GObject *object);
@@ -111,16 +109,20 @@ tracker_extract_class_init (TrackerExtractClass *klass)
 static void
 tracker_extract_init (TrackerExtract *object)
 {
+	TrackerExtractPrivate *priv;
+
 #ifdef HAVE_LIBSTREAMANALYZER
 	tracker_topanalyzer_init ();
 #endif /* HAVE_STREAMANALYZER */
+
+	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
+	priv->statistics_data = g_hash_table_new (NULL, NULL);
 }
 
 static void
 tracker_extract_finalize (GObject *object)
 {
 	TrackerExtractPrivate *priv;
-	gint i;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
@@ -132,21 +134,7 @@ tracker_extract_finalize (GObject *object)
 	tracker_topanalyzer_shutdown ();
 #endif /* HAVE_STREAMANALYZER */
 
-	for (i = 0; i < priv->specific_extractors->len; i++) {
-		ModuleData *mdata;
-
-		mdata = &g_array_index (priv->specific_extractors, ModuleData, i);
-		g_pattern_spec_free (mdata->pattern);
-	}
-	g_array_free (priv->specific_extractors, TRUE);
-
-	for (i = 0; i < priv->generic_extractors->len; i++) {
-		ModuleData *mdata;
-
-		mdata = &g_array_index (priv->generic_extractors, ModuleData, i);
-		g_pattern_spec_free (mdata->pattern);
-	}
-	g_array_free (priv->generic_extractors, TRUE);
+	g_hash_table_destroy (priv->statistics_data);
 
 	G_OBJECT_CLASS (tracker_extract_parent_class)->finalize (object);
 }
@@ -155,205 +143,41 @@ static void
 report_statistics (GObject *object)
 {
 	TrackerExtractPrivate *priv;
-	GHashTable *reported = NULL;
-	gint i;
+	GHashTableIter iter;
+	gpointer key, value;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
 
 	g_message ("--------------------------------------------------");
 	g_message ("Statistics:");
-	g_message ("  Specific Extractors:");
 
-	reported = g_hash_table_new (g_direct_hash, g_direct_equal);
+	g_hash_table_iter_init (&iter, priv->statistics_data);
 
-	for (i = 0; i < priv->specific_extractors->len; i++) {
-		ModuleData *mdata;
-		const gchar *name;
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		GModule *module = key;
+		StatisticsData *data = value;
 
-		mdata = &g_array_index (priv->specific_extractors, ModuleData, i);
-		name = g_module_name ((GModule*) mdata->module);
+		if (data->extracted_count > 0 || data->failed_count > 0) {
+			const gchar *name, *name_without_path;
 
-		if ((mdata->extracted_count > 0 || mdata->failed_count > 0) &&
-		    !g_hash_table_lookup (reported, name)) {
-			const gchar *name_without_path;
-
+			name = g_module_name (module);
 			name_without_path = strrchr (name, G_DIR_SEPARATOR) + 1;
 
 			g_message ("    Module:'%s', extracted:%d, failures:%d",
 			           name_without_path,
-			           mdata->extracted_count,
-			           mdata->failed_count);
-			g_hash_table_insert (reported, (gpointer) name, GINT_TO_POINTER(1));
+			           data->extracted_count,
+			           data->failed_count);
 		}
 	}
 
-	if (g_hash_table_size (reported) < 1) {
-		g_message ("    No files handled");
-	}
+	g_message ("Unhandled files: %d", priv->unhandled_count);
 
-	g_hash_table_remove_all (reported);
-
-	g_message ("  Generic Extractors:");
-
-	for (i = 0; i < priv->generic_extractors->len; i++) {
-		ModuleData *mdata;
-		const gchar *name;
-
-		mdata = &g_array_index (priv->generic_extractors, ModuleData, i);
-		name = g_module_name ((GModule*) mdata->module);
-
-		if ((mdata->extracted_count > 0 || mdata->failed_count > 0) &&
-		    !g_hash_table_lookup (reported, name)) {
-			const gchar *name_without_path;
-
-			name_without_path = strrchr (name, G_DIR_SEPARATOR) + 1;
-
-			g_message ("    Module:'%s', extracted:%d, failed:%d",
-			           name_without_path,
-			           mdata->extracted_count,
-			           mdata->failed_count);
-			g_hash_table_insert (reported, (gpointer) name, GINT_TO_POINTER(1));
-		}
-	}
-
-	if (g_hash_table_size (reported) < 1) {
+	if (priv->unhandled_count == 0 &&
+	    g_hash_table_size (priv->statistics_data) < 1) {
 		g_message ("    No files handled");
 	}
 
 	g_message ("--------------------------------------------------");
-
-	g_hash_table_unref (reported);
-}
-
-static gboolean
-load_modules (const gchar  *force_module,
-              GArray      **specific_extractors,
-              GArray      **generic_extractors)
-{
-	GDir *dir;
-	GError *error = NULL;
-	const gchar *name;
-	gchar *force_module_checked;
-	gboolean success;
-	const gchar *extractors_dir;
-
-	extractors_dir = g_getenv ("TRACKER_EXTRACTORS_DIR");
-	if (G_LIKELY (extractors_dir == NULL)) {
-		extractors_dir = TRACKER_EXTRACTORS_DIR;
-	} else {
-		g_message ("Extractor modules directory is '%s' (set in env)", extractors_dir);
-	}
-
-	dir = g_dir_open (extractors_dir, 0, &error);
-
-	if (!dir) {
-		g_error ("Error opening modules directory: %s", error->message);
-		g_error_free (error);
-		return FALSE;
-	}
-
-	if (G_UNLIKELY (force_module)) {
-		if (!g_str_has_suffix (force_module, "." G_MODULE_SUFFIX)) {
-			force_module_checked = g_strdup_printf ("%s.%s",
-			                                        force_module,
-			                                        G_MODULE_SUFFIX);
-		} else {
-			force_module_checked = g_strdup (force_module);
-		}
-	} else {
-		force_module_checked = NULL;
-	}
-
-	*specific_extractors = g_array_new (FALSE,
-	                                    TRUE,
-	                                    sizeof (ModuleData));
-
-	*generic_extractors = g_array_new (FALSE,
-	                                   TRUE,
-	                                   sizeof (ModuleData));
-
-#ifdef HAVE_LIBSTREAMANALYZER
-	if (!force_internal_extractors) {
-		g_message ("Adding extractor for libstreamanalyzer");
-		g_message ("  Generic  match for ALL (tried first before our module)");
-		g_message ("  Specific match for NONE (fallback to our modules)");
-	} else {
-		g_message ("Not using libstreamanalyzer");
-		g_message ("  It is available but disabled by command line");
-	}
-#endif /* HAVE_STREAMANALYZER */
-
-	while ((name = g_dir_read_name (dir)) != NULL) {
-		TrackerExtractDataFunc func;
-		GModule *module;
-		gchar *module_path;
-
-		if (!g_str_has_suffix (name, "." G_MODULE_SUFFIX)) {
-			continue;
-		}
-
-		if (force_module_checked && strcmp (name, force_module_checked) != 0) {
-			continue;
-		}
-
-		module_path = g_build_filename (extractors_dir, name, NULL);
-
-		module = g_module_open (module_path, G_MODULE_BIND_LOCAL);
-
-		if (!module) {
-			g_warning ("Could not load module '%s': %s",
-			           name,
-			           g_module_error ());
-			g_free (module_path);
-			continue;
-		}
-
-		g_module_make_resident (module);
-
-		if (g_module_symbol (module, EXTRACT_FUNCTION, (gpointer *) &func)) {
-			ModuleData mdata = { 0 };
-
-			mdata.module = module;
-			mdata.edata = (func) ();
-
-			g_message ("Adding extractor:'%s' with:",
-			           g_module_name ((GModule*) mdata.module));
-
-			for (; mdata.edata->mime; mdata.edata++) {
-				/* Compile pattern from mime */
-				mdata.pattern = g_pattern_spec_new (mdata.edata->mime);
-
-				if (G_UNLIKELY (strchr (mdata.edata->mime, '*') != NULL)) {
-					g_message ("  Generic  match for mime:'%s'",
-					           mdata.edata->mime);
-					g_array_append_val (*generic_extractors, mdata);
-				} else {
-					g_message ("  Specific match for mime:'%s'",
-					           mdata.edata->mime);
-					g_array_append_val (*specific_extractors, mdata);
-				}
-			}
-		} else {
-			g_warning ("Could not load module '%s': Function %s() was not found, is it exported?",
-			           name, EXTRACT_FUNCTION);
-		}
-
-		g_free (module_path);
-	}
-
-	if (G_UNLIKELY (force_module) &&
-	    (!*specific_extractors || (*specific_extractors)->len < 1) &&
-	    (!*generic_extractors || (*generic_extractors)->len < 1)) {
-		g_warning ("Could not force module '%s', it was not found", force_module_checked);
-		success = FALSE;
-	} else {
-		success = TRUE;
-	}
-
-	g_free (force_module_checked);
-	g_dir_close (dir);
-
-	return success;
 }
 
 TrackerExtract *
@@ -363,15 +187,8 @@ tracker_extract_new (gboolean     disable_shutdown,
 {
 	TrackerExtract *object;
 	TrackerExtractPrivate *priv;
-	GArray *specific_extractors;
-	GArray *generic_extractors;
 
-	if (!g_module_supported ()) {
-		g_error ("Modules are not supported for this platform");
-		return NULL;
-	}
-
-	if (!load_modules (force_module, &specific_extractors, &generic_extractors)) {
+	if (!tracker_extract_module_manager_init ()) {
 		return NULL;
 	}
 
@@ -382,9 +199,6 @@ tracker_extract_new (gboolean     disable_shutdown,
 
 	priv->disable_shutdown = disable_shutdown;
 	priv->force_internal_extractors = force_internal_extractors;
-
-	priv->specific_extractors = specific_extractors;
-	priv->generic_extractors = generic_extractors;
 
 	return object;
 }
@@ -499,106 +313,50 @@ get_file_metadata (TrackerExtract         *extract,
 	 * data we need from the extractors.
 	 */
 	if (mime_used) {
-		guint i;
-		glong length;
-		gchar *reversed;
+		TrackerExtractMetadataFunc func;
+		GModule *module;
 
-		/* Using a reversed string while pattern matching is faster
-		 * if we have lots of patterns with wildcards.
-		 * We are assuming here that mime_used is ASCII always, so
-		 * we avoid g_utf8_strreverse() */
-		reversed = g_strdup (mime_used);
-		g_strreverse (reversed);
-		length = strlen (mime_used);
+		module = tracker_extract_module_manager_get_for_mimetype (mime_used, &func);
 
-		for (i = 0; i < priv->specific_extractors->len; i++) {
-			const TrackerExtractData *edata;
-			ModuleData *mdata;
+		if (module) {
+			StatisticsData *data;
+			gint items;
 
-			mdata = &g_array_index (priv->specific_extractors, ModuleData, i);
-			edata = mdata->edata;
+			(func) (uri, mime_used, preupdate, statements);
 
-			if (g_pattern_match (mdata->pattern, length, mime_used, reversed)) {
-				gint items;
+			items = tracker_sparql_builder_get_length (statements);
 
-				tracker_dbus_request_comment (request,
-				                              "  Extracting with module:'%s'",
-				                              g_module_name ((GModule*) mdata->module));
+			tracker_dbus_request_comment (request,
+			                              "  Found %d metadata items",
+			                              items);
 
-				(*edata->func) (uri, preupdate, statements);
+			data = g_hash_table_lookup (priv->statistics_data, module);
 
-				items = tracker_sparql_builder_get_length (statements);
-
-				tracker_dbus_request_comment (request,
-				                              "  Found %d metadata items",
-				                              items);
-
-				mdata->extracted_count++;
-
-				if (items == 0) {
-					mdata->failed_count++;
-					continue;
-				}
-
-				tracker_sparql_builder_insert_close (statements);
-
-				g_free (mime_used);
-				g_free (reversed);
-
-				*preupdate_out = preupdate;
-				*statements_out = statements;
-				return TRUE;
+			if (!data) {
+				data = g_slice_new0 (StatisticsData);
+				g_hash_table_insert (priv->statistics_data, module, data);
 			}
-		}
 
-		for (i = 0; i < priv->generic_extractors->len; i++) {
-			const TrackerExtractData *edata;
-			ModuleData *mdata;
+			data->extracted_count++;
 
-			mdata = &g_array_index (priv->generic_extractors, ModuleData, i);
-			edata = mdata->edata;
-
-			if (g_pattern_match (mdata->pattern, length, mime_used, reversed)) {
-				gint items;
-
-				tracker_dbus_request_comment (request,
-				                              "  Extracting with module:'%s'",
-				                              g_module_name ((GModule*) mdata->module));
-
-				(*edata->func) (uri, preupdate, statements);
-
-				items = tracker_sparql_builder_get_length (statements);
-
-				tracker_dbus_request_comment (request,
-				                              "  Found %d metadata items",
-				                              items);
-
-				mdata->extracted_count++;
-
-				if (items == 0) {
-					mdata->failed_count++;
-					continue;
-				}
-
+			if (items > 0) {
 				tracker_sparql_builder_insert_close (statements);
-
-				g_free (mime_used);
-				g_free (reversed);
 
 				*preupdate_out = preupdate;
 				*statements_out = statements;
 
 				return TRUE;
+			} else {
+				data->failed_count++;
 			}
+		} else {
+			priv->unhandled_count++;
 		}
 
 		tracker_dbus_request_comment (request,
 		                              "  Could not find any extractors to handle metadata type "
 		                              "(mime: %s)",
 		                              mime_used);
-
-		g_free (mime_used);
-		g_free (reversed);
 	} else {
 		tracker_dbus_request_comment (request,
 		                              "  No mime available, not extracting data");
