@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """TestSuite"""
 
 import sys

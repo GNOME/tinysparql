@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """Test case implementation"""
 
 import sys

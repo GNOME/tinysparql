@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """Unittest main program"""
 
 import sys
