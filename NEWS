@@ -1,3 +1,26 @@
+NEW in 0.10.2 - 2011-03-10
+==========================
+
+The changes are:
+
+  * Fixes: NB#232574, nie:ContentCreated is updated when the mtime of a file changes
+  * Fixes: NB#235118, Not able to find applications when language is changed
+  * Fixes: NB#229713, Chinese strings not detected from mp3 downloaded track
+  * Ontology: Added nfo:Note for applications like Tomboy
+  * functional-tests: Force English locale for tests
+  * libtracker-miner: Improve bulk operation speed like deleting (~116s vs ~172s for ~2.6k files on desktop)
+  * tracker-preferences: Enable gettext translations
+  * tracker-search-bar: Fixed build error since API change in libpanel-applet
+
+Translations:
+
+  * Updated pl: Piotr Drąg
+
+Notes:
+
+  None
+
+
 NEW in 0.10.1 - 2011-03-03
 ==========================
 
