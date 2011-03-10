@@ -42,9 +42,9 @@ struct _TrackerMinerApplicationsClass {
 	TrackerMinerFSClass parent_class;
 };
 
-GType          tracker_miner_applications_get_type (void) G_GNUC_CONST;
-
-TrackerMiner * tracker_miner_applications_new (GError **error);
+GType         tracker_miner_applications_get_type              (void) G_GNUC_CONST;
+TrackerMiner *tracker_miner_applications_new                   (GError       **error);
+gboolean      tracker_miner_applications_detect_locale_changed (TrackerMiner  *miner);
 
 G_END_DECLS
 

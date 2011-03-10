@@ -869,26 +869,28 @@ miner_applications_reset (TrackerMiner *miner)
 	g_object_unref (sparql);
 }
 
-TrackerMiner *
-tracker_miner_applications_new (GError **error)
+gboolean
+tracker_miner_applications_detect_locale_changed (TrackerMiner *miner)
 {
-	TrackerMiner *miner;
+	gboolean changed;
 
-	miner = g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
-	                        NULL,
-	                        error,
-	                        "name", "Applications",
-	                        "processing-pool-wait-limit", 10,
-	                        "processing-pool-ready-limit", 100,
-	                        NULL);
-	if (miner &&
-	    tracker_miner_applications_locale_changed ()) {
-		/* Before returning the newly created miner, check if we need
-		 * to reset it */
+	changed = tracker_miner_applications_locale_changed ();
+	if (changed) {
 		g_message ("Locale change detected, so resetting miner to "
 		           "remove all previously created items...");
 		miner_applications_reset (miner);
 	}
+	return changed;
+}
 
-	return miner;
+TrackerMiner *
+tracker_miner_applications_new (GError **error)
+{
+	return g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
+	                       NULL,
+	                       error,
+	                       "name", "Applications",
+	                       "processing-pool-wait-limit", 10,
+	                       "processing-pool-ready-limit", 100,
+	                       NULL);
 }
