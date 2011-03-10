@@ -449,7 +449,6 @@ public class Tracker.Sparql.Query : Object {
 			case SparqlTokenType.WITH:
 			case SparqlTokenType.INSERT:
 			case SparqlTokenType.DELETE:
-			case SparqlTokenType.REPLACE:
 				if (blank) {
 					ublank_nodes.open ((VariantType) "aa{ss}");
 					execute_insert_or_delete (ublank_nodes);
@@ -597,16 +596,15 @@ public class Tracker.Sparql.Query : Object {
 			update_statements = false;
 
 			// SILENT => ignore (non-syntax) errors
-			silent = accept (SparqlTokenType.SILENT);
 
-			if (current_graph == null && accept (SparqlTokenType.INTO)) {
-				parse_from_or_into_param ();
+			if (accept (SparqlTokenType.OR)) {
+				expect (SparqlTokenType.REPLACE);
+				update_statements = true;
 			}
-		} else if (accept (SparqlTokenType.REPLACE)) {
-			delete_statements = false;
-			update_statements = true;
 
-			/* REPLACE is currently not part of any SPARQL spec */
+			if (!update_statements) {
+				silent = accept (SparqlTokenType.SILENT);
+			}
 
 			if (current_graph == null && accept (SparqlTokenType.INTO)) {
 				parse_from_or_into_param ();
