@@ -2658,31 +2658,49 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 		GValueArray *old_values;
 		gboolean multiple_values;
 		GError *new_error = NULL;
+		gboolean domain_unchecked = TRUE;
 
 		multiple_values = tracker_property_get_multiple_values (property);
 
 		/* We can disable correct object-id for deletes array here */
 		if (!multiple_values) {
-			/* This does a check_property_domain too */
-			old_values = get_old_property_values (property, &new_error);
-			if (!new_error) {
-				if (old_values->n_values > 0) {
-					/* evel knievel cast */
-					old_object_id = (guint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
+			guint r;
+
+			for (r = 0; r < resource_buffer->types->len; r++) {
+				TrackerClass *m_class = g_ptr_array_index (resource_buffer->types, r);
+
+				/* We only do the old_values for GraphUpdated in tracker-store.
+				 * The subject's known classes are in resource_buffer->types
+				 * since resource_buffer_switch, so we can quickly check if any
+				 * of them has tracker:notify annotated. If so, get the old
+				 * values for the old_object_id */
+
+				if (tracker_class_get_notify (m_class)) {
+					/* This does a check_property_domain too */
+					old_values = get_old_property_values (property, &new_error);
+					domain_unchecked = FALSE;
+					if (!new_error) {
+						if (old_values->n_values > 0) {
+							/* evel knievel cast */
+							old_object_id = (guint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
+						}
+					} else {
+						g_propagate_error (error, new_error);
+						return;
+					}
+
+					break;
 				}
-			} else {
-				g_propagate_error (error, new_error);
-				return;
 			}
-		} else {
-			if (!check_property_domain (property)) {
-				g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
-				             "Subject `%s' is not in domain `%s' of property `%s'",
-				             resource_buffer->subject,
-				             tracker_class_get_name (tracker_property_get_domain (property)),
-				             tracker_property_get_name (property));
-				return;
-			}
+		}
+
+		if (domain_unchecked && !check_property_domain (property)) {
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
+			             "Subject `%s' is not in domain `%s' of property `%s'",
+			             resource_buffer->subject,
+			             tracker_class_get_name (tracker_property_get_domain (property)),
+			             tracker_property_get_name (property));
+			return;
 		}
 
 		/* update or add value to metadata database */
