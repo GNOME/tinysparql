@@ -368,7 +368,7 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 
 	child = sqlite3_value_text (argv[argc-1]);
 
-	for (i = 0; i < argc - 1 && match; i++) {
+	for (i = 0; i < argc - 1 && !match; i++) {
 		if (sqlite3_value_type (argv[i]) == SQLITE_TEXT) {
 			const gchar *parent = sqlite3_value_text (argv[i]);
 			guint parent_len = sqlite3_value_bytes (argv[i]);
