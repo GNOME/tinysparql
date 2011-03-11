@@ -235,7 +235,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 
 	def test_insert_05(self):
                 """
-                Insert or replace, single valued properties multiple times.
+                Insert or replace, single & multi valued properties multiple times.
                 """
                 for i in range (0, 3):
                         # Insert the same single valued properties of music file.
@@ -264,7 +264,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 """)
 
                 for i in range (0, 3):
-                        # Insert the same single valued properties of music file.
+                        # Insert the same single valued properties and insert multi valued properties at the same time
                         self.tracker.update("""
                         INSERT OR REPLACE {
                            <test://instance-2> a nie:InformationElement;
