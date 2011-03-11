@@ -1,3 +1,20 @@
+NEW in 0.10.3 - 2011-03-11
+==========================
+
+The changes are:
+
+  * Fixes: GB#644484, miner-fs not removing files from the store
+  * Fixes: GB#642868, Slight differences with results depending on libtracker-sparql backend
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.2 - 2011-03-10
 ==========================
 
