@@ -235,7 +235,7 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 
 	def test_insert_05(self):
                 """
-                Insert or replace, single & multi valued properties multiple times.
+                Insert or replace, single valued properties multiple times.
                 """
                 for i in range (0, 3):
                         # Insert the same single valued properties of music file.
@@ -263,6 +263,10 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 DELETE { <test://instance-1> a rdfs:Resource. }
                 """)
 
+	def test_insert_06(self):
+                """
+                Insert or replace, single and multi valued properties multiple times.
+                """
                 for i in range (0, 3):
                         # Insert the same single valued properties and insert multi valued properties at the same time
                         self.tracker.update("""
@@ -294,7 +298,36 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 DELETE { <test://instance-2> a rdfs:Resource. }
                 """)
 
+	def test_insert_07(self):
+                """
+                Insert or replace, single and multi valued properties with domain errors.
+                """
 
+                try:
+                  INSERT_SPARQL = """INSERT OR REPLACE { <test://instance-3> nie:title 'test' }"""
+                  self.tracker.update (INSERT_SPARQL)
+                except:
+                  pass
+
+                INSERT_SPARQL = """INSERT OR REPLACE { <test://instance-4> a nie:DataSource }"""
+                self.tracker.update (INSERT_SPARQL)
+
+                try:
+                  INSERT_SPARQL = """INSERT OR REPLACE { <test://instance-5> nie:rootElementOf <test://instance-4> }"""
+                  self.tracker.update (INSERT_SPARQL)
+                except:
+                  pass
+
+                INSERT_SPARQL = """INSERT OR REPLACE { <test://instance-5> a nie:InformationElement ; nie:rootElementOf <test://instance-4> }"""
+                self.tracker.update (INSERT_SPARQL)
+
+                self.tracker.update ("""
+                DELETE { <test://instance-4> a rdfs:Resource. }
+                """)
+
+                self.tracker.update ("""
+                DELETE { <test://instance-5> a rdfs:Resource. }
+                """)
 
         def __insert_valid_date_test (self, datestring, year, month, day, hours, minutes, seconds, timezone):
                 """
