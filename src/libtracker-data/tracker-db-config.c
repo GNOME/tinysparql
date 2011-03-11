@@ -32,27 +32,12 @@
 
 #include "tracker-db-config.h"
 
-#define TRACKER_DB_CONFIG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_DB_CONFIG, TrackerDBConfigPrivate))
-
 /* GKeyFile defines */
 #define GROUP_JOURNAL     "Journal"
 
 /* Default values */
 #define DEFAULT_JOURNAL_CHUNK_SIZE           50
 #define DEFAULT_JOURNAL_ROTATE_DESTINATION   ""
-
-typedef struct {
-	/* Journal */
-	gint journal_chunk_size;
-	gchar *journal_rotate_destination;
-}  TrackerDBConfigPrivate;
-
-typedef struct {
-	GType  type;
-	const gchar *property;
-	const gchar *group;
-	const gchar *key;
-} ObjectToKeyFile;
 
 static void config_set_property         (GObject       *object,
                                          guint          param_id,
@@ -64,10 +49,6 @@ static void config_get_property         (GObject       *object,
                                          GParamSpec    *pspec);
 static void config_finalize             (GObject       *object);
 static void config_constructed          (GObject       *object);
-static void config_create_with_defaults (TrackerDBConfig *config,
-                                         GKeyFile      *key_file,
-                                         gboolean       overwrite);
-static void config_load                 (TrackerDBConfig *config);
 
 enum {
 	PROP_0,
@@ -77,12 +58,12 @@ enum {
 	PROP_JOURNAL_ROTATE_DESTINATION
 };
 
-static ObjectToKeyFile conversions[] = {
-	{ G_TYPE_INT,     "journal-chunk-size",         GROUP_JOURNAL,  "JournalChunkSize"         },
-	{ G_TYPE_STRING,  "journal-rotate-destination", GROUP_JOURNAL,  "JournalRotateDestination" },
+static TrackerConfigMigrationEntry migration[] = {
+        { G_TYPE_INT, GROUP_JOURNAL, "JournalChunkSize", "journal-chunk-size" },
+        { G_TYPE_STRING, GROUP_JOURNAL, "JournalRotateDestination", "journal-rotate-destination" },
 };
 
-G_DEFINE_TYPE (TrackerDBConfig, tracker_db_config, TRACKER_TYPE_CONFIG_FILE);
+G_DEFINE_TYPE (TrackerDBConfig, tracker_db_config, G_TYPE_SETTINGS);
 
 static void
 tracker_db_config_class_init (TrackerDBConfigClass *klass)
@@ -102,7 +83,7 @@ tracker_db_config_class_init (TrackerDBConfigClass *klass)
 	                                                   -1,
 	                                                   G_MAXINT,
 	                                                   DEFAULT_JOURNAL_CHUNK_SIZE,
-	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                   G_PARAM_READWRITE));
 
 	g_object_class_install_property (object_class,
 	                                 PROP_JOURNAL_ROTATE_DESTINATION,
@@ -110,9 +91,8 @@ tracker_db_config_class_init (TrackerDBConfigClass *klass)
 	                                                      "Journal rotate destination",
 	                                                      " Destination to rotate journal chunks to",
 	                                                      DEFAULT_JOURNAL_ROTATE_DESTINATION,
-	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                      G_PARAM_READWRITE));
 
-	g_type_class_add_private (object_class, sizeof (TrackerDBConfigPrivate));
 }
 
 static void
@@ -148,16 +128,14 @@ config_get_property (GObject    *object,
                      GValue     *value,
                      GParamSpec *pspec)
 {
-	TrackerDBConfigPrivate *priv;
-
-	priv = TRACKER_DB_CONFIG_GET_PRIVATE (object);
+	TrackerDBConfig *config = TRACKER_DB_CONFIG (object);
 
 	switch (param_id) {
 	case PROP_JOURNAL_CHUNK_SIZE:
-		g_value_set_int (value, priv->journal_chunk_size);
+		g_value_set_int (value, tracker_db_config_get_journal_chunk_size (config));
 		break;
 	case PROP_JOURNAL_ROTATE_DESTINATION:
-		g_value_set_string (value, priv->journal_rotate_destination);
+		g_value_set_string (value, tracker_db_config_get_journal_rotate_destination (config));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -168,218 +146,69 @@ config_get_property (GObject    *object,
 static void
 config_finalize (GObject *object)
 {
-	TrackerDBConfigPrivate *priv;
-
-	priv = TRACKER_DB_CONFIG_GET_PRIVATE (object);
-
-	g_free (priv->journal_rotate_destination);
-
 	(G_OBJECT_CLASS (tracker_db_config_parent_class)->finalize) (object);
 }
+
 
 static void
 config_constructed (GObject *object)
 {
+        TrackerConfigFile *config_file;
+
 	(G_OBJECT_CLASS (tracker_db_config_parent_class)->constructed) (object);
 
-	config_load (TRACKER_DB_CONFIG (object));
-}
+        g_settings_delay (G_SETTINGS (object));
 
-static void
-config_create_with_defaults (TrackerDBConfig *config,
-                             GKeyFile      *key_file,
-                             gboolean       overwrite)
-{
-	gint i;
-
-	g_message ("Loading defaults into GKeyFile...");
-
-	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
-		gboolean has_key;
-
-		has_key = g_key_file_has_key (key_file,
-		                              conversions[i].group,
-		                              conversions[i].key,
-		                              NULL);
-		if (!overwrite && has_key) {
-			continue;
-		}
-
-		switch (conversions[i].type) {
-		case G_TYPE_INT:
-			g_key_file_set_integer (key_file,
-			                        conversions[i].group,
-			                        conversions[i].key,
-			                        tracker_keyfile_object_default_int (config,
-			                                                            conversions[i].property));
-			break;
-
-		case G_TYPE_STRING:
-			g_key_file_set_string (key_file,
-			                       conversions[i].group,
-			                       conversions[i].key,
-			                       tracker_keyfile_object_default_string (config,
-			                                                              conversions[i].property));
-			break;
-
-		default:
-			g_assert_not_reached ();
-			break;
-		}
-
-		g_key_file_set_comment (key_file,
-		                        conversions[i].group,
-		                        conversions[i].key,
-		                        tracker_keyfile_object_blurb (config,
-		                                                      conversions[i].property),
-		                        NULL);
-	}
-}
-
-static void
-config_load (TrackerDBConfig *config)
-{
-	TrackerConfigFile *file;
-	gint i;
-
-	file = TRACKER_CONFIG_FILE (config);
-	config_create_with_defaults (config, file->key_file, FALSE);
-
-	if (!file->file_exists) {
-		tracker_config_file_save (file);
-	}
-
-	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
-		gboolean has_key;
-
-		has_key = g_key_file_has_key (file->key_file,
-		                              conversions[i].group,
-		                              conversions[i].key,
-		                              NULL);
-
-		switch (conversions[i].type) {
-		case G_TYPE_INT:
-			tracker_keyfile_object_load_int (G_OBJECT (file),
-			                                 conversions[i].property,
-			                                 file->key_file,
-			                                 conversions[i].group,
-			                                 conversions[i].key);
-			break;
-
-		case G_TYPE_STRING:
-			tracker_keyfile_object_load_string (G_OBJECT (file),
-			                                    conversions[i].property,
-			                                    file->key_file,
-			                                    conversions[i].group,
-			                                    conversions[i].key);
-			break;
-
-		default:
-			g_assert_not_reached ();
-			break;
-		}
-	}
-}
-
-static gboolean
-config_save (TrackerDBConfig *config)
-{
-	TrackerConfigFile *file;
-	gint i;
-
-	file = TRACKER_CONFIG_FILE (config);
-
-	if (!file->key_file) {
-		g_critical ("Could not save config, GKeyFile was NULL, has the config been loaded?");
-
-		return FALSE;
-	}
-
-	g_message ("Setting details to GKeyFile object...");
-
-	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
-		switch (conversions[i].type) {
-		case G_TYPE_INT:
-			tracker_keyfile_object_save_int (file,
-			                                 conversions[i].property,
-			                                 file->key_file,
-			                                 conversions[i].group,
-			                                 conversions[i].key);
-			break;
-
-		case G_TYPE_STRING:
-			tracker_keyfile_object_save_string (file,
-			                                    conversions[i].property,
-			                                    file->key_file,
-			                                    conversions[i].group,
-			                                    conversions[i].key);
-			break;
-
-		default:
-			g_assert_not_reached ();
-			break;
-		}
-	}
-
-	return tracker_config_file_save (TRACKER_CONFIG_FILE (config));
+        /* Migrate keyfile-based configuration */
+        config_file = tracker_config_file_new ();
+        if (config_file) {
+                tracker_config_file_migrate (config_file,
+                                             G_SETTINGS (object), migration);
+                g_object_unref (config_file);
+        }
 }
 
 TrackerDBConfig *
 tracker_db_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_DB_CONFIG,
-	                     "domain", "tracker-db",
+                             "schema", "org.freedesktop.Tracker.Store.DB",
+	                     "path", "/org/freedesktop/tracker/store/db/",
 	                     NULL);
 }
 
 gboolean
 tracker_db_config_save (TrackerDBConfig *config)
 {
-	g_return_val_if_fail (TRACKER_IS_DB_CONFIG (config), FALSE);
-
-	return config_save (config);
+        g_settings_apply (G_SETTINGS (config));
+        //FIXME: make this function return void?
+        return TRUE;
 }
 
 
 gint
 tracker_db_config_get_journal_chunk_size (TrackerDBConfig *config)
 {
-	TrackerDBConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_DB_CONFIG (config), DEFAULT_JOURNAL_CHUNK_SIZE);
 
-	priv = TRACKER_DB_CONFIG_GET_PRIVATE (config);
-
-	return priv->journal_chunk_size;
+	return g_settings_get_int (G_SETTINGS (config), "journal-chunk-size");
 }
 
 const gchar *
 tracker_db_config_get_journal_rotate_destination (TrackerDBConfig *config)
 {
-	TrackerDBConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_DB_CONFIG (config), DEFAULT_JOURNAL_ROTATE_DESTINATION);
 
-	priv = TRACKER_DB_CONFIG_GET_PRIVATE (config);
-
-	return priv->journal_rotate_destination;
+	return g_settings_get_string (G_SETTINGS (config), "journal-rotate-destination");
 }
 
 void
 tracker_db_config_set_journal_chunk_size (TrackerDBConfig *config,
                                           gint             value)
 {
-	TrackerDBConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_DB_CONFIG (config));
 
-	if (!tracker_keyfile_object_validate_int (config, "journal-chunk-size", value)) {
-		return;
-	}
-
-	priv = TRACKER_DB_CONFIG_GET_PRIVATE (config);
-
-	priv->journal_chunk_size = value;
+        g_settings_set_int (G_SETTINGS (config), "journal-chunk-size", value);
 	g_object_notify (G_OBJECT (config), "journal-chunk-size");
 }
 
@@ -387,14 +216,8 @@ void
 tracker_db_config_set_journal_rotate_destination (TrackerDBConfig *config,
                                                   const gchar     *value)
 {
-	TrackerDBConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_DB_CONFIG (config));
 
-	priv = TRACKER_DB_CONFIG_GET_PRIVATE (config);
-
-	g_free (priv->journal_rotate_destination);
-	priv->journal_rotate_destination = g_strdup (value);
-
+        g_settings_set_string (G_SETTINGS (config), "journal-rotate-destination", g_strdup (value));
 	g_object_notify (G_OBJECT (config), "journal-rotate-destination");
 }

@@ -40,15 +40,15 @@ G_BEGIN_DECLS
 #define TRACKER_IS_DB_CONFIG_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_DB_CONFIG))
 #define TRACKER_DB_CONFIG_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_DB_CONFIG, TrackerDBConfigClass))
 
-typedef struct TrackerDBConfig              TrackerDBConfig;
+typedef struct TrackerDBConfig      TrackerDBConfig;
 typedef struct TrackerDBConfigClass TrackerDBConfigClass;
 
 struct TrackerDBConfig {
-	TrackerConfigFile parent;
+        GSettings parent;
 };
 
 struct TrackerDBConfigClass {
-	TrackerConfigFileClass parent_class;
+	GSettingsClass parent_class;
 };
 
 GType            tracker_db_config_get_type                       (void) G_GNUC_CONST;

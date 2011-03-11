@@ -18,12 +18,16 @@ Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA  02110-1301, USA.
 -->
 <schemalist>
-  <schema id="org.freedesktop.Tracker.Store" path="/org/freedesktop/tracker/store/" gettext-domain="tracker">
-    <child name="db" schema="org.freedesktop.Tracker.Store.DB"/>
-    <key name="verbosity" enum="org.freedesktop.Tracker.TrackerVerbosity">
-      <default>'errors'</default>
-      <_summary>Log verbosity</_summary>
-      <_description>Log verbosity.</_description>
+  <schema id="org.freedesktop.Tracker.Store.DB" path="/org/freedesktop/tracker/store/db" gettext-domain="tracker">
+    <key name="journal-chunk-size" type="i">
+      <default>50</default>
+      <_summary>Maximum size of journal</_summary>
+      <_description>Size of the journal at rotation in MB. Use -1 to disable rotating.</_description>
+    </key>
+    <key name="journal-rotate-destination" type="s">
+      <default>''</default>
+      <_summary>Location of journal pieces</_summary>
+      <_description>Where to store a journal chunk when it hits the max size.</_description>
     </key>
   </schema>
 </schemalist>
