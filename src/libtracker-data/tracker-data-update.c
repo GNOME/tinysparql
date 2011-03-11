@@ -2467,7 +2467,6 @@ tracker_data_insert_statement_with_string (const gchar            *graph,
 	gboolean         change, tried = FALSE;
 	gint             graph_id = 0, pred_id = 0;
 
-
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
@@ -2662,6 +2661,21 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 
 		multiple_values = tracker_property_get_multiple_values (property);
 
+#if HAVE_TRACKER_FTS
+		/* This is unavoidable with FTS */
+		/* This does a check_property_domain too */
+		old_values = get_old_property_values (property, &new_error);
+		domain_unchecked = FALSE;
+		if (!new_error) {
+			if (old_values->n_values > 0) {
+				/* evel knievel cast */
+				old_object_id = (guint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
+			}
+		} else {
+			g_propagate_error (error, new_error);
+			return;
+		}
+#else
 		/* We can disable correct object-id for deletes array here */
 		if (!multiple_values) {
 			guint r;
@@ -2693,6 +2707,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 				}
 			}
 		}
+#endif /* HAVE_TRACKER_FTS */
 
 		if (domain_unchecked && !check_property_domain (property)) {
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
@@ -2764,11 +2779,12 @@ tracker_data_update_statement_with_string (const gchar            *graph,
                                            const gchar            *object,
                                            GError                **error)
 {
-	GError          *actual_error = NULL;
+	GError *actual_error = NULL;
 	TrackerProperty *property;
 	gboolean change, tried = FALSE;
 	gint graph_id = 0, pred_id = 0;
 	gboolean multiple_values;
+	GError *new_error = NULL;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2805,6 +2821,14 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 		return;
 	}
 
+#if HAVE_TRACKER_FTS
+	/* This is unavoidable with FTS */
+	get_old_property_values (property, &new_error);
+	if (new_error) {
+		g_propagate_error (error, new_error);
+		return;
+	}
+#else
 	if (!check_property_domain (property)) {
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
 		             "Subject `%s' is not in domain `%s' of property `%s'",
@@ -2813,6 +2837,7 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 		             tracker_property_get_name (property));
 		return;
 	}
+#endif /* HAVE_TRACKER_FTS */
 
 	/* add or update value to metadata database */
 	change = cache_update_metadata_decomposed (property, object, 0, graph, 0, &actual_error);
