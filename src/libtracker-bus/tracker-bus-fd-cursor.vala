@@ -66,6 +66,12 @@ class Tracker.Bus.FDCursor : Tracker.Sparql.Cursor {
 	requires (column < n_columns && data != null) {
 		unowned string str = null;
 
+		// return null instead of empty string for unbound values
+		if (types[column] == Sparql.ValueType.UNBOUND) {
+			length = 0;
+			return null;
+		}
+
 		if (column == 0) {
 			str = (string) data;
 		} else {
