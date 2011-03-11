@@ -2643,7 +2643,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 
 		change = TRUE;
 	} else {
-		guint old_object_id = 0;
+		gint old_object_id = 0;
 		GValueArray *old_values;
 		gboolean multiple_values;
 		GError *new_error = NULL;
@@ -2659,7 +2659,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 		if (!new_error) {
 			if (old_values->n_values > 0) {
 				/* evel knievel cast */
-				old_object_id = (guint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
+				old_object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
 			}
 		} else {
 			g_propagate_error (error, new_error);
@@ -2686,7 +2686,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 					if (!new_error) {
 						if (old_values->n_values > 0) {
 							/* evel knievel cast */
-							old_object_id = (guint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
+							old_object_id = (gint) g_value_get_int64 (g_value_array_get_nth (old_values, 0));
 						}
 					} else {
 						g_propagate_error (error, new_error);
