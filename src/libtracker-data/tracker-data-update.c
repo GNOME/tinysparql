@@ -2306,6 +2306,49 @@ tracker_data_insert_statement (const gchar            *graph,
 	}
 }
 
+
+static void
+handle_blank_node (const gchar  *subject,
+                   const gchar  *predicate,
+                   const gchar  *object,
+                   const gchar  *graph,
+                   GError      **error)
+{
+	GError *actual_error = NULL;
+	/* anonymous blank node used as object in a statement */
+	const gchar *blank_uri;
+
+	if (blank_buffer.subject != NULL) {
+		if (strcmp (blank_buffer.subject, object) == 0) {
+			/* object still in blank buffer, need to flush buffer */
+			tracker_data_blank_buffer_flush (&actual_error);
+
+			if (actual_error) {
+				g_propagate_error (error, actual_error);
+				return;
+			}
+		}
+	}
+
+	blank_uri = g_hash_table_lookup (blank_buffer.table, object);
+
+	if (blank_uri != NULL) {
+		/* now insert statement referring to blank node */
+		tracker_data_update_statement (graph, subject, predicate, blank_uri, &actual_error);
+
+		g_hash_table_remove (blank_buffer.table, object);
+
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
+			return;
+		}
+
+		return;
+	} else {
+		g_critical ("Blank node '%s' not found", object);
+	}
+}
+
 void
 tracker_data_insert_statement_with_uri (const gchar            *graph,
                                         const gchar            *subject,
@@ -2345,37 +2388,11 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
-		/* anonymous blank node used as object in a statement */
-		const gchar *blank_uri;
+		handle_blank_node (subject, predicate, object, graph, &actual_error);
 
-		if (blank_buffer.subject != NULL) {
-			if (strcmp (blank_buffer.subject, object) == 0) {
-				/* object still in blank buffer, need to flush buffer */
-				tracker_data_blank_buffer_flush (&actual_error);
-
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
-				}
-			}
-		}
-
-		blank_uri = g_hash_table_lookup (blank_buffer.table, object);
-
-		if (blank_uri != NULL) {
-			/* now insert statement referring to blank node */
-			tracker_data_insert_statement (graph, subject, predicate, blank_uri, &actual_error);
-
-			g_hash_table_remove (blank_buffer.table, object);
-
-			if (actual_error) {
-				g_propagate_error (error, actual_error);
-				return;
-			}
-
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
 			return;
-		} else {
-			g_critical ("Blank node '%s' not found", object);
 		}
 	}
 
@@ -2578,37 +2595,12 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
-		/* anonymous blank node used as object in a statement */
-		const gchar *blank_uri;
 
-		if (blank_buffer.subject != NULL) {
-			if (strcmp (blank_buffer.subject, object) == 0) {
-				/* object still in blank buffer, need to flush buffer */
-				tracker_data_blank_buffer_flush (&actual_error);
+		handle_blank_node (subject, predicate, object, graph, &actual_error);
 
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
-				}
-			}
-		}
-
-		blank_uri = g_hash_table_lookup (blank_buffer.table, object);
-
-		if (blank_uri != NULL) {
-			/* now insert statement referring to blank node */
-			tracker_data_update_statement (graph, subject, predicate, blank_uri, &actual_error);
-
-			g_hash_table_remove (blank_buffer.table, object);
-
-			if (actual_error) {
-				g_propagate_error (error, actual_error);
-				return;
-			}
-
+		if (actual_error) {
+			g_propagate_error (error, actual_error);
 			return;
-		} else {
-			g_critical ("Blank node '%s' not found", object);
 		}
 	}
 
