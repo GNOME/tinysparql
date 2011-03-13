@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-26 12:29+0100\n"
-"PO-Revision-Date: 2011-01-23 19:50+0100\n"
+"POT-Creation-Date: 2011-03-13 12:11+0100\n"
+"PO-Revision-Date: 2011-02-27 19:50+0100\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -323,7 +323,7 @@ msgstr ""
 
 #: ../src/miners/fs/tracker-main.c:93
 msgid "Forces the insertion of FILE into the store"
-msgstr ""
+msgstr "Fremtvinger indsættelsen af FIL i lageret"
 
 #: ../src/miners/fs/tracker-main.c:365
 #, c-format
@@ -1148,9 +1148,8 @@ msgstr "En eller flere filer er ikke blvet angivet"
 #: ../src/tracker-utils/tracker-stats.c:106
 #: ../src/tracker-utils/tracker-status.c:544
 #: ../src/tracker-utils/tracker-tag.c:898
-#, fuzzy
 msgid "Could not establish a D-Bus connection to Tracker"
-msgstr "Kunne ikke etablere en forbindelse til Tracker"
+msgstr "Kunne ikke etablere en D-Bus-forbindelse til Tracker"
 
 #: ../src/tracker-utils/tracker-import.c:119
 msgid "Importing Turtle file"
@@ -1372,9 +1371,8 @@ msgstr ""
 "indekseringsprocessen."
 
 #: ../src/tracker-utils/tracker-search.c:1310
-#, fuzzy
 msgid "Could not establish a DBus connection to Tracker"
-msgstr "Kunne ikke etablere en forbindelse til Tracker"
+msgstr "Kunne ikke etablere en DBus-forbindelse til Tracker"
 
 #: ../src/tracker-utils/tracker-sparql.c:61
 msgid "Path to use to run a query or update from file"
