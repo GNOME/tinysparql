@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&component=general\n"
-"POT-Creation-Date: 2011-03-10 12:18+0000\n"
-"PO-Revision-Date: 2011-03-13 10:50+0100\n"
+"product=tracker&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2011-03-13 10:45+0000\n"
+"PO-Revision-Date: 2011-03-14 22:15+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -67,34 +67,32 @@ msgstr "Proveedores RSS/ATOM"
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
 msgid "Log verbosity"
-msgstr ""
+msgstr "Registro detallado"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:22
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
 msgid "Log verbosity."
-msgstr ""
+msgstr "Registro detallado."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:3
 msgid "Max bytes to extract"
-msgstr ""
+msgstr "Número máximo de bytes que extraer"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:4
-#| msgid "Maximum number of unique _words to index:"
 msgid "Maximum number of UTF-8 bytes to extract."
 msgstr "Máximo número de de bytes UTF-8 que extraer."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:1
 msgid "Avoid any directory containing a file blacklisted here"
-msgstr ""
+msgstr "Evitar cualquier carpeta que contenga un archivo en esta lista negra"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:2
 msgid "Crawling interval"
 msgstr "Intervalo de rastreo"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:3
-#| msgid "Directory to include in indexing"
 msgid "Directories to index non-recursively"
 msgstr "Carpetas que indexar no recursivamente"
 
@@ -106,14 +104,14 @@ msgstr "Carpetas que indexar recursivamente"
 msgid ""
 "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgstr ""
+"Umbral de espacio en disco, en MiB, en el que pausar la indexación, o -1 "
+"para desactivarlo."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:6
-#| msgid "Enable _monitoring"
 msgid "Enable monitors"
 msgstr "Activar monitores"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:7
-#| msgid "Include mou_nted directories"
 msgid "Ignored directories"
 msgstr "Carpetas ignoradas"
 
@@ -122,36 +120,30 @@ msgid "Ignored directories with content"
 msgstr "Carpetas con contenido ignoradas"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:9
-#| msgid "Tag one or more files"
 msgid "Ignored files"
 msgstr "Archivos ignorados"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:10
-#| msgid "Include optical di_scs"
 msgid "Index optical discs"
 msgstr "Indexar discos ópticos"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:11
-#| msgid "Include _removable media"
 msgid "Index removable devices"
 msgstr "Indexar dispositivos extraíbles"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:12
-#| msgid "Enable when running on _battery"
 msgid "Index when running on battery"
 msgstr "Indexar al funcionar con batería"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:13
 msgid "Indexing speed, the higher the slower."
-msgstr ""
+msgstr "Velocidad de indexado, cuanto más alta, más lenta."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:14
-#| msgid "Initial index"
 msgid "Initial sleep"
 msgstr "Tiempo inicial de latencia"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:15
-#| msgid "Initial sleep time, just before indexing, in seconds"
 msgid "Initial sleep time, in seconds."
 msgstr "Tiempo inicial de latencia, en segundos"
 
@@ -161,6 +153,9 @@ msgid ""
 "database. 0 forces crawling anytime, -1 forces it only after unclean "
 "shutdowns, and -2 disables it entirely."
 msgstr ""
+"Intervalo en días para comprobar si el sistema de archivos está actualizado "
+"en la base de datos. 0 fuerza el rastreo en todo momento, -1 fuerza lo "
+"fuerza sólo después de apagados no limpio, y -2 lo desactiva por completo."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:17
 msgid "List of directories to avoid"
@@ -173,6 +168,10 @@ msgid ""
 "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
 "and $HOME/.config/user-dirs.default"
 msgstr ""
+"Lista de carpetas que indexar recursivamente. Los valores especiales "
+"incluyen &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
+"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Consulte /etc/xdg/"
+"user-dirs.defaults y $HOME/.config/user-dirs.default"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:19
 msgid ""
@@ -181,57 +180,69 @@ msgid ""
 "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
 "dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr ""
+"Lista de las carpetas que indexar sin inspeccionar las subcarpetas. Los "
+"valores especiales incluyen &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, "
+"&amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. "
+"Consulte /etc/xdg/user-dirs.defaults y $HOME/.config/user-dirs.default"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:20
 msgid "List of file patterns to avoid"
 msgstr "Lista de patrones de archivo que evitar"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:23
-#| msgid "Low disk space"
 msgid "Low disk space limit"
 msgstr "Límite de espacio en disco bajo"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:24
-#| msgid "Enable when running on _battery"
 msgid "Perform initial indexing when running on battery"
 msgstr "Realizar un indexado inicial al funcionar con baterías"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:25
 msgid "Removable devices' data permanence threshold"
-msgstr ""
+msgstr "Umbral de permanencia de datos en dispositivos extraíbles"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:26
 msgid "Set to false to completely disable any file monitoring"
 msgstr ""
+"Establecer a falso para desactivar completamente la monitorización de "
+"cualquier archivo"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:27
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
 "removable devices are not indexed, optical discs won't be either)"
 msgstr ""
+"Establecer a cierto para activar la indexación de CD, DVD y medios ópticos "
+"en general (si los dispositivos extraíbles no están indexados, los discos "
+"ópticos tampoco lo estarán)"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:28
 msgid ""
 "Set to true to enable indexing mounted directories for removable devices."
 msgstr ""
+"Establecer a cierto para activar la indexación de carpetas de dispositivos "
+"extraíbles montados."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:29
-#| msgid "Enable when running on _battery"
 msgid "Set to true to index while running on battery"
 msgstr "Establecer a cierto para indexar al funcionar con baterías"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:30
 msgid "Set to true to index while running on battery for the first time only"
 msgstr ""
+"Establecer a cierto para indexar mientras se esté funcionando con baterías "
+"sólo para la primera vez"
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:31
 msgid ""
 "Threshold in days after which files from removables devices will be removed "
 "from database if not mounted. 0 means never, maximum is 365."
 msgstr ""
+"Umbral en días después de los cuales los dispositivos extraíbles se quitarán "
+"de la base de datos si no se han montado. 0 significa nunca, y el máximo es "
+"365."
 
 #: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:32
-#| msgid "Thr_ottle:"
 msgid "Throttle"
 msgstr "Regulador"
 
@@ -665,7 +676,6 @@ msgid "Print version"
 msgstr "Imprimir versión"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:503
-#| msgid "Desktop Search"
 msgid "Desktop Search preferences"
 msgstr "Preferencias de búsquedas del Escritorio"
 
