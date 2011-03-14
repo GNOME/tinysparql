@@ -440,10 +440,29 @@ tracker_date_format_to_iso8601 (const gchar *date_string,
 		return NULL;
 	}
 
+	/* If the input format string doesn't parse timezone information with
+	 * either %z or %Z, strptime() won't set the tm_gmtoff member in the
+	 * broken-down time, and the value during initialization (0) will be
+	 * left. This effectively means that every broken-down time obtained
+	 * with strptime() without parsing timezone information will be based
+	 * on UTC, instead of being treated as localtime. In order to fix this
+	 * and set the correct value for the offset w.r.t gmt, we can just
+	 * use mktime() to fill in the daylight saving flag as well as the
+	 * gmt offset value. */
+	if (!strstr (format, "%z") && !strstr (format, "%Z")) {
+		/* tm_isdst not set by strptime(), we set -1 on it in order to ask
+		 * mktime to 'normalize' its contents and fill in the gmt offset
+		 * and daylight saving time information */
+		date_tm.tm_isdst = -1;
+
+		/* Note: no real problem if mktime() fails. In this case, tm_isdst
+		 * will be -1, and therefore strftime() will not write the timezone
+		 * information, which is equally right to represent localtime. */
+		mktime (&date_tm);
+	}
+
 	result = g_malloc (sizeof (char) * 25);
-
 	strftime (result, 25, DATE_FORMAT_ISO8601 , &date_tm);
-
 	return result;
 }
 
