@@ -379,28 +379,28 @@ class TrackerSystemAbstraction:
             raise UnableToBootException ("Unable to boot the store \n(" + str(e) + ")")
 
     def tracker_store_prepare_journal_replay (self):
-        db_location = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker", "meta.db")
+        db_location = os.path.join (TEST_ENV_DIRS ['XDG_CACHE_HOME'], "tracker", "meta.db")
         os.unlink (db_location)
 
-        lockfile = os.path.join (TEST_ENV_VARS ['XDG_DATA_HOME'], "tracker", "data", ".ismeta.running")
+        lockfile = os.path.join (TEST_ENV_DIRS ['XDG_DATA_HOME'], "tracker", "data", ".ismeta.running")
         f = open (lockfile, 'w')
         f.write (" ")
         f.close ()
 
     def tracker_store_corrupt_dbs (self):
-        db_path = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker", "meta.db")
+        db_path = os.path.join (TEST_ENV_DIRS ['XDG_CACHE_HOME'], "tracker", "meta.db")
         f = open (db_path, "w")
         for i in range (0, 100):
             f.write ("Some stupid content... hohohoho, not a sqlite file anymore!\n")
         f.close ()
 
     def tracker_store_remove_journal (self):
-        db_location = os.path.join (TEST_ENV_VARS ['XDG_DATA_HOME'], "tracker", "data")
+        db_location = os.path.join (TEST_ENV_DIRS ['XDG_DATA_HOME'], "tracker", "data")
         shutil.rmtree (db_location)
         os.mkdir (db_location)
 
     def tracker_store_remove_dbs (self):
-        db_location = os.path.join (TEST_ENV_VARS ['XDG_CACHE_HOME'], "tracker")
+        db_location = os.path.join (TEST_ENV_DIRS ['XDG_CACHE_HOME'], "tracker")
         shutil.rmtree (db_location)
         os.mkdir (db_location)
 
