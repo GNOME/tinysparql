@@ -48,7 +48,7 @@
  *
  * The full IIM specification includes a complex data structure and a
  * set of metadata definitions.
- * 
+ *
  * Although IIM was intended for use with all types of news items —
  * including simple text articles — a subset found broad worldwide
  * acceptance as the standard embedded metadata used by news and
@@ -80,7 +80,7 @@ fix_iptc_orientation (const gchar *orientation)
 }
 
 static void
-foreach_dataset (IptcDataSet *dataset, 
+foreach_dataset (IptcDataSet *dataset,
                  void        *user_data)
 {
 	TrackerIptcData *data = user_data;
@@ -102,8 +102,8 @@ foreach_dataset (IptcDataSet *dataset,
 	case IPTC_TAG_DATE_CREATED:
 		if (!data->date_created) {
 			iptc_dataset_get_as_str (dataset, mbuffer, 1024);
-			/* From: ex; date "2007:04:15 15:35:58"
-			 * To : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
+			/* From: ex; date "2007 04 15"
+			 * To : ex. "2007-04-15T00:00:00+0200 where +0200 is offset w.r.t gmt */
 			data->date_created = tracker_date_format_to_iso8601 (mbuffer, IPTC_DATE_FORMAT);
 		}
 		break;
