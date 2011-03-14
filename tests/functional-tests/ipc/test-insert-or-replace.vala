@@ -196,6 +196,84 @@ INSERT {
 }";
 
 const string insert_query_replace = "
+DELETE
+{
+  ?subject nco:hasPostalAddress ?object .
+}
+WHERE
+{
+  <contact:%d> nco:hasAffiliation ?subject .
+  ?subject nco:hasPostalAddress ?object .
+}
+
+DELETE
+{
+  ?subject nco:hasPostalAddress ?object .
+}
+WHERE
+{
+  <contact:%d> nco:hasAffiliation [ nco:org ?subject ] .
+  ?subject nco:hasPostalAddress ?object .
+}
+
+DELETE
+{
+  ?resource a rdfs:Resource .
+}
+WHERE
+{
+  <contact:%d> ?predicate ?resource .
+
+  FILTER(?predicate IN (nao:hasProperty, nco:hasPostalAddress, ncal:anniversary,
+                        ncal:birthday, nco:hasLocation, nco:hasAffiliation)) .
+}
+
+DELETE
+{
+  <tel:+4917212345%d> nao:hasProperty ?object .
+}
+WHERE
+{
+  <tel:+4917212345%d> nao:hasProperty ?object .
+}
+
+DELETE
+{
+  <tel:+4916134567%d> nao:hasProperty ?object .
+}
+WHERE
+{
+  <tel:+4916134567%d> nao:hasProperty ?object .
+}
+
+DELETE
+{
+  ?resource a nco:CarPhoneNumber, nco:BbsNumber, nco:PagerNumber, nco:VideoTelephoneNumber,
+              nco:MessagingNumber, nco:VoicePhoneNumber, nco:CellPhoneNumber, nco:FaxNumber,
+              nco:ModemNumber .
+}
+WHERE
+{
+  ?resource a nco:PhoneNumber .
+  FILTER(?resource IN (<tel:+4917212345%d>, <tel:+4916134567%d>)) .
+}
+
+DELETE
+{
+  GRAPH <urn:uuid:08070f5c-a334-4d19-a8b0-12a3071bfab9>
+  {
+    <contact:%d> ?predicate ?object .
+  }
+}
+WHERE
+{
+  GRAPH <urn:uuid:08070f5c-a334-4d19-a8b0-12a3071bfab9>
+  {
+    <contact:%d> ?predicate ?object .
+    FILTER(?predicate NOT IN (nco:contactLocalUID,nco:contactUID,rdf:type)) .
+  }
+}
+
 INSERT OR REPLACE
 {
   GRAPH <urn:uuid:08070f5c-a334-4d19-a8b0-12a3071bfab9>
