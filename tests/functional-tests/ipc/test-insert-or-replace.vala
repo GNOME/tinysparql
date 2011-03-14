@@ -150,7 +150,7 @@ main( string[] args )
 
 	t1.start ();
 	for (i = 0; i < y; i++) {
-		c.update (insert_query_replace.printf (i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i));
+		c.update (insert_query_replace.printf (i,i,i,i,i,i,i,i,i,i,i,i,i,i,i));
 	}
 	t1.stop ();
 
@@ -159,7 +159,7 @@ main( string[] args )
 
 	t2.start ();
 	for (i = 0; i < y; i++) {
-		c.update (insert_query_orig.printf (i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i));
+		c.update (insert_query_orig.printf (i,i,i,i,i,i,i,i,i,i,i,i,i,i,i,i));
 	}
 	t2.stop ();
 
