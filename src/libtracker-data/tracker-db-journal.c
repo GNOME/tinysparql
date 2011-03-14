@@ -48,10 +48,11 @@
 /*
  * data_format:
  * #... 0000 0000 (total size is 4 bytes)
- *           |||`- resource insert (all other bits must be 0 if 1)
- *           ||`-- object type (1 = id, 0 = cstring)
- *           |`--- operation type (0 = insert, 1 = delete)
- *           `---- graph (0 = default graph, 1 = named graph)
+ *         | |||`- resource insert (all other bits must be 0 if 1)
+ *         | ||`-- object type (1 = id, 0 = cstring)
+ *         | |`--- operation type (0 = insert, 1 = delete)
+ *         | `---- graph (0 = default graph, 1 = named graph)
+ *         `------ update (0 = insert, 1 = update)
  */
 
 typedef enum {
