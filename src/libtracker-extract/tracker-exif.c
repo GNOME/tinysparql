@@ -49,7 +49,7 @@
  **/
 
 static gchar *
-get_date (ExifData *exif, 
+get_date (ExifData *exif,
           ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
@@ -59,7 +59,7 @@ get_date (ExifData *exif,
 
 		exif_entry_get_value (entry, buf, 1024);
 		/* From: ex; date "2007:04:15 15:35:58"
-		 * To  : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime */
+		 * To  : ex. "2007-04-15T17:35:58+0200 where +0200 is offset w.r.t gmt */
 		return tracker_date_format_to_iso8601 (buf, EXIF_DATE_FORMAT);
 	}
 
@@ -67,7 +67,7 @@ get_date (ExifData *exif,
 }
 
 static gchar *
-get_focal_length (ExifData *exif, 
+get_focal_length (ExifData *exif,
                   ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
@@ -117,7 +117,7 @@ get_flash (ExifData *exif,
 }
 
 static gchar *
-get_fnumber (ExifData *exif, 
+get_fnumber (ExifData *exif,
              ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
@@ -147,7 +147,7 @@ get_fnumber (ExifData *exif,
 }
 
 static gchar *
-get_exposure_time (ExifData *exif, 
+get_exposure_time (ExifData *exif,
                    ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
@@ -183,7 +183,7 @@ get_exposure_time (ExifData *exif,
 }
 
 static gchar *
-get_orientation (ExifData *exif, 
+get_orientation (ExifData *exif,
                  ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
@@ -255,7 +255,7 @@ get_metering_mode (ExifData *exif,
 }
 
 static gchar *
-get_white_balance (ExifData *exif, 
+get_white_balance (ExifData *exif,
                    ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
@@ -280,7 +280,7 @@ get_white_balance (ExifData *exif,
 
 
 static gint
-get_int (ExifData *exif, 
+get_int (ExifData *exif,
          ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
@@ -297,7 +297,7 @@ get_int (ExifData *exif,
 
 
 static gchar *
-get_value (ExifData *exif, 
+get_value (ExifData *exif,
            ExifTag   tag)
 {
 	ExifEntry *entry = exif_data_get_entry (exif, tag);
