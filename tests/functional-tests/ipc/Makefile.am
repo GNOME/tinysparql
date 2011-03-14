@@ -1,6 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = \
+	test-insert-or-replace \
 	test-busy-handling \
 	test-direct-query \
 	test-bus-query \
@@ -31,6 +32,15 @@ LDADD =\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)\
 	$(LIBTRACKER_SPARQL_LIBS)
+
+test_insert_or_replace_SOURCES = \
+	test-insert-or-replace.vala
+test_insert_or_replace_CFLAGS = \
+        $(AM_CPPFLAGS)
+test_insert_or_replace_VALAFLAGS = \
+        $(AM_VALAFLAGS)
+test_insert_or_replace_LDADD = \
+        $(LDADD)
 
 test_busy_handling_SOURCES = \
 	test-busy-handling.vala

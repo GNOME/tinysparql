@@ -1,3 +1,5 @@
+test-insert-or-replace
+test-insert-or-replace.c
 test-update-array-performance
 test-class-signal-performance-batch
 test-class-signal-performance-batch.c
