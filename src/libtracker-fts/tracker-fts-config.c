@@ -29,8 +29,6 @@
 
 #include "tracker-fts-config.h"
 
-#define TRACKER_FTS_CONFIG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_FTS_CONFIG, TrackerFTSConfigPrivate))
-
 /* GKeyFile defines */
 #define GROUP_INDEXING             "Indexing"
 
@@ -43,24 +41,6 @@
 #define DEFAULT_ENABLE_STEMMER       FALSE  /* As per GB#526346, disabled */
 #define DEFAULT_ENABLE_UNACCENT      TRUE
 
-typedef struct {
-	/* Indexing */
-	gint min_word_length;
-	gint max_word_length;
-	gboolean enable_stemmer;
-	gboolean enable_unaccent;
-	gboolean ignore_numbers;
-	gboolean ignore_stop_words;
-	gint max_words_to_index;
-}  TrackerFTSConfigPrivate;
-
-typedef struct {
-	GType  type;
-	const gchar *property;
-	const gchar *group;
-	const gchar *key;
-} ObjectToKeyFile;
-
 static void config_set_property         (GObject       *object,
                                          guint          param_id,
                                          const GValue  *value,
@@ -71,10 +51,6 @@ static void config_get_property         (GObject       *object,
                                          GParamSpec    *pspec);
 static void config_finalize             (GObject       *object);
 static void config_constructed          (GObject       *object);
-static void config_create_with_defaults (TrackerFTSConfig *config,
-                                         GKeyFile      *key_file,
-                                         gboolean       overwrite);
-static void config_load                 (TrackerFTSConfig *config);
 
 enum {
 	PROP_0,
@@ -91,17 +67,17 @@ enum {
 	PROP_MAX_WORDS_TO_INDEX,
 };
 
-static ObjectToKeyFile conversions[] = {
-	{ G_TYPE_INT,     "min-word-length",    GROUP_INDEXING, "MinWordLength"   },
-	{ G_TYPE_INT,     "max-word-length",    GROUP_INDEXING, "MaxWordLength"   },
-	{ G_TYPE_BOOLEAN, "enable-stemmer",     GROUP_INDEXING, "EnableStemmer"   },
-	{ G_TYPE_BOOLEAN, "enable-unaccent",    GROUP_INDEXING, "EnableUnaccent"  },
-	{ G_TYPE_BOOLEAN, "ignore-numbers",     GROUP_INDEXING, "IgnoreNumbers"   },
-	{ G_TYPE_BOOLEAN, "ignore-stop-words",  GROUP_INDEXING, "IgnoreStopWords" },
-	{ G_TYPE_INT,     "max-words-to-index", GROUP_INDEXING, "MaxWordsToIndex" },
+static TrackerConfigMigrationEntry migration[] = {
+	{ G_TYPE_INT,     GROUP_INDEXING, "MinWordLength",   "min-word-length"    },
+	{ G_TYPE_INT,     GROUP_INDEXING, "MaxWordLength",   "max-word-length"    },
+	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "EnableStemmer" ,  "enable-stemmer"     },
+	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "EnableUnaccent",  "enable-unaccent"    },
+	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "IgnoreNumbers",   "ignore-numbers"     },
+	{ G_TYPE_BOOLEAN, GROUP_INDEXING, "IgnoreStopWords", "ignore-stop-words"  },
+	{ G_TYPE_INT,     GROUP_INDEXING, "MaxWordsToIndex", "max-words-to-index" },
 };
 
-G_DEFINE_TYPE (TrackerFTSConfig, tracker_fts_config, TRACKER_TYPE_CONFIG_FILE);
+G_DEFINE_TYPE (TrackerFTSConfig, tracker_fts_config, G_TYPE_SETTINGS);
 
 static void
 tracker_fts_config_class_init (TrackerFTSConfigClass *klass)
@@ -122,7 +98,7 @@ tracker_fts_config_class_init (TrackerFTSConfigClass *klass)
 	                                                   0,
 	                                                   30,
 	                                                   DEFAULT_MIN_WORD_LENGTH,
-	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                   G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_MAX_WORD_LENGTH,
 	                                 g_param_spec_int ("max-word-length",
@@ -131,35 +107,35 @@ tracker_fts_config_class_init (TrackerFTSConfigClass *klass)
 	                                                   0,
 	                                                   200, /* Is this a reasonable limit? */
 	                                                   DEFAULT_MAX_WORD_LENGTH,
-	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                   G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_ENABLE_STEMMER,
 	                                 g_param_spec_boolean ("enable-stemmer",
 	                                                       "Enable Stemmer",
 	                                                       " Flag to enable word stemming utility (default=FALSE)",
 	                                                       DEFAULT_ENABLE_STEMMER,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_ENABLE_UNACCENT,
 	                                 g_param_spec_boolean ("enable-unaccent",
 	                                                       "Enable Unaccent",
 	                                                       " Flag to enable word unaccenting (default=TRUE)",
 	                                                       DEFAULT_ENABLE_UNACCENT,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_IGNORE_NUMBERS,
 	                                 g_param_spec_boolean ("ignore-numbers",
 	                                                       "Ignore numbers",
 	                                                       " Flag to ignore numbers in FTS (default=TRUE)",
 	                                                       DEFAULT_IGNORE_NUMBERS,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_IGNORE_STOP_WORDS,
 	                                 g_param_spec_boolean ("ignore-stop-words",
 	                                                       "Ignore stop words",
 	                                                       " Flag to ignore stop words in FTS (default=TRUE)",
 	                                                       DEFAULT_IGNORE_STOP_WORDS,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
 	                                 PROP_MAX_WORDS_TO_INDEX,
 	                                 g_param_spec_int ("max-words-to-index",
@@ -168,9 +144,8 @@ tracker_fts_config_class_init (TrackerFTSConfigClass *klass)
 	                                                   0,
 	                                                   G_MAXINT,
 	                                                   DEFAULT_MAX_WORDS_TO_INDEX,
-	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	                                                   G_PARAM_READWRITE));
 
-	g_type_class_add_private (object_class, sizeof (TrackerFTSConfigPrivate));
 }
 
 static void
@@ -227,32 +202,30 @@ config_get_property (GObject    *object,
                      GValue     *value,
                      GParamSpec *pspec)
 {
-	TrackerFTSConfigPrivate *priv;
-
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (object);
+        TrackerFTSConfig *config = TRACKER_FTS_CONFIG (object);
 
 	switch (param_id) {
 		/* Indexing */
 	case PROP_MIN_WORD_LENGTH:
-		g_value_set_int (value, priv->min_word_length);
+		g_value_set_int (value, tracker_fts_config_get_min_word_length (config));
 		break;
 	case PROP_MAX_WORD_LENGTH:
-		g_value_set_int (value, priv->max_word_length);
+		g_value_set_int (value, tracker_fts_config_get_max_word_length (config));
 		break;
 	case PROP_ENABLE_STEMMER:
-		g_value_set_boolean (value, priv->enable_stemmer);
+		g_value_set_boolean (value, tracker_fts_config_get_enable_stemmer (config));
 		break;
 	case PROP_ENABLE_UNACCENT:
-		g_value_set_boolean (value, priv->enable_unaccent);
+		g_value_set_boolean (value, tracker_fts_config_get_enable_unaccent (config));
 		break;
 	case PROP_IGNORE_NUMBERS:
-		g_value_set_boolean (value, priv->ignore_numbers);
+		g_value_set_boolean (value, tracker_fts_config_get_ignore_numbers (config));
 		break;
 	case PROP_IGNORE_STOP_WORDS:
-		g_value_set_boolean (value, priv->ignore_stop_words);
+		g_value_set_boolean (value, tracker_fts_config_get_ignore_stop_words (config));
 		break;
 	case PROP_MAX_WORDS_TO_INDEX:
-		g_value_set_int (value, priv->max_words_to_index);
+		g_value_set_int (value, tracker_fts_config_get_max_words_to_index (config));
 		break;
 
 	default:
@@ -274,151 +247,26 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
+        TrackerConfigFile *config_file;
+
 	(G_OBJECT_CLASS (tracker_fts_config_parent_class)->constructed) (object);
 
-	config_load (TRACKER_FTS_CONFIG (object));
-}
+        g_settings_delay (G_SETTINGS (object));
 
-static void
-config_create_with_defaults (TrackerFTSConfig *config,
-                             GKeyFile      *key_file,
-                             gboolean       overwrite)
-{
-	gint i;
-
-	g_message ("Loading defaults into GKeyFile...");
-
-	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
-		gboolean has_key;
-
-		has_key = g_key_file_has_key (key_file,
-		                              conversions[i].group,
-		                              conversions[i].key,
-		                              NULL);
-		if (!overwrite && has_key) {
-			continue;
-		}
-
-		switch (conversions[i].type) {
-		case G_TYPE_INT:
-			g_key_file_set_integer (key_file,
-			                        conversions[i].group,
-			                        conversions[i].key,
-			                        tracker_keyfile_object_default_int (config,
-			                                                            conversions[i].property));
-			break;
-		case G_TYPE_BOOLEAN:
-			g_key_file_set_boolean (key_file,
-			                        conversions[i].group,
-			                        conversions[i].key,
-			                        tracker_keyfile_object_default_boolean (config,
-			                                                                conversions[i].property));
-			break;
-		default:
-			g_assert_not_reached ();
-			break;
-		}
-
-		g_key_file_set_comment (key_file,
-		                        conversions[i].group,
-		                        conversions[i].key,
-		                        tracker_keyfile_object_blurb (config,
-		                                                      conversions[i].property),
-		                        NULL);
-	}
-}
-
-static void
-config_load (TrackerFTSConfig *config)
-{
-	TrackerConfigFile *file;
-	gint i;
-
-	file = TRACKER_CONFIG_FILE (config);
-	config_create_with_defaults (config, file->key_file, FALSE);
-
-	if (!file->file_exists) {
-		tracker_config_file_save (file);
-	}
-
-	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
-		gboolean has_key;
-
-		has_key = g_key_file_has_key (file->key_file,
-		                              conversions[i].group,
-		                              conversions[i].key,
-		                              NULL);
-
-		switch (conversions[i].type) {
-		case G_TYPE_INT:
-			tracker_keyfile_object_load_int (G_OBJECT (file),
-			                                 conversions[i].property,
-			                                 file->key_file,
-			                                 conversions[i].group,
-			                                 conversions[i].key);
-			break;
-		case G_TYPE_BOOLEAN:
-			tracker_keyfile_object_load_boolean (G_OBJECT (file),
-			                                     conversions[i].property,
-			                                     file->key_file,
-			                                     conversions[i].group,
-			                                     conversions[i].key);
-			break;
-		default:
-			g_assert_not_reached ();
-			break;
-		}
-	}
-}
-
-static gboolean
-config_save (TrackerFTSConfig *config)
-{
-	TrackerConfigFile *file;
-	gint i;
-
-	file = TRACKER_CONFIG_FILE (config);
-
-	if (!file->key_file) {
-		g_critical ("Could not save config, GKeyFile was NULL, has the config been loaded?");
-
-		return FALSE;
-	}
-
-	g_message ("Setting details to GKeyFile object...");
-
-	for (i = 0; i < G_N_ELEMENTS (conversions); i++) {
-		switch (conversions[i].type) {
-		case G_TYPE_INT:
-			tracker_keyfile_object_save_int (file,
-			                                 conversions[i].property,
-			                                 file->key_file,
-			                                 conversions[i].group,
-			                                 conversions[i].key);
-			break;
-
-		case G_TYPE_BOOLEAN:
-			tracker_keyfile_object_save_boolean (file,
-			                                     conversions[i].property,
-			                                     file->key_file,
-			                                     conversions[i].group,
-			                                     conversions[i].key);
-			break;
-
-		default:
-			g_assert_not_reached ();
-			break;
-		}
-	}
-
-	return tracker_config_file_save (TRACKER_CONFIG_FILE (config));
+        /* migrate keyfile-based configuration */
+        config_file = tracker_config_file_new ();
+        if (config_file) {
+                tracker_config_file_migrate (config_file, G_SETTINGS (object), migration);
+                g_object_unref (config_file);
+        }
 }
 
 TrackerFTSConfig *
 tracker_fts_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_FTS_CONFIG,
-	                     "domain", "tracker-fts",
+                             "schema", "org.freedesktop.Tracker.FTS",
+                             "path", "/org/freedesktop/tracker/fts/",
 	                     NULL);
 }
 
@@ -427,108 +275,74 @@ tracker_fts_config_save (TrackerFTSConfig *config)
 {
 	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), FALSE);
 
-	return config_save (config);
+        g_settings_apply (G_SETTINGS (config));
+
+	return TRUE;
 }
 
 gint
 tracker_fts_config_get_min_word_length (TrackerFTSConfig *config)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), DEFAULT_MIN_WORD_LENGTH);
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	return priv->min_word_length;
+	return g_settings_get_int (G_SETTINGS (config), "min-word-length");
 }
 
 gint
 tracker_fts_config_get_max_word_length (TrackerFTSConfig *config)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), DEFAULT_MAX_WORD_LENGTH);
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	return priv->max_word_length;
+	return g_settings_get_int (G_SETTINGS (config), "max-word-length");
 }
 
 gboolean
 tracker_fts_config_get_enable_stemmer (TrackerFTSConfig *config)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), DEFAULT_ENABLE_STEMMER);
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	return priv->enable_stemmer;
+	return g_settings_get_boolean (G_SETTINGS (config), "enable-stemmer");
 }
 
 gboolean
 tracker_fts_config_get_enable_unaccent (TrackerFTSConfig *config)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), DEFAULT_ENABLE_UNACCENT);
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	return priv->enable_unaccent;
+	return g_settings_get_boolean (G_SETTINGS (config), "enable-unaccent");
 }
 
 gboolean
 tracker_fts_config_get_ignore_numbers (TrackerFTSConfig *config)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), DEFAULT_IGNORE_NUMBERS);
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	return priv->ignore_numbers;
+	return g_settings_get_boolean (G_SETTINGS (config), "ignore-numbers");
 }
 
 gboolean
 tracker_fts_config_get_ignore_stop_words (TrackerFTSConfig *config)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), DEFAULT_IGNORE_STOP_WORDS);
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	return priv->ignore_stop_words;
+	return g_settings_get_boolean (G_SETTINGS (config),  "ignore-stop-words");
 }
 
 gint
 tracker_fts_config_get_max_words_to_index (TrackerFTSConfig *config)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_FTS_CONFIG (config), DEFAULT_MAX_WORDS_TO_INDEX);
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	return priv->max_words_to_index;
+	return g_settings_get_int (G_SETTINGS (config), "max-words-to-index");
 }
 
 void
 tracker_fts_config_set_min_word_length (TrackerFTSConfig *config,
                                         gint              value)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	if (!tracker_keyfile_object_validate_int (config, "min-word-length", value)) {
-		return;
-	}
-
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	priv->min_word_length = value;
+        g_settings_set_int (G_SETTINGS (config), "min-word-length", value);
 	g_object_notify (G_OBJECT (config), "min-word-length");
 }
 
@@ -536,17 +350,9 @@ void
 tracker_fts_config_set_max_word_length (TrackerFTSConfig *config,
                                         gint              value)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	if (!tracker_keyfile_object_validate_int (config, "max-word-length", value)) {
-		return;
-	}
-
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	priv->max_word_length = value;
+        g_settings_set_int (G_SETTINGS (config), "max-word-length", value);
 	g_object_notify (G_OBJECT (config), "max-word-length");
 }
 
@@ -554,13 +360,9 @@ void
 tracker_fts_config_set_enable_stemmer (TrackerFTSConfig *config,
                                        gboolean          value)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	priv->enable_stemmer = value;
+        g_settings_set_boolean (G_SETTINGS (config), "enable-stemmer", value);
 	g_object_notify (G_OBJECT (config), "enable-stemmer");
 }
 
@@ -568,13 +370,9 @@ void
 tracker_fts_config_set_enable_unaccent (TrackerFTSConfig *config,
 					gboolean          value)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	priv->enable_unaccent = value;
+        g_settings_set_boolean (G_SETTINGS (config), "enable-unaccent", value);
 	g_object_notify (G_OBJECT (config), "enable-unaccent");
 }
 
@@ -582,13 +380,9 @@ void
 tracker_fts_config_set_ignore_numbers (TrackerFTSConfig *config,
                                        gboolean          value)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	priv->ignore_numbers = value;
+        g_settings_set_boolean (G_SETTINGS (config), "ignore-numbers", value);
 	g_object_notify (G_OBJECT (config), "ignore-numbers");
 }
 
@@ -596,13 +390,9 @@ void
 tracker_fts_config_set_ignore_stop_words (TrackerFTSConfig *config,
                                           gboolean          value)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	priv->ignore_stop_words = value;
+        g_settings_set_boolean (G_SETTINGS (config), "ignore-stop-words", value);
 	g_object_notify (G_OBJECT (config), "ignore-stop-words");
 }
 
@@ -610,16 +400,8 @@ void
 tracker_fts_config_set_max_words_to_index (TrackerFTSConfig *config,
                                            gint              value)
 {
-	TrackerFTSConfigPrivate *priv;
-
 	g_return_if_fail (TRACKER_IS_FTS_CONFIG (config));
 
-	if (!tracker_keyfile_object_validate_int (config, "max-words-to-index", value)) {
-		return;
-	}
-
-	priv = TRACKER_FTS_CONFIG_GET_PRIVATE (config);
-
-	priv->max_words_to_index = value;
+        g_settings_set_int (G_SETTINGS (config), "max-words-to-index", value);
 	g_object_notify (G_OBJECT (config), "max-words-to-index");
 }

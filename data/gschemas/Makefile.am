@@ -4,6 +4,7 @@ gsettings_ENUM_NAMESPACE = org.freedesktop.Tracker
 gsettings_ENUM_FILES = $(top_srcdir)/src/libtracker-common/tracker-enums.h
 gsettings_SCHEMAS = \
 	org.freedesktop.Tracker.gschema.xml \
+	org.freedesktop.Tracker.FTS.gschema.xml \
 	org.freedesktop.Tracker.Store.gschema.xml \
 	org.freedesktop.Tracker.Store.DB.gschema.xml \
 	org.freedesktop.Tracker.Extractor.gschema.xml \

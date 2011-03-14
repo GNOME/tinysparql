@@ -14,7 +14,6 @@ endif
 
 common = \
 	tracker-extract.1 \
-	tracker-fts.cfg.5 \
 	tracker-import.1 \
 	tracker-info.1 \
 	tracker-miner-fs.1 \

@@ -37,11 +37,11 @@ typedef struct TrackerFTSConfig              TrackerFTSConfig;
 typedef struct TrackerFTSConfigClass TrackerFTSConfigClass;
 
 struct TrackerFTSConfig {
-	TrackerConfigFile parent;
+        GSettings parent;
 };
 
 struct TrackerFTSConfigClass {
-	TrackerConfigFileClass parent_class;
+        GSettingsClass parent_class;
 };
 
 GType             tracker_fts_config_get_type               (void) G_GNUC_CONST;
