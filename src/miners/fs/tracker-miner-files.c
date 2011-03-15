@@ -2708,6 +2708,7 @@ tracker_miner_files_new (TrackerConfig  *config,
 	                       "config", config,
 	                       "processing-pool-wait-limit", 10,
 	                       "processing-pool-ready-limit", 100,
+	                       "processing-pool-requests-limit", 10,
 	                       NULL);
 }
 
