@@ -142,7 +142,7 @@ INSERT { GRAPH <urn:uuid:08070f5c-a334-4d19-a8b0-12a3071bfab9> {
 int
 main( string[] args )
 {
-	uint i, y = 100;
+	uint i, y = 1000;
 	Timer t1 = new Timer ();
 	Timer t2 = new Timer ();
 	Connection c;
@@ -154,7 +154,7 @@ main( string[] args )
 	}
 	t1.stop ();
 
-	print ("REPLACE: %f\n", t1.elapsed());
+	print ("REPLACE: %u contacts: %f\n", y, t1.elapsed());
 
 
 	t2.start ();
@@ -163,7 +163,7 @@ main( string[] args )
 	}
 	t2.stop ();
 
-	print ("ORIGINAL: %f\n", t2.elapsed());
+	print ("ORIGINAL: %u contacts: %f\n", y, t2.elapsed());
 
 	return 0;
 }
