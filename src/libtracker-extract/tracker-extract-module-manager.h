@@ -20,13 +20,16 @@
 #ifndef __TRACKER_EXTRACT_MODULE_MANAGER_H__
 #define __TRACKER_EXTRACT_MODULE_MANAGER_H__
 
+#if !defined (__LIBTRACKER_EXTRACT_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-extract/tracker-extract.h> must be included directly."
+#endif
+
 #include <glib.h>
 #include <gmodule.h>
+
 #include <libtracker-sparql/tracker-sparql.h>
 
 G_BEGIN_DECLS
-
-#define __LIBTRACKER_EXTRACT_INSIDE__
 
 typedef gboolean (* TrackerExtractMetadataFunc) (const gchar          *uri,
                                                  const gchar          *mime_type,
@@ -37,9 +40,7 @@ typedef gboolean (* TrackerExtractMetadataFunc) (const gchar          *uri,
 gboolean  tracker_extract_module_manager_init                (void) G_GNUC_CONST;
 GModule * tracker_extract_module_manager_get_for_mimetype    (const gchar                *mimetype,
                                                               TrackerExtractMetadataFunc *func);
-gboolean  tracker_extract_module_manager_mimetype_is_handled (const gchar *mimetype);
-
-#undef __LIBTRACKER_EXTRACT_INSIDE__
+gboolean  tracker_extract_module_manager_mimetype_is_handled (const gchar                *mimetype);
 
 G_END_DECLS
 
