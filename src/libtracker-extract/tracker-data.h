@@ -49,10 +49,6 @@ G_BEGIN_DECLS
  * An example of how to write an extractor to retrieve PNG embedded
  * metadata.
  * <programlisting>
- *  static void extract_png (const gchar          *filename,
- *                           TrackerSparqlBuilder *preupdate,
- *                           TrackerSparqlBuilder *metadata);
- *
  *  /&ast; Set functions to use to extract different mime types. &ast;/
  *  static TrackerExtractData extract_data[] = {
  *          { "image/png",  extract_png },
@@ -60,10 +56,11 @@ G_BEGIN_DECLS
  *          { NULL, NULL }
  *  };
  *
- *  static void
- *  extract_png (const gchar          *uri,
- *               TrackerSparqlBuilder *preupdate,
- *               TrackerSparqlBuilder *metadata)
+ *  G_MODULE_EXPORT gboolean
+ *  tracker_extract_get_metadata (const gchar          *uri,
+ *                                const gchar          *mimetype,
+ *                                TrackerSparqlBuilder *preupdate,
+ *                                TrackerSparqlBuilder *metadata)
  *  {
  *          gint height, width;
  *
@@ -83,16 +80,17 @@ G_BEGIN_DECLS
  *          tracker_sparql_builder_object_int64 (metadata, height);
  *
  *          g_free (filename);
- *  }
  *
- *  TrackerExtractData *
- *  tracker_extract_get_data (void)
- *  {
- *          return extract_data;
+ *          /&ast; Were we successful or not? &ast;/
+ *          return TRUE;
  *  }
  * </programlisting>
  * </example>
  *
+ * NOTE: This example has changed subtly since 0.10. For details see
+ * tracker_extract_get_metadata().
+ *
+ * Since: 0.12
  */
 
 /**
@@ -124,9 +122,15 @@ G_BEGIN_DECLS
  * added to @preupdate, which is a #TrackerSparqlBuilder constructed.
  * through tracker_sparql_builder_new_update().
  *
+ * NOTE: If upgrading from 0.10, this function is replacing the old
+ * function named tracker_extract_get_data() and has a few subtle
+ * differences. First there is a return value for success. Second
+ * there is also a @mimetype argument which should will be passed to
+ * each extractor.
+ *
  * Returns: %TRUE if the extraction succeeded, %FALSE otherwise.
  *
- * Since: 0.8
+ * Since: 0.12
  */
 gboolean tracker_extract_get_metadata (const gchar          *uri,
                                        const gchar          *mimetype,
