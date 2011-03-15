@@ -61,13 +61,6 @@ typedef struct {
 	GSList   *ignored_file_paths;
 } TrackerConfigPrivate;
 
-typedef struct {
-	GType  type;
-	const gchar *property;
-	const gchar *group;
-	const gchar *key;
-} ObjectToKeyFile;
-
 static void     config_set_property         (GObject           *object,
                                              guint              param_id,
                                              const GValue      *value,
