@@ -127,23 +127,6 @@ License which can be viewed at:
 	}
 
 	[CCode (array_length = false, array_null_terminated = true)]
-	static string[] get_notifiable_classes () {
-		string[] classes_to_signal = null;
-
-		try {
-			var cursor = Tracker.Data.query_sparql_cursor ("SELECT ?class WHERE { ?class tracker:notify true }");
-
-			while (cursor.next ()) {
-				classes_to_signal += cursor.get_string (0);
-			}
-		} catch (Error e) {
-			critical ("Unable to retrieve tracker:notify classes: %s", e.message);
-		}
-
-		return classes_to_signal;
-	}
-
-	[CCode (array_length = false, array_null_terminated = true)]
 	static string[] get_writeback_predicates () {
 		string[] predicates_to_signal = null;
 
@@ -313,7 +296,7 @@ License which can be viewed at:
 
 			Tracker.DBus.register_prepare_class_signal ();
 
-			Tracker.Events.init (get_notifiable_classes);
+			Tracker.Events.init ();
 			Tracker.Writeback.init (get_writeback_predicates);
 			Tracker.Store.resume ();
 

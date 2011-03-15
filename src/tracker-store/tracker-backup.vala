@@ -23,11 +23,9 @@ public class Tracker.Backup : Object {
 	public const string PATH = "/org/freedesktop/Tracker1/Backup";
 
 	public async void save (BusName sender, string destination_uri) throws Error {
-		NotifyClassGetter getter = null;
 		var resources = (Resources) Tracker.DBus.get_object (typeof (Resources));
 		if (resources != null) {
 			resources.disable_signals ();
-			getter = Tracker.Events.get_class_getter ();
 			Tracker.Events.shutdown ();
 		}
 
@@ -54,7 +52,7 @@ public class Tracker.Backup : Object {
 			throw e;
 		} finally {
 			if (resources != null) {
-				Tracker.Events.init (getter);
+				Tracker.Events.init ();
 				resources.enable_signals ();
 			}
 
@@ -63,11 +61,9 @@ public class Tracker.Backup : Object {
 	}
 
 	public async void restore (BusName sender, string journal_uri) throws Error {
-		NotifyClassGetter getter = null;
 		var resources = (Resources) Tracker.DBus.get_object (typeof (Resources));
 		if (resources != null) {
 			resources.disable_signals ();
-			getter = Tracker.Events.get_class_getter ();
 			Tracker.Events.shutdown ();
 		}
 
@@ -88,7 +84,7 @@ public class Tracker.Backup : Object {
 			throw e;
 		} finally {
 			if (resources != null) {
-				Tracker.Events.init (getter);
+				Tracker.Events.init ();
 				resources.enable_signals ();
 			}
 
