@@ -31,7 +31,7 @@ Boston, MA  02110-1301, USA.
       <default>30</default>
       <range min="0" max="200"/>
       <_summary>Maximum length of a word to be indexed</_summary>
-      <_description>Words with more characters than this lenght will be ignored by the indexer.</_description>
+      <_description>Words with more characters than this length will be ignored by the indexer.</_description>
     </key>
 
     <key name="max-words-to-index" type="i">
@@ -42,13 +42,13 @@ Boston, MA  02110-1301, USA.
 
     <key name="enable-stemmer" type="b">
       <_summary>Enable stemmer</_summary>
-      <_description>Simplify the words to its root to provide more results.</_description>
+      <_description>Simplify the words to their root to provide more results. E.g. 'shelves' and 'shelf' to 'shel'</_description>
       <default>false</default>
     </key>
 
     <key name="enable-unaccent" type="b">
       <_summary>Enable unaccent</_summary>
-      <_description>Translated accented characters to the equivalent unaccented.</_description>
+      <_description>Translated accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching. </_description>
       <default>true</default>
     </key>
 
@@ -60,7 +60,7 @@ Boston, MA  02110-1301, USA.
 
     <key name="ignore-stop-words" type="b">
       <_summary>Ignore stop words</_summary>
-      <_description>If enabled, the words listed in the stop-words list are ignored.</_description>
+      <_description>If enabled, the words listed in the stop-words list are ignored. E.g. common words like 'the', 'yes', 'no', etc.</_description>
       <default>true</default>
     </key>
 
