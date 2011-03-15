@@ -17,7 +17,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
+
 #include "tracker-extract-module-manager.h"
 
 #define EXTRACTOR_FUNCTION "tracker_extract_get_metadata"
@@ -145,7 +148,8 @@ tracker_extract_module_manager_init (void)
 	g_dir_close (dir);
 
 	/* Initialize miscellaneous data */
-	mimetype_map = g_hash_table_new_full (g_str_hash, g_str_equal,
+	mimetype_map = g_hash_table_new_full (g_str_hash,
+	                                      g_str_equal,
 	                                      (GDestroyNotify) g_free,
 	                                      NULL);
 	initialized = TRUE;
@@ -283,5 +287,6 @@ tracker_extract_module_manager_mimetype_is_handled (const gchar *mimetype)
 	}
 
 	info = lookup_rule (mimetype);
-	return (info != NULL);
+
+	return info != NULL;
 }

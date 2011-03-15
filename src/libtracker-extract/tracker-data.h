@@ -106,8 +106,8 @@ G_BEGIN_DECLS
  *
  * This function must be provided by ALL extractors. This is merely
  * the declaration of the function which must be written by each
- * extractor. 
- * 
+ * extractor.
+ *
  * This is checked by tracker-extract by looking up the symbols for
  * each started plugin and making sure this function exists.
  *
