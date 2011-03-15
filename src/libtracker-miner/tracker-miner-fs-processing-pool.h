@@ -40,6 +40,7 @@ typedef void  (* TrackerProcessingPoolTaskFinishedCallback) (TrackerProcessingTa
                                                              gpointer               user_data,
                                                              const GError          *error);
 
+/* Processing Task API */
 
 TrackerProcessingTask *tracker_processing_task_new               (GFile                 *file);
 void                   tracker_processing_task_free              (TrackerProcessingTask *task);
@@ -52,12 +53,11 @@ void                   tracker_processing_task_set_sparql        (TrackerProcess
                                                                   TrackerSparqlBuilder  *sparql);
 void                   tracker_processing_task_set_sparql_string (TrackerProcessingTask *task,
                                                                   gchar                 *sparql_string);
-
-/* API for bulk operations */
 void                   tracker_processing_task_set_bulk_operation (TrackerProcessingTask *task,
                                                                    const gchar           *sparql,
                                                                    TrackerBulkMatchType   match);
 
+/* Processing Pool API */
 
 TrackerProcessingPool *tracker_processing_pool_new                   (TrackerMinerFS          *miner,
                                                                       guint                    limit_wait,
@@ -73,8 +73,6 @@ TrackerProcessingTask *tracker_processing_pool_find_task             (TrackerPro
                                                                       GFile                   *file,
                                                                       gboolean                 path_search);
 gboolean               tracker_processing_pool_wait_limit_reached    (TrackerProcessingPool   *pool);
-gboolean               tracker_processing_pool_ready_limit_reached   (TrackerProcessingPool   *pool);
-
 void                   tracker_processing_pool_remove_task           (TrackerProcessingPool   *pool,
                                                                       TrackerProcessingTask   *task);
 void                   tracker_processing_pool_push_wait_task        (TrackerProcessingPool   *pool,
@@ -85,7 +83,6 @@ gboolean               tracker_processing_pool_push_ready_task       (TrackerPro
                                                                       TrackerProcessingPoolTaskFinishedCallback finished_handler,
                                                                       gpointer                 user_data);
 guint                  tracker_processing_pool_get_wait_task_count   (TrackerProcessingPool   *pool);
-guint                  tracker_processing_pool_get_ready_task_count  (TrackerProcessingPool   *pool);
 guint                  tracker_processing_pool_get_total_task_count  (TrackerProcessingPool   *pool);
 TrackerProcessingTask *tracker_processing_pool_get_last_wait         (TrackerProcessingPool   *pool);
 void                   tracker_processing_pool_foreach               (TrackerProcessingPool   *pool,
