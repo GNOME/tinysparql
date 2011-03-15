@@ -29,6 +29,7 @@
 typedef struct {
 	gboolean frozen;
 	guint total;
+	GPtrArray *cache;
 } EventsPrivate;
 
 static EventsPrivate *private;
@@ -112,20 +113,14 @@ tracker_events_add_delete (gint         graph_id,
 void
 tracker_events_reset_pending (void)
 {
-	TrackerClass **classes;
-	guint length = 0;
 	guint i;
 
 	g_return_if_fail (private != NULL);
 
-	classes = tracker_ontologies_get_classes (&length);
+	for (i = 0; i < private->cache->len; i++) {
+		TrackerClass *class = g_ptr_array_index (private->cache, i);
 
-	for (i = 0; i < length; i++) {
-		TrackerClass *class = classes[i];
-
-		if (tracker_class_get_notify (class)) {
-			tracker_class_reset_pending_events (class);
-		}
+		tracker_class_reset_pending_events (class);
 	}
 
 	private->frozen = FALSE;
@@ -142,31 +137,54 @@ tracker_events_freeze (void)
 static void
 free_private (EventsPrivate *private)
 {
-	TrackerClass **classes;
-	guint length = 0;
 	guint i;
 
-	classes = tracker_ontologies_get_classes (&length);
+	for (i = 0; i < private->cache->len; i++) {
+		TrackerClass *class = g_ptr_array_index (private->cache, i);
 
-	for (i = 0; i < length; i++) {
-		TrackerClass *class = classes[i];
+		tracker_class_reset_pending_events (class);
 
-		if (tracker_class_get_notify (class)) {
-			tracker_class_reset_pending_events (class);
-
-			/* Perhaps hurry an emit of the ready events here? We're shutting down,
-			 * so I guess we're not required to do that here ... ? */
-			tracker_class_reset_ready_events (class);
-		}
+		/* Perhaps hurry an emit of the ready events here? We're shutting down,
+		 * so I guess we're not required to do that here ... ? */
+		tracker_class_reset_ready_events (class);
 	}
 
+	g_ptr_array_unref (private->cache);
+
 	g_free (private);
+}
+
+TrackerClass **
+tracker_events_get_classes (guint *length)
+{
+	g_return_val_if_fail (private != NULL, NULL);
+
+	*length = private->cache->len;
+
+	return (TrackerClass **) (private->cache->pdata);
 }
 
 void
 tracker_events_init (void)
 {
+	TrackerClass **classes;
+	guint length = 0, i;
+
 	private = g_new0 (EventsPrivate, 1);
+
+	classes = tracker_ontologies_get_classes (&length);
+
+	private->cache = g_ptr_array_sized_new (length);
+	g_ptr_array_set_free_func (private->cache, (GDestroyNotify) g_object_unref);
+
+	for (i = 0; i < length; i++) {
+		TrackerClass *class = classes[i];
+
+		if (tracker_class_get_notify (class)) {
+			g_ptr_array_add (private->cache, g_object_ref (class));
+		}
+	}
+
 }
 
 void
