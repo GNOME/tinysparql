@@ -1726,7 +1726,6 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 		 * and in this case we need to setup queue handlers again */
 		if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
 		                                              task,
-		                                              TRUE, /* buffer! */
 		                                              processing_pool_task_finished_cb,
 		                                              fs)) {
 			item_queue_handlers_set_up (fs);
@@ -1867,7 +1866,6 @@ item_remove (TrackerMinerFS *fs,
 	 * and in this case we need to setup queue handlers again */
 	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
 	                                              task,
-	                                              TRUE,
 	                                              processing_pool_task_finished_cb,
 	                                              fs)) {
 		item_queue_handlers_set_up (fs);
@@ -1891,7 +1889,6 @@ item_remove (TrackerMinerFS *fs,
 	 * and in this case we need to setup queue handlers again */
 	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
 	                                              task,
-	                                              TRUE,
 	                                              processing_pool_task_finished_cb,
 	                                              fs)) {
 		item_queue_handlers_set_up (fs);
@@ -2239,7 +2236,6 @@ item_move (TrackerMinerFS *fs,
 	 * and in this case we need to setup queue handlers again */
 	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
 	                                              task,
-	                                              FALSE,
 	                                              processing_pool_task_finished_cb,
 	                                              fs)) {
 		item_queue_handlers_set_up (fs);
