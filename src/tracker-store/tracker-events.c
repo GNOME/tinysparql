@@ -29,7 +29,7 @@
 typedef struct {
 	gboolean frozen;
 	guint total;
-	GPtrArray *cache;
+	GPtrArray *notify_classes;
 } EventsPrivate;
 
 static EventsPrivate *private;
@@ -117,8 +117,8 @@ tracker_events_reset_pending (void)
 
 	g_return_if_fail (private != NULL);
 
-	for (i = 0; i < private->cache->len; i++) {
-		TrackerClass *class = g_ptr_array_index (private->cache, i);
+	for (i = 0; i < private->notify_classes->len; i++) {
+		TrackerClass *class = g_ptr_array_index (private->notify_classes, i);
 
 		tracker_class_reset_pending_events (class);
 	}
@@ -139,8 +139,8 @@ free_private (EventsPrivate *private)
 {
 	guint i;
 
-	for (i = 0; i < private->cache->len; i++) {
-		TrackerClass *class = g_ptr_array_index (private->cache, i);
+	for (i = 0; i < private->notify_classes->len; i++) {
+		TrackerClass *class = g_ptr_array_index (private->notify_classes, i);
 
 		tracker_class_reset_pending_events (class);
 
@@ -149,7 +149,7 @@ free_private (EventsPrivate *private)
 		tracker_class_reset_ready_events (class);
 	}
 
-	g_ptr_array_unref (private->cache);
+	g_ptr_array_unref (private->notify_classes);
 
 	g_free (private);
 }
@@ -159,9 +159,9 @@ tracker_events_get_classes (guint *length)
 {
 	g_return_val_if_fail (private != NULL, NULL);
 
-	*length = private->cache->len;
+	*length = private->notify_classes->len;
 
-	return (TrackerClass **) (private->cache->pdata);
+	return (TrackerClass **) (private->notify_classes->pdata);
 }
 
 void
@@ -174,14 +174,14 @@ tracker_events_init (void)
 
 	classes = tracker_ontologies_get_classes (&length);
 
-	private->cache = g_ptr_array_sized_new (length);
-	g_ptr_array_set_free_func (private->cache, (GDestroyNotify) g_object_unref);
+	private->notify_classes = g_ptr_array_sized_new (length);
+	g_ptr_array_set_free_func (private->notify_classes, (GDestroyNotify) g_object_unref);
 
 	for (i = 0; i < length; i++) {
 		TrackerClass *class = classes[i];
 
 		if (tracker_class_get_notify (class)) {
-			g_ptr_array_add (private->cache, g_object_ref (class));
+			g_ptr_array_add (private->notify_classes, g_object_ref (class));
 		}
 	}
 
