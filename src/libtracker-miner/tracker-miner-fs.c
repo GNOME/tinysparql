@@ -97,6 +97,7 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
 /* Default processing pool limits to be set */
 #define DEFAULT_WAIT_POOL_LIMIT 1
 #define DEFAULT_READY_POOL_LIMIT 1
+#define DEFAULT_N_REQUESTS_POOL_LIMIT 10
 
 /**
  * SECTION:tracker-miner-fs
@@ -262,6 +263,7 @@ enum {
 	PROP_THROTTLE,
 	PROP_WAIT_POOL_LIMIT,
 	PROP_READY_POOL_LIMIT,
+	PROP_N_REQUESTS_POOL_LIMIT,
 	PROP_MTIME_CHECKING,
 	PROP_INITIAL_CRAWLING
 };
@@ -400,6 +402,14 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                    "Maximum number of SPARQL updates that can be merged "
 	                                                    "in a single connection to the store",
 	                                                    1, G_MAXUINT, DEFAULT_READY_POOL_LIMIT,
+	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+	                                 PROP_N_REQUESTS_POOL_LIMIT,
+	                                 g_param_spec_uint ("processing-pool-requests-limit",
+	                                                    "Processing pool limit for number of requests",
+	                                                    "Maximum number of SPARQL requests that can be sent "
+	                                                    "to the store in parallel.",
+	                                                    1, G_MAXUINT, DEFAULT_N_REQUESTS_POOL_LIMIT,
 	                                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
 	                                 PROP_MTIME_CHECKING,
@@ -666,7 +676,8 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	/* Create processing pool */
 	priv->processing_pool = tracker_processing_pool_new (object,
 	                                                     DEFAULT_WAIT_POOL_LIMIT,
-	                                                     DEFAULT_READY_POOL_LIMIT);
+	                                                     DEFAULT_READY_POOL_LIMIT,
+	                                                     DEFAULT_N_REQUESTS_POOL_LIMIT);
 
 	/* Set up the crawlers now we have config and hal */
 	priv->crawler = tracker_crawler_new ();
@@ -825,6 +836,10 @@ fs_set_property (GObject      *object,
 		tracker_processing_pool_set_ready_limit (fs->private->processing_pool,
 		                                         g_value_get_uint (value));
 		break;
+	case PROP_N_REQUESTS_POOL_LIMIT:
+		tracker_processing_pool_set_n_requests_limit (fs->private->processing_pool,
+		                                              g_value_get_uint (value));
+		break;
 	case PROP_MTIME_CHECKING:
 		fs->private->mtime_checking = g_value_get_boolean (value);
 		break;
@@ -858,6 +873,10 @@ fs_get_property (GObject    *object,
 	case PROP_READY_POOL_LIMIT:
 		g_value_set_uint (value,
 		                  tracker_processing_pool_get_ready_limit (fs->private->processing_pool));
+		break;
+	case PROP_N_REQUESTS_POOL_LIMIT:
+		g_value_set_uint (value,
+		                  tracker_processing_pool_get_n_requests_limit (fs->private->processing_pool));
 		break;
 	case PROP_MTIME_CHECKING:
 		g_value_set_boolean (value, fs->private->mtime_checking);
