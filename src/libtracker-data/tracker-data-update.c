@@ -1090,6 +1090,10 @@ tracker_data_blank_buffer_flush (GError **error)
 	/* generate hash uri from data to find resource
 	   assumes no collisions due to generally little contents of anonymous nodes */
 	for (i = 0; i < blank_buffer.predicates->len; i++) {
+		if (blank_buffer.graphs->data[i] != NULL) {
+			g_checksum_update (checksum, g_array_index (blank_buffer.graphs, guchar *, i), -1);
+		}
+
 		g_checksum_update (checksum, g_array_index (blank_buffer.predicates, guchar *, i), -1);
 		g_checksum_update (checksum, g_array_index (blank_buffer.objects, guchar *, i), -1);
 	}
