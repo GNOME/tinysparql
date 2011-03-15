@@ -83,7 +83,6 @@ void                   tracker_processing_pool_push_wait_task        (TrackerPro
                                                                       TrackerProcessingTask   *task);
 gboolean               tracker_processing_pool_push_ready_task       (TrackerProcessingPool   *pool,
                                                                       TrackerProcessingTask   *task,
-                                                                      gboolean                 buffer,
                                                                       TrackerProcessingPoolTaskFinishedCallback finished_handler,
                                                                       gpointer                 user_data);
 guint                  tracker_processing_pool_get_n_requests        (TrackerProcessingPool   *pool);
