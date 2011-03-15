@@ -217,11 +217,9 @@ public class Tracker.Resources : Object {
 	bool on_emit_signals () {
 		bool had_any = false;
 
-		foreach (var cl in Tracker.Ontologies.get_classes ()) {
-			if (cl.notify) {
-				if (emit_graph_updated (cl)) {
-					had_any = true;
-				}
+		foreach (var cl in Tracker.Events.get_classes ()) {
+			if (emit_graph_updated (cl)) {
+				had_any = true;
 			}
 		}
 
@@ -268,10 +266,8 @@ public class Tracker.Resources : Object {
 	void on_statements_committed (bool start_timer) {
 		/* Class signal feature */
 
-		foreach (var cl in Tracker.Ontologies.get_classes ()) {
-			if (cl.notify) {
-				cl.transact_events ();
-			}
+		foreach (var cl in Tracker.Events.get_classes ()) {
+			cl.transact_events ();
 		}
 
 		if (start_timer && signal_timeout == 0) {
@@ -291,10 +287,8 @@ public class Tracker.Resources : Object {
 		/* Check for whether we need an immediate emit */
 		if (Tracker.Events.get_total (false) > GRAPH_UPDATED_IMMEDIATE_EMIT_AT) {
 
-			foreach (var cl in Tracker.Ontologies.get_classes ()) {
-				if (cl.notify) {
-					emit_graph_updated (cl);
-				}
+			foreach (var cl in Tracker.Events.get_classes ()) {
+				emit_graph_updated (cl);
 			}
 
 			/* Reset counter */
