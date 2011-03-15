@@ -544,7 +544,13 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 		return NULL;
 	}
 
-	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
+	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &error);
+	if (!priv->introspection_data) {
+		g_critical ("Could not create node info from introspection XML, %s",
+		            error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return NULL;
+	}
 
 	full_name = g_strconcat (TRACKER_MINER_DBUS_NAME_PREFIX, "Files.Index", NULL);
 	priv->full_name = full_name;

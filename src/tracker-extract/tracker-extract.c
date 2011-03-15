@@ -727,7 +727,6 @@ tracker_extract_dbus_start (TrackerExtract *extract)
 	priv = TRACKER_EXTRACT_GET_PRIVATE (extract);
 
 	priv->d_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-
 	if (!priv->d_connection) {
 		g_critical ("Could not connect to the D-Bus session bus, %s",
 		            error ? error->message : "no error given.");
@@ -735,7 +734,13 @@ tracker_extract_dbus_start (TrackerExtract *extract)
 		return;
 	}
 
-	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
+	priv->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &error);
+	if (!priv->introspection_data) {
+		g_critical ("Could not create node info from introspection XML, %s",
+		            error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return;
+	}
 
 	g_message ("Registering D-Bus object...");
 	g_message ("  Path:'" TRACKER_EXTRACT_PATH "'");
