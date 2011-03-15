@@ -12,6 +12,10 @@ AM_CPPFLAGS = \
 	-DTRACKER_EXTRACTORS_DIR=\"$(modulesdir)\" \
 	$(TRACKER_EXTRACT_CFLAGS)
 
+# NOTE: The rules are here and not in another sub-directory because we
+# only install rules for extractors we build. If we decouple this, it
+# duplicates work and requires more maintenance to keep modules up to
+# date.
 rules_in_files = \
 	10-abw.rule.in \
 	10-flac.rule.in \
