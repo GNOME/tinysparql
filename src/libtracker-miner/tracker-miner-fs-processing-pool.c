@@ -362,7 +362,6 @@ pool_status_trace_timeout_cb (gpointer data)
 	}
 	return TRUE;
 }
-
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
 
 static void
@@ -485,7 +484,7 @@ tracker_processing_pool_wait_limit_reached (TrackerProcessingPool *pool)
 	        TRUE : FALSE);
 }
 
-gboolean
+static gboolean
 tracker_processing_pool_ready_limit_reached (TrackerProcessingPool *pool)
 {
 	return ((g_queue_get_length (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_READY]) >=
@@ -1035,12 +1034,6 @@ guint
 tracker_processing_pool_get_wait_task_count (TrackerProcessingPool *pool)
 {
 	return g_queue_get_length (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_WAIT]);
-}
-
-guint
-tracker_processing_pool_get_ready_task_count (TrackerProcessingPool *pool)
-{
-	return g_queue_get_length (pool->tasks[TRACKER_PROCESSING_TASK_STATUS_READY]);
 }
 
 guint
