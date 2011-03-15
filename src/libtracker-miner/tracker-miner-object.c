@@ -381,7 +381,11 @@ miner_initable_init (GInitable     *initable,
 	}
 
 	/* Setup introspection data */
-	miner->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
+	miner->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &inner_error);
+	if (!miner->private->introspection_data) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
 
 	/* Check miner has a proper name */
 	if (!miner->private->name) {

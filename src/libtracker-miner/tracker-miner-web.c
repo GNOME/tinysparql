@@ -164,7 +164,11 @@ miner_web_initable_init (GInitable     *initable,
 	}
 
 	/* Setup web-interface introspection data */
-	mw->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, NULL);
+	mw->private->introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &inner_error);
+	if (!mw->private->introspection_data) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
 
 	g_message ("Registering Web interface in D-Bus object...");
 	g_message ("  Path:'%s'", tracker_miner_get_dbus_full_path (miner));
