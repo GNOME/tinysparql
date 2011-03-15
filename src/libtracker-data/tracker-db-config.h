@@ -57,7 +57,7 @@ TrackerDBConfig *tracker_db_config_new                            (void);
 gboolean         tracker_db_config_save                           (TrackerDBConfig *config);
 
 gint             tracker_db_config_get_journal_chunk_size         (TrackerDBConfig *config);
-const gchar *    tracker_db_config_get_journal_rotate_destination (TrackerDBConfig *config);
+gchar *          tracker_db_config_get_journal_rotate_destination (TrackerDBConfig *config);
 
 void             tracker_db_config_set_journal_chunk_size         (TrackerDBConfig *config,
                                                                    gint             value);

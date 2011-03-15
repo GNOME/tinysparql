@@ -15,9 +15,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301  USA
- *
- * Authors:
- * Philip Van Hoof <philip@codeminded.be>
  */
 
 #include "config.h"
@@ -39,16 +36,16 @@
 #define DEFAULT_JOURNAL_CHUNK_SIZE           50
 #define DEFAULT_JOURNAL_ROTATE_DESTINATION   ""
 
-static void config_set_property         (GObject       *object,
-                                         guint          param_id,
-                                         const GValue  *value,
-                                         GParamSpec    *pspec);
-static void config_get_property         (GObject       *object,
-                                         guint          param_id,
-                                         GValue        *value,
-                                         GParamSpec    *pspec);
-static void config_finalize             (GObject       *object);
-static void config_constructed          (GObject       *object);
+static void config_set_property (GObject      *object,
+                                 guint         param_id,
+                                 const GValue *value,
+                                 GParamSpec   *pspec);
+static void config_get_property (GObject      *object,
+                                 guint         param_id,
+                                 GValue       *value,
+                                 GParamSpec   *pspec);
+static void config_finalize     (GObject      *object);
+static void config_constructed  (GObject      *object);
 
 enum {
 	PROP_0,
@@ -135,7 +132,7 @@ config_get_property (GObject    *object,
 		g_value_set_int (value, tracker_db_config_get_journal_chunk_size (config));
 		break;
 	case PROP_JOURNAL_ROTATE_DESTINATION:
-		g_value_set_string (value, tracker_db_config_get_journal_rotate_destination (config));
+		g_value_take_string (value, tracker_db_config_get_journal_rotate_destination (config));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -180,11 +177,12 @@ tracker_db_config_new (void)
 gboolean
 tracker_db_config_save (TrackerDBConfig *config)
 {
+	g_return_val_if_fail (TRACKER_IS_DB_CONFIG (config), FALSE);
+
         g_settings_apply (G_SETTINGS (config));
-        //FIXME: make this function return void?
+
         return TRUE;
 }
-
 
 gint
 tracker_db_config_get_journal_chunk_size (TrackerDBConfig *config)
@@ -194,7 +192,7 @@ tracker_db_config_get_journal_chunk_size (TrackerDBConfig *config)
 	return g_settings_get_int (G_SETTINGS (config), "journal-chunk-size");
 }
 
-const gchar *
+gchar *
 tracker_db_config_get_journal_rotate_destination (TrackerDBConfig *config)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_CONFIG (config), DEFAULT_JOURNAL_ROTATE_DESTINATION);
@@ -218,6 +216,6 @@ tracker_db_config_set_journal_rotate_destination (TrackerDBConfig *config,
 {
 	g_return_if_fail (TRACKER_IS_DB_CONFIG (config));
 
-        g_settings_set_string (G_SETTINGS (config), "journal-rotate-destination", g_strdup (value));
+        g_settings_set_string (G_SETTINGS (config), "journal-rotate-destination", value);
 	g_object_notify (G_OBJECT (config), "journal-rotate-destination");
 }

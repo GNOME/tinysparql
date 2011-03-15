@@ -395,7 +395,7 @@ tracker_control_general_run (void)
 
 	if (hard_reset || soft_reset) {
 		guint log_handler_id;
-		const gchar *rotate_to = NULL;
+		gchar *rotate_to;
 		TrackerDBConfig *db_config;
 		gsize chunk_size;
 		gint chunk_size_mb;
@@ -418,6 +418,7 @@ tracker_control_general_run (void)
 		tracker_db_journal_set_rotating ((chunk_size_mb != -1),
 		                                 chunk_size, rotate_to);
 
+		g_free (rotate_to);
 		g_object_unref (db_config);
 
 		/* Clean up (select_cache_size and update_cache_size don't matter here) */
