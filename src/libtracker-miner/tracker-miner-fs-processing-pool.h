@@ -61,14 +61,18 @@ void                   tracker_processing_task_set_bulk_operation (TrackerProces
 
 TrackerProcessingPool *tracker_processing_pool_new                   (TrackerMinerFS          *miner,
                                                                       guint                    limit_wait,
-                                                                      guint                    limit_process);
+                                                                      guint                    limit_process,
+                                                                      guint                    limit_n_requests);
 void                   tracker_processing_pool_free                  (TrackerProcessingPool   *pool);
 void                   tracker_processing_pool_set_wait_limit        (TrackerProcessingPool   *pool,
                                                                       guint                    limit);
 void                   tracker_processing_pool_set_ready_limit       (TrackerProcessingPool   *pool,
                                                                       guint                    limit);
+void                   tracker_processing_pool_set_n_requests_limit  (TrackerProcessingPool   *pool,
+                                                                      guint                    limit);
 guint                  tracker_processing_pool_get_wait_limit        (TrackerProcessingPool   *pool);
 guint                  tracker_processing_pool_get_ready_limit       (TrackerProcessingPool   *pool);
+guint                  tracker_processing_pool_get_n_requests_limit  (TrackerProcessingPool   *pool);
 TrackerProcessingTask *tracker_processing_pool_find_task             (TrackerProcessingPool   *pool,
                                                                       GFile                   *file,
                                                                       gboolean                 path_search);
@@ -82,6 +86,7 @@ gboolean               tracker_processing_pool_push_ready_task       (TrackerPro
                                                                       gboolean                 buffer,
                                                                       TrackerProcessingPoolTaskFinishedCallback finished_handler,
                                                                       gpointer                 user_data);
+guint                  tracker_processing_pool_get_n_requests        (TrackerProcessingPool   *pool);
 guint                  tracker_processing_pool_get_wait_task_count   (TrackerProcessingPool   *pool);
 guint                  tracker_processing_pool_get_total_task_count  (TrackerProcessingPool   *pool);
 TrackerProcessingTask *tracker_processing_pool_get_last_wait         (TrackerProcessingPool   *pool);
