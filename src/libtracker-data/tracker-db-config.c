@@ -172,8 +172,8 @@ TrackerDBConfig *
 tracker_db_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_DB_CONFIG,
-                             "schema", "org.freedesktop.Tracker.Store.DB",
-	                     "path", "/org/freedesktop/tracker/store/db/",
+                             "schema", "org.freedesktop.Tracker.DB",
+	                     "path", "/org/freedesktop/tracker/db/",
 	                     NULL);
 }
 

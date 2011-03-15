@@ -19,7 +19,6 @@ Boston, MA  02110-1301, USA.
 -->
 <schemalist>
   <schema id="org.freedesktop.Tracker.Store" path="/org/freedesktop/tracker/store/" gettext-domain="tracker">
-    <child name="db" schema="org.freedesktop.Tracker.Store.DB"/>
     <key name="verbosity" enum="org.freedesktop.Tracker.TrackerVerbosity">
       <default>'errors'</default>
       <_summary>Log verbosity</_summary>

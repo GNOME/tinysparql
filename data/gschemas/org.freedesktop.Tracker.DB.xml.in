@@ -18,7 +18,7 @@ Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA  02110-1301, USA.
 -->
 <schemalist>
-  <schema id="org.freedesktop.Tracker.Store.DB" path="/org/freedesktop/tracker/store/db/" gettext-domain="tracker">
+  <schema id="org.freedesktop.Tracker.DB" path="/org/freedesktop/tracker/db" gettext-domain="tracker">
     <key name="journal-chunk-size" type="i">
       <default>50</default>
       <_summary>Maximum size of journal</_summary>
