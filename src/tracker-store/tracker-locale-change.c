@@ -36,7 +36,6 @@
 
 typedef struct {
 	gpointer resources;
-	TrackerNotifyClassGetter getter;
 } TrackerLocaleChangeContext;
 
 /* Private */
@@ -77,7 +76,7 @@ locale_change_process_cb (GObject      *source,
 	busy_destroy_notify (busy_user_data);
 
 	if (ctxt->resources) {
-		tracker_events_init (ctxt->getter);
+		tracker_events_init ();
 		tracker_resources_enable_signals (ctxt->resources);
 		g_object_unref (ctxt->resources);
 	}
@@ -98,7 +97,6 @@ locale_change_process_idle_cb (gpointer data)
 	if (ctxt->resources) {
 		g_object_ref (ctxt->resources);
 		tracker_resources_disable_signals (ctxt->resources);
-		ctxt->getter = tracker_events_get_class_getter ();
 		tracker_events_shutdown ();
 	}
 

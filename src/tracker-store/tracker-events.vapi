@@ -18,17 +18,12 @@
  */
 
 namespace Tracker {
-	[CCode (has_array_length = false, array_null_terminated = true, has_target = false, cheader_filename = "tracker-store/tracker-events.h")]
-	public delegate string[] NotifyClassGetter ();
-
 	[CCode (cheader_filename = "tracker-store/tracker-events.h")]
 	namespace Events {
-		public void init (NotifyClassGetter callback);
-		public NotifyClassGetter get_class_getter ();
+		public void init ();
 		public void shutdown ();
 		public void add_insert (int graph_id, int subject_id, string subject, int pred_id, int object_id, string object, GLib.PtrArray rdf_types);
 		public void add_delete (int graph_id, int subject_id, string subject, int pred_id, int object_id, string object, GLib.PtrArray rdf_types);
-		public GLib.HashTableIter<Tracker.Class, bool> classes_iter ();
 		public uint get_total (bool and_reset);
 		public void reset_pending ();
 		public void freeze ();

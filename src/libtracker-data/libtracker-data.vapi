@@ -102,6 +102,7 @@ namespace Tracker {
 		[CCode (array_length = false, array_null_terminated = true)]
 		public unowned Class[] get_super_classes ();
 		public void transact_events ();
+		public bool notify { get; set; }
 
 		public bool has_insert_events ();
 		public bool has_delete_events ();
