@@ -42,7 +42,7 @@
 
 #include <libtracker-data/tracker-db-manager.h>
 
-#include <libtracker-extract/tracker-extract-module-manager.h>
+#include <libtracker-extract/tracker-module-manager.h>
 
 #include "tracker-power.h"
 #include "tracker-miner-files.h"

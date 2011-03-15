@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-#include "tracker-extract-module-manager.h"
+#include "tracker-module-manager.h"
 
 #define EXTRACTOR_FUNCTION "tracker_extract_get_metadata"
 

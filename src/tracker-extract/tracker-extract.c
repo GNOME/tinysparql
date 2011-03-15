@@ -32,7 +32,6 @@
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
-#include <libtracker-extract/tracker-extract-module-manager.h>
 
 #include "tracker-extract.h"
 #include "tracker-main.h"

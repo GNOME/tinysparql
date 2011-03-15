@@ -16,12 +16,12 @@ libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =  \
 	tracker-data.h                                 \
 	tracker-exif.c                                 \
 	tracker-exif.h                                 \
-	tracker-extract-module-manager.c               \
-	tracker-extract-module-manager.h               \
 	tracker-guarantee.c                            \
 	tracker-guarantee.h                            \
 	tracker-iptc.c                                 \
 	tracker-iptc.h                                 \
+	tracker-module-manager.c                       \
+	tracker-module-manager.h                       \
 	tracker-utils.c                                \
 	tracker-xmp.c                                  \
 	tracker-xmp.h
@@ -32,9 +32,9 @@ libtracker_extractinc_HEADERS =                        \
 	tracker-data.h                                 \
 	tracker-exif.h                                 \
 	tracker-extract.h                              \
-	tracker-extract-module-manager.h               \
 	tracker-guarantee.h                            \
 	tracker-iptc.h                                 \
+	tracker-module-manager.h                       \
 	tracker-utils.h                                \
 	tracker-xmp.h
 
