@@ -2,6 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
+rulesdir = $(datadir)/tracker/extract-rules
 
 AM_CPPFLAGS = \
 	$(BUILD_CFLAGS) \
@@ -10,6 +11,42 @@ AM_CPPFLAGS = \
 	-DLOCALEDIR=\""$(localedir)"\" \
 	-DTRACKER_EXTRACTORS_DIR=\"$(modulesdir)\" \
 	$(TRACKER_EXTRACT_CFLAGS)
+
+# NOTE: The rules are here and not in another sub-directory because we
+# only install rules for extractors we build. If we decouple this, it
+# duplicates work and requires more maintenance to keep modules up to
+# date.
+rules_in_files = \
+	10-abw.rule.in \
+	10-flac.rule.in \
+	10-gif.rule.in \
+	10-html.rule.in \
+	10-ico.rule.in \
+	10-jpeg.rule.in \
+	10-mp3.rule.in \
+	10-msoffice.rule.in \
+	10-oasis.rule.in \
+	10-pdf.rule.in \
+	10-png.rule.in \
+	10-ps.rule.in \
+	10-svg.rule.in \
+	10-tiff.rule.in \
+	10-vorbis.rule.in \
+	10-xmp.rule.in \
+	11-msoffice-xml.rule.in \
+	15-gstreamer-guess.rule.in \
+	15-playlists.rule.in \
+	15-real-media.rule.in \
+	16-upnp-guess.rule.in \
+	90-gstreamer-generic.rule.in \
+	90-text-generic.rule.in \
+	91-upnp-generic.rule.in \
+	92-xine-generic.rule.in \
+	93-mplayer-generic.rule.in \
+	93-totem-generic.rule.in
+
+%.rule: %.rule.in
+	@sed -e "s|@modulesdir[@]|${modulesdir}|" $< > $@
 
 # NOTE:
 # We don't always link with libtracker-common, we only link
@@ -22,32 +59,47 @@ modules_LTLIBRARIES = \
 	libextract-text.la \
 	libextract-icon.la
 
+rules_DATA = \
+	10-abw.rule \
+	10-ico.rule \
+	10-mp3.rule \
+	10-png.rule \
+	10-ps.rule \
+	90-text-generic.rule
+
 if HAVE_LIBVORBIS
 modules_LTLIBRARIES += libextract-vorbis.la
+rules_DATA += 10-vorbis.rule
 endif
 
 if HAVE_LIBFLAC
 modules_LTLIBRARIES += libextract-flac.la
+rules_DATA += 10-flac.rule
 endif
 
 if HAVE_EXEMPI
 modules_LTLIBRARIES += libextract-xmp.la
+rules_DATA += 10-xmp.rule
 endif
 
 if HAVE_LIBGIF
 modules_LTLIBRARIES += libextract-gif.la
+rules_DATA += 10-gif.rule
 endif
 
 if HAVE_LIBJPEG
 modules_LTLIBRARIES += libextract-jpeg.la
+rules_DATA += 10-jpeg.rule
 endif
 
 if HAVE_LIBTIFF
 modules_LTLIBRARIES += libextract-tiff.la
+rules_DATA += 10-tiff.rule
 endif
 
 if HAVE_LIBXML2
 modules_LTLIBRARIES += libextract-html.la
+rules_DATA += 10-html.rule
 endif
 
 if HAVE_LIBGSF
@@ -55,35 +107,43 @@ modules_LTLIBRARIES += \
 	libextract-msoffice.la \
 	libextract-msoffice-xml.la \
 	libextract-oasis.la
+rules_DATA += 10-oasis.rule 10-msoffice.rule 11-msoffice-xml.rule
 endif
 
 if HAVE_POPPLER
 modules_LTLIBRARIES += libextract-pdf.la
+rules_DATA += 10-pdf.rule
 endif
 
 if HAVE_GSTREAMER
 modules_LTLIBRARIES += libextract-gstreamer.la
+rules_DATA += 10-svg.rule 15-gstreamer-guess.rule 90-gstreamer-generic.rule
 endif
 
 if HAVE_GUPNP_DLNA
 modules_LTLIBRARIES += libextract-gupnp-dlna.la
+rules_DATA += 16-upnp-guess.rule 91-upnp-generic.rule
 endif
 
 if HAVE_GSTREAMER_HELIX
 modules_LTLIBRARIES += libextract-gstreamer-helix.la
+rules_DATA += 15-real-media.rule
 endif
 
 if HAVE_LIBXINE
 modules_LTLIBRARIES += libextract-xine.la
+rules_DATA += 92-xine-generic.rule
 endif
 
 if USING_EXTERNAL_VIDEO_PLAYER
 modules_LTLIBRARIES +=	libextract-mplayer.la \
 			libextract-totem.la
+rules_DATA += 93-mplayer-generic.rule 93-totem-generic.rule
 endif
 
 if HAVE_TOTEM_PL_PARSER
 modules_LTLIBRARIES += libextract-playlist.la
+rules_DATA += 15-playlist.rule
 endif
 
 # ABW
@@ -163,6 +223,7 @@ libextract_png_la_LIBADD = \
 	$(BUILD_LIBS) \
 	$(TRACKER_EXTRACT_MODULES_LIBS) \
 	$(LIBPNG_LIBS)
+
 
 # PS
 libextract_ps_la_SOURCES = tracker-extract-ps.c
@@ -421,6 +482,8 @@ tracker-marshal.c: tracker-marshal.list
 
 BUILT_SOURCES = $(marshal_sources)
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) $(rules_DATA)
 
-EXTRA_DIST = tracker-marshal.list
+EXTRA_DIST = \
+	tracker-marshal.list \
+	$(rules_in_files)

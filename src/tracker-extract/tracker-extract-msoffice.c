@@ -131,18 +131,6 @@ typedef struct {
 	const gchar *uri;
 } MetadataInfo;
 
-static void extract_msoffice     (const gchar          *uri,
-                                  TrackerSparqlBuilder *preupdate,
-                                  TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "application/msword",            extract_msoffice },
-	{ "application/vnd.ms-powerpoint", extract_msoffice },
-	{ "application/vnd.ms-excel",	   extract_msoffice },
-	{ "application/vnd.ms-*",          extract_msoffice },
-	{ NULL, NULL }
-};
-
 /* Valid range from \000 to \377 (0 to 255) */
 #define octal_ascii_triplet_is_valid(slash, a2, a1, a0) \
 	(slash == '\\' && \
@@ -1643,54 +1631,28 @@ extract_summary (TrackerSparqlBuilder *metadata,
  * @param uri URI of the file to extract data
  * @param metadata where to store extracted data to
  */
-static void
-extract_msoffice (const gchar          *uri,
-                  TrackerSparqlBuilder *preupdate,
-                  TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mime_used,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	TrackerConfig *config;
-	GFile *file = NULL;
-	GFileInfo *file_info = NULL;
-	const gchar *mime_used;
 	GsfInfile *infile = NULL;
 	gchar *content = NULL;
 	gboolean is_encrypted = FALSE;
 	gsize max_bytes;
 
-	file = g_file_new_for_uri (uri);
-
-	if (!file) {
-		g_warning ("Could not create GFile for URI:'%s'",
-		           uri);
-		return;
-	}
-
-	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-	                               G_FILE_QUERY_INFO_NONE,
-	                               NULL,
-	                               NULL);
-	g_object_unref (file);
-
-	if (!file_info) {
-		g_warning ("Could not get GFileInfo for URI:'%s'",
-		           uri);
-		return;
-	}
-
 	gsf_init ();
 
 	infile = open_uri (uri);
 	if (!infile) {
-		g_object_unref (file_info);
 		gsf_shutdown ();
-		return;
+		return FALSE;
 	}
 
 	/* Extracting summary */
 	extract_summary (metadata, infile, uri);
-
-	mime_used = g_file_info_get_content_type (file_info);
 
 	/* Set max bytes to read from content */
 	config = tracker_main_get_config ();
@@ -1727,12 +1689,7 @@ extract_msoffice (const gchar          *uri,
 	}
 
 	g_object_unref (infile);
-	g_object_unref (file_info);
 	gsf_shutdown ();
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

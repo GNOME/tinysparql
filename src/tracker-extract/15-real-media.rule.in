@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-gstreamer-helix.so
+MimeTypes=audio/vnd.rn-realaudio;audio/x-pn-realaudio;audio/x-pn-realaudio-plugin;video/vnd.rn-realvideo;video/x-pn-realvideo;application/vnd.rn-realmedia;
+

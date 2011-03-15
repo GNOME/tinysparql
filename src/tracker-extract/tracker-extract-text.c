@@ -31,16 +31,6 @@
 
 #define  TRY_LOCALE_TO_UTF8_CONVERSION 0
 
-static void extract_text (const gchar          *uri,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "text/*", extract_text },
-	{ NULL, NULL }
-};
-
-
 static gchar *
 get_file_content (const gchar  *uri,
                   gsize         n_bytes)
@@ -82,10 +72,11 @@ get_file_content (const gchar  *uri,
 	return text;
 }
 
-static void
-extract_text (const gchar          *uri,
-              TrackerSparqlBuilder *preupdate,
-              TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	TrackerConfig *config;
 	gchar *content;
@@ -103,10 +94,6 @@ extract_text (const gchar          *uri,
 		tracker_sparql_builder_object_unvalidated (metadata, content);
 		g_free (content);
 	}
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

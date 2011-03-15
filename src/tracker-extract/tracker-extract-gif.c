@@ -45,15 +45,6 @@ typedef struct {
 	gchar *comment;
 } GifData;
 
-static void extract_gif (const gchar          *filename,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "image/gif", extract_gif },
-	{ NULL, NULL }
-};
-
 typedef struct {
     unsigned int   byteCount;
     char          *bytes;
@@ -487,10 +478,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 }
 
 
-static void
-extract_gif (const gchar          *uri,
-             TrackerSparqlBuilder *preupdate,
-             TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+			      const gchar          *mimetype,
+			      TrackerSparqlBuilder *preupdate,
+			      TrackerSparqlBuilder *metadata)
 {
 	goffset size;
 	GifFileType *gifFile = NULL;
@@ -501,12 +493,12 @@ extract_gif (const gchar          *uri,
 
 	if (size < 64) {
 		g_free (filename);
-		return;
+		return FALSE;
 	}
 
 	if ((gifFile = DGifOpenFileName (filename)) == NULL) {
 		PrintGifError ();
-		return;
+		return FALSE;
 	}
 
 	g_free (filename);
@@ -521,10 +513,5 @@ extract_gif (const gchar          *uri,
 		PrintGifError ();
 	}
 
-}
-
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

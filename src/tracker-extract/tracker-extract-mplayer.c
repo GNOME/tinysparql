@@ -31,16 +31,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-static void extract_mplayer (const gchar          *uri,
-                             TrackerSparqlBuilder *preupdate,
-                             TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData extract_data[] = {
-	{ "audio/*", extract_mplayer },
-	{ "video/*", extract_mplayer },
-	{ NULL, NULL }
-};
-
 static const gchar *video_tags[][2] = {
 	{ "ID_VIDEO_HEIGHT",    "nfo:height"         },
 	{ "ID_VIDEO_WIDTH",     "nfo:width"          },
@@ -110,10 +100,11 @@ copy_hash_table_entry (gpointer key,
 	}
 }
 
-static void
-extract_mplayer (const gchar          *uri,
-                 TrackerSparqlBuilder *preupdate,
-                 TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	gchar *argv[10];
 	gchar *mplayer;
@@ -293,11 +284,8 @@ extract_mplayer (const gchar          *uri,
 			tracker_sparql_builder_object (metadata, "nfo:FileDataObject");
 		}
 
+		return TRUE;
 	}
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return extract_data;
+	return FALSE;
 }

@@ -26,6 +26,7 @@
 
 #include "tracker-data.h"
 #include "tracker-exif.h"
+#include "tracker-module-manager.h"
 #include "tracker-guarantee.h"
 #include "tracker-iptc.h"
 #include "tracker-utils.h"

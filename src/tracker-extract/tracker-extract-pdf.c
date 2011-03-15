@@ -13,7 +13,8 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public
+ * You should have received a copy
+ of the GNU General Public
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
@@ -41,15 +42,6 @@ typedef struct {
 	gchar *date;
 	gchar *keywords;
 } PDFData;
-
-static void extract_pdf (const gchar          *uri,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "application/pdf", extract_pdf },
-	{ NULL, NULL }
-};
 
 static void
 read_toc (PopplerIndexIter  *index,
@@ -273,10 +265,11 @@ write_pdf_data (PDFData               data,
 	}
 }
 
-static void
-extract_pdf (const gchar          *uri,
-             TrackerSparqlBuilder *preupdate,
-             TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	TrackerConfig *config;
 	GTime creation_date;
@@ -302,22 +295,24 @@ extract_pdf (const gchar          *uri,
 
 			tracker_sparql_builder_predicate (metadata, "nfo:isContentEncrypted");
 			tracker_sparql_builder_object_boolean (metadata, TRUE);
-			return;
+
+			g_error_free (error);
+			return TRUE;
 		} else {
 			g_warning ("Couldn't create PopplerDocument from uri:'%s', %s",
 			           uri,
 			           error->message ? error->message : "no error given");
-		}
 
-		g_error_free (error);
-		return;
+			g_error_free (error);
+			return FALSE;
+		}
 	}
 
 	if (!document) {
 		g_warning ("Could not create PopplerDocument from uri:'%s', "
 		           "NULL returned without an error",
 		           uri);
-		return;
+		return FALSE;
 	}
 
 	tracker_sparql_builder_predicate (metadata, "a");
@@ -606,10 +601,6 @@ extract_pdf (const gchar          *uri,
 	g_free (pd.date);
 
 	g_object_unref (document);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

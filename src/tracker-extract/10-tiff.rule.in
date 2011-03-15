@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-tiff.so
+MimeTypes=image/tiff
+

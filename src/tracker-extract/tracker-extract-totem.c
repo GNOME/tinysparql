@@ -28,10 +28,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-static void extract_totem (const gchar          *uri,
-                           TrackerSparqlBuilder *preupdate,
-                           TrackerSparqlBuilder *metadata);
-
 static const gchar *tags[][2] = {
 	{ "TOTEM_INFO_VIDEO_HEIGHT",      "nfo:height"         },
 	{ "TOTEM_INFO_VIDEO_WIDTH",       "nfo:width"          },
@@ -48,12 +44,6 @@ static const gchar *tags[][2] = {
 	{ NULL, NULL }
 };
 
-static TrackerExtractData data[] = {
-	{ "audio/*", extract_totem },
-	{ "video/*", extract_totem },
-	{ NULL, NULL }
-};
-
 static void
 metadata_write_foreach (gpointer key,
                         gpointer value,
@@ -65,10 +55,11 @@ metadata_write_foreach (gpointer key,
 	tracker_sparql_builder_object_unvalidated (metadata, (const gchar *) value);
 }
 
-static void
-extract_totem (const gchar          *uri,
-               TrackerSparqlBuilder *preupdate,
-               TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	gchar *argv[3];
 	gchar *totem;
@@ -176,17 +167,16 @@ extract_totem (const gchar          *uri,
 			tracker_sparql_builder_object_iri (metadata, album_uri);
 		}
 
+		g_hash_table_destroy (tmp_metadata);
 		g_free (album_uri);
 		g_free (artist_uri);
 		g_free (album);
 		g_free (artist);
+
+		return TRUE;
 	}
 
 	g_hash_table_destroy (tmp_metadata);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return FALSE;
 }

@@ -1,0 +1,3 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-text.so
+MimeTypes=text/*

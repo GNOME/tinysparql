@@ -1,0 +1,4 @@
+[ExtractorRule]
+ModulePath=@modulesdir@/libextract-oasis.so
+MimeTypes=application/vnd.oasis.opendocument.*
+

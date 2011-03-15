@@ -37,20 +37,11 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-static void extract_abw (const gchar          *uri,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "application/x-abiword", extract_abw },
-	{ NULL, NULL }
-};
-
-
-static void
-extract_abw (const gchar          *uri,
-             TrackerSparqlBuilder *preupdate,
-             TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+			      const gchar          *mimetype,
+			      TrackerSparqlBuilder *preupdate,
+			      TrackerSparqlBuilder *metadata)
 {
 	FILE *f;
 	gchar *filename;
@@ -111,10 +102,6 @@ extract_abw (const gchar          *uri,
 
 		tracker_file_close (f, FALSE);
 	}
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

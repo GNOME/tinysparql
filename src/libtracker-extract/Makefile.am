@@ -5,6 +5,7 @@ AM_CPPFLAGS =                                          \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	-DSHAREDIR=\""$(datadir)"\"                    \
+	-DTRACKER_EXTRACTOR_RULES_DIR=\""$(datadir)/tracker/extract-rules"\" \
 	$(LIBTRACKER_EXTRACT_CFLAGS)
 
 lib_LTLIBRARIES = libtracker-extract-@TRACKER_API_VERSION@.la
@@ -19,6 +20,8 @@ libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =  \
 	tracker-guarantee.h                            \
 	tracker-iptc.c                                 \
 	tracker-iptc.h                                 \
+	tracker-module-manager.c                       \
+	tracker-module-manager.h                       \
 	tracker-utils.c                                \
 	tracker-xmp.c                                  \
 	tracker-xmp.h
@@ -31,6 +34,7 @@ libtracker_extractinc_HEADERS =                        \
 	tracker-extract.h                              \
 	tracker-guarantee.h                            \
 	tracker-iptc.h                                 \
+	tracker-module-manager.h                       \
 	tracker-utils.h                                \
 	tracker-xmp.h
 

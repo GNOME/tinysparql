@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010, Your name <Your email address>
+ * Copyright (C) 2011, Your name <Your email address>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,22 +26,17 @@
 #include <libtracker-extract/tracker-extract.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
-static void extract_mockup (const gchar          *uri,
-                            TrackerSparqlBuilder *preupdate,
-                            TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	/* TODO: Insert mime types and functions here. */
-	{ "audio/mpeg",  extract_mockup },
-	{ "audio/x-mp3", extract_mockup },
-	{ NULL, NULL }
-};
-
-static void
-extract_mockup (const gchar          *uri,
-                TrackerSparqlBuilder *preupdate,
-                TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+			      const gchar          *mimetype,
+			      TrackerSparqlBuilder *preupdate,
+			      TrackerSparqlBuilder *metadata)
 {
+	/* NOTE: This function has to exist, tracker-extract checks
+	 * the symbole table for this function and if it doesn't
+	 * exist, the module is not loaded to be used as an extractor.
+	 */
+
 	/* File information */
 	FILE *f;
 	GFileInfo *info;
@@ -105,7 +100,7 @@ extract_mockup (const gchar          *uri,
 	 */
 	if (size < 64) {
 		g_free (filename);
-		return;
+		return FALSE;
 	}
 
 	/* TODO: Open file */
@@ -113,7 +108,7 @@ extract_mockup (const gchar          *uri,
 
 	if (!f) {
 		g_free (filename);
-		return;
+		return FALSE;
 	}
 	
 	/* TODO: Get data from file.
@@ -335,14 +330,6 @@ extract_mockup (const gchar          *uri,
 	g_free (composer);
 	g_free (performer);
 	g_free (filename);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	/* NOTE: This function has to exist, tracker-extract checks
-	 * the symbole table for this function and if it doesn't
-	 * exist, the module is not loaded to be used as an extractor.
-	 */
-	return data;
+	return TRUE;
 }

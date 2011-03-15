@@ -68,16 +68,6 @@ typedef struct {
 	gchar *publisher;
 } VorbisData;
 
-static void extract_vorbis (const char            *uri,
-                            TrackerSparqlBuilder  *preupdate,
-                            TrackerSparqlBuilder  *metadata);
-
-static TrackerExtractData extract_data[] = {
-	{ "audio/x-vorbis+ogg", extract_vorbis },
-	{ "application/ogg", extract_vorbis },
-	{ NULL, NULL }
-};
-
 static gchar *
 ogg_get_comment (vorbis_comment *vc,
                  const gchar    *label)
@@ -95,10 +85,11 @@ ogg_get_comment (vorbis_comment *vc,
 	}
 }
 
-static void
-extract_vorbis (const char *uri,
-                TrackerSparqlBuilder *preupdate,
-                TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const char           *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	VorbisData vd = { 0 };
 	MergeData md = { 0 };
@@ -115,12 +106,12 @@ extract_vorbis (const char *uri,
 	g_free (filename);
 
 	if (!f) {
-		return;
+		return FALSE;
 	}
 
 	if (ov_open (f, &vf, NULL, 0) < 0) {
 		tracker_file_close (f, FALSE);
-		return;
+		return FALSE;
 	}
 
 	tracker_sparql_builder_predicate (metadata, "a");
@@ -465,10 +456,6 @@ extract_vorbis (const char *uri,
 
 	/* NOTE: This calls fclose on the file */
 	ov_clear (&vf);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return extract_data;
+	return TRUE;
 }

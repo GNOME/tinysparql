@@ -77,7 +77,13 @@ $ tracker-extract -v 3 -f /path/to/some/file.mp3 -m mymodule
 This is the directory which tracker uses to load the shared libraries
 from (used for extracting metadata for specific file types). These are
 needed on each invocation of tracker-store. If unset it will default
-to the correct place. This is used mainly for testing purposes.
+to the correct place. This is used mainly for testing purposes. The
+default location is /usr/lib/tracker-0.10/extract-modules/.
+.TP
+.B TRACKER_EXTRACTOR_RULES_DIR
+This is the directory which tracker uses to load the rules files from.
+The rules files describe extractor modules and their supported MIME
+types. The default location is /usr/share/tracker/extract-rules/.
 
 .SH SEE ALSO
 .BR tracker-store (1),
@@ -86,3 +92,5 @@ to the correct place. This is used mainly for testing purposes.
 .BR tracker-info (1).
 .TP
 .BR /usr/lib/tracker-0.10/extract-modules/
+.TP
+.BR /usr/share/tracker/extract-rules/

@@ -42,6 +42,8 @@
 
 #include <libtracker-data/tracker-db-manager.h>
 
+#include <libtracker-extract/tracker-module-manager.h>
+
 #include "tracker-power.h"
 #include "tracker-miner-files.h"
 #include "tracker-config.h"
@@ -2447,13 +2449,13 @@ process_file_cb (GObject      *object,
 
 	miner_files_add_to_datasource (data->miner, file, sparql);
 
-	if (!is_directory) {
-		/* Next step, if NOT a directory, get embedded metadata */
+	if (tracker_extract_module_manager_mimetype_is_handled (mime_type)) {
+		/* Next step, if handled by the extractor, get embedded metadata */
 		extractor_get_embedded_metadata (data, uri, mime_type);
 	} else {
-		/* For directories, don't request embedded metadata extraction.
+		/* Otherwise, don't request embedded metadata extraction.
 		 * We setup an idle so that we keep the previous behavior. */
-		g_debug ("Avoiding embedded metadata request for directory '%s'", uri);
+		g_debug ("Avoiding embedded metadata request for uri '%s'", uri);
 		g_idle_add (extractor_skip_embedded_metadata_idle, data);
 	}
 

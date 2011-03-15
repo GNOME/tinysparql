@@ -28,10 +28,11 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-static void
-tracker_extract_xine (const gchar          *uri,
-                      TrackerSparqlBuilder *preupdate,
-		      TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	xine_t            *xine_base;
 	xine_audio_port_t *audio_port;
@@ -59,7 +60,7 @@ tracker_extract_xine (const gchar          *uri,
 	xine_base = xine_new ();
 
 	if (!xine_base) {
-		return;
+		return FALSE;
 	}
 
 	xine_init (xine_base);
@@ -69,7 +70,7 @@ tracker_extract_xine (const gchar          *uri,
 
 	if (!audio_port || !video_port) {
 		xine_exit (xine_base);
-		return;
+		return FALSE;
 	}
 
 	stream = xine_stream_new (xine_base, audio_port, video_port);
@@ -78,7 +79,7 @@ tracker_extract_xine (const gchar          *uri,
 		xine_close_audio_driver (xine_base, audio_port);
 		xine_close_video_driver (xine_base, video_port);
 		xine_exit (xine_base);
-		return;
+		return FALSE;
 	}
 
 	mrl = g_filename_from_uri (uri, NULL, NULL);
@@ -89,7 +90,7 @@ tracker_extract_xine (const gchar          *uri,
 		xine_close_audio_driver (xine_base, audio_port);
 		xine_close_video_driver (xine_base, video_port);
 		xine_exit (xine_base);
-		return;
+		return FALSE;
 	}
 
 	g_free (mrl);
@@ -269,16 +270,6 @@ endofit:
 	xine_close_video_driver (xine_base, video_port);
 
 	xine_exit (xine_base);
-}
 
-TrackerExtractData data[] = {
-	{ "audio/*", tracker_extract_xine },
-	{ "video/*", tracker_extract_xine },
-	{ NULL, NULL }
-};
-
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

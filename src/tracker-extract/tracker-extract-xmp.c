@@ -23,15 +23,6 @@
 
 #include <libtracker-extract/tracker-extract.h>
 
-static void extract_xmp (const gchar          *filename,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "application/rdf+xml", extract_xmp },
-	{ NULL, NULL }
-};
-
 /* This function is used to find the URI for a file.xmp file. The point here is
  * that the URI for file.xmp is not file:///file.xmp but instead for example
  * file:///file.jpeg or file:///file.png. The reason is that file.xmp is a
@@ -128,10 +119,11 @@ find_orig_uri (const gchar *xmp_filename)
 	return found_file;
 }
 
-static void
-extract_xmp (const gchar          *uri,
-             TrackerSparqlBuilder *preupdate,
-             TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	TrackerXmpData *xd = NULL;
 	GError *error = NULL;
@@ -160,13 +152,11 @@ extract_xmp (const gchar          *uri,
 		g_free (original_uri);
 		tracker_xmp_free (xd);
 		g_free (contents);
+		g_free (filename);
+
+		return TRUE;
 	}
 
 	g_free (filename);
-}
-
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return FALSE;
 }

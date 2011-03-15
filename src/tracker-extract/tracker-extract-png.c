@@ -69,16 +69,6 @@ typedef struct {
 	const gchar *disclaimer;
 } PngData;
 
-static void extract_png (const gchar          *filename,
-                         TrackerSparqlBuilder *preupdate,
-                         TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "image/png", extract_png },
-	{ "sketch/png", extract_png },
-	{ NULL, NULL }
-};
-
 static gchar *
 rfc1123_to_iso8601_date (const gchar *date)
 {
@@ -505,10 +495,11 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	g_free (pd.creation_time);
 }
 
-static void
-extract_png (const gchar          *uri,
-             TrackerSparqlBuilder *preupdate,
-             TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
 	goffset size;
 	FILE *f;
@@ -526,14 +517,14 @@ extract_png (const gchar          *uri,
 	size = tracker_file_get_size (filename);
 
 	if (size < 64) {
-		return;
+		return FALSE;
 	}
 
 	f = tracker_file_open (filename, "r", FALSE);
 	g_free (filename);
 
 	if (!f) {
-		return;
+		return FALSE;
 	}
 
 	png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
@@ -542,27 +533,27 @@ extract_png (const gchar          *uri,
 	                                  NULL);
 	if (!png_ptr) {
 		tracker_file_close (f, FALSE);
-		return;
+		return FALSE;
 	}
 
 	info_ptr = png_create_info_struct (png_ptr);
 	if (!info_ptr) {
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
 		tracker_file_close (f, FALSE);
-		return;
+		return FALSE;
 	}
 
 	end_ptr = png_create_info_struct (png_ptr);
 	if (!end_ptr) {
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
 		tracker_file_close (f, FALSE);
-		return;
+		return FALSE;
 	}
 
 	if (setjmp (png_jmpbuf (png_ptr))) {
 		png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 		tracker_file_close (f, FALSE);
-		return;
+		return FALSE;
 	}
 
 	png_init_io (png_ptr, f);
@@ -579,7 +570,7 @@ extract_png (const gchar          *uri,
 	                   &filter_type)) {
 		png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 		tracker_file_close (f, FALSE);
-		return;
+		return FALSE;
 	}
 
 	/* Read the image. FIXME We should be able to skip this step and
@@ -616,10 +607,6 @@ extract_png (const gchar          *uri,
 
 	png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 	tracker_file_close (f, FALSE);
-}
 
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }

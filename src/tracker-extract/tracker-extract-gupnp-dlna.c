@@ -83,30 +83,6 @@ long long int llroundl(long double x);
 #define GST_TAG_DEVICE_MAKE "device-make"
 #endif
 
-static void extract_gupnp_dlna_audio (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-static void extract_gupnp_dlna_video (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-static void extract_gupnp_dlna_image (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-static void extract_gupnp_dlna_guess (const gchar          *uri,
-                                     TrackerSparqlBuilder *preupdate,
-                                     TrackerSparqlBuilder *metadata);
-
-static TrackerExtractData data[] = {
-	{ "audio/*", extract_gupnp_dlna_audio },
-	{ "video/*", extract_gupnp_dlna_video },
-	{ "image/*", extract_gupnp_dlna_image },
-	{ "dlna/*",  extract_gupnp_dlna_guess },
-	{ "video/3gpp", extract_gupnp_dlna_guess },
-	{ "video/mp4", extract_gupnp_dlna_guess },
-	{ "video/x-ms-asf", extract_gupnp_dlna_guess },
-	{ NULL, NULL }
-};
-
 typedef enum {
 	CONTENT_NONE,
 	CONTENT_GUESS,
@@ -839,41 +815,26 @@ extract_gupnp_dlna (const gchar          *uri,
 	g_object_unref (dlna_info);
 }
 
-static void
-extract_gupnp_dlna_audio (const gchar          *uri,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata)
+G_MODULE_EXPORT gboolean
+tracker_extract_get_metadata (const gchar          *uri,
+                              const gchar          *mimetype,
+                              TrackerSparqlBuilder *preupdate,
+                              TrackerSparqlBuilder *metadata)
 {
-	extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_AUDIO);
-}
+	if (strcmp (mimetype, "video/3gpp") == 0 ||
+	    strcmp (mimetype, "video/mp4") == 0 ||
+	    strcmp (mimetype, "video/x-ms-asf") == 0 ||
+	    g_str_has_prefix (mimetype, "dlna/")) {
+		extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_GUESS);
+	} else if (g_str_has_prefix (mimetype, "video/")) {
+		extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_VIDEO);
+	} else if (g_str_has_prefix (mimetype, "audio/")) {
+		extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_AUDIO);
+	} else if (g_str_has_prefix (mimetype, "image/")) {
+		extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_IMAGE);
+	} else {
+		return FALSE;
+	}
 
-static void
-extract_gupnp_dlna_video (const gchar          *uri,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata)
-{
-	extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_VIDEO);
-}
-
-static void
-extract_gupnp_dlna_image (const gchar          *uri,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata)
-{
-	extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_IMAGE);
-}
-
-static void
-extract_gupnp_dlna_guess (const gchar          *uri,
-                          TrackerSparqlBuilder *preupdate,
-                          TrackerSparqlBuilder *metadata)
-{
-	extract_gupnp_dlna (uri, preupdate, metadata, CONTENT_GUESS);
-}
-
-
-TrackerExtractData *
-tracker_extract_get_data (void)
-{
-	return data;
+	return TRUE;
 }
