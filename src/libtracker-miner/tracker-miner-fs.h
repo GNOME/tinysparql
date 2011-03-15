@@ -63,7 +63,7 @@ struct _TrackerMinerFS {
  * @check_directory: Called when a directory should be checked for
  * further processing.
  * @check_directory_contents: Called when a directory should be
- * checked for further processing, based on the directory contents. 
+ * checked for further processing, based on the directory contents.
  * @process_file: Called when the metadata associated to a file is
  * requested.
  * @ignore_next_update_file: Called after a writeback event happens on
@@ -135,7 +135,7 @@ gchar                *tracker_miner_fs_query_urn            (TrackerMinerFS *fs,
 void                  tracker_miner_fs_force_recheck        (TrackerMinerFS *fs);
 
 void                  tracker_miner_fs_set_mtime_checking   (TrackerMinerFS *fs,
-                                                             gboolean        check_mtimes);
+                                                             gboolean        mtime_checking);
 void                  tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
                                                              gboolean        do_initial_crawling);
 gboolean              tracker_miner_fs_get_mtime_checking   (TrackerMinerFS *fs);
