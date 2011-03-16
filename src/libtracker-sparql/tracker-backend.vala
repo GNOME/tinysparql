@@ -20,8 +20,6 @@
 [DBus (name = "org.freedesktop.Tracker1.Status")]
 interface Tracker.Backend.Status : DBusProxy {
 	public abstract void wait () throws DBusError;
-	[DBus (name = "Wait")]
-	public abstract async void wait_async () throws DBusError;
 }
 
 class Tracker.Sparql.Backend : Connection {
@@ -51,46 +49,18 @@ class Tracker.Sparql.Backend : Connection {
 		status.set_default_timeout (int.MAX);
 
 		// Makes sure the sevice is available
-		debug ("Waiting for service to become available synchronously...");
+		debug ("Waiting for service to become available...");
 		status.wait ();
 		debug ("Service is ready");
 
 		try {
 			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
 			if (load_plugins (direct_only)) {
-				debug ("Waiting for backend to become available synchronously...");
+				debug ("Waiting for backend to become available...");
 				if (direct != null) {
 					direct.init ();
 				} else {
 					bus.init ();
-				}
-				debug ("Backend is ready");
-			}
-		} catch (GLib.Error e) {
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
-	}
-
-	public async override void init_async () throws Sparql.Error, IOError, DBusError {
-		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
-		                                                    TRACKER_DBUS_SERVICE,
-		                                                    TRACKER_DBUS_OBJECT_STATUS,
-		                                                    DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
-		status.set_default_timeout (int.MAX);
-
-		// Makes sure the sevice is available
-		debug ("Waiting for service to become available asynchronously...");
-		yield status.wait_async ();
-		debug ("Service is ready");
-
-		try {
-			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
-			if (load_plugins (direct_only)) {
-				debug ("Waiting for backend to become available asynchronously...");
-				if (direct != null) {
-					yield direct.init_async ();
-				} else {
-					yield bus.init_async ();
 				}
 				debug ("Backend is ready");
 			}
