@@ -35,7 +35,7 @@ rules_in_files = \
 	10-xmp.rule.in \
 	11-msoffice-xml.rule.in \
 	15-gstreamer-guess.rule.in \
-	15-playlists.rule.in \
+	15-playlist.rule.in \
 	15-real-media.rule.in \
 	16-upnp-guess.rule.in \
 	90-gstreamer-generic.rule.in \
