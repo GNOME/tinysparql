@@ -42,22 +42,6 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		initialized = true;
 	}
 
-	public async override void init_async () throws Sparql.Error, IOError, DBusError {
-		uint select_cache_size = 100;
-		string env_cache_size = Environment.get_variable ("TRACKER_SPARQL_CACHE_SIZE");
-
-		if (env_cache_size != null) {
-			select_cache_size = env_cache_size.to_int();
-		}
-
-		try {
-			yield Data.Manager.init_async (DBManagerFlags.READONLY, null, false, select_cache_size, 0, null, null);
-		} catch (DBInterfaceError e) {
-			throw new Sparql.Error.INTERNAL (e.message);
-		}
-		initialized = true;
-	}
-
 	~Connection () {
 		// Clean up connection
 		if (initialized) {

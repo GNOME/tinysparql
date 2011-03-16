@@ -118,8 +118,6 @@ TrackerSparqlConnectionPrivate
 tracker_sparql_error_quark
 tracker_sparql_connection_construct
 tracker_sparql_connection_init
-tracker_sparql_connection_init_async
-tracker_sparql_connection_init_finish
 </SECTION>
 
 
