@@ -18,7 +18,7 @@ Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA  02110-1301, USA.
 -->
 <schemalist>
-  <schema id="org.freedesktop.Tracker.Miner.FileSystem" path="/org/freedesktop/tracker/miners/fs/" gettext-domain="tracker">
+  <schema id="org.freedesktop.Tracker.Miner.Files" path="/org/freedesktop/tracker/miner/files/" gettext-domain="tracker">
     <key name="verbosity" enum="org.freedesktop.Tracker.TrackerVerbosity">
       <default>'errors'</default>
       <_summary>Log verbosity</_summary>

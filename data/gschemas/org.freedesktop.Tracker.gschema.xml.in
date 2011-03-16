@@ -24,8 +24,8 @@ Boston, MA  02110-1301, USA.
     <child name="store" schema="org.freedesktop.Tracker.Store"/>
     <child name="extract" schema="org.freedesktop.Tracker.Extract"/>
     <child name="writeback" schema="org.freedesktop.Tracker.Writeback"/>
-    <child name="miners" schema="org.freedesktop.Tracker.Miners"/>
+    <child name="miner" schema="org.freedesktop.Tracker.Miner"/>
   </schema>
 
-  <schema id="org.freedesktop.Tracker.Miners" path="/org/freedesktop/tracker/miners/" />
+  <schema id="org.freedesktop.Tracker.Miner" path="/org/freedesktop/tracker/miner/" />
 </schemalist>

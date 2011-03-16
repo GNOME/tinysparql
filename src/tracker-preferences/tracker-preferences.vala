@@ -61,7 +61,7 @@ public class Tracker.Preferences {
 		debug ("Getting current settings");
 
 		//config = new Config ();
-		settings = new GLib.Settings ("org.freedesktop.Tracker.Miner.FileSystem");
+		settings = new GLib.Settings ("org.freedesktop.Tracker.Miner.Files");
 
 		// Change notification for any key in the schema
 		settings.changed.connect ((key) => {

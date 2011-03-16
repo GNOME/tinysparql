@@ -9,7 +9,7 @@ gsettings_SCHEMAS = \
 	org.freedesktop.Tracker.Store.gschema.xml \
 	org.freedesktop.Tracker.Extract.gschema.xml \
 	org.freedesktop.Tracker.Writeback.gschema.xml \
-	org.freedesktop.Tracker.Miner.FileSystem.gschema.xml
+	org.freedesktop.Tracker.Miner.Files.gschema.xml
 
 @INTLTOOL_XML_NOMERGE_RULE@
 
