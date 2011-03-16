@@ -7,7 +7,7 @@ gsettings_SCHEMAS = \
 	org.freedesktop.Tracker.DB.gschema.xml \
 	org.freedesktop.Tracker.FTS.gschema.xml \
 	org.freedesktop.Tracker.Store.gschema.xml \
-	org.freedesktop.Tracker.Extractor.gschema.xml \
+	org.freedesktop.Tracker.Extract.gschema.xml \
 	org.freedesktop.Tracker.Writeback.gschema.xml \
 	org.freedesktop.Tracker.Miner.FileSystem.gschema.xml
 

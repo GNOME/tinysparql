@@ -163,8 +163,8 @@ TrackerConfig *
 tracker_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_CONFIG,
-			     "schema", "org.freedesktop.Tracker.Extractor",
-			     "path", "/org/freedesktop/tracker/extractor/",
+			     "schema", "org.freedesktop.Tracker.Extract",
+			     "path", "/org/freedesktop/tracker/extract/",
 			     NULL);
 }
 

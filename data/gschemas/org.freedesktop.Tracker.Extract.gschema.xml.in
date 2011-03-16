@@ -18,7 +18,7 @@ Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA  02110-1301, USA.
 -->
 <schemalist>
-  <schema id="org.freedesktop.Tracker.Extractor" path="/org/freedesktop/tracker/extractor/" gettext-domain="tracker">
+  <schema id="org.freedesktop.Tracker.Extract" path="/org/freedesktop/tracker/extract/" gettext-domain="tracker">
     <key name="verbosity" enum="org.freedesktop.Tracker.TrackerVerbosity">
       <default>'errors'</default>
       <_summary>Log verbosity</_summary>

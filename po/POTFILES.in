@@ -8,7 +8,7 @@ data/miners/tracker-miner-flickr.desktop.in.in
 data/miners/tracker-miner-rss.desktop.in.in
 data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in
 data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in
-data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in
+data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in
 data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in
 data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in
 data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in
