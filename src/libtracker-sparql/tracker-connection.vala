@@ -88,16 +88,18 @@ public abstract class Tracker.Sparql.Connection : Object {
 	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		door.lock ();
 
-		if (singleton != null) {
+		// assign to owned variable to ensure it doesn't get freed between unlock and return
+		var result = singleton;
+		if (result != null) {
 			assert (direct_only == is_direct_only);
 			door.unlock ();
-			return singleton;
+			return result;
 		}
 
 		log_init ();
 
 		/* the True is to assert that direct only is required */
-		Connection result = new Backend (is_direct_only);
+		result = new Backend (is_direct_only);
 		result.init ();
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
@@ -117,16 +119,18 @@ public abstract class Tracker.Sparql.Connection : Object {
 	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		door.lock ();
 
-		if (singleton != null) {
+		// assign to owned variable to ensure it doesn't get freed between unlock and return
+		var result = singleton;
+		if (result != null) {
 			assert (direct_only == is_direct_only);
 			door.unlock ();
-			return singleton;
+			return result;
 		}
 
 		log_init ();
 
 		/* the True is to assert that direct only is required */
-		Connection result = new Backend (is_direct_only);
+		result = new Backend (is_direct_only);
 		yield result.init_async ();
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
