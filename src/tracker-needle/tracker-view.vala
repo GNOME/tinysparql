@@ -32,14 +32,14 @@ public class Tracker.View : ScrolledWindow {
 		private set;
 	}
 
-	public ListStore store {
+	public ResultStore store {
 		get;
 		private set;
 	}
 
 	private Widget view = null;
 
-	public View (Display? _display = Display.NO_RESULTS, ListStore? _store) {
+	public View (Display? _display = Display.NO_RESULTS, ResultStore? _store) {
 		set_policy (PolicyType.NEVER, PolicyType.AUTOMATIC);
 
 		display = _display;
@@ -49,17 +49,59 @@ public class Tracker.View : ScrolledWindow {
 			debug ("using store:%p", store);
 		} else {
 			// Setup treeview
-			store = new ListStore (10,
-			                       typeof (Gdk.Pixbuf),  // Icon small
-			                       typeof (Gdk.Pixbuf),  // Icon big
-			                       typeof (string),      // URN
-			                       typeof (string),      // URL
-			                       typeof (string),      // Title
-			                       typeof (string),      // Subtitle
-			                       typeof (string),      // Column 2
-			                       typeof (string),      // Column 3
-			                       typeof (string),      // Tooltip
-			                       typeof (bool));       // Category hint
+			store = new ResultStore (6);
+
+			store.add_query (Tracker.Query.Type.APPLICATIONS,
+			                 "?urn",
+			                 "tracker:coalesce(nfo:softwareCmdLine(?urn), ?urn)",
+			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+			                 "nie:comment(?urn)",
+			                 "\"\"",
+			                 "\"\"");
+
+			store.add_query (Tracker.Query.Type.IMAGES,
+			                 "?urn",
+			                 "nie:url(?urn)",
+			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+			                 "fn:string-join((nfo:height(?urn), nfo:width(?urn)), \" x \")",
+			                 "nfo:fileSize(?urn)",
+			                 "nie:url(?urn)");
+			store.add_query (Tracker.Query.Type.MUSIC,
+			                 "?urn",
+			                 "nie:url(?urn)",
+			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+			                 "fn:string-join((?performer, ?album), \" - \")",
+			                 "nfo:duration(?urn)",
+			                 "nie:url(?urn)");
+			store.add_query (Tracker.Query.Type.VIDEOS,
+			                 "?urn",
+			                 "nie:url(?urn)",
+			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+			                 "\"\"",
+			                 "nfo:duration(?urn)",
+			                 "nie:url(?urn)");
+			store.add_query (Tracker.Query.Type.DOCUMENTS,
+			                 "?urn",
+			                 "nie:url(?urn)",
+			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+			                 "tracker:coalesce(nco:fullname(?creator), nco:fullname(?publisher))",
+			                 "fn:concat(nfo:pageCount(?urn), \" Pages\")",
+			                 "nie:url(?urn)");
+			store.add_query (Tracker.Query.Type.MAIL,
+			                 "?urn",
+			                 "nie:url(?urn)",
+			                 "tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
+			                 "tracker:coalesce(nmo:messageSubject(?urn))",
+			                 "nmo:receivedDate(?urn)",
+			                 "fn:concat(\"To: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to)))");
+			store.add_query (Tracker.Query.Type.FOLDERS,
+			                 "?urn",
+			                 "nie:url(?urn)",
+			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+			                 "tracker:coalesce(nie:url(?parent), \"\")",
+			                 "nfo:fileLastModified(?urn)",
+			                 "?tooltip");
+
 			debug ("Creating store:%p", store);
 		}
 
@@ -121,11 +163,13 @@ public class Tracker.View : ScrolledWindow {
 			tv.set_rules_hint (false);
 			tv.set_grid_lines (TreeViewGridLines.VERTICAL);
 			tv.set_headers_visible (true);
+			tv.set_fixed_height_mode (true);
 
 			var renderer1 = new CellRendererPixbuf ();
 			var renderer2 = new Tracker.CellRendererText ();
 
 			col = new TreeViewColumn ();
+			col.set_sizing (TreeViewColumnSizing.FIXED);
 			col.pack_start (renderer1, false);
 			col.add_attribute (renderer1, "pixbuf", 0);
 			renderer1.xpad = 5;
@@ -146,6 +190,7 @@ public class Tracker.View : ScrolledWindow {
 
 			var renderer3 = new Tracker.CellRendererText ();
 			col = new TreeViewColumn ();
+			col.set_sizing (TreeViewColumnSizing.FIXED);
 			col.pack_start (renderer3, true);
 			col.add_attribute (renderer3, "text", 6);
 			col.set_title (_("Last Changed"));
@@ -154,6 +199,7 @@ public class Tracker.View : ScrolledWindow {
 
 			var renderer4 = new Tracker.CellRendererText ();
 			col = new TreeViewColumn ();
+			col.set_sizing (TreeViewColumnSizing.FIXED);
 			col.pack_start (renderer4, true);
 			col.add_attribute (renderer4, "text", 7);
 			col.set_title (_("Size"));
@@ -168,49 +214,51 @@ public class Tracker.View : ScrolledWindow {
 			TreeView tv = (TreeView) view;
 
 			tv.set_model (store);
-			tv.set_tooltip_column (8);
+			tv.set_tooltip_column (5);
 			tv.set_rules_hint (false);
 			tv.set_grid_lines (TreeViewGridLines.NONE);
 			tv.set_headers_visible (false);
 
 			var renderer1 = new CellRendererPixbuf ();
-			var renderer2 = new Tracker.CellRendererText ();
+			var renderer2 = new Gtk.CellRendererText ();
 
 			col = new TreeViewColumn ();
-			col.pack_start (renderer1, false);
-			col.add_attribute (renderer1, "pixbuf", 0);
-			renderer1.xpad = 5;
-			renderer1.ypad = 5;
+			col.set_sizing (TreeViewColumnSizing.FIXED);
+			// col.pack_start (renderer1, false);
+			// col.add_attribute (renderer1, "pixbuf", 0);
+			// renderer1.xpad = 5;
+			// renderer1.ypad = 5;
 
 			col.pack_start (renderer2, true);
-			col.add_attribute (renderer2, "text", 4);
-			col.add_attribute (renderer2, "subtext", 5);
+			col.set_cell_data_func (renderer2, text_renderer_func);
+//			col.add_attribute (renderer2, "text", 1); //4);
+//			col.add_attribute (renderer2, "subtext", 5);
 			renderer2.ellipsize = Pango.EllipsizeMode.MIDDLE;
-			renderer2.show_fixed_height = true;
+//			renderer2.show_fixed_height = true;
 
 			col.set_title (_("Item"));
 			col.set_resizable (true);
 			col.set_expand (true);
 			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
-			col.set_cell_data_func (renderer1, cell_renderer_func);
-			col.set_cell_data_func (renderer2, cell_renderer_func);
+//			col.set_cell_data_func (renderer1, cell_renderer_func);
 			tv.append_column (col);
 
-//			var renderer3 = new Tracker.CellRendererText ();
+//			var renderer3 = new Gtk.CellRendererText ();
 //			col = new TreeViewColumn ();
 //			col.pack_start (renderer3, true);
-//			col.add_attribute (renderer3, "text", 6);
+//			col.add_attribute (renderer3, "text", 3);
 //			col.set_title (_("Item Detail"));
 //			col.set_cell_data_func (renderer3, cell_renderer_func);
 //			tv.append_column (col);
 
-			var renderer4 = new Tracker.CellRendererText ();
-			col = new TreeViewColumn ();
-			col.pack_start (renderer4, true);
-			col.add_attribute (renderer4, "text", 7);
-			col.set_title (_("Size"));
-			col.set_cell_data_func (renderer4, cell_renderer_func);
-			tv.append_column (col);
+// 			var renderer4 = new Tracker.CellRendererText ();
+// 			col = new TreeViewColumn ();
+// 			col.set_sizing (TreeViewColumnSizing.FIXED);
+// 			col.pack_start (renderer4, true);
+// 			col.add_attribute (renderer4, "text", 4);
+// 			col.set_title (_("Size"));
+//			col.set_cell_data_func (renderer4, cell_renderer_func);
+// 			tv.append_column (col);
 
 			break;
 		}
@@ -255,6 +303,30 @@ public class Tracker.View : ScrolledWindow {
 //			((Widget) treeview).style_get ("even-row-color", out color, null);
 			cell.set ("cell-background-gdk", null);
 		}
+	}
+
+	private void text_renderer_func (CellLayout   cell_layout,
+	                                 CellRenderer cell,
+	                                 TreeModel    tree_model,
+	                                 TreeIter     iter) {
+		string text, subtext;
+		string markup = null;
+
+		tree_model.get (iter, 2, out text, 3, out subtext, -1);
+
+		if (text != null) {
+			markup = Markup.escape_text (text);
+		}
+
+		if (subtext != null) {
+			markup += "\n<small><span color='grey'>%s</span></small>".printf (Markup.escape_text (subtext));
+		}
+
+		if (markup == null) {
+			markup = "<span color='grey'>%s</span>".printf (_("Loading..."));
+		}
+
+		cell.set ("markup", markup);
 	}
 }
 

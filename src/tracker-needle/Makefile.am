@@ -28,6 +28,7 @@ tracker_needle_SOURCES =                           \
 	tracker-cell-renderer-text.vala                \
 	tracker-history.vala                           \
 	tracker-query.vala                             \
+	tracker-result-store.vala                      \
 	tracker-stats.vala                             \
 	tracker-taglist.vala                           \
 	tracker-utils.vala                             \

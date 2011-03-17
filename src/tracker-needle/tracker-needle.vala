@@ -80,6 +80,19 @@ public class Tracker.Needle {
 		}
 	}
 
+	private void store_state_changed (GLib.Object object,
+	                                  ParamSpec   p) {
+		ResultStore store = (ResultStore) object;
+
+		if (store.active) {
+			spinner_shell.show_all ();
+			spinner.start ();
+		} else {
+			spinner_shell.hide ();
+			spinner.stop ();
+		}
+	}
+
 	private void setup_ui () {
 		var builder = new Gtk.Builder ();
 
@@ -154,17 +167,18 @@ public class Tracker.Needle {
 		sw_categories = new Tracker.View (Tracker.View.Display.CATEGORIES, null);
 		treeview = (TreeView) sw_categories.get_child ();
 		treeview.row_activated.connect (view_row_selected);
+		sw_categories.store.notify["active"].connect (store_state_changed);
 		view.pack_start (sw_categories, true, true, 0);
 
-		sw_filelist = new Tracker.View (Tracker.View.Display.FILE_LIST, null);
-		treeview = (TreeView) sw_filelist.get_child ();
-		treeview.row_activated.connect (view_row_selected);
-		view.pack_start (sw_filelist, true, true, 0);
+		// sw_filelist = new Tracker.View (Tracker.View.Display.FILE_LIST, null);
+		// treeview = (TreeView) sw_filelist.get_child ();
+		// treeview.row_activated.connect (view_row_selected);
+		// view.pack_start (sw_filelist, true, true, 0);
 
-		sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, null);
-		iconview = (IconView) sw_icons.get_child ();
-		iconview.item_activated.connect (icon_item_selected);
-		view.pack_start (sw_icons, true, true, 0);
+		// sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, null);
+		// iconview = (IconView) sw_icons.get_child ();
+		// iconview.item_activated.connect (icon_item_selected);
+		// view.pack_start (sw_icons, true, true, 0);
 
 		// Set up taglist
 		taglist = new Tracker.TagList ();
@@ -185,13 +199,13 @@ public class Tracker.Needle {
 	}
 
 	private ListStore? get_store_for_active_view () {
-		if (view_icons.active) {
-			return sw_icons.store;
-		} else if (view_filelist.active) {
-			return sw_filelist.store;
-		} else if (view_categories.active) {
-			return sw_categories.store;
-		}
+       		// if (view_icons.active) {
+		// 	return sw_icons.store;
+		// } else if (view_filelist.active) {
+		// 	return sw_filelist.store;
+		// } else if (view_categories.active) {
+		// 	return sw_categories.store;
+		// }
 
 		debug ("No views active to get store?!?!");
 		return null;
@@ -206,6 +220,7 @@ public class Tracker.Needle {
 	}
 
 	private async void search_simple (ListStore store) requires (store != null) {
+		/*
 		Tracker.Query query = new Tracker.Query ();
 		Tracker.Sparql.Cursor cursor = null;
 
@@ -216,9 +231,9 @@ public class Tracker.Needle {
 
 		try {
 			if (find_in_contents.active) {
-				cursor = yield query.perform_async (query.Type.ALL);
+				cursor = yield query.perform_async (query.Type.ALL, null);
 			} else {
-				cursor = yield query.perform_async (query.Type.ALL_ONLY_IN_TITLES);
+				cursor = yield query.perform_async (query.Type.ALL_ONLY_IN_TITLES, null);
 			}
 
 			if (cursor == null) {
@@ -281,9 +296,11 @@ public class Tracker.Needle {
 		}
 
 		search_finished (store);
+		*/
 	}
 
-	private async void search_detailed (ListStore store) requires (store != null) {
+	private async void search_detailed (ResultStore store) requires (store != null) {
+		/*
 		Tracker.Query.Type[] categories = { 
 			Tracker.Query.Type.APPLICATIONS,
 			Tracker.Query.Type.MUSIC,
@@ -293,7 +310,9 @@ public class Tracker.Needle {
 			Tracker.Query.Type.IMAGES,
 			Tracker.Query.Type.FOLDERS
 		};
+
 		Tracker.Query query = new Tracker.Query ();
+
 
 		store.clear ();
 
@@ -311,8 +330,10 @@ public class Tracker.Needle {
 			query.limit = 1000;
 			query.criteria = search.get_text ();
 
+			print (search.get_text ());
+
 			try {
-				cursor = yield query.perform_async (type);
+				cursor = yield query.perform_async (type, null);
 
 				if (cursor == null) {
 					search_finished (store);
@@ -429,17 +450,12 @@ public class Tracker.Needle {
 		}
 
 		search_finished (store);
+		*/
 	}
 
-	private void search_finished (ListStore? store) {
-		// Hide spinner
-		spinner.stop ();
-		spinner_shell.hide ();
-
-		TreeModel model = (TreeModel) store;
-
+	private void search_finished (ResultStore? store) {
 		// Check if we have any results, if we don't change the view
-		if (model == null || model.iter_n_children (null) < 1) {
+		if (store == null || !store.has_results ()) {
 			sw_noresults.show ();
 			sw_icons.hide ();
 			sw_categories.hide ();
@@ -497,15 +513,10 @@ public class Tracker.Needle {
 
 		string str = search.get_text ();
 		string criteria = str.strip ();
-		ListStore store = get_store_for_active_view ();
+		ResultStore store = null;
 
-		if (criteria.length < 1) {
-			if (store != null) {
-				store.clear ();
-			}
-
+		if (criteria.length < 3) {
 			search_finished (store);
-
 			return false;
 		}
 
@@ -516,30 +527,27 @@ public class Tracker.Needle {
 
 		if (view_icons.active) {
 			sw_icons.show ();
+			store = sw_icons.store;
 		} else {
 			sw_icons.hide ();
 		}
 
 		if (view_categories.active) {
 			sw_categories.show ();
+			store = sw_categories.store;
 		} else {
 			sw_categories.hide ();
 		}
 
 		if (view_filelist.active) {
 			sw_filelist.show ();
+			store = sw_filelist.store;
 		} else {
 			sw_filelist.hide ();
 		}
 
-		// Show spinner
-		spinner_shell.show_all ();
-		spinner.start ();
-
-		if (view_categories.active) {
-			search_detailed (store);
-		} else {
-			search_simple (store);
+		if (store != null) {
+			store.search_term = search.get_text ();
 		}
 
 		return false;
