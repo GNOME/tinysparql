@@ -1,3 +1,26 @@
+NEW in 0.10.4 - 2011-03-17
+==========================
+
+The changes are:
+
+  * Fixes: NB#237582, Some PDF files are not indexed
+  * Fixes: NB#237150, Second tracker_sparql_connection_get_async never returns
+  * Fixes: NB#236387, Using [] notation with identical statements, but in different graphs can result in silent data loss
+  * Fixes: NB#233828, Tracker interprets zoneless XMP timestamps differently than zoneless Exif timestamps
+  * functional-tests: Fix XDG directory handling
+  * libtracker-miner: Don't assume g_dbus_info_new_for_xml() never fails
+  * libtracker-miner: Added missing documentation functions to sections file
+  * libtracker-extract: Don't assume g_dbus_info_new_for_xml() never fails
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.3 - 2011-03-11
 ==========================
 
