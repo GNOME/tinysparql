@@ -982,10 +982,11 @@ void
 tracker_keywords_parse (GPtrArray   *store,
                         const gchar *keywords)
 {
-	gchar *keywords_d = g_strdup (keywords);
+	gchar *orig, *keywords_d;
 	char *saveptr, *p;
 	size_t len;
 
+	keywords_d = orig = g_strdup (keywords);
 	p = keywords_d;
 	keywords_d = strchr (keywords_d, '"');
 
@@ -1029,5 +1030,5 @@ tracker_keywords_parse (GPtrArray   *store,
 		g_free (p_do);
 	}
 
-	g_free (keywords_d);
+	g_free (orig);
 }
