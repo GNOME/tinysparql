@@ -32,6 +32,7 @@ ESCAPE_TEST_DATA test_data []  = {
 	{ NULL, NULL }
 };
 
+/* Used for the cursor_next_async test */
 static TrackerSparqlConnection *connection;
 static GMainLoop *main_loop;
 
@@ -213,11 +214,20 @@ test_tracker_sparql_cursor_next_async_query (gint query)
 static void
 test_tracker_sparql_cursor_next_async (void)
 {
+	GError *error = NULL;
+
 	/* So, the idea here:
 	 * 1. Test async cursor_next() call.
 	 * 2. Make sure we can cancel a cursor_next() call and start a new query (was failing)
 	 * 3. Handle multiple async queries + async cursor_next() calls.
 	 */
+
+	if (G_UNLIKELY (connection == NULL)) {
+		connection = tracker_sparql_connection_get (NULL, &error);
+		g_assert_no_error (error);
+		g_assert (connection != NULL);
+	}
+
 	test_tracker_sparql_cursor_next_async_query (0);
 }
 
@@ -258,10 +268,10 @@ test_tracker_sparql_connection_locking_async_cb (GObject      *source,
 	g_assert (connection != NULL);
 
 	if (!c1) {
-		g_message ("GOT connection #1, waiting connection:%p (expecting NULL)", user_data);
+		g_print ("GOT connection #1, waiting connection:%p (expecting NULL)\n", user_data);
 		c1 = connection;
 	} else if (!c2) {
-		g_message ("GOT connection #2, waiting connection:%p (expecting NULL)", user_data);
+		g_print ("GOT connection #2, waiting connection:%p (expecting NULL)\n", user_data);
 		c2 = connection;
 	}
 
@@ -278,11 +288,42 @@ test_tracker_sparql_connection_locking_async (void)
 	g_assert (c3 != NULL);
 }
 
+static void
+test_tracker_sparql_nb237150_cb (GObject      *source_object,
+                                 GAsyncResult *result,
+                                 gpointer      user_data)
+{
+	/* Not actually worried about this being called */
+	g_print ("Called back for #%d\n", GPOINTER_TO_INT(user_data));
+}
+
+static void
+test_tracker_sparql_nb237150 (void)
+{
+	/* Test NB#237150 - Second tracker_sparql_connection_get_async never returns */
+	if (g_test_trap_fork (G_USEC_PER_SEC * 2, G_TEST_TRAP_SILENCE_STDOUT)) {
+		g_print ("\n");
+		g_print ("Calling #1 - tracker_sparql_connection_get_async()\n");
+		tracker_sparql_connection_get_async (NULL, test_tracker_sparql_nb237150_cb, GINT_TO_POINTER(1));
+
+		g_print ("Calling #2 - tracker_sparql_connection_get_async()\n");
+		tracker_sparql_connection_get_async (NULL, test_tracker_sparql_nb237150_cb, GINT_TO_POINTER(2));
+
+		g_print ("Calling both finished\n");
+
+		exit (0); /* successful test run */
+	}
+
+	g_test_trap_assert_passed ();
+	g_test_trap_assert_stdout ("*Calling #1*");
+	g_test_trap_assert_stdout ("*Calling #2*");
+	g_test_trap_assert_stdout ("*Calling both finished*");
+}
+
 gint
 main (gint argc, gchar **argv)
 {
 	int result;
-	GError *error = NULL;
 
 	g_thread_init (NULL);
 	g_type_init ();
@@ -291,14 +332,16 @@ main (gint argc, gchar **argv)
         /* do not require prior installation */
         g_setenv ("TRACKER_SPARQL_MODULE_PATH", "../../src/libtracker-bus/.libs", TRUE);
 
+#if HAVE_TRACKER_FTS
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_assert (main_loop != NULL);
+#endif
 
-	connection = tracker_sparql_connection_get (NULL, &error);
-
-	g_assert_no_error (error);
-	g_assert (connection != NULL);
-
+	/* NOTE: this first test must come BEFORE any others because
+	 * connections are cached by libtracker-sparql.
+	 */
+	g_test_add_func ("/libtracker-sparql/tracker/test_tracker_sparql_nb237150",
+	                 test_tracker_sparql_nb237150);
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_escape_string", 
 	                 test_tracker_sparql_escape_string);
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_escape_uri_vprintf",
@@ -307,6 +350,7 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_connection_locking_sync);
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_connection_locking_async",
 	                 test_tracker_sparql_connection_locking_async);
+
 #if HAVE_TRACKER_FTS
 	g_test_add_func ("/libtracker-sparql/tracker/tracker_sparql_cursor_next_async",
 	                 test_tracker_sparql_cursor_next_async);
@@ -316,9 +360,11 @@ main (gint argc, gchar **argv)
 
 #if HAVE_TRACKER_FTS
 	g_main_loop_run (main_loop);
-#endif
 
-	g_object_unref (connection);
+	if (connection) {
+		g_object_unref (connection);
+	}
+#endif
 
 	return result;
 }
