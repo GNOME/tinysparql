@@ -985,18 +985,16 @@ tracker_processing_pool_buffer_flush (TrackerProcessingPool *pool,
 	update_data->error_map = error_map;
 	update_data->sparql_array = sparql_array;
 
-	/* Reset buffer in the pool */
+	/* Reset buffer and current parent in the pool */
 	pool->sparql_buffer = NULL;
 	pool->sparql_buffer_start_time = 0;
-
-	/* Flush or queue... */
-	processing_pool_update_array_flush (pool, update_data, reason);
-
-	/* Clear current parent */
 	if (pool->sparql_buffer_current_parent) {
 		g_object_unref (pool->sparql_buffer_current_parent);
 		pool->sparql_buffer_current_parent = NULL;
 	}
+
+	/* Flush or queue... */
+	processing_pool_update_array_flush (pool, update_data, reason);
 }
 
 gboolean
