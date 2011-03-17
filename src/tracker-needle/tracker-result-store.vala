@@ -471,7 +471,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 	public int iter_n_children (Gtk.TreeIter? iter) {
 		if (iter == null) {
-			return filled_categories_count ();
+			return categories.length;
 		}
 
 		if (iter.user_data2 != null) {
