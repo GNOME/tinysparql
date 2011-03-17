@@ -88,16 +88,18 @@ public abstract class Tracker.Sparql.Connection : Object {
 	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		door.lock ();
 
-		if (singleton != null) {
+		// assign to owned variable to ensure it doesn't get freed between unlock and return
+		var result = singleton;
+		if (result != null) {
 			assert (direct_only == is_direct_only);
 			door.unlock ();
-			return singleton;
+			return result;
 		}
 
 		log_init ();
 
 		/* the True is to assert that direct only is required */
-		Connection result = new Backend (is_direct_only);
+		result = new Backend (is_direct_only);
 		result.init ();
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
@@ -115,32 +117,52 @@ public abstract class Tracker.Sparql.Connection : Object {
 	}
 
 	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		door.lock ();
+		// fast path: avoid extra thread if connection is already available
+		if (door.trylock ()) {
+			// assign to owned variable to ensure it doesn't get freed between unlock and return
+			var result = singleton;
 
-		if (singleton != null) {
-			assert (direct_only == is_direct_only);
 			door.unlock ();
-			return singleton;
+
+			if (result != null) {
+				assert (direct_only == is_direct_only);
+				return result;
+			}
 		}
 
-		log_init ();
+		// run in a separate thread
+		Sparql.Error sparql_error = null;
+		IOError io_error = null;
+		DBusError dbus_error = null;
+		Connection result = null;
 
-		/* the True is to assert that direct only is required */
-		Connection result = new Backend (is_direct_only);
-		yield result.init_async ();
+		g_io_scheduler_push_job (job => {
+			try {
+				result = get_internal (is_direct_only, cancellable);
+			} catch (IOError e_io) {
+				io_error = e_io;
+			} catch (Sparql.Error e_spql) {
+				sparql_error = e_spql;
+			} catch (DBusError e_dbus) {
+				dbus_error = e_dbus;
+			}
+			Idle.add (() => {
+				get_internal_async.callback ();
+				return false;
+			});
+			return false;
+		});
+		yield;
 
-		if (cancellable != null && cancellable.is_cancelled ()) {
-			door.unlock ();
-			throw new IOError.CANCELLED ("Operation was cancelled");
+		if (sparql_error != null) {
+			throw sparql_error;
+		} else if (io_error != null) {
+			throw io_error;
+		} else if (dbus_error != null) {
+			throw dbus_error;
+		} else {
+			return result;
 		}
-
-		direct_only = is_direct_only;
-		singleton = result;
-		result.add_weak_pointer ((void**) (&singleton));
-
-		door.unlock ();
-
-		return singleton;
 	}
 
 	/**
@@ -199,10 +221,6 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * these functions, a mutex is used to protect the loading of backends
 	 * against potential race conditions. For synchronous calls, this function
 	 * will always block if a previous connection get method has been called.
-	 * For asynchronous calls, this <emphasis>may</emphasis> block if another
-	 * synchronous or asynchronous call has been previously dispatched and is
-	 * still pending. We don't expect this to be a normal programming model when
-	 * using this API.
 	 *
 	 * All backends will call the D-Bus tracker-store API Wait() to make sure
 	 * the store and databases are in the right state before any user based
@@ -326,10 +344,6 @@ public abstract class Tracker.Sparql.Connection : Object {
 
 	public virtual void init () throws Sparql.Error, IOError, DBusError {
 		warning ("Interface 'init' not implemented");
-	}
-
-	public async virtual void init_async () throws Sparql.Error, IOError, DBusError {
-		warning ("Interface 'init_async' not implemented");
 	}
 
 	/**
