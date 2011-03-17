@@ -252,10 +252,10 @@ public class Tracker.View : ScrolledWindow {
 
 			col = new TreeViewColumn ();
 			col.set_sizing (TreeViewColumnSizing.FIXED);
-			// col.pack_start (renderer1, false);
-			// col.add_attribute (renderer1, "pixbuf", 0);
-			// renderer1.xpad = 5;
-			// renderer1.ypad = 5;
+			col.pack_start (renderer1, false);
+			col.add_attribute (renderer1, "pixbuf", 6);
+			renderer1.xpad = 5;
+			renderer1.ypad = 5;
 
 			col.pack_start (renderer2, true);
 			col.set_cell_data_func (renderer2, text_renderer_func);
@@ -269,7 +269,7 @@ public class Tracker.View : ScrolledWindow {
 			col.set_resizable (true);
 			col.set_expand (true);
 			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
-//			col.set_cell_data_func (renderer1, cell_renderer_func);
+			col.set_cell_data_func (renderer1, renderer_background_func);
 			tv.append_column (col);
 
 //			var renderer3 = new Gtk.CellRendererText ();
@@ -325,7 +325,7 @@ public class Tracker.View : ScrolledWindow {
 		path = tree_model.get_path (iter);
 
 		// Set odd/even colours
-		if (path.get_indices()[0] % 2 == 0) {
+		if (path.get_indices()[0] % 2 != 0) {
 			cell.set ("cell-background-gdk", color);
 		} else {
 			cell.set ("cell-background-gdk", null);

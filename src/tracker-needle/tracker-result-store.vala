@@ -29,6 +29,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		Tracker.Query.Type type;
 		string [] args;
 		ResultNode [] results;
+		Gdk.Pixbuf pixbuf;
 	}
 	private CategoryNode [] categories;
 
@@ -94,7 +95,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 				result = &op.node.results[i];
 
-				for (j = 0; j < n_columns; j++) {
+				for (j = 0; j < n_columns - 1; j++) {
 					result.values[j] = cursor.get_string (j);
 				}
 
@@ -314,7 +315,11 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	}
 
 	public GLib.Type get_column_type (int index_) {
-		return typeof (string);
+		if (index_ == n_columns - 1) {
+			return typeof (Gdk.Pixbuf);
+		} else {
+			return typeof (string);
+		}
 	}
 
 	public Gtk.TreeModelFlags get_flags () {
@@ -409,6 +414,41 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 					value.set_string (_("Folders"));
 					break;
 				}
+			} else if (column == n_columns - 1) {
+				Gdk.Pixbuf pixbuf;
+
+				pixbuf = cat.pixbuf;
+
+				if (pixbuf == null) {
+					var theme = IconTheme.get_for_screen (Gdk.Screen.get_default ());
+					int size = 24;
+
+					switch (cat.type) {
+					case Tracker.Query.Type.APPLICATIONS:
+						pixbuf = tracker_pixbuf_new_from_name (theme, "package-x-generic", size);
+						break;
+					case Tracker.Query.Type.MUSIC:
+						pixbuf = tracker_pixbuf_new_from_name (theme, "audio-x-generic", size);
+						break;
+					case Tracker.Query.Type.IMAGES:
+						pixbuf = tracker_pixbuf_new_from_name (theme, "image-x-generic", size);
+						break;
+					case Tracker.Query.Type.VIDEOS:
+						pixbuf = tracker_pixbuf_new_from_name (theme, "video-x-generic", size);
+						break;
+					case Tracker.Query.Type.DOCUMENTS:
+						pixbuf = tracker_pixbuf_new_from_name (theme, "x-office-presentation", size);
+						break;
+					case Tracker.Query.Type.MAIL:
+						pixbuf = tracker_pixbuf_new_from_name (theme, "emblem-mail", size);
+						break;
+					case Tracker.Query.Type.FOLDERS:
+						pixbuf = tracker_pixbuf_new_from_name (theme, "folder", size);
+						break;
+					}
+				}
+
+				value.set_object (pixbuf);
 			}
 		} else {
 			ResultNode *result;
@@ -418,7 +458,12 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			n_node = (int) iter.user_data3;
 
 			if (result.values[0] != null) {
-				value.set_string (result.values[column]);
+				if (column == n_columns - 1) {
+					// No pixbuf ATM
+					//value.set_object (null);
+				} else {
+					value.set_string (result.values[column]);
+				}
 			} else {
 				n_node /= 100;
 				n_node *= 100;
@@ -569,7 +614,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	public ResultStore (int _n_columns) {
 		running_operations = new GenericArray<Operation?> ();
 		delayed_operations = new GenericArray<Operation?> ();
-		n_columns = _n_columns;
+
+		// Add an extra one for the pixbuf
+		n_columns = _n_columns + 1;
 	}
 
 	public void add_query (Tracker.Query.Type type, ...) {
@@ -588,7 +635,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			}
 		} while (str != null);
 
-		if (args.length != n_columns) {
+		if (args.length != n_columns - 1) {
 			warning ("Arguments and number of columns doesn't match");
 			return;
 		}
