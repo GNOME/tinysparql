@@ -143,6 +143,7 @@ public class Tracker.Needle {
 		search_list = builder.get_object ("comboboxentry_search") as ComboBoxEntry;
 		search = search_list.get_child () as Entry;
 		search.changed.connect (search_changed);
+		search.activate.connect (search_activated);
 		search_history_insert (history.get ());
 
 		spinner = new Spinner ();
@@ -217,6 +218,15 @@ public class Tracker.Needle {
 		}
 
 		last_search_id = Timeout.add_seconds (1, search_run);
+	}
+
+	private void search_activated (Entry entry) {
+		if (last_search_id != 0) {
+			Source.remove (last_search_id);
+			last_search_id = 0;
+		}
+
+		search_run ();
 	}
 
 	private async void search_simple (ListStore store) requires (store != null) {
@@ -329,8 +339,6 @@ public class Tracker.Needle {
 
 			query.limit = 1000;
 			query.criteria = search.get_text ();
-
-			print (search.get_text ());
 
 			try {
 				cursor = yield query.perform_async (type, null);
