@@ -39,6 +39,28 @@ public class Tracker.View : ScrolledWindow {
 
 	private Widget view = null;
 
+	private void store_row_changed (TreeModel model,
+	                                TreePath  path,
+	                                TreeIter  iter) {
+		int n_children = model.iter_n_children (iter);
+
+		if (n_children > 0) {
+			((TreeView) view).expand_row (path, false);
+		}
+	}
+
+	private bool row_selection_func (TreeSelection selection,
+	                                 TreeModel     model,
+	                                 TreePath      path,
+	                                 bool          path_selected) {
+		if (path.get_depth () == 1) {
+			// Category row, not selectable
+			return false;
+		}
+
+		return true;
+	}
+
 	public View (Display? _display = Display.NO_RESULTS, ResultStore? _store) {
 		set_policy (PolicyType.NEVER, PolicyType.AUTOMATIC);
 
@@ -50,6 +72,7 @@ public class Tracker.View : ScrolledWindow {
 		} else {
 			// Setup treeview
 			store = new ResultStore (6);
+			store.row_changed.connect (store_row_changed);
 
 			store.add_query (Tracker.Query.Type.APPLICATIONS,
 			                 "?urn",
@@ -184,8 +207,8 @@ public class Tracker.View : ScrolledWindow {
 			col.set_resizable (true);
 			col.set_expand (true);
 			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
-			col.set_cell_data_func (renderer1, cell_renderer_func);
-			col.set_cell_data_func (renderer2, cell_renderer_func);
+			col.set_cell_data_func (renderer1, renderer_background_func);
+			col.set_cell_data_func (renderer2, renderer_background_func);
 			tv.append_column (col);
 
 			var renderer3 = new Tracker.CellRendererText ();
@@ -194,7 +217,7 @@ public class Tracker.View : ScrolledWindow {
 			col.pack_start (renderer3, true);
 			col.add_attribute (renderer3, "text", 6);
 			col.set_title (_("Last Changed"));
-			col.set_cell_data_func (renderer3, cell_renderer_func);
+			col.set_cell_data_func (renderer3, renderer_background_func);
 			tv.append_column (col);
 
 			var renderer4 = new Tracker.CellRendererText ();
@@ -203,7 +226,7 @@ public class Tracker.View : ScrolledWindow {
 			col.pack_start (renderer4, true);
 			col.add_attribute (renderer4, "text", 7);
 			col.set_title (_("Size"));
-			col.set_cell_data_func (renderer4, cell_renderer_func);
+			col.set_cell_data_func (renderer4, renderer_background_func);
 			tv.append_column (col);
 
 			break;
@@ -212,12 +235,17 @@ public class Tracker.View : ScrolledWindow {
 		case Display.CATEGORIES: {
 			TreeViewColumn col;
 			TreeView tv = (TreeView) view;
+			TreeSelection selection;
 
 			tv.set_model (store);
 			tv.set_tooltip_column (5);
 			tv.set_rules_hint (false);
 			tv.set_grid_lines (TreeViewGridLines.NONE);
 			tv.set_headers_visible (false);
+			tv.set_show_expanders (false);
+
+                        selection = tv.get_selection ();
+                        selection.set_select_function (row_selection_func);
 
 			var renderer1 = new CellRendererPixbuf ();
 			var renderer2 = new Gtk.CellRendererText ();
@@ -233,6 +261,7 @@ public class Tracker.View : ScrolledWindow {
 			col.set_cell_data_func (renderer2, text_renderer_func);
 //			col.add_attribute (renderer2, "text", 1); //4);
 //			col.add_attribute (renderer2, "subtext", 5);
+                        renderer2.set_fixed_height_from_font (2);
 			renderer2.ellipsize = Pango.EllipsizeMode.MIDDLE;
 //			renderer2.show_fixed_height = true;
 
@@ -265,15 +294,13 @@ public class Tracker.View : ScrolledWindow {
 		}
 	}
 
-	private void cell_renderer_func (CellLayout   cell_layout,
-	                                 CellRenderer cell,
-	                                 TreeModel    tree_model,
-	                                 TreeIter     iter) {
+	private void renderer_background_func (CellLayout   cell_layout,
+	                                       CellRenderer cell,
+	                                       TreeModel    tree_model,
+	                                       TreeIter     iter) {
 		Gdk.Color color;
 		Style style;
-		bool show_row_hint;
-
-		tree_model.get (iter, 9, out show_row_hint, -1);
+		TreePath path;
 
 		style = view.get_style ();
 
@@ -295,12 +322,12 @@ public class Tracker.View : ScrolledWindow {
 			color.blue = (color.blue + (style.black).blue) / 2;
 		}
 
+		path = tree_model.get_path (iter);
+
 		// Set odd/even colours
-		if (show_row_hint) {
-//			((Widget) treeview).style_get ("odd-row-color", out color, null);
-			cell.set ("cell-background-gdk", &color);
+		if (path.get_indices()[0] % 2 == 0) {
+			cell.set ("cell-background-gdk", color);
 		} else {
-//			((Widget) treeview).style_get ("even-row-color", out color, null);
 			cell.set ("cell-background-gdk", null);
 		}
 	}
@@ -312,6 +339,7 @@ public class Tracker.View : ScrolledWindow {
 		string text, subtext;
 		string markup = null;
 
+		renderer_background_func (cell_layout, cell, tree_model, iter);
 		tree_model.get (iter, 2, out text, 3, out subtext, -1);
 
 		if (text != null) {
