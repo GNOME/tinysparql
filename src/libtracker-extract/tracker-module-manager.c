@@ -76,6 +76,8 @@ load_extractor_rule (GKeyFile  *key_file,
 	}
 
 	g_array_append_val (rules, rule);
+	g_strfreev (mimetypes);
+	g_free (module_path);
 
 	return TRUE;
 }
