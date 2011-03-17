@@ -24,6 +24,13 @@ config_SCRIPTS += \
 	tracker-tests.aegis
 endif
 
+dconfdir = $(sysconfdir)/dconf/profile
+dconf_DATA = \
+	tracker-test
+
+trackertest: trackertest.dconf.in
+	cp trackertest.dconf.in trackertest
+
 standard_tests = \
 	01-insertion.py \
 	02-sparql-bugs.py
@@ -107,7 +114,8 @@ functional-test-slow: ${slow_tests}
 
 EXTRA_DIST = \
 	$(config_SCRIPTS) \
-	create-tests-xml.py
+	create-tests-xml.py \
+	trackertest
 
 if HAVE_MAEMO
 CLEANFILES = \
