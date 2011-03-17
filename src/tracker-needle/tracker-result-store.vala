@@ -105,7 +105,6 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 				iter.user_data3 = i.to_pointer ();
 
 				path = this.get_path (iter);
-
 				row_changed (path, iter);
 			}
 
@@ -206,6 +205,12 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 				row_inserted (path, iter);
 			}
+
+			iter.user_data2 = null;
+			iter.user_data3 = null;
+			path = get_path (iter);
+
+			row_changed (path, iter);
 		}
 
 		if (running_operations.length == 0) {
@@ -215,8 +220,6 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 	private void clear_results () {
 		int i, j;
-
-		print ("POSCLAROOO\n");
 
 		for (i = 0; i < categories.length; i++) {
 			CategoryNode *cat = &categories[i];
@@ -230,7 +233,6 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 				iter.user_data2 = &cat.results[j];
 				iter.user_data3 = j.to_pointer ();
 				path = get_path (iter);
-				print ("removing = %s\n", path.to_string ());
 
 				row_deleted (path);
 			}
