@@ -581,7 +581,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 		gdouble value;
 
 		if (cinfo.density_unit == 0) {
-			if (ed->resolution_unit == 1)
+			if (ed->resolution_unit != 3)
 				value = g_strtod (ed->x_resolution, NULL);
 			else
 				value = g_strtod (ed->x_resolution, NULL) * CM_TO_INCH;
@@ -600,7 +600,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 		gdouble value;
 
 		if (cinfo.density_unit == 0) {
-			if (ed->resolution_unit == 1)
+			if (ed->resolution_unit != 3)
 				value = g_strtod (ed->y_resolution, NULL);
 			else
 				value = g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
