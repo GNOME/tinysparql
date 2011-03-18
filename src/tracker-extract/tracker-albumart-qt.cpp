@@ -41,7 +41,7 @@ tracker_albumart_plugin_init (void)
 	int argc = 0;
 	char **argv = NULL;
 
-	app = new QApplication (argc, argv);
+	app = new QApplication (argc, argv, QApplication::Tty);
 }
 
 void
