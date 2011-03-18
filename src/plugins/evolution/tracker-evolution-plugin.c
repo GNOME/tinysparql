@@ -46,7 +46,12 @@
 #include <mail/em-utils.h>
 #include <mail/mail-ops.h>
 
+#ifdef EVOLUTION_SHELL_2_91
 #include <mail/e-mail-session.h>
+#else 
+#include <mail/mail-session.h>
+#endif
+
 #include <mail/e-mail-backend.h>
 #include <shell/e-shell.h>
 
@@ -188,7 +193,9 @@ static TrackerEvolutionPlugin *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
 static guint register_count = 0, walk_count = 0;
 static ThreadPool *folder_pool = NULL;
+#ifdef EVOLUTION_SHELL_2_91
 static EMailSession *session = NULL;
+#endif
 
 /* Prototype declarations */
 static void register_account (TrackerEvolutionPlugin *self, EAccount *account);
@@ -1406,7 +1413,10 @@ register_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		/* This is asynchronous and hooked to the mail/ API, so nicely
 		 * integrated with the Evolution UI application */
 
-		mail_get_folder (session,
+		mail_get_folder (
+#ifdef EVOLUTION_SHELL_2_91
+		                 session,
+#endif
 		                 iter->uri,
 		                 0,
 		                 register_on_get_folder,
@@ -1480,7 +1490,10 @@ unregister_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 		/* This is asynchronous and hooked to the mail/ API, so nicely
 		 * integrated with the Evolution UI application */
 
-		mail_get_folder (session,
+		mail_get_folder (
+#ifdef EVOLUTION_SHELL_2_91
+		                 session,
+#endif
 		                 titer->uri,
 		                 0,
 		                 unregister_on_get_folder,
@@ -2236,6 +2249,7 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (plugin);
 	EIterator *it;
 
+#ifdef EVOLUTION_SHELL_2_91
 	if (!session) {
 		EShell *shell;
 		EShellBackend *shell_backend;
@@ -2244,6 +2258,7 @@ tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
 		shell_backend = e_shell_get_backend_by_name (shell, "mail");
 		session = e_mail_backend_get_session (E_MAIL_BACKEND (shell_backend));
 	}
+#endif
 
 	priv->connection = NULL;
 	priv->last_time = 0;

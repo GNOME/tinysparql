@@ -188,10 +188,10 @@ LIBFLAC_REQUIRED=1.2.1
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
 EXEMPI_REQUIRED=2.1.0
-EVO_REQUIRED=2.91.90
-EVO_SHELL_REQUIRED=2.91.90
-EDS_REQUIRED=2.91.90
-CAMEL_REQUIRED=2.91.90
+EVO_REQUIRED=2.32.0
+EVO_SHELL_REQUIRED=2.32.0
+EDS_REQUIRED=2.32.0
+CAMEL_REQUIRED=2.32.0
 # Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
 LIBSTREAMANALYZER_REQUIRED=0.7.0
 GEE_REQUIRED=0.3
@@ -370,6 +370,7 @@ if test "x$have_tracker_miner_evolution" != "xyes"; then
    PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
                      [have_tracker_miner_evolution=yes],
                      [have_tracker_miner_evolution=no])
+
 fi
 
 # Check requirements for tracker-miner-rss
@@ -1122,6 +1123,11 @@ else
 fi
 
 if test "x$have_tracker_miner_evolution" = "xyes"; then
+
+   PKG_CHECK_MODULES(MINER_EVOLUTION_SHELL, evolution-shell > 2.91,
+                     [miner_evolution_2_91=yes],
+                     [miner_evolution_2_91=no])
+
    AC_ARG_WITH([evolution_plugin_dir],
                AS_HELP_STRING([--with-evolution-plugin-dir],
                               [path to Evolution plugin directory]))
@@ -1133,6 +1139,10 @@ if test "x$have_tracker_miner_evolution" = "xyes"; then
 
    if test -z $tracker_miner_evolution_install_dir; then
       AC_MSG_ERROR([Couldn't find evolution plugin dir, consider using --with-evolution-plugin-dir.])
+   fi
+
+   if test "x$miner_evolution_2_91" = "xyes"; then
+      AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
    fi
 fi
 
