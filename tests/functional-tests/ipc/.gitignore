@@ -17,3 +17,5 @@ test-default-update
 test-default-update.c
 test-busy-handling
 test-busy-handling.c
+test-insert-or-replace
+test-insert-or-replace.c
