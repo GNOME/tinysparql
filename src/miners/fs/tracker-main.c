@@ -69,6 +69,7 @@ static gboolean finished_miners;
 
 static gint verbosity = -1;
 static gint initial_sleep = -1;
+static gboolean no_daemon;
 static gchar *eligible;
 static gboolean version;
 
@@ -82,6 +83,10 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_INT, &initial_sleep,
 	  N_("Initial sleep time in seconds, "
 	     "0->1000 (default=15)"),
+	  NULL },
+	{ "no-daemon", 'n', 0,
+	  G_OPTION_ARG_NONE, &no_daemon,
+	  N_("Runs until all configured locations are indexed and then exits"),
 	  NULL },
 	{ "eligible", 'e', 0,
 	  G_OPTION_ARG_FILENAME, &eligible,
@@ -249,6 +254,13 @@ miner_handle_next (void)
 		finished_miners = TRUE;
 
 		g_message ("All miners are now finished");
+
+		/* We're not sticking around for file updates, so stop
+		 * the mainloop and exit.
+		 */
+		if (no_daemon) {
+			g_main_loop_quit (main_loop);
+		}
 
 		return;
 	}
@@ -611,6 +623,11 @@ main (gint argc, gchar *argv[])
 	sanity_check_option_values (config);
 
 	main_loop = g_main_loop_new (NULL, FALSE);
+
+	g_message ("Checking if we're running as a daemon:");
+	g_message ("  %s %s",
+	           no_daemon ? "No" : "Yes",
+	           no_daemon ? "(forced by command line)" : "");
 
 	/* Check if we should crawl and if we should force mtime
 	 * checking based on the config.

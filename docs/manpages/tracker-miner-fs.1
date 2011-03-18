@@ -30,6 +30,12 @@ Sets the logging level, 0=errors, 1=minimal, 2=detailed, 3=debug.
 .B \-s, \-\-initial-sleep=SECONDS
 Sets the initial sleep time before crawling the file system is started.
 .TP
+.B \-n, \-\-no-daemon
+Tells the miner to exit once all indexing has finished and the
+database is up to date. This is not the default mode of operation for
+the miner, usually it stays around acting like a daemon to monitor
+file updates which may occur over time.
+.TP
 .B \-e, \-\-eligible=FILE
 Checks if 
 .B FILE 
