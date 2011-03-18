@@ -121,7 +121,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 			if (!text_ptr[i].key || !text_ptr[i].text || text_ptr[i].text[0] == '\0') {
 				continue;
 			}
-		
+
 	#if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
 			if (g_strcmp0 ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
 				/* ATM tracker_extract_xmp_read supports setting xd
@@ -470,7 +470,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	if (ed->x_resolution) {
 		gdouble value;
 
-		value = ed->resolution_unit == 1 ? g_strtod (ed->x_resolution, NULL) : g_strtod (ed->x_resolution, NULL) * CM_TO_INCH;
+		value = ed->resolution_unit != 3 ? g_strtod (ed->x_resolution, NULL) : g_strtod (ed->x_resolution, NULL) * CM_TO_INCH;
 		tracker_sparql_builder_predicate (metadata, "nfo:horizontalResolution");
 		tracker_sparql_builder_object_double (metadata, value);
 	}
@@ -478,7 +478,7 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	if (ed->y_resolution) {
 		gdouble value;
 
-		value = ed->resolution_unit == 1 ? g_strtod (ed->y_resolution, NULL) : g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
+		value = ed->resolution_unit != 3 ? g_strtod (ed->y_resolution, NULL) : g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
 		tracker_sparql_builder_predicate (metadata, "nfo:verticalResolution");
 		tracker_sparql_builder_object_double (metadata, value);
 	}

@@ -696,7 +696,7 @@ extract_tiff (const gchar          *uri,
 	if (ed->x_resolution) {
 		gdouble value;
 
-		value = ed->resolution_unit == 1 ? g_strtod (ed->x_resolution, NULL) : g_strtod (ed->x_resolution, NULL) * CM_TO_INCH;
+		value = ed->resolution_unit != 3 ? g_strtod (ed->x_resolution, NULL) : g_strtod (ed->x_resolution, NULL) * CM_TO_INCH;
 		tracker_sparql_builder_predicate (metadata, "nfo:horizontalResolution");
 		tracker_sparql_builder_object_double (metadata, value);
 	}
@@ -704,7 +704,7 @@ extract_tiff (const gchar          *uri,
 	if (ed->y_resolution) {
 		gdouble value;
 
-		value = ed->resolution_unit == 1 ? g_strtod (ed->y_resolution, NULL) : g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
+		value = ed->resolution_unit != 3 ? g_strtod (ed->y_resolution, NULL) : g_strtod (ed->y_resolution, NULL) * CM_TO_INCH;
 		tracker_sparql_builder_predicate (metadata, "nfo:verticalResolution");
 		tracker_sparql_builder_object_double (metadata, value);
 	}
