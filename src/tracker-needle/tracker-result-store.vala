@@ -76,7 +76,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			query.limit = 100;
 			query.offset = op.offset;
 
-			cursor = yield query.perform_async (op.node.type, op.node.args);
+			cursor = yield query.perform_async (op.node.type, op.node.args, cancellable);
 
 			for (i = op.offset; i < op.offset + 100; i++) {
 				ResultNode *result;
@@ -86,7 +86,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 				int j;
 
 				try {
-					b = yield cursor.next_async ();
+					b = yield cursor.next_async (cancellable);
 				} catch (GLib.Error ge) {
 					warning ("Could not fetch row: %s\n", ge.message);
 				}
@@ -180,7 +180,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			Tracker.Query query = new Tracker.Query ();
 			query.criteria = _search_term;
 
-			count = yield query.get_count_async (cat.type);
+			count = yield query.get_count_async (cat.type, cancellable);
 		} catch (GLib.IOError ie) {
 			warning ("Could not get count: %s\n", ie.message);
 			return;
@@ -271,11 +271,16 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 			if (cancellable != null) {
 				cancellable.cancel ();
+				cancellable = null;
 			}
+
+			cancellable = new Cancellable ();
 
 			clear_results ();
 			this.active = true;
 
+			running_operations = new GenericArray<Operation?> ();
+			delayed_operations = new GenericArray<Operation?> ();
 			this.timestamp++;
 
 			for (i = 0; i < categories.length; i++) {
