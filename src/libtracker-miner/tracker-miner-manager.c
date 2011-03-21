@@ -69,12 +69,31 @@ struct TrackerMinerManagerPrivate {
 	GDBusConnection *connection;
 	GList *miners;
 	GHashTable *miner_proxies;
+
+	/* Property values */
+	gboolean auto_start;
 };
 
-static void miner_manager_finalize (GObject *object);
-static void initialize_miners_data (TrackerMinerManager *manager);
+static void miner_manager_initable_iface_init (GInitableIface         *iface);
+static void miner_manager_set_property        (GObject             *object,
+                                               guint                param_id,
+                                               const GValue        *value,
+                                               GParamSpec          *pspec);
+static void miner_manager_get_property        (GObject             *object,
+                                               guint                param_id,
+                                               GValue              *value,
+                                               GParamSpec          *pspec);
+static void miner_manager_finalize            (GObject             *object);
+static void initialize_miners_data            (TrackerMinerManager *manager);
 
-G_DEFINE_TYPE (TrackerMinerManager, tracker_miner_manager, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_CODE (TrackerMinerManager, tracker_miner_manager, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                miner_manager_initable_iface_init));
+
+enum {
+	PROP_0,
+	PROP_AUTO_START
+};
 
 enum {
 	MINER_PROGRESS,
@@ -92,7 +111,17 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+	object_class->set_property = miner_manager_set_property;
+	object_class->get_property = miner_manager_get_property;
 	object_class->finalize = miner_manager_finalize;
+
+	g_object_class_install_property (object_class,
+	                                 PROP_AUTO_START,
+	                                 g_param_spec_boolean ("auto-start",
+	                                                      "Auto Start",
+	                                                      "If set, auto starts miners when querying their status",
+	                                                       TRUE,
+	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	/**
 	 * TrackerMinerManager::miner-progress
@@ -197,6 +226,50 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 		              G_TYPE_STRING);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerManagerPrivate));
+}
+
+static void
+miner_manager_set_property (GObject      *object,
+                            guint         prop_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+	TrackerMinerManager *manager;
+	TrackerMinerManagerPrivate *priv;
+
+	manager = TRACKER_MINER_MANAGER (object);
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	switch (prop_id) {
+	case PROP_AUTO_START:
+		priv->auto_start = g_value_get_boolean (value);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+miner_manager_get_property (GObject    *object,
+                            guint       prop_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
+{
+	TrackerMinerManager *manager;
+	TrackerMinerManagerPrivate *priv;
+
+	manager = TRACKER_MINER_MANAGER (object);
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	switch (prop_id) {
+	case PROP_AUTO_START:
+		g_value_set_boolean (value, priv->auto_start);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
 }
 
 static GDBusProxy *
@@ -309,22 +382,32 @@ static void
 tracker_miner_manager_init (TrackerMinerManager *manager)
 {
 	TrackerMinerManagerPrivate *priv;
-	GError *error = NULL;
-	GList *m;
 
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
-
-	priv->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
-
-	if (!priv->connection) {
-		g_critical ("Could not connect to the D-Bus session bus, %s",
-		            error ? error->message : "no error given.");
-		g_clear_error (&error);
-	}
 
 	priv->miner_proxies = g_hash_table_new_full (NULL, NULL,
 	                                             (GDestroyNotify) g_object_unref,
 	                                             (GDestroyNotify) g_free);
+}
+
+static gboolean
+miner_manager_initable_init (GInitable     *initable,
+                             GCancellable  *cancellable,
+                             GError       **error)
+{
+	TrackerMinerManager *manager;
+	GError *inner_error = NULL;
+	TrackerMinerManagerPrivate *priv;
+	GList *m;
+
+	manager = TRACKER_MINER_MANAGER (initable);
+	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+
+	priv->connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &inner_error);
+	if (!priv->connection) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
 
 	initialize_miners_data (manager);
 
@@ -338,19 +421,20 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		g_object_weak_ref (data->manager, data_manager_weak_notify, data);
 
 		proxy = g_dbus_proxy_new_sync (priv->connection,
-		                               G_DBUS_PROXY_FLAGS_NONE,
+		                               (priv->auto_start ?
+		                                G_DBUS_PROXY_FLAGS_NONE :
+		                                G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START),
 		                               NULL,
 		                               data->dbus_name,
 		                               data->dbus_path,
 		                               TRACKER_MINER_DBUS_INTERFACE,
 		                               NULL,
-		                               &error);
-
-
-		if (error) {
+		                               &inner_error);
+		/* This error shouldn't be considered fatal */
+		if (inner_error) {
 			g_critical ("Could not create proxy on the D-Bus session bus, %s",
-			            error ? error->message : "no error given.");
-			g_clear_error (&error);
+			            inner_error ? inner_error->message : "no error given.");
+			g_clear_error (&inner_error);
 			continue;
 		}
 
@@ -399,7 +483,16 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 		                                        NULL);
 
 	}
+
+	return TRUE;
 }
+
+static void
+miner_manager_initable_iface_init (GInitableIface *iface)
+{
+	iface->init = miner_manager_initable_init;
+}
+
 
 static void
 miner_data_free (MinerData *data)
@@ -459,14 +552,62 @@ miner_manager_finalize (GObject *object)
  *
  * Creates a new #TrackerMinerManager instance.
  *
- * Returns: a #TrackerMinerManager.
+ * Note: Auto-starting miners when querying status will be enabled. 
+ *
+ * Returns: a #TrackerMinerManager or #NULL if an error happened.
  *
  * Since: 0.8
  **/
 TrackerMinerManager *
 tracker_miner_manager_new (void)
 {
-	return g_object_new (TRACKER_TYPE_MINER_MANAGER, NULL);
+	GError *inner_error = NULL;
+	TrackerMinerManager *manager;
+
+	manager = g_initable_new (TRACKER_TYPE_MINER_MANAGER,
+	                          NULL,
+	                          &inner_error,
+	                          NULL);
+	if (!manager) {
+		g_critical ("Couldn't create new TrackerMinerManager: '%s'", 
+		            inner_error ? inner_error->message : "unknown error");
+		g_clear_error (&inner_error);
+	}
+
+	return manager;
+}
+
+/**
+ * tracker_miner_manager_new_full:
+ * @auto_start: Flag to disable auto-starting the miners when querying status
+ * @error: a #GError to report errors.
+ *
+ * Creates a new #TrackerMinerManager.
+ *
+ * Returns: a #TrackerMinerManager. On error, #NULL is returned and @error is set
+ * accordingly.
+ *
+ * Since: 0.10.5
+ **/
+TrackerMinerManager *
+tracker_miner_manager_new_full (gboolean   auto_start,
+                                GError   **error)
+{
+	GError *inner_error = NULL;
+	TrackerMinerManager *manager;
+
+	manager = g_initable_new (TRACKER_TYPE_MINER_MANAGER,
+	                          NULL,
+	                          &inner_error,
+	                          "auto-start", FALSE,
+	                          NULL);
+	if (!manager) {
+		g_critical ("Couldn't create new TrackerMinerManager: '%s'", 
+		            inner_error ? inner_error->message : "unknown error");
+		g_clear_error (&inner_error);
+	}
+
+	return manager;
 }
 
 /**

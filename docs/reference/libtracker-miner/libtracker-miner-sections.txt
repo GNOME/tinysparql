@@ -7,6 +7,7 @@ tracker_miner_manager_error_quark
 TrackerMinerManager
 TrackerMinerManagerClass
 tracker_miner_manager_new
+tracker_miner_manager_new_full
 tracker_miner_manager_get_running
 tracker_miner_manager_get_available
 tracker_miner_manager_pause
