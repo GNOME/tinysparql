@@ -41,9 +41,15 @@ get_title_from_file (const gchar *uri)
 	basename = g_filename_display_basename (filename);
 	g_free (filename);
 
-	p = strchr (basename, '.');
+	p = strrchr (basename, '.');
 	if (p) {
-		*p = '\0';
+                if (p == basename) {
+                        p = g_strdup (&basename[1]);
+                        g_free (basename);
+                        basename = p;
+                } else {
+                        *p = '\0';
+                }
 	}
 
 	return g_strdelimit (basename, "_", ' ');
