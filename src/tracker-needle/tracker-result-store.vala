@@ -25,17 +25,22 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	private struct ResultNode {
 		string [] values;
 	}
-	private struct CategoryNode {
+	private class CategoryNode {
+		public Tracker.Query.Type type;
+		public QueryData *query;
+		public ResultNode [] results;
+		public Gdk.Pixbuf pixbuf;
+		public int count;
+	}
+	private struct QueryData {
 		Tracker.Query.Type type;
 		string [] args;
-		ResultNode [] results;
-		Gdk.Pixbuf pixbuf;
-		int count;
 	}
-	private CategoryNode [] categories;
+	private QueryData [] queries;
+	private GenericArray<CategoryNode> categories;
 
 	private class Operation : GLib.Object {
-		public CategoryNode *node;
+		public CategoryNode node;
 		public int offset;
 	}
 	private GenericArray<Operation> running_operations;
@@ -76,7 +81,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			query.limit = 100;
 			query.offset = op.offset;
 
-			cursor = yield query.perform_async (op.node.type, op.node.args, cancellable);
+			cursor = yield query.perform_async (op.node.query.type, op.node.query.args, cancellable);
 
 			for (i = op.offset; i < op.offset + 100; i++) {
 				ResultNode *result;
@@ -133,8 +138,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		}
 	}
 
-	private void add_operation (CategoryNode *cat,
-				    int           offset) {
+	private void add_operation (CategoryNode cat,
+				    int          offset) {
 		Operation op = new Operation ();
 		Operation old;
 
@@ -170,7 +175,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		}
 	}
 
-	async void load_category (CategoryNode *cat,
+	async void load_category (QueryData    *query_data,
 				  Cancellable?  cancellable) {
 		uint count = 0;
 
@@ -180,24 +185,32 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			Tracker.Query query = new Tracker.Query ();
 			query.criteria = _search_term;
 
-			count = yield query.get_count_async (cat.type, cancellable);
+			count = yield query.get_count_async (query_data.type, cancellable);
 		} catch (GLib.IOError ie) {
 			warning ("Could not get count: %s\n", ie.message);
 			return;
 		}
 
 		if (count != 0) {
+			CategoryNode cat;
 			ResultNode *res;
 			int i;
 
 			Gtk.TreeIter iter;
 			Gtk.TreePath path;
 
+			cat = new CategoryNode ();
+			cat.type = query_data.type;
+			cat.query = query_data;
 			cat.results.resize ((int) count);
+			categories.add (cat);
 
 			iter = TreeIter ();
 			iter.stamp = this.timestamp;
 			iter.user_data = cat;
+			path = this.get_path (iter);
+
+			row_inserted (path, iter);
 
 			for (i = 0; i < count; i++) {
 				res = &cat.results[i];
@@ -226,8 +239,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	private void clear_results () {
 		int i, j;
 
-		for (i = 0; i < categories.length; i++) {
-			CategoryNode *cat = &categories[i];
+		while (categories.length > 0) {
+			CategoryNode cat = categories[0];
 			TreeIter iter;
 			TreePath path;
 
@@ -252,10 +265,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			iter.user_data3 = null;
 			path = get_path (iter);
 
-			row_changed (path, iter);
+			row_deleted (path);
 
-			cat.results.resize (0);
-			cat.count = 0;
+			categories.remove (cat);
 		}
 	}
 
@@ -279,12 +291,13 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			clear_results ();
 			this.active = true;
 
+			categories = new GenericArray<CategoryNode> ();
 			running_operations = new GenericArray<Operation?> ();
 			delayed_operations = new GenericArray<Operation?> ();
 			this.timestamp++;
 
-			for (i = 0; i < categories.length; i++) {
-				load_category.begin (&categories[i], cancellable);
+			for (i = 0; i < queries.length; i++) {
+				load_category.begin (&queries[i], cancellable);
 			}
 		}
 	}
@@ -294,7 +307,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		private set;
 	}
 
-	private int find_nth_category_index (CategoryNode *node,
+	private int find_nth_category_index (CategoryNode? node,
 	                                     int           n) {
 		int i;
 
@@ -304,9 +317,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		}
 
 		for (i = 0; i < categories.length; i++) {
-			CategoryNode *cat;
+			CategoryNode cat;
 
-			cat = &categories[i];
+			cat = categories[i];
 
 			if (cat == node) {
 				return i + n;
@@ -320,9 +333,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		int i, n = 0;
 
 		for (i = 0; i < categories.length; i++) {
-			CategoryNode *cat;
+			CategoryNode cat;
 
-			cat = &categories[i];
+			cat = categories[i];
 
 			if (cat.count > 0) {
 				n++;
@@ -347,14 +360,14 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	public bool get_iter (out Gtk.TreeIter iter,
 	                      Gtk.TreePath     path) {
 		unowned int [] indices = path.get_indices ();
-		CategoryNode *cat;
+		CategoryNode cat;
 
 		if (indices[0] >= categories.length) {
 			iter.stamp = 0;
 			return false;
 		}
 
-		cat = &categories[indices[0]];
+		cat = categories[indices[0]];
 		iter.stamp = this.timestamp;
 		iter.user_data = cat;
 
@@ -378,11 +391,11 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 	public Gtk.TreePath get_path (Gtk.TreeIter iter) {
 		TreePath path = new TreePath ();
-		CategoryNode *cat;
+		CategoryNode cat;
 		int i;
 
 		for (i = 0; i < categories.length; i++) {
-			cat = &categories[i];
+			cat = categories[i];
 
 			if (cat == iter.user_data) {
 				path.append_index (i);
@@ -400,14 +413,14 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	public void get_value (Gtk.TreeIter   iter,
 	                       int            column,
 	                       out GLib.Value value) {
-		CategoryNode *cat;
+		CategoryNode cat;
 
 		if (column > n_columns) {
 			value.init (typeof (string));
 			return;
 		}
 
-		cat = iter.user_data;
+		cat = (CategoryNode) iter.user_data;
 		value.init (this.get_column_type (column));
 
 		if (iter.user_data2 == null) {
@@ -496,7 +509,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 	public bool iter_children (out Gtk.TreeIter iter,
 	                           Gtk.TreeIter?    parent) {
-		CategoryNode *cat;
+		CategoryNode cat;
 
 		if (parent == null) {
 			int i;
@@ -507,7 +520,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			}
 
 			i = find_nth_category_index (null, 0);
-			cat = &categories[i];
+			cat = categories[i];
 			iter.stamp = this.timestamp;
 			iter.user_data = cat;
 			return true;
@@ -518,7 +531,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			return false;
 		}
 
-		cat = parent.user_data;
+		cat = (CategoryNode) parent.user_data;
 
 		if (cat.results.length <= 0) {
 			iter.stamp = 0;
@@ -535,9 +548,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 	public bool iter_has_child (Gtk.TreeIter iter) {
 		if (iter.user_data2 == null) {
-			CategoryNode *cat;
+			CategoryNode cat;
 
-			cat = iter.user_data;
+			cat = (CategoryNode) iter.user_data;
 			return (cat.count > 0);
 		}
 
@@ -554,16 +567,16 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			return -1;
 		}
 
-		CategoryNode *cat = iter.user_data;
+		CategoryNode cat = (CategoryNode) iter.user_data;
 
 		return cat.count;
 	}
 
 	public bool iter_next (ref Gtk.TreeIter iter) {
-		CategoryNode *cat;
+		CategoryNode cat;
 		int i;
 
-		cat = iter.user_data;
+		cat = (CategoryNode) iter.user_data;
 
 		if (iter.user_data2 == null) {
 			i = find_nth_category_index (cat, 1);
@@ -574,7 +587,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			}
 
 			iter.stamp = this.timestamp;
-			iter.user_data = &categories[i];
+			iter.user_data = categories[i];
 
 			return true;
 		} else {
@@ -597,10 +610,10 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	public bool iter_nth_child (out Gtk.TreeIter iter,
 	                            Gtk.TreeIter?    parent,
 	                            int              n) {
-		CategoryNode *cat;
+		CategoryNode cat;
 
 		if (parent != null) {
-			cat = parent.user_data;
+			cat = (CategoryNode) parent.user_data;
 
 			if (n >= cat.count) {
 				iter.stamp = 0;
@@ -623,7 +636,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 				return false;
 			}
 
-			cat = &categories[index];
+			cat = categories[index];
 			iter.stamp = this.timestamp;
 			iter.user_data = cat;
 
@@ -653,6 +666,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	}
 
 	public ResultStore (int _n_columns) {
+		categories = new GenericArray<CategoryNode> ();
 		running_operations = new GenericArray<Operation?> ();
 		delayed_operations = new GenericArray<Operation?> ();
 
@@ -668,6 +682,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		CategoryNode cat;
 		TreeIter iter;
 		TreePath path;
+		QueryData query_data;
 
 		do {
 			str = l.arg ();
@@ -682,19 +697,20 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			return;
 		}
 
-		cat = CategoryNode ();
-		cat.type = type;
-		cat.args = args;
-		cat.results = new ResultNode[0];
+		query_data = QueryData ();
+		query_data.type = type;
+		query_data.args = args;
 
-		categories += cat;
+		queries += query_data;
 
+		/*
 		iter = TreeIter ();
 		iter.stamp = this.timestamp;
-		iter.user_data = &categories[categories.length - 1];
+		iter.user_data = categories[categories.length - 1];
 		path = this.get_path (iter);
 
 		row_inserted (path, iter);
+		*/
 	}
 
 	public bool has_results () {
