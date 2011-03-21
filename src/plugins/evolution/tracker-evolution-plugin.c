@@ -48,7 +48,7 @@
 
 #ifdef EVOLUTION_SHELL_2_91
 #include <mail/e-mail-session.h>
-#else 
+#else
 #include <mail/mail-session.h>
 #endif
 
