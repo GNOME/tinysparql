@@ -11,7 +11,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 import time
 
 import options
-#from common.utils.options import get_start_timeout
+from dconf import DConfClient
 
 # Don't use /tmp (not enough space there)
 
@@ -22,7 +22,8 @@ TEST_ENV_DIRS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "xdg-data-h
                    "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home")}
 
 TEST_ENV_VARS = {  "TRACKER_DISABLE_MEEGOTOUCH_LOCALE": "",
-                   "LC_COLLATE": "en_GB.utf8"}
+                   "LC_COLLATE": "en_GB.utf8",
+                   "DCONF_PROFILE": "trackertest"}
 
 EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home", "tracker"),
               os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home", "tracker")]
@@ -303,32 +304,39 @@ class TrackerWritebackLifeCycle():
 
 class TrackerSystemAbstraction:
 
-    def set_up_environment (self, confdir, ontodir):
+    def set_up_environment (self, gsettings, ontodir):
         """
         Sets up the XDG_*_HOME variables and make sure the directories exist
+
+        gsettings is a list of triplets (schema, key, value) that will be set/unset in gsetting
         """
+        assert not gsettings or type(gsettings) is list 
+
+        print "[Conf] Setting test environment..."
+        
         for var, directory in TEST_ENV_DIRS.iteritems ():
-            print "[Conf] Setting %s - %s" %(var, directory)
+            print "export %s=%s" %(var, directory)
             self.__recreate_directory (directory)
             os.environ [var] = directory
 
         for directory in EXTRA_DIRS:
             self.__recreate_directory (directory)
 
-        if confdir :
-            self.__recreate_directory (XDG_CONFIG_HOME_DIR)
-            shutil.copytree (os.path.join (confdir, "tracker"),
-                             os.path.join (XDG_CONFIG_HOME_DIR, "tracker"))
-            print "[Conf] Setting %s - %s" % ("XDG_CONFIG_HOME", XDG_CONFIG_HOME_DIR)
-            print "[Conf]   taking conf from", confdir
-            os.environ ["XDG_CONFIG_HOME"] = XDG_CONFIG_HOME_DIR
-
         if ontodir:
-            print "[Conf] Setting %s - %s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir)
+            print "export %s=%s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir)
             os.environ ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
 
         for var, value in TEST_ENV_VARS.iteritems ():
+            print "export %s=%s" %(var, value)
             os.environ [var] = value
+
+        # Previous loop should have set DCONF_PROFILE to the test location
+        if gsettings:
+            self.dconf = DConfClient ()
+            for (schema, key, value) in gsettings:
+                self.dconf.write (schema, key, value)
+
+        print "[Conf] environment ready"
 
     def unset_up_environment (self):
         """
