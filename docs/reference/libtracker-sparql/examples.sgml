@@ -36,11 +36,8 @@ int main (int argc, char **argv)
   /* Create builder */
   builder = <function><link linkend="tracker-sparql-builder-new-update">tracker_sparql_builder_new_update</link></function> ();
 
-  /* Drop previous data */
-  <function><link linkend="tracker-sparql-builder-drop-graph">tracker_sparql_builder_drop_graph</link></function> (builder, iri);
-
   /* Insert new data */
-  <function><link linkend="tracker-sparql-builder-insert-open">tracker_sparql_builder_insert_open</link></function> (builder, iri);
+  <function><link linkend="tracker-sparql-builder-insert-open">tracker_sparql_builder_insert_open</link></function> (builder, NULL);
 
   <function><link linkend="tracker-sparql-builder-subject-iri">tracker_sparql_builder_subject_iri</link></function> (builder, iri);
 
