@@ -98,6 +98,8 @@ GType                tracker_miner_manager_get_type           (void) G_GNUC_CONS
 GQuark               tracker_miner_manager_error_quark        (void) G_GNUC_CONST;
 
 TrackerMinerManager *tracker_miner_manager_new                (void);
+TrackerMinerManager *tracker_miner_manager_new_full           (gboolean              auto_start,
+                                                               GError              **error);
 GSList *             tracker_miner_manager_get_running        (TrackerMinerManager  *manager);
 GSList *             tracker_miner_manager_get_available      (TrackerMinerManager  *manager);
 gboolean             tracker_miner_manager_pause              (TrackerMinerManager  *manager,
