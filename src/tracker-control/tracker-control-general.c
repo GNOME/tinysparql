@@ -236,6 +236,15 @@ term_option_arg_func (const gchar  *option_value,
 	return TRUE;
 }
 
+void
+tracker_control_general_run_default (void)
+{
+	/* Enable list processes in the default run */
+	list_processes = TRUE;
+
+	tracker_control_general_run ();
+}
+
 gint
 tracker_control_general_run (void)
 {

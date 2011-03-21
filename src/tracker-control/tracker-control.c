@@ -127,7 +127,7 @@ main (int argc, char **argv)
 		return tracker_control_miners_run ();
 	}
 
-
+	/* Unknown options? */
 	if (argc > 1) {
 		gint i = 1;
 
@@ -138,10 +138,14 @@ main (int argc, char **argv)
 			            argv[i],
 			            i == (argc - 1) ? "\n" : ", ");
 		}
-	} else {
-		g_printerr ("%s\n",
-		            _("No options specified"));
+		return EXIT_FAILURE;
 	}
 
-	return EXIT_FAILURE;
+	/* No-args output */
+	tracker_control_general_run_default ();
+	printf ("\n");
+	tracker_control_status_run_default ();
+	printf ("\n");
+	tracker_control_miners_run_default ();
+	return EXIT_SUCCESS;
 }

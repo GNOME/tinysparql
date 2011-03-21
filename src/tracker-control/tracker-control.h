@@ -24,14 +24,17 @@
 
 GOptionGroup *tracker_control_general_get_option_group (void);
 gint          tracker_control_general_run              (void);
+void          tracker_control_general_run_default      (void);
 gboolean      tracker_control_general_options_enabled  (void);
 
 GOptionGroup *tracker_control_status_get_option_group  (void);
 gint          tracker_control_status_run               (void);
+void          tracker_control_status_run_default       (void);
 gboolean      tracker_control_status_options_enabled   (void);
 
 GOptionGroup *tracker_control_miners_get_option_group  (void);
 gint          tracker_control_miners_run               (void);
+void          tracker_control_miners_run_default       (void);
 gboolean      tracker_control_miners_options_enabled   (void);
 
 
