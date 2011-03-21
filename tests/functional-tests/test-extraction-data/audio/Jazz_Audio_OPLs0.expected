@@ -3,7 +3,6 @@ Filename=Jazz_Audio_OPLs0.pya
 Bugzilla=NB#225208
 Comment=DRM protected audio file
 # Downloaded from  http://playready.directtaps.net/pr/public/
-ExpectedFailure=
 
 [Metadata]
 a=nmm:MusicPiece
