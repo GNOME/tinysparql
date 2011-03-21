@@ -36,6 +36,12 @@ def uri (filename):
 
 DEFAULT_TEXT = "Some stupid content, to have a test file"
 
+CONF_OPTIONS = [
+    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", "['$HOME/test-monitored']"),
+    (cfg.DCONF_MINER_SCHEMA, "throttle", 5)
+    ]
+
+
 class CommonTrackerMinerTest (ut.TestCase):
 
     @classmethod
@@ -87,7 +93,7 @@ class CommonTrackerMinerTest (ut.TestCase):
         else:
             confdir = os.path.join (cfg.DATADIR, "tracker-tests",
                                     "test-configurations", "miner-basic-ops")
-        self.system.tracker_miner_fs_testing_start (confdir)
+        self.system.tracker_miner_fs_testing_start (CONF_OPTIONS)
         # Returns when ready
         self.tracker = StoreHelper ()
         self.tracker.wait ()
