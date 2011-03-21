@@ -359,6 +359,12 @@ miner_pause_details (void)
 	return EXIT_SUCCESS;
 }
 
+void
+tracker_control_miners_run_default (void)
+{
+	/* No miners output in the default run */
+}
+
 gint
 tracker_control_miners_run (void)
 {

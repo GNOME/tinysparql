@@ -440,6 +440,15 @@ store_init (void)
 	return TRUE;
 }
 
+void
+tracker_control_status_run_default (void)
+{
+	/* Enable status output in the default run */
+	status = TRUE;
+
+	tracker_control_status_run ();
+}
+
 gint
 tracker_control_status_run (void)
 {
@@ -486,6 +495,8 @@ tracker_control_status_run (void)
 		store_get_and_print_state ();
 
 		g_print ("\n");
+
+		return;
 
 		g_print ("%s:\n", _("Miners"));
 
