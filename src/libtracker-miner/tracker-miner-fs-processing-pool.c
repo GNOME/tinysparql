@@ -78,31 +78,35 @@
  * 5. When a task is pushed to the pool as a "READY" task, the pool will be in
  *    charge of executing the SPARQL update into the store.
  *
- * 6. If buffering was requested when tracker_processing_pool_push_ready_task()
- *    was used to push the new task in the pool as a "READY" task, this task
- *    will be added internally into a SPARQL buffer. This SPARQL buffer will be
- *    flushed (pushing all collected SPARQL updates into the store) if one of
- *    these conditions is met:
+ * 6. All tasks pushed as READY tasks will be buffered by the processing pool,
+ *    in order to use as less SPARQL connections as possible (pushing multiple
+ *    requests in a single UpdateArray connection). The SPARQL buffer will be
+ *    flushedif one of these conditions is met:
  *      (a) The file corresponding to the task pushed doesn't have a parent.
  *      (b) The parent of the file corresponding to the task pushed is different
  *          to the parent of the last file pushed to the buffer.
  *      (c) The limit for "READY" tasks in the pool was reached.
  *      (d) The buffer was not flushed in the last MAX_SPARQL_BUFFER_TIME (=15)
  *          seconds.
- *    The buffer is flushed using a single multi-insert SPARQL connection. This
- *    means that an array of SPARQLs is sent to tracker-store, which replies
- *    with an array of GErrors specifying which update failed, if any.
- *    Once the flushing operation in the buffer is started, the tasks are then
- *    converted to "PROCESSING" state, until the reply from the store is
- *    received.
  *
- * 7. If buffering is not requested when
- *    tracker_processing_pool_push_ready_task() is called, first the previous
- *    buffer is flushed (if any) and then the current task is updated in the
- *    store, so this task goes directly from "READY" to "PROCESSING" state
- *    without going through the intermediate buffer.
+ * 7. When the buffer is flushed, BULK operations are preprocessed. The best
+ *    example of this kind of task is a file deletion operation which involves
+ *    first setting the resource unavailable and then actually deleting the
+ *    resource. When such bulk operations are detected, the pool will try to
+ *    merge in a single request as many as possible.
  *
- * 8. May the gods be with you if you need to fix a bug in here. So say we all.
+ * 8. When the buffer is flushed, all tasks are converted to "PROCESSING" state,
+ *    and one of these two actions may happen:
+ *      (a) If the limit of requests sent to the store is not reached, all tasks
+ *          are pushed to the tracker-store in a single UpdateArray connection.
+ *      (b) If the limit of requests sent to the store is reached, all tasks are
+ *          grouped and queued to be sent to the store when possible. Queued
+ *          groups of tasks are processed in the same order as they arrived.
+ *    The limit of requests is given by the "processing-pool-requests-limit"
+ *    property in the TrackerMinerFS object, and currently is set to 10 for both
+ *    TrackerMinerApplications and TrackerMinerFiles.
+ *
+ * 9. May the gods be with you if you need to fix a bug in here. So say we all.
  *
  */
 
