@@ -40,15 +40,9 @@ static gint paused_length = 0;
  */
 static gboolean status;
 static gboolean follow;
-static gboolean detailed;
 static gboolean list_common_statuses;
 
-#define ENABLED()	  \
-	(status || \
-	 follow || \
-	 detailed || \
-	 list_common_statuses)
-
+#define ENABLED() (status || follow || list_common_statuses)
 
 /* Make sure our statuses are translated (all from libtracker-miner except one) */
 static const gchar *statuses[7] = {
@@ -68,10 +62,6 @@ static GOptionEntry entries[] = {
 	},
 	{ "follow", 'F', 0, G_OPTION_ARG_NONE, &follow,
 	  N_("Follow status changes as they happen"),
-	  NULL
-	},
-	{ "detailed", 'D', 0, G_OPTION_ARG_NONE, &detailed,
-	  N_("Include details with state updates (only applies to --follow)"),
 	  NULL
 	},
 	{ "list-common-statuses", 'C', 0, G_OPTION_ARG_NONE, &list_common_statuses,
@@ -168,17 +158,13 @@ miner_print_state (TrackerMinerManager *manager,
 	struct tm *local_time;
 	gchar *progress_str;
 
-	if (detailed) {
-		now = time ((time_t *) NULL);
-		local_time = localtime (&now);
-		len = strftime (time_str,
-		                sizeof (time_str) - 1,
-		                "%d %b %Y, %H:%M:%S:",
-		                local_time);
-		time_str[len] = '\0';
-	} else {
-		time_str[0] = '\0';
-	}
+	now = time ((time_t *) NULL);
+	local_time = localtime (&now);
+	len = strftime (time_str,
+	                sizeof (time_str) - 1,
+	                "%d %b %Y, %H:%M:%S:",
+	                local_time);
+	time_str[len] = '\0';
 
 	name = tracker_miner_manager_get_display_name (manager, miner_name);
 
@@ -228,6 +214,9 @@ store_print_state (const gchar *status,
 	gchar *operation_status = NULL;
 	gchar time_str[64];
 	gchar *progress_str;
+	struct tm *local_time;
+	time_t now;
+	size_t len;
 
 	if (status && strstr (status, "-")) {
 		gchar **status_split;
@@ -244,21 +233,13 @@ store_print_state (const gchar *status,
 		}
 	}
 
-	if (detailed) {
-		struct tm *local_time;
-		time_t now;
-		size_t len;
-
-		now = time ((time_t *) NULL);
-		local_time = localtime (&now);
-		len = strftime (time_str,
-		                sizeof (time_str) - 1,
-		                "%d %b %Y, %H:%M:%S:",
-		                local_time);
-		time_str[len] = '\0';
-	} else {
-		time_str[0] = '\0';
-	}
+	now = time ((time_t *) NULL);
+	local_time = localtime (&now);
+	len = strftime (time_str,
+	                sizeof (time_str) - 1,
+	                "%d %b %Y, %H:%M:%S:",
+	                local_time);
+	time_str[len] = '\0';
 
 	if (progress > 0.0 && progress < 1.0) {
 		progress_str = g_strdup_printf ("%-3.0f%%", progress * 100);
@@ -465,11 +446,6 @@ tracker_control_status_run (void)
 	GSList *miners_available;
 	GSList *miners_running;
 	GSList *l;
-
-	/* --detailed implies --follow */
-	if (detailed) {
-		follow = TRUE;
-	}
 
 	/* --follow implies --status */
 	if (follow) {
