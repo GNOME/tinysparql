@@ -2840,8 +2840,18 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		return;
 	}
 
+	/* Already sent max number of tasks to tracker-extract? */
 	if (tracker_processing_pool_wait_limit_reached (fs->private->processing_pool)) {
-		/* There is no room in the pool for more files */
+		return;
+	}
+
+	/* Already sent max number of requests to tracker-store?
+	 * In this case, we also slow down the processing of items, as we don't
+	 * want to keep on extracting if the communication with tracker-store is
+	 * very busy. Note that this is not very likely to happen, as the bottleneck
+	 * during extraction is not the communication with tracker-store.
+	 */
+	if (tracker_processing_pool_n_requests_limit_reached (fs->private->processing_pool)) {
 		return;
 	}
 

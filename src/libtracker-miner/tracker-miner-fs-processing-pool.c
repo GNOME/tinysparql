@@ -558,7 +558,7 @@ tracker_processing_pool_ready_limit_reached (TrackerProcessingPool *pool)
 	        TRUE : FALSE);
 }
 
-static gboolean
+gboolean
 tracker_processing_pool_n_requests_limit_reached (TrackerProcessingPool *pool)
 {
 	return (pool->n_requests >= pool->limit_n_requests ? TRUE : FALSE);
