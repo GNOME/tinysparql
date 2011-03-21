@@ -189,21 +189,6 @@ public class Tracker.Sparql.Builder : Object {
 	}
 
 	/**
-	 * tracker_sparql_builder_drop_graph:
-	 * @self: a #TrackerSparqlBuilder
-	 * @iri: a graph name.
-	 *
-	 * Deprecated API
-	 *
-	 * Since: 0.10
-	 */
-	public void drop_graph (string iri)
-		requires (state == State.UPDATE)
-	{
-		critical ("Use of DROP GRAPH is deprecated");
-	}
-
-	/**
 	 * tracker_sparql_builder_insert_open:
 	 * @self: a #TrackerSparqlBuilder
 	 * @graph: graph name, or %NULL.
