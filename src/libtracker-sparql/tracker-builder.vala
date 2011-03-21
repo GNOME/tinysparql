@@ -193,14 +193,14 @@ public class Tracker.Sparql.Builder : Object {
 	 * @self: a #TrackerSparqlBuilder
 	 * @iri: a graph name.
 	 *
-	 * Appends a DROP GRAPH clause.
+	 * Deprecated API
 	 *
 	 * Since: 0.10
 	 */
 	public void drop_graph (string iri)
 		requires (state == State.UPDATE)
 	{
-		str.append ("DROP GRAPH <%s>\n".printf (iri));
+		critical ("Use of DROP GRAPH is deprecated");
 	}
 
 	/**
