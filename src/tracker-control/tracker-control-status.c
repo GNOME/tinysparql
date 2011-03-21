@@ -470,25 +470,18 @@ gint
 tracker_control_status_run (void)
 {
 	TrackerMinerManager *manager;
-	GSList *miners_available;
-	GSList *miners_running;
-	GSList *l;
 
 	/* --follow implies --status */
 	if (follow) {
 		status = TRUE;
 	}
 
-	manager = tracker_miner_manager_new ();
-	miners_available = tracker_miner_manager_get_available (manager);
-	miners_running = tracker_miner_manager_get_running (manager);
-
 	if (list_common_statuses) {
 		gint i;
 
 		g_print ("%s:\n", _("Common statuses include"));
 
-		for (i = 0; i < G_N_ELEMENTS(statuses); i++) {
+		for (i = 0; i < G_N_ELEMENTS (statuses); i++) {
 			g_print ("  %s\n", _(statuses[i]));
 		}
 
@@ -496,6 +489,21 @@ tracker_control_status_run (void)
 	}
 
 	if (status) {
+		GError *error = NULL;
+		GSList *miners_available;
+		GSList *miners_running;
+		GSList *l;
+
+		manager = tracker_miner_manager_new_full (FALSE, &error);
+		if (!manager) {
+			g_printerr ("Couldn't create manager: '%s'\n",
+			            error ? error->message : "unknown error");
+			return EXIT_FAILURE;
+		}
+
+		miners_available = tracker_miner_manager_get_available (manager);
+		miners_running = tracker_miner_manager_get_running (manager);
+
 		/* Work out lengths for output spacing */
 		paused_length = strlen (_("PAUSED"));
 
