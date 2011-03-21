@@ -36,13 +36,14 @@ static gint paused_length = 0;
 
 /* Note:
  * Every time a new option is added, make sure it is considered in the
- * 'ENABLED' macro below
+ * 'STATUS_OPTIONS_ENABLED' macro below
  */
 static gboolean status;
 static gboolean follow;
 static gboolean list_common_statuses;
 
-#define ENABLED() (status || follow || list_common_statuses)
+#define STATUS_OPTIONS_ENABLED() \
+	(status || follow || list_common_statuses)
 
 /* Make sure our statuses are translated (all from libtracker-miner except one) */
 static const gchar *statuses[7] = {
@@ -74,7 +75,7 @@ static GOptionEntry entries[] = {
 gboolean
 tracker_control_status_options_enabled (void)
 {
-	return ENABLED ();
+	return STATUS_OPTIONS_ENABLED ();
 }
 
 static void

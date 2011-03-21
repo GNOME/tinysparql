@@ -28,7 +28,7 @@
 
 /* Note:
  * Every time a new option is added, make sure it is considered in the
- * 'ENABLED' macro below
+ * 'MINERS_OPTIONS_ENABLED' macro below
  */
 static const gchar **reindex_mime_types;
 static gchar *index_file;
@@ -39,7 +39,7 @@ static gboolean list_miners_running;
 static gboolean list_miners_available;
 static gboolean pause_details;
 
-#define ENABLED()	  \
+#define MINERS_OPTIONS_ENABLED() \
 	(reindex_mime_types || \
 	 index_file || \
 	 miner_name || \
@@ -86,7 +86,7 @@ static GOptionEntry entries[] = {
 gboolean
 tracker_control_miners_options_enabled (void)
 {
-	return ENABLED ();
+	return MINERS_OPTIONS_ENABLED ();
 }
 
 static gint

@@ -43,7 +43,7 @@ typedef enum {
 
 /* Note:
  * Every time a new option is added, make sure it is considered in the
- * 'ENABLED' macro below
+ * 'GENERAL_OPTIONS_ENABLED' macro below
  */
 static gboolean list_processes;
 static TermOption kill_option = TERM_NONE;
@@ -53,7 +53,7 @@ static gboolean soft_reset;
 static gboolean remove_config;
 static gboolean start;
 
-#define ENABLED()	  \
+#define GENERAL_OPTIONS_ENABLED() \
 	(list_processes || \
 	 kill_option != TERM_NONE || \
 	 terminate_option != TERM_NONE || \
@@ -94,7 +94,7 @@ static GOptionEntry entries[] = {
 gboolean
 tracker_control_general_options_enabled (void)
 {
-	return ENABLED ();
+	return GENERAL_OPTIONS_ENABLED ();
 }
 
 static GSList *
