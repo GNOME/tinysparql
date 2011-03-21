@@ -45,6 +45,9 @@ TRACKER_EXTRACT_IFACE = "org.freedesktop.Tracker1.Extract"
 
 WRITEBACK_BUSNAME = "org.freedesktop.Tracker1.Writeback"
 
+
+DCONF_MINER_SCHEMA = "org.freedesktop.Tracker.Miner.FileSystem"
+
 def expandvars (variable):
     # Note: the order matters!
     result = variable
