@@ -135,6 +135,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 		IOError io_error = null;
 		DBusError dbus_error = null;
 		Connection result = null;
+		var context = MainContext.get_thread_default ();
 
 		g_io_scheduler_push_job (job => {
 			try {
@@ -146,10 +147,14 @@ public abstract class Tracker.Sparql.Connection : Object {
 			} catch (DBusError e_dbus) {
 				dbus_error = e_dbus;
 			}
-			Idle.add (() => {
+
+			var source = new IdleSource ();
+			source.set_callback (() => {
 				get_internal_async.callback ();
 				return false;
 			});
+			source.attach (context);
+
 			return false;
 		});
 		yield;
