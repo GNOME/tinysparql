@@ -78,6 +78,8 @@
 
 #define TRACKER_SERVICE                 "org.freedesktop.Tracker1"
 #define DATASOURCE_URN                  "urn:nepomuk:datasource:1cb1eb90-1241-11de-8c30-0800200c9a66"
+#define TRACKER_EVOLUTION_GRAPH_URN     "urn:uuid:9a96d750-5182-11e0-b8af-0800200c9a66"
+
 
 G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, TRACKER_TYPE_MINER)
 
@@ -720,7 +722,8 @@ on_folder_summary_changed (CamelFolder *folder,
 		CamelMessageInfo *linfo;
 		const CamelTag *ctags;
 		const CamelFlag *cflags;
-
+		gchar *full_sparql;
+	
 		linfo = camel_folder_summary_uid (summary, merged->pdata[i]);
 
 		if (linfo) {
@@ -751,9 +754,8 @@ on_folder_summary_changed (CamelFolder *folder,
 
 			sparql = tracker_sparql_builder_new_update ();
 
-			tracker_sparql_builder_drop_graph (sparql, uri);
-
-			tracker_sparql_builder_insert_open (sparql, uri);
+			tracker_sparql_builder_insert_silent_open (sparql, NULL);
+			tracker_sparql_builder_graph_open (sparql, TRACKER_EVOLUTION_GRAPH_URN);
 
 			process_fields (sparql, uid, flags, sent, subject,
 			                from, to, cc, size, folder, uri);
@@ -795,9 +797,30 @@ on_folder_summary_changed (CamelFolder *folder,
 				ctags = ctags->next;
 			}
 
+			tracker_sparql_builder_graph_close (sparql);
 			tracker_sparql_builder_insert_close (sparql);
 
-			send_sparql_update (info->self, tracker_sparql_builder_get_result (sparql), 100);
+			full_sparql = g_strdup_printf ("DELETE {"
+			                               "  GRAPH <%s> {"
+			                               "    <%s> ?p ?o"
+			                               "  } "
+			                               "} "
+			                               "WHERE {"
+			                               "  GRAPH <%s> {"
+			                               "    <%s> ?p ?o"
+			                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
+			                               "  } "
+			                               "} "
+			                               "%s",
+			                               TRACKER_EVOLUTION_GRAPH_URN,
+			                               uri,
+			                               TRACKER_EVOLUTION_GRAPH_URN,
+			                               uri,
+			                               tracker_sparql_builder_get_result (sparql));
+
+			send_sparql_update (info->self, full_sparql, 100);
+
+			g_free (full_sparql);
 
 			g_object_set (info->self, "progress",
 			              (gdouble) i / merged->len,
@@ -981,11 +1004,11 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 				uid = (gchar *) sqlite3_column_text (stmt, 0);
 
 				if (uid) {
-					const gchar *query;
 					CamelFolder *folder;
 					guint max = 0, j;
 					gchar *uri;
 					gboolean opened = FALSE;
+					gchar *full_sparql;
 
 					flags =   (guint  ) sqlite3_column_int  (stmt, 1);
 					size =    (gchar *) sqlite3_column_text (stmt, 8);
@@ -1003,9 +1026,8 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 						sparql = tracker_sparql_builder_new_update ();
 					}
 
-					tracker_sparql_builder_drop_graph (sparql, uri);
-
-					tracker_sparql_builder_insert_open (sparql, uri);
+					tracker_sparql_builder_insert_silent_open (sparql, NULL);
+					tracker_sparql_builder_graph_open (sparql, TRACKER_EVOLUTION_GRAPH_URN);
 
 					process_fields (sparql, uid, flags, sent,
 					                subject, from, to, cc, size,
@@ -1074,13 +1096,33 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 							g_free(value);
 						}
 
-					g_free (uri);
 					g_free (p);
 
+					tracker_sparql_builder_graph_close (sparql);
 					tracker_sparql_builder_insert_close (sparql);
-					query = tracker_sparql_builder_get_result (sparql);
+
+					full_sparql = g_strdup_printf ("DELETE {"
+					                               "  GRAPH <%s> {"
+					                               "    <%s> ?p ?o"
+					                               "  } "
+					                               "} "
+					                               "WHERE {"
+					                               "  GRAPH <%s> {"
+					                               "    <%s> ?p ?o"
+					                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
+					                               "  } "
+					                               "} "
+					                               "%s",
+					                               TRACKER_EVOLUTION_GRAPH_URN,
+					                               uri,
+					                               TRACKER_EVOLUTION_GRAPH_URN,
+					                               uri,
+					                               tracker_sparql_builder_get_result (sparql));
+
+					g_free (uri);
 					count++;
-					send_sparql_update (self, query, 0);
+					send_sparql_update (self, full_sparql, 0);
+					g_free (full_sparql);
 					g_object_unref (sparql);
 				}
 			}
