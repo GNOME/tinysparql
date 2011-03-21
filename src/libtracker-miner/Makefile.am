@@ -33,17 +33,24 @@ libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
 	$(network_provider_sources)                    \
 	$(password_provider_sources)                   \
 	tracker-crawler.c                              \
+	tracker-crawler.h                              \
 	tracker-miner-dbus.h                           \
 	tracker-miner-object.c                         \
+	tracker-miner-object.h                         \
 	tracker-miner-fs.c                             \
+	tracker-miner-fs.h                             \
 	tracker-miner-fs-processing-pool.h             \
 	tracker-miner-fs-processing-pool.c             \
 	tracker-miner-manager.c                        \
+	tracker-miner-manager.h                        \
 	tracker-miner-web.c                            \
+	tracker-miner-web.h                            \
 	tracker-network-provider.c                     \
 	tracker-password-provider.c                    \
 	tracker-storage.c                              \
+	tracker-storage.h                              \
 	tracker-thumbnailer.c                          \
+	tracker-thumbnailer.h                          \
 	tracker-utils.c                                \
 	tracker-utils.h
 
@@ -113,3 +120,37 @@ EXTRA_DIST =                                           \
 	tracker-marshal.list                           \
 	tracker-miner.vapi                             \
 	tracker-miner.deps
+
+# Introspection foo
+-include $(INTROSPECTION_MAKEFILE)
+INTROSPECTION_GIRS =
+INTROSPECTION_SCANNER_ARGS = \
+	-I $(top_builddir)/src \
+	-D TRACKER_COMPILATION \
+	--c-include="libtracker-miner/tracker-miner.h" \
+	--add-include-path=$(top_builddir)/src/libtracker-sparql
+INTROSPECTION_COMPILER_ARGS = --includedir=$(top_builddir)/src/libtracker-sparql
+
+if HAVE_INTROSPECTION
+INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
+introspection_sources = \
+	$(filter-out $(libtracker_miner_monitor_sources) \
+	             $(libtracker_miner_monitor_headers), \
+	  $(libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES))
+
+TrackerMiner-0.10.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
+TrackerMiner_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 TrackerSparql-0.10
+TrackerMiner_0_10_gir_CFLAGS = $(INCLUDES)
+TrackerMiner_0_10_gir_LIBS = $(lib_LTLIBRARIES)
+TrackerMiner_0_10_gir_FILES = $(introspection_sources)
+
+INTROSPECTION_GIRS += TrackerMiner-0.10.gir
+
+girdir = $(datadir)/gir-1.0
+gir_DATA = $(INTROSPECTION_GIRS)
+
+typelibsdir = $(libdir)/girepository-1.0
+typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+
+CLEANFILES += $(dist_gir_DATA) $(typelib_DATA)
+endif
