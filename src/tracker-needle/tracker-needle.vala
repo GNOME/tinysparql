@@ -606,10 +606,15 @@ public class Tracker.Needle {
 	private void launch_selected (TreeModel model, TreePath path, int col) {
 		TreeIter iter;
 		model.get_iter (out iter, path);
-		
+
 		weak string uri;
 		model.get (iter, col, out uri);
-		debug ("Selected uri:'%s'", uri);
+
+                if (uri == null) {
+	                return;
+                }
+
+                debug ("Selected uri:'%s'", uri);
 
 		// Bit of a hack for now if there is no URI scheme, we assume that
 		// the uri is actually a command line to launch.
@@ -647,12 +652,12 @@ public class Tracker.Needle {
 
 	private void view_row_selected (TreeView view, TreePath path, TreeViewColumn column) {
 		var model = view.get_model ();
-		launch_selected (model, path, 3);
+		launch_selected (model, path, 1);
 	}
 
 	private void icon_item_selected (IconView view, TreePath path) {
 		var model = view.get_model ();
-		launch_selected (model, path, 3);
+		launch_selected (model, path, 1);
 	}
 
 	private void show_tags_clicked () {
