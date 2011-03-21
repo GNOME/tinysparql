@@ -413,9 +413,9 @@ send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
 			 * finished don't have to be repeated next time. Right now an interrupt
 			 * means starting over from scratch. */
 
-			gchar *update = g_strdup_printf ("DELETE FROM <"DATASOURCE_URN"> { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
-			                                 "WHERE { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified ?d } \n"
-			                                 "INSERT INTO <"DATASOURCE_URN"> { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified \"%s\" }",
+			gchar *update = g_strdup_printf ("DELETE { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
+			                                 "WHERE { <"  DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified ?d } \n"
+			                                 "INSERT { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified \"%s\" }",
 			                                 date_s);
 
 			send_sparql_update (self, update, 0);
@@ -1714,7 +1714,7 @@ register_client_second_half (ClientRegistry *info)
 
 	if (info->last_checkout < too_old) {
 
-		send_sparql_update (info->self, "DELETE FROM <"DATASOURCE_URN"> { ?s a rdfs:Resource } "
+		send_sparql_update (info->self, "DELETE { ?s a rdfs:Resource } "
 		                    "WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", 0);
 		send_sparql_commit (info->self, FALSE);
 
