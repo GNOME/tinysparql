@@ -50,6 +50,11 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	private int n_columns;
 	private int timestamp;
 
+	public int icon_size {
+		get;
+		set;
+	}
+
 	private Operation * find_operation (GenericArray<Operation>  array,
 					    CategoryNode            *node,
 					    int                      offset) {
@@ -473,7 +478,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 		try {
 			if (thumb_path != null) {
-				pixbuf = new Gdk.Pixbuf.from_file_at_size (thumb_path, 24, 24);
+				pixbuf = new Gdk.Pixbuf.from_file_at_size (thumb_path, icon_size, icon_size);
 			} else {
 				icon = (GLib.Icon) info.get_attribute_object ("standard::icon");
 
@@ -482,7 +487,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 				}
 
 				var theme = IconTheme.get_for_screen (Gdk.Screen.get_default ());
-				icon_info = theme.lookup_by_gicon (icon, 24, 0);
+				icon_info = theme.lookup_by_gicon (icon, icon_size, 0);
 
 				if (icon_info == null) {
 					return;
@@ -789,6 +794,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		// Add an extra one for the pixbuf
 		n_columns = _n_columns + 1;
 		timestamp = 1;
+		icon_size = 24;
 	}
 
 	public void add_query (Tracker.Query.Type type, ...) {

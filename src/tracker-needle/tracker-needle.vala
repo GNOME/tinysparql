@@ -57,6 +57,7 @@ public class Tracker.Needle {
 	private ResultStore categories_model;
 	private ResultStore files_model;
 	private ResultStore files_in_title_model;
+	private ResultStore images_model;
 
 	private void create_models () {
 		// Categories model
@@ -133,6 +134,17 @@ public class Tracker.Needle {
 		                                "nfo:fileSize(?urn)",
 		                                "nfo:fileLastModified(?urn)",
 		                                "nie:url(?urn)");
+
+		// Images model
+		images_model = new ResultStore (6);
+		images_model.icon_size = 48;
+		images_model.add_query (Tracker.Query.Type.IMAGES,
+		                        "?urn",
+		                        "nie:url(?urn)",
+		                        "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                        "nfo:fileSize(?urn)",
+		                        "nfo:fileLastModified(?urn)",
+		                        "nie:url(?urn)");
 	}
 
 	public Needle () {
@@ -258,10 +270,10 @@ public class Tracker.Needle {
 		treeview.row_activated.connect (view_row_selected);
 		view.pack_start (sw_filelist, true, true, 0);
 
-		// sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, null);
-		// iconview = (IconView) sw_icons.get_child ();
-		// iconview.item_activated.connect (icon_item_selected);
-		// view.pack_start (sw_icons, true, true, 0);
+		sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, images_model);
+		iconview = (IconView) sw_icons.get_child ();
+		iconview.item_activated.connect (icon_item_selected);
+		view.pack_start (sw_icons, true, true, 0);
 
 		// Set up taglist
 		taglist = new Tracker.TagList ();
@@ -617,7 +629,7 @@ public class Tracker.Needle {
 
 		if (view_icons.active) {
 			sw_icons.show ();
-			store = sw_icons.store;
+			store = images_model;
 		} else {
 			sw_icons.hide ();
 		}
