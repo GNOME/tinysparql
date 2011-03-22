@@ -2405,7 +2405,7 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 		return;
 	}
 
-	if (strcmp (predicate, RDF_PREFIX "type") == 0) {
+	if (property == tracker_ontologies_get_rdf_type ()) {
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
 		class = tracker_ontologies_get_class_by_uri (object);
@@ -2614,7 +2614,7 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 		return;
 	}
 
-	if (strcmp (predicate, RDF_PREFIX "type") == 0) {
+	if (property == tracker_ontologies_get_rdf_type ()) {
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
 		class = tracker_ontologies_get_class_by_uri (object);
