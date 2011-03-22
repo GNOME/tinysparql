@@ -28,6 +28,11 @@ import time
 
 APPLICATIONS_TMP_DIR = os.path.join (cfg.TEST_TMP_DIR, "test-applications-monitored")
 
+CONF_OPTIONS = [
+    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [APPLICATIONS_TMP_DIR]),
+    (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
+    ]
+
 # Copy rate, 10KBps (1024b/100ms)
 SLOWCOPY_RATE = 1024
 
@@ -99,21 +104,7 @@ class CommonTrackerApplicationTest (ut.TestCase):
 
 
         self.system = TrackerSystemAbstraction ()
-
-        if (os.path.exists (os.path.join (os.getcwd(),
-                                          "test-configurations",
-                                          "applications"))):
-            # Use local directory if available
-            confdir = os.path.join (os.getcwd(),
-                                    "test-configurations",
-                                    "applications")
-        else:
-            confdir = os.path.join (cfg.DATADIR,
-                                    "tracker-tests",
-                                    "test-configurations",
-                                    "applications")
-
-        self.system.tracker_all_testing_start (confdir)
+        self.system.tracker_all_testing_start (CONF_OPTIONS)
 
         # Returns when ready
         self.tracker = StoreHelper ()
