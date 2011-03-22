@@ -113,23 +113,25 @@ public class Tracker.Needle {
 		                            "?tooltip");
 
 		// Files model
-		files_model = new ResultStore (6);
+		files_model = new ResultStore (7);
 		files_model.add_query (Tracker.Query.Type.ALL,
 		                       "?urn",
-		                       "nfo:fileLastModified(?urn)",
+		                       "nie:url(?urn)",
 		                       "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
 		                       "nie:url(?urn)",
 		                       "nfo:fileSize(?urn)",
+		                       "nfo:fileLastModified(?urn)",
 		                       "nie:url(?urn)");
 
 		// Files model, search in titles
-		files_in_title_model = new ResultStore (6);
+		files_in_title_model = new ResultStore (7);
 		files_in_title_model.add_query (Tracker.Query.Type.ALL_ONLY_IN_TITLES,
 		                                "?urn",
-		                                "nfo:fileLastModified(?urn)",
+		                                "nie:url(?urn)",
 		                                "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
 		                                "nie:url(?urn)",
 		                                "nfo:fileSize(?urn)",
+		                                "nfo:fileLastModified(?urn)",
 		                                "nie:url(?urn)");
 	}
 
