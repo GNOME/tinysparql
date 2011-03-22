@@ -36,10 +36,20 @@ public class Tracker.Query {
 
         private string [] where_clauses = {
         	// ALL
-                "WHERE { ?u fts:match \"%s\" . ?u nfo:belongsToContainer ?c ; tracker:available true . }",
+                "WHERE {
+                   ?urn fts:match \"%s\" ;
+                        nfo:belongsToContainer ?parent ;
+                        tracker:available true .
+                }",
 
 		// ALL_ONLY_IN_TITLES
-                "WHERE { ?u a nfo:FileDataObject ; nfo:belongsToContainer ?c ; tracker:available true . FILTER(fn:contains(fn:lower-case(nfo:fileName(?u)), \"$criteria_escaped_down\")) }",
+                "WHERE {
+                    ?urn a nfo:FileDataObject ;
+                         nfo:belongsToContainer ?parent ;
+                         tracker:available true .
+                         FILTER (fn:contains (fn:lower-case (nfo:fileName(?urn)), \"%s\"))
+                }",
+
 		// CONTACTS
                 "",
 
