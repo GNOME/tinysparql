@@ -3,7 +3,6 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS = \
 	ipc \
 	common \
-	test-configurations \
 	test-extraction-data \
 	test-writeback-data \
 	test-apps-data \
@@ -26,7 +25,7 @@ endif
 
 dconfdir = $(sysconfdir)/dconf/profile
 dconf_DATA = \
-	tracker-test
+	trackertest
 
 trackertest: trackertest.dconf.in
 	cp trackertest.dconf.in trackertest
