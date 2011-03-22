@@ -330,6 +330,7 @@ class TrackerSystemAbstraction:
         # Previous loop should have set DCONF_PROFILE to the test location
         if gsettings:
             self.dconf = DConfClient ()
+            self.dconf.reset ()
             for (schema, key, value) in gsettings:
                 self.dconf.write (schema, key, value)
 
