@@ -2766,7 +2766,9 @@ tracker_data_update_statement_with_string (const gchar            *graph,
 	gboolean change, tried = FALSE;
 	gint graph_id = 0, pred_id = 0;
 	gboolean multiple_values;
+#if HAVE_TRACKER_FTS
 	GError *new_error = NULL;
+#endif /* HAVE_TRACKER_FTS */
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
