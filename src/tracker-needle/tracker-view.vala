@@ -131,8 +131,8 @@ public class Tracker.View : ScrolledWindow {
 			iv.set_model (store);
 			iv.set_item_width (96);
 			iv.set_selection_mode (SelectionMode.SINGLE);
-			iv.set_pixbuf_column (1);
-			iv.set_text_column (4);
+			iv.set_pixbuf_column (6);
+			iv.set_text_column (2);
 
 			break;
 		}

@@ -46,7 +46,7 @@
             <child>
               <object class="GtkRadioToolButton" id="toolbutton_view_icons">
                 <property name="visible">True</property>
-                <property name="tooltip_text" translatable="yes">Display results by files found in a grid view</property>
+                <property name="tooltip_text" translatable="yes">Display found images</property>
                 <property name="is_important">True</property>
                 <property name="use_underline">True</property>
                 <property name="icon_name">emblem-photos</property>
