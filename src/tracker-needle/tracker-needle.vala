@@ -251,10 +251,10 @@ public class Tracker.Needle {
 		sw_categories.store.notify["active"].connect (store_state_changed);
 		view.pack_start (sw_categories, true, true, 0);
 
-		// sw_filelist = new Tracker.View (Tracker.View.Display.FILE_LIST, null);
-		// treeview = (TreeView) sw_filelist.get_child ();
-		// treeview.row_activated.connect (view_row_selected);
-		// view.pack_start (sw_filelist, true, true, 0);
+		sw_filelist = new Tracker.View (Tracker.View.Display.FILE_LIST, null);
+		treeview = (TreeView) sw_filelist.get_child ();
+		treeview.row_activated.connect (view_row_selected);
+		view.pack_start (sw_filelist, true, true, 0);
 
 		// sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, null);
 		// iconview = (IconView) sw_icons.get_child ();
@@ -629,7 +629,14 @@ public class Tracker.Needle {
 
 		if (view_filelist.active) {
 			sw_filelist.show ();
-			store = sw_filelist.store;
+
+			if (find_in_contents.active) {
+				store = files_model;
+			} else {
+				store = files_in_title_model;
+			}
+
+			sw_filelist.store = store;
 		} else {
 			sw_filelist.hide ();
 		}

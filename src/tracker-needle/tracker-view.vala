@@ -146,45 +146,45 @@ public class Tracker.View : ScrolledWindow {
 			tv.set_rules_hint (false);
 			tv.set_grid_lines (TreeViewGridLines.VERTICAL);
 			tv.set_headers_visible (true);
-			tv.set_fixed_height_mode (true);
 
 			var renderer1 = new CellRendererPixbuf ();
-			var renderer2 = new Tracker.CellRendererText ();
+			var renderer2 = new Gtk.CellRendererText ();
 
 			col = new TreeViewColumn ();
-			col.set_sizing (TreeViewColumnSizing.FIXED);
+			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			col.pack_start (renderer1, false);
-			col.add_attribute (renderer1, "pixbuf", 0);
+			col.add_attribute (renderer1, "pixbuf", 6);
 			renderer1.xpad = 5;
 			renderer1.ypad = 5;
 
 			col.pack_start (renderer2, true);
-			col.add_attribute (renderer2, "text", 4);
+			//col.add_attribute (renderer2, "text", 2);
+                        renderer2.set_fixed_height_from_font (2);
 			renderer2.ellipsize = Pango.EllipsizeMode.MIDDLE;
-			renderer2.show_fixed_height = false;
 
 			col.set_title (_("File"));
 			col.set_resizable (true);
 			col.set_expand (true);
-			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			col.set_cell_data_func (renderer1, renderer_background_func);
-			col.set_cell_data_func (renderer2, renderer_background_func);
+			col.set_cell_data_func (renderer2, text_renderer_func);
 			tv.append_column (col);
 
-			var renderer3 = new Tracker.CellRendererText ();
+			var renderer3 = new Gtk.CellRendererText ();
+                        renderer3.set_fixed_height_from_font (2);
 			col = new TreeViewColumn ();
-			col.set_sizing (TreeViewColumnSizing.FIXED);
+			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			col.pack_start (renderer3, true);
-			col.add_attribute (renderer3, "text", 6);
+			col.add_attribute (renderer3, "text", 1);
 			col.set_title (_("Last Changed"));
 			col.set_cell_data_func (renderer3, renderer_background_func);
 			tv.append_column (col);
 
-			var renderer4 = new Tracker.CellRendererText ();
+			var renderer4 = new Gtk.CellRendererText ();
+                        renderer4.set_fixed_height_from_font (2);
 			col = new TreeViewColumn ();
-			col.set_sizing (TreeViewColumnSizing.FIXED);
+			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			col.pack_start (renderer4, true);
-			col.add_attribute (renderer4, "text", 7);
+			col.add_attribute (renderer4, "text", 4);
 			col.set_title (_("Size"));
 			col.set_cell_data_func (renderer4, renderer_background_func);
 			tv.append_column (col);
