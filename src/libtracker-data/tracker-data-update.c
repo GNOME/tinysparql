@@ -1759,9 +1759,10 @@ db_delete_row (TrackerDBInterface *iface,
 }
 
 static void
-cache_delete_resource_type (TrackerClass *class,
-                            const gchar  *graph,
-                            gint          graph_id)
+cache_delete_resource_type_full (TrackerClass *class,
+                                 const gchar  *graph,
+                                 gint          graph_id,
+                                 gboolean      single_type)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -1774,49 +1775,71 @@ cache_delete_resource_type (TrackerClass *class,
 
 	iface = tracker_db_manager_get_db_interface ();
 
-	found = FALSE;
-	for (i = 0; i < resource_buffer->types->len; i++) {
-		if (g_ptr_array_index (resource_buffer->types, i) == class) {
-			found = TRUE;
-			break;
-		}
-	}
+	if (!single_type) {
+		if (!HAVE_TRACKER_FTS &&
+		    strcmp (tracker_class_get_uri (class), RDFS_PREFIX "Resource") == 0 &&
+		    g_hash_table_size (resource_buffer->tables) == 0) {
+			/* skip subclass query when deleting whole resource
+			   to improve performance */
 
-	if (!found) {
-		/* type not found, nothing to do */
-		return;
-	}
+			while (resource_buffer->types->len > 0) {
+				TrackerClass *type;
 
-	/* retrieve all subclasses we need to remove from the subject
-	 * before we can remove the class specified as object of the statement */
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:Class_rdfs:subClassOf\".ID) "
-	                                              "FROM \"rdfs:Resource_rdf:type\" INNER JOIN \"rdfs:Class_rdfs:subClassOf\" ON (\"rdf:type\" = \"rdfs:Class_rdfs:subClassOf\".ID) "
-	                                              "WHERE \"rdfs:Resource_rdf:type\".ID = ? AND \"rdfs:subClassOf\" = (SELECT ID FROM Resource WHERE Uri = ?)");
+				type = g_ptr_array_index (resource_buffer->types,
+				                          resource_buffer->types->len - 1);
+				cache_delete_resource_type_full (type,
+				                                 graph,
+				                                 graph_id,
+				                                 TRUE);
+			}
 
-	if (stmt) {
-		tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
-		tracker_db_statement_bind_text (stmt, 1, tracker_class_get_uri (class));
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
-		g_object_unref (stmt);
-	}
-
-	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
-			const gchar *class_uri;
-
-			class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
-			cache_delete_resource_type (tracker_ontologies_get_class_by_uri (class_uri),
-			                            graph, graph_id);
+			return;
 		}
 
-		g_object_unref (cursor);
-	}
+		found = FALSE;
+		for (i = 0; i < resource_buffer->types->len; i++) {
+			if (g_ptr_array_index (resource_buffer->types, i) == class) {
+				found = TRUE;
+				break;
+			}
+		}
 
-	if (error) {
-		g_warning ("Could not delete cache resource (selecting subclasses): %s", error->message);
-		g_error_free (error);
-		error = NULL;
+		if (!found) {
+			/* type not found, nothing to do */
+			return;
+		}
+
+		/* retrieve all subclasses we need to remove from the subject
+		 * before we can remove the class specified as object of the statement */
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+			                                      "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:Class_rdfs:subClassOf\".ID) "
+			                                      "FROM \"rdfs:Resource_rdf:type\" INNER JOIN \"rdfs:Class_rdfs:subClassOf\" ON (\"rdf:type\" = \"rdfs:Class_rdfs:subClassOf\".ID) "
+			                                      "WHERE \"rdfs:Resource_rdf:type\".ID = ? AND \"rdfs:subClassOf\" = (SELECT ID FROM Resource WHERE Uri = ?)");
+
+		if (stmt) {
+			tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
+			tracker_db_statement_bind_text (stmt, 1, tracker_class_get_uri (class));
+			cursor = tracker_db_statement_start_cursor (stmt, &error);
+			g_object_unref (stmt);
+		}
+
+		if (cursor) {
+			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+				const gchar *class_uri;
+
+				class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
+				cache_delete_resource_type_full (tracker_ontologies_get_class_by_uri (class_uri),
+					                         graph, graph_id, FALSE);
+			}
+
+			g_object_unref (cursor);
+		}
+
+		if (error) {
+			g_warning ("Could not delete cache resource (selecting subclasses): %s", error->message);
+			g_error_free (error);
+			error = NULL;
+		}
 	}
 
 	/* bypass buffer if possible
@@ -1897,21 +1920,25 @@ cache_delete_resource_type (TrackerClass *class,
 		/* delete row from class table */
 		db_delete_row (iface, tracker_class_get_name (class), resource_buffer->id);
 
-		/* delete row from rdfs:Resource_rdf:type table */
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-			                                      "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
+		if (!single_type) {
+			/* delete row from rdfs:Resource_rdf:type table */
+			/* this is not necessary when deleting the whole resource
+			   as all property values are deleted implicitly */
+			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+						                      "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
 
-		if (stmt) {
-			tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
-			tracker_db_statement_bind_int (stmt, 1, tracker_class_get_id (class));
-			tracker_db_statement_execute (stmt, &error);
-			g_object_unref (stmt);
-		}
+			if (stmt) {
+				tracker_db_statement_bind_int (stmt, 0, resource_buffer->id);
+				tracker_db_statement_bind_int (stmt, 1, tracker_class_get_id (class));
+				tracker_db_statement_execute (stmt, &error);
+				g_object_unref (stmt);
+			}
 
-		if (error) {
-			g_warning ("Could not delete cache resource: %s", error->message);
-			g_error_free (error);
-			error = NULL;
+			if (error) {
+				g_warning ("Could not delete cache resource: %s", error->message);
+				g_error_free (error);
+				error = NULL;
+			}
 		}
 
 		add_class_count (class, -1);
@@ -1939,6 +1966,14 @@ cache_delete_resource_type (TrackerClass *class,
 	}
 
 	g_ptr_array_remove (resource_buffer->types, class);
+}
+
+static void
+cache_delete_resource_type (TrackerClass *class,
+                            const gchar  *graph,
+                            gint          graph_id)
+{
+	cache_delete_resource_type_full (class, graph, graph_id, FALSE);
 }
 
 static void
