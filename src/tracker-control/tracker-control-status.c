@@ -266,7 +266,7 @@ store_print_state (const gchar *status,
 	} else {
 		g_print ("%s        %s\n",
 		         time_str,
-		         _("Unavailable"));		
+		         _("Unavailable"));
 	}
 }
 
