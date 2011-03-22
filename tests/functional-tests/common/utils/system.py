@@ -28,9 +28,6 @@ TEST_ENV_VARS = {  "TRACKER_DISABLE_MEEGOTOUCH_LOCALE": "",
 EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "xdg-data-home", "tracker"),
               os.path.join (cfg.TEST_TMP_DIR, "xdg-cache-home", "tracker")]
 
-# This variable is not in the dictionary because not all tests need to modify it!
-XDG_CONFIG_HOME_DIR = os.path.join (cfg.TEST_TMP_DIR, "xdg-config-home")
-
 REASONABLE_TIMEOUT = 30
 
 class UnableToBootException (Exception):
@@ -349,9 +346,6 @@ class TrackerSystemAbstraction:
         for var, directory in TEST_ENV_DIRS.iteritems ():
             if os.environ.has_key (var):
                 del os.environ [var]
-
-        if (os.environ.has_key ("XDG_CONFIG_HOME")):
-            del os.environ ["XDG_CONFIG_HOME"]
 
         if (os.environ.has_key ("TRACKER_DB_ONTOLOGIES_DIR")):
             del os.environ ["TRACKER_DB_ONTOLOGIES_DIR"]
