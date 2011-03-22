@@ -31,6 +31,18 @@
 #endif /* HAVE_MAEMO */
 
 #ifdef HAVE_MAEMO
+
+/* In src/libtracker-sparql/tracker-init.c you'll find a first call to
+ * gconf_client_get_default() in a function that has the GCC specific
+ * construction attribute. This is there because GConfClient isn't thread-safe
+ * or at least not "first call is in thread vs. mainloop"-safe. The reason
+ * why it must be in libtracker-sparql instead of here is because this code
+ * is entered using g_module_open (dlopen) by tracker_sparql_backend_load_
+ * plugins_from_path: the construction attribute would only be detected at
+ * dlopen, which would be in the thread that calls load_plugins_from_path
+ * caused by a tracker_sparql_connection_get_async. It's a bit unfortunate
+ * and perhaps ugly, but fortunately we only need it in HAVE_MAEMO */
+
 /* Mutex to sync access to the current locale values */
 static GStaticMutex locales_mutex = G_STATIC_MUTEX_INIT;
 static GStaticMutex subscribers_mutex = G_STATIC_MUTEX_INIT;

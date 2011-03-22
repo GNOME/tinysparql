@@ -594,6 +594,9 @@ if test "x$enable_maemo" = "xyes" ; then
    LIBTRACKER_COMMON_CFLAGS="$LIBTRACKER_COMMON_CFLAGS $GCONF_CFLAGS"
    LIBTRACKER_COMMON_LIBS="$LIBTRACKER_COMMON_LIBS $GCONF_LIBS"
 
+   LIBTRACKER_SPARQL_CFLAGS="$LIBTRACKER_SPARQL_CFLAGS $GCONF_CFLAGS"
+   LIBTRACKER_SPARQL_LIBS="$LIBTRACKER_SPARQL_LIBS $GCONF_LIBS"
+
    if test "x$have_gconf" != "xyes"; then
       AC_MSG_ERROR([Couldn't find gconf, needed when enabling maemo support])
    fi
