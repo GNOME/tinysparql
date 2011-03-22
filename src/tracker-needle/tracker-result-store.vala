@@ -252,7 +252,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	}
 
 	private void clear_results () {
-		int i, j;
+		int j;
 
 		while (categories.length > 0) {
 			CategoryNode cat = categories[0];
@@ -801,9 +801,6 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		var l = va_list ();
 		string str = null;
 		string [] args = null;
-		CategoryNode cat;
-		TreeIter iter;
-		TreePath path;
 		QueryData query_data;
 
 		do {
