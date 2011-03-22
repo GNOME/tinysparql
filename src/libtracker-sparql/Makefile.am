@@ -28,7 +28,8 @@ libtracker_sparql_@TRACKER_API_VERSION@_la_SOURCES =   \
 	tracker-cursor.vala                            \
 	tracker-backend.vala                           \
 	tracker-utils.vala                             \
-	tracker-uri.c
+	tracker-uri.c                                  \
+	tracker-init.c
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_LIBADD =    \
 	$(BUILD_LIBS)                                  \
