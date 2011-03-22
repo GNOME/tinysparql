@@ -552,7 +552,7 @@ miner_manager_finalize (GObject *object)
  *
  * Creates a new #TrackerMinerManager instance.
  *
- * Note: Auto-starting miners when querying status will be enabled. 
+ * Note: Auto-starting miners when querying status will be enabled.
  *
  * Returns: a #TrackerMinerManager or #NULL if an error happened.
  *
@@ -569,7 +569,7 @@ tracker_miner_manager_new (void)
 	                          &inner_error,
 	                          NULL);
 	if (!manager) {
-		g_critical ("Couldn't create new TrackerMinerManager: '%s'", 
+		g_critical ("Couldn't create new TrackerMinerManager: '%s'",
 		            inner_error ? inner_error->message : "unknown error");
 		g_clear_error (&inner_error);
 	}
@@ -602,7 +602,7 @@ tracker_miner_manager_new_full (gboolean   auto_start,
 	                          "auto-start", FALSE,
 	                          NULL);
 	if (!manager) {
-		g_critical ("Couldn't create new TrackerMinerManager: '%s'", 
+		g_critical ("Couldn't create new TrackerMinerManager: '%s'",
 		            inner_error ? inner_error->message : "unknown error");
 		g_clear_error (&inner_error);
 	}

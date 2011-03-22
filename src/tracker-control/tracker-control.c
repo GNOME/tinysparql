@@ -144,8 +144,11 @@ main (int argc, char **argv)
 	/* No-args output */
 	tracker_control_general_run_default ();
 	printf ("\n");
+
 	tracker_control_status_run_default ();
 	printf ("\n");
+
 	tracker_control_miners_run_default ();
+
 	return EXIT_SUCCESS;
 }
