@@ -32,9 +32,25 @@ public class Tracker.View : ScrolledWindow {
 		private set;
 	}
 
+	private ResultStore _store;
 	public ResultStore store {
-		get;
-		private set;
+		get {
+			return _store;
+		}
+		set {
+			if (_store != null) {
+				_store.row_changed.disconnect (store_row_changed);
+			}
+
+			_store = value;
+
+			if (_store != null) {
+				debug ("using store:%p", _store);
+				_store.row_changed.connect (store_row_changed);
+			}
+
+			((TreeView )view).model = _store;
+		}
 	}
 
 	private Widget view = null;
@@ -61,71 +77,15 @@ public class Tracker.View : ScrolledWindow {
 		return true;
 	}
 
-	public View (Display? _display = Display.NO_RESULTS, ResultStore? _store) {
+	public View (Display? _display = Display.NO_RESULTS, ResultStore? store) {
 		set_policy (PolicyType.NEVER, PolicyType.AUTOMATIC);
 
 		display = _display;
 
-		if (_store != null) {
-			store = _store;
-			debug ("using store:%p", store);
-		} else {
-			// Setup treeview
-			store = new ResultStore (6);
+		if (store != null) {
+			_store = store;
 			store.row_changed.connect (store_row_changed);
-
-			store.add_query (Tracker.Query.Type.APPLICATIONS,
-			                 "?urn",
-			                 "tracker:coalesce(nfo:softwareCmdLine(?urn), ?urn)",
-			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
-			                 "nie:comment(?urn)",
-			                 "\"\"",
-			                 "\"\"");
-
-			store.add_query (Tracker.Query.Type.IMAGES,
-			                 "?urn",
-			                 "nie:url(?urn)",
-			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
-			                 "fn:string-join((nfo:height(?urn), nfo:width(?urn)), \" x \")",
-			                 "nfo:fileSize(?urn)",
-			                 "nie:url(?urn)");
-			store.add_query (Tracker.Query.Type.MUSIC,
-			                 "?urn",
-			                 "nie:url(?urn)",
-			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
-			                 "fn:string-join((?performer, ?album), \" - \")",
-			                 "nfo:duration(?urn)",
-			                 "nie:url(?urn)");
-			store.add_query (Tracker.Query.Type.VIDEOS,
-			                 "?urn",
-			                 "nie:url(?urn)",
-			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
-			                 "\"\"",
-			                 "nfo:duration(?urn)",
-			                 "nie:url(?urn)");
-			store.add_query (Tracker.Query.Type.DOCUMENTS,
-			                 "?urn",
-			                 "nie:url(?urn)",
-			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
-			                 "tracker:coalesce(nco:fullname(?creator), nco:fullname(?publisher))",
-			                 "fn:concat(nfo:pageCount(?urn), \" Pages\")",
-			                 "nie:url(?urn)");
-			store.add_query (Tracker.Query.Type.MAIL,
-			                 "?urn",
-			                 "nie:url(?urn)",
-			                 "tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
-			                 "tracker:coalesce(nmo:messageSubject(?urn))",
-			                 "nmo:receivedDate(?urn)",
-			                 "fn:concat(\"To: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to)))");
-			store.add_query (Tracker.Query.Type.FOLDERS,
-			                 "?urn",
-			                 "nie:url(?urn)",
-			                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
-			                 "tracker:coalesce(nie:url(?parent), \"\")",
-			                 "nfo:fileLastModified(?urn)",
-			                 "?tooltip");
-
-			debug ("Creating store:%p", store);
+			debug ("using store:%p", store);
 		}
 
 		switch (display) {
@@ -374,4 +334,3 @@ public class Tracker.View : ScrolledWindow {
 		cell.set ("markup", markup);
 	}
 }
-
