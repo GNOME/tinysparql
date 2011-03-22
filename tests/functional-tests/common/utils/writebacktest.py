@@ -30,6 +30,11 @@ TEST_FILE_JPEG = "writeback-test-1.jpeg"
 TEST_FILE_TIFF = "writeback-test-2.tif"
 TEST_FILE_PNG = "writeback-test-4.png"
 
+CONF_OPTIONS = [
+    (cfg.DCONF_MINER_SCHEMA, "index-recursive-directories", [BASEDIR]),
+    (cfg.DCONF_MINER_SCHEMA, "index-single-directories", "[]"),
+    ]
+
 def uri (filename):
     return "file://" + os.path.join (BASEDIR, filename)
 
@@ -73,13 +78,7 @@ class CommonTrackerWritebackTest (ut.TestCase):
         
         self.system = TrackerSystemAbstraction ()
 
-        if (os.path.exists (os.getcwd() + "/test-configurations/writeback")):
-            # Use local directory if available
-            confdir = os.getcwd() + "/test-configurations/writeback"
-        else:
-            confdir = os.path.join (cfg.DATADIR, "tracker-tests",
-                                    "test-configurations", "writeback")
-        self.system.tracker_writeback_testing_start (confdir)
+        self.system.tracker_writeback_testing_start (CONF_OPTIONS)
         # Returns when ready
         print "Ready to go!"
         
