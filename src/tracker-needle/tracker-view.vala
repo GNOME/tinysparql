@@ -247,29 +247,25 @@ public class Tracker.View : ScrolledWindow {
                         selection = tv.get_selection ();
                         selection.set_select_function (row_selection_func);
 
-			var renderer1 = new CellRendererPixbuf ();
-			var renderer2 = new Gtk.CellRendererText ();
-
 			col = new TreeViewColumn ();
 			col.set_sizing (TreeViewColumnSizing.FIXED);
+			col.set_expand (true);
+
+			var renderer1 = new CellRendererPixbuf ();
 			col.pack_start (renderer1, false);
 			col.add_attribute (renderer1, "pixbuf", 6);
+			col.set_cell_data_func (renderer1, renderer_background_func);
 			renderer1.xpad = 5;
 			renderer1.ypad = 5;
 
+			var renderer2 = new Gtk.CellRendererText ();
 			col.pack_start (renderer2, true);
 			col.set_cell_data_func (renderer2, text_renderer_func);
-//			col.add_attribute (renderer2, "text", 1); //4);
-//			col.add_attribute (renderer2, "subtext", 5);
                         renderer2.set_fixed_height_from_font (2);
 			renderer2.ellipsize = Pango.EllipsizeMode.MIDDLE;
-//			renderer2.show_fixed_height = true;
 
-			col.set_title (_("Item"));
-			col.set_resizable (true);
-			col.set_expand (true);
-			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
-			col.set_cell_data_func (renderer1, renderer_background_func);
+			//col.set_resizable (true);
+			//col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			tv.append_column (col);
 
 //			var renderer3 = new Gtk.CellRendererText ();
@@ -280,14 +276,18 @@ public class Tracker.View : ScrolledWindow {
 //			col.set_cell_data_func (renderer3, cell_renderer_func);
 //			tv.append_column (col);
 
-// 			var renderer4 = new Tracker.CellRendererText ();
-// 			col = new TreeViewColumn ();
-// 			col.set_sizing (TreeViewColumnSizing.FIXED);
-// 			col.pack_start (renderer4, true);
-// 			col.add_attribute (renderer4, "text", 4);
-// 			col.set_title (_("Size"));
-//			col.set_cell_data_func (renderer4, cell_renderer_func);
-// 			tv.append_column (col);
+ 			var renderer4 = new Gtk.CellRendererText ();
+
+                        renderer4.set_fixed_height_from_font (2);
+			renderer4.alignment = Pango.Alignment.RIGHT;
+			renderer4.xalign = 1;
+
+			col = new TreeViewColumn ();
+			col.set_min_width (80);
+ 			col.set_sizing (TreeViewColumnSizing.FIXED);
+ 			col.pack_start (renderer4, true);
+			col.set_cell_data_func (renderer4, detail_renderer_func);
+ 			tv.append_column (col);
 
 			break;
 		}
@@ -352,6 +352,23 @@ public class Tracker.View : ScrolledWindow {
 
 		if (markup == null) {
 			markup = "<span color='grey'>%s</span>\n".printf (_("Loading..."));
+		}
+
+		cell.set ("markup", markup);
+	}
+
+	private void detail_renderer_func (CellLayout   cell_layout,
+	                                   CellRenderer cell,
+	                                   TreeModel    tree_model,
+	                                   TreeIter     iter) {
+		string markup = null;
+		string detail;
+
+		renderer_background_func (cell_layout, cell, tree_model, iter);
+		tree_model.get (iter, 4, out detail, -1);
+
+		if (detail != null) {
+			markup = "\n<span color='grey'><small>%s</small></span>".printf (Markup.escape_text (detail));
 		}
 
 		cell.set ("markup", markup);
