@@ -142,7 +142,7 @@ public class Tracker.View : ScrolledWindow {
 			TreeView tv = (TreeView) view;
 
 			tv.set_model (store);
-			tv.set_tooltip_column (8);
+			tv.set_tooltip_column (6);
 			tv.set_rules_hint (false);
 			tv.set_grid_lines (TreeViewGridLines.VERTICAL);
 			tv.set_headers_visible (true);
@@ -153,12 +153,11 @@ public class Tracker.View : ScrolledWindow {
 			col = new TreeViewColumn ();
 			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			col.pack_start (renderer1, false);
-			col.add_attribute (renderer1, "pixbuf", 6);
+			col.add_attribute (renderer1, "pixbuf", 7);
 			renderer1.xpad = 5;
 			renderer1.ypad = 5;
 
 			col.pack_start (renderer2, true);
-			//col.add_attribute (renderer2, "text", 2);
                         renderer2.set_fixed_height_from_font (2);
 			renderer2.ellipsize = Pango.EllipsizeMode.MIDDLE;
 
@@ -174,7 +173,7 @@ public class Tracker.View : ScrolledWindow {
 			col = new TreeViewColumn ();
 			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			col.pack_start (renderer3, true);
-			col.add_attribute (renderer3, "text", 1);
+			col.add_attribute (renderer3, "text", 5);
 			col.set_title (_("Last Changed"));
 			col.set_cell_data_func (renderer3, renderer_background_func);
 			tv.append_column (col);

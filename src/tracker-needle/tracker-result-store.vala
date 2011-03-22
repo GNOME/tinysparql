@@ -24,6 +24,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 	private struct ResultNode {
 		string [] values;
+		Gdk.Pixbuf pixbuf;
 	}
 	private class CategoryNode {
 		public Tracker.Query.Type type;
@@ -443,6 +444,63 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		return path;
 	}
 
+	private async void fetch_thumbnail (TreeIter iter) {
+		GLib.File file;
+		GLib.FileInfo info;
+		GLib.Icon icon;
+		TreePath path;
+		Gtk.IconInfo icon_info;
+		ResultNode *result;
+		string thumb_path;
+		Gdk.Pixbuf pixbuf = null;
+
+		result = iter.user_data2;
+
+		// Query thumbnail to GIO
+		file = GLib.File.new_for_uri (result.values[1]);
+
+		try {
+			info = yield file.query_info_async ("thumbnail::path,standard::icon",
+			                                    GLib.FileQueryInfoFlags.NONE,
+			                                    GLib.Priority.DEFAULT,
+			                                    cancellable);
+		} catch (GLib.Error ie) {
+			warning ("Could not get thumbnail: %s", ie.message);
+			return;
+		}
+
+		thumb_path = info.get_attribute_byte_string ("thumbnail::path");
+
+		try {
+			if (thumb_path != null) {
+				pixbuf = new Gdk.Pixbuf.from_file_at_size (thumb_path, 24, 24);
+			} else {
+				icon = (GLib.Icon) info.get_attribute_object ("standard::icon");
+
+				if (icon == null) {
+					return;
+				}
+
+				var theme = IconTheme.get_for_screen (Gdk.Screen.get_default ());
+				icon_info = theme.lookup_by_gicon (icon, 24, 0);
+
+				if (icon_info == null) {
+					return;
+				}
+
+				pixbuf = icon_info.load_icon ();
+			}
+		} catch (GLib.Error e) {
+			warning ("Could not get icon pixbuf: %s\n", e.message);
+		}
+
+		if (pixbuf != null) {
+			result.pixbuf = pixbuf;
+			path = get_path (iter);
+			row_changed (path, iter);
+		}
+	}
+
 	public void get_value (Gtk.TreeIter   iter,
 	                       int            column,
 	                       out GLib.Value value) {
@@ -526,8 +584,11 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 			if (result.values[0] != null) {
 				if (column == n_columns - 1) {
-					// No pixbuf ATM
-					//value.set_object (null);
+					if (result.pixbuf != null) {
+						value.set_object (result.pixbuf);
+					} else if (queries.length == 1) {
+						fetch_thumbnail.begin (iter);
+					}
 				} else {
 					value.set_string (result.values[column]);
 				}
