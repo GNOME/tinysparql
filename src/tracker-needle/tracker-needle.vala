@@ -54,7 +54,87 @@ public class Tracker.Needle {
 	static bool current_view = true;
 	static bool current_find_in = true;
 
+	private ResultStore categories_model;
+	private ResultStore files_model;
+	private ResultStore files_in_title_model;
+
+	private void create_models () {
+		// Categories model
+		categories_model = new ResultStore (6);
+		categories_model.add_query (Tracker.Query.Type.APPLICATIONS,
+		                            "?urn",
+		                            "tracker:coalesce(nfo:softwareCmdLine(?urn), ?urn)",
+		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                            "nie:comment(?urn)",
+		                            "\"\"",
+		                            "\"\"");
+
+		categories_model.add_query (Tracker.Query.Type.IMAGES,
+		                            "?urn",
+		                            "nie:url(?urn)",
+		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                            "fn:string-join((nfo:height(?urn), nfo:width(?urn)), \" x \")",
+		                            "nfo:fileSize(?urn)",
+		                            "nie:url(?urn)");
+		categories_model.add_query (Tracker.Query.Type.MUSIC,
+		                            "?urn",
+		                            "nie:url(?urn)",
+		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                            "fn:string-join((?performer, ?album), \" - \")",
+		                            "nfo:duration(?urn)",
+		                            "nie:url(?urn)");
+		categories_model.add_query (Tracker.Query.Type.VIDEOS,
+		                            "?urn",
+		                            "nie:url(?urn)",
+		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                            "\"\"",
+		                            "nfo:duration(?urn)",
+		                            "nie:url(?urn)");
+		categories_model.add_query (Tracker.Query.Type.DOCUMENTS,
+		                            "?urn",
+		                            "nie:url(?urn)",
+		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                            "tracker:coalesce(nco:fullname(?creator), nco:fullname(?publisher))",
+		                            "fn:concat(nfo:pageCount(?urn), \" Pages\")",
+		                            "nie:url(?urn)");
+		categories_model.add_query (Tracker.Query.Type.MAIL,
+		                            "?urn",
+		                            "nie:url(?urn)",
+		                            "tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
+		                            "tracker:coalesce(nmo:messageSubject(?urn))",
+		                            "nmo:receivedDate(?urn)",
+		                            "fn:concat(\"To: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to)))");
+		categories_model.add_query (Tracker.Query.Type.FOLDERS,
+		                            "?urn",
+		                            "nie:url(?urn)",
+		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                            "tracker:coalesce(nie:url(?parent), \"\")",
+		                            "nfo:fileLastModified(?urn)",
+		                            "?tooltip");
+
+		// Files model
+		files_model = new ResultStore (6);
+		files_model.add_query (Tracker.Query.Type.ALL,
+		                       "?urn",
+		                       "nfo:fileLastModified(?urn)",
+		                       "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                       "nie:url(?urn)",
+		                       "nfo:fileSize(?urn)",
+		                       "nie:url(?urn)");
+
+		// Files model, search in titles
+		files_in_title_model = new ResultStore (6);
+		files_in_title_model.add_query (Tracker.Query.Type.ALL_ONLY_IN_TITLES,
+		                                "?urn",
+		                                "nfo:fileLastModified(?urn)",
+		                                "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                                "nie:url(?urn)",
+		                                "nfo:fileSize(?urn)",
+		                                "nie:url(?urn)");
+	}
+
 	public Needle () {
+		create_models ();
 		history = new Tracker.History ();
 	}
 
@@ -165,7 +245,7 @@ public class Tracker.Needle {
 		sw_noresults = new Tracker.View (Tracker.View.Display.NO_RESULTS, null);
 		view.pack_start (sw_noresults, true, true, 0);
 
-		sw_categories = new Tracker.View (Tracker.View.Display.CATEGORIES, null);
+		sw_categories = new Tracker.View (Tracker.View.Display.CATEGORIES, categories_model);
 		treeview = (TreeView) sw_categories.get_child ();
 		treeview.row_activated.connect (view_row_selected);
 		sw_categories.store.notify["active"].connect (store_state_changed);
@@ -542,7 +622,7 @@ public class Tracker.Needle {
 
 		if (view_categories.active) {
 			sw_categories.show ();
-			store = sw_categories.store;
+			store = categories_model;
 		} else {
 			sw_categories.hide ();
 		}
