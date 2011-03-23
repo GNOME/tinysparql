@@ -23,8 +23,9 @@ class DConfClient:
         assert profile == "trackertest"
         # XDG_CONFIG_HOME is useless
         dconf_db = os.path.join (os.environ ["HOME"], ".config", "dconf", profile)
-        print "[Conf] Removing dconf-profile:", dconf_db
-        os.remove (dconf_db)
+        if os.path.exists (dconf_db):
+            print "[Conf] Removing dconf-profile:", dconf_db
+            os.remove (dconf_db)
 
 
 if __name__ == "__main__":
