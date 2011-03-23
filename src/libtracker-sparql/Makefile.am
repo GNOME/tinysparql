@@ -3,8 +3,8 @@ include $(top_srcdir)/Makefile.decl
 noinst_LTLIBRARIES = libtracker-sparql.la
 
 AM_VALAFLAGS =                                         \
-	--gir=TrackerSparql-$(TRACKER_API_VERSION).gir \
-	--library TrackerSparql-$(TRACKER_API_VERSION) \
+	--gir=Tracker-$(TRACKER_API_VERSION).gir \
+	--library Tracker-$(TRACKER_API_VERSION) \
 	--includedir=libtracker-sparql                 \
 	--header tracker-sparql.h                      \
 	--vapi tracker-sparql-$(TRACKER_API_VERSION).vapi \
@@ -59,29 +59,20 @@ EXTRA_DIST =                                           \
 
 # Introspection foo
 -include $(INTROSPECTION_MAKEFILE)
-INTROSPECTION_GIRS =
-INTROSPECTION_SCANNER_ARGS =
-INTROSPECTION_COMPILER_ARGS =
 
 if HAVE_INTROSPECTION
-INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
-introspection_sources = \
-	$(libtracker_sparql_@TRACKER_API_VERSION@_la_SOURCES) \
-	$(libtracker_sparqlinclude_HEADERS)
+#  set introspectable=0 to the function that uses va_list. This is not needed with a modern vala ( > 23/03/2011)
+Tracker-@TRACKER_API_VERSION@.gir: $(lib_LTLIBRARIES)
+	sed -i $@ -e "s/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"\ introspectable=\"0\"/g"
 
-TrackerSparql-0.10.gir: $(lib_LTLIBRARIES)
-TrackerSparql_0_10_gir_INCLUDES = GObject-2.0 Gio-2.0 GModule-2.0
-TrackerSparql_0_10_gir_CFLAGS = $(INCLUDES)
-TrackerSparql_0_10_gir_LIBS = $(lib_LTLIBRARIES)
-TrackerSparql_0_10_gir_FILES = $(introspection_sources)
-
-INTROSPECTION_GIRS += TrackerSparql-0.10.gir
+Tracker-@TRACKER_API_VERSION@.typelib: Tracker-$(TRACKER_API_VERSION).gir
+	@INTROSPECTION_COMPILER@ --shared-library=libtracker-sparql-@TRACKER_API_VERSION@.so -o $@ $^
 
 girdir = $(datadir)/gir-1.0
-gir_DATA = $(INTROSPECTION_GIRS)
+dist_gir_DATA = Tracker-$(TRACKER_API_VERSION).gir
 
-typelibsdir = $(libdir)/girepository-1.0
-typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+typelibdir = $(libdir)/girepository-1.0
+typelib_DATA = Tracker-$(TRACKER_API_VERSION).typelib
 
 CLEANFILES = $(dist_gir_DATA) $(typelib_DATA)
 endif
