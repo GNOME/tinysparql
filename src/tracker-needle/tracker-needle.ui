@@ -6,6 +6,7 @@
     <property name="title" translatable="yes">Desktop Search</property>
     <property name="default_width">720</property>
     <property name="default_height">480</property>
+    <property name="icon_name">system-search</property>
     <child>
       <object class="GtkVBox" id="vbox_main">
         <property name="visible">True</property>
