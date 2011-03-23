@@ -2082,10 +2082,6 @@ AC_CONFIG_FILES([
 	tests/functional-tests/test-extraction-data/video/Makefile
 	tests/functional-tests/test-extraction-data/playlists/Makefile
 	tests/functional-tests/test-writeback-data/Makefile
-	tests/functional-tests/test-configurations/Makefile
-	tests/functional-tests/test-configurations/miner-basic-ops/Makefile
-	tests/functional-tests/test-configurations/writeback/Makefile
-	tests/functional-tests/test-configurations/applications/Makefile
         tests/functional-tests/test-ontologies/Makefile
         tests/functional-tests/test-ontologies/basic/Makefile
         tests/functional-tests/test-ontologies/property-range-int-to-string/Makefile
