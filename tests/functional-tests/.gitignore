@@ -4,3 +4,4 @@ force-sqlite-misused.sh
 helper-test-data.sh
 tests.xml
 tracker-tests.aegis
+trackertest
