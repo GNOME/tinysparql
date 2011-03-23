@@ -193,7 +193,7 @@ public class Tracker.Sparql.Builder : Object {
 	 * @self: a #TrackerSparqlBuilder
 	 * @iri: a graph name.
 	 *
-	 * Deprecated API
+	 * Deprecated 0.10.5: There is no replacement for this API.
 	 *
 	 * Since: 0.10
 	 */
