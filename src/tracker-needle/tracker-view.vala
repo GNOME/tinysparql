@@ -245,7 +245,7 @@ public class Tracker.View : ScrolledWindow {
 			col.set_min_width (80);
  			col.set_sizing (TreeViewColumnSizing.FIXED);
  			col.pack_start (renderer4, true);
-			col.set_cell_data_func (renderer4, detail_renderer_func);
+			col.set_cell_data_func (renderer4, category_detail_renderer_func);
  			tv.append_column (col);
 
 			break;
@@ -316,20 +316,40 @@ public class Tracker.View : ScrolledWindow {
 		cell.set ("markup", markup);
 	}
 
-	private void detail_renderer_func (CellLayout   cell_layout,
-	                                   CellRenderer cell,
-	                                   TreeModel    tree_model,
-	                                   TreeIter     iter) {
+	private void category_detail_renderer_func (CellLayout   cell_layout,
+	                                            CellRenderer cell,
+	                                            TreeModel    tree_model,
+	                                            TreeIter     iter) {
+		Tracker.Query.Type category;
 		string markup = null;
 		string detail;
 
 		renderer_background_func (cell_layout, cell, tree_model, iter);
-		tree_model.get (iter, 4, out detail, -1);
+		tree_model.get (iter, 4, out detail, 7, out category, -1);
 
-		if (detail != null) {
-			markup = "<span color='grey'><small>%s</small></span>".printf (Markup.escape_text (detail));
+		if (detail == null) {
+			cell.set ("markup", null);
+			return;
 		}
 
+		switch (category) {
+		case Tracker.Query.Type.FOLDERS:
+		case Tracker.Query.Type.MAIL:
+			detail = tracker_time_format_from_iso8601 (detail);
+			break;
+		case Tracker.Query.Type.MUSIC:
+		case Tracker.Query.Type.VIDEOS:
+			detail = tracker_time_format_from_seconds (detail);
+			break;
+		case Tracker.Query.Type.DOCUMENTS:
+			detail = detail + " " + _("Pages");
+			break;
+		case Tracker.Query.Type.IMAGES:
+			detail = GLib.format_size_for_display (detail.to_int());
+			break;
+		}
+
+		markup = "<span color='grey'><small>%s</small></span>".printf (Markup.escape_text (detail));
 		cell.set ("markup", markup);
 	}
 }
