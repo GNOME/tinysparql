@@ -327,31 +327,6 @@ miner_list (gboolean available,
 	return EXIT_SUCCESS;
 }
 
-static gboolean
-miner_get_details (TrackerMinerManager  *manager,
-                   const gchar          *miner,
-                   gchar               **status,
-                   gdouble              *progress,
-                   GStrv                *pause_applications,
-                   GStrv                *pause_reasons)
-{
-	if ((status || progress) &&
-	    !tracker_miner_manager_get_status (manager,
-	                                       miner,
-	                                       status,
-	                                       progress)) {
-		g_printerr (_("Could not get status from miner: %s"), miner);
-		return FALSE;
-	}
-
-	tracker_miner_manager_is_paused (manager,
-	                                 miner,
-	                                 pause_applications,
-	                                 pause_reasons);
-
-	return TRUE;
-}
-
 static gint
 miner_pause_details (void)
 {
@@ -394,14 +369,10 @@ miner_pause_details (void)
 			continue;
 		}
 
-		if (!miner_get_details (manager,
-		                        l->data,
-		                        NULL,
-		                        NULL,
-		                        &pause_applications,
-		                        &pause_reasons)) {
-			continue;
-		}
+		tracker_miner_manager_is_paused (manager,
+		                                 l->data,
+		                                 &pause_applications,
+		                                 &pause_reasons);
 
 		if (!(*pause_applications) || !(*pause_reasons)) {
 			g_strfreev (pause_applications);
