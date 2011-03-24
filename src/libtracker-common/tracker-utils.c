@@ -57,29 +57,39 @@ tracker_is_blank_string (const char *str)
 	return TRUE;
 }
 
-gchar *
-tracker_seconds_estimate_to_string (gdouble  seconds_elapsed,
-                                    gboolean short_string,
-                                    guint    items_done,
-                                    guint    items_remaining)
+guint
+tracker_seconds_estimate (gdouble seconds_elapsed,
+                          guint   items_done,
+                          guint   items_remaining)
 {
-	gdouble per_item;
-	gdouble total;
-
-	g_return_val_if_fail (seconds_elapsed >= 0.0, g_strdup (_("unknown time")));
-
-	/* We don't want division by 0 or if total is 0 because items
-	 * remaining is 0 then, equally pointless.
-	 */
-	if (items_done < 1 ||
+	/* Return 0 if unknown */
+	if (seconds_elapsed <= 0 ||
+	    items_done < 1 ||
 	    items_remaining < 1) {
-		return g_strdup (_("unknown time"));
+		return 0;
 	}
 
-	per_item = seconds_elapsed / items_done;
-	total = per_item * items_remaining;
+	/* A estimate is an estimate, and full seconds is probably
+	 * more correct than a floating point value... */
+	return (guint)((seconds_elapsed / items_done) * items_remaining);
+}
 
-	return tracker_seconds_to_string (total, short_string);
+gchar *
+tracker_seconds_estimate_to_string (gdouble   seconds_elapsed,
+                                    gboolean  short_string,
+                                    guint     items_done,
+                                    guint     items_remaining)
+{
+	guint estimate;
+
+	estimate = tracker_seconds_estimate (seconds_elapsed,
+	                                     items_done,
+	                                     items_remaining);
+
+	if (estimate == 0)
+		return g_strdup (_("unknown time"));
+
+	return tracker_seconds_to_string (estimate, short_string);
 }
 
 gchar *
@@ -93,7 +103,7 @@ tracker_seconds_to_string (gdouble  seconds_elapsed,
 
 	g_return_val_if_fail (seconds_elapsed >= 0.0, g_strdup (_("less than one second")));
 
-	total    = seconds_elapsed;
+	total = seconds_elapsed;
 
 	seconds  = (gint) total % 60;
 	total   /= 60;

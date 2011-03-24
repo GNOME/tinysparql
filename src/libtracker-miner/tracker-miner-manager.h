@@ -118,7 +118,8 @@ gboolean             tracker_miner_manager_is_paused          (TrackerMinerManag
 gboolean             tracker_miner_manager_get_status         (TrackerMinerManager  *manager,
                                                                const gchar          *miner,
                                                                gchar               **status,
-                                                               gdouble              *progress);
+                                                               gdouble              *progress,
+                                                               gint                 *remaining_time);
 gboolean             tracker_miner_manager_ignore_next_update (TrackerMinerManager  *manager,
                                                                const gchar          *miner,
                                                                const gchar         **urls);

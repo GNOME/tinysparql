@@ -513,14 +513,17 @@ tracker_control_general_run (void)
 		/* Get the status of all miners, this will start all
 		 * miners not already running.
 		 */
-
 		for (l = miners; l; l = l->next) {
 			const gchar *display_name;
 			gdouble progress = 0.0;
 
 			display_name = tracker_miner_manager_get_display_name (manager, l->data);
 
-			if (!tracker_miner_manager_get_status (manager, l->data, NULL, &progress)) {
+			if (!tracker_miner_manager_get_status (manager,
+			                                       l->data,
+			                                       NULL,
+			                                       &progress,
+			                                       NULL)) {
 				g_printerr ("  ✗ %s (%s)\n",
 				            display_name,
 				            _("perhaps a disabled plugin?"));

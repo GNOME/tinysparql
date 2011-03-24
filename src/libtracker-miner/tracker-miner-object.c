@@ -71,6 +71,9 @@ static const gchar introspection_xml[] =
   "    <method name='GetProgress'>"
   "      <arg type='d' name='progress' direction='out' />"
   "    </method>"
+  "    <method name='GetRemainingTime'>"
+  "      <arg type='i' name='remaining_time' direction='out' />"
+  "    </method>"
   "    <method name='GetPauseDetails'>"
   "      <arg type='as' name='pause_applications' direction='out' />"
   "      <arg type='as' name='pause_reasons' direction='out' />"
@@ -104,6 +107,7 @@ struct _TrackerMinerPrivate {
 	gchar *name;
 	gchar *status;
 	gdouble progress;
+	gint remaining_time;
 	gint availability_cookie;
 	GDBusConnection *d_connection;
 	GDBusNodeInfo *introspection_data;
@@ -123,7 +127,8 @@ enum {
 	PROP_0,
 	PROP_NAME,
 	PROP_STATUS,
-	PROP_PROGRESS
+	PROP_PROGRESS,
+	PROP_REMAINING_TIME
 };
 
 enum {
@@ -276,13 +281,17 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	 * @miner: the #TrackerMiner
 	 * @status: miner status
 	 * @progress: a #gdouble indicating miner progress, from 0 to 1.
+	 * @remaining_time: a #gint indicating the reamaining processing time, in
+	 * seconds.
 	 *
 	 * the ::progress signal will be emitted by TrackerMiner implementations
 	 * to indicate progress about the data mining process. @status will
 	 * contain a translated string with the current miner status and @progress
-	 * will indicate how much has been processed so far.
+	 * will indicate how much has been processed so far. @remaining_time will
+	 * give the number expected of seconds to finish processing, 0 if the
+	 * value cannot be estimated, and -1 if its not applicable.
 	 *
-	 * Since: 0.8
+	 * Since: 0.11
 	 **/
 	signals[PROGRESS] =
 		g_signal_new ("progress",
@@ -290,10 +299,11 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerClass, progress),
 		              NULL, NULL,
-		              tracker_marshal_VOID__STRING_DOUBLE,
-		              G_TYPE_NONE, 2,
+		              tracker_marshal_VOID__STRING_DOUBLE_INT,
+		              G_TYPE_NONE, 3,
 		              G_TYPE_STRING,
-		              G_TYPE_DOUBLE);
+		              G_TYPE_DOUBLE,
+		              G_TYPE_INT);
 
 	/**
 	 * TrackerMiner::ignore-next-update:
@@ -339,6 +349,16 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                                      1.0,
 	                                                      0.0,
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
+	g_object_class_install_property (object_class,
+	                                 PROP_REMAINING_TIME,
+	                                 g_param_spec_int ("remaining-time",
+	                                                   "Remaining time",
+	                                                   "Estimated remaining time to finish processing",
+	                                                   -1,
+	                                                   G_MAXINT,
+	                                                   -1,
+	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerPrivate));
 
@@ -487,7 +507,8 @@ miner_update_progress (TrackerMiner *miner)
 {
 	g_signal_emit (miner, signals[PROGRESS], 0,
 	               miner->private->status,
-	               miner->private->progress);
+	               miner->private->progress,
+	               miner->private->remaining_time);
 
 	if (miner->private->d_connection) {
 		g_dbus_connection_emit_signal (miner->private->d_connection,
@@ -495,9 +516,10 @@ miner_update_progress (TrackerMiner *miner)
 		                               miner->private->full_path,
 		                               TRACKER_MINER_DBUS_INTERFACE,
 		                               "Progress",
-		                               g_variant_new ("(sd)",
+		                               g_variant_new ("(sdi)",
 		                                              miner->private->status,
-		                                              miner->private->progress),
+		                                              miner->private->progress,
+		                                              miner->private->remaining_time),
 		                               NULL);
 	}
 }
@@ -550,6 +572,16 @@ miner_set_property (GObject      *object,
 		miner_update_progress (miner);
 		break;
 	}
+	case PROP_REMAINING_TIME: {
+		gint new_remaining_time;
+
+		new_remaining_time = g_value_get_int (value);
+		if (new_remaining_time != miner->private->remaining_time) {
+			/* Just set the new remaining time, don't notify it */
+			miner->private->remaining_time = new_remaining_time;
+		}
+		break;
+	}
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -573,6 +605,9 @@ miner_get_property (GObject    *object,
 		break;
 	case PROP_PROGRESS:
 		g_value_set_double (value, miner->private->progress);
+		break;
+	case PROP_REMAINING_TIME:
+		g_value_set_int (value, miner->private->remaining_time);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1092,6 +1127,21 @@ handle_method_call_get_pause_details (TrackerMiner          *miner,
 }
 
 static void
+handle_method_call_get_remaining_time (TrackerMiner          *miner,
+                                       GDBusMethodInvocation *invocation,
+                                       GVariant              *parameters)
+{
+	TrackerDBusRequest *request;
+
+	request = tracker_g_dbus_request_begin (invocation, "%s()", __PRETTY_FUNCTION__);
+
+	tracker_dbus_request_end (request, NULL);
+	g_dbus_method_invocation_return_value (invocation,
+	                                       g_variant_new ("(i)",
+	                                                      miner->private->remaining_time));
+}
+
+static void
 handle_method_call_get_progress (TrackerMiner          *miner,
                                  GDBusMethodInvocation *invocation,
                                  GVariant              *parameters)
@@ -1102,7 +1152,8 @@ handle_method_call_get_progress (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
-	                                       g_variant_new ("(d)", miner->private->progress));
+	                                       g_variant_new ("(d)",
+	                                                      miner->private->progress));
 }
 
 static void
@@ -1116,7 +1167,8 @@ handle_method_call_get_status (TrackerMiner          *miner,
 
 	tracker_dbus_request_end (request, NULL);
 	g_dbus_method_invocation_return_value (invocation,
-	                                       g_variant_new ("(s)", miner->private->status ? miner->private->status : ""));
+	                                       g_variant_new ("(s)",
+	                                                      miner->private->status ? miner->private->status : ""));
 
 }
 
@@ -1145,6 +1197,9 @@ handle_method_call (GDBusConnection       *connection,
 	} else
 	if (g_strcmp0 (method_name, "GetPauseDetails") == 0) {
 		handle_method_call_get_pause_details (miner, invocation, parameters);
+	} else
+	if (g_strcmp0 (method_name, "GetRemainingTime") == 0) {
+		handle_method_call_get_remaining_time (miner, invocation, parameters);
 	} else
 	if (g_strcmp0 (method_name, "GetProgress") == 0) {
 		handle_method_call_get_progress (miner, invocation, parameters);

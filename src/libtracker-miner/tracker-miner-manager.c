@@ -129,11 +129,12 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 * @miner: miner reference
 	 * @status: miner status
 	 * @progress: miner progress, from 0 to 1
+	 * @remaining_time: remaining processing time
 	 *
 	 * The ::miner-progress signal is meant to report status/progress changes
 	 * in any tracked miner.
 	 *
-	 * Since: 0.8
+	 * Since: 0.11
 	 **/
 	signals [MINER_PROGRESS] =
 		g_signal_new ("miner-progress",
@@ -141,11 +142,12 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerManagerClass, miner_progress),
 		              NULL, NULL,
-		              tracker_marshal_VOID__STRING_STRING_DOUBLE,
-		              G_TYPE_NONE, 3,
+		              tracker_marshal_VOID__STRING_STRING_DOUBLE_INT,
+		              G_TYPE_NONE, 4,
 		              G_TYPE_STRING,
 		              G_TYPE_STRING,
-		              G_TYPE_DOUBLE);
+		              G_TYPE_DOUBLE,
+		              G_TYPE_INT);
 	/**
 	 * TrackerMinerManager::miner-paused
 	 * @manager: the #TrackerMinerManager
@@ -334,10 +336,11 @@ miner_progress_changed (GDBusConnection *connection,
 	MinerData *data = user_data;
 	const gchar *status = NULL;
 	gdouble progress = 0;
+	gint remaining_time = -1;
 
-	g_variant_get (parameters, "(&sd)", &status, &progress);
+	g_variant_get (parameters, "(&sdi)", &status, &progress, &remaining_time);
 	if (data->manager) {
-		g_signal_emit (data->manager, signals[MINER_PROGRESS], 0, data->dbus_name, status, progress);
+		g_signal_emit (data->manager, signals[MINER_PROGRESS], 0, data->dbus_name, status, progress, remaining_time);
 	}
 }
 
@@ -998,27 +1001,32 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
  * @miner: miner reference
  * @status: return location for status
  * @progress: return location for progress
+ * @remaining_time: return location for remaining time
  *
- * Returns the current status and progress for @miner.
+ * Returns the current status, progress and remaining time for @miner.
+ * @remaining_time will be 0 if not possible to compute it yet,
+ * and less than zero if it is not applicable.
  *
  * Returns: %TRUE if the status could be retrieved successfully,
  * otherwise %FALSE
  *
- * Since: 0.8
+ * Since: 0.11
  **/
 gboolean
 tracker_miner_manager_get_status (TrackerMinerManager  *manager,
                                   const gchar          *miner,
                                   gchar               **status,
-                                  gdouble              *progress)
+                                  gdouble              *progress,
+                                  gint                 *remaining_time)
 {
 	GDBusProxy *proxy;
-	GError *error = NULL;
-	gdouble p;
-	GVariant *v;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (miner != NULL, FALSE);
+	/* At least one of them should be asked */
+	g_return_val_if_fail (status != NULL ||
+	                      progress != NULL ||
+	                      remaining_time != NULL, FALSE);
 
 	proxy = find_miner_proxy (manager, miner, TRUE);
 
@@ -1027,54 +1035,78 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
 		return FALSE;
 	}
 
-	v = g_dbus_proxy_call_sync (proxy,
-	                            "GetProgress",
-	                            NULL,
-	                            G_DBUS_CALL_FLAGS_NONE,
-	                            -1,
-	                            NULL,
-	                            &error);
+	if (progress) {
+		GError *error = NULL;
+		GVariant *v;
 
-	if (error) {
-		/* We handle this error as a special case, some
-		 * plugins don't have .service files.
-		 */
-		if (error->code != G_DBUS_ERROR_SERVICE_UNKNOWN) {
-			g_critical ("Could not get miner progress for '%s': %s", miner,
-			            error->message);
+		v = g_dbus_proxy_call_sync (proxy,
+		                            "GetProgress",
+		                            NULL,
+		                            G_DBUS_CALL_FLAGS_NONE,
+		                            -1,
+		                            NULL,
+		                            &error);
+		if (error) {
+			/* We handle this error as a special case, some
+			 * plugins don't have .service files.
+			 */
+			if (error->code != G_DBUS_ERROR_SERVICE_UNKNOWN) {
+				g_critical ("Could not get miner progress for '%s': %s", miner,
+				            error->message);
+			}
+
+			g_error_free (error);
+
+			return FALSE;
 		}
 
-		g_error_free (error);
-
-		return FALSE;
-	}
-
-	g_variant_get (v, "(d)", &p);
-	g_variant_unref (v);
-
-	v = g_dbus_proxy_call_sync (proxy,
-	                            "GetStatus",
-	                            NULL,
-	                            G_DBUS_CALL_FLAGS_NONE,
-	                            -1,
-	                            NULL,
-	                            &error);
-
-	if (error) {
-		g_critical ("Could not get miner status for '%s': %s", miner,
-		            error->message);
-		g_error_free (error);
-		return FALSE;
+		g_variant_get (v, "(d)", progress);
+		g_variant_unref (v);
 	}
 
 	if (status) {
+		GError *error = NULL;
+		GVariant *v;
+
+		v = g_dbus_proxy_call_sync (proxy,
+		                            "GetStatus",
+		                            NULL,
+		                            G_DBUS_CALL_FLAGS_NONE,
+		                            -1,
+		                            NULL,
+		                            &error);
+		if (error) {
+			g_critical ("Could not get miner status for '%s': %s", miner,
+			            error->message);
+			g_error_free (error);
+			return FALSE;
+		}
+
 		g_variant_get (v, "(s)", status);
+		g_variant_unref (v);
 	}
 
-	g_variant_unref (v);
+	if (remaining_time) {
+		GError *error = NULL;
+		GVariant *v;
 
-	if (progress) {
-		*progress = p;
+		v = g_dbus_proxy_call_sync (proxy,
+		                            "GetRemainingTime",
+		                            NULL,
+		                            G_DBUS_CALL_FLAGS_NONE,
+		                            -1,
+		                            NULL,
+		                            &error);
+		if (error) {
+			g_critical ("Could not get miner remaining processing "
+			            "time for '%s': %s", miner,
+			            error->message);
+			g_error_free (error);
+			return FALSE;
+		}
+
+		g_variant_get (v, "(i)", remaining_time);
+		g_variant_unref (v);
 	}
 
 	return TRUE;

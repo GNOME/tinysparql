@@ -31,11 +31,14 @@ G_BEGIN_DECLS
 
 gboolean tracker_is_empty_string            (const char   *str);
 gboolean tracker_is_blank_string            (const char   *str);
+guint    tracker_seconds_estimate           (gdouble       seconds_elapsed,
+                                             guint         items_done,
+                                             guint         items_remaining);
 gchar *  tracker_seconds_estimate_to_string (gdouble       seconds_elapsed,
                                              gboolean      short_string,
                                              guint         items_done,
                                              guint         items_remaining);
-gchar *  tracker_seconds_to_string          (gdouble       seconds_elapsed,
+gchar *  tracker_seconds_to_string          (gdouble       seconds,
                                              gboolean      short_string);
 gchar *  tracker_strhex                     (const guint8 *data,
                                              gsize         size,
