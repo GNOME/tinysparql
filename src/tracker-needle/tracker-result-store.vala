@@ -47,6 +47,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	private GenericArray<Operation> running_operations;
 	private GenericArray<Operation> delayed_operations;
 
+	private int n_extra_columns = 2; // Pixbuf and query type
 	private int n_columns;
 	private int timestamp;
 
@@ -108,8 +109,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 				result = &op.node.results[i];
 
-				for (j = 0; j < n_columns - 1; j++) {
-					if (j == n_columns - 2) {
+				for (j = 0; j < n_columns; j++) {
+					if (j == n_columns - 1) {
 						// FIXME: Set markup for tooltip column in a nicer way
 						result.values[j] = Markup.escape_text (cursor.get_string (j));
 					} else {
@@ -363,8 +364,10 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	}
 
 	public GLib.Type get_column_type (int index_) {
-		if (index_ == n_columns - 1) {
+		if (index_ == n_columns) {
 			return typeof (Gdk.Pixbuf);
+		} else if (index_ == n_columns + 1) {
+			return typeof (Tracker.Query.Type);
 		} else {
 			return typeof (string);
 		}
@@ -423,7 +426,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	}
 
 	public int get_n_columns () {
-		return n_columns;
+		return n_columns + n_extra_columns;
 	}
 
 	public Gtk.TreePath get_path (Gtk.TreeIter iter) {
@@ -511,13 +514,18 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	                       out GLib.Value value) {
 		CategoryNode cat;
 
-		if (column > n_columns) {
-			value.init (typeof (string));
+		if (column >= n_columns + n_extra_columns) {
 			return;
 		}
 
 		cat = (CategoryNode) iter.user_data;
 		value.init (this.get_column_type (column));
+
+		if (column == n_columns + 1) {
+			// Type column
+			value.set_enum (cat.type);
+			return;
+		}
 
 		if (iter.user_data2 == null) {
 			if (column == 2) {
@@ -544,7 +552,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 					value.set_string (_("Folders"));
 					break;
 				}
-			} else if (column == n_columns - 1) {
+			} else if (column == n_columns) {
 				Gdk.Pixbuf pixbuf;
 
 				pixbuf = cat.pixbuf;
@@ -588,7 +596,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			n_node = (int) iter.user_data3;
 
 			if (result.values[0] != null) {
-				if (column == n_columns - 1) {
+				if (column == n_columns ) {
 					if (result.pixbuf != null) {
 						value.set_object (result.pixbuf);
 					} else if (queries.length == 1) {
@@ -791,8 +799,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		running_operations = new GenericArray<Operation?> ();
 		delayed_operations = new GenericArray<Operation?> ();
 
-		// Add an extra one for the pixbuf
-		n_columns = _n_columns + 1;
+		n_columns = _n_columns;
 		timestamp = 1;
 		icon_size = 24;
 	}
@@ -811,7 +818,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			}
 		} while (str != null);
 
-		if (args.length != n_columns - 1) {
+		if (args.length != n_columns ) {
 			warning ("Arguments and number of columns doesn't match");
 			return;
 		}
