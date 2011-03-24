@@ -95,7 +95,7 @@ public class Tracker.Needle {
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
 		                            "tracker:coalesce(nco:fullname(?creator), nco:fullname(?publisher))",
-		                            "fn:concat(nfo:pageCount(?urn), \" Pages\")",
+		                            "nfo:pageCount(?urn)",
 		                            "nie:url(?urn)");
 		categories_model.add_query (Tracker.Query.Type.MAIL,
 		                            "?urn",
