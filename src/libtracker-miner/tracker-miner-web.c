@@ -514,7 +514,7 @@ tracker_miner_web_authenticate (TrackerMinerWeb  *miner,
  * of authentication. See <classname>TrackerMinerWebClass</classname>
  * for more information.
  *
- * Returns: a %GHashTable with the data. On failure @error will be set
+ * Returns: (transfer full): a %GHashTable with the data. On failure @error will be set
  * and %NULL will be returned.
  *
  * Since: 0.8

@@ -617,7 +617,7 @@ tracker_miner_manager_new_full (gboolean   auto_start,
  * Returns a list of references for all active miners. Active miners
  * are miners which are running within a process.
  *
- * Returns: a #GSList which must be freed with g_slist_free() and all
+ * Returns: (transfer full): a #GSList which must be freed with g_slist_free() and all
  * contained data with g_free(). Otherwise %NULL is returned if there
  * are no miners.
  *
@@ -795,7 +795,7 @@ initialize_miners_data (TrackerMinerManager *manager)
  * miners are miners which may or may not be running in a process at
  * the current time.
  *
- * Returns: a #GSList which must be freed with g_slist_free() and all
+ * Returns: (transfer full): a #GSList which must be freed with g_slist_free() and all
  * contained data with g_free(). Otherwise %NULL is returned if there
  * are no miners.
  *
