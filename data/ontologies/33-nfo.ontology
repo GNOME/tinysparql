@@ -969,7 +969,7 @@ nfo:HelpDocument a rdfs:Class ;
 
 # This property needs to be submitted to NEPOMUK
 nfo:lastPlayedPosition a rdf:Property ;
-        rdfs:comment "Position in the media (in seconds) where the play was paused. Positive number, being 0 the beggining of the media." ;
+        rdfs:comment "Position in the media (in seconds) where the play was paused. Positive number, being 0 the beginning of the media." ;
         rdfs:label "last played position" ;
         nrl:maxCardinality 1 ;
         rdfs:domain nfo:Media ;
