@@ -173,9 +173,8 @@ public class Tracker.View : ScrolledWindow {
 			col = new TreeViewColumn ();
 			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			col.pack_start (renderer3, true);
-			col.add_attribute (renderer3, "text", 5);
 			col.set_title (_("Last Changed"));
-			col.set_cell_data_func (renderer3, renderer_background_func);
+			col.set_cell_data_func (renderer3, file_date_renderer_func);
 			tv.append_column (col);
 
 			var renderer4 = new Gtk.CellRendererText ();
@@ -183,9 +182,8 @@ public class Tracker.View : ScrolledWindow {
 			col = new TreeViewColumn ();
 			col.set_sizing (TreeViewColumnSizing.AUTOSIZE);
 			col.pack_start (renderer4, true);
-			col.add_attribute (renderer4, "text", 4);
 			col.set_title (_("Size"));
-			col.set_cell_data_func (renderer4, renderer_background_func);
+			col.set_cell_data_func (renderer4, file_size_renderer_func);
 			tv.append_column (col);
 
 			break;
@@ -314,6 +312,38 @@ public class Tracker.View : ScrolledWindow {
 		}
 
 		cell.set ("markup", markup);
+	}
+
+	private void file_size_renderer_func (CellLayout   cell_layout,
+	                                      CellRenderer cell,
+	                                      TreeModel    tree_model,
+	                                      TreeIter     iter) {
+		string size;
+
+		renderer_background_func (cell_layout, cell, tree_model, iter);
+		tree_model.get (iter, 4, out size, -1);
+
+		if (size != null) {
+			size = GLib.format_size_for_display (size.to_int());
+		}
+
+		cell.set ("text", size);
+	}
+
+	private void file_date_renderer_func (CellLayout   cell_layout,
+	                                      CellRenderer cell,
+	                                      TreeModel    tree_model,
+	                                      TreeIter     iter) {
+		string date;
+
+		renderer_background_func (cell_layout, cell, tree_model, iter);
+		tree_model.get (iter, 5, out date, -1);
+
+		if (date != null) {
+			date = tracker_time_format_from_iso8601 (date);
+		}
+
+		cell.set ("text", date);
 	}
 
 	private void category_detail_renderer_func (CellLayout   cell_layout,
