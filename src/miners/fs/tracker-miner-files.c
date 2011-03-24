@@ -1982,6 +1982,7 @@ extractor_get_embedded_metadata_cb (const gchar *preupdate,
 		tracker_sparql_builder_append (data->sparql, sparql);
 	}
 
+	tracker_sparql_builder_graph_close (data->sparql);
 	tracker_sparql_builder_insert_close (data->sparql);
 
 	/* Prepend preupdate queries */
@@ -2393,7 +2394,8 @@ process_file_cb (GObject      *object,
 	mime_type = g_file_info_get_content_type (file_info);
 	urn = miner_files_get_file_urn (TRACKER_MINER_FILES (data->miner), file, &is_iri);
 
-	tracker_sparql_builder_insert_silent_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
+	tracker_sparql_builder_insert_silent_open (sparql, NULL);
+	tracker_sparql_builder_graph_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
 
 	if (is_iri) {
 		tracker_sparql_builder_subject_iri (sparql, urn);
