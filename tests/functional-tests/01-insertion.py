@@ -377,6 +377,9 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 self.assertEquals (result[0][0], "test://graph-3")
                 self.assertEquals (result[0][1], "title 2")
 
+                self.tracker.update ("""
+                DELETE { <test://instance-6> a rdfs:Resource. }
+                """)
 
         def __insert_valid_date_test (self, datestring, year, month, day, hours, minutes, seconds, timezone):
                 """
