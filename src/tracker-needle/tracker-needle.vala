@@ -108,7 +108,7 @@ public class Tracker.Needle {
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
-		                            "tracker:coalesce(nie:url(?parent), \"\")",
+		                            "nie:url(?parent)",
 		                            "nfo:fileLastModified(?urn)",
 		                            "?tooltip");
 
