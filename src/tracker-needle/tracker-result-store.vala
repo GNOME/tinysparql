@@ -804,15 +804,6 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		query_data.args = args;
 
 		queries += query_data;
-
-		/*
-		iter = TreeIter ();
-		iter.stamp = this.timestamp;
-		iter.user_data = categories[categories.length - 1];
-		path = this.get_path (iter);
-
-		row_inserted (path, iter);
-		*/
 	}
 
 	public bool has_results () {
