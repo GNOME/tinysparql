@@ -329,6 +329,27 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 DELETE { <test://instance-5> a rdfs:Resource. }
                 """)
 
+	def test_insert_08(self):
+                """
+                Insert or replace, single and multi valued properties with graphs
+                """
+
+                INSERT_SPARQL = """INSERT { GRAPH <test://graph-1> { <test://instance-6> a nie:InformationElement ; nie:title 'test' } }"""
+                self.tracker.update (INSERT_SPARQL)
+
+                INSERT_SPARQL = """INSERT OR REPLACE { GRAPH <test://graph-2> { <test://instance-6> nie:title 'test' } }"""
+                self.tracker.update (INSERT_SPARQL)
+
+                result = self.tracker.query ("""
+                          SELECT ?g ?t WHERE { GRAPH ?g {
+                             <test://instance-6> nie:title ?t
+                           } }""")
+
+                self.assertEquals (len (result), 1)
+                self.assertEquals (len (result[0]), 2)
+                self.assertEquals (result[0][0], "test://graph-2")
+                self.assertEquals (result[0][1], "test")
+
         def __insert_valid_date_test (self, datestring, year, month, day, hours, minutes, seconds, timezone):
                 """
                 Insert a property with datestring value, retrieve its components and validate against
