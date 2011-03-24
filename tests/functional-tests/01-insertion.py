@@ -334,10 +334,10 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
                 Insert or replace, single and multi valued properties with graphs
                 """
 
-                INSERT_SPARQL = """INSERT { GRAPH <test://graph-1> { <test://instance-6> a nie:InformationElement ; nie:title 'test' } }"""
+                INSERT_SPARQL = """INSERT { GRAPH <test://graph-1> { <test://instance-6> a nie:InformationElement ; nie:title 'title 1' } }"""
                 self.tracker.update (INSERT_SPARQL)
 
-                INSERT_SPARQL = """INSERT OR REPLACE { GRAPH <test://graph-2> { <test://instance-6> nie:title 'test' } }"""
+                INSERT_SPARQL = """INSERT { GRAPH <test://graph-2> { <test://instance-6> nie:title 'title 1' } }"""
                 self.tracker.update (INSERT_SPARQL)
 
                 result = self.tracker.query ("""
@@ -347,8 +347,36 @@ class TrackerStoreInsertionTests (CommonTrackerStoreTest):
 
                 self.assertEquals (len (result), 1)
                 self.assertEquals (len (result[0]), 2)
-                self.assertEquals (result[0][0], "test://graph-2")
-                self.assertEquals (result[0][1], "test")
+                self.assertEquals (result[0][0], "test://graph-1") # Yes, indeed
+                self.assertEquals (result[0][1], "title 1")
+
+                INSERT_SPARQL = """INSERT OR REPLACE { GRAPH <test://graph-2> { <test://instance-6> nie:title 'title 1' } }"""
+                self.tracker.update (INSERT_SPARQL)
+
+                result = self.tracker.query ("""
+                          SELECT ?g ?t WHERE { GRAPH ?g {
+                             <test://instance-6> nie:title ?t
+                           } }""")
+
+                self.assertEquals (len (result), 1)
+                self.assertEquals (len (result[0]), 2)
+                self.assertEquals (result[0][0], "test://graph-2") # Yup, that's right
+                self.assertEquals (result[0][1], "title 1")
+
+
+                INSERT_SPARQL = """INSERT OR REPLACE { GRAPH <test://graph-3> { <test://instance-6> nie:title 'title 2' } }"""
+                self.tracker.update (INSERT_SPARQL)
+
+                result = self.tracker.query ("""
+                          SELECT ?g ?t WHERE { GRAPH ?g {
+                             <test://instance-6> nie:title ?t
+                           } }""")
+
+                self.assertEquals (len (result), 1)
+                self.assertEquals (len (result[0]), 2)
+                self.assertEquals (result[0][0], "test://graph-3")
+                self.assertEquals (result[0][1], "title 2")
+
 
         def __insert_valid_date_test (self, datestring, year, month, day, hours, minutes, seconds, timezone):
                 """
