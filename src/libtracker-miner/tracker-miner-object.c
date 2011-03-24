@@ -905,7 +905,7 @@ tracker_miner_resume (TrackerMiner  *miner,
  *
  * Gets the #TrackerSparqlConnection initialized by @miner
  *
- * Returns: a #TrackerSparqlConnection.
+ * Returns: (transfer none): a #TrackerSparqlConnection.
  *
  * Since: 0.10
  **/
@@ -921,7 +921,7 @@ tracker_miner_get_connection (TrackerMiner *miner)
  *
  * Gets the #GDBusConnection initialized by @miner
  *
- * Returns: a #GDBusConnection.
+ * Returns: (transfer none): a #GDBusConnection.
  *
  * Since: 0.10
  **/
