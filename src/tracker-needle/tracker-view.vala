@@ -302,11 +302,11 @@ public class Tracker.View : ScrolledWindow {
 		tree_model.get (iter, 2, out text, 3, out subtext, -1);
 
 		if (text != null) {
-			markup = Markup.escape_text (text) + "\n";
+			markup = Markup.escape_text (text);
 		}
 
 		if (subtext != null) {
-			markup += "<small><span color='grey'>%s</span></small>".printf (Markup.escape_text (subtext));
+			markup += "\n<small><span color='grey'>%s</span></small>".printf (Markup.escape_text (subtext));
 		}
 
 		if (markup == null) {
@@ -327,7 +327,7 @@ public class Tracker.View : ScrolledWindow {
 		tree_model.get (iter, 4, out detail, -1);
 
 		if (detail != null) {
-			markup = "\n<span color='grey'><small>%s</small></span>".printf (Markup.escape_text (detail));
+			markup = "<span color='grey'><small>%s</small></span>".printf (Markup.escape_text (detail));
 		}
 
 		cell.set ("markup", markup);
