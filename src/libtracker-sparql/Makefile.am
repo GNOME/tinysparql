@@ -4,7 +4,7 @@ noinst_LTLIBRARIES = libtracker-sparql.la
 
 AM_VALAFLAGS =                                         \
 	--gir=Tracker-$(TRACKER_API_VERSION).gir \
-	--library Tracker-$(TRACKER_API_VERSION) \
+	--library tracker-sparql-$(TRACKER_API_VERSION) \
 	--includedir=libtracker-sparql                 \
 	--header tracker-sparql.h                      \
 	--vapi tracker-sparql-$(TRACKER_API_VERSION).vapi \
@@ -62,7 +62,7 @@ EXTRA_DIST =                                           \
 
 if HAVE_INTROSPECTION
 #  set introspectable=0 to the function that uses va_list. This is not needed with a modern vala ( > 23/03/2011)
-Tracker-@TRACKER_API_VERSION@.gir: $(lib_LTLIBRARIES)
+Tracker-@TRACKER_API_VERSION@.gir: $(lib_LTLIBRARIES) Makefile
 	sed -i $@ -e "s/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"\ introspectable=\"0\"/g"
 
 Tracker-@TRACKER_API_VERSION@.typelib: Tracker-$(TRACKER_API_VERSION).gir
