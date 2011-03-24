@@ -25,34 +25,44 @@ lib_LTLIBRARIES = libtracker-miner-@TRACKER_API_VERSION@.la
 libtracker_minerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_minerincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtracker-miner/
 
-libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
+crawler_sources = 				       \
 	$(libtracker_miner_marshal_sources)            \
 	$(libtracker_miner_marshal_headers)            \
-	$(libtracker_miner_monitor_sources)            \
-	$(libtracker_miner_monitor_headers)            \
-	$(network_provider_sources)                    \
-	$(password_provider_sources)                   \
 	tracker-crawler.c                              \
 	tracker-crawler.h                              \
+	tracker-utils.c                                \
+	tracker-utils.h					
+
+private_sources = 				       \
+	tracker-miner-fs-processing-pool.h             \
+	tracker-miner-fs-processing-pool.c             \
+	tracker-storage.c                              \
+	tracker-storage.h                              
+
+miner_sources = 				       \
+	$(libtracker_miner_monitor_sources)            \
+	$(libtracker_miner_monitor_headers)            \
 	tracker-miner-dbus.h                           \
 	tracker-miner-object.c                         \
 	tracker-miner-object.h                         \
 	tracker-miner-fs.c                             \
 	tracker-miner-fs.h                             \
-	tracker-miner-fs-processing-pool.h             \
-	tracker-miner-fs-processing-pool.c             \
 	tracker-miner-manager.c                        \
 	tracker-miner-manager.h                        \
 	tracker-miner-web.c                            \
-	tracker-miner-web.h                            \
+	tracker-miner-web.h                            
+
+
+libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES =    \
+	$(network_provider_sources)                    \
+	$(password_provider_sources)                   \
+	$(crawler_sources)			       \
+	$(miner_sources)			       \
+	$(private_sources)			       \
 	tracker-network-provider.c                     \
 	tracker-password-provider.c                    \
-	tracker-storage.c                              \
-	tracker-storage.h                              \
 	tracker-thumbnailer.c                          \
-	tracker-thumbnailer.h                          \
-	tracker-utils.c                                \
-	tracker-utils.h
+	tracker-thumbnailer.h                          
 
 libtracker_minerinclude_HEADERS =                      \
 	tracker-crawler.h                              \
@@ -125,32 +135,48 @@ EXTRA_DIST =                                           \
 -include $(INTROSPECTION_MAKEFILE)
 INTROSPECTION_GIRS =
 INTROSPECTION_SCANNER_ARGS = \
-	-I $(top_builddir)/src \
-	-D TRACKER_COMPILATION \
-	--c-include="libtracker-miner/tracker-miner.h" \
-	--add-include-path=$(top_builddir)/src/libtracker-sparql
+	-I$(top_builddir)/src \
+	-DTRACKER_COMPILATION \
+	--c-include="libtracker-miner/tracker-miner.h" 			\
+	--add-include-path=$(top_builddir)/src/libtracker-sparql 	\
+	--identifier-prefix=TrackerProcessor				\
+	--symbol-prefix=tracker_processing				\
+	--identifier-prefix=Tracker					\
+	--symbol-prefix=tracker						\
+	--warn-all
+
 INTROSPECTION_COMPILER_ARGS = --includedir=$(top_builddir)/src/libtracker-sparql
 
 if HAVE_INTROSPECTION
 INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
 introspection_sources = \
 	$(filter-out $(libtracker_miner_monitor_sources) \
-	             $(libtracker_miner_monitor_headers), \
+	             $(libtracker_miner_monitor_headers)  \
+		     $(private_sources)  \
+		     $(crawler_sources), \
 	  $(libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES))
 
 TrackerMiner-0.10.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
-TrackerMiner_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 TrackerSparql-0.10
-TrackerMiner_0_10_gir_CFLAGS = $(INCLUDES)
+TrackerMiner_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 Gio-2.0 Tracker-0.10
+TrackerMiner_0_10_gir_CFLAGS = $(INCLUDES) 
+TrackerMiner_0_10_gir_NAMESPACE = "TrackerMiner"
 TrackerMiner_0_10_gir_LIBS = $(lib_LTLIBRARIES)
 TrackerMiner_0_10_gir_FILES = $(introspection_sources)
 
-INTROSPECTION_GIRS += TrackerMiner-0.10.gir
+TrackerCrawler-0.10.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
+TrackerCrawler_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 Tracker-0.10
+TrackerCrawler_0_10_gir_CFLAGS = $(INCLUDES)
+TrackerCrawler_0_10_gir_NAMESPACE = "TrackerCrawler"
+TrackerCrawler_0_10_gir_LIBS = $(lib_LTLIBRARIES)
+TrackerCrawler_0_10_gir_FILES = $(crawler_sources)
+
+INTROSPECTION_GIRS += TrackerMiner-0.10.gir TrackerCrawler-0.10.gir
 
 girdir = $(datadir)/gir-1.0
-gir_DATA = $(INTROSPECTION_GIRS)
+dist_gir_DATA = $(INTROSPECTION_GIRS)
 
-typelibsdir = $(libdir)/girepository-1.0
-typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+typelibdir = $(libdir)/girepository-1.0
+typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(dist_gir_DATA) $(typelib_DATA)
 endif
