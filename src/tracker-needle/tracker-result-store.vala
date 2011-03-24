@@ -528,31 +528,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		}
 
 		if (iter.user_data2 == null) {
-			if (column == 2) {
-				switch (cat.type) {
-				case Tracker.Query.Type.APPLICATIONS:
-					value.set_string (_("Applications"));
-					break;
-				case Tracker.Query.Type.MUSIC:
-					value.set_string (_("Music"));
-					break;
-				case Tracker.Query.Type.IMAGES:
-					value.set_string (_("Images"));
-					break;
-				case Tracker.Query.Type.VIDEOS:
-					value.set_string (_("Videos"));
-					break;
-				case Tracker.Query.Type.DOCUMENTS:
-					value.set_string (_("Documents"));
-					break;
-				case Tracker.Query.Type.MAIL:
-					value.set_string (_("Mail"));
-					break;
-				case Tracker.Query.Type.FOLDERS:
-					value.set_string (_("Folders"));
-					break;
-				}
-			} else if (column == n_columns) {
+			if (column == n_columns) {
 				Gdk.Pixbuf pixbuf;
 
 				pixbuf = cat.pixbuf;

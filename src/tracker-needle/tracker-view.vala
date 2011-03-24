@@ -295,20 +295,55 @@ public class Tracker.View : ScrolledWindow {
 	                                 TreeIter     iter) {
 		string text, subtext;
 		string markup = null;
+		int n_children;
 
 		renderer_background_func (cell_layout, cell, tree_model, iter);
-		tree_model.get (iter, 2, out text, 3, out subtext, -1);
+		n_children = tree_model.iter_n_children (iter);
 
-		if (text != null) {
-			markup = Markup.escape_text (text);
-		}
+		if (n_children > 0) {
+			// Category row
+			Tracker.Query.Type type;
+			string cat = null;
 
-		if (subtext != null) {
-			markup += "\n<small><span color='grey'>%s</span></small>".printf (Markup.escape_text (subtext));
-		}
+			tree_model.get (iter, 7, out type, -1);
+			switch (type) {
+			case Tracker.Query.Type.APPLICATIONS:
+				cat = _("Applications");
+				break;
+			case Tracker.Query.Type.MUSIC:
+				cat = _("Music");
+				break;
+			case Tracker.Query.Type.IMAGES:
+				cat = _("Images");
+				break;
+			case Tracker.Query.Type.VIDEOS:
+				cat = _("Videos");
+				break;
+			case Tracker.Query.Type.DOCUMENTS:
+				cat = _("Documents");
+				break;
+			case Tracker.Query.Type.MAIL:
+				cat = _("Mail");
+				break;
+			case Tracker.Query.Type.FOLDERS:
+				cat = _("Folders");
+				break;
+			}
 
-		if (markup == null) {
-			markup = "<span color='grey'>%s</span>\n".printf (_("Loading..."));
+			markup = "<b><big>%s</big></b> <small>(%d %s)</small>".printf (cat, n_children, _("Items"));
+		} else {
+			// Result row
+			tree_model.get (iter, 2, out text, 3, out subtext, -1);
+
+			if (text != null) {
+				markup = Markup.escape_text (text);
+
+				if (subtext != null) {
+					markup += "\n<small><span color='grey'>%s</span></small>".printf (Markup.escape_text (subtext));
+				}
+			} else {
+				markup = "<span color='grey'>%s</span>\n".printf (_("Loading..."));
+			}
 		}
 
 		cell.set ("markup", markup);
