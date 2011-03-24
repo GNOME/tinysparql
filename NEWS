@@ -1,3 +1,37 @@
+NEW in 0.10.5 - 2011-03-24
+==========================
+
+The changes are:
+
+  * NB#237176, Selected tags displayed twice while editing those from second attempt
+  * NB#238447, If async conn opening has failed once, the user's callback is not called when trying it again
+  * NB#238547, Callback of tracker_sparql_connection_get_async in wrong thread
+  * GB#642012, Don't start miners when querying status in tracker-control
+  * GB#645000, Assume --list-processes and --status when running without args in tracker-control
+  * GB#645052, Improve extraction of title from filenames with multiple dots in libtracker-extract
+  * GB#645375, Fix original resolution conversion in EXIF data for inches/cm
+  * GB#644998, Remove --detailed option, always enabled in tracker-control
+  * Ontology: Add nfo:lastPlayedPosition to Media elements
+  * libtracker-common: Fix localtime handling with historic UTC offsets
+  * libtracker-data: Fix graph check for anonymous blank nodes
+  * libtracker-sparql: Mark tracker_sparql_builder_drop_graph() as deprecated
+  * libtracker-sparql: Don't export symbols which are internal
+  * libtracker-miner: Added tracker_miner_manager_new_full() to disable starting miners when querying status
+  * tracker-store: Don't start if not running when querying status
+  * tracker-miner-fs: Add --no-daemon command line to exit when indexing done
+  * tracker-extract: Add parameter to QApplication to allow running without X11
+  * tracker-needle: Set proper application icon
+  * evolution: Fix use of GRAPH with the nie:DataSource, now indexes properly again
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.4 - 2011-03-17
 ==========================
 
