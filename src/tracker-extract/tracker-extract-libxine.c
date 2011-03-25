@@ -32,7 +32,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
                               const gchar          *mimetype,
                               TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata)
+                              TrackerSparqlBuilder *metadata,
+                              GString              *where)
 {
 	xine_t            *xine_base;
 	xine_audio_port_t *audio_port;

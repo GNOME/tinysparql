@@ -71,6 +71,7 @@ ext_block_append(ExtBlock *extBlock,
 static void
 read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
+               GString              *where,
 	       GifFileType          *gifFile,
                const gchar          *uri)
 {
@@ -84,7 +85,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	MergeData md = { 0 };
 	GifData   gd = { 0 };
 	TrackerXmpData *xd = NULL;
-	GString *where = NULL;
 
 	do {
 		GifByteType *ExtData;
@@ -363,10 +363,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
 		tracker_sparql_builder_object_variable (metadata, var);
 
-		if (where == NULL) {
-			where = g_string_new ("} } WHERE { {\n");
-		}
-
 		g_string_append_printf (where, "?%s a nao:Tag ; nao:prefLabel \"%s\" .\n", var, escaped);
 
 		g_free (var);
@@ -492,11 +488,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		g_free (gd.comment);
 	}
 
-	if (where != NULL) {
-		tracker_sparql_builder_append (metadata, where->str);
-		g_string_free (where, TRUE);
-	}
-
 	tracker_xmp_free (xd);
 }
 
@@ -505,7 +496,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
 			      const gchar          *mimetype,
 			      TrackerSparqlBuilder *preupdate,
-			      TrackerSparqlBuilder *metadata)
+			      TrackerSparqlBuilder *metadata,
+			      GString              *where)
 {
 	goffset size;
 	GifFileType *gifFile = NULL;
@@ -530,7 +522,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	tracker_sparql_builder_object (metadata, "nfo:Image");
 	tracker_sparql_builder_object (metadata, "nmm:Photo");
 
-	read_metadata (preupdate, metadata, gifFile, uri);
+	read_metadata (preupdate, metadata, where, gifFile, uri);
 
 	if (DGifCloseFile (gifFile) != GIF_OK) {
 		PrintGifError ();

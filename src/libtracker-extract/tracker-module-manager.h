@@ -34,7 +34,8 @@ G_BEGIN_DECLS
 typedef gboolean (* TrackerExtractMetadataFunc) (const gchar          *uri,
                                                  const gchar          *mime_type,
                                                  TrackerSparqlBuilder *preupdate,
-                                                 TrackerSparqlBuilder *metadata);
+                                                 TrackerSparqlBuilder *metadata,
+                                                 GString              *where);
 
 
 gboolean  tracker_extract_module_manager_init                (void) G_GNUC_CONST;

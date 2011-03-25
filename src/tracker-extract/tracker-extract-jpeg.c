@@ -94,7 +94,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
                               const gchar          *mimetype,
                               TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata)
+                              TrackerSparqlBuilder *metadata,
+                              GString              *where)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct tej_error_mgr tejerr;
@@ -110,7 +111,6 @@ tracker_extract_get_metadata (const gchar          *uri,
 	GPtrArray *keywords;
 	gboolean success = TRUE;
 	guint i;
-	GString *where = NULL;
 
 	filename = g_filename_from_uri (uri, NULL, NULL);
 
@@ -377,10 +377,6 @@ tracker_extract_get_metadata (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
 		tracker_sparql_builder_object_variable (metadata, var);
 
-		if (where == NULL) {
-			where = g_string_new ("} } WHERE { {\n");
-		}
-
 		g_string_append_printf (where, "?%s a nao:Tag ; nao:prefLabel \"%s\" .\n", var, escaped);
 
 		g_free (var);
@@ -631,11 +627,6 @@ tracker_extract_get_metadata (const gchar          *uri,
 
 		tracker_sparql_builder_predicate (metadata, "nfo:verticalResolution");
 		tracker_sparql_builder_object_double (metadata, value);
-	}
-
-	if (where != NULL) {
-		tracker_sparql_builder_append (metadata, where->str);
-		g_string_free (where, TRUE);
 	}
 
 	jpeg_destroy_decompress (&cinfo);

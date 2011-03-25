@@ -21,6 +21,7 @@
       <arg type="s" name="mime" direction="in" />
       <arg type="s" name="preupdate" direction="out" />
       <arg type="s" name="embedded" direction="out" />
+      <arg type="s" name="where" direction="out" />
     </method>
   </interface>
 </node>

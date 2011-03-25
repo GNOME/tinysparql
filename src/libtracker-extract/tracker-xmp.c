@@ -657,12 +657,12 @@ tracker_xmp_free (TrackerXmpData *data)
 gboolean
 tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
                    TrackerSparqlBuilder *metadata,
+                   GString              *where,
                    const gchar          *uri,
                    TrackerXmpData       *data)
 {
 	GPtrArray *keywords;
 	guint i;
-	GString *where = NULL;
 
 	g_return_val_if_fail (TRACKER_SPARQL_IS_BUILDER (metadata), FALSE);
 	g_return_val_if_fail (uri != NULL, FALSE);
@@ -703,10 +703,6 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 		/* associate file with tag */
 		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
 		tracker_sparql_builder_object_variable (metadata, var);
-
-		if (where == NULL) {
-			where = g_string_new ("} } WHERE { {\n");
-		}
 
 		g_string_append_printf (where, "?%s a nao:Tag ; nao:prefLabel \"%s\" .\n", var, escaped);
 
@@ -935,11 +931,6 @@ tracker_xmp_apply (TrackerSparqlBuilder *preupdate,
 
 		tracker_sparql_builder_insert_close (preupdate);
 
-	}
-
-	if (where != NULL) {
-		tracker_sparql_builder_append (metadata, where->str);
-		g_string_free (where, TRUE);
 	}
 
 	return TRUE;

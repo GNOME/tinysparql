@@ -81,6 +81,7 @@ rfc1123_to_iso8601_date (const gchar *date)
 static void
 read_metadata (TrackerSparqlBuilder *preupdate,
                TrackerSparqlBuilder *metadata,
+               GString              *where,
                png_structp           png_ptr,
                png_infop             info_ptr,
                png_infop             end_ptr,
@@ -97,7 +98,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 	gint i;
 	gint found;
 	GPtrArray *keywords;
-	GString *where = NULL;
 
 	info_ptrs[0] = info_ptr;
 	info_ptrs[1] = end_ptr;
@@ -496,10 +496,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
 		tracker_sparql_builder_object_variable (metadata, var);
 
-		if (where == NULL) {
-			where = g_string_new ("} } WHERE { {\n");
-		}
-
 		g_string_append_printf (where, "?%s a nao:Tag ; nao:prefLabel \"%s\" .\n", var, escaped);
 
 		g_free (var);
@@ -507,11 +503,6 @@ read_metadata (TrackerSparqlBuilder *preupdate,
 		g_free (p);
 	}
 	g_ptr_array_free (keywords, TRUE);
-
-	if (where != NULL) {
-		tracker_sparql_builder_append (metadata, where->str);
-		g_string_free (where, TRUE);
-	}
 
 	tracker_exif_free (ed);
 	tracker_xmp_free (xd);
@@ -522,7 +513,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
                               const gchar          *mimetype,
                               TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata)
+                              TrackerSparqlBuilder *metadata,
+                              GString              *where)
 {
 	goffset size;
 	FILE *f;
@@ -620,7 +612,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 	tracker_sparql_builder_object (metadata, "nfo:Image");
 	tracker_sparql_builder_object (metadata, "nmm:Photo");
 
-	read_metadata (preupdate, metadata, png_ptr, info_ptr, end_ptr, uri);
+	read_metadata (preupdate, metadata, where, png_ptr, info_ptr, end_ptr, uri);
 
 	tracker_sparql_builder_predicate (metadata, "nfo:width");
 	tracker_sparql_builder_object_int64 (metadata, width);

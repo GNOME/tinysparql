@@ -30,7 +30,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
 			      const gchar          *mimetype,
 			      TrackerSparqlBuilder *preupdate,
-			      TrackerSparqlBuilder *metadata)
+			      TrackerSparqlBuilder *metadata,
+			      GString              *where)
 {
 	/* NOTE: This function has to exist, tracker-extract checks
 	 * the symbole table for this function and if it doesn't

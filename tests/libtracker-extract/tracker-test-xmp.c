@@ -273,10 +273,12 @@ static void
 test_xmp_apply (void)
 {
 	TrackerSparqlBuilder *metadata, *preupdate;
+	GString *where;
 	TrackerXmpData *data;
 
 	metadata = tracker_sparql_builder_new_update ();
 	preupdate = tracker_sparql_builder_new_update ();
+	where = g_string_new ("");
 
 	data = tracker_xmp_new (EXAMPLE_XMP, strlen (EXAMPLE_XMP), "urn:uuid:test");
 	g_assert (data != NULL);
@@ -284,7 +286,7 @@ test_xmp_apply (void)
 	tracker_sparql_builder_insert_open (metadata, NULL);
 	tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
 
-	g_assert (tracker_xmp_apply (preupdate, metadata, "urn:uuid:test", data));
+	g_assert (tracker_xmp_apply (preupdate, metadata, where, "urn:uuid:test", data));
 
 	tracker_sparql_builder_insert_close (metadata);
 
@@ -305,6 +307,7 @@ test_xmp_apply_location (void)
 {
 	TrackerXmpData data = { 0, };
 	TrackerSparqlBuilder *metadata, *preupdate;
+	GString *where;
 
 	data.address = g_strdup ("Itamerenkatu 11-13");
 	data.city = g_strdup ("Helsinki");
@@ -313,11 +316,12 @@ test_xmp_apply_location (void)
 
 	metadata = tracker_sparql_builder_new_update ();
 	preupdate = tracker_sparql_builder_new_update ();
+	where = g_string_new ("");
 
 	tracker_sparql_builder_insert_open (metadata, NULL);
 	tracker_sparql_builder_subject_iri (metadata, "urn:uuid:test");
 
-	g_assert (tracker_xmp_apply (preupdate, metadata, "urn:uuid:test", &data));
+	g_assert (tracker_xmp_apply (preupdate, metadata, where, "urn:uuid:test", &data));
 
 	tracker_sparql_builder_insert_close (metadata);
 

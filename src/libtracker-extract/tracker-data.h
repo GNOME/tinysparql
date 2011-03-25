@@ -60,7 +60,8 @@ G_BEGIN_DECLS
  *  tracker_extract_get_metadata (const gchar          *uri,
  *                                const gchar          *mimetype,
  *                                TrackerSparqlBuilder *preupdate,
- *                                TrackerSparqlBuilder *metadata)
+ *                                TrackerSparqlBuilder *metadata,
+ *                                GString              *where)
  *  {
  *          gint height, width;
  *
@@ -101,6 +102,7 @@ G_BEGIN_DECLS
  *             are a prerequisite for the actual file
  *             metadata insertion.
  * @metadata: used to populate with file metadata predicate/object(s).
+ * @where: used for optional WHERE patterns
  *
  * This function must be provided by ALL extractors. This is merely
  * the declaration of the function which must be written by each
@@ -135,7 +137,8 @@ G_BEGIN_DECLS
 gboolean tracker_extract_get_metadata (const gchar          *uri,
                                        const gchar          *mimetype,
                                        TrackerSparqlBuilder *preupdate,
-                                       TrackerSparqlBuilder *metadata);
+                                       TrackerSparqlBuilder *metadata,
+                                       GString              *where);
                                        
 G_END_DECLS
 

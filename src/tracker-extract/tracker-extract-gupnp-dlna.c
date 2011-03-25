@@ -819,7 +819,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
                               const gchar          *mimetype,
                               TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata)
+                              TrackerSparqlBuilder *metadata,
+                              GString              *where)
 {
 	if (strcmp (mimetype, "video/3gpp") == 0 ||
 	    strcmp (mimetype, "video/mp4") == 0 ||

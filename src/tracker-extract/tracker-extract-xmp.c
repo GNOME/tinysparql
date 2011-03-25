@@ -123,7 +123,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
                               const gchar          *mimetype,
                               TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata)
+                              TrackerSparqlBuilder *metadata,
+                              GString              *where)
 {
 	TrackerXmpData *xd = NULL;
 	GError *error = NULL;
@@ -146,7 +147,7 @@ tracker_extract_get_metadata (const gchar          *uri,
 		                      original_uri ? original_uri : uri);
 
 		if (xd) {
-			tracker_xmp_apply (preupdate, metadata, uri, xd);
+			tracker_xmp_apply (preupdate, metadata, where, uri, xd);
 		}
 
 		g_free (original_uri);

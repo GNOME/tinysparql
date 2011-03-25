@@ -178,7 +178,7 @@ class ExtractorHelper ():
          }
         """
         metadata = {}
-        preupdate, embedded = self.extractor.GetMetadata (filename, mime)
+        preupdate, embedded, where = self.extractor.GetMetadata (filename, mime)
         for attribute_value in self.__process_lines (embedded):
             att, value = attribute_value.split (" ", 1)
             if metadata.has_key (att):

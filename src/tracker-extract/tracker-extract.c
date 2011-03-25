@@ -57,6 +57,7 @@ static const gchar introspection_xml[] =
   "      <arg type='s' name='mime' direction='in' />"
   "      <arg type='s' name='preupdate' direction='out' />"
   "      <arg type='s' name='embedded' direction='out' />"
+  "      <arg type='s' name='where' direction='out' />"
   "    </method>"
   "    <method name='GetMetadataFast'>"
   "      <arg type='s' name='uri' direction='in' />"
@@ -209,10 +210,12 @@ get_file_metadata (TrackerExtract         *extract,
                    const gchar            *uri,
                    const gchar            *mime,
                    TrackerSparqlBuilder  **preupdate_out,
-                   TrackerSparqlBuilder  **statements_out)
+                   TrackerSparqlBuilder  **statements_out,
+                   gchar                 **where_out)
 {
 	TrackerExtractPrivate *priv;
 	TrackerSparqlBuilder *statements, *preupdate;
+	GString *where;
 	gchar *mime_used = NULL;
 #ifdef HAVE_LIBSTREAMANALYZER
 	gchar *content_type = NULL;
@@ -222,10 +225,12 @@ get_file_metadata (TrackerExtract         *extract,
 
 	*preupdate_out = NULL;
 	*statements_out = NULL;
+	*where_out = NULL;
 
 	/* Create sparql builders to send back */
 	preupdate = tracker_sparql_builder_new_update ();
 	statements = tracker_sparql_builder_new_embedded_insert ();
+	where = g_string_new ("");
 
 #ifdef HAVE_LIBSTREAMANALYZER
 	if (!priv->force_internal_extractors) {
@@ -240,6 +245,7 @@ get_file_metadata (TrackerExtract         *extract,
 
 			*preupdate_out = preupdate;
 			*statements_out = statements;
+			*where_out = g_string_free (where, FALSE);
 			return TRUE;
 		}
 	} else {
@@ -271,6 +277,7 @@ get_file_metadata (TrackerExtract         *extract,
 			           uri);
 			g_object_unref (statements);
 			g_object_unref (preupdate);
+			g_string_free (where, TRUE);
 			return FALSE;
 		}
 
@@ -293,6 +300,7 @@ get_file_metadata (TrackerExtract         *extract,
 			g_object_unref (file);
 			g_object_unref (statements);
 			g_object_unref (preupdate);
+			g_string_free (where, TRUE);
 
 			return FALSE;
 		}
@@ -321,7 +329,7 @@ get_file_metadata (TrackerExtract         *extract,
 			StatisticsData *data;
 			gint items;
 
-			(func) (uri, mime_used, preupdate, statements);
+			(func) (uri, mime_used, preupdate, statements, where);
 
 			items = tracker_sparql_builder_get_length (statements);
 
@@ -343,6 +351,7 @@ get_file_metadata (TrackerExtract         *extract,
 
 				*preupdate_out = preupdate;
 				*statements_out = statements;
+				*where_out = g_string_free (where, FALSE);
 
 				return TRUE;
 			} else {
@@ -367,6 +376,7 @@ get_file_metadata (TrackerExtract         *extract,
 
 	*preupdate_out = preupdate;
 	*statements_out = statements;
+	*where_out = g_string_free (where, FALSE);
 
 	return TRUE;
 }
@@ -378,6 +388,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 {
 	TrackerDBusRequest *request;
 	TrackerSparqlBuilder *statements, *preupdate;
+	gchar *where;
 	TrackerExtractPrivate *priv;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
@@ -395,7 +406,7 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	if (get_file_metadata (object, request,
 			       NULL, uri, mime,
-			       &preupdate, &statements)) {
+			       &preupdate, &statements, &where)) {
 		const gchar *preupdate_str, *statements_str;
 
 		preupdate_str = statements_str = NULL;
@@ -412,9 +423,12 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 		                           preupdate_str ? preupdate_str : "");
 		tracker_dbus_request_info (request, "%s",
 		                           statements_str ? statements_str : "");
+		tracker_dbus_request_info (request, "%s",
+		                           where ? where : "");
 
 		g_object_unref (statements);
 		g_object_unref (preupdate);
+		g_free (where);
 	}
 
 	tracker_dbus_request_end (request, NULL);
@@ -451,6 +465,7 @@ handle_method_call_get_metadata (TrackerExtract        *object,
 	TrackerDBusRequest *request;
 	TrackerExtractPrivate *priv;
 	TrackerSparqlBuilder *sparql, *preupdate;
+	gchar *where;
 	gboolean extracted = FALSE;
 	const gchar *uri = NULL, *mime = NULL;
 
@@ -480,7 +495,8 @@ handle_method_call_get_metadata (TrackerExtract        *object,
 	                               uri,
 	                               mime,
 	                               &preupdate,
-	                               &sparql);
+	                               &sparql,
+	                               &where);
 
 	if (extracted) {
 		tracker_dbus_request_end (request, NULL);
@@ -493,16 +509,18 @@ handle_method_call_get_metadata (TrackerExtract        *object,
 			}
 
 			g_dbus_method_invocation_return_value (invocation,
-			                                       g_variant_new ("(ss)",
+			                                       g_variant_new ("(sss)",
 			                                                      preupdate_str ? preupdate_str : "",
-			                                                      tracker_sparql_builder_get_result (sparql)));
+			                                                      tracker_sparql_builder_get_result (sparql),
+			                                                      where ? where : ""));
 		} else {
 			g_dbus_method_invocation_return_value (invocation,
-			                                       g_variant_new ("(ss)", "", ""));
+			                                       g_variant_new ("(sss)", "", "", ""));
 		}
 
 		g_object_unref (sparql);
 		g_object_unref (preupdate);
+		g_free (where);
 	} else {
 		GError *actual_error;
 
@@ -536,6 +554,7 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 	GDataOutputStream *data_output_stream;
 	GError *error = NULL;
 	TrackerSparqlBuilder *sparql, *preupdate;
+	gchar *where;
 	gboolean extracted = FALSE;
 	GDBusMessage *method_message;
 	GDBusConnection *connection;
@@ -573,7 +592,7 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 		alarm (MAX_EXTRACT_TIME);
 	}
 
-	extracted = get_file_metadata (object, request, NULL, uri, mime, &preupdate, &sparql);
+	extracted = get_file_metadata (object, request, NULL, uri, mime, &preupdate, &sparql, &where);
 
 	if (extracted) {
 		unix_output_stream = g_unix_output_stream_new (fd, TRUE);
@@ -615,10 +634,25 @@ handle_method_call_get_metadata_fast (TrackerExtract        *object,
 				                               NULL,
 				                               &error);
 			}
+
+			if (!error && where) {
+				g_data_output_stream_put_string (data_output_stream,
+				                                 where,
+				                                 NULL,
+				                                 &error);
+			}
+
+			if (!error) {
+				g_data_output_stream_put_byte (data_output_stream,
+				                               0,
+				                               NULL,
+				                               &error);
+			}
 		}
 
 		g_object_unref (sparql);
 		g_object_unref (preupdate);
+		g_free (where);
 		g_object_unref (data_output_stream);
 		g_object_unref (buffered_output_stream);
 		g_object_unref (unix_output_stream);

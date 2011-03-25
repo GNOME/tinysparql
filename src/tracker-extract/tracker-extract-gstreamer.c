@@ -1322,7 +1322,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
 			      const gchar          *mimetype,
 			      TrackerSparqlBuilder *preupdate,
-			      TrackerSparqlBuilder *metadata)
+			      TrackerSparqlBuilder *metadata,
+			      GString              *where)
 {
 	if (strcmp (mimetype, "image/svg+xml") == 0) {
 		tracker_extract_gstreamer (uri, preupdate, metadata, EXTRACT_MIME_SVG);

@@ -269,7 +269,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const gchar          *uri,
                               const gchar          *mimetype,
                               TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata)
+                              TrackerSparqlBuilder *metadata,
+                              GString              *where)
 {
 	TrackerConfig *config;
 	GTime creation_date;
@@ -283,7 +284,6 @@ tracker_extract_get_metadata (const gchar          *uri,
 	guint n_bytes;
 	GPtrArray *keywords;
 	guint i;
-	GString *where = NULL;
 
 	g_type_init ();
 
@@ -583,10 +583,6 @@ tracker_extract_get_metadata (const gchar          *uri,
 		tracker_sparql_builder_predicate (metadata, "nao:hasTag");
 		tracker_sparql_builder_object_variable (metadata, var);
 
-		if (where == NULL) {
-			where = g_string_new ("} } WHERE { {\n");
-		}
-
 		g_string_append_printf (where, "?%s a nao:Tag ; nao:prefLabel \"%s\" .\n", var, escaped);
 
 		g_free (var);
@@ -609,11 +605,6 @@ tracker_extract_get_metadata (const gchar          *uri,
 	}
 
 	read_outline (document, metadata);
-
-	if (where != NULL) {
-		tracker_sparql_builder_append (metadata, where->str);
-		g_string_free (where, TRUE);
-	}
 
 	g_free (xml);
 	g_free (pd.keywords);

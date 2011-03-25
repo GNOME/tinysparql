@@ -89,7 +89,8 @@ G_MODULE_EXPORT gboolean
 tracker_extract_get_metadata (const char           *uri,
                               const gchar          *mimetype,
                               TrackerSparqlBuilder *preupdate,
-                              TrackerSparqlBuilder *metadata)
+                              TrackerSparqlBuilder *metadata,
+                              GString              *where)
 {
 	VorbisData vd = { 0 };
 	MergeData md = { 0 };

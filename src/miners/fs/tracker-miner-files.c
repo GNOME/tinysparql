@@ -77,6 +77,7 @@ struct ProcessFileData {
 
 typedef void (*fast_async_cb) (const gchar *preupdate,
                                const gchar *sparql,
+                               const gchar *where,
                                GError      *error,
                                gpointer     user_data);
 
@@ -1950,6 +1951,7 @@ process_file_data_free (ProcessFileData *data)
 static void
 extractor_get_embedded_metadata_cb (const gchar *preupdate,
                                     const gchar *sparql,
+                                    const gchar *where,
                                     GError      *error,
                                     gpointer     user_data)
 {
@@ -1984,6 +1986,12 @@ extractor_get_embedded_metadata_cb (const gchar *preupdate,
 
 	tracker_sparql_builder_graph_close (data->sparql);
 	tracker_sparql_builder_insert_close (data->sparql);
+
+	if (where && *where) {
+		tracker_sparql_builder_where_open (data->sparql);
+		tracker_sparql_builder_append (data->sparql, where);
+		tracker_sparql_builder_where_close (data->sparql);
+	}
 
 	/* Prepend preupdate queries */
 	if (preupdate && *preupdate) {
@@ -2055,7 +2063,7 @@ extractor_get_embedded_metadata_cancel (GCancellable    *cancellable,
 static gboolean
 extractor_skip_embedded_metadata_idle (gpointer user_data)
 {
-	extractor_get_embedded_metadata_cb (NULL, NULL, NULL, user_data);
+	extractor_get_embedded_metadata_cb (NULL, NULL, NULL, NULL, user_data);
 	return FALSE;
 }
 
@@ -2251,22 +2259,35 @@ get_metadata_fast_cb (void     *buffer,
 {
 	FastAsyncData *data;
 	ProcessFileData *process_data;
+	gboolean valid_input = FALSE;
 	gboolean free_error = FALSE;
 	const gchar *preupdate = NULL;
 	const gchar *sparql = NULL;
+	const gchar *where = NULL;
 
 	data = user_data;
 	process_data = data->user_data;
 
 	if (!error && buffer_size) {
-		gsize preupdate_length;
+		gsize preupdate_length, sparql_length, where_length;
 
 		preupdate = buffer;
-		preupdate_length = strnlen (preupdate, buffer_size);
-		if (preupdate_length < buffer_size && preupdate[buffer_size - 1] == '\0') {
+		preupdate_length = strnlen (preupdate, buffer_size - 1);
+		if (preupdate[preupdate_length] == '\0') {
 			/* sparql is stored just after preupdate in the original buffer */
 			sparql = preupdate + preupdate_length + 1;
-		} else {
+			sparql_length = strnlen (sparql, preupdate + buffer_size - 1 - sparql);
+			if (sparql[sparql_length] == '\0') {
+				/* where is stored just after sparql in the original buffer */
+				where = sparql + sparql_length + 1;
+				where_length = strnlen (where, preupdate + buffer_size - 1 - where);
+				if (where[where_length] == '\0') {
+					valid_input = TRUE;
+				}
+			}
+		}
+
+		if (!valid_input) {
 			error = g_error_new_literal (miner_files_error_quark,
 			                             0,
 			                             "Invalid data received from GetMetadataFast");
@@ -2276,13 +2297,13 @@ get_metadata_fast_cb (void     *buffer,
 
 	if (G_UNLIKELY (error)) {
 		if (error->code != G_IO_ERROR_CANCELLED) {
-			(* data->callback) (NULL, NULL, error, process_data);
+			(* data->callback) (NULL, NULL, NULL, error, process_data);
 		}
 		if (free_error) {
 			g_error_free (error);
 		}
 	} else {
-		(* data->callback) (preupdate, sparql, NULL, data->user_data);
+		(* data->callback) (preupdate, sparql, where, NULL, data->user_data);
 	}
 
 	fast_async_data_free (data);
