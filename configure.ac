@@ -472,6 +472,9 @@ fi
 
 AC_SUBST(VALAC)
 
+AX_VALA_CHECK_VERSION([0.11.8], vala_good_gir=true, vala_good_gir=false)
+AM_CONDITIONAL(VALA_GOOD_GIR, test "x$vala_good_gir" == "xtrue")
+
 ####################################################################
 # Check gettext/intltool support
 ####################################################################
