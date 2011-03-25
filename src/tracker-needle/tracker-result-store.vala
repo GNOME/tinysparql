@@ -446,7 +446,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		}
 
 		if (iter.user_data2 != null) {
-			path.append_index ((int) iter.user_data3);
+			path.append_index ((int) (long) iter.user_data3);
 		}
 
 		return path;
@@ -569,7 +569,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			int n_node;
 
 			result = iter.user_data2;
-			n_node = (int) iter.user_data3;
+			n_node = (int) (long) iter.user_data3;
 
 			if (result.values[0] != null) {
 				if (column == n_columns ) {
@@ -687,7 +687,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			return true;
 		} else {
 			// Result node
-			i = (int) iter.user_data3;
+			i = (int) (long) iter.user_data3;
 			i++;
 
 			if (i >= cat.count) {
