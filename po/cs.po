@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&component=general\n"
-"POT-Creation-Date: 2011-03-10 12:18+0000\n"
-"PO-Revision-Date: 2011-03-12 14:13+0100\n"
+"product=tracker&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2011-03-24 23:18+0000\n"
+"PO-Revision-Date: 2011-03-26 17:20+0100\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -22,13 +22,14 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
+#: ../src/tracker-needle/tracker-view.vala:311
 #: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Applications"
 msgstr "Aplikace"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:2
 msgid "Applications data miner"
-msgstr "Démon na získávání dat z aplikací"
+msgstr "Démon na dolování dat z aplikací"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:1
 #: ../src/tracker-utils/tracker-search.c:339
@@ -37,7 +38,7 @@ msgstr "E-maily"
 
 #: ../data/miners/tracker-miner-evolution.desktop.in.in.h:2
 msgid "Evolution Email miner"
-msgstr "Démon na získávání dat e-mailů z aplikace Evolution"
+msgstr "Démon na dolování dat z e-mailů z aplikace Evolution"
 
 #: ../data/miners/tracker-miner-files.desktop.in.in.h:1
 msgid "File System"
@@ -45,7 +46,7 @@ msgstr "Souborový systém"
 
 #: ../data/miners/tracker-miner-files.desktop.in.in.h:2
 msgid "File system data miner"
-msgstr "Démon na získávání dat ze souborového systému"
+msgstr "Démon na dolování dat ze souborového systému"
 
 #: ../data/miners/tracker-miner-flickr.desktop.in.in.h:1
 msgid "Flickr"
@@ -63,99 +64,185 @@ msgstr "Stáhnout kanál RSS/ATOM"
 msgid "RSS/ATOM Feeds"
 msgstr "Kanál RSS/ATOM"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:1
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:21
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+msgid "Location of journal pieces"
+msgstr "Umístění částí žurnálu"
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+msgid "Maximum size of journal"
+msgstr "Maximální velikost žurnálu"
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+"Velikost žurnálu v MB, při které bude rotován. Použitím -1 rotaci zakážete."
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Kam odložit blok žurnálu, když dosáhne maximální velikost."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+#| msgid "Enable monitors"
+msgid "Enable stemmer"
+msgstr "Zapnout kořeny slov"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+#| msgid "Enable monitors"
+msgid "Enable unaccent"
+msgstr "Zapnout odstraňování diakritiky"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+msgid "If enabled, numbers will not be indexed."
+msgstr "Pokud je zapnuto, nabudou se indexovat čísla."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like 'the', 'yes', 'no', etc."
+msgstr ""
+"Pokud je zapnuto, budou slova uvedená v seznamu stop slov ignorována. "
+"Takovými slovy bývají obvykle například „ano“, „ne“, „ten“ atd."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+#| msgid "Ignored files"
+msgid "Ignore numbers"
+msgstr "Ignorovat čísla"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+#| msgid "Ignored directories"
+msgid "Ignore stop words"
+msgstr "Ignorovat stop slova"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"Při indexování bude z jednoho dokumentu načten maximálně tento počet slov."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+msgid "Maximum length of a word to be indexed"
+msgstr "Maximální délka slova k indexaci"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+#| msgid "Maximum number of UTF-8 bytes to extract."
+msgid "Maximum number of words to index in a document"
+msgstr "Maximální počet slov k indexaci v dokumentu"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+msgid "Minimum length of a word to be indexed"
+msgstr "Minimální délka slova k indexaci"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+msgid ""
+"Simplify the words to their root to provide more results. E.g. 'shelves' and "
+"'shelf' to 'shel'"
+msgstr ""
+"Zjednodušovat slova na jejich kořen kvůli nalezení více výsledků. Např. "
+"„shelves“ a „shelf“ na „shel“"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+msgid ""
+"Translated accented characters to the equivalent unaccented. E.g. 'Idéa' to "
+"'Idea' for improved matching."
+msgstr ""
+"Převádět znaky s diakritikou na jejich ekvivalenty bez diakritiky. Např. "
+"„počítač“ na „pocitac“ kvůli zlepšení porovnávání."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:13
+msgid "Words with less characters than this will be ignored by the indexer."
+msgstr "Slovo s méně znaky, než je uvedeno, bude při indexování ignorováno."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:14
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr "Slovo s více znaky, než je uvedeno, bude při indexování ignorováno."
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
 msgid "Log verbosity"
 msgstr "Podrobnost evidování"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:2
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:22
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
 msgid "Log verbosity."
 msgstr "Podrobnost evidování."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:3
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
 msgid "Max bytes to extract"
 msgstr "Maximum rozbalených bajtů"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:4
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
 msgid "Maximum number of UTF-8 bytes to extract."
 msgstr "Maximální počet bajtů UTF-8, které se mají rozbalit."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
 msgid "Avoid any directory containing a file blacklisted here"
 msgstr "Vynechat složky obsahující zde vyjmenované soubory"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
 msgid "Crawling interval"
 msgstr "Interval procházení"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:3
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
 msgid "Directories to index non-recursively"
 msgstr "Složky k nerekurzivnímu indexování"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:4
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
 msgid "Directories to index recursively"
 msgstr "Složky k rekurzivnímu indexování"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:5
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
 msgid ""
 "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgstr ""
 "Limit volného místa na disku, v MB, při jehož dosažení se indexování "
 "pozastaví, nebo -1 pro vypnutí tohoto omezení."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:6
-#| msgid "Would be monitored"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
 msgid "Enable monitors"
 msgstr "Povolit sledování"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:7
-#| msgid "Directories"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
 msgid "Ignored directories"
 msgstr "Ignorované složky"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:8
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
 msgid "Ignored directories with content"
 msgstr "Ignorované složky s obsahem"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:9
-#| msgid "Tag one or more files"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
 msgid "Ignored files"
 msgstr "Ignorované soubory"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:10
-#| msgid "Include optical di_scs"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
 msgid "Index optical discs"
 msgstr "Indexovat optické disky"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:11
-#| msgid "Include _removable media"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Index removable devices"
 msgstr "Indexovat výměnná média"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:12
-#| msgid "Enable when running on _battery"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
 msgid "Index when running on battery"
 msgstr "Indexovat při běhu na baterie"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:13
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
 msgid "Indexing speed, the higher the slower."
 msgstr "Rychlost indexování, vyšší hodnota znamená pomaleji."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:14
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
 msgid "Initial sleep"
 msgstr "Počáteční uspání"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:15
-#| msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
 msgid "Initial sleep time, in seconds."
 msgstr "Počáteční doba uspání v sekundách."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:16
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
 msgid ""
 "Interval in days to check whether the filesystem is up to date in the "
 "database. 0 forces crawling anytime, -1 forces it only after unclean "
@@ -165,11 +252,11 @@ msgstr ""
 "souborový systém. 0 vynutí procházení kdykoliv, -1 jej vynutí jen po "
 "nekorektním vypnutí a -2 jej celkově zakáže."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:17
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
 msgid "List of directories to avoid"
 msgstr "Seznam složek k vynechání"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:18
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
 msgid ""
 "List of directories to index recursively, Special values include: &amp;"
 "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
@@ -182,7 +269,7 @@ msgstr ""
 "PUBLIC_SHARE (veřejné), &amp;TEMPLATES (šablony), &amp;VIDEOS (videa). Viz /"
 "etc/xdg/user-dirs.defaults a $HOME/.config/user-dirs.default"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:19
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
 msgid ""
 "List of directories to index without inspecting subfolders, Special values "
 "include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
@@ -196,29 +283,27 @@ msgstr ""
 "VIDEOS (videa). Viz /etc/xdg/user-dirs.defaults a $HOME/.config/user-dirs."
 "default"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:20
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
 msgid "List of file patterns to avoid"
 msgstr "Seznam vzorů souborů k vynechání"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:23
-#| msgid "Low disk space"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
 msgid "Low disk space limit"
 msgstr "Limit místa na disku"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:24
-#| msgid "Enable when running on _battery"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
 msgid "Perform initial indexing when running on battery"
 msgstr "Provádět počáteční indexaci i při běhu na baterie"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:25
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
 msgid "Removable devices' data permanence threshold"
 msgstr "Omezení uchování dat z výměnných médií"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:26
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
 msgid "Set to false to completely disable any file monitoring"
 msgstr "Nastavte na vypnuto, aby se úplně zakázalo sledování souborů"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:27
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
 msgid ""
 "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
 "removable devices are not indexed, optical discs won't be either)"
@@ -227,24 +312,23 @@ msgstr ""
 "optických médií obecně (pokud nejsou indexována výměnná zařízení, pak ani "
 "optická)"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:28
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
 msgid ""
 "Set to true to enable indexing mounted directories for removable devices."
 msgstr ""
 "Nastavte na zapnuto, aby se povolilo indexování složek, do kterých jsou "
 "připojena výměnná média."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:29
-#| msgid "Enable when running on _battery"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
 msgid "Set to true to index while running on battery"
 msgstr "Nastavte na zapnuto, aby se indexovalo i při běhu na baterie"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:30
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
 msgid "Set to true to index while running on battery for the first time only"
 msgstr ""
 "Nastavte na zapnuto, aby se indexovalo i při běhu na baterie, ale jen na úvod"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:31
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
 msgid ""
 "Threshold in days after which files from removables devices will be removed "
 "from database if not mounted. 0 means never, maximum is 365."
@@ -253,8 +337,7 @@ msgstr ""
 "odstraněny z databáze, za předpokladu, že toto médium není připojeno. 0 "
 "znamená nikdy, maximum je 365."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:32
-#| msgid "Title"
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
 msgid "Throttle"
 msgstr "Přiškrcení"
 
@@ -264,7 +347,7 @@ msgstr "Zpracování obrázků a alb na serveru Flicker"
 
 #: ../data/tracker-miner-flickr.desktop.in.in.h:2
 msgid "Tracker Miner for Flickr"
-msgstr "Démon na získávání data ze služby Flicker"
+msgstr "Démon Tracker na dolování dat ze služby Flicker"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:1
 msgid "Crawls and processes files on the file system"
@@ -272,7 +355,7 @@ msgstr "Prochází a zpracovává soubory v souborovém systému"
 
 #: ../data/tracker-miner-fs.desktop.in.in.h:2
 msgid "Tracker File System Miner"
-msgstr "Démon na získávání dat souborového systému vyhledávače Tracker"
+msgstr "Démon Tracker na dolování dat ze souborového systému"
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:1
 msgid "Fetch RSS/ATOM feeds"
@@ -280,7 +363,7 @@ msgstr "Stáhnout kanály RSS/ATOM"
 
 #: ../data/tracker-miner-rss.desktop.in.in.h:2
 msgid "Tracker RSS/ATOM Feeds Miner"
-msgstr "Démon na získávání dat z kanálů RSS/ATOM"
+msgstr "Démon Tracker na dolování dat z kanálů RSS/ATOM"
 
 #: ../data/tracker-store.desktop.in.in.h:1
 msgid "Metadata database store and lookup manager"
@@ -394,19 +477,19 @@ msgstr[0] " %2.2d sekunda"
 msgstr[1] " %2.2d sekundy"
 msgstr[2] " %2.2d sekund"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:754
+#: ../src/libtracker-miner/tracker-miner-object.c:758
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Pozastavit aplikaci a odůvodnit shodu s již existujícím požadavkem na "
 "pozastavení"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:840
+#: ../src/libtracker-miner/tracker-miner-object.c:844
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
-"Cookie pozastaveného nástroje získávání dat nutná k obnovení běhu nebyla "
+"Cookie pozastaveného nástroje dolování dat nutná k obnovení běhu nebyla "
 "rozpoznána"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1225
+#: ../src/libtracker-miner/tracker-miner-object.c:1229
 msgid "Data store is not available"
 msgstr "Datové úložiště není dostupné"
 
@@ -418,8 +501,8 @@ msgstr "Vkládá data do vyhledávače Tracker, aby se na ně bylo možno dotazo
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2332
-#: ../src/tracker-control/tracker-control-status.c:56
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2389
+#: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Zpracovává se…"
 
@@ -451,7 +534,7 @@ msgstr ""
 msgid "File to extract metadata for"
 msgstr "Soubor, pro který se mají rozbalit metadata"
 
-#: ../src/tracker-extract/tracker-main.c:89 ../src/miners/fs/tracker-main.c:89
+#: ../src/tracker-extract/tracker-main.c:89 ../src/miners/fs/tracker-main.c:94
 #: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
@@ -491,7 +574,7 @@ msgstr "MODUL"
 
 #. Daemon options
 #: ../src/tracker-extract/tracker-main.c:110
-#: ../src/miners/fs/tracker-main.c:92
+#: ../src/miners/fs/tracker-main.c:97
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -514,7 +597,7 @@ msgstr ""
 "Přepínače  --force-internal-extractors a --force-module nelze použít "
 "dohromady"
 
-#: ../src/miners/fs/tracker-main.c:78 ../src/miners/rss/tracker-main.c:37
+#: ../src/miners/fs/tracker-main.c:79 ../src/miners/rss/tracker-main.c:37
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
@@ -522,100 +605,105 @@ msgstr ""
 "Evidování, 0 = pouze chyby, 1 = minimální, 2 = podrobné a 3 = ladění "
 "(výchozí je 0)"
 
-#: ../src/miners/fs/tracker-main.c:83
+#: ../src/miners/fs/tracker-main.c:84
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "Počáteční doba uspání v sekundách, 0->1000 (výchozí je 15)"
 
-#: ../src/miners/fs/tracker-main.c:88
-msgid "Checks if FILE is eligible for being mined based on configuration"
-msgstr "Kontrola, zda je SOUBOR způsobilý k získávání dat podle nastavení"
+#: ../src/miners/fs/tracker-main.c:89
+msgid "Runs until all configured locations are indexed and then exits"
+msgstr ""
+"Běžet, dokud nejsou oindexována všechna nastavená umístění, a po té skončit"
 
-#: ../src/miners/fs/tracker-main.c:400
+#: ../src/miners/fs/tracker-main.c:93
+msgid "Checks if FILE is eligible for being mined based on configuration"
+msgstr "Kontrola, zda je SOUBOR způsobilý k dolování dat podle nastavení"
+
+#: ../src/miners/fs/tracker-main.c:412
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Datový objekt „%s“ v současnosti existuje"
 
-#: ../src/miners/fs/tracker-main.c:401
+#: ../src/miners/fs/tracker-main.c:413
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Datový objekt „%s“ v současnosti neexistuje"
 
-#: ../src/miners/fs/tracker-main.c:416
+#: ../src/miners/fs/tracker-main.c:428
 msgid "Directory is eligible to be mined (based on rules)"
-msgstr "Adresář je způsobilý k získávání dat (podle pravidel)"
+msgstr "Složka je způsobilá k dolování dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:417
+#: ../src/miners/fs/tracker-main.c:429
 msgid "Directory is NOT eligible to be mined (based on rules)"
-msgstr "Adresář NENÍ způsobilý k získávání dat (podle pravidel)"
+msgstr "Složka NENÍ způsobilá k dolování dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:437
+#: ../src/miners/fs/tracker-main.c:449
 msgid "Directory is eligible to be mined (based on contents)"
-msgstr "Adresář je způsobilý k získávání dat (podle obsahu)"
+msgstr "Složka je způsobilá k dolování dat (podle obsahu)"
 
-#: ../src/miners/fs/tracker-main.c:438
+#: ../src/miners/fs/tracker-main.c:450
 msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr "Adresář NENÍ způsobilý k získávání dat (podle obsahu)"
+msgstr "Složka NENÍ způsobilá k dolování dat (podle obsahu)"
 
-#: ../src/miners/fs/tracker-main.c:485
+#: ../src/miners/fs/tracker-main.c:497
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Adresář je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:486
+#: ../src/miners/fs/tracker-main.c:498
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Adresář NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:490
+#: ../src/miners/fs/tracker-main.c:502
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Soubor je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:491
+#: ../src/miners/fs/tracker-main.c:503
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Soubor NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:495
+#: ../src/miners/fs/tracker-main.c:507
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "Soubor nebo adresář je způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:496
+#: ../src/miners/fs/tracker-main.c:508
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "Soubor nebo adresář NENÍ způsobilý ke sledování (podle nastavení)"
 
-#: ../src/miners/fs/tracker-main.c:511
+#: ../src/miners/fs/tracker-main.c:523
 msgid "File is eligible to be mined (based on rules)"
-msgstr "Soubor je způsobilý k získávání dat (podle pravidel)"
+msgstr "Soubor je způsobilý k dolování dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:512
+#: ../src/miners/fs/tracker-main.c:524
 msgid "File is NOT eligible to be mined (based on rules)"
-msgstr "Soubor NENÍ způsobilý k získávání dat (podle pravidel)"
+msgstr "Soubor NENÍ způsobilý k dolování dat (podle pravidel)"
 
-#: ../src/miners/fs/tracker-main.c:521
+#: ../src/miners/fs/tracker-main.c:533
 msgid "Would be indexed"
 msgstr "Byl by indexován"
 
-#: ../src/miners/fs/tracker-main.c:522 ../src/miners/fs/tracker-main.c:524
+#: ../src/miners/fs/tracker-main.c:534 ../src/miners/fs/tracker-main.c:536
 msgid "Yes"
 msgstr "Ano"
 
-#: ../src/miners/fs/tracker-main.c:522 ../src/miners/fs/tracker-main.c:524
+#: ../src/miners/fs/tracker-main.c:534 ../src/miners/fs/tracker-main.c:536
 msgid "No"
 msgstr "Ne"
 
-#: ../src/miners/fs/tracker-main.c:523
+#: ../src/miners/fs/tracker-main.c:535
 msgid "Would be monitored"
 msgstr "Byl by sledován"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:567
+#: ../src/miners/fs/tracker-main.c:579
 msgid "- start the tracker indexer"
 msgstr "- spustí indexovač tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1328
+#: ../src/miners/fs/tracker-miner-files.c:1330
 msgid "Low battery"
 msgstr "Nízká úroveň nabití baterie"
 
-#: ../src/miners/fs/tracker-miner-files.c:1451
+#: ../src/miners/fs/tracker-miner-files.c:1453
 msgid "Low disk space"
 msgstr "Málo místa na disku"
 
@@ -642,7 +730,7 @@ msgid "Directory"
 msgstr "Složka"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:121
-#: ../src/tracker-needle/tracker-view.vala:139
+#: ../src/tracker-needle/tracker-view.vala:164
 msgid "File"
 msgstr "Soubor"
 
@@ -675,7 +763,7 @@ msgid "Select directory"
 msgstr "Vyberte složku"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:497
-#: ../src/tracker-needle/tracker-needle.vala:669
+#: ../src/tracker-needle/tracker-needle.vala:545
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
@@ -687,7 +775,6 @@ msgid "Print version"
 msgstr "Vypsat verzi"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:503
-#| msgid "Desktop Search"
 msgid "Desktop Search preferences"
 msgstr "Předvolby prohledávání pracovního prostředí"
 
@@ -847,33 +934,16 @@ msgstr ""
 "Nalézt to, co hledáte, na tomto počítači podle názvu nebo obsahu pomocí "
 "vyhledávače Tracker"
 
-#: ../src/tracker-needle/tracker-needle.vala:676
-#: ../src/tracker-needle/tracker-needle.vala:677
+#: ../src/tracker-needle/tracker-needle.vala:552
+#: ../src/tracker-needle/tracker-needle.vala:553
 msgid "[SEARCH-CRITERIA]"
 msgstr "[PODMÍNKY-HLEDÁNÍ]"
 
-#: ../src/tracker-needle/tracker-needle.vala:682
+#: ../src/tracker-needle/tracker-needle.vala:558
 msgid "Desktop Search user interface using Tracker"
 msgstr ""
 "Uživatelské rozhraní pro vyhledávání v pracovním prostředí využívající "
 "Tracker"
-
-#: ../src/tracker-needle/tracker-query.vala:71
-msgid "Unknown"
-msgstr "Neznámý"
-
-#. fn:concat(nco:pageCount(?urn), \" pages\")
-#: ../src/tracker-needle/tracker-query.vala:169
-msgid "Pages"
-msgstr "Stránek"
-
-#: ../src/tracker-needle/tracker-query.vala:196
-msgid "No Subject"
-msgstr "Bez předmětu"
-
-#: ../src/tracker-needle/tracker-query.vala:197
-msgid "To"
-msgstr "Komu"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
 #: ../src/tracker-needle/tracker-utils.vala:61
@@ -898,31 +968,69 @@ msgstr[2] "před %ld dny"
 msgid "Less than one second"
 msgstr "méně než jedna sekunda"
 
-#: ../src/tracker-needle/tracker-view.vala:72
+#: ../src/tracker-needle/tracker-view.vala:97
 msgid "No Search Results"
 msgstr "Žádné výsledky hledání"
 
-#: ../src/tracker-needle/tracker-view.vala:151
+#: ../src/tracker-needle/tracker-view.vala:176
 msgid "Last Changed"
 msgstr "Naposledy změněno"
 
-#: ../src/tracker-needle/tracker-view.vala:159
-#: ../src/tracker-needle/tracker-view.vala:211
+#: ../src/tracker-needle/tracker-view.vala:185
 msgid "Size"
 msgstr "Velikost"
 
-#: ../src/tracker-needle/tracker-view.vala:191
-msgid "Item"
-msgstr "Položka"
+#: ../src/tracker-needle/tracker-view.vala:314
+msgid "Music"
+msgstr "Hudba"
+
+#: ../src/tracker-needle/tracker-view.vala:317
+#: ../src/tracker-search-bar/tracker-results-window.c:723
+msgid "Images"
+msgstr "Obrázky"
+
+#: ../src/tracker-needle/tracker-view.vala:320
+#: ../src/tracker-search-bar/tracker-results-window.c:727
+msgid "Videos"
+msgstr "Videa"
+
+#: ../src/tracker-needle/tracker-view.vala:323
+#: ../src/tracker-search-bar/tracker-results-window.c:721
+msgid "Documents"
+msgstr "Dokumenty"
+
+#: ../src/tracker-needle/tracker-view.vala:326
+#| msgid "Emails"
+msgid "Mail"
+msgstr "Pošta"
+
+#: ../src/tracker-needle/tracker-view.vala:329
+#: ../src/tracker-search-bar/tracker-results-window.c:725
+msgid "Folders"
+msgstr "Složky"
+
+#: ../src/tracker-needle/tracker-view.vala:333
+#| msgid "Item"
+msgid "Items"
+msgstr "Položky"
+
+#: ../src/tracker-needle/tracker-view.vala:345
+#, c-format
+msgid "Loading..."
+msgstr "Načítá se…"
+
+#: ../src/tracker-needle/tracker-view.vala:410
+msgid "Pages"
+msgstr "Stránek"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
+msgid "Display found images"
+msgstr "Zobrazit nalezené obrázky"
+
+#: ../src/tracker-needle/tracker-needle.ui.h:3
 msgid ""
 "Display results by category, for example, Music, Videos, Applications, etc."
 msgstr "Zobrazit výsledky podle kategorie, např. hudba, videa, aplikace atd."
-
-#: ../src/tracker-needle/tracker-needle.ui.h:3
-msgid "Display results by files found in a grid view"
-msgstr "Zobrazit výsledky v zobrazovací mřížce podle nalezených souborů"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:4
 msgid "Display results by files found in a list"
@@ -954,29 +1062,13 @@ msgstr "Kontakty"
 msgid "Email Addresses"
 msgstr "E-mailové adresy"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:721
-msgid "Documents"
-msgstr "Dokumenty"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:723
-msgid "Images"
-msgstr "Obrázky"
-
 #: ../src/tracker-search-bar/tracker-results-window.c:724
 msgid "Audio"
 msgstr "Zvuk"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:725
-msgid "Folders"
-msgstr "Složky"
-
 #: ../src/tracker-search-bar/tracker-results-window.c:726
 msgid "Fonts"
 msgstr "Písma"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:727
-msgid "Videos"
-msgstr "Videa"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:728
 msgid "Archives"
@@ -1059,7 +1151,7 @@ msgstr "Umožnit v databázi pouze akce založené na čtení"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:189
+#: ../src/tracker-store/tracker-main.vala:172
 msgid "- start the tracker daemon"
 msgstr "- spustí démona prohledávače Tracker"
 
@@ -1085,10 +1177,6 @@ msgstr "Přepínače stavu a přepínače démona nelze použít dohromady"
 msgid "Unrecognized options"
 msgstr "Nerozpoznaný přepínač"
 
-#: ../src/tracker-control/tracker-control.c:143
-msgid "No options specified"
-msgstr "Nebyl zadán žádný přepínač"
-
 #: ../src/tracker-control/tracker-control-general.c:72
 msgid "List all Tracker processes"
 msgstr "Vypsat všechny procesy náležející aplikaci Tracker"
@@ -1112,7 +1200,7 @@ msgid ""
 "\"all\" may be used, no parameter equals \"all\""
 msgstr ""
 "Použít SIGTERM k zastavení všech odpovídajících procesů. Zadat můžete buď "
-"„store“ (ukládání dat), „miners“ (získávání dat) nebo „all“ (všechny), když "
+"„store“ (ukládání dat), „miners“ (dolování dat) nebo „all“ (všechny), když "
 "nezadáte nic, použije se „all“"
 
 #: ../src/tracker-control/tracker-control-general.c:80
@@ -1134,25 +1222,24 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-general.c:89
 msgid "Starts miners (which indirectly starts tracker-store too)"
-msgstr ""
-"Spouští démona na získávání dat (což také nepřímo spustí tracker-store)"
+msgstr "Spouští démona na dolování dat (což také nepřímo spustí tracker-store)"
 
 #: ../src/tracker-control/tracker-control-general.c:111
 msgid "Could not open /proc"
 msgstr "Nelze otevřít /proc"
 
 #: ../src/tracker-control/tracker-control-general.c:112
-#: ../src/tracker-control/tracker-control-general.c:297
-#: ../src/tracker-control/tracker-control-general.c:337
-#: ../src/tracker-control/tracker-control-general.c:358
+#: ../src/tracker-control/tracker-control-general.c:306
+#: ../src/tracker-control/tracker-control-general.c:346
+#: ../src/tracker-control/tracker-control-general.c:367
 msgid "no error given"
 msgstr "neobdržena žádná chyba"
 
-#: ../src/tracker-control/tracker-control-general.c:251
+#: ../src/tracker-control/tracker-control-general.c:260
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Přepínače --kill a --terminate nemůžete použít dohromady"
 
-#: ../src/tracker-control/tracker-control-general.c:257
+#: ../src/tracker-control/tracker-control-general.c:266
 msgid ""
 "You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
 "implied"
@@ -1160,61 +1247,61 @@ msgstr ""
 "Přepínač --terminate nemůžete použít s --hard-reset nebo --soft-reset, "
 "předpokládá se --kill"
 
-#: ../src/tracker-control/tracker-control-general.c:263
+#: ../src/tracker-control/tracker-control-general.c:272
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Přepínače --hard-reset a --soft-reset nemůžete použít dohromady"
 
-#: ../src/tracker-control/tracker-control-general.c:294
+#: ../src/tracker-control/tracker-control-general.c:303
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Nelze otevřít „%s“"
 
-#: ../src/tracker-control/tracker-control-general.c:319
+#: ../src/tracker-control/tracker-control-general.c:328
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Nalezen proces s ID %d pro „%s“"
 
-#: ../src/tracker-control/tracker-control-general.c:334
+#: ../src/tracker-control/tracker-control-general.c:343
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Nelze ukončit proces %d"
 
-#: ../src/tracker-control/tracker-control-general.c:340
+#: ../src/tracker-control/tracker-control-general.c:349
 #, c-format
 msgid "Terminated process %d"
 msgstr "Proces %d byl ukončen"
 
-#: ../src/tracker-control/tracker-control-general.c:355
+#: ../src/tracker-control/tracker-control-general.c:364
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Nelze zabít proces %d"
 
-#: ../src/tracker-control/tracker-control-general.c:361
+#: ../src/tracker-control/tracker-control-general.c:370
 #, c-format
 msgid "Killed process %d"
 msgstr "Proces %d byl zabit"
 
-#: ../src/tracker-control/tracker-control-general.c:478
+#: ../src/tracker-control/tracker-control-general.c:488
 msgid "Removing configuration files…"
 msgstr "Odstraňují se soubory s nastavením…"
 
-#: ../src/tracker-control/tracker-control-general.c:492
+#: ../src/tracker-control/tracker-control-general.c:502
 msgid "Waiting one second before starting miners…"
-msgstr "Chvilku se čeká, než se spustí démoni na získávání dat…"
+msgstr "Chvilku se čeká, než se spustí démoni na dolování dat…"
 
-#: ../src/tracker-control/tracker-control-general.c:498
+#: ../src/tracker-control/tracker-control-general.c:508
 msgid "Starting miners…"
-msgstr "Spouští se démoni na získávání dat…"
+msgstr "Spouští se démoni na dolování dat…"
 
-#: ../src/tracker-control/tracker-control-general.c:516
+#: ../src/tracker-control/tracker-control-general.c:526
 msgid "perhaps a disabled plugin?"
 msgstr "není vypnutý zásuvný modul?"
 
-#: ../src/tracker-control/tracker-control-general.c:539
+#: ../src/tracker-control/tracker-control-general.c:549
 msgid "General options"
 msgstr "Obecné přepínače"
 
-#: ../src/tracker-control/tracker-control-general.c:540
+#: ../src/tracker-control/tracker-control-general.c:550
 msgid "Show general options"
 msgstr "Zobrazí obecné přepínače"
 
@@ -1232,7 +1319,7 @@ msgstr "Říci démonům, aby (pře)indexovali zadaný soubor"
 
 #: ../src/tracker-control/tracker-control-miners.c:60
 msgid "Pause a miner (you must use this with --miner)"
-msgstr "Pozastavit získávání dat (musíte použít spolu s --miner)"
+msgstr "Pozastavit dolování dat (musíte použít spolu s --miner)"
 
 #: ../src/tracker-control/tracker-control-miners.c:61
 msgid "REASON"
@@ -1240,7 +1327,7 @@ msgstr "DŮVOD"
 
 #: ../src/tracker-control/tracker-control-miners.c:64
 msgid "Resume a miner (you must use this with --miner)"
-msgstr "Obnovit běh démona na získávání dat (musíte použít spolu s --miner)"
+msgstr "Obnovit běh démona na dolování dat (musíte použít spolu s --miner)"
 
 #: ../src/tracker-control/tracker-control-miners.c:65
 msgid "COOKIE"
@@ -1256,15 +1343,15 @@ msgstr ""
 
 #: ../src/tracker-control/tracker-control-miners.c:69
 msgid "MINER"
-msgstr "DÉMON NA ZÍSKÁVÁNÍ DAT"
+msgstr "DÉMON NA DOLOVÁNÍ DAT"
 
 #: ../src/tracker-control/tracker-control-miners.c:72
 msgid "List all miners currently running"
-msgstr "Vypsat seznam všech právě bežících démonů na získávání dat"
+msgstr "Vypsat seznam všech právě bežících démonů na dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:76
 msgid "List all miners installed"
-msgstr "Vypsat seznam všech nainstalovaných démonů na získávání dat"
+msgstr "Vypsat seznam všech nainstalovaných démonů na dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:80
 msgid "List pause reasons"
@@ -1273,12 +1360,12 @@ msgstr "Vypsat důvody pozastavení"
 #: ../src/tracker-control/tracker-control-miners.c:101
 #, c-format
 msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr "Zkouší se pozastavit démona na získávání dat „%s“ z důvodu „%s“"
+msgstr "Zkouší se pozastavit démona na dolování dat „%s“ z důvodu „%s“"
 
 #: ../src/tracker-control/tracker-control-miners.c:108
 #, c-format
 msgid "Could not pause miner: %s"
-msgstr "Nelze pozastavit démona na získávání dat: %s"
+msgstr "Nelze pozastavit démona na dolování dat: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:113
 #, c-format
@@ -1288,12 +1375,12 @@ msgstr "Cookie je %d"
 #: ../src/tracker-control/tracker-control-miners.c:129
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
-msgstr "Zkouší se obnovit běh démona na získávání dat %s s cookie %d"
+msgstr "Zkouší se obnovit běh démona na dolování dat %s s cookie %d"
 
 #: ../src/tracker-control/tracker-control-miners.c:136
 #, c-format
 msgid "Could not resume miner: %s"
-msgstr "Nelze obnovit běh démona na získávání dat: %s"
+msgstr "Nelze obnovit běh démona na dolování dat: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:140
 #: ../src/tracker-utils/tracker-import.c:142
@@ -1321,32 +1408,32 @@ msgstr "(Pře)indexování souboru bylo úspěšné"
 #: ../src/tracker-control/tracker-control-miners.c:289
 #, c-format
 msgid "Could not contact the miner manager"
-msgstr "Nelze kontaktovat démona na získávání dat"
+msgstr "Nelze kontaktovat démona na dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:217
 #, c-format
 msgid "Found %d miners installed"
-msgstr "Nalezeno %d nainstalovaných démonů na získávání dat"
+msgstr "Nalezeno %d nainstalovaných démonů na dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:237
 #, c-format
 msgid "Found %d miners running"
-msgstr "Nalezeno %d běžících démonů na získávání dat"
+msgstr "Nalezeno %d běžících démonů na dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:268
-#: ../src/tracker-control/tracker-control-status.c:145
+#: ../src/tracker-control/tracker-control-status.c:137
 #, c-format
 msgid "Could not get status from miner: %s"
-msgstr "Nelze získat udaje o stavu od démona na získávání dat: %s"
+msgstr "Nelze získat udaje o stavu od démona na dolování dat: %s"
 
 #: ../src/tracker-control/tracker-control-miners.c:296
 msgid "No miners are running"
-msgstr "Neběží žádný démon na získávání dat"
+msgstr "Neběží žádný démon na dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:333
-#: ../src/tracker-control/tracker-control-status.c:513
+#: ../src/tracker-control/tracker-control-status.c:524
 msgid "Miners"
-msgstr "Démoni na získávání dat"
+msgstr "Démoni na dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:340
 msgid "Application"
@@ -1358,101 +1445,101 @@ msgstr "Důvod"
 
 #: ../src/tracker-control/tracker-control-miners.c:351
 msgid "No miners are paused"
-msgstr "Není pozastavený žádný démon na získávání dat"
+msgstr "Není pozastavený žádný démon na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:369
+#: ../src/tracker-control/tracker-control-miners.c:375
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Nemůžete naráz uvést přepínač pro pozastavení i obnovení běhu démona na "
-"získávání dat"
-
-#: ../src/tracker-control/tracker-control-miners.c:375
-msgid "You must provide the miner for pause or resume commands"
-msgstr ""
-"Pro příkaz pozastavení nebo obnovení běhu musíte uvést démona na získávání "
-"dat"
+"dolování dat"
 
 #: ../src/tracker-control/tracker-control-miners.c:381
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+"Pro příkaz pozastavení nebo obnovení běhu musíte uvést démona na dolování dat"
+
+#: ../src/tracker-control/tracker-control-miners.c:387
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
 "Musíte zadat příkaz pozastavení nebo pokračování pro démona na získávání dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:425
+#: ../src/tracker-control/tracker-control-miners.c:431
 msgid "Miner options"
 msgstr "Přepínače démona na získávání dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:426
+#: ../src/tracker-control/tracker-control-miners.c:432
 msgid "Show miner options"
 msgstr "Zobrazí přepínače démonů na získávání dat"
 
-#: ../src/tracker-control/tracker-control-status.c:55
+#: ../src/tracker-control/tracker-control-status.c:50
+#: ../src/tracker-control/tracker-control-status.c:269
+msgid "Unavailable"
+msgstr "Nedostupný"
+
+#. generic
+#: ../src/tracker-control/tracker-control-status.c:51
 msgid "Initializing"
 msgstr "Inicializuje se"
 
-#: ../src/tracker-control/tracker-control-status.c:57
+#: ../src/tracker-control/tracker-control-status.c:53
 msgid "Fetching…"
 msgstr "Získává se…"
 
 #. miner/rss
-#: ../src/tracker-control/tracker-control-status.c:58
+#: ../src/tracker-control/tracker-control-status.c:54
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Prochází se samostatná složka „%s“"
 
-#: ../src/tracker-control/tracker-control-status.c:59
+#: ../src/tracker-control/tracker-control-status.c:55
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Prochází se rekurzivně složka „%s“"
 
-#: ../src/tracker-control/tracker-control-status.c:60
+#: ../src/tracker-control/tracker-control-status.c:56
 msgid "Paused"
 msgstr "Pozastaveno"
 
-#: ../src/tracker-control/tracker-control-status.c:61
+#: ../src/tracker-control/tracker-control-status.c:57
 msgid "Idle"
 msgstr "Nečinný"
 
-#: ../src/tracker-control/tracker-control-status.c:66
+#: ../src/tracker-control/tracker-control-status.c:62
 msgid "Show current status"
 msgstr "Zobrazit aktuální stav"
 
-#: ../src/tracker-control/tracker-control-status.c:70
+#: ../src/tracker-control/tracker-control-status.c:66
 msgid "Follow status changes as they happen"
 msgstr "Zabývat se změnami stavů, jakmile nastanou"
 
-#: ../src/tracker-control/tracker-control-status.c:74
-msgid "Include details with state updates (only applies to --follow)"
-msgstr ""
-"Zahrnout podrobnosti se stavem aktualizací (použije se pouze pro --follow)"
-
-#: ../src/tracker-control/tracker-control-status.c:78
+#: ../src/tracker-control/tracker-control-status.c:70
 msgid "List common statuses for miners and the store"
-msgstr "Vypsat běžné stavy pro démony na získávání dat z aplikací a úložiště"
+msgstr "Vypsat běžné stavy démonů na dolování dat a úložišť"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:203
-#: ../src/tracker-control/tracker-control-status.c:497
+#: ../src/tracker-control/tracker-control-status.c:191
+#: ../src/tracker-control/tracker-control-status.c:508
 msgid "PAUSED"
 msgstr "POZASTAVENO"
 
-#: ../src/tracker-control/tracker-control-status.c:217
+#: ../src/tracker-control/tracker-control-status.c:205
 msgid "Not running or is a disabled plugin"
 msgstr "Neběží nebo je vypnutý zásuvný modul"
 
-#: ../src/tracker-control/tracker-control-status.c:486
+#: ../src/tracker-control/tracker-control-status.c:482
 msgid "Common statuses include"
 msgstr "Běžné stavy zahrnují"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:507
+#: ../src/tracker-control/tracker-control-status.c:518
 msgid "Store"
 msgstr "Úložište"
 
-#: ../src/tracker-control/tracker-control-status.c:620
+#: ../src/tracker-control/tracker-control-status.c:631
 msgid "Status options"
 msgstr "Přepínače stavu"
 
-#: ../src/tracker-control/tracker-control-status.c:621
+#: ../src/tracker-control/tracker-control-status.c:632
 msgid "Show status options"
 msgstr "Zobrazí přepínače stavu"
 
@@ -2144,6 +2231,25 @@ msgstr "Selhala inicializace správce dat"
 msgid "Empty result set"
 msgstr "Prázdná sada výsledků"
 
+#~ msgid "Unknown"
+#~ msgstr "Neznámý"
+
+#~ msgid "No Subject"
+#~ msgstr "Bez předmětu"
+
+#~ msgid "To"
+#~ msgstr "Komu"
+
+#~ msgid "Display results by files found in a grid view"
+#~ msgstr "Zobrazit výsledky v zobrazovací mřížce podle nalezených souborů"
+
+#~ msgid "No options specified"
+#~ msgstr "Nebyl zadán žádný přepínač"
+
+#~ msgid "Include details with state updates (only applies to --follow)"
+#~ msgstr ""
+#~ "Zahrnout podrobnosti se stavem aktualizací (použije se pouze pro --follow)"
+
 #~ msgid "Tracker Status Icon"
 #~ msgstr "Stavová ikona prohledávače Tracker"
 
@@ -2247,9 +2353,6 @@ msgstr "Prázdná sada výsledků"
 
 #~ msgid "All Files"
 #~ msgstr "Všechny soubory"
-
-#~ msgid "Music"
-#~ msgstr "Hudba"
 
 #~ msgid "Clear the search text"
 #~ msgstr "Smazat hledaný text"
