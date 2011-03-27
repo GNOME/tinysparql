@@ -449,7 +449,7 @@ handle_get_property (GDBusConnection  *connection,
 	priv = TRACKER_MINER_WEB_GET_PRIVATE (miner);
 
 	if (g_strcmp0 (property_name, "Associated") == 0) {
-		ret = g_variant_new ("(b)", priv->associated);
+		ret = g_variant_new ("b", priv->associated);
 	} else {
 		g_assert_not_reached ();
 	}
