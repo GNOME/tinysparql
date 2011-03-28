@@ -411,9 +411,15 @@ class Tracker.Sparql.Expression : Object {
 			sql.append (" AS REAL)");
 
 			return PropertyType.DOUBLE;
-		} else if (uri == FN_NS + "lower-case") {
+		} else if (uri == TRACKER_NS + "ascii-lower-case") {
 			// conversion to string
 			sql.append ("lower (");
+			translate_expression_as_string (sql);
+			sql.append (")");
+			return PropertyType.STRING;
+		} else if (uri == FN_NS + "lower-case") {
+			// conversion to string
+			sql.append ("SparqlLowerCase (");
 			translate_expression_as_string (sql);
 			sql.append (")");
 			return PropertyType.STRING;

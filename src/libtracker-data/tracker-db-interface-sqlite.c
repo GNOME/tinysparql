@@ -34,6 +34,18 @@
 #include <libtracker-fts/tracker-fts.h>
 #endif
 
+#ifdef HAVE_LIBUNISTRING
+/* libunistring versions prior to 9.1.2 need this hack */
+#define _UNUSED_PARAMETER_
+#include <unistr.h>
+#include <unicase.h>
+#elif HAVE_LIBICU
+#include <unicode/utypes.h>
+#include <unicode/uregex.h>
+#include <unicode/ustring.h>
+#include <unicode/ucol.h>
+#endif
+
 #include "tracker-collation.h"
 
 #include "tracker-db-interface-sqlite.h"
@@ -521,6 +533,115 @@ function_sparql_regex (sqlite3_context *context,
 	sqlite3_result_int (context, ret);
 }
 
+#ifdef HAVE_LIBUNISTRING
+
+static void
+function_sparql_lower_case (sqlite3_context *context,
+                            int              argc,
+                            sqlite3_value   *argv[])
+{
+	const uint16_t *zInput;
+	uint16_t *zOutput;
+	size_t written = 0;
+	int nInput;
+	int nOutput;
+
+	g_assert (argc == 1);
+
+	zInput = sqlite3_value_text16 (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes16 (argv[0]);
+
+	zOutput = u16_tolower (zInput, nInput/2, NULL, NULL, NULL, &written);
+
+	sqlite3_result_text16 (context, zOutput, -1, free);
+}
+
+#elif HAVE_LIBICU
+
+static void
+function_sparql_lower_case (sqlite3_context *context,
+                            int              argc,
+                            sqlite3_value   *argv[])
+{
+	const UChar *zInput;
+	UChar *zOutput;
+	int nInput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	g_assert (argc == 1);
+
+	zInput = sqlite3_value_text16 (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes16 (argv[0]);
+
+	nOutput = nInput * 2 + 2;
+	zOutput = sqlite3_malloc (nOutput);
+
+	if (!zOutput) {
+		return;
+	}
+
+	u_strToLower (zOutput, nOutput/2, zInput, nInput/2, NULL, &status);
+
+	if (!U_SUCCESS (status)){
+		char zBuf[128];
+		sqlite3_snprintf (128, zBuf, "ICU error: u_strToLower()/u_strToUpper(): %s", u_errorName (status));
+		zBuf[127] = '\0';
+		sqlite3_free (zOutput);
+		sqlite3_result_error (context, zBuf, -1);
+		return;
+	}
+
+	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
+}
+
+#else /* GLib based */
+
+static void
+function_sparql_lower_case (sqlite3_context *context,
+                            int              argc,
+                            sqlite3_value   *argv[])
+{
+	const gchar *zInput;
+	gchar *zOutput;
+	int nInput;
+
+	g_assert (argc == 1);
+
+	/* GLib API works with UTF-8, so use the UTF-8 functions of SQLite too */
+
+	zInput = (const gchar*) sqlite3_value_text (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes (argv[0]);
+
+	if (!zOutput) {
+		return;
+	}
+
+	zOutput = g_utf8_strdown (zInput, nInput);
+
+	/* Unfortunately doesn't the GLib API allow us to pass pre-allocated memory,
+	 * so we can't use sqlite3_malloc and sqlite3_free here */
+
+	sqlite3_result_text (context, zOutput, -1, g_free);
+}
+
+#endif
+
 static inline int
 stmt_step (sqlite3_stmt *stmt)
 {
@@ -633,6 +754,10 @@ open_database (TrackerDBInterface  *db_interface,
 
 	sqlite3_create_function (db_interface->db, "SparqlUriIsDescendant", -1, SQLITE_ANY,
 	                         db_interface, &function_sparql_uri_is_descendant,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlLowerCase", 1, SQLITE_ANY,
+	                         db_interface, &function_sparql_lower_case,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
