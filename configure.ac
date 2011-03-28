@@ -369,19 +369,6 @@ PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
                   [have_tracker_miner_evolution=yes],
                   [have_tracker_miner_evolution=no])
 
-if test "x$have_tracker_miner_evolution" != "xyes"; then
-   evolution_plugin_name="evolution-plugin-3.0"
-
-   TRACKER_MINER_EVOLUTION_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                     evolution-plugin-3.0      >= $EVO_REQUIRED
-                                     evolution-data-server-1.2 >= $EDS_REQUIRED"
-
-   PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_REQUIRED],
-                     [have_tracker_miner_evolution=yes],
-                     [have_tracker_miner_evolution=no])
-
-fi
-
 # Check requirements for tracker-miner-rss
 TRACKER_MINER_RSS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
                             libgrss-0    >= $LIBGRSS_REQUIRED"
