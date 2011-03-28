@@ -209,7 +209,7 @@ SQLITE_REQUIRED=3.7.0
 
 # Needed to generate .gir files,
 # see http://live.gnome.org/GnomeGoals/AddGObjectIntrospectionSupport
-GOBJECT_INTROSPECTION_CHECK([0.6.5])
+GOBJECT_INTROSPECTION_CHECK([0.9.5])
 
 # NOTE: dbus and dbus-glib-1 are only used now for libtracker-client
 # which is deprecated and tracker-writeback which will be refactored
