@@ -952,6 +952,8 @@ class Tracker.Sparql.Expression : Object {
 			switch (type) {
 			case PropertyType.INTEGER:
 			case PropertyType.BOOLEAN:
+			case PropertyType.DOUBLE:
+			case PropertyType.DATETIME:
 				if (query.no_cache) {
 					sql.append (escape_sql_string_literal (literal));
 				} else {
