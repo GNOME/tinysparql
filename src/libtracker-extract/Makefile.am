@@ -63,7 +63,7 @@ INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
 introspection_sources = $(libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES)
 
 TrackerExtract-0.10.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
-TrackerExtract_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 TrackerSparql-0.10
+TrackerExtract_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 Tracker-0.10
 TrackerExtract_0_10_gir_CFLAGS = $(INCLUDES)
 TrackerExtract_0_10_gir_LIBS = $(lib_LTLIBRARIES)
 TrackerExtract_0_10_gir_FILES = $(introspection_sources)
