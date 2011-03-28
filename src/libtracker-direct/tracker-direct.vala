@@ -79,6 +79,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 			IOError io_error = null;
 			DBusError dbus_error = null;
 			Sparql.Cursor result = null;
+			var context = MainContext.get_thread_default ();
 
 			g_io_scheduler_push_job (job => {
 				try {
@@ -90,7 +91,14 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 				} catch (DBusError e_dbus) {
 					dbus_error = e_dbus;
 				}
-				query_async.callback ();
+
+				var source = new IdleSource ();
+				source.set_callback (() => {
+					query_async.callback ();
+					return false;
+				});
+				source.attach (context);
+
 				return false;
 			});
 			yield;
