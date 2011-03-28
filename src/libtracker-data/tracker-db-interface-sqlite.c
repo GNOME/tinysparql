@@ -544,7 +544,6 @@ function_sparql_lower_case (sqlite3_context *context,
 	uint16_t *zOutput;
 	size_t written = 0;
 	int nInput;
-	int nOutput;
 
 	g_assert (argc == 1);
 
@@ -557,6 +556,31 @@ function_sparql_lower_case (sqlite3_context *context,
 	nInput = sqlite3_value_bytes16 (argv[0]);
 
 	zOutput = u16_tolower (zInput, nInput/2, NULL, NULL, NULL, &written);
+
+	sqlite3_result_text16 (context, zOutput, written * 2, free);
+}
+
+static void
+function_sparql_case_fold (sqlite3_context *context,
+                           int              argc,
+                           sqlite3_value   *argv[])
+{
+	const uint16_t *zInput;
+	uint16_t *zOutput;
+	size_t written = 0;
+	int nInput;
+
+	g_assert (argc == 1);
+
+	zInput = sqlite3_value_text16 (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes16 (argv[0]);
+
+	zOutput = u16_casefold (zInput, nInput/2, NULL, NULL, NULL, &written);
 
 	sqlite3_result_text16 (context, zOutput, written * 2, free);
 }
@@ -595,7 +619,7 @@ function_sparql_lower_case (sqlite3_context *context,
 
 	if (!U_SUCCESS (status)){
 		char zBuf[128];
-		sqlite3_snprintf (128, zBuf, "ICU error: u_strToLower()/u_strToUpper(): %s", u_errorName (status));
+		sqlite3_snprintf (128, zBuf, "ICU error: u_strToLower(): %s", u_errorName (status));
 		zBuf[127] = '\0';
 		sqlite3_free (zOutput);
 		sqlite3_result_error (context, zBuf, -1);
@@ -605,6 +629,47 @@ function_sparql_lower_case (sqlite3_context *context,
 	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
 }
 
+static void
+function_sparql_case_fold (sqlite3_context *context,
+                           int              argc,
+                           sqlite3_value   *argv[])
+{
+	const UChar *zInput;
+	UChar *zOutput;
+	int nInput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	g_assert (argc == 1);
+
+	zInput = sqlite3_value_text16 (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes16 (argv[0]);
+
+	nOutput = nInput * 2 + 2;
+	zOutput = sqlite3_malloc (nOutput);
+
+	if (!zOutput) {
+		return;
+	}
+
+	u_strFoldCase (zOutput, nOutput/2, zInput, nInput/2, U_FOLD_CASE_DEFAULT, &status);
+
+	if (!U_SUCCESS (status)){
+		char zBuf[128];
+		sqlite3_snprintf (128, zBuf, "ICU error: u_strFoldCase: %s", u_errorName (status));
+		zBuf[127] = '\0';
+		sqlite3_free (zOutput);
+		sqlite3_result_error (context, zBuf, -1);
+		return;
+	}
+
+	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
+}
 #else /* GLib based */
 
 static void
@@ -634,8 +699,35 @@ function_sparql_lower_case (sqlite3_context *context,
 
 	zOutput = g_utf8_strdown (zInput, nInput);
 
-	/* Unfortunately doesn't the GLib API allow us to pass pre-allocated memory,
-	 * so we can't use sqlite3_malloc and sqlite3_free here */
+	sqlite3_result_text (context, zOutput, -1, g_free);
+}
+
+static void
+function_sparql_case_fold (sqlite3_context *context,
+                           int              argc,
+                           sqlite3_value   *argv[])
+{
+	const gchar *zInput;
+	gchar *zOutput;
+	int nInput;
+
+	g_assert (argc == 1);
+
+	/* GLib API works with UTF-8, so use the UTF-8 functions of SQLite too */
+
+	zInput = (const gchar*) sqlite3_value_text (argv[0]);
+
+	if (!zInput) {
+		return;
+	}
+
+	nInput = sqlite3_value_bytes (argv[0]);
+
+	if (!zOutput) {
+		return;
+	}
+
+	zOutput = g_utf8_casefold (zInput, nInput);
 
 	sqlite3_result_text (context, zOutput, -1, g_free);
 }
@@ -758,6 +850,10 @@ open_database (TrackerDBInterface  *db_interface,
 
 	sqlite3_create_function (db_interface->db, "SparqlLowerCase", 1, SQLITE_ANY,
 	                         db_interface, &function_sparql_lower_case,
+	                         NULL, NULL);
+
+	sqlite3_create_function (db_interface->db, "SparqlCaseFold", 1, SQLITE_ANY,
+	                         db_interface, &function_sparql_case_fold,
 	                         NULL, NULL);
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
