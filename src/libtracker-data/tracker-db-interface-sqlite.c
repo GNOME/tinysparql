@@ -558,7 +558,7 @@ function_sparql_lower_case (sqlite3_context *context,
 
 	zOutput = u16_tolower (zInput, nInput/2, NULL, NULL, NULL, &written);
 
-	sqlite3_result_text16 (context, zOutput, -1, free);
+	sqlite3_result_text16 (context, zOutput, written * 2, free);
 }
 
 #elif HAVE_LIBICU
