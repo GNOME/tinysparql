@@ -11,7 +11,7 @@
 mlo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "mlo" ;
 	nao:deprecated true ;
-	nao:lastModified "2011-01-11T11:10:00Z" .
+	nao:lastModified "2011-03-28T19:32:00Z" .
 
 mlo:GeoLocation a rdfs:Class ;
 	rdfs:label "Location" ;
@@ -261,98 +261,98 @@ mlo:predefined-landmark-category-accommodation a mlo:LandmarkCategory ;
 	nie:description "Hotel, Camping site".
 
 mlo:predefined-landmark-category-business a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Business";
 	nie:identifier "6000";
 	nao:deprecated true ;
 	nie:description "Bank, Factory, Office".
 
 mlo:predefined-landmark-category-communication a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Communication";
 	nie:identifier "9000";
 	nao:deprecated true ;
 	nie:description "Internet Access Point, Public Telephone, Wireless LAN Hot Spot".
 
 mlo:predefined-landmark-category-educational-institute a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Educational institute";
 	nie:identifier "12000";
 	nao:deprecated true ;
 	nie:description "School, College".
 
 mlo:predefined-landmark-category-entertainment a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Entertainment";
 	nie:identifier "15000";
 	nao:deprecated true ;
 	nie:description "Amusement park, Cinema, Concert hall, Night club".
 
 mlo:predefined-landmark-category-food-beverage a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Food & Beverage";
 	nie:identifier "18000";
 	nao:deprecated true ;
 	nie:description "Fast food, Restaurant, Café, Bar".
 
 mlo:predefined-landmark-category-geographical-area a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Geographical area";
 	nie:identifier "21000";
 	nao:deprecated true ;
 	nie:description "City, City center, Town".
 
 mlo:predefined-landmark-category-outdoor-activities a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Outdoor activities";
 	nie:identifier "24000";
 	nao:deprecated true ;
 	nie:description "Camping site, Fishing place, Hunting, National park, Playground".
 
 mlo:predefined-landmark-category-people a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "People";
 	nie:identifier "27000";
 	nao:deprecated true ;
 	nie:description "My home, My friends home, Fathers summer cottage, Childs school".
 
 mlo:predefined-landmark-category-public-service a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Public service";
 	nie:identifier "30000";
 	nao:deprecated true ;
 	nie:description "Tourist information office, Government office, Library, Post office, Hospital, Police ".
 
 mlo:predefined-landmark-category-religious-places a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Religious places";
 	nie:identifier "33000";
 	nao:deprecated true ;
 	nie:description "Church, Mosque".
 
 mlo:predefined-landmark-category-shopping a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Shopping";
 	nie:identifier "36000";
 	nao:deprecated true ;
 	nie:description "Market Place, Pharmacy, Shop, Shopping Center".
 
 mlo:predefined-landmark-category-sightseeing a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Sightseeing";
 	nie:identifier "39000";
 	nao:deprecated true ;
 	nie:description "Monument, Mountain top, Museum".
 
 mlo:predefined-landmark-category-sports a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Sports";
 	nie:identifier "42000";
 	nao:deprecated true ;
 	nie:description "Bowling, Golf course, Ice hockey hall, Stadium".
 
 mlo:predefined-landmark-category-transport a mlo:LandmarkCategory ;
-	mlo:isRemovable False ;
+	mlo:isRemovable false ;
 	nie:title "Transport";
 	nie:identifier "45000";
 	nao:deprecated true ;
