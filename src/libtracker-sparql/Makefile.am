@@ -67,8 +67,12 @@ Tracker-@TRACKER_API_VERSION@.gir: $(lib_LTLIBRARIES) Makefile
 else
 Tracker-@TRACKER_API_VERSION@.gir: $(lib_LTLIBRARIES) Makefile
 	if [[ -z `grep tracker_sparql_escape_uri_vprintf $@ |grep introspectable` ]] ; then \
-	  sed -i $@ -e "s/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"\ introspectable=\"0\"/g" ; \
+	  sed -i $@ -e "s/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"/&\ introspectable=\"0\"/g" ; \
         fi
+	if [[ -z `grep scope $@` ]] ; then \
+	  sed -i $@ -e "s/\"_callback_\"/&\ scope=\"async\"/g" ; \
+        fi
+
 endif
 
 Tracker-@TRACKER_API_VERSION@.typelib: Tracker-$(TRACKER_API_VERSION).gir
