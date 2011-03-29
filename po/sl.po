@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-03-18 14:30+0000\n"
-"PO-Revision-Date: 2011-03-18 21:33+0100\n"
+"POT-Creation-Date: 2011-03-27 13:30+0000\n"
+"PO-Revision-Date: 2011-03-28 08:58+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -24,6 +24,7 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
+#: ../src/tracker-needle/tracker-view.vala:311
 #: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Applications"
 msgstr "Programi"
@@ -65,145 +66,217 @@ msgstr "Pridobi vire RSS/ATOM"
 msgid "RSS/ATOM Feeds"
 msgstr "Viri RSS/ATOM"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:1
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:21
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+msgid "Location of journal pieces"
+msgstr "Mesto delčkov dnevnika"
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+msgid "Maximum size of journal"
+msgstr "Največja velikost dnevnika"
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr "Velikost dnevnika pri vrtenju v MB. Uporabite -1 za onemogočitev vrtenja."
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Kam naj bo shranjen delček dnevnika, ko doseže največjo velikost."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+msgid "Enable stemmer"
+msgstr "Omogoči tvorbo korenov besed"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+msgid "Enable unaccent"
+msgstr "Omogoči odstranjevanje naglasov"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+msgid "If enabled, numbers will not be indexed."
+msgstr "Izbrana možnost določi, da števila ne bodo uporabljena za pripravo kazala."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+msgid "If enabled, the words listed in the stop-words list are ignored. E.g. common words like 'the', 'yes', 'no', etc."
+msgstr "Izbrana možnost določi, da so besede zaustavitve prezrte. To so pogoste besede kot so 'the', 'yes', 'no', itd."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+msgid "Ignore numbers"
+msgstr "Prezri števila"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+msgid "Ignore stop words"
+msgstr "Prezri zaustavitvene besede"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+msgid "Indexer will read only this maximum number of words from a single document."
+msgstr "Pripravljalnik kazala bo prebral le to največje število besed v posameznem dokumentu."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+msgid "Maximum length of a word to be indexed"
+msgstr "Največja dolžina besede za pripravo kazala"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+msgid "Maximum number of words to index in a document"
+msgstr "Največje število besed za pripravo kazala v dokumentu"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+msgid "Minimum length of a word to be indexed"
+msgstr "Najmanjša dolžina besede za pripravo kazala"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+msgid "Simplify the words to their root to provide more results. E.g. 'shelves' and 'shelf' to 'shel'"
+msgstr "Poenostavi besede na njihov koren za zagotavljanje več rezultatov. Na primer 'polica' in 'police' na 'polic'"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+msgid "Translated accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching."
+msgstr "Prevede znake z naglasom v nenaglašene. Na primer 'Idéa' v 'Idea' za izboljšano ujemanje."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:13
+msgid "Words with less characters than this will be ignored by the indexer."
+msgstr "Besede z manj znaki kot je ta dolžina bo pripravljalnik kazala prezrl."
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:14
+msgid "Words with more characters than this length will be ignored by the indexer."
+msgstr "Besede z več znaki kot je ta dolžina bo pripravljalnik kazala prezrl."
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
 msgid "Log verbosity"
 msgstr "Podroben izpis dnevnikov"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:2
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:22
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
 #: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
 #: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
 msgid "Log verbosity."
 msgstr "Podroben izpis dnevnikov."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:3
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
 msgid "Max bytes to extract"
 msgstr "Največje število bajtov za razširjanje"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Extractor.gschema.xml.in.h:4
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
 msgid "Maximum number of UTF-8 bytes to extract."
 msgstr "Največje število bajtov UTF-8 za razširitev."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
 msgid "Avoid any directory containing a file blacklisted here"
 msgstr "Izogni se katerikoli mapi, ki vsebuje datoteko, ki je na tem črnem seznamu"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
 msgid "Crawling interval"
 msgstr "Obdobje kopanja"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:3
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
 msgid "Directories to index non-recursively"
 msgstr "Mape za ne-rekurzivno pripravo kazala"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:4
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
 msgid "Directories to index recursively"
 msgstr "Mape za rekurzivno pripravo kazala"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:5
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
 msgid "Disk space threshold in MB at which to pause indexing, or -1 to disable."
 msgstr "Prag prostora na disku v MB pri katerem je narejen premor priprave kazala ali -1 za onemogočenje."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:6
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
 msgid "Enable monitors"
 msgstr "Omogoči zaslone"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:7
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
 msgid "Ignored directories"
 msgstr "Prezrte mape"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:8
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
 msgid "Ignored directories with content"
 msgstr "Prezrte mape z vsebino"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:9
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
 msgid "Ignored files"
 msgstr "Prezrte datoteke"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:10
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
 msgid "Index optical discs"
 msgstr "Pripravi kazalo optičnih diskov"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:11
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
 msgid "Index removable devices"
 msgstr "Pripravi kazalo odstranljivih naprav"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:12
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
 msgid "Index when running on battery"
 msgstr "Pripravljaj kazalo med delovanjem na bateriji"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:13
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
 msgid "Indexing speed, the higher the slower."
 msgstr "Hitrost priprave kazala. Višja vrednost pomeni nižjo hitrost."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:14
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
 msgid "Initial sleep"
 msgstr "Začetno spanje"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:15
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
 msgid "Initial sleep time, in seconds."
 msgstr "Čas začetnega spanja v sekundah"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:16
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
 msgid "Interval in days to check whether the filesystem is up to date in the database. 0 forces crawling anytime, -1 forces it only after unclean shutdowns, and -2 disables it entirely."
 msgstr "Obdobje v dneh za preverjanje ali je datotečni sistem v podatkovni zbirki posodobljen. 0 prisili kopanja kadarkoli, -1 ga prisili le za nečiste izklope in -2 ga popolnoma onemogoči."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:17
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
 msgid "List of directories to avoid"
 msgstr "Seznam map za izogibanje"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:18
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
 msgid "List of directories to index recursively, Special values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr "Seznam map za rekurzivno pripravo kazala. Posebne vrendosti vključujejo: &amp;NAMIZJE, &amp;DOKUMENTI, &amp;PREJEM, &amp;GLASBA, &amp;SLIKE, &amp;JAVA_SOUPORBA, &amp;PREDLOGE, &amp;VIDEI. Oglejte si /etc/xdg/user-dirs.defaults in $HOME/.config/user-dirs.default"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:19
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
 msgid "List of directories to index without inspecting subfolders, Special values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
 msgstr "Seznam map za pripravo kazala brez pregleda podmap. Posebne vrendosti vključujejo: &amp;NAMIZJE, &amp;DOKUMENTI, &amp;PREJEM, &amp;GLASBA, &amp;SLIKE, &amp;JAVA_SOUPORBA, &amp;PREDLOGE, &amp;VIDEI. Oglejte si /etc/xdg/user-dirs.defaults in $HOME/.config/user-dirs.default"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:20
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
 msgid "List of file patterns to avoid"
 msgstr "Seznam vzorcev datotek za izogibanje"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:23
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
 msgid "Low disk space limit"
 msgstr "Omejitev nizkega prostora na disku"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:24
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
 msgid "Perform initial indexing when running on battery"
 msgstr "Izvedi začetno pripravo kazala pri delovanju na bateriji"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:25
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
 msgid "Removable devices' data permanence threshold"
 msgstr "Prag zmogljivosti delovanja podatkov odstranljivih naprav"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:26
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
 msgid "Set to false to completely disable any file monitoring"
 msgstr "Nastavite na napak za popolno onemogočenje nadziranja datotek"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:27
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
 msgid "Set to true to enable indexing CDs, DVDs, and generally optical media (if removable devices are not indexed, optical discs won't be either)"
 msgstr "Nastavite na prav za pripravo kazala CD-jev, DVD-jev in splošno optičnih medijev (če ni pripravljeno kazalo odstranljivih naprav, tudi optični diski ne bodo uporabljeni)"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:28
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
 msgid "Set to true to enable indexing mounted directories for removable devices."
 msgstr "Nastavite na prav za omogočitev priprave kazala priklopljenih map za odstranljive naprave."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:29
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
 msgid "Set to true to index while running on battery"
 msgstr "Nastavi pripravljanje kazala na prav pri delovanju na bateriji"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:30
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
 msgid "Set to true to index while running on battery for the first time only"
 msgstr "Nastavitev na prav za pripravo kazala na bateriji le prvič"
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:31
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
 msgid "Threshold in days after which files from removables devices will be removed from database if not mounted. 0 means never, maximum is 365."
 msgstr "Prag v dneh po katerih bodo datoteko z odstranljivih naprav odstranjene iz podatkovne zbirke, če niso priklopljene. 0 pomeni nikoli, največ je 365."
 
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.FileSystem.gschema.xml.in.h:32
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
 msgid "Throttle"
 msgstr "Omejitev hitrosti"
 
@@ -368,8 +441,8 @@ msgstr "Potisk podatkov v Tracker omogoči poizvedbo po podatkih. "
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2332
-#: ../src/tracker-control/tracker-control-status.c:56
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2389
+#: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Obdelovanje ..."
 
@@ -587,7 +660,7 @@ msgid "Directory"
 msgstr "Mapa"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:121
-#: ../src/tracker-needle/tracker-view.vala:139
+#: ../src/tracker-needle/tracker-view.vala:164
 msgid "File"
 msgstr "Datoteka"
 
@@ -620,7 +693,7 @@ msgid "Select directory"
 msgstr "Izbor mape"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:497
-#: ../src/tracker-needle/tracker-needle.vala:669
+#: ../src/tracker-needle/tracker-needle.vala:545
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
@@ -785,31 +858,14 @@ msgstr "Namizno iskanje"
 msgid "Find what you're looking for on this computer by name or content using Tracker"
 msgstr "Poiščite kar iščete na tem računalniku po imenu ali vsebini z uporabo Trackerja"
 
-#: ../src/tracker-needle/tracker-needle.vala:676
-#: ../src/tracker-needle/tracker-needle.vala:677
+#: ../src/tracker-needle/tracker-needle.vala:552
+#: ../src/tracker-needle/tracker-needle.vala:553
 msgid "[SEARCH-CRITERIA]"
 msgstr "[ISKALNI-POGOJI]"
 
-#: ../src/tracker-needle/tracker-needle.vala:682
+#: ../src/tracker-needle/tracker-needle.vala:558
 msgid "Desktop Search user interface using Tracker"
 msgstr "Uporabniški vmesnik namiznega iskanja z uporabo Trackerja"
-
-#: ../src/tracker-needle/tracker-query.vala:71
-msgid "Unknown"
-msgstr "Neznano"
-
-#. fn:concat(nco:pageCount(?urn), \" pages\")
-#: ../src/tracker-needle/tracker-query.vala:169
-msgid "Pages"
-msgstr "Strani"
-
-#: ../src/tracker-needle/tracker-query.vala:196
-msgid "No Subject"
-msgstr "Ni naslova"
-
-#: ../src/tracker-needle/tracker-query.vala:197
-msgid "To"
-msgstr "Za"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
 #: ../src/tracker-needle/tracker-utils.vala:61
@@ -836,30 +892,66 @@ msgstr[3] "pred %ld dnevi"
 msgid "Less than one second"
 msgstr "Pred manj kot eno sekundo"
 
-#: ../src/tracker-needle/tracker-view.vala:72
+#: ../src/tracker-needle/tracker-view.vala:97
 msgid "No Search Results"
 msgstr "Iskanje ni vrnilo rezultatov"
 
-#: ../src/tracker-needle/tracker-view.vala:151
+#: ../src/tracker-needle/tracker-view.vala:176
 msgid "Last Changed"
 msgstr "Nazadnje spremenjeno"
 
-#: ../src/tracker-needle/tracker-view.vala:159
-#: ../src/tracker-needle/tracker-view.vala:211
+#: ../src/tracker-needle/tracker-view.vala:185
 msgid "Size"
 msgstr "Velikost"
 
-#: ../src/tracker-needle/tracker-view.vala:191
-msgid "Item"
-msgstr "Predmet"
+#: ../src/tracker-needle/tracker-view.vala:314
+msgid "Music"
+msgstr "Glasba"
+
+#: ../src/tracker-needle/tracker-view.vala:317
+#: ../src/tracker-search-bar/tracker-results-window.c:723
+msgid "Images"
+msgstr "Slike"
+
+#: ../src/tracker-needle/tracker-view.vala:320
+#: ../src/tracker-search-bar/tracker-results-window.c:727
+msgid "Videos"
+msgstr "Posnetki"
+
+#: ../src/tracker-needle/tracker-view.vala:323
+#: ../src/tracker-search-bar/tracker-results-window.c:721
+msgid "Documents"
+msgstr "Dokumenti"
+
+#: ../src/tracker-needle/tracker-view.vala:326
+msgid "Mail"
+msgstr "Pošta"
+
+#: ../src/tracker-needle/tracker-view.vala:329
+#: ../src/tracker-search-bar/tracker-results-window.c:725
+msgid "Folders"
+msgstr "Mape"
+
+#: ../src/tracker-needle/tracker-view.vala:333
+msgid "Items"
+msgstr "Predmeti"
+
+#: ../src/tracker-needle/tracker-view.vala:345
+#, c-format
+msgid "Loading..."
+msgstr "Nalaganje ..."
+
+#: ../src/tracker-needle/tracker-view.vala:410
+msgid "Pages"
+msgstr "Strani"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:2
-msgid "Display results by category, for example, Music, Videos, Applications, etc."
-msgstr "Prikaži rezultate po kategoriji, na primer glasba, videoposnetki, programi, itd."
+msgid "Display found images"
+msgstr "Prikaži najdene slike"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
-msgid "Display results by files found in a grid view"
-msgstr "Prikaže rezultate po datotekah najdene v pogledu mreže"
+msgid "Display results by category, for example, Music, Videos, Applications, etc."
+msgstr "Prikaži rezultate po kategoriji, na primer glasba, videoposnetki, programi, itd."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:4
 msgid "Display results by files found in a list"
@@ -891,29 +983,13 @@ msgstr "Stiki"
 msgid "Email Addresses"
 msgstr "Naslovi elektronske pošte"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:721
-msgid "Documents"
-msgstr "Dokumenti"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:723
-msgid "Images"
-msgstr "Slike"
-
 #: ../src/tracker-search-bar/tracker-results-window.c:724
 msgid "Audio"
 msgstr "Zvok"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:725
-msgid "Folders"
-msgstr "Mape"
-
 #: ../src/tracker-search-bar/tracker-results-window.c:726
 msgid "Fonts"
 msgstr "Pisave"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:727
-msgid "Videos"
-msgstr "Posnetki"
 
 #: ../src/tracker-search-bar/tracker-results-window.c:728
 msgid "Archives"
@@ -1004,10 +1080,6 @@ msgstr "Možnosti stanja in podatkovnega kopalnika ni mogoče uporabljati skupaj
 msgid "Unrecognized options"
 msgstr "Nepoznane možnosti"
 
-#: ../src/tracker-control/tracker-control.c:143
-msgid "No options specified"
-msgstr "Ni določenih možnosti"
-
 #: ../src/tracker-control/tracker-control-general.c:72
 msgid "List all Tracker processes"
 msgstr "Izpiši vsa opravila Tracker"
@@ -1046,75 +1118,75 @@ msgid "Could not open /proc"
 msgstr "Ni mogoče odpreti /proc"
 
 #: ../src/tracker-control/tracker-control-general.c:112
-#: ../src/tracker-control/tracker-control-general.c:297
-#: ../src/tracker-control/tracker-control-general.c:337
-#: ../src/tracker-control/tracker-control-general.c:358
+#: ../src/tracker-control/tracker-control-general.c:306
+#: ../src/tracker-control/tracker-control-general.c:346
+#: ../src/tracker-control/tracker-control-general.c:367
 msgid "no error given"
 msgstr "napaka ni podana"
 
-#: ../src/tracker-control/tracker-control-general.c:251
+#: ../src/tracker-control/tracker-control-general.c:260
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Argumentov --kill in --terminate ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-control/tracker-control-general.c:257
+#: ../src/tracker-control/tracker-control-general.c:266
 msgid "You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"
 msgstr "Argumenta --terminate ni mogoče uporabiti s --hard-reset, --kill je predpostavljen"
 
-#: ../src/tracker-control/tracker-control-general.c:263
+#: ../src/tracker-control/tracker-control-general.c:272
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Argumentov --hard-reset in --soft-reset ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-control/tracker-control-general.c:294
+#: ../src/tracker-control/tracker-control-general.c:303
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Ni mogoče odpreti '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:319
+#: ../src/tracker-control/tracker-control-general.c:328
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Najden je bil ID opravila %d za '%s'"
 
-#: ../src/tracker-control/tracker-control-general.c:334
+#: ../src/tracker-control/tracker-control-general.c:343
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Opravila %d ni mogoče končati"
 
-#: ../src/tracker-control/tracker-control-general.c:340
+#: ../src/tracker-control/tracker-control-general.c:349
 #, c-format
 msgid "Terminated process %d"
 msgstr "Opravilo %d je končano"
 
-#: ../src/tracker-control/tracker-control-general.c:355
+#: ../src/tracker-control/tracker-control-general.c:364
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Opravila %d ni mogoče uničiti"
 
-#: ../src/tracker-control/tracker-control-general.c:361
+#: ../src/tracker-control/tracker-control-general.c:370
 #, c-format
 msgid "Killed process %d"
 msgstr "Opravilo %d je bilo uničeno"
 
-#: ../src/tracker-control/tracker-control-general.c:478
+#: ../src/tracker-control/tracker-control-general.c:488
 msgid "Removing configuration files…"
 msgstr "Odstranjevanje namestitvenih datotek ..."
 
-#: ../src/tracker-control/tracker-control-general.c:492
+#: ../src/tracker-control/tracker-control-general.c:502
 msgid "Waiting one second before starting miners…"
 msgstr "Čakanje eno sekundo pred začetkom podatkovnih kopalnikov ..."
 
-#: ../src/tracker-control/tracker-control-general.c:498
+#: ../src/tracker-control/tracker-control-general.c:508
 msgid "Starting miners…"
 msgstr "Začenjanje podatkovnih kopalnikov ..."
 
-#: ../src/tracker-control/tracker-control-general.c:516
+#: ../src/tracker-control/tracker-control-general.c:526
 msgid "perhaps a disabled plugin?"
 msgstr "morda onemogočen vstavek?"
 
-#: ../src/tracker-control/tracker-control-general.c:539
+#: ../src/tracker-control/tracker-control-general.c:549
 msgid "General options"
 msgstr "Splošne možnosti"
 
-#: ../src/tracker-control/tracker-control-general.c:540
+#: ../src/tracker-control/tracker-control-general.c:550
 msgid "Show general options"
 msgstr "Pokaži splošne možnosti"
 
@@ -1226,7 +1298,7 @@ msgid "Found %d miners running"
 msgstr "Najdenih je bilo %d zagnanih podatkovnih kopalnikov"
 
 #: ../src/tracker-control/tracker-control-miners.c:268
-#: ../src/tracker-control/tracker-control-status.c:145
+#: ../src/tracker-control/tracker-control-status.c:137
 #, c-format
 msgid "Could not get status from miner: %s"
 msgstr "Ni mogoče dobiti stanja podatkovnega kopalnika: %s"
@@ -1236,7 +1308,7 @@ msgid "No miners are running"
 msgstr "Ni zagnanih podatkovnih kopalnikov"
 
 #: ../src/tracker-control/tracker-control-miners.c:333
-#: ../src/tracker-control/tracker-control-status.c:513
+#: ../src/tracker-control/tracker-control-status.c:524
 msgid "Miners"
 msgstr "Podatkovni kopalniki"
 
@@ -1252,93 +1324,95 @@ msgstr "Vzrok"
 msgid "No miners are paused"
 msgstr "Ni podatkovnih kopalnikov v premoru"
 
-#: ../src/tracker-control/tracker-control-miners.c:369
+#: ../src/tracker-control/tracker-control-miners.c:375
 msgid "You can not use miner pause and resume switches together"
 msgstr "Stikal premora in nadaljevanja podatkovnega kopalnika ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-control/tracker-control-miners.c:375
+#: ../src/tracker-control/tracker-control-miners.c:381
 msgid "You must provide the miner for pause or resume commands"
 msgstr "Za ukaze premora ali nadaljevanja je treba zagotoviti podatkovni kopalnik "
 
-#: ../src/tracker-control/tracker-control-miners.c:381
+#: ../src/tracker-control/tracker-control-miners.c:387
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Zagotoviti morate ukaz premora ali nadaljevanja za podatkovni kopalnik"
 
-#: ../src/tracker-control/tracker-control-miners.c:425
+#: ../src/tracker-control/tracker-control-miners.c:431
 msgid "Miner options"
 msgstr "Možnosti kopalnika"
 
-#: ../src/tracker-control/tracker-control-miners.c:426
+#: ../src/tracker-control/tracker-control-miners.c:432
 msgid "Show miner options"
 msgstr "Pokaži možnosti kopalnika"
 
-#: ../src/tracker-control/tracker-control-status.c:55
+#: ../src/tracker-control/tracker-control-status.c:50
+#: ../src/tracker-control/tracker-control-status.c:269
+msgid "Unavailable"
+msgstr "Ni na voljo"
+
+#. generic
+#: ../src/tracker-control/tracker-control-status.c:51
 msgid "Initializing"
 msgstr "Zaganjanje"
 
-#: ../src/tracker-control/tracker-control-status.c:57
+#: ../src/tracker-control/tracker-control-status.c:53
 msgid "Fetching…"
 msgstr "Pridobivanje ..."
 
 #. miner/rss
-#: ../src/tracker-control/tracker-control-status.c:58
+#: ../src/tracker-control/tracker-control-status.c:54
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Kopanje po eni mapi '%s'"
 
-#: ../src/tracker-control/tracker-control-status.c:59
+#: ../src/tracker-control/tracker-control-status.c:55
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Rekurzivno kopanje po mapi '%s'"
 
-#: ../src/tracker-control/tracker-control-status.c:60
+#: ../src/tracker-control/tracker-control-status.c:56
 msgid "Paused"
 msgstr "V premoru"
 
-#: ../src/tracker-control/tracker-control-status.c:61
+#: ../src/tracker-control/tracker-control-status.c:57
 msgid "Idle"
 msgstr "Nedejavno"
 
-#: ../src/tracker-control/tracker-control-status.c:66
+#: ../src/tracker-control/tracker-control-status.c:62
 msgid "Show current status"
 msgstr "Pokaži trenutno stanje"
 
-#: ../src/tracker-control/tracker-control-status.c:70
+#: ../src/tracker-control/tracker-control-status.c:66
 msgid "Follow status changes as they happen"
 msgstr "Sledi spremembam stanja, ko se zgodijo"
 
-#: ../src/tracker-control/tracker-control-status.c:74
-msgid "Include details with state updates (only applies to --follow)"
-msgstr "Vključi podrobnosti s posodobitvami stanja (velja samo za --follow)"
-
-#: ../src/tracker-control/tracker-control-status.c:78
+#: ../src/tracker-control/tracker-control-status.c:70
 msgid "List common statuses for miners and the store"
 msgstr "Našteje pogosta stanja za podatkovne kopalnike in shrambo"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:203
-#: ../src/tracker-control/tracker-control-status.c:497
+#: ../src/tracker-control/tracker-control-status.c:191
+#: ../src/tracker-control/tracker-control-status.c:508
 msgid "PAUSED"
 msgstr "V PREMORU"
 
-#: ../src/tracker-control/tracker-control-status.c:217
+#: ../src/tracker-control/tracker-control-status.c:205
 msgid "Not running or is a disabled plugin"
 msgstr "Ne teče ali pa je onemogočen vstavek"
 
-#: ../src/tracker-control/tracker-control-status.c:486
+#: ../src/tracker-control/tracker-control-status.c:482
 msgid "Common statuses include"
 msgstr "Pogosta stanja vključujejo"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:507
+#: ../src/tracker-control/tracker-control-status.c:518
 msgid "Store"
 msgstr "Shrani"
 
-#: ../src/tracker-control/tracker-control-status.c:620
+#: ../src/tracker-control/tracker-control-status.c:631
 msgid "Status options"
 msgstr "Možnosti stanja"
 
-#: ../src/tracker-control/tracker-control-status.c:621
+#: ../src/tracker-control/tracker-control-status.c:632
 msgid "Show status options"
 msgstr "Pokaži možnosti stanja"
 
@@ -1991,6 +2065,18 @@ msgstr "Začenjanje upravljalnika podatkov je spodletelo"
 msgid "Empty result set"
 msgstr "Prazen niz rezultatov"
 
+#~ msgid "Unknown"
+#~ msgstr "Neznano"
+#~ msgid "No Subject"
+#~ msgstr "Ni naslova"
+#~ msgid "To"
+#~ msgstr "Za"
+#~ msgid "Display results by files found in a grid view"
+#~ msgstr "Prikaže rezultate po datotekah najdene v pogledu mreže"
+#~ msgid "No options specified"
+#~ msgstr "Ni določenih možnosti"
+#~ msgid "Include details with state updates (only applies to --follow)"
+#~ msgstr "Vključi podrobnosti s posodobitvami stanja (velja samo za --follow)"
 #~ msgid "Tracker Status Icon"
 #~ msgstr "Tracker ikona stanja"
 #~ msgid "Tracker Status Notification Application"
@@ -2070,8 +2156,6 @@ msgstr "Prazen niz rezultatov"
 #~ msgstr "Igla"
 #~ msgid "All Files"
 #~ msgstr "Vse datoteke"
-#~ msgid "Music"
-#~ msgstr "Glasba"
 #~ msgid "Clear the search text"
 #~ msgstr "Počisti iskano besedilo"
 #~ msgid "Name:"
