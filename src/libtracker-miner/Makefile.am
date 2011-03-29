@@ -152,25 +152,17 @@ INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
 introspection_sources = \
 	$(filter-out $(libtracker_miner_monitor_sources) \
 	             $(libtracker_miner_monitor_headers)  \
-		     $(private_sources)  \
-		     $(crawler_sources), \
+		     $(private_sources),  \
 	  $(libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES))
 
-TrackerMiner-0.10.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
-TrackerMiner_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 Gio-2.0 Tracker-0.10
+TrackerMiner-$(TRACKER_API_VERSION).gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
+TrackerMiner_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 Gio-2.0 Tracker-$(TRACKER_API_VERSION)
 TrackerMiner_0_10_gir_CFLAGS = $(INCLUDES) 
 TrackerMiner_0_10_gir_NAMESPACE = "TrackerMiner"
 TrackerMiner_0_10_gir_LIBS = $(lib_LTLIBRARIES)
 TrackerMiner_0_10_gir_FILES = $(introspection_sources)
 
-TrackerCrawler-0.10.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
-TrackerCrawler_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 Tracker-0.10
-TrackerCrawler_0_10_gir_CFLAGS = $(INCLUDES)
-TrackerCrawler_0_10_gir_NAMESPACE = "TrackerCrawler"
-TrackerCrawler_0_10_gir_LIBS = $(lib_LTLIBRARIES)
-TrackerCrawler_0_10_gir_FILES = $(crawler_sources)
-
-INTROSPECTION_GIRS += TrackerMiner-0.10.gir TrackerCrawler-0.10.gir
+INTROSPECTION_GIRS += TrackerMiner-$(TRACKER_API_VERSION).gir
 
 girdir = $(datadir)/gir-1.0
 dist_gir_DATA = $(INTROSPECTION_GIRS)
