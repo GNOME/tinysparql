@@ -1,0 +1,8 @@
+PREFIX ex: <http://example/>
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT ?t
+WHERE {
+  ?_x ex:t ?t .
+  filter (tracker:case-fold (?t) = tracker:case-fold(fn:lower-case (?t)))
+} ORDER BY ?t
