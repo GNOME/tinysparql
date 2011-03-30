@@ -1,0 +1,9 @@
+PREFIX ex: <http://example/>
+PREFIX fn: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT
+  tracker:ascii-lower-case(?t)
+
+WHERE {
+  ?_x ex:t ?t .
+} ORDER BY ?t
