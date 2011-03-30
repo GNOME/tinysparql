@@ -190,10 +190,17 @@ miner_print_state (TrackerMinerManager *manager,
 		    remaining_time >= 0) {
 			/* 0 means that we couldn't properly compute the remaining
 			 * time. */
-			remaining_time_str = (remaining_time > 0 ?
-			                      g_strdup_printf (_("estimated %ds left"),
-			                                       remaining_time) :
-			                      g_strdup (_("unknown time left")));
+			if (remaining_time > 0) {
+				gchar *seconds_str = tracker_seconds_to_string (remaining_time, TRUE);
+
+				remaining_time_str = g_strconcat (seconds_str,
+				                                  " ",
+				                                  _("remaining"),
+				                                  NULL);
+				g_free (seconds_str);
+			} else {
+				remaining_time_str = g_strdup (_("unknown time left"));
+			}
 		}
 
 		g_print ("%s  %s  %-*.*s %s%-*.*s%s %s %s %s\n",
