@@ -291,7 +291,7 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	 * give the number expected of seconds to finish processing, 0 if the
 	 * value cannot be estimated, and -1 if its not applicable.
 	 *
-	 * Since: 0.11
+	 * Since: 0.12
 	 **/
 	signals[PROGRESS] =
 		g_signal_new ("progress",

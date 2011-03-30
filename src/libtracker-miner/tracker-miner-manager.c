@@ -134,7 +134,7 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	 * The ::miner-progress signal is meant to report status/progress changes
 	 * in any tracked miner.
 	 *
-	 * Since: 0.11
+	 * Since: 0.12
 	 **/
 	signals [MINER_PROGRESS] =
 		g_signal_new ("miner-progress",
@@ -1010,7 +1010,7 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
  * Returns: %TRUE if the status could be retrieved successfully,
  * otherwise %FALSE
  *
- * Since: 0.11
+ * Since: 0.12
  **/
 gboolean
 tracker_miner_manager_get_status (TrackerMinerManager  *manager,
