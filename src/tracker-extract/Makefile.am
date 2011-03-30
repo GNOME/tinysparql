@@ -372,6 +372,8 @@ tracker_extract_SOURCES = \
 	tracker-albumart.h \
 	tracker-config.c \
 	tracker-config.h \
+	tracker-controller.c \
+	tracker-controller.h \
 	tracker-extract.c \
 	tracker-extract.h \
 	tracker-read.c \
