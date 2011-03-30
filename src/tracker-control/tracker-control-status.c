@@ -128,12 +128,16 @@ miner_get_details (TrackerMinerManager  *manager,
                    const gchar          *miner,
                    gchar               **status,
                    gdouble              *progress,
+                   gint                 *remaining_time,
                    GStrv                *pause_applications,
                    GStrv                *pause_reasons)
 {
-	if ((status || progress) &&
-	    !tracker_miner_manager_get_status (manager, miner,
-	                                       status, progress)) {
+	if ((status || progress || remaining_time) &&
+	    !tracker_miner_manager_get_status (manager,
+	                                       miner,
+	                                       status,
+	                                       progress,
+	                                       remaining_time)) {
 		g_printerr (_("Could not get status from miner: %s"), miner);
 		return FALSE;
 	}
@@ -150,6 +154,7 @@ miner_print_state (TrackerMinerManager *manager,
                    const gchar         *miner_name,
                    const gchar         *status,
                    gdouble              progress,
+                   gint                 remaining_time,
                    gboolean             is_running,
                    gboolean             is_paused)
 {
@@ -158,7 +163,6 @@ miner_print_state (TrackerMinerManager *manager,
 	gchar time_str[64];
 	size_t len;
 	struct tm *local_time;
-	gchar *progress_str;
 
 	now = time ((time_t *) NULL);
 	local_time = localtime (&now);
@@ -170,18 +174,38 @@ miner_print_state (TrackerMinerManager *manager,
 
 	name = tracker_miner_manager_get_display_name (manager, miner_name);
 
-	if (!is_running) {
-		progress_str = g_strdup_printf ("✗   ");
-	} else if (progress > 0.0 && progress < 1.0) {
-		progress_str = g_strdup_printf ("%-3.0f%%", progress * 100);
-	} else {
-		progress_str = g_strdup_printf ("✓   ");
-	}
-
 	if (is_running) {
-		g_print ("%s  %s  %-*.*s %s%-*.*s%s %s %s\n",
+		gchar *progress_str = NULL;
+		gchar *remaining_time_str = NULL;
+
+		if (progress > 0.0 && progress < 1.0) {
+			progress_str = g_strdup_printf ("%3u%%", (guint)(progress * 100));
+		}
+
+		/* Progress > 0.01 here because we want to avoid any message
+		 * during crawling, as we don't have the remaining time in that
+		 * case and it would just print "unknown time left" */
+		if (progress > 0.01 &&
+		    progress < 1.0 &&
+		    remaining_time >= 0) {
+			/* 0 means that we couldn't properly compute the remaining
+			 * time. */
+			if (remaining_time > 0) {
+				gchar *seconds_str = tracker_seconds_to_string (remaining_time, TRUE);
+
+				remaining_time_str = g_strconcat (seconds_str,
+				                                  " ",
+				                                  _("remaining"),
+				                                  NULL);
+				g_free (seconds_str);
+			} else {
+				remaining_time_str = g_strdup (_("unknown time left"));
+			}
+		}
+
+		g_print ("%s  %s  %-*.*s %s%-*.*s%s %s %s %s\n",
 		         time_str,
-		         progress_str,
+		         progress_str ? progress_str : "✓   ",
 		         longest_miner_name_length,
 		         longest_miner_name_length,
 		         name,
@@ -191,11 +215,14 @@ miner_print_state (TrackerMinerManager *manager,
 		         is_paused ? _("PAUSED") : " ",
 		         is_paused ? ")" : " ",
 		         status ? "-" : "",
-		         status ? _(status) : "");
+		         status ? _(status) : "",
+		         remaining_time_str ? remaining_time_str : "");
+
+		g_free (progress_str);
+		g_free (remaining_time_str);
 	} else {
-		g_print ("%s  %s  %-*.*s  %-*.*s  - %s\n",
+		g_print ("%s  ✗     %-*.*s  %-*.*s  - %s\n",
 		         time_str,
-		         progress_str,
 		         longest_miner_name_length,
 		         longest_miner_name_length,
 		         name,
@@ -204,8 +231,6 @@ miner_print_state (TrackerMinerManager *manager,
 		         " ",
 		         _("Not running or is a disabled plugin"));
 	}
-
-	g_free (progress_str);
 }
 
 static void
@@ -334,7 +359,8 @@ static void
 manager_miner_progress_cb (TrackerMinerManager *manager,
                            const gchar         *miner_name,
                            const gchar         *status,
-                           gdouble              progress)
+                           gdouble              progress,
+                           gint                 remaining_time)
 {
 	GValue *gvalue;
 
@@ -343,7 +369,7 @@ manager_miner_progress_cb (TrackerMinerManager *manager,
 	g_value_init (gvalue, G_TYPE_DOUBLE);
 	g_value_set_double (gvalue, progress);
 
-	miner_print_state (manager, miner_name, status, progress, TRUE, FALSE);
+	miner_print_state (manager, miner_name, status, progress, remaining_time, TRUE, FALSE);
 
 	g_hash_table_replace (miners_status,
 	                      g_strdup (miner_name),
@@ -364,6 +390,7 @@ manager_miner_paused_cb (TrackerMinerManager *manager,
 	miner_print_state (manager, miner_name,
 	                   g_hash_table_lookup (miners_status, miner_name),
 	                   gvalue ? g_value_get_double (gvalue) : 0.0,
+	                   -1,
 	                   TRUE,
 	                   TRUE);
 }
@@ -379,6 +406,7 @@ manager_miner_resumed_cb (TrackerMinerManager *manager,
 	miner_print_state (manager, miner_name,
 	                   g_hash_table_lookup (miners_status, miner_name),
 	                   gvalue ? g_value_get_double (gvalue) : 0.0,
+	                   0,
 	                   TRUE,
 	                   FALSE);
 }
@@ -539,12 +567,14 @@ tracker_control_status_run (void)
 				GStrv pause_applications, pause_reasons;
 				gchar *status = NULL;
 				gdouble progress;
+				gint remaining_time;
 				gboolean is_paused;
 
 				if (!miner_get_details (manager,
 				                        l->data,
 				                        &status,
 				                        &progress,
+				                        &remaining_time,
 				                        &pause_applications,
 				                        &pause_reasons)) {
 					continue;
@@ -552,13 +582,19 @@ tracker_control_status_run (void)
 
 				is_paused = *pause_applications || *pause_reasons;
 
-				miner_print_state (manager, l->data, status, progress, TRUE, is_paused);
+				miner_print_state (manager,
+				                   l->data,
+				                   status,
+				                   progress,
+				                   remaining_time,
+				                   TRUE,
+				                   is_paused);
 
 				g_strfreev (pause_applications);
 				g_strfreev (pause_reasons);
 				g_free (status);
 			} else {
-				miner_print_state (manager, l->data, NULL, 0.0, FALSE, FALSE);
+				miner_print_state (manager, l->data, NULL, 0.0, -1, FALSE, FALSE);
 			}
 		}
 

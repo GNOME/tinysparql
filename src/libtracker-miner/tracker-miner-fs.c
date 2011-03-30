@@ -900,6 +900,7 @@ miner_started (TrackerMiner *miner)
 	g_object_set (miner,
 	              "progress", 0.0,
 	              "status", "Initializing",
+	              "remaining-time", 0,
 	              NULL);
 
 	crawl_directories_start (fs);
@@ -913,6 +914,7 @@ miner_stopped (TrackerMiner *miner)
 	g_object_set (miner,
 	              "progress", 1.0,
 	              "status", "Idle",
+	              "remaining-time", -1,
 	              NULL);
 }
 
@@ -1049,6 +1051,7 @@ process_stop (TrackerMinerFS *fs)
 	g_object_set (fs,
 	              "progress", 1.0,
 	              "status", "Idle",
+	              "remaining-time", 0,
 	              NULL);
 
 	g_signal_emit (fs, signals[FINISHED], 0,
@@ -2670,6 +2673,7 @@ item_queue_handlers_cb (gpointer user_data)
 		gdouble progress_now;
 		static gdouble progress_last = 0.0;
 		static gint info_last = 0;
+		gdouble seconds_elapsed;
 
 		time_last = time_now;
 
@@ -2677,11 +2681,18 @@ item_queue_handlers_cb (gpointer user_data)
 		progress_now = item_queue_get_progress (fs,
 		                                        &items_processed,
 		                                        &items_remaining);
+		seconds_elapsed = g_timer_elapsed (fs->private->timer, NULL);
 
 		if (!fs->private->is_crawling) {
 			gchar *status;
+			gint remaining_time;
 
 			g_object_get (fs, "status", &status, NULL);
+
+			/* Compute remaining time */
+			remaining_time = (gint)tracker_seconds_estimate (seconds_elapsed,
+			                                                 items_processed,
+			                                                 items_remaining);
 
 			if (g_strcmp0 (status, "Processing…") != 0) {
 				/* Don't spam this */
@@ -2689,10 +2700,12 @@ item_queue_handlers_cb (gpointer user_data)
 				g_object_set (fs,
 				              "status", "Processing…",
 				              "progress", progress_now,
+				              "remaining-time", remaining_time,
 				              NULL);
 			} else {
 				g_object_set (fs,
 				              "progress", progress_now,
+				              "remaining-time", remaining_time,
 				              NULL);
 			}
 
@@ -2702,13 +2715,12 @@ item_queue_handlers_cb (gpointer user_data)
 		if (++info_last >= 5 &&
 		    (gint) (progress_last * 100) != (gint) (progress_now * 100)) {
 			gchar *str1, *str2;
-			gdouble seconds_elapsed;
+
 
 			info_last = 0;
 			progress_last = progress_now;
 
 			/* Log estimated remaining time */
-			seconds_elapsed = g_timer_elapsed (fs->private->timer, NULL);
 			str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
 			                                           TRUE,
 			                                           items_processed,
@@ -3764,10 +3776,13 @@ crawl_directories_cb (gpointer user_data)
 
 	tracker_info ("%s", str);
 
-	/* Always set the progress here to at least 1% */
+	/* Always set the progress here to at least 1%, and the remaining time
+	 * to -1 as we cannot guess during crawling (we don't know how many directories
+	 * we will find) */
 	g_object_set (fs,
 	              "progress", 0.01,
 	              "status", str,
+	              "remaining-time", -1,
 	              NULL);
 	g_free (str);
 
