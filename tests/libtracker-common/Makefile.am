@@ -8,7 +8,9 @@ TEST_PROGS +=                                          \
 	tracker-file-utils                             \
 	tracker-utils
 
-AM_CPPFLAGS =                                          \
+AM_CPPFLAGS =                                      \
+	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"             \
+	-DTOP_BUILDDIR=\"$(abs_top_builddir)\"         \
 	$(BUILD_CFLAGS)                                \
 	-I$(top_srcdir)/src                            \
 	-I$(top_srcdir)/tests/common                   \
@@ -29,4 +31,4 @@ tracker_file_utils_SOURCES = tracker-file-utils-test.c
 
 tracker_utils_SOURCES = tracker-utils-test.c
 
-EXTRA_DIST = non-utf8.txt
+EXTRA_DIST = non-utf8.txt encoding-detect.bin
