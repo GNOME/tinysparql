@@ -167,7 +167,6 @@ typedef struct {
 	GHashTable *registered_stores;
 	GList *registered_clients;
 	EAccountList *accounts;
-	TrackerSparqlConnection *connection;
 	time_t last_time;
 	gboolean resuming, paused;
 	guint total_popped, of_total;
@@ -195,28 +194,39 @@ typedef struct {
 } WorkerThreadinfo;
 
 /* Prototype declarations */
-static void register_account     (TrackerMinerEvolution *self,
-                                  EAccount              *account);
-static void unregister_account   (TrackerMinerEvolution *self,
-                                  EAccount              *account);
-int         e_plugin_lib_enable  (EPlugin               *ep,
-                                  int                    enable);
-static void miner_started        (TrackerMiner          *miner);
-static void miner_stopped        (TrackerMiner          *miner);
-static void miner_paused         (TrackerMiner          *miner);
-static void miner_resumed        (TrackerMiner          *miner);
-static void miner_start_watching (TrackerMiner          *miner);
-static void miner_stop_watching  (TrackerMiner          *miner);
+int             e_plugin_lib_enable                 (EPlugin                *ep,
+                                                     int                     enable);
 
+static void     register_account                    (TrackerMinerEvolution  *self,
+                                                     EAccount               *account);
+static void     unregister_account                  (TrackerMinerEvolution  *self,
+                                                     EAccount               *account);
+static void     miner_evolution_initable_iface_init (GInitableIface         *iface);
+static gboolean miner_evolution_initable_init       (GInitable              *initable,
+                                                     GCancellable           *cancellable,
+                                                     GError                **error);
+static void     miner_started                       (TrackerMiner           *miner);
+static void     miner_stopped                       (TrackerMiner           *miner);
+static void     miner_paused                        (TrackerMiner           *miner);
+static void     miner_resumed                       (TrackerMiner           *miner);
+static void     miner_start_watching                (TrackerMiner           *miner);
+static void     miner_stop_watching                 (TrackerMiner           *miner);
+
+static GInitableIface *miner_evolution_initable_parent_iface;
 static TrackerMinerEvolution *manager = NULL;
+
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
-static guint register_count = 0, walk_count = 0;
+static guint register_count = 0;
+static guint walk_count = 0;
 static ThreadPool *folder_pool = NULL;
+
 #ifdef EVOLUTION_SHELL_2_91
 static EMailSession *session = NULL;
 #endif
 
-G_DEFINE_TYPE (TrackerMinerEvolution, tracker_miner_evolution, TRACKER_TYPE_MINER)
+G_DEFINE_TYPE_WITH_CODE (TrackerMinerEvolution, tracker_miner_evolution, TRACKER_TYPE_MINER,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                miner_evolution_initable_iface_init));
 
 /* First a bunch of helper functions. */
 static void
@@ -359,18 +369,28 @@ send_sparql_update (TrackerMinerEvolution *self,
                     const gchar           *sparql,
                     gint                   prio)
 {
-	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv;
+
+	/* FIXME: prio is unused */
 
 	g_static_rec_mutex_lock (&glock);
-	if (priv->connection) {
-		if (!priv->timer_since_stopped || g_timer_elapsed (priv->timer_since_stopped, NULL) > 5) {
-			tracker_sparql_connection_update (priv->connection,
+
+	priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
+
+	if (!priv->timer_since_stopped || g_timer_elapsed (priv->timer_since_stopped, NULL) > 5) {
+		TrackerSparqlConnection *connection;
+
+		connection = tracker_miner_get_connection (TRACKER_MINER (self));
+
+		if (connection) {
+			tracker_sparql_connection_update (connection,
 			                                  sparql,
 			                                  G_PRIORITY_DEFAULT,
 			                                  priv->sparql_cancel,
 			                                  NULL);
 		}
 	}
+
 	g_static_rec_mutex_unlock (&glock);
 }
 
@@ -378,28 +398,24 @@ static void
 send_sparql_commit (TrackerMinerEvolution *self,
                     gboolean               update)
 {
-	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
+	if (update) {
+		gchar *date_s = tracker_date_to_string (time (NULL));
 
-	if (priv->connection) {
-		if (update) {
-			gchar *date_s = tracker_date_to_string (time (NULL));
+		/* TODO: We should probably do this per folder instead of a datasource
+		 * for the entire Evolution store. This way if the user interrupts
+		 * the synchronization, then at least the folders that are already
+		 * finished don't have to be repeated next time. Right now an interrupt
+		 * means starting over from scratch. */
 
-			/* TODO: We should probably do this per folder instead of a datasource
-			 * for the entire Evolution store. This way if the user interrupts
-			 * the synchronization, then at least the folders that are already
-			 * finished don't have to be repeated next time. Right now an interrupt
-			 * means starting over from scratch. */
+		gchar *update = g_strdup_printf ("DELETE { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
+		                                 "WHERE { <"  DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified ?d } \n"
+		                                 "INSERT { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified \"%s\" }",
+		                                 date_s);
 
-			gchar *update = g_strdup_printf ("DELETE { <" DATASOURCE_URN "> nie:contentLastModified ?d } "
-			                                 "WHERE { <"  DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified ?d } \n"
-			                                 "INSERT { <" DATASOURCE_URN "> a nie:InformationElement ; nie:contentLastModified \"%s\" }",
-			                                 date_s);
+		send_sparql_update (self, update, 0);
 
-			send_sparql_update (self, update, 0);
-
-			g_free (update);
-			g_free (date_s);
-		}
+		g_free (update);
+		g_free (date_s);
 	}
 }
 
@@ -1653,7 +1669,6 @@ register_client_second_half (ClientRegistry *info)
 	 * we tell it to start over (it must invalidate what it has). */
 
 	if (info->last_checkout < too_old) {
-
 		send_sparql_update (info->self, "DELETE { ?s a rdfs:Resource } "
 		                    "WHERE { ?s nie:dataSource <" DATASOURCE_URN "> }", 0);
 		send_sparql_commit (info->self, FALSE);
@@ -1728,12 +1743,14 @@ static void
 register_client (TrackerMinerEvolution *self)
 {
 	TrackerMinerEvolutionPrivate *priv;
+	TrackerSparqlConnection *connection;
 	ClientRegistry *info;
 	const gchar *query;
 
 	priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 
-	if (!priv->connection) {
+	connection = tracker_miner_get_connection (TRACKER_MINER (self));
+	if (!connection) {
 		return;
 	}
 
@@ -1746,8 +1763,9 @@ register_client (TrackerMinerEvolution *self)
 	query = "SELECT ?c "
 		"WHERE { <" DATASOURCE_URN "> nie:contentLastModified ?c }";
 
-	tracker_sparql_connection_query_async (priv->connection, query,
-	                                       NULL,
+	tracker_sparql_connection_query_async (connection,
+	                                       query,
+	                                       NULL, /* FIXME: should use a cancellable */
 	                                       on_register_client_qry,
 	                                       info);
 }
@@ -2026,12 +2044,23 @@ disable_plugin (void)
 static void
 enable_plugin_real (void)
 {
+	GError *error = NULL;
+
 	g_debug ("Tracker plugin creating new object...");
 
-	manager = g_object_new (TRACKER_TYPE_MINER_EVOLUTION,
-	                        "name", "Emails", NULL);
+	manager = g_initable_new (TRACKER_TYPE_MINER_EVOLUTION,
+	                          NULL,
+	                          &error,
+	                          "name", "Emails",
+	                          NULL);
 
-	g_signal_emit_by_name (manager, "started");
+	if (error) {
+		g_critical ("Could not start Tracker plugin, %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	tracker_miner_start (TRACKER_MINER (manager));
 }
 
 static gboolean 
@@ -2048,52 +2077,31 @@ enable_plugin_try (gpointer user_data)
 }
 
 static void
-ensure_connection (TrackerMinerEvolutionPrivate *priv)
+miner_prepare (TrackerMinerEvolutionPrivate *priv)
 {
-	g_static_rec_mutex_lock (&glock);
-
-	if (!priv->connection) {
-		if (priv->sparql_cancel) {
-			g_object_unref (priv->sparql_cancel);
-		}
-		priv->connection = tracker_sparql_connection_get (NULL, NULL);
-		priv->sparql_cancel = g_cancellable_new ();
-	}
-
 	if (priv->timer_since_stopped && g_timer_elapsed (priv->timer_since_stopped, NULL) > 5) {
 		g_timer_destroy (priv->timer_since_stopped);
 		priv->timer_since_stopped = NULL;
 	}
-
-	g_static_rec_mutex_unlock (&glock);
 }
 
 static void
-ensure_no_connection (TrackerMinerEvolutionPrivate *priv)
+miner_cleanup (TrackerMinerEvolutionPrivate *priv)
 {
-	TrackerSparqlConnection *connection;
-
-	g_static_rec_mutex_lock (&glock);
-
-	connection = priv->connection;
-	if (!priv->timer_since_stopped) {
-		priv->timer_since_stopped = g_timer_new ();
-	}
-	if (priv->sparql_cancel) {
-		g_cancellable_cancel (priv->sparql_cancel);
-	}
-	priv->connection = NULL;
-
-	g_static_rec_mutex_unlock (&glock);
-
 	if (folder_pool) {
 		ThreadPool *pool = folder_pool;
+
 		folder_pool = NULL;
 		thread_pool_destroy (pool);
 	}
 
-	if (connection) {
-		g_object_unref (connection);
+	if (!priv->timer_since_stopped) {
+		priv->timer_since_stopped = g_timer_new ();
+	}
+
+	if (priv->sparql_cancel) {
+		/* We reuse the cancellable */
+		g_cancellable_cancel (priv->sparql_cancel);
 	}
 }
 
@@ -2106,13 +2114,13 @@ enable_plugin (void)
 
 	if (manager) {
 		TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (manager);
-		ensure_no_connection (priv);
+
+		miner_cleanup (priv);
 		g_object_unref (manager);
 	}
 
 	if (walk_count > 0) {
-		g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 1,
-		                            enable_plugin_try, NULL, NULL);
+		g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 1, enable_plugin_try, NULL, NULL);
 	} else {
 		enable_plugin_real ();
 	}
@@ -2136,6 +2144,29 @@ e_plugin_lib_enable (EPlugin *ep,
 }
 
 static void
+miner_evolution_initable_iface_init (GInitableIface *iface)
+{
+	miner_evolution_initable_parent_iface = g_type_interface_peek_parent (iface);
+	iface->init = miner_evolution_initable_init;
+}
+
+static gboolean
+miner_evolution_initable_init (GInitable     *initable,
+                               GCancellable  *cancellable,
+                               GError       **error)
+{
+	GError *inner_error = NULL;
+
+	/* Chain up parent's initable callback before calling child's one */
+	if (!miner_evolution_initable_parent_iface->init (initable, cancellable, &inner_error)) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void
 tracker_miner_evolution_finalize (GObject *plugin)
 {
 	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (plugin);
@@ -2154,16 +2185,17 @@ tracker_miner_evolution_finalize (GObject *plugin)
 
 	g_object_unref (priv->accounts);
 
-	ensure_no_connection (priv);
-
-	g_static_rec_mutex_lock (&glock);
+	miner_cleanup (priv);
 
 	if (priv->timer_since_stopped) {
 		g_timer_destroy (priv->timer_since_stopped);
 		priv->timer_since_stopped = NULL;
 	}
 
-	g_static_rec_mutex_unlock (&glock);
+	if (priv->sparql_cancel) {
+		g_cancellable_cancel (priv->sparql_cancel);
+		g_object_unref (priv->sparql_cancel);
+	}
 
 	G_OBJECT_CLASS (tracker_miner_evolution_parent_class)->finalize (plugin);
 }
@@ -2203,7 +2235,8 @@ tracker_miner_evolution_init (TrackerMinerEvolution *plugin)
 	}
 #endif
 
-	priv->connection = NULL;
+	priv->sparql_cancel = g_cancellable_new ();
+
 	priv->last_time = 0;
 	priv->resuming = FALSE;
 	priv->paused = FALSE;
@@ -2238,7 +2271,7 @@ on_tracker_store_appeared (GDBusConnection *d_connection,
 {
 	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (user_data);
 
-	ensure_connection (priv);
+	miner_prepare (priv);
 
 	register_client (user_data);
 }
@@ -2265,7 +2298,7 @@ miner_stop_watching (TrackerMiner *miner)
 	if (priv->watch_name_id != 0)
 		g_bus_unwatch_name (priv->watch_name_id);
 
-	ensure_no_connection (priv);
+	miner_cleanup (priv);
 }
 
 static void
@@ -2273,7 +2306,7 @@ miner_started (TrackerMiner *miner)
 {
 	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (miner);
 
-	ensure_connection (priv);
+	miner_prepare (priv);
 
 	miner_start_watching (miner);
 
@@ -2302,7 +2335,7 @@ miner_paused (TrackerMiner *miner)
 	priv->paused = TRUE;
 	priv->last_time = 0;
 
-	ensure_no_connection (priv);
+	miner_cleanup (priv);
 }
 
 static gboolean
@@ -2323,7 +2356,7 @@ miner_resumed (TrackerMiner *miner)
 
 	/* We don't really resume, we just completely restart */
 
-	ensure_connection (priv);
+	miner_prepare (priv);
 
 	priv->resuming = TRUE;
 	priv->paused = FALSE;
