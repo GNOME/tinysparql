@@ -43,6 +43,8 @@ struct TrackerControllerPrivate {
 	GDBusNodeInfo *introspection_data;
 	guint registration_id;
 
+	GList *ongoing_tasks;
+
 	guint shutdown_timeout;
 	guint shutdown_timeout_id;
 
@@ -242,6 +244,49 @@ metadata_data_free (GetMetadataData *data)
 	g_slice_free (GetMetadataData, data);
 }
 
+static void
+mount_point_removed_cb (TrackerStorage *storage,
+			const gchar    *uuid,
+			const gchar    *mount_point,
+			gpointer	user_data)
+{
+	TrackerControllerPrivate *priv;
+	GFile *mount_file;
+	GList *elem;
+
+	priv = TRACKER_CONTROLLER (user_data)->priv;
+	mount_file = g_file_new_for_path (mount_point);
+
+	for (elem = priv->ongoing_tasks; elem; elem = elem->next) {
+		GetMetadataData *data;
+		GFile *task_file;
+
+		data = elem->data;
+		task_file = g_file_new_for_uri (data->uri);
+
+		if (g_file_has_prefix (task_file, mount_file)) {
+			/* Mount path contains one of the files being processed */
+			if (!elem->next) {
+				/* The last element in the list is
+				 * the one currently being processed,
+				 * so exit abruptly.
+				 */
+				g_message ("Mount point '%s' being removed contains "
+				           "current file under inspection ('%s'), quitting",
+				           mount_point, data->uri);
+				g_main_loop_quit (priv->main_loop);
+			} else {
+				g_message ("Mount point '%s' being removed affects "
+				           "file waiting for inspection ('%s'), cancelling it",
+				           mount_point, data->uri);
+				g_cancellable_cancel (data->cancellable);
+			}
+		}
+
+		g_object_unref (task_file);
+	}
+}
+
 static gboolean
 reset_shutdown_timeout_cb (gpointer user_data)
 {
@@ -294,6 +339,8 @@ tracker_controller_init (TrackerController *controller)
 	priv->main_loop = g_main_loop_new (priv->context, FALSE);
 
 	priv->storage = tracker_storage_new ();
+	g_signal_connect (priv->storage, "mount-point-removed",
+	                  G_CALLBACK (mount_point_removed_cb), controller);
 
 	priv->initialization_cond = g_cond_new ();
 	priv->initialization_mutex = g_mutex_new ();
@@ -328,10 +375,13 @@ get_metadata_cb (GObject      *object,
                  GAsyncResult *res,
                  gpointer      user_data)
 {
+	TrackerControllerPrivate *priv;
 	GetMetadataData *data;
 	TrackerExtractInfo *info;
 
 	data = user_data;
+	priv = data->controller->priv;
+	priv->ongoing_tasks = g_list_remove (priv->ongoing_tasks, data);
 	info = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
 
 	if (info) {
@@ -384,6 +434,7 @@ handle_method_call_get_metadata (TrackerController     *controller,
 	data = metadata_data_new (controller, uri, mime, invocation, request);
 	tracker_extract_file (priv->extractor, uri, mime, data->cancellable,
 	                      get_metadata_cb, data);
+	priv->ongoing_tasks = g_list_prepend (priv->ongoing_tasks, data);
 }
 
 static void
@@ -391,10 +442,13 @@ get_metadata_fast_cb (GObject      *object,
                       GAsyncResult *res,
                       gpointer      user_data)
 {
+	TrackerControllerPrivate *priv;
 	GetMetadataData *data;
 	TrackerExtractInfo *info;
 
 	data = user_data;
+	priv = data->controller->priv;
+	priv->ongoing_tasks = g_list_remove (priv->ongoing_tasks, data);
 	info = g_simple_async_result_get_op_res_gpointer (G_SIMPLE_ASYNC_RESULT (res));
 
 	if (info) {
@@ -507,6 +561,7 @@ handle_method_call_get_metadata_fast (TrackerController	    *controller,
 
 			tracker_extract_file (priv->extractor, uri, mime, data->cancellable,
 			                      get_metadata_fast_cb, data);
+			priv->ongoing_tasks = g_list_prepend (priv->ongoing_tasks, data);
 		} else {
 			tracker_dbus_request_end (request, error);
 			g_dbus_method_invocation_return_dbus_error (invocation,
