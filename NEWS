@@ -1,3 +1,38 @@
+NEW in 0.10.6 - 2011-03-31
+==========================
+
+The changes are:
+
+  * Require: GStreamer 0.10.31 (was 0.10.12) for GstDateTime
+  * Fixes: GB#645380, msoffice-xml timeouts in case the file has too much content
+  * Fixes: GB#645934, evolution plugin build fails to build since 0.10.5 and evo 2.91.x
+  * Fixes: GB#645963, query callback being called from another thread
+  * Fixes: GB#645675, mlo and slo contain invalid Turtle literals: 'False' instead of 'false'
+  * Fixes: NB#241833, Copied videos are always indexed with time set to 00:00:00
+  * Fixes: NB#235445, msoffice-xml timeouts in case the file has too much content
+  * Fixes: NB#241206, Embedded album art not found for MP3 clip
+  * Fixes: NB#240168, fn:to-lower does not handle non-latin characters
+  * Fixes: NB#240582, libtracker-sparql returns datetimes and bools as TRACKER_SPARQL_VALUE_TYPE_STRING
+  * New Feature: Added INSERT OR REPLACE SPARQL, using UPDATE gives us ca. 25% speed improvement in some cases
+  * libtracker-common: Only use encoding guessing when confidence is > 30%
+  * libtracker-data: Added new functions tracker:case-fold() and tracker:lower-case()
+  * libtracker-sparql: Handle GSpawnError thrown by GDBus
+  * tracker-needle: Model reworked showin no delay loading thousands of items
+  * tracker-needle: Improve error handling
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated da: Joe Hansen
+  * Updated es: Daniel Mustieles
+  * Updated sl: Andrej Žnidaršič
+  * Updated zh_CN: Yinghua Wang
+
+Notes:
+
+  None
+
+
 NEW in 0.10.5 - 2011-03-24
 ==========================
 
