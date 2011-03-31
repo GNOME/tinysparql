@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-03-24 23:18+0000\n"
-"PO-Revision-Date: 2011-03-26 17:20+0100\n"
+"POT-Creation-Date: 2011-03-30 16:51+0000\n"
+"PO-Revision-Date: 2011-03-31 09:47+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -82,12 +82,10 @@ msgid "Where to store a journal chunk when it hits the max size."
 msgstr "Kam odložit blok žurnálu, když dosáhne maximální velikost."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
-#| msgid "Enable monitors"
 msgid "Enable stemmer"
 msgstr "Zapnout kořeny slov"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
-#| msgid "Enable monitors"
 msgid "Enable unaccent"
 msgstr "Zapnout odstraňování diakritiky"
 
@@ -104,12 +102,10 @@ msgstr ""
 "Takovými slovy bývají obvykle například „ano“, „ne“, „ten“ atd."
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
-#| msgid "Ignored files"
 msgid "Ignore numbers"
 msgstr "Ignorovat čísla"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
-#| msgid "Ignored directories"
 msgid "Ignore stop words"
 msgstr "Ignorovat stop slova"
 
@@ -124,7 +120,6 @@ msgid "Maximum length of a word to be indexed"
 msgstr "Maximální délka slova k indexaci"
 
 #: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
-#| msgid "Maximum number of UTF-8 bytes to extract."
 msgid "Maximum number of words to index in a document"
 msgstr "Maximální počet slov k indexaci v dokumentu"
 
@@ -411,41 +406,40 @@ msgstr "Štítky…"
 msgid "Tag one or more files"
 msgstr "Přiřadit štítek jednomu nebo více souborům"
 
-#: ../src/libtracker-common/tracker-utils.c:69
-#: ../src/libtracker-common/tracker-utils.c:76
+#: ../src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
 msgstr "neznámý čas"
 
-#: ../src/libtracker-common/tracker-utils.c:94
-#: ../src/libtracker-common/tracker-utils.c:145
+#: ../src/libtracker-common/tracker-utils.c:104
+#: ../src/libtracker-common/tracker-utils.c:155
 msgid "less than one second"
 msgstr "méně než jedna sekunda"
 
 #. Translators: this is %d days
-#: ../src/libtracker-common/tracker-utils.c:109
+#: ../src/libtracker-common/tracker-utils.c:119
 #, c-format
 msgid " %dd"
 msgstr " %dd"
 
 #. Translators: this is %2.2d hours
-#: ../src/libtracker-common/tracker-utils.c:113
+#: ../src/libtracker-common/tracker-utils.c:123
 #, c-format
 msgid " %2.2dh"
 msgstr " %2.2dh"
 
 #. Translators: this is %2.2d minutes
-#: ../src/libtracker-common/tracker-utils.c:117
+#: ../src/libtracker-common/tracker-utils.c:127
 #, c-format
 msgid " %2.2dm"
 msgstr " %2.2dm"
 
 #. Translators: this is %2.2d seconds
-#: ../src/libtracker-common/tracker-utils.c:121
+#: ../src/libtracker-common/tracker-utils.c:131
 #, c-format
 msgid " %2.2ds"
 msgstr " %2.2ds"
 
-#: ../src/libtracker-common/tracker-utils.c:125
+#: ../src/libtracker-common/tracker-utils.c:135
 #, c-format
 msgid " %d day"
 msgid_plural " %d days"
@@ -453,7 +447,7 @@ msgstr[0] " %d den"
 msgstr[1] " %d dny"
 msgstr[2] " %d dní"
 
-#: ../src/libtracker-common/tracker-utils.c:129
+#: ../src/libtracker-common/tracker-utils.c:139
 #, c-format
 msgid " %2.2d hour"
 msgid_plural " %2.2d hours"
@@ -461,7 +455,7 @@ msgstr[0] " %2.2d hodina"
 msgstr[1] " %2.2d hodiny"
 msgstr[2] " %2.2d hodin"
 
-#: ../src/libtracker-common/tracker-utils.c:133
+#: ../src/libtracker-common/tracker-utils.c:143
 #, c-format
 msgid " %2.2d minute"
 msgid_plural " %2.2d minutes"
@@ -469,7 +463,7 @@ msgstr[0] " %2.2d minuta"
 msgstr[1] " %2.2d minuty"
 msgstr[2] " %2.2d minut"
 
-#: ../src/libtracker-common/tracker-utils.c:137
+#: ../src/libtracker-common/tracker-utils.c:147
 #, c-format
 msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
@@ -477,19 +471,19 @@ msgstr[0] " %2.2d sekunda"
 msgstr[1] " %2.2d sekundy"
 msgstr[2] " %2.2d sekund"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:758
+#: ../src/libtracker-miner/tracker-miner-object.c:793
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Pozastavit aplikaci a odůvodnit shodu s již existujícím požadavkem na "
 "pozastavení"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:844
+#: ../src/libtracker-miner/tracker-miner-object.c:879
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 "Cookie pozastaveného nástroje dolování dat nutná k obnovení běhu nebyla "
 "rozpoznána"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1229
+#: ../src/libtracker-miner/tracker-miner-object.c:1284
 msgid "Data store is not available"
 msgstr "Datové úložiště není dostupné"
 
@@ -699,11 +693,11 @@ msgstr "Byl by sledován"
 msgid "- start the tracker indexer"
 msgstr "- spustí indexovač tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1330
+#: ../src/miners/fs/tracker-miner-files.c:1331
 msgid "Low battery"
 msgstr "Nízká úroveň nabití baterie"
 
-#: ../src/miners/fs/tracker-miner-files.c:1453
+#: ../src/miners/fs/tracker-miner-files.c:1454
 msgid "Low disk space"
 msgstr "Málo místa na disku"
 
@@ -1000,7 +994,6 @@ msgid "Documents"
 msgstr "Dokumenty"
 
 #: ../src/tracker-needle/tracker-view.vala:326
-#| msgid "Emails"
 msgid "Mail"
 msgstr "Pošta"
 
@@ -1010,7 +1003,6 @@ msgid "Folders"
 msgstr "Složky"
 
 #: ../src/tracker-needle/tracker-view.vala:333
-#| msgid "Item"
 msgid "Items"
 msgstr "Položky"
 
@@ -1293,15 +1285,15 @@ msgstr "Chvilku se čeká, než se spustí démoni na dolování dat…"
 msgid "Starting miners…"
 msgstr "Spouští se démoni na dolování dat…"
 
-#: ../src/tracker-control/tracker-control-general.c:526
+#: ../src/tracker-control/tracker-control-general.c:529
 msgid "perhaps a disabled plugin?"
 msgstr "není vypnutý zásuvný modul?"
 
-#: ../src/tracker-control/tracker-control-general.c:549
+#: ../src/tracker-control/tracker-control-general.c:552
 msgid "General options"
 msgstr "Obecné přepínače"
 
-#: ../src/tracker-control/tracker-control-general.c:550
+#: ../src/tracker-control/tracker-control-general.c:553
 msgid "Show general options"
 msgstr "Zobrazí obecné přepínače"
 
@@ -1405,7 +1397,7 @@ msgid "(Re)indexing file was successful"
 msgstr "(Pře)indexování souboru bylo úspěšné"
 
 #: ../src/tracker-control/tracker-control-miners.c:206
-#: ../src/tracker-control/tracker-control-miners.c:289
+#: ../src/tracker-control/tracker-control-miners.c:264
 #, c-format
 msgid "Could not contact the miner manager"
 msgstr "Nelze kontaktovat démona na dolování dat"
@@ -1420,59 +1412,53 @@ msgstr "Nalezeno %d nainstalovaných démonů na dolování dat"
 msgid "Found %d miners running"
 msgstr "Nalezeno %d běžících démonů na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:268
-#: ../src/tracker-control/tracker-control-status.c:137
-#, c-format
-msgid "Could not get status from miner: %s"
-msgstr "Nelze získat udaje o stavu od démona na dolování dat: %s"
-
-#: ../src/tracker-control/tracker-control-miners.c:296
+#: ../src/tracker-control/tracker-control-miners.c:271
 msgid "No miners are running"
 msgstr "Neběží žádný démon na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:333
-#: ../src/tracker-control/tracker-control-status.c:524
+#: ../src/tracker-control/tracker-control-miners.c:304
+#: ../src/tracker-control/tracker-control-status.c:552
 msgid "Miners"
 msgstr "Démoni na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:340
+#: ../src/tracker-control/tracker-control-miners.c:311
 msgid "Application"
 msgstr "Aplikace"
 
-#: ../src/tracker-control/tracker-control-miners.c:342
+#: ../src/tracker-control/tracker-control-miners.c:313
 msgid "Reason"
 msgstr "Důvod"
 
-#: ../src/tracker-control/tracker-control-miners.c:351
+#: ../src/tracker-control/tracker-control-miners.c:322
 msgid "No miners are paused"
 msgstr "Není pozastavený žádný démon na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:375
+#: ../src/tracker-control/tracker-control-miners.c:346
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Nemůžete naráz uvést přepínač pro pozastavení i obnovení běhu démona na "
 "dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:381
+#: ../src/tracker-control/tracker-control-miners.c:352
 msgid "You must provide the miner for pause or resume commands"
 msgstr ""
 "Pro příkaz pozastavení nebo obnovení běhu musíte uvést démona na dolování dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:387
+#: ../src/tracker-control/tracker-control-miners.c:358
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
 "Musíte zadat příkaz pozastavení nebo pokračování pro démona na získávání dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:431
+#: ../src/tracker-control/tracker-control-miners.c:402
 msgid "Miner options"
 msgstr "Přepínače démona na získávání dat"
 
-#: ../src/tracker-control/tracker-control-miners.c:432
+#: ../src/tracker-control/tracker-control-miners.c:403
 msgid "Show miner options"
 msgstr "Zobrazí přepínače démonů na získávání dat"
 
 #: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:269
+#: ../src/tracker-control/tracker-control-status.c:294
 msgid "Unavailable"
 msgstr "Nedostupný"
 
@@ -1516,30 +1502,44 @@ msgstr "Zabývat se změnami stavů, jakmile nastanou"
 msgid "List common statuses for miners and the store"
 msgstr "Vypsat běžné stavy démonů na dolování dat a úložišť"
 
+#: ../src/tracker-control/tracker-control-status.c:141
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr "Nelze získat udaje o stavu od démona na dolování dat: %s"
+
+#: ../src/tracker-control/tracker-control-status.c:198
+msgid "remaining"
+msgstr "zbývá"
+
+#: ../src/tracker-control/tracker-control-status.c:202
+#| msgid "unknown time"
+msgid "unknown time left"
+msgstr "neznámý zbývající čas"
+
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:191
-#: ../src/tracker-control/tracker-control-status.c:508
+#: ../src/tracker-control/tracker-control-status.c:215
+#: ../src/tracker-control/tracker-control-status.c:536
 msgid "PAUSED"
 msgstr "POZASTAVENO"
 
-#: ../src/tracker-control/tracker-control-status.c:205
+#: ../src/tracker-control/tracker-control-status.c:232
 msgid "Not running or is a disabled plugin"
 msgstr "Neběží nebo je vypnutý zásuvný modul"
 
-#: ../src/tracker-control/tracker-control-status.c:482
+#: ../src/tracker-control/tracker-control-status.c:510
 msgid "Common statuses include"
 msgstr "Běžné stavy zahrnují"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:518
+#: ../src/tracker-control/tracker-control-status.c:546
 msgid "Store"
 msgstr "Úložište"
 
-#: ../src/tracker-control/tracker-control-status.c:631
+#: ../src/tracker-control/tracker-control-status.c:667
 msgid "Status options"
 msgstr "Přepínače stavu"
 
-#: ../src/tracker-control/tracker-control-status.c:632
+#: ../src/tracker-control/tracker-control-status.c:668
 msgid "Show status options"
 msgstr "Zobrazí přepínače stavu"
 
