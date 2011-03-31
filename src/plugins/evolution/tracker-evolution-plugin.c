@@ -618,8 +618,9 @@ on_folder_summary_changed (CamelFolder           *folder,
 	OnSummaryChangedInfo *info = user_data;
 	CamelFolderSummary *summary;
 	GPtrArray *merged;
-	guint i;
 	CamelURL *a_url;
+	gboolean did_work;
+	guint i;
 
 	if (!folder)
 		return;
@@ -629,6 +630,7 @@ on_folder_summary_changed (CamelFolder           *folder,
 	a_url = CAMEL_SERVICE (camel_folder_get_parent_store (folder))->url;
 
 	merged = g_ptr_array_new ();
+	did_work = FALSE;
 
 	/* the uid_added member contains the added-to-the-summary items */
 
@@ -766,11 +768,12 @@ on_folder_summary_changed (CamelFolder           *folder,
 
 			g_free (full_sparql);
 
+			/* FIXME: Actually report accurate percentages and don't spam */
 			g_debug ("Tracker plugin setting progress to '%2.2f' and status to 'Updating an E-mail'",
 			         (gdouble) i / merged->len);
 			g_object_set (info->self, "progress",
 			              (gdouble) i / merged->len,
-			              "status", "Updating an E-mail",
+			              "status", "Updating E-mails",
 			              NULL);
 
 			g_object_unref (sparql);
@@ -783,19 +786,25 @@ on_folder_summary_changed (CamelFolder           *folder,
 			camel_message_info_free (linfo);
 	}
 
+	/* Set flag if we did work here */
+	did_work = merged->len > 0;
+
 	g_ptr_array_free (merged, TRUE);
 
 	/* the uid_removed member contains the removed-from-the-summary items */
 
 	if (changes->uid_removed && changes->uid_removed->len > 0) {
-
 		/* The FROM uri is not exactly right here, but we just want
 		 * graph != NULL in tracker-store/tracker-writeback.c */
-
 		GString *sparql = g_string_new ("");
 
-		for (i = 0; i< changes->uid_removed->len; i++) {
+		for (i = 0; i < changes->uid_removed->len; i++) {
 			gchar *uri;
+
+			g_object_set (info->self,
+			              "progress", (gdouble) i / changes->uid_removed->len,
+			              "status", "Cleaning up deleted E-mails",
+			              NULL);
 
 			/* This is not a path but a URI, don't use the OS's
 			 * directory separator here */
@@ -807,12 +816,17 @@ on_folder_summary_changed (CamelFolder           *folder,
 
 		send_sparql_update (info->self, sparql->str, 100);
 		g_string_free (sparql, TRUE);
+
+		/* Set flag if we did work here */
+		did_work = TRUE;
 	}
 
 	send_sparql_commit (info->self, FALSE);
 
-	g_debug ("Tracker plugin setting progress to '1.0' and status to 'Idle'");
-	g_object_set (info->self, "progress", 1.0, "status", "Idle", NULL);
+	if (did_work) {
+		g_debug ("Tracker plugin setting progress to '1.0' and status to 'Idle'");
+		g_object_set (info->self, "progress", 1.0, "status", "Idle", NULL);
+	}
 }
 
 static gchar *
@@ -845,14 +859,15 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	CamelURL *a_url;
 	CamelDB *cdb_r;
+	gboolean did_work;
 
 	if (g_cancellable_is_cancelled (cancel)) {
 		return;
 	}
 
 	cdb_r = camel_db_clone (store->cdb_r, NULL);
-
 	a_url = CAMEL_SERVICE (store)->url;
+	did_work = FALSE;
 
 	while (iter) {
 		guint uids_i;
@@ -862,14 +877,15 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 		sqlite3_stmt *stmt = NULL;
 		GPtrArray *uids = g_ptr_array_new_with_free_func (g_free);
 
+		did_work = TRUE;
+
 		query = sqlite3_mprintf ("SELECT uid FROM %Q "
 		                         "WHERE modified > %"G_GUINT64_FORMAT,
 		                         iter->full_name,
 		                         info->last_checkout);
 
 		status = g_strdup_printf ("Processing folder %s", iter->name);
-		g_debug ("Tracker plugin setting progress to '0.0' and status to '%s'", status);
-		g_object_set (self,  "progress", 0.0, "status", status, NULL);
+		g_object_set (self,  "progress", 0.01, "status", status, NULL);
 
 		ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
 		while (ret == SQLITE_OK || ret == SQLITE_BUSY || ret == SQLITE_ROW) {
@@ -1101,8 +1117,10 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 		g_free (status);
 	}
 
-	g_debug ("Tracker plugin setting progress to '1.0' and status to 'Idle'");
-	g_object_set (self, "progress", 1.0, "status", "Idle", NULL);
+	if (did_work) {
+		g_debug ("Tracker plugin setting progress to '1.0' and status to 'Idle'");
+		g_object_set (self, "progress", 1.0, "status", "Idle", NULL);
+	}
 
 	camel_db_close (cdb_r);
 }
