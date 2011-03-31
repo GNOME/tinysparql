@@ -209,56 +209,6 @@ static void miner_start_watching (TrackerMiner *miner);
 static void miner_stop_watching (TrackerMiner *miner);
 
 /* First a bunch of helper functions. */
-#if 0
-static ssize_t
-camel_stream_format_text (CamelDataWrapper *dw, CamelStream *stream)
-{
-	CamelStreamFilter *filter_stream;
-	CamelMimeFilterCharset *filter;
-	const char *charset = "UTF-8"; /* I default to UTF-8, like it or not */
-	CamelMimeFilterWindows *windows = NULL;
-	ssize_t bytes = -1;
-
-	if (dw->mime_type && (charset = camel_content_type_param (dw->mime_type, "charset")) &&
-	    g_ascii_strncasecmp(charset, "iso-8859-", 9) == 0) {
-		CamelStream *null;
-
-		/* Since a few Windows mailers like to claim they sent
-		 * out iso-8859-# encoded text when they really sent
-		 * out windows-cp125#, do some simple sanity checking
-		 * before we move on... */
-
-		null = camel_stream_null_new();
-		filter_stream = camel_stream_filter_new_with_stream(null);
-		camel_object_unref(null);
-		windows = (CamelMimeFilterWindows *)camel_mime_filter_windows_new(charset);
-		camel_stream_filter_add (filter_stream, (CamelMimeFilter *)windows);
-		camel_data_wrapper_decode_to_stream (dw, (CamelStream *)filter_stream);
-		camel_stream_flush ((CamelStream *)filter_stream);
-		camel_object_unref (filter_stream);
-		charset = camel_mime_filter_windows_real_charset (windows);
-	}
-
-	filter_stream = camel_stream_filter_new_with_stream (stream);
-
-	if ((filter = camel_mime_filter_charset_new_convert (charset, "UTF-8"))) {
-		camel_stream_filter_add (filter_stream, (CamelMimeFilter *) filter);
-		camel_object_unref (filter);
-	}
-
-	bytes = camel_data_wrapper_decode_to_stream (dw, (CamelStream *)filter_stream);
-	camel_stream_flush ((CamelStream *)filter_stream);
-	camel_object_unref (filter_stream);
-
-	if (windows) {
-		camel_object_unref(windows);
-	}
-
-	return bytes;
-}
-
-#endif
-
 static void
 get_email_and_fullname (const gchar *line, gchar **email, gchar **fullname)
 {
@@ -571,69 +521,6 @@ process_fields (TrackerSparqlBuilder *sparql, const gchar *uid, guint flags,
 		}
 		g_strfreev (arr);
 	}
-
-#if 0
-	/* This massively slows down Evolution, we need to do this in a queue
-	 * instead. Therefore I'm disabling this code for now. The code does
-	 * a parse of each already-once-downloaded E-mail. This is obviously
-	 * excessive and expensive for the performance of Evolution. */
-
-	if (folder) {
-		gchar *filen = camel_folder_get_filename (folder, uid, NULL);
-		if (filen) {
-			if (g_file_test (filen, G_FILE_TEST_EXISTS)) {
-				CamelMimeMessage *mime = camel_folder_get_message (folder, uid, NULL);
-				if (mime) {
-					CamelDataWrapper *containee;
-					containee = camel_medium_get_content_object (CAMEL_MEDIUM (mime));
-
-					if (CAMEL_IS_MULTIPART (containee)) {
-						guint i, parts = camel_multipart_get_number (CAMEL_MULTIPART (containee));
-						for (i = 0; i < parts; i++) {
-							CamelMimePart *tpart = camel_multipart_get_part (CAMEL_MULTIPART (containee), i);
-							CamelContentType *type;
-
-							type = camel_mime_part_get_content_type (tpart);
-							if (camel_content_type_is (type, "text", "*")) {
-								CamelStream *stream = camel_stream_mem_new ();
-								CamelDataWrapper *wrapper;
-								CamelStreamMem *mem = (CamelStreamMem *) stream;
-								gssize bytes = -1;
-
-								wrapper = camel_medium_get_content_object (CAMEL_MEDIUM (tpart));
-								if (!wrapper) {
-									wrapper = camel_data_wrapper_new ();
-									camel_medium_set_content_object (CAMEL_MEDIUM (tpart), wrapper);
-									camel_object_unref (wrapper);
-								}
-
-								if (wrapper->stream) {
-									camel_stream_reset (wrapper->stream);
-
-									if (camel_content_type_is (wrapper->mime_type, "text", "plain"))
-										bytes = camel_stream_format_text (wrapper, stream);
-									else
-										bytes = camel_data_wrapper_decode_to_stream (wrapper, stream);
-
-									/* The validate check always fails for me, don't know why yet */
-									if (bytes > 0 && g_utf8_validate ((gchar *) mem->buffer->data, -1, NULL)) {
-										tracker_sparql_builder_subject_iri (sparql, uri);
-										tracker_sparql_builder_predicate (sparql, "nie:plainTextContent");
-										tracker_sparql_builder_object_string (sparql, (gchar *) mem->buffer->data);
-									}
-								}
-
-								camel_object_unref (stream);
-							}
-						}
-					}
-					camel_object_unref (mime);
-				}
-			}
-			g_free (filen);
-		}
-	}
-#endif
 }
 
 static gchar*
@@ -671,8 +558,8 @@ convert_url_to_whatever (CamelURL *a_url, const gchar *path, const gchar *uid)
  * mainloop or by a thread (unknown, depends on Camel and Evolution code that
  * executes the reason why this signal gets emitted).
  *
- * This one is the reason why we registered all those folders during init below. */
-
+ * This one is the reason why we registered all those folders during init below.
+ */
 static void
 on_folder_summary_changed (CamelFolder *folder,
                            CamelFolderChangeInfo *changes,
@@ -730,7 +617,7 @@ on_folder_summary_changed (CamelFolder *folder,
 		const CamelTag *ctags;
 		const CamelFlag *cflags;
 		gchar *full_sparql;
-	
+
 		linfo = camel_folder_summary_uid (summary, merged->pdata[i]);
 
 		if (linfo) {
@@ -2141,7 +2028,7 @@ ensure_no_connection (TrackerMinerEvolutionPrivate *priv)
 	if (priv->sparql_cancel) {
 		g_cancellable_cancel (priv->sparql_cancel);
 	}
-	priv->connection = NULL; 
+	priv->connection = NULL;
 
 	g_static_rec_mutex_unlock (&glock);
 
