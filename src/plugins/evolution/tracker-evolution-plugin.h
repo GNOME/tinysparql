@@ -20,32 +20,32 @@
  *  Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_EVOLUTION_PLUGIN_H__
-#define __TRACKER_EVOLUTION_PLUGIN_H__
+#ifndef __TRACKER_MINER_EVOLUTION_H__
+#define __TRACKER_MINER_EVOLUTION_H__
 
 #include <libtracker-miner/tracker-miner.h>
 
-#define TRACKER_TYPE_EVOLUTION_PLUGIN          (tracker_evolution_plugin_get_type())
-#define TRACKER_EVOLUTION_PLUGIN(o)            (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_EVOLUTION_PLUGIN, TrackerEvolutionPlugin))
-#define TRACKER_EVOLUTION_PLUGIN_CLASS(c)      (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_EVOLUTION_PLUGIN, TrackerEvolutionPluginClass))
-#define TRACKER_EVOLUTION_PLUGIN_GET_CLASS(o)  (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_EVOLUTION_PLUGIN, TrackerEvolutionPluginClass))
+#define TRACKER_TYPE_MINER_EVOLUTION          (tracker_miner_evolution_get_type())
+#define TRACKER_MINER_EVOLUTION(o)            (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MINER_EVOLUTION, TrackerMinerEvolution))
+#define TRACKER_MINER_EVOLUTION_CLASS(c)      (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_MINER_EVOLUTION, TrackerMinerEvolutionClass))
+#define TRACKER_MINER_EVOLUTION_GET_CLASS(o)  (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_EVOLUTION, TrackerMinerEvolutionClass))
 
 G_BEGIN_DECLS
 
-typedef struct TrackerEvolutionPlugin TrackerEvolutionPlugin;
-typedef struct TrackerEvolutionPluginClass TrackerEvolutionPluginClass;
+typedef struct TrackerMinerEvolution TrackerMinerEvolution;
+typedef struct TrackerMinerEvolutionClass TrackerMinerEvolutionClass;
 
-struct TrackerEvolutionPlugin {
+struct TrackerMinerEvolution {
 	TrackerMiner parent;
 };
 
-struct TrackerEvolutionPluginClass {
+struct TrackerMinerEvolutionClass {
 	TrackerMinerClass parent;
 };
 
-GType tracker_evolution_plugin_get_type (void);
+GType tracker_miner_evolution_get_type (void);
 
 
 G_END_DECLS
 
-#endif /* __TRACKER_EVOLUTION_PLUGIN_H__ */
+#endif /* __TRACKER_MINER_EVOLUTION_H__ */
