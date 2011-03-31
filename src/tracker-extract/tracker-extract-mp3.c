@@ -513,10 +513,10 @@ read_id3v1_buffer (int     fd,
 static gchar *
 ucs2_to_utf8(const gchar *data, guint len)
 {
-	const gchar   *encoding = NULL;
+	const gchar *encoding = NULL;
 	guint16  c;
 	gboolean be;
-	gchar   *utf8 = NULL;
+	gchar *utf8 = NULL;
 
 	memcpy (&c, data, 2);
 
