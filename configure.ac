@@ -1514,7 +1514,7 @@ AC_SUBST(GUPNP_DLNA_CFLAGS)
 AC_SUBST(GUPNP_DLNA_LIBS)
 
 PKG_CHECK_MODULES(GSTREAMER,
-                  [gstreamer-0.10 >= 0.10.12 gstreamer-tag-0.10 >= 0.10.12],
+                  [gstreamer-0.10 >= 0.10.31 gstreamer-tag-0.10 >= 0.10.31],
                   [have_libgstreamer=yes],
                   [have_libgstreamer=no])
 
