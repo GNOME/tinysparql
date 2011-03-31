@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include "tracker-encoding-meegotouch.h"
+#include "tracker-locale.h"
 
 /*
  * See http://apidocs.meego.com/git-tip/mtf/class_m_charset_detector.html
@@ -35,6 +36,8 @@ tracker_encoding_guess_meegotouch (const gchar *buffer,
 {
 	/* Initialize detector */
 	MCharsetDetector detector ((const char *)buffer, (int)size);
+	gchar *locale;
+	gchar *encoding = NULL;
 
 	if (detector.hasError ()) {
 		g_warning ("Charset detector error when creating: %s",
@@ -50,26 +53,37 @@ tracker_encoding_guess_meegotouch (const gchar *buffer,
 		return NULL;
 	}
 
-	gchar *encoding = g_strdup (bestMatch.name ().toUtf8 ().data ());
+	locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+	detector.setDeclaredLocale (locale);
+
+	if (bestMatch.confidence () > 30) {
+		encoding = g_strdup (bestMatch.name ().toUtf8 ().data ());
 
 #if 0
-	QList<MCharsetMatch> mCharsetMatchList = detector.detectAll();
+		QList<MCharsetMatch> mCharsetMatchList = detector.detectAll();
 
-	if (detector.hasError ()) {
-		g_warning ("Charset detector error when detecting all: %s",
-		           detector.errorString ().toUtf8 (). data ());
-	}
+		if (detector.hasError ()) {
+			g_warning ("Charset detector error when detecting all: %s",
+			           detector.errorString ().toUtf8 (). data ());
+		}
 
-	g_debug ("Detecting all charsets...");
-	for (gint i = 0; i < mCharsetMatchList.size (); ++i) {
-		g_debug ("  Charset '%s' with %d%% confidence...",
-		         mCharsetMatchList[i].name (). toUtf8 ().data (),
-		         mCharsetMatchList[i].confidence ());
-	}
+		g_debug ("Detecting all charsets...");
+		for (gint i = 0; i < mCharsetMatchList.size (); ++i) {
+			g_debug ("  Charset '%s' with %d%% confidence...",
+			         mCharsetMatchList[i].name (). toUtf8 ().data (),
+			         mCharsetMatchList[i].confidence ());
+		}
 #endif
 
-	g_debug ("Guessing charset as '%s' with %d%% confidence",
-	         encoding, bestMatch.confidence ());
+		g_debug ("Guessing charset as '%s' with %d%% confidence",
+		         encoding, bestMatch.confidence ());
+	} else {
+		g_debug ("Ignoring charset as '%s' with %d%% (< 30%%) confidence",
+		         bestMatch.name ().toUtf8 ().data (),
+		         bestMatch.confidence ());
+	}
+
+	g_free (locale);
 
 	return encoding;
 }
