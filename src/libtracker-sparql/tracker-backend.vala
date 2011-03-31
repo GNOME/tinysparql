@@ -41,7 +41,7 @@ class Tracker.Sparql.Backend : Connection {
 		this.direct_only = direct_only;
 	}
 
-	public override void init () throws Sparql.Error, IOError, DBusError {
+	public override void init () throws Sparql.Error, IOError, DBusError, SpawnError {
 		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
 		                                                    TRACKER_DBUS_SERVICE,
 		                                                    TRACKER_DBUS_OBJECT_STATUS,
