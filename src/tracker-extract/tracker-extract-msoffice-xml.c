@@ -88,6 +88,8 @@ typedef struct {
 	gulong bytes_pending;
 	gboolean style_element_present;
 	gboolean preserve_attribute_present;
+	GTimer *timer;
+	gboolean limit_reached;
 } MsOfficeXMLParserInfo;
 
 static void extract_msoffice_xml                   (const gchar          *uri,
@@ -657,8 +659,17 @@ msoffice_xml_content_types_parse_start (GMarkupParseContext  *context,
 	      g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml") == 0))) {
 		/* If reached max bytes to extract, don't event start parsing the file... just return */
 		if (info->bytes_pending == 0) {
-			g_debug ("Skipping '%s' as already reached max bytes to extract",
-			         part_name + 1);
+			if (!info->limit_reached) {
+				g_debug ("Skipping '%s' as already reached max bytes to extract",
+				         part_name + 1);
+				info->limit_reached = TRUE;
+			}
+		} else if (g_timer_elapsed (info->timer, NULL) > 5) {
+			if (!info->limit_reached) {
+				g_debug ("Skipping '%s' as already reached max time to extract",
+					 part_name + 1);
+				info->limit_reached = TRUE;
+			}
 		} else {
 			xml_read (info, part_name + 1, MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA);
 		}
@@ -763,6 +774,8 @@ extract_msoffice_xml (const gchar          *uri,
 	                                      &info,
 	                                      NULL);
 
+	info.limit_reached = FALSE;
+	info.timer = g_timer_new ();
 	/* Load the internal XML file from the Zip archive, and parse it
 	 * using the given context */
 	tracker_gsf_parse_xml_in_zip (uri,
@@ -789,6 +802,7 @@ extract_msoffice_xml (const gchar          *uri,
 		}
 	}
 
+	g_timer_destroy (info.timer);
 	g_markup_parse_context_free (context);
 }
 
