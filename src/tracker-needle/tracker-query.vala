@@ -136,12 +136,8 @@ public class Tracker.Query {
 
 		try {
 			connection = Sparql.Connection.get ();
-		} catch (Sparql.Error ea) {
-			warning ("Could not get Sparql connection: %s", ea.message);
-		} catch (GLib.IOError eb) {
-			warning ("Could not get Sparql connection: %s", eb.message);
-		} catch (GLib.DBusError ec) {
-			warning ("Could not get Sparql connection: %s", ec.message);
+		} catch (GLib.Error e) {
+			warning ("Could not get Sparql connection: %s", e.message);
 		}
 	}
 
@@ -162,14 +158,8 @@ public class Tracker.Query {
 		try {
 			cursor = yield connection.query_async (query, null);
                         yield cursor.next_async ();
-		} catch (Sparql.Error ea) {
-			warning ("Could not run Sparql count query: %s", ea.message);
-		} catch (GLib.IOError eb) {
-			warning ("Could not run Sparql count query: %s", eb.message);
-		} catch (GLib.DBusError ec) {
-			warning ("Could not run Sparql count query: %s", ec.message);
-		} catch (GLib.Error ge) {
-			warning ("Could not run Sparql count query: %s", ge.message);
+		} catch (GLib.Error e) {
+			warning ("Could not run Sparql count query: %s", e.message);
                 }
 
                 return (uint) cursor.get_integer (0);
@@ -200,12 +190,8 @@ public class Tracker.Query {
 
 		try {
 			cursor = yield connection.query_async (query, null);
-		} catch (Sparql.Error ea) {
-			warning ("Could not run Sparql query: %s", ea.message);
-		} catch (GLib.IOError eb) {
-			warning ("Could not run Sparql query: %s", eb.message);
-		} catch (GLib.DBusError ec) {
-			warning ("Could not run Sparql query: %s", ec.message);
+		} catch (GLib.Error e) {
+			warning ("Could not run Sparql query: %s", e.message);
 		}
 
 		debug ("Done");

@@ -77,14 +77,9 @@ public class Tracker.TagList : ScrolledWindow {
 		// Add data
 		try {
 			connection = Sparql.Connection.get ();
-		} catch (Sparql.Error ea) {
-			warning ("Could not get Sparql connection: %s", ea.message);
+		} catch (GLib.Error e) {
+			warning ("Could not get Sparql connection: %s", e.message);
 			return;
-		} catch (GLib.IOError eb) {
-			warning ("Could not get Sparql connection: %s", eb.message);
-			return;
-		} catch (GLib.DBusError ec) {
-			warning ("Could not run Sparql query: %s", ec.message);
 		}
 
 		get_tags.begin ();
@@ -137,12 +132,8 @@ public class Tracker.TagList : ScrolledWindow {
 				           3, cursor.get_string (3),      // Count
 				           -1);
 			}
-		} catch (Sparql.Error ea) {
-			warning ("Could not run Sparql query: %s", ea.message);
-		} catch (GLib.IOError eb) {
-			warning ("Could not run Sparql query: %s", eb.message);
-		} catch (GLib.Error ec) {
-			warning ("Could not run Sparql query: %s", ec.message);
+		} catch (GLib.Error e) {
+			warning ("Could not run Sparql query: %s", e.message);
 		}
 
 		debug ("  Done");
