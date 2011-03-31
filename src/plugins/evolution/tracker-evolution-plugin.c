@@ -86,9 +86,9 @@
 #define TRACKER_EVOLUTION_GRAPH_URN     "urn:uuid:9a96d750-5182-11e0-b8af-0800200c9a66"
 
 
-G_DEFINE_TYPE (TrackerEvolutionPlugin, tracker_evolution_plugin, TRACKER_TYPE_MINER)
+G_DEFINE_TYPE (TrackerMinerEvolution, tracker_miner_evolution, TRACKER_TYPE_MINER)
 
-#define TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EVOLUTION_PLUGIN, TrackerEvolutionPluginPrivate))
+#define TRACKER_MINER_EVOLUTION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MINER_EVOLUTION, TrackerMinerEvolutionPrivate))
 
 /* Some helper-defines (Copied from cruel Camel code, might be wrong as soon as
  * the cruel and nasty Camel coders decide to change the format of the fields in
@@ -127,12 +127,12 @@ typedef struct {
 } ThreadPool;
 
 typedef struct {
-	TrackerEvolutionPlugin *self; /* weak */
+	TrackerMinerEvolution *self; /* weak */
 	guint64 last_checkout;
 } ClientRegistry;
 
 typedef struct {
-	TrackerEvolutionPlugin *self;
+	TrackerMinerEvolution *self;
 	gchar *account_uri;
 	guint hook_id;
 } OnSummaryChangedInfo;
@@ -144,19 +144,19 @@ typedef struct {
 
 typedef struct {
 	EAccount *account;
-	TrackerEvolutionPlugin *self;
+	TrackerMinerEvolution *self;
 	guint hook_id;
 	CamelStore *store;
 } StoreRegistry;
 
 typedef struct {
-	TrackerEvolutionPlugin *self;
+	TrackerMinerEvolution *self;
 	gchar *account_uri;
 	ClientRegistry *info;
 } IntroductionInfo;
 
 typedef struct {
-	TrackerEvolutionPlugin *self;
+	TrackerMinerEvolution *self;
 	gchar *uri;
 	gboolean old_state;
 	EAccount *account;
@@ -175,7 +175,7 @@ typedef struct {
 	guint watch_name_id;
 	GCancellable *sparql_cancel;
 	GTimer *timer_since_stopped;
-} TrackerEvolutionPluginPrivate;
+} TrackerMinerEvolutionPrivate;
 
 typedef struct {
 	IntroductionInfo *intro_info;
@@ -184,12 +184,12 @@ typedef struct {
 } TryAgainInfo;
 
 typedef struct {
-	TrackerEvolutionPlugin *self;
+	TrackerMinerEvolution *self;
 	gchar *account_uri;
 	CamelFolderInfo *iter;
 } GetFolderInfo;
 
-static TrackerEvolutionPlugin *manager = NULL;
+static TrackerMinerEvolution *manager = NULL;
 static GStaticRecMutex glock = G_STATIC_REC_MUTEX_INIT;
 static guint register_count = 0, walk_count = 0;
 static ThreadPool *folder_pool = NULL;
@@ -198,8 +198,8 @@ static EMailSession *session = NULL;
 #endif
 
 /* Prototype declarations */
-static void register_account (TrackerEvolutionPlugin *self, EAccount *account);
-static void unregister_account (TrackerEvolutionPlugin *self, EAccount *account);
+static void register_account (TrackerMinerEvolution *self, EAccount *account);
+static void unregister_account (TrackerMinerEvolution *self, EAccount *account);
 int e_plugin_lib_enable (EPlugin *ep, int enable);
 static void miner_started (TrackerMiner *miner);
 static void miner_stopped (TrackerMiner *miner);
@@ -298,7 +298,7 @@ folder_registry_free (FolderRegistry *registry)
 static FolderRegistry*
 folder_registry_new (const gchar *account_uri,
                      CamelFolder *folder,
-                     TrackerEvolutionPlugin *self)
+                     TrackerMinerEvolution *self)
 {
 	FolderRegistry *registry = g_slice_new (FolderRegistry);
 
@@ -388,9 +388,9 @@ thread_pool_destroy (ThreadPool *pool)
 }
 
 static void
-send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql, gint prio)
+send_sparql_update (TrackerMinerEvolution *self, const gchar *sparql, gint prio)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 
 	g_static_rec_mutex_lock (&glock);
 	if (priv->connection) {
@@ -406,9 +406,9 @@ send_sparql_update (TrackerEvolutionPlugin *self, const gchar *sparql, gint prio
 }
 
 static void
-send_sparql_commit (TrackerEvolutionPlugin *self, gboolean update)
+send_sparql_commit (TrackerMinerEvolution *self, gboolean update)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 
 	if (priv->connection) {
 		if (update) {
@@ -895,14 +895,14 @@ uids_to_chunk (GPtrArray *uids, guint cur, guint max)
 
 /* Initial upload of more recent than last_checkout items, called in the mainloop */
 static void
-introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
+introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
                                   CamelFolderInfo *iter,
                                   CamelStore *store,
                                   gchar *account_uri,
                                   ClientRegistry *info,
                                   GCancellable *cancel)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	CamelURL *a_url;
 	CamelDB *cdb_r;
 
@@ -1166,7 +1166,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
  * the mainloop */
 
 static void
-introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
+introduce_store_deal_with_deleted (TrackerMinerEvolution *self,
                                    CamelStore *store,
                                    char *account_uri,
                                    gpointer user_data)
@@ -1269,9 +1269,9 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
  * need this to test whether we should use Cleanup() or not. */
 
 static guint64
-get_last_deleted_time (TrackerEvolutionPlugin *self)
+get_last_deleted_time (TrackerMinerEvolution *self)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	guint64 smallest = (guint64) time (NULL);
 
 	if (priv->accounts) {
@@ -1342,8 +1342,8 @@ register_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 	GetFolderInfo *info = user_data;
 	gchar *account_uri = info->account_uri;
 	CamelFolderInfo *iter = info->iter;
-	TrackerEvolutionPlugin *self = info->self;
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolution *self = info->self;
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	guint hook_id;
 	FolderRegistry *registry;
 
@@ -1382,12 +1382,12 @@ register_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 }
 
 static void
-register_walk_folders_in_folder (TrackerEvolutionPlugin *self,
+register_walk_folders_in_folder (TrackerMinerEvolution *self,
                                  CamelFolderInfo *iter,
                                  CamelStore *store,
                                  gchar *account_uri)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 
 	if (!priv->registered_folders) {
 		priv->registered_folders = g_hash_table_new_full (g_direct_hash, g_direct_equal,
@@ -1439,8 +1439,8 @@ unregister_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 {
 	GetFolderInfo *info = user_data;
 	CamelFolderInfo *titer = info->iter;
-	TrackerEvolutionPlugin *self = info->self;
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolution *self = info->self;
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	GHashTableIter iter;
 	gpointer key, value;
 
@@ -1473,7 +1473,7 @@ unregister_on_get_folder (gchar *uri, CamelFolder *folder, gpointer user_data)
 }
 
 static void
-unregister_walk_folders_in_folder (TrackerEvolutionPlugin *self,
+unregister_walk_folders_in_folder (TrackerMinerEvolution *self,
                                    CamelFolderInfo *titer,
                                    CamelStore *store,
                                    gchar *account_uri)
@@ -1639,7 +1639,7 @@ on_got_folderinfo_introduce (CamelStore *store,
 }
 
 static void
-introduce_account_to (TrackerEvolutionPlugin *self,
+introduce_account_to (TrackerMinerEvolution *self,
                       EAccount *account,
                       ClientRegistry *info)
 {
@@ -1688,10 +1688,10 @@ introduce_account_to (TrackerEvolutionPlugin *self,
 
 
 static void
-introduce_account_to_all (TrackerEvolutionPlugin *self,
+introduce_account_to_all (TrackerMinerEvolution *self,
                           EAccount *account)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	GList *copy = priv->registered_clients;
 
 	while (copy) {
@@ -1703,10 +1703,10 @@ introduce_account_to_all (TrackerEvolutionPlugin *self,
 }
 
 static void
-introduce_accounts_to (TrackerEvolutionPlugin *self,
+introduce_accounts_to (TrackerMinerEvolution *self,
                        ClientRegistry *info)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	EIterator *it;
 
 	for (it = e_list_get_iterator (E_LIST (priv->accounts)); e_iterator_is_valid (it); e_iterator_next (it)) {
@@ -1719,7 +1719,7 @@ introduce_accounts_to (TrackerEvolutionPlugin *self,
 static void
 register_client_second_half (ClientRegistry *info)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (info->self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (info->self);
 	guint64 too_old = get_last_deleted_time (info->self);
 
 	/* If registrar's modseq is too old, send Cleanup (). This means that
@@ -1749,7 +1749,7 @@ on_register_client_qry (GObject *source_object,
 {
 	TrackerSparqlCursor *cursor;
 	ClientRegistry *info = user_data;
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (info->self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (info->self);
 	GError *error = NULL;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
@@ -1797,9 +1797,9 @@ on_register_client_qry (GObject *source_object,
 }
 
 static void
-register_client (TrackerEvolutionPlugin *self)
+register_client (TrackerMinerEvolution *self)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	ClientRegistry *info;
 	const gchar *query;
 
@@ -1855,7 +1855,7 @@ on_folder_renamed (CamelStore      *store,
 static StoreRegistry*
 store_registry_new (gpointer co,
                     EAccount *account,
-                    TrackerEvolutionPlugin *self)
+                    TrackerMinerEvolution *self)
 {
 	StoreRegistry *registry = g_slice_new (StoreRegistry);
 
@@ -1882,8 +1882,8 @@ on_got_folderinfo_register (CamelStore *store,
                             void *data)
 {
 	RegisterInfo *reg_info = data;
-	TrackerEvolutionPlugin *self = reg_info->self;
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolution *self = reg_info->self;
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	EAccount *account = reg_info->account;
 	StoreRegistry *registry;
 	gchar *uri = reg_info->uri;
@@ -1939,7 +1939,7 @@ on_got_folderinfo_register (CamelStore *store,
 }
 
 static void
-register_account (TrackerEvolutionPlugin *self,
+register_account (TrackerMinerEvolution *self,
                   EAccount *account)
 {
 	CamelProvider *provider;
@@ -1984,8 +1984,8 @@ on_got_folderinfo_unregister (CamelStore *store,
                               void *data)
 {
 	RegisterInfo *reg_info = data;
-	TrackerEvolutionPlugin *self = reg_info->self;
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (self);
+	TrackerMinerEvolution *self = reg_info->self;
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (self);
 	gchar *uri = reg_info->uri;
 	GHashTableIter iter;
 	gpointer key, value;
@@ -2009,7 +2009,7 @@ on_got_folderinfo_unregister (CamelStore *store,
 }
 
 static void
-unregister_account (TrackerEvolutionPlugin *self,
+unregister_account (TrackerMinerEvolution *self,
                     EAccount *account)
 {
 	CamelProvider *provider;
@@ -2047,7 +2047,7 @@ unregister_account (TrackerEvolutionPlugin *self,
 static void
 on_account_added (EAccountList *list,
                   EAccount *account,
-                  TrackerEvolutionPlugin *self)
+                  TrackerMinerEvolution *self)
 {
 	register_account (self, account);
 	introduce_account_to_all (self, account);
@@ -2056,7 +2056,7 @@ on_account_added (EAccountList *list,
 static void
 on_account_removed (EAccountList *list,
                     EAccount *account,
-                    TrackerEvolutionPlugin *self)
+                    TrackerMinerEvolution *self)
 {
 	unregister_account (self, account);
 }
@@ -2064,7 +2064,7 @@ on_account_removed (EAccountList *list,
 static void
 on_account_changed (EAccountList *list,
                     EAccount *account,
-                    TrackerEvolutionPlugin *self)
+                    TrackerMinerEvolution *self)
 {
 	unregister_account (self, account);
 	register_account (self, account);
@@ -2089,7 +2089,7 @@ disable_plugin (void)
 static void
 enable_plugin_real (void)
 {
-	manager = g_object_new (TRACKER_TYPE_EVOLUTION_PLUGIN,
+	manager = g_object_new (TRACKER_TYPE_MINER_EVOLUTION,
 	                        "name", "Emails", NULL);
 
 	g_signal_emit_by_name (manager, "started");
@@ -2107,7 +2107,7 @@ enable_plugin_try (gpointer user_data)
 }
 
 static void
-ensure_connection (TrackerEvolutionPluginPrivate *priv)
+ensure_connection (TrackerMinerEvolutionPrivate *priv)
 {
 	g_static_rec_mutex_lock (&glock);
 
@@ -2128,7 +2128,7 @@ ensure_connection (TrackerEvolutionPluginPrivate *priv)
 }
 
 static void
-ensure_no_connection (TrackerEvolutionPluginPrivate *priv)
+ensure_no_connection (TrackerMinerEvolutionPrivate *priv)
 {
 	TrackerSparqlConnection *connection;
 
@@ -2162,7 +2162,7 @@ enable_plugin (void)
 	/* Deal with https://bugzilla.gnome.org/show_bug.cgi?id=606940 */
 
 	if (manager) {
-		TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (manager);
+		TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (manager);
 		ensure_no_connection (priv);
 		g_object_unref (manager);
 	}
@@ -2192,9 +2192,9 @@ e_plugin_lib_enable (EPlugin *ep, int enabled)
 }
 
 static void
-tracker_evolution_plugin_finalize (GObject *plugin)
+tracker_miner_evolution_finalize (GObject *plugin)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (plugin);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (plugin);
 
 	if (priv->registered_folders) {
 		g_hash_table_unref (priv->registered_folders);
@@ -2221,12 +2221,12 @@ tracker_evolution_plugin_finalize (GObject *plugin)
 
 	g_static_rec_mutex_unlock (&glock);
 
-	G_OBJECT_CLASS (tracker_evolution_plugin_parent_class)->finalize (plugin);
+	G_OBJECT_CLASS (tracker_miner_evolution_parent_class)->finalize (plugin);
 }
 
 
 static void
-tracker_evolution_plugin_class_init (TrackerEvolutionPluginClass *klass)
+tracker_miner_evolution_class_init (TrackerMinerEvolutionClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerClass *miner_class = TRACKER_MINER_CLASS (klass);
@@ -2238,15 +2238,15 @@ tracker_evolution_plugin_class_init (TrackerEvolutionPluginClass *klass)
 	miner_class->paused  = miner_paused;
 	miner_class->resumed = miner_resumed;
 
-	object_class->finalize = tracker_evolution_plugin_finalize;
+	object_class->finalize = tracker_miner_evolution_finalize;
 
-	g_type_class_add_private (object_class, sizeof (TrackerEvolutionPluginPrivate));
+	g_type_class_add_private (object_class, sizeof (TrackerMinerEvolutionPrivate));
 }
 
 static void
-tracker_evolution_plugin_init (TrackerEvolutionPlugin *plugin)
+tracker_miner_evolution_init (TrackerMinerEvolution *plugin)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (plugin);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (plugin);
 	EIterator *it;
 
 #ifdef EVOLUTION_SHELL_2_91
@@ -2293,7 +2293,7 @@ on_tracker_store_appeared (GDBusConnection *d_connection,
                            gpointer         user_data)
 
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (user_data);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (user_data);
 
 	ensure_connection (priv);
 
@@ -2303,7 +2303,7 @@ on_tracker_store_appeared (GDBusConnection *d_connection,
 static void
 miner_start_watching (TrackerMiner *miner)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (miner);
 
 	priv->watch_name_id = g_bus_watch_name (G_BUS_TYPE_SESSION,
 	                                        TRACKER_SERVICE,
@@ -2317,7 +2317,7 @@ miner_start_watching (TrackerMiner *miner)
 static void
 miner_stop_watching (TrackerMiner *miner)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (miner);
 
 	if (priv->watch_name_id != 0)
 		g_bus_unwatch_name (priv->watch_name_id);
@@ -2328,7 +2328,7 @@ miner_stop_watching (TrackerMiner *miner)
 static void
 miner_started (TrackerMiner *miner)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (miner);
 
 	ensure_connection (priv);
 
@@ -2340,7 +2340,7 @@ miner_started (TrackerMiner *miner)
 static void
 miner_stopped (TrackerMiner *miner)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (miner);
 
 	miner_paused (miner);
 	priv->paused = FALSE;
@@ -2349,7 +2349,7 @@ miner_stopped (TrackerMiner *miner)
 static void
 miner_paused (TrackerMiner *miner)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (miner);
 
 	/* We don't really pause, we just completely stop */
 
@@ -2364,7 +2364,7 @@ miner_paused (TrackerMiner *miner)
 static gboolean
 unset_resuming (gpointer data)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (data);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (data);
 
 	priv->resuming = FALSE;
 	g_object_unref (data);
@@ -2375,7 +2375,7 @@ unset_resuming (gpointer data)
 static void
 miner_resumed (TrackerMiner *miner)
 {
-	TrackerEvolutionPluginPrivate *priv = TRACKER_EVOLUTION_PLUGIN_GET_PRIVATE (miner);
+	TrackerMinerEvolutionPrivate *priv = TRACKER_MINER_EVOLUTION_GET_PRIVATE (miner);
 
 	/* We don't really resume, we just completely restart */
 
