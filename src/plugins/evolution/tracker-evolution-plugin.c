@@ -750,6 +750,8 @@ on_folder_summary_changed (CamelFolder           *folder,
 
 			g_free (full_sparql);
 
+			g_debug ("Tracker plugin setting progress to '%2.2f' and status to 'Updating an E-mail'",
+			         (gdouble) i / merged->len);
 			g_object_set (info->self, "progress",
 			              (gdouble) i / merged->len,
 			              "status", "Updating an E-mail",
@@ -793,6 +795,7 @@ on_folder_summary_changed (CamelFolder           *folder,
 
 	send_sparql_commit (info->self, FALSE);
 
+	g_debug ("Tracker plugin setting progress to '1.0' and status to 'Idle'");
 	g_object_set (info->self, "progress", 1.0, "status", "Idle", NULL);
 }
 
@@ -849,6 +852,7 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 		                         info->last_checkout);
 
 		status = g_strdup_printf ("Processing folder %s", iter->name);
+		g_debug ("Tracker plugin setting progress to '0.0' and status to '%s'", status);
 		g_object_set (self,  "progress", 0.0, "status", status, NULL);
 
 		ret = sqlite3_prepare_v2 (cdb_r->db, query, -1, &stmt, NULL);
@@ -1055,6 +1059,9 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 				}
 			}
 
+			g_debug ("Tracker plugin setting progress to '%f' and status to '%s'",
+			         ((gdouble) uids_i / (gdouble) uids->len),
+			         status);
 			g_object_set (self, "progress",
 			              ((gdouble) uids_i / (gdouble) uids->len),
 			              "status", status,
@@ -1078,6 +1085,7 @@ introduce_walk_folders_in_folder (TrackerMinerEvolution *self,
 		g_free (status);
 	}
 
+	g_debug ("Tracker plugin setting progress to '1.0' and status to 'Idle'");
 	g_object_set (self, "progress", 1.0, "status", "Idle", NULL);
 
 	camel_db_close (cdb_r);
@@ -2001,6 +2009,8 @@ on_account_changed (EAccountList          *list,
 static void
 disable_plugin (void)
 {
+	g_debug ("Tracker plugin disabled");
+
 	if (folder_pool) {
 		ThreadPool *pool = folder_pool;
 		folder_pool = NULL;
@@ -2016,6 +2026,8 @@ disable_plugin (void)
 static void
 enable_plugin_real (void)
 {
+	g_debug ("Tracker plugin creating new object...");
+
 	manager = g_object_new (TRACKER_TYPE_MINER_EVOLUTION,
 	                        "name", "Emails", NULL);
 
@@ -2029,6 +2041,8 @@ enable_plugin_try (gpointer user_data)
 		enable_plugin_real ();
 		return FALSE;
 	}
+
+	g_debug ("Tracker plugin already enabled, doing nothing");
 
 	return TRUE;
 }
@@ -2086,6 +2100,8 @@ ensure_no_connection (TrackerMinerEvolutionPrivate *priv)
 static void
 enable_plugin (void)
 {
+	g_debug ("Tracker Evolution plugin enabled");
+
 	/* Deal with https://bugzilla.gnome.org/show_bug.cgi?id=606940 */
 
 	if (manager) {
@@ -2261,6 +2277,7 @@ miner_started (TrackerMiner *miner)
 
 	miner_start_watching (miner);
 
+	g_debug ("Tracker plugin setting progress to '0.0' and status to 'Initializing'");
 	g_object_set (miner,  "progress", 0.0, "status", "Initializing", NULL);
 }
 
@@ -2313,6 +2330,7 @@ miner_resumed (TrackerMiner *miner)
 	priv->total_popped = 0;
 	priv->of_total = 0;
 
+	g_debug ("Tracker plugin setting progress to '0.0' and status to 'Processing'");
 	g_object_set (miner,  "progress", 0.0, "status", _("Processing…"), NULL);
 
 	miner_start_watching (miner);
