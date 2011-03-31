@@ -195,19 +195,34 @@ add_double_gst_tag (TrackerSparqlBuilder *metadata,
 }
 
 static void
-add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
-                    const gchar           *uri,
-                    const gchar           *key,
-                    GstTagList            *tag_list,
-                    const gchar           *tag)
+add_date_time_gst_tag (TrackerSparqlBuilder  *metadata,
+                       const gchar           *uri,
+                       const gchar           *key,
+                       GstTagList            *tag_list,
+                       const gchar           *tag_date_time,
+                       const gchar           *tag_date)
 {
+	GstDateTime *date_time;
 	GDate *date;
 	gchar buf[25];
 
+	date_time = NULL;
 	date = NULL;
 	buf[0] = '\0';
 
-	if (gst_tag_list_get_date (tag_list, tag, &date)) {
+	if (gst_tag_list_get_date_time (tag_list, tag_date_time, &date_time)) {
+		snprintf (buf, sizeof (buf), "%04d-%02d-%02dT%02d:%02d:%02d%s%02d00",
+		          gst_date_time_get_year (date_time),
+		          gst_date_time_get_month (date_time),
+		          gst_date_time_get_day (date_time),
+		          gst_date_time_get_hour (date_time),
+		          gst_date_time_get_minute (date_time),
+		          gst_date_time_get_second (date_time),
+		          gst_date_time_get_time_zone_offset (date_time) >= 0 ? "+" : "",
+		          (int) gst_date_time_get_time_zone_offset (date_time));
+
+		gst_date_time_unref (date_time);
+	} else if (gst_tag_list_get_date (tag_list, tag_date, &date)) {
 		gboolean ret;
 
 		if (date && g_date_valid (date)) {
@@ -220,10 +235,7 @@ add_y_date_gst_tag (TrackerSparqlBuilder  *metadata,
 		}
 
 		if (ret) {
-			if (g_date_strftime (buf, 25, "%Y-%m-%dT%H:%M:%S%z", date)) {
-				tracker_sparql_builder_predicate (metadata, key);
-				tracker_sparql_builder_object_unvalidated (metadata, buf);
-			}
+			g_date_strftime (buf, sizeof (buf), "%Y-%m-%dT%H:%M:%S%z", date);
 		}
 	}
 
@@ -534,7 +546,7 @@ extract_metadata (MetadataExtractor      *extractor,
 		add_string_gst_tag (metadata, uri, "nie:copyright", extractor->tags, GST_TAG_COPYRIGHT);
 		add_string_gst_tag (metadata, uri, "nie:license", extractor->tags, GST_TAG_LICENSE);
 		add_string_gst_tag (metadata, uri, "dc:coverage", extractor->tags, GST_TAG_LOCATION);
-		add_y_date_gst_tag (metadata, uri, "nie:contentCreated", extractor->tags, GST_TAG_DATE);
+		add_date_time_gst_tag (metadata, uri, "nie:contentCreated", extractor->tags, GST_TAG_DATE_TIME, GST_TAG_DATE);
 		add_string_gst_tag (metadata, uri, "nie:comment", extractor->tags, GST_TAG_COMMENT);
 
 		gst_tag_list_get_string (extractor->tags, GST_TAG_DEVICE_MODEL, &model);
