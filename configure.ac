@@ -64,6 +64,7 @@ TRACKER_BINARY_AGE=tracker_binary_age
 TRACKER_VERSION=tracker_version
 TRACKER_API_VERSION=tracker_api_version
 TRACKER_BINARY_VERSION=tracker_binary_version
+
 AC_SUBST(TRACKER_MAJOR_VERSION)
 AC_SUBST(TRACKER_MINOR_VERSION)
 AC_SUBST(TRACKER_MICRO_VERSION)
@@ -73,6 +74,16 @@ AC_SUBST(TRACKER_API_VERSION)
 AC_SUBST(TRACKER_VERSION)
 AC_SUBST(TRACKER_BINARY_VERSION)
 
+AC_DEFINE(TRACKER_MAJOR_VERSION, [tracker_major_version],
+          [Define to the Tracker major version])
+AC_DEFINE(TRACKER_MINOR_VERSION, [tracker_minor_version],
+          [Define to the Tracker minor version])
+AC_DEFINE(TRACKER_MICRO_VERSION, [tracker_micro_version],
+          [Define to the Tracker micro version])
+AC_DEFINE(TRACKER_INTERFACE_AGE, [tracker_interface_age],
+          [Define to the Tracker interface age])
+AC_DEFINE(TRACKER_BINARY_AGE, [tracker_binary_age],
+          [Define to the Tracker binary age])
 
 # libtool versioning
 LT_RELEASE=tracker_lt_release

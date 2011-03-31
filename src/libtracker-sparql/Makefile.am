@@ -6,7 +6,7 @@ AM_VALAFLAGS =                                         \
 	--gir=Tracker-$(TRACKER_API_VERSION).gir \
 	--library tracker-sparql-$(TRACKER_API_VERSION) \
 	--includedir=libtracker-sparql                 \
-	--header tracker-sparql.h                      \
+	--header $(vala_header:.h=-no-checks.h)        \
 	--vapi tracker-sparql-$(TRACKER_API_VERSION).vapi \
 	--pkg gio-2.0 --pkg gmodule-2.0 --pkg posix    \
 	$(BUILD_VALAFLAGS)                             \
@@ -25,14 +25,28 @@ libtracker_sparql_la_SOURCES =   \
 	tracker-connection.vala                        \
 	tracker-cursor.vala                            \
 	tracker-utils.vala                             \
-	tracker-uri.c
+	tracker-uri.c                                  \
+	tracker-version.c
 
 libtracker_sparql_la_LIBADD =    \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_SPARQL_LIBS)
 
+# Should only be one file
+vala_header = tracker-generated.h
+
+# We wrap the generated .h file with a check to make sure it's
+# not included directly. All other .[ch] headers have this.
+%-generated.h: %-generated-no-checks.h
+	$(AM_V_GEN)(echo "#if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)" ; \
+	            echo "#error \"only <libtracker-sparql/tracker-sparql.h> must be included directly.\"" ; \
+	            echo "#endif") > $@
+	$(AM_V_GEN)(cat $< >> $@)
+
 libtracker_sparqlinclude_HEADERS =                     \
-	tracker-sparql.h
+	$(vala_header)                                 \
+	tracker-sparql.h                               \
+	tracker-version.h
 
 tracker-sparql-$(TRACKER_API_VERSION).deps: tracker-sparql.deps
 	$(AM_V_GEN)cp $^ $@
@@ -49,12 +63,13 @@ BUILT_SOURCES =                                        \
 MAINTAINERCLEANFILES =                                 \
 	tracker-sparql-$(TRACKER_API_VERSION).vapi     \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \
-	tracker-sparql.h
+	$(vala_header:.h=-no-checks.h)
 
 EXTRA_DIST =                                           \
 	tracker-sparql-$(TRACKER_API_VERSION).vapi     \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \
-	tracker-sparql.deps
+	tracker-sparql.deps                            \
+	$(vala_header:.h=-no-checks.h)
 
 # Introspection foo
 -include $(INTROSPECTION_MAKEFILE)
