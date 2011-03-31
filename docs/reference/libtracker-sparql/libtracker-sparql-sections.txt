@@ -155,3 +155,20 @@ TrackerSparqlCursorPrivate
 tracker_sparql_cursor_construct
 tracker_sparql_cursor_set_connection
 </SECTION>
+
+<SECTION>
+<TITLE>Version Information</TITLE>
+<FILE>tracker-version</FILE>
+tracker_major_version
+tracker_minor_version
+tracker_micro_version
+tracker_binary_age
+tracker_interface_age
+tracker_check_version
+
+<SUBSECTION>
+TRACKER_MAJOR_VERSION
+TRACKER_MINOR_VERSION
+TRACKER_MICRO_VERSION
+TRACKER_CHECK_VERSION
+</SECTION>

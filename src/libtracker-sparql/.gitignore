@@ -6,5 +6,5 @@ tracker-plugin-loader.c
 tracker-query.c
 tracker-sparql-*.deps
 tracker-sparql*.vapi
-tracker-sparql.h
+tracker-generated*.h
 tracker-utils.c
