@@ -45,16 +45,17 @@ tracker_encoding_guess_meegotouch (const gchar *buffer,
 		return NULL;
 	}
 
+	locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
+	detector.setDeclaredLocale (locale);
+
 	MCharsetMatch bestMatch = detector.detect ();
 
 	if (detector.hasError ()) {
 		g_warning ("Charset detector error when detecting: %s",
 		           detector.errorString ().toUtf8 (). data ());
+		g_free (locale);
 		return NULL;
 	}
-
-	locale = tracker_locale_get (TRACKER_LOCALE_LANGUAGE);
-	detector.setDeclaredLocale (locale);
 
 	if (bestMatch.confidence () > 30) {
 		encoding = g_strdup (bestMatch.name ().toUtf8 ().data ());
