@@ -58,7 +58,7 @@ tracker_store_VALAFLAGS = \
 tracker_store_LDADD =                                  \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_STORE_LIBS)
 

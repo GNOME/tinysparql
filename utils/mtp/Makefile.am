@@ -11,7 +11,7 @@ noinst_PROGRAMS = mtp-dummy
 
 mtp_dummy_SOURCES = mtp-dummy.c
 mtp_dummy_LDADD =                                      \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_SPARQL_LIBS)

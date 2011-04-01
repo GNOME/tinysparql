@@ -21,7 +21,7 @@ AM_CPPFLAGS =                                          \
 
 LDADD =                                                \
 	$(top_builddir)/src/libtracker-miner/libtracker-miner-@TRACKER_API_VERSION@.la \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_MINER_FLICKR_LIBS)
 

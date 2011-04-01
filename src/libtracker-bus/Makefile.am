@@ -1,8 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
-
-modules_LTLIBRARIES = libtracker-bus.la
+noinst_LTLIBRARIES = libtracker-bus.la
 
 AM_VALAFLAGS =                                         \
 	--includedir=libtracker-bus                    \
@@ -26,13 +24,9 @@ libtracker_bus_la_SOURCES =                            \
 	tracker-bus-fd-cursor.vala
 
 libtracker_bus_la_LIBADD =                             \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_BUS_LIBS)
-
-libtracker_bus_la_LDFLAGS =                            \
-	-module -avoid-version -no-undefined
 
 noinst_HEADERS =                                       \
 	tracker-bus.h

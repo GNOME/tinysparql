@@ -43,7 +43,7 @@ libtracker_extract_@TRACKER_API_VERSION@_la_LDFLAGS =  \
 	-export-symbols-regex '^tracker_.*'
 
 libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD =   \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_EXTRACT_LIBS)

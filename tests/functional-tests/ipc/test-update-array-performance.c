@@ -222,9 +222,6 @@ main (gint argc, gchar **argv)
 
 	g_type_init ();
 
-	/* do not require prior installation */
-	g_setenv ("TRACKER_SPARQL_MODULE_PATH", "../../src/libtracker-bus/.libs", TRUE);
-
 	connection = tracker_sparql_connection_get (NULL, NULL);
 
 	g_print ("First run (first update then array)\n");

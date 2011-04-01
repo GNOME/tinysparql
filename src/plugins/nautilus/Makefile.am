@@ -19,6 +19,6 @@ libnautilus_tracker_tags_la_SOURCES =                  \
 
 libnautilus_tracker_tags_la_LDFLAGS = -module -avoid-version
 libnautilus_tracker_tags_la_LIBADD =                   \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_NAUTILUS_EXTENSION_LIBS)

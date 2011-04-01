@@ -116,17 +116,6 @@ $ pkg-config --libs tracker-sparql-0.10
 	  </para>
 	</listitem>
 	<listitem>
-	  <emphasis>TRACKER_SPARQL_MODULE_PATH</emphasis>
-	  <para>
-	    As explained in the last paragraph, the backends are
-	    dynamically loaded at run time. The location for these
-	    backends is usually in a set
-	    place: <emphasis>$prefix/lib/tracker-$version/sparql-modules</emphasis>.
-	    This environment variable is mostly useful for the unit
-	    tests and general debugging to override this location.
-	  </para>
-	</listitem>
-	<listitem>
 	  <emphasis>TRACKER_SPARQL_CACHE_SIZE</emphasis>
 	  <para>
 	    Tracker caches database statements which occur frequently to make

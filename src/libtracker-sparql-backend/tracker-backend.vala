@@ -23,8 +23,6 @@ interface Tracker.Backend.Status : DBusProxy {
 }
 
 class Tracker.Sparql.Backend : Connection {
-	bool direct_only;
-
 	Tracker.Sparql.Connection direct = null;
 	Tracker.Sparql.Connection bus = null;
 	enum Backend {
@@ -33,19 +31,11 @@ class Tracker.Sparql.Backend : Connection {
 		BUS
 	}
 
-	[CCode (has_target = false)]
-	private delegate Tracker.Sparql.Connection? ModuleInitFunc () throws GLib.Error;
-
-	public Backend (bool direct_only = false) throws Sparql.Error
-	requires (Module.supported ()) {
-		this.direct_only = direct_only;
-	}
-
 	public override void init () throws Sparql.Error, IOError, DBusError, SpawnError {
-		Tracker.Backend.Status status = Bus.get_proxy_sync (BusType.SESSION,
-		                                                    TRACKER_DBUS_SERVICE,
-		                                                    TRACKER_DBUS_OBJECT_STATUS,
-		                                                    DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
+		Tracker.Backend.Status status = GLib.Bus.get_proxy_sync (BusType.SESSION,
+		                                                         TRACKER_DBUS_SERVICE,
+		                                                         TRACKER_DBUS_OBJECT_STATUS,
+		                                                         DBusProxyFlags.DO_NOT_LOAD_PROPERTIES | DBusProxyFlags.DO_NOT_CONNECT_SIGNALS);
 		status.set_default_timeout (int.MAX);
 
 		// Makes sure the sevice is available
@@ -146,18 +136,6 @@ class Tracker.Sparql.Backend : Connection {
 
 	// Plugin loading functions
 	private bool load_plugins (bool direct_only) throws GLib.Error {
-		string env_path = Environment.get_variable ("TRACKER_SPARQL_MODULE_PATH");
-		string path;
-		
-		if (env_path != null && env_path.length > 0) {
-			path = env_path;
-		} else {
-			path = Config.SPARQL_MODULES_DIR;
-		}
-
-		File dir = File.new_for_path (path);
-		string dir_path = dir.get_path ();
-
 		string env_backend = Environment.get_variable ("TRACKER_SPARQL_BACKEND");
 		Backend backend = Backend.AUTO;
 
@@ -186,80 +164,193 @@ class Tracker.Sparql.Backend : Connection {
 			debug ("Backend set in environment contradicts requested connection type, using environment to override");
 		}
 
-		debug ("Searching for modules in folder '%s' ..", dir_path);
-
 		Tracker.Sparql.Connection connection;
 
 		switch (backend) {
 		case backend.AUTO:
-			string direct_path = Module.build_path (dir_path, "tracker-direct");
-			direct = load_plugins_from_path (direct_path, false /* required */);
+			try {
+				direct = new Tracker.Direct.Connection ();
+			} catch (Error e) {
+				debug ("Unable to initialize direct backend");
+			}
 
-			string bus_path = Module.build_path (dir_path, "tracker-bus");
-			bus = load_plugins_from_path (bus_path, true /* required */);
+			bus = new Tracker.Bus.Connection ();
 
 			connection = bus;
 			break;
 
 		case backend.DIRECT:
-			string direct_path = Module.build_path (dir_path, "tracker-direct");
-			connection = direct = load_plugins_from_path (direct_path, true /* required */);
+			connection = direct = new Tracker.Direct.Connection ();
 			break;
 
 		case backend.BUS:
-			string bus_path = Module.build_path (dir_path, "tracker-bus");
-			connection = bus = load_plugins_from_path (bus_path, true /* required */);
+			connection = bus = new Tracker.Bus.Connection ();
 			break;
 
 		default:
 			assert_not_reached ();
 		}
 
-		debug ("Finished searching for modules");
-
 		return connection != null;
 	}
 
-	private Tracker.Sparql.Connection? load_plugins_from_path (string path, bool required) throws GLib.Error {
-		try {
-			// lazy resolving reduces initialization time
-			Module module = Module.open (path, ModuleFlags.BIND_LOCAL | ModuleFlags.BIND_LAZY);
-			if (module == null) {
-				throw new IOError.FAILED ("Failed to load module from path '%s': %s",
-				                          path,
-				                          Module.error ());
-			}
+	static bool direct_only;
+	static weak Connection? singleton;
+	static bool log_initialized;
+	static StaticMutex door;
 
-			void *function;
+	public static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
+		door.lock ();
 
-			if (!module.symbol ("module_init", out function)) {
-				throw new IOError.FAILED ("Failed to find entry point function '%s' in '%s': %s",
-				                          "module_init",
-				                          path,
-				                          Module.error ());
-			}
+		// assign to owned variable to ensure it doesn't get freed between unlock and return
+		var result = singleton;
+		if (result != null) {
+			assert (direct_only == is_direct_only);
+			door.unlock ();
+			return result;
+		}
 
-			ModuleInitFunc module_init = (ModuleInitFunc) function;
-			
-			assert (module_init != null);
+		log_init ();
 
-			// We don't want our modules to ever unload
-			module.make_resident ();
+		direct_only = is_direct_only;
 
-			// Call module init function
-			Tracker.Sparql.Connection c = module_init ();
+		result = new Tracker.Sparql.Backend ();
+		result.init ();
 
-			debug ("Loaded module source: '%s'", module.name ());
+		if (cancellable != null && cancellable.is_cancelled ()) {
+			door.unlock ();
+			throw new IOError.CANCELLED ("Operation was cancelled");
+		}
 
-			return c;
-		} catch (GLib.Error e) {
-			if (required) {
-				// plugin required => error is fatal
-				throw e;
-			} else {
-				return null;
+		singleton = result;
+		result.add_weak_pointer ((void**) (&singleton));
+
+		door.unlock ();
+
+		return singleton;
+	}
+
+	public async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
+		// fast path: avoid extra thread if connection is already available
+		if (door.trylock ()) {
+			// assign to owned variable to ensure it doesn't get freed between unlock and return
+			var result = singleton;
+
+			door.unlock ();
+
+			if (result != null) {
+				assert (direct_only == is_direct_only);
+				return result;
 			}
 		}
+
+		// run in a separate thread
+		Sparql.Error sparql_error = null;
+		IOError io_error = null;
+		DBusError dbus_error = null;
+		SpawnError spawn_error = null;
+		Connection result = null;
+		var context = MainContext.get_thread_default ();
+
+		g_io_scheduler_push_job (job => {
+			try {
+				result = get_internal (is_direct_only, cancellable);
+			} catch (IOError e_io) {
+				io_error = e_io;
+			} catch (Sparql.Error e_spql) {
+				sparql_error = e_spql;
+			} catch (DBusError e_dbus) {
+				dbus_error = e_dbus;
+			} catch (SpawnError e_spawn) {
+				spawn_error = e_spawn;
+			}
+
+			var source = new IdleSource ();
+			source.set_callback (() => {
+				get_internal_async.callback ();
+				return false;
+			});
+			source.attach (context);
+
+			return false;
+		});
+		yield;
+
+		if (sparql_error != null) {
+			throw sparql_error;
+		} else if (io_error != null) {
+			throw io_error;
+		} else if (dbus_error != null) {
+			throw dbus_error;
+		} else if (spawn_error != null) {
+			throw spawn_error;
+		} else {
+			return result;
+		}
+	}
+
+	private static void log_init () {
+		if (log_initialized) {
+			return;
+		}
+
+		log_initialized = true;
+
+		// Avoid debug messages
+		int verbosity = 0;
+		string env_verbosity = Environment.get_variable ("TRACKER_VERBOSITY");
+		if (env_verbosity != null)
+			verbosity = env_verbosity.to_int ();
+
+		LogLevelFlags remove_levels = 0;
+
+		switch (verbosity) {
+		// Log level 3: EVERYTHING
+		case 3:
+			break;
+
+		// Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only
+		case 2:
+			remove_levels = LogLevelFlags.LEVEL_DEBUG;
+			break;
+
+		// Log level 1: CRITICAL/ERROR/WARNING/INFO only
+		case 1:
+			remove_levels = LogLevelFlags.LEVEL_DEBUG |
+			              LogLevelFlags.LEVEL_MESSAGE;
+			break;
+
+		// Log level 0: CRITICAL/ERROR/WARNING only (default)
+		default:
+		case 0:
+			remove_levels = LogLevelFlags.LEVEL_DEBUG |
+			              LogLevelFlags.LEVEL_MESSAGE |
+			              LogLevelFlags.LEVEL_INFO;
+			break;
+		}
+
+		if (remove_levels != 0) {
+			GLib.Log.set_handler ("Tracker", remove_levels, remove_log_handler);
+		}
+	}
+
+	private static void remove_log_handler (string? log_domain, LogLevelFlags log_level, string message) {
+		/* do nothing */
 	}
 }
 
+public async static Tracker.Sparql.Connection tracker_sparql_connection_get_async (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
+	return yield Tracker.Sparql.Backend.get_internal_async (false, cancellable);
+}
+
+public static Tracker.Sparql.Connection tracker_sparql_connection_get (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
+	return Tracker.Sparql.Backend.get_internal (false, cancellable);
+}
+
+public async static Tracker.Sparql.Connection tracker_sparql_connection_get_direct_async (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
+	return yield Tracker.Sparql.Backend.get_internal_async (true, cancellable);
+}
+
+public static Tracker.Sparql.Connection tracker_sparql_connection_get_direct (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
+	return Tracker.Sparql.Backend.get_internal (true, cancellable);
+}

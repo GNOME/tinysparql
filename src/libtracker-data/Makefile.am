@@ -47,7 +47,6 @@ libtracker_data_la_SOURCES =                           \
 libtracker_data_la_LIBADD =                            \
 	$(top_builddir)/src/gvdb/libgvdb.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_DATA_LIBS)
 

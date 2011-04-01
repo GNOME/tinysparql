@@ -2012,8 +2012,9 @@ AC_CONFIG_FILES([
 	src/libtracker-common/Makefile
 	src/libtracker-sparql/Makefile
 	src/libtracker-bus/Makefile
-	src/libtracker-direct/Makefile
 	src/libtracker-data/Makefile
+	src/libtracker-direct/Makefile
+	src/libtracker-sparql-backend/Makefile
 	src/libtracker-fts/Makefile
 	src/libtracker-extract/Makefile
 	src/libtracker-miner/Makefile
