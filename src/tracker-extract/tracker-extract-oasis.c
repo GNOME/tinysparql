@@ -116,7 +116,7 @@ extract_oasis_content (const gchar          *uri,
                        ODTFileType           file_type,
                        TrackerSparqlBuilder *metadata)
 {
-	gchar *content;
+	gchar *content = NULL;
 	ODTContentParseInfo info;
 	GMarkupParseContext *context;
 	GError *error = NULL;
