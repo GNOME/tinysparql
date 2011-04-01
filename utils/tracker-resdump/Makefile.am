@@ -20,7 +20,7 @@ LDADD =\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la \
 	$(top_builddir)/src/libtracker-direct/libtracker-direct.la \
 	$(top_builddir)/src/libtracker-bus/libtracker-bus.la \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS)\
 	$(LIBTRACKER_SPARQL_LIBS) \

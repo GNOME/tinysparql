@@ -120,8 +120,3 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection {
 		}
 	}
 }
-
-public Tracker.Sparql.Connection? module_init () throws GLib.Error {
-	Tracker.Sparql.Connection plugin = new Tracker.Direct.Connection ();
-	return plugin;
-}

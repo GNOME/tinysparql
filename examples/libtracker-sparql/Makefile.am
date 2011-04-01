@@ -6,7 +6,7 @@ AM_CPPFLAGS = $(BUILD_CFLAGS) \
 	-I$(top_srcdir)/src \
 	$(LIBTRACKER_SPARQL_CFLAGS)
 
-LDADD = $(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
+LDADD = $(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(BUILD_LIBS) \
 	$(LIBTRACKER_SPARQL_LIBS)
 

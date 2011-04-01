@@ -1,8 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/sparql-modules
-
-modules_LTLIBRARIES = libtracker-direct.la
+noinst_LTLIBRARIES = libtracker-direct.la
 
 AM_VALAFLAGS =                                         \
 	--includedir=libtracker-direct                 \
@@ -28,9 +26,6 @@ libtracker_direct_la_LIBADD =                          \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_DIRECT_LIBS)
-
-libtracker_direct_la_LDFLAGS =                         \
-	-module -avoid-version -no-undefined
 
 noinst_HEADERS =                                       \
 	tracker-direct.h

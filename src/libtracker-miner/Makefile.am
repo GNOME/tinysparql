@@ -66,7 +66,7 @@ libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LIBADD =     \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
 	-lm                                            \
 	$(BUILD_LIBS)                                  \
 	$(LIBTRACKER_MINER_LIBS)

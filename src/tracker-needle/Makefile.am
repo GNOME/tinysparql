@@ -20,7 +20,7 @@ AM_CPPFLAGS =                                      \
 	-include config.h
 
 LDADD =                                            \
-	$(top_builddir)/src/libtracker-sparql/libtracker-sparql-$(TRACKER_API_VERSION).la \
+	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-$(TRACKER_API_VERSION).la \
 	$(BUILD_LIBS)                                  \
 	$(TRACKER_NEEDLE_LIBS)
 

@@ -80,101 +80,6 @@ public errordomain Tracker.Sparql.Error {
  * non-direct requests.
  */
 public abstract class Tracker.Sparql.Connection : Object {
-	static bool direct_only;
-	static weak Connection? singleton;
-	static bool log_initialized;
-	static StaticMutex door;
-
-	private static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
-		door.lock ();
-
-		// assign to owned variable to ensure it doesn't get freed between unlock and return
-		var result = singleton;
-		if (result != null) {
-			assert (direct_only == is_direct_only);
-			door.unlock ();
-			return result;
-		}
-
-		log_init ();
-
-		/* the True is to assert that direct only is required */
-		result = new Backend (is_direct_only);
-		result.init ();
-
-		if (cancellable != null && cancellable.is_cancelled ()) {
-			door.unlock ();
-			throw new IOError.CANCELLED ("Operation was cancelled");
-		}
-
-		direct_only = is_direct_only;
-		singleton = result;
-		result.add_weak_pointer ((void**) (&singleton));
-
-		door.unlock ();
-
-		return singleton;
-	}
-
-	private async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
-		// fast path: avoid extra thread if connection is already available
-		if (door.trylock ()) {
-			// assign to owned variable to ensure it doesn't get freed between unlock and return
-			var result = singleton;
-
-			door.unlock ();
-
-			if (result != null) {
-				assert (direct_only == is_direct_only);
-				return result;
-			}
-		}
-
-		// run in a separate thread
-		Sparql.Error sparql_error = null;
-		IOError io_error = null;
-		DBusError dbus_error = null;
-		SpawnError spawn_error = null;
-		Connection result = null;
-		var context = MainContext.get_thread_default ();
-
-		g_io_scheduler_push_job (job => {
-			try {
-				result = get_internal (is_direct_only, cancellable);
-			} catch (IOError e_io) {
-				io_error = e_io;
-			} catch (Sparql.Error e_spql) {
-				sparql_error = e_spql;
-			} catch (DBusError e_dbus) {
-				dbus_error = e_dbus;
-			} catch (SpawnError e_spawn) {
-				spawn_error = e_spawn;
-			}
-
-			var source = new IdleSource ();
-			source.set_callback (() => {
-				get_internal_async.callback ();
-				return false;
-			});
-			source.attach (context);
-
-			return false;
-		});
-		yield;
-
-		if (sparql_error != null) {
-			throw sparql_error;
-		} else if (io_error != null) {
-			throw io_error;
-		} else if (dbus_error != null) {
-			throw dbus_error;
-		} else if (spawn_error != null) {
-			throw spawn_error;
-		} else {
-			return result;
-		}
-	}
-
 	/**
 	 * tracker_sparql_connection_get_finish:
 	 * @_res_: The #GAsyncResult from the callback used to return the #TrackerSparqlConnection
@@ -205,9 +110,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
-		return yield get_internal_async (false, cancellable);
-	}
+	public extern async static new Connection get_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError;
 
 	/**
 	 * tracker_sparql_connection_get:
@@ -244,9 +147,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
-		return get_internal (false, cancellable);
-	}
+	public extern static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError;
 
 	/**
 	 * tracker_sparql_connection_get_direct_finish:
@@ -279,9 +180,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
-		return yield get_internal_async (true, cancellable);
-	}
+	public extern async static Connection get_direct_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError;
 
 	/**
 	 * tracker_sparql_connection_get_direct:
@@ -299,58 +198,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 *
 	 * Since: 0.10
 	 */
-	public static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
-		return get_internal (true, cancellable);
-	}
-
-	private static void log_init () {
-		if (log_initialized) {
-			return;
-		}
-
-		log_initialized = true;
-
-		// Avoid debug messages
-		int verbosity = 0;
-		string env_verbosity = Environment.get_variable ("TRACKER_VERBOSITY");
-		if (env_verbosity != null)
-			verbosity = env_verbosity.to_int ();
-
-		LogLevelFlags remove_levels = 0;
-
-		switch (verbosity) {
-		// Log level 3: EVERYTHING
-		case 3:
-			break;
-
-		// Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only
-		case 2:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG;
-			break;
-
-		// Log level 1: CRITICAL/ERROR/WARNING/INFO only
-		case 1:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG |
-			              LogLevelFlags.LEVEL_MESSAGE;
-			break;
-
-		// Log level 0: CRITICAL/ERROR/WARNING only (default)
-		default:
-		case 0:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG |
-			              LogLevelFlags.LEVEL_MESSAGE |
-			              LogLevelFlags.LEVEL_INFO;
-			break;
-		}
-
-		if (remove_levels != 0) {
-			GLib.Log.set_handler ("Tracker", remove_levels, remove_log_handler);
-		}
-	}
-
-	private static void remove_log_handler (string? log_domain, LogLevelFlags log_level, string message) {
-		/* do nothing */
-	}
+	public extern static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError;
 
 	public virtual void init () throws Sparql.Error, IOError, DBusError, SpawnError {
 		warning ("Interface 'init' not implemented");
