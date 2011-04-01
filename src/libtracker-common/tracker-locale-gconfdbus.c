@@ -51,6 +51,7 @@ static guint watch_name_id = 0;
 static guint registration_id = 0;
 static GStaticMutex subscribers_mutex = G_STATIC_MUTEX_INIT;
 GDBusNodeInfo *introspection_data = NULL;
+static gboolean non_maemo_mode = FALSE;
 
 /* gconf keys for tracker locales, as defined in:
  * http://apidocs.meego.com/1.0/mtf/i18n.html
@@ -295,7 +296,7 @@ on_gconfd_dbus_disappeared  (GDBusConnection *connection,
 void
 tracker_locale_gconfdbus_init (void)
 {
-	if (!g_getenv (TRACKER_DISABLE_MEEGOTOUCH_LOCALE_ENV)) {
+	if (!g_getenv (TRACKER_DISABLE_MEEGOTOUCH_LOCALE_ENV) && !non_maemo_mode) {
 		GError *error = NULL;
 		GVariant *reply;
 		GDBusInterfaceVTable interface_vtable = {
@@ -330,9 +331,20 @@ tracker_locale_gconfdbus_init (void)
 
 
 		if (error) {
-			g_critical ("%s", error->message);
-			g_clear_error (&error);
-			return;
+			if (error->code == 19) {
+				g_message ("GetDefaultDatabase doesn't exist on %s, this GConf "
+				           "doesn't look like a gconf-dbus.\n"
+				           "Continuing in non-maemo mode",
+				           GCONF_DBUS_SERVER_OBJECT);
+				g_object_unref (connection);
+				connection = NULL;
+				non_maemo_mode = TRUE;
+				return;
+			} else {
+				g_critical ("%s", error->message);
+				g_clear_error (&error);
+				return;
+			}
 		}
 
 		g_variant_get (reply, "(s)", &gconf_dbus_default_db, NULL);
