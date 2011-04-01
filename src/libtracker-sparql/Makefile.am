@@ -23,8 +23,7 @@ libtracker_sparql_la_SOURCES =   \
 	tracker-connection.vala                        \
 	tracker-cursor.vala                            \
 	tracker-utils.vala                             \
-	tracker-uri.c                                  \
-	tracker-init.c
+	tracker-uri.c
 
 libtracker_sparql_la_LIBADD =    \
 	$(BUILD_LIBS)                                  \
