@@ -34,96 +34,96 @@ public class Tracker.Query {
 		FOLDERS
 	}
 
-        private string [] where_clauses = {
-        	// ALL
-                "WHERE {
-                   ?urn fts:match \"%s\" ;
-                        nfo:belongsToContainer ?parent ;
-                        tracker:available true .
-                }",
+	private string [] where_clauses = {
+		// ALL
+		"WHERE {
+		  ?urn fts:match \"%s\" ;
+		  nfo:belongsToContainer ?parent ;
+		  tracker:available true .
+		}",
 
 		// ALL_ONLY_IN_TITLES
-                "WHERE {
-                    ?urn a nfo:FileDataObject ;
-                         nfo:belongsToContainer ?parent ;
-                         tracker:available true .
-                         FILTER (fn:contains (fn:lower-case (nfo:fileName(?urn)), \"%s\"))
-                }",
+		"WHERE {
+		  ?urn a nfo:FileDataObject ;
+		  nfo:belongsToContainer ?parent ;
+		  tracker:available true .
+		  FILTER (fn:contains (fn:lower-case (nfo:fileName(?urn)), \"%s\"))
+		}",
 
 		// CONTACTS
-                "",
+		"",
 
 		// APPLICATIONS
-                "WHERE {
-		   ?urn a nfo:Software ;
-		        fts:match \"%s\"
+		"WHERE {
+		  ?urn a nfo:Software ;
+		         fts:match \"%s\"
 		}",
 
 		// MUSIC
-                "WHERE {
-		   {
-		     ?urn nmm:musicAlbum ?match
-		   } UNION {
-		     ?urn nmm:performer ?match
-		   } UNION {
-		     ?urn a nfo:Audio .
-		     ?match a nfo:Audio
-		     FILTER (?urn = ?match)
-		   }
-		   ?match fts:match \"%s\" .
-		   ?urn nmm:performer [ nmm:artistName ?performer ] ;
-		         nmm:musicAlbum [ nie:title ?album ] ;
-		         nie:url ?tooltip
+		"WHERE {
+		  {
+		    ?urn nmm:musicAlbum ?match
+		  } UNION {
+		    ?urn nmm:performer ?match
+		  } UNION {
+		    ?urn a nfo:Audio .
+		    ?match a nfo:Audio
+		    FILTER (?urn = ?match)
+		  }
+		  ?match fts:match \"%s\" .
+		  ?urn nmm:performer [ nmm:artistName ?performer ] ;
+		       nmm:musicAlbum [ nie:title ?album ] ;
+		       nie:url ?tooltip
 		}",
 
 		// IMAGES
-                "WHERE {
-		   ?urn a nfo:Image ;
-		        nie:url ?tooltip ;
-		        fts:match \"%s\"
+		"WHERE {
+		  ?urn a nfo:Image ;
+		         nie:url ?tooltip ;
+		         fts:match \"%s\"
 		}",
 
 		// VIDEOS
-                "WHERE {
-		   ?urn a nfo:Video ;
-		        nie:url ?tooltip ;
-		        fts:match \"%s\" .
+		"WHERE {
+		  ?urn a nfo:Video ;
+		         nie:url ?tooltip ;
+		         fts:match \"%s\" .
 		}",
 
 		// DOCUMENTS
-                "WHERE {
-		   ?urn a nfo:Document ;
-		        nie:url ?tooltip ;
-		        fts:match \"%s\" .
-		   OPTIONAL {
-		     ?urn nco:creator ?creator .
-		   }
-		   OPTIONAL {
-		     ?urn nco:publisher ?publisher .
-		   }
+		"WHERE {
+		  ?urn a nfo:Document ;
+		         nie:url ?tooltip ;
+		         fts:match \"%s\" .
+		  OPTIONAL {
+		    ?urn nco:creator ?creator .
+		  }
+		  OPTIONAL {
+		    ?urn nco:publisher ?publisher .
+		  }
 		}",
 
 		// MAIL
-                "WHERE {
-		   ?urn a nmo:Email ;
-		        nmo:from ?sender ;
-		        nmo:to ?to ;
-		        fts:match \"%s\" .
+		"WHERE {
+		  ?urn a nmo:Email ;
+		         nmo:from ?sender ;
+		         nmo:to ?to ;
+		         fts:match \"%s\" .
 		}",
 
 		// CALENDAR
-                "",
+		"",
 
 		// FOLDERS
-                "WHERE {
-		   ?urn a nfo:Folder ;
-		        nie:url ?tooltip ;
-		        fts:match \"%s\" .
-		   OPTIONAL {
-		     ?urn nfo:belongsToContainer ?parent .
-		   }
+		"WHERE {
+		  ?urn a nfo:Folder ;
+		         nie:url ?tooltip ;
+		         fts:match \"%s\" .
+		  OPTIONAL {
+		    ?urn nfo:belongsToContainer ?parent .
+		  }
 		}"
-        };
+	};
 
 	public string criteria { get; set; }
 	public uint offset { get; set; }
@@ -133,7 +133,6 @@ public class Tracker.Query {
 	private static Sparql.Connection connection;
 
 	public Query () {
-
 		try {
 			connection = Sparql.Connection.get ();
 		} catch (GLib.Error e) {
@@ -141,9 +140,8 @@ public class Tracker.Query {
 		}
 	}
 
-        public async uint get_count_async (Type query_type,
-                                           Cancellable? cancellable = null) throws IOError
-        requires (connection != null) {
+	public async uint get_count_async (Type query_type, Cancellable? cancellable = null) throws IOError
+	requires (connection != null) {
 		Sparql.Cursor cursor = null;
 
 		if (criteria == null || criteria.length < 1) {
@@ -151,23 +149,21 @@ public class Tracker.Query {
 			return 0;
 		}
 
-                string criteria_escaped = Tracker.Sparql.escape_string (criteria);
+		string criteria_escaped = Tracker.Sparql.escape_string (criteria);
 
-                query = "SELECT count(?urn) " + where_clauses[query_type].printf (criteria_escaped);
+		query = "SELECT count(?urn) " + where_clauses[query_type].printf (criteria_escaped);
 
 		try {
 			cursor = yield connection.query_async (query, null);
-                        yield cursor.next_async ();
+			yield cursor.next_async ();
 		} catch (GLib.Error e) {
 			warning ("Could not run Sparql count query: %s", e.message);
-                }
+		}
 
-                return (uint) cursor.get_integer (0);
-        }
+		return (uint) cursor.get_integer (0);
+	}
 
-        public async Sparql.Cursor? perform_async (Type         query_type,
-                                                   string []    ?args,
-                                                   Cancellable? cancellable = null) throws IOError
+	public async Sparql.Cursor? perform_async (Type query_type, string [] ?args, Cancellable? cancellable = null) throws IOError
 	requires (connection != null) {
 		Sparql.Cursor cursor = null;
 
