@@ -465,11 +465,11 @@ public class Tracker.Needle {
 		weak string uri;
 		model.get (iter, col, out uri);
 
-                if (uri == null) {
-	                return;
-                }
+		if (uri == null) {
+			return;
+		}
 
-                debug ("Selected uri:'%s'", uri);
+		debug ("Selected uri:'%s'", uri);
 
 		// Bit of a hack for now if there is no URI scheme, we assume that
 		// the uri is actually a command line to launch.
