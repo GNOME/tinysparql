@@ -37,6 +37,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 	private struct QueryData {
 		Tracker.Query.Type type;
+		Tracker.Query.Match match;
 		string [] args;
 	}
 
@@ -89,7 +90,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			query.limit = 100;
 			query.offset = op.offset;
 
-			cursor = yield query.perform_async (op.node.query.type, op.node.query.args, cancellable);
+			cursor = yield query.perform_async (op.node.query.type, op.node.query.match, op.node.query.args, cancellable);
 
 			for (i = op.offset; i < op.offset + 100; i++) {
 				ResultNode *result;
@@ -196,7 +197,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			Tracker.Query query = new Tracker.Query ();
 			query.criteria = _search_term;
 
-			count = yield query.get_count_async (query_data.type, cancellable);
+			count = yield query.get_count_async (query_data.type, query_data.match, cancellable);
 		} catch (GLib.IOError ie) {
 			warning ("Could not get count: %s\n", ie.message);
 			return;
@@ -452,9 +453,6 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	private async void fetch_thumbnail (TreeIter iter) {
 		GLib.File file;
 		GLib.FileInfo info;
-		GLib.Icon icon;
-		TreePath path;
-		Gtk.IconInfo icon_info;
 		ResultNode *result;
 		string thumb_path;
 		Gdk.Pixbuf pixbuf = null;
@@ -480,6 +478,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			if (thumb_path != null) {
 				pixbuf = new Gdk.Pixbuf.from_file_at_size (thumb_path, icon_size, icon_size);
 			} else {
+				GLib.Icon icon;
+				Gtk.IconInfo icon_info;
+
 				icon = (GLib.Icon) info.get_attribute_object ("standard::icon");
 
 				if (icon == null) {
@@ -487,7 +488,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 				}
 
 				var theme = IconTheme.get_for_screen (Gdk.Screen.get_default ());
-				icon_info = theme.lookup_by_gicon (icon, icon_size, 0);
+				icon_info = theme.lookup_by_gicon (icon, icon_size, 0); // Gtk.IconLookupFlags.FORCE_SIZE
 
 				if (icon_info == null) {
 					return;
@@ -500,6 +501,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		}
 
 		if (pixbuf != null) {
+			TreePath path;
+
 			result.pixbuf = pixbuf;
 			path = get_path (iter);
 			row_changed (path, iter);
@@ -530,7 +533,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 				if (pixbuf == null) {
 					var theme = IconTheme.get_for_screen (Gdk.Screen.get_default ());
-					int size = 24;
+					int size = icon_size;
 
 					switch (cat.type) {
 					case Tracker.Query.Type.APPLICATIONS:
@@ -767,10 +770,10 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 		n_columns = _n_columns;
 		timestamp = 1;
-		icon_size = 24;
+		icon_size = 24; // Default value, overridden by tracker-needle.vala
 	}
 
-	public void add_query (Tracker.Query.Type type, ...) {
+	public void add_query (Tracker.Query.Type type, Tracker.Query.Match match, ...) {
 		var l = va_list ();
 		string str = null;
 		string [] args = null;
@@ -791,6 +794,7 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 		query_data = QueryData ();
 		query_data.type = type;
+		query_data.match = match;
 		query_data.args = args;
 
 		queries += query_data;

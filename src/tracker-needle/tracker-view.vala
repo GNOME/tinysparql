@@ -49,7 +49,11 @@ public class Tracker.View : ScrolledWindow {
 				_store.row_changed.connect (store_row_changed);
 			}
 
-			((TreeView )view).model = _store;
+			if (display != Display.FILE_ICONS) {
+				((TreeView) view).model = _store;
+			} else {
+				((IconView) view).model = _store;
+			}
 		}
 	}
 
@@ -129,10 +133,14 @@ public class Tracker.View : ScrolledWindow {
 			IconView iv = (IconView) view;
 
 			iv.set_model (store);
-			iv.set_item_width (96);
+			iv.set_item_width (128);
+			iv.set_item_padding (1);
+			iv.set_row_spacing (2);
+			iv.set_column_spacing (2);
 			iv.set_selection_mode (SelectionMode.SINGLE);
 			iv.set_pixbuf_column (6);
-			iv.set_text_column (2);
+			iv.set_text_column (-1); // was 2, -1 is for no text
+			iv.set_tooltip_column (5);
 
 			break;
 		}

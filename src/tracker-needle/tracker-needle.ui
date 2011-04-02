@@ -93,6 +93,18 @@
               </packing>
             </child>
             <child>
+              <object class="GtkRadioToolButton" id="toolbutton_find_in_all">
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-select-all</property>
+                <property name="active">True</property>
+                <property name="group">toolbutton_find_in_titles</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkSeparatorToolItem" id="&lt;separator&gt;">
                 <property name="visible">True</property>
               </object>
@@ -102,7 +114,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolItem" id="toolbutton_search_label">
+              <object class="GtkToolItem" id="toolitem_search_label">
                 <property name="visible">True</property>
                 <property name="is_important">True</property>
                 <child>
@@ -119,7 +131,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolItem" id="toolbutton_search_entry">
+              <object class="GtkToolItem" id="toolitem_search_entry">
                 <property name="visible">True</property>
                 <property name="is_important">True</property>
                 <child>
@@ -135,8 +147,8 @@
                         <property name="has_focus">True</property>
                         <property name="model">liststore_search</property>
                         <property name="text_column">0</property>
-                        <accelerator key="f" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="s" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="f" signal="grab-focus" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                   </object>
