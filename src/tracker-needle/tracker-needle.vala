@@ -35,6 +35,8 @@ public class Tracker.Needle {
 	private SeparatorToolItem separator_secondary;
 	private ToggleToolButton find_in_contents;
 	private ToggleToolButton find_in_titles;
+	private ToggleToolButton find_in_all;
+	private ToolItem search_entry;
 	private ComboBoxEntry search_list;
 	private Entry search;
 	private Spinner spinner;
@@ -51,17 +53,20 @@ public class Tracker.Needle {
 	private int size_small = 0;
 	private int size_medium = 0;
 	private int size_big = 0;
-	static bool current_find_in = true;
+	static bool current_find_in_filelist = true;
+	static bool current_find_in_icons = true;
 
 	private ResultStore categories_model;
 	private ResultStore files_model;
 	private ResultStore files_in_title_model;
 	private ResultStore images_model;
+	private ResultStore images_in_title_model;
 
 	private void create_models () {
 		// Categories model
 		categories_model = new ResultStore (6);
 		categories_model.add_query (Tracker.Query.Type.APPLICATIONS,
+		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "tracker:coalesce(nfo:softwareCmdLine(?urn), ?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
@@ -70,6 +75,7 @@ public class Tracker.Needle {
 		                            "\"\"");
 
 		categories_model.add_query (Tracker.Query.Type.IMAGES,
+		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
@@ -77,6 +83,7 @@ public class Tracker.Needle {
 		                            "nfo:fileSize(?urn)",
 		                            "nie:url(?urn)");
 		categories_model.add_query (Tracker.Query.Type.MUSIC,
+		                            Tracker.Query.Match.FTS_INDIRECT,
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
@@ -84,6 +91,7 @@ public class Tracker.Needle {
 		                            "nfo:duration(?urn)",
 		                            "nie:url(?urn)");
 		categories_model.add_query (Tracker.Query.Type.VIDEOS,
+		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
@@ -91,6 +99,7 @@ public class Tracker.Needle {
 		                            "nfo:duration(?urn)",
 		                            "nie:url(?urn)");
 		categories_model.add_query (Tracker.Query.Type.DOCUMENTS,
+		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
@@ -98,6 +107,7 @@ public class Tracker.Needle {
 		                            "nfo:pageCount(?urn)",
 		                            "nie:url(?urn)");
 		categories_model.add_query (Tracker.Query.Type.MAIL,
+		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
@@ -105,6 +115,7 @@ public class Tracker.Needle {
 		                            "nmo:receivedDate(?urn)",
 		                            "fn:concat(\"To: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to)))");
 		categories_model.add_query (Tracker.Query.Type.FOLDERS,
+		                            Tracker.Query.Match.FTS,
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
@@ -115,6 +126,7 @@ public class Tracker.Needle {
 		// Files model
 		files_model = new ResultStore (7);
 		files_model.add_query (Tracker.Query.Type.ALL,
+		                       Tracker.Query.Match.FTS,
 		                       "?urn",
 		                       "nie:url(?urn)",
 		                       "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
@@ -123,9 +135,9 @@ public class Tracker.Needle {
 		                       "nfo:fileLastModified(?urn)",
 		                       "nie:url(?urn)");
 
-		// Files model, search in titles
 		files_in_title_model = new ResultStore (7);
-		files_in_title_model.add_query (Tracker.Query.Type.ALL_ONLY_IN_TITLES,
+		files_in_title_model.add_query (Tracker.Query.Type.ALL,
+		                                Tracker.Query.Match.TITLES,
 		                                "?urn",
 		                                "nie:url(?urn)",
 		                                "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
@@ -136,14 +148,27 @@ public class Tracker.Needle {
 
 		// Images model
 		images_model = new ResultStore (6);
-		images_model.icon_size = 48;
+		images_model.icon_size = 128;
 		images_model.add_query (Tracker.Query.Type.IMAGES,
+		                        Tracker.Query.Match.NONE,
 		                        "?urn",
 		                        "nie:url(?urn)",
 		                        "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+//		                        "nie:url(?urn)",
 		                        "nfo:fileSize(?urn)",
 		                        "nfo:fileLastModified(?urn)",
 		                        "nie:url(?urn)");
+
+		images_in_title_model = new ResultStore (6);
+		images_in_title_model.icon_size = 128;
+		images_in_title_model.add_query (Tracker.Query.Type.IMAGES,
+		                                 Tracker.Query.Match.TITLES,
+		                                 "?urn",
+		                                 "nie:url(?urn)",
+		                                 "tracker:coalesce(nie:title(?urn), nfo:fileName(?urn))",
+		                                 "nfo:fileSize(?urn)",
+		                                 "nfo:fileLastModified(?urn)",
+		                                 "nie:url(?urn)");
 	}
 
 	public Needle () {
@@ -233,6 +258,10 @@ public class Tracker.Needle {
 		find_in_titles = builder.get_object ("toolbutton_find_in_titles") as ToggleToolButton;
 		find_in_titles.toggled.connect (find_in_toggled);
 
+		find_in_all = builder.get_object ("toolbutton_find_in_all") as ToggleToolButton;
+		find_in_all.toggled.connect (find_in_toggled);
+
+		search_entry = builder.get_object ("toolitem_search_entry") as ToolItem;
 		search_list = builder.get_object ("comboboxentry_search") as ComboBoxEntry;
 		search = search_list.get_child () as Entry;
 		search.changed.connect (search_changed);
@@ -269,7 +298,7 @@ public class Tracker.Needle {
 		treeview.row_activated.connect (view_row_selected);
 		view.pack_start (sw_filelist, true, true, 0);
 
-		sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, images_model);
+		sw_icons = new Tracker.View (Tracker.View.Display.FILE_ICONS, null);
 		iconview = (IconView) sw_icons.get_child ();
 		iconview.item_activated.connect (icon_item_selected);
 		view.pack_start (sw_icons, true, true, 0);
@@ -372,8 +401,11 @@ public class Tracker.Needle {
 		ResultStore store = null;
 
 		if (criteria.length < 3) {
-			search_finished (store);
-			return false;
+			// Allow empty search criteria for finding all
+			if (!view_icons.active || !find_in_all.active) {
+				search_finished (store);
+				return false;
+			}
 		}
 
 		search_history_find_or_insert (criteria, true);
@@ -383,7 +415,14 @@ public class Tracker.Needle {
 
 		if (view_icons.active) {
 			sw_icons.show ();
-			store = images_model;
+
+			if (find_in_all.active) {
+				store = images_model;
+			} else {
+				store = images_in_title_model;
+			}
+
+			sw_icons.store = store;
 		} else {
 			sw_icons.hide ();
 		}
@@ -417,15 +456,25 @@ public class Tracker.Needle {
 	}
 
 	private void view_toggled () {
-		bool show_find_in;
-
 		if (!view_icons.active &&
 			!view_filelist.active &&
 			!view_categories.active) {
 				return;
 		}
 
-		show_find_in = view_filelist.active || view_icons.active;
+		if (view_categories.active || view_filelist.active) {
+			if (current_find_in_filelist) {
+				find_in_contents.active = true;
+			} else {
+				find_in_titles.active = true;
+			}
+		} else if (view_icons.active) {
+			if (current_find_in_icons) {
+				find_in_titles.active = true;
+			} else {
+				find_in_all.active = true;
+			}
+		}
 
 		// Show no results Window when switching
 		sw_noresults.show ();
@@ -434,28 +483,48 @@ public class Tracker.Needle {
 		sw_categories.hide ();
 
 		// Show/Hide secondary widgets
-		separator_secondary.visible = show_find_in;
-		find_in_contents.visible = show_find_in;
-		find_in_titles.visible = show_find_in;
+		separator_secondary.visible = view_filelist.active || view_icons.active;
+		find_in_contents.visible = view_filelist.active;
+		find_in_titles.visible = view_filelist.active || view_icons.active;
+		find_in_all.visible = view_icons.active; // only show this in one view
 
 		search_run ();
 		//current_view = rows;
 	}
 
 	private void find_in_toggled () {
-		if (current_find_in == find_in_contents.active) {
-			return;
+		if (!find_in_contents.active &&
+		    !find_in_titles.active &&
+		    !find_in_all.active) {
+		    return;
 		}
 
 		if (find_in_contents.active) {
 			debug ("Find in toggled to 'contents'");
+
+			search_entry.sensitive = true;
+
 			search_run ();
-		} else {
+		} else if (find_in_titles.active) {
 			debug ("Find in toggled to 'titles'");
+
+			search_entry.sensitive = true;
+
+			search_run ();
+		} else if (find_in_all.active) {
+			debug ("Find in toggled to 'all'");
+
+			// We hide the entry in this case, which is special
+			search_entry.sensitive = false;
+
 			search_run ();
 		}
 
-		current_find_in = find_in_contents.active;
+		if (view_filelist.active) {
+			current_find_in_filelist = find_in_contents.active;
+		} else if (view_icons.active) {
+			current_find_in_icons = find_in_titles.active;
+		}
 	}
 
 	private void launch_selected (TreeModel model, TreePath path, int col) {
