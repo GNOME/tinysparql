@@ -1,0 +1,6 @@
+content   trackerfox                 chrome/content/
+skin      trackerfox   classic/1.0   chrome/skin/
+locale    trackerfox   en-US         chrome/locale/en-US/
+
+
+overlay   chrome://browser/content/browser.xul   chrome://trackerfox/content/ff-overlay.xul

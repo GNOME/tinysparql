@@ -1,0 +1,8 @@
+<!ENTITY trackerfox.label "Your localized menuitem">
+<!ENTITY trackerfoxContext.label "Your Menuitem">
+<!ENTITY trackerfoxContext.accesskey "Y">
+<!ENTITY trackerfoxToolbarButton.label "Your Toolbar Button">
+<!ENTITY trackerfoxToolbarButton.tooltip "This is your toolbar button!">
+<!ENTITY trackerfoxSidebar.label "Your Sidebar">
+<!ENTITY trackerfoxToolbar.name  "example">
+<!ENTITY trackerfoxToolbar.label "This is an example toolbar. You can hide it under View &gt; toolbars &gt; &trackerfoxToolbar.name;">
