@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-03 23:13+0100\n"
-"PO-Revision-Date: 2011-02-03 23:19+0100\n"
+"POT-Creation-Date: 2011-04-03 17:38+0200\n"
+"PO-Revision-Date: 2011-04-03 17:47+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -18,7 +18,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
-#: ../src/tracker-search-bar/tracker-results-window.c:666
+#: ../src/tracker-needle/tracker-view.vala:318
+#: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Applications"
 msgstr "Program"
 
@@ -58,6 +59,229 @@ msgstr "Hämta RSS/ATOM-webbkanaler"
 #: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
 msgid "RSS/ATOM Feeds"
 msgstr "RSS/ATOM-webbkanaler"
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+msgid "Location of journal pieces"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+msgid "Maximum size of journal"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+#, fuzzy
+msgid "Enable stemmer"
+msgstr "Aktivera _övervakning"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+#, fuzzy
+msgid "Enable unaccent"
+msgstr "Aktivera _bevakning"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+msgid "If enabled, numbers will not be indexed."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+msgid "If enabled, the words listed in the stop-words list are ignored. E.g. common words like 'the', 'yes', 'no', etc."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+#, fuzzy
+msgid "Ignore numbers"
+msgstr "Tagga en eller flera filer"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+msgid "Ignore stop words"
+msgstr "Ignorera stoppord"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+msgid "Indexer will read only this maximum number of words from a single document."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+#, fuzzy
+msgid "Maximum length of a word to be indexed"
+msgstr "Maximal mäng_d text att indexera:"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+#, fuzzy
+msgid "Maximum number of words to index in a document"
+msgstr "Maximalt antal unika ord a_tt indexera:"
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+msgid "Minimum length of a word to be indexed"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+msgid "Simplify the words to their root to provide more results. E.g. 'shelves' and 'shelf' to 'shel'"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+msgid "Translated accented characters to the equivalent unaccented. E.g. 'Idéa' to 'Idea' for improved matching."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:13
+msgid "Words with less characters than this will be ignored by the indexer."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:14
+msgid "Words with more characters than this length will be ignored by the indexer."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+#: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
+msgid "Log verbosity"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
+#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+#: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
+msgid "Log verbosity."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
+msgid "Max bytes to extract"
+msgstr "Maximalt antal byte att extrahera"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
+#, fuzzy
+msgid "Maximum number of UTF-8 bytes to extract."
+msgstr "Maximalt antal unika ord a_tt indexera:"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
+msgid "Avoid any directory containing a file blacklisted here"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
+#, fuzzy
+msgid "Crawling interval"
+msgstr "Kontrollintervall: "
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
+#, fuzzy
+msgid "Directories to index non-recursively"
+msgstr "Katalog att inkludera för indexering"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
+msgid "Directories to index recursively"
+msgstr "Kataloger att indexera rekursivt"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
+msgid "Disk space threshold in MB at which to pause indexing, or -1 to disable."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
+msgid "Enable monitors"
+msgstr "Aktivera övervakare"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
+msgid "Ignored directories"
+msgstr "Inkluderade kataloger"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
+msgid "Ignored directories with content"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
+msgid "Ignored files"
+msgstr "Ignorerade filer"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
+msgid "Index optical discs"
+msgstr "Indexera optiska skivor"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
+msgid "Index removable devices"
+msgstr "Indexera flyttbara enheter"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
+msgid "Index when running on battery"
+msgstr "Indexera vid körning på batteri"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
+msgid "Indexing speed, the higher the slower."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
+msgid "Initial sleep"
+msgstr "Initial sömn"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
+msgid "Initial sleep time, in seconds."
+msgstr "Initial sovtid, i sekunder."
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
+msgid "Interval in days to check whether the filesystem is up to date in the database. 0 forces crawling anytime, -1 forces it only after unclean shutdowns, and -2 disables it entirely."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
+msgid "List of directories to avoid"
+msgstr "Lista över kataloger att undvika"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
+msgid "List of directories to index recursively, Special values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
+msgid "List of directories to index without inspecting subfolders, Special values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
+msgid "List of file patterns to avoid"
+msgstr "Lista över filmönster att undvika"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
+msgid "Low disk space limit"
+msgstr "Gräns för lågt diskutrymme"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
+msgid "Perform initial indexing when running on battery"
+msgstr "Genomför initial indexering vid körning på batteri"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
+msgid "Removable devices' data permanence threshold"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
+msgid "Set to false to completely disable any file monitoring"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
+msgid "Set to true to enable indexing CDs, DVDs, and generally optical media (if removable devices are not indexed, optical discs won't be either)"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
+msgid "Set to true to enable indexing mounted directories for removable devices."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
+msgid "Set to true to index while running on battery"
+msgstr "Ställ in till true för att indexera vid körning på batteri"
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
+msgid "Set to true to index while running on battery for the first time only"
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
+msgid "Threshold in days after which files from removables devices will be removed from database if not mounted. 0 means never, maximum is 365."
+msgstr ""
+
+#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
+#, fuzzy
+msgid "Throttle"
+msgstr "Tröskelvärde"
 
 #: ../data/tracker-miner-flickr.desktop.in.in.h:1
 msgid "Processes images and albums on Flickr"
@@ -99,108 +323,105 @@ msgstr "Alla poster"
 msgid "By usage"
 msgstr "Efter användning"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:284
-#: ../src/plugins/nautilus/tracker-tags-view.c:417
-#: ../src/plugins/nautilus/tracker-tags-view.c:451
+#: ../src/plugins/nautilus/tracker-tags-view.c:231
 msgid "No error was given"
 msgstr "Inget fel angavs"
 
-#: ../src/plugins/nautilus/tracker-tags-view.c:815
+#: ../src/plugins/nautilus/tracker-tags-view.c:963
 #, c-format
 msgid "_Set the tags you want to associate with the %d selected item:"
 msgid_plural "_Set the tags you want to associate with the %d selected items:"
 msgstr[0] "_Ställ in de taggar som du vill associera med %d markerat objekt:"
 msgstr[1] "_Ställ in de taggar som du vill associera med %d markerade objekt:"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:124
-#: ../src/plugins/nautilus/tracker-tags-extension.c:237
+#: ../src/plugins/nautilus/tracker-tags-extension.c:116
+#: ../src/plugins/nautilus/tracker-tags-extension.c:221
 #: ../src/tracker-needle/tracker-taglist.vala:50
 #: ../src/tracker-needle/tracker-needle.ui.h:8
-#: ../src/tracker-search-bar/tracker-results-window.c:663
+#: ../src/tracker-search-bar/tracker-results-window.c:719
 msgid "Tags"
 msgstr "Taggar"
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:175
-#: ../src/plugins/nautilus/tracker-tags-extension.c:202
+#: ../src/plugins/nautilus/tracker-tags-extension.c:167
+#: ../src/plugins/nautilus/tracker-tags-extension.c:194
 msgid "Tags..."
 msgstr "Taggar..."
 
-#: ../src/plugins/nautilus/tracker-tags-extension.c:176
-#: ../src/plugins/nautilus/tracker-tags-extension.c:203
+#: ../src/plugins/nautilus/tracker-tags-extension.c:168
+#: ../src/plugins/nautilus/tracker-tags-extension.c:195
 msgid "Tag one or more files"
 msgstr "Tagga en eller flera filer"
 
-#: ../src/libtracker-common/tracker-utils.c:69
-#: ../src/libtracker-common/tracker-utils.c:76
+#: ../src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
 msgstr "okänd tid"
 
-#: ../src/libtracker-common/tracker-utils.c:94
-#: ../src/libtracker-common/tracker-utils.c:145
+#: ../src/libtracker-common/tracker-utils.c:104
+#: ../src/libtracker-common/tracker-utils.c:155
 msgid "less than one second"
 msgstr "mindre än en sekund"
 
 #. Translators: this is %d days
-#: ../src/libtracker-common/tracker-utils.c:109
+#: ../src/libtracker-common/tracker-utils.c:119
 #, c-format
 msgid " %dd"
 msgstr " %d d"
 
 #. Translators: this is %2.2d hours
-#: ../src/libtracker-common/tracker-utils.c:113
+#: ../src/libtracker-common/tracker-utils.c:123
 #, c-format
 msgid " %2.2dh"
 msgstr " %2.2d h"
 
 #. Translators: this is %2.2d minutes
-#: ../src/libtracker-common/tracker-utils.c:117
+#: ../src/libtracker-common/tracker-utils.c:127
 #, c-format
 msgid " %2.2dm"
 msgstr " %2.2d m"
 
 #. Translators: this is %2.2d seconds
-#: ../src/libtracker-common/tracker-utils.c:121
+#: ../src/libtracker-common/tracker-utils.c:131
 #, c-format
 msgid " %2.2ds"
 msgstr " %2.2d s"
 
-#: ../src/libtracker-common/tracker-utils.c:125
+#: ../src/libtracker-common/tracker-utils.c:135
 #, c-format
 msgid " %d day"
 msgid_plural " %d days"
 msgstr[0] " %d dygn"
 msgstr[1] " %d dygn"
 
-#: ../src/libtracker-common/tracker-utils.c:129
+#: ../src/libtracker-common/tracker-utils.c:139
 #, c-format
 msgid " %2.2d hour"
 msgid_plural " %2.2d hours"
 msgstr[0] " %2.2d timme"
 msgstr[1] " %2.2d timmar"
 
-#: ../src/libtracker-common/tracker-utils.c:133
+#: ../src/libtracker-common/tracker-utils.c:143
 #, c-format
 msgid " %2.2d minute"
 msgid_plural " %2.2d minutes"
 msgstr[0] " %2.2d minut"
 msgstr[1] " %2.2d minuter"
 
-#: ../src/libtracker-common/tracker-utils.c:137
+#: ../src/libtracker-common/tracker-utils.c:147
 #, c-format
 msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d sekund"
 msgstr[1] " %2.2d sekunder"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:730
+#: ../src/libtracker-miner/tracker-miner-object.c:793
 msgid "Pause application and reason match an already existing pause request"
 msgstr "Paus av programmet och anledning matchar en redan befintlig pausbegäran"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:812
+#: ../src/libtracker-miner/tracker-miner-object.c:879
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Kakan känns inte igen för att återuppta pausad insamlare"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1189
+#: ../src/libtracker-miner/tracker-miner-object.c:1284
 msgid "Data store is not available"
 msgstr "Datalagret är inte tillgängligt"
 
@@ -212,8 +433,8 @@ msgstr "Tryck data till Tracker för att göra det sökbart."
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2375
-#: ../src/tracker-control/tracker-control-status.c:56
+#: ../src/plugins/evolution/tracker-evolution-plugin.c:2389
+#: ../src/tracker-control/tracker-control-status.c:52
 msgid "Processing…"
 msgstr "Behandlar..."
 
@@ -242,7 +463,7 @@ msgid "File to extract metadata for"
 msgstr "Fil att extrahera metadata för"
 
 #: ../src/tracker-extract/tracker-main.c:89
-#: ../src/miners/fs/tracker-main.c:89
+#: ../src/miners/fs/tracker-main.c:94
 #: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-utils/tracker-import.c:54
 #: ../src/tracker-utils/tracker-import.c:55
@@ -279,7 +500,7 @@ msgstr "MODUL"
 
 #. Daemon options
 #: ../src/tracker-extract/tracker-main.c:110
-#: ../src/miners/fs/tracker-main.c:92
+#: ../src/miners/fs/tracker-main.c:97
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
@@ -299,108 +520,112 @@ msgstr "Filnamn och mime-typ måste anges tillsammans"
 msgid "Options --force-internal-extractors and --force-module can't be used together"
 msgstr "Flaggorna --force-internal-extractors och --force-module kan inte användas samtidigt"
 
-#: ../src/miners/fs/tracker-main.c:78
+#: ../src/miners/fs/tracker-main.c:79
 #: ../src/miners/rss/tracker-main.c:37
 #: ../src/tracker-writeback/tracker-main.c:55
 msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
 msgstr "Loggning, 0 = endast fel, 1 = minimalt, 2 = detaljerat samt 3 = felsökning (standard=0)"
 
-#: ../src/miners/fs/tracker-main.c:83
+#: ../src/miners/fs/tracker-main.c:84
 msgid "Initial sleep time in seconds, 0->1000 (default=15)"
 msgstr "Initial sovtid i sekunder, 0->1000 (standard=15)"
 
-#: ../src/miners/fs/tracker-main.c:88
+#: ../src/miners/fs/tracker-main.c:89
+msgid "Runs until all configured locations are indexed and then exits"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:93
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "Kontrollerar om FIL är lämplig för att samlas in baserat på konfiguration"
 
-#: ../src/miners/fs/tracker-main.c:400
+#: ../src/miners/fs/tracker-main.c:412
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Dataobjektet \"%s\" finns för tillfället"
 
-#: ../src/miners/fs/tracker-main.c:401
+#: ../src/miners/fs/tracker-main.c:413
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Dataobjektet \"%s\" finns inte för tillfället"
 
-#: ../src/miners/fs/tracker-main.c:416
+#: ../src/miners/fs/tracker-main.c:428
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "Katalogen är lämplig för att samlas in (baserat på regler)"
 
-#: ../src/miners/fs/tracker-main.c:417
+#: ../src/miners/fs/tracker-main.c:429
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "Katalogen är INTE lämplig för att samlas in (baserat på regler)"
 
-#: ../src/miners/fs/tracker-main.c:437
+#: ../src/miners/fs/tracker-main.c:449
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "Katalogen är lämplig för att samlas in (baserat på innehåll)"
 
-#: ../src/miners/fs/tracker-main.c:438
+#: ../src/miners/fs/tracker-main.c:450
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "Katalogen är INTE lämplig för att samlas in (baserat på innehåll)"
 
-#: ../src/miners/fs/tracker-main.c:485
+#: ../src/miners/fs/tracker-main.c:497
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Katalogen är lämplig för övervakning (baserat på konfiguration)"
 
-#: ../src/miners/fs/tracker-main.c:486
+#: ../src/miners/fs/tracker-main.c:498
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Katalogen är INTE lämplig för övervakning (baserat på konfiguration)"
 
-#: ../src/miners/fs/tracker-main.c:490
+#: ../src/miners/fs/tracker-main.c:502
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Filen är lämplig för övervakning (baserat på konfiguration)"
 
-#: ../src/miners/fs/tracker-main.c:491
+#: ../src/miners/fs/tracker-main.c:503
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Filen är INTE lämplig för övervakning (baserat på konfiguration)"
 
-#: ../src/miners/fs/tracker-main.c:495
+#: ../src/miners/fs/tracker-main.c:507
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "Filen eller katalogen är lämplig för övervakning (baserat på konfiguration)"
 
-#: ../src/miners/fs/tracker-main.c:496
+#: ../src/miners/fs/tracker-main.c:508
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "Filen eller katalogen är INTE lämpliga för övervakning (baserat på konfiguration)"
 
-#: ../src/miners/fs/tracker-main.c:511
+#: ../src/miners/fs/tracker-main.c:523
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Filen är lämplig för att samlas in (baserat på regler)"
 
-#: ../src/miners/fs/tracker-main.c:512
+#: ../src/miners/fs/tracker-main.c:524
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "Filen är INTE lämplig för att samlas in (baserat på regler)"
 
-#: ../src/miners/fs/tracker-main.c:521
+#: ../src/miners/fs/tracker-main.c:533
 msgid "Would be indexed"
 msgstr "Skulle indexeras"
 
-#: ../src/miners/fs/tracker-main.c:522
-#: ../src/miners/fs/tracker-main.c:524
+#: ../src/miners/fs/tracker-main.c:534
+#: ../src/miners/fs/tracker-main.c:536
 msgid "Yes"
 msgstr "Ja"
 
-#: ../src/miners/fs/tracker-main.c:522
-#: ../src/miners/fs/tracker-main.c:524
+#: ../src/miners/fs/tracker-main.c:534
+#: ../src/miners/fs/tracker-main.c:536
 msgid "No"
 msgstr "Nej"
 
-#: ../src/miners/fs/tracker-main.c:523
+#: ../src/miners/fs/tracker-main.c:535
 msgid "Would be monitored"
 msgstr "Skulle övervakas"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:567
+#: ../src/miners/fs/tracker-main.c:579
 msgid "- start the tracker indexer"
 msgstr "- starta tracker-indexeraren"
 
-#: ../src/miners/fs/tracker-miner-files.c:1318
+#: ../src/miners/fs/tracker-miner-files.c:1331
 msgid "Low battery"
 msgstr "Låg batterispänning"
 
-#: ../src/miners/fs/tracker-miner-files.c:1441
+#: ../src/miners/fs/tracker-miner-files.c:1454
 msgid "Low disk space"
 msgstr "Lågt diskutrymme"
 
@@ -419,45 +644,61 @@ msgstr "Konfigurera filindexering med Tracker"
 msgid "Search and Indexing"
 msgstr "Sökning och indexering"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:85
-#: ../src/tracker-preferences/tracker-preferences.vala:97
+#: ../src/tracker-preferences/tracker-preferences.vala:117
+#: ../src/tracker-preferences/tracker-preferences.vala:118
+#: ../src/tracker-preferences/tracker-preferences.vala:119
+#: ../src/tracker-preferences/tracker-preferences.vala:120
+msgid "Directory"
+msgstr "Katalog"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:121
+#: ../src/tracker-needle/tracker-view.vala:172
+msgid "File"
+msgstr "Fil"
+
+#: ../src/tracker-preferences/tracker-preferences.vala:252
+#: ../src/tracker-preferences/tracker-preferences.vala:266
 msgid "Disabled"
 msgstr "Inaktiverad"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:88
+#: ../src/tracker-preferences/tracker-preferences.vala:255
 #, c-format
 msgid "%d%%"
 msgstr "%d%%"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:92
+#: ../src/tracker-preferences/tracker-preferences.vala:260
 #, c-format
 msgid "%d/20"
 msgstr "%d/20"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:100
+#: ../src/tracker-preferences/tracker-preferences.vala:269
 #, c-format
 msgid "%d"
 msgstr "%d"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:108
+#: ../src/tracker-preferences/tracker-preferences.vala:360
 msgid "Enter value"
 msgstr "Ange värde"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:139
+#: ../src/tracker-preferences/tracker-preferences.vala:389
 msgid "Select directory"
 msgstr "Välj katalog"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:376
-#: ../src/tracker-preferences/tracker-preferences.vala:377
-#: ../src/tracker-preferences/tracker-preferences.vala:378
-#: ../src/tracker-preferences/tracker-preferences.vala:379
-msgid "Directory"
-msgstr "Katalog"
+#: ../src/tracker-preferences/tracker-preferences.vala:497
+#: ../src/tracker-needle/tracker-needle.vala:614
+#: ../src/tracker-control/tracker-control.c:53
+#: ../src/tracker-utils/tracker-import.c:50
+#: ../src/tracker-utils/tracker-info.c:49
+#: ../src/tracker-utils/tracker-search.c:139
+#: ../src/tracker-utils/tracker-sparql.c:100
+#: ../src/tracker-utils/tracker-stats.c:47
+#: ../src/tracker-utils/tracker-tag.c:87
+msgid "Print version"
+msgstr "Skriv ut version"
 
-#: ../src/tracker-preferences/tracker-preferences.vala:380
-#: ../src/tracker-needle/tracker-needle.vala:255
-msgid "File"
-msgstr "Fil"
+#: ../src/tracker-preferences/tracker-preferences.vala:503
+msgid "Desktop Search preferences"
+msgstr "Inställningar för Skrivbordssökning"
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:1
 msgid "Day(s)"
@@ -609,50 +850,14 @@ msgstr "Skrivbordssökning"
 msgid "Find what you're looking for on this computer by name or content using Tracker"
 msgstr "Sök efter det du letar efter på denna dator efter namn eller innehåll med Tracker"
 
-#: ../src/tracker-needle/tracker-needle.vala:267
-msgid "Last Changed"
-msgstr "Senast ändrad"
-
-#: ../src/tracker-needle/tracker-needle.vala:275
-msgid "Size"
-msgstr "Storlek"
-
-#: ../src/tracker-needle/tracker-needle.vala:736
-#: ../src/tracker-control/tracker-control.c:53
-#: ../src/tracker-utils/tracker-import.c:50
-#: ../src/tracker-utils/tracker-info.c:49
-#: ../src/tracker-utils/tracker-search.c:139
-#: ../src/tracker-utils/tracker-sparql.c:100
-#: ../src/tracker-utils/tracker-stats.c:47
-#: ../src/tracker-utils/tracker-tag.c:87
-msgid "Print version"
-msgstr "Skriv ut version"
-
-#: ../src/tracker-needle/tracker-needle.vala:743
-#: ../src/tracker-needle/tracker-needle.vala:744
+#: ../src/tracker-needle/tracker-needle.vala:621
+#: ../src/tracker-needle/tracker-needle.vala:622
 msgid "[SEARCH-CRITERIA]"
 msgstr "[SÖKKRITERIA]"
 
-#: ../src/tracker-needle/tracker-needle.vala:749
+#: ../src/tracker-needle/tracker-needle.vala:627
 msgid "Desktop Search user interface using Tracker"
 msgstr "Användargränssnitt för skrivbordssökningar med Tracker"
-
-#: ../src/tracker-needle/tracker-query.vala:71
-msgid "Unknown"
-msgstr "Okänd"
-
-#. fn:concat(nco:pageCount(?urn), \" pages\")
-#: ../src/tracker-needle/tracker-query.vala:167
-msgid "Pages"
-msgstr "Sidor"
-
-#: ../src/tracker-needle/tracker-query.vala:194
-msgid "No Subject"
-msgstr "Inget ämne"
-
-#: ../src/tracker-needle/tracker-query.vala:195
-msgid "To"
-msgstr "Till"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
 #: ../src/tracker-needle/tracker-utils.vala:61
@@ -675,17 +880,66 @@ msgstr[1] "%ld dygn sedan"
 msgid "Less than one second"
 msgstr "Mindre än en sekund"
 
-#: ../src/tracker-needle/tracker-view.vala:48
+#: ../src/tracker-needle/tracker-view.vala:101
 msgid "No Search Results"
 msgstr "Inga sökresultat "
 
+#: ../src/tracker-needle/tracker-view.vala:184
+msgid "Last Changed"
+msgstr "Senast ändrad"
+
+#: ../src/tracker-needle/tracker-view.vala:193
+msgid "Size"
+msgstr "Storlek"
+
+#: ../src/tracker-needle/tracker-view.vala:321
+msgid "Music"
+msgstr "Musik"
+
+#: ../src/tracker-needle/tracker-view.vala:324
+#: ../src/tracker-search-bar/tracker-results-window.c:723
+msgid "Images"
+msgstr "Bilder"
+
+#: ../src/tracker-needle/tracker-view.vala:327
+#: ../src/tracker-search-bar/tracker-results-window.c:727
+msgid "Videos"
+msgstr "Videoklipp"
+
+#: ../src/tracker-needle/tracker-view.vala:330
+#: ../src/tracker-search-bar/tracker-results-window.c:721
+msgid "Documents"
+msgstr "Dokument"
+
+#: ../src/tracker-needle/tracker-view.vala:333
+msgid "Mail"
+msgstr "E-post"
+
+#: ../src/tracker-needle/tracker-view.vala:336
+#: ../src/tracker-search-bar/tracker-results-window.c:725
+msgid "Folders"
+msgstr "Mappar"
+
+#: ../src/tracker-needle/tracker-view.vala:340
+msgid "Items"
+msgstr "Objekt"
+
+#: ../src/tracker-needle/tracker-view.vala:352
+#, c-format
+msgid "Loading..."
+msgstr "Läser in..."
+
+#: ../src/tracker-needle/tracker-view.vala:417
+msgid "Pages"
+msgstr "Sidor"
+
 #: ../src/tracker-needle/tracker-needle.ui.h:2
-msgid "Display results by category, for example, Music, Videos, Applications, etc."
-msgstr "Visa resultat efter kategori, till exempel Musik, Videor, Program etc."
+msgid "Display found images"
+msgstr "Visa hittade bilder"
 
 #: ../src/tracker-needle/tracker-needle.ui.h:3
-msgid "Display results by files found in a grid view"
-msgstr "Visa resultat efter filer hittade i ett rutnät"
+msgid "Display results by category, for example, Music, Videos, Applications, etc."
+msgstr "Visa resultat efter kategori, till exempel Musik, Videor, Program etc."
 
 #: ../src/tracker-needle/tracker-needle.ui.h:4
 msgid "Display results by files found in a list"
@@ -703,65 +957,49 @@ msgstr "Hitta sökkriteriet inuti filer"
 msgid "Show statistics about the data stored"
 msgstr "Visa statistik om lagrat data"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:661
-#: ../src/tracker-search-bar/tracker-results-window.c:677
+#: ../src/tracker-search-bar/tracker-results-window.c:717
+#: ../src/tracker-search-bar/tracker-results-window.c:733
 msgid "Other"
 msgstr "Övriga"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:662
+#: ../src/tracker-search-bar/tracker-results-window.c:718
 #: ../src/tracker-utils/tracker-search.c:234
 msgid "Contacts"
 msgstr "Kontakter"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:664
+#: ../src/tracker-search-bar/tracker-results-window.c:720
 msgid "Email Addresses"
 msgstr "E-postadresser"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:665
-msgid "Documents"
-msgstr "Dokument"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:667
-msgid "Images"
-msgstr "Bilder"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:668
+#: ../src/tracker-search-bar/tracker-results-window.c:724
 msgid "Audio"
 msgstr "Ljud"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:669
-msgid "Folders"
-msgstr "Mappar"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:670
+#: ../src/tracker-search-bar/tracker-results-window.c:726
 msgid "Fonts"
 msgstr "Typsnitt"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:671
-msgid "Videos"
-msgstr "Videoklipp"
-
-#: ../src/tracker-search-bar/tracker-results-window.c:672
+#: ../src/tracker-search-bar/tracker-results-window.c:728
 msgid "Archives"
 msgstr "Arkiv"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:673
+#: ../src/tracker-search-bar/tracker-results-window.c:729
 msgid "Bookmarks"
 msgstr "Bokmärken"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:674
+#: ../src/tracker-search-bar/tracker-results-window.c:730
 msgid "Links"
 msgstr "Länkar"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1048
+#: ../src/tracker-search-bar/tracker-results-window.c:1104
 msgid "Category"
 msgstr "Kategori"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1076
+#: ../src/tracker-search-bar/tracker-results-window.c:1132
 msgid "Title"
 msgstr "Titel"
 
-#: ../src/tracker-search-bar/tracker-results-window.c:1142
+#: ../src/tracker-search-bar/tracker-results-window.c:1198
 #, c-format
 msgid "No results found for “%s”"
 msgstr "Inga resultat hittades för \"%s\""
@@ -804,7 +1042,7 @@ msgstr "Tillåt endast läsbaserade åtgärder på databasen"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:189
+#: ../src/tracker-store/tracker-main.vala:172
 msgid "- start the tracker daemon"
 msgstr "- starta tracker-demonen"
 
@@ -829,10 +1067,6 @@ msgstr "Statusflaggor och flaggor för insamlare kan inte användas samtidigt"
 #: ../src/tracker-control/tracker-control.c:135
 msgid "Unrecognized options"
 msgstr "Okända flaggor"
-
-#: ../src/tracker-control/tracker-control.c:143
-msgid "No options specified"
-msgstr "Inga flaggor angivna"
 
 #: ../src/tracker-control/tracker-control-general.c:72
 msgid "List all Tracker processes"
@@ -872,75 +1106,75 @@ msgid "Could not open /proc"
 msgstr "Kunde inte öppna /proc"
 
 #: ../src/tracker-control/tracker-control-general.c:112
-#: ../src/tracker-control/tracker-control-general.c:297
-#: ../src/tracker-control/tracker-control-general.c:337
-#: ../src/tracker-control/tracker-control-general.c:358
+#: ../src/tracker-control/tracker-control-general.c:306
+#: ../src/tracker-control/tracker-control-general.c:346
+#: ../src/tracker-control/tracker-control-general.c:367
 msgid "no error given"
 msgstr "inget fel angavs"
 
-#: ../src/tracker-control/tracker-control-general.c:251
+#: ../src/tracker-control/tracker-control-general.c:260
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Du kan inte använda argumenten --kill och --terminate samtidigt"
 
-#: ../src/tracker-control/tracker-control-general.c:257
+#: ../src/tracker-control/tracker-control-general.c:266
 msgid "You can not use the --terminate with --hard-reset or --soft-reset, --kill is implied"
 msgstr "Du kan inte använda --terminate med --hard-reset eller --soft-reset, --kill är underförstådd"
 
-#: ../src/tracker-control/tracker-control-general.c:263
+#: ../src/tracker-control/tracker-control-general.c:272
 msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgstr "Du kan inte använda argumenten --hard-reset och --soft-reset samtidigt"
 
-#: ../src/tracker-control/tracker-control-general.c:294
+#: ../src/tracker-control/tracker-control-general.c:303
 #, c-format
 msgid "Could not open '%s'"
 msgstr "Kunde inte öppna \"%s\""
 
-#: ../src/tracker-control/tracker-control-general.c:319
+#: ../src/tracker-control/tracker-control-general.c:328
 #, c-format
 msgid "Found process ID %d for '%s'"
 msgstr "Hittade process-id %d för \"%s\""
 
-#: ../src/tracker-control/tracker-control-general.c:334
+#: ../src/tracker-control/tracker-control-general.c:343
 #, c-format
 msgid "Could not terminate process %d"
 msgstr "Kunde inte terminera process %d"
 
-#: ../src/tracker-control/tracker-control-general.c:340
+#: ../src/tracker-control/tracker-control-general.c:349
 #, c-format
 msgid "Terminated process %d"
 msgstr "Terminerade process %d"
 
-#: ../src/tracker-control/tracker-control-general.c:355
+#: ../src/tracker-control/tracker-control-general.c:364
 #, c-format
 msgid "Could not kill process %d"
 msgstr "Kunde inte döda process %d"
 
-#: ../src/tracker-control/tracker-control-general.c:361
+#: ../src/tracker-control/tracker-control-general.c:370
 #, c-format
 msgid "Killed process %d"
 msgstr "Dödade process %d"
 
-#: ../src/tracker-control/tracker-control-general.c:473
+#: ../src/tracker-control/tracker-control-general.c:488
 msgid "Removing configuration files…"
 msgstr "Tar bort konfigurationsfiler..."
 
-#: ../src/tracker-control/tracker-control-general.c:487
+#: ../src/tracker-control/tracker-control-general.c:502
 msgid "Waiting one second before starting miners…"
 msgstr "Väntar en sekund innan insamlarna startas..."
 
-#: ../src/tracker-control/tracker-control-general.c:493
+#: ../src/tracker-control/tracker-control-general.c:508
 msgid "Starting miners…"
 msgstr "Startar insamlare…"
 
-#: ../src/tracker-control/tracker-control-general.c:511
+#: ../src/tracker-control/tracker-control-general.c:529
 msgid "perhaps a disabled plugin?"
 msgstr "kanske en inaktiverad insticksmodul?"
 
-#: ../src/tracker-control/tracker-control-general.c:534
+#: ../src/tracker-control/tracker-control-general.c:552
 msgid "General options"
 msgstr "Allmänna flaggor"
 
-#: ../src/tracker-control/tracker-control-general.c:535
+#: ../src/tracker-control/tracker-control-general.c:553
 msgid "Show general options"
 msgstr "Visa allmänna flaggor"
 
@@ -1036,7 +1270,7 @@ msgid "(Re)indexing file was successful"
 msgstr "(Om)indexering av filen lyckades"
 
 #: ../src/tracker-control/tracker-control-miners.c:206
-#: ../src/tracker-control/tracker-control-miners.c:289
+#: ../src/tracker-control/tracker-control-miners.c:264
 #, c-format
 msgid "Could not contact the miner manager"
 msgstr "Kunde inte kontakta insamlingshanteraren"
@@ -1051,120 +1285,129 @@ msgstr "Hittade %d installerade insamlare"
 msgid "Found %d miners running"
 msgstr "Hittade %d insamlare igång"
 
-#: ../src/tracker-control/tracker-control-miners.c:268
-#: ../src/tracker-control/tracker-control-status.c:145
-#, c-format
-msgid "Could not get status from miner: %s"
-msgstr "Kunde inte få status från insamlare: %s"
-
-#: ../src/tracker-control/tracker-control-miners.c:296
+#: ../src/tracker-control/tracker-control-miners.c:271
 msgid "No miners are running"
 msgstr "Inga insamlare är igång"
 
-#: ../src/tracker-control/tracker-control-miners.c:333
-#: ../src/tracker-control/tracker-control-status.c:508
+#: ../src/tracker-control/tracker-control-miners.c:304
+#: ../src/tracker-control/tracker-control-status.c:552
 msgid "Miners"
 msgstr "Insamlare"
 
-#: ../src/tracker-control/tracker-control-miners.c:340
+#: ../src/tracker-control/tracker-control-miners.c:311
 msgid "Application"
 msgstr "Program"
 
-#: ../src/tracker-control/tracker-control-miners.c:342
+#: ../src/tracker-control/tracker-control-miners.c:313
 msgid "Reason"
 msgstr "Anledning"
 
-#: ../src/tracker-control/tracker-control-miners.c:351
+#: ../src/tracker-control/tracker-control-miners.c:322
 msgid "No miners are paused"
 msgstr "Inga insamlare är pausade"
 
-#: ../src/tracker-control/tracker-control-miners.c:369
+#: ../src/tracker-control/tracker-control-miners.c:346
 msgid "You can not use miner pause and resume switches together"
 msgstr "Du kan inte använda växlar för paus och återupptagning samtidigt"
 
-#: ../src/tracker-control/tracker-control-miners.c:375
+#: ../src/tracker-control/tracker-control-miners.c:352
 msgid "You must provide the miner for pause or resume commands"
 msgstr "Du måste ange insamlaren för kommandon för paus eller återuppta"
 
-#: ../src/tracker-control/tracker-control-miners.c:381
+#: ../src/tracker-control/tracker-control-miners.c:358
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Du måste ange ett kommando för paus eller återuppta för insamlaren"
 
-#: ../src/tracker-control/tracker-control-miners.c:425
+#: ../src/tracker-control/tracker-control-miners.c:402
 msgid "Miner options"
 msgstr "Flaggor för insamlare"
 
-#: ../src/tracker-control/tracker-control-miners.c:426
+#: ../src/tracker-control/tracker-control-miners.c:403
 msgid "Show miner options"
 msgstr "Visa flaggor för insamlare"
 
-#: ../src/tracker-control/tracker-control-status.c:55
+#: ../src/tracker-control/tracker-control-status.c:50
+#: ../src/tracker-control/tracker-control-status.c:294
+msgid "Unavailable"
+msgstr "Otillgänglig"
+
+#. generic
+#: ../src/tracker-control/tracker-control-status.c:51
 msgid "Initializing"
 msgstr "Initierar"
 
-#: ../src/tracker-control/tracker-control-status.c:57
+#: ../src/tracker-control/tracker-control-status.c:53
 msgid "Fetching…"
 msgstr "Hämtar…"
 
 #. miner/rss
-#: ../src/tracker-control/tracker-control-status.c:58
+#: ../src/tracker-control/tracker-control-status.c:54
 #, c-format
 msgid "Crawling single directory '%s'"
 msgstr "Söker igenom katalogen \"%s\""
 
-#: ../src/tracker-control/tracker-control-status.c:59
+#: ../src/tracker-control/tracker-control-status.c:55
 #, c-format
 msgid "Crawling recursively directory '%s'"
 msgstr "Söker rekursivt igenom katalogen \"%s\""
 
-#: ../src/tracker-control/tracker-control-status.c:60
+#: ../src/tracker-control/tracker-control-status.c:56
 msgid "Paused"
 msgstr "Pausad"
 
-#: ../src/tracker-control/tracker-control-status.c:61
+#: ../src/tracker-control/tracker-control-status.c:57
 msgid "Idle"
 msgstr "Overksam"
 
-#: ../src/tracker-control/tracker-control-status.c:66
+#: ../src/tracker-control/tracker-control-status.c:62
 msgid "Show current status"
 msgstr "Visa aktuell status"
 
-#: ../src/tracker-control/tracker-control-status.c:70
+#: ../src/tracker-control/tracker-control-status.c:66
 msgid "Follow status changes as they happen"
 msgstr "Följ statusändringar när de händer"
 
-#: ../src/tracker-control/tracker-control-status.c:74
-msgid "Include details with state updates (only applies to --follow)"
-msgstr "Inkludera detaljer med tillståndsuppdateringar (gäller endast för --follow)"
-
-#: ../src/tracker-control/tracker-control-status.c:78
+#: ../src/tracker-control/tracker-control-status.c:70
 msgid "List common statuses for miners and the store"
 msgstr "Lista vanliga statusar för datainsamlare och lagret"
 
+#: ../src/tracker-control/tracker-control-status.c:141
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr "Kunde inte få status från insamlare: %s"
+
+#: ../src/tracker-control/tracker-control-status.c:198
+msgid "remaining"
+msgstr "återstår"
+
+#: ../src/tracker-control/tracker-control-status.c:202
+msgid "unknown time left"
+msgstr "okänd tid återstår"
+
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:203
-#: ../src/tracker-control/tracker-control-status.c:492
+#: ../src/tracker-control/tracker-control-status.c:215
+#: ../src/tracker-control/tracker-control-status.c:536
 msgid "PAUSED"
 msgstr "PAUSAD"
 
-#: ../src/tracker-control/tracker-control-status.c:217
+#: ../src/tracker-control/tracker-control-status.c:232
 msgid "Not running or is a disabled plugin"
 msgstr "Inte igång eller är en inaktiverad insticksmodul"
 
-#: ../src/tracker-control/tracker-control-status.c:481
+#: ../src/tracker-control/tracker-control-status.c:510
 msgid "Common statuses include"
 msgstr "Vanliga statusar inkluderar"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:502
+#: ../src/tracker-control/tracker-control-status.c:546
 msgid "Store"
 msgstr "Lagra"
 
-#: ../src/tracker-control/tracker-control-status.c:615
+#: ../src/tracker-control/tracker-control-status.c:667
 msgid "Status options"
 msgstr "Statusflaggor"
 
-#: ../src/tracker-control/tracker-control-status.c:616
+#: ../src/tracker-control/tracker-control-status.c:668
 msgid "Show status options"
 msgstr "Visa statusflaggor"
 
@@ -1245,7 +1488,7 @@ msgstr "Inget metadata tillgängligt för denna URI"
 #: ../src/tracker-utils/tracker-info.c:305
 #: ../src/tracker-utils/tracker-search.c:1261
 #: ../src/tracker-utils/tracker-sparql.c:613
-#: ../utils/tracker-sql/tracker-sql.c:168
+#: ../utils/tracker-sql/tracker-sql.c:170
 msgid "Results"
 msgstr "Resultat"
 
@@ -1531,12 +1774,12 @@ msgid "- Query or update using SPARQL"
 msgstr "- Fråga eller uppdatera med SPARQL"
 
 #: ../src/tracker-utils/tracker-sparql.c:259
-#: ../utils/tracker-sql/tracker-sql.c:73
+#: ../utils/tracker-sql/tracker-sql.c:72
 msgid "An argument must be supplied"
 msgstr "Ett argument måste anges"
 
 #: ../src/tracker-utils/tracker-sparql.c:261
-#: ../utils/tracker-sql/tracker-sql.c:75
+#: ../utils/tracker-sql/tracker-sql.c:74
 msgid "File and query can not be used together"
 msgstr "Fil och fråga kan inte användas samtidigt"
 
@@ -1618,12 +1861,12 @@ msgid "No properties were found to match search term"
 msgstr "Inga egenskaper hittades som matchade sökvillkoret"
 
 #: ../src/tracker-utils/tracker-sparql.c:533
-#: ../utils/tracker-sql/tracker-sql.c:107
+#: ../utils/tracker-sql/tracker-sql.c:106
 msgid "Could not get UTF-8 path from path"
 msgstr "Kunde inte få tag på UTF-8-sökväg från sökvägen"
 
 #: ../src/tracker-utils/tracker-sparql.c:545
-#: ../utils/tracker-sql/tracker-sql.c:118
+#: ../utils/tracker-sql/tracker-sql.c:117
 msgid "Could not read file"
 msgstr "Kunde inte läsa filen"
 
@@ -1632,8 +1875,8 @@ msgid "Could not run update"
 msgstr "Kunde inte köra uppdatering"
 
 #: ../src/tracker-utils/tracker-sparql.c:606
-#: ../utils/tracker-sql/tracker-sql.c:161
-#: ../utils/tracker-sql/tracker-sql.c:194
+#: ../utils/tracker-sql/tracker-sql.c:163
+#: ../utils/tracker-sql/tracker-sql.c:196
 msgid "Could not run query"
 msgstr "Kunde inte köra sökfråga"
 
@@ -1804,7 +2047,7 @@ msgstr "- starta trackers skrivningstjänst"
 msgid "Saved queries"
 msgstr "Sparade frågor"
 
-#: ../utils/tracker-sql/tracker-sql.c:67
+#: ../utils/tracker-sql/tracker-sql.c:66
 msgid "- Query or update using SQL"
 msgstr "- Fråga eller uppdatera med SQL"
 
@@ -1812,10 +2055,24 @@ msgstr "- Fråga eller uppdatera med SQL"
 msgid "Failed to initialize data manager"
 msgstr "Misslyckades med att initiera datahanterare"
 
-#: ../utils/tracker-sql/tracker-sql.c:202
+#: ../utils/tracker-sql/tracker-sql.c:204
 msgid "Empty result set"
 msgstr "Inga resultat"
 
+#~ msgid "Unknown"
+#~ msgstr "Okänd"
+#~ msgid "No Subject"
+#~ msgstr "Inget ämne"
+#~ msgid "To"
+#~ msgstr "Till"
+#~ msgid "Display results by files found in a grid view"
+#~ msgstr "Visa resultat efter filer hittade i ett rutnät"
+#~ msgid "No options specified"
+#~ msgstr "Inga flaggor angivna"
+#~ msgid "Include details with state updates (only applies to --follow)"
+#~ msgstr ""
+#~ "Inkludera detaljer med tillståndsuppdateringar (gäller endast för --"
+#~ "follow)"
 #~ msgid "Tracker Status Icon"
 #~ msgstr "Statusikon för Tracker"
 #~ msgid "Tracker Status Notification Application"
@@ -1891,8 +2148,6 @@ msgstr "Inga resultat"
 #~ msgstr "- Övervaka och kontrollera status"
 #~ msgid "All Files"
 #~ msgstr "Alla filer"
-#~ msgid "Music"
-#~ msgstr "Musik"
 #~ msgid "Clear the search text"
 #~ msgstr "Töm söktexten"
 #~ msgid "Name:"
@@ -2025,12 +2280,6 @@ msgstr "Inga resultat"
 #~ msgstr "Sök med Tracker, när du skriver"
 #~ msgid "Resuming"
 #~ msgstr "Återupptar"
-#~ msgid "Enable _monitoring"
-#~ msgstr "Aktivera _övervakning"
-#~ msgid "Include mou_nted directories"
-#~ msgstr "Inkludera _monterade kataloger"
-#~ msgid "Thr_ottle:"
-#~ msgstr "Trös_kelvärde:"
 #~ msgid "Tracker Preferences"
 #~ msgstr "Inställningar för Tracker"
 #~ msgid "_Disk space:"
@@ -2591,10 +2840,6 @@ msgstr "Inga resultat"
 #~ msgstr "Indexera och bevaka min hem_katalog"
 #~ msgid "Indexing Speed:"
 #~ msgstr "Indexeringshastighet:"
-#~ msgid "Maximum _amount of text to index:"
-#~ msgstr "Maximal mäng_d text att indexera:"
-#~ msgid "Maximum number of unique _words to index:"
-#~ msgstr "Maximalt antal unika ord a_tt indexera:"
 #~ msgid "Path roots to be ignored during indexing:"
 #~ msgstr "Sökvägsrötter som ska ignoreras under indexering:"
 #~ msgid "Perform fast index merges (may affect system performance)"
@@ -2632,8 +2877,6 @@ msgstr "Inga resultat"
 #~ msgstr "Senaste fil som indexerades var \"%s\""
 #~ msgid "Tracker status changed from '%s' --> '%s'"
 #~ msgstr "Tracker-status ändrades från \"%s\" --> \"%s\""
-#~ msgid "Initial index"
-#~ msgstr "Initialt index"
 #~ msgid "no"
 #~ msgstr "nej"
 #~ msgid "In merge"
@@ -2814,8 +3057,6 @@ msgstr "Inga resultat"
 #~ msgstr "Aktivera e-postindexering för _Modest"
 #~ msgid "Enable _Thunderbird email indexing"
 #~ msgstr "Aktivera e-postindexering för _Thunderbird"
-#~ msgid "Enable _watching"
-#~ msgstr "Aktivera _bevakning"
 #~ msgid "Daemon Options"
 #~ msgstr "Flaggor för demonen"
 #~ msgid "Tags found"
@@ -2907,8 +3148,6 @@ msgstr "Inga resultat"
 #~ msgstr "%s: filen %s hittades inte"
 #~ msgid "Directory to exclude from indexing"
 #~ msgstr "Katalog att undanta från indexering"
-#~ msgid "Directory to include in indexing"
-#~ msgstr "Katalog att inkludera för indexering"
 #~ msgid "Directory to crawl for indexing at start up only"
 #~ msgstr "Katalog att endast genomsöka för indexering vid uppstart"
 #~ msgid ""
@@ -2926,8 +3165,6 @@ msgstr "Inga resultat"
 #~ "Värde att använda för att hastighetsbegränsa indexering. Värdet måste "
 #~ "vara inom intervallet 0-99 (standard är 0) där lägre värden betyder ökad "
 #~ "indexeringshastighet"
-#~ msgid "Initial sleep time, just before indexing, in seconds"
-#~ msgstr "Initial sovtid, precis innan indexering, i sekunder"
 #~ msgid "LANG"
 #~ msgstr "SPRÅK"
 #~ msgid "Make tracker errors fatal"
@@ -2998,8 +3235,6 @@ msgstr "Inga resultat"
 #~ msgstr "Aktivera indexeringsbegränsning"
 #~ msgid "Normal Mode"
 #~ msgstr "Normalt läge"
-#~ msgid "Polling Interval: "
-#~ msgstr "Kontrollintervall: "
 #~ msgid "Reduced Memory Mode"
 #~ msgstr "Reducerat minnesläge"
 #~ msgid "Start _indexing service automatically"
