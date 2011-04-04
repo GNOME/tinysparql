@@ -996,8 +996,8 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
  * tracker_miner_manager_get_status:
  * @manager: a #TrackerMinerManager
  * @miner: miner reference
- * @status: return location for status
- * @progress: return location for progress
+ * @status: (out) (allow-none): return location for status
+ * @progress: (out) (allow-none): return location for progress
  *
  * Returns the current status and progress for @miner.
  *
@@ -1084,8 +1084,8 @@ tracker_miner_manager_get_status (TrackerMinerManager  *manager,
  * tracker_miner_manager_is_paused:
  * @manager: a #TrackerMinerManager
  * @miner: miner reference
- * @applications: return location for application names.
- * @reasons: return location for pause reasons.
+ * @applications: (out callee-allocates) (allow-none) (transfer full): return location for application names.
+ * @reasons: (out callee-allocates) (allow-none) (transfer full): return location for pause reasons.
  *
  * This function either returns %FALSE if the miner is not paused,
  * or returns %TRUE and fills in @applications and @reasons with
@@ -1169,7 +1169,7 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
  *
  * Returns a translated display name for @miner.
  *
- * Returns: A string which should not be freed or %NULL.
+ * Returns: (transfer none): A string which should not be freed or %NULL.
  *
  * Since: 0.8
  **/
@@ -1203,7 +1203,7 @@ tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
  *
  * Returns the description for the given @miner.
  *
- * Returns: A string which should not be freed or %NULL if none is specified.
+ * Returns: (transfer none): A string which should not be freed or %NULL if none is specified.
  *
  * Since: 0.8
  **/
@@ -1235,7 +1235,7 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
  * tracker_miner_manager_ignore_next_update:
  * @manager: a #TrackerMinerManager
  * @miner: miner reference
- * @urls: the subjects to ignore the next updates of
+ * @urls: (in): the subjects to ignore the next updates of
  *
  * Tells the @miner to ignore any events for the next @urls. This is
  * used for cases where a file is updated by Tracker by the
@@ -1285,7 +1285,7 @@ tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
 }
 
 /**
- * tracker_miner_manager_error_quark:
+ * tracker_miner_manager_error_quark (skip):
  *
  * Returns: the #GQuark used to identify miner manager errors in
  * GError structures.
@@ -1307,9 +1307,9 @@ tracker_miner_manager_error_quark (void)
 /**
  * tracker_miner_manager_reindex_by_mimetype:
  * @manager: a #TrackerMinerManager
- * @mimetypes: an array of mimetypes (E.G. "text/plain"). All items
+ * @mimetypes: (in): an array of mimetypes (E.G. "text/plain"). All items
  * with a mimetype in that list will be reindexed.
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * Tells the filesystem miner to reindex any file with a mimetype in
  * the @mimetypes list.
@@ -1369,7 +1369,7 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
  * tracker_miner_manager_index_file:
  * @manager: a #TrackerMinerManager
  * @file: a URL valid in GIO of a file to give to the miner for processing
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * Tells the filesystem miner to index the @file.
  *

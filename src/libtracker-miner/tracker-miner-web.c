@@ -488,7 +488,7 @@ tracker_miner_web_error_quark (void)
 /**
  * tracker_miner_web_authenticate:
  * @miner: a #TrackerMinerWeb
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * Asks @miner to authenticate with a remote service. On failure
  * @error will be set.
@@ -507,7 +507,7 @@ tracker_miner_web_authenticate (TrackerMinerWeb  *miner,
 /**
  * tracker_miner_web_get_association_data:
  * @miner: a #TrackerMinerWeb
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * Asks @miner to retrieve association_data for. The data returned in
  * the %GHashTable depends on the @miner implementation and the type
@@ -533,7 +533,7 @@ tracker_miner_web_get_association_data (TrackerMinerWeb  *miner,
  * @miner: a #TrackerMinerWeb
  * @association_data: a %GHashTable with the data to use for
  * associating with a remote service.
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * Asks @miner to associate with a remote service using
  * @association_data. To know what data to put into @association_data,
@@ -558,7 +558,7 @@ tracker_miner_web_associate (TrackerMinerWeb  *miner,
 /**
  * tracker_miner_web_dissociate:
  * @miner: a #TrackerMinerWeb
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * Asks @miner to dissociate from a remote service. At this point, the
  * miner should stop storing any credentials or sensitive information
