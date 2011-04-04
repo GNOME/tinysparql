@@ -64,6 +64,11 @@ libtracker_common_la_SOURCES += tracker-language.c
 noinst_HEADERS += tracker-language.h
 endif
 
+if HAVE_MAEMO
+libtracker_common_la_SOURCES += tracker-locale-gconfdbus.c
+noinst_HEADERS += tracker-locale-gconfdbus.h
+endif
+
 libtracker_common_la_LDFLAGS = \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 

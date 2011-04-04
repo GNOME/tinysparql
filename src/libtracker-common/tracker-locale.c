@@ -26,6 +26,10 @@
 
 #include "tracker-locale.h"
 
+#ifdef HAVE_MAEMO
+#include "tracker-locale-gconfdbus.h"
+#endif /* HAVE_MAEMO */
+
 /* Current locales in use. They will be stored in heap and available throughout
  * the whole program execution, so will be reported as still reachable by Valgrind.
  */
@@ -102,6 +106,10 @@ static void
 locale_init (void)
 {
 	guint i;
+
+#ifdef HAVE_MAEMO
+	tracker_locale_gconfdbus_init ();
+#endif /* HAVE_MAEMO */
 
 	/* Initialize those not retrieved from gconf, or if not in maemo */
 	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
