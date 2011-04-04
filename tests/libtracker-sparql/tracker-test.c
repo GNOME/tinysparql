@@ -142,7 +142,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 	                                             &error);
 
 	if (finished == 1 && next == next_to_cancel) {
-		g_assert_no_error (error);
+		g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CANCELLED);
 		g_print ("Got Cancellation GError\n");
 	} else {
 		g_assert_no_error (error);
