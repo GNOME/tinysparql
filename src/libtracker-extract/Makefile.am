@@ -52,6 +52,7 @@ libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD =   \
 -include $(INTROSPECTION_MAKEFILE)
 INTROSPECTION_GIRS =
 INTROSPECTION_SCANNER_ARGS = \
+	--warn-all \
 	-I $(top_builddir)/src \
 	-D TRACKER_COMPILATION \
 	--c-include="libtracker-extract/tracker-extract.h" \
