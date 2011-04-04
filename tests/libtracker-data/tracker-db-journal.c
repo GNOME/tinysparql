@@ -364,5 +364,9 @@ main (int argc, char **argv)
 	g_unlink (path);
 	g_free (path);
 
+	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-data", "dconf", "user", NULL);
+	g_unlink (path);
+	g_free (path);
+
 	return result;
 }
