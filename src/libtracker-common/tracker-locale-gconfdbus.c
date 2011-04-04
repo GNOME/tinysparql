@@ -332,7 +332,7 @@ tracker_locale_gconfdbus_init (void)
 
 		if (error) {
 			if (error->code == G_DBUS_ERROR_UNKNOWN_METHOD) {
-				g_message ("GetDefaultDatabase doesn't exist on %s, this GConf "
+				g_warning ("GetDefaultDatabase doesn't exist on %s, this GConf "
 				           "doesn't look like a gconf-dbus.\n"
 				           "Continuing in non-maemo mode",
 				           GCONF_DBUS_SERVER_OBJECT);
