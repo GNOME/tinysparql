@@ -12,7 +12,7 @@ AC_PREREQ([2.64])
 # if backwards compatibility has been broken,
 # set TRACKER_BINARY_AGE and TRACKER_INTERFACE_AGE to 0.
 m4_define([tracker_major_version], [0])
-m4_define([tracker_minor_version], [10])
+m4_define([tracker_minor_version], [11])
 m4_define([tracker_micro_version], [0])
 m4_define([tracker_interface_age], [0])
 m4_define([tracker_binary_age],
@@ -20,7 +20,7 @@ m4_define([tracker_binary_age],
 m4_define([tracker_version],
           [tracker_major_version.tracker_minor_version.tracker_micro_version])
 # This is the X.Y used in -llibtracker-FOO-X.Y
-m4_define([tracker_api_version], [0.10])
+m4_define([tracker_api_version], [0.11])
 
 # libtool version related macros
 m4_define([tracker_lt_release], [tracker_major_version.tracker_minor_version])
@@ -38,7 +38,7 @@ m4_define([tracker_lt_current_minus_age],
 # for Tracker.
 #
 # TRACKER_BINARY_VERSION=$TRACKER_MAJOR_VERSION.$TRACKER_MINOR_VERSION.$LT_CURRENT
-m4_define([tracker_binary_version], [0.10.0])
+m4_define([tracker_binary_version], [0.11.0])
 
 AC_INIT([tracker],
         [tracker_version],
