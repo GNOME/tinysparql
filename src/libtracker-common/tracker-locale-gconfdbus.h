@@ -33,6 +33,12 @@ G_BEGIN_DECLS
 void tracker_locale_gconfdbus_init     (void);
 void tracker_locale_gconfdbus_shutdown (void);
 
+gpointer tracker_locale_gconfdbus_notify_add    (TrackerLocaleID         id,
+                                                 TrackerLocaleNotifyFunc func,
+                                                 gpointer                user_data,
+                                                 GFreeFunc               destroy_notify);
+void     tracker_locale_gconfdbus_notify_remove (gpointer                notification_id);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_LOCALE_GCONFDBUS_H__ */
