@@ -67,7 +67,8 @@ EXTRA_DIST =                                           \
 	gitlog-to-changelog                            \
 	intltool-extract.in                            \
 	intltool-merge.in                              \
-	intltool-update.in
+	intltool-update.in			       \
+	tracker.doap
 
 DISTCLEANFILES =                                       \
 	intltool-extract                               \
