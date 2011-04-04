@@ -29,30 +29,6 @@ org.bustany.TrackerFox.Plugin={
 		}
 
 		this._bookmarks.syncBookmarks();
-
-/*
-		var error = new tracker.Error.ptr;
-		var cursor = tracker.connection_query (this._connection, "SELECT flopcount(?r) WHERE {?r a rdfs:Resource}", null, error.address());
-
-		if (!error.isNull ()) {
-			dump ("Could not initalize query: " + error.contents.message.readString() + "\n");
-			tracker.error_free(error);
-			return;
-		}
-
-		tracker.cursor_next(cursor, null, error.address());
-
-		if (!error.isNull ()) {
-			dump ("Could not execute query: " + error.contents.message.readString() + "\n");
-			tracker.error_free(error);
-			return;
-		}
-
-		var n_resources = tracker.cursor_get_string(cursor, 0, null);
-		dump ("There are " + n_resources.readString() + " resources in Tracker \\o/\n");
-
-		tracker.object_unref(cursor);
-*/
 	},
 
 	onUnload: function () {
