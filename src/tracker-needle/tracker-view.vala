@@ -81,6 +81,14 @@ public class Tracker.View : ScrolledWindow {
 		return true;
 	}
 
+	public override void unmap () {
+		if (store != null) {
+			store.cancel_search ();
+		}
+
+		base.unmap ();
+	}
+
 	public View (Display? _display = Display.NO_RESULTS, ResultStore? store) {
 		set_policy (PolicyType.NEVER, PolicyType.AUTOMATIC);
 
