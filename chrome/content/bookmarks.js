@@ -9,6 +9,8 @@ org.bustany.TrackerFox.Bookmarks = {
 	_bmService: null,
 	_histService: null,
 
+	_observer: null,
+
 	init: function (connection) {
 		this._connection = connection;
 
@@ -21,7 +23,98 @@ org.bustany.TrackerFox.Bookmarks = {
 			return false;
 		}
 
+		Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+		this.setupObserver ();
+
 		return true;
+	},
+
+	shutdown: function () {
+		if (this._observer) {
+			this._bmService.removeObserver (this._observer);
+		}
+	},
+
+	setupObserver: function () {
+		if (this._observer) {
+			return;
+		}
+
+		this._observer = {
+			_attached: false,
+
+			service: org.bustany.TrackerFox.Bookmarks,
+
+			onItemAdded: function (itemId, parentId, index, itemType, uri) {
+				var bookmark = this.getBookmark (itemId, parentId, itemType, uri);
+
+				if (!bookmark) {
+					dump ("Could not load new bookmark\n");
+					return;
+				}
+
+				this.service.insertBookmarks ([bookmark]);
+			},
+
+			onItemChanged: function (itemId, property, isAnnotation, newValue, lastModified, itemType) {
+				if (property == "") {
+					return;
+				}
+
+				dump ("Bookmark changed " + property + "!\n");
+			},
+
+			onItemRemoved: function (id, parentId, index, itemType) {
+				var bookmark = { itemId: id };
+
+				this.service.deleteBookmarks ([bookmark]);
+			},
+
+			getBookmark: function (itemId, parentId, itemType, uri) {
+				var bookmarks = this.service._bmService;
+				var history = this.service._histService;
+
+				if (itemType != bookmarks.TYPE_BOOKMARK) {
+					return;
+				}
+
+				// No idea how you get a full bookmark directly from its id
+				var query = history.getNewQuery ();
+				query.setFolders ([parentId], 1);
+				query.onlyBookmarked = true;
+
+				if (uri) {
+					query.uri = uri;
+				}
+
+				var options = history.getNewQueryOptions ();
+				options.queryType = options.QUERY_TYPE_BOOKMARKS;
+				var result = history.executeQuery (query, options);
+				var root = result.root;
+				root.containerOpen = true;
+
+				var bookmark = null;
+
+				for (var i = 0; i < root.childCount; ++i) {
+					var b = root.getChild (i);
+
+					if (b.itemId == itemId) {
+						bookmark = b;
+					}
+				}
+
+				if (!bookmark) {
+					dump ("Couldn't find the bookmark with id " + itemId + "!\n");
+				}
+
+				return bookmark;
+			},
+
+			QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsINavBookmarkObserver])
+		};
+
+		this._bmService.addObserver (this._observer, false);
 	},
 
 	insertDataSource: function () {

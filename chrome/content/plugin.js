@@ -35,6 +35,7 @@ org.bustany.TrackerFox.Plugin={
 		dump ("Closing TrackerFox...\n");
 
 		var tracker = org.bustany.TrackerFox.TrackerSparql;
+		this._bookmarks.shutdown ();
 		tracker.shutdown ();
 	},
 
