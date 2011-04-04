@@ -160,6 +160,8 @@ org.bustany.TrackerFox.Bookmarks = {
 			bookmarks.push (bookmark);
 		}
 
+		tracker.object_unref (cursor);
+
 		return bookmarks;
 	},
 
