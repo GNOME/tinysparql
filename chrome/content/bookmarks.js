@@ -60,7 +60,7 @@ org.bustany.TrackerFox.Bookmarks = {
 
 		for (var i in trackerBookmarks) {
 			var bookmark = trackerBookmarks[i]
-			trackerDict[bookmark.identifier] = bookmark;
+			trackerDict[bookmark.itemId] = bookmark;
 		}
 
 		for (var i = localBookmarks.length - 1; i >= 0; --i) {
@@ -121,7 +121,7 @@ org.bustany.TrackerFox.Bookmarks = {
 	// Returns a list of
 	// {
 	//     urn: xxx
-	//     identifier: xxx
+	//     itemId: xxx
 	//     lastModified: xxx
 	// }
 	//
@@ -153,7 +153,7 @@ org.bustany.TrackerFox.Bookmarks = {
 
 			var bookmark = {
 				urn: tracker.cursor_get_string (cursor, 0, null).readString (),
-				identifier: tracker.cursor_get_string (cursor, 1, null).readString (),
+				itemId: tracker.cursor_get_string (cursor, 1, null).readString (),
 				lastModified: tracker.cursor_get_string (cursor, 2, null).readString ()
 			};
 
