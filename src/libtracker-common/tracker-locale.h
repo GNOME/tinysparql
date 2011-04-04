@@ -39,25 +39,28 @@ typedef enum {
 } TrackerLocaleID;
 
 /* Callback for the notification of locale changes */
-typedef void (* TrackerLocaleNotifyFunc) (TrackerLocaleID id,
-                                          gpointer user_data);
+typedef void (* TrackerLocaleNotifyFunc)  (TrackerLocaleID id,
+                                           gpointer user_data);
 
 /* Get the current locale of the given type.
  * Note that it returns a newly-allocated string which should be g_free()-ed
  */
-gchar    *tracker_locale_get           (TrackerLocaleID id);
+gchar       *tracker_locale_get           (TrackerLocaleID id);
 
 /* Adds a new subscriber to locale change notifications.
  * Returns a pointer which identifies the subscription.
  */
-gpointer  tracker_locale_notify_add    (TrackerLocaleID         id,
-                                        TrackerLocaleNotifyFunc func,
-                                        gpointer                user_data,
-                                        GFreeFunc               destroy_notify);
+gpointer     tracker_locale_notify_add    (TrackerLocaleID         id,
+                                           TrackerLocaleNotifyFunc func,
+                                           gpointer                user_data,
+                                           GFreeFunc               destroy_notify);
 
 /* Remove a given subscriber, passing the id you got in _add() */
-void      tracker_locale_notify_remove (gpointer notification_id);
+void         tracker_locale_notify_remove (gpointer                notification_id);
 
+const gchar* tracker_locale_get_name      (guint                   i);
+void         tracker_locale_set           (TrackerLocaleID         id,
+                                           const gchar            *value);
 
 G_END_DECLS
 
