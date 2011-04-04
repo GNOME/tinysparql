@@ -178,10 +178,20 @@ tracker_locale_notify_add (TrackerLocaleID         id,
                            gpointer                user_data,
                            GFreeFunc               destroy_notify)
 {
+#ifdef HAVE_MAEMO
+	return tracker_locale_gconfdbus_notify_add (id, func, user_data, destroy_notify);
+#else
+	/* If not using gconf locales, this is a no-op... */
 	return NULL;
+#endif /* HAVE_MAEMO */
 }
 
 void
 tracker_locale_notify_remove (gpointer notification_id)
 {
+#ifdef HAVE_MAEMO
+	return tracker_locale_gconfdbus_notify_remove (notification_id);
+#else
+	/* If not using gconf locales, this is a no-op... */
+#endif /* HAVE_MAEMO */
 }
