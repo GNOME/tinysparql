@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-ontologies.h>
@@ -177,6 +178,7 @@ main (int argc, char **argv)
 	gint result;
 	gint i;
 	gchar *current_dir;
+	gchar *path;
 
 	g_type_init ();
 
@@ -211,6 +213,10 @@ main (int argc, char **argv)
 	/* clean up */
 	g_print ("Removing temporary data\n");
 	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
+
+	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-fts", "dconf", "user", NULL);
+	g_unlink (path);
+	g_free (path);
 
 	return result;
 }
