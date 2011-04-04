@@ -62,6 +62,9 @@ const gchar* tracker_locale_get_name      (guint                   i);
 void         tracker_locale_set           (TrackerLocaleID         id,
                                            const gchar            *value);
 
+void         tracker_locale_init          (void);
+void         tracker_locale_shutdown      (void);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_LOCALE_H__ */

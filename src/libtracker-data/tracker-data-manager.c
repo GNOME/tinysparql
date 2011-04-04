@@ -34,6 +34,8 @@
 #include <libtracker-fts/tracker-fts.h>
 #endif
 
+#include <libtracker-common/tracker-locale.h>
+
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
@@ -3478,6 +3480,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	/* Make sure we initialize all other modules we depend on */
 	tracker_ontologies_init ();
 
+	tracker_locale_init ();
+
 	read_journal = FALSE;
 
 	if (!tracker_db_manager_init (flags,
@@ -4132,6 +4136,7 @@ tracker_data_manager_shutdown (void)
 	tracker_db_journal_shutdown ();
 	tracker_db_manager_shutdown ();
 	tracker_ontologies_shutdown ();
+	tracker_locale_shutdown ();
 	tracker_data_update_shutdown ();
 
 	initialized = FALSE;
