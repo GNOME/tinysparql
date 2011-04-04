@@ -125,8 +125,6 @@ handle_method_call (GDBusConnection       *connection,
                     GDBusMethodInvocation *invocation,
                     gpointer               user_data)
 {
-	/* Takes place in mainloop */
-
 	if (g_strcmp0 (method_name, "Notify") == 0) {
 		const gchar *key = NULL, *value = NULL;
 		const gchar *schema = NULL, *database = NULL;
@@ -163,10 +161,6 @@ handle_method_call (GDBusConnection       *connection,
 				           tracker_locale_get_name (i));
 				return;
 			}
-
-			/* This always runs from mainloop, so no need for a lock other than
-			 * subscribers, which might be added and removed by threads (and are
-			 * here executed by function pointer on the mainloop) */
 
 			tracker_locale_set (i, value);
 
