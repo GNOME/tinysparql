@@ -80,7 +80,7 @@ tracker_password_provider_get_type (void)
 }
 
 /**
- * tracker_password_provider_error_quark:
+ * tracker_password_provider_error_quark (skip):
  *
  * Returns: the #GQuark used to identify password provider errors in
  * GError structures.
@@ -101,7 +101,7 @@ tracker_password_provider_error_quark (void)
  * "GKeyFile". Either of these is what will be returned unless new
  * providers are written.
  *
- * Returns: a newly allocated string representing the name which must
+ * Returns: (out) (transfer full): a newly allocated string representing the name which must
  * be freed with g_free().
  *
  * Since: 0.8
@@ -126,7 +126,7 @@ tracker_password_provider_get_name (TrackerPasswordProvider *provider)
  * @description: the description for @service
  * @username: the username to store
  * @password: the password to store
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * This function calls the password provider's "store_password"
  * implementation with @service, @description, @username and @password.
@@ -164,8 +164,8 @@ tracker_password_provider_store_password (TrackerPasswordProvider  *provider,
  * tracker_password_provider_get_password:
  * @provider: a TrackerPasswordProvider
  * @service: the name of the remote service associated with @username
- * @username: the username associated with the password we are returning
- * @error: return location for errors
+ * @username: (out): the username associated with the password we are returning
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * This function calls the password provider's "get_password"
  * implementation with @service and @username.
@@ -200,7 +200,7 @@ tracker_password_provider_get_password (TrackerPasswordProvider  *provider,
  * tracker_password_provider_forget_password:
  * @provider: a TrackerPasswordProvider
  * @service: the name of the remote service associated with @username
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * This function calls the password provider's "forget_password"
  * implementation with @service.
@@ -238,7 +238,7 @@ tracker_password_provider_forget_password (TrackerPasswordProvider  *provider,
  *
  * Password can not be %NULL or an empty string ("").
  *
- * Returns: a newly allocated string which <emphasis>MUST</emphasis>
+ * Returns: (transfer full): a newly allocated string which <emphasis>MUST</emphasis>
  * be freed with tracker_password_provider_unlock_password(). On
  * failure %NULL is returned.
  *

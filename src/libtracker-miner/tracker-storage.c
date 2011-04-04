@@ -820,9 +820,10 @@ get_mount_point_by_uuid_foreach (gpointer key,
  * @type: A #TrackerStorageType
  * @exact_match: if all devices should exactly match the types
  *
- * Returns: a #GSList of strings containing the root directories for
- * devices with @type based on @exact_match. Each element must be
- * freed using g_free() and the list itself through g_slist_free().
+ * Returns: (transfer full) (element-type utf8): a #GSList of strings
+ * containing the root directories for devices with @type based on
+ * @exact_match. Each element must be freed using g_free() and the
+ * list itself through g_slist_free().
  *
  * Since: 0.8
  **/
@@ -855,9 +856,10 @@ tracker_storage_get_device_roots (TrackerStorage     *storage,
  * @type: A #TrackerStorageType
  * @exact_match: if all devices should exactly match the types
  *
- * Returns: a #GSList of strings containing the UUID for devices with
- * @type based on @exact_match. Each element must be freed using
- * g_free() and the list itself through g_slist_free().
+ * Returns: (transfer full) (element-type utf8): a #GSList of
+ * strings containing the UUID for devices with @type based
+ * on @exact_match. Each element must be freed using g_free()
+ * and the list itself through g_slist_free().
  *
  * Since: 0.8
  **/

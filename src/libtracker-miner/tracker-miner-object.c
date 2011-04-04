@@ -720,7 +720,7 @@ tracker_miner_stop (TrackerMiner *miner)
 /**
  * tracker_miner_ignore_next_update:
  * @miner: a #TrackerMiner
- * @urls: the urls to mark as to ignore on next update
+ * @urls: (in): the urls to mark as to ignore on next update
  *
  * Tells the miner to mark @urls are to ignore on next update.
  *
@@ -824,7 +824,7 @@ tracker_miner_pause_internal (TrackerMiner  *miner,
  * tracker_miner_pause:
  * @miner: a #TrackerMiner
  * @reason: reason to pause
- * @error: return location for errors
+ * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * Asks @miner to pause. On success the cookie ID is returned,
  * this is what must be used in tracker_miner_resume() to resume
@@ -857,7 +857,7 @@ tracker_miner_pause (TrackerMiner  *miner,
  * tracker_miner_resume:
  * @miner: a #TrackerMiner
  * @cookie: pause cookie
- * @error: return location for errors
+ * @error: (out) (transfer full) (allow-none): return location for errors
  *
  * Asks the miner to resume processing. The cookie must be something
  * returned by tracker_miner_pause(). The miner won't actually resume
