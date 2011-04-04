@@ -679,6 +679,9 @@ main (gint argc, gchar **argv)
 	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
 
+	/* test D-Bus backend */
+	g_setenv ("TRACKER_SPARQL_BACKEND", "bus", TRUE);
+
 	connection = tracker_sparql_connection_get (NULL, NULL);
 
 	insert_test_data ();
