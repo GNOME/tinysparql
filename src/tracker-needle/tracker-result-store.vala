@@ -803,4 +803,13 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	public bool has_results () {
 		return filled_categories_count () > 0;
 	}
+
+	public void cancel_search () {
+		if (cancellable != null) {
+			cancellable.cancel ();
+			cancellable = null;
+		}
+
+		clear_results ();
+	}
 }
