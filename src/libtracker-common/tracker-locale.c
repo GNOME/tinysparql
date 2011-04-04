@@ -101,9 +101,16 @@ tracker_locale_set (TrackerLocaleID  id,
 	g_static_rec_mutex_unlock (&locales_mutex);
 }
 
+void
+tracker_locale_shutdown (void)
+{
+#ifdef HAVE_MAEMO
+	tracker_locale_gconfdbus_shutdown ();
+#endif /* HAVE_MAEMO */
+}
 
-static void
-locale_init (void)
+void
+tracker_locale_init (void)
 {
 	guint i;
 
@@ -156,12 +163,9 @@ tracker_locale_get (TrackerLocaleID id)
 {
 	gchar *locale;
 
-	g_static_rec_mutex_lock (&locales_mutex);
+	g_return_val_if_fail (initialized, NULL);
 
-	/* Initialize if not already done */
-	if (!initialized) {
-		locale_init ();
-	}
+	g_static_rec_mutex_lock (&locales_mutex);
 
 	/* Always return a duplicated string, as the locale may change at any
 	 * moment */
