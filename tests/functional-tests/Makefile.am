@@ -24,11 +24,7 @@ config_SCRIPTS += \
 endif
 
 dconfdir = $(sysconfdir)/dconf/profile
-dconf_DATA = \
-	trackertest
-
-trackertest: trackertest.dconf.in
-	cp trackertest.dconf.in trackertest
+dconf_DATA = tracker-test
 
 standard_tests = \
 	01-insertion.py \
@@ -113,8 +109,8 @@ functional-test-slow: ${slow_tests}
 
 EXTRA_DIST = \
 	$(config_SCRIPTS) \
-	create-tests-xml.py \
-	trackertest
+	$(dconf_DATA) \
+	create-tests-xml.py
 
 if HAVE_MAEMO
 CLEANFILES = \

@@ -20,7 +20,7 @@ class DConfClient:
 
     def reset (self):
         profile = os.environ ["DCONF_PROFILE"]
-        assert profile == "trackertest"
+        assert profile == "tracker-test"
         # XDG_CONFIG_HOME is useless
         dconf_db = os.path.join (os.environ ["HOME"], ".config", "dconf", profile)
         if os.path.exists (dconf_db):
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
 
     SCHEMA_MINER = "org.freedesktop.Tracker.Miner.Files"
-    os.environ ["DCONF_PROFILE"] = "trackertest"
+    os.environ ["DCONF_PROFILE"] = "tracker-test"
 
     dconf = DConfClient ()
     value = dconf.read (DConfClient.SCHEMA_MINER, "throttle")
