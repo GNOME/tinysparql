@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Nokia <ivan.frade@nokia.com>
+ * Copyright (C) 2011 Nokia <ivan.frade@nokia.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
