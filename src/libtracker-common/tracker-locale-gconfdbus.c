@@ -52,6 +52,7 @@ static guint registration_id = 0;
 static GStaticMutex subscribers_mutex = G_STATIC_MUTEX_INIT;
 GDBusNodeInfo *introspection_data = NULL;
 static gboolean maemo_mode = TRUE;
+static gboolean first_time = TRUE;
 
 /* gconf keys for tracker locales, as defined in:
  * http://apidocs.meego.com/1.0/mtf/i18n.html
@@ -263,7 +264,6 @@ on_gconfd_dbus_appeared (GDBusConnection *connection,
                          gpointer         user_data)
 {
 	guint i;
-	static gboolean first_time = TRUE;
 
 	service_running = TRUE;
 	add_notify ();
@@ -383,6 +383,8 @@ tracker_locale_gconfdbus_init (void)
 			g_main_context_pop_thread_default (NULL);
 			return;
 		}
+
+		first_time = TRUE;
 
 		watch_name_id = g_bus_watch_name_on_connection (connection,
 		                                                GCONF_DBUS_SERVICE,
