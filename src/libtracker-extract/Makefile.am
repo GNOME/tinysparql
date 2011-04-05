@@ -63,13 +63,14 @@ if HAVE_INTROSPECTION
 INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
 introspection_sources = $(libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES)
 
-TrackerExtract-0.10.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
-TrackerExtract_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 Tracker-0.10
-TrackerExtract_0_10_gir_CFLAGS = $(INCLUDES)
-TrackerExtract_0_10_gir_LIBS = $(lib_LTLIBRARIES)
-TrackerExtract_0_10_gir_FILES = $(introspection_sources)
+TrackerExtract-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
+TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_INCLUDES = GObject-2.0 GModule-2.0
+#TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_PACKAGES = TrackerSparql-$(TRACKER_API_VERSION)
+TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_CFLAGS = $(INCLUDES)
+TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_LIBS = $(lib_LTLIBRARIES)
+TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_FILES = $(introspection_sources)
 
-INTROSPECTION_GIRS += TrackerExtract-0.10.gir
+INTROSPECTION_GIRS += TrackerExtract-$(TRACKER_API_VERSION).gir
 
 girdir = $(datadir)/gir-1.0
 gir_DATA = $(INTROSPECTION_GIRS)
