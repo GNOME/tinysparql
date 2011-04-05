@@ -555,7 +555,7 @@ extract_pdf (const gchar          *uri,
 				tracker_sparql_builder_object_unvalidated (preupdate, xd->country);
 			}
 
-			tracker_sparql_builder_object_blank_close (preupdate);
+			tracker_sparql_builder_insert_close (preupdate);
 		}
 
 		tracker_xmp_free (xd);
