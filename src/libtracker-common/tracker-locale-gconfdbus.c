@@ -312,7 +312,7 @@ tracker_locale_gconfdbus_init (void)
 
 		g_main_context_push_thread_default (NULL);
 
-		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+		connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &error);
 
 		if (error) {
 			g_main_context_pop_thread_default (NULL);
