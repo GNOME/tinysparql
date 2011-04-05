@@ -689,6 +689,8 @@ public class Tracker.Sparql.Builder : Object {
 	public void prepend (string raw)
 	{
 		str.prepend ("%s\n".printf (raw));
+
+		length++;
 	}
 
 	/**
@@ -708,6 +710,8 @@ public class Tracker.Sparql.Builder : Object {
 		}
 
 		str.append (raw);
+
+		length++;
 	}
 }
 
