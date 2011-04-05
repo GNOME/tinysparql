@@ -155,12 +155,13 @@ introspection_sources = \
 		     $(private_sources),  \
 	  $(libtracker_miner_@TRACKER_API_VERSION@_la_SOURCES))
 
-TrackerMiner-$(TRACKER_API_VERSION).gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
-TrackerMiner_0_10_gir_INCLUDES = GObject-2.0 GModule-2.0 Gio-2.0 Tracker-$(TRACKER_API_VERSION)
-TrackerMiner_0_10_gir_CFLAGS = $(INCLUDES) 
-TrackerMiner_0_10_gir_NAMESPACE = "TrackerMiner"
-TrackerMiner_0_10_gir_LIBS = $(lib_LTLIBRARIES)
-TrackerMiner_0_10_gir_FILES = $(introspection_sources)
+TrackerMiner-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
+TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_INCLUDES = GObject-2.0 GModule-2.0 Gio-2.0
+#TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_PACKAGES = TrackerSparql-$(TRACKER_API_VERSION)
+TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_CFLAGS = $(INCLUDES)
+TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_NAMESPACE = "TrackerMiner"
+TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_LIBS = $(lib_LTLIBRARIES)
+TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_FILES = $(introspection_sources)
 
 INTROSPECTION_GIRS += TrackerMiner-$(TRACKER_API_VERSION).gir
 
