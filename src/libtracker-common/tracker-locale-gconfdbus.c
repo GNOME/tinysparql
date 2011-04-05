@@ -263,20 +263,25 @@ on_gconfd_dbus_appeared (GDBusConnection *connection,
                          gpointer         user_data)
 {
 	guint i;
+	static gboolean first_time = TRUE;
 
 	service_running = TRUE;
 	add_notify ();
 
-	/* And (re)initialize all */
-	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
-		gchar *str;
+	if (!first_time) {
+		/* And (re)initialize all */
+		for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
+			gchar *str;
 
-		str = get_value_from_config (gconf_locales[i]);
-		if (str) {
-			tracker_locale_set (i, str);
-			g_free (str);
+			str = get_value_from_config (gconf_locales[i]);
+			if (str) {
+				tracker_locale_set (i, str);
+				g_free (str);
+			}
 		}
 	}
+
+	first_time = FALSE;
 }
 
 static void
@@ -293,6 +298,7 @@ tracker_locale_gconfdbus_init (void)
 	if (!g_getenv (TRACKER_DISABLE_MEEGOTOUCH_LOCALE_ENV) && maemo_mode) {
 		GError *error = NULL;
 		GVariant *reply;
+		guint i;
 		GDBusInterfaceVTable interface_vtable = {
 			handle_method_call,
 			handle_get_property,
@@ -384,6 +390,20 @@ tracker_locale_gconfdbus_init (void)
 		                                                on_gconfd_dbus_appeared,
 		                                                on_gconfd_dbus_disappeared,
 		                                                NULL, NULL);
+
+		/* And initialize all (must be synchronously done at the return of this
+		 * function, which is why we do the first_time trick in on_gconfd_dbus_
+		 * appeared above) */
+
+		for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
+			gchar *str;
+
+			str = get_value_from_config (gconf_locales[i]);
+			if (str) {
+				tracker_locale_set (i, str);
+				g_free (str);
+			}
+		}
 
 		g_main_context_pop_thread_default (NULL);
 	}
