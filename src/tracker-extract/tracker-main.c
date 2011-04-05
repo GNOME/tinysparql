@@ -46,6 +46,7 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-ioprio.h>
+#include <libtracker-common/tracker-locale.h>
 
 #include "tracker-albumart.h"
 #include "tracker-config.h"
@@ -424,6 +425,7 @@ main (int argc, char *argv[])
 
 	g_message ("Waiting for D-Bus requests...");
 
+	tracker_locale_init ();
 	tracker_albumart_init ();
 
 	/* Main loop */
@@ -439,6 +441,7 @@ main (int argc, char *argv[])
 
 	/* Shutdown subsystems */
 	tracker_albumart_shutdown ();
+	tracker_locale_shutdown ();
 
 	tracker_extract_dbus_stop (object);
 	g_object_unref (object);
