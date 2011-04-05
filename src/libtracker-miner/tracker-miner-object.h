@@ -93,12 +93,16 @@ void                     tracker_miner_ignore_next_update  (TrackerMiner        
                                                             const GStrv           urls);
 gboolean                 tracker_miner_is_started          (TrackerMiner         *miner);
 gboolean                 tracker_miner_is_paused           (TrackerMiner         *miner);
+
+guint                    tracker_miner_get_n_pause_reasons (TrackerMiner         *miner);
+
 gint                     tracker_miner_pause               (TrackerMiner         *miner,
                                                             const gchar          *reason,
                                                             GError              **error);
 gboolean                 tracker_miner_resume              (TrackerMiner         *miner,
                                                             gint                  cookie,
                                                             GError              **error);
+
 TrackerSparqlConnection *tracker_miner_get_connection      (TrackerMiner         *miner);
 GDBusConnection         *tracker_miner_get_dbus_connection (TrackerMiner         *miner);
 G_CONST_RETURN gchar    *tracker_miner_get_dbus_full_name  (TrackerMiner         *miner);

@@ -736,6 +736,25 @@ tracker_miner_is_paused (TrackerMiner *miner)
 	return g_hash_table_size (miner->private->pauses) > 0 ? TRUE : FALSE;
 }
 
+/**
+ * tracker_miner_get_n_pause_reasons:
+ * @miner: a #TrackerMiner
+ *
+ * Returns the number of pause reasons holding @miner from
+ * indexing contents.
+ *
+ * Returns: The number of current pause reasons
+ *
+ * Since: 0.10.5
+ **/
+guint
+tracker_miner_get_n_pause_reasons (TrackerMiner *miner)
+{
+	g_return_val_if_fail (TRACKER_IS_MINER (miner), 0);
+
+	return g_hash_table_size (miner->private->pauses);
+}
+
 static gint
 tracker_miner_pause_internal (TrackerMiner  *miner,
                               const gchar   *application,
