@@ -63,9 +63,9 @@ if HAVE_INTROSPECTION
 
 #  set introspectable=0 to the function that uses va_list. This is not needed with a modern vala ( >= 0.11.8)
 if VALA_GOOD_GIR
-Tracker-@TRACKER_API_VERSION@.gir: $(lib_LTLIBRARIES) Makefile
+Tracker-@TRACKER_API_VERSION@.gir: $(noinst_LTLIBRARIES) Makefile
 else
-Tracker-@TRACKER_API_VERSION@.gir: $(lib_LTLIBRARIES) Makefile
+Tracker-@TRACKER_API_VERSION@.gir: $(noinst_LTLIBRARIES) Makefile
 	if [[ -z `grep tracker_sparql_escape_uri_vprintf $@ |grep introspectable` ]] ; then \
 	  sed -i $@ -e "s/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"/&\ introspectable=\"0\"/g" ; \
         fi
