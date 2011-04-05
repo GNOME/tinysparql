@@ -44,6 +44,7 @@ tracker_miner_stop
 tracker_miner_ignore_next_update
 tracker_miner_is_started
 tracker_miner_is_paused
+tracker_miner_get_n_pause_reasons
 tracker_miner_pause
 tracker_miner_resume
 tracker_miner_get_connection
