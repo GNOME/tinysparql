@@ -337,6 +337,7 @@ albumart_heuristic (const gchar *artist,
 	gchar *artist_stripped = NULL;
 	gchar *album_stripped = NULL;
 	gchar *artist_strdown, *album_strdown;
+	guint i;
 
 	if (copied) {
 		*copied = FALSE;
@@ -425,81 +426,91 @@ albumart_heuristic (const gchar *artist,
 	artist_strdown = artist_stripped ? g_utf8_strdown (artist_stripped, -1) : g_strdup ("");
 	album_strdown = album_stripped ? g_utf8_strdown (album_stripped, -1) : g_strdup ("");
 
-	/* Try to find cover art in the directory */
-	for (name = g_dir_read_name (dir), count = 0, retval = FALSE;
-	     name != NULL && !retval && count < 50;
-	     name = g_dir_read_name (dir), count++) {
-		gchar *name_utf8, *name_strdown;
+	for (retval = FALSE, i = 0; i < 2 && !retval; i++) {
 
-		name_utf8 = g_filename_to_utf8 (name, -1, NULL, NULL, NULL);
+		/* We loop twice to find secondary choices, or just once as soon as a
+		 * primary choice is found. When i != 0 it means that we're in the
+		 * secondary choice's loop (current only switch is 'large' vs. 'small') */
 
-		if (!name_utf8) {
-			g_debug ("Could not convert filename '%s' to UTF-8", name);
-			continue;
-		}
+		g_dir_rewind (dir);
 
-		name_strdown = g_utf8_strdown (name_utf8, -1);
+		/* Try to find cover art in the directory */
+		for (name = g_dir_read_name (dir), count = 0, retval = FALSE;
+		     name != NULL && !retval && count < 50;
+		     name = g_dir_read_name (dir), count++) {
+			gchar *name_utf8, *name_strdown;
 
-		/* Accept cover, front, folder, AlbumArt_{GUID}_Large
-		 * reject AlbumArt_{GUID}_Small and AlbumArtSmall
-		 */
-		if ((artist_strdown && artist_strdown[0] != '\0' && strstr (name_strdown, artist_strdown)) ||
-		    (album_strdown && album_strdown[0] != '\0' && strstr (name_strdown, album_strdown)) ||
-		    (strstr (name_strdown, "cover")) ||
-		    (strstr (name_strdown, "front")) ||
-		    (strstr (name_strdown, "folder")) ||
-		    ((strstr (name_strdown, "albumart") && strstr (name_strdown, "large")))) {
-			if (g_str_has_suffix (name_strdown, "jpeg") ||
-			    g_str_has_suffix (name_strdown, "jpg")) {
-				if (!target) {
-					albumart_get_path (artist_stripped,
-					                   album_stripped,
-					                   "album",
-					                   NULL,
-					                   &target,
-					                   NULL);
-				}
+			name_utf8 = g_filename_to_utf8 (name, -1, NULL, NULL, NULL);
 
-				if (!file && target) {
-					file = g_file_new_for_path (target);
-				}
+			if (!name_utf8) {
+				g_debug ("Could not convert filename '%s' to UTF-8", name);
+				continue;
+			}
 
-				if (file) {
-					GFile *found_file;
+			name_strdown = g_utf8_strdown (name_utf8, -1);
+
+			/* Accept cover, front, folder, AlbumArt_{GUID}_Large (first choice)
+			 * second choice is AlbumArt_{GUID}_Small and AlbumArtSmall. We 
+			 * don't support just AlbumArt. (it must have a Small or Large) */
+
+			if ((artist_strdown && artist_strdown[0] != '\0' && strstr (name_strdown, artist_strdown)) ||
+			    (album_strdown && album_strdown[0] != '\0' && strstr (name_strdown, album_strdown)) ||
+			    (strstr (name_strdown, "cover")) ||
+			    (strstr (name_strdown, "front")) ||
+			    (strstr (name_strdown, "folder")) ||
+			    ((strstr (name_strdown, "albumart") && strstr (name_strdown, i == 0 ? "large" : "small")))) {
+				if (g_str_has_suffix (name_strdown, "jpeg") ||
+				    g_str_has_suffix (name_strdown, "jpg")) {
+					if (!target) {
+						albumart_get_path (artist_stripped,
+						                   album_stripped,
+						                   "album",
+						                   NULL,
+						                   &target,
+						                   NULL);
+					}
+
+					if (!file && target) {
+						file = g_file_new_for_path (target);
+					}
+
+					if (file) {
+						GFile *found_file;
+						gchar *found;
+
+						found = g_build_filename (dirname, name, NULL);
+						g_debug ("Album art (JPEG) found in same directory being used:'%s'", found);
+
+						found_file = g_file_new_for_path (found);
+						g_free (found);
+
+						retval = g_file_copy (found_file, file, 0, NULL, NULL, NULL, &error);
+						g_object_unref (found_file);
+
+						g_clear_error (&error);
+					}
+				} else if (g_str_has_suffix (name_strdown, "png")) {
 					gchar *found;
 
+					if (!target) {
+						albumart_get_path (artist_stripped,
+						                   album_stripped,
+						                   "album",
+						                   NULL,
+						                   &target,
+						                   NULL);
+					}
+
 					found = g_build_filename (dirname, name, NULL);
-					g_debug ("Album art (JPEG) found in same directory being used:'%s'", found);
-
-					found_file = g_file_new_for_path (found);
+					g_debug ("Album art (PNG) found in same directory being used:'%s'", found);
+					retval = tracker_albumart_file_to_jpeg (found, target);
 					g_free (found);
-
-					retval = g_file_copy (found_file, file, 0, NULL, NULL, NULL, &error);
-					g_object_unref (found_file);
-
-					g_clear_error (&error);
 				}
-			} else if (g_str_has_suffix (name_strdown, "png")) {
-				gchar *found;
-
-				if (!target) {
-					albumart_get_path (artist_stripped,
-					                   album_stripped,
-					                   "album",
-					                   NULL,
-					                   &target,
-					                   NULL);
-				}
-
-				found = g_build_filename (dirname, name, NULL);
-				g_debug ("Album art (PNG) found in same directory being used:'%s'", found);
-				retval = tracker_albumart_file_to_jpeg (found, target);
-				g_free (found);
 			}
-		}
 
-		g_free (name_utf8);
-		g_free (name_strdown);
+			g_free (name_utf8);
+			g_free (name_strdown);
+		}
 	}
 
 	if (count >= 50) {
