@@ -94,10 +94,10 @@ Tracker-@TRACKER_API_VERSION@.typelib: Tracker-$(TRACKER_API_VERSION).gir
 	@INTROSPECTION_COMPILER@ --shared-library=libtracker-sparql-@TRACKER_API_VERSION@.so -o $@ $^
 
 girdir = $(datadir)/gir-1.0
-dist_gir_DATA = Tracker-$(TRACKER_API_VERSION).gir
+gir_DATA = Tracker-$(TRACKER_API_VERSION).gir
 
 typelibdir = $(libdir)/girepository-1.0
-typelib_DATA = Tracker-$(TRACKER_API_VERSION).typelib
+typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
-CLEANFILES = $(typelib_DATA)
+CLEANFILES = $(gir_DATA) $(typelib_DATA)
 endif
