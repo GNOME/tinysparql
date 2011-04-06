@@ -316,7 +316,7 @@ tracker_locale_gconfdbus_init (void)
 
 		if (error) {
 			g_main_context_pop_thread_default (NULL);
-			g_critical ("%s", error->message);
+			g_warning ("%s", error->message);
 			g_clear_error (&error);
 			return;
 		}
