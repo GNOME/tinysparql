@@ -896,6 +896,11 @@ bail_out:
 	g_object_unref (fd_list);
 	g_object_unref (reply);
 
+	/* We are replying ourselves to the
+	 * message, so just unref the invocation
+	 */
+	g_object_unref (invocation);
+
 	if (!priv->disable_shutdown) {
 		/* Unset alarm so the extractor doesn't die when it's idle */
 		alarm (0);
