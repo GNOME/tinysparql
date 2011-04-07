@@ -71,8 +71,8 @@ INTROSPECTION_GIRS += TrackerExtract-$(TRACKER_API_VERSION).gir
 girdir = $(datadir)/gir-1.0
 gir_DATA = $(INTROSPECTION_GIRS)
 
-typelibsdir = $(libdir)/girepository-1.0
-typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+typelibdir = $(libdir)/girepository-1.0
+typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES = $(gir_DATA) $(typelib_DATA)
 endif
