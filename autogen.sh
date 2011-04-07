@@ -3,7 +3,7 @@
 #
 # NOTE: compare_versions() is stolen from gnome-autogen.sh
 
-REQUIRED_VALA_VERSION=0.11.4
+REQUIRED_VALA_VERSION=0.12.0
 
 # Usage:
 #     compare_versions MIN_VERSION ACTUAL_VERSION

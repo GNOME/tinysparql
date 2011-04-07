@@ -75,21 +75,6 @@ EXTRA_DIST =                                           \
 -include $(INTROSPECTION_MAKEFILE)
 
 if HAVE_INTROSPECTION
-
-#  set introspectable=0 to the function that uses va_list. This is not needed with a modern vala ( >= 0.11.8)
-if VALA_GOOD_GIR
-Tracker-@TRACKER_API_VERSION@.gir: $(noinst_LTLIBRARIES) Makefile
-else
-Tracker-@TRACKER_API_VERSION@.gir: $(noinst_LTLIBRARIES) Makefile
-	if [[ -z `grep tracker_sparql_escape_uri_vprintf $@ |grep introspectable` ]] ; then \
-	  sed -i $@ -e "s/c\:identifier\=\"tracker_sparql_escape_uri_vprintf\"/&\ introspectable=\"0\"/g" ; \
-        fi
-	if [[ -z `grep scope $@` ]] ; then \
-	  sed -i $@ -e "s/\"_callback_\"/&\ scope=\"async\"/g" ; \
-        fi
-
-endif
-
 Tracker-@TRACKER_API_VERSION@.typelib: Tracker-$(TRACKER_API_VERSION).gir
 	@INTROSPECTION_COMPILER@ --shared-library=libtracker-sparql-@TRACKER_API_VERSION@.so -o $@ $^
 
