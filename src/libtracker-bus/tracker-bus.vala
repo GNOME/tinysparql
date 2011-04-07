@@ -44,15 +44,6 @@ private interface Tracker.Bus.Steroids : DBusProxy {
 			batch_update.begin (sparql_stream, cancellable, callback);
 		}
 	}
-
-	[DBus (visible = false)]
-	public void update_array_begin (UnixInputStream sparql_stream, int priority, Cancellable? cancellable, AsyncReadyCallback callback) {
-		if (priority <= GLib.Priority.DEFAULT) {
-			update_array.begin (sparql_stream, cancellable, callback);
-		} else {
-			batch_update_array.begin (sparql_stream, cancellable, callback);
-		}
-	}
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Statistics")]
@@ -209,7 +200,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		steroids_object.update_array_begin (input, priority, cancellable, (o, res) => {
+		steroids_object.update_array.begin (input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
 				update_array_async.callback ();
@@ -235,11 +226,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// process results (errors)
 		var result = new GenericArray<Error?> ();
 		Variant resultv;
-		if (priority <= GLib.Priority.DEFAULT) {
-			resultv = steroids_object.update_array.end (dbus_res);
-		} else {
-			resultv = steroids_object.batch_update_array.end (dbus_res);
-		}
+		resultv = steroids_object.update_array.end (dbus_res);
 		var iter = resultv.iterator ();
 		string code, message;
 		while (iter.next ("s", out code)) {
