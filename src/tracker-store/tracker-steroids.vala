@@ -186,7 +186,7 @@ public class Tracker.Steroids : Object {
 				request.debug ("query: %s", query_array[i]);
 
 				try {
-					yield Tracker.Store.sparql_update (query_array[i], Tracker.Store.Priority.HIGH, sender);
+					yield Tracker.Store.sparql_update (query_array[i], Tracker.Store.Priority.LOW, sender);
 					builder.add ("s", "");
 					builder.add ("s", "");
 				} catch (Error e1) {
