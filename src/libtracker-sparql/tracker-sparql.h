@@ -20,11 +20,11 @@
 #ifndef __LIBTRACKER_SPARQL_H__
 #define __LIBTRACKER_SPARQL_H__
 
-#define __LIBTRACKER_SPARQL_H_INSIDE__
+#define __LIBTRACKER_SPARQL_INSIDE__
 
 #include <libtracker-sparql/tracker-version.h>
 #include <libtracker-sparql/tracker-generated.h>
 
-#undef __LIBTRACKER_SPARQL_H_INSIDE__
+#undef __LIBTRACKER_SPARQL_INSIDE__
 
 #endif /* __LIBTRACKER_SPARQL_H__ */
