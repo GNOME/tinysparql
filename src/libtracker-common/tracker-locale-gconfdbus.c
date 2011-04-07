@@ -310,7 +310,6 @@ tracker_locale_gconfdbus_init (void)
 		connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &error);
 
 		if (error) {
-			g_main_context_pop_thread_default (NULL);
 			g_warning ("%s", error->message);
 			g_clear_error (&error);
 			return;
@@ -340,10 +339,8 @@ tracker_locale_gconfdbus_init (void)
 				g_object_unref (connection);
 				connection = NULL;
 				maemo_mode = FALSE;
-				g_main_context_pop_thread_default (NULL);
 				return;
 			} else {
-				g_main_context_pop_thread_default (NULL);
 				g_critical ("%s", error->message);
 				g_clear_error (&error);
 				return;
@@ -357,7 +354,6 @@ tracker_locale_gconfdbus_init (void)
 		introspection_data = g_dbus_node_info_new_for_xml (introspection_xml, &error);
 
 		if (error) {
-			g_main_context_pop_thread_default (NULL);
 			g_critical ("%s", error->message);
 			g_clear_error (&error);
 			return;
@@ -375,7 +371,6 @@ tracker_locale_gconfdbus_init (void)
 		if (error) {
 			g_critical ("%s", error->message);
 			g_clear_error (&error);
-			g_main_context_pop_thread_default (NULL);
 			return;
 		}
 
