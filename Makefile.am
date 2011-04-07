@@ -81,7 +81,7 @@ DISTCHECK_CONFIGURE_FLAGS =                            \
 	--enable-unit-tests                            \
 	--enable-functional-tests                      \
 	--enable-gtk-doc                               \
-	--enable-introspection
+	--enable-introspection                         \
 	--enable-miner-rss                             \
 	--enable-miner-flickr                          \
 	--disable-miner-evolution                      \
