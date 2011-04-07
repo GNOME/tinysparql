@@ -135,17 +135,16 @@ EXTRA_DIST =                                           \
 -include $(INTROSPECTION_MAKEFILE)
 INTROSPECTION_GIRS =
 INTROSPECTION_SCANNER_ARGS = \
-	-I$(top_builddir)/src \
-	-DTRACKER_COMPILATION \
-	--c-include="libtracker-miner/tracker-miner.h" 			\
-	--add-include-path=$(top_builddir)/src/libtracker-sparql 	\
-	--identifier-prefix=TrackerProcessor				\
-	--symbol-prefix=tracker_processing				\
-	--identifier-prefix=Tracker					\
-	--symbol-prefix=tracker						\
+	-I $(top_srcdir)/src \
+	-D TRACKER_COMPILATION \
+	--c-include="libtracker-miner/tracker-miner.h" \
+	--identifier-prefix=TrackerProcessor \
+	--symbol-prefix=tracker_processing \
+	--identifier-prefix=Tracker \
+	--symbol-prefix=tracker \
 	--warn-all
 
-INTROSPECTION_COMPILER_ARGS = --includedir=$(top_builddir)/src/libtracker-sparql
+INTROSPECTION_COMPILER_ARGS = --includedir=$(top_srcdir)/src/libtracker-sparql
 
 if HAVE_INTROSPECTION
 INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
@@ -157,7 +156,8 @@ introspection_sources = \
 
 TrackerMiner-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
 TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_INCLUDES = GObject-2.0 GModule-2.0 Gio-2.0
-#TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_PACKAGES = TrackerSparql-$(TRACKER_API_VERSION)
+TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_SCANNERFLAGS = \
+	--include-uninstalled=$(top_srcdir)/src/libtracker-sparql/Tracker-$(TRACKER_API_VERSION).gir
 TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_CFLAGS = $(INCLUDES)
 TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_NAMESPACE = "TrackerMiner"
 TrackerMiner_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_LIBS = $(lib_LTLIBRARIES)
