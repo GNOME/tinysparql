@@ -28,13 +28,18 @@ Returns the version of this binary.
 Sets the logging level, 0=errors, 1=minimal, 2=detailed, 3=debug.
 .TP
 .B \-s, \-\-initial-sleep=SECONDS
-Sets the initial sleep time before crawling the file system is started.
+Sets the initial sleep time before crawling the file system is
+started. If the
+.B \-\-no-daemon
+option is used, this option is ignored.
 .TP
 .B \-n, \-\-no-daemon
 Tells the miner to exit once all indexing has finished and the
 database is up to date. This is not the default mode of operation for
 the miner, usually it stays around acting like a daemon to monitor
-file updates which may occur over time.
+file updates which may occur over time. This option renders the
+.B \-\-initial-sleep
+option moot.
 .TP
 .B \-e, \-\-eligible=FILE
 Checks if 

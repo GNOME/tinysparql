@@ -271,6 +271,38 @@ miner_handle_next (void)
 	}
 }
 
+static gboolean
+miner_handle_first_cb (gpointer data)
+{
+	miner_handle_next ();
+	return FALSE;
+}
+
+static void
+miner_handle_first (TrackerConfig *config)
+{
+	gint initial_sleep;
+
+	/* If requesting to run as no-daemon, start right away */
+	if (no_daemon) {
+		miner_handle_next ();
+		return;
+	}
+
+	/* If no need to initially sleep, start right away */
+	initial_sleep = tracker_config_get_initial_sleep (config);
+	if (initial_sleep <= 0) {
+		miner_handle_next ();
+		return;
+	}
+
+	g_debug ("Performing initial sleep of %d seconds",
+	         initial_sleep);
+	g_timeout_add_seconds (initial_sleep,
+	                       miner_handle_first_cb,
+	                       NULL);
+}
+
 static void
 miner_finished_cb (TrackerMinerFS *fs,
                    gdouble         seconds_elapsed,
@@ -715,7 +747,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_thumbnailer_init ();
 
-	miner_handle_next ();
+	miner_handle_first (config);
 
 	/* Go, go, go! */
 	g_main_loop_run (main_loop);
