@@ -18,5 +18,4 @@ gsettings_SCHEMAS = \
 CLEANFILES = $(gsettings_SCHEMAS)
 
 EXTRA_DIST = \
-	org.freedesktop.Tracker.enums.xml \
 	$(gsettings_SCHEMAS:.xml=.xml.in)
