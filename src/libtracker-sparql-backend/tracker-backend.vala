@@ -199,7 +199,7 @@ class Tracker.Sparql.Backend : Connection {
 	static bool log_initialized;
 	static StaticMutex door;
 
-	public static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
+	static new Connection get (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
 		door.lock ();
 
 		// assign to owned variable to ensure it doesn't get freed between unlock and return
@@ -230,6 +230,31 @@ class Tracker.Sparql.Backend : Connection {
 		return singleton;
 	}
 
+	public static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
+		if (MainContext.get_thread_default () == null) {
+			// ok to initialize without extra thread
+			return get (is_direct_only, cancellable);
+		}
+
+		// run with separate main context to be able to wait for async method
+		var context = new MainContext ();
+		var loop = new MainLoop (context);
+		AsyncResult async_result = null;
+
+		context.push_thread_default ();
+
+		get_internal_async.begin (is_direct_only, cancellable, (obj, res) => {
+			async_result = res;
+			loop.quit ();
+		});
+
+		loop.run ();
+
+		context.pop_thread_default ();
+
+		return get_internal_async.end (async_result);
+	}
+
 	public async static new Connection get_internal_async (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
 		// fast path: avoid extra thread if connection is already available
 		if (door.trylock ()) {
@@ -254,7 +279,7 @@ class Tracker.Sparql.Backend : Connection {
 
 		g_io_scheduler_push_job (job => {
 			try {
-				result = get_internal (is_direct_only, cancellable);
+				result = get (is_direct_only, cancellable);
 			} catch (IOError e_io) {
 				io_error = e_io;
 			} catch (Sparql.Error e_spql) {
