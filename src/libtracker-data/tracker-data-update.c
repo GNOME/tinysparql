@@ -2307,7 +2307,7 @@ tracker_data_insert_statement (const gchar            *graph,
 }
 
 
-static void
+static gboolean
 handle_blank_node (const gchar  *subject,
                    const gchar  *predicate,
                    const gchar  *object,
@@ -2325,7 +2325,7 @@ handle_blank_node (const gchar  *subject,
 
 			if (actual_error) {
 				g_propagate_error (error, actual_error);
-				return;
+				return FALSE;
 			}
 		}
 	}
@@ -2340,12 +2340,14 @@ handle_blank_node (const gchar  *subject,
 
 		if (actual_error) {
 			g_propagate_error (error, actual_error);
-			return;
+			return FALSE;
 		}
 
-		return;
+		return TRUE;
 	} else {
 		g_critical ("Blank node '%s' not found", object);
+
+		return FALSE;
 	}
 }
 
@@ -2388,7 +2390,9 @@ tracker_data_insert_statement_with_uri (const gchar            *graph,
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
-		handle_blank_node (subject, predicate, object, graph, &actual_error);
+		if (handle_blank_node (subject, predicate, object, graph, &actual_error)) {
+			return;
+		}
 
 		if (actual_error) {
 			g_propagate_error (error, actual_error);
@@ -2595,8 +2599,9 @@ tracker_data_update_statement_with_uri (const gchar            *graph,
 
 	/* subjects and objects starting with `:' are anonymous blank nodes */
 	if (g_str_has_prefix (object, ":")) {
-
-		handle_blank_node (subject, predicate, object, graph, &actual_error);
+		if (handle_blank_node (subject, predicate, object, graph, &actual_error)) {
+			return;
+		}
 
 		if (actual_error) {
 			g_propagate_error (error, actual_error);
