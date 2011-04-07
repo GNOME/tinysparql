@@ -63,6 +63,7 @@ const TestInfo tests[] = {
 	{ "algebra/filter-in-5", "algebra/data-2", FALSE },
 	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", FALSE },
 	{ "anon/query", "anon/data", FALSE },
+	{ "anon/query-2", "anon/data", FALSE },
 	{ "ask/ask-1", "ask/data", FALSE },
 	{ "basic/base-prefix-3", "basic/data-1", FALSE },
 	{ "basic/compare-cast", "basic/data-1", FALSE },
