@@ -6,8 +6,10 @@
 *.o
 *.gcda
 *.gcno
+*.gir
 *.stamp
 *.tar.gz
+*.typelib
 *.pyc
 .deps
 .libs
