@@ -1,3 +1,38 @@
+NEW in 0.10.7 - 2011-04-07
+==========================
+
+The changes are:
+
+  * Require: Vala >= 0.12.0 (was 0.11.4), due to introspection issues
+  * Require: GObject Introspection >= 0.9.5
+  * New Feature: Introspection support for libtracker-{sparql|miner|extract}
+  * Fixes: GB#644997, "initial-sleep" configuration in miner-fs broken
+  * Fixes: GB#646365, Add macro to check Tracker version
+  * Fixes: GB#646374, Add a doap file to keep master.gnome.org happy when releasing
+  * Fixes: GB#644455, ~/.cache/tracker/no-need-mtime-check.txt is not written if tracker-store is stopped before tracker-miner-fs
+  * Fixes: NB#244536, Messages not saved correctly into tracker
+  * Fixes: NB#242253, Customized album art image not shown in Music application
+  * Fixes: NB#229461, Black thumbnail is displayed after delete favourite image
+  * Fixes: NB#237582, Some PDF files are not indexed
+  * Fixes: NB#240272, GConf should use the GDBus port, as libdbus isn't thread safe and crashes are being seen fetching the configuration values of meegotouch locale
+  * Fixes: NB#241659, COREWEB: applications crashing for 'strcmp __dlerror fetch_dlerror _g_module_symbol g_module_symbol'
+  * libtracker-sparql: Fixed test case on cancellation error check
+  * tracker-extract: oasis: Avoid invalid frees on non-NULL pointers
+  * tracker-needle: Cancel previous operations when switching views.
+  * tracker-needle: Improve "icons" or "images" category to allow filtering by all or title
+
+Translations:
+
+  * Updated de: Markus Schley
+  * Updated es: Daniel Mustieles
+  * Updated pl: Piotr Drąg
+  * Updated sv: Daniel Nylander
+
+Notes:
+
+  None
+
+
 NEW in 0.10.6 - 2011-03-31
 ==========================
 
