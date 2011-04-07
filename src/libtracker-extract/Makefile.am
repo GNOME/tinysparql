@@ -53,19 +53,19 @@ libtracker_extract_@TRACKER_API_VERSION@_la_LIBADD =   \
 INTROSPECTION_GIRS =
 INTROSPECTION_SCANNER_ARGS = \
 	--warn-all \
-	-I $(top_builddir)/src \
+	-I $(top_srcdir)/src \
 	-D TRACKER_COMPILATION \
-	--c-include="libtracker-extract/tracker-extract.h" \
-	--add-include-path=$(top_builddir)/src/libtracker-sparql 
-INTROSPECTION_COMPILER_ARGS = --includedir=$(top_builddir)/src/libtracker-sparql
+	--c-include="libtracker-extract/tracker-extract.h"
+
+INTROSPECTION_COMPILER_ARGS = --includedir=$(top_srcdir)/src/libtracker-sparql
 
 if HAVE_INTROSPECTION
 INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)
 introspection_sources = $(libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES)
-
 TrackerExtract-@TRACKER_API_VERSION@.gir: $(INTROSPECTION_SCANNER) $(lib_LTLIBRARIES) Makefile
 TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_INCLUDES = GObject-2.0 GModule-2.0
-#TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_PACKAGES = TrackerSparql-$(TRACKER_API_VERSION)
+TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_SCANNERFLAGS = \
+	--include-uninstalled=$(top_srcdir)/src/libtracker-sparql/Tracker-$(TRACKER_API_VERSION).gir
 TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_CFLAGS = $(INCLUDES)
 TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_LIBS = $(lib_LTLIBRARIES)
 TrackerExtract_@TRACKER_MAJOR_VERSION@_@TRACKER_MINOR_VERSION@_gir_FILES = $(introspection_sources)
