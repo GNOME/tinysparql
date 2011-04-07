@@ -7,7 +7,7 @@ AM_VALAFLAGS =                                         \
 	--library Tracker-$(TRACKER_API_VERSION) \
 	--includedir=libtracker-sparql                 \
 	--header $(vala_header:.h=-no-checks.h)        \
-	--vapi tracker-sparql-$(TRACKER_API_VERSION).vapi \
+	--vapi tracker-sparql.vapi                     \
 	--pkg gio-2.0 --pkg gmodule-2.0 --pkg posix    \
 	$(BUILD_VALAFLAGS)                             \
 	$(top_srcdir)/src/vapi/glib-2.0-fixes.vapi
@@ -43,6 +43,9 @@ vala_header = tracker-generated.h
 	            echo "#endif") > $@
 	$(AM_V_GEN)(cat $< >> $@)
 
+tracker-sparql-$(TRACKER_API_VERSION).vapi: $(srcdir)/tracker-sparql.vapi
+	$(AM_V_GEN)(sed -e 's/tracker-generated-no-checks.h/tracker-sparql.h/' $< > $@)
+
 libtracker_sparqlinclude_HEADERS =                     \
 	$(vala_header)                                 \
 	tracker-sparql.h                               \
@@ -65,8 +68,10 @@ MAINTAINERCLEANFILES =                                 \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \
 	$(vala_header:.h=-no-checks.h)
 
+CLEANFILES =                                           \
+	tracker-sparql-$(TRACKER_API_VERSION).vapi
+
 EXTRA_DIST =                                           \
-	tracker-sparql-$(TRACKER_API_VERSION).vapi     \
 	tracker-sparql-$(TRACKER_API_VERSION).deps     \
 	tracker-sparql.deps                            \
 	$(vala_header:.h=-no-checks.h)
