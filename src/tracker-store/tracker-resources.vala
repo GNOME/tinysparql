@@ -22,7 +22,7 @@
 public class Tracker.Resources : Object {
 	public const string PATH = "/org/freedesktop/Tracker1/Resources";
 
-	const int GRAPH_UPDATED_IMMEDIATE_EMIT_AT = 1000;
+	const int GRAPH_UPDATED_IMMEDIATE_EMIT_AT = 50000;
 	const int SIGNALS_SECONDS_PER_EMIT = 1;
 
 	/* I *know* that this is some arbitrary number that doesn't seem to
