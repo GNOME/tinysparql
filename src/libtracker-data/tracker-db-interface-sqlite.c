@@ -106,6 +106,8 @@ struct TrackerDBCursor {
 	gchar **variable_names;
 	gint n_variable_names;
 
+	/* used for direct access as libtracker-sparql is thread-safe and
+	   uses a single shared connection with SQLite mutex disabled */
 	gboolean threadsafe;
 };
 
@@ -1656,6 +1658,8 @@ tracker_db_cursor_sqlite_new (sqlite3_stmt        *sqlite_stmt,
 
 	cursor->finished = FALSE;
 
+	/* used for direct access as libtracker-sparql is thread-safe and
+	   uses a single shared connection with SQLite mutex disabled */
 	cursor->threadsafe = threadsafe;
 
 	cursor->stmt = sqlite_stmt;
@@ -1737,8 +1741,16 @@ tracker_db_cursor_rewind (TrackerDBCursor *cursor)
 {
 	g_return_if_fail (TRACKER_IS_DB_CURSOR (cursor));
 
+	if (cursor->threadsafe) {
+		tracker_db_manager_lock ();
+	}
+
 	sqlite3_reset (cursor->stmt);
 	cursor->finished = FALSE;
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_unlock ();
+	}
 }
 
 gboolean
@@ -1838,14 +1850,38 @@ gint64
 tracker_db_cursor_get_int (TrackerDBCursor *cursor,
                            guint            column)
 {
-	return (gint64) sqlite3_column_int64 (cursor->stmt, column);
+	gint64 result;
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_lock ();
+	}
+
+	result = (gint64) sqlite3_column_int64 (cursor->stmt, column);
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_unlock ();
+	}
+
+	return result;
 }
 
 gdouble
 tracker_db_cursor_get_double (TrackerDBCursor *cursor,
                               guint            column)
 {
-	return (gdouble) sqlite3_column_double (cursor->stmt, column);
+	gdouble result;
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_lock ();
+	}
+
+	result = (gdouble) sqlite3_column_double (cursor->stmt, column);
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_unlock ();
+	}
+
+	return result;
 }
 
 static gboolean
@@ -1853,18 +1889,29 @@ tracker_db_cursor_get_boolean (TrackerSparqlCursor *sparql_cursor,
                                guint                column)
 {
 	TrackerDBCursor *cursor = (TrackerDBCursor *) sparql_cursor;
-	return (g_strcmp0 (sqlite3_column_text (cursor->stmt, column), "true") == 0);
+	return (g_strcmp0 (tracker_db_cursor_get_string (cursor, column, NULL), "true") == 0);
 }
 
 TrackerSparqlValueType
 tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
                                   guint            column)
 {
+	gint column_type;
 	gint n_columns = sqlite3_column_count (cursor->stmt);
 
 	g_return_val_if_fail (column < n_columns, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
 
-	if (sqlite3_column_type (cursor->stmt, column) == SQLITE_NULL) {
+	if (cursor->threadsafe) {
+		tracker_db_manager_lock ();
+	}
+
+	column_type = sqlite3_column_type (cursor->stmt, column);
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_unlock ();
+	}
+
+	if (column_type == SQLITE_NULL) {
 		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
 	} else if (column < cursor->n_types) {
 		switch (cursor->types[column]) {
@@ -1890,11 +1937,23 @@ const gchar*
 tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor,
                                      guint            column)
 {
-	if (column < cursor->n_variable_names) {
-		return cursor->variable_names[column];
-	} else {
-		return sqlite3_column_name (cursor->stmt, column);
+	const gchar *result;
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_lock ();
 	}
+
+	if (column < cursor->n_variable_names) {
+		result = cursor->variable_names[column];
+	} else {
+		result = sqlite3_column_name (cursor->stmt, column);
+	}
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_unlock ();
+	}
+
+	return result;
 }
 
 const gchar*
@@ -1902,14 +1961,26 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor,
                               guint            column,
                               glong           *length)
 {
+	const gchar *result;
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_lock ();
+	}
+
 	if (length) {
 		sqlite3_value *val = sqlite3_column_value (cursor->stmt, column);
 
 		*length = sqlite3_value_bytes (val);
-		return (const gchar *) sqlite3_value_text (val);
+		result = (const gchar *) sqlite3_value_text (val);
 	} else {
-		return (const gchar *) sqlite3_column_text (cursor->stmt, column);
+		result = (const gchar *) sqlite3_column_text (cursor->stmt, column);
 	}
+
+	if (cursor->threadsafe) {
+		tracker_db_manager_unlock ();
+	}
+
+	return result;
 }
 
 void
