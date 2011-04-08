@@ -147,6 +147,7 @@ tracker_extract_module_manager_init (void)
 	}
 
 	g_message ("Extractor rules loaded");
+	g_list_free (files);
 	g_dir_close (dir);
 
 	/* Initialize miscellaneous data */
