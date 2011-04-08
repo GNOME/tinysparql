@@ -1,3 +1,25 @@
+NEW in 0.10.8 - 2011-04-07
+==========================
+
+The changes are:
+
+  * Fixes: GB#642883, Crashes in sqlite
+  * Fixes: NB#244556, COREWEB: [/usr/bin/call-history,/usr/bin/messaging-ui] 'sqlite3DbMallocRaw sqlite3VdbeMemGrow sqlite3VdbeMemSetStr bindText sqlite3_bind_text'
+  * libtracker-data: Protect tracker_db_cursor_get_* with mutex
+  * libtracker-bus: There is no BatchUpdateArray, UpdateArray is always considered a batch operation
+  * libtracker-sparql: Fix build from tarball
+  * tracker-store: Increase maximum signal size from 1000 to 50000 triples
+  * tracker-store: Fix UpdateArray to use low priority request
+
+Translations:
+
+  None
+
+Notes:
+
+  None
+
+
 NEW in 0.10.7 - 2011-04-07
 ==========================
 
