@@ -46,7 +46,7 @@ struct TrackerControllerPrivate {
 	GList *ongoing_tasks;
 
 	guint shutdown_timeout;
-	guint shutdown_timeout_id;
+	GSource *shutdown_source;
 
 	GCond *initialization_cond;
 	GMutex *initialization_mutex;
@@ -131,9 +131,9 @@ tracker_controller_finalize (GObject *object)
 	controller = TRACKER_CONTROLLER (object);
 	priv = controller->priv;
 
-	if (priv->shutdown_timeout_id) {
-		g_source_remove (priv->shutdown_timeout_id);
-		priv->shutdown_timeout_id = 0;
+	if (priv->shutdown_source) {
+		g_source_destroy (priv->shutdown_source);
+		priv->shutdown_source = NULL;
 	}
 
 	tracker_controller_dbus_stop (controller);
@@ -297,7 +297,7 @@ reset_shutdown_timeout_cb (gpointer user_data)
 	priv = TRACKER_CONTROLLER (user_data)->priv;
 	g_main_loop_quit (priv->main_loop);
 
-	return TRUE;
+	return FALSE;
 }
 
 static void
@@ -314,8 +314,9 @@ reset_shutdown_timeout (TrackerController *controller)
 
 	g_message ("(Re)setting shutdown timeout");
 
-	if (priv->shutdown_timeout_id != 0) {
-		g_source_remove (priv->shutdown_timeout_id);
+	if (priv->shutdown_source) {
+		g_source_destroy (priv->shutdown_source);
+		priv->shutdown_source = NULL;
 	}
 
 	source = g_timeout_source_new_seconds (priv->shutdown_timeout);
@@ -323,7 +324,8 @@ reset_shutdown_timeout (TrackerController *controller)
 	                       reset_shutdown_timeout_cb,
 	                       controller, NULL);
 
-	priv->shutdown_timeout_id = g_source_attach (source, priv->context);
+	g_source_attach (source, priv->context);
+	priv->shutdown_source = source;
 }
 
 static void
