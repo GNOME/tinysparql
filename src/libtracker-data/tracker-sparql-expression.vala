@@ -505,7 +505,7 @@ class Tracker.Sparql.Expression : Object {
 			translate_expression_as_string (sql);
 			while (accept (SparqlTokenType.COMMA)) {
 			      sql.append ("||");
-			      translate_expression (sql);
+			      translate_expression_as_string (sql);
 			}
 
 			return PropertyType.STRING;
