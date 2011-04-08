@@ -142,6 +142,7 @@ tracker_locale_change_initialize_subscription (void)
 	                                                    locale_notify_cb,
 	                                                    NULL,
 	                                                    NULL);
+	g_free (collation_locale);
 }
 
 void
