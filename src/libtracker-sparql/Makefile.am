@@ -2,9 +2,9 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_LTLIBRARIES = libtracker-sparql.la
 
-AM_VALAFLAGS =                                         \
-	--gir=Tracker-$(TRACKER_API_VERSION).gir \
-	--library Tracker-$(TRACKER_API_VERSION) \
+libtracker_sparql_la_VALAFLAGS =                       \
+	--gir Tracker-$(TRACKER_API_VERSION).gir       \
+	--library tracker-sparql-$(TRACKER_API_VERSION) \
 	--includedir=libtracker-sparql                 \
 	--header $(vala_header:.h=-no-checks.h)        \
 	--vapi tracker-sparql.vapi                     \
@@ -43,7 +43,7 @@ vala_header = tracker-generated.h
 	            echo "#endif") > $@
 	$(AM_V_GEN)(cat $< >> $@)
 
-tracker-sparql-$(TRACKER_API_VERSION).vapi: $(srcdir)/tracker-sparql.vapi
+tracker-sparql-$(TRACKER_API_VERSION).vapi: tracker-sparql.vapi
 	$(AM_V_GEN)(sed -e 's/tracker-generated-no-checks.h/tracker-sparql.h/' $< > $@)
 
 libtracker_sparqlinclude_HEADERS =                     \
