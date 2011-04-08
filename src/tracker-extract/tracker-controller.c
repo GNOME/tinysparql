@@ -42,6 +42,7 @@ struct TrackerControllerPrivate {
 	GDBusConnection *connection;
 	GDBusNodeInfo *introspection_data;
 	guint registration_id;
+	guint bus_name_id;
 
 	GList *ongoing_tasks;
 
@@ -618,6 +619,59 @@ handle_method_call (GDBusConnection	  *connection,
 	}
 }
 
+static void
+controller_notify_main_thread (TrackerController *controller,
+			       GError            *error)
+{
+	TrackerControllerPrivate *priv;
+
+	priv = controller->priv;
+
+	g_mutex_lock (priv->initialization_mutex);
+
+	priv->initialized = TRUE;
+	priv->initialization_error = error;
+
+	/* Notify about the initialization */
+	g_cond_signal (priv->initialization_cond);
+
+	g_mutex_unlock (priv->initialization_mutex);
+}
+
+static void
+bus_name_acquired_cb (GDBusConnection *connection,
+		      const gchar     *name,
+		      gpointer         user_data)
+{
+	controller_notify_main_thread (TRACKER_CONTROLLER (user_data), NULL);
+}
+
+static void
+bus_name_vanished_cb (GDBusConnection *connection,
+		      const gchar     *name,
+		      gpointer         user_data)
+{
+	TrackerController *controller;
+	TrackerControllerPrivate *priv;
+
+	controller = user_data;
+	priv = controller->priv;
+
+	if (!priv->initialized) {
+		GError *error;
+
+		error = g_error_new_literal (TRACKER_DBUS_ERROR, 0,
+		                             "Could not acquire bus name, "
+		                             "perhaps it's already taken?");
+		controller_notify_main_thread (controller, error);
+	} else {
+		/* We're already in control of the program
+		 * lifetime, so just quit the mainloop
+		 */
+		g_main_loop_quit (priv->main_loop);
+	}
+}
+
 static gboolean
 tracker_controller_dbus_start (TrackerController  *controller,
 			       GError		 **error)
@@ -651,10 +705,13 @@ tracker_controller_dbus_start (TrackerController  *controller,
 	g_message ("  Path:'" TRACKER_EXTRACT_PATH "'");
 	g_message ("  Object Type:'%s'", G_OBJECT_TYPE_NAME (controller));
 
-	g_bus_own_name_on_connection (priv->connection,
-	                              TRACKER_EXTRACT_SERVICE,
-	                              G_BUS_NAME_OWNER_FLAGS_NONE,
-	                              NULL, NULL, NULL, NULL);
+	priv->bus_name_id =
+		g_bus_own_name_on_connection (priv->connection,
+					      TRACKER_EXTRACT_SERVICE,
+					      G_BUS_NAME_OWNER_FLAGS_NONE,
+					      bus_name_acquired_cb,
+					      bus_name_vanished_cb,
+					      controller, NULL);
 
 	priv->registration_id =
 		g_dbus_connection_register_object (priv->connection,
@@ -687,6 +744,10 @@ tracker_controller_dbus_stop (TrackerController *controller)
 		                                     priv->registration_id);
 	}
 
+	if (priv->bus_name_id != 0) {
+		g_bus_unown_name (priv->bus_name_id);
+	}
+
 	if (priv->introspection_data) {
 		g_dbus_node_info_unref (priv->introspection_data);
 	}
@@ -713,7 +774,7 @@ tracker_controller_thread_func (gpointer user_data)
 {
 	TrackerController *controller;
 	TrackerControllerPrivate *priv;
-	gboolean success;
+	GError *error = NULL;
 
 	g_message ("Controller thread '%p' created, dispatching...", g_thread_self ());
 
@@ -723,18 +784,12 @@ tracker_controller_thread_func (gpointer user_data)
 
 	reset_shutdown_timeout (controller);
 
-	success = tracker_controller_dbus_start (controller, &priv->initialization_error);
-	priv->initialized = TRUE;
-
-	/* Notify about the initialization */
-	g_mutex_lock (priv->initialization_mutex);
-	g_cond_signal (priv->initialization_cond);
-	g_mutex_unlock (priv->initialization_mutex);
-
-	if (!success) {
-		/* Return here, the main thread will
-		 * be notified about the error and exit
+	if (!tracker_controller_dbus_start (controller, &error)) {
+		/* Error has been filled in, so we return
+		 * in this thread. The main thread will be
+		 * notified about the error and exit.
 		 */
+		controller_notify_main_thread (controller, error);
 		return NULL;
 	}
 
