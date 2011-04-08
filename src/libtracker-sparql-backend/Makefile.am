@@ -26,6 +26,6 @@ libtracker_sparql_@TRACKER_API_VERSION@_la_LIBADD =    \
 	$(LIBTRACKER_SPARQL_LIBS)
 
 libtracker_sparql_@TRACKER_API_VERSION@_la_LDFLAGS =   \
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
 	-export-symbols-regex '^tracker_sparql_(connection|cursor|builder|escape|error|value|get)_.*'
 
