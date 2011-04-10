@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-03-27 13:30+0000\n"
-"PO-Revision-Date: 2011-03-28 08:58+0100\n"
+"POT-Creation-Date: 2011-04-08 21:03+0000\n"
+"PO-Revision-Date: 2011-04-10 08:49+0100\n"
 "Last-Translator: Andrej Žnidaršič <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: \n"
@@ -24,7 +24,7 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
-#: ../src/tracker-needle/tracker-view.vala:311
+#: ../src/tracker-needle/tracker-view.vala:326
 #: ../src/tracker-search-bar/tracker-results-window.c:722
 msgid "Applications"
 msgstr "Programi"
@@ -351,41 +351,40 @@ msgstr "Oznake ..."
 msgid "Tag one or more files"
 msgstr "Označi eno ali več datotek"
 
-#: ../src/libtracker-common/tracker-utils.c:69
-#: ../src/libtracker-common/tracker-utils.c:76
+#: ../src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
 msgstr "neznan čas"
 
-#: ../src/libtracker-common/tracker-utils.c:94
-#: ../src/libtracker-common/tracker-utils.c:145
+#: ../src/libtracker-common/tracker-utils.c:104
+#: ../src/libtracker-common/tracker-utils.c:155
 msgid "less than one second"
 msgstr "manj kot eno sekundo"
 
 #. Translators: this is %d days
-#: ../src/libtracker-common/tracker-utils.c:109
+#: ../src/libtracker-common/tracker-utils.c:119
 #, c-format
 msgid " %dd"
 msgstr " %dd"
 
 #. Translators: this is %2.2d hours
-#: ../src/libtracker-common/tracker-utils.c:113
+#: ../src/libtracker-common/tracker-utils.c:123
 #, c-format
 msgid " %2.2dh"
 msgstr " %2.2dh"
 
 #. Translators: this is %2.2d minutes
-#: ../src/libtracker-common/tracker-utils.c:117
+#: ../src/libtracker-common/tracker-utils.c:127
 #, c-format
 msgid " %2.2dm"
 msgstr " %2.2dm"
 
 #. Translators: this is %2.2d seconds
-#: ../src/libtracker-common/tracker-utils.c:121
+#: ../src/libtracker-common/tracker-utils.c:131
 #, c-format
 msgid " %2.2ds"
 msgstr " %2.2ds"
 
-#: ../src/libtracker-common/tracker-utils.c:125
+#: ../src/libtracker-common/tracker-utils.c:135
 #, c-format
 msgid " %d day"
 msgid_plural " %d days"
@@ -394,7 +393,7 @@ msgstr[1] " %d dan"
 msgstr[2] " %d dneva"
 msgstr[3] " %d dni"
 
-#: ../src/libtracker-common/tracker-utils.c:129
+#: ../src/libtracker-common/tracker-utils.c:139
 #, c-format
 msgid " %2.2d hour"
 msgid_plural " %2.2d hours"
@@ -403,7 +402,7 @@ msgstr[1] " %2.2d ura"
 msgstr[2] " %2.2d uri"
 msgstr[3] " %2.2d ure"
 
-#: ../src/libtracker-common/tracker-utils.c:133
+#: ../src/libtracker-common/tracker-utils.c:143
 #, c-format
 msgid " %2.2d minute"
 msgid_plural " %2.2d minutes"
@@ -412,7 +411,7 @@ msgstr[1] " %2.2d minuta"
 msgstr[2] " %2.2d minuti"
 msgstr[3] " %2.2d minute"
 
-#: ../src/libtracker-common/tracker-utils.c:137
+#: ../src/libtracker-common/tracker-utils.c:147
 #, c-format
 msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
@@ -421,15 +420,15 @@ msgstr[1] " %2.2d sekunda"
 msgstr[2] " %2.2d sekundi"
 msgstr[3] " %2.2d sekunde"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:758
+#: ../src/libtracker-miner/tracker-miner-object.c:812
 msgid "Pause application and reason match an already existing pause request"
 msgstr "Premor programa in skladanje razloga za že obstoječo zahtevo po premoru"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:844
+#: ../src/libtracker-miner/tracker-miner-object.c:898
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Piškotek za nadaljevanje podatkovnega kopalnika v premoru ni prepoznan"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1229
+#: ../src/libtracker-miner/tracker-miner-object.c:1303
 msgid "Data store is not available"
 msgstr "Shramba podatkov ni na voljo"
 
@@ -461,16 +460,16 @@ msgstr "_Poišči:"
 msgid "_URN:"
 msgstr "_URN:"
 
-#: ../src/tracker-extract/tracker-main.c:83
+#: ../src/tracker-extract/tracker-main.c:84
 #: ../src/tracker-store/tracker-main.vala:48
 msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
 msgstr "Beleženje, 0 = samo napake, 1 = najmanjše, 2 = podrobno in 3 = razhroščevanje (privzeto = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:88
+#: ../src/tracker-extract/tracker-main.c:89
 msgid "File to extract metadata for"
 msgstr "Datoteka za razširitev metapodatkov"
 
-#: ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker-extract/tracker-main.c:90
 #: ../src/miners/fs/tracker-main.c:94
 #: ../src/tracker-control/tracker-control-miners.c:58
 #: ../src/tracker-utils/tracker-import.c:54
@@ -481,33 +480,33 @@ msgstr "Datoteka za razširitev metapodatkov"
 msgid "FILE"
 msgstr "DATOTEKA"
 
-#: ../src/tracker-extract/tracker-main.c:92
+#: ../src/tracker-extract/tracker-main.c:93
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Vrsta MIME za datoteko (če ni navedena, bo uganjena) "
 
-#: ../src/tracker-extract/tracker-main.c:93
+#: ../src/tracker-extract/tracker-main.c:94
 #: ../src/tracker-control/tracker-control-miners.c:55
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker-extract/tracker-main.c:98
+#: ../src/tracker-extract/tracker-main.c:99
 msgid "Disable shutting down after 30 seconds of inactivity"
 msgstr "Onemogoči izklop po 30 sekundah nedejavnosti"
 
-#: ../src/tracker-extract/tracker-main.c:102
+#: ../src/tracker-extract/tracker-main.c:103
 msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
 msgstr "Vsili notranje razširjevalnike pred zunanjimi kot je libstreamanalyzer "
 
-#: ../src/tracker-extract/tracker-main.c:106
+#: ../src/tracker-extract/tracker-main.c:107
 msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
 msgstr "Prisili modul uporabljen za razširitev (na primer \"foo\" za \"foo.so\")"
 
-#: ../src/tracker-extract/tracker-main.c:107
+#: ../src/tracker-extract/tracker-main.c:108
 msgid "MODULE"
 msgstr "MODUL"
 
 #. Daemon options
-#: ../src/tracker-extract/tracker-main.c:110
+#: ../src/tracker-extract/tracker-main.c:111
 #: ../src/miners/fs/tracker-main.c:97
 #: ../src/tracker-store/tracker-main.vala:47
 #: ../src/tracker-writeback/tracker-main.c:51
@@ -516,15 +515,15 @@ msgstr "Pokaže podrobnosti različice"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:330
+#: ../src/tracker-extract/tracker-main.c:331
 msgid "- Extract file meta data"
 msgstr "- Razširi metapodatke datoteke"
 
-#: ../src/tracker-extract/tracker-main.c:339
+#: ../src/tracker-extract/tracker-main.c:340
 msgid "Filename and mime type must be provided together"
 msgstr "Ime datoteke in vrsta mime morata biti navedeni skupaj"
 
-#: ../src/tracker-extract/tracker-main.c:353
+#: ../src/tracker-extract/tracker-main.c:354
 msgid "Options --force-internal-extractors and --force-module can't be used together"
 msgstr "Možnosti --force-internal-extractors in --force-module ni mogoče uporabiti skupaj"
 
@@ -546,94 +545,94 @@ msgstr "Izvaja se dokler niso pripravljena kazala vseh nastavljenih mest in se n
 msgid "Checks if FILE is eligible for being mined based on configuration"
 msgstr "Preveri, če je DATOTEKA primerna za kopanje na osnovi nastavitev"
 
-#: ../src/miners/fs/tracker-main.c:412
+#: ../src/miners/fs/tracker-main.c:444
 #, c-format
 msgid "Data object '%s' currently exists"
 msgstr "Podatkovni predmet '%s' trenutno obstaja"
 
-#: ../src/miners/fs/tracker-main.c:413
+#: ../src/miners/fs/tracker-main.c:445
 #, c-format
 msgid "Data object '%s' currently does not exist"
 msgstr "Podatkovni predmet '%s' trenutno ne obstaja"
 
-#: ../src/miners/fs/tracker-main.c:428
+#: ../src/miners/fs/tracker-main.c:460
 msgid "Directory is eligible to be mined (based on rules)"
 msgstr "Datoteka je primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/miners/fs/tracker-main.c:429
+#: ../src/miners/fs/tracker-main.c:461
 msgid "Directory is NOT eligible to be mined (based on rules)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/miners/fs/tracker-main.c:449
+#: ../src/miners/fs/tracker-main.c:481
 msgid "Directory is eligible to be mined (based on contents)"
 msgstr "Datoteka je primerna za kopanje (osnovano na vsebini)"
 
-#: ../src/miners/fs/tracker-main.c:450
+#: ../src/miners/fs/tracker-main.c:482
 msgid "Directory is NOT eligible to be mined (based on contents)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na vsebini)"
 
-#: ../src/miners/fs/tracker-main.c:497
+#: ../src/miners/fs/tracker-main.c:529
 msgid "Directory is eligible to be monitored (based on config)"
 msgstr "Datoteka je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/miners/fs/tracker-main.c:498
+#: ../src/miners/fs/tracker-main.c:530
 msgid "Directory is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/miners/fs/tracker-main.c:502
+#: ../src/miners/fs/tracker-main.c:534
 msgid "File is eligible to be monitored (based on config)"
 msgstr "Datoteka je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/miners/fs/tracker-main.c:503
+#: ../src/miners/fs/tracker-main.c:535
 msgid "File is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/miners/fs/tracker-main.c:507
+#: ../src/miners/fs/tracker-main.c:539
 msgid "File or Directory is eligible to be monitored (based on config)"
 msgstr "Datoteka ali mapa je primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/miners/fs/tracker-main.c:508
+#: ../src/miners/fs/tracker-main.c:540
 msgid "File or Directory is NOT eligible to be monitored (based on config)"
 msgstr "Datoteka ali mapa NI primerna za nadziranje (osnovano na nastavitvah)"
 
-#: ../src/miners/fs/tracker-main.c:523
+#: ../src/miners/fs/tracker-main.c:555
 msgid "File is eligible to be mined (based on rules)"
 msgstr "Datoteka je primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/miners/fs/tracker-main.c:524
+#: ../src/miners/fs/tracker-main.c:556
 msgid "File is NOT eligible to be mined (based on rules)"
 msgstr "Datoteka NI primerna za kopanje (osnovano na pravilih)"
 
-#: ../src/miners/fs/tracker-main.c:533
+#: ../src/miners/fs/tracker-main.c:565
 msgid "Would be indexed"
 msgstr "Bi bilo pripravljeno kazalo"
 
-#: ../src/miners/fs/tracker-main.c:534
-#: ../src/miners/fs/tracker-main.c:536
+#: ../src/miners/fs/tracker-main.c:566
+#: ../src/miners/fs/tracker-main.c:568
 msgid "Yes"
 msgstr "Da"
 
-#: ../src/miners/fs/tracker-main.c:534
-#: ../src/miners/fs/tracker-main.c:536
+#: ../src/miners/fs/tracker-main.c:566
+#: ../src/miners/fs/tracker-main.c:568
 msgid "No"
 msgstr "Ne"
 
-#: ../src/miners/fs/tracker-main.c:535
+#: ../src/miners/fs/tracker-main.c:567
 msgid "Would be monitored"
 msgstr "Bi bilo nadzirano"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/miners/fs/tracker-main.c:579
+#: ../src/miners/fs/tracker-main.c:686
 msgid "- start the tracker indexer"
 msgstr "- začne pripravljalnik kazala tracker"
 
-#: ../src/miners/fs/tracker-miner-files.c:1330
+#: ../src/miners/fs/tracker-miner-files.c:1331
 msgid "Low battery"
 msgstr "Nizka napetost baterije"
 
-#: ../src/miners/fs/tracker-miner-files.c:1453
+#: ../src/miners/fs/tracker-miner-files.c:1454
 msgid "Low disk space"
 msgstr "Malo prostora na disku"
 
@@ -660,7 +659,7 @@ msgid "Directory"
 msgstr "Mapa"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:121
-#: ../src/tracker-needle/tracker-view.vala:164
+#: ../src/tracker-needle/tracker-view.vala:180
 msgid "File"
 msgstr "Datoteka"
 
@@ -693,7 +692,7 @@ msgid "Select directory"
 msgstr "Izbor mape"
 
 #: ../src/tracker-preferences/tracker-preferences.vala:497
-#: ../src/tracker-needle/tracker-needle.vala:545
+#: ../src/tracker-needle/tracker-needle.vala:614
 #: ../src/tracker-control/tracker-control.c:53
 #: ../src/tracker-utils/tracker-import.c:50
 #: ../src/tracker-utils/tracker-info.c:49
@@ -858,12 +857,12 @@ msgstr "Namizno iskanje"
 msgid "Find what you're looking for on this computer by name or content using Tracker"
 msgstr "Poiščite kar iščete na tem računalniku po imenu ali vsebini z uporabo Trackerja"
 
-#: ../src/tracker-needle/tracker-needle.vala:552
-#: ../src/tracker-needle/tracker-needle.vala:553
+#: ../src/tracker-needle/tracker-needle.vala:621
+#: ../src/tracker-needle/tracker-needle.vala:622
 msgid "[SEARCH-CRITERIA]"
 msgstr "[ISKALNI-POGOJI]"
 
-#: ../src/tracker-needle/tracker-needle.vala:558
+#: ../src/tracker-needle/tracker-needle.vala:627
 msgid "Desktop Search user interface using Tracker"
 msgstr "Uporabniški vmesnik namiznega iskanja z uporabo Trackerja"
 
@@ -892,56 +891,56 @@ msgstr[3] "pred %ld dnevi"
 msgid "Less than one second"
 msgstr "Pred manj kot eno sekundo"
 
-#: ../src/tracker-needle/tracker-view.vala:97
+#: ../src/tracker-needle/tracker-view.vala:109
 msgid "No Search Results"
 msgstr "Iskanje ni vrnilo rezultatov"
 
-#: ../src/tracker-needle/tracker-view.vala:176
+#: ../src/tracker-needle/tracker-view.vala:192
 msgid "Last Changed"
 msgstr "Nazadnje spremenjeno"
 
-#: ../src/tracker-needle/tracker-view.vala:185
+#: ../src/tracker-needle/tracker-view.vala:201
 msgid "Size"
 msgstr "Velikost"
 
-#: ../src/tracker-needle/tracker-view.vala:314
+#: ../src/tracker-needle/tracker-view.vala:329
 msgid "Music"
 msgstr "Glasba"
 
-#: ../src/tracker-needle/tracker-view.vala:317
+#: ../src/tracker-needle/tracker-view.vala:332
 #: ../src/tracker-search-bar/tracker-results-window.c:723
 msgid "Images"
 msgstr "Slike"
 
-#: ../src/tracker-needle/tracker-view.vala:320
+#: ../src/tracker-needle/tracker-view.vala:335
 #: ../src/tracker-search-bar/tracker-results-window.c:727
 msgid "Videos"
 msgstr "Posnetki"
 
-#: ../src/tracker-needle/tracker-view.vala:323
+#: ../src/tracker-needle/tracker-view.vala:338
 #: ../src/tracker-search-bar/tracker-results-window.c:721
 msgid "Documents"
 msgstr "Dokumenti"
 
-#: ../src/tracker-needle/tracker-view.vala:326
+#: ../src/tracker-needle/tracker-view.vala:341
 msgid "Mail"
 msgstr "Pošta"
 
-#: ../src/tracker-needle/tracker-view.vala:329
+#: ../src/tracker-needle/tracker-view.vala:344
 #: ../src/tracker-search-bar/tracker-results-window.c:725
 msgid "Folders"
 msgstr "Mape"
 
-#: ../src/tracker-needle/tracker-view.vala:333
+#: ../src/tracker-needle/tracker-view.vala:348
 msgid "Items"
 msgstr "Predmeti"
 
-#: ../src/tracker-needle/tracker-view.vala:345
+#: ../src/tracker-needle/tracker-view.vala:360
 #, c-format
 msgid "Loading..."
 msgstr "Nalaganje ..."
 
-#: ../src/tracker-needle/tracker-view.vala:410
+#: ../src/tracker-needle/tracker-view.vala:425
 msgid "Pages"
 msgstr "Strani"
 
@@ -1178,15 +1177,15 @@ msgstr "Čakanje eno sekundo pred začetkom podatkovnih kopalnikov ..."
 msgid "Starting miners…"
 msgstr "Začenjanje podatkovnih kopalnikov ..."
 
-#: ../src/tracker-control/tracker-control-general.c:526
+#: ../src/tracker-control/tracker-control-general.c:529
 msgid "perhaps a disabled plugin?"
 msgstr "morda onemogočen vstavek?"
 
-#: ../src/tracker-control/tracker-control-general.c:549
+#: ../src/tracker-control/tracker-control-general.c:552
 msgid "General options"
 msgstr "Splošne možnosti"
 
-#: ../src/tracker-control/tracker-control-general.c:550
+#: ../src/tracker-control/tracker-control-general.c:553
 msgid "Show general options"
 msgstr "Pokaži splošne možnosti"
 
@@ -1282,7 +1281,7 @@ msgid "(Re)indexing file was successful"
 msgstr "(Ponovna) priprava kazala je bila uspešna"
 
 #: ../src/tracker-control/tracker-control-miners.c:206
-#: ../src/tracker-control/tracker-control-miners.c:289
+#: ../src/tracker-control/tracker-control-miners.c:264
 #, c-format
 msgid "Could not contact the miner manager"
 msgstr "Ni mogoče stopiti v stik z upravljalnikom kopalnikov"
@@ -1297,55 +1296,49 @@ msgstr "Najdenih %d nameščenih podatkovnih kopalnikov"
 msgid "Found %d miners running"
 msgstr "Najdenih je bilo %d zagnanih podatkovnih kopalnikov"
 
-#: ../src/tracker-control/tracker-control-miners.c:268
-#: ../src/tracker-control/tracker-control-status.c:137
-#, c-format
-msgid "Could not get status from miner: %s"
-msgstr "Ni mogoče dobiti stanja podatkovnega kopalnika: %s"
-
-#: ../src/tracker-control/tracker-control-miners.c:296
+#: ../src/tracker-control/tracker-control-miners.c:271
 msgid "No miners are running"
 msgstr "Ni zagnanih podatkovnih kopalnikov"
 
-#: ../src/tracker-control/tracker-control-miners.c:333
-#: ../src/tracker-control/tracker-control-status.c:524
+#: ../src/tracker-control/tracker-control-miners.c:304
+#: ../src/tracker-control/tracker-control-status.c:552
 msgid "Miners"
 msgstr "Podatkovni kopalniki"
 
-#: ../src/tracker-control/tracker-control-miners.c:340
+#: ../src/tracker-control/tracker-control-miners.c:311
 msgid "Application"
 msgstr "Program"
 
-#: ../src/tracker-control/tracker-control-miners.c:342
+#: ../src/tracker-control/tracker-control-miners.c:313
 msgid "Reason"
 msgstr "Vzrok"
 
-#: ../src/tracker-control/tracker-control-miners.c:351
+#: ../src/tracker-control/tracker-control-miners.c:322
 msgid "No miners are paused"
 msgstr "Ni podatkovnih kopalnikov v premoru"
 
-#: ../src/tracker-control/tracker-control-miners.c:375
+#: ../src/tracker-control/tracker-control-miners.c:346
 msgid "You can not use miner pause and resume switches together"
 msgstr "Stikal premora in nadaljevanja podatkovnega kopalnika ni mogoče uporabiti skupaj"
 
-#: ../src/tracker-control/tracker-control-miners.c:381
+#: ../src/tracker-control/tracker-control-miners.c:352
 msgid "You must provide the miner for pause or resume commands"
 msgstr "Za ukaze premora ali nadaljevanja je treba zagotoviti podatkovni kopalnik "
 
-#: ../src/tracker-control/tracker-control-miners.c:387
+#: ../src/tracker-control/tracker-control-miners.c:358
 msgid "You must provide a pause or resume command for the miner"
 msgstr "Zagotoviti morate ukaz premora ali nadaljevanja za podatkovni kopalnik"
 
-#: ../src/tracker-control/tracker-control-miners.c:431
+#: ../src/tracker-control/tracker-control-miners.c:402
 msgid "Miner options"
 msgstr "Možnosti kopalnika"
 
-#: ../src/tracker-control/tracker-control-miners.c:432
+#: ../src/tracker-control/tracker-control-miners.c:403
 msgid "Show miner options"
 msgstr "Pokaži možnosti kopalnika"
 
 #: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:269
+#: ../src/tracker-control/tracker-control-status.c:294
 msgid "Unavailable"
 msgstr "Ni na voljo"
 
@@ -1389,30 +1382,43 @@ msgstr "Sledi spremembam stanja, ko se zgodijo"
 msgid "List common statuses for miners and the store"
 msgstr "Našteje pogosta stanja za podatkovne kopalnike in shrambo"
 
+#: ../src/tracker-control/tracker-control-status.c:141
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr "Ni mogoče dobiti stanja podatkovnega kopalnika: %s"
+
+#: ../src/tracker-control/tracker-control-status.c:198
+msgid "remaining"
+msgstr "preostalo"
+
+#: ../src/tracker-control/tracker-control-status.c:202
+msgid "unknown time left"
+msgstr "neznan preostali čas"
+
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:191
-#: ../src/tracker-control/tracker-control-status.c:508
+#: ../src/tracker-control/tracker-control-status.c:215
+#: ../src/tracker-control/tracker-control-status.c:536
 msgid "PAUSED"
 msgstr "V PREMORU"
 
-#: ../src/tracker-control/tracker-control-status.c:205
+#: ../src/tracker-control/tracker-control-status.c:232
 msgid "Not running or is a disabled plugin"
 msgstr "Ne teče ali pa je onemogočen vstavek"
 
-#: ../src/tracker-control/tracker-control-status.c:482
+#: ../src/tracker-control/tracker-control-status.c:510
 msgid "Common statuses include"
 msgstr "Pogosta stanja vključujejo"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:518
+#: ../src/tracker-control/tracker-control-status.c:546
 msgid "Store"
 msgstr "Shrani"
 
-#: ../src/tracker-control/tracker-control-status.c:631
+#: ../src/tracker-control/tracker-control-status.c:667
 msgid "Status options"
 msgstr "Možnosti stanja"
 
-#: ../src/tracker-control/tracker-control-status.c:632
+#: ../src/tracker-control/tracker-control-status.c:668
 msgid "Show status options"
 msgstr "Pokaži možnosti stanja"
 
