@@ -87,7 +87,7 @@ girdir = $(datadir)/gir-1.0
 gir_DATA = Tracker-$(TRACKER_API_VERSION).gir
 
 typelibdir = $(libdir)/girepository-1.0
-typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
+typelib_DATA = $(gir_DATA:.gir=.typelib)
 
 # We don't clean the gir/typelib data for *Vala* generated g-ir files.
 # However, we do for *C* generated g-ir files due to Vala not being
