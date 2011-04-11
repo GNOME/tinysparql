@@ -192,17 +192,18 @@ class ExtractionTestCase (ut.TestCase):
                                                                              self.file_to_extract,
                                                                              self.rel_description,
                                                                              section))
-            if (value == "@URNUUID@"):
-                self.assertIsURN (result [prop][0], error_extra_prop % (prop,
-                                                                        self.file_to_extract,
-                                                                        self.rel_description,
-                                                                        section))
             else:
-                self.assertNotIn (value, result [prop], error_extra_prop_v % (prop,
-                                                                              value,
-                                                                              self.file_to_extract,
-                                                                              self.rel_description,
-                                                                              section))
+                if (value == "@URNUUID@"):
+                    self.assertIsURN (result [prop][0], error_extra_prop % (prop,
+                                                                            self.file_to_extract,
+                                                                            self.rel_description,
+                                                                            section))
+                else:
+                    self.assertNotIn (value, result [prop], error_extra_prop_v % (prop,
+                                                                                  value,
+                                                                                  self.file_to_extract,
+                                                                                  self.rel_description,
+                                                                                  section))
 
         for prop in expected_keys:
              self.assertDictHasKey (result, prop,
