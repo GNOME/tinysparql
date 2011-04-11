@@ -30,7 +30,8 @@ public class Tracker.Query {
 		DOCUMENTS,
 		MAIL,
 		CALENDAR,
-		FOLDERS
+		FOLDERS,
+		BOOKMARKS
 	}
 
 	public enum Match {
@@ -146,6 +147,13 @@ public class Tracker.Query {
 		  OPTIONAL {
 		    ?urn nfo:belongsToContainer ?parent .
 		  }
+		}",
+
+		// BOOKMARKS
+		"WHERE {
+		  ?urn a nfo:Bookmark ;
+		       nie:url ?tooltip .
+		  %s
 		}"
 	};
 

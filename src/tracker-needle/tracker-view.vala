@@ -343,6 +343,9 @@ public class Tracker.View : ScrolledWindow {
 			case Tracker.Query.Type.FOLDERS:
 				cat = _("Folders");
 				break;
+			case Tracker.Query.Type.BOOKMARKS:
+				cat = _("Bookmarks");
+				break;
 			}
 
 			markup = "<b><big>%s</big></b> <small>(%d %s)</small>".printf (cat, n_children, _("Items"));
@@ -415,6 +418,7 @@ public class Tracker.View : ScrolledWindow {
 		switch (category) {
 		case Tracker.Query.Type.FOLDERS:
 		case Tracker.Query.Type.MAIL:
+		case Tracker.Query.Type.BOOKMARKS:
 			detail = tracker_time_format_from_iso8601 (detail);
 			break;
 		case Tracker.Query.Type.MUSIC:
