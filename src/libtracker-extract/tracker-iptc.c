@@ -86,6 +86,15 @@ foreach_dataset (IptcDataSet *dataset,
 	TrackerIptcData *data = user_data;
 	gchar mbuffer[1024];
 
+	/* The meaning of dataset->tag DEPENDS on the value of dataset->record.
+	 * See iptc-tag.h for the relationship.
+	 *
+	 * Now, We only want record-2 tags, otherwise we'll end up mixing
+	 * for example IPTC_TAG_CITY and IPTC_TAG_CHARACTER_SET, which BOTH
+	 * have a value of 90. */
+	if (dataset->record != IPTC_RECORD_APP_2)
+		return;
+
 	switch (dataset->tag) {
 	case IPTC_TAG_KEYWORDS:
 		if (!data->keywords) {
