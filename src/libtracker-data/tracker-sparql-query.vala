@@ -540,20 +540,17 @@ public class Tracker.Sparql.Query : Object {
 
 		// build SQL
 		var sql = new StringBuilder ();
-		sql.append ("SELECT ");
+		sql.append ("SELECT CASE EXISTS ( ");
 
 		expect (SparqlTokenType.ASK);
-
-		sql.append ("COUNT(1) > 0");
 
 		accept (SparqlTokenType.WHERE);
 
 		context = pattern.translate_group_graph_pattern (pattern_sql);
 
 		// select from results of WHERE clause
-		sql.append (" FROM (");
 		sql.append (pattern_sql.str);
-		sql.append (")");
+		sql.append (" ) WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
 
 		context = context.parent_context;
 
