@@ -130,9 +130,9 @@ class StoreHelper:
         assert ask_query.strip ().startswith ("ASK")
         result = self.query (ask_query)
         assert len (result) == 1
-        if result[0][0] == "1":
+        if result[0][0] == "true":
             return True
-        elif result[0][0] == "0":
+        elif result[0][0] == "false":
             return False
         else:
             raise Exception ("Something fishy is going on")
