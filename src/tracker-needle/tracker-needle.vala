@@ -122,6 +122,14 @@ public class Tracker.Needle {
 		                            "nie:url(?parent)",
 		                            "nfo:fileLastModified(?urn)",
 		                            "?tooltip");
+		categories_model.add_query (Tracker.Query.Type.BOOKMARKS,
+		                            Tracker.Query.Match.FTS,
+		                            "?urn",
+		                            "nie:url(?urn)",
+		                            "tracker:coalesce(nie:title(?urn), nie:url(?urn))",
+		                            "nie:url(?urn)",
+		                            "nie:contentLastModified(?urn)",
+		                            "?tooltip");
 
 		// Files model
 		files_model = new ResultStore (7);

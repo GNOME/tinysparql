@@ -557,6 +557,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 					case Tracker.Query.Type.FOLDERS:
 						pixbuf = tracker_pixbuf_new_from_name (theme, "folder", size);
 						break;
+					case Tracker.Query.Type.BOOKMARKS:
+						pixbuf = tracker_pixbuf_new_from_name (theme, "web-browser", size);
+						break;
 					}
 				}
 
