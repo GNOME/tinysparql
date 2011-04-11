@@ -557,6 +557,8 @@ public class Tracker.Sparql.Query : Object {
 			throw get_error ("invalid use of %s in ASK".printf (last().to_string()));
 		}
 
+		expect (SparqlTokenType.EOF);
+
 		context = context.parent_context;
 
 		return sql.str;
