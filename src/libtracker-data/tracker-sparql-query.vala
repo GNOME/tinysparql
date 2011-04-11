@@ -768,6 +768,8 @@ public class Tracker.Sparql.Query : Object {
 				expect (SparqlTokenType.CLOSE_BRACE);
 
 				current_graph = old_graph;
+
+				accept (SparqlTokenType.DOT);
 			} else {
 				current_subject = parse_construct_var_or_term (var_value_map);
 				parse_construct_property_list_not_empty (var_value_map);
