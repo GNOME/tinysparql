@@ -552,6 +552,11 @@ public class Tracker.Sparql.Query : Object {
 		sql.append (pattern_sql.str);
 		sql.append (" ) WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
 
+		if (accept (SparqlTokenType.GROUP) || accept (SparqlTokenType.ORDER) ||
+		    accept (SparqlTokenType.OFFSET) || accept (SparqlTokenType.LIMIT)) {
+			throw get_error ("invalid use of %s in ASK".printf (last().to_string()));
+		}
+
 		context = context.parent_context;
 
 		return sql.str;
