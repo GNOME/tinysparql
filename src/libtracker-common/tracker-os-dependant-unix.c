@@ -34,17 +34,13 @@
 /* Maximum here is a G_MAXLONG, so if you want to use > 2GB, you have
  * to set MEM_LIMIT to RLIM_INFINITY
  */
-#ifdef __x86_64__
-#define MEM_LIMIT 512 * 1024 * 1024
-#else
-#define MEM_LIMIT 80 * 1024 * 1024
-#endif
+#define MEM_LIMIT_MIN 256 * 1024 * 1024
 
 #if defined(__OpenBSD__) && !defined(RLIMIT_AS)
 #define RLIMIT_AS RLIMIT_DATA
 #endif
 
-#define DISABLE_MEM_LIMITS
+#undef DISABLE_MEM_LIMITS
 
 gboolean
 tracker_spawn (gchar **argv,
@@ -280,12 +276,16 @@ gboolean
 tracker_memory_setrlimits (void)
 {
 #ifndef DISABLE_MEM_LIMITS
-	struct rlimit rl;
-	glong         total;
-	glong         limit;
+	struct rlimit rl = { 0 };
+	glong total;
+	glong total_halfed;
+	glong limit;
 
 	total = get_memory_total ();
-	limit = CLAMP (MEM_LIMIT, 0, total);
+	total_halfed = total / 2;
+
+	/* Clamp memory between 50% of total and MAXLONG (2Gb) */
+	limit = CLAMP (total_halfed, MEM_LIMIT_MIN, G_MAXLONG);
 
 	/* We want to limit the max virtual memory
 	 * most extractors use mmap() so only virtual memory can be
@@ -318,9 +318,8 @@ tracker_memory_setrlimits (void)
 			str1 = g_format_size_for_display (total);
 			str2 = g_format_size_for_display (limit);
 
-			g_message ("Setting memory limitations: total is %s, virtual/heap set to %s",
-			           str1,
-			           str2);
+			g_message ("Setting memory limitations: total is %s, minimum is 256 MB, recommended is ~1 GB", str1);
+			g_message ("  Virtual/Heap set to %s (50%% of total or MAXLONG)", str2);
 
 			g_free (str2);
 			g_free (str1);
