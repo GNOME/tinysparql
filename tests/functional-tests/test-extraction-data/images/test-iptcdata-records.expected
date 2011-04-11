@@ -1,0 +1,8 @@
+[TestFile]
+Filename=test-iptcdata-records.jpg
+Bugzilla=NB#244267
+Comment=Location information shouldn't be retrieved from the image
+
+[Metadata]
+a=nmm:Photo
+!slo_location=
