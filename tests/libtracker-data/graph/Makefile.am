@@ -7,6 +7,8 @@ EXTRA_DIST =                                           \
 	data-2.rq                                      \
 	data-3.ontology                                \
 	data-3.rq                                      \
+	data-4.ontology                                \
+	data-4.rq                                      \
 	graph-1.out                                    \
 	graph-1.rq                                     \
 	graph-2.out                                    \
