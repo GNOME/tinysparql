@@ -7,7 +7,7 @@
     <em:version>0.1</em:version>
     <em:creator>Adrien Bustany</em:creator>
     <em:contributor></em:contributor>
-    <em:description>Makes the pages you visit searchable from Tracker</em:description>
+    <em:description>Makes your bookmarks searchable from Tracker</em:description>
     <em:aboutURL>chrome://trackerfox/content/about.xul</em:aboutURL>
     <em:targetApplication>
       <Description>
