@@ -205,7 +205,14 @@ main (int   argc,
 	sanity_check_option_values (config);
 
 
-	consumer = tracker_writeback_consumer_new ();
+	consumer = tracker_writeback_consumer_new (&error);
+
+	if (error) {
+		g_critical ("Error creating consumer: %s", error->message);
+		g_error_free (error);
+
+		return EXIT_FAILURE;
+	}
 
 	/* Create dispatcher thread data here, GType
 	 * initialization for boxed types don't seem

@@ -46,11 +46,11 @@ struct TrackerWritebackConsumerClass {
 };
 
 GType                      tracker_writeback_consumer_get_type (void) G_GNUC_CONST;
-TrackerWritebackConsumer * tracker_writeback_consumer_new      (void);
+TrackerWritebackConsumer * tracker_writeback_consumer_new      (GError **error);
 
-void tracker_writeback_consumer_add_subject (TrackerWritebackConsumer *consumer,
-                                             gint                      subject,
-                                             GArray                   *rdf_types);
+void tracker_writeback_consumer_add_subject (TrackerWritebackConsumer   *consumer,
+                                             gint                        subject,
+                                             GArray                     *rdf_types);
 
 G_END_DECLS
 
