@@ -54,6 +54,10 @@
 #include "tracker-extract.h"
 #include "tracker-controller.h"
 
+#ifdef THREAD_ENABLE_TRACE
+#warning Main thread traces enabled
+#endif /* THREAD_ENABLE_TRACE */
+
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
 
@@ -234,12 +238,21 @@ log_handler (const gchar    *domain,
 	}
 }
 
+static void
+sanity_check_option_values (TrackerConfig *config)
+{
+	g_message ("General options:");
+	g_message ("  Verbosity  ............................  %d",
+	           tracker_config_get_verbosity (config));
+	g_message ("  Max bytes (per file)  .................  %d",
+	           tracker_config_get_max_bytes (config));
+}
+
 TrackerConfig *
 tracker_main_get_config (void)
 {
 	return config;
 }
-
 
 static int
 run_standalone (void)
@@ -377,6 +390,8 @@ main (int argc, char *argv[])
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
+	sanity_check_option_values (config);
+
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority ();
 	tracker_memory_setrlimits ();
@@ -410,7 +425,10 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
         }
 
-	g_message ("Main thread (%p) waiting for extract requests...", g_thread_self ());
+#ifdef THREAD_ENABLE_TRACE
+        g_debug ("Thread:%p (Main) --- Waiting for extract requests...",
+                 g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
 
 	tracker_locale_init ();
 	tracker_albumart_init ();

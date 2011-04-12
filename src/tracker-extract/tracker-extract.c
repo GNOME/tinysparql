@@ -41,6 +41,10 @@
 #include "tracker-topanalyzer.h"
 #endif /* HAVE_STREAMANALYZER */
 
+#ifdef THREAD_ENABLE_TRACE
+#warning Main thread traces enabled
+#endif /* THREAD_ENABLE_TRACE */
+
 #define MAX_EXTRACT_TIME 10
 
 #define UNKNOWN_METHOD_MESSAGE "Method \"%s\" with signature \"%s\" on " \
@@ -414,7 +418,11 @@ get_metadata_cb (gpointer user_data)
 	TrackerExtractTask *task = user_data;
 	TrackerExtractInfo *info;
 
-	g_message ("Main thread (%p) got file to get metadata from: %s", g_thread_self (), task->file);
+#ifdef THREAD_ENABLE_TRACE
+	g_debug ("Thread:%p (Main) --> File:'%s' - Extracted",
+	         g_thread_self (),
+	         task->file);
+#endif /* THREAD_ENABLE_TRACE */
 
 	if (task->cancellable &&
 	    g_cancellable_is_cancelled (task->cancellable)) {
@@ -433,7 +441,8 @@ get_metadata_cb (gpointer user_data)
 	                       &info->preupdate,
 	                       &info->statements,
 	                       &info->where)) {
-		g_simple_async_result_set_op_res_gpointer ((GSimpleAsyncResult *) task->res, info,
+		g_simple_async_result_set_op_res_gpointer ((GSimpleAsyncResult *) task->res,
+		                                           info,
 		                                           (GDestroyNotify) tracker_extract_info_free);
 	} else {
 		g_simple_async_result_set_error ((GSimpleAsyncResult *) task->res,
@@ -465,11 +474,15 @@ tracker_extract_file (TrackerExtract      *extract,
 	g_return_if_fail (file != NULL);
 	g_return_if_fail (cb != NULL);
 
-	g_message ("Extract file on thread %p\n", g_thread_self ());
+#ifdef THREAD_ENABLE_TRACE
+	g_debug ("Thread:%p (Main) <-- File:'%s' - Extracting\n",
+	         g_thread_self (),
+	         file);
+#endif /* THREAD_ENABLE_TRACE */
+
 	res = g_simple_async_result_new (G_OBJECT (extract), cb, user_data, NULL);
 
-	task = extract_task_new (extract, file, mimetype, cancellable,
-	                         G_ASYNC_RESULT (res));
+	task = extract_task_new (extract, file, mimetype, cancellable, G_ASYNC_RESULT (res));
 	g_idle_add (get_metadata_cb, task);
 
 	/* task takes a ref */
@@ -490,8 +503,9 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 
 	g_return_if_fail (uri != NULL);
 
-	if (get_file_metadata (object, uri, mime,
-			       &preupdate, &statements, &where)) {
+	g_message ("Extracting...");
+
+	if (get_file_metadata (object, uri, mime, &preupdate, &statements, &where)) {
 		const gchar *preupdate_str, *statements_str;
 
 		preupdate_str = statements_str = NULL;
@@ -504,11 +518,12 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 			preupdate_str = tracker_sparql_builder_get_result (preupdate);
 		}
 
-		g_print ("Preupdate SPARQL:\n%s\n",
+		g_print ("SPARQL pre-update:\n%s\n",
 		         preupdate_str ? preupdate_str : "");
-		g_print ("Item SPARQL:\n%s\n",
+		g_print ("SPARQL item:\n%s\n",
 		         statements_str ? statements_str : "");
-		g_print ("Where clause: %s\n", where ? where : "");
+		g_print ("SPARQL where clause:\n%s\n",
+		         where ? where : "");
 
 		g_object_unref (statements);
 		g_object_unref (preupdate);
