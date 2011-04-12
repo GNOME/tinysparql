@@ -200,10 +200,6 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 */
 	public extern static new Connection get_direct (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError;
 
-	public virtual void init () throws Sparql.Error, IOError, DBusError, SpawnError {
-		warning ("Interface 'init' not implemented");
-	}
-
 	/**
 	 * tracker_sparql_connection_query:
 	 * @self: a #TrackerSparqlConnection

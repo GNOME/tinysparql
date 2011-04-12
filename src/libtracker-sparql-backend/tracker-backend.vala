@@ -31,7 +31,7 @@ class Tracker.Sparql.Backend : Connection {
 		BUS
 	}
 
-	public override void init () throws Sparql.Error, IOError, DBusError, SpawnError {
+	public Backend () throws Sparql.Error, IOError, DBusError, SpawnError {
 		Tracker.Backend.Status status = GLib.Bus.get_proxy_sync (BusType.SESSION,
 		                                                         TRACKER_DBUS_SERVICE,
 		                                                         TRACKER_DBUS_OBJECT_STATUS,
@@ -45,15 +45,8 @@ class Tracker.Sparql.Backend : Connection {
 
 		try {
 			debug ("Constructing connection, direct_only=%s", direct_only ? "true" : "false");
-			if (load_plugins (direct_only)) {
-				debug ("Waiting for backend to become available...");
-				if (direct != null) {
-					direct.init ();
-				} else {
-					bus.init ();
-				}
-				debug ("Backend is ready");
-			}
+			load_plugins (direct_only);
+			debug ("Backend is ready");
 		} catch (GLib.Error e) {
 			throw new Sparql.Error.INTERNAL (e.message);
 		}
@@ -215,7 +208,6 @@ class Tracker.Sparql.Backend : Connection {
 		direct_only = is_direct_only;
 
 		result = new Tracker.Sparql.Backend ();
-		result.init ();
 
 		if (cancellable != null && cancellable.is_cancelled ()) {
 			door.unlock ();
