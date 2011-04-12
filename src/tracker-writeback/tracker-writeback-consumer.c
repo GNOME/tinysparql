@@ -65,11 +65,21 @@ enum {
 };
 
 static void tracker_writeback_consumer_finalize    (GObject       *object);
-static void tracker_writeback_consumer_constructed (GObject       *object);
 static gboolean process_queue_cb                   (gpointer       user_data);
+static gboolean writeback_consumer_initable_init   (GInitable     *initable,
+                                                    GCancellable  *cancellable,
+                                                    GError       **error);
 
+static void
+writeback_consumer_initable_iface_init (GInitableIface *iface)
+{
+	iface->init = writeback_consumer_initable_init;
+}
 
-G_DEFINE_TYPE (TrackerWritebackConsumer, tracker_writeback_consumer, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_CODE (TrackerWritebackConsumer, tracker_writeback_consumer, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                writeback_consumer_initable_iface_init));
+
 
 static void
 tracker_writeback_consumer_class_init (TrackerWritebackConsumerClass *klass)
@@ -77,7 +87,6 @@ tracker_writeback_consumer_class_init (TrackerWritebackConsumerClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_writeback_consumer_finalize;
-	object_class->constructed = tracker_writeback_consumer_constructed;
 
 	g_type_class_add_private (object_class, sizeof (TrackerWritebackConsumerPrivate));
 }
@@ -85,18 +94,25 @@ tracker_writeback_consumer_class_init (TrackerWritebackConsumerClass *klass)
 static void
 tracker_writeback_consumer_init (TrackerWritebackConsumer *consumer)
 {
+}
+
+static gboolean
+writeback_consumer_initable_init (GInitable     *initable,
+                                  GCancellable  *cancellable,
+                                  GError       **error)
+{
 	TrackerWritebackConsumerPrivate *priv;
-	GError *error = NULL;
+	GError *new_error = NULL;
+	GList *modules;
 
-	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (consumer);
+	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (initable);
 
-	priv->connection = tracker_sparql_connection_get (NULL, &error);
+	priv->connection = tracker_sparql_connection_get (NULL, &new_error);
 
 	if (!priv->connection) {
-		g_printerr ("%s: %s\n",
-		            _("Could not establish a connection to Tracker"),
-		            error ? error->message : _("No error given"));
-		g_clear_error (&error);
+		g_propagate_error (error, new_error);
+
+		return FALSE;
 	}
 
 	priv->modules = g_hash_table_new_full (g_str_hash,
@@ -107,31 +123,7 @@ tracker_writeback_consumer_init (TrackerWritebackConsumer *consumer)
 
 	priv->manager = tracker_writeback_get_miner_manager ();
 	priv->state = STATE_IDLE;
-}
 
-static void
-tracker_writeback_consumer_finalize (GObject *object)
-{
-	TrackerWritebackConsumerPrivate *priv;
-
-	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (object);
-
-	if (priv->connection) {
-		g_object_unref (priv->connection);
-	}
-
-	g_object_unref (priv->manager);
-
-	G_OBJECT_CLASS (tracker_writeback_consumer_parent_class)->finalize (object);
-}
-
-static void
-tracker_writeback_consumer_constructed (GObject *object)
-{
-	TrackerWritebackConsumerPrivate *priv;
-	GList *modules;
-
-	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (object);
 	modules = tracker_writeback_modules_list ();
 
 	while (modules) {
@@ -147,12 +139,53 @@ tracker_writeback_consumer_constructed (GObject *object)
 
 		modules = modules->next;
 	}
+
+	return TRUE;
+}
+
+static void
+tracker_writeback_consumer_finalize (GObject *object)
+{
+	TrackerWritebackConsumerPrivate *priv;
+
+	priv = TRACKER_WRITEBACK_CONSUMER_GET_PRIVATE (object);
+
+	if (priv->connection) {
+		g_object_unref (priv->connection);
+	}
+
+	if (priv->manager) {
+		g_object_unref (priv->manager);
+	}
+
+	if (priv->modules) {
+		g_hash_table_unref (priv->modules);
+	}
+
+	if (priv->process_queue) {
+		g_queue_free (priv->process_queue);
+	}
+
+	G_OBJECT_CLASS (tracker_writeback_consumer_parent_class)->finalize (object);
 }
 
 TrackerWritebackConsumer *
-tracker_writeback_consumer_new (void)
+tracker_writeback_consumer_new (GError **error)
 {
-	return g_object_new (TRACKER_TYPE_WRITEBACK_CONSUMER, NULL);
+	GError *internal_error = NULL;
+	TrackerWritebackConsumer *ret;
+
+	ret =  g_initable_new (TRACKER_TYPE_WRITEBACK_CONSUMER,
+	                       NULL,
+	                       &internal_error,
+	                       NULL);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return NULL;
+	}
+
+	return ret;
 }
 
 static gboolean
