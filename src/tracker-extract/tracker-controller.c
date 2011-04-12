@@ -29,6 +29,14 @@
 #include <libtracker-miner/tracker-miner.h>
 #include <gio/gio.h>
 
+#ifdef STAYALIVE_ENABLE_TRACE
+#warning Stayalive traces enabled
+#endif /* STAYALIVE_ENABLE_TRACE */
+
+#ifdef THREAD_ENABLE_TRACE
+#warning Controller thread traces enabled
+#endif /* THREAD_ENABLE_TRACE */
+
 typedef struct TrackerControllerPrivate TrackerControllerPrivate;
 typedef struct GetMetadataData GetMetadataData;
 
@@ -293,7 +301,11 @@ reset_shutdown_timeout_cb (gpointer user_data)
 {
 	TrackerControllerPrivate *priv;
 
-	g_message ("Extractor lifetime has expired");
+#ifdef STAYALIVE_ENABLE_TRACE
+	g_debug ("Stayalive --- time has expired");
+#endif /* STAYALIVE_ENABLE_TRACE */
+
+	g_message ("Shutting down due to no activity");
 
 	priv = TRACKER_CONTROLLER (user_data)->priv;
 	g_main_loop_quit (priv->main_loop);
@@ -313,7 +325,9 @@ reset_shutdown_timeout (TrackerController *controller)
 		return;
 	}
 
-	g_message ("(Re)setting shutdown timeout");
+#ifdef STAYALIVE_ENABLE_TRACE
+	g_debug ("Stayalive --- (Re)setting timeout");
+#endif /* STAYALIVE_ENABLE_TRACE */
 
 	if (priv->shutdown_source) {
 		g_source_destroy (priv->shutdown_source);
@@ -408,7 +422,12 @@ get_metadata_cb (GObject      *object,
 	} else {
 		GError *error = NULL;
 
-		g_message ("Controller thread (%p) got error back", g_thread_self ());
+
+#ifdef THREAD_ENABLE_TRACE
+		g_debug ("Thread:%p (Controller) --> Got error back",
+		         g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
+
 		g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), &error);
 		tracker_dbus_request_end (data->request, error);
 		g_dbus_method_invocation_return_gerror (data->invocation, error);
@@ -460,7 +479,10 @@ get_metadata_fast_cb (GObject      *object,
 		GDataOutputStream *data_output_stream;
 		GError *error = NULL;
 
-		g_message ("Controller thread (%p) got metadata back", g_thread_self ());
+#ifdef THREAD_ENABLE_TRACE
+		g_debug ("Thread:%p (Controller) --> Got metadata back",
+		         g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
 
 		unix_output_stream = g_unix_output_stream_new (data->fd, TRUE);
 		buffered_output_stream = g_buffered_output_stream_new_sized (unix_output_stream,
@@ -518,7 +540,11 @@ get_metadata_fast_cb (GObject      *object,
 	} else {
 		GError *error = NULL;
 
-		g_message ("Controller thread (%p) got error back", g_thread_self ());
+#ifdef THREAD_ENABLE_TRACE
+		g_debug ("Thread:%p (Controller) --> Got error back",
+		         g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
+
 		g_simple_async_result_propagate_error (G_SIMPLE_ASYNC_RESULT (res), &error);
 		tracker_dbus_request_end (data->request, error);
 		g_dbus_method_invocation_return_gerror (data->invocation, error);
@@ -542,9 +568,6 @@ handle_method_call_get_metadata_fast (TrackerController	    *controller,
 	connection = g_dbus_method_invocation_get_connection (invocation);
 	method_message = g_dbus_method_invocation_get_message (invocation);
 
-	reset_shutdown_timeout (controller);
-	request = tracker_dbus_request_begin (NULL, "%s", __FUNCTION__);
-
 	if (g_dbus_connection_get_capabilities (connection) & G_DBUS_CAPABILITY_FLAGS_UNIX_FD_PASSING) {
 		TrackerControllerPrivate *priv;
 		GetMetadataData *data;
@@ -554,7 +577,16 @@ handle_method_call_get_metadata_fast (TrackerController	    *controller,
 		GError *error = NULL;
 
 		priv = controller->priv;
+
 		g_variant_get (parameters, "(&s&sh)", &uri, &mime, &index_fd);
+
+		request = tracker_dbus_request_begin (NULL,
+		                                      "%s (uri:'%s', mime:'%s', index_fd:%d)",
+		                                      __FUNCTION__,
+		                                      uri,
+		                                      mime,
+		                                      index_fd);
+		reset_shutdown_timeout (controller);
 
 		fd_list = g_dbus_message_get_unix_fd_list (method_message);
 
@@ -573,6 +605,10 @@ handle_method_call_get_metadata_fast (TrackerController	    *controller,
 			g_error_free (error);
 		}
 	} else {
+		request = tracker_dbus_request_begin (NULL,
+		                                      "%s (uri:'n/a', mime:'n/a', index_fd:unknown)",
+		                                      __FUNCTION__);
+		reset_shutdown_timeout (controller);
 		tracker_dbus_request_end (request, NULL);
 		g_dbus_method_invocation_return_dbus_error (invocation,
 		                                            TRACKER_EXTRACT_SERVICE ".GetMetadataFastError",
@@ -760,7 +796,10 @@ tracker_controller_thread_func (gpointer user_data)
 	TrackerControllerPrivate *priv;
 	GError *error = NULL;
 
-	g_message ("Controller thread '%p' created, dispatching...", g_thread_self ());
+#ifdef THREAD_ENABLE_TRACE
+	g_debug ("Thread:%p (Controller) --- Created, dispatching...",
+	         g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
 
 	controller = user_data;
 	priv = controller->priv;
@@ -779,7 +818,10 @@ tracker_controller_thread_func (gpointer user_data)
 
 	g_main_loop_run (priv->main_loop);
 
-	g_message ("Shutting down...");
+#ifdef THREAD_ENABLE_TRACE
+	g_debug ("Thread:%p (Controller) --- Shutting down...",
+	         g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
 
 	g_object_unref (controller);
 
@@ -804,7 +846,10 @@ tracker_controller_start (TrackerController  *controller,
 
 	priv = controller->priv;
 
-	g_message ("Waiting for controller thread to initialize...");
+#ifdef THREAD_ENABLE_TRACE
+	g_debug ("Thread:%p (Controller) --- Waiting for controller thread to initialize...",
+	         g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
 
 	/* Wait for the controller thread to notify initialization */
 	g_mutex_lock (priv->initialization_mutex);
@@ -821,7 +866,10 @@ tracker_controller_start (TrackerController  *controller,
 		return FALSE;
 	}
 
-	g_message ("Controller thread initialized");
+#ifdef THREAD_ENABLE_TRACE
+	g_debug ("Thread:%p (Controller) --- Initialized",
+	         g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
 
 	return TRUE;
 }
