@@ -33,7 +33,7 @@ import ConfigParser
 
 class ExtractionTestCase (ut.TestCase):
     """
-    Test checks if the tracker extractor is able to retrieve metadata 
+    Test checks if the tracker extractor is able to retrieve metadata
     """
     def __init__ (self, methodName='runTest', descfile=None):
         """
@@ -72,7 +72,7 @@ class ExtractionTestCase (ut.TestCase):
         configParser = ConfigParser.RawConfigParser ()
         # Make it case sensitive:
         configParser.optionxform = str
-        
+
         abs_description = os.path.abspath (descfile)
         loaded_files = configParser.read (abs_description)
         if not abs_description in loaded_files:
@@ -90,7 +90,7 @@ class ExtractionTestCase (ut.TestCase):
             return "'" + self.configParser.get ("TestFile", "Bugzilla") + "'"
         else:
             return None
-        
+
 
 
     def setUp (self):
@@ -119,7 +119,7 @@ class ExtractionTestCase (ut.TestCase):
             self.fail ("%s in %s"
                        % (e, abs_description))
         result = self.extractor.get_metadata ("file://" + self.file_to_extract, "")
-        
+
         self.__assert_extraction_ok (result)
 
 
@@ -138,7 +138,7 @@ class ExtractionTestCase (ut.TestCase):
         except ValueError:
             standardMsg = "'%s' is not a valid UUID" % (supposed_uuid)
             self.fail (self._formatMessage (msg, standardMsg))
-        
+
     def __assert_extraction_ok (self, result):
         self.__check_section ("Metadata", result)
 
@@ -211,7 +211,7 @@ class ExtractionTestCase (ut.TestCase):
                                                           self.rel_description,
                                                           section))
 
-    
+
 if __name__ == "__main__":
     ##
     # Traverse the TEST_DATA_PATH directory looking for .description files
