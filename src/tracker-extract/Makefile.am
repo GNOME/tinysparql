@@ -52,6 +52,7 @@ endif
 
 if HAVE_LIBGSF
 modules_LTLIBRARIES += \
+	libextract-epub.la \
 	libextract-msoffice.la \
 	libextract-msoffice-xml.la \
 	libextract-oasis.la
@@ -137,6 +138,19 @@ libextract_oasis_la_CFLAGS = \
 	$(LIBGSF_CFLAGS)
 libextract_oasis_la_LDFLAGS = $(module_flags)
 libextract_oasis_la_LIBADD = \
+	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
+	$(top_builddir)/src/libtracker-common/libtracker-common.la \
+	$(BUILD_LIBS) \
+	$(TRACKER_EXTRACT_MODULES_LIBS) \
+	$(LIBGSF_LIBS)
+
+# EPub
+libextract_epub_la_SOURCES = tracker-extract-epub.c
+libextract_epub_la_CFLAGS = \
+	$(TRACKER_EXTRACT_MODULES_CFLAGS) \
+	$(LIBGSF_CFLAGS)
+libextract_epub_la_LDFLAGS = $(module_flags)
+libextract_epub_la_LIBADD = \
 	$(top_builddir)/src/libtracker-extract/libtracker-extract-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
