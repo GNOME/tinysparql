@@ -130,7 +130,6 @@ tracker_controller_initable_iface_init (GInitableIface *iface)
 	iface->init = tracker_controller_initable_init;
 }
 
-
 static void
 tracker_controller_finalize (GObject *object)
 {
@@ -146,6 +145,10 @@ tracker_controller_finalize (GObject *object)
 	}
 
 	tracker_controller_dbus_stop (controller);
+
+	if (priv->extractor) {
+		g_object_unref (priv->extractor);
+	}
 
 	g_object_unref (priv->storage);
 
