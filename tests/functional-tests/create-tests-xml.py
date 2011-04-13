@@ -43,12 +43,18 @@ FOOTER = """
   </suite>
 </testdefinition>"""
 
-PRE_STEPS = """        <pre_steps>
-           <step>initctl stop xsession/tracker-writeback</step>
-           <step>initctl stop xsession/tracker-miner</step>
-           <step>initctl start xsession/tracker-stop</step>
-       </pre_steps>
-"""
+if (cfg.haveUpstart):
+        PRE_STEPS = """        <pre_steps>
+                   <step>initctl stop xsession/tracker-writeback</step>
+                   <step>initctl stop xsession/tracker-miner</step>
+                   <step>initctl start xsession/tracker-stop</step>
+                </pre_steps>
+        """
+else:
+        PRE_STEPS = """        <pre_steps>
+           <step>su - meego -c "tracker-control -t"</step>
+        </pre_steps>
+        """
 
 def __get_doc (obj):
     if obj.__doc__:

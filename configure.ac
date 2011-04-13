@@ -1981,6 +1981,15 @@ have_mockup="no  (disabled)"
 
 AM_CONDITIONAL(HAVE_MOCKUP, test "x$have_mockup" = "xyes")
 
+####################################################################
+# Check if we should use initctl or sysvinit
+####################################################################
+
+# Check for initcl
+AC_PATH_PROG(INITCTL, initctl, [])
+AC_SUBST(INITCTL)
+AM_CONDITIONAL(HAVE_UPSTART, test "x$INITCTL" != "x")
+
 ##################################################################
 # Write generated files
 ##################################################################
