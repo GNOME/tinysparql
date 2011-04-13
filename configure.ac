@@ -1039,7 +1039,13 @@ AM_CONDITIONAL(HAVE_EXEMPI, test "x$have_exempi" = "xyes")
 # Check for tracker-miner-fs: meegotouch, for MeeGo desktop files
 ####################################################################
 
-if test "x$enable_maemo" != "xno"; then
+AC_ARG_ENABLE(meegotouch,
+              AS_HELP_STRING([--enable-meegotouch],
+                             [enable libmeegotouch application extraction [[default=no]]]),
+             [enable_meegotouch="$enableval"],
+             [enable_meegotouch=no])
+
+if test "x$enable_meegotouch" != "xno"; then
    PKG_CHECK_MODULES(MEEGOTOUCH,
                      [meegotouch >= $MEEGOTOUCH_REQUIRED],
                      [have_meegotouch=yes],
@@ -2184,5 +2190,6 @@ Writeback:
 Frameworks / Options:
 
 	Support Maemo                           $enable_maemo
+	Support libmeegotouch                   $have_meegotouch
         Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
 "
