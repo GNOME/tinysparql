@@ -195,31 +195,31 @@ class Tracker.Sparql.Backend : Connection {
 	static new Connection get (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
 		door.lock ();
 
-		// assign to owned variable to ensure it doesn't get freed between unlock and return
-		var result = singleton;
-		if (result != null) {
-			assert (direct_only == is_direct_only);
+		try {
+			// assign to owned variable to ensure it doesn't get freed between check and return
+			var result = singleton;
+			if (result != null) {
+				assert (direct_only == is_direct_only);
+				return result;
+			}
+
+			log_init ();
+
+			direct_only = is_direct_only;
+
+			result = new Tracker.Sparql.Backend ();
+
+			if (cancellable != null && cancellable.is_cancelled ()) {
+				throw new IOError.CANCELLED ("Operation was cancelled");
+			}
+
+			singleton = result;
+			result.add_weak_pointer ((void**) (&singleton));
+
+			return singleton;
+		} finally {
 			door.unlock ();
-			return result;
 		}
-
-		log_init ();
-
-		direct_only = is_direct_only;
-
-		result = new Tracker.Sparql.Backend ();
-
-		if (cancellable != null && cancellable.is_cancelled ()) {
-			door.unlock ();
-			throw new IOError.CANCELLED ("Operation was cancelled");
-		}
-
-		singleton = result;
-		result.add_weak_pointer ((void**) (&singleton));
-
-		door.unlock ();
-
-		return singleton;
 	}
 
 	public static new Connection get_internal (bool is_direct_only = false, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
