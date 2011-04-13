@@ -52,6 +52,11 @@
 #include "tracker-config.h"
 #include "tracker-main.h"
 #include "tracker-extract.h"
+#include "tracker-controller.h"
+
+#ifdef THREAD_ENABLE_TRACE
+#warning Main thread traces enabled
+#endif /* THREAD_ENABLE_TRACE */
 
 #define ABOUT	  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -66,7 +71,6 @@
 #define QUIT_TIMEOUT 30 /* 1/2 minutes worth of seconds */
 
 static GMainLoop *main_loop;
-static guint quit_timeout_id = 0;
 
 static gint verbosity = -1;
 static gchar *filename;
@@ -112,34 +116,6 @@ static GOptionEntry entries[] = {
 	  NULL },
 	{ NULL }
 };
-
-static gboolean
-quit_timeout_cb (gpointer user_data)
-{
-	quit_timeout_id = 0;
-
-	if (!disable_shutdown) {
-		if (main_loop) {
-			g_main_loop_quit (main_loop);
-		}
-	} else {
-		g_debug ("Would have quit the mainloop");
-	}
-
-	return FALSE;
-}
-
-void
-tracker_main_quit_timeout_reset (void)
-{
-	if (quit_timeout_id != 0) {
-		g_source_remove (quit_timeout_id);
-	}
-
-	quit_timeout_id = g_timeout_add_seconds (QUIT_TIMEOUT,
-	                                         quit_timeout_cb,
-	                                         NULL);
-}
 
 static void
 initialize_priority (void)
@@ -202,7 +178,8 @@ signal_handler (int signo)
 	case SIGINT:
 		in_loop = TRUE;
 		disable_shutdown = FALSE;
-		quit_timeout_cb (NULL);
+		g_main_loop_quit (main_loop);
+
 		/* Fall through */
 	default:
 		if (g_strsignal (signo)) {
@@ -261,12 +238,21 @@ log_handler (const gchar    *domain,
 	}
 }
 
+static void
+sanity_check_option_values (TrackerConfig *config)
+{
+	g_message ("General options:");
+	g_message ("  Verbosity  ............................  %d",
+	           tracker_config_get_verbosity (config));
+	g_message ("  Max bytes (per file)  .................  %d",
+	           tracker_config_get_max_bytes (config));
+}
+
 TrackerConfig *
 tracker_main_get_config (void)
 {
 	return config;
 }
-
 
 static int
 run_standalone (void)
@@ -319,8 +305,10 @@ main (int argc, char *argv[])
 	GOptionContext *context;
 	GError         *error = NULL;
 	TrackerExtract *object;
+        TrackerController *controller;
 	gchar          *log_filename = NULL;
 	GMainLoop      *my_main_loop;
+        guint           shutdown_timeout;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -371,17 +359,13 @@ main (int argc, char *argv[])
 	g_print ("Initializing tracker-extract...\n");
 
 	if (!filename) {
-		g_print ("  Shutdown after 30 seconds of inactivitiy is %s\n",
+		g_print ("  Shutdown after 30 seconds of inactivity is %s\n",
 		         disable_shutdown ? "disabled" : "enabled");
 	}
 
 	initialize_signal_handler ();
 
 	g_type_init ();
-
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
 
 	g_set_application_name ("tracker-extract");
 
@@ -406,8 +390,17 @@ main (int argc, char *argv[])
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 	g_free (log_filename);
 
+	sanity_check_option_values (config);
+
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority ();
+	tracker_memory_setrlimits ();
+
+        if (disable_shutdown) {
+                shutdown_timeout = 0;
+        } else {
+                shutdown_timeout = QUIT_TIMEOUT;
+        }
 
 	object = tracker_extract_new (disable_shutdown,
 	                              force_internal_extractors,
@@ -419,18 +412,29 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	tracker_memory_setrlimits ();
+	controller = tracker_controller_new (object, shutdown_timeout, &error);
 
-	tracker_extract_dbus_start (object);
+        if (!controller) {
+	        g_critical ("Controller thread failed to initialize: %s\n", error->message);
 
-	g_message ("Waiting for D-Bus requests...");
+	        g_error_free (error);
+	        g_object_unref (config);
+		g_object_unref (object);
+		tracker_log_shutdown ();
+
+		return EXIT_FAILURE;
+        }
+
+#ifdef THREAD_ENABLE_TRACE
+        g_debug ("Thread:%p (Main) --- Waiting for extract requests...",
+                 g_thread_self ());
+#endif /* THREAD_ENABLE_TRACE */
 
 	tracker_locale_init ();
 	tracker_albumart_init ();
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
-	tracker_main_quit_timeout_reset ();
 	g_main_loop_run (main_loop);
 
 	my_main_loop = main_loop;
@@ -443,8 +447,8 @@ main (int argc, char *argv[])
 	tracker_albumart_shutdown ();
 	tracker_locale_shutdown ();
 
-	tracker_extract_dbus_stop (object);
 	g_object_unref (object);
+	g_object_unref (controller);
 
 	tracker_log_shutdown ();
 

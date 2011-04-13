@@ -20,7 +20,9 @@
 #ifndef __TRACKERD_EXTRACT_H__
 #define __TRACKERD_EXTRACT_H__
 
-#include <glib-object.h>
+#include <gio/gio.h>
+#include <libtracker-common/tracker-common.h>
+#include <libtracker-extract/tracker-extract.h>
 
 #define TRACKER_EXTRACT_SERVICE        "org.freedesktop.Tracker1.Extract"
 #define TRACKER_EXTRACT_PATH           "/org/freedesktop/Tracker1/Extract"
@@ -37,6 +39,7 @@ G_BEGIN_DECLS
 
 typedef struct TrackerExtract      TrackerExtract;
 typedef struct TrackerExtractClass TrackerExtractClass;
+typedef struct TrackerExtractInfo  TrackerExtractInfo;
 
 struct TrackerExtract {
 	GObject parent;
@@ -46,10 +49,23 @@ struct TrackerExtractClass {
 	GObjectClass parent;
 };
 
+struct TrackerExtractInfo {
+	TrackerSparqlBuilder *preupdate;
+	TrackerSparqlBuilder *statements;
+	gchar *where;
+};
+
 GType           tracker_extract_get_type                (void);
 TrackerExtract *tracker_extract_new                     (gboolean                disable_shutdown,
                                                          gboolean                force_internal_extractors,
                                                          const gchar            *force_module);
+
+void            tracker_extract_file                    (TrackerExtract         *extract,
+                                                         const gchar            *file,
+                                                         const gchar            *mimetype,
+                                                         GCancellable           *cancellable,
+                                                         GAsyncReadyCallback     cb,
+                                                         gpointer                user_data);
 
 void            tracker_extract_dbus_start              (TrackerExtract         *extract);
 void            tracker_extract_dbus_stop               (TrackerExtract         *extract);

@@ -46,6 +46,10 @@
 
 #include "tracker-albumart.h"
 
+#ifdef FRAME_ENABLE_TRACE
+#warning Frame traces enabled
+#endif /* FRAME_ENABLE_TRACE */
+
 /* We mmap the beginning of the file and read separately the last 128
  * bytes for id3v1 tags. While these are probably cornercases the
  * rationale is that we don't want to fault a whole page for the last
@@ -1239,7 +1243,9 @@ get_id3v24_tags (id3v24frame           frame,
 			g_strstrip (word);
 		}
 
+#ifdef FRAME_ENABLE_TRACE
 		g_debug ("Frame is %d, word is %s", frame, word);
+#endif /* FRAME_ENABLE_TRACE */
 
 		switch (frame) {
 		case ID3V24_TALB:
