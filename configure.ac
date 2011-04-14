@@ -459,7 +459,7 @@ PKG_CHECK_MODULES(TRACKER_SEARCH_BAR, [$TRACKER_SEARCH_BAR_REQUIRED],
 TRACKER_NAUTILUS_EXTENSION_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
                                      gio-unix-2.0   >= $GLIB_REQUIRED
                                      gthread-2.0    >= $GLIB_REQUIRED
-                                     gtk+-2.0       >= $GTK_REQUIRED
+                                     gtk+-3.0       >= $GTK_REQUIRED
                                      libnautilus-extension"
 
 PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUIRED],
