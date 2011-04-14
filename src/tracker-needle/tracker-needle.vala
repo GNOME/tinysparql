@@ -111,7 +111,7 @@ public class Tracker.Needle {
 		                            "?urn",
 		                            "nie:url(?urn)",
 		                            "tracker:coalesce(nco:fullname(?sender), nco:nickname(?sender), nco:emailAddress(?sender))",
-		                            "tracker:coalesce(nmo:messageSubject(?urn))",
+		                            "nmo:messageSubject(?urn)",
 		                            "nmo:receivedDate(?urn)",
 		                            "fn:concat(\"To: \", tracker:coalesce(nco:fullname(?to), nco:nickname(?to), nco:emailAddress(?to)))");
 		categories_model.add_query (Tracker.Query.Type.FOLDERS,
