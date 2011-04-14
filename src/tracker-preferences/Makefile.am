@@ -10,7 +10,7 @@ desktop_DATA =  tracker-preferences.desktop
 pkgdata_DATA = tracker-preferences.ui
 
 AM_VALAFLAGS =                                         \
-	--pkg gtk+-2.0 --pkg gmodule-2.0               \
+	--pkg gtk+-3.0 --pkg gmodule-2.0               \
 	$(BUILD_VALAFLAGS)                             \
 	config.vapi                                    \
 	tracker-config.vapi
