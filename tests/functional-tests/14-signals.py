@@ -38,7 +38,7 @@ GRAPH_UPDATED_SIGNAL = "GraphUpdated"
 SIGNALS_PATH = "/org/freedesktop/Tracker1/Resources"
 SIGNALS_IFACE = "org.freedesktop.Tracker1.Resources"
 
-CONTACT_CLASS_URI = "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact"
+CONTACT_CLASS_URI = "http://www.semanticdesktop.org/ontologies/2007/03/22/nco#PersonContact"
 
 REASONABLE_TIMEOUT = 10 # Time waiting for the signal to be emitted
 
@@ -125,7 +125,7 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
 
         # validate results
         self.assertEquals (len (self.results_deletes), 0)
-        self.assertEquals (len (self.results_inserts), 7)
+        self.assertEquals (len (self.results_inserts), 6)
         
     def test_02_remove_contact (self):
         CONTACT = """
@@ -146,7 +146,7 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.__wait_for_signal ()
 
         # Validate results:
-        self.assertEquals (len (self.results_deletes), 2)
+        self.assertEquals (len (self.results_deletes), 1)
         self.assertEquals (len (self.results_inserts), 0)
 
 
