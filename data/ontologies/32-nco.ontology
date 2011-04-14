@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2011-01-25T13:30:00Z" .
+	nao:lastModified "2011-04-14T10:00:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -26,7 +26,6 @@ nco:Affiliation a rdfs:Class ;
 nco:Contact a rdfs:Class ;
 	rdfs:label "Contact" ;
 	rdfs:comment "A Contact. A piece of data that can provide means to identify or communicate with an entity." ;
-	tracker:notify true ;
 	rdfs:subClassOf nie:InformationElement , nco:Role .
 
 nco:ContactGroup a rdfs:Class ;
@@ -50,7 +49,6 @@ nco:ContactMedium a rdfs:Class ;
 nco:EmailAddress a rdfs:Class ;
 	rdfs:label "EmailAddress" ;
 	rdfs:comment "An email address. The recommended best practice is to use mailto: uris for instances of this class." ;
-	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 nco:IMAddress a rdfs:Class ;
@@ -81,13 +79,11 @@ nco:default-contact-me a nco:PersonContact.
 nco:PhoneNumber a rdfs:Class ;
 	rdfs:label "PhoneNumber" ;
 	rdfs:comment "A telephone number." ;
-	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 nco:PostalAddress a rdfs:Class ;
 	rdfs:label "PostalAddress" ;
 	rdfs:comment "A postal address. A class aggregating the various parts of a value for the 'ADR' property as defined in RFC 2426 Sec. 3.2.1." ;
-	tracker:notify true ;
 	rdfs:subClassOf nco:ContactMedium .
 
 nco:ModemNumber a rdfs:Class ;
