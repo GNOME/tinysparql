@@ -164,8 +164,6 @@ tracker_spawn_child_func (gpointer user_data)
 		alarm (timeout + 2);
 	}
 
-	tracker_memory_setrlimits ();
-
 	/* Set child's niceness to 19 */
 	errno = 0;
 
