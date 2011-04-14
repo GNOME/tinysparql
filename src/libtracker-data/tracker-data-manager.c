@@ -623,6 +623,7 @@ tracker_data_ontology_load_statement (const gchar *ontology_path,
 					tracker_property_set_indexed (property, FALSE);
 					tracker_property_set_secondary_index (property, NULL);
 					tracker_property_set_writeback (property, FALSE);
+					tracker_property_set_is_inverse_functional_property (property, FALSE);
 					tracker_property_set_default_value (property, NULL);
 				}
 				return;
@@ -1449,12 +1450,45 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 		for (i = 0; i < seen_properties->len; i++) {
 			TrackerProperty *property = g_ptr_array_index (seen_properties, i);
 			const gchar *subject;
+			gchar *query;
 			TrackerProperty *secondary_index;
-			gboolean indexed_set = FALSE;
+			gboolean indexed_set = FALSE, in_onto;
 			GError *n_error = NULL;
+			TrackerDBCursor *cursor;
 
 			subject = tracker_property_get_uri (property);
 
+			/* Check for nrl:InverseFunctionalProperty changes (not supported) */
+			in_onto = tracker_property_get_is_inverse_functional_property (property);
+
+			query = g_strdup_printf ("ASK { <%s> a nrl:InverseFunctionalProperty }", subject);
+			cursor = tracker_data_query_sparql_cursor (query, &n_error);
+			g_free (query);
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
+
+			if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+				if (g_strcmp0 (tracker_db_cursor_get_string (cursor, 0, NULL), in_onto ? "false" : "true") == 0) {
+					handle_unsupported_ontology_change (ontology_path,
+					                                    subject,
+					                                    "nrl:InverseFunctionalProperty", "1", "0",
+					                                    &n_error);
+
+					if (n_error) {
+						g_propagate_error (error, n_error);
+						return;
+					}
+				}
+			}
+
+			if (cursor) {
+				g_object_unref (cursor);
+			}
+
+			/* Check for possibly supported changes */
 			if (tracker_property_get_writeback (property)) {
 				update_property_value (ontology_path,
 				                       "tracker:writeback",
