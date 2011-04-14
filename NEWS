@@ -1,3 +1,37 @@
+NEW in 0.10.9 - 2011-04-14
+==========================
+
+The changes are:
+
+  * New Feature: Now tracker-info --turtle allows exporting resources in Turtle RDF
+  * Fixes: GB#646834, Add support for Turtle output to tracker-info
+  * Fixes: GB#647548, Tracker should provide libmeegotouch disabling option
+  * Fixes: NB#238770, After updating tracker & libtracker-sparql (0.10.1-1maemo2+0m6 -> 0.10.3-1maemo2+0m6), direct connection opening fails.
+  * Fixes: NB#245998, tracker-writeback crashes when d-bus connection is not available
+  * Fixes: NB#244267, Meaningless strings shown in a place of location tags
+  * Fixes: NB#241302, tracker-miner-fs fails to generate mtime cache returning NULL values due to broken query
+  * Fixes: NB#245589, tracker_sparql_cursor_get_boolean does not return correct true value for ask query
+  * Fixes: NB#245373, Bug in parser when putting a triple after a GRAPH block in INSERT
+  * Fixes: NB#213419, Missing tracker:id -> iri conversion when using fn:concat on resources
+  * Fixes: NB#240681, Tracker should process pre-unmount signal from usb_moded
+  * Ontology: Removed tracker:notify from immutable helper classes nco:Contact, nco:EmailAddress, nco:PhoneNumber and nco:PostalAddress
+  * libtracker-common: Re-instate setrlimit() and clamp between 256Mb and 50% memory capacity for RLIMIT_{AS|DATA}
+  * libtracker-common: Don't apply setrlimit() constraints to spawned processes (inherited anyway)
+  * libtracker-data: Error when OFFSET, LIMIT, GROUP or ORDER are used with ASK queries
+  * libtracker-sparql: Fixed libtracker_sparql_LDFLAGS missing "\", causing export of all symbols
+  * libtracker-extract: Added new unit test for IPTC records are read correctly
+  * tracker-extract: Added a controller thread to be able to shutdown quickly on pre-unmount signals
+  * tracker-extract: Cleaned up debugging considerably and print summary on start up
+
+Translations:
+
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.10.8 - 2011-04-07
 ==========================
 
