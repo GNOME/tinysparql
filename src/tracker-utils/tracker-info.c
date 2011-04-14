@@ -211,29 +211,38 @@ print_prefix (gpointer key,
 /* format a URI for Turtle; if it has a prefix, display uri
  * as prefix:rest_of_uri; if not, display as <uri>
  */
-static gchar *
-format_uri (gboolean      full_namespaces,
-            GHashTable   *prefixes,
-            const gchar  *uri)
+inline static gchar *
+format_urn (GHashTable  *prefixes,
+            const gchar *urn,
+            gboolean     full_namespaces)
 {
-	gchar *uri_out;
+	gchar *urn_out;
 
 	if (full_namespaces) {
-		uri_out = g_strdup_printf ("<%s>", uri);
+		urn_out = g_strdup_printf ("<%s>", urn);
 	} else {
-		gchar *shorthand = get_shorthand (prefixes, uri);
+		gchar *shorthand = get_shorthand (prefixes, urn);
 
-		if (g_strcmp0 (shorthand, uri) != 0) {
-			/* prefix for this URI */
-			uri_out = g_strdup_printf ("%s", shorthand);
+		/* If the shorthand is the same as the urn passed, we
+		 * assume it is a resource and pass it in as one,
+		 *
+		 *   e.g.: http://purl.org/dc/elements/1.1/date
+		 *     to: http://purl.org/dc/elements/1.1/date
+		 *
+		 * Otherwise, we use the shorthand version instead.
+		 *
+		 *   e.g.: http://www.w3.org/1999/02/22-rdf-syntax-ns
+		 *     to: rdf
+		 */
+		if (g_strcmp0 (shorthand, urn) == 0) {
+			urn_out = g_strdup_printf ("<%s>", urn);
+			g_free (shorthand);
 		} else {
-			uri_out = g_strdup_printf ("<%s>", uri);
+			urn_out = shorthand;
 		}
-
-		g_free (shorthand);
 	}
 
-	return uri_out;
+	return urn_out;
 }
 
 /* Print triples for a urn in Turtle format */
@@ -243,7 +252,6 @@ print_turtle (gchar               *urn,
               GHashTable          *prefixes,
               gboolean             full_namespaces)
 {
-	TrackerSparqlValueType value_type;
 	gchar *subject;
 	gchar *predicate;
 	gchar *object;
@@ -258,8 +266,9 @@ print_turtle (gchar               *urn,
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *key = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 		const gchar *value = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+		const gchar *is_resource = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 
-		if (!key || !value) {
+		if (!key || !value || !is_resource) {
 			continue;
 		}
 
@@ -268,16 +277,20 @@ print_turtle (gchar               *urn,
 			continue;
 		}
 
-		predicate = format_uri (full_namespaces, prefixes, key);
+		predicate = format_urn (prefixes, key, full_namespaces);
 
-		value_type = tracker_sparql_cursor_get_value_type (cursor, 1);
-
-		if (value_type == TRACKER_SPARQL_VALUE_TYPE_URI) {
-			object = format_uri (full_namespaces, prefixes, value);
+		if (g_ascii_strcasecmp (is_resource, "true") == 0) {
+			object = g_strdup_printf ("<%s>", value);
 		} else {
-			object = g_strdup_printf ("\"%s\"", value);
+			gchar *escaped_value;
+
+			/* Escape value and make sure it is encapsulated properly */
+			escaped_value = tracker_sparql_escape_string (value);
+			object = g_strdup_printf ("\"%s\"", escaped_value);
+			g_free (escaped_value);
 		}
 
+		/* Print final statement */
 		g_print ("<%s> %s %s .\n", subject, predicate, object);
 
 		g_free (predicate);
@@ -418,7 +431,12 @@ main (int argc, char **argv)
 			g_object_unref (cursor);
 		}
 
-		query = g_strdup_printf ("SELECT ?predicate ?object WHERE { <%s> ?predicate ?object }", urn);
+		query = g_strdup_printf ("SELECT ?predicate ?object"
+		                         "  ( EXISTS { ?predicate rdfs:range [ rdfs:subClassOf rdfs:Resource ] } )"
+		                         "WHERE {"
+		                         "  <%s> ?predicate ?object "
+		                         "}",
+		                         urn);
 
 		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
