@@ -64,11 +64,11 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	g_object_class_install_property (object_class,
 	                                 PROP_VERBOSITY,
 	                                 g_param_spec_enum ("verbosity",
-							    "Log verbosity",
-							    "Log verbosity (0=errors, 1=minimal, 2=detailed, 3=debug)",
-							    TRACKER_TYPE_VERBOSITY,
-							    TRACKER_VERBOSITY_ERRORS,
-							    G_PARAM_READWRITE));
+	                                                    "Log verbosity",
+	                                                    "Log verbosity (0=errors, 1=minimal, 2=detailed, 3=debug)",
+	                                                    TRACKER_TYPE_VERBOSITY,
+	                                                    TRACKER_VERBOSITY_ERRORS,
+	                                                    G_PARAM_READWRITE));
 
 	g_object_class_install_property (object_class,
 	                                 PROP_MAX_BYTES,
@@ -76,7 +76,7 @@ tracker_config_class_init (TrackerConfigClass *klass)
 	                                                   "Max Bytes",
 	                                                   "Maximum number of UTF-8 bytes to extract per file [0->10485760]",
 	                                                   0, 1024 * 1024 * 10,
-							   1024 * 1024,
+	                                                   1024 * 1024,
 	                                                   G_PARAM_READWRITE));
 }
 
@@ -163,9 +163,9 @@ TrackerConfig *
 tracker_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_CONFIG,
-			     "schema", "org.freedesktop.Tracker.Extract",
-			     "path", "/org/freedesktop/tracker/extract/",
-			     NULL);
+	                     "schema", "org.freedesktop.Tracker.Extract",
+	                     "path", "/org/freedesktop/tracker/extract/",
+	                     NULL);
 }
 
 gint
@@ -176,6 +176,7 @@ tracker_config_get_verbosity (TrackerConfig *config)
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), TRACKER_VERBOSITY_ERRORS);
 
 	g_object_get (config, "verbosity", &verbosity, NULL);
+
 	return verbosity;
 }
 
@@ -197,6 +198,7 @@ tracker_config_get_max_bytes (TrackerConfig *config)
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), 0);
 
 	g_object_get (config, "max-bytes", &max_bytes, NULL);
+
 	return max_bytes;
 }
 
