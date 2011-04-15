@@ -1454,7 +1454,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 			TrackerProperty *secondary_index;
 			gboolean indexed_set = FALSE, in_onto;
 			GError *n_error = NULL;
-			TrackerDBCursor *cursor;
+			TrackerSparqlCursor *cursor;
 
 			subject = tracker_property_get_uri (property);
 
@@ -1462,7 +1462,7 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 			in_onto = tracker_property_get_is_inverse_functional_property (property);
 
 			query = g_strdup_printf ("ASK { <%s> a nrl:InverseFunctionalProperty }", subject);
-			cursor = tracker_data_query_sparql_cursor (query, &n_error);
+			cursor = TRACKER_SPARQL_CURSOR (tracker_data_query_sparql_cursor (query, &n_error));
 			g_free (query);
 
 			if (n_error) {
@@ -1470,14 +1470,15 @@ tracker_data_ontology_process_changes_post_db (GPtrArray  *seen_classes,
 				return;
 			}
 
-			if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
-				if (g_strcmp0 (tracker_db_cursor_get_string (cursor, 0, NULL), in_onto ? "false" : "true") == 0) {
+			if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+				if (tracker_sparql_cursor_get_boolean (cursor, 0) != in_onto) {
 					handle_unsupported_ontology_change (ontology_path,
 					                                    subject,
-					                                    "nrl:InverseFunctionalProperty", "1", "0",
+					                                    "nrl:InverseFunctionalProperty", "-", "-",
 					                                    &n_error);
 
 					if (n_error) {
+						g_object_unref (cursor);
 						g_propagate_error (error, n_error);
 						return;
 					}
