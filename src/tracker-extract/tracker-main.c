@@ -303,12 +303,12 @@ int
 main (int argc, char *argv[])
 {
 	GOptionContext *context;
-	GError         *error = NULL;
+	GError *error = NULL;
 	TrackerExtract *object;
-        TrackerController *controller;
-	gchar          *log_filename = NULL;
-	GMainLoop      *my_main_loop;
-        guint           shutdown_timeout;
+	TrackerController *controller;
+	gchar *log_filename = NULL;
+	GMainLoop *my_main_loop;
+	guint shutdown_timeout;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -396,11 +396,11 @@ main (int argc, char *argv[])
 	initialize_priority ();
 	tracker_memory_setrlimits ();
 
-        if (disable_shutdown) {
-                shutdown_timeout = 0;
-        } else {
-                shutdown_timeout = QUIT_TIMEOUT;
-        }
+	if (disable_shutdown) {
+		shutdown_timeout = 0;
+	} else {
+		shutdown_timeout = QUIT_TIMEOUT;
+	}
 
 	object = tracker_extract_new (disable_shutdown,
 	                              force_internal_extractors,
@@ -414,20 +414,18 @@ main (int argc, char *argv[])
 
 	controller = tracker_controller_new (object, shutdown_timeout, &error);
 
-        if (!controller) {
-	        g_critical ("Controller thread failed to initialize: %s\n", error->message);
-
-	        g_error_free (error);
-	        g_object_unref (config);
+	if (!controller) {
+		g_critical ("Controller thread failed to initialize: %s\n", error->message);
+		g_error_free (error);
+		g_object_unref (config);
 		g_object_unref (object);
 		tracker_log_shutdown ();
-
 		return EXIT_FAILURE;
-        }
+	}
 
 #ifdef THREAD_ENABLE_TRACE
-        g_debug ("Thread:%p (Main) --- Waiting for extract requests...",
-                 g_thread_self ());
+	g_debug ("Thread:%p (Main) --- Waiting for extract requests...",
+	         g_thread_self ());
 #endif /* THREAD_ENABLE_TRACE */
 
 	tracker_locale_init ();
