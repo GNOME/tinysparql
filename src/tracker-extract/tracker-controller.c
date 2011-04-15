@@ -192,7 +192,7 @@ tracker_controller_set_property (GObject      *object,
 		priv->shutdown_timeout = g_value_get_uint (value);
 		break;
 	case PROP_EXTRACTOR:
-		priv->extractor = g_value_get_object (value);
+		priv->extractor = g_value_dup_object (value);
 		break;
 	}
 }
