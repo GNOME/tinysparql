@@ -74,9 +74,9 @@ struct GetMetadataData {
 	gint fd; /* Only for fast queries */
 };
 
-#define TRACKER_EXTRACT_SERVICE	       "org.freedesktop.Tracker1.Extract"
-#define TRACKER_EXTRACT_PATH	       "/org/freedesktop/Tracker1/Extract"
-#define TRACKER_EXTRACT_INTERFACE      "org.freedesktop.Tracker1.Extract"
+#define TRACKER_EXTRACT_SERVICE   "org.freedesktop.Tracker1.Extract"
+#define TRACKER_EXTRACT_PATH      "/org/freedesktop/Tracker1/Extract"
+#define TRACKER_EXTRACT_INTERFACE "org.freedesktop.Tracker1.Extract"
 
 #define MAX_EXTRACT_TIME 10
 
@@ -106,10 +106,10 @@ enum {
 	PROP_EXTRACTOR
 };
 
-static void	tracker_controller_initable_iface_init (GInitableIface	   *iface);
-static gboolean tracker_controller_dbus_start          (TrackerController  *controller,
-                                                        GError	          **error);
-static void	tracker_controller_dbus_stop           (TrackerController  *controller);
+static void	tracker_controller_initable_iface_init  (GInitableIface     *iface);
+static gboolean tracker_controller_dbus_start       (TrackerController  *controller,
+                                                     GError            **error);
+static void	tracker_controller_dbus_stop            (TrackerController  *controller);
 
 
 G_DEFINE_TYPE_WITH_CODE (TrackerController, tracker_controller, G_TYPE_OBJECT,
@@ -117,8 +117,8 @@ G_DEFINE_TYPE_WITH_CODE (TrackerController, tracker_controller, G_TYPE_OBJECT,
                                                 tracker_controller_initable_iface_init));
 
 static gboolean
-tracker_controller_initable_init (GInitable	*initable,
-                                  GCancellable	*cancellable,
+tracker_controller_initable_init (GInitable     *initable,
+                                  GCancellable  *cancellable,
                                   GError       **error)
 {
 	return tracker_controller_start (TRACKER_CONTROLLER (initable), error);
@@ -163,8 +163,8 @@ tracker_controller_finalize (GObject *object)
 
 static void
 tracker_controller_get_property (GObject    *object,
-                                 guint	     param_id,
-                                 GValue	    *value,
+                                 guint       param_id,
+                                 GValue     *value,
                                  GParamSpec *pspec)
 {
 	TrackerControllerPrivate *priv = TRACKER_CONTROLLER (object)->priv;
@@ -181,7 +181,7 @@ tracker_controller_get_property (GObject    *object,
 
 static void
 tracker_controller_set_property (GObject      *object,
-                                 guint	       param_id,
+                                 guint         param_id,
                                  const GValue *value,
                                  GParamSpec   *pspec)
 {
@@ -258,9 +258,9 @@ metadata_data_free (GetMetadataData *data)
 
 static void
 mount_point_removed_cb (TrackerStorage *storage,
-			const gchar    *uuid,
-			const gchar    *mount_point,
-			gpointer	user_data)
+                        const gchar    *uuid,
+                        const gchar    *mount_point,
+                        gpointer        user_data)
 {
 	TrackerControllerPrivate *priv;
 	GFile *mount_file;
@@ -367,9 +367,9 @@ tracker_controller_init (TrackerController *controller)
 }
 
 static void
-handle_method_call_get_pid (TrackerController	  *controller,
+handle_method_call_get_pid (TrackerController     *controller,
                             GDBusMethodInvocation *invocation,
-                            GVariant		  *parameters)
+                            GVariant              *parameters)
 {
 	TrackerDBusRequest *request;
 	pid_t value;
@@ -560,9 +560,9 @@ get_metadata_fast_cb (GObject      *object,
 }
 
 static void
-handle_method_call_get_metadata_fast (TrackerController	    *controller,
+handle_method_call_get_metadata_fast (TrackerController     *controller,
                                       GDBusMethodInvocation *invocation,
-                                      GVariant		    *parameters)
+                                      GVariant              *parameters)
 {
 	GDBusConnection *connection;
 	GDBusMessage *method_message;
@@ -620,14 +620,14 @@ handle_method_call_get_metadata_fast (TrackerController	    *controller,
 }
 
 static void
-handle_method_call (GDBusConnection	  *connection,
-		    const gchar		  *sender,
-		    const gchar		  *object_path,
-		    const gchar		  *interface_name,
-		    const gchar		  *method_name,
-		    GVariant		  *parameters,
-		    GDBusMethodInvocation *invocation,
-		    gpointer		   user_data)
+handle_method_call (GDBusConnection       *connection,
+                    const gchar           *sender,
+                    const gchar           *object_path,
+                    const gchar           *interface_name,
+                    const gchar           *method_name,
+                    GVariant              *parameters,
+                    GDBusMethodInvocation *invocation,
+                    gpointer               user_data)
 {
 	TrackerController *controller = user_data;
 
@@ -644,7 +644,7 @@ handle_method_call (GDBusConnection	  *connection,
 
 static void
 controller_notify_main_thread (TrackerController *controller,
-			       GError            *error)
+                               GError            *error)
 {
 	TrackerControllerPrivate *priv;
 
@@ -663,16 +663,16 @@ controller_notify_main_thread (TrackerController *controller,
 
 static void
 bus_name_acquired_cb (GDBusConnection *connection,
-		      const gchar     *name,
-		      gpointer         user_data)
+                      const gchar     *name,
+                      gpointer         user_data)
 {
 	controller_notify_main_thread (TRACKER_CONTROLLER (user_data), NULL);
 }
 
 static void
 bus_name_vanished_cb (GDBusConnection *connection,
-		      const gchar     *name,
-		      gpointer         user_data)
+                      const gchar     *name,
+                      gpointer         user_data)
 {
 	TrackerController *controller;
 	TrackerControllerPrivate *priv;
@@ -696,8 +696,8 @@ bus_name_vanished_cb (GDBusConnection *connection,
 }
 
 static gboolean
-tracker_controller_dbus_start (TrackerController  *controller,
-			       GError		 **error)
+tracker_controller_dbus_start (TrackerController   *controller,
+                               GError             **error)
 {
 	TrackerControllerPrivate *priv;
 	GError *err = NULL;
@@ -730,11 +730,11 @@ tracker_controller_dbus_start (TrackerController  *controller,
 
 	priv->bus_name_id =
 		g_bus_own_name_on_connection (priv->connection,
-					      TRACKER_EXTRACT_SERVICE,
-					      G_BUS_NAME_OWNER_FLAGS_NONE,
-					      bus_name_acquired_cb,
-					      bus_name_vanished_cb,
-					      controller, NULL);
+		                              TRACKER_EXTRACT_SERVICE,
+		                              G_BUS_NAME_OWNER_FLAGS_NONE,
+		                              bus_name_acquired_cb,
+		                              bus_name_vanished_cb,
+		                              controller, NULL);
 
 	priv->registration_id =
 		g_dbus_connection_register_object (priv->connection,
@@ -781,9 +781,9 @@ tracker_controller_dbus_stop (TrackerController *controller)
 }
 
 TrackerController *
-tracker_controller_new (TrackerExtract  *extractor,
-                        guint	         shutdown_timeout,
-			GError         **error)
+tracker_controller_new (TrackerExtract   *extractor,
+                        guint             shutdown_timeout,
+                        GError          **error)
 {
 	return g_initable_new (TRACKER_TYPE_CONTROLLER,
 	                       NULL, error,
