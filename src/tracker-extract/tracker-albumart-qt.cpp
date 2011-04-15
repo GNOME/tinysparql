@@ -39,7 +39,7 @@ void
 tracker_albumart_plugin_init (void)
 {
 	int argc = 0;
-	char **argv = NULL;
+	char *argv[2] = { NULL, NULL };
 
 	app = new QApplication (argc, argv, QApplication::Tty);
 }
