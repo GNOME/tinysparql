@@ -52,7 +52,6 @@ struct TrackerExtractClass {
 struct TrackerExtractInfo {
 	TrackerSparqlBuilder *preupdate;
 	TrackerSparqlBuilder *statements;
-	gchar *where;
 };
 
 GType           tracker_extract_get_type                (void);

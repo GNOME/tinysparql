@@ -604,7 +604,6 @@ tracker_extract_info_free (TrackerExtractInfo *info)
 		g_object_unref (info->preupdate);
 	}
 
-	g_free (info->where);
 	g_slice_free (TrackerExtractInfo, info);
 }
 
