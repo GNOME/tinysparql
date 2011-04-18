@@ -269,6 +269,7 @@ run_standalone (void)
 		verbosity = 3;
 	}
 
+	tracker_locale_init ();
 	tracker_albumart_init ();
 
 	/* This makes sure we don't steal all the system's resources */
@@ -282,7 +283,10 @@ run_standalone (void)
 	                              force_module);
 
 	if (!object) {
+		g_object_unref (file);
 		g_free (uri);
+		tracker_albumart_shutdown ();
+		tracker_locale_shutdown ();
 		return EXIT_FAILURE;
 	}
 
@@ -295,6 +299,7 @@ run_standalone (void)
 	g_free (uri);
 
 	tracker_albumart_shutdown ();
+	tracker_locale_shutdown ();
 
 	return EXIT_SUCCESS;
 }
