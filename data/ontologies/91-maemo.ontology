@@ -12,7 +12,7 @@
 
 maemo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "maemo" ;
-	nao:lastModified "2010-07-22T09:00:00Z" .
+	nao:lastModified "2011-04-20T13:43:00Z" .
 
 maemo:SoftwareWidget a rdfs:Class ;
 	rdfs:label "Widget" ;
