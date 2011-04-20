@@ -590,7 +590,7 @@ get_file_metadata (TrackerExtract         *extract,
 	*preupdate_out = preupdate;
 	*statements_out = statements;
 
-	return FALSE;
+	return TRUE;
 }
 
 static void
