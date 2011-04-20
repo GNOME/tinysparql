@@ -366,7 +366,7 @@ get_file_metadata (TrackerExtract         *extract,
 	*statements_out = statements;
 	*where_out = g_string_free (where, FALSE);
 
-	return FALSE;
+	return TRUE;
 }
 
 static void
