@@ -412,7 +412,7 @@ PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
 
 # Check requirements for tracker-miner-flickr
 TRACKER_MINER_FLICKR_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                               rest-0.6     >= $REST_REQUIRED"
+                               rest-0.7     >= $REST_REQUIRED"
 
 PKG_CHECK_MODULES(TRACKER_MINER_FLICKR, [$TRACKER_MINER_FLICKR_REQUIRED],
                   [have_tracker_miner_flickr=yes],
