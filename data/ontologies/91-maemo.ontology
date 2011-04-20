@@ -108,3 +108,8 @@ maemo:contactGroupVibrationRingtone a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:ContactGroup ;
 	rdfs:range nfo:FileDataObject .
+
+maemo:PostalAddress a rdfs:Class ;
+	rdfs:label "PostalAddress" ;
+	rdfs:comment "Postal Address. Class inspired by TYPE=postal parameter of the ADR property defined in RFC 2426 sec. 3.2.1" ;
+	rdfs:subClassOf nco:PostalAddress .
