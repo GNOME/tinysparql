@@ -2960,7 +2960,15 @@ tracker_data_begin_transaction (GError **error)
 
 	if (!in_journal_replay) {
 		if (in_ontology_transaction) {
-			tracker_db_journal_start_ontology_transaction (resource_time);
+			GError *n_error = NULL;
+			tracker_db_journal_start_ontology_transaction (resource_time, &n_error);
+
+			if (n_error) {
+				tracker_db_interface_end_db_transaction (iface, NULL);
+				g_propagate_error (error, n_error);
+				return;
+			}
+
 		} else {
 			tracker_db_journal_start_transaction (resource_time);
 		}
@@ -3012,20 +3020,32 @@ tracker_data_commit_transaction (GError **error)
 		return;
 	}
 
-	get_transaction_modseq ();
-	if (has_persistent && !in_ontology_transaction) {
-		transaction_modseq++;
-	}
-
 	if (!in_journal_replay) {
 		if (has_persistent || in_ontology_transaction) {
-			tracker_db_journal_commit_db_transaction ();
+			tracker_db_journal_commit_db_transaction (&actual_error);
 		} else {
 			/* If we only had transient properties, then we must not write
 			 * anything to the journal. So we roll it back, but only the
 			 * journal's part. */
-			tracker_db_journal_rollback_transaction ();
+			tracker_db_journal_rollback_transaction (&actual_error);
 		}
+
+		if (actual_error) {
+
+			/* Can't write in journal anymore; quite a serious problem, not sure
+			 * if rollback of transaction in the sqlite database is what must be
+			 * done here (behaviour change while adding error reporting to the
+			 * journal) */
+
+			tracker_data_rollback_transaction ();
+			g_propagate_error (error, actual_error);
+			return;
+		}
+	}
+
+	get_transaction_modseq ();
+	if (has_persistent && !in_ontology_transaction) {
+		transaction_modseq++;
 	}
 
 	resource_time = 0;
@@ -3091,7 +3111,13 @@ tracker_data_rollback_transaction (void)
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
 	if (!in_journal_replay) {
-		tracker_db_journal_rollback_transaction ();
+		tracker_db_journal_rollback_transaction (&ignorable);
+
+		if (ignorable) {
+			/* Not sure if this is also ignorable: it's the close() of the
+			 * journal file failing. */
+			g_error_free (ignorable);
+		}
 
 		if (rollback_callbacks) {
 			guint n;
@@ -3183,10 +3209,17 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 	TrackerProperty *rdf_type = NULL;
 	gint last_operation_type = 0;
 	const gchar *uri;
+	GError *n_error = NULL;
+
 
 	rdf_type = tracker_ontologies_get_rdf_type ();
 
-	tracker_db_journal_reader_init (NULL);
+	tracker_db_journal_reader_init (NULL, &n_error);
+	if (n_error) {
+		/* This is fatal */
+		g_propagate_error (error, n_error);
+		return;
+	}
 
 	while (tracker_db_journal_reader_next (&journal_error)) {
 		TrackerDBJournalEntryType type;
@@ -3439,15 +3472,28 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		}
 	}
 
+
 	if (journal_error) {
+		GError *n_error = NULL;
 		gsize size;
 
 		size = tracker_db_journal_reader_get_size_of_correct ();
 		tracker_db_journal_reader_shutdown ();
 
-		tracker_db_journal_init (NULL, FALSE);
+		tracker_db_journal_init (NULL, FALSE, &n_error);
+		if (n_error) {
+			/* This is fatal */
+			g_propagate_error (error, n_error);
+			return;
+		}
 		tracker_db_journal_truncate (size);
-		tracker_db_journal_shutdown ();
+		tracker_db_journal_shutdown (&n_error);
+
+		if (n_error) {
+			/* This is fatal */
+			g_propagate_error (error, n_error);
+			return;
+		}
 
 		g_clear_error (&journal_error);
 	} else {

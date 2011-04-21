@@ -392,6 +392,7 @@ db_manager_remove_journal (void)
 	gboolean do_rotate = FALSE;
 	const gchar *dirs[3] = { NULL, NULL, NULL };
 	guint i;
+	GError *error = NULL;
 
 	/* We duplicate the path here because later we shutdown the
 	 * journal which frees this data. We want to survive that.
@@ -406,7 +407,12 @@ db_manager_remove_journal (void)
 	directory = g_path_get_dirname (path);
 
 	tracker_db_journal_get_rotating (&do_rotate, &chunk_size, &rotate_to);
-	tracker_db_journal_shutdown ();
+	tracker_db_journal_shutdown (&error);
+
+	if (error) {
+		g_message ("%s", error->message);
+		g_error_free (error);
+	}
 
 	dirs[0] = directory;
 	dirs[1] = do_rotate ? rotate_to : NULL;

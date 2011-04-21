@@ -51,9 +51,10 @@ GQuark       tracker_db_journal_error_quark                  (void);
 /*
  * Writer API
  */
-gboolean     tracker_db_journal_init                         (const gchar *filename,
-                                                              gboolean     truncate);
-gboolean     tracker_db_journal_shutdown                     (void);
+gboolean     tracker_db_journal_init                         (const gchar  *filename,
+                                                              gboolean      truncate,
+                                                              GError      **error);
+gboolean     tracker_db_journal_shutdown                     (GError      **error);
 
 const gchar* tracker_db_journal_get_filename                 (void);
 gsize        tracker_db_journal_get_size                     (void);
@@ -67,7 +68,8 @@ void         tracker_db_journal_get_rotating                 (gboolean    *do_ro
                                                               gchar      **rotate_to);
 
 gboolean     tracker_db_journal_start_transaction            (time_t       time);
-gboolean     tracker_db_journal_start_ontology_transaction   (time_t       time);
+gboolean     tracker_db_journal_start_ontology_transaction   (time_t       time,
+                                                              GError     **error);
 
 gboolean     tracker_db_journal_append_delete_statement      (gint         g_id,
                                                               gint         s_id,
@@ -96,8 +98,8 @@ gboolean     tracker_db_journal_append_update_statement_id   (gint         g_id,
 gboolean     tracker_db_journal_append_resource              (gint         s_id,
                                                               const gchar *uri);
 
-gboolean     tracker_db_journal_rollback_transaction         (void);
-gboolean     tracker_db_journal_commit_db_transaction           (void);
+gboolean     tracker_db_journal_rollback_transaction         (GError **error);
+gboolean     tracker_db_journal_commit_db_transaction        (GError **error);
 
 gboolean     tracker_db_journal_fsync                        (void);
 gboolean     tracker_db_journal_truncate                     (gsize new_size);
@@ -105,8 +107,10 @@ gboolean     tracker_db_journal_truncate                     (gsize new_size);
 /*
  * Reader API
  */
-gboolean     tracker_db_journal_reader_init                  (const gchar  *filename);
-gboolean     tracker_db_journal_reader_ontology_init         (const gchar  *filename);
+gboolean     tracker_db_journal_reader_init                  (const gchar   *filename,
+                                                              GError       **error);
+gboolean     tracker_db_journal_reader_ontology_init         (const gchar  *filename,
+                                                              GError       **error);
 gboolean     tracker_db_journal_reader_shutdown              (void);
 TrackerDBJournalEntryType
              tracker_db_journal_reader_get_type              (void);
