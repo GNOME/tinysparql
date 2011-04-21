@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-locale.h>
 
 static void
 test_seconds_to_string ()
@@ -76,8 +77,12 @@ test_seconds_estimate_to_string ()
 int
 main (int argc, char **argv)
 {
+	gboolean ret;
+
 	g_type_init ();
 	g_test_init (&argc, &argv, NULL);
+
+	tracker_locale_init ();
 
 	g_test_add_func ("/libtracker-common/tracker-utils/seconds_to_string",
 	                 test_seconds_to_string);
@@ -85,5 +90,9 @@ main (int argc, char **argv)
 	g_test_add_func ("/libtracker-common/tracker-utils/seconds_estimate_to_string",
 	                 test_seconds_estimate_to_string);
 
-	return g_test_run ();
+	ret = g_test_run ();
+
+	tracker_locale_shutdown ();
+
+	return ret;
 }
