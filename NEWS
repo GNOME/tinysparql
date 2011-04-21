@@ -1,3 +1,39 @@
+NEW in 0.10.10 - 2011-04-21
+===========================
+
+The changes are:
+
+  * Require: Rest >= 0.7 (was 0.6), old packages no longer available on Ubuntu/Fedora
+  * Fixes: NB#249028, tracker ignores file created with 'touch'
+  * Fixes: NB#244787, You can't store twice the same phone number with different subtypes
+  * Fixes: NB#248059, tracker-extract is crashing at  tracker_extract_info_free
+  * Ontology: Added maemo:PostalAddress to facilitate TYPE=postal parameters ADR properties in VCARDs
+  * Ontology: Removed nrl:InverseFunctionalProperty from nco:phoneNumber
+  * libtracker-data: Support ontology changing regarding nrl:InverseFunctionalProperty
+  * libtracker-miner: Limit extractions to 10 at any given time
+  * libtracker-miner: Limit the number of statements sent to the store per request
+  * tracker-extract: Complete relicensing from GPL to LGPL for C++ files missed
+  * tracker-extract: Fixed critical about locale when run from command line
+  * tracker-extract: Fixed critical when finalizing the controller object
+  * tracker-extract: Fixed crash with new QApplication() and passed argv parameter
+  * tracker-needle: Fixed email query which was using tracker:coalesce() with 1 argument
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Mario Blättermann
+  * Updated es: Daniel Mustieles
+  * Updated pl: Piotr Drąg
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  The change to nco:phoneNumber will cause the Journal to be replayed
+  when upgrading from earlier versions of Tracker. Depending on the
+  dataset, this may take some time upon first run of Tracker. No data
+  should be lost by this process.
+
+
 NEW in 0.10.9 - 2011-04-14
 ==========================
 
