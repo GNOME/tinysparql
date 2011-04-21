@@ -26,21 +26,26 @@
 static void
 test_init_and_shutdown (void)
 {
+	GError *error = NULL;
 	gboolean result;
 
 	/* check double init/shutdown */
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (NULL, FALSE);
+	result = tracker_db_journal_init (NULL, FALSE, &error);
+	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
-	result = tracker_db_journal_shutdown ();
+	result = tracker_db_journal_shutdown (&error);
+	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	result = tracker_db_journal_init (NULL, FALSE);
+	result = tracker_db_journal_init (NULL, FALSE, &error);
+	g_assert_no_error (error);
 	g_assert (result == TRUE);
 
-	result = tracker_db_journal_shutdown ();
+	result = tracker_db_journal_shutdown (&error);
+	g_assert_no_error (error);
 	g_assert (result == TRUE);
 }
 
@@ -51,12 +56,14 @@ test_write_functions (void)
 	const gchar *filename;
 	gsize initial_size, actual_size;
 	gboolean result;
+	GError *error = NULL;
 
 	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-db", "tracker-store.journal", NULL);
 	g_unlink (path);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	tracker_db_journal_init (path, FALSE);
+	tracker_db_journal_init (path, FALSE, &error);
+	g_assert_no_error (error);
 
 	filename = tracker_db_journal_get_filename ();
 	g_assert (filename != NULL);
@@ -76,7 +83,8 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_delete_statement (0, 10, 11, "test");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_rollback_transaction ();
+	result = tracker_db_journal_rollback_transaction (&error);
+	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 	actual_size = tracker_db_journal_get_size ();
 	g_assert_cmpint (initial_size, ==, actual_size);
@@ -92,7 +100,8 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_delete_statement_id (0, 12, 13, 14);
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_db_transaction ();
+	result = tracker_db_journal_commit_db_transaction (&error);
+	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 	actual_size = tracker_db_journal_get_size ();
 	g_assert_cmpint (initial_size, !=, actual_size);
@@ -106,7 +115,8 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_insert_statement (0, 15, 16, "test");
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_db_transaction ();
+	result = tracker_db_journal_commit_db_transaction (&error);
+	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
 	/* Test insert id */
@@ -120,14 +130,16 @@ test_write_functions (void)
 	g_assert_cmpint (result, ==, TRUE);
 	result = tracker_db_journal_append_insert_statement_id (0, 17, 18, 19);
 	g_assert_cmpint (result, ==, TRUE);
-	result = tracker_db_journal_commit_db_transaction ();
+	result = tracker_db_journal_commit_db_transaction (&error);
+	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
 	/* Test fsync */
 	result = tracker_db_journal_fsync ();
 	g_assert_cmpint (result, ==, TRUE);
 
-	tracker_db_journal_shutdown ();
+	tracker_db_journal_shutdown (&error);
+	g_assert_no_error (error);
 
 	g_free (path);
 }
@@ -147,7 +159,8 @@ test_read_functions (void)
 	/* NOTE: we don't unlink here so we can use the data from the write tests */
 
 	/* Create an iterator */
-	result = tracker_db_journal_reader_init (path);
+	result = tracker_db_journal_reader_init (path, &error);
+	g_assert_no_error (error);
 	g_assert_cmpint (result, ==, TRUE);
 
 	type = tracker_db_journal_reader_get_type ();
