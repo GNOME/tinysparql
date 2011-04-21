@@ -17,8 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_ENCODING_MEEGOTOUCH_H__
-#define __LIBTRACKER_COMMON_ENCODING_MEEGOTOUCH_H__
+#ifndef __LIBTRACKER_EXTRACT_ENCODING_MEEGOTOUCH_H__
+#define __LIBTRACKER_EXTRACT_ENCODING_MEEGOTOUCH_H__
 
 #include <glib.h>
 
@@ -30,4 +30,4 @@ gchar *tracker_encoding_guess_meegotouch (const gchar *buffer,
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_ENCODING_MEEGOTOUCH_H__ */
+#endif /* __LIBTRACKER_EXTRACT_ENCODING_MEEGOTOUCH_H__ */

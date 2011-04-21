@@ -13,6 +13,7 @@ libtracker_extractincludedir=$(includedir)/tracker-$(TRACKER_API_VERSION)/libtra
 
 libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES =  \
 	tracker-data.h                                 \
+	tracker-encoding.c                             \
 	tracker-exif.c                                 \
 	tracker-exif.h                                 \
 	tracker-guarantee.c                            \
@@ -27,12 +28,25 @@ noinst_HEADERS =
 
 libtracker_extractinclude_HEADERS =                    \
 	tracker-data.h                                 \
+	tracker-encoding.h                             \
 	tracker-exif.h                                 \
 	tracker-extract.h                              \
 	tracker-guarantee.h                            \
 	tracker-iptc.h                                 \
 	tracker-utils.h                                \
 	tracker-xmp.h
+
+if HAVE_ENCA
+libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES += \
+	tracker-encoding-enca.c                        \
+	tracker-encoding-enca.h
+endif
+
+if HAVE_MEEGOTOUCH
+libtracker_extract_@TRACKER_API_VERSION@_la_SOURCES += \
+	tracker-encoding-meegotouch.cpp                \
+	tracker-encoding-meegotouch.h
+endif
 
 libtracker_extract_@TRACKER_API_VERSION@_la_LDFLAGS =  \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
