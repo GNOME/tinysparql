@@ -23,8 +23,8 @@
 #include <MCharsetMatch>
 
 #include <glib.h>
+#include <libtracker-common/tracker-locale.h>
 #include "tracker-encoding-meegotouch.h"
-#include "tracker-locale.h"
 
 /*
  * See http://apidocs.meego.com/git-tip/mtf/class_m_charset_detector.html

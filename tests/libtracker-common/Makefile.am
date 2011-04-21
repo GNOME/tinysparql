@@ -31,4 +31,4 @@ tracker_file_utils_SOURCES = tracker-file-utils-test.c
 
 tracker_utils_SOURCES = tracker-utils-test.c
 
-EXTRA_DIST = non-utf8.txt encoding-detect.bin
+EXTRA_DIST = non-utf8.txt

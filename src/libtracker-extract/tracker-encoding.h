@@ -17,17 +17,24 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_ENCODING_ENCA_H__
-#define __LIBTRACKER_COMMON_ENCODING_ENCA_H__
+#ifndef __LIBTRACKER_EXTRACT_ENCODING_H__
+#define __LIBTRACKER_EXTRACT_ENCODING_H__
+
+#if !defined (__LIBTRACKER_EXTRACT_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-extract/tracker-extract.h> must be included directly."
+#endif
 
 #include <glib.h>
 
 G_BEGIN_DECLS
 
-G_GNUC_INTERNAL
-gchar *tracker_encoding_guess_enca (const gchar *buffer,
-                                    gsize        size);
+/* Returns TRUE if there is some method available to guess encodings */
+gboolean  tracker_encoding_can_guess (void);
+
+/* Returns NULL if it couldn't guess it */
+gchar    *tracker_encoding_guess     (const gchar *buffer,
+                                      gsize        size);
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_COMMON_ENCODING_ENCA_H__ */
+#endif /* __LIBTRACKER_EXTRACT_ENCODING_H__ */
