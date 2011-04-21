@@ -438,11 +438,11 @@ tracker_control_general_run (void)
 			return EXIT_FAILURE;
 		}
 
-		tracker_db_journal_init (NULL, FALSE);
+		tracker_db_journal_init (NULL, FALSE, NULL);
 
 		tracker_db_manager_remove_all (hard_reset);
 		tracker_db_manager_shutdown ();
-		tracker_db_journal_shutdown ();
+		tracker_db_journal_shutdown (NULL);
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);
