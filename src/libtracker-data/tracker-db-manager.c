@@ -410,7 +410,9 @@ db_manager_remove_journal (void)
 	tracker_db_journal_shutdown (&error);
 
 	if (error) {
-		g_message ("%s", error->message);
+		/* TODO: propagate error */
+		g_message ("Ignored error while shutting down journal during remove: %s",
+		           error->message ? error->message : "No error given");
 		g_error_free (error);
 	}
 

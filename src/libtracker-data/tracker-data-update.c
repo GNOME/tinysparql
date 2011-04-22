@@ -2964,6 +2964,7 @@ tracker_data_begin_transaction (GError **error)
 			tracker_db_journal_start_ontology_transaction (resource_time, &n_error);
 
 			if (n_error) {
+				/* Q: Should we do a tracker_data_rollback_transaction () here? */
 				tracker_db_interface_end_db_transaction (iface, NULL);
 				g_propagate_error (error, n_error);
 				return;
@@ -3115,7 +3116,9 @@ tracker_data_rollback_transaction (void)
 
 		if (ignorable) {
 			/* Not sure if this is also ignorable: it's the close() of the
-			 * journal file failing. */
+			 * journal file failing (in case of TRANSACTION_FORMAT_ONTOLOGY) */
+			g_warning ("Error ignored while rolling back transaction in journal: %s",
+			           ignorable->message ? ignorable->message : "No error given");
 			g_error_free (ignorable);
 		}
 
@@ -3216,7 +3219,8 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 
 	tracker_db_journal_reader_init (NULL, &n_error);
 	if (n_error) {
-		/* This is fatal */
+		/* This is fatal (doesn't happen when file doesn't exist, does happen
+		 * when for some other reason the reader can't be created) */
 		g_propagate_error (error, n_error);
 		return;
 	}
@@ -3482,7 +3486,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 
 		tracker_db_journal_init (NULL, FALSE, &n_error);
 		if (n_error) {
-			/* This is fatal */
+			/* This is fatal (journal file not writable, etc) */
 			g_propagate_error (error, n_error);
 			return;
 		}
@@ -3490,7 +3494,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		tracker_db_journal_shutdown (&n_error);
 
 		if (n_error) {
-			/* This is fatal */
+			/* This is fatal (close of journal file failed after truncate) */
 			g_propagate_error (error, n_error);
 			return;
 		}

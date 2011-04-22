@@ -3556,7 +3556,7 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 	iface = tracker_db_manager_get_db_interface ();
 
 	if (journal_check && is_first_time_index) {
-		/* Call may fail without notice */
+		/* Call may fail without notice (it's handled) */
 		if (tracker_db_journal_reader_init (NULL, NULL)) {
 			if (tracker_db_journal_reader_next (NULL)) {
 				/* journal with at least one valid transaction
@@ -4131,7 +4131,8 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 			if (g_error_matches (internal_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_NO_SPACE)) {
 				tracker_db_manager_remove_all (FALSE);
 				tracker_db_manager_shutdown ();
-				/* Call may fail without notice, we're in error handling already */
+				/* Call may fail without notice, we're in error handling already.
+				 * When fails it means that close() of journal file failed. */
 				tracker_db_journal_shutdown (NULL);
 			}
 
@@ -4206,7 +4207,8 @@ tracker_data_manager_shutdown (void)
 
 	if (error) {
 		/* TODO: propagate error */
-		g_warning ("%s", error->message);
+		g_warning ("While shutting down journal %s",
+		           error->message ? error->message : "No error given");
 		g_error_free (error);
 	}
 

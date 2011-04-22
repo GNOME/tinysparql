@@ -477,6 +477,8 @@ db_journal_init_file (JournalWriter  *jwriter,
 
 		/* If it didn't expand properly */
 		if (jwriter->cur_block == NULL) {
+			/* Q: Should we set error with out of memory here? When adding error
+			 * reporting there where no warnings or criticals here. */
 			g_free (jwriter->journal_filename);
 			jwriter->journal_filename = NULL;
 			return FALSE;
@@ -492,6 +494,9 @@ db_journal_init_file (JournalWriter  *jwriter,
 		jwriter->cur_block[7] = '4';
 
 		if (!write_all_data (jwriter->journal, jwriter->cur_block, 8)) {
+			/* Q: Can't write 8 bytes to the file, should we set error with out
+			 * of diskspace here? When adding error reporting there where no
+			 * warnings or criticals here. */
 			g_free (jwriter->journal_filename);
 			jwriter->journal_filename = NULL;
 			return FALSE;
@@ -1203,7 +1208,7 @@ tracker_db_journal_commit_db_transaction (GError **error)
 #endif /* GLib check */
 	}
 
-	/* Only report the first error here */
+	/* Coalesces the two error reports: */
 	if (n_error) {
 		g_propagate_error (error, n_error);
 		if (nn_error) {
