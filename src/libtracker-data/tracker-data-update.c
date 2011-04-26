@@ -2964,7 +2964,7 @@ tracker_data_begin_transaction (GError **error)
 			tracker_db_journal_start_ontology_transaction (resource_time, &n_error);
 
 			if (n_error) {
-				/* Q: Should we do a tracker_data_rollback_transaction () here? */
+				/* No need for rollback here */
 				tracker_db_interface_end_db_transaction (iface, NULL);
 				g_propagate_error (error, n_error);
 				return;
@@ -3032,15 +3032,9 @@ tracker_data_commit_transaction (GError **error)
 		}
 
 		if (actual_error) {
-
-			/* Can't write in journal anymore; quite a serious problem, not sure
-			 * if rollback of transaction in the sqlite database is what must be
-			 * done here (behaviour change while adding error reporting to the
-			 * journal) */
-
-			tracker_data_rollback_transaction ();
+			/* Can't write in journal anymore; quite a serious problem */
 			g_propagate_error (error, actual_error);
-			return;
+			/* Don't return, remainder of the function cleans things up */
 		}
 	}
 
@@ -3486,6 +3480,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 
 		tracker_db_journal_init (NULL, FALSE, &n_error);
 		if (n_error) {
+			g_clear_error (&journal_error);
 			/* This is fatal (journal file not writable, etc) */
 			g_propagate_error (error, n_error);
 			return;
@@ -3494,6 +3489,7 @@ tracker_data_replay_journal (TrackerBusyCallback   busy_callback,
 		tracker_db_journal_shutdown (&n_error);
 
 		if (n_error) {
+			g_clear_error (&journal_error);
 			/* This is fatal (close of journal file failed after truncate) */
 			g_propagate_error (error, n_error);
 			return;
