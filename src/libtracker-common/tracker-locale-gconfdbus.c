@@ -51,7 +51,7 @@ static guint watch_name_id = 0;
 static guint registration_id = 0;
 static GStaticMutex subscribers_mutex = G_STATIC_MUTEX_INIT;
 GDBusNodeInfo *introspection_data = NULL;
-static gboolean maemo_mode = TRUE;
+static gboolean meegotouch_mode = TRUE;
 static gboolean first_time = TRUE;
 
 /* gconf keys for tracker locales, as defined in:
@@ -295,7 +295,7 @@ on_gconfd_dbus_disappeared  (GDBusConnection *connection,
 void
 tracker_locale_gconfdbus_init (void)
 {
-	if (!g_getenv (TRACKER_DISABLE_MEEGOTOUCH_LOCALE_ENV) && maemo_mode) {
+	if (!g_getenv (TRACKER_DISABLE_MEEGOTOUCH_LOCALE_ENV) && meegotouch_mode) {
 		GError *error = NULL;
 		GVariant *reply;
 		guint i;
@@ -334,11 +334,11 @@ tracker_locale_gconfdbus_init (void)
 			if (error->code == G_DBUS_ERROR_UNKNOWN_METHOD) {
 				g_warning ("GetDefaultDatabase doesn't exist on %s, this GConf "
 				           "doesn't look like a gconf-dbus.\n"
-				           "Continuing in non-maemo mode",
+				           "Continuing in non-meegotouch mode",
 				           GCONF_DBUS_SERVER_OBJECT);
 				g_object_unref (connection);
 				connection = NULL;
-				maemo_mode = FALSE;
+				meegotouch_mode = FALSE;
 				return;
 			} else {
 				g_critical ("%s", error->message);
