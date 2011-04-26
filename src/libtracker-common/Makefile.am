@@ -64,7 +64,7 @@ libtracker_common_la_SOURCES += tracker-language.c
 noinst_HEADERS += tracker-language.h
 endif
 
-if HAVE_MAEMO
+if HAVE_MEEGOTOUCH
 libtracker_common_la_SOURCES += tracker-locale-gconfdbus.c
 noinst_HEADERS += tracker-locale-gconfdbus.h
 endif
