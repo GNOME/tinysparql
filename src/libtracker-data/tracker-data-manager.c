@@ -3557,13 +3557,17 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 
 	if (journal_check && is_first_time_index) {
 		/* Call may fail without notice (it's handled) */
-		if (tracker_db_journal_reader_init (NULL, NULL)) {
+		if (tracker_db_journal_reader_init (NULL, &internal_error)) {
 			if (tracker_db_journal_reader_next (NULL)) {
 				/* journal with at least one valid transaction
 				   is required to trigger journal replay */
 				read_journal = TRUE;
 			}
 			tracker_db_journal_reader_shutdown ();
+		} else if (internal_error && (internal_error->domain != TRACKER_DB_JOURNAL_ERROR ||
+			    internal_error->code != TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
 		}
 	}
 
@@ -4129,11 +4133,17 @@ tracker_data_manager_init (TrackerDBManagerFlags   flags,
 		if (internal_error) {
 
 			if (g_error_matches (internal_error, TRACKER_DB_INTERFACE_ERROR, TRACKER_DB_NO_SPACE)) {
+				GError *n_error = NULL;
 				tracker_db_manager_remove_all (FALSE);
 				tracker_db_manager_shutdown ();
 				/* Call may fail without notice, we're in error handling already.
 				 * When fails it means that close() of journal file failed. */
-				tracker_db_journal_shutdown (NULL);
+				tracker_db_journal_shutdown (&n_error);
+				if (n_error) {
+					g_warning ("Error closing journal: %s",
+					           n_error->message ? n_error->message : "No error given");
+					g_error_free (n_error);
+				}
 			}
 
 			g_hash_table_unref (uri_id_map);
