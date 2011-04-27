@@ -89,7 +89,7 @@ typedef struct {
 	gboolean style_element_present;
 	gboolean preserve_attribute_present;
 	GTimer *timer;
-	gboolean limit_reached;
+	GList *parts;
 } MsOfficeXMLParserInfo;
 
 static void extract_msoffice_xml                   (const gchar          *uri,
@@ -600,6 +600,23 @@ xml_read (MsOfficeXMLParserInfo *parser_info,
 	return TRUE;
 }
 
+static gint
+compare_slide_name (gconstpointer a,
+                    gconstpointer b)
+{
+	gchar *col_a, *col_b;
+	gint result;
+
+	col_a = g_utf8_collate_key_for_filename (a, -1);
+	col_b = g_utf8_collate_key_for_filename (b, -1);
+	result = strcmp (col_a, col_b);
+
+	g_free (col_a);
+	g_free (col_b);
+
+	return result;
+}
+
 static void
 msoffice_xml_content_types_parse_start (GMarkupParseContext  *context,
                                         const gchar          *element_name,
@@ -657,21 +674,11 @@ msoffice_xml_content_types_parse_start (GMarkupParseContext  *context,
 	    (info->file_type == FILE_TYPE_XLSX &&
 	     (g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml") == 0 ||
 	      g_ascii_strcasecmp (content_type, "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml") == 0))) {
-		/* If reached max bytes to extract, don't event start parsing the file... just return */
-		if (info->bytes_pending == 0) {
-			if (!info->limit_reached) {
-				g_debug ("Skipping '%s' as already reached max bytes to extract",
-				         part_name + 1);
-				info->limit_reached = TRUE;
-			}
-		} else if (g_timer_elapsed (info->timer, NULL) > 5) {
-			if (!info->limit_reached) {
-				g_debug ("Skipping '%s' as already reached max time to extract",
-					 part_name + 1);
-				info->limit_reached = TRUE;
-			}
+		if (info->file_type == FILE_TYPE_PPTX) {
+			info->parts = g_list_insert_sorted (info->parts, g_strdup (part_name + 1),
+			                                    compare_slide_name);
 		} else {
-			xml_read (info, part_name + 1, MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA);
+			info->parts = g_list_append (info->parts, g_strdup (part_name + 1));
 		}
 	}
 }
@@ -731,11 +738,39 @@ msoffice_xml_get_file_type (const gchar *uri)
 }
 
 static void
+extract_content (MsOfficeXMLParserInfo *info)
+{
+	GList *parts;
+
+	if (!info->parts) {
+		return;
+	}
+
+	for (parts = info->parts; parts; parts = parts->next) {
+		const gchar *part_name;
+
+		part_name = parts->data;
+		/* If reached max bytes to extract, don't event start parsing the file... just return */
+		if (info->bytes_pending == 0) {
+			g_debug ("Skipping '%s' as already reached max bytes to extract",
+			         part_name);
+			break;
+		} else if (g_timer_elapsed (info->timer, NULL) > 5) {
+			g_debug ("Skipping '%s' as already reached max time to extract",
+			         part_name);
+			break;
+		} else {
+			xml_read (info, part_name, MS_OFFICE_XML_TAG_DOCUMENT_TEXT_DATA);
+		}
+	}
+}
+
+static void
 extract_msoffice_xml (const gchar          *uri,
                       TrackerSparqlBuilder *preupdate,
                       TrackerSparqlBuilder *metadata)
 {
-	MsOfficeXMLParserInfo info;
+	MsOfficeXMLParserInfo info = { 0 };
 	MsOfficeXMLFileType file_type;
 	TrackerConfig *config;
 	GMarkupParseContext *context = NULL;
@@ -774,7 +809,6 @@ extract_msoffice_xml (const gchar          *uri,
 	                                      &info,
 	                                      NULL);
 
-	info.limit_reached = FALSE;
 	info.timer = g_timer_new ();
 	/* Load the internal XML file from the Zip archive, and parse it
 	 * using the given context */
@@ -788,6 +822,8 @@ extract_msoffice_xml (const gchar          *uri,
 		g_error_free (error);
 	}
 
+	extract_content (&info);
+
 	/* If we got any content, add it */
 	if (info.content) {
 		gchar *content;
@@ -800,6 +836,11 @@ extract_msoffice_xml (const gchar          *uri,
 			tracker_sparql_builder_object_unvalidated (metadata, content);
 			g_free (content);
 		}
+	}
+
+	if (info.parts) {
+		g_list_foreach (info.parts, (GFunc) g_free, NULL);
+		g_list_free (info.parts);
 	}
 
 	g_timer_destroy (info.timer);
