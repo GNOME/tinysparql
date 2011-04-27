@@ -94,6 +94,52 @@ tracker_miner_rss_class_init (TrackerMinerRSSClass *klass)
 	g_type_class_add_private (object_class, sizeof (TrackerMinerRSSPrivate));
 }
 
+static gboolean
+check_if_update_is_ours (TrackerSparqlConnection *con,
+                         gint                     p)
+{
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	gchar *query;
+	const gchar *p_str;
+	gboolean is_ours = FALSE;
+
+	/* We default by returning FALSE to avoid recursive updates */
+
+	/* FIXME: We should really use a:
+	 *          SELECT ... { FILTER(?id IN (1,2,3)) }
+	 *
+	 *        For efficiency when we add more updates.
+	 */
+	query = g_strdup_printf ("SELECT tracker:uri(%d) {}", p);
+        cursor = tracker_sparql_connection_query (con, query, NULL, &error);
+        g_free (query);
+
+        if (error) {
+	        g_critical ("Could not check if GraphUpdated was our last update or not: %s",
+	                    error->message ? error->message : "no error given");
+	        g_error_free (error);
+
+	        return is_ours;
+        }
+
+        tracker_sparql_cursor_next (cursor, NULL, NULL);
+        p_str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+
+        /* Crude way to check */
+        if (p_str) {
+	        if (g_ascii_strcasecmp (p_str, "http://www.tracker-project.org/temp/mfo#updatedTime") == 0) {
+		        is_ours = TRUE;
+	        }
+
+	        /* More checks for the future */
+        }
+
+        g_object_unref (cursor);
+
+        return is_ours;
+}
+
 static void
 graph_updated_cb (GDBusConnection *connection,
                   const gchar     *sender_name,
@@ -103,9 +149,48 @@ graph_updated_cb (GDBusConnection *connection,
                   GVariant        *parameters,
                   gpointer         user_data)
 {
-	g_message ("Subjects added or removed");
+	TrackerMinerRSS *rss;
+	TrackerSparqlConnection *con;
+	GVariantIter *deletes, *inserts;
+	const gchar *c;
+	gint g, s, p, o;
+	gboolean update_is_ours = FALSE;
 
-	retrieve_and_schedule_feeds (user_data);
+	rss = TRACKER_MINER_RSS (user_data);
+	con = tracker_miner_get_connection (TRACKER_MINER (rss));
+
+	g_message ("%s", signal_name);
+	g_message ("  parameters:'%s'", g_variant_print (parameters, FALSE));
+
+	g_message ("  ");
+
+	g_variant_get (parameters, "(&sa(iiii)a(iiii))", &c, &deletes, &inserts);
+	g_message ("  Class:'%s'", c);
+
+	g_message ("  Deletes:");
+
+	while (g_variant_iter_loop (deletes, "(iiii)", &g, &s, &p, &o)) {
+		g_message ("    g:%d, s:%d, p:%d, o:%d", g, s, p, o);
+		update_is_ours |= check_if_update_is_ours (con, p);
+	}
+
+	g_message ("  Inserts:");
+
+	while (g_variant_iter_loop (inserts, "(iiii)", &g, &s, &p, &o)) {
+		g_message ("    g:%d, s:%d, p:%d, o:%d", g, s, p, o);
+		update_is_ours |= check_if_update_is_ours (con, p);
+	}
+
+	g_variant_iter_free (deletes);
+	g_variant_iter_free (inserts);
+	g_variant_unref (parameters);
+
+	/* Check if it is our update or not */
+	if (!update_is_ours) {
+		retrieve_and_schedule_feeds (rss);
+	} else {
+		g_message ("  Signal was for our update, doing nothing");
+	}
 }
 
 static void
@@ -189,7 +274,7 @@ update_updated_interval (TrackerMinerRSS *miner,
 	tracker_sparql_builder_object_variable (sparql, "unknown");
 	tracker_sparql_builder_where_close (sparql);
 
-	tracker_sparql_builder_insert_open (sparql, uri);
+	tracker_sparql_builder_insert_open (sparql, NULL);
 	tracker_sparql_builder_subject_iri (sparql, uri);
 	tracker_sparql_builder_predicate (sparql, "mfo:updatedTime");
 	tracker_sparql_builder_object_date (sparql, now);
@@ -238,14 +323,20 @@ verify_item_insertion (GObject      *source,
                        gpointer      user_data)
 {
 	GError *error;
+	gchar *title;
 
+	title = user_data;
 	error = NULL;
 
 	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (source), result, &error);
 	if (error != NULL) {
-		g_critical ("Could not insert feed information, %s", error->message);
+		g_critical ("Could not insert feed information for message titled:'%s', %s",
+		            title,
+		            error->message);
 		g_error_free (error);
 	}
+
+	g_free (title);
 }
 
 static void
@@ -256,6 +347,7 @@ item_verify_reply_cb (GObject      *source_object,
 	TrackerSparqlConnection *connection;
 	time_t t;
 	gchar *uri;
+	gchar *title = NULL;
 	const gchar *str;
 	const gchar *url;
 	gdouble latitude;
@@ -302,7 +394,7 @@ item_verify_reply_cb (GObject      *source_object,
 	sparql = tracker_sparql_builder_new_update ();
 
 	has_geolocation = feed_item_get_geo_point (item, &latitude, &longitude);
-	tracker_sparql_builder_insert_open (sparql, url);
+	tracker_sparql_builder_insert_open (sparql, NULL);
 
 	if (has_geolocation) {
 		g_message ("  Geolocation, using longitude:%f, latitude:%f",
@@ -335,6 +427,8 @@ item_verify_reply_cb (GObject      *source_object,
 
 		tracker_sparql_builder_predicate (sparql, "nie:title");
 		tracker_sparql_builder_object_unvalidated (sparql, tmp_string);
+
+		title = g_strdup (tmp_string);
 	}
 
 	tmp_string = feed_item_get_description (item);
@@ -378,7 +472,7 @@ item_verify_reply_cb (GObject      *source_object,
 	                                        G_PRIORITY_DEFAULT,
 	                                        NULL,
 	                                        verify_item_insertion,
-	                                        NULL);
+	                                        title);
 
 	g_object_unref (cursor);
 	g_object_unref (sparql);
@@ -478,13 +572,15 @@ feeds_retrieve_cb (GObject      *source_object,
 	channels = NULL;
 	count = 0;
 
-	g_message ("Found feeds");
-
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *source;
 		const gchar *interval;
 		const gchar *subject;
 		gint mins;
+
+		if (count == 0) {
+			g_message ("Found feeds");
+		}
 
 		count++;
 
@@ -507,8 +603,13 @@ feeds_retrieve_cb (GObject      *source_object,
 		if (mins <= 0)
 			mins = 1;
 		feed_channel_set_update_interval (chan, mins);
+		g_message ("  Feed:'%s' with subject:'%s' has interval of %s minutes", source, subject, interval);
 
 		channels = g_list_prepend (channels, chan);
+	}
+
+	if (count == 0) {
+		g_message ("No feeds set up, nothing more to do");
 	}
 
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (user_data);
@@ -528,11 +629,14 @@ retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
 
 	g_message ("Retrieving and scheduling feeds...");
 
-	sparql = "SELECT ?chanUrl ?interval ?chanUrn WHERE "
-		"{ ?chanUrn a mfo:FeedChannel . "
-		"?chanUrn mfo:feedSettings ?settings . "
-		"?chanUrn nie:url ?chanUrl . "
-		"?settings mfo:updateInterval ?interval }";
+	sparql =
+		"SELECT ?chanUrl ?interval ?chanUrn "
+		"WHERE {"
+		"  ?chanUrn a mfo:FeedChannel ; "
+		"             mfo:feedSettings ?settings ; "
+		"             nie:url ?chanUrl . "
+		"  ?settings mfo:updateInterval ?interval "
+		"}";
 
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                                       sparql,
