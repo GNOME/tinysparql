@@ -41,7 +41,9 @@
 #include <sqlite3.h>
 
 #include <camel/camel.h>
+#ifndef HAVE_EDS_2_31_2
 #include <camel/camel-db.h>
+#endif
 
 #include <mail/mail-config.h>
 #include <mail/mail-session.h>
