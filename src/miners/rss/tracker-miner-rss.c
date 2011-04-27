@@ -253,6 +253,7 @@ item_verify_reply_cb (GObject      *source_object,
                       GAsyncResult *res,
                       gpointer      user_data)
 {
+	TrackerSparqlConnection *connection;
 	time_t t;
 	gchar *uri;
 	const gchar *str;
@@ -265,14 +266,11 @@ item_verify_reply_cb (GObject      *source_object,
 	TrackerSparqlBuilder *sparql;
 	FeedItem *item;
 	FeedChannel *feed;
-	TrackerMinerRSS *miner;
 	gboolean has_geolocation;
 
-	miner = TRACKER_MINER_RSS (source_object);
+	connection = TRACKER_SPARQL_CONNECTION (source_object);
 	error = NULL;
-	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (source_object),
-	                                                 res,
-	                                                 &error);
+	cursor = tracker_sparql_connection_query_finish (connection, res, &error);
 
 	if (error != NULL) {
 		g_message ("Could not verify feed existance, %s", error->message);
@@ -375,7 +373,7 @@ item_verify_reply_cb (GObject      *source_object,
 
 	tracker_sparql_builder_insert_close (sparql);
 
-	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
+	tracker_sparql_connection_update_async (connection,
 	                                        tracker_sparql_builder_get_result (sparql),
 	                                        G_PRIORITY_DEFAULT,
 	                                        NULL,
