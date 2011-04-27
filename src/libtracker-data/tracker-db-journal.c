@@ -482,8 +482,9 @@ db_journal_init_file (JournalWriter  *jwriter,
 
 		/* If it didn't expand properly */
 		if (jwriter->cur_block == NULL) {
-			/* Q: Should we set error with out of memory here? When adding error
-			 * reporting there where no warnings or criticals here. */
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
+			             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
+			             "Could not write journal, not enough memory");
 			g_free (jwriter->journal_filename);
 			jwriter->journal_filename = NULL;
 			return FALSE;
@@ -499,9 +500,10 @@ db_journal_init_file (JournalWriter  *jwriter,
 		jwriter->cur_block[7] = '4';
 
 		if (!write_all_data (jwriter->journal, jwriter->cur_block, 8)) {
-			/* Q: Can't write 8 bytes to the file, should we set error with out
-			 * of diskspace here? When adding error reporting there where no
-			 * warnings or criticals here. */
+			g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
+			             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
+			             "Could not write to journal file, %s",
+			             g_strerror (errno));
 			g_free (jwriter->journal_filename);
 			jwriter->journal_filename = NULL;
 			return FALSE;
