@@ -115,8 +115,8 @@ class TrackerSearchEntry  : ComboBoxEntry implements Gtk.Activatable
 
         return false
 
-    def sync_action_properties (action : Action)
+    def sync_action_properties (action : Gtk.Action)
         return
 
-    def update (action : Action, prop : string)
+    def update (action : Gtk.Action, prop : string)
         return
