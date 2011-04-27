@@ -319,7 +319,7 @@ public class Tracker.Store {
 		task.type = TaskType.UPDATE_BLANK;
 		task.query = sparql;
 		task.priority = priority;
-		task.callback = sparql_update.callback;
+		task.callback = sparql_update_blank.callback;
 		task.client_id = client_id;
 
 		update_queues[priority].push_tail (task);
