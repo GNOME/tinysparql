@@ -243,7 +243,13 @@ extract_content (PopplerDocument *document,
 		rect.x1 = rect.y1 = 0;
 		poppler_page_get_size (page, &rect.x2, &rect.y2);
 
+
+#ifdef HAVE_POPPLER_GLIB_0_14
 		text = poppler_page_get_text (page, POPPLER_SELECTION_WORD, &rect);
+#else
+		text = poppler_page_get_text (page);
+#endif
+
 		t = tracker_text_normalize (text, n_words - words, &normalized_words);
 
 		words += normalized_words;
