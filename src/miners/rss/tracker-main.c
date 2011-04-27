@@ -30,12 +30,22 @@
 #include "tracker-miner-rss.h"
 
 static gint verbosity = -1;
+static gchar *add_feed;
+static gchar *title;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
 	  "1 = minimal, 2 = detailed and 3 = debug (default=0)"),
+	  NULL },
+	{ "add-feed", 'a', 0,
+	  G_OPTION_ARG_STRING, &add_feed,
+	  N_("Add feed (must be used with --title)"),
+	  N_("URL") },
+	{ "title", 't', 0,
+	  G_OPTION_ARG_STRING, &title,
+	  N_("Title to use (must be used with --add-feed)"),
 	  NULL },
 	{ NULL }
 };
@@ -48,6 +58,7 @@ main (int argc, char **argv)
 	GOptionContext *context;
 	TrackerMinerRSS *miner;
 	GError *error = NULL;
+	const gchar *error_message;
 
 	g_type_init ();
 	g_thread_init (NULL);
@@ -65,7 +76,80 @@ main (int argc, char **argv)
 	context = g_option_context_new (_("- start the feeds indexer"));
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
+
+	if ((add_feed && !title) || (!add_feed && title)) {
+		error_message = _("Adding a feed requires --add-feed and --title");
+	} else {
+		error_message = NULL;
+	}
+
+	if (error_message) {
+		gchar *help;
+
+		g_printerr ("%s\n\n", error_message);
+
+		help = g_option_context_get_help (context, TRUE, NULL);
+		g_option_context_free (context);
+		g_printerr ("%s", help);
+		g_free (help);
+
+		return EXIT_FAILURE;
+	}
+
 	g_option_context_free (context);
+
+	if (add_feed && title) {
+		TrackerSparqlConnection *connection;
+		const gchar *query;
+
+		g_print ("Adding feed:\n"
+		         "  title:'%s'\n"
+		         "  url:'%s'\n",
+		         title,
+		         add_feed);
+
+		connection = tracker_sparql_connection_get (NULL, &error);
+
+		if (!connection) {
+			g_printerr ("%s: %s\n",
+			            _("Could not establish a connection to Tracker"),
+			            error ? error->message : _("No error given"));
+			g_clear_error (&error);
+			return EXIT_FAILURE;
+		}
+
+		/* FIXME: Make interval configurable */
+		query = g_strdup_printf ("INSERT {"
+		                         "  _:FeedSettings a mfo:FeedSettings ;"
+		                         "                   mfo:updateInterval 20 ."
+		                         "  _:Feed a nie:DataObject, mfo:FeedChannel ;"
+		                         "           mfo:feedSettings _:FeedSettings ;"
+		                         "           nie:url \"%s\" ;"
+		                         "           nie:title \"%s\" . "
+		                         "}",
+		                         add_feed,
+		                         title);
+
+		tracker_sparql_connection_update (connection,
+		                                  query,
+		                                  G_PRIORITY_DEFAULT,
+		                                  NULL,
+		                                  &error);
+
+		if (error) {
+			g_printerr ("%s, %s\n",
+			            _("Could not add feed"),
+			            error->message);
+			g_error_free (error);
+			g_object_unref (connection);
+
+			return EXIT_FAILURE;
+		}
+
+		g_print ("Done\n");
+
+		return EXIT_SUCCESS;
+	}
 
 	tracker_log_init (verbosity, &log_filename);
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
@@ -75,7 +159,7 @@ main (int argc, char **argv)
 	if (!miner) {
 		g_printerr ("Cannot create new RSS miner: '%s', exiting...\n",
 		            error ? error->message : "unknown error");
-		return -1;
+		return EXIT_FAILURE;
 	}
 
 	tracker_miner_start (TRACKER_MINER (miner));
@@ -87,5 +171,5 @@ main (int argc, char **argv)
 	g_main_loop_unref (loop);
 	g_object_unref (miner);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
