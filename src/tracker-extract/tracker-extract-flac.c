@@ -190,7 +190,7 @@ extract_flac (const gchar          *uri,
 		return;
 	}
 
-	while (!FLAC__metadata_simple_iterator_is_last (iter)) {
+	do {
 		switch (FLAC__metadata_simple_iterator_get_block_type (iter)) {
 		case FLAC__METADATA_TYPE_STREAMINFO:
 			stream = FLAC__metadata_simple_iterator_get_block (iter);
@@ -211,9 +211,7 @@ extract_flac (const gchar          *uri,
 		default:
 			break;
 		}
-
-		FLAC__metadata_simple_iterator_next (iter);
-	}
+	} while (FLAC__metadata_simple_iterator_next (iter));
 
 	creator = tracker_coalesce_strip (3, fd.artist, fd.albumartist,
 	                                  fd.performer);
