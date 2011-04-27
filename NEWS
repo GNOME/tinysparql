@@ -1,3 +1,25 @@
+NEW in 0.8.18 - 2011-04-27
+==========================
+
+The changes are:
+
+  * Fixes: GB#628672, evolution plugin does not build with e-d-s 2.31.91
+  * tracker-search-tool: Fix build with newer versions of Vala (0.12)
+  * tracker-extract: Fix build for poppler-glib > 0.14
+
+Translations:
+
+  * Updated da: Joe Hansen
+  * Updated ja: Takayuki KUSANO
+  * Updated pl: Piotr Drąg
+  * Updated pt_BR: Djavan Fagundes
+  * Updated sv: Daniel Nylander
+
+Notes:
+
+  None
+
+
 NEW in 0.8.17 - 2010-09-02
 ==========================
 
