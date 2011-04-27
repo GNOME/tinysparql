@@ -198,25 +198,24 @@ class Tracker.Sparql.Backend : Connection {
 		try {
 			// assign to owned variable to ensure it doesn't get freed between check and return
 			var result = singleton;
-			if (result != null) {
-				assert (direct_only == is_direct_only);
-				return result;
+
+			if (result == null) {
+				log_init ();
+
+				direct_only = is_direct_only;
+
+				result = new Tracker.Sparql.Backend ();
+
+				if (cancellable != null && cancellable.is_cancelled ()) {
+					throw new IOError.CANCELLED ("Operation was cancelled");
+				}
+
+				singleton = result;
+				result.add_weak_pointer ((void**) (&singleton));
 			}
 
-			log_init ();
-
-			direct_only = is_direct_only;
-
-			result = new Tracker.Sparql.Backend ();
-
-			if (cancellable != null && cancellable.is_cancelled ()) {
-				throw new IOError.CANCELLED ("Operation was cancelled");
-			}
-
-			singleton = result;
-			result.add_weak_pointer ((void**) (&singleton));
-
-			return singleton;
+			assert (direct_only == is_direct_only);
+			return result;
 		} finally {
 			door.unlock ();
 		}
