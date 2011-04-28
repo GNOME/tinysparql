@@ -11,7 +11,7 @@
 
 nco: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nco" ;
-	nao:lastModified "2011-04-14T18:10:00Z" .
+	nao:lastModified "2011-04-28T09:50:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -348,6 +348,7 @@ nco:phoneNumber a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PhoneNumber ;
 	rdfs:range xsd:string ;
+	tracker:indexed true ;
 	tracker:fulltextIndexed true ;
 	tracker:weight 5 .
 
