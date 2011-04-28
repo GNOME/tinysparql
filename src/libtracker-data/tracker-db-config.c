@@ -56,8 +56,8 @@ enum {
 };
 
 static TrackerConfigMigrationEntry migration[] = {
-        { G_TYPE_INT, GROUP_JOURNAL, "JournalChunkSize", "journal-chunk-size" },
-        { G_TYPE_STRING, GROUP_JOURNAL, "JournalRotateDestination", "journal-rotate-destination" },
+	{ G_TYPE_INT, GROUP_JOURNAL, "JournalChunkSize", "journal-chunk-size" },
+	{ G_TYPE_STRING, GROUP_JOURNAL, "JournalRotateDestination", "journal-rotate-destination" },
 };
 
 G_DEFINE_TYPE (TrackerDBConfig, tracker_db_config, G_TYPE_SETTINGS);
@@ -150,26 +150,26 @@ config_finalize (GObject *object)
 static void
 config_constructed (GObject *object)
 {
-        TrackerConfigFile *config_file;
+	TrackerConfigFile *config_file;
 
 	(G_OBJECT_CLASS (tracker_db_config_parent_class)->constructed) (object);
 
-        g_settings_delay (G_SETTINGS (object));
+	g_settings_delay (G_SETTINGS (object));
 
-        /* Migrate keyfile-based configuration */
-        config_file = tracker_config_file_new ();
-        if (config_file) {
-                tracker_config_file_migrate (config_file,
-                                             G_SETTINGS (object), migration);
-                g_object_unref (config_file);
-        }
+	/* Migrate keyfile-based configuration */
+	config_file = tracker_config_file_new ();
+	if (config_file) {
+		tracker_config_file_migrate (config_file,
+		                             G_SETTINGS (object), migration);
+		g_object_unref (config_file);
+	}
 }
 
 TrackerDBConfig *
 tracker_db_config_new (void)
 {
 	return g_object_new (TRACKER_TYPE_DB_CONFIG,
-                             "schema", "org.freedesktop.Tracker.DB",
+	                     "schema", "org.freedesktop.Tracker.DB",
 	                     "path", "/org/freedesktop/tracker/db/",
 	                     NULL);
 }
@@ -179,9 +179,9 @@ tracker_db_config_save (TrackerDBConfig *config)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_CONFIG (config), FALSE);
 
-        g_settings_apply (G_SETTINGS (config));
+	g_settings_apply (G_SETTINGS (config));
 
-        return TRUE;
+	return TRUE;
 }
 
 gint
@@ -206,7 +206,7 @@ tracker_db_config_set_journal_chunk_size (TrackerDBConfig *config,
 {
 	g_return_if_fail (TRACKER_IS_DB_CONFIG (config));
 
-        g_settings_set_int (G_SETTINGS (config), "journal-chunk-size", value);
+	g_settings_set_int (G_SETTINGS (config), "journal-chunk-size", value);
 	g_object_notify (G_OBJECT (config), "journal-chunk-size");
 }
 
@@ -216,6 +216,6 @@ tracker_db_config_set_journal_rotate_destination (TrackerDBConfig *config,
 {
 	g_return_if_fail (TRACKER_IS_DB_CONFIG (config));
 
-        g_settings_set_string (G_SETTINGS (config), "journal-rotate-destination", value);
+	g_settings_set_string (G_SETTINGS (config), "journal-rotate-destination", value);
 	g_object_notify (G_OBJECT (config), "journal-rotate-destination");
 }

@@ -113,8 +113,8 @@ static TrackerConfigMigrationEntry migration[] = {
 	{ G_TYPE_POINTER, "Indexing", "IgnoredDirectories",            "ignored-directories"              },
 	{ G_TYPE_POINTER, "Indexing", "IgnoredDirectoriesWithContent", "ignored-directories-with-content" },
 	{ G_TYPE_POINTER, "Indexing", "IgnoredFiles",                  "ignored-files"                    },
-	{ G_TYPE_INT,	  "Indexing", "CrawlingInterval",              "crawling-interval"                },
-	{ G_TYPE_INT,	  "Indexing", "RemovableDaysThreshold",        "removable-days-threshold"         },
+	{ G_TYPE_INT,     "Indexing", "CrawlingInterval",              "crawling-interval"                },
+	{ G_TYPE_INT,     "Indexing", "RemovableDaysThreshold",        "removable-days-threshold"         },
 	{ 0 }
 };
 
