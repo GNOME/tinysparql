@@ -36,6 +36,11 @@ namespace Tracker {
 		NO_SPACE
 	}
 
+	[CCode (cprefix = "TRACKER_DATA_BACKUP_ERROR_", cheader_filename = "libtracker-data/tracker-data-backup.h")]
+	public errordomain DataBackupError {
+		INVALID_URI
+	}
+
 	[CCode (cprefix = "TRACKER_DB_STATEMENT_CACHE_TYPE_", cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public enum DBStatementCacheType {
 		SELECT,
