@@ -39,11 +39,12 @@ public string tracker_time_format_from_iso8601 (string s) {
 
 	// if it's more than a week, use the default date format
 	if (diff_days_abs > 7) {
-		return t.format ("%x");
+		/* Translators: This is a strftime(3) date format string, read its man page to fit your locale better */
+		return t.format (_("%x"));
 	}
 
 	if (diff_days_abs == 0) {
-		return "Today";
+		return _("Today");
 	} else {
 		bool future = false;
 
@@ -52,9 +53,9 @@ public string tracker_time_format_from_iso8601 (string s) {
 
 		if (diff_days <= 1) {
 			if (future)
-				return "Tomorrow";
+				return _("Tomorrow");
 			else
-				return "Yesterday";
+				return _("Yesterday");
 		} else {
 			if (future) {
 				/* Translators: %d is replaced with a number of days. It's always greater than 1 */
