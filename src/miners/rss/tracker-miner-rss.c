@@ -375,7 +375,7 @@ item_verify_reply_cb (GObject      *source_object,
 	}
 
 	str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-	if (g_strcmp0 (str, "1") == 0) {
+	if (str && g_ascii_strcasecmp (str, "true") == 0) {
 		g_object_unref (cursor);
 		return;
 	}
