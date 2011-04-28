@@ -122,7 +122,7 @@ opf_xml_start_element_handler (GMarkupParseContext  *context,
 			if (g_strcmp0 (attribute_names[i], "href") == 0) {
 				rel_path = attribute_values[i];
 			} else if (g_strcmp0 (attribute_names[i], "media-type") == 0 &&
-				   g_strcmp0 (attribute_values[i], "application/xhtml+xml") == 0) {
+			           g_strcmp0 (attribute_values[i], "application/xhtml+xml") == 0) {
 				is_xhtml = TRUE;
 			}
 		}
@@ -191,10 +191,10 @@ opf_xml_text_handler (GMarkupParseContext   *context,
 /* Methods to extract XHTML text content */
 static void
 content_xml_text_handler (GMarkupParseContext   *context,
-			  const gchar           *text,
-			  gsize                  text_len,
-			  gpointer               user_data,
-			  GError               **error)
+                          const gchar           *text,
+                          gsize                  text_len,
+                          gpointer               user_data,
+                          GError               **error)
 {
 	OPFContentData *content_data = user_data;
 	gsize written_bytes = 0;
@@ -247,8 +247,8 @@ extract_opf_path (const gchar *uri)
 
 static gchar *
 extract_opf_contents (const gchar *uri,
-		      const gchar *content_prefix,
-		      GList       *content_files)
+                      const gchar *content_prefix,
+                      GList       *content_files)
 {
 	OPFContentData content_data = { 0 };
 	GMarkupParseContext *context;
@@ -279,7 +279,7 @@ extract_opf_contents (const gchar *uri,
 
 		if (error) {
 			g_warning ("Error extracting EPUB contents: %s\n",
-				   error->message);
+			           error->message);
 			break;
 		}
 
@@ -296,9 +296,9 @@ extract_opf_contents (const gchar *uri,
 
 static gboolean
 extract_opf (const gchar          *uri,
-	     const gchar          *opf_path,
-	     TrackerSparqlBuilder *preupdate,
-	     TrackerSparqlBuilder *metadata)
+             const gchar          *opf_path,
+             TrackerSparqlBuilder *preupdate,
+             TrackerSparqlBuilder *metadata)
 {
 	GMarkupParseContext *context;
 	OPFData data = { 0 };
