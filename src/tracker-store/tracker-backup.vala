@@ -77,6 +77,10 @@ public class Tracker.Backup : Object {
 
 			var journal = File.new_for_uri (journal_uri);
 
+			if (journal == null || journal.get_path() == null) {
+				throw new DataBackupError.INVALID_URI ("'" + journal_uri + "' is not a valid uri");
+			}
+
 			var notifier = (Status) (Tracker.DBus.get_object (typeof (Status)));
 			var busy_callback = notifier.get_callback ();
 
