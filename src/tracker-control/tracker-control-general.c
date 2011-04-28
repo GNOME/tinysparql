@@ -52,6 +52,8 @@ static gboolean hard_reset;
 static gboolean soft_reset;
 static gboolean remove_config;
 static gboolean start;
+static gchar *backup;
+static gchar *restore;
 
 #define GENERAL_OPTIONS_ENABLED() \
 	(list_processes || \
@@ -60,7 +62,9 @@ static gboolean start;
 	 hard_reset || \
 	 soft_reset || \
 	 remove_config || \
-	 start)
+	 start || \
+	 backup || \
+	 restore)
 
 static gboolean term_option_arg_func (const gchar  *option_value,
                                       const gchar  *value,
@@ -88,6 +92,12 @@ static GOptionEntry entries[] = {
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
 	  NULL },
+	{ "backup", 'b', 0, G_OPTION_ARG_STRING, &backup,
+	  N_("Backup databases to the location provided"),
+	  N_("PATH") },
+	{ "restore", 'o', 0, G_OPTION_ARG_STRING, &restore,
+	  N_("Restore databases from the location provided"),
+	  N_("PATH") },
 	{ NULL }
 };
 
@@ -533,6 +543,122 @@ tracker_control_general_run (void)
 
 		g_slist_free (miners);
 		g_object_unref (manager);
+	}
+
+	if (backup) {
+		GDBusConnection *connection;
+		GDBusProxy *proxy;
+		GError *error = NULL;
+		GVariant *v;
+
+		g_print ("%s\n", _("Backing up database"));
+		g_print ("  %s\n", backup);
+
+		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+
+		if (!connection) {
+			g_critical ("Could not connect to the D-Bus session bus, %s",
+			            error ? error->message : "no error given.");
+			g_clear_error (&error);
+			return EXIT_FAILURE;
+		}
+
+		proxy = g_dbus_proxy_new_sync (connection,
+		                               G_DBUS_PROXY_FLAGS_NONE,
+		                               NULL,
+		                               "org.freedesktop.Tracker1",
+		                               "/org/freedesktop/Tracker1/Backup",
+		                               "org.freedesktop.Tracker1.Backup",
+		                               NULL,
+		                               &error);
+
+		if (error) {
+			g_critical ("Could not create proxy on the D-Bus session bus, %s",
+			            error ? error->message : "no error given.");
+			g_clear_error (&error);
+			return EXIT_FAILURE;
+		}
+
+		v = g_dbus_proxy_call_sync (proxy,
+		                            "Save",
+		                            g_variant_new ("(s)", backup),
+		                            G_DBUS_CALL_FLAGS_NONE,
+		                            -1,
+		                            NULL,
+		                            &error);
+
+		if (proxy) {
+			g_object_unref (proxy);
+		}
+
+		if (error) {
+			g_critical ("Could not backup database, %s",
+			            error ? error->message : "no error given.");
+			g_clear_error (&error);
+			return EXIT_FAILURE;
+		}
+
+		if (v) {
+			g_variant_unref (v);
+		}
+	}
+
+	if (restore) {
+		GDBusConnection *connection;
+		GDBusProxy *proxy;
+		GError *error = NULL;
+		GVariant *v;
+
+		g_print ("%s\n", _("Restoring database from backup"));
+		g_print ("  %s\n", restore);
+
+		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+
+		if (!connection) {
+			g_critical ("Could not connect to the D-Bus session bus, %s",
+			            error ? error->message : "no error given.");
+			g_clear_error (&error);
+			return EXIT_FAILURE;
+		}
+
+		proxy = g_dbus_proxy_new_sync (connection,
+		                               G_DBUS_PROXY_FLAGS_NONE,
+		                               NULL,
+		                               "org.freedesktop.Tracker1",
+		                               "/org/freedesktop/Tracker1/Backup",
+		                               "org.freedesktop.Tracker1.Backup",
+		                               NULL,
+		                               &error);
+
+		if (error) {
+			g_critical ("Could not create proxy on the D-Bus session bus, %s",
+			            error ? error->message : "no error given.");
+			g_clear_error (&error);
+			return EXIT_FAILURE;
+		}
+
+		v = g_dbus_proxy_call_sync (proxy,
+		                            "Restore",
+		                            g_variant_new ("(s)", restore),
+		                            G_DBUS_CALL_FLAGS_NONE,
+		                            -1,
+		                            NULL,
+		                            &error);
+
+		if (proxy) {
+			g_object_unref (proxy);
+		}
+
+		if (error) {
+			g_critical ("Could not restore database, %s",
+			            error ? error->message : "no error given.");
+			g_clear_error (&error);
+			return EXIT_FAILURE;
+		}
+
+		if (v) {
+			g_variant_unref (v);
+		}
 	}
 
 	return EXIT_SUCCESS;
