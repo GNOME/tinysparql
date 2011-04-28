@@ -1,3 +1,23 @@
+NEW in 0.10.11 - 2011-04-28
+===========================
+
+The changes are:
+
+  * Fixes: GB#633108, FLAC extractor doesn't work properly
+  * Fixes: GB#632876, Wrong extraction order in MsOffice-XML powerpoint files
+  * Fixes: NB#250959, Huge increase in contact import time with command line tools in staging
+  * Fixes: NB#250455, QSparqlConnection leaks tracker-sparql objects
+  * Fixes: NB#249787, Drop libmeegotouchcore dependency from libtracker-sparql
+
+Translations:
+
+  * Updated ja: Takeshi AIHANA
+
+Notes:
+
+  None
+
+
 NEW in 0.10.10 - 2011-04-21
 ===========================
 
