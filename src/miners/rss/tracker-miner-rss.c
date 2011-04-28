@@ -160,24 +160,15 @@ graph_updated_cb (GDBusConnection *connection,
 	con = tracker_miner_get_connection (TRACKER_MINER (rss));
 
 	g_message ("%s", signal_name);
-	g_message ("  parameters:'%s'", g_variant_print (parameters, FALSE));
-
-	g_message ("  ");
+	g_message ("  Parameters:'%s'", g_variant_print (parameters, FALSE));
 
 	g_variant_get (parameters, "(&sa(iiii)a(iiii))", &c, &deletes, &inserts);
-	g_message ("  Class:'%s'", c);
 
-	g_message ("  Deletes:");
-
-	while (g_variant_iter_loop (deletes, "(iiii)", &g, &s, &p, &o)) {
-		g_message ("    g:%d, s:%d, p:%d, o:%d", g, s, p, o);
+	while (!update_is_ours && g_variant_iter_loop (deletes, "(iiii)", &g, &s, &p, &o)) {
 		update_is_ours |= check_if_update_is_ours (con, p);
 	}
 
-	g_message ("  Inserts:");
-
-	while (g_variant_iter_loop (inserts, "(iiii)", &g, &s, &p, &o)) {
-		g_message ("    g:%d, s:%d, p:%d, o:%d", g, s, p, o);
+	while (!update_is_ours && g_variant_iter_loop (inserts, "(iiii)", &g, &s, &p, &o)) {
 		update_is_ours |= check_if_update_is_ours (con, p);
 	}
 
@@ -234,9 +225,9 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 }
 
 static void
-verify_channel_update (GObject      *source,
-                       GAsyncResult *result,
-                       gpointer      user_data)
+feed_change_updated_interval_cb (GObject      *source,
+                                 GAsyncResult *result,
+                                 gpointer      user_data)
 {
 	GError *error;
 
@@ -250,13 +241,17 @@ verify_channel_update (GObject      *source,
 }
 
 static void
-update_updated_interval (TrackerMinerRSS *miner,
-                         gchar           *uri,
-                         time_t          *now)
+feed_change_updated_interval (TrackerMinerRSS *miner,
+                              FeedChannel     *feed)
 {
 	TrackerSparqlBuilder *sparql;
+	gchar *uri;
+	time_t now;
 
-	g_message ("Updating mfo:updatedTime for channel '%s'", uri);
+	now = time (NULL);
+	uri = g_object_get_data (G_OBJECT (feed), "subject");
+
+	g_message ("Updating mfo:updatedTime for channel '%s'", feed_channel_get_title (feed));
 
 	/* I hope there will be soon a SPARQL command to just update a
 	 * value instead to delete and re-insert it
@@ -277,14 +272,14 @@ update_updated_interval (TrackerMinerRSS *miner,
 	tracker_sparql_builder_insert_open (sparql, NULL);
 	tracker_sparql_builder_subject_iri (sparql, uri);
 	tracker_sparql_builder_predicate (sparql, "mfo:updatedTime");
-	tracker_sparql_builder_object_date (sparql, now);
+	tracker_sparql_builder_object_date (sparql, &now);
 	tracker_sparql_builder_insert_close (sparql);
 
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                                        tracker_sparql_builder_get_result (sparql),
 	                                        G_PRIORITY_DEFAULT,
 	                                        NULL,
-	                                        verify_channel_update,
+	                                        feed_change_updated_interval_cb,
 	                                        NULL);
 	g_object_unref (sparql);
 }
@@ -493,8 +488,11 @@ check_if_save (TrackerMinerRSS *miner,
 
 	g_debug ("Verifying feed '%s' is stored", url);
 
-	query = g_strdup_printf ("ASK { ?message a mfo:FeedMessage; "
-	                         "nie:url \"%s\"; nmo:communicationChannel <%s> }",
+	query = g_strdup_printf ("ASK {"
+	                         "  ?message a mfo:FeedMessage ;"
+	                         "             nie:url \"%s\";"
+	                         "             nmo:communicationChannel <%s> "
+	                         "}",
 	                         url,
 	                         communication_channel);
 
@@ -512,12 +510,10 @@ feed_fetched (FeedsPool   *pool,
               GList       *items,
               gpointer     user_data)
 {
-	gchar *uri;
-	time_t now;
-	GList *iter;
-	FeedItem *item;
 	TrackerMinerRSS *miner;
 	TrackerMinerRSSPrivate *priv;
+	GList *iter;
+	FeedItem *item;
 
 	miner = TRACKER_MINER_RSS (user_data);
 	priv = TRACKER_MINER_RSS_GET_PRIVATE (miner);
@@ -531,12 +527,11 @@ feed_fetched (FeedsPool   *pool,
 		g_object_set (miner, "progress", 1.0, "status", "Idle", NULL);
 	}
 
-	if (items == NULL)
+	if (items == NULL) {
 		return;
+	}
 
-	now = time (NULL);
-	uri = g_object_get_data (G_OBJECT (feed), "subject");
-	update_updated_interval (miner, uri, &now);
+	feed_change_updated_interval (miner, feed);
 
 	for (iter = items; iter; iter = iter->next) {
 		item = iter->data;
@@ -574,19 +569,21 @@ feeds_retrieve_cb (GObject      *source_object,
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *source;
+		const gchar *title;
 		const gchar *interval;
 		const gchar *subject;
 		gint mins;
 
 		if (count == 0) {
-			g_message ("Found feeds");
+			g_message ("Feeds found:");
 		}
 
 		count++;
 
 		source = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-		interval = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-		subject = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+		title = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+		interval = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+		subject = tracker_sparql_cursor_get_string (cursor, 3, NULL);
 
 		chan = feed_channel_new ();
 		g_object_set_data_full (G_OBJECT (chan),
@@ -603,7 +600,11 @@ feeds_retrieve_cb (GObject      *source_object,
 		if (mins <= 0)
 			mins = 1;
 		feed_channel_set_update_interval (chan, mins);
-		g_message ("  Feed:'%s' with subject:'%s' has interval of %s minutes", source, subject, interval);
+
+		g_message ("  '%s' (%s) - update interval of %s minutes",
+		           title,
+		           source,
+		           interval);
 
 		channels = g_list_prepend (channels, chan);
 	}
@@ -630,11 +631,11 @@ retrieve_and_schedule_feeds (TrackerMinerRSS *miner)
 	g_message ("Retrieving and scheduling feeds...");
 
 	sparql =
-		"SELECT ?chanUrl ?interval ?chanUrn "
+		"SELECT ?url nie:title(?urn) ?interval ?urn "
 		"WHERE {"
-		"  ?chanUrn a mfo:FeedChannel ; "
-		"             mfo:feedSettings ?settings ; "
-		"             nie:url ?chanUrl . "
+		"  ?urn a mfo:FeedChannel ; "
+		"         mfo:feedSettings ?settings ; "
+		"         nie:url ?url . "
 		"  ?settings mfo:updateInterval ?interval "
 		"}";
 
