@@ -33,6 +33,10 @@ public class Tracker.Backup : Object {
 		try {
 			var destination = File.new_for_uri (destination_uri);
 
+			if (destination == null || destination.get_path() == null) {
+				throw new DataBackupError.INVALID_URI ("'" + destination_uri + "' is not a valid uri");
+			}
+
 			yield Tracker.Store.pause ();
 
 			Error backup_error = null;

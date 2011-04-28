@@ -205,7 +205,8 @@ process_context_child_watch_cb (GPid     pid,
 	context = (ProcessContext *) user_data;
 
 	if (context->lines) {
-		g_set_error (&error, TRACKER_DATA_BACKUP_ERROR, 0,
+		g_set_error (&error, TRACKER_DATA_BACKUP_ERROR,
+		             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
 		             "%s", context->lines->str);
 	}
 
@@ -283,7 +284,8 @@ tracker_data_backup_save (GFile *destination,
 	                                        &stdout_channel,
 	                                        &stderr_channel)) {
 		GError *error = NULL;
-		g_set_error (&error, TRACKER_DATA_BACKUP_ERROR, 0,
+		g_set_error (&error, TRACKER_DATA_BACKUP_ERROR,
+		             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
 		             "Error starting tar program");
 		on_journal_copied (info, error);
 		g_strfreev (argv);
@@ -358,19 +360,22 @@ tracker_data_backup_restore (GFile                *journal,
 		 * journal, as nobody should be writing anything at this point */
 
 		if (!tracker_spawn (argv, 0, &tmp_stdout, &tmp_stderr, &exit_status)) {
-			g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0,
+			g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,
+			             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
 			             "Error starting tar program");
 		}
 
 		if (!info->error && tmp_stderr) {
 			if (strlen (tmp_stderr) > 0) {
-				g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0,
+				g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,
+				             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
 				             "%s", tmp_stderr);
 			}
 		}
 
 		if (!info->error && exit_status != 0) {
-			g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0,
+			g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,
+			             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
 			             "Unknown error, tar exited with exit status %d", exit_status);
 		}
 
@@ -425,7 +430,8 @@ tracker_data_backup_restore (GFile                *journal,
 			tracker_db_manager_set_need_mtime_check (TRUE);
 		}
 	} else {
-		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR, 0,
+		g_set_error (&info->error, TRACKER_DATA_BACKUP_ERROR,
+		             TRACKER_DATA_BACKUP_ERROR_UNKNOWN,
 		             "Backup file doesn't exist");
 	}
 
