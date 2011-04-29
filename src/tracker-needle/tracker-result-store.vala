@@ -763,6 +763,31 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 	public void unref_node (Gtk.TreeIter iter) {
 	}
 
+	private void theme_changed (IconTheme theme) {
+		TreeIter iter;
+		int i, j;
+
+		iter = TreeIter ();
+		iter.stamp = this.timestamp;
+
+		for (i = 0; i < categories.length; i++) {
+			CategoryNode cat = categories[i];
+
+			iter.user_data = cat;
+
+			for (j = cat.count - 1; j >= 0; j--) {
+				var result = cat.results[j];
+
+				iter.user_data2 = &cat.results[j];
+				iter.user_data3 = j.to_pointer ();
+
+				if (result.pixbuf != null) {
+					fetch_thumbnail.begin (iter);
+				}
+			}
+		}
+	}
+
 	public ResultStore (int _n_columns) {
 		categories = new GenericArray<CategoryNode> ();
 		running_operations = new GenericArray<Operation?> ();
@@ -771,6 +796,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		n_columns = _n_columns;
 		timestamp = 1;
 		icon_size = 24; // Default value, overridden by tracker-needle.vala
+
+		var theme = IconTheme.get_for_screen (Gdk.Screen.get_default ());
+		theme.changed.connect (theme_changed);
 	}
 
 	public void add_query (Tracker.Query.Type type, Tracker.Query.Match match, ...) {
