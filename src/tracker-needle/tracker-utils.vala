@@ -40,6 +40,7 @@ public string tracker_time_format_from_iso8601 (string s) {
 	// if it's more than a week, use the default date format
 	if (diff_days_abs > 7) {
 		/* Translators: This is a strftime(3) date format string, read its man page to fit your locale better */
+		/*xgettext:no-c-format*/
 		return t.format (_("%x"));
 	}
 
