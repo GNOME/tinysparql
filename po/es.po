@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-04-28 15:13+0000\n"
-"PO-Revision-Date: 2011-04-28 21:04+0200\n"
+"POT-Creation-Date: 2011-04-29 16:48+0000\n"
+"PO-Revision-Date: 2011-04-29 20:40+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -945,25 +945,25 @@ msgstr ""
 "Tracker"
 
 #. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
-#: ../src/tracker-needle/tracker-utils.vala:43
-#, c-format
+#: ../src/tracker-needle/tracker-utils.vala:44
+#, no-c-format
 msgid "%x"
 msgstr "%x"
 
-#: ../src/tracker-needle/tracker-utils.vala:47
+#: ../src/tracker-needle/tracker-utils.vala:48
 msgid "Today"
 msgstr "Hoy"
 
-#: ../src/tracker-needle/tracker-utils.vala:56
+#: ../src/tracker-needle/tracker-utils.vala:57
 msgid "Tomorrow"
 msgstr "Mañana"
 
-#: ../src/tracker-needle/tracker-utils.vala:58
+#: ../src/tracker-needle/tracker-utils.vala:59
 msgid "Yesterday"
 msgstr "Ayer"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:62
+#: ../src/tracker-needle/tracker-utils.vala:63
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
@@ -971,15 +971,15 @@ msgstr[0] "%ld día desde ahora"
 msgstr[1] "%ld días desde ahora"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:65
+#: ../src/tracker-needle/tracker-utils.vala:66
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
 msgstr[0] "hace %ld día"
 msgstr[1] "hace %ld días"
 
-#: ../src/tracker-needle/tracker-utils.vala:77
-#: ../src/tracker-needle/tracker-utils.vala:106
+#: ../src/tracker-needle/tracker-utils.vala:78
+#: ../src/tracker-needle/tracker-utils.vala:107
 msgid "Less than one second"
 msgstr "Menos de un segundo"
 
@@ -1439,7 +1439,7 @@ msgid "No miners are running"
 msgstr "No hay ningún minero en ejecución"
 
 #: ../src/tracker-control/tracker-control-miners.c:304
-#: ../src/tracker-control/tracker-control-status.c:552
+#: ../src/tracker-control/tracker-control-status.c:550
 msgid "Miners"
 msgstr "Mineros"
 
@@ -1476,7 +1476,7 @@ msgid "Show miner options"
 msgstr "Mostrar las opciones del minero"
 
 #: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:294
+#: ../src/tracker-control/tracker-control-status.c:292
 msgid "Unavailable"
 msgstr "No disponible"
 
@@ -1525,38 +1525,41 @@ msgstr "Lista de estados comunes para los mineros y el almacén"
 msgid "Could not get status from miner: %s"
 msgstr "No se pudo obtener el estado del minero: %s"
 
-#: ../src/tracker-control/tracker-control-status.c:198
-msgid "remaining"
-msgstr "restante"
+#. Translators: %s is a time string
+#: ../src/tracker-control/tracker-control-status.c:197
+#, c-format
+#| msgid "remaining"
+msgid "%s remaining"
+msgstr "%s restante"
 
-#: ../src/tracker-control/tracker-control-status.c:202
+#: ../src/tracker-control/tracker-control-status.c:200
 msgid "unknown time left"
 msgstr "tiempo restante desconocido"
 
 #. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:215
-#: ../src/tracker-control/tracker-control-status.c:536
+#: ../src/tracker-control/tracker-control-status.c:213
+#: ../src/tracker-control/tracker-control-status.c:534
 msgid "PAUSED"
 msgstr "PAUSADO"
 
-#: ../src/tracker-control/tracker-control-status.c:232
+#: ../src/tracker-control/tracker-control-status.c:230
 msgid "Not running or is a disabled plugin"
 msgstr "No está en ejecución o es un complemento desactivado"
 
-#: ../src/tracker-control/tracker-control-status.c:510
+#: ../src/tracker-control/tracker-control-status.c:508
 msgid "Common statuses include"
 msgstr "Los estados comunes incluyen"
 
 #. Display states
-#: ../src/tracker-control/tracker-control-status.c:546
+#: ../src/tracker-control/tracker-control-status.c:544
 msgid "Store"
 msgstr "Almacenar"
 
-#: ../src/tracker-control/tracker-control-status.c:667
+#: ../src/tracker-control/tracker-control-status.c:665
 msgid "Status options"
 msgstr "Opciones de estado"
 
-#: ../src/tracker-control/tracker-control-status.c:668
+#: ../src/tracker-control/tracker-control-status.c:666
 msgid "Show status options"
 msgstr "Mostrar las opciones de estado"
 
