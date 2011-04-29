@@ -46,71 +46,191 @@ static TrackerExtractData data[] = {
 	{ NULL, NULL }
 };
 
+typedef struct AbwParserData AbwParserData;
+typedef enum {
+	ABW_PARSER_TAG_UNHANDLED,
+	ABW_PARSER_TAG_TITLE,
+	ABW_PARSER_TAG_SUBJECT,
+	ABW_PARSER_TAG_CREATOR,
+	ABW_PARSER_TAG_KEYWORDS,
+	ABW_PARSER_TAG_DESCRIPTION,
+	ABW_PARSER_TAG_GENERATOR
+} AbwParserTag;
+
+struct AbwParserData {
+	TrackerSparqlBuilder *metadata;
+	TrackerSparqlBuilder *preupdate;
+	GString *content;
+
+	guint cur_tag;
+	guint in_text : 1;
+};
+
+static void
+abw_parser_start_elem (GMarkupParseContext *context,
+                       const gchar         *element_name,
+                       const gchar        **attribute_names,
+                       const gchar        **attribute_values,
+                       gpointer             user_data,
+                       GError             **error)
+{
+	AbwParserData *data = user_data;
+
+	if (g_strcmp0 (element_name, "m") == 0 &&
+	    g_strcmp0 (attribute_names[0], "key") == 0) {
+		if (g_strcmp0 (attribute_values[0], "dc.title") == 0) {
+			data->cur_tag = ABW_PARSER_TAG_TITLE;
+		} else if (g_strcmp0 (attribute_values[0], "dc.subject") == 0) {
+			data->cur_tag = ABW_PARSER_TAG_SUBJECT;
+		} else if (g_strcmp0 (attribute_values[0], "dc.creator") == 0) {
+			data->cur_tag = ABW_PARSER_TAG_CREATOR;
+		} else if (g_strcmp0 (attribute_values[0], "abiword.keywords") == 0) {
+			data->cur_tag = ABW_PARSER_TAG_KEYWORDS;
+		} else if (g_strcmp0 (attribute_values[0], "dc.description") == 0) {
+			data->cur_tag = ABW_PARSER_TAG_DESCRIPTION;
+		} else if (g_strcmp0 (attribute_values[0], "abiword.generator") == 0) {
+			data->cur_tag = ABW_PARSER_TAG_GENERATOR;
+		}
+	} else if (g_strcmp0 (element_name, "section") == 0) {
+		data->in_text = TRUE;
+	}
+}
+
+static void
+abw_parser_text (GMarkupParseContext *context,
+                 const gchar         *text,
+                 gsize                text_len,
+                 gpointer             user_data,
+                 GError             **error)
+{
+	AbwParserData *data = user_data;
+	gchar *str;
+
+	str = g_strndup (text, text_len);
+
+	switch (data->cur_tag) {
+	case ABW_PARSER_TAG_TITLE:
+		tracker_sparql_builder_predicate (data->metadata, "nie:title");
+		tracker_sparql_builder_object_unvalidated (data->metadata, str);
+		break;
+	case ABW_PARSER_TAG_SUBJECT:
+		tracker_sparql_builder_predicate (data->metadata, "nie:subject");
+		tracker_sparql_builder_object_unvalidated (data->metadata, str);
+		break;
+	case ABW_PARSER_TAG_CREATOR:
+		tracker_sparql_builder_predicate (data->metadata, "nco:creator");
+
+		tracker_sparql_builder_object_blank_open (data->metadata);
+		tracker_sparql_builder_predicate (data->metadata, "a");
+		tracker_sparql_builder_object (data->metadata, "nco:Contact");
+
+		tracker_sparql_builder_predicate (data->metadata, "nco:fullname");
+		tracker_sparql_builder_object_unvalidated (data->metadata, str);
+		tracker_sparql_builder_object_blank_close (data->metadata);
+		break;
+	case ABW_PARSER_TAG_DESCRIPTION:
+		tracker_sparql_builder_predicate (data->metadata, "nie:comment");
+		tracker_sparql_builder_object_unvalidated (data->metadata, str);
+		break;
+	case ABW_PARSER_TAG_GENERATOR:
+		tracker_sparql_builder_predicate (data->metadata, "nie:generator");
+		tracker_sparql_builder_object_unvalidated (data->metadata, str);
+		break;
+	case ABW_PARSER_TAG_KEYWORDS:
+	{
+		char *lasts, *keyword;
+
+		for (keyword = strtok_r (str, ",; ", &lasts); keyword;
+		     keyword = strtok_r (NULL, ",; ", &lasts)) {
+			tracker_sparql_builder_predicate (data->metadata, "nie:keyword");
+			tracker_sparql_builder_object_unvalidated (data->metadata, keyword);
+		}
+	}
+		break;
+	default:
+		break;
+	}
+
+	if (data->in_text) {
+		if (G_UNLIKELY (!data->content)) {
+			data->content = g_string_new ("");
+		}
+
+		g_string_append_len (data->content, text, text_len);
+	}
+
+	data->cur_tag = ABW_PARSER_TAG_UNHANDLED;
+	g_free (str);
+}
+
+static GMarkupParser parser = {
+	abw_parser_start_elem,
+	NULL,
+	abw_parser_text,
+	NULL, NULL
+};
 
 static void
 extract_abw (const gchar          *uri,
              TrackerSparqlBuilder *preupdate,
              TrackerSparqlBuilder *metadata)
 {
-	FILE *f;
-	gchar *filename;
+	GMappedFile *file;
+	gchar *filename, *contents;
+	GError *error = NULL;
+	gboolean retval = FALSE;
+	gsize len;
 
-	filename = g_filename_from_uri (uri, NULL, NULL);
-	f = tracker_file_open (filename, "r", TRUE);
+	filename = g_filename_from_uri (uri, NULL, &error);
+
+	if (error) {
+		g_warning ("Could not get filename: %s\n", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	file = g_mapped_file_new (filename, FALSE, &error);
 	g_free (filename);
 
-	if (f) {
-		gchar  *line;
-		gsize  length;
-		gssize read_char;
+	if (error) {
+		g_warning ("Could not mmap abw file: %s\n", error->message);
+		g_error_free (error);
+		return;
+	}
 
-		line = NULL;
-		length = 0;
+	contents = g_mapped_file_get_contents (file);
+	len = g_mapped_file_get_length (file);
+
+	if (contents) {
+		GMarkupParseContext *context;
+		AbwParserData data = { 0 };
+
+		data.metadata = metadata;
+		data.preupdate = preupdate;
 
 		tracker_sparql_builder_predicate (metadata, "a");
 		tracker_sparql_builder_object (metadata, "nfo:Document");
 
-		while ((read_char = tracker_getline (&line, &length, f)) != -1) {
-			if (g_str_has_suffix (line, "</m>\n")) {
-				line[read_char - 5] = '\0';
+		context = g_markup_parse_context_new (&parser, 0, &data, NULL);
+		g_markup_parse_context_parse (context, contents, len, &error);
+
+		if (error) {
+			g_warning ("Could not parse abw file: %s\n", error->message);
+			g_error_free (error);
+		} else {
+			if (data.content) {
+				tracker_sparql_builder_predicate (metadata, "nie:plainTextContent");
+				tracker_sparql_builder_object_unvalidated (metadata, data.content->str);
+				g_string_free (data.content, TRUE);
 			}
 
-			if (g_str_has_prefix (line, "<m key=\"dc.title\">")) {
-				tracker_sparql_builder_predicate (metadata, "nie:title");
-				tracker_sparql_builder_object_unvalidated (metadata, line + 18);
-			} else if (g_str_has_prefix (line, "<m key=\"dc.subject\">")) {
-				tracker_sparql_builder_predicate (metadata, "nie:subject");
-				tracker_sparql_builder_object_unvalidated (metadata, line + 20);
-			} else if (g_str_has_prefix (line, "<m key=\"dc.creator\">")) {
-				tracker_sparql_builder_predicate (metadata, "nco:creator");
-				tracker_sparql_builder_object_unvalidated (metadata, line + 20);
-			} else if (g_str_has_prefix (line, "<m key=\"abiword.keywords\">")) {
-				gchar *keywords = g_strdup (line + 26);
-				char *lasts, *keyw;
-
-				for (keyw = strtok_r (keywords, ",; ", &lasts); keyw;
-				     keyw = strtok_r (NULL, ",; ", &lasts)) {
-					tracker_sparql_builder_predicate (metadata, "nie:keyword");
-					tracker_sparql_builder_object_unvalidated (metadata, keyw);
-				}
-
-				g_free (keywords);
-			} else if (g_str_has_prefix (line, "<m key=\"dc.description\">")) {
-				tracker_sparql_builder_predicate (metadata, "nie:comment");
-				tracker_sparql_builder_object_unvalidated (metadata, line + 24);
-			}
-
-			g_free (line);
-			line = NULL;
-			length = 0;
+			retval = TRUE;
 		}
 
-		if (line) {
-			g_free (line);
-		}
-
-		tracker_file_close (f, FALSE);
+		g_markup_parse_context_free (context);
 	}
+
+	g_mapped_file_unref (file);
 }
 
 TrackerExtractData *
