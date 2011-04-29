@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2011-04-14 11:16+0000\n"
-"PO-Revision-Date: 2011-04-16 18:29+0200\n"
+"POT-Creation-Date: 2011-04-28 15:13+0000\n"
+"PO-Revision-Date: 2011-04-29 06:44+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -576,15 +576,15 @@ msgstr "Zobrazuje informace o verzi"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:319
+#: ../src/tracker-extract/tracker-main.c:324
 msgid "- Extract file meta data"
 msgstr "- rozbalí metadata souboru"
 
-#: ../src/tracker-extract/tracker-main.c:328
+#: ../src/tracker-extract/tracker-main.c:333
 msgid "Filename and mime type must be provided together"
 msgstr "Název souboru a typ MIME musí být uvedeny dohromady"
 
-#: ../src/tracker-extract/tracker-main.c:342
+#: ../src/tracker-extract/tracker-main.c:347
 msgid ""
 "Options --force-internal-extractors and --force-module can't be used together"
 msgstr ""
@@ -939,8 +939,25 @@ msgstr ""
 "Uživatelské rozhraní pro vyhledávání v pracovním prostředí využívající "
 "Tracker"
 
+#. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
+#: ../src/tracker-needle/tracker-utils.vala:43
+msgid "%x"
+msgstr "%e. %B %Y"
+
+#: ../src/tracker-needle/tracker-utils.vala:47
+msgid "Today"
+msgstr "Dnes"
+
+#: ../src/tracker-needle/tracker-utils.vala:56
+msgid "Tomorrow"
+msgstr "Zítra"
+
+#: ../src/tracker-needle/tracker-utils.vala:58
+msgid "Yesterday"
+msgstr "Včera"
+
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:61
+#: ../src/tracker-needle/tracker-utils.vala:62
 #, c-format
 msgid "%ld day from now"
 msgid_plural "%ld days from now"
@@ -949,7 +966,7 @@ msgstr[1] "%ld dny od teď"
 msgstr[2] "%ld dní od teď"
 
 #. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:64
+#: ../src/tracker-needle/tracker-utils.vala:65
 #, c-format
 msgid "%ld day ago"
 msgid_plural "%ld days ago"
@@ -957,8 +974,8 @@ msgstr[0] "před %ld dnem"
 msgstr[1] "před %ld dny"
 msgstr[2] "před %ld dny"
 
-#: ../src/tracker-needle/tracker-utils.vala:76
-#: ../src/tracker-needle/tracker-utils.vala:105
+#: ../src/tracker-needle/tracker-utils.vala:77
+#: ../src/tracker-needle/tracker-utils.vala:106
 msgid "Less than one second"
 msgstr "méně než jedna sekunda"
 
