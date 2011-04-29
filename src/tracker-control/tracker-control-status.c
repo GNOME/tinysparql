@@ -193,10 +193,8 @@ miner_print_state (TrackerMinerManager *manager,
 			if (remaining_time > 0) {
 				gchar *seconds_str = tracker_seconds_to_string (remaining_time, TRUE);
 
-				remaining_time_str = g_strconcat (seconds_str,
-				                                  " ",
-				                                  _("remaining"),
-				                                  NULL);
+				/* Translators: %s is a time string */
+				remaining_time_str = g_strdup_printf (_("%s remaining"), seconds_str);
 				g_free (seconds_str);
 			} else {
 				remaining_time_str = g_strdup (_("unknown time left"));
