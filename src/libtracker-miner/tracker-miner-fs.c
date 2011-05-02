@@ -1662,71 +1662,81 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 			ctxt->builder = tracker_sparql_builder_new_update ();
 
 			do_process_file (fs, task);
-		} else {
-			g_message ("Could not process '%s': %s", uri, error->message);
+			g_free (uri);
 
+			return;
+
+		} else {
 			fs->private->total_files_notified_error++;
-
-			tracker_processing_pool_remove_task (fs->private->processing_pool, task);
-			tracker_processing_task_free (task);
-
-			item_queue_handlers_set_up (fs);
+			g_message ("Could not process '%s': %s",
+			            uri,
+			            error->message ? error->message : "No error given");
 		}
-	} else {
-		if (ctxt->urn) {
-			gboolean attribute_update_only;
+	}
 
-			attribute_update_only = GPOINTER_TO_INT (g_object_steal_qdata (G_OBJECT (task_file),
-			                                                               fs->private->quark_attribute_updated));
-			g_debug ("Updating item '%s' with urn '%s'%s",
-			         uri,
-			         ctxt->urn,
-			         attribute_update_only ? " (attributes only)" : "");
+	if (ctxt->urn) {
+		gboolean attribute_update_only;
 
-			if (!attribute_update_only) {
-				gchar *full_sparql;
+		attribute_update_only = GPOINTER_TO_INT (g_object_steal_qdata (G_OBJECT (task_file),
+		                                                               fs->private->quark_attribute_updated));
+		g_debug ("Updating item%s%s%s '%s' with urn '%s'%s",
+		         error != NULL ? " (which had extractor error '" : "",
+		         error != NULL ? (error->message ? error->message : "No error given") : "",
+		         error != NULL ? "')" : "",
+		         uri,
+		         ctxt->urn,
+		         attribute_update_only ? " (attributes only)" : "");
 
-				/* update, delete all statements inserted by miner
-				 * except for rdf:type statements as they could cause implicit deletion of user data */
-				full_sparql = g_strdup_printf ("DELETE {"
-				                               "  GRAPH <%s> {"
-				                               "    <%s> ?p ?o"
-				                               "  } "
-				                               "} "
-				                               "WHERE {"
-				                               "  GRAPH <%s> {"
-				                               "    <%s> ?p ?o"
-				                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
-				                               "  } "
-				                               "} "
-				                               "%s",
-				                               TRACKER_MINER_FS_GRAPH_URN,
-				                               ctxt->urn,
-				                               TRACKER_MINER_FS_GRAPH_URN,
-				                               ctxt->urn,
-				                               tracker_sparql_builder_get_result (ctxt->builder));
+		if (!attribute_update_only) {
+			gchar *full_sparql;
 
-				/* Note that set_sparql_string() takes ownership of the passed string */
-				tracker_processing_task_set_sparql_string (task, full_sparql);
-			} else {
-				/* Do not drop graph if only updating attributes, the SPARQL builder
-				 * will already contain the necessary DELETE statements for the properties
-				 * being updated */
-				tracker_processing_task_set_sparql (task, ctxt->builder);
-			}
+			/* update, delete all statements inserted by miner
+			 * except for rdf:type statements as they could cause implicit deletion of user data */
+			full_sparql = g_strdup_printf ("DELETE {"
+			                               "  GRAPH <%s> {"
+			                               "    <%s> ?p ?o"
+			                               "  } "
+			                               "} "
+			                               "WHERE {"
+			                               "  GRAPH <%s> {"
+			                               "    <%s> ?p ?o"
+			                               "    FILTER (?p != rdf:type && ?p != nie:contentCreated)"
+			                               "  } "
+			                               "} "
+			                               "%s",
+			                               TRACKER_MINER_FS_GRAPH_URN,
+			                               ctxt->urn,
+			                               TRACKER_MINER_FS_GRAPH_URN,
+			                               ctxt->urn,
+			                               tracker_sparql_builder_get_result (ctxt->builder));
+
+			/* Note that set_sparql_string() takes ownership of the passed string */
+			tracker_processing_task_set_sparql_string (task, full_sparql);
 		} else {
-			g_debug ("Creating new item '%s'", uri);
+			/* Do not drop graph if only updating attributes, the SPARQL builder
+			 * will already contain the necessary DELETE statements for the properties
+			 * being updated */
 			tracker_processing_task_set_sparql (task, ctxt->builder);
 		}
-
-		/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
-		 * and in this case we need to setup queue handlers again */
-		if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
-		                                              task,
-		                                              processing_pool_task_finished_cb,
-		                                              fs)) {
-			item_queue_handlers_set_up (fs);
+	} else {
+		if (error != NULL) {
+			g_debug ("Creating minimal info for new item '%s' which had error: '%s'",
+			         uri,
+			         error->message ? error->message : "No error given");
+		} else {
+			g_debug ("Creating new item '%s'", uri);
 		}
+
+		tracker_processing_task_set_sparql (task, ctxt->builder);
+	}
+
+	/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
+	 * and in this case we need to setup queue handlers again */
+	if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
+	                                              task,
+	                                              processing_pool_task_finished_cb,
+	                                              fs)) {
+		item_queue_handlers_set_up (fs);
 	}
 
 	g_free (uri);
