@@ -159,7 +159,7 @@ tracker_thumbnailer_init (void)
 	}
 
 	private->cache_proxy = g_dbus_proxy_new_sync (private->connection,
-	                                              G_DBUS_PROXY_FLAGS_NONE,
+	                                              G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES,
 	                                              NULL,
 	                                              THUMBCACHE_SERVICE,
 	                                              THUMBCACHE_PATH,
@@ -172,7 +172,7 @@ tracker_thumbnailer_init (void)
 	}
 
 	private->manager_proxy = g_dbus_proxy_new_sync (private->connection,
-	                                                G_DBUS_PROXY_FLAGS_NONE,
+	                                                G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES,
 	                                                NULL,
 	                                                THUMBMAN_SERVICE,
 	                                                THUMBMAN_PATH,
