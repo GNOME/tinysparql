@@ -171,51 +171,6 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 		                                     NULL);
 }
 
-static gboolean
-check_if_update_is_ours (TrackerSparqlConnection *con,
-                         gint                     p)
-{
-	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
-	gchar *query;
-	const gchar *p_str;
-	gboolean is_ours = FALSE;
-
-	/* We default by returning FALSE to avoid recursive updates */
-
-	/* FIXME: We should really use a:
-	 *          SELECT ... { FILTER(?id IN (1,2,3)) }
-	 *
-	 *        For efficiency when we add more updates.
-	 */
-	query = g_strdup_printf ("SELECT tracker:uri(%d) {}", p);
-        cursor = tracker_sparql_connection_query (con, query, NULL, &error);
-        g_free (query);
-
-        if (error) {
-	        g_critical ("Could not check if GraphUpdated was our last update or not: %s",
-	                    error->message ? error->message : "no error given");
-	        g_error_free (error);
-
-	        return is_ours;
-        }
-
-        tracker_sparql_cursor_next (cursor, NULL, NULL);
-        p_str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-
-        /* Crude way to check */
-        if (p_str) {
-	        if (g_ascii_strcasecmp (p_str, "http://www.tracker-project.org/temp/mfo#updatedTime") == 0) {
-		        is_ours = TRUE;
-	        }
-
-	        /* More checks for the future */
-        }
-
-        g_object_unref (cursor);
-
-        return is_ours;
-}
 
 static void
 graph_updated_cb (GDBusConnection *connection,
@@ -226,39 +181,14 @@ graph_updated_cb (GDBusConnection *connection,
                   GVariant        *parameters,
                   gpointer         user_data)
 {
-	TrackerMinerRSS *rss;
-	TrackerSparqlConnection *con;
-	GVariantIter *deletes, *inserts;
-	const gchar *c;
-	gint g, s, p, o;
-	gboolean update_is_ours = FALSE;
-
-	rss = TRACKER_MINER_RSS (user_data);
-	con = tracker_miner_get_connection (TRACKER_MINER (rss));
+	TrackerMinerRSS *miner = TRACKER_MINER_RSS (user_data);
 
 	g_message ("%s", signal_name);
 	g_message ("  Parameters:'%s'", g_variant_print (parameters, FALSE));
 
-	g_variant_get (parameters, "(&sa(iiii)a(iiii))", &c, &deletes, &inserts);
-
-	while (!update_is_ours && g_variant_iter_loop (deletes, "(iiii)", &g, &s, &p, &o)) {
-		update_is_ours |= check_if_update_is_ours (con, p);
-	}
-
-	while (!update_is_ours && g_variant_iter_loop (inserts, "(iiii)", &g, &s, &p, &o)) {
-		update_is_ours |= check_if_update_is_ours (con, p);
-	}
-
-	g_variant_iter_free (deletes);
-	g_variant_iter_free (inserts);
 	g_variant_unref (parameters);
 
-	/* Check if it is our update or not */
-	if (!update_is_ours) {
-		retrieve_and_schedule_feeds (rss);
-	} else {
-		g_message ("  Signal was for our update, doing nothing");
-	}
+	retrieve_and_schedule_feeds (miner);
 }
 
 static FeedChannelUpdateData *
