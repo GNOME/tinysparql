@@ -92,12 +92,12 @@ static GOptionEntry entries[] = {
 	{ "start", 's', 0, G_OPTION_ARG_NONE, &start,
 	  N_("Starts miners (which indirectly starts tracker-store too)"),
 	  NULL },
-	{ "backup", 'b', 0, G_OPTION_ARG_STRING, &backup,
-	  N_("Backup databases to the location provided"),
-	  N_("PATH") },
-	{ "restore", 'o', 0, G_OPTION_ARG_STRING, &restore,
-	  N_("Restore databases from the location provided"),
-	  N_("PATH") },
+	{ "backup", 'b', 0, G_OPTION_ARG_FILENAME, &backup,
+	  N_("Backup databases to the file provided"),
+	  N_("FILE") },
+	{ "restore", 'o', 0, G_OPTION_ARG_FILENAME, &restore,
+	  N_("Restore databases from the file provided"),
+	  N_("FILE") },
 	{ NULL }
 };
 
@@ -244,6 +244,43 @@ term_option_arg_func (const gchar  *option_value,
 	}
 
 	return TRUE;
+}
+
+static gboolean
+has_valid_uri_scheme (const gchar *uri)
+{
+	const gchar *s;
+
+	s = uri;
+
+	if (!g_ascii_isalpha (*s)) {
+		return FALSE;
+	}
+
+	do {
+		s++;
+	} while (g_ascii_isalnum (*s) || *s == '+' || *s == '.' || *s == '-');
+
+	return (*s == ':');
+}
+
+static gchar *
+get_uri_from_arg (const gchar *arg)
+{
+	gchar *uri;
+
+	/* support both, URIs and local file paths */
+	if (has_valid_uri_scheme (arg)) {
+		uri = g_strdup (arg);
+	} else {
+		GFile *file;
+
+		file = g_file_new_for_commandline_arg (arg);
+		uri = g_file_get_uri (file);
+		g_object_unref (file);
+	}
+
+	return uri;
 }
 
 void
@@ -550,9 +587,12 @@ tracker_control_general_run (void)
 		GDBusProxy *proxy;
 		GError *error = NULL;
 		GVariant *v;
+		gchar *uri;
+
+		uri = get_uri_from_arg (backup);
 
 		g_print ("%s\n", _("Backing up database"));
-		g_print ("  %s\n", backup);
+		g_print ("  %s\n", uri);
 
 		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
@@ -560,6 +600,8 @@ tracker_control_general_run (void)
 			g_critical ("Could not connect to the D-Bus session bus, %s",
 			            error ? error->message : "no error given.");
 			g_clear_error (&error);
+			g_free (uri);
+
 			return EXIT_FAILURE;
 		}
 
@@ -576,12 +618,14 @@ tracker_control_general_run (void)
 			g_critical ("Could not create proxy on the D-Bus session bus, %s",
 			            error ? error->message : "no error given.");
 			g_clear_error (&error);
+			g_free (uri);
+
 			return EXIT_FAILURE;
 		}
 
 		v = g_dbus_proxy_call_sync (proxy,
 		                            "Save",
-		                            g_variant_new ("(s)", backup),
+		                            g_variant_new ("(s)", uri),
 		                            G_DBUS_CALL_FLAGS_NONE,
 		                            -1,
 		                            NULL,
@@ -595,12 +639,16 @@ tracker_control_general_run (void)
 			g_critical ("Could not backup database, %s",
 			            error ? error->message : "no error given.");
 			g_clear_error (&error);
+			g_free (uri);
+
 			return EXIT_FAILURE;
 		}
 
 		if (v) {
 			g_variant_unref (v);
 		}
+
+		g_free (uri);
 	}
 
 	if (restore) {
@@ -608,9 +656,12 @@ tracker_control_general_run (void)
 		GDBusProxy *proxy;
 		GError *error = NULL;
 		GVariant *v;
+		gchar *uri;
+
+		uri = get_uri_from_arg (restore);
 
 		g_print ("%s\n", _("Restoring database from backup"));
-		g_print ("  %s\n", restore);
+		g_print ("  %s\n", uri);
 
 		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 
@@ -618,6 +669,8 @@ tracker_control_general_run (void)
 			g_critical ("Could not connect to the D-Bus session bus, %s",
 			            error ? error->message : "no error given.");
 			g_clear_error (&error);
+			g_free (uri);
+
 			return EXIT_FAILURE;
 		}
 
@@ -634,12 +687,14 @@ tracker_control_general_run (void)
 			g_critical ("Could not create proxy on the D-Bus session bus, %s",
 			            error ? error->message : "no error given.");
 			g_clear_error (&error);
+			g_free (uri);
+
 			return EXIT_FAILURE;
 		}
 
 		v = g_dbus_proxy_call_sync (proxy,
 		                            "Restore",
-		                            g_variant_new ("(s)", restore),
+		                            g_variant_new ("(s)", uri),
 		                            G_DBUS_CALL_FLAGS_NONE,
 		                            -1,
 		                            NULL,
@@ -653,12 +708,16 @@ tracker_control_general_run (void)
 			g_critical ("Could not restore database, %s",
 			            error ? error->message : "no error given.");
 			g_clear_error (&error);
+			g_free (uri);
+
 			return EXIT_FAILURE;
 		}
 
 		if (v) {
 			g_variant_unref (v);
 		}
+
+		g_free (uri);
 	}
 
 	return EXIT_SUCCESS;
