@@ -50,10 +50,10 @@ static void         miner_stopped               (TrackerMiner    *miner);
 static void         miner_paused                (TrackerMiner    *miner);
 static void         miner_resumed               (TrackerMiner    *miner);
 static void         retrieve_and_schedule_feeds (TrackerMinerRSS *miner);
-static void         change_status               (FeedsPool       *pool,
+static void         feed_fetching_cb            (FeedsPool       *pool,
                                                  FeedChannel     *feed,
                                                  gpointer         user_data);
-static void         feed_fetched                (FeedsPool       *pool,
+static void         feed_ready_cb               (FeedsPool       *pool,
                                                  FeedChannel     *feed,
                                                  GList           *items,
                                                  gpointer         user_data);
@@ -204,8 +204,8 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 	}
 
 	priv->pool = feeds_pool_new ();
-	g_signal_connect (priv->pool, "feed-fetching", G_CALLBACK (change_status), object);
-	g_signal_connect (priv->pool, "feed-ready", G_CALLBACK (feed_fetched), object);
+	g_signal_connect (priv->pool, "feed-fetching", G_CALLBACK (feed_fetching_cb), object);
+	g_signal_connect (priv->pool, "feed-ready", G_CALLBACK (feed_ready_cb), object);
 	priv->now_fetching = 0;
 
 	g_message ("Listening for GraphUpdated changes on D-Bus interface...");
@@ -285,9 +285,9 @@ feed_change_updated_interval (TrackerMinerRSS *miner,
 }
 
 static void
-change_status (FeedsPool   *pool,
-               FeedChannel *feed,
-               gpointer     user_data)
+feed_fetching_cb (FeedsPool   *pool,
+                  FeedChannel *feed,
+                  gpointer     user_data)
 {
 	gint avail;
 	gdouble prog;
@@ -313,9 +313,9 @@ change_status (FeedsPool   *pool,
 }
 
 static void
-verify_item_insertion (GObject      *source,
-                       GAsyncResult *result,
-                       gpointer      user_data)
+feed_item_insert_cb (GObject      *source,
+                     GAsyncResult *result,
+                     gpointer      user_data)
 {
 	GError *error;
 	gchar *title;
@@ -335,9 +335,9 @@ verify_item_insertion (GObject      *source,
 }
 
 static void
-item_verify_reply_cb (GObject      *source_object,
-                      GAsyncResult *res,
-                      gpointer      user_data)
+feed_item_check_exists_cb (GObject      *source_object,
+                           GAsyncResult *res,
+                           gpointer      user_data)
 {
 	TrackerSparqlConnection *connection;
 	time_t t;
@@ -466,7 +466,7 @@ item_verify_reply_cb (GObject      *source_object,
 	                                        tracker_sparql_builder_get_result (sparql),
 	                                        G_PRIORITY_DEFAULT,
 	                                        NULL,
-	                                        verify_item_insertion,
+	                                        feed_item_insert_cb,
 	                                        title);
 
 	g_object_unref (cursor);
@@ -474,8 +474,8 @@ item_verify_reply_cb (GObject      *source_object,
 }
 
 static void
-check_if_save (TrackerMinerRSS *miner,
-               FeedItem        *item)
+feed_item_check_exists (TrackerMinerRSS *miner,
+                        FeedItem        *item)
 {
 	FeedChannel *feed;
 	gchar *query;
@@ -499,16 +499,16 @@ check_if_save (TrackerMinerRSS *miner,
 	tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
 	                                       query,
 	                                       NULL,
-	                                       item_verify_reply_cb,
+	                                       feed_item_check_exists_cb,
 	                                       item);
 	g_free (query);
 }
 
 static void
-feed_fetched (FeedsPool   *pool,
-              FeedChannel *feed,
-              GList       *items,
-              gpointer     user_data)
+feed_ready_cb (FeedsPool   *pool,
+               FeedChannel *feed,
+               GList       *items,
+               gpointer     user_data)
 {
 	TrackerMinerRSS *miner;
 	TrackerMinerRSSPrivate *priv;
@@ -535,7 +535,7 @@ feed_fetched (FeedsPool   *pool,
 
 	for (iter = items; iter; iter = iter->next) {
 		item = iter->data;
-		check_if_save (miner, item);
+		feed_item_check_exists (miner, item);
 	}
 }
 
