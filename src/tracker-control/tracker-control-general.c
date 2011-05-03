@@ -627,6 +627,9 @@ tracker_control_general_run (void)
 			return EXIT_FAILURE;
 		}
 
+		/* Backup/Restore can take some time */
+		g_dbus_proxy_set_default_timeout (proxy, G_MAXINT);
+
 		v = g_dbus_proxy_call_sync (proxy,
 		                            "Save",
 		                            g_variant_new ("(s)", uri),
@@ -695,6 +698,9 @@ tracker_control_general_run (void)
 
 			return EXIT_FAILURE;
 		}
+
+		/* Backup/Restore can take some time */
+		g_dbus_proxy_set_default_timeout (proxy, G_MAXINT);
 
 		v = g_dbus_proxy_call_sync (proxy,
 		                            "Restore",
