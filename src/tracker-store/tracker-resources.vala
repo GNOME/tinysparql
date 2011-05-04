@@ -308,6 +308,7 @@ public class Tracker.Resources : Object {
 		check_graph_updated_signal ();
 	}
 
+	[DBus (visible = false)]
 	public void enable_signals () {
 		Tracker.Data.add_insert_statement_callback (on_statement_inserted);
 		Tracker.Data.add_delete_statement_callback (on_statement_deleted);
@@ -315,6 +316,7 @@ public class Tracker.Resources : Object {
 		Tracker.Data.add_rollback_statement_callback (on_statements_rolled_back);
 	}
 
+	[DBus (visible = false)]
 	public void disable_signals () {
 		Tracker.Data.remove_insert_statement_callback (on_statement_inserted);
 		Tracker.Data.remove_delete_statement_callback (on_statement_deleted);
@@ -330,6 +332,7 @@ public class Tracker.Resources : Object {
 		this.disable_signals ();
 	}
 
+	[DBus (visible = false)]
 	public void unreg_batches (string old_owner) {
 		Tracker.Store.unreg_batches (old_owner);
 	}
