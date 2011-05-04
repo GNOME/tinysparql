@@ -1672,43 +1672,20 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 	uri = g_file_get_uri (task_file);
 
 	if (error) {
-		TrackerProcessingTask *first_item_task;
+		g_message ("Could not process '%s': %s", uri, error->message);
 
-		first_item_task = tracker_processing_pool_get_last_wait (fs->priv->processing_pool);
+		fs->priv->total_files_notified_error++;
 
-		/* Perhaps this is too specific to TrackerMinerFiles, if the extractor
-		 * is choking on some file, the miner will get a timeout for all files
-		 * being currently processed, but the one that is actually causing it
-		 * is the first one that was added to the processing pool, so we retry
-		 * the others.
-		 */
-		if (task != first_item_task &&
-		    (error->code == G_DBUS_ERROR_NO_REPLY ||
-		     error->code == G_DBUS_ERROR_TIMEOUT ||
-		     error->code == G_DBUS_ERROR_TIMED_OUT)) {
-			g_debug ("  Got DBus timeout error on '%s', but it could not be caused by it. Retrying file.", uri);
+		tracker_processing_pool_remove_task (fs->priv->processing_pool, task);
+		tracker_processing_task_free (task);
 
-			/* Reset the TrackerSparqlBuilder */
-			g_object_unref (ctxt->builder);
-			ctxt->builder = tracker_sparql_builder_new_update ();
-
-			do_process_file (fs, task);
-		} else {
-			g_message ("Could not process '%s': %s", uri, error->message);
-
-			fs->private->total_files_notified_error++;
-
-			tracker_processing_pool_remove_task (fs->private->processing_pool, task);
-			tracker_processing_task_free (task);
-
-			item_queue_handlers_set_up (fs);
-		}
+		item_queue_handlers_set_up (fs);
 	} else {
 		if (ctxt->urn) {
 			gboolean attribute_update_only;
 
 			attribute_update_only = GPOINTER_TO_INT (g_object_steal_qdata (G_OBJECT (task_file),
-			                                                               fs->private->quark_attribute_updated));
+			                                                               fs->priv->quark_attribute_updated));
 			g_debug ("Updating item '%s' with urn '%s'%s",
 			         uri,
 			         ctxt->urn,
@@ -1761,7 +1738,7 @@ item_add_or_update_cb (TrackerMinerFS        *fs,
 
 		/* If push_ready_task() returns FALSE, it means the actual db update was delayed,
 		 * and in this case we need to setup queue handlers again */
-		if (!tracker_processing_pool_push_ready_task (fs->private->processing_pool,
+		if (!tracker_processing_pool_push_ready_task (fs->priv->processing_pool,
 		                                              task,
 		                                              processing_pool_task_finished_cb,
 		                                              fs)) {

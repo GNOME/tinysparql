@@ -64,6 +64,8 @@ struct ProcessFileData {
 	TrackerSparqlBuilder *sparql;
 	GCancellable *cancellable;
 	GFile *file;
+	gchar *mime_type;
+	guint retried : 1;
 };
 
 struct TrackerMinerFilesPrivate {
@@ -1904,36 +1906,17 @@ process_file_data_free (ProcessFileData *data)
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
 	g_object_unref (data->file);
+	g_free (data->mime_type);
 	g_slice_free (ProcessFileData, data);
 }
 
 static void
-extractor_get_embedded_metadata_cb (GObject      *object,
-                                    GAsyncResult *res,
-                                    gpointer      user_data)
+sparql_builder_finish (ProcessFileData *data,
+                       const gchar     *preupdate,
+                       const gchar     *sparql,
+                       const gchar     *where)
 {
-	ProcessFileData *data = user_data;
-	const gchar *preupdate, *sparql, *where;
-	TrackerExtractInfo *info;
-	GError *error = NULL;
 	const gchar *uuid;
-
-	if (res) {
-		info = tracker_extract_client_get_metadata_finish (G_FILE (object), res, &error);
-
-		if (error) {
-			/* Something bad happened, notify about the error */
-			tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
-			process_file_data_free (data);
-			return;
-		}
-
-		preupdate = tracker_extract_info_get_preupdate (info);
-		sparql = tracker_extract_info_get_update (info);
-		where = tracker_extract_info_get_where_clause (info);
-	} else {
-		preupdate = sparql = where = NULL;
-	}
 
 	if (sparql && *sparql) {
 		gboolean is_iri;
@@ -2004,6 +1987,66 @@ extractor_get_embedded_metadata_cb (GObject      *object,
 		g_free (removable_device_urn);
 		g_free (uri);
 	}
+}
+
+static void
+extractor_get_embedded_metadata_cb (GObject      *object,
+                                    GAsyncResult *res,
+                                    gpointer      user_data)
+{
+	ProcessFileData *data = user_data;
+	const gchar *preupdate, *sparql, *where;
+	TrackerExtractInfo *info;
+	GError *error = NULL;
+
+	info = tracker_extract_client_get_metadata_finish (G_FILE (object), res, &error);
+
+	if (error) {
+		if (error->code == G_DBUS_ERROR_NO_REPLY ||
+		    error->code == G_DBUS_ERROR_TIMEOUT ||
+		    error->code == G_DBUS_ERROR_TIMED_OUT) {
+			gchar *uri;
+
+			uri = g_file_get_uri (data->file);
+
+			if (!data->retried) {
+				data->retried = TRUE;
+
+				g_debug ("  Got extraction DBus error on '%s'. Retrying file.", uri);
+
+				/* Try again extraction */
+				tracker_extract_client_get_metadata (data->file,
+				                                     data->mime_type,
+				                                     data->cancellable,
+				                                     extractor_get_embedded_metadata_cb,
+				                                     data);
+			} else {
+				g_warning ("  Got second extraction DBus error on '%s'. "
+				           "Adding only non-embedded metadata to the SparQL, "
+				           "the error was: %s",
+				           uri, error->message);
+
+				sparql_builder_finish (data, NULL, NULL, NULL);
+				tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
+				process_file_data_free (data);
+			}
+
+			g_free (uri);
+		} else {
+			/* Something bad happened, notify about the error */
+			tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
+			process_file_data_free (data);
+		}
+
+		g_error_free (error);
+		return;
+	}
+
+	preupdate = tracker_extract_info_get_preupdate (info);
+	sparql = tracker_extract_info_get_update (info);
+	where = tracker_extract_info_get_where_clause (info);
+
+	sparql_builder_finish (data, preupdate, sparql, where);
 
 	/* Notify about the success */
 	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
@@ -2043,6 +2086,8 @@ process_file_cb (GObject      *object,
 	uri = g_file_get_uri (file);
 	mime_type = g_file_info_get_content_type (file_info);
 	urn = miner_files_get_file_urn (TRACKER_MINER_FILES (data->miner), file, &is_iri);
+
+	data->mime_type = g_strdup (mime_type);
 
 	tracker_sparql_builder_insert_silent_open (sparql, NULL);
 	tracker_sparql_builder_graph_open (sparql, TRACKER_MINER_FS_GRAPH_URN);
@@ -2111,7 +2156,8 @@ process_file_cb (GObject      *object,
 	} else {
 		/* Otherwise, don't request embedded metadata extraction. */
 		g_debug ("Avoiding embedded metadata request for uri '%s'", uri);
-		extractor_get_embedded_metadata_cb (NULL, NULL, user_data);
+		sparql_builder_finish (data, NULL, NULL, NULL);
+		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, NULL);
 	}
 
 	g_object_unref (file_info);
