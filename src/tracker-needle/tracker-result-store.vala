@@ -92,6 +92,8 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 			cursor = yield query.perform_async (op.node.query.type, op.node.query.match, op.node.query.args, cancellable);
 
+			cancellable.set_error_if_cancelled ();
+
 			for (i = op.offset; i < op.offset + 100; i++) {
 				ResultNode *result;
 				TreeIter iter;
@@ -133,7 +135,9 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 
 			running_operations.remove (op);
 		} catch (GLib.IOError ie) {
-			warning ("Could not load items: %s\n", ie.message);
+			if (!cancellable.is_cancelled ()) {
+				warning ("Could not load items: %s\n", ie.message);
+			}
 			return;
 		}
 
@@ -198,8 +202,11 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 			query.criteria = _search_term;
 
 			count = yield query.get_count_async (query_data.type, query_data.match, cancellable);
+			cancellable.set_error_if_cancelled ();
 		} catch (GLib.IOError ie) {
-			warning ("Could not get count: %s\n", ie.message);
+			if (!cancellable.is_cancelled ()) {
+				warning ("Could not get count: %s\n", ie.message);
+			}
 			return;
 		}
 
@@ -297,16 +304,11 @@ public class Tracker.ResultStore : Gtk.TreeModel, GLib.Object {
 		set {
 			int i;
 
+			cancel_search ();
 			_search_term = value;
-
-			if (cancellable != null) {
-				cancellable.cancel ();
-				cancellable = null;
-			}
 
 			cancellable = new Cancellable ();
 
-			clear_results ();
 			this.active = true;
 
 			categories = new GenericArray<CategoryNode> ();
