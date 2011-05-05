@@ -1,3 +1,35 @@
+NEW in 0.10.12 - 2011-05-05
+===========================
+
+The changes are:
+
+  * New Feature: Now tracker-control has --backup and --restore options
+  * New Feature: Now tracker-miner-rss has an --add-feed option
+  * Fixes: GB#520670, Timestring not internationalized
+  * Fixes: GB#633105, Abiword extractor doesn't extract file contents
+  * Fixes: GB#397205, Type icons not updated on icon theme change
+  * Fixes: NB#249338, Insert nfo:FileDataObject in case extraction of a file fails
+  * libtracker-extract: Fixed encoding guessing, make sure we init/shutdown locale module
+  * libtracker-miner: Don't load thumbnailer service properties over D-Bus
+  * tracker-store: Added checks to Backup method target file so it is a real URI
+  * tracker-control: Added --backup and --restore
+  * tracker-miner-rss: Fixed crash trying to cast TrackerSparqlConnection to TrackerMinerRSS
+  * tracker-miner-rss: Fixed recursive check with mfo:updatedTime GraphUpdated signal
+  * tracker-miner-rss: Fixed ASK SPARQL to check true/false not 0/1
+  * tracker-miner-rss: Improved logging/debugging
+
+Translations:
+
+  * Updated cs: Marek Černocký
+  * Updated de: Mario Blättermann
+  * Updated es: Daniel Mustieles
+  * Updated sl: Andrej Žnidaršič
+
+Notes:
+
+  None
+
+
 NEW in 0.10.11 - 2011-04-28
 ===========================
 
