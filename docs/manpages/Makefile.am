@@ -38,12 +38,12 @@ man_MANS = \
 	$(tmrss) \
 	$(tsb) \
 	$(tn) \
-	$(ta) \
 	$(tp)
 
 # Make sure even disabled manpages get distributed
 EXTRA_DIST = \
 	$(common) \
-	tracker-search-bar.1 \
-	tracker-preferences.1 \
-	tracker-needle.1
+	$(tmrss) \
+	$(tsb) \
+	$(tn) \
+	$(tp)
