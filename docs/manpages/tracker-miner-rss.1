@@ -1,0 +1,54 @@
+.TH tracker-miner-rss 1 "September 2009" GNU "User Commands"
+
+.SH NAME
+tracker-miner-rss \- Used to populate Tracker with RSS feed data.
+
+.SH SYNOPSIS
+\fBtracker-miner-rss\fR [\fIOPTION\fR...]
+
+.SH DESCRIPTION
+.B tracker-miner-rss
+is not supposed to be run by the user since it is started by
+its .desktop file when the user logs in. It can also be started
+manually of course for debugging purposes. You can not run more than
+one instance of this at the same time.
+
+.B tracker-miner-rss
+mines information about RSS feeds only.
+
+.SH OPTIONS
+.TP
+.B \-?, \-\-help
+Show summary of options.
+.TP
+.B \-V, \-\-version
+Returns the version of this binary.
+.TP
+.B \-v, \-\-verbosity={0|1|2|3}
+Sets the logging level, 0=errors, 1=minimal, 2=detailed, 3=debug.
+.TP
+.B \-a, \-\-add-feed=URL
+Adds a feed to the Tracker store. This must be used with 
+.B \-\-title
+option. An examples of such a URL would be:
+
+  http://planet.gnome.org/atom.xml
+
+  http://newsrss.bbc.co.uk/rss/sportplayer_uk_edition/motorsport/rss.xml
+
+  ...
+
+You can use
+.B tracker-search --feeds
+to get the latest feed information.
+
+.TP
+.B \-t, \-\-title=STRING
+The title to use when adding a feed (see the
+.B \-\-add-feed
+option).
+
+.SH SEE ALSO
+.BR tracker-store (1),
+.BR tracker-info (1),
+.BR tracker-search (1).
