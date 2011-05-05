@@ -816,7 +816,9 @@ extract_gupnp_dlna (const gchar          *uri,
 
 		extract_metadata (&extractor, uri, preupdate, metadata, &artist, &album, &scount);
 
-		gst_tag_list_free (extractor.tags);
+		if (extractor.tags) {
+			gst_tag_list_free (extractor.tags);
+		}
 		gst_discoverer_stream_info_list_free (streams);
 		g_free (artist);
 		g_free (album);
